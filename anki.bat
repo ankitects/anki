@@ -1,0 +1,2 @@
+python anki
+pause

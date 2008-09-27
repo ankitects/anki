@@ -1,0 +1,38 @@
+Anki for Linux
+-------------------------------------
+
+Prerequisites:
+
+1. A recent python (2.4 should be fine)
+2. libqt4.2+
+3. python-qt/pyqt 4.2+
+4. sqlalchemy 0.4.1+
+5. simplejson 1.7.3+
+6: pysqlite2 1.3.0 or python2.5
+
+If your version of Debian/Ubuntu is not new enough, it will include an old
+copy of python-qt. You must have at least python-qt 4.2 to run Anki.
+
+For graph generation:
+
+1. python-numpy (numpy)
+2. python-matplotlib (matplotlib)
+
+The most recent release of matplotlib is broken. Downgrade for now.
+
+For furigana generation:
+
+1. kakasi
+
+To install:
+
+1. cd; tar xzf ankiqt<...>.tgz
+2. cd ankit<...>/libanki
+3. sudo python setup.py install
+4. cd ..; sudo python setup.py install
+5. anki
+
+For more information and the latest version, please see the website at:
+
+http://ichi2.net/anki/
+

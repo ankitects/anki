@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import os, sys
+
+if __name__ == "__main__":
+    try:
+        modDir=os.path.dirname(os.path.abspath(__file__))
+        runningDir=os.path.split(modDir)[0]
+    except NameError:
+        # py2exe
+        runningDir=os.path.dirname(sys.argv[0])
+        modDir=runningDir
+
+    # set up paths for local development
+    sys.path.insert(0, os.path.join(modDir, "libanki"))
+    sys.path.insert(0, os.path.join(os.path.join(modDir, ".."), "libanki"))
+
+    import ankiqt
+    #import profile
+    #profile.run("ankiqt.run()", sort="cumulative")
+    ankiqt.run()

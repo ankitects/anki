@@ -1,0 +1,645 @@
+<ui version="4.0" >
+ <class>Preferences</class>
+ <widget class="QDialog" name="Preferences" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>532</width>
+    <height>531</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Preferences</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2" >
+   <item>
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab_1" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>510</width>
+        <height>449</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Language, Fonts and Colours</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout" >
+       <item>
+        <layout class="QVBoxLayout" >
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>&lt;h1>Interface language&lt;/h1>The language for the user interface: dialogs, menus, etc.</string>
+           </property>
+           <property name="wordWrap" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="interfaceLang" >
+           <property name="minimumSize" >
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_2" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>&lt;h1>Standard fonts&lt;/h1>See 'display properties' for deck specific font preferences.</string>
+           </property>
+           <property name="wordWrap" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="0" column="2" >
+            <widget class="QSpinBox" name="interfaceSize" >
+             <property name="maximum" >
+              <number>300</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="label_9" >
+             <property name="text" >
+              <string>Last card</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QFontComboBox" name="interfaceFamily" >
+             <property name="maximumSize" >
+              <size>
+               <width>170</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QFontComboBox" name="lastCardFamily" >
+             <property name="maximumSize" >
+              <size>
+               <width>170</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_8" >
+             <property name="text" >
+              <string>Interface</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" >
+            <widget class="QSpinBox" name="lastCardSize" >
+             <property name="maximum" >
+              <number>300</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="label_10" >
+             <property name="text" >
+              <string>Card editor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" >
+            <widget class="QFontComboBox" name="editFamily" >
+             <property name="maximumSize" >
+              <size>
+               <width>170</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" >
+            <widget class="QSpinBox" name="editSize" >
+             <property name="minimum" >
+              <number>6</number>
+             </property>
+             <property name="maximum" >
+              <number>20</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>&lt;h1>Standard colours&lt;/h1>These colours are used for all decks.</string>
+           </property>
+           <property name="wordWrap" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="0" column="1" >
+            <widget class="QPushButton" name="interfaceColour" >
+             <property name="text" >
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_13" >
+             <property name="text" >
+              <string>Interface colour</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QPushButton" name="lastCardColour" >
+             <property name="text" >
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="label_14" >
+             <property name="text" >
+              <string>Last card colour</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="label_15" >
+             <property name="text" >
+              <string>Background colour</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" >
+            <widget class="QPushButton" name="backgroundColour" >
+             <property name="text" >
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>453</width>
+        <height>443</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Autosave and Synchronisation</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" >
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="spacing" >
+            <number>12</number>
+           </property>
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_4" >
+             <property name="text" >
+              <string>&lt;h1>Autosaving&lt;/h1>Anki can save your progress automatically.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="1" column="0" >
+              <widget class="QCheckBox" name="saveAfterEvery" >
+               <property name="text" >
+                <string>Save after answering</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="QSpinBox" name="saveAfterEveryNum" />
+             </item>
+             <item row="0" column="0" >
+              <widget class="QCheckBox" name="saveWhenClosing" >
+               <property name="text" >
+                <string>Save when closing</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" >
+              <widget class="QLabel" name="label_5" >
+               <property name="text" >
+                <string>cards</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <widget class="QCheckBox" name="saveAfterAdding" >
+               <property name="text" >
+                <string>Save after adding</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" >
+              <widget class="QSpinBox" name="saveAfterAddingNum" />
+             </item>
+             <item row="2" column="2" >
+              <widget class="QLabel" name="label_7" >
+               <property name="text" >
+                <string>facts</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_16" >
+             <property name="text" >
+              <string>&lt;h1>Synchronisation&lt;/h1>Synchronisation enables you to access your deck from the web and your mobile phone. You can &lt;a href="http://anki.ichi2.net/">create a free account&lt;/a>.</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="label_18" >
+               <property name="text" >
+                <string>Password</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" >
+              <widget class="QLabel" name="label_17" >
+               <property name="text" >
+                <string>Username</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QLineEdit" name="syncUser" />
+             </item>
+             <item row="3" column="0" >
+              <widget class="QCheckBox" name="syncOnClose" >
+               <property name="text" >
+                <string>Sync on close</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="QLineEdit" name="syncPass" >
+               <property name="echoMode" >
+                <enum>QLineEdit::Password</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <widget class="QCheckBox" name="syncOnOpen" >
+               <property name="text" >
+                <string>Sync on open</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>453</width>
+        <height>443</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Advanced Settings</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <layout class="QGridLayout" >
+         <item row="1" column="0" >
+          <widget class="QCheckBox" name="showToolbar" >
+           <property name="text" >
+            <string>Show toolbar on startup</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QCheckBox" name="compactEaseButtons" >
+           <property name="text" >
+            <string>Use compact answer button style</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label_6" >
+           <property name="text" >
+            <string>&lt;h1>Advanced settings&lt;/h1></string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QCheckBox" name="tallButtons" >
+           <property name="text" >
+            <string>Tall buttons (for touchscreen)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" >
+          <widget class="QCheckBox" name="editCurrentOnly" >
+           <property name="text" >
+            <string>Start Edit Deck with only current card selected</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" >
+          <widget class="QCheckBox" name="suppressEstimates" >
+           <property name="text" >
+            <string>Hide next interval when showing answer buttons</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" >
+          <widget class="QCheckBox" name="suppressLastCardInterval" >
+           <property name="text" >
+            <string>Hide interval of last card</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" >
+          <widget class="QCheckBox" name="suppressLastCardContent" >
+           <property name="text" >
+            <string>Hide question/answer of last card</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" >
+          <widget class="QCheckBox" name="showTray" >
+           <property name="text" >
+            <string>Show tray icon</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" >
+          <widget class="QCheckBox" name="showTimer" >
+           <property name="text" >
+            <string>Show timer</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>interfaceLang</tabstop>
+  <tabstop>interfaceFamily</tabstop>
+  <tabstop>interfaceSize</tabstop>
+  <tabstop>lastCardFamily</tabstop>
+  <tabstop>lastCardSize</tabstop>
+  <tabstop>editFamily</tabstop>
+  <tabstop>editSize</tabstop>
+  <tabstop>interfaceColour</tabstop>
+  <tabstop>lastCardColour</tabstop>
+  <tabstop>backgroundColour</tabstop>
+  <tabstop>saveWhenClosing</tabstop>
+  <tabstop>saveAfterEvery</tabstop>
+  <tabstop>saveAfterEveryNum</tabstop>
+  <tabstop>saveAfterAdding</tabstop>
+  <tabstop>saveAfterAddingNum</tabstop>
+  <tabstop>syncUser</tabstop>
+  <tabstop>syncPass</tabstop>
+  <tabstop>syncOnOpen</tabstop>
+  <tabstop>syncOnClose</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Preferences</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>266</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Preferences</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>334</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveAfterEvery</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>saveAfterEveryNum</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>94</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>235</x>
+     <y>160</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveAfterAdding</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>saveAfterAddingNum</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>80</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>174</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

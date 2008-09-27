@@ -1,0 +1,7 @@
+*.pyc
+*~
+*.mo
+*\#
+build
+dist
+ankiqt/forms

@@ -1,0 +1,6072 @@
+changeset:   812:f7e7fa383739
+tag:         tip
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 24 20:21:25 2008 +0900
+description:
+reset timer when deck finished
+
+
+changeset:   811:3866027bd65b
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Sep 23 03:22:01 2008 +0900
+description:
+update german translations
+
+
+changeset:   810:d75bc66e2383
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 22 19:19:37 2008 +0900
+description:
+bump version number
+
+
+changeset:   809:8403d7bb9e32
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 22 19:18:25 2008 +0900
+description:
+don't focus config button
+
+
+changeset:   808:b58ff100df95
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 22 18:07:35 2008 +0900
+description:
+add config button shortcut, shrink deck properties
+
+
+changeset:   807:7eef95b6ea70
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 22 17:41:55 2008 +0900
+description:
+add shortcut to scheduling properties
+
+
+changeset:   806:ec6c1f1cd1d7
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 15 16:19:53 2008 +0900
+description:
+add stricter time difference check to sync
+
+
+changeset:   805:98568347266b
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 22 17:07:28 2008 +0900
+description:
+update translations, make some extra fields translatable
+
+
+changeset:   804:7e03e3e9bcee
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 22 15:58:57 2008 +0900
+description:
+update translations
+
+
+changeset:   803:7446a54e3e2b
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 22 00:36:56 2008 +0900
+description:
+suppress welcome screen on no sync, on sync ensure 2.5+ seconds shown
+
+
+changeset:   802:6bc9d401bb0c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 21 21:25:33 2008 +0900
+description:
+update to new syncing code
+
+
+changeset:   801:5cd940ec0e5b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 19 18:37:04 2008 +0900
+description:
+optimizeMedia->rebuildMedia
+
+
+changeset:   800:d7bfea4832ae
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 19 15:52:29 2008 +0900
+description:
+possible fix for window off screen bugs
+
+
+changeset:   799:3d659fc0f023
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 19 11:42:33 2008 +0900
+description:
+increase precision of initial intervals, fix mac menu bars
+
+
+changeset:   798:5e121bf274a2
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 18 22:44:20 2008 +0900
+description:
+link to changes on update
+
+
+changeset:   797:d276ba511992
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 17 01:07:19 2008 +0900
+description:
+hide audio, just like images
+
+
+changeset:   796:a6110bb3d2ad
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 15 05:12:03 2008 +0900
+description:
+bump version number
+
+
+changeset:   795:5a0aef4d8b4a
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 15 02:12:16 2008 +0900
+description:
+prefs dialog tweak
+
+
+changeset:   794:164d195a23ea
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 15 01:58:31 2008 +0900
+description:
+fix timer bug, improve colours
+
+
+changeset:   793:39d95e3e2636
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 15 00:59:56 2008 +0900
+description:
+bump version
+
+
+changeset:   792:b4e396f318ee
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 14 23:52:14 2008 +0900
+description:
+add new icons, revert add cards and font buttons
+
+
+changeset:   791:487b12bb790a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 14 22:37:56 2008 +0900
+description:
+add shortcuts to tooltips in fact editor
+
+
+changeset:   790:0a4bccd3c008
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 14 22:22:16 2008 +0900
+description:
+update translations
+
+
+changeset:   789:76a01432b26c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 14 22:13:42 2008 +0900
+description:
+add shortcut key for repeating audio
+
+
+changeset:   788:9781fee21d27
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 14 22:04:53 2008 +0900
+description:
+implement timer
+
+
+changeset:   787:9fe8ad6c18bc
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 14 15:20:15 2008 +0900
+description:
+add media dir optimization support
+
+
+changeset:   786:d222970fd673
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 12 22:30:34 2008 +0900
+description:
+merge daily & global stats, remove mode indicator, remove distracted time
+
+
+changeset:   785:617724d51e53
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 12 22:28:02 2008 +0900
+description:
+add hooks to editor
+
+
+changeset:   784:006188aeaf53
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 10 00:06:10 2008 +0900
+description:
+update 'no problems found' message, don't warn about failed fixes
+
+
+changeset:   783:f2e1209c1f2e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 07 01:04:26 2008 +0900
+description:
+add debian diff
+
+
+changeset:   782:64bbc71bf76e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 07 00:04:58 2008 +0900
+description:
+update spanish translations
+
+
+changeset:   781:c3fa61627da3
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 23:50:47 2008 +0900
+description:
+bump version number
+
+
+changeset:   780:b184386be21a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 23:44:36 2008 +0900
+description:
+new resize/move that should work on all platforms, don't set c+w on mac
+
+
+changeset:   779:b3ccd75b96f2
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 22:28:00 2008 +0900
+description:
+change scheduling options
+
+
+changeset:   778:ece55e98a4ea
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 22:12:59 2008 +0900
+description:
+ensure window is visible (based on patch by David Knaack)
+
+
+changeset:   777:d1b3a6ab2c02
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 21:10:59 2008 +0900
+description:
+add space in deck message
+
+
+changeset:   776:36f2787b1fc7
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 20:38:28 2008 +0900
+description:
+update priority url
+
+
+changeset:   775:0ab9164b739b
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 19:01:02 2008 +0900
+description:
+add max new cards and new card scheduling options
+
+
+changeset:   774:f28a50fae006
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 18:31:54 2008 +0900
+description:
+remove debian dir
+
+
+changeset:   773:7b21553ea9a2
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 06 18:28:12 2008 +0900
+description:
+center deck finished message but left align it
+
+
+changeset:   772:1eb6c7d80ae1
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 03 15:22:39 2008 +0900
+description:
+add 'period' translation
+
+
+changeset:   771:512b057f1dae
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 03 15:00:59 2008 +0900
+description:
+disable undo answer on deck close
+
+
+changeset:   770:35a2f14d440d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 03 04:35:41 2008 +0900
+description:
+bump version number
+
+
+changeset:   769:efa4c5a348dc
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 03 03:38:51 2008 +0900
+description:
+updated german translations from [Bananeweizen at gmx dot de]
+
+
+changeset:   768:9075d5825e29
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Sep 02 16:14:09 2008 +0900
+description:
+factor pruneHTML into libanki
+
+
+changeset:   767:847d8f4cf083
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 23:40:03 2008 +0900
+description:
+update translations
+
+
+changeset:   766:dbf82a0cb361
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 23:39:46 2008 +0900
+description:
+fix menus
+
+
+changeset:   765:554a0025ef38
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 19:41:26 2008 +0900
+description:
+bump version number
+
+
+changeset:   764:c409cc86cd13
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 19:40:58 2008 +0900
+description:
+strip leading/trailing whitespace
+
+
+changeset:   763:0bddf38529bd
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 18:32:52 2008 +0900
+description:
+fix problems escaping html (causing extra spaces to be inserted)
+
+
+changeset:   762:0920d0d6c6b4
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 17:50:26 2008 +0900
+description:
+fix problem recording minimum spacing with periods
+
+
+changeset:   761:44c72b39eeee
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 12:23:15 2008 +0900
+description:
+fix capitalization in menus
+
+
+changeset:   760:937d1e207f64
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 00:32:55 2008 +0900
+description:
+don't hide last card msg on fin, center msg, only stop double card if not due
+
+
+changeset:   759:4c6b2407a30d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 00:17:31 2008 +0900
+description:
+check card dupes via id, not object, reset current card on auto
+
+
+changeset:   758:049cbcc348a0
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Sep 01 00:10:03 2008 +0900
+description:
+strip single empty paragraph
+
+
+changeset:   757:3daa78ee8bd8
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 23:59:49 2008 +0900
+description:
+change html escaping to preserve colours
+
+
+changeset:   756:30266124390a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 22:56:45 2008 +0900
+description:
+update spanish translations
+
+
+changeset:   755:2f0e3f5a3bc4
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 22:49:48 2008 +0900
+description:
+bump version number
+
+
+changeset:   754:a700b3ec1478
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 22:49:35 2008 +0900
+description:
+make about dialog translatable
+
+
+changeset:   753:1a4141980049
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 22:49:18 2008 +0900
+description:
+another patch from Nathanael Law: fix a bug & enable/disable move up/down buttons
+
+
+changeset:   752:a693cfbcbbad
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 22:48:48 2008 +0900
+description:
+expunge card on answering, since we update db directly
+
+
+changeset:   751:18bd8dac5361
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 21:29:15 2008 +0900
+description:
+hide edit cards dialog first, to show we've received the event
+
+
+changeset:   750:b72657d4ef56
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 17:22:11 2008 +0900
+description:
+show full path of recent file in status bar
+patch from Misha Penkov
+
+
+changeset:   749:733382d7738a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 31 17:14:32 2008 +0900
+description:
+add support for changing order of card models and field models
+- thanks to Nathanael Law for the patch
+- updated patch to mark facts/models modified so changes sync
+- fixed tab order in model properties dialog
+
+
+changeset:   748:0a43022bc866
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 29 21:21:10 2008 +0900
+description:
+add comment about having same name
+
+
+changeset:   747:e4439acc05ed
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 29 21:10:06 2008 +0900
+description:
+bump version number
+
+
+changeset:   746:c190c5b3c560
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 29 20:42:48 2008 +0900
+description:
+change to temp dir before downloading auto updater
+
+
+changeset:   745:c195b694e298
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 29 20:25:08 2008 +0900
+description:
+fix question/answer regeneration (thanks to nathaneal law)
+
+
+changeset:   744:543f4cda569c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 28 17:44:33 2008 +0900
+description:
+model merging
+
+
+changeset:   743:725e383f8f41
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 25 19:06:43 2008 +0900
+description:
+call set_menubar_icons() after app init
+
+
+changeset:   742:394e8a22ce01
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 25 17:53:06 2008 +0900
+description:
+bump version
+
+
+changeset:   741:1006b32430e8
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 25 15:19:20 2008 +0900
+description:
+update the stats whenever getQuestion is called
+
+
+changeset:   740:c828fb3ef89b
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 25 00:58:57 2008 +0900
+description:
+work around an osx bug
+
+
+changeset:   739:3985b6a1302d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 25 00:02:34 2008 +0900
+description:
+change picture icon again
+
+
+changeset:   738:b3df7d8ec7db
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 25 00:02:27 2008 +0900
+description:
+change i
+
+
+changeset:   737:d968b7a2dbc6
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 24 23:59:27 2008 +0900
+description:
+change icon
+
+
+changeset:   736:55567faed309
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 24 23:52:32 2008 +0900
+description:
+new icons
+
+
+changeset:   735:4cf70cf64496
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 24 23:45:29 2008 +0900
+description:
+new icons, improve integrity check
+
+
+changeset:   734:89d91e0d3417
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 24 16:10:53 2008 +0900
+description:
+disable advanced menu when deck not open
+
+
+changeset:   733:bda2c7cf46b6
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 24 16:08:17 2008 +0900
+description:
+integrity check, update handling
+
+
+changeset:   732:b583fe72e197
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 23 13:25:19 2008 +0900
+description:
+rename 'ready to add', as silly in editor
+
+
+changeset:   731:f7e55fb507cd
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 23 05:53:29 2008 +0900
+description:
+create media dir when latex added
+
+
+changeset:   730:fcde5237f8c9
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 23 00:32:02 2008 +0900
+description:
+force info dialog in add cards to a fixed height
+
+
+changeset:   729:547750d4f09b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 22 18:36:49 2008 +0900
+description:
+bump version number
+
+
+changeset:   728:9886f22c8158
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 22 18:36:10 2008 +0900
+description:
+fix japanese reading shortcut
+
+
+changeset:   727:1e9d3fa9f9aa
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 22 17:23:36 2008 +0900
+description:
+fix undo, update card count when refreshing page
+
+
+changeset:   726:1e742db56ddd
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 22 04:11:00 2008 +0900
+description:
+increase size of about box
+
+
+changeset:   725:fabe74dee1f6
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 22 03:38:54 2008 +0900
+description:
+update translations
+
+
+changeset:   724:07593ce4bd07
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 22 02:19:05 2008 +0900
+description:
+bump version number
+
+
+changeset:   723:d71740fc991a
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 22 02:17:23 2008 +0900
+description:
+off by one character movement introduced in qt4.4
+
+
+changeset:   722:9cebb7e911ab
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 21 17:53:32 2008 +0900
+description:
+add help for duplicate & missing fields in add cards dialog
+
+
+changeset:   721:b8b13cc6a780
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 21 17:24:38 2008 +0900
+description:
+don't change card model order in model selector, add shortcut keys
+
+
+changeset:   720:31979af1c9ae
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 21 01:50:06 2008 +0900
+description:
+improve model properties and deck properties dialogs
+
+
+changeset:   719:bc16d6f69d8a
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 20 23:51:54 2008 +0900
+description:
+factor finished message into library
+
+
+changeset:   718:94efb87e22bb
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 19 01:07:37 2008 +0900
+description:
+since I can't keep CREDITS up to date, refer people to the changelog instead
+
+
+changeset:   717:9483d27b19cf
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 19 00:50:09 2008 +0900
+description:
+make double click work with chinese models, too
+
+
+changeset:   716:c69d7ba763dd
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 19 00:43:37 2008 +0900
+description:
+remove any pyc files before building mac version
+
+
+changeset:   715:7fb77fee1092
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 18 23:47:51 2008 +0900
+description:
+if sync fails on new, close deck
+
+
+changeset:   714:62b007f52bc1
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 15 21:14:30 2008 +0900
+description:
+update version
+
+
+changeset:   713:9b5bce251851
+parent:      711:311dfe083e2c
+parent:      712:30d6e6f86e10
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 14 15:17:50 2008 +0900
+description:
+merge
+
+
+changeset:   712:30d6e6f86e10
+parent:      708:9451eae5a208
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 14 15:17:20 2008 +0900
+description:
+add local server for convenience
+
+
+changeset:   711:311dfe083e2c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 14 15:17:05 2008 +0900
+description:
+don't show same card twice, mark expired due, fix undo, improve congrats screen
+
+
+changeset:   710:d6762d010ce6
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 03 16:10:19 2008 +0900
+description:
+from hashbang from ankiqt/__init__.py
+
+
+changeset:   709:89cc676bb1da
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 03 16:08:19 2008 +0900
+description:
+update for new libanki
+
+
+changeset:   708:9451eae5a208
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 07 23:58:51 2008 +0900
+description:
+default to tray off
+
+
+changeset:   707:7de6b86acbfc
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 07 23:57:02 2008 +0900
+description:
+possible workaround for sync colours on dark background
+
+
+changeset:   706:09497f5da843
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 07 23:46:18 2008 +0900
+description:
+bump version number
+
+
+changeset:   705:55d10f85edd1
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 07 23:43:20 2008 +0900
+description:
+typo
+
+
+changeset:   704:25f21a737e14
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 07 23:42:54 2008 +0900
+description:
+catch eof error when loading config file
+
+
+changeset:   703:9364b621e019
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 07 23:28:59 2008 +0900
+description:
+update korean translations
+
+
+changeset:   702:62631b225e67
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 06 17:55:28 2008 +0900
+description:
+bump version number
+
+
+changeset:   701:b01a614f7949
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 04 15:10:36 2008 +0900
+description:
+when reporting off clock, show amount of time off in seconds
+
+
+changeset:   700:c73fc95b6059
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 04 00:18:13 2008 +0900
+description:
+update urls
+
+
+changeset:   699:25e2f7bbfc99
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 04 00:03:36 2008 +0900
+description:
+fix tray icon not disappearing on win32
+
+
+changeset:   698:813a438a049d
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 03 17:03:54 2008 +0900
+description:
+set priorities on cards when importing
+
+
+changeset:   697:45072a766f80
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 03 16:25:46 2008 +0900
+description:
+fix problems closing/reopening add cards dialog
+
+
+changeset:   696:4ead28f37690
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 03 16:07:41 2008 +0900
+description:
+fix 'ret' in tag editor on unknown tag, fix tag editor bug
+
+
+changeset:   695:55be28f053d2
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 03 15:39:36 2008 +0900
+description:
+remove reference to 'a week' as no longer applies
+
+
+changeset:   694:e9a42c18f0ed
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 02 18:31:28 2008 +0900
+description:
+make all widgets on status bar permanent to work around bug
+
+
+changeset:   693:9f028862d92e
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 27 13:40:20 2008 +0900
+description:
+hard code foreground text colour since we control background colour in facteditor
+
+
+changeset:   692:f1339bd8841d
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 27 13:32:46 2008 +0900
+description:
+don't delete objects in their handler (setParent -> deleteLater)
+
+
+changeset:   691:4ffd57664dae
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 14 16:05:52 2008 +0900
+description:
+over a week -> over a month
+
+
+changeset:   690:65974539f177
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 13 19:07:55 2008 +0900
+description:
+fix 'play last audio'
+
+
+changeset:   689:020bda0f2977
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jun 12 17:33:31 2008 +0900
+description:
+remove event filter from tray support - don't detect minimize
+
+
+changeset:   688:336542f8b01c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jun 12 03:21:29 2008 +0900
+description:
+don't force quit on incorrect time
+
+
+changeset:   687:47734fd9517e
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jun 05 18:16:05 2008 +0900
+description:
+tray patch from richard, update desktop file
+
+
+changeset:   686:c7740f4f6761
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 15:50:11 2008 +0900
+description:
+updated korean translations
+
+
+changeset:   685:2692f9ef9f2e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 15:29:09 2008 +0900
+description:
+bump version number
+
+
+changeset:   684:d370b0cd8ef6
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 15:26:35 2008 +0900
+description:
+add option to show tray icon only on minimize
+
+
+changeset:   683:e33ef06d693d
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 15:06:07 2008 +0900
+description:
+exit if clock is off by more than 60 seconds
+
+
+changeset:   682:c56e58164b08
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 13:37:04 2008 +0900
+description:
+disable recent deck shortcuts on mac
+
+
+changeset:   681:8872d1a17734
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 13:23:04 2008 +0900
+description:
+add version info to about dialog
+
+
+changeset:   680:9976f572e7c9
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 13:12:53 2008 +0900
+description:
+add reference to missing Qt in tray.py
+
+
+changeset:   679:037049aa8e5e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 13:10:46 2008 +0900
+description:
+add missing korean po file, add patch from richard for minimize to tray
+
+
+changeset:   678:ed4f90dcdab5
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 24 13:04:02 2008 +0900
+description:
+add Korean translation from Jin Eundeok
+
+
+changeset:   677:2ed6aecb856a
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon May 19 20:25:16 2008 +0900
+description:
+if all last card content is suppressed, add a space for balance
+
+
+changeset:   676:7a0426980b71
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon May 19 19:54:37 2008 +0900
+description:
+add two point precision to average/distracted time, update model name on edit
+
+
+changeset:   675:11da1d077915
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon May 19 19:10:28 2008 +0900
+description:
+add tiff and svg image support
+
+
+changeset:   674:3a83b5c9ae3d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon May 19 18:20:24 2008 +0900
+description:
+import pkg_resources before doing anything else, to prevent mac io errors
+
+
+changeset:   673:bd93fe328314
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 19:53:23 2008 +0900
+description:
+add support for suppressing answer interval estimates, last card interval & content
+
+
+changeset:   672:c4cdc06ebd3e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 19:21:17 2008 +0900
+description:
+patch from richard colley: tray icon, show all cards, suppress update
+
+
+changeset:   671:8c7cd6b8f61a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 16:23:12 2008 +0900
+description:
+strip latex from last card display
+
+
+changeset:   670:07a90606a9a0
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 16:09:25 2008 +0900
+description:
+don't try refresh if the deck is closed during a sync
+
+
+changeset:   669:c65079dfe269
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 16:04:56 2008 +0900
+description:
+only warn about psyco on 32 bit chips
+
+
+changeset:   668:3caab8f2e6df
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 15:11:34 2008 +0900
+description:
+add jpeg and gif to available images
+
+
+changeset:   667:fdb6eb92050c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 15:10:10 2008 +0900
+description:
+catch 'bad status line' error in update.py
+
+
+changeset:   666:4df89ef2db62
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 15:08:19 2008 +0900
+description:
+setup.py: gplv3->gplv3
+
+
+changeset:   665:f89db0814665
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 15:06:52 2008 +0900
+description:
+fix 'successive' typo
+
+
+changeset:   664:04493c084299
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 18 15:05:49 2008 +0900
+description:
+patch from 'jtibbes', fix dialogs refusing to close
+
+
+changeset:   663:e6e26fa97576
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 01 19:07:47 2008 +0900
+description:
+patch from metellius: double click to choose kakasi string
+
+
+changeset:   662:99a8e08c6255
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 03 12:44:02 2008 +0900
+description:
+bump version number
+
+
+changeset:   661:b49c59542b65
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 02 22:55:16 2008 +0900
+description:
+fix typo in jp translations, add 'difficult'
+
+
+changeset:   660:ae2d26dc45b5
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 02 22:42:50 2008 +0900
+description:
+jp translation updates from ianl and wrightak
+
+
+changeset:   659:ff2530e72c22
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 02 22:07:10 2008 +0900
+description:
+bump version number
+
+
+changeset:   658:256ab58f0e48
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Apr 01 12:28:00 2008 +0900
+description:
+delay + 1 should be enough
+
+
+changeset:   657:814054d9d578
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 24 03:26:25 2008 +0900
+description:
+bump version number
+
+
+changeset:   656:18c91ef38463
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 24 03:06:46 2008 +0900
+description:
+on close, hide any modeless dialogs
+
+
+changeset:   655:170c56f6be7a
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 24 01:34:25 2008 +0900
+description:
+after deleting a field, update current card
+
+
+changeset:   654:287e97f081c1
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Mar 19 15:23:16 2008 +0900
+description:
+gpl2 -> gpl3
+
+
+changeset:   653:6a5f1c10d625
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Mar 19 15:20:56 2008 +0900
+description:
+don't flush() in reset() as reset() flushes
+
+
+changeset:   652:69da9bc66cd7
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Mar 11 18:06:12 2008 +0900
+description:
+fix sort by difficulty, ignore case in q/a sort
+
+
+changeset:   651:75aacee84734
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Mar 11 17:13:56 2008 +0900
+description:
+fix deck finished screen refresh disabling undo
+
+
+changeset:   650:ecce4a477d19
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Mar 11 17:04:45 2008 +0900
+description:
+if lastCard is defined, enable undo
+
+
+changeset:   649:f05013983d43
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 10 19:48:48 2008 +0900
+description:
+don't stop refresh timer if we don't have one
+
+
+changeset:   648:301092e5bf34
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Mar 09 03:42:33 2008 +0900
+description:
+really fix updating
+
+
+changeset:   647:1555d5fd5091
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Mar 09 03:04:23 2008 +0900
+description:
+don't multiple delay twice
+
+
+changeset:   646:61876cfadd44
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Mar 09 02:59:01 2008 +0900
+description:
+ver=0.9.5.4
+
+
+changeset:   645:e81a50783ac9
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Mar 09 01:22:39 2008 +0900
+description:
+remove incomplete dutch translation
+
+
+changeset:   644:41b7e8e50695
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Mar 08 02:42:23 2008 +0900
+description:
+favour text over html when pasting
+
+
+changeset:   643:8d3cd1edcf6a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Mar 08 01:50:31 2008 +0900
+description:
+fix cards->facts in spanish translation
+
+
+changeset:   642:c1bb1f525b2c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Mar 08 00:21:51 2008 +0900
+description:
+don't set sync name on failure, don't try to sync if no syncname
+
+
+changeset:   641:25bf6a3ed6c0
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Mar 05 11:16:43 2008 +0900
+description:
+fix broken anki updater
+
+
+changeset:   640:9aa9d11fee4c
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 03 22:52:02 2008 +0900
+description:
+import importing module rather than *
+
+
+changeset:   639:0d66b751eded
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 03 22:46:29 2008 +0900
+description:
+ver=0.9.5.3
+
+
+changeset:   638:fcbed8ee3554
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 03 22:46:00 2008 +0900
+description:
+update spanish translations
+
+
+changeset:   637:66a505cd7f62
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 29 02:50:09 2008 +0900
+description:
+handle duplicate model names
+
+
+changeset:   636:33e20730643b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 29 02:04:10 2008 +0900
+description:
+bump version number
+
+
+changeset:   635:16acd561b764
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 29 00:36:57 2008 +0900
+description:
+add missing 'welcome to anki' message to translations
+
+
+changeset:   634:1faefbcaa59a
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 29 00:12:40 2008 +0900
+description:
+update ja translation
+
+
+changeset:   633:269aea3b848f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 29 00:05:16 2008 +0900
+description:
+bump version number, update french translation
+
+
+changeset:   632:b7357ed5d95a
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Feb 28 03:28:35 2008 +0900
+description:
+bump version number
+
+
+changeset:   631:5fd11be30dbc
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Feb 28 02:52:41 2008 +0900
+description:
+add saveas, coloured pending display
+
+
+changeset:   630:67bb8ce2c1ce
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Feb 28 00:26:40 2008 +0900
+description:
+cards->facts in model delete msg
+
+
+changeset:   629:e55d9eebb7cc
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Feb 28 00:19:46 2008 +0900
+description:
+don't order by card ordinal when sorting, add reset card/fact support
+
+
+changeset:   628:c59c34f13b48
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Feb 26 17:16:35 2008 +0900
+description:
+add sorting by question/answer
+
+
+changeset:   627:461973990205
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 25 19:02:10 2008 +0900
+description:
+allow 'return' to update current search
+
+
+changeset:   626:99f6db6b344c
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 25 16:16:29 2008 +0900
+description:
+add support for adding tags and duplicate tags to importing
+
+
+changeset:   625:411d8b9ceb56
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 25 15:34:21 2008 +0900
+description:
+run updater with full path
+
+
+changeset:   624:429f3afd8f61
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 23 19:35:51 2008 +0900
+description:
+set backup dir based on config dir
+
+
+changeset:   623:a421e2b4a54d
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 23 18:05:20 2008 +0900
+description:
+update priorities explanations, languages
+
+
+changeset:   622:217f56ab5043
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 23 18:03:19 2008 +0900
+description:
+remove horizontal scrollbar from q/aformat, fix reporting of current card in stats
+
+
+changeset:   621:cc8237d5cd7f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 23 15:54:25 2008 +0900
+description:
+when no current card, show all cards in editor. change locking behaviour
+
+
+changeset:   620:6c14fdfb5323
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 22 22:40:49 2008 +0900
+description:
+get default dir from most recent file, not oldest file
+
+
+changeset:   619:2928ed31eaa7
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 22 22:23:37 2008 +0900
+description:
+if unable to load the same deck, load another
+
+
+changeset:   618:f33307fa7f31
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 22 22:16:41 2008 +0900
+description:
+lock the deck post-sync
+
+
+changeset:   617:313c0f36541b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 22 21:52:30 2008 +0900
+description:
+first time->completely forgot, fix bug in previous patch
+
+
+changeset:   616:22b0f59cb617
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 22 21:48:44 2008 +0900
+description:
+fixed 'file referenced before assignment' bug
+
+
+changeset:   615:8645ade4917c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Feb 21 01:09:12 2008 +0900
+description:
+add more years to graphs
+
+
+changeset:   614:2834fa64adc2
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Feb 21 00:46:46 2008 +0900
+description:
+work when updating both qformat and aformat
+
+
+changeset:   613:56d1edd3e179
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Feb 21 00:08:10 2008 +0900
+description:
+fix ordering by card ordinal, mac fix/hack
+
+
+changeset:   612:fcd2f16cfa6b
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 20 22:22:33 2008 +0900
+description:
+update pysqlite version, fix debian rules
+
+
+changeset:   611:c8129b1081c5
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 20 21:39:26 2008 +0900
+description:
+bump version number
+
+
+changeset:   610:deca5ed0f9aa
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 20 21:10:23 2008 +0900
+description:
+operate on all facts, not just visible ones
+
+
+changeset:   609:63027d29aa27
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 20 20:49:16 2008 +0900
+description:
+set homedir to c:\anki if not writeable
+
+
+changeset:   608:85d0975a91f2
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 20 03:26:08 2008 +0900
+description:
+make sure to flush changes before refreshing card/fact
+
+
+changeset:   607:1e3c0d610973
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 20 03:20:32 2008 +0900
+description:
+reload prefs every time
+
+
+changeset:   606:922ff4115386
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Feb 19 15:54:54 2008 +0900
+description:
+simplejson 0.7.3->1.7.3
+
+
+changeset:   605:4b6968ffe91b
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Feb 19 01:46:47 2008 +0900
+description:
+store successive for undo
+
+
+changeset:   604:225d9ad1d6ef
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 18 20:15:11 2008 +0900
+description:
+change status layout
+
+
+changeset:   603:161b247a7b30
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 18 17:22:14 2008 +0900
+description:
+when undoing, set reps back one
+
+
+changeset:   602:4bb3c0c8e68e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Feb 17 03:05:07 2008 +0900
+description:
+fix synconclose
+
+
+changeset:   601:583c9d0bb649
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 23:24:38 2008 +0900
+description:
+bump version number
+
+
+changeset:   600:53e54783949d
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 23:18:21 2008 +0900
+description:
+fix renaming
+
+
+changeset:   599:0889ff31a330
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 21:19:40 2008 +0900
+description:
+fix tags in add cards, unable to change language bug
+
+
+changeset:   598:6b222c73c027
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 05:22:28 2008 +0900
+description:
+update readme
+
+
+changeset:   597:671f4a9a3ea7
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 05:21:26 2008 +0900
+description:
+update deb reqs
+
+
+changeset:   596:99d7befeb338
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 04:58:46 2008 +0900
+description:
+fix lookup
+
+
+changeset:   595:232e760b1356
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 04:46:58 2008 +0900
+description:
+update translations
+
+
+changeset:   594:946180997437
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 04:46:31 2008 +0900
+description:
+bump version
+
+
+changeset:   593:5e3e1e33199c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 04:38:49 2008 +0900
+description:
+don't set modtime when finished, don't congratulate user on failure
+
+
+changeset:   592:ea038a3dc1c4
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Feb 16 00:19:34 2008 +0900
+description:
+adjust stats layout, session->daily
+
+
+changeset:   591:927d04b55fc9
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 15 15:07:45 2008 +0900
+description:
+display old/new pending at all times, fix mac setup
+
+
+changeset:   590:0f84a5ae76d8
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 13 23:40:30 2008 +0900
+description:
+fix syncOnLoad/syncOnClose
+
+
+changeset:   589:76ffc3879164
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 13 23:05:23 2008 +0900
+description:
+sync updates, fix fact add/del on <current>, undo fix
+
+
+changeset:   588:215c01c1e153
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 13 02:39:32 2008 +0900
+description:
+when a card model is changed, update q/a on every associated card
+
+
+changeset:   587:6bb8ceb4e686
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 13 02:12:05 2008 +0900
+description:
+fix ref to tagslist
+
+
+changeset:   586:261e2f50ed95
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Feb 13 01:44:49 2008 +0900
+description:
+textChanged=True in fact editor mod, cards->facts in deckprops, fix lastSnc calc
+
+
+changeset:   585:69fd92dcb176
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 11 23:54:07 2008 +0900
+description:
+add initial spacing
+
+
+changeset:   584:2fadce8bc54b
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 11 18:06:01 2008 +0900
+description:
+connect failed card max, bump version number
+
+
+changeset:   583:e0ef97f61872
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 11 16:03:40 2008 +0900
+description:
+cardlist fix, implement syncing, don't uniquify model names
+
+
+changeset:   582:9c0d9b5a3bda
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 23:59:51 2008 +0900
+description:
+fix mac paths, make editor non-modal
+
+
+changeset:   581:54a79e90ab29
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 19:42:50 2008 +0900
+description:
+select text by default in cardlist
+
+
+changeset:   580:459cf3c246ed
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 19:36:50 2008 +0900
+description:
+detect path on win32 better, try different column sizing in cardeditor
+
+
+changeset:   579:4b26c2a0055d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 19:08:27 2008 +0900
+description:
+bump version number
+
+
+changeset:   578:bf424d1a7bab
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 16:59:02 2008 +0900
+description:
+copy file when using samples
+
+
+changeset:   577:f7df0896cbc5
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 16:52:58 2008 +0900
+description:
+backups done
+
+
+changeset:   576:68ed2ae725c5
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 16:20:42 2008 +0900
+description:
+fix autosave
+
+
+changeset:   575:540437a24331
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 16:01:17 2008 +0900
+description:
+remove saveas
+
+
+changeset:   574:3ea83bc1ee59
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 15:20:23 2008 +0900
+description:
+numeric fields, fix sorting, optimize sorting
+- sorting now detects if a field is numeric and sorts in numeric order
+- optimize query using index
+- look for .anki, not .Anki etc
+
+
+changeset:   573:54b7c2ea4c57
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 14:05:02 2008 +0900
+description:
+improve save, remove redundant isReadOnly/hasPath checks
+
+
+changeset:   572:e5361fa56134
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 14:01:39 2008 +0900
+description:
+sort numerically if column is numeric, default to sorting by created
+
+
+changeset:   571:b7d23db73c18
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Feb 04 11:33:56 2008 +0900
+description:
+update ui to reflect relative spacing, readadd spaced card count
+
+
+changeset:   570:8393c8c8e921
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Feb 03 22:30:28 2008 +0900
+description:
+call alterShortcuts after loading mainWin
+
+
+changeset:   569:c6b6924bf639
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Feb 03 03:42:24 2008 +0900
+description:
+update title bar on save, don't mark deck modified if no cards added
+
+
+changeset:   568:1f19773bef16
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Feb 03 03:28:37 2008 +0900
+description:
+add file icons back, support changing order of card models
+
+
+changeset:   567:84614f323ac2
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Feb 03 02:26:21 2008 +0900
+description:
+update import old anki file support
+
+
+changeset:   566:22f535ebe13b
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Feb 03 02:23:53 2008 +0900
+description:
+update importing to use new code
+
+
+changeset:   565:532666c996d2
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 01 20:00:46 2008 +0900
+description:
+fix save, graphs on empty, status on empty
+
+
+changeset:   564:63d909a0f80a
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 01 19:18:23 2008 +0900
+description:
+add anchor handling to main app, make welcome screen more friendly
+
+
+changeset:   563:e71c4b4e5ebe
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 01 16:50:04 2008 +0900
+description:
+remove glob locking, use file locking, create mediadir only when needed
+
+
+changeset:   562:d6a24980253b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Feb 01 15:51:46 2008 +0900
+description:
+new answer prompts
+
+
+changeset:   561:aa06776ac46d
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 31 23:20:30 2008 +0900
+description:
+orange after yellow in status bar
+
+
+changeset:   560:a412c3ae5d62
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 31 23:18:38 2008 +0900
+description:
+start of sync changes
+
+
+changeset:   559:7174b7196aa9
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 30 15:14:40 2008 +0900
+description:
+fix exporting
+
+
+changeset:   558:4a54faed295a
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 30 02:35:29 2008 +0900
+description:
+fix displayproperties
+
+
+changeset:   557:abc311cc107c
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 30 02:25:05 2008 +0900
+description:
+add hidden 'show suspended cards', make sure to reset in editor
+
+
+changeset:   556:35fab336992b
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 30 02:11:56 2008 +0900
+description:
+add fact deletion again using bulk code
+
+
+changeset:   555:868c96374041
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 30 02:04:57 2008 +0900
+description:
+use cached quesion/answer, bulk tag/delete card functions, display queue msg
+
+
+changeset:   554:c64bc72e02fb
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jan 28 02:40:53 2008 +0900
+description:
+add alex's icons
+
+
+changeset:   553:5b5f40ee3f4d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jan 28 02:39:13 2008 +0900
+description:
+don't refresh before flushing any changes
+
+
+changeset:   552:74e46f0b5485
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jan 28 00:16:00 2008 +0900
+description:
+display properties fixed
+
+
+changeset:   551:1f0866e9c336
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jan 27 23:30:25 2008 +0900
+description:
+undo/suspend/mark
+
+
+changeset:   550:0570c936bbd2
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jan 27 23:00:25 2008 +0900
+description:
+fix modelchooser/add cards
+
+
+changeset:   549:284c838234b6
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jan 27 20:56:23 2008 +0900
+description:
+implement deck properties, tweak modelproperties
+
+
+changeset:   548:14f543543e1a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jan 26 18:07:18 2008 +0900
+description:
+implement model properties, define 'spaced cards', add deck refresh support
+
+
+changeset:   547:88d7e917b9c4
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jan 25 19:08:46 2008 +0900
+description:
+editor: everything implemented
+
+
+changeset:   546:39bb5c3088aa
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 23 22:59:15 2008 +0900
+description:
+most of cardlist reimplemented
+
+
+changeset:   545:9a4be57046d9
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jan 18 20:21:43 2008 +0900
+description:
+integrate new db code, remove preview in prefs, refactor state handling, more
+- stats/sync/autosave changes
+
+
+changeset:   544:750b6c95d6a3
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 23:03:34 2008 +0900
+description:
+handle clearing of help better
+
+
+changeset:   543:a6851fcab7d7
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 22:48:27 2008 +0900
+description:
+save config file backup to correct dir
+
+
+changeset:   542:4e6bb57831dd
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 22:46:06 2008 +0900
+description:
+fix missing 'medium priority' links
+
+
+changeset:   541:ad27e34ff754
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 22:30:05 2008 +0900
+description:
+update priorities on add/edit/suspend
+
+
+changeset:   540:239502c75825
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 05:03:41 2008 +0900
+description:
+bump version number
+
+
+changeset:   539:d984f004421f
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 02:14:18 2008 +0900
+description:
+fix logic bug in autosync
+
+
+changeset:   538:8214d76bc856
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 02:10:09 2008 +0900
+description:
+preserve selection when losing focus
+
+
+changeset:   537:d31d9ee0f11c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 02:07:17 2008 +0900
+description:
+disable live update in card editor
+
+
+changeset:   536:362c7dc397eb
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 02:05:43 2008 +0900
+description:
+write to a temp file when writing config
+
+
+changeset:   535:ff850976acb8
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jan 03 02:01:13 2008 +0900
+description:
+catch invalid deck open
+
+
+changeset:   534:914df3502ee7
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 02 21:43:23 2008 +0900
+description:
+add czech translation
+
+
+changeset:   533:15e75d3e40e8
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jan 02 21:39:41 2008 +0900
+description:
+repose.cx -> ichi2.net
+
+
+changeset:   532:b8bd4000823e
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Dec 31 18:57:38 2007 +0900
+description:
+make sure to update priorities in deck editor
+
+
+changeset:   531:fa43f72dfd7d
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 29 17:31:22 2007 +0900
+description:
+don't include suspended cards in spaced cards number
+
+
+changeset:   530:a7c49c697eca
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Dec 28 05:05:28 2007 +0900
+description:
+check for updates after loading last deck
+
+
+changeset:   529:9e8ab2dc7c9f
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 20:21:38 2007 +0900
+description:
+fix deb definition to build universal package
+
+
+changeset:   528:031f5820d07b
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 19:49:47 2007 +0900
+description:
+fix card edit table wierdness on win32
+
+
+changeset:   527:b7867f355da1
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 18:01:31 2007 +0900
+description:
+include unihan.pickle in mac build, don't set nodeck in view
+
+
+changeset:   526:588535e67c24
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 17:28:44 2007 +0900
+description:
+enable font colours on mac, move to plastique buttons
+
+
+changeset:   525:70cbd5fdc584
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 17:08:51 2007 +0900
+description:
+fix 'sync with existing deck'
+
+
+changeset:   524:f83e1e3d8203
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 17:01:26 2007 +0900
+description:
+allow undo on final card
+
+
+changeset:   523:a1772428285a
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 16:55:34 2007 +0900
+description:
+link to forum
+
+
+changeset:   522:770d0193179a
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 16:51:08 2007 +0900
+description:
+avoid initial state if loading a deck (fix flash of welcome screen)
+
+
+changeset:   521:410f20d86248
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 16:38:39 2007 +0900
+description:
+fix colour assigning
+
+
+changeset:   520:1389afe90f82
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 16:11:12 2007 +0900
+description:
+add collapsing/delay2 to deck properties
+
+
+changeset:   519:f961c7bed0a8
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 15:49:20 2007 +0900
+description:
+update final review message
+
+
+changeset:   518:8171941c3649
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 27 15:44:24 2007 +0900
+description:
+don't run psyco on powerpc, set library not add to avoid errors on osx
+
+
+changeset:   517:5a07f1117619
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 04:39:58 2007 +0900
+description:
+include plugins on mac, use different path
+
+
+changeset:   516:c4b59898691a
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 04:02:33 2007 +0900
+description:
+fix window creep on osx by only restoring size
+
+
+changeset:   515:a3a490bbc131
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 03:39:21 2007 +0900
+description:
+fix deck/model properties by making modal and show()
+
+
+changeset:   514:65d7017653a4
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 03:28:21 2007 +0900
+description:
+make a bunch of dialogs proper windows
+
+
+changeset:   513:ed5e6f8cca2a
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 03:23:11 2007 +0900
+description:
+mac requires taller buttons
+
+
+changeset:   512:3e1144723d81
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 03:20:20 2007 +0900
+description:
+don't give foreground button a parent so it stays hidden on mac
+
+
+changeset:   511:ea3b77c8faf0
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 03:17:34 2007 +0900
+description:
+change stretch factor on cardlist for mac, remove color sel on mac
+
+
+changeset:   510:18d326614e61
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 02:28:30 2007 +0900
+description:
+don't show icons in menu bars on mac
+
+
+changeset:   509:331e68fd21c4
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 01:42:45 2007 +0900
+description:
+merge ianl's ja updates
+
+
+changeset:   508:ec260455758e
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 01:35:43 2007 +0900
+description:
+change plugin search path
+
+
+changeset:   507:feb2e3f0da7e
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Dec 26 00:00:19 2007 +0900
+description:
+add final review status indicator
+
+
+changeset:   506:0246ef821221
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 23:40:43 2007 +0900
+description:
+remove help on empty deck
+
+
+changeset:   505:dd968d1ad256
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 23:37:30 2007 +0900
+description:
+add anki.bat for win32 dev
+
+
+changeset:   504:133710df601e
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 23:34:23 2007 +0900
+description:
+remove scroll to end support, fixes slow status bar update on win32
+
+
+changeset:   503:b1dab87a66db
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 23:12:32 2007 +0900
+description:
+update jp translations
+
+
+changeset:   502:fac9ea7c0bbf
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 22:14:49 2007 +0900
+description:
+switch from full psyco to profiling
+
+
+changeset:   501:555f40764c8f
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 22:14:20 2007 +0900
+description:
+set the scrollarea widget last, so that win32 updates properly
+
+
+changeset:   500:cfb7ba1ba4cd
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 05:23:10 2007 +0900
+description:
+normalize path before updateRecentFiles()
+
+
+changeset:   499:9077e476e5e1
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 04:24:55 2007 +0900
+description:
+fix focus issues related to scrollarea
+
+
+changeset:   498:3c993841d04f
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 04:10:37 2007 +0900
+description:
+fix missing latex code
+
+
+changeset:   497:5a3f96a0e31c
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Dec 25 04:08:20 2007 +0900
+description:
+put a scroll area around the fact editor
+
+
+changeset:   496:99c7ec035760
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 05:37:43 2007 +0900
+description:
+add final drill help
+
+
+changeset:   495:e94a2f9d4c69
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 04:54:20 2007 +0900
+description:
+default to card/field name, make sure card names are unique
+
+
+changeset:   494:13dae040b66c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 04:38:29 2007 +0900
+description:
+fix alc url
+
+
+changeset:   493:4897fba66e2c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 04:27:40 2007 +0900
+description:
+readd heisig, remove error label, fix loading add cards dialog on new deck
+
+
+changeset:   492:816a8bba39a5
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 04:17:27 2007 +0900
+description:
+fix bug in copying fields to new model in fact editor
+
+
+changeset:   491:23fad02214e9
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 04:07:49 2007 +0900
+description:
+correct wording on sync dialog
+
+
+changeset:   490:100c668455f6
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 04:05:58 2007 +0900
+description:
+use abspath from config file, clean up new file if initial sync fails
+
+
+changeset:   489:30e7031d70f6
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 03:56:52 2007 +0900
+description:
+new 'new file' dialog that supports loading an existing deck
+
+
+changeset:   488:a72b9736ece5
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 02:47:54 2007 +0900
+description:
+simplify 'insertion order' in model properties to make behaviour clearer
+
+
+changeset:   487:5fab9752bbe8
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Dec 22 02:21:38 2007 +0900
+description:
+fix button3, remove redundant 'reposition'
+
+
+changeset:   486:fc935606609e
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Dec 21 23:26:09 2007 +0900
+description:
+fix 'add missing cards' bug, use only active cards, not all
+
+
+changeset:   485:40cecb3b31e7
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Dec 21 23:07:34 2007 +0900
+description:
+new icons
+
+
+changeset:   484:644e10b7e1ac
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Dec 06 19:59:41 2007 +0900
+description:
+merge tall buttons code
+
+
+changeset:   483:71f7cd7b9ff6
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Dec 03 17:51:35 2007 +0900
+description:
+use the main window instead of help screen in various place
+
+
+changeset:   482:0c7a31c83e4b
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Nov 14 11:58:38 2007 +0900
+description:
+med priority, latex buttons, font colour button, different focus out handling
+
+
+changeset:   481:0289fe2a735f
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Nov 13 17:36:34 2007 +0900
+description:
+refactor save/prompt/sync code. autosave on every type of close now
+
+
+changeset:   480:2a323105d70f
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Nov 13 16:44:16 2007 +0900
+description:
+as of qt4.3, use geometry() not frameGeometry()
+
+
+changeset:   479:bd2f9f5ef39c
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Nov 13 16:37:33 2007 +0900
+description:
+strip html from cards before searching
+
+
+changeset:   478:99f6a629deae
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Nov 13 16:33:00 2007 +0900
+description:
+updateViews(status!=noDeck) should not have a null deck
+
+
+changeset:   477:a2f83a4da80b
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Nov 12 16:18:18 2007 +0900
+description:
+latex support
+
+
+changeset:   476:92f3c4e1f41a
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Nov 12 14:37:44 2007 +0900
+description:
+support for compact ease button style
+
+
+changeset:   475:842e41e16286
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Nov 12 12:18:45 2007 +0900
+description:
+add 'undo last card' menu item
+this doesn't adjust the review count
+
+
+changeset:   474:73f7af6306bb
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Nov 12 11:14:02 2007 +0900
+description:
+improve matplotlib message
+
+
+changeset:   473:8d37157b1cb3
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Nov 12 11:01:06 2007 +0900
+description:
+show fact count in addition to card count in deck properties
+
+
+changeset:   472:190827da09ec
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Oct 31 13:34:49 2007 +0900
+description:
+update french translations, fix some translation bugs
+
+
+changeset:   471:7e3c9d494d30
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 08 19:03:14 2007 +0900
+description:
+thinko in mydeck.anki
+
+
+changeset:   470:070b2db9559e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Sep 08 18:53:57 2007 +0900
+description:
+fix a win98/me bug
+
+
+changeset:   469:d765877ae9f0
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 07 23:50:15 2007 +0900
+description:
+add debian files
+
+
+changeset:   468:368c196c41a5
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 07 22:51:22 2007 +0900
+description:
+update desktop entry
+
+
+changeset:   467:cdf030590286
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 07 22:44:25 2007 +0900
+description:
+merge french work from laurent steffan, update translations
+
+
+changeset:   466:391cacbb81ee
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 07 22:26:46 2007 +0900
+description:
+toggle enabled in saveafteraddingnum
+
+
+changeset:   465:3d93f94217a1
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 07 21:52:27 2007 +0900
+description:
+add picture/audio tooltips
+
+
+changeset:   464:b0bca2b2f6b2
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 07 21:09:17 2007 +0900
+description:
+add "save after adding n items" support
+
+
+changeset:   463:355a8d0927f2
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Sep 07 20:56:29 2007 +0900
+description:
+catch exceptions on deck load, 'export to' button, style tweaks
+
+
+changeset:   462:08a4bc4bbfa6
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 05:21:51 2007 +0900
+description:
+show card stats and not kanji stats on main bar
+
+
+changeset:   461:c022cf6f3974
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 05:17:52 2007 +0900
+description:
+add desktop file
+
+
+changeset:   460:01a55a77c020
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 05:07:52 2007 +0900
+description:
+hide models when importing anki documents
+
+
+changeset:   459:a5acbd3ae9fd
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 04:22:42 2007 +0900
+description:
+support appending tags on import
+
+
+changeset:   458:3a3bfd2a119e
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 04:16:24 2007 +0900
+description:
+add tags to importing, don't add cardmodel/model tags to editor
+
+
+changeset:   457:67e6033b6ab3
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 03:46:10 2007 +0900
+description:
+polish exporting, fix bug in tag completer
+
+
+changeset:   456:87dce4660dd7
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 02:43:48 2007 +0900
+description:
+refactor tag editor into new file, work on exporting
+
+
+changeset:   455:f030540cbe95
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 01:53:49 2007 +0900
+description:
+don't use custom colours when editing, only on quiz
+
+
+changeset:   454:b18ba125e482
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 01:14:06 2007 +0900
+description:
+fix bug in saving new file
+
+
+changeset:   453:ed0567a02e3f
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 01:12:17 2007 +0900
+description:
+don't use native overwrite confirmation
+
+
+changeset:   452:793bcd68ae0c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 00:56:43 2007 +0900
+description:
+catch error in deck creation too
+
+
+changeset:   451:d4527bd2aa66
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 00:50:59 2007 +0900
+description:
+delete graphs window on close
+
+
+changeset:   450:ace0595ec4b8
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Sep 06 00:10:08 2007 +0900
+description:
+saveas: check if a file exists after adding extension
+
+
+changeset:   449:c28e8c0a83cf
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 05 22:38:50 2007 +0900
+description:
+provide path to save(), rename tools to utils for consistency
+
+
+changeset:   448:214f6b5a548e
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 05 21:23:56 2007 +0900
+description:
+prevent images/sounds until saved, don't force user to assign name
+
+
+changeset:   447:c65ef1798409
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Sep 05 21:15:41 2007 +0900
+description:
+open the default with a .anki extension, not .fc extension
+
+
+changeset:   446:4aa5a25d2ad7
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Sep 04 23:00:37 2007 +0900
+description:
+fix bug in toggling font properties
+
+
+changeset:   445:712721b11c1a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Sep 02 03:46:50 2007 +0900
+description:
+remove debug statement in tools, make sure sounds are enabled
+
+
+changeset:   444:027e7afe8e77
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 31 20:37:35 2007 +0900
+description:
+don't ask to close the window twice
+
+
+changeset:   443:b15bc65b805b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 31 20:26:22 2007 +0900
+description:
+sort tags in cardlist/add cards editor
+
+
+changeset:   442:b71304829679
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 28 23:41:30 2007 +0900
+description:
+same for makeDue
+
+
+changeset:   441:5b50518fb0b0
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 28 23:40:56 2007 +0900
+description:
+make reset progress output clearer
+
+
+changeset:   440:2d05e24d26ff
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 28 15:52:20 2007 +0900
+description:
+fix preferences window opening
+
+
+changeset:   439:013e1acb3d21
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 27 12:35:32 2007 +0900
+description:
+disable fact editor buttons by default
+
+
+changeset:   438:293661b8e4aa
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 18:59:38 2007 +0900
+description:
+scroll to end of text in main window
+
+
+changeset:   437:7e511b3cb7f8
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 17:13:09 2007 +0900
+description:
+remove debugging statement
+
+
+changeset:   436:da16e0592cc8
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 17:12:36 2007 +0900
+description:
+fix delete fact
+
+
+changeset:   435:af428fd67fdb
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 04:13:53 2007 +0900
+description:
+typo in codetoindex
+
+
+changeset:   434:4d75d2f18e66
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 02:56:46 2007 +0900
+description:
+only reset interface lang if it's empty
+
+
+changeset:   433:191cfd3ee557
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 00:41:15 2007 +0900
+description:
+remember import location
+
+
+changeset:   432:0b7396d3fc50
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 00:39:33 2007 +0900
+description:
+remember last location for pictures/sound
+
+
+changeset:   431:72f9c5738848
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 25 00:24:28 2007 +0900
+description:
+add missing cards support, delete fact support
+
+
+changeset:   430:f3167aa0d04f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 24 23:49:56 2007 +0900
+description:
+update tags each time fact is changed
+
+
+changeset:   429:265384edff2c
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 24 23:47:49 2007 +0900
+description:
+tag completion support
+
+
+changeset:   428:58e6d236397a
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 24 01:02:01 2007 +0900
+description:
+set a default lang if none available
+
+
+changeset:   427:f9647ba1c74b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 24 00:58:58 2007 +0900
+description:
+fix for python2.4 on mac
+
+
+changeset:   426:908f8c89093d
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 22:54:58 2007 +0900
+description:
+bump version number
+
+
+changeset:   425:ec50da151592
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 22:49:55 2007 +0900
+description:
+encode the path for saving as unicode
+
+
+changeset:   424:5cd65848bbc4
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 06:04:53 2007 +0900
+description:
+fix samples on mac, make cardlist a bit bigger
+
+
+changeset:   423:406f78e2303c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 02:17:02 2007 +0900
+description:
+remove fuzzy tag
+
+
+changeset:   422:8237d9b77adf
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 02:16:14 2007 +0900
+description:
+update jp translation
+
+
+changeset:   421:a26f5c1be19f
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 02:14:49 2007 +0900
+description:
+make wording a little clearer
+
+
+changeset:   420:9342e0a9e746
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 02:11:30 2007 +0900
+description:
+add missing dutch file
+
+
+changeset:   419:5420eab9b9d4
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 02:11:00 2007 +0900
+description:
+beginnings of dutch support, update translations
+
+
+changeset:   418:4d9b40fa247c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 01:34:05 2007 +0900
+description:
+don't set up a specific timer if there is no earlier card
+
+
+changeset:   417:2a168259745c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 01:25:06 2007 +0900
+description:
+display spacing, delays etc in minutes or days, not seconds
+
+
+changeset:   416:586cd9a79891
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 01:19:30 2007 +0900
+description:
+make sync prompt a little clearer
+
+
+changeset:   415:23e05536f833
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 01:18:55 2007 +0900
+description:
+pick correct save dir, load new deck if old not avail, update model docs
+
+
+changeset:   414:20690b29f65b
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 01:01:16 2007 +0900
+description:
+load a new deck instead of an empty window
+
+
+changeset:   413:534a91329a30
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 00:59:05 2007 +0900
+description:
+ensure a deck always has a path, use defaultdir for saving
+
+
+changeset:   412:13218b679a96
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 23 00:34:51 2007 +0900
+description:
+more stats on cardlist, add sorting by card ease
+
+
+changeset:   411:c6d873f3dc55
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 22 23:24:50 2007 +0900
+description:
+bump version
+
+
+changeset:   410:fb62af1ae45d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 22 23:24:02 2007 +0900
+description:
+sound support
+
+
+changeset:   409:892bbe789cff
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 22 20:59:09 2007 +0900
+description:
+add image support, move to pyqt4.3 ui
+
+
+changeset:   408:dd346aac0a31
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 22 15:55:05 2007 +0900
+description:
+make sure to update modtime when changing card/fact tags
+
+
+changeset:   407:5a0535dcbfae
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 18 23:40:58 2007 +0900
+description:
+don't display confirmation message twice in addcards
+
+
+changeset:   406:3e9643261e96
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 18 23:40:45 2007 +0900
+description:
+fix sync freeze bug
+
+
+changeset:   405:9e4cbbb6aa46
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 18 04:14:21 2007 +0900
+description:
+new url for documentation
+
+
+changeset:   404:e0b74b9b7f60
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 18 01:34:29 2007 +0900
+description:
+simplify language handling and accomodation autodetection code
+
+
+changeset:   403:dbc9fa403096
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 18 01:17:08 2007 +0900
+description:
+ask user if they want to close add cards if data has been input
+
+
+changeset:   402:3229198c259f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 18 00:26:07 2007 +0900
+description:
+card tags -> card specific tags
+
+
+changeset:   401:14a9151f7ad8
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 18 00:17:34 2007 +0900
+description:
+save card tags properly
+
+
+changeset:   400:812f07a15160
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 17 23:57:08 2007 +0900
+description:
+pull up saveas dialog on new file when trying to sync
+
+
+changeset:   399:cab4b16da139
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 17 22:04:38 2007 +0900
+description:
+set shownFinished on closing deck
+
+
+changeset:   398:ee09fa6916c0
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 17 21:20:04 2007 +0900
+description:
+convert old recent deck paths to unicode
+
+
+changeset:   397:177872003718
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 17 20:38:12 2007 +0900
+description:
+change description of ease 2
+
+
+changeset:   396:2bebd56b1862
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 16 03:32:55 2007 +0900
+description:
+fix kanji stats
+
+
+changeset:   395:0928bca9200e
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 23:46:46 2007 +0900
+description:
+delay in hours, win98 support, mac sync fix
+
+
+changeset:   394:bdb67a6ee213
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 03:49:57 2007 +0900
+description:
+mention translators
+
+
+changeset:   393:ce926f5b34e5
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 03:47:49 2007 +0900
+description:
+update development readme, fix setuptools (icons_rc)
+
+
+changeset:   392:530333fcdc4a
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 03:38:46 2007 +0900
+description:
+update readme
+
+
+changeset:   391:c6299137ab65
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 03:31:13 2007 +0900
+description:
+add missing jp trans, fix samples on win32
+
+
+changeset:   390:c44fd5535b76
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 02:54:27 2007 +0900
+description:
+allow libanki as a subdir, too
+
+
+changeset:   389:1c7decdafffe
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 02:48:00 2007 +0900
+description:
+move icons location in build_ui, fix presentation bugs on osx in prefs
+
+
+changeset:   388:4ba7b5deef75
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 02:41:30 2007 +0900
+description:
+move search for kakasi to support code
+
+
+changeset:   387:cb29bcbf0222
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 02:11:17 2007 +0900
+description:
+update help message
+
+
+changeset:   386:492e42eb9133
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 01:47:54 2007 +0900
+description:
+use fully qualified package names in ankiqt
+
+
+changeset:   385:195e54a8adb9
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 00:14:59 2007 +0900
+description:
+one more es fix
+
+
+changeset:   384:69e1293bdb26
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 00:13:18 2007 +0900
+description:
+more spanish fixes from pcsl
+
+
+changeset:   383:6b1842c94311
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 15 00:07:33 2007 +0900
+description:
+fix typo in spanish translation
+
+
+changeset:   382:ef8687286a35
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 23:19:19 2007 +0900
+description:
+add spanish support
+
+
+changeset:   381:0aac2e3d6261
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 23:17:42 2007 +0900
+description:
+add spanish translation
+
+
+changeset:   380:27ce0941f81d
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 07:20:20 2007 +0900
+description:
+more work on getting the mac to build again
+
+
+changeset:   379:7993303b3381
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 05:55:02 2007 +0900
+description:
+keep the 'next time' at a small font, tweak prefs dialog
+
+
+changeset:   378:88190c8b8560
+parent:      376:611a9a55e2f4
+parent:      377:49a3a9cab6a8
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 05:33:54 2007 +0900
+description:
+merge with other box
+
+
+changeset:   377:49a3a9cab6a8
+parent:      375:98d005d15ae3
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 05:14:59 2007 +0900
+description:
+update translations
+
+
+changeset:   376:611a9a55e2f4
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 05:33:23 2007 +0900
+description:
+adjustable card editor font, remove unclickable labels, more translations
+
+
+changeset:   375:98d005d15ae3
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 04:47:25 2007 +0900
+description:
+tweak to work with py2exe again
+
+
+changeset:   374:e957f6b915f0
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 00:25:19 2007 +0900
+description:
+add german translation from frostschutz
+
+
+changeset:   373:877c462b1344
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Aug 14 00:24:35 2007 +0900
+description:
+update french and german translations
+
+
+changeset:   372:d7c6ebe4922d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 19:34:14 2007 +0900
+description:
+accept multiple tags when adding/removing
+
+
+changeset:   371:aa7e390faa6d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 15:57:35 2007 +0900
+description:
+require corresponding libanki version
+
+
+changeset:   370:82f33d4bd13e
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 10:54:22 2007 +0900
+description:
+don't zip; bundle locale in egg
+
+
+changeset:   369:053c7e7ec9fc
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 10:22:14 2007 +0900
+description:
+add ianl's translation work, fix reference to create account
+
+
+changeset:   368:cb33ecc043dd
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 09:56:55 2007 +0900
+description:
+tab order in preferences
+
+
+changeset:   367:9de9f904d752
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 09:55:49 2007 +0900
+description:
+bug in displayprops, bugs in translation, missing reset progress hook
+
+
+changeset:   366:c2a3c17d1bbc
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 08:07:07 2007 +0900
+description:
+fr->de
+
+
+changeset:   365:269d63c402a4
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 07:58:19 2007 +0900
+description:
+add missing idx
+
+
+changeset:   364:7bbcbc9d123f
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 07:35:45 2007 +0900
+description:
+typo
+
+
+changeset:   363:4dc36ef23f90
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 07:32:04 2007 +0900
+description:
+update translation docs
+
+
+changeset:   362:6d7d286d9970
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 07:01:54 2007 +0900
+description:
+add german and french support
+
+
+changeset:   361:d2a0ab4f9439
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 06:18:07 2007 +0900
+description:
+require the same libanki version, look for development version
+
+
+changeset:   360:b7b5c26bac6f
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 05:03:50 2007 +0900
+description:
+typo in help
+
+
+changeset:   359:bd1b3ac8fd4f
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 05:02:50 2007 +0900
+description:
+update install docs
+
+
+changeset:   358:85b1ea398857
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 04:59:49 2007 +0900
+description:
+refactor for packaging in setuptools
+
+
+changeset:   357:56a112de7d22
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 04:14:28 2007 +0900
+description:
+make toolbar display customizable
+
+
+changeset:   356:b972765487aa
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 04:03:50 2007 +0900
+description:
+remove useless horizontal scrollbar
+
+
+changeset:   355:2ec838779daf
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 04:00:48 2007 +0900
+description:
+convert <p> into two br tags
+
+
+changeset:   354:1465277f3644
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 04:00:12 2007 +0900
+description:
+replace verbose qt paragraph formatting with simple br tags
+
+
+changeset:   353:86e628f85a2c
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 03:39:07 2007 +0900
+description:
+adjust formatting buttons on focus in/out, remove selection
+
+
+changeset:   352:ec066b636368
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 03:12:15 2007 +0900
+description:
+instead of inserting text (which includes images), strip the html
+
+
+changeset:   351:d59591eaae95
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 13 02:55:59 2007 +0900
+description:
+strip html from incoming text
+
+
+changeset:   350:8f01b5c3995d
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 22:56:50 2007 +0900
+description:
+add note about translating
+
+
+changeset:   349:5ec222996326
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 22:36:42 2007 +0900
+description:
+document inheritence in display properties better
+
+
+changeset:   348:16da1b6a10f7
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 22:10:06 2007 +0900
+description:
+fix bug in importing dialog, doc updates
+
+
+changeset:   347:2ac7774083ed
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 06:24:27 2007 +0900
+description:
+when updating fields, make sure to use html
+
+
+changeset:   346:192c9d3d6be9
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 06:19:46 2007 +0900
+description:
+redraw on font change, to prevent sticking
+
+
+changeset:   345:db83a251147a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 05:24:42 2007 +0900
+description:
+make updating stay on screen
+
+
+changeset:   344:7af3fc95ae26
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 05:21:02 2007 +0900
+description:
+update help
+
+
+changeset:   343:68f2c6a863cf
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 05:19:24 2007 +0900
+description:
+bump version number
+
+
+changeset:   342:c63d0ea37856
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 05:19:09 2007 +0900
+description:
+fix display properties
+
+
+changeset:   341:fc74e896c4da
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 05:17:18 2007 +0900
+description:
+fix layout in importing
+
+
+changeset:   340:e06e88cd417a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 05:14:34 2007 +0900
+description:
+allow editing of active cards in add cards dialog
+
+
+changeset:   339:b80bf76e5bf4
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 04:07:50 2007 +0900
+description:
+remove silly-looking close button from edit window
+
+
+changeset:   338:86a11af953cf
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 04:00:32 2007 +0900
+description:
+update help
+
+
+changeset:   337:fa3c69b3c387
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 03:54:37 2007 +0900
+description:
+remove redundant font button from addcards
+
+
+changeset:   336:0e1fcd20450f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 12 03:49:58 2007 +0900
+description:
+bold/italic/underline
+
+
+changeset:   335:095717cf2d0f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 11 21:14:11 2007 +0900
+description:
+restore RET event filter (we'll see how it goes..)
+
+
+changeset:   334:41153041387a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 11 19:39:39 2007 +0900
+description:
+fix qt 4.3 bugs
+
+
+changeset:   333:64cb07d65387
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 11 02:55:28 2007 +0900
+description:
+deck properties should expand
+
+
+changeset:   332:35a6721d4b48
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 23:30:21 2007 +0900
+description:
+silly mistake in drawing the deck finished message fixed
+
+
+changeset:   331:059eca315002
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 21:44:43 2007 +0900
+description:
+need slightly bigger spacing & margins for mac osx
+
+
+changeset:   330:71eb6fbf521f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 21:28:33 2007 +0900
+description:
+more translation fixes
+
+
+changeset:   329:dc6fb6d71747
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 21:16:05 2007 +0900
+description:
+update some of the translations
+
+
+changeset:   328:951c056099e7
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 21:06:05 2007 +0900
+description:
+adjust button spacing, make 'how well did you remember?' smaller
+
+
+changeset:   327:50d9280a9a13
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 20:58:24 2007 +0900
+description:
+fix dynamic updating of _ strings
+
+
+changeset:   326:ab8f11bb30b3
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 20:44:40 2007 +0900
+description:
+change wording
+
+
+changeset:   325:439ff0c4e399
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 20:38:02 2007 +0900
+description:
+only warn about dll files on win32
+
+
+changeset:   324:207eb512c1d2
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 20:30:17 2007 +0900
+description:
+add an extra icon
+
+
+changeset:   323:1f52d4b7dac4
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 20:27:02 2007 +0900
+description:
+bump version
+
+
+changeset:   322:1f2532bdff0f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 20:22:18 2007 +0900
+description:
+batch add/delete tags, reset progress, make due
+
+
+changeset:   321:23c453c4520f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 19:16:04 2007 +0900
+description:
+don't default to close on RET in cardlist
+
+
+changeset:   320:a0806b5c4e0a
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 19:13:31 2007 +0900
+description:
+the main window has to have focus or you can't copy on win32, fix yellow
+
+
+changeset:   319:7da4b504d14f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 18:56:52 2007 +0900
+description:
+sorting, card editor tweaks
+
+
+changeset:   318:72188f29b524
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 18:16:03 2007 +0900
+description:
+show spaced cards in status bar too, correct algorithm
+
+
+changeset:   317:f300b9161a79
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 18:05:10 2007 +0900
+description:
+show suspended/waiting in deck finished message
+
+
+changeset:   316:9f11d36690ae
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 17:36:08 2007 +0900
+description:
+load last question as soon as it's expired
+
+
+changeset:   315:3816dd800133
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 14:53:21 2007 +0900
+description:
+prevent closing if failure halfway through sync
+
+
+changeset:   314:0f58b22be50b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 14:48:50 2007 +0900
+description:
+report errors halfway through sync
+
+
+changeset:   313:781ca44bf003
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 10 00:22:48 2007 +0900
+description:
+move to 'initial' in sync, as deck may already have been closed
+
+
+changeset:   312:aa492cb0c4a2
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 09 04:48:18 2007 +0900
+description:
+use different samples path on windows, hide .fc files
+
+
+changeset:   311:b0c8537f4467
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 09 03:26:09 2007 +0900
+description:
+try and handle old non-unicode recentDeckPaths
+
+
+changeset:   310:fcba0a38e002
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 09 03:23:34 2007 +0900
+description:
+save the file after upgrading to update recentdeckpaths
+
+
+changeset:   309:3bffbb6bfe89
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 09 03:14:41 2007 +0900
+description:
+change config file location back to ~/.anki
+
+
+changeset:   308:9ed15e8202c7
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 09 03:14:04 2007 +0900
+description:
+change sample deck path on mac to reflect release
+
+
+changeset:   307:4c868be79209
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 09 03:10:42 2007 +0900
+description:
+app version -> 0.3.0
+
+
+changeset:   306:e0f71a60c867
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 08 19:47:04 2007 +0900
+description:
+refactor importing code into libanki
+
+
+changeset:   305:9e6b5ee93ad7
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Aug 06 06:28:20 2007 +0900
+description:
+stop window oscillating by increasing help size, highPri->lowPri
+
+
+changeset:   304:142190eba8ff
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 05 02:58:23 2007 +0900
+description:
+add missing files
+
+
+changeset:   303:4f04b38980d7
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 05 02:49:49 2007 +0900
+description:
+redundant br in cardlist
+
+
+changeset:   302:cf0ca1c2d387
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 05 02:46:59 2007 +0900
+description:
+do numeric sort if possible
+
+
+changeset:   301:4292e8db6665
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Aug 05 02:39:35 2007 +0900
+description:
+cardlist tweaks: new sorting method, clarify tags
+
+
+changeset:   300:3ea45a19f74e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 04 22:20:37 2007 +0900
+description:
+change upgrade message
+
+
+changeset:   299:1467219f39d9
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 04 15:08:28 2007 +0900
+description:
+show time info in stats too
+
+
+changeset:   298:9db26a6e277e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 04 05:34:07 2007 +0900
+description:
+question/answer->expression/meaning in lookup
+
+
+changeset:   297:567f70a615d3
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 04 04:46:18 2007 +0900
+description:
+strip \ns too in cardlist
+
+
+changeset:   296:affab22d7aae
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 04 03:16:27 2007 +0900
+description:
+fix warning about psyco on mac
+
+
+changeset:   295:8304d6d47c83
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 04 01:18:05 2007 +0900
+description:
+implement font substitution
+
+
+changeset:   294:f8fe1944c6ac
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Aug 04 00:39:59 2007 +0900
+description:
+display auto default buttons
+
+
+changeset:   293:414bea7e1de3
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 03 19:27:21 2007 +0900
+description:
+suspend card -> suspend fact
+
+
+changeset:   292:4a9fc4d45e01
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 03 18:53:00 2007 +0900
+description:
+work around windows sometimes reporting an indefinite number of pending evts
+
+
+changeset:   291:2ff4ac1d4f08
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Aug 03 18:35:14 2007 +0900
+description:
+don't pass the language catalog name to gettext as a unicode string
+
+
+changeset:   290:be1cca3e012b
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 02 04:49:24 2007 +0900
+description:
+when recording recent files, make sure to write them in unicode
+
+
+changeset:   289:ae21e1088d40
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Aug 02 03:32:34 2007 +0900
+description:
+check facts on add start, don't mark viewed cards modified in editor
+
+
+changeset:   288:3d8896a88928
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 01 12:14:35 2007 +0900
+description:
+fix references to field and cardmodel in modelprops
+
+
+changeset:   287:70c51ffd756b
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 01 12:08:30 2007 +0900
+description:
+encode new deck name & cmd args
+
+
+changeset:   286:1bc35cceac84
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 01 11:55:00 2007 +0900
+description:
+don't mark invalid fields until they're edited
+
+
+changeset:   285:9bdf6c71494d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Aug 01 09:39:35 2007 +0900
+description:
+updates for libanki changes
+
+
+changeset:   284:49bde442ad65
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 06:07:12 2007 +0900
+description:
+strip spaces in editor, upgrade mac decks, warn about missing dll
+
+
+changeset:   283:43af18352d4c
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 03:59:27 2007 +0900
+description:
+use full psyco
+
+
+changeset:   282:d5995e759fa6
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 03:41:13 2007 +0900
+description:
+use psyco for big speedups, don't clobber files when upgrading from .fc
+
+
+changeset:   281:a76c459a7ca4
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 02:49:58 2007 +0900
+description:
+update titlebar on save
+
+
+changeset:   280:6055dcead896
+parent:      278:1b8ffad57cbd
+parent:      279:ffc59ba3f603
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 02:24:02 2007 +0900
+description:
+merge
+
+
+changeset:   279:ffc59ba3f603
+parent:      275:df5cf5b49e3b
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 30 23:57:10 2007 +0900
+description:
+decode the config dir as the file system encoding
+
+
+changeset:   278:1b8ffad57cbd
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 02:19:15 2007 +0900
+description:
+catch old deck errors
+
+
+changeset:   277:5fef7bb7fec3
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 02:04:39 2007 +0900
+description:
+use same tags as last add
+
+
+changeset:   276:9613928c8b9f
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 31 00:59:52 2007 +0900
+description:
+add facts metadata to sync
+
+
+changeset:   275:df5cf5b49e3b
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 29 20:25:57 2007 +0900
+description:
+fix sync error check
+
+
+changeset:   274:d77a8971defa
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 29 15:12:47 2007 +0900
+description:
+update translations
+
+
+changeset:   273:b84ab33580f7
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 28 04:04:30 2007 +0900
+description:
+missing sync code, bugfix
+
+
+changeset:   272:d18ed3533521
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 28 01:11:03 2007 +0900
+description:
+enable syncing (to localhost), disable main until finished, name chooser
+
+
+changeset:   271:7b52c0735027
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 27 21:13:53 2007 +0900
+description:
+modify title bar format
+
+
+changeset:   270:db8f089e638d
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 27 20:48:15 2007 +0900
+description:
+work on syncing, delete deck name as its redundant
+
+
+changeset:   269:16e8ac744bd6
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 27 15:35:42 2007 +0900
+description:
+add a spliter to cardlist
+
+
+changeset:   268:ab09dbe41eef
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 27 03:59:27 2007 +0900
+description:
+don't make button3 default
+
+
+changeset:   267:b301c1f37b7f
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 26 00:13:00 2007 +0900
+description:
+postponed->suspended, set no field if user hits esc on addfield in importing
+
+
+changeset:   266:aba3db119c3c
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 25 23:12:48 2007 +0900
+description:
+mac hacks: change toolbar style
+
+
+changeset:   265:c994b4c14d11
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 25 22:46:53 2007 +0900
+description:
+use field features to define kakasi src/dst, rm 2nd display properties link
+
+
+changeset:   264:8d542a382b0a
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 25 22:36:19 2007 +0900
+description:
+catch ret in add models, send accepted
+
+
+changeset:   263:6860ae408e31
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 25 11:43:02 2007 +0900
+description:
+don't lowercase file, just extension
+
+
+changeset:   262:4782c7afee0b
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 25 00:42:09 2007 +0900
+description:
+if the current tag has been deleted, use idx 0
+
+
+changeset:   261:100022d60250
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 24 02:04:14 2007 +0900
+description:
+default to 'english' when importing old decks that are not japanese
+
+
+changeset:   260:433b6b4f19ea
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 24 00:29:17 2007 +0900
+description:
+fix import bug, prompt for model on new file
+
+
+changeset:   259:fd1c43f17bba
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 23:29:10 2007 +0900
+description:
+report real delay not 10 minutes
+
+
+changeset:   258:d96fa8eb2298
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 23:18:30 2007 +0900
+description:
+filter out (invalid) images from pastes
+
+
+changeset:   257:e891349d498d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 12:42:08 2007 +0900
+description:
+fix showWarning calls, handle missing fields more gracefully when upgrading
+
+
+changeset:   256:4dbaa5fe1378
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 11:54:25 2007 +0900
+description:
+use different config file temporarily
+
+
+changeset:   255:4d12225b5bfa
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 11:49:38 2007 +0900
+description:
+update cards after field rename since they may have changed, strip
+
+
+changeset:   254:fdc172283931
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 11:14:53 2007 +0900
+description:
+disable mark/suspend if there's no current card
+
+
+changeset:   253:0d7f50179d71
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 02:14:15 2007 +0900
+description:
+load the default model if no card is available
+
+
+changeset:   252:18474dbc3e00
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 02:13:07 2007 +0900
+description:
+make displayproperties bigger for the mac
+
+
+changeset:   251:0f0fe251b176
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 00:26:54 2007 +0900
+description:
+another mac sample change
+
+
+changeset:   250:3855a24554a3
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 00:25:30 2007 +0900
+description:
+mac samples bug
+
+
+changeset:   249:8c67e6ee6b96
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 23 00:22:39 2007 +0900
+description:
+bug in saveas
+
+
+changeset:   248:137682844e59
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 23:38:54 2007 +0900
+description:
+use .anki instead of .fc
+
+
+changeset:   247:9feb9368bd10
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 22:35:55 2007 +0900
+description:
+fix off-by-one in loadRecent
+
+
+changeset:   246:803b406d520c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 22:33:42 2007 +0900
+description:
+fix lookup (isJapaneseText)
+
+
+changeset:   245:14bdee2478f5
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 21:19:39 2007 +0900
+description:
+fix bug in modelchooser
+
+
+changeset:   244:6bdf78695d23
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 20:58:19 2007 +0900
+description:
+if all cards are deleted, show the correct screen
+
+
+changeset:   243:e17d9a38327f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 20:46:08 2007 +0900
+description:
+update mac build script
+
+
+changeset:   242:869ed9968726
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 20:44:36 2007 +0900
+description:
+use new style fact when importing
+
+
+changeset:   241:e365a9df577b
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 20:15:55 2007 +0900
+description:
+reposition support, last card tweaks
+
+
+changeset:   240:08223ce8e2ed
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 02:36:43 2007 +0900
+description:
+tagged->marked, change help
+
+
+changeset:   239:45e4f89c9771
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 22 02:24:29 2007 +0900
+description:
+no 'added mark', more deckrelated actions, bug in modelproperties
+
+
+changeset:   238:7979f29ef2ee
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 21 17:15:34 2007 +0900
+description:
+bug in suspendedtags, fix tab order on a bunch of dialogs
+
+
+changeset:   237:6d2b1b818742
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 21 02:59:30 2007 +0900
+description:
+bug in suspended/mistaken differentiation
+
+
+changeset:   236:bd9346836fdd
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 21 02:55:14 2007 +0900
+description:
+change wording for suspended/marked, remove simple status text
+
+
+changeset:   235:344295ec5e67
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 21 01:24:44 2007 +0900
+description:
+use a unicode middle dot to delinierate fields
+
+
+changeset:   234:cb83d41a65b4
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 21 01:19:14 2007 +0900
+description:
+priorities, postponing, tagging, statustips, icons, flickering, 2 bugs
+
+
+changeset:   233:500adc240b60
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 20 21:23:44 2007 +0900
+description:
+improve tag display in cardlist, add tooltips
+
+
+changeset:   232:73aee372cb33
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 20 18:25:43 2007 +0900
+description:
+displayproperties size, css bug, model properties change
+
+
+changeset:   231:42fdfd832b60
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 20 12:57:47 2007 +0900
+description:
+make prefs non-modal
+
+
+changeset:   230:8892549fde1c
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 20 12:49:22 2007 +0900
+description:
+support left/right alignment, close all dialogs on exit
+
+
+changeset:   229:c17e58a8fcaa
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 19 05:02:59 2007 +0900
+description:
+fact fields section in displayproperties expand
+
+
+changeset:   228:c91dc1e20ac4
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 19 01:30:45 2007 +0900
+description:
+mark cards/fields as modified in displayproperties
+
+
+changeset:   227:61a5e72211be
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 19 01:25:10 2007 +0900
+description:
+update modified properly in modelproperties
+
+
+changeset:   226:869c076fe16e
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 19 00:18:34 2007 +0900
+description:
+add samples menu option
+
+
+changeset:   225:a7c829fb850f
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 19 00:14:45 2007 +0900
+description:
+update saving code, add recent files menu
+
+
+changeset:   224:62ca2d63f2ad
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 18 22:27:29 2007 +0900
+description:
+update tags in editor in real time
+
+
+changeset:   223:ff99f675327d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 18 22:17:37 2007 +0900
+description:
+updates from refactor, prevent cards/models/fields from being empty/dupe
+
+
+changeset:   222:bfe4b124e29e
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 18 00:15:19 2007 +0900
+description:
+only downcase file portion when saving
+
+
+changeset:   221:e7cef0026f3c
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 17 04:06:45 2007 +0900
+description:
+fix esc on display and graphs
+
+
+changeset:   220:10e742d155ec
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 17 03:41:20 2007 +0900
+description:
+make add cards and edit deck full, non-modal windows
+
+
+changeset:   219:4122aadaf78a
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 17 02:30:12 2007 +0900
+description:
+tweaks to displaypreferences, make graphs and displayeditor non-modal
+
+
+changeset:   218:062a6431da73
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 17 01:24:10 2007 +0900
+description:
+small bug fixes, make fonts non-modal and preview toggle
+
+
+changeset:   217:3568f142edb5
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 16 17:56:50 2007 +0900
+description:
+mac tweaks, and fix a centering bug on pyqt4.3
+
+
+changeset:   216:db1cf00283a9
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 16 17:02:56 2007 +0900
+description:
+change window size in a way that works on osx
+
+
+changeset:   215:7d66d45b1bb7
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 16 16:55:29 2007 +0900
+description:
+show empty fields differently to dupe fields
+
+
+changeset:   214:b299f1efeaeb
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 15 04:50:48 2007 +0900
+description:
+fix bug in fact editor: convert to unicode before comparison
+
+
+changeset:   213:16351c50f99d
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 15 04:13:07 2007 +0900
+description:
+add support for hiding the question when showing answer
+
+
+changeset:   212:9573f889aa83
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 15 04:01:28 2007 +0900
+description:
+allow import on no deck, improve upgrading & notice
+
+
+changeset:   211:50c999a072a1
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 14 13:36:45 2007 +0900
+description:
+add cardlist, delete icon
+
+
+changeset:   210:e77a193cdd99
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 14 13:36:10 2007 +0900
+description:
+revert to gpl2+, as we're waiting on qt
+
+
+changeset:   209:08b18663fcd2
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 13 17:22:22 2007 +0900
+description:
+disable search group too, and remove old redundant validity check
+
+
+changeset:   208:9bc926768b63
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jul 13 17:14:46 2007 +0900
+description:
+live update of errors in cardlist/addcards
+
+
+changeset:   207:525ffb751f61
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 12 22:55:05 2007 +0900
+description:
+start work on invalid indicator
+
+
+changeset:   206:6e7f1a9d03f6
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 12 03:09:16 2007 +0900
+description:
+hack up the new deck editor & add tag support, improve fact editor
+
+
+changeset:   205:cf7105b74d16
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 11 18:38:16 2007 +0900
+description:
+more add card tweaks, add tags, shortcuts to model
+
+
+changeset:   204:4b85ccd9d918
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Jul 11 11:56:38 2007 +0900
+description:
+polish 'add cards' dialog a bit
+
+
+changeset:   203:f87e703b2ae7
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 10 23:24:03 2007 +0900
+description:
+work on add cards, fact editor, kakasi integration, more
+
+
+changeset:   202:c60eab940740
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jul 10 16:39:25 2007 +0900
+description:
+fix bug with card colours, start work on card editor
+
+
+changeset:   201:f3e15cf0a4cf
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 09 23:21:13 2007 +0900
+description:
+move to gpl v3
+
+
+changeset:   200:23a5590d20f3
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 09 23:16:08 2007 +0900
+description:
+add map changing support in importing, tidy up a few gui elements
+
+
+changeset:   199:8e2b09b363fa
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jul 07 17:26:20 2007 +0900
+description:
+mostly finish displayproperties dialog, use interface font again, get html q/a
+
+
+changeset:   198:3baef7303b4b
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 05 13:03:59 2007 +0900
+description:
+toolbar, css, progress buttons, copy deck stats on import, display editor
+
+
+changeset:   197:3465d72828d6
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jul 05 00:05:56 2007 +0900
+description:
+add buttons for showing/answering, start work on display properties
+
+
+changeset:   196:6cb0dd76c50c
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jul 02 19:15:58 2007 +0900
+description:
+update preferences, deck properties, models, start work on addcards
+
+
+changeset:   195:78e3a73089a2
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 01 02:42:09 2007 +0900
+description:
+rename add->addcards, add add model & tools
+
+
+changeset:   194:1cdca67fcb6e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jul 01 02:40:22 2007 +0900
+description:
+deck properties and model properties mostly working
+
+
+changeset:   193:7ee0349a20d7
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 30 22:18:17 2007 +0900
+description:
+more importing changes
+
+
+changeset:   192:f4cacaa73ff8
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Jun 28 04:44:25 2007 +0900
+description:
+start work on importing dialog, model chooser
+
+
+changeset:   191:9f4ae859cc3f
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jun 25 03:10:12 2007 +0900
+description:
+fix missing colon in copyright
+
+
+changeset:   190:6b0dd76bd69e
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jun 25 03:09:12 2007 +0900
+description:
+more deck/model property changes
+
+
+changeset:   189:d445970f1f5e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jun 24 05:20:10 2007 +0900
+description:
+work on model editor dialog
+
+
+changeset:   188:6fb09d9e9920
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jun 24 03:22:31 2007 +0900
+description:
+add deckproperties, reduce copyright statement size, misc changes
+
+
+changeset:   187:33d796e81962
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jun 24 01:23:48 2007 +0900
+description:
+update for changes in libanki, add deckprefs dialog definition
+
+
+changeset:   186:d510369cf8a5
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jun 10 00:23:26 2007 +0900
+description:
+fix altering of shortcuts for mac
+
+
+changeset:   185:541be5c7898a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Jun 10 00:15:09 2007 +0900
+description:
+allow the user to bypass the lock file, rather than making them delete it
+
+
+changeset:   184:644ea16060e0
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 22:30:36 2007 +0900
+description:
+fix card stats on empty deck bug
+
+
+changeset:   183:81c293b8f51b
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 21:45:34 2007 +0900
+description:
+fix bug in font assignment, bump to 0.2.8
+
+
+changeset:   182:e261adf56f84
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 20:46:49 2007 +0900
+description:
+use helvetica not arial on mac
+
+
+changeset:   181:60d5a6063726
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 20:45:42 2007 +0900
+description:
+use c-d, not c-a on osx
+
+
+changeset:   180:7a51cb129bc3
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 20:41:04 2007 +0900
+description:
+add lock file, 'command' on macosx
+
+
+changeset:   179:fa8973a939e0
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 20:14:55 2007 +0900
+description:
+die gracefully when there's a problem with the config file
+
+
+changeset:   178:7a775b943e0a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 20:08:17 2007 +0900
+description:
+don't overwrite old deck on open, go through the usual close procedures
+- ensures the deck will be synced when switching files
+- means the deck will be automatically saved without prompting if
+'saveOnClose' is enabled
+
+
+changeset:   177:c2543981a3f4
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 20:01:47 2007 +0900
+description:
+allow focus redirection in help area even when not main window
+
+
+changeset:   176:b65fad02e99f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 19:55:44 2007 +0900
+description:
+add cumulative due graph, fix bug showing card stats on finished deck
+
+
+changeset:   175:9cb53b457a66
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 19:13:53 2007 +0900
+description:
+add cards: allow rich text, html, newlines, more
+- the widgets will accept rich text now, pasted from other locations
+- html is supported, and newlines
+- strip newlines when speaking to kakasi, which is line-based
+- change 'commit' key to control+enter
+- remove some of the whitespace tidying code, which is no longer necessary
+- update help
+
+
+changeset:   174:9b4803888777
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 18:27:52 2007 +0900
+description:
+use new sync protocol
+
+
+changeset:   173:7f55a58ebae9
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 09:32:47 2007 +0900
+description:
+ignore all files in plugins/ except .py files
+
+
+changeset:   172:3f6edde2d659
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 09:27:19 2007 +0900
+description:
+add support for plugins
+
+
+changeset:   171:251c2651756b
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 09:21:25 2007 +0900
+description:
+add plugins/backups dir, newDeckStorage -> DeckStorage
+
+
+changeset:   170:ce1feb0b64d5
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 05:06:15 2007 +0900
+description:
+add mnemosyne import support
+
+
+changeset:   169:70f956a11e7f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 09 03:45:57 2007 +0900
+description:
+add improved text file import handling
+
+
+changeset:   168:9e8b7b059bdc
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Jun 05 01:03:53 2007 +0900
+description:
+copy the old config, don't move it (across drives)
+
+
+changeset:   167:d0aa0aa97392
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jun 04 17:38:26 2007 +0900
+description:
+make sure to toggle addReverse in config both ways
+
+
+changeset:   166:a35f74911370
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Jun 04 17:33:13 2007 +0900
+description:
+config file to .anki/config.db, improve user customization support
+users can now use a file ~/.anki/config.py to tweak the behaviour of anki
+
+
+changeset:   165:acca095b277e
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 16:18:21 2007 +0900
+description:
+bump version
+
+
+changeset:   164:c42e418e31a0
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 08:36:36 2007 +0900
+description:
+add credits file
+
+
+changeset:   163:8677f05896d8
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 01:54:08 2007 +0900
+description:
+remove debugging info
+
+
+changeset:   162:a2373e29a433
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 01:53:00 2007 +0900
+description:
+fix default prefs page
+
+
+changeset:   161:c385f39d93d2
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 01:52:27 2007 +0900
+description:
+use different url generation for win32
+
+
+changeset:   160:ddc3bb0bb043
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 01:13:08 2007 +0900
+description:
+flush output before generating stats
+
+
+changeset:   159:37c1a5080f0c
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 01:09:29 2007 +0900
+description:
+add status message for kanji stats
+
+
+changeset:   158:10e76674ee0f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 01:07:57 2007 +0900
+description:
+add cgi module to mac build
+
+
+changeset:   157:a511e275e906
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 00:55:06 2007 +0900
+description:
+fix mac kakasi path (again), prevent leading space
+
+
+changeset:   156:9c383d9fc1bc
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Jun 02 00:20:28 2007 +0900
+description:
+fix sizes on osx, remove debugging info
+
+
+changeset:   155:73cb0cf6b291
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 01 23:57:56 2007 +0900
+description:
+bump version number, don't display seconds when showing next card
+
+
+changeset:   154:97ba6addf1c0
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 01 23:22:23 2007 +0900
+description:
+select the previous card when opening edit dialog
+
+
+changeset:   153:0995bbd13e79
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 01 22:43:34 2007 +0900
+description:
+add 'don't generate reverse card entries' option to the add card dialog
+
+
+changeset:   152:28e41be09db0
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 01 22:16:25 2007 +0900
+description:
+change the path to kakasi on the mac
+
+
+changeset:   151:8f538034c077
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 01 22:04:59 2007 +0900
+description:
+mac cp doesn't support -a
+
+
+changeset:   150:5f999c709637
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 01 22:03:09 2007 +0900
+description:
+set up kakasi in the build dir on mac
+
+
+changeset:   149:59f13a0b2b21
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Jun 01 22:01:13 2007 +0900
+description:
+set a default font on matplotlib
+
+
+changeset:   148:9e88c5ef3293
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 23 23:59:15 2007 +0900
+description:
+add eases graph
+
+
+changeset:   147:650a99a81572
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 22 03:25:24 2007 +0900
+description:
+use new kanji report
+
+
+changeset:   146:2d5b4473fbbb
+user:        "frostschutz <frostschutz@metamorpher.de>"
+date:        Sat May 19 19:53:40 2007 +0200
+description:
+make (foo) in '(foo) bar' actually show up
+
+
+changeset:   145:56df29eed2eb
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 20 00:19:23 2007 +0900
+description:
+load user customizations before view, etc
+
+
+changeset:   144:a895fe361a59
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 19 23:33:13 2007 +0900
+description:
+copy and paste bug
+
+
+changeset:   143:67b82487a696
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 19 23:30:34 2007 +0900
+description:
+add hooks in addCards, user config file
+
+
+changeset:   142:c69e57fba360
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 19 22:57:12 2007 +0900
+description:
+update help
+
+
+changeset:   141:f4ac85e67a06
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 19 22:50:10 2007 +0900
+description:
+update pending# every minute
+
+
+changeset:   140:cdbfd4141806
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 19 22:44:21 2007 +0900
+description:
+add graph of first answer
+
+
+changeset:   139:f252384ebfe1
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat May 19 00:20:53 2007 +0900
+description:
+tweak answer card help once again
+
+
+changeset:   138:0b23cde4c19d
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 21:51:06 2007 +0900
+description:
+age in english
+
+
+changeset:   137:4541d46b3a59
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 21:19:13 2007 +0900
+description:
+update translations, bump to 0.2.6.3
+
+
+changeset:   136:6e2110636739
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 20:54:00 2007 +0900
+description:
+show different help messages for cards in the initial state
+
+
+changeset:   135:c39e8b6a638e
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 19:25:38 2007 +0900
+description:
+make the help window arial 12pt
+
+
+changeset:   134:859bf6e90fb6
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 17:16:21 2007 +0900
+description:
+prefs window, change example text
+
+
+changeset:   133:e85b05dbb237
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 16:02:33 2007 +0900
+description:
+more osx related tweaks
+
+
+changeset:   132:6ad8da1ef509
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 06:38:42 2007 +0900
+description:
+tweak mac build script
+
+
+changeset:   131:9271cf3773a5
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 18 06:37:45 2007 +0900
+description:
+copy sample decks out of mac archive
+
+
+changeset:   130:104de8aa60a6
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:47:08 2007 +0900
+description:
+get platform, too
+
+
+changeset:   129:aa8d41244bb0
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:42:37 2007 +0900
+description:
+slightly expand prefs dialog
+
+
+changeset:   128:0f46c4f073ce
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:33:41 2007 +0900
+description:
+not deck -> deck is None
+
+
+changeset:   127:44988161aed5
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:24:39 2007 +0900
+description:
+don't do that, the problem was elsewhere
+
+
+changeset:   126:04de408b3d81
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:23:09 2007 +0900
+description:
+force recompile on mac build (fixes stale problems)
+
+
+changeset:   125:f50ed70bfc28
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:18:28 2007 +0900
+description:
+return True if save was successful, bump to 0.2.6
+
+
+changeset:   124:6b865f69389a
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:14:29 2007 +0900
+description:
+tweak read-only check
+
+
+changeset:   123:0f6ac7683a75
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 04:04:40 2007 +0900
+description:
+more read-only handling
+
+
+changeset:   122:9b8929959581
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 03:40:17 2007 +0900
+description:
+add mac build script
+
+
+changeset:   121:2a42e089b9b3
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 03:22:45 2007 +0900
+description:
+default to sync off again
+
+
+changeset:   120:877d57416124
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 03:19:06 2007 +0900
+description:
+enable save on save
+
+
+changeset:   119:cf8ee60a7a94
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 03:17:57 2007 +0900
+description:
+disable sync on closed deck, don't die on stat(noFile)
+
+
+changeset:   118:0dcaf806985d
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 03:04:38 2007 +0900
+description:
+disable save menu on read-only deck
+
+
+changeset:   117:c12ca4376bd3
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 02:56:44 2007 +0900
+description:
+graph status, fix save bug, osx package updates
+
+
+changeset:   116:c2a08e3ba0a5
+parent:      115:e1693e2a0e72
+parent:      114:f5c74c75b8dd
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 01:45:48 2007 +0900
+description:
+merge from other comp
+
+
+changeset:   115:e1693e2a0e72
+parent:      112:95b18641289d
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu May 17 01:41:00 2007 +0900
+description:
+updates to mac build script
+
+
+changeset:   114:f5c74c75b8dd
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 16 17:07:31 2007 +0900
+description:
+adjust graph window size again
+
+
+changeset:   113:3102f79132e1
+parent:      110:b2224a14bd74
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 16 16:43:39 2007 +0900
+description:
+import graphs in onGraphStats
+
+
+changeset:   112:95b18641289d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 16 23:19:08 2007 +0900
+description:
+osx: different graph window size, use geometry() not framegeo..()
+
+
+changeset:   111:d1aefe158e8d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 16 22:48:03 2007 +0900
+description:
+import re in ankiqt.py
+
+
+changeset:   110:b2224a14bd74
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 04:16:41 2007 +0900
+description:
+bump version number, don't die on no deck
+
+
+changeset:   109:57e121db9a76
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 04:10:45 2007 +0900
+description:
+tweak updating code
+
+
+changeset:   108:6262e2694fe8
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 03:30:53 2007 +0900
+description:
+point "start here" to the help pages on the web
+
+
+changeset:   107:92c7a12a663d
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 03:21:42 2007 +0900
+description:
+add some explanations to the graphs
+
+
+changeset:   106:ef9dfdac9e8e
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 02:41:45 2007 +0900
+description:
+give more information when importing
+
+
+changeset:   105:7c4919e5904e
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 00:23:30 2007 +0900
+description:
+always add graph link (speed up deck stats)
+
+
+changeset:   104:f45d4917614d
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 00:04:58 2007 +0900
+description:
+increase default size, make added cards use same direction
+
+
+changeset:   103:f8a7138acfd0
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue May 15 00:01:06 2007 +0900
+description:
+add adjustable graphs
+
+
+changeset:   102:b00fc31d9e35
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon May 14 08:59:03 2007 +0900
+description:
+mention problem with qt4.1
+
+
+changeset:   101:bf4d48b52ec0
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 13 23:06:21 2007 +0900
+description:
+account for libanki refactor
+
+
+changeset:   100:39ba315a1525
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 13 18:48:58 2007 +0900
+description:
+display '4 days' in prefs preview (closer to reality)
+
+
+changeset:   99:0d0cc137104a
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 13 05:26:56 2007 +0900
+description:
+ensure currentCard != lastCard
+
+
+changeset:   98:bc8c88b9c655
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 13 05:08:06 2007 +0900
+description:
+add card stats, beginnings of hook support, keys for misc text in help
+
+
+changeset:   97:aeeaa02bcb65
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun May 13 03:40:01 2007 +0900
+description:
+bump to 0.2.5-pre, report retention for old cards in update
+
+
+changeset:   96:aa889ebc3455
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 11 01:38:35 2007 +0900
+description:
+let library deal with deviation
+
+
+changeset:   95:fbbd86b1dbc5
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 11 00:32:38 2007 +0900
+description:
+add deviation to prefs window, too
+
+
+changeset:   94:dbee68b86a7b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri May 11 00:22:22 2007 +0900
+description:
+allow reading of .anki.css
+
+
+changeset:   93:7daf4bea0fe4
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon May 07 17:09:34 2007 +0900
+description:
+report the real schedule date, not an estimate pre-deviation
+
+
+changeset:   92:9b583cbe6eeb
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon May 07 01:05:56 2007 +0900
+description:
+show deleted cards even if edited, don't show < 60 seconds in deckFinished
+
+
+changeset:   91:b7e7b5ecca03
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 20:29:35 2007 +0900
+description:
+reset pending cards on deck edit
+
+
+changeset:   90:523d02455b19
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 20:18:21 2007 +0900
+description:
+translation updates
+
+
+changeset:   89:542585e46bb0
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 19:47:30 2007 +0900
+description:
+fix non-wrapping tooltips, bump version to 0.2.4
+
+
+changeset:   88:99e8fc3f1845
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 18:51:14 2007 +0900
+description:
+use new stats format when checking if we should autosave
+
+
+changeset:   87:e2e464156366
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 18:35:41 2007 +0900
+description:
+link in new graphs from libanki
+
+
+changeset:   86:78b167452a2a
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 17:42:37 2007 +0900
+description:
+update to new stats api, improve status bar
+
+
+changeset:   85:90e1f68711a1
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 05:45:46 2007 +0900
+description:
+save after every 30, not 10
+
+
+changeset:   84:13fb077f0cce
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 05:30:07 2007 +0900
+description:
+fix reference to the deck menu in help
+
+
+changeset:   83:8c6ec5456ee6
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 05:27:29 2007 +0900
+description:
+don't accept RT in add cards, strip newline from pasted text
+
+
+changeset:   82:103ec8d3ef17
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 04:32:12 2007 +0900
+description:
+tweak key handling
+
+
+changeset:   81:60e6a7014230
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 04:02:43 2007 +0900
+description:
+allow deck arg both before and after options
+
+
+changeset:   80:ba5362f41fb9
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed May 02 02:57:28 2007 +0900
+description:
+add status bar widgets, fix bug w/ finished help, add ~ outside win32
+
+
+changeset:   79:71e82d66ca29
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 30 23:52:13 2007 +0900
+description:
+prevent deck finished window from overwriting deck statistics, etc
+
+
+changeset:   78:18924197529f
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 30 20:52:35 2007 +0900
+description:
+report socket timeouts when syncing
+
+
+changeset:   77:b8fb5bc5c5e7
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 30 20:45:23 2007 +0900
+description:
+fix bug when reporting failed file load
+
+
+changeset:   76:4b1a39b0708d
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 30 20:43:58 2007 +0900
+description:
+fix another key handler assuming the key is a string
+
+
+changeset:   75:456c9149973b
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Apr 28 15:10:01 2007 +0900
+description:
+set focus back to main window after triggering graphs
+
+
+changeset:   74:cbb0d7745bbc
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Apr 28 00:43:25 2007 +0900
+description:
+add room for x axis label in graphs
+
+
+changeset:   73:246a55ef47ff
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 27 01:33:17 2007 +0900
+description:
+add welcome message
+
+
+changeset:   72:858ff864eb9f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 27 01:13:27 2007 +0900
+description:
+bump version to 0.2.3
+
+
+changeset:   71:4885925f424f
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 27 01:08:54 2007 +0900
+description:
+add support for exporting decks
+
+
+changeset:   70:ee5eb6fd7188
+user:        iroiro
+date:        Wed Apr 25 18:36:10 2007 +0300
+description:
+Fix for the title bar bug
+
+
+changeset:   69:7fbd85b7f09c
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 26 01:50:08 2007 +0900
+description:
+show new cards as new in edit dialog
+
+
+changeset:   68:5cd39a30584d
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 26 01:43:50 2007 +0900
+description:
+prevent errors due to lack of data for graphs
+
+
+changeset:   67:be71ea3c1611
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 26 00:22:54 2007 +0900
+description:
+allow hiragana prompts in question for beginners
+
+
+changeset:   66:e8adb5e1337d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 21:18:58 2007 +0900
+description:
+tidy up iroiro's patch, correct stealth removal of space after question ;-)
+
+
+changeset:   65:65cb3ecefbd5
+user:        iroiro
+date:        Tue Apr 24 23:44:27 2007 +0300
+description:
+fixed font ' issue; using <style> now
+
+
+changeset:   64:b7f17387807d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 13:31:16 2007 +0900
+description:
+update readme
+
+
+changeset:   63:318b5a1e48d3
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 08:19:56 2007 +0900
+description:
+add msg about 'get latest version' being unnecessary
+
+
+changeset:   62:7e16f23b9f35
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 07:26:19 2007 +0900
+description:
+don't go over 100% (hack until i get size from server)
+
+
+changeset:   61:06c9d81838c4
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 07:05:31 2007 +0900
+description:
+update file size (should grab this on version check instead)
+
+
+changeset:   60:36c1208b3b79
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 06:49:04 2007 +0900
+description:
+lazy import graphs
+
+
+changeset:   59:ca27b4428397
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 04:57:09 2007 +0900
+description:
+don't fail if matplotlib is unavailable
+
+
+changeset:   58:94c764c3bb79
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 04:34:34 2007 +0900
+description:
+bump version to 0.2.2
+
+
+changeset:   57:dd89b93c77f0
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 04:13:09 2007 +0900
+description:
+add -c/--config command line option
+
+
+changeset:   56:1dbe3285f7a1
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 03:58:51 2007 +0900
+description:
+add graph generation
+
+
+changeset:   55:6e9e5232bb71
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 01:25:24 2007 +0900
+description:
+encode both deckpath and homepath into utf8 (fixes titlebar bug)
+
+
+changeset:   54:77dbc8ecbc0b
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 01:19:40 2007 +0900
+description:
+use unicode() to determine input string (fixes problems with non-english locales)
+
+
+changeset:   53:b9c4d3d119e1
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 01:15:54 2007 +0900
+description:
+make edit window modal
+
+
+changeset:   52:35e942497b1e
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 01:13:55 2007 +0900
+description:
+don't clobber title bar when rejecting prefs dialog
+
+
+changeset:   51:686636d65198
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 25 01:10:55 2007 +0900
+description:
+add missing background colour support
+
+
+changeset:   50:14757051d165
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 23 17:31:43 2007 +0900
+description:
+redraw main window after deck edit
+
+
+changeset:   49:e0f6cf7d029f
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 05:05:08 2007 +0900
+description:
+use qt to resize columns, instead of doing it manually
+
+
+changeset:   48:68c579412194
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 04:35:13 2007 +0900
+description:
+disable resizing
+
+
+changeset:   47:cfdb488e2408
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 04:09:59 2007 +0900
+description:
+activated->triggered on menu items (fixes 'menus don't work')
+
+
+changeset:   46:6bc27deb50ae
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 03:26:22 2007 +0900
+description:
+add warning about utf8
+
+
+changeset:   45:a7e528345462
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 03:19:03 2007 +0900
+description:
+update to 0.2.1, add get latest version link
+
+
+changeset:   44:e69bb6886d20
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 02:51:35 2007 +0900
+description:
+preserve sort order when filtering
+
+
+changeset:   43:0b68f4c81347
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 01:56:39 2007 +0900
+description:
+fix duplicate "deck is unsaved" message
+
+
+changeset:   42:a3441bb23bf0
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 01:54:44 2007 +0900
+description:
+add missing files from previous updates
+
+
+changeset:   41:7c575a7e43a8
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Apr 22 01:54:01 2007 +0900
+description:
+add import support (anki decks, text files)
+
+
+changeset:   40:5026e9b0eca4
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 20:09:50 2007 +0900
+description:
+don't bore the user with sync failed message if they don't have a username
+
+
+changeset:   39:3b8c036ac072
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 20:00:21 2007 +0900
+description:
+fix bug on restoring interface/target lang
+
+
+changeset:   38:4f9999363cf0
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 19:56:20 2007 +0900
+description:
+update translations
+
+
+changeset:   37:2a795154c911
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 19:17:29 2007 +0900
+description:
+add auto update support
+
+
+changeset:   36:e76615acddad
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 17:16:43 2007 +0900
+description:
+force arial font for question on win32
+
+
+changeset:   35:9410367fb93a
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 16:12:36 2007 +0900
+description:
+win32 requires geometry, not frame geometry
+
+
+changeset:   34:b87ffbeb4d27
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 15:58:15 2007 +0900
+description:
+enable syncing when deck isn't saved (fixes bootstrap bug)
+
+
+changeset:   33:d2f20721fef5
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 15:43:00 2007 +0900
+description:
+add a timer to the edit cards filter
+
+
+changeset:   32:aee52ed9d9bf
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 15:19:12 2007 +0900
+description:
+anothe locale fix
+
+
+changeset:   31:5dbd2eac8d1b
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 07:42:36 2007 +0900
+description:
+split build scripts, move into tools
+
+
+changeset:   30:cf6c49108ddc
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 07:07:51 2007 +0900
+description:
+fix threading bug triggered by prefs dialog
+
+
+changeset:   29:462add406c80
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Apr 20 05:34:05 2007 +0900
+description:
+fix add cards rendering, add missing kanji, fix bug on sync
+
+
+changeset:   28:28ee5f079a35
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 19 04:55:25 2007 +0900
+description:
+fix sync bug, temp fix for win32 locales
+
+
+changeset:   27:5ea16f40c58a
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 19 04:35:21 2007 +0900
+description:
+port to Qt (100% complete)
+
+
+changeset:   26:2d4a963fd312
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 18 22:29:48 2007 +0900
+description:
+port to Qt (85% complete)
+
+
+changeset:   25:d76c0c9333ff
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 16 23:47:38 2007 +0900
+description:
+port to Qt (50% complete)
+
+
+changeset:   24:324eca4379b2
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 11 19:58:34 2007 +0900
+description:
+hide the help window when closing addCards
+
+
+changeset:   23:34e7edc116cc
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 11 17:30:20 2007 +0900
+description:
+add addCard help, make EN window bigger, re-enable 'don't show this'
+
+
+changeset:   22:d55be18de061
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 11 16:54:40 2007 +0900
+description:
+move addCards dialog into main window
+- wxglade crashes on my system, so i had to enter the code manually
+- encountered another wx bug with resizing widgets
+
+
+changeset:   21:511109ea5fa6
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 11 01:21:24 2007 +0900
+description:
+add help window, numerous changes (work in progress)
+- added support for context sensitive help
+- add help for new/reviewed cards
+- reduce preferences window size
+- use new fmtTimeSpan (changed in libanki)
+- use a panel in the main window
+- htmlify the statistics, and pop them up in the help wind
+- i18nify the statistics
+- factor cardIsNew into libanki
+- numNewCards no longer needed due to changes in libanki
+- show different "pending cards" message depending on if new or old
+
+
+changeset:   20:97727ca254d7
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 09 22:10:47 2007 +0900
+description:
+add missing japanese text 'IN xx days'
+
+
+changeset:   19:004c7f7627d6
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 09 15:47:08 2007 +0900
+description:
+no stats to show on an empty deck
+
+
+changeset:   18:58591877609a
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 09 15:28:30 2007 +0900
+description:
+more stats updates
+
+
+changeset:   17:9ff3f95e9e1c
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Apr 09 14:52:40 2007 +0900
+description:
+fix previous commit, add deck stats
+
+
+changeset:   16:d7a06d342d98
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Apr 07 17:46:54 2007 +0900
+description:
+add support for edict kanji lookups, only show menus when target is japanese
+
+
+changeset:   15:6d2a308370e4
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 05 02:50:18 2007 +0900
+description:
+trap import error and don't crash app
+
+
+changeset:   14:5e0db87fa371
+user:        Damien Elmes <hg@repose.cx>
+date:        Thu Apr 05 02:13:03 2007 +0900
+description:
+don't disable edit window, or we can't open prefs
+
+
+changeset:   13:01e7bcabe8c9
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Apr 04 22:54:15 2007 +0900
+description:
+track estimated time to deck completion
+
+
+changeset:   12:9a282714608f
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Apr 03 04:27:23 2007 +0900
+description:
+move to 0.14, add kakasi path, more fc->anki fixes
+
+
+changeset:   11:f119de9e3b5a
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Apr 03 03:50:45 2007 +0900
+description:
+rename fcwx to anki/ankiwx
+
+
+changeset:   10:7067ac44fcf4
+user:        Damien Elmes <hg@repose.cx>
+date:        Sat Mar 31 16:42:21 2007 +0900
+description:
+add a few more menu shortcuts, move prefs to edit menu
+
+
+changeset:   9:94ab70dab41f
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Mar 28 19:14:49 2007 +0900
+description:
+small jp update
+
+
+changeset:   8:a66fca441e7d
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Mar 28 18:25:57 2007 +0900
+description:
+prevent syncing while syncing (fixes deadlock)
+
+
+changeset:   7:c81bd2f5ffba
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Mar 28 03:11:53 2007 +0900
+description:
+another jp update (ato in kanji is confusing, apparently)
+
+
+changeset:   6:024b2f0a6054
+user:        Damien Elmes <hg@repose.cx>
+date:        Wed Mar 28 03:07:21 2007 +0900
+description:
+use fc for nextTime in edit window, update jp translations
+
+
+changeset:   5:d7bdf6b54a27
+user:        Damien Elmes <hg@repose.cx>
+date:        Tue Mar 27 16:23:30 2007 +0900
+description:
+report number of changed/deleted cards when applying the edit deck window
+
+
+changeset:   4:99b377d7fd52
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 26 16:45:39 2007 +0900
+description:
+make searching in edit card dialog case insensitive
+
+
+changeset:   3:a8b58b3dff03
+user:        Damien Elmes <hg@repose.cx>
+date:        Mon Mar 26 16:40:06 2007 +0900
+description:
+more translation fixes
+
+
+changeset:   2:47f6d2e2ba80
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Mar 25 14:09:25 2007 -0700
+description:
+fix a few setStatus calls, fix typo in jp translation
+
+
+changeset:   1:65c018c130ac
+user:        Damien Elmes <hg@repose.cx>
+date:        Sun Mar 25 13:30:51 2007 -0700
+description:
+add link to issue tracker
+
+
+changeset:   0:11505f11f925
+user:        Damien Elmes <hg@repose.cx>
+date:        Fri Mar 23 10:35:23 2007 -0700
+description:
+import from bzr (see ChangeLog.old)
+
+------------------------------------------------------------
+revno: 6
+committer: Damien Elmes <bzr@ichi2.net>
+branch nick: fcwx
+timestamp: Thu 2007-03-22 11:07:17 -0700
+message:
+  fix preferences preview, look for samples in win32 install dir
+------------------------------------------------------------
+revno: 5
+committer: Damien Elmes <bzr@ichi2.net>
+branch nick: fcwx
+timestamp: Thu 2007-03-22 10:32:43 -0700
+message:
+  translation updates
+------------------------------------------------------------
+revno: 4
+committer: Damien Elmes <bzr@ichi2.net>
+branch nick: fcwx
+timestamp: Thu 2007-03-22 09:25:39 -0700
+message:
+  open in examples dir by default, report a failed save, add indents
+------------------------------------------------------------
+revno: 3
+committer: Damien Elmes <bzr@ichi2.net>
+branch nick: fcwx
+timestamp: Thu 2007-03-22 08:33:36 -0700
+message:
+  syncing, title bar, misc
+  - update sync code to support new protocol
+  - update title bar on failed deck load
+  - remove import support
+  - notify the user when a new version has been released
+  - reorder close and save
+  - hide python shell by default
+  - disable tools menu on no deck
+  - convert deck path to unicode before displaying the title
+------------------------------------------------------------
+revno: 2
+committer: Damien Elmes <bzr@ichi2.net>
+branch nick: fcwx
+timestamp: Tue 2007-03-20 12:33:15 -0700
+message:
+  merge patches from LaC, fix bug triggered on linux
+  - add kanji count statistics
+  - fix textctrl on mac
+  - rewritten grid code to provide table data on demand (much more efficient)
+  - columns are now automatically resized
+  - fixed some bugs in the process; for example, the filter is no longer ignored
+    when changing the sort order
+  - SetScrollLineX(0) on linux causes a hard crash. use a border of 1 instead
+------------------------------------------------------------
+revno: 1
+committer: Damien Elmes <bzr@ichi2.net>
+branch nick: fcwx
+timestamp: Tue 2007-03-20 11:53:07 -0700
+message:
+  initial import from darcs (see ChangeLog.old for old changes)
+------------------------------------------------------------
+Tue Mar 20 11:19:53 PDT 2007  fc@ichi2.net
+  * move to a new scheduling algorithm, fix various things
+  - update user interface to use the new scheduler (see fc changelog for more)
+  - reduce ease choices to 5 (0-4)
+  - show next time at ease 4, 3, 2
+  - clear status area after 3 seconds
+  - add menu items to lookup question/answer/selection in alc/edict
+  - add an interactive python shell menu item (hidden by default in future)
+  - update about dialog (fc's not only for Japanese learners)
+  - call fc to set the output lang for time differences
+  - remove ()s around furigana in output
+  - show furigana under kanji
+  - add a 1-space margin to text in the main window (excluding ques&ans)
+  - add average retention ratio (correct% over life of deck) to top section
+  - add GPL boilerplate
+
+Mon Mar 12 01:48:38 PDT 2007  fc@ichi2.net
+  * on preferences, don't assume an open deck (add "initial" state)
+
+Sun Mar 11 23:01:09 PDT 2007  fc@ichi2.net
+  * remove 'please restart' warning (not necessary), update translations
+
+Sun Mar 11 22:53:37 PDT 2007  fc@ichi2.net
+  * redraw menu on interface lang change
+
+Sun Mar 11 05:56:18 PDT 2007  fc@ichi2.net
+  * release 0.12
+
+Sun Mar 11 05:49:28 PDT 2007  fc@ichi2.net
+  * fix mac pref reference, remove useless enable/disableBody routines
+
+Sat Mar 10 05:34:14 PST 2007  fc@ichi2.net
+  * lang bugs, edit only on mac, last card, translations, etc
+  - moveToState openDeck with no deck is safe now
+  - don't exit if there's an unsaved file
+  - correctly initialise the interface language based on locale
+  - only display cut/copy/paste on mac (where it's necessary)
+  - honour lastCard{colour,font}
+  - update empty deck message
+  - hide furigana font, not interface font for english tgt. lang.
+  - change default colours to something a bit more conservation
+  - add jp translations for most of the changes
+
+Fri Mar  9 22:57:52 PST 2007  fc@ichi2.net
+  * even separation between top&question, answer&prompt
+
+Fri Mar  9 21:54:56 PST 2007  fc@ichi2.net
+  * ensure > 2.8 not =, maximize edit card window, make columns larger
+
+Fri Mar  9 20:46:14 PST 2007  fc@ichi2.net
+  * import sys before checking for wx
+
+Fri Mar  9 20:37:24 PST 2007  fc@ichi2.net
+  * fix lastCard bug, require wx2.8
+
+Fri Mar  9 18:25:01 PST 2007  fc@ichi2.net
+  * fix update on close of addCardDialog
+
+Fri Mar  9 05:49:13 PST 2007  fc@ichi2.net
+  * clear main window on deck close
+
+Fri Mar  9 05:30:00 PST 2007  fc@ichi2.net
+  * update main window when changing interface lang, display a better last card
+
+Fri Mar  9 05:19:04 PST 2007  fc@ichi2.net
+  * refactor display into controller/view
+
+Mon Mar  5 12:14:00 PST 2007  LaC
+  * miscellaneous fixes
+  - display fix in OLDSTYLE mode
+  - status bar displays error message if saving fails
+  - usable default fonts on Windows
+  - simplified edit dialog code, fixed issue with marked rows not being redrawn
+  - added some default colors; larger default kanji font
+  - incremented version number
+
+Thu Jan 25 07:39:14 PST 2007  LaC
+  * clear if same question exists
+  - also adds additional check for bundled kakasi in mac build
+
+Thu Feb  1 12:21:46 PST 2007  LaC
+  * little card stuff
+  - If a card's question is changed by the card generator (because of a
+    conflict with an existing card) give an explicit warning in the status
+    field. This was in a previous patch, but it was buggy. It's useful for
+    when your dictionary has ententries such as "<ban>: evening, night" and
+    "<yoru>: evening, night" and you don't realize until you are asked
+    "evening, night (1)" and have no idea which one it wants.
+  - If you change a card, the filter in the card editor applies to the newly
+    entered text (eg if you add a "(vt)" marker and search for "(vt)", it
+    shows up).
+  - Removed begin/end batch call in mark functions, since the operation is now
+    done with a single call.
+
+Wed Jan 31 22:42:27 PST 2007  fc@ichi2.net
+  UNDO: split main window into 3
+
+Wed Jan 31 22:42:27 PST 2007  fc@ichi2.net
+  * split main window into 3
+
+Wed Jan 31 22:24:33 PST 2007  fc@ichi2.net
+  * fix conflicts in merge with lac, kill some trailing whitespace
+
+Wed Jan 31 15:50:05 PST 2007  LaC
+  * fix stale colors
+  Since the existing table rows are no longer deleted (see earlier patch),
+  their background color needs to be cleared separately. After considering
+  several methods, profiling showed this to be the fastest.
+
+Thu Jan 25 08:06:58 PST 2007  LaC
+  * fixed marking rows
+  - fixed marking deleted and changed rows in deck editor (broken by faster
+    filter patch)
+
+Wed Jan 24 11:47:57 PST 2007  LaC
+  * LaC changed mac bundle identifier
+
+Wed Jan 24 10:53:26 PST 2007  LaC
+  * LaC setup.py version
+  - setup.py now gets the version number from fcwx.py
+
+Wed Jan 24 10:40:19 PST 2007  LaC
+  * LaC faster filter
+  - changed the implementation of EditDeckDialog.show(); the new version is
+    about twice as fast (measured), which is noticeable on my system.
+
+Wed Jan 24 10:37:24 PST 2007  LaC
+  * LaC help menu
+  - added a bare-bones help menu. Apps always have a help menu on OS X, and it
+    looks silly if it's empty. They also require an about command (which gets
+    moved to the application menu by wxMac).
+
+Wed Jan 24 09:42:03 PST 2007  LaC
+  * LaC bundled kakasi for Mac build
+
+Tue Jan 23 15:19:24 PST 2007  LaC
+  * LaC mac binary build
+  - added script to produce a binary build for OS X. The build is an universal
+    binary (not yet tested on Intel, though) and includes all dependencies
+    (Python, wxPython etc.). This simplifies installation and makes it
+    possible to include a specially patched version of wxPython that fixes
+    some bugs with Japanese text input (the patches have been submitted to wx,
+    but have not been committed yet). Note that this patch only includes the
+    script; if anyone else wants to make a Mac build, they need to have their
+    own copy of wxPython.
+  - added icon for Mac binary build.
+
+Tue Jan 23 15:14:09 PST 2007  LaC
+  * LaC deck editor
+  - renamed the wxglade file with the correct extension
+  - fixed a broken call to updateTitleBar
+  - interface changes, mainly to the Edit Deck dialog. In particular, instead
+    of having a Search button which pops up a modal dialog, the window now has
+    a search box where the user can type a query directly and see the results
+    in real time (actually with a small delay to ensure that a quick series of
+    keystrokes is coalesced into a single search). The search box uses the
+    dedicated wx.SearchCtrl, which uses the native search box widget on
+    platforms that have one (eg OS X), and falls back on a TextCtrl on those
+    that don't.
+
+Tue Jan 23 15:01:44 PST 2007  LaC
+  * LaC menus
+  - Added keyboard equivalents for several menu commands on Mac.
+  - Reorganized menus. The new layout fits much better on OS X, where
+    applications are not required to have a File menu: now there is a Deck
+    menu containing all commands which operate on the deck as a whole (this
+    also avoids having to repeat the word "deck" in every single command,
+    which cluttered the menu), while commands such as Quit are in the
+    application menu. Other systems don't have an application menu, however,
+    so it might be necessary to conditionalize these changes depending on the
+    platform.
+  - Defined several command IDs in terms of the equivalent standard wx IDs.
+    This is supposed to allow such things as displaying the standard command
+    icons on GTK.
+
+Tue Jan 23 13:51:59 PST 2007  LaC
+  * LaC 0.12 misc
+  - support for old/new style display
+  - fixed mac menu support
+  - better implementation of deck restart
+  - edit menu
+  - better information dislay in title bar
+  - fixed bug with font defaults on mac
+
+Thu Jan 11 20:35:12 PST 2007  fc@ichi2.net
+  * don't check for kakasi unless we're in japanese mode
+
+Thu Jan 11 20:33:08 PST 2007  fc@ichi2.net
+  * add labels to cut/copy/paste etc
+
+Thu Jan 11 20:22:00 PST 2007  fc@ichi2.net
+  * patch from teh_lac (fixes font bug, mac bug, timer)
+
+Mon Dec 25 08:19:16 PST 2006  fc@ichi2.net
+  * refactor display code, select current card in editor
+  - use regexps to match optional furigana (should be less prone to breaking)
+  - display furigana on separate line
+  - make question and answer centered
+  - remove separator line
+  - in the editor, select the currently displayed card
+
+Mon Dec 25 06:07:21 PST 2006  fc@ichi2.net
+  * honour last card colour, drop multiple colour type support as we pickle
+
+Sun Dec 24 03:07:40 PST 2006  fc@ichi2.net
+  * numerous changes (mac/timer/etc)
+  - add card timer to show cards after finished screen
+  - set mac preferences properly
+  - display file name in title bar
+  - show last card up top
+  - display message if incorrect cards are pending
+  - only undo RET on windows
+  - display approx next time for quality 4/5
+  - allow customization of last card colour/font
+  - update japanese translations
+  - use kakasi in $INSTDIR/kakasi, not c:\kakasi
+  - show 'undecided language' last, so that when
+    it's hidden it doesn't effect the order on win32/mac
+  - accept a deck as a command line argument
+
+Sat Dec 23 05:53:13 PST 2006  fc@ichi2.net
+  * don't delete temp control until end, force bg colour to default to white
+
+Tue Dec 12 06:26:25 PST 2006  fc@ichi2.net
+  * merge imei's latest patch with some modifications
+
+Mon Dec 11 05:37:31 PST 2006  fc@ichi2.net
+  * patch from teh_lac - use native font desc, not user desc, due to macosx bug
+
+Sun Dec 10 03:10:25 PST 2006  fc@ichi2.net
+  * scroll add cards automatically, add auto kakasi win32 support, check open deck
+
+Thu Dec  7 06:33:35 PST 2006  fc@ichi2.net
+  * scroll the add card status
+
+Thu Dec  7 06:08:49 PST 2006  fc@ichi2.net
+  * add backup support on load/save/exit
+
+Thu Dec  7 05:18:23 PST 2006  fc@ichi2.net
+  * auto-fill furigana, improve deck editor (thanks imei)
+
+Thu Dec  7 01:20:50 PST 2006  fc@ichi2.net
+  * possible fix for osx menu problem
+
+Thu Nov 30 05:21:03 PST 2006  fc@ichi2.net
+  * don't destroy dialogs, they destroy themselves
+
+Wed Nov 29 20:28:43 PST 2006  fc@ichi2.net
+  * polish off the edit deck functionality a little
+
+Tue Nov 28 09:54:50 PST 2006  fc@ichi2.net
+  * beginnings of the edit dialog (but forgets changes when searching atm)
+
+Tue Nov 28 07:37:33 PST 2006  fc@ichi2.net
+  * big refactor, sync in a different thread
+
+Mon Nov 27 02:50:32 PST 2006  fc@ichi2.net
+  * set japanese locale by default
+
+Fri Nov 24 11:21:14 PST 2006  fc@ichi2.net
+  * added japanese translation
+
+Fri Nov 24 07:26:21 PST 2006  fc@ichi2.net
+  * font customisation, etc
+
+Thu Nov 23 04:37:19 PST 2006  fc@ichi2.net
+  * add sync support, prefs
+
+Wed Nov 22 09:28:39 PST 2006  fc@ichi2.net
+  * move lang config into preferences
+
+Wed Nov 22 07:51:27 PST 2006  fc@ichi2.net
+  * misc changes
+
+Wed Nov 22 03:24:12 PST 2006  fc@ichi2.net
+  * add glade files
+
+Mon Nov 20 10:01:37 PST 2006  fc@ichi2.net
+  * initial import
