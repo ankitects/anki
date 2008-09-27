@@ -1,0 +1,9 @@
+*.pyc
+*~
+*.mo
+*\#
+build
+dist
+anki.egg-info
+samples
+unihan.db
