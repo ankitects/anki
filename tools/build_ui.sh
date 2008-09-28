@@ -8,6 +8,9 @@ then
     echo "Please run this from the project root"
     exit
 fi
+
+mkdir -p ankiqt/forms
+
 if [ xDarwin = x$(uname) ]
 then
     pyuic=/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4
