@@ -1219,6 +1219,7 @@ Return new path, relative to media dir."""
     def close(self):
         self.s.rollback()
         self.s.clear()
+        self.s.close()
         self.engine.dispose()
 
     def rollback(self):
