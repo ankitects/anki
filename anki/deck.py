@@ -690,12 +690,12 @@ priority != 0 and due < :now and spaceUntil > :now""",
         stats['new'] = self.newCountLeftToday
         stats['failed'] = self.failedCount
         stats['successive'] = self.reviewCount
-        #stats['old'] = stats['failed'] + stats['successive']
         if stats['dAverageTime']:
             if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
                 count = stats['successive'] + stats['new']
             elif self.newCardSpacing == NEW_CARDS_LAST:
                 count = stats['successive'] or stats['new']
+            count += stats['failed']
             stats['timeLeft'] = anki.utils.fmtTimeSpan(
                 stats['dAverageTime'] * count, pad=0, point=1)
         else:

@@ -99,8 +99,10 @@ class Card(object):
         self.timerStopped = time.time()
 
     def thinkingTime(self):
-        "Return the time this card's been shown."
         return (self.timerStopped or time.time()) - self.timerStarted
+
+    def totalTime(self):
+        return time.time() - self.timerStarted
 
     def css(self):
         return self.cardModel.css() + self.fact.css()
@@ -115,7 +117,7 @@ class Card(object):
             self.successive += 1
         else:
             self.successive = 0
-        delay = self.thinkingTime()
+        delay = self.totalTime()
         # ignore any times over 60 seconds
         if delay < 60:
             self.reviewTime += delay
