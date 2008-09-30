@@ -1381,6 +1381,11 @@ select id from fields where factId not in (select id from facts)""")
         for cm in cms:
             self.updateCardsFromModel(cm)
             self.s.expunge(cm)
+        # forget all deletions
+        self.s.statement("delete from cardsDeleted")
+        self.s.statement("delete from factsDeleted")
+        self.s.statement("delete from modelsDeleted")
+        self.s.statement("delete from mediaDeleted")
         # mark everything changed to force sync
         self.s.flush()
         self.s.statement("update cards set modified = :t", t=time.time())
