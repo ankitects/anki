@@ -205,10 +205,13 @@ Caller is responsible for ensuring cards are not spaced."""
         "Given a card ID, return a card, and start the card timer."
         if orm:
             card = self.s.query(anki.cards.Card).get(id)
+            if not card:
+                return
             card.timerStopped = False
         else:
             card = anki.cards.Card()
-            card.fromDB(self.s, id)
+            if not card.fromDB(self.s, id):
+                return
         card.genFuzz()
         card.startTimer()
         return card

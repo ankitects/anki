@@ -149,6 +149,8 @@ class Card(object):
     def fromDB(self, s, id):
         r = s.first("select * from cards where id = :id",
                     id=id)
+        if not r:
+            return
         (self.id,
          self.factId,
          self.cardModelId,
@@ -187,6 +189,7 @@ class Card(object):
          self.isDue,
          self.type,
          self.combinedDue) = r
+        return True
 
     def toDB(self, s):
         "Write card to DB. Note that isDue assumes card is not spaced."
