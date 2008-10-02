@@ -1412,6 +1412,24 @@ select id from fields where factId not in (select id from facts)""")
         newSize = os.stat(self.path)[stat.ST_SIZE]
         return oldSize - newSize
 
+# Shared decks
+##########################################################################
+
+sourcesTable = Table(
+    'sources', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('sourceId', Integer, nullable=False),
+    Column('name', UnicodeText, nullable=False, default=""),
+    Column('created', Float, nullable=False, default=time.time),
+    Column('lastSync', Float, nullable=False, default=0),
+    # -1 = never check, 0 = always check, 1+ = number of seconds passed
+    Column('syncPeriod', Float, nullable=False, default=0))
+
+#cardSources
+
+#index
+
+# Maps
 ##########################################################################
 
 mapper(Deck, decksTable, properties={

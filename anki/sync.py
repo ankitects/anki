@@ -185,6 +185,69 @@ class SyncTools(object):
 %(media)s
 </table>""") % p
 
+    # One-way syncing (sharing)
+    ##########################################################################
+
+    # - changes to models, facts, etc supported
+    # - changes to cards should not be synced
+    # - local deletions honoured, remote deletitions not
+    # - media support dependant on server support
+    # - when fact updated, need to update cards question/answer locally (by
+    #   rebuilding cache for all changed facts)
+    # - send cards as just ids?
+
+    # meta info via link to website - page on website with description,
+    # preview of cards, etc
+
+    # - add 'contact author' to report errors, etc
+    # - should edits to the server fact override local edits? (yes, easier
+    #   that way)
+
+    # - sync handling - do before standard sync, but don't touch deck modified,
+    #   so if last changes were done on server, stats will be synced properly.
+    # - if models/facts/etc don't have their modtime set to now, they'll be
+    #   missed by the standard lastSync check. so don't honour modtime on the
+    #   first time around, but honour it after that
+
+    # - sync period
+
+    # - handle subscriptions separately, or with sync?
+
+    # - how to easily remove subscribed cards? sort by modtime should work..
+
+    # - some models will be from a foreign source
+    # - append (foreign) to model names when created
+    # - two options:
+    # -- deleting a model will ignore any future cards from that model
+    # -- deleting a model requires the source to be deleted (models are
+    #    protected)
+    # - what will merging do? mapping from one model to another won't work if
+    # - the user has chaged the number of fields
+    # - want user to be able to delete models (and their associated cards),
+    #   without necessarily deleting all of the source's material.
+
+    def syncOneWay(self):
+        "Sync two decks one way locally. Reimplement this for finer control."
+        if not self.prepareSyncOneWay():
+            return
+        sums = self.summaries()
+        payload = self.genPayload(sums)
+        res = self.server.applyPayload(payload)
+        self.applyPayloadReply(res)
+
+    def prepareSync(self):
+        "Sync setup. True if sync needed."
+        self.localTime = self.modified()
+        self.remoteTime = self.server.modified()
+        if self.localTime == self.remoteTime:
+            return False
+        l = self._lastSync(); r = self.server._lastSync()
+        if l != r:
+            self.lastSync = min(l, r) - 600
+        else:
+            self.lastSync = l
+        return True
+
     # Summaries
     ##########################################################################
 
