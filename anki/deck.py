@@ -357,6 +357,7 @@ where isDue = 1""")
             elif ease == 4:
                 factor = card.factor * self.factorFour
                 interval = (card.interval + delay) * factor
+            assert card.fuzz
             interval *= card.fuzz
         if self.maxScheduleTime:
             interval = min(interval, self.maxScheduleTime)
