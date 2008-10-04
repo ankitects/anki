@@ -3,7 +3,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import os, types, socket, time
+import os, types, socket, time, traceback
 import ankiqt
 import anki
 from anki.sync import SyncClient, HttpSyncServerProxy
@@ -16,7 +16,8 @@ import ankiqt.forms
 
 class Sync(QThread):
 
-    def __init__(self, parent, user, pwd, interactive, create, onlyMerge):
+    def __init__(self, parent, user, pwd, interactive, create,
+                 onlyMerge, sourcesToCheck):
         QThread.__init__(self)
         self.parent = parent
         self.interactive = interactive
@@ -25,6 +26,7 @@ class Sync(QThread):
         self.create = create
         self.ok = True
         self.onlyMerge = onlyMerge
+        self.sourcesToCheck = sourcesToCheck
 
     def setStatus(self, msg, timeout=5000):
         self.emit(SIGNAL("setStatus"), msg, timeout)
@@ -54,6 +56,7 @@ class Sync(QThread):
     def connect(self, *args):
         # connect, check auth
         proxy = HttpSyncServerProxy(self.user, self.pwd)
+        proxy.sourcesToCheck = self.sourcesToCheck
         proxy.connect("ankiqt-" + ankiqt.appVersion)
         return proxy
 
@@ -87,38 +90,56 @@ class Sync(QThread):
             client.setServer(proxy)
             proxy.deckName = self.parent.syncName
             # need to do anything?
-            if not client.prepareSync():
-                self.setStatus(_("Sync: nothing to do"))
-                self.deck.close()
-                self.emit(SIGNAL("syncFinished"))
-                return
             start = time.time()
-            # summary
-            self.setStatus(_("Fetching summary from server.."), 0)
-            sums = client.summaries()
-            # diff
-            self.setStatus(_("Determining differences.."), 0)
-            payload = client.genPayload(sums)
-            # send payload
-            pr = client.payloadChangeReport(payload)
-            self.setStatus("<br>" + pr + "<br>", 0)
-            self.setStatus(_("Sending payload..."), 0)
-            res = client.server.applyPayload(payload)
-            # apply reply
-            self.setStatus(_("Applying reply.."), 0)
-            client.applyPayloadReply(res)
-            # finished. save deck, preserving mod time
-            self.setStatus(_("Sync complete."))
-            self.deck.lastLoaded = self.deck.modified
-            self.deck.s.flush()
-            self.deck.s.commit()
+            if client.prepareSync():
+                # summary
+                self.setStatus(_("Fetching summary from server.."), 0)
+                sums = client.summaries()
+                # diff
+                self.setStatus(_("Determining differences.."), 0)
+                payload = client.genPayload(sums)
+                # send payload
+                pr = client.payloadChangeReport(payload)
+                self.setStatus("<br>" + pr + "<br>", 0)
+                self.setStatus(_("Sending payload..."), 0)
+                res = client.server.applyPayload(payload)
+                # apply reply
+                self.setStatus(_("Applying reply.."), 0)
+                client.applyPayloadReply(res)
+                # finished. save deck, preserving mod time
+                self.setStatus(_("Sync complete."))
+                self.deck.lastLoaded = self.deck.modified
+                self.deck.s.flush()
+                self.deck.s.commit()
+            else:
+                self.setStatus(_("Sync: nothing to do"))
+            # check sources
+            if self.sourcesToCheck:
+                self.setStatus(_("<br><br>Checking shared decks.."))
+                for source in self.sourcesToCheck:
+                    if not proxy.hasDeck(str(source)):
+                        self.setStatus(_("%x no longer exists.") % source)
+                        continue
+                    proxy.deckName = str(source)
+                    if not client.prepareOneWaySync():
+                        self.setStatus(_("%x up to date.") % source)
+                        continue
+                    self.setStatus(_("Getting payload from %x..") % source)
+                    payload = proxy.genOneWayPayload(client.lastSync)
+                    self.setStatus(_("Applying %d modified cards..") %
+                                   len(payload['cards']))
+                    client.applyOneWayPayload(payload)
+                self.setStatus(_("Check complete."))
+                self.deck.s.flush()
+                self.deck.s.commit()
             # close and send signal to main thread
             self.deck.close()
             taken = time.time() - start
-            if taken < 2.5:
-                time.sleep(2.5 - taken)
+            if taken < 20.5:
+                time.sleep(20.5 - taken)
             self.emit(SIGNAL("syncFinished"))
         except Exception, e:
+            traceback.print_exc()
             self.deck.close()
             # cheap hack to ensure message is displayed
             err = `getattr(e, 'data', None) or e`
@@ -168,4 +189,3 @@ class DeckChooser(QDialog):
         else:
             self.name = self.decks[self.dialog.decks.currentRow() - offset]
         self.close()
-

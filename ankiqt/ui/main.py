@@ -17,6 +17,7 @@ from anki.errors import *
 from anki.sound import hasSound, playFromText
 from anki.utils import addTags, deleteTags
 from anki.media import rebuildMediaDir
+from anki.db import OperationalError
 import anki.lang
 import ankiqt
 ui = ankiqt.ui
@@ -473,7 +474,7 @@ class AnkiQt(QMainWindow):
         else:
             try:
                 self.rebuildQueue()
-            except:
+            except OperationalError:
                 ui.utils.showWarning(_(
                     "Error building queue. Attempting recovery.."))
                 self.onCheckDB()
@@ -985,7 +986,8 @@ class AnkiQt(QMainWindow):
     # Syncing
     ##########################################################################
 
-    def syncDeck(self, interactive=True, create=False, onlyMerge=False, reload=True):
+    def syncDeck(self, interactive=True, create=False, onlyMerge=False,
+                 reload=True, checkSources=True):
         "Synchronise a deck with the server."
         # vet input
         u=self.config['syncUsername']
@@ -1002,9 +1004,17 @@ class AnkiQt(QMainWindow):
             # save first, so we can rollback on failure
             self.deck.save()
             self.deck.close()
+            # store data we need before closing the deck
             self.deckPath = self.deck.path
             self.syncName = self.deck.syncName or self.deck.name()
             self.lastSync = self.deck.lastSync
+            if checkSources:
+                self.sourcesToCheck = self.deck.s.column0(
+                    "select id from sources where syncPeriod != -1 "
+                    "and syncPeriod = 0 or :t - lastSync > syncPeriod",
+                    t=time.time())
+            else:
+                self.sourcesToCheck = []
             self.deck = None
             self.loadAfterSync = reload
         # bug triggered by preferences dialog - underlying c++ widgets are not
@@ -1012,7 +1022,8 @@ class AnkiQt(QMainWindow):
         import gc; gc.collect()
         self.bodyView.clearWindow()
         self.bodyView.flush()
-        self.syncThread = ui.sync.Sync(self, u, p, interactive, create, onlyMerge)
+        self.syncThread = ui.sync.Sync(self, u, p, interactive, create,
+                                       onlyMerge, self.sourcesToCheck)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), ui.utils.showWarning)
         self.connect(self.syncThread, SIGNAL("moveToState"), self.moveToState)
