@@ -708,14 +708,7 @@ where media.id in %s""" % sids, now=time.time())
         srcID = self.server.deckName
         (lastSync, syncPeriod) = self.deck.s.first(
             "select lastSync, syncPeriod from sources where id = :id", id=srcID)
-        if syncPeriod == -1:
-            print "syncing disabled"
-            return
-        if syncPeriod != 0 and lastSync + syncPeriod > time.time():
-            print "no need to check - period not expired"
-            return
         if self.server.modified() <= lastSync:
-            print "no need to check - server not modified"
             return
         self.lastSync = lastSync
         return True
@@ -723,7 +716,6 @@ where media.id in %s""" % sids, now=time.time())
     def genOneWayPayload(self, lastSync):
         "Bundle all added or changed objects since the last sync."
         p = {}
-        print "l", `lastSync`
         # facts
         factIds = self.deck.s.column0(
             "select id from facts where modified > :l", l=lastSync)
@@ -750,6 +742,10 @@ where media.id in %s""" % sids, now=time.time())
             self.updateObjsFromKey(payload[key], key)
         # cards last, handled differently
         self.updateOneWayCards(payload['cards'])
+        # update sync time
+        self.deck.s.statement(
+            "update sources set lastSync = :t where id = :id",
+            id=self.server.deckName, t=time.time())
 
     def getOneWayCards(self, ids):
         "The minimum information necessary to generate one way cards."
@@ -870,7 +866,7 @@ class HttpSyncServerProxy(SyncServer):
             d = self.runCmd("getDecks",
                             libanki=anki.version,
                             client=clientVersion,
-                            sources=self.sourcesToCheck)
+                            sources=simplejson.dumps(self.sourcesToCheck))
             if d['status'] != "OK":
                 raise SyncError(type="authFailed", status=d['status'])
             self._mediaSupported = d['mediaSupported']
