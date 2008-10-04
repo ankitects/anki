@@ -42,7 +42,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=9),
+    Column('version', Integer, nullable=False, default=10),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -1418,17 +1418,12 @@ select id from fields where factId not in (select id from facts)""")
 
 sourcesTable = Table(
     'sources', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('sourceId', Integer, nullable=False),
+    Column('id', Integer, nullable=False, primary_key=True),
     Column('name', UnicodeText, nullable=False, default=""),
     Column('created', Float, nullable=False, default=time.time),
     Column('lastSync', Float, nullable=False, default=0),
     # -1 = never check, 0 = always check, 1+ = number of seconds passed
     Column('syncPeriod', Float, nullable=False, default=0))
-
-#cardSources
-
-#index
 
 # Maps
 ##########################################################################
@@ -1790,6 +1785,11 @@ insert into media values (
             # no need to track deleted media yet
             deck.s.execute("delete from mediaDeleted")
             deck.version = 9
+            deck.s.commit()
+        if deck.version < 10:
+            deck.s.statement("""
+alter table models add column source integer not null default 0""")
+            deck.version = 10
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)

@@ -208,7 +208,8 @@ modelsTable = Table(
     Column('description', UnicodeText, nullable=False, default=u""),
     Column('features', UnicodeText, nullable=False, default=u""),
     Column('spacing', Float, nullable=False, default=0.1),
-    Column('initialSpacing', Float, nullable=False, default=600))
+    Column('initialSpacing', Float, nullable=False, default=600),
+    Column('source', Integer, nullable=False, default=0))
 
 class Model(object):
     "Defines the way a fact behaves, what fields it can contain, etc."

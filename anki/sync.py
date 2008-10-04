@@ -163,14 +163,14 @@ class SyncTools(object):
             'lm': len(payload['added-models']),
             'rm': len(payload['missing-models']),
             }
-        if self.server.mediaSupported:
+        if self.mediaSupported():
             h['lM'] = len(payload['added-media'])
             h['rM'] = len(payload['missing-media'])
         return h
 
     def payloadChangeReport(self, payload):
         p = self.payloadChanges(payload)
-        if self.server.mediaSupported:
+        if self.mediaSupported():
             p['media'] = (
                 "<tr><td>Media</td><td>%(lM)d</td><td>%(rM)d</td></tr>" % p)
         else:
@@ -184,69 +184,6 @@ class SyncTools(object):
 <tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>
 %(media)s
 </table>""") % p
-
-    # One-way syncing (sharing)
-    ##########################################################################
-
-    # - changes to models, facts, etc supported
-    # - changes to cards should not be synced
-    # - local deletions honoured, remote deletitions not
-    # - media support dependant on server support
-    # - when fact updated, need to update cards question/answer locally (by
-    #   rebuilding cache for all changed facts)
-    # - send cards as just ids?
-
-    # meta info via link to website - page on website with description,
-    # preview of cards, etc
-
-    # - add 'contact author' to report errors, etc
-    # - should edits to the server fact override local edits? (yes, easier
-    #   that way)
-
-    # - sync handling - do before standard sync, but don't touch deck modified,
-    #   so if last changes were done on server, stats will be synced properly.
-    # - if models/facts/etc don't have their modtime set to now, they'll be
-    #   missed by the standard lastSync check. so don't honour modtime on the
-    #   first time around, but honour it after that
-
-    # - sync period
-
-    # - handle subscriptions separately, or with sync?
-
-    # - how to easily remove subscribed cards? sort by modtime should work..
-
-    # - some models will be from a foreign source
-    # - append (foreign) to model names when created
-    # - two options:
-    # -- deleting a model will ignore any future cards from that model
-    # -- deleting a model requires the source to be deleted (models are
-    #    protected)
-    # - what will merging do? mapping from one model to another won't work if
-    # - the user has chaged the number of fields
-    # - want user to be able to delete models (and their associated cards),
-    #   without necessarily deleting all of the source's material.
-
-    def syncOneWay(self):
-        "Sync two decks one way locally. Reimplement this for finer control."
-        if not self.prepareSyncOneWay():
-            return
-        sums = self.summaries()
-        payload = self.genPayload(sums)
-        res = self.server.applyPayload(payload)
-        self.applyPayloadReply(res)
-
-    def prepareSync(self):
-        "Sync setup. True if sync needed."
-        self.localTime = self.modified()
-        self.remoteTime = self.server.modified()
-        if self.localTime == self.remoteTime:
-            return False
-        l = self._lastSync(); r = self.server._lastSync()
-        if l != r:
-            self.lastSync = min(l, r) - 600
-        else:
-            self.lastSync = l
-        return True
 
     # Summaries
     ##########################################################################
@@ -352,10 +289,10 @@ class SyncTools(object):
     # Models
     ##########################################################################
 
-    def getModels(self, ids):
-        return [self.bundleModel(id) for id in ids]
+    def getModels(self, ids, updateModified=False):
+        return [self.bundleModel(id, updateModified) for id in ids]
 
-    def bundleModel(self, id):
+    def bundleModel(self, id, updateModified):
         "Return a model representation suitable for transport."
         # force load of lazy attributes
         mod = self.deck.s.query(Model).get(id)
@@ -363,6 +300,8 @@ class SyncTools(object):
         m = self.dictFromObj(mod)
         m['fieldModels'] = [self.bundleFieldModel(fm) for fm in m['fieldModels']]
         m['cardModels'] = [self.bundleCardModel(fm) for fm in m['cardModels']]
+        if updateModified:
+            m['modified'] = time.time()
         return m
 
     def bundleFieldModel(self, fm):
@@ -441,12 +380,16 @@ class SyncTools(object):
     # Facts
     ##########################################################################
 
-    def getFacts(self, ids):
+    def getFacts(self, ids, updateModified=False):
+        if updateModified:
+            modified = time.time()
+        else:
+            modified = "modified"
         factIds = ids2str(ids)
         return {
             'facts': self.realTuples(self.deck.s.all("""
-select id, modelId, created, modified, tags, spaceUntil, lastCardId from facts
-where id in %s""" % factIds)),
+select id, modelId, created, %s, tags, spaceUntil, lastCardId from facts
+where id in %s""" % (modified, factIds))),
             'fields': self.realTuples(self.deck.s.all("""
 select id, factId, fieldModelId, ordinal, value from fields
 where factId in %s""" % factIds))
@@ -643,11 +586,16 @@ values
     # Media
     ##########################################################################
 
-    def getMedia(self, ids):
+    def getMedia(self, ids, updateCreated=False):
+        if updateCreated:
+            created = time.time()
+        else:
+            created = "created"
         return [(tuple(row),
                  base64.b64encode(self.getMediaData(row[1])))
                 for row in self.deck.s.all("""
-select * from media where id in %s""" % ids2str(ids))]
+select id, filename, size, %s, originalPath, description
+from media where id in %s""" % (created, ids2str(ids)))]
 
     def getMediaData(self, fname):
         try:
@@ -714,6 +662,127 @@ where media.id in %s""" % sids, now=time.time())
         "Return the path to store media in. Defaults to the deck media dir."
         return os.path.join(self.deck.mediaDir(create=True), path)
 
+    # One-way syncing (sharing)
+    ##########################################################################
+
+    # models: prevent merge/delete on client side when shared deck registered.
+    #         add (foreign) to title
+    # media: depend on downloader by default, but consider supporting teacher
+    #        sponsored downloads. need to have anki account to fetch deck
+    # - sync sources table in standard sync
+
+    # web interface:
+    # - deck author
+    # - email
+    # - description
+    # - number of cards/etc
+    # - preview
+    # - number of subscribers (people who've checked in the last 30 days / all
+    # time)
+    # - comments/discussion
+
+    # when to sync:
+    # - after manual sync
+    # - after auto sync on startup, not on close
+
+    # accounting:
+    # - record each sync attempt, with userid, time,
+
+    # subscriptions on the website?
+    # - check on deck load? on login?
+    # - enforce check time
+    # - can do later
+
+    # server table
+    # id -> user/deck
+    # store last mod time, and update when deck is modified
+    # provide routine like getdecks to return list of modtimes for public decks
+
+    def syncOneWay(self, lastSync):
+        "Sync two decks one way."
+        payload = self.server.genOneWayPayload(lastSync)
+        self.applyOneWayPayload(payload)
+
+    def prepareOneWaySync(self):
+        "Sync setup. True if sync needed. Not used for local sync."
+        srcID = self.server.deckName
+        (lastSync, syncPeriod) = self.deck.s.first(
+            "select lastSync, syncPeriod from sources where id = :id", id=srcID)
+        if syncPeriod == -1:
+            print "syncing disabled"
+            return
+        if syncPeriod != 0 and lastSync + syncPeriod > time.time():
+            print "no need to check - period not expired"
+            return
+        if self.server.modified() <= lastSync:
+            print "no need to check - server not modified"
+            return
+        self.lastSync = lastSync
+        return True
+
+    def genOneWayPayload(self, lastSync):
+        "Bundle all added or changed objects since the last sync."
+        p = {}
+        print "l", `lastSync`
+        # facts
+        factIds = self.deck.s.column0(
+            "select id from facts where modified > :l", l=lastSync)
+        p['facts'] = self.getFacts(factIds, updateModified=True)
+        # models
+        modelIds = self.deck.s.column0(
+            "select id from models where modified > :l", l=lastSync)
+        p['models'] = self.getModels(modelIds, updateModified=True)
+        # media
+        if self.mediaSupported():
+            mediaIds = self.deck.s.column0(
+                "select id from media where created > :l", l=lastSync)
+            p['media'] = self.getMedia(mediaIds, updateCreated=True)
+        # cards
+        cardIds = self.deck.s.column0(
+            "select id from cards where modified > :l", l=lastSync)
+        p['cards'] = self.realTuples(self.getOneWayCards(cardIds))
+        return p
+
+    def applyOneWayPayload(self, payload):
+        keys = [k for k in self.keys() if k != "cards"]
+        # model, facts, media
+        for key in keys:
+            self.updateObjsFromKey(payload[key], key)
+        # cards last, handled differently
+        self.updateOneWayCards(payload['cards'])
+
+    def getOneWayCards(self, ids):
+        "The minimum information necessary to generate one way cards."
+        return self.deck.s.all(
+            "select id, factId, cardModelId, ordinal from cards "
+            "where id in %s" % ids2str(ids))
+
+    def updateOneWayCards(self, cards):
+        if not cards:
+            return
+        t = time.time()
+        dlist = [{'id': c[0], 'factId': c[1], 'cardModelId': c[2],
+                  'ordinal': c[3], 't': t} for c in cards]
+        # add any missing cards
+        self.deck.s.statements("""
+insert or ignore into cards
+(id, factId, cardModelId, created, modified, tags, ordinal,
+priority, interval, lastInterval, due, lastDue, factor,
+firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
+youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
+matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
+question, answer, lastFactor, spaceUntil, isDue, type, combinedDue,
+relativeDelay)
+values
+(:id, :factId, :cardModelId, :t, :t, "", :ordinal,
+1, 0.001, 0, :t, 0, 2.5,
+0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0,
+0, 0, 0, 0, 0,
+0, "", "", 2.5, 0, 1, 2, :t, 0)""", dlist)
+        # update q/as
+        self.deck.updateCardQACache([(c[0], c[2], c[1]) for c in cards])
+
     # Tools
     ##########################################################################
 
@@ -754,6 +823,11 @@ where media.id in %s""" % sids, now=time.time())
     def updateObjsFromKey(self, ids, key):
         return getattr(self, "update" + key.capitalize())(ids)
 
+    def keys(self):
+        if self.mediaSupported():
+            return standardKeys + ("media",)
+        return standardKeys
+
 # Local syncing
 ##########################################################################
 
@@ -763,19 +837,15 @@ class SyncServer(SyncTools):
 
     def __init__(self, deck=None):
         SyncTools.__init__(self, deck)
-        self.mediaSupported = True
+        self._mediaSupported = True
 
-    def keys(self):
-        if self.mediaSupported:
-            return standardKeys + ("media",)
-        return standardKeys
+    def mediaSupported(self):
+        return self._mediaSupported
 
 class SyncClient(SyncTools):
 
-    def keys(self):
-        if self.server.mediaSupported:
-            return standardKeys + ("media",)
-        return standardKeys
+    def mediaSupported(self):
+        return self.server._mediaSupported
 
 # HTTP proxy: act as a server and direct requests to the real server
 ##########################################################################
@@ -790,18 +860,20 @@ class HttpSyncServerProxy(SyncServer):
         self.password = passwd
         self.syncURL="http://anki.ichi2.net/sync/"
         #self.syncURL="http://anki.ichi2.net:5001/sync/"
-        #self.syncURL="http://localhost:8001/sync/"
+        self.syncURL="http://localhost:8001/sync/"
         self.protocolVersion = 2
+        self.sourcesToCheck = []
 
     def connect(self, clientVersion=""):
         "Check auth, protocol & grab deck list."
         if not self.decks:
             d = self.runCmd("getDecks",
                             libanki=anki.version,
-                            client=clientVersion)
+                            client=clientVersion,
+                            sources=self.sourcesToCheck)
             if d['status'] != "OK":
                 raise SyncError(type="authFailed", status=d['status'])
-            self.mediaSupported = d['mediaSupported']
+            self._mediaSupported = d['mediaSupported']
             self.decks = d['decks']
             self.timestamp = d['timestamp']
 
@@ -821,6 +893,10 @@ class HttpSyncServerProxy(SyncServer):
 
     def summary(self, lastSync):
         return self.runCmd("summary",
+                           lastSync=self.stuff(lastSync))
+
+    def genOneWayPayload(self, lastSync):
+        return self.runCmd("genOneWayPayload",
                            lastSync=self.stuff(lastSync))
 
     def modified(self):
@@ -871,11 +947,15 @@ class HttpSyncServer(SyncServer):
         return self.stuff(SyncServer.applyPayload(self,
             self.unstuff(payload)))
 
+    def genOneWayPayload(self, payload):
+        return self.stuff(SyncServer.genOneWayPayload(self,
+            self.unstuff(payload)))
+
     def getDecks(self, libanki, client):
         return self.stuff({
             "status": "OK",
             "decks": self.decks,
-            "mediaSupported": self.mediaSupported,
+            "mediaSupported": self.mediaSupported(),
             "timestamp": time.time(),
             })
 

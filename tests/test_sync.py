@@ -241,6 +241,19 @@ def test_localsync_media():
     assert deck1.s.scalar("select count(1) from media") == 2
     assert deck2.s.scalar("select count(1) from media") == 2
 
+# One way syncing
+##########################################################################
+
+@nose.with_setup(setup_local, teardown)
+def test_oneway_simple():
+    assert deck1.s.scalar("select count(1) from cards") == 2
+    assert deck2.s.scalar("select count(1) from cards") == 2
+    client.syncOneWay(0)
+    assert deck1.s.scalar("select count(1) from cards") == 4
+    assert deck2.s.scalar("select count(1) from cards") == 2
+    # should be a noop
+    client.syncOneWay(0)
+
 # Remote tests
 ##########################################################################
 
