@@ -703,6 +703,10 @@ where media.id in %s""" % sids, now=time.time())
         payload = self.server.genOneWayPayload(lastSync)
         self.applyOneWayPayload(payload)
 
+    def syncOneWayDeckName(self):
+        return self.deck.s.scalar("select name from sources where id = :id",
+                                  id=self.server.deckName) or self.server.deckName
+
     def prepareOneWaySync(self):
         "Sync setup. True if sync needed. Not used for local sync."
         srcID = self.server.deckName
@@ -746,6 +750,7 @@ where media.id in %s""" % sids, now=time.time())
         self.deck.s.statement(
             "update sources set lastSync = :t where id = :id",
             id=self.server.deckName, t=time.time())
+        self.deck.modified = time.time()
 
     def getOneWayCards(self, ids):
         "The minimum information necessary to generate one way cards."
