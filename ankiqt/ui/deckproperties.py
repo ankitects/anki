@@ -10,6 +10,12 @@ from ankiqt import ui
 from anki.utils import parseTags
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 
+tabs = ("Synchronization",
+        "Scheduling",
+        "Models",
+        "Description",
+        "Advanced")
+
 class DeckProperties(QDialog):
 
     def __init__(self, parent):
@@ -19,7 +25,6 @@ class DeckProperties(QDialog):
         self.origMod = self.d.modified
         self.dialog = ankiqt.forms.deckproperties.Ui_DeckProperties()
         self.dialog.setupUi(self)
-        self.resize(100, 100)
         self.dialog.newCardOrder.insertItems(
             0, QStringList(newCardOrderLabels().values()))
         self.dialog.newCardScheduling.insertItems(
@@ -28,6 +33,7 @@ class DeckProperties(QDialog):
         self.connect(self.dialog.modelsAdd, SIGNAL("clicked()"), self.onAdd)
         self.connect(self.dialog.modelsEdit, SIGNAL("clicked()"), self.onEdit)
         self.connect(self.dialog.modelsDelete, SIGNAL("clicked()"), self.onDelete)
+        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
         self.show()
 
     def readData(self):
@@ -124,6 +130,12 @@ class DeckProperties(QDialog):
         if getattr(obj, field) != value:
             setattr(obj, field, value)
             self.d.setModified()
+
+    def helpRequested(self):
+        idx = self.dialog.qtabwidget.currentIndex()
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "DeckProperties#" +
+                                      tabs[idx]))
 
     def reject(self):
         # description

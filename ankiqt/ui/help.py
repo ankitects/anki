@@ -12,7 +12,7 @@ import ankiqt.forms
 class HelpArea(object):
 
     helpAreaWidth = 300
-    minAppWidth = 550
+    minAppWidth = 500
 
     def __init__(self, helpFrame, config, mainWindow=None, focus=None):
         self.helpFrame = helpFrame
@@ -26,7 +26,6 @@ class HelpArea(object):
         self.widget.connect(self.widget, SIGNAL("anchorClicked(QUrl)"),
                             self.anchorClicked)
         self.hide()
-        self.data = HelpData()
 
     def getMinAppWidth(self):
         if self.config['easeButtonStyle'] == 'compact':
@@ -125,53 +124,3 @@ class HelpArea(object):
             QDesktopServices.openUrl(QUrl(url))
         if self.focus:
             self.focus.setFocus()
-
-# Text strings
-##########################################################################
-
-class HelpData(dict):
-
-    def __init__(self):
-        self['learn'] = _("""
-<h1>Learning new cards</h1>Anki is currently in 'learning mode'.
-<p>
-As an alternative to using the mouse, spacebar and the number keys are
-available.
-<p>
-<a href="http://ichi2.net/anki/wiki/Learning_new_cards">More information</a>
-""")
-
-        self['review'] = _("""
-<h1>Reviewing</h1>You are currently looking at a card you have seen before.
-Unlike new cards, it's important to try and review previously seen cards as
-promptly as possible, in order to ensure your previous effort spent
-remembering the cards is not wasted.<p> At the bottom of the main window, the
-"Remaining" figure indicates how many previously reviewed words are waiting
-for you today. Once this number reaches 0, you can close Anki, or continue
-studying new cards.""")
-
-        self['finalReview'] = _("""<h1>Final review</h1>You are now being
-shown cards that are due soon (in the next 5 hours by default). This includes
-any cards you failed recently. You can answer them now, or come back later -
-it's up to you.""")
-
-        self['add'] = _("""
-<h1>Adding cards</h1>
-Please enter some things you want to learn.
-<h2>Shortcuts</h2>
-<table width=230>
-<tr><td><b>Tab</b></td><td> change between fields.</td></tr>
-<tr><td><b>Ctrl+Enter</b></td><td> add the current card.</td></tr>
-<tr><td><b>Esc</b></td><td> close the dialog.</td></tr>
-<tr><td><b>Ctrl+B</b></td><td> bold</td></tr>
-<tr><td><b>Ctrl+I</b></td><td> italic</td></tr>
-<tr><td><b>Ctrl+U</b></td><td> underline</td></tr>
-<tr><td><b>Alt+1</b></td><td> enable/disable card model 1</td></tr>
-<tr><td><b>Alt+2</b></td><td> enable/disable card model 2</td></tr>
-</table>
-
-<h2>Cards</h2>Depending on the language you selected, more than one card may
-be generated. This allows you to practice both <b>Production</b> (trying to produce
-the target idea/phrase yourself), and <b>Recognition</b> (quickly recognizing and
-understanding the target idea/phrase). To change which cards are automatically
-generated, click the rightmost button at the top.""")

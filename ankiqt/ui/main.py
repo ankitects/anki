@@ -18,6 +18,7 @@ from anki.sound import hasSound, playFromText
 from anki.utils import addTags, deleteTags
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError
+from anki.stdmodels import BasicModel
 import anki.lang
 import ankiqt
 ui = ankiqt.ui
@@ -643,21 +644,47 @@ class AnkiQt(QMainWindow):
         return True
 
     def onNew(self):
-        if not self.saveAndClose(): return
+        if not self.saveAndClose(exit=True): return
         self.deck = DeckStorage.Deck()
-        m = ui.modelchooser.AddModel(self, online=True).getModel()
-        if m:
-            if m != "online":
-                self.deck.addModel(m)
-                self.saveDeck()
-                self.moveToState("initial")
-                return
-            # ensure all changes come to us
-            self.deck.syncName = None
-            self.deck.modified = 0
-            self.deck.lastLoaded = self.deck.modified
-            self.deck.s.flush()
-            self.deck.s.commit()
+        self.deck.addModel(BasicModel())
+        self.saveDeck()
+        self.moveToState("initial")
+
+    def onOpenOnline(self):
+        if not self.saveAndClose(exit=True): return
+        self.deck = DeckStorage.Deck()
+        # ensure all changes come to us
+        self.deck.syncName = None
+        self.deck.modified = 0
+        self.deck.lastLoaded = self.deck.modified
+        if not self.config['syncUsername'] or not self.config['syncPassword']:
+            d = QDialog(self)
+            vbox = QVBoxLayout()
+            l = QLabel(_(
+                '<h1>Open Online Deck</h1>'
+                'To load a deck from your free <a href="http://anki.ichi2.net/">online account</a>,<br>'
+                "please enter your details below.<br>"))
+            l.setOpenExternalLinks(True)
+            vbox.addWidget(l)
+            g = QGridLayout()
+            l1 = QLabel(_("Username:"))
+            g.addWidget(l1, 0, 0)
+            user = QLineEdit()
+            g.addWidget(user, 0, 1)
+            l2 = QLabel(_("Password:"))
+            g.addWidget(l2, 1, 0)
+            passwd = QLineEdit()
+            passwd.setEchoMode(QLineEdit.Password)
+            g.addWidget(passwd, 1, 1)
+            vbox.addLayout(g)
+            bb = QDialogButtonBox(QDialogButtonBox.Ok)
+            self.connect(bb, SIGNAL("accepted()"), d.accept)
+            vbox.addWidget(bb)
+            d.setLayout(vbox)
+            d.exec_()
+            self.config['syncUsername'] = unicode(user.text())
+            self.config['syncPassword'] = unicode(passwd.text())
+        if self.config['syncUsername'] and self.config['syncPassword']:
             if self.syncDeck(onlyMerge=True):
                 return
         self.deck = None
@@ -1088,6 +1115,7 @@ class AnkiQt(QMainWindow):
 
     deckRelatedMenuItems = (
         "Save",
+        "SaveAs",
         "Close",
         "Addcards",
         "Editdeck",
@@ -1111,6 +1139,7 @@ class AnkiQt(QMainWindow):
 
     def connectMenuActions(self):
         self.connect(self.mainWin.actionNew, SIGNAL("triggered()"), self.onNew)
+        self.connect(self.mainWin.actionOpenOnline, SIGNAL("triggered()"), self.onOpenOnline)
         self.connect(self.mainWin.actionOpen, SIGNAL("triggered()"), self.onOpen)
         self.connect(self.mainWin.actionOpenSamples, SIGNAL("triggered()"), self.onOpenSamples)
         self.connect(self.mainWin.actionSave, SIGNAL("triggered()"), self.onSave)

@@ -192,22 +192,14 @@ class View(object):
     def drawNoDeckMessage(self):
         self.write(_("""<h1>Welcome to Anki!</h1>
 <p>
-<table width=90%>
+<table>
 <tr>
 <td>
-Anki is a tool which will help you remember things as quickly and easily as
-possible. Anki works by asking you questions. After answering a question,
-Anki will ask how well you remembered. If you made a mistake or had difficulty
-remembering, Anki will show you the question again after a short amount of
-time. If you answered the question easily, Anki will wait for a number of days
-before asking you again. Each time you successfully remember something, the
-time before you see it again will get bigger.
+<a href="welcome:new"><img src=":/icons/document-new.png"></a>
 </td>
+<td valign=middle>
+<h2><a href="welcome:new">Create a new deck</a></h2></td>
 </tr>
-</table>
-
-<p>
-<table>
 
 <tr>
 <td width=50>
@@ -221,37 +213,6 @@ time before you see it again will get bigger.
 <a href="welcome:open"><img src=":/icons/document-open.png"></a>
 </td>
 <td valign=middle><h2><a href="welcome:open">Open an existing deck</a></h2></td>
-</tr>
-
-<tr>
-<td>
-<a href="welcome:new"><img src=":/icons/document-new.png"></a>
-</td>
-<td valign=middle>
-<h2><a href="welcome:new">Create a new deck</a></h2></td>
-</tr>
-</table>
-<p>
-<table width=90%>
-<tr>
-<td>
-<h2>Adding material</h2>
-There are three ways to add material to Anki: typing it in yourself, using a
-pre-made Anki deck, or importing word lists that you find on the internet.
-<p>
-
-For language learning, it's a good idea to add material yourself, from sources
-like a textbook or a TV show. By adding words that you see or hear in context,
-you also learn how they are used. While it may be tempting to use a big,
-pre-made vocabulary list to save time, learning words and grammar in context
-will ensure you can use them naturally.
-<p>
-
-So if you're learning a language, consider adding material you want to learn
-into Anki by yourself. Initially the time required to type in material may
-seem daunting, but it's a small amount of time compared to the time you'll
-save by not forgetting.
-</td>
 </tr>
 </table>
 """))

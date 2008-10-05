@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>388</width>
-    <height>363</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,7 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>&lt;h1>What would you like to study?&lt;/h1></string>
+      <string>&lt;h1>Please choose a template&lt;/h1></string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
@@ -33,16 +33,6 @@
      </property>
      <layout class="QVBoxLayout" >
       <item>
-       <widget class="QRadioButton" name="createTemplate" >
-        <property name="text" >
-         <string>A pre-made quiz style.</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QListWidget" name="models" >
         <property name="font" >
          <font>
@@ -57,20 +47,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QRadioButton" name="createBasic" >
-        <property name="text" >
-         <string>A simple front-to-back quiz style.</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="loadOnline" >
-        <property name="text" >
-         <string>An existing online deck.</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -80,7 +56,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -117,22 +93,6 @@
     <hint type="destinationlabel" >
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>createTemplate</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>models</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>217</x>
-     <y>71</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>213</x>
-     <y>138</y>
     </hint>
    </hints>
   </connection>

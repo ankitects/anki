@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/document-open-remote.png</file>
     <file>icons/document-open-recent.png</file>
     <file>icons/khtml_kget.png</file>
     <file>icons/edit-find.png</file>

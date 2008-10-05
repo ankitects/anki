@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>555</width>
-    <height>292</height>
+    <width>543</width>
+    <height>457</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -26,9 +26,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>57</y>
-     <width>555</width>
-     <height>212</height>
+     <y>53</y>
+     <width>543</width>
+     <height>384</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -193,6 +193,12 @@
        </item>
        <item>
         <widget class="QFrame" name="innerHelpFrame" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="palette" >
           <palette>
            <active>
@@ -279,16 +285,10 @@
              <bool>true</bool>
             </property>
             <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Fixed" >
+             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
-            </property>
-            <property name="minimumSize" >
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
             </property>
             <property name="maximumSize" >
              <size>
@@ -357,7 +357,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>555</width>
+     <width>543</width>
      <height>23</height>
     </rect>
    </property>
@@ -405,6 +405,7 @@
     <addaction name="actionNew" />
     <addaction name="actionOpen" />
     <addaction name="menuOpenRecent" />
+    <addaction name="actionOpenOnline" />
     <addaction name="actionImport" />
     <addaction name="separator" />
     <addaction name="actionSave" />
@@ -471,9 +472,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>269</y>
-     <width>555</width>
-     <height>23</height>
+     <y>437</y>
+     <width>543</width>
+     <height>20</height>
     </rect>
    </property>
   </widget>
@@ -485,8 +486,8 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>555</width>
-     <height>34</height>
+     <width>543</width>
+     <height>30</height>
     </rect>
    </property>
    <property name="orientation" >
@@ -912,6 +913,15 @@
    </property>
    <property name="text" >
     <string>Check Media Database..</string>
+   </property>
+  </action>
+  <action name="actionOpenOnline" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Open Online..</string>
    </property>
   </action>
  </widget>

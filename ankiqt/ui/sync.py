@@ -112,21 +112,22 @@ class Sync(QThread):
                 self.deck.s.flush()
                 self.deck.s.commit()
             else:
-                self.setStatus(_("Sync: nothing to do"))
+                self.setStatus(_("No changes found."))
             # check sources
             if self.sourcesToCheck:
-                self.setStatus(_("<br><br>Checking shared decks.."))
+                self.setStatus(_("<br><br>Checking deck subscriptions.."))
                 for source in self.sourcesToCheck:
-                    if not proxy.hasDeck(str(source)):
-                        self.setStatus(_("%x no longer exists.") % source)
-                        continue
                     proxy.deckName = str(source)
-                    if not client.prepareOneWaySync():
-                        self.setStatus(_("%x up to date.") % source)
+                    msg = "%s:" % client.syncOneWayDeckName()
+                    if not proxy.hasDeck(str(source)):
+                        self.setStatus(_("%s no longer exists.") % msg)
                         continue
-                    self.setStatus(_("Getting payload from %x..") % source)
+                    if not client.prepareOneWaySync():
+                        self.setStatus(_("%s no changes found.") % msg)
+                        continue
+                    self.setStatus(_("%s fetching payload..") % msg)
                     payload = proxy.genOneWayPayload(client.lastSync)
-                    self.setStatus(_("Applying %d modified cards..") %
+                    self.setStatus(msg + _(" applied %d modified cards.") %
                                    len(payload['cards']))
                     client.applyOneWayPayload(payload)
                 self.setStatus(_("Check complete."))
@@ -135,8 +136,8 @@ class Sync(QThread):
             # close and send signal to main thread
             self.deck.close()
             taken = time.time() - start
-            if taken < 20.5:
-                time.sleep(20.5 - taken)
+            if taken < 2.5:
+                time.sleep(2.5 - taken)
             self.emit(SIGNAL("syncFinished"))
         except Exception, e:
             traceback.print_exc()

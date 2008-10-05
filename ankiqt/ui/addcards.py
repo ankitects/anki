@@ -21,7 +21,6 @@ class AddCards(QDialog):
         self.dialog.setupUi(self)
         self.setupEditor()
         self.addChooser()
-        self.addHelp()
         self.addButtons()
         self.setupStatus()
         self.modelChanged(self.parent.deck.currentModel)
@@ -43,10 +42,8 @@ class AddCards(QDialog):
                                                          self.modelChanged)
         self.dialog.modelArea.setLayout(self.modelChooser)
 
-    def addHelp(self):
-        self.help = ui.help.HelpArea(self.dialog.helpFrame,
-                                     self.config)
-        self.help.showHideableKey("add")
+    def helpRequested(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "AddFacts"))
 
     def addButtons(self):
         self.addButton = QPushButton(_("&Add cards"))
@@ -62,6 +59,10 @@ class AddCards(QDialog):
         self.closeButton = QPushButton(_("Close"))
         self.dialog.buttonBox.addButton(self.closeButton,
                                         QDialogButtonBox.RejectRole)
+        self.helpButton = QPushButton(_("Help"))
+        self.dialog.buttonBox.addButton(self.helpButton,
+                                        QDialogButtonBox.HelpRole)
+        self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
 
     def setupStatus(self):
         "Make the status background the same colour as the frame."

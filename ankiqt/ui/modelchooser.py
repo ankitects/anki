@@ -166,7 +166,7 @@ class ModelChooser(QHBoxLayout):
 
 class AddModel(QDialog):
 
-    def __init__(self, parent, main=None, online=False):
+    def __init__(self, parent, main=None):
         QDialog.__init__(self, parent)
         self.parent = parent
         if not main:
@@ -177,6 +177,7 @@ class AddModel(QDialog):
         self.dialog.setupUi(self)
         self.models = {}
         for name in (
+            "Basic",
             "Japanese",
             "English",
             "Cantonese",
@@ -191,20 +192,13 @@ class AddModel(QDialog):
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
         self.connect(s, SIGNAL("activated()"), self.accept)
-        if not online:
-            self.dialog.loadOnline.setShown(False)
 
     def getModel(self):
         self.exec_()
         return self.model
 
     def accept(self):
-        if self.dialog.createTemplate.isChecked():
-            self.model = self.models[
-                unicode(self.dialog.models.currentItem().text())]
-        elif self.dialog.createBasic.isChecked():
-            self.model = stdmodels.byName("Basic")
-        else:
-            self.model = "online"
+        self.model = self.models[
+            unicode(self.dialog.models.currentItem().text())]
         QDialog.accept(self)
 

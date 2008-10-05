@@ -8,8 +8,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
-    <height>589</height>
+    <width>494</width>
+    <height>502</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -26,12 +26,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>522</width>
-        <height>515</height>
+        <width>478</width>
+        <height>436</height>
        </rect>
       </property>
       <attribute name="title" >
-       <string>Model properties</string>
+       <string>General</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="spacing" >
@@ -43,7 +43,7 @@
        <item>
         <widget class="QLabel" name="label_7" >
          <property name="text" >
-          <string>&lt;h1>Model properties&lt;/h1></string>
+          <string>&lt;h1>General Model Properties&lt;/h1></string>
          </property>
         </widget>
        </item>
@@ -88,7 +88,7 @@
          <item row="4" column="0" >
           <widget class="QLabel" name="label_4" >
            <property name="text" >
-            <string>&lt;b>Features&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-f57a8f871fc97ceb2f6daa43528fd640ee63b4f4">?&lt;/a>&lt;/b></string>
+            <string>&lt;b>Features&lt;/b></string>
            </property>
            <property name="alignment" >
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -101,7 +101,7 @@
          <item row="1" column="0" >
           <widget class="QLabel" name="label_3" >
            <property name="text" >
-            <string>&lt;b>Tags&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf">?&lt;/a>&lt;/b></string>
+            <string>&lt;b>Tags&lt;/b></string>
            </property>
            <property name="alignment" >
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -117,7 +117,7 @@
          <item row="3" column="0" >
           <widget class="QLabel" name="label_5" >
            <property name="text" >
-            <string>&lt;b>Card spacing&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3">?&lt;/a>&lt;/b></string>
+            <string>&lt;b>Card spacing&lt;/b></string>
            </property>
            <property name="alignment" >
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -132,7 +132,7 @@
            <item row="0" column="0" >
             <widget class="QLabel" name="label_16" >
              <property name="text" >
-              <string>Minimum spacing&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-4ee3a58e2fdd61da8ef81984213862d3bc0ed4bd">?&lt;/a></string>
+              <string>Minimum spacing</string>
              </property>
              <property name="openExternalLinks" >
               <bool>true</bool>
@@ -158,7 +158,7 @@
            <item row="1" column="0" >
             <widget class="QLabel" name="label_24" >
              <property name="text" >
-              <string>Minimum interval multiplier&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-51074b785bb6049b44fce9f18fca198100c4d2f7">?&lt;/a></string>
+              <string>Minimum interval multiplier</string>
              </property>
              <property name="openExternalLinks" >
               <bool>true</bool>
@@ -182,8 +182,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>522</width>
-        <height>515</height>
+        <width>478</width>
+        <height>436</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -197,16 +197,9 @@
         <number>9</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_8" >
+        <widget class="QLabel" name="label_6" >
          <property name="text" >
-          <string>&lt;h1>Fields&lt;/h1></string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_10" >
-         <property name="text" >
-          <string>A flashcard is made from a number of fields, like "meaning", "notes", etc.</string>
+          <string>&lt;h1>Field Models&lt;/h1></string>
          </property>
         </widget>
        </item>
@@ -234,68 +227,62 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout" >
          <item>
-          <layout class="QVBoxLayout" >
-           <property name="spacing" >
-            <number>6</number>
+          <widget class="QPushButton" name="fieldAdd" >
+           <property name="text" >
+            <string>&amp;Add</string>
            </property>
-           <property name="margin" >
-            <number>0</number>
+           <property name="autoDefault" >
+            <bool>false</bool>
            </property>
-           <item>
-            <widget class="QPushButton" name="fieldAdd" >
-             <property name="text" >
-              <string>&amp;Add</string>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="fieldDelete" >
-             <property name="text" >
-              <string>&amp;Delete</string>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="fieldUp" >
-             <property name="toolTip" >
-              <string>Move selected field up</string>
-             </property>
-             <property name="text" >
-              <string>Move &amp;Up</string>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="fieldDown" >
-             <property name="toolTip" >
-              <string>Move selected field down</string>
-             </property>
-             <property name="text" >
-              <string>Move Dow&amp;n</string>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="fieldUp" >
+           <property name="toolTip" >
+            <string>Move selected field up</string>
+           </property>
+           <property name="text" >
+            <string>Move &amp;Up</string>
+           </property>
+           <property name="autoDefault" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="fieldDelete" >
+           <property name="text" >
+            <string>&amp;Delete</string>
+           </property>
+           <property name="autoDefault" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="fieldDown" >
+           <property name="toolTip" >
+            <string>Move selected field down</string>
+           </property>
+           <property name="text" >
+            <string>Move Dow&amp;n</string>
+           </property>
+           <property name="autoDefault" >
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="fieldEditBox" >
          <property name="title" >
-          <string>Field properties</string>
+          <string/>
          </property>
          <layout class="QVBoxLayout" >
           <property name="spacing" >
@@ -366,7 +353,7 @@
             <item row="5" column="0" >
              <widget class="QLabel" name="label_22" >
               <property name="text" >
-               <string>&lt;b>Features&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-f57a8f871fc97ceb2f6daa43528fd640ee63b4f4">?&lt;/a>&lt;/b></string>
+               <string>&lt;b>Features&lt;/b></string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -422,8 +409,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>522</width>
-        <height>515</height>
+        <width>478</width>
+        <height>436</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -437,25 +424,9 @@
         <number>9</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_9" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+        <widget class="QLabel" name="label_8" >
          <property name="text" >
-          <string>&lt;h1>Card models&lt;/h1></string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_11" >
-         <property name="text" >
-          <string>One or more cards are generated for each piece of information you enter into Anki. Here you can control how many cards are generated, and what they look like. Spacing is the amount of time before showing a different card for the same piece of information.</string>
-         </property>
-         <property name="wordWrap" >
-          <bool>true</bool>
+          <string>&lt;h1>Card Models&lt;/h1></string>
          </property>
         </widget>
        </item>
@@ -483,63 +454,57 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2" >
          <item>
-          <layout class="QVBoxLayout" >
-           <property name="spacing" >
-            <number>6</number>
+          <widget class="QPushButton" name="cardAdd" >
+           <property name="text" >
+            <string>&amp;Add</string>
            </property>
-           <property name="margin" >
-            <number>0</number>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cardUp" >
+           <property name="toolTip" >
+            <string>Move selected card model up</string>
            </property>
-           <item>
-            <widget class="QPushButton" name="cardAdd" >
-             <property name="text" >
-              <string>&amp;Add</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="cardToggle" >
-             <property name="text" >
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="cardDelete" >
-             <property name="text" >
-              <string>&amp;Delete</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="cardUp" >
-             <property name="toolTip" >
-              <string>Move selected card model up</string>
-             </property>
-             <property name="text" >
-              <string>Move &amp;Up</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="cardDown" >
-             <property name="toolTip" >
-              <string>Move selected card model down</string>
-             </property>
-             <property name="text" >
-              <string>Move Dow&amp;n</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+           <property name="text" >
+            <string>Move &amp;Up</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cardDown" >
+           <property name="toolTip" >
+            <string>Move selected card model down</string>
+           </property>
+           <property name="text" >
+            <string>Move Dow&amp;n</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cardToggle" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cardDelete" >
+           <property name="text" >
+            <string>&amp;Delete</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="cardEditBox" >
          <property name="title" >
-          <string>Edit card</string>
+          <string/>
          </property>
          <layout class="QVBoxLayout" >
           <property name="spacing" >
@@ -630,7 +595,7 @@
             <item row="3" column="0" >
              <widget class="QLabel" name="label_15" >
               <property name="text" >
-               <string>&lt;b>Answer format&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4">?&lt;/a>&lt;/b></string>
+               <string>&lt;b>Answer format&lt;/b></string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -668,7 +633,7 @@
             <item row="0" column="0" >
              <widget class="QLabel" name="label_12" >
               <property name="text" >
-               <string>&lt;b>Name/tag&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf">?&lt;/a>&lt;/b></string>
+               <string>&lt;b>Name/tag&lt;/b></string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -681,7 +646,7 @@
             <item row="2" column="0" >
              <widget class="QLabel" name="label_14" >
               <property name="text" >
-               <string>&lt;b>Question format&lt;a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4">?&lt;/a>&lt;/b></string>
+               <string>&lt;b>Question format&lt;/b></string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -706,7 +671,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Close</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
      </property>
     </widget>
    </item>
@@ -722,8 +687,8 @@
   <tabstop>decorators</tabstop>
   <tabstop>fieldList</tabstop>
   <tabstop>fieldAdd</tabstop>
-  <tabstop>fieldDelete</tabstop>
   <tabstop>fieldUp</tabstop>
+  <tabstop>fieldDelete</tabstop>
   <tabstop>fieldDown</tabstop>
   <tabstop>fieldName</tabstop>
   <tabstop>fieldDescription</tabstop>
@@ -733,10 +698,10 @@
   <tabstop>fieldFeatures</tabstop>
   <tabstop>cardList</tabstop>
   <tabstop>cardAdd</tabstop>
-  <tabstop>cardToggle</tabstop>
-  <tabstop>cardDelete</tabstop>
   <tabstop>cardUp</tabstop>
   <tabstop>cardDown</tabstop>
+  <tabstop>cardToggle</tabstop>
+  <tabstop>cardDelete</tabstop>
   <tabstop>cardName</tabstop>
   <tabstop>cardDescription</tabstop>
   <tabstop>cardQuestion</tabstop>

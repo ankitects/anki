@@ -8,6 +8,7 @@ from PyQt4.QtGui import *
 appName="Anki"
 appVersion="0.9.8.1"
 appWebsite="http://ichi2.net/anki/download/"
+appWiki="http://ichi2.net/anki/wiki/"
 appHelpSite="http://ichi2.net/anki/wiki/Documentation"
 appIssueTracker="http://code.google.com/p/anki/issues/list"
 appForum="http://groups.google.com/group/ankisrs/topics"

@@ -1,7 +1,8 @@
-*.pyc
-*~
 *.mo
+*.pyc
 *\#
+*~
+/icons_rc.py
+ankiqt/forms
 build
 dist
-ankiqt/forms
