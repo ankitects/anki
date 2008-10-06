@@ -1176,7 +1176,8 @@ where id = :id""" % table, pending)
 
     def name(self):
         n = os.path.splitext(os.path.basename(self.path))[0]
-        n = re.sub("[^-A-Za-z0-9_+<>[]() ]", "", n)
+        assert '/' not in n
+        assert '\\' not in n
         return n
 
     # Media

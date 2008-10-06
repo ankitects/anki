@@ -755,7 +755,7 @@ where media.id in %s""" % sids, now=time.time())
     def getOneWayCards(self, ids):
         "The minimum information necessary to generate one way cards."
         return self.deck.s.all(
-            "select id, factId, cardModelId, ordinal from cards "
+            "select id, factId, cardModelId, ordinal, created from cards "
             "where id in %s" % ids2str(ids))
 
     def updateOneWayCards(self, cards):
@@ -763,7 +763,7 @@ where media.id in %s""" % sids, now=time.time())
             return
         t = time.time()
         dlist = [{'id': c[0], 'factId': c[1], 'cardModelId': c[2],
-                  'ordinal': c[3], 't': t} for c in cards]
+                  'ordinal': c[3], 'created': c[4], 't': t} for c in cards]
         # add any missing cards
         self.deck.s.statements("""
 insert or ignore into cards
@@ -775,8 +775,8 @@ matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
 question, answer, lastFactor, spaceUntil, isDue, type, combinedDue,
 relativeDelay)
 values
-(:id, :factId, :cardModelId, :t, :t, "", :ordinal,
-1, 0.001, 0, :t, 0, 2.5,
+(:id, :factId, :cardModelId, :created, :t, "", :ordinal,
+1, 0.001, 0, :created, 0, 2.5,
 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0,
@@ -952,7 +952,7 @@ class HttpSyncServer(SyncServer):
         return self.stuff(SyncServer.genOneWayPayload(self,
             self.unstuff(payload)))
 
-    def getDecks(self, libanki, client):
+    def getDecks(self, libanki, client, sources):
         return self.stuff({
             "status": "OK",
             "decks": self.decks,

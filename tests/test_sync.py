@@ -248,6 +248,7 @@ def test_localsync_media():
 def test_oneway_simple():
     assert deck1.s.scalar("select count(1) from cards") == 2
     assert deck2.s.scalar("select count(1) from cards") == 2
+    server.deckName = "dummy"
     client.syncOneWay(0)
     assert deck1.s.scalar("select count(1) from cards") == 4
     assert deck2.s.scalar("select count(1) from cards") == 2
