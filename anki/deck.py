@@ -58,7 +58,7 @@ decksTable = Table(
     Column('easyIntervalMax', Float, nullable=False, default=9.0),
     # delays on failure
     Column('delay0', Integer, nullable=False, default=600),
-    Column('delay1', Integer, nullable=False, default=1200),
+    Column('delay1', Integer, nullable=False, default=600),
     Column('delay2', Integer, nullable=False, default=28800),
     # collapsing future cards
     Column('collapseTime', Integer, nullable=False, default=1),
@@ -1423,7 +1423,8 @@ sourcesTable = Table(
     Column('name', UnicodeText, nullable=False, default=""),
     Column('created', Float, nullable=False, default=time.time),
     Column('lastSync', Float, nullable=False, default=0),
-    # -1 = never check, 0 = always check, 1+ = number of seconds passed
+    # -1 = never check, 0 = always check, 1+ = number of seconds passed.
+    # not currently exposed in the GUI
     Column('syncPeriod', Float, nullable=False, default=0))
 
 # Maps
