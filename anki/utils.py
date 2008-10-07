@@ -164,6 +164,17 @@ def genID(static=[]):
         x -= 18446744073709551616L
     return x
 
+def hexifyID(id):
+    if id < 0:
+        id += 18446744073709551616L
+    return "%x" % id
+
+def dehexifyID(id):
+    id = int(id, 16)
+    if id >= 9223372036854775808L:
+        id -= 18446744073709551616L
+    return id
+
 def ids2str(ids):
     """Given a list of integers, return a string '(int1,int2,.)'
 
