@@ -861,7 +861,7 @@ class HttpSyncServerProxy(SyncServer):
         self.password = passwd
         self.syncURL="http://anki.ichi2.net/sync/"
         #self.syncURL="http://anki.ichi2.net:5001/sync/"
-        self.syncURL="http://localhost:8001/sync/"
+        #self.syncURL="http://localhost:8001/sync/"
         self.protocolVersion = 2
         self.sourcesToCheck = []
 
