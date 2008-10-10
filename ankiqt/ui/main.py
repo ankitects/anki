@@ -444,16 +444,16 @@ class AnkiQt(QMainWindow):
             return
         self.updateRecentFiles(self.deck.path)
         if sync and self.config['syncOnLoad']:
-            self.syncDeck(False)
-        else:
-            try:
-                self.rebuildQueue()
-            except OperationalError:
-                ui.utils.showWarning(_(
-                    "Error building queue. Attempting recovery.."))
-                self.onCheckDB()
-                # try again
-                self.rebuildQueue()
+            if self.syncDeck(interactive=False):
+                return
+        try:
+            self.rebuildQueue()
+        except OperationalError:
+            ui.utils.showWarning(_(
+                "Error building queue. Attempting recovery.."))
+            self.onCheckDB()
+            # try again
+            self.rebuildQueue()
         return True
 
     def importOldDeck(self, deckPath):
@@ -1019,9 +1019,10 @@ class AnkiQt(QMainWindow):
         u=self.config['syncUsername']
         p=self.config['syncPassword']
         if not u or not p:
-            msg = _("Not syncing, username or password unset.")
+            return
+        if self.deck and not self.deck.syncName:
             if interactive:
-                ui.utils.showWarning(msg)
+                self.onDeckProperties()
             return
         if self.deck is None and self.deckPath is None:
             # qt on linux incorrectly accepts shortcuts for disabled actions

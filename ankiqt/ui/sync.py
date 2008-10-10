@@ -74,8 +74,8 @@ class Sync(QThread):
                 except SyncError, e:
                     return self.error(e)
             else:
-                self.emit(SIGNAL("noMatchingDeck"), proxy.decks.keys(),
-                          not self.onlyMerge)
+                keys = [k for (k,v) in proxy.decks.items() if v[1] != -1]
+                self.emit(SIGNAL("noMatchingDeck"), keys, not self.onlyMerge)
                 self.setStatus("")
                 return
         timediff = abs(proxy.timestamp - time.time())
@@ -115,17 +115,18 @@ class Sync(QThread):
                 self.setStatus(_("No changes found."))
             # check sources
             if self.sourcesToCheck:
+                start = time.time()
                 self.setStatus(_("<br><br>Checking deck subscriptions.."))
                 for source in self.sourcesToCheck:
                     proxy.deckName = str(source)
                     msg = "%s:" % client.syncOneWayDeckName()
                     if not proxy.hasDeck(str(source)):
-                        self.setStatus(_("%s no longer exists.") % msg)
+                        self.setStatus(_(" * %s no longer exists.") % msg)
                         continue
                     if not client.prepareOneWaySync():
-                        self.setStatus(_("%s no changes found.") % msg)
+                        self.setStatus(_(" * %s no changes found.") % msg)
                         continue
-                    self.setStatus(_("%s fetching payload..") % msg)
+                    self.setStatus(_(" * %s fetching payload..") % msg)
                     payload = proxy.genOneWayPayload(client.lastSync)
                     self.setStatus(msg + _(" applied %d modified cards.") %
                                    len(payload['cards']))

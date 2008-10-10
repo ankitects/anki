@@ -8,15 +8,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>451</height>
+    <width>366</width>
+    <height>408</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Deck Properties</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_5" >
-   <item row="0" column="0" >
+  <layout class="QVBoxLayout" name="verticalLayout_2" >
+   <item>
     <widget class="QTabWidget" name="qtabwidget" >
      <property name="whatsThis" >
       <string>&lt;a href="http://ichi2.net/anki/wiki/DeckProperties#Synchronization">Help&lt;/a></string>
@@ -29,8 +29,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>407</width>
-        <height>373</height>
+        <width>350</width>
+        <height>342</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -58,17 +58,7 @@
          <item row="1" column="0" >
           <widget class="QCheckBox" name="doSync" >
            <property name="text" >
-            <string>Synchronize this deck with name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" >
-          <widget class="QLineEdit" name="syncName" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="whatsThis" >
-            <string>option</string>
+            <string>Synchronize this deck</string>
            </property>
           </widget>
          </item>
@@ -123,6 +113,27 @@ p, li { white-space: pre-wrap; }
            </property>
           </spacer>
          </item>
+         <item row="2" column="0" >
+          <layout class="QHBoxLayout" name="horizontalLayout_2" >
+           <item>
+            <widget class="QLabel" name="label_18" >
+             <property name="text" >
+              <string>Name on server: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="syncName" >
+             <property name="enabled" >
+              <bool>false</bool>
+             </property>
+             <property name="whatsThis" >
+              <string>option</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </item>
       </layout>
@@ -132,8 +143,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>413</width>
-        <height>385</height>
+        <width>350</width>
+        <height>342</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -329,8 +340,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>413</width>
-        <height>385</height>
+        <width>350</width>
+        <height>342</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -394,8 +405,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>413</width>
-        <height>385</height>
+        <width>350</width>
+        <height>342</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -435,8 +446,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>413</width>
-        <height>385</height>
+        <width>350</width>
+        <height>342</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -627,7 +638,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </widget>
    </item>
-   <item row="2" column="0" >
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
