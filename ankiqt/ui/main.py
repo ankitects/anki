@@ -33,6 +33,7 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.config = config
         self.deck = None
+        self.state = "initial"
         self.views = []
         self.setLang()
         self.setupFonts()
@@ -55,9 +56,7 @@ class AnkiQt(QMainWindow):
         self.addView(self.statusView)
         self.setupButtons()
         self.setupAnchors()
-        if not self.config['showToolbar']:
-            self.removeToolBar(self.mainWin.toolBar)
-            self.mainWin.toolBar.hide()
+        self.setupToolbar()
         self.show()
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
@@ -74,7 +73,7 @@ class AnkiQt(QMainWindow):
             self.runHook('init')
         except:
             print _("Error running initHook. Broken plugin?")
-            print traceback.print_exc()
+            traceback.print_exc()
         # check for updates
         self.setupAutoUpdate()
 
@@ -331,76 +330,50 @@ class AnkiQt(QMainWindow):
         for i in range(5):
             s=self.deck.nextIntervalStr(self.currentCard, i)
             nextInts["ease%d" % i] = s
-        text = (
-            (_("Completely forgot"), ""),
-            (_("Made a mistake"), ""),
-            (_("Difficult"),
-             _("Next in <b>%(ease2)s</b>")),
-            (_("About right"),
-             _("Next in <b>%(ease3)s</b>")),
-            (_("Easy"),
-             _("Next in <b>%(ease4)s</b>")))
         # button grid
         grid = QGridLayout()
         grid.setSpacing(3)
-        if self.config['easeButtonStyle'] == 'standard':
-            button3 = self.showStandardEaseButtons(grid, nextInts, text)
+        if self.config['show3AnswerButtons']:
+            rng = (1, 4)
         else:
-            button3 = self.showCompactEaseButtons(grid, nextInts)
-        self.buttonBox.addLayout(grid)
+            rng = (0, 5)
+        button3 = self.showCompactEaseButtons(grid, nextInts, rng)
+        hbox = QHBoxLayout()
+        hbox.addStretch()
+        hbox.addLayout(grid)
+        hbox.addStretch()
+        self.buttonBox.addLayout(hbox)
         button3.setFocus()
 
-    def showStandardEaseButtons(self, grid, nextInts, text):
-        # show 'how well?' message
-        hbox = QHBoxLayout()
-        hbox.addItem(self.getSpacer(QSizePolicy.Expanding))
-        label = QLabel(self.withInterfaceFont(
-            _("<b>How well did you remember?</b>")))
-        hbox.addWidget(label)
-        hbox.addItem(self.getSpacer(QSizePolicy.Expanding))
-        self.buttonBox.addLayout(hbox)
-        # populate buttons
-        button3 = None
-        for i in range(5):
-            button = QPushButton(str(i))
-            button.setFixedWidth(100)
-            button.setFixedHeight(self.easeButtonHeight)
-            if i == 3:
-                button3 = button
-            grid.addItem(self.getSpacer(QSizePolicy.Expanding), i, 0)
-            grid.addWidget(button, i, 1)
-            grid.addItem(self.getSpacer(), i, 2)
-            grid.addWidget(QLabel(self.withInterfaceFont(text[i][0])), i, 3)
-            grid.addItem(self.getSpacer(), i, 4)
-            if not self.config['suppressEstimates']:
-                grid.addWidget(QLabel(self.withInterfaceFont(
-                    text[i][1] % nextInts)), i, 5)
-            grid.addItem(self.getSpacer(QSizePolicy.Expanding), i, 6)
-            self.connect(button, SIGNAL("clicked()"),
-                         lambda i=i: self.cardAnswered(i))
-        return button3
-
-    def showCompactEaseButtons(self, grid, nextInts):
+    def showCompactEaseButtons(self, grid, nextInts, rng):
         text = (
-            (_("<b>%(ease0)s</b>")),
-            (_("<b>%(ease1)s</b>")),
-            (_("<b>%(ease2)s</b>")),
-            (_("<b>%(ease3)s</b>")),
-            (_("<b>%(ease4)s</b>")))
+            (_("<b>%(ease0)s</b>"),
+             _("<b>Reset.</b><br>You've completely forgotten.")),
+            (_("<b>%(ease1)s</b>"),
+             _("<b>Too difficult.</b><br>Show this card again soon.")),
+            (_("<b>%(ease2)s</b>"),
+             _("<b>Challenging.</b><br>Wait a little longer next time.")),
+            (_("<b>%(ease3)s</b>"),
+             _("<b>Comfortable.</b><br>Wait longer next time.")),
+            (_("<b>%(ease4)s</b>"),
+             _("<b>Too easy.</b><br>Wait a lot longer next time.")))
         button3 = None
-        for i in range(5):
+        for i in range(*rng):
+            if not self.config['suppressEstimates']:
+                label = QLabel(self.withInterfaceFont(text[i][0] % nextInts))
+                label.setAlignment(Qt.AlignHCenter)
+                grid.addWidget(label, 0, (i*2)+1)
             button = QPushButton(str(i))
             button.setFixedHeight(self.easeButtonHeight)
+            if rng[0] == 1:
+                button.setFixedWidth(120)
+            button.setToolTip(text[i][1])
+            self.connect(button, SIGNAL("clicked()"),
+                lambda i=i: self.cardAnswered(i))
             #button.setFixedWidth(70)
             if i == 3:
                 button3 = button
-            grid.addWidget(button, 0, (i*2)+1)
-            if not self.config['suppressEstimates']:
-                label = QLabel(self.withInterfaceFont(text[i] % nextInts))
-                label.setAlignment(Qt.AlignHCenter)
-                grid.addWidget(label, 1, (i*2)+1)
-            self.connect(button, SIGNAL("clicked()"),
-                lambda i=i: self.cardAnswered(i))
+            grid.addWidget(button, 1, (i*2)+1)
         return button3
 
     def withInterfaceFont(self, text):
@@ -508,10 +481,8 @@ class AnkiQt(QMainWindow):
                 f = unicode(args[0], sys.getfilesystemencoding())
                 return self.loadDeck(f)
         except:
-            sys.stderr.write("Error loading last deck.\n")
+            sys.stderr.write("Error loading deck path.\n")
             traceback.print_exc()
-            self.deck = None
-            return self.moveToState("initial")
         # try recent deck paths
         for path in self.config['recentDeckPaths']:
             try:
@@ -523,9 +494,7 @@ class AnkiQt(QMainWindow):
             except:
                 sys.stderr.write("Error loading last deck.\n")
                 traceback.print_exc()
-                self.deck = None
-                return self.moveToState("initial")
-        return self.moveToState("initial")
+        self.onNew()
 
     def getDefaultDir(self, save=False):
         "Try and get default dir from most recently opened file."
@@ -650,19 +619,13 @@ class AnkiQt(QMainWindow):
         self.saveDeck()
         self.moveToState("initial")
 
-    def onOpenOnline(self):
-        if not self.saveAndClose(exit=True): return
-        self.deck = DeckStorage.Deck()
-        # ensure all changes come to us
-        self.deck.syncName = None
-        self.deck.modified = 0
-        self.deck.lastLoaded = self.deck.modified
+    def ensureSyncParams(self):
         if not self.config['syncUsername'] or not self.config['syncPassword']:
             d = QDialog(self)
             vbox = QVBoxLayout()
             l = QLabel(_(
-                '<h1>Open Online Deck</h1>'
-                'To load a deck from your free <a href="http://anki.ichi2.net/">online account</a>,<br>'
+                '<h1>Online Account</h1>'
+                'To use your free <a href="http://anki.ichi2.net/">online account</a>,<br>'
                 "please enter your details below.<br>"))
             l.setOpenExternalLinks(True)
             vbox.addWidget(l)
@@ -684,6 +647,15 @@ class AnkiQt(QMainWindow):
             d.exec_()
             self.config['syncUsername'] = unicode(user.text())
             self.config['syncPassword'] = unicode(passwd.text())
+
+    def onOpenOnline(self):
+        self.ensureSyncParams()
+        if not self.saveAndClose(exit=True): return
+        self.deck = DeckStorage.Deck()
+        # ensure all changes come to us
+        self.deck.syncName = None
+        self.deck.modified = 0
+        self.deck.lastLoaded = self.deck.modified
         if self.config['syncUsername'] and self.config['syncPassword']:
             if self.syncDeck(onlyMerge=True):
                 return
@@ -790,6 +762,12 @@ class AnkiQt(QMainWindow):
             self.onOpenSamples()
         elif str == "open":
             self.onOpen()
+        elif str == "openrem":
+            self.onOpenOnline()
+        if str == "addfacts":
+            if not self.deck:
+                self.onNew()
+            self.onAddCard()
 
     def setupAnchors(self):
         self.anchorPrefixes = {
@@ -809,6 +787,26 @@ class AnkiQt(QMainWindow):
         else:
             # open in browser
             QDesktopServices.openUrl(QUrl(url))
+
+    # Toolbar
+    ##########################################################################
+
+    def setupToolbar(self):
+        if not self.config['showToolbar']:
+            self.removeToolBar(self.mainWin.toolBar)
+            self.mainWin.toolBar.hide()
+        if self.config['simpleToolbar']:
+            mw = self.mainWin
+            self.removeToolBar(mw.toolBar)
+            self.mainWin.toolBar.hide()
+            mw.toolBar = QToolBar(self)
+            mw.toolBar.addAction(mw.actionAddcards)
+            mw.toolBar.addAction(mw.actionEditdeck)
+            mw.toolBar.addAction(mw.actionRepeatAudio)
+            mw.toolBar.addAction(mw.actionMarkCard)
+            mw.toolBar.addAction(mw.actionGraphs)
+            mw.toolBar.addAction(mw.actionDisplayProperties)
+            self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
 
     # Tools - looking up words in the dictionary
     ##########################################################################
@@ -1017,6 +1015,7 @@ class AnkiQt(QMainWindow):
                  reload=True, checkSources=True):
         "Synchronise a deck with the server."
         # vet input
+        self.ensureSyncParams()
         u=self.config['syncUsername']
         p=self.config['syncPassword']
         if not u or not p:
@@ -1138,46 +1137,48 @@ class AnkiQt(QMainWindow):
         )
 
     def connectMenuActions(self):
-        self.connect(self.mainWin.actionNew, SIGNAL("triggered()"), self.onNew)
-        self.connect(self.mainWin.actionOpenOnline, SIGNAL("triggered()"), self.onOpenOnline)
-        self.connect(self.mainWin.actionOpen, SIGNAL("triggered()"), self.onOpen)
-        self.connect(self.mainWin.actionOpenSamples, SIGNAL("triggered()"), self.onOpenSamples)
-        self.connect(self.mainWin.actionSave, SIGNAL("triggered()"), self.onSave)
-        self.connect(self.mainWin.actionSaveAs, SIGNAL("triggered()"), self.onSaveAs)
-        self.connect(self.mainWin.actionClose, SIGNAL("triggered()"), self.saveAndClose)
-        self.connect(self.mainWin.actionExit, SIGNAL("triggered()"), self, SLOT("close()"))
-        self.connect(self.mainWin.actionSyncdeck, SIGNAL("triggered()"), self.syncDeck)
-        self.connect(self.mainWin.actionDeckProperties, SIGNAL("triggered()"), self.onDeckProperties)
-        self.connect(self.mainWin.actionDisplayProperties, SIGNAL("triggered()"),self.onDisplayProperties)
-        self.connect(self.mainWin.actionAddcards, SIGNAL("triggered()"), self.onAddCard)
-        self.connect(self.mainWin.actionEditdeck, SIGNAL("triggered()"), self.onEditDeck)
-        self.connect(self.mainWin.actionPreferences, SIGNAL("triggered()"), self.onPrefs)
-        self.connect(self.mainWin.actionLookup_es, SIGNAL("triggered()"), self.onLookupEdictSelection)
-        self.connect(self.mainWin.actionLookup_esk, SIGNAL("triggered()"), self.onLookupEdictKanjiSelection)
-        self.connect(self.mainWin.actionLookup_expr, SIGNAL("triggered()"), self.onLookupExpression)
-        self.connect(self.mainWin.actionLookup_mean, SIGNAL("triggered()"), self.onLookupMeaning)
-        self.connect(self.mainWin.actionLookup_as, SIGNAL("triggered()"), self.onLookupAlcSelection)
-        self.connect(self.mainWin.actionDstats, SIGNAL("triggered()"), self.onDeckStats)
-        self.connect(self.mainWin.actionKstats, SIGNAL("triggered()"), self.onKanjiStats)
-        self.connect(self.mainWin.actionCstats, SIGNAL("triggered()"), self.onCardStats)
-        self.connect(self.mainWin.actionGraphs, SIGNAL("triggered()"), self.onShowGraph)
-        self.connect(self.mainWin.actionAbout, SIGNAL("triggered()"), self.onAbout)
-        self.connect(self.mainWin.actionReportbug, SIGNAL("triggered()"), self.onReportBug)
-        self.connect(self.mainWin.actionForum, SIGNAL("triggered()"), self.onForum)
-        self.connect(self.mainWin.actionStarthere, SIGNAL("triggered()"), self.onStartHere)
-        self.connect(self.mainWin.actionImport, SIGNAL("triggered()"), self.onImport)
-        self.connect(self.mainWin.actionExport, SIGNAL("triggered()"), self.onExport)
-        self.connect(self.mainWin.actionMarkCard, SIGNAL("toggled(bool)"), self.onMark)
-        self.connect(self.mainWin.actionSuspendCard, SIGNAL("triggered()"), self.onSuspend)
-        self.connect(self.mainWin.actionModelProperties, SIGNAL("triggered()"), self.onModelProperties)
-        self.connect(self.mainWin.actionRepeatQuestionAudio, SIGNAL("triggered()"), self.onRepeatQuestion)
-        self.connect(self.mainWin.actionRepeatAnswerAudio, SIGNAL("triggered()"), self.onRepeatAnswer)
-        self.connect(self.mainWin.actionRepeatAudio, SIGNAL("triggered()"), self.onRepeatAudio)
-        self.connect(self.mainWin.actionUndoAnswer, SIGNAL("triggered()"), self.onUndoAnswer)
-        self.connect(self.mainWin.actionCheckDatabaseIntegrity, SIGNAL("triggered()"), self.onCheckDB)
-        self.connect(self.mainWin.actionOptimizeDatabase, SIGNAL("triggered()"), self.onOptimizeDB)
-        self.connect(self.mainWin.actionMergeModels, SIGNAL("triggered()"), self.onMergeModels)
-        self.connect(self.mainWin.actionCheckMediaDatabase, SIGNAL("triggered()"), self.onCheckMediaDB)
+        m = self.mainWin
+        s = SIGNAL("triggered()")
+        self.connect(m.actionNew, s, self.onNew)
+        self.connect(m.actionOpenOnline, s, self.onOpenOnline)
+        self.connect(m.actionOpen, s, self.onOpen)
+        self.connect(m.actionOpenSamples, s, self.onOpenSamples)
+        self.connect(m.actionSave, s, self.onSave)
+        self.connect(m.actionSaveAs, s, self.onSaveAs)
+        self.connect(m.actionClose, s, self.saveAndClose)
+        self.connect(m.actionExit, s, self, SLOT("close()"))
+        self.connect(m.actionSyncdeck, s, self.syncDeck)
+        self.connect(m.actionDeckProperties, s, self.onDeckProperties)
+        self.connect(m.actionDisplayProperties, s,self.onDisplayProperties)
+        self.connect(m.actionAddcards, s, self.onAddCard)
+        self.connect(m.actionEditdeck, s, self.onEditDeck)
+        self.connect(m.actionPreferences, s, self.onPrefs)
+        self.connect(m.actionLookup_es, s, self.onLookupEdictSelection)
+        self.connect(m.actionLookup_esk, s, self.onLookupEdictKanjiSelection)
+        self.connect(m.actionLookup_expr, s, self.onLookupExpression)
+        self.connect(m.actionLookup_mean, s, self.onLookupMeaning)
+        self.connect(m.actionLookup_as, s, self.onLookupAlcSelection)
+        self.connect(m.actionDstats, s, self.onDeckStats)
+        self.connect(m.actionKstats, s, self.onKanjiStats)
+        self.connect(m.actionCstats, s, self.onCardStats)
+        self.connect(m.actionGraphs, s, self.onShowGraph)
+        self.connect(m.actionAbout, s, self.onAbout)
+        self.connect(m.actionReportbug, s, self.onReportBug)
+        self.connect(m.actionForum, s, self.onForum)
+        self.connect(m.actionStarthere, s, self.onStartHere)
+        self.connect(m.actionImport, s, self.onImport)
+        self.connect(m.actionExport, s, self.onExport)
+        self.connect(m.actionMarkCard, SIGNAL("toggled(bool)"), self.onMark)
+        self.connect(m.actionSuspendCard, s, self.onSuspend)
+        self.connect(m.actionModelProperties, s, self.onModelProperties)
+        self.connect(m.actionRepeatQuestionAudio, s, self.onRepeatQuestion)
+        self.connect(m.actionRepeatAnswerAudio, s, self.onRepeatAnswer)
+        self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
+        self.connect(m.actionUndoAnswer, s, self.onUndoAnswer)
+        self.connect(m.actionCheckDatabaseIntegrity, s, self.onCheckDB)
+        self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
+        self.connect(m.actionMergeModels, s, self.onMergeModels)
+        self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."

@@ -9,6 +9,10 @@ import anki
 from anki.models import FieldModel, CardModel
 from ankiqt import ui
 
+tabs = ("General",
+        "Fields",
+        "Cards")
+
 class ModelProperties(QDialog):
 
     def __init__(self, parent, model, main=None, onFinish=None):
@@ -22,6 +26,8 @@ class ModelProperties(QDialog):
         self.onFinish = onFinish
         self.dialog = ankiqt.forms.modelproperties.Ui_ModelProperties()
         self.dialog.setupUi(self)
+        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
+                     self.helpRequested)
         self.setupFields()
         self.setupCards()
         self.readData()
@@ -430,6 +436,12 @@ class ModelProperties(QDialog):
         self.ignoreCardUpdate = True
         self.updateCards(row + 1)
         self.ignoreCardUpdate = False
+
+    def helpRequested(self):
+        idx = self.dialog.tabWidget.currentIndex()
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "ModelProperties#" +
+                                      tabs[idx]))
 
     # Cleanup
     ##########################################################################

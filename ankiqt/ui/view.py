@@ -36,7 +36,7 @@ class View(object):
             return
         elif self.state == "noDeck":
             self.clearWindow()
-            self.drawNoDeckMessage()
+            self.drawWelcomeMessage()
             self.flush()
             return
         self.redisplay()
@@ -50,8 +50,8 @@ class View(object):
         self.maybeHelp()
         if self.main.deck.cardCount():
             if not self.main.lastCard or (
-                self.main.config['suppressLastCardContent'] and
-                self.main.config['suppressLastCardInterval']):
+                not self.main.config['showLastCardContent'] and
+                not self.main.config['showLastCardInterval']):
                 self.buffer += "<br>"
             else:
                 self.drawTopSection()
@@ -62,7 +62,7 @@ class View(object):
                 self.drawQuestion(nosound=True)
             self.drawAnswer()
         elif self.state == "deckEmpty":
-            self.drawDeckEmptyMessage()
+            self.drawWelcomeMessage()
         elif self.state == "deckFinished":
             self.drawDeckFinishedMessage()
         self.flush()
@@ -138,7 +138,7 @@ class View(object):
     def drawLastCard(self):
         "Show the last card if not the current one, and next time."
         if self.main.lastCard:
-            if not self.main.config['suppressLastCardContent']:
+            if self.main.config['showLastCardContent']:
                 if (self.state == "deckFinished" or
                     self.main.currentCard.id != self.main.lastCard.id):
                     q = self.main.lastCard.question.replace("<br>", "  ")
@@ -152,7 +152,7 @@ class View(object):
                     s = "%s<br>%s" % (q, a)
                     s = stripLatex(s)
                     self.write('<span class="lastCard">%s</span><br>' % s)
-            if not self.main.config['suppressLastCardInterval']:
+            if self.main.config['showLastCardInterval']:
                 if self.main.lastQuality > 1:
                     msg = _("Well done! This card will appear again in "
                             "<b>%(next)s</b>.") % \
@@ -162,6 +162,7 @@ class View(object):
                             "<b>%(next)s</b>.") % \
                             {"next":self.main.lastScheduledTime}
                 self.write(msg)
+            self.write("<br>")
 
     # Help
     ##########################################################################
@@ -189,39 +190,47 @@ class View(object):
     # Welcome/empty/finished deck messages
     ##########################################################################
 
-    def drawNoDeckMessage(self):
-        self.write(_("""<h1>Welcome to Anki!</h1>
+    def drawWelcomeMessage(self):
+        self.write(_("""
+<h1>Welcome to Anki!</h1>
 <p>
 <table>
+
+<tr>
+<td width=50>
+<a href="welcome:addfacts"><img src=":/icons/list-add.png"></a>
+</td>
+<td valign=middle><h1><a href="welcome:addfacts">Add material</a></h1>
+Start adding your own material.</td>
+</tr>
+
+</table>
+
+<br>
+<table>
+
 <tr>
 <td>
-<a href="welcome:new"><img src=":/icons/document-new.png"></a>
+<a href="welcome:open"><img src=":/icons/document-open.png"></a>
 </td>
-<td valign=middle>
-<h2><a href="welcome:new">Create a new deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:open">Open Local Deck</a></h2></td>
+</tr>
+
+<tr>
+<td>
+<a href="welcome:openrem"><img src=":/icons/document-open-remote.png"></a>
+</td>
+<td valign=middle><h2><a href="welcome:openrem">Open Online Deck</a></h2></td>
 </tr>
 
 <tr>
 <td width=50>
 <a href="welcome:sample"><img src=":/icons/anki.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:sample">Open a sample deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:sample">Open Sample Deck</a></h2></td>
 </tr>
 
-<tr>
-<td>
-<a href="welcome:open"><img src=":/icons/document-open.png"></a>
-</td>
-<td valign=middle><h2><a href="welcome:open">Open an existing deck</a></h2></td>
-</tr>
-</table>
-"""))
-
-    def drawDeckEmptyMessage(self):
-        "Tell the user the deck is empty."
-        self.write(_("""
-<h1>Empty deck</h1>The current deck has no cards in it. Please select 'Add
-card' from the Edit menu."""))
+</table>"""))
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."

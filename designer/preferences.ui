@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
-    <height>531</height>
+    <width>322</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -23,12 +23,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>510</width>
-        <height>449</height>
+        <width>306</width>
+        <height>351</height>
        </rect>
       </property>
       <attribute name="title" >
-       <string>Language, Fonts and Colours</string>
+       <string>Display</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout" >
        <item>
@@ -42,7 +42,7 @@
          <item>
           <widget class="QLabel" name="label" >
            <property name="text" >
-            <string>&lt;h1>Interface language&lt;/h1>The language for the user interface: dialogs, menus, etc.</string>
+            <string>&lt;h1>Language&lt;/h1></string>
            </property>
            <property name="wordWrap" >
             <bool>false</bool>
@@ -68,7 +68,7 @@
             </sizepolicy>
            </property>
            <property name="text" >
-            <string>&lt;h1>Standard fonts&lt;/h1>See 'display properties' for deck specific font preferences.</string>
+            <string>&lt;h1>Fonts&lt;/h1></string>
            </property>
            <property name="wordWrap" >
             <bool>false</bool>
@@ -169,7 +169,7 @@
             </sizepolicy>
            </property>
            <property name="text" >
-            <string>&lt;h1>Standard colours&lt;/h1>These colours are used for all decks.</string>
+            <string>&lt;h1>Colours&lt;/h1></string>
            </property>
            <property name="wordWrap" >
             <bool>false</bool>
@@ -250,12 +250,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>453</width>
-        <height>443</height>
+        <width>306</width>
+        <height>351</height>
        </rect>
       </property>
       <attribute name="title" >
-       <string>Autosave and Synchronisation</string>
+       <string>Save &amp;&amp; Sync</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="spacing" >
@@ -283,7 +283,7 @@
            <item>
             <widget class="QLabel" name="label_4" >
              <property name="text" >
-              <string>&lt;h1>Autosaving&lt;/h1>Anki can save your progress automatically.</string>
+              <string>&lt;h1>Autosaving&lt;/h1></string>
              </property>
             </widget>
            </item>
@@ -350,7 +350,7 @@
            <item>
             <widget class="QLabel" name="label_16" >
              <property name="text" >
-              <string>&lt;h1>Synchronisation&lt;/h1>Synchronisation enables you to access your deck from the web and your mobile phone. You can &lt;a href="http://anki.ichi2.net/">create a free account&lt;/a>.</string>
+              <string>&lt;h1>Synchronisation&lt;/h1>&lt;a href="http://anki.ichi2.net/">Create a free account&lt;/a>.</string>
              </property>
              <property name="wordWrap" >
               <bool>true</bool>
@@ -419,7 +419,7 @@
         </layout>
        </item>
        <item>
-        <spacer>
+        <spacer name="verticalSpacer_2" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
@@ -438,30 +438,16 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>453</width>
-        <height>443</height>
+        <width>306</width>
+        <height>351</height>
        </rect>
       </property>
       <attribute name="title" >
-       <string>Advanced Settings</string>
+       <string>Advanced</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <item>
         <layout class="QGridLayout" >
-         <item row="1" column="0" >
-          <widget class="QCheckBox" name="showToolbar" >
-           <property name="text" >
-            <string>Show toolbar on startup</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" >
-          <widget class="QCheckBox" name="compactEaseButtons" >
-           <property name="text" >
-            <string>Use compact answer button style</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0" >
           <widget class="QLabel" name="label_6" >
            <property name="text" >
@@ -469,55 +455,66 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
-          <widget class="QCheckBox" name="tallButtons" >
+         <item row="1" column="0" >
+          <widget class="QCheckBox" name="compactEaseButtons" >
            <property name="text" >
-            <string>Tall buttons (for touchscreen)</string>
+            <string>Show 3 answer buttons, not 5</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QCheckBox" name="showTimer" >
+           <property name="text" >
+            <string>Show timer</string>
            </property>
           </widget>
          </item>
          <item row="4" column="0" >
-          <widget class="QCheckBox" name="editCurrentOnly" >
-           <property name="text" >
-            <string>Start Edit Deck with only current card selected</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0" >
           <widget class="QCheckBox" name="suppressEstimates" >
            <property name="text" >
             <string>Hide next interval when showing answer buttons</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="0" >
-          <widget class="QCheckBox" name="suppressLastCardInterval" >
+         <item row="5" column="0" >
+          <widget class="QCheckBox" name="showLastCardContent" >
            <property name="text" >
-            <string>Hide interval of last card</string>
+            <string>Show last card's question/answer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" >
+          <widget class="QCheckBox" name="showLastCardInterval" >
+           <property name="text" >
+            <string>Show last card's interval</string>
            </property>
           </widget>
          </item>
          <item row="7" column="0" >
-          <widget class="QCheckBox" name="suppressLastCardContent" >
+          <widget class="QCheckBox" name="showToolbar" >
            <property name="text" >
-            <string>Hide question/answer of last card</string>
+            <string>Show toolbar on startup</string>
            </property>
           </widget>
          </item>
          <item row="8" column="0" >
+          <widget class="QCheckBox" name="tallButtons" >
+           <property name="text" >
+            <string>Tall buttons (for touchscreen)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" >
           <widget class="QCheckBox" name="showTray" >
            <property name="text" >
             <string>Show tray icon</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0" >
-          <widget class="QCheckBox" name="showTimer" >
+         <item row="2" column="0" >
+          <widget class="QCheckBox" name="simpleToolbar" >
            <property name="text" >
-            <string>Show timer</string>
+            <string>Simple toolbar</string>
            </property>
           </widget>
          </item>
@@ -546,11 +543,13 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
   </layout>
+  <zorder>buttonBox</zorder>
+  <zorder>tabWidget</zorder>
  </widget>
  <tabstops>
   <tabstop>tabWidget</tabstop>
@@ -573,6 +572,15 @@
   <tabstop>syncPass</tabstop>
   <tabstop>syncOnOpen</tabstop>
   <tabstop>syncOnClose</tabstop>
+  <tabstop>compactEaseButtons</tabstop>
+  <tabstop>simpleToolbar</tabstop>
+  <tabstop>showTimer</tabstop>
+  <tabstop>suppressEstimates</tabstop>
+  <tabstop>showLastCardContent</tabstop>
+  <tabstop>showLastCardInterval</tabstop>
+  <tabstop>showToolbar</tabstop>
+  <tabstop>tallButtons</tabstop>
+  <tabstop>showTray</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

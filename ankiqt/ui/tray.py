@@ -14,7 +14,7 @@ class AnkiTrayIcon( QtCore.QObject ):
 		self.mw = mw
 		self.anki_visible = True
 		if (QtGui.QSystemTrayIcon.isSystemTrayAvailable() and
-                    mw.config['showTray']):
+                    mw.config['showTrayIcon']):
 			self.ti = QtGui.QSystemTrayIcon( mw )
 			if self.ti:
                                 self.mw.addHook("quit", self.onQuit)

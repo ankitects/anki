@@ -6,10 +6,10 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 appName="Anki"
-appVersion="0.9.8.1"
+appVersion="0.9.8.2"
 appWebsite="http://ichi2.net/anki/download/"
 appWiki="http://ichi2.net/anki/wiki/"
-appHelpSite="http://ichi2.net/anki/wiki/Documentation"
+appHelpSite="http://ichi2.net/anki/wiki/AnkiWiki"
 appIssueTracker="http://code.google.com/p/anki/issues/list"
 appForum="http://groups.google.com/group/ankisrs/topics"
 modDir=os.path.dirname(os.path.abspath(__file__))
@@ -87,14 +87,14 @@ def run():
     except (IOError, OSError):
         pass
 
-    import platform
-    if (platform.processor() != "powerpc" and
-        platform.architecture()[0] == "32bit"):
-        try:
-            import psyco
-            psyco.profile()
-        except ImportError:
-            print "Installing python-psyco is strongly recommended."
+#     import platform
+#     if (platform.processor() != "powerpc" and
+#         platform.architecture()[0] == "32bit"):
+#         try:
+#             import psyco
+#             psyco.profile()
+#         except ImportError:
+#             print "Installing python-psyco is strongly recommended."
 
     app.exec_()
 

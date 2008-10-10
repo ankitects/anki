@@ -12,7 +12,7 @@ import ankiqt.forms
 class HelpArea(object):
 
     helpAreaWidth = 300
-    minAppWidth = 500
+    minAppWidth = 400
 
     def __init__(self, helpFrame, config, mainWindow=None, focus=None):
         self.helpFrame = helpFrame
@@ -27,16 +27,11 @@ class HelpArea(object):
                             self.anchorClicked)
         self.hide()
 
-    def getMinAppWidth(self):
-        if self.config['easeButtonStyle'] == 'compact':
-            return self.minAppWidth - 150
-        return self.minAppWidth
-
     def show(self):
         "Show the help area."
         if self.mainWindow:
             self.mainWindow.setMinimumWidth(
-                self.getMinAppWidth()+self.helpAreaWidth)
+                self.minAppWidth+self.helpAreaWidth)
         self.helpFrame.show()
         self.widget.show()
 
@@ -45,14 +40,6 @@ class HelpArea(object):
         self.helpFrame.hide()
         self.widget.hide()
         if self.mainWindow:
-            self.mainWindow.setMinimumWidth(self.getMinAppWidth())
-            # force resize
-            g = self.mainWindow.geometry()
-            if g.width() < self.getMinAppWidth():
-                self.mainWindow.setGeometry(QRect(g.left(),
-                                                  g.top(),
-                                                  self.getMinAppWidth(),
-                                                  g.height()))
             self.mainWindow.runHook("helpChanged")
 
     def showKey(self, key, noFlush=False, dict=False):

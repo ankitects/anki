@@ -248,13 +248,9 @@ You should aim to answer each question within<br>
         if self.main.state in "showQuestion":
             t = self.main.currentCard.thinkingTime()
             if t < 60:
-                if t < StatusView.warnTime:
-                    col="#000000"
-                else:
-                    col="#FF3300"
-                self.timer.setText('<font color="%s">00:%02d</font>' % (col, t))
+                self.timer.setText('00:%02d' % t)
             else:
-                self.timer.setText('<font color="#FF0000"><b>01:00</b></font>')
+                self.timer.setText('01:00')
         elif self.main.state == "showAnswer":
             pass
         else:
@@ -262,4 +258,4 @@ You should aim to answer each question within<br>
 
     def onConfigure(self):
         self.main.deckProperties = ui.deckproperties.DeckProperties(self.main)
-        self.main.deckProperties.dialog.qtabwidget.setCurrentIndex(2)
+        self.main.deckProperties.dialog.qtabwidget.setCurrentIndex(1)

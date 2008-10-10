@@ -192,6 +192,8 @@ class AddModel(QDialog):
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
         self.connect(s, SIGNAL("activated()"), self.accept)
+        # help
+        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.onHelp)
 
     def getModel(self):
         self.exec_()
@@ -202,3 +204,6 @@ class AddModel(QDialog):
             unicode(self.dialog.models.currentItem().text())]
         QDialog.accept(self)
 
+    def onHelp(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "AddModel"))

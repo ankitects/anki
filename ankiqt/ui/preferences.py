@@ -11,6 +11,10 @@ from anki.stdmodels import JapaneseModel
 from ankiqt import ui
 import ankiqt.forms
 
+tabs = ("Display",
+        "SaveAndSync",
+        "Advanced")
+
 class Preferences(QDialog):
 
     def __init__(self, parent, config):
@@ -30,6 +34,7 @@ class Preferences(QDialog):
             (_("Korean"), "ko_KR"),
             (_("Spanish"), "es_ES"),
             ]
+        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
         self.setupLang()
         self.setupFont()
         self.setupColour()
@@ -158,32 +163,29 @@ class Preferences(QDialog):
     def setupAdvanced(self):
         self.dialog.showToolbar.setChecked(self.config['showToolbar'])
         self.dialog.compactEaseButtons.setChecked(
-            self.config['easeButtonStyle'] != 'standard')
+            self.config['show3AnswerButtons'])
         self.dialog.tallButtons.setChecked(
             self.config['easeButtonHeight'] != 'standard')
         self.dialog.suppressEstimates.setChecked(self.config['suppressEstimates'])
-        self.dialog.suppressLastCardInterval.setChecked(self.config['suppressLastCardInterval'])
-        self.dialog.suppressLastCardContent.setChecked(self.config['suppressLastCardContent'])
-        self.dialog.showTray.setChecked(self.config['showTray'])
+        self.dialog.showLastCardInterval.setChecked(self.config['showLastCardInterval'])
+        self.dialog.showLastCardContent.setChecked(self.config['showLastCardContent'])
+        self.dialog.showTray.setChecked(self.config['showTrayIcon'])
         self.dialog.showTimer.setChecked(self.config['showTimer'])
-        self.dialog.editCurrentOnly.setChecked(self.config['editCurrentOnly'])
+        self.dialog.simpleToolbar.setChecked(self.config['simpleToolbar'])
 
     def updateAdvanced(self):
         self.config['showToolbar'] = self.dialog.showToolbar.isChecked()
-        if self.dialog.compactEaseButtons.isChecked():
-            self.config['easeButtonStyle'] = 'compact'
-        else:
-            self.config['easeButtonStyle'] = 'standard'
+        self.config['show3AnswerButtons'] = self.dialog.compactEaseButtons.isChecked()
         if self.dialog.tallButtons.isChecked():
             self.config['easeButtonHeight'] = 'tall'
         else:
             self.config['easeButtonHeight'] = 'standard'
-        self.config['suppressLastCardInterval'] = self.dialog.suppressLastCardInterval.isChecked()
-        self.config['suppressLastCardContent'] = self.dialog.suppressLastCardContent.isChecked()
-        self.config['showTray'] = self.dialog.showTray.isChecked()
+        self.config['showLastCardInterval'] = self.dialog.showLastCardInterval.isChecked()
+        self.config['showLastCardContent'] = self.dialog.showLastCardContent.isChecked()
+        self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
         self.config['showTimer'] = self.dialog.showTimer.isChecked()
         self.config['suppressEstimates'] = self.dialog.suppressEstimates.isChecked()
-        self.config['editCurrentOnly'] = self.dialog.editCurrentOnly.isChecked()
+        self.config['simpleToolbar'] = self.dialog.simpleToolbar.isChecked()
 
     def codeToIndex(self, code):
         n = 0
@@ -193,3 +195,9 @@ class Preferences(QDialog):
             n += 1
         # default to english
         return self.codeToIndex("en_US")
+
+    def helpRequested(self):
+        idx = self.dialog.tabWidget.currentIndex()
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "Preferences#" +
+                                      tabs[idx]))

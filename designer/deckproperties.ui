@@ -29,8 +29,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>413</width>
-        <height>385</height>
+        <width>407</width>
+        <height>373</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -72,7 +72,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
+         <item row="4" column="0" >
           <widget class="QLabel" name="label_28" >
            <property name="maximumSize" >
             <size>
@@ -81,37 +81,47 @@
             </size>
            </property>
            <property name="text" >
-            <string>&lt;h1>Sources&lt;h1></string>
+            <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;">&lt;span style=" font-size:xx-large;">Sources&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0" >
-          <widget class="QListWidget" name="listWidget" />
-         </item>
-         <item row="5" column="0" >
+         <item row="6" column="0" >
           <layout class="QHBoxLayout" name="horizontalLayout_3" >
            <item>
             <widget class="QPushButton" name="addSource" >
              <property name="text" >
-              <string>Add Source</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="editSource" >
-             <property name="text" >
-              <string>Edit Source</string>
+              <string>&amp;Add Source</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QPushButton" name="deleteSource" >
              <property name="text" >
-              <string>Delete Source</string>
+              <string>&amp;Delete Source</string>
              </property>
             </widget>
            </item>
           </layout>
+         </item>
+         <item row="5" column="0" >
+          <widget class="QTableWidget" name="sourcesTable" />
+         </item>
+         <item row="3" column="0" >
+          <spacer name="verticalSpacer_4" >
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -633,9 +643,8 @@
   <tabstop>qtabwidget</tabstop>
   <tabstop>doSync</tabstop>
   <tabstop>syncName</tabstop>
-  <tabstop>listWidget</tabstop>
+  <tabstop>sourcesTable</tabstop>
   <tabstop>addSource</tabstop>
-  <tabstop>editSource</tabstop>
   <tabstop>deleteSource</tabstop>
   <tabstop>newCardsPerDay</tabstop>
   <tabstop>failedCardMax</tabstop>
