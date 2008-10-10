@@ -450,6 +450,8 @@
     <addaction name="actionCstats" />
     <addaction name="separator" />
     <addaction name="menu_Lookup" />
+    <addaction name="separator" />
+    <addaction name="actionCram" />
    </widget>
    <widget class="QMenu" name="menuAdvanced" >
     <property name="title" >
@@ -922,6 +924,11 @@
    </property>
    <property name="text" >
     <string>Open Online..</string>
+   </property>
+  </action>
+  <action name="actionCram" >
+   <property name="text" >
+    <string>C&amp;ram..</string>
    </property>
   </action>
  </widget>

@@ -15,7 +15,7 @@ from PyQt4.QtGui import *
 from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText
-from anki.utils import addTags, deleteTags
+from anki.utils import addTags, deleteTags, parseTags
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError
 from anki.stdmodels import BasicModel
@@ -585,16 +585,19 @@ class AnkiQt(QMainWindow):
 
     def saveAndClose(self, exit=False):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
+        cramming = False
         if self.deck is not None:
+            oldName = self.deck.name()
+            cramming = oldName == "cram"
             # sync (saving automatically)
-            if self.config['syncOnClose'] and self.deck.syncName:
+            if self.config['syncOnClose'] and self.deck.syncName and not cramming:
                 self.syncDeck(False, reload=False)
                 while self.deckPath:
                     self.app.processEvents()
                     time.sleep(0.1)
                 return True
             # save
-            if self.deck.modifiedSinceSave():
+            if self.deck.modifiedSinceSave() and not cramming:
                 if self.config['saveOnClose'] or self.config['syncOnClose']:
                     self.saveDeck()
                 else:
@@ -609,7 +612,10 @@ class AnkiQt(QMainWindow):
             self.deck.rollback()
             self.deck = None
         if not exit:
-            self.moveToState("noDeck")
+            if cramming:
+                self.loadRecent(0)
+            else:
+                self.moveToState("noDeck")
         return True
 
     def onNew(self):
@@ -985,6 +991,38 @@ class AnkiQt(QMainWindow):
     def onExport(self):
         ui.exporting.ExportDialog(self)
 
+    # Cramming
+    ##########################################################################
+
+    def onCram(self):
+        (s, ret) = QInputDialog.getText(self, _("Anki"), _("Tags to cram:"))
+        if not ret:
+            return
+        s = unicode(s)
+        self.deck.save()
+        # open tmp deck
+        import tempfile
+        dir = tempfile.mkdtemp(prefix="anki-cram")
+        path = os.path.join(dir, "cram.anki")
+        from anki.exporting import AnkiExporter
+        e = AnkiExporter(self.deck)
+        if s:
+            e.limitTags = parseTags(s)
+        e.exportInto(path)
+        # load
+        self.loadDeck(path)
+        self.config['recentDeckPaths'].pop(0)
+        self.deck.newCardsPerDay = 999999
+        self.deck.delay0 = 300
+        self.deck.delay1 = 600
+        self.deck.hardIntervalMin = 0.01388
+        self.deck.hardIntervalMax = 0.02083
+        self.deck.midIntervalMin = 0.0416
+        self.deck.midIntervalMax = 0.0486
+        self.deck.easyIntervalMin = 0.2083
+        self.deck.easyIntervalMax = 0.25
+        self.rebuildQueue()
+
     # Language handling
     ##########################################################################
 
@@ -1180,6 +1218,7 @@ class AnkiQt(QMainWindow):
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionMergeModels, s, self.onMergeModels)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
+        self.connect(m.actionCram, s, self.onCram)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
