@@ -184,7 +184,7 @@ from cards where reps > 0 and priority != 0""")
         n = 0
         colours = ["#ff7777", "#77ffff", "#7777ff"]
         bars = []
-        gs = anki.stats.globalStats(self.deck.s)
+        gs = anki.stats.globalStats(self.deck)
         for type in types:
             total = (getattr(gs, type + "Ease0") +
                      getattr(gs, type + "Ease1") +
