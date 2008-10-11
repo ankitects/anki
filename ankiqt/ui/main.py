@@ -659,7 +659,7 @@ class AnkiQt(QMainWindow):
         if not self.saveAndClose(exit=True): return
         self.deck = DeckStorage.Deck()
         # ensure all changes come to us
-        self.deck.syncName = None
+        self.deck.syncName = "something"
         self.deck.modified = 0
         self.deck.lastLoaded = self.deck.modified
         if self.config['syncUsername'] and self.config['syncPassword']:
@@ -899,7 +899,7 @@ class AnkiQt(QMainWindow):
                 else:
                     ui.utils.showInfo(_(
                         "Your version of Matplotlib is broken.\n"
-                        "Please see http://repose.ath.cx/tracker/anki/issue102"))
+                        "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"))
         else:
             ui.utils.showInfo(_("Please install python-matplotlib to access graphs."))
 

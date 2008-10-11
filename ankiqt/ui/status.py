@@ -169,12 +169,13 @@ class StatusView(object):
         self.remText.setText(remStr % stats)
         stats['suspended'] = self.main.deck.suspendedCardCount()
         stats['spaced'] = self.main.deck.spacedCardCount()
+        stats['new2'] = self.main.deck.newCardCount()
         self.remText.setToolTip(_(
             "<h1>Remaining cards</h1>"
-            "The number of cards left to answer."
             "<p/>There are <b>%(failed)d</b> failed cards due soon.<br>"
             "There are <b>%(successive)d</b> cards awaiting review.<br>"
-            "There are <b>%(new)d</b> new cards.<br>"
+            "There are <b>%(new)d</b> new cards due today.<br><br>"
+            "There are <b>%(new2)d</b> new cards in total.<br>"
             "There are <b>%(spaced)d</b> spaced cards.<br>"
             "There are <b>%(suspended)d</b> suspended cards.") % stats)
         # eta
