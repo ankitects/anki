@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-12 03:54+0900\n"
+"POT-Creation-Date: 2008-10-12 05:26+0900\n"
 "PO-Revision-Date: 2008-03-28 17:07+0900\n"
 "Last-Translator: Andrew Wright <guswright80@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,7 @@ msgid ""
 "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
 msgstr "<span>Ankiはあたなの記憶の可能性を最適するように作られた反復練習単語帳プログラムです。<p/>GPLに則って提供されています。<p/><a href=\"http://ichi2.net/anki/\">ウェブサイトへ</a></span>"
 
-#: ui/status.py:218
+#: ui/status.py:221
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -111,7 +111,7 @@ msgstr "クイズ/追加/編集の時"
 msgid " applied %d modified cards."
 msgstr ""
 
-#: ui/main.py:1477
+#: ui/main.py:1484
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -128,7 +128,7 @@ msgstr "%(del)d個を削除しました。"
 msgid "%(name)s [%(facts)d facts]"
 msgstr "%(name)s [ファクト　%(facts)d個]"
 
-#: ui/main.py:1237
+#: ui/main.py:1239
 #, python-format
 msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
 msgstr "%(path)s (ファクト　%(facts)d個, カード　%(cards)d個) - %(title)s"
@@ -143,7 +143,7 @@ msgstr "%d個をエクスポートしました。"
 msgid "%s ago"
 msgstr "%s前"
 
-#: ui/main.py:1454
+#: ui/main.py:1461
 #, python-format
 msgid ""
 "%s.\n"
@@ -368,31 +368,31 @@ msgstr ""
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr ""
 
-#: ui/main.py:839
+#: ui/main.py:841
 msgid "<a href=py:miss>Missing Kanji</a><br>"
 msgstr ""
 
-#: ui/main.py:333
+#: ui/main.py:334
 #, python-format
 msgid "<b>%(ease0)s</b>"
 msgstr "<b>%(ease0)s後</b>"
 
-#: ui/main.py:335
+#: ui/main.py:336
 #, python-format
 msgid "<b>%(ease1)s</b>"
 msgstr "<b>%(ease1)s後</b>"
 
-#: ui/main.py:337
+#: ui/main.py:338
 #, python-format
 msgid "<b>%(ease2)s</b>"
 msgstr "<b>%(ease2)s後</b>"
 
-#: ui/main.py:339
+#: ui/main.py:340
 #, python-format
 msgid "<b>%(ease3)s</b>"
 msgstr "<b>%(ease3)s後</b>"
 
-#: ui/main.py:341
+#: ui/main.py:342
 #, python-format
 msgid "<b>%(ease4)s</b>"
 msgstr "<b>%(ease4)s後</b>"
@@ -442,11 +442,11 @@ msgstr "<b>カードのスペーシング</b>"
 msgid "<b>Card-specific tags</b>"
 msgstr ""
 
-#: ui/main.py:338
+#: ui/main.py:339
 msgid "<b>Challenging.</b><br>Wait a little longer next time."
 msgstr ""
 
-#: ui/main.py:340
+#: ui/main.py:341
 msgid "<b>Comfortable.</b><br>Wait longer next time."
 msgstr ""
 
@@ -513,7 +513,7 @@ msgstr "<b>質問の隠し</b>"
 msgid "<b>Required?</b>"
 msgstr "<b>必須</b>"
 
-#: ui/main.py:334
+#: ui/main.py:335
 msgid "<b>Reset.</b><br>You've completely forgotten."
 msgstr ""
 
@@ -534,11 +534,11 @@ msgstr "<b>タグ</b>:"
 msgid "<b>Tags</b>"
 msgstr "<b>タグ</b>"
 
-#: ui/main.py:336
+#: ui/main.py:337
 msgid "<b>Too difficult.</b><br>Show this card again soon."
 msgstr ""
 
-#: ui/main.py:342
+#: ui/main.py:343
 msgid "<b>Too easy.</b><br>Wait a lot longer next time."
 msgstr ""
 
@@ -594,7 +594,7 @@ msgstr ""
 msgid "<h1>Basic Scheduling</h1>"
 msgstr "<h1>先のカード</h1>"
 
-#: ui/main.py:113
+#: ui/main.py:114
 msgid "<h1>Building revision queue..</h1>"
 msgstr ""
 
@@ -620,7 +620,7 @@ msgstr "<h1>ツールバー</h1>"
 msgid "<h1>Cumulative view of due cards</h1>"
 msgstr "<h1>カード累積表</h1>"
 
-#: ui/main.py:856
+#: ui/main.py:858
 msgid "<h1>Current card</h1>"
 msgstr "<h1>現在のカード</h1>"
 
@@ -665,7 +665,7 @@ msgstr "<h1>モデルプロパティ</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>カードの易しさ</h1>"
 
-#: ui/main.py:859
+#: ui/main.py:861
 msgid "<h1>Last card</h1>"
 msgstr "<h1>先のカード</h1>"
 
@@ -674,11 +674,11 @@ msgstr "<h1>先のカード</h1>"
 msgid "<h1>Models</h1>"
 msgstr "<h1>モデル</h1>"
 
-#: ui/main.py:616
+#: ui/main.py:617
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr ""
 
-#: ui/status.py:191
+#: ui/status.py:194
 #, python-format
 msgid ""
 "<h1>Performance</h1>\n"
@@ -702,7 +702,7 @@ msgstr ""
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>モデルプロパティ</h1>"
 
-#: ui/status.py:170
+#: ui/status.py:173
 #, fuzzy, python-format
 msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(successive)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> spaced cards.<br>There are <b>%(suspended)d</b> suspended cards."
 msgstr "<h1>残っているカード</h1>残っているカードの数です。<p/>間違えたカードが<b>%(failed)d</b>個あります。<br>復習を待っているカードが<b>%(successive)d</b>個あります。<br>新しいカードが<b>%(new)d</b>個あります。<br>延期されたカードが<b>%(spaced)d</b>個あります。<br>保留されたカードが<b>%(suspended)d</b>個あります。"
@@ -733,7 +733,7 @@ msgstr "<h1>保存されてない変更内容</h1>セーブしますか。切り
 msgid "<h1>Where should we synchronize to?</h1>"
 msgstr "どこへ同期しますか？"
 
-#: ui/status.py:203
+#: ui/status.py:206
 #, python-format
 msgid ""
 "<h2>All Reviews</h2>\n"
@@ -826,7 +826,7 @@ msgstr ""
 msgid "All tags"
 msgstr ""
 
-#: ui/main.py:555
+#: ui/main.py:556
 #, python-format
 msgid "Alt+%d"
 msgstr ""
@@ -847,14 +847,14 @@ msgstr ""
 msgid "Alt+M"
 msgstr ""
 
-#: ui/main.py:455
+#: ui/main.py:456
 #, python-format
 msgid ""
 "An error occurred while upgrading:\n"
 "%s"
 msgstr ""
 
-#: ui/deckproperties.py:182 ui/main.py:985 forms/addmodel.py:48
+#: ui/deckproperties.py:182 ui/main.py:987 forms/addmodel.py:48
 #: forms/main.py:496 forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -872,7 +872,7 @@ msgstr "Anki - 単語帳を編集"
 msgid "Anki - Edit Deck (%(cur)d of %(tot)d cards shown)"
 msgstr ""
 
-#: ui/main.py:731
+#: ui/main.py:733
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -920,7 +920,7 @@ msgstr "バックグラウンドの色"
 msgid "Bold text (Ctrl+b)"
 msgstr "太字"
 
-#: ui/main.py:75
+#: ui/main.py:76
 #, python-format
 msgid ""
 "Broken plugin:\n"
@@ -1006,7 +1006,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ui/status.py:109
+#: ui/status.py:112
 msgid ""
 "Click this button to customize\n"
 "the way Anki shows you cards."
@@ -1062,7 +1062,7 @@ msgstr "Ctrl+5"
 msgid "Ctrl+A"
 msgstr "Ctrl+A"
 
-#: ui/main.py:1254
+#: ui/main.py:1256
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
@@ -1181,11 +1181,11 @@ msgstr "単語帳のグラフ"
 msgid "Deck Properties"
 msgstr "単語帳プロパティ"
 
-#: ui/main.py:655 ui/main.py:695
+#: ui/main.py:657 ui/main.py:697
 msgid "Deck files (*.anki)"
 msgstr "Ankiの単語帳 (*.anki)"
 
-#: ui/main.py:685
+#: ui/main.py:687
 msgid "Deck is not modified."
 msgstr "ファイルが只今変化されていません。"
 
@@ -1244,7 +1244,7 @@ msgstr "期限"
 msgid "E&xit"
 msgstr "終了(&x)"
 
-#: ui/status.py:178
+#: ui/status.py:181
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr ""
@@ -1281,7 +1281,7 @@ msgstr ""
 msgid "Enter tag(s) to delete from each fact:"
 msgstr ""
 
-#: ui/main.py:436
+#: ui/main.py:437
 msgid "Error building queue. Attempting recovery.."
 msgstr ""
 
@@ -1357,7 +1357,7 @@ msgstr "フランス語"
 msgid "General"
 msgstr "期間"
 
-#: ui/main.py:891
+#: ui/main.py:893
 msgid "Generating report (may take time).."
 msgstr "レポートを集計中。しばらくお待ちください"
 
@@ -1481,7 +1481,7 @@ msgstr "Latex方程式"
 msgid "Latex math environment (Ctrl+m)"
 msgstr "Latex数学環境"
 
-#: ui/main.py:871
+#: ui/main.py:873
 msgid "Loading graphs (may take time).."
 msgstr "グラフを集計中。しばらくお待ちください"
 
@@ -1514,7 +1514,7 @@ msgstr ""
 msgid "Merge Models.."
 msgstr "モデルを同期中.."
 
-#: ui/main.py:1452
+#: ui/main.py:1459
 msgid "Merge complete."
 msgstr ""
 
@@ -1590,26 +1590,26 @@ msgstr "%sという単語帳をサーバーで作成"
 msgid "No changes found."
 msgstr ""
 
-#: ui/main.py:862
+#: ui/main.py:864
 msgid "No current card or last card."
 msgstr "現在のカードも先のカードもありません。"
 
-#: ui/main.py:813
+#: ui/main.py:815
 msgid "No expression in current card."
 msgstr "このカードは、「表現」のフィールドに入力されていません。"
 
-#: ui/main.py:820
+#: ui/main.py:822
 msgid "No meaning in current card."
 msgstr "このカードは、「意味」のフィールドに入力されていません。"
 
-#: ui/main.py:1445
+#: ui/main.py:1452
 msgid ""
 "No models found to merge. If you want to merge models,\n"
 "all models must have the same name, and must not be\n"
 "from another person's deck."
 msgstr ""
 
-#: ui/main.py:1423
+#: ui/main.py:1430
 msgid ""
 "No problems found. Some data structures have been rebuilt in case\n"
 "they were causing problems. On the next sync, all cards will be\n"
@@ -1629,7 +1629,7 @@ msgstr "単語帳の例を開く(&O)"
 msgid "Open Sa&mple..."
 msgstr "単語帳の例を開く(&O)"
 
-#: ui/main.py:658
+#: ui/main.py:660
 msgid "Open deck"
 msgstr "ファイルを開く"
 
@@ -1645,7 +1645,7 @@ msgstr ""
 msgid "Password"
 msgstr "パスワード:"
 
-#: ui/main.py:626
+#: ui/main.py:627
 #, fuzzy
 msgid "Password:"
 msgstr "パスワード:"
@@ -1679,7 +1679,7 @@ msgstr "ユーザー名とパスワードを確認してください。"
 msgid "Please enable a different model first."
 msgstr "まず他のモデルを有効してください。"
 
-#: ui/main.py:888
+#: ui/main.py:890
 msgid "Please install python-matplotlib to access graphs."
 msgstr "python-matplotlabが必要です。python-matplotlibをインストールしてください。"
 
@@ -1699,7 +1699,7 @@ msgstr "空白の値を拒否します。"
 msgid "Preview"
 msgstr "プレビュー"
 
-#: ui/main.py:1430
+#: ui/main.py:1437
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -1730,7 +1730,7 @@ msgstr "質問サイズ"
 msgid "Release Notes.."
 msgstr ""
 
-#: ui/status.py:145
+#: ui/status.py:148
 msgid "Remaining: "
 msgstr "残り: "
 
@@ -1780,7 +1780,7 @@ msgstr "カードを答える時に"
 msgid "Save and S&ync"
 msgstr "保存と同期をします(&y)"
 
-#: ui/main.py:691
+#: ui/main.py:693
 msgid "Save deck"
 msgstr "単語帳を保存する"
 
@@ -1788,22 +1788,17 @@ msgstr "単語帳を保存する"
 msgid "Save when closing"
 msgstr "閉じる時に自動的に保存する"
 
-#: ui/main.py:713
+#: ui/main.py:715
 msgid "Saving.."
 msgstr "保存中.."
 
-#: ui/main.py:717
+#: ui/main.py:719
 msgid "Saving..done"
 msgstr "保存を完了しました。"
 
 #: forms/deckproperties.py:387
 msgid "Scheduling"
 msgstr "スケジューリング"
-
-#: ui/sync.py:105
-#, fuzzy
-msgid "Sending payload..."
-msgstr "カードを同期中.."
 
 #: ui/sync.py:52
 msgid "Server is down or operation failed."
@@ -1813,7 +1808,7 @@ msgstr "サーバに接続できませんでした。"
 msgid "Show 3 answer buttons, not 5"
 msgstr ""
 
-#: ui/main.py:294
+#: ui/main.py:295
 msgid "Show answer"
 msgstr "解答を表示"
 
@@ -1921,7 +1916,7 @@ msgstr "タグ"
 msgid "Tags to append:"
 msgstr "このタグを付け加える："
 
-#: ui/main.py:985
+#: ui/main.py:987
 #, fuzzy
 msgid "Tags to cram:"
 msgstr "このタグを付け加える："
@@ -2035,7 +2030,7 @@ msgid ""
 "You will need to remove the source first."
 msgstr ""
 
-#: ui/main.py:880
+#: ui/main.py:882
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2051,11 +2046,16 @@ msgstr "削除(&D)"
 msgid "Toolbar icon size"
 msgstr ""
 
-#: ui/main.py:671
+#: ui/sync.py:105
+#, fuzzy
+msgid "Transferring payload..."
+msgstr "カードを同期中.."
+
+#: ui/main.py:673
 msgid "Unable to load file."
 msgstr "ファイルを開けませんでした。"
 
-#: ui/main.py:425
+#: ui/main.py:426
 msgid "Unable to load the same deck twice."
 msgstr "この単語帳はもう開いています。二度と開けることができません。"
 
@@ -2112,7 +2112,7 @@ msgstr "カスタムサイズ"
 msgid "Username"
 msgstr "ユーザー名:"
 
-#: ui/main.py:622
+#: ui/main.py:623
 #, fuzzy
 msgid "Username:"
 msgstr "ユーザー名:"
@@ -2126,17 +2126,17 @@ msgstr "よくできました！次に表示されるのは <b>%(next)s後</b>�
 msgid "Would you like to download it now?"
 msgstr "今ダウンロードしますか。"
 
-#: ui/main.py:1450
+#: ui/main.py:1457
 msgid "Would you like to merge models that have the same name?"
 msgstr ""
 
-#: ui/main.py:1460
+#: ui/main.py:1467
 msgid ""
 "Would you like to remove unused files from the media directory, and\n"
 "tag or delete references to missing files?"
 msgstr ""
 
-#: ui/main.py:1304
+#: ui/main.py:1306
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2144,7 +2144,7 @@ msgid ""
 " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/main.py:1131
+#: ui/main.py:1133
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2154,7 +2154,7 @@ msgid ""
 "syncing is disabled until you fix the problem."
 msgstr ""
 
-#: ui/main.py:885
+#: ui/main.py:887
 #, fuzzy
 msgid ""
 "Your version of Matplotlib is broken.\n"
@@ -2171,7 +2171,7 @@ msgstr ""
 msgid "cards"
 msgstr "カード毎に保存する"
 
-#: ui/main.py:1302
+#: ui/main.py:1304
 msgid "early"
 msgstr ""
 
@@ -2188,7 +2188,7 @@ msgstr "%s後"
 msgid "label"
 msgstr ""
 
-#: ui/main.py:1300
+#: ui/main.py:1302
 msgid "late"
 msgstr ""
 

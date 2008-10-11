@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-12 03:54+0900\n"
+"POT-Creation-Date: 2008-10-12 05:26+0900\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,7 @@ msgid ""
 "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
 msgstr "<span>앙키는 기억력이 최대한 발휘되도록 도와주는 분산 반복 프로그램입니다.<p/>무료 공개 프로그램으로 GPL을 따릅니다.<p/><a href=\"http://ichi2.net/anki/\">홈페이지 방문</span>"
 
-#: ui/status.py:218
+#: ui/status.py:221
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -111,7 +111,7 @@ msgstr " <b>질문/추가/편집 할때</b>"
 msgid " applied %d modified cards."
 msgstr ""
 
-#: ui/main.py:1477
+#: ui/main.py:1484
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -128,7 +128,7 @@ msgstr "%(del)d 삭제 됨."
 msgid "%(name)s [%(facts)d facts]"
 msgstr "%(name)s [%(facts)d지식]"
 
-#: ui/main.py:1237
+#: ui/main.py:1239
 #, python-format
 msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
 msgstr "%(path)s (%(facts)d지식, %(cards)d카드) - %(title)s"
@@ -143,7 +143,7 @@ msgstr "%d 내보내기 완료."
 msgid "%s ago"
 msgstr "%s 전"
 
-#: ui/main.py:1454
+#: ui/main.py:1461
 #, python-format
 msgid ""
 "%s.\n"
@@ -368,31 +368,31 @@ msgstr ""
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr ""
 
-#: ui/main.py:839
+#: ui/main.py:841
 msgid "<a href=py:miss>Missing Kanji</a><br>"
 msgstr "<a href=py:miss>없는 한자</a><br>"
 
-#: ui/main.py:333
+#: ui/main.py:334
 #, python-format
 msgid "<b>%(ease0)s</b>"
 msgstr "<b>%(ease0)s</b>"
 
-#: ui/main.py:335
+#: ui/main.py:336
 #, python-format
 msgid "<b>%(ease1)s</b>"
 msgstr "<b>%(ease1)s</b>"
 
-#: ui/main.py:337
+#: ui/main.py:338
 #, python-format
 msgid "<b>%(ease2)s</b>"
 msgstr "<b>%(ease2)s</b>"
 
-#: ui/main.py:339
+#: ui/main.py:340
 #, python-format
 msgid "<b>%(ease3)s</b>"
 msgstr "<b>%(ease3)s</b>"
 
-#: ui/main.py:341
+#: ui/main.py:342
 #, python-format
 msgid "<b>%(ease4)s</b>"
 msgstr "<b>%(ease4)s</b>"
@@ -444,11 +444,11 @@ msgstr "<b>카드 연기</b>"
 msgid "<b>Card-specific tags</b>"
 msgstr "<b>카드 전용 꼬리표</b>"
 
-#: ui/main.py:338
+#: ui/main.py:339
 msgid "<b>Challenging.</b><br>Wait a little longer next time."
 msgstr ""
 
-#: ui/main.py:340
+#: ui/main.py:341
 msgid "<b>Comfortable.</b><br>Wait longer next time."
 msgstr ""
 
@@ -515,7 +515,7 @@ msgstr "<b>질문 감추기</b>"
 msgid "<b>Required?</b>"
 msgstr "<b>필수?</b>"
 
-#: ui/main.py:334
+#: ui/main.py:335
 msgid "<b>Reset.</b><br>You've completely forgotten."
 msgstr ""
 
@@ -536,11 +536,11 @@ msgstr "<b>필수?</b>"
 msgid "<b>Tags</b>"
 msgstr "<b>꼬리표</b>"
 
-#: ui/main.py:336
+#: ui/main.py:337
 msgid "<b>Too difficult.</b><br>Show this card again soon."
 msgstr ""
 
-#: ui/main.py:342
+#: ui/main.py:343
 msgid "<b>Too easy.</b><br>Wait a lot longer next time."
 msgstr ""
 
@@ -596,7 +596,7 @@ msgstr "<h1>사용가능한 필드</h1>어떤 필드로 할당할지 선택하�
 msgid "<h1>Basic Scheduling</h1>"
 msgstr "<h1>지난 카드</h1>"
 
-#: ui/main.py:113
+#: ui/main.py:114
 msgid "<h1>Building revision queue..</h1>"
 msgstr ""
 
@@ -622,7 +622,7 @@ msgstr "<h1>카드 모델</h1>"
 msgid "<h1>Cumulative view of due cards</h1>"
 msgstr "<h1>카드 누적 개수</h1>"
 
-#: ui/main.py:856
+#: ui/main.py:858
 msgid "<h1>Current card</h1>"
 msgstr "<h1>현재 카드</h1>"
 
@@ -667,7 +667,7 @@ msgstr "<h1>모델 속성</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>카드 난이도</h1>"
 
-#: ui/main.py:859
+#: ui/main.py:861
 msgid "<h1>Last card</h1>"
 msgstr "<h1>지난 카드</h1>"
 
@@ -676,11 +676,11 @@ msgstr "<h1>지난 카드</h1>"
 msgid "<h1>Models</h1>"
 msgstr "<h1>카드 모델</h1>"
 
-#: ui/main.py:616
+#: ui/main.py:617
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr ""
 
-#: ui/status.py:191
+#: ui/status.py:194
 #, python-format
 msgid ""
 "<h1>Performance</h1>\n"
@@ -704,7 +704,7 @@ msgstr ""
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>모델 속성</h1>"
 
-#: ui/status.py:170
+#: ui/status.py:173
 #, fuzzy, python-format
 msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(successive)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> spaced cards.<br>There are <b>%(suspended)d</b> suspended cards."
 msgstr "<h1>남은 카드</h1>공부해야 할 카드의 개수<p/>틀렸던 카드 <b>%(failed)d</b>개<br>맞췄던 카드 <b>%(successive)d</b>개<br>새 카드 <b>%(new)d</b>개<br>연기된 카드 <b>%(spaced)d</b>개<br>보류된 카드 <b>%(suspended)d</b>개."
@@ -738,7 +738,7 @@ msgstr ""
 msgid "<h1>Where should we synchronize to?</h1>"
 msgstr "<h1>동기시킬 묶음을 선택해 주세요.</h1>"
 
-#: ui/status.py:203
+#: ui/status.py:206
 #, python-format
 msgid ""
 "<h2>All Reviews</h2>\n"
@@ -832,7 +832,7 @@ msgstr ""
 msgid "All tags"
 msgstr "꼬리표 포함"
 
-#: ui/main.py:555
+#: ui/main.py:556
 #, python-format
 msgid "Alt+%d"
 msgstr "Alt+%d"
@@ -853,7 +853,7 @@ msgstr "Alt+E"
 msgid "Alt+M"
 msgstr "Alt+M"
 
-#: ui/main.py:455
+#: ui/main.py:456
 #, python-format
 msgid ""
 "An error occurred while upgrading:\n"
@@ -862,7 +862,7 @@ msgstr ""
 "업데이트 중 오류 발생:\n"
 "%s"
 
-#: ui/deckproperties.py:182 ui/main.py:985 forms/addmodel.py:48
+#: ui/deckproperties.py:182 ui/main.py:987 forms/addmodel.py:48
 #: forms/main.py:496 forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "앙키"
@@ -880,7 +880,7 @@ msgstr "앙키 - 묶음 편집"
 msgid "Anki - Edit Deck (%(cur)d of %(tot)d cards shown)"
 msgstr "앙키 - 묶음 편집 (%(tot)d개 중에 %(cur)d개)"
 
-#: ui/main.py:731
+#: ui/main.py:733
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -930,7 +930,7 @@ msgstr "배경"
 msgid "Bold text (Ctrl+b)"
 msgstr "굵은 글씨"
 
-#: ui/main.py:75
+#: ui/main.py:76
 #, python-format
 msgid ""
 "Broken plugin:\n"
@@ -1018,7 +1018,7 @@ msgstr ""
 "닫기 단추로 종료하거나 다른 파일을 가져올 수 있습니다.\n"
 "\n"
 
-#: ui/status.py:109
+#: ui/status.py:112
 msgid ""
 "Click this button to customize\n"
 "the way Anki shows you cards."
@@ -1074,7 +1074,7 @@ msgstr "Ctrl+5"
 msgid "Ctrl+A"
 msgstr "Ctrl+A"
 
-#: ui/main.py:1254
+#: ui/main.py:1256
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
@@ -1193,11 +1193,11 @@ msgstr "묶음 그래프"
 msgid "Deck Properties"
 msgstr "묶음 속성(&D)..."
 
-#: ui/main.py:655 ui/main.py:695
+#: ui/main.py:657 ui/main.py:697
 msgid "Deck files (*.anki)"
 msgstr "묶음 파일 (*.anki)"
 
-#: ui/main.py:685
+#: ui/main.py:687
 msgid "Deck is not modified."
 msgstr "변경된 사항이 없습니다."
 
@@ -1256,7 +1256,7 @@ msgstr "복습 예정"
 msgid "E&xit"
 msgstr "종료(&X)"
 
-#: ui/status.py:178
+#: ui/status.py:181
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "예상 시간: <b>%(timeLeft)s</b>"
@@ -1293,7 +1293,7 @@ msgstr "각 카드에서 삭제할 태그(들)을 입력하세요:"
 msgid "Enter tag(s) to delete from each fact:"
 msgstr "각 지식에서 삭제할 태그(들)을 입력하세요:"
 
-#: ui/main.py:436
+#: ui/main.py:437
 msgid "Error building queue. Attempting recovery.."
 msgstr ""
 
@@ -1369,7 +1369,7 @@ msgstr "프랑스어"
 msgid "General"
 msgstr "복습 간격"
 
-#: ui/main.py:891
+#: ui/main.py:893
 msgid "Generating report (may take time).."
 msgstr "보고서 작성 중 (시간이 걸릴 수 있음)..."
 
@@ -1492,7 +1492,7 @@ msgstr "Latex equation"
 msgid "Latex math environment (Ctrl+m)"
 msgstr "Latex 수식 환경"
 
-#: ui/main.py:871
+#: ui/main.py:873
 msgid "Loading graphs (may take time).."
 msgstr "그래프 불러오는 중 (시간이 걸릴 수 있음)..."
 
@@ -1525,7 +1525,7 @@ msgstr "최대"
 msgid "Merge Models.."
 msgstr "모델"
 
-#: ui/main.py:1452
+#: ui/main.py:1459
 msgid "Merge complete."
 msgstr ""
 
@@ -1600,26 +1600,26 @@ msgstr "서버에 '%s' 묶음 만들기"
 msgid "No changes found."
 msgstr ""
 
-#: ui/main.py:862
+#: ui/main.py:864
 msgid "No current card or last card."
 msgstr "아무 카드도 없음"
 
-#: ui/main.py:813
+#: ui/main.py:815
 msgid "No expression in current card."
 msgstr "현재 카드의 expression(표현) 필드를 입력하지 않음"
 
-#: ui/main.py:820
+#: ui/main.py:822
 msgid "No meaning in current card."
 msgstr "현재 카드의 meaning(의미) 필드를 입력하지 않음."
 
-#: ui/main.py:1445
+#: ui/main.py:1452
 msgid ""
 "No models found to merge. If you want to merge models,\n"
 "all models must have the same name, and must not be\n"
 "from another person's deck."
 msgstr ""
 
-#: ui/main.py:1423
+#: ui/main.py:1430
 msgid ""
 "No problems found. Some data structures have been rebuilt in case\n"
 "they were causing problems. On the next sync, all cards will be\n"
@@ -1639,7 +1639,7 @@ msgstr "예제 열기(&M)..."
 msgid "Open Sa&mple..."
 msgstr "예제 열기(&M)..."
 
-#: ui/main.py:658
+#: ui/main.py:660
 msgid "Open deck"
 msgstr "묶음 열기"
 
@@ -1655,7 +1655,7 @@ msgstr ""
 msgid "Password"
 msgstr "비밀번호"
 
-#: ui/main.py:626
+#: ui/main.py:627
 #, fuzzy
 msgid "Password:"
 msgstr "비밀번호"
@@ -1689,7 +1689,7 @@ msgstr "아이디와 비밀번호를 다시 확인해 주세요."
 msgid "Please enable a different model first."
 msgstr "먼저 다른 모델을 켜주세요."
 
-#: ui/main.py:888
+#: ui/main.py:890
 msgid "Please install python-matplotlib to access graphs."
 msgstr "그래프를 보려면 python-matplotlib를 설치해 주세요."
 
@@ -1709,7 +1709,7 @@ msgstr "카드를 추가할 때, 반드시 입력해야 되는 필드"
 msgid "Preview"
 msgstr "미리보기"
 
-#: ui/main.py:1430
+#: ui/main.py:1437
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -1740,7 +1740,7 @@ msgstr "질문 글자 크기"
 msgid "Release Notes.."
 msgstr ""
 
-#: ui/status.py:145
+#: ui/status.py:148
 msgid "Remaining: "
 msgstr "남은 카드:"
 
@@ -1788,7 +1788,7 @@ msgstr "공부한 카드 개수에 따라"
 msgid "Save and S&ync"
 msgstr "저장 및 동기화"
 
-#: ui/main.py:691
+#: ui/main.py:693
 msgid "Save deck"
 msgstr "묶음 저장"
 
@@ -1796,21 +1796,17 @@ msgstr "묶음 저장"
 msgid "Save when closing"
 msgstr "종료할 때 저장"
 
-#: ui/main.py:713
+#: ui/main.py:715
 msgid "Saving.."
 msgstr "저장 중..."
 
-#: ui/main.py:717
+#: ui/main.py:719
 msgid "Saving..done"
 msgstr "저장 중... 완료"
 
 #: forms/deckproperties.py:387
 msgid "Scheduling"
 msgstr "복습 일정"
-
-#: ui/sync.py:105
-msgid "Sending payload..."
-msgstr ""
 
 #: ui/sync.py:52
 msgid "Server is down or operation failed."
@@ -1820,7 +1816,7 @@ msgstr "서버가 다운됐거나 작업 실패입니다."
 msgid "Show 3 answer buttons, not 5"
 msgstr ""
 
-#: ui/main.py:294
+#: ui/main.py:295
 msgid "Show answer"
 msgstr "정답 보기"
 
@@ -1926,7 +1922,7 @@ msgstr "꼬리표"
 msgid "Tags to append:"
 msgstr "꼬리표 추가:"
 
-#: ui/main.py:985
+#: ui/main.py:987
 #, fuzzy
 msgid "Tags to cram:"
 msgstr "꼬리표 추가:"
@@ -2039,7 +2035,7 @@ msgid ""
 "You will need to remove the source first."
 msgstr ""
 
-#: ui/main.py:880
+#: ui/main.py:882
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2055,11 +2051,15 @@ msgstr "삭제 전환"
 msgid "Toolbar icon size"
 msgstr ""
 
-#: ui/main.py:671
+#: ui/sync.py:105
+msgid "Transferring payload..."
+msgstr ""
+
+#: ui/main.py:673
 msgid "Unable to load file."
 msgstr "파일을 불러올 수 없습니다."
 
-#: ui/main.py:425
+#: ui/main.py:426
 msgid "Unable to load the same deck twice."
 msgstr "같은 묶음을 동시에 두번 불러 올 수 없습니다."
 
@@ -2116,7 +2116,7 @@ msgstr "글자 크기 지정"
 msgid "Username"
 msgstr "아이디"
 
-#: ui/main.py:622
+#: ui/main.py:623
 #, fuzzy
 msgid "Username:"
 msgstr "아이디"
@@ -2130,17 +2130,17 @@ msgstr "잘 했습니다! 이 카드는 앞으로 <b>%(next)s</b> 안에 등장�
 msgid "Would you like to download it now?"
 msgstr "지금 다운로드하시겠습니까?"
 
-#: ui/main.py:1450
+#: ui/main.py:1457
 msgid "Would you like to merge models that have the same name?"
 msgstr ""
 
-#: ui/main.py:1460
+#: ui/main.py:1467
 msgid ""
 "Would you like to remove unused files from the media directory, and\n"
 "tag or delete references to missing files?"
 msgstr ""
 
-#: ui/main.py:1304
+#: ui/main.py:1306
 #, fuzzy, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2148,7 +2148,7 @@ msgid ""
 " Please ensure it is set correctly and then restart Anki."
 msgstr "현재 컴퓨터의 시계가 1분 이상 느리거나 빠릅니다. 정확하게 맞춰 주세요."
 
-#: ui/main.py:1131
+#: ui/main.py:1133
 #, fuzzy, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2158,7 +2158,7 @@ msgid ""
 "syncing is disabled until you fix the problem."
 msgstr "현재 컴퓨터의 시계가 1분 이상 느리거나 빠릅니다. 정확하게 맞춰 주세요."
 
-#: ui/main.py:885
+#: ui/main.py:887
 #, fuzzy
 msgid ""
 "Your version of Matplotlib is broken.\n"
@@ -2175,7 +2175,7 @@ msgstr ""
 msgid "cards"
 msgstr "카드"
 
-#: ui/main.py:1302
+#: ui/main.py:1304
 msgid "early"
 msgstr ""
 
@@ -2193,7 +2193,7 @@ msgstr "%s 안에"
 msgid "label"
 msgstr "Latex"
 
-#: ui/main.py:1300
+#: ui/main.py:1302
 #, fuzzy
 msgid "late"
 msgstr "Latex"
