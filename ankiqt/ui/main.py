@@ -19,6 +19,7 @@ from anki.utils import addTags, deleteTags, parseTags
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError
 from anki.stdmodels import BasicModel
+import anki.latex
 import anki.lang
 import ankiqt
 ui = ankiqt.ui
@@ -1360,7 +1361,12 @@ class AnkiQt(QMainWindow):
                 if p.endswith(".py.off") or p.endswith(".py")]
 
     def onOpenPluginFolder(self):
-        QDesktopServices.openUrl(QUrl("file://" + self.pluginsFolder()))
+        if sys.platform == "win32":
+            # reuse our process handling code from latex
+            anki.latex.call(["explorer", self.pluginsFolder().encode(
+                sys.getfilesystemencoding())])
+        else:
+            QDesktopServices.openUrl(QUrl("file://" + self.pluginsFolder()))
 
     def onGetPlugins(self):
         QDesktopServices.openUrl(QUrl("http://ichi2.net/anki/wiki/Plugins"))
