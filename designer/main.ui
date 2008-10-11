@@ -369,6 +369,7 @@
     <addaction name="separator" />
     <addaction name="actionReportbug" />
     <addaction name="actionForum" />
+    <addaction name="actionRelease_Notes" />
     <addaction name="separator" />
     <addaction name="actionAbout" />
     <addaction name="separator" />
@@ -923,12 +924,25 @@
      <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
    </property>
    <property name="text" >
-    <string>Open Online..</string>
+    <string>Open On&amp;line..</string>
    </property>
   </action>
   <action name="actionCram" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/chronometer.png</normaloff>:/icons/chronometer.png</iconset>
+   </property>
    <property name="text" >
     <string>C&amp;ram..</string>
+   </property>
+  </action>
+  <action name="actionRelease_Notes" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/kblogger.png</normaloff>:/icons/kblogger.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Release Notes..</string>
    </property>
   </action>
  </widget>

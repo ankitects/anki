@@ -1090,7 +1090,7 @@ class AnkiQt(QMainWindow):
         self.syncThread = ui.sync.Sync(self, u, p, interactive, create,
                                        onlyMerge, self.sourcesToCheck)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
-        self.connect(self.syncThread, SIGNAL("showWarning"), ui.utils.showWarning)
+        self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
         self.connect(self.syncThread, SIGNAL("moveToState"), self.moveToState)
         self.connect(self.syncThread, SIGNAL("noMatchingDeck"), self.selectSyncDeck)
         self.connect(self.syncThread, SIGNAL("syncClockOff"), self.syncClockOff)
@@ -1147,6 +1147,10 @@ class AnkiQt(QMainWindow):
               "syncing is disabled until you fix the problem.")
             % diff)
         self.syncFinished()
+
+    def showSyncWarning(self, text):
+        ui.utils.showWarning(text, self)
+        self.setStatus("")
 
     # Menu, title bar & status
     ##########################################################################

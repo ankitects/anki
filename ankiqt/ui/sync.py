@@ -35,7 +35,8 @@ class Sync(QThread):
         self.syncDeck()
 
     def error(self, error):
-        self.setStatus(self.getErrorMessage(error))
+        error = self.getErrorMessage(error)
+        self.emit(SIGNAL("showWarning"), error)
         if self.onlyMerge:
             # new file needs cleaning up
             self.emit(SIGNAL("cleanNewDeck"))

@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/kblogger.png</file>
+    <file>icons/chronometer.png</file>
+    <file>icons/Anki_Card.png</file>
     <file>icons/document-open-remote.png</file>
     <file>icons/document-open-recent.png</file>
     <file>icons/khtml_kget.png</file>
