@@ -49,7 +49,6 @@ class Exporter(object):
                 return True
         return False
 
-# FIXME: media support
 class AnkiExporter(Exporter):
 
     key = _("Anki decks (*.anki)")
