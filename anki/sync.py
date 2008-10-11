@@ -538,7 +538,7 @@ values
             s['day'] = s['day'].toordinal()
             del s['id']
             return s
-        lastDay = date.fromtimestamp(self.deck.lastSync - 60*60*24)
+        lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))
         ids = self.deck.s.column0(
             "select id from stats where type = 1 and day >= :day", day=lastDay)
         stat = Stats()

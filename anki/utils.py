@@ -91,7 +91,7 @@ def parseTags(tags):
     return tags
 
 def joinTags(tags):
-    return ", ".join(tags)
+    return u", ".join(tags)
 
 def findTag(tag, tags):
     "True if TAG is in TAGS. Ignore case."
