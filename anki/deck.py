@@ -747,7 +747,6 @@ priority != 0 and due < :now and spaceUntil > :now""",
         fact.assertUnique(self.s)
         # check we have card models available
         cms = self.availableCardModels(fact)
-        print cms
         if not cms:
             return []
         # proceed
