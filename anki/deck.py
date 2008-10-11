@@ -739,7 +739,8 @@ priority != 0 and due < :now and spaceUntil > :now""",
         "Add a fact to the deck. Return list of new cards."
         if not fact.model:
             fact.model = self.currentModel
-        # the session may have been cleared, so refresh model
+        # clear the session and refresh the model
+        self.refresh()
         fact.model = self.s.query(Model).get(fact.model.id)
         # validate
         fact.assertValid()
