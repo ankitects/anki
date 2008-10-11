@@ -745,22 +745,45 @@ priority != 0 and due < :now and spaceUntil > :now""",
         # validate
         fact.assertValid()
         fact.assertUnique(self.s)
-        # and associated cards
+        # check we have card models available
+        cms = self.availableCardModels(fact)
+        print cms
+        if not cms:
+            return []
+        # proceed
         n = 0
         cards = []
         self.s.save(fact)
         self.flushMod()
-        for cardModel in fact.model.cardModels:
-            if cardModel.active:
-                card = anki.cards.Card(fact, cardModel)
-                self.flushMod()
-                self.updatePriority(card)
-                cards.append(card)
+        for cardModel in cms:
+            card = anki.cards.Card(fact, cardModel)
+            self.flushMod()
+            self.updatePriority(card)
+            cards.append(card)
         # keep track of last used tags for convenience
         self.lastTags = fact.tags
         self.setModified()
         self._countsDirty = True
         return cards
+
+    def availableCardModels(self, fact):
+        "List of active card models that aren't empty for FACT."
+        models = []
+        for cardModel in fact.model.cardModels:
+           if cardModel.active:
+               ok = True
+               for format in [cardModel.qformat, cardModel.aformat]:
+                   empty = {}
+                   for k in fact.keys():
+                       empty[k] = u""
+                   try:
+                       if format % fact == format % empty:
+                           ok = False
+                   except (KeyError, TypeError, ValueError):
+                       ok = False
+               if ok:
+                   models.append(cardModel)
+        return models
 
     def addMissingCards(self, fact):
         "Caller must flush first, flushMod after, and rebuild priorities."
