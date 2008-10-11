@@ -345,8 +345,6 @@
            </widget>
           </item>
          </layout>
-         <zorder>help</zorder>
-         <zorder>mainTextFrame</zorder>
         </widget>
        </item>
       </layout>
@@ -371,7 +369,7 @@
     <addaction name="separator" />
     <addaction name="actionReportbug" />
     <addaction name="actionForum" />
-    <addaction name="actionRelease_Notes" />
+    <addaction name="actionReleaseNotes" />
     <addaction name="separator" />
     <addaction name="actionAbout" />
     <addaction name="separator" />
@@ -963,7 +961,7 @@
     <string>C&amp;ram..</string>
    </property>
   </action>
-  <action name="actionRelease_Notes" >
+  <action name="actionReleaseNotes" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
      <normaloff>:/icons/kblogger.png</normaloff>:/icons/kblogger.png</iconset>

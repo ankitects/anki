@@ -962,6 +962,9 @@ class AnkiQt(QMainWindow):
     def onForum(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appForum))
 
+    def onReleaseNotes(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appReleaseNotes))
+
     def onAbout(self):
         ui.about.show(self)
 
@@ -1217,6 +1220,7 @@ class AnkiQt(QMainWindow):
         self.connect(m.actionEnableAllPlugins, s, self.onEnableAllPlugins)
         self.connect(m.actionDisableAllPlugins, s, self.onDisableAllPlugins)
         self.connect(m.actionActiveTags, s, self.onActiveTags)
+        self.connect(m.actionReleaseNotes, s, self.onReleaseNotes)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
