@@ -643,8 +643,9 @@ class AnkiQt(QMainWindow):
         if not self.saveAndClose(exit=True): return
         self.deck = DeckStorage.Deck()
         # ensure all changes come to us
-        self.deck.syncName = "something"
         self.deck.modified = 0
+        self.deck.s.commit()
+        self.deck.syncName = "something"
         self.deck.lastLoaded = self.deck.modified
         if self.config['syncUsername'] and self.config['syncPassword']:
             if self.syncDeck(onlyMerge=True):
