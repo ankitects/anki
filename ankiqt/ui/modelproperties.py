@@ -63,6 +63,8 @@ class ModelProperties(QDialog):
                      self.moveFieldUp)
         self.connect(self.dialog.fieldDown, SIGNAL("clicked()"),
                      self.moveFieldDown)
+        self.connect(self.dialog.fieldName, SIGNAL("lostFocus()"),
+                     self.updateFields)
 
     def updateFields(self, row = None):
         oldRow = self.dialog.fieldList.currentRow()
@@ -238,6 +240,8 @@ class ModelProperties(QDialog):
                      self.moveCardUp)
         self.connect(self.dialog.cardDown, SIGNAL("clicked()"),
                      self.moveCardDown)
+        self.connect(self.dialog.cardName, SIGNAL("lostFocus()"),
+                     self.updateCards)
 
     def updateCards(self, row = None):
         oldRow = self.dialog.cardList.currentRow()
