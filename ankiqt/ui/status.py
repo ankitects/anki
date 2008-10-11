@@ -78,7 +78,6 @@ class StatusView(object):
         self.addWidget(self.vertSep(), 0)
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
-        vbox.setContentsMargins(0,0,0,0)
         self.progressBar = QProgressBar()
         self.progressBar.setFixedSize(*progressBarSize)
         self.progressBar.setMaximum(100)

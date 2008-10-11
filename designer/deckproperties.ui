@@ -149,7 +149,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>372</width>
+        <width>373</width>
         <height>342</height>
        </rect>
       </property>
@@ -174,9 +174,6 @@ p, li { white-space: pre-wrap; }
          </item>
          <item row="4" column="1" >
           <layout class="QGridLayout" name="gridLayout_3" >
-           <property name="leftMargin" >
-            <number>3</number>
-           </property>
            <item row="0" column="1" >
             <spacer name="horizontalSpacer" >
              <property name="orientation" >
@@ -256,9 +253,6 @@ p, li { white-space: pre-wrap; }
        </item>
        <item row="5" column="0" >
         <layout class="QGridLayout" name="gridLayout_4" >
-         <property name="leftMargin" >
-          <number>3</number>
-         </property>
          <item row="0" column="0" >
           <widget class="QLabel" name="label_21" >
            <property name="text" >
