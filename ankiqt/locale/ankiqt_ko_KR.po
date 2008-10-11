@@ -7,56 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-23 03:21+0900\n"
+"POT-Creation-Date: 2008-10-12 03:54+0900\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#: ui/help.py:158
-#, fuzzy
-msgid ""
-"\n"
-"<h1>Adding cards</h1>\n"
-"Please enter some things you want to learn.\n"
-"<h2>Shortcuts</h2>\n"
-"<table width=230>\n"
-"<tr><td><b>Tab</b></td><td> change between fields.</td></tr>\n"
-"<tr><td><b>Ctrl+Enter</b></td><td> add the current card.</td></tr>\n"
-"<tr><td><b>Esc</b></td><td> close the dialog.</td></tr>\n"
-"<tr><td><b>Ctrl+B</b></td><td> bold</td></tr>\n"
-"<tr><td><b>Ctrl+I</b></td><td> italic</td></tr>\n"
-"<tr><td><b>Ctrl+U</b></td><td> underline</td></tr>\n"
-"<tr><td><b>Alt+1</b></td><td> enable/disable card model 1</td></tr>\n"
-"<tr><td><b>Alt+2</b></td><td> enable/disable card model 2</td></tr>\n"
-"</table>\n"
-"\n"
-"<h2>Cards</h2>Depending on the language you selected, more than one card may\n"
-"be generated. This allows you to practice both <b>Production</b> (trying to produce\n"
-"the target idea/phrase yourself), and <b>Recognition</b> (quickly recognizing and\n"
-"understanding the target idea/phrase). To change which cards are automatically\n"
-"generated, click the rightmost button at the top."
-msgstr ""
-"\n"
-"<h1>카드 추가</h1>\n"
-"공부할 내용을 카드로 만드세요.\n"
-"<h2>단축키</h2>\n"
-"<table width=230>\n"
-"<tr><td><b>Tab</b></td><td> 필드 이동.</td></tr>\n"
-"<tr><td><b>Ctrl+Enter</b></td><td> 현재 카드 추가</td></tr>\n"
-"<tr><td><b>Esc</b></td><td> 대화 상자 닫기</td></tr>\n"
-"<tr><td><b>Ctrl+B</b></td><td> 굵게</td></tr>\n"
-"<tr><td><b>Ctrl+I</b></td><td> 기울게</td></tr>\n"
-"<tr><td><b>Ctrl+U</b></td><td> 밑줄</td></tr>\n"
-"</table>\n"
-"\n"
-"<h2>카드</h2>선택한 모델에 따라서, 입력한 정보를 바탕으로 카드가 여러개 \n"
-"만들어질 수도 있습니다. 이 기능을 활용하면, 외국어 학습을 할 때, 뜻을 보고 원문을 맞추는 \n"
-"<b>Production(생성)</b> 카드와, 원문을 보고 뜻을 맞추는 <b>Recognition(인지)</b> 카드를 \n"
-"한꺼번에 만들 수 있습니다. 이렇게 자동으로 만들어지는 카드 종류는\n"
-"가장 우측 상단의 단추를 눌러 선택할 수 있습니다."
 
 #: ui/about.py:12
 #, fuzzy, python-format
@@ -71,57 +28,7 @@ msgid ""
 "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
 msgstr "<span>앙키는 기억력이 최대한 발휘되도록 도와주는 분산 반복 프로그램입니다.<p/>무료 공개 프로그램으로 GPL을 따릅니다.<p/><a href=\"http://ichi2.net/anki/\">홈페이지 방문</span>"
 
-#: ui/view.py:261
-msgid ""
-"\n"
-"<h1>Empty deck</h1>The current deck has no cards in it. Please select 'Add\n"
-"card' from the Edit menu."
-msgstr ""
-"\n"
-"<h1>빈 묶음</h1>현재 묶음엔는 카드가 없습니다.\n"
-"편집 메뉴에서 '카드 추가'를 선택해 주세요."
-
-#: ui/help.py:135
-#, fuzzy
-msgid ""
-"\n"
-"<h1>Learning new cards</h1>Anki is currently in 'learning mode'.\n"
-"<p>\n"
-"As an alternative to using the mouse, spacebar and the number keys are\n"
-"available.\n"
-"<p>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Learning_new_cards\">More information</a>\n"
-msgstr ""
-"\n"
-"<h1>새 카드 익히기</h1>앙키는 현재 '카드 익히기' 상태 입니다.\n"
-"복습 간격이 일주일 이하인 카드는 이 상태에서\n"
-"'바로 기억해 냄'을 선택할 때까지 남아 있습니다. 따라서 다음 수준으로 넘어가기 전에\n"
-" 1-5일 간격으로 계속 반복할 수 있습니다.\n"
-"<p>\n"
-"마우스대신, 스페이스바와 숫자키를 사용할 수 있습니다.\n"
-"<p>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Learning_new_cards\">자세한 정보</a>\n"
-
-#: ui/help.py:144
-msgid ""
-"\n"
-"<h1>Reviewing</h1>You are currently looking at a card you have seen before.\n"
-"Unlike new cards, it's important to try and review previously seen cards as\n"
-"promptly as possible, in order to ensure your previous effort spent\n"
-"remembering the cards is not wasted.<p> At the bottom of the main window, the\n"
-"\"Remaining\" figure indicates how many previously reviewed words are waiting\n"
-"for you today. Once this number reaches 0, you can close Anki, or continue\n"
-"studying new cards."
-msgstr ""
-"\n"
-"<h1>복습 중</h1>이미 공부한 카드를 복습 중입니다\n"
-"새 카드는 아무때나 공부를 시작해도 되지만,\n"
-"이 카드들은 가능하면 등장하자마자 복습해주어야 합니다.\n"
-"그래야 완전히 잊어버리기 전에 반복할 수 있습니다.<p> 현재 창의 아래,\n"
-"\"남은 카드\" 숫자는 지금 복습할 카드가 얼마나 남았는지 알려줍니다.\n"
-"이 숫자가 0을 가리키면, 새 카드를 공부하거나 앙키를 종료해도 괜찮습니다."
-
-#: ui/status.py:221
+#: ui/status.py:218
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -132,6 +39,65 @@ msgid ""
 "10 seconds. Click the timer to learn more."
 msgstr ""
 
+#: ui/view.py:194
+msgid ""
+"\n"
+"<h1>Welcome to Anki!</h1>\n"
+"<p>\n"
+"<table>\n"
+"\n"
+"<tr>\n"
+"<td width=50>\n"
+"<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h1><a href=\"welcome:addfacts\">Add material</a></h1>\n"
+"Start adding your own material.</td>\n"
+"</tr>\n"
+"\n"
+"</table>\n"
+"\n"
+"<br>\n"
+"<table>\n"
+"\n"
+"<tr>\n"
+"<td>\n"
+"<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h2><a href=\"welcome:open\">Open Local Deck</a></h2></td>\n"
+"</tr>\n"
+"\n"
+"<tr>\n"
+"<td>\n"
+"<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h2><a href=\"welcome:openrem\">Open Online Deck</a></h2></td>\n"
+"</tr>\n"
+"\n"
+"<tr>\n"
+"<td width=50>\n"
+"<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h2><a href=\"welcome:sample\">Open Sample Deck</a></h2></td>\n"
+"</tr>\n"
+"\n"
+"</table>"
+msgstr ""
+
+#: ui/sync.py:130
+#, python-format
+msgid " * %s fetching payload.."
+msgstr ""
+
+#: ui/sync.py:128
+#, python-format
+msgid " * %s no changes found."
+msgstr ""
+
+#: ui/sync.py:125
+#, python-format
+msgid " * %s no longer exists."
+msgstr ""
+
 #: forms/displayproperties.py:331
 msgid " <b>When adding/editing</b>"
 msgstr " <b>추가/편집 할때</b>"
@@ -140,24 +106,29 @@ msgstr " <b>추가/편집 할때</b>"
 msgid " <b>When quizzing/adding/editing</b>"
 msgstr " <b>질문/추가/편집 할때</b>"
 
-#: ui/main.py:1342
+#: ui/sync.py:132
+#, python-format
+msgid " applied %d modified cards."
+msgstr ""
+
+#: ui/main.py:1477
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
 "%(b)d unused files removed."
 msgstr ""
 
-#: ui/cardlist.py:639
+#: ui/cardlist.py:635
 #, python-format
 msgid "%(del)d deleted."
 msgstr "%(del)d 삭제 됨."
 
-#: ui/deckproperties.py:71
+#: ui/deckproperties.py:112
 #, python-format
 msgid "%(name)s [%(facts)d facts]"
 msgstr "%(name)s [%(facts)d지식]"
 
-#: ui/main.py:1160
+#: ui/main.py:1237
 #, python-format
 msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
 msgstr "%(path)s (%(facts)d지식, %(cards)d카드) - %(title)s"
@@ -167,12 +138,12 @@ msgstr "%(path)s (%(facts)d지식, %(cards)d카드) - %(title)s"
 msgid "%d exported."
 msgstr "%d 내보내기 완료."
 
-#: ui/cardlist.py:191
+#: ui/cardlist.py:192
 #, python-format
 msgid "%s ago"
 msgstr "%s 전"
 
-#: ui/main.py:1319
+#: ui/main.py:1454
 #, python-format
 msgid ""
 "%s.\n"
@@ -180,78 +151,99 @@ msgid ""
 "the same field count and card count."
 msgstr ""
 
-#: forms/main.py:488
+#: forms/main.py:541
 #, fuzzy
 msgid "&About.."
 msgstr "소개(&A)..."
 
-#: forms/deckproperties.py:356 forms/modelproperties.py:382
-#: forms/modelproperties.py:401
+#: forms/deckproperties.py:389 forms/modelproperties.py:365
+#: forms/modelproperties.py:382
 msgid "&Add"
 msgstr "추가(&A)"
 
-#: forms/main.py:465
+#: forms/main.py:518
 #, fuzzy
 msgid "&Add Facts.."
 msgstr "지식..."
 
-#: ui/addcards.py:52
+#: forms/deckproperties.py:370
+msgid "&Add Source"
+msgstr ""
+
+#: ui/addcards.py:51
 msgid "&Add cards"
 msgstr "카드 추가(&A)"
 
-#: forms/main.py:452
+#: forms/main.py:503
 #, fuzzy
 msgid "&Advanced"
 msgstr "추가(&A)"
 
-#: forms/main.py:489
+#: forms/main.py:542
 #, fuzzy
 msgid "&Card Statistics"
 msgstr "카드 통계(&C)"
 
-#: forms/main.py:459
+#: forms/main.py:512
 msgid "&Close"
 msgstr "닫기(&C)"
 
-#: forms/main.py:448
+#: forms/main.py:499
 msgid "&Deck"
 msgstr "묶음(&D)"
 
-#: forms/main.py:490
+#: forms/main.py:543
 #, fuzzy
 msgid "&Deck Properties.."
 msgstr "묶음 속성(&D)..."
 
-#: forms/main.py:484
+#: forms/main.py:537
 #, fuzzy
 msgid "&Deck Statistics"
 msgstr "묶음 통계(&D)"
 
-#: forms/deckproperties.py:358 forms/modelproperties.py:383
-#: forms/modelproperties.py:402
+#: forms/deckproperties.py:391 forms/modelproperties.py:368
+#: forms/modelproperties.py:387
 msgid "&Delete"
 msgstr "삭제(&D)"
 
-#: forms/deckproperties.py:357 forms/main.py:447
+#: forms/deckproperties.py:371
+#, fuzzy
+msgid "&Delete Source"
+msgstr "삭제(&D)"
+
+#: forms/main.py:573
+msgid "&Disable All Plugins"
+msgstr ""
+
+#: forms/deckproperties.py:390 forms/main.py:498
 msgid "&Edit"
 msgstr "편집(&E)"
 
-#: forms/main.py:468
+#: forms/main.py:521
 #, fuzzy
 msgid "&Edit Facts.."
 msgstr "지식..."
 
-#: forms/main.py:508
+#: forms/main.py:572
+msgid "&Enable All Plugins"
+msgstr ""
+
+#: forms/main.py:561
 #, fuzzy
 msgid "&Forum.."
 msgstr "게시판(&F)..."
 
-#: forms/main.py:493
+#: forms/main.py:570
+msgid "&Get Plugins.."
+msgstr ""
+
+#: forms/main.py:546
 #, fuzzy
 msgid "&Graphs.."
 msgstr "그래프(&G)"
 
-#: forms/main.py:446
+#: forms/main.py:497
 msgid "&Help"
 msgstr "도움말(&H)"
 
@@ -259,130 +251,178 @@ msgstr "도움말(&H)"
 msgid "&Import"
 msgstr "가져오기(&I)"
 
-#: forms/main.py:492
+#: forms/main.py:545
 #, fuzzy
 msgid "&Import.."
 msgstr "가져오기(&I)..."
 
-#: forms/main.py:483
+#: forms/main.py:536
 #, fuzzy
 msgid "&Kanji Statistics"
 msgstr "일본 한자 통계(&K)"
 
-#: forms/main.py:451
+#: forms/main.py:502
 msgid "&Lookup"
 msgstr "사전에서 검색(&L)"
 
-#: forms/main.py:498
+#: forms/main.py:551
 msgid "&Mark Card"
 msgstr "카드 구별(&M)"
 
-#: forms/main.py:501
+#: forms/main.py:554
 #, fuzzy
 msgid "&Model Properties.."
 msgstr "모델 속성(&M)..."
 
-#: forms/main.py:455
+#: forms/main.py:508
 #, fuzzy
 msgid "&New.."
 msgstr "새 묶음(&N)"
 
-#: forms/main.py:457
+#: forms/main.py:571
+msgid "&Open Plugin Folder.."
+msgstr ""
+
+#: forms/main.py:510
 #, fuzzy
 msgid "&Open.."
 msgstr "열기(&O)..."
 
-#: forms/main.py:470
+#: forms/main.py:504
+msgid "&Plugins"
+msgstr ""
+
+#: forms/main.py:523
 #, fuzzy
 msgid "&Preferences.."
 msgstr "설정(&P)..."
 
-#: forms/main.py:486
+#: forms/main.py:539
 #, fuzzy
 msgid "&Report Bug.."
 msgstr "버그 신고(&R)..."
 
-#: forms/main.py:461
+#: forms/main.py:514
 msgid "&Save"
 msgstr "저장(&S)"
 
-#: forms/cardlist.py:171
+#: forms/cardlist.py:179
 msgid "&Search"
 msgstr "검색(&S)"
 
-#: forms/main.py:485
+#: forms/main.py:538
 #, fuzzy
 msgid "&Start Here.."
 msgstr "여기서 시작(&S)..."
 
-#: forms/main.py:499
+#: forms/main.py:552
 msgid "&Suspend fact"
 msgstr "보류(&S)"
 
-#: forms/main.py:450
+#: forms/main.py:501
 msgid "&Tools"
 msgstr "도구(&T)"
 
-#: forms/main.py:507
+#: forms/main.py:560
 msgid "&Undo last answer"
 msgstr "마지막 답 취소(&U)"
 
-#: ui/cardlist.py:189
+#: ui/cardlist.py:190
 msgid "(new card)"
 msgstr "(새 카드)"
 
-#: forms/main.py:473
+#: forms/main.py:526
 msgid "...&expression on ALC"
 msgstr "expression(표현)으로 ALC 검색(&E)..."
 
-#: forms/main.py:481
+#: forms/main.py:534
 msgid "...&kanji selection on Edict"
 msgstr "선택한 kanji(한자)로 ACL 검색(&K)..."
 
-#: forms/main.py:475
+#: forms/main.py:528
 msgid "...&meaning on ALC"
 msgstr "meaning(뜻)으로 ALC 검색(&M)..."
 
-#: forms/main.py:477
+#: forms/main.py:530
 msgid "...&selection on ALC"
 msgstr "선택 영역으로 ALC 검색(&)..."
 
-#: forms/main.py:479
+#: forms/main.py:532
 msgid "...&word selection on Edict"
 msgstr "선택한 단어로 Edict 검색(&W)..."
 
-#: ui/modelproperties.py:246
+#: ui/modelproperties.py:256
 msgid "; disabled"
 msgstr "; 꺼짐"
 
-#: ui/main.py:823
+#: forms/deckproperties.py:365
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Sources</span></p></body></html>"
+msgstr ""
+
+#: forms/deckproperties.py:361
+msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
+msgstr ""
+
+#: ui/main.py:839
 msgid "<a href=py:miss>Missing Kanji</a><br>"
 msgstr "<a href=py:miss>없는 한자</a><br>"
 
-#: ui/main.py:383
+#: ui/main.py:333
 #, python-format
 msgid "<b>%(ease0)s</b>"
 msgstr "<b>%(ease0)s</b>"
 
-#: ui/main.py:384
+#: ui/main.py:335
 #, python-format
 msgid "<b>%(ease1)s</b>"
 msgstr "<b>%(ease1)s</b>"
 
-#: ui/main.py:385
+#: ui/main.py:337
 #, python-format
 msgid "<b>%(ease2)s</b>"
 msgstr "<b>%(ease2)s</b>"
 
-#: ui/main.py:386
+#: ui/main.py:339
 #, python-format
 msgid "<b>%(ease3)s</b>"
 msgstr "<b>%(ease3)s</b>"
 
-#: ui/main.py:387
+#: ui/main.py:341
 #, python-format
 msgid "<b>%(ease4)s</b>"
 msgstr "<b>%(ease4)s</b>"
+
+#: forms/deckproperties.py:405
+#, fuzzy
+msgid "<b>0: Totally Forgot</b>"
+msgstr "<b>전혀 기억 안 남 (0)</b>"
+
+#: forms/deckproperties.py:407
+#, fuzzy
+msgid "<b>1: Made a Mistake (Mature)</b>"
+msgstr "<b>성숙한 카드를 실수로 틀림 (1)</b>"
+
+#: forms/deckproperties.py:406
+#, fuzzy
+msgid "<b>1: Made a Mistake (Young)</b>"
+msgstr "<b>성숙한 카드를 실수로 틀림 (1)</b>"
+
+#: forms/deckproperties.py:404
+msgid "<b>2: Initial Hard Interval</b>"
+msgstr ""
+
+#: forms/deckproperties.py:399
+msgid "<b>3: Initial Medium Interval</b>"
+msgstr ""
+
+#: forms/deckproperties.py:398
+msgid "<b>4: Initial Easy Interval</b>"
+msgstr ""
 
 #: ui/modelchooser.py:52
 msgid "<b><u>C</u>ards</b>:"
@@ -392,128 +432,144 @@ msgstr "<b>카드(<u>C</u>)</b>:"
 msgid "<b><u>M</u>odel</b>:"
 msgstr "<b>모델(<u>M</u>)</b>:"
 
-#: forms/modelproperties.py:411
-msgid "<b>Answer format<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4\">?</a></b>"
-msgstr ""
+#: forms/modelproperties.py:391
+msgid "<b>Answer format</b>"
+msgstr "<b>답 형식</b>"
 
-#: forms/modelproperties.py:376
-msgid "<b>Card spacing<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">?</a></b>"
-msgstr ""
+#: forms/modelproperties.py:360
+msgid "<b>Card spacing</b>"
+msgstr "<b>카드 연기</b>"
 
-#: ui/cardlist.py:534
+#: ui/cardlist.py:530
 msgid "<b>Card-specific tags</b>"
 msgstr "<b>카드 전용 꼬리표</b>"
 
-#: forms/modelproperties.py:373 forms/modelproperties.py:392
-#: forms/modelproperties.py:408
+#: ui/main.py:338
+msgid "<b>Challenging.</b><br>Wait a little longer next time."
+msgstr ""
+
+#: ui/main.py:340
+msgid "<b>Comfortable.</b><br>Wait longer next time."
+msgstr ""
+
+#: forms/modelproperties.py:357 forms/modelproperties.py:374
+#: forms/modelproperties.py:388
 msgid "<b>Description</b>"
 msgstr "<b>설명</b>"
-
-#: forms/deckproperties.py:340
-msgid "<b>Easy</b>"
-msgstr "<b>쉬움</b>"
 
 #: forms/exporting.py:53
 msgid "<b>Export format</b>:"
 msgstr "<b>내보내기 형식</b>:"
 
-#: forms/modelproperties.py:374 forms/modelproperties.py:395
-msgid "<b>Features<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-f57a8f871fc97ceb2f6daa43528fd640ee63b4f4\">?</a></b>"
-msgstr ""
+#: forms/modelproperties.py:358 forms/modelproperties.py:377
+msgid "<b>Features</b>"
+msgstr "<b>특별한 기능</b>"
 
 #: forms/importing.py:121
 msgid "<b>File to import</b>:"
 msgstr "<b>가져올 파일</b>:"
 
-#: forms/deckproperties.py:346
-msgid "<b>Hard</b>"
-msgstr "<b>어려움</b>"
-
-#: ui/main.py:356
-msgid "<b>How well did you remember?</b>"
-msgstr "<b>얼마나 잘 기억하셨나요?</b>"
+#: forms/deckproperties.py:384
+#, fuzzy
+msgid "<b>High Priority</b>"
+msgstr "<h1>모델 속성</h1>"
 
 #: forms/exporting.py:54
 msgid "<b>Limit to tags</b>:"
 msgstr "<b>다음 꼬리표로 한정</b>:"
 
-#: forms/deckproperties.py:350
-msgid "<b>Made a mistake (1) on a mature<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-3b268fd372f260751f5e9020a79d54a4f68e1829\">?</a> card</b>"
+#: forms/deckproperties.py:385
+#, fuzzy
+msgid "<b>Low Priority</b>"
+msgstr "<h1>모델 속성</h1>"
+
+#: forms/deckproperties.py:379
+msgid "<b>Maximum failed cards</b>"
 msgstr ""
 
-#: forms/deckproperties.py:349
-msgid "<b>Made a mistake (1) on a young<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-3b268fd372f260751f5e9020a79d54a4f68e1829\">?</a> card"
-msgstr ""
+#: forms/modelproperties.py:392
+msgid "<b>Name/tag</b>"
+msgstr "<b>이름/꼬리표</b>"
 
-#: forms/deckproperties.py:352
-msgid "<b>Maximum failed cards<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-e081bb818555df4a9fd06e16e685835a95303e0c\">?</a></b>"
-msgstr ""
-
-#: forms/deckproperties.py:341
-msgid "<b>Medium</b>"
-msgstr "<b>알맞음</b>"
-
-#: forms/modelproperties.py:412
-msgid "<b>Name/tag<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf\">?</a></b>"
-msgstr ""
-
-#: forms/modelproperties.py:372 forms/modelproperties.py:391
+#: forms/modelproperties.py:356 forms/modelproperties.py:373
 msgid "<b>Name</b>"
 msgstr "<b>이름</b>"
 
-#: forms/deckproperties.py:336
+#: forms/deckproperties.py:381
 msgid "<b>Number of new cards per day"
 msgstr ""
 
-#: forms/modelproperties.py:396
+#: forms/modelproperties.py:378
 msgid "<b>Numeric?</b>"
 msgstr "<b>숫자?</b>"
 
-#: forms/modelproperties.py:413
-msgid "<b>Question format<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4\">?</a></b>"
-msgstr ""
+#: forms/modelproperties.py:393
+msgid "<b>Question format</b>"
+msgstr "<b>질문 형식</b>"
 
-#: forms/modelproperties.py:409
+#: forms/modelproperties.py:389
 msgid "<b>Question hiding</b>"
 msgstr "<b>질문 감추기</b>"
 
-#: forms/modelproperties.py:393
+#: forms/modelproperties.py:375
 msgid "<b>Required?</b>"
 msgstr "<b>필수?</b>"
 
-#: forms/deckproperties.py:353
-msgid "<b>Show failed cards early<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-c34f83f4acaf3d9a8f59dcff02dd6abec930ebaf\">?</a></b>"
+#: ui/main.py:334
+msgid "<b>Reset.</b><br>You've completely forgotten."
 msgstr ""
 
-#: ui/cardlist.py:539
+#: forms/deckproperties.py:380
+msgid "<b>Show failed cards early</b>"
+msgstr ""
+
+#: ui/cardlist.py:535
 msgid "<b>Statistics</b>"
 msgstr "<b>통계</b>"
 
-#: ui/cardlist.py:529
+#: forms/deckproperties.py:386
+#, fuzzy
+msgid "<b>Suspended</b>"
+msgstr "<b>필수?</b>"
+
+#: ui/cardlist.py:525 forms/modelproperties.py:359
 msgid "<b>Tags</b>"
 msgstr "<b>꼬리표</b>"
 
-#: forms/modelproperties.py:375
-msgid "<b>Tags<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf\">?</a></b>"
+#: ui/main.py:336
+msgid "<b>Too difficult.</b><br>Show this card again soon."
 msgstr ""
 
-#: forms/deckproperties.py:348
-msgid "<b>Totally forgot (0)</b>"
-msgstr "<b>전혀 기억 안 남 (0)</b>"
+#: ui/main.py:342
+msgid "<b>Too easy.</b><br>Wait a lot longer next time."
+msgstr ""
 
 #: forms/importing.py:123
 msgid "<b>Type of file</b>:"
 msgstr "<b>파일 종류</b>:"
 
-#: forms/modelproperties.py:389
+#: forms/modelproperties.py:371
 msgid "<b>Unique?"
 msgstr "<b>중복 방지?"
 
-#: ui/graphs.py:178
+#: forms/deckproperties.py:383
+msgid "<b>Very High Priority</b>"
+msgstr ""
+
+#: ui/sync.py:120
+msgid "<br><br>Checking deck subscriptions.."
+msgstr ""
+
+#: ui/graphs.py:183
 msgid "<h1>Added cards</h1>"
 msgstr "<h1>추가된 카드</h1>"
 
-#: forms/preferences.py:307
+#: forms/deckproperties.py:395
+#, fuzzy
+msgid "<h1>Advanced Scheduling</h1>"
+msgstr "<h1>고급 설정</h1>"
+
+#: forms/preferences.py:326
 msgid "<h1>Advanced settings</h1>"
 msgstr "<h1>고급 설정</h1>"
 
@@ -526,47 +582,60 @@ msgid ""
 "<br><br>"
 msgstr ""
 
-#: forms/preferences.py:293
-msgid "<h1>Autosaving</h1>Anki can save your progress automatically."
-msgstr "<h1>자동 저장</h1>진행 상황을 자동으로 저장합니다."
+#: forms/preferences.py:314
+#, fuzzy
+msgid "<h1>Autosaving</h1>"
+msgstr "<h1>앙키</h1>"
 
 #: forms/changemap.py:40
 msgid "<h1>Available fields</h1>Please choose which field you would like to import into. If you select \"Discard field\", all data from this field will be lost."
 msgstr "<h1>사용가능한 필드</h1>어떤 필드로 할당할지 선택하세요. \"필드 제거\"를 선택하면 해당 필드의 모든 자료는 삭제됩니다."
 
-#: ui/main.py:130
+#: forms/deckproperties.py:378
+#, fuzzy
+msgid "<h1>Basic Scheduling</h1>"
+msgstr "<h1>지난 카드</h1>"
+
+#: ui/main.py:113
 msgid "<h1>Building revision queue..</h1>"
 msgstr ""
 
-#: ui/graphs.py:196
+#: forms/modelproperties.py:381
+#, fuzzy
+msgid "<h1>Card Models</h1>"
+msgstr "<h1>카드 모델</h1>"
+
+#: ui/graphs.py:201
 msgid "<h1>Card ease</h1>"
 msgstr "<h1>카드 난이도</h1>"
 
-#: ui/graphs.py:170
+#: ui/graphs.py:175
 msgid "<h1>Card intervals</h1>"
 msgstr "<h1>복습 간격</h1>"
 
-#: forms/modelproperties.py:399
-msgid "<h1>Card models</h1>"
+#: forms/preferences.py:309
+#, fuzzy
+msgid "<h1>Colours</h1>"
 msgstr "<h1>카드 모델</h1>"
 
-#: ui/graphs.py:161
+#: ui/graphs.py:166
 msgid "<h1>Cumulative view of due cards</h1>"
 msgstr "<h1>카드 누적 개수</h1>"
 
-#: ui/main.py:840
+#: ui/main.py:856
 msgid "<h1>Current card</h1>"
 msgstr "<h1>현재 카드</h1>"
 
-#: forms/deckproperties.py:325
+#: forms/deckproperties.py:408
+#, fuzzy
+msgid "<h1>Day Rollover</h1>"
+msgstr "<h1>카드 모델</h1>"
+
+#: forms/deckproperties.py:393
 msgid "<h1>Deck description</h1>"
 msgstr "<h1>묶음 설명</h1>"
 
-#: forms/deckproperties.py:347
-msgid "<h1>Delay on mistake</h1>The time until Anki shows you a card you got wrong. The default is 10 minutes."
-msgstr "<h1>답이 틀렸을 때 기다릴 시간</h1>답을 맞추지 못했을 때, 앙키가 질문을 다시할 때까지 기다리는 시간입니다. 기본값은 10분."
-
-#: ui/graphs.py:151
+#: ui/graphs.py:156
 msgid "<h1>Due cards</h1>"
 msgstr "<h1>예정된 카드</h1>"
 
@@ -574,53 +643,44 @@ msgstr "<h1>예정된 카드</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>예상 시간</h1>현재 진행 속도를 기준으로 현재 학습 모드를 완료할 때까지 걸리는 시간."
 
-#: forms/deckproperties.py:351
+#: forms/modelproperties.py:364
 #, fuzzy
-msgid "<h1>Failed card limit & collapsing</h1>"
-msgstr "<h1>마지막 점검 및 틀린 카드 범위</h1>"
-
-#: forms/modelproperties.py:380
-msgid "<h1>Fields</h1>"
+msgid "<h1>Field Models</h1>"
 msgstr "<h1>필드</h1>"
 
-#: ui/help.py:153
-msgid ""
-"<h1>Final review</h1>You are now being\n"
-"shown cards that are due soon (in the next 5 hours by default). This includes\n"
-"any cards you failed recently. You can answer them now, or come back later -\n"
-"it's up to you."
-msgstr ""
-"<h1>마지막 점검</h1>지금 보는 카드는\n"
-"복습 예정 시간이 얼마 남지 않은 카드입니다(기본 값은 5시간 이내). 여기에는\n"
-"최근에 틀린 카드가 포함됩니다. 지금 답을 해도 되고, 나중에 해도 됩니다.\n"
-"반드시 지금 해야 하는 것은 아닙니다."
-
-#: ui/graphs.py:186
+#: ui/graphs.py:191
 msgid "<h1>First answered</h1>"
 msgstr "<h1>처음 공부할 때 맞춘 카드/h1>"
 
-#: forms/preferences.py:283
-msgid "<h1>Interface language</h1>The language for the user interface: dialogs, menus, etc."
-msgstr "<h1>화면 언어</h1>대화 상자와 메뉴 등을 표시할 언어."
+#: forms/preferences.py:305
+#, fuzzy
+msgid "<h1>Fonts</h1>"
+msgstr "<h1>필드</h1>"
 
-#: ui/main.py:843
+#: forms/modelproperties.py:355
+#, fuzzy
+msgid "<h1>General Model Properties</h1>"
+msgstr "<h1>모델 속성</h1>"
+
+#: forms/preferences.py:304
+#, fuzzy
+msgid "<h1>Language</h1>"
+msgstr "<h1>카드 난이도</h1>"
+
+#: ui/main.py:859
 msgid "<h1>Last card</h1>"
 msgstr "<h1>지난 카드</h1>"
 
-#: forms/modelproperties.py:371
-msgid "<h1>Model properties</h1>"
-msgstr "<h1>모델 속성</h1>"
-
-#: forms/deckproperties.py:355
-msgid "<h1>Models</h1>Models define what sort of information you're studying, and the way to show it to you. Models range from a simple representation of a single flashcard with a \"front\" and \"back\" side, to more complicated domain specific models: a model for Russian verbs may define two verb forms, and test you on both of them."
-msgstr "<h1>모델</h1>모델은 공부할 내용을 구성하고 표시할 방법을 결정하는 틀입니다. 단순히 \"front(앞면)\"과 \"back(뒷면)\"으로 이루어진 플래시 카드에서부터, 공부할 대상에 따라 복잡한 모델까지 만들 수 있습니다. 예를 들어 러시아어 모델은 두 가지 형태의 동사를 구분하고, 그것을 각각 질문으로 만들 수 있습니다."
-
-#: forms/deckproperties.py:335
+#: forms/deckproperties.py:388
 #, fuzzy
-msgid "<h1>New cards</h1>"
-msgstr "<h1>예정된 카드</h1>"
+msgid "<h1>Models</h1>"
+msgstr "<h1>카드 모델</h1>"
 
-#: ui/status.py:194
+#: ui/main.py:616
+msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
+msgstr ""
+
+#: ui/status.py:191
 #, python-format
 msgid ""
 "<h1>Performance</h1>\n"
@@ -635,30 +695,34 @@ msgid ""
 "Total review time: %(revTime)s"
 msgstr ""
 
-#: forms/deckproperties.py:329
-msgid "<h1>Priorities</h1>A comma-separated list of tags to prioritize or deprioritize<a href=\"http://ichi2.net/anki/wiki/CardDisplayOrderAndPriorities\">?</a>"
+#: forms/addmodel.py:49
+msgid "<h1>Please choose a template</h1>"
 msgstr ""
 
-#: ui/status.py:173
-#, python-format
-msgid "<h1>Remaining cards</h1>The number of cards left to answer.<p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(successive)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards.<br>There are <b>%(spaced)d</b> spaced cards.<br>There are <b>%(suspended)d</b> suspended cards."
+#: forms/deckproperties.py:382
+#, fuzzy
+msgid "<h1>Priorities</h1>"
+msgstr "<h1>모델 속성</h1>"
+
+#: ui/status.py:170
+#, fuzzy, python-format
+msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(successive)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> spaced cards.<br>There are <b>%(suspended)d</b> suspended cards."
 msgstr "<h1>남은 카드</h1>공부해야 할 카드의 개수<p/>틀렸던 카드 <b>%(failed)d</b>개<br>맞췄던 카드 <b>%(successive)d</b>개<br>새 카드 <b>%(new)d</b>개<br>연기된 카드 <b>%(spaced)d</b>개<br>보류된 카드 <b>%(suspended)d</b>개."
 
-#: forms/preferences.py:288
-msgid "<h1>Standard colours</h1>These colours are used for all decks."
-msgstr "<h1>기본 색</h1>모든 묶음에 적용됩니다."
+#: forms/activetags.py:38
+#, fuzzy
+msgid "<h1>Select Active Tags</h1>"
+msgstr "<h1>예정된 카드</h1>"
 
-#: forms/preferences.py:284
-msgid "<h1>Standard fonts</h1>See 'display properties' for deck specific font preferences."
-msgstr "<h1>기본 글꼴</h1>각 묶음의 글꼴은 '표시 속성'에서 설정하세요."
+#: forms/deckproperties.py:363
+#, fuzzy
+msgid "<h1>Synchronisation</h1>"
+msgstr "<h1>묶음 설명</h1>"
 
-#: forms/preferences.py:299
-msgid "<h1>Synchronisation</h1>Synchronisation enables you to access your deck from the web and your mobile phone. You can <a href=\"http://anki.ichi2.net/\">create a free account</a>."
+#: forms/preferences.py:320
+#, fuzzy
+msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>동기화</h1>동기화 기능을 사용하면 묶음을 웹과 휴대폰에서 사용할 수 있습니다. <a href=\"http://anki.ichi2.net/\">무료 회원 가입</a>이 필요합니다."
-
-#: forms/deckproperties.py:326
-msgid "<h1>Synchronisation</h1>Synchronisation lets you use your deck on multiple computers at the same time. You can also use it to study on the web, for when you're not at home. You can also study on your mobile phone if your phone has internet access."
-msgstr "<h1>동기화</h1>동기화를 통해 여러 컴퓨터에서 같은 묶음을 공부할 수 있습니다. 웹을 통해 공부할 수 있기 때문에, 집 밖에서는 물론, 인터넷을 지원하는 휴대전화에서도 가능합니다."
 
 #: ui/unsaved.py:13
 msgid ""
@@ -670,144 +734,11 @@ msgstr ""
 "         변경이 사항이 있습니다. 변경 내용을 저장 또는 무시하거나\n"
 "         프로그램 종료를 취소할 수 있습니다."
 
-#: ui/view.py:193
-#, fuzzy
-msgid ""
-"<h1>Welcome to Anki!</h1>\n"
-"<p>\n"
-"<table width=90%>\n"
-"<tr>\n"
-"<td>\n"
-"Anki is a tool which will help you remember things as quickly and easily as\n"
-"possible. Anki works by asking you questions. After answering a question,\n"
-"Anki will ask how well you remembered. If you made a mistake or had difficulty\n"
-"remembering, Anki will show you the question again after a short amount of\n"
-"time. If you answered the question easily, Anki will wait for a number of days\n"
-"before asking you again. Each time you successfully remember something, the\n"
-"time before you see it again will get bigger.\n"
-"</td>\n"
-"</tr>\n"
-"</table>\n"
-"\n"
-"<p>\n"
-"<table>\n"
-"\n"
-"<tr>\n"
-"<td width=50>\n"
-"<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-"</td>\n"
-"<td valign=middle><h2><a href=\"welcome:sample\">Open a sample deck</a></h2></td>\n"
-"</tr>\n"
-"\n"
-"<tr>\n"
-"<td>\n"
-"<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-"</td>\n"
-"<td valign=middle><h2><a href=\"welcome:open\">Open an existing deck</a></h2></td>\n"
-"</tr>\n"
-"\n"
-"<tr>\n"
-"<td>\n"
-"<a href=\"welcome:new\"><img src=\":/icons/document-new.png\"></a>\n"
-"</td>\n"
-"<td valign=middle>\n"
-"<h2><a href=\"welcome:new\">Create a new deck</a></h2></td>\n"
-"</tr>\n"
-"</table>\n"
-"<p>\n"
-"<table width=90%>\n"
-"<tr>\n"
-"<td>\n"
-"<h2>Adding material</h2>\n"
-"There are three ways to add material to Anki: typing it in yourself, using a\n"
-"pre-made Anki deck, or importing word lists that you find on the internet.\n"
-"<p>\n"
-"\n"
-"For language learning, it's a good idea to add material yourself, from sources\n"
-"like a textbook or a TV show. By adding words that you see or hear in context,\n"
-"you also learn how they are used. While it may be tempting to use a big,\n"
-"pre-made vocabulary list to save time, learning words and grammar in context\n"
-"will ensure you can use them naturally.\n"
-"<p>\n"
-"\n"
-"So if you're learning a language, consider adding material you want to learn\n"
-"into Anki by yourself. Initially the time required to type in material may\n"
-"seem daunting, but it's a small amount of time compared to the time you'll\n"
-"save by not forgetting.\n"
-"</td>\n"
-"</tr>\n"
-"</table>\n"
-msgstr ""
-"<h1>앙키에 오신 것을 환영합니다!</h1>\n"
-"<p>\n"
-"<table width=90%>\n"
-"<tr>\n"
-"<td>\n"
-"앙키를 사용하면, 많은 내용을 짧은 시간 안에 암기할 수 있습니다.\n"
-"질문을 보고, 답을 확인한 뒤, 얼마나 잘 기억하고 있는지 선택합니다.\n"
-"답을 전혀 기억하지 못했거나 어렵게 맞추었다면, 같은 질문이 금방 다시 등장합니다.\n"
-"쉽게 답을 맞추었다면, 그 질문은 며칠이 지난 후에 등장합니다.\n"
-"복습에 성공하는 횟수가 늘어날수록, 질문이 다시 등장하기까지 걸리는 시간은 점점 길어집니다.\n"
-"</td>\n"
-"</tr>\n"
-"</table>\n"
-"\n"
-"<p>\n"
-"<table>\n"
-"\n"
-"<tr>\n"
-"<td width=50>\n"
-"<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-"</td>\n"
-"<td valign=middle><h2><a href=\"welcome:sample\">예제 묶음 열기</a></h2></td>\n"
-"</tr>\n"
-"\n"
-"<tr>\n"
-"<td>\n"
-"<a href=\"welcome:open\"><img src=\":/icons/fileopen.png\"></a>\n"
-"</td>\n"
-"<td valign=middle><h2><a href=\"welcome:open\">저장된 묶음 열기</a></h2></td>\n"
-"</tr>\n"
-"\n"
-"<tr>\n"
-"<td>\n"
-"<a href=\"welcome:new\"><img src=\":/icons/filenew.png\"></a>\n"
-"</td>\n"
-"<td valign=middle>\n"
-"<h2><a href=\"welcome:new\">새 묶음 만들기</a></h2></td>\n"
-"</tr>\n"
-"</table>\n"
-"<p>\n"
-"<table width=90%>\n"
-"<tr>\n"
-"<td>\n"
-"<h2>자료 추가하기</h2>\n"
-"앙키에 자료를 추가하는 방법은 세 가지가 있습니다.\n"
-"직접 입력하거나, 미리 만들어진 묶음을 이용하거나, 인터넷에서 찾은 목록을 가져올 수 있습니다.\n"
-"<p>\n"
-"\n"
-"외국어를 배울 때는, 책이나 방송을 보고 직접 입력하는 것이 가장 좋습니다.\n"
-"문맥 안에서 단어를 공부하면 실제 쓰임까지도 알 수 있습니다.\n"
-"누군가 만든 방대한 단어집을 사용하는 것이 편할지는 몰라도,\n"
-"단어나 문법을 문맥으로 익혀야, 나중에 자연스럽게 사용할 수 있습니다.\n"
-"<p>\n"
-"\n"
-"따라서, 외국어 학습이 목적이라면, 직접 입력하세요.\n"
-"처음 입력할 때는 시간이 오래 걸리는 것 같지만,\n"
-"그만큼 기억이 더 잘되기 때문에, 잊어버리고 다시 외워야 하는 시간을 절약할 수 있습니다.\n"
-"</td>\n"
-"</tr>\n"
-"</table>\n"
-
-#: forms/addmodel.py:60
-msgid "<h1>What would you like to study?</h1>"
-msgstr "<h1>무엇을 공부할까요?</h1>"
-
 #: forms/syncdeck.py:43
 msgid "<h1>Where should we synchronize to?</h1>"
 msgstr "<h1>동기시킬 묶음을 선택해 주세요.</h1>"
 
-#: ui/status.py:206
+#: ui/status.py:203
 #, python-format
 msgid ""
 "<h2>All Reviews</h2>\n"
@@ -823,64 +754,40 @@ msgid ""
 "(%(gYesTotal)d of %(gTotal)d)"
 msgstr ""
 
-#: forms/deckproperties.py:331
-msgid "<h2>High priority</h2>"
-msgstr ""
-
-#: forms/deckproperties.py:332
-#, fuzzy
-msgid "<h2>Low priority</h2>"
-msgstr "<h1>모델 속성</h1>"
-
-#: forms/deckproperties.py:333
-msgid "<h2>Suspended</h2>"
-msgstr ""
-
-#: forms/deckproperties.py:330
-msgid "<h2>Very high priority</h2>"
-msgstr ""
-
 #: ui/importing.py:186
 msgid "<ignored>"
 msgstr "<무시>"
 
-#: ui/help.py:108
+#: ui/help.py:94
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>감추기</a>"
-
-#: forms/modelproperties.py:381
-msgid "A flashcard is made from a number of fields, like \"meaning\", \"notes\", etc."
-msgstr "플래시 카드는 \"의미\", \"설명\" 같은 여러 필드로 이루어집니다."
-
-#: forms/addmodel.py:61
-msgid "A pre-made quiz style."
-msgstr "미리 준비된 모델."
-
-#: forms/addmodel.py:62
-msgid "A simple front-to-back quiz style."
-msgstr "앞면/뒷면"
 
 #: forms/about.py:41
 msgid "About Anki"
 msgstr "앙키 소개"
 
-#: ui/main.py:337
-msgid "About right"
-msgstr "알맞음"
-
-#: forms/cardlist.py:173
+#: forms/cardlist.py:181
 msgid "Actions on selected.."
 msgstr "선택한 카드를..."
 
-#: forms/main.py:466
+#: forms/main.py:575
+#, fuzzy
+msgid "Active &Tags.."
+msgstr "꼬리표 삭제..."
+
+#: forms/activetags.py:37
+msgid "Active Tags"
+msgstr ""
+
+#: forms/main.py:519
 msgid "Add Cards"
 msgstr "카드 추가"
 
-#: forms/cardlist.py:183
+#: forms/cardlist.py:191
 msgid "Add Missing Active Cards"
 msgstr "현재 지식에서 빠진 카드 추가"
 
-#: forms/cardlist.py:179 forms/cardlist.py:180
+#: forms/cardlist.py:187 forms/cardlist.py:188
 msgid "Add Tag.."
 msgstr "꼬리표 추가..."
 
@@ -906,30 +813,31 @@ msgstr "소리 넣기"
 msgid "Add audio (Ctrl+s)"
 msgstr "소리 넣기"
 
-#: ui/addcards.py:90
+#: ui/addcards.py:98
 #, python-format
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "'%(str)s'으로 카드 %(num)d개 추가"
 
-#: forms/preferences.py:315
-msgid "Advanced Settings"
-msgstr "고급 설정"
+#: forms/deckproperties.py:410 forms/preferences.py:337
+#, fuzzy
+msgid "Advanced"
+msgstr "추가(&A)"
 
 #: ui/facteditor.py:336
 msgid "All fields valid"
 msgstr ""
 
-#: ui/cardlist.py:305
+#: ui/cardlist.py:301
 #, fuzzy
 msgid "All tags"
 msgstr "꼬리표 포함"
 
-#: ui/main.py:601
+#: ui/main.py:555
 #, python-format
 msgid "Alt+%d"
 msgstr "Alt+%d"
 
-#: ui/addcards.py:59
+#: ui/addcards.py:58
 msgid "Alt+A"
 msgstr "Alt+A"
 
@@ -945,7 +853,7 @@ msgstr "Alt+E"
 msgid "Alt+M"
 msgstr "Alt+M"
 
-#: ui/main.py:497
+#: ui/main.py:455
 #, python-format
 msgid ""
 "An error occurred while upgrading:\n"
@@ -954,29 +862,25 @@ msgstr ""
 "업데이트 중 오류 발생:\n"
 "%s"
 
-#: forms/addmodel.py:63
-msgid "An existing online deck."
-msgstr "이미 존재하는 온라인 묶음."
-
-#: forms/addmodel.py:59 forms/main.py:445 forms/sort.py:45
-#: forms/syncdeck.py:42
+#: ui/deckproperties.py:182 ui/main.py:985 forms/addmodel.py:48
+#: forms/main.py:496 forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "앙키"
 
-#: forms/addcards.py:141
+#: forms/addcards.py:72
 msgid "Anki - Add Cards"
 msgstr "앙키 - 카드 추가"
 
-#: forms/cardlist.py:170
+#: forms/cardlist.py:178
 msgid "Anki - Edit Deck"
 msgstr "앙키 - 묶음 편집"
 
-#: ui/cardlist.py:368
+#: ui/cardlist.py:364
 #, python-format
 msgid "Anki - Edit Deck (%(cur)d of %(tot)d cards shown)"
 msgstr "앙키 - 묶음 편집 (%(tot)d개 중에 %(cur)d개)"
 
-#: ui/main.py:743
+#: ui/main.py:731
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -985,7 +889,7 @@ msgstr ""
 "설정 파일을 저장할 수 없습니다:\n"
 "%s"
 
-#: ui/cardlist.py:316
+#: ui/cardlist.py:312
 msgid "Answer"
 msgstr "답"
 
@@ -997,7 +901,7 @@ msgstr "답 정렬"
 msgid "Answer colour"
 msgstr "답 글자색"
 
-#: ui/cardlist.py:321
+#: ui/cardlist.py:317
 msgid "Answer count"
 msgstr "복습 횟수"
 
@@ -1009,7 +913,7 @@ msgstr "답 글꼴"
 msgid "Answer size"
 msgstr "답 글자 크기"
 
-#: forms/main.py:471
+#: forms/main.py:524
 msgid "Application-wide preferences."
 msgstr "전체 적용되는 설정"
 
@@ -1017,11 +921,7 @@ msgstr "전체 적용되는 설정"
 msgid "Applying reply.."
 msgstr "응답 적용 중.."
 
-#: forms/preferences.py:304
-msgid "Autosave and Synchronisation"
-msgstr "자동 저장 및 동기화"
-
-#: forms/preferences.py:291
+#: forms/preferences.py:312
 msgid "Background colour"
 msgstr "배경"
 
@@ -1030,21 +930,34 @@ msgstr "배경"
 msgid "Bold text (Ctrl+b)"
 msgstr "굵은 글씨"
 
+#: ui/main.py:75
+#, python-format
+msgid ""
+"Broken plugin:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: forms/main.py:568
+#, fuzzy
+msgid "C&ram.."
+msgstr "게시판(&F)..."
+
 #: ui/lookup.py:21
 msgid "Can't look up a selection with a newline."
 msgstr "줄바꿈이 들어간 선택은 검색할 수 없습니다."
 
-#: ui/modelproperties.py:247
+#: ui/modelproperties.py:257
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "카드 %(num)d (%(name)s): %(cards)d번 사용됨%(status)s"
 
-#: ui/modelproperties.py:318 ui/modelproperties.py:347
+#: ui/modelproperties.py:328 ui/modelproperties.py:357
 #, python-format
 msgid "Card %d"
 msgstr "카드 %d"
 
-#: forms/preferences.py:287
+#: forms/preferences.py:308
 msgid "Card editor"
 msgstr "카드 편집기"
 
@@ -1056,11 +969,11 @@ msgstr "카드 속성"
 msgid "Card:"
 msgstr "카드:"
 
-#: forms/modelproperties.py:414
+#: forms/modelproperties.py:394
 msgid "Cards"
 msgstr "카드"
 
-#: forms/cardlist.py:175
+#: forms/cardlist.py:183
 msgid "Cards.."
 msgstr "카드..."
 
@@ -1072,13 +985,18 @@ msgstr "수정"
 msgid "Change field mapping"
 msgstr "필드 설정 변경"
 
-#: forms/main.py:510
+#: forms/main.py:563
 msgid "Check Database Integrity"
 msgstr ""
 
-#: forms/main.py:513
+#: forms/main.py:566
 msgid "Check Media Database.."
 msgstr ""
+
+#: ui/sync.py:135
+#, fuzzy
+msgid "Check complete."
+msgstr "열 때 동기화"
 
 #: forms/importing.py:122
 msgid "Choose &file..."
@@ -1100,112 +1018,108 @@ msgstr ""
 "닫기 단추로 종료하거나 다른 파일을 가져올 수 있습니다.\n"
 "\n"
 
-#: ui/status.py:113
+#: ui/status.py:109
 msgid ""
 "Click this button to customize\n"
 "the way Anki shows you cards."
 msgstr ""
 
-#: ui/addcards.py:62
+#: ui/addcards.py:61
 msgid "Close"
 msgstr "닫기"
 
-#: ui/addcards.py:114
+#: ui/addcards.py:122
 msgid "Close and lose current input?"
 msgstr "현재 카드를 지우고 닫습니까?"
 
-#: ui/main.py:333
-msgid "Completely forgot"
-msgstr "전혀 기억 안 남"
-
-#: ui/sync.py:61
+#: ui/sync.py:65
 msgid "Connecting.."
 msgstr "연결 중..."
 
-#: ui/sync.py:144
+#: ui/sync.py:168
 #, python-format
 msgid "Create '%s' on server"
 msgstr "서버에 '%s' 묶음 만들기"
 
-#: ui/cardlist.py:565
+#: ui/cardlist.py:561
 #, python-format
 msgid "Created: %(c)s ago<br>Next due: %(n)s<br>Interval: %(i)0.0f days<br>Average: %(a)s<br>Total: %(t)s<br>Reviews: %(cor)d/%(tot)d<br>Successive: %(suc)d"
 msgstr "만든 날: %(c)s 전<br>다음 예정: %(n)s<br>간격: %(i)0.0f 일<br>평균: %(a)s<br>전체: %(t)s<br>복습: %(cor)d/%(tot)d<br>연속 정답: %(suc)d"
 
-#: ui/cardlist.py:317
+#: ui/cardlist.py:313
 msgid "Creation date"
 msgstr "만든 날"
 
-#: forms/main.py:474
+#: forms/main.py:527
 msgid "Ctrl+1"
 msgstr "Ctrl+1"
 
-#: forms/main.py:476
+#: forms/main.py:529
 msgid "Ctrl+2"
 msgstr "Ctrl+2"
 
-#: forms/main.py:478
+#: forms/main.py:531
 msgid "Ctrl+3"
 msgstr "Ctrl+3"
 
-#: forms/main.py:480
+#: forms/main.py:533
 msgid "Ctrl+4"
 msgstr "Ctrl+4"
 
-#: forms/main.py:482
+#: forms/main.py:535
 msgid "Ctrl+5"
 msgstr "Ctrl+5"
 
-#: forms/main.py:467
+#: forms/main.py:520
 msgid "Ctrl+A"
 msgstr "Ctrl+A"
 
-#: ui/main.py:1177
+#: ui/main.py:1254
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
-#: forms/main.py:469
+#: forms/main.py:522
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
-#: ui/addcards.py:57
+#: ui/addcards.py:56
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/main.py:456
+#: forms/main.py:509
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
-#: forms/main.py:458
+#: forms/main.py:511
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/main.py:472
+#: forms/main.py:525
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
-#: forms/main.py:454
+#: forms/main.py:507
 msgid "Ctrl+Q"
 msgstr "Ctrl+Q"
 
-#: forms/main.py:506
+#: forms/main.py:559
 #, fuzzy
 msgid "Ctrl+R"
 msgstr "Ctrl+1"
 
-#: ui/addcards.py:55
+#: ui/addcards.py:54
 msgid "Ctrl+Return"
 msgstr "Ctrl+Return"
 
-#: forms/main.py:462
+#: forms/main.py:515
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
-#: forms/main.py:460
+#: forms/main.py:513
 msgid "Ctrl+W"
 msgstr "Ctrl+W"
 
-#: forms/main.py:464
+#: forms/main.py:517
 msgid "Ctrl+Y"
 msgstr "Ctrl+Y"
 
@@ -1245,49 +1159,56 @@ msgstr "Ctrl+s"
 msgid "Ctrl+u"
 msgstr "Ctrl+u"
 
-#: forms/cardlist.py:177
+#: forms/cardlist.py:185
 msgid "Current &Fact"
 msgstr "현재 지식(&F)"
 
-#: forms/cardlist.py:176
+#: forms/cardlist.py:184
 msgid "Current Card"
 msgstr "현재 카드"
 
-#: forms/main.py:502
+#: forms/main.py:555
 msgid "Customize card layout, fields, etc."
 msgstr "카드 레이아웃과 필드 등을 수정"
 
-#: forms/main.py:496
+#: forms/main.py:549
 msgid "Customize fonts, colours and alignment."
 msgstr "글꼴, 색깔, 정렬 방식 수정"
 
-#: forms/main.py:491
+#: forms/main.py:544
 msgid "Customize syncing, scheduling, priorities and models."
 msgstr "동기화, 복습 일정, 우선순위, 모델 수정"
 
-#: ui/preferences.py:26
+#: ui/preferences.py:30
 msgid "Czech"
 msgstr "체코어"
 
-#: ui/main.py:666 ui/main.py:706
+#: ui/graphs.py:135
+#, fuzzy
+msgid "Deck Graphs"
+msgstr "묶음 그래프"
+
+#: forms/deckproperties.py:360
+#, fuzzy
+msgid "Deck Properties"
+msgstr "묶음 속성(&D)..."
+
+#: ui/main.py:655 ui/main.py:695
 msgid "Deck files (*.anki)"
 msgstr "묶음 파일 (*.anki)"
 
-#: ui/graphs.py:133
-msgid "Deck graphs"
-msgstr "묶음 그래프"
-
-#: ui/main.py:696
+#: ui/main.py:685
 msgid "Deck is not modified."
 msgstr "변경된 사항이 없습니다."
 
-#: forms/cardlist.py:181 forms/cardlist.py:182
+#: forms/cardlist.py:189 forms/cardlist.py:190
 msgid "Delete Tag.."
 msgstr "꼬리표 삭제..."
 
-#: forms/deckproperties.py:328
-msgid "Description && Synchronisation"
-msgstr "설명 및 동기화"
+#: forms/deckproperties.py:394
+#, fuzzy
+msgid "Description"
+msgstr "<b>설명</b>"
 
 #: ui/sync.py:100
 msgid "Determining differences.."
@@ -1297,15 +1218,11 @@ msgstr "묶음 비교하는 중.."
 msgid "Dialog"
 msgstr "대화상자"
 
-#: ui/main.py:335
-msgid "Difficult"
-msgstr "어려움"
-
-#: ui/cardlist.py:322
+#: ui/cardlist.py:318
 msgid "Difficulty"
 msgstr "난이도"
 
-#: ui/modelproperties.py:308
+#: ui/modelproperties.py:318
 msgid "Disa&ble"
 msgstr "끄기(&B)"
 
@@ -1313,12 +1230,16 @@ msgstr "끄기(&B)"
 msgid "Discard field"
 msgstr "필드 제거"
 
-#: forms/main.py:495
+#: forms/main.py:548
 #, fuzzy
 msgid "Disp&lay Properties.."
 msgstr "표시 속성(&L)..."
 
-#: ui/help.py:104
+#: forms/preferences.py:313
+msgid "Display"
+msgstr ""
+
+#: ui/help.py:90
 msgid "Don't show this again."
 msgstr "다시 보지 않음"
 
@@ -1327,30 +1248,18 @@ msgstr "다시 보지 않음"
 msgid "Downloading anki updater - %d%% complete."
 msgstr "앙키 업데이트 다운로드 - %d%% 완료."
 
-#: ui/cardlist.py:319
+#: ui/cardlist.py:315
 msgid "Due date"
 msgstr "복습 예정"
 
-#: forms/main.py:453
+#: forms/main.py:506
 msgid "E&xit"
 msgstr "종료(&X)"
 
-#: ui/status.py:181
+#: ui/status.py:178
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "예상 시간: <b>%(timeLeft)s</b>"
-
-#: ui/main.py:339
-msgid "Easy"
-msgstr "쉬움"
-
-#: forms/modelproperties.py:407
-msgid "Edit card"
-msgstr "카드 편집"
-
-#: forms/deckproperties.py:324
-msgid "Edit deck properties"
-msgstr "묶음 속성 편집"
 
 #: ui/modelchooser.py:44
 msgid "Edit the current model"
@@ -1360,39 +1269,35 @@ msgstr "현재 모델 편집"
 msgid "Empty selection."
 msgstr "빈 선택"
 
-#: ui/modelproperties.py:310
+#: ui/modelproperties.py:320
 msgid "Ena&ble"
 msgstr "켜기(&B)"
 
-#: ui/preferences.py:25
+#: ui/preferences.py:29
 msgid "English"
 msgstr "영어"
 
-#: ui/cardlist.py:601
+#: ui/cardlist.py:597
 msgid "Enter tag(s) to add to each card:"
 msgstr "각 카드에 추가할 태그(들)을 입력하세요:"
 
-#: ui/cardlist.py:596
+#: ui/cardlist.py:592
 msgid "Enter tag(s) to add to each fact:"
 msgstr "각 지식에 추가할 태그(들)을 입력하세요:"
 
-#: ui/cardlist.py:611
+#: ui/cardlist.py:607
 msgid "Enter tag(s) to delete from each card:"
 msgstr "각 카드에서 삭제할 태그(들)을 입력하세요:"
 
-#: ui/cardlist.py:606
+#: ui/cardlist.py:602
 msgid "Enter tag(s) to delete from each fact:"
 msgstr "각 지식에서 삭제할 태그(들)을 입력하세요:"
 
-#: ui/main.py:478
+#: ui/main.py:436
 msgid "Error building queue. Attempting recovery.."
 msgstr ""
 
-#: ui/main.py:74
-msgid "Error running initHook. Broken plugin?"
-msgstr "initHook 실행 오류. 잘못된 플러그인?"
-
-#: forms/main.py:494
+#: forms/main.py:547
 msgid "Expor&t..."
 msgstr "내보내기(&T)..."
 
@@ -1404,7 +1309,7 @@ msgstr "내보내기"
 msgid "Export to..."
 msgstr "내보내기..."
 
-#: forms/cardlist.py:174
+#: forms/cardlist.py:182
 msgid "Facts.."
 msgstr "지식..."
 
@@ -1417,17 +1322,17 @@ msgstr "서버에서 정보 가져오는 중..."
 msgid "Field %(num)d: %(name)s"
 msgstr "필드 %(num)d: %(name)s"
 
-#: ui/modelproperties.py:68
+#: ui/modelproperties.py:76
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "필드 %(num)d: %(name)s [%(cards)s 사용 중]"
 
-#: ui/modelproperties.py:126 ui/modelproperties.py:148
+#: ui/modelproperties.py:134 ui/modelproperties.py:156
 #, python-format
 msgid "Field %d"
 msgstr "필드 %d"
 
-#: ui/cardlist.py:325
+#: ui/cardlist.py:321
 #, python-format
 msgid "Field '%s'"
 msgstr "필드 '%s'"
@@ -1441,12 +1346,8 @@ msgstr "필드 <b>%d</b:"
 msgid "Field mapping"
 msgstr "필드 할당"
 
-#: forms/modelproperties.py:388
-msgid "Field properties"
-msgstr "필드 속성"
-
-#: forms/addcards.py:142 forms/displayproperties.py:326
-#: forms/modelproperties.py:398
+#: forms/addcards.py:73 forms/displayproperties.py:326
+#: forms/modelproperties.py:380
 msgid "Fields"
 msgstr "필드"
 
@@ -1459,33 +1360,43 @@ msgstr "글꼴과 색깔"
 msgid "Foreground colour (Ctrl+r)"
 msgstr "글자색"
 
-#: ui/preferences.py:27
+#: ui/preferences.py:31
 msgid "French"
 msgstr "프랑스어"
 
-#: ui/main.py:875
+#: forms/modelproperties.py:363
+#, fuzzy
+msgid "General"
+msgstr "복습 간격"
+
+#: ui/main.py:891
 msgid "Generating report (may take time).."
 msgstr "보고서 작성 중 (시간이 걸릴 수 있음)..."
 
-#: ui/preferences.py:28
+#: ui/preferences.py:32
 msgid "German"
 msgstr "독일어"
 
-#: forms/preferences.py:311
-msgid "Hide interval of last card"
-msgstr "지난 카드의 복습 간격 감추기"
+#: ui/addcards.py:64
+#, fuzzy
+msgid "Help"
+msgstr "도움말(&H)"
 
-#: forms/preferences.py:310
+#: forms/preferences.py:330
 msgid "Hide next interval when showing answer buttons"
 msgstr "답 선택 단추를 보여줄 때, 다음 복습 간격 감추기"
 
-#: forms/preferences.py:312
-msgid "Hide question/answer of last card"
-msgstr "지난 카드의 질문/답 감추기"
-
-#: forms/modelproperties.py:410
+#: forms/modelproperties.py:390
 msgid "Hide the question when showing answer"
 msgstr "답을 보여줄 때, 질문을 감춤"
+
+#: forms/deckproperties.py:409
+msgid "Hours to shift midnight"
+msgstr ""
+
+#: ui/deckproperties.py:89
+msgid "ID"
+msgstr ""
 
 #: ui/update.py:141
 msgid "Ignore this update"
@@ -1533,19 +1444,15 @@ msgstr "복습 일정 포함"
 msgid "Include tags"
 msgstr "꼬리표 포함"
 
-#: forms/deckproperties.py:337
-msgid "Initial times"
-msgstr ""
-
-#: forms/preferences.py:286
+#: forms/preferences.py:307
 msgid "Interface"
 msgstr "화면"
 
-#: forms/preferences.py:289
+#: forms/preferences.py:310
 msgid "Interface colour"
 msgstr "글자"
 
-#: ui/cardlist.py:320
+#: ui/cardlist.py:316
 msgid "Interval"
 msgstr "복습 간격"
 
@@ -1554,23 +1461,19 @@ msgstr "복습 간격"
 msgid "Italic text (Ctrl+i)"
 msgstr "기울인 글자"
 
-#: ui/preferences.py:29
+#: ui/preferences.py:33
 msgid "Japanese"
 msgstr "일본어"
 
-#: ui/preferences.py:30
+#: ui/preferences.py:34
 msgid "Korean"
 msgstr "한국어"
 
-#: forms/preferences.py:292
-msgid "Language, Fonts and Colours"
-msgstr "언어, 글꼴 및 색깔"
-
-#: forms/preferences.py:285
+#: forms/preferences.py:306
 msgid "Last card"
 msgstr "지난 카드"
 
-#: forms/preferences.py:290
+#: forms/preferences.py:311
 msgid "Last card colour"
 msgstr "지난 카드"
 
@@ -1589,7 +1492,7 @@ msgstr "Latex equation"
 msgid "Latex math environment (Ctrl+m)"
 msgstr "Latex 수식 환경"
 
-#: ui/main.py:855
+#: ui/main.py:871
 msgid "Loading graphs (may take time).."
 msgstr "그래프 불러오는 중 (시간이 걸릴 수 있음)..."
 
@@ -1607,177 +1510,170 @@ msgstr "%s로 ALC 검색.."
 msgid "Looking %s up on edict.."
 msgstr "%s로 edict에서 검색.."
 
-#: ui/main.py:334
-msgid "Made a mistake"
-msgstr "실수로 틀림"
-
 #: ui/importing.py:22
 #, python-format
 msgid "Map to %s"
 msgstr "%s로 할당하기"
 
-#: forms/deckproperties.py:342 forms/deckproperties.py:343
-#: forms/deckproperties.py:345
+#: forms/deckproperties.py:400 forms/deckproperties.py:401
+#: forms/deckproperties.py:403
 msgid "Max"
 msgstr "최대"
 
-#: forms/main.py:512
+#: forms/main.py:565
 #, fuzzy
 msgid "Merge Models.."
 msgstr "모델"
 
-#: ui/main.py:1317
+#: ui/main.py:1452
 msgid "Merge complete."
 msgstr ""
 
-#: ui/sync.py:148
+#: ui/sync.py:172
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "서버의 '%s' 묶음과 합치기"
 
-#: forms/deckproperties.py:338 forms/deckproperties.py:339
-#: forms/deckproperties.py:344
+#: forms/deckproperties.py:396 forms/deckproperties.py:397
+#: forms/deckproperties.py:402
 msgid "Min"
 msgstr "최소"
 
-#: forms/modelproperties.py:378
-msgid "Minimum interval multiplier<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-51074b785bb6049b44fce9f18fca198100c4d2f7\">?</a>"
+#: forms/modelproperties.py:362
+msgid "Minimum interval multiplier"
 msgstr ""
 
-#: forms/modelproperties.py:377
-msgid "Minimum spacing<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-4ee3a58e2fdd61da8ef81984213862d3bc0ed4bd\">?</a>"
+#: forms/modelproperties.py:361
+msgid "Minimum spacing"
 msgstr ""
 
-#: ui/modelproperties.py:442
+#: ui/modelproperties.py:458
 msgid "Model"
 msgstr "모델"
 
-#: forms/modelproperties.py:370
+#: forms/modelproperties.py:354
 msgid "Model Properties"
 msgstr "모델 속성"
 
-#: forms/modelproperties.py:379
-msgid "Model properties"
-msgstr "모델 속성"
-
-#: forms/deckproperties.py:359
+#: forms/deckproperties.py:392
 msgid "Models"
 msgstr "모델"
 
-#: ui/cardlist.py:318
+#: ui/cardlist.py:314
 msgid "Modified date"
 msgstr "수정한 날"
 
-#: forms/modelproperties.py:385 forms/modelproperties.py:404
+#: forms/modelproperties.py:367 forms/modelproperties.py:384
 msgid "Move &Up"
 msgstr ""
 
-#: forms/modelproperties.py:387 forms/modelproperties.py:406
+#: forms/modelproperties.py:370 forms/modelproperties.py:386
 msgid "Move Dow&n"
 msgstr ""
 
-#: forms/modelproperties.py:405
+#: forms/modelproperties.py:385
 msgid "Move selected card model down"
 msgstr ""
 
-#: forms/modelproperties.py:403
+#: forms/modelproperties.py:383
 msgid "Move selected card model up"
 msgstr ""
 
-#: forms/modelproperties.py:386
+#: forms/modelproperties.py:369
 msgid "Move selected field down"
 msgstr ""
 
-#: forms/modelproperties.py:384
+#: forms/modelproperties.py:366
 msgid "Move selected field up"
 msgstr ""
 
-#: ui/main.py:336
-#, python-format
-msgid "Next in <b>%(ease2)s</b>"
-msgstr "<b>%(ease2)s</b> 안에"
+#: ui/deckproperties.py:90
+msgid "Name"
+msgstr ""
 
-#: ui/main.py:338
-#, python-format
-msgid "Next in <b>%(ease3)s</b>"
-msgstr "<b>%(ease3)s</b> 안에"
+#: forms/deckproperties.py:375
+#, fuzzy
+msgid "Name on server: "
+msgstr "서버에 '%s' 묶음 만들기"
 
-#: ui/main.py:340
-#, python-format
-msgid "Next in <b>%(ease4)s</b>"
-msgstr "<b>%(ease4)s</b> 안에"
+#: ui/sync.py:116
+msgid "No changes found."
+msgstr ""
 
-#: ui/main.py:846
+#: ui/main.py:862
 msgid "No current card or last card."
 msgstr "아무 카드도 없음"
 
-#: ui/main.py:797
+#: ui/main.py:813
 msgid "No expression in current card."
 msgstr "현재 카드의 expression(표현) 필드를 입력하지 않음"
 
-#: ui/main.py:804
+#: ui/main.py:820
 msgid "No meaning in current card."
 msgstr "현재 카드의 meaning(의미) 필드를 입력하지 않음."
 
-#: ui/main.py:1311
+#: ui/main.py:1445
 msgid ""
 "No models found to merge. If you want to merge models,\n"
-"all models must have the same name."
+"all models must have the same name, and must not be\n"
+"from another person's deck."
 msgstr ""
 
-#: ui/main.py:1289
+#: ui/main.py:1423
 msgid ""
 "No problems found. Some data structures have been rebuilt in case\n"
 "they were causing problems. On the next sync, all cards will be\n"
 "sent to the server."
 msgstr ""
 
-#: ui/main.py:994
-msgid "Not syncing, username or password unset."
-msgstr "동기시킬 수 없습니다. 아이디 또는 비밀번호를 지정하지 않았습니다."
-
-#: forms/modelproperties.py:400
-msgid "One or more cards are generated for each piece of information you enter into Anki. Here you can control how many cards are generated, and what they look like. Spacing is the amount of time before showing a different card for the same piece of information."
-msgstr "각 지식마다 하나 또는 그 이상의 카드를 만들 수 있습니다. 이 설정을 통해 카드 종류와 모양을 결정할 수 있습니다. 카드 연기는 같은 지식에서 만들어진 카드의 간격이 너무 좁아지는 것을 방지합니다."
-
-#: forms/main.py:449
+#: forms/main.py:500
 msgid "Open &Recent"
 msgstr "최근에 공부한 묶음(&R)"
 
-#: forms/main.py:497
+#: forms/main.py:567
+#, fuzzy
+msgid "Open On&line.."
+msgstr "예제 열기(&M)..."
+
+#: forms/main.py:550
 msgid "Open Sa&mple..."
 msgstr "예제 열기(&M)..."
 
-#: ui/main.py:669
+#: ui/main.py:658
 msgid "Open deck"
 msgstr "묶음 열기"
 
-#: forms/main.py:487
+#: forms/main.py:540
 msgid "Open the bug tracker."
 msgstr "오류 신고 게시판 열기"
 
-#: forms/main.py:511
+#: forms/main.py:564
 msgid "Optimize Database"
 msgstr ""
 
-#: forms/preferences.py:300
+#: forms/preferences.py:321
 msgid "Password"
 msgstr "비밀번호"
 
-#: ui/graphs.py:153 ui/graphs.py:163 ui/graphs.py:172 ui/graphs.py:180
-#: ui/graphs.py:188
+#: ui/main.py:626
+#, fuzzy
+msgid "Password:"
+msgstr "비밀번호"
+
+#: ui/graphs.py:158 ui/graphs.py:168 ui/graphs.py:177 ui/graphs.py:185
+#: ui/graphs.py:193
 msgid "Period"
 msgstr ""
 
-#: ui/modelproperties.py:361
+#: ui/modelproperties.py:371
 msgid "Please add a new card first."
 msgstr "먼저 새 카드를 추가해 주세요."
 
-#: ui/modelproperties.py:161
+#: ui/modelproperties.py:169
 msgid "Please add a new field first."
 msgstr "먼저 새 필드를 추가해 주세요."
 
-#: ui/deckproperties.py:102
+#: ui/deckproperties.py:143
 msgid "Please add another model first."
 msgstr "먼저 새 모델을 추가해 주세요."
 
@@ -1785,27 +1681,27 @@ msgstr "먼저 새 모델을 추가해 주세요."
 msgid "Please choose a field to sort by."
 msgstr "정렬 기준이 될 필드를 선택해 주세요."
 
-#: ui/sync.py:45
+#: ui/sync.py:48
 msgid "Please double-check your username/password."
 msgstr "아이디와 비밀번호를 다시 확인해 주세요."
 
-#: ui/modelproperties.py:389
+#: ui/modelproperties.py:399
 msgid "Please enable a different model first."
 msgstr "먼저 다른 모델을 켜주세요."
 
-#: ui/main.py:872
+#: ui/main.py:888
 msgid "Please install python-matplotlib to access graphs."
 msgstr "그래프를 보려면 python-matplotlib를 설치해 주세요."
 
-#: forms/preferences.py:282
+#: forms/preferences.py:303
 msgid "Preferences"
 msgstr "환경 설정"
 
-#: forms/modelproperties.py:390
+#: forms/modelproperties.py:372
 msgid "Prevent me from entering the same thing in this field twice"
 msgstr "이 필드에 같은 내용이 입력되는 것을 방지"
 
-#: forms/modelproperties.py:394
+#: forms/modelproperties.py:376
 msgid "Prevent new cards from being added if this field is blank"
 msgstr "카드를 추가할 때, 반드시 입력해야 되는 필드"
 
@@ -1813,19 +1709,14 @@ msgstr "카드를 추가할 때, 반드시 입력해야 되는 필드"
 msgid "Preview"
 msgstr "미리보기"
 
-#: forms/deckproperties.py:334
-#, fuzzy
-msgid "Priorities && Suspending"
-msgstr "우선 순위 및 보류"
-
-#: ui/main.py:1296
+#: ui/main.py:1430
 #, python-format
 msgid ""
 "Problems found:\n"
 "%s"
 msgstr ""
 
-#: ui/cardlist.py:315
+#: ui/cardlist.py:311
 msgid "Question"
 msgstr "질문"
 
@@ -1845,66 +1736,75 @@ msgstr "질문 글꼴"
 msgid "Question size"
 msgstr "질문 글자 크기"
 
-#: ui/status.py:149
+#: forms/main.py:569
+msgid "Release Notes.."
+msgstr ""
+
+#: ui/status.py:145
 msgid "Remaining: "
 msgstr "남은 카드:"
 
-#: forms/main.py:504
+#: forms/main.py:557
 #, fuzzy
 msgid "Repeat &Answer Audio"
 msgstr "답 소리 다시 듣기(&A)"
 
-#: forms/main.py:503
+#: forms/main.py:556
 #, fuzzy
 msgid "Repeat &Question Audio"
 msgstr "질문 소리 다시 듣기(&Q)"
 
-#: forms/main.py:505
+#: forms/main.py:558
 msgid "Repeat las&t audio"
 msgstr "마지막 소리 다시 듣기(&T)"
 
-#: forms/cardlist.py:185 forms/cardlist.py:186
+#: forms/cardlist.py:193 forms/cardlist.py:194
 msgid "Reset Progress"
 msgstr "진도 초기화"
 
-#: forms/cardlist.py:172
+#: forms/cardlist.py:180
 msgid "S&ort"
 msgstr "정렬(&O)"
 
-#: forms/main.py:509
+#: forms/preferences.py:325
+#, fuzzy
+msgid "Save && Sync"
+msgstr "저장 및 동기화"
+
+#: forms/main.py:562
 #, fuzzy
 msgid "Save &As.."
 msgstr "다른 이름으로 저장(&A)"
 
-#: forms/preferences.py:297
+#: forms/preferences.py:318
 msgid "Save after adding"
 msgstr "추가한 지식 개수에 따라"
 
-#: forms/preferences.py:294
+#: forms/preferences.py:315
 msgid "Save after answering"
 msgstr "공부한 카드 개수에 따라"
 
-#: forms/main.py:463
+#: forms/main.py:516
 msgid "Save and S&ync"
 msgstr "저장 및 동기화"
 
-#: ui/main.py:702
+#: ui/main.py:691
 msgid "Save deck"
 msgstr "묶음 저장"
 
-#: forms/preferences.py:295
+#: forms/preferences.py:316
 msgid "Save when closing"
 msgstr "종료할 때 저장"
 
-#: ui/main.py:724
+#: ui/main.py:713
 msgid "Saving.."
 msgstr "저장 중..."
 
-#: ui/main.py:728
+#: ui/main.py:717
 msgid "Saving..done"
 msgstr "저장 중... 완료"
 
-#: forms/deckproperties.py:354
+#: forms/deckproperties.py:387
 msgid "Scheduling"
 msgstr "복습 일정"
 
@@ -1912,36 +1812,52 @@ msgstr "복습 일정"
 msgid "Sending payload..."
 msgstr ""
 
-#: ui/sync.py:49
+#: ui/sync.py:52
 msgid "Server is down or operation failed."
 msgstr "서버가 다운됐거나 작업 실패입니다."
 
-#: ui/main.py:310
+#: forms/preferences.py:327
+msgid "Show 3 answer buttons, not 5"
+msgstr ""
+
+#: ui/main.py:294
 msgid "Show answer"
 msgstr "정답 보기"
+
+#: forms/preferences.py:332
+msgid "Show last card's interval"
+msgstr ""
+
+#: forms/preferences.py:331
+msgid "Show last card's question/answer"
+msgstr ""
 
 #: forms/displayproperties.py:334
 msgid "Show preview"
 msgstr "미리보기"
 
-#: forms/preferences.py:314
+#: forms/preferences.py:329
 #, fuzzy
 msgid "Show timer"
 msgstr "정답 보기"
 
-#: forms/preferences.py:305
+#: forms/preferences.py:333
 msgid "Show toolbar on startup"
 msgstr "도구막대 보기(재시작 필요)"
 
-#: forms/preferences.py:313
+#: forms/preferences.py:335
 msgid "Show tray icon"
+msgstr ""
+
+#: forms/preferences.py:328
+msgid "Simple toolbar"
 msgstr ""
 
 #: ui/facteditor.py:329
 msgid "Some fields are <a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-6ba367d55922a618ab147debfbac98635d1a4dc2>missing</a> or not <a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-0c33560cb828fde1c19af1cd260388457b57812a>unique</a>."
 msgstr ""
 
-#: forms/modelproperties.py:397
+#: forms/modelproperties.py:379
 msgid "Sort this field using numeric order instead of string order"
 msgstr "현재 필드를 문자가 아닌 숫자 기준으로 정렬"
 
@@ -1949,19 +1865,24 @@ msgstr "현재 필드를 문자가 아닌 숫자 기준으로 정렬"
 msgid "Sounds (*.mp3 *.ogg *.wav)"
 msgstr "소리 (*.mp3 *.ogg *.wav)"
 
-#: ui/preferences.py:31
+#: ui/deckproperties.py:183
+msgid "Source ID:"
+msgstr ""
+
+#: ui/preferences.py:35
 msgid "Spanish"
 msgstr "스페인어"
 
-#: forms/preferences.py:309
-msgid "Start Edit Deck with only current card selected"
-msgstr "현재 선택된 카드로만 묶음 편집 시작"
+#: forms/main.py:505
+#, fuzzy
+msgid "Startup"
+msgstr "상태"
 
-#: forms/addcards.py:143 forms/importing.py:128
+#: forms/addcards.py:74 forms/importing.py:128
 msgid "Status"
 msgstr "상태"
 
-#: forms/main.py:500
+#: forms/main.py:553
 msgid "Stop reviewing this card until it's unsuspended in the editor."
 msgstr "현재 카드를 보류합니다. 묶음 편집기에서 해제할 수 있습니다."
 
@@ -1970,23 +1891,25 @@ msgstr "현재 카드를 보류합니다. 묶음 편집기에서 해제할 수 �
 msgid "Sync complete."
 msgstr "열 때 동기화"
 
-#: forms/preferences.py:302
+#: forms/preferences.py:323
 msgid "Sync on close"
 msgstr "닫을 때 동기화"
 
-#: forms/preferences.py:303
+#: forms/preferences.py:324
 msgid "Sync on open"
 msgstr "열 때 동기화"
 
-#: ui/sync.py:91
-msgid "Sync: nothing to do"
-msgstr "동기화: 수행할 작업이 없습니다."
+#: forms/deckproperties.py:377
+#, fuzzy
+msgid "Synchronization"
+msgstr "자동 저장 및 동기화"
 
-#: forms/deckproperties.py:327
-msgid "Synchronize this deck with name:"
+#: forms/deckproperties.py:364
+#, fuzzy
+msgid "Synchronize this deck"
 msgstr "동기시킬 묶음 이름:"
 
-#: ui/sync.py:125
+#: ui/sync.py:149
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "동기화 실패: %(a)s"
@@ -2003,19 +1926,30 @@ msgstr "꼬리표"
 msgid "Tags to append:"
 msgstr "꼬리표 추가:"
 
-#: forms/preferences.py:308
+#: ui/main.py:985
+#, fuzzy
+msgid "Tags to cram:"
+msgstr "꼬리표 추가:"
+
+#: forms/preferences.py:334
 msgid "Tall buttons (for touchscreen)"
 msgstr "긴 단추 (터치 스크린 용)"
 
-#: ui/graphs.py:198
+#: ui/graphs.py:203
 msgid "The amount of times you answered a card at each ease level."
 msgstr "각 난이도에 따라 선택한 카드 개수"
 
-#: ui/graphs.py:181
+#: ui/addcards.py:94
+msgid ""
+"The input you have provided would make an empty\n"
+"question or answer on all cards. Can't proceed."
+msgstr ""
+
+#: ui/graphs.py:186
 msgid "The number of cards added on a given day."
 msgstr "매일 추가된 카드 개수"
 
-#: ui/graphs.py:154
+#: ui/graphs.py:159
 msgid ""
 "The number of cards due each day over the period.\n"
 "Today is 0; cards less than zero are overdue."
@@ -2023,11 +1957,11 @@ msgstr ""
 "매일 예정된 카드 개수\n"
 "오늘은 0; 음수는 지난 날입니다."
 
-#: ui/graphs.py:164
+#: ui/graphs.py:169
 msgid "The number of cards due each day, assuming no study."
 msgstr "복습하지 않는다고 가정했을 때, 매일 늘어나는 카드 개수"
 
-#: ui/graphs.py:189
+#: ui/graphs.py:194
 msgid ""
 "The number of cards first answered on a given day.\n"
 "This will be different to 'added cards' if you are\n"
@@ -2037,11 +1971,11 @@ msgstr ""
 "미리 만들어진 묶음의 경우,\n"
 "'추가된 카드' 통계와 다를 수 있습니다."
 
-#: ui/graphs.py:173
+#: ui/graphs.py:178
 msgid "The number of cards scheduled for a given number of days."
 msgstr "다음 복습 때까지 기다리는 시간"
 
-#: ui/sync.py:47
+#: ui/sync.py:50
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "동기화 프로토콜이 변경되었습니다. 업데이트 해 주세요."
 
@@ -2050,7 +1984,7 @@ msgstr "동기화 프로토콜이 변경되었습니다. 업데이트 해 주세
 msgid "This card will appear again in less than <b>%(next)s</b>."
 msgstr "이 카드는 앞으로 <b>%(next)s</b>안에 등장합니다."
 
-#: ui/modelproperties.py:167
+#: ui/modelproperties.py:175
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2067,7 +2001,7 @@ msgstr ""
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "파일이 이미 존재합니다. 덮어쓸까요?"
 
-#: ui/modelproperties.py:368
+#: ui/modelproperties.py:378
 #, python-format
 msgid ""
 "This model is used by %d cards. If you delete it,\n"
@@ -2086,7 +2020,7 @@ msgstr ""
 "\n"
 "카드도 같이 삭제할까요?"
 
-#: ui/deckproperties.py:108
+#: ui/deckproperties.py:155
 #, python-format
 msgid ""
 "This model is used by %d facts.\n"
@@ -2097,7 +2031,15 @@ msgstr ""
 "삭제할까요?\n"
 "삭제하면 카드도 사라지게 됩니다."
 
-#: ui/main.py:864
+#: ui/deckproperties.py:148
+#, python-format
+msgid ""
+"This model is used by deck source:\n"
+"%s\n"
+"You will need to remove the source first."
+msgstr ""
+
+#: ui/main.py:880
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2105,15 +2047,19 @@ msgstr ""
 "그래프 표시에 필요한 .dll 파일이 없습니다.\n"
 "다음 파일을 설치해 주세요:\n"
 
-#: forms/cardlist.py:178 forms/cardlist.py:184
+#: forms/cardlist.py:186 forms/cardlist.py:192
 msgid "Toggle Delete"
 msgstr "삭제 전환"
 
-#: ui/main.py:682
+#: forms/preferences.py:336
+msgid "Toolbar icon size"
+msgstr ""
+
+#: ui/main.py:671
 msgid "Unable to load file."
 msgstr "파일을 불러올 수 없습니다."
 
-#: ui/main.py:467
+#: ui/main.py:425
 msgid "Unable to load the same deck twice."
 msgstr "같은 묶음을 동시에 두번 불러 올 수 없습니다."
 
@@ -2141,7 +2087,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "밑줄"
 
-#: ui/sync.py:51
+#: ui/sync.py:54
 #, python-format
 msgid "Unknown error: %s"
 msgstr "알 수 없는 오류: %s"
@@ -2153,10 +2099,6 @@ msgstr "업데이트가 끝났습니다. 앙키를 다시 실행해 주세요."
 #: ui/update.py:123
 msgid "Updating.."
 msgstr "업데이트 중..."
-
-#: forms/preferences.py:306
-msgid "Use compact answer button style"
-msgstr "짧은 선택 단추 사용"
 
 #: forms/displayproperties.py:330
 msgid "Use custom colour"
@@ -2170,8 +2112,13 @@ msgstr "글꼴 지정"
 msgid "Use custom size"
 msgstr "글자 크기 지정"
 
-#: forms/preferences.py:301
+#: forms/preferences.py:322
 msgid "Username"
+msgstr "아이디"
+
+#: ui/main.py:622
+#, fuzzy
+msgid "Username:"
 msgstr "아이디"
 
 #: ui/view.py:157
@@ -2183,17 +2130,17 @@ msgstr "잘 했습니다! 이 카드는 앞으로 <b>%(next)s</b> 안에 등장�
 msgid "Would you like to download it now?"
 msgstr "지금 다운로드하시겠습니까?"
 
-#: ui/main.py:1315
+#: ui/main.py:1450
 msgid "Would you like to merge models that have the same name?"
 msgstr ""
 
-#: ui/main.py:1325
+#: ui/main.py:1460
 msgid ""
 "Would you like to remove unused files from the media directory, and\n"
 "tag or delete references to missing files?"
 msgstr ""
 
-#: ui/main.py:1227
+#: ui/main.py:1304
 #, fuzzy, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2201,7 +2148,7 @@ msgid ""
 " Please ensure it is set correctly and then restart Anki."
 msgstr "현재 컴퓨터의 시계가 1분 이상 느리거나 빠릅니다. 정확하게 맞춰 주세요."
 
-#: ui/main.py:1068
+#: ui/main.py:1131
 #, fuzzy, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2211,32 +2158,42 @@ msgid ""
 "syncing is disabled until you fix the problem."
 msgstr "현재 컴퓨터의 시계가 1분 이상 느리거나 빠릅니다. 정확하게 맞춰 주세요."
 
-#: ui/main.py:869
+#: ui/main.py:885
+#, fuzzy
 msgid ""
 "Your version of Matplotlib is broken.\n"
-"Please see http://repose.ath.cx/tracker/anki/issue102"
+"Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
 msgstr ""
 "현재 시스템의 Matplotlib가 깨져있습니다.\n"
 "관련 정보: http://repose.ath.cx/tracker/anki/issue102"
 
-#: forms/preferences.py:296
+#: forms/main.py:574
+msgid "a"
+msgstr ""
+
+#: forms/preferences.py:317
 msgid "cards"
 msgstr "카드"
 
-#: ui/main.py:1225
+#: ui/main.py:1302
 msgid "early"
 msgstr ""
 
-#: forms/preferences.py:298
+#: forms/preferences.py:319
 msgid "facts"
 msgstr "지식"
 
-#: ui/cardlist.py:193
+#: ui/cardlist.py:194
 #, python-format
 msgid "in %s"
 msgstr "%s 안에"
 
-#: ui/main.py:1223
+#: forms/deckproperties.py:362
+#, fuzzy
+msgid "label"
+msgstr "Latex"
+
+#: ui/main.py:1300
 #, fuzzy
 msgid "late"
 msgstr "Latex"
@@ -2245,6 +2202,53 @@ msgstr "Latex"
 #, python-format
 msgid "mapped to <b>%s</b>"
 msgstr "<b>%s</b>로 할당 됨"
+
+#: forms/deckproperties.py:376
+#, fuzzy
+msgid "option"
+msgstr "가져오기 설정"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "<h1>Adding cards</h1>\n"
+#~ "Please enter some things you want to learn.\n"
+#~ "<h2>Shortcuts</h2>\n"
+#~ "<table width=230>\n"
+#~ "<tr><td><b>Tab</b></td><td> change between fields.</td></tr>\n"
+#~ "<tr><td><b>Ctrl+Enter</b></td><td> add the current card.</td></tr>\n"
+#~ "<tr><td><b>Esc</b></td><td> close the dialog.</td></tr>\n"
+#~ "<tr><td><b>Ctrl+B</b></td><td> bold</td></tr>\n"
+#~ "<tr><td><b>Ctrl+I</b></td><td> italic</td></tr>\n"
+#~ "<tr><td><b>Ctrl+U</b></td><td> underline</td></tr>\n"
+#~ "<tr><td><b>Alt+1</b></td><td> enable/disable card model 1</td></tr>\n"
+#~ "<tr><td><b>Alt+2</b></td><td> enable/disable card model 2</td></tr>\n"
+#~ "</table>\n"
+#~ "\n"
+#~ "<h2>Cards</h2>Depending on the language you selected, more than one card may\n"
+#~ "be generated. This allows you to practice both <b>Production</b> (trying to produce\n"
+#~ "the target idea/phrase yourself), and <b>Recognition</b> (quickly recognizing and\n"
+#~ "understanding the target idea/phrase). To change which cards are automatically\n"
+#~ "generated, click the rightmost button at the top."
+#~ msgstr ""
+#~ "\n"
+#~ "<h1>카드 추가</h1>\n"
+#~ "공부할 내용을 카드로 만드세요.\n"
+#~ "<h2>단축키</h2>\n"
+#~ "<table width=230>\n"
+#~ "<tr><td><b>Tab</b></td><td> 필드 이동.</td></tr>\n"
+#~ "<tr><td><b>Ctrl+Enter</b></td><td> 현재 카드 추가</td></tr>\n"
+#~ "<tr><td><b>Esc</b></td><td> 대화 상자 닫기</td></tr>\n"
+#~ "<tr><td><b>Ctrl+B</b></td><td> 굵게</td></tr>\n"
+#~ "<tr><td><b>Ctrl+I</b></td><td> 기울게</td></tr>\n"
+#~ "<tr><td><b>Ctrl+U</b></td><td> 밑줄</td></tr>\n"
+#~ "</table>\n"
+#~ "\n"
+#~ "<h2>카드</h2>선택한 모델에 따라서, 입력한 정보를 바탕으로 카드가 여러개 \n"
+#~ "만들어질 수도 있습니다. 이 기능을 활용하면, 외국어 학습을 할 때, 뜻을 보고 원문을 맞추는 \n"
+#~ "<b>Production(생성)</b> 카드와, 원문을 보고 뜻을 맞추는 <b>Recognition(인지)</b> 카드를 \n"
+#~ "한꺼번에 만들 수 있습니다. 이렇게 자동으로 만들어지는 카드 종류는\n"
+#~ "가장 우측 상단의 단추를 눌러 선택할 수 있습니다."
 
 #~ msgid ""
 #~ "\n"
@@ -2266,41 +2270,82 @@ msgstr "<b>%s</b>로 할당 됨"
 #~ "연결된 카드를 복습한지 얼마 되지 않았기 때문입니다.<br>\n"
 #~ "보류된 카드는 보류를 직접 해재하기 전까지는 등장하지 않습니다."
 
+#~ msgid ""
+#~ "\n"
+#~ "<h1>Empty deck</h1>The current deck has no cards in it. Please select 'Add\n"
+#~ "card' from the Edit menu."
+#~ msgstr ""
+#~ "\n"
+#~ "<h1>빈 묶음</h1>현재 묶음엔는 카드가 없습니다.\n"
+#~ "편집 메뉴에서 '카드 추가'를 선택해 주세요."
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "<h1>Learning new cards</h1>Anki is currently in 'learning mode'.\n"
+#~ "<p>\n"
+#~ "As an alternative to using the mouse, spacebar and the number keys are\n"
+#~ "available.\n"
+#~ "<p>\n"
+#~ "<a href=\"http://ichi2.net/anki/wiki/Learning_new_cards\">More information</a>\n"
+#~ msgstr ""
+#~ "\n"
+#~ "<h1>새 카드 익히기</h1>앙키는 현재 '카드 익히기' 상태 입니다.\n"
+#~ "복습 간격이 일주일 이하인 카드는 이 상태에서\n"
+#~ "'바로 기억해 냄'을 선택할 때까지 남아 있습니다. 따라서 다음 수준으로 넘어가기 전에\n"
+#~ " 1-5일 간격으로 계속 반복할 수 있습니다.\n"
+#~ "<p>\n"
+#~ "마우스대신, 스페이스바와 숫자키를 사용할 수 있습니다.\n"
+#~ "<p>\n"
+#~ "<a href=\"http://ichi2.net/anki/wiki/Learning_new_cards\">자세한 정보</a>\n"
+
+#~ msgid ""
+#~ "\n"
+#~ "<h1>Reviewing</h1>You are currently looking at a card you have seen before.\n"
+#~ "Unlike new cards, it's important to try and review previously seen cards as\n"
+#~ "promptly as possible, in order to ensure your previous effort spent\n"
+#~ "remembering the cards is not wasted.<p> At the bottom of the main window, the\n"
+#~ "\"Remaining\" figure indicates how many previously reviewed words are waiting\n"
+#~ "for you today. Once this number reaches 0, you can close Anki, or continue\n"
+#~ "studying new cards."
+#~ msgstr ""
+#~ "\n"
+#~ "<h1>복습 중</h1>이미 공부한 카드를 복습 중입니다\n"
+#~ "새 카드는 아무때나 공부를 시작해도 되지만,\n"
+#~ "이 카드들은 가능하면 등장하자마자 복습해주어야 합니다.\n"
+#~ "그래야 완전히 잊어버리기 전에 반복할 수 있습니다.<p> 현재 창의 아래,\n"
+#~ "\"남은 카드\" 숫자는 지금 복습할 카드가 얼마나 남았는지 알려줍니다.\n"
+#~ "이 숫자가 0을 가리키면, 새 카드를 공부하거나 앙키를 종료해도 괜찮습니다."
+
 #~ msgid "&Add Cards..."
 #~ msgstr "카드 추가(&A)..."
 
 #~ msgid "&Edit Deck..."
 #~ msgstr "묶음 편집(&E)..."
 
-#~ msgid "<b>Answer format</b>"
-#~ msgstr "<b>답 형식</b>"
-
-#~ msgid "<b>Card spacing</b>"
-#~ msgstr "<b>카드 연기</b>"
-
 #~ msgid "<b>Description</b>:"
 #~ msgstr "<b>설명</b>:"
 
-#~ msgid "<b>Features</b>"
-#~ msgstr "<b>특별한 기능</b>"
+#~ msgid "<b>Easy</b>"
+#~ msgstr "<b>쉬움</b>"
 
 #~ msgid "<b>Features</b>:"
 #~ msgstr "<b>특별한 기능</b>:"
 
-#~ msgid "<b>Made a mistake (1) on a mature card</b>"
-#~ msgstr "<b>성숙한 카드를 실수로 틀림 (1)</b>"
+#~ msgid "<b>Hard</b>"
+#~ msgstr "<b>어려움</b>"
+
+#~ msgid "<b>How well did you remember?</b>"
+#~ msgstr "<b>얼마나 잘 기억하셨나요?</b>"
 
 #~ msgid "<b>Made a mistake (1) on a young card"
 #~ msgstr "<b>어린 카드를 실수로 틀림 (1)"
 
-#~ msgid "<b>Name/tag</b>"
-#~ msgstr "<b>이름/꼬리표</b>"
+#~ msgid "<b>Medium</b>"
+#~ msgstr "<b>알맞음</b>"
 
 #~ msgid "<b>Name</b>:"
 #~ msgstr "<b>이름</b>:"
-
-#~ msgid "<b>Question format</b>"
-#~ msgstr "<b>질문 형식</b>"
 
 #~ msgid "<b>Tags</b>:"
 #~ msgstr "<b>태그</b>:"
@@ -2311,8 +2356,8 @@ msgstr "<b>%s</b>로 할당 됨"
 #~ "<h1>앙키 새 버전이 나왔습니다.</h1>새 버전으로 \n"
 #~ "        업데이트 할 수 있습니다.<br/>"
 
-#~ msgid "<h1>Anki</h1>"
-#~ msgstr "<h1>앙키</h1>"
+#~ msgid "<h1>Autosaving</h1>Anki can save your progress automatically."
+#~ msgstr "<h1>자동 저장</h1>진행 상황을 자동으로 저장합니다."
 
 #, fuzzy
 #~ msgid ""
@@ -2328,8 +2373,26 @@ msgstr "<b>%s</b>로 할당 됨"
 #~ "        하지만 오른쪽 막대로 표시되는 전체 성적이 더 중요하기 때문에<br>\n"
 #~ "        크게 걱정하지 않아도 됩니다.<p/>정답 후 일주일 이상 간격: %(dMatureYes%)0.1f%% (전체 %(dMatureTotal)d개에서 %(dMatureYes)d개)<br>정답 후 일주일 이하 주기: %(dYoungYes%)0.1f%% (%(dYoungTotal)d 중 %(dYoungYes)d)<br>처음 본 카드 정답: %(dNewYes%)0.1f%% (%(dNewTotal)d개 중에 %(dNewYes)d개)<br><b>오늘 전체 정답: %(dYesTotal%)0.1f%% (%(dTotal)d개 중에 %(dYesTotal)d개)</b><br><br>답을 찾기까지 걸린 평균 시간: %(avgTime)s<br>공부하다가 멈춘 전체 시간: %(disTime)s<br>전체 복습 시간: %(revTime)s"
 
+#~ msgid "<h1>Delay on mistake</h1>The time until Anki shows you a card you got wrong. The default is 10 minutes."
+#~ msgstr "<h1>답이 틀렸을 때 기다릴 시간</h1>답을 맞추지 못했을 때, 앙키가 질문을 다시할 때까지 기다리는 시간입니다. 기본값은 10분."
+
 #~ msgid "<h1>Empty deck</h1>Your deck is empty. Please add some cards."
 #~ msgstr "<h1>빈 묶음</h1>현재 묶음은 비어있습니다. 카드를 추가하세요."
+
+#, fuzzy
+#~ msgid "<h1>Failed card limit & collapsing</h1>"
+#~ msgstr "<h1>마지막 점검 및 틀린 카드 범위</h1>"
+
+#~ msgid ""
+#~ "<h1>Final review</h1>You are now being\n"
+#~ "shown cards that are due soon (in the next 5 hours by default). This includes\n"
+#~ "any cards you failed recently. You can answer them now, or come back later -\n"
+#~ "it's up to you."
+#~ msgstr ""
+#~ "<h1>마지막 점검</h1>지금 보는 카드는\n"
+#~ "복습 예정 시간이 얼마 남지 않은 카드입니다(기본 값은 5시간 이내). 여기에는\n"
+#~ "최근에 틀린 카드가 포함됩니다. 지금 답을 해도 되고, 나중에 해도 됩니다.\n"
+#~ "반드시 지금 해야 하는 것은 아닙니다."
 
 #~ msgid "<h1>Finished</h1>You have finished the deck for now."
 #~ msgstr "<h1>완료</h1>지금까지 예정된 복습을 모두 마쳤습니다."
@@ -2337,11 +2400,21 @@ msgstr "<b>%s</b>로 할당 됨"
 #~ msgid "<h1>High priority</h1>Matching cards are placed at the top of the revision queue or new card queue, depending on if they have been seen before."
 #~ msgstr "<h1>높은 우선 순위</h1>이 꼬리표가 붙은 카드는 처음 익힐 때와 복습하는 과정에서 다른 카드보다 먼저 보여집니다."
 
+#~ msgid "<h1>Interface language</h1>The language for the user interface: dialogs, menus, etc."
+#~ msgstr "<h1>화면 언어</h1>대화 상자와 메뉴 등을 표시할 언어."
+
 #~ msgid "<h1>Learning</h1>You are currently learning new cards."
 #~ msgstr "<h1>카드 익히기</h1>새 카드를 공부하는 중입니다."
 
 #~ msgid "<h1>Low priority</h1>Matching cards are placed at the bottom of the new card queue."
 #~ msgstr "<h1>낮은 우선 순위</h1>이 꼬리표가 붙은 카드는 다른 카드보다 늦게 보여집니다."
+
+#~ msgid "<h1>Models</h1>Models define what sort of information you're studying, and the way to show it to you. Models range from a simple representation of a single flashcard with a \"front\" and \"back\" side, to more complicated domain specific models: a model for Russian verbs may define two verb forms, and test you on both of them."
+#~ msgstr "<h1>모델</h1>모델은 공부할 내용을 구성하고 표시할 방법을 결정하는 틀입니다. 단순히 \"front(앞면)\"과 \"back(뒷면)\"으로 이루어진 플래시 카드에서부터, 공부할 대상에 따라 복잡한 모델까지 만들 수 있습니다. 예를 들어 러시아어 모델은 두 가지 형태의 동사를 구분하고, 그것을 각각 질문으로 만들 수 있습니다."
+
+#, fuzzy
+#~ msgid "<h1>New cards</h1>"
+#~ msgstr "<h1>예정된 카드</h1>"
 
 #, fuzzy
 #~ msgid "<h1>New cards</h1>The initial times to use when scheduling cards, in days."
@@ -2367,23 +2440,214 @@ msgstr "<b>%s</b>로 할당 됨"
 #~ msgid "<h1>Reviewing</h1>You are reviewing previously-seen cards."
 #~ msgstr "<h1>복습 중</h1>이미 공부한 카드를 복습 중입니다."
 
+#~ msgid "<h1>Standard colours</h1>These colours are used for all decks."
+#~ msgstr "<h1>기본 색</h1>모든 묶음에 적용됩니다."
+
+#~ msgid "<h1>Standard fonts</h1>See 'display properties' for deck specific font preferences."
+#~ msgstr "<h1>기본 글꼴</h1>각 묶음의 글꼴은 '표시 속성'에서 설정하세요."
+
+#~ msgid "<h1>Synchronisation</h1>Synchronisation lets you use your deck on multiple computers at the same time. You can also use it to study on the web, for when you're not at home. You can also study on your mobile phone if your phone has internet access."
+#~ msgstr "<h1>동기화</h1>동기화를 통해 여러 컴퓨터에서 같은 묶음을 공부할 수 있습니다. 웹을 통해 공부할 수 있기 때문에, 집 밖에서는 물론, 인터넷을 지원하는 휴대전화에서도 가능합니다."
+
 #~ msgid "<h1>Update Anki manually</h1>Usually there is no need to do this. You will be notified automatically when a new version of Anki is available. "
 #~ msgstr "<h1>앙키를 수동으로 업데이트하기</h1>업데이트가 있으면 자동으로 알려 주기 때문에, 굳이 실행할 필요는 없습니다."
 
 #~ msgid "<h1>Very high priority</h1>A comma-separated list of tags to prioritize. Matching cards are placed at the top of the revision queue."
 #~ msgstr "<h1>아주 높은 우선 순위</h1>꼬리표를 쉼표로 구분해서 입력하세요. 이 꼬리표가 붙은 카드는 다른 카드보다 먼저 보여집니다."
 
+#, fuzzy
+#~ msgid ""
+#~ "<h1>Welcome to Anki!</h1>\n"
+#~ "<p>\n"
+#~ "<table width=90%>\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "Anki is a tool which will help you remember things as quickly and easily as\n"
+#~ "possible. Anki works by asking you questions. After answering a question,\n"
+#~ "Anki will ask how well you remembered. If you made a mistake or had difficulty\n"
+#~ "remembering, Anki will show you the question again after a short amount of\n"
+#~ "time. If you answered the question easily, Anki will wait for a number of days\n"
+#~ "before asking you again. Each time you successfully remember something, the\n"
+#~ "time before you see it again will get bigger.\n"
+#~ "</td>\n"
+#~ "</tr>\n"
+#~ "</table>\n"
+#~ "\n"
+#~ "<p>\n"
+#~ "<table>\n"
+#~ "\n"
+#~ "<tr>\n"
+#~ "<td width=50>\n"
+#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
+#~ "</td>\n"
+#~ "<td valign=middle><h2><a href=\"welcome:sample\">Open a sample deck</a></h2></td>\n"
+#~ "</tr>\n"
+#~ "\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
+#~ "</td>\n"
+#~ "<td valign=middle><h2><a href=\"welcome:open\">Open an existing deck</a></h2></td>\n"
+#~ "</tr>\n"
+#~ "\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "<a href=\"welcome:new\"><img src=\":/icons/document-new.png\"></a>\n"
+#~ "</td>\n"
+#~ "<td valign=middle>\n"
+#~ "<h2><a href=\"welcome:new\">Create a new deck</a></h2></td>\n"
+#~ "</tr>\n"
+#~ "</table>\n"
+#~ "<p>\n"
+#~ "<table width=90%>\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "<h2>Adding material</h2>\n"
+#~ "There are three ways to add material to Anki: typing it in yourself, using a\n"
+#~ "pre-made Anki deck, or importing word lists that you find on the internet.\n"
+#~ "<p>\n"
+#~ "\n"
+#~ "For language learning, it's a good idea to add material yourself, from sources\n"
+#~ "like a textbook or a TV show. By adding words that you see or hear in context,\n"
+#~ "you also learn how they are used. While it may be tempting to use a big,\n"
+#~ "pre-made vocabulary list to save time, learning words and grammar in context\n"
+#~ "will ensure you can use them naturally.\n"
+#~ "<p>\n"
+#~ "\n"
+#~ "So if you're learning a language, consider adding material you want to learn\n"
+#~ "into Anki by yourself. Initially the time required to type in material may\n"
+#~ "seem daunting, but it's a small amount of time compared to the time you'll\n"
+#~ "save by not forgetting.\n"
+#~ "</td>\n"
+#~ "</tr>\n"
+#~ "</table>\n"
+#~ msgstr ""
+#~ "<h1>앙키에 오신 것을 환영합니다!</h1>\n"
+#~ "<p>\n"
+#~ "<table width=90%>\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "앙키를 사용하면, 많은 내용을 짧은 시간 안에 암기할 수 있습니다.\n"
+#~ "질문을 보고, 답을 확인한 뒤, 얼마나 잘 기억하고 있는지 선택합니다.\n"
+#~ "답을 전혀 기억하지 못했거나 어렵게 맞추었다면, 같은 질문이 금방 다시 등장합니다.\n"
+#~ "쉽게 답을 맞추었다면, 그 질문은 며칠이 지난 후에 등장합니다.\n"
+#~ "복습에 성공하는 횟수가 늘어날수록, 질문이 다시 등장하기까지 걸리는 시간은 점점 길어집니다.\n"
+#~ "</td>\n"
+#~ "</tr>\n"
+#~ "</table>\n"
+#~ "\n"
+#~ "<p>\n"
+#~ "<table>\n"
+#~ "\n"
+#~ "<tr>\n"
+#~ "<td width=50>\n"
+#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
+#~ "</td>\n"
+#~ "<td valign=middle><h2><a href=\"welcome:sample\">예제 묶음 열기</a></h2></td>\n"
+#~ "</tr>\n"
+#~ "\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "<a href=\"welcome:open\"><img src=\":/icons/fileopen.png\"></a>\n"
+#~ "</td>\n"
+#~ "<td valign=middle><h2><a href=\"welcome:open\">저장된 묶음 열기</a></h2></td>\n"
+#~ "</tr>\n"
+#~ "\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "<a href=\"welcome:new\"><img src=\":/icons/filenew.png\"></a>\n"
+#~ "</td>\n"
+#~ "<td valign=middle>\n"
+#~ "<h2><a href=\"welcome:new\">새 묶음 만들기</a></h2></td>\n"
+#~ "</tr>\n"
+#~ "</table>\n"
+#~ "<p>\n"
+#~ "<table width=90%>\n"
+#~ "<tr>\n"
+#~ "<td>\n"
+#~ "<h2>자료 추가하기</h2>\n"
+#~ "앙키에 자료를 추가하는 방법은 세 가지가 있습니다.\n"
+#~ "직접 입력하거나, 미리 만들어진 묶음을 이용하거나, 인터넷에서 찾은 목록을 가져올 수 있습니다.\n"
+#~ "<p>\n"
+#~ "\n"
+#~ "외국어를 배울 때는, 책이나 방송을 보고 직접 입력하는 것이 가장 좋습니다.\n"
+#~ "문맥 안에서 단어를 공부하면 실제 쓰임까지도 알 수 있습니다.\n"
+#~ "누군가 만든 방대한 단어집을 사용하는 것이 편할지는 몰라도,\n"
+#~ "단어나 문법을 문맥으로 익혀야, 나중에 자연스럽게 사용할 수 있습니다.\n"
+#~ "<p>\n"
+#~ "\n"
+#~ "따라서, 외국어 학습이 목적이라면, 직접 입력하세요.\n"
+#~ "처음 입력할 때는 시간이 오래 걸리는 것 같지만,\n"
+#~ "그만큼 기억이 더 잘되기 때문에, 잊어버리고 다시 외워야 하는 시간을 절약할 수 있습니다.\n"
+#~ "</td>\n"
+#~ "</tr>\n"
+#~ "</table>\n"
+
+#~ msgid "<h1>What would you like to study?</h1>"
+#~ msgstr "<h1>무엇을 공부할까요?</h1>"
+
+#~ msgid "A flashcard is made from a number of fields, like \"meaning\", \"notes\", etc."
+#~ msgstr "플래시 카드는 \"의미\", \"설명\" 같은 여러 필드로 이루어집니다."
+
+#~ msgid "A pre-made quiz style."
+#~ msgstr "미리 준비된 모델."
+
+#~ msgid "A simple front-to-back quiz style."
+#~ msgstr "앞면/뒷면"
+
+#~ msgid "About right"
+#~ msgstr "알맞음"
+
+#~ msgid "Advanced Settings"
+#~ msgstr "고급 설정"
+
+#~ msgid "An existing online deck."
+#~ msgstr "이미 존재하는 온라인 묶음."
+
 #~ msgid "Anki Update Available: "
 #~ msgstr "앙키 업데이트:"
+
+#~ msgid "Completely forgot"
+#~ msgstr "전혀 기억 안 남"
+
+#~ msgid "Description && Synchronisation"
+#~ msgstr "설명 및 동기화"
+
+#~ msgid "Difficult"
+#~ msgstr "어려움"
+
+#~ msgid "Easy"
+#~ msgstr "쉬움"
+
+#~ msgid "Edit card"
+#~ msgstr "카드 편집"
+
+#~ msgid "Edit deck properties"
+#~ msgstr "묶음 속성 편집"
 
 #~ msgid "Empty"
 #~ msgstr "카드 없음"
 
+#~ msgid "Error running initHook. Broken plugin?"
+#~ msgstr "initHook 실행 오류. 잘못된 플러그인?"
+
+#~ msgid "Field properties"
+#~ msgstr "필드 속성"
+
 #~ msgid "Finished"
 #~ msgstr "완료"
 
+#~ msgid "Hide interval of last card"
+#~ msgstr "지난 카드의 복습 간격 감추기"
+
+#~ msgid "Hide question/answer of last card"
+#~ msgstr "지난 카드의 질문/답 감추기"
+
 #~ msgid "Initial delay in seconds for each card"
 #~ msgstr "연결된 카드의 초기 간격 (초)"
+
+#~ msgid "Language, Fonts and Colours"
+#~ msgstr "언어, 글꼴 및 색깔"
 
 #~ msgid "Latex"
 #~ msgstr "Latex"
@@ -2391,8 +2655,33 @@ msgstr "<b>%s</b>로 할당 됨"
 #~ msgid "Learning"
 #~ msgstr "카드 익히기"
 
+#~ msgid "Made a mistake"
+#~ msgstr "실수로 틀림"
+
+#~ msgid "Model properties"
+#~ msgstr "모델 속성"
+
+#~ msgid "Next in <b>%(ease2)s</b>"
+#~ msgstr "<b>%(ease2)s</b> 안에"
+
+#~ msgid "Next in <b>%(ease3)s</b>"
+#~ msgstr "<b>%(ease3)s</b> 안에"
+
+#~ msgid "Next in <b>%(ease4)s</b>"
+#~ msgstr "<b>%(ease4)s</b> 안에"
+
+#~ msgid "Not syncing, username or password unset."
+#~ msgstr "동기시킬 수 없습니다. 아이디 또는 비밀번호를 지정하지 않았습니다."
+
+#~ msgid "One or more cards are generated for each piece of information you enter into Anki. Here you can control how many cards are generated, and what they look like. Spacing is the amount of time before showing a different card for the same piece of information."
+#~ msgstr "각 지식마다 하나 또는 그 이상의 카드를 만들 수 있습니다. 이 설정을 통해 카드 종류와 모양을 결정할 수 있습니다. 카드 연기는 같은 지식에서 만들어진 카드의 간격이 너무 좁아지는 것을 방지합니다."
+
 #~ msgid "Percentage of minimum interval"
 #~ msgstr "최소 복습 간격 비율"
+
+#, fuzzy
+#~ msgid "Priorities && Suspending"
+#~ msgstr "우선 순위 및 보류"
 
 #~ msgid "Reviewing"
 #~ msgstr "복습 중"
@@ -2409,8 +2698,14 @@ msgstr "<b>%s</b>로 할당 됨"
 #~ msgid "Special features used by the model."
 #~ msgstr "이 모델에서 사용되는 특별한 기능"
 
+#~ msgid "Start Edit Deck with only current card selected"
+#~ msgstr "현재 선택된 카드로만 묶음 편집 시작"
+
 #~ msgid "Suppress update dialog (display in status bar instead)"
 #~ msgstr "업데이트 알림창 안 보기 (대신, 상태 표시줄로 알림)"
+
+#~ msgid "Sync: nothing to do"
+#~ msgstr "동기화: 수행할 작업이 없습니다."
 
 #~ msgid "Syncing..done. Local +%(a)d/-%(b)d, remote +%(c)d/-%(d)d cards."
 #~ msgstr "동기화... 완료. 내 컴퓨터 +%(a)d/-%(b)d, 웹 서버 +%(c)d/-%(d)d 카드."
@@ -2423,3 +2718,6 @@ msgstr "<b>%s</b>로 할당 됨"
 
 #~ msgid "The order to show new cards."
 #~ msgstr "새 카드를 보여주는 순서"
+
+#~ msgid "Use compact answer button style"
+#~ msgstr "짧은 선택 단추 사용"
