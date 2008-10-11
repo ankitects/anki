@@ -90,6 +90,11 @@ class AddCards(QDialog):
     def addCards(self):
         fact = self.editor.fact
         cards = self.parent.deck.addFact(fact)
+        if not cards:
+            ui.utils.showWarning(_("""\
+The input you have provided would make an empty
+question or answer on all cards. Can't proceed."""), parent=self)
+            return
         self.dialog.status.append(_("Added %(num)d card(s) for '%(str)s'.") % {
             "num": len(cards),
             # we're guaranteed that all fields will exist now
