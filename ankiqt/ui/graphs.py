@@ -6,12 +6,13 @@ from PyQt4.QtCore import *
 import sys
 import anki, anki.graphs, anki.utils
 from ankiqt import ui
+from ankiqt.ui.utils import saveGeom, restoreGeom
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib import rc
 rc('font', **{'sans-serif': 'Arial',
               'serif': 'Arial',
-              'size': 20.0})
+              'size': 14.0})
 rc('legend', fontsize=14.0)
 
 class AnkiFigureCanvas (FigureCanvas):
@@ -29,7 +30,7 @@ class AnkiFigureCanvas (FigureCanvas):
 
     def sizeHint(self):
         w, h = self.get_width_height()
-        return QSize(w, h)
+        return QSize(w+30, h+30)
 
     def minimumSizeHint(self):
         return QSize(10, 10)
@@ -123,6 +124,7 @@ class IntervalGraph(QDialog):
         self.setAttribute(Qt.WA_DeleteOnClose)
 
     def reject(self):
+        saveGeom(self, "graphs")
         ui.dialogs.close("Graphs")
         QDialog.reject(self)
 
@@ -130,11 +132,14 @@ def intervalGraph(parent, deck):
     dg = anki.graphs.DeckGraphs(deck)
     # dialog setup
     d = IntervalGraph(parent)
-    d.setWindowTitle(_("Deck graphs"))
-    if sys.platform.startswith("darwin"):
-        d.setMinimumSize(740, 680)
+    d.setWindowTitle(_("Deck Graphs"))
+    if parent.config.get('graphsGeom'):
+        restoreGeom(d, "graphs")
     else:
-        d.setMinimumSize(670, 715)
+        if sys.platform.startswith("darwin"):
+            d.setMinimumSize(740, 680)
+        else:
+            d.setMinimumSize(670, 715)
     scroll = QScrollArea(d)
     topBox = QVBoxLayout(d)
     topBox.addWidget(scroll)

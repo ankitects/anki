@@ -12,6 +12,7 @@ from anki.cards import cardsTable, Card
 from anki.facts import factsTable, fieldsTable, Fact
 from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
      stripHTML
+from ankiqt.ui.utils import saveGeom, restoreGeom
 from anki.errors import *
 from anki.db import *
 
@@ -249,6 +250,7 @@ class EditDeck(QDialog):
         ui.dialogs.open("CardList", self)
         self.drawTags()
         self.updateFilterLabel()
+        restoreGeom(self, "editor")
         self.show()
         self.selectLastCard()
 
@@ -638,4 +640,5 @@ where id in (%s)""" % ",".join([
         QDialog.accept(self)
 
     def reject(self):
+        saveGeom(self, "editor")
         self.accept()

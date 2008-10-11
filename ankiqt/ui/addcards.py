@@ -9,6 +9,7 @@ import anki
 from anki.facts import Fact
 from anki.errors import *
 from anki.utils import stripHTML
+from ankiqt.ui.utils import saveGeom, restoreGeom
 from ankiqt import ui
 
 class AddCards(QDialog):
@@ -25,6 +26,7 @@ class AddCards(QDialog):
         self.setupStatus()
         self.modelChanged(self.parent.deck.currentModel)
         self.addedItems = 0
+        restoreGeom(self, "add")
         self.show()
         ui.dialogs.open("AddCards", self)
 
@@ -117,6 +119,7 @@ class AddCards(QDialog):
             ui.dialogs.close("AddCards")
             self.parent.deck.s.flush()
             self.parent.moveToState("auto")
+            saveGeom(self, "add")
             return True
         else:
             return False

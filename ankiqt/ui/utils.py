@@ -65,3 +65,12 @@ def getSaveFile(parent, title, dir, key, ext):
                 parent):
                 return None
     return file
+
+def saveGeom(widget, key):
+    key += "Geom"
+    ankiqt.mw.config[key] = widget.saveGeometry()
+
+def restoreGeom(widget, key):
+    key += "Geom"
+    if ankiqt.mw.config.get(key):
+        widget.restoreGeometry(ankiqt.mw.config[key])

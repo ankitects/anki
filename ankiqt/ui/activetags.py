@@ -5,6 +5,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import ankiqt
 from anki.utils import parseTags, joinTags
+from ankiqt.ui.utils import saveGeom, restoreGeom
 
 class ActiveTagsChooser(QDialog):
 
@@ -16,7 +17,7 @@ class ActiveTagsChooser(QDialog):
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.rebuildTagList()
-
+        restoreGeom(self, "activeTags")
 
     def rebuildTagList(self):
         self.tags = self.parent.deck.allTags()
@@ -47,6 +48,7 @@ class ActiveTagsChooser(QDialog):
         self.parent.deck.suspended = joinTags(suspended + ["Suspended"])
         self.parent.deck.setModified()
         self.parent.reset()
+        saveGeom(self, "activeTags")
         QDialog.accept(self)
 
     def onHelp(self):

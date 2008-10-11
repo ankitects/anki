@@ -86,12 +86,18 @@ p, li { white-space: pre-wrap; }
              <property name="text" >
               <string>&amp;Add Source</string>
              </property>
+             <property name="autoDefault" >
+              <bool>false</bool>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QPushButton" name="deleteSource" >
              <property name="text" >
               <string>&amp;Delete Source</string>
+             </property>
+             <property name="autoDefault" >
+              <bool>false</bool>
              </property>
             </widget>
            </item>

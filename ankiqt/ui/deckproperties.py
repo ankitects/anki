@@ -143,6 +143,12 @@ class DeckProperties(QDialog):
             ui.utils.showWarning(_("Please add another model first."),
                                  parent=self)
             return
+        if self.d.s.scalar("select 1 from sources where id=:id",
+                           id=model.source):
+            ui.utils.showWarning(_("This model is used by deck source:\n"
+                                   "%s\nYou will need to remove the source "
+                                   "first.") % hexifyID(model.source))
+            return
         count = self.d.modelUseCount(model)
         if count:
             if not ui.utils.askUser(
