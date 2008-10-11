@@ -874,6 +874,7 @@ class HttpSyncServerProxy(SyncServer):
                             libanki=anki.version,
                             client=clientVersion,
                             sources=simplejson.dumps(self.sourcesToCheck))
+            socket.setdefaulttimeout(None)
             if d['status'] != "OK":
                 raise SyncError(type="authFailed", status=d['status'])
             self._mediaSupported = d['mediaSupported']

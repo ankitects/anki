@@ -90,6 +90,9 @@ def parseTags(tags):
     tags = [tag.strip() for tag in tags if tag.strip()]
     return tags
 
+def joinTags(tags):
+    return ", ".join(tags)
+
 def findTag(tag, tags):
     "True if TAG is in TAGS. Ignore case."
     return tag.lower() in [t.lower() for t in tags]

@@ -432,7 +432,7 @@ new cards</a> waiting''') % {
                 msg = (_("The next card will be shown in <b>%s</b>") %
                        self.earliestTimeStr())
         else:
-            msg = _("The deck is empty. Please add some cards.")
+            msg = _("No cards are due.")
         return msg
 
     def earliestTime(self):
