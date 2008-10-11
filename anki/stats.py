@@ -25,7 +25,7 @@ statsTable = Table(
     'stats', metadata,
     Column('id', Integer, primary_key=True),
     Column('type', Integer, nullable=False),
-    Column('day', Date, nullable=False, default=date.today),
+    Column('day', Date, nullable=False),
     Column('reps', Integer, nullable=False, default=0),
     Column('averageTime', Float, nullable=False, default=0),
     Column('reviewTime', Float, nullable=False, default=0),
@@ -50,7 +50,7 @@ statsTable = Table(
 
 class Stats(object):
     def __init__(self):
-        self.day = date.today()
+        self.day = None
         self.reps = 0
         self.averageTime = 0
         self.reviewTime = 0
@@ -139,6 +139,10 @@ where id = :id""", self.__dict__)
 
 mapper(Stats, statsTable)
 
+def genToday(deck):
+    return datetime.datetime.utcfromtimestamp(
+        time.time() - deck.utcOffset).date()
+
 def updateAllStats(s, gs, ds, card, ease, oldState):
     "Update global and daily statistics."
     updateStats(s, gs, card, ease, oldState)
@@ -159,9 +163,10 @@ def updateStats(s, stats, card, ease, oldState):
     setattr(stats, attr, getattr(stats, attr) + 1)
     stats.toDB(s)
 
-def globalStats(s):
+def globalStats(deck):
+    s = deck.s
     type = STATS_LIFE
-    today = date.today()
+    today = genToday(deck)
     id = s.scalar("select id from stats where type = :type",
                   type=type)
     stats = Stats()
@@ -173,9 +178,10 @@ def globalStats(s):
     stats.type = type
     return stats
 
-def dailyStats(s):
+def dailyStats(deck):
+    s = deck.s
     type = STATS_DAY
-    today = date.today()
+    today = genToday(deck)
     id = s.scalar("select id from stats where type = :type and day = :day",
                   type=type, day=today)
     stats = Stats()

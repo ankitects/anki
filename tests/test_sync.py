@@ -101,8 +101,8 @@ def test_localsync_deck():
     c = deck1.getCard()
     deck1.answerCard(c, 4)
     client.sync()
-    assert dailyStats(deck2.s).reps == 1
-    assert globalStats(deck2.s).reps == 1
+    assert dailyStats(deck2).reps == 1
+    assert globalStats(deck2).reps == 1
     assert deck2.s.scalar("select count(id) from reviewHistory") == 1
 
 @nose.with_setup(setup_local, teardown)

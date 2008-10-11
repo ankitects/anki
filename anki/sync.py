@@ -30,7 +30,7 @@ from anki.facts import Fact, Field
 from anki.cards import Card
 from anki.stats import Stats, globalStats
 from anki.history import CardHistoryEntry
-from anki.stats import dailyStats, globalStats
+from anki.stats import globalStats
 from anki.media import checksum
 from anki.utils import ids2str
 from anki.lang import _
@@ -152,7 +152,7 @@ class SyncTools(object):
 
     def preSyncRefresh(self):
         # ensure global stats are available (queue may not be built)
-        self.deck._globalStats = globalStats(self.deck.s)
+        self.deck._globalStats = globalStats(self.deck)
 
     def payloadChanges(self, payload):
         h = {
@@ -538,7 +538,7 @@ values
             s['day'] = s['day'].toordinal()
             del s['id']
             return s
-        lastDay = date.fromtimestamp(self.deck.lastSync)
+        lastDay = date.fromtimestamp(self.deck.lastSync - 60*60*24)
         ids = self.deck.s.column0(
             "select id from stats where type = 1 and day >= :day", day=lastDay)
         stat = Stats()

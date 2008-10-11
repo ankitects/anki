@@ -9,7 +9,6 @@ The Deck
 __docformat__ = 'restructuredtext'
 
 import tempfile, time, os, random, sys, re, stat, shutil, types
-from heapq import heapify, heappush, heappop
 
 from anki.db import *
 from anki.lang import _
@@ -18,7 +17,7 @@ from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str
 from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel
-from anki.stats import dailyStats, globalStats
+from anki.stats import dailyStats, globalStats, genToday
 
 # ensure all the metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.stats
@@ -42,7 +41,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=10),
+    Column('version', Integer, nullable=False, default=11),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -77,7 +76,9 @@ decksTable = Table(
     Column('newCardsPerDay', Integer, nullable=False, default=20),
     # currently unused
     Column('sessionRepLimit', Integer, nullable=False, default=100),
-    Column('sessionTimeLimit', Integer, nullable=False, default=1800))
+    Column('sessionTimeLimit', Integer, nullable=False, default=1800),
+    # stats offset
+    Column('utcOffset', Float, nullable=False, default=0))
 
 class Deck(object):
     "Top-level object. Manages facts, cards and scheduling information."
@@ -220,6 +221,7 @@ Caller is responsible for ensuring cards are not spaced."""
     ##########################################################################
 
     def answerCard(self, card, ease):
+        self.checkDailyStats()
         now = time.time()
         oldState = self.cardState(card)
         lastDelay = max(0, (time.time() - card.due) / 86400.0)
@@ -303,8 +305,8 @@ where isDue = 1""")
         self.updateRelativeDelays()
         self.markExpiredCardsDue()
         # cache global/daily stats
-        self._globalStats = globalStats(self.s)
-        self._dailyStats = dailyStats(self.s)
+        self._globalStats = globalStats(self)
+        self._dailyStats = dailyStats(self)
         # invalid card count
         self._countsDirty = True
         # determine new card distribution
@@ -321,6 +323,11 @@ where isDue = 1""")
         self.averageFactor = (self.s.scalar(
             "select avg(factor) from cards where reps > 0")
                                or Deck.initialFactor)
+
+    def checkDailyStats(self):
+        # check if the day has rolled over
+        if genToday(self) != self._dailyStats.day:
+            self._dailyStats = dailyStats(self)
 
     # Interval management
     ##########################################################################
@@ -1487,15 +1494,19 @@ class DeckStorage(object):
             if create:
                 deck = DeckStorage._init(s)
             else:
-                if s.scalar("select version from decks limit 1") < 5:
-                    # add missing deck field
+                ver = s.scalar("select version from decks limit 1")
+                if ver < 5:
+                    # add missing deck fields
                     s.execute("""
 alter table decks add column newCardsPerDay integer not null default 20""")
-                if s.scalar("select version from decks limit 1") < 6:
+                if ver < 6:
                     s.execute("""
 alter table decks add column sessionRepLimit integer not null default 100""")
                     s.execute("""
 alter table decks add column sessionTimeLimit integer not null default 1800""")
+                if ver < 11:
+                    s.execute("""
+alter table decks add column utcOffset numeric(10, 2) not null default 0""")
                 deck = s.query(Deck).get(1)
             # attach db vars
             deck.path = path
@@ -1793,8 +1804,17 @@ insert into media values (
 alter table models add column source integer not null default 0""")
             deck.version = 10
             deck.s.commit()
+        if deck.version < 11:
+            DeckStorage._setUTCOffset(deck)
+            deck.version = 11
+            deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
+
+    def _setUTCOffset(deck):
+        # 4am
+        deck.utcOffset = time.timezone + 60*60*4
+    _setUTCOffset = staticmethod(_setUTCOffset)
 
     def backup(modified, path):
         # need a non-unicode path
