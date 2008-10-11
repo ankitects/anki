@@ -102,7 +102,7 @@ class Sync(QThread):
                 # send payload
                 pr = client.payloadChangeReport(payload)
                 self.setStatus("<br>" + pr + "<br>", 0)
-                self.setStatus(_("Sending payload..."), 0)
+                self.setStatus(_("Transferring payload..."), 0)
                 res = client.server.applyPayload(payload)
                 # apply reply
                 self.setStatus(_("Applying reply.."), 0)
