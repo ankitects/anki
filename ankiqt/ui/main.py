@@ -47,9 +47,8 @@ class AnkiQt(QMainWindow):
         self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
 	self.trayIcon = ui.tray.AnkiTrayIcon( self )
         self.connectMenuActions()
-        self.resize(self.config['mainWindowSize'])
-        self.move(self.config['mainWindowPos'])
-        self.maybeMoveWindow()
+        if self.config['mainWindowGeom']:
+            self.restoreGeometry(self.config['mainWindowGeom'])
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
                                      self.mainWin.mainTextFrame)
         self.addView(self.bodyView)
@@ -77,24 +76,6 @@ class AnkiQt(QMainWindow):
                                  traceback.format_exc())
         # check for updates
         self.setupAutoUpdate()
-
-    def maybeMoveWindow(self):
-        # If the window is positioned off the screen, move it back into view
-        moveWin = False
-        if (self.pos().x() > (self.app.desktop().width() - 200) or
-            self.pos().x() < 0):
-            moveWin = True
-            newX = self.app.desktop().width() - self.size().width()
-        else:
-            newX = self.pos().x()
-        if (self.pos().y() > (self.app.desktop().height() - 200) or
-            self.pos().y() < 0):
-            moveWin = True
-            newY = self.app.desktop().height() - self.size().height()
-        else:
-            newY = self.pos().y()
-        if moveWin:
-            self.move( newX, newY )
 
     # State machine
     ##########################################################################
@@ -741,8 +722,7 @@ class AnkiQt(QMainWindow):
         "Save config and window geometry."
         self.runHook('quit')
         self.help.hide()
-        self.config['mainWindowPos'] = self.pos()
-        self.config['mainWindowSize'] = self.size()
+        self.config['mainWindowGeom'] = self.saveGeometry()
         # save config
         try:
             self.config.save()
