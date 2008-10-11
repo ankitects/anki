@@ -77,6 +77,9 @@ class DeckProperties(QDialog):
         self.drawSourcesTable()
         # models
         self.updateModelsList()
+        # hour shift
+        self.dialog.timeOffset.setText(str(
+            (self.d.utcOffset - time.timezone) / 60.0 / 60.0))
 
     def drawSourcesTable(self):
         self.dialog.sourcesTable.clear()
@@ -226,6 +229,13 @@ class DeckProperties(QDialog):
             v = int(self.dialog.newCardsPerDay.text())
             self.updateField(self.d, 'newCardsPerDay', v)
         except ValueError:
+            pass
+        # hour shift
+        try:
+            self.updateField(self.d, 'utcOffset',
+                             float(str(self.dialog.timeOffset.text()))
+                             *60*60 + time.timezone)
+        except:
             pass
         self.updateField(self.d, 'collapseTime',
                          self.dialog.collapse.isChecked() and 1 or 0)

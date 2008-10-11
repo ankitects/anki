@@ -8,7 +8,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>388</width>
+    <width>389</width>
     <height>408</height>
    </rect>
   </property>
@@ -29,7 +29,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>372</width>
+        <width>373</width>
         <height>342</height>
        </rect>
       </property>
@@ -446,7 +446,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>372</width>
+        <width>373</width>
         <height>342</height>
        </rect>
       </property>
@@ -612,6 +612,40 @@ p, li { white-space: pre-wrap; }
             </sizepolicy>
            </property>
           </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_25" >
+         <property name="text" >
+          <string>&lt;h1>Day Rollover&lt;/h1></string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout" >
+         <item>
+          <widget class="QLabel" name="label_29" >
+           <property name="text" >
+            <string>Hours to shift midnight</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="timeOffset" />
          </item>
         </layout>
        </item>

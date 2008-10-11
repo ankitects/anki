@@ -24,7 +24,7 @@ class LatestVersionFinder(QThread):
         # calculate stats before we start a new thread
         if self.main.deck != None:
             deckSize = self.main.deck.cardCount()
-            stats = anki.stats.globalStats(self.main.deck.s)
+            stats = anki.stats.globalStats(self.main.deck)
             deckRecall = "%0.2f" % (
                 (stats.matureEase3 + stats.matureEase4) /
                 float(stats.matureEase0 +
