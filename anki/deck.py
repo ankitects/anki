@@ -899,7 +899,8 @@ facts.id = cards.factId""", id=model.id))
 
     def modelsGroupedByName(self):
         "Return hash of name -> [id, cardModelIds, fieldIds]"
-        l = self.s.all("select name, id from models order by created")
+        l = self.s.all("select name, id from models where source = 0"
+                       " order by created")
         models = {}
         for m in l:
             cms = self.s.column0("""

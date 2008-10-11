@@ -32,7 +32,7 @@ from anki.stats import Stats, globalStats
 from anki.history import CardHistoryEntry
 from anki.stats import globalStats
 from anki.media import checksum
-from anki.utils import ids2str
+from anki.utils import ids2str, hexifyID
 from anki.lang import _
 
 if simplejson.__version__ < "1.7.3":
@@ -704,8 +704,9 @@ where media.id in %s""" % sids, now=time.time())
         self.applyOneWayPayload(payload)
 
     def syncOneWayDeckName(self):
-        return self.deck.s.scalar("select name from sources where id = :id",
-                                  id=self.server.deckName) or self.server.deckName
+        return (self.deck.s.scalar("select name from sources where id = :id",
+                                   id=self.server.deckName) or
+                hexifyID(int(self.server.deckName)))
 
     def prepareOneWaySync(self):
         "Sync setup. True if sync needed. Not used for local sync."
@@ -744,6 +745,12 @@ where media.id in %s""" % sids, now=time.time())
         # model, facts, media
         for key in keys:
             self.updateObjsFromKey(payload[key], key)
+        # models need their source tagged
+        for m in payload["models"]:
+            self.deck.s.statement("update models set source = :s "
+                                  "where id = :id",
+                                  s=self.server.deckName,
+                                  id=m['id'])
         # cards last, handled differently
         self.updateOneWayCards(payload['cards'])
         # update sync time
