@@ -1443,7 +1443,8 @@ sent to the server.""")
             if not ret[1]:
                 ui.utils.showInfo(_(
                     "No models found to merge. If you want to merge models,\n"
-                    "all models must have the same name."))
+                    "all models must have the same name, and must not be\n"
+                    "from another person's deck."))
                 return
             if ui.utils.askUser(_(
                 "Would you like to merge models that have the same name?")):
