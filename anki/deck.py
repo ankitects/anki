@@ -773,10 +773,13 @@ priority != 0 and due < :now and spaceUntil > :now""",
                ok = True
                for format in [cardModel.qformat, cardModel.aformat]:
                    empty = {}
+                   local = {}; local.update(fact)
                    for k in fact.keys():
                        empty[k] = u""
+                       empty["text:"+k] = u""
+                       local["text:"+k] = u""
                    try:
-                       if format % fact == format % empty:
+                       if format % local == format % empty:
                            ok = False
                    except (KeyError, TypeError, ValueError):
                        ok = False
