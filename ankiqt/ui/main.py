@@ -8,7 +8,7 @@ from PyQt4.QtCore import *
 # fixme: sample files read only, need to copy
 
 import os, sys, re, types, gettext, stat, traceback
-import copy, shutil, time
+import copy, shutil, time, glob
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -39,9 +39,10 @@ class AnkiQt(QMainWindow):
         self.setupFonts()
         self.setupBackupDir()
         self.setupHooks()
-        self.loadUserCustomisations()
+        self.loadPlugins()
         self.mainWin = ankiqt.forms.main.Ui_MainWindow()
         self.mainWin.setupUi(self)
+        self.rebuildPluginsMenu()
         self.alterShortcuts()
         self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
 	self.trayIcon = ui.tray.AnkiTrayIcon( self )
@@ -72,8 +73,8 @@ class AnkiQt(QMainWindow):
         try:
             self.runHook('init')
         except:
-            print _("Error running initHook. Broken plugin?")
-            traceback.print_exc()
+            ui.utils.showWarning(_("Broken plugin:\n\n%s") %
+                                 traceback.format_exc())
         # check for updates
         self.setupAutoUpdate()
 
@@ -798,13 +799,13 @@ class AnkiQt(QMainWindow):
     ##########################################################################
 
     def setupToolbar(self):
+        mw = self.mainWin
         if not self.config['showToolbar']:
-            self.removeToolBar(self.mainWin.toolBar)
-            self.mainWin.toolBar.hide()
-        if self.config['simpleToolbar']:
-            mw = self.mainWin
             self.removeToolBar(mw.toolBar)
-            self.mainWin.toolBar.hide()
+            mw.toolBar.hide()
+        if self.config['simpleToolbar']:
+            self.removeToolBar(mw.toolBar)
+            mw.toolBar.hide()
             mw.toolBar = QToolBar(self)
             mw.toolBar.addAction(mw.actionAddcards)
             mw.toolBar.addAction(mw.actionEditdeck)
@@ -813,6 +814,8 @@ class AnkiQt(QMainWindow):
             mw.toolBar.addAction(mw.actionGraphs)
             mw.toolBar.addAction(mw.actionDisplayProperties)
             self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
+        mw.toolBar.setIconSize(QSize(self.config['iconSize'],
+                                     self.config['iconSize']))
 
     # Tools - looking up words in the dictionary
     ##########################################################################
@@ -978,6 +981,9 @@ class AnkiQt(QMainWindow):
 
     def onAbout(self):
         ui.about.show(self)
+
+    def onActiveTags(self):
+        ui.activetags.show(self)
 
     # Importing & exporting
     ##########################################################################
@@ -1223,6 +1229,11 @@ class AnkiQt(QMainWindow):
         self.connect(m.actionMergeModels, s, self.onMergeModels)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionCram, s, self.onCram)
+        self.connect(m.actionGetPlugins, s, self.onGetPlugins)
+        self.connect(m.actionOpenPluginFolder, s, self.onOpenPluginFolder)
+        self.connect(m.actionEnableAllPlugins, s, self.onEnableAllPlugins)
+        self.connect(m.actionDisableAllPlugins, s, self.onDisableAllPlugins)
+        self.connect(m.actionActiveTags, s, self.onActiveTags)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
@@ -1316,32 +1327,89 @@ class AnkiQt(QMainWindow):
                 "type": ret }
          )
 
-    # User customisations
+    # Plugins
     ##########################################################################
 
-    def loadUserCustomisations(self):
-        # look for config file
+    def pluginsFolder(self):
         dir = self.config.configPath
         file = os.path.join(dir, "custom.py")
-        plugdir = os.path.join(dir, "plugins")
-        sys.path.insert(0, dir)
-        if os.path.exists(file):
-            try:
-                import custom
-            except:
-                print "Error in custom.py"
-                print traceback.print_exc()
+        return os.path.join(dir, "plugins")
+
+    def loadPlugins(self):
+        plugdir = self.pluginsFolder()
         sys.path.insert(0, plugdir)
-        import glob
-        plugins = [f.replace(".py", "") for f in os.listdir(plugdir) \
-                   if f.endswith(".py")]
+        plugins = self.enabledPlugins()
         plugins.sort()
         for plugin in plugins:
             try:
-                __import__(plugin)
+                nopy = plugin.replace(".py", "")
+                __import__(nopy)
             except:
-                print "Error in %s.py" % plugin
-                print traceback.print_exc()
+                print "Error in %s" % plugin
+                traceback.print_exc()
+
+    def rebuildPluginsMenu(self):
+        if getattr(self, "pluginActions", None) is None:
+            self.pluginActions = []
+        for action in self.pluginActions:
+            self.mainWin.menuStartup.removeAction(action)
+        all = self.allPlugins()
+        all.sort()
+        for fname in all:
+            enabled = fname.endswith(".py")
+            p = re.sub("\.py(\.off)?", "", fname)
+            a = QAction(p, self)
+            a.setCheckable(True)
+            a.setChecked(enabled)
+            self.connect(a, SIGNAL("triggered()"),
+                         lambda fname=fname: self.togglePlugin(fname))
+            self.mainWin.menuStartup.addAction(a)
+            self.pluginActions.append(a)
+
+    def enabledPlugins(self):
+        return [p for p in os.listdir(self.pluginsFolder())
+                if p.endswith(".py")]
+
+    def disabledPlugins(self):
+        return [p for p in os.listdir(self.pluginsFolder())
+                if p.endswith(".py.off")]
+
+    def allPlugins(self):
+        return [p for p in os.listdir(self.pluginsFolder())
+                if p.endswith(".py.off") or p.endswith(".py")]
+
+    def onOpenPluginFolder(self):
+        QDesktopServices.openUrl(QUrl("file://" + self.pluginsFolder()))
+
+    def onGetPlugins(self):
+        QDesktopServices.openUrl(QUrl("http://ichi2.net/anki/wiki/Plugins"))
+
+    def enablePlugin(self, p):
+        pd = self.pluginsFolder()
+        os.rename(os.path.join(pd, p),
+                  os.path.join(pd, p.replace(".off", "")))
+
+    def disablePlugin(self, p):
+        pd = self.pluginsFolder()
+        os.rename(os.path.join(pd, p),
+                  os.path.join(pd, p.replace(".py", ".py.off")))
+
+    def onEnableAllPlugins(self):
+        for p in self.disabledPlugins():
+            self.enablePlugin(p)
+        self.rebuildPluginsMenu()
+
+    def onDisableAllPlugins(self):
+        for p in self.enabledPlugins():
+            self.disablePlugin(p)
+        self.rebuildPluginsMenu()
+
+    def togglePlugin(self, plugin):
+        if plugin.endswith(".py"):
+            self.disablePlugin(plugin)
+        else:
+            self.enablePlugin(plugin)
+        self.rebuildPluginsMenu()
 
     # Font localisation
     ##########################################################################

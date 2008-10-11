@@ -40,7 +40,7 @@ def run():
                 pass
 
     app = QApplication(sys.argv)
-    if not sys.platform.startswith("darwin"):
+    if sys.platform.startswith("win32"):
         app.setStyle("plastique")
 
     # setup paths for forms, icons

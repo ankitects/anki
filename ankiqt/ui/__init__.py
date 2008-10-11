@@ -25,6 +25,7 @@ def importAll():
     import facteditor
     import tagedit
     import tray
+    import activetags
 
 class DialogManager(object):
 

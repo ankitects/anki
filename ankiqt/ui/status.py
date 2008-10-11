@@ -99,12 +99,9 @@ class StatusView(object):
         if sys.platform.startswith("darwin"):
             self.timer.setFixedWidth(40)
         self.addWidget(self.timer)
-        # mac
-        if sys.platform.startswith("darwin"):
-            # we don't want non-coloured, throbbing widgets
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-            self.progressBar.setStyle(self.plastiqueStyle)
-            self.retentionBar.setStyle(self.plastiqueStyle)
+        self.plastiqueStyle = QStyleFactory.create("plastique")
+        self.progressBar.setStyle(self.plastiqueStyle)
+        self.retentionBar.setStyle(self.plastiqueStyle)
         self.optionsButton = QPushButton()
         self.optionsButton.setIcon(QIcon(":/icons/configure.png"))
         self.optionsButton.setFixedSize(20, 20)

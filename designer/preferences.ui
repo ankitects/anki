@@ -462,6 +462,13 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0" >
+          <widget class="QCheckBox" name="simpleToolbar" >
+           <property name="text" >
+            <string>Simple toolbar</string>
+           </property>
+          </widget>
+         </item>
          <item row="3" column="0" >
           <widget class="QCheckBox" name="showTimer" >
            <property name="text" >
@@ -511,12 +518,32 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" >
-          <widget class="QCheckBox" name="simpleToolbar" >
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout" >
+         <item>
+          <widget class="QLabel" name="label_11" >
            <property name="text" >
-            <string>Simple toolbar</string>
+            <string>Toolbar icon size</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="toolbarIconSize" />
          </item>
         </layout>
        </item>
@@ -548,8 +575,6 @@
     </widget>
    </item>
   </layout>
-  <zorder>buttonBox</zorder>
-  <zorder>tabWidget</zorder>
  </widget>
  <tabstops>
   <tabstop>tabWidget</tabstop>
@@ -581,6 +606,7 @@
   <tabstop>showToolbar</tabstop>
   <tabstop>tallButtons</tabstop>
   <tabstop>showTray</tabstop>
+  <tabstop>toolbarIconSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -592,8 +618,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>266</x>
-     <y>476</y>
+     <x>270</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -608,8 +634,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>334</x>
-     <y>476</y>
+     <x>317</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
@@ -624,12 +650,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>94</x>
-     <y>157</y>
+     <x>105</x>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>235</x>
-     <y>160</y>
+     <x>227</x>
+     <y>134</y>
     </hint>
    </hints>
   </connection>
@@ -640,12 +666,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>80</x>
-     <y>178</y>
+     <x>91</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>174</x>
-     <y>176</y>
+     <x>227</x>
+     <y>165</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>simpleToolbar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolbarIconSize</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>116</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>308</x>
+     <y>335</y>
     </hint>
    </hints>
   </connection>

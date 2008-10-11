@@ -28,6 +28,7 @@ class Config(dict):
 
     def defaults(self):
         fields = {
+            'iconSize': 32,
             'syncOnLoad': False,
             'syncOnClose': False,
             'checkForUpdates': True,

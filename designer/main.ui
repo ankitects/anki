@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>543</width>
-    <height>285</height>
+    <height>301</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -26,7 +26,7 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>53</y>
+     <y>69</y>
      <width>543</width>
      <height>212</height>
     </rect>
@@ -345,6 +345,8 @@
            </widget>
           </item>
          </layout>
+         <zorder>help</zorder>
+         <zorder>mainTextFrame</zorder>
         </widget>
        </item>
       </layout>
@@ -383,12 +385,13 @@
     <addaction name="actionAddcards" />
     <addaction name="actionEditdeck" />
     <addaction name="separator" />
+    <addaction name="actionActiveTags" />
+    <addaction name="separator" />
     <addaction name="actionDisplayProperties" />
     <addaction name="actionModelProperties" />
     <addaction name="actionDeckProperties" />
     <addaction name="separator" />
     <addaction name="actionPreferences" />
-    <addaction name="separator" />
    </widget>
    <widget class="QMenu" name="menuDeck" >
     <property name="title" >
@@ -465,9 +468,27 @@
     <addaction name="actionCheckDatabaseIntegrity" />
     <addaction name="actionOptimizeDatabase" />
    </widget>
+   <widget class="QMenu" name="menuPlugins" >
+    <property name="title" >
+     <string>&amp;Plugins</string>
+    </property>
+    <widget class="QMenu" name="menuStartup" >
+     <property name="title" >
+      <string>Startup</string>
+     </property>
+     <addaction name="actionEnableAllPlugins" />
+     <addaction name="actionDisableAllPlugins" />
+     <addaction name="separator" />
+    </widget>
+    <addaction name="actionGetPlugins" />
+    <addaction name="actionOpenPluginFolder" />
+    <addaction name="separator" />
+    <addaction name="menuStartup" />
+   </widget>
    <addaction name="menuDeck" />
    <addaction name="menuEdit" />
    <addaction name="menuTools" />
+   <addaction name="menuPlugins" />
    <addaction name="menuAdvanced" />
    <addaction name="menuHelp" />
   </widget>
@@ -475,7 +496,7 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>265</y>
+     <y>281</y>
      <width>543</width>
      <height>20</height>
     </rect>
@@ -490,11 +511,17 @@
      <x>0</x>
      <y>23</y>
      <width>543</width>
-     <height>30</height>
+     <height>46</height>
     </rect>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="iconSize" >
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
    </property>
    <attribute name="toolBarArea" >
     <enum>TopToolBarArea</enum>
@@ -943,6 +970,36 @@
    </property>
    <property name="text" >
     <string>Release Notes..</string>
+   </property>
+  </action>
+  <action name="actionGetPlugins" >
+   <property name="text" >
+    <string>&amp;Get Plugins..</string>
+   </property>
+  </action>
+  <action name="actionOpenPluginFolder" >
+   <property name="text" >
+    <string>&amp;Open Plugin Folder..</string>
+   </property>
+  </action>
+  <action name="actionEnableAllPlugins" >
+   <property name="text" >
+    <string>&amp;Enable All Plugins</string>
+   </property>
+  </action>
+  <action name="actionDisableAllPlugins" >
+   <property name="text" >
+    <string>&amp;Disable All Plugins</string>
+   </property>
+  </action>
+  <action name="actionA" >
+   <property name="text" >
+    <string>a</string>
+   </property>
+  </action>
+  <action name="actionActiveTags" >
+   <property name="text" >
+    <string>Active &amp;Tags..</string>
    </property>
   </action>
  </widget>

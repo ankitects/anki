@@ -172,6 +172,7 @@ class Preferences(QDialog):
         self.dialog.showTray.setChecked(self.config['showTrayIcon'])
         self.dialog.showTimer.setChecked(self.config['showTimer'])
         self.dialog.simpleToolbar.setChecked(self.config['simpleToolbar'])
+        self.dialog.toolbarIconSize.setText(str(self.config['iconSize']))
 
     def updateAdvanced(self):
         self.config['showToolbar'] = self.dialog.showToolbar.isChecked()
@@ -186,6 +187,12 @@ class Preferences(QDialog):
         self.config['showTimer'] = self.dialog.showTimer.isChecked()
         self.config['suppressEstimates'] = self.dialog.suppressEstimates.isChecked()
         self.config['simpleToolbar'] = self.dialog.simpleToolbar.isChecked()
+        i = 32
+        try:
+            i = int(self.dialog.toolbarIconSize.text())
+        except:
+            pass
+        self.config['iconSize'] = i
 
     def codeToIndex(self, code):
         n = 0
