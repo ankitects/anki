@@ -778,6 +778,8 @@ priority != 0 and due < :now and spaceUntil > :now""",
                        empty[k] = u""
                        empty["text:"+k] = u""
                        local["text:"+k] = u""
+                   empty['tags'] = ""
+                   local['tags'] = fact.tags
                    try:
                        if format % local == format % empty:
                            ok = False
