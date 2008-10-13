@@ -67,7 +67,7 @@ decksTable = Table(
     Column('lowPriority', UnicodeText, nullable=False, default=u"LowPriority"),
     Column('suspended', UnicodeText, nullable=False, default=u"Suspended"),
     # 0 is random, 1 is by input date
-    Column('newCardOrder', Integer, nullable=False, default=0),
+    Column('newCardOrder', Integer, nullable=False, default=1),
     # when to show new cards
     Column('newCardSpacing', Integer, nullable=False, default=NEW_CARDS_DISTRIBUTE),
     # limit the number of failed cards in play
