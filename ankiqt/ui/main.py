@@ -539,7 +539,7 @@ class AnkiQt(QMainWindow):
         if path in self.config['recentDeckPaths']:
             self.config['recentDeckPaths'].remove(path)
         self.config['recentDeckPaths'].insert(0, path)
-        del self.config['recentDeckPaths'][4:]
+        del self.config['recentDeckPaths'][8:]
         self.config.save()
         self.updateRecentFilesMenu()
 
