@@ -176,14 +176,9 @@ class AddModel(QDialog):
         self.dialog = ankiqt.forms.addmodel.Ui_AddModel()
         self.dialog.setupUi(self)
         self.models = {}
-        for name in (
-            "Basic",
-            "Japanese",
-            "English",
-            "Cantonese",
-            "Mandarin",
-            "Heisig"):
-            # hard code the order so that most common come first
+        names = stdmodels.models.keys()
+        names.sort()
+        for name in names:
             m = stdmodels.byName(name)
             item = QListWidgetItem(m.name)
             self.dialog.models.addItem(item)
