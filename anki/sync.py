@@ -38,6 +38,8 @@ from anki.lang import _
 if simplejson.__version__ < "1.7.3":
     raise "SimpleJSON must be 1.7.3 or later."
 
+MEDIA_SYNC_LIMIT = 1048576
+
 # Protocol 3 code
 ##########################################################################
 
@@ -597,6 +599,13 @@ values
     ##########################################################################
 
     def getMedia(self, ids, updateCreated=False):
+        size = self.deck.s.scalar(
+            "select sum(size) from media where id in %s" %
+            ids2str(ids))
+        if size > MEDIA_SYNC_LIMIT:
+            self.bundleMedia = False
+        else:
+            self.bundleMedia = True
         if updateCreated:
             created = time.time()
         else:
@@ -608,6 +617,8 @@ select id, filename, size, %s, originalPath, description
 from media where id in %s""" % (created, ids2str(ids)))]
 
     def getMediaData(self, fname):
+        if not self.bundleMedia:
+            return ""
         try:
             return open(self.mediaPath(fname), "rb").read()
         except (OSError, IOError):
@@ -616,16 +627,18 @@ from media where id in %s""" % (created, ids2str(ids)))]
     def updateMedia(self, media):
         meta = []
         for (m, data) in media:
-            if not data:
-                continue
-            # ensure media is correctly checksummed and sized
-            fname = m[1]
-            size = m[2]
-            data = base64.b64decode(data)
-            assert len(data) == size
-            assert checksum(data) == os.path.splitext(fname)[0]
-            # write it out
-            self.addMediaFile(m, data)
+            if data:
+                # ensure media is correctly checksummed and sized
+                fname = m[1]
+                size = m[2]
+                data = base64.b64decode(data)
+                assert len(data) == size
+                assert checksum(data) == os.path.splitext(fname)[0]
+                # write it out
+                self.addMediaFile(m, data)
+            else:
+                # missing media
+                self.bundleMedia = False
             # build meta
             meta.append({
                 'id': m[0],
@@ -677,39 +690,6 @@ where media.id in %s""" % sids, now=time.time())
 
     # One-way syncing (sharing)
     ##########################################################################
-
-    # models: prevent merge/delete on client side when shared deck registered.
-    #         add (foreign) to title
-    # media: depend on downloader by default, but consider supporting teacher
-    #        sponsored downloads. need to have anki account to fetch deck
-    # - sync sources table in standard sync
-
-    # web interface:
-    # - deck author
-    # - email
-    # - description
-    # - number of cards/etc
-    # - preview
-    # - number of subscribers (people who've checked in the last 30 days / all
-    # time)
-    # - comments/discussion
-
-    # when to sync:
-    # - after manual sync
-    # - after auto sync on startup, not on close
-
-    # accounting:
-    # - record each sync attempt, with userid, time,
-
-    # subscriptions on the website?
-    # - check on deck load? on login?
-    # - enforce check time
-    # - can do later
-
-    # server table
-    # id -> user/deck
-    # store last mod time, and update when deck is modified
-    # provide routine like getdecks to return list of modtimes for public decks
 
     def syncOneWay(self, lastSync):
         "Sync two decks one way."
@@ -880,7 +860,6 @@ class HttpSyncServerProxy(SyncServer):
         self.username = user
         self.password = passwd
         self.syncURL="http://anki.ichi2.net/sync/"
-        #self.syncURL="http://anki.ichi2.net:5001/sync/"
         #self.syncURL="http://localhost:8001/sync/"
         self.protocolVersion = 2
         self.sourcesToCheck = []
@@ -986,3 +965,95 @@ class HttpSyncServer(SyncServer):
     def createDeck(self, name):
         "Create a deck on the server. Not implemented."
         return self.stuff("OK")
+
+# Bulk uploader/downloader
+##########################################################################
+
+class BulkMediaSyncer(SyncTools):
+
+    def __init__(self, deck):
+        self.deck = deck
+        self.server = None
+
+    def missingMedia(self):
+        fnames = self.deck.s.column0(
+            "select filename from media")
+        return [f for f in fnames if
+                not os.path.exists(self.mediaPath(f))]
+
+    def progressCallback(self, type, count, total, fname):
+        print "orig"
+        return
+
+    def sync(self):
+        # upload to server
+        missing = self.server.missingMedia()
+        total = len(missing)
+        for n in range(total):
+            fname = missing[n]
+            data = self.getFile(fname)
+            self.progressCallback('up', n, total, fname)
+            if data:
+                self.server.addFile(fname, data)
+            n += 1
+        # download from server
+        missing = self.missingMedia()
+        total = len(missing)
+        for n in range(total):
+            fname = missing[n]
+            data = self.server.getFile(fname)
+            self.progressCallback('down', n, total, fname)
+            if data:
+                self.addFile(fname, data)
+            n += 1
+
+    def getFile(self, fname):
+        try:
+            return open(self.mediaPath(fname), "rb").read()
+        except (IOError, OSError):
+            return None
+
+    def addFile(self, fname, data):
+        path = self.mediaPath(fname)
+        assert not os.path.exists(path)
+        open(path, "wb").write(data)
+
+class BulkMediaSyncerProxy(HttpSyncServerProxy):
+
+    def missingMedia(self):
+        return self.unstuff(self.runCmd("missingMedia"))
+
+    def _splitMedia(self, fname):
+        return os.path.join(fname[0:1], fname[0:2], fname)
+
+    def _relativeMediaPath(self, fname):
+        return "http://anki.ichi2.net/media/%s" % (
+            self._splitMedia(fname))
+
+    def getFile(self, fname):
+        try:
+            f = urllib2.urlopen(self._relativeMediaPath(fname))
+        except (urllib2.URLError, socket.error, socket.timeout):
+            return ""
+        ret = f.read()
+        if not ret:
+            return ""
+        return ret
+
+    def addFile(self, fname, data):
+        return self.runCmd("addFile", fname=fname, data=data)
+
+    def runCmd(self, action, **args):
+        data = {"p": self.password,
+                "u": self.username,
+                "d": self.deckName.encode("utf-8")}
+        data.update(args)
+        data = urllib.urlencode(data)
+        try:
+            f = urllib2.urlopen(self.syncURL + action, data)
+        except (urllib2.URLError, socket.error, socket.timeout):
+            raise SyncError(type="noResponse")
+        ret = f.read()
+        if not ret:
+            raise SyncError(type="noResponse")
+        return ret
