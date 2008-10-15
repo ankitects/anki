@@ -46,16 +46,17 @@ class DeckGraphs(object):
             months = {}
             next = {}
             lowestInDay = 0
-            now = list(time.gmtime(time.time()))
-            now[3] = 0; now[4] = 0
-            self.startOfDay = time.mktime(now)
+            now = list(time.localtime(time.time()))
+            now[3] = 23; now[4] = 59
+            self.endOfDay = time.mktime(now)
+            t = time.time()
             all = self.deck.s.all("""
 select interval, combinedDue
 from cards where reps > 0 and priority != 0""")
             for (interval, due) in all:
                 day=int(round(interval))
                 days[day] = days.get(day, 0) + 1
-                indays = int(round((due - self.startOfDay)
+                indays = int(round((due - self.endOfDay)
                                    / 86400.0))
                 next[indays] = next.get(indays, 0) + 1
                 if indays < lowestInDay:
@@ -122,7 +123,7 @@ from cards where reps > 0 and priority != 0""")
         res = self.deck.s.column0("select %s from cards where %s >= %f" %
                                   (attr, attr, limit))
         for r in res:
-            d = (r - self.startOfDay) / 86400.0
+            d = (r - self.endOfDay) / 86400.0
             days[round(d)] = days.get(round(d), 0) + 1
         self.addMissing(days, -numdays, 0)
         graph = fig.add_subplot(111)
