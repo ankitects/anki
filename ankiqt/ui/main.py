@@ -1169,6 +1169,7 @@ class AnkiQt(QMainWindow):
         "Dstats",
         "Kstats",
         "Cstats",
+        "ActiveTags",
         )
 
     deckRelatedMenus = (
