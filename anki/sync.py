@@ -121,7 +121,7 @@ class SyncTools(object):
             self.updateHistory(payload['history'])
         self.postSyncRefresh()
         # rebuild priorities on server
-        cardIds = [x[0] for x in reply['added-cards']]
+        cardIds = [x[0] for x in payload['added-cards']]
         self.rebuildPriorities(cardIds, self.serverExcludedTags)
         return reply
 
