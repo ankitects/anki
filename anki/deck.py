@@ -300,9 +300,10 @@ where isDue = 0 and priority in (1,2,3,4) and combinedDue < :now""",
 set relativeDelay = interval / (strftime("%s", "now") - due + 1)
 where isDue = 1""")
 
-    def rebuildQueue(self):
+    def rebuildQueue(self, updateRelative=True):
         "Update relative delays based on current time."
-        self.updateRelativeDelays()
+        if updateRelative:
+            self.updateRelativeDelays()
         self.markExpiredCardsDue()
         # cache global/daily stats
         self._globalStats = globalStats(self)
@@ -466,7 +467,7 @@ order by combinedDue limit 1""")
 select count(id) from cards where combinedDue < :time
 and priority != 0 and type != 2""", time=time)
 
-    def nextIntervalStr(self, card, ease):
+    def nextIntervalStr(self, card, ease, short=False):
         "Return the next interval for CARD given EASE as a string."
         delay = self._adjustedDelay(card, ease)
         if card.due > time.time() and ease < 2:
@@ -484,11 +485,11 @@ and priority != 0 and type != 2""", time=time)
             interval[0] = interval[0] * 86400.0
             interval[1] = interval[1] * 86400.0
             if interval[0] != interval[1]:
-                return anki.utils.fmtTimeSpanPair(*interval)
+                return anki.utils.fmtTimeSpanPair(interval[0], interval[1], short=short)
             interval = interval[0]
         else:
             interval = self.nextInterval(card, ease) * 86400.0
-        return anki.utils.fmtTimeSpan(interval)
+        return anki.utils.fmtTimeSpan(interval, short=short)
 
     def deckFinishedMsg(self):
         return _('''

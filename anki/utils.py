@@ -22,20 +22,35 @@ timeTable = {
     "seconds": lambda n: ngettext("%s second", "%s seconds", n),
     }
 
-def fmtTimeSpan(time, pad=0, point=0):
+shortTimeTable = {
+    "years": "%sy",
+    "months": "%sm",
+    "days": "%sd",
+    "hours": "%sh",
+    "minutes": "%sm",
+    "seconds": "%ss",
+    }
+
+def fmtTimeSpan(time, pad=0, point=0, short=False):
     "Return a string representing a time span (eg '2 days')."
     (type, point) = optimalPeriod(time, point)
     time = convertSecondsTo(time, type)
-    fmt = timeTable[type](_pluralCount(round(time, point)))
+    if short:
+        fmt = shortTimeTable[type]
+    else:
+        fmt = timeTable[type](_pluralCount(round(time, point)))
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
     return ("%" + (fmt % timestr)) % time
 
-def fmtTimeSpanPair(time1, time2):
+def fmtTimeSpanPair(time1, time2, short=False):
     (type, point) = optimalPeriod(time1, 0)
     time1 = convertSecondsTo(time1, type)
     time2 = convertSecondsTo(time2, type)
     # a pair is always  should always be read as plural
-    fmt = timeTable[type](2)
+    if short:
+        fmt = shortTimeTable[type]
+    else:
+        fmt = timeTable[type](2)
     timestr = "%(a)d.%(b)df" % {'a': 0, 'b': point}
     finalstr = "%s-%s" % (
         ('%' + timestr) % time1,
