@@ -741,7 +741,6 @@ priority != 0 and due < :now and spaceUntil > :now""",
         if not fact.model:
             fact.model = self.currentModel
         # clear the session and refresh the model
-        self.refresh()
         fact.model = self.s.query(Model).get(fact.model.id)
         # validate
         fact.assertValid()
@@ -753,6 +752,7 @@ priority != 0 and due < :now and spaceUntil > :now""",
         # proceed
         n = 0
         cards = []
+        self.refresh()
         self.s.save(fact)
         self.flushMod()
         for cardModel in cms:
