@@ -650,12 +650,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>105</x>
-     <y>133</y>
+     <x>113</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>227</x>
-     <y>134</y>
+     <x>116</x>
+     <y>68</y>
     </hint>
    </hints>
   </connection>
@@ -666,28 +666,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>91</x>
-     <y>164</y>
+     <x>99</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>227</x>
-     <y>165</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>simpleToolbar</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolbarIconSize</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
      <x>116</x>
-     <y>115</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>308</x>
-     <y>335</y>
+     <y>68</y>
     </hint>
    </hints>
   </connection>
