@@ -323,6 +323,9 @@ class SyncTools(object):
             self.applyDict(local, model)
             self.mergeFieldModels(local, fms)
             self.mergeCardModels(local, cms)
+        self.deck.s.statement(
+            "delete from modelsDeleted where modelId in %s" %
+            ids2str([m['id'] for m in models]))
 
     def getModel(self, id, create=True):
         "Return a local model with same ID, or create."
@@ -433,6 +436,9 @@ insert or replace into fields
 (id, factId, fieldModelId, ordinal, value)
 values
 (:id, :factId, :fieldModelId, :ordinal, :value)""", dlist)
+        self.deck.s.statement(
+            "delete from factsDeleted where factId in %s" %
+            ids2str([f[0] for f in facts]))
 
     def deleteFacts(self, ids):
         self.deck.deleteFacts(ids)
@@ -508,6 +514,10 @@ values
 :matureEase1, :matureEase2, :matureEase3, :matureEase4, :yesCount,
 :noCount, :question, :answer, :lastFactor, :spaceUntil, :isDue,
 :type, :combinedDue, 0)""", dlist)
+        self.deck.s.statement(
+            "delete from cardsDeleted where cardId in %s" %
+            ids2str([c[0] for c in cards]))
+
 
     def deleteCards(self, ids):
         self.deck.deleteCards(ids)
@@ -631,6 +641,9 @@ insert or replace into media (id, filename, size, created,
 originalPath, description)
 values (:id, :filename, :size, :created, :originalPath,
 :description)""", meta)
+        self.deck.s.statement(
+            "delete from mediaDeleted where mediaId in %s" %
+            ids2str([m[0][0] for m in media]))
 
     def deleteMedia(self, ids):
         sids = ids2str(ids)
