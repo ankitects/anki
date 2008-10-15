@@ -429,7 +429,7 @@ class AnkiQt(QMainWindow):
         self.updateRecentFiles(self.deck.path)
         if sync and self.config['syncOnLoad']:
             if self.syncDeck(interactive=False):
-                return
+                return True
         try:
             self.rebuildQueue()
         except OperationalError:
