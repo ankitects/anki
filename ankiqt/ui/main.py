@@ -987,6 +987,10 @@ class AnkiQt(QMainWindow):
     ##########################################################################
 
     def onCram(self):
+        if self.deck.name() == "cram":
+            ui.utils.showInfo(
+                _("Already cramming. Please close this deck first."))
+            return
         (s, ret) = QInputDialog.getText(self, _("Anki"), _("Tags to cram:"))
         if not ret:
             return
@@ -1013,6 +1017,7 @@ class AnkiQt(QMainWindow):
         self.deck.midIntervalMax = 0.0486
         self.deck.easyIntervalMin = 0.2083
         self.deck.easyIntervalMax = 0.25
+        self.deck.syncName = None
         self.rebuildQueue()
 
     # Language handling
