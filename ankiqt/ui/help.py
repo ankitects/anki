@@ -11,9 +11,6 @@ import ankiqt.forms
 
 class HelpArea(object):
 
-    helpAreaWidth = 300
-    minAppWidth = 400
-
     def __init__(self, helpFrame, config, mainWindow=None, focus=None):
         self.helpFrame = helpFrame
         self.widget = helpFrame.findChild(QTextBrowser)
@@ -29,9 +26,6 @@ class HelpArea(object):
 
     def show(self):
         "Show the help area."
-        if self.mainWindow:
-            self.mainWindow.setMinimumWidth(
-                self.minAppWidth+self.helpAreaWidth)
         self.helpFrame.show()
         self.widget.show()
 
