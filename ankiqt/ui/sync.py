@@ -6,7 +6,8 @@ from PyQt4.QtCore import *
 import os, types, socket, time, traceback
 import ankiqt
 import anki
-from anki.sync import SyncClient, HttpSyncServerProxy
+from anki.sync import SyncClient, HttpSyncServerProxy, BulkMediaSyncerProxy
+from anki.sync import BulkMediaSyncer
 from anki.errors import *
 from anki import DeckStorage
 import ankiqt.forms
@@ -107,6 +108,10 @@ class Sync(QThread):
                 # apply reply
                 self.setStatus(_("Applying reply.."), 0)
                 client.applyPayloadReply(res)
+                # bulk update?
+                if not client.bundleMedia:
+                    # need to load bulk media fetcher now
+                    self.doBulkDownload()
                 # finished. save deck, preserving mod time
                 self.setStatus(_("Sync complete."))
                 self.deck.lastLoaded = self.deck.modified
@@ -150,6 +155,18 @@ class Sync(QThread):
                 'a': err})
             time.sleep(3)
             self.emit(SIGNAL("syncFinished"))
+
+    def doBulkDownload(self):
+        self.emit(SIGNAL("openSyncProgress"))
+        client = BulkMediaSyncer(self.deck)
+        client.server = BulkMediaSyncerProxy(self.user, self.pwd)
+        client.server.deckName = self.parent.syncName
+        client.progressCallback = self.bulkCallback
+        client.sync()
+        self.emit(SIGNAL("closeSyncProgress"))
+
+    def bulkCallback(self, *args):
+        self.emit(SIGNAL("updateSyncProgress"), args)
 
 # Choosing a deck to sync to
 ##########################################################################

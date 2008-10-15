@@ -1093,6 +1093,9 @@ class AnkiQt(QMainWindow):
         self.connect(self.syncThread, SIGNAL("syncClockOff"), self.syncClockOff)
         self.connect(self.syncThread, SIGNAL("cleanNewDeck"), self.cleanNewDeck)
         self.connect(self.syncThread, SIGNAL("syncFinished"), self.syncFinished)
+        self.connect(self.syncThread, SIGNAL("openSyncProgress"), self.openSyncProgress)
+        self.connect(self.syncThread, SIGNAL("closeSyncProgress"), self.closeSyncProgress)
+        self.connect(self.syncThread, SIGNAL("updateSyncProgress"), self.updateSyncProgress)
         self.syncThread.start()
         self.setEnabled(False)
         while not self.syncThread.isFinished():
@@ -1148,6 +1151,23 @@ class AnkiQt(QMainWindow):
     def showSyncWarning(self, text):
         ui.utils.showWarning(text, self)
         self.setStatus("")
+
+    def openSyncProgress(self):
+        self.syncProgressDialog = QProgressDialog(_("Syncing Media.."),
+                                                  "", 0, 0, self)
+        self.syncProgressDialog.setCancelButton(None)
+
+    def closeSyncProgress(self):
+        self.syncProgressDialog.cancel()
+
+    def updateSyncProgress(self, args):
+        (type, x, y, fname) = args
+        self.syncProgressDialog.setMaximum(y)
+        self.syncProgressDialog.setValue(x)
+        if type == "up":
+            self.syncProgressDialog.setLabelText("Uploading %s.." % fname)
+        else:
+            self.syncProgressDialog.setLabelText("Downloading %s.." % fname)
 
     # Menu, title bar & status
     ##########################################################################
