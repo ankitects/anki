@@ -49,6 +49,7 @@ class SyncTools(object):
         self.deck = deck
         self.diffs = {}
         self.serverExcludedTags = []
+        self.bundleMedia = True
 
     # Control
     ##########################################################################
