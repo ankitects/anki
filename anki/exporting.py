@@ -74,6 +74,8 @@ class AnkiExporter(Exporter):
         client.applyPayloadReply(res)
         if not self.includeSchedulingInfo:
             self.newDeck.s.statement("""
+delete from reviewHistory""")
+            self.newDeck.s.statement("""
 update cards set
 interval = 0.001,
 lastInterval = 0,
