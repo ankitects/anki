@@ -754,6 +754,8 @@ class AnkiQt(QMainWindow):
             self.onOpen()
         elif str == "openrem":
             self.onOpenOnline()
+        elif str == "more":
+            QDesktopServices.openUrl(QUrl(ankiqt.appMoreDecks))
         if str == "addfacts":
             if not self.deck:
                 self.onNew()

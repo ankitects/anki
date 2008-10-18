@@ -230,6 +230,13 @@ Start adding your own material.</td>
 <td valign=middle><h2><a href="welcome:sample">Open Sample Deck</a></h2></td>
 </tr>
 
+<tr>
+<td width=50>
+<a href="welcome:more"><img src=":/icons/khtml_kget.png"></a>
+</td>
+<td valign=middle><h2><a href="welcome:more">Get More Decks</a></h2></td>
+</tr>
+
 </table>"""))
 
     def drawDeckFinishedMessage(self):
