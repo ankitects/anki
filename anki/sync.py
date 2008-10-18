@@ -38,8 +38,6 @@ from anki.lang import _
 if simplejson.__version__ < "1.7.3":
     raise "SimpleJSON must be 1.7.3 or later."
 
-MEDIA_SYNC_LIMIT = 1048576
-
 # Protocol 3 code
 ##########################################################################
 
@@ -49,7 +47,7 @@ class SyncTools(object):
         self.deck = deck
         self.diffs = {}
         self.serverExcludedTags = []
-        self.bundleMedia = True
+        self.mediaSyncPending = False
 
     # Control
     ##########################################################################
@@ -603,43 +601,19 @@ values
         size = self.deck.s.scalar(
             "select sum(size) from media where id in %s" %
             ids2str(ids))
-        if size > MEDIA_SYNC_LIMIT:
-            self.bundleMedia = False
-        else:
-            self.bundleMedia = True
+        if ids:
+            self.mediaSyncPending = True
         if updateCreated:
             created = time.time()
         else:
             created = "created"
-        return [(tuple(row),
-                 base64.b64encode(self.getMediaData(row[1])))
-                for row in self.deck.s.all("""
+        return [tuple(row) for row in self.deck.s.all("""
 select id, filename, size, %s, originalPath, description
 from media where id in %s""" % (created, ids2str(ids)))]
 
-    def getMediaData(self, fname):
-        if not self.bundleMedia:
-            return ""
-        try:
-            return open(self.mediaPath(fname), "rb").read()
-        except (OSError, IOError):
-            return ""
-
     def updateMedia(self, media):
         meta = []
-        for (m, data) in media:
-            if data:
-                # ensure media is correctly checksummed and sized
-                fname = m[1]
-                size = m[2]
-                data = base64.b64decode(data)
-                assert len(data) == size
-                assert checksum(data) == os.path.splitext(fname)[0]
-                # write it out
-                self.addMediaFile(m, data)
-            else:
-                # missing media
-                self.bundleMedia = False
+        for m in media:
             # build meta
             meta.append({
                 'id': m[0],
@@ -650,6 +624,7 @@ from media where id in %s""" % (created, ids2str(ids)))]
                 'description': m[5]})
         # apply metadata
         if meta:
+            self.mediaSyncPending = True
             self.deck.s.statements("""
 insert or replace into media (id, filename, size, created,
 originalPath, description)
@@ -657,7 +632,7 @@ values (:id, :filename, :size, :created, :originalPath,
 :description)""", meta)
         self.deck.s.statement(
             "delete from mediaDeleted where mediaId in %s" %
-            ids2str([m[0][0] for m in media]))
+            ids2str([m[0] for m in media]))
 
     def deleteMedia(self, ids):
         sids = ids2str(ids)
@@ -675,15 +650,11 @@ where media.id in %s""" % sids, now=time.time())
     # the following routines are reimplemented by the anki server so that
     # media can be shared and accounted
 
-    def addMediaFile(self, meta, decodedData):
-        fname = meta[1]
-        path = self.mediaPath(fname)
-        exists = os.path.exists(path)
-        if not exists:
-            open(path, "wb").write(decodedData)
-
     def deleteMediaFile(self, file):
-        os.unlink(self.mediaPath(file))
+        try:
+            os.unlink(self.mediaPath(file))
+        except OSError:
+            pass
 
     def mediaPath(self, path):
         "Return the path to store media in. Defaults to the deck media dir."
@@ -745,6 +716,8 @@ where media.id in %s""" % sids, now=time.time())
                                   "where id = :id",
                                   s=self.server.deckName,
                                   id=m['id'])
+        # if media arrived, we'll need to download the data
+        self.mediaSyncPending = self.mediaSupported() and payload['media']
         # cards last, handled differently
         self.updateOneWayCards(payload['cards'])
         # update sync time
@@ -975,6 +948,7 @@ class BulkMediaSyncer(SyncTools):
     def __init__(self, deck):
         self.deck = deck
         self.server = None
+        self.oneWay = False
 
     def missingMedia(self):
         fnames = self.deck.s.column0(
@@ -983,20 +957,20 @@ class BulkMediaSyncer(SyncTools):
                 not os.path.exists(self.mediaPath(f))]
 
     def progressCallback(self, type, count, total, fname):
-        print "orig"
         return
 
     def sync(self):
         # upload to server
-        missing = self.server.missingMedia()
-        total = len(missing)
-        for n in range(total):
-            fname = missing[n]
-            data = self.getFile(fname)
-            self.progressCallback('up', n, total, fname)
-            if data:
-                self.server.addFile(fname, data)
-            n += 1
+        if not self.oneWay:
+            missing = self.server.missingMedia()
+            total = len(missing)
+            for n in range(total):
+                fname = missing[n]
+                data = self.getFile(fname)
+                self.progressCallback('up', n, total, fname)
+                if data:
+                    self.server.addFile(fname, data)
+                n += 1
         # download from server
         missing = self.missingMedia()
         total = len(missing)
@@ -1017,6 +991,12 @@ class BulkMediaSyncer(SyncTools):
     def addFile(self, fname, data):
         path = self.mediaPath(fname)
         assert not os.path.exists(path)
+        size = self.deck.s.scalar(
+            "select size from media where filename = :f",
+            f=fname)
+        assert size
+        assert size == len(data)
+        assert checksum(data) == os.path.splitext(fname)[0]
         open(path, "wb").write(data)
 
 class BulkMediaSyncerProxy(HttpSyncServerProxy):
@@ -1028,7 +1008,7 @@ class BulkMediaSyncerProxy(HttpSyncServerProxy):
         return os.path.join(fname[0:1], fname[0:2], fname)
 
     def _relativeMediaPath(self, fname):
-        return "http://anki.ichi2.net/media/%s" % (
+        return "http://ankimedia.ichi2.net/%s" % (
             self._splitMedia(fname))
 
     def getFile(self, fname):
