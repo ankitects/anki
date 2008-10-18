@@ -78,9 +78,7 @@ class StatusView(object):
         self.addWidget(self.vertSep(), 0)
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
-        if (sys.platform.startswith("darwin") or
-            sys.platform.startswith("win32")):
-            vbox.setContentsMargins(0,0,0,0)
+        vbox.setMargin(0)
         self.progressBar = QProgressBar()
         self.progressBar.setFixedSize(*progressBarSize)
         self.progressBar.setMaximum(100)
