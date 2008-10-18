@@ -12,7 +12,7 @@ import itertools, time
 from operator import itemgetter
 from anki import DeckStorage
 from anki.cards import Card
-from anki.sync import SyncClient, SyncServer
+from anki.sync import SyncClient, SyncServer, BulkMediaSyncer
 from anki.lang import _
 from anki.utils import findTag, parseTags, stripHTML, ids2str
 from anki.db import *
@@ -104,6 +104,12 @@ type = 2,
 combinedDue = created,
 modified = :now
 """, now=time.time())
+        # media
+        if client.mediaSyncPending:
+            bulkClient = BulkMediaSyncer(client.deck)
+            bulkServer = BulkMediaSyncer(server.deck)
+            bulkClient.server = bulkServer
+            bulkClient.sync()
         # need to save manually
         self.newDeck.s.commit()
         self.newDeck.close()

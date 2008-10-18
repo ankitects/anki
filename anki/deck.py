@@ -1462,7 +1462,7 @@ sourcesTable = Table(
     Column('lastSync', Float, nullable=False, default=0),
     # -1 = never check, 0 = always check, 1+ = number of seconds passed.
     # not currently exposed in the GUI
-    Column('syncPeriod', Float, nullable=False, default=0))
+    Column('syncPeriod', Integer, nullable=False, default=0))
 
 # Maps
 ##########################################################################

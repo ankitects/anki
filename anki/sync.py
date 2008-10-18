@@ -63,6 +63,11 @@ class SyncTools(object):
         payload = self.genPayload(sums)
         res = self.server.applyPayload(payload)
         self.applyPayloadReply(res)
+        if self.mediaSyncPending:
+            bulkClient = BulkMediaSyncer(self.deck)
+            bulkServer = BulkMediaSyncer(self.server.deck)
+            bulkClient.server = bulkServer
+            bulkClient.sync()
 
     def prepareSync(self):
         "Sync setup. True if sync needed."
@@ -97,6 +102,7 @@ class SyncTools(object):
             payload['deck'] = self.bundleDeck()
             payload['stats'] = self.bundleStats()
             payload['history'] = self.bundleHistory()
+            payload['sources'] = self.bundleSources()
             self.deck.lastSync = self.deck.modified
         return payload
 
@@ -115,11 +121,14 @@ class SyncTools(object):
             reply['deck'] = self.bundleDeck()
             reply['stats'] = self.bundleStats()
             reply['history'] = self.bundleHistory()
+            reply['sources'] = self.bundleSources()
             self.deck.lastSync = self.deck.modified
         else:
             self.updateDeck(payload['deck'])
             self.updateStats(payload['stats'])
             self.updateHistory(payload['history'])
+            if 'sources' in payload:
+                self.updateSources(payload['sources'])
         self.postSyncRefresh()
         # rebuild priorities on server
         cardIds = [x[0] for x in payload['added-cards']]
@@ -135,6 +144,8 @@ class SyncTools(object):
             self.updateDeck(reply['deck'])
             self.updateStats(reply['stats'])
             self.updateHistory(reply['history'])
+            if 'sources' in reply:
+                self.updateSources(reply['sources'])
         self.postSyncRefresh()
         # rebuild priorities on client
         cardIds = [x[0] for x in reply['added-cards']]
@@ -593,6 +604,20 @@ values
             ent = CardHistoryEntry()
             self.applyDict(ent, h)
             self.deck.s.save(ent)
+
+    def bundleSources(self):
+        return self.realTuples(self.deck.s.all("select * from sources"))
+
+    def updateSources(self, sources):
+        for s in sources:
+            self.deck.s.statement("""
+insert or replace into sources values
+(:id, :name, :created, :lastSync, :syncPeriod)""",
+                                  id=s[0],
+                                  name=s[1],
+                                  created=s[2],
+                                  lastSync=s[3],
+                                  syncPeriod=s[4])
 
     # Media
     ##########################################################################

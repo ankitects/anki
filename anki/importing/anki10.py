@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext'
 
 from anki import DeckStorage
 from anki.importing import Importer
-from anki.sync import SyncClient, SyncServer
+from anki.sync import SyncClient, SyncServer, BulkMediaSyncer
 
 class Anki10Importer(Importer):
 
@@ -45,6 +45,11 @@ class Anki10Importer(Importer):
         assert payload['deleted-models'] == []
         res = server.applyPayload(payload)
         client.applyPayloadReply(res)
+        if client.mediaSyncPending:
+            bulkClient = BulkMediaSyncer(client.deck)
+            bulkServer = BulkMediaSyncer(server.deck)
+            bulkClient.server = bulkServer
+            bulkClient.sync()
         # add tags
         fids = [f[0] for f in res['added-facts']['facts']]
         self.deck.addFactTags(fids, self.tagsToAdd)
