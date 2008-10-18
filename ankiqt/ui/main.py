@@ -578,12 +578,15 @@ class AnkiQt(QMainWindow):
     # New files, loading & saving
     ##########################################################################
 
+    def onClose(self):
+        cramming = self.deck is not None and self.deck.name() == "cram"
+        self.saveAndClose(exit=cramming)
+        if cramming:
+            self.loadRecent(0)
+
     def saveAndClose(self, exit=False):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
-        cramming = False
         if self.deck is not None:
-            oldName = self.deck.name()
-            cramming = oldName == "cram"
             # sync (saving automatically)
             if self.config['syncOnClose'] and self.deck.syncName and not cramming:
                 self.syncDeck(False, reload=False)
@@ -607,10 +610,7 @@ class AnkiQt(QMainWindow):
             self.deck.rollback()
             self.deck = None
         if not exit:
-            if cramming:
-                self.loadRecent(0)
-            else:
-                self.moveToState("noDeck")
+            self.moveToState("noDeck")
         return True
 
     def onNew(self):
@@ -1014,14 +1014,15 @@ class AnkiQt(QMainWindow):
         self.deck.save()
         # open tmp deck
         import tempfile
-        dir = tempfile.mkdtemp(prefix="anki-cram")
-        path = os.path.join(dir, "cram.anki")
+        ndir = tempfile.mkdtemp(prefix="anki-cram")
+        path = os.path.join(ndir, "cram.anki")
         from anki.exporting import AnkiExporter
         e = AnkiExporter(self.deck)
         if s:
             e.limitTags = parseTags(s)
         e.exportInto(path)
-        # load
+        self.deck.close()
+        self.deck = None
         self.loadDeck(path)
         self.config['recentDeckPaths'].pop(0)
         self.deck.newCardsPerDay = 999999
@@ -1223,7 +1224,7 @@ class AnkiQt(QMainWindow):
         self.connect(m.actionOpenSamples, s, self.onOpenSamples)
         self.connect(m.actionSave, s, self.onSave)
         self.connect(m.actionSaveAs, s, self.onSaveAs)
-        self.connect(m.actionClose, s, self.saveAndClose)
+        self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionSyncdeck, s, self.syncDeck)
         self.connect(m.actionDeckProperties, s, self.onDeckProperties)
