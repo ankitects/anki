@@ -108,10 +108,8 @@ class Sync(QThread):
                 # apply reply
                 self.setStatus(_("Applying reply.."), 0)
                 client.applyPayloadReply(res)
-                # bulk update?
-                if not client.bundleMedia:
-                    # need to load bulk media fetcher now
-                    self.doBulkDownload()
+                if client.mediaSyncPending:
+                    self.doBulkDownload(proxy.deckName)
                 # finished. save deck, preserving mod time
                 self.setStatus(_("Sync complete."))
                 self.deck.lastLoaded = self.deck.modified
@@ -137,6 +135,8 @@ class Sync(QThread):
                     self.setStatus(msg + _(" applied %d modified cards.") %
                                    len(payload['cards']))
                     client.applyOneWayPayload(payload)
+                    if client.mediaSyncPending:
+                        self.doBulkDownload("")
                 self.setStatus(_("Check complete."))
                 self.deck.s.flush()
                 self.deck.s.commit()
@@ -156,11 +156,11 @@ class Sync(QThread):
             time.sleep(3)
             self.emit(SIGNAL("syncFinished"))
 
-    def doBulkDownload(self):
+    def doBulkDownload(self, deckname):
         self.emit(SIGNAL("openSyncProgress"))
         client = BulkMediaSyncer(self.deck)
         client.server = BulkMediaSyncerProxy(self.user, self.pwd)
-        client.server.deckName = self.parent.syncName
+        client.server.deckName = deckname
         client.progressCallback = self.bulkCallback
         client.sync()
         self.emit(SIGNAL("closeSyncProgress"))

@@ -1164,6 +1164,7 @@ class AnkiQt(QMainWindow):
         (type, x, y, fname) = args
         self.syncProgressDialog.setMaximum(y)
         self.syncProgressDialog.setValue(x)
+        self.syncProgressDialog.setMinimumDuration(0)
         if type == "up":
             self.syncProgressDialog.setLabelText("Uploading %s.." % fname)
         else:
