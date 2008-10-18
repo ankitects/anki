@@ -370,6 +370,7 @@
     <addaction name="actionReportbug" />
     <addaction name="actionForum" />
     <addaction name="actionReleaseNotes" />
+    <addaction name="actionGetMoreDecks" />
     <addaction name="separator" />
     <addaction name="actionAbout" />
     <addaction name="separator" />
@@ -998,6 +999,15 @@
   <action name="actionActiveTags" >
    <property name="text" >
     <string>Active &amp;Tags..</string>
+   </property>
+  </action>
+  <action name="actionGetMoreDecks" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Get More Decks..</string>
    </property>
   </action>
  </widget>

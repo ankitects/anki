@@ -432,12 +432,23 @@ class AnkiQt(QMainWindow):
                 return True
         try:
             self.rebuildQueue()
-        except OperationalError:
-            ui.utils.showWarning(_(
-                "Error building queue. Attempting recovery.."))
-            self.onCheckDB()
-            # try again
-            self.rebuildQueue()
+        except:
+            traceback.print_exc()
+            if ui.utils.askUser(_(
+                "An error occurred while trying to build the queue.\n"
+                "Would you like to try check the deck for errors?\n"
+                "This may take some time.")):
+                self.onCheckDB()
+                # try again
+                try:
+                    self.rebuildQueue()
+                except:
+                    ui.utils.showWarning(
+                        _("Unable to recover. Deck load failed."))
+                    self.deck = None
+            else:
+                self.deck = None
+                return 0
         return True
 
     def importOldDeck(self, deckPath):
@@ -755,7 +766,7 @@ class AnkiQt(QMainWindow):
         elif str == "openrem":
             self.onOpenOnline()
         elif str == "more":
-            QDesktopServices.openUrl(QUrl(ankiqt.appMoreDecks))
+            self.onGetMoreDecks()
         if str == "addfacts":
             if not self.deck:
                 self.onNew()
@@ -972,6 +983,9 @@ class AnkiQt(QMainWindow):
 
     def onActiveTags(self):
         ui.activetags.show(self)
+
+    def onGetMoreDecks(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appMoreDecks))
 
     # Importing & exporting
     ##########################################################################
@@ -1250,6 +1264,7 @@ class AnkiQt(QMainWindow):
         self.connect(m.actionDisableAllPlugins, s, self.onDisableAllPlugins)
         self.connect(m.actionActiveTags, s, self.onActiveTags)
         self.connect(m.actionReleaseNotes, s, self.onReleaseNotes)
+        self.connect(m.actionGetMoreDecks, s, self.onGetMoreDecks)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
