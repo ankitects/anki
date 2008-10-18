@@ -591,19 +591,35 @@ values
             stat.toDB(self.deck.s)
 
     def bundleHistory(self):
-        def bundleHist(hist):
-            h = self.dictFromObj(hist)
-            del h['id']
-            return h
-        hst = self.deck.s.query(CardHistoryEntry).filter(
-            CardHistoryEntry.time > self.deck.lastSync)
-        return [bundleHist(h) for h in hst]
+        return self.realTuples(self.deck.s.all("""
+select cardId, time, lastInterval, nextInterval, ease, delay,
+lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount
+from reviewHistory where time > :ls""",
+            ls=self.deck.lastSync))
 
     def updateHistory(self, history):
-        for h in history:
-            ent = CardHistoryEntry()
-            self.applyDict(ent, h)
-            self.deck.s.save(ent)
+        dlist = [{'cardId': h[0],
+                  'time': h[1],
+                  'lastInterval': h[2],
+                  'nextInterval': h[3],
+                  'ease': h[4],
+                  'delay': h[5],
+                  'lastFactor': h[6],
+                  'nextFactor': h[7],
+                  'reps': h[8],
+                  'thinkingTime': h[9],
+                  'yesCount': h[10],
+                  'noCount': h[11]} for h in history]
+        if not dlist:
+            return
+        self.deck.s.statements("""
+insert into reviewHistory
+(cardId, time, lastInterval, nextInterval, ease, delay,
+lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount)
+values
+(:cardId, :time, :lastInterval, :nextInterval, :ease, :delay,
+:lastFactor, :nextFactor, :reps, :thinkingTime, :yesCount, :noCount)""",
+                         dlist)
 
     def bundleSources(self):
         return self.realTuples(self.deck.s.all("select * from sources"))
