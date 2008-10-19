@@ -878,7 +878,7 @@ class HttpSyncServerProxy(SyncServer):
         self.password = passwd
         self.syncURL="http://anki.ichi2.net/sync/"
         #self.syncURL="http://localhost:8001/sync/"
-        self.protocolVersion = 2
+        self.protocolVersion = 3
         self.sourcesToCheck = []
 
     def connect(self, clientVersion=""):
@@ -889,7 +889,8 @@ class HttpSyncServerProxy(SyncServer):
             d = self.runCmd("getDecks",
                             libanki=anki.version,
                             client=clientVersion,
-                            sources=simplejson.dumps(self.sourcesToCheck))
+                            sources=simplejson.dumps(self.sourcesToCheck),
+                            pversion=self.protocolVersion)
             socket.setdefaulttimeout(None)
             if d['status'] != "OK":
                 raise SyncError(type="authFailed", status=d['status'])
@@ -955,7 +956,6 @@ class HttpSyncServerProxy(SyncServer):
 class HttpSyncServer(SyncServer):
     def __init__(self):
         SyncServer.__init__(self)
-        self.protocolVersion = 2
         self.decks = {}
         self.deck = None
 
