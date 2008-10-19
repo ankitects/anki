@@ -108,6 +108,10 @@ def parseTags(tags):
 def joinTags(tags):
     return u", ".join(tags)
 
+def canonifyTags(tags):
+    "Strip leading/trailing/superfluous commas."
+    return joinTags(parseTags(tags))
+
 def findTag(tag, tags):
     "True if TAG is in TAGS. Ignore case."
     return tag.lower() in [t.lower() for t in tags]

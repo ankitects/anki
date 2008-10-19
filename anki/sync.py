@@ -591,6 +591,7 @@ values
             stat.toDB(self.deck.s)
 
     def bundleHistory(self):
+        return []
         return self.realTuples(self.deck.s.all("""
 select cardId, time, lastInterval, nextInterval, ease, delay,
 lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount
