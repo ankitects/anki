@@ -591,7 +591,6 @@ values
             stat.toDB(self.deck.s)
 
     def bundleHistory(self):
-        return []
         return self.realTuples(self.deck.s.all("""
 select cardId, time, lastInterval, nextInterval, ease, delay,
 lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount
@@ -599,7 +598,6 @@ from reviewHistory where time > :ls""",
             ls=self.deck.lastSync))
 
     def updateHistory(self, history):
-        return
         dlist = [{'cardId': h[0],
                   'time': h[1],
                   'lastInterval': h[2],
