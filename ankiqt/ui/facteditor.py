@@ -23,7 +23,6 @@ class FactEditor(object):
         self.fact = None
         self.fontChanged = False
         self.setupFields()
-        self.checkTimer = None
         self.onChange = None
         self.onFactValid = None
         self.onFactInvalid = None
@@ -169,7 +168,6 @@ class FactEditor(object):
 
         self.fieldsFrame = None
         self.widget.setLayout(self.fieldsBox)
-        self.updatingFields = False
 
     def _makeGrid(self):
         "Rebuild the grid to avoid trigging QT bugs."
@@ -202,25 +200,19 @@ class FactEditor(object):
             self.fieldsGrid.addWidget(w, n, 1)
             self.fields[field.name] = (field, w)
             # catch changes
-            w.connect(w, SIGNAL("textChanged()"),
-                      lambda f=field, w=w: self.fieldChanged(f, w))
+            w.connect(w, SIGNAL("lostFocus"),
+                      lambda f=field, w=w: self.lostFocus(f, w))
             w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
                       lambda w=w: self.formatChanged(w))
             n += 1
         # tags
         self.fieldsGrid.addWidget(QLabel(_("Tags")), n, 0)
         self.tags = ui.tagedit.TagEdit(self.parent)
-        self.tags.connect(self.tags, SIGNAL("textChanged(QString)"),
+        self.tags.connect(self.tags, SIGNAL("lostFocus"),
                           self.onTagChange)
         # update available tags
         self.tags.setDeck(self.deck)
         self.fieldsGrid.addWidget(self.tags, n, 1)
-        # status warning
-        n += 1
-        self.warning = QLabel()
-        self.warning.setFixedHeight(20)
-        self.warning.setOpenExternalLinks(True)
-        self.fieldsGrid.addWidget(self.warning, n, 1)
         # update fields
         self.updateFields(check)
         self.parent.setUpdatesEnabled(True)
@@ -236,7 +228,6 @@ class FactEditor(object):
 
     def updateFields(self, check=True, font=True):
         "Update field text (if changed) and font/colours."
-        self.updatingFields = True
         # text
         for (name, (field, w)) in self.fields.items():
             new = self.fact[name]
@@ -261,13 +252,10 @@ class FactEditor(object):
         self.tags.blockSignals(True)
         self.tags.setText(self.fact.tags)
         self.tags.blockSignals(False)
-        self.updatingFields = False
         if check:
             self.checkValid()
 
-    def fieldChanged(self, field, widget):
-        if self.updatingFields:
-            return
+    def lostFocus(self, field, widget):
         value = tidyHTML(unicode(widget.toHtml()))
         if value and not value.strip():
             widget.setText("")
@@ -278,23 +266,10 @@ class FactEditor(object):
         self.fact.onKeyPress(field, value)
         # the keypress handler may have changed something, so update all
         self.updateFields(font=False)
+        self.checkValid()
         if self.onChange:
             self.onChange(field)
-        self.scheduleCheck()
         self.formatChanged(None)
-
-    def scheduleCheck(self):
-        if not self.deck:
-            return
-        interval = 200
-        if self.checkTimer:
-            self.checkTimer.setInterval(interval)
-        else:
-            self.checkTimer = QTimer(self.parent)
-            self.checkTimer.setSingleShot(True)
-            self.checkTimer.start(interval)
-            self.parent.connect(self.checkTimer, SIGNAL("timeout()"),
-                                self.checkValid)
 
     def checkValid(self):
         empty = []
@@ -313,7 +288,6 @@ class FactEditor(object):
             else:
                 p.setColor(QPalette.Base, QColor("#ffffff"))
                 self.fields[field.name][1].setPalette(p)
-        self.checkTimer = None
         # call relevant hooks
         invalid = len(empty+dupe)
         if self.factState != "valid" and not invalid:
@@ -324,20 +298,9 @@ class FactEditor(object):
             if self.onFactInvalid:
                 self.onFactInvalid(self.fact)
             self.factState = "invalid"
-        if invalid:
-            self.warning.setText(_(
-                "Some fields are "
-                "<a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts"
-                "#head-6ba367d55922a618ab147debfbac98635d1a4dc2>missing</a>"
-                " or not "
-                "<a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts"
-                "#head-0c33560cb828fde1c19af1cd260388457b57812a>unique</a>."))
-        else:
-            self.warning.setText(_("All fields valid"))
 
-    def onTagChange(self, text):
-        if not self.updatingFields:
-            self.fact.tags = unicode(text)
+    def onTagChange(self):
+        self.fact.tags = unicode(self.tags.text())
         if self.onChange:
             self.onChange(None)
         self.fact.setModified(textChanged=True)
@@ -503,11 +466,15 @@ class FactEdit(QTextEdit):
         html = re.sub("\s\s+", " ", html).strip()
         return html
 
+    def leaveEvent(self, evt):
+        QTextEdit.leaveEvent(self, evt)
+
     def focusOutEvent(self, evt):
         QTextEdit.focusOutEvent(self, evt)
         self.parent.lastFocusedEdit = self
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
+        self.emit(SIGNAL("lostFocus"))
 
     # this shouldn't be necessary if/when we move away from kakasi
     def mouseDoubleClickEvent(self, evt):

@@ -361,7 +361,7 @@ class EditDeck(QDialog):
         self.updateSearch()
 
     def updateFilterLabel(self):
-        self.setWindowTitle(_("Anki - Edit Deck (%(cur)d "
+        self.setWindowTitle(_("Anki - Edit Items (%(cur)d "
                               "of %(tot)d cards shown)") %
                             {"cur": len(self.model.cards),
                              "tot": self.deck.cardCount()})
@@ -501,11 +501,15 @@ where id in (%s)""" % ",".join([
         self.dialog.tableView.setEnabled(True)
         self.dialog.searchGroup.setEnabled(True)
         self.dialog.sortGroup.setEnabled(True)
+        self.dialog.actionGroup.setEnabled(True)
+        self.dialog.cardInfoGroup.setEnabled(True)
 
     def onFactInvalid(self, fact):
         self.dialog.tableView.setEnabled(False)
         self.dialog.searchGroup.setEnabled(False)
         self.dialog.sortGroup.setEnabled(False)
+        self.dialog.actionGroup.setEnabled(False)
+        self.dialog.cardInfoGroup.setEnabled(False)
 
     def rowChanged(self, current, previous):
         self.currentRow = current

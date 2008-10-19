@@ -7,17 +7,31 @@ from PyQt4.QtCore import *
 import re, os
 import ankiqt
 
+def openLink(link):
+    QDesktopServices.openUrl(QUrl(link))
+
+def openWikiLink(page):
+    openLink(ankiqt.appWiki + page)
+
 def showWarning(text, parent=None):
     "Show a small warning with an OK button."
     if not parent:
         parent = ankiqt.mw
     QMessageBox.warning(parent, "Anki", text)
 
-def showInfo(text, parent=None):
+def showInfo(text, parent=None, help=""):
     "Show a small info window with an OK button."
     if not parent:
         parent = ankiqt.mw
-    QMessageBox.information(parent, "Anki", text)
+    sb = QMessageBox.Ok
+    if help:
+        sb |= QMessageBox.Help
+    while 1:
+        ret = QMessageBox.information(parent, "Anki", text, sb)
+        if ret == QMessageBox.Help:
+            openWikiLink(help)
+        else:
+            break
 
 def askUser(text, parent=None):
     "Show a yes/no question. Return true if yes."

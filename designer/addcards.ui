@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Anki - Add Cards</string>
+   <string>Anki - Add Items</string>
   </property>
   <layout class="QHBoxLayout" >
    <property name="spacing" >

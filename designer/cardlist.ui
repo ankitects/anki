@@ -13,25 +13,17 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Anki - Edit Deck</string>
+   <string>Anki - Edit Items</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../icons.qrc" >:/icons/view_text.png</iconset>
+   <iconset resource="../icons.qrc" >
+    <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <property name="spacing" >
     <number>3</number>
    </property>
-   <property name="leftMargin" >
-    <number>3</number>
-   </property>
-   <property name="topMargin" >
-    <number>3</number>
-   </property>
-   <property name="rightMargin" >
-    <number>3</number>
-   </property>
-   <property name="bottomMargin" >
+   <property name="margin" >
     <number>3</number>
    </property>
    <item>
@@ -39,16 +31,7 @@
      <property name="spacing" >
       <number>6</number>
      </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
+     <property name="margin" >
       <number>0</number>
      </property>
      <item>
@@ -72,16 +55,7 @@
         <property name="spacing" >
          <number>3</number>
         </property>
-        <property name="leftMargin" >
-         <number>3</number>
-        </property>
-        <property name="topMargin" >
-         <number>3</number>
-        </property>
-        <property name="rightMargin" >
-         <number>3</number>
-        </property>
-        <property name="bottomMargin" >
+        <property name="margin" >
          <number>3</number>
         </property>
         <item>
@@ -113,16 +87,7 @@
         <property name="spacing" >
          <number>3</number>
         </property>
-        <property name="leftMargin" >
-         <number>3</number>
-        </property>
-        <property name="topMargin" >
-         <number>3</number>
-        </property>
-        <property name="rightMargin" >
-         <number>3</number>
-        </property>
-        <property name="bottomMargin" >
+        <property name="margin" >
          <number>3</number>
         </property>
         <item>
@@ -132,7 +97,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox" >
+      <widget class="QGroupBox" name="actionGroup" >
        <property name="title" >
         <string>Actions on selected..</string>
        </property>
@@ -140,16 +105,7 @@
         <property name="spacing" >
          <number>3</number>
         </property>
-        <property name="leftMargin" >
-         <number>3</number>
-        </property>
-        <property name="topMargin" >
-         <number>3</number>
-        </property>
-        <property name="rightMargin" >
-         <number>3</number>
-        </property>
-        <property name="bottomMargin" >
+        <property name="margin" >
          <number>3</number>
         </property>
         <item>
@@ -158,7 +114,8 @@
            <string>Facts..</string>
           </property>
           <property name="icon" >
-           <iconset resource="../icons.qrc" >:/icons/Anki_Fact.png</iconset>
+           <iconset resource="../icons.qrc" >
+            <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
           </property>
           <property name="autoDefault" >
            <bool>false</bool>
@@ -171,7 +128,8 @@
            <string>Cards..</string>
           </property>
           <property name="icon" >
-           <iconset resource="../icons.qrc" >:/icons/Anki_Card.png</iconset>
+           <iconset resource="../icons.qrc" >
+            <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
           </property>
           <property name="autoDefault" >
            <bool>false</bool>
@@ -237,36 +195,15 @@
        <property name="spacing" >
         <number>0</number>
        </property>
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
+       <property name="margin" >
         <number>0</number>
        </property>
        <item>
         <layout class="QGridLayout" >
-         <property name="leftMargin" >
+         <property name="margin" >
           <number>0</number>
          </property>
-         <property name="topMargin" >
-          <number>0</number>
-         </property>
-         <property name="rightMargin" >
-          <number>0</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>0</number>
-         </property>
-         <property name="horizontalSpacing" >
-          <number>6</number>
-         </property>
-         <property name="verticalSpacing" >
+         <property name="spacing" >
           <number>6</number>
          </property>
          <item row="0" column="1" >
@@ -310,7 +247,8 @@
   </layout>
   <action name="action_Delete_card" >
    <property name="icon" >
-    <iconset resource="../icons.qrc" >:/icons/editdelete.png</iconset>
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
    </property>
    <property name="text" >
     <string>Toggle Delete</string>
@@ -318,7 +256,8 @@
   </action>
   <action name="actionAdd_fact_tag" >
    <property name="icon" >
-    <iconset resource="../icons.qrc" >:/icons/Anki_Add_Tag.png</iconset>
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
    </property>
    <property name="text" >
     <string>Add Tag..</string>
@@ -326,7 +265,8 @@
   </action>
   <action name="actionAdd_card_tag" >
    <property name="icon" >
-    <iconset resource="../icons.qrc" >:/icons/Anki_Add_Tag.png</iconset>
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
    </property>
    <property name="text" >
     <string>Add Tag..</string>
@@ -334,7 +274,8 @@
   </action>
   <action name="actionDelete_fact_tag" >
    <property name="icon" >
-    <iconset resource="../icons.qrc" >:/icons/Anki_Del_Tag.png</iconset>
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
    </property>
    <property name="text" >
     <string>Delete Tag..</string>
@@ -342,7 +283,8 @@
   </action>
   <action name="actionDelete_card_tag" >
    <property name="icon" >
-    <iconset resource="../icons.qrc" >:/icons/Anki_Del_Tag.png</iconset>
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
    </property>
    <property name="text" >
     <string>Delete Tag..</string>
@@ -350,7 +292,8 @@
   </action>
   <action name="actionAdd_Missing_Cards" >
    <property name="icon" >
-    <iconset resource="../icons.qrc" >:/icons/Anki_Card.png</iconset>
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
    </property>
    <property name="text" >
     <string>Add Missing Active Cards</string>
@@ -358,7 +301,8 @@
   </action>
   <action name="actionDelete_Fact" >
    <property name="icon" >
-    <iconset resource="../icons.qrc" >:/icons/editdelete.png</iconset>
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
    </property>
    <property name="text" >
     <string>Toggle Delete</string>

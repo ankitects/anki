@@ -34,8 +34,6 @@ class AddCards(QDialog):
         self.editor = ui.facteditor.FactEditor(self,
                                                self.dialog.fieldsArea,
                                                self.parent.deck)
-        self.editor.onFactValid = self.onValid
-        self.editor.onFactInvalid = self.onInvalid
 
     def addChooser(self):
         self.modelChooser = ui.modelchooser.ModelChooser(self,
@@ -48,7 +46,7 @@ class AddCards(QDialog):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "AddFacts"))
 
     def addButtons(self):
-        self.addButton = QPushButton(_("&Add cards"))
+        self.addButton = QPushButton(_("&Add"))
         self.dialog.buttonBox.addButton(self.addButton,
                                         QDialogButtonBox.ActionRole)
         self.addButton.setShortcut(_("Ctrl+Return"))
@@ -81,15 +79,20 @@ class AddCards(QDialog):
         # set the new fact
         self.editor.setFact(fact, check=True)
 
-    def onValid(self, fact):
-        self.addButton.setEnabled(True)
-
-    def onInvalid(self, fact):
-        self.addButton.setEnabled(False)
-
     def addCards(self):
+        # make sure updated
+        w = self.editor.focusedEdit()
+        self.addButton.setFocus()
         fact = self.editor.fact
-        cards = self.parent.deck.addFact(fact)
+        try:
+            cards = self.parent.deck.addFact(fact)
+        except FactInvalidError:
+            ui.utils.showInfo(_(
+                "Some fields are missing or not unique."),
+                              parent=self, help="AddItems#AddError")
+            if w:
+                w.setFocus()
+            return
         if not cards:
             ui.utils.showWarning(_("""\
 The input you have provided would make an empty

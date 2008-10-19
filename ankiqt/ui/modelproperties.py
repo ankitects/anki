@@ -166,7 +166,8 @@ class ModelProperties(QDialog):
             return
         if len(self.m.fieldModels) < 2:
             ui.utils.showInfo(
-                _("Please add a new field first."))
+                _("Please add a new field first."),
+                parent=self)
             return
         field = self.m.fieldModels[row]
         count = self.deck.fieldModelUseCount(field)

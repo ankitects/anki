@@ -622,10 +622,7 @@
      <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Add Facts..</string>
-   </property>
-   <property name="toolTip" >
-    <string>Add Cards</string>
+    <string>&amp;Add Items..</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+A</string>
@@ -637,7 +634,7 @@
      <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Edit Facts..</string>
+    <string>&amp;Edit Items..</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+E</string>
