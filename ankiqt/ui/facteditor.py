@@ -466,9 +466,6 @@ class FactEdit(QTextEdit):
         html = re.sub("\s\s+", " ", html).strip()
         return html
 
-    def leaveEvent(self, evt):
-        QTextEdit.leaveEvent(self, evt)
-
     def focusOutEvent(self, evt):
         QTextEdit.focusOutEvent(self, evt)
         self.parent.lastFocusedEdit = self
