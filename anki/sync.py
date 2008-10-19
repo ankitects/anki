@@ -599,6 +599,7 @@ from reviewHistory where time > :ls""",
             ls=self.deck.lastSync))
 
     def updateHistory(self, history):
+        return
         dlist = [{'cardId': h[0],
                   'time': h[1],
                   'lastInterval': h[2],
