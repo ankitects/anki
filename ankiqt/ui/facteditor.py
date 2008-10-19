@@ -340,6 +340,8 @@ class FactEditor(object):
             self.fact.tags = unicode(text)
         if self.onChange:
             self.onChange(None)
+        self.fact.setModified(textChanged=True)
+        self.deck.setModified()
 
     def focusField(self, fieldName):
         self.fields[fieldName][1].setFocus()
