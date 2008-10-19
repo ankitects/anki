@@ -588,14 +588,14 @@ class AnkiQt(QMainWindow):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         if self.deck is not None:
             # sync (saving automatically)
-            if self.config['syncOnClose'] and self.deck.syncName and not cramming:
+            if self.config['syncOnClose'] and self.deck.syncName:
                 self.syncDeck(False, reload=False)
                 while self.deckPath:
                     self.app.processEvents()
                     time.sleep(0.1)
                 return True
             # save
-            if self.deck.modifiedSinceSave() and not cramming:
+            if self.deck.modifiedSinceSave():
                 if self.config['saveOnClose'] or self.config['syncOnClose']:
                     self.saveDeck()
                 else:
