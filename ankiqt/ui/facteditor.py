@@ -41,6 +41,9 @@ class FactEditor(object):
             self.fields[self.fact.fields[0].name][1].setFocus()
         self.fontChanged = False
 
+    def initMedia(self):
+        os.chdir(self.deck.mediaDir(create=True))
+
     def setupFields(self):
         self.fields = {}
         # top level vbox
@@ -184,6 +187,7 @@ class FactEditor(object):
         # add entries for each field
         fields = self.fact.fields
         self.fields = {}
+        self.widgets = {}
         n = 0
         first = None
         for field in fields:
@@ -199,9 +203,10 @@ class FactEditor(object):
             w.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.fieldsGrid.addWidget(w, n, 1)
             self.fields[field.name] = (field, w)
+            self.widgets[w] = field
             # catch changes
             w.connect(w, SIGNAL("lostFocus"),
-                      lambda f=field, w=w: self.lostFocus(f, w))
+                      lambda w=w: self.saveWidget(w))
             w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
                       lambda w=w: self.formatChanged(w))
             n += 1
@@ -255,7 +260,8 @@ class FactEditor(object):
         if check:
             self.checkValid()
 
-    def lostFocus(self, field, widget):
+    def saveWidget(self, widget):
+        field = self.widgets[widget]
         value = tidyHTML(unicode(widget.toHtml()))
         if value and not value.strip():
             widget.setText("")
@@ -413,8 +419,7 @@ class FactEditor(object):
         return True
 
     def onAddPicture(self):
-        if not self.hasMediaDir():
-            return
+        self.initMedia()
         # get this before we open the dialog
         w = self.focusedEdit()
         key = _("Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)")
@@ -423,10 +428,10 @@ class FactEditor(object):
             return
         path = self.deck.addMedia(file)
         w.insertHtml('<img src="%s">' % path)
+        self.saveWidget(w)
 
     def onAddSound(self):
-        if not self.hasMediaDir():
-            return
+        self.initMedia()
         # get this before we open the dialog
         w = self.focusedEdit()
         key = _("Sounds (*.mp3 *.ogg *.wav)")
@@ -436,12 +441,7 @@ class FactEditor(object):
         anki.sound.play(file)
         path = self.deck.addMedia(file)
         w.insertHtml('[sound:%s]' % path)
-
-    def hasMediaDir(self):
-        if self.deck.mediaDir(create=True):
-            return True
-        ui.utils.showInfo("Please save your deck first.", self.parent)
-        return False
+        self.saveWidget(w)
 
 class FactEdit(QTextEdit):
 
