@@ -337,7 +337,7 @@ where isDue = 1""")
         "Return the next interval for CARD given EASE."
         delay = self._adjustedDelay(card, ease)
         # if interval is less than mid interval, use presets
-        if card.interval < self.midIntervalMin:
+        if card.interval < self.hardIntervalMin:
             if ease < 2:
                 interval = NEW_INTERVAL
             elif ease == 2:
@@ -475,7 +475,7 @@ and priority != 0 and type != 2""", time=time)
             return _("a short time")
         if ease < 2:
             interval = self.nextDue(card, ease, self.cardState(card)) - time.time()
-        elif card.interval < self.midIntervalMin:
+        elif card.interval < self.hardIntervalMin:
             if ease == 2:
                 interval = [self.hardIntervalMin, self.hardIntervalMax]
             elif ease == 3:
