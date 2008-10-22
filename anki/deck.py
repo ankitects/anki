@@ -298,7 +298,7 @@ where isDue = 0 and priority in (1,2,3,4) and combinedDue < :now""",
         "Update relative delays for expired cards."
         self.s.statement("""update cards
 set relativeDelay = interval / (strftime("%s", "now") - due + 1)
-where isDue = 1""")
+where isDue = 1 and type = 1""")
 
     def rebuildQueue(self, updateRelative=True):
         "Update relative delays based on current time."
@@ -322,7 +322,7 @@ where isDue = 1""")
                 self.newCardModulus = 0
         # determine starting factor for new cards
         self.averageFactor = (self.s.scalar(
-            "select avg(factor) from cards where reps > 0")
+            "select avg(factor) from cards where type = 1")
                                or Deck.initialFactor)
 
     def checkDailyStats(self):
