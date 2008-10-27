@@ -64,7 +64,8 @@ class ChineseGenerator(Feature):
                 return
             self.lazyInit()
             reading = self.unihan.reading(value)
-            fact[dst.name] = reading
+            if not fact[dst.name]:
+                fact[dst.name] = reading
 
 class CantoneseGenerator(ChineseGenerator):
 

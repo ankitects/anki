@@ -100,7 +100,8 @@ class FuriganaGenerator(Feature):
                     dst = field
                     break
             if dst:
-                if self.kakasi.formatForKakasi(value) != reading:
-                    fact[dst.name] = reading
-                else:
-                    fact[dst.name] = u""
+                if not fact[dst.name]:
+                    if self.kakasi.formatForKakasi(value) != reading:
+                        fact[dst.name] = reading
+                    else:
+                        fact[dst.name] = u""
