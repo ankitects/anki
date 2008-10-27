@@ -35,10 +35,6 @@ class Mnemosyne10Importer(Importer):
             raise ImportFormatError(type="systemError",
                                     info=str(e))
         header = file.readline().strip()
-        if (header != "--- Mnemosyne Data Base --- Format Version 1 ---" and
-            header != "--- Mnemosyne Data Base --- Format Version 2 ---"):
-            raise ImportFormatError(type="versionError",
-                                    info=header)
         # read the structure in
         try:
             struct = pickle.load(file)
