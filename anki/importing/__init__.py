@@ -224,8 +224,8 @@ from anki.importing.mnemosyne10 import Mnemosyne10Importer
 from anki.importing.wcu import WCUImporter
 
 Importers = (
-    (_("TAB/semicolon-separated file (*.*)"), TextImporter),
+    (_("TAB/semicolon-separated file (*)"), TextImporter),
     (_("Anki 1.0 deck (*.anki)"), Anki10Importer),
-    (_("Mnemosyne 1.0 deck (*.mem)"), Mnemosyne10Importer),
+    (_("Mnemosyne 1.x deck (*.mem)"), Mnemosyne10Importer),
     (_("CueCard deck (*.wcu)"), WCUImporter),
     )
