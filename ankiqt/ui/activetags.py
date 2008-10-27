@@ -32,9 +32,9 @@ class ActiveTagsChooser(QDialog):
             self.items.append(item)
             idx = self.dialog.list.indexFromItem(item)
             if t in self.suspended:
-                mode = QItemSelectionModel.Deselect
-            else:
                 mode = QItemSelectionModel.Select
+            else:
+                mode = QItemSelectionModel.Deselect
             self.dialog.list.selectionModel().select(idx, mode)
 
     def accept(self):
@@ -42,7 +42,7 @@ class ActiveTagsChooser(QDialog):
         suspended = []
         for item in self.items:
             idx = self.dialog.list.indexFromItem(item)
-            if not self.dialog.list.selectionModel().isSelected(idx):
+            if self.dialog.list.selectionModel().isSelected(idx):
                 suspended.append(self.tags[n])
             n += 1
         self.parent.deck.suspended = joinTags(suspended + ["Suspended"])

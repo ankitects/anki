@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>202</width>
-    <height>265</height>
+    <width>248</width>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,7 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>&lt;h1>Select Active Tags&lt;/h1></string>
+      <string>&lt;h1>Select tags to suspend&lt;/h1></string>
      </property>
     </widget>
    </item>
