@@ -266,6 +266,8 @@ class FactEditor(object):
         if value and not value.strip():
             widget.setText("")
             value = u""
+        if self.fact[field.name] == value:
+            return
         self.fact[field.name] = value
         self.fact.setModified(textChanged=True)
         self.deck.setModified()
