@@ -1477,9 +1477,12 @@ class AnkiQt(QMainWindow):
         ret = self.deck.fixIntegrity()
         if ret == "ok":
             ret = _("""\
-No problems found. Some data structures have been rebuilt in case
-they were causing problems. On the next sync, all cards will be
-sent to the server.""")
+No problems found. Some data structures have been rebuilt in case<br>
+they were causing problems.<p>
+<b>On the next sync, all cards will be sent to the server.</b><br>
+If you have changes on the server and have not synced locally,<br>
+do not sync your deck. Restore your deck from an automatic<br>
+backup and then run this command again after syncing.""")
             ui.utils.showInfo(ret)
             ret = True
         else:

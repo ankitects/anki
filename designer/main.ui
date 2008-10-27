@@ -460,12 +460,11 @@
     <property name="title" >
      <string>&amp;Advanced</string>
     </property>
-    <addaction name="actionMergeModels" />
-    <addaction name="separator" />
-    <addaction name="actionCheckMediaDatabase" />
-    <addaction name="separator" />
     <addaction name="actionCheckDatabaseIntegrity" />
+    <addaction name="actionCheckMediaDatabase" />
     <addaction name="actionOptimizeDatabase" />
+    <addaction name="separator" />
+    <addaction name="actionMergeModels" />
    </widget>
    <widget class="QMenu" name="menuPlugins" >
     <property name="title" >
@@ -911,7 +910,7 @@
      <normaloff>:/icons/sqlitebrowser.png</normaloff>:/icons/sqlitebrowser.png</iconset>
    </property>
    <property name="text" >
-    <string>Check Database Integrity</string>
+    <string>Check Database..</string>
    </property>
   </action>
   <action name="actionOptimizeDatabase" >
