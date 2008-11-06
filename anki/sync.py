@@ -740,6 +740,8 @@ where media.id in %s""" % sids, now=time.time())
             mediaIds = self.deck.s.column0(
                 "select id from media where created > :l", l=lastSync)
             p['media'] = self.getMedia(mediaIds, updateCreated=True)
+            if p['media']:
+                self.mediaSyncPending = True
         # cards
         cardIds = self.deck.s.column0(
             "select id from cards where modified > :l", l=lastSync)
@@ -758,7 +760,8 @@ where media.id in %s""" % sids, now=time.time())
                                   s=self.server.deckName,
                                   id=m['id'])
         # if media arrived, we'll need to download the data
-        self.mediaSyncPending = self.mediaSupported() and payload['media']
+        self.mediaSyncPending = (self.mediaSyncPending or
+                                 self.mediaSupported() and payload['media'])
         # cards last, handled differently
         self.updateOneWayCards(payload['cards'])
         # update sync time
