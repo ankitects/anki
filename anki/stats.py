@@ -323,8 +323,8 @@ class DeckStats(object):
         d = self.deck
         html="<h1>" + _("Deck Statistics") + "</h1>"
         html += _("Deck created: <b>%s</b> ago<br>") % self.createdTimeStr()
-        total = d.cardCount()
-        new = d.newCardCount()
+        total = d.cardCount
+        new = d.newCount
         young = d.youngCardCount()
         old = d.matureCardCount()
         newP = new / float(total) * 100
@@ -352,7 +352,7 @@ class DeckStats(object):
         html += _("First-seen cards: <b>%(gNewYes%)0.1f%%</b> "
                   "(<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>") % stats
         # average pending time
-        existing = d.cardCount() - d.newCardCount()
+        existing = d.cardCount - d.newTodayCount
         avgInt = self.getAverageInterval()
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
@@ -418,7 +418,7 @@ class DeckStats(object):
 
     def newAverage(self):
         "Average number of new cards added each day."
-        return self.deck.cardCount() / max(1, self.ageInDays())
+        return self.deck.cardCount / max(1, self.ageInDays())
 
     def createdTimeStr(self):
         return anki.utils.fmtTimeSpan(time.time() - self.deck.created)

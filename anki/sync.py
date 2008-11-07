@@ -425,8 +425,13 @@ where factId in %s""" % factIds))
             'spaceUntil': f[5],
             'lastCardId': f[6]
             } for f in facts]
+        t = time.time()
+        self.deck.factCount += (len(facts) - self.deck.s.scalar(
+            "select count(*) from facts where id in %s" %
+            ids2str([f[0] for f in facts])))
+        #print "sync check", time.time() - t
         self.deck.s.execute("""
-insert or replace into facts
+insert or ignore into facts
 (id, modelId, created, modified, tags, spaceUntil, lastCardId)
 values
 (:id, :modelId, :created, :modified, :tags, :spaceUntil, :lastCardId)""", dlist)
@@ -509,6 +514,11 @@ from cards where id in %s""" % ids2str(ids)))
                   'type': c[35],
                   'combinedDue': c[36],
                   } for c in cards]
+        t = time.time()
+        self.deck.cardCount += (len(cards) - self.deck.s.scalar(
+            "select count(*) from cards where id in %s" %
+            ids2str([c[0] for c in cards])))
+        #print "sync check cards", time.time() - t
         self.deck.s.execute("""
 insert or replace into cards
 (id, factId, cardModelId, created, modified, tags, ordinal,
@@ -782,6 +792,9 @@ where media.id in %s""" % sids, now=time.time())
         t = time.time()
         dlist = [{'id': c[0], 'factId': c[1], 'cardModelId': c[2],
                   'ordinal': c[3], 'created': c[4], 't': t} for c in cards]
+        self.deck.cardCount += (len(cards) - self.deck.s.scalar(
+            "select count(*) from cards where id in %s" %
+            ids2str([c[0] for c in cards])))
         # add any missing cards
         self.deck.s.statements("""
 insert or ignore into cards
@@ -800,7 +813,15 @@ values
 0, 0, 0, 0, 0,
 0, "", "", 2.5, 0, 1, 2, :t, 0)""", dlist)
         # update q/as
-        self.deck.updateCardQACache([(c[0], c[2], c[1]) for c in cards])
+        models = dict(self.deck.s.all("""
+select cards.id, models.id
+from cards, facts, models
+where cards.factId = facts.id
+and facts.modelId = models.id
+and cards.id in %s""" % ids2str([c[0] for c in cards])))
+        self.deck.s.flush()
+        self.deck.updateCardQACache(
+            [(c[0], c[2], c[1], models[c[0]]) for c in cards])
 
     # Tools
     ##########################################################################
@@ -972,7 +993,7 @@ class HttpSyncServer(SyncServer):
         return self.stuff(SyncServer.genOneWayPayload(self,
             self.unstuff(payload)))
 
-    def getDecks(self, libanki, client, sources):
+    def getDecks(self, libanki, client, sources, pversion):
         return self.stuff({
             "status": "OK",
             "decks": self.decks,

@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext'
 import time
 from anki.db import *
 from anki.errors import *
-from anki.models import Model, FieldModel, fieldModelsTable
+from anki.models import Model, FieldModel, fieldModelsTable, formatQA
 from anki.utils import genID
 from anki.features import FeatureManager
 
@@ -95,9 +95,6 @@ class Fact(object):
         except IndexError:
             return default
 
-    def css(self):
-        return "".join([f.fieldModel.css() for f in self.fields])
-
     def assertValid(self):
         "Raise an error if required fields are empty."
         for field in self.fields:
@@ -135,9 +132,13 @@ class Fact(object):
         "Mark modified and update cards."
         self.modified = time.time()
         if textChanged:
+            d = {}
+            for f in self.model.fieldModels:
+                d[f.name] = (f.id, self[f.name])
             for card in self.cards:
-                card.question = card.cardModel.renderQA(card, self, "question")
-                card.answer = card.cardModel.renderQA(card, self, "answer")
+                qa = formatQA(None, self.modelId, d, card.allTags(), card.cardModel)
+                card.question = qa['question']
+                card.answer = qa['answer']
                 card.setModified()
 
 # Fact deletions

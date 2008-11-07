@@ -123,6 +123,7 @@ all but one card model."""))
             [{'modelId': self.model.id,
               'tags': self.tagsToAdd,
               'id': factIds[n]} for n in range(len(cards))])
+        self.deck.factCount += len(factIds)
         self.deck.s.execute("""
 delete from factsDeleted
 where factId in (%s)""" % ",".join([str(s) for s in factIds]))
@@ -151,11 +152,13 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                     'factId': factIds[m],
                     'cardModelId': cm.id,
                     'ordinal': cm.ordinal,
-                    'question': cm.renderQASQL('q', factIds[m]),
-                    'answer': cm.renderQASQL('a', factIds[m]),
+                    'question': u"",
+                    'answer': u"",
                     'type': 2},cards[m]) for m in range(len(cards))]
                 self.deck.s.execute(cardsTable.insert(),
                                     data)
+        self.deck.updateCardsFromModel(self.model)
+        self.deck.cardCount += len(cards)
         self.total = len(factIds)
 
     def addMeta(self, data, card):

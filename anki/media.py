@@ -8,17 +8,10 @@ Media support
 """
 __docformat__ = 'restructuredtext'
 
-try:
-    import hashlib
-    md5 = hashlib.md5
-except ImportError:
-    import md5
-    md5 = md5.new
-
 import os, stat, time, shutil, re
 from anki.db import *
 from anki.facts import Fact
-from anki.utils import addTags, genID, ids2str
+from anki.utils import addTags, genID, ids2str, checksum
 from anki.lang import _
 
 regexps = (("(\[sound:([^]]+)\])",
@@ -51,9 +44,6 @@ mediaDeletedTable = Table(
 
 # Helper functions
 ##########################################################################
-
-def checksum(data):
-    return md5(data).hexdigest()
 
 def mediaFilename(path):
     "Return checksum.ext for path"

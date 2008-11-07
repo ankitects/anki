@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import nose, os
+import nose, os, re
 from tests.shared import assertException
 
 from anki.errors import *
@@ -67,7 +67,7 @@ def test_saveAs():
     deck.addFact(f)
     # save in new deck
     newDeck = deck.saveAs(path)
-    assert newDeck.cardCount() == 1
+    assert newDeck.cardCount == 1
     newDeck.close()
     deck.close()
 
@@ -96,7 +96,7 @@ def test_factAddDelete():
     assert len(f.cards) == 2
     # ensure correct order
     c0 = [c for c in f.cards if c.ordinal == 0][0]
-    assert c0.question == u"one"
+    assert re.sub("</?.+?>", "", c0.question) == u"one"
     # now let's make a duplicate
     f2 = deck.newFact()
     f2['Front'] = u"one"; f2['Back'] = u"three"
@@ -133,7 +133,7 @@ def test_modelAddDelete():
     f['Expression'] = u'1'
     f['Meaning'] = u'2'
     deck.addFact(f)
-    assert deck.cardCount() == 2
+    assert deck.cardCount == 2
     deck.deleteModel(deck.currentModel)
-    assert deck.cardCount() == 0
+    assert deck.cardCount == 0
     deck.s.refresh(deck)

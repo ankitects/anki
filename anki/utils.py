@@ -10,6 +10,13 @@ __docformat__ = 'restructuredtext'
 
 import re, os, random, time
 
+try:
+    import hashlib
+    md5 = hashlib.md5
+except ImportError:
+    import md5
+    md5 = md5.new
+
 from anki.db import *
 from anki.lang import _, ngettext
 
@@ -204,3 +211,9 @@ The caller is responsible for ensuring only integers are provided.
 This is safe if you use sqlite primary key columns, which are guaranteed
 to be integers."""
     return "(%s)" % ",".join([str(i) for i in ids])
+
+def safeClassName(name):
+    return name
+
+def checksum(data):
+    return md5(data).hexdigest()

@@ -34,14 +34,15 @@ def test_export_anki():
     assert deck.modified == oldTime
     # connect to new deck
     d2 = DeckStorage.Deck(newname)
-    assert d2.cardCount() == 4
+    assert d2.cardCount == 4
     # try again, limited to a tag
     newname = unicode(tempfile.mkstemp()[1])
     os.unlink(newname)
     e.limitTags = ['tag']
     e.exportInto(newname)
     d2 = DeckStorage.Deck(newname)
-    assert d2.cardCount() == 2
+    print d2.cardCount
+    assert d2.cardCount == 2
 
 @nose.with_setup(setup1)
 def test_export_textcard():

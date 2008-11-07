@@ -5,7 +5,7 @@ from tests.shared import assertException
 
 from anki.errors import *
 from anki import DeckStorage
-from anki.importing import anki03, anki10, csv, mnemosyne10
+from anki.importing import anki10, csv, mnemosyne10
 from anki.stdmodels import BasicModel
 
 from anki.db import *
@@ -30,15 +30,6 @@ def test_mnemosyne10():
     i = mnemosyne10.Mnemosyne10Importer(deck, file)
     i.doImport()
     assert i.total == 5
-    deck.s.close()
-
-def test_anki03():
-    deck = DeckStorage.Deck()
-    file = unicode(os.path.join(testDir, "importing/test03.anki"))
-    i = anki03.Anki03Importer(deck, file)
-    i.doImport()
-    assert len(i.log) == 0
-    assert i.total == 2
     deck.s.close()
 
 def test_anki10():

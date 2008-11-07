@@ -72,11 +72,11 @@ class SessionHelper(object):
 
     def statement(self, sql, **kwargs):
         "Execute a statement without returning any results. Flush first."
-        self.execute(text(sql), kwargs)
+        return self.execute(text(sql), kwargs)
 
     def statements(self, sql, data):
         "Execute a statement across data. Flush first."
-        self.execute(text(sql), data)
+        return self.execute(text(sql), data)
 
     def __repr__(self):
         return repr(self._session)

@@ -10,9 +10,9 @@ __docformat__ = 'restructuredtext'
 
 import time, sys, math, random
 from anki.db import *
-from anki.models import CardModel, Model, FieldModel
+from anki.models import CardModel, Model, FieldModel, formatQA
 from anki.facts import Fact, factsTable, Field
-from anki.utils import parseTags, findTag, stripHTML, genID
+from anki.utils import parseTags, findTag, stripHTML, genID, hexifyID
 
 # Cards
 ##########################################################################
@@ -58,7 +58,7 @@ cardsTable = Table(
     # data to the above
     Column('yesCount', Integer, nullable=False, default=0),
     Column('noCount', Integer, nullable=False, default=0),
-    # cache
+    # caching
     Column('spaceUntil', Float, nullable=False, default=0),
     Column('relativeDelay', Float, nullable=False, default=0),
     Column('isDue', Boolean, nullable=False, default=0),
@@ -81,13 +81,12 @@ class Card(object):
         if cardModel:
             self.cardModel = cardModel
             self.ordinal = cardModel.ordinal
-            self.question = cardModel.renderQA(self, self.fact, "question")
-            self.answer = cardModel.renderQA(self, self.fact, "answer")
-
-    htmlQuestion = property(lambda self: self.cardModel.renderQA(
-        self, self.fact, "question", format="html"))
-    htmlAnswer = property(lambda self: self.cardModel.renderQA(
-        self, self.fact, "answer", format="html"))
+            d = {}
+            for f in self.fact.model.fieldModels:
+                d[f.name] = (f.id, self.fact[f.name])
+            qa = formatQA(None, fact.modelId, d, self.allTags(), cardModel)
+            self.question = qa['question']
+            self.answer = qa['answer']
 
     def setModified(self):
         self.modified = time.time()
@@ -104,12 +103,26 @@ class Card(object):
     def totalTime(self):
         return time.time() - self.timerStarted
 
-    def css(self):
-        return self.cardModel.css() + self.fact.css()
-
     def genFuzz(self):
         "Generate a random offset to spread intervals."
         self.fuzz = random.uniform(0.95, 1.05)
+
+    def htmlQuestion(self, type="question"):
+        div = '''<div id="cm%s%s">%s</div>''' % (
+            type[0], hexifyID(self.cardModel.id), getattr(self, type))
+        # add outer div & alignment (with tables due to qt's html handling)
+        attr = type + 'Align'
+        if getattr(self.cardModel, attr) == 0:
+            align = "center"
+        elif getattr(self.cardModel, attr) == 1:
+            align = "left"
+        else:
+            align = "right"
+        return (("<center><table width=95%%><tr><td align=%s>" % align) +
+                div + "</td></tr></table></center>")
+
+    def htmlAnswer(self):
+        return self.htmlQuestion(type="answer")
 
     def updateStats(self, ease, state):
         self.reps += 1
@@ -139,12 +152,15 @@ class Card(object):
             self.firstAnswered = time.time()
         self.setModified()
 
+    def allTags(self):
+        "Non-canonified string of all tags."
+        return (self.tags + "," +
+                self.fact.tags + "," +
+                self.cardModel.name + "," +
+                self.fact.model.tags)
+
     def hasTag(self, tag):
-        alltags = parseTags(self.tags + "," +
-                            self.fact.tags + "," +
-                            self.cardModel.name + "," +
-                            self.fact.model.tags)
-        return findTag(tag, alltags)
+        return findTag(tag, parseTags(self.allTags()))
 
     def fromDB(self, s, id):
         r = s.first("select * from cards where id = :id",
@@ -244,6 +260,7 @@ mapper(Fact, factsTable, properties={
     'lastCard': relation(Card, post_update=True, primaryjoin=
                          cardsTable.c.id == factsTable.c.lastCardId),
     })
+
 
 # Card deletions
 ##########################################################################
