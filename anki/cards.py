@@ -60,7 +60,6 @@ cardsTable = Table(
     Column('noCount', Integer, nullable=False, default=0),
     # cache
     Column('spaceUntil', Float, nullable=False, default=0),
-    Column('relativeDelay', Float, nullable=False, default=0),
     Column('isDue', Boolean, nullable=False, default=0),
     Column('type', Integer, nullable=False, default=2),
     Column('combinedDue', Integer, nullable=False, default=0))
@@ -147,8 +146,14 @@ class Card(object):
         return findTag(tag, alltags)
 
     def fromDB(self, s, id):
-        r = s.first("select * from cards where id = :id",
-                    id=id)
+        r = s.first("""select
+id, factId, cardModelId, created, modified, tags, ordinal, question, answer,
+priority, interval, lastInterval, due, lastDue, factor,
+lastFactor, firstAnswered, reps, successive, averageTime, reviewTime,
+youngEase0, youngEase1, youngEase2, youngEase3, youngEase4,
+matureEase0, matureEase1, matureEase2, matureEase3, matureEase4,
+yesCount, noCount, spaceUntil, isDue, type, combinedDue
+from cards where id = :id""", id=id)
         if not r:
             return
         (self.id,
@@ -185,7 +190,6 @@ class Card(object):
          self.yesCount,
          self.noCount,
          self.spaceUntil,
-         self.relativeDelay,
          self.isDue,
          self.type,
          self.combinedDue) = r
@@ -226,7 +230,6 @@ matureEase4=:matureEase4,
 yesCount=:yesCount,
 noCount=:noCount,
 spaceUntil = :spaceUntil,
-relativeDelay = :interval / (strftime("%s", "now") - :due + 1),
 isDue = :isDue,
 type = :type,
 combinedDue = max(:spaceUntil, :due)
