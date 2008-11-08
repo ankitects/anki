@@ -77,7 +77,7 @@ class AnkiExporter(Exporter):
 delete from reviewHistory""")
             self.newDeck.s.statement("""
 update cards set
-interval = 0.001,
+interval = 0,
 lastInterval = 0,
 due = created,
 lastDue = 0,
@@ -101,7 +101,6 @@ yesCount = 0,
 noCount = 0,
 spaceUntil = 0,
 isDue = 1,
-relativeDelay = 0,
 type = 2,
 combinedDue = created,
 modified = :now

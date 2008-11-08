@@ -34,8 +34,7 @@ PRIORITY_NORM = 2
 PRIORITY_LOW = 1
 PRIORITY_NONE = 0
 MATURE_THRESHOLD = 21
-# need interval > 0 to ensure relative delay is ordered properly
-NEW_INTERVAL = 0.001
+NEW_INTERVAL = 0
 NEW_CARDS_LAST = 1
 NEW_CARDS_DISTRIBUTE = 0
 
@@ -46,7 +45,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=12),
+    Column('version', Integer, nullable=False, default=13),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -280,7 +279,6 @@ where id != :id and factId = :factId""",
         entry = CardHistoryEntry(card, ease, lastDelay)
         entry.writeSQL(self.s)
         self.modified = now
-        #print "ans", time.time() - t
 
     # Queue/cache management
     ##########################################################################
@@ -462,7 +460,7 @@ factor = 2.5, reps = 0, successive = 0, averageTime = 0, reviewTime = 0,
 youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
 youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
 matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
-spaceUntil = 0, relativeDelay = 0, isDue = 0, type = 2,
+spaceUntil = 0, isDue = 0, type = 2,
 combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=NEW_INTERVAL)
         self.flushMod()
@@ -624,12 +622,12 @@ suspended</a> cards.''') % {
 
     def suspendedCardCount(self):
         return self.s.scalar("""
-select count(id) from cards where type in (0,1,2) and isDue in (0,1)
+            "select count(id) from cards where type in (0,1,2) and priority = 0")
 and priority = 0""")
 
     def seenCardCount(self):
         return self.s.scalar(
-            "select count(id) from cards where type in (0, 1)")
+            "select count(id) from cards where type = 2")
 
     # Counts related to due cards
     ##########################################################################
@@ -645,6 +643,7 @@ and priority = 0""")
         return self.s.scalar("""
 select count(cards.id) from cards where
 type in (1,2) and isDue = 0 and priority in (1,2,3,4) and due < :now""",
+priority in (1,2,3,4) and due < :now and spaceUntil > :now""",
                              now=time.time())
 
     def isEmpty(self):
@@ -1655,11 +1654,8 @@ alter table decks add column newCount integer not null default 0""")
         "Add indices to the DB."
         # card queues
         deck.s.statement("""
-create index if not exists ix_cards_checkDueOrder on cards
-(type, isDue, priority desc, combinedDue desc)""")
-        deck.s.statement("""
-create index if not exists ix_cards_failedOrder on cards
-(type, isDue, priority desc, due)""")
+create index if not exists ix_cards_combinedDue on cards
+(type, isDue, combinedDue, priority)""")
         deck.s.statement("""
 create index if not exists ix_cards_revisionOrder on cards
 (type, isDue, priority desc, interval desc)""")
@@ -1668,7 +1664,7 @@ create index if not exists ix_cards_newRandomOrder on cards
 (type, isDue, priority desc, factId, ordinal)""")
         deck.s.statement("""
 create index if not exists ix_cards_newOrderedOrder on cards
-(type, isDue, priority desc, due)""")
+(type, isDue, priority desc, combinedDue)""")
         # card spacing
         deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
@@ -1699,7 +1695,7 @@ create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
     def _addViews(deck):
         "Add latest version of SQL views to DB."
         s = deck.s
-        # old tables
+        # old views
         s.statement("drop view if exists failedCards")
         s.statement("drop view if exists acqCards")
         s.statement("drop view if exists futureCards")
@@ -1714,15 +1710,16 @@ create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
 create view failedCardsNow as
 select * from cards
 where type = 0 and isDue = 1
-order by due
+and +priority in (1,2,3,4)
+order by type, isDue, combinedDue
 """)
         s.statement("""
 create view failedCardsSoon as
 select * from cards
-where type = 0 and priority in (1,2,3,4)
+where type = 0 and +priority in (1,2,3,4)
 and combinedDue <= (select max(delay0, delay1) +
-strftime("%s", "now")+1 from decks)
-order by modified
+strftime("%s", "now")+1 from decks where id = 1)
+order by type, isDue, combinedDue
 """)
         s.statement("""
 create view revCards as
@@ -1738,7 +1735,7 @@ order by priority desc, factId, ordinal""")
 create view acqCardsOrdered as
 select * from cards
 where type = 2 and isDue = 1
-order by priority desc, due""")
+order by priority desc, combinedDue""")
     _addViews = staticmethod(_addViews)
 
     def _upgradeDeck(deck, path):
@@ -1749,8 +1746,6 @@ order by priority desc, due""")
             try:
                 deck.s.statement("""
     alter table cards add column spaceUntil float not null default 0""")
-                deck.s.statement("""
-    alter table cards add column relativeDelay float not null default 0.0""")
                 deck.s.statement("""
     alter table cards add column isDue boolean not null default 0""")
                 deck.s.statement("""
@@ -1881,7 +1876,7 @@ alter table models add column source integer not null default 0""")
             DeckStorage._setUTCOffset(deck)
             deck.version = 11
             deck.s.commit()
-        if deck.version < 12: #True: # False: #True: #deck.version < 12:
+        if deck.version < 12:
             deck.s.statement("drop index if exists ix_cards_revisionOrder")
             deck.s.statement("drop index if exists ix_cards_newRandomOrder")
             deck.s.statement("drop index if exists ix_cards_newOrderedOrder")
@@ -1892,12 +1887,14 @@ alter table models add column source integer not null default 0""")
             deck.s.statement("drop index if exists ix_cards_priority")
             DeckStorage._addViews(deck)
             DeckStorage._addIndices(deck)
+            deck.s.statement("analyze")
+        if deck.version < 13:
             deck.rebuildCounts()
             deck.rebuildQueue()
             # regenerate question/answer cache
             for m in deck.models:
                 deck.updateCardsFromModel(m)
-            deck.version = 12
+            deck.version = 13
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
