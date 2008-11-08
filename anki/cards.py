@@ -62,6 +62,7 @@ cardsTable = Table(
     Column('spaceUntil', Float, nullable=False, default=0),
     Column('isDue', Boolean, nullable=False, default=0),
     Column('type', Integer, nullable=False, default=2),
+    Column('relativeDelay', Float, nullable=False, default=0), # obsolete
     Column('combinedDue', Integer, nullable=False, default=0))
 
 class Card(object):
@@ -75,6 +76,9 @@ class Card(object):
         self.isDue = True
         self.timerStarted = False
         self.timerStopped = False
+        self.modified = time.time()
+        self.due = self.modified
+        self.combinedDue = self.modified
         if fact:
             self.fact = fact
         if cardModel:
@@ -248,7 +252,8 @@ noCount=:noCount,
 spaceUntil = :spaceUntil,
 isDue = :isDue,
 type = :type,
-combinedDue = max(:spaceUntil, :due)
+combinedDue = max(:spaceUntil, :due),
+relativeDelay = 0
 where id=:id""", self.__dict__)
 
 mapper(Card, cardsTable, properties={
@@ -260,8 +265,6 @@ mapper(Card, cardsTable, properties={
 mapper(Fact, factsTable, properties={
     'model': relation(Model),
     'fields': relation(Field, backref="fact", order_by=Field.c.ordinal),
-    'lastCard': relation(Card, post_update=True, primaryjoin=
-                         cardsTable.c.id == factsTable.c.lastCardId),
     })
 
 

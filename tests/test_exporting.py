@@ -41,7 +41,6 @@ def test_export_anki():
     e.limitTags = ['tag']
     e.exportInto(newname)
     d2 = DeckStorage.Deck(newname)
-    print d2.cardCount
     assert d2.cardCount == 2
 
 @nose.with_setup(setup1)

@@ -305,7 +305,7 @@ end)""" + where)
             "select count(*) from failedCardsSoon")
         self.revCount = self.s.scalar("select count(*) from revCards")
         self.newCount = self.s.scalar("select count(*) from acqCardsOrdered")
-        print "rebuild counts", time.time() - t
+        #print "rebuild counts", time.time() - t
 
     def checkDue(self):
         "Mark expired cards due, and update counts."

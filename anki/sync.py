@@ -526,7 +526,8 @@ priority, interval, lastInterval, due, lastDue, factor,
 firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
 youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
 matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, isDue, type, combinedDue)
+question, answer, lastFactor, spaceUntil, isDue, type, combinedDue,
+relativeDelay)
 values
 (:id, :factId, :cardModelId, :created, :modified, :tags, :ordinal,
 :priority, :interval, :lastInterval, :due, :lastDue, :factor,
@@ -534,7 +535,7 @@ values
 :youngEase1, :youngEase2, :youngEase3, :youngEase4, :matureEase0,
 :matureEase1, :matureEase2, :matureEase3, :matureEase4, :yesCount,
 :noCount, :question, :answer, :lastFactor, :spaceUntil, :isDue,
-:type, :combinedDue)""", dlist)
+:type, :combinedDue, 0)""", dlist)
         self.deck.s.statement(
             "delete from cardsDeleted where cardId in %s" %
             ids2str([c[0] for c in cards]))
@@ -802,7 +803,8 @@ priority, interval, lastInterval, due, lastDue, factor,
 firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
 youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
 matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, isDue, type, combinedDue)
+question, answer, lastFactor, spaceUntil, isDue, type, combinedDue,
+relativeDelay)
 values
 (:id, :factId, :cardModelId, :created, :t, "", :ordinal,
 1, 0, 0, :created, 0, 2.5,
