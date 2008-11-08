@@ -622,8 +622,7 @@ suspended</a> cards.''') % {
 
     def suspendedCardCount(self):
         return self.s.scalar("""
-            "select count(id) from cards where type in (0,1,2) and priority = 0")
-and priority = 0""")
+select count(id) from cards where type in (0,1,2) and priority = 0""")
 
     def seenCardCount(self):
         return self.s.scalar(
@@ -642,9 +641,8 @@ and priority = 0""")
     def spacedCardCount(self):
         return self.s.scalar("""
 select count(cards.id) from cards where
-type in (1,2) and isDue = 0 and priority in (1,2,3,4) and due < :now""",
-priority in (1,2,3,4) and due < :now and spaceUntil > :now""",
-                             now=time.time())
+type in (1,2) and isDue = 0 and priority in (1,2,3,4) and combinedDue > :now
+and due < :now""", now=time.time())
 
     def isEmpty(self):
         return not self.cardCount
@@ -1571,7 +1569,7 @@ alter table decks add column sessionTimeLimit integer not null default 1800""")
                 if ver < 11:
                     s.execute("""
 alter table decks add column utcOffset numeric(10, 2) not null default 0""")
-                if ver < 12:
+                if ver < 13:
                     s.execute("""
 alter table decks add column cardCount integer not null default 0""")
                     s.execute("""
