@@ -257,7 +257,7 @@ class DisplayProperties(QDialog):
                 else:
                     setattr(field, type + 'FontColour', None)
         field.model.setModified()
-        self.deck.setModified()
+        self.deck.flushMod()
         self.drawQuestionAndAnswer()
 
     def chooseColour(self, button, type):
@@ -268,18 +268,19 @@ class DisplayProperties(QDialog):
             self.saveCard()
 
     def drawQuestionAndAnswer(self):
+        self.deck.flushMod()
         f = self.deck.newFact()
         f.tags = u""
         for field in f.fields:
             f[field.name] = field.name
         f.model = self.model
         c = Card(f, self.card)
-        t = "<br><center>" + c.htmlQuestion + "</center>"
+        t = "<br><center>" + c.htmlQuestion() + "</center>"
         self.dialog.question.setText(
-            "<style>\n" + c.css() + "</style>\n" + t)
-        t = "<br><center>" + c.htmlAnswer + "</center>"
+            "<style>\n" + self.deck.rebuildCSS() + "</style>\n" + t)
+        t = "<br><center>" + c.htmlAnswer() + "</center>"
         self.dialog.answer.setText(
-            "<style>\n" + c.css() + "</style>\n" + t)
+            "<style>\n" + self.deck.rebuildCSS() + "</style>\n" + t)
         self.main.updateViews(self.main.state)
 
     def reject(self):

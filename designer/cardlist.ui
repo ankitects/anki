@@ -8,8 +8,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>710</width>
-    <height>655</height>
+    <width>414</width>
+    <height>434</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -42,12 +42,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
-        <size>
-         <width>400</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="title" >
         <string>&amp;Search</string>
        </property>
@@ -66,14 +60,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="tagList" >
-          <property name="minimumSize" >
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
+         <widget class="QComboBox" name="tagList" />
         </item>
        </layout>
       </widget>
@@ -111,7 +98,7 @@
         <item>
          <widget class="QPushButton" name="factsButton" >
           <property name="text" >
-           <string>Facts..</string>
+           <string/>
           </property>
           <property name="icon" >
            <iconset resource="../icons.qrc" >
@@ -125,7 +112,7 @@
         <item>
          <widget class="QPushButton" name="cardsButton" >
           <property name="text" >
-           <string>Cards..</string>
+           <string/>
           </property>
           <property name="icon" >
            <iconset resource="../icons.qrc" >

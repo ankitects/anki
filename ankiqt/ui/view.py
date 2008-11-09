@@ -48,7 +48,7 @@ class View(object):
         self.clearWindow()
         self.setBackgroundColour()
         self.maybeHelp()
-        if self.main.deck.cardCount():
+        if not self.main.deck.isEmpty():
             if not self.main.lastCard or (
                 not self.main.config['showLastCardContent'] and
                 not self.main.config['showLastCardInterval']):
@@ -70,8 +70,9 @@ class View(object):
     def addStyles(self):
         # card styles
         s = "<style>\n"
-        if self.main.currentCard:
-            s += self.main.currentCard.css()
+        t = time.time()
+        if self.main.deck:
+            s += self.main.deck.css
         # last card
         for base in ("lastCard", "interface"):
             family = self.main.config[base + "FontFamily"]
@@ -112,7 +113,7 @@ class View(object):
 
     def drawQuestion(self, nosound=False):
         "Show the question."
-        q = self.main.currentCard.htmlQuestion
+        q = self.main.currentCard.htmlQuestion()
         q = renderLatex(self.main.deck, q)
         self.write(stripSounds(q))
         if self.state != self.oldState and not nosound:
@@ -120,7 +121,7 @@ class View(object):
 
     def drawAnswer(self):
         "Show the answer."
-        a = self.main.currentCard.htmlAnswer
+        a = self.main.currentCard.htmlAnswer()
         a = renderLatex(self.main.deck, a)
         self.write(stripSounds(a))
         if self.state != self.oldState:

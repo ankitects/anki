@@ -118,6 +118,7 @@ class AnkiQt(QMainWindow):
         self.moveToState("initial")
 
     def moveToState(self, state):
+        t = time.time()
         if state == "initial":
             # reset current card and load again
             self.currentCard = None
@@ -150,7 +151,7 @@ class AnkiQt(QMainWindow):
             ui.dialogs.closeAll()
         elif state == "getQuestion":
             self.deck._countsDirty = True
-            if self.deck.cardCount() == 0:
+            if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
                 if not self.currentCard:
@@ -418,9 +419,9 @@ class AnkiQt(QMainWindow):
         except (IOError, ImportError):
             return
         except DeckWrongFormatError, e:
-            self.importOldDeck(deckPath)
-            if not self.deck:
-                return
+            ui.utils.showMessage(_(
+                "Please open this deck with Anki < 0.9.8.7 to upgrade."))
+            return
         except DeckAccessError, e:
             if e.data.get('type') == 'inuse':
                 ui.utils.showWarning(_("Unable to load the same deck twice."))
@@ -450,23 +451,6 @@ class AnkiQt(QMainWindow):
                 self.deck = None
                 return 0
         return True
-
-    def importOldDeck(self, deckPath):
-        from anki.importing.anki03 import Anki03Importer
-        # back up the old file
-        newPath = re.sub("\.anki$", ".anki-v3", deckPath)
-        while os.path.exists(newPath):
-            newPath += "-1"
-        os.rename(deckPath, newPath)
-        try:
-            self.deck = DeckStorage.Deck(deckPath)
-            imp = Anki03Importer(self.deck, newPath)
-            imp.doImport()
-        except DeckWrongFormatError, e:
-            ui.utils.showWarning(_(
-                "An error occurred while upgrading:\n%s") % `e.data`)
-            return
-        self.rebuildQueue()
 
     def maybeLoadLastDeck(self, args):
         "Open the last deck if possible."
@@ -1289,8 +1273,8 @@ class AnkiQt(QMainWindow):
                       " - %(title)s") % {
                 "path": deckpath,
                 "title": title,
-                "cards": self.deck.cardCount(),
-                "facts": self.deck.factCount(),
+                "cards": self.deck.cardCount,
+                "facts": self.deck.factCount,
                 }
         self.setWindowTitle(title)
 

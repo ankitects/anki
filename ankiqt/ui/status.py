@@ -164,17 +164,15 @@ class StatusView(object):
         stats['successive1'] = '<font color=#000000>%s</font>' % stats['successive']
         stats['new1'] = '<font color=#0000ff>%s</font>' % stats['new']
         self.remText.setText(remStr % stats)
-        stats['suspended'] = self.main.deck.suspendedCardCount()
         stats['spaced'] = self.main.deck.spacedCardCount()
-        stats['new2'] = self.main.deck.newCardCount()
+        stats['new2'] = self.main.deck.newCount
         self.remText.setToolTip(_(
             "<h1>Remaining cards</h1>"
             "<p/>There are <b>%(failed)d</b> failed cards due soon.<br>"
             "There are <b>%(successive)d</b> cards awaiting review.<br>"
             "There are <b>%(new)d</b> new cards due today.<br><br>"
             "There are <b>%(new2)d</b> new cards in total.<br>"
-            "There are <b>%(spaced)d</b> spaced cards.<br>"
-            "There are <b>%(suspended)d</b> suspended cards.") % stats)
+            "There are <b>%(spaced)d</b> spaced cards.<br>") % stats)
         # eta
         self.etaText.setText(_("ETA: <b>%(timeLeft)s</b>") % stats)
         # retention & progress bars

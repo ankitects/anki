@@ -23,7 +23,7 @@ class LatestVersionFinder(QThread):
         self.config = main.config
         # calculate stats before we start a new thread
         if self.main.deck != None:
-            deckSize = self.main.deck.cardCount()
+            deckSize = self.main.deck.cardCount
             stats = anki.stats.globalStats(self.main.deck)
             deckRecall = "%0.2f" % (
                 (stats.matureEase3 + stats.matureEase4) /
@@ -33,7 +33,7 @@ class LatestVersionFinder(QThread):
                       stats.matureEase3 +
                       stats.matureEase4 + 0.000001) * 100)
             pending = "(%d, %d)" % (self.main.deck.seenCardCount(),
-                                    self.main.deck.newCardCount())
+                                    self.main.deck.newCount)
             ct = self.main.deck.created
             if ct:
                 ol = anki.lang.getLang()

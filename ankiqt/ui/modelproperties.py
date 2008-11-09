@@ -340,7 +340,7 @@ class ModelProperties(QDialog):
         self.updateField(card, 'questionInAnswer', self.dialog.questionInAnswer.isChecked())
         if changed:
             # need to generate all question/answers for this card
-            self.deck.updateCardsFromModel(self.currentCard)
+            self.deck.updateCardsFromModel(self.m)
         self.ignoreCardUpdate = True
         self.updateCards()
         self.ignoreCardUpdate = False
