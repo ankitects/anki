@@ -457,7 +457,7 @@ strftime("%s", "now")+1 from decks)"""))
             if short:
                 return _("tom.")
             else:
-                return _("tomorrow")
+                return _("Tomorrow")
         else:
             int = self.nextInterval(card, ease)
             return anki.utils.fmtTimeSpan(int*86400, short=short)
