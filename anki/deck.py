@@ -45,7 +45,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=13),
+    Column('version', Integer, nullable=False, default=14),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -141,37 +141,21 @@ class Deck(object):
         # card due for review?
         if self.revCount:
             return self.s.scalar("select id from revCards limit 1")
-        # new card last?
-        if self.newCardSpacing == NEW_CARDS_LAST:
-            id = self._maybeGetNewCard()
-            if id:
-                return id
+        # new cards left?
+        id = self._maybeGetNewCard()
+        if id:
+            return id
+        # display failed cards early
         if self.collapseTime:
-            # display failed cards early
             id = self.s.scalar(
                 "select id from failedCardsSoon limit 1")
             return id
-
-    def getCards(self):
-        sel = """
-select id, factId, modified, question, answer, cardModelId,
-reps, successive from """
-        if self.newCardOrder == 0:
-            new = "acqCardsRandom"
-        else:
-            new = "acqCardsOrdered"
-        return {'failed': self.s.all(sel + "failedCardsNow limit 30"),
-                'rev': self.s.all(sel + "revCards limit 30"),
-                'new': self.s.all(sel + new + " limit 30")}
 
     # Get card: helper functions
     ##########################################################################
 
     def _timeForNewCard(self):
         "True if it's time to display a new card when distributing."
-        # no cards for review, so force new
-        if not self.revCount:
-            return True
         # force old if there are very high priority cards
         if self.s.scalar(
             "select 1 from cards where type = 1 and isDue = 1 "
@@ -212,6 +196,65 @@ reps, successive from """
         card.genFuzz()
         card.startTimer()
         return card
+
+    # Getting cards in bulk
+    ##########################################################################
+
+    def getCards(self, extraMunge=None):
+        "Get a number of cards and related data for client display."
+        d = self._getCardTables()
+        def munge(row):
+            row = list(row)
+            row[0] = str(row[0])
+            row[1] = str(row[1])
+            row[2] = int(row[2])
+            row[5] = hexifyID(row[5])
+            if extraMunge:
+                return extraMunge(row)
+            return row
+        for type in ('fail', 'rev', 'acq'):
+            d[type] = [munge(x) for x in d[type]]
+        if d['fail'] or d['rev'] or d['acq']:
+            d['stats'] = self.getStats()
+            d['status'] = 'cardsAvailable'
+            d['initialIntervals'] = (
+                self.hardIntervalMin,
+                self.hardIntervalMax,
+                self.midIntervalMin,
+                self.midIntervalMax,
+                self.easyIntervalMin,
+                self.easyIntervalMax,
+                )
+            d['newCardSpacing'] = self.newCardSpacing
+            d['newCardModulus'] = self.newCardModulus
+            return d
+        else:
+            if self.isEmpty():
+                fin = ""
+            else:
+                fin = self.deckFinishedMsg()
+            return {"status": "deckFinished",
+                    "finishedMsg": fin}
+
+    def _getCardTables(self):
+        self.checkDue()
+        sel = """
+select id, factId, modified, question, answer, cardModelId,
+type, due, interval, factor, priority from """
+        if self.newCardOrder == 0:
+            new = "acqCardsRandom"
+        else:
+            new = "acqCardsOrdered"
+        d = {}
+        d['fail'] = self.s.all(sel + "failedCardsNow limit 100")
+        d['rev'] = self.s.all(sel + "revCards limit 30")
+        if self.newCountToday:
+            d['acq'] = self.s.all(sel + new + " limit 30")
+        else:
+            d['acq'] = []
+        if (not d['fail'] and not d['rev'] and not d['acq']):
+            d['fail'] = self.s.all(sel + "failedCardsSoon limit 100")
+        return d
 
     # Answering a card
     ##########################################################################
@@ -382,10 +425,10 @@ strftime("%s", "now")+1 from decks)"""))
 
     def _nextInterval(self, interval, factor, delay, ease):
         # if interval is less than mid interval, use presets
-        if interval < self.hardIntervalMin:
-            if ease < 2:
-                interval = NEW_INTERVAL
-            elif ease == 2:
+        if ease == 1:
+            interval = NEW_INTERVAL
+        elif interval == 0:
+            if ease == 2:
                 interval = random.uniform(self.hardIntervalMin,
                                           self.hardIntervalMax)
             elif ease == 3:
@@ -394,36 +437,35 @@ strftime("%s", "now")+1 from decks)"""))
             elif ease == 4:
                 interval = random.uniform(self.easyIntervalMin,
                                           self.easyIntervalMax)
-        elif ease == 0:
-            interval = NEW_INTERVAL
         else:
             # otherwise, multiply the old interval by a factor
-            if ease == 1:
-                factor = 1 / factor / 2.0
-                interval = interval * factor
-            elif ease == 2:
-                factor = 1.2
-                interval = (interval + delay/4) * factor
+            if ease == 2:
+                interval = (interval + delay/4) * 1.2
             elif ease == 3:
-                factor = factor
                 interval = (interval + delay/2) * factor
             elif ease == 4:
-                factor = factor * self.factorFour
-                interval = (interval + delay) * factor
+                interval = (interval + delay) * factor * self.factorFour
             fuzz = random.uniform(0.95, 1.05)
             interval *= fuzz
         if self.maxScheduleTime:
             interval = min(interval, self.maxScheduleTime)
         return interval
 
+    def nextIntervalStr(self, card, ease, short=False):
+        "Return the next interval for CARD given EASE as a string."
+        if card.interval == 0 and ease == 2:
+            if short:
+                return _("tom.")
+            else:
+                return _("tomorrow")
+        else:
+            int = self.nextInterval(card, ease)
+            return anki.utils.fmtTimeSpan(int*86400, short=short)
+
     def nextDue(self, card, ease, oldState):
         "Return time when CARD will expire given EASE."
-        if ease == 0:
+        if ease == 1:
             due =  self.delay0
-        elif ease == 1 and oldState != 'mature':
-            due =  self.delay1
-        elif ease == 1:
-            due =  self.delay2
         else:
             due =  card.interval * 86400.0
         return due + time.time()
@@ -511,30 +553,6 @@ type in (0, 1) order by combinedDue limit 1""")
         return self.s.scalar("""
 select count(id) from cards where combinedDue < :time
 and priority in (1,2,3,4) and type in (0, 1)""", time=time)
-
-    def nextIntervalStr(self, card, ease, short=False):
-        "Return the next interval for CARD given EASE as a string."
-        delay = self._adjustedDelay(card, ease)
-        if card.due > time.time() and ease < 2:
-            # the card is not yet due, and we are in the final drill
-            return _("a short time")
-        if ease < 2:
-            interval = self.nextDue(card, ease, self.cardState(card)) - time.time()
-        elif card.interval < self.hardIntervalMin:
-            if ease == 2:
-                interval = [self.hardIntervalMin, self.hardIntervalMax]
-            elif ease == 3:
-                interval = [self.midIntervalMin, self.midIntervalMax]
-            else:
-                interval = [self.easyIntervalMin, self.easyIntervalMax]
-            interval[0] = interval[0] * 86400.0
-            interval[1] = interval[1] * 86400.0
-            if interval[0] != interval[1]:
-                return anki.utils.fmtTimeSpanPair(interval[0], interval[1], short=short)
-            interval = interval[0]
-        else:
-            interval = self.nextInterval(card, ease) * 86400.0
-        return anki.utils.fmtTimeSpan(interval, short=short)
 
     def deckFinishedMsg(self):
         return _('''
@@ -692,12 +710,12 @@ and due < :now""", now=time.time())
         # add scheduling related stats
         stats['new'] = self.newCountToday
         stats['failed'] = self.failedSoonCount
-        stats['successive'] = self.revCount
+        stats['rev'] = self.revCount
         if stats['dAverageTime']:
             if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
-                count = stats['successive'] + stats['new']
+                count = stats['rev'] + stats['new']
             elif self.newCardSpacing == NEW_CARDS_LAST:
-                count = stats['successive'] or stats['new']
+                count = stats['rev'] or stats['new']
             count += stats['failed']
             stats['timeLeft'] = anki.utils.fmtTimeSpan(
                 stats['dAverageTime'] * count, pad=0, point=1)
@@ -753,7 +771,7 @@ and due < :now""", now=time.time())
         self.newCount += len(cards)
         # keep track of last used tags for convenience
         self.lastTags = fact.tags
-        self.setModified()
+        self.flushMod()
         return cards
 
     def availableCardModels(self, fact):
@@ -812,14 +830,10 @@ where factId = :fid and cardModelId = :cmid""",
         self.s.statement("insert into cardsDeleted select id, :time "
                          "from cards where factId = :factId",
                          time=time.time(), factId=factId)
-        self.cardCount -= self.s.statement(
-            "delete from cards where factId = :id", id=factId).rowcount
+        self.s.statement(
+            "delete from cards where factId = :id", id=factId)
         # and then the fact
-        self.factCount -= self.s.statement(
-            "delete from facts where id = :id", id=factId).rowcount
-        self.s.statement("delete from fields where factId = :id", id=factId)
-        self.s.statement("insert into factsDeleted values (:id, :time)",
-                         id=factId, time=time.time())
+        self.deleteFacts([factId])
         self.setModified()
 
     def deleteFacts(self, ids):
@@ -829,11 +843,11 @@ where factId = :fid and cardModelId = :cmid""",
         self.s.flush()
         now = time.time()
         strids = ids2str(ids)
-        self.factCount -= self.s.statement(
-            "delete from facts where id in %s" % strids).rowcount
+        self.s.statement("delete from facts where id in %s" % strids)
         self.s.statement("delete from fields where factId in %s" % strids)
         data = [{'id': id, 'time': now} for id in ids]
         self.s.statements("insert into factsDeleted values (:id, :time)", data)
+        self.rebuildCounts()
         self.setModified()
 
     def deleteDanglingFacts(self):
@@ -849,15 +863,7 @@ where facts.id not in (select factId from cards)""")
 
     def deleteCard(self, id):
         "Delete a card given its id. Delete any unused facts. Don't flush."
-        self.s.flush()
-        factId = self.s.scalar("select factId from cards where id=:id", id=id)
-        self.cardCount -= self.s.statement(
-            "delete from cards where id = :id", id=id).rowcount
-        self.s.statement("insert into cardsDeleted values (:id, :time)",
-                         id=id, time=time.time())
-        if factId and not self.factUseCount(factId):
-            self.deleteFact(factId)
-        self.setModified()
+        self.deleteCards([id])
 
     def deleteCards(self, ids):
         "Bulk delete cards by ID."
@@ -870,13 +876,13 @@ where facts.id not in (select factId from cards)""")
         factIds = self.s.column0("select factId from cards where id in %s"
                                  % strids)
         # drop from cards
-        self.cardCount -= self.s.statement(
-            "delete from cards where id in %s" % strids).rowcount
+        self.s.statement("delete from cards where id in %s" % strids)
         # note deleted
         data = [{'id': id, 'time': now} for id in ids]
         self.s.statements("insert into cardsDeleted values (:id, :time)", data)
         # remove any dangling facts
         self.deleteDanglingFacts()
+        self.rebuildCounts()
         self.setModified()
 
     # Models
@@ -1883,6 +1889,11 @@ alter table models add column source integer not null default 0""")
             for m in deck.models:
                 deck.updateCardsFromModel(m)
             deck.version = 13
+        if deck.version < 14:
+            deck.s.statement("""
+update cards set interval = 0
+where interval < 1""")
+            deck.version = 14
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)

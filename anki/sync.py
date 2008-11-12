@@ -425,11 +425,9 @@ where factId in %s""" % factIds))
             'spaceUntil': f[5],
             'lastCardId': f[6]
             } for f in facts]
-        t = time.time()
         self.deck.factCount += (len(facts) - self.deck.s.scalar(
             "select count(*) from facts where id in %s" %
             ids2str([f[0] for f in facts])))
-        #print "sync check", time.time() - t
         self.deck.s.execute("""
 insert or ignore into facts
 (id, modelId, created, modified, tags, spaceUntil, lastCardId)
@@ -470,7 +468,7 @@ priority, interval, lastInterval, due, lastDue, factor,
 firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
 youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
 matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, isDue, type, combinedDue
+question, answer, lastFactor, spaceUntil, type, combinedDue
 from cards where id in %s""" % ids2str(ids)))
 
     def updateCards(self, cards):
@@ -510,15 +508,12 @@ from cards where id in %s""" % ids2str(ids)))
                   'answer': c[31],
                   'lastFactor': c[32],
                   'spaceUntil': c[33],
-                  'isDue': c[34],
-                  'type': c[35],
-                  'combinedDue': c[36],
+                  'type': c[34],
+                  'combinedDue': c[35],
                   } for c in cards]
-        t = time.time()
         self.deck.cardCount += (len(cards) - self.deck.s.scalar(
             "select count(*) from cards where id in %s" %
             ids2str([c[0] for c in cards])))
-        #print "sync check cards", time.time() - t
         self.deck.s.execute("""
 insert or replace into cards
 (id, factId, cardModelId, created, modified, tags, ordinal,
@@ -526,16 +521,16 @@ priority, interval, lastInterval, due, lastDue, factor,
 firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
 youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
 matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, isDue, type, combinedDue,
-relativeDelay)
+question, answer, lastFactor, spaceUntil, type, combinedDue,
+relativeDelay, isDue)
 values
 (:id, :factId, :cardModelId, :created, :modified, :tags, :ordinal,
 :priority, :interval, :lastInterval, :due, :lastDue, :factor,
 :firstAnswered, :reps, :successive, :averageTime, :reviewTime, :youngEase0,
 :youngEase1, :youngEase2, :youngEase3, :youngEase4, :matureEase0,
 :matureEase1, :matureEase2, :matureEase3, :matureEase4, :yesCount,
-:noCount, :question, :answer, :lastFactor, :spaceUntil, :isDue,
-:type, :combinedDue, 0)""", dlist)
+:noCount, :question, :answer, :lastFactor, :spaceUntil,
+:type, :combinedDue, 0, 0)""", dlist)
         self.deck.s.statement(
             "delete from cardsDeleted where cardId in %s" %
             ids2str([c[0] for c in cards]))
@@ -811,7 +806,7 @@ values
 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0,
-0, "", "", 2.5, 0, 1, 2, :t, 0)""", dlist)
+0, "", "", 2.5, 0, 0, 2, :t, 0)""", dlist)
         # update q/as
         models = dict(self.deck.s.all("""
 select cards.id, models.id
