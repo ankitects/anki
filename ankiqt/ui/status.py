@@ -151,17 +151,17 @@ class StatusView(object):
         else:
             # remaining string, bolded depending on current card
             if not self.main.currentCard:
-                remStr += "%(failed1)s + %(successive1)s + %(new1)s"
+                remStr += "%(failed1)s + %(rev1)s + %(new1)s"
             else:
                 q = self.main.deck.queueForCard(self.main.currentCard)
                 if q == "failed":
-                    remStr += "<u>%(failed1)s</u>&nbsp;&nbsp;%(successive1)s&nbsp;&nbsp;%(new1)s"
+                    remStr += "<u>%(failed1)s</u>&nbsp;&nbsp;%(rev1)s&nbsp;&nbsp;%(new1)s"
                 elif q == "rev":
-                    remStr += "%(failed1)s&nbsp;&nbsp;<u>%(successive1)s</u>&nbsp;&nbsp;%(new1)s"
+                    remStr += "%(failed1)s&nbsp;&nbsp;<u>%(rev1)s</u>&nbsp;&nbsp;%(new1)s"
                 else:
-                    remStr += "%(failed1)s&nbsp;&nbsp;%(successive1)s&nbsp;&nbsp;<u>%(new1)s</u>"
+                    remStr += "%(failed1)s&nbsp;&nbsp;%(rev1)s&nbsp;&nbsp;<u>%(new1)s</u>"
         stats['failed1'] = '<font color=#990000>%s</font>' % stats['failed']
-        stats['successive1'] = '<font color=#000000>%s</font>' % stats['successive']
+        stats['rev1'] = '<font color=#000000>%s</font>' % stats['rev']
         stats['new1'] = '<font color=#0000ff>%s</font>' % stats['new']
         self.remText.setText(remStr % stats)
         stats['spaced'] = self.main.deck.spacedCardCount()
@@ -169,7 +169,7 @@ class StatusView(object):
         self.remText.setToolTip(_(
             "<h1>Remaining cards</h1>"
             "<p/>There are <b>%(failed)d</b> failed cards due soon.<br>"
-            "There are <b>%(successive)d</b> cards awaiting review.<br>"
+            "There are <b>%(rev)d</b> cards awaiting review.<br>"
             "There are <b>%(new)d</b> new cards due today.<br><br>"
             "There are <b>%(new2)d</b> new cards in total.<br>"
             "There are <b>%(spaced)d</b> spaced cards.<br>") % stats)
