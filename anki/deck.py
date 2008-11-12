@@ -1739,10 +1739,8 @@ order by priority desc, due""")
             # rebuild type and delay cache
             deck.rebuildTypes()
             deck.rebuildQueue()
-            deck.s.commit()
             # bump version
             deck.version = 1
-            deck.s.commit()
             # optimize indices
             deck.s.statement("analyze")
         if deck.version == 1:
@@ -1755,7 +1753,6 @@ order by priority desc, due""")
             # optimize indices
             deck.s.statement("analyze")
             deck.version = 2
-            deck.s.commit()
         if deck.version == 2:
             # compensate for bug in 0.9.7 by rebuilding isDue and priorities
             deck.s.statement("update cards set isDue = 0")
@@ -1763,7 +1760,6 @@ order by priority desc, due""")
             # compensate for bug in early 0.9.x where fieldId was not unique
             deck.s.statement("update fields set id = random()")
             deck.version = 3
-            deck.s.commit()
         if deck.version == 3:
             # remove conflicting and unused indexes
             deck.s.statement("drop index if exists ix_cards_isDueCombined")
@@ -1779,23 +1775,19 @@ order by priority desc, due""")
             DeckStorage._addIndices(deck)
             deck.s.statement("analyze")
             deck.version = 4
-            deck.s.commit()
         if deck.version == 4:
             # decks field upgraded earlier
             deck.version = 5
-            deck.s.commit()
         if deck.version == 5:
             # new spacing
             deck.newCardSpacing = NEW_CARDS_DISTRIBUTE
             deck.version = 6
-            deck.s.commit()
             # low priority cards now stay in same queue
             deck.rebuildTypes()
         if deck.version == 6:
             # removed 'new cards first' option, so order has changed
             deck.newCardSpacing = NEW_CARDS_DISTRIBUTE
             deck.version = 7
-            deck.s.commit()
         # <version 7->8 upgrade code removed as obsolete>
         if deck.version < 9:
             # back up the media dir again, just in case
@@ -1828,12 +1820,10 @@ insert into media values (
             # no need to track deleted media yet
             deck.s.execute("delete from mediaDeleted")
             deck.version = 9
-            deck.s.commit()
         if deck.version < 10:
             deck.s.statement("""
 alter table models add column source integer not null default 0""")
             deck.version = 10
-            deck.s.commit()
         if deck.version < 11:
             DeckStorage._setUTCOffset(deck)
             deck.version = 11
