@@ -29,7 +29,8 @@ PRIORITY_NORM = 2
 PRIORITY_LOW = 1
 PRIORITY_NONE = 0
 MATURE_THRESHOLD = 21
-NEW_INTERVAL = 0
+# need interval > 0 to ensure relative delay is ordered properly
+NEW_INTERVAL = 0.001
 NEW_CARDS_LAST = 1
 NEW_CARDS_DISTRIBUTE = 0
 
@@ -40,7 +41,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=12),
+    Column('version', Integer, nullable=False, default=11),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -107,7 +108,6 @@ class Deck(object):
 
     def getCard(self, orm=True):
         "Return the next card object, or None."
-        self.checkDue()
         id = self.getCardId()
         if id:
             return self.cardFromId(id, orm)
@@ -115,7 +115,6 @@ class Deck(object):
     def getCards(self, limit=1, orm=True):
         """Return LIMIT number of new card objects.
 Caller must ensure multiple cards of the same fact are not shown."""
-        self.checkDue()
         ids = self.getCardIds(limit)
         return [self.cardFromId(x, orm) for x in ids]
 
@@ -268,6 +267,8 @@ where id != :id and factId = :factId""",
         entry = CardHistoryEntry(card, ease, lastDelay)
         entry.writeSQL(self.s)
         self.modified = now
+        # update isDue for failed cards
+        self.markExpiredCardsDue()
         # invalidate counts
         self._countsDirty = True
 
@@ -286,16 +287,24 @@ then 1 -- review
 else 2 -- new
 end)""" + where)
 
-    def checkDue(self):
-        "Mark expired cards due."
+    def markExpiredCardsDue(self):
+        "Mark expired cards due, and update their relativeDelay."
         self.s.statement("""update cards
-set isDue = 1
-where isDue = 0 and priority in (1,2,3,4) and type in (0, 1, 2)
-and combinedDue < :now""",
+set isDue = 1, relativeDelay = interval / (strftime("%s", "now") - due + 1)
+where isDue = 0 and priority in (1,2,3,4) and combinedDue < :now""",
                          now=time.time())
 
-    def rebuildQueue(self):
+    def updateRelativeDelays(self):
+        "Update relative delays for expired cards."
+        self.s.statement("""update cards
+set relativeDelay = interval / (strftime("%s", "now") - due + 1)
+where isDue = 1 and type = 1""")
+
+    def rebuildQueue(self, updateRelative=True):
         "Update relative delays based on current time."
+        if updateRelative:
+            self.updateRelativeDelays()
+        self.markExpiredCardsDue()
         # cache global/daily stats
         self._globalStats = globalStats(self)
         self._dailyStats = dailyStats(self)
@@ -406,7 +415,7 @@ factor = 2.5, reps = 0, successive = 0, averageTime = 0, reviewTime = 0,
 youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
 youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
 matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
-spaceUntil = 0, isDue = 0, type = 2,
+spaceUntil = 0, relativeDelay = 0, isDue = 0, type = 2,
 combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=NEW_INTERVAL)
         self.flushMod()
@@ -576,15 +585,15 @@ suspended</a> cards.''') % {
 
     def suspendedCardCount(self):
         return self.s.scalar(
-            "select count(id) from cards where type in (0,1,2) and priority = 0")
+            "select count(id) from cards where priority = 0")
 
     def seenCardCount(self):
         return self.s.scalar(
-            "select count(id) from cards where type in (0, 1)")
+            "select count(id) from cards where reps != 0")
 
     def newCardCount(self):
         return self.s.scalar(
-            "select count(id) from cards where type = 2")
+            "select count(id) from cards where reps = 0")
 
     # Counts related to due cards
     ##########################################################################
@@ -641,8 +650,7 @@ select count(id) from failedCardsNow""")
     def spacedCardCount(self):
         return self.s.scalar("""
 select count(cards.id) from cards where
-isDue = 0 and type in (0,1,2) and
-priority in (1,2,3,4) and due < :now and spaceUntil > :now""",
+priority != 0 and due < :now and spaceUntil > :now""",
                              now=time.time())
 
     def isEmpty(self):
@@ -1599,17 +1607,23 @@ alter table decks add column utcOffset numeric(10, 2) not null default 0""")
         "Add indices to the DB."
         # card queues
         deck.s.statement("""
-create index if not exists ix_cards_combinedDue on cards
-(type, isDue, combinedDue, priority)""")
+create index if not exists ix_cards_markExpired on cards
+(isDue, priority desc, combinedDue desc)""")
+        deck.s.statement("""
+create index if not exists ix_cards_failedIsDue on cards
+(type, isDue, combinedDue)""")
+        deck.s.statement("""
+create index if not exists ix_cards_failedOrder on cards
+(type, isDue, due)""")
         deck.s.statement("""
 create index if not exists ix_cards_revisionOrder on cards
-(type, isDue, priority desc, interval desc)""")
+(type, isDue, priority desc, relativeDelay)""")
         deck.s.statement("""
 create index if not exists ix_cards_newRandomOrder on cards
-(type, isDue, priority desc, factId, ordinal)""")
+(priority desc, factId, ordinal)""")
         deck.s.statement("""
 create index if not exists ix_cards_newOrderedOrder on cards
-(type, isDue, priority desc, combinedDue)""")
+(priority desc, due)""")
         # card spacing
         deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
@@ -1640,47 +1654,48 @@ create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
     def _addViews(deck):
         "Add latest version of SQL views to DB."
         s = deck.s
-        # old views
+        # old tables
         s.statement("drop view if exists failedCards")
         s.statement("drop view if exists acqCards")
         s.statement("drop view if exists futureCards")
         s.statement("drop view if exists typedCards")
         s.statement("drop view if exists failedCards")
         s.statement("drop view if exists failedCardsNow")
-        s.statement("drop view if exists failedCardsSoon")
-        s.statement("drop view if exists revCards")
-        s.statement("drop view if exists acqCardsRandom")
-        s.statement("drop view if exists acqCardsOrdered")
         s.statement("""
 create view failedCardsNow as
 select * from cards
 where type = 0 and isDue = 1
-and +priority in (1,2,3,4)
-order by type, isDue, combinedDue
+and combinedDue <= (strftime("%s", "now") + 1)
+order by combinedDue
 """)
+        s.statement("drop view if exists failedCardsSoon")
         s.statement("""
 create view failedCardsSoon as
 select * from cards
-where type = 0 and +priority in (1,2,3,4)
-and combinedDue <= (select max(delay0, delay1) +
-strftime("%s", "now")+1 from decks where id = 1)
-order by type, isDue, combinedDue
+where type = 0 and priority != 0
+and combinedDue <=
+(select max(delay0, delay1)+strftime("%s", "now")+1
+from decks)
+order by modified
 """)
+        s.statement("drop view if exists revCards")
         s.statement("""
 create view revCards as
-select * from cards
-where type = 1 and isDue = 1
-order by priority desc, interval desc""")
+select * from cards where
+type = 1 and isDue = 1
+order by type, isDue, priority desc, relativeDelay""")
+        s.statement("drop view if exists acqCardsRandom")
         s.statement("""
 create view acqCardsRandom as
 select * from cards
 where type = 2 and isDue = 1
 order by priority desc, factId, ordinal""")
+        s.statement("drop view if exists acqCardsOrdered")
         s.statement("""
 create view acqCardsOrdered as
 select * from cards
 where type = 2 and isDue = 1
-order by priority desc, combinedDue""")
+order by priority desc, due""")
     _addViews = staticmethod(_addViews)
 
     def _upgradeDeck(deck, path):
@@ -1691,6 +1706,8 @@ order by priority desc, combinedDue""")
             try:
                 deck.s.statement("""
     alter table cards add column spaceUntil float not null default 0""")
+                deck.s.statement("""
+    alter table cards add column relativeDelay float not null default 0.0""")
                 deck.s.statement("""
     alter table cards add column isDue boolean not null default 0""")
                 deck.s.statement("""
@@ -1820,20 +1837,6 @@ alter table models add column source integer not null default 0""")
         if deck.version < 11:
             DeckStorage._setUTCOffset(deck)
             deck.version = 11
-            deck.s.commit()
-        if deck.version < 12:
-            deck.s.statement("drop index if exists ix_cards_revisionOrder")
-            deck.s.statement("drop index if exists ix_cards_newRandomOrder")
-            deck.s.statement("drop index if exists ix_cards_newOrderedOrder")
-            deck.s.statement("drop index if exists ix_cards_markExpired")
-            deck.s.statement("drop index if exists ix_cards_failedIsDue")
-            deck.s.statement("drop index if exists ix_cards_failedOrder")
-            deck.s.statement("drop index if exists ix_cards_type")
-            deck.s.statement("drop index if exists ix_cards_priority")
-            DeckStorage._addViews(deck)
-            DeckStorage._addIndices(deck)
-            deck.s.statement("analyze")
-            deck.version = 12
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
