@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-14 02:28+0900\n"
+"POT-Creation-Date: 2008-11-14 02:43+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -1495,6 +1495,10 @@ msgstr "Couleur de l'interface"
 #: ui/cardlist.py:316
 msgid "Interval"
 msgstr "Intervalle"
+
+#: ui/preferences.py:36
+msgid "Italian"
+msgstr ""
 
 #: ui/facteditor.py:83
 msgid "Italic text (Ctrl+i)"

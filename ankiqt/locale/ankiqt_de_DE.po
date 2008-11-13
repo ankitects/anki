@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-14 02:28+0900\n"
+"POT-Creation-Date: 2008-11-14 02:43+0900\n"
 "PO-Revision-Date: 2007-08-13 16:28+0200\n"
 "Last-Translator: Andreas Klauer <Andreas.Klauer@metamorpher.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1499,6 +1499,10 @@ msgstr "Farbe der Oberfläche"
 #: ui/cardlist.py:316
 msgid "Interval"
 msgstr "Intervall"
+
+#: ui/preferences.py:36
+msgid "Italian"
+msgstr ""
 
 #: ui/facteditor.py:83
 msgid "Italic text (Ctrl+i)"

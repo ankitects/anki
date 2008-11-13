@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-14 02:28+0900\n"
+"POT-Creation-Date: 2008-11-14 02:43+0900\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1510,6 +1510,10 @@ msgstr "Colore interfaccia"
 msgid "Interval"
 msgstr "Intervallo"
 
+#: ui/preferences.py:36
+msgid "Italian"
+msgstr "Italiano"
+
 #: ui/facteditor.py:83
 msgid "Italic text (Ctrl+i)"
 msgstr "Testo in corsivo (Ctrl+i)"
@@ -2307,9 +2311,6 @@ msgstr "opzione"
 
 #~ msgid "Error building queue. Attempting recovery.."
 #~ msgstr "Errore costruzione sequenza. Tentativo di ripristino.."
-
-#~ msgid "Italian"
-#~ msgstr "Italiano"
 
 #~ msgid ""
 #~ "No problems found. Some data structures have been rebuilt in case\n"

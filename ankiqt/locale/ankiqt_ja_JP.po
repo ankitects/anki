@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-14 02:28+0900\n"
+"POT-Creation-Date: 2008-11-14 02:43+0900\n"
 "PO-Revision-Date: 2008-03-28 17:07+0900\n"
 "Last-Translator: Andrew Wright <guswright80@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1453,6 +1453,10 @@ msgstr "インターフェースの色"
 #: ui/cardlist.py:316
 msgid "Interval"
 msgstr "期間"
+
+#: ui/preferences.py:36
+msgid "Italian"
+msgstr ""
 
 #: ui/facteditor.py:83
 #, fuzzy
