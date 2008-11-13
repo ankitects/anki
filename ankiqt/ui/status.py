@@ -241,7 +241,7 @@ You should aim to answer each question within<br>
             return
         if not self.timer:
             return
-        if self.main.state in "showQuestion":
+        if self.main.state in ("showQuestion", "showAnswer"):
             t = self.main.currentCard.thinkingTime()
             if t < 60:
                 self.timer.setText('00:%02d' % t)

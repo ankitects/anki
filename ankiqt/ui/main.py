@@ -186,7 +186,6 @@ class AnkiQt(QMainWindow):
             self.updateMarkAction()
             self.runHook('showQuestion')
         elif state == "showAnswer":
-            self.currentCard.stopTimer()
             self.resetButtons()
             self.showEaseButtons()
             self.enableCardMenuItems()
