@@ -249,7 +249,9 @@ type, due, interval, factor, priority from """
         d['fail'] = self.s.all(sel + "failedCardsNow limit 100")
         d['rev'] = self.s.all(sel + "revCards limit 30")
         if self.newCountToday:
-            d['acq'] = self.s.all(sel + new + " limit 30")
+            d['acq'] = self.s.all(sel + """
+cards where factId in (select distinct factId from cards
+where factId in (select factId from %s limit 60))""" % new)
         else:
             d['acq'] = []
         if (not d['fail'] and not d['rev'] and not d['acq']):
@@ -704,7 +706,7 @@ and due < :now""", now=time.time())
     # Stats
     ##########################################################################
 
-    def getStats(self):
+    def getStats(self, short=False):
         "Return some commonly needed stats."
         stats = anki.stats.getStats(self.s, self._globalStats, self._dailyStats)
         # add scheduling related stats
@@ -718,7 +720,7 @@ and due < :now""", now=time.time())
                 count = stats['rev'] or stats['new']
             count += stats['failed']
             stats['timeLeft'] = anki.utils.fmtTimeSpan(
-                stats['dAverageTime'] * count, pad=0, point=1)
+                stats['dAverageTime'] * count, pad=0, point=1, short=short)
         else:
             stats['timeLeft'] = _("Unknown")
         return stats
