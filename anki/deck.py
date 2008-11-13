@@ -169,7 +169,6 @@ class Deck(object):
     def _maybeGetNewCard(self):
         "Get a new card, provided daily new card limit not exceeded."
         if not self.newCountToday:
-            print "no count"
             return
         return self._getNewCard()
 
@@ -440,9 +439,10 @@ strftime("%s", "now")+1 from decks)"""))
                 interval = random.uniform(self.easyIntervalMin,
                                           self.easyIntervalMax)
         else:
-            # if the last interval was initial hard, boost it
-            if interval < self.hardIntervalMax:
-                interval = self.hardIntervalMax * 3.5;
+            # if not cramming, boost initial 2
+            if (interval < self.hardIntervalMax and
+                interval > 0.166):
+                interval = self.hardIntervalMax * 3.5
             # multiply last interval by factor
             if ease == 2:
                 interval = (interval + delay/4) * 1.2
