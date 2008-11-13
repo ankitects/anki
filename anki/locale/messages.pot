@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-12 03:53+0900\n"
+"POT-Creation-Date: 2008-11-14 02:29+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: deck.py:494
+#: deck.py:557
 #, python-format
 msgid ""
 "\n"
@@ -87,42 +87,42 @@ msgstr ""
 msgid "%s ago"
 msgstr ""
 
-#: utils.py:19
+#: utils.py:26
 #, python-format
 msgid "%s day"
 msgid_plural "%s days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: utils.py:20
+#: utils.py:27
 #, python-format
 msgid "%s hour"
 msgid_plural "%s hours"
 msgstr[0] ""
 msgstr[1] ""
 
-#: utils.py:21
+#: utils.py:28
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: utils.py:18
+#: utils.py:25
 #, python-format
 msgid "%s month"
 msgid_plural "%s months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: utils.py:22
+#: utils.py:29
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: utils.py:17
+#: utils.py:24
 #, python-format
 msgid "%s year"
 msgid_plural "%s years"
@@ -171,7 +171,7 @@ msgstr ""
 msgid "<li>%d total unique kanji.</li>"
 msgstr ""
 
-#: sync.py:179
+#: sync.py:191
 #, python-format
 msgid ""
 "<table width=500>\n"
@@ -234,7 +234,7 @@ msgstr ""
 msgid "Added last week"
 msgstr ""
 
-#: exporting.py:215
+#: exporting.py:223
 msgid "Anki deck (*.anki)"
 msgstr ""
 
@@ -242,7 +242,7 @@ msgstr ""
 msgid "Anki decks (*.anki)"
 msgstr ""
 
-#: deck.py:429
+#: deck.py:516
 #, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
@@ -276,7 +276,7 @@ msgstr ""
 msgid "Basic"
 msgstr ""
 
-#: deck.py:1509 deck.py:1586
+#: deck.py:1552 deck.py:1642
 msgid "Can't read/write deck"
 msgstr ""
 
@@ -292,15 +292,15 @@ msgstr ""
 msgid "Card tags"
 msgstr ""
 
-#: graphs.py:77 graphs.py:99 graphs.py:113 graphs.py:135
+#: graphs.py:78 graphs.py:100 graphs.py:114 graphs.py:136
 msgid "Cards"
 msgstr ""
 
-#: exporting.py:216
+#: exporting.py:224
 msgid "Cards in tab-separated text file (*.txt)"
 msgstr ""
 
-#: models.py:25
+#: models.py:26
 msgid "Center"
 msgstr ""
 
@@ -320,15 +320,15 @@ msgstr ""
 msgid "Current interval"
 msgstr ""
 
-#: deck.py:1349
+#: deck.py:1392
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
-#: graphs.py:136
+#: graphs.py:137
 msgid "Day"
 msgstr ""
 
-#: graphs.py:78 graphs.py:100 graphs.py:114
+#: graphs.py:79 graphs.py:101 graphs.py:115
 msgid "Days"
 msgstr ""
 
@@ -341,31 +341,31 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:1357
+#: deck.py:1400
 msgid "Deck was missing a model"
 msgstr ""
 
-#: deck.py:1378
+#: deck.py:1421
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1386
+#: deck.py:1429
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr ""
 
-#: deck.py:1399
+#: deck.py:1442
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1371
+#: deck.py:1414
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1391
+#: deck.py:1434
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -382,11 +382,11 @@ msgstr ""
 msgid "Fact tags"
 msgstr ""
 
-#: exporting.py:217
+#: exporting.py:225
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:1558
+#: deck.py:1614
 msgid "File is in use by another process"
 msgstr ""
 
@@ -451,7 +451,7 @@ msgstr ""
 msgid "Last interval"
 msgstr ""
 
-#: models.py:26
+#: models.py:27
 msgid "Left"
 msgstr ""
 
@@ -463,7 +463,7 @@ msgstr ""
 msgid "Mature"
 msgstr ""
 
-#: graphs.py:210
+#: graphs.py:211
 msgid "Mature cards"
 msgstr ""
 
@@ -477,16 +477,16 @@ msgstr ""
 msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgstr ""
 
-#: media.py:162 media.py:164 media.py:165
+#: media.py:152 media.py:154 media.py:155
 msgid "Media Missing"
 msgstr ""
 
-#: deck.py:950
+#: deck.py:956
 #, python-format
 msgid "Model '%s' has wrong card model count"
 msgstr ""
 
-#: deck.py:954
+#: deck.py:960
 #, python-format
 msgid "Model '%s' has wrong field model count"
 msgstr ""
@@ -495,7 +495,7 @@ msgstr ""
 msgid "Model tags"
 msgstr ""
 
-#: graphs.py:208
+#: graphs.py:209
 msgid "New cards"
 msgstr ""
 
@@ -503,7 +503,7 @@ msgstr ""
 msgid "Next due"
 msgstr ""
 
-#: deck.py:442
+#: deck.py:529
 msgid "No cards are due."
 msgstr ""
 
@@ -535,23 +535,23 @@ msgstr ""
 msgid "Review count"
 msgstr ""
 
-#: models.py:27
+#: models.py:28
 msgid "Right"
 msgstr ""
 
-#: deck.py:1899
+#: deck.py:1961
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:1893
+#: deck.py:1955
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:1892
+#: deck.py:1954
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:1898
+#: deck.py:1960
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -563,7 +563,7 @@ msgstr ""
 msgid "Test your ability to recognize the target expression"
 msgstr ""
 
-#: exporting.py:144 exporting.py:176
+#: exporting.py:152 exporting.py:184
 msgid "Text files (*.txt)"
 msgstr ""
 
@@ -571,11 +571,11 @@ msgstr ""
 msgid "The answer."
 msgstr ""
 
-#: deck.py:1363
+#: deck.py:1406
 msgid "The current model didn't exist"
 msgstr ""
 
-#: deck.py:439
+#: deck.py:526
 #, python-format
 msgid "The next card will be shown in <b>%s</b>"
 msgstr ""
@@ -589,7 +589,7 @@ msgstr ""
 msgid "Total time"
 msgstr ""
 
-#: deck.py:713
+#: deck.py:722
 msgid "Unknown"
 msgstr ""
 
@@ -602,7 +602,7 @@ msgstr ""
 msgid "Young"
 msgstr ""
 
-#: graphs.py:209
+#: graphs.py:210
 msgid "Young cards"
 msgstr ""
 
@@ -616,16 +616,8 @@ msgstr ""
 msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 msgstr ""
 
-#: models.py:150 models.py:151 models.py:182
-msgid "[empty]"
-msgstr ""
-
-#: models.py:148
-msgid "[invalid format; see model properties]"
-msgstr ""
-
-#: deck.py:474
-msgid "a short time"
+#: models.py:129
+msgid "[invalid question/answer format]"
 msgstr ""
 
 #: stats.py:270
@@ -633,6 +625,6 @@ msgstr ""
 msgid "in %s"
 msgstr ""
 
-#: deck.py:459
+#: deck.py:546
 msgid "unknown"
 msgstr ""
