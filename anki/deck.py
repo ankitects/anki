@@ -440,7 +440,10 @@ strftime("%s", "now")+1 from decks)"""))
                 interval = random.uniform(self.easyIntervalMin,
                                           self.easyIntervalMax)
         else:
-            # otherwise, multiply the old interval by a factor
+            # if the last interval was initial hard, boost it
+            if interval < self.hardIntervalMax:
+                interval = self.hardIntervalMax * 3.5;
+            # multiply last interval by factor
             if ease == 2:
                 interval = (interval + delay/4) * 1.2
             elif ease == 3:
@@ -455,14 +458,8 @@ strftime("%s", "now")+1 from decks)"""))
 
     def nextIntervalStr(self, card, ease, short=False):
         "Return the next interval for CARD given EASE as a string."
-        if card.interval == 0 and ease == 2:
-            if short:
-                return _("tom.")
-            else:
-                return _("Tomorrow")
-        else:
-            int = self.nextInterval(card, ease)
-            return anki.utils.fmtTimeSpan(int*86400, short=short)
+        int = self.nextInterval(card, ease)
+        return anki.utils.fmtTimeSpan(int*86400, short=short)
 
     def nextDue(self, card, ease, oldState):
         "Return time when CARD will expire given EASE."
