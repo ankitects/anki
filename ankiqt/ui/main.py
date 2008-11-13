@@ -201,7 +201,7 @@ class AnkiQt(QMainWindow):
                 return self.moveToState("showAnswer")
         elif self.state == "showAnswer":
             key = unicode(evt.text())
-            if key and key >= "0" and key <= "4":
+            if key and key >= "1" and key <= "4":
                 # user entered a quality setting
                 num=int(key)
                 evt.accept()
@@ -318,11 +318,7 @@ class AnkiQt(QMainWindow):
         # button grid
         grid = QGridLayout()
         grid.setSpacing(3)
-        if self.config['show3AnswerButtons']:
-            rng = (1, 4)
-        else:
-            rng = (0, 5)
-        button3 = self.showCompactEaseButtons(grid, nextInts, rng)
+        button3 = self.showCompactEaseButtons(grid, nextInts)
         hbox = QHBoxLayout()
         hbox.addStretch()
         hbox.addLayout(grid)
@@ -330,29 +326,33 @@ class AnkiQt(QMainWindow):
         self.buttonBox.addLayout(hbox)
         button3.setFocus()
 
-    def showCompactEaseButtons(self, grid, nextInts, rng):
+    def showCompactEaseButtons(self, grid, nextInts):
         text = (
-            (_("<b>%(ease0)s</b>"),
-             _("<b>Reset.</b><br>You've completely forgotten.")),
-            (_("<b>%(ease1)s</b>"),
-             _("<b>Too difficult.</b><br>Show this card again soon.")),
-            (_("<b>%(ease2)s</b>"),
-             _("<b>Challenging.</b><br>Wait a little longer next time.")),
-            (_("<b>%(ease3)s</b>"),
-             _("<b>Comfortable.</b><br>Wait longer next time.")),
-            (_("<b>%(ease4)s</b>"),
-             _("<b>Too easy.</b><br>Wait a lot longer next time.")))
+            (_("Again"),
+             _("<b>%(ease1)s</b>"),
+             _("<b>Relearn (1)</b><br>Mark harder and learn again.")),
+            (_("Hard"),
+             _("<b>%(ease2)s</b>"),
+             _("<b>Hard (2)</b><br>Wait a little longer next time.")),
+            (_("Good"),
+             _("<b>%(ease3)s</b>"),
+             _("<b>Comfortable (3)</b><br>Wait longer next time.")),
+            (_("Easy"),
+             _("<b>%(ease4)s</b>"),
+             _("<b>Easy (4)</b><br>Wait a lot longer next time.")))
         button3 = None
-        for i in range(*rng):
+        for i in range(1, 5):
             if not self.config['suppressEstimates']:
-                label = QLabel(self.withInterfaceFont(text[i][0] % nextInts))
+                if i == 1:
+                    label = QLabel(_("Soon"))
+                else:
+                    label = QLabel(self.withInterfaceFont(text[i-1][1] % nextInts))
                 label.setAlignment(Qt.AlignHCenter)
                 grid.addWidget(label, 0, (i*2)+1)
-            button = QPushButton(str(i))
+            button = QPushButton(text[i-1][0])
             button.setFixedHeight(self.easeButtonHeight)
-            if rng[0] == 1:
-                button.setFixedWidth(120)
-            button.setToolTip(text[i][1])
+            button.setFixedWidth(100)
+            button.setToolTip(text[i-1][2])
             self.connect(button, SIGNAL("clicked()"),
                 lambda i=i: self.cardAnswered(i))
             #button.setFixedWidth(70)
