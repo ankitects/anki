@@ -1521,7 +1521,7 @@ class DeckStorage(object):
 
     backupDir = os.path.expanduser("~/.anki/backups")
     numBackups = 100
-    newDeckDir = "~"
+    newDeckDir = "~/.anki/"
 
     def newDeckPath():
         # create ~/mydeck(N).anki
