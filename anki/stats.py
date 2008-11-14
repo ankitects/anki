@@ -352,7 +352,7 @@ class DeckStats(object):
         html += _("First-seen cards: <b>%(gNewYes%)0.1f%%</b> "
                   "(<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>") % stats
         # average pending time
-        existing = d.cardCount - d.newTodayCount
+        existing = d.cardCount - d.newCountToday
         avgInt = self.getAverageInterval()
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
