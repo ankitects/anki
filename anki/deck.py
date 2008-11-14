@@ -403,6 +403,8 @@ strftime("%s", "now")+1 from decks)"""))
                     self.newCardModulus = max(2, self.newCardModulus)
             else:
                 self.newCardModulus = 0
+        else:
+            self.newCardModulus = 0
         # determine starting factor for new cards
         self.averageFactor = (self.s.scalar(
             "select avg(factor) from cards where type = 1")
