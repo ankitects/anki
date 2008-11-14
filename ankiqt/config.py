@@ -34,7 +34,7 @@ class Config(dict):
                     if not os.path.exists(self.configPath):
                         self.makeAnkiDir()
                     newDb = self.getDbPath()
-                    os.path.rename(oldDb, newDb)
+                    os.rename(oldDb, newDb)
         if not os.path.exists(self.configPath):
             self.makeAnkiDir()
         self.load()
