@@ -13,13 +13,19 @@
    <string>Anki - Add Items</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" >
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <property name="margin" >
+    <number>4</number>
+   </property>
    <item>
     <layout class="QGridLayout" >
      <property name="margin" >
-      <number>3</number>
+      <number>0</number>
      </property>
      <property name="spacing" >
-      <number>3</number>
+      <number>0</number>
      </property>
      <item row="0" column="0" >
       <widget class="QWidget" native="1" name="modelArea" />
