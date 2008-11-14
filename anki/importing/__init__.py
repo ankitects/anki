@@ -170,6 +170,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         data['due'] = self._now
         self._now += .00001
         data.update(card.__dict__)
+        data['combinedDue'] = data['due']
         return data
 
     def stripInvalid(self, cards):
