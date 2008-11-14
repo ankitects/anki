@@ -80,6 +80,21 @@ def run():
     DeckStorage.backupDir = os.path.join(conf.configPath,
                                          "backups")
 
+    # qt translations
+    translationPath = ''
+    if 'linux' in sys.platform or 'unix' in sys.platform:
+        translationPath = "/usr/share/qt4/translations/"
+    if translationPath:
+        long = conf['interfaceLang']
+        if long == "ja_JP":
+            # qt is inconsistent
+            long = long.lower()
+        short = long.split('_')[0]
+        qtTranslator = QTranslator()
+        if qtTranslator.load("qt_" + long, translationPath) or \
+               qtTranslator.load("qt_" + short, translationPath):
+            app.installTranslator(qtTranslator)
+
     # load main window
     ui.importAll()
     ui.dialogs.registerDialogs()
@@ -89,15 +104,6 @@ def run():
         mw.setStyleSheet(styleFile.read())
     except (IOError, OSError):
         pass
-
-#     import platform
-#     if (platform.processor() != "powerpc" and
-#         platform.architecture()[0] == "32bit"):
-#         try:
-#             import psyco
-#             psyco.profile()
-#         except ImportError:
-#             print "Installing python-psyco is strongly recommended."
 
     app.exec_()
 
