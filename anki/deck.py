@@ -1188,6 +1188,12 @@ from cards, facts, models where
 cards.factId == facts.id and facts.modelId == models.id
 %s""" % where)
 
+    def cardsWithNoTags(self):
+        return self.s.column0("""
+select cards.id from cards, facts where
+cards.tags = "" and facts.tags = ""
+and cards.factId = facts.id""")
+
     def allTags(self):
         "Return a hash listing tags in model, fact and cards."
         return list(set(parseTags(",".join([x[1] for x in self.tagsList()]))))

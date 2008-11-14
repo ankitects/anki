@@ -25,7 +25,8 @@ except ImportError:
 sqlite.enable_shared_cache(True)
 
 from sqlalchemy import (Table, Integer, Float, Column, MetaData,
-                        ForeignKey, Boolean, String, Date, UniqueConstraint)
+                        ForeignKey, Boolean, String, Date,
+                        UniqueConstraint, Index)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import mapper, sessionmaker, relation, backref, \
      object_session as _object_session
@@ -48,8 +49,7 @@ def newWarn(*args, **kwargs):
     oldWarn(*args, **kwargs)
 util.warn = newWarn
 
-
-
+# shared metadata
 metadata = MetaData()
 
 # this class assumes the provided session is called with transactional=False
