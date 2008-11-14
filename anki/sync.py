@@ -38,7 +38,6 @@ from anki.lang import _
 if simplejson.__version__ < "1.7.3":
     raise "SimpleJSON must be 1.7.3 or later."
 
-# Protocol 3 code
 ##########################################################################
 
 class SyncTools(object):
@@ -895,7 +894,7 @@ class HttpSyncServerProxy(SyncServer):
         self.password = passwd
         self.syncURL="http://anki.ichi2.net/sync/"
         #self.syncURL="http://localhost:8001/sync/"
-        self.protocolVersion = 3
+        self.protocolVersion = 4
         self.sourcesToCheck = []
 
     def connect(self, clientVersion=""):
