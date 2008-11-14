@@ -1346,6 +1346,20 @@ class AnkiQt(QMainWindow):
                 "type": ret }
          )
 
+    def updateStarted(self):
+        self.updateProgressDialog = QProgressDialog(_(
+            "Updating Anki..\n(you can keep studying)"), "", 0, 0, self)
+        self.updateProgressDialog.setMinimum(0)
+        self.updateProgressDialog.setMaximum(100)
+        self.updateProgressDialog.setCancelButton(None)
+        self.updateProgressDialog.setMinimumDuration(0)
+
+    def updateDownloading(self, perc):
+        self.updateProgressDialog.setValue(perc)
+
+    def updateFinished(self):
+        self.updateProgressDialog.cancel()
+
     # Plugins
     ##########################################################################
 

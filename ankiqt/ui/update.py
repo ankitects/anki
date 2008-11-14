@@ -85,8 +85,8 @@ class Updater(QThread):
 
     filename = "anki-update.exe"
     # FIXME: get when checking version number
-    chunkSize = 428027
-    percChange = 5
+    chunkSize = 131018
+    percChange = 1
 
     def __init__(self):
         QThread.__init__(self)
@@ -109,9 +109,9 @@ class Updater(QThread):
             self.setStatus(_("Unable to open file"))
             return
         perc = 0
+        self.emit(SIGNAL("updateStarted"), perc)
         while 1:
-            self.setStatus(
-                _("Downloading anki updater - %d%% complete.") % perc)
+            self.emit(SIGNAL("updateDownloading"), perc)
             resp = f.read(self.chunkSize)
             if not resp:
                 break
@@ -120,7 +120,7 @@ class Updater(QThread):
             if perc > 99:
                 perc = 99
         newfile.close()
-        self.setStatus(_("Updating.."))
+        self.emit(SIGNAL("updateFinished"), perc)
         os.chdir(os.path.dirname(filename))
         os.system(os.path.basename(filename))
         self.setStatus(_("Update complete. Please restart Anki."))
@@ -129,10 +129,10 @@ class Updater(QThread):
 def askAndUpdate(parent, version=None):
     version = version['latestVersion']
     baseStr = (
-        _("""<h1>Anki updated</h1>Anki %s has been released.<br>
+        _('''<h1>Anki updated</h1>Anki %s has been released.<br>
 The release notes are
 <a href="http://ichi2.net/anki/download/index.html#changes">here</a>.
-<br><br>""") %
+<br><br>''') %
         version)
     msg = QMessageBox(parent)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -150,6 +150,15 @@ The release notes are
             parent.connect(parent.autoUpdate,
                            SIGNAL("statusChanged"),
                            parent.setStatus)
+            parent.connect(parent.autoUpdate,
+                           SIGNAL("updateStarted"),
+                           parent.updateStarted)
+            parent.connect(parent.autoUpdate,
+                           SIGNAL("updateDownloading"),
+                           parent.updateDownloading)
+            parent.connect(parent.autoUpdate,
+                           SIGNAL("updateFinished"),
+                           parent.updateFinished)
             parent.autoUpdate.start()
         else:
             QDesktopServices.openUrl(QUrl(ankiqt.appWebsite))
