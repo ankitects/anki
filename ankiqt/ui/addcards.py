@@ -73,7 +73,17 @@ class AddCards(QDialog):
         oldFact = self.editor.fact
         # create a new fact
         fact = self.parent.deck.newFact()
-        fact.tags = self.parent.deck.lastTags
+        # copy fields from old fact
+        if oldFact:
+            for field in oldFact.model.fieldModels:
+                try:
+                    fact[field.name]
+                    fact[field.name] = oldFact[field.name]
+                except KeyError:
+                    pass
+            fact.tags = oldFact.tags
+        else:
+            fact.tags = self.parent.deck.lastTags
         # set the new fact
         self.editor.setFact(fact, check=True)
 
