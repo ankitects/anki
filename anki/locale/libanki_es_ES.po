@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-14 02:43+0900\n"
-"PO-Revision-Date: 2008-10-28 04:19+0100\n"
+"POT-Creation-Date: 2008-11-14 13:30+0900\n"
+"PO-Revision-Date: 2008-11-13 19:31+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -667,7 +667,7 @@ msgstr "Tarjetas jóvenes: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 
 #: models.py:129
 msgid "[invalid question/answer format]"
-msgstr ""
+msgstr "[formato de pregunta/respuesta incorrecto]"
 
 #: stats.py:270
 #, python-format
