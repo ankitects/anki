@@ -24,6 +24,19 @@ class Config(dict):
             if self.configPath.startswith("~"):
                 # windows sucks
                 self.configPath = "c:\\anki"
+        elif sys.platform.startswith("darwin"):
+            if self.configPath == os.path.expanduser("~/.anki"):
+                oldDb = self.getDbPath()
+                self.configPath = os.path.expanduser(
+                    "~/Library/Application Support/Anki")
+                # upgrade?
+                if os.path.exists(oldDb):
+                    if not os.path.exists(self.configPath):
+                        self.makeAnkiDir()
+                    newDb = self.getDbPath()
+                    os.path.rename(oldDb, newDb)
+        if not os.path.exists(self.configPath):
+            self.makeAnkiDir()
         self.load()
 
     def defaults(self):
@@ -111,23 +124,6 @@ class Config(dict):
     def load(self):
         base = self.configPath
         db = self.getDbPath()
-        if not os.path.exists(base):
-            self.makeAnkiDir()
-        # maybe move .anki config file to .anki/config.db
-        if os.path.isfile(base):
-            oldfile = open(base)
-            contents = oldfile.read()
-            oldfile.close()
-            # write to a tempfile as a backup
-            from tempfile import mkstemp
-            (fd, tmpname) = mkstemp()
-            file = os.fdopen(fd, "w")
-            file.write(contents)
-            file.close()
-            os.unlink(base)
-            self.makeAnkiDir()
-            from shutil import copyfile
-            copyfile(tmpname, db)
         # load config
         try:
             f = open(db)
