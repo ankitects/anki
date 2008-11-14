@@ -20,10 +20,10 @@ class ModelChooser(QHBoxLayout):
         self.setMargin(0)
         self.setSpacing(6)
         self.shortcuts = []
-        label = QLabel(_("<b><u>M</u>odel</b>:"))
+        label = QLabel(_("<b>Model</b>:"))
         self.addWidget(label)
         self.models = QComboBox()
-        s = QShortcut(QKeySequence(_("Alt+M")), self.parent)
+        s = QShortcut(QKeySequence(_("Ctrl+Alt+m")), self.parent)
         s.connect(s, SIGNAL("activated()"),
                   lambda: self.models.showPopup())
         self.drawModels()
@@ -40,7 +40,7 @@ class ModelChooser(QHBoxLayout):
         self.connect(self.add, SIGNAL("clicked()"), self.onAdd)
         self.edit = QPushButton()
         self.edit.setIcon(QIcon(":/icons/edit.png"))
-        self.edit.setShortcut(_("Alt+E"))
+        self.edit.setShortcut(_("Ctrl+Alt+e"))
         self.edit.setToolTip(_("Edit the current model"))
         self.edit.setAutoDefault(False)
         self.addWidget(self.edit)
@@ -49,13 +49,10 @@ class ModelChooser(QHBoxLayout):
         self.handleCards = False
         if cards:
             self.handleCards = True
-            label = QLabel(_("<b><u>C</u>ards</b>:"))
+            label = QLabel(_("<b>Cards</b>:"))
             self.addWidget(label)
             self.cards = QPushButton()
             self.connect(self.cards, SIGNAL("clicked()"), self.onCardChange)
-            s = QShortcut(QKeySequence(_("Alt+C")), self.parent)
-            s.connect(s, SIGNAL("activated()"),
-                      self.onCardChange)
             self.addWidget(self.cards)
             self.drawCardModels()
 
@@ -118,7 +115,7 @@ class ModelChooser(QHBoxLayout):
         self.cards.setText(txt)
         n = 1
         for c in m.cardModels:
-            s = QShortcut(QKeySequence("Alt+%d" % n), self.parent)
+            s = QShortcut(QKeySequence("Ctrl+%d" % n), self.parent)
             self.parent.connect(s, SIGNAL("activated()"),
                                 lambda c=c: self.toggleCard(c))
             self.shortcuts.append(s)

@@ -43,7 +43,7 @@ class AddCards(QDialog):
         self.dialog.modelArea.setLayout(self.modelChooser)
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "AddFacts"))
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "AddItems"))
 
     def addButtons(self):
         self.addButton = QPushButton(_("&Add"))
@@ -52,8 +52,6 @@ class AddCards(QDialog):
         self.addButton.setShortcut(_("Ctrl+Return"))
         self.addButton.setDefault(True)
         s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
-        s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
-        s = QShortcut(QKeySequence(_("Alt+A")), self)
         s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
         self.closeButton = QPushButton(_("Close"))
