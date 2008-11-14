@@ -928,6 +928,7 @@ class AnkiQt(QMainWindow):
         self.currentCard = None
         self.deck.s.flush()
         self.lastCardBackup.toDB(self.deck.s)
+        self.deck.rebuildCounts()
         self.reset()
 
     # Other menu operations
