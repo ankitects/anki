@@ -902,7 +902,7 @@ class HttpSyncServerProxy(SyncServer):
         "Check auth, protocol & grab deck list."
         if not self.decks:
             import socket
-            socket.setdefaulttimeout(10)
+            socket.setdefaulttimeout(60)
             d = self.runCmd("getDecks",
                             libanki=anki.version,
                             client=clientVersion,
