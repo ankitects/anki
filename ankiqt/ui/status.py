@@ -242,15 +242,14 @@ You should aim to answer each question within<br>
         if not self.timer:
             return
         if self.main.state in ("showQuestion", "showAnswer"):
-            t = self.main.currentCard.thinkingTime()
-            if t < 60:
-                self.timer.setText('00:%02d' % t)
-            else:
-                self.timer.setText('01:00')
-        elif self.main.state == "showAnswer":
-            pass
-        else:
-            self.timer.setText("00:00")
+            if self.main.currentCard:
+                t = self.main.currentCard.thinkingTime()
+                if t < 60:
+                    self.timer.setText('00:%02d' % t)
+                else:
+                    self.timer.setText('01:00')
+                return
+        self.timer.setText("00:00")
 
     def onConfigure(self):
         self.main.deckProperties = ui.deckproperties.DeckProperties(self.main)
