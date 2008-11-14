@@ -159,7 +159,6 @@ class Card(object):
         "Non-canonified string of all tags."
         return (self.tags + "," +
                 self.fact.tags + "," +
-                self.cardModel.name + "," +
                 self.fact.model.tags)
 
     def hasTag(self, tag):
