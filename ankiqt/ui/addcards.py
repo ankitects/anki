@@ -135,6 +135,7 @@ question or answer on all cards. Can't proceed."""), parent=self)
                             self)):
             ui.dialogs.close("AddCards")
             self.parent.deck.s.flush()
+            self.parent.deck.rebuildCSS()
             self.parent.moveToState("auto")
             saveGeom(self, "add")
             return True
