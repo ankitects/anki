@@ -21,7 +21,7 @@ createDeck(name): create a deck on the server
 __docformat__ = 'restructuredtext'
 
 import zlib, re, urllib, urllib2, socket, simplejson, time
-import os, base64
+import os, base64, httplib
 from datetime import date
 import anki, anki.deck, anki.cards
 from anki.errors import *
@@ -960,7 +960,8 @@ class HttpSyncServerProxy(SyncServer):
         data = urllib.urlencode(data)
         try:
             f = urllib2.urlopen(self.syncURL + action, data)
-        except (urllib2.URLError, socket.error, socket.timeout):
+        except (urllib2.URLError, socket.error, socket.timeout,
+                httplib.BadStatusLine):
             raise SyncError(type="noResponse")
         ret = f.read()
         if not ret:
@@ -1092,7 +1093,8 @@ class BulkMediaSyncerProxy(HttpSyncServerProxy):
         data = urllib.urlencode(data)
         try:
             f = urllib2.urlopen(self.syncURL + action, data)
-        except (urllib2.URLError, socket.error, socket.timeout):
+        except (urllib2.URLError, socket.error, socket.timeout,
+                httplib.BadStatusLine):
             raise SyncError(type="noResponse")
         ret = f.read()
         if not ret:

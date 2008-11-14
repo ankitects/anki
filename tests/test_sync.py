@@ -236,6 +236,7 @@ def test_localsync_media():
     assert deck2.s.scalar("select count(1) from media") == 3
     # check delete
     os.unlink(os.path.join(deck1media, "22161b29b0c18e068038021f54eee1ee.png"))
+    time.sleep(0.1)
     rebuildMediaDir(deck1)
     client.sync()
     assert deck1.s.scalar("select count(1) from media") == 2
