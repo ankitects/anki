@@ -708,7 +708,6 @@ class AnkiQt(QMainWindow):
     def saveDeck(self):
         self.setStatus(_("Saving.."))
         self.deck.save()
-        self.updateRecentFiles(self.deck.path)
         self.updateTitleBar()
         self.setStatus(_("Saving..done"))
 
@@ -782,6 +781,7 @@ class AnkiQt(QMainWindow):
         if not self.config['showToolbar']:
             self.removeToolBar(mw.toolBar)
             mw.toolBar.hide()
+            return
         if self.config['simpleToolbar']:
             self.removeToolBar(mw.toolBar)
             mw.toolBar.hide()

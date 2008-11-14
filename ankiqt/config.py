@@ -52,7 +52,6 @@ class Config(dict):
             'showTrayIcon': False,
             'showTimer': True,
             'showSuspendedCards': True,
-            'show3AnswerButtons': True,
             'simpleToolbar': True,
             }
         for (k,v) in fields.items():

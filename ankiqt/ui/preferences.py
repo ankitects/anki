@@ -163,8 +163,6 @@ class Preferences(QDialog):
 
     def setupAdvanced(self):
         self.dialog.showToolbar.setChecked(self.config['showToolbar'])
-        self.dialog.compactEaseButtons.setChecked(
-            self.config['show3AnswerButtons'])
         self.dialog.tallButtons.setChecked(
             self.config['easeButtonHeight'] != 'standard')
         self.dialog.suppressEstimates.setChecked(self.config['suppressEstimates'])
@@ -177,7 +175,6 @@ class Preferences(QDialog):
 
     def updateAdvanced(self):
         self.config['showToolbar'] = self.dialog.showToolbar.isChecked()
-        self.config['show3AnswerButtons'] = self.dialog.compactEaseButtons.isChecked()
         if self.dialog.tallButtons.isChecked():
             self.config['easeButtonHeight'] = 'tall'
         else:

@@ -456,62 +456,55 @@
           </widget>
          </item>
          <item row="1" column="0" >
-          <widget class="QCheckBox" name="compactEaseButtons" >
-           <property name="text" >
-            <string>Show 3 answer buttons, not 5</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" >
           <widget class="QCheckBox" name="simpleToolbar" >
            <property name="text" >
             <string>Simple toolbar</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
+         <item row="2" column="0" >
           <widget class="QCheckBox" name="showTimer" >
            <property name="text" >
             <string>Show timer</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0" >
+         <item row="3" column="0" >
           <widget class="QCheckBox" name="suppressEstimates" >
            <property name="text" >
             <string>Hide next interval when showing answer buttons</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0" >
+         <item row="4" column="0" >
           <widget class="QCheckBox" name="showLastCardContent" >
            <property name="text" >
             <string>Show last card's question/answer</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="0" >
+         <item row="5" column="0" >
           <widget class="QCheckBox" name="showLastCardInterval" >
            <property name="text" >
             <string>Show last card's interval</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0" >
+         <item row="6" column="0" >
           <widget class="QCheckBox" name="showToolbar" >
            <property name="text" >
             <string>Show toolbar on startup</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0" >
+         <item row="7" column="0" >
           <widget class="QCheckBox" name="tallButtons" >
            <property name="text" >
             <string>Tall buttons (for touchscreen)</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0" >
+         <item row="8" column="0" >
           <widget class="QCheckBox" name="showTray" >
            <property name="text" >
             <string>Show tray icon</string>
@@ -597,7 +590,6 @@
   <tabstop>syncPass</tabstop>
   <tabstop>syncOnOpen</tabstop>
   <tabstop>syncOnClose</tabstop>
-  <tabstop>compactEaseButtons</tabstop>
   <tabstop>simpleToolbar</tabstop>
   <tabstop>showTimer</tabstop>
   <tabstop>suppressEstimates</tabstop>
