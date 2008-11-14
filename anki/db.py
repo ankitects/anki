@@ -26,7 +26,7 @@ sqlite.enable_shared_cache(True)
 
 from sqlalchemy import (Table, Integer, Float, Column, MetaData,
                         ForeignKey, Boolean, String, Date,
-                        UniqueConstraint, Index)
+                        UniqueConstraint, Index, PrimaryKeyConstraint)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import mapper, sessionmaker, relation, backref, \
      object_session as _object_session
