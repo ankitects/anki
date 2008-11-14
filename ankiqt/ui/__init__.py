@@ -46,6 +46,8 @@ class DialogManager(object):
     def get(self, name, *args):
         (klass, obj) = self.modelessDialogs[name]
         if obj:
+            obj.activateWindow()
+            obj.raise_()
             return obj
         else:
             return klass(*args)
