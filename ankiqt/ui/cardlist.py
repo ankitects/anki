@@ -11,7 +11,7 @@ from ankiqt import ui
 from anki.cards import cardsTable, Card
 from anki.facts import factsTable, fieldsTable, Fact
 from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
-     stripHTML
+     stripHTML, ids2str
 from ankiqt.ui.utils import saveGeom, restoreGeom
 from anki.errors import *
 from anki.db import *
@@ -110,9 +110,12 @@ class DeckModel(QAbstractTableModel):
         # tags
         tagLimit = ""
         if self.tag:
-            tagLimit = "cards.id in (%s)" % (
-                ",".join([str(id) for (id, tags, pri) in self.deck.tagsList()
-                          if findTag(self.tag, parseTags(tags))]))
+            if self.tag == "notag":
+                tagLimit = "cards.id in %s" % ids2str(self.deck.cardsWithNoTags())
+            else:
+                tagLimit = "cards.id in %s" % ids2str(
+                    [id for (id, tags, pri) in self.deck.tagsList()
+                     if findTag(self.tag, parseTags(tags))])
         # sorting
         sort = ""
         ads = []
@@ -298,10 +301,10 @@ class EditDeck(QDialog):
         self.alltags.sort()
         self.dialog.tagList.clear()
         self.dialog.tagList.addItems(QStringList(
-            [_('All tags')] + self.alltags))
+            [_('All tags'), _('No tags')] + self.alltags))
         if self.currentTag:
             try:
-                idx = self.alltags.index(self.currentTag) + 1
+                idx = self.alltags.index(self.currentTag) + 2
             except ValueError:
                 idx = 0
             self.dialog.tagList.setCurrentIndex(idx)
@@ -351,8 +354,10 @@ class EditDeck(QDialog):
     def tagChanged(self, idx):
         if idx == 0:
             self.currentTag = None
+        elif idx == 1:
+            self.currentTag = "notag"
         else:
-            self.currentTag = self.alltags[idx-1]
+            self.currentTag = self.alltags[idx-2]
             if unicode(self.dialog.filterEdit.text()) in (
                 u"<current>", u"<last>"):
                 self.dialog.filterEdit.blockSignals(True)
