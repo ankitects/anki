@@ -119,6 +119,7 @@ def formatQA(cid, mid, fact, tags, cm):
         fields[k] = '<span class="fm%s">%s</span>' % (
             hexifyID(v[0]), v[1])
     fields['tags'] = canonifyTags(tags)
+    fields['Tags'] = fields['tags']
     # render q & a
     ret = []
     for (type, format) in (("question", cm.qformat),

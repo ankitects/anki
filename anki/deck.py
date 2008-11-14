@@ -1134,8 +1134,9 @@ facts.modelId = :id""", id=model.id)
         else:
             mod = ""
         # tags
-        tags = dict(self.tagsList(priority="", where="and cards.id in %s" %
-                                  ids2str([x[0] for x in ids])))
+        tags = dict(self.shortTagsList(
+            where="and cards.id in %s" %
+            ids2str([x[0] for x in ids])))
         facts = {}
         # fields
         for k, g in groupby(self.s.all("""
@@ -1179,6 +1180,13 @@ select cards.id, cards.tags || "," || facts.tags || "," || models.tags || "," ||
 cardModels.name %s from cards, facts, models, cardModels where
 cards.factId == facts.id and facts.modelId == models.id
 and cards.cardModelId = cardModels.id %s""" % (priority, where))
+
+    def shortTagsList(self, where=""):
+        return self.s.all("""
+select cards.id, cards.tags || "," || facts.tags || "," || models.tags
+from cards, facts, models where
+cards.factId == facts.id and facts.modelId == models.id
+%s""" % where)
 
     def allTags(self):
         "Return a hash listing tags in model, fact and cards."
