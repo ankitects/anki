@@ -146,6 +146,7 @@ class AnkiQt(QMainWindow):
             self.currentCard = None
             self.lastCard = None
             self.disableDeckMenuItems()
+            self.updateRecentFilesMenu()
             self.resetButtons()
             # hide all deck-associated dialogs
             ui.dialogs.closeAll()
@@ -538,6 +539,9 @@ class AnkiQt(QMainWindow):
         self.updateRecentFilesMenu()
 
     def updateRecentFilesMenu(self):
+        self.config['recentDeckPaths'] = [
+            p for p in self.config['recentDeckPaths']
+            if os.path.exists(p)]
         if not self.config['recentDeckPaths']:
             self.mainWin.menuOpenRecent.setEnabled(False)
             return
