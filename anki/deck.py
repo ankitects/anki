@@ -262,7 +262,6 @@ where factId in (select factId from %s limit 60))""" % new)
 
     def answerCard(self, card, ease):
         t = time.time()
-        self.checkDailyStats()
         now = time.time()
         oldState = self.cardState(card)
         lastDelay = max(0, (time.time() - card.due) / 86400.0)
@@ -355,8 +354,7 @@ end)""" + where)
 
     def checkDue(self):
         "Mark expired cards due, and update counts."
-        t2 = time.time()
-        t = time.time()
+        self.checkDailyStats()
         # mark due & update counts
         stmt = """
 update cards set
@@ -364,27 +362,20 @@ isDue = 1 where type = %d and isDue = 0 and
 priority in (1,2,3,4) and combinedDue < :now"""
         self.failedNowCount += self.s.statement(
             stmt % 0, now=time.time()).rowcount
-        #print "set1", time.time() - t; t = time.time()
-        #self.engine.echo = True
         self.revCount += self.s.statement(
             stmt % 1, now=time.time()).rowcount
-        #self.engine.echo = False
-        #print "set2", time.time() - t; t = time.time()
         self.newCount += self.s.statement(
             stmt % 2, now=time.time()).rowcount
-        #print "set3", time.time() - t; t = time.time()
         self.failedSoonCount = (self.failedNowCount +
                                 self.s.scalar("""
 select count(*) from cards where
 type = 0 and isDue = 0 and priority in (1,2,3,4)
 and combinedDue <= (select max(delay0, delay1) +
 strftime("%s", "now")+1 from decks)"""))
-        #print "set4", time.time() - t; t = time.time()
         # new card handling
         self.newCountToday = max(min(
             self.newCount, self.newCardsPerDay -
             self.newCardsToday()), 0)
-        #print "me indv", time.time() - t2
 
     def rebuildQueue(self):
         "Update relative delays based on current time."
