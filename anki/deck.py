@@ -647,7 +647,7 @@ select count(id) from cards where type in (0,1,2) and priority = 0""")
 
     def seenCardCount(self):
         return self.s.scalar(
-            "select count(id) from cards where type = 2")
+            "select count(id) from cards where type != 2")
 
     # Counts related to due cards
     ##########################################################################

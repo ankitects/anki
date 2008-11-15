@@ -527,7 +527,7 @@ cards.factId = fields.factId
                   for (name, all), found in zip(self.kanjiGrades, self.kanjiSets)]
         out = (_("<h1>Kanji statistics</h1>The %d seen cards in this deck "
                  "contain:") % self.deck.seenCardCount() +
-               "<br/><ul>" +
+               "<ul>" +
                # total kanji
                _("<li>%d total unique kanji.</li>") %
                sum([c[1] for c in counts]) +
