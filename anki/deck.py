@@ -1619,7 +1619,11 @@ alter table decks add column newCount integer not null default 0""")
                 if backup:
                     DeckStorage.backup(deck.modified, path)
                 deck._initVars()
-                deck = DeckStorage._upgradeDeck(deck, path)
+                try:
+                    deck = DeckStorage._upgradeDeck(deck, path)
+                except:
+                    deck.fixIntegrity()
+                    deck = DeckStorage._upgradeDeck(deck, path)
         except OperationalError, e:
             if (str(e.orig).startswith("database table is locked") or
                 str(e.orig).startswith("database is locked")):
