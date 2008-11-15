@@ -31,12 +31,10 @@ class Config(dict):
                     "~/Library/Application Support/Anki")
                 # upgrade?
                 if os.path.exists(oldDb):
-                    if not os.path.exists(self.configPath):
-                        self.makeAnkiDir()
+                    self.makeAnkiDir()
                     newDb = self.getDbPath()
                     os.rename(oldDb, newDb)
-        if not os.path.exists(self.configPath):
-            self.makeAnkiDir()
+        self.makeAnkiDir()
         self.load()
 
     def defaults(self):
@@ -104,9 +102,13 @@ class Config(dict):
 
     def makeAnkiDir(self):
         base = self.configPath
-        os.mkdir(base)
-        os.mkdir(os.path.join(base, "plugins"))
-        os.mkdir(os.path.join(base, "backups"))
+        for x in (base,
+                  os.path.join(base, "plugins"),
+                  os.path.join(base, "backups")):
+            try:
+                os.mkdir(x)
+            except:
+                pass
 
     def save(self):
         path = self.getDbPath()
