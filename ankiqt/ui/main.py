@@ -104,6 +104,7 @@ class AnkiQt(QMainWindow):
         if self.deck:
             self.deck.refresh()
             self.deck.updateAllPriorities()
+            self.deck.rebuildCounts()
             self.rebuildQueue()
 
     def rebuildQueue(self):
