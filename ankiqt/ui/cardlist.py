@@ -28,11 +28,11 @@ class DeckModel(QAbstractTableModel):
         self.filterTag = None
         self.sortKey = None
         # column title, display accessor, sort attr
-        self.columns = [("", self.currentQuestion,
+        self.columns = [("Question", self.currentQuestion,
                          self.currentQuestion),
-                        ("", self.currentAnswer,
+                        ("Answer", self.currentAnswer,
                          self.currentAnswer),
-                        (" "*20, self.nextDue,
+                        (" "*10 + "Due" + " "*10, self.nextDue,
                          "nextTime")]
         self.searchStr = ""
         self.tag = None
@@ -242,7 +242,6 @@ class EditDeck(QDialog):
         self.dialog.tableView.setFont(QFont(
             self.config['editFontFamily'],
             self.config['editFontSize']))
-        self.dialog.tableView.update()
         self.setupButtons()
         self.setupFilter()
         self.setupSort()
@@ -403,8 +402,9 @@ class EditDeck(QDialog):
             self.dialog.fieldsArea.hide()
 
     def setupHeaders(self):
-        self.dialog.tableView.verticalHeader().hide()
-        self.dialog.tableView.horizontalHeader().hide()
+        if not sys.platform.startswith("win32"):
+            self.dialog.tableView.verticalHeader().hide()
+            self.dialog.tableView.horizontalHeader().hide()
         for i in range(2):
             self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
         self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.ResizeToContents)
