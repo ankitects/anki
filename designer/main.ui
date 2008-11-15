@@ -144,7 +144,7 @@
           </size>
          </property>
          <property name="focusPolicy" >
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::ClickFocus</enum>
          </property>
          <property name="frameShape" >
           <enum>QFrame::NoFrame</enum>
