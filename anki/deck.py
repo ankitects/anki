@@ -1526,20 +1526,30 @@ mapper(Deck, decksTable, properties={
 # Deck storage
 ##########################################################################
 
+numBackups = 100
+
+# anki dir
+if sys.platform.startswith("darwin"):
+    ankiDir = os.path.expanduser("~/Library/Application Support/Anki")
+else:
+    ankiDir = os.path.expanduser("~/.anki/")
+newDeckDir = ankiDir
+if not os.path.exists(ankiDir):
+    os.mkdir(ankiDir)
+# backup
+backupDir = os.path.join(ankiDir, "backups")
+if not os.path.exists(backupDir):
+    os.mkdir(backupDir)
+
 class DeckStorage(object):
 
-    backupDir = os.path.expanduser("~/.anki/backups")
-    numBackups = 100
-    newDeckDir = "~/.anki/"
-
     def newDeckPath():
-        # create ~/mydeck(N).anki
         n = 2
         path = os.path.expanduser(
-            os.path.join(DeckStorage.newDeckDir, "mydeck.anki"))
+            os.path.join(newDeckDir, "mydeck.anki"))
         while os.path.exists(path):
             path = os.path.expanduser(
-                os.path.join(DeckStorage.newDeckDir, "mydeck%d.anki") % n)
+                os.path.join(newDeckDir, "mydeck%d.anki") % n)
             n += 1
         return path
     newDeckPath = staticmethod(newDeckPath)
@@ -1921,18 +1931,17 @@ where interval < 1""")
     def backup(modified, path):
         # need a non-unicode path
         path = path.encode(sys.getfilesystemencoding())
-        backupDir = DeckStorage.backupDir.encode(sys.getfilesystemencoding())
-        numBackups = DeckStorage.numBackups
+        bdir = backupDir.encode(sys.getfilesystemencoding())
         def backupName(path, num):
             path = os.path.abspath(path)
             path = path.replace("\\", "!")
             path = path.replace("/", "!")
             path = path.replace(":", "")
-            path = os.path.join(backupDir, path)
+            path = os.path.join(bdir, path)
             path = re.sub("\.anki$", ".backup-%d.anki" % num, path)
             return path
-        if not os.path.exists(backupDir):
-            os.makedirs(backupDir)
+        if not os.path.exists(bdir):
+            os.makedirs(bdir)
         # if the mod time is identical, don't make a new backup
         firstBack = backupName(path, 0)
         if os.path.exists(firstBack):
