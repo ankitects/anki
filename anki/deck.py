@@ -60,8 +60,8 @@ decksTable = Table(
     Column('easyIntervalMax', Float, nullable=False, default=9.0),
     # delays on failure
     Column('delay0', Integer, nullable=False, default=600),
-    Column('delay1', Integer, nullable=False, default=0),
-    Column('delay2', Float, nullable=False, default=0),
+    Column('delay1', Integer, nullable=False, default=600),
+    Column('delay2', Float, nullable=False, default=0.0),
     # collapsing future cards
     Column('collapseTime', Integer, nullable=False, default=1),
     # priorities & postponing
@@ -1925,7 +1925,7 @@ where interval < 1""")
             deck.version = 14
         if deck.version < 15:
             deck.delay1 = deck.delay0
-            deck.delay2 = 0
+            deck.delay2 = 0.0
             deck.version = 15
             deck.s.commit()
         return deck
