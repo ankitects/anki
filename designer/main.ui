@@ -418,7 +418,6 @@
     <addaction name="separator" />
     <addaction name="actionClose" />
     <addaction name="separator" />
-    <addaction name="separator" />
     <addaction name="actionExit" />
    </widget>
    <widget class="QMenu" name="menuTools" >
@@ -868,7 +867,7 @@
      <normaloff>:/icons/media-playback-start.png</normaloff>:/icons/media-playback-start.png</iconset>
    </property>
    <property name="text" >
-    <string>Repeat las&amp;t audio</string>
+    <string>Repeat Las&amp;t Audio</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+R</string>
