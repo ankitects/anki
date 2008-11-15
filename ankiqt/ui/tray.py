@@ -65,11 +65,12 @@ class AnkiTrayIcon(QtCore.QObject):
             name = self.mw.deck.name()
         else:
             name = "Anki"
-        msg = name + ":<br>"
+        msg = name + ":\n"
         if state == "deckFinished":
-            msg += _("<b>Today's reviews are finished</b><br>")
+            msg += _("Today's reviews are finished")
         elif self.mw.deck:
-            msg += _("<b>Cards are waiting</b><br>")
+            msg += _("Cards are waiting")
+        msg += "\n\n"
         if self.anki_visible:
             msg += _("Click to hide Anki")
         else:
