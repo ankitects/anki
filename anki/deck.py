@@ -1764,6 +1764,8 @@ order by priority desc, combinedDue""")
                 deck.s.statement("""
     alter table cards add column isDue boolean not null default 0""")
                 deck.s.statement("""
+    alter table cards add column relativeDelay float not null default 0.0""")
+                deck.s.statement("""
     alter table cards add column type integer not null default 0""")
                 deck.s.statement("""
     alter table cards add column combinedDue float not null default 0""")
