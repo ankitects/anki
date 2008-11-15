@@ -1111,7 +1111,7 @@ cardModelId = :id""", id=cardModel.id)
         model.setModified()
         self.flushMod()
 
-    def updateCardsFromModel(self, model):
+    def updateCardsFromModel(self, model, dirty=True):
         "Update all card question/answer when model changes."
         ids = self.s.all("""
 select cards.id, cards.cardModelId, cards.factId, facts.modelId from
@@ -1120,7 +1120,7 @@ cards.factId = facts.id and
 facts.modelId = :id""", id=model.id)
         if not ids:
             return
-        self.updateCardQACache(ids)
+        self.updateCardQACache(ids, dirty)
 
     def updateCardQACache(self, ids, dirty=True):
         "Given a list of (cardId, cardModelId, factId, modId), update q/a cache."
@@ -1894,11 +1894,11 @@ alter table models add column source integer not null default 0""")
             DeckStorage._addIndices(deck)
             deck.s.statement("analyze")
         if deck.version < 13:
-            deck.rebuildCounts()
             deck.rebuildQueue()
+            deck.rebuildCounts()
             # regenerate question/answer cache
             for m in deck.models:
-                deck.updateCardsFromModel(m)
+                deck.updateCardsFromModel(m, dirty=False)
             deck.version = 13
         if deck.version < 14:
             deck.s.statement("""
