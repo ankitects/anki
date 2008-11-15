@@ -340,16 +340,18 @@ else 2 -- new
 end)""" + where)
 
     def rebuildCounts(self):
-        t = time.time()
+        # need to check due first, so new due cards are not added later
+        self.checkDue()
+        # global counts
         self.cardCount = self.s.scalar("select count(*) from cards")
         self.factCount = self.s.scalar("select count(*) from facts")
+        # due counts
         self.failedNowCount = self.s.scalar(
             "select count(*) from failedCardsNow")
         self.failedSoonCount = cardCount = self.s.scalar(
             "select count(*) from failedCardsSoon")
         self.revCount = self.s.scalar("select count(*) from revCards")
         self.newCount = self.s.scalar("select count(*) from acqCardsOrdered")
-        #print "rebuild counts", time.time() - t
 
     def checkDue(self):
         "Mark expired cards due, and update counts."
