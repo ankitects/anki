@@ -1540,11 +1540,11 @@ else:
     ankiDir = os.path.expanduser("~/.anki/")
 newDeckDir = ankiDir
 if not os.path.exists(ankiDir):
-    os.mkdir(ankiDir)
+    os.makedirs(ankiDir)
 # backup
 backupDir = os.path.join(ankiDir, "backups")
 if not os.path.exists(backupDir):
-    os.mkdir(backupDir)
+    os.makedirs(backupDir)
 
 class DeckStorage(object):
 
