@@ -407,7 +407,7 @@ class AnkiQt(QMainWindow):
         except (IOError, ImportError):
             return
         except DeckWrongFormatError, e:
-            ui.utils.showMessage(_(
+            ui.utils.showInfo(_(
                 "Please open this deck with Anki < 0.9.8.7 to upgrade."))
             return
         except DeckAccessError, e:
