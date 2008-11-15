@@ -86,7 +86,7 @@
      <item>
       <widget class="QGroupBox" name="actionGroup" >
        <property name="title" >
-        <string>Actions on selected..</string>
+        <string>Change</string>
        </property>
        <layout class="QHBoxLayout" >
         <property name="spacing" >
@@ -98,11 +98,7 @@
         <item>
          <widget class="QPushButton" name="factsButton" >
           <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="../icons.qrc" >
-            <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
+           <string>Facts..</string>
           </property>
           <property name="autoDefault" >
            <bool>false</bool>
@@ -112,11 +108,7 @@
         <item>
          <widget class="QPushButton" name="cardsButton" >
           <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="../icons.qrc" >
-            <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
+           <string>Cards..</string>
           </property>
           <property name="autoDefault" >
            <bool>false</bool>
