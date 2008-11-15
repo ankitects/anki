@@ -254,8 +254,6 @@ class AnkiQt(QMainWindow):
         if self.state == "deckFinished":
             # don't try refresh if the deck is closed during a sync
             if self.deck:
-                self.deck.checkDailyStats()
-                self.deck.markExpiredCardsDue()
                 self.moveToState("getQuestion")
         if self.state != "deckFinished":
             if self.refreshTimer:
