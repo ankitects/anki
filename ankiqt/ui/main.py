@@ -105,18 +105,8 @@ class AnkiQt(QMainWindow):
             self.deck.refresh()
             self.deck.updateAllPriorities()
             self.deck.rebuildCounts()
-            self.rebuildQueue()
-
-    def rebuildQueue(self):
-        # qt on mac is misbehaving
-        mac = sys.platform.startswith("darwin")
-        if not mac: self.setEnabled(False)
-        self.mainWin.mainText.clear()
-        self.mainWin.mainText.setHtml(_("<h1>Building revision queue..</h1>"))
-        self.app.processEvents()
-        self.deck.rebuildQueue()
-        if not mac: self.setEnabled(True)
-        self.moveToState("initial")
+            self.deck.rebuildQueue()
+            self.moveToState("initial")
 
     def moveToState(self, state):
         t = time.time()
@@ -413,7 +403,7 @@ class AnkiQt(QMainWindow):
         if not os.path.exists(deckPath):
             return
         try:
-            self.deck = DeckStorage.Deck(deckPath, rebuild=False)
+            self.deck = DeckStorage.Deck(deckPath)
         except (IOError, ImportError):
             return
         except DeckWrongFormatError, e:
@@ -430,7 +420,7 @@ class AnkiQt(QMainWindow):
             if self.syncDeck(interactive=False):
                 return True
         try:
-            self.rebuildQueue()
+            self.reset()
         except:
             traceback.print_exc()
             if ui.utils.askUser(_(
@@ -440,7 +430,7 @@ class AnkiQt(QMainWindow):
                 self.onCheckDB()
                 # try again
                 try:
-                    self.rebuildQueue()
+                    self.reset()
                 except:
                     ui.utils.showWarning(
                         _("Unable to recover. Deck load failed."))
@@ -1020,7 +1010,7 @@ class AnkiQt(QMainWindow):
         self.deck.easyIntervalMin = 0.2083
         self.deck.easyIntervalMax = 0.25
         self.deck.syncName = None
-        self.rebuildQueue()
+        self.reset()
 
     # Language handling
     ##########################################################################
@@ -1488,7 +1478,7 @@ backup and then run this command again after syncing.""")
             ret = _("Problems found:\n%s") % ret
             ui.utils.showWarning(ret)
             ret = False
-        self.rebuildQueue()
+        self.reset()
         return ret
 
     def onOptimizeDB(self):

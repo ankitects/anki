@@ -86,8 +86,7 @@ class Sync(QThread):
             return
         # reconnect
         try:
-            self.deck = DeckStorage.Deck(self.parent.deckPath, rebuild=False,
-                                         backup=False, lock=True)
+            self.deck = DeckStorage.Deck(self.parent.deckPath, backup=False)
             client = SyncClient(self.deck)
             client.setServer(proxy)
             proxy.deckName = self.parent.syncName

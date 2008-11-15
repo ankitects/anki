@@ -134,7 +134,7 @@ class ImportDialog(QDialog):
         self.file = None
         self.maybePreview()
         self.parent.deck.updateAllPriorities()
-        self.parent.rebuildQueue()
+        self.parent.reset()
 
     def setupMappingFrame(self):
         # qt seems to have a bug with adding/removing from a grid, so we add
