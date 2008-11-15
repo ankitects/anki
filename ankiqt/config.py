@@ -6,7 +6,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import os, sys, cPickle, locale, types
+import os, sys, cPickle, locale, types, shutil
 
 # compatability
 def unpickleWxFont(*args):
@@ -33,7 +33,7 @@ class Config(dict):
                 if os.path.exists(oldDb):
                     self.makeAnkiDir()
                     newDb = self.getDbPath()
-                    os.rename(oldDb, newDb)
+                    shutil.copytree(oldDb, newDb)
         self.makeAnkiDir()
         self.load()
 
