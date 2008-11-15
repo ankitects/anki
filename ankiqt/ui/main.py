@@ -152,7 +152,6 @@ class AnkiQt(QMainWindow):
             # hide all deck-associated dialogs
             ui.dialogs.closeAll()
         elif state == "getQuestion":
-            self.deck._countsDirty = True
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
