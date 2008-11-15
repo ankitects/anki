@@ -132,6 +132,8 @@ class SyncTools(object):
         # rebuild priorities on server
         cardIds = [x[0] for x in payload['added-cards']]
         self.rebuildPriorities(cardIds, self.serverExcludedTags)
+        # rebuild due counts
+        self.deck.rebuildCounts(full=False)
         return reply
 
     def applyPayloadReply(self, reply):
@@ -149,6 +151,8 @@ class SyncTools(object):
         # rebuild priorities on client
         cardIds = [x[0] for x in reply['added-cards']]
         self.rebuildPriorities(cardIds)
+        # rebuild due counts
+        self.deck.rebuildCounts(full=False)
 
     def rebuildPriorities(self, cardIds, extraExcludes=[]):
         where = "and cards.id in %s" % ids2str(cardIds)
