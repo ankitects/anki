@@ -42,12 +42,13 @@ except ImportError:
 
 # dump location of non-unicode string
 from sqlalchemy import util
-import traceback
-oldWarn = util.warn
-def newWarn(*args, **kwargs):
-    traceback.print_stack()
-    oldWarn(*args, **kwargs)
-util.warn = newWarn
+if getattr(util, 'warn', None):
+    import traceback
+    oldWarn = util.warn
+    def newWarn(*args, **kwargs):
+        traceback.print_stack()
+        oldWarn(*args, **kwargs)
+    util.warn = newWarn
 
 # shared metadata
 metadata = MetaData()
