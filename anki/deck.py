@@ -1544,7 +1544,7 @@ class DeckStorage(object):
         return path
     newDeckPath = staticmethod(newDeckPath)
 
-    def Deck(path=None, rebuild=True, backup=True, lock=True):
+    def Deck(path=None, backup=True, lock=True):
         "Create a new deck or attach to an existing one."
         # generate a temp name if necessary
         if path is None:
@@ -1627,9 +1627,7 @@ alter table decks add column newCount integer not null default 0""")
                                       type="inuse")
             else:
                 raise e
-        # rebuild?
-        if rebuild:
-            deck.rebuildQueue()
+        deck.rebuildQueue()
         deck.s.commit()
         return deck
     Deck = staticmethod(Deck)
