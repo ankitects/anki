@@ -33,7 +33,7 @@ class Config(dict):
                 if os.path.exists(oldDb):
                     self.makeAnkiDir()
                     newDb = self.getDbPath()
-                    shutil.copytree(oldDb, newDb)
+                    shutil.copy2(oldDb, newDb)
         self.makeAnkiDir()
         self.load()
 
