@@ -34,7 +34,6 @@ PRIORITY_NORM = 2
 PRIORITY_LOW = 1
 PRIORITY_NONE = 0
 MATURE_THRESHOLD = 21
-NEW_INTERVAL = 0
 NEW_CARDS_LAST = 1
 NEW_CARDS_DISTRIBUTE = 0
 
@@ -45,7 +44,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=14),
+    Column('version', Integer, nullable=False, default=15),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -61,8 +60,8 @@ decksTable = Table(
     Column('easyIntervalMax', Float, nullable=False, default=9.0),
     # delays on failure
     Column('delay0', Integer, nullable=False, default=600),
-    Column('delay1', Integer, nullable=False, default=600),
-    Column('delay2', Integer, nullable=False, default=28800),
+    Column('delay1', Integer, nullable=False, default=0),
+    Column('delay2', Float, nullable=False, default=0),
     # collapsing future cards
     Column('collapseTime', Integer, nullable=False, default=1),
     # priorities & postponing
@@ -323,6 +322,101 @@ where id != :id and factId = :factId""",
         entry.writeSQL(self.s)
         self.modified = now
 
+    # Interval management
+    ##########################################################################
+
+    def nextInterval(self, card, ease):
+        "Return the next interval for CARD given EASE."
+        delay = self._adjustedDelay(card, ease)
+        return self._nextInterval(card.interval, card.factor, delay, ease)
+
+    def _nextInterval(self, interval, factor, delay, ease):
+        # if interval is less than mid interval, use presets
+        if ease == 1:
+            interval *= self.delay2
+            if interval < self.hardIntervalMin:
+                interval = 0
+        elif interval == 0:
+            if ease == 2:
+                interval = random.uniform(self.hardIntervalMin,
+                                          self.hardIntervalMax)
+            elif ease == 3:
+                interval = random.uniform(self.midIntervalMin,
+                                          self.midIntervalMax)
+            elif ease == 4:
+                interval = random.uniform(self.easyIntervalMin,
+                                          self.easyIntervalMax)
+        else:
+            # if not cramming, boost initial 2
+            if (interval < self.hardIntervalMax and
+                interval > 0.166):
+                interval = self.hardIntervalMax * 3.5
+            # multiply last interval by factor
+            if ease == 2:
+                interval = (interval + delay/4) * 1.2
+            elif ease == 3:
+                interval = (interval + delay/2) * factor
+            elif ease == 4:
+                interval = (interval + delay) * factor * self.factorFour
+            fuzz = random.uniform(0.95, 1.05)
+            interval *= fuzz
+        if self.maxScheduleTime:
+            interval = min(interval, self.maxScheduleTime)
+        return interval
+
+    def nextIntervalStr(self, card, ease, short=False):
+        "Return the next interval for CARD given EASE as a string."
+        int = self.nextInterval(card, ease)
+        return anki.utils.fmtTimeSpan(int*86400, short=short)
+
+    def nextDue(self, card, ease, oldState):
+        "Return time when CARD will expire given EASE."
+        if ease == 1:
+            if oldState == "mature":
+                due = self.delay1
+            else:
+                due = self.delay0
+        else:
+            due =  card.interval * 86400.0
+        return due + time.time()
+
+    def updateFactor(self, card, ease):
+        "Update CARD's factor based on EASE."
+        card.lastFactor = card.factor
+        if not card.reps:
+            # card is new, inherit beginning factor
+            card.factor = self.averageFactor
+        if self.cardIsBeingLearnt(card) and ease in [0, 1, 2]:
+            # only penalize failures after success when starting
+            if card.successive and ease != 2:
+                card.factor -= 0.20
+        elif ease in [0, 1]:
+            card.factor -= 0.20
+        elif ease == 2:
+            card.factor -= 0.15
+        elif ease == 4:
+            card.factor += 0.10
+        card.factor = max(1.3, card.factor)
+
+    def _adjustedDelay(self, card, ease):
+        "Return an adjusted delay value for CARD based on EASE."
+        if self.cardIsNew(card):
+            return 0
+        return max(0, (time.time() - card.due) / 86400.0)
+
+    def resetCards(self, ids):
+        "Reset progress on cards in IDS."
+        self.s.statement("""
+update cards set interval = :new, lastInterval = 0, lastDue = 0,
+factor = 2.5, reps = 0, successive = 0, averageTime = 0, reviewTime = 0,
+youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
+youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
+matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
+spaceUntil = 0, isDue = 0, type = 2,
+combinedDue = created, modified = :now, due = created
+where id in %s""" % ids2str(ids), now=time.time(), new=0)
+        self.flushMod()
+
     # Queue/cache management
     ##########################################################################
 
@@ -410,96 +504,6 @@ strftime("%s", "now")+1 from decks)"""))
         # check if the day has rolled over
         if genToday(self) != self._dailyStats.day:
             self._dailyStats = dailyStats(self)
-
-    # Interval management
-    ##########################################################################
-
-    def nextInterval(self, card, ease):
-        "Return the next interval for CARD given EASE."
-        delay = self._adjustedDelay(card, ease)
-        return self._nextInterval(card.interval, card.factor, delay, ease)
-
-    def _nextInterval(self, interval, factor, delay, ease):
-        # if interval is less than mid interval, use presets
-        if ease == 1:
-            interval = NEW_INTERVAL
-        elif interval == 0:
-            if ease == 2:
-                interval = random.uniform(self.hardIntervalMin,
-                                          self.hardIntervalMax)
-            elif ease == 3:
-                interval = random.uniform(self.midIntervalMin,
-                                          self.midIntervalMax)
-            elif ease == 4:
-                interval = random.uniform(self.easyIntervalMin,
-                                          self.easyIntervalMax)
-        else:
-            # if not cramming, boost initial 2
-            if (interval < self.hardIntervalMax and
-                interval > 0.166):
-                interval = self.hardIntervalMax * 3.5
-            # multiply last interval by factor
-            if ease == 2:
-                interval = (interval + delay/4) * 1.2
-            elif ease == 3:
-                interval = (interval + delay/2) * factor
-            elif ease == 4:
-                interval = (interval + delay) * factor * self.factorFour
-            fuzz = random.uniform(0.95, 1.05)
-            interval *= fuzz
-        if self.maxScheduleTime:
-            interval = min(interval, self.maxScheduleTime)
-        return interval
-
-    def nextIntervalStr(self, card, ease, short=False):
-        "Return the next interval for CARD given EASE as a string."
-        int = self.nextInterval(card, ease)
-        return anki.utils.fmtTimeSpan(int*86400, short=short)
-
-    def nextDue(self, card, ease, oldState):
-        "Return time when CARD will expire given EASE."
-        if ease == 1:
-            due =  self.delay0
-        else:
-            due =  card.interval * 86400.0
-        return due + time.time()
-
-    def updateFactor(self, card, ease):
-        "Update CARD's factor based on EASE."
-        card.lastFactor = card.factor
-        if not card.reps:
-            # card is new, inherit beginning factor
-            card.factor = self.averageFactor
-        if self.cardIsBeingLearnt(card) and ease in [0, 1, 2]:
-            # only penalize failures after success when starting
-            if card.successive and ease != 2:
-                card.factor -= 0.20
-        elif ease in [0, 1]:
-            card.factor -= 0.20
-        elif ease == 2:
-            card.factor -= 0.15
-        elif ease == 4:
-            card.factor += 0.10
-        card.factor = max(1.3, card.factor)
-
-    def _adjustedDelay(self, card, ease):
-        "Return an adjusted delay value for CARD based on EASE."
-        if self.cardIsNew(card):
-            return 0
-        return max(0, (time.time() - card.due) / 86400.0)
-
-    def resetCards(self, ids):
-        "Reset progress on cards in IDS."
-        self.s.statement("""
-update cards set interval = :new, lastInterval = 0, lastDue = 0,
-factor = 2.5, reps = 0, successive = 0, averageTime = 0, reviewTime = 0,
-youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
-youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
-matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
-spaceUntil = 0, isDue = 0, type = 2,
-combinedDue = created, modified = :now, due = created
-where id in %s""" % ids2str(ids), now=time.time(), new=NEW_INTERVAL)
-        self.flushMod()
 
     # Times
     ##########################################################################
@@ -1919,6 +1923,10 @@ alter table models add column source integer not null default 0""")
 update cards set interval = 0
 where interval < 1""")
             deck.version = 14
+        if deck.version < 15:
+            deck.delay1 = deck.delay0
+            deck.delay2 = 0
+            deck.version = 15
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
