@@ -538,7 +538,10 @@ class AnkiQt(QMainWindow):
         n = 1
         for file in self.config['recentDeckPaths']:
             a = QAction(self)
-            a.setShortcut(_("Ctrl+%d" % n))
+            if sys.platform.startswith("darwin"):
+                a.setShortcut(_("Ctrl+Alt+%d" % n))
+            else:
+                a.setShortcut(_("Alt+%d" % n))
             a.setText(os.path.basename(file))
             a.setStatusTip(os.path.abspath(file))
             self.connect(a, SIGNAL("triggered()"),
