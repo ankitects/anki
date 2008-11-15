@@ -64,7 +64,7 @@ class DeckProperties(QDialog):
             getattr(self.dialog, type + "Max").setText("%0.3f" % v)
         self.dialog.delay0.setText(unicode(self.d.delay0/60.0))
         self.dialog.delay1.setText(unicode(self.d.delay1/60.0))
-        self.dialog.delay2.setText(unicode(self.d.delay2/60.0))
+        self.dialog.delay2.setText(unicode(self.d.delay2))
         self.dialog.collapse.setCheckState(self.d.collapseTime
                                            and Qt.Checked or Qt.Unchecked)
         self.dialog.failedCardMax.setText(unicode(self.d.failedCardMax))
@@ -228,7 +228,7 @@ class DeckProperties(QDialog):
             self.updateField(self.d, 'delay0', v)
             v = float(self.dialog.delay1.text()) * 60.0
             self.updateField(self.d, 'delay1', v)
-            v = float(self.dialog.delay2.text()) * 60.0
+            v = float(self.dialog.delay2.text())
             self.updateField(self.d, 'delay2', v)
             v = int(self.dialog.failedCardMax.text())
             self.updateField(self.d, 'failedCardMax', v)

@@ -340,7 +340,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>372</width>
+        <width>373</width>
         <height>342</height>
        </rect>
       </property>
@@ -405,7 +405,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>372</width>
+        <width>373</width>
         <height>342</height>
        </rect>
       </property>
@@ -505,7 +505,7 @@ p, li { white-space: pre-wrap; }
          <item row="4" column="0" >
           <widget class="QLabel" name="label_3" >
            <property name="text" >
-            <string>&lt;b>3: Initial Medium Interval&lt;/b></string>
+            <string>&lt;b>3: Initial Good Interval&lt;/b></string>
            </property>
           </widget>
          </item>
@@ -559,7 +559,7 @@ p, li { white-space: pre-wrap; }
          <item row="0" column="0" >
           <widget class="QLabel" name="label_20" >
            <property name="text" >
-            <string>&lt;b>0: Totally Forgot&lt;/b></string>
+            <string>&lt;b>1: Again (Young)&lt;/b></string>
            </property>
           </widget>
          </item>
@@ -576,7 +576,7 @@ p, li { white-space: pre-wrap; }
          <item row="1" column="0" >
           <widget class="QLabel" name="label_22" >
            <property name="text" >
-            <string>&lt;b>1: Made a Mistake (Young)&lt;/b></string>
+            <string>&lt;b>1: Again (Mature)&lt;/b></string>
            </property>
            <property name="openExternalLinks" >
             <bool>true</bool>
@@ -596,7 +596,7 @@ p, li { white-space: pre-wrap; }
          <item row="2" column="0" >
           <widget class="QLabel" name="label_19" >
            <property name="text" >
-            <string>&lt;b>1: Made a Mistake (Mature)&lt;/b></string>
+            <string>&lt;b>1: Failure Multiplier&lt;/b></string>
            </property>
            <property name="openExternalLinks" >
             <bool>true</bool>

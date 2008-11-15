@@ -592,6 +592,7 @@ class AnkiQt(QMainWindow):
         self.deck = DeckStorage.Deck()
         self.deck.addModel(BasicModel())
         self.saveDeck()
+        self.updateRecentFiles(self.deck.path)
         self.moveToState("initial")
 
     def ensureSyncParams(self):
