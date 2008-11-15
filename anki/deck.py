@@ -1578,31 +1578,34 @@ class DeckStorage(object):
                 deck = DeckStorage._init(s)
             else:
                 ver = s.scalar("select version from decks limit 1")
-                if ver < 5:
-                    # add missing deck fields
-                    s.execute("""
+                try:
+                    if ver < 5:
+                        # add missing deck fields
+                        s.execute("""
 alter table decks add column newCardsPerDay integer not null default 20""")
-                if ver < 6:
-                    s.execute("""
+                    if ver < 6:
+                        s.execute("""
 alter table decks add column sessionRepLimit integer not null default 100""")
-                    s.execute("""
+                        s.execute("""
 alter table decks add column sessionTimeLimit integer not null default 1800""")
-                if ver < 11:
-                    s.execute("""
+                    if ver < 11:
+                        s.execute("""
 alter table decks add column utcOffset numeric(10, 2) not null default 0""")
-                if ver < 13:
-                    s.execute("""
+                    if ver < 13:
+                        s.execute("""
 alter table decks add column cardCount integer not null default 0""")
-                    s.execute("""
+                        s.execute("""
 alter table decks add column factCount integer not null default 0""")
-                    s.execute("""
+                        s.execute("""
 alter table decks add column failedNowCount integer not null default 0""")
-                    s.execute("""
+                        s.execute("""
 alter table decks add column failedSoonCount integer not null default 0""")
-                    s.execute("""
+                        s.execute("""
 alter table decks add column revCount integer not null default 0""")
-                    s.execute("""
+                        s.execute("""
 alter table decks add column newCount integer not null default 0""")
+                except:
+                    pass
                 deck = s.query(Deck).get(1)
             # attach db vars
             deck.path = path
