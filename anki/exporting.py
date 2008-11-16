@@ -112,7 +112,6 @@ modified = :now
             bulkClient.server = bulkServer
             bulkClient.sync()
         # need to save manually
-        self.newDeck.rebuildCounts()
         self.newDeck.s.commit()
         self.newDeck.close()
 
