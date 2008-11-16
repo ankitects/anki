@@ -60,9 +60,9 @@ cardsTable = Table(
     Column('noCount', Integer, nullable=False, default=0),
     # caching
     Column('spaceUntil', Float, nullable=False, default=0),
+    Column('relativeDelay', Float, nullable=False, default=0), # obsolete
     Column('isDue', Boolean, nullable=False, default=0),
     Column('type', Integer, nullable=False, default=2),
-    Column('relativeDelay', Float, nullable=False, default=0), # obsolete
     Column('combinedDue', Integer, nullable=False, default=0))
 
 class Card(object):
