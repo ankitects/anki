@@ -248,8 +248,8 @@ type, due, interval, factor, priority from """
         d['rev'] = self.s.all(sel + "revCards limit 30")
         if self.newCountToday:
             d['acq'] = self.s.all(sel + """
-cards where factId in (select distinct factId from cards
-where factId in (select factId from %s limit 60))""" % new)
+%s where factId in (select distinct factId from cards
+where factId in (select factId from %s limit 60))""" % (new, new))
         else:
             d['acq'] = []
         if (not d['fail'] and not d['rev'] and not d['acq']):
