@@ -44,7 +44,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=15),
+    Column('version', Integer, nullable=False, default=16),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -291,15 +291,11 @@ where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
 select type, count(type) from cards
 where factId = :fid and isDue = 1
 group by type""", fid=card.factId):
-            #print type, count
             if type == 0:
-                #print "minus failed"
                 self.failedNowCount -= count
             elif type == 1:
-                #print "minus old"
                 self.revCount -= count
             else:
-                #print "minus new"
                 self.newCount -= count
         # space other cards
         self.s.statement("""
@@ -465,7 +461,7 @@ priority in (1,2,3,4) and combinedDue < :now"""
                                 self.s.scalar("""
 select count(*) from cards where
 type = 0 and isDue = 0 and priority in (1,2,3,4)
-and combinedDue <= (select max(delay0, delay1) +
+and combinedDue <= (select delay0 +
 strftime("%s", "now")+1 from decks)"""))
         # new card handling
         self.newCountToday = max(min(
@@ -1749,7 +1745,7 @@ order by type, isDue, combinedDue
 create view failedCardsSoon as
 select * from cards
 where type = 0 and +priority in (1,2,3,4)
-and combinedDue <= (select max(delay0, delay1) +
+and combinedDue <= (select delay0 +
 strftime("%s", "now")+1 from decks where id = 1)
 order by type, isDue, combinedDue
 """)
@@ -1928,6 +1924,9 @@ where interval < 1""")
             deck.delay1 = deck.delay0
             deck.delay2 = 0.0
             deck.version = 15
+        if deck.version < 16:
+            DeckStorage._addViews(deck)
+            deck.version = 16
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
