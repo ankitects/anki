@@ -116,8 +116,11 @@ def formatQA(cid, mid, fact, tags, cm):
     fields = {}
     for (k, v) in fact.items():
         fields["text:"+k] = v[1]
-        fields[k] = '<span class="fm%s">%s</span>' % (
-            hexifyID(v[0]), v[1])
+        if v[1]:
+            fields[k] = '<span class="fm%s">%s</span>' % (
+                hexifyID(v[0]), v[1])
+        else:
+            fields[k] = u""
     fields['tags'] = canonifyTags(tags)
     fields['Tags'] = fields['tags']
     # render q & a
