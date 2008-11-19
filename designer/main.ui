@@ -5,12 +5,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>543</width>
-    <height>472</height>
+    <width>532</width>
+    <height>442</height>
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+   <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -27,12 +27,12 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>543</width>
-     <height>383</height>
+     <width>532</width>
+     <height>353</height>
     </rect>
    </property>
    <property name="sizePolicy" >
-    <sizepolicy vsizetype="MinimumExpanding" hsizetype="MinimumExpanding" >
+    <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>1</horstretch>
      <verstretch>1</verstretch>
     </sizepolicy>
@@ -130,36 +130,17 @@
         <number>5</number>
        </property>
        <item>
-        <widget class="QTextBrowser" name="mainText" >
+        <widget class="QWebView" name="mainText" >
          <property name="sizePolicy" >
-          <sizepolicy vsizetype="Expanding" hsizetype="MinimumExpanding" >
+          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize" >
-          <size>
-           <width>0</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="focusPolicy" >
-          <enum>Qt::ClickFocus</enum>
-         </property>
-         <property name="frameShape" >
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="tabChangesFocus" >
-          <bool>false</bool>
-         </property>
-         <property name="readOnly" >
-          <bool>true</bool>
-         </property>
-         <property name="textInteractionFlags" >
-          <set>Qt::TextBrowserInteraction</set>
-         </property>
-         <property name="openExternalLinks" >
-          <bool>false</bool>
+         <property name="url" >
+          <url>
+           <string>about:blank</string>
+          </url>
          </property>
         </widget>
        </item>
@@ -357,7 +338,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>543</width>
+     <width>532</width>
      <height>23</height>
     </rect>
    </property>
@@ -493,8 +474,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>452</y>
-     <width>543</width>
+     <y>422</y>
+     <width>532</width>
      <height>20</height>
     </rect>
    </property>
@@ -507,7 +488,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>543</width>
+     <width>532</width>
      <height>46</height>
     </rect>
    </property>
@@ -1006,6 +987,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../icons.qrc" />
  </resources>
