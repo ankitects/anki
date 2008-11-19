@@ -27,6 +27,7 @@ class FactEditor(object):
         self.onFactValid = None
         self.onFactInvalid = None
         self.lastFocusedEdit = None
+        self.changeTimer = None
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."
@@ -35,7 +36,7 @@ class FactEditor(object):
         if self.needToRedraw():
             self.drawFields(noFocus, check)
         else:
-            self.updateFields(check)
+            self.loadFields(check)
         if not noFocus:
             # update focus to first field
             self.fields[self.fact.fields[0].name][1].setFocus()
@@ -206,7 +207,9 @@ class FactEditor(object):
             self.widgets[w] = field
             # catch changes
             w.connect(w, SIGNAL("lostFocus"),
-                      lambda w=w: self.saveWidget(w))
+                      lambda w=w: self.onFocusLost(w))
+            w.connect(w, SIGNAL("textChanged()"),
+                      self.onTextChanged)
             w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
                       lambda w=w: self.formatChanged(w))
             n += 1
@@ -219,7 +222,7 @@ class FactEditor(object):
         self.tags.setDeck(self.deck)
         self.fieldsGrid.addWidget(self.tags, n, 1)
         # update fields
-        self.updateFields(check)
+        self.loadFields(check)
         self.parent.setUpdatesEnabled(True)
         self.fieldsScroll.setWidget(self.fieldsFrame)
 
@@ -231,7 +234,7 @@ class FactEditor(object):
                 return True
         return self.fontChanged
 
-    def updateFields(self, check=True, font=True):
+    def loadFields(self, check=True, font=True):
         "Update field text (if changed) and font/colours."
         # text
         for (name, (field, w)) in self.fields.items():
@@ -260,22 +263,42 @@ class FactEditor(object):
         if check:
             self.checkValid()
 
-    def saveWidget(self, widget):
-        field = self.widgets[widget]
-        value = tidyHTML(unicode(widget.toHtml()))
-        if value and not value.strip():
-            widget.setText("")
-            value = u""
-        self.fact[field.name] = value
+    def saveFields(self):
+        "Save field text into fact."
+        for (w, f) in self.widgets.items():
+            v = tidyHTML(unicode(w.toHtml()))
+            if not v.strip():
+                # strip blank spaces
+                v = u""
+                w.setText(v)
+            self.fact[f.name] = v
         self.fact.setModified(textChanged=True)
         self.deck.setModified()
-        self.fact.onKeyPress(field, value)
-        # the keypress handler may have changed something, so update all
-        self.updateFields(font=False)
+
+    def onFocusLost(self, widget):
+        self.saveFields()
+        field = self.widgets[widget]
+        self.fact.onKeyPress(field, field.value)
+        self.loadFields(font=False)
+
+    def onTextChanged(self):
+        interval = 250
+        if self.changeTimer:
+            self.changeTimer.setInterval(interval)
+        else:
+            self.changeTimer = QTimer(self.parent)
+            self.changeTimer.setSingleShot(True)
+            self.changeTimer.start(interval)
+            self.parent.connect(self.changeTimer,
+                                SIGNAL("timeout()"),
+                                self.onChangeTimer)
+
+    def onChangeTimer(self):
+        self.saveFields()
         self.checkValid()
         if self.onChange:
-            self.onChange(field)
-        self.formatChanged(None)
+            self.onChange()
+        self.changeTimer = None
 
     def checkValid(self):
         empty = []
@@ -428,7 +451,6 @@ class FactEditor(object):
             return
         path = self.deck.addMedia(file)
         w.insertHtml('<img src="%s">' % path)
-        self.saveWidget(w)
 
     def onAddSound(self):
         self.initMedia()
@@ -441,7 +463,6 @@ class FactEditor(object):
         anki.sound.play(file)
         path = self.deck.addMedia(file)
         w.insertHtml('[sound:%s]' % path)
-        self.saveWidget(w)
 
 class FactEdit(QTextEdit):
 
@@ -454,7 +475,6 @@ class FactEdit(QTextEdit):
             self.insertPlainText(source.text())
         elif source.hasHtml():
             self.insertHtml(self.simplyHTML(unicode(source.html())))
-        self.parent.saveWidget(self)
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."

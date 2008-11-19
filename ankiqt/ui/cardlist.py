@@ -499,7 +499,6 @@ where id in (%s)""" % ",".join([
         self.editor = ui.facteditor.FactEditor(self,
                                                self.dialog.fieldsArea,
                                                self.deck)
-        self.editor.onChange = self.textChanged
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
         self.connect(self.dialog.tableView.selectionModel(),
@@ -595,11 +594,6 @@ where id in (%s)""" % ",".join([
                 self.currentCard.tags = tags
                 self.currentCard.setModified()
                 self.deck.setModified()
-
-    def textChanged(self, field):
-        self.updateStaticTags()
-        self.model.emit(SIGNAL("layoutChanged()"))
-        self.deck.setModified()
 
     def addFactTags(self):
         tags = ui.utils.getText(_("Enter tag(s) to add to each fact:"), self)
