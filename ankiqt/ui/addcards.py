@@ -46,7 +46,7 @@ class AddCards(QDialog):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "AddItems"))
 
     def addButtons(self):
-        self.addButton = QPushButton(_("&Add"))
+        self.addButton = QPushButton(_("Add"))
         self.dialog.buttonBox.addButton(self.addButton,
                                         QDialogButtonBox.ActionRole)
         self.addButton.setShortcut(_("Ctrl+Return"))

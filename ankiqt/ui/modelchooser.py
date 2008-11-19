@@ -23,7 +23,7 @@ class ModelChooser(QHBoxLayout):
         label = QLabel(_("<b>Model</b>:"))
         self.addWidget(label)
         self.models = QComboBox()
-        s = QShortcut(QKeySequence(_("Ctrl+Alt+m")), self.parent)
+        s = QShortcut(QKeySequence(_("Shift+Alt+m")), self.parent)
         s.connect(s, SIGNAL("activated()"),
                   lambda: self.models.showPopup())
         self.drawModels()
@@ -40,7 +40,7 @@ class ModelChooser(QHBoxLayout):
         self.connect(self.add, SIGNAL("clicked()"), self.onAdd)
         self.edit = QPushButton()
         self.edit.setIcon(QIcon(":/icons/edit.png"))
-        self.edit.setShortcut(_("Ctrl+Alt+e"))
+        self.edit.setShortcut(_("Shift+Alt+e"))
         self.edit.setToolTip(_("Edit the current model"))
         self.edit.setAutoDefault(False)
         self.addWidget(self.edit)
