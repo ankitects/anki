@@ -264,8 +264,12 @@ class EditDeck(QDialog):
 
     def selectLastCard(self):
         "Show the row corresponding to the current card."
+        if self.parent.config['editCurrentOnly']:
+            if self.parent.currentCard:
+                self.dialog.filterEdit.setText("<current>")
+                self.dialog.filterEdit.selectAll()
         self.updateSearch()
-        if self.parent.currentCard:
+        if not self.parent.config['editCurrentOnly'] and self.parent.currentCard:
             currentCardIndex = self.findCardInDeckModel(
                                  self.model, self.parent.currentCard )
             if currentCardIndex >= 0:

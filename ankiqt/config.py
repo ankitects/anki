@@ -64,6 +64,7 @@ class Config(dict):
             'showTimer': True,
             'showSuspendedCards': True,
             'simpleToolbar': True,
+            'editCurrentOnly': True,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):

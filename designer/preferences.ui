@@ -511,6 +511,13 @@
            </property>
           </widget>
          </item>
+         <item row="9" column="0" >
+          <widget class="QCheckBox" name="editCurrentOnly" >
+           <property name="text" >
+            <string>Show only current card in editor</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -598,6 +605,7 @@
   <tabstop>showToolbar</tabstop>
   <tabstop>tallButtons</tabstop>
   <tabstop>showTray</tabstop>
+  <tabstop>editCurrentOnly</tabstop>
   <tabstop>toolbarIconSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
