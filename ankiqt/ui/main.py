@@ -132,7 +132,12 @@ class AnkiQt(QMainWindow):
         self.lastState = getattr(self, "state", None)
         self.state = state
         self.updateTitleBar()
+        if 'state' != 'noDeck':
+            self.mainWin.welcomeText.hide()
+            self.mainWin.mainText.show()
         if state == "noDeck":
+            self.mainWin.welcomeText.show()
+            self.mainWin.mainText.hide()
             self.help.hide()
             self.currentCard = None
             self.lastCard = None
@@ -753,13 +758,13 @@ class AnkiQt(QMainWindow):
         self.anchorPrefixes = {
             'welcome': self.onWelcomeAnchor,
             }
-        self.connect(self.mainWin.mainText,
+        self.connect(self.mainWin.welcomeText,
                      SIGNAL("anchorClicked(QUrl)"),
                      self.anchorClicked)
 
     def anchorClicked(self, url):
         # prevent the link being handled
-        self.mainWin.mainText.setSource(QUrl(""))
+        self.mainWin.welcomeText.setSource(QUrl(""))
         addr = unicode(url.toString())
         fields = addr.split(":")
         if len(fields) > 1 and fields[0] in self.anchorPrefixes:
@@ -843,7 +848,6 @@ class AnkiQt(QMainWindow):
 
     def onCardStats(self):
         self.addHook("showQuestion", self.onCardStats)
-        self.addHook("helpChanged", self.removeCardStatsHook)
         txt = ""
         if self.currentCard:
             txt += _("<h1>Current card</h1>")
@@ -853,12 +857,12 @@ class AnkiQt(QMainWindow):
             txt += anki.stats.CardStats(self.deck, self.lastCard).report()
         if not txt:
             txt = _("No current card or last card.")
-        self.help.showText(txt, key="cardStats")
+        self.help.showText(txt, py={'hide': self.removeCardStatsHook})
 
     def removeCardStatsHook(self):
         "Remove the update hook if the help menu was changed."
-        if self.help.currentKey != "cardStats":
-            self.removeHook("showQuestion", self.onCardStats)
+        print "rem"
+        self.removeHook("showQuestion", self.onCardStats)
 
     def onShowGraph(self):
         self.setStatus(_("Loading graphs (may take time).."))
@@ -1078,8 +1082,7 @@ class AnkiQt(QMainWindow):
         # bug triggered by preferences dialog - underlying c++ widgets are not
         # garbage collected until the middle of the child thread
         import gc; gc.collect()
-        self.bodyView.clearWindow()
-        self.bodyView.flush()
+        self.mainWin.welcomeText.setText(u"")
         self.syncThread = ui.sync.Sync(self, u, p, interactive, create,
                                        onlyMerge, self.sourcesToCheck)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
@@ -1093,6 +1096,9 @@ class AnkiQt(QMainWindow):
         self.connect(self.syncThread, SIGNAL("closeSyncProgress"), self.closeSyncProgress)
         self.connect(self.syncThread, SIGNAL("updateSyncProgress"), self.updateSyncProgress)
         self.syncThread.start()
+        self.mainWin.buttonWidget.hide()
+        self.mainWin.mainText.hide()
+        self.mainWin.welcomeText.show()
         self.setEnabled(False)
         while not self.syncThread.isFinished():
             self.app.processEvents()
@@ -1102,6 +1108,7 @@ class AnkiQt(QMainWindow):
 
     def syncFinished(self):
         "Reopen after sync finished."
+        self.mainWin.buttonWidget.show()
         if self.loadAfterSync:
             self.loadDeck(self.deckPath, sync=False)
             self.deck.syncName = self.syncName
@@ -1133,7 +1140,7 @@ class AnkiQt(QMainWindow):
 
     def setSyncStatus(self, text, *args):
         self.setStatus(text, *args)
-        self.mainWin.mainText.append("<font size=+6>" + text + "</font>")
+        self.mainWin.welcomeText.append("<font size=+6>" + text + "</font>")
 
     def syncClockOff(self, diff):
         ui.utils.showWarning(

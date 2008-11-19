@@ -30,9 +30,6 @@ class View(object):
         self.oldState = getattr(self, 'state', None)
         self.state = state
         if self.state == "initial":
-            self.shownLearnHelp = False
-            self.shownReviewHelp = False
-            self.shownFinalHelp = False
             return
         elif self.state == "noDeck":
             self.clearWindow()
@@ -47,7 +44,6 @@ class View(object):
             return
         self.clearWindow()
         self.setBackgroundColour()
-        self.maybeHelp()
         if not self.main.deck.isEmpty():
             if not self.main.lastCard or (
                 not self.main.config['showLastCardContent'] and
@@ -165,34 +161,11 @@ class View(object):
                 self.write(msg)
             self.write("<br>")
 
-    # Help
-    ##########################################################################
-
-    def maybeHelp(self):
-        return
-        stats = self.main.deck.sched.getStats()
-        if not stats['pending']:
-            self.main.help.hide()
-        elif (self.main.currentCard and
-            self.main.currentCard.nextTime > time.time()):
-            if not self.shownFinalHelp:
-                self.shownFinalHelp = True
-                self.main.help.showHideableKey("finalReview")
-        elif stats['learnMode']:
-            if not self.shownLearnHelp:
-                if stats['pending'] != 0:
-                    self.shownLearnHelp = True
-                    self.main.help.showHideableKey("learn")
-        else:
-            if not self.shownReviewHelp:
-                self.shownReviewHelp = True
-                self.main.help.showHideableKey("review")
-
     # Welcome/empty/finished deck messages
     ##########################################################################
 
     def drawWelcomeMessage(self):
-        self.write(_("""
+        self.main.mainWin.welcomeText.setText(_("""
 <h1>Welcome to Anki!</h1>
 <p>
 <table>

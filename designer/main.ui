@@ -130,12 +130,25 @@
         <number>5</number>
        </property>
        <item>
+        <widget class="QTextBrowser" name="welcomeText" >
+         <property name="focusPolicy" >
+          <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="frameShape" >
+          <enum>QFrame::NoFrame</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QWebView" name="mainText" >
          <property name="sizePolicy" >
           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="focusPolicy" >
+          <enum>Qt::WheelFocus</enum>
          </property>
          <property name="url" >
           <url>
