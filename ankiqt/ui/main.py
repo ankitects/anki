@@ -164,6 +164,8 @@ class AnkiQt(QMainWindow):
                 else:
                     return self.moveToState("deckFinished")
         elif state == "deckEmpty":
+            self.mainWin.welcomeText.show()
+            self.mainWin.mainText.hide()
             self.resetButtons()
             self.disableCardMenuItems()
             self.mainWin.menu_Lookup.setEnabled(False)
