@@ -102,10 +102,6 @@ def _pluralCount(time):
         return 1
     return 2
 
-def mergeTags(*args):
-    "Merge tag lists into a single string."
-    return ", ".join(set(parseTags(",".join(args))))
-
 def parseTags(tags):
     "Parse a string and return a list of tags."
     tags = tags.split(",")
