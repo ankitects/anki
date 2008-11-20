@@ -35,6 +35,7 @@ class AnkiQt(QMainWindow):
         self.config = config
         self.deck = None
         self.state = "initial"
+        self.hideWelcome = False
         self.views = []
         self.setLang()
         self.setupFonts()
@@ -63,11 +64,8 @@ class AnkiQt(QMainWindow):
             self.setUnifiedTitleAndToolBarOnMac(True)
             pass
         # load deck
-        try:
-            self.maybeLoadLastDeck(args)
-        finally:
+        if not self.maybeLoadLastDeck(args):
             self.setEnabled(True)
-            # the focus is not set while disabled, so fetch card again
             self.moveToState("auto")
         # run after-init hook
         try:
@@ -399,28 +397,29 @@ class AnkiQt(QMainWindow):
     def loadDeck(self, deckPath, sync=True):
         "Load a deck and update the user interface. Maybe sync."
         # return None if error should be reported
-        # return 0 to fail with no error
         # return True on success
         try:
             self.pauseViews()
-            if not self.saveAndClose():
+            if not self.saveAndClose(hideWelcome=True):
                 return 0
         finally:
             self.restoreViews()
         if not os.path.exists(deckPath):
+            self.moveToState("nodeck")
             return
+        error = False
         try:
             self.deck = DeckStorage.Deck(deckPath)
         except (IOError, ImportError):
-            return
+            error = True
         except DeckWrongFormatError, e:
             ui.utils.showInfo(_(
                 "Please open this deck with Anki < 0.9.8.7 to upgrade."))
-            return
+            error = True
         except DeckAccessError, e:
-            if e.data.get('type') == 'inuse':
-                ui.utils.showWarning(_("Unable to load the same deck twice."))
-                return 0
+            error = True
+        if error:
+            self.moveToState("nodeck")
             return
         self.updateRecentFiles(self.deck.path)
         if sync and self.config['syncOnLoad']:
@@ -445,6 +444,7 @@ class AnkiQt(QMainWindow):
             else:
                 self.deck = None
                 return 0
+            self.moveToState("nodeck")
         return True
 
     def maybeLoadLastDeck(self, args):
@@ -461,9 +461,6 @@ class AnkiQt(QMainWindow):
         for path in self.config['recentDeckPaths']:
             try:
                 r = self.loadDeck(path)
-                if r == 0:
-                    # in use
-                    continue
                 return r
             except:
                 sys.stderr.write("Error loading last deck.\n")
@@ -564,12 +561,13 @@ class AnkiQt(QMainWindow):
 
     def onClose(self):
         cramming = self.deck is not None and self.deck.name() == "cram"
-        self.saveAndClose(exit=cramming)
+        self.saveAndClose(hideWelcome=cramming)
         if cramming:
             self.loadRecent(0)
 
-    def saveAndClose(self, exit=False):
+    def saveAndClose(self, hideWelcome=False):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
+        self.hideWelcome = hideWelcome
         if self.deck is not None:
             # sync (saving automatically)
             if self.config['syncOnClose'] and self.deck.syncName:
@@ -593,12 +591,12 @@ class AnkiQt(QMainWindow):
             # close
             self.deck.rollback()
             self.deck = None
-        if not exit:
+        if not hideWelcome:
             self.moveToState("noDeck")
         return True
 
     def onNew(self):
-        if not self.saveAndClose(exit=True): return
+        if not self.saveAndClose(hideWelcome=True): return
         self.deck = DeckStorage.Deck()
         self.deck.addModel(BasicModel())
         self.saveDeck()
@@ -636,7 +634,7 @@ class AnkiQt(QMainWindow):
 
     def onOpenOnline(self):
         self.ensureSyncParams()
-        if not self.saveAndClose(exit=True): return
+        if not self.saveAndClose(hideWelcome=True): return
         self.deck = DeckStorage.Deck()
         # ensure all changes come to us
         self.deck.modified = 0
@@ -730,7 +728,7 @@ class AnkiQt(QMainWindow):
 
     def closeEvent(self, event):
         "User hit the X button, etc."
-        if not self.saveAndClose(exit=True):
+        if not self.saveAndClose(hideWelcome=True):
             event.ignore()
         else:
             self.prepareForExit()
@@ -1116,7 +1114,7 @@ class AnkiQt(QMainWindow):
             self.deck.syncName = self.syncName
             self.deck.s.flush()
             self.deck.s.commit()
-        else:
+        elif not self.hideWelcome:
             self.moveToState("noDeck")
         self.deckPath = None
 
