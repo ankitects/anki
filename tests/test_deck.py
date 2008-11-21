@@ -44,11 +44,11 @@ def test_attachOld():
 
 def test_attachReadOnly():
     # non-writeable dir
-    assertException(DeckAccessError,
+    assertException(Exception,
                     lambda: DeckStorage.Deck("/attachroot"))
     # reuse tmp file from before, test non-writeable file
     os.chmod(newPath, 0)
-    assertException(DeckAccessError,
+    assertException(Exception,
                     lambda: DeckStorage.Deck(newPath))
     os.chmod(newPath, 0666)
     os.unlink(newPath)
