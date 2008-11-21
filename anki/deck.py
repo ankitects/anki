@@ -1574,10 +1574,11 @@ class DeckStorage(object):
         # attach and sync/fetch deck - first, to unicode
         if not isinstance(path, types.UnicodeType):
             path = unicode(path, sys.getfilesystemencoding())
-        # sqlite needs utf8
-        (engine, session) = DeckStorage._attach(path.encode("utf-8"), create)
-        s = session()
         try:
+            # sqlite needs utf8
+            (engine, session) = DeckStorage._attach(path.encode("utf-8"), create)
+            s = session()
+            metadata.create_all(engine)
             if create:
                 deck = DeckStorage._init(s)
             else:
@@ -1633,9 +1634,11 @@ alter table decks add column newCount integer not null default 0""")
                 try:
                     deck = DeckStorage._upgradeDeck(deck, path)
                 except:
+                    traceback.print_exc()
                     deck.fixIntegrity()
                     deck = DeckStorage._upgradeDeck(deck, path)
         except OperationalError, e:
+            engine.dispose()
             if (str(e.orig).startswith("database table is locked") or
                 str(e.orig).startswith("database is locked")):
                 raise DeckAccessError(_("File is in use by another process"),
@@ -1659,14 +1662,6 @@ alter table decks add column newCount integer not null default 0""")
         session = sessionmaker(bind=engine,
                                autoflush=False,
                                transactional=False)
-        try:
-            metadata.create_all(engine)
-        except DBAPIError, e:
-            engine.dispose()
-            if create:
-                raise DeckAccessError(_("Can't read/write deck"))
-            else:
-                raise DeckWrongFormatError("Deck is not in the right format")
         return (engine, session)
     _attach = staticmethod(_attach)
 

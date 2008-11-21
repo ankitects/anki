@@ -19,15 +19,6 @@ class Error(Exception):
         return m
 
 class DeckAccessError(Error):
-    "The deck is empty."
-    pass
-
-class DeckWrongFormatError(Error):
-    "A file to import is in the wrong format."
-    pass
-
-class DuplicateCardError(Error):
-    "Attempted to add a card with the same question."
     pass
 
 class ImportFileError(Error):
