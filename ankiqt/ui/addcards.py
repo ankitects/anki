@@ -62,13 +62,6 @@ class AddCards(QDialog):
                                         QDialogButtonBox.HelpRole)
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
 
-    def setupStatus(self):
-        "Make the status background the same colour as the frame."
-        p = self.dialog.statusGroup.palette()
-        c = unicode(p.color(QPalette.Window).name())
-        self.dialog.status.setStyleSheet(
-            "* { background: %s; color: #000000; }" % c)
-
     def modelChanged(self, model):
         oldFact = self.editor.fact
         # create a new fact

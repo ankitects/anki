@@ -4,6 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback
 import copy, shutil, time, glob
@@ -54,6 +55,9 @@ class AnkiQt(QMainWindow):
         self.addView(self.bodyView)
         self.statusView = ui.status.StatusView(self)
         self.addView(self.statusView)
+        self.mainWin.welcomeText.hide()
+        self.mainWin.mainText.hide()
+        self.setupEditor()
         self.setupButtons()
         self.setupAnchors()
         self.setupToolbar()
@@ -110,6 +114,7 @@ class AnkiQt(QMainWindow):
             # reset current card and load again
             self.currentCard = None
             self.lastCard = None
+            self.editor.deck = self.deck
             if self.deck:
                 self.mainWin.menu_Lookup.setEnabled(True)
                 self.enableDeckMenuItems()
@@ -128,9 +133,11 @@ class AnkiQt(QMainWindow):
         self.lastState = getattr(self, "state", None)
         self.state = state
         self.updateTitleBar()
-        if 'state' != 'noDeck':
+        if 'state' != 'noDeck' and state != 'editCurrentFact':
             self.mainWin.welcomeText.hide()
             self.mainWin.mainText.show()
+            self.mainWin.buttonWidget.show()
+            self.mainWin.fieldsArea.hide()
         if state == "noDeck":
             self.mainWin.welcomeText.show()
             self.mainWin.mainText.hide()
@@ -183,6 +190,14 @@ class AnkiQt(QMainWindow):
             self.resetButtons()
             self.showEaseButtons()
             self.enableCardMenuItems()
+        elif state == "editCurrentFact":
+            self.resetButtons()
+            self.showSaveEditorButton()
+            self.mainWin.mainText.hide()
+            self.mainWin.fieldsArea.show()
+            self.editor.setFact(self.currentCard.fact)
+        elif state == "saveEdit":
+            return self.moveToState("auto")
         self.updateViews(state)
 
     def keyPressEvent(self, evt):
@@ -751,12 +766,19 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.onAddCard()
 
     def setupAnchors(self):
+        # welcome
         self.anchorPrefixes = {
             'welcome': self.onWelcomeAnchor,
             }
         self.connect(self.mainWin.welcomeText,
                      SIGNAL("anchorClicked(QUrl)"),
                      self.anchorClicked)
+        # main
+        self.mainWin.mainText.page().setLinkDelegationPolicy(
+            QWebPage.DelegateExternalLinks)
+        self.connect(self.mainWin.mainText,
+                     SIGNAL("linkClicked(QUrl)"),
+                     self.linkClicked)
 
     def anchorClicked(self, url):
         # prevent the link being handled
@@ -768,6 +790,36 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         else:
             # open in browser
             QDesktopServices.openUrl(QUrl(url))
+
+    def linkClicked(self, url):
+        QDesktopServices.openUrl(QUrl(url))
+
+    # Edit current fact
+    ##########################################################################
+
+    def setupEditor(self):
+        self.mainWin.fieldsArea.hide()
+        self.editor = ui.facteditor.FactEditor(
+            self, self.mainWin.fieldsArea, self.deck)
+        self.editor.onFactValid = self.onFactValid
+        self.editor.onFactInvalid = self.onFactInvalid
+
+    def showSaveEditorButton(self):
+        if self.lastState == self.state:
+            return
+        self.editFactButton = QPushButton(_("Return (Esc)"))
+        self.editFactButton.setFixedHeight(self.easeButtonHeight)
+        self.editFactButton.setShortcut(_("Esc"))
+        self.editFactButton.setDefault(False)
+        self.buttonBox.addWidget(self.editFactButton)
+        self.connect(self.editFactButton, SIGNAL("clicked()"),
+                     lambda: self.moveToState("saveEdit"))
+
+    def onFactValid(self, fact):
+        self.editFactButton.setEnabled(True)
+
+    def onFactInvalid(self, fact):
+        self.editFactButton.setEnabled(False)
 
     # Toolbar
     ##########################################################################
@@ -783,6 +835,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             mw.toolBar.hide()
             mw.toolBar = QToolBar(self)
             mw.toolBar.addAction(mw.actionAddcards)
+            mw.toolBar.addAction(mw.actionEditCurrent)
             mw.toolBar.addAction(mw.actionEditdeck)
             mw.toolBar.addAction(mw.actionRepeatAudio)
             mw.toolBar.addAction(mw.actionMarkCard)
@@ -931,6 +984,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onEditDeck(self):
         ui.dialogs.get("CardList", self)
+
+    def onEditCurrent(self):
+        self.moveToState("editCurrentFact")
 
     def onDeckProperties(self):
         self.deckProperties = ui.deckproperties.DeckProperties(self)
@@ -1213,6 +1269,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.connect(m.actionDisplayProperties, s,self.onDisplayProperties)
         self.connect(m.actionAddcards, s, self.onAddCard)
         self.connect(m.actionEditdeck, s, self.onEditDeck)
+        self.connect(m.actionEditCurrent, s, self.onEditCurrent)
         self.connect(m.actionPreferences, s, self.onPrefs)
         self.connect(m.actionLookup_es, s, self.onLookupEdictSelection)
         self.connect(m.actionLookup_esk, s, self.onLookupEdictKanjiSelection)

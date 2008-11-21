@@ -4,12 +4,11 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtWebKit import QWebPage
 import anki, anki.utils
 from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
-import types, time
+import types, time, re, os
 from ankiqt import ui
 
 # Views - define the way a user is prompted for questions, etc
@@ -110,19 +109,24 @@ class View(object):
     # Question and answer
     ##########################################################################
 
+    def munge(self, txt):
+        txt = renderLatex(self.main.deck, txt)
+        txt = stripSounds(txt)
+        txt = re.sub(
+            'img src="(.*?)"', 'img src="file://%s/\\1"' % os.getcwd(), txt)
+        return txt
+
     def drawQuestion(self, nosound=False):
         "Show the question."
         q = self.main.currentCard.htmlQuestion()
-        q = renderLatex(self.main.deck, q)
-        self.write(stripSounds(q))
+        self.write(self.munge(q))
         if self.state != self.oldState and not nosound:
             playFromText(q)
 
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
-        a = renderLatex(self.main.deck, a)
-        self.write('<span id=answer />' + stripSounds(a))
+        self.write('<span id=answer />' + self.munge(a))
         if self.state != self.oldState:
             playFromText(a)
 

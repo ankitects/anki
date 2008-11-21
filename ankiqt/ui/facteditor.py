@@ -49,7 +49,7 @@ class FactEditor(object):
         self.fields = {}
         # top level vbox
         self.fieldsBox = QVBoxLayout(self.widget)
-        self.fieldsBox.setMargin(5)
+        self.fieldsBox.setMargin(0)
         self.fieldsBox.setSpacing(3)
         # icons
         self.iconsBox = QHBoxLayout()
@@ -110,7 +110,7 @@ class FactEditor(object):
         self.foregroundFrame.setAutoFillBackground(True)
         hbox = QHBoxLayout()
         hbox.addWidget(self.foregroundFrame)
-        hbox.setMargin(5)
+        hbox.setMargin(0)
         self.foreground.setLayout(hbox)
         self.iconsBox.addWidget(self.foreground)
         self.foreground.setStyle(self.plastiqueStyle)

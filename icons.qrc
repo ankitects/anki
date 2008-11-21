@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/edit-rename.png</file>
     <file>icons/kblogger.png</file>
     <file>icons/chronometer.png</file>
     <file>icons/Anki_Card.png</file>

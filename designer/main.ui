@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
-    <height>442</height>
+    <width>454</width>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -27,8 +27,8 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>532</width>
-     <height>353</height>
+     <width>454</width>
+     <height>415</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -129,6 +129,28 @@
        <property name="margin" >
         <number>5</number>
        </property>
+       <item>
+        <widget class="QGroupBox" name="fieldsArea" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+           <horstretch>7</horstretch>
+           <verstretch>2</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="autoFillBackground" >
+          <bool>true</bool>
+         </property>
+         <property name="title" >
+          <string/>
+         </property>
+         <property name="flat" >
+          <bool>true</bool>
+         </property>
+         <property name="checkable" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QTextBrowser" name="welcomeText" >
          <property name="focusPolicy" >
@@ -351,7 +373,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>532</width>
+     <width>454</width>
      <height>23</height>
     </rect>
    </property>
@@ -376,6 +398,7 @@
     <addaction name="actionUndoAnswer" />
     <addaction name="separator" />
     <addaction name="actionAddcards" />
+    <addaction name="actionEditCurrent" />
     <addaction name="actionEditdeck" />
     <addaction name="separator" />
     <addaction name="actionActiveTags" />
@@ -487,8 +510,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>422</y>
-     <width>532</width>
+     <y>484</y>
+     <width>454</width>
      <height>20</height>
     </rect>
    </property>
@@ -501,7 +524,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>532</width>
+     <width>454</width>
      <height>46</height>
     </rect>
    </property>
@@ -526,6 +549,7 @@
    <addaction name="actionSyncdeck" />
    <addaction name="separator" />
    <addaction name="actionAddcards" />
+   <addaction name="actionEditCurrent" />
    <addaction name="actionEditdeck" />
    <addaction name="actionDisplayProperties" />
    <addaction name="separator" />
@@ -617,7 +641,7 @@
     <string>&amp;Add Items..</string>
    </property>
    <property name="shortcut" >
-    <string>Ctrl+A</string>
+    <string>Alt+Shift+A</string>
    </property>
   </action>
   <action name="actionEditdeck" >
@@ -626,10 +650,10 @@
      <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Edit Items..</string>
+    <string>Ed&amp;it All..</string>
    </property>
    <property name="shortcut" >
-    <string>Ctrl+E</string>
+    <string>Alt+Shift+I</string>
    </property>
   </action>
   <action name="actionPreferences" >
@@ -997,6 +1021,18 @@
    </property>
    <property name="text" >
     <string>&amp;Get More Decks..</string>
+   </property>
+  </action>
+  <action name="actionEditCurrent" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/edit-rename.png</normaloff>:/icons/edit-rename.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Edit Current..</string>
+   </property>
+   <property name="shortcut" >
+    <string>Alt+Shift+E</string>
    </property>
   </action>
  </widget>

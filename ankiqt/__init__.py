@@ -100,7 +100,7 @@ def run():
     ui.dialogs.registerDialogs()
     mw = ui.main.AnkiQt(app, conf, args)
     try:
-        styleFile = open(opts.config + ".css")
+        styleFile = open(os.path.join(opts.config, "style.css"))
         mw.setStyleSheet(styleFile.read())
     except (IOError, OSError):
         pass
