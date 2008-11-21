@@ -1121,6 +1121,19 @@ facts.modelId = :id""", id=model.id)
             return
         self.updateCardQACache(ids, dirty)
 
+    def updateCardQACacheFromCardIds(self, ids, type="cards"):
+        "Given a list of card or fact ids, update q/a cache."
+        if type == "cards":
+            col = "c.id"
+        else:
+            col = "f.id"
+        rows = self.s.all("""
+select c.id, c.cardModelId, f.id, f.modelId
+from cards as c, facts as f
+where c.factId = f.id
+and %s in %s""" % (col, ids2str(ids)))
+        self.updateCardQACache(rows)
+
     def updateCardQACache(self, ids, dirty=True):
         "Given a list of (cardId, cardModelId, factId, modId), update q/a cache."
         if dirty:
@@ -1220,6 +1233,7 @@ update %s set
 tags = :tags,
 modified = :now
 where id = :id""" % table, pending)
+        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type=table)
         self.flushMod()
 
     def addFactTags(self, ids, tags):
@@ -1248,6 +1262,7 @@ update %s set
 tags = :tags,
 modified = :now
 where id = :id""" % table, pending)
+        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type=table)
         self.flushMod()
 
     def deleteFactTags(self, ids, tags):
