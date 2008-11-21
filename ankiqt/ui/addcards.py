@@ -23,7 +23,6 @@ class AddCards(QDialog):
         self.setupEditor()
         self.addChooser()
         self.addButtons()
-        self.setupStatus()
         self.modelChanged(self.parent.deck.currentModel)
         self.addedItems = 0
         restoreGeom(self, "add")
