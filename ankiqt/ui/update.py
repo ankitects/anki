@@ -46,7 +46,7 @@ class LatestVersionFinder(QThread):
             plat=sys.platform
             pver=sys.version
         else:
-            deckSize = "nodeck"
+            deckSize = "noDeck"
             deckRecall = ""
             pending = ""
             age = ""

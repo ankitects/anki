@@ -394,9 +394,8 @@ class AnkiQt(QMainWindow):
         anki.deck.backupDir = os.path.join(
             self.config.configPath, "backups")
 
-    def loadDeck(self, deckPath, sync=True):
+    def loadDeck(self, deckPath, sync=True, interactive=True):
         "Load a deck and update the user interface. Maybe sync."
-        # return None if error should be reported
         # return True on success
         try:
             self.pauseViews()
@@ -405,21 +404,26 @@ class AnkiQt(QMainWindow):
         finally:
             self.restoreViews()
         if not os.path.exists(deckPath):
-            self.moveToState("nodeck")
+            self.moveToState("noDeck")
             return
-        error = False
         try:
             self.deck = DeckStorage.Deck(deckPath)
-        except (IOError, ImportError):
-            error = True
-        except DeckWrongFormatError, e:
-            ui.utils.showInfo(_(
-                "Please open this deck with Anki < 0.9.8.7 to upgrade."))
-            error = True
-        except DeckAccessError, e:
-            error = True
-        if error:
-            self.moveToState("nodeck")
+        except Exception, e:
+            if hasattr(e, 'data') and e.data['type'] == 'inuse':
+                if interactive:
+                    ui.utils.showInfo(_("Deck is already open."))
+            else:
+                ui.utils.showInfo(_("""\
+Unable to load deck.
+
+Possible reasons:
+ - file is not an Anki deck
+ - deck is read only
+ - directory is read only
+ - deck was created with Anki < 0.9
+
+To upgrade an old deck, download Anki 0.9.8.7."""))
+            self.moveToState("noDeck")
             return
         self.updateRecentFiles(self.deck.path)
         if sync and self.config['syncOnLoad']:
@@ -444,27 +448,20 @@ class AnkiQt(QMainWindow):
             else:
                 self.deck = None
                 return 0
-            self.moveToState("nodeck")
+            self.moveToState("noDeck")
         return True
 
     def maybeLoadLastDeck(self, args):
         "Open the last deck if possible."
         # try a command line argument if available
-        try:
-            if args:
-                f = unicode(args[0], sys.getfilesystemencoding())
-                return self.loadDeck(f)
-        except:
-            sys.stderr.write("Error loading deck path.\n")
-            traceback.print_exc()
+        if args:
+            f = unicode(args[0], sys.getfilesystemencoding())
+            return self.loadDeck(f)
         # try recent deck paths
         for path in self.config['recentDeckPaths']:
-            try:
-                r = self.loadDeck(path)
+            r = self.loadDeck(path, interactive=False)
+            if r:
                 return r
-            except:
-                sys.stderr.write("Error loading last deck.\n")
-                traceback.print_exc()
         self.onNew()
 
     def getDefaultDir(self, save=False):
@@ -661,7 +658,7 @@ class AnkiQt(QMainWindow):
             new = DeckStorage.newDeckPath()
             shutil.copyfile(file, new)
             file = new
-        ret = self.loadDeck(file)
+        ret = self.loadDeck(file, interactive=True)
         if not ret:
             if ret is None:
                 ui.utils.showWarning(_("Unable to load file."))
