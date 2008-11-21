@@ -4,6 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtWebKit import QWebPage
 import anki, anki.utils
 from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
@@ -21,6 +22,8 @@ class View(object):
         self.main = parent
         self.body = body
         self.frame = frame
+        self.main.connect(self.body, SIGNAL("loadFinished(bool)"),
+                          self.onLoadFinished)
 
     # State control
     ##########################################################################
@@ -119,9 +122,14 @@ class View(object):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
         a = renderLatex(self.main.deck, a)
-        self.write(stripSounds(a))
+        self.write('<span id=answer />' + stripSounds(a))
         if self.state != self.oldState:
             playFromText(a)
+
+    def onLoadFinished(self):
+        if self.state == "showAnswer":
+            mf = self.body.page().mainFrame()
+            mf.evaluateJavaScript("location.hash = 'answer'")
 
     # Top section
     ##########################################################################
