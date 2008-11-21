@@ -15,7 +15,7 @@ Model - define the way in which facts are added and shown
 import time
 from sqlalchemy.ext.orderinglist import ordering_list
 from anki.db import *
-from anki.utils import genID, canonifyTags, safeClassName
+from anki.utils import genID, canonifyTags
 from anki.fonts import toPlatformFont
 from anki.utils import parseTags, hexifyID, checksum
 from anki.lang import _

@@ -208,8 +208,5 @@ This is safe if you use sqlite primary key columns, which are guaranteed
 to be integers."""
     return "(%s)" % ",".join([str(i) for i in ids])
 
-def safeClassName(name):
-    return name
-
 def checksum(data):
     return md5(data).hexdigest()
