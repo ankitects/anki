@@ -30,7 +30,8 @@ class Config(dict):
                 self.configPath = os.path.expanduser(
                     "~/Library/Application Support/Anki")
                 # upgrade?
-                if os.path.exists(oldDb):
+                if (not os.path.exists(self.configPath) and
+                    os.path.exists(oldDb)):
                     self.makeAnkiDir()
                     newDb = self.getDbPath()
                     shutil.copy2(oldDb, newDb)
