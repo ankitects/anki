@@ -98,7 +98,7 @@
         <item>
          <widget class="QPushButton" name="factsButton" >
           <property name="text" >
-           <string>Facts..</string>
+           <string>Facts...</string>
           </property>
           <property name="autoDefault" >
            <bool>false</bool>
@@ -108,7 +108,7 @@
         <item>
          <widget class="QPushButton" name="cardsButton" >
           <property name="text" >
-           <string>Cards..</string>
+           <string>Cards...</string>
           </property>
           <property name="autoDefault" >
            <bool>false</bool>
@@ -239,7 +239,7 @@
      <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>Add Tag..</string>
+    <string>Add Tag...</string>
    </property>
   </action>
   <action name="actionAdd_card_tag" >
@@ -248,7 +248,7 @@
      <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>Add Tag..</string>
+    <string>Add Tag...</string>
    </property>
   </action>
   <action name="actionDelete_fact_tag" >
@@ -257,7 +257,7 @@
      <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>Delete Tag..</string>
+    <string>Delete Tag...</string>
    </property>
   </action>
   <action name="actionDelete_card_tag" >
@@ -266,7 +266,7 @@
      <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>Delete Tag..</string>
+    <string>Delete Tag...</string>
    </property>
   </action>
   <action name="actionAdd_Missing_Cards" >

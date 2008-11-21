@@ -578,7 +578,7 @@
      <normaloff>:/icons/document-new.png</normaloff>:/icons/document-new.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;New..</string>
+    <string>&amp;New...</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+N</string>
@@ -590,7 +590,7 @@
      <normaloff>:/icons/document-open.png</normaloff>:/icons/document-open.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Open..</string>
+    <string>&amp;Open...</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+O</string>
@@ -638,7 +638,7 @@
      <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Add Items..</string>
+    <string>&amp;Add Items...</string>
    </property>
    <property name="shortcut" >
     <string>Alt+Shift+A</string>
@@ -650,7 +650,7 @@
      <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
    </property>
    <property name="text" >
-    <string>Ed&amp;it All..</string>
+    <string>Ed&amp;it All...</string>
    </property>
    <property name="shortcut" >
     <string>Alt+Shift+I</string>
@@ -662,7 +662,7 @@
      <normaloff>:/icons/configure.png</normaloff>:/icons/configure.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Preferences..</string>
+    <string>&amp;Preferences...</string>
    </property>
    <property name="statusTip" >
     <string>Application-wide preferences.</string>
@@ -738,7 +738,7 @@
      <normaloff>:/icons/go-home.png</normaloff>:/icons/go-home.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Start Here..</string>
+    <string>&amp;Start Here...</string>
    </property>
   </action>
   <action name="actionReportbug" >
@@ -747,7 +747,7 @@
      <normaloff>:/icons/kbugbuster.png</normaloff>:/icons/kbugbuster.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Report Bug..</string>
+    <string>&amp;Report Bug...</string>
    </property>
    <property name="whatsThis" >
     <string>Open the bug tracker.</string>
@@ -759,7 +759,7 @@
      <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;About..</string>
+    <string>&amp;About...</string>
    </property>
    <property name="menuRole" >
     <enum>QAction::AboutRole</enum>
@@ -780,7 +780,7 @@
      <normaloff>:/icons/contents.png</normaloff>:/icons/contents.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Deck Properties..</string>
+    <string>&amp;Deck Properties...</string>
    </property>
    <property name="statusTip" >
     <string>Customize syncing, scheduling, priorities and models.</string>
@@ -792,7 +792,7 @@
      <normaloff>:/icons/document-import.png</normaloff>:/icons/document-import.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Import..</string>
+    <string>&amp;Import...</string>
    </property>
   </action>
   <action name="actionGraphs" >
@@ -801,7 +801,7 @@
      <normaloff>:/icons/colorscm.png</normaloff>:/icons/colorscm.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Graphs..</string>
+    <string>&amp;Graphs...</string>
    </property>
   </action>
   <action name="actionExport" >
@@ -810,7 +810,7 @@
      <normaloff>:/icons/document-export.png</normaloff>:/icons/document-export.png</iconset>
    </property>
    <property name="text" >
-    <string>Expor&amp;t...</string>
+    <string>Expor&amp;t....</string>
    </property>
   </action>
   <action name="actionDisplayProperties" >
@@ -819,7 +819,7 @@
      <normaloff>:/icons/preferences-desktop-font.png</normaloff>:/icons/preferences-desktop-font.png</iconset>
    </property>
    <property name="text" >
-    <string>Disp&amp;lay Properties..</string>
+    <string>Disp&amp;lay Properties...</string>
    </property>
    <property name="statusTip" >
     <string>Customize fonts, colours and alignment.</string>
@@ -827,7 +827,7 @@
   </action>
   <action name="actionOpenSamples" >
    <property name="text" >
-    <string>Open Sa&amp;mple...</string>
+    <string>Open Sa&amp;mple....</string>
    </property>
   </action>
   <action name="actionMarkCard" >
@@ -860,7 +860,7 @@
      <normaloff>:/icons/kpersonalizer.png</normaloff>:/icons/kpersonalizer.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Model Properties..</string>
+    <string>&amp;Model Properties...</string>
    </property>
    <property name="statusTip" >
     <string>Customize card layout, fields, etc.</string>
@@ -909,7 +909,7 @@
      <normaloff>:/icons/view-pim-news.png</normaloff>:/icons/view-pim-news.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Forum..</string>
+    <string>&amp;Forum...</string>
    </property>
   </action>
   <action name="actionSaveAs" >
@@ -918,7 +918,7 @@
      <normaloff>:/icons/document-save-as.png</normaloff>:/icons/document-save-as.png</iconset>
    </property>
    <property name="text" >
-    <string>Save &amp;As..</string>
+    <string>Save &amp;As...</string>
    </property>
   </action>
   <action name="actionCheckDatabaseIntegrity" >
@@ -927,7 +927,7 @@
      <normaloff>:/icons/sqlitebrowser.png</normaloff>:/icons/sqlitebrowser.png</iconset>
    </property>
    <property name="text" >
-    <string>Check Database..</string>
+    <string>Check Database...</string>
    </property>
   </action>
   <action name="actionOptimizeDatabase" >
@@ -945,7 +945,7 @@
      <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
    </property>
    <property name="text" >
-    <string>Merge Models..</string>
+    <string>Merge Models...</string>
    </property>
   </action>
   <action name="actionCheckMediaDatabase" >
@@ -954,7 +954,7 @@
      <normaloff>:/icons/text-speak.png</normaloff>:/icons/text-speak.png</iconset>
    </property>
    <property name="text" >
-    <string>Check Media Database..</string>
+    <string>Check Media Database...</string>
    </property>
   </action>
   <action name="actionOpenOnline" >
@@ -963,7 +963,7 @@
      <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
    </property>
    <property name="text" >
-    <string>Open On&amp;line..</string>
+    <string>Open On&amp;line...</string>
    </property>
   </action>
   <action name="actionCram" >
@@ -972,7 +972,7 @@
      <normaloff>:/icons/chronometer.png</normaloff>:/icons/chronometer.png</iconset>
    </property>
    <property name="text" >
-    <string>C&amp;ram..</string>
+    <string>C&amp;ram...</string>
    </property>
   </action>
   <action name="actionReleaseNotes" >
@@ -981,17 +981,17 @@
      <normaloff>:/icons/kblogger.png</normaloff>:/icons/kblogger.png</iconset>
    </property>
    <property name="text" >
-    <string>Release Notes..</string>
+    <string>Release Notes...</string>
    </property>
   </action>
   <action name="actionGetPlugins" >
    <property name="text" >
-    <string>&amp;Get Plugins..</string>
+    <string>&amp;Get Plugins...</string>
    </property>
   </action>
   <action name="actionOpenPluginFolder" >
    <property name="text" >
-    <string>&amp;Open Plugin Folder..</string>
+    <string>&amp;Open Plugin Folder...</string>
    </property>
   </action>
   <action name="actionEnableAllPlugins" >
@@ -1011,7 +1011,7 @@
   </action>
   <action name="actionActiveTags" >
    <property name="text" >
-    <string>Active &amp;Tags..</string>
+    <string>Active &amp;Tags...</string>
    </property>
   </action>
   <action name="actionGetMoreDecks" >
@@ -1020,7 +1020,7 @@
      <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Get More Decks..</string>
+    <string>&amp;Get More Decks...</string>
    </property>
   </action>
   <action name="actionEditCurrent" >
@@ -1029,7 +1029,7 @@
      <normaloff>:/icons/edit-rename.png</normaloff>:/icons/edit-rename.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Edit Current..</string>
+    <string>&amp;Edit Current...</string>
    </property>
    <property name="shortcut" >
     <string>Alt+Shift+E</string>
