@@ -23,6 +23,7 @@ class AddCards(QDialog):
         self.setupEditor()
         self.addChooser()
         self.addButtons()
+        self.setupStatus()
         self.modelChanged(self.parent.deck.currentModel)
         self.addedItems = 0
         restoreGeom(self, "add")
@@ -60,6 +61,13 @@ class AddCards(QDialog):
         self.dialog.buttonBox.addButton(self.helpButton,
                                         QDialogButtonBox.HelpRole)
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
+
+    def setupStatus(self):
+        "Make the status background the same colour as the frame."
+        p = self.dialog.status.palette()
+        c = unicode(p.color(QPalette.Window).name())
+        self.dialog.status.setStyleSheet(
+            "* { background: %s; color: #000000; }" % c)
 
     def modelChanged(self, model):
         oldFact = self.editor.fact
