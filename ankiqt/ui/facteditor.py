@@ -16,10 +16,11 @@ class FactEditor(object):
     Extra widgets can be added to 'fieldsGrid' to represent card-specific
     information, etc."""
 
-    def __init__(self, parent, widget, deck=None):
+    def __init__(self, parent, widget, deck=None, colour=""):
         self.widget = widget
         self.parent = parent
         self.deck = deck
+        self.colour = colour
         self.fact = None
         self.fontChanged = False
         self.setupFields()
@@ -65,6 +66,10 @@ class FactEditor(object):
         self.iconsBox.addItem(QSpacerItem(20,20, QSizePolicy.Expanding))
         # button styles for mac
         self.plastiqueStyle = QStyleFactory.create("plastique")
+        self.widget.setStyle(self.plastiqueStyle)
+        self.widget.setStyleSheet("""
+%s
+#fieldsArea { border: 0px; margin-top: 4px; }""" % self.colour)
         # bold
         self.bold = QPushButton()
         self.bold.setCheckable(True)
@@ -110,7 +115,7 @@ class FactEditor(object):
         self.foregroundFrame.setAutoFillBackground(True)
         hbox = QHBoxLayout()
         hbox.addWidget(self.foregroundFrame)
-        hbox.setMargin(0)
+        hbox.setMargin(1)
         self.foreground.setLayout(hbox)
         self.iconsBox.addWidget(self.foreground)
         self.foreground.setStyle(self.plastiqueStyle)
@@ -343,6 +348,8 @@ class FactEditor(object):
             self.italic.setChecked(w.fontItalic())
             self.underline.setChecked(w.fontUnderline())
             self.foregroundFrame.setPalette(QPalette(w.textColor()))
+            self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
+                                               unicode(w.textColor().name()))
 
     def resetFormatButtons(self):
         self.bold.setChecked(False)

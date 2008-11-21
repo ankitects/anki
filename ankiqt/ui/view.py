@@ -8,7 +8,7 @@ import anki, anki.utils
 from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
-import types, time, re, os
+import types, time, re, os, urllib, sys
 from ankiqt import ui
 
 # Views - define the way a user is prompted for questions, etc
@@ -112,8 +112,15 @@ class View(object):
     def munge(self, txt):
         txt = renderLatex(self.main.deck, txt)
         txt = stripSounds(txt)
-        txt = re.sub(
-            'img src="(.*?)"', 'img src="file://%s/\\1"' % os.getcwd(), txt)
+        def quote(match):
+            if sys.platform.startswith("win32"):
+                prefix = "file:///"
+            else:
+                prefix = "file://"
+            return 'img src="%s%s"' % (
+                prefix, os.path.join(self.main.deck.mediaDir(),
+                                     unicode(match.group(1))))
+        txt = re.sub('img src="(.*?)"', quote, txt)
         return txt
 
     def drawQuestion(self, nosound=False):

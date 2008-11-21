@@ -202,6 +202,9 @@
            <property name="title" >
             <string>Current Card</string>
            </property>
+           <property name="flat" >
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="0" >
@@ -213,7 +216,10 @@
             </sizepolicy>
            </property>
            <property name="title" >
-            <string>Current &amp;Fact</string>
+            <string/>
+           </property>
+           <property name="flat" >
+            <bool>true</bool>
            </property>
           </widget>
          </item>

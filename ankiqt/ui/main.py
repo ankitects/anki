@@ -799,8 +799,10 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def setupEditor(self):
         self.mainWin.fieldsArea.hide()
+        self.mainWin.fieldsArea.setFlat(True)
         self.editor = ui.facteditor.FactEditor(
-            self, self.mainWin.fieldsArea, self.deck)
+            self, self.mainWin.fieldsArea, self.deck,
+            colour="* { background-color: #fff; }\n")
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
 
