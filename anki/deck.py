@@ -344,7 +344,8 @@ where id != :id and factId = :factId""",
             # if not cramming, boost initial 2
             if (interval < self.hardIntervalMax and
                 interval > 0.166):
-                interval = self.hardIntervalMax * 3.5
+                mid = (self.midIntervalMin + self.midIntervalMax) / 2.0
+                interval *= (mid / interval / factor)
             # multiply last interval by factor
             if ease == 2:
                 interval = (interval + delay/4) * 1.2
