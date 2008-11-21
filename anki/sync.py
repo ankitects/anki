@@ -21,7 +21,7 @@ createDeck(name): create a deck on the server
 __docformat__ = 'restructuredtext'
 
 import zlib, re, urllib, urllib2, socket, simplejson, time
-import os, base64, httplib
+import os, base64, httplib, sys
 from datetime import date
 import anki, anki.deck, anki.cards
 from anki.errors import *
@@ -775,6 +775,7 @@ where media.id in %s""" % sids, now=time.time())
         try:
             self.updateOneWayCards(payload['cards'])
         except KeyError:
+            sys.stderr.write("Error in one way sync\n")
             t = 0
         # update sync time
         self.deck.s.statement(
