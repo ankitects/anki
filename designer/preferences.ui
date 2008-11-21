@@ -68,7 +68,7 @@
             </sizepolicy>
            </property>
            <property name="text" >
-            <string>&lt;h1>Fonts&lt;/h1></string>
+            <string>&lt;h1>Fonts &amp; Colours&lt;/h1></string>
            </property>
            <property name="wordWrap" >
             <bool>false</bool>
@@ -83,115 +83,14 @@
            <property name="spacing" >
             <number>6</number>
            </property>
-           <item row="0" column="2" >
-            <widget class="QSpinBox" name="interfaceSize" >
-             <property name="maximum" >
-              <number>300</number>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_8" >
+             <property name="text" >
+              <string>Interface font</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0" >
-            <widget class="QLabel" name="label_9" >
-             <property name="text" >
-              <string>Last card</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1" >
-            <widget class="QFontComboBox" name="interfaceFamily" >
-             <property name="maximumSize" >
-              <size>
-               <width>170</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1" >
-            <widget class="QFontComboBox" name="lastCardFamily" >
-             <property name="maximumSize" >
-              <size>
-               <width>170</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_8" >
-             <property name="text" >
-              <string>Interface</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" >
-            <widget class="QSpinBox" name="lastCardSize" >
-             <property name="maximum" >
-              <number>300</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" >
-            <widget class="QLabel" name="label_10" >
-             <property name="text" >
-              <string>Card editor</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1" >
-            <widget class="QFontComboBox" name="editFamily" >
-             <property name="maximumSize" >
-              <size>
-               <width>170</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2" >
-            <widget class="QSpinBox" name="editSize" >
-             <property name="minimum" >
-              <number>6</number>
-             </property>
-             <property name="maximum" >
-              <number>20</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_3" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text" >
-            <string>&lt;h1>Colours&lt;/h1></string>
-           </property>
-           <property name="wordWrap" >
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QGridLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item row="0" column="1" >
-            <widget class="QPushButton" name="interfaceColour" >
-             <property name="text" >
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" >
             <widget class="QLabel" name="label_13" >
              <property name="text" >
               <string>Interface colour</string>
@@ -199,16 +98,9 @@
             </widget>
            </item>
            <item row="1" column="1" >
-            <widget class="QPushButton" name="lastCardColour" >
+            <widget class="QPushButton" name="interfaceColour" >
              <property name="text" >
               <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="label_14" >
-             <property name="text" >
-              <string>Last card colour</string>
              </property>
             </widget>
            </item>
@@ -226,6 +118,37 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="1" >
+            <layout class="QHBoxLayout" name="horizontalLayout_2" >
+             <item>
+              <widget class="QFontComboBox" name="interfaceFamily" >
+               <property name="maximumSize" >
+                <size>
+                 <width>140</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="interfaceSize" >
+               <property name="maximum" >
+                <number>300</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
           </layout>
          </item>
         </layout>
@@ -579,15 +502,6 @@
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>interfaceLang</tabstop>
-  <tabstop>interfaceFamily</tabstop>
-  <tabstop>interfaceSize</tabstop>
-  <tabstop>lastCardFamily</tabstop>
-  <tabstop>lastCardSize</tabstop>
-  <tabstop>editFamily</tabstop>
-  <tabstop>editSize</tabstop>
-  <tabstop>interfaceColour</tabstop>
-  <tabstop>lastCardColour</tabstop>
-  <tabstop>backgroundColour</tabstop>
   <tabstop>saveWhenClosing</tabstop>
   <tabstop>saveAfterEvery</tabstop>
   <tabstop>saveAfterEveryNum</tabstop>

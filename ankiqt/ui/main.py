@@ -337,7 +337,7 @@ class AnkiQt(QMainWindow):
         for i in range(1, 5):
             if not self.config['suppressEstimates']:
                 if i == 1:
-                    label = QLabel(_("Soon"))
+                    label = QLabel(self.withInterfaceFont(_("Soon")))
                 else:
                     label = QLabel(self.withInterfaceFont(text[i-1][1] % nextInts))
                 label.setAlignment(Qt.AlignHCenter)

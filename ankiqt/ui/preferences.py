@@ -77,8 +77,6 @@ class Preferences(QDialog):
 
     fonts = (
         "interface",
-        "lastCard",
-        "edit",
         )
 
     def loadCurrentFonts(self):
@@ -119,7 +117,7 @@ class Preferences(QDialog):
         if sys.platform.startswith("darwin"):
             # mac widgets don't show colours
             self.plastiqueStyle = QStyleFactory.create("plastique")
-        for c in ("interface", "lastCard", "background"):
+        for c in ("interface", "background"):
             colour = c + "Colour"
             button = getattr(self.dialog, colour)
             if sys.platform.startswith("darwin"):
