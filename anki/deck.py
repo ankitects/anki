@@ -14,7 +14,7 @@ import tempfile, time, os, random, sys, re, stat, shutil, types
 
 from anki.db import *
 from anki.lang import _
-from anki.errors import DeckAccessError, DeckWrongFormatError
+from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, canonifyTags
 from anki.history import CardHistoryEntry
