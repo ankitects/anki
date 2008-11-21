@@ -771,11 +771,15 @@ where media.id in %s""" % sids, now=time.time())
         self.mediaSyncPending = (self.mediaSyncPending or
                                  self.mediaSupported() and payload['media'])
         # cards last, handled differently
-        self.updateOneWayCards(payload['cards'])
+        t = time.time()
+        try:
+            self.updateOneWayCards(payload['cards'])
+        except KeyError:
+            t = 0
         # update sync time
         self.deck.s.statement(
             "update sources set lastSync = :t where id = :id",
-            id=self.server.deckName, t=time.time())
+            id=self.server.deckName, t=t)
         self.deck.modified = time.time()
 
     def getOneWayCards(self, ids):
