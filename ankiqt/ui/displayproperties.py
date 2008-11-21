@@ -31,7 +31,7 @@ class DisplayProperties(QDialog):
         self.setupChooser()
         self.setupCards()
         self.setupFields()
-        self.setupPreview()
+        self.setupButtons()
         self.show()
         ui.dialogs.open("DisplayProperties", self)
 
@@ -48,9 +48,11 @@ class DisplayProperties(QDialog):
         self.drawCards()
         self.drawFields()
 
-    def setupPreview(self):
+    def setupButtons(self):
         self.connect(self.dialog.preview, SIGNAL("clicked()"),
                      self.previewClicked)
+        self.connect(self.dialog.helpButton, SIGNAL("clicked()"),
+                     self.onHelp)
         if self.main.config['showFontPreview']:
             self.dialog.preview.setChecked(True)
         else:
@@ -286,3 +288,7 @@ class DisplayProperties(QDialog):
     def reject(self):
         ui.dialogs.close("DisplayProperties")
         QDialog.reject(self)
+
+    def onHelp(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "DisplayProperties"))
