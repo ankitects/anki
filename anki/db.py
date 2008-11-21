@@ -40,16 +40,6 @@ except ImportError:
     from sqlalchemy import Unicode
     UnicodeText = Unicode
 
-# dump location of non-unicode string
-from sqlalchemy import util
-if getattr(util, 'warn', None):
-    import traceback
-    oldWarn = util.warn
-    def newWarn(*args, **kwargs):
-        traceback.print_stack()
-        oldWarn(*args, **kwargs)
-    util.warn = newWarn
-
 # shared metadata
 metadata = MetaData()
 
