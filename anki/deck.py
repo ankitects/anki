@@ -8,8 +8,6 @@ The Deck
 """
 __docformat__ = 'restructuredtext'
 
-# - rebuildqueue compuls.
-
 import tempfile, time, os, random, sys, re, stat, shutil, types
 
 from anki.db import *
@@ -1567,9 +1565,6 @@ class DeckStorage(object):
             path = os.path.abspath(path)
             #print "using path", path
             if os.path.exists(path):
-                # attach
-                if not os.access(path, os.R_OK | os.W_OK):
-                    raise DeckAccessError(_("Can't read/write deck"))
                 create = False
         # attach and sync/fetch deck - first, to unicode
         if not isinstance(path, types.UnicodeType):
