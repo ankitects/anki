@@ -5,8 +5,6 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-# fixme: sample files read only, need to copy
-
 import os, sys, re, types, gettext, stat, traceback
 import copy, shutil, time, glob
 
@@ -413,6 +411,7 @@ class AnkiQt(QMainWindow):
                 if interactive:
                     ui.utils.showInfo(_("Deck is already open."))
             else:
+                traceback.print_exc()
                 ui.utils.showInfo(_("""\
 Unable to load deck.
 

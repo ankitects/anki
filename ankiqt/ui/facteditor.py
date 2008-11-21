@@ -267,11 +267,7 @@ class FactEditor(object):
         "Save field text into fact."
         for (w, f) in self.widgets.items():
             v = tidyHTML(unicode(w.toHtml()))
-            if not v.strip():
-                # strip blank spaces
-                v = u""
-                w.setText(v)
-            self.fact[f.name] = v
+            self.fact[f.name] = v.strip()
         self.fact.setModified(textChanged=True)
         self.deck.setModified()
 
