@@ -101,6 +101,7 @@ class AnkiQt(QMainWindow):
         self.viewsBackup = None
 
     def reset(self):
+        ui.dialogs.closeAll()
         if self.deck:
             self.deck.refresh()
             self.deck.updateAllPriorities()
