@@ -441,6 +441,13 @@
            </property>
           </widget>
          </item>
+         <item row="10" column="0" >
+          <widget class="QCheckBox" name="scrollToAnswer" >
+           <property name="text" >
+            <string>Scroll down to the answer when showing answer</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -502,6 +509,10 @@
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>interfaceLang</tabstop>
+  <tabstop>interfaceFamily</tabstop>
+  <tabstop>interfaceSize</tabstop>
+  <tabstop>interfaceColour</tabstop>
+  <tabstop>backgroundColour</tabstop>
   <tabstop>saveWhenClosing</tabstop>
   <tabstop>saveAfterEvery</tabstop>
   <tabstop>saveAfterEveryNum</tabstop>
@@ -520,6 +531,7 @@
   <tabstop>tallButtons</tabstop>
   <tabstop>showTray</tabstop>
   <tabstop>editCurrentOnly</tabstop>
+  <tabstop>scrollToAnswer</tabstop>
   <tabstop>toolbarIconSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

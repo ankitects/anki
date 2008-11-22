@@ -125,8 +125,9 @@ class View(object):
 
     def onLoadFinished(self):
         if self.state == "showAnswer":
-            mf = self.body.page().mainFrame()
-            mf.evaluateJavaScript("location.hash = 'answer'")
+            if self.main.config['scrollToAnswer']:
+                mf = self.body.page().mainFrame()
+                mf.evaluateJavaScript("location.hash = 'answer'")
 
     # Top section
     ##########################################################################
