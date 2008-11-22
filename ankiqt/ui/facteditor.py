@@ -188,6 +188,17 @@ class FactEditor(object):
         self.latexMathEnv.setEnabled(False)
         self.iconsBox.addWidget(self.latexMathEnv)
         self.latexMathEnv.setStyle(self.plastiqueStyle)
+        # html
+        self.htmlEdit = QPushButton(self.widget)
+        self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
+                                  self.onHtmlEdit)
+        self.htmlEdit.setToolTip(_("HTML Editor (F9)"))
+        self.htmlEdit.setShortcut(_("F9"))
+        self.htmlEdit.setIcon(QIcon(":/icons/text-xml.png"))
+        self.htmlEdit.setFocusPolicy(Qt.NoFocus)
+        self.htmlEdit.setEnabled(False)
+        self.iconsBox.addWidget(self.htmlEdit)
+        self.htmlEdit.setStyle(self.plastiqueStyle)
 
         self.fieldsFrame = None
         self.widget.setLayout(self.fieldsBox)
@@ -384,6 +395,7 @@ class FactEditor(object):
         self.latexEqn.setEnabled(val)
         self.latexMathEnv.setEnabled(val)
         self.preview.setEnabled(val)
+        self.htmlEdit.setEnabled(val)
 
     def disableButtons(self):
         self.enableButtons(False)
@@ -457,6 +469,24 @@ class FactEditor(object):
 
     def onPreview(self):
         PreviewDialog(self.parent, self.deck, self.fact).exec_()
+
+    def onHtmlEdit(self):
+        def helpRequested():
+            QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                          "HtmlEditor"))
+        w = self.focusedEdit()
+        if w:
+            self.saveFields()
+            d = QDialog(self.parent)
+            form = ankiqt.forms.edithtml.Ui_Dialog()
+            form.setupUi(d)
+            d.connect(form.buttonBox, SIGNAL("helpRequested()"),
+                     helpRequested)
+            form.textEdit.setPlainText(self.widgets[w].value)
+            form.textEdit.moveCursor(QTextCursor.End)
+            d.exec_()
+            self.widgets[w].value = unicode(form.textEdit.toPlainText())
+            self.loadFields()
 
     def fieldsAreBlank(self):
         for (field, widget) in self.fields.values():
