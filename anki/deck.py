@@ -740,8 +740,6 @@ and due < :now""", now=time.time())
         "Add a fact to the deck. Return list of new cards."
         if not fact.model:
             fact.model = self.currentModel
-        # clear the session and refresh the model
-        fact.model = self.s.query(Model).get(fact.model.id)
         # validate
         fact.assertValid()
         fact.assertUnique(self.s)
@@ -752,7 +750,6 @@ and due < :now""", now=time.time())
         # proceed
         n = 0
         cards = []
-        self.refresh()
         self.s.save(fact)
         self.factCount += 1
         self.flushMod()
