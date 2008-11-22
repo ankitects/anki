@@ -732,9 +732,11 @@ and due < :now""", now=time.time())
     # Facts
     ##########################################################################
 
-    def newFact(self):
+    def newFact(self, model=None):
         "Return a new fact with the current model."
-        return anki.facts.Fact(self.currentModel)
+        if model is None:
+            model = self.currentModel
+        return anki.facts.Fact(model)
 
     def addFact(self, fact):
         "Add a fact to the deck. Return list of new cards."
@@ -748,7 +750,6 @@ and due < :now""", now=time.time())
         if not cms:
             return []
         # proceed
-        n = 0
         cards = []
         self.s.save(fact)
         self.factCount += 1
@@ -848,6 +849,24 @@ select facts.id from facts
 where facts.id not in (select factId from cards)""")
         self.deleteFacts(ids)
         return ids
+
+    def previewFact(self, oldFact):
+        "Duplicate fact and generate cards for preview. Don't add to deck."
+        # check we have card models available
+        cms = self.availableCardModels(oldFact)
+        if not cms:
+            return []
+        # dupe fact
+        fact = self.newFact(oldFact.model)
+        for field in fact.fields:
+            fact[field.name] = oldFact[field.name]
+        fact.tags = oldFact.tags
+        # proceed
+        cards = []
+        for cardModel in cms:
+            card = anki.cards.Card(fact, cardModel)
+            cards.append(card)
+        return cards
 
     # Cards
     ##########################################################################
