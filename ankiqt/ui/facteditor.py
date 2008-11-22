@@ -126,20 +126,20 @@ class FactEditor(object):
         self.addPicture = QPushButton(self.widget)
         self.addPicture.connect(self.addPicture, SIGNAL("clicked()"), self.onAddPicture)
         self.addPicture.setFocusPolicy(Qt.NoFocus)
-        self.addPicture.setShortcut(_("Ctrl+p"))
+        self.addPicture.setShortcut(_("F2"))
         self.addPicture.setIcon(QIcon(":/icons/colors.png"))
         self.addPicture.setEnabled(False)
-        self.addPicture.setToolTip(_("Add a picture (Ctrl+p)"))
+        self.addPicture.setToolTip(_("Add a picture (F2)"))
         self.iconsBox.addWidget(self.addPicture)
         self.addPicture.setStyle(self.plastiqueStyle)
         # sounds
         self.addSound = QPushButton(self.widget)
         self.addSound.connect(self.addSound, SIGNAL("clicked()"), self.onAddSound)
         self.addSound.setFocusPolicy(Qt.NoFocus)
-        self.addSound.setShortcut(_("Ctrl+s"))
+        self.addSound.setShortcut(_("F3"))
         self.addSound.setEnabled(False)
         self.addSound.setIcon(QIcon(":/icons/text-speak.png"))
-        self.addSound.setToolTip(_("Add audio (Ctrl+s)"))
+        self.addSound.setToolTip(_("Add audio (F3)"))
         self.iconsBox.addWidget(self.addSound)
         self.addSound.setStyle(self.plastiqueStyle)
         # latex
@@ -175,6 +175,18 @@ class FactEditor(object):
         self.latexMathEnv.setEnabled(False)
         self.iconsBox.addWidget(self.latexMathEnv)
         self.latexMathEnv.setStyle(self.plastiqueStyle)
+        # preview
+        self.preview = QPushButton(self.widget)
+        self.preview.connect(self.preview, SIGNAL("clicked()"),
+                                  self.onPreview)
+        self.preview.setToolTip(_("Preview (F5)"))
+        self.preview.setShortcut(_("F5"))
+        #self.preview.setIcon(QIcon(":/icons/math_matrix.png"))
+        self.preview.setFocusPolicy(Qt.NoFocus)
+        self.preview.setEnabled(False)
+        self.iconsBox.addWidget(self.preview)
+        self.preview.setStyle(self.plastiqueStyle)
+
         self.fieldsFrame = None
         self.widget.setLayout(self.fieldsBox)
 
@@ -369,6 +381,7 @@ class FactEditor(object):
         self.latex.setEnabled(val)
         self.latexEqn.setEnabled(val)
         self.latexMathEnv.setEnabled(val)
+        self.preview.setEnabled(val)
 
     def disableButtons(self):
         self.enableButtons(False)
@@ -439,6 +452,10 @@ class FactEditor(object):
             w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
+
+    def onPreview(self):
+        print self.deck.previewFact(self.fact)
+        print "preview"
 
     def fieldsAreBlank(self):
         for (field, widget) in self.fields.values():

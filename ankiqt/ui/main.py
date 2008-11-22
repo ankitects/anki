@@ -192,6 +192,8 @@ class AnkiQt(QMainWindow):
             self.showEaseButtons()
             self.enableCardMenuItems()
         elif state == "editCurrentFact":
+            if self.lastState == "editCurrentFact":
+                return self.moveToState("saveEdit")
             self.resetButtons()
             self.showSaveEditorButton()
             self.mainWin.mainText.hide()
@@ -810,7 +812,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     def showSaveEditorButton(self):
         if self.lastState == self.state:
             return
-        self.editFactButton = QPushButton(_("Return (Esc)"))
+        self.editFactButton = QPushButton(_("Return"))
+        self.editFactButton.setToolTip("Hit Esc to return to review.")
         self.editFactButton.setFixedHeight(self.easeButtonHeight)
         self.editFactButton.setShortcut(_("Esc"))
         self.editFactButton.setDefault(False)
