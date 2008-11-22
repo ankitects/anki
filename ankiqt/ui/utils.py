@@ -4,7 +4,10 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-import re, os
+from anki.sound import playFromText, stripSounds
+from anki.latex import renderLatex, stripLatex
+
+import re, os, sys
 import ankiqt
 
 def openLink(link):
@@ -88,3 +91,17 @@ def restoreGeom(widget, key):
     key += "Geom"
     if ankiqt.mw.config.get(key):
         widget.restoreGeometry(ankiqt.mw.config[key])
+
+def mungeQA(deck, txt):
+    txt = renderLatex(deck, txt)
+    txt = stripSounds(txt)
+    def quote(match):
+        if sys.platform.startswith("win32"):
+            prefix = "file:///"
+        else:
+            prefix = "file://"
+        return 'img src="%s%s"' % (
+            prefix, os.path.join(deck.mediaDir(),
+                                 unicode(match.group(1))))
+    txt = re.sub('img src="(.*?)"', quote, txt)
+    return txt

@@ -10,6 +10,7 @@ from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
 import types, time, re, os, urllib, sys
 from ankiqt import ui
+from ankiqt.ui.utils import mungeQA
 
 # Views - define the way a user is prompted for questions, etc
 ##########################################################################
@@ -68,7 +69,6 @@ class View(object):
     def addStyles(self):
         # card styles
         s = "<style>\n"
-        t = time.time()
         if self.main.deck:
             s += self.main.deck.css
         # last card
@@ -109,31 +109,17 @@ class View(object):
     # Question and answer
     ##########################################################################
 
-    def munge(self, txt):
-        txt = renderLatex(self.main.deck, txt)
-        txt = stripSounds(txt)
-        def quote(match):
-            if sys.platform.startswith("win32"):
-                prefix = "file:///"
-            else:
-                prefix = "file://"
-            return 'img src="%s%s"' % (
-                prefix, os.path.join(self.main.deck.mediaDir(),
-                                     unicode(match.group(1))))
-        txt = re.sub('img src="(.*?)"', quote, txt)
-        return txt
-
     def drawQuestion(self, nosound=False):
         "Show the question."
         q = self.main.currentCard.htmlQuestion()
-        self.write(self.munge(q))
+        self.write(mungeQA(self.main.deck, q))
         if self.state != self.oldState and not nosound:
             playFromText(q)
 
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
-        self.write('<span id=answer />' + self.munge(a))
+        self.write('<span id=answer />' + mungeQA(self.main.deck, a))
         if self.state != self.oldState:
             playFromText(a)
 

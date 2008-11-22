@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/document-preview.png</file>
+    <file>icons/media-record.png</file>
     <file>icons/edit-rename.png</file>
     <file>icons/kblogger.png</file>
     <file>icons/chronometer.png</file>

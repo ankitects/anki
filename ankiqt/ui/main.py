@@ -52,6 +52,7 @@ class AnkiQt(QMainWindow):
             self.restoreGeometry(self.config['mainWindowGeom'])
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
                                      self.mainWin.mainTextFrame)
+        self.mainWin.mainText.pageAction(QWebPage.Reload).setVisible(False)
         self.addView(self.bodyView)
         self.statusView = ui.status.StatusView(self)
         self.addView(self.statusView)
@@ -812,7 +813,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     def showSaveEditorButton(self):
         if self.lastState == self.state:
             return
-        self.editFactButton = QPushButton(_("Return"))
+        self.editFactButton = QPushButton(_("Close"))
         self.editFactButton.setToolTip("Hit Esc to return to review.")
         self.editFactButton.setFixedHeight(self.easeButtonHeight)
         self.editFactButton.setShortcut(_("Esc"))

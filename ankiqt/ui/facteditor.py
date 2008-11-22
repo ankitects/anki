@@ -8,6 +8,8 @@ import re, os, sys
 from anki.utils import parseTags, stripHTML, tidyHTML
 import anki.sound
 from ankiqt import ui
+import ankiqt
+from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
 
 class FactEditor(object):
     """An editor for new/existing facts.
@@ -120,26 +122,37 @@ class FactEditor(object):
         self.foreground.setLayout(hbox)
         self.iconsBox.addWidget(self.foreground)
         self.foreground.setStyle(self.plastiqueStyle)
+        # preview
+        self.preview = QPushButton(self.widget)
+        self.preview.connect(self.preview, SIGNAL("clicked()"),
+                                  self.onPreview)
+        self.preview.setToolTip(_("Preview (F2)"))
+        self.preview.setShortcut(_("F2"))
+        self.preview.setIcon(QIcon(":/icons/document-preview.png"))
+        self.preview.setFocusPolicy(Qt.NoFocus)
+        self.preview.setEnabled(False)
+        self.iconsBox.addWidget(self.preview)
+        self.preview.setStyle(self.plastiqueStyle)
         # pictures
         spc = QSpacerItem(10,10)
         self.iconsBox.addItem(spc)
         self.addPicture = QPushButton(self.widget)
         self.addPicture.connect(self.addPicture, SIGNAL("clicked()"), self.onAddPicture)
         self.addPicture.setFocusPolicy(Qt.NoFocus)
-        self.addPicture.setShortcut(_("F2"))
+        self.addPicture.setShortcut(_("F3"))
         self.addPicture.setIcon(QIcon(":/icons/colors.png"))
         self.addPicture.setEnabled(False)
-        self.addPicture.setToolTip(_("Add a picture (F2)"))
+        self.addPicture.setToolTip(_("Add a picture (F3)"))
         self.iconsBox.addWidget(self.addPicture)
         self.addPicture.setStyle(self.plastiqueStyle)
         # sounds
         self.addSound = QPushButton(self.widget)
         self.addSound.connect(self.addSound, SIGNAL("clicked()"), self.onAddSound)
         self.addSound.setFocusPolicy(Qt.NoFocus)
-        self.addSound.setShortcut(_("F3"))
+        self.addSound.setShortcut(_("F4"))
         self.addSound.setEnabled(False)
         self.addSound.setIcon(QIcon(":/icons/text-speak.png"))
-        self.addSound.setToolTip(_("Add audio (F3)"))
+        self.addSound.setToolTip(_("Add audio (F4)"))
         self.iconsBox.addWidget(self.addSound)
         self.addSound.setStyle(self.plastiqueStyle)
         # latex
@@ -175,17 +188,6 @@ class FactEditor(object):
         self.latexMathEnv.setEnabled(False)
         self.iconsBox.addWidget(self.latexMathEnv)
         self.latexMathEnv.setStyle(self.plastiqueStyle)
-        # preview
-        self.preview = QPushButton(self.widget)
-        self.preview.connect(self.preview, SIGNAL("clicked()"),
-                                  self.onPreview)
-        self.preview.setToolTip(_("Preview (F5)"))
-        self.preview.setShortcut(_("F5"))
-        #self.preview.setIcon(QIcon(":/icons/math_matrix.png"))
-        self.preview.setFocusPolicy(Qt.NoFocus)
-        self.preview.setEnabled(False)
-        self.iconsBox.addWidget(self.preview)
-        self.preview.setStyle(self.plastiqueStyle)
 
         self.fieldsFrame = None
         self.widget.setLayout(self.fieldsBox)
@@ -454,8 +456,7 @@ class FactEditor(object):
             w.moveCursor(QTextCursor.PreviousCharacter)
 
     def onPreview(self):
-        print self.deck.previewFact(self.fact)
-        print "preview"
+        PreviewDialog(self.parent, self.deck, self.fact).exec_()
 
     def fieldsAreBlank(self):
         for (field, widget) in self.fields.values():
@@ -568,3 +569,40 @@ class FactEdit(QTextEdit):
         QTextEdit.focusInEvent(self, evt)
         self.parent.formatChanged(None)
         self.parent.enableButtons()
+
+class PreviewDialog(QDialog):
+
+    def __init__(self, parent, deck, fact, *args):
+        QDialog.__init__(self, parent, *args)
+        self.deck = deck
+        self.fact = fact
+        cards = self.deck.previewFact(self.fact)
+        if not cards:
+            ui.utils.showInfo(_("No cards to preview."),
+                              parent=self.parent)
+            return
+        self.cards = cards
+        self.currentCard = 0
+        self.dialog = ankiqt.forms.previewcards.Ui_Dialog()
+        self.dialog.setupUi(self)
+        self.dialog.comboBox.addItems(QStringList(
+            [c.cardModel.name for c in self.cards]))
+        self.connect(self.dialog.comboBox, SIGNAL("activated(int)"),
+                     self.onChange)
+        self.updateCard()
+        restoreGeom(self, "preview")
+
+    def updateCard(self):
+        c = self.cards[self.currentCard]
+        self.dialog.webView.setHtml(
+            "<style>" + self.deck.css + "</style>" +
+            mungeQA(self.deck, c.htmlQuestion()) +
+            mungeQA(self.deck, c.htmlAnswer()))
+
+    def onChange(self, idx):
+        self.currentCard = idx
+        self.updateCard()
+
+    def reject(self):
+        saveGeom(self, "preview")
+        QDialog.reject(self)
