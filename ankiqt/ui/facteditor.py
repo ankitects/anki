@@ -47,6 +47,7 @@ class FactEditor(object):
         os.chdir(self.deck.mediaDir(create=True))
 
     def setupFields(self):
+        # init for later
         self.fields = {}
         # top level vbox
         self.fieldsBox = QVBoxLayout(self.widget)
@@ -174,7 +175,6 @@ class FactEditor(object):
         self.latexMathEnv.setEnabled(False)
         self.iconsBox.addWidget(self.latexMathEnv)
         self.latexMathEnv.setStyle(self.plastiqueStyle)
-
         self.fieldsFrame = None
         self.widget.setLayout(self.fieldsBox)
 
@@ -242,8 +242,11 @@ class FactEditor(object):
     def loadFields(self, check=True, font=True):
         "Update field text (if changed) and font/colours."
         # text
-        for (name, (field, w)) in self.fields.items():
-            new = self.fact[name]
+        for field in self.fact.fields:
+            w = self.fields[field.name][1]
+            self.fields[field.name] = (field, w)
+            self.widgets[w] = field
+            new = self.fact[field.name]
             old = tidyHTML(unicode(w.toHtml()))
             # only update if something has changed, to preserve the cursor
             if new != old:
