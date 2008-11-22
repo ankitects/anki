@@ -64,7 +64,7 @@
         <item row="1" column="1" >
          <widget class="QPushButton" name="file" >
           <property name="text" >
-           <string>Choose &amp;file....</string>
+           <string>Choose &amp;file...</string>
           </property>
           <property name="default" >
            <bool>true</bool>

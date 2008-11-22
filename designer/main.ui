@@ -810,7 +810,7 @@
      <normaloff>:/icons/document-export.png</normaloff>:/icons/document-export.png</iconset>
    </property>
    <property name="text" >
-    <string>Expor&amp;t....</string>
+    <string>Expor&amp;t...</string>
    </property>
   </action>
   <action name="actionDisplayProperties" >
@@ -827,7 +827,7 @@
   </action>
   <action name="actionOpenSamples" >
    <property name="text" >
-    <string>Open Sa&amp;mple....</string>
+    <string>Open Sa&amp;mple...</string>
    </property>
   </action>
   <action name="actionMarkCard" >
