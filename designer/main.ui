@@ -23,14 +23,6 @@
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>69</y>
-     <width>454</width>
-     <height>415</height>
-    </rect>
-   </property>
    <property name="sizePolicy" >
     <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>1</horstretch>
@@ -374,7 +366,7 @@
      <x>0</x>
      <y>0</y>
      <width>454</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -506,27 +498,10 @@
    <addaction name="menuAdvanced" />
    <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>484</y>
-     <width>454</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
+  <widget class="QStatusBar" name="statusbar" />
   <widget class="QToolBar" name="toolBar" >
    <property name="enabled" >
     <bool>true</bool>
-   </property>
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>23</y>
-     <width>454</width>
-     <height>46</height>
-    </rect>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
@@ -901,6 +876,9 @@
    </property>
    <property name="text" >
     <string>&amp;Undo last answer</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Z</string>
    </property>
   </action>
   <action name="actionForum" >
