@@ -596,22 +596,22 @@ where id in (%s)""" % ",".join([
                 self.deck.setModified()
 
     def addFactTags(self):
-        tags = ui.utils.getText(_("Enter tag(s) to add to each fact:"), self)
+        tags = ui.utils.getOnlyText(_("Enter tag(s) to add to each fact:"), self)
         if tags: self.deck.addFactTags(self.selectedFacts(), tags)
         self.updateAfterCardChange()
 
     def addCardTags(self):
-        tags = ui.utils.getText(_("Enter tag(s) to add to each card:"), self)
+        tags = ui.utils.getOnlyText(_("Enter tag(s) to add to each card:"), self)
         if tags: self.deck.addCardTags(self.selectedCards(), tags)
         self.updateAfterCardChange()
 
     def deleteFactTags(self):
-        tags = ui.utils.getText(_("Enter tag(s) to delete from each fact:"), self)
+        tags = ui.utils.getOnlyText(_("Enter tag(s) to delete from each fact:"), self)
         if tags: self.deck.deleteFactTags(self.selectedFacts(), tags)
         self.updateAfterCardChange()
 
     def deleteCardTags(self):
-        tags = ui.utils.getText(_("Enter tag(s) to delete from each card:"), self)
+        tags = ui.utils.getOnlyText(_("Enter tag(s) to delete from each card:"), self)
         if tags: self.deck.deleteCardTags(self.selectedCards(), tags)
         self.updateAfterCardChange()
 

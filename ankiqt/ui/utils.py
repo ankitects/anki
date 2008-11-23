@@ -85,6 +85,13 @@ def getText(prompt, parent=None, help=None):
     ret = d.exec_()
     return (unicode(d.l.text()), ret)
 
+def getOnlyText(*args, **kwargs):
+    (s, r) = getText(*args, **kwargs)
+    if r:
+        return s
+    else:
+        return u""
+
 def getFile(parent, title, dir, key):
     "Ask the user for a file. Use DIR as config variable."
     dirkey = dir+"Directory"
