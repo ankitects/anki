@@ -1049,7 +1049,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             ui.utils.showInfo(
                 _("Already cramming. Please close this deck first."))
             return
-        (s, ret) = QInputDialog.getText(self, _("Anki"), _("Tags to cram:"))
+        (s, ret) = ui.utils.getText(_("Tags to cram:"), help="CramMode")
         if not ret:
             return
         s = unicode(s)
@@ -1063,6 +1063,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         if s:
             e.limitTags = parseTags(s)
         e.exportInto(path)
+        if not e.exportedCards:
+            ui.utils.showInfo(_("No cards matched the provided tags."))
+            return
         self.deck.close()
         self.deck = None
         self.loadDeck(path)

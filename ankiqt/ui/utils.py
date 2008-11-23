@@ -44,13 +44,46 @@ def askUser(text, parent=None):
                              QMessageBox.Yes | QMessageBox.No)
     return r == QMessageBox.Yes
 
-def getText(prompt, parent=None):
+class GetTextDialog(QDialog):
+
+    def __init__(self, parent, question, help=None):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle("Anki")
+        self.question = question
+        self.help = help
+        v = QVBoxLayout()
+        v.addWidget(QLabel(question))
+        self.l = QLineEdit()
+        v.addWidget(self.l)
+        buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        if help:
+            buts |= QDialogButtonBox.Help
+        b = QDialogButtonBox(buts)
+        v.addWidget(b)
+        self.setLayout(v)
+        self.connect(b.button(QDialogButtonBox.Ok),
+                     SIGNAL("clicked()"), self.accept)
+        self.connect(b.button(QDialogButtonBox.Cancel),
+                     SIGNAL("clicked()"), self.reject)
+        if help:
+            self.connect(b.button(QDialogButtonBox.Help),
+                         SIGNAL("clicked()"), self.helpRequested)
+
+    def accept(self):
+        return QDialog.accept(self)
+
+    def reject(self):
+        return QDialog.reject(self)
+
+    def helpRequested(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + self.help))
+
+def getText(prompt, parent=None, help=None):
     if not parent:
         parent = ankiqt.mw
-    (text, ok) = QInputDialog.getText(parent, "Anki", prompt)
-    if not ok:
-        return None
-    return unicode(text)
+    d = GetTextDialog(parent, prompt, help=help)
+    ret = d.exec_()
+    return (unicode(d.l.text()), ret)
 
 def getFile(parent, title, dir, key):
     "Ask the user for a file. Use DIR as config variable."
