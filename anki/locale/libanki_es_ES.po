@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-16 00:38+0900\n"
+"POT-Creation-Date: 2008-11-23 09:25+0900\n"
 "PO-Revision-Date: 2008-11-13 19:31+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -201,7 +201,7 @@ msgstr "<h1>Estadísticas de kanjis</h1>Las %d tarjetas vistas en este mazo cont
 msgid "<li>%d total unique kanji.</li>"
 msgstr "<li>%d kanjis únicos totales.</li>"
 
-#: sync.py:190
+#: sync.py:194
 #, python-format
 msgid ""
 "<table width=500>\n"
@@ -278,7 +278,7 @@ msgstr "Añadidas en el último mes"
 msgid "Added last week"
 msgstr "Añadidas en la última semana"
 
-#: exporting.py:223
+#: exporting.py:224
 msgid "Anki deck (*.anki)"
 msgstr "Mazo Anki (*.anki)"
 
@@ -321,10 +321,6 @@ msgstr "Desde el reverso a la cara"
 msgid "Basic"
 msgstr "Básico"
 
-#: deck.py:1571 deck.py:1666
-msgid "Can't read/write deck"
-msgstr "No se puede leer/escribir el mazo"
-
 #: stdmodels.py:155
 msgid "Cantonese"
 msgstr "Cantonés"
@@ -341,7 +337,7 @@ msgstr "Etiquetas de la tarjeta"
 msgid "Cards"
 msgstr "Tarjetas"
 
-#: exporting.py:224
+#: exporting.py:225
 msgid "Cards in tab-separated text file (*.txt)"
 msgstr "Tarjetas en un archivo de texto separado por tabulador (*.txt)"
 
@@ -365,7 +361,7 @@ msgstr "Factor actual"
 msgid "Current interval"
 msgstr "Intervalo actual"
 
-#: deck.py:1401
+#: deck.py:1432
 msgid "Database file damaged. Restore from backup."
 msgstr "Archivo de Base de Datos dañado. Restaurela de la copia de seguridad."
 
@@ -386,31 +382,31 @@ msgstr "Estadísticas del Mazo"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Mazo creado: Hace <b>%s</b><br>"
 
-#: deck.py:1409
+#: deck.py:1440
 msgid "Deck was missing a model"
 msgstr "El mazo carecía de un modelo."
 
-#: deck.py:1430
+#: deck.py:1461
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Borradas %d tarjetas que carecían de hecho"
 
-#: deck.py:1438
+#: deck.py:1469
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr "Borradas %d tarjetas que carecían de modelo de tarjeta"
 
-#: deck.py:1451
+#: deck.py:1482
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Borrados %d campos pendientes"
 
-#: deck.py:1423
+#: deck.py:1454
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Borrados %d hechos con campos faltantes"
 
-#: deck.py:1443
+#: deck.py:1474
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Borrados %d hechos sin tarjetas"
@@ -427,11 +423,11 @@ msgstr "Error ejecutando 'latex' o 'dvipng' - ¿Están instalados?"
 msgid "Fact tags"
 msgstr "Etiquetas de hechos"
 
-#: exporting.py:225
+#: exporting.py:226
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Hechos en un archivo de texto separado por tabulador (*.txt)"
 
-#: deck.py:1640
+#: deck.py:1671
 msgid "File is in use by another process"
 msgstr "El archivo está en uso por otro proceso"
 
@@ -526,12 +522,12 @@ msgstr "Tarjetas maduras: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "Media Missing"
 msgstr "Soporte multimedia no encontrado"
 
-#: deck.py:951
+#: deck.py:967
 #, python-format
 msgid "Model '%s' has wrong card model count"
 msgstr "El modelo '%s' tenía un número incorrecto de modelos de tarjeta"
 
-#: deck.py:955
+#: deck.py:971
 #, python-format
 msgid "Model '%s' has wrong field model count"
 msgstr "El modelo '%s' tenía un número incorrecto de modelos de campo"
@@ -584,19 +580,19 @@ msgstr "Veces repasado"
 msgid "Right"
 msgstr "Derecha"
 
-#: deck.py:1986
+#: deck.py:2016
 msgid "Show new cards after all other cards"
 msgstr "Mostrar nuevas tarjetas después de todas las demás tarjetas"
 
-#: deck.py:1980
+#: deck.py:2010
 msgid "Show new cards in order they were added"
 msgstr "Mostrar nuevas tarjetas en el orden en el que fueron añadidas"
 
-#: deck.py:1979
+#: deck.py:2009
 msgid "Show new cards in random order"
 msgstr "Mostrar nuevas tarjetas de forma aleatoria"
 
-#: deck.py:1985
+#: deck.py:2015
 msgid "Spread new cards out through reviews"
 msgstr "Distribuir tarjetas entre repasos"
 
@@ -608,7 +604,7 @@ msgstr "Estado"
 msgid "Test your ability to recognize the target expression"
 msgstr "Compruebe su habilidad para reconocer la expresión de destino"
 
-#: exporting.py:152 exporting.py:184
+#: exporting.py:153 exporting.py:185
 msgid "Text files (*.txt)"
 msgstr "Archivos de texto (*.txt)"
 
@@ -616,7 +612,7 @@ msgstr "Archivos de texto (*.txt)"
 msgid "The answer."
 msgstr "La respuesta."
 
-#: deck.py:1415
+#: deck.py:1446
 msgid "The current model didn't exist"
 msgstr "El modelo actual no existía"
 
@@ -661,7 +657,7 @@ msgstr "Tarjetas jóvenes: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> de <
 msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 msgstr "Tarjetas jóvenes: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 
-#: models.py:130
+#: models.py:133
 msgid "[invalid question/answer format]"
 msgstr "[formato de pregunta/respuesta incorrecto]"
 
@@ -725,6 +721,9 @@ msgstr "desconocido"
 
 #~ msgid "Automatically generated by default."
 #~ msgstr "Creado automáticamente por defecto."
+
+#~ msgid "Can't read/write deck"
+#~ msgstr "No se puede leer/escribir el mazo"
 
 #~ msgid "Can't read/write directory"
 #~ msgstr "No se puede leer/escribir el directorio"

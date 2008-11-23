@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-16 00:38+0900\n"
+"POT-Creation-Date: 2008-11-23 09:25+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Damien Elmes <anki@ichi2.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -169,7 +169,7 @@ msgstr ""
 msgid "<li>%d total unique kanji.</li>"
 msgstr ""
 
-#: sync.py:190
+#: sync.py:194
 #, python-format
 msgid ""
 "<table width=500>\n"
@@ -232,7 +232,7 @@ msgstr ""
 msgid "Added last week"
 msgstr ""
 
-#: exporting.py:223
+#: exporting.py:224
 msgid "Anki deck (*.anki)"
 msgstr ""
 
@@ -270,10 +270,6 @@ msgstr "裏側から表側"
 msgid "Basic"
 msgstr ""
 
-#: deck.py:1571 deck.py:1666
-msgid "Can't read/write deck"
-msgstr ""
-
 #: stdmodels.py:155
 msgid "Cantonese"
 msgstr ""
@@ -290,7 +286,7 @@ msgstr ""
 msgid "Cards"
 msgstr ""
 
-#: exporting.py:224
+#: exporting.py:225
 msgid "Cards in tab-separated text file (*.txt)"
 msgstr ""
 
@@ -314,7 +310,7 @@ msgstr ""
 msgid "Current interval"
 msgstr ""
 
-#: deck.py:1401
+#: deck.py:1432
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -335,31 +331,31 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:1409
+#: deck.py:1440
 msgid "Deck was missing a model"
 msgstr ""
 
-#: deck.py:1430
+#: deck.py:1461
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1438
+#: deck.py:1469
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr ""
 
-#: deck.py:1451
+#: deck.py:1482
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1423
+#: deck.py:1454
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1443
+#: deck.py:1474
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -376,11 +372,11 @@ msgstr ""
 msgid "Fact tags"
 msgstr ""
 
-#: exporting.py:225
+#: exporting.py:226
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:1640
+#: deck.py:1671
 msgid "File is in use by another process"
 msgstr ""
 
@@ -475,12 +471,12 @@ msgstr ""
 msgid "Media Missing"
 msgstr ""
 
-#: deck.py:951
+#: deck.py:967
 #, python-format
 msgid "Model '%s' has wrong card model count"
 msgstr ""
 
-#: deck.py:955
+#: deck.py:971
 #, python-format
 msgid "Model '%s' has wrong field model count"
 msgstr ""
@@ -535,19 +531,19 @@ msgstr ""
 msgid "Right"
 msgstr ""
 
-#: deck.py:1986
+#: deck.py:2016
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:1980
+#: deck.py:2010
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:1979
+#: deck.py:2009
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:1985
+#: deck.py:2015
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -559,7 +555,7 @@ msgstr ""
 msgid "Test your ability to recognize the target expression"
 msgstr ""
 
-#: exporting.py:152 exporting.py:184
+#: exporting.py:153 exporting.py:185
 msgid "Text files (*.txt)"
 msgstr ""
 
@@ -567,7 +563,7 @@ msgstr ""
 msgid "The answer."
 msgstr ""
 
-#: deck.py:1415
+#: deck.py:1446
 msgid "The current model didn't exist"
 msgstr ""
 
@@ -612,7 +608,7 @@ msgstr ""
 msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 msgstr ""
 
-#: models.py:130
+#: models.py:133
 msgid "[invalid question/answer format]"
 msgstr ""
 
