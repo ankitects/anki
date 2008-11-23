@@ -330,10 +330,10 @@ class ModelProperties(QDialog):
         self.updateField(card, 'name', newname)
         self.updateField(card, 'description', unicode(
             self.dialog.cardDescription.toPlainText()))
-        s = unicode(self.dialog.cardQuestion.toPlainText()).strip()
+        s = unicode(self.dialog.cardQuestion.toPlainText())
         s = s.replace("\n", "<br>")
         changed = self.updateField(card, 'qformat', s)
-        s = unicode(self.dialog.cardAnswer.toPlainText()).strip()
+        s = unicode(self.dialog.cardAnswer.toPlainText())
         s = s.replace("\n", "<br>")
         changed2 = self.updateField(card, 'aformat', s)
         changed = changed or changed2
