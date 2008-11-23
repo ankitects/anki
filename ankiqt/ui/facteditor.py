@@ -6,6 +6,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import re, os, sys
 from anki.utils import parseTags, stripHTML, tidyHTML
+from anki.sound import playFromText
 import anki.sound
 from ankiqt import ui
 import ankiqt
@@ -628,6 +629,8 @@ class PreviewDialog(QDialog):
             "<style>" + self.deck.css + "</style>" +
             mungeQA(self.deck, c.htmlQuestion()) +
             mungeQA(self.deck, c.htmlAnswer()))
+        playFromText(c.question)
+        playFromText(c.answer)
 
     def onChange(self, idx):
         self.currentCard = idx
