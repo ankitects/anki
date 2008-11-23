@@ -113,6 +113,7 @@ modified = :now
             bulkClient.sync()
         # need to save manually
         self.newDeck.rebuildCounts()
+        self.exportedCards = self.newDeck.cardCount
         self.newDeck.s.commit()
         self.newDeck.close()
 
