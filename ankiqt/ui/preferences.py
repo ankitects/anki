@@ -169,7 +169,6 @@ class Preferences(QDialog):
         self.dialog.showTray.setChecked(self.config['showTrayIcon'])
         self.dialog.showTimer.setChecked(self.config['showTimer'])
         self.dialog.simpleToolbar.setChecked(self.config['simpleToolbar'])
-        self.dialog.editCurrentOnly.setChecked(self.config['editCurrentOnly'])
         self.dialog.scrollToAnswer.setChecked(self.config['scrollToAnswer'])
         self.dialog.toolbarIconSize.setText(str(self.config['iconSize']))
 
@@ -185,7 +184,6 @@ class Preferences(QDialog):
         self.config['showTimer'] = self.dialog.showTimer.isChecked()
         self.config['suppressEstimates'] = self.dialog.suppressEstimates.isChecked()
         self.config['simpleToolbar'] = self.dialog.simpleToolbar.isChecked()
-        self.config['editCurrentOnly'] = self.dialog.editCurrentOnly.isChecked()
         self.config['scrollToAnswer'] = self.dialog.scrollToAnswer.isChecked()
         i = 32
         try:

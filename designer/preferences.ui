@@ -435,13 +435,6 @@
           </widget>
          </item>
          <item row="9" column="0" >
-          <widget class="QCheckBox" name="editCurrentOnly" >
-           <property name="text" >
-            <string>Show only current card in editor</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0" >
           <widget class="QCheckBox" name="scrollToAnswer" >
            <property name="text" >
             <string>Scroll down to the answer when showing answer</string>
@@ -530,7 +523,6 @@
   <tabstop>showToolbar</tabstop>
   <tabstop>tallButtons</tabstop>
   <tabstop>showTray</tabstop>
-  <tabstop>editCurrentOnly</tabstop>
   <tabstop>scrollToAnswer</tabstop>
   <tabstop>toolbarIconSize</tabstop>
   <tabstop>buttonBox</tabstop>

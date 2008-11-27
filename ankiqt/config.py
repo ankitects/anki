@@ -65,7 +65,6 @@ class Config(dict):
             'showTimer': True,
             'showSuspendedCards': True,
             'simpleToolbar': True,
-            'editCurrentOnly': True,
             'scrollToAnswer': True,
             }
         for (k,v) in fields.items():
