@@ -90,8 +90,7 @@ class AddCards(QDialog):
 
     def addCards(self):
         # make sure updated
-        w = self.editor.focusedEdit()
-        self.addButton.setFocus()
+        self.editor.saveFieldsNow()
         fact = self.editor.fact
         try:
             cards = self.parent.deck.addFact(fact)

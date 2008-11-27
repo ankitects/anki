@@ -201,6 +201,7 @@ class AnkiQt(QMainWindow):
             self.mainWin.fieldsArea.show()
             self.editor.setFact(self.currentCard.fact)
         elif state == "saveEdit":
+            self.editor.saveFieldsNow()
             self.deck.s.flush()
             return self.moveToState("auto")
         self.updateViews(state)

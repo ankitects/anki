@@ -37,6 +37,9 @@ class FactEditor(object):
         "Make FACT the current fact."
         self.fact = fact
         self.factState = None
+        if self.changeTimer:
+            self.changeTimer.stop()
+            self.changeTimer = None
         if self.needToRedraw():
             self.drawFields(noFocus, check)
         else:
@@ -329,6 +332,21 @@ class FactEditor(object):
         if self.onChange:
             self.onChange()
         self.changeTimer = None
+
+    def saveFieldsNow(self):
+        "Must call this before adding cards, closing dialog, etc."
+        # disable timer
+        if self.changeTimer:
+            self.changeTimer.stop()
+            self.changeTimer = None
+            if self.onChange:
+                self.onChange()
+        # save fields and run features
+        w = self.focusedEdit()
+        if w:
+            self.onFocusLost(w)
+        # ensure valid
+        self.checkValid()
 
     def checkValid(self):
         empty = []
