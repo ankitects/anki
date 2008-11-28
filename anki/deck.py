@@ -14,7 +14,8 @@ from anki.db import *
 from anki.lang import _
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
-from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, canonifyTags
+from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
+     canonifyTags, joinTags
 from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel, formatQA
 from anki.stats import dailyStats, globalStats, genToday
@@ -1253,6 +1254,10 @@ and cards.factId = facts.id""")
     def allTags(self):
         "Return a hash listing tags in model & fact."
         return list(set(parseTags(",".join([x[1] for x in self.tagsList()]))))
+
+    def allUserTags(self):
+        return sorted(list(set(parseTags(joinTags(self.s.column0(
+            "select tags from facts"))))))
 
     def factTags(self, ids):
         return self.s.all("""
