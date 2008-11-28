@@ -1724,19 +1724,19 @@ alter table decks add column revCardOrder integer not null default 0""")
         "Add indices to the DB."
         # card queues
         deck.s.statement("""
-create index if not exists ix_cards_combinedDue on cards
+create index if not exists ix_cards_duePriority on cards
 (type, isDue, combinedDue, priority)""")
         deck.s.statement("""
-create index if not exists ix_cards_revOldOrder on cards
+create index if not exists ix_cards_intervalDesc on cards
 (type, isDue, priority desc, interval desc)""")
         deck.s.statement("""
-create index if not exists ix_cards_revNewOrder on cards
+create index if not exists ix_cards_intervalAsc on cards
 (type, isDue, priority desc, interval)""")
         deck.s.statement("""
-create index if not exists ix_cards_newRandomOrder on cards
+create index if not exists ix_cards_randomOrder on cards
 (type, isDue, priority desc, factId, ordinal)""")
         deck.s.statement("""
-create index if not exists ix_cards_newOrderedOrder on cards
+create index if not exists ix_cards_priorityDue on cards
 (type, isDue, priority desc, combinedDue)""")
         # card spacing
         deck.s.statement("""
@@ -1986,10 +1986,15 @@ where interval < 1""")
             deck.s.statement("drop view if exists failedCardsNow")
             deck.s.statement("drop view if exists failedCardsSoon")
             deck.s.statement("drop index if exists ix_cards_revisionOrder")
+            deck.s.statement("drop index if exists ix_cards_newRandomOrder")
+            deck.s.statement("drop index if exists ix_cards_newOrderedOrder")
+            deck.s.statement("drop index if exists ix_cards_combinedDue")
             # add new views
             DeckStorage._addViews(deck)
+            DeckStorage._addIndices(deck)
             deck.version = 17
             deck.s.commit()
+            deck.s.statement("analyze")
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
 
