@@ -1122,6 +1122,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         if self.deck and not self.deck.syncName:
             if interactive:
                 self.onDeckProperties()
+                self.deckProperties.dialog.qtabwidget.setCurrentIndex(1)
             return
         if self.deck is None and self.deckPath is None:
             # qt on linux incorrectly accepts shortcuts for disabled actions

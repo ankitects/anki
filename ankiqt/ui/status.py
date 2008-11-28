@@ -102,17 +102,6 @@ class StatusView(object):
         self.plastiqueStyle = QStyleFactory.create("plastique")
         self.progressBar.setStyle(self.plastiqueStyle)
         self.retentionBar.setStyle(self.plastiqueStyle)
-        self.optionsButton = QPushButton()
-        self.optionsButton.setIcon(QIcon(":/icons/configure.png"))
-        self.optionsButton.setFixedSize(20, 20)
-        self.optionsButton.setFocusPolicy(Qt.NoFocus)
-        self.optionsButton.setToolTip(_(
-            "Click this button to customize\n"
-            "the way Anki shows you cards."))
-        self.main.connect(self.optionsButton,
-                          SIGNAL("clicked()"),
-                          self.onConfigure)
-        self.addWidget(self.optionsButton)
         self.redraw()
 
     def addWidget(self, w, stretch=0, perm=True):
@@ -250,7 +239,3 @@ You should aim to answer each question within<br>
                     self.timer.setText('01:00')
                 return
         self.timer.setText("00:00")
-
-    def onConfigure(self):
-        self.main.deckProperties = ui.deckproperties.DeckProperties(self.main)
-        self.main.deckProperties.dialog.qtabwidget.setCurrentIndex(1)
