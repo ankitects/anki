@@ -8,7 +8,7 @@ The Deck
 """
 __docformat__ = 'restructuredtext'
 
-import tempfile, time, os, random, sys, re, stat, shutil, types
+import tempfile, time, os, random, sys, re, stat, shutil, types, traceback
 
 from anki.db import *
 from anki.lang import _
@@ -1864,8 +1864,8 @@ order by priority desc, combinedDue""")
             deck.s.statement("analyze")
         if deck.version == 1:
             # fix indexes and views
-            deck.s.statement("drop index ix_cards_newRandomOrder")
-            deck.s.statement("drop index ix_cards_newOrderedOrder")
+            deck.s.statement("drop index if exists ix_cards_newRandomOrder")
+            deck.s.statement("drop index if exists ix_cards_newOrderedOrder")
             DeckStorage._addViews(deck)
             DeckStorage._addIndices(deck)
             deck.rebuildTypes()
