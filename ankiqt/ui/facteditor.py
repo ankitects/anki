@@ -5,7 +5,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import re, os, sys
-from anki.utils import parseTags, stripHTML, tidyHTML
+from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
 import anki.sound
 from ankiqt import ui
@@ -381,7 +381,7 @@ class FactEditor(object):
             self.factState = "invalid"
 
     def onTagChange(self):
-        self.fact.tags = unicode(self.tags.text())
+        self.fact.tags = canonifyTags(unicode(self.tags.text()))
         if self.onChange:
             self.onChange(None)
         self.fact.setModified(textChanged=True)

@@ -16,7 +16,8 @@ class Lookup(object):
 
     def selection(self, function):
         "Get the selected text and look it up with FUNCTION."
-        text = unicode(self.main.mainWin.mainText.textCursor().selectedText())
+        text = unicode(self.main.mainWin.mainText.selectedText())
+        text = text.strip()
         if "\n" in text:
             self.main.setStatus(_("Can't look up a selection with a newline."))
             return

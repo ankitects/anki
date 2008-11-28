@@ -75,6 +75,7 @@ class AnkiQt(QMainWindow):
         self.mainWin.setupUi(self)
         self.mainWin.mainText = ui.view.AnkiWebView(self.mainWin.mainTextFrame)
         self.mainWin.mainText.setObjectName("mainText")
+        self.mainWin.mainText.setFocusPolicy(Qt.ClickFocus)
         self.mainWin.vboxlayout.addWidget(self.mainWin.mainText)
         self.mainWin.buttonWidget = QWidget(self.mainWin.mainTextFrame)
         self.mainWin.buttonWidget.setObjectName("buttonWidget")

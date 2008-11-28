@@ -98,8 +98,6 @@ class AddCards(QDialog):
             ui.utils.showInfo(_(
                 "Some fields are missing or not unique."),
                               parent=self, help="AddItems#AddError")
-            if w:
-                w.setFocus()
             return
         if not cards:
             ui.utils.showWarning(_("""\
