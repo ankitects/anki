@@ -743,6 +743,7 @@ and due < :now""", now=time.time())
             elif self.newCardSpacing == NEW_CARDS_LAST:
                 count = stats['rev'] or stats['new']
             count += stats['failed']
+            count *= 1 + stats['gYoungNo%'] / 100.0
             stats['timeLeft'] = anki.utils.fmtTimeSpan(
                 stats['dAverageTime'] * count, pad=0, point=1, short=short)
         else:
