@@ -52,7 +52,7 @@ class Anki10Importer(Importer):
             bulkClient.sync()
         # add tags
         fids = [f[0] for f in res['added-facts']['facts']]
-        self.deck.addFactTags(fids, self.tagsToAdd)
+        self.deck.addTags(fids, self.tagsToAdd)
         self.total = len(res['added-facts']['facts'])
         src.s.rollback()
         self.deck.flushMod()

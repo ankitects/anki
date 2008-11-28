@@ -1200,14 +1200,15 @@ where cardModelId in %s""" % strids, now=time.time())
     def tagsList(self, where="", priority=", cards.priority"):
         "Return a list of (cardId, allTags, priority)"
         return self.s.all("""
-select cards.id, cards.tags || "," || facts.tags || "," || models.tags || "," ||
+select cards.id, facts.tags || "," || models.tags || "," ||
 cardModels.name %s from cards, facts, models, cardModels where
 cards.factId == facts.id and facts.modelId == models.id
 and cards.cardModelId = cardModels.id %s""" % (priority, where))
 
     def shortTagsList(self, where=""):
+        # no card model
         return self.s.all("""
-select cards.id, cards.tags || "," || facts.tags || "," || models.tags
+select cards.id, facts.tags || "," || models.tags
 from cards, facts, models where
 cards.factId == facts.id and facts.modelId == models.id
 %s""" % where)
@@ -1215,27 +1216,20 @@ cards.factId == facts.id and facts.modelId == models.id
     def cardsWithNoTags(self):
         return self.s.column0("""
 select cards.id from cards, facts where
-cards.tags = "" and facts.tags = ""
+facts.tags = ""
 and cards.factId = facts.id""")
 
     def allTags(self):
-        "Return a hash listing tags in model, fact and cards."
+        "Return a hash listing tags in model & fact."
         return list(set(parseTags(",".join([x[1] for x in self.tagsList()]))))
-
-    def cardTags(self, ids):
-        return self.s.all("""
-select id, tags from cards
-where id in %s""" % ids2str(ids))
 
     def factTags(self, ids):
         return self.s.all("""
 select id, tags from facts
 where id in %s""" % ids2str(ids))
 
-    def addCardTags(self, ids, tags, idfunc=None, table="cards"):
-        if not idfunc:
-            idfunc=self.cardTags
-        tlist = idfunc(ids)
+    def addTags(self, ids, tags):
+        tlist = self.factTags(ids)
         newTags = parseTags(tags)
         now = time.time()
         pending = []
@@ -1246,20 +1240,15 @@ where id in %s""" % ids2str(ids))
                 pending.append(
                     {'id': id, 'now': now, 'tags': ", ".join(tmpTags)})
         self.s.statements("""
-update %s set
+update facts set
 tags = :tags,
 modified = :now
-where id = :id""" % table, pending)
-        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type=table)
+where id = :id""", pending)
+        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type="facts")
         self.flushMod()
 
-    def addFactTags(self, ids, tags):
-        self.addCardTags(ids, tags, idfunc=self.factTags, table="facts")
-
-    def deleteCardTags(self, ids, tags, idfunc=None, table="cards"):
-        if not idfunc:
-            idfunc=self.cardTags
-        tlist = idfunc(ids)
+    def deleteTags(self, ids, tags):
+        tlist = self.factTags(ids)
         newTags = parseTags(tags)
         now = time.time()
         pending = []
@@ -1275,15 +1264,12 @@ where id = :id""" % table, pending)
                 pending.append(
                     {'id': id, 'now': now, 'tags': ", ".join(tmpTags)})
         self.s.statements("""
-update %s set
+update facts set
 tags = :tags,
 modified = :now
-where id = :id""" % table, pending)
-        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type=table)
+where id = :id""", pending)
+        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type="facts")
         self.flushMod()
-
-    def deleteFactTags(self, ids, tags):
-        self.deleteCardTags(ids, tags, idfunc=self.factTags, table="facts")
 
     # File-related
     ##########################################################################

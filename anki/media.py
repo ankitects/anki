@@ -149,10 +149,10 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     # fix tags
     if dirty:
         if deleteRefs:
-            deck.deleteFactTags(modifiedFacts.keys(), _("Media Missing"))
+            deck.deleteTags(modifiedFacts.keys(), _("Media Missing"))
         else:
-            deck.addFactTags(modifiedFacts.keys(), _("Media Missing"))
-        deck.deleteFactTags(unmodifiedFacts.keys(), _("Media Missing"))
+            deck.addTags(modifiedFacts.keys(), _("Media Missing"))
+        deck.deleteTags(unmodifiedFacts.keys(), _("Media Missing"))
     # build cache of db records
     mediaIds = dict(deck.s.all("select filename, id from media"))
     # look through the media dir for any unused files, and delete
