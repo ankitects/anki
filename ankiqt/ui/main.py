@@ -331,6 +331,7 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
             else:
                 self.easeButtonHeight = 25
         # ask
+        self.mainWin.showAnswerButton.setFixedHeight(self.easeButtonHeight)
         self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("showAnswer"))
         # answer
