@@ -334,7 +334,7 @@ class EditDeck(QMainWindow):
         self.updateSearch()
 
     def updateFilterLabel(self):
-        self.setWindowTitle(_("Anki - Edit Items (%(cur)d "
+        self.setWindowTitle(_("Editor (%(cur)d "
                               "of %(tot)d cards shown)") %
                             {"cur": len(self.model.cards),
                              "tot": self.deck.cardCount})

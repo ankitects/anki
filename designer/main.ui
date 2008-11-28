@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>454</width>
-    <height>504</height>
+    <width>655</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -27,8 +27,8 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>454</width>
-     <height>415</height>
+     <width>655</width>
+     <height>398</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -122,43 +122,267 @@
       <property name="frameShadow" >
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QVBoxLayout" >
-       <property name="spacing" >
-        <number>0</number>
-       </property>
-       <property name="margin" >
-        <number>5</number>
-       </property>
-       <item>
-        <widget class="QGroupBox" name="fieldsArea" >
+      <layout class="QGridLayout" name="gridLayout" >
+       <item row="0" column="0" >
+        <widget class="QStackedWidget" name="mainStack" >
          <property name="sizePolicy" >
-          <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
-           <horstretch>7</horstretch>
-           <verstretch>2</verstretch>
+          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+           <horstretch>0</horstretch>
+           <verstretch>99</verstretch>
           </sizepolicy>
          </property>
-         <property name="autoFillBackground" >
-          <bool>true</bool>
+         <property name="currentIndex" >
+          <number>1</number>
          </property>
-         <property name="title" >
-          <string/>
-         </property>
-         <property name="flat" >
-          <bool>true</bool>
-         </property>
-         <property name="checkable" >
-          <bool>false</bool>
-         </property>
+         <widget class="QWidget" name="page" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>370</width>
+            <height>330</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5" >
+           <item>
+            <widget class="QTextBrowser" name="welcomeText" >
+             <property name="focusPolicy" >
+              <enum>Qt::ClickFocus</enum>
+             </property>
+             <property name="frameShape" >
+              <enum>QFrame::NoFrame</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_2" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>370</width>
+            <height>336</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2" >
+           <item>
+            <widget class="QWidget" native="1" name="fieldsArea" />
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
-       <item>
-        <widget class="QTextBrowser" name="welcomeText" >
-         <property name="focusPolicy" >
-          <enum>Qt::ClickFocus</enum>
+       <item row="1" column="0" >
+        <widget class="QStackedWidget" name="buttonStack" >
+         <property name="currentIndex" >
+          <number>1</number>
          </property>
-         <property name="frameShape" >
-          <enum>QFrame::NoFrame</enum>
-         </property>
+         <widget class="QWidget" name="page1" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>370</width>
+            <height>52</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout" >
+           <item>
+            <spacer name="verticalSpacer" >
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>20</width>
+               <height>1</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="showAnswerButton" >
+             <property name="text" >
+              <string>Show Answer</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page2" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>370</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3" >
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>6</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout" >
+             <property name="spacing" >
+              <number>0</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>40</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_2" >
+               <property name="horizontalSpacing" >
+                <number>6</number>
+               </property>
+               <property name="verticalSpacing" >
+                <number>0</number>
+               </property>
+               <item row="0" column="0" >
+                <widget class="QLabel" name="easeLabel1" >
+                 <property name="text" >
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1" >
+                <widget class="QLabel" name="easeLabel2" >
+                 <property name="text" >
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" >
+                <widget class="QLabel" name="easeLabel3" >
+                 <property name="text" >
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3" >
+                <widget class="QLabel" name="easeLabel4" >
+                 <property name="text" >
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" >
+                <widget class="QPushButton" name="easeButton1" >
+                 <property name="text" >
+                  <string>Again</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1" >
+                <widget class="QPushButton" name="easeButton2" >
+                 <property name="text" >
+                  <string>Hard</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2" >
+                <widget class="QPushButton" name="easeButton3" >
+                 <property name="text" >
+                  <string>Good</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3" >
+                <widget class="QPushButton" name="easeButton4" >
+                 <property name="text" >
+                  <string>Easy</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>40</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page3" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>370</width>
+            <height>44</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4" >
+           <item>
+            <spacer name="verticalSpacer_2" >
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>20</width>
+               <height>1</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="saveEditorButton" >
+             <property name="text" >
+              <string>Close</string>
+             </property>
+             <property name="shortcut" >
+              <string>Esc</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -352,7 +576,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>454</width>
+     <width>655</width>
      <height>23</height>
     </rect>
    </property>
@@ -489,8 +713,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>484</y>
-     <width>454</width>
+     <y>467</y>
+     <width>655</width>
      <height>20</height>
     </rect>
    </property>
@@ -503,7 +727,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>454</width>
+     <width>655</width>
      <height>46</height>
     </rect>
    </property>

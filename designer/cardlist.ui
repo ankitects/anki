@@ -18,7 +18,7 @@
      <x>0</x>
      <y>23</y>
      <width>599</width>
-     <height>559</height>
+     <height>579</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
@@ -135,18 +135,12 @@
            <number>6</number>
           </property>
           <item row="0" column="0" >
-           <widget class="QGroupBox" name="fieldsArea" >
+           <widget class="QWidget" native="1" name="fieldsArea" >
             <property name="sizePolicy" >
              <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
               <horstretch>7</horstretch>
               <verstretch>2</verstretch>
              </sizepolicy>
-            </property>
-            <property name="title" >
-             <string/>
-            </property>
-            <property name="flat" >
-             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -210,16 +204,6 @@
    </widget>
    <addaction name="menuActions" />
    <addaction name="menuEdit" />
-  </widget>
-  <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>582</y>
-     <width>599</width>
-     <height>20</height>
-    </rect>
-   </property>
   </widget>
   <action name="actionDelete" >
    <property name="icon" >

@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Anki - Add Items</string>
+   <string>Add Items</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" >
    <property name="spacing" >
@@ -21,14 +21,23 @@
    </property>
    <item>
     <layout class="QGridLayout" >
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>4</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>4</number>
+     </property>
      <property name="horizontalSpacing" >
       <number>0</number>
      </property>
      <property name="verticalSpacing" >
       <number>4</number>
-     </property>
-     <property name="margin" >
-      <number>0</number>
      </property>
      <item row="0" column="0" >
       <widget class="QWidget" native="1" name="modelArea" />
@@ -47,7 +56,7 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QGroupBox" name="fieldsArea" >
+     <widget class="QWidget" native="1" name="fieldsArea" >
       <property name="sizePolicy" >
        <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
         <horstretch>0</horstretch>
@@ -55,12 +64,6 @@
        </sizepolicy>
       </property>
       <property name="autoFillBackground" >
-       <bool>true</bool>
-      </property>
-      <property name="title" >
-       <string/>
-      </property>
-      <property name="flat" >
        <bool>true</bool>
       </property>
      </widget>

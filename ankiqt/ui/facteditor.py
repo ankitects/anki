@@ -19,11 +19,10 @@ class FactEditor(object):
     Extra widgets can be added to 'fieldsGrid' to represent card-specific
     information, etc."""
 
-    def __init__(self, parent, widget, deck=None, colour=""):
+    def __init__(self, parent, widget, deck=None):
         self.widget = widget
         self.parent = parent
         self.deck = deck
-        self.colour = colour
         self.fact = None
         self.fontChanged = False
         self.setupFields()
@@ -74,9 +73,6 @@ class FactEditor(object):
         # button styles for mac
         self.plastiqueStyle = QStyleFactory.create("plastique")
         self.widget.setStyle(self.plastiqueStyle)
-        self.widget.setStyleSheet("""
-%s
-#fieldsArea { border: 0px; margin-top: 4px; }""" % self.colour)
         # bold
         self.bold = QPushButton()
         self.bold.setCheckable(True)
@@ -209,9 +205,7 @@ class FactEditor(object):
 
     def _makeGrid(self):
         "Rebuild the grid to avoid trigging QT bugs."
-        self.fieldsFrame = QFrame()
-        self.fieldsFrame.setFrameStyle(0)
-        self.fieldsFrame.setLineWidth(0)
+        self.fieldsFrame = QWidget()
         self.fieldsGrid = QGridLayout(self.fieldsFrame)
         self.fieldsFrame.setLayout(self.fieldsGrid)
         self.fieldsGrid.setMargin(0)

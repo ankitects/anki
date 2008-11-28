@@ -77,14 +77,12 @@ class AnkiQt(QMainWindow):
         self.mainWin.mainText = ui.view.AnkiWebView(self.mainWin.mainTextFrame)
         self.mainWin.mainText.setObjectName("mainText")
         self.mainWin.mainText.setFocusPolicy(Qt.ClickFocus)
-        self.mainWin.vboxlayout.addWidget(self.mainWin.mainText)
-        self.mainWin.buttonWidget = QWidget(self.mainWin.mainTextFrame)
-        self.mainWin.buttonWidget.setObjectName("buttonWidget")
-        self.mainWin.vboxlayout.addWidget(self.mainWin.buttonWidget)
+        self.mainWin.mainStack.addWidget(self.mainWin.mainText)
         self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
         self.mainWin.mainText.pageAction(QWebPage.Reload).setVisible(False)
-        self.mainWin.welcomeText.hide()
-        self.mainWin.mainText.hide()
+        self.mainWin.mainStack.setCurrentIndex(2)
+        self.mainWin.buttonStack.show()
+        self.mainWin.buttonStack.setCurrentIndex(1)
 
     def setupViews(self):
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
@@ -184,19 +182,14 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         self.state = state
         self.updateTitleBar()
         if 'state' != 'noDeck' and state != 'editCurrentFact':
-            self.mainWin.welcomeText.hide()
-            self.mainWin.mainText.show()
-            self.mainWin.buttonWidget.show()
-            self.mainWin.fieldsArea.hide()
+            self.showReviewScreen()
         if state == "noDeck":
-            self.mainWin.welcomeText.show()
-            self.mainWin.mainText.hide()
+            self.showWelcomeScreen()
             self.help.hide()
             self.currentCard = None
             self.lastCard = None
             self.disableDeckMenuItems()
             self.updateRecentFilesMenu()
-            self.resetButtons()
             # hide all deck-associated dialogs
             ui.dialogs.closeAll()
         elif state == "getQuestion":
@@ -217,14 +210,12 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
                 else:
                     return self.moveToState("deckFinished")
         elif state == "deckEmpty":
-            self.mainWin.welcomeText.show()
-            self.mainWin.mainText.hide()
-            self.resetButtons()
+            self.showWelcomeScreen()
             self.disableCardMenuItems()
             self.mainWin.menu_Lookup.setEnabled(False)
         elif state == "deckFinished":
             self.deck.s.flush()
-            self.resetButtons()
+            self.hideButtons()
             self.mainWin.menu_Lookup.setEnabled(False)
             self.disableCardMenuItems()
             self.startRefreshTimer()
@@ -232,22 +223,16 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         elif state == "showQuestion":
             if self.deck.mediaDir():
                 os.chdir(self.deck.mediaDir())
-            self.resetButtons()
             self.showAnswerButton()
             self.updateMarkAction()
             self.runHook('showQuestion')
         elif state == "showAnswer":
-            self.resetButtons()
             self.showEaseButtons()
             self.enableCardMenuItems()
         elif state == "editCurrentFact":
             if self.lastState == "editCurrentFact":
                 return self.moveToState("saveEdit")
-            self.resetButtons()
-            self.showSaveEditorButton()
-            self.mainWin.mainText.hide()
-            self.mainWin.fieldsArea.show()
-            self.editor.setFact(self.currentCard.fact)
+            self.showEditor()
         elif state == "saveEdit":
             self.editor.saveFieldsNow()
             self.deck.s.flush()
@@ -321,27 +306,23 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
                 self.refreshTimer.stop()
                 self.refreshTimer = None
 
+    # Main stack
+    ##########################################################################
+
+    def showWelcomeScreen(self):
+        self.mainWin.mainStack.setCurrentIndex(0)
+        self.hideButtons()
+
+    def showEditScreen(self):
+        self.mainWin.mainStack.setCurrentIndex(1)
+
+    def showReviewScreen(self):
+        self.mainWin.mainStack.setCurrentIndex(2)
+
     # Buttons
     ##########################################################################
 
     def setupButtons(self):
-        self.outerButtonBox = QHBoxLayout(self.mainWin.buttonWidget)
-        self.outerButtonBox.setMargin(3)
-        self.outerButtonBox.setSpacing(0)
-        self.innerButtonWidget = None
-
-    def resetButtons(self):
-        # this round-about process is trying to work around a bug in qt
-        if self.lastState == self.state:
-            return
-        if self.innerButtonWidget:
-            self.outerButtonBox.removeWidget(self.innerButtonWidget)
-            self.innerButtonWidget.deleteLater()
-        self.innerButtonWidget = QWidget()
-        self.outerButtonBox.addWidget(self.innerButtonWidget)
-        self.buttonBox = QVBoxLayout(self.innerButtonWidget)
-        self.buttonBox.setSpacing(3)
-        self.buttonBox.setMargin(3)
         if self.config['easeButtonHeight'] == "tall":
             self.easeButtonHeight = 50
         else:
@@ -349,77 +330,50 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
                 self.easeButtonHeight = 35
             else:
                 self.easeButtonHeight = 25
+        # ask
+        self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
+                     lambda: self.moveToState("showAnswer"))
+        # answer
+        for i in range(1, 5):
+            b = getattr(self.mainWin, "easeButton%d" % i)
+            b.setFixedHeight(self.easeButtonHeight)
+            b.setFixedWidth(100)
+            self.connect(b, SIGNAL("clicked()"),
+                lambda i=i: self.cardAnswered(i))
+        # editor
+        self.connect(self.mainWin.saveEditorButton, SIGNAL("clicked()"),
+                     lambda: self.moveToState("saveEdit"))
+
+    def hideButtons(self):
+        self.mainWin.buttonStack.hide()
 
     def showAnswerButton(self):
-        if self.lastState == self.state:
-            return
-        button = QPushButton(_("Show answer"))
-        button.setFixedHeight(self.easeButtonHeight)
-        self.buttonBox.addWidget(button)
-        button.setFocus()
-        button.setDefault(True)
-        self.connect(button, SIGNAL("clicked()"),
-                     lambda: self.moveToState("showAnswer"))
-
-    def getSpacer(self, hpolicy=QSizePolicy.Preferred):
-        return QSpacerItem(20, 20,
-                           hpolicy,
-                           QSizePolicy.Preferred)
+        self.mainWin.buttonStack.setCurrentIndex(0)
+        self.mainWin.buttonStack.show()
+        self.mainWin.showAnswerButton.setFocus()
 
     def showEaseButtons(self):
-        # if the state hasn't changed, do nothing
-        if self.lastState == self.state:
-            return
-        # gather next intervals
-        nextInts = {}
-        for i in range(5):
-            s=self.deck.nextIntervalStr(self.currentCard, i)
-            nextInts["ease%d" % i] = s
-        # button grid
-        grid = QGridLayout()
-        grid.setSpacing(3)
-        button3 = self.showCompactEaseButtons(grid, nextInts)
-        hbox = QHBoxLayout()
-        hbox.addStretch()
-        hbox.addLayout(grid)
-        hbox.addStretch()
-        self.buttonBox.addLayout(hbox)
-        button3.setFocus()
+        self.updateEaseButtons()
+        self.mainWin.buttonStack.setCurrentIndex(1)
+        self.mainWin.buttonStack.show()
+        self.mainWin.easeButton3.setFocus()
 
-    def showCompactEaseButtons(self, grid, nextInts):
-        text = (
-            (_("Again"),
-             _("<b>%(ease1)s</b>"),
-             _("<b>Relearn (1)</b><br>Mark harder and learn again.")),
-            (_("Hard"),
-             _("<b>%(ease2)s</b>"),
-             _("<b>Hard (2)</b><br>Wait a little longer next time.")),
-            (_("Good"),
-             _("<b>%(ease3)s</b>"),
-             _("<b>Comfortable (3)</b><br>Wait longer next time.")),
-            (_("Easy"),
-             _("<b>%(ease4)s</b>"),
-             _("<b>Easy (4)</b><br>Wait a lot longer next time.")))
-        button3 = None
+    def showSaveEditorButton(self):
+        self.mainWin.buttonStack.setCurrentIndex(2)
+        self.mainWin.buttonStack.show()
+
+    def updateEaseButtons(self):
+        nextInts = {}
         for i in range(1, 5):
-            if not self.config['suppressEstimates']:
+            l = getattr(self.mainWin, "easeLabel%d" % i)
+            if self.config['suppressEstimates']:
+                l.hide()
+            else:
                 if i == 1:
-                    label = QLabel(self.withInterfaceFont(_("Soon")))
+                    l.setText(self.withInterfaceFont(_("Soon")))
                 else:
-                    label = QLabel(self.withInterfaceFont(text[i-1][1] % nextInts))
-                label.setAlignment(Qt.AlignHCenter)
-                grid.addWidget(label, 0, (i*2)+1)
-            button = QPushButton(text[i-1][0])
-            button.setFixedHeight(self.easeButtonHeight)
-            button.setFixedWidth(100)
-            button.setToolTip(text[i-1][2])
-            self.connect(button, SIGNAL("clicked()"),
-                lambda i=i: self.cardAnswered(i))
-            #button.setFixedWidth(70)
-            if i == 3:
-                button3 = button
-            grid.addWidget(button, 1, (i*2)+1)
-        return button3
+                    l.setText(self.withInterfaceFont("<b>" +
+                        self.deck.nextIntervalStr(self.currentCard, i) + "</b>"))
 
     def withInterfaceFont(self, text):
         family = self.config["interfaceFontFamily"]
@@ -852,31 +806,21 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     ##########################################################################
 
     def setupEditor(self):
-        self.mainWin.fieldsArea.hide()
-        self.mainWin.fieldsArea.setFlat(True)
         self.editor = ui.facteditor.FactEditor(
-            self, self.mainWin.fieldsArea, self.deck,
-            colour="* { background-color: #fff; }\n")
+            self, self.mainWin.fieldsArea, self.deck)
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
 
-    def showSaveEditorButton(self):
-        if self.lastState == self.state:
-            return
-        self.editFactButton = QPushButton(_("Close"))
-        self.editFactButton.setToolTip("Hit Esc to return to review.")
-        self.editFactButton.setFixedHeight(self.easeButtonHeight)
-        self.editFactButton.setShortcut(_("Esc"))
-        self.editFactButton.setDefault(False)
-        self.buttonBox.addWidget(self.editFactButton)
-        self.connect(self.editFactButton, SIGNAL("clicked()"),
-                     lambda: self.moveToState("saveEdit"))
+    def showEditor(self):
+        self.showSaveEditorButton()
+        self.mainWin.mainStack.setCurrentIndex(1)
+        self.editor.setFact(self.currentCard.fact)
 
     def onFactValid(self, fact):
-        self.editFactButton.setEnabled(True)
+        self.mainWin.saveEditorButton.setEnabled(True)
 
     def onFactInvalid(self, fact):
-        self.editFactButton.setEnabled(False)
+        self.mainWin.saveEditorButton.setEnabled(False)
 
     # Toolbar
     ##########################################################################
@@ -1209,9 +1153,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.connect(self.syncThread, SIGNAL("closeSyncProgress"), self.closeSyncProgress)
         self.connect(self.syncThread, SIGNAL("updateSyncProgress"), self.updateSyncProgress)
         self.syncThread.start()
-        self.mainWin.buttonWidget.hide()
-        self.mainWin.mainText.hide()
-        self.mainWin.welcomeText.show()
+        self.showWelcomeScreen()
         self.setEnabled(False)
         while not self.syncThread.isFinished():
             self.app.processEvents()
@@ -1221,7 +1163,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def syncFinished(self):
         "Reopen after sync finished."
-        self.mainWin.buttonWidget.show()
+        self.mainWin.buttonStack.show()
         if self.loadAfterSync:
             self.loadDeck(self.deckPath, sync=False)
             self.deck.syncName = self.syncName
