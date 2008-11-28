@@ -80,9 +80,6 @@ class AnkiQt(QMainWindow):
         self.mainWin.mainStack.addWidget(self.mainWin.mainText)
         self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
         self.mainWin.mainText.pageAction(QWebPage.Reload).setVisible(False)
-        self.mainWin.mainStack.setCurrentIndex(2)
-        self.mainWin.buttonStack.show()
-        self.mainWin.buttonStack.setCurrentIndex(1)
 
     def setupViews(self):
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
