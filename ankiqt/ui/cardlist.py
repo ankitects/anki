@@ -511,10 +511,19 @@ where id in (%s)""" % ",".join([
         self.updateAfterCardChange(reset=True)
 
     def addCards(self):
-        raise
-#         for id in self.selectedFacts():
-#             self.deck.addMissingCards(self.deck.s.query(Fact).get(id))
-#         self.updateSearch()
+        sf = self.selectedFacts()
+        if not sf:
+            return
+        cms = [x.id for x in self.deck.s.query(Fact).get(sf[0]).\
+               model.cardModels]
+        d = AddCardChooser(self, cms)
+        if not d.exec_():
+            return
+        for id in sf:
+            self.deck.addCards(self.deck.s.query(Fact).get(id),
+                               d.selectedCms)
+        self.deck.flushMod()
+        self.updateSearch()
 
     def selectFacts(self):
         sm = self.dialog.tableView.selectionModel()
@@ -523,3 +532,47 @@ where id in (%s)""" % ",".join([
             if card.id in cardIds:
                 sm.select(self.model.index(i, 0),
                           QItemSelectionModel.Select | QItemSelectionModel.Rows)
+
+class AddCardChooser(QDialog):
+
+    def __init__(self, parent, cms):
+        QDialog.__init__(self, parent)
+        self.parent = parent
+        self.cms = cms
+        self.dialog = ankiqt.forms.addcardmodels.Ui_Dialog()
+        self.dialog.setupUi(self)
+        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
+                     self.onHelp)
+        self.displayCards()
+        restoreGeom(self, "addCardModels")
+
+    def displayCards(self):
+        self.cms = self.parent.deck.s.all("""
+select id, name, active from cardModels
+where id in %s
+order by ordinal""" % ids2str(self.cms))
+        self.items = []
+        for cm in self.cms:
+            item = QListWidgetItem(cm[1], self.dialog.list)
+            self.dialog.list.addItem(item)
+            self.items.append(item)
+            idx = self.dialog.list.indexFromItem(item)
+            if cm[2]:
+                mode = QItemSelectionModel.Select
+            else:
+                mode = QItemSelectionModel.Deselect
+            self.dialog.list.selectionModel().select(idx, mode)
+
+    def accept(self):
+        self.selectedCms = []
+        for i, item in enumerate(self.items):
+            idx = self.dialog.list.indexFromItem(item)
+            if self.dialog.list.selectionModel().isSelected(idx):
+                self.selectedCms.append(self.cms[i][0])
+        saveGeom(self, "addCardModels")
+        QDialog.accept(self)
+
+    def onHelp(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "Editor#AddCards"))
+

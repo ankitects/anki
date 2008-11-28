@@ -5,27 +5,27 @@ def importAll():
     # a hack
     import main
     import about
-    import unsaved
-    import help
-    import preferences
+    import activetags
     import addcards
-    import lookup
-    import sync
-    import view
     import cardlist
-    import update
-    import importing
-    import exporting
-    import status
     import deckproperties
-    import modelproperties
-    import modelchooser
     import displayproperties
-    import utils
+    import exporting
     import facteditor
+    import help
+    import importing
+    import lookup
+    import modelchooser
+    import modelproperties
+    import preferences
+    import status
+    import sync
     import tagedit
     import tray
-    import activetags
+    import unsaved
+    import update
+    import utils
+    import view
 
 class DialogManager(object):
 

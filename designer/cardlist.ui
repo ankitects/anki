@@ -241,7 +241,7 @@
      <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>Add Tag...</string>
+    <string>&amp;Add Tag...</string>
    </property>
   </action>
   <action name="actionDeleteTag" >
@@ -250,7 +250,7 @@
      <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>Delete Tag...</string>
+    <string>&amp;Delete Tag...</string>
    </property>
   </action>
   <action name="actionAddCards" >
@@ -259,7 +259,7 @@
      <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
    </property>
    <property name="text" >
-    <string>Add Cards...</string>
+    <string>Add &amp;Cards...</string>
    </property>
   </action>
   <action name="actionResetProgress" >
@@ -277,7 +277,7 @@
      <normaloff>:/icons/fileclose.png</normaloff>:/icons/fileclose.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Close</string>
+    <string>Close</string>
    </property>
   </action>
   <action name="actionSelectAll" >

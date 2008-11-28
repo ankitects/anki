@@ -1,28 +1,22 @@
 <ui version="4.0" >
- <class>InfoDialog</class>
- <widget class="QDialog" name="InfoDialog" >
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>409</width>
-    <height>284</height>
+    <width>248</width>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Dialog</string>
+   <string>Add Cards</string>
   </property>
-  <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
-   <property name="spacing" >
-    <number>6</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
    <item>
-    <widget class="QTextEdit" name="textEdit" >
-     <property name="readOnly" >
-      <bool>true</bool>
+    <widget class="QListWidget" name="list" >
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::MultiSelection</enum>
      </property>
     </widget>
    </item>
@@ -32,7 +26,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Close</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -43,7 +37,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>InfoDialog</receiver>
+   <receiver>Dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -59,7 +53,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>InfoDialog</receiver>
+   <receiver>Dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
