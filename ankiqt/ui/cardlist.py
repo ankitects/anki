@@ -192,32 +192,6 @@ class DeckModel(QAbstractTableModel):
         else:
             return _("in %s") % fmtTimeSpan(secs, pad=0)
 
-class StatusDelegate(QItemDelegate):
-
-    def __init__(self, parent, model):
-        QItemDelegate.__init__(self, parent)
-        self.model = model
-
-    def paint(self, painter, option, index):
-        row = self.model.cards[index.row()]
-        standard = True
-        # tagged
-        if row[1] == 0:
-            brush = QBrush(QColor("#ffffaa"))
-            standard = False
-        if self.model.isDeleted(row[0]):
-            brush = QBrush(QColor("#ffaaaa"))
-            standard = False
-        if standard:
-            QItemDelegate.paint(self, painter, option, index)
-            return
-        # custom render
-        painter.save()
-        painter.fillRect(option.rect, brush)
-        data = self.model.data(index, Qt.DisplayRole)
-        self.drawDisplay(painter, option, option.rect, data.toString())
-        painter.restore()
-
 class EditDeck(QMainWindow):
 
     def __init__(self, parent):
@@ -233,7 +207,6 @@ class EditDeck(QMainWindow):
         self.model = DeckModel(self.parent, self.parent.deck)
         self.dialog.tableView.setSortingEnabled(False)
         self.dialog.tableView.setModel(self.model)
-        self.dialog.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.dialog.tableView.selectionModel()
         self.dialog.tableView.setFont(QFont(
             self.config['editFontFamily'],
@@ -252,8 +225,8 @@ class EditDeck(QMainWindow):
         self.show()
         self.selectLastCard()
 
-    def findCardInDeckModel( self, model, card ):
-        for i, thisCard in enumerate( model.cards ):
+    def findCardInDeckModel(self, model, card):
+        for i, thisCard in enumerate(model.cards):
             if thisCard.id == card.id:
                 return i
         return -1
@@ -263,12 +236,12 @@ class EditDeck(QMainWindow):
         self.updateSearch()
         if self.parent.currentCard:
             currentCardIndex = self.findCardInDeckModel(
-                                 self.model, self.parent.currentCard )
+                                 self.model, self.parent.currentCard)
             if currentCardIndex >= 0:
-                self.dialog.tableView.selectRow( currentCardIndex )
+                self.dialog.tableView.selectRow(currentCardIndex)
                 self.dialog.tableView.scrollTo(
                               self.model.index(currentCardIndex,0),
-                              self.dialog.tableView.PositionAtTop )
+                              self.dialog.tableView.PositionAtTop)
 
     def setupFilter(self):
         self.filterTimer = None
@@ -411,24 +384,18 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionResetProgress, SIGNAL("triggered()"), self.resetProgress)
-        self.connect(self.dialog.actionSelectAll, SIGNAL("triggered()"), self.selectAll)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.parent.runHook('editor.setupMenus', self)
 
     def onClose(self):
-        saveGeom(self, "editor")
         self.editor.saveFieldsNow()
         if not self.factValid:
             ui.utils.showInfo(_(
                 "Some fields are missing or not unique."),
                               parent=self, help="AddItems#AddError")
             return
+        saveGeom(self, "editor")
         self.hide()
-        self.deck.deleteCards(self.model.deleted.keys())
-        if len(self.model.deleted):
-            self.parent.setStatus(
-                _("%(del)d deleted.") %
-                {"del": len(self.model.deleted)})
         if self.origModTime != self.deck.modified:
             self.parent.reset()
         ui.dialogs.close("CardList")
@@ -539,18 +506,20 @@ where id in (%s)""" % ",".join([
         if tags: self.deck.deleteTags(self.selectedFacts(), tags)
         self.updateAfterCardChange()
 
+    def resetProgress(self):
+        self.deck.resetCards(self.selectedCards())
+        self.updateAfterCardChange(reset=True)
+
     def addCards(self):
         raise
 #         for id in self.selectedFacts():
 #             self.deck.addMissingCards(self.deck.s.query(Fact).get(id))
 #         self.updateSearch()
 
-    def resetProgress(self):
-        self.deck.resetCards(self.selectedCards())
-        self.updateAfterCardChange(reset=True)
-
-    def selectAll(self):
-        pass
-
     def selectFacts(self):
-        pass
+        sm = self.dialog.tableView.selectionModel()
+        cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
+        for i, card in enumerate(self.model.cards):
+            if card.id in cardIds:
+                sm.select(self.model.index(i, 0),
+                          QItemSelectionModel.Select | QItemSelectionModel.Rows)

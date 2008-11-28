@@ -302,11 +302,15 @@ class FactEditor(object):
 
     def saveFields(self):
         "Save field text into fact."
+        modified = False
         for (w, f) in self.widgets.items():
-            v = tidyHTML(unicode(w.toHtml()))
-            self.fact[f.name] = v.strip()
-        self.fact.setModified(textChanged=True)
-        self.deck.setModified()
+            v = tidyHTML(unicode(w.toHtml())).strip()
+            if self.fact[f.name] != v:
+                self.fact[f.name] = v
+                modified = True
+        if modified:
+            self.fact.setModified(textChanged=True)
+            self.deck.setModified()
 
     def onFocusLost(self, widget):
         self.saveFields()
