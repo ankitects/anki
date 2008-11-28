@@ -41,23 +41,14 @@ class AnkiQt(QMainWindow):
         self.setupBackupDir()
         self.setupHooks()
         self.loadPlugins()
-        self.mainWin = ankiqt.forms.main.Ui_MainWindow()
-        self.mainWin.setupUi(self)
+        self.setupMainWindow()
         self.rebuildPluginsMenu()
         self.alterShortcuts()
-        self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
-	self.trayIcon = ui.tray.AnkiTrayIcon( self )
+        self.setupTray()
         self.connectMenuActions()
         if self.config['mainWindowGeom']:
             self.restoreGeometry(self.config['mainWindowGeom'])
-        self.bodyView = ui.view.View(self, self.mainWin.mainText,
-                                     self.mainWin.mainTextFrame)
-        self.mainWin.mainText.pageAction(QWebPage.Reload).setVisible(False)
-        self.addView(self.bodyView)
-        self.statusView = ui.status.StatusView(self)
-        self.addView(self.statusView)
-        self.mainWin.welcomeText.hide()
-        self.mainWin.mainText.hide()
+        self.setupViews()
         self.setupEditor()
         self.setupButtons()
         self.setupAnchors()
@@ -78,6 +69,31 @@ class AnkiQt(QMainWindow):
                                  traceback.format_exc())
         # check for updates
         self.setupAutoUpdate()
+
+    def setupMainWindow(self):
+        self.mainWin = ankiqt.forms.main.Ui_MainWindow()
+        self.mainWin.setupUi(self)
+        self.mainWin.mainText = ui.view.AnkiWebView(self.mainWin.mainTextFrame)
+        self.mainWin.mainText.setObjectName("mainText")
+        self.mainWin.vboxlayout.addWidget(self.mainWin.mainText)
+        self.mainWin.buttonWidget = QWidget(self.mainWin.mainTextFrame)
+        self.mainWin.buttonWidget.setObjectName("buttonWidget")
+        self.mainWin.vboxlayout.addWidget(self.mainWin.buttonWidget)
+        self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
+        self.mainWin.mainText.pageAction(QWebPage.Reload).setVisible(False)
+        self.mainWin.welcomeText.hide()
+        self.mainWin.mainText.hide()
+
+    def setupViews(self):
+        self.bodyView = ui.view.View(self, self.mainWin.mainText,
+                                     self.mainWin.mainTextFrame)
+        self.addView(self.bodyView)
+        self.statusView = ui.status.StatusView(self)
+        self.addView(self.statusView)
+
+    def setupTray(self):
+	self.trayIcon = ui.tray.AnkiTrayIcon(self)
+
 
     # State machine
     ##########################################################################

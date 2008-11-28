@@ -11,6 +11,7 @@ from anki.utils import stripHTML
 import types, time, re, os, urllib, sys
 from ankiqt import ui
 from ankiqt.ui.utils import mungeQA
+from PyQt4.QtWebKit import QWebPage, QWebView
 
 # Views - define the way a user is prompted for questions, etc
 ##########################################################################
@@ -224,3 +225,14 @@ Start adding your own material.</td>
         self.write("<br><center><table width=250><tr><td align='left'>" +
                    self.main.deck.deckFinishedMsg() +
                    "</td></tr></table></center>")
+
+class AnkiWebView(QWebView):
+
+    def keyPressEvent(self, evt):
+        if evt.matches(QKeySequence.Copy):
+            self.triggerPageAction(QWebPage.Copy)
+            evt.accept()
+        evt.ignore()
+
+    def contextMenuEvent(self, evt):
+        QWebView.contextMenuEvent(self, evt)
