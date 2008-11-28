@@ -432,7 +432,7 @@ where factId in %s""" % factIds))
             "select count(*) from facts where id in %s" %
             ids2str([f[0] for f in facts])))
         self.deck.s.execute("""
-insert or ignore into facts
+insert or replace into facts
 (id, modelId, created, modified, tags, spaceUntil, lastCardId)
 values
 (:id, :modelId, :created, :modified, :tags, :spaceUntil, :lastCardId)""", dlist)
