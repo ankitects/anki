@@ -797,11 +797,11 @@ and due < :now""", now=time.time())
         self.flushMod()
         return cards
 
-    def availableCardModels(self, fact):
+    def availableCardModels(self, fact, checkActive=True):
         "List of active card models that aren't empty for FACT."
         models = []
         for cardModel in fact.model.cardModels:
-           if cardModel.active:
+           if cardModel.active or not checkActive:
                ok = True
                for format in [cardModel.qformat, cardModel.aformat]:
                    empty = {}
@@ -821,16 +821,16 @@ and due < :now""", now=time.time())
                    models.append(cardModel)
         return models
 
-    def addMissingCards(self, fact):
+    def addCards(self, fact, cardModelIds):
         "Caller must flush first, flushMod after, and rebuild priorities."
-        for cardModel in fact.model.cardModels:
-            if cardModel.active:
-                if self.s.scalar("""
+        for cardModel in self.availableCardModels(fact, False):
+            if cardModel.id not in cardModelIds:
+                continue
+            if self.s.scalar("""
 select count(id) from cards
 where factId = :fid and cardModelId = :cmid""",
                                  fid=fact.id, cmid=cardModel.id) == 0:
                     card = anki.cards.Card(fact, cardModel)
-                    # not added to queue
         self.setModified()
 
     def factIsInvalid(self, fact):
