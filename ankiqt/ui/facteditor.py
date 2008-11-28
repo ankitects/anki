@@ -508,9 +508,9 @@ class FactEditor(object):
             form.textEdit.setPlainText(self.widgets[w].value)
             form.textEdit.moveCursor(QTextCursor.End)
             d.exec_()
-            self.widgets[w].value = (
-                unicode(form.textEdit.toPlainText()).replace("\n", ""))
-            self.loadFields()
+            w.setText(unicode(form.textEdit.toPlainText()).\
+                      replace("\n", ""))
+            self.saveFields()
 
     def fieldsAreBlank(self):
         for (field, widget) in self.fields.values():

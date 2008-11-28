@@ -153,12 +153,15 @@ def mungeQA(deck, txt):
     txt = renderLatex(deck, txt)
     txt = stripSounds(txt)
     def quote(match):
-        if sys.platform.startswith("win32"):
-            prefix = "file:///"
+        match = unicode(match.group(1))
+        if match.lower().startswith("http"):
+            src = match
         else:
-            prefix = "file://"
-        return 'img src="%s%s"' % (
-            prefix, os.path.join(deck.mediaDir(),
-                                 unicode(match.group(1))))
+            if sys.platform.startswith("win32"):
+                prefix = u"file:///"
+            else:
+                prefix = u"file://"
+            src = prefix + os.path.join(deck.mediaDir(), match)
+        return 'img src="%s"' % src
     txt = re.sub('img src="(.*?)"', quote, txt)
     return txt
