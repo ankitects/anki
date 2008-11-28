@@ -34,6 +34,10 @@ PRIORITY_NONE = 0
 MATURE_THRESHOLD = 21
 NEW_CARDS_LAST = 1
 NEW_CARDS_DISTRIBUTE = 0
+REV_CARDS_OLD_FIRST = 0
+REV_CARDS_NEW_FIRST = 1
+REV_CARDS_DUE_FIRST = 2
+REV_CARDS_RANDOM = 3
 
 # parts of the code assume we only have one deck
 decksTable = Table(
@@ -42,7 +46,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=16),
+    Column('version', Integer, nullable=False, default=17),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -86,7 +90,9 @@ decksTable = Table(
     Column('failedNowCount', Integer, nullable=False, default=0),
     Column('failedSoonCount', Integer, nullable=False, default=0),
     Column('revCount', Integer, nullable=False, default=0),
-    Column('newCount', Integer, nullable=False, default=0))
+    Column('newCount', Integer, nullable=False, default=0),
+    # rev order
+    Column('revCardOrder', Integer, nullable=False, default=0))
 
 class Deck(object):
     "Top-level object. Manages facts, cards and scheduling information."
@@ -124,11 +130,11 @@ class Deck(object):
         "Return the next due card id, or None."
         # failed card due?
         if self.failedNowCount:
-            return self.s.scalar("select id from failedCardsNow limit 1")
+            return self.s.scalar("select id from failedCards limit 1")
         # failed card queue too big?
         if self.failedSoonCount >= self.failedCardMax:
             return self.s.scalar(
-                "select id from failedCardsSoon limit 1")
+                "select id from failedCards limit 1")
         # distribute new cards?
         if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
             if self._timeForNewCard():
@@ -137,7 +143,7 @@ class Deck(object):
                     return id
         # card due for review?
         if self.revCount:
-            return self.s.scalar("select id from revCards limit 1")
+            return self._getRevCard()
         # new cards left?
         id = self._maybeGetNewCard()
         if id:
@@ -145,7 +151,7 @@ class Deck(object):
         # display failed cards early
         if self.collapseTime:
             id = self.s.scalar(
-                "select id from failedCardsSoon limit 1")
+                "select id from failedCards limit 1")
             return id
 
     # Get card: helper functions
@@ -177,6 +183,21 @@ class Deck(object):
         else:
             return self.s.scalar(
                 "select id from acqCardsOrdered limit 1")
+
+    def _getRevCard(self):
+        "Return the next review card id."
+        if self.revCardOrder == 0:
+            return self.s.scalar(
+                "select id from revCardsOld limit 1")
+        elif self.revCardOrder == 1:
+            return self.s.scalar(
+                "select id from revCardsNew limit 1")
+        elif self.revCardOrder == 2:
+            return self.s.scalar(
+                "select id from revCardsDue limit 1")
+        else:
+            return self.s.scalar(
+                "select id from revCardsRandom limit 1")
 
     def cardFromId(self, id, orm=False):
         "Given a card ID, return a card, and start the card timer."
@@ -241,9 +262,19 @@ type, due, interval, factor, priority from """
             new = "acqCardsRandom"
         else:
             new = "acqCardsOrdered"
+        if self.revCardOrder == 0:
+            rev = "revCardsOld"
+        elif self.revCardOrder == 1:
+            rev = "revCardsNew"
+        elif self.revCardOrder == 2:
+            rev = "revCardsDue"
+        else:
+            rev = "revCardsRandom"
         d = {}
-        d['fail'] = self.s.all(sel + "failedCardsNow limit 100")
-        d['rev'] = self.s.all(sel + "revCards limit 30")
+        d['fail'] = self.s.all(sel + """
+cards where type = 0 and isDue = 1 and
+combinedDue <= :now limit 30""", now=time.time())
+        d['rev'] = self.s.all(sel + rev + " limit 30")
         if self.newCountToday:
             d['acq'] = self.s.all(sel + """
 %s where factId in (select distinct factId from cards
@@ -251,7 +282,7 @@ where factId in (select factId from %s limit 60))""" % (new, new))
         else:
             d['acq'] = []
         if (not d['fail'] and not d['rev'] and not d['acq']):
-            d['fail'] = self.s.all(sel + "failedCardsSoon limit 100")
+            d['fail'] = self.s.all(sel + "failedCards limit 100")
         return d
 
     # Answering a card
@@ -290,7 +321,7 @@ select type, count(type) from cards
 where factId = :fid and isDue = 1
 group by type""", fid=card.factId):
             if type == 0:
-                self.failedNowCount -= count
+                self.failedSoonCount -= count
             elif type == 1:
                 self.revCount -= count
             else:
@@ -435,11 +466,12 @@ end)""" + where)
             self.cardCount = self.s.scalar("select count(*) from cards")
             self.factCount = self.s.scalar("select count(*) from facts")
         # due counts
-        self.failedNowCount = self.s.scalar(
-            "select count(*) from failedCardsNow")
         self.failedSoonCount = cardCount = self.s.scalar(
-            "select count(*) from failedCardsSoon")
-        self.revCount = self.s.scalar("select count(*) from revCards")
+            "select count(*) from failedCards")
+        self.failedNowCount = self.s.scalar("""
+select count(*) from cards where type = 0 and isDue = 1
+and combinedDue <= :t""", t=time.time())
+        self.revCount = self.s.scalar("select count(*) from revCardsOld")
         self.newCount = self.s.scalar("select count(*) from acqCardsOrdered")
 
     def checkDue(self):
@@ -449,20 +481,19 @@ end)""" + where)
         stmt = """
 update cards set
 isDue = 1 where type = %d and isDue = 0 and
-priority in (1,2,3,4) and combinedDue < :now"""
-        self.failedNowCount += self.s.statement(
-            stmt % 0, now=time.time()).rowcount
+priority in (1,2,3,4) and combinedDue <= :now"""
+        # failed cards
+        self.failedSoonCount += self.s.statement(
+            stmt % 0, now=time.time()+self.delay0).rowcount
+        self.failedNowCount = self.s.scalar("""
+select count(*) from cards where
+type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
+        # review
         self.revCount += self.s.statement(
             stmt % 1, now=time.time()).rowcount
+        # new
         self.newCount += self.s.statement(
             stmt % 2, now=time.time()).rowcount
-        self.failedSoonCount = (self.failedNowCount +
-                                self.s.scalar("""
-select count(*) from cards where
-type = 0 and isDue = 0 and priority in (1,2,3,4)
-and combinedDue <= (select delay0 +
-strftime("%s", "now")+1 from decks)"""))
-        # new card handling
         self.newCountToday = max(min(
             self.newCount, self.newCardsPerDay -
             self.newCardsToday()), 0)
@@ -1622,6 +1653,9 @@ alter table decks add column failedSoonCount integer not null default 0""")
 alter table decks add column revCount integer not null default 0""")
                         s.execute("""
 alter table decks add column newCount integer not null default 0""")
+                    if ver < 17:
+                        s.execute("""
+alter table decks add column revCardOrder integer not null default 0""")
                 except:
                     pass
                 deck = s.query(Deck).get(1)
@@ -1693,8 +1727,11 @@ alter table decks add column newCount integer not null default 0""")
 create index if not exists ix_cards_combinedDue on cards
 (type, isDue, combinedDue, priority)""")
         deck.s.statement("""
-create index if not exists ix_cards_revisionOrder on cards
+create index if not exists ix_cards_revOldOrder on cards
 (type, isDue, priority desc, interval desc)""")
+        deck.s.statement("""
+create index if not exists ix_cards_revNewOrder on cards
+(type, isDue, priority desc, interval)""")
         deck.s.statement("""
 create index if not exists ix_cards_newRandomOrder on cards
 (type, isDue, priority desc, factId, ordinal)""")
@@ -1733,35 +1770,41 @@ create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
         s = deck.s
         # old views
         s.statement("drop view if exists failedCards")
-        s.statement("drop view if exists acqCards")
-        s.statement("drop view if exists futureCards")
-        s.statement("drop view if exists typedCards")
-        s.statement("drop view if exists failedCards")
-        s.statement("drop view if exists failedCardsNow")
-        s.statement("drop view if exists failedCardsSoon")
-        s.statement("drop view if exists revCards")
+        s.statement("drop view if exists revCardsOld")
+        s.statement("drop view if exists revCardsNew")
+        s.statement("drop view if exists revCardsDue")
+        s.statement("drop view if exists revCardsRandom")
         s.statement("drop view if exists acqCardsRandom")
         s.statement("drop view if exists acqCardsOrdered")
+        # failed cards
         s.statement("""
-create view failedCardsNow as
+create view failedCards as
 select * from cards
 where type = 0 and isDue = 1
-and +priority in (1,2,3,4)
 order by type, isDue, combinedDue
 """)
+        # rev cards
         s.statement("""
-create view failedCardsSoon as
-select * from cards
-where type = 0 and +priority in (1,2,3,4)
-and combinedDue <= (select delay0 +
-strftime("%s", "now")+1 from decks where id = 1)
-order by type, isDue, combinedDue
-""")
-        s.statement("""
-create view revCards as
+create view revCardsOld as
 select * from cards
 where type = 1 and isDue = 1
 order by priority desc, interval desc""")
+        s.statement("""
+create view revCardsNew as
+select * from cards
+where type = 1 and isDue = 1
+order by priority desc, interval""")
+        s.statement("""
+create view revCardsDue as
+select * from cards
+where type = 1 and isDue = 1
+order by priority desc, combinedDue""")
+        s.statement("""
+create view revCardsRandom as
+select * from cards
+where type = 1 and isDue = 1
+order by priority desc, factId, ordinal""")
+        # new cards
         s.statement("""
 create view acqCardsRandom as
 select * from cards
@@ -1933,8 +1976,19 @@ where interval < 1""")
             deck.delay2 = 0.0
             deck.version = 15
         if deck.version < 16:
-            DeckStorage._addViews(deck)
+            #DeckStorage._addViews(deck)
             deck.version = 16
+        if deck.version < 17:
+            deck.s.statement("drop view if exists acqCards")
+            deck.s.statement("drop view if exists futureCards")
+            deck.s.statement("drop view if exists revCards")
+            deck.s.statement("drop view if exists typedCards")
+            deck.s.statement("drop view if exists failedCardsNow")
+            deck.s.statement("drop view if exists failedCardsSoon")
+            deck.s.statement("drop index if exists ix_cards_revisionOrder")
+            # add new views
+            DeckStorage._addViews(deck)
+            deck.version = 17
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
@@ -2000,4 +2054,12 @@ def newCardSchedulingLabels():
     return {
         0: _("Spread new cards out through reviews"),
         1: _("Show new cards after all other cards"),
+        }
+
+def revCardOrderLabels():
+    return {
+        0: _("Review oldest cards first"),
+        1: _("Review newest cards first"),
+        2: _("Review cards in order due"),
+        3: _("Review cards in random order"),
         }
