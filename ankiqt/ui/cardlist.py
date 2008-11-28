@@ -15,6 +15,7 @@ from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
 from ankiqt.ui.utils import saveGeom, restoreGeom
 from anki.errors import *
 from anki.db import *
+from anki.stats import CardStats
 
 # Deck editor
 ##########################################################################
@@ -126,14 +127,9 @@ class DeckModel(QAbstractTableModel):
         ads = " and ".join(ads)
         if isinstance(self.sortKey, types.StringType):
             # card property
-            if self.sortKey == "ease":
-                sort = ("order by cards.reps = 0, "
-                        "cards.noCount / (cards.reps + 0.001) desc, "
-                        "cards.reps")
-            else:
-                sort = "order by cards." + self.sortKey
-                if self.sortKey in ("question", "answer"):
-                    sort += " collate nocase"
+            sort = "order by cards." + self.sortKey
+            if self.sortKey in ("question", "answer"):
+                sort += " collate nocase"
             query = ("select id, priority, question, answer, due, "
                      "reps, factId from cards ")
             if ads:
@@ -222,7 +218,7 @@ class StatusDelegate(QItemDelegate):
         self.drawDisplay(painter, option, option.rect, data.toString())
         painter.restore()
 
-class EditDeck(QDialog):
+class EditDeck(QMainWindow):
 
     def __init__(self, parent):
         QDialog.__init__(self, parent, Qt.Window)
@@ -230,7 +226,7 @@ class EditDeck(QDialog):
         self.deck = self.parent.deck
         self.config = parent.config
         self.origModTime = parent.deck.modified
-        self.dialog = ankiqt.forms.cardlist.Ui_EditDeck()
+        self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
         self.dialog.setupUi(self)
         # flush all changes before we load
         self.deck.s.flush()
@@ -242,7 +238,7 @@ class EditDeck(QDialog):
         self.dialog.tableView.setFont(QFont(
             self.config['editFontFamily'],
             self.config['editFontSize']))
-        self.setupButtons()
+        self.setupMenus()
         self.setupFilter()
         self.setupSort()
         self.setupHeaders()
@@ -317,7 +313,7 @@ class EditDeck(QDialog):
             _("Due date"),
             _("Interval"),
             _("Answer count"),
-            _("Difficulty"),
+            _("Ease"),
             ]
         self.sortFields = sorted(self.deck.allFields())
         self.sortList.extend([_("Field '%s'") % f for f in self.sortFields])
@@ -341,7 +337,7 @@ class EditDeck(QDialog):
         elif idx == 6:
             self.sortKey = "reps"
         elif idx == 7:
-            self.sortKey = "ease"
+            self.sortKey = "factor"
         else:
             self.sortKey = ("field", self.sortFields[idx-8])
         self.sortIndex = idx
@@ -409,71 +405,99 @@ class EditDeck(QDialog):
             self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
         self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.ResizeToContents)
 
-    def setupButtons(self):
-        # buttons
-        self.connect(self.dialog.factsButton,
-                     SIGNAL("clicked()"),
-                     self.factsMenu)
-        self.connect(self.dialog.cardsButton,
-                     SIGNAL("clicked()"),
-                     self.cardsMenu)
-        # menus
-        self.connect(self.dialog.action_Delete_card, SIGNAL("triggered()"), self.deleteCards)
-        self.connect(self.dialog.actionAdd_fact_tag, SIGNAL("triggered()"), self.addFactTags)
-        self.connect(self.dialog.actionAdd_card_tag, SIGNAL("triggered()"), self.addCardTags)
-        self.connect(self.dialog.actionDelete_fact_tag, SIGNAL("triggered()"), self.deleteFactTags)
-        self.connect(self.dialog.actionDelete_card_tag, SIGNAL("triggered()"), self.deleteCardTags)
-        self.connect(self.dialog.actionAdd_Missing_Cards, SIGNAL("triggered()"), self.addMissingCards)
-        self.connect(self.dialog.actionDelete_Fact, SIGNAL("triggered()"), self.deleteFacts)
-        self.connect(self.dialog.actionResetCardProgress, SIGNAL("triggered()"), self.resetCardProgress)
-        self.connect(self.dialog.actionResetFactProgress, SIGNAL("triggered()"), self.resetFactProgress)
-        self.parent.runHook('editor.setupButtons', self)
+    def setupMenus(self):
+        self.connect(self.dialog.actionDelete, SIGNAL("triggered()"), self.deleteCards)
+        self.connect(self.dialog.actionAddTag, SIGNAL("triggered()"), self.addTags)
+        self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
+        self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
+        self.connect(self.dialog.actionResetProgress, SIGNAL("triggered()"), self.resetProgress)
+        self.connect(self.dialog.actionSelectAll, SIGNAL("triggered()"), self.selectAll)
+        self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
+        self.parent.runHook('editor.setupMenus', self)
 
-    def factsMenu(self):
-        menu = QMenu(self)
-        menu.addAction(self.dialog.actionAdd_fact_tag)
-        menu.addAction(self.dialog.actionDelete_fact_tag)
-        menu.addSeparator()
-        menu.addAction(self.dialog.actionAdd_Missing_Cards)
-        menu.addSeparator()
-        menu.addAction(self.dialog.actionResetFactProgress)
-        menu.addAction(self.dialog.actionDelete_Fact)
-        self.parent.runHook('editor.factsMenu', self, menu)
-        menu.exec_(self.dialog.factsButton.mapToGlobal(QPoint(0,0)))
+    def onClose(self):
+        saveGeom(self, "editor")
+        self.editor.saveFieldsNow()
+        if not self.factValid:
+            ui.utils.showInfo(_(
+                "Some fields are missing or not unique."),
+                              parent=self, help="AddItems#AddError")
+            return
+        self.hide()
+        self.deck.deleteCards(self.model.deleted.keys())
+        if len(self.model.deleted):
+            self.parent.setStatus(
+                _("%(del)d deleted.") %
+                {"del": len(self.model.deleted)})
+        if self.origModTime != self.deck.modified:
+            self.parent.reset()
+        ui.dialogs.close("CardList")
+        return True
 
-    def cardsMenu(self):
-        menu = QMenu(self)
-        menu.addAction(self.dialog.actionAdd_card_tag)
-        menu.addAction(self.dialog.actionDelete_card_tag)
-        menu.addSeparator()
-        menu.addAction(self.dialog.actionResetCardProgress)
-        menu.addAction(self.dialog.action_Delete_card)
-        self.parent.runHook('editor.cardsMenu', self, menu)
-        menu.exec_(self.dialog.cardsButton.mapToGlobal(QPoint(0,0)))
+    def closeEvent(self, evt):
+        if self.onClose():
+            evt.accept()
+        else:
+            evt.ignore()
 
-    def deleteCards(self):
-        cards = self.selectedCards()
-        self.dialog.tableView.selectionModel().blockSignals(True)
-        self.dialog.tableView.selectionModel().clear()
-        self.dialog.tableView.selectionModel().blockSignals(False)
-        for id in cards:
-            if id in self.model.deleted:
-                del self.model.deleted[id]
-            else:
-                self.model.deleted[id] = True
-        self.model.emit(SIGNAL("layoutChanged()"))
+    def keyPressEvent(self, evt):
+        "Show answer on RET or register answer."
+        if evt.key() in (Qt.Key_Escape,):
+            self.close()
 
-    def deleteFacts(self):
-        cardIds = self.selectedFactsAsCards()
-        self.dialog.tableView.selectionModel().blockSignals(True)
-        self.dialog.tableView.selectionModel().clear()
-        self.dialog.tableView.selectionModel().blockSignals(False)
-        for id in cardIds:
-            if id in self.model.deleted:
-                del self.model.deleted[id]
-            else:
-                self.model.deleted[id] = True
-        self.model.emit(SIGNAL("layoutChanged()"))
+    # Editor
+    ######################################################################
+
+    def setupEditor(self):
+        self.editor = ui.facteditor.FactEditor(self,
+                                               self.dialog.fieldsArea,
+                                               self.deck)
+        self.factValid = True
+        self.editor.onFactValid = self.onFactValid
+        self.editor.onFactInvalid = self.onFactInvalid
+        self.connect(self.dialog.tableView.selectionModel(),
+                     SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
+                     self.rowChanged)
+
+    def onFactValid(self, fact):
+        self.factValid = True
+        self.dialog.tableView.setEnabled(True)
+        self.dialog.filterEdit.setEnabled(True)
+        self.dialog.sortBox.setEnabled(True)
+        self.dialog.tagList.setEnabled(True)
+        self.dialog.menubar.setEnabled(True)
+        self.dialog.cardInfoGroup.setEnabled(True)
+
+    def onFactInvalid(self, fact):
+        self.factValid = False
+        self.dialog.tableView.setEnabled(False)
+        self.dialog.filterEdit.setEnabled(False)
+        self.dialog.sortBox.setEnabled(False)
+        self.dialog.tagList.setEnabled(False)
+        self.dialog.menubar.setEnabled(False)
+        self.dialog.cardInfoGroup.setEnabled(False)
+
+    def rowChanged(self, current, previous):
+        self.currentRow = current
+        self.currentCard = self.model.getCard(current)
+        self.deck.s.flush()
+        self.deck.s.refresh(self.currentCard)
+        self.deck.s.refresh(self.currentCard.fact)
+        fact = self.currentCard.fact
+        self.editor.setFact(fact, True)
+        self.showCardInfo(self.currentCard)
+
+    def setupCardInfo(self):
+        self.currentCard = None
+        self.cardStats = CardStats(self.deck, None)
+
+    def showCardInfo(self, card):
+        self.cardStats.card = self.currentCard
+        self.dialog.cardLabel.setText(
+            self.cardStats.report())
+
+    # Menu helpers
+    ######################################################################
 
     def selectedCards(self):
         return [self.model.cards[idx.row()][0] for idx in
@@ -491,158 +515,42 @@ where id in (%s)""" % ",".join([
             "select id from cards where factId in (%s)" %
             ",".join([str(s) for s in self.selectedFacts()]))
 
-    def setupEditor(self):
-        self.editor = ui.facteditor.FactEditor(self,
-                                               self.dialog.fieldsArea,
-                                               self.deck)
-        self.editor.onFactValid = self.onFactValid
-        self.editor.onFactInvalid = self.onFactInvalid
-        self.connect(self.dialog.tableView.selectionModel(),
-                     SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
-                     self.rowChanged)
-
-    def onFactValid(self, fact):
-        self.dialog.tableView.setEnabled(True)
-        self.dialog.searchGroup.setEnabled(True)
-        self.dialog.sortGroup.setEnabled(True)
-        self.dialog.actionGroup.setEnabled(True)
-        self.dialog.cardInfoGroup.setEnabled(True)
-
-    def onFactInvalid(self, fact):
-        self.dialog.tableView.setEnabled(False)
-        self.dialog.searchGroup.setEnabled(False)
-        self.dialog.sortGroup.setEnabled(False)
-        self.dialog.actionGroup.setEnabled(False)
-        self.dialog.cardInfoGroup.setEnabled(False)
-
-    def rowChanged(self, current, previous):
-        self.currentRow = current
-        self.currentCard = self.model.getCard(current)
-        self.deck.s.flush()
-        self.deck.s.refresh(self.currentCard)
-        self.deck.s.refresh(self.currentCard.fact)
-        fact = self.currentCard.fact
-        self.editor.setFact(fact, True)
-        self.showCardInfo(self.currentCard)
-
-    def setupCardInfo(self):
-        self.currentCard = None
-        self.cardInfoGrid = QGridLayout(self.dialog.cardInfoGroup)
-        self.cardInfoGrid.setMargin(6)
-        # card
-        l = QLabel(_("<b>Tags</b>"))
-        self.cardInfoGrid.addWidget(l, 0, 0)
-        self.cardStaticTags = QLabel()
-        self.cardStaticTags.setWordWrap(True)
-        self.cardInfoGrid.addWidget(self.cardStaticTags, 1, 0)
-        l = QLabel(_("<b>Card-specific tags</b>"))
-        self.cardInfoGrid.addWidget(l, 2, 0)
-        self.cardTags = QLineEdit()
-        self.connect(self.cardTags, SIGNAL("textChanged(QString)"), self.saveCardInfo)
-        self.cardInfoGrid.addWidget(self.cardTags, 3, 0)
-        l = QLabel(_("<b>Statistics</b>"))
-        self.cardInfoGrid.addWidget(l, 4, 0)
-        self.cardStats = QLabel()
-        self.cardInfoGrid.addWidget(self.cardStats, 5, 0)
-        item = QSpacerItem(20, 20, QSizePolicy.Expanding,
-                           QSizePolicy.Expanding)
-        self.cardInfoGrid.addItem(item, 6, 0)
-
-    def updateStaticTags(self):
-        card = self.currentCard
-        self.cardStaticTags.setText(
-            ", ".join(parseTags(
-            card.fact.model.tags + "," +
-            card.cardModel.name + "," +
-            card.fact.tags)))
-
-    def showCardInfo(self, card):
-        self.cardTags.setText(card.tags)
-        self.updateStaticTags()
-        # stats
-        next = time.time() - card.due
-        if next > 0:
-            next = "%s ago" % anki.utils.fmtTimeSpan(next)
-        else:
-            next = "in %s" % anki.utils.fmtTimeSpan(abs(next))
-        self.cardStats.setText(
-            _("Created: %(c)s ago<br>"
-              "Next due: %(n)s<br>"
-              "Interval: %(i)0.0f days<br>"
-              "Average: %(a)s<br>"
-              "Total: %(t)s<br>"
-              "Reviews: %(cor)d/%(tot)d<br>"
-              "Successive: %(suc)d")% {
-            "c": fmtTimeSpan(time.time() - card.created),
-            "n": next,
-            "i": card.interval,
-            "a": fmtTimeSpan(card.averageTime),
-            "t": fmtTimeSpan(card.reviewTime),
-            "cor": card.yesCount,
-            "tot": card.reps,
-            "suc": card.successive,
-            })
-
-    def saveCardInfo(self, text):
-        if self.currentCard:
-            tags = unicode(text)
-            if self.currentCard.tags != tags:
-                self.currentCard.tags = tags
-                self.currentCard.setModified()
-                self.deck.setModified()
-
-    def addFactTags(self):
-        tags = ui.utils.getOnlyText(_("Enter tag(s) to add to each fact:"), self)
-        if tags: self.deck.addFactTags(self.selectedFacts(), tags)
-        self.updateAfterCardChange()
-
-    def addCardTags(self):
-        tags = ui.utils.getOnlyText(_("Enter tag(s) to add to each card:"), self)
-        if tags: self.deck.addCardTags(self.selectedCards(), tags)
-        self.updateAfterCardChange()
-
-    def deleteFactTags(self):
-        tags = ui.utils.getOnlyText(_("Enter tag(s) to delete from each fact:"), self)
-        if tags: self.deck.deleteFactTags(self.selectedFacts(), tags)
-        self.updateAfterCardChange()
-
-    def deleteCardTags(self):
-        tags = ui.utils.getOnlyText(_("Enter tag(s) to delete from each card:"), self)
-        if tags: self.deck.deleteCardTags(self.selectedCards(), tags)
-        self.updateAfterCardChange()
-
     def updateAfterCardChange(self, reset=False):
         "Refresh info like stats on current card"
         self.rowChanged(self.currentRow, None)
         if reset:
             self.updateSearch()
 
-    def addMissingCards(self):
-        for id in self.selectedFacts():
-            self.deck.addMissingCards(self.deck.s.query(Fact).get(id))
+    # Menu options
+    ######################################################################
+
+    def deleteCards(self):
+        cards = self.selectedCards()
+        self.deck.deleteCards(cards)
         self.updateSearch()
 
-    def resetCardProgress(self):
+    def addTags(self):
+        tags = ui.utils.getOnlyText(_("Enter tag(s) to add:"), self)
+        if tags: self.deck.addTags(self.selectedFacts(), tags)
+        self.updateAfterCardChange()
+
+    def deleteTags(self):
+        tags = ui.utils.getOnlyText(_("Enter tag(s) to delete:"), self)
+        if tags: self.deck.deleteTags(self.selectedFacts(), tags)
+        self.updateAfterCardChange()
+
+    def addCards(self):
+        raise
+#         for id in self.selectedFacts():
+#             self.deck.addMissingCards(self.deck.s.query(Fact).get(id))
+#         self.updateSearch()
+
+    def resetProgress(self):
         self.deck.resetCards(self.selectedCards())
         self.updateAfterCardChange(reset=True)
 
-    def resetFactProgress(self):
-        self.deck.resetCards(self.selectedFactsAsCards())
-        self.updateAfterCardChange(reset=True)
+    def selectAll(self):
+        pass
 
-    def accept(self):
-        self.editor.saveFieldsNow()
-        self.hide()
-        self.deck.deleteCards(self.model.deleted.keys())
-        if len(self.model.deleted):
-            self.parent.setStatus(
-                _("%(del)d deleted.") %
-                {"del": len(self.model.deleted)})
-        if self.origModTime != self.deck.modified:
-            self.parent.reset()
-        ui.dialogs.close("CardList")
-        QDialog.accept(self)
-
-    def reject(self):
-        saveGeom(self, "editor")
-        self.accept()
+    def selectFacts(self):
+        pass
