@@ -970,7 +970,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.deck.setModified()
 
     def onSuspend(self):
-        self.currentCard.tags = addTags("Suspended", self.currentCard.tags)
+        self.currentCard.fact.tags = addTags("Suspended", self.currentCard.fact.tags)
         self.deck.updatePriority(self.currentCard)
         self.currentCard.setModified()
         self.deck.setModified()
