@@ -9,6 +9,7 @@ import anki
 from ankiqt import ui
 from anki.utils import parseTags
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
+from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
 
 tabs = ("Synchronization",
@@ -30,6 +31,8 @@ class DeckProperties(QDialog):
             0, QStringList(newCardOrderLabels().values()))
         self.dialog.newCardScheduling.insertItems(
             0, QStringList(newCardSchedulingLabels().values()))
+        self.dialog.revCardOrder.insertItems(
+            0, QStringList(revCardOrderLabels().values()))
         self.readData()
         self.connect(self.dialog.modelsAdd, SIGNAL("clicked()"), self.onAdd)
         self.connect(self.dialog.modelsEdit, SIGNAL("clicked()"), self.onEdit)
@@ -71,6 +74,7 @@ class DeckProperties(QDialog):
         self.dialog.newCardsPerDay.setText(unicode(self.d.newCardsPerDay))
         self.dialog.newCardOrder.setCurrentIndex(self.d.newCardOrder)
         self.dialog.newCardScheduling.setCurrentIndex(self.d.newCardSpacing)
+        self.dialog.revCardOrder.setCurrentIndex(self.d.revCardOrder)
         # sources
         self.sources = self.d.s.all("select id, name from sources")
         self.sourcesToRemove = []
@@ -262,6 +266,8 @@ class DeckProperties(QDialog):
                          self.dialog.newCardOrder.currentIndex())
         self.updateField(self.d, "newCardSpacing",
                          self.dialog.newCardScheduling.currentIndex())
+        self.updateField(self.d, "revCardOrder",
+                         self.dialog.revCardOrder.currentIndex())
         # sources
         d = {}
         d.update(self.sources)

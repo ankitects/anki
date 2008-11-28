@@ -9,7 +9,7 @@
     <x>0</x>
     <y>0</y>
     <width>389</width>
-    <height>408</height>
+    <height>437</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -24,13 +24,207 @@
      <property name="currentIndex" >
       <number>0</number>
      </property>
+     <widget class="QWidget" name="tab_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>373</width>
+        <height>371</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Scheduling</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6" >
+       <item row="0" column="0" >
+        <layout class="QGridLayout" name="gridLayout_2" >
+         <item row="3" column="1" >
+          <widget class="QLabel" name="label_15" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>&lt;h1>Basic Scheduling&lt;/h1></string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" >
+          <layout class="QGridLayout" name="gridLayout_3" >
+           <item row="0" column="1" >
+            <spacer name="horizontalSpacer" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="2" >
+            <widget class="QLineEdit" name="newCardsPerDay" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="label_12" >
+             <property name="text" >
+              <string>&lt;b>Maximum failed cards&lt;/b></string>
+             </property>
+             <property name="openExternalLinks" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" >
+            <widget class="QLineEdit" name="failedCardMax" />
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="label_26" >
+             <property name="text" >
+              <string>&lt;b>Show failed cards early&lt;/b></string>
+             </property>
+             <property name="openExternalLinks" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" >
+            <widget class="QCheckBox" name="collapse" >
+             <property name="text" >
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_11" >
+             <property name="text" >
+              <string>&lt;b>Number of new cards per day</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QComboBox" name="newCardOrder" />
+       </item>
+       <item row="3" column="0" >
+        <widget class="QComboBox" name="newCardScheduling" />
+       </item>
+       <item row="7" column="0" >
+        <widget class="QLabel" name="label_16" >
+         <property name="text" >
+          <string>&lt;h1>Priorities&lt;/h1></string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" >
+        <layout class="QGridLayout" name="gridLayout_4" >
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label_21" >
+           <property name="text" >
+            <string>&lt;b>Very High Priority&lt;/b></string>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="highPriority" />
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_17" >
+           <property name="text" >
+            <string>&lt;b>High Priority&lt;/b></string>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="medPriority" />
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_24" >
+           <property name="text" >
+            <string>&lt;b>Low Priority&lt;/b></string>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLineEdit" name="lowPriority" />
+         </item>
+         <item row="3" column="0" >
+          <widget class="QLabel" name="label_23" >
+           <property name="text" >
+            <string>&lt;b>Suspended&lt;/b></string>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" >
+          <widget class="QLineEdit" name="postponing" />
+         </item>
+        </layout>
+       </item>
+       <item row="9" column="0" >
+        <spacer name="verticalSpacer_2" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="6" column="0" >
+        <spacer name="verticalSpacer_3" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="0" >
+        <widget class="QComboBox" name="revCardOrder" />
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab_5" >
       <property name="geometry" >
        <rect>
         <x>0</x>
         <y>0</y>
         <width>373</width>
-        <height>342</height>
+        <height>371</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -144,204 +338,13 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>373</width>
-        <height>342</height>
-       </rect>
-      </property>
-      <attribute name="title" >
-       <string>Scheduling</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_6" >
-       <item row="0" column="0" >
-        <layout class="QGridLayout" name="gridLayout_2" >
-         <item row="3" column="1" >
-          <widget class="QLabel" name="label_15" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text" >
-            <string>&lt;h1>Basic Scheduling&lt;/h1></string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1" >
-          <layout class="QGridLayout" name="gridLayout_3" >
-           <item row="0" column="1" >
-            <spacer name="horizontalSpacer" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0" >
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="2" >
-            <widget class="QLineEdit" name="newCardsPerDay" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="label_12" >
-             <property name="text" >
-              <string>&lt;b>Maximum failed cards&lt;/b></string>
-             </property>
-             <property name="openExternalLinks" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" >
-            <widget class="QLineEdit" name="failedCardMax" />
-           </item>
-           <item row="2" column="0" >
-            <widget class="QLabel" name="label_26" >
-             <property name="text" >
-              <string>&lt;b>Show failed cards early&lt;/b></string>
-             </property>
-             <property name="openExternalLinks" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2" >
-            <widget class="QCheckBox" name="collapse" >
-             <property name="text" >
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_11" >
-             <property name="text" >
-              <string>&lt;b>Number of new cards per day</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QComboBox" name="newCardOrder" />
-       </item>
-       <item row="2" column="0" >
-        <widget class="QComboBox" name="newCardScheduling" />
-       </item>
-       <item row="4" column="0" >
-        <widget class="QLabel" name="label_16" >
-         <property name="text" >
-          <string>&lt;h1>Priorities&lt;/h1></string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" >
-        <layout class="QGridLayout" name="gridLayout_4" >
-         <item row="0" column="0" >
-          <widget class="QLabel" name="label_21" >
-           <property name="text" >
-            <string>&lt;b>Very High Priority&lt;/b></string>
-           </property>
-           <property name="wordWrap" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" >
-          <widget class="QLineEdit" name="highPriority" />
-         </item>
-         <item row="1" column="0" >
-          <widget class="QLabel" name="label_17" >
-           <property name="text" >
-            <string>&lt;b>High Priority&lt;/b></string>
-           </property>
-           <property name="wordWrap" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" >
-          <widget class="QLineEdit" name="medPriority" />
-         </item>
-         <item row="2" column="0" >
-          <widget class="QLabel" name="label_24" >
-           <property name="text" >
-            <string>&lt;b>Low Priority&lt;/b></string>
-           </property>
-           <property name="wordWrap" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" >
-          <widget class="QLineEdit" name="lowPriority" />
-         </item>
-         <item row="3" column="0" >
-          <widget class="QLabel" name="label_23" >
-           <property name="text" >
-            <string>&lt;b>Suspended&lt;/b></string>
-           </property>
-           <property name="wordWrap" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" >
-          <widget class="QLineEdit" name="postponing" />
-         </item>
-        </layout>
-       </item>
-       <item row="6" column="0" >
-        <spacer name="verticalSpacer_2" >
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0" >
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0" >
-        <spacer name="verticalSpacer_3" >
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0" >
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="tab_3" >
       <property name="geometry" >
        <rect>
         <x>0</x>
         <y>0</y>
         <width>373</width>
-        <height>342</height>
+        <height>371</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -406,7 +409,7 @@ p, li { white-space: pre-wrap; }
         <x>0</x>
         <y>0</y>
         <width>373</width>
-        <height>342</height>
+        <height>371</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -447,7 +450,7 @@ p, li { white-space: pre-wrap; }
         <x>0</x>
         <y>0</y>
         <width>373</width>
-        <height>342</height>
+        <height>371</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -680,20 +683,21 @@ p, li { white-space: pre-wrap; }
  </widget>
  <tabstops>
   <tabstop>qtabwidget</tabstop>
-  <tabstop>doSync</tabstop>
-  <tabstop>syncName</tabstop>
-  <tabstop>sourcesTable</tabstop>
-  <tabstop>addSource</tabstop>
-  <tabstop>deleteSource</tabstop>
   <tabstop>newCardsPerDay</tabstop>
   <tabstop>failedCardMax</tabstop>
   <tabstop>collapse</tabstop>
   <tabstop>newCardOrder</tabstop>
   <tabstop>newCardScheduling</tabstop>
+  <tabstop>revCardOrder</tabstop>
   <tabstop>highPriority</tabstop>
   <tabstop>medPriority</tabstop>
   <tabstop>lowPriority</tabstop>
   <tabstop>postponing</tabstop>
+  <tabstop>doSync</tabstop>
+  <tabstop>syncName</tabstop>
+  <tabstop>sourcesTable</tabstop>
+  <tabstop>addSource</tabstop>
+  <tabstop>deleteSource</tabstop>
   <tabstop>modelsList</tabstop>
   <tabstop>modelsAdd</tabstop>
   <tabstop>modelsEdit</tabstop>
@@ -708,6 +712,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>midMax</tabstop>
   <tabstop>easyMin</tabstop>
   <tabstop>easyMax</tabstop>
+  <tabstop>timeOffset</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
