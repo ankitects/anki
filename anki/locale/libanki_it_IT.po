@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-23 09:25+0900\n"
+"POT-Creation-Date: 2008-11-29 00:36+0900\n"
 "PO-Revision-Date: 2008-10-25 13:26+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: deck.py:552
+#: deck.py:584
 #, python-format
 msgid ""
 "\n"
@@ -289,7 +289,7 @@ msgstr "Mazzo Anki (*.anki)"
 msgid "Anki decks (*.anki)"
 msgstr "Mazzi Anki (*.anki)"
 
-#: deck.py:511
+#: deck.py:543
 #, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
@@ -364,7 +364,7 @@ msgstr "Fattore attuale"
 msgid "Current interval"
 msgstr "Intervallo attuale"
 
-#: deck.py:1432
+#: deck.py:1455
 msgid "Database file damaged. Restore from backup."
 msgstr "Il file del database è danneggiato. Ripristina da backup."
 
@@ -385,31 +385,31 @@ msgstr "Statistiche mazzo"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Mazzo creato: <b>%s</b> fa<br>"
 
-#: deck.py:1440
+#: deck.py:1463
 msgid "Deck was missing a model"
 msgstr "Il mazzo aveva un modello mancante"
 
-#: deck.py:1461
+#: deck.py:1484
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Eliminate %d carte con fatti mancanti"
 
-#: deck.py:1469
+#: deck.py:1492
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr "Eliminate %d carte con modelli mancanti"
 
-#: deck.py:1482
+#: deck.py:1505
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Eliminati %d campi in avanzo"
 
-#: deck.py:1454
+#: deck.py:1477
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Eliminati %d fatti con campi mancanti"
 
-#: deck.py:1474
+#: deck.py:1497
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Eliminati %d fatti privi di carte"
@@ -430,7 +430,7 @@ msgstr "Tag dei fatti"
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Fatti in file di testo con colonne separate da tab (*.txt)"
 
-#: deck.py:1671
+#: deck.py:1697
 msgid "File is in use by another process"
 msgstr "Il file è già utilizzato da un altro processo"
 
@@ -525,12 +525,12 @@ msgstr "Carte mature: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "Media Missing"
 msgstr "File multimediale mancante"
 
-#: deck.py:967
+#: deck.py:1000
 #, python-format
 msgid "Model '%s' has wrong card model count"
 msgstr "Il modello '%s' ha un numero sbagliato di carte"
 
-#: deck.py:971
+#: deck.py:1004
 #, python-format
 msgid "Model '%s' has wrong field model count"
 msgstr "Il modello '%s' ha un numero sbagliato di campi"
@@ -547,7 +547,7 @@ msgstr "Carte nuove"
 msgid "Next due"
 msgstr "Prossima apparizione"
 
-#: deck.py:524
+#: deck.py:556
 msgid "No cards are due."
 msgstr "Non ci sono carte pronte per la ripetizione."
 
@@ -575,27 +575,45 @@ msgstr "Ripetizioni prossimo mese"
 msgid "Reps next week"
 msgstr "Ripetizioni prossima settimana"
 
+#: deck.py:2074
+#, fuzzy
+msgid "Review cards in order due"
+msgstr "Mostra le carte nuove nell'ordine in cui sono state aggiunte"
+
+#: deck.py:2075
+#, fuzzy
+msgid "Review cards in random order"
+msgstr "Mostra le carte nuove in ordine casuale"
+
 #: stats.py:278
 msgid "Review count"
 msgstr "Numero di ripassi"
+
+#: deck.py:2073
+msgid "Review newest cards first"
+msgstr ""
+
+#: deck.py:2072
+msgid "Review oldest cards first"
+msgstr ""
 
 #: models.py:28
 msgid "Right"
 msgstr "Destra"
 
-#: deck.py:2016
+#: deck.py:2067
 msgid "Show new cards after all other cards"
 msgstr "Mostra le carte nuove dopo tutte le altre"
 
-#: deck.py:2010
+#: deck.py:2061
 msgid "Show new cards in order they were added"
 msgstr "Mostra le carte nuove nell'ordine in cui sono state aggiunte"
 
-#: deck.py:2009
+#: deck.py:2060
 msgid "Show new cards in random order"
 msgstr "Mostra le carte nuove in ordine casuale"
 
-#: deck.py:2015
+#: deck.py:2066
 msgid "Spread new cards out through reviews"
 msgstr "Distribuisci le carte nuove su tutta la sequenza di ripetizione"
 
@@ -615,11 +633,11 @@ msgstr "File di testo (*.txt)"
 msgid "The answer."
 msgstr "La risposta."
 
-#: deck.py:1446
+#: deck.py:1469
 msgid "The current model didn't exist"
 msgstr "Il modello corrente non esiste"
 
-#: deck.py:521
+#: deck.py:553
 #, python-format
 msgid "The next card will be shown in <b>%s</b>"
 msgstr "La prossima carta sarà mostrata tra <b>%s</b>"
@@ -633,7 +651,7 @@ msgstr "Numero totale di carte: <b>%d</b><br><br>"
 msgid "Total time"
 msgstr "Tempo totale"
 
-#: deck.py:717
+#: deck.py:750
 msgid "Unknown"
 msgstr "Sconosciuto"
 
@@ -669,7 +687,7 @@ msgstr ""
 msgid "in %s"
 msgstr "tra %s"
 
-#: deck.py:541
+#: deck.py:573
 msgid "unknown"
 msgstr "sconosciuto"
 

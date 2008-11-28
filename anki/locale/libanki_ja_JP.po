@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-23 09:25+0900\n"
+"POT-Creation-Date: 2008-11-29 00:36+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Damien Elmes <anki@ichi2.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: deck.py:552
+#: deck.py:584
 #, python-format
 msgid ""
 "\n"
@@ -240,7 +240,7 @@ msgstr ""
 msgid "Anki decks (*.anki)"
 msgstr ""
 
-#: deck.py:511
+#: deck.py:543
 #, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
@@ -310,7 +310,7 @@ msgstr ""
 msgid "Current interval"
 msgstr ""
 
-#: deck.py:1432
+#: deck.py:1455
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -331,31 +331,31 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:1440
+#: deck.py:1463
 msgid "Deck was missing a model"
 msgstr ""
 
-#: deck.py:1461
+#: deck.py:1484
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1469
+#: deck.py:1492
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr ""
 
-#: deck.py:1482
+#: deck.py:1505
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1454
+#: deck.py:1477
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1474
+#: deck.py:1497
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -376,7 +376,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:1671
+#: deck.py:1697
 msgid "File is in use by another process"
 msgstr ""
 
@@ -471,12 +471,12 @@ msgstr ""
 msgid "Media Missing"
 msgstr ""
 
-#: deck.py:967
+#: deck.py:1000
 #, python-format
 msgid "Model '%s' has wrong card model count"
 msgstr ""
 
-#: deck.py:971
+#: deck.py:1004
 #, python-format
 msgid "Model '%s' has wrong field model count"
 msgstr ""
@@ -493,7 +493,7 @@ msgstr ""
 msgid "Next due"
 msgstr ""
 
-#: deck.py:524
+#: deck.py:556
 msgid "No cards are due."
 msgstr ""
 
@@ -523,27 +523,43 @@ msgstr "%sヶ月"
 msgid "Reps next week"
 msgstr ""
 
+#: deck.py:2074
+msgid "Review cards in order due"
+msgstr ""
+
+#: deck.py:2075
+msgid "Review cards in random order"
+msgstr ""
+
 #: stats.py:278
 msgid "Review count"
+msgstr ""
+
+#: deck.py:2073
+msgid "Review newest cards first"
+msgstr ""
+
+#: deck.py:2072
+msgid "Review oldest cards first"
 msgstr ""
 
 #: models.py:28
 msgid "Right"
 msgstr ""
 
-#: deck.py:2016
+#: deck.py:2067
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:2010
+#: deck.py:2061
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:2009
+#: deck.py:2060
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:2015
+#: deck.py:2066
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -563,11 +579,11 @@ msgstr ""
 msgid "The answer."
 msgstr ""
 
-#: deck.py:1446
+#: deck.py:1469
 msgid "The current model didn't exist"
 msgstr ""
 
-#: deck.py:521
+#: deck.py:553
 #, python-format
 msgid "The next card will be shown in <b>%s</b>"
 msgstr ""
@@ -581,7 +597,7 @@ msgstr ""
 msgid "Total time"
 msgstr ""
 
-#: deck.py:717
+#: deck.py:750
 msgid "Unknown"
 msgstr ""
 
@@ -617,7 +633,7 @@ msgstr ""
 msgid "in %s"
 msgstr ""
 
-#: deck.py:541
+#: deck.py:573
 msgid "unknown"
 msgstr ""
 
