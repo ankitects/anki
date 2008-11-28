@@ -69,6 +69,7 @@ class AnkiQt(QMainWindow):
                                  traceback.format_exc())
         # check for updates
         self.setupAutoUpdate()
+        self.setupErrorHandler()
 
     def setupMainWindow(self):
         self.mainWin = ankiqt.forms.main.Ui_MainWindow()
@@ -95,6 +96,36 @@ class AnkiQt(QMainWindow):
     def setupTray(self):
 	self.trayIcon = ui.tray.AnkiTrayIcon(self)
 
+    def setupErrorHandler(self):
+        class ErrorPipe(object):
+            def __init__(self, parent):
+                self.parent = parent
+                self.timer = None
+                self.pool = ""
+
+            def write(self, data):
+                self.pool += data
+                self.updateTimer()
+
+            def updateTimer(self):
+                interval = 200
+                if not self.timer:
+                    self.timer = QTimer(self.parent)
+                    self.timer.setSingleShot(True)
+                    self.timer.start(interval)
+                    self.parent.connect(self.timer,
+                                        SIGNAL("timeout()"),
+                                        self.onTimeout)
+                else:
+                    self.timer.setInterval(interval)
+
+            def onTimeout(self):
+                ui.utils.showText(_("""\
+An error occurred. Please copy the following message into a bug report.\n\n""" + self.pool))
+                self.pool = ""
+                self.timer = None
+        pipe = ErrorPipe(self)
+        sys.stderr = pipe
 
     # State machine
     ##########################################################################

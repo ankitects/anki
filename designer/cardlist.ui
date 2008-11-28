@@ -189,14 +189,14 @@
      <height>23</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_Edit" >
+   <widget class="QMenu" name="menuEdit" >
     <property name="title" >
      <string>&amp;Edit</string>
     </property>
     <addaction name="actionSelectAll" />
     <addaction name="actionSelectFacts" />
    </widget>
-   <widget class="QMenu" name="menu_Actions" >
+   <widget class="QMenu" name="menuActions" >
     <property name="title" >
      <string>&amp;Actions</string>
     </property>
@@ -207,11 +207,9 @@
     <addaction name="separator" />
     <addaction name="actionResetProgress" />
     <addaction name="actionDelete" />
-    <addaction name="separator" />
-    <addaction name="actionClose" />
    </widget>
-   <addaction name="menu_Actions" />
-   <addaction name="menu_Edit" />
+   <addaction name="menuActions" />
+   <addaction name="menuEdit" />
   </widget>
   <widget class="QStatusBar" name="statusbar" >
    <property name="geometry" >
@@ -271,15 +269,6 @@
     <string>Reset Progress</string>
    </property>
   </action>
-  <action name="actionClose" >
-   <property name="icon" >
-    <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/fileclose.png</normaloff>:/icons/fileclose.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Close</string>
-   </property>
-  </action>
   <action name="actionSelectAll" >
    <property name="text" >
     <string>Select &amp;All</string>
@@ -311,22 +300,6 @@
     <hint type="destinationlabel" >
      <x>299</x>
      <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionClose</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>299</x>
-     <y>300</y>
     </hint>
    </hints>
   </connection>
