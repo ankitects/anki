@@ -17,7 +17,7 @@ import time
 from anki.cards import cardsTable
 from anki.facts import factsTable, fieldsTable
 from anki.lang import _
-from anki.utils import genID
+from anki.utils import genID, canonifyTags
 from anki.errors import *
 
 # Base importer
@@ -121,7 +121,7 @@ all but one card model."""))
         factIds = [genID() for n in range(len(cards))]
         self.deck.s.execute(factsTable.insert(),
             [{'modelId': self.model.id,
-              'tags': self.tagsToAdd,
+              'tags': canonifyTags(self.tagsToAdd + "," + cards[n].tags),
               'id': factIds[n]} for n in range(len(cards))])
         self.deck.factCount += len(factIds)
         self.deck.s.execute("""
