@@ -113,7 +113,7 @@ class Deck(object):
     def _initVars(self):
         self.lastTags = u""
         self.lastLoaded = time.time()
-        self.initUndo()
+        self.undoEnabled = False
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -1560,6 +1560,7 @@ select id from fields where factId not in (select id from facts)""")
     def initUndo(self):
         self.undoStack = []
         self.redoStack = []
+        self.undoEnabled = True
         self.s.statement(
             "create temp table undoLog (seq integer primary key, sql text)")
         tables = self.s.column0(
@@ -1618,6 +1619,8 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
         self.undoStack.append(None)
 
     def setUndoStart(self, name, merge=False):
+        if not self.undoEnabled:
+            return
         self.s.flush()
         if merge and self.undoStack:
             if self.undoStack[-1] and self.undoStack[-1][0] == name:
@@ -1627,6 +1630,8 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
         self.undoStack.append([name, start, None])
 
     def setUndoEnd(self, name):
+        if not self.undoEnabled:
+            return
         self.s.flush()
         end = self._latestUndoRow()
         self.undoStack[-1][2] = end
