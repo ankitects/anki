@@ -1361,6 +1361,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.actionRepeatQuestionAudio.setEnabled(False)
         self.mainWin.actionRepeatAnswerAudio.setEnabled(False)
         self.mainWin.actionRepeatAudio.setEnabled(False)
+        self.mainWin.actionEditCurrent.setEnabled(False)
 
     def enableCardMenuItems(self):
         self.mainWin.actionUndoAnswer.setEnabled(not not self.lastCard)
@@ -1373,6 +1374,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.actionRepeatAudio.setEnabled(
             self.mainWin.actionRepeatQuestionAudio.isEnabled() or
             self.mainWin.actionRepeatAnswerAudio.isEnabled())
+        self.mainWin.actionEditCurrent.setEnabled(True)
 
     # Auto update
     ##########################################################################

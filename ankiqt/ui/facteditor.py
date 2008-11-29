@@ -333,6 +333,8 @@ class FactEditor(object):
 
     def saveFieldsNow(self):
         "Must call this before adding cards, closing dialog, etc."
+        if not self.fact:
+            return
         # disable timer
         if self.changeTimer:
             self.changeTimer.stop()
