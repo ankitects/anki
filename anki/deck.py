@@ -113,6 +113,7 @@ class Deck(object):
     def _initVars(self):
         self.lastTags = u""
         self.lastLoaded = time.time()
+        self.initUndo()
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -290,7 +291,8 @@ where factId in (select factId from %s limit 60))""" % (new, new))
     ##########################################################################
 
     def answerCard(self, card, ease):
-        t = time.time()
+        undoName = _("Answer Card")
+        self.setUndoStart(undoName)
         now = time.time()
         oldState = self.cardState(card)
         lastDelay = max(0, (time.time() - card.due) / 86400.0)
@@ -347,6 +349,7 @@ where id != :id and factId = :factId""",
         entry = CardHistoryEntry(card, ease, lastDelay)
         entry.writeSQL(self.s)
         self.modified = now
+        self.setUndoEnd(undoName)
 
     # Interval management
     ##########################################################################
@@ -1550,6 +1553,115 @@ select id from fields where factId not in (select id from facts)""")
         self.s.statement("analyze")
         newSize = os.stat(self.path)[stat.ST_SIZE]
         return oldSize - newSize
+
+    # Undo/redo
+    ##########################################################################
+
+    def initUndo(self):
+        self.undoStack = []
+        self.redoStack = []
+        self.s.statement(
+            "create temp table undoLog (seq integer primary key, sql text)")
+        tables = self.s.column0(
+            "select name from sqlite_master where type = 'table'")
+        for table in tables:
+            if table in ("undoLog", "sqlite_stat1", "fieldModels"):
+                continue
+            columns = [r[1] for r in self.s.all("pragma table_info(%s)" % table)]
+            # insert
+            self.s.statement("""
+create temp trigger _undo_%(t)s_it
+after insert on %(t)s begin
+insert into undoLog values
+(null, 'delete from %(t)s where rowid = ' || new.rowid); end""" % {'t': table})
+            # update
+            sql = """
+create temp trigger _undo_%(t)s_ut
+after update on %(t)s begin
+insert into undoLog values (null, 'update %(t)s """ % {'t': table}
+            sep = "set "
+            for c in columns:
+                sql += "%(s)s%(c)s=' || quote((old.%(c)s)) || '" % {
+                    's': sep, 'c': c}
+                sep = ","
+            sql += " where rowid = ' || old.rowid); end"
+            self.s.statement(sql)
+            # delete
+            sql = """
+create temp trigger _undo_%(t)s_dt
+before delete on %(t)s begin
+insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
+            for c in columns:
+                sql += ",%s" % c
+            sql += ") values (' || old.rowid ||'"
+            for c in columns:
+                sql += ",' || quote(old.%s) ||'" % c
+            sql += ")'); end"
+            self.s.statement(sql)
+
+    def undoName(self):
+        print self.undoStack
+        for n in reversed(self.undoStack):
+            if n:
+                return n[0]
+
+    def redoName(self):
+        return self.redoStack[-1][0]
+
+    def undoAvailable(self):
+        return any(self.undoStack)
+
+    def redoAvailable(self):
+        return self.redoStack
+
+    def setUndoBarrier(self):
+        self.undoStack.append(None)
+
+    def setUndoStart(self, name, merge=False):
+        self.s.flush()
+        if merge and self.undoStack:
+            if self.undoStack[-1] and self.undoStack[-1][0] == name:
+                # merge with last entry?
+                return
+        start = self._latestUndoRow()
+        self.undoStack.append([name, start, None])
+
+    def setUndoEnd(self, name):
+        self.s.flush()
+        end = self._latestUndoRow()
+        self.undoStack[-1][2] = end
+        if self.undoStack[-1][1] == self.undoStack[-1][2]:
+            self.undoStack.pop()
+        else:
+            self.redoStack = []
+
+    def _latestUndoRow(self):
+        return self.s.scalar("select coalesce(max(rowid), 0) from undoLog")
+
+    def _undoredo(self, src, dst):
+        self.s.flush()
+        while 1:
+            u = src.pop()
+            if u:
+                break
+        (start, end) = (u[1], u[2])
+        if end is None:
+            end = self._latestUndoRow()
+        sql = self.s.column0("""
+select sql from undoLog where
+seq > :s and seq <= :e order by seq desc""", s=start, e=end)
+        newstart = self._latestUndoRow()
+        for s in sql:
+            print "--", s.encode("utf-8")[0:30]
+            self.s.statement(s)
+        newend = self._latestUndoRow()
+        dst.append([u[0], newstart, newend])
+
+    def undo(self):
+        self._undoredo(self.undoStack, self.redoStack)
+
+    def redo(self):
+        self._undoredo(self.redoStack, self.undoStack)
 
 # Shared decks
 ##########################################################################
