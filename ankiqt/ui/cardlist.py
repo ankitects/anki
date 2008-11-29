@@ -493,7 +493,10 @@ where id in (%s)""" % ",".join([
 
     def deleteCards(self):
         cards = self.selectedCards()
+        n = _("Delete Cards")
+        self.deck.setUndoStart(n)
         self.deck.deleteCards(cards)
+        self.deck.setUndoEnd(n)
         self.updateSearch()
 
     def addTags(self):

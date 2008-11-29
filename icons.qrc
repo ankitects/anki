@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/edit-redo.png</file>
     <file>icons/text-xml.png</file>
     <file>icons/document-preview.png</file>
     <file>icons/media-record.png</file>

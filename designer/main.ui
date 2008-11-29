@@ -619,7 +619,8 @@
     <property name="title" >
      <string>&amp;Edit</string>
     </property>
-    <addaction name="actionUndoAnswer" />
+    <addaction name="actionUndo" />
+    <addaction name="actionRedo" />
     <addaction name="separator" />
     <addaction name="actionAddcards" />
     <addaction name="actionEditCurrent" />
@@ -1115,7 +1116,7 @@
     <string>F5</string>
    </property>
   </action>
-  <action name="actionUndoAnswer" >
+  <action name="actionUndo" >
    <property name="enabled" >
     <bool>false</bool>
    </property>
@@ -1124,7 +1125,7 @@
      <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Undo last answer</string>
+    <string>&amp;Undo</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+Z</string>
@@ -1260,6 +1261,15 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionRedo" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/edit-redo.png</normaloff>:/icons/edit-redo.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Redo</string>
    </property>
   </action>
  </widget>

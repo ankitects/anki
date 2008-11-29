@@ -144,12 +144,13 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         self.views = self.viewsBackup
         self.viewsBackup = None
 
-    def reset(self):
+    def reset(self, count=True):
         ui.dialogs.closeAll()
         if self.deck:
             self.deck.refresh()
-            self.deck.updateAllPriorities()
-            self.deck.rebuildCounts()
+            if count:
+                self.deck.updateAllPriorities()
+                self.deck.rebuildCounts()
             self.deck.rebuildQueue()
             self.moveToState("initial")
 
@@ -971,12 +972,12 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.reset()
 
     def onUndo(self):
-        # quick and dirty undo for now
-        self.currentCard = None
-        self.deck.s.flush()
-        self.lastCardBackup.toDB(self.deck.s)
-        self.deck.rebuildCounts()
-        self.reset()
+        self.deck.undo()
+        self.reset(count=False)
+
+    def onRedo(self):
+        self.deck.redo()
+        self.reset(count=False)
 
     # Other menu operations
     ##########################################################################
@@ -1243,6 +1244,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         "DeckProperties",
         "ModelProperties",
         "Undo",
+        "Redo",
         "Export",
         "MarkCard",
         "Graphs",
@@ -1297,6 +1299,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.connect(m.actionRepeatAnswerAudio, s, self.onRepeatAnswer)
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
+        self.connect(m.actionRedo, s, self.onRedo)
         self.connect(m.actionCheckDatabaseIntegrity, s, self.onCheckDB)
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionMergeModels, s, self.onMergeModels)
@@ -1357,7 +1360,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.actionMarkCard.blockSignals(False)
 
     def disableCardMenuItems(self):
-        self.mainWin.actionUndo.setEnabled(not not self.lastCard)
+        self.maybeEnableUndo()
         self.mainWin.actionMarkCard.setEnabled(False)
         self.mainWin.actionSuspendCard.setEnabled(False)
         self.mainWin.actionRepeatQuestionAudio.setEnabled(False)
@@ -1366,7 +1369,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.actionEditCurrent.setEnabled(False)
 
     def enableCardMenuItems(self):
-        self.mainWin.actionUndo.setEnabled(not not self.lastCard)
+        self.maybeEnableUndo()
         self.mainWin.actionMarkCard.setEnabled(True)
         self.mainWin.actionSuspendCard.setEnabled(True)
         self.mainWin.actionRepeatQuestionAudio.setEnabled(
@@ -1377,6 +1380,20 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.mainWin.actionRepeatQuestionAudio.isEnabled() or
             self.mainWin.actionRepeatAnswerAudio.isEnabled())
         self.mainWin.actionEditCurrent.setEnabled(True)
+
+    def maybeEnableUndo(self):
+        if self.deck and self.deck.undoStack:
+            self.mainWin.actionUndo.setText(_("Undo %s") %
+                                            self.deck.undoStack[-1][0])
+            self.mainWin.actionUndo.setEnabled(True)
+        else:
+            self.mainWin.actionUndo.setEnabled(False)
+        if self.deck and self.deck.redoStack:
+            self.mainWin.actionRedo.setText(_("Redo %s") %
+                                            self.deck.redoStack[-1][0])
+            self.mainWin.actionRedo.setEnabled(True)
+        else:
+            self.mainWin.actionRedo.setEnabled(False)
 
     # Auto update
     ##########################################################################
