@@ -47,6 +47,7 @@ class FactEditor(object):
             # update focus to first field
             self.fields[self.fact.fields[0].name][1].setFocus()
         self.fontChanged = False
+        self.deck.setUndoBarrier()
 
     def initMedia(self):
         os.chdir(self.deck.mediaDir(create=True))
@@ -297,6 +298,8 @@ class FactEditor(object):
     def saveFields(self):
         "Save field text into fact."
         modified = False
+        n = _("Edit")
+        self.deck.setUndoStart(n, merge=True)
         for (w, f) in self.widgets.items():
             v = tidyHTML(unicode(w.toHtml())).strip()
             if self.fact[f.name] != v:
@@ -305,6 +308,7 @@ class FactEditor(object):
         if modified:
             self.fact.setModified(textChanged=True)
             self.deck.setModified()
+        self.deck.setUndoEnd(n)
 
     def onFocusLost(self, widget):
         self.saveFields()

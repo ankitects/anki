@@ -223,25 +223,13 @@ class EditDeck(QMainWindow):
         self.updateFilterLabel()
         restoreGeom(self, "editor")
         self.show()
-        self.selectLastCard()
+        self.updateSearch()
 
     def findCardInDeckModel(self, model, card):
         for i, thisCard in enumerate(model.cards):
             if thisCard.id == card.id:
                 return i
         return -1
-
-    def selectLastCard(self):
-        "Show the row corresponding to the current card."
-        self.updateSearch()
-        if self.parent.currentCard:
-            currentCardIndex = self.findCardInDeckModel(
-                                 self.model, self.parent.currentCard)
-            if currentCardIndex >= 0:
-                self.dialog.tableView.selectRow(currentCardIndex)
-                self.dialog.tableView.scrollTo(
-                              self.model.index(currentCardIndex,0),
-                              self.dialog.tableView.PositionAtTop)
 
     def setupFilter(self):
         self.filterTimer = None
@@ -318,6 +306,8 @@ class EditDeck(QMainWindow):
         if refresh:
             self.model.showMatching()
             self.updateFilterLabel()
+            self.onEvent()
+            self.focusCurrentCard()
 
     def tagChanged(self, idx):
         if idx == 0:
@@ -339,6 +329,20 @@ class EditDeck(QMainWindow):
                             {"cur": len(self.model.cards),
                              "tot": self.deck.cardCount})
 
+    def onEvent(self):
+        if self.deck.undoAvailable():
+            self.dialog.actionUndo.setText(_("Undo %s") %
+                                           self.deck.undoName())
+            self.dialog.actionUndo.setEnabled(True)
+        else:
+            self.dialog.actionUndo.setEnabled(False)
+        if self.deck.redoAvailable():
+            self.dialog.actionRedo.setText(_("Redo %s") %
+                                            self.deck.redoName())
+            self.dialog.actionRedo.setEnabled(True)
+        else:
+            self.dialog.actionRedo.setEnabled(False)
+
     def filterTextChanged(self):
         interval = 500
         if self.filterTimer:
@@ -359,6 +363,7 @@ class EditDeck(QMainWindow):
         self.model.tag = self.currentTag
         self.model.showMatching()
         self.updateFilterLabel()
+        self.onEvent()
         self.filterTimer = None
         if self.model.cards:
             self.dialog.cardInfoGroup.show()
@@ -369,6 +374,17 @@ class EditDeck(QMainWindow):
         else:
             self.dialog.cardInfoGroup.hide()
             self.dialog.fieldsArea.hide()
+        self.focusCurrentCard()
+
+    def focusCurrentCard(self):
+        if self.parent.currentCard:
+            currentCardIndex = self.findCardInDeckModel(
+                                 self.model, self.parent.currentCard)
+            if currentCardIndex >= 0:
+                self.dialog.tableView.selectRow(currentCardIndex)
+                self.dialog.tableView.scrollTo(
+                              self.model.index(currentCardIndex,0),
+                              self.dialog.tableView.PositionAtTop)
 
     def setupHeaders(self):
         if not sys.platform.startswith("win32"):
@@ -385,6 +401,8 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionResetProgress, SIGNAL("triggered()"), self.resetProgress)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
+        self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
+        self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         self.parent.runHook('editor.setupMenus', self)
 
     def onClose(self):
@@ -422,6 +440,7 @@ class EditDeck(QMainWindow):
         self.factValid = True
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
+        self.editor.onChange = self.onEvent
         self.connect(self.dialog.tableView.selectionModel(),
                      SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
                      self.rowChanged)
@@ -453,6 +472,7 @@ class EditDeck(QMainWindow):
         fact = self.currentCard.fact
         self.editor.setFact(fact, True)
         self.showCardInfo(self.currentCard)
+        self.onEvent()
 
     def setupCardInfo(self):
         self.currentCard = None
@@ -501,16 +521,27 @@ where id in (%s)""" % ",".join([
 
     def addTags(self):
         tags = ui.utils.getOnlyText(_("Enter tag(s) to add:"), self)
-        if tags: self.deck.addTags(self.selectedFacts(), tags)
+        if tags:
+            n = _("Add Tags")
+            self.deck.setUndoStart(n)
+            self.deck.addTags(self.selectedFacts(), tags)
+            self.deck.setUndoEnd(n)
         self.updateAfterCardChange()
 
     def deleteTags(self):
         tags = ui.utils.getOnlyText(_("Enter tag(s) to delete:"), self)
-        if tags: self.deck.deleteTags(self.selectedFacts(), tags)
+        if tags:
+            n = _("Delete Tags")
+            self.deck.setUndoStart(n)
+            self.deck.deleteTags(self.selectedFacts(), tags)
+            self.deck.setUndoEnd(n)
         self.updateAfterCardChange()
 
     def resetProgress(self):
+        n = _("Reset Progress")
+        self.deck.setUndoStart(n)
         self.deck.resetCards(self.selectedCards())
+        self.deck.setUndoEnd(n)
         self.updateAfterCardChange(reset=True)
 
     def addCards(self):
@@ -522,10 +553,13 @@ where id in (%s)""" % ",".join([
         d = AddCardChooser(self, cms)
         if not d.exec_():
             return
+        n = _("Add Cards")
+        self.deck.setUndoStart(n)
         for id in sf:
             self.deck.addCards(self.deck.s.query(Fact).get(id),
                                d.selectedCms)
         self.deck.flushMod()
+        self.deck.setUndoEnd(n)
         self.updateSearch()
 
     def selectFacts(self):
@@ -535,6 +569,17 @@ where id in (%s)""" % ",".join([
             if card.id in cardIds:
                 sm.select(self.model.index(i, 0),
                           QItemSelectionModel.Select | QItemSelectionModel.Rows)
+
+    # Undo/Redo
+    ######################################################################
+
+    def onUndo(self):
+        self.deck.undo()
+        self.updateSearch()
+
+    def onRedo(self):
+        self.deck.redo()
+        self.updateSearch()
 
 class AddCardChooser(QDialog):
 

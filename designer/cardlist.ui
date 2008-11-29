@@ -187,6 +187,9 @@
     <property name="title" >
      <string>&amp;Edit</string>
     </property>
+    <addaction name="actionUndo" />
+    <addaction name="actionRedo" />
+    <addaction name="separator" />
     <addaction name="actionSelectAll" />
     <addaction name="actionSelectFacts" />
    </widget>
@@ -214,7 +217,7 @@
     <string>Delete</string>
    </property>
    <property name="shortcut" >
-    <string>Ctrl+Del</string>
+    <string>Del</string>
    </property>
   </action>
   <action name="actionAddTag" >
@@ -264,6 +267,24 @@
   <action name="actionSelectFacts" >
    <property name="text" >
     <string>Select &amp;Facts</string>
+   </property>
+  </action>
+  <action name="actionUndo" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/edit-redo.png</normaloff>:/icons/edit-redo.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Redo</string>
    </property>
   </action>
  </widget>

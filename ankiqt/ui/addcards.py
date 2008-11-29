@@ -92,6 +92,8 @@ class AddCards(QDialog):
         # make sure updated
         self.editor.saveFieldsNow()
         fact = self.editor.fact
+        n = _("Add")
+        self.parent.deck.setUndoStart(n)
         try:
             cards = self.parent.deck.addFact(fact)
         except FactInvalidError:
@@ -109,6 +111,7 @@ question or answer on all cards. Can't proceed."""), parent=self)
             # we're guaranteed that all fields will exist now
             "str": stripHTML(fact[fact.fields[0].name]),
             })
+        self.parent.deck.setUndoEnd(n)
         self.parent.updateTitleBar()
         # start a new fact
         f = self.parent.deck.newFact()

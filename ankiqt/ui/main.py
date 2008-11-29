@@ -230,6 +230,7 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         elif state == "editCurrentFact":
             if self.lastState == "editCurrentFact":
                 return self.moveToState("saveEdit")
+            self.deck.s.flush()
             self.showEditor()
         elif state == "saveEdit":
             self.editor.saveFieldsNow()
@@ -1382,15 +1383,15 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.actionEditCurrent.setEnabled(True)
 
     def maybeEnableUndo(self):
-        if self.deck and self.deck.undoStack:
+        if self.deck and self.deck.undoAvailable():
             self.mainWin.actionUndo.setText(_("Undo %s") %
-                                            self.deck.undoStack[-1][0])
+                                            self.deck.undoName())
             self.mainWin.actionUndo.setEnabled(True)
         else:
             self.mainWin.actionUndo.setEnabled(False)
-        if self.deck and self.deck.redoStack:
+        if self.deck and self.deck.redoAvailable():
             self.mainWin.actionRedo.setText(_("Redo %s") %
-                                            self.deck.redoStack[-1][0])
+                                            self.deck.redoName())
             self.mainWin.actionRedo.setEnabled(True)
         else:
             self.mainWin.actionRedo.setEnabled(False)
