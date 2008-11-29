@@ -452,6 +452,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             if self.syncDeck(interactive=False):
                 return True
         try:
+            self.deck.initUndo()
             self.reset()
         except:
             traceback.print_exc()
