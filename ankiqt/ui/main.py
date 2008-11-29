@@ -953,10 +953,12 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onMark(self, toggled):
         if self.currentCard.hasTag("Marked"):
-            self.currentCard.tags = deleteTags("Marked", self.currentCard.tags)
+            self.currentCard.fact.tags = deleteTags(
+                "Marked", self.currentCard.fact.tags)
         else:
-            self.currentCard.tags = addTags("Marked", self.currentCard.tags)
-        self.currentCard.setModified()
+            self.currentCard.fact.tags = addTags(
+                "Marked", self.currentCard.fact.tags)
+        self.currentCard.fact.setModified()
         self.deck.setModified()
 
     def onSuspend(self):
@@ -968,7 +970,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.lastScheduledTime = None
         self.reset()
 
-    def onUndoAnswer(self):
+    def onUndo(self):
         # quick and dirty undo for now
         self.currentCard = None
         self.deck.s.flush()
@@ -1240,7 +1242,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         "DisplayProperties",
         "DeckProperties",
         "ModelProperties",
-        "UndoAnswer",
+        "Undo",
         "Export",
         "MarkCard",
         "Graphs",
@@ -1294,7 +1296,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.connect(m.actionRepeatQuestionAudio, s, self.onRepeatQuestion)
         self.connect(m.actionRepeatAnswerAudio, s, self.onRepeatAnswer)
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
-        self.connect(m.actionUndoAnswer, s, self.onUndoAnswer)
+        self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionCheckDatabaseIntegrity, s, self.onCheckDB)
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionMergeModels, s, self.onMergeModels)
@@ -1355,7 +1357,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.actionMarkCard.blockSignals(False)
 
     def disableCardMenuItems(self):
-        self.mainWin.actionUndoAnswer.setEnabled(not not self.lastCard)
+        self.mainWin.actionUndo.setEnabled(not not self.lastCard)
         self.mainWin.actionMarkCard.setEnabled(False)
         self.mainWin.actionSuspendCard.setEnabled(False)
         self.mainWin.actionRepeatQuestionAudio.setEnabled(False)
@@ -1364,7 +1366,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.actionEditCurrent.setEnabled(False)
 
     def enableCardMenuItems(self):
-        self.mainWin.actionUndoAnswer.setEnabled(not not self.lastCard)
+        self.mainWin.actionUndo.setEnabled(not not self.lastCard)
         self.mainWin.actionMarkCard.setEnabled(True)
         self.mainWin.actionSuspendCard.setEnabled(True)
         self.mainWin.actionRepeatQuestionAudio.setEnabled(
