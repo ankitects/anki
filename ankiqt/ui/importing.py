@@ -114,16 +114,21 @@ class ImportDialog(QDialog):
         self.importer.tagsToAdd = unicode(self.dialog.tags.text())
         self.importer.tagDuplicates = self.dialog.tagDuplicates.isChecked()
         try:
-            self.importer.doImport()
-        except ImportFormatError, e:
-            msg = _("Importing failed.\n")
-            msg += e.data['info']
-            self.dialog.status.setText(msg)
-            return
-        except DeckWrongFormatError, e:
-            msg = _("Import failed: %s") % `e.data`
-            self.dialog.status.setText(msg)
-            return
+            n = _("Import")
+            self.parent.deck.setUndoStart(n)
+            try:
+                self.importer.doImport()
+            except ImportFormatError, e:
+                msg = _("Importing failed.\n")
+                msg += e.data['info']
+                self.dialog.status.setText(msg)
+                return
+            except DeckWrongFormatError, e:
+                msg = _("Import failed: %s") % `e.data`
+                self.dialog.status.setText(msg)
+                return
+        finally:
+            self.parent.deck.setUndoEnd(n)
         txt = (
             _("Importing complete. %(num)d cards imported from %(file)s.\n") %
             {"num": self.importer.total, "file": os.path.basename(self.file)})

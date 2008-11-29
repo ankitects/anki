@@ -618,6 +618,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     def onNew(self):
         if not self.saveAndClose(hideWelcome=True): return
         self.deck = DeckStorage.Deck()
+        self.deck.initUndo()
         self.deck.addModel(BasicModel())
         self.saveDeck()
         self.updateRecentFiles(self.deck.path)
