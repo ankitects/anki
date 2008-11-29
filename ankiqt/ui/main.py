@@ -961,11 +961,12 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onSuspend(self):
         self.currentCard.fact.tags = addTags("Suspended", self.currentCard.fact.tags)
-        self.deck.updatePriority(self.currentCard)
-        self.currentCard.setModified()
+        self.currentCard.fact.setModified()
+        for card in self.currentCard.fact.cards:
+            self.deck.updatePriority(card)
         self.deck.setModified()
         self.lastScheduledTime = None
-        self.moveToState("initial")
+        self.reset()
 
     def onUndoAnswer(self):
         # quick and dirty undo for now
