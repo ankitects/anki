@@ -258,6 +258,7 @@ class CardStats(object):
 
     def report(self):
         c = self.card
+        fmt = anki.utils.fmtTimeSpan
         self.txt = "<table width=250>"
         self.addLine(_("Added"), self.strTime(c.created))
         if c.firstAnswered:
@@ -265,39 +266,26 @@ class CardStats(object):
         self.addLine(_("Changed"), self.strTime(c.modified))
         next = time.time() - c.due
         if next > 0:
-            next = _("%s ago") % anki.utils.fmtTimeSpan(next)
+            next = _("%s ago") % fmt(next)
         else:
-            next = _("in %s") % anki.utils.fmtTimeSpan(abs(next))
-        self.addLine(_("Next due"), next)
-        self.addLine(_("Current interval"), "%0.2f days" % c.interval)
+            next = _("in %s") % fmt(abs(next))
+        self.addLine(_("Due"), next)
+        self.addLine(_("Interval"), fmt(c.interval * 86400))
+        self.addLine(_("Ease"), "%0.2f" % c.factor)
+        if c.lastDue:
+            last = _("%s ago") % fmt(time.time() - c.lastDue)
+            self.addLine(_("Last due"), last)
         if c.interval != c.lastInterval:
             # don't show the last interval if it hasn't been updated yet
-            self.addLine(_("Last interval"), "%0.2f days" % c.lastInterval)
-        self.addLine(_("Current factor"), "%0.2f" % c.factor)
-        self.addLine(_("Last factor"), "%0.2f" % c.lastFactor)
-        self.addLine(_("Review count"), c.reps)
+            self.addLine(_("Last interval"), fmt(c.lastInterval * 86400))
+        self.addLine(_("Last Ease"), "%0.2f" % c.lastFactor)
         if c.reps:
-            self.addLine(_("Correct count"), "%d (%0.2f%%)" % (
-                c.yesCount, (c.yesCount / float(c.reps))*100))
-        self.addLine(_("Repeatedly correct"), c.successive)
+            self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
+                c.yesCount, c.reps, c.successive))
         self.addLine(_("Average time"), _("%0.1f seconds") %
                      c.averageTime)
         self.addLine(_("Total time"), _("%0.1f seconds") %
                      c.reviewTime)
-        if self.deck.cardIsNew(c):
-            state = _("First time")
-        elif self.deck.cardIsBeingLearnt(c):
-            state = _("Young")
-        else:
-            state = _("Mature")
-        self.addLine(_("State"), state)
-        if c.tags:
-            self.addLine(_("Card tags"), c.tags)
-        self.addLine(_("Card model tags"), c.cardModel.name)
-        if c.fact.model.tags:
-            self.addLine(_("Model tags"), c.fact.model.tags)
-        if c.fact.tags:
-            self.addLine(_("Fact tags"), c.fact.tags)
         self.txt += "</table>"
         return self.txt
 
