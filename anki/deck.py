@@ -1566,9 +1566,12 @@ select id from fields where factId not in (select id from facts)""")
         tables = self.s.column0(
             "select name from sqlite_master where type = 'table'")
         for table in tables:
-            if table in ("undoLog", "sqlite_stat1", "fieldModels"):
+            if table in ("undoLog", "sqlite_stat1"):
                 continue
-            columns = [r[1] for r in self.s.all("pragma table_info(%s)" % table)]
+            columns = [r[1] for r in
+                       self.s.all("pragma table_info(%s)" % table)
+                       # this will get renamed post 1.0
+                       if r[1] != "unique"]
             # insert
             self.s.statement("""
 create temp trigger _undo_%(t)s_it
@@ -1582,7 +1585,7 @@ after update on %(t)s begin
 insert into undoLog values (null, 'update %(t)s """ % {'t': table}
             sep = "set "
             for c in columns:
-                sql += "%(s)s%(c)s=' || quote((old.%(c)s)) || '" % {
+                sql += "%(s)s%(c)s=' || quote(old.%(c)s) || '" % {
                     's': sep, 'c': c}
                 sep = ","
             sql += " where rowid = ' || old.rowid); end"
