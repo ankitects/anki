@@ -504,7 +504,7 @@ where id in (%s)""" % ",".join([
         self.deck.setUndoStart(n)
         self.deck.deleteCards(cards)
         self.deck.setUndoEnd(n)
-        self.updateAfterCardChange(reset=True)
+        self.updateSearch()
 
     def addTags(self):
         tags = ui.utils.getOnlyText(_("Enter tag(s) to add:"), self)
