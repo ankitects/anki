@@ -90,17 +90,6 @@ class DeckModel(QAbstractTableModel):
         if not self.sortKey:
             self.cards = []
             return
-        # show current card or last?
-        card = None
-        if self.searchStr == u"<current>" and self.parent.currentCard:
-            card = self.parent.currentCard
-        elif self.searchStr == u"<last>" and self.parent.lastCard:
-            card = self.parent.lastCard
-        if card:
-            self.cards = [[card.id, card.priority, card.question,
-                           card.answer, card.due, card.reps, card.factId]]
-            self.reset()
-            return
         # searching
         searchLimit = ""
         if self.searchStr:
@@ -316,11 +305,6 @@ class EditDeck(QMainWindow):
             self.currentTag = "notag"
         else:
             self.currentTag = self.alltags[idx-2]
-            if unicode(self.dialog.filterEdit.text()) in (
-                u"<current>", u"<last>"):
-                self.dialog.filterEdit.blockSignals(True)
-                self.dialog.filterEdit.setText("")
-                self.dialog.filterEdit.blockSignals(False)
         self.updateSearch()
 
     def updateFilterLabel(self):
@@ -517,7 +501,7 @@ where id in (%s)""" % ",".join([
         self.deck.setUndoStart(n)
         self.deck.deleteCards(cards)
         self.deck.setUndoEnd(n)
-        self.updateSearch()
+        self.updateAfterCardChange(reset=True)
 
     def addTags(self):
         tags = ui.utils.getOnlyText(_("Enter tag(s) to add:"), self)
