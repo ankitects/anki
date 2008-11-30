@@ -32,6 +32,8 @@ class ModelProperties(QDialog):
         self.setupCards()
         self.readData()
         self.show()
+        self.undoName = _("Model Properties")
+        self.parent.deck.setUndoStart(self.undoName)
 
     def readData(self):
         # properties section
@@ -488,4 +490,5 @@ class ModelProperties(QDialog):
             self.parent.reset()
         if self.onFinish:
             self.onFinish()
+        self.parent.deck.setUndoEnd(self.undoName)
         QDialog.reject(self)

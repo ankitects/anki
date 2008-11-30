@@ -966,6 +966,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.deck.setModified()
 
     def onSuspend(self):
+        undo = _("Suspend")
+        self.deck.setUndoStart(undo)
         self.currentCard.fact.tags = addTags("Suspended", self.currentCard.fact.tags)
         self.currentCard.fact.setModified()
         for card in self.currentCard.fact.cards:
@@ -973,6 +975,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.deck.setModified()
         self.lastScheduledTime = None
         self.reset()
+        self.deck.setUndoEnd(undo)
 
     def onUndo(self):
         self.deck.undo()

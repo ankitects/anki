@@ -55,7 +55,6 @@ class ActiveTagsChooser(QDialog):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "ActiveTags"))
 
-
 def show(parent):
     at = ActiveTagsChooser(parent)
     at.exec_()

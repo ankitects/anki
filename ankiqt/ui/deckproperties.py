@@ -203,6 +203,8 @@ class DeckProperties(QDialog):
         self.sourcesToRemove.append(id)
 
     def reject(self):
+        n = _("Deck Properties")
+        self.parent.deck.setUndoStart(n)
         # description
         self.updateField(self.d, 'description',
                          unicode(self.dialog.deckDescription.toPlainText()))
@@ -301,4 +303,5 @@ insert into sources values
         # mark deck dirty and close
         if self.origMod != self.d.modified:
             self.parent.reset()
+        self.parent.deck.setUndoEnd(n)
         QDialog.reject(self)
