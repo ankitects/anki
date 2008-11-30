@@ -227,7 +227,7 @@ class EditDeck(QMainWindow):
 
     def findCardInDeckModel(self, model, card):
         for i, thisCard in enumerate(model.cards):
-            if thisCard.id == card.id:
+            if thisCard[0] == card.id:
                 return i
         return -1
 
