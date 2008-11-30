@@ -1558,6 +1558,7 @@ select id from fields where factId not in (select id from facts)""")
     ##########################################################################
 
     def initUndo(self):
+        # note this code ignores 'unique', as it's an sqlite reserved word
         self.undoStack = []
         self.redoStack = []
         self.undoEnabled = True
@@ -1569,9 +1570,7 @@ select id from fields where factId not in (select id from facts)""")
             if table in ("undoLog", "sqlite_stat1"):
                 continue
             columns = [r[1] for r in
-                       self.s.all("pragma table_info(%s)" % table)
-                       # this will get renamed post 1.0
-                       if r[1] != "unique"]
+                       self.s.all("pragma table_info(%s)" % table)]
             # insert
             self.s.statement("""
 create temp trigger _undo_%(t)s_it
@@ -1585,6 +1584,8 @@ after update on %(t)s begin
 insert into undoLog values (null, 'update %(t)s """ % {'t': table}
             sep = "set "
             for c in columns:
+                if c == "unique":
+                    continue
                 sql += "%(s)s%(c)s=' || quote(old.%(c)s) || '" % {
                     's': sep, 'c': c}
                 sep = ","
@@ -1596,9 +1597,12 @@ create temp trigger _undo_%(t)s_dt
 before delete on %(t)s begin
 insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
             for c in columns:
-                sql += ",%s" % c
+                sql += ",\"%s\"" % c
             sql += ") values (' || old.rowid ||'"
             for c in columns:
+                if c == "unique":
+                    sql += ",1"
+                    continue
                 sql += ",' || quote(old.%s) ||'" % c
             sql += ")'); end"
             self.s.statement(sql)
