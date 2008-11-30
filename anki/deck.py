@@ -1608,7 +1608,6 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
             self.s.statement(sql)
 
     def undoName(self):
-        print self.undoStack
         for n in reversed(self.undoStack):
             if n:
                 return n[0]
@@ -1665,7 +1664,7 @@ select sql from undoLog where
 seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         newstart = self._latestUndoRow()
         for s in sql:
-            print "--", s.encode("utf-8")[0:30]
+            #print "--", s.encode("utf-8")[0:30]
             self.s.statement(s)
         newend = self._latestUndoRow()
         dst.append([u[0], newstart, newend])
