@@ -12,7 +12,7 @@ from anki.cards import cardsTable, Card
 from anki.facts import factsTable, fieldsTable, Fact
 from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
      stripHTML, ids2str
-from ankiqt.ui.utils import saveGeom, restoreGeom
+from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats
@@ -211,6 +211,7 @@ class EditDeck(QMainWindow):
         self.drawTags()
         self.updateFilterLabel()
         restoreGeom(self, "editor")
+        restoreSplitter(self.dialog.splitter, "editor")
         self.show()
         self.updateSearch()
 
@@ -391,12 +392,14 @@ class EditDeck(QMainWindow):
 
     def onClose(self):
         self.editor.saveFieldsNow()
+        self.editor.setFact(None)
         if not self.factValid:
             ui.utils.showInfo(_(
                 "Some fields are missing or not unique."),
                               parent=self, help="AddItems#AddError")
             return
         saveGeom(self, "editor")
+        saveSplitter(self.dialog.splitter, "editor")
         self.hide()
         if self.origModTime != self.deck.modified:
             self.parent.reset()
@@ -547,6 +550,8 @@ where id in (%s)""" % ",".join([
         self.updateSearch()
 
     def selectFacts(self):
+        self.editor.setFact(None)
+        return
         sm = self.dialog.tableView.selectionModel()
         cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
         for i, card in enumerate(self.model.cards):

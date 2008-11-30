@@ -9,7 +9,7 @@ import anki
 from anki.facts import Fact
 from anki.errors import *
 from anki.utils import stripHTML
-from ankiqt.ui.utils import saveGeom, restoreGeom
+from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from ankiqt import ui
 
 class AddCards(QDialog):
@@ -27,6 +27,7 @@ class AddCards(QDialog):
         self.modelChanged(self.parent.deck.currentModel)
         self.addedItems = 0
         restoreGeom(self, "add")
+        restoreSplitter(self.dialog.splitter, "add")
         self.show()
         ui.dialogs.open("AddCards", self)
 
@@ -138,6 +139,7 @@ question or answer on all cards. Can't proceed."""), parent=self)
             self.parent.deck.rebuildCSS()
             self.parent.moveToState("auto")
             saveGeom(self, "add")
+            saveSplitter(self.dialog.splitter, "add")
             return True
         else:
             return False

@@ -149,6 +149,15 @@ def restoreGeom(widget, key):
     if ankiqt.mw.config.get(key):
         widget.restoreGeometry(ankiqt.mw.config[key])
 
+def saveSplitter(widget, key):
+    key += "Splitter"
+    ankiqt.mw.config[key] = widget.saveState()
+
+def restoreSplitter(widget, key):
+    key += "Splitter"
+    if ankiqt.mw.config.get(key):
+        widget.restoreState(ankiqt.mw.config[key])
+
 def mungeQA(deck, txt):
     txt = renderLatex(deck, txt)
     txt = stripSounds(txt)

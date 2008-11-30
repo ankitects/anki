@@ -40,9 +40,14 @@ class FactEditor(object):
             self.changeTimer.stop()
             self.changeTimer = None
         if self.needToRedraw():
-            self.drawFields(noFocus, check)
+            if self.fact:
+                self.drawFields(noFocus, check)
+            else:
+                self.widget.hide()
+                return
         else:
             self.loadFields(check)
+        self.widget.show()
         if not noFocus:
             # update focus to first field
             self.fields[self.fact.fields[0].name][1].setFocus()
@@ -256,6 +261,8 @@ class FactEditor(object):
         self.fieldsScroll.setWidget(self.fieldsFrame)
 
     def needToRedraw(self):
+        if self.fact is None:
+            return True
         if len(self.fact.fields) != len(self.fields):
             return True
         for field in self.fact.fields:
@@ -311,6 +318,9 @@ class FactEditor(object):
         self.deck.setUndoEnd(n)
 
     def onFocusLost(self, widget):
+        if self.fact is None:
+            # editor closed
+            return
         self.saveFields()
         field = self.widgets[widget]
         self.fact.onKeyPress(field, field.value)
