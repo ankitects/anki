@@ -309,14 +309,14 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
     ##########################################################################
 
     def showWelcomeScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(0)
+        self.mainWin.mainStack.setCurrentIndex(1)
         self.hideButtons()
 
     def showEditScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(1)
+        self.mainWin.mainStack.setCurrentIndex(2)
 
     def showReviewScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(2)
+        self.mainWin.mainStack.setCurrentIndex(3)
 
     # Buttons
     ##########################################################################
@@ -815,7 +815,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def showEditor(self):
         self.showSaveEditorButton()
-        self.mainWin.mainStack.setCurrentIndex(1)
+        self.showEditScreen()
         self.editor.setFact(self.currentCard.fact)
 
     def onFactValid(self, fact):
