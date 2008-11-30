@@ -1260,6 +1260,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     deckRelatedMenus = (
         "Tools",
         "Advanced",
+        "Plugins",
         )
 
     def connectMenuActions(self):
@@ -1322,6 +1323,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             getattr(self.mainWin, "menu" + item).setEnabled(enabled)
         for item in self.deckRelatedMenuItems:
             getattr(self.mainWin, "action" + item).setEnabled(enabled)
+        if not enabled:
+            self.disableCardMenuItems()
 
     def disableDeckMenuItems(self):
         "Disable deck-related items."
