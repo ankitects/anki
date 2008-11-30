@@ -550,8 +550,6 @@ where id in (%s)""" % ",".join([
         self.updateSearch()
 
     def selectFacts(self):
-        self.editor.setFact(None)
-        return
         sm = self.dialog.tableView.selectionModel()
         cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
         for i, card in enumerate(self.model.cards):
