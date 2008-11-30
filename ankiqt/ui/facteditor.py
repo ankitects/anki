@@ -383,7 +383,7 @@ class FactEditor(object):
     def onTagChange(self):
         self.fact.tags = canonifyTags(unicode(self.tags.text()))
         if self.onChange:
-            self.onChange(None)
+            self.onChange()
         self.fact.setModified(textChanged=True)
         self.deck.setModified()
 
