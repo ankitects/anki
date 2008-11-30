@@ -1616,7 +1616,9 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
         return self.redoStack[-1][0]
 
     def undoAvailable(self):
-        return any(self.undoStack)
+        for r in reversed(self.undoStack):
+            if r:
+                return True
 
     def redoAvailable(self):
         return self.redoStack
