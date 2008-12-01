@@ -1470,6 +1470,11 @@ select decks.id from decks, models where
 decks.currentModelId = models.id"""):
             self.currentModelId = self.models[0].id
             problems.append(_("The current model didn't exist"))
+        # forget all deletions (do this before deleting anything)
+        self.s.statement("delete from cardsDeleted")
+        self.s.statement("delete from factsDeleted")
+        self.s.statement("delete from modelsDeleted")
+        self.s.statement("delete from mediaDeleted")
         # facts missing a field?
         ids = self.s.column0("""
 select distinct facts.id from facts, fieldModels where
@@ -1524,11 +1529,6 @@ select id from fields where factId not in (select id from facts)""")
         # regenerate question/answer cache
         for m in self.models:
             self.updateCardsFromModel(m)
-        # forget all deletions
-        self.s.statement("delete from cardsDeleted")
-        self.s.statement("delete from factsDeleted")
-        self.s.statement("delete from modelsDeleted")
-        self.s.statement("delete from mediaDeleted")
         # mark everything changed to force sync
         self.s.flush()
         self.s.statement("update cards set modified = :t", t=time.time())
