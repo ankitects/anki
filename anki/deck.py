@@ -1826,8 +1826,11 @@ alter table decks add column revCardOrder integer not null default 0""")
                                       type="inuse")
             else:
                 raise e
+        oldc = deck.failedSoonCount + deck.revCount + deck.newCount
         deck.rebuildQueue()
-        deck.s.commit()
+        if oldc != deck.failedSoonCount + deck.revCount + deck.newCount:
+            # save due count
+            deck.s.commit()
         return deck
     Deck = staticmethod(Deck)
 
