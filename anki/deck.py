@@ -1516,6 +1516,8 @@ select id from fields where factId not in (select id from facts)""")
         self.s.statement("update cards set isDue = 0")
         # fix problems with conflicts on merge
         self.s.statement("update fields set id = random()")
+        # model sources null?
+        self.s.statement("update models set source = 0 where source is null")
         # fix any priorities
         self.updateAllPriorities()
         # fix problems with stripping html
