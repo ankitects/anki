@@ -48,7 +48,7 @@ class DeckGraphs(object):
             lowestInDay = 0
             now = list(time.localtime(time.time()))
             now[3] = 23; now[4] = 59
-            self.endOfDay = time.mktime(now)
+            self.endOfDay = time.mktime(now) + self.deck.utcOffset
             t = time.time()
             all = self.deck.s.all("""
 select interval, combinedDue
@@ -124,7 +124,7 @@ from cards where reps > 0 and priority != 0""")
                                   (attr, attr, limit))
         for r in res:
             d = (r - self.endOfDay) / 86400.0
-            days[round(d)] = days.get(round(d), 0) + 1
+            days[int(d)] = days.get(int(d), 0) + 1
         self.addMissing(days, -numdays, 0)
         graph = fig.add_subplot(111)
         intervals = self.unzip(days.items())
