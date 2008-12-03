@@ -5,6 +5,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import urllib, re
 import anki
+from ankiqt import ui
 
 # Tools - looking up words in the dictionary
 ##########################################################################
@@ -19,11 +20,12 @@ class Lookup(object):
         text = unicode(self.main.mainWin.mainText.selectedText())
         text = text.strip()
         if "\n" in text:
-            self.main.setStatus(_("Can't look up a selection with a newline."))
+            ui.utils.showInfo(_("Can't look up a selection with a newline."))
             return
         text = text.strip()
         if not text:
-            self.main.setStatus(_("Empty selection."))
+            u
+            ui.utils.showInfo(_("Empty selection."))
             return
         function(text)
 
@@ -42,7 +44,7 @@ class Lookup(object):
         else:
             baseUrl += "E"
         url = baseUrl + urllib.quote(text.encode("utf-8"))
-        self.main.setStatus(_("Looking %s up on edict...") % text)
+        ui.utils.showInfo(_("Looking %s up on edict...") % text)
         qurl = QUrl()
         qurl.setEncodedUrl(url)
         QDesktopServices.openUrl(qurl)
@@ -54,7 +56,7 @@ class Lookup(object):
             "http://eow.alc.co.jp/" +
             newText +
             "/UTF-8/?ref=sa")
-        self.main.setStatus(_("Looking %s up on ALC...") % text)
+        ui.utils.showInfo(_("Looking %s up on ALC...") % text)
         qurl = QUrl()
         qurl.setEncodedUrl(url)
         QDesktopServices.openUrl(qurl)
