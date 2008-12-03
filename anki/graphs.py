@@ -54,10 +54,10 @@ class DeckGraphs(object):
 select interval, combinedDue
 from cards where reps > 0 and priority != 0""")
             for (interval, due) in all:
-                day=int(round(interval))
+                day=int(interval)
                 days[day] = days.get(day, 0) + 1
-                indays = int(round((due - self.endOfDay)
-                                   / 86400.0))
+                indays = int((due - self.endOfDay)
+                                   / 86400.0)
                 next[indays] = next.get(indays, 0) + 1
                 if indays < lowestInDay:
                     lowestInDay = indays
@@ -124,7 +124,7 @@ from cards where reps > 0 and priority != 0""")
                                   (attr, attr, limit))
         for r in res:
             d = (r - self.endOfDay) / 86400.0
-            days[round(d)] = days.get(round(d), 0) + 1
+            days[int(d)] = days.get(int(d), 0) + 1
         self.addMissing(days, -numdays, 0)
         graph = fig.add_subplot(111)
         intervals = self.unzip(days.items())
