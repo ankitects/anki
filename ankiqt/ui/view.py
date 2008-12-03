@@ -52,6 +52,7 @@ class View(object):
             self.main.config['showLastCardContent'] or
             self.main.config['showLastCardInterval']))
         self.drawRule = (self.main.config['qaDivider'] and
+                         self.main.currentCard and
                          not self.main.currentCard.cardModel.questionInAnswer)
         if not self.main.deck.isEmpty():
             if self.haveTop:
@@ -240,9 +241,7 @@ Start adding your own material.</td>
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."
-        self.write("<br><center><table width=250><tr><td align='left'>" +
-                   self.main.deck.deckFinishedMsg() +
-                   "</td></tr></table></center>")
+        self.write(self.main.deck.deckFinishedMsg())
 
 class AnkiWebView(QWebView):
 

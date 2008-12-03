@@ -256,6 +256,8 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
 
     def cardAnswered(self, quality):
         "Reschedule current card and move back to getQuestion state."
+        if self.state != "showAnswer":
+            return
         # copy card for undo
         self.lastCardBackup = copy.copy(self.currentCard)
         # remove card from session before updating it
@@ -337,7 +339,7 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         for i in range(1, 5):
             b = getattr(self.mainWin, "easeButton%d" % i)
             b.setFixedHeight(self.easeButtonHeight)
-            b.setFixedWidth(100)
+            b.setFixedWidth(85)
             self.connect(b, SIGNAL("clicked()"),
                 lambda i=i: self.cardAnswered(i))
         # editor
