@@ -48,16 +48,16 @@ class DeckGraphs(object):
             lowestInDay = 0
             now = list(time.localtime(time.time()))
             now[3] = 23; now[4] = 59
-            self.endOfDay = time.mktime(now)
+            self.endOfDay = time.mktime(now) + self.deck.utcOffset
             t = time.time()
             all = self.deck.s.all("""
 select interval, combinedDue
 from cards where reps > 0 and priority != 0""")
             for (interval, due) in all:
-                day=int(interval)
+                day=int(round(interval))
                 days[day] = days.get(day, 0) + 1
-                indays = int((due - self.endOfDay)
-                                   / 86400.0)
+                indays = int(round((due - self.endOfDay)
+                                   / 86400.0))
                 next[indays] = next.get(indays, 0) + 1
                 if indays < lowestInDay:
                     lowestInDay = indays
