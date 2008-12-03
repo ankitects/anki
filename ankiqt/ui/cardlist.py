@@ -546,6 +546,7 @@ where id in (%s)""" % ",".join([
             self.deck.addCards(self.deck.s.query(Fact).get(id),
                                d.selectedCms)
         self.deck.flushMod()
+        self.deck.updateAllPriorities()
         self.deck.setUndoEnd(n)
         self.updateSearch()
 

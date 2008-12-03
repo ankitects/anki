@@ -695,8 +695,6 @@
     <addaction name="actionSuspendCard" />
     <addaction name="separator" />
     <addaction name="actionRepeatAudio" />
-    <addaction name="actionRepeatQuestionAudio" />
-    <addaction name="actionRepeatAnswerAudio" />
     <addaction name="separator" />
     <addaction name="actionGraphs" />
     <addaction name="actionDstats" />

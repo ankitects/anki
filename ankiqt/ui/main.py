@@ -847,10 +847,9 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
             mw.toolBar.addAction(mw.actionAddcards)
             mw.toolBar.addAction(mw.actionEditCurrent)
             mw.toolBar.addAction(mw.actionEditdeck)
-            mw.toolBar.addAction(mw.actionRepeatAudio)
             mw.toolBar.addAction(mw.actionMarkCard)
             mw.toolBar.addAction(mw.actionGraphs)
-            mw.toolBar.addAction(mw.actionDisplayProperties)
+            mw.toolBar.addAction(mw.actionRepeatAudio)
             self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
         mw.toolBar.setIconSize(QSize(self.config['iconSize'],
                                      self.config['iconSize']))
@@ -1309,8 +1308,6 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.connect(m.actionMarkCard, SIGNAL("toggled(bool)"), self.onMark)
         self.connect(m.actionSuspendCard, s, self.onSuspend)
         self.connect(m.actionModelProperties, s, self.onModelProperties)
-        self.connect(m.actionRepeatQuestionAudio, s, self.onRepeatQuestion)
-        self.connect(m.actionRepeatAnswerAudio, s, self.onRepeatAnswer)
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionRedo, s, self.onRedo)
@@ -1379,8 +1376,6 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.maybeEnableUndo()
         self.mainWin.actionMarkCard.setEnabled(False)
         self.mainWin.actionSuspendCard.setEnabled(False)
-        self.mainWin.actionRepeatQuestionAudio.setEnabled(False)
-        self.mainWin.actionRepeatAnswerAudio.setEnabled(False)
         self.mainWin.actionRepeatAudio.setEnabled(False)
         self.mainWin.actionEditCurrent.setEnabled(False)
 
@@ -1388,13 +1383,10 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.maybeEnableUndo()
         self.mainWin.actionMarkCard.setEnabled(True)
         self.mainWin.actionSuspendCard.setEnabled(True)
-        self.mainWin.actionRepeatQuestionAudio.setEnabled(
-            hasSound(self.currentCard.question))
-        self.mainWin.actionRepeatAnswerAudio.setEnabled(
-            hasSound(self.currentCard.answer) and self.state != "getQuestion")
-        self.mainWin.actionRepeatAudio.setEnabled(
-            self.mainWin.actionRepeatQuestionAudio.isEnabled() or
-            self.mainWin.actionRepeatAnswerAudio.isEnabled())
+        snd = (hasSound(self.currentCard.question) or
+               (hasSound(self.currentCard.answer) and
+                self.state != "getQuestion"))
+        self.mainWin.actionRepeatAudio.setEnabled(snd)
         self.mainWin.actionEditCurrent.setEnabled(True)
 
     def maybeEnableUndo(self):
@@ -1549,12 +1541,6 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
 
     # Sounds
     ##########################################################################
-
-    def onRepeatQuestion(self):
-        playFromText(self.currentCard.question)
-
-    def onRepeatAnswer(self):
-        playFromText(self.currentCard.answer)
 
     def onRepeatAudio(self):
         playFromText(self.currentCard.question)

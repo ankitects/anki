@@ -391,6 +391,8 @@ class FactEditor(object):
             self.factState = "invalid"
 
     def onTagChange(self):
+        if not self.fact:
+            return
         self.fact.tags = canonifyTags(unicode(self.tags.text()))
         if self.onChange:
             self.onChange()
