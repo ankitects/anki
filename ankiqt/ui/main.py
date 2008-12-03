@@ -369,13 +369,12 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         for i in range(1, 5):
             l = getattr(self.mainWin, "easeLabel%d" % i)
             if self.config['suppressEstimates']:
-                l.hide()
+                l.setText("")
+            elif i == 1:
+                l.setText(self.withInterfaceFont(_("Soon")))
             else:
-                if i == 1:
-                    l.setText(self.withInterfaceFont(_("Soon")))
-                else:
-                    l.setText(self.withInterfaceFont("<b>" +
-                        self.deck.nextIntervalStr(self.currentCard, i) + "</b>"))
+                l.setText(self.withInterfaceFont("<b>" +
+                    self.deck.nextIntervalStr(self.currentCard, i) + "</b>"))
 
     def withInterfaceFont(self, text):
         family = self.config["interfaceFontFamily"]

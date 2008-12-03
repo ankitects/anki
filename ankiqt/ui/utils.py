@@ -170,7 +170,7 @@ def mungeQA(deck, txt):
                 prefix = u"file:///"
             else:
                 prefix = u"file://"
-            src = prefix + os.path.join(deck.mediaDir(), match)
+            src = prefix + os.path.join(deck.mediaDir(create=True), match)
         return 'img src="%s"' % src
     txt = re.sub('img src="(.*?)"', quote, txt)
     return txt
