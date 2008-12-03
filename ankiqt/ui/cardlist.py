@@ -392,12 +392,12 @@ class EditDeck(QMainWindow):
 
     def onClose(self):
         self.editor.saveFieldsNow()
-        self.editor.setFact(None)
         if not self.factValid:
             ui.utils.showInfo(_(
                 "Some fields are missing or not unique."),
                               parent=self, help="AddItems#AddError")
             return
+        self.editor.setFact(None)
         saveGeom(self, "editor")
         saveSplitter(self.dialog.splitter, "editor")
         self.hide()
@@ -562,10 +562,12 @@ where id in (%s)""" % ",".join([
 
     def onUndo(self):
         self.deck.undo()
+        self.updateFilterLabel()
         self.updateSearch()
 
     def onRedo(self):
         self.deck.redo()
+        self.updateFilterLabel()
         self.updateSearch()
 
 class AddCardChooser(QDialog):
