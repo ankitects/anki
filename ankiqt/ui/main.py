@@ -733,10 +733,10 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.moveToState("initial")
 
     def saveDeck(self):
-        self.setStatus(_("Saving.."))
+        self.setStatus(_("Saving..."))
         self.deck.save()
         self.updateTitleBar()
-        self.setStatus(_("Saving..done"))
+        self.setStatus(_("Saving...done"))
 
     # Opening and closing the app
     ##########################################################################
@@ -923,7 +923,7 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.removeHook("showQuestion", self.onCardStats)
 
     def onShowGraph(self):
-        self.setStatus(_("Loading graphs (may take time).."))
+        self.setStatus(_("Loading graphs (may take time)..."))
         self.app.processEvents()
         import anki.graphs
         if anki.graphs.graphsAvailable():
@@ -943,7 +943,7 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
             ui.utils.showInfo(_("Please install python-matplotlib to access graphs."))
 
     def onKanjiOccur(self):
-        self.setStatus(_("Generating report (may take time).."))
+        self.setStatus(_("Generating report (may take time)..."))
         self.app.processEvents()
         import tempfile
         (fd, name) = tempfile.mkstemp(suffix=".html")
@@ -1225,7 +1225,7 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.setStatus("")
 
     def openSyncProgress(self):
-        self.syncProgressDialog = QProgressDialog(_("Syncing Media.."),
+        self.syncProgressDialog = QProgressDialog(_("Syncing Media..."),
                                                   "", 0, 0, self)
         self.syncProgressDialog.setCancelButton(None)
 
@@ -1238,9 +1238,9 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.syncProgressDialog.setValue(x)
         self.syncProgressDialog.setMinimumDuration(0)
         if type == "up":
-            self.syncProgressDialog.setLabelText("Uploading %s.." % fname)
+            self.syncProgressDialog.setLabelText("Uploading %s..." % fname)
         else:
-            self.syncProgressDialog.setLabelText("Downloading %s.." % fname)
+            self.syncProgressDialog.setLabelText("Downloading %s..." % fname)
 
     # Menu, title bar & status
     ##########################################################################
@@ -1438,7 +1438,7 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
 
     def updateStarted(self):
         self.updateProgressDialog = QProgressDialog(_(
-            "Updating Anki..\n(you can keep studying)"), "", 0, 0, self)
+            "Updating Anki...\n(you can keep studying)"), "", 0, 0, self)
         self.updateProgressDialog.setMinimum(0)
         self.updateProgressDialog.setMaximum(100)
         self.updateProgressDialog.setCancelButton(None)

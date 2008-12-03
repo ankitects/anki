@@ -63,7 +63,7 @@ class Sync(QThread):
         return proxy
 
     def syncDeck(self):
-        self.setStatus(_("Connecting.."), 0)
+        self.setStatus(_("Connecting..."), 0)
         try:
             proxy = self.connect()
         except SyncError, e:
@@ -94,10 +94,10 @@ class Sync(QThread):
             start = time.time()
             if client.prepareSync():
                 # summary
-                self.setStatus(_("Fetching summary from server.."), 0)
+                self.setStatus(_("Fetching summary from server..."), 0)
                 sums = client.summaries()
                 # diff
-                self.setStatus(_("Determining differences.."), 0)
+                self.setStatus(_("Determining differences..."), 0)
                 payload = client.genPayload(sums)
                 # send payload
                 pr = client.payloadChangeReport(payload)
@@ -105,7 +105,7 @@ class Sync(QThread):
                 self.setStatus(_("Transferring payload..."), 0)
                 res = client.server.applyPayload(payload)
                 # apply reply
-                self.setStatus(_("Applying reply.."), 0)
+                self.setStatus(_("Applying reply..."), 0)
                 client.applyPayloadReply(res)
                 if client.mediaSyncPending:
                     self.doBulkDownload(proxy.deckName)
@@ -119,7 +119,7 @@ class Sync(QThread):
             # check sources
             if self.sourcesToCheck:
                 start = time.time()
-                self.setStatus(_("<br><br>Checking deck subscriptions.."))
+                self.setStatus(_("<br><br>Checking deck subscriptions..."))
                 for source in self.sourcesToCheck:
                     proxy.deckName = str(source)
                     msg = "%s:" % client.syncOneWayDeckName()
@@ -129,7 +129,7 @@ class Sync(QThread):
                     if not client.prepareOneWaySync():
                         self.setStatus(_(" * %s no changes found.") % msg)
                         continue
-                    self.setStatus(_(" * %s fetching payload..") % msg)
+                    self.setStatus(_(" * %s fetching payload...") % msg)
                     payload = proxy.genOneWayPayload(client.lastSync)
                     self.setStatus(msg + _(" applied %d modified cards.") %
                                    len(payload['cards']))

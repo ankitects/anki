@@ -42,7 +42,7 @@ class Lookup(object):
         else:
             baseUrl += "E"
         url = baseUrl + urllib.quote(text.encode("utf-8"))
-        self.main.setStatus(_("Looking %s up on edict..") % text)
+        self.main.setStatus(_("Looking %s up on edict...") % text)
         qurl = QUrl()
         qurl.setEncodedUrl(url)
         QDesktopServices.openUrl(qurl)
@@ -54,7 +54,7 @@ class Lookup(object):
             "http://eow.alc.co.jp/" +
             newText +
             "/UTF-8/?ref=sa")
-        self.main.setStatus(_("Looking %s up on ALC..") % text)
+        self.main.setStatus(_("Looking %s up on ALC...") % text)
         qurl = QUrl()
         qurl.setEncodedUrl(url)
         QDesktopServices.openUrl(qurl)
