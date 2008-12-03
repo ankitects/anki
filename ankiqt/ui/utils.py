@@ -6,6 +6,7 @@ from PyQt4.QtCore import *
 
 from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
+from ankiqt import ui
 
 import re, os, sys
 import ankiqt
@@ -63,14 +64,16 @@ def askUser(text, parent=None):
 
 class GetTextDialog(QDialog):
 
-    def __init__(self, parent, question, help=None):
+    def __init__(self, parent, question, help=None, edit=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle("Anki")
         self.question = question
         self.help = help
         v = QVBoxLayout()
         v.addWidget(QLabel(question))
-        self.l = QLineEdit()
+        if not edit:
+            edit = QLineEdit()
+        self.l = edit
         v.addWidget(self.l)
         buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         if help:
@@ -95,10 +98,10 @@ class GetTextDialog(QDialog):
     def helpRequested(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + self.help))
 
-def getText(prompt, parent=None, help=None):
+def getText(prompt, parent=None, help=None, edit=None):
     if not parent:
         parent = ankiqt.mw
-    d = GetTextDialog(parent, prompt, help=help)
+    d = GetTextDialog(parent, prompt, help=help, edit=edit)
     ret = d.exec_()
     return (unicode(d.l.text()), ret)
 
@@ -108,6 +111,11 @@ def getOnlyText(*args, **kwargs):
         return s
     else:
         return u""
+
+def getTag(parent, deck, question, tags="user", **kwargs):
+    te = ui.tagedit.TagEdit(parent)
+    te.setDeck(deck, tags)
+    return getText(question, parent, edit=te, **kwargs)
 
 def getFile(parent, title, dir, key):
     "Ask the user for a file. Use DIR as config variable."

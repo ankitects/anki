@@ -507,7 +507,7 @@ where id in (%s)""" % ",".join([
         self.updateSearch()
 
     def addTags(self):
-        tags = ui.utils.getOnlyText(_("Enter tag(s) to add:"), self)
+        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tag(s) to add:"))
         if tags:
             n = _("Add Tags")
             self.deck.setUndoStart(n)
@@ -516,7 +516,7 @@ where id in (%s)""" % ",".join([
         self.updateAfterCardChange()
 
     def deleteTags(self):
-        tags = ui.utils.getOnlyText(_("Enter tag(s) to delete:"), self)
+        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tag(s) to delete:"))
         if tags:
             n = _("Delete Tags")
             self.deck.setUndoStart(n)

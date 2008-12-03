@@ -15,10 +15,13 @@ class TagEdit(QLineEdit):
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompleter(self.completer)
 
-    def setDeck(self, deck):
+    def setDeck(self, deck, tags="user"):
         "Set the current deck, updating list of available tags."
         self.deck = deck
-        tags = self.deck.allUserTags()
+        if tags == "user":
+            tags = self.deck.allUserTags()
+        else:
+            tags = self.deck.allTags()
         self.model.setStringList(
             QStringList(tags))
 

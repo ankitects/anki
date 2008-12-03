@@ -1056,7 +1056,8 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
             ui.utils.showInfo(
                 _("Already cramming. Please close this deck first."))
             return
-        (s, ret) = ui.utils.getText(_("Tags to cram:"), help="CramMode")
+        (s, ret) = ui.utils.getTag(self, self.deck, _("Tags to cram:"),
+                                   help="CramMode", tags="all")
         if not ret:
             return
         s = unicode(s)
