@@ -828,7 +828,7 @@ and due < :now""", now=time.time())
         return models
 
     def addCards(self, fact, cardModelIds):
-        "Caller must flush first, flushMod after, and rebuild priorities."
+        "Caller must flush first, flushMod after, rebuild priorities."
         for cardModel in self.availableCardModels(fact, False):
             if cardModel.id not in cardModelIds:
                 continue
@@ -837,6 +837,8 @@ select count(id) from cards
 where factId = :fid and cardModelId = :cmid""",
                                  fid=fact.id, cmid=cardModel.id) == 0:
                     card = anki.cards.Card(fact, cardModel)
+                    self.cardCount += 1
+                    self.newCount += 1
         self.setModified()
 
     def factIsInvalid(self, fact):
