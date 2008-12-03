@@ -43,6 +43,9 @@ class DeckGraphs(object):
     def calcStats (self):
         if not self.stats:
             days = {}
+            daysNew = {}
+            daysYoung = {}
+            daysMature =  {}
             months = {}
             next = {}
             lowestInDay = 0
@@ -50,20 +53,32 @@ class DeckGraphs(object):
             now[3] = 23; now[4] = 59
             self.endOfDay = time.mktime(now) + self.deck.utcOffset
             t = time.time()
-            all = self.deck.s.all("""
+            new = self.deck.s.all("""
 select interval, combinedDue
-from cards where reps > 0 and priority != 0""")
-            for (interval, due) in all:
-                day=int(round(interval))
-                days[day] = days.get(day, 0) + 1
-                indays = int(round((due - self.endOfDay)
-                                   / 86400.0))
-                next[indays] = next.get(indays, 0) + 1
-                if indays < lowestInDay:
-                    lowestInDay = indays
+from cards where reps > 0 and priority != 0 and type = 2""")
+            young = self.deck.s.all("""
+select interval, combinedDue
+from cards where reps > 0 and priority != 0 and (type = 0 or (type = 1 and interval <= 21))""")
+            mature = self.deck.s.all("""
+select interval, combinedDue
+from cards where reps > 0 and priority != 0 and type = 1 and interval > 21""")
+
+            for (src, dest) in [(new, daysNew), (young, daysYoung), (mature, daysMature)]:
+                for (interval, due) in src:
+                    day=int(round(interval))
+                    days[day] = days.get(day, 0) + 1 
+                    indays = int((due - self.endOfDay)
+                                 / 86400.0)
+                    next[indays] = next.get(indays, 0) + 1 # type-agnostic stats
+                    dest[indays] = dest.get(indays, 0) + 1 # type-specific stats
+                    if indays < lowestInDay:
+                        lowestInDay = indays
             self.stats = {}
             self.stats['next'] = next
             self.stats['days'] = days
+            self.stats['daysByType'] = {'new': daysNew,
+                                        'young': daysYoung,
+                                        'mature': daysMature}
             self.stats['months'] = months
             self.stats['lowestInDay'] = lowestInDay
 
@@ -71,10 +86,21 @@ from cards where reps > 0 and priority != 0""")
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        dayslist = self.stats['next']
-        self.addMissing(dayslist, self.stats['lowestInDay'], days)
-        (x, y) = self.unzip(dayslist.items())
-        self.filledGraph(graph, days, x, y, "#4444ff")
+        dayslists = [self.stats['next'], self.stats['daysByType']['young'], self.stats['daysByType']['new']]
+
+        for dayslist in dayslists:
+            self.addMissing(dayslist, self.stats['lowestInDay'], days)
+
+        for i in range(days):
+            dayslists[1][i] += dayslists[2][i]
+
+        argl = []
+
+        for dayslist in dayslists:
+            argl.extend(list(self.unzip(dayslist.items())))
+
+        self.filledGraph(graph, days, ["#7777ff", "#77ffff", "#ff7777"], *argl)
+
         graph.set_ylabel(_("Cards"))
         graph.set_xlabel(_("Days"))
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
@@ -96,7 +122,7 @@ from cards where reps > 0 and priority != 0""")
                 break
         x = list(x); x.append(99999)
         y.append(count)
-        self.filledGraph(graph, days, x, y, "#aaaaff")
+        self.filledGraph(graph, days, "#aaaaff", x, y)
         graph.set_ylabel(_("Cards"))
         graph.set_xlabel(_("Days"))
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
@@ -110,7 +136,7 @@ from cards where reps > 0 and priority != 0""")
         self.addMissing(ints, 0, days)
         intervals = self.unzip(ints.items())
         graph = fig.add_subplot(111)
-        self.filledGraph(graph, days, intervals[0], intervals[1], "#aaffaa")
+        self.filledGraph(graph, days, "#aaffaa", *intervals)
         graph.set_ylabel(_("Cards"))
         graph.set_xlabel(_("Days"))
         graph.set_xlim(xmin=0, xmax=days)
@@ -132,7 +158,7 @@ from cards where reps > 0 and priority != 0""")
             colour = "#ffaaaa"
         else:
             colour = "#ffcccc"
-        self.filledGraph(graph, numdays, intervals[0], intervals[1], colour)
+        self.filledGraph(graph, numdays, colour, *intervals)
         graph.set_ylabel(_("Cards"))
         graph.set_xlabel(_("Day"))
         graph.set_xlim(xmin=-numdays, xmax=0)
@@ -148,29 +174,32 @@ from cards where reps > 0 and priority != 0""")
         new = zip(*tuples)
         return new
 
-    def filledGraph(self, graph, days, x=(), y=(), c="b"):
-        x = list(x)
-        y = list(y)
-        lowest = 99999
-        highest = -lowest
-        for i in range(len(x)):
-            if x[i] < lowest:
-                lowest = x[i]
-            if x[i] > highest:
-                highest = x[i]
-        # ensure the filled area reaches the bottom
-        x.insert(0, lowest - 1)
-        y.insert(0, 0)
-        x.append(highest + 1)
-        y.append(0)
-        # plot
-        graph.fill(x, y, c)
-        if days < 180:
-            graph.bar(x, y, width=0)
-            lw=3
-        else:
-            lw=1
-        graph.plot(x, y, "k", lw=lw)
+    def filledGraph(self, graph, days, colours=["b"], *args):
+        if isinstance(colours, str):
+            colours = [colours]
+        thick = True
+        for triplet in [(args[n], args[n + 1], colours[n / 2]) for n in range(0, len(args), 2)]:
+            x = list(triplet[0])
+            y = list(triplet[1])
+            c = triplet[2]
+            lowest = 99999
+            highest = -lowest
+            for i in range(len(x)):
+                if x[i] < lowest:
+                    lowest = x[i]
+                if x[i] > highest:
+                    highest = x[i]
+            # ensure the filled area reaches the bottom
+            x.insert(0, lowest - 1)
+            y.insert(0, 0)
+            x.append(highest + 1)
+            y.append(0)
+            # plot
+            graph.fill(x, y, c, lw = int(days < 180 and thick) * 2 + int(days >= 180 and thick))
+            if days < 180:
+                graph.bar(x, y, width=0)
+            thick = False
+        
         graph.grid(True)
         graph.set_ylim(ymin=0, ymax=max(2, graph.get_ylim()[1]))
 
