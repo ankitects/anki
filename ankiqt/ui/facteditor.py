@@ -501,7 +501,7 @@ class FactEditor(object):
             w.moveCursor(QTextCursor.PreviousCharacter)
 
     def onPreview(self):
-        PreviewDialog(self.parent, self.deck, self.fact).exec_()
+        PreviewDialog(self.parent, self.deck, self.fact)
 
     def onHtmlEdit(self):
         def helpRequested():
@@ -643,7 +643,7 @@ class PreviewDialog(QDialog):
         cards = self.deck.previewFact(self.fact)
         if not cards:
             ui.utils.showInfo(_("No cards to preview."),
-                              parent=self.parent)
+                              parent=parent)
             return
         self.cards = cards
         self.currentCard = 0
@@ -655,6 +655,7 @@ class PreviewDialog(QDialog):
                      self.onChange)
         self.updateCard()
         restoreGeom(self, "preview")
+        self.exec_()
 
     def updateCard(self):
         c = self.cards[self.currentCard]
