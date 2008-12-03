@@ -101,6 +101,13 @@ from cards where reps > 0 and priority != 0 and type = 1 and interval > 21""")
 
         self.filledGraph(graph, days, ["#7777ff", "#77ffff", "#ff7777"], *argl)
 
+        cheat = fig.add_subplot(111)
+        cheat.bar(0, 0, color = "#ff7777", label = _("New cards"))
+        cheat.bar(1, 0, color = "#77ffff", label = _("Young cards"))
+        cheat.bar(2, 0, color = "#7777ff", label = _("Mature cards"))
+
+        cheat.legend(loc = 'upper right')
+
         graph.set_ylabel(_("Cards"))
         graph.set_xlabel(_("Days"))
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
