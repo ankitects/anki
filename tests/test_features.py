@@ -13,7 +13,7 @@ def test_japanese():
     deck.addModel(JapaneseModel())
     f = deck.newFact()
     f['Expression'] = u'了解'
-    f.onKeyPress(f.fields[0], f.fields[0].value)
+    f.focusLost(f.fields[0])
     assert f['Reading'] == u'りょうかい'
 
 def test_chinese():
@@ -21,11 +21,11 @@ def test_chinese():
     deck.addModel(MandarinModel())
     f = deck.newFact()
     f['Expression'] = u'食べる'
-    f.onKeyPress(f.fields[0], f.fields[0].value)
+    f.focusLost(f.fields[0])
     assert f['Reading'] == u"{shí,sì,yì}"
     deck = DeckStorage.Deck()
     deck.addModel(CantoneseModel())
     f = deck.newFact()
     f['Expression'] = u'食べる'
-    f.onKeyPress(f.fields[0], f.fields[0].value)
+    f.focusLost(f.fields[0])
     assert f['Reading'] == u"{ji6,sik6,zi6}"

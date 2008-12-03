@@ -129,7 +129,7 @@ def test_modelAddDelete():
     f['Expression'] = u'1'
     f['Meaning'] = u'2'
     deck.addFact(f)
-    assert deck.cardCount == 2
+    assert deck.cardCount == 1
     deck.deleteModel(deck.currentModel)
     assert deck.cardCount == 0
     deck.s.refresh(deck)
