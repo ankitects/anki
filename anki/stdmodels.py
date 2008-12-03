@@ -31,8 +31,8 @@ def BasicModel():
     m = Model(_('Basic'))
     m.addFieldModel(FieldModel(u'Front', True, True))
     m.addFieldModel(FieldModel(u'Back', True, True))
-    m.addCardModel(CardModel(u'Forward', u'%(Front)s', u'<hr>%(Back)s'))
-    m.addCardModel(CardModel(u'Reverse', u'%(Back)s', u'<hr>%(Front)s',
+    m.addCardModel(CardModel(u'Forward', u'%(Front)s', u'%(Back)s'))
+    m.addCardModel(CardModel(u'Reverse', u'%(Back)s', u'%(Front)s',
                              active=False))
     m.tags = u"Basic"
     return m
@@ -60,10 +60,10 @@ def JapaneseModel():
     m.addFieldModel(f)
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
-                             u"<hr>%(Reading)s<br>%(Meaning)s"))
+                             u"%(Reading)s<br>%(Meaning)s"))
     m.addCardModel(CardModel(u"Production",
                              u"%(Meaning)s",
-                             u"<hr>%(Expression)s<br>%(Reading)s",
+                             u"%(Expression)s<br>%(Reading)s",
                              active=False))
     m.tags = u"Japanese"
     return m
@@ -82,10 +82,10 @@ def CantoneseModel():
     m.addFieldModel(FieldModel(u'Reading', False, False))
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
-                             u"<hr>%(Reading)s<br>%(Meaning)s"))
+                             u"%(Reading)s<br>%(Meaning)s"))
     m.addCardModel(CardModel(u"Production",
                              u"%(Meaning)s",
-                             u"<hr>%(Expression)s<br>%(Reading)s",
+                             u"%(Expression)s<br>%(Reading)s",
                              active=False))
     m.tags = u"Cantonese"
     return m
@@ -104,10 +104,10 @@ def MandarinModel():
     m.addFieldModel(FieldModel(u'Reading', False, False))
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
-                             u"<hr>%(Reading)s<br>%(Meaning)s"))
+                             u"%(Reading)s<br>%(Meaning)s"))
     m.addCardModel(CardModel(u"Production",
                              u"%(Meaning)s",
-                             u"<hr>%(Expression)s<br>%(Reading)s",
+                             u"%(Expression)s<br>%(Reading)s",
                              active=False))
     m.tags = u"Mandarin"
     return m
