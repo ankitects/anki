@@ -1676,9 +1676,11 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
 
     def undo(self):
         self._undoredo(self.undoStack, self.redoStack)
+        self.refresh()
 
     def redo(self):
         self._undoredo(self.redoStack, self.undoStack)
+        self.refresh()
 
 # Shared decks
 ##########################################################################
