@@ -38,9 +38,7 @@ class ModelProperties(QDialog):
     def readData(self):
         # properties section
         self.dialog.name.setText(self.m.name)
-        self.dialog.description.setText(self.m.description)
         self.dialog.tags.setText(self.m.tags)
-        self.dialog.decorators.setText(self.m.features)
         self.dialog.spacing.setText(str(self.m.spacing))
         self.dialog.initialSpacing.setText(str(self.m.initialSpacing/60))
 
@@ -109,10 +107,8 @@ class ModelProperties(QDialog):
         self.currentField = self.m.fieldModels[self.dialog.fieldList.currentRow()]
         field = self.currentField
         self.dialog.fieldName.setText(field.name)
-        self.dialog.fieldDescription.setText(field.description)
         self.dialog.fieldUnique.setChecked(field.unique)
         self.dialog.fieldRequired.setChecked(field.required)
-        self.dialog.fieldFeatures.setText(field.features)
         self.dialog.numeric.setChecked(field.numeric)
 
     def enableFieldMoveButtons(self):
@@ -138,10 +134,6 @@ class ModelProperties(QDialog):
             self.deck.renameFieldModel(self.m, field, name)
             # the card models will have been updated
             self.readCurrentCard()
-        self.updateField(field, 'description',
-                         unicode(self.dialog.fieldDescription.toPlainText()))
-        self.updateField(field, 'features',
-                         unicode(self.dialog.fieldFeatures.text()))
         # unique, required, numeric
         self.updateField(field, 'unique',
                          self.dialog.fieldUnique.checkState() == Qt.Checked)
@@ -296,7 +288,6 @@ class ModelProperties(QDialog):
         self.currentCard = self.m.cardModels[self.dialog.cardList.currentRow()]
         card = self.currentCard
         self.dialog.cardName.setText(card.name)
-        self.dialog.cardDescription.setText(card.description)
         self.dialog.cardQuestion.setPlainText(card.qformat.replace("<br>", "\n"))
         self.dialog.cardAnswer.setPlainText(card.aformat.replace("<br>", "\n"))
         if card.questionInAnswer:
@@ -330,8 +321,6 @@ class ModelProperties(QDialog):
         if not newname:
             newname = _("Card %d") % (self.m.cardModels.index(card) + 1)
         self.updateField(card, 'name', newname)
-        self.updateField(card, 'description', unicode(
-            self.dialog.cardDescription.toPlainText()))
         s = unicode(self.dialog.cardQuestion.toPlainText())
         s = s.replace("\n", "<br>")
         changed = self.updateField(card, 'qformat', s)
@@ -460,12 +449,8 @@ class ModelProperties(QDialog):
         if not mname:
             mname = _("Model")
         self.updateField(self.m, 'name', mname)
-        self.updateField(self.m, 'description',
-                         unicode(self.dialog.description.toPlainText()))
         self.updateField(self.m, 'tags',
                          unicode(self.dialog.tags.text()))
-        self.updateField(self.m, 'features',
-                         unicode(self.dialog.decorators.text()))
         try:
             self.updateField(self.m, 'spacing',
                              float(self.dialog.spacing.text()))
