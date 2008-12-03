@@ -13,7 +13,7 @@ from anki.db import *
 from anki.errors import *
 from anki.models import Model, FieldModel, fieldModelsTable, formatQA
 from anki.utils import genID
-from anki.features import FeatureManager
+from anki.hooks import runHook
 
 # Fields in a fact
 ##########################################################################
@@ -121,12 +121,8 @@ class Fact(object):
             req += " and id != %s" % field.id
         return not s.scalar(req, val=field.value, fmid=field.fieldModel.id)
 
-    def onSubmit(self):
-        FeatureManager.run(self.model.features, "onSubmit", self)
-
-    def onKeyPress(self, field, value):
-        FeatureManager.run(self.model.features,
-                           "onKeyPress", self, field, value)
+    def focusLost(self, field):
+        runHook('fact.focusLost', self, field)
 
     def setModified(self, textChanged=False):
         "Mark modified and update cards."

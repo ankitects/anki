@@ -118,12 +118,8 @@ def test_cardOrder():
     f['Meaning'] = u'2'
     deck.addFact(f)
     card = deck.getCard()
-    # production should come first
-    assert card.cardModel.name == u"Production"
-    # if we rebuild the queue, it should be the same
-    deck.rebuildQueue()
-    card = deck.getCard()
-    assert card.cardModel.name == u"Production"
+    # recognition should come first
+    assert card.cardModel.name == u"Recognition"
 
 def test_modelAddDelete():
     deck = DeckStorage.Deck()

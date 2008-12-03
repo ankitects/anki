@@ -37,10 +37,10 @@ fieldModelsTable = Table(
     Column('ordinal', Integer, nullable=False),
     Column('modelId', Integer, ForeignKey('models.id'), nullable=False),
     Column('name', UnicodeText, nullable=False),
-    Column('description', UnicodeText, nullable=False, default=u""),
-    Column('features', UnicodeText, nullable=False, default=u""),
+    Column('description', UnicodeText, nullable=False, default=u""), # obsolete
+    Column('features', UnicodeText, nullable=False, default=u""), # obsolete
     Column('required', Boolean, nullable=False, default=True),
-    Column('unique', Boolean, nullable=False, default=True),
+    Column('unique', Boolean, nullable=False, default=True), # sqlite keyword
     Column('numeric', Boolean, nullable=False, default=False),
     # display
     Column('quizFontFamily', UnicodeText),
@@ -52,9 +52,8 @@ fieldModelsTable = Table(
 class FieldModel(object):
     "The definition of one field in a fact."
 
-    def __init__(self, name=u"", description=u"", required=True, unique=True):
+    def __init__(self, name=u"", required=True, unique=True):
         self.name = name
-        self.description = description
         self.required = required
         self.unique = unique
         self.id = genID()
@@ -70,7 +69,7 @@ cardModelsTable = Table(
     Column('ordinal', Integer, nullable=False),
     Column('modelId', Integer, ForeignKey('models.id'), nullable=False),
     Column('name', UnicodeText, nullable=False),
-    Column('description', UnicodeText, nullable=False, default=u""),
+    Column('description', UnicodeText, nullable=False, default=u""), # obsolete
     Column('active', Boolean, nullable=False, default=True),
     # formats: question/answer/last(not used)
     Column('qformat', UnicodeText, nullable=False),
@@ -99,10 +98,8 @@ cardModelsTable = Table(
 
 class CardModel(object):
     """Represents how to generate the front and back of a card."""
-    def __init__(self, name=u"", description=u"",
-                 qformat=u"q", aformat=u"a", active=True):
+    def __init__(self, name=u"", qformat=u"q", aformat=u"a", active=True):
         self.name = name
-        self.description = description
         self.qformat = qformat
         self.aformat = aformat
         self.active = active
@@ -145,17 +142,16 @@ modelsTable = Table(
     Column('modified', Float, nullable=False, default=time.time),
     Column('tags', UnicodeText, nullable=False, default=u""),
     Column('name', UnicodeText, nullable=False),
-    Column('description', UnicodeText, nullable=False, default=u""),
-    Column('features', UnicodeText, nullable=False, default=u""),
+    Column('description', UnicodeText, nullable=False, default=u""), # obsolete
+    Column('features', UnicodeText, nullable=False, default=u""), # obsolete
     Column('spacing', Float, nullable=False, default=0.1),
     Column('initialSpacing', Float, nullable=False, default=600),
     Column('source', Integer, nullable=False, default=0))
 
 class Model(object):
     "Defines the way a fact behaves, what fields it can contain, etc."
-    def __init__(self, name=u"", description=u""):
+    def __init__(self, name=u""):
         self.name = name
-        self.description = description
         self.id = genID()
 
     def setModified(self):

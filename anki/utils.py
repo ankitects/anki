@@ -8,7 +8,7 @@ Miscellaneous utilities
 """
 __docformat__ = 'restructuredtext'
 
-import re, os, random, time
+import re, os, random, time, types
 
 try:
     import hashlib
@@ -19,6 +19,9 @@ except ImportError:
 
 from anki.db import *
 from anki.lang import _, ngettext
+
+# Time handling
+##############################################################################
 
 timeTable = {
     "years": lambda n: ngettext("%s year", "%s years", n),
@@ -102,40 +105,8 @@ def _pluralCount(time):
         return 1
     return 2
 
-def parseTags(tags):
-    "Parse a string and return a list of tags."
-    tags = tags.split(",")
-    tags = [tag.strip() for tag in tags if tag.strip()]
-    return tags
-
-def joinTags(tags):
-    return u", ".join(tags)
-
-def canonifyTags(tags):
-    "Strip leading/trailing/superfluous commas."
-    return joinTags(sorted(set(parseTags(tags))))
-
-def findTag(tag, tags):
-    "True if TAG is in TAGS. Ignore case."
-    return tag.lower() in [t.lower() for t in tags]
-
-def addTags(tagstr, tags):
-    "Add tag if doesn't exist."
-    currentTags = parseTags(tags)
-    for tag in parseTags(tagstr):
-        if not findTag(tag, currentTags):
-            currentTags.append(tag)
-    return u", ".join(currentTags)
-
-def deleteTags(tagstr, tags):
-    "Delete tag if exists."
-    currentTags = parseTags(tags)
-    for tag in parseTags(tagstr):
-        try:
-            currentTags.remove(tag)
-        except ValueError:
-            pass
-    return u", ".join(currentTags)
+# HTML
+##############################################################################
 
 def stripHTML(s):
     s = re.sub("<.*?>", "", s)
@@ -166,6 +137,9 @@ def tidyHTML(html):
     html = re.sub(u'^ +', u'', html)
     html = re.sub(u' +$', u'', html)
     return html
+
+# IDs
+##############################################################################
 
 def genID(static=[]):
     "Generate a random, unique 64bit ID."
@@ -207,6 +181,49 @@ The caller is responsible for ensuring only integers are provided.
 This is safe if you use sqlite primary key columns, which are guaranteed
 to be integers."""
     return "(%s)" % ",".join([str(i) for i in ids])
+
+# Tags
+##############################################################################
+
+def parseTags(tags):
+    "Parse a string and return a list of tags."
+    tags = tags.split(",")
+    tags = [tag.strip() for tag in tags if tag.strip()]
+    return tags
+
+def joinTags(tags):
+    return u", ".join(tags)
+
+def canonifyTags(tags):
+    "Strip leading/trailing/superfluous commas and duplicates."
+    return joinTags(sorted(set(parseTags(tags))))
+
+def findTag(tag, tags):
+    "True if TAG is in TAGS. Ignore case."
+    if not isinstance(tags, types.ListType):
+        tags = parseTags(tags)
+    return tag.lower() in [t.lower() for t in tags]
+
+def addTags(tagstr, tags):
+    "Add tags if they don't exist."
+    currentTags = parseTags(tags)
+    for tag in parseTags(tagstr):
+        if not findTag(tag, currentTags):
+            currentTags.append(tag)
+    return joinTags(currentTags)
+
+def deleteTags(tagstr, tags):
+    "Delete tags if they don't exists."
+    currentTags = parseTags(tags)
+    for tag in parseTags(tagstr):
+        try:
+            currentTags.remove(tag)
+        except ValueError:
+            pass
+    return joinTags(currentTags)
+
+# Misc
+##############################################################################
 
 def checksum(data):
     return md5(data).hexdigest()

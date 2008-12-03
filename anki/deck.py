@@ -20,6 +20,7 @@ from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel, formatQA
 from anki.stats import dailyStats, globalStats, genToday
 from anki.fonts import toPlatformFont
+import anki.features
 from operator import itemgetter
 from itertools import groupby
 
