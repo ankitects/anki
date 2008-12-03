@@ -737,7 +737,7 @@
     <addaction name="separator" />
     <addaction name="menuStartup" />
    </widget>
-   <widget class="QMenu" name="menu_Current_2" >
+   <widget class="QMenu" name="menuCurrent" >
     <property name="title" >
      <string>&amp;Current</string>
     </property>
@@ -750,7 +750,7 @@
    </widget>
    <addaction name="menuDeck" />
    <addaction name="menuEdit" />
-   <addaction name="menu_Current_2" />
+   <addaction name="menuCurrent" />
    <addaction name="menuTools" />
    <addaction name="menuPlugins" />
    <addaction name="menuAdvanced" />

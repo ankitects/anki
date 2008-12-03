@@ -48,6 +48,9 @@ class ImportDialog(QDialog):
         self.parent = parent
         self.dialog = ankiqt.forms.importing.Ui_ImportDialog()
         self.dialog.setupUi(self)
+        self.tags = ui.tagedit.TagEdit(parent)
+        self.tags.setDeck(parent.deck)
+        self.dialog.topGrid.addWidget(self.tags,2,1,1,1)
         self.setupMappingFrame()
         self.setupOptions()
         self.exec_()
@@ -111,7 +114,7 @@ class ImportDialog(QDialog):
                 # windows sometimes has pending events permanently?
                 break
         self.importer.mapping = self.mapping
-        self.importer.tagsToAdd = unicode(self.dialog.tags.text())
+        self.importer.tagsToAdd = unicode(self.tags.text())
         self.importer.tagDuplicates = self.dialog.tagDuplicates.isChecked()
         try:
             n = _("Import")

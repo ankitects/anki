@@ -162,7 +162,6 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
             self.lastCard = None
             self.editor.deck = self.deck
             if self.deck:
-                self.mainWin.menu_Lookup.setEnabled(True)
                 self.enableDeckMenuItems()
                 self.updateRecentFilesMenu()
                 self.updateViews(state)
@@ -210,11 +209,9 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         elif state == "deckEmpty":
             self.showWelcomeScreen()
             self.disableCardMenuItems()
-            self.mainWin.menu_Lookup.setEnabled(False)
         elif state == "deckFinished":
             self.deck.s.flush()
             self.hideButtons()
-            self.mainWin.menu_Lookup.setEnabled(False)
             self.disableCardMenuItems()
             self.startRefreshTimer()
             self.bodyView.setState(state)
@@ -865,14 +862,14 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         try:
             self.lookup.alc(self.currentCard.fact['Expression'])
         except KeyError:
-            self.setStatus(_("No expression in current card."))
+            ui.utils.showInfo(_("No expression in current card."))
 
     def onLookupMeaning(self):
         self.initLookup()
         try:
             self.lookup.alc(self.currentCard.fact['Meaning'])
         except KeyError:
-            self.setStatus(_("No meaning in current card."))
+            ui.utils.showInfo(_("No meaning in current card."))
 
     def onLookupEdictSelection(self):
         self.initLookup()
@@ -979,6 +976,13 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
             self.deck.updatePriority(card)
         self.deck.setModified()
         self.lastScheduledTime = None
+        self.reset()
+        self.deck.setUndoEnd(undo)
+
+    def onDelete(self):
+        undo = _("Delete")
+        self.deck.setUndoStart(undo)
+        self.deck.deleteCard(self.currentCard.id)
         self.reset()
         self.deck.setUndoEnd(undo)
 
@@ -1258,7 +1262,6 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         "Undo",
         "Redo",
         "Export",
-        "MarkCard",
         "Graphs",
         "Dstats",
         "Kstats",
@@ -1270,6 +1273,7 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         "Tools",
         "Advanced",
         "Plugins",
+        "Current",
         )
 
     def connectMenuActions(self):
@@ -1307,6 +1311,7 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
         self.connect(m.actionExport, s, self.onExport)
         self.connect(m.actionMarkCard, SIGNAL("toggled(bool)"), self.onMark)
         self.connect(m.actionSuspendCard, s, self.onSuspend)
+        self.connect(m.actionDelete, s, self.onDelete)
         self.connect(m.actionModelProperties, s, self.onModelProperties)
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
@@ -1374,20 +1379,41 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
 
     def disableCardMenuItems(self):
         self.maybeEnableUndo()
-        self.mainWin.actionMarkCard.setEnabled(False)
-        self.mainWin.actionSuspendCard.setEnabled(False)
-        self.mainWin.actionRepeatAudio.setEnabled(False)
-        self.mainWin.actionEditCurrent.setEnabled(False)
+        self.maybeShowLookup(False)
+        self.maybeShowKanjiStats()
+        self.mainWin.menuCurrent.setEnabled(False)
 
     def enableCardMenuItems(self):
         self.maybeEnableUndo()
-        self.mainWin.actionMarkCard.setEnabled(True)
-        self.mainWin.actionSuspendCard.setEnabled(True)
+        self.maybeShowLookup(True)
+        self.maybeShowKanjiStats()
         snd = (hasSound(self.currentCard.question) or
                (hasSound(self.currentCard.answer) and
                 self.state != "getQuestion"))
         self.mainWin.actionRepeatAudio.setEnabled(snd)
-        self.mainWin.actionEditCurrent.setEnabled(True)
+        self.mainWin.menuCurrent.setEnabled(True)
+
+    def maybeShowKanjiStats(self):
+        if not self.deck:
+            have = False
+        else:
+            if getattr(self.deck, "haveJapanese", None) is None:
+                self.deck.haveJapanese = False
+                if self.deck:
+                    for m in self.deck.models:
+                        if "Japanese" in m.tags:
+                            self.deck.haveJapanese = True
+                            break
+            have = self.deck.haveJapanese
+        self.mainWin.actionKstats.setVisible(have)
+
+    def maybeShowLookup(self, enable):
+        if (self.currentCard and
+            "Japanese" in self.currentCard.fact.model.tags):
+            self.mainWin.menu_Lookup.menuAction().setVisible(True)
+        else:
+            self.mainWin.menu_Lookup.menuAction().setVisible(False)
+        self.mainWin.menu_Lookup.setEnabled(enable)
 
     def maybeEnableUndo(self):
         if self.deck and self.deck.undoAvailable():
