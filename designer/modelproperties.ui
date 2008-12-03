@@ -50,7 +50,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout" >
          <property name="leftMargin" >
-          <number>12</number>
+          <number>4</number>
          </property>
          <property name="spacing" >
           <number>4</number>
