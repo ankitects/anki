@@ -323,7 +323,7 @@ class FactEditor(object):
             return
         self.saveFields()
         field = self.widgets[widget]
-        self.fact.onKeyPress(field, field.value)
+        self.fact.focusLost(field)
         self.loadFields(font=False)
 
     def onTextChanged(self):
