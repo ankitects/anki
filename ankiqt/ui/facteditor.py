@@ -662,6 +662,7 @@ class PreviewDialog(QDialog):
         self.dialog.webView.setHtml(
             "<style>" + self.deck.css + "</style>" +
             mungeQA(self.deck, c.htmlQuestion()) +
+            "<br><br><hr><br><br>" +
             mungeQA(self.deck, c.htmlAnswer()))
         playFromText(c.question)
         playFromText(c.answer)
