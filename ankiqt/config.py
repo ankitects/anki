@@ -66,6 +66,7 @@ class Config(dict):
             'showSuspendedCards': True,
             'simpleToolbar': True,
             'scrollToAnswer': True,
+            'qaDivider': True,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):

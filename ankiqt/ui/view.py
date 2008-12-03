@@ -48,18 +48,23 @@ class View(object):
             return
         self.clearWindow()
         self.setBackgroundColour()
+        self.haveTop = (self.main.lastCard and (
+            self.main.config['showLastCardContent'] or
+            self.main.config['showLastCardInterval']))
+        self.drawRule = (self.main.config['qaDivider'] and
+                         not self.main.currentCard.cardModel.questionInAnswer)
         if not self.main.deck.isEmpty():
-            if not self.main.lastCard or (
-                not self.main.config['showLastCardContent'] and
-                not self.main.config['showLastCardInterval']):
-                self.buffer += "<br>"
-            else:
+            if self.haveTop:
                 self.drawTopSection()
         if self.state == "showQuestion":
             self.drawQuestion()
+            if self.drawRule:
+                self.write("<hr>")
         elif self.state == "showAnswer":
             if not self.main.currentCard.cardModel.questionInAnswer:
                 self.drawQuestion(nosound=True)
+            if self.drawRule:
+                self.write("<hr>")
             self.drawAnswer()
         elif self.state == "deckEmpty":
             self.drawWelcomeMessage()
@@ -79,7 +84,6 @@ class View(object):
             color = ("; color: " + self.main.config[base + "Colour"])
             s += ('.%s {font-family: "%s"; font-size: %spx%s}\n' %
                             (base, family, size, color))
-        # standard margins
         s += "</style>"
         return s
 
@@ -92,7 +96,10 @@ class View(object):
 
     def flush(self):
         "Write the current HTML buffer to the screen."
-        self.body.setHtml(self.addStyles() + '<div class="interface">' + self.buffer + "</div>")
+        txt = (self.addStyles() + '''
+<div class="interface">''' +
+               self.buffer + '</div>')
+        self.body.setHtml(txt)
 
     def write(self, text):
         if type(text) != types.UnicodeType:
@@ -110,17 +117,28 @@ class View(object):
     # Question and answer
     ##########################################################################
 
+    def center(self, str, height=45):
+        return '''
+<div style="display: table; height: %s%%; width:100%%; overflow: hidden;">
+<div style="display: table-cell; vertical-align: middle;">
+<div style="">%s</div></div></div>''' % (height, str)
+
     def drawQuestion(self, nosound=False):
         "Show the question."
         q = self.main.currentCard.htmlQuestion()
-        self.write(mungeQA(self.main.deck, q))
+        if self.haveTop:
+            height = 35
+        else:
+            height = 45
+        self.write(self.center(mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
 
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
-        self.write('<span id=answer />' + mungeQA(self.main.deck, a))
+        self.write(self.center('<span id=answer />' +
+                               mungeQA(self.main.deck, a)))
         if self.state != self.oldState:
             playFromText(a)
 
