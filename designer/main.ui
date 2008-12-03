@@ -207,7 +207,7 @@
        <item row="1" column="0" >
         <widget class="QStackedWidget" name="buttonStack" >
          <property name="currentIndex" >
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="page1" >
           <property name="geometry" >
@@ -246,8 +246,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>370</width>
+            <height>49</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
@@ -384,8 +384,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>370</width>
+            <height>49</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
@@ -413,6 +413,16 @@
             </widget>
            </item>
           </layout>
+         </widget>
+         <widget class="QWidget" name="page4" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>370</width>
+            <height>49</height>
+           </rect>
+          </property>
          </widget>
         </widget>
        </item>
@@ -633,7 +643,6 @@
     <addaction name="actionRedo" />
     <addaction name="separator" />
     <addaction name="actionAddcards" />
-    <addaction name="actionEditCurrent" />
     <addaction name="actionEditdeck" />
     <addaction name="separator" />
     <addaction name="actionActiveTags" />
@@ -691,10 +700,6 @@
      <addaction name="actionLookup_es" />
      <addaction name="actionLookup_esk" />
     </widget>
-    <addaction name="actionMarkCard" />
-    <addaction name="actionSuspendCard" />
-    <addaction name="separator" />
-    <addaction name="actionRepeatAudio" />
     <addaction name="separator" />
     <addaction name="actionGraphs" />
     <addaction name="actionDstats" />
@@ -732,8 +737,20 @@
     <addaction name="separator" />
     <addaction name="menuStartup" />
    </widget>
+   <widget class="QMenu" name="menu_Current_2" >
+    <property name="title" >
+     <string>&amp;Current</string>
+    </property>
+    <addaction name="actionRepeatAudio" />
+    <addaction name="separator" />
+    <addaction name="actionEditCurrent" />
+    <addaction name="actionMarkCard" />
+    <addaction name="actionSuspendCard" />
+    <addaction name="actionDelete" />
+   </widget>
    <addaction name="menuDeck" />
    <addaction name="menuEdit" />
+   <addaction name="menu_Current_2" />
    <addaction name="menuTools" />
    <addaction name="menuPlugins" />
    <addaction name="menuAdvanced" />
@@ -1072,7 +1089,7 @@
      <normaloff>:/icons/rating.png</normaloff>:/icons/rating.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Mark Card</string>
+    <string>&amp;Mark</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+M</string>
@@ -1084,7 +1101,7 @@
      <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Suspend fact</string>
+    <string>&amp;Suspend</string>
    </property>
    <property name="statusTip" >
     <string>Stop reviewing this card until it's unsuspended in the editor.</string>
@@ -1121,7 +1138,7 @@
      <normaloff>:/icons/media-playback-start.png</normaloff>:/icons/media-playback-start.png</iconset>
    </property>
    <property name="text" >
-    <string>Repeat Las&amp;t Audio</string>
+    <string>Repeat &amp;Audio</string>
    </property>
    <property name="shortcut" >
     <string>F5</string>
@@ -1249,6 +1266,10 @@
    </property>
   </action>
   <action name="actionActiveTags" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/anki-tag.png</normaloff>:/icons/anki-tag.png</iconset>
+   </property>
    <property name="text" >
     <string>Active &amp;Tags...</string>
    </property>
@@ -1268,7 +1289,7 @@
      <normaloff>:/icons/edit-rename.png</normaloff>:/icons/edit-rename.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Edit Current...</string>
+    <string>&amp;Edit...</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+E</string>
@@ -1281,6 +1302,15 @@
    </property>
    <property name="text" >
     <string>&amp;Redo</string>
+   </property>
+  </action>
+  <action name="actionDelete" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Delete</string>
    </property>
   </action>
  </widget>
