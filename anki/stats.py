@@ -17,6 +17,7 @@ import anki, anki.utils
 from datetime import date
 from anki.db import *
 from anki.lang import _
+from anki.utils import canonifyTags
 
 # Tracking stats on the DB
 ##########################################################################
@@ -262,7 +263,7 @@ class CardStats(object):
         self.txt = "<table width=250>"
         self.addLine(_("Added"), self.strTime(c.created))
         if c.firstAnswered:
-            self.addLine(_("First review"), self.strTime(c.firstAnswered))
+            self.addLine(_("First Review"), self.strTime(c.firstAnswered))
         self.addLine(_("Changed"), self.strTime(c.modified))
         next = time.time() - c.due
         if next > 0:
@@ -274,18 +275,20 @@ class CardStats(object):
         self.addLine(_("Ease"), "%0.2f" % c.factor)
         if c.lastDue:
             last = _("%s ago") % fmt(time.time() - c.lastDue)
-            self.addLine(_("Last due"), last)
+            self.addLine(_("Last Due"), last)
         if c.interval != c.lastInterval:
             # don't show the last interval if it hasn't been updated yet
-            self.addLine(_("Last interval"), fmt(c.lastInterval * 86400))
+            self.addLine(_("Last Interval"), fmt(c.lastInterval * 86400))
         self.addLine(_("Last Ease"), "%0.2f" % c.lastFactor)
         if c.reps:
             self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
                 c.yesCount, c.reps, c.successive))
-        self.addLine(_("Average time"), _("%0.1f seconds") %
+        self.addLine(_("Average Time"), _("%0.1f seconds") %
                      c.averageTime)
-        self.addLine(_("Total time"), _("%0.1f seconds") %
+        self.addLine(_("Total Time"), _("%0.1f seconds") %
                      c.reviewTime)
+        self.addLine(_("Inherited Tags"), canonifyTags(
+            c.fact.model.tags + "," + c.cardModel.name))
         self.txt += "</table>"
         return self.txt
 
