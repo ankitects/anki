@@ -123,8 +123,10 @@ class ImportDialog(QDialog):
                 msg += e.data['info']
                 self.dialog.status.setText(msg)
                 return
-            except DeckWrongFormatError, e:
-                msg = _("Import failed: %s") % `e.data`
+            except Exception, e:
+                msg = _("Import failed: %s\n") % `e`
+                if hasattr(e, "data"):
+                    msg += e.data
                 self.dialog.status.setText(msg)
                 return
         finally:
