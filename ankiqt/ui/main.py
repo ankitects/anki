@@ -729,6 +729,7 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
                 "This file exists. Are you sure you want to overwrite it?"):
                 return
         self.deck = self.deck.saveAs(file)
+        self.deck.initUndo()
         self.updateTitleBar()
         self.moveToState("initial")
 
