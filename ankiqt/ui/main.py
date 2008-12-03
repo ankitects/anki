@@ -434,7 +434,9 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
                 if interactive:
                     ui.utils.showInfo(_("Deck is already open."))
             else:
-                traceback.print_exc()
+                fmt = traceback.format_exc().split("\n")
+                fmt1 = "\n".join(fmt[0:3])
+                fmt2 = "\n".join(fmt[-3:])
                 ui.utils.showInfo(_("""\
 Unable to load deck.
 
@@ -444,7 +446,9 @@ Possible reasons:
  - directory is read only
  - deck was created with Anki < 0.9
 
-To upgrade an old deck, download Anki 0.9.8.7."""))
+To upgrade an old deck, download Anki 0.9.8.7.
+
+Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
             self.moveToState("noDeck")
             return
         self.updateRecentFiles(self.deck.path)
