@@ -4,7 +4,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import ankiqt
-from anki.utils import parseTags, joinTags
+from anki.utils import parseTags, joinTags, canonifyTags
 from ankiqt.ui.utils import saveGeom, restoreGeom
 
 class ActiveTagsChooser(QDialog):
@@ -45,7 +45,7 @@ class ActiveTagsChooser(QDialog):
             if self.dialog.list.selectionModel().isSelected(idx):
                 suspended.append(self.tags[n])
             n += 1
-        self.parent.deck.suspended = joinTags(suspended + ["Suspended"])
+        self.parent.deck.suspended = canonifyTags(joinTags(suspended + ["Suspended"]))
         self.parent.deck.setModified()
         self.parent.reset()
         saveGeom(self, "activeTags")
