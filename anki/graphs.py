@@ -213,7 +213,7 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         types = ("new", "young", "mature")
         enum = 5
         offset = 0
-        arrsize = 17
+        arrsize = 16
         arr = [0] * arrsize
         n = 0
         colours = ["#ff7777", "#77ffff", "#7777ff"]
@@ -225,7 +225,10 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
                      getattr(gs, type + "Ease2") +
                      getattr(gs, type + "Ease3") +
                      getattr(gs, type + "Ease4"))
-            for e in range(enum):
+            setattr(gs, type + "Ease1", getattr(gs, type + "Ease0") +
+                    getattr(gs, type + "Ease1"))
+            setattr(gs, type + "Ease0", -1)
+            for e in range(1, enum):
                 try:
                     arr[e+offset] = (getattr(gs, type + "Ease%d" % e)
                                      / float(total)) * 100 + 1
@@ -234,16 +237,16 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
             bars.append(graph.bar(range(arrsize), arr, width=1.0,
                                   color=colours[n], align='center'))
             arr = [0] * arrsize
-            offset += 6
+            offset += 5
             n += 1
         graph.set_ylabel("%")
-        x = ([""] + [str(n) for n in range(enum)]) * 3
-        del x[0]
+        x = ([""] + [str(n) for n in range(1, enum)]) * 3
         graph.legend([p[0] for p in bars], (_("New cards"),
                                             _("Young cards"),
                                             _("Mature cards")),
                      'upper left')
         graph.set_ylim(ymax=100)
+        graph.set_xlim(xmax=15)
         graph.set_xticks(range(arrsize))
         graph.set_xticklabels(x)
         graph.grid(True)
