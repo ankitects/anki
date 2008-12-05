@@ -43,7 +43,6 @@ class DeckGraphs(object):
     def calcStats (self):
         if not self.stats:
             days = {}
-            daysNew = {}
             daysYoung = {}
             daysMature =  {}
             months = {}
@@ -53,20 +52,19 @@ class DeckGraphs(object):
             now[3] = 23; now[4] = 59
             self.endOfDay = time.mktime(now) + self.deck.utcOffset
             t = time.time()
-            new = self.deck.s.all("""
-select interval, combinedDue
-from cards where reps > 0 and priority != 0 and type = 2""")
             young = self.deck.s.all("""
 select interval, combinedDue
-from cards where reps > 0 and priority != 0 and (type = 0 or (type = 1 and interval <= 21))""")
+from cards where priority in (1,2,3,4) and
+type in (0, 1) and interval <= 21""")
             mature = self.deck.s.all("""
 select interval, combinedDue
-from cards where reps > 0 and priority != 0 and type = 1 and interval > 21""")
+from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
 
-            for (src, dest) in [(new, daysNew), (young, daysYoung), (mature, daysMature)]:
+            for (src, dest) in [(young, daysYoung),
+                                (mature, daysMature)]:
                 for (interval, due) in src:
                     day=int(round(interval))
-                    days[day] = days.get(day, 0) + 1 
+                    days[day] = days.get(day, 0) + 1
                     indays = int((due - self.endOfDay)
                                  / 86400.0)
                     next[indays] = next.get(indays, 0) + 1 # type-agnostic stats
@@ -76,8 +74,7 @@ from cards where reps > 0 and priority != 0 and type = 1 and interval > 21""")
             self.stats = {}
             self.stats['next'] = next
             self.stats['days'] = days
-            self.stats['daysByType'] = {'new': daysNew,
-                                        'young': daysYoung,
+            self.stats['daysByType'] = {'young': daysYoung,
                                         'mature': daysMature}
             self.stats['months'] = months
             self.stats['lowestInDay'] = lowestInDay
@@ -86,25 +83,25 @@ from cards where reps > 0 and priority != 0 and type = 1 and interval > 21""")
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        dayslists = [self.stats['next'], self.stats['daysByType']['young'], self.stats['daysByType']['new']]
+        dayslists = [self.stats['next'], self.stats['daysByType']['young']]
 
         for dayslist in dayslists:
             self.addMissing(dayslist, self.stats['lowestInDay'], days)
 
-        for i in range(days):
-            dayslists[1][i] += dayslists[2][i]
+        # what is this doing?
+        #         for i in range(days):
+        #             dayslists[0][i] += dayslists[1][i]
 
         argl = []
 
         for dayslist in dayslists:
             argl.extend(list(self.unzip(dayslist.items())))
 
-        self.filledGraph(graph, days, ["#7777ff", "#77ffff", "#ff7777"], *argl)
+        self.filledGraph(graph, days, ["#7777ff", "#77ffff"], *argl)
 
         cheat = fig.add_subplot(111)
-        cheat.bar(0, 0, color = "#ff7777", label = _("New cards"))
-        cheat.bar(1, 0, color = "#77ffff", label = _("Young cards"))
-        cheat.bar(2, 0, color = "#7777ff", label = _("Mature cards"))
+        cheat.bar(0, 0, color = "#77ffff", label = _("Young cards"))
+        cheat.bar(1, 0, color = "#7777ff", label = _("Mature cards"))
 
         cheat.legend(loc = 'upper right')
 
@@ -206,7 +203,7 @@ from cards where reps > 0 and priority != 0 and type = 1 and interval > 21""")
             if days < 180:
                 graph.bar(x, y, width=0)
             thick = False
-        
+
         graph.grid(True)
         graph.set_ylim(ymin=0, ymax=max(2, graph.get_ylim()[1]))
 
