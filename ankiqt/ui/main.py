@@ -117,7 +117,7 @@ class AnkiQt(QMainWindow):
             def onTimeout(self):
                 print self.pool
                 ui.utils.showText(_("""\
-An error occurred. Please copy the following message into a bug report.\n\n""" + self.pool))
+An error occurred. Please copy the following message into a bug report.\n\n""" + self.pool[0:10000]))
                 self.pool = ""
                 self.timer = None
         pipe = ErrorPipe(self)
