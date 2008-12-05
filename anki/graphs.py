@@ -88,10 +88,6 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         for dayslist in dayslists:
             self.addMissing(dayslist, self.stats['lowestInDay'], days)
 
-        # what is this doing?
-        #         for i in range(days):
-        #             dayslists[0][i] += dayslists[1][i]
-
         argl = []
 
         for dayslist in dayslists:
