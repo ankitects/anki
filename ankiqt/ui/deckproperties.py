@@ -110,6 +110,7 @@ class DeckProperties(QDialog):
             n += 1
 
     def updateModelsList(self):
+        idx = self.dialog.modelsList.currentRow()
         self.dialog.modelsList.clear()
         self.models = []
         for model in self.d.models:
@@ -135,8 +136,10 @@ class DeckProperties(QDialog):
         model = self.selectedModel()
         if not model:
             return
-        ui.modelproperties.ModelProperties(self, model, self.parent)
-        self.updateModelsList()
+        # set to current
+        self.d.currentModel = model
+        ui.modelproperties.ModelProperties(self, model, self.parent, onFinish=
+                                           self.updateModelsList)
 
     def onDelete(self):
         model = self.selectedModel()
