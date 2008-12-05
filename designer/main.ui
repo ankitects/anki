@@ -700,7 +700,6 @@
      <addaction name="actionLookup_es" />
      <addaction name="actionLookup_esk" />
     </widget>
-    <addaction name="separator" />
     <addaction name="actionGraphs" />
     <addaction name="actionDstats" />
     <addaction name="actionKstats" />
