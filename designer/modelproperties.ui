@@ -8,8 +8,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>530</height>
+    <width>376</width>
+    <height>528</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -26,8 +26,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>432</width>
-        <height>464</height>
+        <width>360</width>
+        <height>462</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -247,7 +247,7 @@ p, li { white-space: pre-wrap; }
             <item row="1" column="1" >
              <widget class="QCheckBox" name="fieldUnique" >
               <property name="text" >
-               <string>Prevent me from entering the same thing in this field twice</string>
+               <string>Prevent duplicates</string>
               </property>
              </widget>
             </item>
@@ -271,7 +271,7 @@ p, li { white-space: pre-wrap; }
             <item row="2" column="1" >
              <widget class="QCheckBox" name="fieldRequired" >
               <property name="text" >
-               <string>Prevent new cards from being added if this field is blank</string>
+               <string>Prevent empty entries</string>
               </property>
              </widget>
             </item>
@@ -285,7 +285,7 @@ p, li { white-space: pre-wrap; }
             <item row="3" column="1" >
              <widget class="QCheckBox" name="numeric" >
               <property name="text" >
-               <string>Sort this field using numeric order instead of string order</string>
+               <string>Sort as numbers</string>
               </property>
              </widget>
             </item>
@@ -301,28 +301,22 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>412</width>
+        <width>370</width>
         <height>462</height>
        </rect>
       </property>
       <attribute name="title" >
        <string>Cards</string>
       </attribute>
-      <layout class="QVBoxLayout" >
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <property name="margin" >
-        <number>9</number>
-       </property>
-       <item>
+      <layout class="QGridLayout" name="gridLayout_2" >
+       <item row="0" column="0" >
         <widget class="QLabel" name="label_8" >
          <property name="text" >
           <string>&lt;h1>Card Templates&lt;/h1></string>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="1" column="0" >
         <layout class="QHBoxLayout" >
          <property name="spacing" >
           <number>6</number>
@@ -333,9 +327,9 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QListWidget" name="cardList" >
            <property name="sizePolicy" >
-            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
              <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
+             <verstretch>1</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize" >
@@ -348,7 +342,7 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </item>
-       <item>
+       <item row="2" column="0" >
         <layout class="QHBoxLayout" name="horizontalLayout_2" >
          <item>
           <widget class="QPushButton" name="cardAdd" >
@@ -393,8 +387,14 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </item>
-       <item>
+       <item row="3" column="0" >
         <widget class="QGroupBox" name="cardEditBox" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="MinimumExpanding" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>3</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title" >
           <string/>
          </property>
