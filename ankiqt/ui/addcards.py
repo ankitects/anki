@@ -8,7 +8,7 @@ import ankiqt.forms
 import anki
 from anki.facts import Fact
 from anki.errors import *
-from anki.utils import stripHTML
+from anki.utils import stripHTML, parseTags
 from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from ankiqt import ui
 
@@ -51,14 +51,16 @@ class AddCards(QDialog):
         self.dialog.buttonBox.addButton(self.addButton,
                                         QDialogButtonBox.ActionRole)
         self.addButton.setShortcut(_("Ctrl+Return"))
-        self.addButton.setDefault(True)
+        self.addButton.setAutoDefault(False)
         s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
         s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
         self.closeButton = QPushButton(_("Close"))
+        self.closeButton.setAutoDefault(False)
         self.dialog.buttonBox.addButton(self.closeButton,
                                         QDialogButtonBox.RejectRole)
         self.helpButton = QPushButton(_("Help"))
+        self.helpButton.setAutoDefault(False)
         self.dialog.buttonBox.addButton(self.helpButton,
                                         QDialogButtonBox.HelpRole)
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
@@ -118,6 +120,8 @@ question or answer on all cards. Can't proceed."""), parent=self)
         f = self.parent.deck.newFact()
         f.tags = self.parent.deck.lastTags
         self.editor.setFact(f, check=True)
+        # let completer know our extra tags
+        self.editor.tags.addTags(parseTags(self.parent.deck.lastTags))
         self.maybeSave()
 
     def closeEvent(self, evt):

@@ -25,6 +25,11 @@ class TagEdit(QLineEdit):
         self.model.setStringList(
             QStringList(tags))
 
+    def addTags(self, tags):
+        l = list(set([unicode(x) for x in list(self.model.stringList())] +
+                 tags))
+        self.model.setStringList(QStringList(l))
+
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
         self.emit(SIGNAL("lostFocus"))

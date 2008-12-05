@@ -52,6 +52,7 @@ class ModelChooser(QHBoxLayout):
             label = QLabel(_("<b>Cards</b>:"))
             self.addWidget(label)
             self.cards = QPushButton()
+            self.cards.setAutoDefault(False)
             self.connect(self.cards, SIGNAL("clicked()"), self.onCardChange)
             self.addWidget(self.cards)
             self.drawCardModels()

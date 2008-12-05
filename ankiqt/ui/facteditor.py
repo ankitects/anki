@@ -359,6 +359,7 @@ class FactEditor(object):
         w = self.focusedEdit()
         if w:
             self.onFocusLost(w)
+        self.onTagChange()
         # ensure valid
         self.checkValid()
 
