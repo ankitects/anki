@@ -170,6 +170,7 @@ class Preferences(QDialog):
         self.dialog.showTimer.setChecked(self.config['showTimer'])
         self.dialog.simpleToolbar.setChecked(self.config['simpleToolbar'])
         self.dialog.scrollToAnswer.setChecked(self.config['scrollToAnswer'])
+        self.dialog.showDivider.setChecked(self.config['qaDivider'])
         self.dialog.toolbarIconSize.setText(str(self.config['iconSize']))
 
     def updateAdvanced(self):
@@ -185,6 +186,7 @@ class Preferences(QDialog):
         self.config['suppressEstimates'] = self.dialog.suppressEstimates.isChecked()
         self.config['simpleToolbar'] = self.dialog.simpleToolbar.isChecked()
         self.config['scrollToAnswer'] = self.dialog.scrollToAnswer.isChecked()
+        self.config['qaDivider'] = self.dialog.showDivider.isChecked()
         i = 32
         try:
             i = int(self.dialog.toolbarIconSize.text())

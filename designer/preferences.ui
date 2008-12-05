@@ -441,6 +441,13 @@
            </property>
           </widget>
          </item>
+         <item row="10" column="0" >
+          <widget class="QCheckBox" name="showDivider" >
+           <property name="text" >
+            <string>Show divider between question and answer</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
