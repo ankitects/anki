@@ -9,7 +9,7 @@
     <x>0</x>
     <y>0</y>
     <width>394</width>
-    <height>430</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -30,7 +30,7 @@
         <x>0</x>
         <y>0</y>
         <width>378</width>
-        <height>364</height>
+        <height>334</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -94,14 +94,14 @@
        <item row="3" column="0" >
         <widget class="QComboBox" name="newCardScheduling" />
        </item>
-       <item row="6" column="0" >
+       <item row="8" column="0" >
         <widget class="QLabel" name="label_16" >
          <property name="text" >
           <string>&lt;h1>Priorities&lt;/h1></string>
          </property>
         </widget>
        </item>
-       <item row="7" column="0" >
+       <item row="9" column="0" >
         <layout class="QGridLayout" name="gridLayout_4" >
          <item row="0" column="0" >
           <widget class="QLabel" name="label_21" >
@@ -157,7 +157,7 @@
          </item>
         </layout>
        </item>
-       <item row="8" column="0" >
+       <item row="10" column="0" >
         <spacer name="verticalSpacer_2" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -173,18 +173,35 @@
        <item row="4" column="0" >
         <widget class="QComboBox" name="revCardOrder" />
        </item>
+       <item row="6" column="0" >
+        <widget class="Line" name="line_2" >
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
        <item row="5" column="0" >
         <spacer name="verticalSpacer_3" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeType" >
-          <enum>QSizePolicy::Fixed</enum>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="7" column="0" >
+        <spacer name="verticalSpacer_5" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
-           <height>20</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -197,7 +214,7 @@
         <x>0</x>
         <y>0</y>
         <width>378</width>
-        <height>364</height>
+        <height>334</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -229,7 +246,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" >
+         <item row="6" column="0" >
           <widget class="QLabel" name="label_28" >
            <property name="maximumSize" >
             <size>
@@ -246,7 +263,7 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-         <item row="6" column="0" >
+         <item row="8" column="0" >
           <layout class="QHBoxLayout" name="horizontalLayout_3" >
            <item>
             <widget class="QPushButton" name="addSource" >
@@ -270,7 +287,7 @@ p, li { white-space: pre-wrap; }
            </item>
           </layout>
          </item>
-         <item row="5" column="0" >
+         <item row="7" column="0" >
           <widget class="QTableWidget" name="sourcesTable" />
          </item>
          <item row="3" column="0" >
@@ -307,6 +324,26 @@ p, li { white-space: pre-wrap; }
            </item>
           </layout>
          </item>
+         <item row="4" column="0" >
+          <widget class="Line" name="line_3" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" >
+          <spacer name="verticalSpacer_6" >
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </item>
       </layout>
@@ -317,7 +354,7 @@ p, li { white-space: pre-wrap; }
         <x>0</x>
         <y>0</y>
         <width>378</width>
-        <height>364</height>
+        <height>334</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -382,7 +419,7 @@ p, li { white-space: pre-wrap; }
         <x>0</x>
         <y>0</y>
         <width>378</width>
-        <height>364</height>
+        <height>334</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -398,7 +435,11 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QLabel" name="label" >
          <property name="text" >
-          <string>&lt;h1>Deck description&lt;/h1></string>
+          <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;">&lt;span style=" font-size:xx-large;">Deck Description&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
          </property>
         </widget>
        </item>
@@ -423,7 +464,7 @@ p, li { white-space: pre-wrap; }
         <x>0</x>
         <y>0</y>
         <width>378</width>
-        <height>364</height>
+        <height>334</height>
        </rect>
       </property>
       <attribute name="title" >
