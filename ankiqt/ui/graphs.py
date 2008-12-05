@@ -25,15 +25,8 @@ class AnkiFigureCanvas (FigureCanvas):
 
         FigureCanvas.setSizePolicy(self,
                                    QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
+                                   QSizePolicy.Fixed)
         FigureCanvas.updateGeometry(self)
-
-    def sizeHint(self):
-        w, h = self.get_width_height()
-        return QSize(w+30, h+30)
-
-    def minimumSizeHint(self):
-        return QSize(10, 10)
 
     # bug in matplotlib
     def keyReleaseEvent(self, evt):
@@ -44,17 +37,22 @@ class AnkiFigureCanvas (FigureCanvas):
 
 class AdjustableFigure(QWidget):
 
-    def __init__(self, figureFunc, range=None):
+    def __init__(self, config, name, figureFunc, choices=None):
         QWidget.__init__(self)
+        self.config = config
+        self.name = name
         self.vbox = QVBoxLayout()
         self.vbox.setSpacing(2)
-        self.range = range
+        self.range = None
+        self.choices = choices
         self.figureFunc = figureFunc
         self.setLayout(self.vbox)
         self.updateTimer = None
         self.hbox = QHBoxLayout()
         self.hbox.addSpacing(10)
         self.hbox.addStretch(1)
+        if self.choices:
+            self.addCombo()
 
     def addWidget(self, widget):
         self.vbox.addWidget(widget)
@@ -76,29 +74,20 @@ class AdjustableFigure(QWidget):
         self.vbox.insertWidget(idx, self.figureCanvas)
         self.setUpdatesEnabled(True)
 
-    def addSlider(self, label, choices):
-        self.choices = choices
-        self.labelText = label
-        self.label = QLabel()
-        self.label.setFixedWidth(110)
-        self.updateLabel()
-        self.slider = QScrollBar(Qt.Horizontal)
-        self.slider.setFixedWidth(150)
-        self.slider.setRange(0, len(choices) - 1)
-        self.slider.setValue(choices.index(self.range))
-        self.slider.setFocusPolicy(Qt.TabFocus)
-        self.hbox.addWidget(self.label)
-        self.hbox.addWidget(self.slider)
-        self.connect(self.slider, SIGNAL("valueChanged(int)"),
-                     self.sliderChanged)
+    def addCombo(self):
+        self.periodCombo = QComboBox()
+        self.periodCombo.addItems(QStringList(
+            [anki.utils.fmtTimeSpan(x*86400) for x in self.choices]))
+        self.hbox.addWidget(self.periodCombo)
+        idx = self.config.get('graphs.period.' + self.name, 1)
+        self.periodCombo.setCurrentIndex(idx)
+        self.connect(self.periodCombo, SIGNAL("currentIndexChanged(int)"),
+                     self.onPeriodChange)
+        self.onPeriodChange(idx)
 
-    def updateLabel(self):
-        self.label.setText("%s: %s" % (self.labelText,
-                                       anki.utils.fmtTimeSpan(self.range*86400)))
-
-    def sliderChanged(self, index):
+    def onPeriodChange(self, index):
+        self.config['graphs.period.' + self.name] = index
         self.range = self.choices[index]
-        self.updateLabel()
         self.scheduleUpdate()
 
     def scheduleUpdate(self):
@@ -116,6 +105,10 @@ class AdjustableFigure(QWidget):
         self.hbox.insertWidget(1, self.explanation)
         self.vbox.addLayout(self.hbox)
 
+    def showHide(self):
+        shown = self.config.get('graphs.shown.' + self.name, True)
+        self.setVisible(shown)
+
 class IntervalGraph(QDialog):
 
     def __init__(self, parent, *args):
@@ -129,6 +122,7 @@ class IntervalGraph(QDialog):
         QDialog.reject(self)
 
 def intervalGraph(parent, deck):
+    widgets = []
     dg = anki.graphs.DeckGraphs(deck)
     # dialog setup
     d = IntervalGraph(parent)
@@ -152,67 +146,108 @@ def intervalGraph(parent, deck):
     range = [7, 30, 90, 180, 365, 730, 1095, 1460, 1825]
 
     # views
-    nextDue = AdjustableFigure(dg.nextDue, 30)
-    nextDue.addWidget(QLabel(_("<h1>Due cards</h1>")))
+    nextDue = AdjustableFigure(parent.config, 'due', dg.nextDue, range)
+    nextDue.addWidget(QLabel(_("<h1>Due</h1>")))
     nextDue.addFigure()
-    nextDue.addSlider(_("Period"), range)
     nextDue.addExplanation(_("The number of cards due each day over the "
                              "period.\n"
                              "Today is 0; cards less than zero are overdue."))
-
     vbox.addWidget(nextDue)
+    widgets.append(nextDue)
 
-    cumDue = AdjustableFigure(dg.cumulativeDue, 30)
-    cumDue.addWidget(QLabel(_("<h1>Cumulative view of due cards</h1>")))
+    cumDue = AdjustableFigure(parent.config, 'cum', dg.cumulativeDue, range)
+    cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
     cumDue.addFigure()
-    cumDue.addSlider(_("Period"), range)
     cumDue.addExplanation(_("The number of cards due each day, assuming "
                              "no study."))
 
     vbox.addWidget(cumDue)
+    widgets.append(cumDue)
 
-    interval = AdjustableFigure(dg.intervalPeriod, 30)
-    interval.addWidget(QLabel(_("<h1>Card intervals</h1>")))
+    interval = AdjustableFigure(parent.config, 'interval', dg.intervalPeriod, range)
+    interval.addWidget(QLabel(_("<h1>Intervals</h1>")))
     interval.addFigure()
-    interval.addSlider(_("Period"), range)
     interval.addExplanation(_("The number of cards scheduled for a given "
                              "number of days."))
     vbox.addWidget(interval)
+    widgets.append(interval)
 
-    added = AdjustableFigure(dg.addedRecently, 30)
-    added.addWidget(QLabel(_("<h1>Added cards</h1>")))
+    added = AdjustableFigure(parent.config, 'added', dg.addedRecently, range)
+    added.addWidget(QLabel(_("<h1>Added</h1>")))
     added.addFigure()
-    added.addSlider(_("Period"), range)
     added.addExplanation(_("The number of cards added on a given day."))
     vbox.addWidget(added)
+    widgets.append(added)
 
-    answered = AdjustableFigure(lambda *args: apply(
-        dg.addedRecently, args + ('firstAnswered',)), 30)
-    answered.addWidget(QLabel(_("<h1>First answered</h1>")))
+    answered = AdjustableFigure(parent.config, 'answered', lambda *args: apply(
+        dg.addedRecently, args + ('firstAnswered',)), range)
+    answered.addWidget(QLabel(_("<h1>First Answered</h1>")))
     answered.addFigure()
-    answered.addSlider(_("Period"), range)
     answered.addExplanation(_("The number of cards first answered on a "
                               "given day.\nThis will be different to "
                               "'added cards' if you are\nusing a "
                               "pre-made deck."))
     vbox.addWidget(answered)
+    widgets.append(answered)
 
-    eases = AdjustableFigure(dg.easeBars)
-    eases.addWidget(QLabel(_("<h1>Card ease</h1>")))
+    eases = AdjustableFigure(parent.config, 'eases', dg.easeBars)
+    eases.addWidget(QLabel(_("<h1>Eases</h1>")))
     eases.addFigure()
     eases.addExplanation(_("The amount of times you answered a card at "
                            "each ease level."))
     vbox.addWidget(eases)
+    widgets.append(eases)
 
     scroll.setWidget(frame)
+
+    hbox = QHBoxLayout()
+
+    def showHideAll():
+        for w in widgets:
+            w.showHide()
+        frame.adjustSize()
+
+    def onShowHideToggle(b, w):
+        key = 'graphs.shown.' + w.name
+        parent.config[key] = not parent.config.get(key, True)
+        showHideAll()
+
+    def onShowHide():
+        nameMap = {
+            'due': _("Due"),
+            'cum': _("Cumulative"),
+            'interval': _("Interval"),
+            'added': _("Added"),
+            'answered': _("First Answered"),
+            'eases': _("Eases"),
+            }
+        m = QMenu(parent)
+        for graph in widgets:
+            name = graph.name
+            shown = parent.config.get('graphs.shown.' + name, True)
+            action = QAction(parent)
+            action.setCheckable(True)
+            action.setChecked(shown)
+            action.setText(nameMap[name])
+            action.connect(action, SIGNAL("toggled(bool)"),
+                           lambda b, g=graph: onShowHideToggle(b, g))
+            m.addAction(action)
+        m.exec_(showhide.mapToGlobal(QPoint(0,0)))
+
+    showhide = QPushButton(_("Show/Hide"))
+    hbox.addWidget(showhide)
+    showhide.connect(showhide, SIGNAL("clicked()"),
+                     onShowHide)
+
     buttonBox = QDialogButtonBox(d)
     buttonBox.setOrientation(Qt.Horizontal)
     close = buttonBox.addButton(QDialogButtonBox.Close)
     close.setDefault(True)
-
     d.connect(buttonBox, SIGNAL("rejected()"), d.close)
+    hbox.addWidget(buttonBox)
 
-    topBox.addWidget(buttonBox)
+    topBox.addLayout(hbox)
+
+    showHideAll()
 
     d.show()
-
