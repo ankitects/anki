@@ -900,7 +900,7 @@
      <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
    </property>
    <property name="text" >
-    <string>Ed&amp;it All...</string>
+    <string>&amp;Edit All...</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+F</string>
