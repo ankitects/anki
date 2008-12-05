@@ -773,6 +773,9 @@ Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
 
     def closeEvent(self, event):
         "User hit the X button, etc."
+        if self.state == "editCurrentFact":
+            event.ignore()
+            return self.moveToState("saveEdit")
         if not self.saveAndClose(hideWelcome=True):
             event.ignore()
         else:
