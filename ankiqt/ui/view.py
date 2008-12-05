@@ -253,3 +253,6 @@ class AnkiWebView(QWebView):
 
     def contextMenuEvent(self, evt):
         QWebView.contextMenuEvent(self, evt)
+
+    def dropEvent(self, evt):
+        pass
