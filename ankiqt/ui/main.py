@@ -1646,9 +1646,9 @@ the same field count and card count.""") % ret[1])
         mb.setText(_("""\
 Would you like to remove unused files from the media directory, and
 tag or delete references to missing files?"""))
-        bTag = QPushButton("Tag facts missing media")
+        bTag = QPushButton("Tag")
         mb.addButton(bTag, QMessageBox.RejectRole)
-        bDelete = QPushButton("Delete references to missing media")
+        bDelete = QPushButton("Delete")
         mb.addButton(bDelete, QMessageBox.RejectRole)
         bCancel = QPushButton("Cancel")
         mb.addButton(bCancel, QMessageBox.RejectRole)
