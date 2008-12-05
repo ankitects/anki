@@ -115,6 +115,7 @@ class AnkiQt(QMainWindow):
                     self.timer.setInterval(interval)
 
             def onTimeout(self):
+                print self.pool
                 ui.utils.showText(_("""\
 An error occurred. Please copy the following message into a bug report.\n\n""" + self.pool))
                 self.pool = ""
@@ -286,7 +287,27 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
             if delay > 86400:
                 return
             if delay < 0:
-                sys.stderr.write("earliest time returned negative value\n")
+                c = self.deck.getCard()
+                if c:
+                    c = (c.id, c.question, c.due, c.combinedDue, c.isDue, c.type)
+                sys.stderr.write("""
+earliest time returned %f
+
+failed is:
+%s
+
+rev:
+%s
+
+new:
+%s
+
+getCard() returns:
+%s""" % (delay,
+         self.deck.s.all("select * from failedCards"),
+         self.deck.s.all("select * from revCardsOld"),
+         self.deck.s.all("select * from acqCardsOrdered"),
+         c))
                 return
             t = QTimer(self)
             t.setSingleShot(True)

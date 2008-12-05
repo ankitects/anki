@@ -44,6 +44,7 @@ def showText(text, parent=None):
     d.setWindowTitle("Anki")
     v = QVBoxLayout()
     l = QLabel(text)
+    l.setWordWrap(True)
     l.setTextInteractionFlags(Qt.TextSelectableByMouse)
     v.addWidget(l)
     buts = QDialogButtonBox.Ok
