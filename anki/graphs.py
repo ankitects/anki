@@ -96,10 +96,12 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         self.filledGraph(graph, days, ["#7777ff", "#77ffff"], *argl)
 
         cheat = fig.add_subplot(111)
-        cheat.bar(0, 0, color = "#77ffff", label = _("Young cards"))
-        cheat.bar(1, 0, color = "#7777ff", label = _("Mature cards"))
+        b1 = cheat.bar(0, 0, color = "#77ffff") #, label = _("Young cards"))
+        b2 = cheat.bar(1, 0, color = "#7777ff") #, label = _("Mature cards"))
 
-        cheat.legend(loc = 'upper right')
+        cheat.legend([b1, b2], [
+            _("Young"),
+            _("Mature")], loc='upper right')
 
         graph.set_ylabel(_("Cards"))
         graph.set_xlabel(_("Days"))
@@ -237,9 +239,9 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
             n += 1
         graph.set_ylabel("%")
         x = ([""] + [str(n) for n in range(1, enum)]) * 3
-        graph.legend([p[0] for p in bars], (_("New cards"),
-                                            _("Young cards"),
-                                            _("Mature cards")),
+        graph.legend([p[0] for p in bars], (_("New"),
+                                            _("Young"),
+                                            _("Mature")),
                      'upper left')
         graph.set_ylim(ymax=100)
         graph.set_xlim(xmax=15)
