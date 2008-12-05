@@ -12,6 +12,7 @@ import codecs
 from anki.importing import Importer, ForeignCard
 from anki.lang import _
 from anki.errors import *
+from anki.utils import tidyHTML
 
 class TextImporter(Importer):
 
@@ -120,7 +121,7 @@ class TextImporter(Importer):
 
     def parseLine(self, line):
         fields = line.split(self.pattern)
-        fields = [f.strip() for f in fields]
+        fields = [tidyHTML(f.strip()) for f in fields]
         return fields
 
     def cardFromFields(self, fields):
