@@ -28,6 +28,10 @@ class AnkiFigureCanvas (FigureCanvas):
                                    QSizePolicy.Fixed)
         FigureCanvas.updateGeometry(self)
 
+    def sizeHint(self):
+        w, h = self.get_width_height()
+        return QSize(w+30, h+30)
+
     # bug in matplotlib
     def keyReleaseEvent(self, evt):
         evt.ignore()
