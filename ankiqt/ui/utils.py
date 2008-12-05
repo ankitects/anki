@@ -8,7 +8,7 @@ from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
 from ankiqt import ui
 
-import re, os, sys
+import re, os, sys, urllib
 import ankiqt
 
 def openLink(link):
@@ -178,7 +178,9 @@ def mungeQA(deck, txt):
                 prefix = u"file:///"
             else:
                 prefix = u"file://"
-            src = prefix + os.path.join(deck.mediaDir(create=True), match)
+            src = prefix + unicode(
+                urllib.quote(os.path.join(deck.mediaDir(
+                create=True), match).encode("utf-8")), "utf-8")
         return 'img src="%s"' % src
     txt = re.sub('img src="(.*?)"', quote, txt)
     return txt
