@@ -1094,6 +1094,7 @@ answerAlign from cardModels""")])
         for cm in model.cardModels:
             cm.qformat = cm.qformat.replace("%%(%s)s" % field.name, "")
             cm.aformat = cm.aformat.replace("%%(%s)s" % field.name, "")
+        self.updateCardsFromModel(model)
         model.setModified()
         self.flushMod()
 
