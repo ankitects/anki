@@ -1716,7 +1716,7 @@ mapper(Deck, decksTable, properties={
 # Deck storage
 ##########################################################################
 
-numBackups = 100
+numBackups = 30
 
 # anki dir
 if sys.platform.startswith("darwin"):
