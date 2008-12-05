@@ -413,51 +413,6 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>378</width>
-        <height>334</height>
-       </rect>
-      </property>
-      <attribute name="title" >
-       <string>Description</string>
-      </attribute>
-      <layout class="QVBoxLayout" >
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <property name="margin" >
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="label" >
-         <property name="text" >
-          <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;">&lt;span style=" font-size:xx-large;">Deck Description&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="deckDescription" >
-         <property name="minimumSize" >
-          <size>
-           <width>0</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="tabChangesFocus" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="tab_4" >
       <property name="geometry" >
        <rect>
@@ -770,7 +725,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>modelsAdd</tabstop>
   <tabstop>modelsEdit</tabstop>
   <tabstop>modelsDelete</tabstop>
-  <tabstop>deckDescription</tabstop>
   <tabstop>delay0</tabstop>
   <tabstop>delay1</tabstop>
   <tabstop>delay2</tabstop>

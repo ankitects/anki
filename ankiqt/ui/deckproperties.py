@@ -12,10 +12,9 @@ from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
 
-tabs = ("Synchronization",
-        "Scheduling",
+tabs = ("Scheduling",
+        "Synchronization",
         "Models",
-        "Description",
         "Advanced")
 
 class DeckProperties(QDialog):
@@ -44,8 +43,6 @@ class DeckProperties(QDialog):
         self.show()
 
     def readData(self):
-        # description
-        self.dialog.deckDescription.setText(self.d.description)
         # syncing
         sn = self.d.syncName
         if sn:
@@ -208,9 +205,6 @@ class DeckProperties(QDialog):
     def reject(self):
         n = _("Deck Properties")
         self.parent.deck.setUndoStart(n)
-        # description
-        self.updateField(self.d, 'description',
-                         unicode(self.dialog.deckDescription.toPlainText()))
         # syncing
         if self.dialog.doSync.checkState() == Qt.Checked:
             self.updateField(self.d, 'syncName',
