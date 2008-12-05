@@ -235,7 +235,7 @@ class EditDeck(QMainWindow):
                      self.tagChanged)
 
     def setupSort(self):
-        self.sortIndex = 0
+        self.sortIndex = self.config['sortIndex']
         self.drawSort()
         self.connect(self.dialog.sortBox, SIGNAL("activated(int)"),
                      self.sortChanged)
@@ -270,6 +270,8 @@ class EditDeck(QMainWindow):
         self.sortList.extend([_("Field '%s'") % f for f in self.sortFields])
         self.dialog.sortBox.clear()
         self.dialog.sortBox.addItems(QStringList(self.sortList))
+        if self.sortIndex >= len(self.sortList):
+            self.sortIndex = 0
         self.dialog.sortBox.setCurrentIndex(self.sortIndex)
 
     def sortChanged(self, idx, refresh=True):
@@ -292,6 +294,7 @@ class EditDeck(QMainWindow):
         else:
             self.sortKey = ("field", self.sortFields[idx-8])
         self.sortIndex = idx
+        self.config['sortIndex'] = idx
         self.model.sortKey = self.sortKey
         if refresh:
             self.model.showMatching()

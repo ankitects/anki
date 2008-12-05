@@ -67,6 +67,7 @@ class Config(dict):
             'simpleToolbar': True,
             'scrollToAnswer': True,
             'qaDivider': True,
+            'sortIndex': 0,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
