@@ -7,7 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback
-import copy, shutil, time, glob
+import shutil, time, glob
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -233,6 +233,7 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         elif state == "saveEdit":
             self.editor.saveFieldsNow()
             self.deck.s.flush()
+            self.deck.refresh()
             return self.moveToState("auto")
         self.updateViews(state)
 
@@ -256,8 +257,6 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         "Reschedule current card and move back to getQuestion state."
         if self.state != "showAnswer":
             return
-        # copy card for undo
-        self.lastCardBackup = copy.copy(self.currentCard)
         # remove card from session before updating it
         self.deck.s.expunge(self.currentCard)
         self.deck.answerCard(self.currentCard, quality)
