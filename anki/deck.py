@@ -476,8 +476,12 @@ end)""" + where)
         self.failedNowCount = self.s.scalar("""
 select count(*) from cards where type = 0 and isDue = 1
 and combinedDue <= :t""", t=time.time())
-        self.revCount = self.s.scalar("select count(*) from revCardsOld")
-        self.newCount = self.s.scalar("select count(*) from acqCardsOrdered")
+        self.revCount = self.s.scalar(
+            "select count(*) from cards where "
+            "type = 1 and priority in (1,2,3,4)")
+        self.newCount = self.s.scalar(
+            "select count(*) from cards where "
+            "type = 2 and priority in (1,2,3,4)")
 
     def checkDue(self):
         "Mark expired cards due, and update counts."
@@ -1682,10 +1686,12 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def undo(self):
         self._undoredo(self.undoStack, self.redoStack)
         self.refresh()
+        self.rebuildCounts()
 
     def redo(self):
         self._undoredo(self.redoStack, self.undoStack)
         self.refresh()
+        self.rebuildCounts()
 
 # Shared decks
 ##########################################################################
