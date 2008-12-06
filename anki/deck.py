@@ -478,10 +478,10 @@ select count(*) from cards where type = 0 and isDue = 1
 and combinedDue <= :t""", t=time.time())
         self.revCount = self.s.scalar(
             "select count(*) from cards where "
-            "type = 1 and priority in (1,2,3,4)")
+            "type = 1 and priority in (1,2,3,4) and isDue = 1")
         self.newCount = self.s.scalar(
             "select count(*) from cards where "
-            "type = 2 and priority in (1,2,3,4)")
+            "type = 2 and priority in (1,2,3,4) and isDue = 1")
 
     def checkDue(self):
         "Mark expired cards due, and update counts."
