@@ -466,7 +466,7 @@ Possible reasons:
 
 To upgrade an old deck, download Anki 0.9.8.7.
 
-Error was:\n%s\n...\n%s""") % (fmt1, fmt2))
+Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             self.moveToState("noDeck")
             return
         self.updateRecentFiles(self.deck.path)
