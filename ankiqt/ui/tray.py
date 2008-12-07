@@ -18,6 +18,7 @@ class AnkiTrayIcon(QtCore.QObject):
         if (QtGui.QSystemTrayIcon.isSystemTrayAvailable() and
                     mw.config['showTrayIcon']):
             self.ti = QtGui.QSystemTrayIcon(mw)
+            self.ti.setObjectName("trayIcon")
             if self.ti:
                 QtGui.QApplication.setQuitOnLastWindowClosed(False)
                 self.mw.addHook("quit", self.onQuit)
@@ -46,6 +47,8 @@ class AnkiTrayIcon(QtCore.QObject):
         activeWindow = QtGui.QApplication.activeModalWidget()
         for w in QtGui.QApplication.topLevelWidgets():
             if w.isWindow() and not w.isHidden():
+                if not w.children():
+                    continue
                 w.hide()
                 self.tray_hidden.append(w)
         self.anki_visible = False
