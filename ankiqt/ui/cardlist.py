@@ -212,6 +212,7 @@ class EditDeck(QMainWindow):
         self.updateFilterLabel()
         restoreGeom(self, "editor")
         restoreSplitter(self.dialog.splitter, "editor")
+        restoreSplitter(self.dialog.splitter2, "editor2")
         self.show()
         self.updateSearch()
 
@@ -405,6 +406,7 @@ class EditDeck(QMainWindow):
         self.editor.setFact(None)
         saveGeom(self, "editor")
         saveSplitter(self.dialog.splitter, "editor")
+        saveSplitter(self.dialog.splitter2, "editor2")
         self.hide()
         if self.origModTime != self.deck.modified:
             self.parent.reset()
