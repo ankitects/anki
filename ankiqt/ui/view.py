@@ -119,6 +119,8 @@ class View(object):
     ##########################################################################
 
     def center(self, str, height=45):
+        if not self.main.config['splitQA']:
+            return str
         return '''
 <div style="display: table; height: %s%%; width:100%%; overflow: hidden;">
 <div style="display: table-cell; vertical-align: middle;">

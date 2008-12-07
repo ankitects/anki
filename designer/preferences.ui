@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>322</width>
-    <height>417</height>
+    <height>438</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_1" >
       <property name="geometry" >
@@ -362,7 +362,7 @@
         <x>0</x>
         <y>0</y>
         <width>306</width>
-        <height>351</height>
+        <height>372</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -445,6 +445,13 @@
           <widget class="QCheckBox" name="showDivider" >
            <property name="text" >
             <string>Show divider between question and answer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0" >
+          <widget class="QCheckBox" name="splitQA" >
+           <property name="text" >
+            <string>Put space between question and answer</string>
            </property>
           </widget>
          </item>

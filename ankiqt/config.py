@@ -67,6 +67,7 @@ class Config(dict):
             'simpleToolbar': True,
             'scrollToAnswer': True,
             'qaDivider': True,
+            'splitQA': True,
             'sortIndex': 0,
             }
         for (k,v) in fields.items():
