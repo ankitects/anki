@@ -260,7 +260,7 @@ class CardStats(object):
     def report(self):
         c = self.card
         fmt = anki.utils.fmtTimeSpan
-        self.txt = "<table width=250>"
+        self.txt = "<table>"
         self.addLine(_("Added"), self.strTime(c.created))
         if c.firstAnswered:
             self.addLine(_("First Review"), self.strTime(c.firstAnswered))
@@ -287,7 +287,7 @@ class CardStats(object):
                      c.averageTime)
         self.addLine(_("Total Time"), _("%0.1f seconds") %
                      c.reviewTime)
-        self.addLine(_("Inherited Tags"), canonifyTags(
+        self.addLine(_("Inherited Tags") + "&nbsp;"*3, canonifyTags(
             c.fact.model.tags + "," + c.cardModel.name))
         self.txt += "</table>"
         return self.txt
