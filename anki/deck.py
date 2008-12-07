@@ -783,6 +783,7 @@ and due < :now""", now=time.time())
         "Add a fact to the deck. Return list of new cards."
         if not fact.model:
             fact.model = self.currentModel
+        fact = self.cloneFact(fact)
         # validate
         fact.assertValid()
         fact.assertUnique(self.s)
@@ -805,7 +806,7 @@ and due < :now""", now=time.time())
         # keep track of last used tags for convenience
         self.lastTags = fact.tags
         self.flushMod()
-        return cards
+        return fact
 
     def availableCardModels(self, fact, checkActive=True):
         "List of active card models that aren't empty for FACT."
@@ -899,17 +900,22 @@ where facts.id not in (select factId from cards)""")
         cms = self.availableCardModels(oldFact)
         if not cms:
             return []
-        # dupe fact
-        fact = self.newFact(oldFact.model)
-        for field in fact.fields:
-            fact[field.name] = oldFact[field.name]
-        fact.tags = oldFact.tags
+        fact = self.cloneFact(oldFact)
         # proceed
         cards = []
         for cardModel in cms:
             card = anki.cards.Card(fact, cardModel)
             cards.append(card)
         return cards
+
+    def cloneFact(self, oldFact):
+        "Copy fact into new session."
+        model = self.s.query(Model).get(oldFact.model.id)
+        fact = self.newFact(model)
+        for field in fact.fields:
+            fact[field.name] = oldFact[field.name]
+        fact.tags = oldFact.tags
+        return fact
 
     # Cards
     ##########################################################################

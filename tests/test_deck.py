@@ -85,14 +85,14 @@ def test_factAddDelete():
     assert e.data['type'] == 'fieldEmpty'
     # add a fact
     f['Front'] = u"one"; f['Back'] = u"two"
-    deck.addFact(f)
+    f = deck.addFact(f)
     assert len(f.cards) == 1
     deck.rollback()
     # try with two cards
     f = deck.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
     f.model.cardModels[1].active = True
-    deck.addFact(f)
+    f = deck.addFact(f)
     assert len(f.cards) == 2
     # ensure correct order
     c0 = [c for c in f.cards if c.ordinal == 0][0]
@@ -101,7 +101,7 @@ def test_factAddDelete():
     f2 = deck.newFact()
     f2['Front'] = u"one"; f2['Back'] = u"three"
     try:
-        deck.addFact(f2)
+        f2 = deck.addFact(f2)
     except Exception, e:
         pass
     assert e.data['type'] == 'fieldNotUnique'

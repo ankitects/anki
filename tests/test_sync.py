@@ -196,8 +196,8 @@ def test_localsync_threeway():
     # add a new question
     f = deck1.newFact()
     f['Front'] = u"a"; f['Back'] = u"b"
-    cards = deck1.addFact(f)
-    card = cards[0]
+    f = deck1.addFact(f)
+    card = f.cards[0]
     client.sync()
     assert deck1.cardCount == 6
     assert deck2.cardCount == 6
