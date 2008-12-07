@@ -574,7 +574,7 @@ class FactEdit(QTextEdit):
         elif source.hasText():
             self.insertPlainText(source.text())
         elif source.hasHtml():
-            self.insertHtml(self.simplyHTML(unicode(source.html())))
+            self.insertHtml(self.simplifyHTML(unicode(source.html())))
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
