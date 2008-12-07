@@ -98,13 +98,13 @@ class AddCards(QDialog):
         n = _("Add")
         self.parent.deck.setUndoStart(n)
         try:
-            cards = self.parent.deck.addFact(fact)
+            fact = self.parent.deck.addFact(fact)
         except FactInvalidError:
             ui.utils.showInfo(_(
                 "Some fields are missing or not unique."),
                               parent=self, help="AddItems#AddError")
             return
-        if not cards:
+        if not fact.cards:
             ui.utils.showWarning(_("""\
 The input you have provided would make an empty
 question or answer on all cards. Can't proceed."""), parent=self)
