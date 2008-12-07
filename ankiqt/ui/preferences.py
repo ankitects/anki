@@ -32,6 +32,7 @@ class Preferences(QDialog):
             (_("German"), "de_DE"),
             (_("Japanese"), "ja_JP"),
             (_("Korean"), "ko_KR"),
+            (_("Finnish"), "fi_FI"),
             (_("Spanish"), "es_ES"),
             (_("Italian"), "it_IT"),
             ]
