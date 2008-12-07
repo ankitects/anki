@@ -63,7 +63,7 @@ OPTIONS = {
     'packages': ["sqlalchemy", "pysqlite2", "simplejson"],
     'excludes': ['_gtkagg', '_tkagg', "_wxagg",
                  "wx", "_wx",
-                 "Tkconstants", "Tkinter", "tcl"],
+                 "Tkconstants", "Tkinter", "tcl", "pygame"],
     'dylib_excludes': ['libncurses.5.dylib',
                        '_wxagg.so',
                        '_tkagg.so',

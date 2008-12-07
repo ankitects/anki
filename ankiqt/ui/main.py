@@ -1406,6 +1406,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.maybeEnableUndo()
         self.maybeShowLookup(False)
         self.maybeShowKanjiStats()
+        self.mainWin.actionEditCurrent.setEnabled(False)
         self.mainWin.menuCurrent.setEnabled(False)
 
     def enableCardMenuItems(self):
@@ -1416,6 +1417,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
                (hasSound(self.currentCard.answer) and
                 self.state != "getQuestion"))
         self.mainWin.actionRepeatAudio.setEnabled(snd)
+        self.mainWin.actionEditCurrent.setEnabled(True)
         self.mainWin.menuCurrent.setEnabled(True)
 
     def maybeShowKanjiStats(self):
