@@ -79,7 +79,9 @@ class AnkiQt(QMainWindow):
         self.mainWin.mainText.setFocusPolicy(Qt.ClickFocus)
         self.mainWin.mainStack.addWidget(self.mainWin.mainText)
         self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
-        self.mainWin.mainText.pageAction(QWebPage.Reload).setVisible(False)
+        self.connect(self.mainWin.mainText.pageAction(QWebPage.Reload),
+                     SIGNAL("activated()"),
+                     lambda: self.moveToState("auto"))
 
     def setupViews(self):
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
