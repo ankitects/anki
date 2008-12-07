@@ -4,7 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import re, os, sys
+import re, os, sys, tempfile
 from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
 import anki.sound
@@ -540,6 +540,10 @@ class FactEditor(object):
         file = ui.utils.getFile(self.parent, _("Add an image"), "picture", key)
         if not file:
             return
+        self._addPicture(file)
+
+    def _addPicture(self, file):
+        w = self.focusedEdit()
         path = self.deck.addMedia(file)
         w.insertHtml('<img src="%s">' % path)
 
@@ -562,7 +566,12 @@ class FactEdit(QTextEdit):
         self.parent = parent
 
     def insertFromMimeData(self, source):
-        if source.hasText():
+        if source.hasImage():
+            im = QImage(source.imageData())
+            (fd, name) = tempfile.mkstemp(suffix=".jpg")
+            im.save(name, None, 95)
+            self.parent._addPicture(name)
+        elif source.hasText():
             self.insertPlainText(source.text())
         elif source.hasHtml():
             self.insertHtml(self.simplyHTML(unicode(source.html())))

@@ -235,6 +235,7 @@ class EditDeck(QMainWindow):
                      self.tagChanged)
 
     def setupSort(self):
+        self.dialog.sortBox.setMaxVisibleItems(30)
         self.sortIndex = self.config['sortIndex']
         self.drawSort()
         self.connect(self.dialog.sortBox, SIGNAL("activated(int)"),
@@ -242,6 +243,7 @@ class EditDeck(QMainWindow):
         self.sortChanged(self.sortIndex, refresh=False)
 
     def drawTags(self):
+        self.dialog.tagList.setMaxVisibleItems(30)
         tags = self.deck.allTags()
         self.alltags = tags
         self.alltags.sort()
