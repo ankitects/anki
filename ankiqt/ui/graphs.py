@@ -137,7 +137,7 @@ def intervalGraph(parent, deck):
         if sys.platform.startswith("darwin"):
             d.setMinimumSize(740, 680)
         else:
-            d.setMinimumSize(670, 715)
+            d.setMinimumSize(690, 715)
     scroll = QScrollArea(d)
     topBox = QVBoxLayout(d)
     topBox.addWidget(scroll)
