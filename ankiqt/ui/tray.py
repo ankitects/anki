@@ -13,10 +13,13 @@ class AnkiTrayIcon(QtCore.QObject):
         QtCore.QObject.__init__(self, mw)
         self.mw = mw
         self.anki_visible = True
+        self.tray_hidden = []
+        self.last_focus = None
         if (QtGui.QSystemTrayIcon.isSystemTrayAvailable() and
                     mw.config['showTrayIcon']):
             self.ti = QtGui.QSystemTrayIcon(mw)
             if self.ti:
+                QtGui.QApplication.setQuitOnLastWindowClosed(False)
                 self.mw.addHook("quit", self.onQuit)
                 self.ti.setIcon(QtGui.QIcon(":/icons/anki.png"))
                 self.ti.setToolTip("Anki")
@@ -24,29 +27,43 @@ class AnkiTrayIcon(QtCore.QObject):
                 mw.addView(self)
                 mw.connect(self.ti, QtCore.SIGNAL("activated(QSystemTrayIcon::ActivationReason)"),lambda i: self.activated(i))
                 mw.connect(self.ti, QtCore.SIGNAL("messageClicked()"), lambda : self.messageClicked())
+                mw.connect(self.mw.app, QtCore.SIGNAL("focusChanged(QWidget*,QWidget*)"), lambda old,now: self.focusChanged(old,now))
                 self.ti.show()
 
-    def showMain(self):
-        self.mw.showNormal()
-        self.mw.activateWindow()
-        self.mw.raise_()
+    def showAll(self):
+        for w in self.tray_hidden:
+            if w.isWindow() and w.isHidden():
+                w.showNormal()
+        active = self.last_focus or self.mw
+        active.raise_()
+        active.activateWindow()
         self.anki_visible = True
+        self.tray_hidden = []
         self.updateTooltip()
 
-    def hideMain(self):
-        self.mw.hide()
+    def hideAll(self):
+        self.tray_hidden = []
+        activeWindow = QtGui.QApplication.activeModalWidget()
+        for w in QtGui.QApplication.topLevelWidgets():
+            if w.isWindow() and not w.isHidden():
+                w.hide()
+                self.tray_hidden.append(w)
         self.anki_visible = False
         self.updateTooltip()
 
     def activated(self, reason):
         if self.anki_visible:
-            self.hideMain()
+            self.hideAll()
         else:
-            self.showMain()
+            self.showAll()
 
     def messageClicked(self):
         if not self.anki_visible:
-            self.showMain()
+            self.showAll()
+
+    def focusChanged(self, old, now):
+        if now == None:
+            self.last_focus = old
 
     def setToolTip(self, message):
         self.ti.setToolTip(message)
