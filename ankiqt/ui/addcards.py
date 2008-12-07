@@ -110,7 +110,7 @@ The input you have provided would make an empty
 question or answer on all cards. Can't proceed."""), parent=self)
             return
         self.dialog.status.append(_("Added %(num)d card(s) for '%(str)s'.") % {
-            "num": len(cards),
+            "num": len(fact.cards),
             # we're guaranteed that all fields will exist now
             "str": stripHTML(fact[fact.fields[0].name]),
             })
