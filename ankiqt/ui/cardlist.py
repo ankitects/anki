@@ -154,7 +154,10 @@ class DeckModel(QAbstractTableModel):
         return self.cards[index.row()][0]
 
     def getCard(self, index):
-        return self.deck.s.query(Card).get(self.getCardID(index))
+        try:
+            return self.deck.s.query(Card).get(self.getCardID(index))
+        except IndexError:
+            return None
 
     def isDeleted(self, id):
         return id in self.deleted
@@ -458,6 +461,9 @@ class EditDeck(QMainWindow):
     def rowChanged(self, current, previous):
         self.currentRow = current
         self.currentCard = self.model.getCard(current)
+        if not self.currentCard:
+            self.editor.setFact(None, True)
+            return
         self.deck.s.flush()
         self.deck.s.refresh(self.currentCard)
         self.deck.s.refresh(self.currentCard.fact)
@@ -496,6 +502,7 @@ where id in (%s)""" % ",".join([
 
     def updateAfterCardChange(self, reset=False):
         "Refresh info like stats on current card"
+        self.currentRow = self.dialog.tableView.currentIndex()
         self.rowChanged(self.currentRow, None)
         if reset:
             self.updateSearch()
@@ -510,6 +517,7 @@ where id in (%s)""" % ",".join([
         self.deck.deleteCards(cards)
         self.deck.setUndoEnd(n)
         self.updateSearch()
+        self.updateAfterCardChange()
 
     def addTags(self):
         (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tag(s) to add:"))
