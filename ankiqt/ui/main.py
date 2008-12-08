@@ -551,7 +551,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
     def openMacSamplesDir(self, path):
         # some versions of macosx don't allow the open dialog to point inside
         # a .App file, it seems - so we copy the files onto the desktop.
-        newDir = os.path.expanduser("~/Documents/Anki 0.3 Sample Decks")
+        newDir = os.path.expanduser("~/Documents/Anki 0.9 Sample Decks")
         import shutil
         if os.path.exists(newDir):
             files = os.listdir(path)
