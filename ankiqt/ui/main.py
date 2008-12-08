@@ -148,7 +148,6 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
         self.viewsBackup = None
 
     def reset(self, count=True):
-        ui.dialogs.closeAll()
         if self.deck:
             self.deck.refresh()
             if count:
