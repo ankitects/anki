@@ -1,0 +1,519 @@
+# translation of libanki_fi_FI.po to Finnish
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: libanki_fi_FI\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-12-07 20:22+0100\n"
+"PO-Revision-Date: 2008-12-07 20:38+0200\n"
+"Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
+"Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: deck.py:592
+#, python-format
+msgid ""
+"\n"
+"<h1>Congratulations!</h1>You have finished the deck for now.<br><br>\n"
+"%(next)s\n"
+"<br><br>\n"
+"- There are <b>%(waiting)d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">\n"
+"spaced</a> cards.<br>\n"
+"- There are <b>%(suspended)d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
+"suspended</a> cards."
+msgstr ""
+"\n"
+"<h1>Onnittelut!</h1>Olet käynyt pakan läpi toistaiseksi.<br><br>\n"
+"%(next)s\n"
+"<br><br>\n"
+"- Pakassa on <b>%(waiting)d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">\n"
+"välitettyä</a> korttia.<br>\n"
+"- Pakassa on <b>%(suspended)d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
+"jäädytettyä</a> korttia."
+
+#: stats.py:497
+#, python-format
+msgid "%(count)s %(gradename)s kanji."
+msgstr "%(count)s %(gradename)s-kanjia."
+
+#: stats.py:495
+#, python-format
+msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
+msgstr ""
+
+#: stats.py:286 stats.py:288
+#, python-format
+msgid "%0.1f seconds"
+msgstr "%0.1f sekuntia"
+
+#: stats.py:270 stats.py:277 stats.py:300
+#, python-format
+msgid "%s ago"
+msgstr "%s sitten"
+
+#: utils.py:29
+#, python-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "%s päivä"
+msgstr[1] "%s päivää"
+
+#: utils.py:30
+#, python-format
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] "%s tunti"
+msgstr[1] "%s tuntia"
+
+#: utils.py:31
+#, python-format
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] "%s minuutti"
+msgstr[1] "%s minuuttia"
+
+#: utils.py:28
+#, python-format
+msgid "%s month"
+msgid_plural "%s months"
+msgstr[0] "%s kuukausi"
+msgstr[1] "%s kuukautta"
+
+#: utils.py:32
+#, python-format
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] "%s sekunti"
+msgstr[1] "%s sekuntia"
+
+#: utils.py:27
+#, python-format
+msgid "%s year"
+msgid_plural "%s years"
+msgstr[0] "%s vuosi"
+msgstr[1] "%s vuotta"
+
+#: stats.py:367 stats.py:370 stats.py:373 stats.py:376
+#, python-format
+msgid "<b>%(a)d</b> (<b>%(b)0.1f</b>/day)"
+msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b>/päivä)"
+
+#: stats.py:364
+#, python-format
+msgid "<b>%(a)d</b>/day, <b>%(b)d</b>/mon"
+msgstr "<b>%(a)d</b>/päivä, <b>%(b)d</b>/kuukausi"
+
+#: stats.py:353
+#, python-format
+msgid "<b>%0.0f</b> days"
+msgstr "<b>%0.0f</b> päivää"
+
+#: stats.py:354 stats.py:356 stats.py:358 stats.py:360 stats.py:362
+#, python-format
+msgid "<b>%0.1f</b> cards/day"
+msgstr "<b>%0.1f</b> korttia/päivä"
+
+#: stats.py:351
+msgid "<b>Averages</b><br>"
+msgstr "<b>Keskiarvot</b><br>"
+
+#: stats.py:330
+msgid "<b>Card counts</b><br>"
+msgstr "<b>Korttiluvut</b><br>"
+
+#: stats.py:338
+msgid "<b>Correct answers</b><br>"
+msgstr "<b>Oikeat vastaukset</b><br>"
+
+#: stats.py:519
+#, python-format
+msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
+msgstr ""
+
+#: stats.py:523
+#, python-format
+msgid "<li>%d total unique kanji.</li>"
+msgstr ""
+
+#: sync.py:194
+#, python-format
+msgid ""
+"<table width=500>\n"
+"<tr><td><b>Added/Changed</b></td><td><b>Here</b></td><td><b>Server</b></td></tr>\n"
+"<tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
+"<tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
+"<tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
+"%(media)s\n"
+"</table>"
+msgstr ""
+"<table width=500>\n"
+"<tr><td><b>Lisätty tai muutettu</b></td><td><b>Paikallisesti</b></td><td><b>Palvelimella</b></td></tr>\n"
+"<tr><td>Kortteja</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
+"<tr><td>Faktoja</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
+"<tr><td>Malleja</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
+"%(media)s\n"
+"</table>"
+
+#: stats.py:264
+msgid "Added"
+msgstr "Lisätty"
+
+#: stats.py:370
+msgid "Added last month"
+msgstr "Lisätty viimekuussa"
+
+#: stats.py:367
+msgid "Added last week"
+msgstr "Lisätty viimeviikolla"
+
+#: exporting.py:224
+msgid "Anki deck (*.anki)"
+msgstr "Anki-pakka (*.anki)"
+
+#: exporting.py:54
+msgid "Anki decks (*.anki)"
+msgstr "Anki-pakat (*.anki)"
+
+#: deck.py:295
+msgid "Answer Card"
+msgstr "korttiin vastaaminen"
+
+#: deck.py:551
+#, python-format
+msgid ""
+"At the same time tomorrow:<br><br>\n"
+"- There will be <b>%(wait)d</b> cards waiting for review<br>\n"
+"- There will be <b>%(new)d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-061e5433d4571d7ec7ecba0c329c09bd27c84d63\">\n"
+"new cards</a> waiting"
+msgstr ""
+"Samaan aikaan huomenna:<br><br>\n"
+"- <b>%(wait)d</b> uutta korttia odottaa kertausta<br>\n"
+"- <b>%(new)d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-061e5433d4571d7ec7ecba0c329c09bd27c84d63\">\n"
+"uutta korttia</a> odottamassa"
+
+#: stats.py:286
+msgid "Average Time"
+msgstr "Vastausnopeus"
+
+#: stats.py:354
+msgid "Average reps"
+msgstr "Kertauksia"
+
+#: stats.py:364
+msgid "Avg. added"
+msgstr "Uusia"
+
+#: stdmodels.py:31
+msgid "Basic"
+msgstr "Perusmalli"
+
+#: stdmodels.py:77
+msgid "Cantonese"
+msgstr "Kantoni"
+
+#: graphs.py:106 graphs.py:128 graphs.py:142 graphs.py:164
+msgid "Cards"
+msgstr "Kortit"
+
+#: exporting.py:225
+msgid "Cards in tab-separated text file (*.txt)"
+msgstr "Sarkaimella erotettu korttitiedosto (*.txt)"
+
+#: models.py:26
+msgid "Center"
+msgstr "Keskitä"
+
+#: stats.py:267
+msgid "Changed"
+msgstr "Muutettu"
+
+#: deck.py:1472
+msgid "Database file damaged. Restore from backup."
+msgstr "Tietokantatiedosto on vahingoittunut. Palauta toimiva versio Ankin automaattisesti tekemistä varmuuskopioista."
+
+#: graphs.py:165
+msgid "Day"
+msgstr "Päivä"
+
+#: graphs.py:107 graphs.py:129 graphs.py:143
+msgid "Days"
+msgstr "Päivää"
+
+#: stats.py:315
+msgid "Deck Statistics"
+msgstr "Pakan tilastot"
+
+#: stats.py:316
+#, python-format
+msgid "Deck created: <b>%s</b> ago<br>"
+msgstr "Luotu: <b>%s</b> sitten<br>"
+
+#: deck.py:1480
+msgid "Deck was missing a model"
+msgstr "Pakassa ei ollut mallia"
+
+#: deck.py:1506
+#, python-format
+msgid "Deleted %d cards with missing fact"
+msgstr "Poistettiin %d faktatonta korttia"
+
+#: deck.py:1514
+#, python-format
+msgid "Deleted %d cards with no card model"
+msgstr "Poistettiin %d korttia, joilla ei ollut kelvollista korttimallia"
+
+#: deck.py:1527
+#, python-format
+msgid "Deleted %d dangling fields"
+msgstr "Poistettiin %d eksynyttä kenttää"
+
+#: deck.py:1499
+#, python-format
+msgid "Deleted %d facts with missing fields"
+msgstr "Poistettiin %d faktaa, joista puuttui kenttiä"
+
+#: deck.py:1519
+#, python-format
+msgid "Deleted %d facts with no cards"
+msgstr "Poistettiin %d kortitonta faktaa"
+
+#: stats.py:273
+msgid "Due"
+msgstr "Erääntynyt"
+
+#: stats.py:275
+msgid "Ease"
+msgstr "Helppous"
+
+#: latex.py:104
+msgid "Error executing 'latex' or 'dvipng' - are they installed?"
+msgstr "Komennon latex tai dvipng suorittaminen epäonnistui – tarkista, että ne ovat asennettu."
+
+#: exporting.py:226
+msgid "Facts in tab-separated text file (*.txt)"
+msgstr "Sarkaimella erotetut faktatiedostot (*.txt)"
+
+#: deck.py:1845
+msgid "File is in use by another process"
+msgstr "Tiedosto on toisen prosessin käytössä"
+
+#: stats.py:266
+msgid "First Review"
+msgstr "Ensimmäinen kertaus"
+
+#: stats.py:376
+msgid "First last month"
+msgstr "Ensimmäisiä viimekuussa"
+
+#: stats.py:373
+msgid "First last week"
+msgstr "Ensimmäisiä viimeviikolla"
+
+#: stats.py:343
+#, python-format
+msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
+msgstr "Ensi kertaa nähdyt kortit: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b>/<b>%(gNewTotal)d</b>)<br><br>"
+
+#: stats.py:290
+msgid "Inherited Tags"
+msgstr "Perityt tägit"
+
+#: stats.py:274 stats.py:353
+msgid "Interval"
+msgstr "Aikaväli"
+
+#: stdmodels.py:46
+msgid "Japanese"
+msgstr "Japani"
+
+#: stats.py:534
+msgid "Jouyou levels:"
+msgstr "Jouyou-tasot:"
+
+#: stats.py:278
+msgid "Last Due"
+msgstr "Viimeksi erääntynyt"
+
+#: stats.py:282
+msgid "Last Ease"
+msgstr "Edellinen helppous"
+
+#: stats.py:281
+msgid "Last Interval"
+msgstr "Edellinen aikaväli"
+
+#: models.py:27
+msgid "Left"
+msgstr "Vasen"
+
+#: stdmodels.py:99
+msgid "Mandarin"
+msgstr "Mandariini"
+
+#: graphs.py:104 graphs.py:244
+msgid "Mature"
+msgstr "Vahva"
+
+#: stats.py:339
+#, python-format
+msgid "Mature cards: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> of <b>%(gMatureTotal)d</b>)<br>"
+msgstr "Varmat kortit: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b>/<b>%(gMatureTotal)d</b>)<br>"
+
+#: stats.py:331
+#, python-format
+msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
+msgstr "Varmat kortit: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
+
+#: media.py:152 media.py:154 media.py:155
+msgid "Media Missing"
+msgstr "Media puuttuu"
+
+#: deck.py:1016
+#, python-format
+msgid "Model '%s' has wrong card model count"
+msgstr "Mallissa %s on väärä korttimallilukema"
+
+#: deck.py:1020
+#, python-format
+msgid "Model '%s' has wrong field model count"
+msgstr "Mallissa %s on väärä kenttämallilukema"
+
+#: graphs.py:242
+msgid "New"
+msgstr "Uusi"
+
+#: deck.py:564
+msgid "No cards are due."
+msgstr "Ei erääntyneitä kortteja."
+
+#: stats.py:313
+msgid "Please add some cards first.<p/>"
+msgstr "Lisää ensin kortteja.</p>"
+
+#: stats.py:362
+msgid "Reps last month"
+msgstr "Kertauksia viimekuussa"
+
+#: stats.py:360
+msgid "Reps last week"
+msgstr "Kertauksia viimeviikolla"
+
+#: stats.py:358
+msgid "Reps next month"
+msgstr "Kertauksia ensikuussa"
+
+#: stats.py:356
+msgid "Reps next week"
+msgstr "Kertauksia ensiviikolla"
+
+#: deck.py:2225
+msgid "Review cards in order due"
+msgstr "Kertaa kortit erääntymisjärjestyksessä"
+
+#: deck.py:2226
+msgid "Review cards in random order"
+msgstr "Kertaa kortit satunnaisessa järjestyksessä"
+
+#: deck.py:2224
+msgid "Review newest cards first"
+msgstr "Kertaa uusimmat kortit ensin"
+
+#: deck.py:2223
+msgid "Review oldest cards first"
+msgstr "Kertaa vanhimmat kortit ensin"
+
+#: stats.py:284
+msgid "Reviews"
+msgstr "Kertauksia"
+
+#: models.py:28
+msgid "Right"
+msgstr "Oikea"
+
+#: deck.py:2218
+msgid "Show new cards after all other cards"
+msgstr "Näytä uudet kortit muiden korttien jälkeen"
+
+#: deck.py:2212
+msgid "Show new cards in order they were added"
+msgstr "Näytä uudet kortit lisäysjärjestyksessä"
+
+#: deck.py:2211
+msgid "Show new cards in random order"
+msgstr "Näytä uudet kortit satunnaisessa järjestyksessä"
+
+#: deck.py:2217
+msgid "Spread new cards out through reviews"
+msgstr "Levitä uudet kortit läpi koko kertausten"
+
+#: exporting.py:153 exporting.py:185
+msgid "Text files (*.txt)"
+msgstr "Tekstitiedostot (*.txt)"
+
+#: deck.py:1486
+msgid "The current model didn't exist"
+msgstr "Nykyistä mallia ei ollut olemassa."
+
+#: deck.py:561
+#, python-format
+msgid "The next card will be shown in <b>%s</b>"
+msgstr "Aikaa seuraavan kortin näyttämiseen on vielä <b>%s</b>"
+
+#: stats.py:288
+msgid "Total Time"
+msgstr "Aikaa yhteensä"
+
+#: stats.py:328
+#, python-format
+msgid "Total number of cards: <b>%d</b><br><br>"
+msgstr "Kortteja yhteensä: <b>%d</b><br><br>"
+
+#: deck.py:758
+msgid "Unknown"
+msgstr "Tuntematon"
+
+#: stats.py:335
+#, python-format
+msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
+msgstr "Näkemättömiä kortteja: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
+
+#: graphs.py:103 graphs.py:243
+msgid "Young"
+msgstr "Nuori"
+
+#: stats.py:341
+#, python-format
+msgid "Young cards: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> of <b>%(gYoungTotal)d</b>)<br>"
+msgstr "Uusia kortteja: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b>/<b>%(gYoungTotal)d</b>)<br>"
+
+#: stats.py:333
+#, python-format
+msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
+msgstr "Uusia kortteja: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
+
+#: models.py:130
+msgid "[invalid question/answer format]"
+msgstr "[kysymys- tai vastausmuoto on virheellinen]"
+
+# ei voi taivuttaa genetiiviin :<
+#: stats.py:272
+#, python-format
+msgid "in %s"
+msgstr "%s myöhemmin"
+
+#: deck.py:581
+msgid "unknown"
+msgstr "tuntematon"
