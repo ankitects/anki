@@ -397,6 +397,8 @@ class EditDeck(QMainWindow):
         self.parent.runHook('editor.setupMenus', self)
 
     def onClose(self):
+        saveSplitter(self.dialog.splitter, "editor")
+        saveSplitter(self.dialog.splitter2, "editor2")
         self.editor.saveFieldsNow()
         if not self.factValid:
             ui.utils.showInfo(_(
@@ -405,8 +407,6 @@ class EditDeck(QMainWindow):
             return
         self.editor.setFact(None)
         saveGeom(self, "editor")
-        saveSplitter(self.dialog.splitter, "editor")
-        saveSplitter(self.dialog.splitter2, "editor2")
         self.hide()
         if self.origModTime != self.deck.modified:
             self.parent.reset()
