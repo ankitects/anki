@@ -540,10 +540,13 @@ class FactEditor(object):
         file = ui.utils.getFile(self.parent, _("Add an image"), "picture", key)
         if not file:
             return
-        self._addPicture(file)
+        self._addPicture(file, widget=w)
 
-    def _addPicture(self, file):
-        w = self.focusedEdit()
+    def _addPicture(self, file, widget=None):
+        if widget:
+            w = widget
+        else:
+            w = self.focusedEdit()
         path = self.deck.addMedia(file)
         w.insertHtml('<img src="%s">' % path)
 
