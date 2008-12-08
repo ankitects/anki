@@ -610,7 +610,6 @@ suspended</a> cards.''') % {
     def updateAllPriorities(self, extraExcludes=[], where=""):
         "Update all card priorities if changed."
         now = time.time()
-        t = time.time()
         newPriorities = []
         tagsList = self.tagsList(where)
         if not tagsList:
@@ -626,7 +625,8 @@ suspended</a> cards.''') % {
         self.s.execute(text(
             "update cards set priority = :pri where cards.id = :id"),
             newPriorities)
-        self.s.execute("update cards set isDue = 0 where priority = 0")
+        self.s.execute(
+            "update cards set isDue = 0 where type in (0,1,2) and priority = 0")
 
     def updatePriority(self, card):
         "Update priority on a single card."
@@ -639,6 +639,10 @@ suspended</a> cards.''') % {
             if p == 0:
                 card.isDue = 0
             self.s.flush()
+
+    def updatePriorities(self, cardIds):
+        self.updateAllPriorities(
+            where=" and cards.id in %s" % ids2str(cardIds))
 
     def priorityFromTagString(self, tagString, tagCache):
         tags = parseTags(tagString.lower())
@@ -1298,7 +1302,11 @@ update facts set
 tags = :tags,
 modified = :now
 where id = :id""", pending)
-        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type="facts")
+        cardIds = self.s.column0(
+            "select id from cards where factId in %s" %
+            ids2str(ids))
+        self.updateCardQACacheFromCardIds(cardIds, type="facts")
+        self.updatePriorities(cardIds)
         self.flushMod()
 
     def deleteTags(self, ids, tags):
@@ -1322,7 +1330,11 @@ update facts set
 tags = :tags,
 modified = :now
 where id = :id""", pending)
-        self.updateCardQACacheFromCardIds([x[0] for x in tlist], type="facts")
+        cardIds = self.s.column0(
+            "select id from cards where factId in %s" %
+            ids2str(ids))
+        self.updateCardQACacheFromCardIds(cardIds, type="facts")
+        self.updatePriorities(cardIds)
         self.flushMod()
 
     # File-related
