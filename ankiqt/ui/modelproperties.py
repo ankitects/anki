@@ -34,6 +34,7 @@ class ModelProperties(QDialog):
         self.show()
         self.undoName = _("Model Properties")
         self.parent.deck.setUndoStart(self.undoName)
+        self.exec_()
 
     def readData(self):
         # properties section
