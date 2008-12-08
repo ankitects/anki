@@ -212,7 +212,6 @@ class EditDeck(QMainWindow):
         self.updateFilterLabel()
         restoreGeom(self, "editor")
         restoreSplitter(self.dialog.splitter, "editor")
-        restoreSplitter(self.dialog.splitter2, "editor2")
         self.show()
         self.updateSearch()
 
@@ -398,7 +397,6 @@ class EditDeck(QMainWindow):
 
     def onClose(self):
         saveSplitter(self.dialog.splitter, "editor")
-        saveSplitter(self.dialog.splitter2, "editor2")
         self.editor.saveFieldsNow()
         if not self.factValid:
             ui.utils.showInfo(_(
