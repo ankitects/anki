@@ -409,8 +409,6 @@ class EditDeck(QMainWindow):
         self.editor.setFact(None)
         saveGeom(self, "editor")
         self.hide()
-        if self.origModTime != self.deck.modified:
-            self.parent.reset()
         ui.dialogs.close("CardList")
         return True
 
@@ -506,6 +504,7 @@ where id in (%s)""" % ",".join([
         self.rowChanged(self.currentRow, None)
         if reset:
             self.updateSearch()
+        self.parent.moveToState("auto")
 
     # Menu options
     ######################################################################
@@ -562,6 +561,7 @@ where id in (%s)""" % ",".join([
         self.deck.updateAllPriorities()
         self.deck.setUndoEnd(n)
         self.updateSearch()
+        self.updateAfterCardChange()
 
     def selectFacts(self):
         sm = self.dialog.tableView.selectionModel()
@@ -578,11 +578,13 @@ where id in (%s)""" % ",".join([
         self.deck.undo()
         self.updateFilterLabel()
         self.updateSearch()
+        self.updateAfterCardChange()
 
     def onRedo(self):
         self.deck.redo()
         self.updateFilterLabel()
         self.updateSearch()
+        self.updateAfterCardChange()
 
 class AddCardChooser(QDialog):
 
