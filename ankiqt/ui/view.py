@@ -128,6 +128,8 @@ class View(object):
 
     def drawQuestion(self, nosound=False):
         "Show the question."
+        if not self.main.config['splitQA']:
+            self.write("<br>")
         q = self.main.currentCard.htmlQuestion()
         if self.haveTop:
             height = 35
