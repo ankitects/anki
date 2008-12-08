@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-07 20:22+0100\n"
+"POT-Creation-Date: 2008-12-09 02:31+0900\n"
 "PO-Revision-Date: 2008-12-07 20:38+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -224,6 +224,10 @@ msgstr "Perusmalli"
 msgid "Cantonese"
 msgstr "Kantoni"
 
+#: stats.py:291
+msgid "Card Model"
+msgstr ""
+
 #: graphs.py:106 graphs.py:128 graphs.py:142 graphs.py:164
 msgid "Cards"
 msgstr "Kortit"
@@ -240,7 +244,7 @@ msgstr "Keskitä"
 msgid "Changed"
 msgstr "Muutettu"
 
-#: deck.py:1472
+#: deck.py:1484
 msgid "Database file damaged. Restore from backup."
 msgstr "Tietokantatiedosto on vahingoittunut. Palauta toimiva versio Ankin automaattisesti tekemistä varmuuskopioista."
 
@@ -261,31 +265,31 @@ msgstr "Pakan tilastot"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Luotu: <b>%s</b> sitten<br>"
 
-#: deck.py:1480
+#: deck.py:1492
 msgid "Deck was missing a model"
 msgstr "Pakassa ei ollut mallia"
 
-#: deck.py:1506
+#: deck.py:1518
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Poistettiin %d faktatonta korttia"
 
-#: deck.py:1514
+#: deck.py:1526
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr "Poistettiin %d korttia, joilla ei ollut kelvollista korttimallia"
 
-#: deck.py:1527
+#: deck.py:1539
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Poistettiin %d eksynyttä kenttää"
 
-#: deck.py:1499
+#: deck.py:1511
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Poistettiin %d faktaa, joista puuttui kenttiä"
 
-#: deck.py:1519
+#: deck.py:1531
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Poistettiin %d kortitonta faktaa"
@@ -306,7 +310,7 @@ msgstr "Komennon latex tai dvipng suorittaminen epäonnistui – tarkista, että
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Sarkaimella erotetut faktatiedostot (*.txt)"
 
-#: deck.py:1845
+#: deck.py:1857
 msgid "File is in use by another process"
 msgstr "Tiedosto on toisen prosessin käytössä"
 
@@ -326,10 +330,6 @@ msgstr "Ensimmäisiä viimeviikolla"
 #, python-format
 msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 msgstr "Ensi kertaa nähdyt kortit: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b>/<b>%(gNewTotal)d</b>)<br><br>"
-
-#: stats.py:290
-msgid "Inherited Tags"
-msgstr "Perityt tägit"
 
 #: stats.py:274 stats.py:353
 msgid "Interval"
@@ -381,15 +381,19 @@ msgstr "Varmat kortit: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "Media Missing"
 msgstr "Media puuttuu"
 
-#: deck.py:1016
+#: deck.py:1020
 #, python-format
 msgid "Model '%s' has wrong card model count"
 msgstr "Mallissa %s on väärä korttimallilukema"
 
-#: deck.py:1020
+#: deck.py:1024
 #, python-format
 msgid "Model '%s' has wrong field model count"
 msgstr "Mallissa %s on väärä kenttämallilukema"
+
+#: stats.py:290
+msgid "Model Tags"
+msgstr ""
 
 #: graphs.py:242
 msgid "New"
@@ -419,19 +423,19 @@ msgstr "Kertauksia ensikuussa"
 msgid "Reps next week"
 msgstr "Kertauksia ensiviikolla"
 
-#: deck.py:2225
+#: deck.py:2237
 msgid "Review cards in order due"
 msgstr "Kertaa kortit erääntymisjärjestyksessä"
 
-#: deck.py:2226
+#: deck.py:2238
 msgid "Review cards in random order"
 msgstr "Kertaa kortit satunnaisessa järjestyksessä"
 
-#: deck.py:2224
+#: deck.py:2236
 msgid "Review newest cards first"
 msgstr "Kertaa uusimmat kortit ensin"
 
-#: deck.py:2223
+#: deck.py:2235
 msgid "Review oldest cards first"
 msgstr "Kertaa vanhimmat kortit ensin"
 
@@ -443,19 +447,19 @@ msgstr "Kertauksia"
 msgid "Right"
 msgstr "Oikea"
 
-#: deck.py:2218
+#: deck.py:2230
 msgid "Show new cards after all other cards"
 msgstr "Näytä uudet kortit muiden korttien jälkeen"
 
-#: deck.py:2212
+#: deck.py:2224
 msgid "Show new cards in order they were added"
 msgstr "Näytä uudet kortit lisäysjärjestyksessä"
 
-#: deck.py:2211
+#: deck.py:2223
 msgid "Show new cards in random order"
 msgstr "Näytä uudet kortit satunnaisessa järjestyksessä"
 
-#: deck.py:2217
+#: deck.py:2229
 msgid "Spread new cards out through reviews"
 msgstr "Levitä uudet kortit läpi koko kertausten"
 
@@ -463,7 +467,7 @@ msgstr "Levitä uudet kortit läpi koko kertausten"
 msgid "Text files (*.txt)"
 msgstr "Tekstitiedostot (*.txt)"
 
-#: deck.py:1486
+#: deck.py:1498
 msgid "The current model didn't exist"
 msgstr "Nykyistä mallia ei ollut olemassa."
 
@@ -481,7 +485,7 @@ msgstr "Aikaa yhteensä"
 msgid "Total number of cards: <b>%d</b><br><br>"
 msgstr "Kortteja yhteensä: <b>%d</b><br><br>"
 
-#: deck.py:758
+#: deck.py:762
 msgid "Unknown"
 msgstr "Tuntematon"
 
@@ -517,3 +521,6 @@ msgstr "%s myöhemmin"
 #: deck.py:581
 msgid "unknown"
 msgstr "tuntematon"
+
+#~ msgid "Inherited Tags"
+#~ msgstr "Perityt tägit"
