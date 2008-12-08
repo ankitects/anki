@@ -1,0 +1,2122 @@
+# translation of ankiqt_fi_FI.po to Finnish
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: ankiqt_fi_FI\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-12-07 20:21+0100\n"
+"PO-Revision-Date: 2008-12-07 19:40+0200\n"
+"Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
+"Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: ui/about.py:12
+#, python-format
+msgid ""
+"\n"
+"<h1>Anki</h1>\n"
+"<img src=\":/icons/anki.png\">\n"
+"<p>\n"
+"<span>Anki is a spaced repetition flashcard program designed to maximise your\n"
+"memory potential.<p/>It's free and licensed under the GPL.<p/>\n"
+"Version %s<br>\n"
+"<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
+msgstr ""
+
+#: ui/status.py:206
+msgid ""
+"\n"
+"<h1>Time</h1>\n"
+"Anki tracks how long you spend looking at a card.<br>\n"
+"This time is used to calculate the ETA, but not used<br>\n"
+"for scheduling.<br><br>\n"
+"You should aim to answer each question within<br>\n"
+"10 seconds. Click the timer to learn more."
+msgstr ""
+
+#: ui/view.py:196
+msgid ""
+"\n"
+"<h1>Welcome to Anki!</h1>\n"
+"<p>\n"
+"<table>\n"
+"\n"
+"<tr>\n"
+"<td width=50>\n"
+"<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h1><a href=\"welcome:addfacts\">Add material</a></h1>\n"
+"Start adding your own material.</td>\n"
+"</tr>\n"
+"\n"
+"</table>\n"
+"\n"
+"<br>\n"
+"<table>\n"
+"\n"
+"<tr>\n"
+"<td>\n"
+"<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h2><a href=\"welcome:open\">Open Local Deck</a></h2></td>\n"
+"</tr>\n"
+"\n"
+"<tr>\n"
+"<td>\n"
+"<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h2><a href=\"welcome:openrem\">Open Online Deck</a></h2></td>\n"
+"</tr>\n"
+"\n"
+"<tr>\n"
+"<td width=50>\n"
+"<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h2><a href=\"welcome:sample\">Open Sample Deck</a></h2></td>\n"
+"</tr>\n"
+"\n"
+"<tr>\n"
+"<td width=50>\n"
+"<a href=\"welcome:more\"><img src=\":/icons/khtml_kget.png\"></a>\n"
+"</td>\n"
+"<td valign=middle><h2><a href=\"welcome:more\">Get More Decks</a></h2></td>\n"
+"</tr>\n"
+"\n"
+"</table>"
+msgstr ""
+
+#: ui/sync.py:132
+#, python-format
+msgid " * %s fetching payload..."
+msgstr ""
+
+#: ui/sync.py:130
+#, python-format
+msgid " * %s no changes found."
+msgstr ""
+
+#: ui/sync.py:127
+#, python-format
+msgid " * %s no longer exists."
+msgstr ""
+
+#: forms/displayproperties.py:337
+msgid " <b>When adding/editing</b>"
+msgstr ""
+
+#: forms/displayproperties.py:333
+msgid " <b>When quizzing/adding/editing</b>"
+msgstr ""
+
+#: ui/sync.py:134
+#, python-format
+msgid " applied %d modified cards."
+msgstr ""
+
+#: ui/main.py:1669
+#, python-format
+msgid ""
+"%(a)d missing references.\n"
+"%(b)d unused files removed."
+msgstr ""
+
+#: ui/deckproperties.py:114
+#, python-format
+msgid "%(name)s [%(facts)d facts]"
+msgstr ""
+
+#: ui/main.py:1377
+#, python-format
+msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
+msgstr ""
+
+#: ui/exporting.py:62
+#, python-format
+msgid "%d exported."
+msgstr ""
+
+#: ui/cardlist.py:180
+#, python-format
+msgid "%s ago"
+msgstr ""
+
+#: ui/main.py:1646
+#, python-format
+msgid ""
+"%s.\n"
+"Anki can only merge models if they have exactly\n"
+"the same field count and card count."
+msgstr ""
+
+#: forms/main.py:670
+msgid "&About..."
+msgstr "&Tietoja..."
+
+#: forms/cardlist.py:159
+msgid "&Actions"
+msgstr ""
+
+#: forms/deckproperties.py:395 forms/modelproperties.py:296
+#: forms/modelproperties.py:311
+msgid "&Add"
+msgstr ""
+
+#: forms/main.py:648
+msgid "&Add Items..."
+msgstr "&Lisää kortteja..."
+
+#: forms/deckproperties.py:386
+msgid "&Add Source"
+msgstr ""
+
+#: forms/cardlist.py:162
+msgid "&Add Tag..."
+msgstr ""
+
+#: forms/main.py:632
+msgid "&Advanced"
+msgstr "L&isätoiminnot"
+
+#: forms/main.py:671
+msgid "&Card Statistics"
+msgstr "Kortin &tilastot"
+
+#: forms/main.py:642
+msgid "&Close"
+msgstr "&Sulje"
+
+#: forms/main.py:635
+msgid "&Current"
+msgstr "&Kortti"
+
+#: forms/main.py:628
+msgid "&Deck"
+msgstr "&Pakka"
+
+#: forms/main.py:672
+msgid "&Deck Properties..."
+msgstr "&Pakka..."
+
+#: forms/main.py:666
+msgid "&Deck Statistics"
+msgstr "&Pakan tilastot"
+
+#: forms/deckproperties.py:397 forms/main.py:711 forms/modelproperties.py:299
+#: forms/modelproperties.py:316
+msgid "&Delete"
+msgstr "&Poista"
+
+#: forms/deckproperties.py:387
+msgid "&Delete Source"
+msgstr ""
+
+#: forms/cardlist.py:163
+msgid "&Delete Tag..."
+msgstr ""
+
+#: forms/main.py:704
+msgid "&Disable All Plugins"
+msgstr "&Poista kaikki liitännäiset käytöstä"
+
+#: forms/cardlist.py:158 forms/deckproperties.py:396 forms/main.py:627
+msgid "&Edit"
+msgstr "&Muokkaa"
+
+#: forms/main.py:650
+msgid "&Edit All..."
+msgstr "&Muokkaa kaikkia..."
+
+#: forms/main.py:708
+msgid "&Edit..."
+msgstr "&Muokkaa..."
+
+#: forms/main.py:703
+msgid "&Enable All Plugins"
+msgstr "&Ota kaikki liitännäiset käyttöön"
+
+#: forms/main.py:692
+msgid "&Forum..."
+msgstr "&Keskustelupalsta..."
+
+#: forms/main.py:707
+msgid "&Get More Decks..."
+msgstr "&Hae lisää pakkoja..."
+
+#: forms/main.py:701
+msgid "&Get Plugins..."
+msgstr "&Hae liitännäisiä..."
+
+#: forms/main.py:675
+msgid "&Graphs..."
+msgstr "&Kuvaajat..."
+
+#: forms/main.py:626
+msgid "&Help"
+msgstr "&Ohje"
+
+#: forms/importing.py:123
+msgid "&Import"
+msgstr ""
+
+#: forms/main.py:674
+msgid "&Import..."
+msgstr "Tu&o..."
+
+#: forms/main.py:665
+msgid "&Kanji Statistics"
+msgstr "K&anji-tilastot"
+
+#: forms/main.py:631
+msgid "&Lookup"
+msgstr ""
+
+#: forms/main.py:680
+msgid "&Mark"
+msgstr "M&erkitse"
+
+#: forms/main.py:684
+msgid "&Model Properties..."
+msgstr "&Malli..."
+
+#: forms/main.py:638
+msgid "&New..."
+msgstr "&Uusi..."
+
+#: forms/main.py:702
+msgid "&Open Plugin Folder..."
+msgstr "&Avaa liitännäiskansio..."
+
+#: forms/main.py:640
+msgid "&Open..."
+msgstr "&Avaa..."
+
+#: forms/main.py:633
+msgid "&Plugins"
+msgstr "&Liitännäiset"
+
+#: forms/main.py:652
+msgid "&Preferences..."
+msgstr "&Asetukset..."
+
+#: forms/cardlist.py:169 forms/main.py:710
+msgid "&Redo"
+msgstr "Tee &uudelleen"
+
+#: forms/main.py:668
+msgid "&Report Bug..."
+msgstr "&Ilmoita virheestä..."
+
+#: forms/main.py:644
+msgid "&Save"
+msgstr "&Tallenna"
+
+#: forms/main.py:667
+msgid "&Start Here..."
+msgstr "&Aloita tästä..."
+
+#: forms/main.py:682
+msgid "&Suspend"
+msgstr "&Jäädytä"
+
+#: forms/main.py:630
+msgid "&Tools"
+msgstr "&Työkalut"
+
+#: forms/cardlist.py:168 forms/main.py:690
+msgid "&Undo"
+msgstr "&Kumoa"
+
+#: ui/cardlist.py:178
+msgid "(new card)"
+msgstr ""
+
+#: forms/main.py:655
+msgid "...&expression on ALC"
+msgstr ""
+
+#: forms/main.py:663
+msgid "...&kanji selection on Edict"
+msgstr ""
+
+#: forms/main.py:657
+msgid "...&meaning on ALC"
+msgstr ""
+
+#: forms/main.py:659
+msgid "...&selection on ALC"
+msgstr ""
+
+#: forms/main.py:661
+msgid "...&word selection on Edict"
+msgstr ""
+
+#: ui/modelproperties.py:251
+msgid "; disabled"
+msgstr ""
+
+#: forms/deckproperties.py:381
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Sources</span></p></body></html>"
+msgstr ""
+
+#: forms/addcards.py:70
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"
+msgstr ""
+
+#: forms/deckproperties.py:369
+msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
+msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Ohje</a>"
+
+#: ui/main.py:916
+msgid "<a href=py:miss>Missing Kanji</a><br>"
+msgstr ""
+
+#: forms/deckproperties.py:409
+msgid "<b>1: Again (Mature)</b>"
+msgstr ""
+
+#: forms/deckproperties.py:411
+msgid "<b>1: Again (Young)</b>"
+msgstr ""
+
+#: forms/deckproperties.py:410
+msgid "<b>1: Failure Multiplier</b>"
+msgstr ""
+
+#: forms/deckproperties.py:408
+msgid "<b>2: Initial Hard Interval</b>"
+msgstr ""
+
+#: forms/deckproperties.py:403
+msgid "<b>3: Initial Good Interval</b>"
+msgstr ""
+
+#: forms/deckproperties.py:402
+msgid "<b>4: Initial Easy Interval</b>"
+msgstr ""
+
+#: forms/modelproperties.py:319
+msgid "<b>Answer format</b>"
+msgstr ""
+
+#: ui/modelchooser.py:52
+msgid "<b>Cards</b>:"
+msgstr ""
+
+#: forms/exporting.py:53
+msgid "<b>Export format</b>:"
+msgstr ""
+
+#: forms/importing.py:117
+msgid "<b>File to import</b>:"
+msgstr ""
+
+#: forms/deckproperties.py:374
+msgid "<b>High Priority</b>"
+msgstr ""
+
+#: forms/deckproperties.py:413
+msgid "<b>Hours to shift midnight</b>"
+msgstr ""
+
+#: forms/exporting.py:54
+msgid "<b>Limit to tags</b>:"
+msgstr ""
+
+#: forms/deckproperties.py:375
+msgid "<b>Low Priority</b>"
+msgstr ""
+
+#: forms/deckproperties.py:412
+msgid "<b>Maximum failed cards</b>"
+msgstr ""
+
+#: forms/modelproperties.py:293
+msgid "<b>Minimum spacing</b>"
+msgstr ""
+
+#: ui/modelchooser.py:23
+msgid "<b>Model</b>:"
+msgstr "<b>Malli</b>:"
+
+#: forms/modelproperties.py:320
+msgid "<b>Name/tag</b>"
+msgstr ""
+
+#: forms/modelproperties.py:291 forms/modelproperties.py:304
+msgid "<b>Name</b>"
+msgstr ""
+
+#: forms/deckproperties.py:371
+msgid "<b>Number of new cards per day"
+msgstr ""
+
+#: forms/modelproperties.py:307
+msgid "<b>Numeric?</b>"
+msgstr ""
+
+#: forms/modelproperties.py:321
+msgid "<b>Question format</b>"
+msgstr ""
+
+#: forms/modelproperties.py:317
+msgid "<b>Question hiding</b>"
+msgstr ""
+
+#: forms/modelproperties.py:305
+msgid "<b>Required?</b>"
+msgstr ""
+
+#: forms/deckproperties.py:414
+msgid "<b>Show failed cards early</b>"
+msgstr ""
+
+#: forms/modelproperties.py:294
+msgid "<b>Spacing multipler</b>"
+msgstr ""
+
+#: forms/deckproperties.py:376
+msgid "<b>Suspended</b>"
+msgstr ""
+
+#: forms/modelproperties.py:292
+msgid "<b>Tags</b>"
+msgstr ""
+
+#: forms/importing.py:119
+msgid "<b>Type of file</b>:"
+msgstr ""
+
+#: forms/modelproperties.py:302
+msgid "<b>Unique?"
+msgstr ""
+
+#: forms/deckproperties.py:373
+msgid "<b>Very High Priority</b>"
+msgstr ""
+
+#: ui/sync.py:122
+msgid "<br><br>Checking deck subscriptions..."
+msgstr ""
+
+#: ui/graphs.py:180
+msgid "<h1>Added</h1>"
+msgstr ""
+
+#: forms/deckproperties.py:399
+msgid "<h1>Advanced Scheduling</h1>"
+msgstr ""
+
+#: ui/update.py:132
+#, python-format
+msgid ""
+"<h1>Anki updated</h1>Anki %s has been released.<br>\n"
+"The release notes are\n"
+"<a href=\"http://ichi2.net/anki/download/index.html#changes\">here</a>.\n"
+"<br><br>"
+msgstr ""
+
+#: forms/changemap.py:40
+msgid "<h1>Available fields</h1>Please choose which field you would like to import into. If you select \"Discard field\", all data from this field will be lost."
+msgstr ""
+
+#: forms/deckproperties.py:370
+msgid "<h1>Basic Scheduling</h1>"
+msgstr ""
+
+#: forms/modelproperties.py:310
+msgid "<h1>Card Templates</h1>"
+msgstr ""
+
+#: ui/graphs.py:163
+msgid "<h1>Cumulative Due</h1>"
+msgstr ""
+
+#: ui/main.py:932
+msgid "<h1>Current card</h1>"
+msgstr ""
+
+#: ui/graphs.py:154
+msgid "<h1>Due</h1>"
+msgstr ""
+
+#: ui/graphs.py:198
+msgid "<h1>Eases</h1>"
+msgstr ""
+
+#: ui/status.py:73
+msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
+msgstr ""
+
+#: forms/modelproperties.py:295
+msgid "<h1>Fields</h1>"
+msgstr ""
+
+#: ui/graphs.py:188
+msgid "<h1>First Answered</h1>"
+msgstr ""
+
+#: forms/modelproperties.py:290
+msgid "<h1>General</h1>"
+msgstr ""
+
+#: ui/graphs.py:172
+msgid "<h1>Intervals</h1>"
+msgstr ""
+
+#: ui/main.py:935
+msgid "<h1>Last card</h1>"
+msgstr ""
+
+#: forms/deckproperties.py:394
+msgid "<h1>Models</h1>"
+msgstr ""
+
+#: ui/main.py:656
+msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
+msgstr ""
+
+#: ui/status.py:179
+#, python-format
+msgid ""
+"<h1>Performance</h1>\n"
+"The top bar shows your performance today. The bottom bar shows your<br>\n"
+"performance on cards scheduled for 21 days or more. The bottom bar should<br>\n"
+"generally be between 80-95%% - lower and you're forgetting mature cards<br>\n"
+"too often, higher and you're spending too much time reviewing.\n"
+"<h2>Reviews today</h2>\n"
+"<b>Correct today: %(dYesTotal%)0.1f%%\n"
+"(%(dYesTotal)d of %(dTotal)d)</b><br>\n"
+"Average time per answer: %(avgTime)s<br>\n"
+"Total review time: %(revTime)s"
+msgstr ""
+
+#: forms/addmodel.py:49
+msgid "<h1>Please choose a template</h1>"
+msgstr ""
+
+#: forms/deckproperties.py:372
+msgid "<h1>Priorities</h1>"
+msgstr ""
+
+#: ui/status.py:159
+#, python-format
+msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> spaced cards.<br>"
+msgstr ""
+
+#: forms/activetags.py:38
+msgid "<h1>Select tags to suspend</h1>"
+msgstr ""
+
+#: forms/deckproperties.py:379
+msgid "<h1>Synchronisation</h1>"
+msgstr ""
+
+#: ui/unsaved.py:13
+msgid ""
+"<h1>Unsaved changes</h1>There are unsaved\n"
+"        changes. Would you like to save them, discard your\n"
+"        changes, or cancel?"
+msgstr ""
+
+#: forms/syncdeck.py:43
+msgid "<h1>Where should we synchronize to?</h1>"
+msgstr ""
+
+#: ui/status.py:191
+#, python-format
+msgid ""
+"<h2>All Reviews</h2>\n"
+"<b>Correct over a month: %(gMatureYes%)0.1f%%\n"
+"(%(gMatureYes)d of %(gMatureTotal)d)</b><br>\n"
+"Average time per answer: %(avgTime)s<br>\n"
+"Total review time: %(revTime)s<br>\n"
+"Correct under a month: %(gYoungYes%)0.1f%%\n"
+"(%(gYoungYes)d of %(gYoungTotal)d)<br>\n"
+"Correct first time: %(gNewYes%)0.1f%%\n"
+"(%(gNewYes)d of %(gNewTotal)d)<br>\n"
+"Total correct: %(gYesTotal%)0.1f%%\n"
+"(%(gYesTotal)d of %(gTotal)d)"
+msgstr ""
+
+#: ui/importing.py:196
+msgid "<ignored>"
+msgstr ""
+
+#: ui/help.py:59
+msgid "<p><a href=hide:>Hide this</a>"
+msgstr ""
+
+#: forms/about.py:41
+msgid "About Anki"
+msgstr ""
+
+#: forms/main.py:706
+msgid "Active &Tags..."
+msgstr "Aktiiviset &tägit..."
+
+#: forms/activetags.py:37
+msgid "Active Tags"
+msgstr ""
+
+#: ui/addcards.py:50 ui/addcards.py:98
+msgid "Add"
+msgstr "Lisää"
+
+#: forms/cardlist.py:164
+msgid "Add &Cards..."
+msgstr ""
+
+#: ui/cardlist.py:550 forms/addcardmodels.py:34
+msgid "Add Cards"
+msgstr ""
+
+#: forms/addcards.py:69
+msgid "Add Items"
+msgstr "Korttien lisäys"
+
+#: ui/cardlist.py:519
+msgid "Add Tags"
+msgstr ""
+
+#: ui/modelchooser.py:37
+msgid "Add a new model"
+msgstr ""
+
+#: ui/facteditor.py:151
+msgid "Add a picture (F3)"
+msgstr ""
+
+#: ui/facteditor.py:540
+msgid "Add an image"
+msgstr ""
+
+#: ui/facteditor.py:555
+msgid "Add audio"
+msgstr ""
+
+#: ui/facteditor.py:161
+msgid "Add audio (F4)"
+msgstr ""
+
+#: ui/graphs.py:224
+msgid "Added"
+msgstr ""
+
+#: ui/addcards.py:112
+#, python-format
+msgid "Added %(num)d card(s) for '%(str)s'."
+msgstr ""
+
+#: forms/deckproperties.py:415
+msgid "Advanced"
+msgstr "Lisäasetukset"
+
+#: forms/main.py:620
+msgid "Again"
+msgstr "Uudestaan"
+
+#: ui/cardlist.py:253
+msgid "All tags"
+msgstr ""
+
+#: ui/main.py:1086
+msgid "Already cramming. Please close this deck first."
+msgstr ""
+
+#: ui/main.py:592
+#, python-format
+msgid "Alt+%d"
+msgstr ""
+
+#: ui/main.py:484
+msgid ""
+"An error occurred while trying to build the queue.\n"
+"Would you like to try check the deck for errors?\n"
+"This may take some time."
+msgstr ""
+
+#: ui/main.py:121
+msgid ""
+"An error occurred. Please copy the following message into a bug report.\n"
+"\n"
+msgstr ""
+
+#: ui/deckproperties.py:186 forms/addmodel.py:48 forms/main.py:618
+#: forms/syncdeck.py:42
+msgid "Anki"
+msgstr ""
+
+#: ui/main.py:772
+#, python-format
+msgid ""
+"Anki was unable to save your configuration file:\n"
+"%s"
+msgstr ""
+
+#: ui/cardlist.py:264
+msgid "Answer"
+msgstr ""
+
+#: forms/displayproperties.py:331
+msgid "Answer alignment"
+msgstr ""
+
+#: forms/displayproperties.py:326
+msgid "Answer colour"
+msgstr ""
+
+#: ui/cardlist.py:269
+msgid "Answer count"
+msgstr ""
+
+#: forms/displayproperties.py:327
+msgid "Answer font"
+msgstr ""
+
+#: forms/displayproperties.py:325
+msgid "Answer size"
+msgstr ""
+
+#: forms/main.py:653
+msgid "Application-wide preferences."
+msgstr ""
+
+#: ui/sync.py:108
+msgid "Applying reply..."
+msgstr ""
+
+#: ui/facteditor.py:87
+msgid "Bold text (Ctrl+b)"
+msgstr ""
+
+#: ui/main.py:68
+#, python-format
+msgid ""
+"Broken plugin:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: forms/main.py:699
+msgid "C&ram..."
+msgstr "Pä&nttäys..."
+
+#: ui/lookup.py:23
+msgid "Can't look up a selection with a newline."
+msgstr ""
+
+#: ui/modelproperties.py:252
+#, python-format
+msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
+msgstr ""
+
+#: ui/modelproperties.py:322 ui/modelproperties.py:349
+#, python-format
+msgid "Card %d"
+msgstr ""
+
+#: forms/displayproperties.py:323
+msgid "Card properties"
+msgstr ""
+
+#: forms/displayproperties.py:322
+msgid "Card:"
+msgstr ""
+
+#: forms/modelproperties.py:322
+msgid "Cards"
+msgstr ""
+
+#: ui/tray.py:92
+msgid "Cards are waiting"
+msgstr ""
+
+#: ui/importing.py:198
+msgid "Change"
+msgstr ""
+
+#: forms/changemap.py:39
+msgid "Change field mapping"
+msgstr ""
+
+#: forms/main.py:694
+msgid "Check Database..."
+msgstr "Tarkista tietokannan eheys..."
+
+#: forms/main.py:697
+msgid "Check Media Database..."
+msgstr "Tarkista mediatietokanta..."
+
+#: ui/sync.py:139
+msgid "Check complete."
+msgstr ""
+
+#: forms/importing.py:118
+msgid "Choose &file..."
+msgstr ""
+
+#: ui/exporting.py:53
+msgid "Choose file to export to"
+msgstr ""
+
+#: ui/importing.py:84
+msgid "Choose file..."
+msgstr ""
+
+#: ui/importing.py:140
+msgid ""
+"Click the close button or import another file.\n"
+"\n"
+msgstr ""
+
+#: ui/tray.py:95
+msgid "Click to hide Anki"
+msgstr ""
+
+#: ui/tray.py:97
+msgid "Click to show Anki"
+msgstr ""
+
+#: ui/addcards.py:58 forms/main.py:624
+msgid "Close"
+msgstr "Sulje"
+
+#: ui/addcards.py:139
+msgid "Close and lose current input?"
+msgstr ""
+
+#: ui/sync.py:66
+msgid "Connecting..."
+msgstr ""
+
+#: ui/sync.py:184
+#, python-format
+msgid "Create '%s' on server"
+msgstr ""
+
+#: ui/cardlist.py:265
+msgid "Creation date"
+msgstr ""
+
+#: forms/main.py:656
+msgid "Ctrl+1"
+msgstr ""
+
+#: forms/main.py:658
+msgid "Ctrl+2"
+msgstr ""
+
+#: forms/main.py:660
+msgid "Ctrl+3"
+msgstr ""
+
+#: forms/main.py:662
+msgid "Ctrl+4"
+msgstr ""
+
+#: forms/main.py:664
+msgid "Ctrl+5"
+msgstr ""
+
+#: forms/main.py:649
+msgid "Ctrl+A"
+msgstr ""
+
+#: ui/main.py:590
+#, python-format
+msgid "Ctrl+Alt+%d"
+msgstr ""
+
+#: ui/main.py:1394
+msgid "Ctrl+D"
+msgstr ""
+
+#: forms/main.py:709
+msgid "Ctrl+E"
+msgstr ""
+
+#: ui/addcards.py:55
+msgid "Ctrl+Enter"
+msgstr ""
+
+#: forms/main.py:651
+msgid "Ctrl+F"
+msgstr ""
+
+#: forms/main.py:681
+msgid "Ctrl+M"
+msgstr ""
+
+#: forms/main.py:639
+msgid "Ctrl+N"
+msgstr ""
+
+#: forms/main.py:641
+msgid "Ctrl+O"
+msgstr ""
+
+#: forms/main.py:654
+msgid "Ctrl+P"
+msgstr ""
+
+#: forms/main.py:637
+msgid "Ctrl+Q"
+msgstr ""
+
+#: ui/addcards.py:53
+msgid "Ctrl+Return"
+msgstr ""
+
+#: forms/main.py:645
+msgid "Ctrl+S"
+msgstr ""
+
+#: forms/main.py:643
+msgid "Ctrl+W"
+msgstr ""
+
+#: forms/main.py:647
+msgid "Ctrl+Y"
+msgstr ""
+
+#: forms/main.py:691
+msgid "Ctrl+Z"
+msgstr ""
+
+#: ui/facteditor.py:88
+msgid "Ctrl+b"
+msgstr ""
+
+#: ui/facteditor.py:99
+msgid "Ctrl+i"
+msgstr ""
+
+#: ui/facteditor.py:180
+msgid "Ctrl+l, e"
+msgstr ""
+
+#: ui/facteditor.py:170
+msgid "Ctrl+l, l"
+msgstr ""
+
+#: ui/facteditor.py:191
+msgid "Ctrl+l, m"
+msgstr ""
+
+#: ui/facteditor.py:119
+msgid "Ctrl+r"
+msgstr ""
+
+#: ui/facteditor.py:110
+msgid "Ctrl+u"
+msgstr ""
+
+#: ui/graphs.py:222
+msgid "Cumulative"
+msgstr ""
+
+#: forms/cardlist.py:157
+msgid "Current Card"
+msgstr ""
+
+#: forms/main.py:685
+msgid "Customize card layout, fields, etc."
+msgstr ""
+
+#: forms/main.py:678
+msgid "Customize fonts, colours and alignment."
+msgstr ""
+
+#: forms/main.py:673
+msgid "Customize syncing, scheduling, priorities and models."
+msgstr ""
+
+#: ui/preferences.py:30
+msgid "Czech"
+msgstr "tšekki"
+
+#: ui/graphs.py:133
+msgid "Deck Graphs"
+msgstr ""
+
+#: ui/deckproperties.py:206 forms/deckproperties.py:368
+msgid "Deck Properties"
+msgstr ""
+
+#: ui/main.py:696 ui/main.py:736
+msgid "Deck files (*.anki)"
+msgstr ""
+
+#: ui/main.py:455
+msgid "Deck is already open."
+msgstr ""
+
+#: ui/main.py:726
+msgid "Deck is not modified."
+msgstr ""
+
+#: forms/cardlist.py:161
+msgid "Del"
+msgstr ""
+
+#: ui/main.py:1008 forms/cardlist.py:160
+msgid "Delete"
+msgstr ""
+
+#: ui/cardlist.py:510
+msgid "Delete Cards"
+msgstr ""
+
+#: ui/cardlist.py:528
+msgid "Delete Tags"
+msgstr ""
+
+#: ui/sync.py:100
+msgid "Determining differences..."
+msgstr ""
+
+#: ui/modelproperties.py:312
+msgid "Disa&ble"
+msgstr ""
+
+#: ui/importing.py:27
+msgid "Discard field"
+msgstr ""
+
+#: forms/main.py:677
+msgid "Disp&lay Properties..."
+msgstr "Ul&koasu..."
+
+#: ui/graphs.py:221
+msgid "Due"
+msgstr ""
+
+#: ui/cardlist.py:267
+msgid "Due date"
+msgstr ""
+
+#: forms/main.py:636
+msgid "E&xit"
+msgstr "&Lopeta"
+
+#: ui/status.py:166
+#, python-format
+msgid "ETA: <b>%(timeLeft)s</b>"
+msgstr "ETA: <b>%(timeLeft)s</b>"
+
+#: ui/cardlist.py:270
+msgid "Ease"
+msgstr ""
+
+#: ui/graphs.py:226
+msgid "Eases"
+msgstr ""
+
+#: forms/main.py:623
+msgid "Easy"
+msgstr "Helppo"
+
+#: ui/facteditor.py:308
+msgid "Edit"
+msgstr ""
+
+#: forms/cardlist.py:156
+msgid "Edit Items"
+msgstr ""
+
+#: ui/modelchooser.py:44
+msgid "Edit the current model"
+msgstr ""
+
+#: ui/cardlist.py:318
+#, python-format
+msgid "Editor (%(cur)d of %(tot)d cards shown)"
+msgstr ""
+
+#: ui/lookup.py:27
+msgid "Empty selection."
+msgstr ""
+
+#: ui/modelproperties.py:314
+msgid "Ena&ble"
+msgstr ""
+
+#: ui/preferences.py:29
+msgid "English"
+msgstr "englanti"
+
+#: ui/cardlist.py:517
+msgid "Enter tag(s) to add:"
+msgstr ""
+
+#: ui/cardlist.py:526
+msgid "Enter tag(s) to delete:"
+msgstr ""
+
+#: forms/main.py:625
+msgid "Esc"
+msgstr ""
+
+#: forms/main.py:676
+msgid "Expor&t..."
+msgstr "Vi&e..."
+
+#: forms/exporting.py:52
+msgid "Export"
+msgstr ""
+
+#: ui/exporting.py:38
+msgid "Export to..."
+msgstr ""
+
+#: ui/facteditor.py:136
+msgid "F2"
+msgstr ""
+
+#: ui/facteditor.py:148
+msgid "F3"
+msgstr ""
+
+#: ui/facteditor.py:158
+msgid "F4"
+msgstr ""
+
+#: forms/main.py:689
+msgid "F5"
+msgstr ""
+
+#: ui/facteditor.py:202
+msgid "F9"
+msgstr ""
+
+#: ui/sync.py:97
+msgid "Fetching summary from server..."
+msgstr ""
+
+#: ui/displayproperties.py:185
+#, python-format
+msgid "Field %(num)d: %(name)s"
+msgstr ""
+
+#: ui/modelproperties.py:76
+#, python-format
+msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
+msgstr ""
+
+#: ui/modelproperties.py:132 ui/modelproperties.py:150
+#, python-format
+msgid "Field %d"
+msgstr ""
+
+#: ui/cardlist.py:273
+#, python-format
+msgid "Field '%s'"
+msgstr ""
+
+#: ui/importing.py:191
+#, python-format
+msgid "Field <b>%d</b> of file is:"
+msgstr ""
+
+#: forms/importing.py:122
+msgid "Field mapping"
+msgstr ""
+
+#: forms/displayproperties.py:332
+msgid "Fields"
+msgstr ""
+
+#: ui/graphs.py:225
+msgid "First Answered"
+msgstr ""
+
+#: forms/displayproperties.py:321
+msgid "Fonts & Colours"
+msgstr ""
+
+#: ui/facteditor.py:118
+msgid "Foreground colour (Ctrl+r)"
+msgstr ""
+
+#: ui/preferences.py:31
+msgid "French"
+msgstr "ranska"
+
+#: ui/main.py:967
+msgid "Generating report (may take time)..."
+msgstr ""
+
+#: ui/preferences.py:32
+msgid "German"
+msgstr "saksa"
+
+#: forms/main.py:622
+msgid "Good"
+msgstr "Hyvä"
+
+#: forms/edithtml.py:34
+msgid "HTML Editor"
+msgstr "HTML-muokkain"
+
+#: ui/facteditor.py:201
+msgid "HTML Editor (F9)"
+msgstr "HTML-muokkain (F9)"
+
+#: forms/main.py:621
+msgid "Hard"
+msgstr "Vaikea"
+
+#: ui/addcards.py:62 forms/displayproperties.py:340
+msgid "Help"
+msgstr "Ohje"
+
+#: forms/modelproperties.py:318
+msgid "Hide the question when showing answer"
+msgstr ""
+
+#: ui/deckproperties.py:90
+msgid "ID"
+msgstr ""
+
+#: ui/update.py:141
+msgid "Ignore this update"
+msgstr ""
+
+#: ui/facteditor.py:539
+msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
+msgstr "Kuvatiedostot (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
+
+#: ui/importing.py:120 forms/importing.py:115
+msgid "Import"
+msgstr ""
+
+#: ui/importing.py:130
+#, python-format
+msgid "Import failed: %s\n"
+msgstr ""
+
+#: ui/importing.py:90
+msgid "Import file"
+msgstr ""
+
+#: forms/importing.py:116
+msgid "Import options"
+msgstr ""
+
+#: ui/importing.py:138
+#, python-format
+msgid "Importing complete. %(num)d cards imported from %(file)s.\n"
+msgstr ""
+
+#: ui/importing.py:125
+msgid "Importing failed.\n"
+msgstr ""
+
+#: ui/importing.py:109
+msgid "Importing. Anki will freeze for a while.."
+msgstr ""
+
+#: forms/exporting.py:55
+msgid "Include scheduling information"
+msgstr ""
+
+#: forms/exporting.py:56
+msgid "Include tags"
+msgstr ""
+
+#: ui/cardlist.py:268 ui/graphs.py:223
+msgid "Interval"
+msgstr ""
+
+#: ui/preferences.py:36
+msgid "Italian"
+msgstr "italia"
+
+#: ui/facteditor.py:98
+msgid "Italic text (Ctrl+i)"
+msgstr ""
+
+#: ui/preferences.py:33
+msgid "Japanese"
+msgstr "japani"
+
+#: ui/preferences.py:34
+msgid "Korean"
+msgstr "korea"
+
+#: ui/facteditor.py:169
+msgid "Latex (Ctrl+l, l)"
+msgstr ""
+
+#: ui/facteditor.py:179
+msgid "Latex equation (Ctrl+l, e)"
+msgstr ""
+
+#: ui/facteditor.py:190
+msgid "Latex math environment (Ctrl+l, m)"
+msgstr ""
+
+#: ui/main.py:947
+msgid "Loading graphs (may take time)..."
+msgstr ""
+
+#: ui/importing.py:142
+msgid "Log of import:\n"
+msgstr ""
+
+#: ui/importing.py:22
+#, python-format
+msgid "Map to %s"
+msgstr ""
+
+#: forms/deckproperties.py:404 forms/deckproperties.py:405
+#: forms/deckproperties.py:407
+msgid "Max"
+msgstr ""
+
+#: forms/main.py:696
+msgid "Merge Models..."
+msgstr "Yhdistä malleja..."
+
+#: ui/main.py:1644
+msgid "Merge complete."
+msgstr ""
+
+#: ui/sync.py:188
+#, python-format
+msgid "Merge with '%s' on server"
+msgstr ""
+
+#: forms/deckproperties.py:400 forms/deckproperties.py:401
+#: forms/deckproperties.py:406
+msgid "Min"
+msgstr ""
+
+#: ui/modelproperties.py:450
+msgid "Model"
+msgstr ""
+
+#: forms/modelproperties.py:309
+msgid "Model && Fields"
+msgstr ""
+
+#: ui/modelproperties.py:35 forms/modelproperties.py:289
+msgid "Model Properties"
+msgstr ""
+
+#: forms/deckproperties.py:398
+msgid "Models"
+msgstr ""
+
+#: ui/cardlist.py:266
+msgid "Modified date"
+msgstr ""
+
+#: forms/modelproperties.py:298 forms/modelproperties.py:313
+msgid "Move &Up"
+msgstr ""
+
+#: forms/modelproperties.py:301 forms/modelproperties.py:315
+msgid "Move Dow&n"
+msgstr ""
+
+#: forms/modelproperties.py:314
+msgid "Move selected card model down"
+msgstr ""
+
+#: forms/modelproperties.py:312
+msgid "Move selected card model up"
+msgstr ""
+
+#: forms/modelproperties.py:300
+msgid "Move selected field down"
+msgstr ""
+
+#: forms/modelproperties.py:297
+msgid "Move selected field up"
+msgstr ""
+
+#: ui/deckproperties.py:91
+msgid "Name"
+msgstr ""
+
+#: forms/deckproperties.py:391
+msgid "Name on server: "
+msgstr ""
+
+#: ui/main.py:1104
+msgid "No cards matched the provided tags."
+msgstr ""
+
+#: ui/facteditor.py:657
+msgid "No cards to preview."
+msgstr ""
+
+#: ui/sync.py:118
+msgid "No changes found."
+msgstr ""
+
+#: ui/main.py:938
+msgid "No current card or last card."
+msgstr ""
+
+#: ui/main.py:890
+msgid "No expression in current card."
+msgstr ""
+
+#: ui/main.py:897
+msgid "No meaning in current card."
+msgstr ""
+
+#: ui/main.py:1637
+msgid ""
+"No models found to merge. If you want to merge models,\n"
+"all models must have the same name, and must not be\n"
+"from another person's deck."
+msgstr ""
+
+#: ui/main.py:1612
+msgid ""
+"No problems found. Some data structures have been rebuilt in case<br>\n"
+"they were causing problems.<p>\n"
+"<b>On the next sync, all cards will be sent to the server.</b><br>\n"
+"If you have changes on the server and have not synced locally,<br>\n"
+"do not sync your deck. Restore your deck from an automatic<br>\n"
+"backup and then run this command again after syncing."
+msgstr ""
+
+#: ui/cardlist.py:253
+msgid "No tags"
+msgstr ""
+
+#: forms/main.py:629
+msgid "Open &Recent"
+msgstr "Avaa &viimeaikainen"
+
+#: forms/main.py:698
+msgid "Open On&line..."
+msgstr ""
+
+#: forms/main.py:679
+msgid "Open Sa&mple..."
+msgstr ""
+
+#: ui/main.py:699
+msgid "Open deck"
+msgstr ""
+
+#: forms/main.py:669
+msgid "Open the bug tracker."
+msgstr ""
+
+#: forms/main.py:695
+msgid "Optimize Database"
+msgstr "Optimoi tietokanta"
+
+#: ui/main.py:666
+msgid "Password:"
+msgstr ""
+
+#: ui/modelproperties.py:363
+msgid "Please add a new card first."
+msgstr ""
+
+#: ui/modelproperties.py:163
+msgid "Please add a new field first."
+msgstr ""
+
+#: ui/deckproperties.py:147
+msgid "Please add another model first."
+msgstr ""
+
+#: ui/sync.py:49
+msgid "Please double-check your username/password."
+msgstr ""
+
+#: ui/modelproperties.py:391
+msgid "Please enable a different model first."
+msgstr ""
+
+#: ui/main.py:964
+msgid "Please install python-matplotlib to access graphs."
+msgstr ""
+
+#: forms/modelproperties.py:303
+msgid "Prevent duplicates"
+msgstr ""
+
+#: forms/modelproperties.py:306
+msgid "Prevent empty entries"
+msgstr ""
+
+#: forms/displayproperties.py:342
+msgid "Preview"
+msgstr ""
+
+#: ui/facteditor.py:135
+msgid "Preview (F2)"
+msgstr ""
+
+#: forms/previewcards.py:37
+msgid "Preview Cards"
+msgstr ""
+
+#: ui/main.py:1622
+#, python-format
+msgid ""
+"Problems found:\n"
+"%s"
+msgstr ""
+
+#: ui/cardlist.py:263
+msgid "Question"
+msgstr ""
+
+#: forms/displayproperties.py:328
+msgid "Question alignment"
+msgstr ""
+
+#: forms/displayproperties.py:330
+msgid "Question colour"
+msgstr ""
+
+#: forms/displayproperties.py:324
+msgid "Question font"
+msgstr ""
+
+#: forms/displayproperties.py:329
+msgid "Question size"
+msgstr ""
+
+#: ui/cardlist.py:331 ui/main.py:1455
+#, python-format
+msgid "Redo %s"
+msgstr ""
+
+#: forms/main.py:700
+msgid "Release Notes..."
+msgstr "Julkaisutiedot..."
+
+#: ui/status.py:135
+msgid "Remaining: "
+msgstr "Jäljellä: "
+
+#: forms/main.py:687
+msgid "Repeat &Answer Audio"
+msgstr ""
+
+#: forms/main.py:688
+msgid "Repeat &Audio"
+msgstr "&Toista ääni"
+
+#: forms/main.py:686
+msgid "Repeat &Question Audio"
+msgstr ""
+
+#: ui/cardlist.py:535 forms/cardlist.py:165
+msgid "Reset Progress"
+msgstr ""
+
+#: forms/main.py:693
+msgid "Save &As..."
+msgstr "Tallenna &nimellä..."
+
+#: forms/main.py:646
+msgid "Save and S&ync"
+msgstr "Tallenna ja s&ynkronoi"
+
+#: ui/main.py:732
+msgid "Save deck"
+msgstr ""
+
+#: ui/main.py:755
+msgid "Saving..."
+msgstr ""
+
+#: ui/main.py:758
+msgid "Saving...done"
+msgstr ""
+
+#: forms/deckproperties.py:377
+msgid "Scheduling"
+msgstr ""
+
+#: forms/cardlist.py:166
+msgid "Select &All"
+msgstr ""
+
+#: forms/cardlist.py:167
+msgid "Select &Facts"
+msgstr ""
+
+#: ui/sync.py:53
+msgid "Server is down or operation failed."
+msgstr ""
+
+#: ui/modelchooser.py:43
+msgid "Shift+Alt+e"
+msgstr ""
+
+#: ui/modelchooser.py:26
+msgid "Shift+Alt+m"
+msgstr ""
+
+#: forms/main.py:619
+msgid "Show Answer"
+msgstr "Näytä vastaus"
+
+#: forms/displayproperties.py:341
+msgid "Show preview"
+msgstr ""
+
+#: ui/graphs.py:241
+msgid "Show/Hide"
+msgstr ""
+
+#: ui/addcards.py:104 ui/cardlist.py:403
+msgid "Some fields are missing or not unique."
+msgstr ""
+
+#: ui/main.py:393
+msgid "Soon"
+msgstr "Pian"
+
+#: forms/modelproperties.py:308
+msgid "Sort as numbers"
+msgstr ""
+
+#: ui/facteditor.py:554
+msgid "Sounds (*.mp3 *.ogg *.wav)"
+msgstr ""
+
+#: ui/deckproperties.py:187
+msgid "Source ID:"
+msgstr ""
+
+#: ui/preferences.py:35
+msgid "Spanish"
+msgstr "espanja"
+
+#: forms/main.py:634
+msgid "Startup"
+msgstr "Käynnistys"
+
+#: forms/importing.py:124
+msgid "Status"
+msgstr ""
+
+#: forms/main.py:683
+msgid "Stop reviewing this card until it's unsuspended in the editor."
+msgstr ""
+
+#: ui/main.py:996
+msgid "Suspend"
+msgstr ""
+
+#: ui/sync.py:113
+msgid "Sync complete."
+msgstr ""
+
+#: forms/deckproperties.py:393
+msgid "Synchronisation"
+msgstr ""
+
+#: forms/deckproperties.py:380
+msgid "Synchronize this deck"
+msgstr ""
+
+#: ui/main.py:1257
+msgid "Syncing Media..."
+msgstr ""
+
+#: ui/sync.py:153
+#, python-format
+msgid "Syncing failed: %(a)s"
+msgstr ""
+
+#: forms/importing.py:121
+msgid "Tag facts with duplicate fields instead of deleting"
+msgstr ""
+
+#: ui/facteditor.py:251
+msgid "Tags"
+msgstr ""
+
+#: forms/importing.py:120
+msgid "Tags to append:"
+msgstr ""
+
+#: ui/main.py:1088
+msgid "Tags to cram:"
+msgstr ""
+
+#: ui/graphs.py:200
+msgid "The amount of times you answered a card at each ease level."
+msgstr ""
+
+#: ui/addcards.py:108
+msgid ""
+"The input you have provided would make an empty\n"
+"question or answer on all cards. Can't proceed."
+msgstr ""
+
+#: ui/graphs.py:182
+msgid "The number of cards added on a given day."
+msgstr ""
+
+#: ui/graphs.py:156
+msgid ""
+"The number of cards due each day over the period.\n"
+"Today is 0; cards less than zero are overdue."
+msgstr ""
+
+#: ui/graphs.py:165
+msgid "The number of cards due each day, assuming no study."
+msgstr ""
+
+#: ui/graphs.py:190
+msgid ""
+"The number of cards first answered on a given day.\n"
+"This will be different to 'added cards' if you are\n"
+"using a pre-made deck."
+msgstr ""
+
+#: ui/graphs.py:174
+msgid "The number of cards scheduled for a given number of days."
+msgstr ""
+
+#: ui/sync.py:51
+msgid "The sync protocol has changed. Please upgrade."
+msgstr ""
+
+#: ui/view.py:186
+#, python-format
+msgid "This card will appear again in less than <b>%(next)s</b>."
+msgstr ""
+
+#: ui/modelproperties.py:170
+#, python-format
+msgid ""
+"This field is used by %d cards. If you delete it,\n"
+"all information in this field will be lost.\n"
+"\n"
+"Really delete this field?"
+msgstr ""
+
+#: ui/utils.py:147
+msgid "This file exists. Are you sure you want to overwrite it?"
+msgstr ""
+
+#: ui/modelproperties.py:370
+#, python-format
+msgid ""
+"This model is used by %d cards. If you delete it,\n"
+"all the cards will be deleted too. If you just\n"
+"want to prevent the creation of future cards with\n"
+"this model, please use the 'disable'  button\n"
+"instead.\n"
+"\n"
+"Really delete these cards?"
+msgstr ""
+
+#: ui/deckproperties.py:159
+#, python-format
+msgid ""
+"This model is used by %d facts.\n"
+"Are you sure you want to delete it?\n"
+"If you delete it, these cards will be lost."
+msgstr ""
+
+#: ui/deckproperties.py:152
+#, python-format
+msgid ""
+"This model is used by deck source:\n"
+"%s\n"
+"You will need to remove the source first."
+msgstr ""
+
+#: ui/main.py:956
+msgid ""
+"To display graphs, Anki needs a .dll file which\n"
+"you don't have. Please install:\n"
+msgstr ""
+
+#: ui/tray.py:90
+msgid "Today's reviews are finished"
+msgstr ""
+
+#: ui/sync.py:105
+msgid "Transferring payload..."
+msgstr ""
+
+#: ui/main.py:460
+#, python-format
+msgid ""
+"Unable to load deck.\n"
+"\n"
+"Possible reasons:\n"
+" - file is not an Anki deck\n"
+" - deck is read only\n"
+" - directory is read only\n"
+" - deck was created with Anki < 0.9\n"
+"\n"
+"To upgrade an old deck, download Anki 0.9.8.7.\n"
+"\n"
+"Error was:\n"
+"%(f1)s\n"
+"...\n"
+"%(f2)s"
+msgstr ""
+
+#: ui/main.py:712
+msgid "Unable to load file."
+msgstr ""
+
+#: ui/update.py:109
+msgid "Unable to open file"
+msgstr ""
+
+#: ui/update.py:104
+msgid "Unable to reach server"
+msgstr ""
+
+#: ui/importing.py:166
+#, python-format
+msgid ""
+"Unable to read file.\n"
+"\n"
+"%(info)s"
+msgstr ""
+
+#: ui/main.py:493
+msgid "Unable to recover. Deck load failed."
+msgstr ""
+
+#: ui/facteditor.py:109
+msgid "Underline text (Ctrl+u)"
+msgstr ""
+
+#: ui/cardlist.py:325 ui/main.py:1449
+#, python-format
+msgid "Undo %s"
+msgstr ""
+
+#: ui/sync.py:55
+#, python-format
+msgid "Unknown error: %s"
+msgstr ""
+
+#: ui/update.py:126
+msgid "Update complete. Please restart Anki."
+msgstr ""
+
+#: ui/main.py:1489
+msgid ""
+"Updating Anki...\n"
+"(you can keep studying)"
+msgstr ""
+
+#: forms/displayproperties.py:336
+msgid "Use custom colour"
+msgstr ""
+
+#: forms/displayproperties.py:335 forms/displayproperties.py:339
+msgid "Use custom font"
+msgstr ""
+
+#: forms/displayproperties.py:334 forms/displayproperties.py:338
+msgid "Use custom size"
+msgstr ""
+
+#: ui/main.py:662
+msgid "Username:"
+msgstr ""
+
+#: ui/view.py:182
+#, python-format
+msgid "Well done! This card will appear again in <b>%(next)s</b>."
+msgstr ""
+
+#: ui/update.py:140
+msgid "Would you like to download it now?"
+msgstr ""
+
+#: ui/main.py:1642
+msgid "Would you like to merge models that have the same name?"
+msgstr ""
+
+#: ui/main.py:1652
+msgid ""
+"Would you like to remove unused files from the media directory, and\n"
+"tag or delete references to missing files?"
+msgstr ""
+
+#: ui/main.py:1480
+#, python-format
+msgid ""
+"Your computer clock is not set to the correct time.\n"
+"It is %(sec)d seconds %(type)s.\n"
+" Please ensure it is set correctly and then restart Anki."
+msgstr ""
+
+#: ui/main.py:1245
+#, python-format
+msgid ""
+"Your computer clock is not set to the correct time.\n"
+"It is off by %d seconds.\n"
+"\n"
+"Since this can cause many problems with syncing,\n"
+"syncing is disabled until you fix the problem."
+msgstr ""
+
+#: ui/main.py:961
+msgid ""
+"Your version of Matplotlib is broken.\n"
+"Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
+msgstr ""
+
+#: forms/main.py:705
+msgid "a"
+msgstr ""
+
+#: ui/main.py:1478
+msgid "early"
+msgstr ""
+
+#: ui/cardlist.py:182
+#, python-format
+msgid "in %s"
+msgstr ""
+
+#: forms/deckproperties.py:378
+msgid "label"
+msgstr ""
+
+#: ui/main.py:1476
+msgid "late"
+msgstr ""
+
+#: ui/importing.py:194
+#, python-format
+msgid "mapped to <b>%s</b>"
+msgstr ""
+
+#: forms/deckproperties.py:392
+msgid "option"
+msgstr ""
+
+#~ msgid "<h1>Advanced settings</h1>"
+#~ msgstr "Lisäasetukset"
+
+#~ msgid "<h1>Autosaving</h1>"
+#~ msgstr "<h1>Varmuuskopiointi</h1>"
+
+#~ msgid "<h1>Fonts & Colours</h1>"
+#~ msgstr "<h1>Kirjasimet ja värit</h1>"
+
+#~ msgid "<h1>Language</h1>"
+#~ msgstr "<h1>Kieli</h1>"
+
+#~ msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
+#~ msgstr "<h1>Synkronointi</h1><a href=\"http://anki.ichi2.net/\">Luo ilmainen tunnus</a>."
+
+#~ msgid "Background colour"
+#~ msgstr "Taustaväri"
+
+#~ msgid "Display"
+#~ msgstr "Ulkoasu"
+
+#~ msgid "Finnish"
+#~ msgstr "suomi"
+
+#~ msgid "Hide next interval when showing answer buttons"
+#~ msgstr "Älä näytä aikaväliä vastauspainikkeiden kanssa"
+
+#~ msgid "Interface colour"
+#~ msgstr "Edustaväri"
+
+#~ msgid "Interface font"
+#~ msgstr "Kirjasin"
+
+#~ msgid "Password"
+#~ msgstr "Salasana"
+
+#~ msgid "Preferences"
+#~ msgstr "Asetukset"
+
+#~ msgid "Put space between question and answer"
+#~ msgstr "Erota kysymys ja vastaus välillä"
+
+#~ msgid "Save && Sync"
+#~ msgstr "Tallennus ja synkronisointi"
+
+#~ msgid "Save after adding"
+#~ msgstr "Tallenna"
+
+#~ msgid "Save after answering"
+#~ msgstr "Tallenna"
+
+#~ msgid "Save when closing"
+#~ msgstr "Tallenna suljettaessa"
+
+#~ msgid "Scroll down to the answer when showing answer"
+#~ msgstr "Vieritä vastauksen kohdalle, kun se näytetään"
+
+#~ msgid "Show divider between question and answer"
+#~ msgstr "Näytä jakaja kysymyksen ja vastauksen välissä"
+
+#~ msgid "Show last card's interval"
+#~ msgstr "Näytä edellisen kortin aikaväli"
+
+#~ msgid "Show last card's question/answer"
+#~ msgstr "Näytä edellisen kortin kysymys ja vastaus"
+
+#~ msgid "Show timer"
+#~ msgstr "Näytä ajanotto"
+
+#~ msgid "Show toolbar on startup"
+#~ msgstr "Näytä työkalurivi käynnistyksen jälkeen"
+
+#~ msgid "Show tray icon"
+#~ msgstr "Näytä ilmoitusaluekuvake"
+
+#~ msgid "Simple toolbar"
+#~ msgstr "Yksinkertainen työkalurivi"
+
+#~ msgid "Sync on close"
+#~ msgstr "Synkronoi suljettaessa"
+
+#~ msgid "Sync on open"
+#~ msgstr "Synkronoi avattaessa"
+
+#~ msgid "Tall buttons (for touchscreen)"
+#~ msgstr "Korkeat painikkeet (kosketusnäytöille)"
+
+#~ msgid "Toolbar icon size"
+#~ msgstr "Työkalurivin kuvakkeiden koko"
+
+#~ msgid "Username"
+#~ msgstr "Tunnus"
+
+#~ msgid "cards"
+#~ msgstr "vastatun kortin jälkeen"
+
+#~ msgid "facts"
+#~ msgstr "lisätyn faktan jälkeen"
