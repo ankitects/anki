@@ -1423,7 +1423,6 @@ Return new path, relative to media dir."""
         oldMediaDir = self.mediaDir()
         # flush old deck
         self.s.flush()
-        self.close()
         # remove new deck if it exists
         try:
             os.unlink(newPath)
@@ -1452,6 +1451,7 @@ Return new path, relative to media dir."""
         s("insert into stats select * from old.stats")
         # detach old db and commit
         s("detach database old")
+        self.close()
         newDeck.s.commit()
         newDeck.refresh()
         newDeck.rebuildQueue()
