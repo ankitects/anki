@@ -16,6 +16,7 @@ from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats
+from anki.hooks import runHook
 
 # Deck editor
 ##########################################################################
@@ -396,7 +397,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
-        self.parent.runHook('editor.setupMenus', self)
+        runHook('editor.setupMenus', self)
 
     def onClose(self):
         saveSplitter(self.dialog.splitter, "editor")

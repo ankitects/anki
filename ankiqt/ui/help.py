@@ -5,6 +5,7 @@ import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import ankiqt.forms
+from anki.hooks import runHook
 
 # Hideable help area widget
 ##########################################################################
@@ -33,7 +34,7 @@ class HelpArea(object):
         self.helpFrame.hide()
         self.widget.hide()
         if self.mainWindow:
-            self.mainWindow.runHook("helpChanged")
+            runHook("helpChanged")
 
     def showText(self, text, py={}):
         self.show()
@@ -42,7 +43,7 @@ class HelpArea(object):
         self.handlers = py
         self.flush()
         if self.mainWindow:
-            self.mainWindow.runHook("helpChanged")
+            runHook("helpChanged")
 
     def flush(self):
         if sys.platform.startswith("darwin"):

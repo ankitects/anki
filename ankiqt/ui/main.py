@@ -18,6 +18,7 @@ from anki.utils import addTags, deleteTags, parseTags
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError
 from anki.stdmodels import BasicModel
+from anki.hooks import runHook, addHook, removeHook, _hooks
 import anki.latex
 import anki.lang
 import ankiqt
@@ -39,10 +40,7 @@ class AnkiQt(QMainWindow):
         self.setLang()
         self.setupFonts()
         self.setupBackupDir()
-        self.setupHooks()
-        self.loadPlugins()
         self.setupMainWindow()
-        self.rebuildPluginsMenu()
         self.alterShortcuts()
         self.setupTray()
         self.connectMenuActions()
@@ -61,15 +59,17 @@ class AnkiQt(QMainWindow):
         if not self.maybeLoadLastDeck(args):
             self.setEnabled(True)
             self.moveToState("auto")
-        # run after-init hook
-        try:
-            self.runHook('init')
-        except:
-            ui.utils.showWarning(_("Broken plugin:\n\n%s") %
-                                 traceback.format_exc())
         # check for updates
         self.setupAutoUpdate()
         self.setupErrorHandler()
+        self.loadPlugins()
+        self.rebuildPluginsMenu()
+        # run after-init hook
+        try:
+            runHook('init')
+        except:
+            ui.utils.showWarning(_("Broken plugin:\n\n%s") %
+                                 traceback.format_exc())
 
     def setupMainWindow(self):
         self.mainWin = ankiqt.forms.main.Ui_MainWindow()
@@ -117,9 +117,17 @@ class AnkiQt(QMainWindow):
                     self.timer.setInterval(interval)
 
             def onTimeout(self):
+                stdText = _("""\
+An error occurred. Please copy the following into a bug report.\n\n""")
+                pluginText = _("""\
+An error occurred in a plugin. Please contact the plugin author.
+Please do not file a bug report with Anki.\n\n""")
                 print self.pool
-                ui.utils.showText(_("""\
-An error occurred. Please copy the following message into a bug report.\n\n""" + self.pool[0:10000]))
+                if "plugin" in self.pool:
+                    txt = pluginText
+                else:
+                    txt = stdText
+                ui.utils.showText(txt + self.pool[0:10000])
                 self.pool = ""
                 self.timer = None
         pipe = ErrorPipe(self)
@@ -222,7 +230,7 @@ An error occurred. Please copy the following message into a bug report.\n\n""" +
                 os.chdir(self.deck.mediaDir())
             self.showAnswerButton()
             self.updateMarkAction()
-            self.runHook('showQuestion')
+            runHook('showQuestion')
         elif state == "showAnswer":
             self.showEaseButtons()
             self.enableCardMenuItems()
@@ -403,29 +411,6 @@ getCard() returns:
         css = "<style>\n" + css + "</style>\n"
         text = css + '<span class="interface">' + text + "</span>"
         return text
-
-    # Hooks
-    ##########################################################################
-
-    def setupHooks(self):
-        self.hooks = {}
-
-    def addHook(self, hookName, func):
-        if not self.hooks.get(hookName, None):
-            self.hooks[hookName] = []
-        if func not in self.hooks[hookName]:
-            self.hooks[hookName].append(func)
-
-    def removeHook(self, hookName, func):
-        hook = self.hooks.get(hookName, [])
-        if func in hook:
-            hook.remove(func)
-
-    def runHook(self, hookName, *args):
-        hook = self.hooks.get(hookName, None)
-        if hook:
-            for func in hook:
-                func(*args)
 
     # Deck loading & saving: backend
     ##########################################################################
@@ -761,7 +746,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
 
     def prepareForExit(self):
         "Save config and window geometry."
-        self.runHook('quit')
+        runHook("quit")
         self.help.hide()
         self.config['mainWindowGeom'] = self.saveGeometry()
         # save config
@@ -925,7 +910,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.help.showText(txt)
 
     def onCardStats(self):
-        self.addHook("showQuestion", self.onCardStats)
+        addHook("showQuestion", self.onCardStats)
         txt = ""
         if self.currentCard:
             txt += _("<h1>Current card</h1>")
@@ -939,8 +924,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
 
     def removeCardStatsHook(self):
         "Remove the update hook if the help menu was changed."
-        print "rem"
-        self.removeHook("showQuestion", self.onCardStats)
+        removeHook("showQuestion", self.onCardStats)
 
     def onShowGraph(self):
         self.setStatus(_("Loading graphs (may take time)..."))
@@ -1669,3 +1653,6 @@ tag or delete references to missing files?"""))
                 "%(b)d unused files removed.") % {
             'a': missing,
             'b': unused})
+
+    def addHook(self, *args):
+        addHook(*args)

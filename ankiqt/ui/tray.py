@@ -2,6 +2,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from PyQt4 import QtGui, QtCore
+from anki.hooks import addHook
 Qt = QtCore.Qt
 
 class AnkiTrayIcon(QtCore.QObject):
@@ -21,7 +22,7 @@ class AnkiTrayIcon(QtCore.QObject):
             self.ti.setObjectName("trayIcon")
             if self.ti:
                 QtGui.QApplication.setQuitOnLastWindowClosed(False)
-                self.mw.addHook("quit", self.onQuit)
+                addHook("quit", self.onQuit)
                 self.ti.setIcon(QtGui.QIcon(":/icons/anki.png"))
                 self.ti.setToolTip("Anki")
                 # hook signls, and Anki state changes
