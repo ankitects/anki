@@ -72,7 +72,8 @@ values (:id, :filename, :size, :created, :originalPath,
                          filename=newBase,
                          size=newSize,
                          created=time.time(),
-                         originalPath=path,
+                         originalPath=unicode(
+            path, sys.getfilesystemencoding()),
                          description=os.path.splitext(
             os.path.basename(path))[0])
     return newBase
