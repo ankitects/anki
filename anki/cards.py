@@ -87,7 +87,7 @@ class Card(object):
             d = {}
             for f in self.fact.model.fieldModels:
                 d[f.name] = (f.id, self.fact[f.name])
-            qa = formatQA(None, fact.modelId, d, self.allTags(), cardModel)
+            qa = formatQA(None, fact.modelId, d, self.splitTags(), cardModel)
             self.question = qa['question']
             self.answer = qa['answer']
 
@@ -154,6 +154,9 @@ class Card(object):
         if not self.firstAnswered:
             self.firstAnswered = time.time()
         self.setModified()
+
+    def splitTags(self):
+        return (self.fact.tags, self.fact.model.tags, self.cardModel.name)
 
     def allTags(self):
         "Non-canonified string of all tags."

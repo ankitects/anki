@@ -118,8 +118,10 @@ def formatQA(cid, mid, fact, tags, cm):
                 hexifyID(v[0]), v[1])
         else:
             fields[k] = u""
-    fields['tags'] = canonifyTags(tags)
-    fields['Tags'] = fields['tags']
+    fields['tags'] = tags[0]
+    fields['Tags'] = tags[0]
+    fields['modelTags'] = tags[1]
+    fields['cardModel'] = tags[2]
     # render q & a
     ret = []
     for (type, format) in (("question", cm.qformat),

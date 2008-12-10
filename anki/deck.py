@@ -1198,9 +1198,10 @@ and %s in %s""" % (col, ids2str(ids)))
         else:
             mod = ""
         # tags
-        tags = dict(self.shortTagsList(
+        tags = dict([(x[0], x[1:]) for x in
+                     self.splitTagsList(
             where="and cards.id in %s" %
-            ids2str([x[0] for x in ids])))
+            ids2str([x[0] for x in ids]))])
         facts = {}
         # fields
         for k, g in groupby(self.s.all("""
@@ -1245,12 +1246,12 @@ cardModels.name %s from cards, facts, models, cardModels where
 cards.factId == facts.id and facts.modelId == models.id
 and cards.cardModelId = cardModels.id %s""" % (priority, where))
 
-    def shortTagsList(self, where=""):
-        # no card model
+    def splitTagsList(self, where=""):
         return self.s.all("""
-select cards.id, facts.tags || "," || models.tags
-from cards, facts, models where
+select cards.id, facts.tags, models.tags, cardModels.name
+from cards, facts, models, cardModels where
 cards.factId == facts.id and facts.modelId == models.id
+and cards.cardModelId = cardModels.id
 %s""" % where)
 
     def cardsWithNoTags(self):

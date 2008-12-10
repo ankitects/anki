@@ -132,7 +132,7 @@ class Fact(object):
             for f in self.model.fieldModels:
                 d[f.name] = (f.id, self[f.name])
             for card in self.cards:
-                qa = formatQA(None, self.modelId, d, card.allTags(), card.cardModel)
+                qa = formatQA(None, self.modelId, d, card.splitTags(), card.cardModel)
                 card.question = qa['question']
                 card.answer = qa['answer']
                 card.setModified()
