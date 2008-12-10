@@ -184,4 +184,6 @@ def mungeQA(deck, txt):
                 create=True), match).encode("utf-8")), "utf-8")
         return 'img src="%s"' % src
     txt = re.sub('img src="(.*?)"', quote, txt)
+    # hack to fix thai presentation issues
+    txt = txt.replace("</span>", "&#8203;</span>")
     return txt
