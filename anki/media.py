@@ -8,7 +8,7 @@ Media support
 """
 __docformat__ = 'restructuredtext'
 
-import os, stat, time, shutil, re
+import os, stat, time, shutil, re, sys
 from anki.db import *
 from anki.facts import Fact
 from anki.utils import addTags, genID, ids2str, checksum
@@ -58,7 +58,7 @@ Update media table. If file already exists, don't copy."""
     new = os.path.join(deck.mediaDir(create=True), newBase)
     # copy if not existing
     if not os.path.exists(new):
-        shutil.copy2(path, new)
+        shutil.copy2(path, new.encode(sys.getfilesystemencoding()))
     newSize = os.stat(new)[stat.ST_SIZE]
     if not deck.s.scalar(
         "select 1 from media where filename = :f",
