@@ -1162,6 +1162,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
                 self.sourcesToCheck = []
             self.deck = None
             self.loadAfterSync = reload
+        # hide all deck-associated dialogs
+        ui.dialogs.closeAll()
         # bug triggered by preferences dialog - underlying c++ widgets are not
         # garbage collected until the middle of the child thread
         import gc; gc.collect()
