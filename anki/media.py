@@ -85,8 +85,9 @@ def _modifyFields(deck, fieldsToUpdate, modifiedFacts, dirty):
     deck.s.statement(
         "update facts set modified = :time where id in %s" %
         factIds, time=time.time())
-    ids = deck.s.all("""select cards.id, cards.cardModelId, facts.id
-from cards, facts where cards.factId = facts.id and facts.id in %s"""
+    ids = deck.s.all("""select cards.id, cards.cardModelId, facts.id,
+facts.modelId from cards, facts where
+cards.factId = facts.id and facts.id in %s"""
                      % factIds)
     deck.updateCardQACache(ids, dirty)
     deck.flushMod()
