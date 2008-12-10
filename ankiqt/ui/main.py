@@ -306,6 +306,10 @@ Please do not file a bug report with Anki.\n\n""")
                 rev = self.deck.revCardTable()
                 sys.stderr.write("""\
 earliest time returned %f
+
+please report this error, but it's not serious.
+closing and opening your deck should fix it.
+
 counts are %d %d %d
 according to the db %d %d %d
 failed:
