@@ -308,13 +308,10 @@ Please do not file a bug report with Anki.\n\n""")
 earliest time returned %f
 counts are %d %d %d
 according to the db %d %d %d
-
 failed:
 %s
-
 rev:
 %s
-
 new:
 %s""" % (delay,
          self.deck.failedSoonCount,

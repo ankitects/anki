@@ -477,4 +477,6 @@ class ModelProperties(QDialog):
         if self.onFinish:
             self.onFinish()
         self.parent.deck.setUndoEnd(self.undoName)
+        # check again
+        self.parent.deck.haveJapanese = None
         QDialog.reject(self)

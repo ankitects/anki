@@ -83,6 +83,8 @@ class ModelChooser(QHBoxLayout):
             self.drawModels()
             self.changed(model)
             self.deck.setModified()
+            # check again
+            self.deck.haveJapanese = None
 
     def onChange(self, idx):
         model = self.deck.models[idx]
