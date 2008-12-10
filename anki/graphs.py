@@ -48,9 +48,10 @@ class DeckGraphs(object):
             months = {}
             next = {}
             lowestInDay = 0
+            midnightOffset = time.timezone - self.deck.utcOffset
             now = list(time.localtime(time.time()))
             now[3] = 23; now[4] = 59
-            self.endOfDay = time.mktime(now) + self.deck.utcOffset
+            self.endOfDay = time.mktime(now) - midnightOffset
             t = time.time()
             young = self.deck.s.all("""
 select interval, combinedDue
@@ -65,8 +66,7 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
                 for (interval, due) in src:
                     day=int(round(interval))
                     days[day] = days.get(day, 0) + 1
-                    indays = int((due - self.endOfDay)
-                                 / 86400.0)
+                    indays = int(((due - self.endOfDay) / 86400.0) + 1)
                     next[indays] = next.get(indays, 0) + 1 # type-agnostic stats
                     dest[indays] = dest.get(indays, 0) + 1 # type-specific stats
                     if indays < lowestInDay:
