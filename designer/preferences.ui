@@ -174,7 +174,7 @@
         <x>0</x>
         <y>0</y>
         <width>306</width>
-        <height>351</height>
+        <height>372</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -538,6 +538,8 @@
   <tabstop>tallButtons</tabstop>
   <tabstop>showTray</tabstop>
   <tabstop>scrollToAnswer</tabstop>
+  <tabstop>showDivider</tabstop>
+  <tabstop>splitQA</tabstop>
   <tabstop>toolbarIconSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
