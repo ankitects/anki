@@ -178,29 +178,25 @@ class Deck(object):
             return
         return self._getNewCard()
 
+    def newCardTable(self):
+        return ("acqCardsRandom",
+                "acqCardsOrdered")[self.newCardOrder]
+
+    def revCardTable(self):
+        return ("revCardsOld",
+                "revCardsNew",
+                "revCardsDue",
+                "revCardsRandom")[self.revCardOrder]
+
     def _getNewCard(self):
         "Return the next new card id, if exists."
-        if self.newCardOrder == 0:
-            return self.s.scalar(
-                "select id from acqCardsRandom limit 1")
-        else:
-            return self.s.scalar(
-                "select id from acqCardsOrdered limit 1")
+        return self.s.scalar(
+            "select id from %s limit 1" % self.newCardTable())
 
     def _getRevCard(self):
         "Return the next review card id."
-        if self.revCardOrder == 0:
-            return self.s.scalar(
-                "select id from revCardsOld limit 1")
-        elif self.revCardOrder == 1:
-            return self.s.scalar(
-                "select id from revCardsNew limit 1")
-        elif self.revCardOrder == 2:
-            return self.s.scalar(
-                "select id from revCardsDue limit 1")
-        else:
-            return self.s.scalar(
-                "select id from revCardsRandom limit 1")
+        return self.s.scalar(
+            "select id from %s limit 1" % self.revCardTable())
 
     def cardFromId(self, id, orm=False):
         "Given a card ID, return a card, and start the card timer."
@@ -261,18 +257,8 @@ class Deck(object):
         sel = """
 select id, factId, modified, question, answer, cardModelId,
 type, due, interval, factor, priority from """
-        if self.newCardOrder == 0:
-            new = "acqCardsRandom"
-        else:
-            new = "acqCardsOrdered"
-        if self.revCardOrder == 0:
-            rev = "revCardsOld"
-        elif self.revCardOrder == 1:
-            rev = "revCardsNew"
-        elif self.revCardOrder == 2:
-            rev = "revCardsDue"
-        else:
-            rev = "revCardsRandom"
+        new = self.newCardTable()
+        rev = self.revCardTable()
         d = {}
         d['fail'] = self.s.all(sel + """
 cards where type = 0 and isDue = 1 and
