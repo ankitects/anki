@@ -96,15 +96,13 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         self.filledGraph(graph, days, ["#7777ff", "#77ffff"], *argl)
 
         cheat = fig.add_subplot(111)
-        b1 = cheat.bar(0, 0, color = "#77ffff") #, label = _("Young cards"))
-        b2 = cheat.bar(1, 0, color = "#7777ff") #, label = _("Mature cards"))
+        b1 = cheat.bar(0, 0, color = "#77ffff")
+        b2 = cheat.bar(1, 0, color = "#7777ff")
 
         cheat.legend([b1, b2], [
             _("Young"),
             _("Mature")], loc='upper right')
 
-        graph.set_ylabel(_("Cards"))
-        graph.set_xlabel(_("Days"))
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         return fig
 
@@ -125,8 +123,6 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         x = list(x); x.append(99999)
         y.append(count)
         self.filledGraph(graph, days, "#aaaaff", x, y)
-        graph.set_ylabel(_("Cards"))
-        graph.set_xlabel(_("Days"))
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         graph.set_ylim(ymax=count+100)
         return fig
@@ -139,8 +135,6 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         intervals = self.unzip(ints.items())
         graph = fig.add_subplot(111)
         self.filledGraph(graph, days, "#aaffaa", *intervals)
-        graph.set_ylabel(_("Cards"))
-        graph.set_xlabel(_("Days"))
         graph.set_xlim(xmin=0, xmax=days)
         return fig
 
@@ -161,8 +155,6 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         else:
             colour = "#ffcccc"
         self.filledGraph(graph, numdays, colour, *intervals)
-        graph.set_ylabel(_("Cards"))
-        graph.set_xlabel(_("Day"))
         graph.set_xlim(xmin=-numdays, xmax=0)
         return fig
 
@@ -237,7 +229,6 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
             arr = [0] * arrsize
             offset += 5
             n += 1
-        graph.set_ylabel("%")
         x = ([""] + [str(n) for n in range(1, enum)]) * 3
         graph.legend([p[0] for p in bars], (_("New"),
                                             _("Young"),
