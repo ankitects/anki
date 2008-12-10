@@ -632,6 +632,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
                         pass
             # close
             self.deck.rollback()
+            self.deck.close()
             self.deck = None
             if name.startswith("untitled") and not count:
                 os.unlink(path)
