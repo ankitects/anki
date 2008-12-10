@@ -267,7 +267,11 @@ Please do not file a bug report with Anki.\n\n""")
         if self.state != "showAnswer":
             return
         # remove card from session before updating it
-        self.deck.s.expunge(self.currentCard)
+        try:
+            self.deck.s.expunge(self.currentCard)
+        except:
+            # session has been reset
+            pass
         self.deck.answerCard(self.currentCard, quality)
         self.lastScheduledTime = anki.utils.fmtTimeSpan(
             self.currentCard.due - time.time())
