@@ -141,7 +141,7 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
     def addedRecently(self, numdays=30, attr='created'):
         days = {}
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
-        limit = time.time() - numdays * 86400
+        limit = self.endOfDay - (numdays + 1) * 86400
         res = self.deck.s.column0("select %s from cards where %s >= %f" %
                                   (attr, attr, limit))
         for r in res:
