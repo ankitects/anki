@@ -83,7 +83,7 @@ class AdjustableFigure(QWidget):
     def addCombo(self):
         self.periodCombo = QComboBox()
         self.periodCombo.addItems(QStringList(
-            [anki.utils.fmtTimeSpan(x*86400) for x in self.choices]))
+            [anki.utils.fmtTimeSpan(x*86400, point = -1) for x in self.choices]))
         self.hbox.addWidget(self.periodCombo)
         idx = self.config.get('graphs.period.' + self.name, 1)
         self.periodCombo.setCurrentIndex(idx)
