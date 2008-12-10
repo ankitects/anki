@@ -604,6 +604,9 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         self.hideWelcome = hideWelcome
         if self.deck is not None:
+            count = self.deck.cardCount
+            path = self.deck.path
+            name = self.deck.name()
             # sync (saving automatically)
             if self.config['syncOnClose'] and self.deck.syncName:
                 self.syncDeck(False, reload=False)
@@ -626,6 +629,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             # close
             self.deck.rollback()
             self.deck = None
+            if name.startswith("untitled") and not count:
+                os.unlink(path)
         if not hideWelcome:
             self.moveToState("noDeck")
         return True
@@ -740,6 +745,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.deck = self.deck.saveAs(file)
         self.deck.initUndo()
         self.updateTitleBar()
+        self.updateRecentFiles(self.deck.path)
         self.moveToState("initial")
 
     def saveDeck(self):
