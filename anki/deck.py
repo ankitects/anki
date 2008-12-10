@@ -1423,6 +1423,7 @@ Return new path, relative to media dir."""
         oldMediaDir = self.mediaDir()
         # flush old deck
         self.s.flush()
+        self.close()
         # remove new deck if it exists
         try:
             os.unlink(newPath)
@@ -1452,13 +1453,14 @@ Return new path, relative to media dir."""
         # detach old db and commit
         s("detach database old")
         newDeck.s.commit()
-        # close ourself, rebuild queue
-        self.s.close()
         newDeck.refresh()
         newDeck.rebuildQueue()
         # move media
         if oldMediaDir:
             newDeck.renameMediaDir(oldMediaDir)
+        if self.name().startswith("untitled"):
+            # remove old deck
+            os.unlink(self.path)
         # and return the new deck object
         return newDeck
 
@@ -1747,10 +1749,10 @@ class DeckStorage(object):
     def newDeckPath():
         n = 2
         path = os.path.expanduser(
-            os.path.join(newDeckDir, "mydeck.anki"))
+            os.path.join(newDeckDir, "untitled.anki"))
         while os.path.exists(path):
             path = os.path.expanduser(
-                os.path.join(newDeckDir, "mydeck%d.anki") % n)
+                os.path.join(newDeckDir, "untitled%d.anki") % n)
             n += 1
         return path
     newDeckPath = staticmethod(newDeckPath)
