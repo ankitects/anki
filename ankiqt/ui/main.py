@@ -301,7 +301,7 @@ Please do not file a bug report with Anki.\n\n""")
             if delay < 0:
                 c = self.deck.getCard()
                 if c:
-                    c = (c.id, c.question, c.due, c.combinedDue, c.isDue, c.type)
+                    return self.moveToState("auto")
                 sys.stderr.write("""
 earliest time returned %f
 
@@ -312,14 +312,10 @@ rev:
 %s
 
 new:
-%s
-
-getCard() returns:
 %s""" % (delay,
          self.deck.s.all("select * from failedCards"),
          self.deck.s.all("select * from revCardsOld"),
-         self.deck.s.all("select * from acqCardsOrdered"),
-         c))
+         self.deck.s.all("select * from acqCardsOrdered")))
                 return
             t = QTimer(self)
             t.setSingleShot(True)
