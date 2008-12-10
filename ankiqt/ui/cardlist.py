@@ -200,6 +200,9 @@ class EditDeck(QMainWindow):
         self.dialog.tableView.setSortingEnabled(False)
         self.dialog.tableView.setModel(self.model)
         self.dialog.tableView.selectionModel()
+        self.connect(self.dialog.tableView.selectionModel(),
+                     SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
+                     self.updateFilterLabel)
         self.dialog.tableView.setFont(QFont(
             self.config['editFontFamily'],
             self.config['editFontSize']))
@@ -318,9 +321,12 @@ class EditDeck(QMainWindow):
 
     def updateFilterLabel(self):
         self.setWindowTitle(_("Editor (%(cur)d "
-                              "of %(tot)d cards shown)") %
-                            {"cur": len(self.model.cards),
-                             "tot": self.deck.cardCount})
+                              "of %(tot)d cards shown; %(sel)d selected)") %
+                            {
+            "cur": len(self.model.cards),
+            "tot": self.deck.cardCount,
+            "sel": len(self.dialog.tableView.selectionModel().selectedRows())
+            })
 
     def onEvent(self):
         if self.deck.undoAvailable():
