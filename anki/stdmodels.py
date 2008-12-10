@@ -30,7 +30,7 @@ def names():
 def BasicModel():
     m = Model(_('Basic'))
     m.addFieldModel(FieldModel(u'Front', True, True))
-    m.addFieldModel(FieldModel(u'Back', True, True))
+    m.addFieldModel(FieldModel(u'Back', True, False))
     m.addCardModel(CardModel(u'Forward', u'%(Front)s', u'%(Back)s'))
     m.addCardModel(CardModel(u'Reverse', u'%(Back)s', u'%(Front)s',
                              active=False))
@@ -52,7 +52,7 @@ def JapaneseModel():
     f.editFontFamily = font
     m.addFieldModel(f)
     # meaning
-    m.addFieldModel(FieldModel(u'Meaning', True, True))
+    m.addFieldModel(FieldModel(u'Meaning', True, False))
     # reading
     f = FieldModel(u'Reading', False, False)
     f.quizFontFamily = font
@@ -78,7 +78,7 @@ def CantoneseModel():
     f = FieldModel(u'Expression')
     f.quizFontSize = 72
     m.addFieldModel(f)
-    m.addFieldModel(FieldModel(u'Meaning'))
+    m.addFieldModel(FieldModel(u'Meaning', True, False))
     m.addFieldModel(FieldModel(u'Reading', False, False))
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
@@ -100,7 +100,7 @@ def MandarinModel():
     f = FieldModel(u'Expression')
     f.quizFontSize = 72
     m.addFieldModel(f)
-    m.addFieldModel(FieldModel(u'Meaning'))
+    m.addFieldModel(FieldModel(u'Meaning', True, False))
     m.addFieldModel(FieldModel(u'Reading', False, False))
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
