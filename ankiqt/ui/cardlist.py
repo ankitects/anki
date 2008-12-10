@@ -58,7 +58,6 @@ class DeckModel(QAbstractTableModel):
             f.setPixelSize(12)
             return QVariant(f)
         elif role == Qt.DisplayRole or role == Qt.EditRole:
-            #s = self.columns[index.column()][1](self.getCardID(index))
             s = self.columns[index.column()][1](index)
             s = s.replace("<br>", u" ")
             s = s.replace("\n", u"  ")

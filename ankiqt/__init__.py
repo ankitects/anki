@@ -43,8 +43,6 @@ def run():
                 pass
 
     app = QApplication(sys.argv)
-    if sys.platform.startswith("win32"):
-        app.setStyle("plastique")
 
     # setup paths for forms, icons
     sys.path.append(modDir)

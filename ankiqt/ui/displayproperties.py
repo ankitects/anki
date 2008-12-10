@@ -22,8 +22,9 @@ class DisplayProperties(QDialog):
         self.main = main
         self.deck = main.deck
         self.ignoreUpdate = False
-        if sys.platform.startswith("darwin"):
-            # mac widgets don't show colours
+        self.plastiqueStyle = None
+        if (sys.platform.startswith("darwin") or
+            sys.platform.startswith("win32")):
             self.plastiqueStyle = QStyleFactory.create("plastique")
         self.dialog = ankiqt.forms.displayproperties.Ui_DisplayProperties()
         self.dialog.setupUi(self)
@@ -82,7 +83,7 @@ class DisplayProperties(QDialog):
                          SIGNAL("valueChanged(int)"),
                          self.saveCard)
             w = self.cwidget("Colour", type)
-            if sys.platform.startswith("darwin"):
+            if self.plastiqueStyle:
                 w.setStyle(self.plastiqueStyle)
             self.connect(w,
                          SIGNAL("clicked()"),
@@ -168,7 +169,7 @@ class DisplayProperties(QDialog):
                              SIGNAL("stateChanged(int)"),
                              self.saveField)
                 w = self.fwidget("fontColour", type)
-                if sys.platform.startswith("darwin"):
+                if self.plastiqueStyle:
                     w.setStyle(self.plastiqueStyle)
                 self.connect(w,
                              SIGNAL("clicked()"),

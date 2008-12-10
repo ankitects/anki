@@ -85,6 +85,9 @@ class View(object):
             color = ("; color: " + self.main.config[base + "Colour"])
             s += ('.%s {font-family: "%s"; font-size: %spx%s}\n' %
                             (base, family, size, color))
+        s += ("body { background-color: " +
+              self.main.config["backgroundColour"] +
+              "; }")
         s += "</style>"
         return s
 

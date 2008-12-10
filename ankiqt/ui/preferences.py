@@ -115,13 +115,15 @@ class Preferences(QDialog):
         getattr(self.dialog, type + "Size").setFocus()
 
     def setupColour(self):
-        if sys.platform.startswith("darwin"):
+        self.plastiqueStyle = None
+        if (sys.platform.startswith("darwin") or
+            sys.platform.startswith("win32")):
             # mac widgets don't show colours
             self.plastiqueStyle = QStyleFactory.create("plastique")
         for c in ("interface", "background"):
             colour = c + "Colour"
             button = getattr(self.dialog, colour)
-            if sys.platform.startswith("darwin"):
+            if self.plastiqueStyle:
                 button.setStyle(self.plastiqueStyle)
             button.setPalette(QPalette(QColor(
                 self.config[colour])))
