@@ -570,14 +570,20 @@ class FactEdit(QTextEdit):
 
     def insertFromMimeData(self, source):
         if source.hasText():
-            self.insertPlainText(source.text())
-        elif source.hasImage():
+            if not (unicode(source.text()).lower().startswith("http://") and
+                    source.hasImage()):
+                # choose text unless this is a link with an image
+                self.insertPlainText(source.text())
+                return
+        if source.hasImage():
             im = QImage(source.imageData())
             (fd, name) = tempfile.mkstemp(suffix=".jpg")
             im.save(name, None, 95)
             self.parent._addPicture(name, widget=self)
-        elif source.hasHtml():
+            return
+        if source.hasHtml():
             self.insertHtml(self.simplifyHTML(unicode(source.html())))
+            return
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
