@@ -46,10 +46,10 @@ def wrap(old, new, pos="after"):
     def repl(*args, **kwargs):
         if pos == "after":
             old(*args, **kwargs)
-            new(*args, **kwargs)
+            return new(*args, **kwargs)
         elif pos == "before":
             new(*args, **kwargs)
-            old(*args, **kwargs)
+            return old(*args, **kwargs)
         else:
-            new(_old=old, *args, **kwargs)
+            return new(_old=old, *args, **kwargs)
     return repl
