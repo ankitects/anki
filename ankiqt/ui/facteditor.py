@@ -521,7 +521,7 @@ class FactEditor(object):
             form.textEdit.setPlainText(self.widgets[w].value)
             form.textEdit.moveCursor(QTextCursor.End)
             d.exec_()
-            w.setText(unicode(form.textEdit.toPlainText()).\
+            w.setHtml(unicode(form.textEdit.toPlainText()).\
                       replace("\n", ""))
             self.saveFields()
 
