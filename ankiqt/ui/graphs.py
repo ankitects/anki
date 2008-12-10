@@ -7,6 +7,7 @@ import sys
 import anki, anki.graphs, anki.utils
 from ankiqt import ui
 from ankiqt.ui.utils import saveGeom, restoreGeom
+import ankiqt
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib import rc
@@ -67,6 +68,7 @@ class AdjustableFigure(QWidget):
         else:
             self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
         self.addWidget(self.figureCanvas)
+        self.vbox.addLayout(self.hbox)
 
     def updateFigure(self):
         self.updateTimer = None
@@ -107,7 +109,6 @@ class AdjustableFigure(QWidget):
     def addExplanation(self, text):
         self.explanation = QLabel(text)
         self.hbox.insertWidget(1, self.explanation)
-        self.vbox.addLayout(self.hbox)
 
     def showHide(self):
         shown = self.config.get('graphs.shown.' + self.name, True)
@@ -153,33 +154,24 @@ def intervalGraph(parent, deck):
     nextDue = AdjustableFigure(parent.config, 'due', dg.nextDue, range)
     nextDue.addWidget(QLabel(_("<h1>Due</h1>")))
     nextDue.addFigure()
-    nextDue.addExplanation(_("The number of cards due each day over the "
-                             "period.\n"
-                             "Today is 0; cards less than zero are overdue."))
     vbox.addWidget(nextDue)
     widgets.append(nextDue)
 
     cumDue = AdjustableFigure(parent.config, 'cum', dg.cumulativeDue, range)
     cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
     cumDue.addFigure()
-    cumDue.addExplanation(_("The number of cards due each day, assuming "
-                             "no study."))
-
     vbox.addWidget(cumDue)
     widgets.append(cumDue)
 
     interval = AdjustableFigure(parent.config, 'interval', dg.intervalPeriod, range)
     interval.addWidget(QLabel(_("<h1>Intervals</h1>")))
     interval.addFigure()
-    interval.addExplanation(_("The number of cards scheduled for a given "
-                             "number of days."))
     vbox.addWidget(interval)
     widgets.append(interval)
 
     added = AdjustableFigure(parent.config, 'added', dg.addedRecently, range)
     added.addWidget(QLabel(_("<h1>Added</h1>")))
     added.addFigure()
-    added.addExplanation(_("The number of cards added on a given day."))
     vbox.addWidget(added)
     widgets.append(added)
 
@@ -187,18 +179,12 @@ def intervalGraph(parent, deck):
         dg.addedRecently, args + ('firstAnswered',)), range)
     answered.addWidget(QLabel(_("<h1>First Answered</h1>")))
     answered.addFigure()
-    answered.addExplanation(_("The number of cards first answered on a "
-                              "given day.\nThis will be different to "
-                              "'added cards' if you are\nusing a "
-                              "pre-made deck."))
     vbox.addWidget(answered)
     widgets.append(answered)
 
     eases = AdjustableFigure(parent.config, 'eases', dg.easeBars)
     eases.addWidget(QLabel(_("<h1>Eases</h1>")))
     eases.addFigure()
-    eases.addExplanation(_("The amount of times you answered a card at "
-                           "each ease level."))
     vbox.addWidget(eases)
     widgets.append(eases)
 
@@ -238,6 +224,9 @@ def intervalGraph(parent, deck):
             m.addAction(action)
         m.exec_(showhide.mapToGlobal(QPoint(0,0)))
 
+    def onHelp():
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Graphs"))
+
     showhide = QPushButton(_("Show/Hide"))
     hbox.addWidget(showhide)
     showhide.connect(showhide, SIGNAL("clicked()"),
@@ -248,6 +237,10 @@ def intervalGraph(parent, deck):
     close = buttonBox.addButton(QDialogButtonBox.Close)
     close.setDefault(True)
     d.connect(buttonBox, SIGNAL("rejected()"), d.close)
+    help = buttonBox.addButton(QDialogButtonBox.Help)
+    d.connect(buttonBox, SIGNAL("helpRequested()"),
+              onHelp)
+
     hbox.addWidget(buttonBox)
 
     topBox.addLayout(hbox)
