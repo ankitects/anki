@@ -63,6 +63,10 @@ Update media table. If file already exists, don't copy."""
     if not deck.s.scalar(
         "select 1 from media where filename = :f",
         f=newBase):
+        try:
+            path = unicode(path, sys.getfilesystemencoding())
+        except TypeError:
+            pass
         deck.s.statement("""
 insert into media (id, filename, size, created, originalPath,
 description)
@@ -72,8 +76,7 @@ values (:id, :filename, :size, :created, :originalPath,
                          filename=newBase,
                          size=newSize,
                          created=time.time(),
-                         originalPath=unicode(
-            path, sys.getfilesystemencoding()),
+                         originalPath=path,
                          description=os.path.splitext(
             os.path.basename(path))[0])
     return newBase
