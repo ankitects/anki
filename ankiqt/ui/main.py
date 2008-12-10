@@ -302,10 +302,14 @@ Please do not file a bug report with Anki.\n\n""")
                 c = self.deck.getCard()
                 if c:
                     return self.moveToState("auto")
-                sys.stderr.write("""
+                new = self.deck.newCardTable()
+                rev = self.deck.revCardTable()
+                sys.stderr.write("""\
 earliest time returned %f
+counts are %d %d %d
+according to the db %d %d %d
 
-failed is:
+failed:
 %s
 
 rev:
@@ -313,9 +317,15 @@ rev:
 
 new:
 %s""" % (delay,
-         self.deck.s.all("select * from failedCards"),
-         self.deck.s.all("select * from revCardsOld"),
-         self.deck.s.all("select * from acqCardsOrdered")))
+         self.deck.failedSoonCount,
+         self.deck.revCount,
+         self.deck.newCountToday,
+         self.deck.s.scalar("select count(*) from failedCards"),
+         self.deck.s.scalar("select count(*) from %s" % rev),
+         self.deck.s.scalar("select count(*) from %s" % new),
+         self.deck.s.all("select * from failedCards limit 2"),
+         self.deck.s.all("select * from %s limit 2" % rev),
+         self.deck.s.all("select * from %s limit 2" % new)))
                 return
             t = QTimer(self)
             t.setSingleShot(True)
