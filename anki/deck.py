@@ -538,7 +538,7 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
 At the same time tomorrow:<br><br>
 - There will be <b>%(wait)d</b> cards waiting for review<br>
 - There will be <b>%(new)d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-061e5433d4571d7ec7ecba0c329c09bd27c84d63">
+<a href="http://ichi2.net/anki/wiki/DeckProperties#NewCards">
 new cards</a> waiting''') % {
                 'new': newCardsTomorrow,
                 'wait': self.cardsDueBy(time.time() + 86400)
