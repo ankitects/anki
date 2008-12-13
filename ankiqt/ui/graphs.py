@@ -157,6 +157,12 @@ def intervalGraph(parent, deck):
     nextDue.addFigure()
     vbox.addWidget(nextDue)
     widgets.append(nextDue)
+    
+    workload = AdjustableFigure(parent.config, 'workload', dg.workDone, range)
+    workload.addWidget(QLabel(_("<h1>Work Done</h1>")))
+    workload.addFigure()
+    vbox.addWidget(workload)
+    widgets.append(workload)
 
     cumDue = AdjustableFigure(parent.config, 'cum', dg.cumulativeDue, range)
     cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
@@ -188,12 +194,6 @@ def intervalGraph(parent, deck):
     eases.addFigure()
     vbox.addWidget(eases)
     widgets.append(eases)
-
-    workload = AdjustableFigure(parent.config, 'workload', dg.workDone, range)
-    workload.addWidget(QLabel(_("<h1>Work Done</h1>")))
-    workload.addFigure()
-    vbox.addWidget(workload)
-    widgets.append(workload)
 
     scroll.setWidget(frame)
 
