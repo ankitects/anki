@@ -159,6 +159,7 @@ from stats""")
         return fig
 
     def addedRecently(self, numdays=30, attr='created'):
+        self.calcStats()
         days = {}
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         limit = self.endOfDay - (numdays + 1) * 86400
