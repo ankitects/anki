@@ -1074,7 +1074,7 @@ class BulkMediaSyncerProxy(HttpSyncServerProxy):
         return self.unstuff(self.runCmd("missingMedia"))
 
     def _splitMedia(self, fname):
-        return os.path.join(fname[0:1], fname[0:2], fname)
+        return "%s/%s/%s" % (fname[0:1], fname[0:2], fname)
 
     def _relativeMediaPath(self, fname):
         return "http://ankimedia.ichi2.net/%s" % (

@@ -48,7 +48,7 @@ mediaDeletedTable = Table(
 def mediaFilename(path):
     "Return checksum.ext for path"
     new = checksum(open(path, "rb").read())
-    ext = os.path.splitext(path)[1]
+    ext = os.path.splitext(path)[1].lower()
     return "%s%s" % (new, ext)
 
 def copyToMedia(deck, path):
