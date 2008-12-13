@@ -1490,7 +1490,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
     def updateStarted(self):
         self.updateProgressDialog = QProgressDialog(_(
             "Updating Anki...\n - you can keep studying"
-            "\n - please don't close this")), "", 0, 0, self)
+            "\n - please don't close this"), "", 0, 0, self)
         self.updateProgressDialog.setMinimum(0)
         self.updateProgressDialog.setMaximum(100)
         self.updateProgressDialog.setCancelButton(None)
