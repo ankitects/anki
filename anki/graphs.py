@@ -80,13 +80,15 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
                                         'mature': daysMature}
             self.stats['months'] = months
             self.stats['lowestInDay'] = lowestInDay
-            
+
             dayReps = self.deck.s.all("""
 select day, reps
 from stats""")
 
             todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
-            self.stats["dayReps"] = dict(map(lambda dr: (-(todaydt - datetime.datetime(*(int(x) for x in dr["day"].split("-")))).days, dr["reps"]), dayReps))
+            self.stats["dayReps"] = dict(
+                map(lambda dr: (-(todaydt -datetime.datetime(
+                *(int(x)for x in dr["day"].split("-")))).days, dr["reps"]), dayReps))
 
 
     def nextDue(self, days=30):
@@ -101,7 +103,8 @@ from stats""")
         argl = []
 
         for dayslist in dayslists[:days]:
-            argl.extend(list(self.unzip(dayslist.items(), limit=days)))
+            dl = [x for x in dayslist.items() if x[0] <= days]
+            argl.extend(list(self.unzip(dl)))
 
         self.filledGraph(graph, days, ["#7777ff", "#77ffff"], *argl)
 
@@ -130,7 +133,8 @@ from stats""")
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        (x, y) = self.unzip(self.stats['next'].items(), limit=days)
+        dl = [x for x in self.stats['next'].items() if x[0] <= days]
+        (x, y) = self.unzip(dl)
         count=0
         y = list(y)
         for i in range(len(x)):
@@ -142,7 +146,7 @@ from stats""")
                 break
         x = list(x); x.append(99999)
         y.append(count)
-        self.filledGraph(graph, days, "#aaaaff", x, y)
+        self.filledGraph(graph, days, "#ffccff", x, y)
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         graph.set_ylim(ymax=graph.get_ylim()[1]+10)
         return fig
@@ -191,7 +195,7 @@ from stats""")
                 tuples = tuples[-limit - 1:]
             else:
                 tuples = tuples[:limit + 1]
-        
+
         new = zip(*tuples)
         return new
 
@@ -216,9 +220,14 @@ from stats""")
             x.append(highest + 1)
             y.append(0)
             # plot
-            graph.fill(x, y, c, lw = int(days < 180 and thick) * 2 + int(days >= 180 and thick))
+            lw = 0
             if days < 180:
-                graph.bar(x, y, width=0)
+                lw += 1
+            if thick:
+                lw += 1
+            if days > 360:
+                lw = 0
+            graph.fill(x, y, c, lw = lw)
             thick = False
 
         graph.grid(True)
