@@ -95,13 +95,13 @@ from stats""")
         graph = fig.add_subplot(111)
         dayslists = [self.stats['next'], self.stats['daysByType']['young']]
 
-        for dayslist in dayslists:
+        for dayslist in dayslists[:days]:
             self.addMissing(dayslist, self.stats['lowestInDay'], days)
 
         argl = []
 
-        for dayslist in dayslists:
-            argl.extend(list(self.unzip(dayslist.items())))
+        for dayslist in dayslists[:days]:
+            argl.extend(list(self.unzip(dayslist.items(), limit=days)))
 
         self.filledGraph(graph, days, ["#7777ff", "#77ffff"], *argl)
 
@@ -120,17 +120,17 @@ from stats""")
         self.addMissing(self.stats["dayReps"], -days, 0)
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        (x, y) = self.unzip(self.stats["dayReps"].items())
+        (x, y) = self.unzip(self.stats["dayReps"].items(), limit=days, reverseLimit=True)
         self.filledGraph(graph, days, "#aaaaff", x, y)
         graph.set_xlim(xmin=-days, xmax=0)
-        graph.set_ylim(ymax=max(y[-days:]) + 10)
+        graph.set_ylim(ymax=max(y) + 10)
         return fig
 
     def cumulativeDue(self, days=30):
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        (x, y) = self.unzip(self.stats['next'].items())
+        (x, y) = self.unzip(self.stats['next'].items(), limit=days)
         count=0
         y = list(y)
         for i in range(len(x)):
@@ -144,7 +144,7 @@ from stats""")
         y.append(count)
         self.filledGraph(graph, days, "#aaaaff", x, y)
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
-        graph.set_ylim(ymax=count+100)
+        graph.set_ylim(ymax=graph.get_ylim()[1]+10)
         return fig
 
     def intervalPeriod(self, days=30):
@@ -152,7 +152,7 @@ from stats""")
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         ints = self.stats['days']
         self.addMissing(ints, 0, days)
-        intervals = self.unzip(ints.items())
+        intervals = self.unzip(ints.items(), limit=days)
         graph = fig.add_subplot(111)
         self.filledGraph(graph, days, "#aaffaa", *intervals)
         graph.set_xlim(xmin=0, xmax=days)
@@ -166,8 +166,8 @@ from stats""")
         res = self.deck.s.column0("select %s from cards where %s >= %f" %
                                   (attr, attr, limit))
         for r in res:
-            d = (r - self.endOfDay) / 86400.0
-            days[int(d)] = days.get(int(d), 0) + 1
+            d = int((r - self.endOfDay) / 86400.0)
+            days[d] = days.get(d, 0) + 1
         self.addMissing(days, -numdays, 0)
         graph = fig.add_subplot(111)
         intervals = self.unzip(days.items())
@@ -184,8 +184,14 @@ from stats""")
             if not i in dic:
                 dic[i] = 0
 
-    def unzip(self, tuples, fillFix=True):
+    def unzip(self, tuples, fillFix=True, limit=None, reverseLimit=False):
         tuples.sort(cmp=lambda x,y: cmp(x[0], y[0]))
+        if limit:
+            if reverseLimit:
+                tuples = tuples[-limit - 1:]
+            else:
+                tuples = tuples[:limit + 1]
+        
         new = zip(*tuples)
         return new
 
