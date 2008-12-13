@@ -188,6 +188,12 @@ def intervalGraph(parent, deck):
     vbox.addWidget(eases)
     widgets.append(eases)
 
+    workload = AdjustableFigure(parent.config, 'workload', dg.workDone, range)
+    workload.addWidget(QLabel(_("<h1>Work Done</h1>")))
+    workload.addFigure()
+    vbox.addWidget(workload)
+    widgets.append(workload)
+
     scroll.setWidget(frame)
 
     hbox = QHBoxLayout()
@@ -210,6 +216,7 @@ def intervalGraph(parent, deck):
             'added': _("Added"),
             'answered': _("First Answered"),
             'eases': _("Eases"),
+            'workload': _("Work Done"),
             }
         m = QMenu(parent)
         for graph in widgets:
