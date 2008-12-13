@@ -89,12 +89,14 @@ class AdjustableFigure(QWidget):
         self.periodCombo.setCurrentIndex(idx)
         self.connect(self.periodCombo, SIGNAL("currentIndexChanged(int)"),
                      self.onPeriodChange)
-        self.onPeriodChange(idx)
+        self.onPeriodChange(idx, initialSkip=True)
 
-    def onPeriodChange(self, index):
+    def onPeriodChange(self, index, initialSkip=False):
+        print "period changed!"
         self.config['graphs.period.' + self.name] = index
         self.range = self.choices[index]
-        self.scheduleUpdate()
+        if not initialSkip:
+            self.scheduleUpdate()
 
     def scheduleUpdate(self):
         if not self.updateTimer:
