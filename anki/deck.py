@@ -1369,8 +1369,13 @@ Return new path, relative to media dir."""
         assert os.path.exists(oldPath)
         newPath = self.mediaDir(create=True)
         # copytree doesn't want the dir to exist
-        os.rmdir(newPath)
-        shutil.copytree(oldPath, newPath)
+        try:
+            os.rmdir(newPath)
+            shutil.copytree(oldPath, newPath)
+        except:
+            # FIXME: should really remove everything in old dir instead of
+            # giving up
+            pass
 
     # DB helpers
     ##########################################################################
