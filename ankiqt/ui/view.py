@@ -138,7 +138,7 @@ class View(object):
             height = 35
         else:
             height = 45
-        self.write(self.center(mungeQA(self.main.deck, q), height))
+        self.write(self.center(self.mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
 
@@ -146,9 +146,16 @@ class View(object):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
         self.write(self.center('<span id=answer />' +
-                               mungeQA(self.main.deck, a)))
+                               self.mungeQA(self.main.deck, a)))
         if self.state != self.oldState:
             playFromText(a)
+
+    def mungeQA(self, deck, txt):
+        txt = mungeQA(deck, txt)
+        # hack to fix thai presentation issues
+        if self.main.config['addZeroSpace']:
+            txt = txt.replace("</span>", "&#8203;</span>")
+        return txt
 
     def onLoadFinished(self):
         if self.state == "showAnswer":

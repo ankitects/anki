@@ -175,6 +175,7 @@ class Preferences(QDialog):
         self.dialog.scrollToAnswer.setChecked(self.config['scrollToAnswer'])
         self.dialog.showDivider.setChecked(self.config['qaDivider'])
         self.dialog.splitQA.setChecked(self.config['splitQA'])
+        self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
         self.dialog.toolbarIconSize.setText(str(self.config['iconSize']))
 
     def updateAdvanced(self):
@@ -192,6 +193,7 @@ class Preferences(QDialog):
         self.config['scrollToAnswer'] = self.dialog.scrollToAnswer.isChecked()
         self.config['qaDivider'] = self.dialog.showDivider.isChecked()
         self.config['splitQA'] = self.dialog.splitQA.isChecked()
+        self.config['addZeroSpace'] = self.dialog.addZeroSpace.isChecked()
         i = 32
         try:
             i = int(self.dialog.toolbarIconSize.text())

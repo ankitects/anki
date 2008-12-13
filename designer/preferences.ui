@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>322</width>
-    <height>438</height>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -15,6 +15,9 @@
   <layout class="QVBoxLayout" name="verticalLayout_2" >
    <item>
     <widget class="QTabWidget" name="tabWidget" >
+     <property name="focusPolicy" >
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="currentIndex" >
       <number>0</number>
      </property>
@@ -24,13 +27,16 @@
         <x>0</x>
         <y>0</y>
         <width>306</width>
-        <height>372</height>
+        <height>351</height>
        </rect>
       </property>
       <attribute name="title" >
        <string>Display</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout" >
+       <property name="spacing" >
+        <number>6</number>
+       </property>
        <item>
         <layout class="QVBoxLayout" >
          <property name="spacing" >
@@ -67,8 +73,11 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="focusPolicy" >
+            <enum>Qt::TabFocus</enum>
+           </property>
            <property name="text" >
-            <string>&lt;h1>Fonts &amp; Colours&lt;/h1></string>
+            <string>&lt;h1>Display&lt;/h1></string>
            </property>
            <property name="wordWrap" >
             <bool>false</bool>
@@ -154,6 +163,34 @@
         </layout>
        </item>
        <item>
+        <widget class="Line" name="line" >
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="showDivider" >
+         <property name="text" >
+          <string>Show divider between question and answer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="splitQA" >
+         <property name="text" >
+          <string>Put space between question and answer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="suppressEstimates" >
+         <property name="text" >
+          <string>Don't show next time before answer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -174,7 +211,7 @@
         <x>0</x>
         <y>0</y>
         <width>306</width>
-        <height>372</height>
+        <height>351</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -362,7 +399,7 @@
         <x>0</x>
         <y>0</y>
         <width>306</width>
-        <height>372</height>
+        <height>351</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -392,66 +429,52 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
-          <widget class="QCheckBox" name="suppressEstimates" >
-           <property name="text" >
-            <string>Hide next interval when showing answer buttons</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" >
-          <widget class="QCheckBox" name="showLastCardContent" >
-           <property name="text" >
-            <string>Show last card's question/answer</string>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="0" >
-          <widget class="QCheckBox" name="showLastCardInterval" >
-           <property name="text" >
-            <string>Show last card's interval</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0" >
           <widget class="QCheckBox" name="showToolbar" >
            <property name="text" >
             <string>Show toolbar on startup</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0" >
+         <item row="6" column="0" >
           <widget class="QCheckBox" name="tallButtons" >
            <property name="text" >
             <string>Tall buttons (for touchscreen)</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0" >
+         <item row="7" column="0" >
           <widget class="QCheckBox" name="showTray" >
            <property name="text" >
             <string>Show tray icon</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0" >
+         <item row="8" column="0" >
           <widget class="QCheckBox" name="scrollToAnswer" >
            <property name="text" >
             <string>Scroll down to the answer when showing answer</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="0" >
-          <widget class="QCheckBox" name="showDivider" >
+         <item row="4" column="0" >
+          <widget class="QCheckBox" name="showLastCardInterval" >
            <property name="text" >
-            <string>Show divider between question and answer</string>
+            <string>Show last card's interval</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="0" >
-          <widget class="QCheckBox" name="splitQA" >
+         <item row="3" column="0" >
+          <widget class="QCheckBox" name="showLastCardContent" >
            <property name="text" >
-            <string>Put space between question and answer</string>
+            <string>Show last card's question/answer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" >
+          <widget class="QCheckBox" name="addZeroSpace" >
+           <property name="text" >
+            <string>Add hidden char to text (fixes Thai on OSX)</string>
            </property>
           </widget>
          </item>
@@ -531,15 +554,12 @@
   <tabstop>syncOnClose</tabstop>
   <tabstop>simpleToolbar</tabstop>
   <tabstop>showTimer</tabstop>
-  <tabstop>suppressEstimates</tabstop>
   <tabstop>showLastCardContent</tabstop>
   <tabstop>showLastCardInterval</tabstop>
   <tabstop>showToolbar</tabstop>
   <tabstop>tallButtons</tabstop>
   <tabstop>showTray</tabstop>
   <tabstop>scrollToAnswer</tabstop>
-  <tabstop>showDivider</tabstop>
-  <tabstop>splitQA</tabstop>
   <tabstop>toolbarIconSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

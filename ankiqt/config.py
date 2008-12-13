@@ -69,6 +69,7 @@ class Config(dict):
             'qaDivider': True,
             'splitQA': True,
             'sortIndex': 0,
+            'addZeroSpace': True,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
