@@ -11,6 +11,8 @@ __docformat__ = 'restructuredtext'
 import os, sys, time
 import anki.stats
 
+import datetime
+
 # support frozen distribs
 if getattr(sys, "frozen", None):
     os.environ['MATPLOTLIBDATA'] = os.path.join(
@@ -42,13 +44,6 @@ class DeckGraphs(object):
 
     def calcStats (self):
         if not self.stats:
-            dayReps = self.deck.s.all("""
-select day, reps
-from stats""")
-
-            todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
-            self.dayReps = map(lambda dr: (-(todaydt - datetime.datetime(*(int(x) for x in dr["day"].split("-")))).days, dr["reps"]), dayReps)
-
             days = {}
             daysYoung = {}
             daysMature =  {}
@@ -85,6 +80,14 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
                                         'mature': daysMature}
             self.stats['months'] = months
             self.stats['lowestInDay'] = lowestInDay
+            
+            dayReps = self.deck.s.all("""
+select day, reps
+from stats""")
+
+            todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
+            self.stats["dayReps"] = dict(map(lambda dr: (-(todaydt - datetime.datetime(*(int(x) for x in dr["day"].split("-")))).days, dr["reps"]), dayReps))
+
 
     def nextDue(self, days=30):
         self.calcStats()
@@ -114,12 +117,10 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         return fig
 
     def workDone(self, days=30):
-        self.calcStats()
-        self.dayReps = dict(self.dayReps)
-        self.addMissing(self.dayReps, -days, 0)
+        self.addMissing(self.stats["dayReps"], -days, 0)
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        (x, y) = self.unzip(self.dayReps.items())
+        (x, y) = self.unzip(self.stats["dayReps"].items())
         self.filledGraph(graph, days, "#aaaaff", x, y)
         graph.set_xlim(xmin=-days, xmax=0)
         graph.set_ylim(ymax=max(y[-days:]) + 10)
