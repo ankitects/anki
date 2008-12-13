@@ -736,17 +736,25 @@ and due < :now""", now=time.time())
         stats['failed'] = self.failedSoonCount
         stats['rev'] = self.revCount
         if stats['dAverageTime']:
-            if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
-                count = stats['rev'] + stats['new']
-            elif self.newCardSpacing == NEW_CARDS_LAST:
-                count = stats['rev'] or stats['new']
-            count += stats['failed']
-            count *= 1 + stats['gYoungNo%'] / 100.0
             stats['timeLeft'] = anki.utils.fmtTimeSpan(
-                stats['dAverageTime'] * count, pad=0, point=1, short=short)
+                self.getETA(stats), pad=0, point=1, short=short)
         else:
             stats['timeLeft'] = _("Unknown")
         return stats
+
+    def getETA(self, stats):
+        # rev + new cards first, account for failures
+        count = stats['rev'] + stats['new']
+        count *= 1 + stats['gYoungNo%'] / 100.0
+        left = count * stats['dAverageTime']
+        # failed - higher time per card for higher amount of cards
+        failedBaseMulti = 1.5
+        failedMod = 0.07
+        failedBaseCount = 20
+        factor = (failedBaseMulti +
+                  (failedMod * (stats['failed'] - failedBaseCount)))
+        left += stats['failed'] * stats['dAverageTime'] * factor
+        return left
 
     def queueForCard(self, card):
         "Return the queue the current card is in."
