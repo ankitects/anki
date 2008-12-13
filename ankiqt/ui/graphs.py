@@ -56,6 +56,7 @@ class AdjustableFigure(QWidget):
         self.hbox = QHBoxLayout()
         self.hbox.addSpacing(10)
         self.hbox.addStretch(1)
+        self.figureCanvas = None
         if self.choices:
             self.addCombo()
 
@@ -75,8 +76,11 @@ class AdjustableFigure(QWidget):
         self.setUpdatesEnabled(False)
         idx = self.vbox.indexOf(self.figureCanvas)
         self.vbox.removeWidget(self.figureCanvas)
-        self.figureCanvas.deleteLater()
-        self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
+        if not self.figureCanvas:
+          self.addFigure()
+        else:
+          self.figureCanvas.deleteLater()
+          self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
         self.vbox.insertWidget(idx, self.figureCanvas)
         self.setUpdatesEnabled(True)
 
@@ -89,12 +93,13 @@ class AdjustableFigure(QWidget):
         self.periodCombo.setCurrentIndex(idx)
         self.connect(self.periodCombo, SIGNAL("currentIndexChanged(int)"),
                      self.onPeriodChange)
-        self.onPeriodChange(idx)
+        self.onPeriodChange(idx, initialSkip=True)
 
-    def onPeriodChange(self, index):
+    def onPeriodChange(self, index, initialSkip=False):
         self.config['graphs.period.' + self.name] = index
         self.range = self.choices[index]
-        self.scheduleUpdate()
+        if not initialSkip:
+            self.scheduleUpdate()
 
     def scheduleUpdate(self):
         if not self.updateTimer:
@@ -113,6 +118,8 @@ class AdjustableFigure(QWidget):
     def showHide(self):
         shown = self.config.get('graphs.shown.' + self.name, True)
         self.setVisible(shown)
+        if shown and not self.figureCanvas:
+            self.addFigure()
 
 class IntervalGraph(QDialog):
 
@@ -153,38 +160,37 @@ def intervalGraph(parent, deck):
     # views
     nextDue = AdjustableFigure(parent.config, 'due', dg.nextDue, range)
     nextDue.addWidget(QLabel(_("<h1>Due</h1>")))
-    nextDue.addFigure()
     vbox.addWidget(nextDue)
     widgets.append(nextDue)
+    
+    workload = AdjustableFigure(parent.config, 'workload', dg.workDone, range)
+    workload.addWidget(QLabel(_("<h1>Work Done</h1>")))
+    vbox.addWidget(workload)
+    widgets.append(workload)
 
     cumDue = AdjustableFigure(parent.config, 'cum', dg.cumulativeDue, range)
     cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
-    cumDue.addFigure()
     vbox.addWidget(cumDue)
     widgets.append(cumDue)
 
     interval = AdjustableFigure(parent.config, 'interval', dg.intervalPeriod, range)
     interval.addWidget(QLabel(_("<h1>Intervals</h1>")))
-    interval.addFigure()
     vbox.addWidget(interval)
     widgets.append(interval)
 
     added = AdjustableFigure(parent.config, 'added', dg.addedRecently, range)
     added.addWidget(QLabel(_("<h1>Added</h1>")))
-    added.addFigure()
     vbox.addWidget(added)
     widgets.append(added)
 
     answered = AdjustableFigure(parent.config, 'answered', lambda *args: apply(
         dg.addedRecently, args + ('firstAnswered',)), range)
     answered.addWidget(QLabel(_("<h1>First Answered</h1>")))
-    answered.addFigure()
     vbox.addWidget(answered)
     widgets.append(answered)
 
     eases = AdjustableFigure(parent.config, 'eases', dg.easeBars)
     eases.addWidget(QLabel(_("<h1>Eases</h1>")))
-    eases.addFigure()
     vbox.addWidget(eases)
     widgets.append(eases)
 
@@ -210,6 +216,7 @@ def intervalGraph(parent, deck):
             'added': _("Added"),
             'answered': _("First Answered"),
             'eases': _("Eases"),
+            'workload': _("Work Done"),
             }
         m = QMenu(parent)
         for graph in widgets:
