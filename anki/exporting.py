@@ -105,6 +105,8 @@ type = 2,
 combinedDue = created,
 modified = :now
 """, now=time.time())
+            self.newDeck.s.statement("""
+delete from stats""")
         # media
         if client.mediaSyncPending:
             bulkClient = BulkMediaSyncer(client.deck)
