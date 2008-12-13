@@ -133,8 +133,20 @@ from stats""")
         args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"]), [])
 
         self.filledGraph(graph, days, ["#7777ff", "#77ffff", "#ff7777"], *args)
+        
+        cheat = fig.add_subplot(111)
+        b1 = cheat.bar(-3, 0, color = "#ff7777")
+        b2 = cheat.bar(-4, 0, color = "#77ffff")
+        b3 = cheat.bar(-5, 0, color = "#7777ff")
+
+        cheat.legend([b1, b2, b3], [
+            _("New"),
+            _("Young"),
+            _("Mature")], loc='upper left')
+        
         graph.set_xlim(xmin=-days, xmax=0)
         graph.set_ylim(ymax=max(max(a for a in args[1::2])) + 10)
+        
         return fig
 
     def cumulativeDue(self, days=30):
