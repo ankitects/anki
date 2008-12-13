@@ -1,5 +1,14 @@
 You need to have the python-pyqt development packages installed (specifically,
 you need the binary pyuic4). 
 
-After you check out, run tools/build_ui.sh first, then change into the ankiqt
-dir and run ../tools/translate.sh. Do the same for the libanki dir. Then ./anki
+To use the development version:
+$ mkdir anki
+$ cd anki
+$ git clone git://ichi2.net/libanki
+$ git clone git://ichi2.net/ankiqt
+$ cd ankiqt; ./tools/build_ui.sh
+$ cd ankiqt; ../tools/translate.sh
+$ cd ../../libanki/anki; ../tools/translate.sh
+
+And now you're ready to run Anki:
+$ cd ../../ankiqt; ./anki
