@@ -92,7 +92,6 @@ class AdjustableFigure(QWidget):
         self.onPeriodChange(idx, initialSkip=True)
 
     def onPeriodChange(self, index, initialSkip=False):
-        print "period changed!"
         self.config['graphs.period.' + self.name] = index
         self.range = self.choices[index]
         if not initialSkip:
