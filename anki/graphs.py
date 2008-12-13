@@ -82,14 +82,17 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
             self.stats['lowestInDay'] = lowestInDay
 
             dayReps = self.deck.s.all("""
-select day, reps
+select day, 
+       newEase0+newEase1+newEase2+newEase3+newEase4 as newReps,
+       reps-(youngEase0+youngEase1+youngEase2+youngEase3) as combinedYoungReps,
+       reps as combinedMatureReps
 from stats""")
 
             todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
-            self.stats["dayReps"] = dict(
-                map(lambda dr: (-(todaydt -datetime.datetime(
-                *(int(x)for x in dr["day"].split("-")))).days, dr["reps"]), dayReps))
-
+            for dest, source in [("dayRepsNew", "newReps"), ("dayRepsYoung", "combinedYoungReps"), ("dayRepsMature", "combinedMatureReps")]:
+                self.stats[dest] = dict(
+                    map(lambda dr: (-(todaydt -datetime.datetime(
+                    *(int(x)for x in dr["day"].split("-")))).days, dr[source]), dayReps))
 
     def nextDue(self, days=30):
         self.calcStats()
@@ -120,13 +123,18 @@ from stats""")
         return fig
 
     def workDone(self, days=30):
-        self.addMissing(self.stats["dayReps"], -days, 0)
+        
+        for type in ["dayRepsNew", "dayRepsYoung", "dayRepsMature"]:
+            self.addMissing(self.stats[type], -days, 0)
+
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        (x, y) = self.unzip(self.stats["dayReps"].items(), limit=days, reverseLimit=True)
-        self.filledGraph(graph, days, "#aaaaff", x, y)
+
+        args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"]), [])
+
+        self.filledGraph(graph, days, ["#7777ff", "#77ffff", "#ff7777"], *args)
         graph.set_xlim(xmin=-days, xmax=0)
-        graph.set_ylim(ymax=max(y) + 10)
+        graph.set_ylim(ymax=max(max(a for a in args[1::2])) + 10)
         return fig
 
     def cumulativeDue(self, days=30):
