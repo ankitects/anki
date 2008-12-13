@@ -42,6 +42,13 @@ class DeckGraphs(object):
 
     def calcStats (self):
         if not self.stats:
+            dayReps = self.deck.s.all("""
+select day, reps
+from stats""")
+
+            todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
+            self.dayReps = map(lambda dr: (-(todaydt - datetime.datetime(*(int(x) for x in dr["day"].split("-")))).days, dr["reps"]), dayReps)
+
             days = {}
             daysYoung = {}
             daysMature =  {}
@@ -106,6 +113,18 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         return fig
 
+    def workDone(self, days=30):
+        self.calcStats()
+        self.dayReps = dict(self.dayReps)
+        self.addMissing(self.dayReps, -days, 0)
+        fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
+        graph = fig.add_subplot(111)
+        (x, y) = self.unzip(self.dayReps.items())
+        self.filledGraph(graph, days, "#aaaaff", x, y)
+        graph.set_xlim(xmin=-days, xmax=0)
+        graph.set_ylim(ymax=max(y[-days:]) + 10)
+        return fig
+
     def cumulativeDue(self, days=30):
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
@@ -158,10 +177,10 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
         graph.set_xlim(xmin=-numdays, xmax=0)
         return fig
 
-    def addMissing(self, dict, min, max):
+    def addMissing(self, dic, min, max):
         for i in range(min, max+1):
-            if not i in dict:
-                dict[i] = 0
+            if not i in dic:
+                dic[i] = 0
 
     def unzip(self, tuples, fillFix=True):
         tuples.sort(cmp=lambda x,y: cmp(x[0], y[0]))
