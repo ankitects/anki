@@ -84,7 +84,7 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
             dayReps = self.deck.s.all("""
 select day, 
        newEase0+newEase1+newEase2+newEase3+newEase4 as newReps,
-       reps-(youngEase0+youngEase1+youngEase2+youngEase3) as combinedYoungReps,
+       reps-(matureEase0+matureEase1+matureEase2+matureEase3+matureEase4) as combinedYoungReps,
        reps as combinedMatureReps
 from stats""")
 
