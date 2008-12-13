@@ -72,14 +72,15 @@ class AdjustableFigure(QWidget):
         self.vbox.addLayout(self.hbox)
 
     def updateFigure(self):
-        if not self.figureCanvas:
-          self.addFigure()
         self.updateTimer = None
         self.setUpdatesEnabled(False)
         idx = self.vbox.indexOf(self.figureCanvas)
         self.vbox.removeWidget(self.figureCanvas)
-        self.figureCanvas.deleteLater()
-        self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
+        if not self.figureCanvas:
+          self.addFigure()
+        else:
+          self.figureCanvas.deleteLater()
+          self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
         self.vbox.insertWidget(idx, self.figureCanvas)
         self.setUpdatesEnabled(True)
 
