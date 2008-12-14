@@ -109,7 +109,7 @@ from stats""")
             dl = [x for x in dayslist.items() if x[0] <= days]
             argl.extend(list(self.unzip(dl)))
 
-        self.filledGraph(graph, days, ["#d33d3e", "#a43635"], *argl)
+        self.filledGraph(graph, days, ["#f54949", "#c63434"], *argl)
 
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(0, 0, color = "#d33d3e")
@@ -166,7 +166,7 @@ from stats""")
                 break
         x = list(x); x.append(99999)
         y.append(count)
-        self.filledGraph(graph, days, "#eed0a2", x, y)
+        self.filledGraph(graph, days, "#fc9c9c", x, y)
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         graph.set_ylim(ymax=graph.get_ylim()[1]+10)
         return fig
@@ -262,7 +262,7 @@ from stats""")
         arrsize = 16
         arr = [0] * arrsize
         n = 0
-        colours = ["#a7afeb", "#3d4fd4", "#313f97"]
+        colours = ["#a7afeb", "#3d4fd4", "#1b2ba3"]
         bars = []
         gs = anki.stats.globalStats(self.deck)
         for type in types:
