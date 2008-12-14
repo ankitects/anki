@@ -163,11 +163,6 @@ def intervalGraph(parent, deck):
     vbox.addWidget(nextDue)
     widgets.append(nextDue)
 
-    cumDue = AdjustableFigure(parent.config, 'cum', dg.cumulativeDue, range)
-    cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
-    vbox.addWidget(cumDue)
-    widgets.append(cumDue)
-
     workload = AdjustableFigure(parent.config, 'reps', dg.workDone, range)
     workload.addWidget(QLabel(_("<h1>Reviews</h1>")))
     vbox.addWidget(workload)
@@ -183,6 +178,11 @@ def intervalGraph(parent, deck):
     answered.addWidget(QLabel(_("<h1>First Answered</h1>")))
     vbox.addWidget(answered)
     widgets.append(answered)
+
+    cumDue = AdjustableFigure(parent.config, 'cum', dg.cumulativeDue, range)
+    cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
+    vbox.addWidget(cumDue)
+    widgets.append(cumDue)
 
     interval = AdjustableFigure(parent.config, 'interval', dg.intervalPeriod, range)
     interval.addWidget(QLabel(_("<h1>Intervals</h1>")))
