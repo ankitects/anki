@@ -83,13 +83,13 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
 
             dayReps = self.deck.s.all("""
 select day, 
-       newEase0+newEase1+newEase2+newEase3+newEase4 as newReps,
-       reps-(matureEase0+matureEase1+matureEase2+matureEase3+matureEase4) as combinedYoungReps,
-       reps as combinedMatureReps
+       matureEase0+matureEase1+matureEase2+matureEase3+matureEase4 as matureReps,
+       reps-(newEase0+newEase1+newEase2+newEase3+newEase4) as combinedYoungReps,
+       reps as combinedNewReps
 from stats""")
 
             todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
-            for dest, source in [("dayRepsNew", "newReps"), ("dayRepsYoung", "combinedYoungReps"), ("dayRepsMature", "combinedMatureReps")]:
+            for dest, source in [("dayRepsNew", "combinedNewReps"), ("dayRepsYoung", "combinedYoungReps"), ("dayRepsMature", "matureReps")]:
                 self.stats[dest] = dict(
                     map(lambda dr: (-(todaydt -datetime.datetime(
                     *(int(x)for x in dr["day"].split("-")))).days, dr[source]), dayReps))
@@ -98,18 +98,18 @@ from stats""")
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        dayslists = [self.stats['next'], self.stats['daysByType']['young']]
+        dayslists = [self.stats['next'], self.stats['daysByType']['mature']]
 
-        for dayslist in dayslists[:days]:
+        for dayslist in dayslists:
             self.addMissing(dayslist, self.stats['lowestInDay'], days)
 
         argl = []
 
-        for dayslist in dayslists[:days]:
+        for dayslist in dayslists:
             dl = [x for x in dayslist.items() if x[0] <= days]
             argl.extend(list(self.unzip(dl)))
 
-        self.filledGraph(graph, days, ["#7777ff", "#77ffff"], *argl)
+        self.filledGraph(graph, days, ["#77ffff", "#7777ff"], *argl)
 
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(0, 0, color = "#77ffff")
@@ -130,9 +130,9 @@ from stats""")
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
 
-        args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"]), [])
+        args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"][::-1]), [])
 
-        self.filledGraph(graph, days, ["#7777ff", "#77ffff", "#ff7777"], *args)
+        self.filledGraph(graph, days, ["#ff7777", "#77ffff", "#7777ff"], *args)
         
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(-3, 0, color = "#ff7777")
