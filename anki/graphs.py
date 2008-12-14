@@ -109,11 +109,11 @@ from stats""")
             dl = [x for x in dayslist.items() if x[0] <= days]
             argl.extend(list(self.unzip(dl)))
 
-        self.filledGraph(graph, days, ["#d53d3d", "#8f2121"], *argl)
+        self.filledGraph(graph, days, ["#d33d3e", "#a43635"], *argl)
 
         cheat = fig.add_subplot(111)
-        b1 = cheat.bar(0, 0, color = "#d53d3d")
-        b2 = cheat.bar(1, 0, color = "#8f2121")
+        b1 = cheat.bar(0, 0, color = "#d33d3e")
+        b2 = cheat.bar(1, 0, color = "#a43635")
 
         cheat.legend([b1, b2], [
             _("Young"),
@@ -132,12 +132,12 @@ from stats""")
 
         args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"][::-1]), [])
 
-        self.filledGraph(graph, days, ["#eca8a8", "#d53d3d", "#8f2121"], *args)
+        self.filledGraph(graph, days, ["#afeca6", "#4cd33d", "#3c9731"], *args)
         
         cheat = fig.add_subplot(111)
-        b1 = cheat.bar(-3, 0, color = "#eca8a8")
-        b2 = cheat.bar(-4, 0, color = "#d53d3d")
-        b3 = cheat.bar(-5, 0, color = "#8f2121")
+        b1 = cheat.bar(-3, 0, color = "#afeca6")
+        b2 = cheat.bar(-4, 0, color = "#4cd33d")
+        b3 = cheat.bar(-5, 0, color = "#3c9731")
 
         cheat.legend([b1, b2, b3], [
             _("New"),
@@ -166,7 +166,7 @@ from stats""")
                 break
         x = list(x); x.append(99999)
         y.append(count)
-        self.filledGraph(graph, days, "#e8a8e9", x, y)
+        self.filledGraph(graph, days, "#eed0a2", x, y)
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         graph.set_ylim(ymax=graph.get_ylim()[1]+10)
         return fig
@@ -178,7 +178,7 @@ from stats""")
         self.addMissing(ints, 0, days)
         intervals = self.unzip(ints.items(), limit=days)
         graph = fig.add_subplot(111)
-        self.filledGraph(graph, days, "#ece9a4", *intervals)
+        self.filledGraph(graph, days, "#ece9a6", *intervals)
         graph.set_xlim(xmin=0, xmax=days)
         return fig
 
@@ -196,9 +196,9 @@ from stats""")
         graph = fig.add_subplot(111)
         intervals = self.unzip(days.items())
         if attr == 'created':
-            colour = "#aeeba7"
+            colour = "#a6e9eb"
         else:
-            colour = "#a6e9ec"
+            colour = "#e8a7e9"
         self.filledGraph(graph, numdays, colour, *intervals)
         graph.set_xlim(xmin=-numdays, xmax=0)
         return fig
@@ -262,7 +262,7 @@ from stats""")
         arrsize = 16
         arr = [0] * arrsize
         n = 0
-        colours = ["#eca8a8", "#d53d3d", "#8f2121"]
+        colours = ["#a7afeb", "#3d4fd4", "#313f97"]
         bars = []
         gs = anki.stats.globalStats(self.deck)
         for type in types:
