@@ -67,7 +67,10 @@ class AdjustableFigure(QWidget):
         if self.range is None:
             self.figureCanvas = AnkiFigureCanvas(self.figureFunc())
         else:
-            self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
+            if self.range:
+                self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
+            else:
+                self.figureCanvas = AnkiFigureCanvas(self.figureFunc())
         self.addWidget(self.figureCanvas)
         self.vbox.addLayout(self.hbox)
 
@@ -77,10 +80,13 @@ class AdjustableFigure(QWidget):
         idx = self.vbox.indexOf(self.figureCanvas)
         self.vbox.removeWidget(self.figureCanvas)
         if not self.figureCanvas:
-          self.addFigure()
+            self.addFigure()
         else:
-          self.figureCanvas.deleteLater()
-          self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
+            self.figureCanvas.deleteLater()
+            if self.range:
+                self.figureCanvas = AnkiFigureCanvas(self.figureFunc(self.range))
+            else:
+                self.figureCanvas = AnkiFigureCanvas(self.figureFunc())
         self.vbox.insertWidget(idx, self.figureCanvas)
         self.setUpdatesEnabled(True)
 
@@ -234,10 +240,20 @@ def intervalGraph(parent, deck):
     def onHelp():
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Graphs"))
 
+    def onRefresh():
+        dg.stats = None
+        for w in widgets:
+            w.scheduleUpdate()
+
     showhide = QPushButton(_("Show/Hide"))
     hbox.addWidget(showhide)
     showhide.connect(showhide, SIGNAL("clicked()"),
                      onShowHide)
+
+    refresh = QPushButton(_("Refresh"))
+    hbox.addWidget(refresh)
+    showhide.connect(refresh, SIGNAL("clicked()"),
+                     onRefresh)
 
     buttonBox = QDialogButtonBox(d)
     buttonBox.setOrientation(Qt.Horizontal)
