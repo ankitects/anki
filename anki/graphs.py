@@ -86,7 +86,8 @@ select day,
        matureEase0+matureEase1+matureEase2+matureEase3+matureEase4 as matureReps,
        reps-(newEase0+newEase1+newEase2+newEase3+newEase4) as combinedYoungReps,
        reps as combinedNewReps
-from stats""")
+from stats
+where type = 1""")
 
             todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
             for dest, source in [("dayRepsNew", "combinedNewReps"), ("dayRepsYoung", "combinedYoungReps"), ("dayRepsMature", "matureReps")]:
