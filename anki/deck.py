@@ -699,6 +699,11 @@ and due < :now""", now=time.time())
             "select count(id) from cards where interval < :t "
             "and reps != 0", t=MATURE_THRESHOLD)
 
+    def newCountAll(self):
+        "All new cards, including spaced."
+        return self.s.scalar(
+            "select count(id) from cards where type = 2")
+
     # Card predicates
     ##########################################################################
 
