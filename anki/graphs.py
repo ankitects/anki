@@ -110,11 +110,11 @@ where type = 1""")
             dl = [x for x in dayslist.items() if x[0] <= days]
             argl.extend(list(self.unzip(dl)))
 
-        self.filledGraph(graph, days, ["#f54949", "#c63434"], *argl)
+        self.filledGraph(graph, days, ["#f8835f", "#d57d56"], *argl)
 
         cheat = fig.add_subplot(111)
-        b1 = cheat.bar(0, 0, color = "#d33d3e")
-        b2 = cheat.bar(1, 0, color = "#a43635")
+        b1 = cheat.bar(0, 0, color = "#f8835f")
+        b2 = cheat.bar(1, 0, color = "#d57d56")
 
         cheat.legend([b1, b2], [
             _("Young"),
