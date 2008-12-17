@@ -525,7 +525,7 @@ where id in (%s)""" % ",".join([
         self.updateAfterCardChange()
 
     def addTags(self):
-        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tag(s) to add:"))
+        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
         if tags:
             n = _("Add Tags")
             self.deck.setUndoStart(n)
@@ -534,7 +534,7 @@ where id in (%s)""" % ",".join([
         self.updateAfterCardChange()
 
     def deleteTags(self):
-        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tag(s) to delete:"))
+        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
         if tags:
             n = _("Delete Tags")
             self.deck.setUndoStart(n)
