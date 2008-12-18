@@ -1118,6 +1118,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.deck.midIntervalMax = 0.0486
         self.deck.easyIntervalMin = 0.2083
         self.deck.easyIntervalMax = 0.25
+        self.deck.newCardOrder = 0
         self.deck.syncName = None
         self.reset()
 
