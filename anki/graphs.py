@@ -13,6 +13,23 @@ import anki.stats
 
 import datetime
 
+#colours for graphs
+dueYoungC = "#ffb380"
+dueMatureC = "#ff5555"
+dueCumulC = "#ff8080"
+
+reviewNewC = "#e5ff80"
+reviewYoungC = "#99ff55"
+reviewMatureC = "#2aff80"
+
+easesNewC = "#80b3ff"
+easesYoungC = "#5555ff"
+easesMatureC = "#7f2aff"
+
+addedC = "#b3ff80"
+firstC = "#b380ff"
+intervC = "#80e5ff"
+
 # support frozen distribs
 if getattr(sys, "frozen", None):
     os.environ['MATPLOTLIBDATA'] = os.path.join(
@@ -110,11 +127,11 @@ where type = 1""")
             dl = [x for x in dayslist.items() if x[0] <= days]
             argl.extend(list(self.unzip(dl)))
 
-        self.filledGraph(graph, days, ["#f8835f", "#d57d56"], *argl)
+        self.filledGraph(graph, days, [dueYoungC, dueMatureC], *argl)
 
         cheat = fig.add_subplot(111)
-        b1 = cheat.bar(0, 0, color = "#f8835f")
-        b2 = cheat.bar(1, 0, color = "#d57d56")
+        b1 = cheat.bar(0, 0, color = dueYoungC)
+        b2 = cheat.bar(1, 0, color = dueMatureC)
 
         cheat.legend([b1, b2], [
             _("Young"),
@@ -133,12 +150,12 @@ where type = 1""")
 
         args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"][::-1]), [])
 
-        self.filledGraph(graph, days, ["#afeca6", "#4cd33d", "#3c9731"], *args)
+        self.filledGraph(graph, days, [reviewNewC, reviewYoungC, reviewMatureC], *args)
         
         cheat = fig.add_subplot(111)
-        b1 = cheat.bar(-3, 0, color = "#afeca6")
-        b2 = cheat.bar(-4, 0, color = "#4cd33d")
-        b3 = cheat.bar(-5, 0, color = "#3c9731")
+        b1 = cheat.bar(-3, 0, color = reviewNewC)
+        b2 = cheat.bar(-4, 0, color = reviewYoungC)
+        b3 = cheat.bar(-5, 0, color = reviewMatureC)
 
         cheat.legend([b1, b2, b3], [
             _("New"),
@@ -167,7 +184,7 @@ where type = 1""")
                 break
         x = list(x); x.append(99999)
         y.append(count)
-        self.filledGraph(graph, days, "#fc9c9c", x, y)
+        self.filledGraph(graph, days, dueCumulC, x, y)
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         graph.set_ylim(ymax=graph.get_ylim()[1]+10)
         return fig
@@ -179,7 +196,7 @@ where type = 1""")
         self.addMissing(ints, 0, days)
         intervals = self.unzip(ints.items(), limit=days)
         graph = fig.add_subplot(111)
-        self.filledGraph(graph, days, "#ece9a6", *intervals)
+        self.filledGraph(graph, days, intervC, *intervals)
         graph.set_xlim(xmin=0, xmax=days)
         return fig
 
@@ -197,9 +214,9 @@ where type = 1""")
         graph = fig.add_subplot(111)
         intervals = self.unzip(days.items())
         if attr == 'created':
-            colour = "#a6e9eb"
+            colour = addedC
         else:
-            colour = "#e8a7e9"
+            colour = firstC
         self.filledGraph(graph, numdays, colour, *intervals)
         graph.set_xlim(xmin=-numdays, xmax=0)
         return fig
@@ -263,7 +280,7 @@ where type = 1""")
         arrsize = 16
         arr = [0] * arrsize
         n = 0
-        colours = ["#a7afeb", "#3d4fd4", "#1b2ba3"]
+        colours = [easesNewC, easesYoungC, easesMatureC]
         bars = []
         gs = anki.stats.globalStats(self.deck)
         for type in types:
