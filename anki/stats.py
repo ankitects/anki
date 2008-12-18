@@ -315,7 +315,7 @@ class DeckStats(object):
         html="<h1>" + _("Deck Statistics") + "</h1>"
         html += _("Deck created: <b>%s</b> ago<br>") % self.createdTimeStr()
         total = d.cardCount
-        new = d.newCount
+        new = d.newCountAll()
         young = d.youngCardCount()
         old = d.matureCardCount()
         newP = new / float(total) * 100
