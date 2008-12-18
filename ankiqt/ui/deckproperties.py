@@ -11,6 +11,7 @@ from anki.utils import parseTags
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
+from anki.lang import ngettext
 
 tabs = ("Scheduling",
         "Synchronization",
@@ -111,9 +112,10 @@ class DeckProperties(QDialog):
         self.dialog.modelsList.clear()
         self.models = []
         for model in self.d.models:
-            name = _("%(name)s [%(facts)d facts]") % {
-                'name': model.name,
-                'facts': self.d.modelUseCount(model),
+            name = ngettext("%(name)s [%(facts)d fact]",
+                "%(name)s [%(facts)d facts]", self.d.modelUseCount(model)) % {
+                    'name': model.name,
+                    'facts': self.d.modelUseCount(model),
                 }
             self.models.append((name, model))
         self.models.sort()
