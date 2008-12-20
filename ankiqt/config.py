@@ -70,6 +70,7 @@ class Config(dict):
             'splitQA': True,
             'sortIndex': 0,
             'addZeroSpace': True,
+            'alternativeTheme': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):

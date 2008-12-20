@@ -77,7 +77,7 @@
             <enum>Qt::TabFocus</enum>
            </property>
            <property name="text" >
-            <string>&lt;h1>Display&lt;/h1></string>
+            <string>&lt;h1>Main Window&lt;/h1></string>
            </property>
            <property name="wordWrap" >
             <bool>false</bool>
@@ -408,14 +408,7 @@
       <layout class="QVBoxLayout" >
        <item>
         <layout class="QGridLayout" >
-         <item row="0" column="0" >
-          <widget class="QLabel" name="label_6" >
-           <property name="text" >
-            <string>&lt;h1>Advanced settings&lt;/h1></string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" >
+         <item row="3" column="0" >
           <widget class="QCheckBox" name="simpleToolbar" >
            <property name="text" >
             <string>Simple toolbar</string>
@@ -423,6 +416,13 @@
           </widget>
          </item>
          <item row="2" column="0" >
+          <widget class="QLabel" name="label_6" >
+           <property name="text" >
+            <string>&lt;h1>Advanced settings&lt;/h1></string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" >
           <widget class="QCheckBox" name="showTimer" >
            <property name="text" >
             <string>Show timer</string>
@@ -430,51 +430,58 @@
           </widget>
          </item>
          <item row="5" column="0" >
-          <widget class="QCheckBox" name="showToolbar" >
-           <property name="text" >
-            <string>Show toolbar on startup</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0" >
-          <widget class="QCheckBox" name="tallButtons" >
-           <property name="text" >
-            <string>Tall buttons (for touchscreen)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" >
-          <widget class="QCheckBox" name="showTray" >
-           <property name="text" >
-            <string>Show tray icon</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0" >
-          <widget class="QCheckBox" name="scrollToAnswer" >
-           <property name="text" >
-            <string>Scroll down to the answer when showing answer</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" >
-          <widget class="QCheckBox" name="showLastCardInterval" >
-           <property name="text" >
-            <string>Show last card's interval</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" >
           <widget class="QCheckBox" name="showLastCardContent" >
            <property name="text" >
             <string>Show last card's question/answer</string>
            </property>
           </widget>
          </item>
+         <item row="6" column="0" >
+          <widget class="QCheckBox" name="showLastCardInterval" >
+           <property name="text" >
+            <string>Show last card's interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" >
+          <widget class="QCheckBox" name="showToolbar" >
+           <property name="text" >
+            <string>Show toolbar on startup</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" >
+          <widget class="QCheckBox" name="tallButtons" >
+           <property name="text" >
+            <string>Tall buttons (for touchscreen)</string>
+           </property>
+          </widget>
+         </item>
          <item row="9" column="0" >
+          <widget class="QCheckBox" name="showTray" >
+           <property name="text" >
+            <string>Show tray icon</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" >
+          <widget class="QCheckBox" name="scrollToAnswer" >
+           <property name="text" >
+            <string>Scroll down to the answer when showing answer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0" >
           <widget class="QCheckBox" name="addZeroSpace" >
            <property name="text" >
             <string>Add hidden char to text (fixes Thai on OSX)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" >
+          <widget class="QCheckBox" name="alternativeTheme" >
+           <property name="text" >
+            <string>Alternative theme</string>
            </property>
           </widget>
          </item>
@@ -521,6 +528,7 @@
         </spacer>
        </item>
       </layout>
+      <zorder>alternativeTheme</zorder>
      </widget>
     </widget>
    </item>
@@ -539,10 +547,14 @@
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>interfaceLang</tabstop>
+  <tabstop>label_2</tabstop>
   <tabstop>interfaceFamily</tabstop>
   <tabstop>interfaceSize</tabstop>
   <tabstop>interfaceColour</tabstop>
   <tabstop>backgroundColour</tabstop>
+  <tabstop>showDivider</tabstop>
+  <tabstop>splitQA</tabstop>
+  <tabstop>suppressEstimates</tabstop>
   <tabstop>saveWhenClosing</tabstop>
   <tabstop>saveAfterEvery</tabstop>
   <tabstop>saveAfterEveryNum</tabstop>
@@ -560,6 +572,8 @@
   <tabstop>tallButtons</tabstop>
   <tabstop>showTray</tabstop>
   <tabstop>scrollToAnswer</tabstop>
+  <tabstop>addZeroSpace</tabstop>
+  <tabstop>alternativeTheme</tabstop>
   <tabstop>toolbarIconSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

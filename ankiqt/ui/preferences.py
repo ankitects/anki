@@ -176,6 +176,7 @@ class Preferences(QDialog):
         self.dialog.showDivider.setChecked(self.config['qaDivider'])
         self.dialog.splitQA.setChecked(self.config['splitQA'])
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
+        self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
         self.dialog.toolbarIconSize.setText(str(self.config['iconSize']))
 
     def updateAdvanced(self):
@@ -194,6 +195,7 @@ class Preferences(QDialog):
         self.config['qaDivider'] = self.dialog.showDivider.isChecked()
         self.config['splitQA'] = self.dialog.splitQA.isChecked()
         self.config['addZeroSpace'] = self.dialog.addZeroSpace.isChecked()
+        self.config['alternativeTheme'] = self.dialog.alternativeTheme.isChecked()
         i = 32
         try:
             i = int(self.dialog.toolbarIconSize.text())

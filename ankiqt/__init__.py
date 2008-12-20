@@ -93,6 +93,9 @@ def run():
                qtTranslator.load("qt_" + short, translationPath):
             app.installTranslator(qtTranslator)
 
+    if conf['alternativeTheme']:
+        app.setStyle("plastique")
+
     # load main window
     ui.importAll()
     ui.dialogs.registerDialogs()
