@@ -101,6 +101,7 @@ class AnkiQt(QMainWindow):
                 self.pool = ""
 
             def write(self, data):
+                print data,
                 self.pool += data
                 self.updateTimer()
 
@@ -122,7 +123,6 @@ An error occurred. Please copy the following into a bug report.\n\n""")
                 pluginText = _("""\
 An error occurred in a plugin. Please contact the plugin author.
 Please do not file a bug report with Anki.\n\n""")
-                print self.pool
                 if "plugin" in self.pool:
                     txt = pluginText
                 else:
@@ -1202,6 +1202,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.connect(self.syncThread, SIGNAL("openSyncProgress"), self.openSyncProgress)
         self.connect(self.syncThread, SIGNAL("closeSyncProgress"), self.closeSyncProgress)
         self.connect(self.syncThread, SIGNAL("updateSyncProgress"), self.updateSyncProgress)
+        self.connect(self.syncThread, SIGNAL("bulkSyncFailed"), self.bulkSyncFailed)
         self.syncThread.start()
         self.showWelcomeScreen()
         self.setEnabled(False)
@@ -1277,6 +1278,10 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             self.syncProgressDialog.setLabelText("Uploading %s..." % fname)
         else:
             self.syncProgressDialog.setLabelText("Downloading %s..." % fname)
+
+    def bulkSyncFailed(self):
+        ui.utils.showWarning(_(
+            "Failed to upload media. Please run 'check media db'."), self)
 
     # Menu, title bar & status
     ##########################################################################
