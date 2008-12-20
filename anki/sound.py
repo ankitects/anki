@@ -30,7 +30,8 @@ queue = []
 manager = None
 
 if sys.platform.startswith("win32"):
-    externalPlayer = ["c:\\program files\\windows media player\\wmplayer.exe"]
+    base = os.path.join(os.path.dirname(sys.argv[0]), "mplayer.exe")
+    externalPlayer = [base, "-really-quiet"]
 else:
     externalPlayer = ["mplayer", "-really-quiet"]
 
