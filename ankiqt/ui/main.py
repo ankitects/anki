@@ -638,6 +638,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
                 os.unlink(path)
         if not hideWelcome:
             self.moveToState("noDeck")
+        else:
+            ui.dialogs.closeAll()
         return True
 
     def onNew(self):
