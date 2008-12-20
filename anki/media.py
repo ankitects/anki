@@ -123,7 +123,7 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
         if os.path.isdir(oldPath):
             continue
         newBase = copyToMedia(deck, oldPath)
-        if oldBase == newBase:
+        if oldBase.lower() == newBase.lower():
             existingFiles[oldBase] = 1
         else:
             renamedFiles[oldBase] = newBase
