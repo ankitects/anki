@@ -99,6 +99,8 @@ def onFocusLost(fact, field):
             return
     except:
         return
-    fact['Reading'] = kakasi.toFurigana(field.value)
+    tmp = kakasi.toFurigana(field.value)
+    if tmp != field.value:
+        fact['Reading'] = tmp
 
 addHook('fact.focusLost', onFocusLost)
