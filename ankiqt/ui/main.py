@@ -101,7 +101,7 @@ class AnkiQt(QMainWindow):
                 self.pool = ""
 
             def write(self, data):
-                print data,
+                print data.encode("utf-8"),
                 self.pool += data
                 self.updateTimer()
 
