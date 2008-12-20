@@ -395,7 +395,10 @@ new:
         self.updateEaseButtons()
         self.mainWin.buttonStack.setCurrentIndex(1)
         self.mainWin.buttonStack.show()
-        self.mainWin.easeButton3.setFocus()
+        if self.currentCard.reps and not self.currentCard.successive:
+            self.mainWin.easeButton2.setFocus()
+        else:
+            self.mainWin.easeButton3.setFocus()
 
     def showSaveEditorButton(self):
         self.mainWin.buttonStack.setCurrentIndex(2)
