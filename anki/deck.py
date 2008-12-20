@@ -34,8 +34,9 @@ PRIORITY_NORM = 2
 PRIORITY_LOW = 1
 PRIORITY_NONE = 0
 MATURE_THRESHOLD = 21
-NEW_CARDS_LAST = 1
 NEW_CARDS_DISTRIBUTE = 0
+NEW_CARDS_LAST = 1
+NEW_CARDS_FIRST = 2
 REV_CARDS_OLD_FIRST = 0
 REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
@@ -139,11 +140,10 @@ class Deck(object):
             return self.s.scalar(
                 "select id from failedCards limit 1")
         # distribute new cards?
-        if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
-            if self._timeForNewCard():
-                id = self._maybeGetNewCard()
-                if id:
-                    return id
+        if self._timeForNewCard():
+            id = self._maybeGetNewCard()
+            if id:
+                return id
         # card due for review?
         if self.revCount:
             return self._getRevCard()
@@ -162,11 +162,15 @@ class Deck(object):
 
     def _timeForNewCard(self):
         "True if it's time to display a new card when distributing."
+        if self.newCardSpacing == NEW_CARDS_LAST:
+            return False
         # force old if there are very high priority cards
         if self.s.scalar(
             "select 1 from cards where type = 1 and isDue = 1 "
             "and priority = 4 limit 1"):
             return False
+        if self.newCardSpacing == NEW_CARDS_FIRST:
+            return True
         if self.newCardModulus:
             return self._dailyStats.reps % self.newCardModulus == 0
         else:
@@ -215,6 +219,8 @@ class Deck(object):
 
     # Getting cards in bulk
     ##########################################################################
+    # this is used for the website and ankimini
+    # done in rows for efficiency
 
     def getCards(self, extraMunge=None):
         "Get a number of cards and related data for client display."
