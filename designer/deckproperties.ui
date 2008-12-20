@@ -585,6 +585,41 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
+         <item row="0" column="5" >
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="5" >
+          <widget class="QLabel" name="label_25" >
+           <property name="text" >
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="5" >
+          <widget class="QLabel" name="label_30" >
+           <property name="text" >
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="5" >
+          <widget class="QLabel" name="label_31" >
+           <property name="text" >
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="5" >
+          <widget class="QLabel" name="label_32" >
+           <property name="text" >
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -625,7 +660,7 @@ p, li { white-space: pre-wrap; }
          <item row="3" column="0" >
           <widget class="QLabel" name="label_29" >
            <property name="text" >
-            <string>&lt;b>Hours to shift midnight&lt;/b></string>
+            <string>&lt;b>New day starts at&lt;/b></string>
            </property>
           </widget>
          </item>
