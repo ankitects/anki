@@ -161,7 +161,10 @@ class Sync(QThread):
         client.server = BulkMediaSyncerProxy(self.user, self.pwd)
         client.server.deckName = deckname
         client.progressCallback = self.bulkCallback
-        client.sync()
+        try:
+            client.sync()
+        except:
+            self.emit(SIGNAL("bulkSyncFailed"))
         self.emit(SIGNAL("closeSyncProgress"))
 
     def bulkCallback(self, *args):
