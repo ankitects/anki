@@ -655,7 +655,7 @@
    </widget>
    <widget class="QMenu" name="menuDeck" >
     <property name="title" >
-     <string>&amp;Deck</string>
+     <string>&amp;File</string>
     </property>
     <widget class="QMenu" name="menuOpenRecent" >
      <property name="title" >

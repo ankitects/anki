@@ -57,9 +57,7 @@ class Preferences(QDialog):
         self.done(0)
 
     def reject(self):
-        self.origConfig['interfaceLang'] = self.origInterfaceLang
-        self.parent.setLang()
-        self.done(0)
+        self.accept()
 
     def setupLang(self):
         # interface lang

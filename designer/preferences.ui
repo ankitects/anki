@@ -528,7 +528,6 @@
         </spacer>
        </item>
       </layout>
-      <zorder>alternativeTheme</zorder>
      </widget>
     </widget>
    </item>
@@ -538,7 +537,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
      </property>
     </widget>
    </item>

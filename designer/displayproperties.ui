@@ -492,6 +492,13 @@
                  </property>
                 </widget>
                </item>
+               <item>
+                <widget class="QPushButton" name="closeButton" >
+                 <property name="text" >
+                  <string>Close</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
             </layout>
@@ -588,12 +595,12 @@
    <slot>setShown(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>98</x>
-     <y>448</y>
+     <x>118</x>
+     <y>503</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>197</x>
-     <y>447</y>
+     <x>329</x>
+     <y>503</y>
     </hint>
    </hints>
   </connection>
@@ -604,12 +611,12 @@
    <slot>setShown(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>136</x>
-     <y>471</y>
+     <x>155</x>
+     <y>533</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>233</x>
-     <y>468</y>
+     <x>329</x>
+     <y>533</y>
     </hint>
    </hints>
   </connection>
@@ -620,12 +627,12 @@
    <slot>setShown(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>109</x>
-     <y>501</y>
+     <x>129</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>261</x>
-     <y>499</y>
+     <x>329</x>
+     <y>562</y>
     </hint>
    </hints>
   </connection>
@@ -636,12 +643,12 @@
    <slot>setShown(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>118</x>
-     <y>538</y>
+     <x>138</x>
+     <y>617</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>258</x>
-     <y>543</y>
+     <x>329</x>
+     <y>617</y>
     </hint>
    </hints>
   </connection>
@@ -652,12 +659,28 @@
    <slot>setShown(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>106</x>
-     <y>569</y>
+     <x>126</x>
+     <y>647</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>165</x>
-     <y>567</y>
+     <x>326</x>
+     <y>647</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>DisplayProperties</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>294</x>
+     <y>667</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>388</x>
+     <y>-16</y>
     </hint>
    </hints>
   </connection>
