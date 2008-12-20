@@ -643,15 +643,12 @@
     <addaction name="actionRedo" />
     <addaction name="separator" />
     <addaction name="actionAddcards" />
+    <addaction name="actionEditCurrent" />
     <addaction name="actionEditdeck" />
     <addaction name="separator" />
-    <addaction name="actionActiveTags" />
-    <addaction name="separator" />
-    <addaction name="actionDisplayProperties" />
-    <addaction name="actionModelProperties" />
-    <addaction name="actionDeckProperties" />
-    <addaction name="separator" />
-    <addaction name="actionPreferences" />
+    <addaction name="actionMarkCard" />
+    <addaction name="actionSuspendCard" />
+    <addaction name="actionDelete" />
    </widget>
    <widget class="QMenu" name="menuDeck" >
     <property name="title" >
@@ -700,59 +697,63 @@
      <addaction name="actionLookup_es" />
      <addaction name="actionLookup_esk" />
     </widget>
+    <widget class="QMenu" name="menuAdvanced" >
+     <property name="title" >
+      <string>&amp;Advanced</string>
+     </property>
+     <addaction name="actionCheckDatabaseIntegrity" />
+     <addaction name="actionCheckMediaDatabase" />
+     <addaction name="separator" />
+     <addaction name="actionOptimizeDatabase" />
+     <addaction name="separator" />
+     <addaction name="actionMergeModels" />
+    </widget>
     <addaction name="actionGraphs" />
     <addaction name="actionDstats" />
     <addaction name="actionKstats" />
     <addaction name="actionCstats" />
     <addaction name="separator" />
+    <addaction name="actionRepeatAudio" />
     <addaction name="menu_Lookup" />
+    <addaction name="separator" />
+    <addaction name="menuAdvanced" />
     <addaction name="separator" />
     <addaction name="actionCram" />
    </widget>
-   <widget class="QMenu" name="menuAdvanced" >
+   <widget class="QMenu" name="menu_Settings" >
     <property name="title" >
-     <string>&amp;Advanced</string>
+     <string>&amp;Settings</string>
     </property>
-    <addaction name="actionCheckDatabaseIntegrity" />
-    <addaction name="actionCheckMediaDatabase" />
-    <addaction name="actionOptimizeDatabase" />
-    <addaction name="separator" />
-    <addaction name="actionMergeModels" />
-   </widget>
-   <widget class="QMenu" name="menuPlugins" >
-    <property name="title" >
-     <string>&amp;Plugins</string>
-    </property>
-    <widget class="QMenu" name="menuStartup" >
+    <widget class="QMenu" name="menuPlugins" >
      <property name="title" >
-      <string>Startup</string>
+      <string>P&amp;lugins</string>
      </property>
-     <addaction name="actionEnableAllPlugins" />
-     <addaction name="actionDisableAllPlugins" />
+     <widget class="QMenu" name="menuStartup" >
+      <property name="title" >
+       <string>Startup</string>
+      </property>
+      <addaction name="actionEnableAllPlugins" />
+      <addaction name="actionDisableAllPlugins" />
+      <addaction name="separator" />
+     </widget>
+     <addaction name="actionGetPlugins" />
+     <addaction name="actionOpenPluginFolder" />
      <addaction name="separator" />
+     <addaction name="menuStartup" />
     </widget>
-    <addaction name="actionGetPlugins" />
-    <addaction name="actionOpenPluginFolder" />
+    <addaction name="actionActiveTags" />
     <addaction name="separator" />
-    <addaction name="menuStartup" />
-   </widget>
-   <widget class="QMenu" name="menuCurrent" >
-    <property name="title" >
-     <string>&amp;Current</string>
-    </property>
-    <addaction name="actionRepeatAudio" />
+    <addaction name="actionDisplayProperties" />
+    <addaction name="actionModelProperties" />
+    <addaction name="actionDeckProperties" />
     <addaction name="separator" />
-    <addaction name="actionEditCurrent" />
-    <addaction name="actionMarkCard" />
-    <addaction name="actionSuspendCard" />
-    <addaction name="actionDelete" />
+    <addaction name="menuPlugins" />
+    <addaction name="actionPreferences" />
    </widget>
    <addaction name="menuDeck" />
    <addaction name="menuEdit" />
-   <addaction name="menuCurrent" />
    <addaction name="menuTools" />
-   <addaction name="menuPlugins" />
-   <addaction name="menuAdvanced" />
+   <addaction name="menu_Settings" />
    <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusbar" >
@@ -911,7 +912,7 @@
      <normaloff>:/icons/configure.png</normaloff>:/icons/configure.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Preferences...</string>
+    <string>&amp;Preferences</string>
    </property>
    <property name="statusTip" >
     <string>Application-wide preferences.</string>
@@ -1068,7 +1069,7 @@
      <normaloff>:/icons/preferences-desktop-font.png</normaloff>:/icons/preferences-desktop-font.png</iconset>
    </property>
    <property name="text" >
-    <string>Disp&amp;lay Properties...</string>
+    <string>&amp;Fonts and Colours...</string>
    </property>
    <property name="statusTip" >
     <string>Customize fonts, colours and alignment.</string>
@@ -1088,7 +1089,7 @@
      <normaloff>:/icons/rating.png</normaloff>:/icons/rating.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Mark</string>
+    <string>&amp;Mark Fact</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+M</string>
@@ -1100,7 +1101,7 @@
      <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Suspend</string>
+    <string>&amp;Suspend Fact</string>
    </property>
    <property name="statusTip" >
     <string>Stop reviewing this card until it's unsuspended in the editor.</string>
@@ -1112,7 +1113,7 @@
      <normaloff>:/icons/kpersonalizer.png</normaloff>:/icons/kpersonalizer.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Model Properties...</string>
+    <string>Current &amp;Model...</string>
    </property>
    <property name="statusTip" >
     <string>Customize card layout, fields, etc.</string>
@@ -1288,7 +1289,7 @@
      <normaloff>:/icons/edit-rename.png</normaloff>:/icons/edit-rename.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Edit...</string>
+    <string>Edit &amp;Current...</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+E</string>
@@ -1309,7 +1310,17 @@
      <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Delete</string>
+    <string>&amp;Delete Card</string>
+   </property>
+  </action>
+  <action name="action123" >
+   <property name="text" >
+    <string>123</string>
+   </property>
+  </action>
+  <action name="action_Delete_Fact" >
+   <property name="text" >
+    <string>&amp;Delete Fact</string>
    </property>
   </action>
  </widget>

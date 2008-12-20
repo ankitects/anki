@@ -1311,9 +1311,6 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
 
     deckRelatedMenus = (
         "Tools",
-        "Advanced",
-        "Plugins",
-        "Current",
         )
 
     def connectMenuActions(self):
@@ -1423,7 +1420,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.maybeShowKanjiStats()
         self.mainWin.actionEditCurrent.setEnabled(False)
 	self.mainWin.actionMarkCard.setEnabled(False)
-        self.mainWin.menuCurrent.setEnabled(False)
+	self.mainWin.actionSuspendCard.setEnabled(False)
+	self.mainWin.actionDelete.setEnabled(False)
 
     def enableCardMenuItems(self):
         self.maybeEnableUndo()
@@ -1435,7 +1433,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.mainWin.actionRepeatAudio.setEnabled(snd)
         self.mainWin.actionEditCurrent.setEnabled(True)
 	self.mainWin.actionMarkCard.setEnabled(True)
-        self.mainWin.menuCurrent.setEnabled(True)
+	self.mainWin.actionSuspendCard.setEnabled(True)
+	self.mainWin.actionDelete.setEnabled(True)
 
     def maybeShowKanjiStats(self):
         if not self.deck:
