@@ -188,7 +188,11 @@ class DeckChooser(QDialog):
         self.decks.sort()
         for name in decks:
             name = os.path.splitext(name)[0]
-            item = QListWidgetItem(_("Merge with '%s' on server") % name)
+            if self.create:
+                msg = _("Merge with '%s' on server") % name
+            else:
+                msg = _("Copy '%s' from server") % name
+            item = QListWidgetItem(msg)
             self.dialog.decks.addItem(item)
         self.dialog.decks.setCurrentRow(0)
         # the list widget will swallow the enter key
