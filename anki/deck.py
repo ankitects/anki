@@ -2241,6 +2241,7 @@ def newCardSchedulingLabels():
     return {
         0: _("Spread new cards out through reviews"),
         1: _("Show new cards after all other cards"),
+        2: _("Show new cards before reviews"),
         }
 
 def revCardOrderLabels():
