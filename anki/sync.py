@@ -568,7 +568,7 @@ values
             s['day'] = s['day'].toordinal()
             del s['id']
             return s
-        lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))
+        lastDay = date.fromtimestamp(max(0, self.lastSync - 60*60*24))
         ids = self.deck.s.column0(
             "select id from stats where type = 1 and day >= :day", day=lastDay)
         stat = Stats()
@@ -603,7 +603,7 @@ values
 select cardId, time, lastInterval, nextInterval, ease, delay,
 lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount
 from reviewHistory where time > :ls""",
-            ls=self.deck.lastSync))
+            ls=self.lastSync))
 
     def updateHistory(self, history):
         dlist = [{'cardId': h[0],
