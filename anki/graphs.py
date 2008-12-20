@@ -18,13 +18,13 @@ dueYoungC = "#ffb380"
 dueMatureC = "#ff5555"
 dueCumulC = "#ff8080"
 
-reviewNewC = "#e5ff80"
-reviewYoungC = "#99ff55"
-reviewMatureC = "#2aff80"
+reviewNewC = "#80b3ff"
+reviewYoungC = "#5555ff"
+reviewMatureC = "#0f5aff"
 
 easesNewC = "#80b3ff"
 easesYoungC = "#5555ff"
-easesMatureC = "#7f2aff"
+easesMatureC = "#0f5aff"
 
 addedC = "#b3ff80"
 firstC = "#b380ff"
