@@ -23,14 +23,6 @@
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>69</y>
-     <width>655</width>
-     <height>398</height>
-    </rect>
-   </property>
    <property name="sizePolicy" >
     <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>1</horstretch>
@@ -149,25 +141,8 @@
          <property name="currentIndex" >
           <number>0</number>
          </property>
-         <widget class="QWidget" name="blankPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>370</width>
-            <height>343</height>
-           </rect>
-          </property>
-         </widget>
+         <widget class="QWidget" name="blankPage" />
          <widget class="QWidget" name="welcomePage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>100</width>
-            <height>30</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
            <item>
             <widget class="QTextBrowser" name="welcomeText" >
@@ -182,14 +157,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="editPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>100</width>
-            <height>30</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" >
            <property name="spacing" >
             <number>0</number>
@@ -210,14 +177,6 @@
           <number>3</number>
          </property>
          <widget class="QWidget" name="page1" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>370</width>
-            <height>49</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
            <item>
             <spacer name="verticalSpacer" >
@@ -242,14 +201,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page2" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>370</width>
-            <height>49</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
            <property name="spacing" >
             <number>0</number>
@@ -380,14 +331,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page3" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>370</width>
-            <height>49</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
            <item>
             <spacer name="verticalSpacer_2" >
@@ -414,16 +357,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page4" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>370</width>
-            <height>49</height>
-           </rect>
-          </property>
-         </widget>
+         <widget class="QWidget" name="page4" />
         </widget>
        </item>
       </layout>
@@ -618,7 +552,7 @@
      <x>0</x>
      <y>0</y>
      <width>655</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -756,27 +690,10 @@
    <addaction name="menu_Settings" />
    <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>467</y>
-     <width>655</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
+  <widget class="QStatusBar" name="statusbar" />
   <widget class="QToolBar" name="toolBar" >
    <property name="enabled" >
     <bool>true</bool>
-   </property>
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>23</y>
-     <width>655</width>
-     <height>46</height>
-    </rect>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
@@ -891,7 +808,7 @@
     <string>&amp;Add Items...</string>
    </property>
    <property name="shortcut" >
-    <string>Ctrl+A</string>
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="actionEditdeck" >
