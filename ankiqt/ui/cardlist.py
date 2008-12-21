@@ -382,8 +382,7 @@ class EditDeck(QMainWindow):
             if currentCardIndex >= 0:
                 sm = self.dialog.tableView.selectionModel()
                 sm.clear()
-                sm.select(self.model.index(currentCardIndex, 0),
-                          QItemSelectionModel.Select | QItemSelectionModel.Rows)
+                self.dialog.tableView.selectRow(currentCardIndex)
                 self.dialog.tableView.scrollTo(
                               self.model.index(currentCardIndex,0),
                               self.dialog.tableView.PositionAtTop)
