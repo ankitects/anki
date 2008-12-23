@@ -582,6 +582,7 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
 
     def deckFinishedMsg(self):
         return _('''
+<div style="white-space: normal;">
 <h1>Congratulations!</h1>You have finished the deck for now.<br><br>
 %(next)s
 <br><br>
@@ -590,7 +591,7 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
 spaced</a> cards.<br>
 - There are <b>%(suspended)d</b>
 <a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
-suspended</a> cards.''') % {
+suspended</a> cards.</div>''') % {
     "next": self.nextDueMsg(),
     "suspended": self.suspendedCardCount(),
     "waiting": self.spacedCardCount()
