@@ -51,9 +51,15 @@ def mediaFilename(path):
     ext = os.path.splitext(path)[1].lower()
     return "%s%s" % (new, ext)
 
-def copyToMedia(deck, path):
+def copyToMedia(deck, path, latex=None):
     """Copy PATH to MEDIADIR, and return new filename.
 Update media table. If file already exists, don't copy."""
+    if latex:
+        origPath = latex
+        description = "latex"
+    else:
+        origPath = path
+        description = os.path.splitext(os.path.basename(path))[0]
     newBase = mediaFilename(path)
     new = os.path.join(deck.mediaDir(create=True), newBase)
     # copy if not existing
@@ -80,9 +86,9 @@ values (:id, :filename, :size, :created, :originalPath,
                          filename=newBase,
                          size=newSize,
                          created=time.time(),
-                         originalPath=path,
-                         description=os.path.splitext(
-            os.path.basename(path))[0])
+                         originalPath=origPath,
+                         description=description)
+    deck.flushMod()
     return newBase
 
 def _modifyFields(deck, fieldsToUpdate, modifiedFacts, dirty):
@@ -117,8 +123,6 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     for oldBase in os.listdir(unicode(deck.mediaDir())):
         oldPath = os.path.join(deck.mediaDir(), oldBase)
         if oldBase.startswith("."):
-            continue
-        if oldBase.startswith("latex-"):
             continue
         if os.path.isdir(oldPath):
             continue
@@ -164,11 +168,13 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
         deck.deleteTags(unmodifiedFacts.keys(), _("Media Missing"))
     # build cache of db records
     mediaIds = dict(deck.s.all("select filename, id from media"))
+    # assume latex files exist
+    for f in deck.s.column0(
+        "select filename from media where description = 'latex'"):
+        usedFiles[f] = 1
     # look through the media dir for any unused files, and delete
     for f in os.listdir(unicode(deck.mediaDir())):
         if f.startswith("."):
-            continue
-        if f.startswith("latex-"):
             continue
         path = os.path.join(deck.mediaDir(), f)
         if os.path.isdir(path):

@@ -1940,6 +1940,8 @@ create index if not exists ix_fields_value on fields (value)""")
         # media
         deck.s.statement("""
 create unique index if not exists ix_media_filename on media (filename)""")
+        deck.s.statement("""
+create index if not exists ix_media_originalPath on media (originalPath)""")
         # deletion tracking
         deck.s.statement("""
 create index if not exists ix_cardsDeleted_cardId on cardsDeleted (cardId)""")
@@ -2182,6 +2184,7 @@ where interval < 1""")
         if deck.version < 18:
             deck.version = 18
             deck.s.commit()
+            DeckStorage._addIndices(deck)
             deck.s.statement("analyze")
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)

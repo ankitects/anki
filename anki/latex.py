@@ -8,14 +8,10 @@ Latex support
 """
 __docformat__ = 'restructuredtext'
 
-import re, tempfile, os, sys, subprocess
+import re, tempfile, os, sys, subprocess, stat, time
+from anki.utils import genID, checksum
+from anki.media import copyToMedia
 from htmlentitydefs import entitydefs
-try:
-    import hashlib
-    md5 = hashlib.md5
-except ImportError:
-    import md5
-    md5 = md5.new
 
 latexPreamble = ("\\documentclass[12pt]{article}\n"
                  "\\special{papersize=3in,5in}"
@@ -74,13 +70,14 @@ def call(*args, **kwargs):
         break
     return ret
 
-def generatedFile(latexCode):
-    return "%s.png" % md5(latexCode).hexdigest()
+def latexImgFile(deck, latexCode):
+    key = checksum(latexCode)
+    return deck.s.scalar("select filename from media where originalPath = :k",
+                         k=key)
 
-def generatedPath(deck, latexCode):
+def latexImgPath(deck, file):
     "Return the path to the cache file in system encoding format."
-    path = os.path.join(deck.mediaDir(create=True),
-                        generatedFile(latexCode))
+    path = os.path.join(deck.mediaDir(create=True), file)
     return path.encode(sys.getfilesystemencoding())
 
 def mungeLatex(latex):
@@ -92,38 +89,65 @@ def mungeLatex(latex):
     latex = latex.encode("utf-8")
     return latex
 
+def deleteAllLatexImages(deck):
+    for f in deck.s.column0(
+        "select filename from media where description = 'latex'"):
+        path = latexImgPath(deck, f)
+        try:
+            os.unlink(path)
+        except (OSError, IOError):
+            pass
+    deck.s.statement("delete from media where description = 'latex'")
+    deck.flushMod()
+
+def cacheAllLatexImages(deck):
+    fields = deck.s.column0("select value from fields")
+    for field in fields:
+        renderLatex(deck, field)
+
+def buildImg(deck, latex):
+    log = open(os.path.join(tmpdir, "latex_log.txt"), "w+")
+    texpath = os.path.join(tmpdir, "tmp.tex")
+    texfile = file(texpath, "w")
+    texfile.write(latexPreamble + "\n")
+    texfile.write(latex + "\n")
+    texfile.write(latexPostamble + "\n")
+    texfile.close()
+    texpath = texpath.encode(sys.getfilesystemencoding())
+    oldcwd = os.getcwd()
+    if sys.platform == "win32":
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    else:
+        si = None
+    try:
+        os.chdir(tmpdir)
+        errmsg = _(
+            "Error executing 'latex' or 'dvipng'.\n"
+            "A log file is available here:\n%s") % tmpdir
+        if call(["latex", "-interaction=nonstopmode",
+                 texpath], stdout=log, stderr=log, startupinfo=si):
+            return (False, errmsg)
+        if call(latexDviPngCmd + ["tmp.dvi", "-o", "tmp.png"],
+                stdout=log, stderr=log, startupinfo=si):
+            return (False, errmsg)
+        # add to media
+        path = copyToMedia(deck, "tmp.png", latex=checksum(latex))
+        return (True, path)
+    finally:
+        os.chdir(oldcwd)
+
 def imageForLatex(deck, latex):
     "Return an image that represents 'latex', building if necessary."
-    imagePath = generatedPath(deck, latex)
-    if not os.path.exists(imagePath):
-        log = open(os.path.join(tmpdir, "latex_log.txt"), "w+")
-        texpath = os.path.join(tmpdir, "tmp.tex")
-        texfile = file(texpath, "w")
-        texfile.write(latexPreamble + "\n")
-        texfile.write(latex + "\n")
-        texfile.write(latexPostamble + "\n")
-        texfile.close()
-        texpath = texpath.encode(sys.getfilesystemencoding())
-        oldcwd = os.getcwd()
-        if sys.platform == "win32":
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        else:
-            si = None
-        try:
-            os.chdir(tmpdir)
-            errmsg = _(
-                "Error executing 'latex' or 'dvipng'.\n"
-                "A log file is available here:\n%s") % tmpdir
-            if call(["latex", "-interaction=nonstopmode",
-                     texpath], stdout=log, stderr=log, startupinfo=si):
-                return (False, errmsg)
-            if call(latexDviPngCmd + ["tmp.dvi", "-o", imagePath],
-                    stdout=log, stderr=log, startupinfo=si):
-                return (False, errmsg)
-        finally:
-            os.chdir(oldcwd)
-    return (True, imagePath)
+    imageFile = latexImgFile(deck, latex)
+    if imageFile:
+        path = latexImgPath(deck, imageFile)
+    ok = True
+    if not imageFile or not os.path.exists(path):
+        (ok, imageFile) = buildImg(deck, latex)
+    if not ok:
+        return (False, imageFile)
+    return (True, imageFile)
 
 def imgLink(deck, latex):
     "Parse LATEX and return a HTML image representing the output."
