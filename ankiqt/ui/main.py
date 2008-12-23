@@ -118,6 +118,9 @@ class AnkiQt(QMainWindow):
                     self.timer.setInterval(interval)
 
             def onTimeout(self):
+                if "font_manager.py" in self.pool:
+                    # hack for matplotlib errors on osx
+                    self.pool = ""
                 stdText = _("""\
 An error occurred. Please copy the following into a bug report.\n\n""")
                 pluginText = _("""\
@@ -127,7 +130,8 @@ Please do not file a bug report with Anki.\n\n""")
                     txt = pluginText
                 else:
                     txt = stdText
-                ui.utils.showText(txt + self.pool[0:10000])
+                if self.pool:
+                    ui.utils.showText(txt + self.pool[0:10000])
                 self.pool = ""
                 self.timer = None
         pipe = ErrorPipe(self)
