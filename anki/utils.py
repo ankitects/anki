@@ -124,8 +124,6 @@ def tidyHTML(html):
                   "margin-right:\d+px; -qt-block-indent:0; "
                   "text-indent:0px;", u"", html)
     html = re.sub(u"-qt-paragraph-type:empty;", u"", html)
-    # collapse multiple spaces into one
-    html = re.sub(u"  +", u" ", html)
     # strip leading space in style statements, and remove if no contents
     html = re.sub(u'style=" ', u'style="', html)
     html = re.sub(u' style=""', u"", html)
