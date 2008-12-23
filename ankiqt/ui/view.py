@@ -87,7 +87,8 @@ class View(object):
                             (base, family, size, color))
         s += ("body { background-color: " +
               self.main.config["backgroundColour"] +
-              "; }")
+              ";}\n")
+        s += "div { white-space: pre-wrap; }"
         s += "</style>"
         return s
 

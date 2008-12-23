@@ -281,7 +281,7 @@ class FactEditor(object):
             old = tidyHTML(unicode(w.toHtml()))
             # only update if something has changed, to preserve the cursor
             if new != old:
-                w.setHtml(new)
+                w.setHtml('<meta name="qrichtext" content="1"/>' + new)
             if font:
                 # apply fonts
                 font = QFont()
@@ -594,7 +594,7 @@ class FactEdit(QTextEdit):
         html = re.sub('<style type="text/css">.*?</style>', "", html)
         html = stripHTML(html)
         html = html.replace("\n", "<br>")
-        html = re.sub("\s\s+", " ", html).strip()
+        html = html.strip()
         return html
 
     def focusOutEvent(self, evt):
