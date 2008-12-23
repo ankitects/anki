@@ -4,7 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import re, os, sys, tempfile
+import re, os, sys, tempfile, urllib
 from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
 import anki.sound
@@ -570,6 +570,12 @@ class FactEdit(QTextEdit):
         QTextEdit.__init__(self, *args)
         self.parent = parent
 
+    def canInsertFromMimeData(self, src):
+        return (src.hasUrls() or
+                src.hasText() or
+                src.hasImage() or
+                src.hasHtml())
+
     def insertFromMimeData(self, source):
         if source.hasText():
             if not (unicode(source.text()).lower().startswith("http://") and
@@ -586,6 +592,17 @@ class FactEdit(QTextEdit):
             return
         if source.hasHtml():
             self.insertHtml(self.simplifyHTML(unicode(source.html())))
+            return
+        if source.hasUrls():
+            for url in source.urls():
+                url = unicode(url.toString())
+                ext = url.split(".")[-1]
+                if ext in ("jpg", "jpeg", "png", "tif", "tiff", "gif"):
+                    url = url.encode(sys.getfilesystemencoding())
+                    (file, headers) = urllib.urlretrieve(url)
+                    self.parent._addPicture(
+                        unicode(file, sys.getfilesystemencoding()),
+                        widget=self)
             return
 
     def simplifyHTML(self, html):
