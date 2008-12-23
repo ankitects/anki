@@ -702,11 +702,14 @@
       <string>Ad&amp;vanced</string>
      </property>
      <addaction name="actionCheckDatabaseIntegrity" />
-     <addaction name="actionCheckMediaDatabase" />
-     <addaction name="separator" />
      <addaction name="actionOptimizeDatabase" />
      <addaction name="separator" />
+     <addaction name="actionCheckMediaDatabase" />
+     <addaction name="actionCacheLatex" />
+     <addaction name="actionUncacheLatex" />
+     <addaction name="separator" />
      <addaction name="actionMergeModels" />
+     <addaction name="separator" />
     </widget>
     <addaction name="actionGraphs" />
     <addaction name="actionDstats" />
@@ -1321,6 +1324,16 @@
   <action name="action_Delete_Fact" >
    <property name="text" >
     <string>&amp;Delete Fact</string>
+   </property>
+  </action>
+  <action name="actionCacheLatex" >
+   <property name="text" >
+    <string>Cache LaTeX</string>
+   </property>
+  </action>
+  <action name="actionUncacheLatex" >
+   <property name="text" >
+    <string>Uncache LaTeX</string>
    </property>
   </action>
  </widget>
