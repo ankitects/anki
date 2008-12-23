@@ -76,14 +76,14 @@ class SyncTools(object):
             return False
         l = self._lastSync(); r = self.server._lastSync()
         if l != r:
-            self.lastSync = min(l, r) - 600
+            self.deck.lastSync = min(l, r) - 600
         else:
-            self.lastSync = l
+            self.deck.lastSync = l
         return True
 
     def summaries(self):
-        return (self.summary(self.lastSync),
-                self.server.summary(self.lastSync))
+        return (self.summary(self.deck.lastSync),
+                self.server.summary(self.deck.lastSync))
 
     def genPayload(self, summaries):
         (lsum, rsum) = summaries
@@ -205,6 +205,8 @@ class SyncTools(object):
 
     def summary(self, lastSync):
         "Generate a full summary of modtimes for two-way syncing."
+        # client may have selected an earlier sync time
+        self.deck.lastSync = lastSync
         # ensure we're flushed first
         self.deck.s.flush()
         return {
@@ -568,7 +570,7 @@ values
             s['day'] = s['day'].toordinal()
             del s['id']
             return s
-        lastDay = date.fromtimestamp(max(0, self.lastSync - 60*60*24))
+        lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))
         ids = self.deck.s.column0(
             "select id from stats where type = 1 and day >= :day", day=lastDay)
         stat = Stats()
@@ -603,7 +605,7 @@ values
 select cardId, time, lastInterval, nextInterval, ease, delay,
 lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount
 from reviewHistory where time > :ls""",
-            ls=self.lastSync))
+            ls=self.deck.lastSync))
 
     def updateHistory(self, history):
         dlist = [{'cardId': h[0],
@@ -729,7 +731,7 @@ where media.id in %s""" % sids, now=time.time())
             "select lastSync, syncPeriod from sources where id = :id", id=srcID)
         if self.server.modified() <= lastSync:
             return
-        self.lastSync = lastSync
+        self.deck.lastSync = lastSync
         return True
 
     def genOneWayPayload(self, lastSync):
