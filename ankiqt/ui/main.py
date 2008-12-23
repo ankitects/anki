@@ -1369,6 +1369,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.connect(m.actionActiveTags, s, self.onActiveTags)
         self.connect(m.actionReleaseNotes, s, self.onReleaseNotes)
         self.connect(m.actionGetMoreDecks, s, self.onGetMoreDecks)
+        self.connect(m.actionCacheLatex, s, self.onCacheLatex)
+        self.connect(m.actionUncacheLatex, s, self.onUncacheLatex)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
@@ -1692,3 +1694,9 @@ tag or delete references to missing files?"""))
 
     def addHook(self, *args):
         addHook(*args)
+
+    def onCacheLatex(self):
+        anki.latex.cacheAllLatexImages(self.deck)
+
+    def onUncacheLatex(self):
+        anki.latex.deleteAllLatexImages(self.deck)
