@@ -1602,8 +1602,7 @@ select id from fields where factId not in (select id from facts)""")
         self.undoStack = []
         self.redoStack = []
         self.undoEnabled = True
-        self.s.statement(
-            "create temp table undoLog (seq integer primary key, sql text)")
+        self.s.statement("delete from undoLog")
         tables = self.s.column0(
             "select name from sqlite_master where type = 'table'")
         for table in tables:
@@ -1901,6 +1900,8 @@ alter table cardModels add column allowEmptyAnswer integer not null default 1"""
         deck = Deck()
         s.save(deck)
         s.flush()
+        s.execute(
+            "create table undoLog (seq integer primary key, sql text)")
         return deck
     _init = staticmethod(_init)
 
@@ -2180,6 +2181,8 @@ where interval < 1""")
             DeckStorage._addIndices(deck)
             deck.version = 17
         if deck.version < 18:
+            deck.s.statement(
+                "create table undoLog (seq integer primary key, sql text)")
             deck.version = 18
             deck.s.commit()
             DeckStorage._addIndices(deck)
