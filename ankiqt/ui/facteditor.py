@@ -397,8 +397,10 @@ class FactEditor(object):
         self.fact.tags = canonifyTags(unicode(self.tags.text()))
         if self.onChange:
             self.onChange()
+        self.deck.s.flush()
+        self.deck.updatePriorities([c.id for c in self.fact.cards])
         self.fact.setModified(textChanged=True)
-        self.deck.setModified()
+        self.deck.flushMod()
 
     def focusField(self, fieldName):
         self.fields[fieldName][1].setFocus()

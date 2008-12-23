@@ -418,6 +418,7 @@ class EditDeck(QMainWindow):
         saveGeom(self, "editor")
         self.hide()
         ui.dialogs.close("CardList")
+        self.parent.moveToState("auto")
         return True
 
     def closeEvent(self, evt):
