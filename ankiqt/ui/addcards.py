@@ -104,10 +104,10 @@ class AddCards(QDialog):
                 "Some fields are missing or not unique."),
                               parent=self, help="AddItems#AddError")
             return
-        if not fact.cards:
+        if not fact:
             ui.utils.showWarning(_("""\
 The input you have provided would make an empty
-question or answer on all cards. Can't proceed."""), parent=self)
+question or answer on all cards."""), parent=self)
             return
         self.dialog.status.append(_("Added %(num)d card(s) for '%(str)s'.") % {
             "num": len(fact.cards),

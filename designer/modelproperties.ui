@@ -9,7 +9,7 @@
     <x>0</x>
     <y>0</y>
     <width>376</width>
-    <height>528</height>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -27,7 +27,7 @@
         <x>0</x>
         <y>0</y>
         <width>360</width>
-        <height>462</height>
+        <height>452</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -121,7 +121,7 @@
         </layout>
        </item>
        <item>
-        <widget class="Line" name="line" >
+        <widget class="Line" name="line_3" >
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
@@ -215,15 +215,12 @@
          <property name="title" >
           <string/>
          </property>
-         <layout class="QVBoxLayout" >
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <property name="margin" >
-           <number>9</number>
-          </property>
+         <property name="flat" >
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2" >
           <item>
-           <layout class="QGridLayout" >
+           <layout class="QGridLayout" name="_2" >
             <property name="margin" >
              <number>0</number>
             </property>
@@ -233,7 +230,7 @@
             <item row="1" column="0" >
              <widget class="QLabel" name="label_18" >
               <property name="text" >
-               <string>&lt;b>Unique?</string>
+               <string>&lt;b>Options&lt;/b></string>
               </property>
              </widget>
             </item>
@@ -253,14 +250,7 @@
                <string>&lt;b>Name&lt;/b></string>
               </property>
               <property name="alignment" >
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" >
-             <widget class="QLabel" name="label_17" >
-              <property name="text" >
-               <string>&lt;b>Required?&lt;/b></string>
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -268,13 +258,6 @@
              <widget class="QCheckBox" name="fieldRequired" >
               <property name="text" >
                <string>Prevent empty entries</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" >
-             <widget class="QLabel" name="label_21" >
-              <property name="text" >
-               <string>&lt;b>Numeric?&lt;/b></string>
               </property>
              </widget>
             </item>
@@ -297,8 +280,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>370</width>
-        <height>462</height>
+        <width>360</width>
+        <height>452</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -385,24 +368,12 @@
        </item>
        <item row="3" column="0" >
         <widget class="QGroupBox" name="cardEditBox" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="MinimumExpanding" hsizetype="Preferred" >
-           <horstretch>0</horstretch>
-           <verstretch>3</verstretch>
-          </sizepolicy>
-         </property>
          <property name="title" >
           <string/>
          </property>
-         <layout class="QVBoxLayout" >
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <property name="margin" >
-           <number>9</number>
-          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3" >
           <item>
-           <layout class="QGridLayout" >
+           <layout class="QGridLayout" name="_3" >
             <property name="margin" >
              <number>0</number>
             </property>
@@ -412,7 +383,7 @@
             <item row="3" column="0" >
              <widget class="QLabel" name="label_23" >
               <property name="text" >
-               <string>&lt;b>Question hiding&lt;/b></string>
+               <string>&lt;b>Options&lt;/b></string>
               </property>
              </widget>
             </item>
@@ -451,10 +422,10 @@
             <item row="2" column="0" >
              <widget class="QLabel" name="label_15" >
               <property name="text" >
-               <string>&lt;b>Answer format&lt;/b></string>
+               <string>&lt;b>Answer&lt;/b></string>
               </property>
               <property name="alignment" >
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
               <property name="openExternalLinks" >
                <bool>true</bool>
@@ -486,13 +457,20 @@
               </property>
              </widget>
             </item>
+            <item row="4" column="1" >
+             <widget class="QCheckBox" name="allowEmptyAnswer" >
+              <property name="text" >
+               <string>Allow the answer to be blank</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="0" >
              <widget class="QLabel" name="label_12" >
               <property name="text" >
-               <string>&lt;b>Name/tag&lt;/b></string>
+               <string>&lt;b>Name&lt;/b></string>
               </property>
               <property name="alignment" >
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
               <property name="openExternalLinks" >
                <bool>true</bool>
@@ -502,10 +480,10 @@
             <item row="1" column="0" >
              <widget class="QLabel" name="label_14" >
               <property name="text" >
-               <string>&lt;b>Question format&lt;/b></string>
+               <string>&lt;b>Question&lt;/b></string>
               </property>
               <property name="alignment" >
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
               <property name="openExternalLinks" >
                <bool>true</bool>
@@ -532,9 +510,15 @@
     </widget>
    </item>
   </layout>
+  <zorder>buttonBox</zorder>
+  <zorder>tabWidget</zorder>
  </widget>
  <tabstops>
   <tabstop>tabWidget</tabstop>
+  <tabstop>name</tabstop>
+  <tabstop>tags</tabstop>
+  <tabstop>initialSpacing</tabstop>
+  <tabstop>spacing</tabstop>
   <tabstop>fieldList</tabstop>
   <tabstop>fieldAdd</tabstop>
   <tabstop>fieldUp</tabstop>
@@ -554,6 +538,7 @@
   <tabstop>cardQuestion</tabstop>
   <tabstop>cardAnswer</tabstop>
   <tabstop>questionInAnswer</tabstop>
+  <tabstop>allowEmptyAnswer</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
