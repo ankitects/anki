@@ -21,6 +21,7 @@ from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks
 import anki.latex
 import anki.lang
+import anki.deck
 import ankiqt
 ui = ankiqt.ui
 config = ankiqt.config
@@ -511,7 +512,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             r = self.loadDeck(path, interactive=False)
             if r:
                 return r
-        self.onNew()
+        self.onNew(True)
 
     def getDefaultDir(self, save=False):
         "Try and get default dir from most recently opened file."
@@ -641,17 +642,23 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             self.deck.rollback()
             self.deck.close()
             self.deck = None
-            if name.startswith("untitled") and not count:
-                os.unlink(path)
         if not hideWelcome:
             self.moveToState("noDeck")
         else:
             ui.dialogs.closeAll()
         return True
 
-    def onNew(self):
+    def onNew(self, auto=False):
         if not self.saveAndClose(hideWelcome=True): return
-        self.deck = DeckStorage.Deck()
+        if auto:
+            self.deck = DeckStorage.Deck()
+        else:
+            file = self.onSaveAsOrNew(new=True)
+            if not file:
+                return
+            if os.path.exists(file):
+                os.unlink(file)
+            self.deck = DeckStorage.Deck(file)
         self.deck.initUndo()
         self.deck.addModel(BasicModel())
         self.saveDeck()
@@ -690,7 +697,9 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
     def onOpenOnline(self):
         self.ensureSyncParams()
         if not self.saveAndClose(hideWelcome=True): return
-        self.deck = DeckStorage.Deck()
+        self.onNew()
+        if self.deck is None:
+            return
         # ensure all changes come to us
         self.deck.modified = 0
         self.deck.s.commit()
@@ -737,10 +746,14 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
 
             self.updateTitleBar()
 
-    def onSaveAs(self):
+    def onSaveAsOrNew(self, new=False):
         "Prompt for a file name, then save."
-        title = _("Save deck")
-        dir = os.path.dirname(self.deck.path)
+        if new:
+            title = "Name Deck"
+            dir = anki.deck.ankiDir
+        else:
+            title = _("Save Deck As")
+            dir = os.path.dirname(self.deck.path)
         file = QFileDialog.getSaveFileName(self, title,
                                            dir,
                                            _("Deck files (*.anki)"),
@@ -756,6 +769,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             if not ui.utils.askUser(
                 "This file exists. Are you sure you want to overwrite it?"):
                 return
+        if new:
+            return file
         self.deck = self.deck.saveAs(file)
         self.deck.initUndo()
         self.updateTitleBar()
@@ -812,7 +827,8 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         if str == "addfacts":
             if not self.deck:
                 self.onNew()
-            self.onAddCard()
+            if self.deck:
+                self.onAddCard()
 
     def setupAnchors(self):
         # welcome
@@ -1325,7 +1341,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.connect(m.actionOpen, s, self.onOpen)
         self.connect(m.actionOpenSamples, s, self.onOpenSamples)
         self.connect(m.actionSave, s, self.onSave)
-        self.connect(m.actionSaveAs, s, self.onSaveAs)
+        self.connect(m.actionSaveAs, s, self.onSaveAsOrNew)
         self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionSyncdeck, s, self.syncDeck)
