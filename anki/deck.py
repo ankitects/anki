@@ -1836,6 +1836,9 @@ alter table decks add column newCount integer not null default 0""")
                     if ver < 17:
                         s.execute("""
 alter table decks add column revCardOrder integer not null default 0""")
+                    if ver < 18:
+                        s.execute("""
+alter table cardModels add column allowEmptyAnswer integer not null default 1""")
                 except:
                     pass
                 deck = s.query(Deck).get(1)
@@ -2177,8 +2180,6 @@ where interval < 1""")
             DeckStorage._addIndices(deck)
             deck.version = 17
         if deck.version < 18:
-            deck.s.statement("""
-alter table cardModels add column allowEmptyAnswer integer not null default 1""")
             deck.version = 18
             deck.s.commit()
             deck.s.statement("analyze")
