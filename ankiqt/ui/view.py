@@ -138,7 +138,7 @@ class View(object):
         if self.haveTop:
             height = 35
         else:
-            height = 45
+            height = 40
         self.write(self.center(self.mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
