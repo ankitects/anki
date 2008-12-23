@@ -6,6 +6,10 @@ import sys, os
 from anki.utils import findTag, stripHTML
 from anki.hooks import addHook
 
+modelTag = "Japanese"
+srcField = "Expression"
+dstField = "Reading"
+
 class KakasiController(object):
     def __init__(self):
         # add our pre-packaged kakasi to the path
@@ -90,17 +94,17 @@ if not kakasi.available():
 def onFocusLost(fact, field):
     if not kakasi:
         return
-    if field.name != "Expression":
+    if field.name != srcField:
         return
-    if not findTag("Japanese", fact.model.tags):
+    if not findTag(modelTag, fact.model.tags):
         return
     try:
-        if fact['Reading']:
+        if fact[dstField]:
             return
     except:
         return
     tmp = kakasi.toFurigana(field.value)
     if tmp != field.value:
-        fact['Reading'] = tmp
+        fact[dstField] = tmp
 
 addHook('fact.focusLost', onFocusLost)

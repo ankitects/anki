@@ -7,6 +7,11 @@ from anki.utils import findTag, stripHTML
 from anki.hooks import addHook
 from anki.db import *
 
+cantoneseTag = "Cantonese"
+mandarinTag = "Mandarin"
+srcField = "Expression"
+dstField = "Reading"
+
 class UnihanController(object):
 
     def __init__(self, target):
@@ -61,19 +66,19 @@ class ChineseGenerator(object):
 unihan = ChineseGenerator()
 
 def onFocusLost(fact, field):
-    if field.name != "Expression":
+    if field.name != srcField:
         return
-    if findTag("Cantonese", fact.model.tags):
+    if findTag(cantoneseTag, fact.model.tags):
         type = "cantonese"
-    elif findTag("Mandarin", fact.model.tags):
+    elif findTag(mandarinTag, fact.model.tags):
         type = "mandarin"
     else:
         return
     try:
-        if fact['Reading']:
+        if fact[dstField]:
             return
     except:
         return
-    fact['Reading'] = unihan.toReading(type, field.value)
+    fact[dstField] = unihan.toReading(type, field.value)
 
 addHook('fact.focusLost', onFocusLost)
