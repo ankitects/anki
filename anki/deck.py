@@ -49,7 +49,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=17),
+    Column('version', Integer, nullable=False, default=18),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -799,7 +799,7 @@ and due < :now""", now=time.time())
         # check we have card models available
         cms = self.availableCardModels(fact)
         if not cms:
-            return []
+            return None
         # proceed
         cards = []
         self.s.save(fact)
@@ -823,7 +823,8 @@ and due < :now""", now=time.time())
         for cardModel in fact.model.cardModels:
            if cardModel.active or not checkActive:
                ok = True
-               for format in [cardModel.qformat, cardModel.aformat]:
+               for (type, format) in [("q", cardModel.qformat),
+                                      ("a", cardModel.aformat)]:
                    empty = {}
                    local = {}; local.update(fact)
                    for k in fact.keys():
@@ -837,7 +838,7 @@ and due < :now""", now=time.time())
                            ok = False
                    except (KeyError, TypeError, ValueError):
                        ok = False
-               if ok:
+               if ok or type == "a" and cardModel.allowEmptyAnswer:
                    models.append(cardModel)
         return models
 
@@ -2175,6 +2176,10 @@ where interval < 1""")
             DeckStorage._addViews(deck)
             DeckStorage._addIndices(deck)
             deck.version = 17
+        if deck.version < 18:
+            deck.s.statement("""
+alter table cardModels add column allowEmptyAnswer integer not null default 1""")
+            deck.version = 18
             deck.s.commit()
             deck.s.statement("analyze")
         return deck
