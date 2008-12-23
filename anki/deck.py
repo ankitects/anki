@@ -1312,7 +1312,7 @@ where id = :id""", pending)
         cardIds = self.s.column0(
             "select id from cards where factId in %s" %
             ids2str(ids))
-        self.updateCardQACacheFromCardIds(cardIds, type="facts")
+        self.updateCardQACacheFromCardIds(ids, type="facts")
         self.updatePriorities(cardIds)
         self.flushMod()
 
@@ -1340,7 +1340,7 @@ where id = :id""", pending)
         cardIds = self.s.column0(
             "select id from cards where factId in %s" %
             ids2str(ids))
-        self.updateCardQACacheFromCardIds(cardIds, type="facts")
+        self.updateCardQACacheFromCardIds(ids, type="facts")
         self.updatePriorities(cardIds)
         self.flushMod()
 
