@@ -201,8 +201,11 @@ class DeckProperties(QDialog):
         if r == -1:
             return
         self.dialog.sourcesTable.removeRow(r)
-        id = self.sources[r][0]
-        self.sourcesToRemove.append(id)
+        try:
+            id = self.sources[r][0]
+            self.sourcesToRemove.append(id)
+        except IndexError:
+            pass
 
     def reject(self):
         n = _("Deck Properties")
