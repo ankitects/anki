@@ -31,7 +31,8 @@ manager = None
 
 if sys.platform.startswith("win32"):
     base = os.path.join(os.path.dirname(sys.argv[0]), "mplayer.exe")
-    externalPlayer = [base, "-really-quiet"]
+    #base = "C:\mplayer.exe"
+    externalPlayer = [base, "-ao", "win32", "-really-quiet"]
 else:
     externalPlayer = ["mplayer", "-really-quiet"]
 
