@@ -131,9 +131,6 @@ def tidyHTML(html):
     html = re.sub(u'<p( style=.+?)>(.*?)</p>', u'<span\\1>\\2</span><br>', html)
     html = re.sub(u'<p>(.*?)</p>', u'\\1<br>', html)
     html = re.sub(u'<br>$', u'', html)
-    # remove leading or trailing whitespace
-    html = re.sub(u'^ +', u'', html)
-    html = re.sub(u' +$', u'', html)
     return html
 
 # IDs
