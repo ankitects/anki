@@ -163,13 +163,6 @@
         </layout>
        </item>
        <item>
-        <widget class="Line" name="line" >
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="showDivider" >
          <property name="text" >
           <string>Show divider between question and answer</string>
