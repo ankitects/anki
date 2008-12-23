@@ -1198,7 +1198,7 @@ facts.modelId = :id""", id=model.id)
             return
         self.updateCardQACache(ids, dirty)
 
-    def updateCardQACacheFromCardIds(self, ids, type="cards"):
+    def updateCardQACacheFromIds(self, ids, type="cards"):
         "Given a list of card or fact ids, update q/a cache."
         if type == "cards":
             col = "c.id"
@@ -1312,7 +1312,7 @@ where id = :id""", pending)
         cardIds = self.s.column0(
             "select id from cards where factId in %s" %
             ids2str(ids))
-        self.updateCardQACacheFromCardIds(ids, type="facts")
+        self.updateCardQACacheFromIds(ids, type="facts")
         self.updatePriorities(cardIds)
         self.flushMod()
 
@@ -1340,7 +1340,7 @@ where id = :id""", pending)
         cardIds = self.s.column0(
             "select id from cards where factId in %s" %
             ids2str(ids))
-        self.updateCardQACacheFromCardIds(ids, type="facts")
+        self.updateCardQACacheFromIds(ids, type="facts")
         self.updatePriorities(cardIds)
         self.flushMod()
 
