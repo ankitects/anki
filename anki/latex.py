@@ -74,16 +74,27 @@ def call(*args, **kwargs):
         break
     return ret
 
-def imgLink(deck, latex):
-    "Parse LATEX and return a HTML image representing the output."
+def generatedFile(latexCode):
+    return "%s.png" % md5(latexCode).hexdigest()
+
+def generatedPath(deck, latexCode):
+    "Return the path to the cache file in system encoding format."
+    path = os.path.join(deck.mediaDir(create=True),
+                        generatedFile(latexCode))
+    return path.encode(sys.getfilesystemencoding())
+
+def mungeLatex(latex):
+    "Convert entities, fix newlines, and convert to utf8."
     for match in re.compile("&([a-z]+);", re.IGNORECASE).finditer(latex):
         if match.group(1) in entitydefs:
             latex = latex.replace(match.group(), entitydefs[match.group(1)])
     latex = re.sub("<br( /)?>", "\n", latex)
     latex = latex.encode("utf-8")
-    imageFile = "latex-%s.png" % md5(latex).hexdigest()
-    imagePath = os.path.join(deck.mediaDir(create=True), imageFile)
-    imagePath = imagePath.encode(sys.getfilesystemencoding())
+    return latex
+
+def imageForLatex(deck, latex):
+    "Return an image that represents 'latex', building if necessary."
+    imagePath = generatedPath(deck, latex)
     if not os.path.exists(imagePath):
         log = open(os.path.join(tmpdir, "latex_log.txt"), "w+")
         texpath = os.path.join(tmpdir, "tmp.tex")
@@ -101,13 +112,24 @@ def imgLink(deck, latex):
             si = None
         try:
             os.chdir(tmpdir)
-            errmsg = _("Error executing 'latex' or 'dvipng' - are they installed?")
+            errmsg = _(
+                "Error executing 'latex' or 'dvipng'.\n"
+                "A log file is available here:\n%s") % tmpdir
             if call(["latex", "-interaction=nonstopmode",
                      texpath], stdout=log, stderr=log, startupinfo=si):
-                return errmsg
+                return (False, errmsg)
             if call(latexDviPngCmd + ["tmp.dvi", "-o", imagePath],
                     stdout=log, stderr=log, startupinfo=si):
-                return errmsg
+                return (False, errmsg)
         finally:
             os.chdir(oldcwd)
-    return '<img src="%s">' % imageFile
+    return (True, imagePath)
+
+def imgLink(deck, latex):
+    "Parse LATEX and return a HTML image representing the output."
+    latex = mungeLatex(latex)
+    (ok, img) = imageForLatex(deck, latex)
+    if ok:
+        return '<img src="%s">' % img
+    else:
+        return img
