@@ -68,7 +68,8 @@ Update media table. If file already exists, don't copy."""
             # case insensitive filesystems suck
             pass
         else:
-            shutil.copy2(path, new.encode(sys.getfilesystemencoding()))
+            shutil.copy2(path.encode(sys.getfilesystemencoding()),
+                         new.encode(sys.getfilesystemencoding()))
     newSize = os.stat(new)[stat.ST_SIZE]
     if not deck.s.scalar(
         "select 1 from media where filename = :f",
