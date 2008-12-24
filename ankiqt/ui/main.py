@@ -90,7 +90,7 @@ class AnkiQt(QMainWindow):
         self.addView(self.bodyView)
         self.statusView = ui.status.StatusView(self)
         self.addView(self.statusView)
-
+  
     def setupTray(self):
 	self.trayIcon = ui.tray.AnkiTrayIcon(self)
 
@@ -253,6 +253,32 @@ Please do not file a bug report with Anki.\n\n""")
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
+
+        if evt.key() in (Qt.Key_Up,Qt.Key_Down,Qt.Key_Left,Qt.Key_Right,
+                         Qt.Key_PageUp,Qt.Key_PageDown):
+
+            mf = self.bodyView.body.page().currentFrame()
+
+            if evt.key() == Qt.Key_Up:
+                mf.evaluateJavaScript("window.scrollBy(0,-20)")
+            elif evt.key() == Qt.Key_Down:
+                mf.evaluateJavaScript("window.scrollBy(0,20)")
+            elif evt.key() == Qt.Key_Left:
+                mf.evaluateJavaScript("window.scrollBy(-20,0)")
+            elif evt.key() == Qt.Key_Right:
+                mf.evaluateJavaScript("window.scrollBy(20,0)")
+            elif evt.key() == Qt.Key_PageUp:
+                mf.evaluateJavaScript("window.scrollBy(0,-%d)" % 
+                                      int(0.9*self.bodyView.body.size().
+                                          height()))
+            elif evt.key() == Qt.Key_PageDown:
+                mf.evaluateJavaScript("window.scrollBy(0,%d)" % 
+                                      int(0.9*self.bodyView.body.size().
+                                          height()))
+
+            evt.accept()
+            return
+
         if self.state == "showQuestion":
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
