@@ -1365,6 +1365,8 @@ where id = :id""", pending)
         if not os.path.exists(dir) and create:
             try:
                 os.mkdir(dir)
+                # change to the current dir
+                os.chdir(dir)
             except OSError:
                 # permission denied
                 return None
