@@ -33,17 +33,19 @@ tmpdir = tempfile.mkdtemp(prefix="anki-latex")
 if sys.platform == "darwin":
     os.environ['PATH'] += ":/usr/texbin"
 
-def renderLatex(deck, text):
+def renderLatex(deck, text, build=True):
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(text):
-        text = text.replace(match.group(), imgLink(deck, match.group(1)))
+        text = text.replace(match.group(), imgLink(deck, match.group(1),
+                                                   build))
     for match in regexps['expression'].finditer(text):
         text = text.replace(match.group(), imgLink(
-            deck, "$" + match.group(1) + "$"))
+            deck, "$" + match.group(1) + "$", build))
     for match in regexps['math'].finditer(text):
         text = text.replace(match.group(), imgLink(
             deck,
-            "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}"))
+            "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}",
+            build))
     return text
 
 def stripLatex(text):
@@ -137,22 +139,22 @@ def buildImg(deck, latex):
     finally:
         os.chdir(oldcwd)
 
-def imageForLatex(deck, latex):
+def imageForLatex(deck, latex, build=True):
     "Return an image that represents 'latex', building if necessary."
     imageFile = latexImgFile(deck, latex)
     if imageFile:
         path = latexImgPath(deck, imageFile)
     ok = True
-    if not imageFile or not os.path.exists(path):
+    if build and (not imageFile or not os.path.exists(path)):
         (ok, imageFile) = buildImg(deck, latex)
     if not ok:
         return (False, imageFile)
     return (True, imageFile)
 
-def imgLink(deck, latex):
+def imgLink(deck, latex, build=True):
     "Parse LATEX and return a HTML image representing the output."
     latex = mungeLatex(latex)
-    (ok, img) = imageForLatex(deck, latex)
+    (ok, img) = imageForLatex(deck, latex, build)
     if ok:
         return '<img src="%s">' % img
     else:
