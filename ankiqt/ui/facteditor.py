@@ -588,7 +588,7 @@ class FactEdit(QTextEdit):
             (fd, name) = tempfile.mkstemp(suffix=".jpg")
             uname = unicode(name, sys.getfilesystemencoding())
             im.save(uname, None, 95)
-            self.parent._addPicture(name, widget=self)
+            self.parent._addPicture(uname, widget=self)
             return
         if source.hasHtml():
             self.insertHtml(self.simplifyHTML(unicode(source.html())))
