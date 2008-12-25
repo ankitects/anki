@@ -130,7 +130,7 @@ class Sync(QThread):
                         self.setStatus(_(" * %s no changes found.") % msg)
                         continue
                     self.setStatus(_(" * %s fetching payload...") % msg)
-                    payload = proxy.genOneWayPayload(client.lastSync)
+                    payload = proxy.genOneWayPayload(client.deck.lastSync)
                     self.setStatus(msg + _(" applied %d modified cards.") %
                                    len(payload['cards']))
                     client.applyOneWayPayload(payload)
