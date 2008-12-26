@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-23 22:10+0900\n"
+"POT-Creation-Date: 2008-12-26 14:30+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -240,7 +240,7 @@ msgstr "Centre"
 msgid "Changed"
 msgstr "Changée"
 
-#: deck.py:1496
+#: deck.py:1498
 msgid "Database file damaged. Restore from backup."
 msgstr "Base de données endommagée. Restauration depuis la sauvegarde."
 
@@ -253,31 +253,31 @@ msgstr "Statistiques de paquet"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Paquet créé : il y a <b>%s</b><br>"
 
-#: deck.py:1504
+#: deck.py:1506
 msgid "Deck was missing a model"
 msgstr "Il manque un modèle au paquet"
 
-#: deck.py:1530
+#: deck.py:1532
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "%d cartes sans faits supprimés"
 
-#: deck.py:1538
+#: deck.py:1540
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr "%d cartes sans modèles supprimées"
 
-#: deck.py:1551
+#: deck.py:1553
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "%d champs en suspens"
 
-#: deck.py:1523
+#: deck.py:1525
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "%d faits sans champs supprimés"
 
-#: deck.py:1543
+#: deck.py:1545
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "%d faits sans cartes supprimés"
@@ -290,7 +290,7 @@ msgstr ""
 msgid "Ease"
 msgstr ""
 
-#: latex.py:126
+#: latex.py:128
 #, fuzzy, python-format
 msgid ""
 "Error executing 'latex' or 'dvipng'.\n"
@@ -302,7 +302,7 @@ msgstr "Erreur en tentant d'exécuter 'latex' ou 'dvipng' - Sont-ils installés 
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Faits dans un fichier texte à séparateur tabulation (*.txt)"
 
-#: deck.py:1871
+#: deck.py:1873
 msgid "File is in use by another process"
 msgstr "Un autre processus utilise ce fichier"
 
@@ -372,7 +372,7 @@ msgstr "Cartes mûres : <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> sur <
 msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgstr "Cartes mûres : <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 
-#: media.py:165 media.py:167 media.py:168
+#: media.py:166 media.py:168 media.py:169
 msgid "Media Missing"
 msgstr ""
 
@@ -419,21 +419,21 @@ msgstr "Le mois prochain"
 msgid "Reps next week"
 msgstr "La semaine prochaine"
 
-#: deck.py:2261
+#: deck.py:2263
 #, fuzzy
 msgid "Review cards in order due"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2262
+#: deck.py:2264
 #, fuzzy
 msgid "Review cards in random order"
 msgstr "Montrer les nouvelles cartes au hasard"
 
-#: deck.py:2260
+#: deck.py:2262
 msgid "Review newest cards first"
 msgstr ""
 
-#: deck.py:2259
+#: deck.py:2261
 msgid "Review oldest cards first"
 msgstr ""
 
@@ -446,25 +446,25 @@ msgstr "Nombre de révisions"
 msgid "Right"
 msgstr "Droite"
 
-#: deck.py:2253
+#: deck.py:2255
 #, fuzzy
 msgid "Show new cards after all other cards"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2254
+#: deck.py:2256
 #, fuzzy
 msgid "Show new cards before reviews"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2247
+#: deck.py:2249
 msgid "Show new cards in order they were added"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2246
+#: deck.py:2248
 msgid "Show new cards in random order"
 msgstr "Montrer les nouvelles cartes au hasard"
 
-#: deck.py:2252
+#: deck.py:2254
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr "Fichiers texte (*.txt)"
 
-#: deck.py:1510
+#: deck.py:1512
 msgid "The current model didn't exist"
 msgstr "Le modèle courant n'existait pas"
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-23 22:10+0900\n"
+"POT-Creation-Date: 2008-12-26 14:30+0900\n"
 "PO-Revision-Date: 2008-12-07 20:38+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -241,7 +241,7 @@ msgstr "Keskitä"
 msgid "Changed"
 msgstr "Muutettu"
 
-#: deck.py:1496
+#: deck.py:1498
 msgid "Database file damaged. Restore from backup."
 msgstr "Tietokantatiedosto on vahingoittunut. Palauta toimiva versio Ankin automaattisesti tekemistä varmuuskopioista."
 
@@ -254,31 +254,31 @@ msgstr "Pakan tilastot"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Luotu: <b>%s</b> sitten<br>"
 
-#: deck.py:1504
+#: deck.py:1506
 msgid "Deck was missing a model"
 msgstr "Pakassa ei ollut mallia"
 
-#: deck.py:1530
+#: deck.py:1532
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Poistettiin %d faktatonta korttia"
 
-#: deck.py:1538
+#: deck.py:1540
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr "Poistettiin %d korttia, joilla ei ollut kelvollista korttimallia"
 
-#: deck.py:1551
+#: deck.py:1553
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Poistettiin %d eksynyttä kenttää"
 
-#: deck.py:1523
+#: deck.py:1525
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Poistettiin %d faktaa, joista puuttui kenttiä"
 
-#: deck.py:1543
+#: deck.py:1545
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Poistettiin %d kortitonta faktaa"
@@ -291,7 +291,7 @@ msgstr "Erääntynyt"
 msgid "Ease"
 msgstr "Helppous"
 
-#: latex.py:126
+#: latex.py:128
 #, fuzzy, python-format
 msgid ""
 "Error executing 'latex' or 'dvipng'.\n"
@@ -303,7 +303,7 @@ msgstr "Komennon latex tai dvipng suorittaminen epäonnistui – tarkista, että
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Sarkaimella erotetut faktatiedostot (*.txt)"
 
-#: deck.py:1871
+#: deck.py:1873
 msgid "File is in use by another process"
 msgstr "Tiedosto on toisen prosessin käytössä"
 
@@ -370,7 +370,7 @@ msgstr "Varmat kortit: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b>/<b>%(g
 msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgstr "Varmat kortit: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 
-#: media.py:165 media.py:167 media.py:168
+#: media.py:166 media.py:168 media.py:169
 msgid "Media Missing"
 msgstr "Media puuttuu"
 
@@ -416,19 +416,19 @@ msgstr "Kertauksia ensikuussa"
 msgid "Reps next week"
 msgstr "Kertauksia ensiviikolla"
 
-#: deck.py:2261
+#: deck.py:2263
 msgid "Review cards in order due"
 msgstr "Kertaa kortit erääntymisjärjestyksessä"
 
-#: deck.py:2262
+#: deck.py:2264
 msgid "Review cards in random order"
 msgstr "Kertaa kortit satunnaisessa järjestyksessä"
 
-#: deck.py:2260
+#: deck.py:2262
 msgid "Review newest cards first"
 msgstr "Kertaa uusimmat kortit ensin"
 
-#: deck.py:2259
+#: deck.py:2261
 msgid "Review oldest cards first"
 msgstr "Kertaa vanhimmat kortit ensin"
 
@@ -440,24 +440,24 @@ msgstr "Kertauksia"
 msgid "Right"
 msgstr "Oikea"
 
-#: deck.py:2253
+#: deck.py:2255
 msgid "Show new cards after all other cards"
 msgstr "Näytä uudet kortit muiden korttien jälkeen"
 
-#: deck.py:2254
+#: deck.py:2256
 #, fuzzy
 msgid "Show new cards before reviews"
 msgstr "Levitä uudet kortit läpi koko kertausten"
 
-#: deck.py:2247
+#: deck.py:2249
 msgid "Show new cards in order they were added"
 msgstr "Näytä uudet kortit lisäysjärjestyksessä"
 
-#: deck.py:2246
+#: deck.py:2248
 msgid "Show new cards in random order"
 msgstr "Näytä uudet kortit satunnaisessa järjestyksessä"
 
-#: deck.py:2252
+#: deck.py:2254
 msgid "Spread new cards out through reviews"
 msgstr "Levitä uudet kortit läpi koko kertausten"
 
@@ -465,7 +465,7 @@ msgstr "Levitä uudet kortit läpi koko kertausten"
 msgid "Text files (*.txt)"
 msgstr "Tekstitiedostot (*.txt)"
 
-#: deck.py:1510
+#: deck.py:1512
 msgid "The current model didn't exist"
 msgstr "Nykyistä mallia ei ollut olemassa."
 

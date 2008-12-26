@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-23 22:10+0900\n"
+"POT-Creation-Date: 2008-12-26 14:30+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Damien Elmes <anki@ichi2.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -217,7 +217,7 @@ msgstr ""
 msgid "Changed"
 msgstr ""
 
-#: deck.py:1496
+#: deck.py:1498
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -230,31 +230,31 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:1504
+#: deck.py:1506
 msgid "Deck was missing a model"
 msgstr ""
 
-#: deck.py:1530
+#: deck.py:1532
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1538
+#: deck.py:1540
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr ""
 
-#: deck.py:1551
+#: deck.py:1553
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1523
+#: deck.py:1525
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1543
+#: deck.py:1545
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -267,7 +267,7 @@ msgstr ""
 msgid "Ease"
 msgstr ""
 
-#: latex.py:126
+#: latex.py:128
 #, python-format
 msgid ""
 "Error executing 'latex' or 'dvipng'.\n"
@@ -279,7 +279,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:1871
+#: deck.py:1873
 msgid "File is in use by another process"
 msgstr ""
 
@@ -346,7 +346,7 @@ msgstr ""
 msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgstr ""
 
-#: media.py:165 media.py:167 media.py:168
+#: media.py:166 media.py:168 media.py:169
 msgid "Media Missing"
 msgstr ""
 
@@ -394,19 +394,19 @@ msgstr "%sヶ月"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:2261
+#: deck.py:2263
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:2262
+#: deck.py:2264
 msgid "Review cards in random order"
 msgstr ""
 
-#: deck.py:2260
+#: deck.py:2262
 msgid "Review newest cards first"
 msgstr ""
 
-#: deck.py:2259
+#: deck.py:2261
 msgid "Review oldest cards first"
 msgstr ""
 
@@ -418,23 +418,23 @@ msgstr ""
 msgid "Right"
 msgstr ""
 
-#: deck.py:2253
+#: deck.py:2255
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:2254
+#: deck.py:2256
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:2247
+#: deck.py:2249
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:2246
+#: deck.py:2248
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:2252
+#: deck.py:2254
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -442,7 +442,7 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr ""
 
-#: deck.py:1510
+#: deck.py:1512
 msgid "The current model didn't exist"
 msgstr ""
 
