@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-23 22:10+0900\n"
+"POT-Creation-Date: 2008-12-26 14:29+0900\n"
 "PO-Revision-Date: 2008-12-07 19:40+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -120,7 +120,7 @@ msgstr ""
 msgid " applied %d modified cards."
 msgstr ""
 
-#: ui/main.py:1706
+#: ui/main.py:1732
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -134,7 +134,7 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:1411
+#: ui/main.py:1437
 #, python-format
 msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
 msgstr ""
@@ -149,7 +149,7 @@ msgstr ""
 msgid "%s ago"
 msgstr ""
 
-#: ui/main.py:1683
+#: ui/main.py:1709
 #, python-format
 msgid ""
 "%s.\n"
@@ -391,7 +391,7 @@ msgstr ""
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Ohje</a>"
 
-#: ui/main.py:943
+#: ui/main.py:969
 msgid "<a href=py:miss>Missing Kanji</a><br>"
 msgstr ""
 
@@ -550,7 +550,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr ""
 
-#: ui/main.py:959
+#: ui/main.py:985
 msgid "<h1>Current card</h1>"
 msgstr ""
 
@@ -586,7 +586,7 @@ msgstr ""
 msgid "<h1>Language</h1>"
 msgstr "<h1>Kieli</h1>"
 
-#: ui/main.py:962
+#: ui/main.py:988
 msgid "<h1>Last card</h1>"
 msgstr ""
 
@@ -599,7 +599,7 @@ msgstr "<h1>Varmuuskopiointi</h1>"
 msgid "<h1>Models</h1>"
 msgstr ""
 
-#: ui/main.py:673
+#: ui/main.py:699
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr ""
 
@@ -769,11 +769,11 @@ msgstr ""
 msgid "Allow the answer to be blank"
 msgstr ""
 
-#: ui/main.py:1113
+#: ui/main.py:1139
 msgid "Already cramming. Please close this deck first."
 msgstr ""
 
-#: ui/main.py:595
+#: ui/main.py:621
 #, python-format
 msgid "Alt+%d"
 msgstr ""
@@ -789,7 +789,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ui/main.py:487
+#: ui/main.py:513
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
@@ -807,7 +807,7 @@ msgstr ""
 msgid "Anki"
 msgstr ""
 
-#: ui/main.py:798
+#: ui/main.py:824
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -992,12 +992,12 @@ msgstr ""
 msgid "Ctrl+5"
 msgstr ""
 
-#: ui/main.py:593
+#: ui/main.py:619
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr ""
 
-#: ui/main.py:1428 forms/main.py:661
+#: ui/main.py:1454 forms/main.py:661
 msgid "Ctrl+D"
 msgstr ""
 
@@ -1118,15 +1118,15 @@ msgstr ""
 msgid "Deck Properties"
 msgstr ""
 
-#: ui/main.py:715 ui/main.py:759
+#: ui/main.py:741 ui/main.py:785
 msgid "Deck files (*.anki)"
 msgstr ""
 
-#: ui/main.py:458
+#: ui/main.py:484
 msgid "Deck is already open."
 msgstr ""
 
-#: ui/main.py:745
+#: ui/main.py:771
 msgid "Deck is not modified."
 msgstr ""
 
@@ -1134,7 +1134,7 @@ msgstr ""
 msgid "Del"
 msgstr ""
 
-#: ui/main.py:1035 forms/cardlist.py:160
+#: ui/main.py:1061 forms/cardlist.py:160
 msgid "Delete"
 msgstr ""
 
@@ -1277,7 +1277,7 @@ msgstr ""
 msgid "F9"
 msgstr ""
 
-#: ui/main.py:1307
+#: ui/main.py:1333
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr ""
 
@@ -1338,7 +1338,7 @@ msgstr ""
 msgid "French"
 msgstr "ranska"
 
-#: ui/main.py:994
+#: ui/main.py:1020
 msgid "Generating report (may take time)..."
 msgstr ""
 
@@ -1460,7 +1460,7 @@ msgstr ""
 msgid "Latex math environment (Ctrl+l, m)"
 msgstr ""
 
-#: ui/main.py:973
+#: ui/main.py:999
 msgid "Loading graphs (may take time)..."
 msgstr ""
 
@@ -1482,7 +1482,7 @@ msgstr ""
 msgid "Merge Models..."
 msgstr "Yhdistä malleja..."
 
-#: ui/main.py:1681
+#: ui/main.py:1707
 msgid "Merge complete."
 msgstr ""
 
@@ -1548,7 +1548,7 @@ msgstr ""
 msgid "Name on server: "
 msgstr ""
 
-#: ui/main.py:1131
+#: ui/main.py:1157
 msgid "No cards matched the provided tags."
 msgstr ""
 
@@ -1560,26 +1560,26 @@ msgstr ""
 msgid "No changes found."
 msgstr ""
 
-#: ui/main.py:965
+#: ui/main.py:991
 msgid "No current card or last card."
 msgstr ""
 
-#: ui/main.py:917
+#: ui/main.py:943
 msgid "No expression in current card."
 msgstr ""
 
-#: ui/main.py:924
+#: ui/main.py:950
 msgid "No meaning in current card."
 msgstr ""
 
-#: ui/main.py:1674
+#: ui/main.py:1700
 msgid ""
 "No models found to merge. If you want to merge models,\n"
 "all models must have the same name, and must not be\n"
 "from another person's deck."
 msgstr ""
 
-#: ui/main.py:1649
+#: ui/main.py:1675
 msgid ""
 "No problems found. Some data structures have been rebuilt in case<br>\n"
 "they were causing problems.<p>\n"
@@ -1605,7 +1605,7 @@ msgstr ""
 msgid "Open Sa&mple..."
 msgstr ""
 
-#: ui/main.py:718
+#: ui/main.py:744
 msgid "Open deck"
 msgstr ""
 
@@ -1626,7 +1626,7 @@ msgstr "&Liitännäiset"
 msgid "Password"
 msgstr "Salasana"
 
-#: ui/main.py:683
+#: ui/main.py:709
 msgid "Password:"
 msgstr ""
 
@@ -1654,7 +1654,7 @@ msgstr ""
 msgid "Please enable a different model first."
 msgstr ""
 
-#: ui/main.py:991
+#: ui/main.py:1017
 msgid "Please install python-matplotlib to access graphs."
 msgstr ""
 
@@ -1682,7 +1682,7 @@ msgstr ""
 msgid "Preview Cards"
 msgstr ""
 
-#: ui/main.py:1659
+#: ui/main.py:1685
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -1713,7 +1713,7 @@ msgstr ""
 msgid "Question size"
 msgstr ""
 
-#: ui/cardlist.py:339 ui/main.py:1491
+#: ui/cardlist.py:339 ui/main.py:1517
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -1758,7 +1758,7 @@ msgstr "Tallennus ja synkronisointi"
 msgid "Save &As..."
 msgstr "Tallenna &nimellä..."
 
-#: ui/main.py:755
+#: ui/main.py:781
 #, fuzzy
 msgid "Save Deck As"
 msgstr "Tallenna &nimellä..."
@@ -1779,11 +1779,11 @@ msgstr "Tallenna ja s&ynkronoi"
 msgid "Save when closing"
 msgstr "Tallenna suljettaessa"
 
-#: ui/main.py:781
+#: ui/main.py:807
 msgid "Saving..."
 msgstr ""
 
-#: ui/main.py:784
+#: ui/main.py:810
 msgid "Saving...done"
 msgstr ""
 
@@ -1859,7 +1859,7 @@ msgstr "Yksinkertainen työkalurivi"
 msgid "Some fields are missing or not unique."
 msgstr ""
 
-#: ui/main.py:419
+#: ui/main.py:445
 msgid "Soon"
 msgstr "Pian"
 
@@ -1891,7 +1891,7 @@ msgstr ""
 msgid "Stop reviewing this card until it's unsuspended in the editor."
 msgstr ""
 
-#: ui/main.py:1023
+#: ui/main.py:1049
 msgid "Suspend"
 msgstr ""
 
@@ -1915,7 +1915,7 @@ msgstr ""
 msgid "Synchronize this deck"
 msgstr ""
 
-#: ui/main.py:1288
+#: ui/main.py:1314
 msgid "Syncing Media..."
 msgstr ""
 
@@ -1936,7 +1936,7 @@ msgstr ""
 msgid "Tags to append:"
 msgstr ""
 
-#: ui/main.py:1115
+#: ui/main.py:1141
 msgid "Tags to cram:"
 msgstr ""
 
@@ -2000,7 +2000,7 @@ msgid ""
 "You will need to remove the source first."
 msgstr ""
 
-#: ui/main.py:982
+#: ui/main.py:1008
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2018,7 +2018,7 @@ msgstr "Työkalurivin kuvakkeiden koko"
 msgid "Transferring payload..."
 msgstr ""
 
-#: ui/main.py:463
+#: ui/main.py:489
 #, python-format
 msgid ""
 "Unable to load deck.\n"
@@ -2037,7 +2037,7 @@ msgid ""
 "%(f2)s"
 msgstr ""
 
-#: ui/main.py:731
+#: ui/main.py:757
 msgid "Unable to load file."
 msgstr ""
 
@@ -2057,7 +2057,7 @@ msgid ""
 "%(info)s"
 msgstr ""
 
-#: ui/main.py:496
+#: ui/main.py:522
 msgid "Unable to recover. Deck load failed."
 msgstr ""
 
@@ -2069,7 +2069,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr ""
 
-#: ui/cardlist.py:333 ui/main.py:1485
+#: ui/cardlist.py:333 ui/main.py:1511
 #, python-format
 msgid "Undo %s"
 msgstr ""
@@ -2083,7 +2083,7 @@ msgstr ""
 msgid "Update complete. Please restart Anki."
 msgstr ""
 
-#: ui/main.py:1525
+#: ui/main.py:1551
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2106,7 +2106,7 @@ msgstr ""
 msgid "Username"
 msgstr "Tunnus"
 
-#: ui/main.py:679
+#: ui/main.py:705
 msgid "Username:"
 msgstr ""
 
@@ -2119,17 +2119,17 @@ msgstr ""
 msgid "Would you like to download it now?"
 msgstr ""
 
-#: ui/main.py:1679
+#: ui/main.py:1705
 msgid "Would you like to merge models that have the same name?"
 msgstr ""
 
-#: ui/main.py:1689
+#: ui/main.py:1715
 msgid ""
 "Would you like to remove unused files from the media directory, and\n"
 "tag or delete references to missing files?"
 msgstr ""
 
-#: ui/main.py:1516
+#: ui/main.py:1542
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2137,7 +2137,7 @@ msgid ""
 " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/main.py:1276
+#: ui/main.py:1302
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2147,7 +2147,7 @@ msgid ""
 "syncing is disabled until you fix the problem."
 msgstr ""
 
-#: ui/main.py:988
+#: ui/main.py:1014
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -2166,7 +2166,7 @@ msgstr "vastatun kortin jälkeen"
 msgid "days"
 msgstr ""
 
-#: ui/main.py:1514
+#: ui/main.py:1540
 msgid "early"
 msgstr ""
 
@@ -2183,7 +2183,7 @@ msgstr ""
 msgid "label"
 msgstr ""
 
-#: ui/main.py:1512
+#: ui/main.py:1538
 msgid "late"
 msgstr ""
 

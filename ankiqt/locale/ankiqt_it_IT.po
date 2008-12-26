@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-23 22:10+0900\n"
+"POT-Creation-Date: 2008-12-26 14:29+0900\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -181,7 +181,7 @@ msgstr " <b>Nelle fasi di ripetizione/creazione/modifica</b>"
 msgid " applied %d modified cards."
 msgstr " validato %d carte modificate."
 
-#: ui/main.py:1706
+#: ui/main.py:1732
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -197,7 +197,7 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d fatti]"
 msgstr[1] "%(name)s [%(facts)d fatti]"
 
-#: ui/main.py:1411
+#: ui/main.py:1437
 #, python-format
 msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
 msgstr "%(path)s (%(facts)d fatti, %(cards)d carte) - %(title)s"
@@ -212,7 +212,7 @@ msgstr "%d esportate."
 msgid "%s ago"
 msgstr "%s fa"
 
-#: ui/main.py:1683
+#: ui/main.py:1709
 #, python-format
 msgid ""
 "%s.\n"
@@ -473,7 +473,7 @@ msgstr ""
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Aiuto</a>"
 
-#: ui/main.py:943
+#: ui/main.py:969
 msgid "<a href=py:miss>Missing Kanji</a><br>"
 msgstr "<a href=py:miss>Kanji Mancanti</a><br>"
 
@@ -649,7 +649,7 @@ msgstr "<h1>Facilità carte</h1>"
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Rappresentazione cumulativa carte da ripassare</h1>"
 
-#: ui/main.py:959
+#: ui/main.py:985
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Carta corrente</h1>"
 
@@ -691,7 +691,7 @@ msgstr "<h1>Intervalli carte</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Lingua</h1>"
 
-#: ui/main.py:962
+#: ui/main.py:988
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Ultima carta</h1>"
 
@@ -704,7 +704,7 @@ msgstr "<h1>Ultima carta</h1>"
 msgid "<h1>Models</h1>"
 msgstr "<h1>Modelli</h1>"
 
-#: ui/main.py:673
+#: ui/main.py:699
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr "<h1>Account Online</h1>Per utilizzare il tuo <a href=\"http://anki.ichi2.net/\">account online/a> gratuitamente,<br>inserisci le informazioni sottostanti.<br>"
 
@@ -906,11 +906,11 @@ msgstr "Tutte le tag"
 msgid "Allow the answer to be blank"
 msgstr ""
 
-#: ui/main.py:1113
+#: ui/main.py:1139
 msgid "Already cramming. Please close this deck first."
 msgstr "Già in studio intensivo. Chiudere questo mazzo prima di proseguire."
 
-#: ui/main.py:595
+#: ui/main.py:621
 #, python-format
 msgid "Alt+%d"
 msgstr ""
@@ -926,7 +926,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ui/main.py:487
+#: ui/main.py:513
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
@@ -947,7 +947,7 @@ msgstr ""
 msgid "Anki"
 msgstr ""
 
-#: ui/main.py:798
+#: ui/main.py:824
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1144,12 +1144,12 @@ msgstr ""
 msgid "Ctrl+5"
 msgstr ""
 
-#: ui/main.py:593
+#: ui/main.py:619
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr ""
 
-#: ui/main.py:1428 forms/main.py:661
+#: ui/main.py:1454 forms/main.py:661
 msgid "Ctrl+D"
 msgstr ""
 
@@ -1274,15 +1274,15 @@ msgstr "Grafici Mazzo"
 msgid "Deck Properties"
 msgstr "Proprietà Mazzo"
 
-#: ui/main.py:715 ui/main.py:759
+#: ui/main.py:741 ui/main.py:785
 msgid "Deck files (*.anki)"
 msgstr "File mazzo (*.anki)"
 
-#: ui/main.py:458
+#: ui/main.py:484
 msgid "Deck is already open."
 msgstr ""
 
-#: ui/main.py:745
+#: ui/main.py:771
 msgid "Deck is not modified."
 msgstr "Il mazzo non è stato modificato."
 
@@ -1291,7 +1291,7 @@ msgstr "Il mazzo non è stato modificato."
 msgid "Del"
 msgstr "Elimina (&D)"
 
-#: ui/main.py:1035 forms/cardlist.py:160
+#: ui/main.py:1061 forms/cardlist.py:160
 #, fuzzy
 msgid "Delete"
 msgstr "Elimina (&D)"
@@ -1442,7 +1442,7 @@ msgstr ""
 msgid "F9"
 msgstr ""
 
-#: ui/main.py:1307
+#: ui/main.py:1333
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr ""
 
@@ -1506,7 +1506,7 @@ msgstr "Colore di foreground (Ctrl+r)"
 msgid "French"
 msgstr "Francese"
 
-#: ui/main.py:994
+#: ui/main.py:1020
 #, fuzzy
 msgid "Generating report (may take time)..."
 msgstr "Generazione rapporto (potrebbe richiedere tempo).."
@@ -1633,7 +1633,7 @@ msgstr "Equazione Latex (Ctrl+e)"
 msgid "Latex math environment (Ctrl+l, m)"
 msgstr "Ambiente matematico Latex (Ctrl+m)"
 
-#: ui/main.py:973
+#: ui/main.py:999
 #, fuzzy
 msgid "Loading graphs (may take time)..."
 msgstr "Caricamento grafici (potrebbe richiedere tempo).."
@@ -1657,7 +1657,7 @@ msgstr ""
 msgid "Merge Models..."
 msgstr "Unione Modelli.."
 
-#: ui/main.py:1681
+#: ui/main.py:1707
 msgid "Merge complete."
 msgstr "Unione completa."
 
@@ -1723,7 +1723,7 @@ msgstr "Nome"
 msgid "Name on server: "
 msgstr "Nome sul server: "
 
-#: ui/main.py:1131
+#: ui/main.py:1157
 msgid "No cards matched the provided tags."
 msgstr ""
 
@@ -1735,19 +1735,19 @@ msgstr ""
 msgid "No changes found."
 msgstr "Nessuna modifica trovata."
 
-#: ui/main.py:965
+#: ui/main.py:991
 msgid "No current card or last card."
 msgstr "Nessuna carta corrente o ultima carta."
 
-#: ui/main.py:917
+#: ui/main.py:943
 msgid "No expression in current card."
 msgstr "Nessun campo \"espressione\" nella carta corrente."
 
-#: ui/main.py:924
+#: ui/main.py:950
 msgid "No meaning in current card."
 msgstr "Nessun campo \"significato\" nella carta corrente"
 
-#: ui/main.py:1674
+#: ui/main.py:1700
 msgid ""
 "No models found to merge. If you want to merge models,\n"
 "all models must have the same name, and must not be\n"
@@ -1757,7 +1757,7 @@ msgstr ""
 "devono avere tutti lo stesso nome, e non devono appartenere al\n"
 "mazzo di un'altra persona."
 
-#: ui/main.py:1649
+#: ui/main.py:1675
 msgid ""
 "No problems found. Some data structures have been rebuilt in case<br>\n"
 "they were causing problems.<p>\n"
@@ -1784,7 +1784,7 @@ msgstr "Apri On&line.."
 msgid "Open Sa&mple..."
 msgstr "Apri Ese&mpio.."
 
-#: ui/main.py:718
+#: ui/main.py:744
 msgid "Open deck"
 msgstr "Apri mazzo"
 
@@ -1805,7 +1805,7 @@ msgstr "&Plugin"
 msgid "Password"
 msgstr ""
 
-#: ui/main.py:683
+#: ui/main.py:709
 msgid "Password:"
 msgstr ""
 
@@ -1833,7 +1833,7 @@ msgstr "Ricontrollare username/password"
 msgid "Please enable a different model first."
 msgstr "Abilitare un altro modelli prima di procedere."
 
-#: ui/main.py:991
+#: ui/main.py:1017
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Installare python-matplotlib per visualizzare i grafici."
 
@@ -1861,7 +1861,7 @@ msgstr ""
 msgid "Preview Cards"
 msgstr ""
 
-#: ui/main.py:1659
+#: ui/main.py:1685
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -1895,7 +1895,7 @@ msgstr "Carattere domanda"
 msgid "Question size"
 msgstr "Dimensioni domanda"
 
-#: ui/cardlist.py:339 ui/main.py:1491
+#: ui/cardlist.py:339 ui/main.py:1517
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -1942,7 +1942,7 @@ msgstr "Salva e Sincronizza"
 msgid "Save &As..."
 msgstr "S&alva con nome"
 
-#: ui/main.py:755
+#: ui/main.py:781
 #, fuzzy
 msgid "Save Deck As"
 msgstr "Salva mazzo"
@@ -1963,12 +1963,12 @@ msgstr "Salva e Sincronizza (&Y)"
 msgid "Save when closing"
 msgstr "Salva in chiusura"
 
-#: ui/main.py:781
+#: ui/main.py:807
 #, fuzzy
 msgid "Saving..."
 msgstr "Salvataggio.."
 
-#: ui/main.py:784
+#: ui/main.py:810
 #, fuzzy
 msgid "Saving...done"
 msgstr "Salvataggio..fatto"
@@ -2050,7 +2050,7 @@ msgstr "Toolbar semplice"
 msgid "Some fields are missing or not unique."
 msgstr "Alcuni campo sono assenti o non unici."
 
-#: ui/main.py:419
+#: ui/main.py:445
 msgid "Soon"
 msgstr "Presto"
 
@@ -2082,7 +2082,7 @@ msgstr "Stato"
 msgid "Stop reviewing this card until it's unsuspended in the editor."
 msgstr "Smetti di ripassare questa carta finchè la tag \"sospesa\" non viene rimossa nell'editor."
 
-#: ui/main.py:1023
+#: ui/main.py:1049
 #, fuzzy
 msgid "Suspend"
 msgstr "&Sospendi fatto"
@@ -2108,7 +2108,7 @@ msgstr "Sincronizzazione"
 msgid "Synchronize this deck"
 msgstr "Sincronizza questo mazzo"
 
-#: ui/main.py:1288
+#: ui/main.py:1314
 #, fuzzy
 msgid "Syncing Media..."
 msgstr "Sincronizzazione Media.."
@@ -2130,7 +2130,7 @@ msgstr "Tag"
 msgid "Tags to append:"
 msgstr "Tag da applicare:"
 
-#: ui/main.py:1115
+#: ui/main.py:1141
 msgid "Tags to cram:"
 msgstr "Tag per lo studio focalizzato"
 
@@ -2214,7 +2214,7 @@ msgstr ""
 "%s\n"
 "Devi prima eliminare l'origine."
 
-#: ui/main.py:982
+#: ui/main.py:1008
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2234,7 +2234,7 @@ msgstr "Dimensioni icone barra degli strumenti"
 msgid "Transferring payload..."
 msgstr "Trasferimento informazioni.."
 
-#: ui/main.py:463
+#: ui/main.py:489
 #, python-format
 msgid ""
 "Unable to load deck.\n"
@@ -2253,7 +2253,7 @@ msgid ""
 "%(f2)s"
 msgstr ""
 
-#: ui/main.py:731
+#: ui/main.py:757
 msgid "Unable to load file."
 msgstr "Impossibile caricare file."
 
@@ -2276,7 +2276,7 @@ msgstr ""
 "\n"
 "%(info)s"
 
-#: ui/main.py:496
+#: ui/main.py:522
 msgid "Unable to recover. Deck load failed."
 msgstr "Impossibile recuperare. Caricamento mazzo fallito."
 
@@ -2288,7 +2288,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "Sottolinea testo (Ctrl+u)"
 
-#: ui/cardlist.py:333 ui/main.py:1485
+#: ui/cardlist.py:333 ui/main.py:1511
 #, fuzzy, python-format
 msgid "Undo %s"
 msgstr "tra %s"
@@ -2302,7 +2302,7 @@ msgstr "Errore sconosciuto: %s"
 msgid "Update complete. Please restart Anki."
 msgstr "Aggiornamento completo. Riavviare Anki."
 
-#: ui/main.py:1525
+#: ui/main.py:1551
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2325,7 +2325,7 @@ msgstr "Dimensioni personalizzate"
 msgid "Username"
 msgstr ""
 
-#: ui/main.py:679
+#: ui/main.py:705
 msgid "Username:"
 msgstr ""
 
@@ -2338,11 +2338,11 @@ msgstr "Ben fatto! Questa carta apparirà di nuovo tra <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Vuoi scaricarlo ora?"
 
-#: ui/main.py:1679
+#: ui/main.py:1705
 msgid "Would you like to merge models that have the same name?"
 msgstr "Vuoi unire modelli con lo stesso nome?"
 
-#: ui/main.py:1689
+#: ui/main.py:1715
 msgid ""
 "Would you like to remove unused files from the media directory, and\n"
 "tag or delete references to missing files?"
@@ -2350,7 +2350,7 @@ msgstr ""
 "Vuoi rimuovere i file inutilizzati dalla cartella multimediale, e applicare\n"
 "tag o eliminare i riferimenti a file mancanti?"
 
-#: ui/main.py:1516
+#: ui/main.py:1542
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2361,7 +2361,7 @@ msgstr ""
 "Il suo stato è: %(sec)d secondi %(type)s.\n"
 "Assicurarsi che sia importato correttamente e riavviare Anki."
 
-#: ui/main.py:1276
+#: ui/main.py:1302
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2376,7 +2376,7 @@ msgstr ""
 "Poichè questo potrebbe creare problemi di sincronizzazione,\n"
 "la sincronizzazione è bloccata finchè non risolverai il problema."
 
-#: ui/main.py:988
+#: ui/main.py:1014
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -2397,7 +2397,7 @@ msgstr "carte"
 msgid "days"
 msgstr ""
 
-#: ui/main.py:1514
+#: ui/main.py:1540
 msgid "early"
 msgstr "in anticipo"
 
@@ -2414,7 +2414,7 @@ msgstr "tra %s"
 msgid "label"
 msgstr "etichetta"
 
-#: ui/main.py:1512
+#: ui/main.py:1538
 msgid "late"
 msgstr "in ritardo"
 
