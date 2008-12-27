@@ -1403,12 +1403,12 @@ Return new path, relative to media dir."""
         self.s.commit()
 
     def close(self):
-        self.s.execute("delete from undoLog")
-        self.s.execute("vacuum")
         if self.s:
             self.s.rollback()
             self.s.clear()
             self.s.close()
+        self.engine.execute("delete from undoLog")
+        self.engine.execute("vacuum")
         self.engine.dispose()
 
     def rollback(self):
