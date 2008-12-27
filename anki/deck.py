@@ -1403,6 +1403,8 @@ Return new path, relative to media dir."""
         self.s.commit()
 
     def close(self):
+        self.s.execute("delete from undoLog")
+        self.s.execute("vacuum")
         if self.s:
             self.s.rollback()
             self.s.clear()
@@ -1604,7 +1606,6 @@ select id from fields where factId not in (select id from facts)""")
         self.undoStack = []
         self.redoStack = []
         self.undoEnabled = True
-        self.s.statement("delete from undoLog")
         tables = self.s.column0(
             "select name from sqlite_master where type = 'table'")
         for table in tables:
