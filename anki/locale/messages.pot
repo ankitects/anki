@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-26 14:30+0900\n"
+"POT-Creation-Date: 2009-01-03 07:29+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -219,7 +219,7 @@ msgstr ""
 msgid "Changed"
 msgstr ""
 
-#: deck.py:1498
+#: deck.py:1500
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -232,31 +232,31 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:1506
+#: deck.py:1508
 msgid "Deck was missing a model"
 msgstr ""
 
-#: deck.py:1532
+#: deck.py:1534
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1540
+#: deck.py:1542
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr ""
 
-#: deck.py:1553
+#: deck.py:1555
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1525
+#: deck.py:1527
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1545
+#: deck.py:1547
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -281,7 +281,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:1873
+#: deck.py:1874
 msgid "File is in use by another process"
 msgstr ""
 
@@ -394,19 +394,19 @@ msgstr ""
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:2263
+#: deck.py:2264
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:2264
+#: deck.py:2265
 msgid "Review cards in random order"
 msgstr ""
 
-#: deck.py:2262
+#: deck.py:2263
 msgid "Review newest cards first"
 msgstr ""
 
-#: deck.py:2261
+#: deck.py:2262
 msgid "Review oldest cards first"
 msgstr ""
 
@@ -418,23 +418,23 @@ msgstr ""
 msgid "Right"
 msgstr ""
 
-#: deck.py:2255
+#: deck.py:2256
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:2256
+#: deck.py:2257
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:2249
+#: deck.py:2250
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:2248
+#: deck.py:2249
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:2254
+#: deck.py:2255
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -442,7 +442,7 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr ""
 
-#: deck.py:1512
+#: deck.py:1514
 msgid "The current model didn't exist"
 msgstr ""
 

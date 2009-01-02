@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-26 14:30+0900\n"
+"POT-Creation-Date: 2009-01-03 07:29+0900\n"
 "PO-Revision-Date: 2008-10-25 13:26+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -243,7 +243,7 @@ msgstr "Centrale"
 msgid "Changed"
 msgstr "Modificata"
 
-#: deck.py:1498
+#: deck.py:1500
 msgid "Database file damaged. Restore from backup."
 msgstr "Il file del database è danneggiato. Ripristina da backup."
 
@@ -256,31 +256,31 @@ msgstr "Statistiche mazzo"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Mazzo creato: <b>%s</b> fa<br>"
 
-#: deck.py:1506
+#: deck.py:1508
 msgid "Deck was missing a model"
 msgstr "Il mazzo aveva un modello mancante"
 
-#: deck.py:1532
+#: deck.py:1534
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Eliminate %d carte con fatti mancanti"
 
-#: deck.py:1540
+#: deck.py:1542
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr "Eliminate %d carte con modelli mancanti"
 
-#: deck.py:1553
+#: deck.py:1555
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Eliminati %d campi in avanzo"
 
-#: deck.py:1525
+#: deck.py:1527
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Eliminati %d fatti con campi mancanti"
 
-#: deck.py:1545
+#: deck.py:1547
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Eliminati %d fatti privi di carte"
@@ -305,7 +305,7 @@ msgstr "Errore nell'esecuzione di 'latex' o 'dvipng'"
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Fatti in file di testo con colonne separate da tab (*.txt)"
 
-#: deck.py:1873
+#: deck.py:1874
 msgid "File is in use by another process"
 msgstr "Il file è già utilizzato da un altro processo"
 
@@ -422,21 +422,21 @@ msgstr "Ripetizioni prossimo mese"
 msgid "Reps next week"
 msgstr "Ripetizioni prossima settimana"
 
-#: deck.py:2263
+#: deck.py:2264
 #, fuzzy
 msgid "Review cards in order due"
 msgstr "Mostra le carte nuove nell'ordine in cui sono state aggiunte"
 
-#: deck.py:2264
+#: deck.py:2265
 #, fuzzy
 msgid "Review cards in random order"
 msgstr "Mostra le carte nuove in ordine casuale"
 
-#: deck.py:2262
+#: deck.py:2263
 msgid "Review newest cards first"
 msgstr ""
 
-#: deck.py:2261
+#: deck.py:2262
 msgid "Review oldest cards first"
 msgstr ""
 
@@ -449,24 +449,24 @@ msgstr "Numero di ripassi"
 msgid "Right"
 msgstr "Destra"
 
-#: deck.py:2255
+#: deck.py:2256
 msgid "Show new cards after all other cards"
 msgstr "Mostra le carte nuove dopo tutte le altre"
 
-#: deck.py:2256
+#: deck.py:2257
 #, fuzzy
 msgid "Show new cards before reviews"
 msgstr "Distribuisci le carte nuove su tutta la sequenza di ripetizione"
 
-#: deck.py:2249
+#: deck.py:2250
 msgid "Show new cards in order they were added"
 msgstr "Mostra le carte nuove nell'ordine in cui sono state aggiunte"
 
-#: deck.py:2248
+#: deck.py:2249
 msgid "Show new cards in random order"
 msgstr "Mostra le carte nuove in ordine casuale"
 
-#: deck.py:2254
+#: deck.py:2255
 msgid "Spread new cards out through reviews"
 msgstr "Distribuisci le carte nuove su tutta la sequenza di ripetizione"
 
@@ -474,7 +474,7 @@ msgstr "Distribuisci le carte nuove su tutta la sequenza di ripetizione"
 msgid "Text files (*.txt)"
 msgstr "File di testo (*.txt)"
 
-#: deck.py:1512
+#: deck.py:1514
 msgid "The current model didn't exist"
 msgstr "Il modello corrente non esiste"
 
