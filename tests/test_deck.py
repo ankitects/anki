@@ -12,6 +12,8 @@ from anki.stdmodels import JapaneseModel, BasicModel
 newPath = None
 newModified = None
 
+testDir = os.path.dirname(__file__)
+
 ## opening/closing
 
 def test_new():
@@ -131,3 +133,20 @@ def test_modelAddDelete():
     deck.deleteModel(deck.currentModel)
     assert deck.cardCount == 0
     deck.s.refresh(deck)
+
+def test_media():
+    deck = DeckStorage.Deck()
+    # create a media dir
+    deck.mediaDir(create=True)
+    # put a file into it
+    file = unicode(os.path.join(testDir, "deck/fake.png"))
+    deck.addMedia(file)
+    # make sure it gets copied on saveas
+    path = "/tmp/saveAs2.anki"
+    sum = "0bee89b07a248e27c83fc3d5951213c1.png"
+    try:
+        os.unlink(path)
+    except OSError:
+        pass
+    deck.saveAs(path)
+    assert os.path.exists("/tmp/saveAs2.media/%s" % sum)

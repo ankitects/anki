@@ -113,6 +113,7 @@ class Deck(object):
         self.s = None
 
     def _initVars(self):
+        self.tmpMediaDir = None
         self.lastTags = u""
         self.lastLoaded = time.time()
         self.undoEnabled = False
@@ -1360,17 +1361,22 @@ where id = :id""", pending)
 
     def mediaDir(self, create=False):
         "Return the media directory if exists. None if couldn't create."
-        if not self.path:
-            return None
-        dir = re.sub("(?i)\.(anki)$", ".media", self.path)
-        if not os.path.exists(dir) and create:
-            try:
-                os.mkdir(dir)
-                # change to the current dir
-                os.chdir(dir)
-            except OSError:
-                # permission denied
-                return None
+        if self.path:
+            # file-backed
+            dir = re.sub("(?i)\.(anki)$", ".media", self.path)
+            if not os.path.exists(dir) and create:
+                try:
+                    os.mkdir(dir)
+                    # change to the current dir
+                    os.chdir(dir)
+                except OSError:
+                    # permission denied
+                    return None
+        else:
+            # memory-backed; need temp store
+            if not self.tmpMediaDir and create:
+                self.tmpMediaDir = tempfile.mkdtemp()
+            dir = self.tmpMediaDir
         if not os.path.exists(dir):
             return None
         return dir
@@ -2140,7 +2146,6 @@ where interval < 1""")
             deck.delay2 = 0.0
             deck.version = 15
         if deck.version < 16:
-            #DeckStorage._addViews(deck)
             deck.version = 16
         if deck.version < 17:
             deck.s.statement("drop view if exists acqCards")
