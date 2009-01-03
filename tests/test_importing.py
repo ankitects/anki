@@ -18,9 +18,9 @@ def test_csv():
     file = unicode(os.path.join(testDir, "importing/text-2fields.txt"))
     i = csv.TextImporter(deck, file)
     i.doImport()
-    # three problems - missing front, missing back, dupe front
-    assert len(i.log) == 3
-    assert i.total == 4
+    # two problems - missing front, dupe front
+    assert len(i.log) == 2
+    assert i.total == 5
     deck.s.close()
 
 def test_mnemosyne10():
