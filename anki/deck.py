@@ -1377,7 +1377,7 @@ where id = :id""", pending)
             if not self.tmpMediaDir and create:
                 self.tmpMediaDir = tempfile.mkdtemp()
             dir = self.tmpMediaDir
-        if not os.path.exists(dir):
+        if not dir or not os.path.exists(dir):
             return None
         return dir
 
