@@ -1351,6 +1351,8 @@ where id = :id""", pending)
     ##########################################################################
 
     def name(self):
+        if not self.path:
+            return u"untitled"
         n = os.path.splitext(os.path.basename(self.path))[0]
         assert '/' not in n
         assert '\\' not in n
@@ -1414,8 +1416,6 @@ Return new path, relative to media dir."""
             self.s.rollback()
             self.s.clear()
             self.s.close()
-        #self.engine.execute("delete from undoLog")
-        self.engine.execute("vacuum")
         self.engine.dispose()
 
     def rollback(self):
