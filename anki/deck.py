@@ -1408,7 +1408,7 @@ Return new path, relative to media dir."""
             self.s.rollback()
             self.s.clear()
             self.s.close()
-        self.engine.execute("delete from undoLog")
+        #self.engine.execute("delete from undoLog")
         self.engine.execute("vacuum")
         self.engine.dispose()
 
@@ -1452,40 +1452,38 @@ Return new path, relative to media dir."""
 
     def saveAs(self, newPath):
         oldMediaDir = self.mediaDir()
-        # flush old deck
         self.s.flush()
         # remove new deck if it exists
         try:
             os.unlink(newPath)
         except OSError:
             pass
-        # create new deck
+        # setup new db tables, then close
         newDeck = DeckStorage.Deck(newPath)
-        # attach current db to new
-        s = newDeck.s.statement
-        s("pragma read_uncommitted = 1")
-        s("attach database :path as old", path=self.path)
-        # copy all data
-        s("delete from decks")
-        s("delete from stats")
-        s("insert into decks select * from old.decks")
-        s("insert into fieldModels select * from old.fieldModels")
-        s("insert into modelsDeleted select * from old.modelsDeleted")
-        s("insert into cardModels select * from old.cardModels")
-        s("insert into facts select * from old.facts")
-        s("insert into fields select * from old.fields")
-        s("insert into cards select * from old.cards")
-        s("insert into factsDeleted select * from old.factsDeleted")
-        s("insert into reviewHistory select * from old.reviewHistory")
-        s("insert into cardsDeleted select * from old.cardsDeleted")
-        s("insert into models select * from old.models")
-        s("insert into stats select * from old.stats")
-        # detach old db and commit
-        s("detach database old")
+        newDeck.close()
+        # attach new db and copy everything in
+        s = self.s.statement
+        s("attach database :path as new", path=newPath)
+        s("delete from new.decks")
+        s("delete from new.stats")
+        s("insert into new.decks select * from decks")
+        s("insert into new.fieldModels select * from fieldModels")
+        s("insert into new.modelsDeleted select * from modelsDeleted")
+        s("insert into new.cardModels select * from cardModels")
+        s("insert into new.facts select * from facts")
+        s("insert into new.fields select * from fields")
+        s("insert into new.cards select * from cards")
+        s("insert into new.factsDeleted select * from factsDeleted")
+        s("insert into new.reviewHistory select * from reviewHistory")
+        s("insert into new.cardsDeleted select * from cardsDeleted")
+        s("insert into new.models select * from models")
+        s("insert into new.stats select * from stats")
+        s("detach database new")
+        # close ourselves
+        self.s.commit()
         self.close()
-        newDeck.s.commit()
-        newDeck.refresh()
-        newDeck.rebuildQueue()
+        # open new db
+        newDeck = DeckStorage.Deck(newPath)
         # move media
         if oldMediaDir:
             newDeck.renameMediaDir(oldMediaDir)
@@ -1756,52 +1754,27 @@ mapper(Deck, decksTable, properties={
 ##########################################################################
 
 numBackups = 30
-
-# anki dir
-if sys.platform.startswith("darwin"):
-    ankiDir = os.path.expanduser("~/Library/Application Support/Anki")
-else:
-    ankiDir = os.path.expanduser("~/.anki/")
-newDeckDir = ankiDir
-if not os.path.exists(ankiDir):
-    os.makedirs(ankiDir)
-# backup
-backupDir = os.path.join(ankiDir, "backups")
-if not os.path.exists(backupDir):
-    os.makedirs(backupDir)
+backupDir = os.path.expanduser("~/.anki/backups")
 
 class DeckStorage(object):
 
-    def newDeckPath():
-        n = 2
-        path = os.path.expanduser(
-            os.path.join(newDeckDir, "mydeck.anki"))
-        while os.path.exists(path):
-            path = os.path.expanduser(
-                os.path.join(newDeckDir, "mydeck%d.anki") % n)
-            n += 1
-        return path
-    newDeckPath = staticmethod(newDeckPath)
-
     def Deck(path=None, backup=True, lock=True):
         "Create a new deck or attach to an existing one."
-        # generate a temp name if necessary
-        if path is None:
-            path = DeckStorage.newDeckPath()
         create = True
-        if path != -1:
+        if path is None:
+            sqlpath = None
+        else:
+            # ensure unicode & abspath
             if isinstance(path, types.UnicodeType):
                 path = path.encode(sys.getfilesystemencoding())
             path = os.path.abspath(path)
-            #print "using path", path
+            # check if we need to init
             if os.path.exists(path):
                 create = False
-        # attach and sync/fetch deck - first, to unicode
-        if not isinstance(path, types.UnicodeType):
-            path = unicode(path, sys.getfilesystemencoding())
-        try:
             # sqlite needs utf8
-            (engine, session) = DeckStorage._attach(path.encode("utf-8"), create)
+            sqlpath = path.encode("utf-8")
+        try:
+            (engine, session) = DeckStorage._attach(sqlpath, create)
             s = session()
             metadata.create_all(engine)
             if create:
@@ -1886,8 +1859,8 @@ alter table cardModels add column allowEmptyAnswer boolean not null default 1"""
 
     def _attach(path, create):
         "Attach to a file, initializing DB"
-        if path == -1:
-            path = "sqlite:///:memory:"
+        if path is None:
+            path = "sqlite://"
         else:
             path = "sqlite:///" + path
         engine = create_engine(path,
@@ -2200,6 +2173,10 @@ where interval < 1""")
     _setUTCOffset = staticmethod(_setUTCOffset)
 
     def backup(modified, path):
+        try:
+            os.makedirs(backupDir)
+        except OSError:
+            pass
         # need a non-unicode path
         path = path.encode(sys.getfilesystemencoding())
         bdir = backupDir.encode(sys.getfilesystemencoding())

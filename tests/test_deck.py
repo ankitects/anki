@@ -16,26 +16,24 @@ newModified = None
 
 def test_new():
     deck = DeckStorage.Deck()
-    assert deck.path
+    assert not deck.path
     assert deck.engine
     assert deck.modified
-    # for attachOld()
-    global newPath, newModified
-    newPath = deck.path
-    deck.save()
-    newModified = deck.modified
-    deck.close()
 
 def test_attachNew():
+    global newPath, newModified
     path = "/tmp/test_attachNew"
     try:
         os.unlink(path)
     except OSError:
         pass
     deck = DeckStorage.Deck(path)
+    # for attachOld()
+    newPath = deck.path
+    deck.save()
+    newModified = deck.modified
     deck.close()
     del deck
-    os.unlink(path)
 
 def test_attachOld():
     deck = DeckStorage.Deck(newPath)
