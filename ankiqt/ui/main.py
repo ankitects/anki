@@ -1704,6 +1704,7 @@ backup and then run this command again after syncing.""")
             if ui.utils.askUser(_(
                 "Would you like to merge models that have the same name?")):
                 self.deck.mergeModels(ret[1])
+                self.reset()
                 ui.utils.showInfo(_("Merge complete."))
         else:
             ui.utils.showWarning(_("""%s.
