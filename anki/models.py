@@ -96,7 +96,7 @@ cardModelsTable = Table(
     Column('editAnswerFontFamily', UnicodeText, default=None),
     Column('editAnswerFontSize', Integer, default=None),
     # empty answer
-    Column('allowEmptyAnswer', Integer, default=True))
+    Column('allowEmptyAnswer', Boolean, default=True))
 
 class CardModel(object):
     """Represents how to generate the front and back of a card."""
