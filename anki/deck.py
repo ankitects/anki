@@ -1036,6 +1036,7 @@ select id from fieldModels where modelId = :id order by ordinal""", id=m[1])
         return ("ok", toProcess)
 
     def mergeModels(self, toProcess):
+        "Merge models. Caller must call refresh()."
         for (name, ids) in toProcess:
             (id1, cms1, fms1) = ids[0]
             for (id2, cms2, fms2) in ids[1:]:
