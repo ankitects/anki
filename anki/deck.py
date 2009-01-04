@@ -1772,9 +1772,6 @@ class DeckStorage(object):
         if path is None:
             sqlpath = None
         else:
-            # ensure unicode & abspath
-            if isinstance(path, types.UnicodeType):
-                path = path.encode(sys.getfilesystemencoding())
             path = os.path.abspath(path)
             # check if we need to init
             if os.path.exists(path):
