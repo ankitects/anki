@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-03 07:29+0900\n"
+"POT-Creation-Date: 2009-01-04 11:45+0900\n"
 "PO-Revision-Date: 2008-12-25 21:59+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-Language: Spanish\n"
 "X-Poedit-Country: SPAIN\n"
 
-#: deck.py:584
+#: deck.py:585
 #, python-format
 msgid ""
 "\n"
@@ -184,11 +184,11 @@ msgstr "Mazo Anki (*.anki)"
 msgid "Anki decks (*.anki)"
 msgstr "Mazos Anki (*.anki)"
 
-#: deck.py:287
+#: deck.py:288
 msgid "Answer Card"
 msgstr "Tarjeta de Respuesta"
 
-#: deck.py:543
+#: deck.py:544
 #, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
@@ -239,7 +239,7 @@ msgstr "Centrar"
 msgid "Changed"
 msgstr "Cambiado"
 
-#: deck.py:1500
+#: deck.py:1505
 msgid "Database file damaged. Restore from backup."
 msgstr "Archivo de Base de Datos dañado. Restaurela de la copia de seguridad."
 
@@ -252,31 +252,31 @@ msgstr "Estadísticas del Mazo"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Mazo creado: Hace <b>%s</b><br>"
 
-#: deck.py:1508
+#: deck.py:1513
 msgid "Deck was missing a model"
 msgstr "El mazo carecía de un modelo."
 
-#: deck.py:1534
+#: deck.py:1539
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Borradas %d tarjetas que carecían de hecho"
 
-#: deck.py:1542
+#: deck.py:1547
 #, python-format
 msgid "Deleted %d cards with no card model"
 msgstr "Borradas %d tarjetas que carecían de modelo de tarjeta"
 
-#: deck.py:1555
+#: deck.py:1560
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Borrados %d campos pendientes"
 
-#: deck.py:1527
+#: deck.py:1532
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Borrados %d hechos con campos faltantes"
 
-#: deck.py:1547
+#: deck.py:1552
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Borrados %d hechos sin tarjetas"
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Hechos en un archivo de texto separado por tabulador (*.txt)"
 
-#: deck.py:1874
+#: deck.py:1854
 msgid "File is in use by another process"
 msgstr "El archivo está en uso por otro proceso"
 
@@ -357,7 +357,7 @@ msgstr "Izquierda"
 msgid "Mandarin"
 msgstr "Mandarín"
 
-#: graphs.py:138 graphs.py:163 graphs.py:309
+#: graphs.py:138 graphs.py:164 graphs.py:310
 msgid "Mature"
 msgstr "Madura"
 
@@ -371,16 +371,16 @@ msgstr "Tarjetas maduras: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> de 
 msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgstr "Tarjetas maduras: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 
-#: media.py:166 media.py:168 media.py:169
+#: media.py:167 media.py:169 media.py:170
 msgid "Media Missing"
 msgstr "Soporte multimedia no encontrado"
 
-#: deck.py:1027
+#: deck.py:1028
 #, python-format
 msgid "Model '%s' has wrong card model count"
 msgstr "El modelo '%s' tenía un número incorrecto de modelos de tarjeta"
 
-#: deck.py:1031
+#: deck.py:1032
 #, python-format
 msgid "Model '%s' has wrong field model count"
 msgstr "El modelo '%s' tenía un número incorrecto de modelos de campo"
@@ -389,11 +389,11 @@ msgstr "El modelo '%s' tenía un número incorrecto de modelos de campo"
 msgid "Model Tags"
 msgstr "Etiquetas del Modelo"
 
-#: graphs.py:161 graphs.py:307
+#: graphs.py:162 graphs.py:308
 msgid "New"
 msgstr "Nuevas"
 
-#: deck.py:556
+#: deck.py:557
 msgid "No cards are due."
 msgstr "No hay tarjetas programadas."
 
@@ -417,19 +417,19 @@ msgstr "Repeticiones en el mes siguiente"
 msgid "Reps next week"
 msgstr "Repeticiones en la siguiente semana"
 
-#: deck.py:2264
+#: deck.py:2247
 msgid "Review cards in order due"
 msgstr "Repasar tarjetas en el orden programado"
 
-#: deck.py:2265
+#: deck.py:2248
 msgid "Review cards in random order"
 msgstr "Repasar tarjetas aleatoriamente"
 
-#: deck.py:2263
+#: deck.py:2246
 msgid "Review newest cards first"
 msgstr "Repasar tarjetas nuevas antes"
 
-#: deck.py:2262
+#: deck.py:2245
 msgid "Review oldest cards first"
 msgstr "Repasar tarjetas viejas antes"
 
@@ -441,23 +441,23 @@ msgstr "Repasos"
 msgid "Right"
 msgstr "Derecha"
 
-#: deck.py:2256
+#: deck.py:2239
 msgid "Show new cards after all other cards"
 msgstr "Mostrar nuevas tarjetas después de todas las demás tarjetas"
 
-#: deck.py:2257
+#: deck.py:2240
 msgid "Show new cards before reviews"
 msgstr "Mostrar nuevas tarjetas antes de los repasos"
 
-#: deck.py:2250
+#: deck.py:2233
 msgid "Show new cards in order they were added"
 msgstr "Mostrar nuevas tarjetas en el orden en el que fueron añadidas"
 
-#: deck.py:2249
+#: deck.py:2232
 msgid "Show new cards in random order"
 msgstr "Mostrar nuevas tarjetas de forma aleatoria"
 
-#: deck.py:2255
+#: deck.py:2238
 msgid "Spread new cards out through reviews"
 msgstr "Distribuir tarjetas entre repasos"
 
@@ -465,11 +465,11 @@ msgstr "Distribuir tarjetas entre repasos"
 msgid "Text files (*.txt)"
 msgstr "Archivos de texto (*.txt)"
 
-#: deck.py:1514
+#: deck.py:1519
 msgid "The current model didn't exist"
 msgstr "El modelo actual no existía"
 
-#: deck.py:553
+#: deck.py:554
 #, python-format
 msgid "The next card will be shown in <b>%s</b>"
 msgstr "La siguiente tarjeta se mostrará en <b>%s</b>"
@@ -483,7 +483,7 @@ msgstr "Tiempo Total"
 msgid "Total number of cards: <b>%d</b><br><br>"
 msgstr "Número total de tarjetas: <b>%d</b><br><br>"
 
-#: deck.py:754
+#: deck.py:755
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -492,7 +492,7 @@ msgstr "Desconocido"
 msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgstr "Tarjetas no mostradas: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 
-#: graphs.py:137 graphs.py:162 graphs.py:308
+#: graphs.py:137 graphs.py:163 graphs.py:309
 msgid "Young"
 msgstr "Joven"
 
@@ -515,7 +515,7 @@ msgstr "[formato de pregunta/respuesta incorrecto]"
 msgid "in %s"
 msgstr "en %s"
 
-#: deck.py:573
+#: deck.py:574
 msgid "unknown"
 msgstr "desconocido"
 
