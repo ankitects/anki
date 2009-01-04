@@ -57,11 +57,14 @@ class ChineseGenerator(object):
         self.unihan = None
 
     def toReading(self, type, val):
-        if not self.unihan:
-            self.unihan = UnihanController(type)
-        else:
-            self.unihan.type = type
-        return self.unihan.reading(val)
+        try:
+            if not self.unihan:
+                self.unihan = UnihanController(type)
+            else:
+                self.unihan.type = type
+            return self.unihan.reading(val)
+        except:
+            return u""
 
 unihan = ChineseGenerator()
 
