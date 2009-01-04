@@ -28,13 +28,14 @@ class Preferences(QDialog):
         self.supportedLanguages = [
             (_("English"), "en_US"),
             (_("Czech"), "cs_CZ"),
+            (_("Finnish"), "fi_FI"),
             (_("French"), "fr_FR"),
             (_("German"), "de_DE"),
+            (_("Italian"), "it_IT"),
             (_("Japanese"), "ja_JP"),
             (_("Korean"), "ko_KR"),
-            (_("Finnish"), "fi_FI"),
+			(_("Polish"), "pl_PL"),
             (_("Spanish"), "es_ES"),
-            (_("Italian"), "it_IT"),
             ]
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
         self.setupLang()
