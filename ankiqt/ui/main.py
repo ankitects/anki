@@ -7,7 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback
-import shutil, time, glob
+import shutil, time, glob, tempfile
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -39,6 +39,7 @@ class AnkiQt(QMainWindow):
         self.hideWelcome = False
         self.views = []
         self.setLang()
+        self.setupDocumentDir()
         self.setupFonts()
         self.setupBackupDir()
         self.setupMainWindow()
@@ -90,7 +91,7 @@ class AnkiQt(QMainWindow):
         self.addView(self.bodyView)
         self.statusView = ui.status.StatusView(self)
         self.addView(self.statusView)
-  
+
     def setupTray(self):
 	self.trayIcon = ui.tray.AnkiTrayIcon(self)
 
@@ -268,11 +269,11 @@ Please do not file a bug report with Anki.\n\n""")
             elif evt.key() == Qt.Key_Right:
                 mf.evaluateJavaScript("window.scrollBy(20,0)")
             elif evt.key() == Qt.Key_PageUp:
-                mf.evaluateJavaScript("window.scrollBy(0,-%d)" % 
+                mf.evaluateJavaScript("window.scrollBy(0,-%d)" %
                                       int(0.9*self.bodyView.body.size().
                                           height()))
             elif evt.key() == Qt.Key_PageDown:
-                mf.evaluateJavaScript("window.scrollBy(0,%d)" % 
+                mf.evaluateJavaScript("window.scrollBy(0,%d)" %
                                       int(0.9*self.bodyView.body.size().
                                           height()))
 
@@ -313,7 +314,7 @@ Please do not file a bug report with Anki.\n\n""")
             num = self.config['saveAfterAnswerNum']
             stats = self.deck.getStats()
             if stats['gTotal'] % num == 0:
-                self.saveDeck()
+                self.onSave()
         self.moveToState("getQuestion")
 
     def startRefreshTimer(self):
@@ -464,7 +465,7 @@ new:
         anki.deck.backupDir = os.path.join(
             self.config.configPath, "backups")
 
-    def loadDeck(self, deckPath, sync=True, interactive=True):
+    def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True):
         "Load a deck and update the user interface. Maybe sync."
         # return True on success
         try:
@@ -500,7 +501,8 @@ To upgrade an old deck, download Anki 0.9.8.7.
 Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             self.moveToState("noDeck")
             return
-        self.updateRecentFiles(self.deck.path)
+        if uprecent:
+            self.updateRecentFiles(self.deck.path)
         if sync and self.config['syncOnLoad']:
             if self.syncDeck(interactive=False):
                 return True
@@ -538,7 +540,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             r = self.loadDeck(path, interactive=False)
             if r:
                 return r
-        self.onNew(True)
+        self.onNew(initial=True)
 
     def getDefaultDir(self, save=False):
         "Try and get default dir from most recently opened file."
@@ -642,28 +644,30 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         self.hideWelcome = hideWelcome
         if self.deck is not None:
-            count = self.deck.cardCount
-            path = self.deck.path
-            name = self.deck.name()
-            # sync (saving automatically)
+            if self.deck.modifiedSinceSave():
+                if (self.deck.path is None or
+                    (not self.config['saveOnClose'] and
+                     not self.config['syncOnClose'])):
+                    # backed in memory or autosave/sync off, must confirm
+                    while 1:
+                        res = ui.unsaved.ask(self)
+                        if res == ui.unsaved.save:
+                            if self.onSave(required=True):
+                                break
+                        elif res == ui.unsaved.cancel:
+                            return False
+                        else:
+                            break
+            # auto sync (saving automatically)
             if self.config['syncOnClose'] and self.deck.syncName:
                 self.syncDeck(False, reload=False)
                 while self.deckPath:
                     self.app.processEvents()
                     time.sleep(0.1)
                 return True
-            # save
-            if self.deck.modifiedSinceSave():
-                if self.config['saveOnClose'] or self.config['syncOnClose']:
-                    self.saveDeck()
-                else:
-                    res = ui.unsaved.ask(self)
-                    if res == ui.unsaved.save:
-                        self.saveDeck()
-                    elif res == ui.unsaved.cancel:
-                        return False
-                    elif res == ui.unsaved.discard:
-                        pass
+            # auto save
+            if self.config['saveOnClose'] or self.config['syncOnClose']:
+                self.onSave()
             # close
             self.deck.rollback()
             self.deck.close()
@@ -674,21 +678,17 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             ui.dialogs.closeAll()
         return True
 
-    def onNew(self, auto=False):
+    def onNew(self, initial=False, path=None):
         if not self.saveAndClose(hideWelcome=True): return
-        if auto:
-            self.deck = DeckStorage.Deck()
-        else:
-            file = self.onSaveAsOrNew(new=True)
-            if not file:
-                return
-            if os.path.exists(file):
-                os.unlink(file)
-            self.deck = DeckStorage.Deck(file)
+        if initial:
+            path = os.path.join(self.documentDir, "mydeck.anki")
+            if os.path.exists(path):
+                # load mydeck instead
+                return self.loadDeck(path)
+        self.deck = DeckStorage.Deck(path)
         self.deck.initUndo()
         self.deck.addModel(BasicModel())
-        self.saveDeck()
-        self.updateRecentFiles(self.deck.path)
+        self.deck.save()
         self.moveToState("initial")
 
     def ensureSyncParams(self):
@@ -723,16 +723,17 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
     def onOpenOnline(self):
         self.ensureSyncParams()
         if not self.saveAndClose(hideWelcome=True): return
-        self.onNew()
-        if self.deck is None:
-            return
+        # we need a disk-backed file for syncing
+        dir = tempfile.mkdtemp()
+        path = os.path.join(dir, u"untitled.anki")
+        self.onNew(path=path)
         # ensure all changes come to us
         self.deck.modified = 0
         self.deck.s.commit()
         self.deck.syncName = "something"
         self.deck.lastLoaded = self.deck.modified
         if self.config['syncUsername'] and self.config['syncPassword']:
-            if self.syncDeck(onlyMerge=True):
+            if self.syncDeck(onlyMerge=True, reload=2):
                 return
         self.deck = None
         self.moveToState("initial")
@@ -764,22 +765,24 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
     def onOpenSamples(self):
         self.onOpen(samples=True)
 
-    def onSave(self):
-        if self.deck.modifiedSinceSave():
-            self.saveDeck()
-        else:
-            self.setStatus(_("Deck is not modified."))
+    def onSave(self, required=False):
+        if not self.deck.path:
+            if required:
+                # backed in memory, make sure it's saved
+                return self.onSaveAs()
+            return
+        if not self.deck.modifiedSinceSave():
+            return
+        self.deck.save()
+        self.updateTitleBar()
 
-            self.updateTitleBar()
-
-    def onSaveAsOrNew(self, new=False):
+    def onSaveAs(self):
         "Prompt for a file name, then save."
-        if new:
-            title = "Name Deck"
-            dir = anki.deck.ankiDir
-        else:
-            title = _("Save Deck As")
+        title = _("Save Deck As")
+        if self.deck.path:
             dir = os.path.dirname(self.deck.path)
+        else:
+            dir = self.documentDir
         file = QFileDialog.getSaveFileName(self, title,
                                            dir,
                                            _("Deck files (*.anki)"),
@@ -795,19 +798,12 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             if not ui.utils.askUser(
                 "This file exists. Are you sure you want to overwrite it?"):
                 return
-        if new:
-            return file
         self.deck = self.deck.saveAs(file)
         self.deck.initUndo()
         self.updateTitleBar()
         self.updateRecentFiles(self.deck.path)
         self.moveToState("initial")
-
-    def saveDeck(self):
-        self.setStatus(_("Saving..."))
-        self.deck.save()
-        self.updateTitleBar()
-        self.setStatus(_("Saving...done"))
+        return file
 
     # Opening and closing the app
     ##########################################################################
@@ -1124,8 +1120,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
     def onImport(self):
         if self.deck is None:
             self.onNew()
-        if self.deck is not None:
-            ui.importing.ImportDialog(self)
+        ui.importing.ImportDialog(self)
 
     def onExport(self):
         ui.exporting.ExportDialog(self)
@@ -1219,7 +1214,6 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         if self.deck:
             # save first, so we can rollback on failure
             self.deck.save()
-            self.deck.close()
             # store data we need before closing the deck
             self.deckPath = self.deck.path
             self.syncName = self.deck.syncName or self.deck.name()
@@ -1231,6 +1225,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
                     t=time.time())
             else:
                 self.sourcesToCheck = []
+            self.deck.close()
             self.deck = None
             self.loadAfterSync = reload
         # hide all deck-associated dialogs
@@ -1265,10 +1260,15 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         "Reopen after sync finished."
         self.mainWin.buttonStack.show()
         if self.loadAfterSync:
-            self.loadDeck(self.deckPath, sync=False)
+            uprecent = self.loadAfterSync != 2
+            self.loadDeck(self.deckPath, sync=False, uprecent=uprecent)
             self.deck.syncName = self.syncName
             self.deck.s.flush()
             self.deck.s.commit()
+            if self.loadAfterSync == 2:
+                # special case for open online: mark temp deck as in-memory
+                self.deck.path = None
+                self.deck.flushMod()
         elif not self.hideWelcome:
             self.moveToState("noDeck")
         self.deckPath = None
@@ -1367,7 +1367,7 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
         self.connect(m.actionOpen, s, self.onOpen)
         self.connect(m.actionOpenSamples, s, self.onOpenSamples)
         self.connect(m.actionSave, s, self.onSave)
-        self.connect(m.actionSaveAs, s, self.onSaveAsOrNew)
+        self.connect(m.actionSaveAs, s, self.onSaveAs)
         self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionSyncdeck, s, self.syncDeck)
@@ -1743,3 +1743,14 @@ tag or delete references to missing files?"""))
 
     def onUncacheLatex(self):
         anki.latex.deleteAllLatexImages(self.deck)
+
+    # System specific misc
+    ##########################################################################
+
+    def setupDocumentDir(self):
+        if sys.platform.startswith("win32"):
+            raise "nyi"
+        elif sys.platform.startswith("darwin"):
+            self.documentDir = os.path.expanduser("~/Documents")
+        else:
+            self.documentDir = os.path.expanduser("~/.anki")
