@@ -31,7 +31,7 @@
        </rect>
       </property>
       <attribute name="title" >
-       <string>Model &amp;&amp; Fields</string>
+       <string>General &amp;&amp; Fields</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="spacing" >
@@ -285,7 +285,7 @@
        </rect>
       </property>
       <attribute name="title" >
-       <string>Cards</string>
+       <string>Card Templates</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2" >
        <item row="0" column="0" >
