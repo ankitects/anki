@@ -1366,6 +1366,9 @@ where id = :id""", pending)
         if self.path:
             # file-backed
             dir = re.sub("(?i)\.(anki)$", ".media", self.path)
+            if create == None:
+                # don't create, but return dir
+                return dir
             if not os.path.exists(dir) and create:
                 try:
                     os.mkdir(dir)
@@ -1391,10 +1394,9 @@ Return new path, relative to media dir."""
     def renameMediaDir(self, oldPath):
         "Copy oldPath to our current media dir. "
         assert os.path.exists(oldPath)
-        newPath = self.mediaDir(create=True)
+        newPath = self.mediaDir(create=None)
         # copytree doesn't want the dir to exist
         try:
-            os.rmdir(newPath)
             shutil.copytree(oldPath, newPath)
         except:
             # FIXME: should really remove everything in old dir instead of
