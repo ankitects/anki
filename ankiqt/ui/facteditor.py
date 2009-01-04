@@ -4,7 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import re, os, sys, tempfile, urllib
+import re, os, sys, tempfile, urllib2
 from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
 import anki.sound
@@ -567,8 +567,15 @@ class FactEditor(object):
         file = ui.utils.getFile(self.parent, _("Add audio"), "audio", key)
         if not file:
             return
-        anki.sound.play(file)
+        self._addSound(file, widget=w)
+
+    def _addSound(self, file, widget=None):
+        if widget:
+            w = widget
+        else:
+            w = self.focusedEdit()
         path = self.deck.addMedia(file)
+        anki.sound.play(path)
         w.insertHtml('[sound:%s]' % path)
 
 class FactEdit(QTextEdit):
@@ -603,14 +610,22 @@ class FactEdit(QTextEdit):
         if source.hasUrls():
             for url in source.urls():
                 url = unicode(url.toString())
-                ext = url.split(".")[-1]
+                ext = url.split(".")[-1].lower()
                 if ext in ("jpg", "jpeg", "png", "tif", "tiff", "gif"):
-                    url = url.encode(sys.getfilesystemencoding())
-                    (file, headers) = urllib.urlretrieve(url)
-                    self.parent._addPicture(
-                        unicode(file, sys.getfilesystemencoding()),
-                        widget=self)
+                    name = self._retrieveURL(url, ext)
+                    self.parent._addPicture(name, widget=self)
+                elif ext in ("wav", "mp3", "ogg", "flac"):
+                    name = self._retrieveURL(url, ext)
+                    self.parent._addSound(name, widget=self)
             return
+
+    def _retrieveURL(self, url, ext):
+        filecontents = urllib2.urlopen(url).read()
+        (fd, name) = tempfile.mkstemp(suffix=".%s" % ext)
+        file = os.fdopen(fd, "wb")
+        file.write(filecontents)
+        file.flush()
+        return name
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
