@@ -49,7 +49,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=18),
+    Column('version', Integer, nullable=False, default=19),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -1611,6 +1611,8 @@ select id from fields where factId not in (select id from facts)""")
         self.undoStack = []
         self.redoStack = []
         self.undoEnabled = True
+        self.s.statement(
+            "create temporary table undoLog (seq integer primary key, sql text)")
         tables = self.s.column0(
             "select name from sqlite_master where type = 'table'")
         for table in tables:
@@ -1699,7 +1701,7 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
             self.redoStack = []
 
     def _latestUndoRow(self):
-        return self.s.scalar("select coalesce(max(rowid), 0) from undoLog")
+        return self.s.scalar("select max(rowid) from undoLog")
 
     def _undoredo(self, src, dst):
         self.s.flush()
@@ -1716,7 +1718,7 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         newstart = self._latestUndoRow()
         for s in sql:
             #print "--", s.encode("utf-8")[0:30]
-            self.s.statement(s)
+            self.s.execute(s)
         newend = self._latestUndoRow()
         dst.append([u[0], newstart, newend])
 
@@ -2168,6 +2170,13 @@ where interval < 1""")
             deck.version = 18
             deck.s.commit()
             DeckStorage._addIndices(deck)
+            deck.s.statement("analyze")
+        if deck.version < 19:
+            # permanent undo log causes various problems, revert to temp
+            deck.s.statement("drop table undoLog")
+            deck.version = 19
+            deck.s.commit()
+            deck.s.statement("vacuum")
             deck.s.statement("analyze")
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
