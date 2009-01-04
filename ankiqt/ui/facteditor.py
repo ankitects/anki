@@ -595,7 +595,8 @@ class FactEdit(QTextEdit):
         audio =  ("wav", "mp3", "ogg", "flac")
         if source.hasText():
             txt = unicode(source.text())
-            if txt.lower().startswith("http://"):
+            l = txt.lower()
+            if l.startswith("http://") or l.startswith("file://"):
                 if not source.hasImage():
                     # firefox on linux just gives us a url
                     ext = txt.split(".")[-1].lower()
