@@ -103,7 +103,7 @@ def convertSecondsTo(seconds, type):
 def _pluralCount(time):
     if round(time, 1) == 1:
         return 1
-    return 2
+    return round(time, 1)
 
 # HTML
 ##############################################################################
