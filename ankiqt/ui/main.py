@@ -1713,12 +1713,19 @@ the same field count and card count.""") % ret[1])
 
     def onCheckMediaDB(self):
         mb = QMessageBox(self)
+        mb.setWindowTitle(_("Anki"))
+        mb.setIcon(QMessageBox.Warning)
         mb.setText(_("""\
-Would you like to remove unused files from the media directory, and
-tag or delete references to missing files?"""))
-        bTag = QPushButton("Tag")
+This operation:<br>
+ - <b>deletes files</b> not referenced by cards<br>
+ - either tags cards, or deletes references to missing files<br>
+ - renames files to a string of numbers and letters<br>
+ - updates checksums for files which have been changed<br>
+<br>
+If in doubt, backup your media directory first."""))
+        bTag = QPushButton("Tag Cards")
         mb.addButton(bTag, QMessageBox.RejectRole)
-        bDelete = QPushButton("Delete")
+        bDelete = QPushButton("Delete Refs")
         mb.addButton(bDelete, QMessageBox.RejectRole)
         bCancel = QPushButton("Cancel")
         mb.addButton(bCancel, QMessageBox.RejectRole)
