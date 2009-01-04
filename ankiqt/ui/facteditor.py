@@ -11,6 +11,7 @@ import anki.sound
 from ankiqt import ui
 import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
+from anki.hooks import addHook
 
 class FactEditor(object):
     """An editor for new/existing facts.
@@ -31,6 +32,7 @@ class FactEditor(object):
         self.onFactInvalid = None
         self.lastFocusedEdit = None
         self.changeTimer = None
+        addHook("deckClosed", self.deckClosedHook)
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."
@@ -56,6 +58,9 @@ class FactEditor(object):
 
     def initMedia(self):
         os.chdir(self.deck.mediaDir(create=True))
+
+    def deckClosedHook(self):
+        self.fact = None
 
     def setupFields(self):
         # init for later
@@ -319,7 +324,7 @@ class FactEditor(object):
 
     def onFocusLost(self, widget):
         if self.fact is None:
-            # editor closed
+            # editor or deck closed
             return
         self.saveFields()
         field = self.widgets[widget]
@@ -339,6 +344,8 @@ class FactEditor(object):
                                 self.onChangeTimer)
 
     def onChangeTimer(self):
+        if not self.fact:
+            return
         self.saveFields()
         self.checkValid()
         if self.onChange:
