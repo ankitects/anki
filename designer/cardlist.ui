@@ -182,6 +182,7 @@
     <addaction name="separator" />
     <addaction name="actionSelectAll" />
     <addaction name="actionSelectFacts" />
+    <addaction name="actionInvertSelection" />
    </widget>
    <widget class="QMenu" name="menuActions" >
     <property name="title" >
@@ -234,7 +235,7 @@
      <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
    </property>
    <property name="text" >
-    <string>Add &amp;Cards...</string>
+    <string>Generate &amp;Cards...</string>
    </property>
   </action>
   <action name="actionResetProgress" >
@@ -272,6 +273,11 @@
    </property>
    <property name="text" >
     <string>&amp;Redo</string>
+   </property>
+  </action>
+  <action name="actionInvertSelection" >
+   <property name="text" >
+    <string>&amp;Invert Selection</string>
    </property>
   </action>
  </widget>

@@ -402,6 +402,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionResetProgress, SIGNAL("triggered()"), self.resetProgress)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
+        self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         runHook('editor.setupMenus', self)
@@ -579,6 +580,12 @@ where id in (%s)""" % ",".join([
             if card.id in cardIds:
                 sm.select(self.model.index(i, 0),
                           QItemSelectionModel.Select | QItemSelectionModel.Rows)
+
+    def invertSelection(self):
+        sm = self.dialog.tableView.selectionModel()
+        items = sm.selection()
+        self.dialog.tableView.selectAll()
+        sm.select(items, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
 
     # Undo/Redo
     ######################################################################
