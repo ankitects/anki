@@ -183,6 +183,10 @@ class DeckChooser(QDialog):
         self.dialog.setupUi(self)
         self.create = create
         if self.create:
+            self.dialog.topLabel.setText(_("<h1>Synchronize</h1>"))
+        else:
+            self.dialog.topLabel.setText(_("<h1>Open Online Deck</h1>"))
+        if self.create:
             self.dialog.decks.addItem(QListWidgetItem(
                 _("Create '%s' on server") % self.parent.syncName))
         self.decks.sort()
@@ -191,7 +195,7 @@ class DeckChooser(QDialog):
             if self.create:
                 msg = _("Merge with '%s' on server") % name
             else:
-                msg = _("Copy '%s' from server") % name
+                msg = name
             item = QListWidgetItem(msg)
             self.dialog.decks.addItem(item)
         self.dialog.decks.setCurrentRow(0)

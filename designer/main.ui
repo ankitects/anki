@@ -214,8 +214,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>370</width>
+            <height>49</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
@@ -234,6 +234,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="showAnswerButton" >
+             <property name="toolTip" >
+              <string>Show the answer (shortcut key: space or enter)</string>
+             </property>
              <property name="text" >
               <string>Show Answer</string>
              </property>
@@ -246,8 +249,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>370</width>
+            <height>49</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
@@ -334,6 +337,9 @@
                </item>
                <item row="1" column="0" >
                 <widget class="QPushButton" name="easeButton1" >
+                 <property name="toolTip" >
+                  <string>Show this card again soon (shortcut key: 1)</string>
+                 </property>
                  <property name="text" >
                   <string>Again</string>
                  </property>
@@ -341,6 +347,9 @@
                </item>
                <item row="1" column="1" >
                 <widget class="QPushButton" name="easeButton2" >
+                 <property name="toolTip" >
+                  <string>Wait a little longer next time (shortcut key: 2)</string>
+                 </property>
                  <property name="text" >
                   <string>Hard</string>
                  </property>
@@ -348,6 +357,9 @@
                </item>
                <item row="1" column="2" >
                 <widget class="QPushButton" name="easeButton3" >
+                 <property name="toolTip" >
+                  <string>Wait longer next time (shortcut key: 3)</string>
+                 </property>
                  <property name="text" >
                   <string>Good</string>
                  </property>
@@ -355,6 +367,9 @@
                </item>
                <item row="1" column="3" >
                 <widget class="QPushButton" name="easeButton4" >
+                 <property name="toolTip" >
+                  <string>Wait a lot longer next time (shortcut key: 4)</string>
+                 </property>
                  <property name="text" >
                   <string>Easy</string>
                  </property>

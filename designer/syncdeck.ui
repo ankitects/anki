@@ -16,22 +16,13 @@
    <property name="spacing" >
     <number>6</number>
    </property>
-   <property name="leftMargin" >
-    <number>9</number>
-   </property>
-   <property name="topMargin" >
-    <number>9</number>
-   </property>
-   <property name="rightMargin" >
-    <number>9</number>
-   </property>
-   <property name="bottomMargin" >
+   <property name="margin" >
     <number>9</number>
    </property>
    <item>
-    <widget class="QLabel" name="label" >
+    <widget class="QLabel" name="topLabel" >
      <property name="text" >
-      <string>&lt;h1>Where should we synchronize to?&lt;/h1></string>
+      <string>toplabel</string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
@@ -53,7 +44,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
