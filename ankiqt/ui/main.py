@@ -496,9 +496,8 @@ Possible reasons:
  - directory is read only
  - deck was created with Anki < 0.9
 
-To upgrade an old deck, download Anki 0.9.8.7.
-
-Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
+To upgrade an old deck, download Anki 0.9.8.7."""))
+                traceback.print_exc()
             self.moveToState("noDeck")
             return
         if uprecent:
@@ -1759,7 +1758,9 @@ Consider backing up your media directory first."""))
 
     def setupDocumentDir(self):
         if sys.platform.startswith("win32"):
-            raise "nyi"
+            s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
+            s.beginGroup("CurrentVersion/Explorer/Shell Folders")
+            self.documentDir = unicode(s.value("Personal").toString())
         elif sys.platform.startswith("darwin"):
             self.documentDir = os.path.expanduser("~/Documents")
         else:
