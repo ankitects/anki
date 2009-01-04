@@ -591,10 +591,22 @@ class FactEdit(QTextEdit):
                 src.hasHtml())
 
     def insertFromMimeData(self, source):
+        pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
+        audio =  ("wav", "mp3", "ogg", "flac")
         if source.hasText():
-            if not (unicode(source.text()).lower().startswith("http://") and
-                    source.hasImage()):
-                # choose text unless this is a link with an image
+            txt = unicode(source.text())
+            if txt.lower().startswith("http://"):
+                if not source.hasImage():
+                    # firefox on linux just gives us a url
+                    ext = txt.split(".")[-1].lower()
+                    if ext in pics:
+                        name = self._retrieveURL(txt, ext)
+                        self.parent._addPicture(name, widget=self)
+                    elif ext in audio:
+                        name = self._retrieveURL(txt, ext)
+                        self.parent._addSound(name, widget=self)
+                    return
+            else:
                 self.insertPlainText(source.text())
                 return
         if source.hasImage():
@@ -611,10 +623,10 @@ class FactEdit(QTextEdit):
             for url in source.urls():
                 url = unicode(url.toString())
                 ext = url.split(".")[-1].lower()
-                if ext in ("jpg", "jpeg", "png", "tif", "tiff", "gif"):
+                if ext in pics:
                     name = self._retrieveURL(url, ext)
                     self.parent._addPicture(name, widget=self)
-                elif ext in ("wav", "mp3", "ogg", "flac"):
+                elif ext in audio:
                     name = self._retrieveURL(url, ext)
                     self.parent._addSound(name, widget=self)
             return
