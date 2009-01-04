@@ -141,6 +141,7 @@ where type = 1""")
         return fig
 
     def workDone(self, days=30):
+        self.calcStats()
         
         for type in ["dayRepsNew", "dayRepsYoung", "dayRepsMature"]:
             self.addMissing(self.stats[type], -days, 0)
