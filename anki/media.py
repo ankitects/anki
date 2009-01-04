@@ -156,7 +156,8 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
             updateFields.append({'id': id, 'val': val})
             modifiedFacts[fid] = 1
         else:
-            unmodifiedFacts[fid] = 1
+            if fid not in factsMissingMedia:
+                unmodifiedFacts[fid] = 1
     # update modified fields
     if modifiedFacts:
         _modifyFields(deck, updateFields, modifiedFacts, dirty)
@@ -165,7 +166,7 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
         if deleteRefs:
             deck.deleteTags(modifiedFacts.keys(), _("Media Missing"))
         else:
-            deck.addTags(modifiedFacts.keys(), _("Media Missing"))
+            deck.addTags(factsMissingMedia.keys(), _("Media Missing"))
         deck.deleteTags(unmodifiedFacts.keys(), _("Media Missing"))
     # build cache of db records
     mediaIds = dict(deck.s.all("select filename, id from media"))
