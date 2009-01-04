@@ -58,7 +58,7 @@ class QueueMonitor(threading.Thread):
 
 def playExternal(path):
     global manager
-    path = os.path.abspath(path).encode(sys.getfilesystemencoding())
+    path = path.encode(sys.getfilesystemencoding())
     queue.append(path)
     if not manager or not manager.isAlive():
         manager = QueueMonitor()
