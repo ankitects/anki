@@ -64,32 +64,6 @@ def playExternal(path):
         manager = QueueMonitor()
         manager.start()
 
-# Pygame
-##########################################################################
-
-# try:
-#     import pygame
-#     pygame.mixer.pre_init(44100,-16,2, 1024 * 3)
-#     pygame.mixer.init()
-#     soundsAvailable = True
-# except:
-#     soundsAvailable = False
-#     print "Warning, pygame not available. No sounds will play."
-
-# def playPyGame(path):
-#     "Play a sound. Expects a unicode pathname."
-#     if not soundsAvailable:
-#         return
-#     path = path.encode(sys.getfilesystemencoding())
-#     try:
-#         if pygame.mixer.music.get_busy():
-#             pygame.mixer.music.queue(path)
-#         else:
-#             pygame.mixer.music.load(path)
-#             pygame.mixer.music.play()
-#     except pygame.error:
-#         return
-
 # Mac audio support
 ##########################################################################
 
