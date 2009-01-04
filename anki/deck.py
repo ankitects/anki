@@ -1025,11 +1025,11 @@ select id from fieldModels where modelId = :id order by ordinal""", id=m[1])
                 for id in ids[1:]:
                     if len(id[1]) != cms:
                         msg = (_(
-                            "Model '%s' has wrong card model count") % name)
+                            "Model '%s' has wrong card template count") % name)
                         break
                     if len(id[2]) != fms:
                         msg = (_(
-                            "Model '%s' has wrong field model count") % name)
+                            "Model '%s' has wrong field count") % name)
                         break
                 toProcess.append((name, ids))
         if msg:
@@ -1544,7 +1544,7 @@ select id from cards where cardModelId not in
 (select id from cardModels)""")
         if ids:
             self.deleteCards(ids)
-            problems.append(_("Deleted %d cards with no card model" %
+            problems.append(_("Deleted %d cards with no card template" %
                               len(ids)))
         # facts missing a card?
         ids = self.deleteDanglingFacts()

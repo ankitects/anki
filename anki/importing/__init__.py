@@ -107,8 +107,8 @@ class Importer(object):
         if active > 1 and not self.multipleCardsAllowed:
             raise ImportFormatError(type="tooManyCards",
                 info=_("""
-The current importer only supports a single active card model. Please disable
-all but one card model."""))
+The current importer only supports a single active card template. Please disable
+all but one card template."""))
         # strip invalid cards
         cards = self.stripInvalid(cards)
         cards = self.stripOrTagDupes(cards)
