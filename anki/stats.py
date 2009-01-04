@@ -287,8 +287,8 @@ class CardStats(object):
                      c.averageTime)
         self.addLine(_("Total Time"), _("%0.1f seconds") %
                      c.reviewTime)
-        self.addLine(_("Model Tags") + "&nbsp;"*5, c.fact.model.tags)
-        self.addLine(_("Card Template"), c.cardModel.name)
+        self.addLine(_("Model Tags"), c.fact.model.tags)
+        self.addLine(_("Card Template") + "&nbsp;"*5, c.cardModel.name)
         self.txt += "</table>"
         return self.txt
 
