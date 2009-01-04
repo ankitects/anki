@@ -999,13 +999,13 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
             try:
                 ui.dialogs.get("Graphs", self, self.deck)
             except (ImportError, ValueError):
+                traceback.print_exc()
                 if sys.platform.startswith("win32"):
                     ui.utils.showInfo(
                         _("To display graphs, Anki needs a .dll file which\n"
                           "you don't have. Please install:\n") +
                         "http://www.dll-files.com/dllindex/dll-files.shtml?msvcp71")
                 else:
-                    #traceback.print_exc()
                     ui.utils.showInfo(_(
                         "Your version of Matplotlib is broken.\n"
                         "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"))
