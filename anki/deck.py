@@ -2184,23 +2184,17 @@ where interval < 1""")
     _setUTCOffset = staticmethod(_setUTCOffset)
 
     def backup(modified, path):
-        try:
-            os.makedirs(backupDir)
-        except OSError:
-            pass
         # need a non-unicode path
-        path = path.encode(sys.getfilesystemencoding())
-        bdir = backupDir.encode(sys.getfilesystemencoding())
         def backupName(path, num):
             path = os.path.abspath(path)
             path = path.replace("\\", "!")
             path = path.replace("/", "!")
             path = path.replace(":", "")
-            path = os.path.join(bdir, path)
+            path = os.path.join(backupDir, path)
             path = re.sub("\.anki$", ".backup-%d.anki" % num, path)
             return path
-        if not os.path.exists(bdir):
-            os.makedirs(bdir)
+        if not os.path.exists(backupDir):
+            os.makedirs(backupDir)
         # if the mod time is identical, don't make a new backup
         firstBack = backupName(path, 0)
         if os.path.exists(firstBack):
