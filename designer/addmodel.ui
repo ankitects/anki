@@ -16,7 +16,7 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>&lt;h1>Please choose a template&lt;/h1></string>
+      <string>&lt;h1>Add Model&lt;/h1></string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
