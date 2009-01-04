@@ -1670,16 +1670,17 @@ Error was:\n%(f1)s\n...\n%(f2)s""") % {'f1': fmt1, 'f2': fmt2})
 
     def onCheckDB(self):
         "True if no problems"
+        if not ui.utils.askUser(_("""\
+This operation will find and fix some common problems.<br>
+<br>
+On the next sync, all cards will be sent to the server.<br>
+Any changes on the server since your last sync will be lost.<br>
+<br>
+<b>This operation is not undoable.</b><br>
+Proceed?""")):
+            return
         ret = self.deck.fixIntegrity()
         if ret == "ok":
-            ret = _("""\
-No problems found. Some data structures have been rebuilt in case<br>
-they were causing problems.<p>
-<b>On the next sync, all cards will be sent to the server.</b><br>
-If you have changes on the server and have not synced locally,<br>
-do not sync your deck. Restore your deck from an automatic<br>
-backup and then run this command again after syncing.""")
-            ui.utils.showInfo(ret)
             ret = True
         else:
             ret = _("Problems found:\n%s") % ret
@@ -1717,12 +1718,13 @@ the same field count and card count.""") % ret[1])
         mb.setIcon(QMessageBox.Warning)
         mb.setText(_("""\
 This operation:<br>
- - <b>deletes files</b> not referenced by cards<br>
+ - deletes files not referenced by cards<br>
  - either tags cards, or deletes references to missing files<br>
  - renames files to a string of numbers and letters<br>
  - updates checksums for files which have been changed<br>
 <br>
-If in doubt, backup your media directory first."""))
+<b>This operation is not undoable.</b><br>
+Consider backing up your media directory first."""))
         bTag = QPushButton("Tag Cards")
         mb.addButton(bTag, QMessageBox.RejectRole)
         bDelete = QPushButton("Delete Refs")
