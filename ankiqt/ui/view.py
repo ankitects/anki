@@ -151,7 +151,11 @@ class View(object):
             given = unicode(self.main.mainWin.typeAnswerField.text())
             res = []
             for (i, c) in enumerate(given):
-                if c == cor[i]:
+                try:
+                    yes = c == cor[i]
+                except IndexError:
+                    yes = False
+                if yes:
                     res.append("<span style='color: #007700'>%s</span>" % c)
                 else:
                     res.append("<span style='color: #770000'>%s</span>" % c)
