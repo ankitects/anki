@@ -249,7 +249,7 @@
                    <item>
                     <widget class="QPushButton" name="optionsButton" >
                      <property name="text" >
-                      <string>Options>></string>
+                      <string>&amp;Options>></string>
                      </property>
                      <property name="checkable" >
                       <bool>true</bool>

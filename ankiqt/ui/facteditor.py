@@ -641,11 +641,11 @@ class FactEdit(QTextEdit):
 
     def _retrieveURL(self, url, ext):
         filecontents = urllib2.urlopen(url).read()
-        (fd, name) = tempfile.mkstemp(suffix=".%s" % ext)
+        (fd, name) = tempfile.mkstemp(suffix=".%s" % ext.encode("ascii"))
         file = os.fdopen(fd, "wb")
         file.write(filecontents)
         file.flush()
-        return name
+        return unicode(name, sys.getfilesystemencoding())
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
