@@ -34,7 +34,7 @@
        </rect>
       </property>
       <attribute name="title" >
-       <string>Models &amp;&amp; Scheduling</string>
+       <string>Models &amp;&amp; Priorities</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6" >
        <item row="4" column="0" >
@@ -164,8 +164,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>346</width>
-        <height>356</height>
+        <width>375</width>
+        <height>334</height>
        </rect>
       </property>
       <attribute name="title" >
