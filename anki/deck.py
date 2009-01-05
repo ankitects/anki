@@ -117,6 +117,8 @@ class Deck(object):
         self.lastTags = u""
         self.lastLoaded = time.time()
         self.undoEnabled = False
+        self.sessionStartReps = 0
+        self.sessionStartTime = 0
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -134,10 +136,10 @@ class Deck(object):
     def getCardId(self):
         "Return the next due card id, or None."
         # failed card due?
-        if self.failedNowCount:
+        if self.delay0 and self.failedNowCount:
             return self.s.scalar("select id from failedCards limit 1")
         # failed card queue too big?
-        if self.failedSoonCount >= self.failedCardMax:
+        if self.delay0 and self.failedSoonCount >= self.failedCardMax:
             return self.s.scalar(
                 "select id from failedCards limit 1")
         # distribute new cards?
@@ -153,7 +155,7 @@ class Deck(object):
         if id:
             return id
         # display failed cards early
-        if self.collapseTime:
+        if self.collapseTime or not self.delay0:
             id = self.s.scalar(
                 "select id from failedCards limit 1")
             return id
@@ -582,7 +584,7 @@ select count(id) from cards where combinedDue < :time
 and priority in (1,2,3,4) and type in (0, 1)""", time=time)
 
     def deckFinishedMsg(self):
-        return _('''
+        return _('''\
 <div style="white-space: normal;">
 <h1>Congratulations!</h1>You have finished the deck for now.<br><br>
 %(next)s
@@ -1357,6 +1359,25 @@ where id = :id""", pending)
         assert '/' not in n
         assert '\\' not in n
         return n
+
+    # Session handling
+    ##########################################################################
+
+    def startSession(self):
+        self.sessionStartTime = time.time()
+        self.sessionStartReps = self.getStats()['dTotal']
+
+    def sessionLimitReached(self):
+        if not self.sessionStartTime:
+            # not started
+            return False
+        if (self.sessionTimeLimit and time.time() >
+            (self.sessionStartTime + self.sessionTimeLimit)):
+            return True
+        if (self.sessionRepLimit and self.sessionRepLimit <=
+            self.getStats()['dTotal'] - self.sessionStartReps):
+            return True
+        return False
 
     # Media
     ##########################################################################
@@ -2173,6 +2194,8 @@ where interval < 1""")
         if deck.version < 19:
             # permanent undo log causes various problems, revert to temp
             deck.s.statement("drop table undoLog")
+            deck.sessionTimeLimit = 300
+            deck.sessionRepLimit = 0
             deck.version = 19
             deck.s.commit()
             deck.s.statement("vacuum")
