@@ -170,9 +170,14 @@ def intervalGraph(parent, deck):
     widgets.append(nextDue)
 
     workload = AdjustableFigure(parent.config, 'reps', dg.workDone, range)
-    workload.addWidget(QLabel(_("<h1>Reviews</h1>")))
+    workload.addWidget(QLabel(_("<h1>Reps</h1>")))
     vbox.addWidget(workload)
     widgets.append(workload)
+
+    times = AdjustableFigure(parent.config, 'times', dg.timeSpent, range)
+    times.addWidget(QLabel(_("<h1>Review Time</h1>")))
+    vbox.addWidget(times)
+    widgets.append(times)
 
     added = AdjustableFigure(parent.config, 'added', dg.addedRecently, range)
     added.addWidget(QLabel(_("<h1>Added</h1>")))
@@ -222,7 +227,8 @@ def intervalGraph(parent, deck):
             'added': _("Added"),
             'answered': _("First Answered"),
             'eases': _("Eases"),
-            'reps': _("Reviews"),
+            'reps': _("Reps"),
+            'times': _("Review Time"),
             }
         m = QMenu(parent)
         for graph in widgets:
