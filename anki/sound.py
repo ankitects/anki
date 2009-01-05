@@ -64,6 +64,10 @@ def playExternal(path):
         manager = QueueMonitor()
         manager.start()
 
+def clearQueueExternal():
+    global queue
+    queue = []
+
 # Mac audio support
 ##########################################################################
 
@@ -98,6 +102,10 @@ try:
         # new handle
         play_(path)
 
+    def clearQueueOSX():
+        global queue
+        queue = []
+
     def play_(path):
         global current
         current = NSSound.alloc()
@@ -115,5 +123,7 @@ except ImportError:
 
 if sys.platform.startswith("darwin"):
     play = playOSX
+    clearAudioQueue = clearQueueOSX
 else:
     play = playExternal
+    clearAudioQueue = clearQueueExternal
