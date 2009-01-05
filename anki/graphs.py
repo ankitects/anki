@@ -99,7 +99,7 @@ from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
             self.stats['lowestInDay'] = lowestInDay
 
             dayReps = self.deck.s.all("""
-select day, 
+select day,
        matureEase0+matureEase1+matureEase2+matureEase3+matureEase4 as matureReps,
        reps-(newEase0+newEase1+newEase2+newEase3+newEase4) as combinedYoungReps,
        reps as combinedNewReps
@@ -142,7 +142,7 @@ where type = 1""")
 
     def workDone(self, days=30):
         self.calcStats()
-        
+
         for type in ["dayRepsNew", "dayRepsYoung", "dayRepsMature"]:
             self.addMissing(self.stats[type], -days, 0)
 
@@ -152,7 +152,7 @@ where type = 1""")
         args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"][::-1]), [])
 
         self.filledGraph(graph, days, [reviewNewC, reviewYoungC, reviewMatureC], *args)
-        
+
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(-3, 0, color = reviewNewC)
         b2 = cheat.bar(-4, 0, color = reviewYoungC)
@@ -162,10 +162,10 @@ where type = 1""")
             _("New"),
             _("Young"),
             _("Mature")], loc='upper left')
-        
+
         graph.set_xlim(xmin=-days, xmax=0)
         graph.set_ylim(ymax=max(max(a for a in args[1::2])) + 10)
-        
+
         return fig
 
     def cumulativeDue(self, days=30):
