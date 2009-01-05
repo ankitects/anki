@@ -11,6 +11,7 @@ from anki.errors import *
 from anki.utils import stripHTML, parseTags
 from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from ankiqt import ui
+from anki.sound import clearAudioQueue
 
 class AddCards(QDialog):
 
@@ -114,6 +115,8 @@ question or answer on all cards."""), parent=self)
             # we're guaranteed that all fields will exist now
             "str": stripHTML(fact[fact.fields[0].name]),
             })
+        # stop anything playing
+        clearAudioQueue()
         self.parent.deck.setUndoEnd(n)
         self.parent.updateTitleBar()
         # start a new fact
@@ -135,6 +138,8 @@ question or answer on all cards."""), parent=self)
             QDialog.reject(self)
 
     def onClose(self):
+        # stop anything playing
+        clearAudioQueue()
         if (self.editor.fieldsAreBlank() or
             ui.utils.askUser(_("Close and lose current input?"),
                             self)):

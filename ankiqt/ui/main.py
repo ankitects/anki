@@ -13,7 +13,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki import DeckStorage
 from anki.errors import *
-from anki.sound import hasSound, playFromText
+from anki.sound import hasSound, playFromText, clearAudioQueue
 from anki.utils import addTags, deleteTags, parseTags
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError
@@ -327,6 +327,8 @@ Please do not file a bug report with Anki.\n\n""")
             stats = self.deck.getStats()
             if stats['gTotal'] % num == 0:
                 self.onSave()
+        # stop anything playing
+        clearAudioQueue()
         self.moveToState("getQuestion")
 
     def startRefreshTimer(self):
