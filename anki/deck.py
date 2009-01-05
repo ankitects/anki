@@ -1841,6 +1841,9 @@ alter table decks add column revCardOrder integer not null default 0""")
                     if ver < 18:
                         s.execute("""
 alter table cardModels add column allowEmptyAnswer boolean not null default 1""")
+                    if ver < 19:
+                        s.execute("""
+alter table cardModels add column typeAnswer boolean not null default 0""")
                 except:
                     pass
                 deck = s.query(Deck).get(1)
