@@ -19,6 +19,8 @@ from anki.media import rebuildMediaDir
 from anki.db import OperationalError
 from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks
+from anki.deck import newCardOrderLabels, newCardSchedulingLabels
+from anki.deck import revCardOrderLabels
 import anki.latex
 import anki.lang
 import anki.deck
@@ -50,6 +52,7 @@ class AnkiQt(QMainWindow):
             self.restoreGeometry(self.config['mainWindowGeom'])
         self.setupViews()
         self.setupEditor()
+        self.setupStudyScreen()
         self.setupButtons()
         self.setupAnchors()
         self.setupToolbar()
@@ -195,9 +198,9 @@ Please do not file a bug report with Anki.\n\n""")
         self.state = state
         self.updateTitleBar()
         if 'state' != 'noDeck' and state != 'editCurrentFact':
-            self.showReviewScreen()
+            self.switchToReviewScreen()
         if state == "noDeck":
-            self.showWelcomeScreen()
+            self.switchToWelcomeScreen()
             self.help.hide()
             self.currentCard = None
             self.lastCard = None
@@ -218,12 +221,17 @@ Please do not file a bug report with Anki.\n\n""")
                                 # if the same card is being shown and it's not
                                 # due yet, give up
                                 return self.moveToState("deckFinished")
+                    if (self.config['showStudyScreen'] and
+                        not self.deck.sessionStartTime):
+                        return self.moveToState("studyScreen")
+                    if self.deck.sessionLimitReached():
+                        return self.moveToState("studyScreen")
                     self.enableCardMenuItems()
                     return self.moveToState("showQuestion")
                 else:
                     return self.moveToState("deckFinished")
         elif state == "deckEmpty":
-            self.showWelcomeScreen()
+            self.switchToWelcomeScreen()
             self.disableCardMenuItems()
         elif state == "deckFinished":
             self.deck.s.flush()
@@ -250,6 +258,10 @@ Please do not file a bug report with Anki.\n\n""")
             self.deck.s.flush()
             self.deck.refresh()
             return self.moveToState("auto")
+        elif state == "studyScreen":
+            self.currentCard = None
+            self.disableCardMenuItems()
+            self.showStudyScreen()
         self.updateViews(state)
 
     def keyPressEvent(self, evt):
@@ -379,15 +391,18 @@ new:
     # Main stack
     ##########################################################################
 
-    def showWelcomeScreen(self):
+    def switchToWelcomeScreen(self):
         self.mainWin.mainStack.setCurrentIndex(1)
         self.hideButtons()
 
-    def showEditScreen(self):
+    def switchToEditScreen(self):
         self.mainWin.mainStack.setCurrentIndex(2)
 
-    def showReviewScreen(self):
+    def switchToStudyScreen(self):
         self.mainWin.mainStack.setCurrentIndex(3)
+
+    def switchToReviewScreen(self):
+        self.mainWin.mainStack.setCurrentIndex(4)
 
     # Buttons
     ##########################################################################
@@ -772,9 +787,10 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                 return self.onSaveAs()
             return
         if not self.deck.modifiedSinceSave():
-            return
+            return True
         self.deck.save()
         self.updateTitleBar()
+        return True
 
     def onSaveAs(self):
         "Prompt for a file name, then save."
@@ -892,7 +908,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def showEditor(self):
         self.showSaveEditorButton()
-        self.showEditScreen()
+        self.switchToEditScreen()
         self.editor.setFact(self.currentCard.fact)
 
     def onFactValid(self, fact):
@@ -900,6 +916,108 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onFactInvalid(self, fact):
         self.mainWin.saveEditorButton.setEnabled(False)
+
+    # Study screen
+    ##########################################################################
+
+    def setupStudyScreen(self):
+        self.mainWin.newCardOrder.insertItems(
+            0, QStringList(newCardOrderLabels().values()))
+        self.mainWin.newCardScheduling.insertItems(
+            0, QStringList(newCardSchedulingLabels().values()))
+        self.mainWin.revCardOrder.insertItems(
+            0, QStringList(revCardOrderLabels().values()))
+        self.connect(self.mainWin.optionsHelpButton,
+                     SIGNAL("clicked()"),
+                     lambda: QDesktopServices.openUrl(QUrl(
+            ankiqt.appWiki + "StudyOptions")))
+
+    def showStudyScreen(self):
+        self.switchToStudyScreen()
+        self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
+        self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
+        initial = self.deck.sessionStartTime == 0
+        if initial or not self.deck.sessionLimitReached():
+            # deck just opened, or screen triggered manually
+            top = _("<h1>Welcome back!</h1>")
+        else:
+            top = _("<h1>Well done!</h1>")
+        # top label
+        h = {}
+        s = self.deck.getStats()
+        h['lapsed'] = '<font color=#990000>%s</font>' % s['failed']
+        h['ret'] = s['rev']
+        h['new'] = '<font color=#0000ff>%s</font>' % s['new']
+        h['repsToday'] = '<font color=#007700>%s</font>' % s['dTotal']
+        h['repsIn5'] = '<font color=#007700>%s</font>' % self.deck.s.scalar(
+            "select count(*) from reviewHistory where time > :t",
+            t = time.time() - 300)
+        h['timeToday'] = '<font color=#007700>%s</font>' % (
+            anki.utils.fmtTimeSpan(s['dReviewTime'], short=True))
+        self.mainWin.optionsLabel.setText(top + _("""\
+<p>
+<table width=300>
+<tr><td>
+<table>
+<tr><td>Reps done today:</td><td align=right><b>%(repsToday)s</b></td></tr>
+<tr><td>Reps in last 5 mins:</td><td align=right><b>%(repsIn5)s</b></td></tr>
+<tr><td>Total time today:</td><td align=right><b>%(timeToday)s</b></td></tr>
+</table></td>
+<td><table>
+<tr><td>Lapsed due:</td><td align=right><b>%(lapsed)s</b></td></tr>
+<tr><td>Retained due:</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td>New due:</td><td align=right><b>%(new)s</b></td></tr>
+</table></td></tr></table>""") % h)
+        # start reviewing button
+        self.mainWin.buttonStack.setCurrentIndex(3)
+        self.mainWin.buttonStack.show()
+        if initial:
+            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
+        else:
+            self.mainWin.startReviewingButton.setText(_("Continue &Reviewing"))
+        self.mainWin.startReviewingButton.setFocus()
+        self.connect(self.mainWin.startReviewingButton,
+                     SIGNAL("clicked()"),
+                     self.onStartReview)
+        self.setupStudyOptions()
+
+    def setupStudyOptions(self):
+        self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
+        self.mainWin.minuteLimit.setText(str(self.deck.sessionTimeLimit/60.0))
+        self.mainWin.questionLimit.setText(str(self.deck.sessionRepLimit))
+        self.mainWin.newCardOrder.setCurrentIndex(self.deck.newCardOrder)
+        self.mainWin.newCardScheduling.setCurrentIndex(self.deck.newCardSpacing)
+        self.mainWin.revCardOrder.setCurrentIndex(self.deck.revCardOrder)
+        self.mainWin.delayLapsedCards.setChecked(not self.deck.delay0)
+
+    def onStartReview(self):
+        self.config['showStudyOptions'] = self.mainWin.optionsButton.isChecked()
+        try:
+            self.deck.newCardsPerDay = int(self.mainWin.newPerDay.text())
+            self.deck.sessionTimeLimit = float(
+                self.mainWin.minuteLimit.text()) * 60
+            self.deck.sessionRepLimit = int(self.mainWin.questionLimit.text())
+        except (ValueError, OverflowError):
+            pass
+        self.deck.newCardOrder = self.mainWin.newCardOrder.currentIndex()
+        self.deck.newCardSpacing = self.mainWin.newCardScheduling.currentIndex()
+        self.deck.revCardOrder = self.mainWin.revCardOrder.currentIndex()
+        # avoid clobbering the user's settings if they haven't changed
+        if self.deck.delay0 and self.mainWin.delayLapsedCards.isChecked():
+            self.deck.delay0 = 0
+        elif (not self.deck.delay0 and
+              not self.mainWin.delayLapsedCards.isChecked()):
+            self.deck.delay0 = 600
+        if not self.deck.sessionStartTime or self.deck.sessionLimitReached():
+            self.deck.startSession()
+        self.deck.flushMod()
+        self.moveToState("getQuestion")
+
+    def onStudyOptions(self):
+        if self.state == "studyScreen":
+            self.onStartReview()
+        else:
+            self.moveToState("studyScreen")
 
     # Toolbar
     ##########################################################################
@@ -917,8 +1035,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             mw.toolBar.addAction(mw.actionAddcards)
             mw.toolBar.addAction(mw.actionEditCurrent)
             mw.toolBar.addAction(mw.actionEditdeck)
-            mw.toolBar.addAction(mw.actionMarkCard)
             mw.toolBar.addAction(mw.actionGraphs)
+            mw.toolBar.addAction(mw.actionStudyOptions)
+            mw.toolBar.addAction(mw.actionMarkCard)
             mw.toolBar.addAction(mw.actionRepeatAudio)
             self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
         mw.toolBar.setIconSize(QSize(self.config['iconSize'],
@@ -1248,7 +1367,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.connect(self.syncThread, SIGNAL("updateSyncProgress"), self.updateSyncProgress)
         self.connect(self.syncThread, SIGNAL("bulkSyncFailed"), self.bulkSyncFailed)
         self.syncThread.start()
-        self.showWelcomeScreen()
+        self.switchToWelcomeScreen()
         self.setEnabled(False)
         while not self.syncThread.isFinished():
             self.app.processEvents()
@@ -1353,6 +1472,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         "Kstats",
         "Cstats",
         "ActiveTags",
+        "StudyOptions",
         )
 
     deckRelatedMenus = (
@@ -1413,6 +1533,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.connect(m.actionGetMoreDecks, s, self.onGetMoreDecks)
         self.connect(m.actionCacheLatex, s, self.onCacheLatex)
         self.connect(m.actionUncacheLatex, s, self.onUncacheLatex)
+        self.connect(m.actionStudyOptions, s, self.onStudyOptions)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."

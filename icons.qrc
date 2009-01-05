@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/view-pim-calendar.png</file>
     <file>icons/anki-tag.png</file>
     <file>icons/edit-redo.png</file>
     <file>icons/text-xml.png</file>

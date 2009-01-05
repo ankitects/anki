@@ -177,9 +177,16 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="suppressEstimates" >
+        <widget class="QCheckBox" name="showEstimates" >
          <property name="text" >
-          <string>Don't show next time before answer</string>
+          <string>Show next time before answer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="showStudyOptions" >
+         <property name="text" >
+          <string>Show study options on startup</string>
          </property>
         </widget>
        </item>
@@ -546,7 +553,8 @@
   <tabstop>backgroundColour</tabstop>
   <tabstop>showDivider</tabstop>
   <tabstop>splitQA</tabstop>
-  <tabstop>suppressEstimates</tabstop>
+  <tabstop>showEstimates</tabstop>
+  <tabstop>showStudyOptions</tabstop>
   <tabstop>saveWhenClosing</tabstop>
   <tabstop>saveAfterEvery</tabstop>
   <tabstop>saveAfterEveryNum</tabstop>

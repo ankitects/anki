@@ -69,8 +69,10 @@ class Config(dict):
             'qaDivider': True,
             'splitQA': True,
             'sortIndex': 0,
-            'addZeroSpace': True,
+            'addZeroSpace': False,
             'alternativeTheme': False,
+            'showStudyScreen': True,
+            'showStudyOptions': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
