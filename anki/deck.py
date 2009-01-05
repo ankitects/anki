@@ -83,8 +83,8 @@ decksTable = Table(
     # number of new cards to show per day
     Column('newCardsPerDay', Integer, nullable=False, default=20),
     # currently unused
-    Column('sessionRepLimit', Integer, nullable=False, default=100),
-    Column('sessionTimeLimit', Integer, nullable=False, default=1800),
+    Column('sessionRepLimit', Integer, nullable=False, default=0),
+    Column('sessionTimeLimit', Integer, nullable=False, default=300),
     # stats offset
     Column('utcOffset', Float, nullable=False, default=0),
     # count cache
