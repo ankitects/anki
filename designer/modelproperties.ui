@@ -490,6 +490,13 @@
               </property>
              </widget>
             </item>
+            <item row="5" column="1" >
+             <widget class="QCheckBox" name="typeAnswer" >
+              <property name="text" >
+               <string>Ask me to type in the answer</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -539,6 +546,7 @@
   <tabstop>cardAnswer</tabstop>
   <tabstop>questionInAnswer</tabstop>
   <tabstop>allowEmptyAnswer</tabstop>
+  <tabstop>typeAnswer</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

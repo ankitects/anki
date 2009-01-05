@@ -124,11 +124,11 @@ class View(object):
 
     def center(self, str, height=40):
         if not self.main.config['splitQA']:
-            return str
-        return '''
-<div style="display: table; height: %s%%; width:100%%; overflow: hidden;">\
+            return "<center>" + str + "</center>"
+        return '''\
+<center><div style="display: table; height: %s%%; width:100%%; overflow: hidden;">\
 <div style="display: table-cell; vertical-align: middle;">\
-<div style="">%s</div></div></div>''' % (height, str)
+<div style="">%s</div></div></div></center>''' % (height, str)
 
     def drawQuestion(self, nosound=False):
         "Show the question."
@@ -146,6 +146,17 @@ class View(object):
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
+        if self.main.currentCard.cardModel.typeAnswer:
+            cor = stripHTML(self.main.currentCard.answer)
+            given = unicode(self.main.mainWin.typeAnswerField.text())
+            res = []
+            for (i, c) in enumerate(given):
+                if c == cor[i]:
+                    res.append("<span style='color: #007700'>%s</span>" % c)
+                else:
+                    res.append("<span style='color: #770000'>%s</span>" % c)
+            a += "<div>" + (_("You typed:<br><b>") +
+                            "".join(res)) + "</b></div>"
         self.write(self.center('<span id=answer />' +
                                self.mungeQA(self.main.deck, a)))
         if self.state != self.oldState:

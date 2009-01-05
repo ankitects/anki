@@ -293,6 +293,7 @@ class ModelProperties(QDialog):
         self.dialog.cardAnswer.setPlainText(card.aformat.replace("<br>", "\n"))
         self.dialog.questionInAnswer.setChecked(card.questionInAnswer)
         self.dialog.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
+        self.dialog.typeAnswer.setChecked(card.typeAnswer)
         self.updateToggleButtonText(card)
 
     def enableCardMoveButtons(self):
@@ -329,6 +330,7 @@ class ModelProperties(QDialog):
         changed = changed or changed2
         self.updateField(card, 'questionInAnswer', self.dialog.questionInAnswer.isChecked())
         self.updateField(card, 'allowEmptyAnswer', self.dialog.allowEmptyAnswer.isChecked())
+        self.updateField(card, 'typeAnswer', self.dialog.typeAnswer.isChecked())
         if changed:
             # need to generate all question/answers for this card
             self.deck.updateCardsFromModel(self.m)

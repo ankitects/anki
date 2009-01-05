@@ -266,12 +266,9 @@ Please do not file a bug report with Anki.\n\n""")
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
-
         if evt.key() in (Qt.Key_Up,Qt.Key_Down,Qt.Key_Left,Qt.Key_Right,
                          Qt.Key_PageUp,Qt.Key_PageDown):
-
             mf = self.bodyView.body.page().currentFrame()
-
             if evt.key() == Qt.Key_Up:
                 mf.evaluateJavaScript("window.scrollBy(0,-20)")
             elif evt.key() == Qt.Key_Down:
@@ -288,10 +285,8 @@ Please do not file a bug report with Anki.\n\n""")
                 mf.evaluateJavaScript("window.scrollBy(0,%d)" %
                                       int(0.9*self.bodyView.body.size().
                                           height()))
-
             evt.accept()
             return
-
         if self.state == "showQuestion":
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
@@ -304,6 +299,11 @@ Please do not file a bug report with Anki.\n\n""")
                 num=int(key)
                 evt.accept()
                 return self.cardAnswered(num)
+        elif self.state == "studyScreen":
+            if evt.key() in (Qt.Key_Enter,
+                             Qt.Key_Return):
+                evt.accept()
+                return self.onStartReview()
         evt.ignore()
 
     def cardAnswered(self, quality):
@@ -436,9 +436,13 @@ new:
         self.mainWin.buttonStack.hide()
 
     def showAnswerButton(self):
-        self.mainWin.buttonStack.setCurrentIndex(0)
+        if self.currentCard.cardModel.typeAnswer:
+            self.mainWin.buttonStack.setCurrentIndex(4)
+            self.mainWin.typeAnswerField.selectAll()
+        else:
+            self.mainWin.buttonStack.setCurrentIndex(0)
+            self.mainWin.showAnswerButton.setFocus()
         self.mainWin.buttonStack.show()
-        self.mainWin.showAnswerButton.setFocus()
 
     def showEaseButtons(self):
         self.updateEaseButtons()
