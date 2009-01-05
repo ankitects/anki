@@ -56,6 +56,10 @@ class FactEditor(object):
         self.fontChanged = False
         self.deck.setUndoBarrier()
 
+    def focusFirst(self):
+        if self.focusTarget:
+            self.focusTarget.setFocus()
+
     def initMedia(self):
         os.chdir(self.deck.mediaDir(create=True))
 
@@ -229,7 +233,7 @@ class FactEditor(object):
         self.fields = {}
         self.widgets = {}
         n = 0
-        first = None
+        first = True
         for field in fields:
             # label
             l = QLabel(field.name)
@@ -251,6 +255,9 @@ class FactEditor(object):
                       self.onTextChanged)
             w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
                       lambda w=w: self.formatChanged(w))
+            if first:
+                self.focusTarget = w
+                first = False
             n += 1
         # tags
         self.fieldsGrid.addWidget(QLabel(_("Tags")), n, 0)

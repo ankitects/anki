@@ -396,6 +396,7 @@ class EditDeck(QMainWindow):
         self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.ResizeToContents)
 
     def setupMenus(self):
+        # actions
         self.connect(self.dialog.actionDelete, SIGNAL("triggered()"), self.deleteCards)
         self.connect(self.dialog.actionAddTag, SIGNAL("triggered()"), self.addTags)
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
@@ -405,6 +406,13 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
+        # jumps
+        self.connect(self.dialog.actionFirstCard, SIGNAL("triggered()"), self.onFirstCard)
+        self.connect(self.dialog.actionLastCard, SIGNAL("triggered()"), self.onLastCard)
+        self.connect(self.dialog.actionPreviousCard, SIGNAL("triggered()"), self.onPreviousCard)
+        self.connect(self.dialog.actionNextCard, SIGNAL("triggered()"), self.onNextCard)
+        self.connect(self.dialog.actionFind, SIGNAL("triggered()"), self.onFind)
+        self.connect(self.dialog.actionFact, SIGNAL("triggered()"), self.onFact)
         runHook('editor.setupMenus', self)
 
     def onClose(self):
@@ -602,6 +610,43 @@ where id in (%s)""" % ",".join([
         self.updateSearch()
         self.updateAfterCardChange()
 
+    # Jumping
+    ######################################################################
+
+    def onFirstCard(self):
+        if not self.model.cards:
+            return
+        self.dialog.tableView.selectionModel().clear()
+        self.dialog.tableView.selectRow(0)
+
+    def onLastCard(self):
+        if not self.model.cards:
+            return
+        self.dialog.tableView.selectionModel().clear()
+        self.dialog.tableView.selectRow(len(self.model.cards) - 1)
+
+    def onPreviousCard(self):
+        if not self.model.cards:
+            return
+        row = self.dialog.tableView.currentIndex().row()
+        row = max(0, row - 1)
+        self.dialog.tableView.selectionModel().clear()
+        self.dialog.tableView.selectRow(row)
+
+    def onNextCard(self):
+        if not self.model.cards:
+            return
+        row = self.dialog.tableView.currentIndex().row()
+        row = min(len(self.model.cards) - 1, row + 1)
+        self.dialog.tableView.selectionModel().clear()
+        self.dialog.tableView.selectRow(row)
+
+    def onFind(self):
+        self.dialog.filterEdit.setFocus()
+
+    def onFact(self):
+        self.editor.focusFirst()
+
 class AddCardChooser(QDialog):
 
     def __init__(self, parent, cms):
@@ -644,4 +689,3 @@ order by ordinal""" % ids2str(self.cms))
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "Editor#AddCards"))
-

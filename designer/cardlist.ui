@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>602</height>
+    <height>462</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -18,7 +18,7 @@
      <x>0</x>
      <y>23</y>
      <width>599</width>
-     <height>579</height>
+     <height>439</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
@@ -196,8 +196,21 @@
     <addaction name="actionResetProgress" />
     <addaction name="actionDelete" />
    </widget>
+   <widget class="QMenu" name="menuJump" >
+    <property name="title" >
+     <string>&amp;Jump</string>
+    </property>
+    <addaction name="actionFind" />
+    <addaction name="actionFact" />
+    <addaction name="separator" />
+    <addaction name="actionFirstCard" />
+    <addaction name="actionPreviousCard" />
+    <addaction name="actionNextCard" />
+    <addaction name="actionLastCard" />
+   </widget>
    <addaction name="menuActions" />
    <addaction name="menuEdit" />
+   <addaction name="menuJump" />
   </widget>
   <action name="actionDelete" >
    <property name="icon" >
@@ -278,6 +291,78 @@
   <action name="actionInvertSelection" >
    <property name="text" >
     <string>&amp;Invert Selection</string>
+   </property>
+  </action>
+  <action name="actionFind" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/document-preview.png</normaloff>:/icons/document-preview.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Find</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionFact" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
+   </property>
+   <property name="text" >
+    <string>F&amp;act</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+F</string>
+   </property>
+  </action>
+  <action name="actionNextCard" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/arrow-down.png</normaloff>:/icons/arrow-down.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Next Card</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionPreviousCard" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/arrow-up.png</normaloff>:/icons/arrow-up.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Previous Card</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionFirstCard" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/arrow-up-double.png</normaloff>:/icons/arrow-up-double.png</iconset>
+   </property>
+   <property name="text" >
+    <string>F&amp;irst Card</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Home</string>
+   </property>
+  </action>
+  <action name="actionLastCard" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/arrow-down-double.png</normaloff>:/icons/arrow-down-double.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Last Card</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+End</string>
    </property>
   </action>
  </widget>

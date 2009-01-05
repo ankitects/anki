@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/arrow-down-double.png</file>
+    <file>icons/arrow-up-double.png</file>
+    <file>icons/arrow-down.png</file>
+    <file>icons/arrow-up.png</file>
     <file>icons/view-pim-calendar.png</file>
     <file>icons/anki-tag.png</file>
     <file>icons/edit-redo.png</file>
