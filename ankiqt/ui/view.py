@@ -150,17 +150,22 @@ class View(object):
             cor = stripHTML(self.main.currentCard.answer)
             given = unicode(self.main.mainWin.typeAnswerField.text())
             res = []
+            if len(given) < len(cor):
+                given += " " * (len(cor) - len(given))
+            sz = self.main.currentCard.cardModel.answerFontSize
+            ok = "background: #00FF00; color: #000; font-size: %dpx" % sz
+            bad = "background: #FF0000; color: #000; font-size: %dpx;" % sz
             for (i, c) in enumerate(given):
                 try:
                     yes = c == cor[i]
                 except IndexError:
                     yes = False
                 if yes:
-                    res.append("<span style='color: #007700'>%s</span>" % c)
+                    res.append(
+                        "<span style='%s'>%s</span>" % (ok, c))
                 else:
-                    res.append("<span style='color: #770000'>%s</span>" % c)
-            a += "<div>" + (_("You typed:<br><b>") +
-                            "".join(res)) + "</b></div>"
+                    res.append("<span style='%s'>%s</span>" % (bad, c))
+            a += "<br>" + "".join(res) + ""
         self.write(self.center('<span id=answer />' +
                                self.mungeQA(self.main.deck, a)))
         if self.state != self.oldState:
