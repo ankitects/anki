@@ -939,13 +939,15 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             ankiqt.appWiki + "StudyOptions")))
 
     def showStudyScreen(self):
-        self.switchToStudyScreen()
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
         self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
+        self.switchToStudyScreen()
         initial = self.deck.sessionStartTime == 0
-        if initial or not self.deck.sessionLimitReached():
+        if initial:
             # deck just opened, or screen triggered manually
-            top = _("<h1>Welcome back!</h1>")
+            top = _("<h1>Welcome Back!</h1>")
+        elif not self.deck.sessionLimitReached():
+            top = _("<h1>Study Options</h1>")
         else:
             top = _("<h1>Well done!</h1>")
         # top label
