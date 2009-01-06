@@ -78,7 +78,8 @@ class LatestVersionFinder(QThread):
         if resp['latestVersion'] > ankiqt.appVersion:
             self.emit(SIGNAL("newVerAvail"), resp)
         diff = resp['currentTime'] - time.time()
-        if abs(diff) > 300:
+        # a fairly liberal time check - sync is more strict
+        if abs(diff) > 86400:
             self.emit(SIGNAL("clockIsOff"), diff)
 
 class Updater(QThread):
