@@ -45,7 +45,8 @@ class StatusView(object):
             self.hideDeckStatus()
         elif self.state in ("showQuestion",
                             "deckFinished",
-                            "deckEmpty"):
+                            "deckEmpty",
+                            "studyScreen"):
             self.redraw()
 
     # Setup and teardown
