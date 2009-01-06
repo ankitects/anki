@@ -7,7 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback
-import shutil, time, glob, tempfile
+import shutil, time, glob, tempfile, datetime
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -956,20 +956,56 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         h['lapsed'] = '<font color=#990000>%s</font>' % s['failed']
         h['ret'] = s['rev']
         h['new'] = '<font color=#0000ff>%s</font>' % s['new']
-        h['repsToday'] = '<font color=#007700>%s</font>' % s['dTotal']
-        h['repsIn5'] = '<font color=#007700>%s</font>' % self.deck.s.scalar(
+        dtoday = s['dTotal']
+        yesterday = self.deck._dailyStats.day - datetime.timedelta(1)
+        res = self.deck.s.first("""
+select reps, reviewTime from stats where type = 1 and
+day = :d""", d=yesterday)
+        if res:
+            (dyest, tyest) = res
+        else:
+            dyest = 0; tyest = 0
+        dchange = dtoday - dyest
+        if dchange >= 0:
+            dchange = "+%d" % dchange
+        else:
+            dchange = str(dchange)
+        h['repsToday'] = '<font color=#007700>%s</font>' % dtoday
+        h['repsTodayChg'] = '<font color=#007700>(%s)</font>' % dchange
+        last10 = self.deck.s.scalar(
             "select count(*) from reviewHistory where time > :t",
-            t = time.time() - 300)
+            t=time.time()-600)
+        last20 = self.deck.s.scalar(
+            "select count(*) from reviewHistory where "
+            "time > :t and time < :t2",
+            t=time.time()-1200, t2=time.time()-600)
+        change = last10 - last20
+        if change >= 0:
+            change = "+%d" % change
+        else:
+            change = str(change)
+        h['repsIn10'] = '<font color=#007700>%s</font>' % last10
+        h['repsIn10Chg'] = '<font color=#007700>(%s)</font>' % change
+        ttoday = s['dReviewTime']
+        change = ttoday - tyest
+        if change >= 0:
+            change = "+%s" % anki.utils.fmtTimeSpan(change, short=True)
+        else:
+            change = anki.utils.fmtTimeSpan(change, short=True)
         h['timeToday'] = '<font color=#007700>%s</font>' % (
-            anki.utils.fmtTimeSpan(s['dReviewTime'], short=True))
+            anki.utils.fmtTimeSpan(ttoday, short=True))
+        h['timeTodayChg'] = '<font color=#007700>(%s)</font>' % change
         self.mainWin.optionsLabel.setText(top + _("""\
 <p>
 <table width=300>
 <tr><td>
 <table>
-<tr><td>Reps done today:</td><td align=right><b>%(repsToday)s</b></td></tr>
-<tr><td>Reps in last 5 mins:</td><td align=right><b>%(repsIn5)s</b></td></tr>
-<tr><td>Total time today:</td><td align=right><b>%(timeToday)s</b></td></tr>
+<tr><td>Reps done today:</td><td><b>%(repsToday)s</b></td>
+<td align=right>%(repsTodayChg)s</td></tr>
+<tr><td>Reps in last 10 mins:</td><td><b>%(repsIn10)s</b></td>
+<td align=right>%(repsIn10Chg)s</td></tr>
+<tr><td>Total time today:</td><td><b>%(timeToday)s</b></td>
+<td align=right>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%(timeTodayChg)s</td></tr>
 </table></td>
 <td><table>
 <tr><td>Lapsed due:</td><td align=right><b>%(lapsed)s</b></td></tr>
