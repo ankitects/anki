@@ -13,6 +13,9 @@ from ankiqt import ui
 from ankiqt.ui.utils import mungeQA
 from PyQt4.QtWebKit import QWebPage, QWebView
 
+failedCharColour = "#FF0000"
+passedCharColour = "#00FF00"
+
 # Views - define the way a user is prompted for questions, etc
 ##########################################################################
 
@@ -153,8 +156,10 @@ class View(object):
             if len(given) < len(cor):
                 given += " " * (len(cor) - len(given))
             sz = self.main.currentCard.cardModel.answerFontSize
-            ok = "background: #00FF00; color: #000; font-size: %dpx" % sz
-            bad = "background: #FF0000; color: #000; font-size: %dpx;" % sz
+            ok = "background: %s; color: #000; font-size: %dpx" % (
+                passedCharColour, sz)
+            bad = "background: %s; color: #000; font-size: %dpx;" % (
+                failedCharColour, sz)
             for (i, c) in enumerate(given):
                 try:
                     yes = c == cor[i]
