@@ -67,6 +67,7 @@ class AnkiQt(QMainWindow):
         # check for updates
         self.setupAutoUpdate()
         self.setupErrorHandler()
+        self.setupMisc()
         self.loadPlugins()
         self.rebuildPluginsMenu()
         # run after-init hook
@@ -1020,10 +1021,11 @@ day = :d""", d=yesterday)
         # start reviewing button
         self.mainWin.buttonStack.setCurrentIndex(3)
         self.mainWin.buttonStack.show()
+        t = " " * 5
         if initial:
-            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
+            self.mainWin.startReviewingButton.setText(t+_("Start &Reviewing"))
         else:
-            self.mainWin.startReviewingButton.setText(_("Continue &Reviewing"))
+            self.mainWin.startReviewingButton.setText(t+_("Continue &Reviewing"))
         self.mainWin.startReviewingButton.setFocus()
         self.connect(self.mainWin.startReviewingButton,
                      SIGNAL("clicked()"),
@@ -1939,3 +1941,11 @@ Consider backing up your media directory first."""))
             self.documentDir = os.path.expanduser("~/Documents")
         else:
             self.documentDir = os.path.expanduser("~/.anki")
+
+    # Misc
+    ##########################################################################
+
+    def setupMisc(self):
+        if time.time() - self.config['created'] < 60 and self.deck:
+            self.config['created'] = self.deck.created
+        print (time.time() - self.deck.created) / 60.0 / 60.0 / 24.0

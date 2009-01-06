@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/player-time.png</file>
     <file>icons/find.png</file>
     <file>icons/editclear.png</file>
     <file>icons/view-statistics.png</file>

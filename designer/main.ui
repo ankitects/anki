@@ -155,7 +155,7 @@
             <x>0</x>
             <y>0</y>
             <width>428</width>
-            <height>563</height>
+            <height>546</height>
            </rect>
           </property>
          </widget>
@@ -481,8 +481,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>542</width>
-            <height>49</height>
+            <width>428</width>
+            <height>66</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
@@ -501,6 +501,12 @@
            </item>
            <item>
             <widget class="QPushButton" name="showAnswerButton" >
+             <property name="minimumSize" >
+              <size>
+               <width>0</width>
+               <height>41</height>
+              </size>
+             </property>
              <property name="toolTip" >
               <string>Show the answer (shortcut key: space or enter)</string>
              </property>
@@ -516,8 +522,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>542</width>
-            <height>49</height>
+            <width>428</width>
+            <height>66</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
@@ -666,8 +672,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>542</width>
-            <height>49</height>
+            <width>428</width>
+            <height>66</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
@@ -701,8 +707,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>542</width>
-            <height>49</height>
+            <width>428</width>
+            <height>66</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6" >
@@ -724,6 +730,16 @@
              <property name="text" >
               <string>Review</string>
              </property>
+             <property name="icon" >
+              <iconset resource="../icons.qrc" >
+               <normaloff>:/icons/player-time.png</normaloff>:/icons/player-time.png</iconset>
+             </property>
+             <property name="iconSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
             </widget>
            </item>
           </layout>
@@ -734,7 +750,7 @@
             <x>0</x>
             <y>0</y>
             <width>428</width>
-            <height>49</height>
+            <height>66</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7" >
@@ -774,7 +790,7 @@
             <x>0</x>
             <y>0</y>
             <width>428</width>
-            <height>49</height>
+            <height>66</height>
            </rect>
           </property>
          </widget>
