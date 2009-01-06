@@ -1890,11 +1890,11 @@ This operation:<br>
 <br>
 <b>This operation is not undoable.</b><br>
 Consider backing up your media directory first."""))
-        bTag = QPushButton("Tag Cards")
+        bTag = QPushButton(_("Tag Cards"))
         mb.addButton(bTag, QMessageBox.RejectRole)
-        bDelete = QPushButton("Delete Refs")
+        bDelete = QPushButton(_("Delete Refs"))
         mb.addButton(bDelete, QMessageBox.RejectRole)
-        bCancel = QPushButton("Cancel")
+        bCancel = QPushButton(_("Cancel"))
         mb.addButton(bCancel, QMessageBox.RejectRole)
         mb.exec_()
         if mb.clickedButton() == bTag:
