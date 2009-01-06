@@ -14,6 +14,7 @@ appIssueTracker="http://code.google.com/p/anki/issues/list"
 appForum="http://groups.google.com/group/ankisrs/topics"
 appReleaseNotes="http://ichi2.net/anki/download/index.html#changes"
 appMoreDecks="http://ichi2.net/anki/wiki/ExtraDecks"
+appDonate="http://ichi2.net/anki/donate.html"
 
 modDir=os.path.dirname(os.path.abspath(__file__))
 runningDir=os.path.split(modDir)[0]

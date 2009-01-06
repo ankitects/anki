@@ -986,6 +986,7 @@
     <addaction name="actionReleaseNotes" />
     <addaction name="actionGetMoreDecks" />
     <addaction name="separator" />
+    <addaction name="actionDonate" />
     <addaction name="actionAbout" />
     <addaction name="separator" />
    </widget>
@@ -1159,6 +1160,7 @@
    <addaction name="actionAddcards" />
    <addaction name="actionEditCurrent" />
    <addaction name="actionEditdeck" />
+   <addaction name="actionStudyOptions" />
    <addaction name="actionDisplayProperties" />
    <addaction name="separator" />
    <addaction name="actionGraphs" />
@@ -1167,7 +1169,6 @@
    <addaction name="separator" />
    <addaction name="actionRepeatAudio" />
    <addaction name="actionMarkCard" />
-   <addaction name="actionStudyOptions" />
   </widget>
   <action name="actionExit" >
    <property name="icon" >
@@ -1256,7 +1257,7 @@
   <action name="actionEditdeck" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
+     <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Edit All...</string>
@@ -1407,7 +1408,7 @@
   <action name="actionGraphs" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/colorscm.png</normaloff>:/icons/colorscm.png</iconset>
+     <normaloff>:/icons/view-statistics.png</normaloff>:/icons/view-statistics.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Graphs...</string>
@@ -1699,6 +1700,15 @@
    </property>
    <property name="text" >
     <string>&amp;Study Options...</string>
+   </property>
+  </action>
+  <action name="actionDonate" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/emblem-favorite.png</normaloff>:/icons/emblem-favorite.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Donate...</string>
    </property>
   </action>
  </widget>

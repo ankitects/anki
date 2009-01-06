@@ -1,6 +1,10 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/find.png</file>
+    <file>icons/editclear.png</file>
+    <file>icons/view-statistics.png</file>
     <file>icons/arrow-down-double.png</file>
+    <file>icons/emblem-favorite.png</file>
     <file>icons/arrow-up-double.png</file>
     <file>icons/arrow-down.png</file>
     <file>icons/arrow-up.png</file>

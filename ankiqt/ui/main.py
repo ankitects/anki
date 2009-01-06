@@ -1084,8 +1084,8 @@ day = :d""", d=yesterday)
             mw.toolBar.addAction(mw.actionAddcards)
             mw.toolBar.addAction(mw.actionEditCurrent)
             mw.toolBar.addAction(mw.actionEditdeck)
-            mw.toolBar.addAction(mw.actionGraphs)
             mw.toolBar.addAction(mw.actionStudyOptions)
+            mw.toolBar.addAction(mw.actionGraphs)
             mw.toolBar.addAction(mw.actionMarkCard)
             mw.toolBar.addAction(mw.actionRepeatAudio)
             self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
@@ -1275,6 +1275,9 @@ day = :d""", d=yesterday)
 
     def onAbout(self):
         ui.about.show(self)
+
+    def onDonate(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appDonate))
 
     def onActiveTags(self):
         ui.activetags.show(self)
@@ -1583,6 +1586,7 @@ day = :d""", d=yesterday)
         self.connect(m.actionCacheLatex, s, self.onCacheLatex)
         self.connect(m.actionUncacheLatex, s, self.onUncacheLatex)
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
+        self.connect(m.actionDonate, s, self.onDonate)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
