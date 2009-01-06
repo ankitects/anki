@@ -978,13 +978,15 @@ day = :d""", d=yesterday)
             dchange = str(dchange)
         h['repsToday'] = '<font color=#007700>%s</font>' % dtoday
         h['repsTodayChg'] = '<font color=#007700>(%s)</font>' % dchange
+        start = self.deck.sessionStartTime or time.time() - 600
+        start2 = self.deck.lastSessionStart or start - 600
         last10 = self.deck.s.scalar(
-            "select count(*) from reviewHistory where time > :t",
-            t=time.time()-600)
+            "select count(*) from reviewHistory where time >= :t",
+            t=start)
         last20 = self.deck.s.scalar(
             "select count(*) from reviewHistory where "
-            "time > :t and time < :t2",
-            t=time.time()-1200, t2=time.time()-600)
+            "time >= :t and time < :t2",
+            t=start2, t2=start)
         change = last10 - last20
         if change >= 0:
             change = "+%d" % change
@@ -995,28 +997,28 @@ day = :d""", d=yesterday)
         ttoday = s['dReviewTime']
         change = ttoday - tyest
         if change >= 0:
-            change = "+%s" % anki.utils.fmtTimeSpan(change, short=True)
+            change = "+%s" % anki.utils.fmtTimeSpan(change, short=True, point=1)
         else:
-            change = anki.utils.fmtTimeSpan(change, short=True)
+            change = anki.utils.fmtTimeSpan(change, short=True, point=1)
         h['timeToday'] = '<font color=#007700>%s</font>' % (
-            anki.utils.fmtTimeSpan(ttoday, short=True))
+            anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
         h['timeTodayChg'] = '<font color=#007700>(%s)</font>' % change
         self.mainWin.optionsLabel.setText(top + _("""\
 <p>
 <table width=300>
 <tr><td>
 <table>
-<tr><td>Reps done today:</td><td><b>%(repsToday)s</b></td>
-<td align=right>%(repsTodayChg)s</td></tr>
-<tr><td>Reps in last 10 mins:</td><td><b>%(repsIn10)s</b></td>
+<tr><td>Reps (10 mins):&nbsp;&nbsp;</td><td><b>%(repsIn10)s</b></td>
 <td align=right>%(repsIn10Chg)s</td></tr>
-<tr><td>Total time today:</td><td><b>%(timeToday)s</b></td>
+<tr><td>Reps (today):</td><td><b>%(repsToday)s</b></td>
+<td align=right>%(repsTodayChg)s</td></tr>
+<tr><td>Time (today):</td><td><b>%(timeToday)s</b></td>
 <td align=right>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%(timeTodayChg)s</td></tr>
 </table></td>
 <td><table>
-<tr><td>Lapsed due:</td><td align=right><b>%(lapsed)s</b></td></tr>
-<tr><td>Retained due:</td><td align=right><b>%(ret)s</b></td></tr>
-<tr><td>New due:</td><td align=right><b>%(new)s</b></td></tr>
+<tr><td>Failed:</td><td align=right><b>%(lapsed)s</b></td></tr>
+<tr><td>Review:&nbsp;&nbsp;&nbsp;</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td>New:</td><td align=right><b>%(new)s</b></td></tr>
 </table></td></tr></table>""") % h)
         # start reviewing button
         self.mainWin.buttonStack.setCurrentIndex(3)
@@ -1948,4 +1950,3 @@ Consider backing up your media directory first."""))
     def setupMisc(self):
         if time.time() - self.config['created'] < 60 and self.deck:
             self.config['created'] = self.deck.created
-        print (time.time() - self.deck.created) / 60.0 / 60.0 / 24.0

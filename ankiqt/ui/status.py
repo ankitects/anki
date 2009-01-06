@@ -233,10 +233,13 @@ You should aim to answer each question within<br>
             return
         if self.main.state in ("showQuestion", "showAnswer"):
             if self.main.currentCard:
-                t = self.main.currentCard.thinkingTime()
-                if t < 60:
-                    self.timer.setText('00:%02d' % t)
+                if self.main.deck.sessionStartTime:
+                    t = time.time() - self.main.deck.sessionStartTime
+                    t = self.main.deck.sessionTimeLimit - t
                 else:
-                    self.timer.setText('01:00')
+                    t = self.main.currentCard.thinkingTime()
+                if t < 0:
+                    t = 0
+                self.timer.setText('%02d:%02d' % (t/60, t%60))
                 return
         self.timer.setText("00:00")
