@@ -119,6 +119,7 @@ class Deck(object):
         self.undoEnabled = False
         self.sessionStartReps = 0
         self.sessionStartTime = 0
+        self.lastSessionStart = 0
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -1364,6 +1365,7 @@ where id = :id""", pending)
     ##########################################################################
 
     def startSession(self):
+        self.lastSessionStart = self.sessionStartTime
         self.sessionStartTime = time.time()
         self.sessionStartReps = self.getStats()['dTotal']
 
