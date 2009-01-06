@@ -9,8 +9,8 @@ import ankiqt
 import simplejson
 import tempfile
 
-#baseUrl = "http://localhost:5000/update/"
 baseUrl = "http://anki.ichi2.net/update/"
+#baseUrl = "http://localhost:8001/update/"
 
 # when requesting latest version number, gather their version, deck size and
 # average retention ratio for future development
@@ -22,43 +22,25 @@ class LatestVersionFinder(QThread):
         self.main = main
         self.config = main.config
         # calculate stats before we start a new thread
+        plat=sys.platform
+        pver=sys.version.replace("\n", "--")
         if self.main.deck != None:
             deckSize = self.main.deck.cardCount
-            stats = anki.stats.globalStats(self.main.deck)
-            deckRecall = "%0.2f" % (
-                (stats.matureEase3 + stats.matureEase4) /
-                float(stats.matureEase0 +
-                      stats.matureEase1 +
-                      stats.matureEase2 +
-                      stats.matureEase3 +
-                      stats.matureEase4 + 0.000001) * 100)
-            pending = "(%d, %d)" % (self.main.deck.seenCardCount(),
-                                    self.main.deck.newCount)
-            ct = self.main.deck.created
-            if ct:
-                ol = anki.lang.getLang()
-                anki.lang.setLang("en")
-                age = anki.utils.fmtTimeSpan(abs(
-                    time.time() - ct))
-                anki.lang.setLang(ol)
-            else:
-                age = ""
-            plat=sys.platform
-            pver=sys.version
+            stats = self.main.deck.getStats()
+            deckRecall = "%0.2f" % stats['gMatureYes%']
+            age = self.main.deck.created
         else:
             deckSize = "noDeck"
             deckRecall = ""
-            pending = ""
             age = ""
-            plat=""
-            pver=""
         d = {"ver": ankiqt.appVersion,
              "size": deckSize,
-             "rec": deckRecall,
-             "pend": pending,
+             "ret": deckRecall,
              "age": age,
              "pver": pver,
-             "plat": plat,}
+             "plat": plat,
+             "id": self.config['id'],
+             "conf": self.config['created']}
         self.stats = d
 
     def run(self):
