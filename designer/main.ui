@@ -733,7 +733,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>542</width>
+            <width>428</width>
             <height>49</height>
            </rect>
           </property>
@@ -762,7 +762,7 @@
               </font>
              </property>
              <property name="text" >
-              <string>Type answer and hit enter</string>
+              <string/>
              </property>
             </widget>
            </item>
