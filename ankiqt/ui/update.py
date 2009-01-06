@@ -14,7 +14,6 @@ baseUrl = "http://anki.ichi2.net/update/"
 
 # when requesting latest version number, gather their version, deck size and
 # average retention ratio for future development
-# FIXME: add ability to disable in prefs, warn about anonymous sent info
 class LatestVersionFinder(QThread):
 
     def __init__(self, main):
