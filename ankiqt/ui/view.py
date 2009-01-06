@@ -165,7 +165,7 @@ class View(object):
                         "<span style='%s'>%s</span>" % (ok, c))
                 else:
                     res.append("<span style='%s'>%s</span>" % (bad, c))
-            a += "<br>" + "".join(res) + ""
+            a = "".join(res) + "<br>" + a
         self.write(self.center('<span id=answer />' +
                                self.mungeQA(self.main.deck, a)))
         if self.state != self.oldState:
