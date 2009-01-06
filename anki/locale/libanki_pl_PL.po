@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-05 16:24+0900\n"
-"PO-Revision-Date: 2009-01-04 02:16+0100\n"
+"POT-Creation-Date: 2009-01-06 10:31+0900\n"
+"PO-Revision-Date: 2009-01-06 00:06+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -118,7 +118,7 @@ msgid "<b>Correct answers</b><br>"
 msgstr "<b>Poprawne odpowiedzi</b><br>"
 
 #: deck.py:587
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
 "<h1>Congratulations!</h1>You have finished the deck for now.<br><br>\n"
@@ -131,7 +131,6 @@ msgid ""
 "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
 "suspended</a> cards.</div>"
 msgstr ""
-"\n"
 "<div style=\"white-space: normal;\">\n"
 "<h1>Gratulacje!</h1>Skończyłeś talię.<br><br>\n"
 "%(next)s\n"
@@ -232,9 +231,8 @@ msgid "Cantonese"
 msgstr "Kantoński"
 
 #: stats.py:291
-#, fuzzy
 msgid "Card Template"
-msgstr "Model karty"
+msgstr "Szablon karty"
 
 #: exporting.py:227
 msgid "Cards in tab-separated text file (*.txt)"
@@ -271,9 +269,9 @@ msgid "Deleted %d cards with missing fact"
 msgstr "Usunięto %d kart z brakującym faktem"
 
 #: deck.py:1570
-#, fuzzy, python-format
+#, python-format
 msgid "Deleted %d cards with no card template"
-msgstr "Usunięto %d kart bez modelu karty"
+msgstr "Usunięto %d kart bez szablonu karty"
 
 #: deck.py:1583
 #, python-format
@@ -385,14 +383,14 @@ msgid "Media Missing"
 msgstr "Brakuje pliku"
 
 #: deck.py:1030
-#, fuzzy, python-format
+#, python-format
 msgid "Model '%s' has wrong card template count"
-msgstr "Model '%s' ma złą liczbę modeli kart"
+msgstr "Model '%s' ma złą liczbę szablonów kart"
 
 #: deck.py:1034
-#, fuzzy, python-format
+#, python-format
 msgid "Model '%s' has wrong field count"
-msgstr "Model '%s' ma złą liczbę modeli pól"
+msgstr "Model '%s' ma złą liczbę pól"
 
 #: stats.py:290
 msgid "Model Tags"
