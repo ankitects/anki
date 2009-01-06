@@ -216,9 +216,7 @@ class View(object):
                             "<b>%(next)s</b>.") % \
                             {"next":self.main.lastScheduledTime}
                 else:
-                    msg = _("This card will appear again in less than "
-                            "<b>%(next)s</b>.") % \
-                            {"next":self.main.lastScheduledTime}
+                    msg = _("This card will appear again later.")
                 self.write(msg)
             self.write("<br>")
 
