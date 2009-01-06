@@ -44,7 +44,7 @@ class View(object):
 
     def redisplay(self):
         "Idempotently display the current state (prompt for question, etc)"
-        if self.state == "noDeck":
+        if self.state == "noDeck" or self.state == "studyScreen":
             return
         self.clearWindow()
         self.setBackgroundColour()
