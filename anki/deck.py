@@ -84,7 +84,7 @@ decksTable = Table(
     Column('newCardsPerDay', Integer, nullable=False, default=20),
     # currently unused
     Column('sessionRepLimit', Integer, nullable=False, default=0),
-    Column('sessionTimeLimit', Integer, nullable=False, default=300),
+    Column('sessionTimeLimit', Integer, nullable=False, default=600),
     # stats offset
     Column('utcOffset', Float, nullable=False, default=0),
     # count cache
@@ -2197,7 +2197,7 @@ where interval < 1""")
         if deck.version < 19:
             # permanent undo log causes various problems, revert to temp
             deck.s.statement("drop table undoLog")
-            deck.sessionTimeLimit = 300
+            deck.sessionTimeLimit = 600
             deck.sessionRepLimit = 0
             deck.version = 19
             deck.s.commit()
