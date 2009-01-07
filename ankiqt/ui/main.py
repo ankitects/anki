@@ -327,7 +327,7 @@ Please do not file a bug report with Anki.\n\n""")
             num = self.config['saveAfterAnswerNum']
             stats = self.deck.getStats()
             if stats['gTotal'] % num == 0:
-                self.onSave()
+                self.save()
         # stop anything playing
         clearAudioQueue()
         self.moveToState("getQuestion")
@@ -678,7 +678,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                     while 1:
                         res = ui.unsaved.ask(self)
                         if res == ui.unsaved.save:
-                            if self.onSave(required=True):
+                            if self.save(required=True):
                                 break
                         elif res == ui.unsaved.cancel:
                             return False
@@ -693,7 +693,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                 return True
             # auto save
             if self.config['saveOnClose'] or self.config['syncOnClose']:
-                self.onSave()
+                self.save()
             # close
             self.deck.rollback()
             self.deck.close()
@@ -792,7 +792,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     def onOpenSamples(self):
         self.onOpen(samples=True)
 
-    def onSave(self, required=False):
+    def save(self, required=False):
         if not self.deck.path:
             if required:
                 # backed in memory, make sure it's saved
@@ -803,6 +803,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.deck.save()
         self.updateTitleBar()
         return True
+
+    def onSave(self):
+        self.save(required=True)
 
     def onSaveAs(self):
         "Prompt for a file name, then save."
