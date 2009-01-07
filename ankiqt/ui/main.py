@@ -702,7 +702,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.deck.rollback()
             self.deck.close()
             self.deck = None
-            runHook("deckClosed")
         if not hideWelcome:
             self.moveToState("noDeck")
         else:

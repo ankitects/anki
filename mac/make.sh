@@ -13,5 +13,5 @@ cp -Rvf /usr/local/share/kakasi/itaijidict kakasi
 echo "adding image formats..."
 cp -Rvf imageformats ankiqt
 echo "building..."
-PYTHONPATH=ankiqt python ankiqt/mac/setup.py bdist_dmg
+PYTHONPATH=ankiqt:libanki python ankiqt/mac/setup.py bdist_dmg
 
