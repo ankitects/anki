@@ -754,7 +754,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.ensureSyncParams()
         if not self.saveAndClose(hideWelcome=True): return
         # we need a disk-backed file for syncing
-        dir = tempfile.mkdtemp()
+        dir = unicode(tempfile.mkdtemp(), sys.getfilesystemencoding())
         path = os.path.join(dir, u"untitled.anki")
         self.onNew(path=path)
         # ensure all changes come to us
@@ -1321,13 +1321,13 @@ day = :d""", d=yesterday)
         s = unicode(s)
         self.deck.save()
         # open tmp deck
-        import tempfile
         ndir = tempfile.mkdtemp(prefix="anki-cram")
         path = os.path.join(ndir, "cram.anki")
         from anki.exporting import AnkiExporter
         e = AnkiExporter(self.deck)
         if s:
             e.limitTags = parseTags(s)
+        path = unicode(path, sys.getfilesystemencoding())
         e.exportInto(path)
         if not e.exportedCards:
             ui.utils.showInfo(_("No cards matched the provided tags."))
