@@ -48,7 +48,7 @@ class Config(dict):
             'interfaceLang': "",
             'syncUsername': "",
             'syncPassword': "",
-            'showFontPreview': True,
+            'showFontPreview': False,
             'showToolbar': True,
             'recentDeckPaths': [],
             'saveAfterAnswer': True,

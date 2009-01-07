@@ -68,8 +68,7 @@ class DisplayProperties(QDialog):
             self.main.config['showFontPreview'] = True
         else:
             self.dialog.previewGroup.hide()
-            self.setMinimumWidth(350)
-            self.setMaximumWidth(350)
+            self.setFixedWidth(340)
             self.main.config['showFontPreview'] = False
 
     def setupCards(self):
