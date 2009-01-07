@@ -231,7 +231,7 @@ You should aim to answer each question within<br>
             return
         if not self.timer:
             return
-        if self.main.state in ("showQuestion", "showAnswer"):
+        if self.main.deck and self.main.state in ("showQuestion", "showAnswer"):
             if self.main.currentCard:
                 if self.main.deck.sessionStartTime:
                     t = time.time() - self.main.deck.sessionStartTime

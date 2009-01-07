@@ -1448,7 +1448,9 @@ day = :d""", d=yesterday)
             self.deck.s.flush()
             self.deck.s.commit()
             if self.loadAfterSync == 2:
-                # special case for open online: mark temp deck as in-memory
+                # ugly hack for open online: mark temp deck as in-memory
+                self.deck.tmpMediaDir = re.sub(
+                    "(?i)\.(anki)$", ".media", self.deck.path)
                 self.deck.path = None
                 self.deck.flushMod()
         elif not self.hideWelcome:
