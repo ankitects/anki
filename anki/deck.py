@@ -1509,6 +1509,7 @@ Return new path, relative to media dir."""
         s("insert into new.cardsDeleted select * from cardsDeleted")
         s("insert into new.models select * from models")
         s("insert into new.stats select * from stats")
+        s("insert into new.media select * from media")
         s("detach database new")
         # close ourselves
         self.s.commit()
