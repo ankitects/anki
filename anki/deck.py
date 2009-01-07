@@ -1909,7 +1909,7 @@ alter table cardModels add column typeAnswer boolean not null default 0""")
                                connect_args={'timeout': 0})
         session = sessionmaker(bind=engine,
                                autoflush=False,
-                               transactional=False)
+                               autocommit=True)
         return (engine, session)
     _attach = staticmethod(_attach)
 

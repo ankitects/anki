@@ -106,9 +106,10 @@ def test_factAddDelete():
         pass
     assert e.data['type'] == 'fieldNotUnique'
     # try delete the first card
-    deck.deleteCard(f.cards[0].id)
+    id1 = f.cards[0].id; id2 = f.cards[1].id
+    deck.deleteCard(id1)
     # and the second should clear the fact
-    deck.deleteCard(f.cards[1].id)
+    deck.deleteCard(id2)
 
 def test_cardOrder():
     deck = DeckStorage.Deck()

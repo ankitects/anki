@@ -265,7 +265,7 @@ mapper(Card, cardsTable, properties={
 
 mapper(Fact, factsTable, properties={
     'model': relation(Model),
-    'fields': relation(Field, backref="fact", order_by=Field.c.ordinal),
+    'fields': relation(Field, backref="fact", order_by=Field.ordinal),
     })
 
 

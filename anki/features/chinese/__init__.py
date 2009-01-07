@@ -27,7 +27,7 @@ class UnihanController(object):
                                     echo=False, strategy='threadlocal')
         self.session = sessionmaker(bind=self.engine,
                                     autoflush=False,
-                                    transactional=True)
+                                    autocommit=True)
         self.type = target
 
     def reading(self, text):
