@@ -233,7 +233,8 @@ You should aim to answer each question within<br>
             return
         if self.main.deck and self.main.state in ("showQuestion", "showAnswer"):
             if self.main.currentCard:
-                if self.main.deck.sessionStartTime:
+                if (self.main.deck.sessionStartTime and
+                    self.main.deck.sessionTimeLimit):
                     t = time.time() - self.main.deck.sessionStartTime
                     t = self.main.deck.sessionTimeLimit - t
                 else:
