@@ -1442,6 +1442,7 @@ Return new path, relative to media dir."""
             self.s.clear()
             self.s.close()
         self.engine.dispose()
+        runHook("deckClosed")
 
     def rollback(self):
         "Roll back the current transaction and reset session state."
