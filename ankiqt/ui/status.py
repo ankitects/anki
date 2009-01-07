@@ -141,7 +141,7 @@ class StatusView(object):
         else:
             # remaining string, bolded depending on current card
             if not self.main.currentCard:
-                remStr += "%(failed1)s + %(rev1)s + %(new1)s"
+                remStr += "%(failed1)s %(rev1)s %(new1)s"
             else:
                 q = self.main.deck.queueForCard(self.main.currentCard)
                 if q == "failed":
