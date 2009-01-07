@@ -159,4 +159,4 @@ question or answer on all cards."""), parent=self)
         if not self.parent.config['saveAfterAdding']:
             return
         if (self.addedItems % self.parent.config['saveAfterAddingNum']) == 0:
-            self.parent.onSave()
+            self.parent.save()
