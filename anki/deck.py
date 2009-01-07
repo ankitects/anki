@@ -49,7 +49,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=19),
+    Column('version', Integer, nullable=False, default=20),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -1940,6 +1940,9 @@ create index if not exists ix_cards_randomOrder on cards
         deck.s.statement("""
 create index if not exists ix_cards_priorityDue on cards
 (type, isDue, priority desc, combinedDue)""")
+        deck.s.statement("""
+create index if not exists ix_cards_priorityDueReal on cards
+(type, isDue, priority desc, due)""")
         # card spacing
         deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
@@ -2002,7 +2005,7 @@ order by priority desc, interval""")
 create view revCardsDue as
 select * from cards
 where type = 1 and isDue = 1
-order by priority desc, combinedDue""")
+order by priority desc, due""")
         s.statement("""
 create view revCardsRandom as
 select * from cards
@@ -2018,7 +2021,7 @@ order by priority desc, factId, ordinal""")
 create view acqCardsOrdered as
 select * from cards
 where type = 2 and isDue = 1
-order by priority desc, combinedDue""")
+order by priority desc, due""")
     _addViews = staticmethod(_addViews)
 
     def _upgradeDeck(deck, path):
@@ -2212,6 +2215,11 @@ where interval < 1""")
             deck.s.commit()
             deck.s.statement("vacuum")
             deck.s.statement("analyze")
+        if deck.version < 20:
+            DeckStorage._addViews(deck)
+            DeckStorage._addIndices(deck)
+            deck.version = 20
+            deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
 
