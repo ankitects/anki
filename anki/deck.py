@@ -1596,8 +1596,6 @@ select id from fields where factId not in (select id from facts)""")
             "where allowEmptyAnswer is null")
         self.s.statement(
             "update cardModels set typeAnswer = 0 where typeAnswer is null")
-
-        self.s.statement("update models set source = 0 where source is null")
         # fix any priorities
         self.updateAllPriorities()
         # fix problems with stripping html
