@@ -164,8 +164,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>542</width>
-            <height>504</height>
+            <width>428</width>
+            <height>546</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
@@ -208,7 +208,7 @@
             <x>0</x>
             <y>0</y>
             <width>428</width>
-            <height>563</height>
+            <height>546</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_5" >
@@ -428,7 +428,7 @@
                     <item>
                      <widget class="QCheckBox" name="delayLapsedCards" >
                       <property name="text" >
-                       <string>Delay lapsed cards until after reviews</string>
+                       <string>Delay failed cards until after reviews</string>
                       </property>
                      </widget>
                     </item>
