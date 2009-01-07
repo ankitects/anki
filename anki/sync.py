@@ -192,8 +192,9 @@ class SyncTools(object):
             p['media'] = (
                 "<tr><td>Media</td><td>off</td><td>off</td></tr>" % p)
         return _("""\
-<table width=500>
-<tr><td><b>Added/Changed</b></td><td><b>Here</b></td><td><b>Server</b></td></tr>
+<table>
+<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>
+<td><b>Here&nbsp;&nbsp;&nbsp;</b></td><td><b>Server</b></td></tr>
 <tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>
 <tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>
 <tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>
@@ -207,6 +208,7 @@ class SyncTools(object):
         "Generate a full summary of modtimes for two-way syncing."
         # client may have selected an earlier sync time
         self.deck.lastSync = lastSync
+        self.deck.s.commit()
         # ensure we're flushed first
         self.deck.s.flush()
         return {
