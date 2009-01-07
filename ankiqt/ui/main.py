@@ -128,7 +128,11 @@ class AnkiQt(QMainWindow):
                     # hack for matplotlib errors on osx
                     self.pool = ""
                 stdText = _("""\
-An error occurred. Please copy the following into a bug report.\n\n""")
+An error occurred.
+Please run Tools > Advanced > Check DB.
+
+If the error continues after that, please copy the following
+into a bug report.\n\n""")
                 pluginText = _("""\
 An error occurred in a plugin. Please contact the plugin author.
 Please do not file a bug report with Anki.\n\n""")
