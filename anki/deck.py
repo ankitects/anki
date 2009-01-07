@@ -23,6 +23,7 @@ from anki.fonts import toPlatformFont
 import anki.features
 from operator import itemgetter
 from itertools import groupby
+from anki.hooks import runHook
 
 # ensure all the metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.stats
