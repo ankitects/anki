@@ -1479,7 +1479,7 @@ day = :d""", d=yesterday)
 
     def setSyncStatus(self, text, *args):
         self.setStatus(text, *args)
-        self.mainWin.welcomeText.append("<font size=+6>" + text + "</font>")
+        self.mainWin.welcomeText.append("<font size=+2>" + text + "</font>")
 
     def syncClockOff(self, diff):
         ui.utils.showWarning(
