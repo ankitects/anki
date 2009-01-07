@@ -267,11 +267,11 @@ class EditDeck(QMainWindow):
         self.sortList = [
             _("Question"),
             _("Answer"),
-            _("Creation date"),
-            _("Modified date"),
-            _("Due date"),
+            _("Created"),
+            _("Modified"),
+            _("Due"),
             _("Interval"),
-            _("Answer count"),
+            _("Reps"),
             _("Ease"),
             ]
         self.sortFields = sorted(self.deck.allFields())
