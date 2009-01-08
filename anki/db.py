@@ -103,6 +103,7 @@ def object_session(*args):
 
 def sessionmaker(*args, **kwargs):
     if sqlalchemy.__version__ < "0.5":
-        kwargs['transactional'] = not kwargs['autocommit']
-        del kwargs['autocommit']
+        if 'autocommit' in kwargs:
+            kwargs['transactional'] = not kwargs['autocommit']
+            del kwargs['autocommit']
     return _sessionmaker(*args, **kwargs)
