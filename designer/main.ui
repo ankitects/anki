@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>713</width>
-    <height>707</height>
+    <width>536</width>
+    <height>466</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -27,8 +27,8 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>713</width>
-     <height>618</height>
+     <width>536</width>
+     <height>377</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -154,8 +154,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>428</width>
-            <height>546</height>
+            <width>251</width>
+            <height>305</height>
            </rect>
           </property>
          </widget>
@@ -789,7 +789,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>428</width>
+            <width>251</width>
             <height>66</height>
            </rect>
           </property>
@@ -987,7 +987,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>713</width>
+     <width>536</width>
      <height>23</height>
     </rect>
    </property>
@@ -1135,8 +1135,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>687</y>
-     <width>713</width>
+     <y>446</y>
+     <width>536</width>
      <height>20</height>
     </rect>
    </property>
@@ -1149,7 +1149,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>713</width>
+     <width>536</width>
      <height>46</height>
     </rect>
    </property>
@@ -1729,24 +1729,25 @@
   </action>
  </widget>
  <tabstops>
-  <tabstop>optionsButton</tabstop>
-  <tabstop>optionsHelpButton</tabstop>
-  <tabstop>newPerDay</tabstop>
-  <tabstop>minuteLimit</tabstop>
+  <tabstop>easeButton1</tabstop>
+  <tabstop>easeButton2</tabstop>
+  <tabstop>easeButton3</tabstop>
+  <tabstop>easeButton4</tabstop>
   <tabstop>questionLimit</tabstop>
   <tabstop>newCardOrder</tabstop>
   <tabstop>newCardScheduling</tabstop>
   <tabstop>revCardOrder</tabstop>
   <tabstop>delayLapsedCards</tabstop>
-  <tabstop>easeButton2</tabstop>
-  <tabstop>easeButton3</tabstop>
-  <tabstop>easeButton1</tabstop>
-  <tabstop>easeButton4</tabstop>
+  <tabstop>optionsHelpButton</tabstop>
+  <tabstop>newPerDay</tabstop>
+  <tabstop>optionsButton</tabstop>
+  <tabstop>minuteLimit</tabstop>
   <tabstop>saveEditorButton</tabstop>
   <tabstop>help</tabstop>
   <tabstop>welcomeText</tabstop>
   <tabstop>startReviewingButton</tabstop>
   <tabstop>showAnswerButton</tabstop>
+  <tabstop>typeAnswerField</tabstop>
  </tabstops>
  <resources>
   <include location="../icons.qrc" />
