@@ -6,6 +6,7 @@ from PyQt4.QtCore import *
 import anki
 import sys, time
 from ankiqt import ui
+from anki.hooks import addHook
 
 class QClickableLabel(QLabel):
     url = "http://ichi2.net/anki/wiki/TheTimerAndShortQuestions"
@@ -29,8 +30,10 @@ class StatusView(object):
         self.thinkingTimer = QTimer(parent)
         self.thinkingTimer.start(1000)
         self.timer = None
+        self.timerFlashStart = 0
         parent.connect(self.thinkingTimer, SIGNAL("timeout()"),
                        self.drawTimer)
+        addHook("showQuestion", self.flashTimer)
 
     # State control
     ##########################################################################
@@ -233,14 +236,21 @@ You should aim to answer each question within<br>
             return
         if self.main.deck and self.main.state in ("showQuestion", "showAnswer"):
             if self.main.currentCard:
-                if (self.main.deck.sessionStartTime and
-                    self.main.deck.sessionTimeLimit):
-                    t = time.time() - self.main.deck.sessionStartTime
-                    t = self.main.deck.sessionTimeLimit - t
-                else:
-                    t = self.main.currentCard.thinkingTime()
-                if t < 0:
-                    t = 0
+                if time.time() - self.timerFlashStart < 1:
+                    return
+                t = self.main.currentCard.thinkingTime()
                 self.timer.setText('%02d:%02d' % (t/60, t%60))
                 return
         self.timer.setText("00:00")
+
+    def flashTimer(self):
+        if not (self.main.deck.sessionStartTime and
+                self.main.deck.sessionTimeLimit):
+            return
+        t = time.time() - self.main.deck.sessionStartTime
+        t = self.main.deck.sessionTimeLimit - t
+        if t < 0:
+            t = 0
+        self.timer.setText('<span style="color:#0000ff">%02d:%02d</span>' %
+                           (t/60, t%60))
+        self.timerFlashStart = time.time()
