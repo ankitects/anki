@@ -207,8 +207,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>428</width>
-            <height>546</height>
+            <width>251</width>
+            <height>305</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_5" >
@@ -428,7 +428,7 @@
                     <item>
                      <widget class="QCheckBox" name="delayLapsedCards" >
                       <property name="text" >
-                       <string>Delay failed cards until after reviews</string>
+                       <string>Show failed cards last</string>
                       </property>
                      </widget>
                     </item>
