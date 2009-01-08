@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-06 10:31+0900\n"
+"POT-Creation-Date: 2009-01-08 10:01+0900\n"
 "PO-Revision-Date: 2008-01-01 19:00+0100\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,7 +111,7 @@ msgstr ""
 msgid "<b>Correct answers</b><br>"
 msgstr ""
 
-#: deck.py:587
+#: deck.py:589
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -139,8 +139,9 @@ msgstr "<li>%d celkem unikátních kanji.<"
 #: sync.py:194
 #, python-format
 msgid ""
-"<table width=500>\n"
-"<tr><td><b>Added/Changed</b></td><td><b>Here</b></td><td><b>Server</b></td></tr>\n"
+"<table>\n"
+"<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>\n"
+"<td><b>Here&nbsp;&nbsp;&nbsp;</b></td><td><b>Server</b></td></tr>\n"
 "<tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
 "<tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
 "<tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
@@ -168,11 +169,11 @@ msgstr "Balík anki"
 msgid "Anki decks (*.anki)"
 msgstr "Balíky anki"
 
-#: deck.py:290
+#: deck.py:292
 msgid "Answer Card"
 msgstr ""
 
-#: deck.py:546
+#: deck.py:548
 #, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
@@ -222,7 +223,7 @@ msgstr "Střed"
 msgid "Changed"
 msgstr "Změněno"
 
-#: deck.py:1528
+#: deck.py:1533
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -235,31 +236,31 @@ msgstr "Statistika balíku"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Balík vytvořen před: <b>%s</b><br>"
 
-#: deck.py:1536
+#: deck.py:1541
 msgid "Deck was missing a model"
 msgstr ""
 
-#: deck.py:1562
+#: deck.py:1567
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1570
+#: deck.py:1575
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr ""
 
-#: deck.py:1583
+#: deck.py:1588
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1555
+#: deck.py:1560
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1575
+#: deck.py:1580
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -284,7 +285,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "výrazy oddělené tabulátory (*.txt)"
 
-#: deck.py:1879
+#: deck.py:1889
 msgid "File is in use by another process"
 msgstr ""
 
@@ -360,12 +361,12 @@ msgstr "<br>Karty starší než týden: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br
 msgid "Media Missing"
 msgstr ""
 
-#: deck.py:1030
+#: deck.py:1032
 #, python-format
 msgid "Model '%s' has wrong card template count"
 msgstr ""
 
-#: deck.py:1034
+#: deck.py:1036
 #, python-format
 msgid "Model '%s' has wrong field count"
 msgstr ""
@@ -379,7 +380,7 @@ msgstr "Štítky modelu"
 msgid "New"
 msgstr ""
 
-#: deck.py:559
+#: deck.py:561
 msgid "No cards are due."
 msgstr ""
 
@@ -405,19 +406,19 @@ msgstr "%s měsíc"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:2275
+#: deck.py:2293
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:2276
+#: deck.py:2294
 msgid "Review cards in random order"
 msgstr ""
 
-#: deck.py:2274
+#: deck.py:2292
 msgid "Review newest cards first"
 msgstr ""
 
-#: deck.py:2273
+#: deck.py:2291
 msgid "Review oldest cards first"
 msgstr ""
 
@@ -430,23 +431,23 @@ msgstr "Počet opakování"
 msgid "Right"
 msgstr "Správně"
 
-#: deck.py:2267
+#: deck.py:2285
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:2268
+#: deck.py:2286
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:2261
+#: deck.py:2279
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:2260
+#: deck.py:2278
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:2266
+#: deck.py:2284
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -454,11 +455,11 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr "Textové soubory (*.txt)"
 
-#: deck.py:1542
+#: deck.py:1547
 msgid "The current model didn't exist"
 msgstr ""
 
-#: deck.py:556
+#: deck.py:558
 #, python-format
 msgid "The next card will be shown in <b>%s</b>"
 msgstr ""
@@ -473,7 +474,7 @@ msgstr "Celkový čas"
 msgid "Total number of cards: <b>%d</b><br><br>"
 msgstr "Celkový pošet kartiček: <b>%d</b><br>"
 
-#: deck.py:757
+#: deck.py:759
 msgid "Unknown"
 msgstr "Neznámý"
 
@@ -505,7 +506,7 @@ msgstr ""
 msgid "in %s"
 msgstr "za %s"
 
-#: deck.py:576
+#: deck.py:578
 msgid "unknown"
 msgstr "neznámý"
 
