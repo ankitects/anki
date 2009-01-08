@@ -443,6 +443,7 @@ new:
     def showAnswerButton(self):
         if self.currentCard.cardModel.typeAnswer:
             self.mainWin.buttonStack.setCurrentIndex(4)
+            self.mainWin.typeAnswerField.setFocus()
             if not unicode(self.mainWin.typeAnswerField.text()):
                 self.mainWin.typeAnswerField.setText(_(
                     "Type in the answer and hit enter"))
