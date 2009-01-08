@@ -1616,7 +1616,7 @@ day = :d""", d=yesterday)
 
     def updateTitleBar(self):
         "Display the current deck and card count in the titlebar."
-        title=ankiqt.appName + " " + ankiqt.appVersion
+        title=ankiqt.appName
         if self.deck != None:
             deckpath = self.deck.name()
             if self.deck.modifiedSinceSave():
