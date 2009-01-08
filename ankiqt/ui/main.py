@@ -1337,7 +1337,7 @@ day = :d""", d=yesterday)
         self.deck = None
         self.loadDeck(path)
         self.config['recentDeckPaths'].pop(0)
-        self.deck.newCardsPerDay = 999999
+        self.deck.newCardsPerDay = 99999
         self.deck.delay0 = 300
         self.deck.delay1 = 600
         self.deck.hardIntervalMin = 0.01388
