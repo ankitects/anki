@@ -25,14 +25,14 @@ if hasattr(sys, "frozen"):
 
 # we bundle icons_rc as part of the anki source
 sys.path.append(os.path.dirname(__file__))
-import forms
-import config
-import ui
 
 # App initialisation
 ##########################################################################
 
 def run():
+    import forms
+    import config
+    import ui
     # put anki home in c:\anki on win32 if not available
     if sys.platform == "win32":
         path = os.path.expanduser("~")
