@@ -950,6 +950,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                      SIGNAL("clicked()"),
                      lambda: QDesktopServices.openUrl(QUrl(
             ankiqt.appWiki + "StudyOptions")))
+        self.mainWin.optionsBox.setShown(False)
 
     def showStudyScreen(self):
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
