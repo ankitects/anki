@@ -613,6 +613,9 @@ class FactEdit(QTextEdit):
                     elif ext in audio:
                         name = self._retrieveURL(txt, ext)
                         self.parent._addSound(name, widget=self)
+                    else:
+                        # not image or sound, treat as plain text
+                        self.insertPlainText(source.text())
                     return
             else:
                 self.insertPlainText(source.text())
