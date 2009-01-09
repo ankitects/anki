@@ -549,7 +549,6 @@ class FactEditor(object):
         return True
 
     def onAddPicture(self):
-        self.initMedia()
         # get this before we open the dialog
         w = self.focusedEdit()
         key = _("Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)")
@@ -559,6 +558,7 @@ class FactEditor(object):
         self._addPicture(file, widget=w)
 
     def _addPicture(self, file, widget=None):
+        self.initMedia()
         if widget:
             w = widget
         else:
@@ -567,7 +567,6 @@ class FactEditor(object):
         w.insertHtml('<img src="%s">' % path)
 
     def onAddSound(self):
-        self.initMedia()
         # get this before we open the dialog
         w = self.focusedEdit()
         key = _("Sounds (*.mp3 *.ogg *.wav)")
@@ -577,6 +576,7 @@ class FactEditor(object):
         self._addSound(file, widget=w)
 
     def _addSound(self, file, widget=None):
+        self.initMedia()
         if widget:
             w = widget
         else:
