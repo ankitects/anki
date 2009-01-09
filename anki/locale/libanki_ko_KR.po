@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:40+0900\n"
 "PO-Revision-Date: 2008-05-24 09:18+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -342,7 +342,7 @@ msgstr "왼쪽"
 msgid "Mandarin"
 msgstr "북경어"
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
 msgstr "성숙한 카드"
 
@@ -375,7 +375,7 @@ msgstr ""
 msgid "Model Tags"
 msgstr "모델 꼬리표"
 
-#: graphs.py:174 graphs.py:332
+#: graphs.py:175 graphs.py:333
 msgid "New"
 msgstr ""
 
@@ -486,7 +486,7 @@ msgstr "알 수 없음"
 msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgstr "시작하지 않은 카드: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 
-#: graphs.py:149 graphs.py:175 graphs.py:333
+#: graphs.py:150 graphs.py:176 graphs.py:334
 msgid "Young"
 msgstr "어린 카드"
 

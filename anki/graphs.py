@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext'
 
 import os, sys, time
 import anki.stats
+from anki.lang import _
 
 import datetime
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:40+0900\n"
 "PO-Revision-Date: 2008-12-31 15:50+0100\n"
 "Last-Translator: Christian Rusche <cru@bsiag.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -351,7 +351,7 @@ msgstr "Links"
 msgid "Mandarin"
 msgstr "Mandarin"
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
 msgstr "Alt"
 
@@ -383,7 +383,7 @@ msgstr "Modell '%s' hat eine falsche Anzahl Felder"
 msgid "Model Tags"
 msgstr "Modell-Tags"
 
-#: graphs.py:174 graphs.py:332
+#: graphs.py:175 graphs.py:333
 msgid "New"
 msgstr "Neu"
 
@@ -486,7 +486,7 @@ msgstr "Unbekannt"
 msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgstr "Nicht gesehene Karten: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 
-#: graphs.py:149 graphs.py:175 graphs.py:333
+#: graphs.py:150 graphs.py:176 graphs.py:334
 msgid "Young"
 msgstr "Jung"
 

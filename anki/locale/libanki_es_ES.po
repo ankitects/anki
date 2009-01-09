@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:40+0900\n"
 "PO-Revision-Date: 2008-12-25 21:59+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -358,7 +358,7 @@ msgstr "Izquierda"
 msgid "Mandarin"
 msgstr "Mandarín"
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
 msgstr "Madura"
 
@@ -390,7 +390,7 @@ msgstr "El modelo '%s' tenía un número incorrecto de modelos de campo"
 msgid "Model Tags"
 msgstr "Etiquetas del Modelo"
 
-#: graphs.py:174 graphs.py:332
+#: graphs.py:175 graphs.py:333
 msgid "New"
 msgstr "Nuevas"
 
@@ -493,7 +493,7 @@ msgstr "Desconocido"
 msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgstr "Tarjetas no mostradas: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 
-#: graphs.py:149 graphs.py:175 graphs.py:333
+#: graphs.py:150 graphs.py:176 graphs.py:334
 msgid "Young"
 msgstr "Joven"
 

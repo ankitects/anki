@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:40+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -358,7 +358,7 @@ msgstr "Gauche"
 msgid "Mandarin"
 msgstr "Mandarin"
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
 msgstr "Mûre"
 
@@ -391,7 +391,7 @@ msgstr "Le modèle '%s' avait le mauvais nombre de champs"
 msgid "Model Tags"
 msgstr "Marqueurs de modèle"
 
-#: graphs.py:174 graphs.py:332
+#: graphs.py:175 graphs.py:333
 msgid "New"
 msgstr ""
 
@@ -500,7 +500,7 @@ msgstr "Inconnu"
 msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgstr "Cartes non vues: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 
-#: graphs.py:149 graphs.py:175 graphs.py:333
+#: graphs.py:150 graphs.py:176 graphs.py:334
 msgid "Young"
 msgstr "Récente"
 

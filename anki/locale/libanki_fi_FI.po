@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:40+0900\n"
 "PO-Revision-Date: 2008-12-07 20:38+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -356,7 +356,7 @@ msgstr "Vasen"
 msgid "Mandarin"
 msgstr "Mandariini"
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
 msgstr "Vahva"
 
@@ -388,7 +388,7 @@ msgstr "Mallissa %s on väärä kenttämallilukema"
 msgid "Model Tags"
 msgstr ""
 
-#: graphs.py:174 graphs.py:332
+#: graphs.py:175 graphs.py:333
 msgid "New"
 msgstr "Uusi"
 
@@ -492,7 +492,7 @@ msgstr "Tuntematon"
 msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgstr "Näkemättömiä kortteja: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 
-#: graphs.py:149 graphs.py:175 graphs.py:333
+#: graphs.py:150 graphs.py:176 graphs.py:334
 msgid "Young"
 msgstr "Nuori"
 
