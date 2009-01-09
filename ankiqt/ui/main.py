@@ -951,11 +951,18 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                      lambda: QDesktopServices.openUrl(QUrl(
             ankiqt.appWiki + "StudyOptions")))
         self.mainWin.optionsBox.setShown(False)
+        self.connect(self.mainWin.minuteLimit,
+                     SIGNAL("textChanged(QString)"), self.onMinuteLimitChanged)
 
-    def showStudyScreen(self):
-        self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
-        self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
-        self.switchToStudyScreen()
+    def onMinuteLimitChanged(self, qstr):
+        try:
+            self.deck.sessionTimeLimit = float(
+                self.mainWin.minuteLimit.text()) * 60
+        except ValueError:
+            pass
+        self.updateStudyStats()
+
+    def updateStudyStats(self):
         initial = self.deck.sessionStartTime == 0
         if initial:
             # deck just opened, or screen triggered manually
@@ -967,9 +974,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         # top label
         h = {}
         s = self.deck.getStats()
-        h['lapsed'] = '<font color=#990000>%s</font>' % s['failed']
-        h['ret'] = s['rev']
+        h['ret'] = '<font color=#0077ff>%s</font>' % (s['rev']+s['failed'])
         h['new'] = '<font color=#0000ff>%s</font>' % s['new']
+        h['newof'] = '%s' % self.deck.newCount
         dtoday = s['dTotal']
         yesterday = self.deck._dailyStats.day - datetime.timedelta(1)
         res = self.deck.s.first("""
@@ -979,15 +986,11 @@ day = :d""", d=yesterday)
             (dyest, tyest) = res
         else:
             dyest = 0; tyest = 0
-        dchange = dtoday - dyest
-        if dchange >= 0:
-            dchange = "+%d" % dchange
-        else:
-            dchange = str(dchange)
         h['repsToday'] = '<font color=#007700>%s</font>' % dtoday
-        h['repsTodayChg'] = '<font color=#007700>(%s)</font>' % dchange
-        start = self.deck.sessionStartTime or time.time() - 600
-        start2 = self.deck.lastSessionStart or start - 600
+        h['repsTodayChg'] = '<font color=#0000cc>%s</font>' % dyest
+        limit = self.deck.sessionTimeLimit
+        start = self.deck.sessionStartTime or time.time() - limit
+        start2 = self.deck.lastSessionStart or start - limit
         last10 = self.deck.s.scalar(
             "select count(*) from reviewHistory where time >= :t",
             t=start)
@@ -995,39 +998,38 @@ day = :d""", d=yesterday)
             "select count(*) from reviewHistory where "
             "time >= :t and time < :t2",
             t=start2, t2=start)
-        change = last10 - last20
-        if change >= 0:
-            change = "+%d" % change
-        else:
-            change = str(change)
-        h['repsIn10'] = '<font color=#007700>%s</font>' % last10
-        h['repsIn10Chg'] = '<font color=#007700>(%s)</font>' % change
+        h['repsInSes'] = '<font color=#007700>%s</font>' % last10
+        h['repsInSesChg'] = '<font color=#0000cc>%s</font>' % last20
         ttoday = s['dReviewTime']
-        change = ttoday - tyest
-        if change >= 0:
-            change = "+%s" % anki.utils.fmtTimeSpan(change, short=True, point=1)
-        else:
-            change = anki.utils.fmtTimeSpan(change, short=True, point=1)
         h['timeToday'] = '<font color=#007700>%s</font>' % (
             anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
-        h['timeTodayChg'] = '<font color=#007700>(%s)</font>' % change
+        h['timeTodayChg'] = '<font color=#0000cc>%s</font>' % (
+            anki.utils.fmtTimeSpan(tyest, short=True, point=1))
         self.mainWin.optionsLabel.setText(top + _("""\
 <p>
 <table width=300>
 <tr><td>
-<table>
-<tr><td>Reps (10 mins):&nbsp;&nbsp;</td><td><b>%(repsIn10)s</b></td>
-<td align=right>%(repsIn10Chg)s</td></tr>
-<tr><td>Reps (today):</td><td><b>%(repsToday)s</b></td>
-<td align=right>%(repsTodayChg)s</td></tr>
-<tr><td>Time (today):</td><td><b>%(timeToday)s</b></td>
-<td align=right>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%(timeTodayChg)s</td></tr>
+<table width=150>
+<tr><td>Session:&nbsp;&nbsp;</td><td><b>%(repsInSes)s</b></td>
+<td>%(repsInSesChg)s</td></tr>
+<tr><td>Day:</td><td><b>%(repsToday)s</b></td>
+<td>%(repsTodayChg)s</td></tr>
+<tr><td>Time:</td><td><b>%(timeToday)s</b></td>
+<td>%(timeTodayChg)s</td></tr>
 </table></td>
 <td><table>
-<tr><td>Failed:</td><td align=right><b>%(lapsed)s</b></td></tr>
-<tr><td>Review:&nbsp;&nbsp;&nbsp;</td><td align=right><b>%(ret)s</b></td></tr>
-<tr><td>New:</td><td align=right><b>%(new)s</b></td></tr>
+<tr><td>Review: </td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
+<tr><td>New total:</td><td align=right><b>%(newof)s</b></td></tr>
 </table></td></tr></table>""") % h)
+
+
+    def showStudyScreen(self):
+        initial = self.deck.sessionStartTime == 0
+        self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
+        self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
+        self.switchToStudyScreen()
+        self.updateStudyStats()
         # start reviewing button
         self.mainWin.buttonStack.setCurrentIndex(3)
         self.mainWin.buttonStack.show()
@@ -1044,7 +1046,7 @@ day = :d""", d=yesterday)
 
     def setupStudyOptions(self):
         self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
-        self.mainWin.minuteLimit.setText(str(self.deck.sessionTimeLimit/60.0))
+        self.mainWin.minuteLimit.setText(str(self.deck.sessionTimeLimit/60))
         self.mainWin.questionLimit.setText(str(self.deck.sessionRepLimit))
         self.mainWin.newCardOrder.setCurrentIndex(self.deck.newCardOrder)
         self.mainWin.newCardScheduling.setCurrentIndex(self.deck.newCardSpacing)
