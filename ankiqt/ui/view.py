@@ -151,7 +151,7 @@ class View(object):
         a = self.main.currentCard.htmlAnswer()
         if self.main.currentCard.cardModel.typeAnswer:
             cor = stripHTML(self.main.currentCard.answer)
-            given = unicode(self.main.mainWin.typeAnswerField.text())
+            given = unicode(self.main.typeAnswerField.text())
             res = []
             if len(given) < len(cor):
                 given += " " * (len(cor) - len(given))

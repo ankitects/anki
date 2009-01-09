@@ -436,6 +436,20 @@ new:
         # editor
         self.connect(self.mainWin.saveEditorButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("saveEdit"))
+        # type answer
+        class QLineEditNoUndo(QLineEdit):
+            def __init__(self, parent):
+                self.parent = parent
+                QLineEdit.__init__(self, parent)
+            def keyPressEvent(self, evt):
+                if evt.matches(QKeySequence.Undo):
+                    evt.accept()
+                    if self.parent.mainWin.actionUndo.isEnabled():
+                        self.parent.onUndo()
+                else:
+                    return QLineEdit.keyPressEvent(self, evt)
+        self.typeAnswerField = QLineEditNoUndo(self)
+        self.mainWin.typeAnswerLayout.addWidget(self.typeAnswerField)
 
     def hideButtons(self):
         self.mainWin.buttonStack.hide()
@@ -443,13 +457,13 @@ new:
     def showAnswerButton(self):
         if self.currentCard.cardModel.typeAnswer:
             self.mainWin.buttonStack.setCurrentIndex(4)
-            self.mainWin.typeAnswerField.setFocus()
-            if not unicode(self.mainWin.typeAnswerField.text()):
-                self.mainWin.typeAnswerField.setText(_(
+            self.typeAnswerField.setFocus()
+            if not unicode(self.typeAnswerField.text()):
+                self.typeAnswerField.setText(_(
                     "Type in the answer and hit enter"))
-                self.mainWin.typeAnswerField.selectAll()
+                self.typeAnswerField.selectAll()
             else:
-                self.mainWin.typeAnswerField.setText("")
+                self.typeAnswerField.setText("")
         else:
             self.mainWin.buttonStack.setCurrentIndex(0)
             self.mainWin.showAnswerButton.setFocus()
