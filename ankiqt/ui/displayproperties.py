@@ -209,26 +209,29 @@ class DisplayProperties(QDialog):
                 self.fwidget("useFamily", type).setCheckState(Qt.Checked)
                 self.fwidget("fontFamily", type).setCurrentFont(QFont(
                     getattr(field, type + 'FontFamily')))
+                self.fwidget("fontFamily", type).setEnabled(True)
             else:
                 self.fwidget("useFamily", type).setCheckState(Qt.Unchecked)
-                self.fwidget("fontFamily", type).hide()
+                self.fwidget("fontFamily", type).setEnabled(False)
             # size
             if getattr(field, type + 'FontSize'):
                 self.fwidget("useSize", type).setCheckState(Qt.Checked)
                 self.fwidget("fontSize", type).setValue(
                     getattr(field, type + 'FontSize'))
+                self.fwidget("fontSize", type).setEnabled(True)
             else:
                 self.fwidget("useSize", type).setCheckState(Qt.Unchecked)
-                self.fwidget("fontSize", type).hide()
+                self.fwidget("fontSize", type).setEnabled(False)
             # colour
             if type == "quiz":
                 if getattr(field, type + 'FontColour'):
                     self.fwidget("useColour", type).setCheckState(Qt.Checked)
                     self.fwidget("fontColour", type).setPalette(QPalette(QColor(
                         getattr(field, type + 'FontColour'))))
+                    self.fwidget("fontColour", type).setEnabled(True)
                 else:
                     self.fwidget("useColour", type).setCheckState(Qt.Unchecked)
-                    self.fwidget("fontColour", type).hide()
+                    self.fwidget("fontColour", type).setEnabled(False)
         self.currentField = field
 
     def saveField(self, *args):

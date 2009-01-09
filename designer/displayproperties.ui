@@ -102,7 +102,7 @@
                 </rect>
                </property>
                <attribute name="title" >
-                <string>Card</string>
+                <string>Cards</string>
                </attribute>
                <layout class="QVBoxLayout" name="verticalLayout" >
                 <item>
@@ -272,7 +272,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>297</width>
-                 <height>437</height>
+                 <height>289</height>
                 </rect>
                </property>
                <attribute name="title" >
@@ -298,7 +298,7 @@
                 <item>
                  <widget class="QLabel" name="label" >
                   <property name="text" >
-                   <string> &lt;b>When quizzing/adding/editing&lt;/b></string>
+                   <string> &lt;b>When reviewing and editing:&lt;/b></string>
                   </property>
                  </widget>
                 </item>
@@ -366,6 +366,9 @@
                     <property name="maximum" >
                      <number>300</number>
                     </property>
+                    <property name="value" >
+                     <number>14</number>
+                    </property>
                    </widget>
                   </item>
                   <item row="2" column="0" >
@@ -405,7 +408,7 @@
                 <item>
                  <widget class="QLabel" name="label_2" >
                   <property name="text" >
-                   <string> &lt;b>When adding/editing&lt;/b></string>
+                   <string> &lt;b>When editing (overrides above):&lt;/b></string>
                   </property>
                  </widget>
                 </item>
@@ -601,12 +604,92 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>275</x>
-     <y>522</y>
+     <x>315</x>
+     <y>385</y>
     </hint>
     <hint type="destinationlabel" >
      <x>325</x>
      <y>525</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useFamily</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fontFamily</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>107</x>
+     <y>187</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>178</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useSize</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fontSize</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>134</x>
+     <y>226</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>205</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useColour</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fontColour</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>93</x>
+     <y>256</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>175</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useFamilyEdit</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fontFamilyEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>122</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>215</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useSizeEdit</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fontSizeEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>129</x>
+     <y>340</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>210</x>
+     <y>337</y>
     </hint>
    </hints>
   </connection>
