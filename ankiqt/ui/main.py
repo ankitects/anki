@@ -1621,12 +1621,12 @@ day = :d""", d=yesterday)
             deckpath = self.deck.name()
             if self.deck.modifiedSinceSave():
                 deckpath += "*"
-            title = _("%(path)s (%(facts)d facts, %(cards)d cards)"
+            title = _("%(path)s (%(due)d of %(cards)d due)"
                       " - %(title)s") % {
                 "path": deckpath,
                 "title": title,
                 "cards": self.deck.cardCount,
-                "facts": self.deck.factCount,
+                "due": self.deck.failedSoonCount + self.deck.revCount
                 }
         self.setWindowTitle(title)
 
