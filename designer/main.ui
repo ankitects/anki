@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>536</width>
-    <height>466</height>
+    <height>453</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -28,7 +28,7 @@
      <x>0</x>
      <y>69</y>
      <width>536</width>
-     <height>377</height>
+     <height>364</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -790,7 +790,7 @@
             <x>0</x>
             <y>0</y>
             <width>251</width>
-            <height>66</height>
+            <height>53</height>
            </rect>
           </property>
          </widget>
@@ -1135,7 +1135,7 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>446</y>
+     <y>433</y>
      <width>536</width>
      <height>20</height>
     </rect>
@@ -1177,7 +1177,6 @@
    <addaction name="actionEditCurrent" />
    <addaction name="actionEditdeck" />
    <addaction name="actionStudyOptions" />
-   <addaction name="actionDisplayProperties" />
    <addaction name="separator" />
    <addaction name="actionGraphs" />
    <addaction name="actionDstats" />
@@ -1185,6 +1184,8 @@
    <addaction name="separator" />
    <addaction name="actionRepeatAudio" />
    <addaction name="actionMarkCard" />
+   <addaction name="separator" />
+   <addaction name="actionDisplayProperties" />
   </widget>
   <action name="actionExit" >
    <property name="icon" >
