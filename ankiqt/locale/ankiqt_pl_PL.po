@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
-"PO-Revision-Date: 2009-01-06 01:18+0100\n"
+"POT-Creation-Date: 2009-01-09 11:27+0900\n"
+"PO-Revision-Date: 2009-01-09 01:12+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -200,8 +200,8 @@ msgstr[1] "%(name)s [%(facts)d fakt]"
 msgstr[2] "%(name)s [%(facts)d faktów]"
 
 #: ui/main.py:1624
-#, python-format
-msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
+#, fuzzy, python-format
+msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(facts)d faktów, %(cards)d kart) - %(title)s"
 
 #: ui/exporting.py:62
@@ -292,9 +292,8 @@ msgid "&Disable All Plugins"
 msgstr "&Wyłącz wszystkie dodatki"
 
 #: forms/main.py:908
-#, fuzzy
 msgid "&Donate..."
-msgstr "&O programie..."
+msgstr "&Dary pieniężne..."
 
 #: forms/cardlist.py:201 forms/deckproperties.py:335 forms/main.py:818
 msgid "&Edit"
@@ -830,7 +829,7 @@ msgid "<ignored>"
 msgstr "<zignorowane>"
 
 #: ui/main.py:1013
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<p>\n"
 "<table width=300>\n"
@@ -853,14 +852,17 @@ msgstr ""
 "<table width=300>\n"
 "<tr><td>\n"
 "<table>\n"
-"<tr><td>Powtórzone dzisiaj:</td><td align=right><b>%(repsToday)s</b></td></tr>\n"
-"<tr><td>Powtórzone przez 5 minut:</td><td align=right><b>%(repsIn5)s</b></td></tr>\n"
-"<tr><td>Całkowity czas dzisiaj:</td><td align=right><b>%(timeToday)s</b></td></tr>\n"
+"<tr><td>Powtórzone (10 min.):&nbsp;&nbsp;</td><td><b>%(repsIn10)s</b></td>\n"
+"<td align=right>%(repsIn10Chg)s</td></tr>\n"
+"<tr><td>Powtórzone (dzisiaj):</td><td><b>%(repsToday)s</b></td>\n"
+"<td align=right>%(repsTodayChg)s</td></tr>\n"
+"<tr><td>Czas (dzisiaj):</td><td><b>%(timeToday)s</b></td>\n"
+"<td align=right>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%(timeTodayChg)s</td></tr>\n"
 "</table></td>\n"
 "<td><table>\n"
-"<tr><td>Czeka źle rozwiązanych:</td><td align=right><b>%(lapsed)s</b></td></tr>\n"
-"<tr><td>Czeka zwykłych:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-"<tr><td>Czeka nowych:</td><td align=right><b>%(new)s</b></td></tr>\n"
+"<tr><td>Źle rozwiązane:</td><td align=right><b>%(lapsed)s</b></td></tr>\n"
+"<tr><td>Zwykłe:&nbsp;&nbsp;&nbsp;</td><td align=right><b>%(ret)s</b></td></tr>\n"
+"<tr><td>Nowe:</td><td align=right><b>%(new)s</b></td></tr>\n"
 "</table></td></tr></table>"
 
 #: ui/help.py:60
@@ -982,7 +984,6 @@ msgstr ""
 "Czynność ta może potrwać trochę czasu."
 
 #: ui/main.py:130
-#, fuzzy
 msgid ""
 "An error occurred.\n"
 "Please run Tools > Advanced > Check DB.\n"
@@ -991,7 +992,11 @@ msgid ""
 "into a bug report.\n"
 "\n"
 msgstr ""
-"Wystąpił błąd. Przy wypełnianiu raportu o błędzie załącz poniższy tekst.\n"
+"Wystąpił błąd.\n"
+"Uruchom Narzędzia > Zaawansowane > Sprawdź bazę danych.\n"
+"\n"
+"Jeśli po tym błąd będzie się powtarzał, załącz poniższy tekst\n"
+"do raportu o błędzie.\n"
 "\n"
 
 #: ui/deckproperties.py:178 ui/main.py:1904 forms/addmodel.py:48
@@ -1072,14 +1077,12 @@ msgid "Can't look up a selection with a newline."
 msgstr "Nie można wyszukiwać tekstu ze znakiem nowej linii"
 
 #: ui/main.py:1919
-#, fuzzy
 msgid "Cancel"
-msgstr "Zmień"
+msgstr "Anuluj"
 
 #: forms/displayproperties.py:324
-#, fuzzy
 msgid "Card"
-msgstr "Karta:"
+msgstr "Karta"
 
 #: ui/modelproperties.py:253
 #, python-format
@@ -1173,9 +1176,8 @@ msgid "Create '%s' on server"
 msgstr "Tworzenie '%s' na serwerze"
 
 #: ui/cardlist.py:270
-#, fuzzy
 msgid "Created"
-msgstr "Data utworzenia"
+msgstr "Utworzona"
 
 #: forms/main.py:847
 msgid "Ctrl+1"
@@ -1346,11 +1348,6 @@ msgstr "Talia jest już otwarta."
 msgid "Del"
 msgstr "Del"
 
-#: forms/main.py:803
-#, fuzzy
-msgid "Delay failed cards until after reviews"
-msgstr "Odłóż źle rozwiązane karty na koniec powtórek"
-
 #: ui/main.py:1236 forms/cardlist.py:204
 msgid "Delete"
 msgstr "Usuń"
@@ -1360,9 +1357,8 @@ msgid "Delete Cards"
 msgstr "Usuń karty"
 
 #: ui/main.py:1917
-#, fuzzy
 msgid "Delete Refs"
-msgstr "Usuń etykiety"
+msgstr "Usuń odwołania"
 
 #: ui/cardlist.py:551
 msgid "Delete Tags"
@@ -1738,9 +1734,8 @@ msgid "Models && Priorities"
 msgstr "Modele i priorytety"
 
 #: ui/cardlist.py:271
-#, fuzzy
 msgid "Modified"
-msgstr "Data modyfikacji"
+msgstr "Zmodyfikowana"
 
 #: forms/modelproperties.py:296 forms/modelproperties.py:309
 msgid "Move &Up"
@@ -2051,6 +2046,10 @@ msgstr "Pokaż odpowiedź"
 msgid "Show divider between question and answer"
 msgstr "Pokaż separator między pytaniem a odpowiedzią"
 
+#: forms/main.py:803
+msgid "Show failed cards last"
+msgstr "Pokazuj źle rozwiązane karty jako ostatnie"
+
 #: forms/preferences.py:313
 msgid "Show last card's interval"
 msgstr "Pokaż przerwę ostatniej karty"
@@ -2173,9 +2172,8 @@ msgid "Syncing failed: %(a)s"
 msgstr "Synchronizacja nie powiodła się: %(a)s"
 
 #: ui/main.py:1915
-#, fuzzy
 msgid "Tag Cards"
-msgstr "Dodaj karty"
+msgstr "Nadaj etykietę"
 
 #: forms/importing.py:121
 msgid "Tag facts with duplicate fields instead of deleting"
@@ -2210,9 +2208,8 @@ msgid "The sync protocol has changed. Please upgrade."
 msgstr "Zmienił się protokół synchronizacji. Zaktualizuj Anki."
 
 #: ui/view.py:224
-#, fuzzy
 msgid "This card will appear again later."
-msgstr "Karta pojawi się za mniej niż <b>%(next)s</b>."
+msgstr "Karta pojawi się ponownie później."
 
 #: ui/modelproperties.py:171
 #, python-format
@@ -2335,7 +2332,6 @@ msgid "Transferring payload..."
 msgstr "Przesyłanie danych..."
 
 #: ui/main.py:449
-#, fuzzy
 msgid "Type in the answer and hit enter"
 msgstr "Wpisz odpowiedź i wciśnij enter"
 
@@ -2550,12 +2546,3 @@ msgstr "opcja"
 #, fuzzy
 msgid "toplabel"
 msgstr "toplabel"
-
-#~ msgid "Answer count"
-#~ msgstr "Liczba odpowiedzi"
-
-#~ msgid "Card properties"
-#~ msgstr "Właściwości karty"
-
-#~ msgid "Due date"
-#~ msgstr "Czas pojawienia się"

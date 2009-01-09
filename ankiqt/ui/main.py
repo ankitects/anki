@@ -1363,7 +1363,7 @@ day = :d""", d=yesterday)
         if getattr(self, 'mainWin', None):
             self.mainWin.retranslateUi(self)
             self.alterShortcuts()
-        anki.lang.setLang(self.config["interfaceLang"])
+        anki.lang.setLang(self.config["interfaceLang"], local=False)
         self.updateTitleBar()
 
     def getTranslation(self, text):

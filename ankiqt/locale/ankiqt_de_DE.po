@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:27+0900\n"
 "PO-Revision-Date: 2008-12-31 12:26+0100\n"
 "Last-Translator: Christian Rusche <cru@bsiag.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -197,8 +197,8 @@ msgstr[0] "%(name)s [%(facts)d Fakten]"
 msgstr[1] "%(name)s [%(facts)d Fakten]"
 
 #: ui/main.py:1624
-#, python-format
-msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
+#, fuzzy, python-format
+msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(facts)d Fakten, %(cards)d Karten) - %(title)s"
 
 #: ui/exporting.py:62
@@ -1346,10 +1346,6 @@ msgstr "Stapel ist bereits geöffnet"
 msgid "Del"
 msgstr "Del"
 
-#: forms/main.py:803
-msgid "Delay failed cards until after reviews"
-msgstr ""
-
 #: ui/main.py:1236 forms/cardlist.py:204
 msgid "Delete"
 msgstr "Entfernen"
@@ -2058,6 +2054,11 @@ msgstr "Antwort anzeigen"
 #: forms/preferences.py:292
 msgid "Show divider between question and answer"
 msgstr "Trennlinie zwischen Frage und Antwort"
+
+#: forms/main.py:803
+#, fuzzy
+msgid "Show failed cards last"
+msgstr "<b>Zeige fehlerhafte Karten früher</b>"
 
 #: forms/preferences.py:313
 msgid "Show last card's interval"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:27+0900\n"
 "PO-Revision-Date: 2008-12-25 22:03+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -198,8 +198,8 @@ msgstr[0] "%(name)s [%(facts)d hechos]"
 msgstr[1] "%(name)s [%(facts)d hechos]"
 
 #: ui/main.py:1624
-#, python-format
-msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
+#, fuzzy, python-format
+msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(facts)d hechos, %(cards)d tarjetas) - %(title)s"
 
 #: ui/exporting.py:62
@@ -1350,10 +1350,6 @@ msgstr "El mazo está ya abierto."
 msgid "Del"
 msgstr "Supr"
 
-#: forms/main.py:803
-msgid "Delay failed cards until after reviews"
-msgstr ""
-
 #: ui/main.py:1236 forms/cardlist.py:204
 msgid "Delete"
 msgstr "Eliminar"
@@ -2061,6 +2057,11 @@ msgstr "Mostrar Respuesta"
 #: forms/preferences.py:292
 msgid "Show divider between question and answer"
 msgstr "Mostrar separador entre pregunta y respuesta"
+
+#: forms/main.py:803
+#, fuzzy
+msgid "Show failed cards last"
+msgstr "<b>Mostrar pronto las tarjetas falladas</b>"
 
 #: forms/preferences.py:313
 msgid "Show last card's interval"

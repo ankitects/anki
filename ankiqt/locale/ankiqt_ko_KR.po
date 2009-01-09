@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-08 10:01+0900\n"
+"POT-Creation-Date: 2009-01-09 11:27+0900\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -133,8 +133,8 @@ msgstr[0] "%(name)s [%(facts)d지식]"
 msgstr[1] "%(name)s [%(facts)d지식]"
 
 #: ui/main.py:1624
-#, python-format
-msgid "%(path)s (%(facts)d facts, %(cards)d cards) - %(title)s"
+#, fuzzy, python-format
+msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(facts)d지식, %(cards)d카드) - %(title)s"
 
 #: ui/exporting.py:62
@@ -1317,10 +1317,6 @@ msgstr ""
 msgid "Del"
 msgstr "삭제(&D)"
 
-#: forms/main.py:803
-msgid "Delay failed cards until after reviews"
-msgstr ""
-
 #: ui/main.py:1236 forms/cardlist.py:204
 #, fuzzy
 msgid "Delete"
@@ -2067,6 +2063,10 @@ msgstr "정답 보기"
 #, fuzzy
 msgid "Show divider between question and answer"
 msgstr "답을 보여줄 때, 질문을 감춤"
+
+#: forms/main.py:803
+msgid "Show failed cards last"
+msgstr ""
 
 #: forms/preferences.py:313
 msgid "Show last card's interval"
