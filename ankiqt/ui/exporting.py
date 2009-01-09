@@ -11,7 +11,7 @@ from ankiqt import ui
 class ExportDialog(QDialog):
 
     def __init__(self, parent):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.deck = parent.deck
         self.dialog = ankiqt.forms.exporting.Ui_ExportDialog()

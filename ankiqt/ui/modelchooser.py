@@ -167,7 +167,7 @@ class ModelChooser(QHBoxLayout):
 class AddModel(QDialog):
 
     def __init__(self, parent, main=None):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         if not main:
             main = parent

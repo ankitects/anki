@@ -18,7 +18,7 @@ tabs = ("Display",
 class Preferences(QDialog):
 
     def __init__(self, parent, config):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.origConfig = config
         self.parent = parent
         self.config = copy.copy(self.origConfig)

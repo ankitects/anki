@@ -10,7 +10,7 @@ from ankiqt.ui.utils import saveGeom, restoreGeom
 class ActiveTagsChooser(QDialog):
 
     def __init__(self, parent):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.dialog = ankiqt.forms.activetags.Ui_Dialog()
         self.dialog.setupUi(self)

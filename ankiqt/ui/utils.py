@@ -66,7 +66,7 @@ def askUser(text, parent=None):
 class GetTextDialog(QDialog):
 
     def __init__(self, parent, question, help=None, edit=None):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.setWindowTitle("Anki")
         self.question = question
         self.help = help

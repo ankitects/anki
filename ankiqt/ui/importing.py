@@ -12,7 +12,7 @@ from ankiqt import ui
 
 class ChangeMap(QDialog):
     def __init__(self, parent, model, current):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.model = model
         self.dialog = ankiqt.forms.changemap.Ui_ChangeMap()
@@ -44,7 +44,7 @@ class ChangeMap(QDialog):
 class ImportDialog(QDialog):
 
     def __init__(self, parent):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.dialog = ankiqt.forms.importing.Ui_ImportDialog()
         self.dialog.setupUi(self)

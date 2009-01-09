@@ -183,7 +183,7 @@ class Sync(QThread):
 class DeckChooser(QDialog):
 
     def __init__(self, parent, decks, create):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.decks = decks
         self.dialog = ankiqt.forms.syncdeck.Ui_DeckChooser()

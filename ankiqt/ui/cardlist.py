@@ -650,7 +650,7 @@ where id in (%s)""" % ",".join([
 class AddCardChooser(QDialog):
 
     def __init__(self, parent, cms):
-        QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.cms = cms
         self.dialog = ankiqt.forms.addcardmodels.Ui_Dialog()
