@@ -33,6 +33,8 @@ class FactEditor(object):
         self.lastFocusedEdit = None
         self.changeTimer = None
         addHook("deckClosed", self.deckClosedHook)
+        if self.deck.mediaDir(create=False):
+            self.initMedia()
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."
