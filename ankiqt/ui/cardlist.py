@@ -412,6 +412,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionAddTag, SIGNAL("triggered()"), self.addTags)
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
+        self.connect(self.dialog.actionChangeTemplate, SIGNAL("triggered()"), self.onChangeTemplate)
         self.connect(self.dialog.actionResetProgress, SIGNAL("triggered()"), self.resetProgress)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
@@ -592,6 +593,25 @@ where id in (%s)""" % ",".join([
         self.updateSearch()
         self.updateAfterCardChange()
 
+    def onChangeTemplate(self):
+        sc = self.selectedCards()
+        models = self.deck.s.column0("""
+select distinct modelId from cards, facts where
+cards.id in %s and cards.factId = facts.id""" % ids2str(sc))
+        if not len(models) == 1:
+            ui.utils.showInfo(
+                _("Can only change templates in a single model."),
+                parent=self)
+            return
+        cms = [x.id for x in
+               self.currentCard.fact.model.cardModels]
+        d = ChangeTemplateDialog(self, cms)
+        d.exec_()
+        if d.newId:
+            self.deck.changeCardModel(sc, d.newId)
+            self.updateAfterCardChange()
+            ### XXX: UNDO
+
     def selectFacts(self):
         sm = self.dialog.tableView.selectionModel()
         cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
@@ -700,3 +720,42 @@ order by ordinal""" % ids2str(self.cms))
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "Editor#AddCards"))
+
+class ChangeTemplateDialog(QDialog):
+
+    def __init__(self, parent, cms):
+        QDialog.__init__(self, parent, Qt.Window)
+        self.parent = parent
+        self.cms = cms
+        self.newId = None
+        self.dialog = ankiqt.forms.addcardmodels.Ui_Dialog()
+        self.dialog.setupUi(self)
+        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
+                     self.onHelp)
+        self.setWindowTitle(_("Change Template"))
+        self.dialog.list.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.displayCards()
+        restoreGeom(self, "changeTemplate")
+
+    def displayCards(self):
+        self.cms = self.parent.deck.s.all("""
+select id, name from cardModels
+where id in %s
+order by ordinal""" % ids2str(self.cms))
+        self.items = []
+        for cm in self.cms:
+            item = QListWidgetItem(cm[1], self.dialog.list)
+            self.dialog.list.addItem(item)
+            self.items.append(item)
+
+    def accept(self):
+        ret = None
+        r = self.dialog.list.selectionModel().selectedRows()
+        if r:
+            self.newId = self.cms[r[0].row()][0]
+        saveGeom(self, "changeTemplate")
+        QDialog.accept(self)
+
+    def onHelp(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "Editor#ChangeTemplate"))

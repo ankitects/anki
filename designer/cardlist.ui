@@ -192,6 +192,7 @@
     <addaction name="actionDeleteTag" />
     <addaction name="separator" />
     <addaction name="actionAddCards" />
+    <addaction name="actionChangeTemplate" />
     <addaction name="separator" />
     <addaction name="actionResetProgress" />
     <addaction name="actionDelete" />
@@ -363,6 +364,11 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+End</string>
+   </property>
+  </action>
+  <action name="actionChangeTemplate" >
+   <property name="text" >
+    <string>Change &amp;Template...</string>
    </property>
   </action>
  </widget>
