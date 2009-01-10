@@ -13,9 +13,8 @@ from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
 from anki.lang import ngettext
 
-tabs = ("Scheduling",
+tabs = ("ModelsAndPriorities",
         "Synchronization",
-        "Models",
         "Advanced")
 
 class DeckProperties(QDialog):
