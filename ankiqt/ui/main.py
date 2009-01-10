@@ -1404,6 +1404,9 @@ day = :d""", d=yesterday)
         p=self.config['syncPassword']
         if not u or not p:
             return
+        if self.deck:
+            if not self.deck.path:
+                self.onSave()
         if self.deck and not self.deck.syncName:
             if interactive:
                 self.onDeckProperties()
