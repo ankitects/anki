@@ -1406,7 +1406,8 @@ day = :d""", d=yesterday)
             return
         if self.deck:
             if not self.deck.path:
-                self.onSave()
+                if not self.save(required=True):
+                    return
         if self.deck and not self.deck.syncName:
             if interactive:
                 self.onDeckProperties()
