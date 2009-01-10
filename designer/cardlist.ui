@@ -198,7 +198,7 @@
    </widget>
    <widget class="QMenu" name="menuJump" >
     <property name="title" >
-     <string>&amp;Jump</string>
+     <string>&amp;Go</string>
     </property>
     <addaction name="actionFind" />
     <addaction name="actionFact" />
