@@ -165,6 +165,7 @@ class Sync(QThread):
             client.sync()
         except:
             self.emit(SIGNAL("bulkSyncFailed"))
+        time.sleep(0.1)
         self.emit(SIGNAL("closeSyncProgress"))
 
     def bulkCallback(self, *args):

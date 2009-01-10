@@ -1497,7 +1497,10 @@ day = :d""", d=yesterday)
     def openSyncProgress(self):
         self.syncProgressDialog = QProgressDialog(_("Syncing Media..."),
                                                   "", 0, 0, self)
+        self.syncProgressDialog.setWindowTitle(_("Syncing Media..."))
         self.syncProgressDialog.setCancelButton(None)
+        self.syncProgressDialog.setAutoClose(False)
+        self.syncProgressDialog.setAutoReset(False)
 
     def closeSyncProgress(self):
         self.syncProgressDialog.cancel()
