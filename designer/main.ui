@@ -23,6 +23,14 @@
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>69</y>
+     <width>562</width>
+     <height>380</height>
+    </rect>
+   </property>
    <property name="sizePolicy" >
     <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>1</horstretch>
@@ -141,8 +149,25 @@
          <property name="currentIndex" >
           <number>0</number>
          </property>
-         <widget class="QWidget" name="blankPage" />
+         <widget class="QWidget" name="blankPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>277</width>
+            <height>302</height>
+           </rect>
+          </property>
+         </widget>
          <widget class="QWidget" name="welcomePage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>100</width>
+            <height>30</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
            <item>
             <widget class="QTextBrowser" name="welcomeText" >
@@ -157,6 +182,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="editPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>100</width>
+            <height>30</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" >
            <property name="spacing" >
             <number>0</number>
@@ -170,6 +203,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="optionsPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>100</width>
+            <height>30</height>
+           </rect>
+          </property>
           <layout class="QHBoxLayout" name="horizontalLayout_5" >
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4" >
@@ -497,6 +538,14 @@
           <number>5</number>
          </property>
          <widget class="QWidget" name="page1" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>277</width>
+            <height>72</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
            <item>
             <spacer name="verticalSpacer" >
@@ -530,6 +579,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page2" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>277</width>
+            <height>72</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
            <property name="spacing" >
             <number>0</number>
@@ -572,7 +629,7 @@
                <property name="verticalSpacing" >
                 <number>0</number>
                </property>
-               <item row="0" column="0" >
+               <item row="1" column="0" >
                 <widget class="QLabel" name="easeLabel1" >
                  <property name="text" >
                   <string/>
@@ -582,7 +639,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1" >
+               <item row="1" column="1" >
                 <widget class="QLabel" name="easeLabel2" >
                  <property name="text" >
                   <string/>
@@ -592,7 +649,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="2" >
+               <item row="1" column="2" >
                 <widget class="QLabel" name="easeLabel3" >
                  <property name="text" >
                   <string/>
@@ -602,7 +659,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="3" >
+               <item row="1" column="3" >
                 <widget class="QLabel" name="easeLabel4" >
                  <property name="text" >
                   <string/>
@@ -612,7 +669,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" >
+               <item row="2" column="0" >
                 <widget class="QPushButton" name="easeButton1" >
                  <property name="toolTip" >
                   <string>Show this card again soon (shortcut key: 1)</string>
@@ -622,7 +679,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1" >
+               <item row="2" column="1" >
                 <widget class="QPushButton" name="easeButton2" >
                  <property name="toolTip" >
                   <string>Wait a little longer next time (shortcut key: 2)</string>
@@ -632,7 +689,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="2" >
+               <item row="2" column="2" >
                 <widget class="QPushButton" name="easeButton3" >
                  <property name="toolTip" >
                   <string>Wait longer next time (shortcut key: 3)</string>
@@ -642,7 +699,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="3" >
+               <item row="2" column="3" >
                 <widget class="QPushButton" name="easeButton4" >
                  <property name="toolTip" >
                   <string>Wait a lot longer next time (shortcut key: 4)</string>
@@ -651,6 +708,19 @@
                   <string>Easy</string>
                  </property>
                 </widget>
+               </item>
+               <item row="0" column="2" >
+                <spacer name="verticalSpacer_7" >
+                 <property name="orientation" >
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0" >
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </item>
@@ -672,6 +742,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page3" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>277</width>
+            <height>72</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
            <item>
             <spacer name="verticalSpacer_2" >
@@ -699,6 +777,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page4" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>277</width>
+            <height>72</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_6" >
            <item>
             <spacer name="verticalSpacer_5" >
@@ -733,6 +819,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page5" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>277</width>
+            <height>72</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="typeAnswerLayout" >
            <item>
             <spacer name="verticalSpacer_6" >
@@ -752,7 +846,16 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page" />
+         <widget class="QWidget" name="page" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>277</width>
+            <height>72</height>
+           </rect>
+          </property>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -947,7 +1050,7 @@
      <x>0</x>
      <y>0</y>
      <width>562</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1090,10 +1193,27 @@
    <addaction name="menu_Settings" />
    <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QStatusBar" name="statusbar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>449</y>
+     <width>562</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
   <widget class="QToolBar" name="toolBar" >
    <property name="enabled" >
     <bool>true</bool>
+   </property>
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>23</y>
+     <width>562</width>
+     <height>46</height>
+    </rect>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
