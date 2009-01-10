@@ -147,6 +147,13 @@ class DeckModel(QAbstractTableModel):
         self.cards = self.deck.s.all(query)
         self.reset()
 
+    def updateCard(self, index):
+        self.cards[index.row()] = self.deck.s.first("""
+select id, priority, question, answer, due, reps, factId
+from cards where id = :id""", id=self.cards[index.row()][0])
+        self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
+                  index, self.index(index.row(), 1))
+
     # Tools
     ######################################################################
 
@@ -192,6 +199,7 @@ class EditDeck(QMainWindow):
         self.deck = self.parent.deck
         self.config = parent.config
         self.origModTime = parent.deck.modified
+        self.currentRow = None
         self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
         self.dialog.setupUi(self)
         # flush all changes before we load
@@ -341,6 +349,9 @@ class EditDeck(QMainWindow):
             self.dialog.actionRedo.setEnabled(True)
         else:
             self.dialog.actionRedo.setEnabled(False)
+        # update list
+        if self.currentRow:
+            self.model.updateCard(self.currentRow)
 
     def filterTextChanged(self):
         interval = 500
