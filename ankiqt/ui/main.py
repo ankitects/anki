@@ -602,8 +602,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                 os.path.split(ankiqt.runningDir)[0])[0]
         elif sys.platform.startswith("darwin"):
             path = ankiqt.runningDir + "/../../.."
-        else:
-            path = os.path.join(path, "anki")
         path = os.path.join(path, "samples")
         path = os.path.normpath(path)
         if os.path.exists(path):
@@ -781,9 +779,11 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             return False
         if samples:
             # we need to copy into a writeable location
-            new = DeckStorage.newDeckPath()
-            shutil.copyfile(file, new)
-            file = new
+            d = unicode(
+                os.path.join(self.documentDir, os.path.basename(file)))
+            if not os.path.exists(d):
+                shutil.copy(file, d)
+            file = d
         ret = self.loadDeck(file, interactive=True)
         if not ret:
             if ret is None:
@@ -976,6 +976,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def updateStudyStats(self):
         initial = self.deck.sessionStartTime == 0
+        sessionColour = '<font color=#0000ff>%s</font>'
+        cardColour = '<font color=#0000ff>%s</font>'
         if initial:
             # deck just opened, or screen triggered manually
             top = _("<h1>Welcome Back!</h1>")
@@ -986,9 +988,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         # top label
         h = {}
         s = self.deck.getStats()
-        h['ret'] = '<font color=#0000ff>%s</font>' % (s['rev']+s['failed'])
-        h['new'] = '<font color=#0000ff>%s</font>' % s['new']
-        h['newof'] = '%s' % self.deck.newCount
+        h['ret'] = cardColour % (s['rev']+s['failed'])
+        h['new'] = cardColour % s['new']
+        h['newof'] = str(self.deck.newCount)
         dtoday = s['dTotal']
         yesterday = self.deck._dailyStats.day - datetime.timedelta(1)
         res = self.deck.s.first("""
@@ -998,8 +1000,8 @@ day = :d""", d=yesterday)
             (dyest, tyest) = res
         else:
             dyest = 0; tyest = 0
-        h['repsToday'] = '<font color=#0000cc>%s</font>' % dtoday
-        h['repsTodayChg'] = '<font color=#00aa00>%s</font>' % dyest
+        h['repsToday'] = sessionColour % dtoday
+        h['repsTodayChg'] = str(dyest)
         limit = self.deck.sessionTimeLimit
         start = self.deck.sessionStartTime or time.time() - limit
         start2 = self.deck.lastSessionStart or start - limit
@@ -1010,29 +1012,30 @@ day = :d""", d=yesterday)
             "select count(*) from reviewHistory where "
             "time >= :t and time < :t2",
             t=start2, t2=start)
-        h['repsInSes'] = '<font color=#0000cc>%s</font>' % last10
-        h['repsInSesChg'] = '<font color=#00aa00>%s</font>' % last20
+        h['repsInSes'] = sessionColour % last10
+        h['repsInSesChg'] = str(last20)
         ttoday = s['dReviewTime']
-        h['timeToday'] = '<font color=#0000cc>%s</font>' % (
+        h['timeToday'] = sessionColour % (
             anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
-        h['timeTodayChg'] = '<font color=#00aa00>%s</font>' % (
-            anki.utils.fmtTimeSpan(tyest, short=True, point=1))
+        h['timeTodayChg'] = str(anki.utils.fmtTimeSpan(
+            tyest, short=True, point=1))
         self.mainWin.optionsLabel.setText(top + _("""\
 <p>
 <table width=300>
 <tr><td>
-<table width=150>
-<tr><td>Session reps:&nbsp;&nbsp;</td><td><b>%(repsInSes)s</b></td>
+<table>
+<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSes)s</b></td>
 <td>%(repsInSesChg)s</td></tr>
-<tr><td>Day reps:</td><td><b>%(repsToday)s</b></td>
+<tr><td>Cards/day:</td><td><b>%(repsToday)s</b></td>
 <td>%(repsTodayChg)s</td></tr>
-<tr><td>Time:</td><td><b>%(timeToday)s</b></td>
+<tr><td>Time/day:</td><td><b>%(timeToday)s</b></td>
 <td>%(timeTodayChg)s</td></tr>
 </table>
 </td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
 <table width=150>
 <tr><td>Reviews today:</td><td align=right><b>%(ret)s</b></td></tr>
-<tr><td>New today:</td><td align=right><b>%(new)s</b></td><td>&nbsp;(of %(newof)s)</td></tr>
+<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
+<tr><td>New total:</td><td align=right>%(newof)s</td></tr>
 </table>
 </td></tr></table>""") % h)
 
