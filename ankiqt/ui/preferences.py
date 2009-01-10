@@ -39,8 +39,6 @@ class Preferences(QDialog):
             ]
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
         self.setupLang()
-        self.setupFont()
-        self.setupColour()
         self.setupSync()
         self.setupSave()
         self.setupAdvanced()
@@ -75,66 +73,6 @@ class Preferences(QDialog):
         self.parent.setLang()
         self.dialog.retranslateUi(self)
 
-    fonts = (
-        "interface",
-        )
-
-    def loadCurrentFonts(self):
-        for font in self.fonts:
-            # family init
-            getattr(self.dialog, font + "Family").setCurrentFont(QFont(
-                self.config[font + "FontFamily"]))
-            # size init
-            getattr(self.dialog, font + "Size").setValue(
-                self.config[font + "FontSize"])
-
-    def setupFont(self):
-        self.loadCurrentFonts()
-        for font in self.fonts:
-            # family change
-            family = font + "Family"
-            chngFunc = lambda qfont, type=font: self.familyChanged(qfont, type)
-            self.connect(getattr(self.dialog, family),
-                         SIGNAL("currentFontChanged(QFont)"),
-                         chngFunc)
-
-            # size change
-            size = font + "Size"
-            chngFunc = lambda size, type=font: self.sizeChanged(size, type)
-            self.connect(getattr(self.dialog, size),
-                         SIGNAL("valueChanged(int)"),
-                         chngFunc)
-
-    def familyChanged(self, qfont, type):
-        self.config[type + "FontFamily"] = unicode(qfont.family())
-        getattr(self.dialog, type + "Family").setFocus()
-
-    def sizeChanged(self, size, type):
-        self.config[type + "FontSize"] = size
-        getattr(self.dialog, type + "Size").setFocus()
-
-    def setupColour(self):
-        self.plastiqueStyle = None
-        if (sys.platform.startswith("darwin") or
-            sys.platform.startswith("win32")):
-            # mac widgets don't show colours
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-        for c in ("interface", "background"):
-            colour = c + "Colour"
-            button = getattr(self.dialog, colour)
-            if self.plastiqueStyle:
-                button.setStyle(self.plastiqueStyle)
-            button.setPalette(QPalette(QColor(
-                self.config[colour])))
-            self.connect(button, SIGNAL("clicked()"),
-                         lambda b=button, t=c, : self.colourClicked(b, t))
-
-    def colourClicked(self, button, type):
-        new = QColorDialog.getColor(button.palette().window().color(), self)
-        if new.isValid():
-            self.config[type + "Colour"] = str(new.name())
-            button.setPalette(QPalette(new))
-
     def setupSync(self):
         self.dialog.syncOnOpen.setChecked(self.config['syncOnLoad'])
         self.dialog.syncOnClose.setChecked(self.config['syncOnClose'])
@@ -163,46 +101,27 @@ class Preferences(QDialog):
 
     def setupAdvanced(self):
         self.dialog.showToolbar.setChecked(self.config['showToolbar'])
-        self.dialog.tallButtons.setChecked(
-            self.config['easeButtonHeight'] != 'standard')
         self.dialog.showEstimates.setChecked(not self.config['suppressEstimates'])
         self.dialog.showStudyOptions.setChecked(self.config['showStudyScreen'])
-        self.dialog.showLastCardInterval.setChecked(self.config['showLastCardInterval'])
-        self.dialog.showLastCardContent.setChecked(self.config['showLastCardContent'])
         self.dialog.showTray.setChecked(self.config['showTrayIcon'])
         self.dialog.showTimer.setChecked(self.config['showTimer'])
-        self.dialog.simpleToolbar.setChecked(self.config['simpleToolbar'])
         self.dialog.scrollToAnswer.setChecked(self.config['scrollToAnswer'])
         self.dialog.showDivider.setChecked(self.config['qaDivider'])
         self.dialog.splitQA.setChecked(self.config['splitQA'])
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
         self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
-        self.dialog.toolbarIconSize.setText(str(self.config['iconSize']))
 
     def updateAdvanced(self):
         self.config['showToolbar'] = self.dialog.showToolbar.isChecked()
-        if self.dialog.tallButtons.isChecked():
-            self.config['easeButtonHeight'] = 'tall'
-        else:
-            self.config['easeButtonHeight'] = 'standard'
-        self.config['showLastCardInterval'] = self.dialog.showLastCardInterval.isChecked()
-        self.config['showLastCardContent'] = self.dialog.showLastCardContent.isChecked()
         self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
         self.config['showTimer'] = self.dialog.showTimer.isChecked()
         self.config['suppressEstimates'] = not self.dialog.showEstimates.isChecked()
         self.config['showStudyScreen'] = self.dialog.showStudyOptions.isChecked()
-        self.config['simpleToolbar'] = self.dialog.simpleToolbar.isChecked()
         self.config['scrollToAnswer'] = self.dialog.scrollToAnswer.isChecked()
         self.config['qaDivider'] = self.dialog.showDivider.isChecked()
         self.config['splitQA'] = self.dialog.splitQA.isChecked()
         self.config['addZeroSpace'] = self.dialog.addZeroSpace.isChecked()
         self.config['alternativeTheme'] = self.dialog.alternativeTheme.isChecked()
-        i = 32
-        try:
-            i = int(self.dialog.toolbarIconSize.text())
-        except:
-            pass
-        self.config['iconSize'] = i
 
     def codeToIndex(self, code):
         n = 0

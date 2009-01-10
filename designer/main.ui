@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>469</height>
+    <width>569</width>
+    <height>454</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -27,8 +27,8 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>562</width>
-     <height>380</height>
+     <width>569</width>
+     <height>365</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -154,8 +154,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>302</height>
+            <width>284</width>
+            <height>280</height>
            </rect>
           </property>
          </widget>
@@ -207,304 +207,212 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>284</width>
+            <height>280</height>
            </rect>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_5" >
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_4" >
+          <layout class="QGridLayout" name="gridLayout_3" >
+           <property name="verticalSpacing" >
+            <number>0</number>
+           </property>
+           <item row="0" column="0" >
+            <layout class="QVBoxLayout" name="verticalLayout_11" >
+             <property name="spacing" >
+              <number>0</number>
+             </property>
+             <property name="topMargin" >
+              <number>4</number>
+             </property>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_11" >
+              <widget class="QLabel" name="optionsLabel" >
+               <property name="text" >
+                <string>&lt;h1>Welcome!&lt;/h1></string>
+               </property>
+               <property name="textInteractionFlags" >
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_4" >
+               <property name="orientation" >
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>20</width>
+                 <height>6</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="Line" name="line_2" >
+               <property name="maximumSize" >
+                <size>
+                 <width>400</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_13" >
+               <property name="leftMargin" >
+                <number>2</number>
+               </property>
+               <property name="topMargin" >
+                <number>6</number>
+               </property>
                <property name="spacing" >
                 <number>0</number>
                </property>
-               <property name="topMargin" >
-                <number>4</number>
-               </property>
-               <item>
-                <widget class="QLabel" name="optionsLabel" >
-                 <property name="text" >
-                  <string>&lt;h1>Welcome!&lt;/h1></string>
+               <item row="1" column="0" >
+                <widget class="QLabel" name="label_20" >
+                 <property name="minimumSize" >
+                  <size>
+                   <width>140</width>
+                   <height>0</height>
+                  </size>
                  </property>
-                 <property name="textInteractionFlags" >
-                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                 <property name="text" >
+                  <string>&lt;b>Session limit (mins):&lt;/b></string>
+                 </property>
+                 <property name="margin" >
+                  <number>4</number>
                  </property>
                 </widget>
                </item>
-               <item>
-                <spacer name="verticalSpacer_4" >
-                 <property name="orientation" >
-                  <enum>Qt::Vertical</enum>
+               <item row="1" column="1" >
+                <widget class="QLineEdit" name="minuteLimit" >
+                 <property name="sizePolicy" >
+                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
-                 <property name="sizeType" >
-                  <enum>QSizePolicy::Fixed</enum>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" >
+                <widget class="QLabel" name="label_22" >
+                 <property name="minimumSize" >
+                  <size>
+                   <width>140</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string>&lt;b>New cards per day:&lt;/b></string>
+                 </property>
+                 <property name="margin" >
+                  <number>4</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1" >
+                <widget class="QLineEdit" name="newPerDay" >
+                 <property name="sizePolicy" >
+                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" >
+                <spacer name="horizontalSpacer_3" >
+                 <property name="orientation" >
+                  <enum>Qt::Horizontal</enum>
                  </property>
                  <property name="sizeHint" stdset="0" >
                   <size>
-                   <width>20</width>
-                   <height>6</height>
+                   <width>40</width>
+                   <height>20</height>
                   </size>
                  </property>
                 </spacer>
                </item>
-               <item>
-                <widget class="Line" name="line_2" >
+               <item row="2" column="1" >
+                <widget class="QLineEdit" name="questionLimit" >
+                 <property name="sizePolicy" >
+                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="maximumSize" >
                   <size>
-                   <width>400</width>
+                   <width>50</width>
                    <height>16777215</height>
                   </size>
                  </property>
-                 <property name="orientation" >
-                  <enum>Qt::Horizontal</enum>
+                </widget>
+               </item>
+               <item row="2" column="0" >
+                <widget class="QLabel" name="label" >
+                 <property name="text" >
+                  <string>&lt;b>Session limit (reps):</string>
+                 </property>
+                 <property name="margin" >
+                  <number>4</number>
                  </property>
                 </widget>
                </item>
-               <item>
-                <widget class="QGroupBox" name="groupBox" >
-                 <property name="title" >
-                  <string/>
+               <item row="3" column="0" >
+                <layout class="QHBoxLayout" name="horizontalLayout_2" >
+                 <property name="topMargin" >
+                  <number>4</number>
                  </property>
-                 <property name="flat" >
-                  <bool>true</bool>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_9" >
-                  <property name="bottomMargin" >
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <layout class="QGridLayout" name="gridLayout_13" >
-                    <property name="leftMargin" >
-                     <number>2</number>
-                    </property>
-                    <property name="spacing" >
-                     <number>0</number>
-                    </property>
-                    <item row="1" column="0" >
-                     <widget class="QLabel" name="label_20" >
-                      <property name="minimumSize" >
-                       <size>
-                        <width>90</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="text" >
-                       <string>&lt;b>Minute limit:&lt;/b></string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="2" >
-                     <widget class="QLineEdit" name="minuteLimit" >
-                      <property name="sizePolicy" >
-                       <sizepolicy vsizetype="Fixed" hsizetype="Maximum" >
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="maximumSize" >
-                       <size>
-                        <width>50</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0" >
-                     <widget class="QLabel" name="label_21" >
-                      <property name="text" >
-                       <string>&lt;b>Question limit:&lt;/b></string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="2" >
-                     <widget class="QLineEdit" name="questionLimit" >
-                      <property name="sizePolicy" >
-                       <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="maximumSize" >
-                       <size>
-                        <width>50</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="3" >
-                     <spacer name="horizontalSpacer_3" >
-                      <property name="orientation" >
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0" >
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="0" column="0" >
-                     <widget class="QLabel" name="label_22" >
-                      <property name="minimumSize" >
-                       <size>
-                        <width>90</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="text" >
-                       <string>&lt;b>New per day:&lt;/b></string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="2" >
-                     <widget class="QLineEdit" name="newPerDay" >
-                      <property name="sizePolicy" >
-                       <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="maximumSize" >
-                       <size>
-                        <width>50</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1" >
-                     <spacer name="horizontalSpacer_5" >
-                      <property name="orientation" >
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeType" >
-                       <enum>QSizePolicy::Preferred</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0" >
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_2" >
-                    <item>
-                     <widget class="QPushButton" name="optionsButton" >
-                      <property name="text" >
-                       <string>More>></string>
-                      </property>
-                      <property name="checkable" >
-                       <bool>true</bool>
-                      </property>
-                      <property name="checked" >
-                       <bool>false</bool>
-                      </property>
-                      <property name="flat" >
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="optionsHelpButton" >
-                      <property name="text" >
-                       <string>Help</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer" >
-                      <property name="orientation" >
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0" >
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
-                <layout class="QVBoxLayout" name="verticalLayout_12" >
                  <item>
-                  <widget class="QGroupBox" name="optionsBox" >
-                   <property name="maximumSize" >
-                    <size>
-                     <width>400</width>
-                     <height>16777215</height>
-                    </size>
+                  <widget class="QPushButton" name="optionsButton" >
+                   <property name="text" >
+                    <string>More>></string>
                    </property>
-                   <property name="title" >
-                    <string/>
-                   </property>
-                   <property name="flat" >
+                   <property name="checkable" >
                     <bool>true</bool>
                    </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_8" >
-                    <property name="topMargin" >
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QComboBox" name="newCardOrder" >
-                      <property name="maximumSize" >
-                       <size>
-                        <width>400</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QComboBox" name="newCardScheduling" >
-                      <property name="maximumSize" >
-                       <size>
-                        <width>400</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QComboBox" name="revCardOrder" >
-                      <property name="maximumSize" >
-                       <size>
-                        <width>400</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QCheckBox" name="delayLapsedCards" >
-                      <property name="text" >
-                       <string>Show failed cards last</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
+                   <property name="checked" >
+                    <bool>false</bool>
+                   </property>
+                   <property name="flat" >
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item>
-                  <spacer name="verticalSpacer_3" >
+                  <widget class="QPushButton" name="optionsHelpButton" >
+                   <property name="text" >
+                    <string>Help</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer" >
                    <property name="orientation" >
-                    <enum>Qt::Vertical</enum>
+                    <enum>Qt::Horizontal</enum>
                    </property>
                    <property name="sizeHint" stdset="0" >
                     <size>
-                     <width>20</width>
-                     <height>40</height>
+                     <width>40</width>
+                     <height>20</height>
                     </size>
                    </property>
                   </spacer>
@@ -514,19 +422,97 @@
               </layout>
              </item>
              <item>
-              <spacer name="horizontalSpacer_4" >
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0" >
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
+              <layout class="QVBoxLayout" name="verticalLayout_12" >
+               <item>
+                <widget class="QWidget" native="1" name="optionsBox" >
+                 <layout class="QVBoxLayout" name="verticalLayout_7" >
+                  <property name="spacing" >
+                   <number>4</number>
+                  </property>
+                  <property name="leftMargin" >
+                   <number>2</number>
+                  </property>
+                  <property name="topMargin" >
+                   <number>4</number>
+                  </property>
+                  <property name="rightMargin" >
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin" >
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QComboBox" name="newCardOrder" >
+                    <property name="minimumSize" >
+                     <size>
+                      <width>250</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="newCardScheduling" >
+                    <property name="maximumSize" >
+                     <size>
+                      <width>400</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="revCardOrder" >
+                    <property name="maximumSize" >
+                     <size>
+                      <width>400</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="delayLapsedCards" >
+                    <property name="text" >
+                     <string>Show failed cards last</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_3" >
+                 <property name="orientation" >
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0" >
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </item>
             </layout>
+           </item>
+           <item row="0" column="1" >
+            <spacer name="horizontalSpacer_4" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>1000</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -542,8 +528,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>72</height>
+            <width>284</width>
+            <height>89</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
@@ -583,8 +569,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>72</height>
+            <width>284</width>
+            <height>89</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
@@ -746,8 +732,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>72</height>
+            <width>284</width>
+            <height>89</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
@@ -781,8 +767,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>72</height>
+            <width>284</width>
+            <height>89</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6" >
@@ -823,8 +809,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>72</height>
+            <width>284</width>
+            <height>89</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="typeAnswerLayout" >
@@ -851,8 +837,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>72</height>
+            <width>284</width>
+            <height>79</height>
            </rect>
           </property>
          </widget>
@@ -894,15 +880,6 @@
          <property name="palette" >
           <palette>
            <active>
-            <colorrole role="Base" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
-               <red>255</red>
-               <green>255</green>
-               <blue>255</blue>
-              </color>
-             </brush>
-            </colorrole>
             <colorrole role="Window" >
              <brush brushstyle="SolidPattern" >
               <color alpha="255" >
@@ -914,15 +891,6 @@
             </colorrole>
            </active>
            <inactive>
-            <colorrole role="Base" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
-               <red>255</red>
-               <green>255</green>
-               <blue>255</blue>
-              </color>
-             </brush>
-            </colorrole>
             <colorrole role="Window" >
              <brush brushstyle="SolidPattern" >
               <color alpha="255" >
@@ -934,15 +902,6 @@
             </colorrole>
            </inactive>
            <disabled>
-            <colorrole role="Base" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
-               <red>255</red>
-               <green>250</green>
-               <blue>230</blue>
-              </color>
-             </brush>
-            </colorrole>
             <colorrole role="Window" >
              <brush brushstyle="SolidPattern" >
               <color alpha="255" >
@@ -991,6 +950,15 @@
             <property name="palette" >
              <palette>
               <active>
+               <colorrole role="Text" >
+                <brush brushstyle="SolidPattern" >
+                 <color alpha="255" >
+                  <red>0</red>
+                  <green>0</green>
+                  <blue>0</blue>
+                 </color>
+                </brush>
+               </colorrole>
                <colorrole role="Base" >
                 <brush brushstyle="SolidPattern" >
                  <color alpha="255" >
@@ -1002,6 +970,15 @@
                </colorrole>
               </active>
               <inactive>
+               <colorrole role="Text" >
+                <brush brushstyle="SolidPattern" >
+                 <color alpha="255" >
+                  <red>0</red>
+                  <green>0</green>
+                  <blue>0</blue>
+                 </color>
+                </brush>
+               </colorrole>
                <colorrole role="Base" >
                 <brush brushstyle="SolidPattern" >
                  <color alpha="255" >
@@ -1013,6 +990,15 @@
                </colorrole>
               </inactive>
               <disabled>
+               <colorrole role="Text" >
+                <brush brushstyle="SolidPattern" >
+                 <color alpha="255" >
+                  <red>165</red>
+                  <green>164</green>
+                  <blue>164</blue>
+                 </color>
+                </brush>
+               </colorrole>
                <colorrole role="Base" >
                 <brush brushstyle="SolidPattern" >
                  <color alpha="255" >
@@ -1049,7 +1035,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>562</width>
+     <width>569</width>
      <height>23</height>
     </rect>
    </property>
@@ -1197,8 +1183,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>449</y>
-     <width>562</width>
+     <y>434</y>
+     <width>569</width>
      <height>20</height>
     </rect>
    </property>
@@ -1211,7 +1197,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>562</width>
+     <width>569</width>
      <height>46</height>
     </rect>
    </property>
@@ -1792,10 +1778,6 @@
   </action>
  </widget>
  <tabstops>
-  <tabstop>easeButton1</tabstop>
-  <tabstop>easeButton2</tabstop>
-  <tabstop>easeButton3</tabstop>
-  <tabstop>easeButton4</tabstop>
   <tabstop>newPerDay</tabstop>
   <tabstop>minuteLimit</tabstop>
   <tabstop>questionLimit</tabstop>
@@ -1805,6 +1787,10 @@
   <tabstop>newCardScheduling</tabstop>
   <tabstop>revCardOrder</tabstop>
   <tabstop>delayLapsedCards</tabstop>
+  <tabstop>easeButton1</tabstop>
+  <tabstop>easeButton2</tabstop>
+  <tabstop>easeButton3</tabstop>
+  <tabstop>easeButton4</tabstop>
   <tabstop>startReviewingButton</tabstop>
   <tabstop>showAnswerButton</tabstop>
   <tabstop>help</tabstop>
@@ -1822,12 +1808,12 @@
    <slot>setShown(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>87</x>
-     <y>219</y>
+     <x>54</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>211</x>
-     <y>344</y>
+     <x>53</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>

@@ -8,6 +8,7 @@ import anki, anki.utils
 from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
+from anki.hooks import runHook
 import types, time, re, os, urllib, sys
 from ankiqt import ui
 from ankiqt.ui.utils import mungeQA
@@ -50,7 +51,6 @@ class View(object):
         if self.state == "noDeck" or self.state == "studyScreen":
             return
         self.clearWindow()
-        self.setBackgroundColour()
         self.haveTop = (self.main.lastCard and (
             self.main.config['showLastCardContent'] or
             self.main.config['showLastCardInterval']))
@@ -81,16 +81,6 @@ class View(object):
         s = "<style>\n"
         if self.main.deck:
             s += self.main.deck.css
-        # last card
-        for base in ("lastCard", "interface"):
-            family = self.main.config[base + "FontFamily"]
-            size = self.main.config[base + "FontSize"]
-            color = ("; color: " + self.main.config[base + "Colour"])
-            s += ('.%s {font-family: "%s"; font-size: %spx%s}\n' %
-                            (base, family, size, color))
-        s += ("body { background-color: " +
-              self.main.config["backgroundColour"] +
-              ";}\n")
         s += "div { white-space: pre-wrap; }"
         s += "</style>"
         return s
@@ -104,23 +94,15 @@ class View(object):
 
     def flush(self):
         "Write the current HTML buffer to the screen."
-        txt = (self.addStyles() + '''
-<div class="interface">''' +
-               self.buffer + '</div>')
-        self.body.setHtml(txt)
+        self.buffer = self.addStyles() + self.buffer
+        # hook for user css
+        runHook("preFlushHook")
+        self.body.setHtml(self.buffer)
 
     def write(self, text):
         if type(text) != types.UnicodeType:
             text = unicode(text, "utf-8")
         self.buffer += text
-
-    def setBackgroundColour(self):
-        p = QPalette()
-        p.setColor(QPalette.Base, QColor(self.main.config['backgroundColour']))
-        self.body.setPalette(p)
-        if self.frame:
-            p.setColor(QPalette.Background, QColor(self.main.config['backgroundColour']))
-            self.frame.setPalette(p)
 
     # Question and answer
     ##########################################################################
@@ -141,7 +123,7 @@ class View(object):
         if self.haveTop:
             height = 35
         else:
-            height = 40
+            height = 45
         self.write(self.center(self.mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
@@ -282,6 +264,10 @@ Start adding your own material.</td>
         self.write(self.main.deck.deckFinishedMsg())
 
 class AnkiWebView(QWebView):
+
+    def __init__(self, *args):
+        QWebView.__init__(self, *args)
+        self.setObjectName("mainText")
 
     def keyPressEvent(self, evt):
         if evt.matches(QKeySequence.Copy):

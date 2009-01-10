@@ -415,13 +415,10 @@ new:
     ##########################################################################
 
     def setupButtons(self):
-        if self.config['easeButtonHeight'] == "tall":
-            self.easeButtonHeight = 50
+        if sys.platform.startswith("darwin"):
+            self.easeButtonHeight = 35
         else:
-            if sys.platform.startswith("darwin"):
-                self.easeButtonHeight = 35
-            else:
-                self.easeButtonHeight = 25
+            self.easeButtonHeight = 25
         # ask
         self.mainWin.showAnswerButton.setFixedHeight(self.easeButtonHeight)
         self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
@@ -489,20 +486,10 @@ new:
             if self.config['suppressEstimates']:
                 l.setText("")
             elif i == 1:
-                l.setText(self.withInterfaceFont(_("Soon")))
+                l.setText(_("Soon"))
             else:
-                l.setText(self.withInterfaceFont("<b>" +
-                    self.deck.nextIntervalStr(self.currentCard, i) + "</b>"))
-
-    def withInterfaceFont(self, text):
-        family = self.config["interfaceFontFamily"]
-        size = self.config["interfaceFontSize"]
-        colour = self.config["interfaceColour"]
-        css = ('.interface {font-family: "%s"; font-size: %spx; color: %s}\n' %
-               (family, size, colour))
-        css = "<style>\n" + css + "</style>\n"
-        text = css + '<span class="interface">' + text + "</span>"
-        return text
+                l.setText("<b>" + self.deck.nextIntervalStr(
+                    self.currentCard, i) + "</b>")
 
     # Deck loading & saving: backend
     ##########################################################################
@@ -967,6 +954,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.mainWin.optionsBox.setShown(False)
         self.connect(self.mainWin.minuteLimit,
                      SIGNAL("textChanged(QString)"), self.onMinuteLimitChanged)
+        self.connect(self.mainWin.newPerDay,
+                     SIGNAL("textChanged(QString)"), self.onNewLimitChanged)
 
     def onMinuteLimitChanged(self, qstr):
         try:
@@ -974,6 +963,15 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                 self.mainWin.minuteLimit.text()) * 60
         except ValueError:
             pass
+        self.updateStudyStats()
+
+    def onNewLimitChanged(self, qstr):
+        try:
+            self.deck.newCardsPerDay = int(self.mainWin.newPerDay.text())
+        except ValueError:
+            pass
+        self.deck.checkDue()
+        self.statusView.redraw()
         self.updateStudyStats()
 
     def updateStudyStats(self):
@@ -988,7 +986,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         # top label
         h = {}
         s = self.deck.getStats()
-        h['ret'] = '<font color=#0077ff>%s</font>' % (s['rev']+s['failed'])
+        h['ret'] = '<font color=#0000ff>%s</font>' % (s['rev']+s['failed'])
         h['new'] = '<font color=#0000ff>%s</font>' % s['new']
         h['newof'] = '%s' % self.deck.newCount
         dtoday = s['dTotal']
@@ -1000,8 +998,8 @@ day = :d""", d=yesterday)
             (dyest, tyest) = res
         else:
             dyest = 0; tyest = 0
-        h['repsToday'] = '<font color=#007700>%s</font>' % dtoday
-        h['repsTodayChg'] = '<font color=#0000cc>%s</font>' % dyest
+        h['repsToday'] = '<font color=#0000cc>%s</font>' % dtoday
+        h['repsTodayChg'] = '<font color=#00aa00>%s</font>' % dyest
         limit = self.deck.sessionTimeLimit
         start = self.deck.sessionStartTime or time.time() - limit
         start2 = self.deck.lastSessionStart or start - limit
@@ -1012,30 +1010,31 @@ day = :d""", d=yesterday)
             "select count(*) from reviewHistory where "
             "time >= :t and time < :t2",
             t=start2, t2=start)
-        h['repsInSes'] = '<font color=#007700>%s</font>' % last10
-        h['repsInSesChg'] = '<font color=#0000cc>%s</font>' % last20
+        h['repsInSes'] = '<font color=#0000cc>%s</font>' % last10
+        h['repsInSesChg'] = '<font color=#00aa00>%s</font>' % last20
         ttoday = s['dReviewTime']
-        h['timeToday'] = '<font color=#007700>%s</font>' % (
+        h['timeToday'] = '<font color=#0000cc>%s</font>' % (
             anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
-        h['timeTodayChg'] = '<font color=#0000cc>%s</font>' % (
+        h['timeTodayChg'] = '<font color=#00aa00>%s</font>' % (
             anki.utils.fmtTimeSpan(tyest, short=True, point=1))
         self.mainWin.optionsLabel.setText(top + _("""\
 <p>
 <table width=300>
 <tr><td>
 <table width=150>
-<tr><td>Session:&nbsp;&nbsp;</td><td><b>%(repsInSes)s</b></td>
+<tr><td>Session reps:&nbsp;&nbsp;</td><td><b>%(repsInSes)s</b></td>
 <td>%(repsInSesChg)s</td></tr>
-<tr><td>Day:</td><td><b>%(repsToday)s</b></td>
+<tr><td>Day reps:</td><td><b>%(repsToday)s</b></td>
 <td>%(repsTodayChg)s</td></tr>
 <tr><td>Time:</td><td><b>%(timeToday)s</b></td>
 <td>%(timeTodayChg)s</td></tr>
-</table></td>
-<td><table>
-<tr><td>Review: </td><td align=right><b>%(ret)s</b></td></tr>
-<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
-<tr><td>New total:</td><td align=right><b>%(newof)s</b></td></tr>
-</table></td></tr></table>""") % h)
+</table>
+</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
+<table width=150>
+<tr><td>Reviews today:</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td>New today:</td><td align=right><b>%(new)s</b></td><td>&nbsp;(of %(newof)s)</td></tr>
+</table>
+</td></tr></table>""") % h)
 
 
     def showStudyScreen(self):

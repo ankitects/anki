@@ -51,8 +51,8 @@ class HelpArea(object):
         else:
             font = "arial"
         # qt seems to ignore font-size on elements like h1
-        style = ("<style>#content { font-family: %s; " +
-                 "font-size: 12px; }</style>\n") % font
+        style = "" #("<style>#content { font-family: %s; " +
+                 #"font-size: 12px; }</style>\n") % font
         self.widget.setHtml(style + '<div id="content">' +
                             self.buffer + '</div>')
 
