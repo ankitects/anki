@@ -350,7 +350,7 @@ class EditDeck(QMainWindow):
         else:
             self.dialog.actionRedo.setEnabled(False)
         # update list
-        if self.currentRow:
+        if self.currentRow and self.model.cards:
             self.model.updateCard(self.currentRow)
 
     def filterTextChanged(self):
