@@ -147,7 +147,7 @@ class Sync(QThread):
             # close and send signal to main thread
             self.deck.close()
             taken = time.time() - start
-            if changes or srcChanged and taken < 2.5:
+            if (changes or srcChanged) and taken < 2.5:
                 time.sleep(2.5 - taken)
             else:
                 time.sleep(0.25)
