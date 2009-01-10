@@ -1039,21 +1039,26 @@ class BulkMediaSyncer(SyncTools):
             total = len(missing)
             for n in range(total):
                 fname = missing[n]
-                data = self.getFile(fname)
                 self.progressCallback('up', n, total, fname)
+                data = self.getFile(fname)
                 if data:
                     self.server.addFile(fname, data)
                 n += 1
+            if total > 0:
+                self.progressCallback('up', total, total, missing[total-1])
+
         # download from server
         missing = self.missingMedia()
         total = len(missing)
         for n in range(total):
             fname = missing[n]
-            data = self.server.getFile(fname)
             self.progressCallback('down', n, total, fname)
+            data = self.server.getFile(fname)
             if data:
                 self.addFile(fname, data)
             n += 1
+        if total > 0:
+            self.progressCallback('down', total, total, missing[total-1])
 
     def getFile(self, fname):
         try:
