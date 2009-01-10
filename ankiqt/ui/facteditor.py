@@ -33,8 +33,6 @@ class FactEditor(object):
         self.lastFocusedEdit = None
         self.changeTimer = None
         addHook("deckClosed", self.deckClosedHook)
-        if self.deck.mediaDir(create=False):
-            self.initMedia()
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."
@@ -57,6 +55,8 @@ class FactEditor(object):
             self.fields[self.fact.fields[0].name][1].setFocus()
         self.fontChanged = False
         self.deck.setUndoBarrier()
+        if self.deck.mediaDir(create=False):
+            self.initMedia()
 
     def focusFirst(self):
         if self.focusTarget:
