@@ -109,7 +109,7 @@ from stats
 where type = 1""")
 
             dayTimes = self.deck.s.all("""
-select day, reviewTime
+select day, reviewTime / 60.0 as reviewTime
 from stats
 where type = 1""")
 
@@ -190,7 +190,7 @@ where type = 1""")
         graph = fig.add_subplot(111)
         self.filledGraph(graph, days, reviewTimeC, *times)
         graph.set_xlim(xmin=-days, xmax=0)
-        graph.set_ylim(ymax=max(a for a in times[1]) + 10)
+        graph.set_ylim(ymax=max(a for a in times[1]) + 0.1)
         return fig
 
     def cumulativeDue(self, days=30):
