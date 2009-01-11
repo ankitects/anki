@@ -97,6 +97,7 @@ class View(object):
         self.buffer = self.addStyles() + self.buffer
         # hook for user css
         runHook("preFlushHook")
+        #print self.buffer.encode("utf-8")
         self.body.setHtml(self.buffer)
 
     def write(self, text):

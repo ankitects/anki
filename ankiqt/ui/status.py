@@ -238,6 +238,8 @@ You should aim to answer each question within<br>
             if self.main.currentCard:
                 if time.time() - self.timerFlashStart < 1:
                     return
+                if not self.main.config['showCardTimer']:
+                    return
                 t = self.main.currentCard.thinkingTime()
                 self.timer.setText('%02d:%02d' % (t/60, t%60))
                 return
