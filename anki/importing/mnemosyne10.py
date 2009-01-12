@@ -52,6 +52,7 @@ class Mnemosyne10Importer(Importer):
             card.interval = item.next_rep - item.last_rep
             secDelta = (item.next_rep - daysPassed) * 86400.0
             card.due = card.nextTime = time.time() + secDelta
+            card.factor = item.easiness
             # for some reason mnemosyne starts cards off on 1 instead of 0
             card.successive = max(
                 (item.acq_reps_since_lapse + item.ret_reps_since_lapse -1), 0)
