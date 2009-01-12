@@ -56,7 +56,7 @@ class Mnemosyne10Importer(Importer):
             # for some reason mnemosyne starts cards off on 1 instead of 0
             card.successive = max(
                 (item.acq_reps_since_lapse + item.ret_reps_since_lapse -1), 0)
-            card.yesCount = (item.acq_reps + item.ret_reps) - 1
+            card.yesCount = max((item.acq_reps + item.ret_reps) - 1, 0)
             card.noCount = item.lapses
             card.reps = card.yesCount + card.noCount
             if item.cat.name != u"<default>":
