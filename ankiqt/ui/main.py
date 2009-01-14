@@ -1049,9 +1049,9 @@ day = :d""", d=yesterday)
 </table>""" % h
         stats2 = """\
 <table>
-<tr><td width=100>Reviews today:</td><td align=right><b>%(ret)s</b></td></tr>
-<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
-<tr><td>New total:</td><td align=right>%(newof)s</td></tr>
+<tr><td width=120>Reviews due today:</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td>New due today:</td><td align=right><b>%(new)s</b></td></tr>
+<tr><td>New due total:</td><td align=right>%(newof)s</td></tr>
 </table>""" % h
         if (not dyest and not dtoday) or not self.config['showStudyStats']:
             stats1 = ""

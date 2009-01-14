@@ -190,6 +190,8 @@ class View(object):
             return
         if self.main.currentCard.due <= time.time():
             return
+        if self.main.currentCard.due - time.time() <= self.main.deck.delay0:
+            return
         self.write("<span style='color: %s'>" % futureWarningColour +
                    _("This card was due in %s.") % fmtTimeSpan(
             self.main.currentCard.due - time.time()) +
