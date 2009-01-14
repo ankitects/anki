@@ -1283,14 +1283,7 @@ day = :d""", d=yesterday)
         self.moveToState("editCurrentFact")
 
     def onDeckProperties(self):
-        self.deckProperties = ui.deckproperties.DeckProperties(self)
-
-    def onModelProperties(self):
-        if self.currentCard:
-            model = self.currentCard.fact.model
-        else:
-            model = self.deck.currentModel
-        ui.modelproperties.ModelProperties(self, model)
+        self.deckProperties = ui.deckproperties.DeckProperties(self, self.deck)
 
     def onDisplayProperties(self):
         ui.dialogs.get("DisplayProperties", self)
@@ -1558,7 +1551,6 @@ day = :d""", d=yesterday)
         "Syncdeck",
         "DisplayProperties",
         "DeckProperties",
-        "ModelProperties",
         "Undo",
         "Redo",
         "Export",
@@ -1610,7 +1602,6 @@ day = :d""", d=yesterday)
         self.connect(m.actionMarkCard, SIGNAL("toggled(bool)"), self.onMark)
         self.connect(m.actionSuspendCard, s, self.onSuspend)
         self.connect(m.actionDelete, s, self.onDelete)
-        self.connect(m.actionModelProperties, s, self.onModelProperties)
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionRedo, s, self.onRedo)

@@ -15,12 +15,12 @@ tabs = ("General",
 
 class ModelProperties(QDialog):
 
-    def __init__(self, parent, model, main=None, onFinish=None):
+    def __init__(self, parent, deck, model, main=None, onFinish=None):
         QDialog.__init__(self, parent, Qt.Window)
         if not main:
             main = parent
         self.parent = main
-        self.deck = main.deck
+        self.deck = deck
         self.origModTime = self.deck.modified
         self.m = model
         self.onFinish = onFinish
@@ -33,7 +33,7 @@ class ModelProperties(QDialog):
         self.readData()
         self.show()
         self.undoName = _("Model Properties")
-        self.parent.deck.setUndoStart(self.undoName)
+        self.deck.setUndoStart(self.undoName)
         self.exec_()
 
     def readData(self):
@@ -474,10 +474,10 @@ class ModelProperties(QDialog):
             self.deck.setModified()
         # if changed, reset deck
         if self.origModTime != self.deck.modified:
-            self.parent.reset()
+            ankiqt.mw.reset()
         if self.onFinish:
             self.onFinish()
-        self.parent.deck.setUndoEnd(self.undoName)
+        self.deck.setUndoEnd(self.undoName)
         # check again
-        self.parent.deck.haveJapanese = None
+        self.deck.haveJapanese = None
         QDialog.reject(self)

@@ -10,22 +10,9 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Anki</string>
+   <string>Add Model</string>
   </property>
   <layout class="QVBoxLayout" >
-   <item>
-    <widget class="QLabel" name="label" >
-     <property name="text" >
-      <string>&lt;h1>Add Model&lt;/h1></string>
-     </property>
-     <property name="alignment" >
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap" >
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item>
     <widget class="QGroupBox" name="groupBox" >
      <property name="title" >

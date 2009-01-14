@@ -19,10 +19,11 @@ tabs = ("ModelsAndPriorities",
 
 class DeckProperties(QDialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent, deck, onFinish=None):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
-        self.d = parent.deck
+        self.d = deck
+        self.onFinish = onFinish
         self.origMod = self.d.modified
         self.dialog = ankiqt.forms.deckproperties.Ui_DeckProperties()
         self.dialog.setupUi(self)
@@ -33,7 +34,6 @@ class DeckProperties(QDialog):
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
         self.connect(self.dialog.addSource, SIGNAL("clicked()"), self.onAddSource)
         self.connect(self.dialog.deleteSource, SIGNAL("clicked()"), self.onDeleteSource)
-
         self.show()
 
     def readData(self):
@@ -115,7 +115,7 @@ class DeckProperties(QDialog):
                 self.dialog.modelsList.setCurrentItem(item)
 
     def onAdd(self):
-        m = ui.modelchooser.AddModel(self, self.parent).getModel()
+        m = ui.modelchooser.AddModel(self, self.parent, self.d).getModel()
         if m:
             self.d.addModel(m)
             self.updateModelsList()
@@ -126,8 +126,8 @@ class DeckProperties(QDialog):
             return
         # set to current
         self.d.currentModel = model
-        ui.modelproperties.ModelProperties(self, model, self.parent, onFinish=
-                                           self.updateModelsList)
+        ui.modelproperties.ModelProperties(self, self.d, model, self.parent,
+                                           onFinish=self.updateModelsList)
 
     def onDelete(self):
         model = self.selectedModel()
@@ -198,7 +198,7 @@ class DeckProperties(QDialog):
 
     def reject(self):
         n = _("Deck Properties")
-        self.parent.deck.setUndoStart(n)
+        self.d.setUndoStart(n)
         # syncing
         if self.dialog.doSync.checkState() == Qt.Checked:
             self.updateField(self.d, 'syncName',
@@ -284,6 +284,8 @@ insert into sources values
             self.d.setModified()
         # mark deck dirty and close
         if self.origMod != self.d.modified:
-            self.parent.reset()
-        self.parent.deck.setUndoEnd(n)
+            ankiqt.mw.reset()
+        self.d.setUndoEnd(n)
+        if self.onFinish:
+            self.onFinish()
         QDialog.reject(self)

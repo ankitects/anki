@@ -1167,7 +1167,6 @@
     <addaction name="separator" />
     <addaction name="actionStudyOptions" />
     <addaction name="actionDisplayProperties" />
-    <addaction name="actionModelProperties" />
     <addaction name="actionDeckProperties" />
     <addaction name="separator" />
     <addaction name="menuPlugins" />

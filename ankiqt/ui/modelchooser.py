@@ -3,6 +3,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from operator import attrgetter
 import anki
 from anki import stdmodels
 from anki.models import *
@@ -18,7 +19,7 @@ class ModelChooser(QHBoxLayout):
         self.deck = deck
         self.onChangeFunc = onChangeFunc
         self.setMargin(0)
-        self.setSpacing(6)
+        self.setSpacing(4)
         self.shortcuts = []
         label = QLabel(_("<b>Model</b>:"))
         self.addWidget(label)
@@ -32,16 +33,11 @@ class ModelChooser(QHBoxLayout):
             QSizePolicy.Policy(0))
         self.models.setSizePolicy(sizePolicy)
         self.addWidget(self.models)
-        self.add = QPushButton()
-        self.add.setIcon(QIcon(":/icons/list-add.png"))
-        self.add.setToolTip(_("Add a new model"))
-        self.add.setAutoDefault(False)
-        self.addWidget(self.add)
-        self.connect(self.add, SIGNAL("clicked()"), self.onAdd)
         self.edit = QPushButton()
-        self.edit.setIcon(QIcon(":/icons/edit.png"))
+        self.edit.setFixedWidth(32)
+        self.edit.setIcon(QIcon(":/icons/configure.png"))
         self.edit.setShortcut(_("Shift+Alt+e"))
-        self.edit.setToolTip(_("Edit the current model"))
+        self.edit.setToolTip(_("Customize Models"))
         self.edit.setAutoDefault(False)
         self.addWidget(self.edit)
         self.connect(self.edit, SIGNAL("clicked()"), self.onEdit)
@@ -68,23 +64,13 @@ class ModelChooser(QHBoxLayout):
     def onEdit(self):
         idx = self.models.currentIndex()
         model = self.deck.models[idx]
-        ui.modelproperties.ModelProperties(self.parent, model, self.main,
+        ui.deckproperties.DeckProperties(self.parent, self.deck,
                                            onFinish=self.onModelEdited)
         self.drawModels()
         self.changed(model)
 
     def onModelEdited(self):
         self.drawModels()
-
-    def onAdd(self):
-        model = AddModel(self.parent, self.main).getModel()
-        if model:
-            self.deck.addModel(model)
-            self.drawModels()
-            self.changed(model)
-            self.deck.setModified()
-            # check again
-            self.deck.haveJapanese = None
 
     def onChange(self, idx):
         model = self.deck.models[idx]
@@ -166,23 +152,30 @@ class ModelChooser(QHBoxLayout):
 
 class AddModel(QDialog):
 
-    def __init__(self, parent, main=None):
+    def __init__(self, parent, main, deck):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         if not main:
             main = parent
         self.main = main
         self.model = None
+        self.deck = deck
         self.dialog = ankiqt.forms.addmodel.Ui_AddModel()
         self.dialog.setupUi(self)
-        self.models = {}
+        self.models = []
         names = stdmodels.models.keys()
         names.sort()
         for name in names:
             m = stdmodels.byName(name)
-            item = QListWidgetItem(m.name)
+            item = QListWidgetItem(_("Add: %s") % m.name)
             self.dialog.models.addItem(item)
-            self.models[m.name] = m
+            self.models.append((True, m))
+        # add local decks
+        models = sorted(deck.models, key=attrgetter("name"))
+        for m in models:
+            item = QListWidgetItem(_("Copy: %s") % m.name)
+            self.dialog.models.addItem(item)
+            self.models.append((False, m))
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
@@ -195,8 +188,11 @@ class AddModel(QDialog):
         return self.model
 
     def accept(self):
-        self.model = self.models[
-            unicode(self.dialog.models.currentItem().text())]
+        (isStd, self.model) = self.models[
+            self.dialog.models.currentRow()]
+        if not isStd:
+            # not a standard model, so duplicate
+            self.model = self.deck.copyModel(self.model)
         QDialog.accept(self)
 
     def onHelp(self):
