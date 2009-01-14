@@ -90,11 +90,6 @@ class DisplayProperties(QDialog):
             self.connect(self.cwidget("Align", type),
                          SIGNAL("activated(int)"),
                          self.saveCard)
-        # set the background colour to the current system-wide background colour
-        p = QPalette()
-        p.setColor(QPalette.Base, QColor(self.main.config['backgroundColour']))
-        self.dialog.question.setPalette(p)
-        self.dialog.answer.setPalette(p)
         self.drawCards()
 
     def drawCards(self):
