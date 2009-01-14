@@ -1104,6 +1104,20 @@ answerAlign from cardModels""")])
         self.css = css
         return css
 
+    def copyModel(self, oldModel):
+        "Add a new model to DB based on MODEL."
+        m = Model(_("%s copy") % oldModel.name)
+        for f in oldModel.fieldModels:
+            f = f.copy()
+            m.addFieldModel(f)
+        for c in oldModel.cardModels:
+            c = c.copy()
+            m.addCardModel(c)
+        for attr in ("tags", "spacing", "initialSpacing"):
+            setattr(m, attr, getattr(oldModel, attr))
+        self.addModel(m)
+        return m
+
     # Fields
     ##########################################################################
 

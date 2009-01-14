@@ -135,6 +135,19 @@ def test_modelAddDelete():
     assert deck.cardCount == 0
     deck.s.refresh(deck)
 
+def test_modelCopy():
+    deck = DeckStorage.Deck()
+    m = JapaneseModel()
+    deck.addModel(m)
+    f = deck.newFact()
+    f['Expression'] = u'1'
+    deck.addFact(f)
+    m2 = deck.copyModel(m)
+    assert m2.name == "Japanese copy"
+    assert m2.id != m.id
+    assert m2.fieldModels[0].id != m.fieldModels[0].id
+    assert m2.cardModels[0].id != m.cardModels[0].id
+
 def test_media():
     deck = DeckStorage.Deck()
     # create a media dir
