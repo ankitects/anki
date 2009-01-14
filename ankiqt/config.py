@@ -73,6 +73,7 @@ class Config(dict):
             'alternativeTheme': False,
             'showStudyScreen': True,
             'showStudyOptions': False,
+            'showStudyStats': True,
             'showCardTimer': True,
             'created': time.time(),
             'id': genID(),
