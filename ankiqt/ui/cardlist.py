@@ -719,7 +719,7 @@ order by ordinal""" % ids2str(self.cms))
 
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "Editor#AddCards"))
+                                      "Editor#GenerateCards"))
 
 class ChangeTemplateDialog(QDialog):
 
