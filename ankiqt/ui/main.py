@@ -1029,7 +1029,7 @@ day = :d""", d=yesterday)
 <td>%(timeTodayChg)s</td></tr>
 </table>""" % h
         stats2 = """\
-<table width=150>
+<table>
 <tr><td width=100>Reviews today:</td><td align=right><b>%(ret)s</b></td></tr>
 <tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>New total:</td><td align=right>%(newof)s</td></tr>
