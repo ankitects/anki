@@ -225,6 +225,12 @@
              </property>
              <item>
               <widget class="QLabel" name="optionsLabel" >
+               <property name="minimumSize" >
+                <size>
+                 <width>260</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="text" >
                 <string>&lt;h1>Welcome!&lt;/h1></string>
                </property>
@@ -403,19 +409,6 @@
                     <string>Help</string>
                    </property>
                   </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer" >
-                   <property name="orientation" >
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0" >
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                 </layout>
                </item>
