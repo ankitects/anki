@@ -254,7 +254,8 @@ spaceUntil = :spaceUntil,
 isDue = :isDue,
 type = :type,
 combinedDue = max(:spaceUntil, :due),
-relativeDelay = 0
+relativeDelay = 0,
+priority = :priority
 where id=:id""", self.__dict__)
 
 mapper(Card, cardsTable, properties={
