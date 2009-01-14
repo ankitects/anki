@@ -128,8 +128,6 @@ class ImportDialog(QDialog):
                 return
             except Exception, e:
                 msg = _("Import failed: %s\n") % `e`
-                if hasattr(e, "data"):
-                    msg += e.data
                 self.dialog.status.setText(msg)
                 return
         finally:
