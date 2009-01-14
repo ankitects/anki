@@ -50,7 +50,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=20),
+    Column('version', Integer, nullable=False, default=21),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -121,6 +121,9 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
+        self.reviewedAheadCards = []
+        self.extraNewCards = 0
+        self.reviewEarly = False
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -156,11 +159,31 @@ class Deck(object):
         id = self._maybeGetNewCard()
         if id:
             return id
-        # display failed cards early
-        if self.collapseTime or not self.delay0:
+        # review ahead?
+        if self.reviewEarly:
+            id = self.getCardIdAhead()
+            if id:
+                return id
+            else:
+                self.resetAfterReviewEarly()
+                self.checkDue()
+        # display failed cards early/last
+        if self._showFailedLast():
             id = self.s.scalar(
                 "select id from failedCards limit 1")
-            return id
+            if id:
+                return id
+
+    def getCardIdAhead(self):
+        "Return the first card that would become due."
+        t = time.time()
+        id = self.s.scalar("""
+select id from cards
+where priority in (1,2,3,4)
+order by priority desc, combinedDue
+limit 1""")
+        #print "ahead", time.time() -t, id
+        return id
 
     # Get card: helper functions
     ##########################################################################
@@ -206,6 +229,9 @@ class Deck(object):
         "Return the next review card id."
         return self.s.scalar(
             "select id from %s limit 1" % self.revCardTable())
+
+    def _showFailedLast(self):
+        return self.collapseTime or not self.delay0
 
     def cardFromId(self, id, orm=False):
         "Given a card ID, return a card, and start the card timer."
@@ -293,10 +319,15 @@ where factId in (select factId from %s limit 60))""" % (new, new))
         self.setUndoStart(undoName)
         now = time.time()
         oldState = self.cardState(card)
-        lastDelay = max(0, (time.time() - card.due) / 86400.0)
+        lastDelaySecs = time.time() - card.combinedDue
+        lastDelay = lastDelaySecs / 86400.0
+        oldSuc = card.successive
         # update card details
-        card.lastInterval = card.interval
+        last = card.interval
         card.interval = self.nextInterval(card, ease)
+        if lastDelay >= 0:
+            # keep last interval if reviewing early
+            card.lastInterval = last
         card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
         card.isDue = 0
@@ -337,6 +368,11 @@ isDue = 0
 where id != :id and factId = :factId""",
                          id=card.id, space=space, now=now, factId=card.factId)
         card.spaceUntil = 0
+        # temp suspend if learning ahead
+        if lastDelay < 0:
+            if oldSuc or lastDelaySecs > self.delay0 or not self._showFailedLast():
+                card.priority = 0
+                self.reviewedAheadCards.append(card.id)
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
         card.toDB(self.s)
@@ -348,6 +384,9 @@ where id != :id and factId = :factId""",
         entry.writeSQL(self.s)
         self.modified = now
         self.setUndoEnd(undoName)
+        # decrease card boost
+        if self.extraNewCards:
+            self.extraNewCards -= 1
 
     # Interval management
     ##########################################################################
@@ -355,9 +394,16 @@ where id != :id and factId = :factId""",
     def nextInterval(self, card, ease):
         "Return the next interval for CARD given EASE."
         delay = self._adjustedDelay(card, ease)
-        return self._nextInterval(card.interval, card.factor, delay, ease)
+        return self._nextInterval(card, delay, ease)
 
-    def _nextInterval(self, interval, factor, delay, ease):
+    def _nextInterval(self, card, delay, ease):
+        interval = card.interval
+        factor = card.factor
+        if delay < 0:
+            interval = card.lastInterval + ((interval - abs(delay)) / 2.0)
+            delay = 0
+            if interval < self.midIntervalMin:
+                interval = 0
         # if interval is less than mid interval, use presets
         if ease == 1:
             interval *= self.delay2
@@ -430,7 +476,10 @@ where id != :id and factId = :factId""",
         "Return an adjusted delay value for CARD based on EASE."
         if self.cardIsNew(card):
             return 0
-        return max(0, (time.time() - card.due) / 86400.0)
+        if card.combinedDue <= time.time():
+            return (time.time() - card.due) / 86400.0
+        else:
+            return (time.time() - card.combinedDue) / 86400.0
 
     def resetCards(self, ids):
         "Reset progress on cards in IDS."
@@ -502,7 +551,7 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             stmt % 2, now=time.time()).rowcount
         self.newCountToday = max(min(
             self.newCount, self.newCardsPerDay -
-            self.newCardsToday()), 0)
+            self.newCardsToday()), 0) + self.extraNewCards
 
     def rebuildQueue(self):
         "Update relative delays based on current time."
@@ -538,6 +587,17 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         if genToday(self) != self._dailyStats.day:
             self._dailyStats = dailyStats(self)
 
+    def cardsDueSoon(self, ratio=0.1, minInt=0, maxInt=0):
+        "Return ids of cards near their expiration date."
+        #FIXME: implement
+        pass
+
+    def resetAfterReviewEarly(self):
+        self.updatePriorities(self.reviewedAheadCards)
+        self.reviewedAheadCards = []
+        self.reviewEarly = False
+        self.flushMod()
+
     # Times
     ##########################################################################
 
@@ -547,15 +607,15 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             newCardsTomorrow = min(self.newCount, self.newCardsPerDay)
             msg = _('''\
 At the same time tomorrow:<br><br>
-- There will be <b>%(wait)d</b> cards waiting for review<br>
-- There will be <b>%(new)d</b>
-<a href="http://ichi2.net/anki/wiki/DeckProperties#NewCards">
-new cards</a> waiting''') % {
+There will be <b>%(wait)d</b> cards waiting for review.<br>
+There will be <b>%(new)d</b> new cards waiting.''') % {
                 'new': newCardsTomorrow,
                 'wait': self.cardsDueBy(time.time() + 86400)
                 }
-            if next - time.time() > 86400 and not newCardsTomorrow:
-                msg = (_("The next card will be shown in <b>%s</b>") %
+            if self.spacedCardCount():
+                msg = _("Spaced cards will be shown soon.")
+            elif next - time.time() > 86400 and not newCardsTomorrow:
+                msg = (_("The next card will be shown in <b>%s</b>.") %
                        self.earliestTimeStr())
         else:
             msg = _("No cards are due.")
@@ -586,20 +646,31 @@ select count(id) from cards where combinedDue < :time
 and priority in (1,2,3,4) and type in (0, 1)""", time=time)
 
     def deckFinishedMsg(self):
+        spaceSusp = ""
+        c = self.spacedCardCount()
+        if c:
+            spaceSusp += '''
+There are <b>%d</b>
+<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3">
+spaced</a> cards.''' % c
+        c2 = self.suspendedCardCount()
+        if c2:
+            if c:
+                spaceSusp += "<br>"
+            spaceSusp += '''
+There are <b>%d</b>
+<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
+suspended</a> cards.''' % c2
+        if spaceSusp:
+            spaceSusp = "<br><br>" + spaceSusp
         return _('''\
 <div style="white-space: normal;">
-<h1>Congratulations!</h1>You have finished the deck for now.<br><br>
+<h1>Congratulations!</h1>You have finished for now.<br><br>
 %(next)s
-<br><br>
-- There are <b>%(waiting)d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3">
-spaced</a> cards.<br>
-- There are <b>%(suspended)d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
-suspended</a> cards.</div>''') % {
+%(spaceSusp)s
+</div>''') % {
     "next": self.nextDueMsg(),
-    "suspended": self.suspendedCardCount(),
-    "waiting": self.spacedCardCount()
+    "spaceSusp": spaceSusp,
     }
 
     # Priorities
@@ -2234,12 +2305,15 @@ where interval < 1""")
             deck.sessionRepLimit = 0
             deck.version = 19
             deck.s.commit()
-            deck.s.statement("vacuum")
-            deck.s.statement("analyze")
         if deck.version < 20:
             DeckStorage._addViews(deck)
             DeckStorage._addIndices(deck)
             deck.version = 20
+            deck.s.commit()
+        if deck.version < 21:
+            deck.s.statement("vacuum")
+            deck.s.statement("analyze")
+            deck.version = 21
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
