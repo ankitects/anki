@@ -1250,6 +1250,7 @@ order by fields.factId""" % ids2str([x[2] for x in ids])),
     question = :question, answer = :answer
     %s
     where id = :id""" % mod, pend)
+        self.flushMod()
 
     def rebuildCardOrdinals(self, ids):
         "Update all card models in IDS. Caller must update model modtime."
@@ -1260,6 +1261,13 @@ update cards set
 ordinal = (select ordinal from cardModels where id = cardModelId),
 modified = :now
 where cardModelId in %s""" % strids, now=time.time())
+        self.flushMod()
+
+    def changeCardModel(self, cardIds, newCardModelId):
+        self.s.statement("""
+update cards set cardModelId = :newId
+where id in %s""" % ids2str(cardIds), newId=newCardModelId)
+        self.updateCardQACacheFromIds(cardIds)
         self.flushMod()
 
     # Tags
@@ -1594,10 +1602,8 @@ select id from fields where factId not in (select id from facts)""")
         # these sometimes end up null on upgrade
         self.s.statement("update models set source = 0 where source is null")
         self.s.statement(
-            "update cardModels set allowEmptyAnswer = 1 "
-            "where allowEmptyAnswer is null")
-        self.s.statement(
-            "update cardModels set typeAnswer = 0 where typeAnswer is null")
+            "update cardModels set allowEmptyAnswer = 1, typeAnswer = 0 "
+            "where allowEmptyAnswer is null or typeAnswer is null")
         # fix any priorities
         self.updateAllPriorities()
         # fix problems with stripping html
