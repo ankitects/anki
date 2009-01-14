@@ -100,12 +100,10 @@ class Preferences(QDialog):
         self.config['saveOnClose'] = self.dialog.saveWhenClosing.isChecked()
 
     def setupAdvanced(self):
-        self.dialog.showToolbar.setChecked(self.config['showToolbar'])
         self.dialog.showEstimates.setChecked(not self.config['suppressEstimates'])
         self.dialog.showStudyOptions.setChecked(self.config['showStudyScreen'])
         self.dialog.showTray.setChecked(self.config['showTrayIcon'])
         self.dialog.showTimer.setChecked(self.config['showTimer'])
-        self.dialog.scrollToAnswer.setChecked(self.config['scrollToAnswer'])
         self.dialog.showDivider.setChecked(self.config['qaDivider'])
         self.dialog.splitQA.setChecked(self.config['splitQA'])
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
@@ -115,12 +113,10 @@ class Preferences(QDialog):
             self.dialog.alternativeTheme.setShown(False)
 
     def updateAdvanced(self):
-        self.config['showToolbar'] = self.dialog.showToolbar.isChecked()
         self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
         self.config['showTimer'] = self.dialog.showTimer.isChecked()
         self.config['suppressEstimates'] = not self.dialog.showEstimates.isChecked()
         self.config['showStudyScreen'] = self.dialog.showStudyOptions.isChecked()
-        self.config['scrollToAnswer'] = self.dialog.scrollToAnswer.isChecked()
         self.config['qaDivider'] = self.dialog.showDivider.isChecked()
         self.config['splitQA'] = self.dialog.splitQA.isChecked()
         self.config['addZeroSpace'] = self.dialog.addZeroSpace.isChecked()

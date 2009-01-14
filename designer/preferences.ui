@@ -329,34 +329,6 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0" >
-          <widget class="QCheckBox" name="showTray" >
-           <property name="text" >
-            <string>Show tray icon</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0" >
-          <widget class="QCheckBox" name="scrollToAnswer" >
-           <property name="text" >
-            <string>Scroll down to the answer when showing answer</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0" >
-          <widget class="QCheckBox" name="addZeroSpace" >
-           <property name="text" >
-            <string>Add hidden char to text (fixes Thai on OSX)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" >
-          <widget class="QCheckBox" name="showToolbar" >
-           <property name="text" >
-            <string>Show toolbar on startup</string>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="0" >
           <spacer name="verticalSpacer_3" >
            <property name="orientation" >
@@ -380,10 +352,24 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0" >
+         <item row="7" column="0" >
           <widget class="QCheckBox" name="showStudyOptions" >
            <property name="text" >
-            <string>Show study options on startup</string>
+            <string>Show welcome back screen on startup</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" >
+          <widget class="QCheckBox" name="showTray" >
+           <property name="text" >
+            <string>Show tray icon</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" >
+          <widget class="QCheckBox" name="addZeroSpace" >
+           <property name="text" >
+            <string>Add hidden char to text (fixes Thai on OSX)</string>
            </property>
           </widget>
          </item>
@@ -437,10 +423,6 @@
   <tabstop>alternativeTheme</tabstop>
   <tabstop>showTimer</tabstop>
   <tabstop>showStudyOptions</tabstop>
-  <tabstop>showToolbar</tabstop>
-  <tabstop>showTray</tabstop>
-  <tabstop>scrollToAnswer</tabstop>
-  <tabstop>addZeroSpace</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
