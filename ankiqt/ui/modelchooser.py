@@ -62,18 +62,16 @@ class ModelChooser(QHBoxLayout):
             self.itemAt(i).widget().hide()
 
     def onEdit(self):
-        idx = self.models.currentIndex()
-        model = self.deck.models[idx]
         ui.deckproperties.DeckProperties(self.parent, self.deck,
                                            onFinish=self.onModelEdited)
-        self.drawModels()
-        self.changed(model)
 
     def onModelEdited(self):
+        idx = self.models.currentIndex()
         self.drawModels()
+        self.onChange(idx)
 
     def onChange(self, idx):
-        model = self.deck.models[idx]
+        model = self._models[idx]
         self.deck.currentModel = model
         self.changed(model)
         self.deck.setModified()
@@ -85,9 +83,10 @@ class ModelChooser(QHBoxLayout):
 
     def drawModels(self):
         self.models.clear()
+        self._models = sorted(self.deck.models, key=attrgetter("name"))
         self.models.addItems(QStringList(
-            [m.name for m in self.deck.models]))
-        idx = self.deck.models.index(self.deck.currentModel)
+            [m.name for m in self._models]))
+        idx = self._models.index(self.deck.currentModel)
         self.models.setCurrentIndex(idx)
 
     def drawCardModels(self):
