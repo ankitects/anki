@@ -138,6 +138,8 @@ def test_modelAddDelete():
 def test_modelCopy():
     deck = DeckStorage.Deck()
     m = JapaneseModel()
+    assert len(m.fieldModels) == 3
+    assert len(m.cardModels) == 2
     deck.addModel(m)
     f = deck.newFact()
     f['Expression'] = u'1'
@@ -147,6 +149,11 @@ def test_modelCopy():
     assert m2.id != m.id
     assert m2.fieldModels[0].id != m.fieldModels[0].id
     assert m2.cardModels[0].id != m.cardModels[0].id
+    assert len(m2.fieldModels) == 3
+    assert len(m.fieldModels) == 3
+    assert len(m2.fieldModels) == len(m.fieldModels)
+    assert len(m.cardModels) == 2
+    assert len(m2.cardModels) == 2
 
 def test_media():
     deck = DeckStorage.Deck()

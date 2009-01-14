@@ -63,6 +63,7 @@ class FieldModel(object):
         for p in class_mapper(FieldModel).iterate_properties:
             setattr(new, p.key, getattr(self, p.key))
         new.id = genID()
+        new.model = None
         return new
 
 mapper(FieldModel, fieldModelsTable)
@@ -120,6 +121,7 @@ class CardModel(object):
         for p in class_mapper(CardModel).iterate_properties:
             setattr(new, p.key, getattr(self, p.key))
         new.id = genID()
+        new.model = None
         return new
 
 mapper(CardModel, cardModelsTable)
