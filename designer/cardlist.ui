@@ -321,7 +321,7 @@
   <action name="actionNextCard" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/arrow-down.png</normaloff>:/icons/arrow-down.png</iconset>
+     <normaloff>:/icons/go-next.png</normaloff>:/icons/go-next.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Next Card</string>
@@ -333,7 +333,7 @@
   <action name="actionPreviousCard" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/arrow-up.png</normaloff>:/icons/arrow-up.png</iconset>
+     <normaloff>:/icons/go-previous.png</normaloff>:/icons/go-previous.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Previous Card</string>
@@ -345,7 +345,7 @@
   <action name="actionFirstCard" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/arrow-up-double.png</normaloff>:/icons/arrow-up-double.png</iconset>
+     <normaloff>:/icons/go-first.png</normaloff>:/icons/go-first.png</iconset>
    </property>
    <property name="text" >
     <string>F&amp;irst Card</string>
@@ -357,7 +357,7 @@
   <action name="actionLastCard" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/arrow-down-double.png</normaloff>:/icons/arrow-down-double.png</iconset>
+     <normaloff>:/icons/go-last.png</normaloff>:/icons/go-last.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Last Card</string>

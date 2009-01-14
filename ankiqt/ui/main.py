@@ -78,6 +78,7 @@ class AnkiQt(QMainWindow):
                                  traceback.format_exc())
 
     def setupMainWindow(self):
+        # main window
         self.mainWin = ankiqt.forms.main.Ui_MainWindow()
         self.mainWin.setupUi(self)
         self.mainWin.mainText = ui.view.AnkiWebView(self.mainWin.mainTextFrame)
@@ -88,6 +89,13 @@ class AnkiQt(QMainWindow):
         self.connect(self.mainWin.mainText.pageAction(QWebPage.Reload),
                      SIGNAL("activated()"),
                      lambda: self.moveToState("auto"))
+        # congrats
+        self.connect(self.mainWin.learnMoreButton,
+                     SIGNAL("clicked()"),
+                     self.onLearnMore)
+        self.connect(self.mainWin.reviewEarlyButton,
+                     SIGNAL("clicked()"),
+                     self.onReviewEarly)
 
     def setupViews(self):
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
@@ -226,11 +234,12 @@ Please do not file a bug report with Anki.\n\n""")
                                 # if the same card is being shown and it's not
                                 # due yet, give up
                                 return self.moveToState("deckFinished")
-                    if (self.config['showStudyScreen'] and
-                        not self.deck.sessionStartTime):
-                        return self.moveToState("studyScreen")
-                    if self.deck.sessionLimitReached():
-                        return self.moveToState("studyScreen")
+                    if not self.deck.reviewEarly:
+                        if (self.config['showStudyScreen'] and
+                            not self.deck.sessionStartTime):
+                            return self.moveToState("studyScreen")
+                        if self.deck.sessionLimitReached():
+                            return self.moveToState("studyScreen")
                     self.enableCardMenuItems()
                     return self.moveToState("showQuestion")
                 else:
@@ -242,8 +251,13 @@ Please do not file a bug report with Anki.\n\n""")
             self.deck.s.flush()
             self.hideButtons()
             self.disableCardMenuItems()
+            self.switchToCongratsScreen()
+            self.mainWin.learnMoreButton.setEnabled(
+                not not self.deck.newCount)
             self.startRefreshTimer()
             self.bodyView.setState(state)
+            # make sure the buttons aren't focused
+            self.mainWin.congratsLabel.setFocus()
         elif state == "showQuestion":
             if self.deck.mediaDir():
                 os.chdir(self.deck.mediaDir())
@@ -408,8 +422,11 @@ new:
     def switchToStudyScreen(self):
         self.mainWin.mainStack.setCurrentIndex(3)
 
-    def switchToReviewScreen(self):
+    def switchToCongratsScreen(self):
         self.mainWin.mainStack.setCurrentIndex(4)
+
+    def switchToReviewScreen(self):
+        self.mainWin.mainStack.setCurrentIndex(5)
 
     # Buttons
     ##########################################################################
@@ -674,6 +691,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         self.hideWelcome = hideWelcome
         if self.deck is not None:
+            if self.deck.reviewEarly:
+                self.deck.resetAfterReviewEarly()
             if self.deck.modifiedSinceSave():
                 if (self.deck.path is None or
                     (not self.config['saveOnClose'] and
@@ -1364,6 +1383,17 @@ day = :d""", d=yesterday)
         self.deck.easyIntervalMax = 0.25
         self.deck.newCardOrder = 0
         self.deck.syncName = None
+        self.reset()
+
+    # Reviewing and learning ahead
+    ##########################################################################
+
+    def onLearnMore(self):
+        self.deck.extraNewCards += 5
+        self.reset()
+
+    def onReviewEarly(self):
+        self.deck.reviewEarly = True
         self.reset()
 
     # Language handling

@@ -12,10 +12,12 @@ from anki.hooks import runHook
 import types, time, re, os, urllib, sys
 from ankiqt import ui
 from ankiqt.ui.utils import mungeQA
+from anki.utils import fmtTimeSpan
 from PyQt4.QtWebKit import QWebPage, QWebView
 
 failedCharColour = "#FF0000"
 passedCharColour = "#00FF00"
+futureWarningColour = "#FF0000"
 
 # Views - define the way a user is prompted for questions, etc
 ##########################################################################
@@ -53,7 +55,8 @@ class View(object):
         self.clearWindow()
         self.haveTop = (self.main.lastCard and (
             self.main.config['showLastCardContent'] or
-            self.main.config['showLastCardInterval']))
+            self.main.config['showLastCardInterval'])) or (
+            self.main.currentCard and self.main.currentCard.due > time.time())
         self.drawRule = (self.main.config['qaDivider'] and
                          self.main.currentCard and
                          not self.main.currentCard.cardModel.questionInAnswer)
@@ -178,8 +181,19 @@ class View(object):
     def drawTopSection(self):
         "Show previous card, next scheduled time, and stats."
         self.buffer += "<center>"
+        self.drawFutureWarning()
         self.drawLastCard()
         self.buffer += "</center>"
+
+    def drawFutureWarning(self):
+        if not self.main.currentCard:
+            return
+        if self.main.currentCard.due <= time.time():
+            return
+        self.write("<span style='color: %s'>" % futureWarningColour +
+                   _("This card was due in %s.") % fmtTimeSpan(
+            self.main.currentCard.due - time.time()) +
+                   "</span>")
 
     def drawLastCard(self):
         "Show the last card if not the current one, and next time."
@@ -262,7 +276,8 @@ Start adding your own material.</td>
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."
-        self.write(self.main.deck.deckFinishedMsg())
+        self.main.mainWin.congratsLabel.setText(
+            self.main.deck.deckFinishedMsg())
 
 class AnkiWebView(QWebView):
 

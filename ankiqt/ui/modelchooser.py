@@ -66,14 +66,13 @@ class ModelChooser(QHBoxLayout):
                                            onFinish=self.onModelEdited)
 
     def onModelEdited(self):
-        idx = self.models.currentIndex()
         self.drawModels()
-        self.onChange(idx)
+        self.changed(self.deck.currentModel)
 
     def onChange(self, idx):
         model = self._models[idx]
         self.deck.currentModel = model
-        self.changed(model)
+        self.changed(self.deck.currentModel)
         self.deck.setModified()
 
     def changed(self, model):
