@@ -1389,7 +1389,7 @@ day = :d""", d=yesterday)
     ##########################################################################
 
     def onLearnMore(self):
-        self.deck.extraNewCards += 5
+        self.deck.extraNewCards += self.config['extraNewCards']
         self.reset()
 
     def onReviewEarly(self):

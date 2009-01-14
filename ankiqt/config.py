@@ -75,6 +75,7 @@ class Config(dict):
             'showStudyOptions': False,
             'showStudyStats': True,
             'showCardTimer': True,
+            'extraNewCards': 5,
             'created': time.time(),
             'id': genID(),
             }
