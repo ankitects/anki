@@ -582,7 +582,7 @@ where id in (%s)""" % ",".join([
         d = AddCardChooser(self, cms)
         if not d.exec_():
             return
-        n = _("Add Cards")
+        n = _("Generate Cards")
         self.deck.setUndoStart(n)
         for id in sf:
             self.deck.addCards(self.deck.s.query(Fact).get(id),
@@ -607,10 +607,13 @@ cards.id in %s and cards.factId = facts.id""" % ids2str(sc))
                self.currentCard.fact.model.cardModels]
         d = ChangeTemplateDialog(self, cms)
         d.exec_()
+        n = _("Change Template")
         if d.newId:
+            self.deck.setUndoStart(n)
             self.deck.changeCardModel(sc, d.newId)
+            self.deck.setUndoEnd(n)
+            self.updateSearch()
             self.updateAfterCardChange()
-            ### XXX: UNDO
 
     def selectFacts(self):
         sm = self.dialog.tableView.selectionModel()
