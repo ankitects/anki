@@ -210,9 +210,9 @@ def intervalGraph(parent, deck):
     hbox = QHBoxLayout()
 
     def showHideAll():
-        deck.startProgress(_("Graphs"), 0, len(widgets))
+        deck.startProgress(len(widgets))
         for w in widgets:
-            deck.updateProgress(_("Preparing..."))
+            deck.updateProgress(_("Processing..."))
             w.showHide()
         frame.adjustSize()
         deck.finishProgress()
@@ -250,10 +250,10 @@ def intervalGraph(parent, deck):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Graphs"))
 
     def onRefresh():
-        deck.startProgress(_("Graphs"), 0, len(widgets))
+        deck.startProgress(len(widgets))
         dg.stats = None
         for w in widgets:
-            deck.updateProgress(_("Preparing..."))
+            deck.updateProgress(_("Processing..."))
             w.updateFigure()
         deck.finishProgress()
 

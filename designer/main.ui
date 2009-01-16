@@ -1217,6 +1217,7 @@
      <addaction name="separator" />
      <addaction name="actionMergeModels" />
      <addaction name="separator" />
+     <addaction name="actionRecordNoiseProfile" />
     </widget>
     <addaction name="actionGraphs" />
     <addaction name="actionDstats" />
@@ -1861,6 +1862,11 @@
    </property>
    <property name="text" >
     <string>&amp;Donate...</string>
+   </property>
+  </action>
+  <action name="actionRecordNoiseProfile" >
+   <property name="text" >
+    <string>&amp;Record Noise Profile...</string>
    </property>
   </action>
  </widget>

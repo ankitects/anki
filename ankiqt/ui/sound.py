@@ -1,0 +1,1 @@
+resolve@twitch.ichi2.net.12462:1231199561

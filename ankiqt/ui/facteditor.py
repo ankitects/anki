@@ -7,6 +7,7 @@ from PyQt4.QtCore import *
 import re, os, sys, tempfile, urllib2
 from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
+from ankiqt.ui.sound import getAudio
 import anki.sound
 from ankiqt import ui
 import ankiqt
@@ -172,6 +173,16 @@ class FactEditor(object):
         self.addSound.setToolTip(_("Add audio (F4)"))
         self.iconsBox.addWidget(self.addSound)
         self.addSound.setStyle(self.plastiqueStyle)
+        # sounds
+        self.recSound = QPushButton(self.widget)
+        self.recSound.connect(self.recSound, SIGNAL("clicked()"), self.onRecSound)
+        self.recSound.setFocusPolicy(Qt.NoFocus)
+        self.recSound.setShortcut(_("F5"))
+        self.recSound.setEnabled(False)
+        self.recSound.setIcon(QIcon(":/icons/media-record.png"))
+        self.recSound.setToolTip(_("Record audio (F5)"))
+        self.iconsBox.addWidget(self.recSound)
+        self.recSound.setStyle(self.plastiqueStyle)
         # latex
         spc = QSpacerItem(10,10)
         self.iconsBox.addItem(spc)
@@ -450,6 +461,7 @@ class FactEditor(object):
         self.latexMathEnv.setEnabled(val)
         self.preview.setEnabled(val)
         self.htmlEdit.setEnabled(val)
+        self.recSound.setEnabled(val)
 
     def disableButtons(self):
         self.enableButtons(False)
@@ -586,6 +598,12 @@ class FactEditor(object):
         path = self.deck.addMedia(file)
         anki.sound.play(path)
         w.insertHtml('[sound:%s]' % path)
+
+    def onRecSound(self):
+        w = self.focusedEdit()
+        file = getAudio(self.parent)
+        if file:
+            self._addSound(file, widget=w)
 
 class FactEdit(QTextEdit):
 

@@ -188,7 +188,10 @@ def mungeQA(deck, txt):
 
 class ProgressWin(object):
 
-    def __init__(self, parent, title, min, max):
+    def __init__(self, parent, max=100, min=0, title=None):
+        if not title:
+            title = "Anki"
+        print parent, max, min, title
         self.diag = QProgressDialog("", "", min, max, parent)
         self.diag.setWindowTitle(title)
         self.diag.setCancelButton(None)
@@ -220,4 +223,5 @@ class ProgressWin(object):
     def finish(self):
         self.diag.setValue(self.max)
         self.app.processEvents()
+        time.sleep(0.1)
         self.diag.cancel()

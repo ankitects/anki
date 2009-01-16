@@ -43,6 +43,7 @@ class AnkiQt(QMainWindow):
         self.setLang()
         self.setupDocumentDir()
         self.setupFonts()
+        self.setupSound()
         self.setupBackupDir()
         self.setupMainWindow()
         self.alterShortcuts()
@@ -1360,12 +1361,6 @@ day = :d""", d=yesterday)
         s = unicode(s)
         self.deck.save()
         # open tmp deck
-        if self.config['randomizeOnCram']:
-            n = 5
-        else:
-            n = 3
-        p = ui.utils.ProgressWin(self, _("Cram"), 0, n)
-        p.update(_("Copying cards..."))
         ndir = tempfile.mkdtemp(prefix="anki-cram")
         path = os.path.join(ndir, "cram.anki")
         from anki.exporting import AnkiExporter
@@ -1378,6 +1373,11 @@ day = :d""", d=yesterday)
             ui.utils.showInfo(_("No cards matched the provided tags."))
             p.finish()
             return
+        if self.config['randomizeOnCram']:
+            n = 4
+        else:
+            n = 2
+        p = ui.utils.ProgressWin(self, n, 0, _("Cram"))
         p.update(_("Loading deck..."))
         self.deck.close()
         self.deck = None
@@ -1677,6 +1677,7 @@ day = :d""", d=yesterday)
         self.connect(m.actionUncacheLatex, s, self.onUncacheLatex)
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionDonate, s, self.onDonate)
+        self.connect(m.actionRecordNoiseProfile, s, self.onRecordNoiseProfile)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
@@ -1830,7 +1831,6 @@ day = :d""", d=yesterday)
 
     def pluginsFolder(self):
         dir = self.config.configPath
-        file = os.path.join(dir, "custom.py")
         return os.path.join(dir, "plugins")
 
     def loadPlugins(self):
@@ -1924,10 +1924,19 @@ day = :d""", d=yesterday)
     # Sounds
     ##########################################################################
 
+    def setupSound(self):
+        anki.sound.noiseProfile = os.path.join(
+            self.config.configPath, "noise.profile")
+        anki.sound.checkForNoiseProfile()
+
     def onRepeatAudio(self):
         playFromText(self.currentCard.question)
         if self.state != "showQuestion":
             playFromText(self.currentCard.answer)
+
+    def onRecordNoiseProfile(self):
+        from ui.sound import recordNoiseProfile
+        recordNoiseProfile(self)
 
     # Progress info
     ##########################################################################
@@ -1937,9 +1946,9 @@ day = :d""", d=yesterday)
         addHook("updateProgress", self.onUpdateProgress)
         addHook("finishProgress", self.onFinishProgress)
 
-    def onStartProgress(self, title, min, max):
+    def onStartProgress(self, max=100, min=0, title=None):
         self.progressWin = ui.utils.ProgressWin(self.app.activeWindow() or self,
-                                                title, min, max)
+                                                max, min, title)
 
     def onUpdateProgress(self, label=None, value=None):
         if self.progressWin:

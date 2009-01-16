@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/media-playback-stop.png</file>
+    <file>icons/media-record.png</file>
     <file>icons/view-calendar-tasks.png</file>
     <file>icons/help-hint.png</file>
     <file>icons/go-first.png</file>
