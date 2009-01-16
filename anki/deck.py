@@ -1453,8 +1453,8 @@ where id = :id""", pending)
     # Progress info
     ##########################################################################
 
-    def startProgress(self, title, min, max):
-        runHook("startProgress", title, min, max)
+    def startProgress(self, max=100, min=0, title=None):
+        runHook("startProgress", max, min, title)
 
     def updateProgress(self, label=None, value=None):
         runHook("updateProgress", label, value)
@@ -1641,7 +1641,7 @@ Return new path, relative to media dir."""
 
     def fixIntegrity(self):
         "Responsibility of caller to call rebuildQueue()"
-        self.startProgress(_("Check DB"), 0, 11)
+        self.startProgress(11)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
             return _("Database file damaged. Restore from backup.")
@@ -1873,8 +1873,8 @@ select sql from undoLog where
 seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         mod = len(sql) / 35
         if mod:
-            self.startProgress(_("Undo/Redo"), 0, 36)
-            self.updateProgress(_("Applying changes..."))
+            self.startProgress(36)
+            self.updateProgress(_("Processing..."))
         newstart = self._latestUndoRow()
         for c, s in enumerate(sql):
             if mod and not c % mod:

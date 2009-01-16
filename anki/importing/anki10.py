@@ -18,7 +18,7 @@ class Anki10Importer(Importer):
 
     def doImport(self):
         "Import."
-        self.deck.startProgress(_("Import"), 0, 4)
+        self.deck.startProgress(4)
         self.deck.updateProgress(_("Importing..."))
         src = DeckStorage.Deck(self.file)
         client = SyncClient(self.deck)
