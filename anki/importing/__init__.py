@@ -46,8 +46,13 @@ class Importer(object):
 
     def doImport(self):
         "Import."
+        self.deck.startProgress(_("Import"), 0, 6)
+        self.deck.updateProgress(_("Reading source..."))
         c = self.foreignCards()
         self.importCards(c)
+        self.deck.updateProgress(_("Updating priorities..."))
+        self.deck.updateAllPriorities()
+        self.deck.finishProgress()
         if c:
             self.deck.setModified()
 
@@ -118,6 +123,7 @@ all but one card template."""))
     def addCards(self, cards):
         "Add facts in bulk from foreign cards."
         # add facts
+        self.deck.updateProgress(_("Adding facts..."))
         factIds = [genID() for n in range(len(cards))]
         self.deck.s.execute(factsTable.insert(),
             [{'modelId': self.model.id,
@@ -128,6 +134,7 @@ all but one card template."""))
 delete from factsDeleted
 where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         # add all the fields
+        self.deck.updateProgress(_("Adding fields..."))
         for fm in self.model.fieldModels:
             try:
                 index = self.mapping.index(fm)
@@ -143,6 +150,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
             self.deck.s.execute(fieldsTable.insert(),
                                 data)
         # and cards
+        self.deck.updateProgress(_("Adding cards..."))
         now = time.time()
         for cm in self.model.cardModels:
             self._now = now
@@ -157,6 +165,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                     'type': 2},cards[m]) for m in range(len(cards))]
                 self.deck.s.execute(cardsTable.insert(),
                                     data)
+        self.deck.updateProgress(_("Caching QA..."))
         self.deck.updateCardsFromModel(self.model)
         self.deck.cardCount += len(cards)
         self.total = len(factIds)
@@ -171,6 +180,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         self._now += .00001
         data.update(card.__dict__)
         data['combinedDue'] = data['due']
+        data['isDue'] = data['combinedDue'] < time.time()
         return data
 
     def stripInvalid(self, cards):
