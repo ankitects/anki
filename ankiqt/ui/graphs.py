@@ -210,9 +210,12 @@ def intervalGraph(parent, deck):
     hbox = QHBoxLayout()
 
     def showHideAll():
+        deck.startProgress(_("Graphs"), 0, len(widgets))
         for w in widgets:
+            deck.updateProgress(_("Preparing..."))
             w.showHide()
         frame.adjustSize()
+        deck.finishProgress()
 
     def onShowHideToggle(b, w):
         key = 'graphs.shown.' + w.name
@@ -247,9 +250,12 @@ def intervalGraph(parent, deck):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Graphs"))
 
     def onRefresh():
+        deck.startProgress(_("Graphs"), 0, len(widgets))
         dg.stats = None
         for w in widgets:
-            w.scheduleUpdate()
+            deck.updateProgress(_("Preparing..."))
+            w.updateFigure()
+        deck.finishProgress()
 
     showhide = QPushButton(_("Show/Hide"))
     hbox.addWidget(showhide)

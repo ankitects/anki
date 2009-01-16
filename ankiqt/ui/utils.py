@@ -205,7 +205,7 @@ class ProgressWin(object):
 
     def update(self, label=None, value=None):
         self.app.processEvents()
-        #print self.min, self.counter, self.max, label, time.time() - self.lastTime
+        print self.min, self.counter, self.max, label, time.time() - self.lastTime
         self.lastTime = time.time()
         if label:
             self.diag.setLabelText(label)
