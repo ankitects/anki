@@ -33,7 +33,7 @@ NORM_AMOUNT = "-3"
 # the amount of bass
 BASS_AMOUNT = "+0"
 # the amount to fade at end
-FADE_AMOUNT = "0.2"
+FADE_AMOUNT = "0.25"
 
 noiseProfile = ""
 
