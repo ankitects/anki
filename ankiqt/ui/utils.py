@@ -8,7 +8,7 @@ from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
 from ankiqt import ui
 
-import re, os, sys, urllib
+import re, os, sys, urllib, time
 import ankiqt
 
 def openLink(link):
@@ -197,19 +197,27 @@ class ProgressWin(object):
         self.diag.setMinimumDuration(0)
         self.diag.show()
         self.counter = min
-        self.app = QApplication.instance()
-        self.app.processEvents()
         self.min = min
         self.max = max
+        self.lastTime = time.time()
+        self.app = QApplication.instance()
+        self.app.processEvents()
 
-    def update(self, label=None, val=None):
+    def update(self, label=None, value=None):
+        self.app.processEvents()
+        print self.min, self.counter, self.max, label, time.time() - self.lastTime
+        self.lastTime = time.time()
         if label:
             self.diag.setLabelText(label)
-        if val is None:
-            val = self.counter
+        if value is None:
+            value = self.counter
             self.counter += 1
-        self.diag.setValue(val)
+        else:
+            self.counter = value + 1
+        self.diag.setValue(value)
         self.app.processEvents()
 
     def finish(self):
+        self.diag.setValue(self.max)
+        self.app.processEvents()
         self.diag.cancel()

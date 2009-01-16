@@ -52,6 +52,7 @@ class ExportDialog(QDialog):
     def accept(self):
         file = ui.utils.getSaveFile(self, _("Choose file to export to"), "export",
                                     self.exporter.key, self.exporter.ext)
+        self.hide()
         if file:
             self.exporter.includeSchedulingInfo = (
                 self.dialog.includeScheduling.isChecked())

@@ -106,13 +106,8 @@ class ImportDialog(QDialog):
         self.maybePreview()
 
     def doImport(self):
-        self.dialog.status.setText(_("Importing. Anki will freeze for a while.."))
+        self.dialog.status.setText(_("Importing..."))
         t = time.time()
-        while self.parent.app.hasPendingEvents():
-            self.parent.app.processEvents()
-            if time.time() - t > 1:
-                # windows sometimes has pending events permanently?
-                break
         self.importer.mapping = self.mapping
         self.importer.tagsToAdd = unicode(self.tags.text())
         self.importer.tagDuplicates = self.dialog.tagDuplicates.isChecked()

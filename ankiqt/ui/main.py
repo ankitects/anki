@@ -56,6 +56,7 @@ class AnkiQt(QMainWindow):
         self.setupButtons()
         self.setupAnchors()
         self.setupToolbar()
+        self.setupProgressInfo()
         self.show()
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
@@ -1407,7 +1408,6 @@ day = :d""", d=yesterday)
             p.update()
             self.deck.s.statement(
                 "update fields set factId = (select new from idmap where old = factId)")
-            p.update()
         self.reset()
         p.finish()
 
@@ -1928,6 +1928,25 @@ day = :d""", d=yesterday)
         playFromText(self.currentCard.question)
         if self.state != "showQuestion":
             playFromText(self.currentCard.answer)
+
+    # Progress info
+    ##########################################################################
+
+    def setupProgressInfo(self):
+        addHook("startProgress", self.onStartProgress)
+        addHook("updateProgress", self.onUpdateProgress)
+        addHook("finishProgress", self.onFinishProgress)
+
+    def onStartProgress(self, title, min, max):
+        self.progressWin = ui.utils.ProgressWin(self.app.activeWindow() or self,
+                                                title, min, max)
+
+    def onUpdateProgress(self, label=None, value=None):
+        self.progressWin.update(label, value)
+
+    def onFinishProgress(self):
+        self.progressWin.finish()
+        self.progressWin = None
 
     # Advanced features
     ##########################################################################
