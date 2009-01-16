@@ -119,10 +119,14 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     unusedFileCount = 0
     missingFileCount = 0
     deck.mediaDir(create=True)
-    deck.startProgress(_("Check Media DB"), 0, 6)
+    deck.startProgress(_("Check Media DB"), 0, 16)
     # rename all files to checksum versions, note non-renamed ones
     deck.updateProgress(_("Checksum files..."))
-    for oldBase in os.listdir(unicode(deck.mediaDir())):
+    files = os.listdir(unicode(deck.mediaDir()))
+    mod = len(files) / 10
+    for c, oldBase in enumerate(files):
+        if mod and not c % mod:
+            deck.updateProgress()
         oldPath = os.path.join(deck.mediaDir(), oldBase)
         if oldBase.startswith("."):
             continue
@@ -133,6 +137,7 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
             existingFiles[oldBase] = 1
         else:
             renamedFiles[oldBase] = newBase
+    deck.updateProgress(value=10)
     # now look through all fields, and update references to files
     deck.updateProgress(_("Scan fields..."))
     for (id, fid, val) in deck.s.all(
