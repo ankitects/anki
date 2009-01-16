@@ -1871,9 +1871,9 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
         sql = self.s.column0("""
 select sql from undoLog where
 seq > :s and seq <= :e order by seq desc""", s=start, e=end)
-        mod = len(sql) / 20
+        mod = len(sql) / 35
         if mod:
-            self.startProgress(_("Undo/Redo"), 0, 21)
+            self.startProgress(_("Undo/Redo"), 0, 36)
             self.updateProgress(_("Applying changes..."))
         newstart = self._latestUndoRow()
         for c, s in enumerate(sql):
