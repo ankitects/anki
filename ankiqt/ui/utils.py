@@ -185,3 +185,31 @@ def mungeQA(deck, txt):
         return 'img src="%s"' % src
     txt = re.sub('img src="(.*?)"', quote, txt)
     return txt
+
+class ProgressWin(object):
+
+    def __init__(self, parent, title, min, max):
+        self.diag = QProgressDialog("", "", min, max, parent)
+        self.diag.setWindowTitle(title)
+        self.diag.setCancelButton(None)
+        self.diag.setAutoClose(False)
+        self.diag.setAutoReset(False)
+        self.diag.setMinimumDuration(0)
+        self.diag.show()
+        self.counter = min
+        self.app = QApplication.instance()
+        self.app.processEvents()
+        self.min = min
+        self.max = max
+
+    def update(self, label=None, val=None):
+        if label:
+            self.diag.setLabelText(label)
+        if val is None:
+            val = self.counter
+            self.counter += 1
+        self.diag.setValue(val)
+        self.app.processEvents()
+
+    def finish(self):
+        self.diag.cancel()

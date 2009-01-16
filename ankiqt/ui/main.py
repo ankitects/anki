@@ -143,14 +143,15 @@ If it does not fix the problem, please copy the following<br>
 into a bug report:<br><br>
 """)
                 pluginText = _("""\
-An error occurred in a plugin. Please contact the plugin author.
-Please do not file a bug report with Anki.\n\n""")
+An error occurred in a plugin. Please contact the plugin author.<br>
+Please do not file a bug report with Anki.<br><br>""")
                 if "plugin" in self.pool:
                     txt = pluginText
                 else:
                     txt = stdText
                 if self.pool:
-                    ui.utils.showText(txt + self.pool[0:10000])
+                    ui.utils.showText(txt + self.pool[0:10000].replace(
+                        "\n", "<br>"))
                 self.pool = ""
                 self.timer = None
         pipe = ErrorPipe(self)
@@ -1050,9 +1051,9 @@ day = :d""", d=yesterday)
 </table>""" % h
         stats2 = """\
 <table>
-<tr><td width=120>Reviews due today:</td><td align=right><b>%(ret)s</b></td></tr>
-<tr><td>New due today:</td><td align=right><b>%(new)s</b></td></tr>
-<tr><td>New due total:</td><td align=right>%(newof)s</td></tr>
+<tr><td width=120>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
+<tr><td>New total:</td><td align=right>%(newof)s</td></tr>
 </table>""" % h
         if (not dyest and not dtoday) or not self.config['showStudyStats']:
             stats1 = ""
@@ -1358,6 +1359,12 @@ day = :d""", d=yesterday)
         s = unicode(s)
         self.deck.save()
         # open tmp deck
+        if self.config['randomizeOnCram']:
+            n = 5
+        else:
+            n = 3
+        p = ui.utils.ProgressWin(self, _("Cram"), 0, n)
+        p.update(_("Copying cards..."))
         ndir = tempfile.mkdtemp(prefix="anki-cram")
         path = os.path.join(ndir, "cram.anki")
         from anki.exporting import AnkiExporter
@@ -1368,7 +1375,9 @@ day = :d""", d=yesterday)
         e.exportInto(path)
         if not e.exportedCards:
             ui.utils.showInfo(_("No cards matched the provided tags."))
+            p.finish()
             return
+        p.update(_("Loading deck..."))
         self.deck.close()
         self.deck = None
         self.loadDeck(path)
@@ -1384,7 +1393,23 @@ day = :d""", d=yesterday)
         self.deck.easyIntervalMax = 0.25
         self.deck.newCardOrder = 0
         self.deck.syncName = None
+        if self.config['randomizeOnCram']:
+            p.update(_("Randomizing..."))
+            self.deck.s.statement(
+                "create temporary table idmap (old, new, primary key (old))")
+            self.deck.s.statement(
+                "insert into idmap select id, random() from facts")
+            self.deck.s.statement(
+                "update facts set id = (select new from idmap where old = id)")
+            p.update()
+            self.deck.s.statement(
+                "update cards set factId = (select new from idmap where old = factId)")
+            p.update()
+            self.deck.s.statement(
+                "update fields set factId = (select new from idmap where old = factId)")
+            p.update()
         self.reset()
+        p.finish()
 
     # Reviewing and learning ahead
     ##########################################################################
