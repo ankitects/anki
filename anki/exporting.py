@@ -59,6 +59,11 @@ class AnkiExporter(Exporter):
         self.includeSchedulingInfo = False
 
     def exportInto(self, path):
+        n = 4
+        if not self.includeSchedulingInfo:
+            n += 1
+        self.deck.startProgress(_("Export"), 0, n)
+        self.deck.updateProgress(_("Determining items..."))
         self.newDeck = DeckStorage.Deck(path)
         client = SyncClient(self.deck)
         server = SyncServer(self.newDeck)
@@ -69,10 +74,12 @@ class AnkiExporter(Exporter):
         # set up a custom change list and sync
         lsum = self.localSummary()
         rsum = server.summary(0)
+        self.deck.updateProgress(_("Copying..."))
         payload = client.genPayload((lsum, rsum))
+        self.deck.updateProgress(_("Applying..."))
         res = server.applyPayload(payload)
-        client.applyPayloadReply(res)
         if not self.includeSchedulingInfo:
+            self.deck.updateProgress(_("Updating schedule..."))
             self.newDeck.s.statement("""
 delete from reviewHistory""")
             self.newDeck.s.statement("""
@@ -114,10 +121,12 @@ delete from stats""")
             bulkClient.server = bulkServer
             bulkClient.sync()
         # need to save manually
+        self.deck.updateProgress(_("Finalizing..."))
         self.newDeck.rebuildCounts()
         self.exportedCards = self.newDeck.cardCount
         self.newDeck.s.commit()
         self.newDeck.close()
+        self.deck.finishProgress()
 
     def localSummary(self):
         cardIds = self.cardIds()

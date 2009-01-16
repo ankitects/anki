@@ -1868,12 +1868,13 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
         (start, end) = (u[1], u[2])
         if end is None:
             end = self._latestUndoRow()
-        self.startProgress(_("Undo/Redo"), 0, 22)
         sql = self.s.column0("""
 select sql from undoLog where
 seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         mod = len(sql) / 20
-        self.updateProgress(_("Applying changes..."))
+        if mod:
+            self.startProgress(_("Undo/Redo"), 0, 21)
+            self.updateProgress(_("Applying changes..."))
         newstart = self._latestUndoRow()
         for c, s in enumerate(sql):
             if mod and not c % mod:
@@ -1882,7 +1883,8 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
             self.engine.execute(s)
         newend = self._latestUndoRow()
         dst.append([u[0], newstart, newend])
-        self.finishProgress()
+        if mod:
+            self.finishProgress()
 
     def undo(self):
         self._undoredo(self.undoStack, self.redoStack)
