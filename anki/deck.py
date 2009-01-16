@@ -1413,10 +1413,11 @@ update facts set
 tags = :tags,
 modified = :now
 where id = :id""", pending)
+        factIds = [c['id'] for c in pending]
         cardIds = self.s.column0(
             "select id from cards where factId in %s" %
-            ids2str(ids))
-        self.updateCardQACacheFromIds(ids, type="facts")
+            ids2str(factIds))
+        self.updateCardQACacheFromIds(factIds, type="facts")
         self.updatePriorities(cardIds)
         self.flushMod()
 
@@ -1441,12 +1442,26 @@ update facts set
 tags = :tags,
 modified = :now
 where id = :id""", pending)
+        factIds = [c['id'] for c in pending]
         cardIds = self.s.column0(
             "select id from cards where factId in %s" %
-            ids2str(ids))
-        self.updateCardQACacheFromIds(ids, type="facts")
+            ids2str(factIds))
+        self.updateCardQACacheFromIds(factIds, type="facts")
         self.updatePriorities(cardIds)
         self.flushMod()
+
+    # Progress info
+    ##########################################################################
+
+    def startProgress(self, title, min, max):
+        runHook("startProgress", title, min, max)
+
+    def updateProgress(self, label=None, value=None):
+        runHook("updateProgress", label, value)
+
+    def finishProgress(self):
+        runHook("updateProgress")
+        runHook("finishProgress")
 
     # File-related
     ##########################################################################
@@ -1626,13 +1641,17 @@ Return new path, relative to media dir."""
 
     def fixIntegrity(self):
         "Responsibility of caller to call rebuildQueue()"
+        self.startProgress(_("Check DB"), 0, 11)
+        self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
             return _("Database file damaged. Restore from backup.")
         # ensure correct views and indexes are available
+        self.updateProgress()
         DeckStorage._addViews(self)
         DeckStorage._addIndices(self)
         problems = []
         # does the user have a model?
+        self.updateProgress(_("Checking schema..."))
         if not self.s.scalar("select count(id) from models"):
             self.addModel(BasicModel())
             problems.append(_("Deck was missing a model"))
@@ -1643,11 +1662,13 @@ decks.currentModelId = models.id"""):
             self.currentModelId = self.models[0].id
             problems.append(_("The current model didn't exist"))
         # forget all deletions (do this before deleting anything)
+        self.updateProgress()
         self.s.statement("delete from cardsDeleted")
         self.s.statement("delete from factsDeleted")
         self.s.statement("delete from modelsDeleted")
         self.s.statement("delete from mediaDeleted")
         # facts missing a field?
+        self.updateProgress()
         ids = self.s.column0("""
 select distinct facts.id from facts, fieldModels where
 facts.modelId = fieldModels.modelId and fieldModels.id not in
@@ -1685,6 +1706,7 @@ select id from fields where factId not in (select id from facts)""")
             problems.append(_("Deleted %d dangling fields") % len(ids))
         self.s.flush()
         # fix problems with cards being scheduled when not due
+        self.updateProgress()
         self.s.statement("update cards set isDue = 0")
         # fix problems with conflicts on merge
         self.s.statement("update fields set id = random()")
@@ -1694,8 +1716,10 @@ select id from fields where factId not in (select id from facts)""")
             "update cardModels set allowEmptyAnswer = 1, typeAnswer = 0 "
             "where allowEmptyAnswer is null or typeAnswer is null")
         # fix any priorities
+        self.updateProgress(_("Updating priorities..."))
         self.updateAllPriorities()
         # fix problems with stripping html
+        self.updateProgress(_("Rebuilding QA cache..."))
         fields = self.s.all("select id, value from fields")
         newFields = []
         for (id, value) in fields:
@@ -1712,14 +1736,18 @@ select id from fields where factId not in (select id from facts)""")
         self.s.statement("update facts set modified = :t", t=time.time())
         self.s.statement("update models set modified = :t", t=time.time())
         self.lastSync = 0
-        # update counts
+        # rebuild
+        self.updateProgress(_("Rebuilding types..."))
+        self.rebuildTypes()
+        self.updateProgress(_("Rebuilding counts..."))
         self.rebuildCounts()
         # update deck and save
         self.flushMod()
         self.save()
         self.refresh()
-        self.rebuildTypes()
+        self.updateProgress(_("Rebuilding queue..."))
         self.rebuildQueue()
+        self.finishProgress()
         if problems:
             return "\n".join(problems)
         return "ok"

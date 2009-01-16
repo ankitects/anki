@@ -119,7 +119,9 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     unusedFileCount = 0
     missingFileCount = 0
     deck.mediaDir(create=True)
+    deck.startProgress(_("Check Media DB"), 0, 6)
     # rename all files to checksum versions, note non-renamed ones
+    deck.updateProgress(_("Checksum files..."))
     for oldBase in os.listdir(unicode(deck.mediaDir())):
         oldPath = os.path.join(deck.mediaDir(), oldBase)
         if oldBase.startswith("."):
@@ -132,6 +134,7 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
         else:
             renamedFiles[oldBase] = newBase
     # now look through all fields, and update references to files
+    deck.updateProgress(_("Scan fields..."))
     for (id, fid, val) in deck.s.all(
         "select id, factId, value from fields"):
         oldval = val
@@ -158,16 +161,22 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
             if fid not in factsMissingMedia:
                 unmodifiedFacts[fid] = 1
     # update modified fields
+    deck.updateProgress(_("Modify fields..."))
     if modifiedFacts:
         _modifyFields(deck, updateFields, modifiedFacts, dirty)
     # fix tags
+    deck.updateProgress(_("Update tags..."))
     if dirty:
+        t = time.time()
         if deleteRefs:
             deck.deleteTags(modifiedFacts.keys(), _("Media Missing"))
         else:
             deck.addTags(factsMissingMedia.keys(), _("Media Missing"))
+        print time.time() - t; t = time.time()
         deck.deleteTags(unmodifiedFacts.keys(), _("Media Missing"))
+        print time.time() - t; t = time.time()
     # build cache of db records
+    deck.updateProgress(_("Delete unused files..."))
     mediaIds = dict(deck.s.all("select filename, id from media"))
     # assume latex files exist
     for f in deck.s.column0(
@@ -186,6 +195,7 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
         else:
             os.unlink(path)
             unusedFileCount += 1
+    deck.updateProgress(_("Delete stale references..."))
     for (fname, id) in mediaIds.items():
         # maybe delete from db
         if id:
@@ -196,6 +206,7 @@ values (:id, strftime('%s', 'now'))""", id=id)
     # update deck and save
     deck.flushMod()
     deck.save()
+    deck.finishProgress()
     return missingFileCount, unusedFileCount
 
 def mediaRefs(string):
