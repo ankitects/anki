@@ -195,17 +195,17 @@ class ProgressWin(object):
         self.diag.setAutoClose(False)
         self.diag.setAutoReset(False)
         self.diag.setMinimumDuration(0)
-        self.diag.show()
         self.counter = min
         self.min = min
         self.max = max
         self.lastTime = time.time()
         self.app = QApplication.instance()
+        self.diag.show()
         self.app.processEvents()
 
     def update(self, label=None, value=None):
         self.app.processEvents()
-        print self.min, self.counter, self.max, label, time.time() - self.lastTime
+        #print self.min, self.counter, self.max, label, time.time() - self.lastTime
         self.lastTime = time.time()
         if label:
             self.diag.setLabelText(label)

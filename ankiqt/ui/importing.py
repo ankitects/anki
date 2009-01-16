@@ -126,6 +126,7 @@ class ImportDialog(QDialog):
                 self.dialog.status.setText(msg)
                 return
         finally:
+            self.parent.deck.finishProgress()
             self.parent.deck.setUndoEnd(n)
         txt = (
             _("Importing complete. %(num)d cards imported from %(file)s.\n") %
@@ -136,7 +137,6 @@ class ImportDialog(QDialog):
         self.dialog.status.setText(txt)
         self.file = None
         self.maybePreview()
-        self.parent.deck.updateAllPriorities()
         self.parent.reset()
 
     def setupMappingFrame(self):

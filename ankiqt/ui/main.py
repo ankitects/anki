@@ -1942,11 +1942,13 @@ day = :d""", d=yesterday)
                                                 title, min, max)
 
     def onUpdateProgress(self, label=None, value=None):
-        self.progressWin.update(label, value)
+        if self.progressWin:
+            self.progressWin.update(label, value)
 
     def onFinishProgress(self):
-        self.progressWin.finish()
-        self.progressWin = None
+        if self.progressWin:
+            self.progressWin.finish()
+            self.progressWin = None
 
     # Advanced features
     ##########################################################################
