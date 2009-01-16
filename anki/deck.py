@@ -318,6 +318,7 @@ where factId in (select factId from %s limit 60))""" % (new, new))
         undoName = _("Answer Card")
         self.setUndoStart(undoName)
         now = time.time()
+        # old state
         oldState = self.cardState(card)
         lastDelaySecs = time.time() - card.combinedDue
         lastDelay = lastDelaySecs / 86400.0
@@ -332,7 +333,9 @@ where factId in (select factId from %s limit 60))""" % (new, new))
         card.due = self.nextDue(card, ease, oldState)
         card.isDue = 0
         card.lastFactor = card.factor
-        self.updateFactor(card, ease)
+        if lastDelay >= 0:
+            # don't update factor if learning ahead
+            self.updateFactor(card, ease)
         # spacing
         (minSpacing, spaceFactor) = self.s.first("""
 select models.initialSpacing, models.spacing from
@@ -384,7 +387,7 @@ where id != :id and factId = :factId""",
         entry.writeSQL(self.s)
         self.modified = now
         self.setUndoEnd(undoName)
-        # decrease card boost
+        # decrease new card boost
         if self.extraNewCards:
             self.extraNewCards -= 1
 
@@ -399,11 +402,12 @@ where id != :id and factId = :factId""",
     def _nextInterval(self, card, delay, ease):
         interval = card.interval
         factor = card.factor
-        if delay < 0:
-            interval = card.lastInterval + ((interval - abs(delay)) / 2.0)
-            delay = 0
+        # if shown early and not failed
+        if delay < 0 and card.successive:
+            interval = max(card.lastInterval, card.interval + delay)
             if interval < self.midIntervalMin:
                 interval = 0
+            delay = 0
         # if interval is less than mid interval, use presets
         if ease == 1:
             interval *= self.delay2
