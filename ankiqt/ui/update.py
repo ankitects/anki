@@ -77,7 +77,7 @@ class Updater(QThread):
         self.emit(SIGNAL("statusChanged"), msg, timeout)
 
     def run(self):
-        dir = tempfile.mkdtemp(prefix="anki-update")
+        dir = tempfile.mkdtemp(prefix="anki")
         os.chdir(dir)
         filename = os.path.abspath(self.filename)
         try:

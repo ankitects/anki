@@ -643,7 +643,7 @@ class FactEdit(QTextEdit):
                 return
         if source.hasImage():
             im = QImage(source.imageData())
-            (fd, name) = tempfile.mkstemp(suffix=".jpg")
+            (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".jpg")
             uname = unicode(name, sys.getfilesystemencoding())
             im.save(uname, None, 95)
             self.parent._addPicture(uname, widget=self)
@@ -665,7 +665,7 @@ class FactEdit(QTextEdit):
 
     def _retrieveURL(self, url, ext):
         filecontents = urllib2.urlopen(url).read()
-        (fd, name) = tempfile.mkstemp(suffix=".%s" % ext.encode("ascii"))
+        (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".%s" % ext.encode("ascii"))
         file = os.fdopen(fd, "wb")
         file.write(filecontents)
         file.flush()

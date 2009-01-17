@@ -777,7 +777,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.ensureSyncParams()
         if not self.saveAndClose(hideWelcome=True): return
         # we need a disk-backed file for syncing
-        dir = unicode(tempfile.mkdtemp(), sys.getfilesystemencoding())
+        dir = unicode(tempfile.mkdtemp(prefix="anki"), sys.getfilesystemencoding())
         path = os.path.join(dir, u"untitled.anki")
         self.onNew(path=path)
         # ensure all changes come to us
@@ -1237,22 +1237,6 @@ day = :d""", d=yesterday)
         else:
             ui.utils.showInfo(_("Please install python-matplotlib to access graphs."))
 
-    def onKanjiOccur(self):
-        self.setStatus(_("Generating report (may take time)..."))
-        self.app.processEvents()
-        import tempfile
-        (fd, name) = tempfile.mkstemp(suffix=".html")
-        f = os.fdopen(fd, 'w')
-        ko = anki.stats.KanjiOccurStats(self.deck)
-        ko.reportFile(f)
-        f.close()
-        if sys.platform == "win32":
-            url = "file:///"
-        else:
-            url = "file://"
-        url += os.path.abspath(name)
-        QDesktopServices.openUrl(QUrl(url))
-
     # Marking, suspending and undoing
     ##########################################################################
 
@@ -1361,7 +1345,7 @@ day = :d""", d=yesterday)
         s = unicode(s)
         self.deck.save()
         # open tmp deck
-        ndir = tempfile.mkdtemp(prefix="anki-cram")
+        ndir = tempfile.mkdtemp(prefix="anki")
         path = os.path.join(ndir, "cram.anki")
         from anki.exporting import AnkiExporter
         e = AnkiExporter(self.deck)

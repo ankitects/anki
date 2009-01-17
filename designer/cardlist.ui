@@ -186,7 +186,7 @@
    </widget>
    <widget class="QMenu" name="menuActions" >
     <property name="title" >
-     <string>&amp;Tools</string>
+     <string>&amp;Actions</string>
     </property>
     <addaction name="actionAddTag" />
     <addaction name="actionDeleteTag" />
