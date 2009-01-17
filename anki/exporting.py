@@ -8,7 +8,7 @@ Exporting support
 """
 __docformat__ = 'restructuredtext'
 
-import itertools, time
+import itertools, time, re
 from operator import itemgetter
 from anki import DeckStorage
 from anki.cards import Card
@@ -28,9 +28,10 @@ class Exporter(object):
         file.close()
 
     def escapeText(self, text):
-        "Escape newlines and tabs."
+        "Escape newlines and tabs, and strip Anki HTML."
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
+        text = re.sub('<span class="fm.*"?>(.*?)</span>', '\\1', text)
         return text
 
     def cardIds(self):
