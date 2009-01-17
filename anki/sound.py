@@ -23,7 +23,6 @@ def stripSounds(text):
 def hasSound(text):
     return re.search("\[sound:.*?\]", text) is not None
 
-# External audio
 ##########################################################################
 
 # the amount of noise to cancel
@@ -54,14 +53,20 @@ queue = []
 manager = None
 
 if sys.platform.startswith("win32"):
-    base = os.path.join(os.path.dirname(sys.argv[0]), "mplayer.exe")
-    #base = "C:\mplayer.exe"
-    externalPlayer = [base, "-ao", "win32", "-really-quiet"]
-    externalRecorder = ["rec", processingSrc]
+    externalPlayer = ["mplayer.exe", "-ao", "win32", "-really-quiet"]
+    # bug in sox means we need tmp on the same drive
+    try:
+        p = os.path.join(os.path.splitdrive(
+            os.path.abspath(""))[0], "\\tmp")
+        os.mkdir(p)
+    except OSError:
+        pass
+    dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    os.environ['PATH'] += ";" + dir
+    os.environ['PATH'] += ";" + dir + "\\..\\dist" # for testing
+    print os.environ['PATH']
 else:
     externalPlayer = ["mplayer", "-really-quiet"]
-    externalRecorder = ["ecasound", "-x", "-f:16,1,44100", "-i",
-                        "alsahw,1,0", "-o", processingSrc]
 
 # don't show box on windows
 if sys.platform == "win32":
@@ -70,14 +75,20 @@ if sys.platform == "win32":
 else:
     si = None
 
-# noise profiles
+# Noise profiles
 ##########################################################################
 
 def checkForNoiseProfile():
-    cmd = ["sox", processingSrc, "tmp2.wav"]
-    if os.path.exists(noiseProfile):
-        cmd = cmd + ["noisered", noiseProfile, NOISE_AMOUNT]
-    processingChain[0] = cmd
+    global processingChain
+    if sys.platform.startswith("darwin"):
+        # not currently supported
+        processingChain = [
+            ["lame", "tmp.wav", "tmp.mp3", "--noreplaygain"]]
+    else:
+        cmd = ["sox", processingSrc, "tmp2.wav"]
+        if os.path.exists(noiseProfile):
+            cmd = cmd + ["noisered", noiseProfile, NOISE_AMOUNT]
+        processingChain[0] = cmd
 
 def generateNoiseProfile(file):
     try:
@@ -118,18 +129,63 @@ def clearQueueExternal():
     global queue
     queue = []
 
-# External recording
+# PyAudio recording
 ##########################################################################
+
+try:
+    import pyaudio
+    import wave
+except ImportError:
+    pass
 
 class _Recorder(object):
 
     def postprocess(self):
         for c in processingChain:
             print c
-            if subprocess.Popen(c, startupinfo=si).wait():
+            p = subprocess.Popen(c, startupinfo=si)
+            while 1:
+                try:
+                    ret = p.wait()
+                    break
+                except OSError:
+                    continue
+            if ret:
                 raise Exception("problem with" + str(c))
 
-class ExternalUnixRecorder(_Recorder):
+class PyAudioThreadedRecorder(threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.finish = False
+
+    def run(self):
+        chunk = 1024
+        FORMAT = pyaudio.paInt16
+        CHANNELS = 1
+        RATE = 44100
+        p = pyaudio.PyAudio()
+        stream = p.open(format = FORMAT,
+                        channels = CHANNELS,
+                        rate = RATE,
+                        input = True,
+                        input_device_index = 0,
+                        frames_per_buffer = chunk)
+        all = []
+        while not self.finish:
+            data = stream.read(chunk)
+            all.append(data)
+        stream.close()
+        p.terminate()
+        data = ''.join(all)
+        wf = wave.open(processingSrc, 'wb')
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(p.get_sample_size(FORMAT))
+        wf.setframerate(RATE)
+        wf.writeframes(data)
+        wf.close()
+
+class PyAudioRecorder(_Recorder):
 
     def __init__(self):
         for t in tmpFiles + [processingSrc, processingDst]:
@@ -139,12 +195,12 @@ class ExternalUnixRecorder(_Recorder):
                 pass
 
     def start(self):
-        self.proc = subprocess.Popen(
-            externalRecorder, startupinfo=si)
+        self.thread = PyAudioThreadedRecorder()
+        self.thread.start()
 
     def stop(self):
-        os.kill(self.proc.pid, signal.SIGINT)
-        self.proc.wait()
+        self.thread.finish = True
+        self.thread.join()
 
     def file(self):
         return processingDst
@@ -205,11 +261,8 @@ except ImportError:
 if sys.platform.startswith("darwin"):
     play = playOSX
     clearAudioQueue = clearQueueOSX
-    Recorder = None
 else:
     play = playExternal
     clearAudioQueue = clearQueueExternal
-    if sys.platform.startswith("win32"):
-        Recorder = None
-    else:
-        Recorder = ExternalUnixRecorder
+
+Recorder = PyAudioRecorder
