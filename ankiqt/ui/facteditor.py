@@ -631,6 +631,7 @@ class FactEdit(QTextEdit):
         audio =  ("wav", "mp3", "ogg", "flac")
         if source.hasHtml() and "qrichtext" in unicode(source.html()):
             self.insertHtml(source.html())
+            return
         if source.hasText():
             txt = unicode(source.text())
             l = txt.lower()
