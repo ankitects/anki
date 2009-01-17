@@ -600,10 +600,11 @@ class FactEditor(object):
         w.insertHtml('[sound:%s]' % path)
 
     def onRecSound(self):
+        self.initMedia()
         w = self.focusedEdit()
         file = getAudio(self.parent)
         if file:
-            self._addSound(file, widget=w)
+            self._addSound(unicode(file), widget=w)
 
 class FactEdit(QTextEdit):
 
