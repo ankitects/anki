@@ -22,6 +22,7 @@ For audio recording support:
 
 - sox
 - pyaudio
+- lame
 
 For furigana generation:
 
