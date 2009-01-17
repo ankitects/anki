@@ -5,7 +5,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 import time
-from anki.sound import Recorder, play
+from anki.sound import Recorder, play, generateNoiseProfile
 from ankiqt.ui.utils import saveGeom, restoreGeom
 
 def getAudio(parent, string=""):
@@ -40,10 +40,17 @@ def getAudio(parent, string=""):
 def recordNoiseProfile(parent):
     r = Recorder()
     mb = QMessageBox(parent)
+    mb.setStandardButtons(QMessageBox.NoButton)
+    mb.setIconPixmap(QPixmap(":/icons/media-record.png"))
     mb.show()
-    f = time.time() + 8
+    QApplication.instance().processEvents()
+    f = time.time() + 10
     r.start()
     while f > time.time():
-        mb.setText("Sampling silence...%0.1f" % f - time.time())
+        txt =_("Sampling silence...<br>Time: %0.1f")
+        mb.setText(txt % (f - time.time()))
         QApplication.instance().processEvents()
+        time.sleep(0.1)
     r.stop()
+    generateNoiseProfile(r.wavFile())
+    mb.deleteLater()
