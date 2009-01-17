@@ -1,4 +1,4 @@
-Anki for Linux
+Anki
 -------------------------------------
 
 Prerequisites:
@@ -14,13 +14,18 @@ For graph generation:
 - python-numpy (numpy)
 - python-matplotlib (matplotlib)
 
+For audio playing support:
+
+- mplayer on Windows/Linux (Mac uses native libraries)
+
+For audio recording support:
+
+- sox
+- pyaudio
+
 For furigana generation:
 
 - kakasi
-
-For audio support:
-
-- mplayer
 
 Running / Installation
 -------------------------------------
