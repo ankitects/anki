@@ -64,7 +64,6 @@ if sys.platform.startswith("win32"):
     dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.environ['PATH'] += ";" + dir
     os.environ['PATH'] += ";" + dir + "\\..\\dist" # for testing
-    print os.environ['PATH']
 else:
     externalPlayer = ["mplayer", "-really-quiet"]
 
@@ -148,7 +147,7 @@ class _Recorder(object):
 
     def postprocess(self):
         for c in processingChain:
-            print c
+            #print c
             p = subprocess.Popen(c, startupinfo=si)
             while 1:
                 try:
@@ -182,9 +181,9 @@ class PyAudioThreadedRecorder(threading.Thread):
         p.terminate()
         data = ''.join(all)
         wf = wave.open(processingSrc, 'wb')
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(p.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
+        wf.setnchannels(PYAU_CHANNELS)
+        wf.setsampwidth(p.get_sample_size(PYAU_FORMAT))
+        wf.setframerate(PYAU_RATE)
         wf.writeframes(data)
         wf.close()
 
@@ -207,6 +206,9 @@ class PyAudioRecorder(_Recorder):
 
     def file(self):
         return processingDst
+
+    def wavFile(self):
+        return processingSrc
 
 # Mac audio support
 ##########################################################################
