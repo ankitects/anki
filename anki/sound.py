@@ -74,6 +74,14 @@ if sys.platform == "win32":
 else:
     si = None
 
+def retryWait(proc):
+    # osx throws interrupted system call errors frequently
+    while 1:
+        try:
+            return proc.wait()
+        except OSError:
+            continue
+
 # Noise profiles
 ##########################################################################
 
@@ -89,14 +97,17 @@ def checkForNoiseProfile():
             cmd = cmd + ["noisered", noiseProfile, NOISE_AMOUNT]
         processingChain[0] = cmd
 
-def generateNoiseProfile(file):
+def generateNoiseProfile():
     try:
         os.unlink(noiseProfile)
     except OSError:
         pass
-    subprocess.Popen(["sox", processingSrc, tmpFiles[0], "trim", "1.5", "1.5"])
-    subprocess.Popen(["sox", tmpFiles[0], tmpFiles[1],
-                      "noiseprof", noiseProfile]).wait()
+    retryWait(subprocess.Popen(
+        ["sox", processingSrc, tmpFiles[0], "trim", "1.5", "1.5"],
+        startupinfo=si))
+    retryWait(subprocess.Popen(["sox", tmpFiles[0], tmpFiles[1],
+                                "noiseprof", noiseProfile],
+                               startupinfo=si))
     processingChain[0] = ["sox", processingSrc, "tmp2.wav",
                           "noisered", noiseProfile, NOISE_AMOUNT]
 
@@ -110,9 +121,8 @@ class QueueMonitor(threading.Thread):
             time.sleep(0.1)
             if queue:
                 path = queue.pop(0)
-                p = subprocess.Popen(externalPlayer + [path],
-                                     startupinfo=si)
-                p.wait()
+                retryWait(subprocess.Popen(
+                    externalPlayer + [path], startupinfo=si))
             else:
                 return
 
@@ -148,15 +158,9 @@ class _Recorder(object):
     def postprocess(self):
         for c in processingChain:
             #print c
-            p = subprocess.Popen(c, startupinfo=si)
-            while 1:
-                try:
-                    ret = p.wait()
-                    break
-                except OSError:
-                    continue
+            ret = retryWait(subprocess.Popen(c, startupinfo=si))
             if ret:
-                raise Exception("problem with" + str(c))
+                raise Exception("Problem with" + str(c))
 
 class PyAudioThreadedRecorder(threading.Thread):
 
@@ -206,9 +210,6 @@ class PyAudioRecorder(_Recorder):
 
     def file(self):
         return processingDst
-
-    def wavFile(self):
-        return processingSrc
 
 # Mac audio support
 ##########################################################################
