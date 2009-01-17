@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext'
 from anki import DeckStorage
 from anki.importing import Importer
 from anki.sync import SyncClient, SyncServer, BulkMediaSyncer
+from anki.lang import _
 
 class Anki10Importer(Importer):
 
