@@ -2003,6 +2003,9 @@ class DeckStorage(object):
                                       type="inuse")
             else:
                 raise e
+        # fix a bug with current model being unset
+        if not deck.currentModel and deck.models:
+            deck.currentModel = deck.models[0]
         oldc = deck.failedSoonCount + deck.revCount + deck.newCount
         deck.rebuildQueue()
         if oldc != deck.failedSoonCount + deck.revCount + deck.newCount:
