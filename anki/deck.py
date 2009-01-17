@@ -176,13 +176,11 @@ class Deck(object):
 
     def getCardIdAhead(self):
         "Return the first card that would become due."
-        t = time.time()
         id = self.s.scalar("""
 select id from cards
-where priority in (1,2,3,4)
+where type = 1 and isDue = 0 and priority in (1,2,3,4)
 order by priority desc, combinedDue
 limit 1""")
-        #print "ahead", time.time() -t, id
         return id
 
     # Get card: helper functions
