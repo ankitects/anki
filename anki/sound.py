@@ -46,7 +46,7 @@ processingChain = [
     None, # placeholder
     ["sox", "tmp2.wav", "tmp3.wav", "norm", NORM_AMOUNT,
      "bass", BASS_AMOUNT, "fade", FADE_AMOUNT, "0"],
-    ["lame", "tmp3.wav", processingDst, "--noreplaygain"],
+    ["lame", "tmp3.wav", processingDst, "--noreplaygain", "--quiet"],
     ]
 
 queue = []
@@ -83,7 +83,7 @@ def checkForNoiseProfile():
     if sys.platform.startswith("darwin"):
         # not currently supported
         processingChain = [
-            ["lame", "tmp.wav", "tmp.mp3", "--noreplaygain"]]
+            ["lame", "tmp.wav", "tmp.mp3", "--noreplaygain", "--quiet"]]
     else:
         cmd = ["sox", processingSrc, "tmp2.wav"]
         if os.path.exists(noiseProfile):

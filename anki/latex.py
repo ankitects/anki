@@ -27,7 +27,7 @@ regexps = {
     "math": re.compile(r"\[\$\$\](.+?)\[/\$\$\]", re.DOTALL | re.IGNORECASE),
     }
 
-tmpdir = tempfile.mkdtemp(prefix="anki-latex")
+tmpdir = tempfile.mkdtemp(prefix="anki")
 
 # add standard tex install location to osx
 if sys.platform == "darwin":

@@ -1516,7 +1516,7 @@ where id = :id""", pending)
         else:
             # memory-backed; need temp store
             if not self.tmpMediaDir and create:
-                self.tmpMediaDir = tempfile.mkdtemp()
+                self.tmpMediaDir = tempfile.mkdtemp(prefix="anki")
             dir = self.tmpMediaDir
         if not dir or not os.path.exists(dir):
             return None
