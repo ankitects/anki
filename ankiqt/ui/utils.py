@@ -191,7 +191,6 @@ class ProgressWin(object):
     def __init__(self, parent, max=100, min=0, title=None):
         if not title:
             title = "Anki"
-        print parent, max, min, title
         self.diag = QProgressDialog("", "", min, max, parent)
         self.diag.setWindowTitle(title)
         self.diag.setCancelButton(None)
@@ -208,7 +207,7 @@ class ProgressWin(object):
 
     def update(self, label=None, value=None):
         self.app.processEvents()
-        print self.min, self.counter, self.max, label, time.time() - self.lastTime
+        #print self.min, self.counter, self.max, label, time.time() - self.lastTime
         self.lastTime = time.time()
         if label:
             self.diag.setLabelText(label)
