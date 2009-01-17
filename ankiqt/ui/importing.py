@@ -24,6 +24,7 @@ class ChangeMap(QDialog):
             if current == field.name:
                 self.dialog.fields.setCurrentRow(n)
             n += 1
+        self.dialog.fields.addItem(QListWidgetItem(_("Map to Tags")))
         self.dialog.fields.addItem(QListWidgetItem(_("Discard field")))
         if current is None:
             self.dialog.fields.setCurrentRow(n)
@@ -37,8 +38,10 @@ class ChangeMap(QDialog):
         row = self.dialog.fields.currentRow()
         if row < len(self.model.fieldModels):
             self.field = self.model.fieldModels[row]
-        else:
+        elif row == self.dialog.fields.count() - 1:
             self.field = None
+        else:
+            self.field = 0
         QDialog.accept(self)
 
 class ImportDialog(QDialog):
@@ -185,6 +188,8 @@ class ImportDialog(QDialog):
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num]:
                 text = _("mapped to <b>%s</b>") % self.mapping[num].name
+            elif self.mapping[num] is 0:
+                text = _("mapped to <b>Tags</b>")
             else:
                 text = _("<ignored>")
             self.grid.addWidget(QLabel(text), num, 1)

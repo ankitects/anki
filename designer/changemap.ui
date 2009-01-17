@@ -10,19 +10,19 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Change field mapping</string>
+   <string>Import</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
    <property name="spacing" >
     <number>6</number>
+   </property>
+   <property name="margin" >
+    <number>9</number>
    </property>
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>&lt;h1>Available fields&lt;/h1>Please choose which field you would like to import into. If you select "Discard field", all data from this field will be lost.</string>
+      <string>&lt;h1>Select Target Field&lt;/h1></string>
      </property>
      <property name="wordWrap" >
       <bool>true</bool>
