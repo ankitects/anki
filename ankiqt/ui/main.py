@@ -274,6 +274,7 @@ Please do not file a bug report with Anki.<br><br>""")
         elif state == "editCurrentFact":
             if self.lastState == "editCurrentFact":
                 return self.moveToState("saveEdit")
+            self.mainWin.actionRepeatAudio.setEnabled(False)
             self.deck.s.flush()
             self.showEditor()
         elif state == "saveEdit":
