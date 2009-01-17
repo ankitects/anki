@@ -1513,6 +1513,9 @@ day = :d""", d=yesterday)
                     "(?i)\.(anki)$", ".media", self.deck.path)
                 self.deck.path = None
                 self.deck.flushMod()
+                if not self.onSaveAs():
+                    self.deck = None
+                    self.moveToState("noDeck")
         elif not self.hideWelcome:
             self.moveToState("noDeck")
         self.deckPath = None
