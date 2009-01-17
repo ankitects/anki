@@ -4,7 +4,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from operator import attrgetter
-import anki
+import anki, sys
 from anki import stdmodels
 from anki.models import *
 from ankiqt import ui
@@ -34,7 +34,8 @@ class ModelChooser(QHBoxLayout):
         self.models.setSizePolicy(sizePolicy)
         self.addWidget(self.models)
         self.edit = QPushButton()
-        self.edit.setFixedWidth(32)
+        if not sys.platform.startswith("darwin"):
+            self.edit.setFixedWidth(32)
         self.edit.setIcon(QIcon(":/icons/configure.png"))
         self.edit.setShortcut(_("Shift+Alt+e"))
         self.edit.setToolTip(_("Customize Models"))

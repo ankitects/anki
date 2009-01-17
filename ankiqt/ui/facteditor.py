@@ -602,7 +602,15 @@ class FactEditor(object):
     def onRecSound(self):
         self.initMedia()
         w = self.focusedEdit()
-        file = getAudio(self.parent)
+        try:
+            file = getAudio(self.parent)
+        except:
+            if sys.platform.startswith("darwin"):
+                ui.utils.showInfo(_('''\
+Please install <a href="http://www.thalictrum.com/software/lame-3.97.dmg.gz">lame</a>
+to enable recording.'''), parent=self.parent)
+                return
+            raise
         if file:
             self._addSound(unicode(file), widget=w)
 

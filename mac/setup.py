@@ -42,12 +42,13 @@ DATA_FILES = [
     'libanki/anki/locale',
     'ankiqt/ankiqt/locale',
     'kakasi',
+    #'audio',
     'libanki/samples',
     'ankiqt/imageformats',
     'libanki/anki/features/chinese/unihan.db',
     ]
 PLIST = dict(
-	CFBundleIdentifier = 'cx.repose.anki',
+	CFBundleIdentifier = 'net.ichi2.anki',
 	CFBundleName = 'Anki',
 	CFBundleDocumentTypes = [],
 	CFBundleLocalizations = ['en', 'ja', 'fr', 'de']
@@ -64,6 +65,7 @@ OPTIONS = {
     'excludes': ['_gtkagg', '_tkagg', "_wxagg",
                  "wx", "_wx",
                  "Tkconstants", "Tkinter", "tcl", "pygame"],
+     #'frameworks': ['libmp3lame.dylib'],
     'dylib_excludes': ['libncurses.5.dylib',
                        '_wxagg.so',
                        '_tkagg.so',
