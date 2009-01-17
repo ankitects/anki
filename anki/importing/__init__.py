@@ -246,7 +246,7 @@ from anki.importing.mnemosyne10 import Mnemosyne10Importer
 from anki.importing.wcu import WCUImporter
 
 Importers = (
-    (_("Text file (tab/semicolon separated) (*)"), TextImporter),
+    (_("Text separated by tabs or semicolons (*)"), TextImporter),
     (_("Anki 1.0 deck (*.anki)"), Anki10Importer),
     (_("Mnemosyne 1.x deck (*.mem)"), Mnemosyne10Importer),
     (_("CueCard deck (*.wcu)"), WCUImporter),
