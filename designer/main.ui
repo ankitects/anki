@@ -1865,6 +1865,10 @@
    </property>
   </action>
   <action name="actionRecordNoiseProfile" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/media-record.png</normaloff>:/icons/media-record.png</iconset>
+   </property>
    <property name="text" >
     <string>&amp;Record Noise Profile...</string>
    </property>

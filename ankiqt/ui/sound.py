@@ -52,5 +52,5 @@ def recordNoiseProfile(parent):
         QApplication.instance().processEvents()
         time.sleep(0.1)
     r.stop()
-    generateNoiseProfile(r.wavFile())
+    generateNoiseProfile()
     mb.deleteLater()

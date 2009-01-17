@@ -1913,7 +1913,8 @@ day = :d""", d=yesterday)
 
     def setupSound(self):
         anki.sound.noiseProfile = os.path.join(
-            self.config.configPath, "noise.profile")
+            self.config.configPath, "noise.profile").\
+            encode(sys.getfilesystemencoding())
         anki.sound.checkForNoiseProfile()
 
     def onRepeatAudio(self):
