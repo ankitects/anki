@@ -43,9 +43,9 @@ class AnkiQt(QMainWindow):
         self.setLang()
         self.setupDocumentDir()
         self.setupFonts()
-        self.setupSound()
         self.setupBackupDir()
         self.setupMainWindow()
+        self.setupSound()
         self.alterShortcuts()
         self.setupTray()
         self.connectMenuActions()
@@ -1916,6 +1916,8 @@ day = :d""", d=yesterday)
             self.config.configPath, "noise.profile").\
             encode(sys.getfilesystemencoding())
         anki.sound.checkForNoiseProfile()
+        if sys.platform.startswith("darwin"):
+            self.mainWin.actionRecordNoiseProfile.setEnabled(False)
 
     def onRepeatAudio(self):
         playFromText(self.currentCard.question)
