@@ -31,7 +31,7 @@ class Exporter(object):
         "Escape newlines and tabs, and strip Anki HTML."
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
-        text = re.sub('<span class="fm.*"?>(.*?)</span>', '\\1', text)
+        text = re.sub('<span class="fm.*?">(.*?)</span>', '\\1', text)
         return text
 
     def cardIds(self):
