@@ -612,15 +612,17 @@ class FactEdit(QTextEdit):
         QTextEdit.__init__(self, *args)
         self.parent = parent
 
-    def canInsertFromMimeData(self, src):
-        return (src.hasUrls() or
-                src.hasText() or
-                src.hasImage() or
-                src.hasHtml())
+    def canInsertFromMimeData(self, source):
+        return (source.hasUrls() or
+                source.hasText() or
+                source.hasImage() or
+                source.hasHtml())
 
     def insertFromMimeData(self, source):
         pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
         audio =  ("wav", "mp3", "ogg", "flac")
+        if source.hasHtml() and "qrichtext" in unicode(source.html()):
+            self.insertHtml(source.html())
         if source.hasText():
             txt = unicode(source.text())
             l = txt.lower()
