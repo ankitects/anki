@@ -141,6 +141,8 @@ class StatusView(object):
             remStr += "<b>0</b>"
         elif self.state == "deckEmpty":
             remStr += "<b>0</b>"
+        elif self.main.deck.reviewEarly:
+            remStr += "<b>0</b>"
         else:
             # remaining string, bolded depending on current card
             if not self.main.currentCard:
