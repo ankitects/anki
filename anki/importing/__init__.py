@@ -8,8 +8,8 @@ Importing support
 
 To import, a mapping is created of the form: [FieldModel, ...]. The mapping
 may be extended by calling code if a file has more fields. To ignore a
-particular FieldModel, replace it with None. The same field model should not
-occur more than once."""
+particular FieldModel, replace it with None. A special number 0 donates a tags
+field. The same field model should not occur more than once."""
 
 __docformat__ = 'restructuredtext'
 
@@ -70,6 +70,7 @@ class Importer(object):
         m = []
         [m.append(f) for f in self.model.fieldModels if f.required]
         [m.append(f) for f in self.model.fieldModels if not f.required]
+        m.append(0)
         rem = max(0, self.fields() - len(m))
         m += [None] * rem
         del m[numFields:]
@@ -122,6 +123,13 @@ all but one card template."""))
 
     def addCards(self, cards):
         "Add facts in bulk from foreign cards."
+        # map tags field to attr
+        try:
+            idx = self.mapping.index(0)
+            for c in cards:
+                c.tags = c.fields[idx]
+        except ValueError:
+            pass
         # add facts
         self.deck.updateProgress()
         factIds = [genID() for n in range(len(cards))]
@@ -238,7 +246,7 @@ from anki.importing.mnemosyne10 import Mnemosyne10Importer
 from anki.importing.wcu import WCUImporter
 
 Importers = (
-    (_("TAB/semicolon-separated file (*)"), TextImporter),
+    (_("Text file (tab/semicolon separated) (*)"), TextImporter),
     (_("Anki 1.0 deck (*.anki)"), Anki10Importer),
     (_("Mnemosyne 1.x deck (*.mem)"), Mnemosyne10Importer),
     (_("CueCard deck (*.wcu)"), WCUImporter),

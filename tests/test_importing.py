@@ -7,6 +7,7 @@ from anki.errors import *
 from anki import DeckStorage
 from anki.importing import anki10, csv, mnemosyne10
 from anki.stdmodels import BasicModel
+from anki.facts import Fact
 
 from anki.db import *
 
@@ -21,6 +22,17 @@ def test_csv():
     # two problems - missing front, dupe front
     assert len(i.log) == 2
     assert i.total == 5
+    deck.s.close()
+
+def test_csv_tags():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    file = unicode(os.path.join(testDir, "importing/text-tags.txt"))
+    i = csv.TextImporter(deck, file)
+    i.doImport()
+    facts = deck.s.query(Fact).all()
+    assert len(facts) == 1
+    assert facts[0].tags == "baz, qux"
     deck.s.close()
 
 def test_mnemosyne10():

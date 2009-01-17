@@ -135,8 +135,14 @@ def clearQueueExternal():
 try:
     import pyaudio
     import wave
+
+    PYAU_FORMAT = pyaudio.paInt16
+    PYAU_CHANNELS = 1
+    PYAU_RATE = 44100
+    PYAU_INPUT_INDEX = 0
 except ImportError:
     pass
+
 
 class _Recorder(object):
 
@@ -161,16 +167,13 @@ class PyAudioThreadedRecorder(threading.Thread):
 
     def run(self):
         chunk = 1024
-        FORMAT = pyaudio.paInt16
-        CHANNELS = 1
-        RATE = 44100
         p = pyaudio.PyAudio()
-        stream = p.open(format = FORMAT,
-                        channels = CHANNELS,
-                        rate = RATE,
-                        input = True,
-                        input_device_index = 0,
-                        frames_per_buffer = chunk)
+        stream = p.open(format=PYAU_FORMAT,
+                        channels=PYAU_CHANNELS,
+                        rate=PYAU_RATE,
+                        input=True,
+                        input_device_index=PYAU_INPUT_INDEX,
+                        frames_per_buffer=chunk)
         all = []
         while not self.finish:
             data = stream.read(chunk)
