@@ -1042,7 +1042,7 @@ day = :d""", d=yesterday)
             anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
         h['timeTodayChg'] = str(anki.utils.fmtTimeSpan(
             tyest, short=True, point=1))
-        stats1 = """\
+        stats1 = _("""\
 <table>
 <tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSes)s</b></td>
 <td>%(repsInSesChg)s</td></tr>
@@ -1050,13 +1050,13 @@ day = :d""", d=yesterday)
 <td>%(repsTodayChg)s</td></tr>
 <tr><td>Time/day:</td><td><b>%(timeToday)s</b></td>
 <td>%(timeTodayChg)s</td></tr>
-</table>""" % h
-        stats2 = """\
+</table>""") % h
+        stats2 = _("""\
 <table>
 <tr><td width=120>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>
 <tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>New total:</td><td align=right>%(newof)s</td></tr>
-</table>""" % h
+</table>""") % h
         if (not dyest and not dtoday) or not self.config['showStudyStats']:
             stats1 = ""
         else:
