@@ -639,15 +639,21 @@ class FactEdit(QTextEdit):
                 if not source.hasImage():
                     # firefox on linux just gives us a url
                     ext = txt.split(".")[-1].lower()
-                    if ext in pics:
-                        name = self._retrieveURL(txt, ext)
-                        self.parent._addPicture(name, widget=self)
-                    elif ext in audio:
-                        name = self._retrieveURL(txt, ext)
-                        self.parent._addSound(name, widget=self)
-                    else:
-                        # not image or sound, treat as plain text
-                        self.insertPlainText(source.text())
+                    try:
+                        if ext in pics:
+                            name = self._retrieveURL(txt, ext)
+                            self.parent._addPicture(name, widget=self)
+                        elif ext in audio:
+                            name = self._retrieveURL(txt, ext)
+                            self.parent._addSound(name, widget=self)
+                        else:
+                            # not image or sound, treat as plain text
+                            self.insertPlainText(source.text())
+                    except urllib2.URLError, e:
+                        ui.utils.showWarning(_("""\
+An error was ecountered while opening %s
+
+%s""") % (txt, e))
                     return
             else:
                 self.insertPlainText(source.text())
@@ -666,12 +672,18 @@ class FactEdit(QTextEdit):
             for url in source.urls():
                 url = unicode(url.toString())
                 ext = url.split(".")[-1].lower()
-                if ext in pics:
-                    name = self._retrieveURL(url, ext)
-                    self.parent._addPicture(name, widget=self)
-                elif ext in audio:
-                    name = self._retrieveURL(url, ext)
-                    self.parent._addSound(name, widget=self)
+                try:
+                    if ext in pics:
+                        name = self._retrieveURL(url, ext)
+                        self.parent._addPicture(name, widget=self)
+                    elif ext in audio:
+                        name = self._retrieveURL(url, ext)
+                        self.parent._addSound(name, widget=self)
+                except urllib2.URLError, e:
+                    ui.utils.showWarning(_("""\
+An error was ecountered while opening %s
+
+%s""") % (txt, e))
             return
 
     def _retrieveURL(self, url, ext):
