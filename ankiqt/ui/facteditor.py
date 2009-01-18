@@ -687,7 +687,8 @@ An error was ecountered while opening %s
             return
 
     def _retrieveURL(self, url, ext):
-        filecontents = urllib2.urlopen(url).read()
+        req = urllib2.Request(url, None, {'User-Agent': 'Mozilla/5.0 (compatible; Anki/%s)' % ankiqt.appVersion })
+        filecontents = urllib2.urlopen(req).read()
         (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".%s" % ext.encode("ascii"))
         file = os.fdopen(fd, "wb")
         file.write(filecontents)
