@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext'
 import tempfile, time, os, random, sys, re, stat, shutil, types, traceback
 
 from anki.db import *
-from anki.lang import _
+from anki.lang import _, _2
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
@@ -607,12 +607,14 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         next = self.earliestTime()
         if next:
             newCardsTomorrow = min(self.newCount, self.newCardsPerDay)
+            cards = self.cardsDueBy(time.time() + 86400)
             msg = _('''\
 At the same time tomorrow:<br><br>
-There will be <b>%(wait)d</b> cards waiting for review.<br>
-There will be <b>%(new)d</b> new cards waiting.''') % {
-                'new': newCardsTomorrow,
-                'wait': self.cardsDueBy(time.time() + 86400)
+There will be %(wait)s waiting for review.<br>
+There will be %(new)s waiting.''') % {
+                'new': _2("<b>%d</b> new card", "<b>%d</b> new cards",
+                          newCardsTomorrow) % newCardsTomorrow,
+                'wait': _2("<b>%s</b> card", "<b>%s</b> cards", cards) % cards,
                 }
             if self.spacedCardCount():
                 msg = _("Spaced cards will be shown soon.")
@@ -651,18 +653,18 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         spaceSusp = ""
         c = self.spacedCardCount()
         if c:
-            spaceSusp += '''
+            spaceSusp += _('''
 There are <b>%d</b>
 <a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3">
-spaced</a> cards.''' % c
+spaced</a> cards.''') % c
         c2 = self.suspendedCardCount()
         if c2:
             if c:
                 spaceSusp += "<br>"
-            spaceSusp += '''
+            spaceSusp += _('''
 There are <b>%d</b>
 <a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
-suspended</a> cards.''' % c2
+suspended</a> cards.''') % c2
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
         return _('''\
