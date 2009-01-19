@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-18 14:49+0200\n"
+"POT-Creation-Date: 2009-01-20 00:49+0900\n"
 "PO-Revision-Date: 2009-01-18 15:22+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -608,4 +608,3 @@ msgstr "%s myöhemmin"
 #: deck.py:642
 msgid "unknown"
 msgstr "tuntematon"
-

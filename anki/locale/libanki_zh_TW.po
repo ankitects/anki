@@ -1,4 +1,4 @@
-# Japanese translations for libanki
+# tTraditional Chinese translations for libanki
 # Copyright (C) 2007 Damien Elmes
 # This file is distributed under the same license as the libanki package.
 # Damien Elmes <anki@ichi2.net>, 2007.
@@ -62,36 +62,36 @@ msgstr "%s秒"
 #, python-format
 msgid "%s day"
 msgid_plural "%s days"
-msgstr[0] "%s日"
-msgstr[1] "%s日"
+msgstr[0] "%s個日"
+msgstr[1] "%s個日"
 
 #: utils.py:30
 #, python-format
 msgid "%s hour"
 msgid_plural "%s hours"
-msgstr[0] "%s時間"
-msgstr[1] "%s時間"
+msgstr[0] "%s個小時"
+msgstr[1] "%s個小時"
 
 #: utils.py:31
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
-msgstr[0] "%s分"
-msgstr[1] "%s分"
+msgstr[0] "%s分鐘"
+msgstr[1] "%s分鐘"
 
 #: utils.py:28
 #, python-format
 msgid "%s month"
 msgid_plural "%s months"
-msgstr[0] "%sヶ月"
-msgstr[1] "%sヶ月"
+msgstr[0] "%s個月"
+msgstr[1] "%s個月"
 
 #: utils.py:32
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
-msgstr[0] "%s秒"
-msgstr[1] "%s秒"
+msgstr[0] "%s秒鐘"
+msgstr[1] "%s秒鐘"
 
 #: utils.py:27
 #, python-format
@@ -447,7 +447,7 @@ msgstr ""
 #: stats.py:362
 #, fuzzy
 msgid "Reps last month"
-msgstr "%sヶ月"
+msgstr "%s個月"
 
 #: stats.py:360
 msgid "Reps last week"
@@ -456,7 +456,7 @@ msgstr ""
 #: stats.py:358
 #, fuzzy
 msgid "Reps next month"
-msgstr "%sヶ月"
+msgstr "%s個月"
 
 #: stats.py:356
 msgid "Reps next week"
@@ -581,10 +581,10 @@ msgid "unknown"
 msgstr ""
 
 #~ msgid "Back to front"
-#~ msgstr "裏側から表側"
+#~ msgstr "從後到前"
 
 #~ msgid "Front to back"
-#~ msgstr "表側から裏側"
+#~ msgstr "從前到後"
 
 #~ msgid "a short time"
-#~ msgstr "何分"
+#~ msgstr "一會"
