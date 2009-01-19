@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>649</width>
-    <height>454</height>
+    <width>699</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -27,8 +27,8 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>649</width>
-     <height>365</height>
+     <width>699</width>
+     <height>327</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -457,8 +457,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>364</width>
-            <height>89</height>
+            <width>414</width>
+            <height>53</height>
            </rect>
           </property>
          </widget>
@@ -480,8 +480,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>364</width>
-            <height>270</height>
+            <width>414</width>
+            <height>268</height>
            </rect>
           </property>
          </widget>
@@ -533,8 +533,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>364</width>
-            <height>270</height>
+            <width>688</width>
+            <height>557</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_3" >
@@ -553,7 +553,7 @@
               <widget class="QLabel" name="optionsLabel" >
                <property name="minimumSize" >
                 <size>
-                 <width>350</width>
+                 <width>400</width>
                  <height>0</height>
                 </size>
                </property>
@@ -840,8 +840,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>364</width>
-            <height>270</height>
+            <width>688</width>
+            <height>557</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9" >
@@ -1123,7 +1123,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>649</width>
+     <width>699</width>
      <height>23</height>
     </rect>
    </property>
@@ -1271,8 +1271,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>434</y>
-     <width>649</width>
+     <y>396</y>
+     <width>699</width>
      <height>20</height>
     </rect>
    </property>
@@ -1285,7 +1285,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>649</width>
+     <width>699</width>
      <height>46</height>
     </rect>
    </property>
