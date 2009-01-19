@@ -27,12 +27,16 @@ class StatusView(object):
         self.shown = []
         self.hideBorders()
         self.setState("noDeck")
-        self.thinkingTimer = QTimer(parent)
-        self.thinkingTimer.start(1000)
         self.timer = None
         self.timerFlashStart = 0
+        self.thinkingTimer = QTimer(parent)
+        self.thinkingTimer.start(1000)
         parent.connect(self.thinkingTimer, SIGNAL("timeout()"),
                        self.drawTimer)
+        self.countTimer = QTimer(parent)
+        self.countTimer.start(60000)
+        parent.connect(self.countTimer, SIGNAL("timeout()"),
+                       self.updateCount)
         addHook("showQuestion", self.flashTimer)
 
     # State control
@@ -258,3 +262,8 @@ You should aim to answer each question within<br>
         self.timer.setText('<span style="color:#0000ff">%02d:%02d</span>' %
                            (t/60, t%60))
         self.timerFlashStart = time.time()
+
+    def updateCount(self):
+        if self.state in ("showQuestion", "showAnswer"):
+            self.main.deck.checkDue()
+            self.redraw()
