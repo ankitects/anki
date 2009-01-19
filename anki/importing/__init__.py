@@ -19,6 +19,7 @@ from anki.facts import factsTable, fieldsTable
 from anki.lang import _
 from anki.utils import genID, canonifyTags
 from anki.errors import *
+from anki.utils import canonifyTags
 
 # Base importer
 ##########################################################################
@@ -233,8 +234,9 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                 else:
                     self.uniqueCache[self.mapping[n].id][card.fields[n]] = 1
         if fields:
-            card.tags += u"Import: duplicate, Duplicate: " + (
+            card.tags += u",Import: duplicate, Duplicate: " + (
                 "+".join(fields))
+            card.tags = canonifyTags(card.tags)
         return True
 
 # Export modules
