@@ -1644,6 +1644,7 @@ Return new path, relative to media dir."""
         self.startProgress(11)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
+            self.finishProgress()
             return _("Database file damaged. Restore from backup.")
         # ensure correct views and indexes are available
         self.updateProgress()
