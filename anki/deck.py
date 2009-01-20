@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext'
 import tempfile, time, os, random, sys, re, stat, shutil, types, traceback
 
 from anki.db import *
-from anki.lang import _, _2
+from anki.lang import _, ngettext
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
@@ -610,11 +610,13 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             cards = self.cardsDueBy(time.time() + 86400)
             msg = _('''\
 At the same time tomorrow:<br><br>
-There will be %(wait)s waiting for review.<br>
-There will be %(new)s waiting.''') % {
-                'new': _2("<b>%d</b> new card", "<b>%d</b> new cards",
+%(wait)s<br>
+%(new)s''') % {
+                'new': ngettext("There will be <b>%d</b> new card waiting for review.",
+                          "There will be <b>%d</b> new cards waiting for review.",
                           newCardsTomorrow) % newCardsTomorrow,
-                'wait': _2("<b>%s</b> card", "<b>%s</b> cards", cards) % cards,
+                'wait': ngettext("There will be <b>%s</b> card waiting.",
+                          "There will be <b>%s</b> cards waiting.", cards) % cards,
                 }
             if self.spacedCardCount():
                 msg = _("Spaced cards will be shown soon.")
@@ -653,18 +655,24 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         spaceSusp = ""
         c = self.spacedCardCount()
         if c:
-            spaceSusp += _('''
+            spaceSusp += ngettext('''
+There is <b>%d</b>
+<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae">
+spaced</a> card.''', '''
 There are <b>%d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3">
-spaced</a> cards.''') % c
+<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae">
+spaced</a> cards.''', c) % c
         c2 = self.suspendedCardCount()
         if c2:
             if c:
                 spaceSusp += "<br>"
-            spaceSusp += _('''
+            spaceSusp += ngettext('''
+There is <b>%d</b>
+<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
+suspended</a> card.''', '''
 There are <b>%d</b>
 <a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
-suspended</a> cards.''') % c2
+suspended</a> cards.''', c) % c2
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
         return _('''\

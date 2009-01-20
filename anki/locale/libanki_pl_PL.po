@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-20 00:49+0900\n"
-"PO-Revision-Date: 2009-01-17 23:05+0100\n"
+"POT-Creation-Date: 2009-01-20 23:33+0900\n"
+"PO-Revision-Date: 2009-01-20 13:19+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,23 +17,61 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: deck.py:664
+#: deck.py:669
 #, python-format
 msgid ""
+"\n"
+"There is <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
+"suspended</a> card."
+msgid_plural ""
 "\n"
 "There are <b>%d</b>\n"
 "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
 "suspended</a> cards."
-msgstr ""
+msgstr[0] ""
+"\n"
+"Jest <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
+"zawieszona</a> karta."
+msgstr[1] ""
+"\n"
+"Są <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
+"zawieszone</a> karty."
+msgstr[2] ""
+"\n"
+"Jest <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
+"zawieszonych</a> kart."
 
-#: deck.py:656
+#: deck.py:658
 #, python-format
 msgid ""
 "\n"
+"There is <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
+"spaced</a> card."
+msgid_plural ""
+"\n"
 "There are <b>%d</b>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
 "spaced</a> cards."
-msgstr ""
+msgstr[0] ""
+"\n"
+"Jest <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
+"odroczona</a> karta."
+msgstr[1] ""
+"\n"
+"Są <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
+"odroczone</a> karty."
+msgstr[2] ""
+"\n"
+"Jest <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
+"odroczonych</a> kart."
 
 #: stats.py:497
 #, python-format
@@ -55,7 +93,7 @@ msgstr "%0.1f sekund"
 msgid "%s ago"
 msgstr "%s temu"
 
-#: deck.py:1184
+#: deck.py:1192
 #, python-format
 msgid "%s copy"
 msgstr "kopia %s"
@@ -140,7 +178,7 @@ msgstr "<b>Liczba kart</b><br>"
 msgid "<b>Correct answers</b><br>"
 msgstr "<b>Poprawne odpowiedzi</b><br>"
 
-#: deck.py:670
+#: deck.py:678
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -211,15 +249,15 @@ msgid "Answer Card"
 msgstr "Karta odpowiedzi"
 
 #: deck.py:611
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
-"There will be %(wait)s waiting for review.<br>\n"
-"There will be %(new)s waiting."
+"%(wait)s<br>\n"
+"%(new)s"
 msgstr ""
 "O tej samej porze jutro:<br><br>\n"
-"Będzie <b>%(wait)d</b> kart czekających na przeglądnięcie.<br>\n"
-"Będzie <b>%(new)d</b> nowych kart."
+"%(wait)s<br>\n"
+"%(new)s"
 
 #: stats.py:286
 msgid "Average Time"
@@ -261,11 +299,11 @@ msgstr "Zmieniona"
 msgid "Check Media DB"
 msgstr "Sprawdzanie bazy danych plików"
 
-#: deck.py:1645
+#: deck.py:1653
 msgid "Checking integrity..."
 msgstr "Sprawdzanie integralności..."
 
-#: deck.py:1654
+#: deck.py:1663
 msgid "Checking schema..."
 msgstr "Sprawdzanie schematu..."
 
@@ -273,7 +311,7 @@ msgstr "Sprawdzanie schematu..."
 msgid "Checksum files..."
 msgstr "Suma kontrolna plików..."
 
-#: deck.py:1647
+#: deck.py:1656
 msgid "Database file damaged. Restore from backup."
 msgstr "Baza danych uszkodzona. Wykonaj odzyskiwanie z kopii zapasowej."
 
@@ -286,7 +324,7 @@ msgstr "Statystyki talii"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Talia stworzona: <b>%s</b> temu<br>"
 
-#: deck.py:1657
+#: deck.py:1666
 msgid "Deck was missing a model"
 msgstr "W talii brakowało modelu"
 
@@ -298,27 +336,27 @@ msgstr "Usuwanie nieaktualnych odwołań..."
 msgid "Delete unused files..."
 msgstr "Usuwanie nieużywanych plików..."
 
-#: deck.py:1685
+#: deck.py:1694
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Usunięto %d kart z brakującym faktem"
 
-#: deck.py:1693
+#: deck.py:1702
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr "Usunięto %d kart bez szablonu karty"
 
-#: deck.py:1706
+#: deck.py:1715
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Usunięto %d niezakotwiczonych pól"
 
-#: deck.py:1678
+#: deck.py:1687
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Usunięto %d faktów z brakującymi polami"
 
-#: deck.py:1698
+#: deck.py:1707
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Usunięto %d faktów bez karty"
@@ -350,7 +388,7 @@ msgstr "Eksportowanie..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Fakty oddzielone tabulacją w pliku tekstowym (*.txt)"
 
-#: deck.py:2002
+#: deck.py:2011
 msgid "File is in use by another process"
 msgstr "Plik jest używany przez inny proces"
 
@@ -421,12 +459,12 @@ msgstr "Stare karty: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "Media Missing"
 msgstr "Brakuje pliku"
 
-#: deck.py:1107
+#: deck.py:1115
 #, python-format
 msgid "Model '%s' has wrong card template count"
 msgstr "Model '%s' ma złą liczbę szablonów kart"
 
-#: deck.py:1111
+#: deck.py:1119
 #, python-format
 msgid "Model '%s' has wrong field count"
 msgstr "Model '%s' ma złą liczbę pól"
@@ -443,7 +481,7 @@ msgstr "Modyfikowanie pól..."
 msgid "New"
 msgstr "Nowe"
 
-#: deck.py:625
+#: deck.py:627
 msgid "No cards are due."
 msgstr "Nie ma kart do wyświetlenia."
 
@@ -451,23 +489,23 @@ msgstr "Nie ma kart do wyświetlenia."
 msgid "Please add some cards first.<p/>"
 msgstr "Dodaj najpierw jakieś karty.<p/>"
 
-#: deck.py:1877
+#: deck.py:1886
 msgid "Processing..."
 msgstr "Przetwarzanie..."
 
-#: deck.py:1722
+#: deck.py:1731
 msgid "Rebuilding QA cache..."
 msgstr "Przebudowywanie pamięci podręcznej pytań/odpowiedzi..."
 
-#: deck.py:1742
+#: deck.py:1751
 msgid "Rebuilding counts..."
 msgstr "Przebudowywanie liczników..."
 
-#: deck.py:1748
+#: deck.py:1757
 msgid "Rebuilding queue..."
 msgstr "Przebudowywanie kolejek..."
 
-#: deck.py:1740
+#: deck.py:1749
 msgid "Rebuilding types..."
 msgstr "Przebudowywanie typów..."
 
@@ -487,19 +525,19 @@ msgstr "w nast. mies."
 msgid "Reps next week"
 msgstr "Powt. w nast. tyg."
 
-#: deck.py:2412
+#: deck.py:2421
 msgid "Review cards in order due"
 msgstr "Przeglądaj karty w kolejności daty pojawienia się"
 
-#: deck.py:2413
+#: deck.py:2422
 msgid "Review cards in random order"
 msgstr "Przeglądaj karty w losowej kolejności"
 
-#: deck.py:2411
+#: deck.py:2420
 msgid "Review newest cards first"
 msgstr "Przeglądaj najnowsze karty jako pierwsze"
 
-#: deck.py:2410
+#: deck.py:2419
 msgid "Review oldest cards first"
 msgstr "Przeglądaj najstarsze karty jako pierwsze"
 
@@ -515,27 +553,27 @@ msgstr "Po prawej"
 msgid "Scan fields..."
 msgstr "Skanowanie pól..."
 
-#: deck.py:2404
+#: deck.py:2413
 msgid "Show new cards after all other cards"
 msgstr "Pokaż nowe karty po wszystkich innych kartach"
 
-#: deck.py:2405
+#: deck.py:2414
 msgid "Show new cards before reviews"
 msgstr "Pokaż nowe karty przed powtórką"
 
-#: deck.py:2398
+#: deck.py:2407
 msgid "Show new cards in order they were added"
 msgstr "Pokaż nowe karty w kolejności ich dodania"
 
-#: deck.py:2397
+#: deck.py:2406
 msgid "Show new cards in random order"
 msgstr "Pokaż nowe karty w losowej kolejności"
 
-#: deck.py:620
+#: deck.py:622
 msgid "Spaced cards will be shown soon."
-msgstr "Odroczone karty zostaną wkrótce pokazane."
+msgstr "Wkrótce zostaną pokazane odroczone karty."
 
-#: deck.py:2403
+#: deck.py:2412
 msgid "Spread new cards out through reviews"
 msgstr "Rozprosz nowe karty między powtórkami"
 
@@ -543,14 +581,30 @@ msgstr "Rozprosz nowe karty między powtórkami"
 msgid "Text files (*.txt)"
 msgstr "Pliki tekstowe (*.txt)"
 
-#: deck.py:1663
+#: deck.py:1672
 msgid "The current model didn't exist"
 msgstr "Aktualny model nie istnieje"
 
-#: deck.py:622
+#: deck.py:624
 #, python-format
 msgid "The next card will be shown in <b>%s</b>."
 msgstr "Następna karta zostanie pokazana w ciągu <b>%s</b>."
+
+#: deck.py:615
+#, python-format
+msgid "There will be <b>%d</b> new card waiting for review."
+msgid_plural "There will be <b>%d</b> new cards waiting for review."
+msgstr[0] "Będzie <b>%d</b> nowa karta czekająca na przejrzenie."
+msgstr[1] "Będą <b>%d</b> nowe karty czekające na przejrzenie."
+msgstr[2] "Będzie <b>%d</b> nowych kart czekających na przejrzenie."
+
+#: deck.py:618
+#, python-format
+msgid "There will be <b>%s</b> card waiting."
+msgid_plural "There will be <b>%s</b> cards waiting."
+msgstr[0] "Będzie <b>%s</b> karta czekająca na przejrzenie."
+msgstr[1] "Będą <b>%s</b> karty czekające na przejrzenie."
+msgstr[2] "Będzie <b>%s</b> kart czekających na przejrzenie."
 
 #: stats.py:288
 msgid "Total Time"
@@ -561,7 +615,7 @@ msgstr "Całkowity czas"
 msgid "Total number of cards: <b>%d</b><br><br>"
 msgstr "Całkowita liczba kart: <b>%d</b><br><br>"
 
-#: deck.py:834
+#: deck.py:842
 msgid "Unknown"
 msgstr "Nieznany"
 
@@ -574,7 +628,7 @@ msgstr "Nieprzejrzane karty: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgid "Update tags..."
 msgstr "Aktualizacja etykiet..."
 
-#: deck.py:1719
+#: deck.py:1728
 msgid "Updating priorities..."
 msgstr "Aktualizacja priorytetów..."
 
@@ -601,6 +655,6 @@ msgstr "[nieprawidłowy format pytania/odpowiedzi]"
 msgid "in %s"
 msgstr "w %s"
 
-#: deck.py:642
+#: deck.py:644
 msgid "unknown"
 msgstr "nieznane"

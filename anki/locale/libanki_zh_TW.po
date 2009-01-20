@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-20 00:49+0900\n"
+"POT-Creation-Date: 2009-01-20 23:33+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Damien Elmes <anki@ichi2.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,23 +15,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: deck.py:664
+#: deck.py:669
 #, python-format
 msgid ""
+"\n"
+"There is <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
+"suspended</a> card."
+msgid_plural ""
 "\n"
 "There are <b>%d</b>\n"
 "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
 "suspended</a> cards."
-msgstr ""
+msgstr[0] ""
+msgstr[1] ""
 
-#: deck.py:656
+#: deck.py:658
 #, python-format
 msgid ""
 "\n"
+"There is <b>%d</b>\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
+"spaced</a> card."
+msgid_plural ""
+"\n"
 "There are <b>%d</b>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">\n"
+"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
 "spaced</a> cards."
-msgstr ""
+msgstr[0] ""
+msgstr[1] ""
 
 #: stats.py:497
 #, python-format
@@ -53,7 +65,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "%s前"
 
-#: deck.py:1184
+#: deck.py:1192
 #, fuzzy, python-format
 msgid "%s copy"
 msgstr "%s秒"
@@ -132,7 +144,7 @@ msgstr ""
 msgid "<b>Correct answers</b><br>"
 msgstr ""
 
-#: deck.py:670
+#: deck.py:678
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -193,8 +205,8 @@ msgstr ""
 #, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
-"There will be %(wait)s waiting for review.<br>\n"
-"There will be %(new)s waiting."
+"%(wait)s<br>\n"
+"%(new)s"
 msgstr ""
 
 #: stats.py:286
@@ -237,11 +249,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:1645
+#: deck.py:1653
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:1654
+#: deck.py:1663
 msgid "Checking schema..."
 msgstr ""
 
@@ -249,7 +261,7 @@ msgstr ""
 msgid "Checksum files..."
 msgstr ""
 
-#: deck.py:1647
+#: deck.py:1656
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -262,7 +274,7 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:1657
+#: deck.py:1666
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -274,27 +286,27 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:1685
+#: deck.py:1694
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1693
+#: deck.py:1702
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr ""
 
-#: deck.py:1706
+#: deck.py:1715
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1678
+#: deck.py:1687
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1698
+#: deck.py:1707
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -323,7 +335,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:2002
+#: deck.py:2011
 msgid "File is in use by another process"
 msgstr ""
 
@@ -394,12 +406,12 @@ msgstr ""
 msgid "Media Missing"
 msgstr ""
 
-#: deck.py:1107
+#: deck.py:1115
 #, python-format
 msgid "Model '%s' has wrong card template count"
 msgstr ""
 
-#: deck.py:1111
+#: deck.py:1119
 #, python-format
 msgid "Model '%s' has wrong field count"
 msgstr ""
@@ -416,7 +428,7 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: deck.py:625
+#: deck.py:627
 msgid "No cards are due."
 msgstr ""
 
@@ -424,23 +436,23 @@ msgstr ""
 msgid "Please add some cards first.<p/>"
 msgstr ""
 
-#: deck.py:1877
+#: deck.py:1886
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:1722
+#: deck.py:1731
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:1742
+#: deck.py:1751
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:1748
+#: deck.py:1757
 msgid "Rebuilding queue..."
 msgstr ""
 
-#: deck.py:1740
+#: deck.py:1749
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -462,19 +474,19 @@ msgstr "%s個月"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:2412
+#: deck.py:2421
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:2413
+#: deck.py:2422
 msgid "Review cards in random order"
 msgstr ""
 
-#: deck.py:2411
+#: deck.py:2420
 msgid "Review newest cards first"
 msgstr ""
 
-#: deck.py:2410
+#: deck.py:2419
 msgid "Review oldest cards first"
 msgstr ""
 
@@ -490,27 +502,27 @@ msgstr ""
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:2404
+#: deck.py:2413
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:2405
+#: deck.py:2414
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:2398
+#: deck.py:2407
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:2397
+#: deck.py:2406
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:620
+#: deck.py:622
 msgid "Spaced cards will be shown soon."
 msgstr ""
 
-#: deck.py:2403
+#: deck.py:2412
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -518,14 +530,28 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr ""
 
-#: deck.py:1663
+#: deck.py:1672
 msgid "The current model didn't exist"
 msgstr ""
 
-#: deck.py:622
+#: deck.py:624
 #, python-format
 msgid "The next card will be shown in <b>%s</b>."
 msgstr ""
+
+#: deck.py:615
+#, python-format
+msgid "There will be <b>%d</b> new card waiting for review."
+msgid_plural "There will be <b>%d</b> new cards waiting for review."
+msgstr[0] ""
+msgstr[1] ""
+
+#: deck.py:618
+#, python-format
+msgid "There will be <b>%s</b> card waiting."
+msgid_plural "There will be <b>%s</b> cards waiting."
+msgstr[0] ""
+msgstr[1] ""
 
 #: stats.py:288
 msgid "Total Time"
@@ -536,7 +562,7 @@ msgstr ""
 msgid "Total number of cards: <b>%d</b><br><br>"
 msgstr ""
 
-#: deck.py:834
+#: deck.py:842
 msgid "Unknown"
 msgstr ""
 
@@ -549,7 +575,7 @@ msgstr ""
 msgid "Update tags..."
 msgstr ""
 
-#: deck.py:1719
+#: deck.py:1728
 msgid "Updating priorities..."
 msgstr ""
 
@@ -576,7 +602,7 @@ msgstr ""
 msgid "in %s"
 msgstr ""
 
-#: deck.py:642
+#: deck.py:644
 msgid "unknown"
 msgstr ""
 

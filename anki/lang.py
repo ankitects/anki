@@ -31,8 +31,6 @@ def _(str):
 def ngettext(single, plural, n):
     return localTranslation().ungettext(single, plural, n)
 
-_2 = ngettext
-
 def setLang(lang, local=True):
     base = os.path.dirname(os.path.abspath(__file__))
     localeDir = os.path.join(base, "locale")
