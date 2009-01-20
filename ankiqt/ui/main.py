@@ -1103,8 +1103,8 @@ day = :d""", d=yesterday)
         self.config['showStudyOptions'] = self.mainWin.optionsButton.isChecked()
         try:
             self.deck.newCardsPerDay = int(self.mainWin.newPerDay.text())
-            self.deck.sessionTimeLimit = float(
-                self.mainWin.minuteLimit.text()) * 60
+            self.deck.sessionTimeLimit = min(float(
+                self.mainWin.minuteLimit.text()), 3600) * 60
             self.deck.sessionRepLimit = int(self.mainWin.questionLimit.text())
         except (ValueError, OverflowError):
             pass
