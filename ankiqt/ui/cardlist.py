@@ -145,6 +145,8 @@ class DeckModel(QAbstractTableModel):
                      " order by cards.ordinal, %s") % (fields, order)
         # run the query
         self.cards = self.deck.s.all(query)
+        if self.parent.config['editorReverseOrder']:
+            self.cards.reverse()
         self.reset()
 
     def updateCard(self, index):
@@ -214,6 +216,8 @@ class EditDeck(QMainWindow):
         self.dialog.tableView.setFont(QFont(
             self.config['editFontFamily'],
             self.config['editFontSize']))
+        if self.parent.config['editorReverseOrder']:
+            self.dialog.actionReverseOrder.setChecked(True)
         self.setupMenus()
         self.setupFilter()
         self.setupSort()
@@ -416,6 +420,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionReschedule, SIGNAL("triggered()"), self.reschedule)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
+        self.connect(self.dialog.actionReverseOrder, SIGNAL("triggered()"), self.reverseOrder)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         # jumps
@@ -647,6 +652,16 @@ cards.id in %s and cards.factId = facts.id""" % ids2str(sc))
         items = sm.selection()
         self.dialog.tableView.selectAll()
         sm.select(items, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
+
+    def reverseOrder(self):
+        if self.parent.config['editorReverseOrder']:
+            self.parent.config['editorReverseOrder'] = False;
+        else:
+            self.parent.config['editorReverseOrder'] = True;
+
+        self.model.cards.reverse()
+        self.model.reset()
+        self.focusCurrentCard()
 
     # Undo/Redo
     ######################################################################

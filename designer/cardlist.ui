@@ -13,14 +13,6 @@
    <string>Edit Items</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>23</y>
-     <width>599</width>
-     <height>439</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
     <property name="spacing" >
      <number>0</number>
@@ -170,7 +162,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>23</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit" >
@@ -183,6 +175,7 @@
     <addaction name="actionSelectAll" />
     <addaction name="actionSelectFacts" />
     <addaction name="actionInvertSelection" />
+    <addaction name="actionReverseOrder" />
    </widget>
    <widget class="QMenu" name="menuActions" >
     <property name="title" >
@@ -369,6 +362,14 @@
   <action name="actionChangeTemplate" >
    <property name="text" >
     <string>Change &amp;Template...</string>
+   </property>
+  </action>
+  <action name="actionReverseOrder" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Reverse &amp;Order</string>
    </property>
   </action>
  </widget>

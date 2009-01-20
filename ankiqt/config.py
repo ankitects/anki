@@ -79,6 +79,7 @@ class Config(dict):
             'randomizeOnCram': True,
             'created': time.time(),
             'id': genID(),
+            'editorReverseOrder': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
