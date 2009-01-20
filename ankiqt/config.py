@@ -80,6 +80,8 @@ class Config(dict):
             'created': time.time(),
             'id': genID(),
             'editorReverseOrder': False,
+            'editFontFamily': 'Arial',
+            'editFontSize': 12,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
