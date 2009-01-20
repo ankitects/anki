@@ -304,9 +304,11 @@ class FactEditor(object):
             self.widgets[w] = field
             new = self.fact[field.name]
             old = tidyHTML(unicode(w.toHtml()))
-            # only update if something has changed, to preserve the cursor
+            # only update if something has changed
             if new != old:
+                cur = w.textCursor()
                 w.setHtml('<meta name="qrichtext" content="1"/>' + new)
+                w.setTextCursor(cur)
             if font:
                 # apply fonts
                 font = QFont()
