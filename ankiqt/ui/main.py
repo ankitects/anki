@@ -853,6 +853,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             return
         if not file.lower().endswith(".anki"):
             file += ".anki"
+        if os.path.abspath(file) == os.path.abspath(self.deck.path):
+            return self.onSave()
         if os.path.exists(file):
             # check for existence after extension
             if not ui.utils.askUser(
