@@ -194,7 +194,7 @@
     <addaction name="actionAddCards" />
     <addaction name="actionChangeTemplate" />
     <addaction name="separator" />
-    <addaction name="actionResetProgress" />
+    <addaction name="actionReschedule" />
     <addaction name="actionDelete" />
    </widget>
    <widget class="QMenu" name="menuJump" >
@@ -252,13 +252,13 @@
     <string>Generate &amp;Cards...</string>
    </property>
   </action>
-  <action name="actionResetProgress" >
+  <action name="actionReschedule" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
      <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
    </property>
    <property name="text" >
-    <string>Reset Progress</string>
+    <string>&amp;Reschedule...</string>
    </property>
   </action>
   <action name="actionSelectAll" >

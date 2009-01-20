@@ -413,7 +413,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionChangeTemplate, SIGNAL("triggered()"), self.onChangeTemplate)
-        self.connect(self.dialog.actionResetProgress, SIGNAL("triggered()"), self.resetProgress)
+        self.connect(self.dialog.actionReschedule, SIGNAL("triggered()"), self.reschedule)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
@@ -566,11 +566,30 @@ where id in (%s)""" % ",".join([
             self.deck.setUndoEnd(n)
         self.updateAfterCardChange()
 
-    def resetProgress(self):
-        n = _("Reset Progress")
+    def reschedule(self):
+        n = _("Reschedule")
+        d = QDialog(self)
+        frm = ankiqt.forms.reschedule.Ui_Dialog()
+        frm.setupUi(d)
+        if not d.exec_():
+            return
         self.deck.setUndoStart(n)
-        self.deck.resetCards(self.selectedCards())
-        self.deck.setUndoEnd(n)
+        try:
+            if frm.asNew.isChecked():
+                self.deck.resetCards(self.selectedCards())
+            else:
+                try:
+                    min = float(str(frm.rangeMin.text()))
+                    max = float(str(frm.rangeMax.text()))
+                except ValueError:
+                    ui.utils.showInfo(
+                        _("Please enter a valid start and end range."),
+                        parent=self)
+                    return
+                self.deck.rescheduleCards(self.selectedCards(), min, max)
+        finally:
+            self.deck.rebuildQueue()
+            self.deck.setUndoEnd(n)
         self.updateAfterCardChange(reset=True)
 
     def addCards(self):

@@ -1,0 +1,186 @@
+<ui version="4.0" >
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>227</width>
+    <height>158</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Reschedule</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2" >
+   <item>
+    <widget class="QRadioButton" name="asNew" >
+     <property name="text" >
+      <string>Reschedule as new cards</string>
+     </property>
+     <property name="checked" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="inRange" >
+     <property name="text" >
+      <string>Reschedule with initial interval in range:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" native="1" name="rangebox" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" >
+      <property name="leftMargin" >
+       <number>30</number>
+      </property>
+      <item>
+       <layout class="QGridLayout" name="gridLayout" >
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>Min</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QLineEdit" name="rangeMin" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>60</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" >
+         <widget class="QLabel" name="label_3" >
+          <property name="text" >
+           <string>days</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label_2" >
+          <property name="text" >
+           <string>Max</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QLineEdit" name="rangeMax" >
+          <property name="maximumSize" >
+           <size>
+            <width>60</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QLabel" name="label_4" >
+          <property name="text" >
+           <string>days</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3" >
+         <spacer name="horizontalSpacer" >
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>asNew</tabstop>
+  <tabstop>inRange</tabstop>
+  <tabstop>rangeMin</tabstop>
+  <tabstop>rangeMax</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>222</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>157</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>222</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>226</x>
+     <y>157</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>inRange</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>rangebox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>30</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>11</x>
+     <y>79</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
