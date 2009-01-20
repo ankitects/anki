@@ -293,7 +293,20 @@ class ModelProperties(QDialog):
         self.dialog.cardAnswer.setPlainText(card.aformat.replace("<br>", "\n"))
         self.dialog.questionInAnswer.setChecked(card.questionInAnswer)
         self.dialog.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
-        self.dialog.typeAnswer.setChecked(card.typeAnswer)
+        self.dialog.typeAnswer.clear()
+        self.fieldNames = self.deck.s.column0("""
+select fieldModels.name as n from fieldModels, cardModels
+where cardModels.modelId = fieldModels.modelId
+and cardModels.id = :id
+order by n""", id=card.id)
+        s = [_("Don't ask me to type in the answer")]
+        s += [_("Compare with field '%s'") % f for f in self.fieldNames]
+        self.dialog.typeAnswer.insertItems(0, QStringList(s))
+        try:
+            idx = self.fieldNames.index(card.typeAnswer)
+        except ValueError:
+            idx = -1
+        self.dialog.typeAnswer.setCurrentIndex(idx + 1)
         self.updateToggleButtonText(card)
 
     def enableCardMoveButtons(self):
@@ -330,7 +343,11 @@ class ModelProperties(QDialog):
         changed = changed or changed2
         self.updateField(card, 'questionInAnswer', self.dialog.questionInAnswer.isChecked())
         self.updateField(card, 'allowEmptyAnswer', self.dialog.allowEmptyAnswer.isChecked())
-        self.updateField(card, 'typeAnswer', self.dialog.typeAnswer.isChecked())
+        idx = self.dialog.typeAnswer.currentIndex()
+        if not idx:
+            self.updateField(card, 'typeAnswer', u"")
+        else:
+            self.updateField(card, 'typeAnswer', self.fieldNames[idx-1])
         if changed:
             # need to generate all question/answers for this card
             self.deck.updateCardsFromModel(self.m)

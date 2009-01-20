@@ -136,27 +136,32 @@ class View(object):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
         if self.main.currentCard.cardModel.typeAnswer:
-            cor = stripHTML(self.main.currentCard.answer)
-            given = unicode(self.main.typeAnswerField.text())
-            res = []
-            if len(given) < len(cor):
-                given += " " * (len(cor) - len(given))
-            sz = self.main.currentCard.cardModel.answerFontSize
-            ok = "background: %s; color: #000; font-size: %dpx" % (
-                passedCharColour, sz)
-            bad = "background: %s; color: #000; font-size: %dpx;" % (
-                failedCharColour, sz)
-            for (i, c) in enumerate(given):
-                try:
-                    yes = c == cor[i]
-                except IndexError:
-                    yes = False
-                if yes:
-                    res.append(
-                        "<span style='%s'>%s</span>" % (ok, c))
-                else:
-                    res.append("<span style='%s'>%s</span>" % (bad, c))
-            a = "".join(res) + "<br>" + a
+            try:
+                cor = stripHTML(self.main.currentCard.fact[
+                    self.main.currentCard.cardModel.typeAnswer])
+            except KeyError:
+                cor = ""
+            if cor:
+                given = unicode(self.main.typeAnswerField.text())
+                res = []
+                if len(given) < len(cor):
+                    given += " " * (len(cor) - len(given))
+                sz = self.main.currentCard.cardModel.answerFontSize
+                ok = "background: %s; color: #000; font-size: %dpx" % (
+                    passedCharColour, sz)
+                bad = "background: %s; color: #000; font-size: %dpx;" % (
+                    failedCharColour, sz)
+                for (i, c) in enumerate(given):
+                    try:
+                        yes = c == cor[i]
+                    except IndexError:
+                        yes = False
+                    if yes:
+                        res.append(
+                            "<span style='%s'>%s</span>" % (ok, c))
+                    else:
+                        res.append("<span style='%s'>%s</span>" % (bad, c))
+                a = "".join(res) + "<br>" + a
         self.write(self.center('<span id=answer />' +
                                self.mungeQA(self.main.deck, a)))
         if self.state != self.oldState:

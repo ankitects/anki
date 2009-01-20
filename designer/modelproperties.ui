@@ -387,13 +387,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1" >
-             <widget class="QCheckBox" name="questionInAnswer" >
-              <property name="text" >
-               <string>Hide the question when showing answer</string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="1" >
              <widget class="QTextEdit" name="cardAnswer" >
               <property name="sizePolicy" >
@@ -457,13 +450,6 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="1" >
-             <widget class="QCheckBox" name="allowEmptyAnswer" >
-              <property name="text" >
-               <string>Allow the answer to be blank</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="0" >
              <widget class="QLabel" name="label_12" >
               <property name="text" >
@@ -490,10 +476,20 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="1" >
-             <widget class="QCheckBox" name="typeAnswer" >
+            <item row="3" column="1" >
+             <widget class="QComboBox" name="typeAnswer" />
+            </item>
+            <item row="4" column="1" >
+             <widget class="QCheckBox" name="questionInAnswer" >
               <property name="text" >
-               <string>Ask me to type in the answer</string>
+               <string>Hide the question when showing answer</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1" >
+             <widget class="QCheckBox" name="allowEmptyAnswer" >
+              <property name="text" >
+               <string>Allow the answer to be blank</string>
               </property>
              </widget>
             </item>
@@ -544,9 +540,6 @@
   <tabstop>cardName</tabstop>
   <tabstop>cardQuestion</tabstop>
   <tabstop>cardAnswer</tabstop>
-  <tabstop>questionInAnswer</tabstop>
-  <tabstop>allowEmptyAnswer</tabstop>
-  <tabstop>typeAnswer</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -558,8 +551,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
+     <x>252</x>
+     <y>513</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -574,8 +567,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
+     <x>320</x>
+     <y>513</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
