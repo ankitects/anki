@@ -496,6 +496,30 @@ combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
         self.flushMod()
 
+    def rescheduleCards(self, ids, min, max):
+        "Reset cards and schedule with new interval in days (min, max)."
+        self.resetCards(ids)
+        vals = []
+        for id in ids:
+            r = random.uniform(min*86400, max*86400)
+            vals.append({
+                'id': id,
+                'due': r + time.time(),
+                'int': r / 86400.0
+                })
+        self.s.statements("""
+update cards set
+interval = :int,
+due = :due,
+combinedDue = :due,
+reps = 1,
+successive = 1,
+yesCount = 1,
+type = 1,
+isDue = 0
+where id = :id""", vals)
+        self.flushMod()
+
     # Queue/cache management
     ##########################################################################
 
