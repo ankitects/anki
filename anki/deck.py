@@ -1746,7 +1746,7 @@ select id from fields where factId not in (select id from facts)""")
         # these sometimes end up null on upgrade
         self.s.statement("update models set source = 0 where source is null")
         self.s.statement(
-            "update cardModels set allowEmptyAnswer = 1, typeAnswer = 0 "
+            "update cardModels set allowEmptyAnswer = 1, typeAnswer = '' "
             "where allowEmptyAnswer is null or typeAnswer is null")
         # fix any priorities
         self.updateProgress(_("Updating priorities..."))
@@ -1997,7 +1997,7 @@ class DeckStorage(object):
                         "decks add column newCount integer not null default 0",
                         "decks add column revCardOrder integer not null default 0",
                         "cardModels add column allowEmptyAnswer boolean not null default 1",
-                        "cardModels add column typeAnswer boolean not null default 0"):
+                        "cardModels add column typeAnswer text not null default ''"):
                         try:
                             s.execute("alter table " + st)
                         except:
