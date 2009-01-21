@@ -179,7 +179,7 @@ class Deck(object):
         id = self.s.scalar("""
 select id from cards
 where type = 1 and isDue = 0 and priority in (1,2,3,4)
-order by priority desc, combinedDue
+order by combinedDue
 limit 1""")
         return id
 
