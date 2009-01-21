@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-20 23:33+0900\n"
+"POT-Creation-Date: 2009-01-21 21:34+0900\n"
 "PO-Revision-Date: 2009-01-18 15:22+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: deck.py:669
+#: deck.py:693
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -41,7 +41,7 @@ msgstr[1] ""
 "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
 "jäädytettyä</a> korttia."
 
-#: deck.py:658
+#: deck.py:682
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -84,7 +84,7 @@ msgstr "%0.1f sekuntia"
 msgid "%s ago"
 msgstr "%s sitten"
 
-#: deck.py:1192
+#: deck.py:1216
 #, python-format
 msgid "%s copy"
 msgstr "%s (kopio)"
@@ -163,7 +163,7 @@ msgstr "<b>Korttiluvut</b><br>"
 msgid "<b>Correct answers</b><br>"
 msgstr "<b>Oikeat vastaukset</b><br>"
 
-#: deck.py:678
+#: deck.py:702
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -233,7 +233,7 @@ msgstr "Anki-pakat (*.anki)"
 msgid "Answer Card"
 msgstr "korttiin vastaaminen"
 
-#: deck.py:611
+#: deck.py:635
 #, fuzzy, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
@@ -284,11 +284,11 @@ msgstr "Muutettu"
 msgid "Check Media DB"
 msgstr "Tarkista mediatietokanta"
 
-#: deck.py:1653
+#: deck.py:1677
 msgid "Checking integrity..."
 msgstr "Tarkistetaan eheyttä..."
 
-#: deck.py:1663
+#: deck.py:1687
 msgid "Checking schema..."
 msgstr "Tarkistetaan skeemaa..."
 
@@ -296,7 +296,7 @@ msgstr "Tarkistetaan skeemaa..."
 msgid "Checksum files..."
 msgstr "Lasketaan tiedostojen tarkistuslukemia..."
 
-#: deck.py:1656
+#: deck.py:1680
 msgid "Database file damaged. Restore from backup."
 msgstr "Tietokantatiedosto on vahingoittunut. Palauta toimiva versio Ankin automaattisesti tekemistä varmuuskopioista."
 
@@ -309,7 +309,7 @@ msgstr "Pakan tilastot"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Luotu: <b>%s</b> sitten<br>"
 
-#: deck.py:1666
+#: deck.py:1690
 msgid "Deck was missing a model"
 msgstr "Pakassa ei ollut mallia"
 
@@ -321,27 +321,27 @@ msgstr "Poistetaan kuolleita viittauksia..."
 msgid "Delete unused files..."
 msgstr "Poistetaan käyttämättömiä tiedostoja..."
 
-#: deck.py:1694
+#: deck.py:1718
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Poistettiin %d faktatonta korttia"
 
-#: deck.py:1702
+#: deck.py:1726
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr "Poistettiin %d korttia, joilla ei ollut kelvollista korttimallinetta"
 
-#: deck.py:1715
+#: deck.py:1739
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Poistettiin %d eksynyttä kenttää"
 
-#: deck.py:1687
+#: deck.py:1711
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Poistettiin %d faktaa, joista puuttui kenttiä"
 
-#: deck.py:1707
+#: deck.py:1731
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Poistettiin %d kortitonta faktaa"
@@ -373,7 +373,7 @@ msgstr "Viedään..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Sarkaimella erotetut faktatiedostot (*.txt)"
 
-#: deck.py:2011
+#: deck.py:2035
 msgid "File is in use by another process"
 msgstr "Tiedosto on toisen prosessin käytössä"
 
@@ -444,12 +444,12 @@ msgstr "Vanhoja kortteja: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "Media Missing"
 msgstr "Media puuttuu"
 
-#: deck.py:1115
+#: deck.py:1139
 #, python-format
 msgid "Model '%s' has wrong card template count"
 msgstr "Mallissa %s on väärä korttimallinelukema"
 
-#: deck.py:1119
+#: deck.py:1143
 #, python-format
 msgid "Model '%s' has wrong field count"
 msgstr "Mallissa %s on väärä kenttälukema"
@@ -466,7 +466,7 @@ msgstr "Muutetaan kenttiä..."
 msgid "New"
 msgstr "Nuori"
 
-#: deck.py:627
+#: deck.py:651
 msgid "No cards are due."
 msgstr "Ei erääntyneitä kortteja."
 
@@ -474,23 +474,23 @@ msgstr "Ei erääntyneitä kortteja."
 msgid "Please add some cards first.<p/>"
 msgstr "Lisää ensin kortteja.</p>"
 
-#: deck.py:1886
+#: deck.py:1910
 msgid "Processing..."
 msgstr "Käsitellään..."
 
-#: deck.py:1731
+#: deck.py:1755
 msgid "Rebuilding QA cache..."
 msgstr "Alustetaan QA-välimuistia..."
 
-#: deck.py:1751
+#: deck.py:1775
 msgid "Rebuilding counts..."
 msgstr "Alustetaan lukumääriä..."
 
-#: deck.py:1757
+#: deck.py:1781
 msgid "Rebuilding queue..."
 msgstr "Alustetaan jonoa..."
 
-#: deck.py:1749
+#: deck.py:1773
 msgid "Rebuilding types..."
 msgstr "Alustetaan tyyppejä..."
 
@@ -510,19 +510,19 @@ msgstr "Kertauksia ensikuussa"
 msgid "Reps next week"
 msgstr "Kertauksia ensiviikolla"
 
-#: deck.py:2421
+#: deck.py:2450
 msgid "Review cards in order due"
 msgstr "Kertaa kortit erääntymisjärjestyksessä"
 
-#: deck.py:2422
+#: deck.py:2451
 msgid "Review cards in random order"
 msgstr "Kertaa kortit satunnaisessa järjestyksessä"
 
-#: deck.py:2420
+#: deck.py:2449
 msgid "Review newest cards first"
 msgstr "Kertaa uusimmat kortit ensin"
 
-#: deck.py:2419
+#: deck.py:2448
 msgid "Review oldest cards first"
 msgstr "Kertaa vanhimmat kortit ensin"
 
@@ -538,27 +538,27 @@ msgstr "Oikea"
 msgid "Scan fields..."
 msgstr "Tutkitaan kenttiä..."
 
-#: deck.py:2413
+#: deck.py:2442
 msgid "Show new cards after all other cards"
 msgstr "Näytä uudet kortit muiden korttien jälkeen"
 
-#: deck.py:2414
+#: deck.py:2443
 msgid "Show new cards before reviews"
 msgstr "Näytä uudet kortit ennen kertauksia"
 
-#: deck.py:2407
+#: deck.py:2436
 msgid "Show new cards in order they were added"
 msgstr "Näytä uudet kortit lisäysjärjestyksessä"
 
-#: deck.py:2406
+#: deck.py:2435
 msgid "Show new cards in random order"
 msgstr "Näytä uudet kortit satunnaisessa järjestyksessä"
 
-#: deck.py:622
+#: deck.py:646
 msgid "Spaced cards will be shown soon."
 msgstr "Välitettyjä kortteja (korttipareja toiseen suuntaan) näytetään pian."
 
-#: deck.py:2412
+#: deck.py:2441
 msgid "Spread new cards out through reviews"
 msgstr "Levitä uudet kortit läpi koko kertausten"
 
@@ -566,23 +566,23 @@ msgstr "Levitä uudet kortit läpi koko kertausten"
 msgid "Text files (*.txt)"
 msgstr "Tekstitiedostot (*.txt)"
 
-#: deck.py:1672
+#: deck.py:1696
 msgid "The current model didn't exist"
 msgstr "Nykyistä mallia ei ollut olemassa."
 
-#: deck.py:624
+#: deck.py:648
 #, python-format
 msgid "The next card will be shown in <b>%s</b>."
 msgstr "Aikaa seuraavan kortin näyttämiseen on vielä <b>%s</b>."
 
-#: deck.py:615
+#: deck.py:639
 #, python-format
 msgid "There will be <b>%d</b> new card waiting for review."
 msgid_plural "There will be <b>%d</b> new cards waiting for review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:618
+#: deck.py:642
 #, python-format
 msgid "There will be <b>%s</b> card waiting."
 msgid_plural "There will be <b>%s</b> cards waiting."
@@ -598,7 +598,7 @@ msgstr "Aikaa yhteensä"
 msgid "Total number of cards: <b>%d</b><br><br>"
 msgstr "Kortteja yhteensä: <b>%d</b><br><br>"
 
-#: deck.py:842
+#: deck.py:866
 msgid "Unknown"
 msgstr "– –"
 
@@ -611,7 +611,7 @@ msgstr "Näkemättömiä kortteja: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>
 msgid "Update tags..."
 msgstr "Päivitetään tägejä..."
 
-#: deck.py:1728
+#: deck.py:1752
 msgid "Updating priorities..."
 msgstr "Päivitetään prioriteetteja..."
 
@@ -639,6 +639,6 @@ msgstr "[kysymys- tai vastausmuoto on virheellinen]"
 msgid "in %s"
 msgstr "%s myöhemmin"
 
-#: deck.py:644
+#: deck.py:668
 msgid "unknown"
 msgstr "tuntematon"

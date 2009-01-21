@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-20 23:33+0900\n"
+"POT-Creation-Date: 2009-01-21 21:34+0900\n"
 "PO-Revision-Date: 2008-01-01 19:00+0100\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: deck.py:669
+#: deck.py:693
 #, python-format
 msgid ""
 "\n"
@@ -32,7 +32,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:658
+#: deck.py:682
 #, python-format
 msgid ""
 "\n"
@@ -67,7 +67,7 @@ msgstr "%0.1f sekund"
 msgid "%s ago"
 msgstr "%s dní"
 
-#: deck.py:1192
+#: deck.py:1216
 #, fuzzy, python-format
 msgid "%s copy"
 msgstr "%s sekunda"
@@ -146,7 +146,7 @@ msgstr ""
 msgid "<b>Correct answers</b><br>"
 msgstr ""
 
-#: deck.py:678
+#: deck.py:702
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -203,7 +203,7 @@ msgstr "Balíky anki"
 msgid "Answer Card"
 msgstr ""
 
-#: deck.py:611
+#: deck.py:635
 #, python-format
 msgid ""
 "At the same time tomorrow:<br><br>\n"
@@ -255,11 +255,11 @@ msgstr "Změněno"
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:1653
+#: deck.py:1677
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:1663
+#: deck.py:1687
 msgid "Checking schema..."
 msgstr ""
 
@@ -267,7 +267,7 @@ msgstr ""
 msgid "Checksum files..."
 msgstr ""
 
-#: deck.py:1656
+#: deck.py:1680
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -280,7 +280,7 @@ msgstr "Statistika balíku"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Balík vytvořen před: <b>%s</b><br>"
 
-#: deck.py:1666
+#: deck.py:1690
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -292,27 +292,27 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:1694
+#: deck.py:1718
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1702
+#: deck.py:1726
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr ""
 
-#: deck.py:1715
+#: deck.py:1739
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1687
+#: deck.py:1711
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1707
+#: deck.py:1731
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -341,7 +341,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "výrazy oddělené tabulátory (*.txt)"
 
-#: deck.py:2011
+#: deck.py:2035
 msgid "File is in use by another process"
 msgstr ""
 
@@ -417,12 +417,12 @@ msgstr "<br>Karty starší než týden: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br
 msgid "Media Missing"
 msgstr ""
 
-#: deck.py:1115
+#: deck.py:1139
 #, python-format
 msgid "Model '%s' has wrong card template count"
 msgstr ""
 
-#: deck.py:1119
+#: deck.py:1143
 #, python-format
 msgid "Model '%s' has wrong field count"
 msgstr ""
@@ -440,7 +440,7 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: deck.py:627
+#: deck.py:651
 msgid "No cards are due."
 msgstr ""
 
@@ -448,23 +448,23 @@ msgstr ""
 msgid "Please add some cards first.<p/>"
 msgstr "Nejprve vložte nějaké kartičky"
 
-#: deck.py:1886
+#: deck.py:1910
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:1731
+#: deck.py:1755
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:1751
+#: deck.py:1775
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:1757
+#: deck.py:1781
 msgid "Rebuilding queue..."
 msgstr ""
 
-#: deck.py:1749
+#: deck.py:1773
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -486,19 +486,19 @@ msgstr "%s měsíc"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:2421
+#: deck.py:2450
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:2422
+#: deck.py:2451
 msgid "Review cards in random order"
 msgstr ""
 
-#: deck.py:2420
+#: deck.py:2449
 msgid "Review newest cards first"
 msgstr ""
 
-#: deck.py:2419
+#: deck.py:2448
 msgid "Review oldest cards first"
 msgstr ""
 
@@ -515,27 +515,27 @@ msgstr "Správně"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:2413
+#: deck.py:2442
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:2414
+#: deck.py:2443
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:2407
+#: deck.py:2436
 msgid "Show new cards in order they were added"
 msgstr ""
 
-#: deck.py:2406
+#: deck.py:2435
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:622
+#: deck.py:646
 msgid "Spaced cards will be shown soon."
 msgstr ""
 
-#: deck.py:2412
+#: deck.py:2441
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -543,23 +543,23 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr "Textové soubory (*.txt)"
 
-#: deck.py:1672
+#: deck.py:1696
 msgid "The current model didn't exist"
 msgstr ""
 
-#: deck.py:624
+#: deck.py:648
 #, python-format
 msgid "The next card will be shown in <b>%s</b>."
 msgstr ""
 
-#: deck.py:615
+#: deck.py:639
 #, python-format
 msgid "There will be <b>%d</b> new card waiting for review."
 msgid_plural "There will be <b>%d</b> new cards waiting for review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:618
+#: deck.py:642
 #, python-format
 msgid "There will be <b>%s</b> card waiting."
 msgid_plural "There will be <b>%s</b> cards waiting."
@@ -576,7 +576,7 @@ msgstr "Celkový čas"
 msgid "Total number of cards: <b>%d</b><br><br>"
 msgstr "Celkový pošet kartiček: <b>%d</b><br>"
 
-#: deck.py:842
+#: deck.py:866
 msgid "Unknown"
 msgstr "Neznámý"
 
@@ -590,7 +590,7 @@ msgstr "Zatím nezobrazené kartičky: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br>
 msgid "Update tags..."
 msgstr "Štítky výrazů"
 
-#: deck.py:1728
+#: deck.py:1752
 msgid "Updating priorities..."
 msgstr ""
 
@@ -617,7 +617,7 @@ msgstr ""
 msgid "in %s"
 msgstr "za %s"
 
-#: deck.py:644
+#: deck.py:668
 msgid "unknown"
 msgstr "neznámý"
 
