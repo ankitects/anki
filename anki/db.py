@@ -34,6 +34,11 @@ from sqlalchemy.sql import select, text, and_
 from sqlalchemy.exceptions import DBAPIError, OperationalError
 import sqlalchemy
 
+# some users are still on 0.4.x..
+import warnings
+warnings.filterwarnings('ignore', 'Use session.add()')
+warnings.filterwarnings('ignore', 'Use session.expunge_all()')
+
 # sqlalchemy didn't handle the move to unicodetext nicely
 try:
     from sqlalchemy import UnicodeText
