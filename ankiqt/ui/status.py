@@ -264,6 +264,8 @@ You should aim to answer each question within<br>
         self.timerFlashStart = time.time()
 
     def updateCount(self):
+        if not self.main.deck:
+            return
         if self.state in ("showQuestion", "showAnswer"):
             self.main.deck.checkDue()
             self.redraw()
