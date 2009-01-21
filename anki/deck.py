@@ -50,7 +50,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=21),
+    Column('version', Integer, nullable=False, default=22),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -2372,6 +2372,11 @@ where interval < 1""")
             deck.s.statement("vacuum")
             deck.s.statement("analyze")
             deck.version = 21
+            deck.s.commit()
+        if deck.version < 22:
+            deck.s.statement(
+                'update cardModels set typeAnswer = ""')
+            deck.version = 22
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
