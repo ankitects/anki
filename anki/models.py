@@ -105,7 +105,7 @@ cardModelsTable = Table(
     Column('editAnswerFontSize', Integer, default=None),
     # empty answer
     Column('allowEmptyAnswer', Boolean, nullable=False, default=True),
-    Column('typeAnswer', UnicodeText, nullable=False, default=""))
+    Column('typeAnswer', UnicodeText, nullable=False, default=u""))
 
 class CardModel(object):
     """Represents how to generate the front and back of a card."""
