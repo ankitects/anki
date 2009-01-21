@@ -232,6 +232,8 @@ class EditDeck(QMainWindow):
         restoreSplitter(self.dialog.splitter, "editor")
         self.show()
         self.updateSearch()
+        self.currentCard = self.parent.currentCard
+        self.focusCurrentCard()
 
     def findCardInDeckModel(self, model, card):
         for i, thisCard in enumerate(model.cards):
@@ -373,6 +375,7 @@ class EditDeck(QMainWindow):
         self.updateSearch()
 
     def updateSearch(self):
+        idx = self.dialog.tableView.currentIndex()
         self.model.searchStr = unicode(self.dialog.filterEdit.text())
         self.model.tag = self.currentTag
         self.model.showMatching()
@@ -388,19 +391,20 @@ class EditDeck(QMainWindow):
         else:
             self.dialog.cardInfoGroup.hide()
             self.dialog.fieldsArea.hide()
-        self.focusCurrentCard()
+        self.dialog.tableView.selectRow(idx.row())
+        self.dialog.tableView.scrollTo(idx, QAbstractItemView.PositionAtCenter)
 
     def focusCurrentCard(self):
-        if self.parent.currentCard:
+        if self.currentCard:
             currentCardIndex = self.findCardInDeckModel(
-                                 self.model, self.parent.currentCard)
+                                 self.model, self.currentCard)
             if currentCardIndex >= 0:
                 sm = self.dialog.tableView.selectionModel()
                 sm.clear()
                 self.dialog.tableView.selectRow(currentCardIndex)
                 self.dialog.tableView.scrollTo(
                               self.model.index(currentCardIndex,0),
-                              self.dialog.tableView.PositionAtTop)
+                              self.dialog.tableView.PositionAtCenter)
 
     def setupHeaders(self):
         if not sys.platform.startswith("win32"):
