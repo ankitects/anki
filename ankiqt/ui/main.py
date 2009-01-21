@@ -1047,16 +1047,16 @@ day = :d""", d=yesterday)
             tyest, short=True, point=1))
         stats1 = _("""\
 <table>
-<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSes)s</b></td>
-<td>%(repsInSesChg)s</td></tr>
-<tr><td>Cards/day:</td><td><b>%(repsToday)s</b></td>
-<td>%(repsTodayChg)s</td></tr>
-<tr><td>Time/day:</td><td><b>%(timeToday)s</b></td>
-<td>%(timeTodayChg)s</td></tr>
+<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSesChg)s</b></td>
+<td><b>%(repsInSes)s</b></td></tr>
+<tr><td>Cards/day:</td><td><b>%(repsTodayChg)s</b></td>
+<td><b>%(repsToday)s</b></td></tr>
+<tr><td>Time/day:</td><td><b>%(timeTodayChg)s</b></td>
+<td><b>%(timeToday)s</b></td></tr>
 </table>""") % h
         stats2 = _("""\
 <table>
-<tr><td width=120>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td width=100>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>
 <tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>New total:</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
@@ -1092,7 +1092,10 @@ day = :d""", d=yesterday)
 
     def setupStudyOptions(self):
         self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
-        self.mainWin.minuteLimit.setText(str(self.deck.sessionTimeLimit/60))
+        lim = self.deck.sessionTimeLimit/60
+        if int(lim) == lim:
+            lim = int(lim)
+        self.mainWin.minuteLimit.setText(str(lim))
         self.mainWin.questionLimit.setText(str(self.deck.sessionRepLimit))
         self.mainWin.newCardOrder.setCurrentIndex(self.deck.newCardOrder)
         self.mainWin.newCardScheduling.setCurrentIndex(self.deck.newCardSpacing)
