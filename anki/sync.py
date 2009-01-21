@@ -379,6 +379,8 @@ class SyncTools(object):
         ids = []
         for cm in cms:
             local = self.getCardModel(model, cm)
+            if not 'allowEmptyAnswer' in cm or cm['allowEmptyAnswer'] is None:
+                cm['allowEmptyAnswer'] = True
             self.applyDict(local, cm)
             ids.append(cm['id'])
         for cm in model.cardModels:
