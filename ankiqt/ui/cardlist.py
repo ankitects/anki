@@ -150,11 +150,15 @@ class DeckModel(QAbstractTableModel):
         self.reset()
 
     def updateCard(self, index):
-        self.cards[index.row()] = self.deck.s.first("""
-select id, priority, question, answer, due, reps, factId
-from cards where id = :id""", id=self.cards[index.row()][0])
-        self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
-                  index, self.index(index.row(), 1))
+        try:
+            self.cards[index.row()] = self.deck.s.first("""
+    select id, priority, question, answer, due, reps, factId
+    from cards where id = :id""", id=self.cards[index.row()][0])
+            self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
+                      index, self.index(index.row(), 1))
+        except IndexError:
+            # called after search changed
+            pass
 
     # Tools
     ######################################################################
