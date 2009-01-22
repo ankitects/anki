@@ -784,7 +784,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         # ensure all changes come to us
         self.deck.modified = 0
         self.deck.s.commit()
-        self.deck.syncName = "something"
+        self.deck.syncName = u"something"
         self.deck.lastLoaded = self.deck.modified
         if self.config['syncUsername'] and self.config['syncPassword']:
             if self.syncDeck(onlyMerge=True, reload=2):
