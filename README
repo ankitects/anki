@@ -1,7 +1,7 @@
 Anki
 -------------------------------------
 
-Prerequisites:
+Prerequisites for Linux/FreeBSD/etc:
 
 - a recent python (2.4 should be fine)
 - python-qt/pyqt 4.4+
@@ -16,7 +16,7 @@ For graph generation:
 
 For audio playing support:
 
-- mplayer on Windows/Linux (Mac uses native libraries)
+- mplayer
 
 For audio recording support:
 
