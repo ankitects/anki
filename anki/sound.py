@@ -179,8 +179,15 @@ class PyAudioThreadedRecorder(threading.Thread):
                         frames_per_buffer=chunk)
         all = []
         while not self.finish:
-            data = stream.read(chunk)
-            all.append(data)
+            try:
+                data = stream.read(chunk)
+            except IOError, e:
+                if e[1] == pyaudio.paInputOverflowed:
+                    data = None
+                else:
+                    raise
+            if data:
+                all.append(data)
         stream.close()
         p.terminate()
         data = ''.join(all)
