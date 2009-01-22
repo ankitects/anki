@@ -109,7 +109,7 @@ from stats
 where type = 1""")
 
             dayTimes = self.deck.s.all("""
-select day, reviewTime / 60.0 as reviewTime
+select day, reviewTime as reviewTime
 from stats
 where type = 1""")
 

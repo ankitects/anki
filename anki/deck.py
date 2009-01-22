@@ -642,9 +642,7 @@ At the same time tomorrow:<br><br>
                 'wait': ngettext("There will be <b>%s</b> card waiting.",
                           "There will be <b>%s</b> cards waiting.", cards) % cards,
                 }
-            if self.spacedCardCount():
-                msg = _("Spaced cards will be shown soon.")
-            elif next - time.time() > 86400 and not newCardsTomorrow:
+            if next - time.time() > 86400 and not newCardsTomorrow:
                 msg = (_("The next card will be shown in <b>%s</b>.") %
                        self.earliestTimeStr())
         else:
