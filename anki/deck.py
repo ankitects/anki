@@ -2443,8 +2443,8 @@ def newCardSchedulingLabels():
 
 def revCardOrderLabels():
     return {
-        0: _("Review oldest cards first"),
-        1: _("Review newest cards first"),
+        0: _("Review oldest interval first"),
+        1: _("Review newest interval first"),
         2: _("Review cards in order due"),
         3: _("Review cards in random order"),
         }
