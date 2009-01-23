@@ -1389,7 +1389,7 @@
      <normaloff>:/icons/multisynk.png</normaloff>:/icons/multisynk.png</iconset>
    </property>
    <property name="text" >
-    <string>Save and S&amp;ync</string>
+    <string>S&amp;ync</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+Y</string>
