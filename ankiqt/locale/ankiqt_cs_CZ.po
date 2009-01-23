@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:23+0900\n"
+"POT-Creation-Date: 2009-01-23 18:10+0900\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,7 +167,7 @@ msgstr ""
 msgid "&About..."
 msgstr "&O programu..."
 
-#: forms/cardlist.py:208
+#: forms/cardlist.py:223
 msgid "&Actions"
 msgstr ""
 
@@ -185,7 +185,7 @@ msgstr "Přidat štítek vlastnosti..."
 msgid "&Add Source"
 msgstr ""
 
-#: forms/cardlist.py:212
+#: forms/cardlist.py:229
 #, fuzzy
 msgid "&Add Tag..."
 msgstr "Přidejte štítek..."
@@ -229,7 +229,7 @@ msgstr "&Smazat"
 msgid "&Delete Source"
 msgstr "&Smazat kartičku"
 
-#: forms/cardlist.py:213
+#: forms/cardlist.py:230
 #, fuzzy
 msgid "&Delete Tag..."
 msgstr "Smazat štítek u kartičky..."
@@ -243,7 +243,7 @@ msgstr ""
 msgid "&Donate..."
 msgstr "&O programu..."
 
-#: forms/cardlist.py:207 forms/deckproperties.py:335 forms/main.py:860
+#: forms/cardlist.py:222 forms/deckproperties.py:335 forms/main.py:860
 msgid "&Edit"
 msgstr "&Upravit"
 
@@ -261,7 +261,7 @@ msgstr ""
 msgid "&File"
 msgstr "Poslední"
 
-#: forms/cardlist.py:221
+#: forms/cardlist.py:238
 #, fuzzy
 msgid "&Find"
 msgstr "Poslední"
@@ -285,7 +285,7 @@ msgstr "&Upravit balík..."
 msgid "&Get Plugins..."
 msgstr ""
 
-#: forms/cardlist.py:209
+#: forms/cardlist.py:225
 msgid "&Go"
 msgstr ""
 
@@ -294,7 +294,12 @@ msgstr ""
 msgid "&Graphs..."
 msgstr "&Grafy"
 
-#: forms/main.py:859
+#: forms/cardlist.py:252
+#, fuzzy
+msgid "&Guide..."
+msgstr "&Nový"
+
+#: forms/cardlist.py:226 forms/main.py:859
 msgid "&Help"
 msgstr "&Nápověda"
 
@@ -308,7 +313,7 @@ msgstr "Import"
 msgid "&Import..."
 msgstr "&Import..."
 
-#: forms/cardlist.py:220
+#: forms/cardlist.py:237
 #, fuzzy
 msgid "&Invert Selection"
 msgstr "Prázdný výběr"
@@ -318,7 +323,7 @@ msgstr "Prázdný výběr"
 msgid "&Kanji Statistics"
 msgstr "&Statistika kanji"
 
-#: forms/cardlist.py:231
+#: forms/cardlist.py:248
 #, fuzzy
 msgid "&Last Card"
 msgstr "Poslední kartička"
@@ -341,7 +346,7 @@ msgstr "&Označit kartičku"
 msgid "&New..."
 msgstr "&Nový"
 
-#: forms/cardlist.py:225
+#: forms/cardlist.py:242
 #, fuzzy
 msgid "&Next Card"
 msgstr "&Smazat"
@@ -361,7 +366,7 @@ msgstr "&Otevřít..."
 msgid "&Preferences"
 msgstr "Nastavení"
 
-#: forms/cardlist.py:227
+#: forms/cardlist.py:244
 #, fuzzy
 msgid "&Previous Card"
 msgstr "Náhled"
@@ -371,7 +376,7 @@ msgstr "Náhled"
 msgid "&Record Noise Profile..."
 msgstr "Zvolte soubor..."
 
-#: forms/cardlist.py:219 forms/main.py:943
+#: forms/cardlist.py:236 forms/main.py:943
 msgid "&Redo"
 msgstr ""
 
@@ -380,7 +385,7 @@ msgstr ""
 msgid "&Report Bug..."
 msgstr "&Ohlásit chybu programu..."
 
-#: forms/cardlist.py:215
+#: forms/cardlist.py:232
 msgid "&Reschedule..."
 msgstr ""
 
@@ -411,7 +416,7 @@ msgstr "&Zmrazit položku"
 msgid "&Tools"
 msgstr "&Nástroje"
 
-#: forms/cardlist.py:218 forms/main.py:923
+#: forms/cardlist.py:235 forms/main.py:923
 msgid "&Undo"
 msgstr ""
 
@@ -881,7 +886,7 @@ msgstr "Přidat štítek vlastnosti..."
 msgid "Add Model"
 msgstr "<h1>Modely kartičky</h1>"
 
-#: ui/cardlist.py:567
+#: ui/cardlist.py:571
 #, fuzzy
 msgid "Add Tags"
 msgstr "Přidejte štítek..."
@@ -923,7 +928,7 @@ msgstr "&Přidat"
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "Přidáno %(num)d kartiček do '%(str)s'."
 
-#: forms/deckproperties.py:375 forms/preferences.py:230
+#: forms/cardlist.py:224 forms/deckproperties.py:375 forms/preferences.py:230
 #, fuzzy
 msgid "Advanced"
 msgstr "&Přidat"
@@ -1046,8 +1051,8 @@ msgstr "&O programu..."
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:635
-msgid "Can only change templates in a single model."
+#: ui/cardlist.py:639
+msgid "Can only change model for a single template."
 msgstr ""
 
 #: ui/lookup.py:23
@@ -1091,12 +1096,17 @@ msgstr ""
 msgid "Change"
 msgstr "Změna"
 
-#: forms/cardlist.py:233
+#: forms/cardlist.py:253
+#, fuzzy
+msgid "Change &Model..."
+msgstr "<h1>Obtížnost kartičky</h1>"
+
+#: forms/cardlist.py:250
 #, fuzzy
 msgid "Change &Template..."
 msgstr "<h1>Obtížnost kartičky</h1>"
 
-#: ui/cardlist.py:642 ui/cardlist.py:780
+#: ui/cardlist.py:646 ui/cardlist.py:803
 #, fuzzy
 msgid "Change Template"
 msgstr "<h1>Obtížnost kartičky</h1>"
@@ -1222,7 +1232,7 @@ msgstr ""
 msgid "Ctrl+E"
 msgstr ""
 
-#: forms/cardlist.py:232
+#: forms/cardlist.py:249
 msgid "Ctrl+End"
 msgstr ""
 
@@ -1230,11 +1240,11 @@ msgstr ""
 msgid "Ctrl+Enter"
 msgstr ""
 
-#: forms/cardlist.py:222 forms/main.py:884
+#: forms/cardlist.py:239 forms/main.py:884
 msgid "Ctrl+F"
 msgstr ""
 
-#: forms/cardlist.py:230
+#: forms/cardlist.py:247
 msgid "Ctrl+Home"
 msgstr ""
 
@@ -1242,7 +1252,7 @@ msgstr ""
 msgid "Ctrl+M"
 msgstr ""
 
-#: forms/cardlist.py:226 forms/main.py:872
+#: forms/cardlist.py:243 forms/main.py:872
 msgid "Ctrl+N"
 msgstr ""
 
@@ -1250,7 +1260,7 @@ msgstr ""
 msgid "Ctrl+O"
 msgstr ""
 
-#: forms/cardlist.py:228 forms/main.py:887
+#: forms/cardlist.py:245 forms/main.py:887
 msgid "Ctrl+P"
 msgstr ""
 
@@ -1266,7 +1276,7 @@ msgstr ""
 msgid "Ctrl+S"
 msgstr ""
 
-#: forms/cardlist.py:224
+#: forms/cardlist.py:241
 msgid "Ctrl+Shift+F"
 msgstr ""
 
@@ -1319,7 +1329,7 @@ msgstr ""
 msgid "Current &Model..."
 msgstr "Synchronizuji modeli..."
 
-#: forms/cardlist.py:206
+#: forms/cardlist.py:221
 #, fuzzy
 msgid "Current Card"
 msgstr "<h1>Tato kartička</h1>"
@@ -1362,17 +1372,17 @@ msgstr "Soubory balíku (*.anki)"
 msgid "Deck is already open."
 msgstr ""
 
-#: forms/cardlist.py:211
+#: forms/cardlist.py:228
 #, fuzzy
 msgid "Del"
 msgstr "&Smazat"
 
-#: ui/main.py:1273 forms/cardlist.py:210
+#: ui/main.py:1273 forms/cardlist.py:227
 #, fuzzy
 msgid "Delete"
 msgstr "&Smazat"
 
-#: ui/cardlist.py:557
+#: ui/cardlist.py:561
 #, fuzzy
 msgid "Delete Cards"
 msgstr "&Smazat"
@@ -1382,7 +1392,7 @@ msgstr "&Smazat"
 msgid "Delete Refs"
 msgstr "Smazat štítek u kartičky..."
 
-#: ui/cardlist.py:576
+#: ui/cardlist.py:580
 #, fuzzy
 msgid "Delete Tags"
 msgstr "Smazat štítek u kartičky..."
@@ -1446,7 +1456,7 @@ msgstr "&Upravit"
 msgid "Edit &Current..."
 msgstr "<h1>Tato kartička</h1>"
 
-#: forms/cardlist.py:205
+#: forms/cardlist.py:220
 #, fuzzy
 msgid "Edit Items"
 msgstr "Anki - upravit balík"
@@ -1468,12 +1478,12 @@ msgstr "&Aktivovat"
 msgid "English"
 msgstr "Anglicky"
 
-#: ui/cardlist.py:565
+#: ui/cardlist.py:569
 #, fuzzy
 msgid "Enter tags to add:"
 msgstr "Vložte štítek pro všechny kartičky:"
 
-#: ui/cardlist.py:574
+#: ui/cardlist.py:578
 #, fuzzy
 msgid "Enter tags to delete:"
 msgstr "Vložte štítek k odstranění ze všech kartiček"
@@ -1494,12 +1504,12 @@ msgstr "Export"
 msgid "Export to..."
 msgstr "Exportuji do..."
 
-#: forms/cardlist.py:223
+#: forms/cardlist.py:240
 #, fuzzy
 msgid "F&act"
 msgstr "výrazy"
 
-#: forms/cardlist.py:229
+#: forms/cardlist.py:246
 #, fuzzy
 msgid "F&irst Card"
 msgstr "<h1>Poprvé opovězeno</h1>"
@@ -1595,12 +1605,12 @@ msgstr "Francouzština"
 msgid "General && Fields"
 msgstr "&Pole"
 
-#: forms/cardlist.py:214
+#: forms/cardlist.py:231
 #, fuzzy
 msgid "Generate &Cards..."
 msgstr "&Smazat"
 
-#: ui/cardlist.py:617 forms/addcardmodels.py:34
+#: ui/cardlist.py:621 forms/addcardmodels.py:34
 #, fuzzy
 msgid "Generate Cards"
 msgstr "&Smazat"
@@ -1931,7 +1941,7 @@ msgstr "Prosím dvakrát zkontrolujte heslo"
 msgid "Please enable a different model first."
 msgstr "Prosím zodpovězte ještě několik kartiček."
 
-#: ui/cardlist.py:599
+#: ui/cardlist.py:603
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2069,7 +2079,7 @@ msgstr "Zopakovat audio &otázky"
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:583 forms/reschedule.py:79
+#: ui/cardlist.py:587 forms/reschedule.py:79
 #, fuzzy
 msgid "Reschedule"
 msgstr "Plánování"
@@ -2083,7 +2093,7 @@ msgstr "Prosím zodpovězte ještě několik kartiček."
 msgid "Reschedule with initial interval in range:"
 msgstr ""
 
-#: forms/cardlist.py:234
+#: forms/cardlist.py:251
 #, fuzzy
 msgid "Reverse &Order"
 msgstr "Opačný směr"
@@ -2135,11 +2145,11 @@ msgstr "Uložit balík"
 msgid "Save when closing"
 msgstr "Uložit při zavírání"
 
-#: forms/cardlist.py:216
+#: forms/cardlist.py:233
 msgid "Select &All"
 msgstr ""
 
-#: forms/cardlist.py:217
+#: forms/cardlist.py:234
 #, fuzzy
 msgid "Select &Facts"
 msgstr "Smazat výraz"
@@ -2205,7 +2215,7 @@ msgstr "Zobrazit tlačítkovou lištu při spuštění"
 msgid "Show/Hide"
 msgstr "Zobrazit odpověď"
 
-#: ui/addcards.py:105 ui/cardlist.py:448
+#: ui/addcards.py:105 ui/cardlist.py:452
 msgid "Some fields are missing or not unique."
 msgstr ""
 

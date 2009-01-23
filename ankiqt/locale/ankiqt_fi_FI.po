@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:23+0900\n"
+"POT-Creation-Date: 2009-01-23 18:10+0900\n"
 "PO-Revision-Date: 2009-01-18 19:30+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -235,7 +235,7 @@ msgstr ""
 msgid "&About..."
 msgstr "&Tietoja..."
 
-#: forms/cardlist.py:208
+#: forms/cardlist.py:223
 msgid "&Actions"
 msgstr "&Toiminnot"
 
@@ -252,7 +252,7 @@ msgstr "&Lisää kortteja..."
 msgid "&Add Source"
 msgstr "&Lisää lähde"
 
-#: forms/cardlist.py:212
+#: forms/cardlist.py:229
 msgid "&Add Tag..."
 msgstr "&Lisää tägi..."
 
@@ -289,7 +289,7 @@ msgstr "&Poista fakta"
 msgid "&Delete Source"
 msgstr "&Poista lähde"
 
-#: forms/cardlist.py:213
+#: forms/cardlist.py:230
 msgid "&Delete Tag..."
 msgstr "&Poista tägi..."
 
@@ -301,7 +301,7 @@ msgstr "&Poista kaikki liitännäiset käytöstä"
 msgid "&Donate..."
 msgstr "&Lahjoita..."
 
-#: forms/cardlist.py:207 forms/deckproperties.py:335 forms/main.py:860
+#: forms/cardlist.py:222 forms/deckproperties.py:335 forms/main.py:860
 msgid "&Edit"
 msgstr "&Muokkaa"
 
@@ -317,7 +317,7 @@ msgstr "&Ota kaikki liitännäiset käyttöön"
 msgid "&File"
 msgstr "&Tiedosto"
 
-#: forms/cardlist.py:221
+#: forms/cardlist.py:238
 msgid "&Find"
 msgstr "&Hae"
 
@@ -337,7 +337,7 @@ msgstr "&Hae lisää pakkoja..."
 msgid "&Get Plugins..."
 msgstr "&Hae liitännäisiä..."
 
-#: forms/cardlist.py:209
+#: forms/cardlist.py:225
 msgid "&Go"
 msgstr "&Siirry"
 
@@ -345,7 +345,12 @@ msgstr "&Siirry"
 msgid "&Graphs..."
 msgstr "&Kuvaajat..."
 
-#: forms/main.py:859
+#: forms/cardlist.py:252
+#, fuzzy
+msgid "&Guide..."
+msgstr "&Uusi..."
+
+#: forms/cardlist.py:226 forms/main.py:859
 msgid "&Help"
 msgstr "&Ohje"
 
@@ -357,7 +362,7 @@ msgstr "&Tuo"
 msgid "&Import..."
 msgstr "Tu&o..."
 
-#: forms/cardlist.py:220
+#: forms/cardlist.py:237
 msgid "&Invert Selection"
 msgstr "&Käänteinen valinta"
 
@@ -365,7 +370,7 @@ msgstr "&Käänteinen valinta"
 msgid "&Kanji Statistics"
 msgstr "K&anji-tilastot"
 
-#: forms/cardlist.py:231
+#: forms/cardlist.py:248
 msgid "&Last Card"
 msgstr "&Viimeinen kortti"
 
@@ -385,7 +390,7 @@ msgstr "&Merkitse fakta"
 msgid "&New..."
 msgstr "&Uusi..."
 
-#: forms/cardlist.py:225
+#: forms/cardlist.py:242
 msgid "&Next Card"
 msgstr "&Seuraava kortti"
 
@@ -401,7 +406,7 @@ msgstr "&Avaa..."
 msgid "&Preferences"
 msgstr "&Ohjelman asetukset"
 
-#: forms/cardlist.py:227
+#: forms/cardlist.py:244
 msgid "&Previous Card"
 msgstr "&Edellinen kortti"
 
@@ -409,7 +414,7 @@ msgstr "&Edellinen kortti"
 msgid "&Record Noise Profile..."
 msgstr "&Nauhoita meluprofiili..."
 
-#: forms/cardlist.py:219 forms/main.py:943
+#: forms/cardlist.py:236 forms/main.py:943
 msgid "&Redo"
 msgstr "Tee &uudelleen"
 
@@ -417,7 +422,7 @@ msgstr "Tee &uudelleen"
 msgid "&Report Bug..."
 msgstr "&Ilmoita virheestä..."
 
-#: forms/cardlist.py:215
+#: forms/cardlist.py:232
 msgid "&Reschedule..."
 msgstr ""
 
@@ -445,7 +450,7 @@ msgstr "&Jäädytä fakta"
 msgid "&Tools"
 msgstr "T&yökalut"
 
-#: forms/cardlist.py:218 forms/main.py:923
+#: forms/cardlist.py:235 forms/main.py:923
 msgid "&Undo"
 msgstr "&Kumoa"
 
@@ -907,7 +912,7 @@ msgstr "Korttien lisäys"
 msgid "Add Model"
 msgstr "Mallin lisäys"
 
-#: ui/cardlist.py:567
+#: ui/cardlist.py:571
 msgid "Add Tags"
 msgstr "Lisää tägejä"
 
@@ -945,7 +950,7 @@ msgstr "Lisätyt kortit"
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "Lisättiin %(num)d korttia faktalle ”%(str)s”."
 
-#: forms/deckproperties.py:375 forms/preferences.py:230
+#: forms/cardlist.py:224 forms/deckproperties.py:375 forms/preferences.py:230
 msgid "Advanced"
 msgstr "Lisäasetukset"
 
@@ -1075,8 +1080,9 @@ msgstr "Pä&nttäys..."
 msgid "Cache LaTeX"
 msgstr "Luo välimuisti LaTeX-merkinnöistä"
 
-#: ui/cardlist.py:635
-msgid "Can only change templates in a single model."
+#: ui/cardlist.py:639
+#, fuzzy
+msgid "Can only change model for a single template."
 msgstr "Mallineiden muuttaminen onnistuu vain yhdessä mallissa."
 
 #: ui/lookup.py:23
@@ -1117,11 +1123,16 @@ msgstr "Kortteja odottaa"
 msgid "Change"
 msgstr "Muuta"
 
-#: forms/cardlist.py:233
+#: forms/cardlist.py:253
+#, fuzzy
+msgid "Change &Model..."
+msgstr "Vaihda &mallinetta..."
+
+#: forms/cardlist.py:250
 msgid "Change &Template..."
 msgstr "Vaihda &mallinetta..."
 
-#: ui/cardlist.py:642 ui/cardlist.py:780
+#: ui/cardlist.py:646 ui/cardlist.py:803
 msgid "Change Template"
 msgstr "Mallineen vaihto"
 
@@ -1241,7 +1252,7 @@ msgstr "Ctrl+D"
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
-#: forms/cardlist.py:232
+#: forms/cardlist.py:249
 msgid "Ctrl+End"
 msgstr "Ctrl+End"
 
@@ -1249,11 +1260,11 @@ msgstr "Ctrl+End"
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:222 forms/main.py:884
+#: forms/cardlist.py:239 forms/main.py:884
 msgid "Ctrl+F"
 msgstr "Ctrl+F"
 
-#: forms/cardlist.py:230
+#: forms/cardlist.py:247
 msgid "Ctrl+Home"
 msgstr "Ctrl+Home"
 
@@ -1261,7 +1272,7 @@ msgstr "Ctrl+Home"
 msgid "Ctrl+M"
 msgstr "Ctrl+M"
 
-#: forms/cardlist.py:226 forms/main.py:872
+#: forms/cardlist.py:243 forms/main.py:872
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
@@ -1269,7 +1280,7 @@ msgstr "Ctrl+N"
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:228 forms/main.py:887
+#: forms/cardlist.py:245 forms/main.py:887
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
@@ -1285,7 +1296,7 @@ msgstr "Ctrl+Return"
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
-#: forms/cardlist.py:224
+#: forms/cardlist.py:241
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+Shift+F"
 
@@ -1337,7 +1348,7 @@ msgstr "Kasaantuvat kortit"
 msgid "Current &Model..."
 msgstr "Nykyinen &malli..."
 
-#: forms/cardlist.py:206
+#: forms/cardlist.py:221
 msgid "Current Card"
 msgstr "Tämä kortti"
 
@@ -1377,15 +1388,15 @@ msgstr "Pakat (*.anki)"
 msgid "Deck is already open."
 msgstr "Pakka on jo avoin."
 
-#: forms/cardlist.py:211
+#: forms/cardlist.py:228
 msgid "Del"
 msgstr "Del"
 
-#: ui/main.py:1273 forms/cardlist.py:210
+#: ui/main.py:1273 forms/cardlist.py:227
 msgid "Delete"
 msgstr "Poista"
 
-#: ui/cardlist.py:557
+#: ui/cardlist.py:561
 msgid "Delete Cards"
 msgstr "Poista kortit"
 
@@ -1393,7 +1404,7 @@ msgstr "Poista kortit"
 msgid "Delete Refs"
 msgstr "Poista viittaukset"
 
-#: ui/cardlist.py:576
+#: ui/cardlist.py:580
 msgid "Delete Tags"
 msgstr "Poista tägit"
 
@@ -1455,7 +1466,7 @@ msgstr "Muokkaa"
 msgid "Edit &Current..."
 msgstr "Muokkaa &nykyistä..."
 
-#: forms/cardlist.py:205
+#: forms/cardlist.py:220
 msgid "Edit Items"
 msgstr "Muokkaa kohteita"
 
@@ -1476,11 +1487,11 @@ msgstr "Ota &käyttöön"
 msgid "English"
 msgstr "englanti"
 
-#: ui/cardlist.py:565
+#: ui/cardlist.py:569
 msgid "Enter tags to add:"
 msgstr "Lisättävät tägit:"
 
-#: ui/cardlist.py:574
+#: ui/cardlist.py:578
 msgid "Enter tags to delete:"
 msgstr "Poistettavat tägit:"
 
@@ -1500,11 +1511,11 @@ msgstr "Vie"
 msgid "Export to..."
 msgstr "Vie..."
 
-#: forms/cardlist.py:223
+#: forms/cardlist.py:240
 msgid "F&act"
 msgstr "&Fakta"
 
-#: forms/cardlist.py:229
+#: forms/cardlist.py:246
 msgid "F&irst Card"
 msgstr "Ens&immäinen kortti"
 
@@ -1593,11 +1604,11 @@ msgstr "ranska"
 msgid "General && Fields"
 msgstr "Tiedot ja kentät"
 
-#: forms/cardlist.py:214
+#: forms/cardlist.py:231
 msgid "Generate &Cards..."
 msgstr "Luo &kortteja..."
 
-#: ui/cardlist.py:617 forms/addcardmodels.py:34
+#: ui/cardlist.py:621 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Korttien luonti"
 
@@ -1906,7 +1917,7 @@ msgstr "Tarkista käyttäjätunnus ja salasana."
 msgid "Please enable a different model first."
 msgstr "Ota ensin toinen malli käyttöön."
 
-#: ui/cardlist.py:599
+#: ui/cardlist.py:603
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2035,7 +2046,7 @@ msgstr "Toista &kysymyksen ääni"
 msgid "Reps"
 msgstr "Kertauksia"
 
-#: ui/cardlist.py:583 forms/reschedule.py:79
+#: ui/cardlist.py:587 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr ""
 
@@ -2048,7 +2059,7 @@ msgstr "Lisää ensin kortteja."
 msgid "Reschedule with initial interval in range:"
 msgstr ""
 
-#: forms/cardlist.py:234
+#: forms/cardlist.py:251
 msgid "Reverse &Order"
 msgstr ""
 
@@ -2093,11 +2104,11 @@ msgstr "Tallenna ja s&ynkronoi"
 msgid "Save when closing"
 msgstr "Tallenna suljettaessa"
 
-#: forms/cardlist.py:216
+#: forms/cardlist.py:233
 msgid "Select &All"
 msgstr "Valitse &kaikki"
 
-#: forms/cardlist.py:217
+#: forms/cardlist.py:234
 msgid "Select &Facts"
 msgstr "Valitse &faktat"
 
@@ -2157,7 +2168,7 @@ msgstr "Näytä tervetuloikkuna"
 msgid "Show/Hide"
 msgstr "Näytetyt kuvaajat"
 
-#: ui/addcards.py:105 ui/cardlist.py:448
+#: ui/addcards.py:105 ui/cardlist.py:452
 msgid "Some fields are missing or not unique."
 msgstr "Osa kentistä puuttuu tai ovat samat kuin toisessa kortissa."
 

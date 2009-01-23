@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:23+0900\n"
+"POT-Creation-Date: 2009-01-23 18:10+0900\n"
 "PO-Revision-Date: 2009-01-20 13:14+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -233,7 +233,7 @@ msgstr ""
 msgid "&About..."
 msgstr "&O programie..."
 
-#: forms/cardlist.py:208
+#: forms/cardlist.py:223
 msgid "&Actions"
 msgstr "&Działania"
 
@@ -250,7 +250,7 @@ msgstr "&Dodaj elementy..."
 msgid "&Add Source"
 msgstr "&Dodaj źródło"
 
-#: forms/cardlist.py:212
+#: forms/cardlist.py:229
 msgid "&Add Tag..."
 msgstr "&Dodaj etykietę..."
 
@@ -287,7 +287,7 @@ msgstr "&Usuń fakt"
 msgid "&Delete Source"
 msgstr "&Usuń źródło"
 
-#: forms/cardlist.py:213
+#: forms/cardlist.py:230
 msgid "&Delete Tag..."
 msgstr "&Usuń etykietę..."
 
@@ -299,7 +299,7 @@ msgstr "&Wyłącz wszystkie dodatki"
 msgid "&Donate..."
 msgstr "&Dary pieniężne..."
 
-#: forms/cardlist.py:207 forms/deckproperties.py:335 forms/main.py:860
+#: forms/cardlist.py:222 forms/deckproperties.py:335 forms/main.py:860
 msgid "&Edit"
 msgstr "&Edytuj"
 
@@ -315,7 +315,7 @@ msgstr "&Włącz wszystkie dodatki"
 msgid "&File"
 msgstr "&Plik"
 
-#: forms/cardlist.py:221
+#: forms/cardlist.py:238
 msgid "&Find"
 msgstr "&Szukaj"
 
@@ -335,7 +335,7 @@ msgstr "&Pobierz więcej talii..."
 msgid "&Get Plugins..."
 msgstr "&Pobierz dodatki..."
 
-#: forms/cardlist.py:209
+#: forms/cardlist.py:225
 msgid "&Go"
 msgstr "&Idź"
 
@@ -343,7 +343,12 @@ msgstr "&Idź"
 msgid "&Graphs..."
 msgstr "&Wykresy..."
 
-#: forms/main.py:859
+#: forms/cardlist.py:252
+#, fuzzy
+msgid "&Guide..."
+msgstr "&Nowy..."
+
+#: forms/cardlist.py:226 forms/main.py:859
 msgid "&Help"
 msgstr "Pomo&c"
 
@@ -355,7 +360,7 @@ msgstr "I&mport"
 msgid "&Import..."
 msgstr "I&mport..."
 
-#: forms/cardlist.py:220
+#: forms/cardlist.py:237
 msgid "&Invert Selection"
 msgstr "&Odwróć zaznaczenie"
 
@@ -363,7 +368,7 @@ msgstr "&Odwróć zaznaczenie"
 msgid "&Kanji Statistics"
 msgstr "Statystyki &kanji"
 
-#: forms/cardlist.py:231
+#: forms/cardlist.py:248
 msgid "&Last Card"
 msgstr "&Ostatnia karta"
 
@@ -383,7 +388,7 @@ msgstr "&Zaznacz fakt"
 msgid "&New..."
 msgstr "&Nowy..."
 
-#: forms/cardlist.py:225
+#: forms/cardlist.py:242
 msgid "&Next Card"
 msgstr "&Następna karta"
 
@@ -399,7 +404,7 @@ msgstr "&Otwórz..."
 msgid "&Preferences"
 msgstr "&Preferencje"
 
-#: forms/cardlist.py:227
+#: forms/cardlist.py:244
 msgid "&Previous Card"
 msgstr "&Poprzednia karta"
 
@@ -407,7 +412,7 @@ msgstr "&Poprzednia karta"
 msgid "&Record Noise Profile..."
 msgstr "&Nagraj profil szumu..."
 
-#: forms/cardlist.py:219 forms/main.py:943
+#: forms/cardlist.py:236 forms/main.py:943
 msgid "&Redo"
 msgstr "&Powtórz"
 
@@ -415,7 +420,7 @@ msgstr "&Powtórz"
 msgid "&Report Bug..."
 msgstr "Zgłoś &błąd..."
 
-#: forms/cardlist.py:215
+#: forms/cardlist.py:232
 msgid "&Reschedule..."
 msgstr ""
 
@@ -443,7 +448,7 @@ msgstr "Za&wieś fakt"
 msgid "&Tools"
 msgstr "&Narzędzia"
 
-#: forms/cardlist.py:218 forms/main.py:923
+#: forms/cardlist.py:235 forms/main.py:923
 msgid "&Undo"
 msgstr "&Cofnij"
 
@@ -908,7 +913,7 @@ msgstr "Dodawanie elementów"
 msgid "Add Model"
 msgstr "Dodawanie modelu"
 
-#: ui/cardlist.py:567
+#: ui/cardlist.py:571
 msgid "Add Tags"
 msgstr "Dodaj etykiety"
 
@@ -946,7 +951,7 @@ msgstr "Dodana"
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "Dodano %(num)d kartę(-y) '%(str)s'."
 
-#: forms/deckproperties.py:375 forms/preferences.py:230
+#: forms/cardlist.py:224 forms/deckproperties.py:375 forms/preferences.py:230
 msgid "Advanced"
 msgstr "Zaawansowane"
 
@@ -1077,8 +1082,9 @@ msgstr "&Sprawdzian..."
 msgid "Cache LaTeX"
 msgstr "Przechowuj LaTeX w pamięci podręcznej"
 
-#: ui/cardlist.py:635
-msgid "Can only change templates in a single model."
+#: ui/cardlist.py:639
+#, fuzzy
+msgid "Can only change model for a single template."
 msgstr "Można zmieniać szablony tylko w jednym modelu na raz."
 
 #: ui/lookup.py:23
@@ -1119,11 +1125,16 @@ msgstr "Są karty do przejrzenia"
 msgid "Change"
 msgstr "Zmień"
 
-#: forms/cardlist.py:233
+#: forms/cardlist.py:253
+#, fuzzy
+msgid "Change &Model..."
+msgstr "Zmień &szablon..."
+
+#: forms/cardlist.py:250
 msgid "Change &Template..."
 msgstr "Zmień &szablon..."
 
-#: ui/cardlist.py:642 ui/cardlist.py:780
+#: ui/cardlist.py:646 ui/cardlist.py:803
 msgid "Change Template"
 msgstr "Zmiana szablonu"
 
@@ -1243,7 +1254,7 @@ msgstr "Ctrl+D"
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
-#: forms/cardlist.py:232
+#: forms/cardlist.py:249
 msgid "Ctrl+End"
 msgstr "Ctrl+End"
 
@@ -1251,11 +1262,11 @@ msgstr "Ctrl+End"
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:222 forms/main.py:884
+#: forms/cardlist.py:239 forms/main.py:884
 msgid "Ctrl+F"
 msgstr "Ctrl+F"
 
-#: forms/cardlist.py:230
+#: forms/cardlist.py:247
 msgid "Ctrl+Home"
 msgstr "Ctrl+Home"
 
@@ -1263,7 +1274,7 @@ msgstr "Ctrl+Home"
 msgid "Ctrl+M"
 msgstr "Ctrl+M"
 
-#: forms/cardlist.py:226 forms/main.py:872
+#: forms/cardlist.py:243 forms/main.py:872
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
@@ -1271,7 +1282,7 @@ msgstr "Ctrl+N"
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:228 forms/main.py:887
+#: forms/cardlist.py:245 forms/main.py:887
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
@@ -1287,7 +1298,7 @@ msgstr "Ctrl+Return"
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
-#: forms/cardlist.py:224
+#: forms/cardlist.py:241
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+Shift+F"
 
@@ -1339,7 +1350,7 @@ msgstr "Skumulowane"
 msgid "Current &Model..."
 msgstr "Aktualny &model..."
 
-#: forms/cardlist.py:206
+#: forms/cardlist.py:221
 msgid "Current Card"
 msgstr "Aktualna karta"
 
@@ -1379,15 +1390,15 @@ msgstr "Pliki talii (*.anki)"
 msgid "Deck is already open."
 msgstr "Talia jest już otwarta."
 
-#: forms/cardlist.py:211
+#: forms/cardlist.py:228
 msgid "Del"
 msgstr "Del"
 
-#: ui/main.py:1273 forms/cardlist.py:210
+#: ui/main.py:1273 forms/cardlist.py:227
 msgid "Delete"
 msgstr "Usuń"
 
-#: ui/cardlist.py:557
+#: ui/cardlist.py:561
 msgid "Delete Cards"
 msgstr "Usuń karty"
 
@@ -1395,7 +1406,7 @@ msgstr "Usuń karty"
 msgid "Delete Refs"
 msgstr "Usuń odwołania"
 
-#: ui/cardlist.py:576
+#: ui/cardlist.py:580
 msgid "Delete Tags"
 msgstr "Usuń etykiety"
 
@@ -1457,7 +1468,7 @@ msgstr "Edycja"
 msgid "Edit &Current..."
 msgstr "Edytuj &aktualną..."
 
-#: forms/cardlist.py:205
+#: forms/cardlist.py:220
 msgid "Edit Items"
 msgstr "Edytuj elementy"
 
@@ -1478,11 +1489,11 @@ msgstr "Włą&cz"
 msgid "English"
 msgstr "Angielski"
 
-#: ui/cardlist.py:565
+#: ui/cardlist.py:569
 msgid "Enter tags to add:"
 msgstr "Wpisz etykiety do dodania:"
 
-#: ui/cardlist.py:574
+#: ui/cardlist.py:578
 msgid "Enter tags to delete:"
 msgstr "Wpisz etykiety do usuniecia:"
 
@@ -1502,11 +1513,11 @@ msgstr "Eksport"
 msgid "Export to..."
 msgstr "Eksport do..."
 
-#: forms/cardlist.py:223
+#: forms/cardlist.py:240
 msgid "F&act"
 msgstr "F&akt"
 
-#: forms/cardlist.py:229
+#: forms/cardlist.py:246
 msgid "F&irst Card"
 msgstr "P&ierwsza karta"
 
@@ -1595,11 +1606,11 @@ msgstr "Francuski"
 msgid "General && Fields"
 msgstr "Ogólne i pola"
 
-#: forms/cardlist.py:214
+#: forms/cardlist.py:231
 msgid "Generate &Cards..."
 msgstr "Generowanie &kart..."
 
-#: ui/cardlist.py:617 forms/addcardmodels.py:34
+#: ui/cardlist.py:621 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Generowanie kart"
 
@@ -1908,7 +1919,7 @@ msgstr "Sprawdź ponownie swoją nazwę użytkownika/hasło."
 msgid "Please enable a different model first."
 msgstr "Włącz najpierw inny model."
 
-#: ui/cardlist.py:599
+#: ui/cardlist.py:603
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2039,7 +2050,7 @@ msgstr "Powtórz nagranie &pytania"
 msgid "Reps"
 msgstr "Powtórki"
 
-#: ui/cardlist.py:583 forms/reschedule.py:79
+#: ui/cardlist.py:587 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr ""
 
@@ -2052,7 +2063,7 @@ msgstr "Dodaj najpierw nową kartę."
 msgid "Reschedule with initial interval in range:"
 msgstr ""
 
-#: forms/cardlist.py:234
+#: forms/cardlist.py:251
 msgid "Reverse &Order"
 msgstr ""
 
@@ -2097,11 +2108,11 @@ msgstr "Zapisz i syn&chronizuj"
 msgid "Save when closing"
 msgstr "Zapis przy zamykaniu"
 
-#: forms/cardlist.py:216
+#: forms/cardlist.py:233
 msgid "Select &All"
 msgstr "Zaznacz &wszystko"
 
-#: forms/cardlist.py:217
+#: forms/cardlist.py:234
 msgid "Select &Facts"
 msgstr "Zaznacz &fakty"
 
@@ -2161,7 +2172,7 @@ msgstr "Pokaż przy starcie ekran \"witaj ponownie\""
 msgid "Show/Hide"
 msgstr "Pokaż/Schowaj"
 
-#: ui/addcards.py:105 ui/cardlist.py:448
+#: ui/addcards.py:105 ui/cardlist.py:452
 msgid "Some fields are missing or not unique."
 msgstr "Brakuje niektórych pól lub niektóre pola nie są unikalne."
 
