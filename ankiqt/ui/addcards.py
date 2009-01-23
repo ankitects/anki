@@ -52,6 +52,10 @@ class AddCards(QDialog):
         self.dialog.buttonBox.addButton(self.addButton,
                                         QDialogButtonBox.ActionRole)
         self.addButton.setShortcut(_("Ctrl+Return"))
+        if sys.platform.startswith("darwin"):
+            self.addButton.setToolTip(_("Add (shortcut: command+return)"))
+        else:
+            self.addButton.setToolTip(_("Add (shortcut: ctrl+return)"))
         self.addButton.setAutoDefault(False)
         s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
         s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
