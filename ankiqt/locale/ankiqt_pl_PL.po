@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-21 21:34+0900\n"
+"POT-Creation-Date: 2009-01-23 15:23+0900\n"
 "PO-Revision-Date: 2009-01-20 13:14+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -186,7 +186,7 @@ msgstr " <b>Przy przeglądaniu i edycji:</b>"
 msgid " applied %d modified cards."
 msgstr " zastosowano %d zmodyfikowanych kart."
 
-#: ui/main.py:2032
+#: ui/main.py:2033
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -203,7 +203,7 @@ msgstr[0] "%(name)s [%(facts)d fakt]"
 msgstr[1] "%(name)s [%(facts)d fakt]"
 msgstr[2] "%(name)s [%(facts)d faktów]"
 
-#: ui/main.py:1695
+#: ui/main.py:1696
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(due)d z %(cards)d do przeglądnięcia) - %(title)s"
@@ -213,12 +213,12 @@ msgstr "%(path)s (%(due)d z %(cards)d do przeglądnięcia) - %(title)s"
 msgid "%d exported."
 msgstr "%d wyeksportowano."
 
-#: ui/cardlist.py:192
+#: ui/cardlist.py:196
 #, python-format
 msgid "%s ago"
 msgstr "%s temu"
 
-#: ui/main.py:2001
+#: ui/main.py:2002
 #, python-format
 msgid ""
 "%s.\n"
@@ -447,7 +447,7 @@ msgstr "&Narzędzia"
 msgid "&Undo"
 msgstr "&Cofnij"
 
-#: ui/cardlist.py:190
+#: ui/cardlist.py:194
 msgid "(new card)"
 msgstr "(nowa karta)"
 
@@ -507,7 +507,7 @@ msgstr ""
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Pomoc</a>"
 
-#: ui/main.py:1196
+#: ui/main.py:1197
 msgid "<a href=py:miss>Missing Kanji</a><br>"
 msgstr "<a href=py:miss>Brakujące Kanji</a><br>"
 
@@ -669,7 +669,7 @@ msgstr "<h1>Szablony kart</h1>"
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Kumulutywny czas przyjścia</h1>"
 
-#: ui/main.py:1212
+#: ui/main.py:1213
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Aktualna karta</h1>"
 
@@ -705,7 +705,7 @@ msgstr "<h1>Przerwy</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Język</h1>"
 
-#: ui/main.py:1215
+#: ui/main.py:1216
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Ostatnia karta</h1>"
 
@@ -775,7 +775,7 @@ msgstr "<h1>Wybierz pole docelowe</h1>"
 msgid "<h1>Select tags to suspend</h1>"
 msgstr "<h1>Wybierz etykiety do zawieszenia</h1>"
 
-#: ui/main.py:1011
+#: ui/main.py:1012
 msgid "<h1>Study Options</h1>"
 msgstr "<b>Opcje nauki</b>"
 
@@ -801,11 +801,11 @@ msgstr ""
 "        zmiany. Czy chcesz je zapisać, porzucić swoje\n"
 "        zmiany lub anulować?"
 
-#: ui/main.py:1009
+#: ui/main.py:1010
 msgid "<h1>Welcome Back!</h1>"
 msgstr "<h1>Witaj ponownie!</h1>"
 
-#: ui/main.py:1013
+#: ui/main.py:1014
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>Brawo!</h1>"
 
@@ -844,7 +844,7 @@ msgstr "<zignorowane>"
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Schowaj</a>"
 
-#: ui/main.py:1057
+#: ui/main.py:1058
 #, fuzzy, python-format
 msgid ""
 "<table>\n"
@@ -859,7 +859,7 @@ msgstr ""
 "<tr><td>Nowych ogólnie:</td><td align=right>%(newof)s</td></tr>\n"
 "</table>"
 
-#: ui/main.py:1048
+#: ui/main.py:1049
 #, fuzzy, python-format
 msgid ""
 "<table>\n"
@@ -908,7 +908,7 @@ msgstr "Dodawanie elementów"
 msgid "Add Model"
 msgstr "Dodawanie modelu"
 
-#: ui/cardlist.py:563
+#: ui/cardlist.py:567
 msgid "Add Tags"
 msgstr "Dodaj etykiety"
 
@@ -954,7 +954,7 @@ msgstr "Zaawansowane"
 msgid "Again"
 msgstr "Znowu"
 
-#: ui/cardlist.py:272
+#: ui/cardlist.py:276
 msgid "All tags"
 msgstr "Wszystkie etykiety"
 
@@ -962,7 +962,7 @@ msgstr "Wszystkie etykiety"
 msgid "Allow the answer to be blank"
 msgstr "Pozwól na pustą odpowiedź"
 
-#: ui/main.py:1345
+#: ui/main.py:1346
 msgid "Already cramming. Please close this deck first."
 msgstr "Jesteś już w trybie sprawdzianiu. Musisz zamknąć tę talię."
 
@@ -1012,12 +1012,12 @@ msgstr ""
 "Jeśli po tym błąd będzie się powtarzał, załącz poniższy tekst<br>\n"
 "do raportu o błędzie.<br><br>\n"
 
-#: ui/deckproperties.py:177 ui/main.py:2007 forms/main.py:835 forms/sort.py:45
+#: ui/deckproperties.py:177 ui/main.py:2008 forms/main.py:835 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
-#: ui/main.py:882
+#: ui/main.py:883
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1026,7 +1026,7 @@ msgstr ""
 "Anki nie było w stanie zapisać twojego pliku konfiguracyjnego:\n"
 "%s"
 
-#: ui/cardlist.py:283
+#: ui/cardlist.py:287
 msgid "Answer"
 msgstr "Odpowiedź"
 
@@ -1077,7 +1077,7 @@ msgstr "&Sprawdzian..."
 msgid "Cache LaTeX"
 msgstr "Przechowuj LaTeX w pamięci podręcznej"
 
-#: ui/cardlist.py:631
+#: ui/cardlist.py:635
 msgid "Can only change templates in a single model."
 msgstr "Można zmieniać szablony tylko w jednym modelu na raz."
 
@@ -1085,7 +1085,7 @@ msgstr "Można zmieniać szablony tylko w jednym modelu na raz."
 msgid "Can't look up a selection with a newline."
 msgstr "Nie można wyszukiwać tekstu ze znakiem nowej linii"
 
-#: ui/main.py:2022
+#: ui/main.py:2023
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1123,7 +1123,7 @@ msgstr "Zmień"
 msgid "Change &Template..."
 msgstr "Zmień &szablon..."
 
-#: ui/cardlist.py:638 ui/cardlist.py:776
+#: ui/cardlist.py:642 ui/cardlist.py:780
 msgid "Change Template"
 msgstr "Zmiana szablonu"
 
@@ -1188,7 +1188,7 @@ msgstr ""
 msgid "Connecting..."
 msgstr "Łączenie..."
 
-#: ui/main.py:1086
+#: ui/main.py:1087
 msgid "Continue &Reviewing"
 msgstr "&Kontynuuj powtórkę"
 
@@ -1197,7 +1197,7 @@ msgstr "&Kontynuuj powtórkę"
 msgid "Copy: %s"
 msgstr "Kopia: %s"
 
-#: ui/main.py:1370
+#: ui/main.py:1371
 msgid "Cram"
 msgstr "Sprawdzian"
 
@@ -1206,7 +1206,7 @@ msgstr "Sprawdzian"
 msgid "Create '%s' on server"
 msgstr "Tworzenie '%s' na serwerze"
 
-#: ui/cardlist.py:284
+#: ui/cardlist.py:288
 msgid "Created"
 msgstr "Utworzona"
 
@@ -1235,7 +1235,7 @@ msgstr "Ctrl+5"
 msgid "Ctrl+Alt+%d"
 msgstr "Ctrl+Alt+%d"
 
-#: ui/main.py:1712 forms/main.py:882
+#: ui/main.py:1713 forms/main.py:882
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
@@ -1383,19 +1383,19 @@ msgstr "Talia jest już otwarta."
 msgid "Del"
 msgstr "Del"
 
-#: ui/main.py:1272 forms/cardlist.py:210
+#: ui/main.py:1273 forms/cardlist.py:210
 msgid "Delete"
 msgstr "Usuń"
 
-#: ui/cardlist.py:553
+#: ui/cardlist.py:557
 msgid "Delete Cards"
 msgstr "Usuń karty"
 
-#: ui/main.py:2020
+#: ui/main.py:2021
 msgid "Delete Refs"
 msgstr "Usuń odwołania"
 
-#: ui/cardlist.py:572
+#: ui/cardlist.py:576
 msgid "Delete Tags"
 msgstr "Usuń etykiety"
 
@@ -1424,7 +1424,7 @@ msgstr "Wygląd"
 msgid "Don't ask me to type in the answer"
 msgstr "Poproś mnie o wpisanie odpowiedzi"
 
-#: ui/cardlist.py:286 ui/graphs.py:227
+#: ui/cardlist.py:290 ui/graphs.py:227
 msgid "Due"
 msgstr "Pojawienie się"
 
@@ -1437,7 +1437,7 @@ msgstr "Zakoń&cz"
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Szacowany czas: <b>%(timeLeft)s</b>"
 
-#: ui/cardlist.py:289
+#: ui/cardlist.py:293
 msgid "Ease"
 msgstr "Łatwość"
 
@@ -1461,7 +1461,7 @@ msgstr "Edytuj &aktualną..."
 msgid "Edit Items"
 msgstr "Edytuj elementy"
 
-#: ui/cardlist.py:337
+#: ui/cardlist.py:341
 #, python-format
 msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
 msgstr "Edytor (pokazano %(cur)d z %(tot)d kart; wybrano %(sel)d)"
@@ -1478,11 +1478,11 @@ msgstr "Włą&cz"
 msgid "English"
 msgstr "Angielski"
 
-#: ui/cardlist.py:561
+#: ui/cardlist.py:565
 msgid "Enter tags to add:"
 msgstr "Wpisz etykiety do dodania:"
 
-#: ui/cardlist.py:570
+#: ui/cardlist.py:574
 msgid "Enter tags to delete:"
 msgstr "Wpisz etykiety do usuniecia:"
 
@@ -1530,7 +1530,7 @@ msgstr "F5"
 msgid "F9"
 msgstr "F9"
 
-#: ui/main.py:1589
+#: ui/main.py:1590
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Nie udało się przesłać pliku. Uruchom sprawdzanie bazy plików."
 
@@ -1553,7 +1553,7 @@ msgstr "Pole %(num)d: %(name)s [%(cards)s niepustych]"
 msgid "Field %d"
 msgstr "Pole %d"
 
-#: ui/cardlist.py:292
+#: ui/cardlist.py:296
 #, python-format
 msgid "Field '%s'"
 msgstr "Pole '%s'"
@@ -1599,7 +1599,7 @@ msgstr "Ogólne i pola"
 msgid "Generate &Cards..."
 msgstr "Generowanie &kart..."
 
-#: ui/cardlist.py:613 forms/addcardmodels.py:34
+#: ui/cardlist.py:617 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Generowanie kart"
 
@@ -1681,7 +1681,7 @@ msgstr "Dołącz informację o planowaniu"
 msgid "Include tags"
 msgstr "Dołącz etykiety"
 
-#: ui/cardlist.py:287 ui/graphs.py:229
+#: ui/cardlist.py:291 ui/graphs.py:229
 msgid "Interval"
 msgstr "Przerwa"
 
@@ -1713,11 +1713,11 @@ msgstr "Równanie Latexa (Ctrl+l, e)"
 msgid "Latex math environment (Ctrl+l, m)"
 msgstr "Otoczenie matematyczne Latexa (Ctrl+l, m)"
 
-#: ui/main.py:1371
+#: ui/main.py:1372
 msgid "Loading deck..."
 msgstr "Ładowanie talii..."
 
-#: ui/main.py:1226
+#: ui/main.py:1227
 msgid "Loading graphs (may take time)..."
 msgstr "Ładowanie wykresów (może to chwilę potrwać)..."
 
@@ -1743,7 +1743,7 @@ msgstr "Maks."
 msgid "Merge Models..."
 msgstr "Połącz modele..."
 
-#: ui/main.py:1999
+#: ui/main.py:2000
 msgid "Merge complete."
 msgstr "Zakończono łączenie."
 
@@ -1769,7 +1769,7 @@ msgstr "Właściwości modelu"
 msgid "Models && Priorities"
 msgstr "Modele i priorytety"
 
-#: ui/cardlist.py:285
+#: ui/cardlist.py:289
 msgid "Modified"
 msgstr "Zmodyfikowana"
 
@@ -1809,7 +1809,7 @@ msgstr "Nazwa"
 msgid "Name on server: "
 msgstr "Nazwa na serwerze:"
 
-#: ui/main.py:1363
+#: ui/main.py:1364
 msgid "No cards matched the provided tags."
 msgstr "Żadne karty nie pasują do podanych etykiet."
 
@@ -1821,19 +1821,19 @@ msgstr "Nie ma kart do podglądu."
 msgid "No changes found."
 msgstr "Nie znaleziono zmian."
 
-#: ui/main.py:1218
+#: ui/main.py:1219
 msgid "No current card or last card."
 msgstr "Brak aktualnej karty lub ostatnia karta."
 
-#: ui/main.py:1170
+#: ui/main.py:1171
 msgid "No expression in current card."
 msgstr "Brak wyrażenia w aktualnej karcie."
 
-#: ui/main.py:1177
+#: ui/main.py:1178
 msgid "No meaning in current card."
 msgstr "Brak znaczenia w aktualnej karcie."
 
-#: ui/main.py:1991
+#: ui/main.py:1992
 msgid ""
 "No models found to merge. If you want to merge models,\n"
 "all models must have the same name, and must not be\n"
@@ -1843,7 +1843,7 @@ msgstr ""
 "modele, wszystkie modele muszą mieć tę samą nazwę\n"
 "i nie mogą być z talii innej osoby."
 
-#: ui/cardlist.py:272
+#: ui/cardlist.py:276
 msgid "No tags"
 msgstr "Brak etykiet"
 
@@ -1908,7 +1908,7 @@ msgstr "Sprawdź ponownie swoją nazwę użytkownika/hasło."
 msgid "Please enable a different model first."
 msgstr "Włącz najpierw inny model."
 
-#: ui/cardlist.py:595
+#: ui/cardlist.py:599
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -1920,7 +1920,7 @@ msgstr ""
 "Zainstaluj <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "by móc nagrywać."
 
-#: ui/main.py:1244
+#: ui/main.py:1245
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Zainstaluj python-mathplotlib, aby mieć dostęp do wykresów."
 
@@ -1952,7 +1952,7 @@ msgstr "Podgląd (F2)"
 msgid "Preview Cards"
 msgstr "Podgląd kart"
 
-#: ui/main.py:1976
+#: ui/main.py:1977
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -1969,7 +1969,7 @@ msgstr "Przetwarzanie..."
 msgid "Put space between question and answer"
 msgstr "Wstaw spację między pytanie a odpowiedź"
 
-#: ui/cardlist.py:282
+#: ui/cardlist.py:286
 msgid "Question"
 msgstr "Pytanie"
 
@@ -1989,7 +1989,7 @@ msgstr "Czcionka pytania"
 msgid "Question size"
 msgstr "Rozmiar pytania"
 
-#: ui/main.py:1388
+#: ui/main.py:1389
 msgid "Randomizing..."
 msgstr "Losowanie..."
 
@@ -2006,7 +2006,7 @@ msgstr "Nagraj dźwięk (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Nagrywanie...<br>Czas: %0.1f"
 
-#: ui/cardlist.py:353 ui/main.py:1775
+#: ui/cardlist.py:357 ui/main.py:1776
 #, python-format
 msgid "Redo %s"
 msgstr "Powtórz %s"
@@ -2035,11 +2035,11 @@ msgstr "Powtórz &nagranie"
 msgid "Repeat &Question Audio"
 msgstr "Powtórz nagranie &pytania"
 
-#: ui/cardlist.py:288 ui/graphs.py:233
+#: ui/cardlist.py:292 ui/graphs.py:233
 msgid "Reps"
 msgstr "Powtórki"
 
-#: ui/cardlist.py:579 forms/reschedule.py:79
+#: ui/cardlist.py:583 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr ""
 
@@ -2161,7 +2161,7 @@ msgstr "Pokaż przy starcie ekran \"witaj ponownie\""
 msgid "Show/Hide"
 msgstr "Pokaż/Schowaj"
 
-#: ui/addcards.py:105 ui/cardlist.py:444
+#: ui/addcards.py:105 ui/cardlist.py:448
 msgid "Some fields are missing or not unique."
 msgstr "Brakuje niektórych pól lub niektóre pola nie są unikalne."
 
@@ -2185,7 +2185,7 @@ msgstr "ID źródła:"
 msgid "Spanish"
 msgstr "Hiszpański"
 
-#: ui/main.py:1084
+#: ui/main.py:1085
 msgid "Start &Reviewing"
 msgstr "&Zacznij przegląd"
 
@@ -2201,7 +2201,7 @@ msgstr "Stan"
 msgid "Stop reviewing this card until it's unsuspended in the editor."
 msgstr "Nie wyświetlaj więcej tej karty dopóki nie zostanie odwieszona w edytorze."
 
-#: ui/main.py:1260
+#: ui/main.py:1261
 msgid "Suspend"
 msgstr "Zawieś"
 
@@ -2225,7 +2225,7 @@ msgstr "Synchronizacja"
 msgid "Synchronize this deck"
 msgstr "Synchronizuj tę talię"
 
-#: ui/main.py:1567 ui/main.py:1569
+#: ui/main.py:1568 ui/main.py:1570
 msgid "Syncing Media..."
 msgstr "Synchronizacja plików"
 
@@ -2234,7 +2234,7 @@ msgstr "Synchronizacja plików"
 msgid "Syncing failed: %(a)s"
 msgstr "Synchronizacja nie powiodła się: %(a)s"
 
-#: ui/main.py:2018
+#: ui/main.py:2019
 msgid "Tag Cards"
 msgstr "Nadaj etykietę"
 
@@ -2250,7 +2250,7 @@ msgstr "Etykiety"
 msgid "Tags to append:"
 msgstr "Etykiety do dodania"
 
-#: ui/main.py:1347
+#: ui/main.py:1348
 msgid "Tags to cram:"
 msgstr "Etykiety wykorzystane w sprawdzianie:"
 
@@ -2333,7 +2333,7 @@ msgstr ""
 "%s\n"
 "Musisz najpierw usunąć źródło."
 
-#: ui/main.py:1963
+#: ui/main.py:1964
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2351,7 +2351,7 @@ msgstr ""
 "<b>Tej operacji nie można cofnąć.</b><br>\n"
 "Kontynuować?"
 
-#: ui/main.py:2009
+#: ui/main.py:2010
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2371,7 +2371,7 @@ msgstr ""
 "<b>Tej operacji nie można cofnąć.</b><br>\n"
 "Pomysl o wykonaniu wcześniej kopii katalogu z plikami."
 
-#: ui/main.py:1236
+#: ui/main.py:1237
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2448,7 +2448,7 @@ msgstr "Nie przechowuj LaTeXa"
 msgid "Underline text (Ctrl+u)"
 msgstr "Tekst podkreślony (Ctrl+u)"
 
-#: ui/cardlist.py:347 ui/main.py:1769
+#: ui/cardlist.py:351 ui/main.py:1770
 #, python-format
 msgid "Undo %s"
 msgstr "Cofnij %s"
@@ -2462,7 +2462,7 @@ msgstr "Nieznany błąd: %s"
 msgid "Update complete. Please restart Anki."
 msgstr "Aktualizacja zakończona. Zrestartuj Anki."
 
-#: ui/main.py:1809
+#: ui/main.py:1810
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2513,11 +2513,11 @@ msgstr "Brawo! Ta karta pojawi się ponownie za <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Czy chcesz ściągnąć ją teraz?"
 
-#: ui/main.py:1996
+#: ui/main.py:1997
 msgid "Would you like to merge models that have the same name?"
 msgstr "Czy chcesz połączyć modele mające tę samą nazwę?"
 
-#: ui/main.py:1800
+#: ui/main.py:1801
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2528,7 +2528,7 @@ msgstr ""
 "%(type)s %(sec)d sekund.\n"
 "Upewnij się, że jest ustawiony poprawnie i uruchom Anki ponownie."
 
-#: ui/main.py:1555
+#: ui/main.py:1556
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2543,7 +2543,7 @@ msgstr ""
 "Since this can cause many problems with syncing,\n"
 "syncing is disabled until you fix the problem."
 
-#: ui/main.py:1241
+#: ui/main.py:1242
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -2564,7 +2564,7 @@ msgstr "kart"
 msgid "days"
 msgstr "dni"
 
-#: ui/main.py:1798
+#: ui/main.py:1799
 msgid "early"
 msgstr "Spieszy o"
 
@@ -2572,7 +2572,7 @@ msgstr "Spieszy o"
 msgid "facts"
 msgstr "faktów"
 
-#: ui/cardlist.py:194
+#: ui/cardlist.py:198
 #, python-format
 msgid "in %s"
 msgstr "w %s"
@@ -2581,7 +2581,7 @@ msgstr "w %s"
 msgid "label"
 msgstr "napis"
 
-#: ui/main.py:1796
+#: ui/main.py:1797
 msgid "late"
 msgstr "Spóźnia się"
 
