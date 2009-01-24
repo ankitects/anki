@@ -448,7 +448,6 @@ new:
         # answer
         for i in range(1, 5):
             b = getattr(self.mainWin, "easeButton%d" % i)
-            b.setFixedHeight(self.easeButtonHeight)
             b.setFixedWidth(85)
             self.connect(b, SIGNAL("clicked()"),
                 lambda i=i: self.cardAnswered(i))
