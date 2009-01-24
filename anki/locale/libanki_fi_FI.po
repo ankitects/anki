@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:22+0900\n"
+"POT-Creation-Date: 2009-01-24 16:02+0900\n"
 "PO-Revision-Date: 2009-01-18 15:22+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
 "Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
@@ -519,11 +519,13 @@ msgid "Review cards in random order"
 msgstr "Kertaa kortit satunnaisessa järjestyksessä"
 
 #: deck.py:2447
-msgid "Review newest cards first"
+#, fuzzy
+msgid "Review newest interval first"
 msgstr "Kertaa uusimmat kortit ensin"
 
 #: deck.py:2446
-msgid "Review oldest cards first"
+#, fuzzy
+msgid "Review oldest interval first"
 msgstr "Kertaa vanhimmat kortit ensin"
 
 #: stats.py:284

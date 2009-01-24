@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:22+0900\n"
+"POT-Creation-Date: 2009-01-24 16:02+0900\n"
 "PO-Revision-Date: 2008-10-25 13:26+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -503,11 +503,11 @@ msgid "Review cards in random order"
 msgstr "Mostra le carte nuove in ordine casuale"
 
 #: deck.py:2447
-msgid "Review newest cards first"
+msgid "Review newest interval first"
 msgstr ""
 
 #: deck.py:2446
-msgid "Review oldest cards first"
+msgid "Review oldest interval first"
 msgstr ""
 
 #: stats.py:284

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:22+0900\n"
+"POT-Creation-Date: 2009-01-24 16:02+0900\n"
 "PO-Revision-Date: 2008-12-25 21:59+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -498,11 +498,13 @@ msgid "Review cards in random order"
 msgstr "Repasar tarjetas aleatoriamente"
 
 #: deck.py:2447
-msgid "Review newest cards first"
+#, fuzzy
+msgid "Review newest interval first"
 msgstr "Repasar tarjetas nuevas antes"
 
 #: deck.py:2446
-msgid "Review oldest cards first"
+#, fuzzy
+msgid "Review oldest interval first"
 msgstr "Repasar tarjetas viejas antes"
 
 #: stats.py:284

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:22+0900\n"
+"POT-Creation-Date: 2009-01-24 16:02+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -500,11 +500,11 @@ msgid "Review cards in random order"
 msgstr "Montrer les nouvelles cartes au hasard"
 
 #: deck.py:2447
-msgid "Review newest cards first"
+msgid "Review newest interval first"
 msgstr ""
 
 #: deck.py:2446
-msgid "Review oldest cards first"
+msgid "Review oldest interval first"
 msgstr ""
 
 #: stats.py:284

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-23 15:22+0900\n"
+"POT-Creation-Date: 2009-01-24 16:02+0900\n"
 "PO-Revision-Date: 2009-01-20 13:19+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -534,11 +534,13 @@ msgid "Review cards in random order"
 msgstr "Przeglądaj karty w losowej kolejności"
 
 #: deck.py:2447
-msgid "Review newest cards first"
+#, fuzzy
+msgid "Review newest interval first"
 msgstr "Przeglądaj najnowsze karty jako pierwsze"
 
 #: deck.py:2446
-msgid "Review oldest cards first"
+#, fuzzy
+msgid "Review oldest interval first"
 msgstr "Przeglądaj najstarsze karty jako pierwsze"
 
 #: stats.py:284
