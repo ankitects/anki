@@ -4,6 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtSvg import *
 import re, os, sys, tempfile, urllib2
 from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
@@ -571,6 +572,17 @@ class FactEditor(object):
         file = ui.utils.getFile(self.parent, _("Add an image"), "picture", key)
         if not file:
             return
+        if file.lower().endswith(".svg"):
+            # convert to a png
+            s = QSvgRenderer(file)
+            i = QImage(s.defaultSize(), QImage.Format_ARGB32_Premultiplied)
+            p = QPainter()
+            p.begin(i)
+            s.render(p)
+            p.end()
+            (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".png")
+            file = unicode(name, sys.getfilesystemencoding())
+            i.save(file)
         self._addPicture(file, widget=w)
 
     def _addPicture(self, file, widget=None):
