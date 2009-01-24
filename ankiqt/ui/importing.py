@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, copy, time
+import os, copy, time, sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki
@@ -140,6 +140,10 @@ class ImportDialog(QDialog):
         self.dialog.status.setText(txt)
         self.file = None
         self.maybePreview()
+        self.parent.deck.s.flush()
+        if sys.platform.startswith("win32") and not self.parent.deck.path:
+            # this fixes a strange bug in sqlite
+            self.parent.deck.s.all("pragma integrity_check")
         self.parent.reset()
 
     def setupMappingFrame(self):
