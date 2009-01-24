@@ -12,15 +12,15 @@ ankiqt_ja_JP.po
 libanki_ja_JP.po
 
 Note that the 'messages' files may be out of date. On Unix, you can generate
-the latest copies by going into the 'ankiqt' or 'anki' directory, and running
-../tools/translate.sh. You'll need the gettext tools installed. If you don't
+the latest copies by going into 'libanki' and 'ankiqt' directory, and running
+tools/translate.sh. You'll need the gettext tools installed. If you don't
 have access to them, send me a mail and I'll put the latest copy of the files
 online.
 
-One you have finished translating the files, taking care to use the same number
+Once you have finished translating the files, taking care to use the same number
 of \n characters, you can build the files into a 'message catalog' by running
-'translate.sh' again. If you're on Windows, email me the files and I'll do it
-for you.
+'translate.sh' again. If you're on Windows, you can use a program called
+'poedit' to generate the files.
 
 If your language was not supported by Anki before, the interface will need to
 be updated too. All you need to do is search for 'supportedLanguages' in

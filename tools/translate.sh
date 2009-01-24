@@ -3,12 +3,14 @@
 # build translations
 #
 
-if [ ! -d "locale" ]
+if [ ! -d "ankiqt" ]
 then
-    echo "Please run this from the anki module directory"
+    echo "Please run this from the anki project directory"
     exit
 fi
 
+oldpwd=$(pwd)
+cd ankiqt
 allPyFiles=ankiqt.files
 echo "Generating translations.."
 for i in *.py ui/*.py forms/*.py
@@ -28,3 +30,4 @@ do
     msgfmt $file --output-file=$outfile
 done
 rm $allPyFiles
+cd $oldpwd
