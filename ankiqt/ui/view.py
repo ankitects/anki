@@ -9,7 +9,7 @@ from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
 from anki.hooks import runHook
-import types, time, re, os, urllib, sys
+import types, time, re, os, urllib, sys, difflib
 from ankiqt import ui
 from ankiqt.ui.utils import mungeQA
 from anki.utils import fmtTimeSpan
@@ -131,7 +131,30 @@ class View(object):
         self.write(self.center(self.mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
+	
+    def correct(self, a, b):
+        ret = "";
+        s = difflib.SequenceMatcher(None, b, a)
 
+        sz = self.main.currentCard.cardModel.answerFontSize
+        ok = "background: %s; color: #000; font-size: %dpx" % (
+            passedCharColour, sz)
+        bad = "background: %s; color: #000; font-size: %dpx;" % (
+            failedCharColour, sz)
+    
+        for tag, i1, i2, j1, j2 in s.get_opcodes():
+            if tag == "equal":
+                ret += ("<span style='%s'>%s</span>" % (ok, b[i1:i2]))
+            elif tag == "replace":
+                ret += ("<span style='%s'>%s</span>" 
+                        % (bad, b[i1:i2] + (" " * ((j2 - j1) - (i2 - i1)))))
+            elif tag == "delete":
+                ret += ("<span style='%s'>%s</span>" % (bad, b[i1:i2]))
+            elif tag == "insert":
+                ret += ("<span style='%s'>%s</span>" % (bad, " " * (j2 - j1)))
+        return ret
+
+	
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
@@ -143,27 +166,10 @@ class View(object):
                 cor = ""
             if cor:
                 given = unicode(self.main.typeAnswerField.text())
-                res = []
-                if len(given) < len(cor):
-                    given += " " * (len(cor) - len(given))
-                sz = self.main.currentCard.cardModel.answerFontSize
-                ok = "background: %s; color: #000; font-size: %dpx" % (
-                    passedCharColour, sz)
-                bad = "background: %s; color: #000; font-size: %dpx;" % (
-                    failedCharColour, sz)
-                for (i, c) in enumerate(given):
-                    try:
-                        yes = c == cor[i]
-                    except IndexError:
-                        yes = False
-                    if yes:
-                        res.append(
-                            "<span style='%s'>%s</span>" % (ok, c))
-                    else:
-                        res.append("<span style='%s'>%s</span>" % (bad, c))
-                a = "".join(res) + "<br>" + a
-        self.write(self.center('<span id=answer />' +
-                               self.mungeQA(self.main.deck, a)))
+                res = self.correct(cor, given)
+                a = res + "<br>" + a
+        self.write(self.center('<span id=answer />' 
+                               + self.mungeQA(self.main.deck, a)))
         if self.state != self.oldState:
             playFromText(a)
 
