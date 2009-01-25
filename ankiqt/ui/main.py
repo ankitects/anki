@@ -1730,6 +1730,7 @@ day = :d""", d=yesterday)
 	self.mainWin.actionMarkCard.setEnabled(False)
 	self.mainWin.actionSuspendCard.setEnabled(False)
 	self.mainWin.actionDelete.setEnabled(False)
+        self.mainWin.actionRepeatAudio.setEnabled(False)
 
     def enableCardMenuItems(self):
         self.maybeEnableUndo()
