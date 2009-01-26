@@ -50,7 +50,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=22),
+    Column('version', Integer, nullable=False, default=23),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -2065,8 +2065,6 @@ class DeckStorage(object):
         deck = Deck()
         s.save(deck)
         s.flush()
-        s.execute(
-            "create table undoLog (seq integer primary key, sql text)")
         return deck
     _init = staticmethod(_init)
 
@@ -2375,6 +2373,13 @@ where interval < 1""")
             deck.s.statement(
                 'update cardModels set typeAnswer = ""')
             deck.version = 22
+            deck.s.commit()
+        if deck.version < 23:
+            try:
+                deck.s.execute("drop table undoLog")
+            except:
+                pass
+            deck.version = 23
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
