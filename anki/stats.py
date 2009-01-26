@@ -325,7 +325,8 @@ class DeckStats(object):
         (stats["new"], stats["newP"]) = (new, newP)
         (stats["old"], stats["oldP"]) = (old, oldP)
         (stats["young"], stats["youngP"]) = (young, youngP)
-        html += _("Total number of cards: <b>%d</b><br><br>") % total
+        html += _("Total number of cards: <b>%d</b><br>") % total
+        html += _("Total number of facts: <b>%d</b><br><br>") % d.factCount
 
         html += _("<b>Card counts</b><br>")
         html += _("Mature cards: <b>%(old)d</b> "
