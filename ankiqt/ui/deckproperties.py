@@ -12,6 +12,7 @@ from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
 from anki.lang import ngettext
+import ankiqt
 
 tabs = ("ModelsAndPriorities",
         "Synchronization",
@@ -111,7 +112,10 @@ class DeckProperties(QDialog):
         for (name, model) in self.models:
             item = QListWidgetItem(name)
             self.dialog.modelsList.addItem(item)
-            if model == self.d.currentModel:
+            cm = self.d.currentModel
+            if ankiqt.mw.currentCard:
+                cm = ankiqt.mw.currentCard.fact.model
+            if model == cm:
                 self.dialog.modelsList.setCurrentItem(item)
 
     def onAdd(self):
