@@ -133,6 +133,9 @@ class View(object):
             playFromText(q)
 	
     def correct(self, a, b):
+        if b == "":
+            return "";
+
         ret = "";
         s = difflib.SequenceMatcher(None, b, a)
 
