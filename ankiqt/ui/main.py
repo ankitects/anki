@@ -1009,7 +1009,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         s = self.deck.getStats()
         h['ret'] = cardColour % (s['rev']+s['failed'])
         h['new'] = cardColour % s['new']
-        h['newof'] = str(self.deck.newCount)
+        h['newof'] = str(self.deck.newCountAll())
         dtoday = s['dTotal']
         yesterday = self.deck._dailyStats.day - datetime.timedelta(1)
         res = self.deck.s.first("""
