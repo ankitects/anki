@@ -355,7 +355,7 @@
          <item row="7" column="0" >
           <widget class="QCheckBox" name="showStudyOptions" >
            <property name="text" >
-            <string>Show welcome back screen on startup</string>
+            <string>Show study options on deck load</string>
            </property>
           </widget>
          </item>

@@ -253,7 +253,7 @@ You should aim to answer each question within<br>
 
     def flashTimer(self):
         if not (self.main.deck.sessionStartTime and
-                self.main.deck.sessionTimeLimit):
+                self.main.deck.sessionTimeLimit) or self.main.deck.reviewEarly:
             return
         t = time.time() - self.main.deck.sessionStartTime
         t = self.main.deck.sessionTimeLimit - t

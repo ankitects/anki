@@ -997,14 +997,10 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def updateStudyStats(self):
         wasReached = self.deck.sessionLimitReached()
-        initial = self.deck.sessionStartTime == 0
         self.deck.sessionStartTime = 0
         sessionColour = '<font color=#0000ff>%s</font>'
         cardColour = '<font color=#0000ff>%s</font>'
-        if initial:
-            # deck just opened, or screen triggered manually
-            top = _("<h1>Welcome Back!</h1>")
-        elif not wasReached:
+        if not wasReached:
             top = _("<h1>Study Options</h1>")
         else:
             top = _("<h1>Well done!</h1>")
@@ -1117,8 +1113,7 @@ day = :d""", d=yesterday)
         elif (not self.deck.delay0 and
               not self.mainWin.delayLapsedCards.isChecked()):
             self.deck.delay0 = 600
-        if not self.deck.sessionStartTime or self.deck.sessionLimitReached():
-            self.deck.startSession()
+        self.deck.startSession()
         self.deck.flushMod()
         self.moveToState("getQuestion")
 
