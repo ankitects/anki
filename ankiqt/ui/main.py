@@ -1128,14 +1128,11 @@ day = :d""", d=yesterday)
 
     def setupToolbar(self):
         mw = self.mainWin
-        if not self.config['showToolbar']:
-            self.removeToolBar(mw.toolBar)
-            mw.toolBar.hide()
-            return
         if self.config['simpleToolbar']:
             self.removeToolBar(mw.toolBar)
             mw.toolBar.hide()
             mw.toolBar = QToolBar(self)
+            mw.toolBar.setObjectName("toolBar")
             mw.toolBar.addAction(mw.actionAddcards)
             mw.toolBar.addAction(mw.actionEditCurrent)
             mw.toolBar.addAction(mw.actionEditdeck)
@@ -1146,6 +1143,16 @@ day = :d""", d=yesterday)
             self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
         mw.toolBar.setIconSize(QSize(self.config['iconSize'],
                                      self.config['iconSize']))
+        toggle = mw.toolBar.toggleViewAction()
+        toggle.setText(_("Toggle Toolbar"))
+        self.connect(toggle, SIGNAL("triggered()"),
+                     self.onToolbarToggle)
+        if not self.config['showToolbar']:
+            mw.toolBar.hide()
+
+    def onToolbarToggle(self):
+        tb = self.mainWin.toolBar
+        self.config['showToolbar'] = tb.isVisible()
 
     # Tools - looking up words in the dictionary
     ##########################################################################
