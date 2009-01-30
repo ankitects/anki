@@ -1185,13 +1185,29 @@ day = :d""", d=yesterday)
 
     def onKanjiStats(self):
         rep = anki.stats.KanjiStats(self.deck).report()
-        rep += _("<a href=py:miss>Missing Kanji</a><br>")
-        self.help.showText(rep, py={"miss": self.onMissingStats})
+        rep += _("<a href=py:miss>Missing</a><br>")
+        rep += _("<a href=py:seen>Seen</a><br>")
+        rep += _("<a href=py:non>Non-jouyou</a><br>")
+        self.help.showText(rep, py={
+            "miss": self.onMissingStats,
+            "seen": self.onSeenKanjiStats,
+            "non": self.onNonJouyouKanjiStats,
+            })
 
     def onMissingStats(self):
         ks = anki.stats.KanjiStats(self.deck)
         ks.genKanjiSets()
         self.help.showText(ks.missingReport())
+
+    def onSeenKanjiStats(self):
+        ks = anki.stats.KanjiStats(self.deck)
+        ks.genKanjiSets()
+        self.help.showText(ks.seenReport())
+
+    def onNonJouyouKanjiStats(self):
+        ks = anki.stats.KanjiStats(self.deck)
+        ks.genKanjiSets()
+        self.help.showText(ks.nonJouyouReport())
 
     def onDeckStats(self):
         txt = anki.stats.DeckStats(self.deck).report()
