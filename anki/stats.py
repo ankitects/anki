@@ -539,21 +539,38 @@ cards.factId = fields.factId
         out += "</ul>"
         return out
 
-    def missingReport(self):
-        out = "<h1>Missing kanji</h1>"
+    def missingReport(self, check=None):
+        if not check:
+            check = lambda x, y: x not in y
+            out = _("<h1>Missing</h1>")
+        else:
+            out = _("<h1>Seen</h1>")
         for grade in range(1, 9):
-            missing = "".join(self.missingInGrade(grade))
+            missing = "".join(self.missingInGrade(grade, check))
             if not missing:
                 continue
             out += "<h2>" + self.kanjiGrades[grade][0] + "</h2>"
             out += "<font size=+4>"
-            while 1:
-                if not missing:
-                    break
-                # edict will take up to about 10 kanji at once
-                out += self.edictKanjiLink(missing[0:10])
-                missing = missing[10:]
+            out += self.mkEdict(missing)
             out += "</font>"
+        return out + "<br/>"
+
+    def mkEdict(self, kanji):
+        out = "<font size=+4>"
+        while 1:
+            if not kanji:
+                out += "</font>"
+                return out
+            # edict will take up to about 10 kanji at once
+            out += self.edictKanjiLink(kanji[0:10])
+            kanji = kanji[10:]
+
+    def seenReport(self):
+        return self.missingReport(lambda x, y: x in y)
+
+    def nonJouyouReport(self):
+        out = _("<h1>Non-Jouyou</h1>")
+        out += self.mkEdict("".join(self.kanjiSets[0]))
         return out + "<br/>"
 
     def edictKanjiLink(self, kanji):
@@ -561,10 +578,10 @@ cards.factId = fields.factId
         url=base + kanji
         return '<a href="%s">%s</a>' % (url, kanji)
 
-    def missingInGrade(self, gradeNum):
+    def missingInGrade(self, gradeNum, check):
         existingKanji = self.kanjiSets[gradeNum]
         totalKanji = self.kanjiGrades[gradeNum][1]
-        return [k for k in totalKanji if k not in existingKanji]
+        return [k for k in totalKanji if check(k, existingKanji)]
 
     kanjiGrades = [
         (u'non-jouyou', ''),
