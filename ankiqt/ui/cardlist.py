@@ -321,7 +321,8 @@ class EditDeck(QMainWindow):
         else:
             self.sortKey = ("field", self.sortFields[idx-8])
         self.sortIndex = idx
-        self.config['sortIndex'] = idx
+        if idx <= 7:
+            self.config['sortIndex'] = idx
         self.model.sortKey = self.sortKey
         if refresh:
             self.model.showMatching()
