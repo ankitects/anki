@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>699</width>
-    <height>433</height>
+    <height>446</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -23,6 +23,14 @@
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>69</y>
+     <width>699</width>
+     <height>357</height>
+    </rect>
+   </property>
    <property name="sizePolicy" >
     <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>1</horstretch>
@@ -115,43 +123,44 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="gridLayout" >
-       <property name="leftMargin" >
-        <number>4</number>
-       </property>
-       <property name="topMargin" >
+       <property name="margin" >
         <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>4</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>6</number>
        </property>
        <property name="spacing" >
         <number>0</number>
        </property>
        <item row="1" column="0" >
         <widget class="QStackedWidget" name="buttonStack" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
          <property name="currentIndex" >
           <number>5</number>
          </property>
          <widget class="QWidget" name="page1" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>59</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
-           <item>
-            <spacer name="verticalSpacer" >
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0" >
-              <size>
-               <width>20</width>
-               <height>1</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
+           <property name="margin" >
+            <number>4</number>
+           </property>
            <item>
             <widget class="QPushButton" name="showAnswerButton" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimumSize" >
               <size>
                <width>0</width>
@@ -169,27 +178,29 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page2" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>53</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
-           <property name="spacing" >
-            <number>0</number>
-           </property>
            <property name="leftMargin" >
             <number>0</number>
            </property>
            <property name="topMargin" >
-            <number>0</number>
+            <number>4</number>
            </property>
            <property name="rightMargin" >
             <number>0</number>
            </property>
            <property name="bottomMargin" >
-            <number>6</number>
+            <number>4</number>
            </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout" >
-             <property name="spacing" >
-              <number>0</number>
-             </property>
              <item>
               <spacer name="horizontalSpacer" >
                <property name="orientation" >
@@ -205,12 +216,22 @@
              </item>
              <item>
               <layout class="QGridLayout" name="gridLayout_2" >
-               <property name="horizontalSpacing" >
-                <number>6</number>
-               </property>
                <property name="verticalSpacing" >
                 <number>0</number>
                </property>
+               <item row="0" column="2" >
+                <spacer name="verticalSpacer_7" >
+                 <property name="orientation" >
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0" >
+                  <size>
+                   <width>55</width>
+                   <height>13</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
                <item row="1" column="0" >
                 <widget class="QLabel" name="easeLabel1" >
                  <property name="text" >
@@ -291,19 +312,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="2" >
-                <spacer name="verticalSpacer_7" >
-                 <property name="orientation" >
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0" >
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
               </layout>
              </item>
              <item>
@@ -324,6 +332,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page3" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>53</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
            <item>
             <spacer name="verticalSpacer_2" >
@@ -351,6 +367,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page4" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>53</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_6" >
            <item>
             <spacer name="verticalSpacer_5" >
@@ -385,6 +409,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page5" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>53</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="typeAnswerLayout" >
            <item>
             <spacer name="verticalSpacer_6" >
@@ -404,23 +436,52 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page" />
+         <widget class="QWidget" name="page" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>53</height>
+           </rect>
+          </property>
+         </widget>
         </widget>
        </item>
        <item row="0" column="0" >
         <widget class="QStackedWidget" name="mainStack" >
          <property name="sizePolicy" >
-          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
            <horstretch>0</horstretch>
-           <verstretch>99</verstretch>
+           <verstretch>100</verstretch>
           </sizepolicy>
          </property>
          <property name="currentIndex" >
-          <number>0</number>
+          <number>4</number>
          </property>
-         <widget class="QWidget" name="blankPage" />
+         <widget class="QWidget" name="blankPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>304</height>
+           </rect>
+          </property>
+         </widget>
          <widget class="QWidget" name="welcomePage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>304</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
+           <property name="margin" >
+            <number>6</number>
+           </property>
            <item>
             <widget class="QTextBrowser" name="welcomeText" >
              <property name="focusPolicy" >
@@ -434,6 +495,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="editPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>304</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" >
            <property name="spacing" >
             <number>0</number>
@@ -447,6 +516,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="optionsPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>304</height>
+           </rect>
+          </property>
           <layout class="QGridLayout" name="gridLayout_3" >
            <property name="verticalSpacing" >
             <number>0</number>
@@ -749,15 +826,45 @@
           </layout>
          </widget>
          <widget class="QWidget" name="congratsPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>422</width>
+            <height>304</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_9" >
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3" >
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_10" >
+               <property name="leftMargin" >
+                <number>6</number>
+               </property>
+               <item>
+                <spacer name="verticalSpacer_10" >
+                 <property name="orientation" >
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeType" >
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0" >
+                  <size>
+                   <width>20</width>
+                   <height>10</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
                <item>
                 <widget class="QLabel" name="congratsLabel" >
                  <property name="text" >
                   <string>xxx</string>
+                 </property>
+                 <property name="margin" >
+                  <number>0</number>
                  </property>
                 </widget>
                </item>
@@ -1029,7 +1136,7 @@
      <x>0</x>
      <y>0</y>
      <width>699</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1172,10 +1279,27 @@
    <addaction name="menu_Settings" />
    <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QStatusBar" name="statusbar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>426</y>
+     <width>699</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
   <widget class="QToolBar" name="toolBar" >
    <property name="enabled" >
     <bool>true</bool>
+   </property>
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>23</y>
+     <width>699</width>
+     <height>46</height>
+    </rect>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>

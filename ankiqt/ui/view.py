@@ -64,10 +64,12 @@ class View(object):
             if self.haveTop:
                 self.drawTopSection()
         if self.state == "showQuestion":
+            self.setBackground()
             self.drawQuestion()
             if self.drawRule:
                 self.write("<hr>")
         elif self.state == "showAnswer":
+            self.setBackground()
             if not self.main.currentCard.cardModel.questionInAnswer:
                 self.drawQuestion(nosound=True)
             if self.drawRule:
@@ -91,6 +93,10 @@ class View(object):
     def clearWindow(self):
         self.body.setHtml("")
         self.buffer = ""
+
+    def setBackground(self):
+        col = self.main.currentCard.cardModel.lastFontColour
+        self.write("<style>html { background: %s;}</style>" % col)
 
     # Font properties & output
     ##########################################################################
@@ -131,7 +137,7 @@ class View(object):
         self.write(self.center(self.mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
-	
+
     def correct(self, a, b):
         if b == "":
             return "";
@@ -144,12 +150,12 @@ class View(object):
             passedCharColour, sz)
         bad = "background: %s; color: #000; font-size: %dpx;" % (
             failedCharColour, sz)
-    
+
         for tag, i1, i2, j1, j2 in s.get_opcodes():
             if tag == "equal":
                 ret += ("<span style='%s'>%s</span>" % (ok, b[i1:i2]))
             elif tag == "replace":
-                ret += ("<span style='%s'>%s</span>" 
+                ret += ("<span style='%s'>%s</span>"
                         % (bad, b[i1:i2] + (" " * ((j2 - j1) - (i2 - i1)))))
             elif tag == "delete":
                 ret += ("<span style='%s'>%s</span>" % (bad, b[i1:i2]))
@@ -157,7 +163,6 @@ class View(object):
                 ret += ("<span style='%s'>%s</span>" % (bad, " " * (j2 - j1)))
         return ret
 
-	
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
@@ -171,7 +176,7 @@ class View(object):
                 given = unicode(self.main.typeAnswerField.text())
                 res = self.correct(cor, given)
                 a = res + "<br>" + a
-        self.write(self.center('<span id=answer />' 
+        self.write(self.center('<span id=answer />'
                                + self.mungeQA(self.main.deck, a)))
         if self.state != self.oldState:
             playFromText(a)
@@ -242,7 +247,7 @@ class View(object):
     ##########################################################################
 
     def drawWelcomeMessage(self):
-        self.main.mainWin.welcomeText.setText(_("""
+        self.main.mainWin.welcomeText.setText(_("""\
 <h1>Welcome to Anki!</h1>
 <p>
 <table>

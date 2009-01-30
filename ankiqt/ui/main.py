@@ -437,12 +437,7 @@ new:
     ##########################################################################
 
     def setupButtons(self):
-        if sys.platform.startswith("darwin"):
-            self.easeButtonHeight = 35
-        else:
-            self.easeButtonHeight = 25
         # ask
-        self.mainWin.showAnswerButton.setFixedHeight(self.easeButtonHeight)
         self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("showAnswer"))
         # answer

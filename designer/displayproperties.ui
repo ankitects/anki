@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
-    <height>399</height>
+    <width>818</width>
+    <height>427</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -44,6 +44,18 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="minimumSize" >
+        <size>
+         <width>360</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>360</width>
+         <height>16777215</height>
+        </size>
        </property>
        <property name="frameShape" >
         <enum>QFrame::NoFrame</enum>
@@ -84,7 +96,7 @@
             <item>
              <widget class="QTabWidget" name="tabWidget" >
               <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -97,8 +109,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>297</width>
-                 <height>289</height>
+                 <width>348</width>
+                 <height>317</height>
                 </rect>
                </property>
                <attribute name="title" >
@@ -250,19 +262,36 @@
                    </widget>
                   </item>
                   <item row="8" column="0" >
-                   <spacer name="verticalSpacer" >
-                    <property name="orientation" >
-                     <enum>Qt::Vertical</enum>
+                   <widget class="QLabel" name="label_5" >
+                    <property name="text" >
+                     <string>Background colour</string>
                     </property>
-                    <property name="sizeHint" stdset="0" >
-                     <size>
-                      <width>20</width>
-                      <height>40</height>
-                     </size>
+                   </widget>
+                  </item>
+                  <item row="8" column="1" >
+                   <widget class="QPushButton" name="backgroundColour" >
+                    <property name="text" >
+                     <string/>
                     </property>
-                   </spacer>
+                    <property name="autoDefault" >
+                     <bool>false</bool>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer" >
+                  <property name="orientation" >
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0" >
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -271,8 +300,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>297</width>
-                 <height>289</height>
+                 <width>960</width>
+                 <height>480</height>
                 </rect>
                </property>
                <attribute name="title" >
@@ -557,12 +586,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>400</width>
-            <height>0</height>
-           </size>
           </property>
           <property name="readOnly" >
            <bool>true</bool>
