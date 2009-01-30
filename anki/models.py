@@ -96,9 +96,11 @@ cardModelsTable = Table(
     Column('answerFontSize', Integer, default=20),
     Column('answerFontColour', String(7), default=u"#000000"),
     Column('answerAlign', Integer, default=0),
+    # not used
     Column('lastFontFamily', UnicodeText, default=u"Arial"),
     Column('lastFontSize', Integer, default=20),
-    Column('lastFontColour', String(7), default=u"#000000"),
+    # used as background colour
+    Column('lastFontColour', String(7), default=u"#FFFFFF"),
     Column('editQuestionFontFamily', UnicodeText, default=None),
     Column('editQuestionFontSize', Integer, default=None),
     Column('editAnswerFontFamily', UnicodeText, default=None),
@@ -166,7 +168,7 @@ modelsTable = Table(
     Column('description', UnicodeText, nullable=False, default=u""), # obsolete
     Column('features', UnicodeText, nullable=False, default=u""), # obsolete
     Column('spacing', Float, nullable=False, default=0.1),
-    Column('initialSpacing', Float, nullable=False, default=600),
+    Column('initialSpacing', Float, nullable=False, default=60),
     Column('source', Integer, nullable=False, default=0))
 
 class Model(object):

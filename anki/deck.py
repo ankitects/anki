@@ -50,7 +50,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=23),
+    Column('version', Integer, nullable=False, default=24),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -633,14 +633,16 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             newCardsTomorrow = min(self.newCount, self.newCardsPerDay)
             cards = self.cardsDueBy(time.time() + 86400)
             msg = _('''\
+<style>b { color: #00f; }</style>
 At the same time tomorrow:<br><br>
-%(wait)s<br>
-%(new)s''') % {
-                'new': ngettext("There will be <b>%d</b> new card waiting for review.",
-                          "There will be <b>%d</b> new cards waiting for review.",
+%(spc)s%(wait)s<br>
+%(spc)s%(new)s''') % {
+                'new': ngettext("There will be <b>%d new</b> card.",
+                          "There will be <b>%d new</b> cards.",
                           newCardsTomorrow) % newCardsTomorrow,
-                'wait': ngettext("There will be <b>%s</b> card waiting.",
-                          "There will be <b>%s</b> cards waiting.", cards) % cards,
+                'wait': ngettext("There will be <b>%s review</b>.",
+                          "There will be <b>%s reviews</b>.", cards) % cards,
+                'spc': '&nbsp;' * 5,
                 }
             if next - time.time() > 86400 and not newCardsTomorrow:
                 msg = (_("The next card will be shown in <b>%s</b>.") %
@@ -1206,7 +1208,11 @@ questionAlign from cardModels""")])
         css += "".join([_genCSS("#cma", row) for row in self.s.all("""
 select id, answerFontFamily, answerFontSize, answerFontColour,
 answerAlign from cardModels""")])
+        css += "".join([".cmb%s {background:%s;}\n" %
+        (hexifyID(row[0]), row[1]) for row in self.s.all("""
+select id, lastFontColour from cardModels""")])
         self.css = css
+        #print css
         return css
 
     def copyModel(self, oldModel):
@@ -2380,6 +2386,11 @@ where interval < 1""")
             except:
                 pass
             deck.version = 23
+            deck.s.commit()
+        if deck.version < 24:
+            deck.s.statement(
+                "update cardModels set lastFontColour = '#ffffff'")
+            deck.version = 24
             deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
