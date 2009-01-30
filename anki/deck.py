@@ -678,7 +678,7 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
     def deckFinishedMsg(self):
         spaceSusp = ""
         c = self.spacedCardCount()
-        if c:
+        if c and self.newCountToday:
             spaceSusp += ngettext('''
 There is <b>%d</b>
 <a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae">
