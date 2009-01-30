@@ -236,7 +236,8 @@ class EditDeck(QMainWindow):
         restoreSplitter(self.dialog.splitter, "editor")
         self.show()
         self.updateSearch()
-        self.currentCard = self.parent.currentCard
+        if self.parent.currentCard:
+            self.currentCard = self.parent.currentCard
         self.focusCurrentCard()
 
     def findCardInDeckModel(self, model, card):
