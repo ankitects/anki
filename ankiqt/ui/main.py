@@ -1359,12 +1359,13 @@ day = :d""", d=yesterday)
             ui.utils.showInfo(
                 _("Already cramming. Please close this deck first."))
             return
+        if not self.save(required=True):
+            return
         (s, ret) = ui.utils.getTag(self, self.deck, _("Tags to cram:"),
                                    help="CramMode", tags="all")
         if not ret:
             return
         s = unicode(s)
-        self.deck.save()
         # open tmp deck
         ndir = tempfile.mkdtemp(prefix="anki")
         path = os.path.join(ndir, "cram.anki")
@@ -1376,7 +1377,6 @@ day = :d""", d=yesterday)
         e.exportInto(path)
         if not e.exportedCards:
             ui.utils.showInfo(_("No cards matched the provided tags."))
-            p.finish()
             return
         if self.config['randomizeOnCram']:
             n = 4
