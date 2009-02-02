@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, sys, optparse, re
+import os, sys, optparse, re, shutil
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -33,15 +33,23 @@ def run():
     import forms
     import config
     import ui
-    # put anki home in c:\anki on win32 if not available
+
+    # home on win32 is broken
     if sys.platform == "win32":
-        path = os.path.expanduser("~")
-        if path[0] == "~" or not os.access(path, os.R_OK | os.W_OK):
+        if 'APPDATA' in os.environ:
+            oldConf = os.path.expanduser("~/.anki/config.db")
+            os.environ['HOME'] = os.environ['APPDATA']
+        else:
+            oldConf = None
             os.environ['HOME'] = "c:\\anki"
-            try:
-                os.mkdir("c:\\anki")
-            except OSError:
-                pass
+        try:
+            os.makedirs(os.path.expanduser("~/.anki"))
+        except OSError:
+            pass
+        if os.path.exists(oldConf):
+            shutil.copy2(oldConf,
+                         os.path.expanduser("~/.anki/config.db"))
+            os.rename(oldConf, oldConf.replace("config.db", "config.db.old"))
 
     app = QApplication(sys.argv)
 
