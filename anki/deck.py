@@ -635,14 +635,13 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             msg = _('''\
 <style>b { color: #00f; }</style>
 At the same time tomorrow:<br><br>
-%(spc)s%(wait)s<br>
-%(spc)s%(new)s''') % {
+%(wait)s<br>
+%(new)s''') % {
                 'new': ngettext("There will be <b>%d new</b> card.",
                           "There will be <b>%d new</b> cards.",
                           newCardsTomorrow) % newCardsTomorrow,
                 'wait': ngettext("There will be <b>%s review</b>.",
                           "There will be <b>%s reviews</b>.", cards) % cards,
-                'spc': '&nbsp;' * 5,
                 }
             if next - time.time() > 86400 and not newCardsTomorrow:
                 msg = (_("The next card will be shown in <b>%s</b>.") %
