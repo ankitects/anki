@@ -672,9 +672,14 @@ class FactEdit(QTextEdit):
                 return
         if source.hasImage():
             im = QImage(source.imageData())
-            (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".jpg")
-            uname = unicode(name, sys.getfilesystemencoding())
-            im.save(uname, None, 95)
+            if im.hasAlphaChannel():
+                (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".png")
+                uname = unicode(name, sys.getfilesystemencoding())
+                im.save(uname)
+            else:
+                (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".jpg")
+                uname = unicode(name, sys.getfilesystemencoding())
+                im.save(uname, None, 95)
             self.parent._addPicture(uname, widget=self)
             return
         if source.hasHtml():
