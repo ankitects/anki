@@ -1671,7 +1671,6 @@ day = :d""", d=yesterday)
         self.connect(m.actionRedo, s, self.onRedo)
         self.connect(m.actionCheckDatabaseIntegrity, s, self.onCheckDB)
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
-        self.connect(m.actionMergeModels, s, self.onMergeModels)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionCram, s, self.onCram)
         self.connect(m.actionGetPlugins, s, self.onGetPlugins)
@@ -1974,7 +1973,6 @@ day = :d""", d=yesterday)
         if self.progressWin:
             self.progressWin.finish()
             self.progressWin = None
-        self.progressParent = None
 
     # Advanced features
     ##########################################################################
@@ -2003,25 +2001,6 @@ Proceed?""")):
     def onOptimizeDB(self):
         size = self.deck.optimize()
         ui.utils.showInfo("Database optimized.\nShrunk by %d bytes" % size)
-
-    def onMergeModels(self):
-        ret = self.deck.canMergeModels()
-        if ret[0] == "ok":
-            if not ret[1]:
-                ui.utils.showInfo(_(
-                    "No models found to merge. If you want to merge models,\n"
-                    "all models must have the same name, and must not be\n"
-                    "from another person's deck."))
-                return
-            if ui.utils.askUser(_(
-                "Would you like to merge models that have the same name?")):
-                self.deck.mergeModels(ret[1])
-                self.reset()
-                ui.utils.showInfo(_("Merge complete."))
-        else:
-            ui.utils.showWarning(_("""%s.
-Anki can only merge models if they have exactly
-the same field count and card count.""") % ret[1])
 
     def onCheckMediaDB(self):
         mb = QMessageBox(self)

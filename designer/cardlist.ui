@@ -376,11 +376,6 @@
     <string>Ctrl+End</string>
    </property>
   </action>
-  <action name="actionChangeTemplate" >
-   <property name="text" >
-    <string>Change &amp;Template...</string>
-   </property>
-  </action>
   <action name="actionReverseOrder" >
    <property name="checkable" >
     <bool>true</bool>

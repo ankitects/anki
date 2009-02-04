@@ -457,7 +457,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex" >
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="blankPage" >
           <property name="geometry" >
@@ -1227,8 +1227,6 @@
      <addaction name="actionCacheLatex" />
      <addaction name="actionUncacheLatex" />
      <addaction name="separator" />
-     <addaction name="actionMergeModels" />
-     <addaction name="separator" />
      <addaction name="actionRecordNoiseProfile" />
     </widget>
     <addaction name="actionGraphs" />
@@ -1718,15 +1716,6 @@
    </property>
    <property name="text" >
     <string>Optimize Database</string>
-   </property>
-  </action>
-  <action name="actionMergeModels" >
-   <property name="icon" >
-    <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Merge Models...</string>
    </property>
   </action>
   <action name="actionCheckMediaDatabase" >

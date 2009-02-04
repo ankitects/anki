@@ -643,12 +643,13 @@ where id in %s""" % ids2str(sf))
         d = ChangeModelDialog(self, self.currentCard.fact.model,
                               self.currentCard.cardModel)
         d.exec_()
-        self.parent.setProgressParent(self)
         if d.ret:
             n = _("Change Model")
+            self.parent.setProgressParent(self)
             self.deck.setUndoStart(n)
             self.deck.changeModel(sf, *d.ret)
             self.deck.setUndoEnd(n)
+            self.parent.setProgressParent(None)
             self.updateSearch()
             self.updateAfterCardChange()
 
