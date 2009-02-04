@@ -1108,81 +1108,6 @@ facts.id = cards.factId""", id=model.id))
             if not self.modelUseCount(model):
                 self.deleteModel(model)
 
-    def modelsGroupedByName(self):
-        "Return hash of name -> [id, cardModelIds, fieldIds]"
-        l = self.s.all("select name, id from models where source = 0"
-                       " order by created")
-        models = {}
-        for m in l:
-            cms = self.s.column0("""
-select id from cardModels where modelId = :id order by ordinal""", id=m[1])
-            fms = self.s.column0("""
-select id from fieldModels where modelId = :id order by ordinal""", id=m[1])
-            if m[0] in models:
-                models[m[0]].append((m[1], cms, fms))
-            else:
-                models[m[0]] = [(m[1], cms, fms)]
-        return models
-
-    def canMergeModels(self):
-        models = self.modelsGroupedByName()
-        toProcess = []
-        msg = ""
-        for (name, ids) in models.items():
-            if len(ids) > 1:
-                cms = len(ids[0][1])
-                fms = len(ids[0][2])
-                for id in ids[1:]:
-                    if len(id[1]) != cms:
-                        msg = (_(
-                            "Model '%s' has wrong card template count") % name)
-                        break
-                    if len(id[2]) != fms:
-                        msg = (_(
-                            "Model '%s' has wrong field count") % name)
-                        break
-                toProcess.append((name, ids))
-        if msg:
-            return ("no", msg)
-        return ("ok", toProcess)
-
-    def mergeModels(self, toProcess):
-        "Merge models. Caller must call refresh()."
-        for (name, ids) in toProcess:
-            (id1, cms1, fms1) = ids[0]
-            for (id2, cms2, fms2) in ids[1:]:
-                self.mergeModel((id1, cms1, fms1),
-                                (id2, cms2, fms2))
-
-    def mergeModel(self, m1, m2):
-        "Given two model ids, merge m2 into m1."
-        (id1, cms1, fms1) = m1
-        (id2, cms2, fms2) = m2
-        self.s.flush()
-        # cards
-        for n in range(len(cms1)):
-            self.s.statement("""
-update cards set
-modified = strftime("%s", "now"),
-cardModelId = :new where cardModelId = :old""",
-                             new=cms1[n], old=cms2[n])
-        # facts
-        self.s.statement("""
-update facts set
-modified = strftime("%s", "now"),
-modelId = :new where modelId = :old""",
-                         new=id1, old=id2)
-        # fields
-        for n in range(len(fms1)):
-            self.s.statement("""
-update fields set
-fieldModelId = :new where fieldModelId = :old""",
-                             new=fms1[n], old=fms2[n])
-        # delete m2
-        model = [m for m in self.models if m.id == id2][0]
-        self.deleteModel(model)
-        self.refresh()
-
     def rebuildCSS(self):
         # css for all fields
         def _genCSS(prefix, row):
@@ -1227,6 +1152,79 @@ select id, lastFontColour from cardModels""")])
             setattr(m, attr, getattr(oldModel, attr))
         self.addModel(m)
         return m
+
+    def changeModel(self, factIds, newModel, fieldMap, cardMap):
+        "Caller must call reset."
+        self.s.flush()
+        fids = ids2str(factIds)
+        changed = False
+        # field remapping
+        if fieldMap:
+            changed = True
+            self.startProgress(len(fieldMap)+1, title)
+            seen = {}
+            for (old, new) in fieldMap.items():
+                self.updateProgress(_("Changing fields..."))
+                seen[new] = 1
+                if new:
+                    # can rename
+                    self.s.statement("""
+update fields set
+fieldModelId = :new,
+ordinal = :ord
+where fieldModelId = :old
+and factId in %s""" % fids, new=new.id, ord=new.ordinal, old=old.id)
+                else:
+                    # no longer used
+                    self.s.statement("""
+delete from fields where factId in %s
+and fieldModelId = :id""" % fids, id=old.id)
+            # new
+            for field in newModel.fieldModels:
+                self.updateProgress()
+                if field not in seen:
+                    d = [{'id': genID(),
+                          'fid': f,
+                          'fmid': field.id,
+                          'ord': field.ordinal}
+                         for f in factIds]
+                    self.s.statements('''
+insert into fields
+(id, factId, fieldModelId, ordinal, value)
+values
+(:id, :fid, :fmid, :ord, ""''', d)
+            # fact modtime
+            self.updateProgress()
+            self.s.statement("""
+update facts set
+modified = :t,
+modelId = :id
+where id in %s""" % fids, t=time.time(), id=newModel.id)
+            self.finishProgress()
+        # template remapping
+        self.startProgress(len(cardMap)+2)
+        for (old, new) in cardMap.items():
+            self.updateProgress(_("Changing cards..."))
+            if not new:
+                # delete
+                self.s.statement("""
+delete from cards
+where cardModelId = :cid and
+factId in %s""" % fids, cid=old.id)
+            elif old != new:
+                # change
+                self.s.statement("""
+update cards set
+cardModelId = :new,
+ordinal = :ord
+where cardModelId = :old
+and factId in %s""" % fids, new=new.id, old=old.id, ord=new.ordinal)
+        self.updateProgress()
+        self.updateCardQACacheFromIds(factIds, type="facts")
+        self.flushMod()
+        self.updateProgress()
+        self.rebuildCounts()
+        self.finishProgress()
 
     # Fields
     ##########################################################################
@@ -1331,15 +1329,15 @@ facts.modelId = :id""", id=model.id)
 
     def updateCardQACacheFromIds(self, ids, type="cards"):
         "Given a list of card or fact ids, update q/a cache."
-        if type == "cards":
-            col = "c.id"
-        else:
-            col = "f.id"
+        if type == "facts":
+            # convert to card ids
+            ids = self.s.column0(
+                "select id from cards where factId in %s" % ids2str(ids))
         rows = self.s.all("""
 select c.id, c.cardModelId, f.id, f.modelId
 from cards as c, facts as f
 where c.factId = f.id
-and %s in %s""" % (col, ids2str(ids)))
+and c.id in %s""" % ids2str(ids))
         self.updateCardQACache(rows)
 
     def updateCardQACache(self, ids, dirty=True):

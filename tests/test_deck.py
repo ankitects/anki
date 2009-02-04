@@ -8,6 +8,7 @@ from anki import DeckStorage
 from anki.db import *
 from anki.models import FieldModel
 from anki.stdmodels import JapaneseModel, BasicModel
+from anki.utils import stripHTML
 
 newPath = None
 newModified = None
@@ -171,3 +172,42 @@ def test_media():
         pass
     deck.saveAs(path)
     assert os.path.exists("/tmp/saveAs2.media/%s" % sum)
+
+def test_modelChange():
+    deck = DeckStorage.Deck()
+    m1 = JapaneseModel()
+    m1.cardModels[1].active = True
+    deck.addModel(m1)
+    f = deck.newFact()
+    f['Expression'] = u'e'
+    f['Meaning'] = u'm'
+    f['Reading'] = u'r'
+    f = deck.addFact(f)
+    f2 = deck.newFact()
+    f2['Expression'] = u'e2'
+    f2['Meaning'] = u'm2'
+    f2['Reading'] = u'r2'
+    deck.addFact(f2)
+    m2 = BasicModel()
+    m2.cardModels[1].active = True
+    deck.addModel(m2)
+    # convert to basic
+    assert deck.modelUseCount(m1) == 2
+    assert deck.modelUseCount(m2) == 0
+    assert deck.cardCount == 4
+    assert deck.factCount == 2
+    fmap = {m1.fieldModels[0]: m2.fieldModels[0],
+            m1.fieldModels[1]: None,
+            m1.fieldModels[2]: m2.fieldModels[1]}
+    cmap = {m1.cardModels[0]: m2.cardModels[0],
+            m1.cardModels[1]: None}
+    deck.changeModel([f.id], m2, fmap, cmap)
+    assert deck.modelUseCount(m1) == 1
+    assert deck.modelUseCount(m2) == 1
+    assert deck.cardCount == 3
+    assert deck.factCount == 2
+    (q, a) = deck.s.first("""
+select question, answer from cards where factId = :id""",
+                          id=f.id)
+    assert stripHTML(q) == u"e"
+    assert stripHTML(a) == u"r"
