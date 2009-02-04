@@ -1161,7 +1161,7 @@ select id, lastFontColour from cardModels""")])
         # field remapping
         if fieldMap:
             changed = True
-            self.startProgress(len(fieldMap)+1, title)
+            self.startProgress(len(fieldMap)+1)
             seen = {}
             for (old, new) in fieldMap.items():
                 self.updateProgress(_("Changing fields..."))
@@ -1202,9 +1202,10 @@ modelId = :id
 where id in %s""" % fids, t=time.time(), id=newModel.id)
             self.finishProgress()
         # template remapping
-        self.startProgress(len(cardMap)+2)
+        self.startProgress(len(cardMap)+3)
+        toChange = []
+        self.updateProgress(_("Changing cards..."))
         for (old, new) in cardMap.items():
-            self.updateProgress(_("Changing cards..."))
             if not new:
                 # delete
                 self.s.statement("""
@@ -1212,13 +1213,18 @@ delete from cards
 where cardModelId = :cid and
 factId in %s""" % fids, cid=old.id)
             elif old != new:
-                # change
-                self.s.statement("""
+                # gather ids so we can rename x->y and y->x
+                ids = self.s.column0("""
+select id from cards where
+cardModelId = :id and factId in %s""" % fids, id=old.id)
+                toChange.append((new, ids))
+        for (new, ids) in toChange:
+            self.updateProgress()
+            self.s.statement("""
 update cards set
 cardModelId = :new,
 ordinal = :ord
-where cardModelId = :old
-and factId in %s""" % fids, new=new.id, old=old.id, ord=new.ordinal)
+where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         self.updateProgress()
         self.updateCardQACacheFromIds(factIds, type="facts")
         self.flushMod()
