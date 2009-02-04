@@ -1957,10 +1957,14 @@ day = :d""", d=yesterday)
         addHook("startProgress", self.onStartProgress)
         addHook("updateProgress", self.onUpdateProgress)
         addHook("finishProgress", self.onFinishProgress)
+        self.progressParent = None
+
+    def setProgressParent(self, parent):
+        self.progressParent = parent
 
     def onStartProgress(self, max=100, min=0, title=None):
-        self.progressWin = ui.utils.ProgressWin(self.app.activeWindow() or self,
-                                                max, min, title)
+        parent = self.progressParent or self.app.activeWindow() or self
+        self.progressWin = ui.utils.ProgressWin(parent, max, min, title)
 
     def onUpdateProgress(self, label=None, value=None):
         if self.progressWin:
@@ -1970,6 +1974,7 @@ day = :d""", d=yesterday)
         if self.progressWin:
             self.progressWin.finish()
             self.progressWin = None
+        self.progressParent = None
 
     # Advanced features
     ##########################################################################
