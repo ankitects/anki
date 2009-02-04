@@ -79,7 +79,9 @@ class FactEditor(object):
         self.fieldsBox.setSpacing(3)
         # icons
         self.iconsBox = QHBoxLayout()
+        self.iconsBox2 = QHBoxLayout()
         self.fieldsBox.addLayout(self.iconsBox)
+        self.fieldsBox.addLayout(self.iconsBox2)
         # scrollarea
         self.fieldsScroll = QScrollArea()
         self.fieldsScroll.setWidgetResizable(True)
@@ -88,7 +90,10 @@ class FactEditor(object):
         self.fieldsScroll.setFocusPolicy(Qt.NoFocus)
         self.fieldsBox.addWidget(self.fieldsScroll)
         self.iconsBox.setMargin(0)
-        self.iconsBox.addItem(QSpacerItem(20,20, QSizePolicy.Expanding))
+        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
+        self.iconsBox2.setMargin(0)
+        self.iconsBox2.setMargin(0)
+        self.iconsBox2.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         # button styles for mac
         self.plastiqueStyle = QStyleFactory.create("plastique")
         self.widget.setStyle(self.plastiqueStyle)
@@ -137,23 +142,12 @@ class FactEditor(object):
         self.foregroundFrame.setAutoFillBackground(True)
         hbox = QHBoxLayout()
         hbox.addWidget(self.foregroundFrame)
-        hbox.setMargin(1)
+        hbox.setMargin(5)
         self.foreground.setLayout(hbox)
         self.iconsBox.addWidget(self.foreground)
         self.foreground.setStyle(self.plastiqueStyle)
-        # preview
-        self.preview = QPushButton(self.widget)
-        self.preview.connect(self.preview, SIGNAL("clicked()"),
-                                  self.onPreview)
-        self.preview.setToolTip(_("Preview (F2)"))
-        self.preview.setShortcut(_("F2"))
-        self.preview.setIcon(QIcon(":/icons/document-preview.png"))
-        self.preview.setFocusPolicy(Qt.NoFocus)
-        self.preview.setEnabled(False)
-        self.iconsBox.addWidget(self.preview)
-        self.preview.setStyle(self.plastiqueStyle)
         # pictures
-        spc = QSpacerItem(10,10)
+        spc = QSpacerItem(5,5)
         self.iconsBox.addItem(spc)
         self.addPicture = QPushButton(self.widget)
         self.addPicture.connect(self.addPicture, SIGNAL("clicked()"), self.onAddPicture)
@@ -184,53 +178,86 @@ class FactEditor(object):
         self.recSound.setToolTip(_("Record audio (F5)"))
         self.iconsBox.addWidget(self.recSound)
         self.recSound.setStyle(self.plastiqueStyle)
+        # more
+        self.more = QPushButton(self.widget)
+        self.more.connect(self.more, SIGNAL("clicked()"),
+                                  self.onMore)
+        self.more.setToolTip(_("Show advanced options"))
+        self.more.setText(">>")
+        self.more.setFocusPolicy(Qt.NoFocus)
+        self.more.setEnabled(False)
+        self.more.setFixedWidth(30)
+        self.iconsBox.addWidget(self.more)
+        self.more.setStyle(self.plastiqueStyle)
+        # preview
+        spc = QSpacerItem(5,5)
+        self.iconsBox2.addItem(spc)
+        self.preview = QPushButton(self.widget)
+        self.previewSC = QShortcut(QKeySequence(_("F2")), self.widget)
+        self.preview.connect(self.preview, SIGNAL("clicked()"),
+                                  self.onPreview)
+        self.preview.connect(self.previewSC, SIGNAL("activated()"),
+                                  self.onPreview)
+        self.preview.setToolTip(_("Preview (F2)"))
+        self.preview.setIcon(QIcon(":/icons/document-preview.png"))
+        self.preview.setFocusPolicy(Qt.NoFocus)
+        self.preview.setEnabled(False)
+        self.iconsBox2.addWidget(self.preview)
+        self.preview.setStyle(self.plastiqueStyle)
         # latex
-        spc = QSpacerItem(10,10)
-        self.iconsBox.addItem(spc)
         self.latex = QPushButton(self.widget)
-        self.latex.connect(self.latex, SIGNAL("clicked()"), self.insertLatex)
         self.latex.setToolTip(_("Latex (Ctrl+l, l)"))
-        self.latex.setShortcut(_("Ctrl+l, l"))
+        self.latexSC = QShortcut(QKeySequence(_("Ctrl+l, l")), self.widget)
+        self.latex.connect(self.latex, SIGNAL("clicked()"), self.insertLatex)
+        self.latex.connect(self.latexSC, SIGNAL("activated()"), self.insertLatex)
         self.latex.setIcon(QIcon(":/icons/tex.png"))
         self.latex.setFocusPolicy(Qt.NoFocus)
         self.latex.setEnabled(False)
-        self.iconsBox.addWidget(self.latex)
+        self.iconsBox2.addWidget(self.latex)
         self.latex.setStyle(self.plastiqueStyle)
         # latex eqn
         self.latexEqn = QPushButton(self.widget)
-        self.latexEqn.connect(self.latexEqn, SIGNAL("clicked()"), self.insertLatexEqn)
         self.latexEqn.setToolTip(_("Latex equation (Ctrl+l, e)"))
-        self.latexEqn.setShortcut(_("Ctrl+l, e"))
+        self.latexEqnSC = QShortcut(QKeySequence(_("Ctrl+l, e")), self.widget)
+        self.latexEqn.connect(self.latexEqn, SIGNAL("clicked()"), self.insertLatexEqn)
+        self.latexEqn.connect(self.latexEqnSC, SIGNAL("activated()"), self.insertLatexEqn)
         self.latexEqn.setIcon(QIcon(":/icons/math_sqrt.png"))
         self.latexEqn.setFocusPolicy(Qt.NoFocus)
         self.latexEqn.setEnabled(False)
-        self.iconsBox.addWidget(self.latexEqn)
+        self.iconsBox2.addWidget(self.latexEqn)
         self.latexEqn.setStyle(self.plastiqueStyle)
         # latex math env
         self.latexMathEnv = QPushButton(self.widget)
+        self.latexMathEnv.setToolTip(_("Latex math environment (Ctrl+l, m)"))
+        self.latexMathEnvSC = QShortcut(QKeySequence(_("Ctrl+l, m")), self.widget)
         self.latexMathEnv.connect(self.latexMathEnv, SIGNAL("clicked()"),
                                   self.insertLatexMathEnv)
-        self.latexMathEnv.setToolTip(_("Latex math environment (Ctrl+l, m)"))
-        self.latexMathEnv.setShortcut(_("Ctrl+l, m"))
+        self.latexMathEnv.connect(self.latexMathEnvSC, SIGNAL("activated()"),
+                                  self.insertLatexMathEnv)
         self.latexMathEnv.setIcon(QIcon(":/icons/math_matrix.png"))
         self.latexMathEnv.setFocusPolicy(Qt.NoFocus)
         self.latexMathEnv.setEnabled(False)
-        self.iconsBox.addWidget(self.latexMathEnv)
+        self.iconsBox2.addWidget(self.latexMathEnv)
         self.latexMathEnv.setStyle(self.plastiqueStyle)
         # html
         self.htmlEdit = QPushButton(self.widget)
-        self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
-                                  self.onHtmlEdit)
         self.htmlEdit.setToolTip(_("HTML Editor (F9)"))
-        self.htmlEdit.setShortcut(_("F9"))
+        self.htmlEditSC = QShortcut(QKeySequence(_("F9")), self.widget)
+        self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
+                              self.onHtmlEdit)
+        self.htmlEdit.connect(self.htmlEditSC, SIGNAL("activated()"),
+                              self.onHtmlEdit)
         self.htmlEdit.setIcon(QIcon(":/icons/text-xml.png"))
         self.htmlEdit.setFocusPolicy(Qt.NoFocus)
         self.htmlEdit.setEnabled(False)
-        self.iconsBox.addWidget(self.htmlEdit)
+        self.iconsBox2.addWidget(self.htmlEdit)
         self.htmlEdit.setStyle(self.plastiqueStyle)
-
+        #
         self.fieldsFrame = None
         self.widget.setLayout(self.fieldsBox)
+        # show advanced buttons?
+        if not ankiqt.mw.config['factEditorAdvanced']:
+            self.onMore(False)
 
     def _makeGrid(self):
         "Rebuild the grid to avoid trigging QT bugs."
@@ -465,6 +492,7 @@ class FactEditor(object):
         self.preview.setEnabled(val)
         self.htmlEdit.setEnabled(val)
         self.recSound.setEnabled(val)
+        self.more.setEnabled(val)
 
     def disableButtons(self):
         self.enableButtons(False)
@@ -535,6 +563,16 @@ class FactEditor(object):
             w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
+
+    def onMore(self, toggle=None):
+        if toggle is None:
+            toggle = not self.preview.isVisible()
+            ankiqt.mw.config['factEditorAdvanced'] = toggle
+        self.preview.setShown(toggle)
+        self.latex.setShown(toggle)
+        self.latexEqn.setShown(toggle)
+        self.latexMathEnv.setShown(toggle)
+        self.htmlEdit.setShown(toggle)
 
     def onPreview(self):
         PreviewDialog(self.parent, self.deck, self.fact)

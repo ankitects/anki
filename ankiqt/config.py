@@ -82,6 +82,7 @@ class Config(dict):
             'editorReverseOrder': False,
             'editFontFamily': 'Arial',
             'editFontSize': 12,
+            'factEditorAdvanced': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
