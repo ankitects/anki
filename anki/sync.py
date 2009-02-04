@@ -456,7 +456,7 @@ values
             ids2str([f[0] for f in facts]))
         # then update
         self.deck.s.execute("""
-insert or replace into fields
+insert into fields
 (id, factId, fieldModelId, ordinal, value)
 values
 (:id, :factId, :fieldModelId, :ordinal, :value)""", dlist)
