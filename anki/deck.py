@@ -1192,7 +1192,7 @@ and fieldModelId = :id""" % fids, id=old.id)
 insert into fields
 (id, factId, fieldModelId, ordinal, value)
 values
-(:id, :fid, :fmid, :ord, ""''', d)
+(:id, :fid, :fmid, :ord, "")''', d)
             # fact modtime
             self.updateProgress()
             self.s.statement("""
