@@ -1103,6 +1103,8 @@ class BulkMediaSyncerProxy(HttpSyncServerProxy):
         return ret
 
     def addFile(self, fname, data):
+        oldsum = os.path.splitext(fname)[0]
+        assert oldsum == checksum(data)
         return self.runCmd("addFile", fname=fname, data=data)
 
     def runCmd(self, action, **args):

@@ -209,7 +209,7 @@ values (:id, strftime('%s', 'now'))""", id=id)
     deck.flushMod()
     deck.save()
     deck.finishProgress()
-    return missingFileCount, unusedFileCount
+    return missingFileCount, unusedFileCount - len(renamedFiles)
 
 def mediaRefs(string):
     "Return list of (fullMatch, filename, replacementString)."
