@@ -12,7 +12,7 @@ import ankiqt.forms
 
 class ModelChooser(QHBoxLayout):
 
-    def __init__(self, parent, main, deck, onChangeFunc, cards=True):
+    def __init__(self, parent, main, deck, onChangeFunc, cards=True, label=True):
         QHBoxLayout.__init__(self)
         self.parent = parent
         self.main = main
@@ -21,8 +21,9 @@ class ModelChooser(QHBoxLayout):
         self.setMargin(0)
         self.setSpacing(4)
         self.shortcuts = []
-        label = QLabel(_("<b>Model</b>:"))
-        self.addWidget(label)
+        if label:
+            self.modelLabel = QLabel(_("<b>Model</b>:"))
+            self.addWidget(self.modelLabel)
         self.models = QComboBox()
         s = QShortcut(QKeySequence(_("Shift+Alt+m")), self.parent)
         s.connect(s, SIGNAL("activated()"),

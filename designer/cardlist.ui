@@ -13,6 +13,14 @@
    <string>Edit Items</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>23</y>
+     <width>599</width>
+     <height>439</height>
+    </rect>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
     <property name="spacing" >
      <number>0</number>
@@ -162,7 +170,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>24</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit" >
@@ -175,6 +183,7 @@
     <addaction name="actionSelectAll" />
     <addaction name="actionSelectFacts" />
     <addaction name="actionInvertSelection" />
+    <addaction name="separator" />
     <addaction name="actionReverseOrder" />
    </widget>
    <widget class="QMenu" name="menuActions" >
@@ -185,9 +194,10 @@
     <addaction name="actionDeleteTag" />
     <addaction name="separator" />
     <addaction name="actionAddCards" />
-    <addaction name="actionChangeTemplate" />
+    <addaction name="actionChangeModel" />
     <addaction name="separator" />
     <addaction name="actionReschedule" />
+    <addaction name="separator" />
     <addaction name="actionDelete" />
    </widget>
    <widget class="QMenu" name="menuJump" >
@@ -202,9 +212,16 @@
     <addaction name="actionNextCard" />
     <addaction name="actionLastCard" />
    </widget>
+   <widget class="QMenu" name="menu_Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionGuide" />
+   </widget>
    <addaction name="menuActions" />
    <addaction name="menuEdit" />
    <addaction name="menuJump" />
+   <addaction name="menu_Help" />
   </widget>
   <action name="actionDelete" >
    <property name="icon" >
@@ -370,6 +387,16 @@
    </property>
    <property name="text" >
     <string>Reverse &amp;Order</string>
+   </property>
+  </action>
+  <action name="actionGuide" >
+   <property name="text" >
+    <string>&amp;Guide...</string>
+   </property>
+  </action>
+  <action name="actionChangeModel" >
+   <property name="text" >
+    <string>Change &amp;Model...</string>
    </property>
   </action>
  </widget>

@@ -425,14 +425,15 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionDelete, SIGNAL("triggered()"), self.deleteCards)
         self.connect(self.dialog.actionAddTag, SIGNAL("triggered()"), self.addTags)
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
-        self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
-        self.connect(self.dialog.actionChangeTemplate, SIGNAL("triggered()"), self.onChangeTemplate)
         self.connect(self.dialog.actionReschedule, SIGNAL("triggered()"), self.reschedule)
+        self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
+        self.connect(self.dialog.actionChangeModel, SIGNAL("triggered()"), self.onChangeModel)
+        # edit
+        self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
+        self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionReverseOrder, SIGNAL("triggered()"), self.reverseOrder)
-        self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
-        self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         # jumps
         self.connect(self.dialog.actionFirstCard, SIGNAL("triggered()"), self.onFirstCard)
         self.connect(self.dialog.actionLastCard, SIGNAL("triggered()"), self.onLastCard)
@@ -440,6 +441,8 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionNextCard, SIGNAL("triggered()"), self.onNextCard)
         self.connect(self.dialog.actionFind, SIGNAL("triggered()"), self.onFind)
         self.connect(self.dialog.actionFact, SIGNAL("triggered()"), self.onFact)
+        # help
+        self.connect(self.dialog.actionGuide, SIGNAL("triggered()"), self.onHelp)
         runHook('editor.setupMenus', self)
 
     def onClose(self):
@@ -627,27 +630,30 @@ where id in (%s)""" % ",".join([
         self.updateSearch()
         self.updateAfterCardChange()
 
-    def onChangeTemplate(self):
-        sc = self.selectedCards()
-        models = self.deck.s.column0("""
-select distinct modelId from cards, facts where
-cards.id in %s and cards.factId = facts.id""" % ids2str(sc))
-        if not len(models) == 1:
+    def onChangeModel(self):
+        sf = self.selectedFacts()
+        cms = self.deck.s.column0("""
+select distinct modelId from facts
+where id in %s""" % ids2str(sf))
+        if not len(cms) == 1:
             ui.utils.showInfo(
-                _("Can only change templates in a single model."),
+                _("Can only change one model at a time."),
                 parent=self)
             return
-        cms = [x.id for x in
-               self.currentCard.fact.model.cardModels]
-        d = ChangeTemplateDialog(self, cms)
+        d = ChangeModelDialog(self, self.currentCard.fact.model,
+                              self.currentCard.cardModel)
         d.exec_()
-        n = _("Change Template")
-        if d.newId:
+        self.parent.setProgressParent(self)
+        if d.ret:
+            n = _("Change Model")
             self.deck.setUndoStart(n)
-            self.deck.changeCardModel(sc, d.newId)
+            self.deck.changeModel(sf, *d.ret)
             self.deck.setUndoEnd(n)
             self.updateSearch()
             self.updateAfterCardChange()
+
+    # Edit: selection
+    ######################################################################
 
     def selectFacts(self):
         sm = self.dialog.tableView.selectionModel()
@@ -673,7 +679,7 @@ cards.id in %s and cards.factId = facts.id""" % ids2str(sc))
         self.model.reset()
         self.focusCurrentCard()
 
-    # Undo/Redo
+    # Edit: undo/redo
     ######################################################################
 
     def onUndo(self):
@@ -725,6 +731,15 @@ cards.id in %s and cards.factId = facts.id""" % ids2str(sc))
     def onFact(self):
         self.editor.focusFirst()
 
+    # Help
+    ######################################################################
+
+    def onHelp(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Editor"))
+
+# Generate card dialog
+######################################################################
+
 class AddCardChooser(QDialog):
 
     def __init__(self, parent, cms):
@@ -768,41 +783,121 @@ order by ordinal""" % ids2str(self.cms))
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "Editor#GenerateCards"))
 
-class ChangeTemplateDialog(QDialog):
+# Change model dialog
+######################################################################
 
-    def __init__(self, parent, cms):
+class ChangeModelDialog(QDialog):
+
+    def __init__(self, parent, oldModel, oldTemplate):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
-        self.cms = cms
-        self.newId = None
-        self.dialog = ankiqt.forms.addcardmodels.Ui_Dialog()
-        self.dialog.setupUi(self)
-        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
+        self.oldModel = oldModel
+        self.oldTemplate = oldTemplate
+        self.form = ankiqt.forms.changemodel.Ui_Dialog()
+        self.form.setupUi(self)
+        # maps
+        self.fieldMapWidget = None
+        self.fieldMapLayout = QHBoxLayout()
+        self.form.fieldMap.setLayout(self.fieldMapLayout)
+        self.templateMapWidget = None
+        self.templateMapLayout = QHBoxLayout()
+        self.form.templateMap.setLayout(self.templateMapLayout)
+        # model chooser
+        self.parent.deck.currentModel = oldModel
+        self.form.oldModelLabel.setText(self.oldModel.name)
+        self.modelChooser = ui.modelchooser.ModelChooser(self,
+                                                         self.parent,
+                                                         self.parent.deck,
+                                                         self.modelChanged,
+                                                         cards=False,
+                                                         label=False)
+        self.form.modelChooserWidget.setLayout(self.modelChooser)
+        self.modelChooser.models.setFocus()
+        self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
-        self.setWindowTitle(_("Change Template"))
-        self.dialog.list.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.displayCards()
-        restoreGeom(self, "changeTemplate")
+        restoreGeom(self, "changeModel")
+        self.modelChanged(self.oldModel)
+        self.ret = None
 
-    def displayCards(self):
-        self.cms = self.parent.deck.s.all("""
-select id, name from cardModels
-where id in %s
-order by ordinal""" % ids2str(self.cms))
-        self.items = []
-        for cm in self.cms:
-            item = QListWidgetItem(cm[1], self.dialog.list)
-            self.dialog.list.addItem(item)
-            self.items.append(item)
+    def modelChanged(self, model):
+        self.targetModel = model
+        # just changing template?
+        self.form.fieldMap.setEnabled(self.targetModel != self.oldModel)
+        self.rebuildTemplateMap()
+        self.rebuildFieldMap()
+
+    def rebuildTemplateMap(self, key=None, attr=None):
+        if not key:
+            key = "template"
+            attr = "cardModels"
+        map = getattr(self, key + "MapWidget")
+        lay = getattr(self, key + "MapLayout")
+        src = getattr(self.oldModel, attr)
+        dst = getattr(self.targetModel, attr)
+        if map:
+            lay.removeWidget(map)
+            map.deleteLater()
+            setattr(self, key + "MapWidget", None)
+        map = QWidget()
+        l = QGridLayout()
+        combos = []
+        targets = [x.name for x in dst] + [_("Nothing")]
+        qtargets = QStringList(targets)
+        for i, x in enumerate(src):
+            l.addWidget(QLabel(_("Change %s to:") % x.name), i, 0)
+            cb = QComboBox()
+            cb.addItems(qtargets)
+            cb.setCurrentIndex(min(i, len(targets)-1))
+            combos.append(cb)
+            l.addWidget(cb, i, 1)
+        map.setLayout(l)
+        lay.addWidget(map)
+        setattr(self, key + "MapWidget", map)
+        setattr(self, key + "MapLayout", lay)
+        setattr(self, key + "Combos", combos)
+
+    def rebuildFieldMap(self):
+        return self.rebuildTemplateMap(key="field", attr="fieldModels")
+
+    def getTemplateMap(self, old=None, combos=None, new=None):
+        if not old:
+            old = self.oldModel.cardModels
+            combos = self.templateCombos
+            new = self.targetModel.cardModels
+        map = {}
+        for i, f in enumerate(old):
+            idx = combos[i].currentIndex()
+            if idx == len(new):
+                # ignore
+                map[f] = None
+            else:
+                f2 = new[idx]
+                if f2 in map.values():
+                    return None
+                map[f] = f2
+        return map
+
+    def getFieldMap(self):
+        return self.getTemplateMap(
+            old=self.oldModel.fieldModels,
+            combos=self.fieldCombos,
+            new=self.targetModel.fieldModels)
 
     def accept(self):
-        ret = None
-        r = self.dialog.list.selectionModel().selectedRows()
-        if r:
-            self.newId = self.cms[r[0].row()][0]
-        saveGeom(self, "changeTemplate")
-        QDialog.accept(self)
+        saveGeom(self, "changeModel")
+        # check maps
+        fmap = self.getFieldMap()
+        cmap = self.getTemplateMap()
+        if not cmap or (self.targetModel != self.oldModel and
+                        not fmap):
+            return ui.utils.showInfo(
+                _("Targets must be unique."), parent=self)
+        if self.targetModel == self.oldModel:
+            self.ret = (self.targetModel, None, cmap)
+            return QDialog.accept(self)
+        self.ret = (self.targetModel, fmap, cmap)
+        return QDialog.accept(self)
 
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "Editor#ChangeTemplate"))
+                                      "Editor#ChangeModel"))
