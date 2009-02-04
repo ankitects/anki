@@ -1074,9 +1074,10 @@ class BulkMediaSyncer(SyncTools):
         size = self.deck.s.scalar(
             "select size from media where filename = :f",
             f=fname)
-        assert size
-        assert size == len(data)
-        assert checksum(data) == os.path.splitext(fname)[0]
+        # don't bother checksumming locally
+        #assert size
+        #assert size == len(data)
+        #assert checksum(data) == os.path.splitext(fname)[0]
         open(path, "wb").write(data)
 
 class BulkMediaSyncerProxy(HttpSyncServerProxy):
