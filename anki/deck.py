@@ -730,7 +730,8 @@ suspended</a> cards.''', c) % c2
             "update cards set priority = :pri where cards.id = :id"),
             newPriorities)
         self.s.execute(
-            "update cards set isDue = 0 where type in (0,1,2) and priority = 0")
+            "update cards set isDue = 0 where type in (0,1,2) and "
+            "priority = 0 and isDue = 1")
 
     def updatePriority(self, card):
         "Update priority on a single card."
