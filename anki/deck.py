@@ -496,14 +496,6 @@ combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
         self.flushMod()
 
-    def makeCardsDue(self, ids):
-        self.s.statement("""
-update cards set
-isDue = 1,
-modified = :t
-where id in %s""" % ids2str(ids), t=time.time())
-        self.flushMod()
-
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
         self.resetCards(ids)
