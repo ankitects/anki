@@ -1113,6 +1113,7 @@ day = :d""", d=yesterday)
         elif (not self.deck.delay0 and
               not self.mainWin.delayLapsedCards.isChecked()):
             self.deck.delay0 = 600
+        self.deck.updateDynamicIndices()
         self.deck.startSession()
         self.deck.flushMod()
         self.moveToState("getQuestion")
@@ -1379,7 +1380,7 @@ day = :d""", d=yesterday)
             ui.utils.showInfo(_("No cards matched the provided tags."))
             return
         if self.config['randomizeOnCram']:
-            n = 4
+            n = 5
         else:
             n = 2
         p = ui.utils.ProgressWin(self, n, 0, _("Cram"))
@@ -1413,6 +1414,8 @@ day = :d""", d=yesterday)
             p.update()
             self.deck.s.statement(
                 "update fields set factId = (select new from idmap where old = factId)")
+            p.update()
+            self.deck.updateDynamicIndices()
         self.reset()
         p.finish()
 
