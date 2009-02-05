@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>285</width>
-    <height>193</height>
+    <width>227</width>
+    <height>158</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -14,22 +14,12 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2" >
    <item>
-    <widget class="QRadioButton" name="asDue" >
+    <widget class="QRadioButton" name="asNew" >
      <property name="text" >
-      <string>Make due now</string>
+      <string>Reschedule as new cards</string>
      </property>
      <property name="checked" >
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="asNew" >
-     <property name="text" >
-      <string>Reschedule as new</string>
-     </property>
-     <property name="checked" >
-      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -136,7 +126,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>asDue</tabstop>
   <tabstop>asNew</tabstop>
   <tabstop>inRange</tabstop>
   <tabstop>rangeMin</tabstop>
