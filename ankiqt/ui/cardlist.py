@@ -593,7 +593,9 @@ where id in (%s)""" % ",".join([
             return
         self.deck.setUndoStart(n)
         try:
-            if frm.asNew.isChecked():
+            if frm.asDue.isChecked():
+                self.deck.makeCardsDue(self.selectedCards())
+            elif frm.asNew.isChecked():
                 self.deck.resetCards(self.selectedCards())
             else:
                 try:
@@ -607,7 +609,9 @@ where id in (%s)""" % ",".join([
                 self.deck.rescheduleCards(self.selectedCards(), min, max)
         finally:
             self.deck.rebuildQueue()
+            self.deck.rebuildCounts()
             self.deck.setUndoEnd(n)
+            self.parent.moveToState("initial")
         self.updateAfterCardChange(reset=True)
 
     def addCards(self):
