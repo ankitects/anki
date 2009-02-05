@@ -823,6 +823,7 @@ class ChangeModelDialog(QDialog):
         restoreGeom(self, "changeModel")
         self.modelChanged(self.oldModel)
         self.ret = None
+        self.pauseUpdate = False
 
     def modelChanged(self, model):
         self.targetModel = model
@@ -848,11 +849,16 @@ class ChangeModelDialog(QDialog):
         combos = []
         targets = [x.name for x in dst] + [_("Nothing")]
         qtargets = QStringList(targets)
+        indices = {}
         for i, x in enumerate(src):
             l.addWidget(QLabel(_("Change %s to:") % x.name), i, 0)
             cb = QComboBox()
             cb.addItems(qtargets)
-            cb.setCurrentIndex(min(i, len(targets)-1))
+            idx = min(i, len(targets)-1)
+            cb.setCurrentIndex(idx)
+            indices[cb] = idx
+            self.connect(cb, SIGNAL("currentIndexChanged(int)"),
+                         lambda i, cb=cb, key=key: self.onComboChanged(i, cb, key))
             combos.append(cb)
             l.addWidget(cb, i, 1)
         map.setLayout(l)
@@ -860,9 +866,30 @@ class ChangeModelDialog(QDialog):
         setattr(self, key + "MapWidget", map)
         setattr(self, key + "MapLayout", lay)
         setattr(self, key + "Combos", combos)
+        setattr(self, key + "Indices", indices)
 
     def rebuildFieldMap(self):
         return self.rebuildTemplateMap(key="field", attr="fieldModels")
+
+    def onComboChanged(self, i, cb, key):
+        indices = getattr(self, key + "Indices")
+        if self.pauseUpdate:
+            indices[cb] = i
+            return
+        combos = getattr(self, key + "Combos")
+        if i == cb.count() - 1:
+            # set to 'nothing'
+            return
+        # find another combo with same index
+        for c in combos:
+            if c == cb:
+                continue
+            if c.currentIndex() == i:
+                self.pauseUpdate = True
+                c.setCurrentIndex(indices[cb])
+                self.pauseUpdate = False
+                break
+        indices[cb] = i
 
     def getTemplateMap(self, old=None, combos=None, new=None):
         if not old:
