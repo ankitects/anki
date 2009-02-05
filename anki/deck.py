@@ -38,6 +38,9 @@ MATURE_THRESHOLD = 21
 NEW_CARDS_DISTRIBUTE = 0
 NEW_CARDS_LAST = 1
 NEW_CARDS_FIRST = 2
+NEW_CARDS_RANDOM = 0
+NEW_CARDS_OLD_FIRST = 1
+NEW_CARDS_NEW_FIRST = 2
 REV_CARDS_OLD_FIRST = 0
 REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
@@ -50,7 +53,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=24),
+    Column('version', Integer, nullable=False, default=25),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -210,7 +213,8 @@ limit 1""")
 
     def newCardTable(self):
         return ("acqCardsRandom",
-                "acqCardsOrdered")[self.newCardOrder]
+                "acqCardsOld",
+                "acqCardsNew")[self.newCardOrder]
 
     def revCardTable(self):
         return ("revCardsOld",
@@ -1937,6 +1941,47 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         self.refresh()
         self.rebuildCounts()
 
+    # Dynamic indices
+    ##########################################################################
+
+    def updateDynamicIndices(self):
+        t = time.time()
+        indices = {
+            'intervalDesc':
+            '(type, isDue, priority desc, interval desc)',
+            'intervalAsc':
+            '(type, isDue, priority desc, interval)',
+            'randomOrder':
+            '(type, isDue, priority desc, factId, ordinal)',
+            'dueAsc':
+            '(type, isDue, priority desc, due)',
+            'dueDesc':
+            '(type, isDue, priority desc, due desc)',
+            }
+        # determine required
+        required = []
+        if self.revCardOrder == REV_CARDS_OLD_FIRST:
+            required.append("intervalDesc")
+        if self.revCardOrder == REV_CARDS_NEW_FIRST:
+            required.append("intervalAsc")
+        if (self.revCardOrder == REV_CARDS_RANDOM or
+            self.newCardOrder == NEW_CARDS_RANDOM):
+            required.append("randomOrder")
+        if (self.revCardOrder == REV_CARDS_DUE_FIRST or
+            self.newCardOrder == NEW_CARDS_OLD_FIRST):
+            required.append("dueAsc")
+        if (self.newCardOrder == NEW_CARDS_NEW_FIRST):
+            required.append("dueDesc")
+        # add/delete
+        for (k, v) in indices.items():
+            if k in required:
+                self.s.statement(
+                    "create index if not exists ix_cards_%s on cards %s" %
+                    (k, v))
+            else:
+                self.s.statement("drop index if exists ix_cards_%s" % k)
+        print "up", time.time() - t
+
 # Shared decks
 ##########################################################################
 
@@ -2080,25 +2125,10 @@ class DeckStorage(object):
 
     def _addIndices(deck):
         "Add indices to the DB."
-        # card queues
+        # failed cards, review early, check due
         deck.s.statement("""
 create index if not exists ix_cards_duePriority on cards
 (type, isDue, combinedDue, priority)""")
-        deck.s.statement("""
-create index if not exists ix_cards_intervalDesc on cards
-(type, isDue, priority desc, interval desc)""")
-        deck.s.statement("""
-create index if not exists ix_cards_intervalAsc on cards
-(type, isDue, priority desc, interval)""")
-        deck.s.statement("""
-create index if not exists ix_cards_randomOrder on cards
-(type, isDue, priority desc, factId, ordinal)""")
-        deck.s.statement("""
-create index if not exists ix_cards_priorityDue on cards
-(type, isDue, priority desc, combinedDue)""")
-        deck.s.statement("""
-create index if not exists ix_cards_priorityDueReal on cards
-(type, isDue, priority desc, due)""")
         # card spacing
         deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
@@ -2138,7 +2168,8 @@ create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
         s.statement("drop view if exists revCardsDue")
         s.statement("drop view if exists revCardsRandom")
         s.statement("drop view if exists acqCardsRandom")
-        s.statement("drop view if exists acqCardsOrdered")
+        s.statement("drop view if exists acqCardsOld")
+        s.statement("drop view if exists acqCardsNew")
         # failed cards
         s.statement("""
 create view failedCards as
@@ -2174,10 +2205,15 @@ select * from cards
 where type = 2 and isDue = 1
 order by priority desc, factId, ordinal""")
         s.statement("""
-create view acqCardsOrdered as
+create view acqCardsOld as
 select * from cards
 where type = 2 and isDue = 1
 order by priority desc, due""")
+        s.statement("""
+create view acqCardsNew as
+select * from cards
+where type = 2 and isDue = 1
+order by priority desc, due desc""")
     _addViews = staticmethod(_addViews)
 
     def _upgradeDeck(deck, path):
@@ -2396,6 +2432,15 @@ where interval < 1""")
                 "update cardModels set lastFontColour = '#ffffff'")
             deck.version = 24
             deck.s.commit()
+        if deck.version < 25:
+            deck.s.statement("drop index if exists ix_cards_priorityDue")
+            deck.s.statement("drop index if exists ix_cards_priorityDueReal")
+            DeckStorage._addViews(deck)
+            DeckStorage._addIndices(deck)
+            deck.updateDynamicIndices()
+            deck.s.statement("vacuum")
+            deck.version = 25
+            deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
 
@@ -2451,7 +2496,8 @@ where interval < 1""")
 def newCardOrderLabels():
     return {
         0: _("Show new cards in random order"),
-        1: _("Show new cards in order they were added"),
+        1: _("Show new cards in order added"),
+        2: _("Show new cards in reverse order added"),
         }
 
 def newCardSchedulingLabels():
@@ -2463,8 +2509,8 @@ def newCardSchedulingLabels():
 
 def revCardOrderLabels():
     return {
-        0: _("Review largest interval first"),
-        1: _("Review smallest interval first"),
+        0: _("Review cards from largest interval"),
+        1: _("Review cards from smallest interval"),
         2: _("Review cards in order due"),
         3: _("Review cards in random order"),
         }

@@ -567,6 +567,7 @@ values
     def updateDeck(self, deck):
         self.applyDict(self.deck, deck)
         self.deck.lastSync = self.deck.modified
+        self.deck.updateDynamicIndices()
 
     def bundleStats(self):
         def bundleStat(stat):
