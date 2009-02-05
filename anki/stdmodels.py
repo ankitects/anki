@@ -61,7 +61,7 @@ def JapaneseModel():
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
                              u"%(Reading)s<br>%(Meaning)s"))
-    m.addCardModel(CardModel(u"Production",
+    m.addCardModel(CardModel(u"Recall",
                              u"%(Meaning)s",
                              u"%(Expression)s<br>%(Reading)s",
                              active=False))
@@ -83,7 +83,7 @@ def CantoneseModel():
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
                              u"%(Reading)s<br>%(Meaning)s"))
-    m.addCardModel(CardModel(u"Production",
+    m.addCardModel(CardModel(u"Recall",
                              u"%(Meaning)s",
                              u"%(Expression)s<br>%(Reading)s",
                              active=False))
@@ -105,7 +105,7 @@ def MandarinModel():
     m.addCardModel(CardModel(u"Recognition",
                              u"%(Expression)s",
                              u"%(Reading)s<br>%(Meaning)s"))
-    m.addCardModel(CardModel(u"Production",
+    m.addCardModel(CardModel(u"Recall",
                              u"%(Meaning)s",
                              u"%(Expression)s<br>%(Reading)s",
                              active=False))
