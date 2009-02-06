@@ -106,6 +106,8 @@ class StatusView(object):
         self.timer.setText("00:00")
         if sys.platform.startswith("darwin"):
             self.timer.setFixedWidth(40)
+        else:
+            self.timer.setFixedWidth(33)
         self.addWidget(self.timer)
         self.plastiqueStyle = QStyleFactory.create("plastique")
         self.progressBar.setStyle(self.plastiqueStyle)

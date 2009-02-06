@@ -279,6 +279,7 @@ Please do not file a bug report with Anki.<br><br>""")
             self.showEditor()
         elif state == "saveEdit":
             self.editor.saveFieldsNow()
+            self.mainWin.buttonStack.show()
             self.deck.s.flush()
             return self.moveToState("auto")
         elif state == "studyScreen":
@@ -440,16 +441,18 @@ new:
         # ask
         self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("showAnswer"))
+        self.mainWin.showAnswerButton.setFixedWidth(351)
+        self.mainWin.showAnswerButton.setFixedHeight(41)
         # answer
         for i in range(1, 5):
             b = getattr(self.mainWin, "easeButton%d" % i)
             b.setFixedWidth(85)
             self.connect(b, SIGNAL("clicked()"),
                 lambda i=i: self.cardAnswered(i))
-        # editor
-        self.connect(self.mainWin.saveEditorButton, SIGNAL("clicked()"),
-                     lambda: self.moveToState("saveEdit"))
         # type answer
+        outer = QHBoxLayout()
+        self.typeAnswerSpacer1 = QSpacerItem(5, 5)
+        outer.addSpacerItem(self.typeAnswerSpacer1)
         class QLineEditNoUndo(QLineEdit):
             def __init__(self, parent):
                 self.parent = parent
@@ -462,14 +465,21 @@ new:
                 else:
                     return QLineEdit.keyPressEvent(self, evt)
         self.typeAnswerField = QLineEditNoUndo(self)
-        self.mainWin.typeAnswerLayout.addWidget(self.typeAnswerField)
+        self.typeAnswerField.setFixedWidth(351)
+        f = QFont()
+        f.setPixelSize(self.config['typeAnswerFontSize'])
+        self.typeAnswerField.setFont(f)
+        outer.addWidget(self.typeAnswerField)
+        self.typeAnswerSpacer2 = QSpacerItem(5, 5)
+        outer.addSpacerItem(self.typeAnswerSpacer2)
+        self.mainWin.typeAnswerPage.setLayout(outer)
 
     def hideButtons(self):
         self.mainWin.buttonStack.hide()
 
     def showAnswerButton(self):
         if self.currentCard.cardModel.typeAnswer:
-            self.mainWin.buttonStack.setCurrentIndex(4)
+            self.mainWin.buttonStack.setCurrentIndex(2)
             self.typeAnswerField.setFocus()
             if not unicode(self.typeAnswerField.text()):
                 self.typeAnswerField.setText(_(
@@ -490,10 +500,6 @@ new:
             self.mainWin.easeButton2.setFocus()
         else:
             self.mainWin.easeButton3.setFocus()
-
-    def showSaveEditorButton(self):
-        self.mainWin.buttonStack.setCurrentIndex(2)
-        self.mainWin.buttonStack.show()
 
     def updateEaseButtons(self):
         nextInts = {}
@@ -946,9 +952,13 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self, self.mainWin.fieldsArea, self.deck)
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
+        # editor
+        self.connect(self.mainWin.saveEditorButton, SIGNAL("clicked()"),
+                     lambda: self.moveToState("saveEdit"))
+
 
     def showEditor(self):
-        self.showSaveEditorButton()
+        self.mainWin.buttonStack.hide()
         self.switchToEditScreen()
         self.editor.setFact(self.currentCard.fact)
 
@@ -1070,8 +1080,7 @@ day = :d""", d=yesterday)
         self.switchToStudyScreen()
         self.updateStudyStats()
         # start reviewing button
-        self.mainWin.buttonStack.setCurrentIndex(3)
-        self.mainWin.buttonStack.show()
+        self.mainWin.buttonStack.hide()
         t = " " * 5
         if initial:
             self.mainWin.startReviewingButton.setText(t+_("Start &Reviewing"))
