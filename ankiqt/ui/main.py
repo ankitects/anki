@@ -41,12 +41,11 @@ class AnkiQt(QMainWindow):
         self.hideWelcome = False
         self.views = []
         self.setLang()
-        self.setupDocumentDir()
         self.setupFonts()
         self.setupBackupDir()
         self.setupMainWindow()
+        self.setupSystemHacks()
         self.setupSound()
-        self.alterShortcuts()
         self.setupTray()
         self.connectMenuActions()
         if self.config['mainWindowGeom']:
@@ -1081,11 +1080,10 @@ day = :d""", d=yesterday)
         self.updateStudyStats()
         # start reviewing button
         self.mainWin.buttonStack.hide()
-        t = " " * 5
         if initial:
-            self.mainWin.startReviewingButton.setText(t+_("Start &Reviewing"))
+            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
         else:
-            self.mainWin.startReviewingButton.setText(t+_("Continue &Reviewing"))
+            self.mainWin.startReviewingButton.setText(_("Continue &Reviewing"))
         self.mainWin.startReviewingButton.setFocus()
         self.connect(self.mainWin.startReviewingButton,
                      SIGNAL("clicked()"),
@@ -1733,11 +1731,6 @@ day = :d""", d=yesterday)
     def onStartHere(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appHelpSite))
 
-    def alterShortcuts(self):
-        if sys.platform.startswith("darwin"):
-            self.mainWin.actionAddcards.setShortcut(_("Ctrl+D"))
-            self.mainWin.actionClose.setShortcut("")
-
     def updateMarkAction(self):
         self.mainWin.actionMarkCard.blockSignals(True)
         if self.currentCard.hasTag("Marked"):
@@ -2058,6 +2051,16 @@ Consider backing up your media directory first."""))
     # System specific misc
     ##########################################################################
 
+    def setupSystemHacks(self):
+        self.setupDocumentDir()
+        self.alterShortcuts()
+        self.changeLayoutSpacing()
+
+    def alterShortcuts(self):
+        if sys.platform.startswith("darwin"):
+            self.mainWin.actionAddcards.setShortcut(_("Ctrl+D"))
+            self.mainWin.actionClose.setShortcut("")
+
     def setupDocumentDir(self):
         if sys.platform.startswith("win32"):
             s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
@@ -2067,6 +2070,13 @@ Consider backing up your media directory first."""))
             self.documentDir = os.path.expanduser("~/Documents")
         else:
             self.documentDir = os.path.expanduser("~/.anki")
+
+    def changeLayoutSpacing(self):
+        if sys.platform.startswith("darwin"):
+            self.mainWin.studyOptionsFrame.setFixedWidth(400)
+            self.mainWin.studyOptionsReviewBar.setContentsMargins(0, 20, 0, 0)
+            self.mainWin.optionsBox.layout().setSpacing(10)
+            self.mainWin.optionsBox.layout().setContentsMargins(4, 10, 4, 4)
 
     # Misc
     ##########################################################################
