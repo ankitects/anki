@@ -350,7 +350,10 @@ class DeckStats(object):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
         if existing and avgInt:
             html += _("<b>Averages</b><br>")
-            html += "<table width=200>"
+            if sys.platform.startswith("darwin"):
+                html += "<table width=250>"
+            else:
+                html += "<table width=200>"
             html += tr(_("Interval"), _("<b>%0.0f</b> days") % avgInt)
             html += tr(_("Average reps"), _("<b>%0.1f</b> cards/day") % (
                 self.getSumInverseRoundInterval()))
