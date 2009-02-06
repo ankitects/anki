@@ -1052,18 +1052,23 @@ where facts.id not in (select factId from cards)""")
         self.s.flush()
         now = time.time()
         strids = ids2str(ids)
+        self.startProgress(3)
         # grab fact ids
         factIds = self.s.column0("select factId from cards where id in %s"
                                  % strids)
         # drop from cards
+        self.updateProgress(_("Deleting cards..."))
         self.s.statement("delete from cards where id in %s" % strids)
         # note deleted
+        self.updateProgress()
         data = [{'id': id, 'time': now} for id in ids]
         self.s.statements("insert into cardsDeleted values (:id, :time)", data)
         # remove any dangling facts
+        self.updateProgress()
         self.deleteDanglingFacts()
         self.rebuildCounts()
         self.flushMod()
+        self.finishProgress()
 
     # Models
     ##########################################################################
