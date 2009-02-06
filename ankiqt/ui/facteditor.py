@@ -363,7 +363,7 @@ class FactEditor(object):
         n = _("Edit")
         self.deck.setUndoStart(n, merge=True)
         for (w, f) in self.widgets.items():
-            v = tidyHTML(unicode(w.toHtml())).strip()
+            v = tidyHTML(unicode(w.toHtml()))
             if self.fact[f.name] != v:
                 self.fact[f.name] = v
                 modified = True
