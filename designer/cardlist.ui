@@ -181,7 +181,6 @@
     <addaction name="actionRedo" />
     <addaction name="separator" />
     <addaction name="actionSelectAll" />
-    <addaction name="actionSelectFacts" />
     <addaction name="actionInvertSelection" />
     <addaction name="separator" />
     <addaction name="actionReverseOrder" />
@@ -385,11 +384,19 @@
    </property>
   </action>
   <action name="actionGuide" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/help.png</normaloff>:/icons/help.png</iconset>
+   </property>
    <property name="text" >
     <string>&amp;Guide...</string>
    </property>
   </action>
   <action name="actionChangeModel" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/system-software-update.png</normaloff>:/icons/system-software-update.png</iconset>
+   </property>
    <property name="text" >
     <string>Change &amp;Model...</string>
    </property>

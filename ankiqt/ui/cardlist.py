@@ -18,6 +18,13 @@ from anki.db import *
 from anki.stats import CardStats
 from anki.hooks import runHook, addHook
 
+CARD_ID = 0
+CARD_QUESTION = 1
+CARD_ANSWER = 2
+CARD_DUE = 3
+CARD_REPS = 4
+CARD_FACTID = 5
+
 # Deck editor
 ##########################################################################
 
@@ -48,7 +55,7 @@ class DeckModel(QAbstractTableModel):
         return len(self.cards)
 
     def columnCount(self, index):
-        return len(self.columns)
+        return 3
 
     def data(self, index, role):
         if not index.isValid():
@@ -58,6 +65,9 @@ class DeckModel(QAbstractTableModel):
             f.setPixelSize(12)
             return QVariant(f)
         elif role == Qt.DisplayRole or role == Qt.EditRole:
+            if len(self.cards[index.row()]) == 1:
+                # not cached yet
+                self.updateCard(index)
             s = self.columns[index.column()][1](index)
             s = s.replace("<br>", u" ")
             s = s.replace("\n", u"  ")
@@ -111,16 +121,13 @@ class DeckModel(QAbstractTableModel):
         ads = []
         if searchLimit: ads.append(searchLimit)
         if tagLimit: ads.append(tagLimit)
-        if not self.parent.config['showSuspendedCards']:
-            ads.append("cards.priority != 0")
         ads = " and ".join(ads)
         if isinstance(self.sortKey, types.StringType):
             # card property
             sort = "order by cards." + self.sortKey
             if self.sortKey in ("question", "answer"):
                 sort += " collate nocase"
-            query = ("select id, priority, question, answer, due, "
-                     "reps, factId from cards ")
+            query = ("select id from cards ")
             if ads:
                 query += "where %s " % ads
             query += sort
@@ -138,8 +145,7 @@ class DeckModel(QAbstractTableModel):
                 order = "fields.value collate nocase"
             if ads:
                 ads = " and " + ads
-            query = ("select cards.id, cards.priority, cards.question, "
-                     "cards.answer, cards.due, cards.reps, cards.factId "
+            query = ("select cards.id "
                      "from fields, cards where fields.fieldModelId in (%s) "
                      "and fields.factId = cards.factId" + ads +
                      " order by cards.ordinal, %s") % (fields, order)
@@ -152,7 +158,7 @@ class DeckModel(QAbstractTableModel):
     def updateCard(self, index):
         try:
             self.cards[index.row()] = self.deck.s.first("""
-    select id, priority, question, answer, due, reps, factId
+    select id, question, answer, due, reps, factId
     from cards where id = :id""", id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
                       index, self.index(index.row(), 1))
@@ -172,22 +178,19 @@ class DeckModel(QAbstractTableModel):
         except IndexError:
             return None
 
-    def isDeleted(self, id):
-        return id in self.deleted
-
     def cardIndex(self, card):
         "Return the index of CARD, if currently displayed."
         return self.cards.index(card)
 
     def currentQuestion(self, index):
-        return self.cards[index.row()][2]
+        return self.cards[index.row()][CARD_QUESTION]
 
     def currentAnswer(self, index):
-        return self.cards[index.row()][3]
+        return self.cards[index.row()][CARD_ANSWER]
 
     def nextDue(self, index):
-        d = self.cards[index.row()][4]
-        reps = self.cards[index.row()][5]
+        d = self.cards[index.row()][CARD_DUE]
+        reps = self.cards[index.row()][CARD_REPS]
         secs = d - time.time()
         if secs <= 0:
             if not reps:
@@ -208,6 +211,8 @@ class EditDeck(QMainWindow):
         self.currentRow = None
         self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
         self.dialog.setupUi(self)
+        restoreGeom(self, "editor")
+        restoreSplitter(self.dialog.splitter, "editor")
         # flush all changes before we load
         self.deck.s.flush()
         self.model = DeckModel(self.parent, self.parent.deck)
@@ -233,8 +238,6 @@ class EditDeck(QMainWindow):
         ui.dialogs.open("CardList", self)
         self.drawTags()
         self.updateFilterLabel()
-        restoreGeom(self, "editor")
-        restoreSplitter(self.dialog.splitter, "editor")
         self.show()
         self.updateSearch()
         if self.parent.currentCard:
@@ -321,6 +324,7 @@ class EditDeck(QMainWindow):
             self.sortKey = "factor"
         else:
             self.sortKey = ("field", self.sortFields[idx-8])
+        self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
         if idx <= 7:
             self.config['sortIndex'] = idx
@@ -330,6 +334,28 @@ class EditDeck(QMainWindow):
             self.updateFilterLabel()
             self.onEvent()
             self.focusCurrentCard()
+
+    def rebuildSortIndex(self, key):
+        if key not in (
+            "question", "answer", "created", "modified", "due", "interval",
+            "reps", "factor"):
+            return
+        old = self.deck.s.scalar("select sql from sqlite_master where name = :k",
+                                 k="ix_cards_sort")
+        if old and key in old:
+            return
+        self.parent.setProgressParent(self)
+        self.deck.startProgress(2)
+        self.deck.updateProgress(_("Building Index..."))
+        self.deck.s.statement("drop index if exists ix_cards_sort")
+        self.deck.updateProgress()
+        if key in ("question", "answer"):
+            key = key + " collate nocase"
+        self.deck.s.statement(
+            "create index ix_cards_sort on cards (%s)" % key)
+        self.deck.s.statement("analyze")
+        self.deck.finishProgress()
+        self.parent.setProgressParent(None)
 
     def tagChanged(self, idx):
         if idx == 0:
@@ -367,7 +393,7 @@ class EditDeck(QMainWindow):
             self.model.updateCard(self.currentRow)
 
     def filterTextChanged(self):
-        interval = 500
+        interval = 300
         if self.filterTimer:
             self.filterTimer.setInterval(interval)
         else:
@@ -432,7 +458,6 @@ class EditDeck(QMainWindow):
         # edit
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
-        self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionReverseOrder, SIGNAL("triggered()"), self.reverseOrder)
         # jumps
@@ -656,14 +681,6 @@ where id in %s""" % ids2str(sf))
 
     # Edit: selection
     ######################################################################
-
-    def selectFacts(self):
-        sm = self.dialog.tableView.selectionModel()
-        cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
-        for i, card in enumerate(self.model.cards):
-            if card.id in cardIds:
-                sm.select(self.model.index(i, 0),
-                          QItemSelectionModel.Select | QItemSelectionModel.Rows)
 
     def invertSelection(self):
         sm = self.dialog.tableView.selectionModel()

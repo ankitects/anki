@@ -63,7 +63,6 @@ class Config(dict):
             'showLastCardContent': False,
             'showTrayIcon': False,
             'showTimer': True,
-            'showSuspendedCards': True,
             'simpleToolbar': True,
             'scrollToAnswer': True,
             'qaDivider': True,

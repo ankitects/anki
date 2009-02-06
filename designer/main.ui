@@ -26,9 +26,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>63</y>
+     <y>69</y>
      <width>751</width>
-     <height>418</height>
+     <height>413</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -382,7 +382,7 @@
             <x>0</x>
             <y>0</y>
             <width>474</width>
-            <height>60</height>
+            <height>57</height>
            </rect>
           </property>
          </widget>
@@ -405,7 +405,7 @@
             <x>0</x>
             <y>0</y>
             <width>474</width>
-            <height>358</height>
+            <height>356</height>
            </rect>
           </property>
          </widget>
@@ -1192,7 +1192,7 @@
      <x>0</x>
      <y>0</y>
      <width>751</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1305,6 +1305,10 @@
      <property name="title" >
       <string>P&amp;lugins</string>
      </property>
+     <property name="icon" >
+      <iconset resource="../icons.qrc" >
+       <normaloff>:/icons/preferences-plugin.png</normaloff>:/icons/preferences-plugin.png</iconset>
+     </property>
      <widget class="QMenu" name="menuStartup" >
       <property name="title" >
        <string>Startup</string>
@@ -1337,9 +1341,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>481</y>
+     <y>482</y>
      <width>751</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="sizeGripEnabled" >
@@ -1353,9 +1357,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>21</y>
+     <y>23</y>
      <width>751</width>
-     <height>42</height>
+     <height>46</height>
     </rect>
    </property>
    <property name="orientation" >
@@ -1567,10 +1571,10 @@
   <action name="actionStarthere" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/go-home.png</normaloff>:/icons/go-home.png</iconset>
+     <normaloff>:/icons/help.png</normaloff>:/icons/help.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Start Here...</string>
+    <string>Documentation</string>
    </property>
   </action>
   <action name="actionReportbug" >
@@ -1850,7 +1854,7 @@
   <action name="actionGetMoreDecks" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
+     <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Get More Decks...</string>

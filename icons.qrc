@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/download.png</file>
+    <file>icons/preferences-plugin.png</file>
+    <file>icons/system-software-update.png</file>
     <file>icons/media-playback-stop.png</file>
     <file>icons/media-record.png</file>
     <file>icons/view-calendar-tasks.png</file>
