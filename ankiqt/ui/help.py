@@ -21,6 +21,7 @@ class HelpArea(object):
         else:
             self.focus=focus
         self.config = config
+        self.handlers = []
         self.widget.connect(self.widget, SIGNAL("anchorClicked(QUrl)"),
                             self.anchorClicked)
         if sys.platform.startswith("darwin"):
@@ -39,6 +40,8 @@ class HelpArea(object):
             runHook("helpChanged")
 
     def showText(self, text, py={}):
+        if "hide" in self.handlers:
+            self.handlers["hide"]()
         self.show()
         self.buffer = text
         self.addHider()
