@@ -648,7 +648,7 @@ At the same time tomorrow:<br><br>
                           "There will be <b>%s reviews</b>.", cards) % cards,
                 }
             if next - time.time() > 86400 and not newCardsTomorrow:
-                msg = (_("The next card will be shown in <b>%s</b>.") %
+                msg = (_("The next review is in <b>%s</b>.") %
                        self.earliestTimeStr())
         else:
             msg = _("No cards are due.")
@@ -679,27 +679,21 @@ select count(id) from cards where combinedDue < :time
 and priority in (1,2,3,4) and type in (0, 1)""", time=time)
 
     def deckFinishedMsg(self):
+        self.resetAfterReviewEarly()
         spaceSusp = ""
         c = self.spacedCardCount()
-        if c and self.newCountToday:
-            spaceSusp += ngettext('''
-There is <b>%d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae">
-spaced</a> card.''', '''
-There are <b>%d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae">
-spaced</a> cards.''', c) % c
+        newLeft = self.newCardsPerDay - self.newCardsToday()
+        if c and newLeft:
+            spaceSusp += ngettext('There is <b>%d</b> spaced card.',
+                                  'There are <b>%d</b> spaced cards.',
+                                  c) % c
         c2 = self.suspendedCardCount()
         if c2:
             if c:
                 spaceSusp += "<br>"
-            spaceSusp += ngettext('''
-There is <b>%d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
-suspended</a> card.''', '''
-There are <b>%d</b>
-<a href="http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b">
-suspended</a> cards.''', c) % c2
+            spaceSusp += ngettext('There is <b>%d</b> suspended card.',
+                                  'There are <b>%d</b> suspended cards.',
+                                  c) % c2
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
         return _('''\
