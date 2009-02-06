@@ -16,7 +16,7 @@ from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats
-from anki.hooks import runHook
+from anki.hooks import runHook, addHook
 
 # Deck editor
 ##########################################################################
@@ -226,6 +226,7 @@ class EditDeck(QMainWindow):
         self.setupFilter()
         self.setupSort()
         self.setupHeaders()
+        self.setupUndo()
         self.setupEditor()
         self.setupCardInfo()
         self.dialog.filterEdit.setFocus()
@@ -683,17 +684,19 @@ where id in %s""" % ids2str(sf))
     # Edit: undo/redo
     ######################################################################
 
-    def onUndo(self):
-        self.deck.undo()
+    def setupUndo(self):
+        addHook("postUndoRedo", self.postUndoRedo)
+
+    def postUndoRedo(self):
         self.updateFilterLabel()
         self.updateSearch()
         self.updateAfterCardChange()
 
+    def onUndo(self):
+        self.deck.undo()
+
     def onRedo(self):
         self.deck.redo()
-        self.updateFilterLabel()
-        self.updateSearch()
-        self.updateAfterCardChange()
 
     # Jumping
     ######################################################################
