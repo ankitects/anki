@@ -17,7 +17,7 @@ import anki, anki.utils
 from datetime import date
 from anki.db import *
 from anki.lang import _
-from anki.utils import canonifyTags
+from anki.utils import canonifyTags, ids2str
 
 # Tracking stats on the DB
 ##########################################################################
@@ -506,12 +506,16 @@ class KanjiStats(object):
 
     def genKanjiSets(self):
         self.kanjiSets = [set([]) for g in self.kanjiGrades]
+        mids = self.deck.s.column0('''
+select id from models where tags like "%Japanese%"''')
         all = "".join(self.deck.s.column0("""
-select value from cards, fields
+select value from cards, fields, facts
 where
 cards.reps > 0 and
 cards.factId = fields.factId
-"""))
+and cards.factId = facts.id
+and facts.modelId in %s
+""" % ids2str(mids)))
         for u in all:
             if isKanji(u):
                 self.kanjiSets[self.kanjiGrade(u)].add(u)
