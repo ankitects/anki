@@ -20,13 +20,13 @@ def getAudio(parent, string=""):
     but.setIcon(QIcon(":/icons/media-playback-stop.png"))
     #but.setIconSize(QSize(32, 32))
     mb.addButton(but, QMessageBox.RejectRole)
-    mb.show()
     t = time.time()
     r.start()
     QApplication.instance().processEvents()
     while not mb.clickedButton():
         txt =_("Recording...<br>Time: %0.1f")
         mb.setText(txt % (time.time() - t))
+        mb.show()
         QApplication.instance().processEvents()
     # ensure at least a second captured
     saveGeom(mb, "audioRecorder")

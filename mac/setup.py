@@ -26,14 +26,16 @@ class bdist_dmg(Command):
 		pass
 
 	def run(self):
-		self.run_command('py2app')
+                self.run_command('py2app')
+                if 'debug' in os.environ:
+                        return
                 # zlib
-		result = os.spawnvp(os.P_WAIT, 'hdiutil', (
+                result = os.spawnvp(os.P_WAIT, 'hdiutil', (
                         'hdiutil create -ov -format UDZO ' +
                         '-volname Anki -srcfolder dist ' +
                         '-o Anki.dmg -imagekey zlib-level=9').split())
-		if result is not 0:
-			raise Exception('dmg creation failed %d' % result)
+                if result is not 0:
+                        raise Exception('dmg creation failed %d' % result)
 
 APP = ['ankiqt/ankiqtmac.py']
 VERSION = appVersion
@@ -56,6 +58,7 @@ PLIST = dict(
 OPTIONS = {
 	'argv_emulation': True,
     'optimize': 0,
+        'alias': 'debug' in os.environ,
 	'plist': PLIST,
 	'iconfile': 'ankiqt/mac/anki.icns',
     "includes": ["sip", "cgi", "encodings", "encodings.utf_8",
