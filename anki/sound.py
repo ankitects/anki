@@ -74,6 +74,10 @@ if sys.platform == "win32":
 else:
     si = None
 
+if sys.platform.startswith("darwin"):
+    # make sure lame, which is installed in /usr/local/bin, is in the path
+    os.environ['PATH'] += ":" + "/usr/local/bin"
+
 def retryWait(proc):
     # osx throws interrupted system call errors frequently
     while 1:
