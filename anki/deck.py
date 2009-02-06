@@ -1929,11 +1929,13 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         self._undoredo(self.undoStack, self.redoStack)
         self.refresh()
         self.rebuildCounts()
+        runHook("postUndoRedo")
 
     def redo(self):
         self._undoredo(self.redoStack, self.undoStack)
         self.refresh()
         self.rebuildCounts()
+        runHook("postUndoRedo")
 
     # Dynamic indices
     ##########################################################################
