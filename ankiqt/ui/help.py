@@ -23,6 +23,8 @@ class HelpArea(object):
         self.config = config
         self.widget.connect(self.widget, SIGNAL("anchorClicked(QUrl)"),
                             self.anchorClicked)
+        if sys.platform.startswith("darwin"):
+            self.widget.setFixedWidth(300)
         self.hide()
 
     def show(self):
