@@ -158,6 +158,10 @@ Please do not file a bug report with Anki.<br><br>""")
         pipe = ErrorPipe(self)
         sys.stderr = pipe
 
+    def closeAllDeckWindows(self):
+        ui.dialogs.closeAll()
+        self.help.hide()
+
     # State machine
     ##########################################################################
 
@@ -224,7 +228,7 @@ Please do not file a bug report with Anki.<br><br>""")
             self.disableDeckMenuItems()
             self.updateRecentFilesMenu()
             # hide all deck-associated dialogs
-            ui.dialogs.closeAll()
+            self.closeAllDeckWindows()
         elif state == "getQuestion":
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
@@ -729,7 +733,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         if not hideWelcome:
             self.moveToState("noDeck")
         else:
-            ui.dialogs.closeAll()
+            self.closeAllDeckWindows()
         return True
 
     def onNew(self, initial=False, path=None):
@@ -1503,7 +1507,7 @@ day = :d""", d=yesterday)
             self.deck = None
             self.loadAfterSync = reload
         # hide all deck-associated dialogs
-        ui.dialogs.closeAll()
+        self.closeAllDeckWindows()
         # bug triggered by preferences dialog - underlying c++ widgets are not
         # garbage collected until the middle of the child thread
         import gc; gc.collect()
