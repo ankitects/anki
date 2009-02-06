@@ -2005,7 +2005,7 @@ Proceed?""")):
 
     def onOptimizeDB(self):
         size = self.deck.optimize()
-        ui.utils.showInfo("Database optimized.\nShrunk by %d bytes" % size)
+        ui.utils.showInfo("Database optimized.\nShrunk by %dKB" % (size/1024.0))
 
     def onCheckMediaDB(self):
         mb = QMessageBox(self)
