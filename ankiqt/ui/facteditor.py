@@ -616,9 +616,12 @@ class FactEditor(object):
             if dst == w:
                 return
         # check if there's alredy something there
+        oldSrc = src.toHtml()
         oldDst = dst.toHtml()
         if unicode(dst.toPlainText()):
-            if self.lastCloze and self.lastCloze[1] == oldDst:
+            if (self.lastCloze and
+                self.lastCloze[1] == oldSrc and
+                self.lastCloze[2] == oldDst):
                 src.setHtml(self.lastCloze[0])
                 dst.setHtml("")
                 self.lastCloze = None
@@ -647,7 +650,8 @@ class FactEditor(object):
         oldSrc = unicode(src.toHtml())
         src.setHtml(new)
         dst.setHtml(old)
-        self.lastCloze = (oldSrc, unicode(dst.toHtml()))
+        self.lastCloze = (oldSrc, unicode(src.toHtml()),
+                          unicode(dst.toHtml()))
         self.saveFields()
 
     def onClozeUndo(self):
