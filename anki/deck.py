@@ -1429,7 +1429,9 @@ and cards.factId = facts.id""")
 
     def allTags(self):
         "Return a hash listing tags in model & fact."
-        return list(set(parseTags(",".join([x[1] for x in self.tagsList()]))))
+        t = self.s.column0("select tags from facts")
+        t += self.s.column0("select tags from models")
+        return sorted(list(set(parseTags(joinTags(t)))))
 
     def allUserTags(self):
         return sorted(list(set(parseTags(joinTags(self.s.column0(
