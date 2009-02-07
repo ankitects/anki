@@ -53,7 +53,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=25),
+    Column('version', Integer, nullable=False, default=26),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -1408,7 +1408,13 @@ where id in %s""" % ids2str(cardIds), newId=newCardModelId)
     def tagsList(self, where="", priority=", cards.priority"):
         "Return a list of (cardId, allTags, priority)"
         return self.s.all("""
-select cards.id, facts.tags || "," || models.tags || "," ||
+select cards.id, facts.tags || " " || models.tags || " " ||
+cardModels.name %s from cards, facts, models, cardModels where
+cards.factId == facts.id and facts.modelId == models.id
+and cards.cardModelId = cardModels.id %s""" % (priority, where))
+
+        return self.s.all("""
+select cards.id, facts.tags || " " || models.tags || " " ||
 cardModels.name %s from cards, facts, models, cardModels where
 cards.factId == facts.id and facts.modelId == models.id
 and cards.cardModelId = cardModels.id %s""" % (priority, where))
@@ -2479,9 +2485,31 @@ where interval < 1""")
             DeckStorage._addViews(deck)
             DeckStorage._addIndices(deck)
             deck.updateDynamicIndices()
-            deck.s.statement("vacuum")
             deck.version = 25
             deck.s.commit()
+        if deck.version < 26:
+            # no spaces in tags anymore, separated by space
+            rows = deck.s.all('select id, tags from facts')
+            d = []
+            for (id, tags) in rows:
+                d.append({
+                    'i': id,
+                    't': joinTags(
+                    [t.strip().replace(" ", "-") for t in
+                     tags.split(",") if t.strip()]),
+                    'tt': time.time(),
+                    })
+            deck.s.statements(
+                "update facts set tags = :t, modified = :tt where id = :i", d)
+            for m in deck.models:
+                for cm in m.cardModels:
+                    cm.name = cm.name.replace(" ", "-")
+                m.tags = m.tags.replace(" ", "-")
+                m.setModified()
+                deck.updateCardsFromModel(m, dirty=False)
+            deck.version = 26
+            deck.s.commit()
+            deck.s.statement("vacuum")
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
 

@@ -182,12 +182,11 @@ to be integers."""
 
 def parseTags(tags):
     "Parse a string and return a list of tags."
-    tags = tags.split(",")
-    tags = [tag.strip() for tag in tags if tag.strip()]
-    return tags
+    tags = re.split(" |, ?", tags)
+    return [t.strip() for t in tags if t.strip()]
 
 def joinTags(tags):
-    return u", ".join(tags)
+    return u" ".join(tags)
 
 def canonifyTags(tags):
     "Strip leading/trailing/superfluous commas and duplicates."
