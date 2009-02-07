@@ -1094,6 +1094,7 @@ day = :d""", d=yesterday)
                      SIGNAL("clicked()"),
                      self.onStartReview)
         self.setupStudyOptions()
+        self.mainWin.studyOptionsFrame.show()
 
     def setupStudyOptions(self):
         self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
@@ -1108,6 +1109,7 @@ day = :d""", d=yesterday)
         self.mainWin.delayLapsedCards.setChecked(not self.deck.delay0)
 
     def onStartReview(self):
+        self.mainWin.studyOptionsFrame.hide()
         self.config['showStudyOptions'] = self.mainWin.optionsButton.isChecked()
         try:
             self.deck.newCardsPerDay = int(self.mainWin.newPerDay.text())
