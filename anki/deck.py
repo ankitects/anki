@@ -2495,18 +2495,25 @@ where interval < 1""")
             for (id, tags) in rows:
                 d.append({
                     'i': id,
-                    't': joinTags(
+                    't': joinTags(sorted(
                     [t.strip().replace(" ", "-") for t in
-                     tags.split(",") if t.strip()]),
-                    'tt': time.time(),
+                     tags.split(",") if t.strip()])),
                     })
             deck.s.statements(
-                "update facts set tags = :t, modified = :tt where id = :i", d)
+                "update facts set tags = :t where id = :i", d)
+            deck.highPriority = deck.highPriority.replace(" ", "-")
+            deck.medPriority = deck.medPriority.replace(" ", "-")
+            deck.lowPriority = deck.lowPriority.replace(" ", "-")
+            deck.suspended = deck.suspended.replace(" ", "-")
+            deck.highPriority = deck.highPriority.replace(",", " ")
+            deck.medPriority = deck.medPriority.replace(",", " ")
+            deck.lowPriority = deck.lowPriority.replace(",", " ")
+            deck.suspended = deck.suspended.replace(",", " ")
             for m in deck.models:
                 for cm in m.cardModels:
                     cm.name = cm.name.replace(" ", "-")
-                m.tags = m.tags.replace(" ", "-")
-                m.setModified()
+                m.tags = re.sub(", ?", " ", m.tags)
+                m.tags = canonifyTags(m.tags)
                 deck.updateCardsFromModel(m, dirty=False)
             deck.version = 26
             deck.s.commit()
