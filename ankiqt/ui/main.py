@@ -561,7 +561,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             return
         if uprecent:
             self.updateRecentFiles(self.deck.path)
-        if sync and self.config['syncOnLoad']:
+        if (sync and self.config['syncOnLoad']
+            and self.deck.syncName):
             if self.syncDeck(interactive=False):
                 return True
         try:
