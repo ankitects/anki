@@ -719,6 +719,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                             break
             # auto sync (saving automatically)
             if self.config['syncOnClose'] and self.deck.syncName:
+                # force save, the user may not have set passwd/etc
+                self.deck.save()
                 self.syncDeck(False, reload=False)
                 while self.deckPath:
                     self.app.processEvents()
@@ -771,8 +773,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             passwd.setEchoMode(QLineEdit.Password)
             g.addWidget(passwd, 1, 1)
             vbox.addLayout(g)
-            bb = QDialogButtonBox(QDialogButtonBox.Ok)
+            bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
             self.connect(bb, SIGNAL("accepted()"), d.accept)
+            self.connect(bb, SIGNAL("rejected()"), d.reject)
             vbox.addWidget(bb)
             d.setLayout(vbox)
             d.exec_()
