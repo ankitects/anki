@@ -2501,14 +2501,12 @@ where interval < 1""")
                     })
             deck.s.statements(
                 "update facts set tags = :t where id = :i", d)
-            deck.highPriority = deck.highPriority.replace(" ", "-")
-            deck.medPriority = deck.medPriority.replace(" ", "-")
-            deck.lowPriority = deck.lowPriority.replace(" ", "-")
-            deck.suspended = deck.suspended.replace(" ", "-")
-            deck.highPriority = deck.highPriority.replace(",", " ")
-            deck.medPriority = deck.medPriority.replace(",", " ")
-            deck.lowPriority = deck.lowPriority.replace(",", " ")
-            deck.suspended = deck.suspended.replace(",", " ")
+            for k in ('highPriority', 'medPriority',
+                      'lowPriority', 'suspended'):
+                x = getattr(deck, k)
+                x = re.sub("([^,]) +", "\\1-", x)
+                x = re.sub(",", " ", x)
+                setattr(deck, k, x)
             for m in deck.models:
                 for cm in m.cardModels:
                     cm.name = cm.name.replace(" ", "-")
