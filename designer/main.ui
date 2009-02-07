@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>751</width>
-    <height>502</height>
+    <width>639</width>
+    <height>501</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -27,8 +27,8 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>751</width>
-     <height>413</height>
+     <width>639</width>
+     <height>412</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -381,7 +381,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>474</width>
+            <width>368</width>
             <height>57</height>
            </rect>
           </property>
@@ -404,8 +404,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>474</width>
-            <height>356</height>
+            <width>368</width>
+            <height>355</height>
            </rect>
           </property>
          </widget>
@@ -478,7 +478,7 @@
             <x>0</x>
             <y>0</y>
             <width>474</width>
-            <height>358</height>
+            <height>356</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
@@ -753,7 +753,7 @@
                     <item>
                      <layout class="QGridLayout" name="studyOptionsReviewBar" >
                       <property name="topMargin" >
-                       <number>10</number>
+                       <number>20</number>
                       </property>
                       <property name="horizontalSpacing" >
                        <number>10</number>
@@ -843,7 +843,7 @@
             <x>0</x>
             <y>0</y>
             <width>474</width>
-            <height>358</height>
+            <height>356</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8" >
@@ -1191,7 +1191,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>751</width>
+     <width>639</width>
      <height>23</height>
     </rect>
    </property>
@@ -1341,8 +1341,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>482</y>
-     <width>751</width>
+     <y>481</y>
+     <width>639</width>
      <height>20</height>
     </rect>
    </property>
@@ -1358,7 +1358,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>751</width>
+     <width>639</width>
      <height>46</height>
     </rect>
    </property>
