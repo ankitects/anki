@@ -1116,6 +1116,8 @@ day = :d""", d=yesterday)
 
     def onStartReview(self):
         self.mainWin.studyOptionsFrame.hide()
+        # make sure the size is updated before button stack shown
+        self.app.processEvents()
         self.config['showStudyOptions'] = self.mainWin.optionsButton.isChecked()
         try:
             self.deck.newCardsPerDay = int(self.mainWin.newPerDay.text())
