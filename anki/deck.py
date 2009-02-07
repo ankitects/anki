@@ -1948,7 +1948,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     ##########################################################################
 
     def updateDynamicIndices(self):
-        t = time.time()
         indices = {
             'intervalDesc':
             '(type, isDue, priority desc, interval desc)',
@@ -1983,7 +1982,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
                     (k, v))
             else:
                 self.s.statement("drop index if exists ix_cards_%s" % k)
-        print "up", time.time() - t
 
 # Shared decks
 ##########################################################################
