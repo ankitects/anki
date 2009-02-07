@@ -721,11 +721,11 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             if self.config['syncOnClose'] and self.deck.syncName:
                 # force save, the user may not have set passwd/etc
                 self.deck.save()
-                self.syncDeck(False, reload=False)
-                while self.deckPath:
-                    self.app.processEvents()
-                    time.sleep(0.1)
-                return True
+                if self.syncDeck(False, reload=False):
+                    while self.deckPath:
+                        self.app.processEvents()
+                        time.sleep(0.1)
+                    return True
             # auto save
             if self.config['saveOnClose'] or self.config['syncOnClose']:
                 self.save()
