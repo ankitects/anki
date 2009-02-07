@@ -628,6 +628,11 @@ class FactEditor(object):
                 ui.utils.showInfo(_("Next field must be blank."),
                                   parent=self.parent)
                 return
+        # check if there's anything to change
+        if not re.search("\(.+?\)", unicode(src.toPlainText())):
+            QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                          "ClozeDeletion"))
+            return
         # create
         s = unicode(src.toHtml())
         def repl(match):
