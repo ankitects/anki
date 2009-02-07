@@ -204,7 +204,24 @@ class FactEditor(object):
         self.preview.setEnabled(False)
         self.iconsBox2.addWidget(self.preview)
         self.preview.setStyle(self.plastiqueStyle)
+        # cloze
+        self.cloze = QPushButton(self.widget)
+        self.clozeSC = QShortcut(QKeySequence(_("F6")), self.widget)
+        self.cloze.connect(self.cloze, SIGNAL("clicked()"),
+                                  self.onCloze)
+        self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
+                                  self.onCloze)
+        self.cloze.setToolTip(_("Cloze (F6)"))
+        #self.cloze.setIcon(QIcon(":/icons/document-cloze.png"))
+        self.cloze.setFixedWidth(30)
+        self.cloze.setText("(...)")
+        self.cloze.setFocusPolicy(Qt.NoFocus)
+        self.cloze.setEnabled(False)
+        self.iconsBox2.addWidget(self.cloze)
+        self.cloze.setStyle(self.plastiqueStyle)
         # latex
+        spc = QSpacerItem(5,5)
+        self.iconsBox2.addItem(spc)
         self.latex = QPushButton(self.widget)
         self.latex.setToolTip(_("Latex (Ctrl+l, l)"))
         self.latexSC = QShortcut(QKeySequence(_("Ctrl+l, l")), self.widget)
@@ -490,6 +507,7 @@ class FactEditor(object):
         self.latexEqn.setEnabled(val)
         self.latexMathEnv.setEnabled(val)
         self.preview.setEnabled(val)
+        self.cloze.setEnabled(val)
         self.htmlEdit.setEnabled(val)
         self.recSound.setEnabled(val)
         self.more.setEnabled(val)
@@ -569,6 +587,7 @@ class FactEditor(object):
             toggle = not self.preview.isVisible()
             ankiqt.mw.config['factEditorAdvanced'] = toggle
         self.preview.setShown(toggle)
+        self.cloze.setShown(toggle)
         self.latex.setShown(toggle)
         self.latexEqn.setShown(toggle)
         self.latexMathEnv.setShown(toggle)
@@ -576,6 +595,54 @@ class FactEditor(object):
 
     def onPreview(self):
         PreviewDialog(self.parent, self.deck, self.fact)
+
+    def onCloze(self):
+        src = self.focusedEdit()
+        if not src:
+            return
+        dst = None
+        for (name, (field, w)) in self.fields.items():
+            if w.hasFocus():
+                dst = False
+                continue
+            if dst is False:
+                dst = w
+                break
+        if not dst:
+            dst = self.fields.values()[0][1]
+            if dst == w:
+                return
+        # create
+        s = unicode(src.toHtml())
+        s2 = re.sub("\(.+?\)", "(...)", s)
+        # check if there's alredy something there
+        src1 = stripHTML(tidyHTML(unicode(src.toHtml())).strip())
+        dst1 = stripHTML(tidyHTML(unicode(dst.toHtml())).strip())
+        if dst1:
+            # is it the cloze we just generated?
+            if (re.sub("\(.+?\)", "", src1) ==
+                re.sub("\(.+?\)", "", dst1)):
+                # then undo
+                src.setHtml(dst.toHtml())
+                dst.setHtml("")
+            else:
+                ui.utils.showInfo(_("Next field must be blank."),
+                                  parent=self.parent)
+                return
+        else:
+            # ok to add
+            src.setHtml(s2)
+            dst.setHtml(s)
+        self.saveFields()
+
+    def onClozeUndo(self):
+        pair = self._getFieldPair()
+        if not pair:
+            return
+        (src, dst) = pair
+        src.setHtml(dst.toHtml())
+        dst.setHtml("")
+        self.saveFields()
 
     def onHtmlEdit(self):
         def helpRequested():
