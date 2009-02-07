@@ -1539,6 +1539,46 @@ where id = :id""", pending)
             return True
         return False
 
+    # Failed card handling
+    ##########################################################################
+
+    def setFailedCardPolicy(self, idx):
+        if idx == 5:
+            # custom
+            return
+        self.collapseTime = 0
+        if idx == 0:
+            d = 600
+            self.collapseTime = 1
+        elif idx == 1:
+            d = 600
+        elif idx == 2:
+            d = 28800
+        elif idx == 3:
+            d = 259200
+        elif idx == 4:
+            d = 0
+        self.delay0 = d
+        self.delay1 = d
+
+    def getFailedCardPolicy(self):
+        if self.delay0 != self.delay1:
+            return 5
+        d = self.delay0
+        if self.collapseTime == 1:
+            if d == 600:
+                return 0
+            return 5
+        if d == 600:
+            return 1
+        elif d == 28800:
+            return 2
+        elif d == 259200:
+            return 3
+        elif d == 0:
+            return 4
+        return 5
+
     # Media
     ##########################################################################
 
@@ -2514,4 +2554,14 @@ def revCardOrderLabels():
         1: _("Review cards from smallest interval"),
         2: _("Review cards in order due"),
         3: _("Review cards in random order"),
+        }
+
+def failedCardOptionLabels():
+    return {
+        0: _("Show failed cards soon"),
+        1: _("Show failed cards in 10 minutes"),
+        2: _("Show failed cards in 8 hours"),
+        3: _("Show failed cards in 3 days"),
+        4: _("Show failed cards at end"),
+        5: _("Custom failed cards handling"),
         }
