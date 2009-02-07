@@ -1405,13 +1405,14 @@ where id in %s""" % ids2str(cardIds), newId=newCardModelId)
     # Tags
     ##########################################################################
 
-    def tagsList(self, where="", priority=", cards.priority"):
+    def tagsList(self, where="", priority=", cards.priority", kwargs={}):
         "Return a list of (cardId, allTags, priority)"
         return self.s.all("""
 select cards.id, facts.tags || " " || models.tags || " " ||
 cardModels.name %s from cards, facts, models, cardModels where
 cards.factId == facts.id and facts.modelId == models.id
-and cards.cardModelId = cardModels.id %s""" % (priority, where))
+and cards.cardModelId = cardModels.id %s""" % (priority, where),
+                          **kwargs)
 
         return self.s.all("""
 select cards.id, facts.tags || " " || models.tags || " " ||
