@@ -20,7 +20,7 @@ from anki.db import OperationalError
 from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
-from anki.deck import revCardOrderLabels
+from anki.deck import revCardOrderLabels, failedCardOptionLabels
 import anki.latex
 import anki.lang
 import anki.deck
@@ -986,6 +986,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             0, QStringList(newCardSchedulingLabels().values()))
         self.mainWin.revCardOrder.insertItems(
             0, QStringList(revCardOrderLabels().values()))
+        self.mainWin.failedCardsOption.insertItems(
+            0, QStringList(failedCardOptionLabels().values()))
         self.connect(self.mainWin.optionsHelpButton,
                      SIGNAL("clicked()"),
                      lambda: QDesktopServices.openUrl(QUrl(
@@ -1110,7 +1112,7 @@ day = :d""", d=yesterday)
         self.mainWin.newCardOrder.setCurrentIndex(self.deck.newCardOrder)
         self.mainWin.newCardScheduling.setCurrentIndex(self.deck.newCardSpacing)
         self.mainWin.revCardOrder.setCurrentIndex(self.deck.revCardOrder)
-        self.mainWin.delayLapsedCards.setChecked(not self.deck.delay0)
+        self.mainWin.failedCardsOption.setCurrentIndex(self.deck.getFailedCardPolicy())
 
     def onStartReview(self):
         self.mainWin.studyOptionsFrame.hide()
@@ -1125,12 +1127,7 @@ day = :d""", d=yesterday)
         self.deck.newCardOrder = self.mainWin.newCardOrder.currentIndex()
         self.deck.newCardSpacing = self.mainWin.newCardScheduling.currentIndex()
         self.deck.revCardOrder = self.mainWin.revCardOrder.currentIndex()
-        # avoid clobbering the user's settings if they haven't changed
-        if self.deck.delay0 and self.mainWin.delayLapsedCards.isChecked():
-            self.deck.delay0 = 0
-        elif (not self.deck.delay0 and
-              not self.mainWin.delayLapsedCards.isChecked()):
-            self.deck.delay0 = 600
+        self.deck.setFailedCardPolicy(self.mainWin.failedCardsOption.currentIndex())
         self.deck.updateDynamicIndices()
         self.deck.startSession()
         self.deck.flushMod()

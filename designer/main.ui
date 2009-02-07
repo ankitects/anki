@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>639</width>
-    <height>501</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -28,7 +28,7 @@
      <x>0</x>
      <y>69</y>
      <width>639</width>
-     <height>412</height>
+     <height>415</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -405,7 +405,7 @@
             <x>0</x>
             <y>0</y>
             <width>368</width>
-            <height>355</height>
+            <height>358</height>
            </rect>
           </property>
          </widget>
@@ -477,8 +477,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>474</width>
-            <height>356</height>
+            <width>368</width>
+            <height>358</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
@@ -741,11 +741,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="delayLapsedCards" >
-                         <property name="text" >
-                          <string>Show failed cards last</string>
-                         </property>
-                        </widget>
+                        <widget class="QComboBox" name="failedCardsOption" />
                        </item>
                       </layout>
                      </widget>
@@ -842,8 +838,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>474</width>
-            <height>356</height>
+            <width>368</width>
+            <height>358</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8" >
@@ -1341,7 +1337,7 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>481</y>
+     <y>484</y>
      <width>639</width>
      <height>20</height>
     </rect>
