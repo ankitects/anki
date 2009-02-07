@@ -15,6 +15,8 @@ import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
 from anki.hooks import addHook
 
+clozeColour = "#0000ff"
+
 class FactEditor(object):
     """An editor for new/existing facts.
 
@@ -34,6 +36,7 @@ class FactEditor(object):
         self.onFactInvalid = None
         self.lastFocusedEdit = None
         self.changeTimer = None
+        self.lastCloze = None
         addHook("deckClosed", self.deckClosedHook)
 
     def setFact(self, fact, noFocus=False, check=False):
@@ -612,27 +615,34 @@ class FactEditor(object):
             dst = self.fields.values()[0][1]
             if dst == w:
                 return
-        # create
-        s = unicode(src.toHtml())
-        s2 = re.sub("\(.+?\)", "(...)", s)
         # check if there's alredy something there
-        src1 = stripHTML(tidyHTML(unicode(src.toHtml())).strip())
-        dst1 = stripHTML(tidyHTML(unicode(dst.toHtml())).strip())
-        if dst1:
-            # is it the cloze we just generated?
-            if (re.sub("\(.+?\)", "", src1) ==
-                re.sub("\(.+?\)", "", dst1)):
-                # then undo
-                src.setHtml(dst.toHtml())
+        oldDst = dst.toHtml()
+        if unicode(dst.toPlainText()):
+            if self.lastCloze and self.lastCloze[1] == oldDst:
+                src.setHtml(self.lastCloze[0])
                 dst.setHtml("")
+                self.lastCloze = None
+                self.saveFields()
+                return
             else:
                 ui.utils.showInfo(_("Next field must be blank."),
                                   parent=self.parent)
                 return
-        else:
-            # ok to add
-            src.setHtml(s2)
-            dst.setHtml(s)
+        # create
+        s = unicode(src.toHtml())
+        def repl(match):
+            exp = ""
+            if match.group(2):
+                exp = match.group(2)
+            return '<font color="%s"><b>(...%s)</b></font>' % (
+                clozeColour, exp)
+        new = re.sub("\(.+?(:(.+?))?\)", repl, s)
+        old = re.sub("\((.+?)(:.+?)?\)", '<font color="%s"><b>\\1</b></font>'
+                     % clozeColour, s)
+        oldSrc = unicode(src.toHtml())
+        src.setHtml(new)
+        dst.setHtml(old)
+        self.lastCloze = (oldSrc, unicode(dst.toHtml()))
         self.saveFields()
 
     def onClozeUndo(self):
