@@ -141,6 +141,7 @@ class FactEditor(object):
         self.foreground.setFocusPolicy(Qt.NoFocus)
         self.foreground.setEnabled(False)
         self.foreground.setFixedWidth(30)
+        self.foreground.setFixedHeight(26)
         self.foregroundFrame = QFrame()
         self.foregroundFrame.setAutoFillBackground(True)
         hbox = QHBoxLayout()
@@ -190,6 +191,7 @@ class FactEditor(object):
         self.more.setFocusPolicy(Qt.NoFocus)
         self.more.setEnabled(False)
         self.more.setFixedWidth(30)
+        self.more.setFixedHeight(26)
         self.iconsBox.addWidget(self.more)
         self.more.setStyle(self.plastiqueStyle)
         # preview
@@ -217,6 +219,7 @@ class FactEditor(object):
         self.cloze.setToolTip(_("Cloze (F6)"))
         #self.cloze.setIcon(QIcon(":/icons/document-cloze.png"))
         self.cloze.setFixedWidth(30)
+        self.cloze.setFixedHeight(26)
         self.cloze.setText("(...)")
         self.cloze.setFocusPolicy(Qt.NoFocus)
         self.cloze.setEnabled(False)
