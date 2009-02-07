@@ -445,7 +445,13 @@ new:
         # ask
         self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("showAnswer"))
-        self.mainWin.showAnswerButton.setFixedWidth(351)
+        if sys.platform.startswith("win32"):
+            if self.config['alternativeTheme']:
+                self.mainWin.showAnswerButton.setFixedWidth(370)
+            else:
+                self.mainWin.showAnswerButton.setFixedWidth(358)
+        else:
+            self.mainWin.showAnswerButton.setFixedWidth(351)
         self.mainWin.showAnswerButton.setFixedHeight(41)
         # answer
         for i in range(1, 5):
