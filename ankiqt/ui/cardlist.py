@@ -44,7 +44,6 @@ class DeckModel(QAbstractTableModel):
                         (" "*10 + "Due" + " "*10, self.nextDue,
                          "nextTime")]
         self.searchStr = ""
-        self.tag = None
         self.cards = []
         self.deleted = {}
 
@@ -96,30 +95,71 @@ class DeckModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
+    def parseSearch(self):
+        search = self.searchStr
+        d = {'str': [],
+             'tag': [],
+             }
+        for elem in search.split():
+            if len(elem) > 2 and elem.startswith("t:"):
+                d['tag'].append(elem[2:])
+            else:
+                d['str'].append(elem)
+        return d
+
     def showMatching(self):
         if not self.sortKey:
             self.cards = []
             return
-        # searching
-        searchLimit = ""
-        if self.searchStr:
-            searchLimit = "cards.factId in (%s)" % (
-                ",".join([str(x) for x in self.deck.s.column0(
-                "select factId from fields where value like :val",
-                val="%" + self.searchStr + "%")]))
+        search = self.parseSearch()
+        # text search
+        textLimit = ""
+        if search['str']:
+            ids = None
+            for s in search['str']:
+                i = self.deck.s.column0(
+                    "select factId from fields where value like :s", s="%"+s+"%")
+                if not ids:
+                    ids = set(i)
+                else:
+                    ids.intersection_update(i)
+                    if not ids:
+                        break
+            if not ids:
+                ids = []
+            textLimit = "cards.factId in %s" % ids2str(ids)
         # tags
         tagLimit = ""
-        if self.tag:
-            if self.tag == "notag":
-                tagLimit = "cards.id in %s" % ids2str(self.deck.cardsWithNoTags())
-            else:
-                tagLimit = "cards.id in %s" % ids2str(
-                    [id for (id, tags, pri) in self.deck.tagsList()
-                     if findTag(self.tag, parseTags(tags))])
+        if search['tag']:
+            ids = None
+            if "none" in search['tag']:
+                search['tag'].remove("none")
+                ids = set(self.deck.cardsWithNoTags())
+            if search['tag']:
+                def find(tag, tags):
+                    if tag.startswith('"'):
+                        # direct match
+                        return findTag(tag.replace('"', ""), parseTags(tags))
+                    else:
+                        return tag.lower() in tags.lower()
+                for tag in search['tag']:
+                    like = "%" + tag.replace('"', "") + "%"
+                    i = [id for (id, tags, pri) in self.deck.tagsList(
+                        where="""
+and (facts.tags like :s or models.tags like :s)""",
+                        kwargs = {'s': like})
+                         if find(tag, tags)]
+                    if not ids:
+                        ids = set(i)
+                    else:
+                        ids.intersection_update(i)
+            if not ids:
+                ids = []
+            tagLimit = "cards.id in %s" % ids2str(ids)
         # sorting
         sort = ""
         ads = []
-        if searchLimit: ads.append(searchLimit)
+        if textLimit: ads.append(textLimit)
         if tagLimit: ads.append(tagLimit)
         ads = " and ".join(ads)
         if isinstance(self.sortKey, types.StringType):
@@ -252,7 +292,6 @@ class EditDeck(QMainWindow):
 
     def setupFilter(self):
         self.filterTimer = None
-        self.currentTag = None
         self.connect(self.dialog.filterEdit,
                      SIGNAL("textChanged(QString)"),
                      self.filterTextChanged)
@@ -279,12 +318,6 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.clear()
         self.dialog.tagList.addItems(QStringList(
             [_('All tags'), _('No tags')] + self.alltags))
-        if self.currentTag:
-            try:
-                idx = self.alltags.index(self.currentTag) + 2
-            except ValueError:
-                idx = 0
-            self.dialog.tagList.setCurrentIndex(idx)
 
     def drawSort(self):
         self.sortList = [
@@ -359,12 +392,13 @@ class EditDeck(QMainWindow):
 
     def tagChanged(self, idx):
         if idx == 0:
-            self.currentTag = None
+            self.dialog.filterEdit.setText("")
         elif idx == 1:
-            self.currentTag = "notag"
+            self.dialog.filterEdit.setText("t:none")
         else:
-            self.currentTag = self.alltags[idx-2]
-        self.updateSearch()
+            self.dialog.filterEdit.setText(
+                "t:\"" + self.alltags[idx-2] + "\"")
+        self.showFilterNow()
 
     def updateFilterLabel(self):
         self.setWindowTitle(_("Editor (%(cur)d "
@@ -410,7 +444,6 @@ class EditDeck(QMainWindow):
     def updateSearch(self):
         idx = self.dialog.tableView.currentIndex()
         self.model.searchStr = unicode(self.dialog.filterEdit.text())
-        self.model.tag = self.currentTag
         self.model.showMatching()
         self.updateFilterLabel()
         self.onEvent()

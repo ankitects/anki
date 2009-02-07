@@ -333,7 +333,7 @@ order by n""", id=card.id)
         newname = unicode(self.dialog.cardName.text())
         if not newname:
             newname = _("Card %d") % (self.m.cardModels.index(card) + 1)
-        self.updateField(card, 'name', newname)
+        self.updateField(card, 'name', newname.replace(" ", "-"))
         s = unicode(self.dialog.cardQuestion.toPlainText())
         s = s.replace("\n", "<br>")
         changed = self.updateField(card, 'qformat', s)
@@ -469,7 +469,7 @@ order by n""", id=card.id)
             mname = _("Model")
         self.updateField(self.m, 'name', mname)
         self.updateField(self.m, 'tags',
-                         unicode(self.dialog.tags.text()))
+                         unicode(self.dialog.tags.text()).replace(" ", "-"))
         try:
             self.updateField(self.m, 'spacing',
                              float(self.dialog.spacing.text()))
