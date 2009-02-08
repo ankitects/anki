@@ -133,10 +133,10 @@ class FactEditor(object):
         self.underline.setEnabled(False)
         self.iconsBox.addWidget(self.underline)
         self.underline.setStyle(self.plastiqueStyle)
-        # foreground color - not working on mac
+        # foreground color
         self.foreground = QPushButton()
-        self.foreground.connect(self.foreground, SIGNAL("clicked()"), self.selectForeground)
-        self.foreground.setToolTip(_("Foreground colour (Ctrl+r)"))
+        self.foreground.connect(self.foreground, SIGNAL("clicked()"), self.setForeground)
+        self.foreground.setToolTip(_("Set foreground colour (Ctrl+r)"))
         self.foreground.setShortcut(_("Ctrl+r"))
         self.foreground.setFocusPolicy(Qt.NoFocus)
         self.foreground.setEnabled(False)
@@ -150,6 +150,18 @@ class FactEditor(object):
         self.foreground.setLayout(hbox)
         self.iconsBox.addWidget(self.foreground)
         self.foreground.setStyle(self.plastiqueStyle)
+        # picker
+        self.fchoose = QPushButton()
+        self.fchoose.connect(self.fchoose, SIGNAL("clicked()"), self.selectForeground)
+        self.fchoose.setToolTip(_("Choose colour (Ctrl+r)"))
+        self.fchoose.setText("v")
+        #self.fchoose.setShortcut(_("Ctrl+r"))
+        self.fchoose.setFocusPolicy(Qt.NoFocus)
+        self.fchoose.setEnabled(False)
+        self.fchoose.setFixedWidth(15)
+        self.fchoose.setFixedHeight(26)
+        self.iconsBox.addWidget(self.fchoose)
+        self.fchoose.setStyle(self.plastiqueStyle)
         # pictures
         spc = QSpacerItem(5,5)
         self.iconsBox.addItem(spc)
@@ -281,6 +293,8 @@ class FactEditor(object):
         # show advanced buttons?
         if not ankiqt.mw.config['factEditorAdvanced']:
             self.onMore(False)
+        # set initial colour
+        self._updateForegroundButton(ankiqt.mw.config['recentColours'][-1])
 
     def _makeGrid(self):
         "Rebuild the grid to avoid trigging QT bugs."
@@ -493,9 +507,6 @@ class FactEditor(object):
             self.bold.setChecked(w.fontWeight() == QFont.Bold)
             self.italic.setChecked(w.fontItalic())
             self.underline.setChecked(w.fontUnderline())
-            self.foregroundFrame.setPalette(QPalette(w.textColor()))
-            self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
-                                               unicode(w.textColor().name()))
 
     def resetFormatButtons(self):
         self.bold.setChecked(False)
@@ -507,6 +518,7 @@ class FactEditor(object):
         self.italic.setEnabled(val)
         self.underline.setEnabled(val)
         self.foreground.setEnabled(val)
+        self.fchoose.setEnabled(val)
         self.addPicture.setEnabled(val)
         self.addSound.setEnabled(val)
         self.latex.setEnabled(val)
@@ -545,22 +557,28 @@ class FactEditor(object):
             self.fontChanged = True
             w.setFontUnderline(bool)
 
-    def selectForeground(self):
+    def _updateForegroundButton(self, txtcol):
+        # FIXME: working on mac?
+        self.foregroundFrame.setPalette(QPalette(QColor(txtcol)))
+        self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
+                                           txtcol)
+
+    def setForeground(self):
+        recent = ankiqt.mw.config['recentColours']
         w = self.focusedEdit()
         if w:
-            # we lose the selection when we open the colour dialog on win32,
-            # so we need to save it
-            cursor = w.textCursor()
-            haveSel = cursor.hasSelection()
-            new = QColorDialog.getColor(w.textColor(), self.parent)
-            if new.isValid():
-                w.setTextCursor(cursor)
-                self.foregroundFrame.setPalette(QPalette(new))
-                w.setTextColor(new)
-                # now we clear the selection
-                if haveSel:
-                    w.setTextCursor(cursor)
+            w.setTextColor(QColor(recent[-1]))
             self.fontChanged = True
+
+    def selectForeground(self):
+        recent = ankiqt.mw.config['recentColours']
+        new = QColorDialog.getColor(QColor(recent[-1]))
+        if new.isValid():
+            txtcol = unicode(new.name())
+            self._updateForegroundButton(txtcol)
+            if txtcol in recent:
+                recent.remove(txtcol)
+            recent.append(txtcol)
 
     def insertLatex(self):
         w = self.focusedEdit()

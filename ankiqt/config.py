@@ -83,6 +83,7 @@ class Config(dict):
             'editFontSize': 12,
             'factEditorAdvanced': False,
             'typeAnswerFontSize': 20,
+            'recentColours': ["#000000", "#0000ff"],
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
