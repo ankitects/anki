@@ -559,7 +559,6 @@ class FactEditor(object):
                 w.setTextColor(new)
                 # now we clear the selection
                 if haveSel:
-                    cursor.clearSelection()
                     w.setTextCursor(cursor)
             self.fontChanged = True
 
