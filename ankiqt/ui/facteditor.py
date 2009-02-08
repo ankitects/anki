@@ -551,14 +551,16 @@ class FactEditor(object):
             # we lose the selection when we open the colour dialog on win32,
             # so we need to save it
             cursor = w.textCursor()
+            haveSel = cursor.hasSelection()
             new = QColorDialog.getColor(w.textColor(), self.parent)
             if new.isValid():
                 w.setTextCursor(cursor)
                 self.foregroundFrame.setPalette(QPalette(new))
                 w.setTextColor(new)
                 # now we clear the selection
-                cursor.clearSelection()
-                w.setTextCursor(cursor)
+                if haveSel:
+                    cursor.clearSelection()
+                    w.setTextCursor(cursor)
             self.fontChanged = True
 
     def insertLatex(self):
