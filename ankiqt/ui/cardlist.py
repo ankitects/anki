@@ -146,7 +146,7 @@ class DeckModel(QAbstractTableModel):
                     like = "%" + tag.replace('"', "") + "%"
                     i = [id for (id, tags, pri) in self.deck.tagsList(
                         where="""
-and (facts.tags like :s or models.tags like :s)""",
+and (facts.tags like :s or models.tags like :s or cardModels.name like :s)""",
                         kwargs = {'s': like})
                          if find(tag, tags)]
                     if not ids:
