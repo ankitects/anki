@@ -136,8 +136,8 @@ class FactEditor(object):
         # foreground color
         self.foreground = QPushButton()
         self.foreground.connect(self.foreground, SIGNAL("clicked()"), self.setForeground)
-        self.foreground.setToolTip(_("Set foreground colour (Ctrl+r)"))
-        self.foreground.setShortcut(_("Ctrl+r"))
+        self.foreground.setToolTip(_("Set colour (F7 F7)"))
+        self.foreground.setShortcut(_("F7, F7"))
         self.foreground.setFocusPolicy(Qt.NoFocus)
         self.foreground.setEnabled(False)
         self.foreground.setFixedWidth(30)
@@ -151,17 +151,47 @@ class FactEditor(object):
         self.iconsBox.addWidget(self.foreground)
         self.foreground.setStyle(self.plastiqueStyle)
         # picker
+        vbox = QVBoxLayout()
+        vbox.setMargin(0)
+        vbox.setSpacing(0)
+        hbox = QHBoxLayout()
+        hbox.setMargin(0)
+        hbox.setSpacing(0)
+        self.fleft = QPushButton()
+        self.fleft.connect(self.fleft, SIGNAL("clicked()"), self.previousForeground)
+        self.fleft.setToolTip(_("Previous colour (F7 F6)"))
+        self.fleft.setText("<")
+        self.fleft.setShortcut(_("F7, F6"))
+        self.fleft.setFocusPolicy(Qt.NoFocus)
+        self.fleft.setEnabled(False)
+        self.fleft.setFixedWidth(15)
+        self.fleft.setFixedHeight(14)
+        hbox.addWidget(self.fleft)
+        self.fleft.setStyle(self.plastiqueStyle)
+        self.fright = QPushButton()
+        self.fright.connect(self.fright, SIGNAL("clicked()"), self.nextForeground)
+        self.fright.setToolTip(_("Next colour (F7 F8)"))
+        self.fright.setText(">")
+        self.fright.setShortcut(_("F7, F8"))
+        self.fright.setFocusPolicy(Qt.NoFocus)
+        self.fright.setEnabled(False)
+        self.fright.setFixedWidth(15)
+        self.fright.setFixedHeight(14)
+        hbox.addWidget(self.fright)
+        self.fright.setStyle(self.plastiqueStyle)
+        vbox.addLayout(hbox)
         self.fchoose = QPushButton()
         self.fchoose.connect(self.fchoose, SIGNAL("clicked()"), self.selectForeground)
-        self.fchoose.setToolTip(_("Choose colour (Ctrl+r)"))
-        self.fchoose.setText("v")
-        #self.fchoose.setShortcut(_("Ctrl+r"))
+        self.fchoose.setToolTip(_("Choose colour (F7 F5)"))
+        self.fchoose.setText("+")
+        self.fchoose.setShortcut(_("F7, F5"))
         self.fchoose.setFocusPolicy(Qt.NoFocus)
         self.fchoose.setEnabled(False)
-        self.fchoose.setFixedWidth(15)
-        self.fchoose.setFixedHeight(26)
-        self.iconsBox.addWidget(self.fchoose)
+        self.fchoose.setFixedWidth(30)
+        self.fchoose.setFixedHeight(12)
+        vbox.addWidget(self.fchoose)
         self.fchoose.setStyle(self.plastiqueStyle)
+        self.iconsBox.addLayout(vbox)
         # pictures
         spc = QSpacerItem(5,5)
         self.iconsBox.addItem(spc)
@@ -519,6 +549,8 @@ class FactEditor(object):
         self.underline.setEnabled(val)
         self.foreground.setEnabled(val)
         self.fchoose.setEnabled(val)
+        self.fleft.setEnabled(val)
+        self.fright.setEnabled(val)
         self.addPicture.setEnabled(val)
         self.addSound.setEnabled(val)
         self.latex.setEnabled(val)
@@ -563,14 +595,30 @@ class FactEditor(object):
         self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
                                            txtcol)
 
-    def setForeground(self):
+    def setForeground(self, w=None):
         recent = ankiqt.mw.config['recentColours']
-        w = self.focusedEdit()
+        if not w:
+            w = self.focusedEdit()
         if w:
             w.setTextColor(QColor(recent[-1]))
             self.fontChanged = True
 
+    def previousForeground(self):
+        recent = ankiqt.mw.config['recentColours']
+        last = recent.pop()
+        recent.insert(0, last)
+        self._updateForegroundButton(recent[-1])
+        self.setForeground()
+
+    def nextForeground(self):
+        recent = ankiqt.mw.config['recentColours']
+        last = recent.pop(0)
+        recent.append(last)
+        self._updateForegroundButton(recent[-1])
+        self.setForeground()
+
     def selectForeground(self):
+        w = self.focusedEdit()
         recent = ankiqt.mw.config['recentColours']
         new = QColorDialog.getColor(QColor(recent[-1]))
         if new.isValid():
@@ -579,6 +627,7 @@ class FactEditor(object):
             if txtcol in recent:
                 recent.remove(txtcol)
             recent.append(txtcol)
+            self.setForeground(w)
 
     def insertLatex(self):
         w = self.focusedEdit()
