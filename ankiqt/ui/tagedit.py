@@ -4,6 +4,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from anki.utils import parseTags, canonifyTags, joinTags
+import re
 
 class TagEdit(QLineEdit):
 
@@ -42,23 +43,19 @@ class TagCompleter(QCompleter):
         self.edit = edit
 
     def splitPath(self, str):
-        str = unicode(str)
-        if str.strip().startswith(","):
-            self.cursor = 0
-            return QStringList("")
+        str = unicode(str).strip()
+        str = re.sub("  +", " ", str)
         self.tags = parseTags(str)
         self.tags.append(u"")
         p = self.edit.cursorPosition()
-        self.cursor = str.count(",", 0, p)
+        self.cursor = str.count(" ", 0, p)
         return QStringList(self.tags[self.cursor])
 
     def pathFromIndex(self, idx):
         ret = QCompleter.pathFromIndex(self, idx)
-        if u"" not in self.tags:
-            self.tags.append(u"")
         self.tags[self.cursor] = unicode(ret)
         try:
             self.tags.remove(u"")
         except ValueError:
             pass
-        return ", ".join(self.tags)
+        return " ".join(self.tags)
