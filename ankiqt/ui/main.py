@@ -333,6 +333,10 @@ Please do not file a bug report with Anki.<br><br>""")
                              Qt.Key_Return):
                 evt.accept()
                 return self.onStartReview()
+        elif self.state == "editCurrentFact":
+            if evt.key() == Qt.Key_Escape:
+                evt.accept()
+                return self.moveToState("saveEdit")
         evt.ignore()
 
     def cardAnswered(self, quality):
