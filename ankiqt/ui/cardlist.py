@@ -493,6 +493,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionReverseOrder, SIGNAL("triggered()"), self.reverseOrder)
+        self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         # jumps
         self.connect(self.dialog.actionFirstCard, SIGNAL("triggered()"), self.onFirstCard)
         self.connect(self.dialog.actionLastCard, SIGNAL("triggered()"), self.onLastCard)
@@ -722,6 +723,15 @@ where id in %s""" % ids2str(sf))
 
     # Edit: selection
     ######################################################################
+
+    def selectFacts(self):
+        sm = self.dialog.tableView.selectionModel()
+        cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
+        for i, card in enumerate(self.model.cards):
+            if card.id in cardIds:
+                sm.select(self.model.index(i, 0),
+                          QItemSelectionModel.Select | QItemSelectionModel.Rows)
+
 
     def invertSelection(self):
         sm = self.dialog.tableView.selectionModel()

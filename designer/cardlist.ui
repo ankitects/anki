@@ -181,6 +181,7 @@
     <addaction name="actionRedo" />
     <addaction name="separator" />
     <addaction name="actionSelectAll" />
+    <addaction name="actionSelectFacts" />
     <addaction name="actionInvertSelection" />
     <addaction name="separator" />
     <addaction name="actionReverseOrder" />
@@ -258,7 +259,7 @@
      <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
    </property>
    <property name="text" >
-    <string>Generate &amp;Cards...</string>
+    <string>&amp;Generate Cards...</string>
    </property>
   </action>
   <action name="actionReschedule" >
@@ -273,11 +274,6 @@
   <action name="actionSelectAll" >
    <property name="text" >
     <string>Select &amp;All</string>
-   </property>
-  </action>
-  <action name="actionSelectFacts" >
-   <property name="text" >
-    <string>Select &amp;Facts</string>
    </property>
   </action>
   <action name="actionUndo" >
@@ -399,6 +395,11 @@
    </property>
    <property name="text" >
     <string>Change &amp;Model...</string>
+   </property>
+  </action>
+  <action name="actionSelectFacts" >
+   <property name="text" >
+    <string>Select &amp;Facts</string>
    </property>
   </action>
  </widget>
