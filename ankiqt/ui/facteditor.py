@@ -674,6 +674,15 @@ class FactEditor(object):
         src = self.focusedEdit()
         if not src:
             return
+        # add brackets because selected?
+        cursor = src.textCursor()
+        if cursor.hasSelection():
+            s = cursor.selectionStart()
+            e = cursor.selectionEnd()
+            cursor.setPosition(e)
+            cursor.insertText("]")
+            cursor.setPosition(s)
+            cursor.insertText("[")
         dst = None
         for (name, (field, w)) in self.fields.items():
             if w.hasFocus():
@@ -703,7 +712,7 @@ class FactEditor(object):
                                   parent=self.parent)
                 return
         # check if there's anything to change
-        if not re.search("\(.+?\)", unicode(src.toPlainText())):
+        if not re.search("\[.+?\]", unicode(src.toPlainText())):
             QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                           "ClozeDeletion"))
             return
@@ -713,10 +722,10 @@ class FactEditor(object):
             exp = ""
             if match.group(2):
                 exp = match.group(2)
-            return '<font color="%s"><b>(...%s)</b></font>' % (
+            return '<font color="%s"><b>[...%s]</b></font>' % (
                 clozeColour, exp)
-        new = re.sub("\(.+?(:(.+?))?\)", repl, s)
-        old = re.sub("\((.+?)(:.+?)?\)", '<font color="%s"><b>\\1</b></font>'
+        new = re.sub("\[.+?(:(.+?))?\]", repl, s)
+        old = re.sub("\[(.+?)(:.+?)?\]", '<font color="%s"><b>\\1</b></font>'
                      % clozeColour, s)
         oldSrc = unicode(src.toHtml())
         src.setHtml(new)
