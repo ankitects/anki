@@ -673,6 +673,14 @@ where id in (%s)""" % ",".join([
         sf = self.selectedFacts()
         if not sf:
             return
+        mods = self.deck.s.column0("""
+select distinct modelId from facts
+where id in %s""" % ids2str(sf))
+        if not len(mods) == 1:
+            ui.utils.showInfo(
+                _("Can only operate on one model at a time."),
+                parent=self)
+            return
         cms = [x.id for x in self.deck.s.query(Fact).get(sf[0]).\
                model.cardModels]
         d = AddCardChooser(self, cms)
@@ -691,10 +699,10 @@ where id in (%s)""" % ",".join([
 
     def onChangeModel(self):
         sf = self.selectedFacts()
-        cms = self.deck.s.column0("""
+        mods = self.deck.s.column0("""
 select distinct modelId from facts
 where id in %s""" % ids2str(sf))
-        if not len(cms) == 1:
+        if not len(mods) == 1:
             ui.utils.showInfo(
                 _("Can only change one model at a time."),
                 parent=self)
