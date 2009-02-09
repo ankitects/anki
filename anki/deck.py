@@ -1438,6 +1438,7 @@ and cards.factId = facts.id""")
         "Return a hash listing tags in model & fact."
         t = self.s.column0("select tags from facts")
         t += self.s.column0("select tags from models")
+        t += self.s.column0("select name from cardModels")
         return sorted(list(set(parseTags(joinTags(t)))))
 
     def allUserTags(self):
@@ -2490,28 +2491,31 @@ where interval < 1""")
             deck.s.commit()
         if deck.version < 26:
             # no spaces in tags anymore, separated by space
+            def munge(tags):
+                tags = re.sub(", ?", "--tmp--", tags)
+                tags = re.sub(" - ", "-", tags)
+                tags = re.sub(" ", "-", tags)
+                tags = re.sub("--tmp--", " ", tags)
+                tags = canonifyTags(tags)
+                return tags
+
             rows = deck.s.all('select id, tags from facts')
             d = []
             for (id, tags) in rows:
                 d.append({
                     'i': id,
-                    't': joinTags(sorted(
-                    [t.strip().replace(" ", "-") for t in
-                     tags.split(",") if t.strip()])),
+                    't': munge(tags),
                     })
             deck.s.statements(
                 "update facts set tags = :t where id = :i", d)
             for k in ('highPriority', 'medPriority',
                       'lowPriority', 'suspended'):
                 x = getattr(deck, k)
-                x = re.sub("([^,]) +", "\\1-", x)
-                x = re.sub(",", " ", x)
-                setattr(deck, k, x)
+                setattr(deck, k, munge(x))
             for m in deck.models:
                 for cm in m.cardModels:
-                    cm.name = cm.name.replace(" ", "-")
-                m.tags = re.sub(", ?", " ", m.tags)
-                m.tags = canonifyTags(m.tags)
+                    cm.name = munge(cm.name)
+                m.tags = munge(m.tags)
                 deck.updateCardsFromModel(m, dirty=False)
             deck.version = 26
             deck.s.commit()
