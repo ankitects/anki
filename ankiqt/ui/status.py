@@ -104,10 +104,10 @@ class StatusView(object):
         self.addWidget(self.vertSep(), 0)
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
-        if sys.platform.startswith("darwin"):
-            self.timer.setFixedWidth(40)
-        else:
-            self.timer.setFixedWidth(33)
+#         if sys.platform.startswith("darwin"):
+#             self.timer.setFixedWidth(40)
+#         else:
+#             self.timer.setFixedWidth(33)
         self.addWidget(self.timer)
         self.plastiqueStyle = QStyleFactory.create("plastique")
         self.progressBar.setStyle(self.plastiqueStyle)
@@ -249,9 +249,9 @@ You should aim to answer each question within<br>
                 if not self.main.config['showCardTimer']:
                     return
                 t = self.main.currentCard.thinkingTime()
-                self.timer.setText('%02d:%02d' % (t/60, t%60))
+                self.setTimer('%02d:%02d' % (t/60, t%60))
                 return
-        self.timer.setText("00:00")
+        self.setTimer("00:00")
 
     def flashTimer(self):
         if not (self.main.deck.sessionStartTime and
@@ -261,7 +261,7 @@ You should aim to answer each question within<br>
         t = self.main.deck.sessionTimeLimit - t
         if t < 0:
             t = 0
-        self.timer.setText('<span style="color:#0000ff">%02d:%02d</span>' %
+        self.setTimer('<span style="color:#0000ff">%02d:%02d</span>' %
                            (t/60, t%60))
         self.timerFlashStart = time.time()
 
@@ -271,3 +271,7 @@ You should aim to answer each question within<br>
         if self.state in ("showQuestion", "showAnswer"):
             self.main.deck.checkDue()
             self.redraw()
+
+    def setTimer(self, txt):
+        self.timer.setText("<qt>" + txt + "&nbsp;")
+
