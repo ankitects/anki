@@ -234,7 +234,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                 else:
                     self.uniqueCache[self.mapping[n].id][card.fields[n]] = 1
         if fields:
-            card.tags += u",Import: duplicate, Duplicate: " + (
+            card.tags += u" Duplicate:" + (
                 "+".join(fields))
             card.tags = canonifyTags(card.tags)
         return True
