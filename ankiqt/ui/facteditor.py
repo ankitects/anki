@@ -262,7 +262,7 @@ class FactEditor(object):
         #self.cloze.setIcon(QIcon(":/icons/document-cloze.png"))
         self.cloze.setFixedWidth(30)
         self.cloze.setFixedHeight(26)
-        self.cloze.setText("(...)")
+        self.cloze.setText("[...]")
         self.cloze.setFocusPolicy(Qt.NoFocus)
         self.cloze.setEnabled(False)
         self.iconsBox2.addWidget(self.cloze)
