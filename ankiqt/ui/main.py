@@ -996,8 +996,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             0, QStringList(newCardSchedulingLabels().values()))
         self.mainWin.revCardOrder.insertItems(
             0, QStringList(revCardOrderLabels().values()))
-        self.mainWin.failedCardsOption.insertItems(
-            0, QStringList(failedCardOptionLabels().values()))
         self.connect(self.mainWin.optionsHelpButton,
                      SIGNAL("clicked()"),
                      lambda: QDesktopServices.openUrl(QUrl(
@@ -1122,6 +1120,12 @@ day = :d""", d=yesterday)
         self.mainWin.newCardOrder.setCurrentIndex(self.deck.newCardOrder)
         self.mainWin.newCardScheduling.setCurrentIndex(self.deck.newCardSpacing)
         self.mainWin.revCardOrder.setCurrentIndex(self.deck.revCardOrder)
+        self.mainWin.failedCardsOption.clear()
+        if self.deck.getFailedCardPolicy() == 5:
+            labels = failedCardOptionLabels().values()
+        else:
+            labels = failedCardOptionLabels().values()[0:-1]
+        self.mainWin.failedCardsOption.insertItems(0, labels)
         self.mainWin.failedCardsOption.setCurrentIndex(self.deck.getFailedCardPolicy())
 
     def onStartReview(self):
