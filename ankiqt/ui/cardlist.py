@@ -69,6 +69,7 @@ class DeckModel(QAbstractTableModel):
                 self.updateCard(index)
             s = self.columns[index.column()][1](index)
             s = s.replace("<br>", u" ")
+            s = s.replace("<br />", u" ")
             s = s.replace("\n", u"  ")
             s = stripHTML(s)
             s = re.sub("\[sound:[^]]+\]", "", s)
