@@ -315,9 +315,12 @@ class EditDeck(QMainWindow):
         tags = self.deck.allTags()
         self.alltags = tags
         self.alltags.sort()
+        self.dialog.tagList.setFixedWidth(120)
         self.dialog.tagList.clear()
         self.dialog.tagList.addItems(QStringList(
-            [_('All tags'), _('No tags')] + self.alltags))
+            [_('<Select Tag>'), _('No tags')] + self.alltags))
+        self.dialog.tagList.view().setFixedWidth(300)
+
 
     def drawSort(self):
         self.sortList = [
@@ -331,7 +334,7 @@ class EditDeck(QMainWindow):
             _("Ease"),
             ]
         self.sortFields = sorted(self.deck.allFields())
-        self.sortList.extend([_("Field '%s'") % f for f in self.sortFields])
+        self.sortList.extend([_("'%s'") % f for f in self.sortFields])
         self.dialog.sortBox.clear()
         self.dialog.sortBox.addItems(QStringList(self.sortList))
         if self.sortIndex >= len(self.sortList):
@@ -399,6 +402,7 @@ class EditDeck(QMainWindow):
             self.dialog.filterEdit.setText(
                 "t:\"" + self.alltags[idx-2] + "\"")
         self.showFilterNow()
+        self.dialog.tagList.setCurrentIndex(0)
 
     def updateFilterLabel(self):
         self.setWindowTitle(_("Editor (%(cur)d "
