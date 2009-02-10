@@ -147,7 +147,8 @@ class Deck(object):
         if self.delay0 and self.failedNowCount:
             return self.s.scalar("select id from failedCards limit 1")
         # failed card queue too big?
-        if self.delay0 and self.failedSoonCount >= self.failedCardMax:
+        if (self.delay0 and self.failedCardMax and
+            self.failedSoonCount >= self.failedCardMax):
             return self.s.scalar(
                 "select id from failedCards limit 1")
         # distribute new cards?
@@ -1555,9 +1556,11 @@ where id = :id""", pending)
             # custom
             return
         self.collapseTime = 0
+        self.failedCardMax = 0
         if idx == 0:
             d = 600
             self.collapseTime = 1
+            self.failedCardMax = 20
         elif idx == 1:
             d = 0
         elif idx == 2:
@@ -1574,8 +1577,10 @@ where id = :id""", pending)
             return 5
         d = self.delay0
         if self.collapseTime == 1:
-            if d == 600:
+            if d == 600 and self.failedCardMax == 20:
                 return 0
+            return 5
+        if self.failedCardMax != 20:
             return 5
         if d == 0:
             return 1

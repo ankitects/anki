@@ -32,7 +32,7 @@ def test_csv_tags():
     i.doImport()
     facts = deck.s.query(Fact).all()
     assert len(facts) == 1
-    assert facts[0].tags == "baz, qux"
+    assert facts[0].tags == "baz qux"
     deck.s.close()
 
 def test_mnemosyne10():
