@@ -904,7 +904,6 @@ and due < :now""", now=time.time())
         "Add a fact to the deck. Return list of new cards."
         if not fact.model:
             fact.model = self.currentModel
-        fact = self.cloneFact(fact)
         # validate
         fact.assertValid()
         fact.assertUnique(self.s)
@@ -1029,15 +1028,6 @@ where facts.id not in (select factId from cards)""")
             card = anki.cards.Card(fact, cardModel)
             cards.append(card)
         return cards
-
-    def cloneFact(self, oldFact):
-        "Copy fact into new session."
-        model = self.s.query(Model).get(oldFact.model.id)
-        fact = self.newFact(model)
-        for field in fact.fields:
-            fact[field.name] = oldFact[field.name]
-        fact.tags = oldFact.tags
-        return fact
 
     # Cards
     ##########################################################################
@@ -1700,14 +1690,13 @@ Return new path, relative to media dir."""
         "Roll back the current transaction and reset session state."
         self.s.rollback()
         self.s.clear()
-        self.refresh()
-
-    def refresh(self):
-        "Flush, invalidate all objects from cache and reload."
-        self.s.flush()
-        self.s.clear()
         self.s.update(self)
         self.s.refresh(self)
+
+    def refresh(self):
+        "Flush and expire all items from the session."
+        self.s.flush()
+        self.s.expire_all()
 
     def openSession(self):
         "Open a new session. Assumes old session is already closed."
