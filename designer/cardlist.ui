@@ -13,14 +13,6 @@
    <string>Edit Items</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>23</y>
-     <width>599</width>
-     <height>439</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
     <property name="spacing" >
      <number>0</number>
@@ -170,7 +162,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit" >
@@ -183,6 +175,8 @@
     <addaction name="actionSelectAll" />
     <addaction name="actionSelectFacts" />
     <addaction name="actionInvertSelection" />
+    <addaction name="separator" />
+    <addaction name="actionFindReplace" />
     <addaction name="separator" />
     <addaction name="actionReverseOrder" />
    </widget>
@@ -400,6 +394,11 @@
   <action name="actionSelectFacts" >
    <property name="text" >
     <string>Select &amp;Facts</string>
+   </property>
+  </action>
+  <action name="actionFindReplace" >
+   <property name="text" >
+    <string>Find and Re&amp;place...</string>
    </property>
   </action>
  </widget>

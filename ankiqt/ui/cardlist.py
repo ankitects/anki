@@ -2,6 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+import sre_constants
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import time, types, sys, re
@@ -499,6 +500,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionReverseOrder, SIGNAL("triggered()"), self.reverseOrder)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
+        self.connect(self.dialog.actionFindReplace, SIGNAL("triggered()"), self.onFindReplace)
         # jumps
         self.connect(self.dialog.actionFirstCard, SIGNAL("triggered()"), self.onFirstCard)
         self.connect(self.dialog.actionLastCard, SIGNAL("triggered()"), self.onLastCard)
@@ -770,6 +772,40 @@ where id in %s""" % ids2str(sf))
 
     def onRedo(self):
         self.deck.redo()
+
+    # Edit: replacing
+    ######################################################################
+
+    def onFindReplace(self):
+        d = QDialog(self)
+        frm = ankiqt.forms.findreplace.Ui_Dialog()
+        frm.setupUi(d)
+        frm.type.insertItems(0, [
+            _("Fields"),
+            _("Tags")])
+        if not d.exec_():
+            return
+        n = _("Find and Replace")
+        self.parent.setProgressParent(self)
+        self.deck.startProgress(2)
+        self.deck.updateProgress(_("Replacing..."))
+        self.deck.setUndoStart(n)
+        sf = self.selectedFacts()
+        self.deck.updateProgress()
+        try:
+            self.deck.findReplace(self.selectedFacts(),
+                                  unicode(frm.find.text()),
+                                  unicode(frm.replace.text()),
+                                  frm.type.currentIndex(),
+                                  frm.re.isChecked())
+        except sre_constants.error:
+            ui.utils.showInfo(_("Invalid regexp."),
+                              parent=self)
+        self.deck.setUndoEnd(n)
+        self.deck.finishProgress()
+        self.parent.setProgressParent(None)
+        self.updateSearch()
+        self.updateAfterCardChange()
 
     # Jumping
     ######################################################################
