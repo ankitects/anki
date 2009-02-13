@@ -8,6 +8,7 @@ from anki import DeckStorage
 from anki.importing import anki10, csv, mnemosyne10
 from anki.stdmodels import BasicModel
 from anki.facts import Fact
+from anki.sync import SyncClient, SyncServer
 
 from anki.db import *
 
@@ -65,3 +66,29 @@ def test_anki10():
     i.doImport()
     assert i.total == 0
     deck.s.rollback()
+
+def test_anki10_modtime():
+    deck1 = DeckStorage.Deck()
+    deck2 = DeckStorage.Deck()
+    client = SyncClient(deck1)
+    server = SyncServer(deck2)
+    client.setServer(server)
+    deck1.addModel(BasicModel())
+    f = deck1.newFact()
+    f['Front'] = u"foo"; f['Back'] = u"bar"
+    deck1.addFact(f)
+    assert deck1.cardCount == 1
+    assert deck2.cardCount == 0
+    client.sync()
+    assert deck1.cardCount == 1
+    assert deck2.cardCount == 1
+    file_ = unicode(os.path.join(testDir, "importing/test10-3.anki"))
+    file = "/tmp/test10-3.anki"
+    shutil.copy(file_, file)
+    i = anki10.Anki10Importer(deck1, file)
+    i.doImport()
+    client.sync()
+    assert i.total == 1
+    assert deck2.s.scalar("select count(*) from cards") == 2
+    assert deck2.s.scalar("select count(*) from facts") == 2
+    assert deck2.s.scalar("select count(*) from models") == 2

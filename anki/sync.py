@@ -544,7 +544,6 @@ values
             "delete from cardsDeleted where cardId in %s" %
             ids2str([c[0] for c in cards]))
 
-
     def deleteCards(self, ids):
         self.deck.deleteCards(ids)
 

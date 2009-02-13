@@ -12,6 +12,8 @@ from anki import DeckStorage
 from anki.importing import Importer
 from anki.sync import SyncClient, SyncServer, BulkMediaSyncer
 from anki.lang import _
+from anki.utils import ids2str
+import time
 
 class Anki10Importer(Importer):
 
@@ -59,6 +61,17 @@ class Anki10Importer(Importer):
         self.deck.updateProgress()
         fids = [f[0] for f in res['added-facts']['facts']]
         self.deck.addTags(fids, self.tagsToAdd)
+        # mark import material as newly added
+        self.deck.s.statement(
+            "update cards set modified = :t where id in %s" %
+            ids2str([x[0] for x in res['added-cards']]), t=time.time())
+        self.deck.s.statement(
+            "update facts set modified = :t where id in %s" %
+            ids2str([x[0] for x in res['added-facts']['facts']]), t=time.time())
+        self.deck.s.statement(
+            "update models set modified = :t where id in %s" %
+            ids2str([x['id'] for x in res['added-models']]), t=time.time())
+        # update total and refresh
         self.total = len(res['added-facts']['facts'])
         src.s.rollback()
         self.deck.flushMod()
