@@ -1534,6 +1534,7 @@ where id = :id""", pending)
                               modded)
             self.updateCardQACacheFromIds([f['fid'] for f in modded],
                                           type="facts")
+        return len(set([f['fid'] for f in modded]))
 
     # Progress info
     ##########################################################################
