@@ -284,7 +284,7 @@ Please do not file a bug report with Anki.<br><br>""")
         elif state == "saveEdit":
             self.editor.saveFieldsNow()
             self.mainWin.buttonStack.show()
-            self.deck.s.flush()
+            self.deck.refresh()
             return self.moveToState("auto")
         elif state == "studyScreen":
             self.currentCard = None
