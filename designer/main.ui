@@ -397,14 +397,14 @@
           </sizepolicy>
          </property>
          <property name="currentIndex" >
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="blankPage" >
           <property name="geometry" >
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>368</width>
+            <width>446</width>
             <height>358</height>
            </rect>
           </property>
@@ -812,7 +812,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>368</width>
+            <width>446</width>
             <height>358</height>
            </rect>
           </property>
@@ -1266,6 +1266,7 @@
     <addaction name="menuAdvanced" />
     <addaction name="separator" />
     <addaction name="actionCram" />
+    <addaction name="separator" />
    </widget>
    <widget class="QMenu" name="menu_Settings" >
     <property name="title" >
@@ -1291,6 +1292,7 @@
      <addaction name="actionOpenPluginFolder" />
      <addaction name="separator" />
      <addaction name="menuStartup" />
+     <addaction name="separator" />
     </widget>
     <addaction name="actionActiveTags" />
     <addaction name="separator" />
