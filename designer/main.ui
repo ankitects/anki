@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>639</width>
+    <width>723</width>
     <height>504</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
     <rect>
      <x>0</x>
      <y>69</y>
-     <width>639</width>
+     <width>723</width>
      <height>415</height>
     </rect>
    </property>
@@ -381,7 +381,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>368</width>
+            <width>446</width>
             <height>57</height>
            </rect>
           </property>
@@ -397,7 +397,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex" >
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="blankPage" >
           <property name="geometry" >
@@ -477,7 +477,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>368</width>
+            <width>446</width>
             <height>358</height>
            </rect>
           </property>
@@ -512,12 +512,6 @@
              </item>
              <item>
               <widget class="QFrame" name="studyOptionsFrame" >
-               <property name="maximumSize" >
-                <size>
-                 <width>350</width>
-                 <height>16777215</height>
-                </size>
-               </property>
                <property name="frameShape" >
                 <enum>QFrame::StyledPanel</enum>
                </property>
@@ -535,12 +529,6 @@
                   </property>
                   <item>
                    <widget class="QLabel" name="optionsLabel" >
-                    <property name="minimumSize" >
-                     <size>
-                      <width>400</width>
-                      <height>0</height>
-                     </size>
-                    </property>
                     <property name="text" >
                      <string>xxx</string>
                     </property>
@@ -721,24 +709,10 @@
                         <widget class="QComboBox" name="newCardOrder" />
                        </item>
                        <item>
-                        <widget class="QComboBox" name="newCardScheduling" >
-                         <property name="maximumSize" >
-                          <size>
-                           <width>400</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                        </widget>
+                        <widget class="QComboBox" name="newCardScheduling" />
                        </item>
                        <item>
-                        <widget class="QComboBox" name="revCardOrder" >
-                         <property name="maximumSize" >
-                          <size>
-                           <width>400</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                        </widget>
+                        <widget class="QComboBox" name="revCardOrder" />
                        </item>
                        <item>
                         <widget class="QComboBox" name="failedCardsOption" />
@@ -1187,7 +1161,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>639</width>
+     <width>723</width>
      <height>23</height>
     </rect>
    </property>
@@ -1338,7 +1312,7 @@
     <rect>
      <x>0</x>
      <y>484</y>
-     <width>639</width>
+     <width>723</width>
      <height>20</height>
     </rect>
    </property>
@@ -1354,7 +1328,7 @@
     <rect>
      <x>0</x>
      <y>23</y>
-     <width>639</width>
+     <width>723</width>
      <height>46</height>
     </rect>
    </property>

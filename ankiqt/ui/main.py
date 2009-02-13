@@ -2097,7 +2097,7 @@ Consider backing up your media directory first."""))
 
     def changeLayoutSpacing(self):
         if sys.platform.startswith("darwin"):
-            self.mainWin.studyOptionsFrame.setFixedWidth(400)
+            #self.mainWin.studyOptionsFrame.setFixedWidth(400)
             self.mainWin.studyOptionsReviewBar.setContentsMargins(0, 20, 0, 0)
             self.mainWin.optionsBox.layout().setSpacing(10)
             self.mainWin.optionsBox.layout().setContentsMargins(4, 10, 4, 4)
