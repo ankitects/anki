@@ -1504,6 +1504,47 @@ where id = :id""", pending)
         self.updatePriorities(cardIds)
         self.flushMod()
 
+    # Find and replace
+    ##########################################################################
+
+    def findReplace(self, factIds, src, dst, type=0, isRe=False):
+        # find
+        if type == 0:
+            s = "select id, factId, value from fields where factId in %s"
+        else:
+            s = "select 0, id, tags from facts where id in %s"
+        if isRe:
+            isRe = re.compile(src)
+        else:
+            if type == 0:
+                s += "and value like :v"
+            else:
+                s += "and tags like :v"
+        rows = self.s.all(s % ids2str(factIds),
+                          v="%"+src.replace("%", "%%")+"%")
+        modded = []
+        if isRe:
+            modded = [
+                {'id': id, 'fid': fid, 'val': re.sub(isRe, dst, val)}
+                for (id, fid, val) in rows
+                if isRe.search(val)]
+        else:
+            modded = [
+                {'id': id, 'fid': fid, 'val': val.replace(src, dst)}
+                for (id, fid, val) in rows
+                if val.find(src) != -1]
+        # update
+        if type == 0:
+            self.s.statements('update fields set value = :val where id = :id',
+                              modded)
+            self.updateCardQACacheFromIds([f['fid'] for f in modded],
+                                          type="facts")
+        else:
+            self.s.statements("update facts set tags = :val where id = :fid",
+                              modded)
+            self.updateCardQACacheFromIds([f['fid'] for f in modded],
+                                          type="facts")
+
     # Progress info
     ##########################################################################
 
