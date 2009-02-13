@@ -780,6 +780,8 @@ where id in %s""" % ids2str(sf))
         d = QDialog(self)
         frm = ankiqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
+        self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
+                     self.onFindReplaceHelp)
         frm.type.insertItems(0, [
             _("Fields"),
             _("Tags")])
@@ -806,6 +808,10 @@ where id in %s""" % ids2str(sf))
         self.parent.setProgressParent(None)
         self.updateSearch()
         self.updateAfterCardChange()
+
+    def onFindReplaceHelp(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+                                      "Editor#FindReplace"))
 
     # Jumping
     ######################################################################

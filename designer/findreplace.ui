@@ -82,6 +82,8 @@
  <tabstops>
   <tabstop>find</tabstop>
   <tabstop>replace</tabstop>
+  <tabstop>type</tabstop>
+  <tabstop>re</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
