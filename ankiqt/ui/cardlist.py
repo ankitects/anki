@@ -794,8 +794,9 @@ where id in %s""" % ids2str(sf))
         self.deck.setUndoStart(n)
         sf = self.selectedFacts()
         self.deck.updateProgress()
+        changed = None
         try:
-            self.deck.findReplace(self.selectedFacts(),
+            changed = self.deck.findReplace(self.selectedFacts(),
                                   unicode(frm.find.text()),
                                   unicode(frm.replace.text()),
                                   frm.type.currentIndex(),
@@ -808,6 +809,12 @@ where id in %s""" % ids2str(sf))
         self.parent.setProgressParent(None)
         self.updateSearch()
         self.updateAfterCardChange()
+        if changed is not None:
+            ui.utils.showInfo(_("%(a)d of %(b)d facts updated") % {
+                'a': changed,
+                'b': len(sf),
+                }, parent=self)
+
 
     def onFindReplaceHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
