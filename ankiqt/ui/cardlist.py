@@ -577,9 +577,6 @@ class EditDeck(QMainWindow):
         if not self.currentCard:
             self.editor.setFact(None, True)
             return
-        self.deck.s.flush()
-        self.deck.s.refresh(self.currentCard)
-        self.deck.s.refresh(self.currentCard.fact)
         fact = self.currentCard.fact
         self.editor.setFact(fact, True)
         self.showCardInfo(self.currentCard)
@@ -807,6 +804,7 @@ where id in %s""" % ids2str(sf))
         self.deck.setUndoEnd(n)
         self.deck.finishProgress()
         self.parent.setProgressParent(None)
+        self.parent.reset()
         self.updateSearch()
         self.updateAfterCardChange()
         if changed is not None:

@@ -184,10 +184,9 @@ Please do not file a bug report with Anki.<br><br>""")
         self.views = self.viewsBackup
         self.viewsBackup = None
 
-    def reset(self, count=True, refresh=False):
+    def reset(self, count=True):
         if self.deck:
-            if refresh:
-                self.deck.refresh()
+            self.deck.refresh()
             if count:
                 self.deck.updateAllPriorities()
                 self.deck.rebuildCounts()
