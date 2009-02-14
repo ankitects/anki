@@ -628,6 +628,7 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         self.reviewedAheadCards = []
         self.reviewEarly = False
         self.flushMod()
+        self.checkDue()
 
     # Times
     ##########################################################################
