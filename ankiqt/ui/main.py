@@ -287,7 +287,7 @@ Please do not file a bug report with Anki.<br><br>""")
             return self.moveToState("auto")
         elif state == "studyScreen":
             self.currentCard = None
-            self.deck.reviewEarly = False
+            self.deck.resetAfterReviewEarly()
             self.disableCardMenuItems()
             self.showStudyScreen()
         self.updateViews(state)
