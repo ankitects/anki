@@ -167,6 +167,15 @@ def restoreSplitter(widget, key):
     if ankiqt.mw.config.get(key):
         widget.restoreState(ankiqt.mw.config[key])
 
+def saveHeader(widget, key):
+    key += "Header"
+    ankiqt.mw.config[key] = widget.saveState()
+
+def restoreHeader(widget, key):
+    key += "Header"
+    if ankiqt.mw.config.get(key):
+        widget.restoreState(ankiqt.mw.config[key])
+
 def mungeQA(deck, txt):
     txt = renderLatex(deck, txt)
     txt = stripSounds(txt)

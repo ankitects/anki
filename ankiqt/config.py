@@ -81,6 +81,7 @@ class Config(dict):
             'editorReverseOrder': False,
             'editFontFamily': 'Arial',
             'editFontSize': 12,
+            'editLineSize': 20,
             'factEditorAdvanced': False,
             'typeAnswerFontSize': 20,
             'recentColours': ["#000000", "#0000ff"],

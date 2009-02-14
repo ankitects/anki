@@ -14,6 +14,7 @@ from anki.facts import factsTable, fieldsTable, Fact
 from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
      stripHTML, ids2str
 from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
+from ankiqt.ui.utils import saveHeader, restoreHeader
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats
@@ -25,6 +26,10 @@ CARD_ANSWER = 2
 CARD_DUE = 3
 CARD_REPS = 4
 CARD_FACTID = 5
+CARD_CREATED = 6
+CARD_MODIFIED = 7
+CARD_INTERVAL = 8
+CARD_EASE = 9
 
 # Deck editor
 ##########################################################################
@@ -38,12 +43,10 @@ class DeckModel(QAbstractTableModel):
         self.filterTag = None
         self.sortKey = None
         # column title, display accessor, sort attr
-        self.columns = [("Question", self.currentQuestion,
-                         self.currentQuestion),
-                        ("Answer", self.currentAnswer,
-                         self.currentAnswer),
-                        (" "*10 + "Due" + " "*10, self.nextDue,
-                         "nextTime")]
+        self.columns = [(_("Question"), self.currentQuestion),
+                        (_("Answer"), self.currentAnswer),
+                        [_("Due"), self.thirdColumn],
+                        ]
         self.searchStr = ""
         self.cards = []
         self.deleted = {}
@@ -60,9 +63,9 @@ class DeckModel(QAbstractTableModel):
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
-        if role == Qt.FontRole and index.column() == 2:
+        if role == Qt.FontRole:
             f = QFont()
-            f.setPixelSize(12)
+            f.setPixelSize(self.parent.config['editFontSize'])
             return QVariant(f)
         elif role == Qt.DisplayRole or role == Qt.EditRole:
             if len(self.cards[index.row()]) == 1:
@@ -76,9 +79,6 @@ class DeckModel(QAbstractTableModel):
             s = re.sub("\[sound:[^]]+\]", "", s)
             s = s.strip()
             return QVariant(s)
-        elif role == Qt.SizeHintRole:
-            if index.column() == 2:
-                return QVariant(20)
         else:
             return QVariant()
 
@@ -87,6 +87,10 @@ class DeckModel(QAbstractTableModel):
             return QVariant()
         elif role == Qt.DisplayRole:
             return QVariant(self.columns[section][0])
+        elif role == Qt.FontRole:
+            f = QFont()
+            f.setPixelSize(10)
+            return QVariant(f)
         else:
             return QVariant()
 
@@ -200,8 +204,8 @@ and (facts.tags like :s or models.tags like :s or cardModels.name like :s)""",
     def updateCard(self, index):
         try:
             self.cards[index.row()] = self.deck.s.first("""
-    select id, question, answer, due, reps, factId
-    from cards where id = :id""", id=self.cards[index.row()][0])
+    select id, question, answer, due, reps, factId, created, modified,
+    interval, factor from cards where id = :id""", id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
                       index, self.index(index.row(), 1))
         except IndexError:
@@ -241,6 +245,53 @@ and (facts.tags like :s or models.tags like :s or cardModels.name like :s)""",
                 return _("%s ago") % fmtTimeSpan(abs(secs), pad=0)
         else:
             return _("in %s") % fmtTimeSpan(secs, pad=0)
+
+    def thirdColumn(self, index):
+        if self.sortKey == "created":
+            return self.createdColumn(index)
+        elif self.sortKey == "modified":
+            return self.modifiedColumn(index)
+        elif self.sortKey == "interval":
+            return self.intervalColumn(index)
+        elif self.sortKey == "reps":
+            return self.repsColumn(index)
+        elif self.sortKey == "factor":
+            return self.easeColumn(index)
+        else:
+            return self.nextDue(index)
+
+    def updateHeader(self):
+        if self.sortKey == "created":
+            k = _("Created")
+        elif self.sortKey == "modified":
+            k = _("Modified")
+        elif self.sortKey == "interval":
+            k = _("Interval")
+        elif self.sortKey == "reps":
+            k = _("Reps")
+        elif self.sortKey == "factor":
+            k = _("Ease")
+        else:
+            k = _("Due")
+        self.columns[-1][0] = k
+
+    def createdColumn(self, index):
+        return fmtTimeSpan(
+            time.time() - self.cards[index.row()][CARD_CREATED]) + " ago"
+
+    def modifiedColumn(self, index):
+        return fmtTimeSpan(
+            time.time() - self.cards[index.row()][CARD_MODIFIED]) + " ago"
+
+    def intervalColumn(self, index):
+        return fmtTimeSpan(
+            self.cards[index.row()][CARD_INTERVAL]*86400)
+
+    def repsColumn(self, index):
+        return str(self.cards[index.row()][CARD_REPS])
+
+    def easeColumn(self, index):
+        return "%0.2f" % self.cards[index.row()][CARD_EASE]
 
 class EditDeck(QMainWindow):
 
@@ -367,6 +418,7 @@ class EditDeck(QMainWindow):
         if idx <= 7:
             self.config['sortIndex'] = idx
         self.model.sortKey = self.sortKey
+        self.model.updateHeader()
         if refresh:
             self.model.showMatching()
             self.updateFilterLabel()
@@ -481,10 +533,13 @@ class EditDeck(QMainWindow):
     def setupHeaders(self):
         if not sys.platform.startswith("win32"):
             self.dialog.tableView.verticalHeader().hide()
-            self.dialog.tableView.horizontalHeader().hide()
+            self.dialog.tableView.horizontalHeader().show()
         for i in range(2):
             self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
-        self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.ResizeToContents)
+        self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
+        restoreHeader(self.dialog.tableView.horizontalHeader(), "editor")
+        self.dialog.tableView.verticalHeader().setDefaultSectionSize(
+            self.parent.config['editLineSize'])
 
     def setupMenus(self):
         # actions
@@ -522,6 +577,7 @@ class EditDeck(QMainWindow):
             return
         self.editor.setFact(None)
         saveGeom(self, "editor")
+        saveHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.hide()
         ui.dialogs.close("CardList")
         self.parent.moveToState("auto")
