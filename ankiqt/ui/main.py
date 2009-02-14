@@ -480,6 +480,8 @@ new:
         self.typeAnswerField = QLineEditNoUndo(self)
         self.typeAnswerField.setFixedWidth(351)
         f = QFont()
+        if sys.platform.startswith("darwin"):
+            self.typeAnswerField.setFixedHeight(40)
         f.setPixelSize(self.config['typeAnswerFontSize'])
         self.typeAnswerField.setFont(f)
         outer.addWidget(self.typeAnswerField)
