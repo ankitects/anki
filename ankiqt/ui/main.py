@@ -1483,7 +1483,6 @@ day = :d""", d=yesterday)
         self.installTranslation()
         if getattr(self, 'mainWin', None):
             self.mainWin.retranslateUi(self)
-            self.alterShortcuts()
         anki.lang.setLang(self.config["interfaceLang"], local=False)
         self.updateTitleBar()
 
@@ -2095,13 +2094,7 @@ Consider backing up your media directory first."""))
 
     def setupSystemHacks(self):
         self.setupDocumentDir()
-        self.alterShortcuts()
         self.changeLayoutSpacing()
-
-    def alterShortcuts(self):
-        if sys.platform.startswith("darwin"):
-            self.mainWin.actionAddcards.setShortcut(_("Ctrl+D"))
-            self.mainWin.actionClose.setShortcut("")
 
     def setupDocumentDir(self):
         if sys.platform.startswith("win32"):
