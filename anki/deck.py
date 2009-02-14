@@ -618,11 +618,6 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         if genToday(self) != self._dailyStats.day:
             self._dailyStats = dailyStats(self)
 
-    def cardsDueSoon(self, ratio=0.1, minInt=0, maxInt=0):
-        "Return ids of cards near their expiration date."
-        #FIXME: implement
-        pass
-
     def resetAfterReviewEarly(self):
         if self.reviewedAheadCards:
             self.updatePriorities(self.reviewedAheadCards)
