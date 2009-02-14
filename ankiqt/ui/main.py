@@ -1985,19 +1985,26 @@ day = :d""", d=yesterday)
         addHook("updateProgress", self.onUpdateProgress)
         addHook("finishProgress", self.onFinishProgress)
         self.progressParent = None
+        self.mainThread = QThread.currentThread()
 
     def setProgressParent(self, parent):
         self.progressParent = parent
 
     def onStartProgress(self, max=100, min=0, title=None):
+        if self.mainThread != QThread.currentThread():
+            return
         parent = self.progressParent or self.app.activeWindow() or self
         self.progressWin = ui.utils.ProgressWin(parent, max, min, title)
 
     def onUpdateProgress(self, label=None, value=None):
+        if self.mainThread != QThread.currentThread():
+            return
         if self.progressWin:
             self.progressWin.update(label, value)
 
     def onFinishProgress(self):
+        if self.mainThread != QThread.currentThread():
+            return
         if self.progressWin:
             self.progressWin.finish()
             self.progressWin = None
