@@ -414,8 +414,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>711</width>
-            <height>564</height>
+            <width>446</width>
+            <height>358</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
@@ -439,8 +439,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>456</width>
-            <height>341</height>
+            <width>446</width>
+            <height>358</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" >
@@ -1906,12 +1906,26 @@
   </action>
  </widget>
  <tabstops>
-  <tabstop>easeButton1</tabstop>
-  <tabstop>easeButton2</tabstop>
-  <tabstop>easeButton3</tabstop>
-  <tabstop>easeButton4</tabstop>
+  <tabstop>newPerDay</tabstop>
+  <tabstop>minuteLimit</tabstop>
+  <tabstop>questionLimit</tabstop>
+  <tabstop>newCardOrder</tabstop>
+  <tabstop>newCardScheduling</tabstop>
+  <tabstop>revCardOrder</tabstop>
+  <tabstop>failedCardsOption</tabstop>
+  <tabstop>startReviewingButton</tabstop>
+  <tabstop>optionsButton</tabstop>
+  <tabstop>optionsHelpButton</tabstop>
+  <tabstop>learnMoreButton</tabstop>
+  <tabstop>reviewEarlyButton</tabstop>
   <tabstop>help</tabstop>
   <tabstop>welcomeText</tabstop>
+  <tabstop>showAnswerButton</tabstop>
+  <tabstop>saveEditorButton</tabstop>
+  <tabstop>easeButton2</tabstop>
+  <tabstop>easeButton1</tabstop>
+  <tabstop>easeButton3</tabstop>
+  <tabstop>easeButton4</tabstop>
  </tabstops>
  <resources>
   <include location="../icons.qrc" />
