@@ -624,10 +624,11 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         pass
 
     def resetAfterReviewEarly(self):
-        self.updatePriorities(self.reviewedAheadCards)
-        self.reviewedAheadCards = []
-        self.reviewEarly = False
-        self.flushMod()
+        if self.reviewedAheadCards:
+            self.updatePriorities(self.reviewedAheadCards)
+            self.reviewedAheadCards = []
+            self.reviewEarly = False
+            self.flushMod()
         self.checkDue()
 
     # Times
