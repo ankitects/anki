@@ -703,10 +703,13 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     ##########################################################################
 
     def onClose(self):
-        cramming = self.deck is not None and self.deck.name() == "cram"
-        self.saveAndClose(hideWelcome=cramming)
-        if cramming:
-            self.loadRecent(0)
+        if self.inMainWindow():
+            cramming = self.deck is not None and self.deck.name() == "cram"
+            self.saveAndClose(hideWelcome=cramming)
+            if cramming:
+                self.loadRecent(0)
+        else:
+            self.app.activeWindow().close()
 
     def saveAndClose(self, hideWelcome=False):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
@@ -750,7 +753,11 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.closeAllDeckWindows()
         return True
 
+    def inMainWindow(self):
+        return self.app.activeWindow() == self
+
     def onNew(self, initial=False, path=None):
+        if not self.inMainWindow(): return
         if not self.saveAndClose(hideWelcome=True): return
         if initial:
             path = os.path.join(self.documentDir, "mydeck.anki")
@@ -794,6 +801,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.config['syncPassword'] = unicode(passwd.text())
 
     def onOpenOnline(self):
+        if not self.inMainWindow(): return
         self.ensureSyncParams()
         if not self.saveAndClose(hideWelcome=True): return
         # we need a disk-backed file for syncing
@@ -812,6 +820,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.moveToState("initial")
 
     def onOpen(self, samples=False):
+        if not self.inMainWindow(): return
         key = _("Deck files (*.anki)")
         if samples: defaultDir = self.getSamplesDir()
         else: defaultDir = self.getDefaultDir()
@@ -1491,6 +1500,7 @@ day = :d""", d=yesterday)
     def syncDeck(self, interactive=True, create=False, onlyMerge=False,
                  reload=True, checkSources=True):
         "Synchronise a deck with the server."
+        if not self.inMainWindow() and interactive: return
         # vet input
         self.ensureSyncParams()
         u=self.config['syncUsername']
