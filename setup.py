@@ -25,8 +25,8 @@ setup(name='anki',
       url='http://ichi2.net/anki/index.html',
       license='GPLv3',
       packages=["anki", "anki.features", "anki.features.chinese", "anki.importing"],
-      package_data={'anki':
-                    ['samples/*','locale/*/*/*']},
+      package_data={'anki': ['samples/*','locale/*/*/*'],
+		    'anki.features.chinese': ['unihan.db']},
       include_package_data=True,
       zip_safe=False,
       install_requires=[
