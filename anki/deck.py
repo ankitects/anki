@@ -1026,6 +1026,15 @@ where facts.id not in (select factId from cards)""")
             cards.append(card)
         return cards
 
+    def cloneFact(self, oldFact):
+        "Copy fact into new session."
+        model = self.s.query(Model).get(oldFact.model.id)
+        fact = self.newFact(model)
+        for field in fact.fields:
+            fact[field.name] = oldFact[field.name]
+        fact.tags = oldFact.tags
+        return fact
+
     # Cards
     ##########################################################################
 
