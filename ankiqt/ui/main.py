@@ -849,11 +849,25 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     def onOpenSamples(self):
         self.onOpen(samples=True)
 
+    def onUnsavedTimer(self):
+        QToolTip.showText(
+            self.mainWin.statusbar.mapToGlobal(QPoint(0, -100)),
+            _("""\
+<h1>Unsaved Deck</h1>
+Careful. You're editing an unsaved Deck.<br>
+Choose File -> Save to start autosaving<br>
+your deck."""))
+
     def save(self, required=False):
         if not self.deck.path:
             if required:
                 # backed in memory, make sure it's saved
                 return self.onSaveAs()
+            else:
+                t = QTimer(self)
+                t.setSingleShot(True)
+                t.start(200)
+                self.connect(t, SIGNAL("timeout()"), self.onUnsavedTimer)
             return
         if not self.deck.modifiedSinceSave():
             return True

@@ -54,7 +54,7 @@ class Config(dict):
             'saveAfterAnswer': True,
             'saveAfterAnswerNum': 10,
             'saveAfterAdding': True,
-            'saveAfterAddingNum': 3,
+            'saveAfterAddingNum': 1,
             'saveOnClose': True,
             'mainWindowGeom': None,
             'suppressUpdate': False,

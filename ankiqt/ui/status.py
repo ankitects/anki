@@ -71,7 +71,7 @@ class StatusView(object):
         progressBarSize = (50, 8)
         # small spacer
         self.initialSpace = QWidget()
-        self.addWidget(self.initialSpace, 1)
+        self.addWidget(self.initialSpace, 0)
         # remaining & eta
         self.remText = QLabel()
         self.addWidget(self.remText, 0)
@@ -99,6 +99,7 @@ class StatusView(object):
         vbox.addWidget(self.retentionBar, 0)
         self.combinedBar = QWidget()
         self.combinedBar.setLayout(vbox)
+        self.combinedBar.setFixedWidth(50)
         self.addWidget(self.combinedBar, 0)
         # timer
         self.addWidget(self.vertSep(), 0)
