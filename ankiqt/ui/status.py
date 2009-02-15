@@ -47,7 +47,6 @@ class StatusView(object):
         self.state = state
         if self.state == "initial":
             self.showDeckStatus()
-            self.updateProgressGoal()
         elif self.state == "noDeck":
             self.hideDeckStatus()
         elif self.state in ("showQuestion",
@@ -71,7 +70,7 @@ class StatusView(object):
         progressBarSize = (50, 8)
         # small spacer
         self.initialSpace = QWidget()
-        self.addWidget(self.initialSpace, 0)
+        self.addWidget(self.initialSpace, 1)
         # remaining & eta
         self.remText = QLabel()
         self.addWidget(self.remText, 0)
@@ -105,21 +104,15 @@ class StatusView(object):
         self.addWidget(self.vertSep(), 0)
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
-#         if sys.platform.startswith("darwin"):
-#             self.timer.setFixedWidth(40)
-#         else:
-#             self.timer.setFixedWidth(33)
         self.addWidget(self.timer)
         self.plastiqueStyle = QStyleFactory.create("plastique")
         self.progressBar.setStyle(self.plastiqueStyle)
         self.retentionBar.setStyle(self.plastiqueStyle)
         self.redraw()
+        self.timer.setShown(self.main.config['showTimer'])
 
-    def addWidget(self, w, stretch=0, perm=True):
-        if perm:
-            self.statusbar.addPermanentWidget(w, stretch)
-        else:
-            self.statusbar.addWidget(w, stretch)
+    def addWidget(self, w, stretch=0):
+        self.statusbar.addWidget(w, stretch)
         self.shown.append(w)
 
     def hideDeckStatus(self):
@@ -131,11 +124,6 @@ class StatusView(object):
     def hideBorders(self):
         "Remove the ugly borders QT places on status bar widgets."
         self.statusbar.setStyleSheet("::item { border: 0; }")
-
-    def updateProgressGoal(self):
-        return
-        stats = self.main.deck.sched.getStats()
-        self.totalPending = stats['pending']
 
     # Updating
     ##########################################################################
@@ -214,7 +202,6 @@ Total correct: %(gYesTotal%)0.1f%%
 (%(gYesTotal)d of %(gTotal)d)""") % stats
         self.combinedBar.setToolTip(tip)
         if self.main.config['showTimer']:
-            self.timer.setVisible(True)
             self.drawTimer()
             self.timer.setToolTip(_("""
 <h1>Time</h1>
@@ -223,8 +210,6 @@ This time is used to calculate the ETA, but not used<br>
 for scheduling.<br><br>
 You should aim to answer each question within<br>
 10 seconds. Click the timer to learn more."""))
-        else:
-            self.timer.setVisible(False)
 
     def setProgressColour(self, palette, perc):
         if perc == 0:
