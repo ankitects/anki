@@ -622,7 +622,8 @@ class FactEditor(object):
     def selectForeground(self):
         w = self.focusedEdit()
         recent = ankiqt.mw.config['recentColours']
-        new = QColorDialog.getColor(QColor(recent[-1]))
+        new = QColorDialog.getColor(QColor(recent[-1]),
+                                    self.parent)
         if new.isValid():
             txtcol = unicode(new.name())
             self._updateForegroundButton(txtcol)
