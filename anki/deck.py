@@ -1231,6 +1231,7 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         self.flushMod()
         self.updateProgress()
         self.rebuildCounts()
+        self.refresh()
         self.finishProgress()
 
     # Fields
