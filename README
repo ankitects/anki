@@ -5,7 +5,7 @@ Prerequisites for Linux/FreeBSD/etc:
 
 - a recent python (2.4 should be fine)
 - python-qt/pyqt 4.4+
-- sqlalchemy 0.4.1+
+- sqlalchemy 0.4.2+
 - simplejson 1.7.3+
 - pysqlite2 1.3+ or python2.5
 
