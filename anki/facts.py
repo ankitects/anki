@@ -81,7 +81,7 @@ class Fact(object):
         try:
             return [f.value for f in self.fields if f.name == key][0]
         except IndexError:
-            raise KeyError
+            raise KeyError(key)
 
     def __setitem__(self, key, value):
         try:
