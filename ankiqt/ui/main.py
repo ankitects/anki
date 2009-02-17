@@ -1604,9 +1604,9 @@ day = :d""", d=yesterday)
         self.syncName = name
         if name:
             if name == self.syncName:
-                self.syncDeck(create=True)
+                self.syncDeck(create=True, interactive=False)
             else:
-                self.syncDeck()
+                self.syncDeck(interactive=False)
         else:
             if not create:
                 # called via 'new' - close
