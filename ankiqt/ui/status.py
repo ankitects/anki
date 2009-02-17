@@ -105,9 +105,10 @@ class StatusView(object):
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
         self.addWidget(self.timer)
-        self.plastiqueStyle = QStyleFactory.create("plastique")
-        self.progressBar.setStyle(self.plastiqueStyle)
-        self.retentionBar.setStyle(self.plastiqueStyle)
+        if QApplication.instance().style().objectName() != "plastique":
+            self.plastiqueStyle = QStyleFactory.create("plastique")
+            self.progressBar.setStyle(self.plastiqueStyle)
+            self.retentionBar.setStyle(self.plastiqueStyle)
         self.redraw()
         self.timer.setShown(self.main.config['showTimer'])
 
