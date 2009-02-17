@@ -1619,7 +1619,7 @@ where id = :id""", pending)
             if d == 600 and self.failedCardMax == 20:
                 return 0
             return 5
-        if self.failedCardMax != 20:
+        if self.failedCardMax != 0:
             return 5
         if d == 0:
             return 1
