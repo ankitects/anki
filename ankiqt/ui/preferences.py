@@ -110,9 +110,6 @@ class Preferences(QDialog):
         self.dialog.splitQA.setChecked(self.config['splitQA'])
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
         self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
-        if sys.platform.startswith("darwin"):
-            self.dialog.alternativeTheme.setChecked(False)
-            self.dialog.alternativeTheme.setShown(False)
 
     def updateAdvanced(self):
         self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
