@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-02 15:53+0900\n"
+"POT-Creation-Date: 2009-02-17 12:25+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -14,42 +14,12 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: deck.py:692
-#, python-format
-msgid ""
-"\n"
-"There is <b>%d</b>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
-"suspended</a> card."
-msgid_plural ""
-"\n"
-"There are <b>%d</b>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
-"suspended</a> cards."
-msgstr[0] ""
-msgstr[1] ""
-
-#: deck.py:681
-#, python-format
-msgid ""
-"\n"
-"There is <b>%d</b>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
-"spaced</a> card."
-msgid_plural ""
-"\n"
-"There are <b>%d</b>\n"
-"<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
-"spaced</a> cards."
-msgstr[0] ""
-msgstr[1] ""
-
-#: stats.py:498
+#: stats.py:501
 #, python-format
 msgid "%(count)s %(gradename)s kanji."
 msgstr "%(count)s %(gradename)s kanji."
 
-#: stats.py:496
+#: stats.py:499
 #, python-format
 msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
 msgstr "%(gradename)s: %(count)s sur %(total)s (%(percent)0.1f%%)."
@@ -64,7 +34,7 @@ msgstr "%0.1f secondes"
 msgid "%s ago"
 msgstr "il y a %s"
 
-#: deck.py:1219
+#: deck.py:1145
 #, fuzzy, python-format
 msgid "%s copy"
 msgstr "%s seconde"
@@ -111,22 +81,22 @@ msgid_plural "%s years"
 msgstr[0] "%s année"
 msgstr[1] "%s années"
 
-#: stats.py:368 stats.py:371 stats.py:374 stats.py:377
+#: stats.py:371 stats.py:374 stats.py:377 stats.py:380
 #, python-format
 msgid "<b>%(a)d</b> (<b>%(b)0.1f</b>/day)"
 msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b> /jour)"
 
-#: stats.py:365
+#: stats.py:368
 #, python-format
 msgid "<b>%(a)d</b>/day, <b>%(b)d</b>/mon"
 msgstr "<b>%(a)d</b> /jour, <b>%(b)d</b> /mois"
 
-#: stats.py:354
+#: stats.py:357
 #, python-format
 msgid "<b>%0.0f</b> days"
 msgstr "<b>%0.0f</b> jours"
 
-#: stats.py:355 stats.py:357 stats.py:359 stats.py:361 stats.py:363
+#: stats.py:358 stats.py:360 stats.py:362 stats.py:364 stats.py:366
 #, python-format
 msgid "<b>%0.1f</b> cards/day"
 msgstr "<b>%0.1f</b> cartes/jour"
@@ -143,7 +113,7 @@ msgstr "<b>Décomptes de cartes</b><br>"
 msgid "<b>Correct answers</b><br>"
 msgstr "<b>Réponses exactes</b><br>"
 
-#: deck.py:701
+#: deck.py:697
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -153,29 +123,29 @@ msgid ""
 "</div>"
 msgstr ""
 
-#: stats.py:520
+#: stats.py:527
 #, python-format
 msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
 msgstr "<h1>Statistiques relatives aux Kanji</h1>Les %d cartes vues de ce paquet contiennent :"
 
-#: stats.py:545
+#: stats.py:552
 msgid "<h1>Missing</h1>"
 msgstr ""
 
-#: stats.py:572
+#: stats.py:579
 msgid "<h1>Non-Jouyou</h1>"
 msgstr ""
 
-#: stats.py:547
+#: stats.py:554
 msgid "<h1>Seen</h1>"
 msgstr ""
 
-#: stats.py:524
+#: stats.py:531
 #, python-format
 msgid "<li>%d total unique kanji.</li>"
 msgstr "<li>%d kanji différents.</li>"
 
-#: deck.py:635
+#: deck.py:637
 #, fuzzy, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -213,11 +183,11 @@ msgstr ""
 msgid "Added"
 msgstr "Ajoutée"
 
-#: stats.py:371
+#: stats.py:374
 msgid "Added last month"
 msgstr "Ajouté le mois dernier"
 
-#: stats.py:368
+#: stats.py:371
 msgid "Added last week"
 msgstr "Ajouté la semaine dernière"
 
@@ -229,7 +199,7 @@ msgstr "Paquet Anki (*.anki)"
 msgid "Anki decks (*.anki)"
 msgstr "Paquets Anki (*.anki)"
 
-#: deck.py:316
+#: deck.py:321
 msgid "Answer Card"
 msgstr ""
 
@@ -238,11 +208,11 @@ msgstr ""
 msgid "Average Time"
 msgstr "Temps"
 
-#: stats.py:355
+#: stats.py:358
 msgid "Average reps"
 msgstr "Répétitions"
 
-#: stats.py:365
+#: stats.py:368
 msgid "Avg. added"
 msgstr "Ajouts "
 
@@ -271,15 +241,23 @@ msgstr "Centre"
 msgid "Changed"
 msgstr "Changée"
 
+#: deck.py:1208
+msgid "Changing cards..."
+msgstr ""
+
+#: deck.py:1168
+msgid "Changing fields..."
+msgstr ""
+
 #: media.py:122
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:1680
+#: deck.py:1781
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:1690
+#: deck.py:1791
 msgid "Checking schema..."
 msgstr ""
 
@@ -287,7 +265,11 @@ msgstr ""
 msgid "Checksum files..."
 msgstr ""
 
-#: deck.py:1683
+#: deck.py:2647
+msgid "Custom failed cards handling"
+msgstr ""
+
+#: deck.py:1784
 msgid "Database file damaged. Restore from backup."
 msgstr "Base de données endommagée. Restauration depuis la sauvegarde."
 
@@ -300,7 +282,7 @@ msgstr "Statistiques de paquet"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Paquet créé : il y a <b>%s</b><br>"
 
-#: deck.py:1693
+#: deck.py:1794
 msgid "Deck was missing a model"
 msgstr "Il manque un modèle au paquet"
 
@@ -312,30 +294,34 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:1721
+#: deck.py:1822
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "%d cartes sans faits supprimés"
 
-#: deck.py:1729
+#: deck.py:1830
 #, fuzzy, python-format
 msgid "Deleted %d cards with no card template"
 msgstr "%d cartes sans modèles supprimées"
 
-#: deck.py:1742
+#: deck.py:1843
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "%d champs en suspens"
 
-#: deck.py:1714
+#: deck.py:1815
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "%d faits sans champs supprimés"
 
-#: deck.py:1734
+#: deck.py:1835
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "%d faits sans cartes supprimés"
+
+#: deck.py:1057
+msgid "Deleting cards..."
+msgstr ""
 
 #: stats.py:273
 msgid "Due"
@@ -361,7 +347,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Faits dans un fichier texte à séparateur tabulation (*.txt)"
 
-#: deck.py:2038
+#: deck.py:2180
 msgid "File is in use by another process"
 msgstr "Un autre processus utilise ce fichier"
 
@@ -370,11 +356,11 @@ msgstr "Un autre processus utilise ce fichier"
 msgid "First Review"
 msgstr "Première fois"
 
-#: stats.py:377
+#: stats.py:380
 msgid "First last month"
 msgstr "Première fois le mois dernier"
 
-#: stats.py:374
+#: stats.py:377
 msgid "First last week"
 msgstr "Première fois la semaine dernière"
 
@@ -383,7 +369,7 @@ msgstr "Première fois la semaine dernière"
 msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 msgstr "Vues pour la première fois : <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> sur <b>%(gNewTotal)d</b>)<br><br>"
 
-#: stats.py:274 stats.py:354
+#: stats.py:274 stats.py:357
 msgid "Interval"
 msgstr "Intervalle"
 
@@ -391,7 +377,7 @@ msgstr "Intervalle"
 msgid "Japanese"
 msgstr "Japonais"
 
-#: stats.py:535
+#: stats.py:542
 msgid "Jouyou levels:"
 msgstr "Niveaux Jouyou"
 
@@ -435,16 +421,6 @@ msgstr "Cartes mûres : <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "Media Missing"
 msgstr ""
 
-#: deck.py:1138
-#, fuzzy, python-format
-msgid "Model '%s' has wrong card template count"
-msgstr "Le modèle '%s' avait le mauvais nombre de cartes"
-
-#: deck.py:1142
-#, fuzzy, python-format
-msgid "Model '%s' has wrong field count"
-msgstr "Le modèle '%s' avait le mauvais nombre de champs"
-
 #: stats.py:290
 #, fuzzy
 msgid "Model Tags"
@@ -458,7 +434,7 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: deck.py:650
+#: deck.py:652
 msgid "No cards are due."
 msgstr ""
 
@@ -466,59 +442,61 @@ msgstr ""
 msgid "Please add some cards first.<p/>"
 msgstr "Veuillez d'abord ajouter des cartes.<p/>"
 
-#: deck.py:1913
+#: deck.py:2014
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:1758
+#: deck.py:1859
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:1778
+#: deck.py:1879
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:1784
+#: deck.py:1885
 msgid "Rebuilding queue..."
 msgstr ""
 
-#: deck.py:1776
+#: deck.py:1877
 msgid "Rebuilding types..."
 msgstr ""
 
-#: stats.py:363
+#: stats.py:366
 msgid "Reps last month"
 msgstr "Le mois précédent"
 
-#: stats.py:361
+#: stats.py:364
 msgid "Reps last week"
 msgstr "La semaine dernière"
 
-#: stats.py:359
+#: stats.py:362
 msgid "Reps next month"
 msgstr "Le mois prochain"
 
-#: stats.py:357
+#: stats.py:360
 msgid "Reps next week"
 msgstr "La semaine prochaine"
 
-#: deck.py:2463
+#: deck.py:2634
+#, fuzzy
+msgid "Review cards from largest interval"
+msgstr "Montrer les nouvelles cartes au hasard"
+
+#: deck.py:2635
+#, fuzzy
+msgid "Review cards from smallest interval"
+msgstr "Montrer les nouvelles cartes au hasard"
+
+#: deck.py:2636
 #, fuzzy
 msgid "Review cards in order due"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2464
+#: deck.py:2637
 #, fuzzy
 msgid "Review cards in random order"
 msgstr "Montrer les nouvelles cartes au hasard"
-
-#: deck.py:2462
-msgid "Review newest interval first"
-msgstr ""
-
-#: deck.py:2461
-msgid "Review oldest interval first"
-msgstr ""
 
 #: stats.py:284
 #, fuzzy
@@ -533,25 +511,54 @@ msgstr "Droite"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:2455
+#: deck.py:2643
+#, fuzzy
+msgid "Show failed cards at end"
+msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
+
+#: deck.py:2644
+msgid "Show failed cards in 10 minutes"
+msgstr ""
+
+#: deck.py:2646
+#, fuzzy
+msgid "Show failed cards in 3 days"
+msgstr "Montrer les nouvelles cartes au hasard"
+
+#: deck.py:2645
+#, fuzzy
+msgid "Show failed cards in 8 hours"
+msgstr "Montrer les nouvelles cartes au hasard"
+
+#: deck.py:2642
+msgid "Show failed cards soon"
+msgstr ""
+
+#: deck.py:2628
 #, fuzzy
 msgid "Show new cards after all other cards"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2456
+#: deck.py:2629
 #, fuzzy
 msgid "Show new cards before reviews"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2449
-msgid "Show new cards in order they were added"
+#: deck.py:2621
+#, fuzzy
+msgid "Show new cards in order added"
 msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
 
-#: deck.py:2448
+#: deck.py:2620
 msgid "Show new cards in random order"
 msgstr "Montrer les nouvelles cartes au hasard"
 
-#: deck.py:2454
+#: deck.py:2622
+#, fuzzy
+msgid "Show new cards in reverse order added"
+msgstr "Montrer les nouvelles cartes dans l'ordre de leur ajout"
+
+#: deck.py:2627
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -559,23 +566,37 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr "Fichiers texte (*.txt)"
 
-#: deck.py:1699
+#: deck.py:1800
 msgid "The current model didn't exist"
 msgstr "Le modèle courant n'existait pas"
 
-#: deck.py:647
+#: deck.py:649
 #, fuzzy, python-format
-msgid "The next card will be shown in <b>%s</b>."
+msgid "The next review is in <b>%s</b>."
 msgstr "La prochaine carte apparaîtra dans <b>%s</b>"
 
-#: deck.py:640
+#: deck.py:685
+#, python-format
+msgid "There is <b>%d</b> spaced card."
+msgid_plural "There are <b>%d</b> spaced cards."
+msgstr[0] ""
+msgstr[1] ""
+
+#: deck.py:692
+#, python-format
+msgid "There is <b>%d</b> suspended card."
+msgid_plural "There are <b>%d</b> suspended cards."
+msgstr[0] ""
+msgstr[1] ""
+
+#: deck.py:642
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:643
+#: deck.py:645
 #, fuzzy, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -597,7 +618,7 @@ msgstr "Nombre total de cartes : <b>%d</b><br><br>"
 msgid "Total number of facts: <b>%d</b><br><br>"
 msgstr "Nombre total de cartes : <b>%d</b><br><br>"
 
-#: deck.py:865
+#: deck.py:862
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -611,7 +632,7 @@ msgstr "Cartes non vues: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgid "Update tags..."
 msgstr "Marqueurs de fait"
 
-#: deck.py:1755
+#: deck.py:1856
 msgid "Updating priorities..."
 msgstr ""
 
@@ -638,7 +659,7 @@ msgstr ""
 msgid "in %s"
 msgstr "dans %s"
 
-#: deck.py:667
+#: deck.py:669
 msgid "unknown"
 msgstr "inconnu"
 
@@ -906,6 +927,14 @@ msgstr "inconnu"
 
 #~ msgid "Model"
 #~ msgstr "Modèle"
+
+#, fuzzy
+#~ msgid "Model '%s' has wrong card template count"
+#~ msgstr "Le modèle '%s' avait le mauvais nombre de cartes"
+
+#, fuzzy
+#~ msgid "Model '%s' has wrong field count"
+#~ msgstr "Le modèle '%s' avait le mauvais nombre de champs"
 
 #~ msgid "New cards"
 #~ msgstr "Nouvelles cartes"
