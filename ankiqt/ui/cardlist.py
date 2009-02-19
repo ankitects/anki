@@ -139,26 +139,9 @@ class DeckModel(QAbstractTableModel):
         if search['tag']:
             ids = None
             if "none" in search['tag']:
-                search['tag'].remove("none")
                 ids = set(self.deck.cardsWithNoTags())
-            if search['tag']:
-                def find(tag, tags):
-                    if tag.startswith('"'):
-                        # direct match
-                        return findTag(tag.replace('"', ""), parseTags(tags))
-                    else:
-                        return tag.lower() in tags.lower()
-                for tag in search['tag']:
-                    like = "%" + tag.replace('"', "") + "%"
-                    i = [id for (id, tags, pri) in self.deck.tagsList(
-                        where="""
-and (facts.tags like :s or models.tags like :s or cardModels.name like :s)""",
-                        kwargs = {'s': like})
-                         if find(tag, tags)]
-                    if not ids:
-                        ids = set(i)
-                    else:
-                        ids.intersection_update(i)
+            else:
+                ids = self.deck.cardsWithTags(" ".join(search['tag']))
             if not ids:
                 ids = []
             tagLimit = "cards.id in %s" % ids2str(ids)
@@ -374,7 +357,6 @@ class EditDeck(QMainWindow):
             [_('<Select Tag>'), _('No tags')] + self.alltags))
         self.dialog.tagList.view().setFixedWidth(300)
 
-
     def drawSort(self):
         self.sortList = [
             _("Question"),
@@ -453,8 +435,7 @@ class EditDeck(QMainWindow):
         elif idx == 1:
             self.dialog.filterEdit.setText("t:none")
         else:
-            self.dialog.filterEdit.setText(
-                "t:\"" + self.alltags[idx-2] + "\"")
+            self.dialog.filterEdit.setText("t:" + self.alltags[idx-2])
         self.showFilterNow()
         self.dialog.tagList.setCurrentIndex(0)
 
