@@ -131,6 +131,7 @@ class SyncTools(object):
         self.postSyncRefresh()
         # rebuild priorities on server
         cardIds = [x[0] for x in payload['added-cards']]
+        self.deck.updateCardTags(cardIds)
         self.rebuildPriorities(cardIds, self.serverExcludedTags)
         # rebuild due counts
         self.deck.rebuildCounts(full=False)
@@ -150,14 +151,13 @@ class SyncTools(object):
         self.postSyncRefresh()
         # rebuild priorities on client
         cardIds = [x[0] for x in reply['added-cards']]
+        self.deck.updateCardTags(cardIds)
         self.rebuildPriorities(cardIds)
         # rebuild due counts
         self.deck.rebuildCounts(full=False)
 
-    def rebuildPriorities(self, cardIds, extraExcludes=[]):
-        where = "and cards.id in %s" % ids2str(cardIds)
-        self.deck.updateAllPriorities(extraExcludes=extraExcludes,
-                                      where=where)
+    def rebuildPriorities(self, cardIds, suspend=[]):
+        self.deck.updatePriorities(cardIds, suspend=suspend)
 
     def postSyncRefresh(self):
         "Flush changes to DB, and reload object associations."
