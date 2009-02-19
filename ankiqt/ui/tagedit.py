@@ -19,10 +19,7 @@ class TagEdit(QLineEdit):
     def setDeck(self, deck, tags="user"):
         "Set the current deck, updating list of available tags."
         self.deck = deck
-        if tags == "user":
-            tags = self.deck.allUserTags()
-        else:
-            tags = self.deck.allTags()
+        tags = self.deck.allTags()
         self.model.setStringList(
             QStringList(tags))
 
