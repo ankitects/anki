@@ -38,6 +38,8 @@ class ActiveTagsChooser(QDialog):
             self.dialog.list.selectionModel().select(idx, mode)
 
     def accept(self):
+        self.hide()
+        self.parent.deck.startProgress(2)
         n = 0
         suspended = []
         for item in self.items:
@@ -47,8 +49,10 @@ class ActiveTagsChooser(QDialog):
             n += 1
         self.parent.deck.suspended = canonifyTags(joinTags(suspended + ["Suspended"]))
         self.parent.deck.setModified()
+        self.parent.deck.updateProgress(_("Processing..."))
         self.parent.reset()
         saveGeom(self, "activeTags")
+        self.parent.deck.finishProgress()
         QDialog.accept(self)
 
     def onHelp(self):
