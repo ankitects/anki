@@ -184,11 +184,12 @@ Please do not file a bug report with Anki.<br><br>""")
         self.views = self.viewsBackup
         self.viewsBackup = None
 
-    def reset(self, count=True):
+    def reset(self, count=True, priorities=False):
         if self.deck:
             self.deck.refresh()
-            if count:
+            if priorities:
                 self.deck.updateAllPriorities()
+            if count:
                 self.deck.rebuildCounts()
             self.deck.rebuildQueue()
             self.moveToState("initial")
@@ -578,7 +579,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                 return True
         try:
             self.deck.initUndo()
-            self.reset()
+            self.moveToState("initial")
         except:
             traceback.print_exc()
             if ui.utils.askUser(_(
