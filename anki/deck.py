@@ -711,8 +711,11 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
     # Priorities
     ##########################################################################
 
-    #        for e in extraExcludes:
-    #            tagCache['suspended'][e] = 1
+    def updateAllPriorities(self):
+        "Update all card priorities if changed."
+        self.updateTagPriorities()
+        self.updateAllPrioritiesForTags(self.s.all(
+            "select id, priority as pri from tags"))
 
     def updateTagPriorities(self):
         "Update priority setting on tags table."
@@ -735,15 +738,6 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
            new)
         return new
 
-    def updateAllPriorities(self, extraExcludes=[], where="", force=False):
-        "Update all card priorities if changed."
-        t = time.time()
-        new = self.updateTagPriorities()
-        if force:
-            new = self.s.all("select id, priority as pri from tags")
-        self.updateAllPrioritiesForTags(new)
-        #print "update all", time.time() - t
-
     def updateAllPrioritiesForTags(self, new):
         if new:
             seen = {}
@@ -761,7 +755,12 @@ where id in %s""" % ids2str(ids), c=c)
                 "update cards set isDue = 0 where type in (0,1,2) and "
                 "priority = 0 and isDue = 1")
 
-    def updatePriorities(self, cardIds):
+    def updatePriorities(self, cardIds, suspend=[]):
+        # any tags to suspend
+        ids = tagIds(self.s, suspend)
+        self.s.statement(
+            "update tags set priority = 0 where id in %s" %
+            ids2str(ids))
         t = time.time()
         cards = self.s.all("""
 select cardTags.cardId,
@@ -1974,7 +1973,7 @@ select id from fields where factId not in (select id from facts)""")
         self.updateCardTags()
         # fix any priorities
         self.updateProgress(_("Updating priorities..."))
-        self.updateAllPriorities()
+        self.updateAllPriorities(force=True)
         # fix problems with stripping html
         self.updateProgress(_("Rebuilding QA cache..."))
         fields = self.s.all("select id, value from fields")
