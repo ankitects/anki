@@ -99,16 +99,16 @@ class StatusView(object):
         self.combinedBar = QWidget()
         self.combinedBar.setLayout(vbox)
         self.combinedBar.setFixedWidth(50)
+        if QApplication.instance().style().objectName() != "plastique":
+            self.plastiqueStyle = QStyleFactory.create("plastique")
+            self.progressBar.setStyle(self.plastiqueStyle)
+            self.retentionBar.setStyle(self.plastiqueStyle)
         self.addWidget(self.combinedBar, 0)
         # timer
         self.addWidget(self.vertSep(), 0)
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
         self.addWidget(self.timer)
-        if QApplication.instance().style().objectName() != "plastique":
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-            self.progressBar.setStyle(self.plastiqueStyle)
-            self.retentionBar.setStyle(self.plastiqueStyle)
         self.redraw()
         self.timer.setShown(self.main.config['showTimer'])
 
