@@ -47,10 +47,12 @@ class Importer(object):
 
     def doImport(self):
         "Import."
-        self.deck.startProgress(6)
+        self.deck.startProgress(7)
         self.deck.updateProgress(_("Importing..."))
         c = self.foreignCards()
         self.importCards(c)
+        self.deck.updateProgress()
+        self.deck.updateCardTags()
         self.deck.updateProgress()
         self.deck.updateAllPriorities()
         self.deck.finishProgress()
