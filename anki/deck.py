@@ -20,6 +20,7 @@ from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel, formatQA
 from anki.stats import dailyStats, globalStats, genToday
 from anki.fonts import toPlatformFont
+from anki.tags import initTagTables, tagIds
 import anki.features
 from operator import itemgetter
 from itertools import groupby
@@ -53,7 +54,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=26),
+    Column('version', Integer, nullable=False, default=27),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -127,6 +128,9 @@ class Deck(object):
         self.reviewedAheadCards = []
         self.extraNewCards = 0
         self.reviewEarly = False
+        self.engine.raw_connection().set_progress_handler(
+            self.progressHandler, 100000)
+        self.progressHandlerEnabled = False
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -707,30 +711,53 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
     # Priorities
     ##########################################################################
 
+    #        for e in extraExcludes:
+    #            tagCache['suspended'][e] = 1
+
+    def updateTagPriorities(self):
+        "Update priority setting on tags table."
+        tags = self.s.all("select lower(tag), id, priority from tags")
+        up = {}
+        for (type, pri) in ((self.lowPriority, 1),
+                            (self.medPriority, 3),
+                            (self.highPriority, 4),
+                            (self.suspended, 0)):
+            for tag in parseTags(type.lower()):
+                up[tag] = pri
+        new = []
+        for (tag, id, pri) in tags:
+            if tag in up and up[tag] != pri:
+                new.append({'id': id, 'pri': up[tag]})
+            elif tag not in up and pri != 2:
+                new.append({'id': id, 'pri': 2})
+        self.s.statements(
+           "update tags set priority = :pri where id = :id",
+           new)
+        return new
+
     def updateAllPriorities(self, extraExcludes=[], where=""):
         "Update all card priorities if changed."
-        now = time.time()
-        newPriorities = []
-        tagsList = self.tagsList(where)
-        if not tagsList:
-            return
-        tagCache = self.genTagCache()
-        for e in extraExcludes:
-            tagCache['suspended'][e] = 1
-        for (cardId, tags, oldPriority) in tagsList:
-            newPriority = self.priorityFromTagString(tags, tagCache)
-            if newPriority != oldPriority:
-                newPriorities.append({"id": cardId, "pri": newPriority})
-        # update db
-        self.s.execute(text(
-            "update cards set priority = :pri where cards.id = :id"),
-            newPriorities)
-        self.s.execute(
-            "update cards set isDue = 0 where type in (0,1,2) and "
-            "priority = 0 and isDue = 1")
+        new = self.updateTagPriorities()
+        # if any tag priorities have changed, update cards
+        if new:
+            seen = {}
+            for c in (0, 4, 3, 1, 2):
+                ids = self.s.column0(
+                    "select cardId from cardTags where tagId in %s" %
+                    ids2str([x['id'] for x in new if x['pri'] == c]))
+                ids = [id for id in ids if id not in seen]
+                for id in ids:
+                    seen[id] = True
+                self.s.statement("""
+update cards set priority = :c
+where id in %s""" % ids2str(ids), c=c)
+            self.s.execute(
+                "update cards set isDue = 0 where type in (0,1,2) and "
+                "priority = 0 and isDue = 1")
 
     def updatePriority(self, card):
         "Update priority on a single card."
+        raise "nyi"
         tagCache = self.genTagCache()
         tags = (card.tags + "," + card.fact.tags + "," +
                 card.fact.model.tags + "," + card.cardModel.name)
@@ -742,37 +769,9 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
             self.s.flush()
 
     def updatePriorities(self, cardIds):
+        raise "nyi"
         self.updateAllPriorities(
             where=" and cards.id in %s" % ids2str(cardIds))
-
-    def priorityFromTagString(self, tagString, tagCache):
-        tags = parseTags(tagString.lower())
-        for tag in tags:
-            if tag in tagCache['suspended']:
-                return PRIORITY_NONE
-        for tag in tags:
-            if tag in tagCache['high']:
-                return PRIORITY_HIGH
-        for tag in tags:
-            if tag in tagCache['med']:
-                return PRIORITY_MED
-        for tag in tags:
-            if tag in tagCache['low']:
-                return PRIORITY_LOW
-        return PRIORITY_NORM
-
-    def genTagCache(self):
-        "Cache tags for quick lookup. Return dict."
-        d = {}
-        t = parseTags(self.suspended.lower())
-        d['suspended'] = dict([(k, 1) for k in t])
-        t = parseTags(self.highPriority.lower())
-        d['high'] = dict([(k, 1) for k in t])
-        t = parseTags(self.medPriority.lower())
-        d['med'] = dict([(k, 1) for k in t])
-        t = parseTags(self.lowPriority.lower())
-        d['low'] = dict([(k, 1) for k in t])
-        return d
 
     # Card/fact counts - all in deck, not just due
     ##########################################################################
@@ -918,6 +917,7 @@ and due < :now""", now=time.time())
             self.flushMod()
             self.updatePriority(card)
             cards.append(card)
+        self.updateFactTags([fact.id])
         self.cardCount += len(cards)
         self.newCount += len(cards)
         # keep track of last used tags for convenience
@@ -1400,7 +1400,7 @@ where id in %s""" % ids2str(cardIds), newId=newCardModelId)
         self.updateCardQACacheFromIds(cardIds)
         self.flushMod()
 
-    # Tags
+    # Tags: querying
     ##########################################################################
 
     def tagsList(self, where="", priority=", cards.priority", kwargs={}):
@@ -1432,9 +1432,49 @@ select cards.id from cards, facts where
 facts.tags = ""
 and cards.factId = facts.id""")
 
+    def cardsWithTags(self, tagStr, search="and"):
+        tagIds = []
+        # get ids
+        for tag in tagStr.split():
+            tag = tag.replace("*", "%")
+            print tag
+            if "%" in tag:
+                ids = self.s.column0(
+                    "select id from tags where tag like :tag", tag=tag)
+                if search == "and" and not ids:
+                    return []
+                tagIds.append(ids)
+            else:
+                id = self.s.scalar(
+                    "select id from tags where tag = :tag", tag=tag)
+                if search == "and" and not id:
+                    return []
+                tagIds.append(id)
+        # search for any
+        if search == "or":
+            print tagIds
+            return self.s.column0(
+                "select cardId from cardTags where tagId in %s" %
+                ids2str(tagIds))
+        else:
+            # search for all
+            l = []
+            for ids in tagIds:
+                if isinstance(ids, types.ListType):
+                    l.append("select cardId from cardTags where tagId in %s" %
+                             ids2str(ids))
+                else:
+                    l.append("select cardId from cardTags where tagId = %d" %
+                             ids)
+            q = " intersect ".join(l)
+            print q
+            return self.s.column0(q)
+
     def allTags(self):
-        "Return a hash listing tags in model & fact."
-        t = self.s.column0("select tags from facts")
+        return self.s.column0("select tag from tags order by tag")
+
+    def allTags_(self, where=""):
+        t = self.s.column0("select tags from facts %s" % where)
         t += self.s.column0("select tags from models")
         t += self.s.column0("select name from cardModels")
         return sorted(list(set(parseTags(joinTags(t)))))
@@ -1447,6 +1487,63 @@ and cards.factId = facts.id""")
         return self.s.all("""
 select id, tags from facts
 where id in %s""" % ids2str(ids))
+
+    # Tags: caching
+    ##########################################################################
+
+    def updateFactTags(self, factIds):
+        self.updateCardTags(self.s.column0(
+            "select id from cards where factId in %s" %
+            ids2str(factIds)))
+
+    def updateModelTags(self, modelId):
+        self.updateCardTags(self.s.column0("""
+select cards.id from cards, facts where
+cards.factId = facts.id and
+facts.modelId = :id""", id=modelId))
+
+    def updateCardTags(self, cardIds=None):
+        print "called"
+        self.s.flush()
+        t = time.time()
+        if cardIds is None:
+            self.s.statement("delete from cardTags")
+            self.s.statement("delete from tags")
+            tids = tagIds(self.s, self.allTags_())
+            rows = self.splitTagsList()
+        else:
+            self.s.statement("delete from cardTags where cardId in %s" %
+                             ids2str(cardIds))
+            fids = ids2str(self.s.column0(
+                "select factId from cards where id in %s" %
+                ids2str(cardIds)))
+            tids = tagIds(self.s, self.allTags_(
+                where="where id in %s" % fids))
+            rows = self.splitTagsList(
+                where="and facts.id in %s" % fids)
+        d = []
+        for (id, fact, model, templ) in rows:
+            for tag in parseTags(fact):
+                d.append({"cardId": id,
+                          "tagId": tids[tag.lower()],
+                          "src": 0})
+            for tag in parseTags(model):
+                d.append({"cardId": id,
+                          "tagId": tids[tag.lower()],
+                          "src": 1})
+            for tag in parseTags(templ):
+                d.append({"cardId": id,
+                          "tagId": tids[tag.lower()],
+                          "src": 2})
+        self.s.statements("""
+insert into cardTags
+(cardId, tagId, src) values
+(:cardId, :tagId, :src)""", d)
+        print "small tag", time.time() - t
+
+    # Tags: adding/removing in bulk
+    ##########################################################################
+    # these could be optimized to use the tag cache in the future
 
     def addTags(self, ids, tags):
         tlist = self.factTags(ids)
@@ -1469,6 +1566,7 @@ where id = :id""", pending)
             "select id from cards where factId in %s" %
             ids2str(factIds))
         self.updateCardQACacheFromIds(factIds, type="facts")
+        self.updateCardTags(ids)
         self.updatePriorities(cardIds)
         self.flushMod()
 
@@ -1498,6 +1596,7 @@ where id = :id""", pending)
             "select id from cards where factId in %s" %
             ids2str(factIds))
         self.updateCardQACacheFromIds(factIds, type="facts")
+        self.updateCardTags(ids)
         self.updatePriorities(cardIds)
         self.flushMod()
 
@@ -1547,6 +1646,7 @@ where id = :id""", pending)
     ##########################################################################
 
     def startProgress(self, max=100, min=0, title=None):
+        self.enableProgressHandler()
         runHook("startProgress", max, min, title)
 
     def updateProgress(self, label=None, value=None):
@@ -1555,6 +1655,17 @@ where id = :id""", pending)
     def finishProgress(self):
         runHook("updateProgress")
         runHook("finishProgress")
+        self.disableProgressHandler()
+
+    def progressHandler(self):
+        if self.progressHandlerEnabled:
+            runHook("dbProgress")
+
+    def enableProgressHandler(self):
+        self.progressHandlerEnabled = True
+
+    def disableProgressHandler(self):
+        self.progressHandlerEnabled = False
 
     # File-related
     ##########################################################################
@@ -1777,7 +1888,7 @@ Return new path, relative to media dir."""
 
     def fixIntegrity(self):
         "Responsibility of caller to call rebuildQueue()"
-        self.startProgress(11)
+        self.startProgress(12)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
             self.finishProgress()
@@ -1852,6 +1963,9 @@ select id from fields where factId not in (select id from facts)""")
         self.s.statement(
             "update cardModels set allowEmptyAnswer = 1, typeAnswer = '' "
             "where allowEmptyAnswer is null or typeAnswer is null")
+        # fix tags
+        self.updateProgress(_("Rebuilding tag cache..."))
+        self.updateCardTags()
         # fix any priorities
         self.updateProgress(_("Updating priorities..."))
         self.updateAllPriorities()
@@ -2125,6 +2239,7 @@ class DeckStorage(object):
             s = session()
             metadata.create_all(engine)
             if create:
+                ver = 999
                 deck = DeckStorage._init(s)
             else:
                 ver = s.scalar("select version from decks limit 1")
@@ -2154,11 +2269,14 @@ class DeckStorage(object):
             deck.Session = session
             deck.needLock = lock
             deck.s = SessionHelper(s, lock=lock)
+            if ver < 27:
+                initTagTables(deck.s)
             if create:
                 # new-style file format
                 deck.s.execute("pragma legacy_file_format = off")
                 deck.s.execute("vacuum")
                 # add views/indices
+                initTagTables(deck.s)
                 DeckStorage._addViews(deck)
                 DeckStorage._addIndices(deck)
                 deck.s.statement("analyze")
@@ -2248,6 +2366,13 @@ create index if not exists ix_modelsDeleted_modelId on modelsDeleted (modelId)""
 create index if not exists ix_factsDeleted_factId on factsDeleted (factId)""")
         deck.s.statement("""
 create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
+        # tags
+        deck.s.statement("""
+create index if not exists ix_tags_tag on tags (tag)""")
+        deck.s.statement("""
+create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
+        deck.s.statement("""
+create index if not exists ix_cardTags_tagId on cardTags (tagId)""")
     _addIndices = staticmethod(_addIndices)
 
     def _addViews(deck):
@@ -2533,7 +2658,7 @@ where interval < 1""")
             deck.version = 25
             deck.s.commit()
         if deck.version < 26:
-            # no spaces in tags anymore, separated by space
+            # no spaces in tags anymore, as separated by space
             def munge(tags):
                 tags = re.sub(", ?", "--tmp--", tags)
                 tags = re.sub(" - ", "-", tags)
@@ -2541,7 +2666,6 @@ where interval < 1""")
                 tags = re.sub("--tmp--", " ", tags)
                 tags = canonifyTags(tags)
                 return tags
-
             rows = deck.s.all('select id, tags from facts')
             d = []
             for (id, tags) in rows:
@@ -2563,6 +2687,11 @@ where interval < 1""")
             deck.version = 26
             deck.s.commit()
             deck.s.statement("vacuum")
+        if deck.version < 27:
+            DeckStorage._addIndices(deck)
+            deck.updateCardTags()
+            deck.version = 27
+            deck.s.commit()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
 

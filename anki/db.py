@@ -46,6 +46,8 @@ except ImportError:
     from sqlalchemy import Unicode
     UnicodeText = Unicode
 
+from anki.hooks import runHook
+
 # shared metadata
 metadata = MetaData()
 
@@ -62,6 +64,11 @@ class SessionHelper(object):
         if self._lock:
             self._lockDB()
         self._seen = True
+
+    def execute(self, *a, **ka):
+        x = self._session.execute(*a, **ka)
+        runHook("dbFinished")
+        return x
 
     def __getattr__(self, k):
         return getattr(self.__dict__['_session'], k)
