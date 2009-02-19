@@ -2009,7 +2009,11 @@ day = :d""", d=yesterday)
         addHook("startProgress", self.onStartProgress)
         addHook("updateProgress", self.onUpdateProgress)
         addHook("finishProgress", self.onFinishProgress)
+        addHook("dbProgress", self.onDbProgress)
+        addHook("dbFinished", self.onDbFinished)
         self.progressParent = None
+        self.progressWin = None
+        self.busyCursor = False
         self.mainThread = QThread.currentThread()
 
     def setProgressParent(self, parent):
@@ -2018,6 +2022,7 @@ day = :d""", d=yesterday)
     def onStartProgress(self, max=100, min=0, title=None):
         if self.mainThread != QThread.currentThread():
             return
+        self.setBusy()
         parent = self.progressParent or self.app.activeWindow() or self
         self.progressWin = ui.utils.ProgressWin(parent, max, min, title)
 
@@ -2033,6 +2038,28 @@ day = :d""", d=yesterday)
         if self.progressWin:
             self.progressWin.finish()
             self.progressWin = None
+            self.unsetBusy()
+
+    def onDbProgress(self):
+        if self.mainThread != QThread.currentThread():
+            return
+        self.setBusy()
+        self.app.processEvents()
+
+    def onDbFinished(self):
+        if self.mainThread != QThread.currentThread():
+            return
+        if not self.progressWin:
+            self.unsetBusy()
+
+    def setBusy(self):
+        if not self.busyCursor:
+            self.app.setOverrideCursor(QCursor(Qt.WaitCursor))
+            self.busyCursor = True
+
+    def unsetBusy(self):
+        self.app.restoreOverrideCursor()
+        self.busyCursor = None
 
     # Advanced features
     ##########################################################################
