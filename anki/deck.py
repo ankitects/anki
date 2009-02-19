@@ -735,10 +735,16 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
            new)
         return new
 
-    def updateAllPriorities(self, extraExcludes=[], where=""):
+    def updateAllPriorities(self, extraExcludes=[], where="", force=False):
         "Update all card priorities if changed."
+        t = time.time()
         new = self.updateTagPriorities()
-        # if any tag priorities have changed, update cards
+        if force:
+            new = self.s.all("select id, priority as pri from tags")
+        self.updateAllPrioritiesForTags(new)
+        #print "update all", time.time() - t
+
+    def updateAllPrioritiesForTags(self, new):
         if new:
             seen = {}
             for c in (0, 4, 3, 1, 2):
@@ -755,23 +761,27 @@ where id in %s""" % ids2str(ids), c=c)
                 "update cards set isDue = 0 where type in (0,1,2) and "
                 "priority = 0 and isDue = 1")
 
+    def updatePriorities(self, cardIds):
+        t = time.time()
+        cards = self.s.all("""
+select cardTags.cardId,
+case min(tags.priority) when 0 then 0 else max(tags.priority) end
+from cardTags, tags
+where cardTags.tagId = tags.id
+and cardTags.cardId in %s
+group by cardTags.cardId""" % ids2str(cardIds))
+        self.s.statements(
+            "update cards set priority = :pri where id = :id",
+            [{'id': c[0], 'pri': c[1]} for c in cards])
+        self.s.execute(
+            "update cards set isDue = 0 where type in (0,1,2) and "
+            "priority = 0 and isDue = 1")
+        #print "update cards", time.time() - t
+
     def updatePriority(self, card):
         "Update priority on a single card."
-        raise "nyi"
-        tagCache = self.genTagCache()
-        tags = (card.tags + "," + card.fact.tags + "," +
-                card.fact.model.tags + "," + card.cardModel.name)
-        p = self.priorityFromTagString(tags, tagCache)
-        if p != card.priority:
-            card.priority = p
-            if p == 0:
-                card.isDue = 0
-            self.s.flush()
-
-    def updatePriorities(self, cardIds):
-        raise "nyi"
-        self.updateAllPriorities(
-            where=" and cards.id in %s" % ids2str(cardIds))
+        self.s.flush()
+        self.updatePriorities([card.id])
 
     # Card/fact counts - all in deck, not just due
     ##########################################################################
@@ -1437,7 +1447,6 @@ and cards.factId = facts.id""")
         # get ids
         for tag in tagStr.split():
             tag = tag.replace("*", "%")
-            print tag
             if "%" in tag:
                 ids = self.s.column0(
                     "select id from tags where tag like :tag", tag=tag)
@@ -1452,7 +1461,6 @@ and cards.factId = facts.id""")
                 tagIds.append(id)
         # search for any
         if search == "or":
-            print tagIds
             return self.s.column0(
                 "select cardId from cardTags where tagId in %s" %
                 ids2str(tagIds))
@@ -1467,7 +1475,6 @@ and cards.factId = facts.id""")
                     l.append("select cardId from cardTags where tagId = %d" %
                              ids)
             q = " intersect ".join(l)
-            print q
             return self.s.column0(q)
 
     def allTags(self):
@@ -1503,7 +1510,6 @@ cards.factId = facts.id and
 facts.modelId = :id""", id=modelId))
 
     def updateCardTags(self, cardIds=None):
-        print "called"
         self.s.flush()
         t = time.time()
         if cardIds is None:
@@ -1535,11 +1541,11 @@ facts.modelId = :id""", id=modelId))
                 d.append({"cardId": id,
                           "tagId": tids[tag.lower()],
                           "src": 2})
-        self.s.statements("""
+        if d:
+            self.s.statements("""
 insert into cardTags
 (cardId, tagId, src) values
 (:cardId, :tagId, :src)""", d)
-        print "small tag", time.time() - t
 
     # Tags: adding/removing in bulk
     ##########################################################################

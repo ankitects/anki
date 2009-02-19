@@ -19,7 +19,6 @@ from anki.db import *
 ##########################################################################
 
 def initTagTables(s):
-    print "init"
     s.statement("""
 create table tags (
 id integer not null,
