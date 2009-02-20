@@ -54,7 +54,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=27),
+    Column('version', Integer, nullable=False, default=28),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -711,11 +711,12 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
     # Priorities
     ##########################################################################
 
-    def updateAllPriorities(self):
+    def updateAllPriorities(self, partial=False):
         "Update all card priorities if changed."
-        self.updateTagPriorities()
-        self.updateAllPrioritiesForTags(self.s.all(
-            "select id, priority as pri from tags"))
+        new = self.updateTagPriorities()
+        if not partial:
+            new = self.s.all("select id, priority as pri from tags")
+        self.updateAllPrioritiesForTags(new)
 
     def updateTagPriorities(self):
         "Update priority setting on tags table."
@@ -1973,7 +1974,7 @@ select id from fields where factId not in (select id from facts)""")
         self.updateCardTags()
         # fix any priorities
         self.updateProgress(_("Updating priorities..."))
-        self.updateAllPriorities(force=True)
+        self.updateAllPriorities()
         # fix problems with stripping html
         self.updateProgress(_("Rebuilding QA cache..."))
         fields = self.s.all("select id, value from fields")
@@ -2279,6 +2280,7 @@ class DeckStorage(object):
             if create:
                 # new-style file format
                 deck.s.execute("pragma legacy_file_format = off")
+                deck.s.execute("pragma default_cache_size= 20000")
                 deck.s.execute("vacuum")
                 # add views/indices
                 initTagTables(deck.s)
@@ -2697,6 +2699,16 @@ where interval < 1""")
             deck.updateCardTags()
             deck.version = 27
             deck.s.commit()
+        if deck.version < 28:
+            deck.s.statement("pragma default_cache_size= 20000")
+            deck.s.statement("vacuum")
+            deck.version = 28
+            deck.s.commit()
+        # this check we do regardless of version number since doing it on init
+        # seems to crash
+        if deck.s.scalar("pragma page_size") == 1024:
+            deck.s.scalar("pragma page_size = 4096")
+            deck.s.scalar("vacuum")
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
 
