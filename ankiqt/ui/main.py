@@ -2059,8 +2059,9 @@ day = :d""", d=yesterday)
             self.busyCursor = True
 
     def unsetBusy(self):
-        self.app.restoreOverrideCursor()
-        self.busyCursor = None
+        if self.busyCursor:
+            self.app.restoreOverrideCursor()
+            self.busyCursor = None
 
     # Advanced features
     ##########################################################################
