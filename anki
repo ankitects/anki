@@ -16,6 +16,16 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.join(os.path.join(modDir, ".."), "libanki"))
 
     import ankiqt
+    
+    try:
+        import ankiqt.forms
+    except ImportError:
+        print
+        print "You need to run tools/build_ui.sh in order for anki to work."
+        print
+        raise
+        
+
     #import profile
     #profile.run("ankiqt.run()", sort="cumulative")
     ankiqt.run()
