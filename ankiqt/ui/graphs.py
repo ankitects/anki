@@ -139,147 +139,148 @@ class IntervalGraph(QDialog):
         ui.dialogs.close("Graphs")
         QDialog.reject(self)
 
-def intervalGraph(parent, deck):
-    widgets = []
-    dg = anki.graphs.DeckGraphs(deck)
-    # dialog setup
-    d = IntervalGraph(parent)
-    d.setWindowTitle(_("Deck Graphs"))
-    if parent.config.get('graphsGeom'):
-        restoreGeom(d, "graphs")
-    else:
-        if sys.platform.startswith("darwin"):
-            d.setMinimumSize(740, 680)
+class GraphWindow(object):
+
+    nameMap = {
+        'due': _("Due"),
+        'cum': _("Cumulative"),
+        'interval': _("Interval"),
+        'added': _("Added"),
+        'answered': _("First Answered"),
+        'eases': _("Eases"),
+        'reps': _("Reps"),
+        'times': _("Review Time"),
+        }
+
+    def __init__(self, parent, deck):
+        self.parent = parent
+        self.deck = deck
+        self.widgets = []
+        self.dg = anki.graphs.DeckGraphs(deck)
+        self.diag = IntervalGraph(parent)
+        self.diag.setWindowTitle(_("Deck Graphs"))
+        if parent.config.get('graphsGeom'):
+            restoreGeom(self.diag, "graphs")
         else:
-            d.setMinimumSize(690, 715)
-    scroll = QScrollArea(d)
-    topBox = QVBoxLayout(d)
-    topBox.addWidget(scroll)
-    frame = QWidget(scroll)
-    vbox = QVBoxLayout(frame)
-    vbox.setMargin(0)
-    vbox.setSpacing(0)
-    frame.setLayout(vbox)
+            if sys.platform.startswith("darwin"):
+                self.diag.setMinimumSize(740, 680)
+            else:
+                self.diag.setMinimumSize(690, 715)
+        scroll = QScrollArea(self.diag)
+        topBox = QVBoxLayout(self.diag)
+        topBox.addWidget(scroll)
+        self.frame = QWidget(scroll)
+        self.vbox = QVBoxLayout(self.frame)
+        self.vbox.setMargin(0)
+        self.vbox.setSpacing(0)
+        self.frame.setLayout(self.vbox)
+        self.range = [7, 30, 90, 180, 365, 730, 1095, 1460, 1825]
+        scroll.setWidget(self.frame)
+        self.hbox = QHBoxLayout()
+        topBox.addLayout(self.hbox)
+        self.setupGraphs()
+        self.setupButtons()
+        self.showHideAll()
+        self.diag.show()
 
-    range = [7, 30, 90, 180, 365, 730, 1095, 1460, 1825]
+    def setupGraphs(self):
+        nextDue = AdjustableFigure(self.parent.config, 'due', self.dg.nextDue, self.range)
+        nextDue.addWidget(QLabel(_("<h1>Due</h1>")))
+        self.vbox.addWidget(nextDue)
+        self.widgets.append(nextDue)
 
-    # views
-    nextDue = AdjustableFigure(parent.config, 'due', dg.nextDue, range)
-    nextDue.addWidget(QLabel(_("<h1>Due</h1>")))
-    vbox.addWidget(nextDue)
-    widgets.append(nextDue)
+        workload = AdjustableFigure(self.parent.config, 'reps', self.dg.workDone, self.range)
+        workload.addWidget(QLabel(_("<h1>Reps</h1>")))
+        self.vbox.addWidget(workload)
+        self.widgets.append(workload)
 
-    workload = AdjustableFigure(parent.config, 'reps', dg.workDone, range)
-    workload.addWidget(QLabel(_("<h1>Reps</h1>")))
-    vbox.addWidget(workload)
-    widgets.append(workload)
+        times = AdjustableFigure(self.parent.config, 'times', self.dg.timeSpent, self.range)
+        times.addWidget(QLabel(_("<h1>Review Time</h1>")))
+        self.vbox.addWidget(times)
+        self.widgets.append(times)
 
-    times = AdjustableFigure(parent.config, 'times', dg.timeSpent, range)
-    times.addWidget(QLabel(_("<h1>Review Time</h1>")))
-    vbox.addWidget(times)
-    widgets.append(times)
+        added = AdjustableFigure(self.parent.config, 'added', self.dg.addedRecently, self.range)
+        added.addWidget(QLabel(_("<h1>Added</h1>")))
+        self.vbox.addWidget(added)
+        self.widgets.append(added)
 
-    added = AdjustableFigure(parent.config, 'added', dg.addedRecently, range)
-    added.addWidget(QLabel(_("<h1>Added</h1>")))
-    vbox.addWidget(added)
-    widgets.append(added)
+        answered = AdjustableFigure(self.parent.config, 'answered', lambda *args: apply(
+            self.dg.addedRecently, args + ('firstAnswered',)), self.range)
+        answered.addWidget(QLabel(_("<h1>First Answered</h1>")))
+        self.vbox.addWidget(answered)
+        self.widgets.append(answered)
 
-    answered = AdjustableFigure(parent.config, 'answered', lambda *args: apply(
-        dg.addedRecently, args + ('firstAnswered',)), range)
-    answered.addWidget(QLabel(_("<h1>First Answered</h1>")))
-    vbox.addWidget(answered)
-    widgets.append(answered)
+        cumDue = AdjustableFigure(self.parent.config, 'cum', self.dg.cumulativeDue, self.range)
+        cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
+        self.vbox.addWidget(cumDue)
+        self.widgets.append(cumDue)
 
-    cumDue = AdjustableFigure(parent.config, 'cum', dg.cumulativeDue, range)
-    cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
-    vbox.addWidget(cumDue)
-    widgets.append(cumDue)
+        interval = AdjustableFigure(self.parent.config, 'interval', self.dg.intervalPeriod, self.range)
+        interval.addWidget(QLabel(_("<h1>Intervals</h1>")))
+        self.vbox.addWidget(interval)
+        self.widgets.append(interval)
 
-    interval = AdjustableFigure(parent.config, 'interval', dg.intervalPeriod, range)
-    interval.addWidget(QLabel(_("<h1>Intervals</h1>")))
-    vbox.addWidget(interval)
-    widgets.append(interval)
+        eases = AdjustableFigure(self.parent.config, 'eases', self.dg.easeBars)
+        eases.addWidget(QLabel(_("<h1>Eases</h1>")))
+        self.vbox.addWidget(eases)
+        self.widgets.append(eases)
 
-    eases = AdjustableFigure(parent.config, 'eases', dg.easeBars)
-    eases.addWidget(QLabel(_("<h1>Eases</h1>")))
-    vbox.addWidget(eases)
-    widgets.append(eases)
+    def setupButtons(self):
+        self.showhide = QPushButton(_("Show/Hide"))
+        self.hbox.addWidget(self.showhide)
+        self.showhide.connect(self.showhide, SIGNAL("clicked()"),
+                              self.onShowHide)
+        refresh = QPushButton(_("Refresh"))
+        self.hbox.addWidget(refresh)
+        self.showhide.connect(refresh, SIGNAL("clicked()"),
+                              self.onRefresh)
+        buttonBox = QDialogButtonBox(self.diag)
+        buttonBox.setOrientation(Qt.Horizontal)
+        close = buttonBox.addButton(QDialogButtonBox.Close)
+        close.setDefault(True)
+        self.diag.connect(buttonBox, SIGNAL("rejected()"), self.diag.close)
+        help = buttonBox.addButton(QDialogButtonBox.Help)
+        self.diag.connect(buttonBox, SIGNAL("helpRequested()"),
+                  self.onHelp)
+        self.hbox.addWidget(buttonBox)
 
-    scroll.setWidget(frame)
-
-    hbox = QHBoxLayout()
-
-    def showHideAll():
-        deck.startProgress(len(widgets))
-        for w in widgets:
-            deck.updateProgress(_("Processing..."))
+    def showHideAll(self):
+        self.deck.startProgress(len(self.widgets))
+        for w in self.widgets:
+            self.deck.updateProgress(_("Processing..."))
             w.showHide()
-        frame.adjustSize()
-        deck.finishProgress()
+        self.frame.adjustSize()
+        self.deck.finishProgress()
 
-    def onShowHideToggle(b, w):
+    def onShowHideToggle(self, b, w):
         key = 'graphs.shown.' + w.name
-        parent.config[key] = not parent.config.get(key, True)
-        showHideAll()
+        self.parent.config[key] = not self.parent.config.get(key, True)
+        self.showHideAll()
 
-    def onShowHide():
-        nameMap = {
-            'due': _("Due"),
-            'cum': _("Cumulative"),
-            'interval': _("Interval"),
-            'added': _("Added"),
-            'answered': _("First Answered"),
-            'eases': _("Eases"),
-            'reps': _("Reps"),
-            'times': _("Review Time"),
-            }
-        m = QMenu(parent)
-        for graph in widgets:
+    def onShowHide(self):
+        m = QMenu(self.parent)
+        for graph in self.widgets:
             name = graph.name
-            shown = parent.config.get('graphs.shown.' + name, True)
-            action = QAction(parent)
+            shown = self.parent.config.get('graphs.shown.' + name, True)
+            action = QAction(self.parent)
             action.setCheckable(True)
             action.setChecked(shown)
-            action.setText(nameMap[name])
+            action.setText(self.nameMap[name])
             action.connect(action, SIGNAL("toggled(bool)"),
-                           lambda b, g=graph: onShowHideToggle(b, g))
+                           lambda b, g=graph: self.onShowHideToggle(b, g))
             m.addAction(action)
-        m.exec_(showhide.mapToGlobal(QPoint(0,0)))
+        m.exec_(self.showhide.mapToGlobal(QPoint(0,0)))
 
-    def onHelp():
+    def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Graphs"))
 
-    def onRefresh():
-        deck.startProgress(len(widgets))
-        dg.stats = None
-        for w in widgets:
-            deck.updateProgress(_("Processing..."))
+    def onRefresh(self):
+        self.deck.startProgress(len(self.widgets))
+        self.dg.stats = None
+        for w in self.widgets:
+            self.deck.updateProgress(_("Processing..."))
             w.updateFigure()
-        deck.finishProgress()
+        self.deck.finishProgress()
 
-    showhide = QPushButton(_("Show/Hide"))
-    hbox.addWidget(showhide)
-    showhide.connect(showhide, SIGNAL("clicked()"),
-                     onShowHide)
-
-    refresh = QPushButton(_("Refresh"))
-    hbox.addWidget(refresh)
-    showhide.connect(refresh, SIGNAL("clicked()"),
-                     onRefresh)
-
-    buttonBox = QDialogButtonBox(d)
-    buttonBox.setOrientation(Qt.Horizontal)
-    close = buttonBox.addButton(QDialogButtonBox.Close)
-    close.setDefault(True)
-    d.connect(buttonBox, SIGNAL("rejected()"), d.close)
-    help = buttonBox.addButton(QDialogButtonBox.Help)
-    d.connect(buttonBox, SIGNAL("helpRequested()"),
-              onHelp)
-
-    hbox.addWidget(buttonBox)
-
-    topBox.addLayout(hbox)
-
-    showHideAll()
-
-    d.show()
+def intervalGraph(*args):
+    return GraphWindow(*args)
