@@ -198,13 +198,13 @@ limit 1""")
         "True if it's time to display a new card when distributing."
         if self.newCardSpacing == NEW_CARDS_LAST:
             return False
+        if self.newCardSpacing == NEW_CARDS_FIRST:
+            return True
         # force old if there are very high priority cards
         if self.s.scalar(
             "select 1 from cards where type = 1 and isDue = 1 "
             "and priority = 4 limit 1"):
             return False
-        if self.newCardSpacing == NEW_CARDS_FIRST:
-            return True
         if self.newCardModulus:
             return self._dailyStats.reps % self.newCardModulus == 0
         else:
@@ -872,10 +872,7 @@ and due < :now""", now=time.time())
     def queueForCard(self, card):
         "Return the queue the current card is in."
         if self.cardIsNew(card):
-            if card.priority == 4:
-                return "rev"
-            else:
-                return "new"
+            return "new"
         elif card.successive == 0:
             return "failed"
         elif card.reps:
