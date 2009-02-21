@@ -716,7 +716,9 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         new = self.updateTagPriorities()
         if not partial:
             new = self.s.all("select id, priority as pri from tags")
-        self.updateAllPrioritiesForTags(new)
+        cids = self.s.column0("select cardId from cardTags where tagId in %s" %
+                              ids2str([x['id'] for x in new]))
+        self.updatePriorities(cids)
 
     def updateTagPriorities(self):
         "Update priority setting on tags table."
@@ -739,30 +741,13 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
            new)
         return new
 
-    def updateAllPrioritiesForTags(self, new):
-        if new:
-            seen = {}
-            for c in (0, 4, 3, 1, 2):
-                ids = self.s.column0(
-                    "select cardId from cardTags where tagId in %s" %
-                    ids2str([x['id'] for x in new if x['pri'] == c]))
-                ids = [id for id in ids if id not in seen]
-                for id in ids:
-                    seen[id] = True
-                self.s.statement("""
-update cards set priority = :c
-where id in %s""" % ids2str(ids), c=c)
-            self.s.execute(
-                "update cards set isDue = 0 where type in (0,1,2) and "
-                "priority = 0 and isDue = 1")
-
     def updatePriorities(self, cardIds, suspend=[]):
         # any tags to suspend
-        ids = tagIds(self.s, suspend)
-        self.s.statement(
-            "update tags set priority = 0 where id in %s" %
-            ids2str(ids))
-        t = time.time()
+        if suspend:
+            ids = tagIds(self.s, suspend)
+            self.s.statement(
+                "update tags set priority = 0 where id in %s" %
+                ids2str(ids))
         cards = self.s.all("""
 select cardTags.cardId,
 case min(tags.priority) when 0 then 0 else max(tags.priority) end
@@ -776,7 +761,6 @@ group by cardTags.cardId""" % ids2str(cardIds))
         self.s.execute(
             "update cards set isDue = 0 where type in (0,1,2) and "
             "priority = 0 and isDue = 1")
-        #print "update cards", time.time() - t
 
     def updatePriority(self, card):
         "Update priority on a single card."
