@@ -110,7 +110,8 @@ class StatusView(object):
         self.timer.setText("00:00")
         self.addWidget(self.timer)
         self.redraw()
-        self.timer.setShown(self.main.config['showTimer'])
+        if not self.main.config['showTimer']:
+            self.timer.setShown(False)
 
     def addWidget(self, w, stretch=0):
         self.statusbar.addWidget(w, stretch)
