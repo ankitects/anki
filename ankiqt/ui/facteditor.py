@@ -739,15 +739,6 @@ class FactEditor(object):
                           unicode(dst.toHtml()))
         self.saveFields()
 
-    def onClozeUndo(self):
-        pair = self._getFieldPair()
-        if not pair:
-            return
-        (src, dst) = pair
-        src.setHtml(dst.toHtml())
-        dst.setHtml("")
-        self.saveFields()
-
     def onHtmlEdit(self):
         def helpRequested():
             QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
