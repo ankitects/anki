@@ -464,6 +464,7 @@ order by n""", id=card.id)
     def reject(self):
         "Save user settings on close."
         # update properties
+        self.deck.startProgress()
         mname = unicode(self.dialog.name.text())
         if not mname:
             mname = _("Model")
@@ -491,10 +492,12 @@ order by n""", id=card.id)
             self.deck.setModified()
         # if changed, reset deck
         if self.origModTime != self.deck.modified:
+            self.deck.updateCardTags()
             ankiqt.mw.reset()
         if self.onFinish:
             self.onFinish()
         self.deck.setUndoEnd(self.undoName)
         # check again
         self.deck.haveJapanese = None
+        self.deck.finishProgress()
         QDialog.reject(self)

@@ -39,7 +39,7 @@ class ActiveTagsChooser(QDialog):
 
     def accept(self):
         self.hide()
-        self.parent.deck.startProgress(2)
+        self.parent.deck.startProgress()
         n = 0
         suspended = []
         for item in self.items:
@@ -49,7 +49,6 @@ class ActiveTagsChooser(QDialog):
             n += 1
         self.parent.deck.suspended = canonifyTags(joinTags(suspended + ["Suspended"]))
         self.parent.deck.setModified()
-        self.parent.deck.updateProgress(_("Processing..."))
         self.parent.deck.updateAllPriorities(partial=True)
         self.parent.reset()
         saveGeom(self, "activeTags")

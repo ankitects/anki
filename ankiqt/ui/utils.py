@@ -197,7 +197,7 @@ def mungeQA(deck, txt):
 
 class ProgressWin(object):
 
-    def __init__(self, parent, max=100, min=0, title=None):
+    def __init__(self, parent, max=0, min=0, title=None):
         if not title:
             title = "Anki"
         self.diag = QProgressDialog("", "", min, max, parent)
@@ -213,6 +213,8 @@ class ProgressWin(object):
         self.app = QApplication.instance()
         self.diag.show()
         self.app.processEvents()
+        if max == 0:
+            self.diag.setLabelText(_("Processing..."))
 
     def update(self, label=None, value=None):
         self.app.processEvents()
@@ -229,7 +231,8 @@ class ProgressWin(object):
         self.app.processEvents()
 
     def finish(self):
-        self.diag.setValue(self.max)
-        self.app.processEvents()
-        time.sleep(0.1)
+        if self.max:
+            self.diag.setValue(self.max)
+            self.app.processEvents()
+            time.sleep(0.1)
         self.diag.cancel()

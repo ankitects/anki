@@ -202,6 +202,7 @@ class DeckProperties(QDialog):
 
     def reject(self):
         n = _("Deck Properties")
+        self.d.startProgress()
         self.d.setUndoStart(n)
         # syncing
         if self.dialog.doSync.checkState() == Qt.Checked:
@@ -293,6 +294,7 @@ insert into sources values
         if self.origMod != self.d.modified:
             ankiqt.mw.reset()
         self.d.setUndoEnd(n)
+        self.d.finishProgress()
         if self.onFinish:
             self.onFinish()
         QDialog.reject(self)
