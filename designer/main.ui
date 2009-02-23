@@ -1386,7 +1386,7 @@
      <normaloff>:/icons/document-new.png</normaloff>:/icons/document-new.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;New...</string>
+    <string>&amp;New</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+N</string>
