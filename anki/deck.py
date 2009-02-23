@@ -1040,19 +1040,16 @@ where facts.id not in (select factId from cards)""")
         self.s.flush()
         now = time.time()
         strids = ids2str(ids)
-        self.startProgress(3)
+        self.startProgress()
         # grab fact ids
         factIds = self.s.column0("select factId from cards where id in %s"
                                  % strids)
         # drop from cards
-        self.updateProgress(_("Deleting cards..."))
         self.s.statement("delete from cards where id in %s" % strids)
         # note deleted
-        self.updateProgress()
         data = [{'id': id, 'time': now} for id in ids]
         self.s.statements("insert into cardsDeleted values (:id, :time)", data)
         # remove any dangling facts
-        self.updateProgress()
         self.deleteDanglingFacts()
         self.rebuildCounts()
         self.flushMod()
@@ -1535,6 +1532,7 @@ insert into cardTags
     # these could be optimized to use the tag cache in the future
 
     def addTags(self, ids, tags):
+        self.startProgress()
         tlist = self.factTags(ids)
         newTags = parseTags(tags)
         now = time.time()
@@ -1558,8 +1556,10 @@ where id = :id""", pending)
         self.updateCardTags(ids)
         self.updatePriorities(cardIds)
         self.flushMod()
+        self.finishProgress()
 
     def deleteTags(self, ids, tags):
+        self.startProgress()
         tlist = self.factTags(ids)
         newTags = parseTags(tags)
         now = time.time()
@@ -1588,6 +1588,7 @@ where id = :id""", pending)
         self.updateCardTags(ids)
         self.updatePriorities(cardIds)
         self.flushMod()
+        self.finishProgress()
 
     # Find and replace
     ##########################################################################
@@ -1634,7 +1635,7 @@ where id = :id""", pending)
     # Progress info
     ##########################################################################
 
-    def startProgress(self, max=100, min=0, title=None):
+    def startProgress(self, max=0, min=0, title=None):
         self.enableProgressHandler()
         runHook("startProgress", max, min, title)
 
