@@ -173,10 +173,10 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     deck.updateProgress(_("Update tags..."))
     if dirty:
         if deleteRefs:
-            deck.deleteTags(modifiedFacts.keys(), _("Media Missing"))
+            deck.deleteTags(modifiedFacts.keys(), _("MediaMissing"))
         else:
-            deck.addTags(factsMissingMedia.keys(), _("Media Missing"))
-        deck.deleteTags(unmodifiedFacts.keys(), _("Media Missing"))
+            deck.addTags(factsMissingMedia.keys(), _("MediaMissing"))
+        deck.deleteTags(unmodifiedFacts.keys(), _("MediaMissing"))
     # build cache of db records
     deck.updateProgress(_("Delete unused files..."))
     mediaIds = dict(deck.s.all("select filename, id from media"))
