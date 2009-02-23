@@ -1153,7 +1153,7 @@ select id, lastFontColour from cardModels""")])
         # field remapping
         if fieldMap:
             changed = True
-            self.startProgress(len(fieldMap)+1)
+            self.startProgress(len(fieldMap)+2)
             seen = {}
             for (old, new) in fieldMap.items():
                 self.updateProgress(_("Changing fields..."))
@@ -1220,6 +1220,8 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         self.updateProgress()
         self.updateCardQACacheFromIds(factIds, type="facts")
         self.flushMod()
+        self.updateProgress()
+        self.updateCardTags()
         self.updateProgress()
         self.rebuildCounts()
         self.refresh()
