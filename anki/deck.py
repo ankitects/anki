@@ -1052,6 +1052,7 @@ where facts.id not in (select factId from cards)""")
         # remove any dangling facts
         self.deleteDanglingFacts()
         self.rebuildCounts()
+        self.refresh()
         self.flushMod()
         self.finishProgress()
 
