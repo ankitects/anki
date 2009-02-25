@@ -60,6 +60,7 @@ def run():
     pixmap = QPixmap(":/icons/anki-logo.png")
     ui.splash = QSplashScreen(pixmap)
     ui.splash.show()
+    app.processEvents()
 
 
     # setup paths for forms, icons
