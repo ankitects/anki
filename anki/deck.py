@@ -747,7 +747,7 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
             ids = tagIds(self.s, suspend)
             self.s.statement(
                 "update tags set priority = 0 where id in %s" %
-                ids2str(ids))
+                ids2str(ids.values()))
         cards = self.s.all("""
 select cardTags.cardId,
 case min(tags.priority) when 0 then 0 else max(tags.priority) end
