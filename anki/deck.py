@@ -1811,6 +1811,7 @@ Return new path, relative to media dir."""
     def openSession(self):
         "Open a new session. Assumes old session is already closed."
         self.s = SessionHelper(self.Session(), lock=self.needLock)
+        self.s.update(self)
         self.refresh()
 
     def closeSession(self):
