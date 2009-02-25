@@ -57,7 +57,6 @@ class AnkiQt(QMainWindow):
         self.setupAnchors()
         self.setupToolbar()
         self.setupProgressInfo()
-        self.show()
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             pass
@@ -78,6 +77,7 @@ class AnkiQt(QMainWindow):
             ui.utils.showWarning(_("Broken plugin:\n\n%s") %
                                  traceback.format_exc())
         ui.splash.hide()
+        self.show()
 
     def setupMainWindow(self):
         # main window
