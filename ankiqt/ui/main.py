@@ -760,7 +760,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         return self.app.activeWindow() == self
 
     def onNew(self, initial=False, path=None):
-        if not self.inMainWindow(): return
+        if not self.inMainWindow() and not path: return
         if not self.saveAndClose(hideWelcome=True): return
         if initial:
             path = os.path.join(self.documentDir, "mydeck.anki")
@@ -817,7 +817,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.deck.syncName = u"something"
         self.deck.lastLoaded = self.deck.modified
         if self.config['syncUsername'] and self.config['syncPassword']:
-            if self.syncDeck(onlyMerge=True, reload=2):
+            if self.syncDeck(onlyMerge=True, reload=2, interactive=False):
                 return
         self.deck = None
         self.moveToState("initial")
