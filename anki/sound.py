@@ -226,49 +226,43 @@ class PyAudioRecorder(_Recorder):
 ##########################################################################
 
 try:
-    from AppKit import NSSound, NSObject
+    from QTKit import QTMovie
+    from AppKit import NSAutoreleasePool
 
-    queue = []
-    current = None
+    class QTMovieQueueMonitor(threading.Thread):
 
-    class Sound(NSObject):
-
-        def init(self):
-            return self
-
-        def sound_didFinishPlaying_(self, sound, bool):
-            global current
+        def run(self):
+            pool = NSAutoreleasePool.alloc().init()
+            current = None
             while 1:
-                if not queue:
-                    break
-                next = queue.pop(0)
-                if play_(next):
-                    break
-
-    s = Sound.new()
+                time.sleep(0.1)
+                if current:
+                    if (current.currentTime().timeValue >=
+                        current.duration().timeValue):
+                        current = None
+                    continue
+                if queue:
+                    current = queue.pop(0)
+                    current.play()
+                    continue
+                del pool
+                return
 
     def playOSX(path):
-        global current
+        global manager
+        path = path.encode(sys.getfilesystemencoding())
+        current = QTMovie.alloc()
+        (current, err) = current.initWithFile_error_(path)
         if current:
-            if current.isPlaying():
-                queue.append(path)
-                return
-        # new handle
-        play_(path)
+            queue.append(current)
+        if not manager or not manager.isAlive():
+            manager = QTMovieQueueMonitor()
+            manager.start()
 
     def clearQueueOSX():
         global queue
         queue = []
 
-    def play_(path):
-        global current
-        current = NSSound.alloc()
-        current = current.initWithContentsOfFile_byReference_(path, True)
-        if not current:
-            return False
-        current.setDelegate_(s)
-        current.play()
-        return True
 except ImportError:
     pass
 
