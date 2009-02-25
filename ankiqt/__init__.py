@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, sys, optparse, re, shutil
+import os, sys, shutil
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -30,9 +30,7 @@ sys.path.append(os.path.dirname(__file__))
 ##########################################################################
 
 def run():
-    import forms
     import config
-    import ui
 
     # home on win32 is broken
     if sys.platform == "win32":
@@ -56,6 +54,14 @@ def run():
 
     app = QApplication(sys.argv)
 
+    # Create a pixmap - not needed if you have your own.
+    import forms
+    import ui
+    pixmap = QPixmap(":/icons/anki-logo.png")
+    ui.splash = QSplashScreen(pixmap)
+    ui.splash.show()
+
+
     # setup paths for forms, icons
     sys.path.append(modDir)
     # jpeg module
@@ -74,6 +80,7 @@ def run():
         return
 
     # parse args
+    import optparse
     parser = optparse.OptionParser()
     parser.usage = "%prog [<deck.anki>]"
     parser.add_option("-c", "--config", help="path to config dir",
@@ -110,6 +117,7 @@ def run():
 
     # load main window
     ui.importAll()
+
     ui.dialogs.registerDialogs()
     mw = ui.main.AnkiQt(app, conf, args)
     try:

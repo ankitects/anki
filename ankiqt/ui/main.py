@@ -77,6 +77,7 @@ class AnkiQt(QMainWindow):
         except:
             ui.utils.showWarning(_("Broken plugin:\n\n%s") %
                                  traceback.format_exc())
+        ui.splash.hide()
 
     def setupMainWindow(self):
         # main window
