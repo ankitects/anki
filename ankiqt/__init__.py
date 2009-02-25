@@ -38,6 +38,7 @@ def run():
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
             oldConf = os.path.expanduser("~/.anki/config.db")
+            oldPlugins = os.path.expanduser("~/.anki/plugins")
             os.environ['HOME'] = os.environ['APPDATA']
         else:
             oldConf = None
@@ -49,6 +50,8 @@ def run():
         if os.path.exists(oldConf):
             shutil.copy2(oldConf,
                          os.path.expanduser("~/.anki/config.db"))
+            shutil.copytree(oldPlugins,
+                         os.path.expanduser("~/.anki/plugins"))
             os.rename(oldConf, oldConf.replace("config.db", "config.db.old"))
 
     app = QApplication(sys.argv)
