@@ -21,11 +21,13 @@ class ActiveTagsChooser(QDialog):
 
     def rebuildTagList(self):
         self.tags = self.parent.deck.allTags()
-        self.tags.sort()
         self.items = []
         self.suspended = {}
         for t in parseTags(self.parent.deck.suspended):
             self.suspended[t] = 1
+            if t not in self.tags:
+                self.tags.append(t)
+        self.tags.sort()
         for t in self.tags:
             item = QListWidgetItem(t, self.dialog.list)
             self.dialog.list.addItem(item)
