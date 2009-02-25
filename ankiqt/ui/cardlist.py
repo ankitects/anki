@@ -351,7 +351,7 @@ class EditDeck(QMainWindow):
         tags = self.deck.allTags()
         self.alltags = tags
         self.alltags.sort()
-        self.dialog.tagList.setFixedWidth(120)
+        self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
         self.dialog.tagList.addItems(QStringList(
             [_('<Select Tag>'), _('No tags')] + self.alltags))
