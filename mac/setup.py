@@ -52,9 +52,11 @@ DATA_FILES = [
 PLIST = dict(
 	CFBundleIdentifier = 'net.ichi2.anki',
 	CFBundleName = 'Anki',
-	CFBundleDocumentTypes = [],
-	CFBundleLocalizations = ['en', 'ja', 'fr', 'de']
-)
+        CFBundleDocumentTypes=[dict(CFBundleTypeExtensions=["anki"],
+                                    CFBundleTypeName="Anki Deck",
+                                    CFBundleTypeRole="Editor")],
+	CFBundleLocalizations = ['en'],
+        )
 OPTIONS = {
 	'argv_emulation': True,
     'optimize': 0,
