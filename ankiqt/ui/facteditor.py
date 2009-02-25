@@ -870,6 +870,20 @@ class FactEdit(QTextEdit):
             else:
                 self.insertPlainText(source.text())
                 return
+        if source.hasUrls():
+            for url in source.urls():
+                url = unicode(url.toString())
+                ext = url.split(".")[-1].lower()
+                try:
+                    if ext in pics:
+                        name = self._retrieveURL(url, ext)
+                        self.parent._addPicture(name, widget=self)
+                    elif ext in audio:
+                        name = self._retrieveURL(url, ext)
+                        self.parent._addSound(name, widget=self)
+                except urllib2.URLError, e:
+                    ui.utils.showWarning(errtxt % e)
+            return
         if source.hasImage():
             im = QImage(source.imageData())
             if im.hasAlphaChannel():
@@ -884,20 +898,6 @@ class FactEdit(QTextEdit):
             return
         if source.hasHtml():
             self.insertHtml(self.simplifyHTML(unicode(source.html())))
-            return
-        if source.hasUrls():
-            for url in source.urls():
-                url = unicode(url.toString())
-                ext = url.split(".")[-1].lower()
-                try:
-                    if ext in pics:
-                        name = self._retrieveURL(url, ext)
-                        self.parent._addPicture(name, widget=self)
-                    elif ext in audio:
-                        name = self._retrieveURL(url, ext)
-                        self.parent._addSound(name, widget=self)
-                except urllib2.URLError, e:
-                    ui.utils.showWarning(errtxt % e)
             return
 
     def _retrieveURL(self, url, ext):
