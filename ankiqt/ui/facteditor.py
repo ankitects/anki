@@ -851,7 +851,11 @@ class FactEdit(QTextEdit):
             txt = unicode(source.text())
             l = txt.lower()
             if l.startswith("http://") or l.startswith("file://"):
-                if not source.hasImage():
+                hadN = False
+                if "\n" in txt:
+                    txt = txt.split("\n")[0]
+                    hadN = True
+                if not source.hasImage() or hadN:
                     # firefox on linux just gives us a url
                     ext = txt.split(".")[-1].lower()
                     try:
@@ -870,6 +874,18 @@ class FactEdit(QTextEdit):
             else:
                 self.insertPlainText(source.text())
                 return
+        if source.hasImage():
+            im = QImage(source.imageData())
+            if im.hasAlphaChannel():
+                (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".png")
+                uname = unicode(name, sys.getfilesystemencoding())
+                im.save(uname)
+            else:
+                (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".jpg")
+                uname = unicode(name, sys.getfilesystemencoding())
+                im.save(uname, None, 95)
+            self.parent._addPicture(uname, widget=self)
+            return
         if source.hasUrls():
             for url in source.urls():
                 url = unicode(url.toString())
@@ -883,18 +899,6 @@ class FactEdit(QTextEdit):
                         self.parent._addSound(name, widget=self)
                 except urllib2.URLError, e:
                     ui.utils.showWarning(errtxt % e)
-            return
-        if source.hasImage():
-            im = QImage(source.imageData())
-            if im.hasAlphaChannel():
-                (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".png")
-                uname = unicode(name, sys.getfilesystemencoding())
-                im.save(uname)
-            else:
-                (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".jpg")
-                uname = unicode(name, sys.getfilesystemencoding())
-                im.save(uname, None, 95)
-            self.parent._addPicture(uname, widget=self)
             return
         if source.hasHtml():
             self.insertHtml(self.simplifyHTML(unicode(source.html())))
