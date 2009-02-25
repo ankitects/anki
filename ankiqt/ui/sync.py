@@ -49,10 +49,10 @@ class Sync(QThread):
             msg=_("Please double-check your username/password.")
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
-        elif error.data.get('type') == "noResponse":
-            msg=_("Server is down or operation failed.")
         else:
-            msg=_("Unknown error: %s") % `error.data`
+            msg=_("""\
+Syncing failed. Please try again in a few minutes.
+If the problem persists, please report it on the forum.""")
         return msg
 
     def connect(self, *args):
@@ -153,14 +153,14 @@ class Sync(QThread):
                 time.sleep(0.25)
             self.emit(SIGNAL("syncFinished"))
         except Exception, e:
-            traceback.print_exc()
+            self.ok = False
+            #traceback.print_exc()
             self.deck.close()
             # cheap hack to ensure message is displayed
             err = `getattr(e, 'data', None) or e`
             self.setStatus(_("Syncing failed: %(a)s") % {
                 'a': err})
-            time.sleep(3)
-            self.emit(SIGNAL("syncFinished"))
+            self.error(e)
 
     def doBulkDownload(self, deckname):
         self.emit(SIGNAL("openSyncProgress"))

@@ -222,6 +222,7 @@ Please do not file a bug report with Anki.<br><br>""")
         if 'state' != 'noDeck' and state != 'editCurrentFact':
             self.switchToReviewScreen()
         if state == "noDeck":
+            self.deck = None
             self.switchToWelcomeScreen()
             self.help.hide()
             self.currentCard = None
@@ -1606,13 +1607,11 @@ day = :d""", d=yesterday)
         name = ui.sync.DeckChooser(self, decks, create).getName()
         self.syncName = name
         if name:
-            if name == self.syncName:
-                self.syncDeck(create=True, interactive=False)
-            else:
-                self.syncDeck(interactive=False)
+            # name chosen
+            onlyMerge = self.loadAfterSync == 2
+            self.syncDeck(create=True, interactive=False, onlyMerge=onlyMerge)
         else:
             if not create:
-                # called via 'new' - close
                 self.cleanNewDeck()
             else:
                 self.syncFinished()
