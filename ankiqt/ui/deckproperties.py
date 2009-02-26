@@ -243,7 +243,6 @@ class DeckProperties(QDialog):
                              *60*60 + time.timezone)
         except:
             pass
-        mod = self.d.modified
         self.updateField(self.d, 'collapseTime',
                          self.dialog.collapse.isChecked() and 1 or 0)
         self.updateField(self.d,
@@ -258,8 +257,6 @@ class DeckProperties(QDialog):
         self.updateField(self.d,
                          "suspended",
                          unicode(self.dialog.postponing.text()))
-        if self.d.modified != mod:
-            self.d.updateAllPriorities()
         # sources
         d = {}
         d.update(self.sources)
@@ -292,6 +289,8 @@ insert into sources values
             self.d.setModified()
         # mark deck dirty and close
         if self.origMod != self.d.modified:
+            self.d.updateCardTags()
+            self.d.updateAllPriorities()
             ankiqt.mw.reset()
         self.d.setUndoEnd(n)
         self.d.finishProgress()
