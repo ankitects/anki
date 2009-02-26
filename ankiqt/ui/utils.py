@@ -206,15 +206,15 @@ class ProgressWin(object):
         self.diag.setAutoClose(False)
         self.diag.setAutoReset(False)
         self.diag.setMinimumDuration(0)
+        self.diag.show()
         self.counter = min
         self.min = min
         self.max = max
         self.lastTime = time.time()
         self.app = QApplication.instance()
-        self.diag.show()
-        self.app.processEvents()
         if max == 0:
             self.diag.setLabelText(_("Processing..."))
+        self.app.processEvents()
 
     def update(self, label=None, value=None):
         self.app.processEvents()
