@@ -70,9 +70,7 @@ class Importer(object):
     def resetMapping(self):
         "Reset mapping to default."
         numFields = self.fields()
-        m = []
-        [m.append(f) for f in self.model.fieldModels if f.required]
-        [m.append(f) for f in self.model.fieldModels if not f.required]
+        m = [f for f in self.model.fieldModels]
         m.append(0)
         rem = max(0, self.fields() - len(m))
         m += [None] * rem
