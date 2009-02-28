@@ -38,6 +38,7 @@ class Preferences(QDialog):
             (_("Korean"), "ko_KR"),
             (_("Polish"), "pl_PL"),
             (_("Spanish"), "es_ES"),
+            (_("Swedish"), "sv_SE"),
             ]
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
         self.setupLang()
