@@ -722,6 +722,10 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
 
     def updateTagPriorities(self):
         "Update priority setting on tags table."
+        # make sure all priority tags exist
+        for s in (self.lowPriority, self.medPriority,
+                  self.highPriority, self.suspended):
+            tagIds(self.s, parseTags(s))
         tags = self.s.all("select lower(tag), id, priority from tags")
         up = {}
         for (type, pri) in ((self.lowPriority, 1),
