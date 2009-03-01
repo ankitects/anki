@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-25 23:37+0900\n"
+"POT-Creation-Date: 2009-03-01 15:17+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,7 +73,7 @@ msgstr ""
 msgid " applied %d modified cards."
 msgstr ""
 
-#: ui/main.py:2122
+#: ui/main.py:2121
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -92,7 +92,7 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:1769
+#: ui/main.py:1768
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr ""
@@ -388,15 +388,15 @@ msgstr ""
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr ""
 
-#: ui/main.py:1253
+#: ui/main.py:1254
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr ""
 
-#: ui/main.py:1255
+#: ui/main.py:1256
 msgid "<a href=py:non>Non-jouyou</a><br>"
 msgstr ""
 
-#: ui/main.py:1254
+#: ui/main.py:1255
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr ""
 
@@ -562,7 +562,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr ""
 
-#: ui/main.py:1285
+#: ui/main.py:1286
 msgid "<h1>Current card</h1>"
 msgstr ""
 
@@ -598,7 +598,7 @@ msgstr ""
 msgid "<h1>Language</h1>"
 msgstr ""
 
-#: ui/main.py:1288
+#: ui/main.py:1289
 msgid "<h1>Last card</h1>"
 msgstr ""
 
@@ -606,7 +606,7 @@ msgstr ""
 msgid "<h1>Models</h1>"
 msgstr ""
 
-#: ui/main.py:780
+#: ui/main.py:781
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr ""
 
@@ -658,7 +658,7 @@ msgstr ""
 msgid "<h1>Select tags to suspend</h1>"
 msgstr ""
 
-#: ui/main.py:1058
+#: ui/main.py:1059
 msgid "<h1>Study Options</h1>"
 msgstr ""
 
@@ -674,7 +674,7 @@ msgstr ""
 msgid "<h1>Synchronize</h1>"
 msgstr ""
 
-#: ui/main.py:857
+#: ui/main.py:858
 msgid ""
 "<h1>Unsaved Deck</h1>\n"
 "Careful. You're editing an unsaved Deck.<br>\n"
@@ -739,7 +739,7 @@ msgid ""
 "</table>"
 msgstr ""
 
-#: ui/main.py:1060
+#: ui/main.py:1061
 msgid "<h1>Well done!</h1>"
 msgstr ""
 
@@ -767,7 +767,7 @@ msgstr ""
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr ""
 
-#: ui/main.py:1104
+#: ui/main.py:1105
 #, python-format
 msgid ""
 "<table>\n"
@@ -777,7 +777,7 @@ msgid ""
 "</table>"
 msgstr ""
 
-#: ui/main.py:1095
+#: ui/main.py:1096
 #, python-format
 msgid ""
 "<table>\n"
@@ -876,11 +876,11 @@ msgstr ""
 msgid "Allow the answer to be blank"
 msgstr ""
 
-#: ui/main.py:1419
+#: ui/main.py:1420
 msgid "Already cramming. Please close this deck first."
 msgstr ""
 
-#: ui/main.py:693
+#: ui/main.py:694
 #, python-format
 msgid "Alt+%d"
 msgstr ""
@@ -900,7 +900,7 @@ msgid ""
 "Please do not file a bug report with Anki.<br><br>"
 msgstr ""
 
-#: ui/main.py:587
+#: ui/main.py:588
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
@@ -916,12 +916,12 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2097 forms/main.py:865 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2096 forms/main.py:865 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
-#: ui/main.py:927
+#: ui/main.py:928
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1000,7 +1000,7 @@ msgstr ""
 msgid "Can't look up a selection with a newline."
 msgstr ""
 
-#: ui/main.py:2112
+#: ui/main.py:2111
 msgid "Cancel"
 msgstr ""
 
@@ -1114,7 +1114,7 @@ msgstr ""
 msgid "Connecting..."
 msgstr ""
 
-#: ui/main.py:1131
+#: ui/main.py:1132
 msgid "Continue &Reviewing"
 msgstr ""
 
@@ -1127,7 +1127,7 @@ msgstr ""
 msgid "Copy: %s"
 msgstr ""
 
-#: ui/main.py:1444
+#: ui/main.py:1445
 msgid "Cram"
 msgstr ""
 
@@ -1160,7 +1160,7 @@ msgstr ""
 msgid "Ctrl+5"
 msgstr ""
 
-#: ui/main.py:691
+#: ui/main.py:692
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr ""
@@ -1297,11 +1297,11 @@ msgstr ""
 msgid "Deck Properties"
 msgstr ""
 
-#: ui/main.py:826 ui/main.py:892
+#: ui/main.py:827 ui/main.py:893
 msgid "Deck files (*.anki)"
 msgstr ""
 
-#: ui/main.py:557
+#: ui/main.py:558
 msgid "Deck is already open."
 msgstr ""
 
@@ -1309,7 +1309,7 @@ msgstr ""
 msgid "Del"
 msgstr ""
 
-#: ui/main.py:1346 forms/cardlist.py:229
+#: ui/main.py:1347 forms/cardlist.py:229
 msgid "Delete"
 msgstr ""
 
@@ -1317,7 +1317,7 @@ msgstr ""
 msgid "Delete Cards"
 msgstr ""
 
-#: ui/main.py:2110
+#: ui/main.py:2109
 msgid "Delete Refs"
 msgstr ""
 
@@ -1475,7 +1475,7 @@ msgstr ""
 msgid "F9"
 msgstr ""
 
-#: ui/main.py:1664
+#: ui/main.py:1663
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr ""
 
@@ -1661,11 +1661,11 @@ msgstr ""
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr ""
 
-#: ui/main.py:1445
+#: ui/main.py:1446
 msgid "Loading deck..."
 msgstr ""
 
-#: ui/main.py:1299
+#: ui/main.py:1300
 msgid "Loading graphs (may take time)..."
 msgstr ""
 
@@ -1757,11 +1757,11 @@ msgstr ""
 msgid "Next field must be blank."
 msgstr ""
 
-#: ui/main.py:1438
+#: ui/main.py:1439
 msgid "No cards matched the provided tags."
 msgstr ""
 
-#: ui/facteditor.py:993
+#: ui/facteditor.py:997
 msgid "No cards to preview."
 msgstr ""
 
@@ -1769,15 +1769,15 @@ msgstr ""
 msgid "No changes found."
 msgstr ""
 
-#: ui/main.py:1291
+#: ui/main.py:1292
 msgid "No current card or last card."
 msgstr ""
 
-#: ui/main.py:1227
+#: ui/main.py:1228
 msgid "No expression in current card."
 msgstr ""
 
-#: ui/main.py:1234
+#: ui/main.py:1235
 msgid "No meaning in current card."
 msgstr ""
 
@@ -1801,7 +1801,7 @@ msgstr ""
 msgid "Open Sa&mple..."
 msgstr ""
 
-#: ui/main.py:829
+#: ui/main.py:830
 msgid "Open deck"
 msgstr ""
 
@@ -1821,7 +1821,7 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: ui/main.py:790
+#: ui/main.py:791
 msgid "Password:"
 msgstr ""
 
@@ -1859,7 +1859,7 @@ msgid ""
 "to enable recording."
 msgstr ""
 
-#: ui/main.py:1317
+#: ui/main.py:1318
 msgid "Please install python-matplotlib to access graphs."
 msgstr ""
 
@@ -1895,14 +1895,14 @@ msgstr ""
 msgid "Previous colour (F7 then F6)"
 msgstr ""
 
-#: ui/main.py:2085
+#: ui/main.py:2084
 #, python-format
 msgid ""
 "Problems found:\n"
 "%s"
 msgstr ""
 
-#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:217
+#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:216
 msgid "Processing..."
 msgstr ""
 
@@ -1930,7 +1930,7 @@ msgstr ""
 msgid "Question size"
 msgstr ""
 
-#: ui/main.py:1462
+#: ui/main.py:1463
 msgid "Randomizing..."
 msgstr ""
 
@@ -1947,7 +1947,7 @@ msgstr ""
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:459 ui/main.py:1845
+#: ui/cardlist.py:459 ui/main.py:1844
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -2029,7 +2029,7 @@ msgstr ""
 msgid "Save &As..."
 msgstr ""
 
-#: ui/main.py:885
+#: ui/main.py:886
 msgid "Save Deck As"
 msgstr ""
 
@@ -2055,10 +2055,6 @@ msgstr ""
 
 #: forms/cardlist.py:254
 msgid "Select &Facts"
-msgstr ""
-
-#: ui/sync.py:53
-msgid "Server is down or operation failed."
 msgstr ""
 
 #: ui/facteditor.py:139
@@ -2121,7 +2117,7 @@ msgstr ""
 msgid "Some fields are missing or not unique."
 msgstr ""
 
-#: ui/main.py:528
+#: ui/main.py:529
 msgid "Soon"
 msgstr ""
 
@@ -2141,7 +2137,7 @@ msgstr ""
 msgid "Spanish"
 msgstr ""
 
-#: ui/main.py:1129
+#: ui/main.py:1130
 msgid "Start &Reviewing"
 msgstr ""
 
@@ -2157,8 +2153,12 @@ msgstr ""
 msgid "Stop reviewing this card until it's unsuspended in the editor."
 msgstr ""
 
-#: ui/main.py:1333
+#: ui/main.py:1334
 msgid "Suspend"
+msgstr ""
+
+#: ui/preferences.py:41
+msgid "Swedish"
 msgstr ""
 
 #: ui/sync.py:114
@@ -2181,16 +2181,22 @@ msgstr ""
 msgid "Synchronize this deck"
 msgstr ""
 
-#: ui/main.py:1642 ui/main.py:1644
+#: ui/main.py:1641 ui/main.py:1643
 msgid "Syncing Media..."
 msgstr ""
 
-#: ui/sync.py:160
+#: ui/sync.py:53
+msgid ""
+"Syncing failed. Please try again in a few minutes.\n"
+"If the problem persists, please report it on the forum."
+msgstr ""
+
+#: ui/sync.py:161
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr ""
 
-#: ui/main.py:2108
+#: ui/main.py:2107
 msgid "Tag Cards"
 msgstr ""
 
@@ -2206,7 +2212,7 @@ msgstr ""
 msgid "Tags to append:"
 msgstr ""
 
-#: ui/main.py:1423
+#: ui/main.py:1424
 msgid "Tags to cram:"
 msgstr ""
 
@@ -2282,7 +2288,7 @@ msgid ""
 "You will need to remove the source first."
 msgstr ""
 
-#: ui/main.py:2072
+#: ui/main.py:2071
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2293,7 +2299,7 @@ msgid ""
 "Proceed?"
 msgstr ""
 
-#: ui/main.py:2099
+#: ui/main.py:2098
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2305,7 +2311,7 @@ msgid ""
 "Consider backing up your media directory first."
 msgstr ""
 
-#: ui/main.py:1309
+#: ui/main.py:1310
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2315,7 +2321,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr ""
 
-#: ui/main.py:1205
+#: ui/main.py:1206
 msgid "Toggle Toolbar"
 msgstr ""
 
@@ -2327,11 +2333,11 @@ msgstr ""
 msgid "Treat input as regular expression"
 msgstr ""
 
-#: ui/main.py:503
+#: ui/main.py:504
 msgid "Type in the answer and hit enter"
 msgstr ""
 
-#: ui/main.py:562
+#: ui/main.py:563
 msgid ""
 "Unable to load deck.\n"
 "\n"
@@ -2344,7 +2350,7 @@ msgid ""
 "To upgrade an old deck, download Anki 0.9.8.7."
 msgstr ""
 
-#: ui/main.py:844
+#: ui/main.py:845
 msgid "Unable to load file."
 msgstr ""
 
@@ -2364,7 +2370,7 @@ msgid ""
 "%(info)s"
 msgstr ""
 
-#: ui/main.py:596
+#: ui/main.py:597
 msgid "Unable to recover. Deck load failed."
 msgstr ""
 
@@ -2376,21 +2382,16 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr ""
 
-#: ui/cardlist.py:453 ui/main.py:1839
+#: ui/cardlist.py:453 ui/main.py:1838
 #, python-format
 msgid "Undo %s"
-msgstr ""
-
-#: ui/sync.py:55
-#, python-format
-msgid "Unknown error: %s"
 msgstr ""
 
 #: ui/update.py:108
 msgid "Update complete. Please restart Anki."
 msgstr ""
 
-#: ui/main.py:1879
+#: ui/main.py:1878
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2413,7 +2414,7 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: ui/main.py:786
+#: ui/main.py:787
 msgid "Username:"
 msgstr ""
 
@@ -2438,7 +2439,7 @@ msgstr ""
 msgid "Would you like to download it now?"
 msgstr ""
 
-#: ui/main.py:1870
+#: ui/main.py:1869
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2446,7 +2447,7 @@ msgid ""
 " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/main.py:1630
+#: ui/main.py:1629
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2456,7 +2457,7 @@ msgid ""
 "syncing is disabled until you fix the problem."
 msgstr ""
 
-#: ui/main.py:1314
+#: ui/main.py:1315
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -2475,7 +2476,7 @@ msgstr ""
 msgid "days"
 msgstr ""
 
-#: ui/main.py:1868
+#: ui/main.py:1867
 msgid "early"
 msgstr ""
 
@@ -2492,7 +2493,7 @@ msgstr ""
 msgid "label"
 msgstr ""
 
-#: ui/main.py:1866
+#: ui/main.py:1865
 msgid "late"
 msgstr ""
 
