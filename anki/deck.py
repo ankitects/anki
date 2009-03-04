@@ -754,7 +754,11 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
                 ids2str(ids.values()))
         cards = self.s.all("""
 select cardTags.cardId,
-case min(tags.priority) when 0 then 0 else max(tags.priority) end
+case
+when min(tags.priority) = 0 then 0
+when max(tags.priority) > 2 then max(tags.priority)
+when min(tags.priority) = 1 then 1
+else 2 end
 from cardTags, tags
 where cardTags.tagId = tags.id
 and cardTags.cardId in %s
