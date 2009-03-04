@@ -48,6 +48,7 @@ class AnkiQt(QMainWindow):
         self.setupSound()
         self.setupTray()
         self.connectMenuActions()
+        ui.splash.update()
         if self.config['mainWindowGeom']:
             self.restoreGeometry(self.config['mainWindowGeom'])
         self.setupViews()
@@ -61,10 +62,12 @@ class AnkiQt(QMainWindow):
             self.setUnifiedTitleAndToolBarOnMac(True)
             pass
         # load deck
+        ui.splash.update()
         if not self.maybeLoadLastDeck(args):
             self.setEnabled(True)
             self.moveToState("auto")
         # check for updates
+        ui.splash.update()
         self.setupAutoUpdate()
         self.setupErrorHandler()
         self.setupMisc()
@@ -76,6 +79,7 @@ class AnkiQt(QMainWindow):
         except:
             ui.utils.showWarning(_("Broken plugin:\n\n%s") %
                                  traceback.format_exc())
+        ui.splash.update()
         ui.splash.finish(self)
         self.show()
 

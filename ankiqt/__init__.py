@@ -29,6 +29,26 @@ sys.path.append(os.path.dirname(__file__))
 # App initialisation
 ##########################################################################
 
+class SplashScreen(object):
+
+    def __init__(self, max=100):
+        self.pixmap = QPixmap(":/icons/anki-logo.png")
+        self.splash = QSplashScreen(self.pixmap)
+        self.prog = QProgressBar(self.splash)
+        self.prog.setMaximum(max)
+        self.prog.setGeometry(self.splash.width()/10, 8*self.splash.height()/10,
+                                8*self.splash.width()/10, self.splash.height()/10)
+        self.splash.show()
+        self.val = 1
+
+    def update(self):
+        self.prog.setValue(self.val)
+        self.val += 1
+        QApplication.instance().processEvents()
+
+    def finish(self, obj):
+        self.splash.finish(obj)
+
 def run():
     import config
 
@@ -54,14 +74,10 @@ def run():
 
     app = QApplication(sys.argv)
 
-    # Create a pixmap - not needed if you have your own.
     import forms
     import ui
-    pixmap = QPixmap(":/icons/anki-logo.png")
-    ui.splash = QSplashScreen(pixmap)
-    ui.splash.show()
-    app.processEvents()
 
+    ui.splash = SplashScreen(5)
 
     # setup paths for forms, icons
     sys.path.append(modDir)
@@ -118,8 +134,9 @@ def run():
 
     # load main window
     ui.importAll()
-
     ui.dialogs.registerDialogs()
+    ui.splash.update()
+
     mw = ui.main.AnkiQt(app, conf, args)
     try:
         styleFile = open(os.path.join(opts.config, "style.css"))
