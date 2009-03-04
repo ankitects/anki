@@ -54,7 +54,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=28),
+    Column('version', Integer, nullable=False, default=29),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -2697,8 +2697,15 @@ where interval < 1""")
             deck.s.commit()
         if deck.version < 28:
             deck.s.statement("pragma default_cache_size= 20000")
-            deck.s.statement("vacuum")
             deck.version = 28
+            deck.s.commit()
+        if deck.version < 29:
+            # remove duplicates from review history
+            deck.s.statement("""
+delete from reviewHistory where id not in (
+select min(id) from reviewHistory group by cardId, time);""")
+            deck.s.statement("vacuum")
+            deck.version = 29
             deck.s.commit()
         # this check we do regardless of version number since doing it on init
         # seems to crash
