@@ -1241,6 +1241,7 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         return self.s.column0("select distinct name from fieldmodels")
 
     def deleteFieldModel(self, model, field):
+        self.startProgress()
         self.s.statement("delete from fields where fieldModelId = :id",
                          id=field.id)
         self.s.statement("update facts set modified = :t where modelId = :id",
@@ -1253,6 +1254,7 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         self.updateCardsFromModel(model)
         model.setModified()
         self.flushMod()
+        self.finishProgress()
 
     def addFieldModel(self, model, field):
         "Add FIELD to MODEL and update cards."
@@ -1317,8 +1319,7 @@ cardModelId = :id""", id=cardModel.id)
         "Delete all cards that use CARDMODEL from the deck."
         cards = self.s.column0("select id from cards where cardModelId = :id",
                                id=cardModel.id)
-        for id in cards:
-            self.deleteCard(id)
+        self.deleteCards(cards)
         model.cardModels.remove(cardModel)
         model.setModified()
         self.flushMod()
