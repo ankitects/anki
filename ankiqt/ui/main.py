@@ -2017,7 +2017,7 @@ day = :d""", d=yesterday)
         addHook("dbProgress", self.onDbProgress)
         addHook("dbFinished", self.onDbFinished)
         self.progressParent = None
-        self.progressWin = None
+        self.progressWins = []
         self.busyCursor = False
         self.mainThread = QThread.currentThread()
 
@@ -2029,20 +2029,25 @@ day = :d""", d=yesterday)
             return
         self.setBusy()
         parent = self.progressParent or self.app.activeWindow() or self
-        self.progressWin = ui.utils.ProgressWin(parent, max, min, title)
+        if self.progressWins:
+            parent = self.progressWins[-1]
+        p = ui.utils.ProgressWin(parent, max, min, title)
+        self.progressWins.append(ui.utils.ProgressWin(parent, max, min, title))
 
     def onUpdateProgress(self, label=None, value=None):
         if self.mainThread != QThread.currentThread():
             return
-        if self.progressWin:
-            self.progressWin.update(label, value)
+        if self.progressWins:
+            self.progressWins[-1].update(label, value)
+        self.app.processEvents()
 
     def onFinishProgress(self):
         if self.mainThread != QThread.currentThread():
             return
-        if self.progressWin:
-            self.progressWin.finish()
-            self.progressWin = None
+        if self.progressWins:
+            p = self.progressWins.pop()
+            p.finish()
+        if not self.progressWins:
             self.unsetBusy()
 
     def onDbProgress(self):
@@ -2054,7 +2059,7 @@ day = :d""", d=yesterday)
     def onDbFinished(self):
         if self.mainThread != QThread.currentThread():
             return
-        if not self.progressWin:
+        if not self.progressWins:
             self.unsetBusy()
 
     def setBusy(self):
