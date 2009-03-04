@@ -2030,7 +2030,7 @@ day = :d""", d=yesterday)
         self.setBusy()
         parent = self.progressParent or self.app.activeWindow() or self
         if self.progressWins:
-            parent = self.progressWins[-1]
+            parent = self.progressWins[-1].diag
         p = ui.utils.ProgressWin(parent, max, min, title)
         self.progressWins.append(p)
 
