@@ -1551,7 +1551,7 @@ insert into cardTags
             tmpTags = list(set(oldTags + newTags))
             if tmpTags != oldTags:
                 pending.append(
-                    {'id': id, 'now': now, 'tags': ", ".join(tmpTags)})
+                    {'id': id, 'now': now, 'tags': " ".join(tmpTags)})
         self.s.statements("""
 update facts set
 tags = :tags,
@@ -1566,6 +1566,7 @@ where id = :id""", pending)
         self.updatePriorities(cardIds)
         self.flushMod()
         self.finishProgress()
+        self.refresh()
 
     def deleteTags(self, ids, tags):
         self.startProgress()
@@ -1598,6 +1599,7 @@ where id = :id""", pending)
         self.updatePriorities(cardIds)
         self.flushMod()
         self.finishProgress()
+        self.refresh()
 
     # Find and replace
     ##########################################################################
