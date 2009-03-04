@@ -1501,7 +1501,6 @@ facts.modelId = :id""", id=modelId))
 
     def updateCardTags(self, cardIds=None):
         self.s.flush()
-        t = time.time()
         if cardIds is None:
             self.s.statement("delete from cardTags")
             self.s.statement("delete from tags")
@@ -1563,7 +1562,7 @@ where id = :id""", pending)
             "select id from cards where factId in %s" %
             ids2str(factIds))
         self.updateCardQACacheFromIds(factIds, type="facts")
-        self.updateCardTags(ids)
+        self.updateCardTags(cardIds)
         self.updatePriorities(cardIds)
         self.flushMod()
         self.finishProgress()
@@ -1596,7 +1595,7 @@ where id = :id""", pending)
             "select id from cards where factId in %s" %
             ids2str(factIds))
         self.updateCardQACacheFromIds(factIds, type="facts")
-        self.updateCardTags(ids)
+        self.updateCardTags(cardIds)
         self.updatePriorities(cardIds)
         self.flushMod()
         self.finishProgress()
