@@ -2032,7 +2032,7 @@ day = :d""", d=yesterday)
         if self.progressWins:
             parent = self.progressWins[-1]
         p = ui.utils.ProgressWin(parent, max, min, title)
-        self.progressWins.append(ui.utils.ProgressWin(parent, max, min, title))
+        self.progressWins.append(p)
 
     def onUpdateProgress(self, label=None, value=None):
         if self.mainThread != QThread.currentThread():
