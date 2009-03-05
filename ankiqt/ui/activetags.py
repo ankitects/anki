@@ -24,11 +24,19 @@ class ActiveTagsChooser(QDialog):
         self.items = []
         self.suspended = {}
         for t in parseTags(self.parent.deck.suspended):
+            if t == "Suspended":
+                continue
             self.suspended[t] = 1
             if t not in self.tags:
                 self.tags.append(t)
         self.tags.sort()
+        try:
+            self.tags.remove("Suspended")
+        except ValueError:
+            pass
         for t in self.tags:
+            if t == "Suspended":
+                continue
             item = QListWidgetItem(t, self.dialog.list)
             self.dialog.list.addItem(item)
             self.items.append(item)
