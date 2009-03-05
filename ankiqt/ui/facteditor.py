@@ -679,15 +679,19 @@ class FactEditor(object):
         src = self.focusedEdit()
         if not src:
             return
+        re1 = "\[.+?(:(.+?))?\]"
+        re2 = "\[(.+?)(:.+?)?\]"
         # add brackets because selected?
         cursor = src.textCursor()
         if cursor.hasSelection():
             s = cursor.selectionStart()
             e = cursor.selectionEnd()
             cursor.setPosition(e)
-            cursor.insertText("]")
+            cursor.insertText("]]")
             cursor.setPosition(s)
-            cursor.insertText("[")
+            cursor.insertText("[[")
+            re1 = "\[" + re1 + "\]"
+            re2 = "\[" + re2 + "\]"
         dst = None
         for (name, (field, w)) in self.fields.items():
             if w.hasFocus():
@@ -729,8 +733,8 @@ class FactEditor(object):
                 exp = match.group(2)
             return '<font color="%s"><b>[...%s]</b></font>' % (
                 clozeColour, exp)
-        new = re.sub("\[.+?(:(.+?))?\]", repl, s)
-        old = re.sub("\[(.+?)(:.+?)?\]", '<font color="%s"><b>\\1</b></font>'
+        new = re.sub(re1, repl, s)
+        old = re.sub(re2, '<font color="%s"><b>\\1</b></font>'
                      % clozeColour, s)
         oldSrc = unicode(src.toHtml())
         src.setHtml(new)
