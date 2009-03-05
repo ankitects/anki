@@ -253,12 +253,12 @@ class FactEditor(object):
         self.preview.setStyle(self.plastiqueStyle)
         # cloze
         self.cloze = QPushButton(self.widget)
-        self.clozeSC = QShortcut(QKeySequence(_("F6")), self.widget)
+        self.clozeSC = QShortcut(QKeySequence(_("F9")), self.widget)
         self.cloze.connect(self.cloze, SIGNAL("clicked()"),
                                   self.onCloze)
         self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
                                   self.onCloze)
-        self.cloze.setToolTip(_("Cloze (F6)"))
+        self.cloze.setToolTip(_("Cloze (F9)"))
         #self.cloze.setIcon(QIcon(":/icons/document-cloze.png"))
         self.cloze.setFixedWidth(30)
         self.cloze.setFixedHeight(26)
@@ -306,11 +306,8 @@ class FactEditor(object):
         self.latexMathEnv.setStyle(self.plastiqueStyle)
         # html
         self.htmlEdit = QPushButton(self.widget)
-        self.htmlEdit.setToolTip(_("HTML Editor (F9)"))
-        self.htmlEditSC = QShortcut(QKeySequence(_("F9")), self.widget)
+        self.htmlEdit.setToolTip(_("HTML Editor"))
         self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
-                              self.onHtmlEdit)
-        self.htmlEdit.connect(self.htmlEditSC, SIGNAL("activated()"),
                               self.onHtmlEdit)
         self.htmlEdit.setIcon(QIcon(":/icons/text-xml.png"))
         self.htmlEdit.setFocusPolicy(Qt.NoFocus)
