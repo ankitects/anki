@@ -270,7 +270,56 @@ try:
         queue = []
 
 except ImportError:
-    pass
+    # fall back to old nssound code for 10.3
+
+    try:
+
+        from AppKit import NSSound, NSObject
+
+        queue = []
+        current = None
+
+        class Sound(NSObject):
+
+            def init(self):
+                return self
+
+            def sound_didFinishPlaying_(self, sound, bool):
+                global current
+                while 1:
+                    if not queue:
+                        break
+                    next = queue.pop(0)
+                    if play_(next):
+                        break
+
+        s = Sound.new()
+
+        def playOSX(path):
+            global current
+            if current:
+                if current.isPlaying():
+                    queue.append(path)
+                    return
+            # new handle
+            playOSX_(path)
+
+        def clearQueueOSX():
+            global queue
+            queue = []
+
+        def playOSX_(path):
+            global current
+            current = NSSound.alloc()
+            current = current.initWithContentsOfFile_byReference_(path, True)
+            if not current:
+                return False
+            current.setDelegate_(s)
+            current.play()
+            return True
+
+    except ImportError:
+        pass
 
 # Default audio player
 ##########################################################################
