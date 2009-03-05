@@ -354,7 +354,7 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
         self.dialog.tagList.addItems(QStringList(
-            [_('All cards'), _('No tags')] + self.alltags))
+            [_('<Tag filter>'), _('No tags')] + self.alltags))
         self.dialog.tagList.view().setFixedWidth(300)
 
     def drawSort(self):
@@ -723,18 +723,28 @@ where id in %s""" % ids2str(sf))
                 _("Can only operate on one model at a time."),
                 parent=self)
             return
+        # get cards to enable
         cms = [x.id for x in self.deck.s.query(Fact).get(sf[0]).\
                model.cardModels]
         d = AddCardChooser(self, cms)
         if not d.exec_():
             return
+        # for each fact id, generate
         n = _("Generate Cards")
+        self.parent.setProgressParent(self)
+        self.deck.startProgress()
         self.deck.setUndoStart(n)
-        for id in sf:
-            self.deck.addCards(self.deck.s.query(Fact).get(id),
-                               d.selectedCms)
+        facts = self.deck.s.query(Fact).filter(
+            text("id in %s" % ids2str(sf))).order_by(Fact.created).all()
+        self.deck.updateProgress(_("Generating Cards..."))
+        for c, fact in enumerate(facts):
+            self.deck.addCards(fact, d.selectedCms)
+            if c % 50 == 0:
+                self.deck.updateProgress()
         self.deck.flushMod()
         self.deck.updateAllPriorities()
+        self.deck.finishProgress()
+        self.parent.setProgressParent(None)
         self.deck.setUndoEnd(n)
         self.updateSearch()
         self.updateAfterCardChange()
