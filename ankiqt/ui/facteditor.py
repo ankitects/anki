@@ -693,7 +693,8 @@ class FactEditor(object):
             re1 = "\[" + re1 + "\]"
             re2 = "\[" + re2 + "\]"
         dst = None
-        for (name, (field, w)) in self.fields.items():
+        for field in self.fact.fields:
+            w = self.fields[field.name][1]
             if w.hasFocus():
                 dst = False
                 continue
@@ -701,7 +702,7 @@ class FactEditor(object):
                 dst = w
                 break
         if not dst:
-            dst = self.fields.values()[0][1]
+            dst = self.fields[self.fact.fields[0].name][1]
             if dst == w:
                 return
         # check if there's alredy something there
