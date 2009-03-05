@@ -57,6 +57,7 @@ class Config(dict):
             'saveAfterAddingNum': 1,
             'saveOnClose': True,
             'mainWindowGeom': None,
+            'mainWindowState': None,
             'suppressUpdate': False,
             'suppressEstimates': False,
             'showLastCardInterval': False,

@@ -49,8 +49,6 @@ class AnkiQt(QMainWindow):
         self.setupTray()
         self.connectMenuActions()
         ui.splash.update()
-        if self.config['mainWindowGeom']:
-            self.restoreGeometry(self.config['mainWindowGeom'])
         self.setupViews()
         self.setupEditor()
         self.setupStudyScreen()
@@ -58,6 +56,9 @@ class AnkiQt(QMainWindow):
         self.setupAnchors()
         self.setupToolbar()
         self.setupProgressInfo()
+        if self.config['mainWindowState']:
+            self.restoreGeometry(self.config['mainWindowGeom'])
+            self.restoreState(self.config['mainWindowState'])
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             pass
@@ -925,6 +926,7 @@ your deck."""))
         runHook("quit")
         self.help.hide()
         self.config['mainWindowGeom'] = self.saveGeometry()
+        self.config['mainWindowState'] = self.saveState()
         # save config
         try:
             self.config.save()
