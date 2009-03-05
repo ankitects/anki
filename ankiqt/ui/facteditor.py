@@ -680,7 +680,9 @@ class FactEditor(object):
         re2 = "\[(.+?)(:.+?)?\]"
         # add brackets because selected?
         cursor = src.textCursor()
+        oldSrc = None
         if cursor.hasSelection():
+            oldSrc = src.toHtml()
             s = cursor.selectionStart()
             e = cursor.selectionEnd()
             cursor.setPosition(e)
@@ -703,7 +705,8 @@ class FactEditor(object):
             if dst == w:
                 return
         # check if there's alredy something there
-        oldSrc = src.toHtml()
+        if not oldSrc:
+            oldSrc = src.toHtml()
         oldDst = dst.toHtml()
         if unicode(dst.toPlainText()):
             if (self.lastCloze and
@@ -734,7 +737,6 @@ class FactEditor(object):
         new = re.sub(re1, repl, s)
         old = re.sub(re2, '<font color="%s"><b>\\1</b></font>'
                      % clozeColour, s)
-        oldSrc = unicode(src.toHtml())
         src.setHtml(new)
         dst.setHtml(old)
         self.lastCloze = (oldSrc, unicode(src.toHtml()),
