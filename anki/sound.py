@@ -164,7 +164,13 @@ class _Recorder(object):
             #print c
             ret = retryWait(subprocess.Popen(c, startupinfo=si))
             if ret:
-                raise Exception("Problem with" + str(c))
+                raise Exception(_("""
+Error processing audio.
+
+If you're on Linux and don't have sox 14.1+, you
+need to disable normalization. See the wiki.
+
+Command was:\n""") + " ".join(c))
 
 class PyAudioThreadedRecorder(threading.Thread):
 
