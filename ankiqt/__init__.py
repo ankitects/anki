@@ -36,8 +36,11 @@ class SplashScreen(object):
         self.splash = QSplashScreen(self.pixmap)
         self.prog = QProgressBar(self.splash)
         self.prog.setMaximum(max)
+        x = 8
+        if sys.platform.startswith("win32"):
+            x += 1
         self.prog.setGeometry(self.splash.width()/10, 8*self.splash.height()/10,
-                                8*self.splash.width()/10, self.splash.height()/10)
+                                x*self.splash.width()/10, self.splash.height()/10)
         self.splash.show()
         self.val = 1
 
