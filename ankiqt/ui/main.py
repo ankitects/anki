@@ -1837,7 +1837,13 @@ day = :d""", d=yesterday)
             self.mainWin.menu_Lookup.menuAction().setVisible(True)
         else:
             self.mainWin.menu_Lookup.menuAction().setVisible(False)
+            enable = False
         self.mainWin.menu_Lookup.setEnabled(enable)
+        self.mainWin.actionLookup_es.setEnabled(enable)
+        self.mainWin.actionLookup_esk.setEnabled(enable)
+        self.mainWin.actionLookup_expr.setEnabled(enable)
+        self.mainWin.actionLookup_mean.setEnabled(enable)
+        self.mainWin.actionLookup_as.setEnabled(enable)
 
     def maybeEnableUndo(self):
         if self.deck and self.deck.undoAvailable():
