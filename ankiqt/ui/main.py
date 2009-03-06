@@ -69,10 +69,10 @@ class AnkiQt(QMainWindow):
             self.moveToState("auto")
         # check for updates
         ui.splash.update()
-        self.setupAutoUpdate()
         self.setupErrorHandler()
         self.setupMisc()
         self.loadPlugins()
+        self.setupAutoUpdate()
         self.rebuildPluginsMenu()
         # run after-init hook
         try:
