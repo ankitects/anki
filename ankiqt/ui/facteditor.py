@@ -307,8 +307,11 @@ class FactEditor(object):
         # html
         self.htmlEdit = QPushButton(self.widget)
         self.htmlEdit.setToolTip(_("HTML Editor"))
+        self.htmlEditSC = QShortcut(QKeySequence(_("Ctrl+F9")), self.widget)
         self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
                               self.onHtmlEdit)
+        self.htmlEdit.connect(self.htmlEditSC, SIGNAL("activated()"),
+                                self.onHtmlEdit)
         self.htmlEdit.setIcon(QIcon(":/icons/text-xml.png"))
         self.htmlEdit.setFocusPolicy(Qt.NoFocus)
         self.htmlEdit.setEnabled(False)
