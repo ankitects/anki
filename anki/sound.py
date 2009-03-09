@@ -54,13 +54,6 @@ manager = None
 
 if sys.platform.startswith("win32"):
     externalPlayer = ["mplayer.exe", "-ao", "win32", "-really-quiet"]
-    # bug in sox means we need tmp on the same drive
-    try:
-        p = os.path.join(os.path.splitdrive(
-            os.path.abspath(""))[0], "\\tmp")
-        os.mkdir(p)
-    except OSError:
-        pass
     dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.environ['PATH'] += ";" + dir
     os.environ['PATH'] += ";" + dir + "\\..\\dist" # for testing
