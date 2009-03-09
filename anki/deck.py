@@ -2302,6 +2302,14 @@ class DeckStorage(object):
                                       type="inuse")
             else:
                 raise e
+        if deck.utcOffset == 24:
+            # needs a reset
+            deck.startProgress()
+            DeckStorage._setUTCOffset(deck)
+            DeckStorage._addIndices(deck)
+            for m in deck.models:
+                deck.updateCardsFromModel(m)
+            deck.finishProgress()
         # fix a bug with current model being unset
         if not deck.currentModel and deck.models:
             deck.currentModel = deck.models[0]
