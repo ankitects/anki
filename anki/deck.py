@@ -379,7 +379,7 @@ where id != :id and factId = :factId""",
                          id=card.id, space=space, now=now, factId=card.factId)
         card.spaceUntil = 0
         # temp suspend if learning ahead
-        if lastDelay < 0:
+        if self.reviewEarly and lastDelay < 0:
             if oldSuc or lastDelaySecs > self.delay0 or not self._showFailedLast():
                 card.priority = 0
                 self.reviewedAheadCards.append(card.id)
@@ -2313,10 +2313,14 @@ class DeckStorage(object):
         # fix a bug with current model being unset
         if not deck.currentModel and deck.models:
             deck.currentModel = deck.models[0]
+        # ensure the necessary indices are available
+        deck.updateDynamicIndices()
+        # check counts
         oldc = deck.failedSoonCount + deck.revCount + deck.newCount
         deck.rebuildQueue()
-        if oldc != deck.failedSoonCount + deck.revCount + deck.newCount:
-            # save due count
+        if ((oldc != deck.failedSoonCount + deck.revCount + deck.newCount) or
+            deck.modifiedSinceSave()):
+            # save
             deck.s.commit()
         return deck
     Deck = staticmethod(Deck)
