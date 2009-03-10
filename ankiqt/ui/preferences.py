@@ -28,7 +28,8 @@ class Preferences(QDialog):
         self.supportedLanguages = [
             (_("English"), "en_US"),
             (_("Brazillian Portuguese"), "pt_BR"),
-            (_("Chinese Traditional"), "zh_TW"),
+            (_("Chinese - Simplified"), "zh_CN"),
+            (_("Chinese - Traditional"), "zh_TW"),
             (_("Czech"), "cs_CZ"),
             (_("Finnish"), "fi_FI"),
             (_("French"), "fr_FR"),
