@@ -273,24 +273,17 @@ Start adding your own material.</td>
 </tr>
 
 <tr>
-<td>
-<a href="welcome:openrem"><img src=":/icons/document-open-remote.png"></a>
-</td>
-<td valign=middle><h2><a href="welcome:openrem">Open Online Deck</a></h2></td>
-</tr>
-
-<tr>
 <td width=50>
 <a href="welcome:sample"><img src=":/icons/anki.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:sample">Open Sample Deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:sample">Download Shared Deck</a></h2></td>
 </tr>
 
 <tr>
-<td width=50>
-<a href="welcome:more"><img src=":/icons/khtml_kget.png"></a>
+<td>
+<a href="welcome:openrem"><img src=":/icons/document-open-remote.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:more">Get More Decks</a></h2></td>
+<td valign=middle><h2><a href="welcome:openrem">Download Personal Deck</a></h2></td>
 </tr>
 
 </table>"""))

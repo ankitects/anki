@@ -4,9 +4,19 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki, ankiqt
-from anki.exporting import exporters
+from anki.exporting import exporters as exporters_
 from anki.utils import parseTags
 from ankiqt import ui
+
+class PackagedAnkiExporter(object):
+    def __init__(self, *args):
+        pass
+
+def exporters():
+    l = list(exporters_())
+    l.insert(1, (_("Packaged Anki Deck (*.zip)"),
+                 PackagedAnkiExporter))
+    return l
 
 class ExportDialog(QDialog):
 
@@ -35,7 +45,7 @@ class ExportDialog(QDialog):
         self.setTabOrder(self.tags,
                          self.dialog.includeScheduling)
         # save button
-        b = QPushButton(_("Export to..."))
+        b = QPushButton(_("Export..."))
         self.dialog.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
 
     def exporterChanged(self, idx):
@@ -50,6 +60,9 @@ class ExportDialog(QDialog):
             self.dialog.includeTags.hide()
 
     def accept(self):
+        if isinstance(self.exporter, PackagedAnkiExporter):
+            self.parent.onShare(parseTags(unicode(self.tags.text())))
+            return QDialog.accept(self)
         file = ui.utils.getSaveFile(self, _("Choose file to export to"), "export",
                                     self.exporter.key, self.exporter.ext)
         self.hide()

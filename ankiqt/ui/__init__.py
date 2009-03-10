@@ -26,6 +26,7 @@ def importAll():
     import update
     import utils
     import view
+    import getshared
 
 class DialogManager(object):
 

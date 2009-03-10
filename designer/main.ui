@@ -1174,7 +1174,6 @@
     <addaction name="actionReportbug" />
     <addaction name="actionForum" />
     <addaction name="actionReleaseNotes" />
-    <addaction name="actionGetMoreDecks" />
     <addaction name="separator" />
     <addaction name="actionDonate" />
     <addaction name="actionAbout" />
@@ -1208,10 +1207,23 @@
        <normaloff>:/icons/document-open-recent.png</normaloff>:/icons/document-open-recent.png</iconset>
      </property>
     </widget>
+    <widget class="QMenu" name="menuDownload" >
+     <property name="title" >
+      <string>&amp;Download...</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="../icons.qrc" >
+       <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
+     </property>
+     <addaction name="actionOpenOnline" />
+     <addaction name="separator" />
+     <addaction name="actionDownloadSharedDeck" />
+     <addaction name="actionDownloadSharedPlugin" />
+    </widget>
     <addaction name="actionNew" />
     <addaction name="actionOpen" />
     <addaction name="menuOpenRecent" />
-    <addaction name="actionOpenOnline" />
+    <addaction name="menuDownload" />
     <addaction name="actionImport" />
     <addaction name="separator" />
     <addaction name="actionSave" />
@@ -1288,7 +1300,6 @@
       <addaction name="actionDisableAllPlugins" />
       <addaction name="separator" />
      </widget>
-     <addaction name="actionGetPlugins" />
      <addaction name="actionOpenPluginFolder" />
      <addaction name="separator" />
      <addaction name="menuStartup" />
@@ -1762,15 +1773,6 @@
     <string>Check Media Database...</string>
    </property>
   </action>
-  <action name="actionOpenOnline" >
-   <property name="icon" >
-    <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Open On&amp;line...</string>
-   </property>
-  </action>
   <action name="actionCram" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
@@ -1821,15 +1823,6 @@
    </property>
    <property name="text" >
     <string>Active &amp;Tags...</string>
-   </property>
-  </action>
-  <action name="actionGetMoreDecks" >
-   <property name="icon" >
-    <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
-   </property>
-   <property name="text" >
-    <string>&amp;Get More Decks...</string>
    </property>
   </action>
   <action name="actionEditCurrent" >
@@ -1902,6 +1895,34 @@
    </property>
    <property name="text" >
     <string>&amp;Record Noise Profile...</string>
+   </property>
+  </action>
+  <action name="actionGetShared" >
+   <property name="text" >
+    <string>Get Shared...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Open a pre-made deck or plugin</string>
+   </property>
+  </action>
+  <action name="actionShare" >
+   <property name="text" >
+    <string>Share...</string>
+   </property>
+  </action>
+  <action name="actionOpenOnline" >
+   <property name="text" >
+    <string>Personal Deck</string>
+   </property>
+  </action>
+  <action name="actionDownloadSharedDeck" >
+   <property name="text" >
+    <string>Shared Deck</string>
+   </property>
+  </action>
+  <action name="actionDownloadSharedPlugin" >
+   <property name="text" >
+    <string>Shared Plugin</string>
    </property>
   </action>
  </widget>
