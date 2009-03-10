@@ -189,8 +189,8 @@ class DeckModel(QAbstractTableModel):
             self.cards[index.row()] = self.deck.s.first("""
     select id, question, answer, due, reps, factId, created, modified,
     interval, factor from cards where id = :id""", id=self.cards[index.row()][0])
-            self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
-                      index, self.index(index.row(), 1))
+            #self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
+            #          index, self.index(index.row(), 1))
         except IndexError:
             # called after search changed
             pass
@@ -515,12 +515,12 @@ class EditDeck(QMainWindow):
         if not sys.platform.startswith("win32"):
             self.dialog.tableView.verticalHeader().hide()
             self.dialog.tableView.horizontalHeader().show()
-        for i in range(2):
-            self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
-        self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
         restoreHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.dialog.tableView.verticalHeader().setDefaultSectionSize(
             self.parent.config['editLineSize'])
+        for i in range(2):
+            self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
+        self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
 
     def setupMenus(self):
         # actions
