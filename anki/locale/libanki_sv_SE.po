@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-10 00:25+0100\n"
+"POT-Creation-Date: 2009-03-11 05:39+0900\n"
 "PO-Revision-Date: 2009-03-10 17:21+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-Language: Swedish\n"
 "X-Poedit-Country: SWEDEN\n"
 
-#: sound.py:167
+#: sound.py:160
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -36,16 +36,6 @@ msgstr ""
 "\n"
 "Kommandot var:\n"
 
-#: importing/__init__.py:116
-msgid ""
-"\n"
-"The current importer only supports a single active card template. Please disable\n"
-"all but one card template."
-msgstr ""
-"\n"
-"Den nuvarande importfunktionen stödjer enbart en enda aktiv kortmall. Avaktivera\n"
-"alla utom en kortmall."
-
 #: stats.py:501
 #, python-format
 msgid "%(count)s %(gradename)s kanji."
@@ -56,20 +46,17 @@ msgstr "%(count)s %(gradename)s kanji."
 msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
 msgstr "%(gradename)s: %(count)s av sammanlagt %(total)s (%(percent)0.1f%%)."
 
-#: stats.py:286
-#: stats.py:288
+#: stats.py:286 stats.py:288
 #, python-format
 msgid "%0.1f seconds"
 msgstr "%0.1f sekunder"
 
-#: stats.py:270
-#: stats.py:277
-#: stats.py:300
+#: stats.py:270 stats.py:277 stats.py:300
 #, python-format
 msgid "%s ago"
 msgstr "%s sedan"
 
-#: deck.py:1142
+#: deck.py:1145
 #, python-format
 msgid "%s copy"
 msgstr "%s-kopia"
@@ -116,10 +103,7 @@ msgid_plural "%s years"
 msgstr[0] "%s år"
 msgstr[1] "%s år"
 
-#: stats.py:371
-#: stats.py:374
-#: stats.py:377
-#: stats.py:380
+#: stats.py:371 stats.py:374 stats.py:377 stats.py:380
 #, python-format
 msgid "<b>%(a)d</b> (<b>%(b)0.1f</b>/day)"
 msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b>/dag)"
@@ -134,11 +118,7 @@ msgstr "<b>%(a)d</b>/dag, <b>%(b)d</b>/mån"
 msgid "<b>%0.0f</b> days"
 msgstr "<b>%0.0f</b> dagar"
 
-#: stats.py:358
-#: stats.py:360
-#: stats.py:362
-#: stats.py:364
-#: stats.py:366
+#: stats.py:358 stats.py:360 stats.py:362 stats.py:364 stats.py:366
 #, python-format
 msgid "<b>%0.1f</b> cards/day"
 msgstr "<b>%0.1f</b> kort/dag"
@@ -238,10 +218,6 @@ msgstr "Tillagda förra månaden"
 msgid "Added last week"
 msgstr "Tillagda förra veckan"
 
-#: importing/__init__.py:252
-msgid "Anki 1.0 deck (*.anki)"
-msgstr "Ankikortlek 1.0 (*.anki)"
-
 #: exporting.py:235
 msgid "Anki deck (*.anki)"
 msgstr "Ankikortlek (*.anki)"
@@ -290,11 +266,11 @@ msgstr "Center"
 msgid "Changed"
 msgstr "Ändrat"
 
-#: deck.py:1205
+#: deck.py:1208
 msgid "Changing cards..."
 msgstr "Ändrar kort..."
 
-#: deck.py:1165
+#: deck.py:1168
 msgid "Changing fields..."
 msgstr "Ändrar fält..."
 
@@ -302,11 +278,11 @@ msgstr "Ändrar fält..."
 msgid "Check Media DB"
 msgstr "Kontrollera mediadatabas"
 
-#: deck.py:1894
+#: deck.py:1897
 msgid "Checking integrity..."
 msgstr "Kontrollerar databasintegritet"
 
-#: deck.py:1904
+#: deck.py:1907
 msgid "Checking schema..."
 msgstr "Kontrollerar schema..."
 
@@ -314,19 +290,11 @@ msgstr "Kontrollerar schema..."
 msgid "Checksum files..."
 msgstr "Sätter filnamn baserat på checksumma..."
 
-#: importing/csv.py:87
-msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
-msgstr "Kunde inte hitta mönstret. Filen skall vara en serie av rader som skiljs av tabbar eller semikolon."
-
-#: importing/__init__.py:254
-msgid "CueCard deck (*.wcu)"
-msgstr "CueCard-kortlek (*.wcu)"
-
-#: deck.py:2796
+#: deck.py:2811
 msgid "Custom failed cards handling"
 msgstr "Anpassad hantering av felbesvarade kort"
 
-#: deck.py:1897
+#: deck.py:1900
 msgid "Database file damaged. Restore from backup."
 msgstr "Databasfilen är korrupt. Återställ från säkerhetskopia."
 
@@ -339,7 +307,7 @@ msgstr "Kortleksstatistik"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Kortlek skapades: för <b>%s</b> sedan<br>"
 
-#: deck.py:1907
+#: deck.py:1910
 msgid "Deck was missing a model"
 msgstr "Det saknades en modell i kortleken"
 
@@ -351,27 +319,27 @@ msgstr "Ta bort förlegade referenser..."
 msgid "Delete unused files..."
 msgstr "Ta bort oanvända filer..."
 
-#: deck.py:1935
+#: deck.py:1938
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Tog bort %d kort som saknade faktauppgift"
 
-#: deck.py:1943
+#: deck.py:1946
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr "Tog bort %d kort som saknade kortmall"
 
-#: deck.py:1956
+#: deck.py:1959
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Tog bort %d kvarglömda fält"
 
-#: deck.py:1928
+#: deck.py:1931
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Tog bort %d faktauppgifter som saknade fält"
 
-#: deck.py:1948
+#: deck.py:1951
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Tog bort %d faktauppgifter utan kort"
@@ -403,7 +371,7 @@ msgstr "Exporterar..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Faktauppgifter i tabb-separerad textfil (*.txt)"
 
-#: deck.py:2301
+#: deck.py:2304
 msgid "File is in use by another process"
 msgstr "Filen används av en annan process"
 
@@ -424,13 +392,7 @@ msgstr "Första förra veckan"
 msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 msgstr "Kort som sågs för första gången: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> av <b>%(gNewTotal)d</b>)<br><br>"
 
-#: importing/anki10.py:25
-#: importing/__init__.py:51
-msgid "Importing..."
-msgstr "Importerar..."
-
-#: stats.py:274
-#: stats.py:357
+#: stats.py:274 stats.py:357
 msgid "Interval"
 msgstr "Intervall"
 
@@ -458,23 +420,11 @@ msgstr "Senaste intervall"
 msgid "Left"
 msgstr "Vänster"
 
-#: importing/csv.py:40
-#, python-format
-msgid "Line %(line)d doesn't match pattern '%(pat)s'"
-msgstr "Rad %(line)d följer inte mönstret '%(pat)s'"
-
-#: importing/csv.py:49
-#, python-format
-msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
-msgstr "Rad %(line)d har %(num1)d fält, förväntat antal är %(num2)d"
-
 #: stdmodels.py:99
 msgid "Mandarin"
 msgstr "Standardkinesiska"
 
-#: graphs.py:151
-#: graphs.py:177
-#: graphs.py:335
+#: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
 msgstr "Gamla"
 
@@ -488,20 +438,9 @@ msgstr "Gamla kort: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> av <b>%(g
 msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgstr "Gamla kort: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 
-#: media.py:176
-#: media.py:178
-#: media.py:179
+#: media.py:176 media.py:178 media.py:179
 msgid "MediaMissing"
 msgstr "Mediefil saknas"
-
-#: importing/__init__.py:109
-#, python-format
-msgid "Missing required/unique field '%(field)s'"
-msgstr "Obligatoriska/unika fält '%(field)s' saknas"
-
-#: importing/__init__.py:253
-msgid "Mnemosyne 1.x deck (*.mem)"
-msgstr "Mnemosynekortlek 1.x (*.mem)"
 
 #: stats.py:290
 msgid "Model Tags"
@@ -511,8 +450,7 @@ msgstr "Modelletiketter"
 msgid "Modify fields..."
 msgstr "Ändra fält..."
 
-#: graphs.py:175
-#: graphs.py:333
+#: graphs.py:175 graphs.py:333
 msgid "New"
 msgstr "Nya"
 
@@ -524,27 +462,27 @@ msgstr "Inga kort har passerat förfallotid."
 msgid "Please add some cards first.<p/>"
 msgstr "Lägg till några kort först.<p/>"
 
-#: deck.py:2130
+#: deck.py:2133
 msgid "Processing..."
 msgstr "Behandlar..."
 
-#: deck.py:1975
+#: deck.py:1978
 msgid "Rebuilding QA cache..."
 msgstr "Bygger om fråge-/svarscachen..."
 
-#: deck.py:1995
+#: deck.py:1998
 msgid "Rebuilding counts..."
 msgstr "Bygger om antalsberäkningar..."
 
-#: deck.py:2001
+#: deck.py:2004
 msgid "Rebuilding queue..."
 msgstr "Bygger om kö..."
 
-#: deck.py:1969
+#: deck.py:1972
 msgid "Rebuilding tag cache..."
 msgstr "Bygger om etikettcachen..."
 
-#: deck.py:1993
+#: deck.py:1996
 msgid "Rebuilding types..."
 msgstr "Bygger om typer..."
 
@@ -564,19 +502,19 @@ msgstr "Upprepn. nästa månad"
 msgid "Reps next week"
 msgstr "Upprepn. nästa vecka"
 
-#: deck.py:2783
+#: deck.py:2798
 msgid "Review cards from largest interval"
 msgstr "Repetera kort från största intervall"
 
-#: deck.py:2784
+#: deck.py:2799
 msgid "Review cards from smallest interval"
 msgstr "Repetera kort från minsta intervall"
 
-#: deck.py:2785
+#: deck.py:2800
 msgid "Review cards in order due"
 msgstr "Repetera kort ordnade efter den tid de förfaller"
 
-#: deck.py:2786
+#: deck.py:2801
 msgid "Review cards in random order"
 msgstr "Repetera kort i slumpmässig ordning"
 
@@ -592,73 +530,59 @@ msgstr "Höger"
 msgid "Scan fields..."
 msgstr "Söker igenom fält..."
 
-#: deck.py:2792
+#: deck.py:2807
 msgid "Show failed cards at end"
 msgstr "Visa felbesvarade kort i slutet"
 
-#: deck.py:2793
+#: deck.py:2808
 msgid "Show failed cards in 10 minutes"
 msgstr "Visa felbesvarade kort om tio minuter"
 
-#: deck.py:2795
+#: deck.py:2810
 msgid "Show failed cards in 3 days"
 msgstr "Visa felbesvarade kort om tre dagar"
 
-#: deck.py:2794
+#: deck.py:2809
 msgid "Show failed cards in 8 hours"
 msgstr "Visa felbesvarade kort om åtta timmar"
 
-#: deck.py:2791
+#: deck.py:2806
 msgid "Show failed cards soon"
 msgstr "Visa felbesvarade kort snart"
 
-#: deck.py:2777
+#: deck.py:2792
 msgid "Show new cards after all other cards"
 msgstr "Visa nya kort efter alla andra kort"
 
-#: deck.py:2778
+#: deck.py:2793
 msgid "Show new cards before reviews"
 msgstr "Visa nya kort innan repetitioner"
 
-#: deck.py:2770
+#: deck.py:2785
 msgid "Show new cards in order added"
 msgstr "Visa nya kort i den ordning de lades till"
 
-#: deck.py:2769
+#: deck.py:2784
 msgid "Show new cards in random order"
 msgstr "Visa nya kort i slumpmässig ordning"
 
-#: deck.py:2771
+#: deck.py:2786
 msgid "Show new cards in reverse order added"
 msgstr "Visa nya kort i omvänd ordning från hur de lades till"
 
-#: deck.py:2776
+#: deck.py:2791
 msgid "Spread new cards out through reviews"
 msgstr "Fördela nya kort bland repetitioner"
 
-#: exporting.py:164
-#: exporting.py:196
+#: exporting.py:164 exporting.py:196
 msgid "Text files (*.txt)"
 msgstr "Textfiler (*.txt)"
 
-#: importing/__init__.py:251
-msgid "Text separated by tabs or semicolons (*)"
-msgstr "Text åtskiljd av tabbar eller semikolon (*)"
-
-#: deck.py:1913
+#: deck.py:1916
 msgid "The current model didn't exist"
 msgstr "Den nuvarande modellen fanns inte"
 
-#: importing/csv.py:76
-msgid "The file had no non-empty lines."
-msgstr "Det fanns enbart tomma rader i filen."
-
-#: importing/csv.py:105
-#: importing/wcu.py:29
-msgid "The file was not in UTF8 format."
-msgstr "Filen var inte i UTF8-format"
-
-#: deck.py:653
+#: deck.py:656
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr "Nästa repetition är om <b>%s</b>."
@@ -705,7 +629,7 @@ msgstr "Sammanlagt antal kort: <b>%d</b><br>"
 msgid "Total number of facts: <b>%d</b><br><br>"
 msgstr "Sammanlagt antal faktauppgifter:  <b>%d</b><br><br>"
 
-#: deck.py:863
+#: deck.py:866
 msgid "Unknown"
 msgstr "Okänt"
 
@@ -718,13 +642,11 @@ msgstr "Kort som inte setts: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgid "Update tags..."
 msgstr "Uppdatera etiketter..."
 
-#: deck.py:1972
+#: deck.py:1975
 msgid "Updating priorities..."
 msgstr "Uppdaterar prioteringar..."
 
-#: graphs.py:150
-#: graphs.py:176
-#: graphs.py:334
+#: graphs.py:150 graphs.py:176 graphs.py:334
 msgid "Young"
 msgstr "Unga"
 
@@ -751,6 +673,47 @@ msgstr "om %s"
 msgid "unknown"
 msgstr "okänt"
 
+#~ msgid ""
+#~ "\n"
+#~ "The current importer only supports a single active card template. Please disable\n"
+#~ "all but one card template."
+#~ msgstr ""
+#~ "\n"
+#~ "Den nuvarande importfunktionen stödjer enbart en enda aktiv kortmall. Avaktivera\n"
+#~ "alla utom en kortmall."
+
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Ankikortlek 1.0 (*.anki)"
+
+#~ msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+#~ msgstr "Kunde inte hitta mönstret. Filen skall vara en serie av rader som skiljs av tabbar eller semikolon."
+
+#~ msgid "CueCard deck (*.wcu)"
+#~ msgstr "CueCard-kortlek (*.wcu)"
+
 #~ msgid "Deleting cards..."
 #~ msgstr "Tar bort kort..."
 
+#~ msgid "Importing..."
+#~ msgstr "Importerar..."
+
+#~ msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+#~ msgstr "Rad %(line)d följer inte mönstret '%(pat)s'"
+
+#~ msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
+#~ msgstr "Rad %(line)d har %(num1)d fält, förväntat antal är %(num2)d"
+
+#~ msgid "Missing required/unique field '%(field)s'"
+#~ msgstr "Obligatoriska/unika fält '%(field)s' saknas"
+
+#~ msgid "Mnemosyne 1.x deck (*.mem)"
+#~ msgstr "Mnemosynekortlek 1.x (*.mem)"
+
+#~ msgid "Text separated by tabs or semicolons (*)"
+#~ msgstr "Text åtskiljd av tabbar eller semikolon (*)"
+
+#~ msgid "The file had no non-empty lines."
+#~ msgstr "Det fanns enbart tomma rader i filen."
+
+#~ msgid "The file was not in UTF8 format."
+#~ msgstr "Filen var inte i UTF8-format"
