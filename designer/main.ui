@@ -530,7 +530,7 @@
                   <item>
                    <widget class="QLabel" name="optionsLabel" >
                     <property name="text" >
-                     <string>xxx</string>
+                     <string/>
                     </property>
                     <property name="textInteractionFlags" >
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -878,7 +878,7 @@
                   <item>
                    <widget class="QLabel" name="congratsLabel" >
                     <property name="text" >
-                     <string>xxx</string>
+                     <string/>
                     </property>
                     <property name="margin" >
                      <number>0</number>
