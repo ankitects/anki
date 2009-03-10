@@ -19,19 +19,22 @@ from anki.db import *
 ##########################################################################
 
 def initTagTables(s):
-    s.statement("""
-create table tags (
-id integer not null,
-tag text not null collate nocase,
-priority integer not null default 2,
-primary key(id))""")
-    s.statement("""
-create table cardTags (
-id integer not null,
-cardId integer not null,
-tagId integer not null,
-src integer not null,
-primary key(id))""")
+    try:
+        s.statement("""
+    create table tags (
+    id integer not null,
+    tag text not null collate nocase,
+    priority integer not null default 2,
+    primary key(id))""")
+        s.statement("""
+    create table cardTags (
+    id integer not null,
+    cardId integer not null,
+    tagId integer not null,
+    src integer not null,
+    primary key(id))""")
+    except:
+        pass
 
 def tagId(s, tag):
     "Return ID for tag, creating if necessary."

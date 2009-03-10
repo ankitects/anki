@@ -128,8 +128,11 @@ class Deck(object):
         self.reviewedAheadCards = []
         self.extraNewCards = 0
         self.reviewEarly = False
-        self.engine.raw_connection().set_progress_handler(
-            self.progressHandler, 100000)
+        try:
+            self.engine.raw_connection().set_progress_handler(
+                self.progressHandler, 100000)
+        except:
+            print "please install pysqlite 2.4 for better progress dialogs"
         self.progressHandlerEnabled = False
 
     def modifiedSinceSave(self):
