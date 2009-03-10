@@ -279,7 +279,7 @@ class DeckModel(QAbstractTableModel):
 class EditDeck(QMainWindow):
 
     def __init__(self, parent):
-        QDialog.__init__(self, parent, Qt.Window)
+        QMainWindow.__init__(self, parent)
         self.parent = parent
         self.deck = self.parent.deck
         self.config = parent.config
