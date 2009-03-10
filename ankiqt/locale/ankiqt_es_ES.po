@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-11 05:27+0900\n"
+"POT-Creation-Date: 2009-03-11 05:39+0900\n"
 "PO-Revision-Date: 2009-02-02 07:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -1445,6 +1445,13 @@ msgstr "Personalizar sincronización, programación, prioridades y modelos."
 #: ui/preferences.py:33
 msgid "Czech"
 msgstr "Checo"
+
+#: ui/main.py:2155
+#, python-format
+msgid ""
+"Database optimized.\n"
+"Shrunk by %dKB"
+msgstr ""
 
 #: ui/graphs.py:161
 msgid "Deck Graphs"

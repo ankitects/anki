@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-11 05:27+0900\n"
+"POT-Creation-Date: 2009-03-11 05:39+0900\n"
 "PO-Revision-Date: 2008-12-31 12:26+0100\n"
 "Last-Translator: Christian Rusche <cru@bsiag.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1457,6 +1457,13 @@ msgstr "Synchronisierung, Zeitabstände, Prioritäten und Modelle anpassen."
 #: ui/preferences.py:33
 msgid "Czech"
 msgstr "Tschechisch"
+
+#: ui/main.py:2155
+#, python-format
+msgid ""
+"Database optimized.\n"
+"Shrunk by %dKB"
+msgstr ""
 
 #: ui/graphs.py:161
 msgid "Deck Graphs"

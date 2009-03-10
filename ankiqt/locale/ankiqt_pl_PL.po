@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-11 05:27+0900\n"
+"POT-Creation-Date: 2009-03-11 05:39+0900\n"
 "PO-Revision-Date: 2009-01-20 13:14+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -1451,6 +1451,13 @@ msgstr "Ustawianie synchronizacji, planowania, priorytetów i modeli."
 #: ui/preferences.py:33
 msgid "Czech"
 msgstr "Czeski"
+
+#: ui/main.py:2155
+#, python-format
+msgid ""
+"Database optimized.\n"
+"Shrunk by %dKB"
+msgstr ""
 
 #: ui/graphs.py:161
 msgid "Deck Graphs"
