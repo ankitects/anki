@@ -846,7 +846,7 @@ where id in %s""" % ids2str(sf))
                                   frm.type.currentIndex(),
                                   frm.re.isChecked())
         except sre_constants.error:
-            ui.utils.showInfo(_("Invalid regexp."),
+            ui.utils.showInfo(_("Invalid regular expression."),
                               parent=self)
         self.deck.setUndoEnd(n)
         self.deck.finishProgress()
