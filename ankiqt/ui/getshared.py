@@ -179,7 +179,7 @@ class GetShared(QDialog):
                 for l in z.namelist():
                     if l == "shared.anki":
                         dpath = os.path.join(dd, tit + ".anki")
-                        open(dpath, "w").write(z.read(l))
+                        open(dpath, "wb").write(z.read(l))
                     elif l.startswith("shared.media/"):
                         try:
                             os.mkdir(os.path.join(dd, tit + ".media"))
@@ -200,7 +200,7 @@ class GetShared(QDialog):
 #                             pass
 #                         open(os.path.join(pd, 2))
                 else:
-                    open(os.path.join(pd, tit + ext), "w").write(data)
+                    open(os.path.join(pd, tit + ext), "wb").write(data)
                     showInfo(_("Plugin downloaded. Please restart Anki."),
                              parent=self)
                     self.ok = True
