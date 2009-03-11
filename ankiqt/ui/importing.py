@@ -132,7 +132,7 @@ class ImportDialog(QDialog):
             self.parent.deck.finishProgress()
             self.parent.deck.setUndoEnd(n)
         txt = (
-            _("Importing complete. %(num)d cards imported from %(file)s.\n") %
+            _("Importing complete. %(num)d facts imported from %(file)s.\n") %
             {"num": self.importer.total, "file": os.path.basename(self.file)})
         txt += _("Click the close button or import another file.\n\n")
         if self.importer.log:
