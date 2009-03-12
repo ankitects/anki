@@ -1475,7 +1475,8 @@ day = :d""", d=yesterday)
         self.deck.updateProgress()
         # remove indices
         indices = d.s.column0(
-            "select name from sqlite_master where type = 'index'")
+            "select name from sqlite_master where type = 'index' "
+            "and sql != ''")
         for i in indices:
             d.s.statement("drop index %s" % i)
         # and q/a cache
