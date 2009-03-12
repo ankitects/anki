@@ -80,19 +80,20 @@ class GetShared(QDialog):
         self.form.table.setRowCount(len(self.curList))
         self.items = {}
         if self.type == 0:
-            cols = (R_TITLE, R_FACTS, R_MODIFIED)
+            cols = (R_TITLE, R_FACTS, R_COUNT)
         else:
-            cols = (R_TITLE, R_MODIFIED)
+            cols = (R_TITLE, R_COUNT)
         for rc, r in enumerate(self.curList):
             for cc, c in enumerate(cols):
-                if c == R_MODIFIED:
-                    txt = time.strftime("%m/%Y", time.localtime(r[c]))
-                else:
-                    txt = unicode(r[c])
+                txt = unicode(r[c])
                 item = QTableWidgetItem(txt)
                 self.items[item] = r
                 self.form.table.setItem(rc, cc, item)
         self.form.table.setSortingEnabled(True)
+        if self.type == 0:
+            self.form.table.sortItems(2, Qt.DescendingOrder)
+        else:
+            self.form.table.sortItems(1, Qt.DescendingOrder)
         self.form.table.selectRow(0)
 
     def onCellChanged(self, row, col, x, y):
@@ -128,11 +129,11 @@ class GetShared(QDialog):
         if self.type == 0:
             self.form.table.setColumnCount(3)
             self.form.table.setHorizontalHeaderLabels([
-                _("Title"), _("Facts"), _("Modified")])
+                _("Title"), _("Facts"), _("Downloads")])
         else:
             self.form.table.setColumnCount(2)
             self.form.table.setHorizontalHeaderLabels([
-                _("Title"), _("Modified")])
+                _("Title"), _("Downloads")])
         self.form.table.horizontalHeader().setResizeMode(
             0, QHeaderView.Stretch)
         self.form.table.verticalHeader().hide()
