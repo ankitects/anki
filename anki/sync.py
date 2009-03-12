@@ -627,7 +627,7 @@ from reviewHistory where time > :ls""",
         if not dlist:
             return
         self.deck.s.statements("""
-insert into reviewHistory
+insert or ignore into reviewHistory
 (cardId, time, lastInterval, nextInterval, ease, delay,
 lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount)
 values

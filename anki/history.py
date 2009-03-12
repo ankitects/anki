@@ -18,8 +18,7 @@ from anki.db import *
 
 reviewHistoryTable = Table(
     'reviewHistory', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('cardId', Integer, ForeignKey("cards.id")),
+    Column('cardId', Integer),
     Column('time', Float, nullable=False, default=time.time),
     Column('lastInterval', Float, nullable=False),
     Column('nextInterval', Float, nullable=False),
@@ -30,7 +29,8 @@ reviewHistoryTable = Table(
     Column('reps', Float, nullable=False),
     Column('thinkingTime', Float, nullable=False),
     Column('yesCount', Float, nullable=False),
-    Column('noCount', Float, nullable=False))
+    Column('noCount', Float, nullable=False),
+    PrimaryKeyConstraint("cardId", "time"))
 
 class CardHistoryEntry(object):
     "Create after rescheduling card."
