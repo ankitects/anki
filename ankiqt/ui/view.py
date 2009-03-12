@@ -56,7 +56,7 @@ class View(object):
         self.haveTop = (self.main.lastCard and (
             self.main.config['showLastCardContent'] or
             self.main.config['showLastCardInterval'])) or (
-            self.main.currentCard and self.main.currentCard.due > time.time())
+            self.needFutureWarning())
         self.drawRule = (self.main.config['qaDivider'] and
                          self.main.currentCard and
                          not self.main.currentCard.cardModel.questionInAnswer)
@@ -204,12 +204,17 @@ class View(object):
         self.drawLastCard()
         self.buffer += "</center>"
 
-    def drawFutureWarning(self):
+    def needFutureWarning(self):
         if not self.main.currentCard:
             return
         if self.main.currentCard.due <= time.time():
             return
         if self.main.currentCard.due - time.time() <= self.main.deck.delay0:
+            return
+        return True
+
+    def drawFutureWarning(self):
+        if not self.needFutureWarning():
             return
         self.write("<span style='color: %s'>" % futureWarningColour +
                    _("This card was due in %s.") % fmtTimeSpan(
