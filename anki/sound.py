@@ -146,9 +146,8 @@ try:
     PYAU_CHANNELS = 1
     PYAU_RATE = 44100
     PYAU_INPUT_INDEX = 0
-except ImportError:
+except:
     pass
-
 
 class _Recorder(object):
 
@@ -173,7 +172,10 @@ class PyAudioThreadedRecorder(threading.Thread):
 
     def run(self):
         chunk = 1024
-        p = pyaudio.PyAudio()
+        try:
+            p = pyaudio.PyAudio()
+        except NameError:
+            raise Exception("Recording not supported on OSX10.3.")
         stream = p.open(format=PYAU_FORMAT,
                         channels=PYAU_CHANNELS,
                         rate=PYAU_RATE,
