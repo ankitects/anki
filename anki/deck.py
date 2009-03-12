@@ -47,6 +47,8 @@ REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
 REV_CARDS_RANDOM = 3
 
+DECK_VERSION = 30
+
 # parts of the code assume we only have one deck
 decksTable = Table(
     'decks', metadata,
@@ -54,7 +56,7 @@ decksTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('description', UnicodeText, nullable=False, default=u""),
-    Column('version', Integer, nullable=False, default=30),
+    Column('version', Integer, nullable=False, default=DECK_VERSION),
     Column('currentModelId', Integer, ForeignKey("models.id")),
     # syncing
     Column('syncName', UnicodeText),
@@ -2453,6 +2455,12 @@ order by priority desc, due desc""")
 
     def _upgradeDeck(deck, path):
         "Upgrade deck to the latest version."
+        if deck.version < DECK_VERSION:
+            prog = True
+            deck.startProgress()
+            deck.updateProgress(_("Upgrading Deck..."))
+        else:
+            prog = False
         deck.path = path
         if deck.version == 0:
             # new columns
@@ -2728,9 +2736,13 @@ on reviewHistory (cardId, time)""")
             deck.s.commit()
         # this check we do regardless of version number since doing it on init
         # seems to crash
-        if deck.s.scalar("pragma page_size") == 1024:
-            deck.s.scalar("pragma page_size = 4096")
+        if (deck.s.scalar("pragma page_size") == 1024 or
+            deck.s.scalar("pragma legacy_file_format") == 1):
+            deck.s.execute("pragma page_size = 4096")
+            deck.s.execute("pragma legacy_file_format = 0")
             deck.s.scalar("vacuum")
+        if prog:
+            deck.finishProgress()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)
 
