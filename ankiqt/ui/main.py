@@ -350,12 +350,10 @@ Please do not file a bug report with Anki.<br><br>""")
         "Reschedule current card and move back to getQuestion state."
         if self.state != "showAnswer":
             return
-        # remove card from session before updating it
-        try:
-            self.deck.s.expunge(self.currentCard)
-        except:
-            # session has been reset
-            pass
+        # force refresh of card then remove from session as we update in pure sql
+        self.deck.s.refresh(self.currentCard)
+        self.deck.s.expunge(self.currentCard)
+        # answer
         self.deck.answerCard(self.currentCard, quality)
         self.lastScheduledTime = anki.utils.fmtTimeSpan(
             self.currentCard.due - time.time())
