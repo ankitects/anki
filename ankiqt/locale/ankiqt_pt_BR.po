@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-11 05:39+0900\n"
+"POT-Creation-Date: 2009-03-13 06:25+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Jo Nakashima <jonakashima@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -76,11 +76,11 @@ msgstr " * %s nenhuma alteração encontrada."
 msgid " * %s no longer exists."
 msgstr " * %s não existe mais."
 
-#: forms/displayproperties.py:344
+#: forms/displayproperties.py:370
 msgid " <b>When editing (overrides above):</b>"
 msgstr " <b>Quando editar (substitui os anteriores):</b>"
 
-#: forms/displayproperties.py:340
+#: forms/displayproperties.py:366
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Quando revisar e editar:</b>"
 
@@ -89,7 +89,7 @@ msgstr " <b>Quando revisar e editar:</b>"
 msgid " applied %d modified cards."
 msgstr " aplicado %d cards motificados."
 
-#: ui/main.py:2184
+#: ui/main.py:2185
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -110,7 +110,7 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:1808
+#: ui/main.py:1809
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(due)d de %(cards)d programados) - %(title)s"
@@ -549,7 +549,7 @@ msgstr "<b>Suspenso</b>"
 msgid "<b>Tags</b>"
 msgstr ""
 
-#: ui/getshared.py:105
+#: ui/getshared.py:106
 #, python-format
 msgid ""
 "<b>Title</b>: %(title)s<br>\n"
@@ -749,7 +749,7 @@ msgstr ""
 "        salvas. Gostaria de salvá-las, descartar as\n"
 "        alterações, ou cancelar?"
 
-#: ui/view.py:250
+#: ui/view.py:255
 #, fuzzy
 msgid ""
 "<h1>Welcome to Anki!</h1>\n"
@@ -1051,7 +1051,7 @@ msgstr ""
 "Se isso não arrumar o problema, por favor copie o seguinte<br>\n"
 "em um bug report:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2159 forms/main.py:872 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2160 forms/main.py:872 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1069,19 +1069,19 @@ msgstr ""
 msgid "Answer"
 msgstr "Resposta"
 
-#: forms/displayproperties.py:337
+#: forms/displayproperties.py:363
 msgid "Answer alignment"
 msgstr "Alinhamento da resposta"
 
-#: forms/displayproperties.py:332
+#: forms/displayproperties.py:358
 msgid "Answer colour"
 msgstr "Cor da resposta"
 
-#: forms/displayproperties.py:333
+#: forms/displayproperties.py:359
 msgid "Answer font"
 msgstr "Fonte da resposta"
 
-#: forms/displayproperties.py:331
+#: forms/displayproperties.py:357
 msgid "Answer size"
 msgstr "Tamanho da resposta"
 
@@ -1093,7 +1093,7 @@ msgstr "Preferências da aplicação"
 msgid "Applying reply..."
 msgstr "Aplicando resposta..."
 
-#: forms/displayproperties.py:338
+#: forms/displayproperties.py:364
 #, fuzzy
 msgid "Background colour"
 msgstr "Cor de primeiro plano (Ctrl+r)"
@@ -1144,7 +1144,7 @@ msgstr ""
 msgid "Can't look up a selection with a newline."
 msgstr "Não pode procurar a seleção com uma quebra de linha."
 
-#: ui/main.py:2174
+#: ui/main.py:2175
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1162,11 +1162,11 @@ msgstr ""
 msgid "Card Templates"
 msgstr ""
 
-#: forms/displayproperties.py:329
+#: forms/displayproperties.py:355
 msgid "Card:"
 msgstr ""
 
-#: forms/displayproperties.py:339
+#: forms/displayproperties.py:365
 msgid "Cards"
 msgstr ""
 
@@ -1246,7 +1246,7 @@ msgstr "Clique para esconder o Anki"
 msgid "Click to show Anki"
 msgstr "Clique pra exibir o Anki"
 
-#: ui/addcards.py:63 forms/displayproperties.py:350
+#: ui/addcards.py:63 forms/displayproperties.py:376
 msgid "Close"
 msgstr "Fechar"
 
@@ -1447,7 +1447,7 @@ msgstr "Customizar sincronização, agendamento, prioridades e modelos."
 msgid "Czech"
 msgstr ""
 
-#: ui/main.py:2155
+#: ui/main.py:2156
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1482,7 +1482,7 @@ msgstr ""
 msgid "Delete Cards"
 msgstr ""
 
-#: ui/main.py:2172
+#: ui/main.py:2173
 msgid "Delete Refs"
 msgstr ""
 
@@ -1525,6 +1525,11 @@ msgstr ""
 #: ui/getshared.py:38
 msgid "Download Shared Plugin"
 msgstr ""
+
+#: ui/getshared.py:132 ui/getshared.py:136
+#, fuzzy
+msgid "Downloads"
+msgstr "&Doar..."
 
 #: ui/cardlist.py:48 ui/cardlist.py:258 ui/cardlist.py:366 ui/graphs.py:145
 msgid "Due"
@@ -1645,12 +1650,12 @@ msgstr ""
 msgid "F9"
 msgstr ""
 
-#: ui/getshared.py:131
+#: ui/getshared.py:132
 #, fuzzy
 msgid "Facts"
 msgstr "F&ato"
 
-#: ui/main.py:1702
+#: ui/main.py:1703
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Falha ao enviar mídia. Por favor execute 'check media db'."
 
@@ -1682,7 +1687,7 @@ msgstr "Campo <b>%d</b> do arquivo é:"
 msgid "Field mapping"
 msgstr "Mapeamento de campo"
 
-#: ui/cardlist.py:830 forms/changemodel.py:79 forms/displayproperties.py:347
+#: ui/cardlist.py:830 forms/changemodel.py:79 forms/displayproperties.py:373
 msgid "Fields"
 msgstr "Campos"
 
@@ -1707,7 +1712,7 @@ msgstr "Terminado"
 msgid "First Answered"
 msgstr "Respondidos pela primeira vez"
 
-#: forms/displayproperties.py:328
+#: forms/displayproperties.py:354
 msgid "Fonts & Colours"
 msgstr "Fontes & Cores"
 
@@ -1753,7 +1758,7 @@ msgstr "Editor HTML"
 msgid "Hard"
 msgstr "Difícil"
 
-#: ui/addcards.py:67 forms/displayproperties.py:348 forms/main.py:889
+#: ui/addcards.py:67 forms/displayproperties.py:374 forms/main.py:889
 msgid "Help"
 msgstr "Ajuda"
 
@@ -1791,8 +1796,8 @@ msgid "Import options"
 msgstr "Opções de importação"
 
 #: ui/importing.py:135
-#, python-format
-msgid "Importing complete. %(num)d cards imported from %(file)s.\n"
+#, fuzzy, python-format
+msgid "Importing complete. %(num)d facts imported from %(file)s.\n"
 msgstr "Importação completa. %(num)d cards importados de %(file)s.\n"
 
 #: ui/importing.py:123
@@ -1858,7 +1863,7 @@ msgstr "Carregando deck..."
 msgid "Loading graphs (may take time)..."
 msgstr "Carregando gráficos (pode levar um tempo)..."
 
-#: forms/getshared.py:68
+#: forms/getshared.py:70
 #, fuzzy
 msgid "Loading..."
 msgstr "Carregando deck..."
@@ -1903,8 +1908,7 @@ msgstr "Propriedades do Modelo"
 msgid "Models && Priorities"
 msgstr "Modelos && Prioridades"
 
-#: ui/cardlist.py:250 ui/cardlist.py:365 ui/getshared.py:131
-#: ui/getshared.py:135
+#: ui/cardlist.py:250 ui/cardlist.py:365
 msgid "Modified"
 msgstr "Modificado"
 
@@ -1985,7 +1989,7 @@ msgstr "Sem tags"
 msgid "Nothing"
 msgstr "opção"
 
-#: ui/getshared.py:101
+#: ui/getshared.py:102
 msgid "Nothing selected."
 msgstr ""
 
@@ -2073,7 +2077,7 @@ msgstr ""
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Por favor instale python-matplotlib para acessar gráficos"
 
-#: ui/getshared.py:204
+#: ui/getshared.py:205
 #, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Atualização completa. Por favor reinicie o Anki"
@@ -2094,7 +2098,7 @@ msgstr "Não permitir duplicatas"
 msgid "Prevent empty entries"
 msgstr "Não permitir entradas vazias"
 
-#: forms/displayproperties.py:351
+#: forms/displayproperties.py:377
 msgid "Preview"
 msgstr ""
 
@@ -2110,7 +2114,7 @@ msgstr ""
 msgid "Previous colour (F7 then F6)"
 msgstr ""
 
-#: ui/main.py:2147
+#: ui/main.py:2148
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2131,19 +2135,19 @@ msgstr "Colocar espaço entre questão e resposta"
 msgid "Question"
 msgstr "Questão"
 
-#: forms/displayproperties.py:334
+#: forms/displayproperties.py:360
 msgid "Question alignment"
 msgstr "Alinhamento da questão"
 
-#: forms/displayproperties.py:336
+#: forms/displayproperties.py:362
 msgid "Question colour"
 msgstr "Cor da questão"
 
-#: forms/displayproperties.py:330
+#: forms/displayproperties.py:356
 msgid "Question font"
 msgstr "Fonte da questão"
 
-#: forms/displayproperties.py:335
+#: forms/displayproperties.py:361
 msgid "Question size"
 msgstr "Tamanho da questão"
 
@@ -2164,7 +2168,7 @@ msgstr "Gravar áudio (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Gravando...<br>Tempo: %0.1f"
 
-#: ui/cardlist.py:459 ui/main.py:1890
+#: ui/cardlist.py:459 ui/main.py:1891
 #, python-format
 msgid "Redo %s"
 msgstr "Refazer %s"
@@ -2267,7 +2271,7 @@ msgstr "Salvar quando fechar"
 msgid "Search"
 msgstr ""
 
-#: forms/getshared.py:64 forms/share.py:71
+#: forms/getshared.py:66 forms/share.py:71
 msgid "Search:"
 msgstr ""
 
@@ -2321,7 +2325,7 @@ msgstr "Mostrar divisor entre questão e resposta"
 msgid "Show next time before answer"
 msgstr "Mostrar próximo tempo antes de responder"
 
-#: forms/displayproperties.py:349
+#: forms/displayproperties.py:375
 msgid "Show preview"
 msgstr "Mostrar preview"
 
@@ -2417,7 +2421,7 @@ msgstr "Sincronização"
 msgid "Synchronize this deck"
 msgstr "Sincronizar este deck"
 
-#: ui/main.py:1680 ui/main.py:1682
+#: ui/main.py:1681 ui/main.py:1683
 msgid "Syncing Media..."
 msgstr "Sincronizando Mídia..."
 
@@ -2432,7 +2436,7 @@ msgstr ""
 msgid "Syncing failed: %(a)s"
 msgstr "Sincronização falhou: %(a)s"
 
-#: ui/main.py:2170
+#: ui/main.py:2171
 msgid "Tag Cards"
 msgstr ""
 
@@ -2477,12 +2481,12 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "O protocolo de sincronização mudou. Por favor atualize o Anki."
 
-#: ui/view.py:215
+#: ui/view.py:220
 #, python-format
 msgid "This card was due in %s."
 msgstr "Este card estava programado em %s."
 
-#: ui/view.py:242
+#: ui/view.py:247
 msgid "This card will appear again later."
 msgstr "Este card aparecerá novamente mais tarde."
 
@@ -2544,7 +2548,7 @@ msgstr ""
 "%s\n"
 "Você precisa remover a fonte primeiro."
 
-#: ui/main.py:2134
+#: ui/main.py:2135
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2562,7 +2566,7 @@ msgstr ""
 "<b>Esta operação não pode ser desfeita.</b><br>\n"
 "Prosseguir?"
 
-#: ui/main.py:2161
+#: ui/main.py:2162
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2582,7 +2586,7 @@ msgstr ""
 "<b>Esta operação não pode ser desfeita.</b><br>\n"
 "Considere fazer um backup do seu diretório de mídia primeiro.."
 
-#: ui/getshared.py:131 ui/getshared.py:135
+#: ui/getshared.py:132 ui/getshared.py:136
 #, fuzzy
 msgid "Title"
 msgstr "&Arquivo"
@@ -2619,7 +2623,7 @@ msgstr "Digite a resposta e aperte enter"
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:66 ui/getshared.py:159
+#: ui/getshared.py:66 ui/getshared.py:160
 #, fuzzy
 msgid "Unable to connect to server."
 msgstr "Não foi possível encontrar o servidor"
@@ -2681,7 +2685,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "Sublinhado (Ctrl+u)"
 
-#: ui/cardlist.py:453 ui/main.py:1884
+#: ui/cardlist.py:453 ui/main.py:1885
 #, python-format
 msgid "Undo %s"
 msgstr "Desfazer %s"
@@ -2690,7 +2694,7 @@ msgstr "Desfazer %s"
 msgid "Update complete. Please restart Anki."
 msgstr "Atualização completa. Por favor reinicie o Anki"
 
-#: ui/main.py:1924
+#: ui/main.py:1925
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2700,15 +2704,15 @@ msgstr ""
 " - você pode continuar estudando\n"
 " - por favor não feche isto"
 
-#: forms/displayproperties.py:343
+#: forms/displayproperties.py:369
 msgid "Use custom colour"
 msgstr "Use cores"
 
-#: forms/displayproperties.py:342 forms/displayproperties.py:346
+#: forms/displayproperties.py:368 forms/displayproperties.py:372
 msgid "Use custom font"
 msgstr "Use fonte"
 
-#: forms/displayproperties.py:341 forms/displayproperties.py:345
+#: forms/displayproperties.py:367 forms/displayproperties.py:371
 msgid "Use custom size"
 msgstr "Use tamanho"
 
@@ -2732,7 +2736,7 @@ msgstr "Esperar muito mais na próxima vez (atalho: 4)"
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr "Esperar mais na próxima vez (atalho: 3)"
 
-#: ui/view.py:238
+#: ui/view.py:243
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "Muito bem! Este card vai aparecer novamente em <b>%(next)s</b>."
@@ -2741,7 +2745,7 @@ msgstr "Muito bem! Este card vai aparecer novamente em <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Gostaria de fazer o download agora?"
 
-#: ui/main.py:1915
+#: ui/main.py:1916
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2752,7 +2756,7 @@ msgstr ""
 "Está %(sec)d segundos %(type)s.\n"
 " Por favor arrume e depois reinicie o Anki."
 
-#: ui/main.py:1668
+#: ui/main.py:1669
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2788,7 +2792,7 @@ msgstr ""
 msgid "days"
 msgstr "dias"
 
-#: ui/main.py:1913
+#: ui/main.py:1914
 msgid "early"
 msgstr "cedo"
 
@@ -2805,7 +2809,7 @@ msgstr "em %s"
 msgid "label"
 msgstr ""
 
-#: ui/main.py:1911
+#: ui/main.py:1912
 msgid "late"
 msgstr ""
 

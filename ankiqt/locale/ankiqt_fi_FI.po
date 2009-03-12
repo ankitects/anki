@@ -1,21 +1,20 @@
 # translation of ankiqt_fi_FI.po to Finnish
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) 2009 Niklas Laxström
+# This file is distributed under the same license as the Anki package.
 #
-# Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>, 2008, 2009.
-# Niklas Laxström <niklas.laxstrom+anki@gmail.com>, 2008.
+# Niklas Laxström <niklas.laxstrom+anki@gmail.com>, 2008, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-11 05:39+0900\n"
-"PO-Revision-Date: 2009-01-18 19:30+0200\n"
-"Last-Translator: Niklas Laxström <niklas.laxstrom+kdetrans@gmail.com>\n"
-"Language-Team: Finnish <kde-i18n-fi-discussion@lists.sourceforge.net>\n"
+"POT-Creation-Date: 2009-03-13 06:25+0900\n"
+"PO-Revision-Date: 2009-03-10 17:15+0200\n"
+"Last-Translator: \n"
+"Language-Team: Finnish <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Lokalize 0.3\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
 #: ui/about.py:12
@@ -53,9 +52,9 @@ msgid ""
 msgstr ""
 "\n"
 "<h1>Ajanotto</h1>\n"
-"Anki pitää kirjaa siitä, kauanko kulutat aikaa vastaamiseen.<br>\n"
-"Aikaa käytetään arvioimaan kertaukseen kuluvaa aikaa,<br>\n"
-"mutta ei korttien aikatauluttamiseen.<br><br>\n"
+"Anki pitää kirjaa siitä, kauanko käytät aikaa vastaamiseen.<br>\n"
+"Sen perusteella arvioidaan kertaamiseen kuluvaa aikaa,<br>\n"
+"mutta se ei vaikuta korttien aikatauluttamiseen.<br><br>\n"
 "Yritä vastata kaikkiin kysymyksiin 10 sekunnin kuluessa.<br>\n"
 "Saat lisätietoja napsauttamalla ajanottoa."
 
@@ -78,11 +77,11 @@ msgstr " * %s muutoksia ei löytynyt."
 msgid " * %s no longer exists."
 msgstr " * %s ei ole enää olemassa."
 
-#: forms/displayproperties.py:344
+#: forms/displayproperties.py:370
 msgid " <b>When editing (overrides above):</b>"
 msgstr " <b>Muokatessa (korvaa yllä olevan):</b>"
 
-#: forms/displayproperties.py:340
+#: forms/displayproperties.py:366
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Kerratessa ja muokatessa:</b>"
 
@@ -92,7 +91,7 @@ msgstr " <b>Kerratessa ja muokatessa:</b>"
 msgid " applied %d modified cards."
 msgstr " päivitettiin %d muutettua korttia."
 
-#: ui/main.py:2184
+#: ui/main.py:2185
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -104,7 +103,7 @@ msgstr ""
 #: ui/cardlist.py:858
 #, python-format
 msgid "%(a)d of %(b)d facts updated"
-msgstr ""
+msgstr " %(a)d faktaa %(b)d faktasta päivitetty"
 
 #: ui/deckproperties.py:105
 #, python-format
@@ -113,7 +112,7 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d fakta]"
 msgstr[1] "%(name)s [%(facts)d faktaa]"
 
-#: ui/main.py:1808
+#: ui/main.py:1809
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(cards)d korttia, joista %(due)d erääntynyt) – %(title)s"
@@ -232,7 +231,6 @@ msgid "&Forum..."
 msgstr "&Keskustelupalsta..."
 
 #: forms/cardlist.py:233
-#, fuzzy
 msgid "&Generate Cards..."
 msgstr "Luo &kortteja..."
 
@@ -249,9 +247,8 @@ msgid "&Graphs..."
 msgstr "&Kuvaajat..."
 
 #: forms/cardlist.py:252
-#, fuzzy
 msgid "&Guide..."
-msgstr "&Uusi..."
+msgstr "&Opas..."
 
 #: forms/cardlist.py:228 forms/main.py:892
 msgid "&Help"
@@ -290,9 +287,8 @@ msgid "&Mark Fact"
 msgstr "&Merkitse fakta"
 
 #: forms/main.py:905
-#, fuzzy
 msgid "&New"
-msgstr "&Uusi..."
+msgstr "&Uusi"
 
 #: forms/cardlist.py:243
 msgid "&Next Card"
@@ -328,7 +324,7 @@ msgstr "&Ilmoita virheestä..."
 
 #: forms/cardlist.py:234
 msgid "&Reschedule..."
-msgstr ""
+msgstr "&Ajasta uudelleen..."
 
 #: forms/main.py:911
 msgid "&Save"
@@ -340,7 +336,7 @@ msgstr "&Asetukset"
 
 #: forms/main.py:979
 msgid "&Study Options..."
-msgstr "&Harjoitusasetukset..."
+msgstr "&Kertausasetukset..."
 
 #: forms/main.py:949
 msgid "&Suspend Fact"
@@ -357,7 +353,7 @@ msgstr "&Kumoa"
 #: ui/cardlist.py:372
 #, python-format
 msgid "'%s'"
-msgstr ""
+msgstr "’%s’"
 
 #: ui/cardlist.py:226
 msgid "(new card)"
@@ -417,26 +413,23 @@ msgstr ""
 
 #: ui/cardlist.py:357
 msgid "<Tag filter>"
-msgstr ""
+msgstr "Tägisuodin"
 
 #: forms/deckproperties.py:327
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Ohje</a>"
 
 #: ui/main.py:1219
-#, fuzzy
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr "<a href=py:miss>Puuttuva Kanji</a><br>"
 
 #: ui/main.py:1221
-#, fuzzy
 msgid "<a href=py:non>Non-jouyou</a><br>"
-msgstr "<a href=py:miss>Puuttuva Kanji</a><br>"
+msgstr "<a href=py:non>Ei-jouyou</a><br>"
 
 #: ui/main.py:1220
-#, fuzzy
 msgid "<a href=py:seen>Seen</a><br>"
-msgstr "<a href=py:miss>Puuttuva Kanji</a><br>"
+msgstr "<a href=py:seen>Nähdyt</a><br>"
 
 #: forms/deckproperties.py:364
 msgid "<b>1: Again (Mature)</b>"
@@ -468,7 +461,7 @@ msgstr "<b>Vastaus</b>"
 
 #: ui/modelchooser.py:50
 msgid "<b>Cards</b>:"
-msgstr "<b>Kortit</b>:"
+msgstr "<b>Kortit</b>"
 
 #: forms/exporting.py:55
 msgid "<b>Export format</b>:"
@@ -500,7 +493,7 @@ msgstr "<b>Vähimmäisetäisyys</b>"
 
 #: ui/modelchooser.py:25
 msgid "<b>Model</b>:"
-msgstr "<b>Malli</b>:"
+msgstr "<b>Malli</b>"
 
 #: forms/modelproperties.py:286 forms/modelproperties.py:299
 #: forms/modelproperties.py:312
@@ -508,9 +501,8 @@ msgid "<b>Name</b>"
 msgstr "<b>Nimi</b>"
 
 #: forms/changemodel.py:77
-#, fuzzy
 msgid "<b>New Model</b>:"
-msgstr "<b>Malli</b>:"
+msgstr "<b>Uusi malli</b>:"
 
 #: forms/main.py:885
 msgid "<b>New cards per day:</b>"
@@ -521,9 +513,8 @@ msgid "<b>New day starts at</b>"
 msgstr "<b>Uusi päivä alkaa kello</b>"
 
 #: forms/changemodel.py:75
-#, fuzzy
 msgid "<b>Old Model</b>:"
-msgstr "<b>Malli</b>:"
+msgstr "<b>Vanha malli</b>:"
 
 #: forms/modelproperties.py:297 forms/modelproperties.py:310
 msgid "<b>Options</b>"
@@ -557,7 +548,7 @@ msgstr "<b>Jäädytetty</b>"
 msgid "<b>Tags</b>"
 msgstr "<b>Tägit</b>"
 
-#: ui/getshared.py:105
+#: ui/getshared.py:106
 #, python-format
 msgid ""
 "<b>Title</b>: %(title)s<br>\n"
@@ -725,7 +716,7 @@ msgstr "<h1>Jäädytettävät tägit</h1>"
 
 #: ui/main.py:1025
 msgid "<h1>Study Options</h1>"
-msgstr "<h1>Harjoitusasetukset</h1>"
+msgstr "<h1>Kertaustilanne</h1>"
 
 #: forms/deckproperties.py:339
 msgid "<h1>Synchronisation</h1>"
@@ -746,6 +737,10 @@ msgid ""
 "Choose File -> Save to start autosaving<br>\n"
 "your deck."
 msgstr ""
+"<h1>Tallentamaton pakka</h1>\n"
+"Muokkaat tallentamatonta pakkaa.<br>\n"
+"Valitse Tiedosto→Tallenna, kun haluat <br>\n"
+"pakan tallentuvan automaattisesti."
 
 #: ui/unsaved.py:13
 msgid ""
@@ -754,7 +749,7 @@ msgid ""
 "        changes, or cancel?"
 msgstr "<h1>Tallentamattomia muutoksia</h1> Sinulla on tallentamattomia muutoksia. Haluatko tallentaa, heittää pois vai peruuttaa?"
 
-#: ui/view.py:250
+#: ui/view.py:255
 #, fuzzy
 msgid ""
 "<h1>Welcome to Anki!</h1>\n"
@@ -797,7 +792,6 @@ msgid ""
 "\n"
 "</table>"
 msgstr ""
-"\n"
 "<h1>Tervetuloa!</h1>\n"
 "<p>\n"
 "<table>\n"
@@ -840,7 +834,7 @@ msgstr ""
 "<td width=50>\n"
 "<a href=\"welcome:more\"><img src=\":/icons/khtml_kget.png\"></a>\n"
 "</td>\n"
-"<td valign=middle><h2><a href=\"welcome:more\">Hae lisää pakkoja</a></h2></td>\n"
+"<td valign=middle><h2><a href=\"welcome:more\">Hanki lisää pakkoja</a></h2></td>\n"
 "</tr>\n"
 "\n"
 "</table>"
@@ -885,7 +879,7 @@ msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Piilota</a>"
 
 #: ui/main.py:1071
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<table>\n"
 "<tr><td width=100>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>\n"
@@ -894,13 +888,13 @@ msgid ""
 "</table>"
 msgstr ""
 "<table>\n"
-"<tr><td width=120>Erääntyneitä kertauksia:</td><td align=right><b>%(ret)s</b></td></tr>\n"
+"<tr><td width=100>Kerrattavia:</td><td align=right><b>%(ret)s</b></td></tr>\n"
 "<tr><td>Uusia tänään:</td><td align=right><b>%(new)s</b></td></tr>\n"
 "<tr><td>Uusia yhteensä:</td><td align=right>%(newof)s</td></tr>\n"
 "</table>"
 
 #: ui/main.py:1062
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<table>\n"
 "<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
@@ -912,12 +906,12 @@ msgid ""
 "</table>"
 msgstr ""
 "<table>\n"
-"<tr><td width=80>Kortteja/istunto:</td><td width=50><b>%(repsInSes)s</b></td>\n"
-"<td>%(repsInSesChg)s</td></tr>\n"
-"<tr><td>Kortteja/päivä:</td><td><b>%(repsToday)s</b></td>\n"
-"<td>%(repsTodayChg)s</td></tr>\n"
-"<tr><td>Aikaa/päivä:</td><td><b>%(timeToday)s</b></td>\n"
-"<td>%(timeTodayChg)s</td></tr>\n"
+"<tr><td width=80>Kortteja/istunto:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
+"<td><b>%(repsInSes)s</b></td></tr>\n"
+"<tr><td>Kortteja/päivä:</td><td><b>%(repsTodayChg)s</b></td>\n"
+"<td><b>%(repsToday)s</b></td></tr>\n"
+"<tr><td>Aikaa/päivä:</td><td><b>%(timeTodayChg)s</b></td>\n"
+"<td><b>%(timeToday)s</b></td></tr>\n"
 "</table>"
 
 #: forms/about.py:41
@@ -942,11 +936,11 @@ msgstr "Lisää"
 
 #: ui/addcards.py:56
 msgid "Add (shortcut: command+return)"
-msgstr ""
+msgstr "Lisää (pikanäppäin command+return)"
 
 #: ui/addcards.py:58
 msgid "Add (shortcut: ctrl+return)"
-msgstr ""
+msgstr "Lisää (pikanäppäin: Ctrl+Return)"
 
 #: forms/addcards.py:69
 msgid "Add Items"
@@ -978,7 +972,7 @@ msgstr "Lisää ääni (F4)"
 
 #: forms/preferences.py:229
 msgid "Add hidden char to text (fixes Thai on OSX)"
-msgstr "Lisää piilotettuja merkkejä tekstitiedostoihin (korjaa Thain OSX:llä)"
+msgstr "Lisää piilotettuja merkkejä teksteihin (korjaa Thain OSX:llä)"
 
 #: ui/modelchooser.py:170
 #, python-format
@@ -1055,7 +1049,7 @@ msgstr ""
 "<br>\n"
 "Jos se ei korjaa ongelmaa, liitä seuraavat tiedot virheraporttiin:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2159 forms/main.py:872 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2160 forms/main.py:872 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1073,19 +1067,19 @@ msgstr ""
 msgid "Answer"
 msgstr "Vastaus"
 
-#: forms/displayproperties.py:337
+#: forms/displayproperties.py:363
 msgid "Answer alignment"
 msgstr "Keskitys"
 
-#: forms/displayproperties.py:332
+#: forms/displayproperties.py:358
 msgid "Answer colour"
 msgstr "Väri"
 
-#: forms/displayproperties.py:333
+#: forms/displayproperties.py:359
 msgid "Answer font"
 msgstr "Vastauksen kirjasin"
 
-#: forms/displayproperties.py:331
+#: forms/displayproperties.py:357
 msgid "Answer size"
 msgstr "Kirjasinkoko"
 
@@ -1097,10 +1091,9 @@ msgstr "Koko sovelluksen asetukset."
 msgid "Applying reply..."
 msgstr "Päivitetään paikallisia tietoja..."
 
-#: forms/displayproperties.py:338
-#, fuzzy
+#: forms/displayproperties.py:364
 msgid "Background colour"
-msgstr "Edustaväri (Ctrl+r)"
+msgstr "Taustaväri"
 
 #: ui/facteditor.py:108
 msgid "Bold text (Ctrl+b)"
@@ -1108,7 +1101,7 @@ msgstr "Lihavoi (Ctrl+b)"
 
 #: ui/preferences.py:30
 msgid "Brazillian Portuguese"
-msgstr ""
+msgstr "brasilianportugali"
 
 #: ui/main.py:81
 #, python-format
@@ -1122,9 +1115,8 @@ msgstr ""
 "%s"
 
 #: ui/cardlist.py:421
-#, fuzzy
 msgid "Building Index..."
-msgstr "Ladataan pakkaa..."
+msgstr "Luodaan pikahakuluetteloa..."
 
 #: forms/main.py:964
 msgid "C&ram..."
@@ -1135,19 +1127,18 @@ msgid "Cache LaTeX"
 msgstr "Luo välimuisti LaTeX-merkinnöistä"
 
 #: ui/cardlist.py:759
-#, fuzzy
 msgid "Can only change one model at a time."
-msgstr "Mallineiden muuttaminen onnistuu vain yhdessä mallissa."
+msgstr "Voit muuttaa vain yhtä mallia kerrallaan."
 
 #: ui/cardlist.py:723
 msgid "Can only operate on one model at a time."
-msgstr ""
+msgstr "Vain yhtä mallia voi käsitellä kerrallaan."
 
 #: ui/lookup.py:23
 msgid "Can't look up a selection with a newline."
 msgstr "Ei voida etsiä valintaa, joka sisältää rivinvaihdon."
 
-#: ui/main.py:2174
+#: ui/main.py:2175
 msgid "Cancel"
 msgstr "Peruuta"
 
@@ -1165,11 +1156,11 @@ msgstr "Kortti %d"
 msgid "Card Templates"
 msgstr "Korttimallineet"
 
-#: forms/displayproperties.py:329
+#: forms/displayproperties.py:355
 msgid "Card:"
 msgstr "Kortti:"
 
-#: forms/displayproperties.py:339
+#: forms/displayproperties.py:365
 msgid "Cards"
 msgstr "Kortit"
 
@@ -1182,19 +1173,17 @@ msgid "Change"
 msgstr "Muuta"
 
 #: ui/cardlist.py:1020
-#, fuzzy, python-format
+#, python-format
 msgid "Change %s to:"
-msgstr "Vaihda &mallinetta..."
+msgstr "%s →"
 
 #: forms/cardlist.py:253
-#, fuzzy
 msgid "Change &Model..."
-msgstr "Vaihda &mallinetta..."
+msgstr "Vaihda &mallia..."
 
 #: ui/cardlist.py:766 forms/changemodel.py:74
-#, fuzzy
 msgid "Change Model"
-msgstr "Vaihda &mallinetta..."
+msgstr "Vaihda mallia"
 
 #: forms/main.py:961
 msgid "Check Database..."
@@ -1213,8 +1202,9 @@ msgid "Chinese - Simplified"
 msgstr ""
 
 #: ui/preferences.py:32
+#, fuzzy
 msgid "Chinese - Traditional"
-msgstr ""
+msgstr "perinteinen kiina"
 
 #: forms/importing.py:118
 msgid "Choose &file..."
@@ -1222,7 +1212,7 @@ msgstr "Valitse &tiedosto..."
 
 #: ui/facteditor.py:185
 msgid "Choose colour (F7 then F5)"
-msgstr ""
+msgstr "Valitse väri (F7 ja sitten F5)"
 
 #: ui/exporting.py:66
 msgid "Choose file to export to"
@@ -1248,7 +1238,7 @@ msgstr "Piilota Anki napsauttamalla"
 msgid "Click to show Anki"
 msgstr "Näytä Anki napsauttamalla"
 
-#: ui/addcards.py:63 forms/displayproperties.py:350
+#: ui/addcards.py:63 forms/displayproperties.py:376
 msgid "Close"
 msgstr "Sulje"
 
@@ -1258,12 +1248,12 @@ msgstr "Avoinna olevan kortin tiedot katoavat. Haluatko sulkea ikkunan?"
 
 #: ui/facteditor.py:261
 msgid "Cloze (F9)"
-msgstr ""
+msgstr "Sulje (F9)"
 
 #: ui/modelproperties.py:303
 #, python-format
 msgid "Compare with field '%s'"
-msgstr ""
+msgstr "Vertaa kenttään ”%s”"
 
 #: ui/sync.py:66
 msgid "Connecting..."
@@ -1274,9 +1264,8 @@ msgid "Continue &Reviewing"
 msgstr "Jatka &kertaamista"
 
 #: forms/main.py:883
-#, fuzzy
 msgid "Continue Reviewing"
-msgstr "Jatka &kertaamista"
+msgstr "Jatka kertaamista"
 
 #: ui/modelchooser.py:176
 #, python-format
@@ -1342,9 +1331,8 @@ msgid "Ctrl+F"
 msgstr "Ctrl+F"
 
 #: ui/facteditor.py:310
-#, fuzzy
 msgid "Ctrl+F9"
-msgstr "Ctrl+F"
+msgstr "Ctrl+F9"
 
 #: forms/cardlist.py:248
 msgid "Ctrl+Home"
@@ -1450,7 +1438,7 @@ msgstr "Mukauta synkronointia, ajastusta, prioriteetteja ja malleja."
 msgid "Czech"
 msgstr "tšekki"
 
-#: ui/main.py:2155
+#: ui/main.py:2156
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1485,7 +1473,7 @@ msgstr "Poista"
 msgid "Delete Cards"
 msgstr "Poista kortit"
 
-#: ui/main.py:2172
+#: ui/main.py:2173
 msgid "Delete Refs"
 msgstr "Poista viittaukset"
 
@@ -1515,12 +1503,11 @@ msgstr "Ulkoasu"
 
 #: forms/main.py:934
 msgid "Documentation"
-msgstr ""
+msgstr "Ohjeet"
 
 #: ui/modelproperties.py:302
-#, fuzzy
 msgid "Don't ask me to type in the answer"
-msgstr "Vastaus kirjoittamalla"
+msgstr "Älä pyydä vastausta kirjoittamalla"
 
 #: ui/getshared.py:36
 msgid "Download Shared Deck"
@@ -1528,6 +1515,10 @@ msgstr ""
 
 #: ui/getshared.py:38
 msgid "Download Shared Plugin"
+msgstr ""
+
+#: ui/getshared.py:132 ui/getshared.py:136
+msgid "Downloads"
 msgstr ""
 
 #: ui/cardlist.py:48 ui/cardlist.py:258 ui/cardlist.py:366 ui/graphs.py:145
@@ -1631,30 +1622,30 @@ msgstr "F5"
 
 #: ui/facteditor.py:187
 msgid "F7, F5"
-msgstr ""
+msgstr "F7, F5"
 
 #: ui/facteditor.py:164
 msgid "F7, F6"
-msgstr ""
+msgstr "F7, F6"
 
 #: ui/facteditor.py:140
 msgid "F7, F7"
-msgstr ""
+msgstr "F7, F7"
 
 #: ui/facteditor.py:175
 msgid "F7, F8"
-msgstr ""
+msgstr "F7, F8"
 
 #: ui/facteditor.py:256
 msgid "F9"
 msgstr "F9"
 
-#: ui/getshared.py:131
+#: ui/getshared.py:132
 #, fuzzy
 msgid "Facts"
 msgstr "&Fakta"
 
-#: ui/main.py:1702
+#: ui/main.py:1703
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Median lähettäminen epäonnistui. Aja Työkalut→Aputoiminnot→Tarkista mediatietokanta."
 
@@ -1686,22 +1677,21 @@ msgstr "Tiedoston <b>%d.</b> kenttä on:"
 msgid "Field mapping"
 msgstr "Kenttäliitokset"
 
-#: ui/cardlist.py:830 forms/changemodel.py:79 forms/displayproperties.py:347
+#: ui/cardlist.py:830 forms/changemodel.py:79 forms/displayproperties.py:373
 msgid "Fields"
 msgstr "Kentät"
 
 #: forms/findreplace.py:61
-#, fuzzy
 msgid "Find"
-msgstr "&Hae"
+msgstr "Etsi"
 
 #: forms/cardlist.py:255
 msgid "Find and Re&place..."
-msgstr ""
+msgstr "&Etsi ja korvaa..."
 
 #: ui/cardlist.py:834 forms/findreplace.py:60
 msgid "Find and Replace"
-msgstr ""
+msgstr "Etsi ja korvaa"
 
 #: ui/preferences.py:34
 msgid "Finnish"
@@ -1711,7 +1701,7 @@ msgstr "suomi"
 msgid "First Answered"
 msgstr "Ensikertaa vastatut kortit"
 
-#: forms/displayproperties.py:328
+#: forms/displayproperties.py:354
 msgid "Fonts & Colours"
 msgstr "Kirjasimet ja värit"
 
@@ -1728,9 +1718,8 @@ msgid "Generate Cards"
 msgstr "Korttien luonti"
 
 #: ui/cardlist.py:739
-#, fuzzy
 msgid "Generating Cards..."
-msgstr "Luo &kortteja..."
+msgstr "Luodaan kortteja..."
 
 #: ui/preferences.py:36
 msgid "German"
@@ -1757,7 +1746,7 @@ msgstr "HTML-muokkain"
 msgid "Hard"
 msgstr "Vaikea"
 
-#: ui/addcards.py:67 forms/displayproperties.py:348 forms/main.py:889
+#: ui/addcards.py:67 forms/displayproperties.py:374 forms/main.py:889
 msgid "Help"
 msgstr "Ohje"
 
@@ -1795,8 +1784,8 @@ msgid "Import options"
 msgstr "Tuonnin asetukset"
 
 #: ui/importing.py:135
-#, python-format
-msgid "Importing complete. %(num)d cards imported from %(file)s.\n"
+#, fuzzy, python-format
+msgid "Importing complete. %(num)d facts imported from %(file)s.\n"
 msgstr "Tuonti on valmis. %(num)d korttia tuotiin tiedostosta %(file)s.\n"
 
 #: ui/importing.py:123
@@ -1820,8 +1809,9 @@ msgid "Interval"
 msgstr "Kertausvälit"
 
 #: ui/cardlist.py:849
+#, fuzzy
 msgid "Invalid regular expression."
-msgstr ""
+msgstr "Säännöllinen lauseke on virheellinen."
 
 #: ui/preferences.py:37
 msgid "Italian"
@@ -1840,19 +1830,16 @@ msgid "Korean"
 msgstr "korea"
 
 #: ui/facteditor.py:274
-#, fuzzy
 msgid "Latex (Ctrl+l then l)"
-msgstr "Latex (Ctrl+l, l)"
+msgstr "Latex (Ctrl+l ja sitten l)"
 
 #: ui/facteditor.py:285
-#, fuzzy
 msgid "Latex equation (Ctrl+l then e)"
-msgstr "Latex-yhtälö (Ctrl+l, e)"
+msgstr "Latex-yhtälö (Ctrl+l ja sitten e)"
 
 #: ui/facteditor.py:296
-#, fuzzy
 msgid "Latex math environment (Ctrl+l then m)"
-msgstr "Latex-matematiikkaympäristö (Ctrl+l, m)"
+msgstr "Latex-matematiikkaympäristö (Ctrl+l ja sitten m)"
 
 #: ui/main.py:1412
 msgid "Loading deck..."
@@ -1860,9 +1847,9 @@ msgstr "Ladataan pakkaa..."
 
 #: ui/main.py:1265
 msgid "Loading graphs (may take time)..."
-msgstr "Ladataa graafeja..."
+msgstr "Luodaan kuvaajia..."
 
-#: forms/getshared.py:68
+#: forms/getshared.py:70
 #, fuzzy
 msgid "Loading..."
 msgstr "Ladataan pakkaa..."
@@ -1907,14 +1894,13 @@ msgstr "Mallin ominaisuudet"
 msgid "Models && Priorities"
 msgstr "Malli ja prioriteetit"
 
-#: ui/cardlist.py:250 ui/cardlist.py:365 ui/getshared.py:131
-#: ui/getshared.py:135
+#: ui/cardlist.py:250 ui/cardlist.py:365
 msgid "Modified"
 msgstr "Muokkausaika"
 
 #: forms/main.py:888
 msgid "More>>"
-msgstr "Lisää"
+msgstr "Lisäasetukset"
 
 #: forms/modelproperties.py:293 forms/modelproperties.py:306
 msgid "Move &Up"
@@ -1950,11 +1936,11 @@ msgstr "Nimi palvelimella: "
 
 #: ui/facteditor.py:173
 msgid "Next colour (F7 then F8)"
-msgstr ""
+msgstr "Seuraava väri (F7 ja sitten F8)"
 
 #: ui/facteditor.py:724
 msgid "Next field must be blank."
-msgstr ""
+msgstr "Seuraavan kentän on oltava tyhjä."
 
 #: ui/main.py:1405 ui/main.py:1452
 msgid "No cards matched the provided tags."
@@ -1986,9 +1972,9 @@ msgstr "Ei tägejä"
 
 #: ui/cardlist.py:1016
 msgid "Nothing"
-msgstr ""
+msgstr "ei mitään"
 
-#: ui/getshared.py:101
+#: ui/getshared.py:102
 msgid "Nothing selected."
 msgstr ""
 
@@ -2063,7 +2049,7 @@ msgstr "Ota ensin toinen malli käyttöön."
 
 #: ui/cardlist.py:705
 msgid "Please enter a valid start and end range."
-msgstr ""
+msgstr "Anna kelvollinen alku ja loppu välille."
 
 #: ui/facteditor.py:830
 msgid ""
@@ -2075,7 +2061,7 @@ msgstr "Nauhoittaminen vaatii <a href=\"http://www.thalictrum.com/software/lame-
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Asenna python-matplotlib, jos haluat käyttää kuvaajia."
 
-#: ui/getshared.py:204
+#: ui/getshared.py:205
 #, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Päivitys on valmis. Käynnistä Anki uudelleen."
@@ -2096,7 +2082,7 @@ msgstr "Estä kaksoiskappaleet"
 msgid "Prevent empty entries"
 msgstr "Estä tyhjät kentät"
 
-#: forms/displayproperties.py:351
+#: forms/displayproperties.py:377
 msgid "Preview"
 msgstr "Esikatselu"
 
@@ -2110,9 +2096,9 @@ msgstr "Esikatsele kortteja"
 
 #: ui/facteditor.py:162
 msgid "Previous colour (F7 then F6)"
-msgstr ""
+msgstr "Edellinen väri (F7 ja sitten F6)"
 
-#: ui/main.py:2147
+#: ui/main.py:2148
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2133,19 +2119,19 @@ msgstr "Erota kysymys ja vastaus välillä"
 msgid "Question"
 msgstr "Kysymys"
 
-#: forms/displayproperties.py:334
+#: forms/displayproperties.py:360
 msgid "Question alignment"
 msgstr "Keskitys"
 
-#: forms/displayproperties.py:336
+#: forms/displayproperties.py:362
 msgid "Question colour"
 msgstr "Väri"
 
-#: forms/displayproperties.py:330
+#: forms/displayproperties.py:356
 msgid "Question font"
 msgstr "Kysymyksen kirjasin"
 
-#: forms/displayproperties.py:335
+#: forms/displayproperties.py:361
 msgid "Question size"
 msgstr "Kirjasinkoko"
 
@@ -2166,7 +2152,7 @@ msgstr "Nauhoita ääni (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Nauhoitetaan...<br>Kesto: %0.1f"
 
-#: ui/cardlist.py:459 ui/main.py:1890
+#: ui/cardlist.py:459 ui/main.py:1891
 #, python-format
 msgid "Redo %s"
 msgstr "Tee uudelleen %s"
@@ -2197,12 +2183,11 @@ msgstr "Toista &kysymyksen ääni"
 
 #: forms/findreplace.py:62
 msgid "Replace"
-msgstr ""
+msgstr "Korvaa"
 
 #: ui/cardlist.py:837
-#, fuzzy
 msgid "Replacing..."
-msgstr "Yhdistetään..."
+msgstr "Korvataan..."
 
 #: ui/cardlist.py:254 ui/cardlist.py:368 ui/graphs.py:151
 msgid "Reps"
@@ -2210,20 +2195,19 @@ msgstr "Kertauksia"
 
 #: ui/cardlist.py:689 forms/reschedule.py:79
 msgid "Reschedule"
-msgstr ""
+msgstr "Ajasta uudelleen"
 
 #: forms/reschedule.py:80
-#, fuzzy
 msgid "Reschedule as new cards"
-msgstr "Lisää ensin kortteja."
+msgstr "Ajasta uudelleen uutena korttina"
 
 #: forms/reschedule.py:81
 msgid "Reschedule with initial interval in range:"
-msgstr ""
+msgstr "Ajasta uudelleen kertausvälillä:"
 
 #: forms/cardlist.py:251
 msgid "Reverse &Order"
-msgstr ""
+msgstr "Käänteinen &järjesteys"
 
 #: forms/main.py:887
 msgid "Review"
@@ -2235,7 +2219,7 @@ msgstr "Kertaamisaika"
 
 #: forms/main.py:913
 msgid "S&ync"
-msgstr ""
+msgstr "S&ynkronoi"
 
 #: ui/sound.py:50
 #, python-format
@@ -2244,7 +2228,7 @@ msgstr "Tallennetaan hiljaisuutta...<br>Kesto: %0.1f"
 
 #: forms/preferences.py:223
 msgid "Save && Sync"
-msgstr "Tallennus ja synkronisointi"
+msgstr "Tallennus ja synkronointi"
 
 #: forms/main.py:960
 msgid "Save &As..."
@@ -2268,11 +2252,12 @@ msgstr "Tallenna suljettaessa"
 
 #: forms/findreplace.py:63
 msgid "Search"
-msgstr ""
+msgstr "Etsi"
 
-#: forms/getshared.py:64 forms/share.py:71
+#: forms/getshared.py:66 forms/share.py:71
+#, fuzzy
 msgid "Search:"
-msgstr ""
+msgstr "Etsi"
 
 #: forms/cardlist.py:235
 msgid "Select &All"
@@ -2284,7 +2269,7 @@ msgstr "Valitse &faktat"
 
 #: ui/facteditor.py:139
 msgid "Set colour (F7 then F7)"
-msgstr ""
+msgstr "Aseta väri (F7 ja sitten F7)"
 
 #: forms/main.py:984
 #, fuzzy
@@ -2314,7 +2299,7 @@ msgstr "Näytä vastaus"
 
 #: ui/facteditor.py:231
 msgid "Show advanced options"
-msgstr ""
+msgstr "Näytä lisäasetukset"
 
 #: forms/preferences.py:208
 msgid "Show divider between question and answer"
@@ -2322,15 +2307,15 @@ msgstr "Näytä jakaja kysymyksen ja vastauksen välissä"
 
 #: forms/preferences.py:210
 msgid "Show next time before answer"
-msgstr "Näytä seuraava aika ennen vastausta"
+msgstr "Näytä aika seuraavaan kertaukseen vastatessa"
 
-#: forms/displayproperties.py:349
+#: forms/displayproperties.py:375
 msgid "Show preview"
 msgstr "Näytä esikatselu"
 
 #: forms/preferences.py:227
 msgid "Show study options on deck load"
-msgstr ""
+msgstr "Näytä kertausasetukset, kun pakka on ladattu"
 
 #: forms/main.py:873
 msgid "Show the answer (shortcut key: space or enter)"
@@ -2398,11 +2383,11 @@ msgstr "Jäädytä"
 
 #: ui/preferences.py:42
 msgid "Swedish"
-msgstr ""
+msgstr "ruotsi"
 
 #: ui/sync.py:114
 msgid "Sync complete."
-msgstr "Synrkronisointi on valmis."
+msgstr "Synkronointi on valmis."
 
 #: forms/preferences.py:221
 msgid "Sync on close"
@@ -2420,7 +2405,7 @@ msgstr "Synkronointi"
 msgid "Synchronize this deck"
 msgstr "Synkronoi tämä pakka"
 
-#: ui/main.py:1680 ui/main.py:1682
+#: ui/main.py:1681 ui/main.py:1683
 msgid "Syncing Media..."
 msgstr "Synkronoidaan mediaa..."
 
@@ -2429,13 +2414,15 @@ msgid ""
 "Syncing failed. Please try again in a few minutes.\n"
 "If the problem persists, please report it on the forum."
 msgstr ""
+"Synkronointi epäonnistui. Yritä uudelleen hetken kuluttua.\n"
+"Jos ongelma toistuu, ilmoita siitä ohjelmiston keskustelualueella."
 
 #: ui/sync.py:161
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Synkronointi epäonnistui: %(a)s"
 
-#: ui/main.py:2170
+#: ui/main.py:2171
 msgid "Tag Cards"
 msgstr "Tägää kortteja"
 
@@ -2457,16 +2444,15 @@ msgstr "Päntättävät tägit:"
 
 #: ui/cardlist.py:1092
 msgid "Targets must be unique."
-msgstr ""
+msgstr "Kohteiden pitää olla ainutkertaisia."
 
 #: forms/changemodel.py:78
-#, fuzzy
 msgid "Templates"
-msgstr "Korttimallineet"
+msgstr "Mallineet"
 
 #: forms/changemodel.py:76 forms/share.py:76
 msgid "TextLabel"
-msgstr "TextLabel"
+msgstr ""
 
 #: ui/addcards.py:113
 msgid ""
@@ -2480,12 +2466,12 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Synkronointiprotokolla on muuttunut. Anki täytyy päivittää."
 
-#: ui/view.py:215
+#: ui/view.py:220
 #, python-format
 msgid "This card was due in %s."
 msgstr "Aikaa kortin erääntymiseen olisi ollut %s."
 
-#: ui/view.py:242
+#: ui/view.py:247
 msgid "This card will appear again later."
 msgstr "Tämä kortti näytetään uudelleen myöhemmin."
 
@@ -2546,7 +2532,7 @@ msgstr ""
 "%s\n"
 "Poista lähde ensin."
 
-#: ui/main.py:2134
+#: ui/main.py:2135
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2564,7 +2550,7 @@ msgstr ""
 "<b>Tämä operaatio on peruuttamaton</b><br>\n"
 "Haluatko jatkaa?"
 
-#: ui/main.py:2161
+#: ui/main.py:2162
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2584,7 +2570,7 @@ msgstr ""
 "<b>Tämä operaatio on peruuttamaton</b><br>\n"
 "Mediahakemistosta kannattaa tehdä ensin varmuuskopio."
 
-#: ui/getshared.py:131 ui/getshared.py:135
+#: ui/getshared.py:132 ui/getshared.py:136
 #, fuzzy
 msgid "Title"
 msgstr "&Tiedosto"
@@ -2601,7 +2587,7 @@ msgstr "Tämän päivän kertaukset on tehty"
 
 #: ui/main.py:1171
 msgid "Toggle Toolbar"
-msgstr ""
+msgstr "Näytä työkalurivi"
 
 #: ui/sync.py:106
 msgid "Transferring payload..."
@@ -2609,7 +2595,7 @@ msgstr "Siirretään hyötykuormaa..."
 
 #: forms/findreplace.py:64
 msgid "Treat input as regular expression"
-msgstr ""
+msgstr "Tulkitse syöte säännöllisenä lausekkeena"
 
 #: ui/main.py:509
 msgid "Type in the answer and hit enter"
@@ -2619,7 +2605,7 @@ msgstr "Kirjoita vastaus ja paina enter"
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:66 ui/getshared.py:159
+#: ui/getshared.py:66 ui/getshared.py:160
 #, fuzzy
 msgid "Unable to connect to server."
 msgstr "Palvelimeen ei saatu yhteyttä"
@@ -2681,7 +2667,7 @@ msgstr "Tyhjennä LaTeX-merkintöjen välimuisti"
 msgid "Underline text (Ctrl+u)"
 msgstr "Alleviivaa (Ctrl+u)"
 
-#: ui/cardlist.py:453 ui/main.py:1884
+#: ui/cardlist.py:453 ui/main.py:1885
 #, python-format
 msgid "Undo %s"
 msgstr "Kumoa %s"
@@ -2690,7 +2676,7 @@ msgstr "Kumoa %s"
 msgid "Update complete. Please restart Anki."
 msgstr "Päivitys on valmis. Käynnistä Anki uudelleen."
 
-#: ui/main.py:1924
+#: ui/main.py:1925
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2700,15 +2686,15 @@ msgstr ""
 " - voit jatkaa kertausta\n"
 " - älä sulje tätä ikkunaa"
 
-#: forms/displayproperties.py:343
+#: forms/displayproperties.py:369
 msgid "Use custom colour"
 msgstr "Käytä väriä"
 
-#: forms/displayproperties.py:342 forms/displayproperties.py:346
+#: forms/displayproperties.py:368 forms/displayproperties.py:372
 msgid "Use custom font"
 msgstr "Käytä kirjasinta"
 
-#: forms/displayproperties.py:341 forms/displayproperties.py:345
+#: forms/displayproperties.py:367 forms/displayproperties.py:371
 msgid "Use custom size"
 msgstr "Käytä kirjasinkokoa"
 
@@ -2732,7 +2718,7 @@ msgstr "Odota paljon kauemmin ensikerralla (pikanäppäin: 4)"
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr "Odota kauemmin ensi kerralla (pikanäppäin: 3)"
 
-#: ui/view.py:238
+#: ui/view.py:243
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "Hyvä! Tämän kortin uudelleen ilmestymiseen on aikaa <b>%(next)s</b>."
@@ -2741,7 +2727,7 @@ msgstr "Hyvä! Tämän kortin uudelleen ilmestymiseen on aikaa <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Haluatko ladata sen nyt?"
 
-#: ui/main.py:1915
+#: ui/main.py:1916
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2752,7 +2738,7 @@ msgstr ""
 "Se on %(sec)d sekuntia %(type)s.\n"
 "Aseta kello oikeaan aikaan ja käynnistä Anki uudelleen."
 
-#: ui/main.py:1668
+#: ui/main.py:1669
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2789,7 +2775,7 @@ msgstr "vastatun kortin jälkeen"
 msgid "days"
 msgstr "päiv."
 
-#: ui/main.py:1913
+#: ui/main.py:1914
 msgid "early"
 msgstr "aikaisessa"
 
@@ -2806,7 +2792,7 @@ msgstr "%s"
 msgid "label"
 msgstr ""
 
-#: ui/main.py:1911
+#: ui/main.py:1912
 msgid "late"
 msgstr "myöhässä"
 
@@ -2842,25 +2828,11 @@ msgstr ""
 #~ msgid "&Get More Decks..."
 #~ msgstr "&Hae lisää pakkoja..."
 
-#~ msgid "123"
-#~ msgstr "123"
-
-#, fuzzy
-#~ msgid "<Select Tag>"
-#~ msgstr "Poista tägit"
-
-#, fuzzy
-#~ msgid "<b>Target Card Template</b>:"
-#~ msgstr "<h1>Korttimallit</h1>"
-
 #~ msgid "<h1>Welcome Back!</h1>"
 #~ msgstr "<h1>Tervetuloa takaisin</h1>"
 
 #~ msgid "All tags"
 #~ msgstr "Kaikki tägit"
-
-#~ msgid "Change &Template..."
-#~ msgstr "Vaihda &mallinetta..."
 
 #~ msgid "Change Template"
 #~ msgstr "Mallineen vaihto"
@@ -2900,9 +2872,6 @@ msgstr ""
 
 #~ msgid "Open On&line..."
 #~ msgstr "Avaa &verkosta..."
-
-#~ msgid "Reset Progress"
-#~ msgstr "Nollaa edistyminen"
 
 #~ msgid "Save and S&ync"
 #~ msgstr "Tallenna ja s&ynkronoi"
