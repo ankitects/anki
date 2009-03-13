@@ -198,6 +198,7 @@ Please do not file a bug report with Anki.<br><br>""")
             if count:
                 self.deck.rebuildCounts()
             self.deck.rebuildQueue()
+            runHook("guiReset")
             self.moveToState("initial")
 
     def moveToState(self, state):

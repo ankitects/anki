@@ -14,6 +14,7 @@ from ankiqt import ui
 import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
 from anki.hooks import addHook
+from sqlalchemy.exceptions import InvalidRequestError
 
 clozeColour = "#0000ff"
 
@@ -38,6 +39,7 @@ class FactEditor(object):
         self.changeTimer = None
         self.lastCloze = None
         addHook("deckClosed", self.deckClosedHook)
+        addHook("guiReset", self.refresh)
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."
@@ -62,6 +64,15 @@ class FactEditor(object):
         self.deck.setUndoBarrier()
         if self.deck.mediaDir(create=False):
             self.initMedia()
+
+    def refresh(self):
+        if self.fact:
+            try:
+                self.deck.s.refresh(self.fact)
+            except InvalidRequestError:
+                # not attached to session yet, add cards dialog will handle
+                return
+            self.setFact(self.fact, check=True)
 
     def focusFirst(self):
         if self.focusTarget:
