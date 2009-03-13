@@ -352,6 +352,8 @@ Please do not file a bug report with Anki.<br><br>""")
             return
         # force refresh of card then remove from session as we update in pure sql
         self.deck.s.refresh(self.currentCard)
+        self.deck.s.refresh(self.currentCard.fact)
+        self.deck.s.refresh(self.currentCard.cardModel)
         self.deck.s.expunge(self.currentCard)
         # answer
         self.deck.answerCard(self.currentCard, quality)
