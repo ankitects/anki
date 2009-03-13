@@ -2108,6 +2108,9 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
             return
         self.s.flush()
         end = self._latestUndoRow()
+        while self.undoStack[-1] is None:
+            # strip off barrier
+            self.undoStack.pop()
         self.undoStack[-1][2] = end
         if self.undoStack[-1][1] == self.undoStack[-1][2]:
             self.undoStack.pop()
