@@ -252,8 +252,8 @@ class View(object):
     ##########################################################################
 
     def drawWelcomeMessage(self):
-        self.main.mainWin.welcomeText.setText(_("""\
-<h1>Welcome to Anki!</h1>
+        self.main.mainWin.welcomeText.setText("""\
+<h1>%(welcome)s</h1>
 <p>
 <table>
 
@@ -261,8 +261,8 @@ class View(object):
 <td width=50>
 <a href="welcome:addfacts"><img src=":/icons/list-add.png"></a>
 </td>
-<td valign=middle><h1><a href="welcome:addfacts">Add material</a></h1>
-Start adding your own material.</td>
+<td valign=middle><h1><a href="welcome:addfacts">%(add)s</a></h1>
+%(start)s</td>
 </tr>
 
 </table>
@@ -274,24 +274,26 @@ Start adding your own material.</td>
 <td>
 <a href="welcome:open"><img src=":/icons/document-open.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:open">Open Local Deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:open">%(local)s</a></h2></td>
 </tr>
 
 <tr>
 <td width=50>
 <a href="welcome:sample"><img src=":/icons/anki.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:sample">Download Shared Deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:sample">%(dl_shared)s</a></h2></td>
 </tr>
 
 <tr>
 <td>
 <a href="welcome:openrem"><img src=":/icons/document-open-remote.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:openrem">Download Personal Deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:openrem">%(dl_personal)s</a></h2></td>
 </tr>
 
-</table>"""))
+</table>""" % \
+	{"welcome":_("Welcome to Anki!"), "add":_("Add material"), "start":_("Start adding your own material."), \
+"local":_("Open Local Deck"), "dl_shared":_("Download Shared Deck"), "dl_personal":_("Download Personal Deck")})
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."
