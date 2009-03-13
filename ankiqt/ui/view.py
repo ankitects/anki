@@ -292,8 +292,12 @@ class View(object):
 </tr>
 
 </table>""" % \
-	{"welcome":_("Welcome to Anki!"), "add":_("Add material"), "start":_("Start adding your own material."), \
-"local":_("Open Local Deck"), "dl_shared":_("Download Shared Deck"), "dl_personal":_("Download Personal Deck")})
+	{"welcome":_("Welcome to Anki!"),
+         "add":_("Add material"),
+         "start":_("Start adding your own material."),
+         "local":_("Open Local Deck"),
+         "dl_shared":_("Download Shared Deck"),
+         "dl_personal":_("Download Personal Deck")})
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."
