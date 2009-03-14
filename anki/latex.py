@@ -57,19 +57,20 @@ def stripLatex(text):
         text = text.replace(match.group(), "")
     return text
 
-def call(*args, **kwargs):
+def call(*args, wait=True, **kwargs):
     try:
         o = subprocess.Popen(*args, **kwargs)
     except OSError:
         # command not found
         return -1
-    while 1:
-        try:
-            ret = o.wait()
-        except OSError:
-            # interrupted system call
-            continue
-        break
+    if wait:
+        while 1:
+            try:
+                ret = o.wait()
+            except OSError:
+                # interrupted system call
+                continue
+            break
     return ret
 
 def latexImgFile(deck, latexCode):
