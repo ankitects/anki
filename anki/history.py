@@ -18,7 +18,7 @@ from anki.db import *
 
 reviewHistoryTable = Table(
     'reviewHistory', metadata,
-    Column('cardId', Integer),
+    Column('cardId', Integer, nullable=False),
     Column('time', Float, nullable=False, default=time.time),
     Column('lastInterval', Float, nullable=False),
     Column('nextInterval', Float, nullable=False),

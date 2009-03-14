@@ -47,7 +47,7 @@ REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
 REV_CARDS_RANDOM = 3
 
-DECK_VERSION = 30
+DECK_VERSION = 31
 
 # parts of the code assume we only have one deck
 decksTable = Table(
@@ -2734,13 +2734,39 @@ where interval < 1""")
             deck.s.statement("""
 delete from reviewHistory where id not in (
 select min(id) from reviewHistory group by cardId, time);""")
-            # add a unique index to prevent them from appearing
-            deck.s.statement("""
-create unique index ix_reviewHistory_unique
-on reviewHistory (cardId, time)""")
-            deck.s.statement("vacuum")
             deck.version = 30
             deck.s.commit()
+        if deck.version < 31:
+            # recreate review history table
+            deck.s.statement("drop index if exists ix_reviewHistory_unique")
+            schema = """
+CREATE TABLE %s (
+cardId INTEGER NOT NULL,
+time NUMERIC(10, 2) NOT NULL,
+lastInterval NUMERIC(10, 2) NOT NULL,
+nextInterval NUMERIC(10, 2) NOT NULL,
+ease INTEGER NOT NULL,
+delay NUMERIC(10, 2) NOT NULL,
+lastFactor NUMERIC(10, 2) NOT NULL,
+nextFactor NUMERIC(10, 2) NOT NULL,
+reps NUMERIC(10, 2) NOT NULL,
+thinkingTime NUMERIC(10, 2) NOT NULL,
+yesCount NUMERIC(10, 2) NOT NULL,
+noCount NUMERIC(10, 2) NOT NULL,
+PRIMARY KEY (cardId, time))"""
+            deck.s.statement(schema % "revtmp")
+            deck.s.statement("""
+insert into revtmp
+select cardId, time, lastInterval, nextInterval, ease, delay, lastFactor,
+nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
+            deck.s.statement("drop table reviewHistory")
+            metadata.create_all(deck.engine)
+            deck.s.statement(
+                "insert into reviewHistory select * from revtmp")
+            deck.s.statement("drop table revtmp")
+            deck.version = 31
+            deck.s.commit()
+            deck.s.statement("vacuum")
         # this check we do regardless of version number since doing it on init
         # seems to crash
         if (deck.s.scalar("pragma page_size") == 1024 or
