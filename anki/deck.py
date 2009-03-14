@@ -2742,6 +2742,7 @@ on reviewHistory (cardId, time)""")
         # seems to crash
         if (deck.s.scalar("pragma page_size") == 1024 or
             deck.s.scalar("pragma legacy_file_format") == 1):
+            deck.s.commit()
             deck.s.execute("pragma page_size = 4096")
             deck.s.execute("pragma legacy_file_format = 0")
             deck.s.scalar("vacuum")
