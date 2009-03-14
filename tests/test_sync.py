@@ -103,7 +103,7 @@ def test_localsync_deck():
     client.sync()
     assert dailyStats(deck2).reps == 1
     assert globalStats(deck2).reps == 1
-    assert deck2.s.scalar("select count(id) from reviewHistory") == 1
+    assert deck2.s.scalar("select count(*) from reviewHistory") == 1
 
 @nose.with_setup(setup_local, teardown)
 def test_localsync_models():
