@@ -826,9 +826,6 @@ where id in %s""" % ids2str(sf))
         frm.setupUi(d)
         self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
                      self.onFindReplaceHelp)
-        frm.type.insertItems(0, [
-            _("Fields"),
-            _("Tags")])
         if not d.exec_():
             return
         n = _("Find and Replace")
@@ -843,7 +840,6 @@ where id in %s""" % ids2str(sf))
             changed = self.deck.findReplace(self.selectedFacts(),
                                   unicode(frm.find.text()),
                                   unicode(frm.replace.text()),
-                                  frm.type.currentIndex(),
                                   frm.re.isChecked())
         except sre_constants.error:
             ui.utils.showInfo(_("Invalid regular expression."),
@@ -859,7 +855,6 @@ where id in %s""" % ids2str(sf))
                 'a': changed,
                 'b': len(sf),
                 }, parent=self)
-
 
     def onFindReplaceHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
