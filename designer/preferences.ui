@@ -98,6 +98,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="showProgress" >
+         <property name="text" >
+          <string>Show information in status bar</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -109,6 +116,16 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
+          <string>Some settings will take effect after you restart Anki.</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -318,7 +335,7 @@
          <item row="2" column="0" >
           <widget class="QLabel" name="label_6" >
            <property name="text" >
-            <string>&lt;h1>Advanced settings&lt;/h1>Some settings require a restart.</string>
+            <string>&lt;h1>Advanced settings&lt;/h1></string>
            </property>
           </widget>
          </item>
@@ -388,6 +405,16 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <widget class="QLabel" name="label_8" >
+         <property name="text" >
+          <string>Some settings will take effect after you restart Anki.</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -411,6 +438,7 @@
   <tabstop>showDivider</tabstop>
   <tabstop>splitQA</tabstop>
   <tabstop>showEstimates</tabstop>
+  <tabstop>showProgress</tabstop>
   <tabstop>saveWhenClosing</tabstop>
   <tabstop>saveAfterEvery</tabstop>
   <tabstop>saveAfterEveryNum</tabstop>
@@ -422,7 +450,9 @@
   <tabstop>syncOnClose</tabstop>
   <tabstop>alternativeTheme</tabstop>
   <tabstop>showTimer</tabstop>
+  <tabstop>showTray</tabstop>
   <tabstop>showStudyOptions</tabstop>
+  <tabstop>addZeroSpace</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

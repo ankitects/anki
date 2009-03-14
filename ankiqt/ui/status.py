@@ -74,7 +74,8 @@ class StatusView(object):
         # remaining & eta
         self.remText = QLabel()
         self.addWidget(self.remText, 0)
-        self.addWidget(self.vertSep(), 0)
+        sep1 = self.vertSep()
+        self.addWidget(sep1, 0)
         self.etaText = QLabel()
         self.etaText.setToolTip(_(
             "<h1>Estimated time</h1>"
@@ -82,7 +83,8 @@ class StatusView(object):
             "at your current pace."))
         self.addWidget(self.etaText, 0)
         # progress&retention
-        self.addWidget(self.vertSep(), 0)
+        sep2 = self.vertSep()
+        self.addWidget(sep2, 0)
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
         vbox.setMargin(0)
@@ -105,13 +107,23 @@ class StatusView(object):
             self.retentionBar.setStyle(self.plastiqueStyle)
         self.addWidget(self.combinedBar, 0)
         # timer
-        self.addWidget(self.vertSep(), 0)
+        sep3 = self.vertSep()
+        self.addWidget(sep3, 0)
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
         self.addWidget(self.timer)
         self.redraw()
         if not self.main.config['showTimer']:
             self.timer.setShown(False)
+        if not self.main.config['showProgress']:
+            self.progressBar.hide()
+            self.retentionBar.hide()
+            self.timer.hide()
+            self.etaText.hide()
+            self.remText.hide()
+            sep1.hide()
+            sep2.hide()
+            sep3.hide()
 
     def addWidget(self, w, stretch=0):
         self.statusbar.addWidget(w, stretch)
