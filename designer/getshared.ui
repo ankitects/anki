@@ -61,6 +61,12 @@
        <layout class="QVBoxLayout" name="verticalLayout_2" >
         <item>
          <widget class="QLabel" name="bottomLabel" >
+          <property name="maximumSize" >
+           <size>
+            <width>430</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text" >
            <string>Loading...</string>
           </property>
