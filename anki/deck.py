@@ -1866,6 +1866,8 @@ Return new path, relative to media dir."""
         s("attach database :path as new", path=newPath)
         s("delete from new.decks")
         s("delete from new.stats")
+        s("delete from new.tags")
+        s("delete from new.cardTags")
         s("insert into new.decks select * from decks")
         s("insert into new.fieldModels select * from fieldModels")
         s("insert into new.modelsDeleted select * from modelsDeleted")
@@ -1879,6 +1881,8 @@ Return new path, relative to media dir."""
         s("insert into new.models select * from models")
         s("insert into new.stats select * from stats")
         s("insert into new.media select * from media")
+        s("insert into new.tags select * from tags")
+        s("insert into new.cardTags select * from cardTags")
         s("detach database new")
         # close ourselves
         self.s.commit()
