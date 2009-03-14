@@ -143,9 +143,11 @@ class AnkiQt(QMainWindow):
                     # hack for matplotlib errors on osx
                     self.pool = ""
                 stdText = _("""\
-An error occurred.<br>
-Please run <b>Tools > Advanced > Check DB</b>.<br>
-<br>
+An error occurred. Please:<p>
+<ol>
+<li><b>Restart Anki</b>.
+<li><b>Tools > Advanced > Check DB</b>.
+</ol>
 If it does not fix the problem, please copy the following<br>
 into a bug report:<br><br>
 """)
