@@ -437,7 +437,7 @@ and priority > 0""", cutoff=cutoff) or 0) / float(period)
     def getPastWorkloadPeriod(self, period):
         cutoff = time.time() - 86400 * period
         return (self.deck.s.scalar("""
-select count(id) from reviewHistory
+select count(*) from reviewHistory
 where time > :cutoff""", cutoff=cutoff) or 0) / float(period)
 
     def getNewPeriod(self, period):
@@ -449,7 +449,7 @@ where created > :cutoff""", cutoff=cutoff) or 0)
     def getFirstPeriod(self, period):
         cutoff = time.time() - 86400 * period
         return (self.deck.s.scalar("""
-select count(id) from reviewHistory
+select count(*) from reviewHistory
 where reps = 1 and time > :cutoff""", cutoff=cutoff) or 0)
 
 # Kanji stats
