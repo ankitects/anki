@@ -2006,6 +2006,7 @@ select id from fields where factId not in (select id from facts)""")
 
     def optimize(self):
         oldSize = os.stat(self.path)[stat.ST_SIZE]
+        self.s.commit()
         self.s.statement("vacuum")
         self.s.statement("analyze")
         newSize = os.stat(self.path)[stat.ST_SIZE]
@@ -2283,6 +2284,7 @@ class DeckStorage(object):
                 initTagTables(deck.s)
             if create:
                 # new-style file format
+                deck.s.commit()
                 deck.s.execute("pragma legacy_file_format = off")
                 deck.s.execute("pragma default_cache_size= 20000")
                 deck.s.execute("vacuum")
@@ -2496,6 +2498,7 @@ order by priority desc, due desc""")
             except:
                 print "failed to upgrade"
             # rebuild with new file format
+            deck.s.commit()
             deck.s.execute("pragma legacy_file_format = off")
             deck.s.execute("vacuum")
             # add views/indices
