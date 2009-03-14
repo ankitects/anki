@@ -87,6 +87,7 @@ class GetShared(QDialog):
             for cc, c in enumerate(cols):
                 txt = unicode(r[c])
                 item = QTableWidgetItem(txt)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self.items[item] = r
                 self.form.table.setItem(rc, cc, item)
         self.form.table.setSortingEnabled(True)
