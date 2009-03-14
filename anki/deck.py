@@ -2279,6 +2279,7 @@ class DeckStorage(object):
             deck.Session = session
             deck.needLock = lock
             deck.s = SessionHelper(s, lock=lock)
+            deck.s.execute("pragma locking_mode = exclusive")
             if ver < 27:
                 initTagTables(deck.s)
             if create:
