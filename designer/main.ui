@@ -1438,6 +1438,9 @@
    <property name="shortcut" >
     <string>Ctrl+S</string>
    </property>
+   <property name="shortcutContext" >
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionSyncdeck" >
    <property name="icon" >
