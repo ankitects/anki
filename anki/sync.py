@@ -843,7 +843,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
 
     def unstuff(self, data):
         "Uncompress and convert to unicode."
-        return simplejson.loads(zlib.decompress(data))
+        return simplejson.loads(unicode(zlib.decompress(data), "utf8"))
 
     def stuff(self, data):
         "Convert into UTF-8 and compress."
