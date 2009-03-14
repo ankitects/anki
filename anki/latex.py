@@ -57,9 +57,9 @@ def stripLatex(text):
         text = text.replace(match.group(), "")
     return text
 
-def call(*args, wait=True, **kwargs):
+def call(argv, wait=True, **kwargs):
     try:
-        o = subprocess.Popen(*args, **kwargs)
+        o = subprocess.Popen(argv, **kwargs)
     except OSError:
         # command not found
         return -1
