@@ -36,14 +36,18 @@ class SplashScreen(object):
         self.splash = QSplashScreen(self.pixmap)
         self.prog = QProgressBar(self.splash)
         self.prog.setMaximum(max)
-        if QApplication.instance().style().objectName() != "plastique":
-            self.prog.setStyle(QStyleFactory.create("plastique"))
+        if (QApplication.instance().style().objectName() != "plastique"):
+            #and sys.platform.startswith("win32")):
+            self.style = QStyleFactory.create("plastique")
+            self.prog.setStyle(self.style)
         self.prog.setStyleSheet("""* {
 color: #ffffff;
-background-color: #0d3048;}""")
+background-color: #061824;
+margin:0px;
+border:0px;
+text-align: center;
+padding: 0px;}""")
         x = 8
-        if sys.platform.startswith("win32"):
-            x += 1
         self.prog.setGeometry(self.splash.width()/10, 8.85*self.splash.height()/10,
                                 x*self.splash.width()/10, self.splash.height()/10)
         self.splash.show()
