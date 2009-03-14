@@ -1996,7 +1996,8 @@ it to your friends.
         if sys.platform == "win32":
             # reuse our process handling code from latex
             anki.latex.call(["explorer", path.encode(
-                sys.getfilesystemencoding())])
+                sys.getfilesystemencoding())],
+                            wait=False)
         else:
             QDesktopServices.openUrl(QUrl("file://" + path))
 
