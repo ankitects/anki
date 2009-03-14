@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>723</width>
-    <height>504</height>
+    <height>513</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -26,9 +26,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>69</y>
+     <y>63</y>
      <width>723</width>
-     <height>415</height>
+     <height>429</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -382,7 +382,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>57</height>
+            <height>60</height>
            </rect>
           </property>
          </widget>
@@ -405,7 +405,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>358</height>
+            <height>369</height>
            </rect>
           </property>
          </widget>
@@ -1162,7 +1162,7 @@
      <x>0</x>
      <y>0</y>
      <width>723</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1324,9 +1324,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>484</y>
+     <y>492</y>
      <width>723</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="sizeGripEnabled" >
@@ -1340,9 +1340,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>23</y>
+     <y>21</y>
      <width>723</width>
-     <height>46</height>
+     <height>42</height>
     </rect>
    </property>
    <property name="orientation" >
@@ -1856,6 +1856,9 @@
    </property>
    <property name="text" >
     <string>&amp;Delete Card</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Del</string>
    </property>
   </action>
   <action name="action_Delete_Fact" >
