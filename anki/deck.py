@@ -2299,6 +2299,7 @@ class DeckStorage(object):
                 DeckStorage._addIndices(deck)
                 deck.s.statement("analyze")
                 deck._initVars()
+                deck.updateTagPriorities()
             else:
                 if backup:
                     DeckStorage.backup(deck.modified, path)
