@@ -1895,6 +1895,7 @@ Return new path, relative to media dir."""
 
     def fixIntegrity(self):
         "Responsibility of caller to call rebuildQueue()"
+        self.resetUndo()
         self.startProgress(12)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
@@ -2087,6 +2088,11 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
 
     def redoAvailable(self):
         return self.undoEnabled and self.redoStack
+
+    def resetUndo(self):
+        self.s.statement("delete from undoLog")
+        self.undoStack = []
+        self.redoStack = []
 
     def setUndoBarrier(self):
         if not self.undoStack or self.undoStack[-1] is not None:
