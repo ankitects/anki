@@ -44,7 +44,8 @@ class GetShared(QDialog):
             self.onCellChanged)
         self.form.table.verticalHeader().setDefaultSectionSize(
             self.parent.config['editLineSize'])
-        self.form.search.setText("search not yet implemented")
+        self.connect(self.form.search, SIGNAL("textChanged(QString)"),
+                     self.limit)
 
     def fetchData(self):
         h = QHttp(self)
@@ -71,8 +72,16 @@ class GetShared(QDialog):
         self.typeChanged()
         self.limit()
 
-    def limit(self):
-        self.curList = self.allList
+    def limit(self, txt=""):
+        if not txt:
+            self.curList = self.allList
+        else:
+            txt = unicode(txt).lower()
+            self.curList = [
+                l for l in self.allList
+                if (txt in l[R_TITLE].lower() or
+                    txt in l[R_DESCRIPTION].lower() or
+                    txt in l[R_TAGS].lower())]
         self.redraw()
 
     def redraw(self):
