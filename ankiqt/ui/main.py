@@ -74,6 +74,7 @@ class AnkiQt(QMainWindow):
         self.loadPlugins()
         self.setupAutoUpdate()
         self.rebuildPluginsMenu()
+        self.errorOccurred = False
         # run after-init hook
         try:
             runHook('init')
@@ -159,6 +160,7 @@ Please do not file a bug report with Anki.<br><br>""")
                 else:
                     txt = stdText
                 if self.pool:
+                    self.parent.errorOccurred = True
                     ui.utils.showText(txt + self.pool[0:10000].replace(
                         "\n", "<br>"))
                 self.pool = ""
@@ -2136,6 +2138,10 @@ it to your friends.
 
     def onCheckDB(self):
         "True if no problems"
+        if self.errorOccurred:
+            ui.utils.showWarning(_(
+                "Please restart Anki before checking the DB."))
+            return
         if not ui.utils.askUser(_("""\
 This operation will find and fix some common problems.<br>
 <br>
