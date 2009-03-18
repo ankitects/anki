@@ -31,6 +31,7 @@ class Preferences(QDialog):
             (_("Chinese - Simplified"), "zh_CN"),
             (_("Chinese - Traditional"), "zh_TW"),
             (_("Czech"), "cs_CZ"),
+            (_("Estonian"), "ee_EE"),
             (_("Finnish"), "fi_FI"),
             (_("French"), "fr_FR"),
             (_("German"), "de_DE"),
