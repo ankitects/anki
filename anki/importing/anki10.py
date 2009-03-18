@@ -74,6 +74,7 @@ class Anki10Importer(Importer):
         # update total and refresh
         self.total = len(res['added-facts']['facts'])
         src.s.rollback()
+        src.engine.dispose()
         self.deck.flushMod()
         self.deck.finishProgress()
 

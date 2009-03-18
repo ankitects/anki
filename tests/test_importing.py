@@ -59,6 +59,7 @@ def test_anki10():
     i.doImport()
     assert i.total == 2
     deck.s.rollback()
+    deck.close()
     # import a deck into itself - 10-2 is the same as test10, but with one
     # card answered and another deleted. nothing should be synced to client
     deck = DeckStorage.Deck(file)
