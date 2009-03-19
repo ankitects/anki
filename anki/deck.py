@@ -1543,6 +1543,29 @@ insert into cardTags
 (cardId, tagId, src) values
 (:cardId, :tagId, :src)""", d)
 
+    def updateTagsForModel(self, model):
+        cardIds = self.s.column0("""
+select cards.id from cards, facts where
+facts.modelId = :m and cards.factId = facts.id""", m=model.id)
+        factIds = self.s.column0("""
+select facts.id from facts where
+facts.modelId = :m""", m=model.id)
+        tids = tagIds(self.s, parseTags(model.tags))
+        self.s.statement("""
+delete from cardTags where cardId in %s
+and src = 1""" % ids2str(cardIds))
+        d = []
+        for tag in parseTags(model.tags):
+            for id in cardIds:
+                d.append({"cardId": id,
+                          "tagId": tids[tag.lower()],
+                          "src": 1})
+        if d:
+            self.s.statements("""
+insert into cardTags
+(cardId, tagId, src) values
+(:cardId, :tagId, :src)""", d)
+
     # Tags: adding/removing in bulk
     ##########################################################################
     # these could be optimized to use the tag cache in the future
