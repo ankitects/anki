@@ -71,6 +71,8 @@ def call(argv, wait=True, **kwargs):
                 # interrupted system call
                 continue
             break
+    else:
+        ret = 0
     return ret
 
 def latexImgFile(deck, latexCode):
