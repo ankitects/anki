@@ -492,7 +492,7 @@ order by n""", id=card.id)
             self.deck.setModified()
         # if changed, reset deck
         if self.origModTime != self.deck.modified:
-            self.deck.updateCardTags()
+            self.deck.updateTagsForModel(self.m)
             ankiqt.mw.reset()
         if self.onFinish:
             self.onFinish()
