@@ -131,8 +131,9 @@ class Deck(object):
         self.extraNewCards = 0
         self.reviewEarly = False
         try:
+            self.progressHandlerCalled = 0
             self.engine.raw_connection().set_progress_handler(
-                self.progressHandler, 100000)
+                self.progressHandler, 100)
         except:
             print "please install pysqlite 2.4 for better progress dialogs"
         self.progressHandlerEnabled = False
@@ -1653,6 +1654,9 @@ where id = :id""", pending)
         self.disableProgressHandler()
 
     def progressHandler(self):
+        if (time.time() - self.progressHandlerCalled) < 0.2:
+            return
+        self.progressHandlerCalled = time.time()
         if self.progressHandlerEnabled:
             runHook("dbProgress")
 
