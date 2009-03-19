@@ -259,12 +259,12 @@ class DeckModel(QAbstractTableModel):
         self.columns[-1][0] = k
 
     def createdColumn(self, index):
-        return fmtTimeSpan(
-            time.time() - self.cards[index.row()][CARD_CREATED]) + " ago"
+        return time.strftime("%Y-%m-%d", time.localtime(
+            self.cards[index.row()][CARD_CREATED]))
 
     def modifiedColumn(self, index):
-        return fmtTimeSpan(
-            time.time() - self.cards[index.row()][CARD_MODIFIED]) + " ago"
+        return time.strftime("%Y-%m-%d", time.localtime(
+            self.cards[index.row()][CARD_MODIFIED]))
 
     def intervalColumn(self, index):
         return fmtTimeSpan(
