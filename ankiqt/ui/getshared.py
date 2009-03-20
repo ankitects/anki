@@ -94,7 +94,10 @@ class GetShared(QDialog):
             cols = (R_TITLE, R_COUNT)
         for rc, r in enumerate(self.curList):
             for cc, c in enumerate(cols):
-                txt = unicode(r[c])
+                if c == R_FACTS or c == R_COUNT:
+                    txt = unicode("%15d" % r[c])
+                else:
+                    txt = unicode(r[c])
                 item = QTableWidgetItem(txt)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self.items[item] = r
