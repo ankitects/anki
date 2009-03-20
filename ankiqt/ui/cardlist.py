@@ -821,9 +821,23 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def onFindReplace(self):
+        sf = self.selectedFacts()
+        if not sf:
+            return
+        mods = self.deck.s.column0("""
+select distinct modelId from facts
+where id in %s""" % ids2str(sf))
+        if not len(mods) == 1:
+            ui.utils.showInfo(
+                _("Can only operate on one model at a time."),
+                parent=self)
+            return
         d = QDialog(self)
         frm = ankiqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
+        fields = sorted(self.currentCard.fact.model.fieldModels, key=attrgetter("name"))
+        frm.field.addItems(QStringList(
+            [_("All Fields")] + [f.name for f in fields]))
         self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
                      self.onFindReplaceHelp)
         if not d.exec_():
@@ -833,14 +847,18 @@ where id in %s""" % ids2str(sf))
         self.deck.startProgress(2)
         self.deck.updateProgress(_("Replacing..."))
         self.deck.setUndoStart(n)
-        sf = self.selectedFacts()
         self.deck.updateProgress()
         changed = None
         try:
-            changed = self.deck.findReplace(self.selectedFacts(),
-                                  unicode(frm.find.text()),
-                                  unicode(frm.replace.text()),
-                                  frm.re.isChecked())
+            if frm.field.currentIndex() == 0:
+                field = None
+            else:
+                field = fields[frm.field.currentIndex()-1].id
+            changed = self.deck.findReplace(sf,
+                                            unicode(frm.find.text()),
+                                            unicode(frm.replace.text()),
+                                            frm.re.isChecked(),
+                                            field)
         except sre_constants.error:
             ui.utils.showInfo(_("Invalid regular expression."),
                               parent=self)
