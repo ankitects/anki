@@ -692,8 +692,8 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         c = self.spacedCardCount()
         newLeft = self.newCardsPerDay - self.newCardsToday()
         if c and newLeft:
-            spaceSusp += ngettext('There is <b>%d</b> spaced card.',
-                                  'There are <b>%d</b> spaced cards.',
+            spaceSusp += ngettext('There is <b>%d</b> delayed card.',
+                                  'There are <b>%d</b> delayed cards.',
                                   c) % c
         c2 = self.suspendedCardCount()
         if c2:
