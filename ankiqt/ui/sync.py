@@ -52,7 +52,9 @@ class Sync(QThread):
         else:
             msg=_("""\
 Syncing failed. Please try again in a few minutes.
-If the problem persists, please report it on the forum.""")
+If the problem persists, please report it on the forum.
+
+Error: %s""" % `error`)
         return msg
 
     def connect(self, *args):
