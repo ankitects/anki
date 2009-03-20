@@ -79,7 +79,10 @@ class SessionHelper(object):
         return self.execute(text(sql), args).fetchall()
 
     def first(self, sql, **args):
-        return self.execute(text(sql), args).fetchone()
+        c = self.execute(text(sql), args)
+        r = c.fetchone()
+        c.close()
+        return r
 
     def column0(self, sql, **args):
         return [x[0] for x in self.execute(text(sql), args).fetchall()]
