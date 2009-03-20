@@ -124,6 +124,7 @@ delete from stats""")
         # need to save manually
         self.newDeck.rebuildCounts()
         self.exportedCards = self.newDeck.cardCount
+        self.newDeck.utcOffset = -1
         self.newDeck.s.commit()
         self.newDeck.close()
         self.deck.finishProgress()

@@ -2344,7 +2344,7 @@ class DeckStorage(object):
                                       type="inuse")
             else:
                 raise e
-        if deck.utcOffset == 24:
+        if deck.utcOffset == -1:
             # needs a reset
             deck.startProgress()
             DeckStorage._setUTCOffset(deck)
@@ -2805,7 +2805,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.commit()
             deck.s.execute("pragma page_size = 4096")
             deck.s.execute("pragma legacy_file_format = 0")
-            deck.s.scalar("vacuum")
+            deck.s.execute("vacuum")
         if prog:
             deck.finishProgress()
         return deck
