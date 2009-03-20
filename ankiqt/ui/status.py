@@ -176,7 +176,7 @@ class StatusView(object):
             "There are <b>%(rev)d</b> cards awaiting review.<br>"
             "There are <b>%(new)d</b> new cards due today.<br><br>"
             "There are <b>%(new2)d</b> new cards in total.<br>"
-            "There are <b>%(spaced)d</b> spaced cards.") % stats)
+            "There are <b>%(spaced)d</b> delayed cards.") % stats)
         # eta
         self.etaText.setText(_("ETA: <b>%(timeLeft)s</b>") % stats)
         # retention & progress bars
