@@ -1474,7 +1474,7 @@ day = :d""", d=yesterday)
         d.suspended = u"Suspended"
         self.deck.updateProgress()
         d.updateAllPriorities()
-        d.utcOffset = 24
+        d.utcOffset = -1
         d.flushMod()
         d.save()
         self.deck.updateProgress()
