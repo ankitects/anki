@@ -1,4 +1,5 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
+# -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from PyQt4.QtGui import *
@@ -10,12 +11,30 @@ def show(parent):
     abt = ankiqt.forms.about.Ui_About()
     abt.setupUi(dialog)
     abt.label.setText(_("""
-<h1>Anki</h1>
-<img src=":/icons/anki.png">
+<center><img src=":/icons/anki-logo-thin.png"></center>
 <p>
-<span>Anki is a spaced repetition flashcard program designed to maximise your
-memory potential.<p/>It's free and licensed under the GPL.<p/>
-Version %s<br>
+Anki is a friendly, intelligent spaced learning system. It's free and open
+source.<p>
+Version %(ver)s<br>
 <a href="http://ichi2.net/anki/">Visit website</a></span>
-""") % appVersion)
+<p>
+Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s
+<p>
+If you have contributed and are not on this list, please get in touch.
+<p>
+A big thanks to all the people who have provided suggestions, bug reports and
+donations.""") % {
+    'cont': u"""
+
+Alex Fraser, Andreas Klauer, Bananeweizen, Bernhard Ibertsberger, Christian
+Rusche, David Smith, Dave Druelinger, Emmanuel Jarri, Frank Harper, Ian Lewis,
+Iroiro, Jin Eun-Deok, Jo Nakashima, Krause Chr, LaC, Laurent Steffan, Marco
+Giancotti, Mark Wilbur, Meelis Vasser, Michael Penkov, Michal Čadil, Nathanael
+Law, Nick Cook, Niklas Laxström, Pcsl88, Piotr Kubowicz, Richard Colley,
+Samson Melamed, Susanna Björverud, Timm Preetz, Timo Paulssen and Xtru.
+
+""",
+    'ver': appVersion})
+    dialog.show()
+    dialog.adjustSize()
     dialog.exec_()
