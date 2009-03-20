@@ -1634,15 +1634,19 @@ where id = :id""", pending)
     # Find and replace
     ##########################################################################
 
-    def findReplace(self, factIds, src, dst, isRe=False):
+    def findReplace(self, factIds, src, dst, isRe=False, field=None):
+        "Find and replace fields in a fact."
         # find
         s = "select id, factId, value from fields where factId in %s"
         if isRe:
             isRe = re.compile(src)
         else:
-            s += "and value like :v"
+            s += " and value like :v"
+        if field:
+            s += " and fieldModelId = :fmid"
         rows = self.s.all(s % ids2str(factIds),
-                          v="%"+src.replace("%", "%%")+"%")
+                          v="%"+src.replace("%", "%%")+"%",
+                          fmid=field)
         modded = []
         if isRe:
             modded = [
