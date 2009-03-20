@@ -26,9 +26,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>63</y>
+     <y>69</y>
      <width>723</width>
-     <height>429</height>
+     <height>424</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -145,7 +145,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>422</width>
+            <width>446</width>
             <height>57</height>
            </rect>
           </property>
@@ -224,7 +224,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>422</width>
+            <width>446</width>
             <height>57</height>
            </rect>
           </property>
@@ -371,7 +371,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>422</width>
+            <width>446</width>
             <height>57</height>
            </rect>
           </property>
@@ -382,7 +382,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>60</height>
+            <height>57</height>
            </rect>
           </property>
          </widget>
@@ -405,7 +405,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>369</height>
+            <height>367</height>
            </rect>
           </property>
          </widget>
@@ -813,7 +813,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>358</height>
+            <height>367</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8" >
@@ -1162,7 +1162,7 @@
      <x>0</x>
      <y>0</y>
      <width>723</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1324,9 +1324,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>492</y>
+     <y>493</y>
      <width>723</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="sizeGripEnabled" >
@@ -1340,9 +1340,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>21</y>
+     <y>23</y>
      <width>723</width>
-     <height>42</height>
+     <height>46</height>
     </rect>
    </property>
    <property name="orientation" >
@@ -1948,11 +1948,11 @@
   <tabstop>help</tabstop>
   <tabstop>welcomeText</tabstop>
   <tabstop>showAnswerButton</tabstop>
-  <tabstop>saveEditorButton</tabstop>
-  <tabstop>easeButton2</tabstop>
   <tabstop>easeButton1</tabstop>
+  <tabstop>easeButton2</tabstop>
   <tabstop>easeButton3</tabstop>
   <tabstop>easeButton4</tabstop>
+  <tabstop>saveEditorButton</tabstop>
  </tabstops>
  <resources>
   <include location="../icons.qrc" />
