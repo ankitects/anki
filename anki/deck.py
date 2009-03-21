@@ -2754,6 +2754,7 @@ where interval < 1""")
         if deck.version < 27:
             DeckStorage._addIndices(deck)
             deck.updateCardTags()
+            deck.updateAllPriorities()
             deck.version = 27
             deck.s.commit()
         if deck.version < 28:
