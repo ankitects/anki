@@ -200,25 +200,28 @@ class GetShared(QDialog):
                         except OSError:
                             pass
                         open(os.path.join(dd, tit + ".media",
-                                          os.path.basename(l)),"w").write(z.read(l))
+                                          os.path.basename(l)),"wb").write(z.read(l))
                 self.parent.loadDeck(dpath)
                 self.ok = True
             else:
                 pd = self.parent.pluginsFolder()
                 if z:
-                    raise "nyi"
-#                     for l in z.namelist():
-#                         try:
-#                             os.mkdir(os.path.join(pd, os.path.dirname(l)))
-#                         except OSError:
-#                             pass
-#                         open(os.path.join(pd, 2))
+                    for l in z.infolist():
+                        if not l.file_size:
+                            continue
+                        try:
+                            os.makedirs(os.path.join(
+                                pd, os.path.dirname(l.filename)))
+                        except OSError:
+                            pass
+                        open(os.path.join(pd, l.filename), "wb").\
+                                              write(z.read(l.filename))
                 else:
                     open(os.path.join(pd, tit + ext), "wb").write(data)
-                    showInfo(_("Plugin downloaded. Please restart Anki."),
-                             parent=self)
-                    self.ok = True
-                    return
+                self.ok = True
+                showInfo(_("Plugin downloaded. Please restart Anki."),
+                         parent=self)
+                return
         finally:
             QDialog.accept(self)
 
