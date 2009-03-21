@@ -1972,6 +1972,8 @@ it to your friends.
         for fname in all:
             enabled = fname.endswith(".py")
             p = re.sub("\.py(\.off)?", "", fname)
+            if p+".py" in self.registeredPlugins:
+                p = self.registeredPlugins[p+".py"]['name']
             a = QAction(p, self)
             a.setCheckable(True)
             a.setChecked(enabled)
