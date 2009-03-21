@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-20 10:25+0100\n"
+"POT-Creation-Date: 2009-03-21 13:36+0900\n"
 "PO-Revision-Date: 2009-03-20 10:23+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -18,26 +18,24 @@ msgstr ""
 "X-Poedit-Language: Swedish\n"
 "X-Poedit-Country: Sweden\n"
 
-#: ui/about.py:12
+#: ui/about.py:13
 #, python-format
 msgid ""
 "\n"
-"<h1>Anki</h1>\n"
-"<img src=\":/icons/anki.png\">\n"
+"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
 "<p>\n"
-"<span>Anki is a spaced repetition flashcard program designed to maximise your\n"
-"memory potential.<p/>It's free and licensed under the GPL.<p/>\n"
-"Version %s<br>\n"
+"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
+"source.<p>\n"
+"Version %(ver)s<br>\n"
 "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-msgstr ""
-"\n"
-"<h1>Anki</h1>\n"
-"<img src=\":/icons/anki.png\">\n"
 "<p>\n"
-"<span>Anki är ett tidsfördelat flashcard-repetitionsprogram konstruerat för att\n"
-"maximera din minneskapacitet.<p/>Det är fritt och under GPL-licens.<p/>\n"
-"Version %s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Besök webbplats</a></span>\n"
+"Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
+"<p>\n"
+"If you have contributed and are not on this list, please get in touch.\n"
+"<p>\n"
+"A big thanks to all the people who have provided suggestions, bug reports and\n"
+"donations."
+msgstr ""
 
 #: ui/status.py:220
 msgid ""
@@ -61,17 +59,17 @@ msgstr ""
 msgid "  Stop"
 msgstr "Stopp"
 
-#: ui/sync.py:137
+#: ui/sync.py:139
 #, python-format
 msgid " * %s fetching payload..."
 msgstr " * %s hämtar nyttolast..."
 
-#: ui/sync.py:134
+#: ui/sync.py:136
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s inga ändringar hittades."
 
-#: ui/sync.py:131
+#: ui/sync.py:133
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s finns inte längre."
@@ -84,12 +82,12 @@ msgstr " <b>Vid ändring (företräde framför ovan):</b>"
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Vid repetition och ändring:</b>"
 
-#: ui/sync.py:139
+#: ui/sync.py:141
 #, python-format
 msgid " applied %d modified cards."
 msgstr "tillämpade %d ändrade kort."
 
-#: ui/main.py:2195
+#: ui/main.py:2197
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -582,7 +580,7 @@ msgstr "<b>Filtyp</b>:"
 msgid "<b>Very High Priority</b>"
 msgstr "<b>Mycket hög prioritet</b>"
 
-#: ui/sync.py:125
+#: ui/sync.py:127
 msgid "<br><br>Checking deck subscriptions..."
 msgstr "<br><br>Kontrollerar prenumerationer på kortlek..."
 
@@ -671,7 +669,7 @@ msgstr "<h1>Modeller</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr "<h1>Konto på nätet</h1>För att använda ditt fria <a href=\"http://anki.ichi2.net/\">konto på nätet</a>,<br>fyll i dina uppgifter här nedan.<br>"
 
-#: ui/sync.py:196
+#: ui/sync.py:198
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Öppet tillgänglig kortlek på nätet</h1>"
 
@@ -741,7 +739,7 @@ msgstr "<h1>Synkronisering</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Synkronisering</h1><a href=\"http://anki.ichi2.net/\">Skapa ett gratis konto</a>."
 
-#: ui/sync.py:194
+#: ui/sync.py:196
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Synkronisera</h1>"
 
@@ -990,7 +988,7 @@ msgstr ""
 "Om detta inte löser problemet, kopiera följande text<br>\n"
 "till en felrapport:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2170 forms/main.py:873
+#: ui/deckproperties.py:181 ui/main.py:2172 forms/main.py:873 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1028,7 +1026,7 @@ msgstr "Svarsstorlek"
 msgid "Application-wide preferences."
 msgstr "Inställningar för hela programmet."
 
-#: ui/sync.py:109
+#: ui/sync.py:111
 msgid "Applying reply..."
 msgstr "Tillämpar svar..."
 
@@ -1079,7 +1077,7 @@ msgstr "Kan enbart arbeta med en modell åt gången."
 msgid "Can't look up a selection with a newline."
 msgstr "Kan inte göra ett uppslag på en markering som innehåller en radbrytning."
 
-#: ui/main.py:2185
+#: ui/main.py:2187
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -1134,7 +1132,7 @@ msgstr "Kontrollera databasen..."
 msgid "Check Media Database..."
 msgstr "Kontrollera mediadatabasen..."
 
-#: ui/sync.py:144
+#: ui/sync.py:146
 msgid "Check complete."
 msgstr "Kontroll klar."
 
@@ -1195,7 +1193,7 @@ msgstr "Cloze (F9)"
 msgid "Compare with field '%s'"
 msgstr "Jämför med fält '%s'"
 
-#: ui/sync.py:66
+#: ui/sync.py:68
 msgid "Connecting..."
 msgstr "Ansluter..."
 
@@ -1216,7 +1214,7 @@ msgstr "Kopiera: %s"
 msgid "Cram"
 msgstr "Råplugga"
 
-#: ui/sync.py:199
+#: ui/sync.py:201
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Skapa '%s' på server"
@@ -1382,7 +1380,7 @@ msgstr "Anpassa synkronisering, schemaläggning, prioritering och modeller."
 msgid "Czech"
 msgstr "Tjeckiska"
 
-#: ui/main.py:2166
+#: ui/main.py:2168
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1415,7 +1413,7 @@ msgstr "Ta bort"
 msgid "Delete Cards"
 msgstr "Ta bort kort"
 
-#: ui/main.py:2183
+#: ui/main.py:2185
 msgid "Delete Refs"
 msgstr "Ta bort referenser"
 
@@ -1423,9 +1421,13 @@ msgstr "Ta bort referenser"
 msgid "Delete Tags"
 msgstr "Ta bort etiketter"
 
-#: ui/sync.py:101
+#: ui/sync.py:103
 msgid "Determining differences..."
 msgstr "Fastställer skillnader..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Dialog"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1593,7 +1595,7 @@ msgstr "Faktauppgifter"
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Misslyckades att skicka in media. Kör kommandot 'kontrollera mediadatabasen'."
 
-#: ui/sync.py:98
+#: ui/sync.py:100
 msgid "Fetching summary from server..."
 msgstr "Hämtar sammanfattning från server..."
 
@@ -1809,7 +1811,7 @@ msgstr "Para ihop med etiketter"
 msgid "Max"
 msgstr "Max"
 
-#: ui/sync.py:204
+#: ui/sync.py:206
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Slå ihop med '%s' på server"
@@ -1887,7 +1889,7 @@ msgstr "Inga kort är markerade med angivna etiketter."
 msgid "No cards to preview."
 msgstr "Det finns inte några kort att förhandsgranska"
 
-#: ui/sync.py:120
+#: ui/sync.py:122
 msgid "No changes found."
 msgstr "Inga ändringar funna."
 
@@ -1975,6 +1977,10 @@ msgstr "Lägg först till ett nytt fält."
 msgid "Please add another model first."
 msgstr "Lägg först till en annan modell."
 
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Välj ett fält att sortera efter"
+
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
 msgstr "Kontrollera ditt användarnamn och lösenord en gång till."
@@ -1999,11 +2005,11 @@ msgstr ""
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Installera python-matplotlib för att kunna använda diagram."
 
-#: ui/main.py:2143
+#: ui/main.py:2145
 msgid "Please restart Anki before checking the DB."
 msgstr "Starta om Anki innan du kontrollerar databasen."
 
-#: ui/getshared.py:218
+#: ui/getshared.py:222
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Insticksmodul hämtad. Starta om Anki."
 
@@ -2039,7 +2045,7 @@ msgstr "Förhandsgranska kort"
 msgid "Previous colour (F7 then F6)"
 msgstr "Föregående färg (F7 därefter F6)"
 
-#: ui/main.py:2158
+#: ui/main.py:2160
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2327,7 +2333,7 @@ msgstr "Åsidosätt"
 msgid "Swedish"
 msgstr "Svenska"
 
-#: ui/sync.py:114
+#: ui/sync.py:116
 msgid "Sync complete."
 msgstr "Synkronisering färdig."
 
@@ -2352,19 +2358,22 @@ msgid "Syncing Media..."
 msgstr "Synkroniserar media..."
 
 #: ui/sync.py:53
+#, fuzzy, python-format
 msgid ""
 "Syncing failed. Please try again in a few minutes.\n"
-"If the problem persists, please report it on the forum."
+"If the problem persists, please report it on the forum.\n"
+"\n"
+"Error: %s"
 msgstr ""
 "Synkronisering misslyckades. Försök igen om några minuter.\n"
 "Om problemet kvarstår, rapportera detta på forumet."
 
-#: ui/sync.py:161
+#: ui/sync.py:163
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Synkronisering misslyckades: %(a)s"
 
-#: ui/main.py:2181
+#: ui/main.py:2183
 msgid "Tag Cards"
 msgstr "Sätt etikett på kort"
 
@@ -2475,7 +2484,7 @@ msgstr ""
 "%s\n"
 "Du måste ta bort den källan först."
 
-#: ui/main.py:2145
+#: ui/main.py:2147
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2493,7 +2502,7 @@ msgstr ""
 "<b>Denna åtgärd kan inte ångras.</b><br>\n"
 "Fortsätt?"
 
-#: ui/main.py:2172
+#: ui/main.py:2174
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2533,7 +2542,7 @@ msgstr "Dagens repetition är avslutad"
 msgid "Toggle Toolbar"
 msgstr "Visa eller dölj verktygsraden"
 
-#: ui/sync.py:106
+#: ui/sync.py:108
 msgid "Transferring payload..."
 msgstr "Överför nyttolast..."
 
@@ -2764,6 +2773,25 @@ msgid "toplabel"
 msgstr "toppetikett"
 
 #~ msgid ""
+#~ "\n"
+#~ "<h1>Anki</h1>\n"
+#~ "<img src=\":/icons/anki.png\">\n"
+#~ "<p>\n"
+#~ "<span>Anki is a spaced repetition flashcard program designed to maximise your\n"
+#~ "memory potential.<p/>It's free and licensed under the GPL.<p/>\n"
+#~ "Version %s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
+#~ msgstr ""
+#~ "\n"
+#~ "<h1>Anki</h1>\n"
+#~ "<img src=\":/icons/anki.png\">\n"
+#~ "<p>\n"
+#~ "<span>Anki är ett tidsfördelat flashcard-repetitionsprogram konstruerat för att\n"
+#~ "maximera din minneskapacitet.<p/>Det är fritt och under GPL-licens.<p/>\n"
+#~ "Version %s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Besök webbplats</a></span>\n"
+
+#~ msgid ""
 #~ "%s.\n"
 #~ "Anki can only merge models if they have exactly\n"
 #~ "the same field count and card count."
@@ -2868,9 +2896,6 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
-#~ msgid "Dialog"
-#~ msgstr "Dialog"
-
 #~ msgid "Export to..."
 #~ msgstr "Exportera till..."
 
@@ -2897,9 +2922,6 @@ msgstr "toppetikett"
 
 #~ msgid "Open On&line..."
 #~ msgstr "Öppna p&å nätet..."
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Välj ett fält att sortera efter"
 
 #~ msgid "Replace"
 #~ msgstr "Ersätt"
