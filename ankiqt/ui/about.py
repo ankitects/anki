@@ -31,7 +31,8 @@ Rusche, David Smith, Dave Druelinger, Emmanuel Jarri, Frank Harper, Ian Lewis,
 Iroiro, Jin Eun-Deok, Jo Nakashima, Krause Chr, LaC, Laurent Steffan, Marco
 Giancotti, Mark Wilbur, Meelis Vasser, Michael Penkov, Michal Čadil, Nathanael
 Law, Nick Cook, Niklas Laxström, Pcsl88, Piotr Kubowicz, Richard Colley,
-Samson Melamed, Susanna Björverud, Timm Preetz, Timo Paulssen and Xtru.
+Samson Melamed, Susanna Björverud, Timm Preetz, Timo Paulssen, Victor Suba,
+and Xtru.
 
 """,
     'ver': appVersion})
