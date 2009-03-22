@@ -884,18 +884,21 @@ where id in %s""" % ids2str(sf))
     def onFirstCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         self.dialog.tableView.selectionModel().clear()
         self.dialog.tableView.selectRow(0)
 
     def onLastCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         self.dialog.tableView.selectionModel().clear()
         self.dialog.tableView.selectRow(len(self.model.cards) - 1)
 
     def onPreviousCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         row = self.dialog.tableView.currentIndex().row()
         row = max(0, row - 1)
         self.dialog.tableView.selectionModel().clear()
@@ -904,6 +907,7 @@ where id in %s""" % ids2str(sf))
     def onNextCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         row = self.dialog.tableView.currentIndex().row()
         row = min(len(self.model.cards) - 1, row + 1)
         self.dialog.tableView.selectionModel().clear()
