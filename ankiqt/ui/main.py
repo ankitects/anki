@@ -84,6 +84,9 @@ class AnkiQt(QMainWindow):
         ui.splash.update()
         ui.splash.finish(self)
         self.show()
+        if (self.deck and self.config['syncOnLoad'] and
+            self.deck.syncName):
+            self.syncDeck(interactive=False)
 
     def setupMainWindow(self):
         # main window
@@ -617,10 +620,10 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         # try a command line argument if available
         if args:
             f = unicode(args[0], sys.getfilesystemencoding())
-            return self.loadDeck(f)
+            return self.loadDeck(f, sync=False)
         # try recent deck paths
         for path in self.config['recentDeckPaths']:
-            r = self.loadDeck(path, interactive=False)
+            r = self.loadDeck(path, interactive=False, sync=False)
             if r:
                 return r
         self.onNew(initial=True)
