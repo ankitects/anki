@@ -69,12 +69,12 @@ class AnkiQt(QMainWindow):
             self.moveToState("auto")
         # check for updates
         ui.splash.update()
+        self.errorOccurred = False
         self.setupErrorHandler()
         self.setupMisc()
         self.loadPlugins()
         self.setupAutoUpdate()
         self.rebuildPluginsMenu()
-        self.errorOccurred = False
         # run after-init hook
         try:
             runHook('init')
