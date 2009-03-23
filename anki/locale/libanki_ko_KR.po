@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-21 13:35+0900\n"
+"POT-Creation-Date: 2009-03-23 10:45+0900\n"
 "PO-Revision-Date: 2008-05-24 09:18+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,6 +24,13 @@ msgid ""
 "need to disable normalization. See the wiki.\n"
 "\n"
 "Command was:\n"
+msgstr ""
+
+#: importing/__init__.py:116
+msgid ""
+"\n"
+"The current importer only supports a single active card template. Please disable\n"
+"all but one card template."
 msgstr ""
 
 #: stats.py:501
@@ -191,6 +198,11 @@ msgstr ""
 msgid "Added last week"
 msgstr ""
 
+#: importing/__init__.py:252
+#, fuzzy
+msgid "Anki 1.0 deck (*.anki)"
+msgstr "앙키 묶음 (*.anki)"
+
 #: exporting.py:236
 msgid "Anki deck (*.anki)"
 msgstr "앙키 묶음 (*.anki)"
@@ -255,11 +267,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:1924
+#: deck.py:1928
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:1934
+#: deck.py:1938
 msgid "Checking schema..."
 msgstr ""
 
@@ -267,11 +279,19 @@ msgstr ""
 msgid "Checksum files..."
 msgstr ""
 
-#: deck.py:2893
+#: importing/csv.py:87
+msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+msgstr ""
+
+#: importing/__init__.py:254
+msgid "CueCard deck (*.wcu)"
+msgstr ""
+
+#: deck.py:2897
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:1927
+#: deck.py:1931
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -284,7 +304,7 @@ msgstr "묶음 통계"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "묶음 생성: <b>%s</b> 전<br>"
 
-#: deck.py:1937
+#: deck.py:1941
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -296,27 +316,27 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:1965
+#: deck.py:1969
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1973
+#: deck.py:1977
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr ""
 
-#: deck.py:1986
+#: deck.py:1990
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1958
+#: deck.py:1962
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1978
+#: deck.py:1982
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -345,7 +365,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "탭으로 구분한 지식 텍스트 파일 (*.txt)"
 
-#: deck.py:2343
+#: deck.py:2347
 msgid "File is in use by another process"
 msgstr "다른 프로세스가 파일을 사용하고 있습니다."
 
@@ -368,6 +388,10 @@ msgstr "처음"
 #, python-format
 msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 msgstr "처음 본 카드: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b>개 중에 <b>%(gNewTotal)d</b>개)<br><br>"
+
+#: importing/__init__.py:51 importing/anki10.py:25
+msgid "Importing..."
+msgstr ""
 
 #: stats.py:274 stats.py:357
 #, fuzzy
@@ -400,6 +424,16 @@ msgstr "지난 복습 간격"
 msgid "Left"
 msgstr "왼쪽"
 
+#: importing/csv.py:40
+#, python-format
+msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+msgstr ""
+
+#: importing/csv.py:49
+#, python-format
+msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
+msgstr ""
+
 #: stdmodels.py:99
 msgid "Mandarin"
 msgstr "북경어"
@@ -420,6 +454,15 @@ msgstr "성숙한 카드: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 
 #: media.py:176 media.py:178 media.py:179
 msgid "MediaMissing"
+msgstr ""
+
+#: importing/__init__.py:109
+#, python-format
+msgid "Missing required/unique field '%(field)s'"
+msgstr ""
+
+#: importing/__init__.py:253
+msgid "Mnemosyne 1.x deck (*.mem)"
 msgstr ""
 
 #: stats.py:290
@@ -443,27 +486,27 @@ msgstr ""
 msgid "Please add some cards first.<p/>"
 msgstr "카드를 먼저 추가해 주세요.<p/>"
 
-#: deck.py:2169
+#: deck.py:2173
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:2005
+#: deck.py:2009
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:2025
+#: deck.py:2029
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:2031
+#: deck.py:2035
 msgid "Rebuilding queue..."
 msgstr ""
 
-#: deck.py:1999
+#: deck.py:2003
 msgid "Rebuilding tag cache..."
 msgstr ""
 
-#: deck.py:2023
+#: deck.py:2027
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -485,22 +528,22 @@ msgstr "%s개월"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:2880
+#: deck.py:2884
 #, fuzzy
 msgid "Review cards from largest interval"
 msgstr "무작위로 보여주기"
 
-#: deck.py:2881
+#: deck.py:2885
 #, fuzzy
 msgid "Review cards from smallest interval"
 msgstr "무작위로 보여주기"
 
-#: deck.py:2882
+#: deck.py:2886
 #, fuzzy
 msgid "Review cards in order due"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:2883
+#: deck.py:2887
 #, fuzzy
 msgid "Review cards in random order"
 msgstr "무작위로 보여주기"
@@ -518,54 +561,54 @@ msgstr "오른쪽"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:2889
+#: deck.py:2893
 #, fuzzy
 msgid "Show failed cards at end"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:2890
+#: deck.py:2894
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:2892
+#: deck.py:2896
 #, fuzzy
 msgid "Show failed cards in 3 days"
 msgstr "무작위로 보여주기"
 
-#: deck.py:2891
+#: deck.py:2895
 #, fuzzy
 msgid "Show failed cards in 8 hours"
 msgstr "무작위로 보여주기"
 
-#: deck.py:2888
+#: deck.py:2892
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:2874
+#: deck.py:2878
 #, fuzzy
 msgid "Show new cards after all other cards"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:2875
+#: deck.py:2879
 #, fuzzy
 msgid "Show new cards before reviews"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:2867
+#: deck.py:2871
 #, fuzzy
 msgid "Show new cards in order added"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:2866
+#: deck.py:2870
 msgid "Show new cards in random order"
 msgstr "무작위로 보여주기"
 
-#: deck.py:2868
+#: deck.py:2872
 #, fuzzy
 msgid "Show new cards in reverse order added"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:2873
+#: deck.py:2877
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -573,8 +616,20 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr "텍스트 파일 (*.txt)"
 
-#: deck.py:1943
+#: importing/__init__.py:251
+msgid "Text separated by tabs or semicolons (*)"
+msgstr ""
+
+#: deck.py:1947
 msgid "The current model didn't exist"
+msgstr ""
+
+#: importing/csv.py:76
+msgid "The file had no non-empty lines."
+msgstr ""
+
+#: importing/csv.py:105 importing/wcu.py:29
+msgid "The file was not in UTF8 format."
 msgstr ""
 
 #: deck.py:659
@@ -639,11 +694,11 @@ msgstr "시작하지 않은 카드: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br
 msgid "Update tags..."
 msgstr "지식 꼬리표"
 
-#: deck.py:2002
+#: deck.py:2006
 msgid "Updating priorities..."
 msgstr ""
 
-#: deck.py:2498
+#: deck.py:2502
 msgid "Upgrading Deck..."
 msgstr ""
 

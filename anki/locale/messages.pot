@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-21 13:35+0900\n"
+"POT-Creation-Date: 2009-03-23 10:45+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,6 +26,13 @@ msgid ""
 "need to disable normalization. See the wiki.\n"
 "\n"
 "Command was:\n"
+msgstr ""
+
+#: importing/__init__.py:116
+msgid ""
+"\n"
+"The current importer only supports a single active card template. Please disable\n"
+"all but one card template."
 msgstr ""
 
 #: stats.py:501
@@ -193,6 +200,10 @@ msgstr ""
 msgid "Added last week"
 msgstr ""
 
+#: importing/__init__.py:252
+msgid "Anki 1.0 deck (*.anki)"
+msgstr ""
+
 #: exporting.py:236
 msgid "Anki deck (*.anki)"
 msgstr ""
@@ -253,11 +264,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:1924
+#: deck.py:1928
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:1934
+#: deck.py:1938
 msgid "Checking schema..."
 msgstr ""
 
@@ -265,11 +276,19 @@ msgstr ""
 msgid "Checksum files..."
 msgstr ""
 
-#: deck.py:2893
+#: importing/csv.py:87
+msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+msgstr ""
+
+#: importing/__init__.py:254
+msgid "CueCard deck (*.wcu)"
+msgstr ""
+
+#: deck.py:2897
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:1927
+#: deck.py:1931
 msgid "Database file damaged. Restore from backup."
 msgstr ""
 
@@ -282,7 +301,7 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:1937
+#: deck.py:1941
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -294,27 +313,27 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:1965
+#: deck.py:1969
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr ""
 
-#: deck.py:1973
+#: deck.py:1977
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr ""
 
-#: deck.py:1986
+#: deck.py:1990
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr ""
 
-#: deck.py:1958
+#: deck.py:1962
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr ""
 
-#: deck.py:1978
+#: deck.py:1982
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr ""
@@ -343,7 +362,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:2343
+#: deck.py:2347
 msgid "File is in use by another process"
 msgstr ""
 
@@ -362,6 +381,10 @@ msgstr ""
 #: stats.py:344
 #, python-format
 msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
+msgstr ""
+
+#: importing/__init__.py:51 importing/anki10.py:25
+msgid "Importing..."
 msgstr ""
 
 #: stats.py:274 stats.py:357
@@ -392,6 +415,16 @@ msgstr ""
 msgid "Left"
 msgstr ""
 
+#: importing/csv.py:40
+#, python-format
+msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+msgstr ""
+
+#: importing/csv.py:49
+#, python-format
+msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
+msgstr ""
+
 #: stdmodels.py:99
 msgid "Mandarin"
 msgstr ""
@@ -414,6 +447,15 @@ msgstr ""
 msgid "MediaMissing"
 msgstr ""
 
+#: importing/__init__.py:109
+#, python-format
+msgid "Missing required/unique field '%(field)s'"
+msgstr ""
+
+#: importing/__init__.py:253
+msgid "Mnemosyne 1.x deck (*.mem)"
+msgstr ""
+
 #: stats.py:290
 msgid "Model Tags"
 msgstr ""
@@ -434,27 +476,27 @@ msgstr ""
 msgid "Please add some cards first.<p/>"
 msgstr ""
 
-#: deck.py:2169
+#: deck.py:2173
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:2005
+#: deck.py:2009
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:2025
+#: deck.py:2029
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:2031
+#: deck.py:2035
 msgid "Rebuilding queue..."
 msgstr ""
 
-#: deck.py:1999
+#: deck.py:2003
 msgid "Rebuilding tag cache..."
 msgstr ""
 
-#: deck.py:2023
+#: deck.py:2027
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -474,19 +516,19 @@ msgstr ""
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:2880
+#: deck.py:2884
 msgid "Review cards from largest interval"
 msgstr ""
 
-#: deck.py:2881
+#: deck.py:2885
 msgid "Review cards from smallest interval"
 msgstr ""
 
-#: deck.py:2882
+#: deck.py:2886
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:2883
+#: deck.py:2887
 msgid "Review cards in random order"
 msgstr ""
 
@@ -502,47 +544,47 @@ msgstr ""
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:2889
+#: deck.py:2893
 msgid "Show failed cards at end"
 msgstr ""
 
-#: deck.py:2890
+#: deck.py:2894
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:2892
+#: deck.py:2896
 msgid "Show failed cards in 3 days"
 msgstr ""
 
-#: deck.py:2891
+#: deck.py:2895
 msgid "Show failed cards in 8 hours"
 msgstr ""
 
-#: deck.py:2888
+#: deck.py:2892
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:2874
+#: deck.py:2878
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:2875
+#: deck.py:2879
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:2867
+#: deck.py:2871
 msgid "Show new cards in order added"
 msgstr ""
 
-#: deck.py:2866
+#: deck.py:2870
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:2868
+#: deck.py:2872
 msgid "Show new cards in reverse order added"
 msgstr ""
 
-#: deck.py:2873
+#: deck.py:2877
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -550,8 +592,20 @@ msgstr ""
 msgid "Text files (*.txt)"
 msgstr ""
 
-#: deck.py:1943
+#: importing/__init__.py:251
+msgid "Text separated by tabs or semicolons (*)"
+msgstr ""
+
+#: deck.py:1947
 msgid "The current model didn't exist"
+msgstr ""
+
+#: importing/csv.py:76
+msgid "The file had no non-empty lines."
+msgstr ""
+
+#: importing/csv.py:105 importing/wcu.py:29
+msgid "The file was not in UTF8 format."
 msgstr ""
 
 #: deck.py:659
@@ -614,11 +668,11 @@ msgstr ""
 msgid "Update tags..."
 msgstr ""
 
-#: deck.py:2002
+#: deck.py:2006
 msgid "Updating priorities..."
 msgstr ""
 
-#: deck.py:2498
+#: deck.py:2502
 msgid "Upgrading Deck..."
 msgstr ""
 

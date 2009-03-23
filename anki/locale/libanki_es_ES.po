@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-21 13:35+0900\n"
+"POT-Creation-Date: 2009-03-23 10:45+0900\n"
 "PO-Revision-Date: 2009-02-02 07:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -25,6 +25,13 @@ msgid ""
 "need to disable normalization. See the wiki.\n"
 "\n"
 "Command was:\n"
+msgstr ""
+
+#: importing/__init__.py:116
+msgid ""
+"\n"
+"The current importer only supports a single active card template. Please disable\n"
+"all but one card template."
 msgstr ""
 
 #: stats.py:501
@@ -208,6 +215,11 @@ msgstr "Añadidas en el último mes"
 msgid "Added last week"
 msgstr "Añadidas en la última semana"
 
+#: importing/__init__.py:252
+#, fuzzy
+msgid "Anki 1.0 deck (*.anki)"
+msgstr "Mazo Anki (*.anki)"
+
 #: exporting.py:236
 msgid "Anki deck (*.anki)"
 msgstr "Mazo Anki (*.anki)"
@@ -270,11 +282,11 @@ msgstr "Escanear campos..."
 msgid "Check Media DB"
 msgstr "Comprobar BD Multimedia"
 
-#: deck.py:1924
+#: deck.py:1928
 msgid "Checking integrity..."
 msgstr "Comprobando integridad..."
 
-#: deck.py:1934
+#: deck.py:1938
 msgid "Checking schema..."
 msgstr "Comprobando esquema..."
 
@@ -282,11 +294,20 @@ msgstr "Comprobando esquema..."
 msgid "Checksum files..."
 msgstr "Comprobar la suma de verificación de los archivos..."
 
-#: deck.py:2893
+#: importing/csv.py:87
+#, fuzzy
+msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+msgstr "No se ajusta a la plantilla. El archivo debe estar compuesto por una serie de líneas separadas por punto, coma y punto o tabulador."
+
+#: importing/__init__.py:254
+msgid "CueCard deck (*.wcu)"
+msgstr ""
+
+#: deck.py:2897
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:1927
+#: deck.py:1931
 msgid "Database file damaged. Restore from backup."
 msgstr "Archivo de Base de Datos dañado. Restaurela de la copia de seguridad."
 
@@ -299,7 +320,7 @@ msgstr "Estadísticas del Mazo"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Mazo creado: Hace <b>%s</b><br>"
 
-#: deck.py:1937
+#: deck.py:1941
 msgid "Deck was missing a model"
 msgstr "El mazo carecía de un modelo."
 
@@ -311,27 +332,27 @@ msgstr "Borrar referencias antiguas..."
 msgid "Delete unused files..."
 msgstr "Eliminar campos no usados..."
 
-#: deck.py:1965
+#: deck.py:1969
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "Borradas %d tarjetas que carecían de hecho"
 
-#: deck.py:1973
+#: deck.py:1977
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr "Borradas %d tarjetas que carecían de plantilla de tarjeta"
 
-#: deck.py:1986
+#: deck.py:1990
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "Borrados %d campos pendientes"
 
-#: deck.py:1958
+#: deck.py:1962
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "Borrados %d hechos con campos faltantes"
 
-#: deck.py:1978
+#: deck.py:1982
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "Borrados %d hechos sin tarjetas"
@@ -363,7 +384,7 @@ msgstr "Exportando..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Hechos en un archivo de texto separado por tabulador (*.txt)"
 
-#: deck.py:2343
+#: deck.py:2347
 msgid "File is in use by another process"
 msgstr "El archivo está en uso por otro proceso"
 
@@ -383,6 +404,11 @@ msgstr "Primera vez en la última semana"
 #, python-format
 msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 msgstr "Vistas por primera vez: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> de <b>%(gNewTotal)d</b>)<br><br>"
+
+#: importing/__init__.py:51 importing/anki10.py:25
+#, fuzzy
+msgid "Importing..."
+msgstr "Exportando..."
 
 #: stats.py:274 stats.py:357
 msgid "Interval"
@@ -412,6 +438,16 @@ msgstr "Último Intervalo"
 msgid "Left"
 msgstr "Izquierda"
 
+#: importing/csv.py:40
+#, python-format
+msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+msgstr "La línea %(line)d no se ajusta a la plantilla '%(pat)s'"
+
+#: importing/csv.py:49
+#, python-format
+msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
+msgstr "La línea %(line)d tiene %(num1)d campos, se esperaban %(num2)d"
+
 #: stdmodels.py:99
 msgid "Mandarin"
 msgstr "Mandarín"
@@ -435,6 +471,16 @@ msgstr "Tarjetas maduras: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "MediaMissing"
 msgstr "Soporte multimedia no encontrado"
 
+#: importing/__init__.py:109
+#, python-format
+msgid "Missing required/unique field '%(field)s'"
+msgstr ""
+
+#: importing/__init__.py:253
+#, fuzzy
+msgid "Mnemosyne 1.x deck (*.mem)"
+msgstr "Archivo Mnemosyne (*.mem)"
+
 #: stats.py:290
 msgid "Model Tags"
 msgstr "Etiquetas del Modelo"
@@ -455,28 +501,28 @@ msgstr "No hay tarjetas programadas."
 msgid "Please add some cards first.<p/>"
 msgstr "Por favor, añada algunas tarjetas antes.<p/>"
 
-#: deck.py:2169
+#: deck.py:2173
 msgid "Processing..."
 msgstr "Procesando..."
 
-#: deck.py:2005
+#: deck.py:2009
 msgid "Rebuilding QA cache..."
 msgstr "Reconstruyendo caché de Preguntas/Respuestas..."
 
-#: deck.py:2025
+#: deck.py:2029
 msgid "Rebuilding counts..."
 msgstr "Reconstruyendo contadores..."
 
-#: deck.py:2031
+#: deck.py:2035
 msgid "Rebuilding queue..."
 msgstr "Reconstruyendo cola..."
 
-#: deck.py:1999
+#: deck.py:2003
 #, fuzzy
 msgid "Rebuilding tag cache..."
 msgstr "Reconstruyendo caché de Preguntas/Respuestas..."
 
-#: deck.py:2023
+#: deck.py:2027
 msgid "Rebuilding types..."
 msgstr "Reconstruyendo tipos..."
 
@@ -496,21 +542,21 @@ msgstr "Repeticiones en el mes siguiente"
 msgid "Reps next week"
 msgstr "Repeticiones en la siguiente semana"
 
-#: deck.py:2880
+#: deck.py:2884
 #, fuzzy
 msgid "Review cards from largest interval"
 msgstr "Repasar tarjetas viejas antes"
 
-#: deck.py:2881
+#: deck.py:2885
 #, fuzzy
 msgid "Review cards from smallest interval"
 msgstr "Repasar tarjetas viejas antes"
 
-#: deck.py:2882
+#: deck.py:2886
 msgid "Review cards in order due"
 msgstr "Repasar tarjetas en el orden programado"
 
-#: deck.py:2883
+#: deck.py:2887
 msgid "Review cards in random order"
 msgstr "Repasar tarjetas aleatoriamente"
 
@@ -526,52 +572,52 @@ msgstr "Derecha"
 msgid "Scan fields..."
 msgstr "Escanear campos..."
 
-#: deck.py:2889
+#: deck.py:2893
 #, fuzzy
 msgid "Show failed cards at end"
 msgstr "Mostrar nuevas tarjetas después de todas las demás tarjetas"
 
-#: deck.py:2890
+#: deck.py:2894
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:2892
+#: deck.py:2896
 #, fuzzy
 msgid "Show failed cards in 3 days"
 msgstr "Mostrar nuevas tarjetas de forma aleatoria"
 
-#: deck.py:2891
+#: deck.py:2895
 #, fuzzy
 msgid "Show failed cards in 8 hours"
 msgstr "Mostrar nuevas tarjetas de forma aleatoria"
 
-#: deck.py:2888
+#: deck.py:2892
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:2874
+#: deck.py:2878
 msgid "Show new cards after all other cards"
 msgstr "Mostrar nuevas tarjetas después de todas las demás tarjetas"
 
-#: deck.py:2875
+#: deck.py:2879
 msgid "Show new cards before reviews"
 msgstr "Mostrar nuevas tarjetas antes de los repasos"
 
-#: deck.py:2867
+#: deck.py:2871
 #, fuzzy
 msgid "Show new cards in order added"
 msgstr "Mostrar nuevas tarjetas en el orden en el que fueron añadidas"
 
-#: deck.py:2866
+#: deck.py:2870
 msgid "Show new cards in random order"
 msgstr "Mostrar nuevas tarjetas de forma aleatoria"
 
-#: deck.py:2868
+#: deck.py:2872
 #, fuzzy
 msgid "Show new cards in reverse order added"
 msgstr "Mostrar nuevas tarjetas en el orden en el que fueron añadidas"
 
-#: deck.py:2873
+#: deck.py:2877
 msgid "Spread new cards out through reviews"
 msgstr "Distribuir tarjetas entre repasos"
 
@@ -579,9 +625,21 @@ msgstr "Distribuir tarjetas entre repasos"
 msgid "Text files (*.txt)"
 msgstr "Archivos de texto (*.txt)"
 
-#: deck.py:1943
+#: importing/__init__.py:251
+msgid "Text separated by tabs or semicolons (*)"
+msgstr ""
+
+#: deck.py:1947
 msgid "The current model didn't exist"
 msgstr "El modelo actual no existía"
+
+#: importing/csv.py:76
+msgid "The file had no non-empty lines."
+msgstr "El archivo no tenía líneas vacías."
+
+#: importing/csv.py:105 importing/wcu.py:29
+msgid "The file was not in UTF8 format."
+msgstr "El archivo no estaba en formato UTF8."
 
 #: deck.py:659
 #, fuzzy, python-format
@@ -643,11 +701,11 @@ msgstr "Tarjetas no mostradas: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgid "Update tags..."
 msgstr "Actualizar etiquetas..."
 
-#: deck.py:2002
+#: deck.py:2006
 msgid "Updating priorities..."
 msgstr "Actualizando prioridades..."
 
-#: deck.py:2498
+#: deck.py:2502
 msgid "Upgrading Deck..."
 msgstr ""
 
@@ -908,9 +966,6 @@ msgstr "desconocido"
 #~ msgid "Correct count"
 #~ msgstr "Veces correcto"
 
-#~ msgid "Couldn't find pattern. The file should be a series of lines separated by colons, semicolons or tabs."
-#~ msgstr "No se ajusta a la plantilla. El archivo debe estar compuesto por una serie de líneas separadas por punto, coma y punto o tabulador."
-
 #~ msgid "Current factor"
 #~ msgstr "Factor actual"
 
@@ -974,17 +1029,8 @@ msgstr "desconocido"
 #~ msgid "Import: same %s"
 #~ msgstr "Importar: mismo %s"
 
-#~ msgid "Line %(line)d doesn't match pattern '%(pat)s'"
-#~ msgstr "La línea %(line)d no se ajusta a la plantilla '%(pat)s'"
-
-#~ msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
-#~ msgstr "La línea %(line)d tiene %(num1)d campos, se esperaban %(num2)d"
-
 #~ msgid "Mature cards"
 #~ msgstr "Tarjetas maduras"
-
-#~ msgid "Mnemosyne file (*.mem)"
-#~ msgstr "Archivo Mnemosyne (*.mem)"
 
 #~ msgid "Model"
 #~ msgstr "Modelo"
@@ -1040,12 +1086,6 @@ msgstr "desconocido"
 
 #~ msgid "The deck is empty. Please add some cards."
 #~ msgstr "El mazo está vacío. Por favor, añada algunas tarjetas."
-
-#~ msgid "The file had no non-empty lines."
-#~ msgstr "El archivo no tenía líneas vacías."
-
-#~ msgid "The file was not in UTF8 format."
-#~ msgstr "El archivo no estaba en formato UTF8."
 
 #~ msgid "There will be <b>%d</b> new card waiting for review."
 #~ msgstr "Habrá <b>%d</b> nuevas tarjetas esperando repaso."

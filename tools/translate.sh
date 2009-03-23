@@ -13,7 +13,7 @@ oldpwd=$(pwd)
 cd anki
 allPyFiles=libanki.files
 echo "Generating translations.."
-for i in *.py features/*.py
+for i in *.py features/*.py importing/*.py
 do
     echo $i >> $allPyFiles
 done

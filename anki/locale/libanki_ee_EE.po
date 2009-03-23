@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-21 13:35+0900\n"
+"POT-Creation-Date: 2009-03-23 10:45+0900\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -34,6 +34,13 @@ msgstr ""
 "pead võtma normaliseerimise maha. Vaata vikit (wiki).\n"
 "\n"
 "Käsk oli:\n"
+
+#: importing/__init__.py:116
+msgid ""
+"\n"
+"The current importer only supports a single active card template. Please disable\n"
+"all but one card template."
+msgstr ""
 
 #: stats.py:501
 #, python-format
@@ -217,6 +224,11 @@ msgstr "Eelmisel kuu lisatud"
 msgid "Added last week"
 msgstr "Eelmisel nädalal lisatud "
 
+#: importing/__init__.py:252
+#, fuzzy
+msgid "Anki 1.0 deck (*.anki)"
+msgstr "Anki kaardipakk (*.anki)"
+
 #: exporting.py:236
 msgid "Anki deck (*.anki)"
 msgstr "Anki kaardipakk (*.anki)"
@@ -277,11 +289,11 @@ msgstr "Muudan väljasid..."
 msgid "Check Media DB"
 msgstr "Kontrolli meedia andmebaasi"
 
-#: deck.py:1924
+#: deck.py:1928
 msgid "Checking integrity..."
 msgstr "Kontrollin terviklikkust"
 
-#: deck.py:1934
+#: deck.py:1938
 msgid "Checking schema..."
 msgstr "Kontrollin skeemi..."
 
@@ -289,11 +301,19 @@ msgstr "Kontrollin skeemi..."
 msgid "Checksum files..."
 msgstr "Kontrollin faile..."
 
-#: deck.py:2893
+#: importing/csv.py:87
+msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+msgstr ""
+
+#: importing/__init__.py:254
+msgid "CueCard deck (*.wcu)"
+msgstr ""
+
+#: deck.py:2897
 msgid "Custom failed cards handling"
 msgstr "Kohanda ununendud kaartide töötlust"
 
-#: deck.py:1927
+#: deck.py:1931
 msgid "Database file damaged. Restore from backup."
 msgstr "Andmebaasifail on kahjustatud. Taasta varukoopisast."
 
@@ -306,7 +326,7 @@ msgstr "Kaardipaki statistika"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Kaardipakk loodud: <b>%s</b> tagasi<br>"
 
-#: deck.py:1937
+#: deck.py:1941
 msgid "Deck was missing a model"
 msgstr "Kaardipakil puudus mudel"
 
@@ -318,27 +338,27 @@ msgstr "Kustuta iganenenud viited..."
 msgid "Delete unused files..."
 msgstr "Kustuta mittekasutatavad failid..."
 
-#: deck.py:1965
+#: deck.py:1969
 #, python-format
 msgid "Deleted %d cards with missing fact"
 msgstr "%d puuduva faktita kaarti kustutatud."
 
-#: deck.py:1973
+#: deck.py:1977
 #, python-format
 msgid "Deleted %d cards with no card template"
 msgstr "%d kaardimallita kaarti kustutatud"
 
-#: deck.py:1986
+#: deck.py:1990
 #, python-format
 msgid "Deleted %d dangling fields"
 msgstr "%d ripnevat välja kustutatud"
 
-#: deck.py:1958
+#: deck.py:1962
 #, python-format
 msgid "Deleted %d facts with missing fields"
 msgstr "%d puuduva väljaga fakti kustutatud"
 
-#: deck.py:1978
+#: deck.py:1982
 #, python-format
 msgid "Deleted %d facts with no cards"
 msgstr "%d kaardita fakti kustutatud"
@@ -370,7 +390,7 @@ msgstr "Ekspordin..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Faktid tabulaatoriga eraldatud tekstifailis (*.txt)"
 
-#: deck.py:2343
+#: deck.py:2347
 msgid "File is in use by another process"
 msgstr "Fail on kasutusel teise protsessi käes"
 
@@ -390,6 +410,11 @@ msgstr "Esimene eelmisel nädalal"
 #, python-format
 msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 msgstr "Esmakordselt nähtud kaardid: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b>/<b>%(gNewTotal)d</b>)<br><br>"
+
+#: importing/__init__.py:51 importing/anki10.py:25
+#, fuzzy
+msgid "Importing..."
+msgstr "Ekspordin..."
 
 #: stats.py:274 stats.py:357
 msgid "Interval"
@@ -419,6 +444,16 @@ msgstr "Viimane vahekaugus"
 msgid "Left"
 msgstr "Vasak"
 
+#: importing/csv.py:40
+#, python-format
+msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+msgstr ""
+
+#: importing/csv.py:49
+#, python-format
+msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
+msgstr ""
+
 #: stdmodels.py:99
 msgid "Mandarin"
 msgstr "mandariini"
@@ -441,6 +476,15 @@ msgstr "Vanad kaardid: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "MediaMissing"
 msgstr "PuuduvMeedia"
 
+#: importing/__init__.py:109
+#, python-format
+msgid "Missing required/unique field '%(field)s'"
+msgstr ""
+
+#: importing/__init__.py:253
+msgid "Mnemosyne 1.x deck (*.mem)"
+msgstr ""
+
 #: stats.py:290
 msgid "Model Tags"
 msgstr "Mudeli sildid"
@@ -461,27 +505,27 @@ msgstr "Ühtegi kaarti ei ole tähtaegumas."
 msgid "Please add some cards first.<p/>"
 msgstr "Palun lisa esmalt kaarte.<p/>"
 
-#: deck.py:2169
+#: deck.py:2173
 msgid "Processing..."
 msgstr "Töötlen..."
 
-#: deck.py:2005
+#: deck.py:2009
 msgid "Rebuilding QA cache..."
 msgstr "Ehitan uuesti QA vahemälu..."
 
-#: deck.py:2025
+#: deck.py:2029
 msgid "Rebuilding counts..."
 msgstr "Ehitan uuesti statistikat..."
 
-#: deck.py:2031
+#: deck.py:2035
 msgid "Rebuilding queue..."
 msgstr "Ehitan uuesti järjekorda..."
 
-#: deck.py:1999
+#: deck.py:2003
 msgid "Rebuilding tag cache..."
 msgstr "Ehitan uuesti siltide vahemälu..."
 
-#: deck.py:2023
+#: deck.py:2027
 msgid "Rebuilding types..."
 msgstr "Ehitan uuesti tüüpe..."
 
@@ -501,19 +545,19 @@ msgstr "Kordamisi järgmisel kuul"
 msgid "Reps next week"
 msgstr "Kordamisi järgmisel nädalal"
 
-#: deck.py:2880
+#: deck.py:2884
 msgid "Review cards from largest interval"
 msgstr "Korda suurima vahekaugusega kaarte"
 
-#: deck.py:2881
+#: deck.py:2885
 msgid "Review cards from smallest interval"
 msgstr "Korda vähima vahekaugusega kaarte"
 
-#: deck.py:2882
+#: deck.py:2886
 msgid "Review cards in order due"
 msgstr "Korda kaarte tähtaegumise järjekorras"
 
-#: deck.py:2883
+#: deck.py:2887
 msgid "Review cards in random order"
 msgstr "Korda kaarte suvalises järjekorras"
 
@@ -529,47 +573,47 @@ msgstr "Parem"
 msgid "Scan fields..."
 msgstr "Uuri väljasid..."
 
-#: deck.py:2889
+#: deck.py:2893
 msgid "Show failed cards at end"
 msgstr "Näita ununenud kaarte lõpus"
 
-#: deck.py:2890
+#: deck.py:2894
 msgid "Show failed cards in 10 minutes"
 msgstr "Näita ununenud kaarte 10 minuti pärast"
 
-#: deck.py:2892
+#: deck.py:2896
 msgid "Show failed cards in 3 days"
 msgstr "Näita ununenud kaarte 3 päeva pärast"
 
-#: deck.py:2891
+#: deck.py:2895
 msgid "Show failed cards in 8 hours"
 msgstr "Näita ununenud kaarte 8 tunni pärast"
 
-#: deck.py:2888
+#: deck.py:2892
 msgid "Show failed cards soon"
 msgstr "Näita ununenud kaarte varsti"
 
-#: deck.py:2874
+#: deck.py:2878
 msgid "Show new cards after all other cards"
 msgstr "Näita uusi kaarte pärast kõiki teisi kaarte"
 
-#: deck.py:2875
+#: deck.py:2879
 msgid "Show new cards before reviews"
 msgstr "Näita uusi kaarte enne kordamist"
 
-#: deck.py:2867
+#: deck.py:2871
 msgid "Show new cards in order added"
 msgstr "Näita uusi kaarte lisamise järjekorras"
 
-#: deck.py:2866
+#: deck.py:2870
 msgid "Show new cards in random order"
 msgstr "Näita uusi kaarte suvalises järjekorras"
 
-#: deck.py:2868
+#: deck.py:2872
 msgid "Show new cards in reverse order added"
 msgstr "Näita uusi kaarte tagurpidi lisamise järjekorras"
 
-#: deck.py:2873
+#: deck.py:2877
 msgid "Spread new cards out through reviews"
 msgstr "Jaota uued kaardid üle kordamiste laiali"
 
@@ -577,9 +621,21 @@ msgstr "Jaota uued kaardid üle kordamiste laiali"
 msgid "Text files (*.txt)"
 msgstr "Tekstifailid (*.txt)"
 
-#: deck.py:1943
+#: importing/__init__.py:251
+msgid "Text separated by tabs or semicolons (*)"
+msgstr ""
+
+#: deck.py:1947
 msgid "The current model didn't exist"
 msgstr "Praegune mudel ei olnud olemas"
+
+#: importing/csv.py:76
+msgid "The file had no non-empty lines."
+msgstr ""
+
+#: importing/csv.py:105 importing/wcu.py:29
+msgid "The file was not in UTF8 format."
+msgstr ""
 
 #: deck.py:659
 #, python-format
@@ -641,11 +697,11 @@ msgstr "Mitte-esinenud kaarte: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 msgid "Update tags..."
 msgstr "Uuenda silte..."
 
-#: deck.py:2002
+#: deck.py:2006
 msgid "Updating priorities..."
 msgstr "Uuendan omadusi..."
 
-#: deck.py:2498
+#: deck.py:2502
 msgid "Upgrading Deck..."
 msgstr "Uuendan kaardipakki..."
 
