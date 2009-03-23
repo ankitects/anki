@@ -19,6 +19,7 @@ except ImportError:
 
 from anki.db import *
 from anki.lang import _, ngettext
+import locale
 
 # Time handling
 ##############################################################################
@@ -49,7 +50,7 @@ def fmtTimeSpan(time, pad=0, point=0, short=False):
         fmt = shortTimeTable[type]
     else:
         fmt = timeTable[type](_pluralCount(round(time, point)))
-    timestr = _("%(a)d.%(b)df") % {'a': pad, 'b': point}
+    timestr = locale.format("%(a)d.%(b)df", {'a': pad, 'b': point})
     return ("%" + (fmt % timestr)) % time
 
 def fmtTimeSpanPair(time1, time2, short=False):
@@ -61,7 +62,7 @@ def fmtTimeSpanPair(time1, time2, short=False):
         fmt = shortTimeTable[type]
     else:
         fmt = timeTable[type](2)
-    timestr = _("%(a)d.%(b)df") % {'a': 0, 'b': point}
+    timestr = locale.format("%(a)d.%(b)df", {'a': pad, 'b': point})
     finalstr = "%s-%s" % (
         ('%' + timestr) % time1,
         ('%' + timestr) % time2)
