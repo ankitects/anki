@@ -1442,7 +1442,7 @@ and cards.factId = facts.id""")
     def cardsWithTags(self, tagStr, search="and"):
         tagIds = []
         # get ids
-        for tag in tagStr.split():
+        for tag in tagStr.split(" "):
             tag = tag.replace("*", "%")
             if "%" in tag:
                 ids = self.s.column0(
