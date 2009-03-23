@@ -966,6 +966,8 @@ select count(id) from cards
 where factId = :fid and cardModelId = :cmid""",
                                  fid=fact.id, cmid=cardModel.id) == 0:
                     card = anki.cards.Card(fact, cardModel)
+                    self.updateCardTags([card.id])
+                    self.updatePriority(card)
                     self.cardCount += 1
                     self.newCount += 1
         self.setModified()
@@ -1544,30 +1546,46 @@ insert into cardTags
 (:cardId, :tagId, :src)""", d)
         self.s.statement("""
 delete from tags where id not in (select distinct tagId from cardTags)
+and priority = 2
 """)
 
     def updateTagsForModel(self, model):
-        cardIds = self.s.column0("""
-select cards.id from cards, facts where
+        cards = self.s.all("""
+select cards.id, cards.cardModelId from cards, facts where
 facts.modelId = :m and cards.factId = facts.id""", m=model.id)
+        cardIds = [x[0] for x in cards]
         factIds = self.s.column0("""
 select facts.id from facts where
 facts.modelId = :m""", m=model.id)
-        tids = tagIds(self.s, parseTags(model.tags))
+        cmtags = " ".join([cm.name for cm in model.cardModels])
+        tids = tagIds(self.s, parseTags(model.tags) +
+                      parseTags(cmtags))
         self.s.statement("""
 delete from cardTags where cardId in %s
-and src = 1""" % ids2str(cardIds))
+and src in (1, 2)""" % ids2str(cardIds))
         d = []
         for tag in parseTags(model.tags):
             for id in cardIds:
                 d.append({"cardId": id,
                           "tagId": tids[tag.lower()],
                           "src": 1})
+        cmtags = {}
+        for cm in model.cardModels:
+            cmtags[cm.id] = parseTags(cm.name)
+        for c in cards:
+            for tag in cmtags[c[1]]:
+                d.append({"cardId": c[0],
+                          "tagId": tids[tag.lower()],
+                          "src": 2})
         if d:
             self.s.statements("""
 insert into cardTags
 (cardId, tagId, src) values
 (:cardId, :tagId, :src)""", d)
+        self.s.statement("""
+delete from tags where id not in (select distinct tagId from cardTags)
+and priority = 2
+""")
 
     # Tags: adding/removing in bulk
     ##########################################################################
