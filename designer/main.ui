@@ -23,6 +23,14 @@
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>69</y>
+     <width>723</width>
+     <height>424</height>
+    </rect>
+   </property>
    <property name="sizePolicy" >
     <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>1</horstretch>
@@ -133,6 +141,14 @@
           <number>3</number>
          </property>
          <widget class="QWidget" name="page1" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>100</width>
+            <height>30</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
            <property name="spacing" >
             <number>0</number>
@@ -204,6 +220,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page2" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>100</width>
+            <height>30</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
            <property name="leftMargin" >
             <number>0</number>
@@ -342,8 +366,26 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="typeAnswerPage" />
-         <widget class="QWidget" name="blankButtonPage" />
+         <widget class="QWidget" name="typeAnswerPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>100</width>
+            <height>30</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QWidget" name="blankButtonPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>446</width>
+            <height>57</height>
+           </rect>
+          </property>
+         </widget>
         </widget>
        </item>
        <item row="0" column="0" >
@@ -355,10 +397,27 @@
           </sizepolicy>
          </property>
          <property name="currentIndex" >
-          <number>0</number>
+          <number>1</number>
          </property>
-         <widget class="QWidget" name="blankPage" />
+         <widget class="QWidget" name="blankPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>446</width>
+            <height>367</height>
+           </rect>
+          </property>
+         </widget>
          <widget class="QWidget" name="welcomePage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>446</width>
+            <height>367</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
            <property name="margin" >
             <number>6</number>
@@ -376,6 +435,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="editPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>446</width>
+            <height>367</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" >
            <property name="spacing" >
             <number>0</number>
@@ -406,6 +473,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="optionsPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>446</width>
+            <height>367</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
            <item>
             <spacer name="verticalSpacer_2" >
@@ -674,6 +749,12 @@
                          <iconset resource="../icons.qrc" >
                           <normaloff>:/icons/player-time.png</normaloff>:/icons/player-time.png</iconset>
                         </property>
+                        <property name="autoDefault" >
+                         <bool>true</bool>
+                        </property>
+                        <property name="default" >
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                       <item row="0" column="1" >
@@ -751,6 +832,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="congratsPage" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>446</width>
+            <height>367</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_8" >
            <item>
             <spacer name="verticalSpacer_3" >
@@ -1097,7 +1186,7 @@
      <x>0</x>
      <y>0</y>
      <width>723</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1256,6 +1345,14 @@
    <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusbar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>493</y>
+     <width>723</width>
+     <height>20</height>
+    </rect>
+   </property>
    <property name="sizeGripEnabled" >
     <bool>true</bool>
    </property>
@@ -1263,6 +1360,14 @@
   <widget class="QToolBar" name="toolBar" >
    <property name="enabled" >
     <bool>true</bool>
+   </property>
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>23</y>
+     <width>723</width>
+     <height>46</height>
+    </rect>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
