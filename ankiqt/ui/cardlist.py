@@ -356,7 +356,7 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.clear()
         self.dialog.tagList.addItems(QStringList(
             [_('<Tag filter>'), _('No tags')] + self.alltags))
-        self.dialog.tagList.view().setFixedWidth(300)
+        self.dialog.tagList.view().setFixedWidth(200)
 
     def drawSort(self):
         self.sortList = [
