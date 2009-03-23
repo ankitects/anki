@@ -1919,6 +1919,7 @@ Return new path, relative to media dir."""
 
     def fixIntegrity(self):
         "Responsibility of caller to call rebuildQueue()"
+        self.s.commit()
         self.resetUndo()
         self.startProgress(12)
         self.updateProgress(_("Checking integrity..."))
