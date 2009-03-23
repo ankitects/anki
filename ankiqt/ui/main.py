@@ -1374,6 +1374,7 @@ day = :d""", d=yesterday)
     ##########################################################################
 
     def onImport(self):
+        import ui.importing
         if self.deck is None:
             self.onNew()
         ui.importing.ImportDialog(self)

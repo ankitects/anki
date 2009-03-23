@@ -13,7 +13,6 @@ def importAll():
     import exporting
     import facteditor
     import help
-    import importing
     import lookup
     import modelchooser
     import modelproperties
