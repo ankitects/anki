@@ -106,11 +106,12 @@ class DeckModel(QAbstractTableModel):
         d = {'str': [],
              'tag': [],
              }
-        for elem in search.split(" "):
-            if len(elem) > 2 and elem.startswith("t:"):
-                d['tag'].append(elem[2:])
-            else:
-                d['str'].append(elem)
+        if search:
+            for elem in search.split():
+                if len(elem) > 2 and elem.startswith("t:"):
+                    d['tag'].append(elem[2:])
+                else:
+                    d['str'].append(elem)
         return d
 
     def showMatching(self):
