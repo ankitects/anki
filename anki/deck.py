@@ -1209,7 +1209,7 @@ modelId = :id
 where id in %s""" % fids, t=time.time(), id=newModel.id)
             self.finishProgress()
         # template remapping
-        self.startProgress(len(cardMap)+3)
+        self.startProgress(len(cardMap)+4)
         toChange = []
         self.updateProgress(_("Changing cards..."))
         for (old, new) in cardMap.items():
@@ -1237,6 +1237,8 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         self.flushMod()
         self.updateProgress()
         self.updateCardTags()
+        self.updateProgress()
+        self.updateAllPriorities()
         self.updateProgress()
         self.rebuildCounts()
         self.refresh()
