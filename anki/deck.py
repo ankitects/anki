@@ -1542,6 +1542,9 @@ facts.modelId = :id""", id=modelId))
 insert into cardTags
 (cardId, tagId, src) values
 (:cardId, :tagId, :src)""", d)
+        self.s.statement("""
+delete from tags where id not in (select distinct tagId from cardTags)
+""")
 
     def updateTagsForModel(self, model):
         cardIds = self.s.column0("""
