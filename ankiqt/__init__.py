@@ -108,7 +108,7 @@ def run():
     if anki.version != appVersion:
         print "You have libanki %s, but this is ankiqt %s" % (
             anki.version, appVersion)
-        print "\nPlease install the latest libanki."
+        print "\nPlease ensure versions match."
         return
 
     # parse args
