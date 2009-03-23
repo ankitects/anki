@@ -56,7 +56,6 @@ class AddCards(QDialog):
             self.addButton.setToolTip(_("Add (shortcut: command+return)"))
         else:
             self.addButton.setToolTip(_("Add (shortcut: ctrl+return)"))
-        self.addButton.setAutoDefault(False)
         s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
         s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
@@ -95,6 +94,7 @@ class AddCards(QDialog):
             fact.tags = self.parent.deck.lastTags
         # set the new fact
         self.editor.setFact(fact, check=True)
+        self.setTabOrder(self.editor.tags, self.addButton)
 
     def addCards(self):
         # make sure updated
@@ -130,6 +130,14 @@ question or answer on all cards."""), parent=self)
         # let completer know our extra tags
         self.editor.tags.addTags(parseTags(self.parent.deck.lastTags))
         self.maybeSave()
+
+    def keyPressEvent(self, evt):
+        "Show answer on RET or register answer."
+        if (evt.key() in (Qt.Key_Enter, Qt.Key_Return)
+            and self.editor.tags.hasFocus()):
+            evt.accept()
+            return
+        return QDialog.keyPressEvent(self, evt)
 
     def closeEvent(self, evt):
         if self.onClose():
