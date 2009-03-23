@@ -7,7 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback, inspect
-import shutil, time, glob, tempfile, datetime, zipfile
+import shutil, time, glob, tempfile, datetime, zipfile, locale
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -1543,6 +1543,7 @@ it to your friends.
 
     def setLang(self):
         "Set the user interface language."
+        locale.setlocale(locale.LC_ALL, '')
         languageDir=os.path.join(ankiqt.modDir, "locale")
         self.languageTrans = gettext.translation('ankiqt', languageDir,
                                             languages=[self.config["interfaceLang"]],
