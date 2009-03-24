@@ -51,7 +51,7 @@ def fmtTimeSpan(time, pad=0, point=0, short=False):
     else:
         fmt = timeTable[type](_pluralCount(round(time, point)))
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
-    return locale.format("%" + (fmt % timestr), time)
+    return locale.format_string("%" + (fmt % timestr), time)
 
 def fmtTimeSpanPair(time1, time2, short=False):
     (type, point) = optimalPeriod(time1, 0)
@@ -64,8 +64,8 @@ def fmtTimeSpanPair(time1, time2, short=False):
         fmt = timeTable[type](2)
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
     finalstr = "%s-%s" % (
-        locale.format('%' + timestr, time1),
-        locale.format('%' + timestr, time2),)
+        locale.format_string('%' + timestr, time1),
+        locale.format_string('%' + timestr, time2),)
     return fmt % finalstr
 
 def optimalPeriod(time, point):
