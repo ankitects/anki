@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-25 11:12+0100\n"
-"PO-Revision-Date: 2009-03-25 11:11+0100\n"
+"POT-Creation-Date: 2009-03-25 16:55+0100\n"
+"PO-Revision-Date: 2009-03-25 16:52+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -721,6 +721,21 @@ msgstr "okänt"
 
 #~ msgid "%0.1f seconds"
 #~ msgstr "%0.1f sekunder"
+
+#~ msgid "%sd"
+#~ msgstr "%s dag"
+
+#~ msgid "%sh"
+#~ msgstr "%s tim."
+
+#~ msgid "%sm"
+#~ msgstr "%s min"
+
+#~ msgid "%ss"
+#~ msgstr "%s sek"
+
+#~ msgid "%sy"
+#~ msgstr "%s år"
 
 #~ msgid "<b>%0.0f</b> days"
 #~ msgstr "<b>%0.0f</b> dagar"
