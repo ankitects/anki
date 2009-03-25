@@ -192,7 +192,7 @@ class StatusView(object):
         tip = "<h1>" + _("Performance") + "</h1>"
         tip += _("""The top bar shows your performance today. The bottom bar shows your<br>
 performance on cards scheduled for 21 days or more. The bottom bar should<br>
-generally be between 80-95%% - lower and you're forgetting mature cards<br>
+generally be between 80-95% - lower and you're forgetting mature cards<br>
 too often, higher and you're spending too much time reviewing.""")
         tip += "<h2>" + _("Reviews today") + "</h2>"
         tip += "<b>" + _("Correct today: ") + anki.utils.fmtPercentage(stats['dYesTotal%'], point=1)
