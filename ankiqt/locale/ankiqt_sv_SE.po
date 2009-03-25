@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-25 11:07+0100\n"
-"PO-Revision-Date: 2009-03-25 09:17+0100\n"
+"POT-Creation-Date: 2009-03-25 17:28+0100\n"
+"PO-Revision-Date: 2009-03-25 17:28+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -553,11 +553,11 @@ msgstr "<b>Ersätt med</b>:"
 
 #: forms/main.py:890
 msgid "<b>Session limit (mins):</b>"
-msgstr "<b>Maxlängd på sessioner (min.):</b>"
+msgstr "<b>Största antal minuter/studiepass:</b>"
 
 #: forms/main.py:892
 msgid "<b>Session limit (reps):"
-msgstr "<b>Maxlängd på sessioner (upprepn.):"
+msgstr "<b>Största antal upprepningar/studiepass:"
 
 #: forms/deckproperties.py:374
 msgid "<b>Show failed cards early</b>"
@@ -639,7 +639,7 @@ msgstr "<h1>Kortmallar</h1>"
 
 #: ui/graphs.py:214
 msgid "<h1>Cumulative Due</h1>"
-msgstr "<h1>Kumulativt antal vars tidsfrist är slut</h1>"
+msgstr "<h1>Ackumulerat antal vars tidsfrist är slut</h1>"
 
 #: ui/main.py:1259
 msgid "<h1>Current card</h1>"
@@ -782,9 +782,9 @@ msgid ""
 "</table>"
 msgstr ""
 "<table>\n"
-"<tr><td width=100>Repetitioner vars tidsfrist är ute:</td><td align=right><b>%(ret)s</b></td></tr>\n"
+"<tr><td width=100>Dags att repetera:</td><td align=right><b>%(ret)s</b></td></tr>\n"
 "<tr><td>Nya idag:</td><td align=right><b>%(new)s</b></td></tr>\n"
-"<tr><td>Nya sammanlagt:</td><td align=right>%(newof)s</td></tr>\n"
+"<tr><td>Nya totalt:</td><td align=right>%(newof)s</td></tr>\n"
 "</table>"
 
 #: ui/main.py:1070
