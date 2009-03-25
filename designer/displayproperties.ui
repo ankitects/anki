@@ -300,8 +300,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>960</width>
-                 <height>480</height>
+                 <width>348</width>
+                 <height>317</height>
                 </rect>
                </property>
                <attribute name="title" >
@@ -556,6 +556,9 @@
                 <property name="text" >
                  <string>Close</string>
                 </property>
+                <property name="autoDefault" >
+                 <bool>false</bool>
+                </property>
                </widget>
               </item>
              </layout>
@@ -613,6 +616,31 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>cardList</tabstop>
+  <tabstop>questionFont</tabstop>
+  <tabstop>questionSize</tabstop>
+  <tabstop>questionColour</tabstop>
+  <tabstop>questionAlign</tabstop>
+  <tabstop>answerFont</tabstop>
+  <tabstop>answerSize</tabstop>
+  <tabstop>answerColour</tabstop>
+  <tabstop>answerAlign</tabstop>
+  <tabstop>backgroundColour</tabstop>
+  <tabstop>fieldList</tabstop>
+  <tabstop>useFamily</tabstop>
+  <tabstop>fontFamily</tabstop>
+  <tabstop>useSize</tabstop>
+  <tabstop>fontSize</tabstop>
+  <tabstop>useColour</tabstop>
+  <tabstop>fontColour</tabstop>
+  <tabstop>useFamilyEdit</tabstop>
+  <tabstop>fontFamilyEdit</tabstop>
+  <tabstop>useSizeEdit</tabstop>
+  <tabstop>fontSizeEdit</tabstop>
+  <tabstop>helpButton</tabstop>
+  <tabstop>preview</tabstop>
+  <tabstop>closeButton</tabstop>
   <tabstop>question</tabstop>
   <tabstop>answer</tabstop>
  </tabstops>

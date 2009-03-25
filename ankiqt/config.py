@@ -57,6 +57,7 @@ class Config(dict):
             'saveAfterAddingNum': 1,
             'saveOnClose': True,
             'mainWindowGeom': None,
+            'mainWindowState': None,
             'suppressUpdate': False,
             'suppressEstimates': False,
             'showLastCardInterval': False,
@@ -84,6 +85,7 @@ class Config(dict):
             'editLineSize': 20,
             'factEditorAdvanced': False,
             'typeAnswerFontSize': 20,
+            'showProgress': True,
             'recentColours': ["#000000", "#0000ff"],
             }
         for (k,v) in fields.items():

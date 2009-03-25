@@ -6,8 +6,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage
 
-import os, sys, re, types, gettext, stat, traceback
-import shutil, time, glob, tempfile, datetime
+import os, sys, re, types, gettext, stat, traceback, inspect
+import shutil, time, glob, tempfile, datetime, zipfile, locale
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -49,8 +49,6 @@ class AnkiQt(QMainWindow):
         self.setupTray()
         self.connectMenuActions()
         ui.splash.update()
-        if self.config['mainWindowGeom']:
-            self.restoreGeometry(self.config['mainWindowGeom'])
         self.setupViews()
         self.setupEditor()
         self.setupStudyScreen()
@@ -58,6 +56,9 @@ class AnkiQt(QMainWindow):
         self.setupAnchors()
         self.setupToolbar()
         self.setupProgressInfo()
+        if self.config['mainWindowState']:
+            self.restoreGeometry(self.config['mainWindowGeom'])
+            self.restoreState(self.config['mainWindowState'])
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             pass
@@ -68,10 +69,11 @@ class AnkiQt(QMainWindow):
             self.moveToState("auto")
         # check for updates
         ui.splash.update()
-        self.setupAutoUpdate()
+        self.errorOccurred = False
         self.setupErrorHandler()
         self.setupMisc()
         self.loadPlugins()
+        self.setupAutoUpdate()
         self.rebuildPluginsMenu()
         # run after-init hook
         try:
@@ -82,6 +84,9 @@ class AnkiQt(QMainWindow):
         ui.splash.update()
         ui.splash.finish(self)
         self.show()
+        if (self.deck and self.config['syncOnLoad'] and
+            self.deck.syncName):
+            self.syncDeck(interactive=False)
 
     def setupMainWindow(self):
         # main window
@@ -142,9 +147,11 @@ class AnkiQt(QMainWindow):
                     # hack for matplotlib errors on osx
                     self.pool = ""
                 stdText = _("""\
-An error occurred.<br>
-Please run <b>Tools > Advanced > Check DB</b>.<br>
-<br>
+An error occurred. Please:<p>
+<ol>
+<li><b>Restart Anki</b>.
+<li><b>Tools > Advanced > Check DB</b>.
+</ol>
 If it does not fix the problem, please copy the following<br>
 into a bug report:<br><br>
 """)
@@ -156,6 +163,7 @@ Please do not file a bug report with Anki.<br><br>""")
                 else:
                     txt = stdText
                 if self.pool:
+                    self.parent.errorOccurred = True
                     ui.utils.showText(txt + self.pool[0:10000].replace(
                         "\n", "<br>"))
                 self.pool = ""
@@ -197,6 +205,7 @@ Please do not file a bug report with Anki.<br><br>""")
             if count:
                 self.deck.rebuildCounts()
             self.deck.rebuildQueue()
+            runHook("guiReset")
             self.moveToState("initial")
 
     def moveToState(self, state):
@@ -349,12 +358,12 @@ Please do not file a bug report with Anki.<br><br>""")
         "Reschedule current card and move back to getQuestion state."
         if self.state != "showAnswer":
             return
-        # remove card from session before updating it
-        try:
-            self.deck.s.expunge(self.currentCard)
-        except:
-            # session has been reset
-            pass
+        # force refresh of card then remove from session as we update in pure sql
+        self.deck.s.refresh(self.currentCard)
+        self.deck.s.refresh(self.currentCard.fact)
+        self.deck.s.refresh(self.currentCard.cardModel)
+        self.deck.s.expunge(self.currentCard)
+        # answer
         self.deck.answerCard(self.currentCard, quality)
         self.lastScheduledTime = anki.utils.fmtTimeSpan(
             self.currentCard.due - time.time())
@@ -611,10 +620,10 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         # try a command line argument if available
         if args:
             f = unicode(args[0], sys.getfilesystemencoding())
-            return self.loadDeck(f)
+            return self.loadDeck(f, sync=False)
         # try recent deck paths
         for path in self.config['recentDeckPaths']:
-            r = self.loadDeck(path, interactive=False)
+            r = self.loadDeck(path, interactive=False, sync=False)
             if r:
                 return r
         self.onNew(initial=True)
@@ -626,49 +635,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             latest = self.config['recentDeckPaths'][0]
             defaultDir = os.path.dirname(latest)
         else:
-            if save:
-                defaultDir = unicode(os.path.expanduser("~/"),
-                                     sys.getfilesystemencoding())
-            else:
-                samples = self.getSamplesDir()
-                if samples:
-                    return samples
+            defaultDir = unicode(os.path.expanduser("~/"),
+                                 sys.getfilesystemencoding())
         return defaultDir
-
-    def getSamplesDir(self):
-        path = os.path.join(ankiqt.runningDir, "libanki")
-        if not os.path.exists(path):
-            path = os.path.join(
-                os.path.join(ankiqt.runningDir, ".."), "libanki")
-            if not os.path.exists(path):
-                path = ankiqt.runningDir
-        if sys.platform.startswith("win32"):
-            path = os.path.split(
-                os.path.split(ankiqt.runningDir)[0])[0]
-        elif sys.platform.startswith("darwin"):
-            path = ankiqt.runningDir + "/../../.."
-        path = os.path.join(path, "samples")
-        path = os.path.normpath(path)
-        if os.path.exists(path):
-            if sys.platform.startswith("darwin"):
-                return self.openMacSamplesDir(path)
-            return path
-        return ""
-
-    def openMacSamplesDir(self, path):
-        # some versions of macosx don't allow the open dialog to point inside
-        # a .App file, it seems - so we copy the files onto the desktop.
-        newDir = os.path.expanduser("~/Documents/Anki 0.9 Sample Decks")
-        import shutil
-        if os.path.exists(newDir):
-            files = os.listdir(path)
-            for file in files:
-                loc = os.path.join(path, file)
-                if not os.path.exists(os.path.join(newDir, file)):
-                    shutil.copy2(loc, newDir)
-            return newDir
-        shutil.copytree(path, newDir)
-        return newDir
 
     def updateRecentFiles(self, path):
         "Add the current deck to the list of recent files."
@@ -761,6 +730,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         return True
 
     def inMainWindow(self):
+        return True
         return self.app.activeWindow() == self
 
     def onNew(self, initial=False, path=None):
@@ -826,23 +796,27 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.deck = None
         self.moveToState("initial")
 
-    def onOpen(self, samples=False):
+    def onGetSharedDeck(self):
+        if not self.inMainWindow(): return
+        if not self.saveAndClose(hideWelcome=True): return
+        s = ui.getshared.GetShared(self, 0)
+        if not s.ok:
+            self.deck = None
+            self.moveToState("initial")
+
+    def onGetSharedPlugin(self):
+        if not self.inMainWindow(): return
+        ui.getshared.GetShared(self, 1)
+
+    def onOpen(self):
         if not self.inMainWindow(): return
         key = _("Deck files (*.anki)")
-        if samples: defaultDir = self.getSamplesDir()
-        else: defaultDir = self.getDefaultDir()
+        defaultDir = self.getDefaultDir()
         file = QFileDialog.getOpenFileName(self, _("Open deck"),
                                            defaultDir, key)
         file = unicode(file)
         if not file:
             return False
-        if samples:
-            # we need to copy into a writeable location
-            d = unicode(
-                os.path.join(self.documentDir, os.path.basename(file)))
-            if not os.path.exists(d):
-                shutil.copy(file, d)
-            file = d
         ret = self.loadDeck(file, interactive=True)
         if not ret:
             if ret is None:
@@ -852,9 +826,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         else:
             self.updateRecentFiles(file)
             return True
-
-    def onOpenSamples(self):
-        self.onOpen(samples=True)
 
     def onUnsavedTimer(self):
         QToolTip.showText(
@@ -925,6 +896,7 @@ your deck."""))
         runHook("quit")
         self.help.hide()
         self.config['mainWindowGeom'] = self.saveGeometry()
+        self.config['mainWindowState'] = self.saveState()
         # save config
         try:
             self.config.save()
@@ -950,14 +922,12 @@ your deck."""))
     def onWelcomeAnchor(self, str):
         if str == "new":
             self.onNew()
-        elif str == "sample":
-            self.onOpenSamples()
         elif str == "open":
             self.onOpen()
+        elif str == "sample":
+            self.onGetSharedDeck()
         elif str == "openrem":
             self.onOpenOnline()
-        elif str == "more":
-            self.onGetMoreDecks()
         if str == "addfacts":
             if not self.deck:
                 self.onNew()
@@ -1175,7 +1145,6 @@ day = :d""", d=yesterday)
         self.deck.newCardSpacing = self.mainWin.newCardScheduling.currentIndex()
         self.deck.revCardOrder = self.mainWin.revCardOrder.currentIndex()
         self.deck.setFailedCardPolicy(self.mainWin.failedCardsOption.currentIndex())
-        self.deck.updateDynamicIndices()
         self.deck.startSession()
         self.deck.flushMod()
         self.moveToState("getQuestion")
@@ -1401,13 +1370,11 @@ day = :d""", d=yesterday)
     def onActiveTags(self):
         ui.activetags.show(self)
 
-    def onGetMoreDecks(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appMoreDecks))
-
     # Importing & exporting
     ##########################################################################
 
     def onImport(self):
+        import ui.importing
         if self.deck is None:
             self.onNew()
         ui.importing.ImportDialog(self)
@@ -1415,8 +1382,19 @@ day = :d""", d=yesterday)
     def onExport(self):
         ui.exporting.ExportDialog(self)
 
-    # Cramming
+    # Cramming & Sharing
     ##########################################################################
+
+    def _copyToTmpDeck(self, name="cram.anki", tags=""):
+        ndir = tempfile.mkdtemp(prefix="anki")
+        path = os.path.join(ndir, name)
+        from anki.exporting import AnkiExporter
+        e = AnkiExporter(self.deck)
+        if tags:
+            e.limitTags = parseTags(tags)
+        path = unicode(path, sys.getfilesystemencoding())
+        e.exportInto(path)
+        return (e, path)
 
     def onCram(self):
         if self.deck.name() == "cram":
@@ -1431,14 +1409,7 @@ day = :d""", d=yesterday)
             return
         s = unicode(s)
         # open tmp deck
-        ndir = tempfile.mkdtemp(prefix="anki")
-        path = os.path.join(ndir, "cram.anki")
-        from anki.exporting import AnkiExporter
-        e = AnkiExporter(self.deck)
-        if s:
-            e.limitTags = parseTags(s)
-        path = unicode(path, sys.getfilesystemencoding())
-        e.exportInto(path)
+        (e, path) = self._copyToTmpDeck(tags=s)
         if not e.exportedCards:
             ui.utils.showInfo(_("No cards matched the provided tags."))
             return
@@ -1482,6 +1453,80 @@ day = :d""", d=yesterday)
         self.reset()
         p.finish()
 
+    def onShare(self, tags):
+        pwd = os.getcwd()
+        # open tmp deck
+        (e, path) = self._copyToTmpDeck(name="shared.anki", tags=tags)
+        if not e.exportedCards:
+            ui.utils.showInfo(_("No cards matched the provided tags."))
+            return
+        self.deck.startProgress()
+        self.deck.updateProgress()
+        d = DeckStorage.Deck(path)
+        # reset scheduling to defaults
+        d.newCardsPerDay = 20
+        d.delay0 = 600
+        d.delay1 = 600
+        d.delay2 = 0
+        d.hardIntervalMin = 0.333
+        d.hardIntervalMax = 0.5
+        d.midIntervalMin = 3.0
+        d.midIntervalMax = 5.0
+        d.easyIntervalMin = 7.0
+        d.easyIntervalMax = 9.0
+        d.syncName = None
+        d.suspended = u"Suspended"
+        self.deck.updateProgress()
+        d.updateAllPriorities()
+        d.utcOffset = -1
+        d.flushMod()
+        d.save()
+        self.deck.updateProgress()
+        # remove indices
+        indices = d.s.column0(
+            "select name from sqlite_master where type = 'index' "
+            "and sql != ''")
+        for i in indices:
+            d.s.statement("drop index %s" % i)
+        # and q/a cache
+        d.s.statement("update cards set question = '', answer = ''")
+        self.deck.updateProgress()
+        d.s.statement("vacuum")
+        self.deck.updateProgress()
+        nfacts = d.factCount
+        mdir = d.mediaDir()
+        d.close()
+        dir = os.path.dirname(path)
+        zippath = os.path.join(dir, "shared-%d.zip" % time.time())
+        # zip it up
+        zip = zipfile.ZipFile(zippath, "w", zipfile.ZIP_DEFLATED)
+        zip.writestr("facts", str(nfacts))
+        readmep = os.path.join(dir, "README.html")
+        readme = open(readmep, "w")
+        readme.write('''\
+<html><body>
+This is an exported packaged deck created by Anki.<p>
+
+To share this deck with other people, upload it to
+<a href="http://anki.ichi2.net/file/upload">
+http://anki.ichi2.net/file/upload</a>, or email
+it to your friends.
+</body></html>''')
+        readme.close()
+        zip.write(readmep, "README.txt")
+        zip.write(path, "shared.anki")
+        if mdir:
+            for f in os.listdir(mdir):
+                zip.write(os.path.join(mdir, f),
+                          str(os.path.join("shared.media/", f)))
+            shutil.rmtree(mdir)
+        self.deck.updateProgress()
+        zip.close()
+        os.chdir(pwd)
+        os.unlink(path)
+        self.deck.finishProgress()
+        self.onOpenPluginFolder(dir)
+
     # Reviewing and learning ahead
     ##########################################################################
 
@@ -1498,6 +1543,7 @@ day = :d""", d=yesterday)
 
     def setLang(self):
         "Set the user interface language."
+        locale.setlocale(locale.LC_ALL, '')
         languageDir=os.path.join(ankiqt.modDir, "locale")
         self.languageTrans = gettext.translation('ankiqt', languageDir,
                                             languages=[self.config["interfaceLang"]],
@@ -1698,10 +1744,12 @@ day = :d""", d=yesterday)
         s = SIGNAL("triggered()")
         self.connect(m.actionNew, s, self.onNew)
         self.connect(m.actionOpenOnline, s, self.onOpenOnline)
+        self.connect(m.actionDownloadSharedDeck, s, self.onGetSharedDeck)
+        self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
         self.connect(m.actionOpen, s, self.onOpen)
-        self.connect(m.actionOpenSamples, s, self.onOpenSamples)
         self.connect(m.actionSave, s, self.onSave)
         self.connect(m.actionSaveAs, s, self.onSaveAs)
+        self.connect(m.actionShare, s, self.onShare)
         self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionSyncdeck, s, self.syncDeck)
@@ -1742,7 +1790,6 @@ day = :d""", d=yesterday)
         self.connect(m.actionDisableAllPlugins, s, self.onDisableAllPlugins)
         self.connect(m.actionActiveTags, s, self.onActiveTags)
         self.connect(m.actionReleaseNotes, s, self.onReleaseNotes)
-        self.connect(m.actionGetMoreDecks, s, self.onGetMoreDecks)
         self.connect(m.actionCacheLatex, s, self.onCacheLatex)
         self.connect(m.actionUncacheLatex, s, self.onUncacheLatex)
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
@@ -1835,7 +1882,13 @@ day = :d""", d=yesterday)
             self.mainWin.menu_Lookup.menuAction().setVisible(True)
         else:
             self.mainWin.menu_Lookup.menuAction().setVisible(False)
+            enable = False
         self.mainWin.menu_Lookup.setEnabled(enable)
+        self.mainWin.actionLookup_es.setEnabled(enable)
+        self.mainWin.actionLookup_esk.setEnabled(enable)
+        self.mainWin.actionLookup_expr.setEnabled(enable)
+        self.mainWin.actionLookup_mean.setEnabled(enable)
+        self.mainWin.actionLookup_as.setEnabled(enable)
 
     def maybeEnableUndo(self):
         if self.deck and self.deck.undoAvailable():
@@ -1904,6 +1957,7 @@ day = :d""", d=yesterday)
         sys.path.insert(0, plugdir)
         plugins = self.enabledPlugins()
         plugins.sort()
+        self.registeredPlugins = {}
         for plugin in plugins:
             try:
                 nopy = plugin.replace(".py", "")
@@ -1911,6 +1965,7 @@ day = :d""", d=yesterday)
             except:
                 print "Error in %s" % plugin
                 traceback.print_exc()
+        self.checkForUpdatedPlugins()
 
     def rebuildPluginsMenu(self):
         if getattr(self, "pluginActions", None) is None:
@@ -1922,6 +1977,8 @@ day = :d""", d=yesterday)
         for fname in all:
             enabled = fname.endswith(".py")
             p = re.sub("\.py(\.off)?", "", fname)
+            if p+".py" in self.registeredPlugins:
+                p = self.registeredPlugins[p+".py"]['name']
             a = QAction(p, self)
             a.setCheckable(True)
             a.setChecked(enabled)
@@ -1942,13 +1999,16 @@ day = :d""", d=yesterday)
         return [p for p in os.listdir(self.pluginsFolder())
                 if p.endswith(".py.off") or p.endswith(".py")]
 
-    def onOpenPluginFolder(self):
+    def onOpenPluginFolder(self, path=None):
+        if path is None:
+            path = self.pluginsFolder()
         if sys.platform == "win32":
             # reuse our process handling code from latex
-            anki.latex.call(["explorer", self.pluginsFolder().encode(
-                sys.getfilesystemencoding())])
+            anki.latex.call(["explorer", path.encode(
+                sys.getfilesystemencoding())],
+                            wait=False)
         else:
-            QDesktopServices.openUrl(QUrl("file://" + self.pluginsFolder()))
+            QDesktopServices.openUrl(QUrl("file://" + path))
 
     def onGetPlugins(self):
         QDesktopServices.openUrl(QUrl("http://ichi2.net/anki/wiki/Plugins"))
@@ -1979,6 +2039,14 @@ day = :d""", d=yesterday)
         else:
             self.enablePlugin(plugin)
         self.rebuildPluginsMenu()
+
+    def registerPlugin(self, name, updateId):
+        src = os.path.basename(inspect.getfile(inspect.currentframe(1)))
+        self.registeredPlugins[src] = {'name': name,
+                                       'id': updateId}
+
+    def checkForUpdatedPlugins(self):
+        pass
 
     # Font localisation
     ##########################################################################
@@ -2011,9 +2079,9 @@ day = :d""", d=yesterday)
     ##########################################################################
 
     def setupProgressInfo(self):
-        addHook("startProgress", self.onStartProgress)
-        addHook("updateProgress", self.onUpdateProgress)
-        addHook("finishProgress", self.onFinishProgress)
+        addHook("startProgress", self.startProgress)
+        addHook("updateProgress", self.updateProgress)
+        addHook("finishProgress", self.finishProgress)
         addHook("dbProgress", self.onDbProgress)
         addHook("dbFinished", self.onDbFinished)
         self.progressParent = None
@@ -2024,7 +2092,7 @@ day = :d""", d=yesterday)
     def setProgressParent(self, parent):
         self.progressParent = parent
 
-    def onStartProgress(self, max=100, min=0, title=None):
+    def startProgress(self, max=0, min=0, title=None):
         if self.mainThread != QThread.currentThread():
             return
         self.setBusy()
@@ -2034,14 +2102,14 @@ day = :d""", d=yesterday)
         p = ui.utils.ProgressWin(parent, max, min, title)
         self.progressWins.append(p)
 
-    def onUpdateProgress(self, label=None, value=None):
+    def updateProgress(self, label=None, value=None):
         if self.mainThread != QThread.currentThread():
             return
         if self.progressWins:
             self.progressWins[-1].update(label, value)
         self.app.processEvents()
 
-    def onFinishProgress(self):
+    def finishProgress(self):
         if self.mainThread != QThread.currentThread():
             return
         if self.progressWins:
@@ -2077,6 +2145,10 @@ day = :d""", d=yesterday)
 
     def onCheckDB(self):
         "True if no problems"
+        if self.errorOccurred:
+            ui.utils.showWarning(_(
+                "Please restart Anki before checking the DB."))
+            return
         if not ui.utils.askUser(_("""\
 This operation will find and fix some common problems.<br>
 <br>
@@ -2098,7 +2170,7 @@ Proceed?""")):
 
     def onOptimizeDB(self):
         size = self.deck.optimize()
-        ui.utils.showInfo("Database optimized.\nShrunk by %dKB" % (size/1024.0))
+        ui.utils.showInfo(_("Database optimized.\nShrunk by %dKB") % (size/1024.0))
 
     def onCheckMediaDB(self):
         mb = QMessageBox(self)

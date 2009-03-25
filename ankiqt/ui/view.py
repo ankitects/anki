@@ -56,7 +56,7 @@ class View(object):
         self.haveTop = (self.main.lastCard and (
             self.main.config['showLastCardContent'] or
             self.main.config['showLastCardInterval'])) or (
-            self.main.currentCard and self.main.currentCard.due > time.time())
+            self.needFutureWarning())
         self.drawRule = (self.main.config['qaDivider'] and
                          self.main.currentCard and
                          not self.main.currentCard.cardModel.questionInAnswer)
@@ -204,12 +204,17 @@ class View(object):
         self.drawLastCard()
         self.buffer += "</center>"
 
-    def drawFutureWarning(self):
+    def needFutureWarning(self):
         if not self.main.currentCard:
             return
         if self.main.currentCard.due <= time.time():
             return
         if self.main.currentCard.due - time.time() <= self.main.deck.delay0:
+            return
+        return True
+
+    def drawFutureWarning(self):
+        if not self.needFutureWarning():
             return
         self.write("<span style='color: %s'>" % futureWarningColour +
                    _("This card was due in %s.") % fmtTimeSpan(
@@ -247,8 +252,8 @@ class View(object):
     ##########################################################################
 
     def drawWelcomeMessage(self):
-        self.main.mainWin.welcomeText.setText(_("""\
-<h1>Welcome to Anki!</h1>
+        self.main.mainWin.welcomeText.setText("""\
+<h1>%(welcome)s</h1>
 <p>
 <table>
 
@@ -256,8 +261,8 @@ class View(object):
 <td width=50>
 <a href="welcome:addfacts"><img src=":/icons/list-add.png"></a>
 </td>
-<td valign=middle><h1><a href="welcome:addfacts">Add material</a></h1>
-Start adding your own material.</td>
+<td valign=middle><h1><a href="welcome:addfacts">%(add)s</a></h1>
+%(start)s</td>
 </tr>
 
 </table>
@@ -269,31 +274,30 @@ Start adding your own material.</td>
 <td>
 <a href="welcome:open"><img src=":/icons/document-open.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:open">Open Local Deck</a></h2></td>
-</tr>
-
-<tr>
-<td>
-<a href="welcome:openrem"><img src=":/icons/document-open-remote.png"></a>
-</td>
-<td valign=middle><h2><a href="welcome:openrem">Open Online Deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:open">%(local)s</a></h2></td>
 </tr>
 
 <tr>
 <td width=50>
 <a href="welcome:sample"><img src=":/icons/anki.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:sample">Open Sample Deck</a></h2></td>
+<td valign=middle><h2><a href="welcome:sample">%(dl_shared)s</a></h2></td>
 </tr>
 
 <tr>
-<td width=50>
-<a href="welcome:more"><img src=":/icons/khtml_kget.png"></a>
+<td>
+<a href="welcome:openrem"><img src=":/icons/document-open-remote.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:more">Get More Decks</a></h2></td>
+<td valign=middle><h2><a href="welcome:openrem">%(dl_personal)s</a></h2></td>
 </tr>
 
-</table>"""))
+</table>""" % \
+	{"welcome":_("Welcome to Anki!"),
+         "add":_("Add material"),
+         "start":_("Start adding your own material."),
+         "local":_("Open Local Deck"),
+         "dl_shared":_("Download Shared Deck"),
+         "dl_personal":_("Download Personal Deck")})
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."

@@ -45,7 +45,6 @@ DATA_FILES = [
     'ankiqt/ankiqt/locale',
     'kakasi',
     #'audio',
-    'libanki/samples',
     'ankiqt/imageformats',
     'libanki/anki/features/chinese/unihan.db',
     ]

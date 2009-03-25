@@ -13,6 +13,14 @@
    <string>Edit Items</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>23</y>
+     <width>599</width>
+     <height>439</height>
+    </rect>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
     <property name="spacing" >
      <number>0</number>
@@ -162,7 +170,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit" >
@@ -226,7 +234,7 @@
     <string>Delete</string>
    </property>
    <property name="shortcut" >
-    <string>Del</string>
+    <string>Ctrl+Del</string>
    </property>
   </action>
   <action name="actionAddTag" >

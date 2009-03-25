@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/anki-logo-thin.png</file>
     <file>icons/anki-logo.png</file>
     <file>icons/download.png</file>
     <file>icons/preferences-plugin.png</file>

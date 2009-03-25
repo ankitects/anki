@@ -41,7 +41,8 @@ class HelpArea(object):
 
     def showText(self, text, py={}):
         if "hide" in self.handlers:
-            self.handlers["hide"]()
+            if self.handlers['hide'] != py.get('hide'):
+                self.handlers["hide"]()
         self.show()
         self.buffer = text
         self.addHider()

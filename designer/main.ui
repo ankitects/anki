@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>723</width>
-    <height>504</height>
+    <height>513</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -28,7 +28,7 @@
      <x>0</x>
      <y>69</y>
      <width>723</width>
-     <height>415</height>
+     <height>424</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -145,8 +145,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>422</width>
-            <height>57</height>
+            <width>100</width>
+            <height>30</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
@@ -224,8 +224,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>422</width>
-            <height>57</height>
+            <width>100</width>
+            <height>30</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
@@ -371,8 +371,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>422</width>
-            <height>57</height>
+            <width>100</width>
+            <height>30</height>
            </rect>
           </property>
          </widget>
@@ -397,7 +397,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex" >
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="blankPage" >
           <property name="geometry" >
@@ -405,7 +405,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>358</height>
+            <height>367</height>
            </rect>
           </property>
          </widget>
@@ -415,7 +415,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>358</height>
+            <height>367</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
@@ -440,7 +440,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>358</height>
+            <height>367</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" >
@@ -478,7 +478,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>358</height>
+            <height>367</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
@@ -530,7 +530,7 @@
                   <item>
                    <widget class="QLabel" name="optionsLabel" >
                     <property name="text" >
-                     <string>xxx</string>
+                     <string/>
                     </property>
                     <property name="textInteractionFlags" >
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -736,6 +736,12 @@
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
+                        <property name="minimumSize" >
+                         <size>
+                          <width>0</width>
+                          <height>26</height>
+                         </size>
+                        </property>
                         <property name="text" >
                          <string>Review</string>
                         </property>
@@ -743,10 +749,22 @@
                          <iconset resource="../icons.qrc" >
                           <normaloff>:/icons/player-time.png</normaloff>:/icons/player-time.png</iconset>
                         </property>
+                        <property name="autoDefault" >
+                         <bool>true</bool>
+                        </property>
+                        <property name="default" >
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                       <item row="0" column="1" >
                        <widget class="QPushButton" name="optionsButton" >
+                        <property name="minimumSize" >
+                         <size>
+                          <width>0</width>
+                          <height>26</height>
+                         </size>
+                        </property>
                         <property name="text" >
                          <string>More>></string>
                         </property>
@@ -763,6 +781,12 @@
                       </item>
                       <item row="0" column="2" >
                        <widget class="QPushButton" name="optionsHelpButton" >
+                        <property name="minimumSize" >
+                         <size>
+                          <width>0</width>
+                          <height>26</height>
+                         </size>
+                        </property>
                         <property name="text" >
                          <string>Help</string>
                         </property>
@@ -813,7 +837,7 @@
             <x>0</x>
             <y>0</y>
             <width>446</width>
-            <height>358</height>
+            <height>367</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8" >
@@ -878,7 +902,7 @@
                   <item>
                    <widget class="QLabel" name="congratsLabel" >
                     <property name="text" >
-                     <string>xxx</string>
+                     <string/>
                     </property>
                     <property name="margin" >
                      <number>0</number>
@@ -1174,7 +1198,6 @@
     <addaction name="actionReportbug" />
     <addaction name="actionForum" />
     <addaction name="actionReleaseNotes" />
-    <addaction name="actionGetMoreDecks" />
     <addaction name="separator" />
     <addaction name="actionDonate" />
     <addaction name="actionAbout" />
@@ -1208,10 +1231,23 @@
        <normaloff>:/icons/document-open-recent.png</normaloff>:/icons/document-open-recent.png</iconset>
      </property>
     </widget>
+    <widget class="QMenu" name="menuDownload" >
+     <property name="title" >
+      <string>&amp;Download...</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="../icons.qrc" >
+       <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
+     </property>
+     <addaction name="actionOpenOnline" />
+     <addaction name="separator" />
+     <addaction name="actionDownloadSharedDeck" />
+     <addaction name="actionDownloadSharedPlugin" />
+    </widget>
     <addaction name="actionNew" />
     <addaction name="actionOpen" />
     <addaction name="menuOpenRecent" />
-    <addaction name="actionOpenOnline" />
+    <addaction name="menuDownload" />
     <addaction name="actionImport" />
     <addaction name="separator" />
     <addaction name="actionSave" />
@@ -1288,7 +1324,6 @@
       <addaction name="actionDisableAllPlugins" />
       <addaction name="separator" />
      </widget>
-     <addaction name="actionGetPlugins" />
      <addaction name="actionOpenPluginFolder" />
      <addaction name="separator" />
      <addaction name="menuStartup" />
@@ -1313,7 +1348,7 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>484</y>
+     <y>493</y>
      <width>723</width>
      <height>20</height>
     </rect>
@@ -1426,6 +1461,9 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+S</string>
+   </property>
+   <property name="shortcutContext" >
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionSyncdeck" >
@@ -1762,15 +1800,6 @@
     <string>Check Media Database...</string>
    </property>
   </action>
-  <action name="actionOpenOnline" >
-   <property name="icon" >
-    <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Open On&amp;line...</string>
-   </property>
-  </action>
   <action name="actionCram" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
@@ -1823,15 +1852,6 @@
     <string>Active &amp;Tags...</string>
    </property>
   </action>
-  <action name="actionGetMoreDecks" >
-   <property name="icon" >
-    <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
-   </property>
-   <property name="text" >
-    <string>&amp;Get More Decks...</string>
-   </property>
-  </action>
   <action name="actionEditCurrent" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
@@ -1860,6 +1880,9 @@
    </property>
    <property name="text" >
     <string>&amp;Delete Card</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Del</string>
    </property>
   </action>
   <action name="action_Delete_Fact" >
@@ -1904,6 +1927,34 @@
     <string>&amp;Record Noise Profile...</string>
    </property>
   </action>
+  <action name="actionGetShared" >
+   <property name="text" >
+    <string>Get Shared...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Open a pre-made deck or plugin</string>
+   </property>
+  </action>
+  <action name="actionShare" >
+   <property name="text" >
+    <string>Share...</string>
+   </property>
+  </action>
+  <action name="actionOpenOnline" >
+   <property name="text" >
+    <string>Personal Deck</string>
+   </property>
+  </action>
+  <action name="actionDownloadSharedDeck" >
+   <property name="text" >
+    <string>Shared Deck</string>
+   </property>
+  </action>
+  <action name="actionDownloadSharedPlugin" >
+   <property name="text" >
+    <string>Shared Plugin</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>newPerDay</tabstop>
@@ -1921,11 +1972,11 @@
   <tabstop>help</tabstop>
   <tabstop>welcomeText</tabstop>
   <tabstop>showAnswerButton</tabstop>
-  <tabstop>saveEditorButton</tabstop>
-  <tabstop>easeButton2</tabstop>
   <tabstop>easeButton1</tabstop>
+  <tabstop>easeButton2</tabstop>
   <tabstop>easeButton3</tabstop>
   <tabstop>easeButton4</tabstop>
+  <tabstop>saveEditorButton</tabstop>
  </tabstops>
  <resources>
   <include location="../icons.qrc" />

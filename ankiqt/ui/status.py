@@ -74,7 +74,8 @@ class StatusView(object):
         # remaining & eta
         self.remText = QLabel()
         self.addWidget(self.remText, 0)
-        self.addWidget(self.vertSep(), 0)
+        sep1 = self.vertSep()
+        self.addWidget(sep1, 0)
         self.etaText = QLabel()
         self.etaText.setToolTip(_(
             "<h1>Estimated time</h1>"
@@ -82,7 +83,8 @@ class StatusView(object):
             "at your current pace."))
         self.addWidget(self.etaText, 0)
         # progress&retention
-        self.addWidget(self.vertSep(), 0)
+        sep2 = self.vertSep()
+        self.addWidget(sep2, 0)
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
         vbox.setMargin(0)
@@ -105,13 +107,23 @@ class StatusView(object):
             self.retentionBar.setStyle(self.plastiqueStyle)
         self.addWidget(self.combinedBar, 0)
         # timer
-        self.addWidget(self.vertSep(), 0)
+        sep3 = self.vertSep()
+        self.addWidget(sep3, 0)
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
         self.addWidget(self.timer)
         self.redraw()
         if not self.main.config['showTimer']:
             self.timer.setShown(False)
+        if not self.main.config['showProgress']:
+            self.progressBar.hide()
+            self.retentionBar.hide()
+            self.timer.hide()
+            self.etaText.hide()
+            self.remText.hide()
+            sep1.hide()
+            sep2.hide()
+            sep3.hide()
 
     def addWidget(self, w, stretch=0):
         self.statusbar.addWidget(w, stretch)
@@ -164,7 +176,7 @@ class StatusView(object):
             "There are <b>%(rev)d</b> cards awaiting review.<br>"
             "There are <b>%(new)d</b> new cards due today.<br><br>"
             "There are <b>%(new2)d</b> new cards in total.<br>"
-            "There are <b>%(spaced)d</b> spaced cards.") % stats)
+            "There are <b>%(spaced)d</b> delayed cards.") % stats)
         # eta
         self.etaText.setText(_("ETA: <b>%(timeLeft)s</b>") % stats)
         # retention & progress bars
@@ -177,31 +189,27 @@ class StatusView(object):
         self.progressBar.setPalette(p)
         self.progressBar.setValue(stats['dYesTotal%'])
         # tooltips
-        stats['avgTime'] = anki.utils.fmtTimeSpan(stats['dAverageTime'], point=2)
-        stats['revTime'] = anki.utils.fmtTimeSpan(stats['dReviewTime'], point=2)
-        tip = _("""<h1>Performance</h1>
-The top bar shows your performance today. The bottom bar shows your<br>
+        tip = "<h1>" + _("Performance") + "</h1>"
+        tip += _("""The top bar shows your performance today. The bottom bar shows your<br>
 performance on cards scheduled for 21 days or more. The bottom bar should<br>
-generally be between 80-95%% - lower and you're forgetting mature cards<br>
-too often, higher and you're spending too much time reviewing.
-<h2>Reviews today</h2>
-<b>Correct today: %(dYesTotal%)0.1f%%
-(%(dYesTotal)d of %(dTotal)d)</b><br>
-Average time per answer: %(avgTime)s<br>
-Total review time: %(revTime)s""") % stats
-        stats['avgTime'] = anki.utils.fmtTimeSpan(stats['gAverageTime'], point=2)
-        stats['revTime'] = anki.utils.fmtTimeSpan(stats['gReviewTime'], point=2)
-        tip += _("""<h2>All Reviews</h2>
-<b>Correct over a month: %(gMatureYes%)0.1f%%
-(%(gMatureYes)d of %(gMatureTotal)d)</b><br>
-Average time per answer: %(avgTime)s<br>
-Total review time: %(revTime)s<br>
-Correct under a month: %(gYoungYes%)0.1f%%
-(%(gYoungYes)d of %(gYoungTotal)d)<br>
-Correct first time: %(gNewYes%)0.1f%%
-(%(gNewYes)d of %(gNewTotal)d)<br>
-Total correct: %(gYesTotal%)0.1f%%
-(%(gYesTotal)d of %(gTotal)d)""") % stats
+generally be between 80-95% - lower and you're forgetting mature cards<br>
+too often, higher and you're spending too much time reviewing.""")
+        tip += "<h2>" + _("Reviews today") + "</h2>"
+        tip += "<b>" + _("Correct today: ") + anki.utils.fmtPercentage(stats['dYesTotal%'], point=1)
+        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dYesTotal'], 'totalSum' : stats['dTotal'] } + ")</b><br>"
+        tip += _("Average time per answer: ") + anki.utils.fmtTimeSpan(stats['dAverageTime'], point=2) +"<br>"
+        tip += _("Total review time: ") + anki.utils.fmtTimeSpan(stats['dReviewTime'], point=2)
+        tip += "<h2>" + _("All Reviews") + "</h2>"
+        tip += "<b>" + _("Correct over a month: ") + anki.utils.fmtPercentage(stats['gMatureYes%'], point=1)
+        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gMatureYes'], 'totalSum' : stats['gMatureTotal'] } + ")</b><br>"
+        tip += _("Average time per answer: ") + anki.utils.fmtTimeSpan(stats['gAverageTime'], point=2) +"<br>"
+        tip += _("Total review time: ") + anki.utils.fmtTimeSpan(stats['gReviewTime'], point=2) +"<br>"
+        tip += _("Correct under a month: ") + anki.utils.fmtPercentage(stats['gYoungYes%'], point=1)
+        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gYoungYes'], 'totalSum' : stats['gYoungTotal'] } + ")</b><br>"
+        tip += _("Correct first time: ") + anki.utils.fmtPercentage(stats['gNewYes%'], point=1)
+        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gNewYes'], 'totalSum' : stats['gNewTotal'] } + ")</b><br>"
+        tip += _("Total correct: ") + anki.utils.fmtPercentage(stats['gYesTotal%'], point=1)
+        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gYesTotal'], 'totalSum' : stats['gTotal'] } + ")</b><br>"
         self.combinedBar.setToolTip(tip)
         if self.main.config['showTimer']:
             self.drawTimer()

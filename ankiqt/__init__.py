@@ -6,7 +6,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 appName="Anki"
-appVersion="0.9.9.6"
+appVersion="0.9.9.7"
 appWebsite="http://ichi2.net/anki/download/"
 appWiki="http://ichi2.net/anki/wiki/"
 appHelpSite="http://ichi2.net/anki/wiki/AnkiWiki"
@@ -36,8 +36,23 @@ class SplashScreen(object):
         self.splash = QSplashScreen(self.pixmap)
         self.prog = QProgressBar(self.splash)
         self.prog.setMaximum(max)
-        self.prog.setGeometry(self.splash.width()/10, 8*self.splash.height()/10,
-                                8*self.splash.width()/10, self.splash.height()/10)
+        if QApplication.instance().style().objectName() != "plastique":
+            self.style = QStyleFactory.create("plastique")
+            self.prog.setStyle(self.style)
+        self.prog.setStyleSheet("""* {
+color: #ffffff;
+background-color: #061824;
+margin:0px;
+border:0px;
+padding: 0px;
+text-align: center;}
+*::chunk {
+color: #13486c;
+}
+""")
+        x = 8
+        self.prog.setGeometry(self.splash.width()/10, 8.85*self.splash.height()/10,
+                                x*self.splash.width()/10, self.splash.height()/10)
         self.splash.show()
         self.val = 1
 
@@ -93,7 +108,7 @@ def run():
     if anki.version != appVersion:
         print "You have libanki %s, but this is ankiqt %s" % (
             anki.version, appVersion)
-        print "\nPlease install the latest libanki."
+        print "\nPlease ensure versions match."
         return
 
     # parse args

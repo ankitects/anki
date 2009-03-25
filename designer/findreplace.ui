@@ -18,32 +18,22 @@
      <item row="0" column="0" >
       <widget class="QLabel" name="label" >
        <property name="text" >
-        <string>Find</string>
+        <string>&lt;b>Find&lt;/b>:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1" >
       <widget class="QLineEdit" name="find" />
      </item>
-     <item row="1" column="0" >
+     <item row="2" column="0" >
       <widget class="QLabel" name="label_2" >
        <property name="text" >
-        <string>Replace</string>
+        <string>&lt;b>Replace With&lt;/b>:</string>
        </property>
       </widget>
-     </item>
-     <item row="1" column="1" >
-      <widget class="QLineEdit" name="replace" />
      </item>
      <item row="2" column="1" >
-      <widget class="QComboBox" name="type" />
-     </item>
-     <item row="2" column="0" >
-      <widget class="QLabel" name="label_3" >
-       <property name="text" >
-        <string>Search</string>
-       </property>
-      </widget>
+      <widget class="QLineEdit" name="replace" />
      </item>
      <item row="3" column="1" >
       <widget class="QCheckBox" name="re" >
@@ -51,6 +41,16 @@
         <string>Treat input as regular expression</string>
        </property>
       </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="label_3" >
+       <property name="text" >
+        <string>&lt;b>In&lt;/b>:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QComboBox" name="field" />
      </item>
     </layout>
    </item>
@@ -81,8 +81,8 @@
  </widget>
  <tabstops>
   <tabstop>find</tabstop>
+  <tabstop>field</tabstop>
   <tabstop>replace</tabstop>
-  <tabstop>type</tabstop>
   <tabstop>re</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
@@ -95,8 +95,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>252</x>
-     <y>127</y>
+     <x>256</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -111,8 +111,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>286</x>
-     <y>127</y>
+     <x>290</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>

@@ -14,6 +14,7 @@ from ankiqt import ui
 import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
 from anki.hooks import addHook
+from sqlalchemy.exceptions import InvalidRequestError
 
 clozeColour = "#0000ff"
 
@@ -38,6 +39,7 @@ class FactEditor(object):
         self.changeTimer = None
         self.lastCloze = None
         addHook("deckClosed", self.deckClosedHook)
+        addHook("guiReset", self.refresh)
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."
@@ -62,6 +64,15 @@ class FactEditor(object):
         self.deck.setUndoBarrier()
         if self.deck.mediaDir(create=False):
             self.initMedia()
+
+    def refresh(self):
+        if self.fact:
+            try:
+                self.deck.s.refresh(self.fact)
+            except InvalidRequestError:
+                # not attached to session yet, add cards dialog will handle
+                return
+            self.setFact(self.fact, check=True)
 
     def focusFirst(self):
         if self.focusTarget:
@@ -253,12 +264,12 @@ class FactEditor(object):
         self.preview.setStyle(self.plastiqueStyle)
         # cloze
         self.cloze = QPushButton(self.widget)
-        self.clozeSC = QShortcut(QKeySequence(_("F6")), self.widget)
+        self.clozeSC = QShortcut(QKeySequence(_("F9")), self.widget)
         self.cloze.connect(self.cloze, SIGNAL("clicked()"),
                                   self.onCloze)
         self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
                                   self.onCloze)
-        self.cloze.setToolTip(_("Cloze (F6)"))
+        self.cloze.setToolTip(_("Cloze (F9)"))
         #self.cloze.setIcon(QIcon(":/icons/document-cloze.png"))
         self.cloze.setFixedWidth(30)
         self.cloze.setFixedHeight(26)
@@ -306,12 +317,12 @@ class FactEditor(object):
         self.latexMathEnv.setStyle(self.plastiqueStyle)
         # html
         self.htmlEdit = QPushButton(self.widget)
-        self.htmlEdit.setToolTip(_("HTML Editor (F9)"))
-        self.htmlEditSC = QShortcut(QKeySequence(_("F9")), self.widget)
+        self.htmlEdit.setToolTip(_("HTML Editor"))
+        self.htmlEditSC = QShortcut(QKeySequence(_("Ctrl+F9")), self.widget)
         self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
                               self.onHtmlEdit)
         self.htmlEdit.connect(self.htmlEditSC, SIGNAL("activated()"),
-                              self.onHtmlEdit)
+                                self.onHtmlEdit)
         self.htmlEdit.setIcon(QIcon(":/icons/text-xml.png"))
         self.htmlEdit.setFocusPolicy(Qt.NoFocus)
         self.htmlEdit.setEnabled(False)
@@ -679,17 +690,24 @@ class FactEditor(object):
         src = self.focusedEdit()
         if not src:
             return
+        re1 = "\[.+?(:(.+?))?\]"
+        re2 = "\[(.+?)(:.+?)?\]"
         # add brackets because selected?
         cursor = src.textCursor()
+        oldSrc = None
         if cursor.hasSelection():
+            oldSrc = src.toHtml()
             s = cursor.selectionStart()
             e = cursor.selectionEnd()
             cursor.setPosition(e)
-            cursor.insertText("]")
+            cursor.insertText("]]")
             cursor.setPosition(s)
-            cursor.insertText("[")
+            cursor.insertText("[[")
+            re1 = "\[" + re1 + "\]"
+            re2 = "\[" + re2 + "\]"
         dst = None
-        for (name, (field, w)) in self.fields.items():
+        for field in self.fact.fields:
+            w = self.fields[field.name][1]
             if w.hasFocus():
                 dst = False
                 continue
@@ -697,11 +715,12 @@ class FactEditor(object):
                 dst = w
                 break
         if not dst:
-            dst = self.fields.values()[0][1]
+            dst = self.fields[self.fact.fields[0].name][1]
             if dst == w:
                 return
         # check if there's alredy something there
-        oldSrc = src.toHtml()
+        if not oldSrc:
+            oldSrc = src.toHtml()
         oldDst = dst.toHtml()
         if unicode(dst.toPlainText()):
             if (self.lastCloze and
@@ -729,10 +748,9 @@ class FactEditor(object):
                 exp = match.group(2)
             return '<font color="%s"><b>[...%s]</b></font>' % (
                 clozeColour, exp)
-        new = re.sub("\[.+?(:(.+?))?\]", repl, s)
-        old = re.sub("\[(.+?)(:.+?)?\]", '<font color="%s"><b>\\1</b></font>'
+        new = re.sub(re1, repl, s)
+        old = re.sub(re2, '<font color="%s"><b>\\1</b></font>'
                      % clozeColour, s)
-        oldSrc = unicode(src.toHtml())
         src.setHtml(new)
         dst.setHtml(old)
         self.lastCloze = (oldSrc, unicode(src.toHtml()),

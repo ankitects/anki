@@ -106,11 +106,12 @@ class DeckModel(QAbstractTableModel):
         d = {'str': [],
              'tag': [],
              }
-        for elem in search.split():
-            if len(elem) > 2 and elem.startswith("t:"):
-                d['tag'].append(elem[2:])
-            else:
-                d['str'].append(elem)
+        if search:
+            for elem in search.split():
+                if len(elem) > 2 and elem.startswith("t:"):
+                    d['tag'].append(elem[2:])
+                else:
+                    d['str'].append(elem)
         return d
 
     def showMatching(self):
@@ -189,8 +190,8 @@ class DeckModel(QAbstractTableModel):
             self.cards[index.row()] = self.deck.s.first("""
     select id, question, answer, due, reps, factId, created, modified,
     interval, factor from cards where id = :id""", id=self.cards[index.row()][0])
-            self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
-                      index, self.index(index.row(), 1))
+            #self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
+            #          index, self.index(index.row(), 1))
         except IndexError:
             # called after search changed
             pass
@@ -259,12 +260,12 @@ class DeckModel(QAbstractTableModel):
         self.columns[-1][0] = k
 
     def createdColumn(self, index):
-        return fmtTimeSpan(
-            time.time() - self.cards[index.row()][CARD_CREATED]) + " ago"
+        return time.strftime("%Y-%m-%d", time.localtime(
+            self.cards[index.row()][CARD_CREATED]))
 
     def modifiedColumn(self, index):
-        return fmtTimeSpan(
-            time.time() - self.cards[index.row()][CARD_MODIFIED]) + " ago"
+        return time.strftime("%Y-%m-%d", time.localtime(
+            self.cards[index.row()][CARD_MODIFIED]))
 
     def intervalColumn(self, index):
         return fmtTimeSpan(
@@ -279,7 +280,7 @@ class DeckModel(QAbstractTableModel):
 class EditDeck(QMainWindow):
 
     def __init__(self, parent):
-        QDialog.__init__(self, parent, Qt.Window)
+        QMainWindow.__init__(self, parent)
         self.parent = parent
         self.deck = self.parent.deck
         self.config = parent.config
@@ -354,8 +355,8 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
         self.dialog.tagList.addItems(QStringList(
-            [_('All cards'), _('No tags')] + self.alltags))
-        self.dialog.tagList.view().setFixedWidth(300)
+            [_('<Tag filter>'), _('No tags')] + self.alltags))
+        self.dialog.tagList.view().setFixedWidth(200)
 
     def drawSort(self):
         self.sortList = [
@@ -515,12 +516,12 @@ class EditDeck(QMainWindow):
         if not sys.platform.startswith("win32"):
             self.dialog.tableView.verticalHeader().hide()
             self.dialog.tableView.horizontalHeader().show()
-        for i in range(2):
-            self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
-        self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
         restoreHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.dialog.tableView.verticalHeader().setDefaultSectionSize(
             self.parent.config['editLineSize'])
+        for i in range(2):
+            self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
+        self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
 
     def setupMenus(self):
         # actions
@@ -723,18 +724,28 @@ where id in %s""" % ids2str(sf))
                 _("Can only operate on one model at a time."),
                 parent=self)
             return
+        # get cards to enable
         cms = [x.id for x in self.deck.s.query(Fact).get(sf[0]).\
                model.cardModels]
         d = AddCardChooser(self, cms)
         if not d.exec_():
             return
+        # for each fact id, generate
         n = _("Generate Cards")
+        self.parent.setProgressParent(self)
+        self.deck.startProgress()
         self.deck.setUndoStart(n)
-        for id in sf:
-            self.deck.addCards(self.deck.s.query(Fact).get(id),
-                               d.selectedCms)
+        facts = self.deck.s.query(Fact).filter(
+            text("id in %s" % ids2str(sf))).order_by(Fact.created).all()
+        self.deck.updateProgress(_("Generating Cards..."))
+        for c, fact in enumerate(facts):
+            self.deck.addCards(fact, d.selectedCms)
+            if c % 50 == 0:
+                self.deck.updateProgress()
         self.deck.flushMod()
         self.deck.updateAllPriorities()
+        self.deck.finishProgress()
+        self.parent.setProgressParent(None)
         self.deck.setUndoEnd(n)
         self.updateSearch()
         self.updateAfterCardChange()
@@ -811,14 +822,25 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def onFindReplace(self):
+        sf = self.selectedFacts()
+        if not sf:
+            return
+        mods = self.deck.s.column0("""
+select distinct modelId from facts
+where id in %s""" % ids2str(sf))
+        if not len(mods) == 1:
+            ui.utils.showInfo(
+                _("Can only operate on one model at a time."),
+                parent=self)
+            return
         d = QDialog(self)
         frm = ankiqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
+        fields = sorted(self.currentCard.fact.model.fieldModels, key=attrgetter("name"))
+        frm.field.addItems(QStringList(
+            [_("All Fields")] + [f.name for f in fields]))
         self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
                      self.onFindReplaceHelp)
-        frm.type.insertItems(0, [
-            _("Fields"),
-            _("Tags")])
         if not d.exec_():
             return
         n = _("Find and Replace")
@@ -826,17 +848,20 @@ where id in %s""" % ids2str(sf))
         self.deck.startProgress(2)
         self.deck.updateProgress(_("Replacing..."))
         self.deck.setUndoStart(n)
-        sf = self.selectedFacts()
         self.deck.updateProgress()
         changed = None
         try:
-            changed = self.deck.findReplace(self.selectedFacts(),
-                                  unicode(frm.find.text()),
-                                  unicode(frm.replace.text()),
-                                  frm.type.currentIndex(),
-                                  frm.re.isChecked())
+            if frm.field.currentIndex() == 0:
+                field = None
+            else:
+                field = fields[frm.field.currentIndex()-1].id
+            changed = self.deck.findReplace(sf,
+                                            unicode(frm.find.text()),
+                                            unicode(frm.replace.text()),
+                                            frm.re.isChecked(),
+                                            field)
         except sre_constants.error:
-            ui.utils.showInfo(_("Invalid regexp."),
+            ui.utils.showInfo(_("Invalid regular expression."),
                               parent=self)
         self.deck.setUndoEnd(n)
         self.deck.finishProgress()
@@ -850,7 +875,6 @@ where id in %s""" % ids2str(sf))
                 'b': len(sf),
                 }, parent=self)
 
-
     def onFindReplaceHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "Editor#FindReplace"))
@@ -861,18 +885,21 @@ where id in %s""" % ids2str(sf))
     def onFirstCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         self.dialog.tableView.selectionModel().clear()
         self.dialog.tableView.selectRow(0)
 
     def onLastCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         self.dialog.tableView.selectionModel().clear()
         self.dialog.tableView.selectRow(len(self.model.cards) - 1)
 
     def onPreviousCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         row = self.dialog.tableView.currentIndex().row()
         row = max(0, row - 1)
         self.dialog.tableView.selectionModel().clear()
@@ -881,6 +908,7 @@ where id in %s""" % ids2str(sf))
     def onNextCard(self):
         if not self.model.cards:
             return
+        self.editor.saveFieldsNow()
         row = self.dialog.tableView.currentIndex().row()
         row = min(len(self.model.cards) - 1, row + 1)
         self.dialog.tableView.selectionModel().clear()

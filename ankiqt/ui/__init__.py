@@ -13,7 +13,6 @@ def importAll():
     import exporting
     import facteditor
     import help
-    import importing
     import lookup
     import modelchooser
     import modelproperties
@@ -26,6 +25,7 @@ def importAll():
     import update
     import utils
     import view
+    import getshared
 
 class DialogManager(object):
 
