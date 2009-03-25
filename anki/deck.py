@@ -2076,7 +2076,7 @@ select id from fields where factId not in (select id from facts)""")
         self.redoStack = []
         self.undoEnabled = True
         self.s.statement(
-            "create temporary table undoLog (seq integer primary key, sql text)")
+            "create temporary table undoLog (seq integer primary key not null, sql text)")
         tables = self.s.column0(
             "select name from sqlite_master where type = 'table'")
         for table in tables:
