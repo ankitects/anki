@@ -266,6 +266,7 @@ try:
 
 except ImportError:
     # fall back to old nssound code for 10.3
+    sys.stderr.write("falling back to 10.3 audio library")
 
     try:
 
