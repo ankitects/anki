@@ -114,6 +114,11 @@ def fmtPercentage(float_value, point=1):
 	fmt = '%' + "0.%(b)df" % {'b': point}
 	return locale.format_string(fmt, float_value) + "%"
 
+def fmtFloat(float_value, point=1):
+	"Return a string representing a float with decimal separator according to current locale"
+	fmt = '%' + "0.%(b)df" % {'b': point}
+	return locale.format_string(fmt, float_value)
+
 # HTML
 ##############################################################################
 

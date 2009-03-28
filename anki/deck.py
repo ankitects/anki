@@ -646,7 +646,7 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             cards = self.cardsDueBy(time.time() + 86400)
             msg = _('''\
 <style>b { color: #00f; }</style>
-At the same time tomorrow:<br><br>
+At the same time tomorrow:<br>
 %(wait)s<br>
 %(new)s''') % {
                 'new': ngettext("There will be <b>%d new</b> card.",
