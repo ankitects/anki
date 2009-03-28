@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-25 16:55+0100\n"
+"POT-Creation-Date: 2009-03-28 08:41+0100\n"
 "PO-Revision-Date: 2009-03-22 11:07+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -160,10 +160,10 @@ msgid "<li>%d total unique kanji.</li>"
 msgstr "<li>Yhteensä %d eri kanjia.</li>"
 
 #: deck.py:647
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
-"At the same time tomorrow:<br><br>\n"
+"At the same time tomorrow:<br>\n"
 "%(wait)s<br>\n"
 "%(new)s"
 msgstr ""

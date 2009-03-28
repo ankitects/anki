@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-25 16:55+0100\n"
-"PO-Revision-Date: 2008-12-31 15:50+0100\n"
-"Last-Translator: Christian Rusche <cru@bsiag.com>\n"
+"POT-Creation-Date: 2009-03-28 08:41+0100\n"
+"PO-Revision-Date: 2009-03-28 08:44+0100\n"
+"Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -43,12 +43,16 @@ msgstr "%(count)s %(gradename)s Kanji."
 msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
 msgstr "%(gradename)s: %(count)s von %(total)s (%(percent)0.1f%%)."
 
-#: stats.py:341 stats.py:344 stats.py:347
+#: stats.py:341
+#: stats.py:344
+#: stats.py:347
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
 
-#: stats.py:271 stats.py:278 stats.py:301
+#: stats.py:271
+#: stats.py:278
+#: stats.py:301
 #, python-format
 msgid "%s ago"
 msgstr "vor %s"
@@ -100,15 +104,18 @@ msgid_plural "%s years"
 msgstr[0] "%s Jahr"
 msgstr[1] "%s Jahre"
 
-#: stats.py:374 stats.py:377 stats.py:380 stats.py:383
-#, fuzzy, python-format
+#: stats.py:374
+#: stats.py:377
+#: stats.py:380
+#: stats.py:383
+#, python-format
 msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
-msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b>/Tag)"
+msgstr "<b>%(a)d</b> (<b>%(b)s</b>/Tag)"
 
 #: stats.py:371
-#, fuzzy, python-format
+#, python-format
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
-msgstr "<b>%(a)d</b>/Tag, <b>%(b)d</b>/Monat"
+msgstr "<b>%(a)s</b>/Tag, <b>%(b)s</b>/Monat"
 
 #: deck.py:707
 #, python-format
@@ -146,7 +153,7 @@ msgstr "<li>insgesamt %d verschiedene Kanji.</li>"
 #, fuzzy, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
-"At the same time tomorrow:<br><br>\n"
+"At the same time tomorrow:<br>\n"
 "%(wait)s<br>\n"
 "%(new)s"
 msgstr ""
@@ -234,9 +241,8 @@ msgid "Card Template"
 msgstr "Kartenmodell"
 
 #: stats.py:334
-#, fuzzy
 msgid "Card counts"
-msgstr "<b>Anzahl Karten</b><br>"
+msgstr "Anzahl Karten"
 
 #: exporting.py:237
 msgid "Cards in tab-separated text file (*.txt)"
@@ -275,9 +281,8 @@ msgid "Checksum files..."
 msgstr ""
 
 #: stats.py:339
-#, fuzzy
 msgid "Correct answers"
-msgstr "<b>Richtige Antworten</b><br>"
+msgstr "Richtige Antworten"
 
 #: importing/csv.py:87
 msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
@@ -388,11 +393,13 @@ msgstr "Erstmalig letzte Woche"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:51
+#: importing/anki10.py:25
+#: importing/__init__.py:51
 msgid "Importing..."
 msgstr ""
 
-#: stats.py:275 stats.py:360
+#: stats.py:275
+#: stats.py:360
 msgid "Interval"
 msgstr "Intervall"
 
@@ -434,16 +441,21 @@ msgstr ""
 msgid "Mandarin"
 msgstr "Mandarin"
 
-#: graphs.py:151 graphs.py:177 graphs.py:335
+#: graphs.py:151
+#: graphs.py:177
+#: graphs.py:335
 msgid "Mature"
 msgstr "Alt"
 
-#: stats.py:335 stats.py:340
+#: stats.py:335
+#: stats.py:340
 #, fuzzy
 msgid "Mature cards:"
 msgstr "Alt"
 
-#: media.py:176 media.py:178 media.py:179
+#: media.py:176
+#: media.py:178
+#: media.py:179
 #, fuzzy
 msgid "MediaMissing"
 msgstr "Fehlende Mediendateien"
@@ -465,7 +477,8 @@ msgstr "Modell-Tags"
 msgid "Modify fields..."
 msgstr ""
 
-#: graphs.py:175 graphs.py:333
+#: graphs.py:175
+#: graphs.py:333
 msgid "New"
 msgstr "Neu"
 
@@ -474,9 +487,8 @@ msgid "No cards are due."
 msgstr "Keine Karten sind fällig."
 
 #: stats.py:316
-#, fuzzy
 msgid "Please add some cards first."
-msgstr "Bitte füge zuerst einige Karten hinzu.<p/>"
+msgstr "Bitte füge zuerst einige Karten hinzu."
 
 #: deck.py:2193
 msgid "Processing..."
@@ -597,7 +609,8 @@ msgstr "Zeige neue Karten in der Reihenfolge des Hinzufügens"
 msgid "Spread new cards out through reviews"
 msgstr "Verteile neue Karten über die Wiederholungen"
 
-#: exporting.py:165 exporting.py:197
+#: exporting.py:165
+#: exporting.py:197
 msgid "Text files (*.txt)"
 msgstr "Textdateien (*.txt)"
 
@@ -613,7 +626,8 @@ msgstr "Das aktuelle Modell war nicht vorhanden"
 msgid "The file had no non-empty lines."
 msgstr ""
 
-#: importing/csv.py:105 importing/wcu.py:29
+#: importing/csv.py:105
+#: importing/wcu.py:29
 msgid "The file was not in UTF8 format."
 msgstr ""
 
@@ -684,11 +698,14 @@ msgstr ""
 msgid "Upgrading Deck..."
 msgstr ""
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:150
+#: graphs.py:176
+#: graphs.py:334
 msgid "Young"
 msgstr "Jung"
 
-#: stats.py:336 stats.py:343
+#: stats.py:336
+#: stats.py:343
 msgid "Young cards:"
 msgstr ""
 
@@ -696,7 +713,11 @@ msgstr ""
 msgid "[invalid question/answer format]"
 msgstr "[ungültiges Frage/Antwort-Format]"
 
-#: stats.py:362 stats.py:364 stats.py:366 stats.py:368 stats.py:370
+#: stats.py:362
+#: stats.py:364
+#: stats.py:366
+#: stats.py:368
+#: stats.py:370
 msgid "cards/day"
 msgstr ""
 
@@ -728,13 +749,10 @@ msgstr "unbekannt"
 #, fuzzy
 #~ msgid "%sy"
 #~ msgstr "%s Tag"
-
 #~ msgid "<b>%0.0f</b> days"
 #~ msgstr "<b>%0.0f</b> Tage"
-
 #~ msgid "<b>%0.1f</b> cards/day"
 #~ msgstr "<b>%0.1f</b> Karten/Tag"
-
 #~ msgid "<b>Averages</b><br>"
 #~ msgstr "<b>Durchschnittswerte</b><br>"
 
@@ -756,13 +774,10 @@ msgstr "unbekannt"
 #~ "%(next)s\n"
 #~ "<br>\n"
 #~ "Es gibt <b>%(waiting)d</b> <a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">zurückgestellte</a> und <b>%(suspended)d</b> <a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">ausgesetzte</a> Karten."
-
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Erstmalig gesehene Karten: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> von <b>%(gNewTotal)d</b>)<br><br>"
-
 #~ msgid "Mature cards: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> of <b>%(gMatureTotal)d</b>)<br>"
 #~ msgstr "Alte Karten: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> von <b>%(gMatureTotal)d</b>)<br>"
-
 #~ msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 #~ msgstr "Alte Karten: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 
@@ -781,12 +796,10 @@ msgstr "unbekannt"
 #, fuzzy
 #~ msgid "Spaced cards will be shown soon."
 #~ msgstr "Die nächste Karte wird in <b>%s</b> gezeigt"
-
 #~ msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 #~ msgstr "Nicht gesehene Karten: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
-
 #~ msgid "Young cards: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> of <b>%(gYoungTotal)d</b>)<br>"
 #~ msgstr "Junge Karten: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> von <b>%(gYoungTotal)d</b>)<br>"
-
 #~ msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 #~ msgstr "Junge Karten: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
+

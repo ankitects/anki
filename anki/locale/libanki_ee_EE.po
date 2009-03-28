@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-25 16:55+0100\n"
+"POT-Creation-Date: 2009-03-28 08:41+0100\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -157,10 +157,10 @@ msgid "<li>%d total unique kanji.</li>"
 msgstr "<li>Kordumatut kanji-t kokku %d.</li>"
 
 #: deck.py:647
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
-"At the same time tomorrow:<br><br>\n"
+"At the same time tomorrow:<br>\n"
 "%(wait)s<br>\n"
 "%(new)s"
 msgstr ""

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-25 16:55+0100\n"
-"PO-Revision-Date: 2009-03-25 16:52+0100\n"
+"POT-Creation-Date: 2009-03-28 08:41+0100\n"
+"PO-Revision-Date: 2009-03-28 08:45+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -56,12 +56,16 @@ msgstr "%(count)s %(gradename)s kanji."
 msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
 msgstr "%(gradename)s: %(count)s av sammanlagt %(total)s (%(percent)0.1f%%)."
 
-#: stats.py:341 stats.py:344 stats.py:347
+#: stats.py:341
+#: stats.py:344
+#: stats.py:347
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d av %(totalSum)d"
 
-#: stats.py:271 stats.py:278 stats.py:301
+#: stats.py:271
+#: stats.py:278
+#: stats.py:301
 #, python-format
 msgid "%s ago"
 msgstr "%s sedan"
@@ -113,7 +117,10 @@ msgid_plural "%s years"
 msgstr[0] "%s år"
 msgstr[1] "%s år"
 
-#: stats.py:374 stats.py:377 stats.py:380 stats.py:383
+#: stats.py:374
+#: stats.py:377
+#: stats.py:380
+#: stats.py:383
 #, python-format
 msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
 msgstr "<b>%(a)d</b> (<b>%(b)s</b>/dag)"
@@ -164,14 +171,14 @@ msgstr "<li>Sammanlagt %d unika kanji.</li>"
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
-"At the same time tomorrow:<br><br>\n"
+"At the same time tomorrow:<br>\n"
 "%(wait)s<br>\n"
 "%(new)s"
 msgstr ""
 "<style>b { color: #00f; }</style>\n"
-"Vid samma tid imorgon:<br><br>\n"
-"%(wait)s<br>\n"
-"%(new)s"
+"Vid samma tid imorgon:<br>\n"
+"- %(wait)s<br>\n"
+"- %(new)s"
 
 #: sync.py:194
 #, python-format
@@ -403,11 +410,13 @@ msgstr "Första förra veckan"
 msgid "First-seen cards:"
 msgstr "Förstagångskort:"
 
-#: importing/anki10.py:25 importing/__init__.py:51
+#: importing/anki10.py:25
+#: importing/__init__.py:51
 msgid "Importing..."
 msgstr "Importerar..."
 
-#: stats.py:275 stats.py:360
+#: stats.py:275
+#: stats.py:360
 msgid "Interval"
 msgstr "Intervall"
 
@@ -449,15 +458,20 @@ msgstr "Rad %(line)d har %(num1)d fält, förväntat antal är %(num2)d"
 msgid "Mandarin"
 msgstr "Standardkinesiska"
 
-#: graphs.py:151 graphs.py:177 graphs.py:335
+#: graphs.py:151
+#: graphs.py:177
+#: graphs.py:335
 msgid "Mature"
 msgstr "Gamla"
 
-#: stats.py:335 stats.py:340
+#: stats.py:335
+#: stats.py:340
 msgid "Mature cards:"
 msgstr "Gamla kort:"
 
-#: media.py:176 media.py:178 media.py:179
+#: media.py:176
+#: media.py:178
+#: media.py:179
 msgid "MediaMissing"
 msgstr "Mediefil saknas"
 
@@ -478,7 +492,8 @@ msgstr "Modelletiketter"
 msgid "Modify fields..."
 msgstr "Ändra fält..."
 
-#: graphs.py:175 graphs.py:333
+#: graphs.py:175
+#: graphs.py:333
 msgid "New"
 msgstr "Nya"
 
@@ -602,7 +617,8 @@ msgstr "Visa nya kort i omvänd ordning från hur de lades till"
 msgid "Spread new cards out through reviews"
 msgstr "Fördela nya kort bland repetitioner"
 
-#: exporting.py:165 exporting.py:197
+#: exporting.py:165
+#: exporting.py:197
 msgid "Text files (*.txt)"
 msgstr "Textfiler (*.txt)"
 
@@ -618,7 +634,8 @@ msgstr "Den nuvarande modellen fanns inte"
 msgid "The file had no non-empty lines."
 msgstr "Det fanns enbart tomma rader i filen."
 
-#: importing/csv.py:105 importing/wcu.py:29
+#: importing/csv.py:105
+#: importing/wcu.py:29
 msgid "The file was not in UTF8 format."
 msgstr "Filen var inte i UTF8-format"
 
@@ -645,15 +662,15 @@ msgstr[1] "Det finns <b>%d</b> avaktiverade kort."
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
-msgstr[0] "Det kommer att finnas <b>%d</b> nytt kort."
-msgstr[1] "Det kommer att finnas <b>%d</b> nya kort."
+msgstr[0] "Skall <b>%d</b> nytt kort läras in."
+msgstr[1] "Skall <b>%d</b> nya kort läras in."
 
 #: deck.py:655
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
-msgstr[0] "Det kommer att finnas <b>%s kort att repetera</b> ."
-msgstr[1] "Det kommer att finnas <b>%s kort att repetera</b> ."
+msgstr[0] "Skall <b>%s</b> kort repeteras."
+msgstr[1] "Skall <b>%s</b> kort repeteras."
 
 #: stats.py:290
 msgid "Total Time"
@@ -687,11 +704,14 @@ msgstr "Uppdaterar prioteringar..."
 msgid "Upgrading Deck..."
 msgstr "Uppgraderar kortlek..."
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:150
+#: graphs.py:176
+#: graphs.py:334
 msgid "Young"
 msgstr "Unga"
 
-#: stats.py:336 stats.py:343
+#: stats.py:336
+#: stats.py:343
 msgid "Young cards:"
 msgstr "Unga kort:"
 
@@ -699,7 +719,11 @@ msgstr "Unga kort:"
 msgid "[invalid question/answer format]"
 msgstr "[ogiltigt format för fråga/svar]"
 
-#: stats.py:362 stats.py:364 stats.py:366 stats.py:368 stats.py:370
+#: stats.py:362
+#: stats.py:364
+#: stats.py:366
+#: stats.py:368
+#: stats.py:370
 msgid "cards/day"
 msgstr "kort/dag"
 
@@ -718,48 +742,34 @@ msgstr "okänt"
 
 #~ msgid "%(a)d.%(b)df"
 #~ msgstr "%(a)d,%(b)df"
-
 #~ msgid "%0.1f seconds"
 #~ msgstr "%0.1f sekunder"
-
 #~ msgid "%sd"
 #~ msgstr "%s dag"
-
 #~ msgid "%sh"
 #~ msgstr "%s tim."
-
 #~ msgid "%sm"
 #~ msgstr "%s min"
-
 #~ msgid "%ss"
 #~ msgstr "%s sek"
-
 #~ msgid "%sy"
 #~ msgstr "%s år"
-
 #~ msgid "<b>%0.0f</b> days"
 #~ msgstr "<b>%0.0f</b> dagar"
-
 #~ msgid "<b>%0.1f</b> cards/day"
 #~ msgstr "<b>%0.1f</b> kort/dag"
-
 #~ msgid "<b>Averages</b><br>"
 #~ msgstr "<b>Genomsnitt</b><br>"
-
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Kort som sågs för första gången: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> av <b>%(gNewTotal)d</b>)<br><br>"
-
 #~ msgid "Mature cards: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> of <b>%(gMatureTotal)d</b>)<br>"
 #~ msgstr "Gamla kort: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> av <b>%(gMatureTotal)d</b>)<br>"
-
 #~ msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 #~ msgstr "Gamla kort: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
-
 #~ msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 #~ msgstr "Kort som inte setts: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
-
 #~ msgid "Young cards: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> of <b>%(gYoungTotal)d</b>)<br>"
 #~ msgstr "Unga kort: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> av <b>%(gYoungTotal)d</b>)<br>"
-
 #~ msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 #~ msgstr "Unga kort: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
+
