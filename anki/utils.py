@@ -19,7 +19,12 @@ except ImportError:
 
 from anki.db import *
 from anki.lang import _, ngettext
-import locale
+import locale, sys
+
+if sys.version_info[1] < 5:
+    def format_string(a, b):
+        return a % b
+    locale.format_string = format_string
 
 # Time handling
 ##############################################################################
