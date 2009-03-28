@@ -128,7 +128,7 @@ all but one card template."""))
         try:
             idx = self.mapping.index(0)
             for c in cards:
-                c.tags = c.fields[idx]
+                c.tags += " " + c.fields[idx]
         except ValueError:
             pass
         # add facts
@@ -136,7 +136,7 @@ all but one card template."""))
         factIds = [genID() for n in range(len(cards))]
         self.deck.s.execute(factsTable.insert(),
             [{'modelId': self.model.id,
-              'tags': canonifyTags(self.tagsToAdd + "," + cards[n].tags),
+              'tags': canonifyTags(self.tagsToAdd + " " + cards[n].tags),
               'id': factIds[n]} for n in range(len(cards))])
         self.deck.factCount += len(factIds)
         self.deck.s.execute("""
