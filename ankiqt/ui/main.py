@@ -1151,7 +1151,7 @@ day = :d""", d=yesterday)
 
     def onStudyOptions(self):
         if self.state == "studyScreen":
-            self.onStartReview()
+            pass
         else:
             self.moveToState("studyScreen")
 
