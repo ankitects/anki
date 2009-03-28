@@ -55,7 +55,8 @@ class DialogManager(object):
     def closeAll(self):
         for (n, (klass, obj)) in self.modelessDialogs.items():
             if obj:
-                obj.hide()
+                obj.forceClose = True
+                obj.close()
                 self.close(n)
 
     # since we load the graphs dynamically, we need a proxy for this

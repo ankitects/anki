@@ -18,7 +18,7 @@ from ankiqt.ui.utils import saveHeader, restoreHeader
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats
-from anki.hooks import runHook, addHook
+from anki.hooks import runHook, addHook, removeHook
 
 CARD_ID = 0
 CARD_QUESTION = 1
@@ -284,6 +284,7 @@ class EditDeck(QMainWindow):
         self.parent = parent
         self.deck = self.parent.deck
         self.config = parent.config
+        self.forceClose = False
         self.origModTime = parent.deck.modified
         self.currentRow = None
         self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
@@ -552,17 +553,20 @@ class EditDeck(QMainWindow):
     def onClose(self):
         saveSplitter(self.dialog.splitter, "editor")
         self.editor.saveFieldsNow()
-        if not self.factValid:
-            ui.utils.showInfo(_(
-                "Some fields are missing or not unique."),
-                              parent=self, help="AddItems#AddError")
-            return
+        if not self.forceClose:
+            if not self.factValid:
+                ui.utils.showInfo(_(
+                    "Some fields are missing or not unique."),
+                                  parent=self, help="AddItems#AddError")
+                return
         self.editor.setFact(None)
+        self.editor.close()
         saveGeom(self, "editor")
         saveHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.hide()
         ui.dialogs.close("CardList")
         self.parent.moveToState("auto")
+        self.teardownUndo()
         return True
 
     def closeEvent(self, evt):
@@ -806,6 +810,9 @@ where id in %s""" % ids2str(sf))
 
     def setupUndo(self):
         addHook("postUndoRedo", self.postUndoRedo)
+
+    def teardownUndo(self):
+        removeHook("postUndoRedo", self.postUndoRedo)
 
     def postUndoRedo(self):
         self.updateFilterLabel()

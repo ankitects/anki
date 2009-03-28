@@ -13,7 +13,7 @@ import anki.sound
 from ankiqt import ui
 import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
-from anki.hooks import addHook
+from anki.hooks import addHook, removeHook
 from sqlalchemy.exceptions import InvalidRequestError
 
 clozeColour = "#0000ff"
@@ -40,6 +40,10 @@ class FactEditor(object):
         self.lastCloze = None
         addHook("deckClosed", self.deckClosedHook)
         addHook("guiReset", self.refresh)
+
+    def close(self):
+        removeHook("deckClosed", self.deckClosedHook)
+        removeHook("guiReset", self.refresh)
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."

@@ -690,6 +690,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     def saveAndClose(self, hideWelcome=False):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         self.hideWelcome = hideWelcome
+        self.closeAllDeckWindows()
         if self.deck is not None:
             if self.deck.reviewEarly:
                 self.deck.resetAfterReviewEarly()
@@ -725,8 +726,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.deck = None
         if not hideWelcome:
             self.moveToState("noDeck")
-        else:
-            self.closeAllDeckWindows()
         return True
 
     def inMainWindow(self):
@@ -1586,6 +1585,8 @@ it to your friends.
         if self.deck is None and self.deckPath is None:
             # qt on linux incorrectly accepts shortcuts for disabled actions
             return
+        # hide all deck-associated dialogs
+        self.closeAllDeckWindows()
         if self.deck:
             # save first, so we can rollback on failure
             self.deck.save()
@@ -1603,8 +1604,6 @@ it to your friends.
             self.deck.close()
             self.deck = None
             self.loadAfterSync = reload
-        # hide all deck-associated dialogs
-        self.closeAllDeckWindows()
         # bug triggered by preferences dialog - underlying c++ widgets are not
         # garbage collected until the middle of the child thread
         import gc; gc.collect()

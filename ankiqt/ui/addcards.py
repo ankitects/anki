@@ -27,6 +27,7 @@ class AddCards(QDialog):
         self.setupStatus()
         self.modelChanged(self.parent.deck.currentModel)
         self.addedItems = 0
+        self.forceClose = False
         restoreGeom(self, "add")
         restoreSplitter(self.dialog.splitter, "add")
         self.show()
@@ -152,9 +153,10 @@ question or answer on all cards."""), parent=self)
     def onClose(self):
         # stop anything playing
         clearAudioQueue()
-        if (self.editor.fieldsAreBlank() or
+        if (self.forceClose or self.editor.fieldsAreBlank() or
             ui.utils.askUser(_("Close and lose current input?"),
                             self)):
+            self.editor.close()
             ui.dialogs.close("AddCards")
             self.parent.deck.s.flush()
             self.parent.deck.rebuildCSS()
