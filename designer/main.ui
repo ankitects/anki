@@ -1901,9 +1901,6 @@
    </property>
   </action>
   <action name="actionStudyOptions" >
-   <property name="checkable" >
-    <bool>true</bool>
-   </property>
    <property name="icon" >
     <iconset resource="../icons.qrc" >
      <normaloff>:/icons/chronometer.png</normaloff>:/icons/chronometer.png</iconset>
