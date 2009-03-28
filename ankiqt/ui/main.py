@@ -1299,7 +1299,8 @@ day = :d""", d=yesterday)
         else:
             self.currentCard.fact.tags = addTags(
                 "Marked", self.currentCard.fact.tags)
-        self.currentCard.fact.setModified()
+        self.currentCard.fact.setModified(textChanged=True)
+        self.deck.updateFactTags([self.currentCard.fact.id])
         self.deck.setModified()
 
     def onSuspend(self):
