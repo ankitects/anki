@@ -1094,6 +1094,7 @@ day = :d""", d=yesterday)
 
     def showStudyScreen(self):
         initial = self.deck.sessionStartTime == 0
+        self.mainWin.actionStudyOptions.setChecked(True)
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
         self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
         self.switchToStudyScreen()
@@ -1147,6 +1148,7 @@ day = :d""", d=yesterday)
         self.deck.setFailedCardPolicy(self.mainWin.failedCardsOption.currentIndex())
         self.deck.startSession()
         self.deck.flushMod()
+        self.mainWin.actionStudyOptions.setChecked(False)
         self.moveToState("getQuestion")
 
     def onStudyOptions(self):
