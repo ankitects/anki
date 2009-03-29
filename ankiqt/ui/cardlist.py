@@ -30,6 +30,7 @@ CARD_CREATED = 6
 CARD_MODIFIED = 7
 CARD_INTERVAL = 8
 CARD_EASE = 9
+CARD_PRIORITY = 10
 
 # Deck editor
 ##########################################################################
@@ -189,7 +190,8 @@ class DeckModel(QAbstractTableModel):
         try:
             self.cards[index.row()] = self.deck.s.first("""
     select id, question, answer, due, reps, factId, created, modified,
-    interval, factor from cards where id = :id""", id=self.cards[index.row()][0])
+    interval, factor, priority from cards where id = :id""",
+                                                        id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
                       index, self.index(index.row(), 1))
         except IndexError:
@@ -277,6 +279,24 @@ class DeckModel(QAbstractTableModel):
     def easeColumn(self, index):
         return "%0.2f" % self.cards[index.row()][CARD_EASE]
 
+class StatusDelegate(QItemDelegate):
+
+    def __init__(self, parent, model):
+        QItemDelegate.__init__(self, parent)
+        self.model = model
+
+    def paint(self, painter, option, index):
+        if len(self.model.cards[index.row()]) == 1:
+            self.model.updateCard(index)
+        row = self.model.cards[index.row()]
+        if row[CARD_PRIORITY] == 0:
+            # custom render
+            brush = QBrush(QColor("#ffffaa"))
+            painter.save()
+            painter.fillRect(option.rect, brush)
+            painter.restore()
+        return QItemDelegate.paint(self, painter, option, index)
+
 class EditDeck(QMainWindow):
 
     def __init__(self, parent):
@@ -300,6 +320,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.tableView.selectionModel(),
                      SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
                      self.updateFilterLabel)
+        self.dialog.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.dialog.tableView.setFont(QFont(
             self.config['editFontFamily'],
             self.config['editFontSize']))
