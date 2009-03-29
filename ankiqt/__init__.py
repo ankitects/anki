@@ -88,7 +88,11 @@ def run():
                              os.path.expanduser("~/.anki/plugins"))
             except:
                 pass
-            os.rename(oldConf, oldConf.replace("config.db", "config.db.old"))
+            try:
+                os.rename(oldConf, oldConf.replace("config.db",
+                                                   "config.db.old"))
+            except:
+                pass
     app = QApplication(sys.argv)
 
     import forms
