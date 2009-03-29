@@ -190,8 +190,8 @@ class DeckModel(QAbstractTableModel):
             self.cards[index.row()] = self.deck.s.first("""
     select id, question, answer, due, reps, factId, created, modified,
     interval, factor from cards where id = :id""", id=self.cards[index.row()][0])
-            #self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
-            #          index, self.index(index.row(), 1))
+            self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
+                      index, self.index(index.row(), 1))
         except IndexError:
             # called after search changed
             pass
