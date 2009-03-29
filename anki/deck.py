@@ -364,10 +364,17 @@ where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
         space = max(minSpacing, space)
         space += time.time()
         # check what other cards we've spaced
+        if self.reviewEarly:
+            extra = ""
+        else:
+            # if not reviewing early, make sure the current card is counted
+            # even if it was not due yet (it's a failed card)
+            extra = "or id = :cid"
         for (type, count) in self.s.all("""
 select type, count(type) from cards
-where factId = :fid and isDue = 1
-group by type""", fid=card.factId):
+where factId = :fid and
+(isDue = 1 %s)
+group by type""" % extra, fid=card.factId, cid=card.id):
             if type == 0:
                 self.failedSoonCount -= count
             elif type == 1:
