@@ -558,7 +558,7 @@ end)""" + where)
             self.cardCount = self.s.scalar("select count(*) from cards")
             self.factCount = self.s.scalar("select count(*) from facts")
         # due counts
-        self.failedSoonCount = cardCount = self.s.scalar(
+        self.failedSoonCount = self.s.scalar(
             "select count(*) from failedCards")
         self.failedNowCount = self.s.scalar("""
 select count(*) from cards where type = 0 and isDue = 1
