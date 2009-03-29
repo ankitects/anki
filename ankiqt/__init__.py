@@ -78,15 +78,17 @@ def run():
             os.environ['HOME'] = "c:\\anki"
         try:
             os.makedirs(os.path.expanduser("~/.anki"))
-        except OSError:
+        except:
             pass
         if os.path.exists(oldConf):
-            shutil.copy2(oldConf,
-                         os.path.expanduser("~/.anki/config.db"))
-            shutil.copytree(oldPlugins,
-                         os.path.expanduser("~/.anki/plugins"))
+            try:
+                shutil.copy2(oldConf,
+                             os.path.expanduser("~/.anki/config.db"))
+                shutil.copytree(oldPlugins,
+                             os.path.expanduser("~/.anki/plugins"))
+            except:
+                pass
             os.rename(oldConf, oldConf.replace("config.db", "config.db.old"))
-
     app = QApplication(sys.argv)
 
     import forms
