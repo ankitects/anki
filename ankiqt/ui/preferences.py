@@ -42,6 +42,7 @@ class Preferences(QDialog):
             (_("Spanish"), "es_ES"),
             (_("Swedish"), "sv_SE"),
             ]
+        self.supportedLanguages.sort()
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
         self.setupLang()
         self.setupSync()
