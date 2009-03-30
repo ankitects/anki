@@ -333,24 +333,23 @@ class DeckStats(object):
 
         html += "<b>" + _("Card counts") + "</b><br>"
         html += _("Mature cards:") + " <b>%(old)d</b> (%(oldP)s)<br>" % {
-            'old': stats['old'], 'oldP' : fmtPerc(stats['oldP'])}
+                'old': stats['old'], 'oldP' : fmtPerc(stats['oldP'])}
         html += _("Young cards:") + " <b>%(young)d</b> (%(youngP)s)<br>" % {
-            'young': stats['young'], 'youngP' : fmtPerc(stats['youngP'])}
+                'young': stats['young'], 'youngP' : fmtPerc(stats['youngP'])}
         html += _("Unseen cards:") + " <b>%(new)d</b> (%(newP)s)<br><br>" % {
-            'new': stats['new'], 'newP' : fmtPerc(stats['newP'])}
-
+                'new': stats['new'], 'newP' : fmtPerc(stats['newP'])}
         html += "<b>" + _("Correct answers") + "</b><br>"
-        html += _("Mature cards:") + "<b>" + fmtPerc(stats['gMatureYes%']) + (
+        html += _("Mature cards:") + " <b>" + fmtPerc(stats['gMatureYes%']) + (
                 "</b> " + _("%(partOf)d of %(totalSum)d") % {
-            'partOf' : stats['gMatureYes'],
+                'partOf' : stats['gMatureYes'],
                 'totalSum' : stats['gMatureTotal'] } + "<br>")
         html += _("Young cards:")  + " <b>" + fmtPerc(stats['gYoungYes%']) + (
                 "</b> " + _("%(partOf)d of %(totalSum)d") % {
-            'partOf' : stats['gYoungYes'],
+                'partOf' : stats['gYoungYes'],
                 'totalSum' : stats['gYoungTotal'] } + "<br>")
         html += _("First-seen cards:") + " <b>" + fmtPerc(stats['gNewYes%']) + (
                 "</b> " + _("%(partOf)d of %(totalSum)d") % {
-            'partOf' : stats['gNewYes'],
+                'partOf' : stats['gNewYes'],
                 'totalSum' : stats['gNewTotal'] } + "<br><br>")
 
         # average pending time
