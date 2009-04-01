@@ -2342,6 +2342,8 @@ class DeckStorage(object):
             deck.needLock = lock
             deck.s = SessionHelper(s, lock=lock)
             deck.s.execute("pragma locking_mode = exclusive")
+            # force a write lock
+            deck.s.execute("update decks set modified = modified")
             if ver < 27:
                 initTagTables(deck.s)
             if create:
