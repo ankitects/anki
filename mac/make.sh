@@ -18,7 +18,9 @@ cp -Rvf /usr/local/share/kakasi/itaijidict kakasi
 # mkdir -p audio
 # cp -Rvf /usr/local/bin/lamex audio
 echo "adding image formats..."
-cp -Rvf imageformats ankiqt
+rm -rf ankiqt/imageformats
+mkdir ankiqt/imageformats
+cp -Rvf imageformats/libq{gif,jpeg,svg,tiff}* ankiqt/imageformats
 echo "building..."
 PYTHONPATH=ankiqt:libanki python ankiqt/mac/setup.py bdist_dmg
 
