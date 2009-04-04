@@ -119,40 +119,13 @@ class DeckModel(QAbstractTableModel):
         if not self.sortKey:
             self.cards = []
             return
-        search = self.parseSearch()
-        # text search
-        textLimit = ""
-        if search['str']:
-            ids = None
-            for s in search['str']:
-                i = self.deck.s.column0(
-                    "select factId from fields where value like :s", s="%"+s+"%")
-                if not ids:
-                    ids = set(i)
-                else:
-                    ids.intersection_update(i)
-                    if not ids:
-                        break
-            if not ids:
-                ids = []
-            textLimit = "cards.factId in %s" % ids2str(ids)
-        # tags
-        tagLimit = ""
-        if search['tag']:
-            ids = None
-            if "none" in search['tag']:
-                ids = set(self.deck.cardsWithNoTags())
-            else:
-                ids = self.deck.cardsWithTags(" ".join(search['tag']))
-            if not ids:
-                ids = []
-            tagLimit = "cards.id in %s" % ids2str(ids)
         # sorting
+        if not self.searchStr:
+            ads = ""
+        else:
+            ads = "cards.factId in %s" % ids2str(
+                self.deck.findFacts(self.searchStr))
         sort = ""
-        ads = []
-        if textLimit: ads.append(textLimit)
-        if tagLimit: ads.append(tagLimit)
-        ads = " and ".join(ads)
         if isinstance(self.sortKey, types.StringType):
             # card property
             sort = "order by cards." + self.sortKey
@@ -456,9 +429,9 @@ class EditDeck(QMainWindow):
         if idx == 0:
             self.dialog.filterEdit.setText("")
         elif idx == 1:
-            self.dialog.filterEdit.setText("t:none")
+            self.dialog.filterEdit.setText("tag:none")
         else:
-            self.dialog.filterEdit.setText("t:" + self.alltags[idx-2])
+            self.dialog.filterEdit.setText("tag:" + self.alltags[idx-2])
         self.showFilterNow()
         self.dialog.tagList.setCurrentIndex(0)
 
