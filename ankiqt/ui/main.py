@@ -2219,6 +2219,10 @@ Consider backing up your media directory first."""))
     def setupSystemHacks(self):
         self.setupDocumentDir()
         self.changeLayoutSpacing()
+        addHook("macLoadEvent", self.onMacLoad)
+
+    def onMacLoad(self, fname):
+        self.loadDeck(fname)
 
     def setupDocumentDir(self):
         if sys.platform.startswith("win32"):

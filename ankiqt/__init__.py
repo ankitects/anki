@@ -4,6 +4,7 @@
 import os, sys, shutil
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from anki.hooks import runHook
 
 appName="Anki"
 appVersion="0.9.9.7.1"
@@ -64,6 +65,14 @@ color: #13486c;
     def finish(self, obj):
         self.splash.finish(obj)
 
+class AnkiApp(QApplication):
+
+    def event(self, evt):
+        if evt.type() == QEvent.FileOpen:
+            runHook("macLoadEvent", unicode(evt.file()))
+            return True
+        return QApplication.event(self, evt)
+
 def run():
     import config
 
@@ -93,7 +102,7 @@ def run():
                                                    "config.db.old"))
             except:
                 pass
-    app = QApplication(sys.argv)
+    app = AnkiApp(sys.argv)
 
     import forms
     import ui
