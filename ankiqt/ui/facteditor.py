@@ -13,7 +13,7 @@ import anki.sound
 from ankiqt import ui
 import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
-from anki.hooks import addHook, removeHook
+from anki.hooks import addHook, removeHook, runHook
 from sqlalchemy.exceptions import InvalidRequestError
 
 clozeColour = "#0000ff"
@@ -40,10 +40,12 @@ class FactEditor(object):
         self.lastCloze = None
         addHook("deckClosed", self.deckClosedHook)
         addHook("guiReset", self.refresh)
+        addHook("colourChanged", self.colourChanged)
 
     def close(self):
         removeHook("deckClosed", self.deckClosedHook)
-        removeHook("guiReset", self.refresh)
+        addHook("colourChanged", self.colourChanged)
+        removeHook("colourChanged", self.colourChanged)
 
     def setFact(self, fact, noFocus=False, check=False):
         "Make FACT the current fact."
@@ -462,6 +464,7 @@ class FactEditor(object):
         self.saveFields()
         field = self.widgets[widget]
         self.fact.focusLost(field)
+        self.fact.setModified(textChanged=True)
         self.loadFields(font=False)
 
     def onTextChanged(self):
@@ -614,6 +617,10 @@ class FactEditor(object):
         self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
                                            txtcol)
 
+    def colourChanged(self):
+        recent = ankiqt.mw.config['recentColours']
+        self._updateForegroundButton(recent[-1])
+
     def setForeground(self, w=None):
         recent = ankiqt.mw.config['recentColours']
         if not w:
@@ -626,14 +633,14 @@ class FactEditor(object):
         recent = ankiqt.mw.config['recentColours']
         last = recent.pop()
         recent.insert(0, last)
-        self._updateForegroundButton(recent[-1])
+        runHook("colourChanged")
         self.setForeground()
 
     def nextForeground(self):
         recent = ankiqt.mw.config['recentColours']
         last = recent.pop(0)
         recent.append(last)
-        self._updateForegroundButton(recent[-1])
+        runHook("colourChanged")
         self.setForeground()
 
     def selectForeground(self):
@@ -643,10 +650,10 @@ class FactEditor(object):
                                     self.parent)
         if new.isValid():
             txtcol = unicode(new.name())
-            self._updateForegroundButton(txtcol)
             if txtcol in recent:
                 recent.remove(txtcol)
             recent.append(txtcol)
+            runHook("colourChanged")
             self.setForeground(w)
 
     def insertLatex(self):
