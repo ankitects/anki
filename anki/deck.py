@@ -47,7 +47,7 @@ REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
 REV_CARDS_RANDOM = 3
 
-DECK_VERSION = 31
+DECK_VERSION = 32
 
 # parts of the code assume we only have one deck
 decksTable = Table(
@@ -1661,6 +1661,85 @@ where id = :id""", pending)
         self.finishProgress()
         self.refresh()
 
+    # Find
+    ##########################################################################
+
+    def _parseQuery(self, query):
+        tokens = []
+        res = []
+        # break query into words or phrases
+        for match in re.findall('"(.+?)"|([^ "]+)', query):
+            tokens.append(match[0] or match[1])
+        for c, token in enumerate(tokens):
+            isNeg = token.startswith("-")
+            if isNeg:
+                token = token[1:]
+            isTag = token.startswith("tag:")
+            if isTag:
+                # tag
+                token = token[4:]
+            res.append((token, isNeg, isTag))
+        return res
+
+    def _findCards(self, query):
+        "Find facts matching QUERY."
+        tquery = ""
+        fquery = ""
+        args = {}
+        for c, (token, isNeg, isTag) in enumerate(self._parseQuery(query)):
+            if isTag:
+                # a tag
+                if tquery:
+                    if isNeg:
+                        tquery += " except "
+                    else:
+                        tquery += " intersect "
+                elif isNeg:
+                    tquery += "select id from cards except "
+                if token == "none":
+                    tquery += """
+select cards.id from cards, facts where facts.tags = ''
+and cards.factId = facts.id """
+                else:
+                    token = token.replace("*", "%")
+                    ids = self.s.column0(
+                        "select id from tags where tag like :tag", tag=token)
+                    tquery += """
+select cardId from cardTags where
+cardTags.tagId in %s""" % ids2str(ids)
+            else:
+                # a field
+                if fquery:
+                    if isNeg:
+                        fquery += " except "
+                    else:
+                        fquery += " intersect "
+                elif isNeg:
+                    fquery += "select id from facts except "
+                args["_ff_%d" % c] = "%"+token+"%"
+                q = "select factId from fields where value like :_ff_%d" % c
+                fquery += q
+        return (tquery, fquery, args)
+
+    def findCardsWhere(self, query):
+        (tquery, fquery, args) = self._findCards(query)
+        q = ""
+        x = []
+        if tquery:
+            x.append(" id in (%s)" % tquery)
+        if fquery:
+            x.append(" factId in (%s)" % fquery)
+        if x:
+            q += " and ".join(x)
+        return q, args
+
+    def findCards(self, query):
+        q, args = self.findCardsWhere(query)
+        query = "select id from cards"
+        if q:
+            query += " where " + q
+        return self.s.column0(query, **args)
+
     # Find and replace
     ##########################################################################
 
@@ -2460,9 +2539,9 @@ create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
         deck.s.statement("""
 create index if not exists ix_tags_tag on tags (tag)""")
         deck.s.statement("""
-create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
+create index if not exists ix_cardTags_tagCard on cardTags (tagId, cardId)""")
         deck.s.statement("""
-create index if not exists ix_cardTags_tagId on cardTags (tagId)""")
+create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
     _addIndices = staticmethod(_addIndices)
 
     def _addViews(deck):
@@ -2832,6 +2911,13 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.version = 31
             deck.s.commit()
             deck.s.statement("vacuum")
+        if deck.version < 32:
+            deck.s.execute("drop index if exists ix_cardTags_tagId")
+            deck.s.execute("drop index if exists ix_cardTags_cardId")
+            DeckStorage._addIndices(deck)
+            deck.s.execute("analyze")
+            deck.version = 32
+            deck.s.commit()
         # this check we do regardless of version number since doing it on init
         # seems to crash
         if (deck.s.scalar("pragma page_size") == 1024 or

@@ -211,3 +211,49 @@ select question, answer from cards where factId = :id""",
                           id=f.id)
     assert stripHTML(q) == u"e"
     assert stripHTML(a) == u"r"
+
+def test_findCards():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    f = deck.newFact()
+    f['Front'] = u'dog'
+    f['Back'] = u'cat'
+    f.tags = u"monkey"
+    deck.addFact(f)
+    f = deck.newFact()
+    f['Front'] = u'goats are fun'
+    f['Back'] = u'sheep'
+    f.tags = u"sheep goat horse"
+    deck.addFact(f)
+    f = deck.newFact()
+    f['Front'] = u'cat'
+    f['Back'] = u'sheep'
+    deck.addFact(f)
+    assert not deck.findCards("tag:donkey")
+    assert len(deck.findCards("tag:sheep")) == 1
+    assert len(deck.findCards("tag:sheep tag:goat")) == 1
+    assert len(deck.findCards("tag:sheep tag:monkey")) == 0
+    assert len(deck.findCards("tag:monkey")) == 1
+    assert len(deck.findCards("tag:sheep -tag:monkey")) == 1
+    assert len(deck.findCards("-tag:sheep")) == 2
+    assert len(deck.findCards("cat")) == 2
+    assert len(deck.findCards("cat -dog")) == 1
+    assert len(deck.findCards("cat -dog")) == 1
+    assert len(deck.findCards("are goats")) == 1
+    assert len(deck.findCards('"are goats"')) == 0
+    assert len(deck.findCards('"goats are"')) == 1
+    # make sure card templates and models match too
+    assert len(deck.findCards('tag:basic')) == 3
+    assert len(deck.findCards('tag:forward')) == 3
+    deck.addModel(JapaneseModel())
+    f = deck.newFact()
+    f['Expression'] = u'foo'
+    f['Meaning'] = u'bar'
+    deck.addFact(f)
+    deck.currentModel.cardModels[1].active = True
+    f = deck.newFact()
+    f['Expression'] = u'baz'
+    f['Meaning'] = u'qux'
+    c = deck.addFact(f)
+    assert len(deck.findCards('tag:recognition')) == 2
+    assert len(deck.findCards('tag:recall')) == 1
