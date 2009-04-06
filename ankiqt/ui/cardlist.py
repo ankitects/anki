@@ -474,21 +474,21 @@ class EditDeck(QMainWindow):
 
     def updateSearch(self, force=True):
         idx = self.dialog.tableView.currentIndex()
+        row = idx.row()
         self.model.searchStr = unicode(self.dialog.filterEdit.text())
         self.model.showMatching(force)
         self.updateFilterLabel()
         self.onEvent()
         self.filterTimer = None
         if self.model.cards:
+            if row == -1:
+                row = 0
             self.dialog.cardInfoGroup.show()
             self.dialog.fieldsArea.show()
-            self.dialog.tableView.selectionModel().setCurrentIndex(
-                self.model.index(0, 0),
-                QItemSelectionModel.Select | QItemSelectionModel.Rows)
         else:
             self.dialog.cardInfoGroup.hide()
             self.dialog.fieldsArea.hide()
-        self.dialog.tableView.selectRow(idx.row())
+        self.dialog.tableView.selectRow(row)
         self.dialog.tableView.scrollTo(idx, QAbstractItemView.PositionAtCenter)
 
     def focusCurrentCard(self):
