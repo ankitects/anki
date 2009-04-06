@@ -15,12 +15,14 @@ from anki.cards import Card
 from anki.sync import SyncClient, SyncServer, BulkMediaSyncer
 from anki.lang import _
 from anki.utils import findTag, parseTags, stripHTML, ids2str
+from anki.tags import tagIds
 from anki.db import *
 
 class Exporter(object):
     def __init__(self, deck):
         self.deck = deck
         self.limitTags = []
+        self.limitCardIds = []
 
     def exportInto(self, path):
         file = open(path, "wb")
@@ -35,20 +37,18 @@ class Exporter(object):
         return text
 
     def cardIds(self):
-        "Return all cards, limited by tags."
-        tlist = self.deck.tagsList()
-        cards = [id for (id, tags, pri) in tlist if self.hasTags(tags)]
+        "Return all cards, limited by tags or provided ids."
+        if self.limitCardIds:
+            return self.limitCardIds
+        if not self.limitTags:
+            cards = self.deck.s.column0("select id from cards")
+        else:
+            d = tagIds(self.deck.s, self.limitTags)
+            cards = self.deck.s.column0(
+                "select cardId from cardTags where tagid in %s" %
+                ids2str(d.values()))
         self.count = len(cards)
         return cards
-
-    def hasTags(self, tags):
-        tags = parseTags(tags)
-        if not self.limitTags:
-            return True
-        for tag in self.limitTags:
-            if findTag(tag, tags):
-                return True
-        return False
 
 class AnkiExporter(Exporter):
 
