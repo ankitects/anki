@@ -103,7 +103,7 @@ class DeckModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
-    def showMatching(self):
+    def showMatching(self, force=True):
         if not self.sortKey:
             self.cards = []
             return
@@ -112,7 +112,8 @@ class DeckModel(QAbstractTableModel):
             ads = ""
             self.lastSearch = ""
         else:
-            if self.searchStr.strip() == self.lastSearch.strip():
+            if (self.searchStr.strip() == self.lastSearch.strip()
+                and not force):
                 # just whitespace
                 return
             QApplication.instance().processEvents()
@@ -463,17 +464,18 @@ class EditDeck(QMainWindow):
             self.filterTimer = QTimer(self)
             self.filterTimer.setSingleShot(True)
             self.filterTimer.start(interval)
-            self.connect(self.filterTimer, SIGNAL("timeout()"), self.updateSearch)
+            self.connect(self.filterTimer, SIGNAL("timeout()"),
+                         lambda: self.updateSearch(force=False))
 
     def showFilterNow(self):
         if self.filterTimer:
             self.filterTimer.stop()
         self.updateSearch()
 
-    def updateSearch(self):
+    def updateSearch(self, force=True):
         idx = self.dialog.tableView.currentIndex()
         self.model.searchStr = unicode(self.dialog.filterEdit.text())
-        self.model.showMatching()
+        self.model.showMatching(force)
         self.updateFilterLabel()
         self.onEvent()
         self.filterTimer = None
