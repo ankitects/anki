@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-06 20:10+0200\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -993,7 +993,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1477,10 +1477,6 @@ msgstr "Smazat štítek u kartičky..."
 #: ui/sync.py:103
 msgid "Determining differences..."
 msgstr ""
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2071,10 +2067,6 @@ msgid "Please add another model first."
 msgstr ""
 "Nesmíte smazat poslední model.\n"
 "Prosím vytvořte nejdřív nový model."
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Prosím zvolte pole třídění"
 
 #: ui/sync.py:49
 #, fuzzy
@@ -3508,6 +3500,9 @@ msgstr ""
 #~ msgid "Description && Synchronisation"
 #~ msgstr "Popis && synchronizace"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #, fuzzy
 #~ msgid "Disp&lay Properties..."
 #~ msgstr "Vlastnosti &zobrazení"
@@ -3683,6 +3678,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Open On&line..."
 #~ msgstr "Otevřít vzorový soubor..."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Prosím zvolte pole třídění"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "Prosím dvakrát zkontrolujte přihlašovací jméno"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-06 20:10+0200\n"
 "PO-Revision-Date: 2009-02-02 07:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -945,7 +945,7 @@ msgstr ""
 "Si eso no arregla el problema, por favor, copie lo siguiente<br>\n"
 "en un aviso de fallo:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1422,10 +1422,6 @@ msgstr "Eliminar Etiquetas"
 #: ui/sync.py:103
 msgid "Determining differences..."
 msgstr "Determinando las diferencias..."
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Diálogo"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1986,10 +1982,6 @@ msgstr "Por favor, añada una nuevo campo primero."
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
 msgstr "Por favor, añada otro modelo antes."
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Elija un campo por el que ordenar las tarjetas."
 
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
@@ -2997,6 +2989,9 @@ msgstr "toplabel"
 #~ msgid "Del"
 #~ msgstr "Supr"
 
+#~ msgid "Dialog"
+#~ msgstr "Diálogo"
+
 #~ msgid "Edit Items"
 #~ msgstr "Editar Elementos"
 
@@ -3036,6 +3031,9 @@ msgstr "toplabel"
 
 #~ msgid "Open On&line..."
 #~ msgstr "Abrir On&line..."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Elija un campo por el que ordenar las tarjetas."
 
 #~ msgid "Save and S&ync"
 #~ msgstr "Guardar y S&incronizar"

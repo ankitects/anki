@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-06 20:10+0200\n"
 "PO-Revision-Date: 2009-03-09 19:46-0000\n"
 "Last-Translator: Nick Cook <nick@n-line.co.uk>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -949,7 +949,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1419,10 +1419,6 @@ msgstr ""
 
 #: ui/sync.py:103
 msgid "Determining differences..."
-msgstr ""
-
-#: forms/infodialog.py:36
-msgid "Dialog"
 msgstr ""
 
 #: ui/modelproperties.py:325
@@ -1984,10 +1980,6 @@ msgstr ""
 
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
-msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
 msgstr ""
 
 #: ui/sync.py:49
