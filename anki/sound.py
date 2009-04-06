@@ -227,6 +227,8 @@ class PyAudioRecorder(_Recorder):
 ##########################################################################
 
 try:
+    if 'noqtmovie' in os.environ:
+        raise ImportError
     from QTKit import QTMovie
     from AppKit import NSAutoreleasePool
 
