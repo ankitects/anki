@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -948,7 +948,7 @@ msgstr ""
 "Kui see ei paranda probleemi, palun kopeeri järgnev<br>\n"
 "vearaportisse:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1026,6 +1026,11 @@ msgstr "&Lisa kaarte..."
 #: forms/cardlist.py:230
 msgid "Browse Items"
 msgstr ""
+
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1420,10 +1425,6 @@ msgstr "Kustuta silte"
 msgid "Determining differences..."
 msgstr "Selgitan erinevusi..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialoog"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "&Blokeeri"
@@ -1493,11 +1494,6 @@ msgstr "Muuda"
 #: forms/main.py:978
 msgid "Edit &Current..."
 msgstr "Muuda &praegust..."
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."
@@ -1977,10 +1973,6 @@ msgstr "Lisa kõigepealt uus väli."
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
 msgstr "Lisa kõigepealt teine mudel."
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Palun vali väli, mille järgi sortida."
 
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
@@ -2939,11 +2931,17 @@ msgstr "üleminesedel"
 #~ msgid "Del"
 #~ msgstr "Del"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialoog"
+
 #~ msgid "Edit Items"
 #~ msgstr "Muuda kaarte"
 
 #~ msgid "Find"
 #~ msgstr "Otsi"
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Palun vali väli, mille järgi sortida."
 
 #~ msgid "Replace"
 #~ msgstr "Asenda"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
-"PO-Revision-Date: 2009-03-25 17:28+0100\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
+"PO-Revision-Date: 2009-04-07 00:16+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -177,9 +177,8 @@ msgid "&Close"
 msgstr "S&täng"
 
 #: forms/cardlist.py:263
-#, fuzzy
 msgid "&Cram..."
-msgstr "&Råplugga"
+msgstr "&Råplugga..."
 
 #: forms/main.py:945
 msgid "&Deck Properties..."
@@ -961,7 +960,7 @@ msgstr ""
 "Om detta inte löser problemet, kopiera följande text<br>\n"
 "till en felrapport:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1031,13 +1030,17 @@ msgstr ""
 "%s"
 
 #: forms/main.py:923
-#, fuzzy
 msgid "Brows&e Items..."
-msgstr "&Lägg till poster..."
+msgstr "&Bläddra bland poster..."
 
 #: forms/cardlist.py:230
 msgid "Browse Items"
-msgstr ""
+msgstr "Bläddra bland poster"
+
+#: ui/cardlist.py:433
+#, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Bläddrare (%(cur)d av %(tot)d kort visas; %(sel)d valda)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1218,7 +1221,7 @@ msgstr "Råplugga"
 
 #: ui/cardlist.py:748
 msgid "Cram selected cards in new deck?"
-msgstr ""
+msgstr "Råplugga valda kort i en ny kortlek?"
 
 #: ui/sync.py:201
 #, python-format
@@ -1431,10 +1434,6 @@ msgstr "Ta bort etiketter"
 msgid "Determining differences..."
 msgstr "Fastställer skillnader..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Inakti&vera"
@@ -1503,11 +1502,6 @@ msgstr "Redigera"
 #: forms/main.py:978
 msgid "Edit &Current..."
 msgstr "Redigera &aktuell..."
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Redigerare (%(cur)d av %(tot)d kort visas; %(sel)d valda)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."
@@ -1982,10 +1976,6 @@ msgstr "Lägg först till ett nytt fält."
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
 msgstr "Lägg först till en annan modell."
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Välj ett fält att sortera efter"
 
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
@@ -2986,6 +2976,9 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #~ msgid "Edit Items"
 #~ msgstr "Redigera poster"
 
@@ -3015,6 +3008,9 @@ msgstr "toppetikett"
 
 #~ msgid "Open On&line..."
 #~ msgstr "Öppna p&å nätet..."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Välj ett fält att sortera efter"
 
 #~ msgid "Replace"
 #~ msgstr "Ersätt"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-03-28 15:50+0100\n"
 "Last-Translator: Michael Keppler <bananeweizen@gmx.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -954,7 +954,7 @@ msgstr ""
 "Wenn das Problem damit nicht behoben ist, dann sende bitte einen Fehlerbericht<br>\n"
 "mit folgender Beschreibung ein:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1032,6 +1032,11 @@ msgstr "Karten &hinzufügen..."
 #: forms/cardlist.py:230
 msgid "Browse Items"
 msgstr ""
+
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Editor (zeige %(cur)d von %(tot)d Karten; %(sel)d markiert)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1425,10 +1430,6 @@ msgstr "Tags löschen..."
 msgid "Determining differences..."
 msgstr "Ermittle Unterschiede..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "&Sperren"
@@ -1497,11 +1498,6 @@ msgstr "&Bearbeiten"
 #: forms/main.py:978
 msgid "Edit &Current..."
 msgstr "Aktuellen Fakt bearbeiten..."
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Editor (zeige %(cur)d von %(tot)d Karten; %(sel)d markiert)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."
@@ -1977,10 +1973,6 @@ msgstr "Bitte füge zuerst ein neues Feld hinzu."
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
 msgstr "Bitte füge zuerst ein anderes Modell hinzu."
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Bitte wähle ein Feld, nach dem sortiert werden soll."
 
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
@@ -3534,6 +3526,9 @@ msgstr "Label"
 #~ msgid "Description && Synchronisation"
 #~ msgstr "Beschreibung && Synchronisation"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #~ msgid "Difficult"
 #~ msgstr "Schwierig"
 
@@ -3709,6 +3704,9 @@ msgstr "Label"
 
 #~ msgid "Period"
 #~ msgstr "Zeitraum"
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Bitte wähle ein Feld, nach dem sortiert werden soll."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "Dieses Feld muss eindeutig sein"

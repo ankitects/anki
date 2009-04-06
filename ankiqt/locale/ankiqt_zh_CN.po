@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-03-09 19:46-0000\n"
 "Last-Translator: Nick Cook <nick@n-line.co.uk>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -949,7 +949,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1020,6 +1020,11 @@ msgstr "加项目..."
 
 #: forms/cardlist.py:230
 msgid "Browse Items"
+msgstr ""
+
+#: ui/cardlist.py:433
+#, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
 msgstr ""
 
 #: ui/cardlist.py:411
@@ -1421,10 +1426,6 @@ msgstr ""
 msgid "Determining differences..."
 msgstr ""
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr ""
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr ""
@@ -1494,11 +1495,6 @@ msgstr "编集(&E)"
 
 #: forms/main.py:978
 msgid "Edit &Current..."
-msgstr ""
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
 msgstr ""
 
 #: ui/lookup.py:27
@@ -1984,10 +1980,6 @@ msgstr ""
 
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
-msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
 msgstr ""
 
 #: ui/sync.py:49

@@ -431,7 +431,7 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setCurrentIndex(0)
 
     def updateFilterLabel(self):
-        self.setWindowTitle(_("Editor (%(cur)d "
+        self.setWindowTitle(_("Browser (%(cur)d "
                               "of %(tot)d cards shown; %(sel)d selected)") %
                             {
             "cur": len(self.model.cards),

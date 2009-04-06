@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -985,7 +985,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1063,6 +1063,11 @@ msgstr "&Aggiungi Fatti"
 #: forms/cardlist.py:230
 msgid "Browse Items"
 msgstr ""
+
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Anki - Modifica mazzo (mostrate %(cur)d di %(tot)d carte)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1480,10 +1485,6 @@ msgstr "Elimina Tag.."
 msgid "Determining differences..."
 msgstr "Determinazione differenze"
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Finestra di dialogo"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Disa&bilita"
@@ -1555,11 +1556,6 @@ msgstr "Modifica (&E)"
 #, fuzzy
 msgid "Edit &Current..."
 msgstr "Carta Corrente"
-
-#: ui/cardlist.py:433
-#, fuzzy, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Anki - Modifica mazzo (mostrate %(cur)d di %(tot)d carte)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."
@@ -2060,10 +2056,6 @@ msgstr "Aggiungere un nuovo campo prima di procedere."
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
 msgstr "Aggiungere un altro modello prima di procedere."
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Scegliere un campo col quale ordinare l'elenco."
 
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
@@ -3252,6 +3244,9 @@ msgstr "etichetta"
 #~ msgid "Description"
 #~ msgstr "Descrizione"
 
+#~ msgid "Dialog"
+#~ msgstr "Finestra di dialogo"
+
 #~ msgid "Difficulty"
 #~ msgstr "Difficoltà"
 
@@ -3363,6 +3358,9 @@ msgstr "etichetta"
 
 #~ msgid "Period"
 #~ msgstr "Periodo"
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Scegliere un campo col quale ordinare l'elenco."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "Impediscimi di inserire la stessa cosa in questo campo più di una volta"

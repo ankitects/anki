@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 13:30+0900\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -958,7 +958,7 @@ msgstr ""
 "</ol>\n"
 "Jos se ei korjaa ongelmaa, liitä seuraavat tiedot virheraporttiin:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878 forms/sort.py:45
+#: ui/deckproperties.py:181 ui/main.py:2182 forms/main.py:878
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1036,6 +1036,11 @@ msgstr "&Lisää kortteja..."
 #: forms/cardlist.py:230
 msgid "Browse Items"
 msgstr ""
+
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Muokkain (näkyvissä %(cur)d korttia %(tot)d kortista; %(sel)d valittu)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1429,10 +1434,6 @@ msgstr "Poista tägit"
 msgid "Determining differences..."
 msgstr "Etsitään eroavaisuuksia..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr ""
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Poista &käytöstä"
@@ -1501,11 +1502,6 @@ msgstr "Muokkaa"
 #: forms/main.py:978
 msgid "Edit &Current..."
 msgstr "Muokkaa &nykyistä..."
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Muokkain (näkyvissä %(cur)d korttia %(tot)d kortista; %(sel)d valittu)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."
@@ -1981,11 +1977,6 @@ msgstr "Lisää ensin kenttä."
 #: ui/deckproperties.py:142
 msgid "Please add another model first."
 msgstr "Lisää toinen malli ensin."
-
-#: forms/sort.py:46
-#, fuzzy
-msgid "Please choose a field to sort by."
-msgstr "Lisää ensin kenttä."
 
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
@@ -3017,6 +3008,10 @@ msgstr ""
 
 #~ msgid "Open On&line..."
 #~ msgstr "Avaa &verkosta..."
+
+#, fuzzy
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Lisää ensin kenttä."
 
 #~ msgid "Replace"
 #~ msgstr "Korvaa"
