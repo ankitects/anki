@@ -1562,9 +1562,13 @@ it to your friends.
     def getTranslation(self, text):
         return self.languageTrans.ugettext(text)
 
+    def getTranslation2(self, text1, text2, n):
+        return self.languageTrans.ngettext(text1, text2, n)
+
     def installTranslation(self):
         import __builtin__
         __builtin__.__dict__['_'] = self.getTranslation
+        __builtin__.__dict__['ngettext'] = self.getTranslation2
 
     # Syncing
     ##########################################################################
