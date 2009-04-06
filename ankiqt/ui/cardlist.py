@@ -49,6 +49,7 @@ class DeckModel(QAbstractTableModel):
                         [_("Due"), self.thirdColumn],
                         ]
         self.searchStr = ""
+        self.lastSearch = ""
         self.cards = []
         self.deleted = {}
 
@@ -102,19 +103,6 @@ class DeckModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
-    def parseSearch(self):
-        search = self.searchStr
-        d = {'str': [],
-             'tag': [],
-             }
-        if search:
-            for elem in search.split():
-                if len(elem) > 2 and elem.startswith("t:"):
-                    d['tag'].append(elem[2:])
-                else:
-                    d['str'].append(elem)
-        return d
-
     def showMatching(self):
         if not self.sortKey:
             self.cards = []
@@ -122,9 +110,15 @@ class DeckModel(QAbstractTableModel):
         # sorting
         if not self.searchStr:
             ads = ""
+            self.lastSearch = ""
         else:
-            ads = "cards.factId in %s" % ids2str(
-                self.deck.findFacts(self.searchStr))
+            if self.searchStr.strip() == self.lastSearch.strip():
+                # just whitespace
+                return
+            QApplication.instance().processEvents()
+            self.lastSearch = self.searchStr
+            ids = self.deck.findCards(self.searchStr)
+            ads = "cards.id in %s" % ids2str(ids)
         sort = ""
         if isinstance(self.sortKey, types.StringType):
             # card property
