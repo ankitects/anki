@@ -7,7 +7,7 @@ from PyQt4.QtGui import *
 from anki.hooks import runHook
 
 appName="Anki"
-appVersion="0.9.9.7.1"
+appVersion="0.9.9.7.2"
 appWebsite="http://ichi2.net/anki/download/"
 appWiki="http://ichi2.net/anki/wiki/"
 appHelpSite="http://ichi2.net/anki/wiki/AnkiWiki"
