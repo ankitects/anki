@@ -1385,31 +1385,36 @@ day = :d""", d=yesterday)
     # Cramming & Sharing
     ##########################################################################
 
-    def _copyToTmpDeck(self, name="cram.anki", tags=""):
+    def _copyToTmpDeck(self, name="cram.anki", tags="", ids=[]):
         ndir = tempfile.mkdtemp(prefix="anki")
         path = os.path.join(ndir, name)
         from anki.exporting import AnkiExporter
         e = AnkiExporter(self.deck)
         if tags:
             e.limitTags = parseTags(tags)
+        if ids:
+            e.limitCardIds = ids
         path = unicode(path, sys.getfilesystemencoding())
         e.exportInto(path)
         return (e, path)
 
-    def onCram(self):
+    def onCram(self, cardIds=[]):
         if self.deck.name() == "cram":
             ui.utils.showInfo(
                 _("Already cramming. Please close this deck first."))
             return
         if not self.save(required=True):
             return
-        (s, ret) = ui.utils.getTag(self, self.deck, _("Tags to cram:"),
-                                   help="CramMode", tags="all")
-        if not ret:
-            return
-        s = unicode(s)
-        # open tmp deck
-        (e, path) = self._copyToTmpDeck(tags=s)
+        if not cardIds:
+            (s, ret) = ui.utils.getTag(self, self.deck, _("Tags to cram:"),
+                                       help="CramMode", tags="all")
+            if not ret:
+                return
+            s = unicode(s)
+            # open tmp deck
+            (e, path) = self._copyToTmpDeck(tags=s)
+        else:
+            (e, path) = self._copyToTmpDeck(ids=cardIds)
         if not e.exportedCards:
             ui.utils.showInfo(_("No cards matched the provided tags."))
             return

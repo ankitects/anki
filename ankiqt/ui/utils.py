@@ -55,12 +55,20 @@ def showText(text, parent=None):
               SIGNAL("clicked()"), d.accept)
     d.exec_()
 
-def askUser(text, parent=None):
+def askUser(text, parent=None, help=""):
     "Show a yes/no question. Return true if yes."
     if not parent:
         parent = ankiqt.mw
-    r = QMessageBox.question(parent, "Anki", text,
-                             QMessageBox.Yes | QMessageBox.No)
+    sb = QMessageBox.Yes | QMessageBox.No
+    if help:
+        sb |= QMessageBox.Help
+    while 1:
+        r = QMessageBox.question(parent, "Anki", text, sb,
+                                 QMessageBox.Yes)
+        if r == QMessageBox.Help:
+            openWikiLink(help)
+        else:
+            break
     return r == QMessageBox.Yes
 
 class GetTextDialog(QDialog):

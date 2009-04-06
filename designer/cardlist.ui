@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Edit Items</string>
+   <string>Browse Items</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <property name="geometry" >
@@ -198,6 +198,7 @@
     <addaction name="actionAddCards" />
     <addaction name="actionChangeModel" />
     <addaction name="separator" />
+    <addaction name="actionCram" />
     <addaction name="actionReschedule" />
     <addaction name="separator" />
     <addaction name="actionDelete" />
@@ -407,6 +408,15 @@
   <action name="actionFindReplace" >
    <property name="text" >
     <string>Find and Re&amp;place...</string>
+   </property>
+  </action>
+  <action name="actionCram" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/view-pim-calendar.png</normaloff>:/icons/view-pim-calendar.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Cram...</string>
    </property>
   </action>
  </widget>

@@ -518,6 +518,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionAddTag, SIGNAL("triggered()"), self.addTags)
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
         self.connect(self.dialog.actionReschedule, SIGNAL("triggered()"), self.reschedule)
+        self.connect(self.dialog.actionCram, SIGNAL("triggered()"), self.cram)
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionChangeModel, SIGNAL("triggered()"), self.onChangeModel)
         # edit
@@ -742,6 +743,14 @@ where id in %s""" % ids2str(sf))
         self.updateSearch()
         self.updateAfterCardChange()
 
+    def cram(self):
+        if ui.utils.askUser(
+            _("Cram selected cards in new deck?"),
+            help="CramMode",
+            parent=self):
+            self.close()
+            self.parent.onCram(self.selectedCards())
+
     def onChangeModel(self):
         sf = self.selectedFacts()
         mods = self.deck.s.column0("""
@@ -872,7 +881,7 @@ where id in %s""" % ids2str(sf))
 
     def onFindReplaceHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "Editor#FindReplace"))
+                                      "Browser#FindReplace"))
 
     # Jumping
     ######################################################################
@@ -919,7 +928,7 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Editor"))
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Browser"))
 
 # Generate card dialog
 ######################################################################
@@ -965,7 +974,7 @@ order by ordinal""" % ids2str(self.cms))
 
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "Editor#GenerateCards"))
+                                      "Browser#GenerateCards"))
 
 # Change model dialog
 ######################################################################
@@ -1111,4 +1120,4 @@ class ChangeModelDialog(QDialog):
 
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "Editor#ChangeModel"))
+                                      "Browser#ChangeModel"))

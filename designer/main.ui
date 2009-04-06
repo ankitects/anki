@@ -1496,7 +1496,7 @@
      <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Edit All...</string>
+    <string>Brows&amp;e Items...</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+F</string>
