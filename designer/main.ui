@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>723</width>
-    <height>513</height>
+    <height>523</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -23,14 +23,6 @@
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>69</y>
-     <width>723</width>
-     <height>424</height>
-    </rect>
-   </property>
    <property name="sizePolicy" >
     <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>1</horstretch>
@@ -141,14 +133,6 @@
           <number>3</number>
          </property>
          <widget class="QWidget" name="page1" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>100</width>
-            <height>30</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
            <property name="spacing" >
             <number>0</number>
@@ -220,14 +204,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page2" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>100</width>
-            <height>30</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
            <property name="leftMargin" >
             <number>0</number>
@@ -366,26 +342,8 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="typeAnswerPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>100</width>
-            <height>30</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QWidget" name="blankButtonPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>446</width>
-            <height>57</height>
-           </rect>
-          </property>
-         </widget>
+         <widget class="QWidget" name="typeAnswerPage" />
+         <widget class="QWidget" name="blankButtonPage" />
         </widget>
        </item>
        <item row="0" column="0" >
@@ -399,25 +357,8 @@
          <property name="currentIndex" >
           <number>1</number>
          </property>
-         <widget class="QWidget" name="blankPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>446</width>
-            <height>367</height>
-           </rect>
-          </property>
-         </widget>
+         <widget class="QWidget" name="blankPage" />
          <widget class="QWidget" name="welcomePage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>446</width>
-            <height>367</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_5" >
            <property name="margin" >
             <number>6</number>
@@ -435,14 +376,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="editPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>446</width>
-            <height>367</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" >
            <property name="spacing" >
             <number>0</number>
@@ -473,14 +406,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="optionsPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>446</width>
-            <height>367</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_4" >
            <item>
             <spacer name="verticalSpacer_2" >
@@ -832,14 +757,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="congratsPage" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>446</width>
-            <height>367</height>
-           </rect>
-          </property>
           <layout class="QVBoxLayout" name="verticalLayout_8" >
            <item>
             <spacer name="verticalSpacer_3" >
@@ -1186,7 +1103,7 @@
      <x>0</x>
      <y>0</y>
      <width>723</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1345,14 +1262,6 @@
    <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>493</y>
-     <width>723</width>
-     <height>20</height>
-    </rect>
-   </property>
    <property name="sizeGripEnabled" >
     <bool>true</bool>
    </property>
@@ -1360,14 +1269,6 @@
   <widget class="QToolBar" name="toolBar" >
    <property name="enabled" >
     <bool>true</bool>
-   </property>
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>23</y>
-     <width>723</width>
-     <height>46</height>
-    </rect>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
@@ -1459,6 +1360,9 @@
    <property name="text" >
     <string>&amp;Save</string>
    </property>
+   <property name="statusTip" >
+    <string>Save this deck now</string>
+   </property>
    <property name="shortcut" >
     <string>Ctrl+S</string>
    </property>
@@ -1474,6 +1378,9 @@
    <property name="text" >
     <string>S&amp;ync</string>
    </property>
+   <property name="statusTip" >
+    <string>Synchronize this deck with Anki Online</string>
+   </property>
    <property name="shortcut" >
     <string>Ctrl+Y</string>
    </property>
@@ -1486,6 +1393,9 @@
    <property name="text" >
     <string>&amp;Add Items...</string>
    </property>
+   <property name="statusTip" >
+    <string>Add new items to Anki by typing them in</string>
+   </property>
    <property name="shortcut" >
     <string>Ctrl+D</string>
    </property>
@@ -1497,6 +1407,9 @@
    </property>
    <property name="text" >
     <string>Brows&amp;e Items...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Browse and edit all items</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+F</string>
@@ -1511,7 +1424,7 @@
     <string>&amp;Preferences</string>
    </property>
    <property name="statusTip" >
-    <string>Application-wide preferences.</string>
+    <string>Configure interface language and options</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+P</string>
@@ -1577,6 +1490,9 @@
    <property name="text" >
     <string>&amp;Deck Statistics</string>
    </property>
+   <property name="statusTip" >
+    <string>Show some textual statistics about your deck</string>
+   </property>
   </action>
   <action name="actionStarthere" >
    <property name="icon" >
@@ -1596,7 +1512,7 @@
     <string>&amp;Report Bug...</string>
    </property>
    <property name="whatsThis" >
-    <string>Open the bug tracker.</string>
+    <string>Open the bug tracker</string>
    </property>
   </action>
   <action name="actionAbout" >
@@ -1619,6 +1535,9 @@
    <property name="text" >
     <string>&amp;Card Statistics</string>
    </property>
+   <property name="statusTip" >
+    <string>Show statistics about the current card and last card</string>
+   </property>
   </action>
   <action name="actionDeckProperties" >
    <property name="icon" >
@@ -1629,7 +1548,7 @@
     <string>&amp;Deck Properties...</string>
    </property>
    <property name="statusTip" >
-    <string>Customize syncing, scheduling, priorities and models.</string>
+    <string>Customize syncing, scheduling, priorities and models</string>
    </property>
   </action>
   <action name="actionImport" >
@@ -1640,6 +1559,9 @@
    <property name="text" >
     <string>&amp;Import...</string>
    </property>
+   <property name="statusTip" >
+    <string>Import cards from text files, Anki files and more</string>
+   </property>
   </action>
   <action name="actionGraphs" >
    <property name="icon" >
@@ -1649,6 +1571,9 @@
    <property name="text" >
     <string>&amp;Graphs...</string>
    </property>
+   <property name="statusTip" >
+    <string>Show graphical statistics about your deck</string>
+   </property>
   </action>
   <action name="actionExport" >
    <property name="icon" >
@@ -1657,6 +1582,9 @@
    </property>
    <property name="text" >
     <string>Expor&amp;t...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Save cards in a new deck or text file for sharing with others</string>
    </property>
   </action>
   <action name="actionDisplayProperties" >
@@ -1668,7 +1596,7 @@
     <string>&amp;Fonts and Colours...</string>
    </property>
    <property name="statusTip" >
-    <string>Customize fonts, colours and alignment.</string>
+    <string>Customize fonts, colours and alignment</string>
    </property>
   </action>
   <action name="actionOpenSamples" >
@@ -1687,6 +1615,9 @@
    <property name="text" >
     <string>&amp;Mark Fact</string>
    </property>
+   <property name="statusTip" >
+    <string>Apply the 'marked' tag to this fact, so you find it later in the browser</string>
+   </property>
    <property name="shortcut" >
     <string>Ctrl+M</string>
    </property>
@@ -1700,7 +1631,7 @@
     <string>&amp;Suspend Fact</string>
    </property>
    <property name="statusTip" >
-    <string>Stop reviewing this card until it's unsuspended in the editor.</string>
+    <string>Stop reviewing this card until it's unsuspended in the editor</string>
    </property>
   </action>
   <action name="actionModelProperties" >
@@ -1712,7 +1643,7 @@
     <string>Current &amp;Model...</string>
    </property>
    <property name="statusTip" >
-    <string>Customize card layout, fields, etc.</string>
+    <string>Customize card layout, fields, etc</string>
    </property>
   </action>
   <action name="actionRepeatQuestionAudio" >
@@ -1735,6 +1666,9 @@
    </property>
    <property name="text" >
     <string>Repeat &amp;Audio</string>
+   </property>
+   <property name="statusTip" >
+    <string>Play the last-played audio again</string>
    </property>
    <property name="shortcut" >
     <string>F5</string>
@@ -1772,6 +1706,9 @@
    <property name="text" >
     <string>Save &amp;As...</string>
    </property>
+   <property name="statusTip" >
+    <string>Save this deck, giving it a new name</string>
+   </property>
   </action>
   <action name="actionCheckDatabaseIntegrity" >
    <property name="icon" >
@@ -1780,6 +1717,9 @@
    </property>
    <property name="text" >
     <string>Check Database...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Check the database for errors</string>
    </property>
   </action>
   <action name="actionOptimizeDatabase" >
@@ -1790,6 +1730,9 @@
    <property name="text" >
     <string>Optimize Database</string>
    </property>
+   <property name="statusTip" >
+    <string>Remove unused space, making the database file smaller</string>
+   </property>
   </action>
   <action name="actionCheckMediaDatabase" >
    <property name="icon" >
@@ -1799,6 +1742,9 @@
    <property name="text" >
     <string>Check Media Database...</string>
    </property>
+   <property name="statusTip" >
+    <string>Check the files in the media directory</string>
+   </property>
   </action>
   <action name="actionCram" >
    <property name="icon" >
@@ -1807,6 +1753,9 @@
    </property>
    <property name="text" >
     <string>C&amp;ram...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Do an extra review of specified cards before a test</string>
    </property>
   </action>
   <action name="actionReleaseNotes" >
@@ -1851,6 +1800,9 @@
    <property name="text" >
     <string>Active &amp;Tags...</string>
    </property>
+   <property name="statusTip" >
+    <string>Choose the categories to show during review</string>
+   </property>
   </action>
   <action name="actionEditCurrent" >
    <property name="icon" >
@@ -1859,6 +1811,9 @@
    </property>
    <property name="text" >
     <string>Edit &amp;Current...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Edit the currently displayed item</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+E</string>
@@ -1881,6 +1836,9 @@
    <property name="text" >
     <string>&amp;Delete Card</string>
    </property>
+   <property name="statusTip" >
+    <string>Delete the currently displayed card</string>
+   </property>
    <property name="shortcut" >
     <string>Ctrl+Del</string>
    </property>
@@ -1894,10 +1852,16 @@
    <property name="text" >
     <string>Cache LaTeX</string>
    </property>
+   <property name="statusTip" >
+    <string>Pre-generate PNG images of LaTeX cards</string>
+   </property>
   </action>
   <action name="actionUncacheLatex" >
    <property name="text" >
     <string>Uncache LaTeX</string>
+   </property>
+   <property name="statusTip" >
+    <string>Remove generated PNG images of LaTeX cards</string>
    </property>
   </action>
   <action name="actionStudyOptions" >
@@ -1907,6 +1871,9 @@
    </property>
    <property name="text" >
     <string>&amp;Study Options...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Configure review options</string>
    </property>
   </action>
   <action name="actionDonate" >
@@ -1926,6 +1893,9 @@
    <property name="text" >
     <string>&amp;Record Noise Profile...</string>
    </property>
+   <property name="statusTip" >
+    <string>Record 10 seconds of silence so that the record function can cancel noise</string>
+   </property>
   </action>
   <action name="actionGetShared" >
    <property name="text" >
@@ -1944,15 +1914,24 @@
    <property name="text" >
     <string>Personal Deck</string>
    </property>
+   <property name="statusTip" >
+    <string>Download a deck that you synced from another computer</string>
+   </property>
   </action>
   <action name="actionDownloadSharedDeck" >
    <property name="text" >
     <string>Shared Deck</string>
    </property>
+   <property name="statusTip" >
+    <string>Download a deck that people have shared publicly</string>
+   </property>
   </action>
   <action name="actionDownloadSharedPlugin" >
    <property name="text" >
     <string>Shared Plugin</string>
+   </property>
+   <property name="statusTip" >
+    <string>Download a plugin to add new features or change Anki's behaviour</string>
    </property>
   </action>
  </widget>
