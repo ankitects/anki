@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-03-09 19:46-0000\n"
 "Last-Translator: Nick Cook <nick@n-line.co.uk>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1022,6 +1022,11 @@ msgstr "加项目..."
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr ""
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr ""
@@ -1490,11 +1495,6 @@ msgstr "编集(&E)"
 
 #: forms/main.py:978
 msgid "Edit &Current..."
-msgstr ""
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
 msgstr ""
 
 #: ui/lookup.py:27

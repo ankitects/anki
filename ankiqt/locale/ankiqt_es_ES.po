@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-02-02 07:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -1025,6 +1025,11 @@ msgstr "&Añadir Elementos..."
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Editor (%(cur)d of %(tot)d tarjetas mostradas; %(sel)d seleccionadas)"
+
 #: ui/cardlist.py:411
 #, fuzzy
 msgid "Building Index..."
@@ -1492,11 +1497,6 @@ msgstr "Editar"
 #: forms/main.py:978
 msgid "Edit &Current..."
 msgstr "Editar &Actual"
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Editor (%(cur)d of %(tot)d tarjetas mostradas; %(sel)d seleccionadas)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."

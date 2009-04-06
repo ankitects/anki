@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -1037,6 +1037,11 @@ msgstr "&Lisää kortteja..."
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Muokkain (näkyvissä %(cur)d korttia %(tot)d kortista; %(sel)d valittu)"
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr "Luodaan pikahakuluetteloa..."
@@ -1497,11 +1502,6 @@ msgstr "Muokkaa"
 #: forms/main.py:978
 msgid "Edit &Current..."
 msgstr "Muokkaa &nykyistä..."
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Muokkain (näkyvissä %(cur)d korttia %(tot)d kortista; %(sel)d valittu)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."

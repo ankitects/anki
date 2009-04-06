@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1069,6 +1069,11 @@ msgstr "Přidat štítek vlastnosti..."
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Anki - upravit balík (Zobrazeno(%(cur)d kartiček ze %(tot)d)"
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr ""
@@ -1549,11 +1554,6 @@ msgstr "&Upravit"
 #, fuzzy
 msgid "Edit &Current..."
 msgstr "<h1>Tato kartička</h1>"
-
-#: ui/cardlist.py:433
-#, fuzzy, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Anki - upravit balík (Zobrazeno(%(cur)d kartiček ze %(tot)d)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."

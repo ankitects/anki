@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -1079,6 +1079,11 @@ msgstr "Ajouter des &faits..."
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Anki - Modifier le paquet (%(cur)d cartes sur %(tot)d visibles)"
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr ""
@@ -1574,11 +1579,6 @@ msgstr "Modifi&er"
 #, fuzzy
 msgid "Edit &Current..."
 msgstr "Carte actuelle"
-
-#: ui/cardlist.py:433
-#, fuzzy, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Anki - Modifier le paquet (%(cur)d cartes sur %(tot)d visibles)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."

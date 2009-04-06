@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -956,6 +956,11 @@ msgstr ""
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr ""
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr ""
@@ -1411,11 +1416,6 @@ msgstr ""
 
 #: forms/main.py:978
 msgid "Edit &Current..."
-msgstr ""
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
 msgstr ""
 
 #: ui/lookup.py:27

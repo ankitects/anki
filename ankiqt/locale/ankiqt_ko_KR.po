@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1062,6 +1062,11 @@ msgstr "지식..."
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "앙키 - 묶음 편집 (%(tot)d개 중에 %(cur)d개)"
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr ""
@@ -1554,11 +1559,6 @@ msgstr "편집(&E)"
 #, fuzzy
 msgid "Edit &Current..."
 msgstr "현재 카드"
-
-#: ui/cardlist.py:433
-#, fuzzy, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "앙키 - 묶음 편집 (%(tot)d개 중에 %(cur)d개)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."

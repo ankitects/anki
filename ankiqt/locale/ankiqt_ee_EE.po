@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -1027,6 +1027,11 @@ msgstr "&Lisa kaarte..."
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr "Indexit tekitamine..."
@@ -1489,11 +1494,6 @@ msgstr "Muuda"
 #: forms/main.py:978
 msgid "Edit &Current..."
 msgstr "Muuda &praegust..."
-
-#: ui/cardlist.py:433
-#, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."

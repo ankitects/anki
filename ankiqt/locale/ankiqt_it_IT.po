@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-06 20:10+0200\n"
+"POT-Creation-Date: 2009-04-07 00:16+0200\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1064,6 +1064,11 @@ msgstr "&Aggiungi Fatti"
 msgid "Browse Items"
 msgstr ""
 
+#: ui/cardlist.py:433
+#, fuzzy, python-format
+msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
+msgstr "Anki - Modifica mazzo (mostrate %(cur)d di %(tot)d carte)"
+
 #: ui/cardlist.py:411
 msgid "Building Index..."
 msgstr ""
@@ -1551,11 +1556,6 @@ msgstr "Modifica (&E)"
 #, fuzzy
 msgid "Edit &Current..."
 msgstr "Carta Corrente"
-
-#: ui/cardlist.py:433
-#, fuzzy, python-format
-msgid "Editor (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Anki - Modifica mazzo (mostrate %(cur)d di %(tot)d carte)"
 
 #: ui/lookup.py:27
 msgid "Empty selection."
