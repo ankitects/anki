@@ -430,12 +430,14 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setCurrentIndex(0)
 
     def updateFilterLabel(self):
-        self.setWindowTitle(_("Browser (%(cur)d "
-                              "of %(tot)d cards shown; %(sel)d selected)") %
+        selected = len(self.dialog.tableView.selectionModel().selectedRows())
+        self.setWindowTitle(ngettext("Browser (%(cur)d "
+                              "of %(tot)d card shown; %(sel)s)", "Browser (%(cur)d "
+                              "of %(tot)d cards shown; %(sel)s)", self.deck.cardCount) %
                             {
             "cur": len(self.model.cards),
             "tot": self.deck.cardCount,
-            "sel": len(self.dialog.tableView.selectionModel().selectedRows())
+            "sel": ngettext("%d selected", "%d selected", selected) % selected
             })
 
     def onEvent(self):
@@ -871,7 +873,7 @@ where id in %s""" % ids2str(sf))
         self.updateSearch()
         self.updateAfterCardChange()
         if changed is not None:
-            ui.utils.showInfo(_("%(a)d of %(b)d facts updated") % {
+            ui.utils.showInfo(ngettext("%(a)d of %(b)d fact updated", "%(a)d of %(b)d facts updated", len(sf)) % {
                 'a': changed,
                 'b': len(sf),
                 }, parent=self)
