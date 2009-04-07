@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:56+0200\n"
+"POT-Creation-Date: 2009-04-07 11:13+0200\n"
 "PO-Revision-Date: 2008-10-25 13:26+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -453,9 +453,14 @@ msgstr "Mandarino"
 msgid "Mature"
 msgstr ""
 
-#: stats.py:335 stats.py:342
+#: stats.py:335
 #, fuzzy
-msgid "Mature cards:"
+msgid "Mature cards: <!--card count-->"
+msgstr "Carte mature"
+
+#: stats.py:342
+#, fuzzy
+msgid "Mature cards: <!--correct answers-->"
 msgstr "Carte mature"
 
 #: media.py:176 media.py:178 media.py:179
@@ -711,10 +716,14 @@ msgstr ""
 msgid "Young"
 msgstr "Giovane"
 
-#: stats.py:337 stats.py:346
+#: stats.py:337
 #, fuzzy
-msgid "Young cards:"
-msgstr "Carte giovani"
+msgid "Young cards: <!--card count-->"
+msgstr "Carte mature"
+
+#: stats.py:346
+msgid "Young cards: <!--correct answers-->"
+msgstr ""
 
 #: models.py:153
 msgid "[invalid question/answer format]"
@@ -962,6 +971,10 @@ msgstr "sconosciuto"
 
 #~ msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 #~ msgstr "Carte non ancora viste: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
+
+#, fuzzy
+#~ msgid "Young cards:"
+#~ msgstr "Carte giovani"
 
 #~ msgid "Young cards: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> of <b>%(gYoungTotal)d</b>)<br>"
 #~ msgstr "Carte giovani: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> su <b>%(gYoungTotal)d</b>)<br>"

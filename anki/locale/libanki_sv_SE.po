@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:56+0200\n"
-"PO-Revision-Date: 2009-04-07 08:56+0100\n"
+"POT-Creation-Date: 2009-04-07 11:13+0200\n"
+"PO-Revision-Date: 2009-04-07 11:13+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -463,9 +463,13 @@ msgstr "Standardkinesiska"
 msgid "Mature"
 msgstr "Gamla"
 
-#: stats.py:335 stats.py:342
-msgid "Mature cards:"
-msgstr "Gamla kort:"
+#: stats.py:335
+msgid "Mature cards: <!--card count-->"
+msgstr "Gamla kort: <!--card count-->"
+
+#: stats.py:342
+msgid "Mature cards: <!--correct answers-->"
+msgstr "Gamla kort: <!--correct answers-->"
 
 #: media.py:176 media.py:178 media.py:179
 msgid "MediaMissing"
@@ -701,9 +705,13 @@ msgstr "Uppgraderar kortlek..."
 msgid "Young"
 msgstr "Unga"
 
-#: stats.py:337 stats.py:346
-msgid "Young cards:"
-msgstr "Unga kort:"
+#: stats.py:337
+msgid "Young cards: <!--card count-->"
+msgstr "Unga kort: <!--card count-->"
+
+#: stats.py:346
+msgid "Young cards: <!--correct answers-->"
+msgstr "Unga kort: <!--correct answers-->"
 
 #: models.py:153
 msgid "[invalid question/answer format]"
@@ -767,6 +775,9 @@ msgstr "okänt"
 
 #~ msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 #~ msgstr "Kort som inte setts: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
+
+#~ msgid "Young cards:"
+#~ msgstr "Unga kort:"
 
 #~ msgid "Young cards: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> of <b>%(gYoungTotal)d</b>)<br>"
 #~ msgstr "Unga kort: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> av <b>%(gYoungTotal)d</b>)<br>"

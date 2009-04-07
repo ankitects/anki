@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:56+0200\n"
+"POT-Creation-Date: 2009-04-07 11:13+0200\n"
 "PO-Revision-Date: 2009-01-24 05:56+0800\n"
 "Last-Translator: Mark Wilbur <doubtingtoshuo@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -452,8 +452,12 @@ msgstr "國語"
 msgid "Mature"
 msgstr ""
 
-#: stats.py:335 stats.py:342
-msgid "Mature cards:"
+#: stats.py:335
+msgid "Mature cards: <!--card count-->"
+msgstr ""
+
+#: stats.py:342
+msgid "Mature cards: <!--correct answers-->"
 msgstr ""
 
 #: media.py:176 media.py:178 media.py:179
@@ -694,8 +698,12 @@ msgstr ""
 msgid "Young"
 msgstr ""
 
-#: stats.py:337 stats.py:346
-msgid "Young cards:"
+#: stats.py:337
+msgid "Young cards: <!--card count-->"
+msgstr ""
+
+#: stats.py:346
+msgid "Young cards: <!--correct answers-->"
 msgstr ""
 
 #: models.py:153
