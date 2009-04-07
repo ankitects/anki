@@ -100,7 +100,7 @@
        <item>
         <widget class="QCheckBox" name="showProgress" >
          <property name="text" >
-          <string>Show information in status bar</string>
+          <string>Show due count, ETA and performance bars</string>
          </property>
         </widget>
        </item>

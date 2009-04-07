@@ -1825,13 +1825,16 @@ it to your friends.
             deckpath = self.deck.name()
             if self.deck.modifiedSinceSave():
                 deckpath += "*"
-            title = _("%(path)s (%(due)d of %(cards)d due)"
-                      " - %(title)s") % {
-                "path": deckpath,
-                "title": title,
-                "cards": self.deck.cardCount,
-                "due": self.deck.failedSoonCount + self.deck.revCount
-                }
+            if not self.config['showProgress']:
+                title = deckpath + " - " + title
+            else:
+                title = _("%(path)s (%(due)d of %(cards)d due)"
+                          " - %(title)s") % {
+                    "path": deckpath,
+                    "title": title,
+                    "cards": self.deck.cardCount,
+                    "due": self.deck.failedSoonCount + self.deck.revCount
+                    }
         self.setWindowTitle(title)
 
     def setStatus(self, text, timeout=3000):
