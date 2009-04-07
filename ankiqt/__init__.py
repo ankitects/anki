@@ -7,7 +7,7 @@ from PyQt4.QtGui import *
 from anki.hooks import runHook
 
 appName="Anki"
-appVersion="0.9.9.7.2"
+appVersion="0.9.9.7.3"
 appWebsite="http://ichi2.net/anki/download/"
 appWiki="http://ichi2.net/anki/wiki/"
 appHelpSite="http://ichi2.net/anki/wiki/AnkiWiki"
@@ -89,7 +89,8 @@ def run():
             os.makedirs(os.path.expanduser("~/.anki"))
         except:
             pass
-        if os.path.exists(oldConf):
+        if os.path.exists(oldConf) and not os.path.exists(oldConf.replace(
+            "config.db", "config.db.old")):
             try:
                 shutil.copy2(oldConf,
                              os.path.expanduser("~/.anki/config.db"))
@@ -97,11 +98,8 @@ def run():
                              os.path.expanduser("~/.anki/plugins"))
             except:
                 pass
-            try:
-                os.rename(oldConf, oldConf.replace("config.db",
-                                                   "config.db.old"))
-            except:
-                pass
+            os.rename(oldConf, oldConf.replace("config.db",
+                                               "config.db.old"))
     app = AnkiApp(sys.argv)
 
     import forms
