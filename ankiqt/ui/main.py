@@ -1563,7 +1563,7 @@ it to your friends.
         return self.languageTrans.ugettext(text)
 
     def getTranslation2(self, text1, text2, n):
-        return self.languageTrans.ngettext(text1, text2, n)
+        return self.languageTrans.ungettext(text1, text2, n)
 
     def installTranslation(self):
         import __builtin__
