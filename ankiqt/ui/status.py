@@ -264,9 +264,11 @@ You should aim to answer each question within<br>
     def updateCount(self):
         if not self.main.deck:
             return
-        if self.state in ("showQuestion", "showAnswer"):
+        if self.state in ("showQuestion", "showAnswer", "studyScreen"):
             self.main.deck.checkDue()
             self.redraw()
+            if self.state == "studyScreen":
+                self.main.updateStudyStats()
 
     def setTimer(self, txt):
         self.timer.setText("<qt>" + txt + "&nbsp;")
