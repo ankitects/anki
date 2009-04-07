@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:36+0200\n"
+"POT-Creation-Date: 2009-04-07 10:47+0200\n"
 "PO-Revision-Date: 2009-01-20 13:14+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -36,7 +36,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:216
+#: ui/status.py:226
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -111,8 +111,8 @@ msgstr[0] "%(name)s [%(facts)d fakt]"
 msgstr[1] "%(name)s [%(facts)d fakt]"
 msgstr[2] "%(name)s [%(facts)d faktów]"
 
-#: ui/status.py:199 ui/status.py:204 ui/status.py:208 ui/status.py:210
-#: ui/status.py:212
+#: ui/status.py:209 ui/status.py:214 ui/status.py:218 ui/status.py:220
+#: ui/status.py:222
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -702,11 +702,6 @@ msgstr "<h1>Otwórz talię z Internetu</h1>"
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>Priorytety</h1>"
 
-#: ui/status.py:174
-#, fuzzy, python-format
-msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-msgstr "<h1>Pozostałe karty</h1><p/>Jest <b>%(failed)d</b> nierozwiązanych kart do wyświetlenia wkrótce.<br>Jest <b>%(rev)d</b> kart czekających na przeglądnięcie.<br>Jest <b>%(new)d</b> nowych kart wyznaczonych do przeglądnięcia dzisiaj.<br><br>Jest ogólnie <b>%(new2)d</b> nowych kart.<br>Jest <b>%(spaced)d</b> odroczonych kart."
-
 #: ui/graphs.py:193
 msgid "<h1>Reps</h1>"
 msgstr "<h1>Powtórki</h1>"
@@ -904,7 +899,7 @@ msgstr "Znowu"
 msgid "All Fields"
 msgstr "Pola"
 
-#: ui/status.py:202
+#: ui/status.py:212
 #, fuzzy
 msgid "All Reviews"
 msgstr "Powtórka"
@@ -1008,7 +1003,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr "Wprowadzanie odpowiedzi..."
 
-#: ui/status.py:200 ui/status.py:205
+#: ui/status.py:210 ui/status.py:215
 #, fuzzy
 msgid "Average time per answer: "
 msgstr "Pokazuj przy odpowiedzi czas kolejnego pojawienia się "
@@ -1242,19 +1237,19 @@ msgstr "&Kontynuuj powtórkę"
 msgid "Copy: %s"
 msgstr "Kopia: %s"
 
-#: ui/status.py:209
+#: ui/status.py:219
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:203
+#: ui/status.py:213
 msgid "Correct over a month: "
 msgstr ""
 
-#: ui/status.py:198
+#: ui/status.py:208
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:207
+#: ui/status.py:217
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1546,7 +1541,7 @@ msgstr "Pojawienie się"
 msgid "E&xit"
 msgstr "Zakoń&cz"
 
-#: ui/status.py:181
+#: ui/status.py:191
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Szacowany czas: <b>%(timeLeft)s</b>"
@@ -2044,7 +2039,7 @@ msgstr "Hasło"
 msgid "Password:"
 msgstr "Hasło:"
 
-#: ui/status.py:192
+#: ui/status.py:202
 #, fuzzy
 msgid "Performance"
 msgstr "Preferencje"
@@ -2209,6 +2204,11 @@ msgstr "Odśwież"
 msgid "Release Notes..."
 msgstr "Informacje o wydaniu..."
 
+#: ui/status.py:174
+#, fuzzy
+msgid "Remaining cards"
+msgstr "Pozostało: "
+
 #: ui/status.py:148
 msgid "Remaining: "
 msgstr "Pozostało: "
@@ -2267,7 +2267,7 @@ msgstr "Powtórka"
 msgid "Review Time"
 msgstr "Czas powtórki"
 
-#: ui/status.py:197
+#: ui/status.py:207
 #, fuzzy
 msgid "Reviews today"
 msgstr "&Wczesna powtórka"
@@ -2562,7 +2562,7 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Zmienił się protokół synchronizacji. Zaktualizuj Anki."
 
-#: ui/status.py:193
+#: ui/status.py:203
 #, fuzzy, python-format
 msgid ""
 "The top bar shows your performance today. The bottom bar shows your<br>\n"
@@ -2580,6 +2580,46 @@ msgstr ""
 "(%(dYesTotal)d z %(dTotal)d)</b><br>\n"
 "Średni czas odpowiedzi: %(avgTime)s<br>\n"
 "Całkowity czas powtórki: %(revTime)s"
+
+#: ui/status.py:178
+#, python-format
+msgid "There is <b>%d</b> card awaiting review."
+msgid_plural "There are <b>%d</b> cards awaiting review."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: ui/status.py:187
+#, python-format
+msgid "There is <b>%d</b> delayed card."
+msgid_plural "There are <b>%d</b> delayed cards."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: ui/status.py:175
+#, python-format
+msgid "There is <b>%d</b> failed card due soon."
+msgid_plural "There are <b>%d</b> failed cards due soon."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: ui/status.py:181
+#, python-format
+msgid "There is <b>%d</b> new card due today."
+msgid_plural "There are <b>%d</b> new cards due today."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: ui/status.py:184
+#, python-format
+msgid "There is <b>%d</b> new card in total."
+msgid_plural "There are <b>%d</b> new cards in total."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: ui/view.py:220
 #, python-format
@@ -2707,11 +2747,11 @@ msgstr "Zakończono dzisiejsze powtórki"
 msgid "Toggle Toolbar"
 msgstr ""
 
-#: ui/status.py:211
+#: ui/status.py:221
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:201 ui/status.py:206
+#: ui/status.py:211 ui/status.py:216
 #, fuzzy
 msgid "Total review time: "
 msgstr "Czas powtórki"
@@ -2991,6 +3031,10 @@ msgstr "toplabel"
 
 #~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
 #~ msgstr "<h1>Ustawienia zaawansowane</h1>Niektóre ustawienia wymagają ponownego uruchomienia."
+
+#, fuzzy
+#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
+#~ msgstr "<h1>Pozostałe karty</h1><p/>Jest <b>%(failed)d</b> nierozwiązanych kart do wyświetlenia wkrótce.<br>Jest <b>%(rev)d</b> kart czekających na przeglądnięcie.<br>Jest <b>%(new)d</b> nowych kart wyznaczonych do przeglądnięcia dzisiaj.<br><br>Jest ogólnie <b>%(new2)d</b> nowych kart.<br>Jest <b>%(spaced)d</b> odroczonych kart."
 
 #~ msgid "<h1>Welcome Back!</h1>"
 #~ msgstr "<h1>Witaj ponownie!</h1>"

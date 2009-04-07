@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:36+0200\n"
-"PO-Revision-Date: 2009-04-07 08:36+0100\n"
+"POT-Creation-Date: 2009-04-07 10:47+0200\n"
+"PO-Revision-Date: 2009-04-07 10:45+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -51,7 +51,7 @@ msgstr ""
 "Ett stort tack till alla som har kommit med förslag, felrapporter och\n"
 "donationer."
 
-#: ui/status.py:216
+#: ui/status.py:226
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -124,8 +124,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d faktauppgift]"
 msgstr[1] "%(name)s [%(facts)d faktauppgifter]"
 
-#: ui/status.py:199 ui/status.py:204 ui/status.py:208 ui/status.py:210
-#: ui/status.py:212
+#: ui/status.py:209 ui/status.py:214 ui/status.py:218 ui/status.py:220
+#: ui/status.py:222
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d av %(totalSum)d"
@@ -706,11 +706,6 @@ msgstr "<h1>Öppet tillgänglig kortlek på nätet</h1>"
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>Prioriteter</h1>"
 
-#: ui/status.py:174
-#, python-format
-msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-msgstr "<h1>Återstående kort</h1><p/>Det finns <b>%(failed)d</b> felbesvarade kort vars tidsfrist snart är ute.<br>Det finns <b>%(rev)d</b> kort som väntar på att repeteras.<br>Det finns <b>%(new)d</b> nya kort som skall visas i dag.<br><br>Det finns sammanlagt <b>%(new2)d</b> nya kort.<br>Det finns <b>%(spaced)d</b> senarelagda kort."
-
 #: ui/graphs.py:193
 msgid "<h1>Reps</h1>"
 msgstr "<h1>Repetitioner</h1>"
@@ -911,7 +906,7 @@ msgstr "Igen"
 msgid "All Fields"
 msgstr "Alla fält"
 
-#: ui/status.py:202
+#: ui/status.py:212
 msgid "All Reviews"
 msgstr "Alla repetitioner"
 
@@ -1015,7 +1010,7 @@ msgstr "Sätt etiketten 'markerad' på denna faktauppgift så att du kan hitta d
 msgid "Applying reply..."
 msgstr "Tillämpar svar..."
 
-#: ui/status.py:200 ui/status.py:205
+#: ui/status.py:210 ui/status.py:215
 msgid "Average time per answer: "
 msgstr "Genomsnittstid per svar: "
 
@@ -1238,19 +1233,19 @@ msgstr "Fortsätt repetera"
 msgid "Copy: %s"
 msgstr "Kopiera: %s"
 
-#: ui/status.py:209
+#: ui/status.py:219
 msgid "Correct first time: "
 msgstr "Rätta första gången: "
 
-#: ui/status.py:203
+#: ui/status.py:213
 msgid "Correct over a month: "
 msgstr "Rätta äldre än en månad:"
 
-#: ui/status.py:198
+#: ui/status.py:208
 msgid "Correct today: "
 msgstr "Rätta idag: "
 
-#: ui/status.py:207
+#: ui/status.py:217
 msgid "Correct under a month: "
 msgstr "Rätta yngre än en månad: "
 
@@ -1537,7 +1532,7 @@ msgstr "Tidsfrist slut"
 msgid "E&xit"
 msgstr "&Avsluta"
 
-#: ui/status.py:181
+#: ui/status.py:191
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Nedräkning:<b>%(timeLeft)s</b>"
@@ -2024,7 +2019,7 @@ msgstr "Lösenord"
 msgid "Password:"
 msgstr "Lösenord:"
 
-#: ui/status.py:192
+#: ui/status.py:202
 msgid "Performance"
 msgstr "Prestation"
 
@@ -2187,6 +2182,10 @@ msgstr "Uppdatera"
 msgid "Release Notes..."
 msgstr "Versionsfakta..."
 
+#: ui/status.py:174
+msgid "Remaining cards"
+msgstr "Återstående kort"
+
 #: ui/status.py:148
 msgid "Remaining: "
 msgstr "Återstående:"
@@ -2243,7 +2242,7 @@ msgstr "Repetera"
 msgid "Review Time"
 msgstr "Repetitionstid"
 
-#: ui/status.py:197
+#: ui/status.py:207
 msgid "Reviews today"
 msgstr "Repetitioner idag"
 
@@ -2534,7 +2533,7 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Synkningsprotokollet har ändrats. Du behöver uppgradera."
 
-#: ui/status.py:193
+#: ui/status.py:203
 #, python-format
 msgid ""
 "The top bar shows your performance today. The bottom bar shows your<br>\n"
@@ -2546,6 +2545,41 @@ msgstr ""
 "har presterat på kort som varit schemalagda i 21 dagar eller mer. Den undre linjen<br>\n"
 "bör i vanliga fall ligga mellan 80-95% - om den är lägre så  glömmer du bort gamla kort<br>\n"
 "för ofta, högre så tillbringar du för mycket tid med repetition."
+
+#: ui/status.py:178
+#, python-format
+msgid "There is <b>%d</b> card awaiting review."
+msgid_plural "There are <b>%d</b> cards awaiting review."
+msgstr[0] "Det finns <b>%d</b> kort som väntar på att repeteras."
+msgstr[1] "Det finns <b>%d</b> kort som väntar på att repeteras."
+
+#: ui/status.py:187
+#, python-format
+msgid "There is <b>%d</b> delayed card."
+msgid_plural "There are <b>%d</b> delayed cards."
+msgstr[0] "Det finns <b>%d</b> senarelagt kort."
+msgstr[1] "Det finns <b>%d</b> senarelagda kort."
+
+#: ui/status.py:175
+#, python-format
+msgid "There is <b>%d</b> failed card due soon."
+msgid_plural "There are <b>%d</b> failed cards due soon."
+msgstr[0] "Det finns <b>%d</b> felbesvarat kort vars tidsfrist snart är ute."
+msgstr[1] "Det finns <b>%d</b> felbesvarade kort vars tidsfrist snart är ute."
+
+#: ui/status.py:181
+#, python-format
+msgid "There is <b>%d</b> new card due today."
+msgid_plural "There are <b>%d</b> new cards due today."
+msgstr[0] "Det finns <b>%d</b> nytt kort som skall visas i dag."
+msgstr[1] "Det finns <b>%d</b> nya kort som skall visas i dag."
+
+#: ui/status.py:184
+#, python-format
+msgid "There is <b>%d</b> new card in total."
+msgid_plural "There are <b>%d</b> new cards in total."
+msgstr[0] "Det finns sammanlagt <b>%d</b> nytt kort."
+msgstr[1] "Det finns sammanlagt <b>%d</b> nya kort."
 
 #: ui/view.py:220
 #, python-format
@@ -2672,11 +2706,11 @@ msgstr "Dagens repetition är avslutad"
 msgid "Toggle Toolbar"
 msgstr "Visa eller dölj verktygsraden"
 
-#: ui/status.py:211
+#: ui/status.py:221
 msgid "Total correct: "
 msgstr "Sammanlagt rätt: "
 
-#: ui/status.py:201 ui/status.py:206
+#: ui/status.py:211 ui/status.py:216
 msgid "Total review time: "
 msgstr "Sammanlagd repetitionstid: "
 
@@ -2964,6 +2998,9 @@ msgstr "toppetikett"
 
 #~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
 #~ msgstr "<h1>Avancerade inställningar</h1>Några inställningar kräver en omstart."
+
+#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
+#~ msgstr "<h1>Återstående kort</h1><p/>Det finns <b>%(failed)d</b> felbesvarade kort vars tidsfrist snart är ute.<br>Det finns <b>%(rev)d</b> kort som väntar på att repeteras.<br>Det finns <b>%(new)d</b> nya kort som skall visas i dag.<br><br>Det finns sammanlagt <b>%(new2)d</b> nya kort.<br>Det finns <b>%(spaced)d</b> senarelagda kort."
 
 #~ msgid "<h1>Welcome Back!</h1>"
 #~ msgstr "<h1>Välkommen tillbaka!</h1>"

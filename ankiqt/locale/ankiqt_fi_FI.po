@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:36+0200\n"
+"POT-Creation-Date: 2009-04-07 10:47+0200\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -51,7 +51,7 @@ msgstr ""
 "Suuri kiitos kaikille, jotka ovat antaneet ehdotuksia, tehneet virheraportteja tai\n"
 "lahjoittaneet."
 
-#: ui/status.py:216
+#: ui/status.py:226
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -125,8 +125,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d fakta]"
 msgstr[1] "%(name)s [%(facts)d faktaa]"
 
-#: ui/status.py:199 ui/status.py:204 ui/status.py:208 ui/status.py:210
-#: ui/status.py:212
+#: ui/status.py:209 ui/status.py:214 ui/status.py:218 ui/status.py:220
+#: ui/status.py:222
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -707,11 +707,6 @@ msgstr "<h1>Verkkopakan avaus</h1>"
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>Prioriteetit</h1>"
 
-#: ui/status.py:174
-#, python-format
-msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-msgstr "<h1>Kortteja jäljellä</h1><p/> <b>%(failed)d</b> unohtunutta korttia erääntyy pian.<br> <b>%(rev)d</b> korttia odottaa kertausta.<br> <b>%(new)d</b> uutta korttia tälle päivälle.<br><br> <b>%(new2)d</b> korttia yhteensä.<br> <b>%(spaced)d</b> välitettyä korttia."
-
 #: ui/graphs.py:193
 msgid "<h1>Reps</h1>"
 msgstr "<h1>Kertaukset</h1>"
@@ -909,7 +904,7 @@ msgstr "Uudestaan"
 msgid "All Fields"
 msgstr "Kaikki kentät"
 
-#: ui/status.py:202
+#: ui/status.py:212
 #, fuzzy
 msgid "All Reviews"
 msgstr "Kertaa"
@@ -1013,7 +1008,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr "Päivitetään paikallisia tietoja..."
 
-#: ui/status.py:200 ui/status.py:205
+#: ui/status.py:210 ui/status.py:215
 #, fuzzy
 msgid "Average time per answer: "
 msgstr "Näytä aika seuraavaan kertaukseen vastatessa"
@@ -1239,19 +1234,19 @@ msgstr "Jatka kertaamista"
 msgid "Copy: %s"
 msgstr "Kopioi: %s"
 
-#: ui/status.py:209
+#: ui/status.py:219
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:203
+#: ui/status.py:213
 msgid "Correct over a month: "
 msgstr ""
 
-#: ui/status.py:198
+#: ui/status.py:208
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:207
+#: ui/status.py:217
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1541,7 +1536,7 @@ msgstr "Erääntyvät kortit"
 msgid "E&xit"
 msgstr "&Lopeta"
 
-#: ui/status.py:181
+#: ui/status.py:191
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "ETA: <b>%(timeLeft)s</b>"
@@ -2029,7 +2024,7 @@ msgstr "Salasana"
 msgid "Password:"
 msgstr "Salasana:"
 
-#: ui/status.py:192
+#: ui/status.py:202
 #, fuzzy
 msgid "Performance"
 msgstr "Asetukset"
@@ -2191,6 +2186,11 @@ msgstr "Päivitä"
 msgid "Release Notes..."
 msgstr "Julkaisutiedot..."
 
+#: ui/status.py:174
+#, fuzzy
+msgid "Remaining cards"
+msgstr "Jäljellä: "
+
 #: ui/status.py:148
 msgid "Remaining: "
 msgstr "Jäljellä: "
@@ -2247,7 +2247,7 @@ msgstr "Kertaa"
 msgid "Review Time"
 msgstr "Kertaamisaika"
 
-#: ui/status.py:197
+#: ui/status.py:207
 #, fuzzy
 msgid "Reviews today"
 msgstr "&Kertaa erääntymättömiä kortteja etukäteen"
@@ -2545,7 +2545,7 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Synkronointiprotokolla on muuttunut. Anki täytyy päivittää."
 
-#: ui/status.py:193
+#: ui/status.py:203
 #, fuzzy, python-format
 msgid ""
 "The top bar shows your performance today. The bottom bar shows your<br>\n"
@@ -2564,6 +2564,41 @@ msgstr ""
 "(%(dYesTotal)d / %(dTotal)d)</b><br>\n"
 "Keskimääräinen vastausaika: %(avgTime)s<br>\n"
 "Kertaamiseen käytetty aika: %(revTime)s"
+
+#: ui/status.py:178
+#, python-format
+msgid "There is <b>%d</b> card awaiting review."
+msgid_plural "There are <b>%d</b> cards awaiting review."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:187
+#, python-format
+msgid "There is <b>%d</b> delayed card."
+msgid_plural "There are <b>%d</b> delayed cards."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:175
+#, python-format
+msgid "There is <b>%d</b> failed card due soon."
+msgid_plural "There are <b>%d</b> failed cards due soon."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:181
+#, python-format
+msgid "There is <b>%d</b> new card due today."
+msgid_plural "There are <b>%d</b> new cards due today."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:184
+#, python-format
+msgid "There is <b>%d</b> new card in total."
+msgid_plural "There are <b>%d</b> new cards in total."
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/view.py:220
 #, python-format
@@ -2687,11 +2722,11 @@ msgstr "Tämän päivän kertaukset on tehty"
 msgid "Toggle Toolbar"
 msgstr "Näytä työkalurivi"
 
-#: ui/status.py:211
+#: ui/status.py:221
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:201 ui/status.py:206
+#: ui/status.py:211 ui/status.py:216
 #, fuzzy
 msgid "Total review time: "
 msgstr "Kertaamisaika"
@@ -2964,6 +2999,9 @@ msgstr ""
 
 #~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
 #~ msgstr "<h1>Lisäasetukset</h1> Jotkin asetukset vaativat ohjelman käynnistämisen uudelleen."
+
+#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
+#~ msgstr "<h1>Kortteja jäljellä</h1><p/> <b>%(failed)d</b> unohtunutta korttia erääntyy pian.<br> <b>%(rev)d</b> korttia odottaa kertausta.<br> <b>%(new)d</b> uutta korttia tälle päivälle.<br><br> <b>%(new2)d</b> korttia yhteensä.<br> <b>%(spaced)d</b> välitettyä korttia."
 
 #~ msgid "<h1>Welcome Back!</h1>"
 #~ msgstr "<h1>Tervetuloa takaisin</h1>"
