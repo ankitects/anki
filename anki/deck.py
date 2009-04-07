@@ -49,6 +49,11 @@ REV_CARDS_RANDOM = 3
 
 DECK_VERSION = 32
 
+deckVarsTable = Table(
+    'deckVars', metadata,
+    Column('key', UnicodeText, nullable=False, primary_key=True),
+    Column('value', UnicodeText))
+
 # parts of the code assume we only have one deck
 decksTable = Table(
     'decks', metadata,
@@ -1832,6 +1837,21 @@ cardTags.tagId in %s""" % ids2str(ids)
             self.getStats()['dTotal'] - self.sessionStartReps):
             return True
         return False
+
+    # Meta vars
+    ##########################################################################
+
+    def getInt(self, key):
+        ret = self.s.scalar("select value from deckVars where key = :k",
+                            k=key)
+        if ret is not None:
+            ret = int(ret)
+        return ret
+
+    def setVar(self, key, value):
+        self.s.statement("insert or replace into deckVars (key, value) "
+                         "values (:key, :value)", key=key, value=value)
+        self.flushMod()
 
     # Failed card handling
     ##########################################################################

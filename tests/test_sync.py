@@ -104,6 +104,13 @@ def test_localsync_deck():
     assert dailyStats(deck2).reps == 1
     assert globalStats(deck2).reps == 1
     assert deck2.s.scalar("select count(*) from reviewHistory") == 1
+    # make sure meta data is synced
+    deck1.setVar("foo", 1)
+    assert deck1.getInt("foo") == 1
+    assert deck2.getInt("foo") is None
+    client.sync()
+    assert deck1.getInt("foo") == 1
+    assert deck2.getInt("foo") == 1
 
 @nose.with_setup(setup_local, teardown)
 def test_localsync_models():
@@ -283,6 +290,9 @@ def test_remotesync_fromserver():
     assert deck2.modified > deck1.modified
     client.sync()
     assert deck2.modified == deck1.modified
+    # test deck vars
+    deck1.setVar("foo", 1)
+    client.sync()
 
 @nose.with_setup(setup_remote, teardown)
 def test_remotesync_toserver():

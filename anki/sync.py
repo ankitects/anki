@@ -561,9 +561,16 @@ values
         # these may be deleted before bundling
         if 'models' in d: del d['models']
         if 'currentModel' in d: del d['currentModel']
+        d['meta'] = self.realTuples(self.deck.s.all("select * from deckVars"))
         return d
 
     def updateDeck(self, deck):
+        meta = deck['meta']
+        for (k,v) in meta:
+            self.deck.s.statement("""
+insert or replace into deckVars
+(key, value) values (:k, :v)""", k=k, v=v)
+        del deck['meta']
         self.applyDict(self.deck, deck)
         self.deck.lastSync = self.deck.modified
         self.deck.updateTagPriorities()
