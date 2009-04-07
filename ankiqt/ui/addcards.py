@@ -15,7 +15,8 @@ from anki.sound import clearAudioQueue
 
 class FocusButton(QPushButton):
     def focusInEvent(self, evt):
-        self.emit(SIGNAL("focusIn"))
+        if evt.reason() == Qt.TabFocusReason:
+            self.emit(SIGNAL("tabIn"))
         QPushButton.focusInEvent(self, evt)
 
 class AddCards(QDialog):
@@ -65,7 +66,7 @@ class AddCards(QDialog):
         s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
         s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
-        self.connect(self.addButton, SIGNAL("focusIn"), self.maybeAddCards)
+        self.connect(self.addButton, SIGNAL("tabIn"), self.maybeAddCards)
         self.closeButton = QPushButton(_("Close"))
         self.closeButton.setAutoDefault(False)
         self.dialog.buttonBox.addButton(self.closeButton,
