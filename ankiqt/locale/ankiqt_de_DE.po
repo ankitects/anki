@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
 "PO-Revision-Date: 2009-03-28 15:50+0100\n"
 "Last-Translator: Michael Keppler <bananeweizen@gmx.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -107,10 +107,12 @@ msgstr ""
 "%(a)d fehlende Referenzen.\n"
 "%(b)d ungenutzte Dateien gelöscht."
 
-#: ui/cardlist.py:874
-#, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr "%(a)d von %(b)d Fakten aktualisiert"
+#: ui/cardlist.py:876
+#, fuzzy, python-format
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] "%(a)d von %(b)d Fakten aktualisiert"
+msgstr[1] "%(a)d von %(b)d Fakten aktualisiert"
 
 #: ui/deckproperties.py:105
 #, python-format
@@ -134,6 +136,13 @@ msgstr "%(path)s (%(due)d von %(cards)d überfällig) - %(title)s"
 #, python-format
 msgid "%d exported."
 msgstr "%d exportiert."
+
+#: ui/cardlist.py:440
+#, fuzzy, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%(del)d entfernt."
+msgstr[1] "%(del)d entfernt."
 
 #: ui/cardlist.py:199
 #, python-format
@@ -838,7 +847,7 @@ msgstr "Karten hinzufügen"
 msgid "Add Model"
 msgstr "Modell hinzufügen"
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 msgid "Add Tags"
 msgstr "Tags hinzufügen"
 
@@ -892,7 +901,7 @@ msgstr "Erweitert"
 msgid "Again"
 msgstr "Nochmals"
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 msgid "All Fields"
 msgstr "Alle Felder"
 
@@ -1041,10 +1050,12 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, fuzzy, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Editor (zeige %(cur)d von %(tot)d Karten; %(sel)d markiert)"
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] "Editor (zeige %(cur)d von %(tot)d Karten; %(sel)d markiert)"
+msgstr[1] "Editor (zeige %(cur)d von %(tot)d Karten; %(sel)d markiert)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1058,11 +1069,11 @@ msgstr "Pauken..."
 msgid "Cache LaTeX"
 msgstr "Packe LaTeX"
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 msgid "Can only change one model at a time."
 msgstr "Kann nur ein Modell gleichzeitig ändern."
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr "Kann nur mit einem Modell gleichzeitig arbeiten."
 
@@ -1104,7 +1115,7 @@ msgstr "Karten warten"
 msgid "Change"
 msgstr "Ändern"
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, python-format
 msgid "Change %s to:"
 msgstr "Ändere %s zu:"
@@ -1113,7 +1124,7 @@ msgstr "Ändere %s zu:"
 msgid "Change &Model..."
 msgstr "&Modell ändern..."
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 msgid "Change Model"
 msgstr "Modell ändern"
 
@@ -1245,7 +1256,7 @@ msgstr ""
 msgid "Cram"
 msgstr "Pauken..."
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1447,7 +1458,7 @@ msgstr "Stapel ist bereits geöffnet"
 msgid "Delete"
 msgstr "Entfernen"
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 msgid "Delete Cards"
 msgstr "Karten löschen"
 
@@ -1455,7 +1466,7 @@ msgstr "Karten löschen"
 msgid "Delete Refs"
 msgstr "Referenzen löschen"
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 msgid "Delete Tags"
 msgstr "Tags löschen..."
 
@@ -1569,11 +1580,11 @@ msgstr "&Aktivieren"
 msgid "English"
 msgstr "Englisch"
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 msgid "Enter tags to add:"
 msgstr "Karten mit diesem Tag versehen:"
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 msgid "Enter tags to delete:"
 msgstr "Dieses Tag von den Karten entfernen:"
 
@@ -1681,7 +1692,7 @@ msgstr "Felder"
 msgid "Find and Re&place..."
 msgstr "Suchen und &Ersetzen"
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr "Suchen und Ersetzen"
 
@@ -1705,11 +1716,11 @@ msgstr "Französisch"
 msgid "General && Fields"
 msgstr "Allgemein und Felder"
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Karten generieren"
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 msgid "Generating Cards..."
 msgstr "Generiere Karten..."
 
@@ -1803,7 +1814,7 @@ msgstr "Tags exportieren"
 msgid "Interval"
 msgstr "Intervall"
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr "Ungültiger regulärer Ausdruck."
 
@@ -1963,7 +1974,7 @@ msgstr "Keine Antwort in dieser Karte."
 msgid "No tags"
 msgstr "Keine Tags"
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 msgid "Nothing"
 msgstr "Keine"
 
@@ -2049,7 +2060,7 @@ msgstr "Bitte überprüfe Deinen Benutzernamen und Dein Passwort."
 msgid "Please enable a different model first."
 msgstr "Bitte aktiviere zuerst ein anderes Kartenmodell."
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr "Bitte einen gültigen Bereich eingeben."
 
@@ -2167,7 +2178,7 @@ msgstr "Audio aufnehmen (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Aufnahme läuft...<br>Zeit: %0.1f"
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, python-format
 msgid "Redo %s"
 msgstr "Wiederholen: %s"
@@ -2204,7 +2215,7 @@ msgstr "&Wiederhole Audioausgabe"
 msgid "Repeat &Question Audio"
 msgstr "Wiederhole Audioausgabe der &Frage"
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 msgid "Replacing..."
 msgstr "Ersetze..."
 
@@ -2212,7 +2223,7 @@ msgstr "Ersetze..."
 msgid "Reps"
 msgstr "Wiederholungen"
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr "Neu planen"
 
@@ -2385,7 +2396,7 @@ msgstr "Anki in Systemleiste anzeigen"
 msgid "Show/Hide"
 msgstr "Diagramme auswählen"
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr "Gewisse Felder sind leer oder nicht eindeutig."
 
@@ -2509,7 +2520,7 @@ msgstr "Hinzuzufügende Tags:"
 msgid "Tags to cram:"
 msgstr "Tags zum Pauken:"
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 msgid "Targets must be unique."
 msgstr "Ziele müssen eindeutig sein."
 
@@ -2763,7 +2774,7 @@ msgstr "Entpacke LaTeX"
 msgid "Underline text (Ctrl+u)"
 msgstr "Unterstrichen(Ctrl+u)"
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, python-format
 msgid "Undo %s"
 msgstr "Rückgängig: %s"
@@ -3021,9 +3032,6 @@ msgstr "Label"
 
 #~ msgid " <b>When quizzing/adding/editing</b>"
 #~ msgstr " <b>Beim Abfragen/Hinzufügen/Bearbeiten</b>"
-
-#~ msgid "%(del)d deleted."
-#~ msgstr "%(del)d entfernt."
 
 #~ msgid ""
 #~ "%s.\n"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,10 +86,12 @@ msgid ""
 "%(b)d unused files removed."
 msgstr ""
 
-#: ui/cardlist.py:874
+#: ui/cardlist.py:876
 #, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr ""
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/deckproperties.py:105
 #, fuzzy, python-format
@@ -113,6 +115,13 @@ msgstr "%(path)s (%(facts)d지식, %(cards)d카드) - %(title)s"
 #, python-format
 msgid "%d exported."
 msgstr "%d 내보내기 완료."
+
+#: ui/cardlist.py:440
+#, fuzzy, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%(del)d 삭제 됨."
+msgstr[1] "%(del)d 삭제 됨."
 
 #: ui/cardlist.py:199
 #, python-format
@@ -872,7 +881,7 @@ msgstr "지식..."
 msgid "Add Model"
 msgstr "모델"
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 #, fuzzy
 msgid "Add Tags"
 msgstr "꼬리표 추가..."
@@ -931,7 +940,7 @@ msgstr "추가(&A)"
 msgid "Again"
 msgstr ""
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 #, fuzzy
 msgid "All Fields"
 msgstr "필드"
@@ -1070,10 +1079,12 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, fuzzy, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "앙키 - 묶음 편집 (%(tot)d개 중에 %(cur)d개)"
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] "앙키 - 묶음 편집 (%(tot)d개 중에 %(cur)d개)"
+msgstr[1] "앙키 - 묶음 편집 (%(tot)d개 중에 %(cur)d개)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1088,11 +1099,11 @@ msgstr "게시판(&F)..."
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 msgid "Can only change one model at a time."
 msgstr ""
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr ""
 
@@ -1137,7 +1148,7 @@ msgstr ""
 msgid "Change"
 msgstr "수정"
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, fuzzy, python-format
 msgid "Change %s to:"
 msgstr "<h1>카드 난이도</h1>"
@@ -1147,7 +1158,7 @@ msgstr "<h1>카드 난이도</h1>"
 msgid "Change &Model..."
 msgstr "<h1>카드 난이도</h1>"
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 #, fuzzy
 msgid "Change Model"
 msgstr "<h1>카드 난이도</h1>"
@@ -1281,7 +1292,7 @@ msgstr ""
 msgid "Cram"
 msgstr "게시판(&F)..."
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1497,7 +1508,7 @@ msgstr ""
 msgid "Delete"
 msgstr "삭제(&D)"
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 #, fuzzy
 msgid "Delete Cards"
 msgstr "삭제(&D)"
@@ -1507,7 +1518,7 @@ msgstr "삭제(&D)"
 msgid "Delete Refs"
 msgstr "꼬리표 삭제..."
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 #, fuzzy
 msgid "Delete Tags"
 msgstr "꼬리표 삭제..."
@@ -1628,12 +1639,12 @@ msgstr "켜기(&B)"
 msgid "English"
 msgstr "영어"
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 #, fuzzy
 msgid "Enter tags to add:"
 msgstr "각 카드에 추가할 태그(들)을 입력하세요:"
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 #, fuzzy
 msgid "Enter tags to delete:"
 msgstr "각 카드에서 삭제할 태그(들)을 입력하세요:"
@@ -1747,7 +1758,7 @@ msgstr "필드"
 msgid "Find and Re&place..."
 msgstr ""
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr ""
 
@@ -1774,12 +1785,12 @@ msgstr "프랑스어"
 msgid "General && Fields"
 msgstr ""
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 #, fuzzy
 msgid "Generate Cards"
 msgstr "삭제(&D)"
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 #, fuzzy
 msgid "Generating Cards..."
 msgstr "삭제(&D)"
@@ -1878,7 +1889,7 @@ msgstr "꼬리표 포함"
 msgid "Interval"
 msgstr "복습 간격"
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr ""
 
@@ -2049,7 +2060,7 @@ msgstr "현재 카드의 meaning(의미) 필드를 입력하지 않음."
 msgid "No tags"
 msgstr "꼬리표 포함"
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 #, fuzzy
 msgid "Nothing"
 msgstr "가져오기 설정"
@@ -2139,7 +2150,7 @@ msgstr "아이디와 비밀번호를 다시 확인해 주세요."
 msgid "Please enable a different model first."
 msgstr "먼저 다른 모델을 켜주세요."
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2262,7 +2273,7 @@ msgstr "소리 넣기"
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -2302,7 +2313,7 @@ msgstr "마지막 소리 다시 듣기(&T)"
 msgid "Repeat &Question Audio"
 msgstr "질문 소리 다시 듣기(&Q)"
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 #, fuzzy
 msgid "Replacing..."
 msgstr "연결 중..."
@@ -2311,7 +2322,7 @@ msgstr "연결 중..."
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 #, fuzzy
 msgid "Reschedule"
 msgstr "복습 일정"
@@ -2501,7 +2512,7 @@ msgstr ""
 msgid "Show/Hide"
 msgstr "정답 보기"
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr ""
 
@@ -2630,7 +2641,7 @@ msgstr "꼬리표 추가:"
 msgid "Tags to cram:"
 msgstr "꼬리표 추가:"
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 msgid "Targets must be unique."
 msgstr ""
 
@@ -2850,7 +2861,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "밑줄"
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, fuzzy, python-format
 msgid "Undo %s"
 msgstr "%s 안에"
@@ -3123,9 +3134,6 @@ msgstr "Latex"
 
 #~ msgid " <b>When quizzing/adding/editing</b>"
 #~ msgstr " <b>질문/추가/편집 할때</b>"
-
-#~ msgid "%(del)d deleted."
-#~ msgstr "%(del)d 삭제 됨."
 
 #~ msgid "&Add cards"
 #~ msgstr "카드 추가(&A)"

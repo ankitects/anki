@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,10 +86,12 @@ msgid ""
 "%(b)d unused files removed."
 msgstr ""
 
-#: ui/cardlist.py:874
+#: ui/cardlist.py:876
 #, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr ""
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/deckproperties.py:105
 #, python-format
@@ -113,6 +115,13 @@ msgstr ""
 #, python-format
 msgid "%d exported."
 msgstr ""
+
+#: ui/cardlist.py:440
+#, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/cardlist.py:199
 #, python-format
@@ -780,7 +789,7 @@ msgstr ""
 msgid "Add Model"
 msgstr ""
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 msgid "Add Tags"
 msgstr ""
 
@@ -834,7 +843,7 @@ msgstr ""
 msgid "Again"
 msgstr ""
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 msgid "All Fields"
 msgstr ""
 
@@ -964,10 +973,12 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr ""
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -981,11 +992,11 @@ msgstr ""
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 msgid "Can only change one model at a time."
 msgstr ""
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr ""
 
@@ -1027,7 +1038,7 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, python-format
 msgid "Change %s to:"
 msgstr ""
@@ -1036,7 +1047,7 @@ msgstr ""
 msgid "Change &Model..."
 msgstr ""
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 msgid "Change Model"
 msgstr ""
 
@@ -1164,7 +1175,7 @@ msgstr ""
 msgid "Cram"
 msgstr ""
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1361,7 +1372,7 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 msgid "Delete Cards"
 msgstr ""
 
@@ -1369,7 +1380,7 @@ msgstr ""
 msgid "Delete Refs"
 msgstr ""
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 msgid "Delete Tags"
 msgstr ""
 
@@ -1482,11 +1493,11 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 msgid "Enter tags to add:"
 msgstr ""
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 msgid "Enter tags to delete:"
 msgstr ""
 
@@ -1594,7 +1605,7 @@ msgstr ""
 msgid "Find and Re&place..."
 msgstr ""
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr ""
 
@@ -1618,11 +1629,11 @@ msgstr ""
 msgid "General && Fields"
 msgstr ""
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr ""
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 msgid "Generating Cards..."
 msgstr ""
 
@@ -1716,7 +1727,7 @@ msgstr ""
 msgid "Interval"
 msgstr ""
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr ""
 
@@ -1876,7 +1887,7 @@ msgstr ""
 msgid "No tags"
 msgstr ""
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 msgid "Nothing"
 msgstr ""
 
@@ -1960,7 +1971,7 @@ msgstr ""
 msgid "Please enable a different model first."
 msgstr ""
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2074,7 +2085,7 @@ msgstr ""
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -2111,7 +2122,7 @@ msgstr ""
 msgid "Repeat &Question Audio"
 msgstr ""
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 msgid "Replacing..."
 msgstr ""
 
@@ -2119,7 +2130,7 @@ msgstr ""
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr ""
 
@@ -2288,7 +2299,7 @@ msgstr ""
 msgid "Show/Hide"
 msgstr ""
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr ""
 
@@ -2406,7 +2417,7 @@ msgstr ""
 msgid "Tags to cram:"
 msgstr ""
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 msgid "Targets must be unique."
 msgstr ""
 
@@ -2601,7 +2612,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr ""
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, python-format
 msgid "Undo %s"
 msgstr ""

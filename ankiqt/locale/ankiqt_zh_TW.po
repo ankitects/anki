@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
 "PO-Revision-Date: 2008-03-28 17:07+0900\n"
 "Last-Translator: Andrew Wright <guswright80@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,10 +93,12 @@ msgid ""
 "%(b)d unused files removed."
 msgstr ""
 
-#: ui/cardlist.py:874
+#: ui/cardlist.py:876
 #, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr ""
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/deckproperties.py:105
 #, fuzzy, python-format
@@ -120,6 +122,13 @@ msgstr "%(path)s (項目　%(facts)d個, 卡片　%(cards)d張) - %(title)s"
 #, python-format
 msgid "%d exported."
 msgstr "%d個輸出了。"
+
+#: ui/cardlist.py:440
+#, fuzzy, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%(del)d個を削除しました。"
+msgstr[1] "%(del)d個を削除しました。"
 
 #: ui/cardlist.py:199
 #, python-format
@@ -855,7 +864,7 @@ msgstr "アイテムを追加"
 msgid "Add Model"
 msgstr "モデル"
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 #, fuzzy
 msgid "Add Tags"
 msgstr "タグを追加(&A)..."
@@ -911,7 +920,7 @@ msgstr "上級"
 msgid "Again"
 msgstr ""
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 #, fuzzy
 msgid "All Fields"
 msgstr "フィールド"
@@ -1052,10 +1061,12 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr ""
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1070,11 +1081,11 @@ msgstr "フォーラム(&F)..."
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 msgid "Can only change one model at a time."
 msgstr ""
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr ""
 
@@ -1119,7 +1130,7 @@ msgstr ""
 msgid "Change"
 msgstr "変更"
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, fuzzy, python-format
 msgid "Change %s to:"
 msgstr "<h1>カードの易しさ</h1>"
@@ -1129,7 +1140,7 @@ msgstr "<h1>カードの易しさ</h1>"
 msgid "Change &Model..."
 msgstr "<h1>カードの易しさ</h1>"
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 #, fuzzy
 msgid "Change Model"
 msgstr "<h1>カードの易しさ</h1>"
@@ -1262,7 +1273,7 @@ msgstr ""
 msgid "Cram"
 msgstr "フォーラム(&F)..."
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1472,7 +1483,7 @@ msgstr "単語帳は既に開いています。"
 msgid "Delete"
 msgstr "削除"
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 #, fuzzy
 msgid "Delete Cards"
 msgstr "削除"
@@ -1482,7 +1493,7 @@ msgstr "削除"
 msgid "Delete Refs"
 msgstr "カードタグを削除(&D)..."
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 #, fuzzy
 msgid "Delete Tags"
 msgstr "カードタグを削除(&D)..."
@@ -1601,12 +1612,12 @@ msgstr "有効にする(&b)"
 msgid "English"
 msgstr "英語"
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 #, fuzzy
 msgid "Enter tags to add:"
 msgstr "このタグを付け加える："
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 msgid "Enter tags to delete:"
 msgstr ""
 
@@ -1719,7 +1730,7 @@ msgstr "フィールド"
 msgid "Find and Re&place..."
 msgstr ""
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr ""
 
@@ -1746,12 +1757,12 @@ msgstr "フランス語"
 msgid "General && Fields"
 msgstr "フィールド"
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 #, fuzzy
 msgid "Generate Cards"
 msgstr "削除"
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 #, fuzzy
 msgid "Generating Cards..."
 msgstr "削除"
@@ -1849,7 +1860,7 @@ msgstr ""
 msgid "Interval"
 msgstr "期間"
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr ""
 
@@ -2018,7 +2029,7 @@ msgstr "このカードは、「意味」のフィールドに入力されてい
 msgid "No tags"
 msgstr ""
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 #, fuzzy
 msgid "Nothing"
 msgstr "インポートオプション"
@@ -2108,7 +2119,7 @@ msgstr "ユーザー名とパスワードを確認してください。"
 msgid "Please enable a different model first."
 msgstr "まず他のモデルを有効してください。"
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2231,7 +2242,7 @@ msgstr "音声を追加 (F4)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, fuzzy, python-format
 msgid "Redo %s"
 msgstr "入力された日付"
@@ -2271,7 +2282,7 @@ msgstr "音声を再生(&T)"
 msgid "Repeat &Question Audio"
 msgstr "質問の音声を再生(&Q)"
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 #, fuzzy
 msgid "Replacing..."
 msgstr "接続中.."
@@ -2280,7 +2291,7 @@ msgstr "接続中.."
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 #, fuzzy
 msgid "Reschedule"
 msgstr "スケジューリング"
@@ -2467,7 +2478,7 @@ msgstr ""
 msgid "Show/Hide"
 msgstr "表示/隠し"
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr ""
 
@@ -2598,7 +2609,7 @@ msgstr "このタグを付け加える："
 msgid "Tags to cram:"
 msgstr "このタグを付け加える："
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 #, fuzzy
 msgid "Targets must be unique."
 msgstr "'%s'は一意項目です"
@@ -2819,7 +2830,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "下線 (Ctrl+u)"
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, fuzzy, python-format
 msgid "Undo %s"
 msgstr "%s後"
@@ -3106,9 +3117,6 @@ msgstr ""
 
 #~ msgid " <b>When quizzing/adding/editing</b>"
 #~ msgstr "クイズ/追加/編集の時"
-
-#~ msgid "%(del)d deleted."
-#~ msgstr "%(del)d個を削除しました。"
 
 #~ msgid ""
 #~ "%s.\n"

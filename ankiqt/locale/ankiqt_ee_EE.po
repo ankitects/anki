@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -94,10 +94,12 @@ msgstr ""
 "%(a)d puuduvat viidet.\n"
 "%(b)d kasutamata faili kustutatud."
 
-#: ui/cardlist.py:874
-#, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr "%(b)d-st faktist %(a)d uuendatud"
+#: ui/cardlist.py:876
+#, fuzzy, python-format
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] "%(b)d-st faktist %(a)d uuendatud"
+msgstr[1] "%(b)d-st faktist %(a)d uuendatud"
 
 #: ui/deckproperties.py:105
 #, python-format
@@ -121,6 +123,13 @@ msgstr "%(path)s %(cards)d kaarti, millest (%(due)d tähtaegunud) - %(title)s"
 #, python-format
 msgid "%d exported."
 msgstr "%d eksporditud."
+
+#: ui/cardlist.py:440
+#, fuzzy, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "Mitte midagi valitud."
+msgstr[1] "Mitte midagi valitud."
 
 #: ui/cardlist.py:199
 #, python-format
@@ -831,7 +840,7 @@ msgstr "Lisa kaarte"
 msgid "Add Model"
 msgstr "Lisa mudel"
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 msgid "Add Tags"
 msgstr "Lisa silte"
 
@@ -885,7 +894,7 @@ msgstr "Lisaomadused"
 msgid "Again"
 msgstr "Uuesti"
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 #, fuzzy
 msgid "All Fields"
 msgstr "Väljad"
@@ -1035,10 +1044,12 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, fuzzy, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
+msgstr[1] "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1052,11 +1063,11 @@ msgstr "Tuubi..."
 msgid "Cache LaTeX"
 msgstr "Vahemälu LaTeX-le"
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 msgid "Can only change one model at a time."
 msgstr "Muuta saab ainult ühte mudelit korraga."
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr "Tegutseda saab ainult ühe mudeliga korraga."
 
@@ -1098,7 +1109,7 @@ msgstr "Kaarti on ootel"
 msgid "Change"
 msgstr "Muuda"
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, python-format
 msgid "Change %s to:"
 msgstr "Muuda %s selleks:"
@@ -1107,7 +1118,7 @@ msgstr "Muuda %s selleks:"
 msgid "Change &Model..."
 msgstr "&Vaheta mudelit..."
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 msgid "Change Model"
 msgstr "Vaheta mudelit"
 
@@ -1238,7 +1249,7 @@ msgstr ""
 msgid "Cram"
 msgstr "Tuupimine"
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1441,7 +1452,7 @@ msgstr "Kaardipakk on juba avatud."
 msgid "Delete"
 msgstr "Kustuta"
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 msgid "Delete Cards"
 msgstr "Kustuta kaardid"
 
@@ -1449,7 +1460,7 @@ msgstr "Kustuta kaardid"
 msgid "Delete Refs"
 msgstr "Kustuta Viited"
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 msgid "Delete Tags"
 msgstr "Kustuta silte"
 
@@ -1563,11 +1574,11 @@ msgstr "&Võimalda"
 msgid "English"
 msgstr "inglise keel"
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 msgid "Enter tags to add:"
 msgstr "Sisesta lisatavad sildid:"
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 msgid "Enter tags to delete:"
 msgstr "Sisesta kustutatavad sildid:"
 
@@ -1675,7 +1686,7 @@ msgstr "Väljad"
 msgid "Find and Re&place..."
 msgstr "&Otsi ja asenda..."
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr "Otsi ja ssenda"
 
@@ -1699,11 +1710,11 @@ msgstr "prantsuse keel"
 msgid "General && Fields"
 msgstr "Andmed ja väljad"
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Tekita kaardid"
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 msgid "Generating Cards..."
 msgstr "Tekitan kaarte..."
 
@@ -1797,7 +1808,7 @@ msgstr "Pane kaasa sildid"
 msgid "Interval"
 msgstr "Vahekaugus"
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr "Vigane regulaaravaldis."
 
@@ -1960,7 +1971,7 @@ msgstr "Praegusel kaardil ei ole seletust."
 msgid "No tags"
 msgstr "Silte ei ole"
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 msgid "Nothing"
 msgstr "mitte midagi"
 
@@ -2047,7 +2058,7 @@ msgstr "Palun kontrollige kasutajanime ja salasõna."
 msgid "Please enable a different model first."
 msgstr "Palun võimalda kõigepealt teine mudel."
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr "Palun sisesta korrektne alguse ja lõppu vahemik."
 
@@ -2165,7 +2176,7 @@ msgstr "Lindista heli (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Lindistan...<br>Kestvus: %0.1f"
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, python-format
 msgid "Redo %s"
 msgstr "Tee uuesti %s"
@@ -2202,7 +2213,7 @@ msgstr "Korda &heli"
 msgid "Repeat &Question Audio"
 msgstr "Korda &küsimuse heli"
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 msgid "Replacing..."
 msgstr "Asendan..."
 
@@ -2210,7 +2221,7 @@ msgstr "Asendan..."
 msgid "Reps"
 msgstr "Kordamised"
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr "Ajasta  uuesti"
 
@@ -2382,7 +2393,7 @@ msgstr "Näita süsteemisalvel ikooni"
 msgid "Show/Hide"
 msgstr "Näita/Peida"
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr "Mõned väljad on puudu või ei ole kordumatud."
 
@@ -2504,7 +2515,7 @@ msgstr "Lisatavad sildid"
 msgid "Tags to cram:"
 msgstr "Sildid, mida tuupida:"
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 msgid "Targets must be unique."
 msgstr "Eesmärgid peavad olema kordumatud."
 
@@ -2757,7 +2768,7 @@ msgstr "Puhasta LaTeX vahemälu"
 msgid "Underline text (Ctrl+u)"
 msgstr "Allajoonitud tekst (Ctrl+u)"
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, python-format
 msgid "Undo %s"
 msgstr "Võta tagasi %s"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,10 +96,12 @@ msgstr ""
 "%(a)d riferimenti mancanti.\n"
 "%(b)d file inutilizzati rimossi."
 
-#: ui/cardlist.py:874
+#: ui/cardlist.py:876
 #, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr ""
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/deckproperties.py:105
 #, fuzzy, python-format
@@ -123,6 +125,13 @@ msgstr "%(path)s (%(facts)d fatti, %(cards)d carte) - %(title)s"
 #, python-format
 msgid "%d exported."
 msgstr "%d esportate."
+
+#: ui/cardlist.py:440
+#, fuzzy, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%(del)d eliminate."
+msgstr[1] "%(del)d eliminate."
 
 #: ui/cardlist.py:199
 #, python-format
@@ -870,7 +879,7 @@ msgstr "&Aggiungi Fatti"
 msgid "Add Model"
 msgstr "Modello"
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 #, fuzzy
 msgid "Add Tags"
 msgstr "Aggiungi Tag.."
@@ -928,7 +937,7 @@ msgstr "Avanzate"
 msgid "Again"
 msgstr ""
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 #, fuzzy
 msgid "All Fields"
 msgstr "Campi"
@@ -1072,10 +1081,12 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, fuzzy, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Anki - Modifica mazzo (mostrate %(cur)d di %(tot)d carte)"
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] "Anki - Modifica mazzo (mostrate %(cur)d di %(tot)d carte)"
+msgstr[1] "Anki - Modifica mazzo (mostrate %(cur)d di %(tot)d carte)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1090,11 +1101,11 @@ msgstr "Studio focalizzato (&r).."
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 msgid "Can only change one model at a time."
 msgstr ""
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr ""
 
@@ -1139,7 +1150,7 @@ msgstr ""
 msgid "Change"
 msgstr "Cambia"
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, fuzzy, python-format
 msgid "Change %s to:"
 msgstr "<h1>Facilità carte</h1>"
@@ -1149,7 +1160,7 @@ msgstr "<h1>Facilità carte</h1>"
 msgid "Change &Model..."
 msgstr "<h1>Facilità carte</h1>"
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 #, fuzzy
 msgid "Change Model"
 msgstr "<h1>Facilità carte</h1>"
@@ -1285,7 +1296,7 @@ msgstr ""
 msgid "Cram"
 msgstr "Studio focalizzato (&r).."
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1497,7 +1508,7 @@ msgstr ""
 msgid "Delete"
 msgstr "Elimina (&D)"
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 #, fuzzy
 msgid "Delete Cards"
 msgstr "Elimina (&D)"
@@ -1507,7 +1518,7 @@ msgstr "Elimina (&D)"
 msgid "Delete Refs"
 msgstr "Elimina Tag.."
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 #, fuzzy
 msgid "Delete Tags"
 msgstr "Elimina Tag.."
@@ -1626,12 +1637,12 @@ msgstr "A&bilita"
 msgid "English"
 msgstr "Inglese"
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 #, fuzzy
 msgid "Enter tags to add:"
 msgstr "Inserire tag da aggiungere a ogni carta:"
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 #, fuzzy
 msgid "Enter tags to delete:"
 msgstr "Inserire tag da eliminare da ogni carta:"
@@ -1745,7 +1756,7 @@ msgstr "Campi"
 msgid "Find and Re&place..."
 msgstr ""
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr ""
 
@@ -1771,12 +1782,12 @@ msgstr "Francese"
 msgid "General && Fields"
 msgstr ""
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 #, fuzzy
 msgid "Generate Cards"
 msgstr "Elimina (&D)"
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 #, fuzzy
 msgid "Generating Cards..."
 msgstr "Elimina (&D)"
@@ -1873,7 +1884,7 @@ msgstr "Includi tag"
 msgid "Interval"
 msgstr "Intervallo"
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr ""
 
@@ -2041,7 +2052,7 @@ msgstr "Nessun campo \"significato\" nella carta corrente"
 msgid "No tags"
 msgstr "Nessuna tag"
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 #, fuzzy
 msgid "Nothing"
 msgstr "opzione"
@@ -2131,7 +2142,7 @@ msgstr "Ricontrollare username/password"
 msgid "Please enable a different model first."
 msgstr "Abilitare un altro modelli prima di procedere."
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2253,7 +2264,7 @@ msgstr "Aggiungi audio"
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -2291,7 +2302,7 @@ msgstr "Ripe&ti ultimo audio"
 msgid "Repeat &Question Audio"
 msgstr "Ripeti Audio Domanda (&Q)"
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 #, fuzzy
 msgid "Replacing..."
 msgstr "Connessione.."
@@ -2300,7 +2311,7 @@ msgstr "Connessione.."
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 #, fuzzy
 msgid "Reschedule"
 msgstr "Programmazione"
@@ -2483,7 +2494,7 @@ msgstr "Mostra icona nella barra"
 msgid "Show/Hide"
 msgstr "Mostra timer"
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr "Alcuni campo sono assenti o non unici."
 
@@ -2607,7 +2618,7 @@ msgstr "Tag da applicare:"
 msgid "Tags to cram:"
 msgstr "Tag per lo studio focalizzato"
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 msgid "Targets must be unique."
 msgstr ""
 
@@ -2841,7 +2852,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "Sottolinea testo (Ctrl+u)"
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, fuzzy, python-format
 msgid "Undo %s"
 msgstr "tra %s"
@@ -3016,9 +3027,6 @@ msgstr "etichetta"
 
 #~ msgid " <b>When quizzing/adding/editing</b>"
 #~ msgstr " <b>Nelle fasi di ripetizione/creazione/modifica</b>"
-
-#~ msgid "%(del)d deleted."
-#~ msgstr "%(del)d eliminate."
 
 #~ msgid ""
 #~ "%s.\n"

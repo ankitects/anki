@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Jo Nakashima <jonakashima@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,10 +96,12 @@ msgstr ""
 "%(a)d referências perdidas.\n"
 "%(b)d arquivos não usados removidos."
 
-#: ui/cardlist.py:874
+#: ui/cardlist.py:876
 #, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr ""
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/deckproperties.py:105
 #, python-format
@@ -123,6 +125,13 @@ msgstr "%(path)s (%(due)d de %(cards)d programados) - %(title)s"
 #, python-format
 msgid "%d exported."
 msgstr "%d exportado."
+
+#: ui/cardlist.py:440
+#, fuzzy, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%d exportado."
+msgstr[1] "%d exportado."
 
 #: ui/cardlist.py:199
 #, python-format
@@ -829,7 +838,7 @@ msgstr "Adicionar Itens"
 msgid "Add Model"
 msgstr "Adicionar Modelo"
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 msgid "Add Tags"
 msgstr "Adicionar Tags"
 
@@ -883,7 +892,7 @@ msgstr "Avançado"
 msgid "Again"
 msgstr "Repetir"
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 #, fuzzy
 msgid "All Fields"
 msgstr "Campos"
@@ -1035,10 +1044,12 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, fuzzy, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Editor (%(cur)d de %(tot)d cards exibidos; %(sel)d selecionados)"
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] "Editor (%(cur)d de %(tot)d cards exibidos; %(sel)d selecionados)"
+msgstr[1] "Editor (%(cur)d de %(tot)d cards exibidos; %(sel)d selecionados)"
 
 #: ui/cardlist.py:411
 #, fuzzy
@@ -1053,12 +1064,12 @@ msgstr ""
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 #, fuzzy
 msgid "Can only change one model at a time."
 msgstr "Pode apenas alterar templates em um único modelo."
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr ""
 
@@ -1100,7 +1111,7 @@ msgstr "Cards estão esperando"
 msgid "Change"
 msgstr "Alterar"
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, fuzzy, python-format
 msgid "Change %s to:"
 msgstr "Alterar"
@@ -1110,7 +1121,7 @@ msgstr "Alterar"
 msgid "Change &Model..."
 msgstr "Alterar &Template..."
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 #, fuzzy
 msgid "Change Model"
 msgstr "Alterar"
@@ -1244,7 +1255,7 @@ msgstr ""
 msgid "Cram"
 msgstr ""
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1444,7 +1455,7 @@ msgstr "Deck já está aberto."
 msgid "Delete"
 msgstr ""
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 msgid "Delete Cards"
 msgstr ""
 
@@ -1452,7 +1463,7 @@ msgstr ""
 msgid "Delete Refs"
 msgstr ""
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 msgid "Delete Tags"
 msgstr ""
 
@@ -1565,11 +1576,11 @@ msgstr "Ha&bilitar"
 msgid "English"
 msgstr "Inglês"
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 msgid "Enter tags to add:"
 msgstr "Tags para adicionar"
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 msgid "Enter tags to delete:"
 msgstr "Tags a deletar"
 
@@ -1679,7 +1690,7 @@ msgstr "Campos"
 msgid "Find and Re&place..."
 msgstr ""
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr ""
 
@@ -1703,11 +1714,11 @@ msgstr "Francês"
 msgid "General && Fields"
 msgstr "Geral && Campos"
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Gerar Cards"
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 #, fuzzy
 msgid "Generating Cards..."
 msgstr "Gerar &Cards..."
@@ -1803,7 +1814,7 @@ msgstr "Incluir tags"
 msgid "Interval"
 msgstr "Intervalo"
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr ""
 
@@ -1967,7 +1978,7 @@ msgstr "Não há significado no card corrente."
 msgid "No tags"
 msgstr "Sem tags"
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 #, fuzzy
 msgid "Nothing"
 msgstr "opção"
@@ -2055,7 +2066,7 @@ msgstr "Por favor verifique seu nome de usuário/senha"
 msgid "Please enable a different model first."
 msgstr "Por favor habilite um modelo diferente primeiro."
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr "Por favor entre um valor válido de início e fim"
 
@@ -2174,7 +2185,7 @@ msgstr "Gravar áudio (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Gravando...<br>Tempo: %0.1f"
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, python-format
 msgid "Redo %s"
 msgstr "Refazer %s"
@@ -2211,7 +2222,7 @@ msgstr "Repetir &Áudio"
 msgid "Repeat &Question Audio"
 msgstr "Repetir Áudio da &Questão"
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 #, fuzzy
 msgid "Replacing..."
 msgstr "Conectando..."
@@ -2220,7 +2231,7 @@ msgstr "Conectando..."
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr "Reagendar"
 
@@ -2394,7 +2405,7 @@ msgstr "Mostrar ícone na bandeja"
 msgid "Show/Hide"
 msgstr "Mostrar/Esconder"
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr "Alguns campos estão faltando ou não são únicos"
 
@@ -2514,7 +2525,7 @@ msgstr "Tags para anexar:"
 msgid "Tags to cram:"
 msgstr "Tags para cram"
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 msgid "Targets must be unique."
 msgstr ""
 
@@ -2771,7 +2782,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "Sublinhado (Ctrl+u)"
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, python-format
 msgid "Undo %s"
 msgstr "Desfazer %s"

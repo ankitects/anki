@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 07:55+0200\n"
-"PO-Revision-Date: 2009-04-07 07:55+0100\n"
+"POT-Creation-Date: 2009-04-07 08:36+0200\n"
+"PO-Revision-Date: 2009-04-07 08:36+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -110,10 +110,12 @@ msgstr ""
 "%(a)d saknade referenser.\n"
 "%(b)d oanvända filer borttagna."
 
-#: ui/cardlist.py:874
+#: ui/cardlist.py:876
 #, python-format
-msgid "%(a)d of %(b)d facts updated"
-msgstr "%(a)d av %(b)d faktauppgifter uppdaterade"
+msgid "%(a)d of %(b)d fact updated"
+msgid_plural "%(a)d of %(b)d facts updated"
+msgstr[0] "%(a)d av %(b)d faktauppgift uppdaterade"
+msgstr[1] "%(a)d av %(b)d faktauppgifter uppdaterade"
 
 #: ui/deckproperties.py:105
 #, python-format
@@ -137,6 +139,13 @@ msgstr "%(path)s (%(due)d av %(cards)d är dags att repetera) - %(title)s"
 #, python-format
 msgid "%d exported."
 msgstr "%d exporterades."
+
+#: ui/cardlist.py:440
+#, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%d valt"
+msgstr[1] "%d valda"
 
 #: ui/cardlist.py:199
 #, python-format
@@ -844,7 +853,7 @@ msgstr "Lägg till poster"
 msgid "Add Model"
 msgstr "Lägg till modell"
 
-#: ui/cardlist.py:668
+#: ui/cardlist.py:670
 msgid "Add Tags"
 msgstr "Lägg till etiketter"
 
@@ -898,7 +907,7 @@ msgstr "Avancerat"
 msgid "Again"
 msgstr "Igen"
 
-#: ui/cardlist.py:842
+#: ui/cardlist.py:844
 msgid "All Fields"
 msgstr "Alla fält"
 
@@ -1045,10 +1054,12 @@ msgstr "Bläddra bland poster"
 msgid "Browse and edit all items"
 msgstr "Bläddra och redigera alla poster"
 
-#: ui/cardlist.py:433
+#: ui/cardlist.py:434
 #, python-format
-msgid "Browser (%(cur)d of %(tot)d cards shown; %(sel)d selected)"
-msgstr "Bläddrare (%(cur)d av %(tot)d kort visas; %(sel)d valda)"
+msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
+msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
+msgstr[0] "Bläddrare (%(cur)d av %(tot)d kort visas; %(sel)s)"
+msgstr[1] "Bläddrare (%(cur)d av %(tot)d kort visas; %(sel)s)"
 
 #: ui/cardlist.py:411
 msgid "Building Index..."
@@ -1062,11 +1073,11 @@ msgstr "&Råplugga"
 msgid "Cache LaTeX"
 msgstr "Läs in Latex i cachen"
 
-#: ui/cardlist.py:762
+#: ui/cardlist.py:764
 msgid "Can only change one model at a time."
 msgstr "Du kan bara ändra en modell åt gången."
 
-#: ui/cardlist.py:718 ui/cardlist.py:834
+#: ui/cardlist.py:720 ui/cardlist.py:836
 msgid "Can only operate on one model at a time."
 msgstr "Kan enbart arbeta med en modell åt gången."
 
@@ -1108,7 +1119,7 @@ msgstr "Det finns kort som väntar"
 msgid "Change"
 msgstr "Ändra"
 
-#: ui/cardlist.py:1039
+#: ui/cardlist.py:1041
 #, python-format
 msgid "Change %s to:"
 msgstr "Ändra %s till:"
@@ -1117,7 +1128,7 @@ msgstr "Ändra %s till:"
 msgid "Change &Model..."
 msgstr "Byt &modell..."
 
-#: ui/cardlist.py:769 forms/changemodel.py:74
+#: ui/cardlist.py:771 forms/changemodel.py:74
 msgid "Change Model"
 msgstr "Byt modell"
 
@@ -1247,7 +1258,7 @@ msgstr "Rätta yngre än en månad: "
 msgid "Cram"
 msgstr "Råplugga"
 
-#: ui/cardlist.py:749
+#: ui/cardlist.py:751
 msgid "Cram selected cards in new deck?"
 msgstr "Råplugga valda kort i en ny kortlek?"
 
@@ -1446,7 +1457,7 @@ msgstr "Kortleken är redan öppen."
 msgid "Delete"
 msgstr "Ta bort"
 
-#: ui/cardlist.py:658
+#: ui/cardlist.py:660
 msgid "Delete Cards"
 msgstr "Ta bort kort"
 
@@ -1454,7 +1465,7 @@ msgstr "Ta bort kort"
 msgid "Delete Refs"
 msgstr "Ta bort referenser"
 
-#: ui/cardlist.py:677
+#: ui/cardlist.py:679
 msgid "Delete Tags"
 msgstr "Ta bort etiketter"
 
@@ -1567,11 +1578,11 @@ msgstr "A&ktivera"
 msgid "English"
 msgstr "Engelska"
 
-#: ui/cardlist.py:666
+#: ui/cardlist.py:668
 msgid "Enter tags to add:"
 msgstr "Skriv in etiketter att lägga till:"
 
-#: ui/cardlist.py:675
+#: ui/cardlist.py:677
 msgid "Enter tags to delete:"
 msgstr "Skriv in vilka etiketter som skall tas bort"
 
@@ -1679,7 +1690,7 @@ msgstr "Fält"
 msgid "Find and Re&place..."
 msgstr "Sök och &ersätt"
 
-#: ui/cardlist.py:847 forms/findreplace.py:60
+#: ui/cardlist.py:849 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr "Sök och ersätt"
 
@@ -1703,11 +1714,11 @@ msgstr "Franska"
 msgid "General && Fields"
 msgstr "Allmänt && Fält"
 
-#: ui/cardlist.py:728 forms/addcardmodels.py:34
+#: ui/cardlist.py:730 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Skapa kort"
 
-#: ui/cardlist.py:734
+#: ui/cardlist.py:736
 msgid "Generating Cards..."
 msgstr "Skapar kort..."
 
@@ -1801,7 +1812,7 @@ msgstr "Inkludera etiketter"
 msgid "Interval"
 msgstr "Intervall"
 
-#: ui/cardlist.py:865
+#: ui/cardlist.py:867
 msgid "Invalid regular expression."
 msgstr "Ogiltigt reguljärt uttryck."
 
@@ -1961,7 +1972,7 @@ msgstr "Ingen betydelse på aktuellt kort."
 msgid "No tags"
 msgstr "Inga etiketter"
 
-#: ui/cardlist.py:1035
+#: ui/cardlist.py:1037
 msgid "Nothing"
 msgstr "Ingenting"
 
@@ -2045,7 +2056,7 @@ msgstr "Kontrollera ditt användarnamn och lösenord en gång till."
 msgid "Please enable a different model first."
 msgstr "Aktivera först en annan modell."
 
-#: ui/cardlist.py:700
+#: ui/cardlist.py:702
 msgid "Please enter a valid start and end range."
 msgstr "Ange ett giltigt start- och slutintervall"
 
@@ -2163,7 +2174,7 @@ msgstr "Spela in ljud (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Spelar in...<br>Tid: %0.1f"
 
-#: ui/cardlist.py:449 ui/main.py:1913
+#: ui/cardlist.py:451 ui/main.py:1913
 #, python-format
 msgid "Redo %s"
 msgstr "Gör om %s"
@@ -2200,7 +2211,7 @@ msgstr "&Upprepa ljud"
 msgid "Repeat &Question Audio"
 msgstr "Upprepa &frågeljud"
 
-#: ui/cardlist.py:850
+#: ui/cardlist.py:852
 msgid "Replacing..."
 msgstr "Ersätter..."
 
@@ -2208,7 +2219,7 @@ msgstr "Ersätter..."
 msgid "Reps"
 msgstr "Upprepningar"
 
-#: ui/cardlist.py:684 forms/reschedule.py:79
+#: ui/cardlist.py:686 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr "Schemalägg igen"
 
@@ -2377,7 +2388,7 @@ msgstr "Visa ikon i systembrickan"
 msgid "Show/Hide"
 msgstr "Visa/Dölj"
 
-#: ui/addcards.py:127 ui/cardlist.py:549
+#: ui/addcards.py:127 ui/cardlist.py:551
 msgid "Some fields are missing or not unique."
 msgstr "Några fält saknas eller är inte unika."
 
@@ -2499,7 +2510,7 @@ msgstr "Etiketter att lägga till:"
 msgid "Tags to cram:"
 msgstr "Etiketter att råplugga:"
 
-#: ui/cardlist.py:1111
+#: ui/cardlist.py:1113
 msgid "Targets must be unique."
 msgstr "Mål måste vara  unika."
 
@@ -2746,7 +2757,7 @@ msgstr "Ta bort Latex från cachen"
 msgid "Underline text (Ctrl+u)"
 msgstr "Stryk under text (Ctrl+u)"
 
-#: ui/cardlist.py:443 ui/main.py:1907
+#: ui/cardlist.py:445 ui/main.py:1907
 #, python-format
 msgid "Undo %s"
 msgstr "Ångra %s"
