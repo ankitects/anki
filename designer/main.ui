@@ -1631,7 +1631,7 @@
     <string>&amp;Suspend Fact</string>
    </property>
    <property name="statusTip" >
-    <string>Stop reviewing this card until it's unsuspended in the editor</string>
+    <string>Stop reviewing this card until it's unsuspended in the browser</string>
    </property>
   </action>
   <action name="actionModelProperties" >
