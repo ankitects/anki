@@ -13,6 +13,11 @@ from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from ankiqt import ui
 from anki.sound import clearAudioQueue
 
+class FocusButton(QPushButton):
+    def focusInEvent(self, evt):
+        self.emit(SIGNAL("focusIn"))
+        QPushButton.focusInEvent(self, evt)
+
 class AddCards(QDialog):
 
     def __init__(self, parent):
@@ -49,7 +54,7 @@ class AddCards(QDialog):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "AddItems"))
 
     def addButtons(self):
-        self.addButton = QPushButton(_("Add"))
+        self.addButton = FocusButton(_("Add"))
         self.dialog.buttonBox.addButton(self.addButton,
                                         QDialogButtonBox.ActionRole)
         self.addButton.setShortcut(_("Ctrl+Return"))
@@ -60,6 +65,7 @@ class AddCards(QDialog):
         s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
         s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
+        self.connect(self.addButton, SIGNAL("focusIn"), self.maybeAddCards)
         self.closeButton = QPushButton(_("Close"))
         self.closeButton.setAutoDefault(False)
         self.dialog.buttonBox.addButton(self.closeButton,
@@ -96,6 +102,16 @@ class AddCards(QDialog):
         # set the new fact
         self.editor.setFact(fact, check=True)
         self.setTabOrder(self.editor.tags, self.addButton)
+
+    def maybeAddCards(self):
+        self.editor.saveFieldsNow()
+        fact = self.editor.fact
+        try:
+            fact.assertValid()
+            fact.assertUnique(self.parent.deck.s)
+        except FactInvalidError:
+            return
+        self.addCards()
 
     def addCards(self):
         # make sure updated
