@@ -170,13 +170,23 @@ class StatusView(object):
         self.remText.setText(remStr % stats)
         stats['spaced'] = self.main.deck.spacedCardCount()
         stats['new2'] = self.main.deck.newCount
-        self.remText.setToolTip(_(
-            "<h1>Remaining cards</h1>"
-            "<p/>There are <b>%(failed)d</b> failed cards due soon.<br>"
-            "There are <b>%(rev)d</b> cards awaiting review.<br>"
-            "There are <b>%(new)d</b> new cards due today.<br><br>"
-            "There are <b>%(new2)d</b> new cards in total.<br>"
-            "There are <b>%(spaced)d</b> delayed cards.") % stats)
+        self.remText.setToolTip("<h1>" +_(
+            "Remaining cards") + "</h1><p/>" +
+            ngettext("There is <b>%d</b> failed card due soon.", \
+            "There are <b>%d</b> failed cards due soon.", \
+            stats['failed']) % stats['failed'] + "<br>" +
+            ngettext("There is <b>%d</b> card awaiting review.", 
+            "There are <b>%d</b> cards awaiting review.", \
+            stats['rev']) % stats['rev'] + "<br>" +           
+            ngettext("There is <b>%d</b> new card due today.", \
+            "There are <b>%d</b> new cards due today.",\
+            stats['new']) % stats['new'] + "<br><br>" +     
+            ngettext("There is <b>%d</b> new card in total.", \
+            "There are <b>%d</b> new cards in total.",\
+            stats['new2']) % stats['new2'] + "<br>" +     
+            ngettext("There is <b>%d</b> delayed card.", \
+            "There are <b>%d</b> delayed cards.", \
+            stats['spaced']) % stats['spaced'])
         # eta
         self.etaText.setText(_("ETA: <b>%(timeLeft)s</b>") % stats)
         # retention & progress bars
