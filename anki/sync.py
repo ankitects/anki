@@ -565,12 +565,13 @@ values
         return d
 
     def updateDeck(self, deck):
-        meta = deck['meta']
-        for (k,v) in meta:
-            self.deck.s.statement("""
+        if 'meta' in deck:
+            meta = deck['meta']
+            for (k,v) in meta:
+                self.deck.s.statement("""
 insert or replace into deckVars
 (key, value) values (:k, :v)""", k=k, v=v)
-        del deck['meta']
+            del deck['meta']
         self.applyDict(self.deck, deck)
         self.deck.lastSync = self.deck.modified
         self.deck.updateTagPriorities()
