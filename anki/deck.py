@@ -2085,14 +2085,16 @@ facts.modelId = fieldModels.modelId and fieldModels.id not in
 (select fieldModelId from fields where factId = facts.id)""")
         if ids:
             self.deleteFacts(ids)
-            problems.append(_("Deleted %d facts with missing fields") %
+            problems.append(ngettext("Deleted %d fact with missing fields", 
+                            "Deleted %d facts with missing fields", len(ids)) %
                             len(ids))
         # cards missing a fact?
         ids = self.s.column0("""
 select id from cards where factId not in (select id from facts)""")
         if ids:
             self.deleteCards(ids)
-            problems.append(_("Deleted %d cards with missing fact") %
+            problems.append(ngettext("Deleted %d card with missing fact", 
+                            "Deleted %d cards with missing fact", len(ids)) %
                             len(ids))
         # cards missing a card model?
         ids = self.s.column0("""
@@ -2100,20 +2102,24 @@ select id from cards where cardModelId not in
 (select id from cardModels)""")
         if ids:
             self.deleteCards(ids)
-            problems.append(_("Deleted %d cards with no card template" %
-                              len(ids)))
+            problems.append(ngettext("Deleted %d card with no card template", 
+                            "Deleted %d cards with no card template", len(ids)) %
+                            len(ids))
         # facts missing a card?
         ids = self.deleteDanglingFacts()
         if ids:
-            problems.append(_("Deleted %d facts with no cards" %
-                              len(ids)))
+            problems.append(ngettext("Deleted %d fact with no cards", 
+                            "Deleted %d facts with no cards", len(ids)) %
+                            len(ids))
         # dangling fields?
         ids = self.s.column0("""
 select id from fields where factId not in (select id from facts)""")
         if ids:
             self.s.statement(
                 "delete from fields where id in %s" % ids2str(ids))
-            problems.append(_("Deleted %d dangling fields") % len(ids))
+            problems.append(ngettext("Deleted %d dangling field", 
+                            "Deleted %d dangling fields", len(ids)) %
+                            len(ids))
         self.s.flush()
         # fix problems with cards being scheduled when not due
         self.updateProgress()
