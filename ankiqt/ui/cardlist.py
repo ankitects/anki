@@ -150,7 +150,7 @@ class DeckModel(QAbstractTableModel):
                      " order by cards.ordinal, %s") % (fields, order)
         # run the query
         self.cards = self.deck.s.all(query)
-        if self.parent.config['editorReverseOrder']:
+        if self.deck.getInt('reverseOrder'):
             self.cards.reverse()
         self.reset()
 
@@ -292,7 +292,7 @@ class EditDeck(QMainWindow):
         self.dialog.tableView.setFont(QFont(
             self.config['editFontFamily'],
             self.config['editFontSize']))
-        if self.parent.config['editorReverseOrder']:
+        if self.deck.getInt("reverseOrder"):
             self.dialog.actionReverseOrder.setChecked(True)
         self.setupMenus()
         self.setupFilter()
@@ -331,7 +331,7 @@ class EditDeck(QMainWindow):
 
     def setupSort(self):
         self.dialog.sortBox.setMaxVisibleItems(30)
-        self.sortIndex = self.config['sortIndex']
+        self.sortIndex = self.deck.getInt("sortIndex") or 0
         self.drawSort()
         self.connect(self.dialog.sortBox, SIGNAL("activated(int)"),
                      self.sortChanged)
@@ -388,8 +388,7 @@ class EditDeck(QMainWindow):
             self.sortKey = ("field", self.sortFields[idx-8])
         self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
-        if idx <= 7:
-            self.config['sortIndex'] = idx
+        self.deck.setVar('sortIndex', idx)
         self.model.sortKey = self.sortKey
         self.model.updateHeader()
         if refresh:
@@ -795,11 +794,7 @@ where id in %s""" % ids2str(sf))
         sm.select(items, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
 
     def reverseOrder(self):
-        if self.parent.config['editorReverseOrder']:
-            self.parent.config['editorReverseOrder'] = False;
-        else:
-            self.parent.config['editorReverseOrder'] = True;
-
+        self.deck.setVar("reverseOrder", not self.deck.getInt("reverseOrder"))
         self.model.cards.reverse()
         self.model.reset()
         self.focusCurrentCard()
