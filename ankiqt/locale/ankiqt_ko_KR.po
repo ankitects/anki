@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:36+0200\n"
+"POT-Creation-Date: 2009-04-09 12:41+0200\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:216
+#: ui/status.py:226
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -100,8 +100,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d지식]"
 msgstr[1] "%(name)s [%(facts)d지식]"
 
-#: ui/status.py:199 ui/status.py:204 ui/status.py:208 ui/status.py:210
-#: ui/status.py:212
+#: ui/status.py:209 ui/status.py:214 ui/status.py:218 ui/status.py:220
+#: ui/status.py:222
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -736,11 +736,6 @@ msgstr "<h1>카드 누적 개수</h1>"
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>모델 속성</h1>"
 
-#: ui/status.py:174
-#, fuzzy, python-format
-msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-msgstr "<h1>남은 카드</h1>공부해야 할 카드의 개수<p/>틀렸던 카드 <b>%(failed)d</b>개<br>맞췄던 카드 <b>%(successive)d</b>개<br>새 카드 <b>%(new)d</b>개<br>연기된 카드 <b>%(spaced)d</b>개<br>보류된 카드 <b>%(suspended)d</b>개."
-
 #: ui/graphs.py:193
 #, fuzzy
 msgid "<h1>Reps</h1>"
@@ -945,7 +940,7 @@ msgstr ""
 msgid "All Fields"
 msgstr "필드"
 
-#: ui/status.py:202
+#: ui/status.py:212
 #, fuzzy
 msgid "All Reviews"
 msgstr "복습 중"
@@ -1041,7 +1036,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr "응답 적용 중.."
 
-#: ui/status.py:200 ui/status.py:205
+#: ui/status.py:210 ui/status.py:215
 msgid "Average time per answer: "
 msgstr ""
 
@@ -1271,19 +1266,19 @@ msgstr ""
 msgid "Copy: %s"
 msgstr ""
 
-#: ui/status.py:209
+#: ui/status.py:219
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:203
+#: ui/status.py:213
 msgid "Correct over a month: "
 msgstr ""
 
-#: ui/status.py:198
+#: ui/status.py:208
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:207
+#: ui/status.py:217
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1593,7 +1588,7 @@ msgstr ""
 msgid "E&xit"
 msgstr "종료(&X)"
 
-#: ui/status.py:181
+#: ui/status.py:191
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "예상 시간: <b>%(timeLeft)s</b>"
@@ -2117,7 +2112,7 @@ msgstr "비밀번호"
 msgid "Password:"
 msgstr "비밀번호"
 
-#: ui/status.py:192
+#: ui/status.py:202
 #, fuzzy
 msgid "Performance"
 msgstr "환경 설정"
@@ -2286,6 +2281,11 @@ msgstr ""
 msgid "Release Notes..."
 msgstr ""
 
+#: ui/status.py:174
+#, fuzzy
+msgid "Remaining cards"
+msgstr "남은 카드:"
+
 #: ui/status.py:148
 msgid "Remaining: "
 msgstr "남은 카드:"
@@ -2350,7 +2350,7 @@ msgstr "복습 중"
 msgid "Review Time"
 msgstr "복습 중"
 
-#: ui/status.py:197
+#: ui/status.py:207
 #, fuzzy
 msgid "Reviews today"
 msgstr "복습 중"
@@ -2664,7 +2664,7 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "동기화 프로토콜이 변경되었습니다. 업데이트 해 주세요."
 
-#: ui/status.py:193
+#: ui/status.py:203
 #, python-format
 msgid ""
 "The top bar shows your performance today. The bottom bar shows your<br>\n"
@@ -2672,6 +2672,41 @@ msgid ""
 "generally be between 80-95% - lower and you're forgetting mature cards<br>\n"
 "too often, higher and you're spending too much time reviewing."
 msgstr ""
+
+#: ui/status.py:178
+#, python-format
+msgid "There is <b>%d</b> card awaiting review."
+msgid_plural "There are <b>%d</b> cards awaiting review."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:187
+#, python-format
+msgid "There is <b>%d</b> delayed card."
+msgid_plural "There are <b>%d</b> delayed cards."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:175
+#, python-format
+msgid "There is <b>%d</b> failed card due soon."
+msgid_plural "There are <b>%d</b> failed cards due soon."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:181
+#, python-format
+msgid "There is <b>%d</b> new card due today."
+msgid_plural "There are <b>%d</b> new cards due today."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:184
+#, python-format
+msgid "There is <b>%d</b> new card in total."
+msgid_plural "There are <b>%d</b> new cards in total."
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/view.py:220
 #, fuzzy, python-format
@@ -2781,11 +2816,11 @@ msgstr ""
 msgid "Toggle Toolbar"
 msgstr ""
 
-#: ui/status.py:211
+#: ui/status.py:221
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:201 ui/status.py:206
+#: ui/status.py:211 ui/status.py:216
 #, fuzzy
 msgid "Total review time: "
 msgstr "복습 중"
@@ -3359,6 +3394,10 @@ msgstr "Latex"
 
 #~ msgid "<h1>Postponing</h1>Any matching cards will not be shown until unsuspended. The web and phone interfaces automatically add 'noweb' and 'nophone' - give these tags to your cards to prevent them from showing on the phone or web interface."
 #~ msgstr "<h1>보류</h1>이 꼬리표가 붙은 카드는 해당 꼬리표를 지우기 전까지 등장하지 않습니다. 웹과 휴대폰으로 공부할 때는 자동으로 'noweb'과 'nophone' 꼬리표가 붙습니다. 이 꼬리표가 붙은 카드는 웹이나 전화로 볼 때 등장하지 않습니다."
+
+#, fuzzy
+#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
+#~ msgstr "<h1>남은 카드</h1>공부해야 할 카드의 개수<p/>틀렸던 카드 <b>%(failed)d</b>개<br>맞췄던 카드 <b>%(successive)d</b>개<br>새 카드 <b>%(new)d</b>개<br>연기된 카드 <b>%(spaced)d</b>개<br>보류된 카드 <b>%(suspended)d</b>개."
 
 #, fuzzy
 #~ msgid ""

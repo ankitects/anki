@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 08:36+0200\n"
+"POT-Creation-Date: 2009-04-09 12:41+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -35,7 +35,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:216
+#: ui/status.py:226
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -108,8 +108,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d fakt]"
 msgstr[1] "%(name)s [%(facts)d fakti]"
 
-#: ui/status.py:199 ui/status.py:204 ui/status.py:208 ui/status.py:210
-#: ui/status.py:212
+#: ui/status.py:209 ui/status.py:214 ui/status.py:218 ui/status.py:220
+#: ui/status.py:222
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -694,11 +694,6 @@ msgstr "<h1>Ava Online kaardipakk</h1>"
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>Prioriteedid</h1>"
 
-#: ui/status.py:174
-#, fuzzy, python-format
-msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-msgstr "<h1>Järgi jäänud kaardid</h1><p/>Järjekorras on<br><b>%(failed)d</b> ununenud kaarti,<br><b>%(rev)d</b> kaarti, mille tähtaeg on peagi,<br><b>%(new)d</b> uut kaarti täna,<br><br><b>%(new2)d</b> uut kaarti kokku,<br><b>%(spaced)d</b> varasemat kaarti."
-
 #: ui/graphs.py:193
 msgid "<h1>Reps</h1>"
 msgstr "<h1>Kordamised</h1>"
@@ -899,7 +894,7 @@ msgstr "Uuesti"
 msgid "All Fields"
 msgstr "Väljad"
 
-#: ui/status.py:202
+#: ui/status.py:212
 #, fuzzy
 msgid "All Reviews"
 msgstr "Korda"
@@ -1003,7 +998,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr "Värskendan kohalike andmeid..."
 
-#: ui/status.py:200 ui/status.py:205
+#: ui/status.py:210 ui/status.py:215
 #, fuzzy
 msgid "Average time per answer: "
 msgstr "Näita järgmist tähtaeg enne vastust"
@@ -1229,19 +1224,19 @@ msgstr "Jätka kordamist"
 msgid "Copy: %s"
 msgstr "Kopeeri: %s"
 
-#: ui/status.py:209
+#: ui/status.py:219
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:203
+#: ui/status.py:213
 msgid "Correct over a month: "
 msgstr ""
 
-#: ui/status.py:198
+#: ui/status.py:208
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:207
+#: ui/status.py:217
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1533,7 +1528,7 @@ msgstr "Tähtaeguvad kaardid"
 msgid "E&xit"
 msgstr "&Lõpeta"
 
-#: ui/status.py:181
+#: ui/status.py:191
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Eeldatav ajakulu (ETA): "
@@ -2025,7 +2020,7 @@ msgstr "Salasõna"
 msgid "Password:"
 msgstr "Salasõna:"
 
-#: ui/status.py:192
+#: ui/status.py:202
 #, fuzzy
 msgid "Performance"
 msgstr "Omadused"
@@ -2189,6 +2184,11 @@ msgstr "Värskenda"
 msgid "Release Notes..."
 msgstr "Versioonimärkmed..."
 
+#: ui/status.py:174
+#, fuzzy
+msgid "Remaining cards"
+msgstr "Järgi jäänud: "
+
 #: ui/status.py:148
 msgid "Remaining: "
 msgstr "Järgi jäänud: "
@@ -2245,7 +2245,7 @@ msgstr "Korda"
 msgid "Review Time"
 msgstr "Kordamisaeg"
 
-#: ui/status.py:197
+#: ui/status.py:207
 #, fuzzy
 msgid "Reviews today"
 msgstr "Korda tähtaeguvad kaardid varakult"
@@ -2539,7 +2539,7 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Sünkroniseerimise protokoll on muutunud. Palun uuenda rakendust."
 
-#: ui/status.py:193
+#: ui/status.py:203
 #, fuzzy, python-format
 msgid ""
 "The top bar shows your performance today. The bottom bar shows your<br>\n"
@@ -2557,6 +2557,41 @@ msgstr ""
 "%(dTotal)d)-st (%(dYesTotal)d</b><br>\n"
 "Keskimine vastamise aeg: %(avgTime)s<br>\n"
 "Kokku kulunud aeg kordamisele: %(revTime)s"
+
+#: ui/status.py:178
+#, python-format
+msgid "There is <b>%d</b> card awaiting review."
+msgid_plural "There are <b>%d</b> cards awaiting review."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:187
+#, python-format
+msgid "There is <b>%d</b> delayed card."
+msgid_plural "There are <b>%d</b> delayed cards."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:175
+#, python-format
+msgid "There is <b>%d</b> failed card due soon."
+msgid_plural "There are <b>%d</b> failed cards due soon."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:181
+#, python-format
+msgid "There is <b>%d</b> new card due today."
+msgid_plural "There are <b>%d</b> new cards due today."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/status.py:184
+#, python-format
+msgid "There is <b>%d</b> new card in total."
+msgid_plural "There are <b>%d</b> new cards in total."
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/view.py:220
 #, python-format
@@ -2682,11 +2717,11 @@ msgstr "Tänased kordamised on lõppenud"
 msgid "Toggle Toolbar"
 msgstr "Näita tööriisariba"
 
-#: ui/status.py:211
+#: ui/status.py:221
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:201 ui/status.py:206
+#: ui/status.py:211 ui/status.py:216
 #, fuzzy
 msgid "Total review time: "
 msgstr "Kordamisaeg"
@@ -2945,6 +2980,10 @@ msgstr "üleminesedel"
 
 #~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
 #~ msgstr "<h1>Lisavalikud</h1>Mõne suvandi muutmine nõuab taaskäivitamist."
+
+#, fuzzy
+#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
+#~ msgstr "<h1>Järgi jäänud kaardid</h1><p/>Järjekorras on<br><b>%(failed)d</b> ununenud kaarti,<br><b>%(rev)d</b> kaarti, mille tähtaeg on peagi,<br><b>%(new)d</b> uut kaarti täna,<br><br><b>%(new2)d</b> uut kaarti kokku,<br><b>%(spaced)d</b> varasemat kaarti."
 
 #~ msgid ""
 #~ "<h1>Welcome to Anki!</h1>\n"
