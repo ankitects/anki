@@ -101,6 +101,7 @@ def run():
             os.rename(oldConf, oldConf.replace("config.db",
                                                "config.db.old"))
     app = AnkiApp(sys.argv)
+    QCoreApplication.setApplicationName("Anki")
 
     import forms
     import ui
