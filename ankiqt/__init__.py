@@ -4,7 +4,6 @@
 import os, sys, shutil
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from anki.hooks import runHook
 
 appName="Anki"
 appVersion="0.9.9.7.3"
@@ -75,6 +74,7 @@ class AnkiApp(QApplication):
 
 def run():
     import config
+    from anki.hooks import runHook
 
     # home on win32 is broken
     if sys.platform == "win32":
