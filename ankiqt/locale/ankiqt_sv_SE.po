@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-07 10:47+0200\n"
-"PO-Revision-Date: 2009-04-07 10:45+0100\n"
+"POT-Creation-Date: 2009-04-09 12:41+0200\n"
+"PO-Revision-Date: 2009-04-09 12:39+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -1222,7 +1222,7 @@ msgstr "Ansluter..."
 
 #: ui/main.py:1105
 msgid "Continue &Reviewing"
-msgstr "Fortsätt &repetera"
+msgstr "&Fortsätt repetera"
 
 #: forms/main.py:877
 msgid "Continue Reviewing"
@@ -2417,7 +2417,7 @@ msgstr "Spanska"
 
 #: ui/main.py:1103
 msgid "Start &Reviewing"
-msgstr "Börja &repetera"
+msgstr "&Börja repetera"
 
 #: ui/view.py:297
 msgid "Start adding your own material."
