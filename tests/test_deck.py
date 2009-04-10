@@ -33,6 +33,7 @@ def test_attachNew():
     deck = DeckStorage.Deck(path)
     # for attachOld()
     newPath = deck.path
+    deck.setVar("pageSize", 4096)
     deck.save()
     newModified = deck.modified
     deck.close()
