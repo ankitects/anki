@@ -54,6 +54,22 @@ class StatusView(object):
                             "deckEmpty",
                             "studyScreen"):
             self.redraw()
+            self.showOrHideToolbar(self.state)
+
+    def showOrHideToolbar(self, state):
+        if (not self.main.config['showProgress'] and
+            state in ("showQuestion", "showAnswer")):
+            shown = False
+        else:
+            shown = True
+        self.progressBar.setShown(shown)
+        self.retentionBar.setShown(shown)
+        self.timer.setShown(shown)
+        self.etaText.setShown(shown)
+        self.remText.setShown(shown)
+        self.sep1.setShown(shown)
+        self.sep2.setShown(shown)
+        self.sep3.setShown(shown)
 
     # Setup and teardown
     ##########################################################################
@@ -74,8 +90,8 @@ class StatusView(object):
         # remaining & eta
         self.remText = QLabel()
         self.addWidget(self.remText, 0)
-        sep1 = self.vertSep()
-        self.addWidget(sep1, 0)
+        self.sep1 = self.vertSep()
+        self.addWidget(self.sep1, 0)
         self.etaText = QLabel()
         self.etaText.setToolTip(_(
             "<h1>Estimated time</h1>"
@@ -83,8 +99,8 @@ class StatusView(object):
             "at your current pace."))
         self.addWidget(self.etaText, 0)
         # progress&retention
-        sep2 = self.vertSep()
-        self.addWidget(sep2, 0)
+        self.sep2 = self.vertSep()
+        self.addWidget(self.sep2, 0)
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
         vbox.setMargin(0)
@@ -107,23 +123,14 @@ class StatusView(object):
             self.retentionBar.setStyle(self.plastiqueStyle)
         self.addWidget(self.combinedBar, 0)
         # timer
-        sep3 = self.vertSep()
-        self.addWidget(sep3, 0)
+        self.sep3 = self.vertSep()
+        self.addWidget(self.sep3, 0)
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
         self.addWidget(self.timer)
         self.redraw()
         if not self.main.config['showTimer']:
             self.timer.setShown(False)
-        if not self.main.config['showProgress']:
-            self.progressBar.hide()
-            self.retentionBar.hide()
-            self.timer.hide()
-            self.etaText.hide()
-            self.remText.hide()
-            sep1.hide()
-            sep2.hide()
-            sep3.hide()
 
     def addWidget(self, w, stretch=0):
         self.statusbar.addWidget(w, stretch)

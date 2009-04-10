@@ -22,14 +22,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab_1" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>304</width>
-        <height>333</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Display</string>
       </attribute>
@@ -100,7 +92,7 @@
        <item>
         <widget class="QCheckBox" name="showProgress" >
          <property name="text" >
-          <string>Show due count, ETA and performance bars</string>
+          <string>Show due count and progress during review</string>
          </property>
         </widget>
        </item>
@@ -130,14 +122,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>304</width>
-        <height>333</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Save &amp;&amp; Sync</string>
       </attribute>
@@ -318,14 +302,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>304</width>
-        <height>333</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Advanced</string>
       </attribute>
