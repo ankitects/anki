@@ -1002,7 +1002,7 @@ class HttpSyncServer(SyncServer):
 
     def summary(self, lastSync):
         return self.stuff(SyncServer.summary(
-            self, self.unstuff(lastSync)))
+            self, float(zlib.decompress(lastSync))))
 
     def applyPayload(self, payload):
         return self.stuff(SyncServer.applyPayload(self,
