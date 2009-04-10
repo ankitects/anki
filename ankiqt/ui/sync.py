@@ -83,7 +83,7 @@ Error: %s""" % `error`)
                 self.setStatus("")
                 return
         timediff = abs(proxy.timestamp - time.time())
-        if timediff > 60:
+        if timediff > 300:
             self.emit(SIGNAL("syncClockOff"), timediff)
             return
         # reconnect
