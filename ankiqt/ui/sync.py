@@ -54,7 +54,7 @@ class Sync(QThread):
 Syncing failed. Please try again in a few minutes.
 If the problem persists, please report it on the forum.
 
-Error: %s""" % `error`)
+Error: %s""" % `getattr(error, 'data')`)
         return msg
 
     def connect(self, *args):
