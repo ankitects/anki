@@ -1008,8 +1008,10 @@ your deck."""))
 
     def onMinuteLimitChanged(self, qstr):
         try:
-            self.deck.sessionTimeLimit = float(
-                self.mainWin.minuteLimit.text()) * 60
+            val = float(self.mainWin.minuteLimit.text()) * 60
+            if self.deck.sessionTimeLimit == val:
+                return
+            self.deck.sessionTimeLimit = val
         except ValueError:
             pass
         self.deck.flushMod()
@@ -1017,7 +1019,10 @@ your deck."""))
 
     def onNewLimitChanged(self, qstr):
         try:
-            self.deck.newCardsPerDay = int(self.mainWin.newPerDay.text())
+            val = int(self.mainWin.newPerDay.text())
+            if self.deck.newCardsPerDay == val:
+                return
+            self.deck.newCardsPerDay = val
         except ValueError:
             pass
         self.deck.checkDue()
