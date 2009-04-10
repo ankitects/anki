@@ -73,7 +73,6 @@ if sys.platform.startswith("darwin"):
     dir = os.path.dirname(os.path.abspath(__file__))
     dir = os.path.abspath(dir + "/../../../..")
     os.environ['PATH'] += ":" + dir + "/audio"
-    sys.stderr.write(os.environ['PATH'] + "\n")
 
 def retryWait(proc):
     # osx throws interrupted system call errors frequently
