@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-10 16:00+0900\n"
+"POT-Creation-Date: 2009-04-10 14:46+0200\n"
 "PO-Revision-Date: 2009-03-28 15:50+0100\n"
 "Last-Translator: Michael Keppler <bananeweizen@gmx.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,7 +63,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "vor %s"
 
-#: deck.py:1163
+#: deck.py:1169
 #, python-format
 msgid "%s copy"
 msgstr "%s kopieren"
@@ -120,7 +120,7 @@ msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b>/Tag)"
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "<b>%(a)d</b>/Tag, <b>%(b)d</b>/Monat"
 
-#: deck.py:719
+#: deck.py:718
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -265,11 +265,11 @@ msgstr "Zentriert"
 msgid "Changed"
 msgstr "Geändert"
 
-#: deck.py:1226
+#: deck.py:1232
 msgid "Changing cards..."
 msgstr "Verändere Karten..."
 
-#: deck.py:1186
+#: deck.py:1192
 msgid "Changing fields..."
 msgstr "Verändere Felder..."
 
@@ -277,11 +277,11 @@ msgstr "Verändere Felder..."
 msgid "Check Media DB"
 msgstr "Medien-Datenbank prüfen"
 
-#: deck.py:2054
+#: deck.py:2060
 msgid "Checking integrity..."
 msgstr "Prüfe Integrität..."
 
-#: deck.py:2064
+#: deck.py:2070
 msgid "Checking schema..."
 msgstr "Prüfe Schema..."
 
@@ -302,11 +302,11 @@ msgstr "Kann kein Muster finden. Die Datei sollte aus einer Folge von durch Tabu
 msgid "CueCard deck (*.wcu)"
 msgstr "CueCard Stapel (*.wcu)"
 
-#: deck.py:3038
+#: deck.py:3044
 msgid "Custom failed cards handling"
 msgstr "Angepasste Behandlung fehlgeschlagener Karten"
 
-#: deck.py:2057
+#: deck.py:2063
 msgid "Database file damaged. Restore from backup."
 msgstr "Datenbank-Datei defekt. Bitte von einem Backup wiederherstellen."
 
@@ -319,7 +319,7 @@ msgstr "Stapelstatistik"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Alter des Stapels: <b>%s</b><br>"
 
-#: deck.py:2067
+#: deck.py:2073
 msgid "Deck was missing a model"
 msgstr "Dem Stapel fehlt ein Modell"
 
@@ -331,35 +331,35 @@ msgstr "Lösche ungültige Referenzen..."
 msgid "Delete unused files..."
 msgstr "Lösche ungenutzte Dateien..."
 
-#: deck.py:2096
+#: deck.py:2102
 #, fuzzy, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] "%d Karten mit fehlendem Faktum gelöscht"
 msgstr[1] "%d Karten mit fehlendem Faktum gelöscht"
 
-#: deck.py:2105
+#: deck.py:2111
 #, fuzzy, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] "%d Karten ohne Kartenvorlage gelöscht"
 msgstr[1] "%d Karten ohne Kartenvorlage gelöscht"
 
-#: deck.py:2120
+#: deck.py:2126
 #, fuzzy, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] "%d ungenutzte Felder gelöscht"
 msgstr[1] "%d ungenutzte Felder gelöscht"
 
-#: deck.py:2088
+#: deck.py:2094
 #, fuzzy, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] "%d Fakten mit fehlenden Feldern gelöscht"
 msgstr[1] "%d Fakten mit fehlenden Feldern gelöscht"
 
-#: deck.py:2111
+#: deck.py:2117
 #, fuzzy, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
@@ -393,7 +393,7 @@ msgstr "Exportiere..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Fakten in Tabulator-getrennter Textdatei (*.txt)"
 
-#: deck.py:2481
+#: deck.py:2487
 msgid "File is in use by another process"
 msgstr "Die Datei wird von einem anderen Prozeß benutzt"
 
@@ -413,7 +413,7 @@ msgstr "Erstmalig letzte Woche"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/__init__.py:51 importing/anki10.py:25
+#: importing/anki10.py:25 importing/__init__.py:51
 msgid "Importing..."
 msgstr "Importiere..."
 
@@ -508,27 +508,27 @@ msgstr "Keine Karten sind fällig."
 msgid "Please add some cards first."
 msgstr "Bitte füge zuerst einige Karten hinzu.<p/>"
 
-#: deck.py:2305
+#: deck.py:2311
 msgid "Processing..."
 msgstr "Verarbeite..."
 
-#: deck.py:2141
+#: deck.py:2147
 msgid "Rebuilding QA cache..."
 msgstr "Cache neu anlegen..."
 
-#: deck.py:2161
+#: deck.py:2167
 msgid "Rebuilding counts..."
 msgstr "Zähler neu anlegen..."
 
-#: deck.py:2167
+#: deck.py:2173
 msgid "Rebuilding queue..."
 msgstr "Warteschlange neu anlegen..."
 
-#: deck.py:2135
+#: deck.py:2141
 msgid "Rebuilding tag cache..."
 msgstr "Cache für Tags neu anlegen..."
 
-#: deck.py:2159
+#: deck.py:2165
 msgid "Rebuilding types..."
 msgstr "Typen neu anlegen..."
 
@@ -548,21 +548,21 @@ msgstr "Wiederholungen nächsten Monat"
 msgid "Reps next week"
 msgstr "Wiederholungen nächste Woche"
 
-#: deck.py:3025
+#: deck.py:3031
 #, fuzzy
 msgid "Review cards from largest interval"
 msgstr "alte Karten zuerst wiederholen"
 
-#: deck.py:3026
+#: deck.py:3032
 #, fuzzy
 msgid "Review cards from smallest interval"
 msgstr "alte Karten zuerst wiederholen"
 
-#: deck.py:3027
+#: deck.py:3033
 msgid "Review cards in order due"
 msgstr "geordnet nach Fälligkeitsdatum wiederholen"
 
-#: deck.py:3028
+#: deck.py:3034
 msgid "Review cards in random order"
 msgstr "in zufälliger Reihenfolge wiederholen"
 
@@ -578,47 +578,47 @@ msgstr "Rechts"
 msgid "Scan fields..."
 msgstr "Prüfe Felder..."
 
-#: deck.py:3034
+#: deck.py:3040
 msgid "Show failed cards at end"
 msgstr "Zeige fehlgeschlagene Karten am Ende"
 
-#: deck.py:3035
+#: deck.py:3041
 msgid "Show failed cards in 10 minutes"
 msgstr "Zeige fehlgeschlagene Karten nach 10 Minuten"
 
-#: deck.py:3037
+#: deck.py:3043
 msgid "Show failed cards in 3 days"
 msgstr "Zeige fehlgeschlagene Karten nach 3 Tagen"
 
-#: deck.py:3036
+#: deck.py:3042
 msgid "Show failed cards in 8 hours"
 msgstr "Zeige fehlgeschlagene Karten nach 8 Stunden"
 
-#: deck.py:3033
+#: deck.py:3039
 msgid "Show failed cards soon"
 msgstr "Zeige fehlgeschlagene Karten bald an"
 
-#: deck.py:3019
+#: deck.py:3025
 msgid "Show new cards after all other cards"
 msgstr "Zeige neue Karten nach allen anderen Karten"
 
-#: deck.py:3020
+#: deck.py:3026
 msgid "Show new cards before reviews"
 msgstr "Zeige neue Karten vor den Wiederholungen "
 
-#: deck.py:3012
+#: deck.py:3018
 msgid "Show new cards in order added"
 msgstr "Zeige neue Karten in der Reihenfolge des Hinzufügens"
 
-#: deck.py:3011
+#: deck.py:3017
 msgid "Show new cards in random order"
 msgstr "Zeige neue Karten in zufälliger Reihenfolge"
 
-#: deck.py:3013
+#: deck.py:3019
 msgid "Show new cards in reverse order added"
 msgstr "Zeige neue Karten in umgekehrter Reihenfolge des Hinzufügens"
 
-#: deck.py:3018
+#: deck.py:3024
 msgid "Spread new cards out through reviews"
 msgstr "Verteile neue Karten über die Wiederholungen"
 
@@ -630,7 +630,7 @@ msgstr "Textdateien (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Text getrennt durch Tabulatoren oder Semikolons (*)"
 
-#: deck.py:2073
+#: deck.py:2079
 msgid "The current model didn't exist"
 msgstr "Das aktuelle Modell war nicht vorhanden"
 
@@ -647,14 +647,14 @@ msgstr "Die Datei ist nicht im UTF8-Format."
 msgid "The next review is in <b>%s</b>."
 msgstr "Die nächste Wiederholung ist in <b>%s</b>."
 
-#: deck.py:707
-#, python-format
-msgid "There is <b>%d</b> delayed card."
-msgid_plural "There are <b>%d</b> delayed cards."
+#: deck.py:706
+#, fuzzy, python-format
+msgid "There is <b>%d</b> delayed new card."
+msgid_plural "There are <b>%d</b> delayed new cards."
 msgstr[0] "Es gibt <b>%d</b> wartende Karte."
 msgstr[1] "Es gibt <b>%d</b> wartende Karten."
 
-#: deck.py:714
+#: deck.py:713
 #, python-format
 msgid "There is <b>%d</b> suspended card."
 msgid_plural "There are <b>%d</b> suspended cards."
@@ -689,7 +689,7 @@ msgstr "Gesamtanzahl Karten: <b>%d</b><br>"
 msgid "Total number of facts:"
 msgstr "Gesamtanzahl Fakten: <b>%d</b><br><br>"
 
-#: deck.py:881
+#: deck.py:887
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -701,11 +701,11 @@ msgstr ""
 msgid "Update tags..."
 msgstr "Aktualisiere Tags..."
 
-#: deck.py:2138
+#: deck.py:2144
 msgid "Updating priorities..."
 msgstr "Aktualisiere Prioritäten..."
 
-#: deck.py:2636
+#: deck.py:2642
 msgid "Upgrading Deck..."
 msgstr "Aktualisiere Stapel..."
 
