@@ -70,6 +70,10 @@ else:
 if sys.platform.startswith("darwin"):
     # make sure lame, which is installed in /usr/local/bin, is in the path
     os.environ['PATH'] += ":" + "/usr/local/bin"
+    dir = os.path.dirname(os.path.abspath(__file__))
+    dir = os.path.abspath(dir + "/../../../..")
+    os.environ['PATH'] += ":" + dir + "/audio"
+    sys.stderr.write(os.environ['PATH'] + "\n")
 
 def retryWait(proc):
     # osx throws interrupted system call errors frequently
@@ -223,111 +227,10 @@ class PyAudioRecorder(_Recorder):
     def file(self):
         return processingDst
 
-# Mac audio support
-##########################################################################
-
-try:
-    if 'noqtmovie' in os.environ:
-        raise ImportError
-    from QTKit import QTMovie
-    from AppKit import NSAutoreleasePool
-
-    class QTMovieQueueMonitor(threading.Thread):
-
-        def run(self):
-            pool = NSAutoreleasePool.alloc().init()
-            current = None
-            while 1:
-                time.sleep(0.1)
-                if current:
-                    if (current.currentTime().timeValue >=
-                        current.duration().timeValue):
-                        current = None
-                    continue
-                if queue:
-                    current = queue.pop(0)
-                    current.play()
-                    continue
-                del pool
-                return
-
-    def playOSX(path):
-        global manager
-        path = path.encode(sys.getfilesystemencoding())
-        current = QTMovie.alloc()
-        (current, err) = current.initWithFile_error_(path)
-        if current:
-            queue.append(current)
-        if not manager or not manager.isAlive():
-            manager = QTMovieQueueMonitor()
-            manager.start()
-
-    def clearQueueOSX():
-        global queue
-        queue = []
-
-except ImportError:
-    # fall back to old nssound code for 10.3
-    if sys.platform.startswith("darwin"):
-        sys.stderr.write("falling back to 10.3 audio library\n")
-
-    try:
-
-        from AppKit import NSSound, NSObject
-
-        queue = []
-        current = None
-
-        class Sound(NSObject):
-
-            def init(self):
-                return self
-
-            def sound_didFinishPlaying_(self, sound, bool):
-                global current
-                while 1:
-                    if not queue:
-                        break
-                    next = queue.pop(0)
-                    if play_(next):
-                        break
-
-        s = Sound.new()
-
-        def playOSX(path):
-            global current
-            if current:
-                if current.isPlaying():
-                    queue.append(path)
-                    return
-            # new handle
-            playOSX_(path)
-
-        def clearQueueOSX():
-            global queue
-            queue = []
-
-        def playOSX_(path):
-            global current
-            current = NSSound.alloc()
-            current = current.initWithContentsOfFile_byReference_(path, True)
-            if not current:
-                return False
-            current.setDelegate_(s)
-            current.play()
-            return True
-
-    except ImportError:
-        pass
-
 # Default audio player
 ##########################################################################
 
-if sys.platform.startswith("darwin"):
-    play = playOSX
-    clearAudioQueue = clearQueueOSX
-else:
-    play = playExternal
-    clearAudioQueue = clearQueueExternal
+play = playExternal
+clearAudioQueue = clearQueueExternal
 
 Recorder = PyAudioRecorder
