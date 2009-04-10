@@ -100,14 +100,6 @@ def run():
                 pass
             os.rename(oldConf, oldConf.replace("config.db",
                                                "config.db.old"))
-    app = AnkiApp(sys.argv)
-    QCoreApplication.setApplicationName("Anki")
-
-    import forms
-    import ui
-
-    ui.splash = SplashScreen(5)
-
     # setup paths for forms, icons
     sys.path.append(modDir)
     # jpeg module
@@ -117,6 +109,14 @@ def run():
         QCoreApplication.setLibraryPaths(QStringList([rd]))
     else:
         QCoreApplication.addLibraryPath(runningDir)
+
+    app = AnkiApp(sys.argv)
+    QCoreApplication.setApplicationName("Anki")
+
+    import forms
+    import ui
+
+    ui.splash = SplashScreen(5)
 
     import anki
     if anki.version != appVersion:
