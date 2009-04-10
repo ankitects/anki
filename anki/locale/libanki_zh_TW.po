@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 15:22+0200\n"
-"PO-Revision-Date: 2009-01-24 05:56+0800\n"
-"Last-Translator: Mark Wilbur <doubtingtoshuo@gmail.com>\n"
+"POT-Creation-Date: 2009-04-10 16:00+0900\n"
+"PO-Revision-Date: 2009-04-07 15:55+0800\n"
+"Last-Translator: \n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -149,16 +149,13 @@ msgid "<li>%d total unique kanji.</li>"
 msgstr ""
 
 #: deck.py:659
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
 "At this time tomorrow:<br>\n"
 "%(wait)s<br>\n"
 "%(new)s"
 msgstr ""
-"明天:<br><br>\n"
-"會有 %(wait)s 等你複習.<br>\n"
-"There will be %(new)s 等你."
 
 #: sync.py:194
 #, python-format
@@ -401,7 +398,7 @@ msgstr ""
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:51
+#: importing/__init__.py:51 importing/anki10.py:25
 #, fuzzy
 msgid "Importing..."
 msgstr "輸出中"
@@ -728,45 +725,23 @@ msgstr "在 %s"
 msgid "unknown"
 msgstr "不知道的"
 
-#, fuzzy
 #~ msgid ""
-#~ "\n"
-#~ "There is <b>%d</b>\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
-#~ "suspended</a> card."
-#~ msgid_plural ""
 #~ "\n"
 #~ "There are <b>%d</b>\n"
 #~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
 #~ "suspended</a> cards."
-#~ msgstr[0] ""
-#~ "\n"
-#~ "有<b>%d</b>\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
-#~ "暫停</a>卡片."
-#~ msgstr[1] ""
+#~ msgstr ""
 #~ "\n"
 #~ "有<b>%d</b>\n"
 #~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">\n"
 #~ "暫停</a>卡片."
 
-#, fuzzy
 #~ msgid ""
 #~ "\n"
-#~ "There is <b>%d</b>\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
-#~ "spaced</a> card."
-#~ msgid_plural ""
-#~ "\n"
 #~ "There are <b>%d</b>\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-787faa3eb21d7962f7719dc2722d34b7d74035ae\">\n"
-#~ "spaced</a> cards."
-#~ msgstr[0] ""
-#~ "\n"
-#~ "有<b>%d</b>\n"
 #~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">\n"
-#~ "分開的</a>卡片."
-#~ msgstr[1] ""
+#~ "spaced</a> cards."
+#~ msgstr ""
 #~ "\n"
 #~ "有<b>%d</b>\n"
 #~ "<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">\n"
@@ -774,18 +749,6 @@ msgstr "不知道的"
 
 #~ msgid "%0.1f seconds"
 #~ msgstr "%0.1f 秒鐘"
-
-#, fuzzy
-#~ msgid "%sd"
-#~ msgstr "%s天"
-
-#, fuzzy
-#~ msgid "%sh"
-#~ msgstr "%s個小時"
-
-#, fuzzy
-#~ msgid "%sy"
-#~ msgstr "%s天"
 
 #~ msgid "<b>%0.0f</b> days"
 #~ msgstr "<b>%0.0f</b>天"
@@ -795,6 +758,15 @@ msgstr "不知道的"
 
 #~ msgid "<b>Averages</b><br>"
 #~ msgstr "<b>平均</b><br>"
+
+#~ msgid ""
+#~ "At the same time tomorrow:<br><br>\n"
+#~ "There will be %(wait)s waiting for review.<br>\n"
+#~ "There will be %(new)s waiting."
+#~ msgstr ""
+#~ "明天:<br><br>\n"
+#~ "會有 %(wait)s 等你複習.<br>\n"
+#~ "There will be %(new)s 等你."
 
 #~ msgid "Back to front"
 #~ msgstr "從後到前"

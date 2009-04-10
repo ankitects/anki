@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 15:22+0200\n"
+"POT-Creation-Date: 2009-04-10 16:00+0900\n"
 "PO-Revision-Date: 2009-03-28 15:50+0100\n"
 "Last-Translator: Michael Keppler <bananeweizen@gmx.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -413,7 +413,7 @@ msgstr "Erstmalig letzte Woche"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:51
+#: importing/__init__.py:51 importing/anki10.py:25
 msgid "Importing..."
 msgstr "Importiere..."
 

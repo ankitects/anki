@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 15:22+0200\n"
+"POT-Creation-Date: 2009-04-10 16:00+0900\n"
 "PO-Revision-Date: 2009-03-22 11:07+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -416,7 +416,7 @@ msgstr "Ensimmäisiä viimeviikolla"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:51
+#: importing/__init__.py:51 importing/anki10.py:25
 #, fuzzy
 msgid "Importing..."
 msgstr "Viedään..."

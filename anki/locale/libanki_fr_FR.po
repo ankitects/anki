@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 15:22+0200\n"
+"POT-Creation-Date: 2009-04-10 16:00+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -399,7 +399,7 @@ msgstr "Première fois la semaine dernière"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:51
+#: importing/__init__.py:51 importing/anki10.py:25
 msgid "Importing..."
 msgstr ""
 
