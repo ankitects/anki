@@ -1046,6 +1046,7 @@ class PreviewDialog(QDialog):
         c = self.cards[self.currentCard]
         self.dialog.webView.setHtml(
             "<style>" + self.deck.css +
+            ("\nhtml { background: %s }" % c.cardModel.lastFontColour) +
             "\ndiv { white-space: pre-wrap; }</style>" +
             mungeQA(self.deck, c.htmlQuestion()) +
             "<br><br><hr><br><br>" +
