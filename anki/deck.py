@@ -135,8 +135,6 @@ class Deck(object):
         self.reviewedAheadCards = []
         self.extraNewCards = 0
         self.reviewEarly = False
-        self.progressHandlerCalled = 0
-        self.progressHandlerEnabled = False
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -2446,6 +2444,8 @@ class DeckStorage(object):
             deck.engine = engine
             deck.Session = session
             deck.needLock = lock
+            deck.progressHandlerCalled = 0
+            deck.progressHandlerEnabled = False
             try:
                 deck.engine.raw_connection().set_progress_handler(
                     deck.progressHandler, 100)
