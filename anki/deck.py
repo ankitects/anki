@@ -135,12 +135,7 @@ class Deck(object):
         self.reviewedAheadCards = []
         self.extraNewCards = 0
         self.reviewEarly = False
-        try:
-            self.progressHandlerCalled = 0
-            self.engine.raw_connection().set_progress_handler(
-                self.progressHandler, 100)
-        except:
-            print "please install pysqlite 2.4 for better progress dialogs"
+        self.progressHandlerCalled = 0
         self.progressHandlerEnabled = False
 
     def modifiedSinceSave(self):
@@ -2451,6 +2446,11 @@ class DeckStorage(object):
             deck.engine = engine
             deck.Session = session
             deck.needLock = lock
+            try:
+                deck.engine.raw_connection().set_progress_handler(
+                    deck.progressHandler, 100)
+            except:
+                print "please install pysqlite 2.4 for better progress dialogs"
             deck.s = SessionHelper(s, lock=lock)
             deck.s.execute("pragma locking_mode = exclusive")
             # force a write lock
@@ -2950,14 +2950,14 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.execute("analyze")
             deck.version = 32
             deck.s.commit()
-        # this check we do regardless of version number since doing it on init
-        # seems to crash
-        if (deck.s.scalar("pragma page_size") == 1024 or
-            deck.s.scalar("pragma legacy_file_format") == 1):
+        # executing a pragma here is very slow on large decks, so we store
+        # our own record
+        if not deck.getInt("pageSize") == 4096:
             deck.s.commit()
             deck.s.execute("pragma page_size = 4096")
             deck.s.execute("pragma legacy_file_format = 0")
             deck.s.execute("vacuum")
+            deck.setVar("pageSize", 4096)
         if prog:
             deck.finishProgress()
         return deck
