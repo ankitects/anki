@@ -1012,6 +1012,7 @@ your deck."""))
                 self.mainWin.minuteLimit.text()) * 60
         except ValueError:
             pass
+        self.deck.flushMod()
         self.updateStudyStats()
 
     def onNewLimitChanged(self, qstr):
@@ -1020,6 +1021,7 @@ your deck."""))
         except ValueError:
             pass
         self.deck.checkDue()
+        self.deck.flushMod()
         self.statusView.redraw()
         self.updateStudyStats()
 
@@ -1129,23 +1131,34 @@ day = :d""", d=yesterday)
         self.mainWin.failedCardsOption.setCurrentIndex(self.deck.getFailedCardPolicy())
 
     def onStartReview(self):
+        def uf(obj, field, value):
+            if getattr(obj, field) != value:
+                setattr(obj, field, value)
+                self.deck.flushMod()
         self.mainWin.studyOptionsFrame.hide()
         # make sure the size is updated before button stack shown
         self.app.processEvents()
         self.config['showStudyOptions'] = self.mainWin.optionsButton.isChecked()
         try:
-            self.deck.newCardsPerDay = int(self.mainWin.newPerDay.text())
-            self.deck.sessionTimeLimit = min(float(
-                self.mainWin.minuteLimit.text()), 3600) * 60
-            self.deck.sessionRepLimit = int(self.mainWin.questionLimit.text())
+            uf(self.deck, 'newCardsPerDay', int(self.mainWin.newPerDay.text()))
+            uf(self.deck, 'sessionTimeLimit', min(float(
+                self.mainWin.minuteLimit.text()), 3600) * 60)
+            uf(self.deck, 'sessionRepLimit',
+               int(self.mainWin.questionLimit.text()))
         except (ValueError, OverflowError):
             pass
-        self.deck.newCardOrder = self.mainWin.newCardOrder.currentIndex()
-        self.deck.newCardSpacing = self.mainWin.newCardScheduling.currentIndex()
-        self.deck.revCardOrder = self.mainWin.revCardOrder.currentIndex()
-        self.deck.setFailedCardPolicy(self.mainWin.failedCardsOption.currentIndex())
+        uf(self.deck, 'newCardOrder',
+           self.mainWin.newCardOrder.currentIndex())
+        uf(self.deck, 'newCardSpacing',
+           self.mainWin.newCardScheduling.currentIndex())
+        uf(self.deck, 'revCardOrder',
+           self.mainWin.revCardOrder.currentIndex())
+        if (self.deck.getFailedCardPolicy() !=
+            self.mainWin.failedCardsOption.currentIndex()):
+            self.deck.setFailedCardPolicy(
+                self.mainWin.failedCardsOption.currentIndex())
+            self.deck.flushMod()
         self.deck.startSession()
-        self.deck.flushMod()
         self.moveToState("getQuestion")
 
     def onStudyOptions(self):
