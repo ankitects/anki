@@ -102,6 +102,8 @@ class AddCards(QDialog):
         # set the new fact
         self.editor.setFact(fact, check=True)
         self.setTabOrder(self.editor.tags, self.addButton)
+        self.setTabOrder(self.addButton, self.closeButton)
+        self.setTabOrder(self.closeButton, self.helpButton)
 
     def addCards(self):
         # make sure updated
