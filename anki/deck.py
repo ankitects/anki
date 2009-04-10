@@ -1847,10 +1847,11 @@ cardTags.tagId in %s""" % ids2str(ids)
             ret = int(ret)
         return ret
 
-    def setVar(self, key, value):
+    def setVar(self, key, value, mod=True):
         self.s.statement("insert or replace into deckVars (key, value) "
                          "values (:key, :value)", key=key, value=value)
-        self.flushMod()
+        if mod:
+            self.flushMod()
 
     # Failed card handling
     ##########################################################################
@@ -2957,7 +2958,8 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.execute("pragma page_size = 4096")
             deck.s.execute("pragma legacy_file_format = 0")
             deck.s.execute("vacuum")
-            deck.setVar("pageSize", 4096)
+            deck.setVar("pageSize", 4096, mod=False)
+            deck.s.commit()
         if prog:
             deck.finishProgress()
         return deck
