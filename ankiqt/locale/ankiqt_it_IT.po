@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 12:41+0200\n"
+"POT-Creation-Date: 2009-04-10 16:01+0900\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -993,7 +993,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866
+#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1526,6 +1526,10 @@ msgstr ""
 #, fuzzy
 msgid "Determining differences..."
 msgstr "Determinazione differenze"
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Finestra di dialogo"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2129,6 +2133,10 @@ msgstr "Aggiungere un nuovo campo prima di procedere."
 msgid "Please add another model first."
 msgstr "Aggiungere un altro modello prima di procedere."
 
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Scegliere un campo col quale ordinare l'elenco."
+
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
 msgstr "Ricontrollare username/password"
@@ -2206,7 +2214,7 @@ msgstr ""
 "Problemi trovati:\n"
 "%s"
 
-#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:224
+#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:226
 #, fuzzy
 msgid "Processing..."
 msgstr "Connessione.."
@@ -2540,7 +2548,7 @@ msgstr "Stato"
 
 #: forms/main.py:954
 #, fuzzy
-msgid "Stop reviewing this card until it's unsuspended in the browser"
+msgid "Stop reviewing this card until it's unsuspended in the editor"
 msgstr "Smetti di ripassare questa carta finchè la tag \"sospesa\" non viene rimossa nell'editor."
 
 #: ui/main.py:1307
@@ -3405,9 +3413,6 @@ msgstr "etichetta"
 #~ msgid "Description"
 #~ msgstr "Descrizione"
 
-#~ msgid "Dialog"
-#~ msgstr "Finestra di dialogo"
-
 #~ msgid "Difficulty"
 #~ msgstr "Difficoltà"
 
@@ -3516,9 +3521,6 @@ msgstr "etichetta"
 
 #~ msgid "Period"
 #~ msgstr "Periodo"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Scegliere un campo col quale ordinare l'elenco."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "Impediscimi di inserire la stessa cosa in questo campo più di una volta"

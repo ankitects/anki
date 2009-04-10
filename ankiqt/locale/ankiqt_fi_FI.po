@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 12:41+0200\n"
+"POT-Creation-Date: 2009-04-10 16:01+0900\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -966,7 +966,7 @@ msgstr ""
 "</ol>\n"
 "Jos se ei korjaa ongelmaa, liitä seuraavat tiedot virheraporttiin:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866
+#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1475,6 +1475,10 @@ msgstr ""
 #: ui/sync.py:103
 msgid "Determining differences..."
 msgstr "Etsitään eroavaisuuksia..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2049,6 +2053,11 @@ msgstr "Lisää ensin kenttä."
 msgid "Please add another model first."
 msgstr "Lisää toinen malli ensin."
 
+#: forms/sort.py:46
+#, fuzzy
+msgid "Please choose a field to sort by."
+msgstr "Lisää ensin kenttä."
+
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
 msgstr "Tarkista käyttäjätunnus ja salasana."
@@ -2124,7 +2133,7 @@ msgstr ""
 "Ongelmia löytyi:\n"
 "%s"
 
-#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:224
+#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:226
 msgid "Processing..."
 msgstr "Käsitellään..."
 
@@ -2443,7 +2452,7 @@ msgstr "Tila"
 
 #: forms/main.py:954
 #, fuzzy
-msgid "Stop reviewing this card until it's unsuspended in the browser"
+msgid "Stop reviewing this card until it's unsuspended in the editor"
 msgstr "Lopettaa tämän kortin kertaamisen kunnes sen jäädytys poistetaan muokkaimella."
 
 #: ui/main.py:1307
@@ -3173,10 +3182,6 @@ msgstr ""
 
 #~ msgid "Open On&line..."
 #~ msgstr "Avaa &verkosta..."
-
-#, fuzzy
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Lisää ensin kenttä."
 
 #~ msgid "Replace"
 #~ msgstr "Korvaa"

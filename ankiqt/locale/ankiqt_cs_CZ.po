@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 12:41+0200\n"
+"POT-Creation-Date: 2009-04-10 16:01+0900\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1001,7 +1001,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866
+#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1523,6 +1523,10 @@ msgstr ""
 #: ui/sync.py:103
 msgid "Determining differences..."
 msgstr ""
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Dialog"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2139,6 +2143,10 @@ msgstr ""
 "Nesmíte smazat poslední model.\n"
 "Prosím vytvořte nejdřív nový model."
 
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Prosím zvolte pole třídění"
+
 #: ui/sync.py:49
 #, fuzzy
 msgid "Please double-check your username/password."
@@ -2218,7 +2226,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:224
+#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:226
 #, fuzzy
 msgid "Processing..."
 msgstr "Probíhá synchronizace..."
@@ -2563,7 +2571,7 @@ msgstr "Stav"
 
 #: forms/main.py:954
 #, fuzzy
-msgid "Stop reviewing this card until it's unsuspended in the browser"
+msgid "Stop reviewing this card until it's unsuspended in the editor"
 msgstr "Ukončit opakování této kartičky, dokud nebude znovu aktivována v editoru."
 
 #: ui/main.py:1307
@@ -3663,9 +3671,6 @@ msgstr ""
 #~ msgid "Description && Synchronisation"
 #~ msgstr "Popis && synchronizace"
 
-#~ msgid "Dialog"
-#~ msgstr "Dialog"
-
 #, fuzzy
 #~ msgid "Disp&lay Properties..."
 #~ msgstr "Vlastnosti &zobrazení"
@@ -3838,9 +3843,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Open On&line..."
 #~ msgstr "Otevřít vzorový soubor..."
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Prosím zvolte pole třídění"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "Prosím dvakrát zkontrolujte přihlašovací jméno"

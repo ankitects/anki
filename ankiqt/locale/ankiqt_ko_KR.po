@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 12:41+0200\n"
+"POT-Creation-Date: 2009-04-10 16:01+0900\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -993,7 +993,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866
+#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "앙키"
@@ -1526,6 +1526,10 @@ msgstr ""
 #, fuzzy
 msgid "Determining differences..."
 msgstr "묶음 비교하는 중.."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "대화상자"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2137,6 +2141,10 @@ msgstr "먼저 새 필드를 추가해 주세요."
 msgid "Please add another model first."
 msgstr "먼저 새 모델을 추가해 주세요."
 
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "정렬 기준이 될 필드를 선택해 주세요."
+
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
 msgstr "아이디와 비밀번호를 다시 확인해 주세요."
@@ -2214,7 +2222,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:224
+#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:226
 #, fuzzy
 msgid "Processing..."
 msgstr "연결 중..."
@@ -2560,7 +2568,7 @@ msgstr "상태"
 
 #: forms/main.py:954
 #, fuzzy
-msgid "Stop reviewing this card until it's unsuspended in the browser"
+msgid "Stop reviewing this card until it's unsuspended in the editor"
 msgstr "현재 카드를 보류합니다. 묶음 편집기에서 해제할 수 있습니다."
 
 #: ui/main.py:1307
@@ -3699,9 +3707,6 @@ msgstr "Latex"
 #~ msgid "Description && Synchronisation"
 #~ msgstr "설명 및 동기화"
 
-#~ msgid "Dialog"
-#~ msgstr "대화상자"
-
 #~ msgid "Difficult"
 #~ msgstr "어려움"
 
@@ -3842,9 +3847,6 @@ msgstr "Latex"
 
 #~ msgid "Percentage of minimum interval"
 #~ msgstr "최소 복습 간격 비율"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "정렬 기준이 될 필드를 선택해 주세요."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "이 필드에 같은 내용이 입력되는 것을 방지"

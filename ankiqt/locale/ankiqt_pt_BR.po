@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 12:41+0200\n"
+"POT-Creation-Date: 2009-04-10 16:01+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Jo Nakashima <jonakashima@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -954,7 +954,7 @@ msgstr ""
 "Se isso não arrumar o problema, por favor copie o seguinte<br>\n"
 "em um bug report:<br><br>\n"
 
-#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866
+#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1469,6 +1469,10 @@ msgstr ""
 #: ui/sync.py:103
 msgid "Determining differences..."
 msgstr "Determinando diferenças..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Diálogo"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2053,6 +2057,10 @@ msgstr "Por favor adicione um novo campo primeiro."
 msgid "Please add another model first."
 msgstr "Por favor adicione outro modelo primeiro."
 
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Por favor escolha um campo para ordenar"
+
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
 msgstr "Por favor verifique seu nome de usuário/senha"
@@ -2131,7 +2139,7 @@ msgstr ""
 "Problema encontrado:\n"
 "%s"
 
-#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:224
+#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:226
 msgid "Processing..."
 msgstr "Processando..."
 
@@ -2451,7 +2459,7 @@ msgstr ""
 
 #: forms/main.py:954
 #, fuzzy
-msgid "Stop reviewing this card until it's unsuspended in the browser"
+msgid "Stop reviewing this card until it's unsuspended in the editor"
 msgstr "Parar de revisar este card até remover a suspensão no editor."
 
 #: ui/main.py:1307
@@ -3142,9 +3150,6 @@ msgstr ""
 #~ msgid "Application-wide preferences."
 #~ msgstr "Preferências da aplicação"
 
-#~ msgid "Dialog"
-#~ msgstr "Diálogo"
-
 #~ msgid "Edit Items"
 #~ msgstr "Editar Itens"
 
@@ -3174,9 +3179,6 @@ msgstr ""
 
 #~ msgid "Open On&line..."
 #~ msgstr "Abrir On&line..."
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Por favor escolha um campo para ordenar"
 
 #~ msgid "Save and S&ync"
 #~ msgstr "Salvar e S&incronizar"

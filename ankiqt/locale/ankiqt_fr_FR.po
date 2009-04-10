@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-09 12:41+0200\n"
+"POT-Creation-Date: 2009-04-10 16:01+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -1011,7 +1011,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866
+#: ui/deckproperties.py:181 ui/main.py:2189 forms/main.py:866 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1547,6 +1547,10 @@ msgstr ""
 #, fuzzy
 msgid "Determining differences..."
 msgstr "Détermination des différences..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Dialogue"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2160,6 +2164,10 @@ msgstr "Veuillez d'abord ajouter un autre champ."
 msgid "Please add another model first."
 msgstr "Veuillez d'abord ajouter un autre modèle."
 
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Choisissez un champ sur lequel trier."
+
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
 msgstr "Veuillez vérifier votre nom d'utilisateur et votre mot de passe."
@@ -2239,7 +2247,7 @@ msgstr ""
 "Problèmes détectés :\n"
 "%s"
 
-#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:224
+#: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:226
 #, fuzzy
 msgid "Processing..."
 msgstr "Connexion..."
@@ -2583,7 +2591,7 @@ msgstr "Statut"
 
 #: forms/main.py:954
 #, fuzzy
-msgid "Stop reviewing this card until it's unsuspended in the browser"
+msgid "Stop reviewing this card until it's unsuspended in the editor"
 msgstr "Arrêter de réviser cette carte jusqu'à ce qu'elle soit dé-suspendue dans l'éditeur."
 
 #: ui/main.py:1307
@@ -4006,9 +4014,6 @@ msgstr "tard"
 #~ msgid "Description && Synchronisation"
 #~ msgstr "Description && Synchronisation"
 
-#~ msgid "Dialog"
-#~ msgstr "Dialogue"
-
 #~ msgid "Difficult"
 #~ msgstr "Difficile"
 
@@ -4244,9 +4249,6 @@ msgstr "tard"
 
 #~ msgid "Period"
 #~ msgstr "Période"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Choisissez un champ sur lequel trier."
 
 #~ msgid "Please double-check your username."
 #~ msgstr "Veuillez vérifier votre nom d'utilisateur."
