@@ -701,10 +701,8 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
     def deckFinishedMsg(self):
         self.resetAfterReviewEarly()
         spaceSusp = ""
-        #c = self.spacedCardCount()
-        #newLeft = self.newCardsPerDay - self.newCardsToday()
         c= self.newSpacedCount()
-        if c: # and newLeft:
+        if c: 
             spaceSusp += ngettext('There is <b>%d</b> delayed new card.',
                                   'There are <b>%d</b> delayed new cards.',
                                   c) % c
