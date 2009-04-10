@@ -701,11 +701,12 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
     def deckFinishedMsg(self):
         self.resetAfterReviewEarly()
         spaceSusp = ""
-        c = self.spacedCardCount()
-        newLeft = self.newCardsPerDay - self.newCardsToday()
-        if c and newLeft:
-            spaceSusp += ngettext('There is <b>%d</b> delayed card.',
-                                  'There are <b>%d</b> delayed cards.',
+        #c = self.spacedCardCount()
+        #newLeft = self.newCardsPerDay - self.newCardsToday()
+        c= self.newSpacedCount()
+        if c: # and newLeft:
+            spaceSusp += ngettext('There is <b>%d</b> delayed new card.',
+                                  'There are <b>%d</b> delayed new cards.',
                                   c) % c
         c2 = self.suspendedCardCount()
         if c2:
@@ -837,6 +838,13 @@ and due < :now""", now=time.time())
         "All new cards, including spaced."
         return self.s.scalar(
             "select count(id) from cards where type = 2")
+            
+    def newSpacedCount(self):
+        "Cards that are both spaced and new."
+        return self.s.scalar("""
+ select count(cards.id) from cards where
+type = 2 and isDue = 0 and priority in (1,2,3,4) and combinedDue > :now
+and due < :now""", now=time.time())
 
     # Card predicates
     ##########################################################################
