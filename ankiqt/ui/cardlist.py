@@ -123,12 +123,22 @@ class DeckModel(QAbstractTableModel):
         sort = ""
         if isinstance(self.sortKey, types.StringType):
             # card property
-            sort = "order by cards." + self.sortKey
+            if self.sortKey == "fact":
+                sort = "order by facts.created, cards.created"
+            else:
+                sort = "order by cards." + self.sortKey
             if self.sortKey in ("question", "answer"):
                 sort += " collate nocase"
-            query = ("select id from cards ")
-            if ads:
-                query += "where %s " % ads
+            if self.sortKey == "fact":
+                query = """
+select cards.id from cards, facts
+where cards.factId = facts.id """
+                if ads:
+                    query += ads + " "
+            else:
+                query = "select id from cards "
+                if ads:
+                    query += "where %s " % ads
             query += sort
         else:
             # field value
@@ -359,6 +369,7 @@ class EditDeck(QMainWindow):
             _("Interval"),
             _("Reps"),
             _("Ease"),
+            _("Fact Created"),
             ]
         self.sortFields = sorted(self.deck.allFields())
         self.sortList.extend([_("'%s'") % f for f in self.sortFields])
@@ -385,8 +396,10 @@ class EditDeck(QMainWindow):
             self.sortKey = "reps"
         elif idx == 7:
             self.sortKey = "factor"
+        elif idx == 8:
+            self.sortKey = "fact"
         else:
-            self.sortKey = ("field", self.sortFields[idx-8])
+            self.sortKey = ("field", self.sortFields[idx-9])
         self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
         self.deck.setVar('sortIndex', idx)
