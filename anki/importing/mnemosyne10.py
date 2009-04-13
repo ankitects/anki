@@ -60,7 +60,7 @@ class Mnemosyne10Importer(Importer):
             card.noCount = item.lapses
             card.reps = card.yesCount + card.noCount
             if item.cat.name != u"<default>":
-                card.tags = item.cat.name
+                card.tags = item.cat.name.replace(" ", "_")
             if card.reps:
                 card.type = 1
             cards.append(card)
