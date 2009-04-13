@@ -182,15 +182,15 @@ class StatusView(object):
             ngettext("There is <b>%d</b> failed card due soon.", \
             "There are <b>%d</b> failed cards due soon.", \
             stats['failed']) % stats['failed'] + "<br>" +
-            ngettext("There is <b>%d</b> card awaiting review.", 
+            ngettext("There is <b>%d</b> card awaiting review.",
             "There are <b>%d</b> cards awaiting review.", \
-            stats['rev']) % stats['rev'] + "<br>" +           
+            stats['rev']) % stats['rev'] + "<br>" +
             ngettext("There is <b>%d</b> new card due today.", \
             "There are <b>%d</b> new cards due today.",\
-            stats['new']) % stats['new'] + "<br><br>" +     
+            stats['new']) % stats['new'] + "<br><br>" +
             ngettext("There is <b>%d</b> new card in total.", \
             "There are <b>%d</b> new cards in total.",\
-            stats['new2']) % stats['new2'] + "<br>" +     
+            stats['new2']) % stats['new2'] + "<br>" +
             ngettext("There is <b>%d</b> delayed card.", \
             "There are <b>%d</b> delayed cards.", \
             stats['spaced']) % stats['spaced'])
