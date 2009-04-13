@@ -695,7 +695,7 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         self.resetAfterReviewEarly()
         spaceSusp = ""
         c= self.newSpacedCount()
-        if c: 
+        if c:
             spaceSusp += ngettext('There is <b>%d</b> delayed new card.',
                                   'There are <b>%d</b> delayed new cards.',
                                   c) % c
@@ -829,7 +829,7 @@ and due < :now""", now=time.time())
         "All new cards, including spaced."
         return self.s.scalar(
             "select count(id) from cards where type = 2")
-            
+
     def newSpacedCount(self):
         "Cards that are both spaced and new."
         return self.s.scalar("""
@@ -2085,7 +2085,7 @@ facts.modelId = fieldModels.modelId and fieldModels.id not in
 (select fieldModelId from fields where factId = facts.id)""")
         if ids:
             self.deleteFacts(ids)
-            problems.append(ngettext("Deleted %d fact with missing fields", 
+            problems.append(ngettext("Deleted %d fact with missing fields",
                             "Deleted %d facts with missing fields", len(ids)) %
                             len(ids))
         # cards missing a fact?
@@ -2093,7 +2093,7 @@ facts.modelId = fieldModels.modelId and fieldModels.id not in
 select id from cards where factId not in (select id from facts)""")
         if ids:
             self.deleteCards(ids)
-            problems.append(ngettext("Deleted %d card with missing fact", 
+            problems.append(ngettext("Deleted %d card with missing fact",
                             "Deleted %d cards with missing fact", len(ids)) %
                             len(ids))
         # cards missing a card model?
@@ -2102,13 +2102,13 @@ select id from cards where cardModelId not in
 (select id from cardModels)""")
         if ids:
             self.deleteCards(ids)
-            problems.append(ngettext("Deleted %d card with no card template", 
+            problems.append(ngettext("Deleted %d card with no card template",
                             "Deleted %d cards with no card template", len(ids)) %
                             len(ids))
         # facts missing a card?
         ids = self.deleteDanglingFacts()
         if ids:
-            problems.append(ngettext("Deleted %d fact with no cards", 
+            problems.append(ngettext("Deleted %d fact with no cards",
                             "Deleted %d facts with no cards", len(ids)) %
                             len(ids))
         # dangling fields?
@@ -2117,7 +2117,7 @@ select id from fields where factId not in (select id from facts)""")
         if ids:
             self.s.statement(
                 "delete from fields where id in %s" % ids2str(ids))
-            problems.append(ngettext("Deleted %d dangling field", 
+            problems.append(ngettext("Deleted %d dangling field",
                             "Deleted %d dangling fields", len(ids)) %
                             len(ids))
         self.s.flush()
