@@ -31,6 +31,7 @@ config = ankiqt.config
 class AnkiQt(QMainWindow):
     def __init__(self, app, config, args):
         QMainWindow.__init__(self)
+        self.errorOccurred = False
         if sys.platform.startswith("darwin"):
             qt_mac_set_menubar_icons(False)
         ankiqt.mw = self
@@ -69,7 +70,6 @@ class AnkiQt(QMainWindow):
             self.moveToState("auto")
         # check for updates
         ui.splash.update()
-        self.errorOccurred = False
         self.setupErrorHandler()
         self.setupMisc()
         self.loadPlugins()
