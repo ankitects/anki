@@ -1336,6 +1336,8 @@ day = :d""", d=yesterday)
 
     def onDelete(self):
         undo = _("Delete")
+        if self.state == "editCurrent":
+            self.moveToState("saveEdit")
         self.deck.setUndoStart(undo)
         self.deck.deleteCard(self.currentCard.id)
         self.reset()
