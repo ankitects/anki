@@ -931,7 +931,6 @@ and due < :now""", now=time.time())
         for cardModel in cms:
             card = anki.cards.Card(fact, cardModel)
             self.flushMod()
-            self.updateCardTags([card.id])
             self.updatePriority(card)
             cards.append(card)
         self.updateFactTags([fact.id])
