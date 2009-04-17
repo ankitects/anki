@@ -32,6 +32,7 @@ class AnkiQt(QMainWindow):
     def __init__(self, app, config, args):
         QMainWindow.__init__(self)
         self.errorOccurred = False
+        self.inDbHandler = False
         if sys.platform.startswith("darwin"):
             qt_mac_set_menubar_icons(False)
         ankiqt.mw = self
@@ -429,6 +430,8 @@ new:
 
     def refreshStatus(self):
         "If triggered when the deck is finished, reset state."
+        if self.inDbHandler:
+            return
         if self.state == "deckFinished":
             # don't try refresh if the deck is closed during a sync
             if self.deck:
@@ -2154,7 +2157,9 @@ it to your friends.
         if self.mainThread != QThread.currentThread():
             return
         self.setBusy()
+        self.inDbHandler = True
         self.app.processEvents()
+        self.inDbHandler = False
 
     def onDbFinished(self):
         if self.mainThread != QThread.currentThread():
@@ -2164,11 +2169,13 @@ it to your friends.
 
     def setBusy(self):
         if not self.busyCursor:
+            self.setEnabled(False)
             self.app.setOverrideCursor(QCursor(Qt.WaitCursor))
             self.busyCursor = True
 
     def unsetBusy(self):
         if self.busyCursor:
+            self.setEnabled(True)
             self.app.restoreOverrideCursor()
             self.busyCursor = None
 

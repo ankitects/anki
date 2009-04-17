@@ -252,6 +252,8 @@ You should aim to answer each question within<br>
             palette.setColor(QPalette.Highlight, QColor("#00ee00"))
 
     def drawTimer(self):
+        if self.main.inDbHandler:
+            return
         if not self.main.config['showTimer']:
             return
         if not self.timer:
@@ -280,6 +282,8 @@ You should aim to answer each question within<br>
         self.timerFlashStart = time.time()
 
     def updateCount(self):
+        if self.main.inDbHandler:
+            return
         if not self.main.deck:
             return
         if self.state in ("showQuestion", "showAnswer", "studyScreen"):
