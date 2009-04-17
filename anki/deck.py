@@ -1784,6 +1784,7 @@ cardTags.tagId in %s""" % ids2str(ids)
     def startProgress(self, max=0, min=0, title=None):
         self.enableProgressHandler()
         runHook("startProgress", max, min, title)
+        self.s.flush()
 
     def updateProgress(self, label=None, value=None):
         runHook("updateProgress", label, value)
