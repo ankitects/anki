@@ -387,6 +387,7 @@ class FactEditor(object):
             w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             w.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             w.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            runHook("makeField", w, field)
             self.fieldsGrid.addWidget(w, n, 1)
             self.fields[field.name] = (field, w)
             self.widgets[w] = field
