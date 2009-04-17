@@ -249,6 +249,12 @@ Please do not file a bug report with Anki.<br><br>""")
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
+                if not self.deck.reviewEarly:
+                    if (self.config['showStudyScreen'] and
+                        not self.deck.sessionStartTime):
+                        return self.moveToState("studyScreen")
+                    if self.deck.sessionLimitReached():
+                        return self.moveToState("studyScreen")
                 if not self.currentCard:
                     self.currentCard = self.deck.getCard()
                 if self.currentCard:
@@ -258,12 +264,6 @@ Please do not file a bug report with Anki.<br><br>""")
                                 # if the same card is being shown and it's not
                                 # due yet, give up
                                 return self.moveToState("deckFinished")
-                    if not self.deck.reviewEarly:
-                        if (self.config['showStudyScreen'] and
-                            not self.deck.sessionStartTime):
-                            return self.moveToState("studyScreen")
-                        if self.deck.sessionLimitReached():
-                            return self.moveToState("studyScreen")
                     self.enableCardMenuItems()
                     return self.moveToState("showQuestion")
                 else:
@@ -283,6 +283,7 @@ Please do not file a bug report with Anki.<br><br>""")
             # make sure the buttons aren't focused
             self.mainWin.congratsLabel.setFocus()
         elif state == "showQuestion":
+            self.reviewingStarted = True
             if self.deck.mediaDir():
                 os.chdir(self.deck.mediaDir())
             self.showAnswerButton()
@@ -556,6 +557,7 @@ new:
 
     def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True):
         "Load a deck and update the user interface. Maybe sync."
+        self.reviewingStarted = False
         # return True on success
         try:
             self.pauseViews()
@@ -1102,17 +1104,16 @@ day = :d""", d=yesterday)
 <td>%s</td></tr></table>""" % (stats1, stats2))
 
     def showStudyScreen(self):
-        initial = self.deck.sessionStartTime == 0
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
         self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
         self.switchToStudyScreen()
         self.updateStudyStats()
         # start reviewing button
         self.mainWin.buttonStack.hide()
-        if initial:
-            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
-        else:
+        if self.reviewingStarted:
             self.mainWin.startReviewingButton.setText(_("Continue &Reviewing"))
+        else:
+            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
         self.mainWin.startReviewingButton.setFocus()
         self.connect(self.mainWin.startReviewingButton,
                      SIGNAL("clicked()"),
