@@ -47,7 +47,7 @@ class FactEditor(object):
         addHook("colourChanged", self.colourChanged)
         removeHook("colourChanged", self.colourChanged)
 
-    def setFact(self, fact, noFocus=False, check=False):
+    def setFact(self, fact, noFocus=False, check=False, scroll=False):
         "Make FACT the current fact."
         self.fact = fact
         self.factState = None
@@ -63,6 +63,8 @@ class FactEditor(object):
         else:
             self.loadFields(check)
         self.widget.show()
+        if scroll:
+            self.fieldsScroll.ensureVisible(0, 0)
         if not noFocus:
             # update focus to first field
             self.fields[self.fact.fields[0].name][1].setFocus()
@@ -109,6 +111,16 @@ class FactEditor(object):
         self.fieldsScroll.setFrameStyle(0)
         self.fieldsScroll.setFocusPolicy(Qt.NoFocus)
         self.fieldsBox.addWidget(self.fieldsScroll)
+        # tags
+        self.tagsBox = QHBoxLayout()
+        self.tagsLabel = QLabel(_("Tags"))
+        self.tagsBox.addWidget(self.tagsLabel)
+        self.tags = ui.tagedit.TagEdit(self.parent)
+        self.tags.connect(self.tags, SIGNAL("lostFocus"),
+                          self.onTagChange)
+        self.tagsBox.addWidget(self.tags)
+        self.fieldsBox.addLayout(self.tagsBox)
+        # icons
         self.iconsBox.setMargin(0)
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         self.iconsBox2.setMargin(0)
@@ -357,14 +369,18 @@ class FactEditor(object):
         fields = self.fact.fields
         self.fields = {}
         self.widgets = {}
+        self.labels = []
         n = 0
         first = True
+        last = None
         for field in fields:
             # label
             l = QLabel(field.name)
+            self.labels.append(l)
             self.fieldsGrid.addWidget(l, n, 0)
             # edit widget
             w = FactEdit(self)
+            last = w
             w.setTabChangesFocus(True)
             w.setAcceptRichText(True)
             w.setMinimumSize(20, 60)
@@ -385,26 +401,14 @@ class FactEditor(object):
                 self.focusTarget = w
                 first = False
             n += 1
-        # tags
-        self.fieldsGrid.addWidget(QLabel(_("Tags")), n, 0)
-        self.tags = ui.tagedit.TagEdit(self.parent)
-        self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.onTagChange)
         # update available tags
         self.tags.setDeck(self.deck)
-        self.fieldsGrid.addWidget(self.tags, n, 1)
         # update fields
         self.loadFields(check)
         self.parent.setUpdatesEnabled(True)
-        # update with timer so we don't delete old one in event handler
-        self.scrollUpdateTimer = QTimer(self.parent)
-        self.scrollUpdateTimer.setSingleShot(True)
-        self.parent.connect(self.scrollUpdateTimer,
-                            SIGNAL("timeout()"), self.onScrollUpdate)
-        self.scrollUpdateTimer.start(0)
-
-    def onScrollUpdate(self):
         self.fieldsScroll.setWidget(self.fieldsFrame)
+        self.tagsLabel.setFixedWidth(max(*[l.width() for l in self.labels]))
+        self.parent.setTabOrder(last, self.tags)
 
     def needToRedraw(self):
         if self.fact is None:
@@ -462,7 +466,6 @@ class FactEditor(object):
                 modified = True
         if modified:
             self.fact.setModified(textChanged=True)
-            self.deck.updateFactTags([self.fact.id])
             self.deck.setModified()
         self.deck.setUndoEnd(n)
 
