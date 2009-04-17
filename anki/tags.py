@@ -47,7 +47,14 @@ insert or ignore into tags
     return s.scalar("select id from tags where tag = :tag", tag=tag)
 
 def tagIds(s, tags):
+    "Return an ID for all tags, creating if necessary."
     ids = {}
+    s.statements("insert or ignore into tags (tag) values (:tag)",
+                [{'tag': t} for t in tags])
+    tagsD = dict(s.all("""
+select lower(tag), id from tags
+where tag in (%s)""" % ",".join([
+        "'%s'" % t.replace("'", "''") for t in tags])))
     for tag in tags:
-        ids[tag.lower()] = tagId(s, tag)
+        ids[tag.lower()] = tagsD[tag.lower()]
     return ids
