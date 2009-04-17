@@ -335,7 +335,7 @@ class FactEditor(object):
         self.latexMathEnv.setStyle(self.plastiqueStyle)
         # html
         self.htmlEdit = QPushButton(self.widget)
-        self.htmlEdit.setToolTip(_("HTML Editor"))
+        self.htmlEdit.setToolTip(_("HTML Editor (Ctrl+F9)"))
         self.htmlEditSC = QShortcut(QKeySequence(_("Ctrl+F9")), self.widget)
         self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
                               self.onHtmlEdit)
