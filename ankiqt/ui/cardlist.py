@@ -402,7 +402,8 @@ class EditDeck(QMainWindow):
             self.sortKey = ("field", self.sortFields[idx-9])
         self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
-        self.deck.setVar('sortIndex', idx)
+        if self.deck.getInt('sortIndex') != idx:
+            self.deck.setVar('sortIndex', idx)
         self.model.sortKey = self.sortKey
         self.model.updateHeader()
         if refresh:
