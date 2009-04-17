@@ -734,7 +734,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         return True
 
     def inMainWindow(self):
-        return True
         return self.app.activeWindow() == self
 
     def onNew(self, initial=False, path=None):
