@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>248</width>
-    <height>268</height>
+    <width>369</width>
+    <height>393</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,26 +16,30 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>&lt;h1>Select tags to suspend&lt;/h1></string>
+      <string>Select tags to suspend. Deselect to unsuspend.</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QListWidget" name="list" >
-     <property name="selectionMode" >
-      <enum>QAbstractItemView::MultiSelection</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" >
+     <item>
+      <widget class="QListWidget" name="list" >
+       <property name="selectionMode" >
+        <enum>QAbstractItemView::MultiSelection</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox" >
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="standardButtons" >
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

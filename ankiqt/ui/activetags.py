@@ -14,10 +14,34 @@ class ActiveTagsChooser(QDialog):
         self.parent = parent
         self.dialog = ankiqt.forms.activetags.Ui_Dialog()
         self.dialog.setupUi(self)
+        self.selectAll = QPushButton(_("Select All"))
+        self.connect(self.selectAll, SIGNAL("clicked()"), self.onSelectAll)
+        self.dialog.buttonBox.addButton(self.selectAll,
+                                        QDialogButtonBox.ActionRole)
+        self.selectNone = QPushButton(_("Select None"))
+        self.connect(self.selectNone, SIGNAL("clicked()"), self.onSelectNone)
+        self.dialog.buttonBox.addButton(self.selectNone,
+                                        QDialogButtonBox.ActionRole)
+        self.invert = QPushButton(_("Invert"))
+        self.connect(self.invert, SIGNAL("clicked()"), self.onInvert)
+        self.dialog.buttonBox.addButton(self.invert,
+                                        QDialogButtonBox.ActionRole)
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.rebuildTagList()
         restoreGeom(self, "activeTags")
+
+    def onSelectAll(self):
+        self.dialog.list.selectAll()
+
+    def onSelectNone(self):
+        self.dialog.list.clearSelection()
+
+    def onInvert(self):
+        sm = self.dialog.list.selectionModel()
+        sel = sm.selection()
+        self.dialog.list.selectAll()
+        sm.select(sel, QItemSelectionModel.Deselect)
 
     def rebuildTagList(self):
         self.tags = self.parent.deck.allTags()
