@@ -28,6 +28,8 @@ class DeckProperties(QDialog):
         self.origMod = self.d.modified
         self.dialog = ankiqt.forms.deckproperties.Ui_DeckProperties()
         self.dialog.setupUi(self)
+        self.dialog.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
+        self.dialog.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         self.readData()
         self.connect(self.dialog.modelsAdd, SIGNAL("clicked()"), self.onAdd)
         self.connect(self.dialog.modelsEdit, SIGNAL("clicked()"), self.onEdit)
