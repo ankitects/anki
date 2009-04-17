@@ -47,7 +47,7 @@ REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
 REV_CARDS_RANDOM = 3
 
-DECK_VERSION = 32
+DECK_VERSION = 33
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -2570,7 +2570,7 @@ create index if not exists ix_factsDeleted_factId on factsDeleted (factId)""")
 create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
         # tags
         deck.s.statement("""
-create index if not exists ix_tags_tag on tags (tag)""")
+create unique index if not exists ix_tags_tag on tags (tag)""")
         deck.s.statement("""
 create index if not exists ix_cardTags_tagCard on cardTags (tagId, cardId)""")
         deck.s.statement("""
@@ -2950,6 +2950,11 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             DeckStorage._addIndices(deck)
             deck.s.execute("analyze")
             deck.version = 32
+            deck.s.commit()
+        if deck.version < 33:
+            deck.s.execute("drop index if exists ix_tags_tag")
+            DeckStorage._addIndices(deck)
+            deck.version = 33
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
