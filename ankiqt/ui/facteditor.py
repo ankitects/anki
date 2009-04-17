@@ -396,6 +396,14 @@ class FactEditor(object):
         # update fields
         self.loadFields(check)
         self.parent.setUpdatesEnabled(True)
+        # update with timer so we don't delete old one in event handler
+        self.scrollUpdateTimer = QTimer(self.parent)
+        self.scrollUpdateTimer.setSingleShot(True)
+        self.parent.connect(self.scrollUpdateTimer,
+                            SIGNAL("timeout()"), self.onScrollUpdate)
+        self.scrollUpdateTimer.start(0)
+
+    def onScrollUpdate(self):
         self.fieldsScroll.setWidget(self.fieldsFrame)
 
     def needToRedraw(self):
@@ -481,7 +489,12 @@ class FactEditor(object):
                                 self.onChangeTimer)
 
     def onChangeTimer(self):
+        from ankiqt import mw
+        interval = 250
         if not self.fact:
+            return
+        if mw.inDbHandler:
+            self.changeTimer.start(interval)
             return
         self.saveFields()
         self.checkValid()
