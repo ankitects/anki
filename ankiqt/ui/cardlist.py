@@ -320,6 +320,10 @@ class EditDeck(QMainWindow):
         if self.parent.currentCard:
             self.currentCard = self.parent.currentCard
         self.focusCurrentCard()
+        if sys.platform.startswith("darwin"):
+            self.macCloseShortcut = QShortcut(QKeySequence("Ctrl+w"), self)
+            self.connect(self.macCloseShortcut, SIGNAL("activated()"),
+                         self.close)
 
     def findCardInDeckModel(self, model, card):
         for i, thisCard in enumerate(model.cards):
