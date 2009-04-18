@@ -67,6 +67,7 @@ color: #13486c;
 class AnkiApp(QApplication):
 
     def event(self, evt):
+        from anki.hooks import runHook
         if evt.type() == QEvent.FileOpen:
             runHook("macLoadEvent", unicode(evt.file()))
             return True
@@ -74,7 +75,6 @@ class AnkiApp(QApplication):
 
 def run():
     import config
-    from anki.hooks import runHook
 
     # home on win32 is broken
     if sys.platform == "win32":
