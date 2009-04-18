@@ -299,11 +299,9 @@ class EditDeck(QMainWindow):
                      SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
                      self.updateFilterLabel)
         self.dialog.tableView.setItemDelegate(StatusDelegate(self, self.model))
-        self.dialog.tableView.setFont(QFont(
-            self.config['editFontFamily'],
-            self.config['editFontSize']))
         if self.deck.getInt("reverseOrder"):
             self.dialog.actionReverseOrder.setChecked(True)
+        self.updateFont()
         self.setupMenus()
         self.setupFilter()
         self.setupSort()
@@ -330,6 +328,14 @@ class EditDeck(QMainWindow):
             if thisCard[0] == card.id:
                 return i
         return -1
+
+    def updateFont(self):
+        self.dialog.tableView.setFont(QFont(
+            self.config['editFontFamily'],
+            self.config['editFontSize']))
+        self.dialog.tableView.verticalHeader().setDefaultSectionSize(
+            self.parent.config['editLineSize'])
+        self.model.reset()
 
     def setupFilter(self):
         self.filterTimer = None
@@ -528,8 +534,6 @@ class EditDeck(QMainWindow):
             self.dialog.tableView.verticalHeader().hide()
             self.dialog.tableView.horizontalHeader().show()
         restoreHeader(self.dialog.tableView.horizontalHeader(), "editor")
-        self.dialog.tableView.verticalHeader().setDefaultSectionSize(
-            self.parent.config['editLineSize'])
         for i in range(2):
             self.dialog.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
         self.dialog.tableView.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
@@ -544,6 +548,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionChangeModel, SIGNAL("triggered()"), self.onChangeModel)
         # edit
+        self.connect(self.dialog.actionFont, SIGNAL("triggered()"), self.onFont)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
@@ -839,6 +844,26 @@ where id in %s""" % ids2str(sf))
 
     def onRedo(self):
         self.deck.redo()
+
+    # Edit: font
+    ######################################################################
+
+    def onFont(self):
+        d = QDialog(self)
+        frm = ankiqt.forms.editfont.Ui_Dialog()
+        frm.setupUi(d)
+        frm.fontCombo.setCurrentFont(QFont(
+            self.parent.config['editFontFamily']))
+        frm.fontSize.setValue(self.parent.config['editFontSize'])
+        frm.lineSize.setValue(self.parent.config['editLineSize'])
+        if d.exec_():
+            self.parent.config['editFontFamily'] = (
+                unicode(frm.fontCombo.currentFont().family()))
+            self.parent.config['editFontSize'] = (
+                int(frm.fontSize.value()))
+            self.parent.config['editLineSize'] = (
+                int(frm.lineSize.value()))
+            self.updateFont()
 
     # Edit: replacing
     ######################################################################

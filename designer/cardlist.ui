@@ -13,14 +13,6 @@
    <string>Browse Items</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>23</y>
-     <width>599</width>
-     <height>439</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
     <property name="spacing" >
      <number>0</number>
@@ -170,7 +162,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit" >
@@ -187,6 +179,8 @@
     <addaction name="actionFindReplace" />
     <addaction name="separator" />
     <addaction name="actionReverseOrder" />
+    <addaction name="separator" />
+    <addaction name="actionFont" />
    </widget>
    <widget class="QMenu" name="menuActions" >
     <property name="title" >
@@ -417,6 +411,11 @@
    </property>
    <property name="text" >
     <string>&amp;Cram...</string>
+   </property>
+  </action>
+  <action name="actionFont" >
+   <property name="text" >
+    <string>Font...</string>
    </property>
   </action>
  </widget>
