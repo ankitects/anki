@@ -408,7 +408,7 @@ class FactEditor(object):
         self.loadFields(check)
         self.parent.setUpdatesEnabled(True)
         self.fieldsScroll.setWidget(self.fieldsFrame)
-        self.tagsLabel.setFixedWidth(max(*[l.width() for l in self.labels]))
+        self.tagsLabel.setFixedWidth(max(*[l.width() for l in self.labels]) + 3)
         self.parent.setTabOrder(last, self.tags)
 
     def needToRedraw(self):
