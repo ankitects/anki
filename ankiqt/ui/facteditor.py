@@ -686,7 +686,8 @@ class FactEditor(object):
             self.deck.mediaDir(create=True)
             w.insertHtml("[latex][/latex]")
             w.moveCursor(QTextCursor.PreviousWord)
-            w.moveCursor(QTextCursor.PreviousWord)
+            if sys.platform.startswith("win32"):
+                w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
 
@@ -696,7 +697,8 @@ class FactEditor(object):
             self.deck.mediaDir(create=True)
             w.insertHtml("[$][/$]")
             w.moveCursor(QTextCursor.PreviousWord)
-            w.moveCursor(QTextCursor.PreviousWord)
+            if sys.platform.startswith("win32"):
+                w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
 
@@ -706,7 +708,8 @@ class FactEditor(object):
             self.deck.mediaDir(create=True)
             w.insertHtml("[$$][/$$]")
             w.moveCursor(QTextCursor.PreviousWord)
-            w.moveCursor(QTextCursor.PreviousWord)
+            if sys.platform.startswith("win32"):
+                w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
 
