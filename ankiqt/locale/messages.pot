@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-18 11:19+0200\n"
+"POT-Creation-Date: 2009-04-18 20:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,7 +36,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:234
+#: ui/status.py:236
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -86,7 +86,7 @@ msgid ""
 "%(b)d unused files removed."
 msgstr ""
 
-#: ui/cardlist.py:895
+#: ui/cardlist.py:920
 #, python-format
 msgid "%(a)d of %(b)d fact updated"
 msgid_plural "%(a)d of %(b)d facts updated"
@@ -100,8 +100,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:217 ui/status.py:222 ui/status.py:226 ui/status.py:228
-#: ui/status.py:230
+#: ui/status.py:217 ui/status.py:219 ui/status.py:224 ui/status.py:228
+#: ui/status.py:230 ui/status.py:232
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -116,7 +116,7 @@ msgstr ""
 msgid "%d exported."
 msgstr ""
 
-#: ui/cardlist.py:459
+#: ui/cardlist.py:465
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -132,7 +132,7 @@ msgstr ""
 msgid "&About..."
 msgstr ""
 
-#: forms/cardlist.py:233
+#: forms/cardlist.py:236
 msgid "&Actions"
 msgstr ""
 
@@ -149,7 +149,7 @@ msgstr ""
 msgid "&Add Source"
 msgstr ""
 
-#: forms/cardlist.py:238
+#: forms/cardlist.py:241
 msgid "&Add Tag..."
 msgstr ""
 
@@ -161,7 +161,7 @@ msgstr ""
 msgid "&Close"
 msgstr ""
 
-#: forms/cardlist.py:263
+#: forms/cardlist.py:266
 msgid "&Cram..."
 msgstr ""
 
@@ -190,7 +190,7 @@ msgstr ""
 msgid "&Delete Source"
 msgstr ""
 
-#: forms/cardlist.py:239
+#: forms/cardlist.py:242
 msgid "&Delete Tag..."
 msgstr ""
 
@@ -206,7 +206,7 @@ msgstr ""
 msgid "&Download..."
 msgstr ""
 
-#: forms/cardlist.py:232 forms/deckproperties.py:335 forms/main.py:887
+#: forms/cardlist.py:235 forms/deckproperties.py:335 forms/main.py:887
 msgid "&Edit"
 msgstr ""
 
@@ -218,7 +218,7 @@ msgstr ""
 msgid "&File"
 msgstr ""
 
-#: forms/cardlist.py:246
+#: forms/cardlist.py:249
 msgid "&Find"
 msgstr ""
 
@@ -230,7 +230,7 @@ msgstr ""
 msgid "&Forum..."
 msgstr ""
 
-#: forms/cardlist.py:240
+#: forms/cardlist.py:243
 msgid "&Generate Cards..."
 msgstr ""
 
@@ -238,7 +238,7 @@ msgstr ""
 msgid "&Get Plugins..."
 msgstr ""
 
-#: forms/cardlist.py:234
+#: forms/cardlist.py:237
 msgid "&Go"
 msgstr ""
 
@@ -246,15 +246,15 @@ msgstr ""
 msgid "&Graphs..."
 msgstr ""
 
-#: forms/cardlist.py:259
+#: forms/cardlist.py:262
 msgid "&Guide..."
 msgstr ""
 
-#: forms/cardlist.py:235 forms/main.py:886
+#: forms/cardlist.py:238 forms/main.py:886
 msgid "&Help"
 msgstr ""
 
-#: forms/importing.py:123
+#: forms/importing.py:100
 msgid "&Import"
 msgstr ""
 
@@ -262,7 +262,7 @@ msgstr ""
 msgid "&Import..."
 msgstr ""
 
-#: forms/cardlist.py:245
+#: forms/cardlist.py:248
 msgid "&Invert Selection"
 msgstr ""
 
@@ -270,7 +270,7 @@ msgstr ""
 msgid "&Kanji Statistics"
 msgstr ""
 
-#: forms/cardlist.py:256
+#: forms/cardlist.py:259
 msgid "&Last Card"
 msgstr ""
 
@@ -290,7 +290,7 @@ msgstr ""
 msgid "&New"
 msgstr ""
 
-#: forms/cardlist.py:250
+#: forms/cardlist.py:253
 msgid "&Next Card"
 msgstr ""
 
@@ -306,7 +306,7 @@ msgstr ""
 msgid "&Preferences"
 msgstr ""
 
-#: forms/cardlist.py:252
+#: forms/cardlist.py:255
 msgid "&Previous Card"
 msgstr ""
 
@@ -314,7 +314,7 @@ msgstr ""
 msgid "&Record Noise Profile..."
 msgstr ""
 
-#: forms/cardlist.py:244 forms/main.py:986
+#: forms/cardlist.py:247 forms/main.py:986
 msgid "&Redo"
 msgstr ""
 
@@ -322,7 +322,7 @@ msgstr ""
 msgid "&Report Bug..."
 msgstr ""
 
-#: forms/cardlist.py:241
+#: forms/cardlist.py:244
 msgid "&Reschedule..."
 msgstr ""
 
@@ -346,11 +346,11 @@ msgstr ""
 msgid "&Tools"
 msgstr ""
 
-#: forms/cardlist.py:243 forms/main.py:962
+#: forms/cardlist.py:246 forms/main.py:962
 msgid "&Undo"
 msgstr ""
 
-#: ui/cardlist.py:379
+#: ui/cardlist.py:385
 #, python-format
 msgid "'%s'"
 msgstr ""
@@ -401,7 +401,7 @@ msgid ""
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"
 msgstr ""
 
-#: ui/cardlist.py:362
+#: ui/cardlist.py:368
 msgid "<Tag filter>"
 msgstr ""
 
@@ -457,12 +457,16 @@ msgstr ""
 msgid "<b>Export format</b>:"
 msgstr ""
 
-#: forms/importing.py:117
-msgid "<b>File to import</b>:"
-msgstr ""
-
 #: forms/findreplace.py:61
 msgid "<b>Find</b>:"
+msgstr ""
+
+#: forms/editfont.py:61
+msgid "<b>Font Size</b>:"
+msgstr ""
+
+#: forms/editfont.py:60
+msgid "<b>Font</b>:"
 msgstr ""
 
 #: forms/deckproperties.py:330
@@ -475,6 +479,10 @@ msgstr ""
 
 #: forms/exporting.py:56
 msgid "<b>Limit to tags</b>:"
+msgstr ""
+
+#: forms/editfont.py:62
+msgid "<b>Line Size</b>:"
 msgstr ""
 
 #: forms/deckproperties.py:331
@@ -546,6 +554,10 @@ msgstr ""
 msgid "<b>Suspended</b>"
 msgstr ""
 
+#: forms/importing.py:97
+msgid "<b>Tags to append</b>:"
+msgstr ""
+
 #: forms/modelproperties.py:287
 msgid "<b>Tags</b>"
 msgstr ""
@@ -559,10 +571,6 @@ msgid ""
 "<b>Uploader</b>: %(author)s<br>\n"
 "<b>Downloads</b>: %(count)s<br>\n"
 "<b>Description</b>:<br>%(description)s"
-msgstr ""
-
-#: forms/importing.py:119
-msgid "<b>Type of file</b>:"
 msgstr ""
 
 #: forms/deckproperties.py:329
@@ -713,7 +721,7 @@ msgstr ""
 msgid "<h1>Well done!</h1>"
 msgstr ""
 
-#: ui/importing.py:198
+#: ui/importing.py:197
 msgid "<ignored>"
 msgstr ""
 
@@ -780,7 +788,7 @@ msgstr ""
 msgid "Add Model"
 msgstr ""
 
-#: ui/cardlist.py:689
+#: ui/cardlist.py:694
 msgid "Add Tags"
 msgstr ""
 
@@ -788,11 +796,11 @@ msgstr ""
 msgid "Add a picture (F3)"
 msgstr ""
 
-#: ui/facteditor.py:822
+#: ui/facteditor.py:831
 msgid "Add an image"
 msgstr ""
 
-#: ui/facteditor.py:851
+#: ui/facteditor.py:860
 msgid "Add audio"
 msgstr ""
 
@@ -834,11 +842,11 @@ msgstr ""
 msgid "Again"
 msgstr ""
 
-#: ui/cardlist.py:863
+#: ui/cardlist.py:888
 msgid "All Fields"
 msgstr ""
 
-#: ui/status.py:220
+#: ui/status.py:222
 msgid "All Reviews"
 msgstr ""
 
@@ -859,7 +867,7 @@ msgstr ""
 msgid "Alternative theme"
 msgstr ""
 
-#: ui/facteditor.py:896
+#: ui/facteditor.py:905
 #, python-format
 msgid "An error occured while opening %s"
 msgstr ""
@@ -900,7 +908,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ui/cardlist.py:48 ui/cardlist.py:369
+#: ui/cardlist.py:48 ui/cardlist.py:375
 msgid "Answer"
 msgstr ""
 
@@ -928,7 +936,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr ""
 
-#: ui/status.py:218 ui/status.py:223
+#: ui/status.py:220 ui/status.py:225
 msgid "Average time per answer: "
 msgstr ""
 
@@ -956,7 +964,7 @@ msgstr ""
 msgid "Brows&e Items..."
 msgstr ""
 
-#: forms/cardlist.py:230
+#: forms/cardlist.py:233
 msgid "Browse Items"
 msgstr ""
 
@@ -964,14 +972,18 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:453
+#: ui/cardlist.py:459
 #, python-format
 msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
 msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/cardlist.py:430
+#: forms/editfont.py:59
+msgid "Browser Font"
+msgstr ""
+
+#: ui/cardlist.py:436
 msgid "Building Index..."
 msgstr ""
 
@@ -983,11 +995,11 @@ msgstr ""
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:783
+#: ui/cardlist.py:788
 msgid "Can only change one model at a time."
 msgstr ""
 
-#: ui/cardlist.py:739 ui/cardlist.py:855
+#: ui/cardlist.py:744 ui/cardlist.py:880
 msgid "Can only operate on one model at a time."
 msgstr ""
 
@@ -1025,20 +1037,20 @@ msgstr ""
 msgid "Cards are waiting"
 msgstr ""
 
-#: ui/importing.py:200
+#: ui/importing.py:199
 msgid "Change"
 msgstr ""
 
-#: ui/cardlist.py:1060
+#: ui/cardlist.py:1085
 #, python-format
 msgid "Change %s to:"
 msgstr ""
 
-#: forms/cardlist.py:260
+#: forms/cardlist.py:263
 msgid "Change &Model..."
 msgstr ""
 
-#: ui/cardlist.py:790 forms/changemodel.py:74
+#: ui/cardlist.py:795 forms/changemodel.py:74
 msgid "Change Model"
 msgstr ""
 
@@ -1070,10 +1082,6 @@ msgstr ""
 msgid "Chinese - Traditional"
 msgstr ""
 
-#: forms/importing.py:118
-msgid "Choose &file..."
-msgstr ""
-
 #: ui/facteditor.py:214
 msgid "Choose colour (F7 then F5)"
 msgstr ""
@@ -1082,18 +1090,8 @@ msgstr ""
 msgid "Choose file to export to"
 msgstr ""
 
-#: ui/importing.py:87
-msgid "Choose file..."
-msgstr ""
-
 #: forms/main.py:982
 msgid "Choose the categories to show during review"
-msgstr ""
-
-#: ui/importing.py:137
-msgid ""
-"Click the close button or import another file.\n"
-"\n"
 msgstr ""
 
 #: ui/tray.py:96
@@ -1146,11 +1144,11 @@ msgstr ""
 msgid "Copy: %s"
 msgstr ""
 
-#: ui/status.py:227
+#: ui/status.py:229
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:221
+#: ui/status.py:218 ui/status.py:223
 msgid "Correct over a month: "
 msgstr ""
 
@@ -1158,7 +1156,7 @@ msgstr ""
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:225
+#: ui/status.py:227
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1166,7 +1164,7 @@ msgstr ""
 msgid "Cram"
 msgstr ""
 
-#: ui/cardlist.py:770
+#: ui/cardlist.py:775
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1175,7 +1173,7 @@ msgstr ""
 msgid "Create '%s' on server"
 msgstr ""
 
-#: ui/cardlist.py:229 ui/cardlist.py:370
+#: ui/cardlist.py:229 ui/cardlist.py:376
 msgid "Created"
 msgstr ""
 
@@ -1208,7 +1206,7 @@ msgstr ""
 msgid "Ctrl+D"
 msgstr ""
 
-#: forms/cardlist.py:237 forms/main.py:989
+#: forms/cardlist.py:240 forms/main.py:989
 msgid "Ctrl+Del"
 msgstr ""
 
@@ -1216,7 +1214,7 @@ msgstr ""
 msgid "Ctrl+E"
 msgstr ""
 
-#: forms/cardlist.py:257
+#: forms/cardlist.py:260
 msgid "Ctrl+End"
 msgstr ""
 
@@ -1224,7 +1222,7 @@ msgstr ""
 msgid "Ctrl+Enter"
 msgstr ""
 
-#: forms/cardlist.py:247 forms/main.py:916
+#: forms/cardlist.py:250 forms/main.py:916
 msgid "Ctrl+F"
 msgstr ""
 
@@ -1232,7 +1230,7 @@ msgstr ""
 msgid "Ctrl+F9"
 msgstr ""
 
-#: forms/cardlist.py:255
+#: forms/cardlist.py:258
 msgid "Ctrl+Home"
 msgstr ""
 
@@ -1240,7 +1238,7 @@ msgstr ""
 msgid "Ctrl+M"
 msgstr ""
 
-#: forms/cardlist.py:251 forms/main.py:900
+#: forms/cardlist.py:254 forms/main.py:900
 msgid "Ctrl+N"
 msgstr ""
 
@@ -1248,7 +1246,7 @@ msgstr ""
 msgid "Ctrl+O"
 msgstr ""
 
-#: forms/cardlist.py:253 forms/main.py:919
+#: forms/cardlist.py:256 forms/main.py:919
 msgid "Ctrl+P"
 msgstr ""
 
@@ -1264,7 +1262,7 @@ msgstr ""
 msgid "Ctrl+S"
 msgstr ""
 
-#: forms/cardlist.py:249
+#: forms/cardlist.py:252
 msgid "Ctrl+Shift+F"
 msgstr ""
 
@@ -1312,7 +1310,7 @@ msgstr ""
 msgid "Current &Model..."
 msgstr ""
 
-#: forms/cardlist.py:231
+#: forms/cardlist.py:234
 msgid "Current Card"
 msgstr ""
 
@@ -1359,11 +1357,11 @@ msgstr ""
 msgid "Deck is already open."
 msgstr ""
 
-#: ui/main.py:1341 forms/cardlist.py:236
+#: ui/main.py:1341 forms/cardlist.py:239
 msgid "Delete"
 msgstr ""
 
-#: ui/cardlist.py:679
+#: ui/cardlist.py:684
 msgid "Delete Cards"
 msgstr ""
 
@@ -1371,7 +1369,7 @@ msgstr ""
 msgid "Delete Refs"
 msgstr ""
 
-#: ui/cardlist.py:698
+#: ui/cardlist.py:703
 msgid "Delete Tags"
 msgstr ""
 
@@ -1435,7 +1433,7 @@ msgstr ""
 msgid "Downloads"
 msgstr ""
 
-#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:372 ui/graphs.py:145
+#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:378 ui/graphs.py:145
 msgid "Due"
 msgstr ""
 
@@ -1448,7 +1446,7 @@ msgstr ""
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr ""
 
-#: ui/cardlist.py:237 ui/cardlist.py:375
+#: ui/cardlist.py:237 ui/cardlist.py:381
 msgid "Ease"
 msgstr ""
 
@@ -1460,7 +1458,7 @@ msgstr ""
 msgid "Easy"
 msgstr ""
 
-#: ui/facteditor.py:461
+#: ui/facteditor.py:467
 msgid "Edit"
 msgstr ""
 
@@ -1484,11 +1482,11 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-#: ui/cardlist.py:687
+#: ui/cardlist.py:692
 msgid "Enter tags to add:"
 msgstr ""
 
-#: ui/cardlist.py:696
+#: ui/cardlist.py:701
 msgid "Enter tags to delete:"
 msgstr ""
 
@@ -1508,11 +1506,11 @@ msgstr ""
 msgid "Export..."
 msgstr ""
 
-#: forms/cardlist.py:248
+#: forms/cardlist.py:251
 msgid "F&act"
 msgstr ""
 
-#: forms/cardlist.py:254
+#: forms/cardlist.py:257
 msgid "F&irst Card"
 msgstr ""
 
@@ -1552,7 +1550,7 @@ msgstr ""
 msgid "F9"
 msgstr ""
 
-#: ui/cardlist.py:376
+#: ui/cardlist.py:382
 msgid "Fact Created"
 msgstr ""
 
@@ -1583,12 +1581,12 @@ msgstr ""
 msgid "Field %d"
 msgstr ""
 
-#: ui/importing.py:191
+#: ui/importing.py:190
 #, python-format
 msgid "Field <b>%d</b> of file is:"
 msgstr ""
 
-#: forms/importing.py:122
+#: forms/importing.py:99
 msgid "Field mapping"
 msgstr ""
 
@@ -1596,11 +1594,11 @@ msgstr ""
 msgid "Fields"
 msgstr ""
 
-#: forms/cardlist.py:262
+#: forms/cardlist.py:265
 msgid "Find and Re&place..."
 msgstr ""
 
-#: ui/cardlist.py:868 forms/findreplace.py:60
+#: ui/cardlist.py:893 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr ""
 
@@ -1610,6 +1608,10 @@ msgstr ""
 
 #: ui/graphs.py:149
 msgid "First Answered"
+msgstr ""
+
+#: forms/cardlist.py:267
+msgid "Font..."
 msgstr ""
 
 #: forms/displayproperties.py:354
@@ -1624,11 +1626,11 @@ msgstr ""
 msgid "General && Fields"
 msgstr ""
 
-#: ui/cardlist.py:749 forms/addcardmodels.py:34
+#: ui/cardlist.py:754 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr ""
 
-#: ui/cardlist.py:755
+#: ui/cardlist.py:760
 msgid "Generating Cards..."
 msgstr ""
 
@@ -1676,11 +1678,12 @@ msgstr ""
 msgid "Ignore this update"
 msgstr ""
 
-#: ui/facteditor.py:821
+#: ui/facteditor.py:830
 msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgstr ""
 
-#: ui/importing.py:118 forms/changemap.py:39 forms/importing.py:115
+#: ui/importing.py:78 ui/importing.py:118 forms/changemap.py:39
+#: forms/importing.py:95
 msgid "Import"
 msgstr ""
 
@@ -1693,11 +1696,7 @@ msgstr ""
 msgid "Import failed: %s\n"
 msgstr ""
 
-#: ui/importing.py:93
-msgid "Import file"
-msgstr ""
-
-#: forms/importing.py:116
+#: forms/importing.py:96
 msgid "Import options"
 msgstr ""
 
@@ -1722,11 +1721,11 @@ msgstr ""
 msgid "Include tags"
 msgstr ""
 
-#: ui/cardlist.py:233 ui/cardlist.py:373 ui/graphs.py:147
+#: ui/cardlist.py:233 ui/cardlist.py:379 ui/graphs.py:147
 msgid "Interval"
 msgstr ""
 
-#: ui/cardlist.py:886
+#: ui/cardlist.py:911
 msgid "Invalid regular expression."
 msgstr ""
 
@@ -1774,7 +1773,7 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: ui/importing.py:139
+#: ui/importing.py:138
 msgid "Log of import:\n"
 msgstr ""
 
@@ -1814,7 +1813,7 @@ msgstr ""
 msgid "Models && Priorities"
 msgstr ""
 
-#: ui/cardlist.py:231 ui/cardlist.py:371
+#: ui/cardlist.py:231 ui/cardlist.py:377
 msgid "Modified"
 msgstr ""
 
@@ -1858,7 +1857,7 @@ msgstr ""
 msgid "Next colour (F7 then F8)"
 msgstr ""
 
-#: ui/facteditor.py:767
+#: ui/facteditor.py:776
 msgid "Next field must be blank."
 msgstr ""
 
@@ -1866,7 +1865,7 @@ msgstr ""
 msgid "No cards matched the provided tags."
 msgstr ""
 
-#: ui/facteditor.py:1047
+#: ui/facteditor.py:1056
 msgid "No cards to preview."
 msgstr ""
 
@@ -1886,11 +1885,11 @@ msgstr ""
 msgid "No meaning in current card."
 msgstr ""
 
-#: ui/cardlist.py:362
+#: ui/cardlist.py:368
 msgid "No tags"
 msgstr ""
 
-#: ui/cardlist.py:1056
+#: ui/cardlist.py:1081
 msgid "Nothing"
 msgstr ""
 
@@ -1974,11 +1973,11 @@ msgstr ""
 msgid "Please enable a different model first."
 msgstr ""
 
-#: ui/cardlist.py:721
+#: ui/cardlist.py:726
 msgid "Please enter a valid start and end range."
 msgstr ""
 
-#: ui/facteditor.py:873
+#: ui/facteditor.py:882
 msgid ""
 "Please install <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "to enable recording."
@@ -2047,7 +2046,7 @@ msgstr ""
 msgid "Put space between question and answer"
 msgstr ""
 
-#: ui/cardlist.py:47 ui/cardlist.py:368
+#: ui/cardlist.py:47 ui/cardlist.py:374
 msgid "Question"
 msgstr ""
 
@@ -2088,7 +2087,7 @@ msgstr ""
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:470 ui/main.py:1936
+#: ui/cardlist.py:476 ui/main.py:1936
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -2129,15 +2128,15 @@ msgstr ""
 msgid "Repeat &Question Audio"
 msgstr ""
 
-#: ui/cardlist.py:871
+#: ui/cardlist.py:896
 msgid "Replacing..."
 msgstr ""
 
-#: ui/cardlist.py:235 ui/cardlist.py:374 ui/graphs.py:151
+#: ui/cardlist.py:235 ui/cardlist.py:380 ui/graphs.py:151
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:705 forms/reschedule.py:79
+#: ui/cardlist.py:710 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr ""
 
@@ -2149,7 +2148,7 @@ msgstr ""
 msgid "Reschedule with initial interval in range:"
 msgstr ""
 
-#: forms/cardlist.py:258
+#: forms/cardlist.py:261
 msgid "Reverse &Order"
 msgstr ""
 
@@ -2214,11 +2213,11 @@ msgstr ""
 msgid "Search:"
 msgstr ""
 
-#: forms/cardlist.py:242
+#: forms/cardlist.py:245
 msgid "Select &All"
 msgstr ""
 
-#: forms/cardlist.py:261
+#: forms/cardlist.py:264
 msgid "Select &Facts"
 msgstr ""
 
@@ -2318,7 +2317,7 @@ msgstr ""
 msgid "Show/Hide"
 msgstr ""
 
-#: ui/addcards.py:118 ui/cardlist.py:570
+#: ui/addcards.py:118 ui/cardlist.py:575
 msgid "Some fields are missing or not unique."
 msgstr ""
 
@@ -2334,7 +2333,7 @@ msgstr ""
 msgid "Sort as numbers"
 msgstr ""
 
-#: ui/facteditor.py:850
+#: ui/facteditor.py:859
 msgid "Sounds (*.mp3 *.ogg *.wav)"
 msgstr ""
 
@@ -2358,7 +2357,7 @@ msgstr ""
 msgid "Startup"
 msgstr ""
 
-#: forms/importing.py:124
+#: forms/importing.py:101
 msgid "Status"
 msgstr ""
 
@@ -2420,7 +2419,7 @@ msgstr ""
 msgid "Tag Cards"
 msgstr ""
 
-#: forms/importing.py:121
+#: forms/importing.py:98
 msgid "Tag facts with duplicate fields instead of deleting"
 msgstr ""
 
@@ -2428,15 +2427,11 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#: forms/importing.py:120
-msgid "Tags to append:"
-msgstr ""
-
 #: ui/main.py:1432
 msgid "Tags to cram:"
 msgstr ""
 
-#: ui/cardlist.py:1132
+#: ui/cardlist.py:1157
 msgid "Targets must be unique."
 msgstr ""
 
@@ -2593,11 +2588,11 @@ msgstr ""
 msgid "Toggle Toolbar"
 msgstr ""
 
-#: ui/status.py:229
+#: ui/status.py:231
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:219 ui/status.py:224
+#: ui/status.py:221 ui/status.py:226
 msgid "Total review time: "
 msgstr ""
 
@@ -2646,7 +2641,7 @@ msgstr ""
 msgid "Unable to reach server"
 msgstr ""
 
-#: ui/importing.py:166
+#: ui/importing.py:165
 #, python-format
 msgid ""
 "Unable to read file.\n"
@@ -2666,7 +2661,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr ""
 
-#: ui/cardlist.py:464 ui/main.py:1930
+#: ui/cardlist.py:470 ui/main.py:1930
 #, python-format
 msgid "Undo %s"
 msgstr ""
@@ -2785,12 +2780,12 @@ msgstr ""
 msgid "late"
 msgstr ""
 
-#: ui/importing.py:194
+#: ui/importing.py:193
 #, python-format
 msgid "mapped to <b>%s</b>"
 msgstr ""
 
-#: ui/importing.py:196
+#: ui/importing.py:195
 msgid "mapped to <b>Tags</b>"
 msgstr ""
 

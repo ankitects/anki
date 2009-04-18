@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-18 11:19+0200\n"
+"POT-Creation-Date: 2009-04-18 20:20+0200\n"
 "PO-Revision-Date: 2008-03-28 17:07+0900\n"
 "Last-Translator: Andrew Wright <guswright80@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:234
+#: ui/status.py:236
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -86,7 +86,7 @@ msgid ""
 "%(b)d unused files removed."
 msgstr ""
 
-#: ui/cardlist.py:895
+#: ui/cardlist.py:920
 #, python-format
 msgid "%(a)d of %(b)d fact updated"
 msgid_plural "%(a)d of %(b)d facts updated"
@@ -100,8 +100,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [ファクト　%(facts)d個]"
 msgstr[1] "%(name)s [ファクト　%(facts)d個]"
 
-#: ui/status.py:217 ui/status.py:222 ui/status.py:226 ui/status.py:228
-#: ui/status.py:230
+#: ui/status.py:217 ui/status.py:219 ui/status.py:224 ui/status.py:228
+#: ui/status.py:230 ui/status.py:232
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -116,7 +116,7 @@ msgstr "%(path)s (ファクト　%(facts)d個, カード　%(cards)d個) - %(tit
 msgid "%d exported."
 msgstr "%d個をエクスポートしました。"
 
-#: ui/cardlist.py:459
+#: ui/cardlist.py:465
 #, fuzzy, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -132,7 +132,7 @@ msgstr "%s前"
 msgid "&About..."
 msgstr "Ankiについて(&A)..."
 
-#: forms/cardlist.py:233
+#: forms/cardlist.py:236
 msgid "&Actions"
 msgstr "アクション(&A)"
 
@@ -149,7 +149,7 @@ msgstr "アイテムを追加..."
 msgid "&Add Source"
 msgstr "ソースを追加(&A)"
 
-#: forms/cardlist.py:238
+#: forms/cardlist.py:241
 msgid "&Add Tag..."
 msgstr "タグを追加(&A)..."
 
@@ -161,7 +161,7 @@ msgstr "カードの統計(&C)"
 msgid "&Close"
 msgstr "閉じる(&C)"
 
-#: forms/cardlist.py:263
+#: forms/cardlist.py:266
 #, fuzzy
 msgid "&Cram..."
 msgstr "フォーラム(&F)..."
@@ -193,7 +193,7 @@ msgstr "削除(&D)"
 msgid "&Delete Source"
 msgstr "ソースを削除(&D)"
 
-#: forms/cardlist.py:239
+#: forms/cardlist.py:242
 msgid "&Delete Tag..."
 msgstr "カードタグを削除(&D)..."
 
@@ -211,7 +211,7 @@ msgstr "Ankiについて(&A)..."
 msgid "&Download..."
 msgstr "Ankiについて(&A)..."
 
-#: forms/cardlist.py:232 forms/deckproperties.py:335 forms/main.py:887
+#: forms/cardlist.py:235 forms/deckproperties.py:335 forms/main.py:887
 msgid "&Edit"
 msgstr "編集(&E)"
 
@@ -224,7 +224,7 @@ msgstr "すべてのプラグインを有効にする(&E)"
 msgid "&File"
 msgstr "フィルタ"
 
-#: forms/cardlist.py:246
+#: forms/cardlist.py:249
 #, fuzzy
 msgid "&Find"
 msgstr "フィルタ"
@@ -238,7 +238,7 @@ msgstr "フォントと色"
 msgid "&Forum..."
 msgstr "フォーラム(&F)..."
 
-#: forms/cardlist.py:240
+#: forms/cardlist.py:243
 #, fuzzy
 msgid "&Generate Cards..."
 msgstr "削除"
@@ -247,7 +247,7 @@ msgstr "削除"
 msgid "&Get Plugins..."
 msgstr "プラグインを取得(&G)..."
 
-#: forms/cardlist.py:234
+#: forms/cardlist.py:237
 msgid "&Go"
 msgstr ""
 
@@ -255,16 +255,16 @@ msgstr ""
 msgid "&Graphs..."
 msgstr "グラフ(&G)..."
 
-#: forms/cardlist.py:259
+#: forms/cardlist.py:262
 #, fuzzy
 msgid "&Guide..."
 msgstr "新規作成(&N)..."
 
-#: forms/cardlist.py:235 forms/main.py:886
+#: forms/cardlist.py:238 forms/main.py:886
 msgid "&Help"
 msgstr "ヘルプ(&H)"
 
-#: forms/importing.py:123
+#: forms/importing.py:100
 msgid "&Import"
 msgstr "インポート(&I)"
 
@@ -272,7 +272,7 @@ msgstr "インポート(&I)"
 msgid "&Import..."
 msgstr "インポート(&I)..."
 
-#: forms/cardlist.py:245
+#: forms/cardlist.py:248
 #, fuzzy
 msgid "&Invert Selection"
 msgstr "文字を反転表示してください。"
@@ -281,7 +281,7 @@ msgstr "文字を反転表示してください。"
 msgid "&Kanji Statistics"
 msgstr "漢字の統計(&K)"
 
-#: forms/cardlist.py:256
+#: forms/cardlist.py:259
 #, fuzzy
 msgid "&Last Card"
 msgstr "前の質問"
@@ -304,7 +304,7 @@ msgstr "スターを付ける(&M)"
 msgid "&New"
 msgstr "新規作成(&N)..."
 
-#: forms/cardlist.py:250
+#: forms/cardlist.py:253
 #, fuzzy
 msgid "&Next Card"
 msgstr "削除"
@@ -322,7 +322,7 @@ msgstr "開く(&O)..."
 msgid "&Preferences"
 msgstr "設定"
 
-#: forms/cardlist.py:252
+#: forms/cardlist.py:255
 #, fuzzy
 msgid "&Previous Card"
 msgstr "プレビュー"
@@ -332,7 +332,7 @@ msgstr "プレビュー"
 msgid "&Record Noise Profile..."
 msgstr "ファイルを選"
 
-#: forms/cardlist.py:244 forms/main.py:986
+#: forms/cardlist.py:247 forms/main.py:986
 msgid "&Redo"
 msgstr "やり直す(&R)"
 
@@ -340,7 +340,7 @@ msgstr "やり直す(&R)"
 msgid "&Report Bug..."
 msgstr "バグを報告(&R)..."
 
-#: forms/cardlist.py:241
+#: forms/cardlist.py:244
 msgid "&Reschedule..."
 msgstr ""
 
@@ -366,11 +366,11 @@ msgstr "保留(&S)"
 msgid "&Tools"
 msgstr "ツール(&T)"
 
-#: forms/cardlist.py:243 forms/main.py:962
+#: forms/cardlist.py:246 forms/main.py:962
 msgid "&Undo"
 msgstr "元に戻す(&U)"
 
-#: ui/cardlist.py:379
+#: ui/cardlist.py:385
 #, python-format
 msgid "'%s'"
 msgstr ""
@@ -426,7 +426,7 @@ msgid ""
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"
 msgstr ""
 
-#: ui/cardlist.py:362
+#: ui/cardlist.py:368
 msgid "<Tag filter>"
 msgstr ""
 
@@ -488,13 +488,19 @@ msgstr "<b>カード</b>"
 msgid "<b>Export format</b>:"
 msgstr "<b>エクスポートファイルの形式</b>"
 
-#: forms/importing.py:117
-msgid "<b>File to import</b>:"
-msgstr "<b>読み込みファイル</b>:"
-
 #: forms/findreplace.py:61
 #, fuzzy
 msgid "<b>Find</b>:"
+msgstr "<b>カード</b>"
+
+#: forms/editfont.py:61
+#, fuzzy
+msgid "<b>Font Size</b>:"
+msgstr "<b>カード</b>"
+
+#: forms/editfont.py:60
+#, fuzzy
+msgid "<b>Font</b>:"
 msgstr "<b>カード</b>"
 
 #: forms/deckproperties.py:330
@@ -509,6 +515,11 @@ msgstr "<b>名前</b>："
 #: forms/exporting.py:56
 msgid "<b>Limit to tags</b>:"
 msgstr "<b>このタグが付いている条件で</b>:"
+
+#: forms/editfont.py:62
+#, fuzzy
+msgid "<b>Line Size</b>:"
+msgstr "<b>カード</b>"
 
 #: forms/deckproperties.py:331
 msgid "<b>Low Priority</b>"
@@ -590,6 +601,11 @@ msgstr "<b>読み込みファイル</b>:"
 msgid "<b>Suspended</b>"
 msgstr "<b>保留</b>"
 
+#: forms/importing.py:97
+#, fuzzy
+msgid "<b>Tags to append</b>:"
+msgstr "このタグを付け加える："
+
 #: forms/modelproperties.py:287
 msgid "<b>Tags</b>"
 msgstr "<b>タグ</b>"
@@ -604,10 +620,6 @@ msgid ""
 "<b>Downloads</b>: %(count)s<br>\n"
 "<b>Description</b>:<br>%(description)s"
 msgstr ""
-
-#: forms/importing.py:119
-msgid "<b>Type of file</b>:"
-msgstr "<b>ファイルの種類</b>:"
 
 #: forms/deckproperties.py:329
 msgid "<b>Very High Priority</b>"
@@ -780,7 +792,7 @@ msgstr "<h1>変更した内容</h1>保存されてない変更内容がありま
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>フィールドモデル</h1>"
 
-#: ui/importing.py:198
+#: ui/importing.py:197
 msgid "<ignored>"
 msgstr "<無視されています>"
 
@@ -850,7 +862,7 @@ msgstr "アイテムを追加"
 msgid "Add Model"
 msgstr "モデル"
 
-#: ui/cardlist.py:689
+#: ui/cardlist.py:694
 #, fuzzy
 msgid "Add Tags"
 msgstr "タグを追加(&A)..."
@@ -859,11 +871,11 @@ msgstr "タグを追加(&A)..."
 msgid "Add a picture (F3)"
 msgstr "画像を追加 (F3)"
 
-#: ui/facteditor.py:822
+#: ui/facteditor.py:831
 msgid "Add an image"
 msgstr "画像を追加"
 
-#: ui/facteditor.py:851
+#: ui/facteditor.py:860
 msgid "Add audio"
 msgstr "音声を追加"
 
@@ -906,12 +918,12 @@ msgstr "上級"
 msgid "Again"
 msgstr ""
 
-#: ui/cardlist.py:863
+#: ui/cardlist.py:888
 #, fuzzy
 msgid "All Fields"
 msgstr "フィールド"
 
-#: ui/status.py:220
+#: ui/status.py:222
 #, fuzzy
 msgid "All Reviews"
 msgstr "復習中"
@@ -933,7 +945,7 @@ msgstr "Ctrl+1"
 msgid "Alternative theme"
 msgstr ""
 
-#: ui/facteditor.py:896
+#: ui/facteditor.py:905
 #, python-format
 msgid "An error occured while opening %s"
 msgstr ""
@@ -982,7 +994,7 @@ msgstr ""
 "設定ファイルを保存できませんでした。\n"
 "%s"
 
-#: ui/cardlist.py:48 ui/cardlist.py:369
+#: ui/cardlist.py:48 ui/cardlist.py:375
 msgid "Answer"
 msgstr "解答"
 
@@ -1010,7 +1022,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr ""
 
-#: ui/status.py:218 ui/status.py:223
+#: ui/status.py:220 ui/status.py:225
 msgid "Average time per answer: "
 msgstr ""
 
@@ -1039,7 +1051,7 @@ msgstr ""
 msgid "Brows&e Items..."
 msgstr "アイテムを追加..."
 
-#: forms/cardlist.py:230
+#: forms/cardlist.py:233
 msgid "Browse Items"
 msgstr ""
 
@@ -1047,14 +1059,19 @@ msgstr ""
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:453
+#: ui/cardlist.py:459
 #, python-format
 msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
 msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/cardlist.py:430
+#: forms/editfont.py:59
+#, fuzzy
+msgid "Browser Font"
+msgstr "解答フォント"
+
+#: ui/cardlist.py:436
 msgid "Building Index..."
 msgstr ""
 
@@ -1067,11 +1084,11 @@ msgstr "フォーラム(&F)..."
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:783
+#: ui/cardlist.py:788
 msgid "Can only change one model at a time."
 msgstr ""
 
-#: ui/cardlist.py:739 ui/cardlist.py:855
+#: ui/cardlist.py:744 ui/cardlist.py:880
 msgid "Can only operate on one model at a time."
 msgstr ""
 
@@ -1112,21 +1129,21 @@ msgstr "カード(&C)"
 msgid "Cards are waiting"
 msgstr ""
 
-#: ui/importing.py:200
+#: ui/importing.py:199
 msgid "Change"
 msgstr "変更"
 
-#: ui/cardlist.py:1060
+#: ui/cardlist.py:1085
 #, fuzzy, python-format
 msgid "Change %s to:"
 msgstr "<h1>カードの易しさ</h1>"
 
-#: forms/cardlist.py:260
+#: forms/cardlist.py:263
 #, fuzzy
 msgid "Change &Model..."
 msgstr "<h1>カードの易しさ</h1>"
 
-#: ui/cardlist.py:790 forms/changemodel.py:74
+#: ui/cardlist.py:795 forms/changemodel.py:74
 #, fuzzy
 msgid "Change Model"
 msgstr "<h1>カードの易しさ</h1>"
@@ -1159,10 +1176,6 @@ msgstr ""
 msgid "Chinese - Traditional"
 msgstr ""
 
-#: forms/importing.py:118
-msgid "Choose &file..."
-msgstr "ファイルを選択する（&f)"
-
 #: ui/facteditor.py:214
 msgid "Choose colour (F7 then F5)"
 msgstr ""
@@ -1171,18 +1184,8 @@ msgstr ""
 msgid "Choose file to export to"
 msgstr "どのファイルに対するエクスポートするか、選択してください。"
 
-#: ui/importing.py:87
-msgid "Choose file..."
-msgstr "ファイルを選"
-
 #: forms/main.py:982
 msgid "Choose the categories to show during review"
-msgstr ""
-
-#: ui/importing.py:137
-msgid ""
-"Click the close button or import another file.\n"
-"\n"
 msgstr ""
 
 #: ui/tray.py:96
@@ -1238,11 +1241,11 @@ msgstr ""
 msgid "Copy: %s"
 msgstr ""
 
-#: ui/status.py:227
+#: ui/status.py:229
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:221
+#: ui/status.py:218 ui/status.py:223
 msgid "Correct over a month: "
 msgstr ""
 
@@ -1250,7 +1253,7 @@ msgstr ""
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:225
+#: ui/status.py:227
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1259,7 +1262,7 @@ msgstr ""
 msgid "Cram"
 msgstr "フォーラム(&F)..."
 
-#: ui/cardlist.py:770
+#: ui/cardlist.py:775
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1268,7 +1271,7 @@ msgstr ""
 msgid "Create '%s' on server"
 msgstr "%sという単語帳をサーバーで作成"
 
-#: ui/cardlist.py:229 ui/cardlist.py:370
+#: ui/cardlist.py:229 ui/cardlist.py:376
 #, fuzzy
 msgid "Created"
 msgstr "登録日"
@@ -1302,7 +1305,7 @@ msgstr "Ctrl+Alt+%d"
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
-#: forms/cardlist.py:237 forms/main.py:989
+#: forms/cardlist.py:240 forms/main.py:989
 #, fuzzy
 msgid "Ctrl+Del"
 msgstr "Ctrl+D"
@@ -1311,7 +1314,7 @@ msgstr "Ctrl+D"
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
-#: forms/cardlist.py:257
+#: forms/cardlist.py:260
 #, fuzzy
 msgid "Ctrl+End"
 msgstr "Ctrl+E"
@@ -1320,7 +1323,7 @@ msgstr "Ctrl+E"
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:247 forms/main.py:916
+#: forms/cardlist.py:250 forms/main.py:916
 #, fuzzy
 msgid "Ctrl+F"
 msgstr "Ctrl+1"
@@ -1330,7 +1333,7 @@ msgstr "Ctrl+1"
 msgid "Ctrl+F9"
 msgstr "Ctrl+1"
 
-#: forms/cardlist.py:255
+#: forms/cardlist.py:258
 #, fuzzy
 msgid "Ctrl+Home"
 msgstr "Ctrl+m"
@@ -1340,7 +1343,7 @@ msgstr "Ctrl+m"
 msgid "Ctrl+M"
 msgstr "Ctrl+1"
 
-#: forms/cardlist.py:251 forms/main.py:900
+#: forms/cardlist.py:254 forms/main.py:900
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
@@ -1348,7 +1351,7 @@ msgstr "Ctrl+N"
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:253 forms/main.py:919
+#: forms/cardlist.py:256 forms/main.py:919
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
@@ -1364,7 +1367,7 @@ msgstr "Ctrl+Return"
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
-#: forms/cardlist.py:249
+#: forms/cardlist.py:252
 #, fuzzy
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+1"
@@ -1415,7 +1418,7 @@ msgstr ""
 msgid "Current &Model..."
 msgstr "モデルをマージ..."
 
-#: forms/cardlist.py:231
+#: forms/cardlist.py:234
 msgid "Current Card"
 msgstr "現在のカード"
 
@@ -1465,11 +1468,11 @@ msgstr "Ankiの単語帳 (*.anki)"
 msgid "Deck is already open."
 msgstr "単語帳は既に開いています。"
 
-#: ui/main.py:1341 forms/cardlist.py:236
+#: ui/main.py:1341 forms/cardlist.py:239
 msgid "Delete"
 msgstr "削除"
 
-#: ui/cardlist.py:679
+#: ui/cardlist.py:684
 #, fuzzy
 msgid "Delete Cards"
 msgstr "削除"
@@ -1479,7 +1482,7 @@ msgstr "削除"
 msgid "Delete Refs"
 msgstr "カードタグを削除(&D)..."
 
-#: ui/cardlist.py:698
+#: ui/cardlist.py:703
 #, fuzzy
 msgid "Delete Tags"
 msgstr "カードタグを削除(&D)..."
@@ -1545,7 +1548,7 @@ msgstr ""
 msgid "Downloads"
 msgstr "Ankiについて(&A)..."
 
-#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:372 ui/graphs.py:145
+#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:378 ui/graphs.py:145
 msgid "Due"
 msgstr ""
 
@@ -1558,7 +1561,7 @@ msgstr "終了(&x)"
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr ""
 
-#: ui/cardlist.py:237 ui/cardlist.py:375
+#: ui/cardlist.py:237 ui/cardlist.py:381
 msgid "Ease"
 msgstr "易しさ"
 
@@ -1571,7 +1574,7 @@ msgstr "易しさ"
 msgid "Easy"
 msgstr "簡単だった"
 
-#: ui/facteditor.py:461
+#: ui/facteditor.py:467
 #, fuzzy
 msgid "Edit"
 msgstr "編集(&E)"
@@ -1598,12 +1601,12 @@ msgstr "有効にする(&b)"
 msgid "English"
 msgstr "英語"
 
-#: ui/cardlist.py:687
+#: ui/cardlist.py:692
 #, fuzzy
 msgid "Enter tags to add:"
 msgstr "このタグを付け加える："
 
-#: ui/cardlist.py:696
+#: ui/cardlist.py:701
 msgid "Enter tags to delete:"
 msgstr ""
 
@@ -1624,12 +1627,12 @@ msgstr "エクスポート"
 msgid "Export..."
 msgstr "エクスポート...(&t)"
 
-#: forms/cardlist.py:248
+#: forms/cardlist.py:251
 #, fuzzy
 msgid "F&act"
 msgstr "ファクト毎に保存する"
 
-#: forms/cardlist.py:254
+#: forms/cardlist.py:257
 #, fuzzy
 msgid "F&irst Card"
 msgstr "<h1>初めて答えた</h1>"
@@ -1670,7 +1673,7 @@ msgstr ""
 msgid "F9"
 msgstr ""
 
-#: ui/cardlist.py:376
+#: ui/cardlist.py:382
 #, fuzzy
 msgid "Fact Created"
 msgstr "登録日"
@@ -1704,12 +1707,12 @@ msgstr ""
 msgid "Field %d"
 msgstr "フィールド %d"
 
-#: ui/importing.py:191
+#: ui/importing.py:190
 #, python-format
 msgid "Field <b>%d</b> of file is:"
 msgstr ""
 
-#: forms/importing.py:122
+#: forms/importing.py:99
 msgid "Field mapping"
 msgstr ""
 
@@ -1717,11 +1720,11 @@ msgstr ""
 msgid "Fields"
 msgstr "フィールド"
 
-#: forms/cardlist.py:262
+#: forms/cardlist.py:265
 msgid "Find and Re&place..."
 msgstr ""
 
-#: ui/cardlist.py:868 forms/findreplace.py:60
+#: ui/cardlist.py:893 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr ""
 
@@ -1734,6 +1737,11 @@ msgstr "終了"
 #, fuzzy
 msgid "First Answered"
 msgstr "<h1>初めて答えた</h1>"
+
+#: forms/cardlist.py:267
+#, fuzzy
+msgid "Font..."
+msgstr "Ankiについて(&A)..."
 
 #: forms/displayproperties.py:354
 msgid "Fonts & Colours"
@@ -1748,12 +1756,12 @@ msgstr "フランス語"
 msgid "General && Fields"
 msgstr "フィールド"
 
-#: ui/cardlist.py:749 forms/addcardmodels.py:34
+#: ui/cardlist.py:754 forms/addcardmodels.py:34
 #, fuzzy
 msgid "Generate Cards"
 msgstr "削除"
 
-#: ui/cardlist.py:755
+#: ui/cardlist.py:760
 #, fuzzy
 msgid "Generating Cards..."
 msgstr "削除"
@@ -1805,11 +1813,12 @@ msgstr ""
 msgid "Ignore this update"
 msgstr ""
 
-#: ui/facteditor.py:821
+#: ui/facteditor.py:830
 msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgstr ""
 
-#: ui/importing.py:118 forms/changemap.py:39 forms/importing.py:115
+#: ui/importing.py:78 ui/importing.py:118 forms/changemap.py:39
+#: forms/importing.py:95
 msgid "Import"
 msgstr "インポート"
 
@@ -1822,11 +1831,7 @@ msgstr ""
 msgid "Import failed: %s\n"
 msgstr "インポートできませんでした： %s"
 
-#: ui/importing.py:93
-msgid "Import file"
-msgstr "インポート"
-
-#: forms/importing.py:116
+#: forms/importing.py:96
 msgid "Import options"
 msgstr "インポートオプション"
 
@@ -1852,11 +1857,11 @@ msgstr ""
 msgid "Include tags"
 msgstr ""
 
-#: ui/cardlist.py:233 ui/cardlist.py:373 ui/graphs.py:147
+#: ui/cardlist.py:233 ui/cardlist.py:379 ui/graphs.py:147
 msgid "Interval"
 msgstr "期間"
 
-#: ui/cardlist.py:886
+#: ui/cardlist.py:911
 msgid "Invalid regular expression."
 msgstr ""
 
@@ -1909,7 +1914,7 @@ msgstr "グラフを集計中。しばらくお待ちください"
 msgid "Loading..."
 msgstr "保存中.."
 
-#: ui/importing.py:139
+#: ui/importing.py:138
 msgid "Log of import:\n"
 msgstr "インポートログ:\n"
 
@@ -1950,7 +1955,7 @@ msgstr "モデルプロパティ"
 msgid "Models && Priorities"
 msgstr "モデルプロパティ"
 
-#: ui/cardlist.py:231 ui/cardlist.py:371
+#: ui/cardlist.py:231 ui/cardlist.py:377
 #, fuzzy
 msgid "Modified"
 msgstr "更新日時"
@@ -1997,7 +2002,7 @@ msgstr "%sという単語帳をサーバーで作成"
 msgid "Next colour (F7 then F8)"
 msgstr ""
 
-#: ui/facteditor.py:767
+#: ui/facteditor.py:776
 msgid "Next field must be blank."
 msgstr ""
 
@@ -2005,7 +2010,7 @@ msgstr ""
 msgid "No cards matched the provided tags."
 msgstr ""
 
-#: ui/facteditor.py:1047
+#: ui/facteditor.py:1056
 msgid "No cards to preview."
 msgstr ""
 
@@ -2025,11 +2030,11 @@ msgstr "このカードは、「表現」のフィールドに入力されてい
 msgid "No meaning in current card."
 msgstr "このカードは、「意味」のフィールドに入力されていません。"
 
-#: ui/cardlist.py:362
+#: ui/cardlist.py:368
 msgid "No tags"
 msgstr ""
 
-#: ui/cardlist.py:1056
+#: ui/cardlist.py:1081
 #, fuzzy
 msgid "Nothing"
 msgstr "インポートオプション"
@@ -2119,11 +2124,11 @@ msgstr "ユーザー名とパスワードを確認してください。"
 msgid "Please enable a different model first."
 msgstr "まず他のモデルを有効してください。"
 
-#: ui/cardlist.py:721
+#: ui/cardlist.py:726
 msgid "Please enter a valid start and end range."
 msgstr ""
 
-#: ui/facteditor.py:873
+#: ui/facteditor.py:882
 msgid ""
 "Please install <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "to enable recording."
@@ -2198,7 +2203,7 @@ msgstr "接続中.."
 msgid "Put space between question and answer"
 msgstr "解答を表示する時に、質問を隠す"
 
-#: ui/cardlist.py:47 ui/cardlist.py:368
+#: ui/cardlist.py:47 ui/cardlist.py:374
 msgid "Question"
 msgstr "質問"
 
@@ -2242,7 +2247,7 @@ msgstr "音声を追加 (F4)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:470 ui/main.py:1936
+#: ui/cardlist.py:476 ui/main.py:1936
 #, fuzzy, python-format
 msgid "Redo %s"
 msgstr "入力された日付"
@@ -2287,16 +2292,16 @@ msgstr "音声を再生(&T)"
 msgid "Repeat &Question Audio"
 msgstr "質問の音声を再生(&Q)"
 
-#: ui/cardlist.py:871
+#: ui/cardlist.py:896
 #, fuzzy
 msgid "Replacing..."
 msgstr "接続中.."
 
-#: ui/cardlist.py:235 ui/cardlist.py:374 ui/graphs.py:151
+#: ui/cardlist.py:235 ui/cardlist.py:380 ui/graphs.py:151
 msgid "Reps"
 msgstr ""
 
-#: ui/cardlist.py:705 forms/reschedule.py:79
+#: ui/cardlist.py:710 forms/reschedule.py:79
 #, fuzzy
 msgid "Reschedule"
 msgstr "スケジューリング"
@@ -2310,7 +2315,7 @@ msgstr "まず新しいカードを入力してください。"
 msgid "Reschedule with initial interval in range:"
 msgstr ""
 
-#: forms/cardlist.py:258
+#: forms/cardlist.py:261
 msgid "Reverse &Order"
 msgstr ""
 
@@ -2384,11 +2389,11 @@ msgstr "閉じる時に自動的に保存する"
 msgid "Search:"
 msgstr "検索(&S)"
 
-#: forms/cardlist.py:242
+#: forms/cardlist.py:245
 msgid "Select &All"
 msgstr "すべてを選択(&A)"
 
-#: forms/cardlist.py:261
+#: forms/cardlist.py:264
 msgid "Select &Facts"
 msgstr "アイテムを削除(&F)"
 
@@ -2497,7 +2502,7 @@ msgstr ""
 msgid "Show/Hide"
 msgstr "表示/隠し"
 
-#: ui/addcards.py:118 ui/cardlist.py:570
+#: ui/addcards.py:118 ui/cardlist.py:575
 msgid "Some fields are missing or not unique."
 msgstr ""
 
@@ -2514,7 +2519,7 @@ msgstr "インポートオプション"
 msgid "Sort as numbers"
 msgstr ""
 
-#: ui/facteditor.py:850
+#: ui/facteditor.py:859
 msgid "Sounds (*.mp3 *.ogg *.wav)"
 msgstr "音 (*.mp3 *.ogg *.wav)"
 
@@ -2539,7 +2544,7 @@ msgstr ""
 msgid "Startup"
 msgstr "ステイタス"
 
-#: forms/importing.py:124
+#: forms/importing.py:101
 msgid "Status"
 msgstr "ステイタス"
 
@@ -2609,7 +2614,7 @@ msgstr "同期が出来ませんでした: %(a)s"
 msgid "Tag Cards"
 msgstr "カード"
 
-#: forms/importing.py:121
+#: forms/importing.py:98
 msgid "Tag facts with duplicate fields instead of deleting"
 msgstr ""
 "インポートするファクトのフィールドは、単語帳の中のファクトのフィールドと二重ある場合は、タグを付ける。\n"
@@ -2619,16 +2624,12 @@ msgstr ""
 msgid "Tags"
 msgstr "タグ"
 
-#: forms/importing.py:120
-msgid "Tags to append:"
-msgstr "このタグを付け加える："
-
 #: ui/main.py:1432
 #, fuzzy
 msgid "Tags to cram:"
 msgstr "このタグを付け加える："
 
-#: ui/cardlist.py:1132
+#: ui/cardlist.py:1157
 #, fuzzy
 msgid "Targets must be unique."
 msgstr "'%s'は一意項目です"
@@ -2804,11 +2805,11 @@ msgstr ""
 msgid "Toggle Toolbar"
 msgstr "簡単ツールバー"
 
-#: ui/status.py:229
+#: ui/status.py:231
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:219 ui/status.py:224
+#: ui/status.py:221 ui/status.py:226
 #, fuzzy
 msgid "Total review time: "
 msgstr "復習中"
@@ -2860,7 +2861,7 @@ msgstr "ファイルを開けませんでした。"
 msgid "Unable to reach server"
 msgstr "サーバーの接続ができませんでした。"
 
-#: ui/importing.py:166
+#: ui/importing.py:165
 #, python-format
 msgid ""
 "Unable to read file.\n"
@@ -2884,7 +2885,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "下線 (Ctrl+u)"
 
-#: ui/cardlist.py:464 ui/main.py:1930
+#: ui/cardlist.py:470 ui/main.py:1930
 #, fuzzy, python-format
 msgid "Undo %s"
 msgstr "%s後"
@@ -3007,12 +3008,12 @@ msgstr ""
 msgid "late"
 msgstr ""
 
-#: ui/importing.py:194
+#: ui/importing.py:193
 #, python-format
 msgid "mapped to <b>%s</b>"
 msgstr "<b>%s</b>へ写像しました"
 
-#: ui/importing.py:196
+#: ui/importing.py:195
 #, fuzzy
 msgid "mapped to <b>Tags</b>"
 msgstr "<b>%s</b>へ写像しました"
@@ -3284,6 +3285,9 @@ msgstr ""
 #~ msgid "<b>Features</b>:"
 #~ msgstr "<b>特別な機能</b>:"
 
+#~ msgid "<b>File to import</b>:"
+#~ msgstr "<b>読み込みファイル</b>:"
+
 #, fuzzy
 #~ msgid "<b>Hours to shift midnight</b>"
 #~ msgstr "<b>質問の隠し</b>"
@@ -3312,6 +3316,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "<b>Target Card Template</b>:"
 #~ msgstr "<h1>カードの易しさ</h1>"
+
+#~ msgid "<b>Type of file</b>:"
+#~ msgstr "<b>ファイルの種類</b>:"
 
 #~ msgid "<b>Unique?"
 #~ msgstr "<b>ユニーク"
@@ -3627,6 +3634,12 @@ msgstr ""
 #~ msgid "Change Template"
 #~ msgstr "<h1>カードの易しさ</h1>"
 
+#~ msgid "Choose &file..."
+#~ msgstr "ファイルを選択する（&f)"
+
+#~ msgid "Choose file..."
+#~ msgstr "ファイルを選"
+
 #~ msgid "Completely forgot"
 #~ msgstr "全然覚えていない。"
 
@@ -3804,6 +3817,9 @@ msgstr ""
 
 #~ msgid "Import failed. Required field '%s' was empty."
 #~ msgstr "インポートできませんでした。必須項目が空っぽでした。"
+
+#~ msgid "Import file"
+#~ msgstr "インポート"
 
 #~ msgid "Importing. Anki will freeze for a while.."
 #~ msgstr "インポート中。しばらくお待ちください"
