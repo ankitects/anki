@@ -2124,8 +2124,6 @@ select id from fields where factId not in (select id from facts)""")
         # fix problems with cards being scheduled when not due
         self.updateProgress()
         self.s.statement("update cards set isDue = 0")
-        # fix problems with conflicts on merge
-        self.s.statement("update fields set id = random()")
         # these sometimes end up null on upgrade
         self.s.statement("update models set source = 0 where source is null")
         self.s.statement(
