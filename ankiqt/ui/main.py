@@ -31,6 +31,8 @@ config = ankiqt.config
 class AnkiQt(QMainWindow):
     def __init__(self, app, config, args):
         QMainWindow.__init__(self)
+        self.errorOccurred = False
+        self.inDbHandler = False
         if sys.platform.startswith("darwin"):
             qt_mac_set_menubar_icons(False)
         ankiqt.mw = self
@@ -69,7 +71,6 @@ class AnkiQt(QMainWindow):
             self.moveToState("auto")
         # check for updates
         ui.splash.update()
-        self.errorOccurred = False
         self.setupErrorHandler()
         self.setupMisc()
         self.loadPlugins()
@@ -248,6 +249,12 @@ Please do not file a bug report with Anki.<br><br>""")
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
+                if not self.deck.reviewEarly:
+                    if (self.config['showStudyScreen'] and
+                        not self.deck.sessionStartTime):
+                        return self.moveToState("studyScreen")
+                    if self.deck.sessionLimitReached():
+                        return self.moveToState("studyScreen")
                 if not self.currentCard:
                     self.currentCard = self.deck.getCard()
                 if self.currentCard:
@@ -257,12 +264,6 @@ Please do not file a bug report with Anki.<br><br>""")
                                 # if the same card is being shown and it's not
                                 # due yet, give up
                                 return self.moveToState("deckFinished")
-                    if not self.deck.reviewEarly:
-                        if (self.config['showStudyScreen'] and
-                            not self.deck.sessionStartTime):
-                            return self.moveToState("studyScreen")
-                        if self.deck.sessionLimitReached():
-                            return self.moveToState("studyScreen")
                     self.enableCardMenuItems()
                     return self.moveToState("showQuestion")
                 else:
@@ -282,6 +283,7 @@ Please do not file a bug report with Anki.<br><br>""")
             # make sure the buttons aren't focused
             self.mainWin.congratsLabel.setFocus()
         elif state == "showQuestion":
+            self.reviewingStarted = True
             if self.deck.mediaDir():
                 os.chdir(self.deck.mediaDir())
             self.showAnswerButton()
@@ -429,6 +431,8 @@ new:
 
     def refreshStatus(self):
         "If triggered when the deck is finished, reset state."
+        if self.inDbHandler:
+            return
         if self.state == "deckFinished":
             # don't try refresh if the deck is closed during a sync
             if self.deck:
@@ -553,6 +557,7 @@ new:
 
     def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True):
         "Load a deck and update the user interface. Maybe sync."
+        self.reviewingStarted = False
         # return True on success
         try:
             self.pauseViews()
@@ -729,7 +734,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         return True
 
     def inMainWindow(self):
-        return True
         return self.app.activeWindow() == self
 
     def onNew(self, initial=False, path=None):
@@ -1099,17 +1103,16 @@ day = :d""", d=yesterday)
 <td>%s</td></tr></table>""" % (stats1, stats2))
 
     def showStudyScreen(self):
-        initial = self.deck.sessionStartTime == 0
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
         self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
         self.switchToStudyScreen()
         self.updateStudyStats()
         # start reviewing button
         self.mainWin.buttonStack.hide()
-        if initial:
-            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
-        else:
+        if self.reviewingStarted:
             self.mainWin.startReviewingButton.setText(_("Continue &Reviewing"))
+        else:
+            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
         self.mainWin.startReviewingButton.setFocus()
         self.connect(self.mainWin.startReviewingButton,
                      SIGNAL("clicked()"),
@@ -1336,6 +1339,8 @@ day = :d""", d=yesterday)
 
     def onDelete(self):
         undo = _("Delete")
+        if self.state == "editCurrent":
+            self.moveToState("saveEdit")
         self.deck.setUndoStart(undo)
         self.deck.deleteCard(self.currentCard.id)
         self.reset()
@@ -2152,7 +2157,9 @@ it to your friends.
         if self.mainThread != QThread.currentThread():
             return
         self.setBusy()
+        self.inDbHandler = True
         self.app.processEvents()
+        self.inDbHandler = False
 
     def onDbFinished(self):
         if self.mainThread != QThread.currentThread():
@@ -2162,11 +2169,13 @@ it to your friends.
 
     def setBusy(self):
         if not self.busyCursor:
+            self.setEnabled(False)
             self.app.setOverrideCursor(QCursor(Qt.WaitCursor))
             self.busyCursor = True
 
     def unsetBusy(self):
         if self.busyCursor:
+            self.setEnabled(True)
             self.app.restoreOverrideCursor()
             self.busyCursor = None
 

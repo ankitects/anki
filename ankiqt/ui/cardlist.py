@@ -320,6 +320,10 @@ class EditDeck(QMainWindow):
         if self.parent.currentCard:
             self.currentCard = self.parent.currentCard
         self.focusCurrentCard()
+        if sys.platform.startswith("darwin"):
+            self.macCloseShortcut = QShortcut(QKeySequence("Ctrl+w"), self)
+            self.connect(self.macCloseShortcut, SIGNAL("activated()"),
+                         self.close)
 
     def findCardInDeckModel(self, model, card):
         for i, thisCard in enumerate(model.cards):
@@ -402,7 +406,8 @@ class EditDeck(QMainWindow):
             self.sortKey = ("field", self.sortFields[idx-9])
         self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
-        self.deck.setVar('sortIndex', idx)
+        if self.deck.getInt('sortIndex') != idx:
+            self.deck.setVar('sortIndex', idx)
         self.model.sortKey = self.sortKey
         self.model.updateHeader()
         if refresh:

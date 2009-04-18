@@ -25,14 +25,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>410</width>
-        <height>334</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Models &amp;&amp; Priorities</string>
       </attribute>
@@ -139,12 +131,18 @@
            <property name="text" >
             <string>&amp;Add</string>
            </property>
+           <property name="autoDefault" >
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="modelsEdit" >
            <property name="text" >
             <string>&amp;Edit</string>
+           </property>
+           <property name="autoDefault" >
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -153,6 +151,9 @@
            <property name="text" >
             <string>&amp;Delete</string>
            </property>
+           <property name="autoDefault" >
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -160,14 +161,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_5" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>375</width>
-        <height>334</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Synchronisation</string>
       </attribute>
@@ -300,14 +293,6 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>346</width>
-        <height>356</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Advanced</string>
       </attribute>

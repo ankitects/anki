@@ -135,7 +135,7 @@ question or answer on all cards."""), parent=self)
         # start a new fact
         f = self.parent.deck.newFact()
         f.tags = self.parent.deck.lastTags
-        self.editor.setFact(f, check=True)
+        self.editor.setFact(f, check=True, scroll=True)
         # let completer know our extra tags
         self.editor.tags.addTags(parseTags(self.parent.deck.lastTags))
         self.maybeSave()

@@ -47,7 +47,7 @@ class FactEditor(object):
         addHook("colourChanged", self.colourChanged)
         removeHook("colourChanged", self.colourChanged)
 
-    def setFact(self, fact, noFocus=False, check=False):
+    def setFact(self, fact, noFocus=False, check=False, scroll=False):
         "Make FACT the current fact."
         self.fact = fact
         self.factState = None
@@ -63,6 +63,8 @@ class FactEditor(object):
         else:
             self.loadFields(check)
         self.widget.show()
+        if scroll:
+            self.fieldsScroll.ensureVisible(0, 0)
         if not noFocus:
             # update focus to first field
             self.fields[self.fact.fields[0].name][1].setFocus()
@@ -109,6 +111,16 @@ class FactEditor(object):
         self.fieldsScroll.setFrameStyle(0)
         self.fieldsScroll.setFocusPolicy(Qt.NoFocus)
         self.fieldsBox.addWidget(self.fieldsScroll)
+        # tags
+        self.tagsBox = QHBoxLayout()
+        self.tagsLabel = QLabel(_("Tags"))
+        self.tagsBox.addWidget(self.tagsLabel)
+        self.tags = ui.tagedit.TagEdit(self.parent)
+        self.tags.connect(self.tags, SIGNAL("lostFocus"),
+                          self.onTagChange)
+        self.tagsBox.addWidget(self.tags)
+        self.fieldsBox.addLayout(self.tagsBox)
+        # icons
         self.iconsBox.setMargin(0)
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         self.iconsBox2.setMargin(0)
@@ -323,7 +335,7 @@ class FactEditor(object):
         self.latexMathEnv.setStyle(self.plastiqueStyle)
         # html
         self.htmlEdit = QPushButton(self.widget)
-        self.htmlEdit.setToolTip(_("HTML Editor"))
+        self.htmlEdit.setToolTip(_("HTML Editor (Ctrl+F9)"))
         self.htmlEditSC = QShortcut(QKeySequence(_("Ctrl+F9")), self.widget)
         self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
                               self.onHtmlEdit)
@@ -357,20 +369,25 @@ class FactEditor(object):
         fields = self.fact.fields
         self.fields = {}
         self.widgets = {}
+        self.labels = []
         n = 0
         first = True
+        last = None
         for field in fields:
             # label
             l = QLabel(field.name)
+            self.labels.append(l)
             self.fieldsGrid.addWidget(l, n, 0)
             # edit widget
             w = FactEdit(self)
+            last = w
             w.setTabChangesFocus(True)
             w.setAcceptRichText(True)
             w.setMinimumSize(20, 60)
             w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             w.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             w.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            runHook("makeField", w, field)
             self.fieldsGrid.addWidget(w, n, 1)
             self.fields[field.name] = (field, w)
             self.widgets[w] = field
@@ -385,18 +402,14 @@ class FactEditor(object):
                 self.focusTarget = w
                 first = False
             n += 1
-        # tags
-        self.fieldsGrid.addWidget(QLabel(_("Tags")), n, 0)
-        self.tags = ui.tagedit.TagEdit(self.parent)
-        self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.onTagChange)
         # update available tags
         self.tags.setDeck(self.deck)
-        self.fieldsGrid.addWidget(self.tags, n, 1)
         # update fields
         self.loadFields(check)
         self.parent.setUpdatesEnabled(True)
         self.fieldsScroll.setWidget(self.fieldsFrame)
+        self.tagsLabel.setFixedWidth(max(*[l.width() for l in self.labels]))
+        self.parent.setTabOrder(last, self.tags)
 
     def needToRedraw(self):
         if self.fact is None:
@@ -454,7 +467,6 @@ class FactEditor(object):
                 modified = True
         if modified:
             self.fact.setModified(textChanged=True)
-            self.deck.updateFactTags([self.fact.id])
             self.deck.setModified()
         self.deck.setUndoEnd(n)
 
@@ -481,7 +493,12 @@ class FactEditor(object):
                                 self.onChangeTimer)
 
     def onChangeTimer(self):
+        from ankiqt import mw
+        interval = 250
         if not self.fact:
+            return
+        if mw.inDbHandler:
+            self.changeTimer.start(interval)
             return
         self.saveFields()
         self.checkValid()
