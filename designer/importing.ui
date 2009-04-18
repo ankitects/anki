@@ -33,44 +33,10 @@
         <property name="spacing" >
          <number>6</number>
         </property>
-        <item row="1" column="0" >
-         <widget class="QLabel" name="label_2" >
-          <property name="text" >
-           <string>&lt;b>File to import&lt;/b>:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1" >
-         <widget class="QPushButton" name="file" >
-          <property name="text" >
-           <string>Choose &amp;file...</string>
-          </property>
-          <property name="default" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0" >
-         <widget class="QLabel" name="label" >
-          <property name="text" >
-           <string>&lt;b>Type of file&lt;/b>:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" >
-         <widget class="QComboBox" name="type" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" >
          <widget class="QLabel" name="label_4" >
           <property name="text" >
-           <string>Tags to append:</string>
+           <string>&lt;b>Tags to append&lt;/b>:</string>
           </property>
          </widget>
         </item>
@@ -178,8 +144,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>type</tabstop>
-  <tabstop>file</tabstop>
   <tabstop>tagDuplicates</tabstop>
   <tabstop>importButton</tabstop>
   <tabstop>status</tabstop>

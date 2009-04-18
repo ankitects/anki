@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, copy, time, sys
+import os, copy, time, sys, re
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki
@@ -53,49 +53,49 @@ class ImportDialog(QDialog):
         self.dialog.setupUi(self)
         self.tags = ui.tagedit.TagEdit(parent)
         self.tags.setDeck(parent.deck)
-        self.dialog.topGrid.addWidget(self.tags,2,1,1,1)
+        self.dialog.topGrid.addWidget(self.tags,0,1,1,1)
         self.setupMappingFrame()
         self.setupOptions()
+        self.getFile()
+        if not self.file:
+            return
+        self.dialog.groupBox.setTitle(os.path.basename(self.file))
+        self.maybePreview()
         self.exec_()
 
     def setupOptions(self):
-        self.file = None
         self.model = self.parent.deck.currentModel
         self.modelChooser = ui.modelchooser.ModelChooser(self,
                                                          self.parent,
                                                          self.parent.deck,
                                                          self.modelChanged)
-        self.importerChanged(0)
-        self.connect(self.dialog.type, SIGNAL("activated(int)"),
-                     self.importerChanged)
-        self.dialog.type.insertItems(0, QStringList(list(zip(*importing.Importers)[0])))
-        self.connect(self.dialog.file, SIGNAL("clicked()"),
-                     self.changeFile)
         self.dialog.modelArea.setLayout(self.modelChooser)
         self.connect(self.dialog.importButton, SIGNAL("clicked()"),
                      self.doImport)
-        self.maybePreview()
 
-    def importerChanged(self, idx):
-        self.importerFunc = zip(*importing.Importers)[1][idx]
+    def getFile(self):
+        key = ";;".join([x[0] for x in importing.Importers])
+        file = ui.utils.getFile(self.parent, _("Import"), "import", key)
+        if not file:
+            self.file = None
+            return
+        self.file = unicode(file)
+        ext = os.path.splitext(self.file)[1]
+        self.importer = None
+        for i in importing.Importers:
+            for mext in re.findall("[( ]?\*\.(.+?)[) ]", i[0]):
+                if ext == "." + mext:
+                    self.importer = i
+                    break
+        if not self.importer:
+            self.importer = importing.Importers[0]
+        self.importerFunc = self.importer[1]
         if self.importerFunc.needMapper:
             self.modelChooser.show()
             self.dialog.tagDuplicates.show()
         else:
             self.modelChooser.hide()
             self.dialog.tagDuplicates.hide()
-        self.dialog.file.setText(_("Choose file..."))
-        self.file = None
-        self.maybePreview()
-
-    def changeFile(self):
-        key = zip(*importing.Importers)[0][self.dialog.type.currentIndex()]
-        file = ui.utils.getFile(self, _("Import file"), "import", key)
-        if not file:
-            return
-        self.file = unicode(file)
-        self.dialog.file.setText(os.path.basename(self.file))
-        self.maybePreview()
 
     def maybePreview(self):
         if self.file and self.model:
@@ -134,7 +134,6 @@ class ImportDialog(QDialog):
         txt = (
             _("Importing complete. %(num)d facts imported from %(file)s.\n") %
             {"num": self.importer.total, "file": os.path.basename(self.file)})
-        txt += _("Click the close button or import another file.\n\n")
         if self.importer.log:
             txt += _("Log of import:\n") + "\n".join(self.importer.log)
         self.dialog.status.setText(txt)
