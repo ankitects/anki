@@ -215,6 +215,8 @@ too often, higher and you're spending too much time reviewing.""")
         tip += "<h2>" + _("Reviews today") + "</h2>"
         tip += "<b>" + _("Correct today: ") + anki.utils.fmtPercentage(stats['dYesTotal%'], point=1)
         tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dYesTotal'], 'totalSum' : stats['dTotal'] } + ")</b><br>"
+        tip += _("Correct over a month: ") + anki.utils.fmtPercentage(stats['dMatureYes%'], point=1)
+        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dMatureYes'], 'totalSum' : stats['dMatureTotal'] } + ")</b><br>"
         tip += _("Average time per answer: ") + anki.utils.fmtTimeSpan(stats['dAverageTime'], point=2) +"<br>"
         tip += _("Total review time: ") + anki.utils.fmtTimeSpan(stats['dReviewTime'], point=2)
         tip += "<h2>" + _("All Reviews") + "</h2>"
