@@ -721,14 +721,14 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
     # Priorities
     ##########################################################################
 
-    def updateAllPriorities(self, partial=False):
+    def updateAllPriorities(self, partial=False, dirty=True):
         "Update all card priorities if changed."
         new = self.updateTagPriorities()
         if not partial:
             new = self.s.all("select id, priority as pri from tags")
         cids = self.s.column0("select cardId from cardTags where tagId in %s" %
                               ids2str([x['id'] for x in new]))
-        self.updatePriorities(cids)
+        self.updatePriorities(cids, dirty=dirty)
 
     def updateTagPriorities(self):
         "Update priority setting on tags table."
@@ -755,7 +755,7 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
            new)
         return new
 
-    def updatePriorities(self, cardIds, suspend=[]):
+    def updatePriorities(self, cardIds, suspend=[], dirty=True):
         # any tags to suspend
         if suspend:
             ids = tagIds(self.s, suspend)
@@ -773,9 +773,13 @@ from cardTags, tags
 where cardTags.tagId = tags.id
 and cardTags.cardId in %s
 group by cardTags.cardId""" % ids2str(cardIds))
+        if dirty:
+            extra = ", modified = :m "
+        else:
+            extra = ""
         self.s.statements(
-            "update cards set priority = :pri where id = :id",
-            [{'id': c[0], 'pri': c[1]} for c in cards])
+            "update cards set priority = :pri %s where id = :id" % extra,
+            [{'id': c[0], 'pri': c[1], 'm': time.time()} for c in cards])
         self.s.execute(
             "update cards set isDue = 0 where type in (0,1,2) and "
             "priority = 0 and isDue = 1")
@@ -2698,7 +2702,7 @@ order by priority desc, due desc""")
         if deck.version == 2:
             # compensate for bug in 0.9.7 by rebuilding isDue and priorities
             deck.s.statement("update cards set isDue = 0")
-            deck.updateAllPriorities()
+            deck.updateAllPriorities(dirty=False)
             # compensate for bug in early 0.9.x where fieldId was not unique
             deck.s.statement("update fields set id = random()")
             deck.version = 3
@@ -2897,7 +2901,7 @@ where interval < 1""")
         if deck.version < 27:
             DeckStorage._addIndices(deck)
             deck.updateCardTags()
-            deck.updateAllPriorities()
+            deck.updateAllPriorities(dirty=False)
             deck.version = 27
             deck.s.commit()
         if deck.version < 28:
