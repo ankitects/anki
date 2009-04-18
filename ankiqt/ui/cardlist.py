@@ -134,7 +134,7 @@ class DeckModel(QAbstractTableModel):
 select cards.id from cards, facts
 where cards.factId = facts.id """
                 if ads:
-                    query += ads + " "
+                    query += "and " + ads + " "
             else:
                 query = "select id from cards "
                 if ads:
