@@ -503,6 +503,8 @@ class EditDeck(QMainWindow):
         self.updateSearch()
 
     def updateSearch(self, force=True):
+        if self.parent.inDbHandler:
+            return
         idx = self.dialog.tableView.currentIndex()
         row = idx.row()
         self.model.searchStr = unicode(self.dialog.filterEdit.text())
