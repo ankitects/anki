@@ -1,22 +1,22 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Anki mongolian localization.
+# Copyright (C) 2009
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# Charlene Barina <charlener@gmail.com>, 2009
 msgid ""
 msgstr ""
-"Project-Id-Version: ankiqt 0.9.9.6\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-04-20 23:47+0900\n"
-"PO-Revision-Date: 2009-04-18 20:22+0100\n"
-"Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
-"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"PO-Revision-Date: 2009-04-19 00:56+0600\n"
+"Last-Translator: Charlene <charlener@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Poedit-Language: Swedish\n"
-"X-Poedit-Country: Sweden\n"
+"Language: mn\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 0.3.1\n"
+"X-Poedit-Bookmarks: -1,132,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: ui/about.py:13
 #, python-format
@@ -39,17 +39,17 @@ msgstr ""
 "\n"
 "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
 "<p>\n"
-"Anki är ett vänligt, intelligent tidsfördelat inlärningssystem. Det är fritt och med öppen\n"
-"källkod.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Besök hemsidan</a></span>\n"
+"\"Анки\" гэж ажиллахад хялбар ба ухаалаг зайны боловсролын тогтолцоо юм. Анки нь үнэгүй ба нээлттэй\n"
+"эхийн юм.<p>\n"
+"Хувилбар %(ver)s<br>\n"
+"<a href=\"http://ichi2.net/anki/\">Веб сайтыг орчих</a></span>\n"
 "<p>\n"
-"Skrivet av Damien Elmes, med patchar, översättning, uttestning och utformning av:<p>%(cont)s\n"
+"Зохиогч: Дамиэн Элмэс. Дараагийн хүмүүс засварлагч, орчуулагч, хяналт, бас өөр зохиолыг тусалсан:<p>%(cont)s\n"
 "<p>\n"
-"Om du har bidragit och inte finns med på denna lista, kontakta oss.\n"
+"Та энэ программыг нэмэрлээд нэрээ нь өмнө жагсаалтын дээр байхгүй бол намайг хэлээрэй.\n"
 "<p>\n"
-"Ett stort tack till alla som har kommit med förslag, felrapporter och\n"
-"donationer."
+"A big thanks to all the people who have provided suggestions, bug reports and\n"
+"donations."
 
 #: ui/status.py:236
 msgid ""
@@ -62,44 +62,44 @@ msgid ""
 "10 seconds. Click the timer to learn more."
 msgstr ""
 "\n"
-"<h1>Tid</h1>\n"
-"Anki håller reda på hur länge du tittar på varje kort.<br>\n"
-"Denna tid används för att beräkna ETA men inte <br>\n"
-"för att schemalägga.<br><br>\n"
-"Du bör försöka besvara varje fråga inom<br>\n"
-"10 sekunder. Klicka på tidtagaren för att få veta mer."
+"<h1>Цаг</h1>\n"
+"Анки хэдэн цагийн хүртэл та картыг үзэхийг бүртгэл хөтөлдөг.<br>\n"
+"Ийм цагаар нийтийн давтлагыг тооцох боловч төлөвлөлтийг<br>\n"
+"хийдэггүй.<br><br>\n"
+"Та асуултын аль алт 10 секундийн дотор хариулах<br>\n"
+"хийх гэж оролдоно. Эдийн тухай илүү мэдээлэл харахаар секунд хэмжигчийн дээр дар."
 
 #: ui/sound.py:19
 msgid "  Stop"
-msgstr "Stopp"
+msgstr "  Зогс"
 
 #: ui/sync.py:139
 #, python-format
 msgid " * %s fetching payload..."
-msgstr " * %s hämtar nyttolast..."
+msgstr " * %s мэдээллийн хэсэг авч явж байна..."
 
 #: ui/sync.py:136
 #, python-format
 msgid " * %s no changes found."
-msgstr " * %s inga ändringar hittades."
+msgstr " * %s өөрчлөлт бүү олсон."
 
 #: ui/sync.py:133
 #, python-format
 msgid " * %s no longer exists."
-msgstr " * %s finns inte längre."
+msgstr " * %s байхгүй."
 
 #: forms/displayproperties.py:370
 msgid " <b>When editing (overrides above):</b>"
-msgstr " <b>Vid ändring (företräde framför ovan):</b>"
+msgstr " <b>Засварлахдаа (дээрхийг нь орлоно):</b>"
 
 #: forms/displayproperties.py:366
 msgid " <b>When reviewing and editing:</b>"
-msgstr " <b>Vid repetition och ändring:</b>"
+msgstr " <b>Давтаад сурахдаа:</b>"
 
 #: ui/sync.py:141
 #, python-format
 msgid " applied %d modified cards."
-msgstr "tillämpade %d ändrade kort."
+msgstr " %d өөрчилсөн картуудыг хэрэглэсэн."
 
 #: ui/main.py:2241
 #, python-format
@@ -107,272 +107,272 @@ msgid ""
 "%(a)d missing references.\n"
 "%(b)d unused files removed."
 msgstr ""
-"%(a)d saknade referenser.\n"
-"%(b)d oanvända filer borttagna."
+"%(a)d дутсан ишлэлүүд.\n"
+"%(b)d хэрэггүй файлуудыг устгасан."
 
 #: ui/cardlist.py:920
 #, python-format
 msgid "%(a)d of %(b)d fact updated"
 msgid_plural "%(a)d of %(b)d facts updated"
-msgstr[0] "%(a)d av %(b)d faktauppgift uppdaterade"
-msgstr[1] "%(a)d av %(b)d faktauppgifter uppdaterade"
+msgstr[0] "%(b)d-с %(a)d баримтыг шинэчилсэн"
+msgstr[1] "%(b)d-с %(a)d баримтуудыг шинэчилсэн"
 
 #: ui/deckproperties.py:107
 #, python-format
 msgid "%(name)s [%(facts)d fact]"
 msgid_plural "%(name)s [%(facts)d facts]"
-msgstr[0] "%(name)s [%(facts)d faktauppgift]"
-msgstr[1] "%(name)s [%(facts)d faktauppgifter]"
+msgstr[0] "%(name)s [%(facts)d баримт]"
+msgstr[1] "%(name)s [%(facts)d баримтууд]"
 
 #: ui/status.py:217 ui/status.py:219 ui/status.py:224 ui/status.py:228
 #: ui/status.py:230 ui/status.py:232
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
-msgstr "%(partOf)d av %(totalSum)d"
+msgstr "%(totalSum)d-с %(partOf)d"
 
 #: ui/main.py:1854
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
-msgstr "%(path)s (%(due)d av %(cards)d är dags att repetera) - %(title)s"
+msgstr "%(path)s (%(cards)d-с %(due)d-г цаг хугацаа болсон) - %(title)s"
 
 #: ui/exporting.py:76
 #, python-format
 msgid "%d exported."
-msgstr "%d exporterades."
+msgstr "%d экспортолсон."
 
 #: ui/cardlist.py:465
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
-msgstr[0] "%d valt"
-msgstr[1] "%d valda"
+msgstr[0] "%d-г сонгосон"
+msgstr[1] "%d-г сонгосон"
 
 #: ui/cardlist.py:209
 #, python-format
 msgid "%s ago"
-msgstr "%s sedan"
+msgstr "%s-н өмнө"
 
 #: forms/main.py:934
 msgid "&About..."
-msgstr "&Om..."
+msgstr "&Тухай..."
 
 #: forms/cardlist.py:234
 msgid "&Actions"
-msgstr "&Åtgärder"
+msgstr "&Үйлдлүүд"
 
 #: forms/deckproperties.py:336 forms/modelproperties.py:291
 #: forms/modelproperties.py:304
 msgid "&Add"
-msgstr "&Lägg till"
+msgstr "&Нэм"
 
 #: forms/main.py:909
 msgid "&Add Items..."
-msgstr "&Lägg till poster..."
+msgstr "&Зүйлийг нэм"
 
 #: forms/deckproperties.py:348
 msgid "&Add Source"
-msgstr "&Lägg till källa"
+msgstr "&Эх үүсвэрийг нэм"
 
 #: forms/cardlist.py:239
 msgid "&Add Tag..."
-msgstr "&Lägg till etikett..."
+msgstr "&Шошгыг нэм"
 
 #: forms/main.py:935
 msgid "&Card Statistics"
-msgstr "&Kortstatistik"
+msgstr "&Картын статистикс"
 
 #: forms/main.py:901
 msgid "&Close"
-msgstr "S&täng"
+msgstr "&Xaa"
 
 #: forms/cardlist.py:264
 msgid "&Cram..."
-msgstr "&Råplugga..."
+msgstr "&Оройтож бэлтгэх"
 
 #: forms/main.py:937
 msgid "&Deck Properties..."
-msgstr "&Kortleksegenskaper..."
+msgstr "&Цуглуулгын чанар"
 
 #: forms/main.py:929
 msgid "&Deck Statistics"
-msgstr "Kort&leksstatistik"
+msgstr "&Цуглуулгын статистикс"
 
 #: forms/deckproperties.py:338 forms/modelproperties.py:294
 #: forms/modelproperties.py:309
 msgid "&Delete"
-msgstr "&Ta bort"
+msgstr "&Устга"
 
 #: forms/main.py:985
 msgid "&Delete Card"
-msgstr "&Ta bort kort"
+msgstr "&Картыг устга"
 
 #: forms/main.py:988
 msgid "&Delete Fact"
-msgstr "&Ta bort faktauppgift"
+msgstr "&Баримтыг устга"
 
 #: forms/deckproperties.py:349
 msgid "&Delete Source"
-msgstr "&Ta bort källa"
+msgstr "&Эх үүсвэрийг устга"
 
 #: forms/cardlist.py:240
 msgid "&Delete Tag..."
-msgstr "&Ta bort etikett..."
+msgstr "&Шошгыг устга..."
 
 #: forms/main.py:977
 msgid "&Disable All Plugins"
-msgstr "A&vaktivera alla insticksmoduler"
+msgstr "&Бүх хавсарга програмыг унтраалт"
 
 #: forms/main.py:995
 msgid "&Donate..."
-msgstr "&Donera..."
+msgstr "&Бэлэглэх..."
 
 #: forms/main.py:888
 msgid "&Download..."
-msgstr "&Hämta..."
+msgstr "&Тат..."
 
 #: forms/cardlist.py:233 forms/deckproperties.py:337 forms/main.py:885
 msgid "&Edit"
-msgstr "&Redigera"
+msgstr "&Засварла"
 
 #: forms/main.py:976
 msgid "&Enable All Plugins"
-msgstr "&Aktivera alla insticksmoduler"
+msgstr "&Бүх хавсарга програмыг асаалт"
 
 #: forms/main.py:886
 msgid "&File"
-msgstr "&Arkiv"
+msgstr "&Файл"
 
 #: forms/cardlist.py:247
 msgid "&Find"
-msgstr "&Sök"
+msgstr "&Хайлт"
 
 #: forms/main.py:945
 msgid "&Fonts and Colours..."
-msgstr "&Typsnitt och färger..."
+msgstr "&Фонт бичиг бас өнгөнүүд..."
 
 #: forms/main.py:962
 msgid "&Forum..."
-msgstr "&Forum..."
+msgstr "&Форум..."
 
 #: forms/cardlist.py:241
 msgid "&Generate Cards..."
-msgstr "&Skapa kort..."
+msgstr "&Картыг гарга..."
 
 #: forms/main.py:974
 msgid "&Get Plugins..."
-msgstr "&Hämta insticksmoduler..."
+msgstr "&Хавсарга програмыг ав..."
 
 #: forms/cardlist.py:235
 msgid "&Go"
-msgstr "&Gå"
+msgstr "&Оч"
 
 #: forms/main.py:941
 msgid "&Graphs..."
-msgstr "&Grafer..."
+msgstr "&Диаграммууд"
 
 #: forms/cardlist.py:260
 msgid "&Guide..."
-msgstr "&Manual..."
+msgstr "&Гарын авлага..."
 
 #: forms/cardlist.py:236 forms/main.py:884
 msgid "&Help"
-msgstr "&Hjälp"
+msgstr "&Тусламж"
 
 #: forms/importing.py:100
 msgid "&Import"
-msgstr "&Importera"
+msgstr "И&мпорт"
 
 #: forms/main.py:939
 msgid "&Import..."
-msgstr "&Importera..."
+msgstr "Им&порт..."
 
 #: forms/cardlist.py:246
 msgid "&Invert Selection"
-msgstr "&Invertera markering"
+msgstr "&Сонголтыг чанх эсрэг"
 
 #: forms/main.py:928
 msgid "&Kanji Statistics"
-msgstr "&Kanjistatistik"
+msgstr "&Канжий (Япон хэлний тэмдгийн) статистикс"
 
 #: forms/cardlist.py:257
 msgid "&Last Card"
-msgstr "&Sista kort"
+msgstr "&Сүүлийн карт"
 
 #: forms/main.py:882
 msgid "&Learn More"
-msgstr "&Lär dig mer"
+msgstr "&Илүү нь сур"
 
 #: forms/main.py:890
 msgid "&Lookup"
-msgstr "S&lå upp"
+msgstr "&Хайлт"
 
 #: forms/main.py:948
 msgid "&Mark Fact"
-msgstr "&Markera faktauppgift"
+msgstr "&Баримтыг тэмдэглэх"
 
 #: forms/main.py:897
 msgid "&New"
-msgstr "&Ny"
+msgstr "&Шинэ"
 
 #: forms/cardlist.py:251
 msgid "&Next Card"
-msgstr "&Nästa kort"
+msgstr "&Дараагийн карт"
 
 #: forms/main.py:975
 msgid "&Open Plugin Folder..."
-msgstr "&Öppna katalog för insticksmoduler..."
+msgstr "&Хавсарга програмын хавтсыг нээ..."
 
 #: forms/main.py:899
 msgid "&Open..."
-msgstr "&Öppna..."
+msgstr "&Нээ..."
 
 #: forms/main.py:915
 msgid "&Preferences"
-msgstr "&Inställningar"
+msgstr "&Тохиргоо"
 
 #: forms/cardlist.py:253
 msgid "&Previous Card"
-msgstr "&Föregående kort"
+msgstr "&Өмнөх карт"
 
 #: forms/main.py:996
 msgid "&Record Noise Profile..."
-msgstr "&Spela in brusprofil"
+msgstr "&Чимээг дарахын тохиргоог дуу хураах..."
 
 #: forms/cardlist.py:245 forms/main.py:984
 msgid "&Redo"
-msgstr "&Gör om"
+msgstr "&Дахин хий"
 
 #: forms/main.py:932
 msgid "&Report Bug..."
-msgstr "&Rapportera fel..."
+msgstr "&Алдааг хэлэх..."
 
 #: forms/cardlist.py:242
 msgid "&Reschedule..."
-msgstr "&Ändra schema..."
+msgstr "&Дахин төлөвлөх..."
 
 #: forms/main.py:903
 msgid "&Save"
-msgstr "&Spara"
+msgstr "&Хадгал"
 
 #: forms/main.py:892
 msgid "&Settings"
-msgstr "&Inställningar"
+msgstr "&Тохиргоо"
 
 #: forms/main.py:993
 msgid "&Study Options..."
-msgstr "In&studeringsalternativ..."
+msgstr "&Сурахын тохиргоо..."
 
 #: forms/main.py:951
 msgid "&Suspend Fact"
-msgstr "&Åsidosätt faktauppgift"
+msgstr "&Баримтыг түдгэлзэх"
 
 #: forms/main.py:889
 msgid "&Tools"
-msgstr "&Verktyg"
+msgstr "&Багаж"
 
 #: forms/cardlist.py:244 forms/main.py:960
 msgid "&Undo"
-msgstr "Å&ngra"
+msgstr "&Буцаа"
 
 #: ui/cardlist.py:385
 #, python-format
@@ -381,31 +381,31 @@ msgstr "'%s'"
 
 #: ui/cardlist.py:207
 msgid "(new card)"
-msgstr "(nytt kort)"
+msgstr "(new card)"
 
 #: forms/main.py:918
 msgid "...&expression on ALC"
-msgstr "...&uttryck på ALC"
+msgstr "...&ALC-с авсан илэрхийлэл"
 
 #: forms/main.py:926
 msgid "...&kanji selection on Edict"
-msgstr "e"
+msgstr "...&Edict-с авсан канжийг нь сонголт"
 
 #: forms/main.py:920
 msgid "...&meaning on ALC"
-msgstr "...&betydelse på ALC"
+msgstr "...&ALC-с авсан утга"
 
 #: forms/main.py:922
 msgid "...&selection on ALC"
-msgstr "---&urval på ALC"
+msgstr "...&ALC-с авсан канжийг нь сонголт"
 
 #: forms/main.py:924
 msgid "...&word selection on Edict"
-msgstr "...&valt ord på Edict"
+msgstr "...&Edict-с авсан үгийг нь сонголт"
 
 #: ui/modelproperties.py:252
 msgid "; disabled"
-msgstr "; avaktiverad"
+msgstr "; хаагдсан  "
 
 #: forms/deckproperties.py:343
 msgid ""
@@ -419,7 +419,7 @@ msgstr ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Källor</span></p></body></html>"
+"<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Эх үүсвэрүүд</span></p></body></html>"
 
 #: forms/addcards.py:70
 msgid ""
@@ -437,164 +437,168 @@ msgstr ""
 
 #: ui/cardlist.py:368
 msgid "<Tag filter>"
-msgstr "<Etikettfilter>"
+msgstr "<Tag filter>"
 
 #: forms/deckproperties.py:329
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
-msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Hjälp</a>"
+msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Тусламж</a>"
 
 #: ui/main.py:1247
 msgid "<a href=py:miss>Missing</a><br>"
-msgstr "<a href=py:miss>Saknade</a><br>"
+msgstr "<a href=py:miss>Дутсан</a><br>"
 
 #: ui/main.py:1249
 msgid "<a href=py:non>Non-jouyou</a><br>"
-msgstr "<a href=py:non>Icke-jouyou</a><br>"
+msgstr "<a href=py:non>Жууюу биш</a><br>"
 
 #: ui/main.py:1248
 msgid "<a href=py:seen>Seen</a><br>"
-msgstr "<a href=py:seen>Sedda</a><br>"
+msgstr "<a href=py:seen>Үзсэн</a><br>"
 
 #: forms/deckproperties.py:363
 msgid "<b>1: Again (Mature)</b>"
-msgstr "<b>1: Igen (gamla)</b>"
+msgstr "<b>1: Дахиад (Боловсорсон)</b>"
 
 #: forms/deckproperties.py:365
 msgid "<b>1: Again (Young)</b>"
-msgstr "<b>1: Igen (unga)</b>"
+msgstr "<b>1: Дахиад (Залуу)</b>"
 
 #: forms/deckproperties.py:364
 msgid "<b>1: Failure Multiplier</b>"
-msgstr "<b>1: Multipel för felbesvarade kort</b>"
+msgstr "<b>1: Дампуурал олшруулагч</b>"
 
 #: forms/deckproperties.py:362
 msgid "<b>2: Initial Hard Interval</b>"
-msgstr "<b>2: Startintervall för svårt</b>"
+msgstr "<b>2: Эхлэхийн хэлцүүдийнх нь зай</b>"
 
 #: forms/deckproperties.py:357
 msgid "<b>3: Initial Good Interval</b>"
-msgstr "<b>3: Startintervall för bra</b>"
+msgstr "<b>3: Эхлэхийн сайн мэддэгийнх нь зай</b>"
 
 #: forms/deckproperties.py:356
 msgid "<b>4: Initial Easy Interval</b>"
-msgstr "<b>4: Startintervall för lätt</b>"
+msgstr "<b>4: Эхлэхийн маш сайн мэддэгийнх нь зай</b>"
 
 #: forms/modelproperties.py:311
 msgid "<b>Answer</b>"
-msgstr "<b>Svar</b>"
+msgstr "<b>Хариулт</b>"
 
 #: ui/modelchooser.py:50
 msgid "<b>Cards</b>:"
-msgstr "<b>Kort</b>:"
+msgstr "<b>Картууд</b>:"
 
 #: forms/exporting.py:55
 msgid "<b>Export format</b>:"
-msgstr "<b>Exportformat</b>:"
+msgstr "<b>Экспорт формат</b>:"
 
 #: forms/findreplace.py:61
 msgid "<b>Find</b>:"
-msgstr "<b>Hitta</b>:"
+msgstr "<b>Хайлт</b>:"
 
 #: forms/editfont.py:61
+#, fuzzy
 msgid "<b>Font Size</b>:"
-msgstr "<b>Typsnittsstorlek</b>:"
+msgstr "<b>Хайлт</b>:"
 
 #: forms/editfont.py:60
+#, fuzzy
 msgid "<b>Font</b>:"
-msgstr "<b>Typsnitt</b>:"
+msgstr "<b>Хайлт</b>:"
 
 #: forms/deckproperties.py:332
 msgid "<b>High Priority</b>"
-msgstr "<b>Hög prioritet</b>"
+msgstr "<b>Чухал</b>"
 
 #: forms/findreplace.py:64
 msgid "<b>In</b>:"
-msgstr "<b>I</b>:"
+msgstr "<b>Байрлал</b>:"
 
 #: forms/exporting.py:56
 msgid "<b>Limit to tags</b>:"
-msgstr "<b>Begränsa till etiketter</b>:"
+msgstr "<b>Зөвхөн дараагийн сонгосон шошгоос авна</b>:"
 
 #: forms/editfont.py:62
+#, fuzzy
 msgid "<b>Line Size</b>:"
-msgstr "<b>Linjestorlek</b>:"
+msgstr "<b>Хайлт</b>:"
 
 #: forms/deckproperties.py:333
 msgid "<b>Low Priority</b>"
-msgstr "<b>Låg prioritet</b>"
+msgstr "<b>Бага Яаралтай</b>"
 
 #: forms/deckproperties.py:371
 msgid "<b>Maximum failed cards</b>"
-msgstr "<b>Största antal felbesvarade kort</b>"
+msgstr "<b>Максимум дампуурсан картууд</b>"
 
 #: forms/modelproperties.py:288
 msgid "<b>Minimum spacing</b>"
-msgstr "<b>Minsta tillåtna tidsintervall</b>"
+msgstr "<b>Минимум зай</b>"
 
 #: ui/modelchooser.py:25
 msgid "<b>Model</b>:"
-msgstr "<b>Modell</b>:"
+msgstr "<b>Зүйл</b>:"
 
 #: forms/modelproperties.py:286 forms/modelproperties.py:299
 #: forms/modelproperties.py:312
 msgid "<b>Name</b>"
-msgstr "<b>Namn</b>"
+msgstr "<b>Нэр</b>"
 
 #: forms/changemodel.py:77
 msgid "<b>New Model</b>:"
-msgstr "<b>Ny modell</b>:"
+msgstr "<b>Шинэ Зүйл</b>:"
 
 #: forms/main.py:877
 msgid "<b>New cards per day:</b>"
-msgstr "<b>Nya kort per dag:</b>"
+msgstr "<b>Өдөр бүрд хэдэн шинэ карт:</b>"
 
 #: forms/deckproperties.py:372
 msgid "<b>New day starts at</b>"
-msgstr "<b>Ny dag börjar kl. </b>"
+msgstr "<b>Шинэ өдрийн цаг</b>:"
 
 #: forms/changemodel.py:75
 msgid "<b>Old Model</b>:"
-msgstr "<b>Gammal modell</b>:"
+msgstr "<b>Хөгшин Зүйл</b>:"
 
 #: forms/modelproperties.py:297 forms/modelproperties.py:310
 msgid "<b>Options</b>"
-msgstr "<b>Alternativ</b>"
+msgstr "<b>Тохиргоонууд</b>"
 
 #: forms/modelproperties.py:313
 msgid "<b>Question</b>"
-msgstr "<b>Fråga</b>"
+msgstr "<b>Асуулт</b>"
 
 #: forms/findreplace.py:62
 msgid "<b>Replace With</b>:"
-msgstr "<b>Ersätt med</b>:"
+msgstr "<b>Дараатай нь нөхөөсөнд явах</b>:"
 
 #: forms/main.py:876
 msgid "<b>Session limit (mins):</b>"
-msgstr "<b>Största antal minuter/studiepass:</b>"
+msgstr "<b>Чуулганы хугацаа (минутууд):</b>"
 
 #: forms/main.py:878
 msgid "<b>Session limit (reps):"
-msgstr "<b>Största antal upprepningar/studiepass:"
+msgstr "<b>Чуулганы хугацаа (удаа):"
 
 #: forms/deckproperties.py:373
 msgid "<b>Show failed cards early</b>"
-msgstr "<b>Visa felbesvarade kort tidigt</b>"
+msgstr "<b>Дампуурсан картууд эрт үзүүлэх</b>"
 
 #: forms/modelproperties.py:289
 msgid "<b>Spacing multipler</b>"
-msgstr "<b>Multipel för tidsfördelning</b>"
+msgstr "<b>Зайн олшруулагч</b>"
 
 #: forms/deckproperties.py:334
 msgid "<b>Suspended</b>"
-msgstr "<b>Åsidosatta</b>"
+msgstr "<b>Түдгэлзүүлсэн</b>"
 
 #: forms/importing.py:97
+#, fuzzy
 msgid "<b>Tags to append</b>:"
-msgstr "<b>Etiketter att lägga till</b>:"
+msgstr "Нэмэхийн шошгууд:"
 
 #: forms/modelproperties.py:287
 msgid "<b>Tags</b>"
-msgstr "<b>Etiketter</b>"
+msgstr "<b>Шошгууд</b>"
 
 #: ui/getshared.py:119
 #, python-format
@@ -606,32 +610,32 @@ msgid ""
 "<b>Downloads</b>: %(count)s<br>\n"
 "<b>Description</b>:<br>%(description)s"
 msgstr ""
-"<b>Titel</b>: %(title)s<br>\n"
-"<b>Etiketter</b>: %(tags)s<br>\n"
-"<b>Storlek</b>: %(size)0.2fKB<br>\n"
-"<b>Insändare</b>: %(author)s<br>\n"
-"<b>Hämtningar</b>: %(count)s<br>\n"
-"<b>Beskrivning</b>:<br>%(description)s"
+"<b>Нэр</b>: %(title)s<br>\n"
+"<b>Шошгууд</b>: %(tags)s<br>\n"
+"<b>Хэмжээ</b>: %(size)0.2fКБ<br>\n"
+"<b>Илгээгч</b>: %(author)s<br>\n"
+"<b>Татсан тоо</b>: %(count)s<br>\n"
+"<b>Дүрслэл</b>:<br>%(description)s"
 
 #: forms/deckproperties.py:331
 msgid "<b>Very High Priority</b>"
-msgstr "<b>Mycket hög prioritet</b>"
+msgstr "<b>Хамгийн Чухал</b>"
 
 #: ui/sync.py:127
 msgid "<br><br>Checking deck subscriptions..."
-msgstr "<br><br>Kontrollerar prenumerationer på kortlek..."
+msgstr "<br><br>Цуглуулгын захиалгыг шалгаж байна..."
 
 #: ui/graphs.py:203
 msgid "<h1>Added</h1>"
-msgstr "<h1>Tillagda</h1>"
+msgstr "<h1>Нэмсэн</h1>"
 
 #: forms/deckproperties.py:353
 msgid "<h1>Advanced Scheduling</h1>"
-msgstr "<h1>Avancerad schemaläggning</h1>"
+msgstr "<h1>Дээд төлөвлөлт</h1>"
 
 #: forms/preferences.py:237
 msgid "<h1>Advanced settings</h1>"
-msgstr "<h1>Avancerade inställningar</h1>"
+msgstr "<h1>Дээд тохиргоо</h1>"
 
 #: ui/update.py:114
 #, python-format
@@ -641,110 +645,110 @@ msgid ""
 "<a href=\"http://ichi2.net/anki/download/index.html#changes\">here</a>.\n"
 "<br><br>"
 msgstr ""
-"<h1>Anki är uppdaterad</h1>Anki %s har släppts.<br>\n"
-"Utgåveanteckningar kan du hitta\n"
-"<a href=\"http://ichi2.net/anki/download/index.html#changes\">här</a>.\n"
+"<h1>Анки нэмэгдүүлээ</h1>Анки %s тараалгуулаа.<br>\n"
+"Баримтаас нэмэгдүүлэхийн тухайн нь\n"
+"<a href=\"http://ichi2.net/anki/download/index.html#changes\">энэ</a> байгаа.\n"
 "<br><br>"
 
 #: forms/preferences.py:225
 msgid "<h1>Autosaving</h1>"
-msgstr "<h1>Automatsparning</h1>"
+msgstr "<h1>Автоматаар  хадгалалт</h1>"
 
 #: forms/modelproperties.py:303
 msgid "<h1>Card Templates</h1>"
-msgstr "<h1>Kortmallar</h1>"
+msgstr "<h1>Картын Бэлдцүүд</h1>"
 
 #: ui/graphs.py:214
 msgid "<h1>Cumulative Due</h1>"
-msgstr "<h1>Ackumulerat antal vars tidsfrist är slut</h1>"
+msgstr "<h1>Нэмэлт хугацаа нь</h1>"
 
 #: ui/main.py:1279
 msgid "<h1>Current card</h1>"
-msgstr "<h1>Aktuellt kort</h1>"
+msgstr "<h1>Одоогийн карт</h1>"
 
 #: ui/graphs.py:188
 msgid "<h1>Due</h1>"
-msgstr "<h1>Tidsfrist utlöpt</h1>"
+msgstr "<h1>Хугацаа нь</h1>"
 
 #: ui/graphs.py:224
 msgid "<h1>Eases</h1>"
-msgstr "<h1>Inlärningsgrader</h1>"
+msgstr "<h1>Амрын төвшнүүд</h1>"
 
 #: ui/status.py:98
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
-msgstr "<h1>Uppskattad tid</h1> Detta avser hur lång tid det kommer att ta att slutföra aktuellt beting i nuvarande takt."
+msgstr "<h1>Ойролцоо цаг</h1>Таны одоогийн түвшинээр энэ горимыг дуусахаар хэдэн цаг хэрэгтэй."
 
 #: forms/modelproperties.py:290
 msgid "<h1>Fields</h1>"
-msgstr "<h1>Fält</h1>"
+msgstr "<h1>Талбарууд</h1>"
 
 #: ui/graphs.py:209
 msgid "<h1>First Answered</h1>"
-msgstr "<h1>Först besvarade</h1>"
+msgstr "<h1>Анхны хариулсан</h1>"
 
 #: forms/modelproperties.py:285
 msgid "<h1>General</h1>"
-msgstr "<h1>Allmänt</h1>"
+msgstr "<h1>Ерөнхий</h1>"
 
 #: ui/graphs.py:219
 msgid "<h1>Intervals</h1>"
-msgstr "<h1>Intervall</h1>"
+msgstr "<h1>Зайнууд</h1>"
 
 #: forms/preferences.py:217
 msgid "<h1>Language</h1>"
-msgstr "<h1>Språk</h1>"
+msgstr "<h1>Хэл</h1>"
 
 #: ui/main.py:1282
 msgid "<h1>Last card</h1>"
-msgstr "<h1>Förra kortet</h1>"
+msgstr "<h1>Сүүлийн карт</h1>"
 
 #: forms/deckproperties.py:335
 msgid "<h1>Models</h1>"
-msgstr "<h1>Modeller</h1>"
+msgstr "<h1>Зүйлүүд</h1>"
 
 #: ui/main.py:758
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
-msgstr "<h1>Konto på nätet</h1>För att använda ditt fria <a href=\"http://anki.ichi2.net/\">konto på nätet</a>,<br>fyll i dina uppgifter här nedan.<br>"
+msgstr "<h1>Вебийн данс</h1>Таны үнэгүй <a href=\"http://anki.ichi2.net/\">вебийн дансыг</a> хэрэглэхээр,<br>дараагийн маягт баглаарай.<br>"
 
 #: ui/sync.py:198
 msgid "<h1>Open Online Deck</h1>"
-msgstr "<h1>Öppet tillgänglig kortlek på nätet</h1>"
+msgstr "<h1>Вебийн цуглуулгыг нээ</h1>"
 
 #: forms/deckproperties.py:330
 msgid "<h1>Priorities</h1>"
-msgstr "<h1>Prioriteter</h1>"
+msgstr "<h1>Эрхүүд</h1>"
 
 #: ui/graphs.py:193
 msgid "<h1>Reps</h1>"
-msgstr "<h1>Repetitioner</h1>"
+msgstr "<h1>Удаа</h1>"
 
 #: ui/graphs.py:198
 msgid "<h1>Review Time</h1>"
-msgstr "<h1>Repetitionstid</h1>"
+msgstr "<h1>Хичээл давталтын цаг</h1>"
 
 #: forms/preferences.py:218
 msgid "<h1>Reviewing</h1>"
-msgstr "<h1>Repeterar</h1>"
+msgstr "<h1>Давталт</h1>"
 
 #: forms/changemap.py:40
 msgid "<h1>Select Target Field</h1>"
-msgstr "<h1>Välj målfält</h1>"
+msgstr "<h1>Төлөвлөгөөний Талбарыг Сонго</h1>"
 
 #: ui/main.py:1043
 msgid "<h1>Study Options</h1>"
-msgstr "<h1>Instuderingsalternativ</h1>"
+msgstr "<h1>Сурахын тохиргоонууд</h1>"
 
 #: forms/deckproperties.py:341
 msgid "<h1>Synchronisation</h1>"
-msgstr "<h1>Synkronisering</h1>"
+msgstr "<h1>Давхцал</h1>"
 
 #: forms/preferences.py:231
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
-msgstr "<h1>Synkronisering</h1><a href=\"http://anki.ichi2.net/\">Skapa ett gratis konto</a>."
+msgstr "<h1>Давхцал</h1><a href=\"http://anki.ichi2.net/\">Үнэгүй дансыг бүртгэх</a>."
 
 #: ui/sync.py:196
 msgid "<h1>Synchronize</h1>"
-msgstr "<h1>Synkronisera</h1>"
+msgstr "<h1>Давхцах</h1>"
 
 #: ui/main.py:836
 msgid ""
@@ -753,10 +757,10 @@ msgid ""
 "Choose File -> Save to start autosaving<br>\n"
 "your deck."
 msgstr ""
-"<h1>Osparad kortlek</h1>\n"
-"Försiktig. Du redigerar en kortlek som inte sparats.<br>\n"
-"Välj Arkiv -> Spara för att börja automatspara<br>\n"
-"din kortlek."
+"<h1>Хадгалаагүй Цуглуулга</h1>\n"
+"Боломжтой. Та хадгалаагүй цуглуулгыг засварлаж байна.<br>\n"
+"Автоматаар цуглуулгыг хадгалахаар<br>\n"
+"'Файл -> Хадгалах' сонго."
 
 #: ui/unsaved.py:13
 msgid ""
@@ -764,21 +768,21 @@ msgid ""
 "        changes. Would you like to save them, discard your\n"
 "        changes, or cancel?"
 msgstr ""
-"<h1>Osparade ändringar</h1>Det finns osparade\n"
-"        ändringar. Vill du spara dem, förkasta\n"
-"        ändringarna eller avbryta?"
+"<h1>Хадгалаагүй өөрчлөлтүүд</h1>Хадгалаагүй өөрчлөлтүүд\n"
+"        байна. Өөрчлөлтүүдийг нь хадгалах, устгах,\n"
+"        эсвэл хүчингүй гэсийн юм?"
 
 #: ui/main.py:1045
 msgid "<h1>Well done!</h1>"
-msgstr "<h1>Bra gjort!</h1>"
+msgstr "<h1>Сайн байна!</h1>"
 
 #: ui/importing.py:197
 msgid "<ignored>"
-msgstr "<ignoreras>"
+msgstr "<ignored>"
 
 #: ui/help.py:66
 msgid "<p><a href=hide:>Hide this</a>"
-msgstr "<p><a href=hide:>Dölj detta</a>"
+msgstr "<p><a href=hide:>Энхийг нуу</a>"
 
 #: ui/main.py:1089
 #, python-format
@@ -790,9 +794,9 @@ msgid ""
 "</table>"
 msgstr ""
 "<table>\n"
-"<tr><td width=100>Dags att repetera:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-"<tr><td>Nya idag:</td><td align=right><b>%(new)s</b></td></tr>\n"
-"<tr><td>Nya totalt:</td><td align=right>%(newof)s</td></tr>\n"
+"<tr><td width=100>Хугацаа болсон:</td><td align=right><b>%(ret)s</b></td></tr>\n"
+"<tr><td>Өнөөдрийн шинэ нь:</td><td align=right><b>%(new)s</b></td></tr>\n"
+"<tr><td>Шинийн нь нийт:</td><td align=right>%(newof)s</td></tr>\n"
 "</table>"
 
 #: ui/main.py:1080
@@ -808,119 +812,119 @@ msgid ""
 "</table>"
 msgstr ""
 "<table>\n"
-"<tr><td width=80>Kort/studiepass:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
+"<tr><td width=80>Нэгж чуулганы картууд:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
 "<td><b>%(repsInSes)s</b></td></tr>\n"
-"<tr><td>Kort/dag:</td><td><b>%(repsTodayChg)s</b></td>\n"
+"<tr><td>Нэг өдрийн картууд:</td><td><b>%(repsTodayChg)s</b></td>\n"
 "<td><b>%(repsToday)s</b></td></tr>\n"
-"<tr><td>Tid/dag:</td><td><b>%(timeTodayChg)s</b></td>\n"
+"<tr><td>Нэг өдрийн цаг:</td><td><b>%(timeTodayChg)s</b></td>\n"
 "<td><b>%(timeToday)s</b></td></tr>\n"
 "</table>"
 
 #: forms/about.py:41
 msgid "About Anki"
-msgstr "Om Anki"
+msgstr "Анкигын тухай"
 
 #: forms/main.py:979
 msgid "Active &Tags..."
-msgstr "Aktiva &etiketter"
+msgstr "Идэвхтэй &Шошгууд"
 
 #: forms/activetags.py:40
 msgid "Active Tags"
-msgstr "Aktiva etiketter"
+msgstr "Идэвхтэй Шошгууд"
 
 #: forms/main.py:891
 msgid "Ad&vanced"
-msgstr "Ava&ncerat"
+msgstr "Нэ&мэлт..."
 
 #: ui/addcards.py:58 ui/addcards.py:112
 msgid "Add"
-msgstr "Lägg till"
+msgstr "Нэм"
 
 #: ui/addcards.py:63
 msgid "Add (shortcut: command+return)"
-msgstr "Lägg till (kortkommando: command+return)"
+msgstr "Нэм (богино холбоос: command+return)"
 
 #: ui/addcards.py:65
 msgid "Add (shortcut: ctrl+return)"
-msgstr "Lägg till (kortkommando: ctrl+return)"
+msgstr "Нэм (богино холбоос: ctrl+return)"
 
 #: forms/addcards.py:69
 msgid "Add Items"
-msgstr "Lägg till poster"
+msgstr "Хэсгийг нэм"
 
 #: forms/addmodel.py:43
 msgid "Add Model"
-msgstr "Lägg till modell"
+msgstr "Зүйлийг нэм"
 
 #: ui/cardlist.py:694
 msgid "Add Tags"
-msgstr "Lägg till etiketter"
+msgstr "Шошгыг нэм"
 
 #: ui/facteditor.py:233
 msgid "Add a picture (F3)"
-msgstr "Lägg till en bild (F3)"
+msgstr "Зургийг нэм (F3)"
 
 #: ui/facteditor.py:831
 msgid "Add an image"
-msgstr "Lägg till bild"
+msgstr "Имжийг нэм"
 
 #: ui/facteditor.py:860
 msgid "Add audio"
-msgstr "Lägg till ljud"
+msgstr "Дуурийг нэм"
 
 #: ui/facteditor.py:243
 msgid "Add audio (F4)"
-msgstr "Lägg till ljud (F4)"
+msgstr "Дуурийг нэм (F4)"
 
 #: forms/preferences.py:242
 msgid "Add hidden char to text (fixes Thai on OSX)"
-msgstr "Lägg till dolt tecken till text (fixar thai på OSX)"
+msgstr "Нуусан тэмдгийг текстэд нэм (Тай хэлний асуудлыг OSX-д засварлана)"
 
 #: ui/view.py:296
 msgid "Add material"
-msgstr "Lägg till material"
+msgstr "Материалыг нэм"
 
 #: forms/main.py:910
 msgid "Add new items to Anki by typing them in"
-msgstr "Lägg till nya poster i Anki genom att skriva in dem"
+msgstr "Шууд бичихээр шинэ хэсгийг Анкит нэм"
 
 #: ui/modelchooser.py:170
 #, python-format
 msgid "Add: %s"
-msgstr "Lägg till: %s"
+msgstr "Нэм: %s"
 
 #: ui/graphs.py:148
 msgid "Added"
-msgstr "Tillagt"
+msgstr "Нэмэгдсэн"
 
 #: ui/addcards.py:126
 #, python-format
 msgid "Added %(num)d card(s) for '%(str)s'."
-msgstr "La till  %(num)d kort för '%(str)s'."
+msgstr "'%(str)s'-д %(num)d карт(ууд)ыг нэмэгдсэн."
 
 #: forms/deckproperties.py:374 forms/preferences.py:244
 msgid "Advanced"
-msgstr "Avancerat"
+msgstr "Давтан"
 
 #: forms/main.py:868
 msgid "Again"
-msgstr "Igen"
+msgstr "Дахиад"
 
 #: ui/cardlist.py:888
 msgid "All Fields"
-msgstr "Alla fält"
+msgstr "Бүх талбарууд"
 
 #: ui/status.py:222
 msgid "All Reviews"
-msgstr "Alla repetitioner"
+msgstr "Бүх давталтууд"
 
 #: forms/modelproperties.py:315
 msgid "Allow the answer to be blank"
-msgstr "Tillåt tomma svar"
+msgstr "Хоосон хариулт хийхийг зөвшөөрөх"
 
 #: ui/main.py:1427
 msgid "Already cramming. Please close this deck first."
-msgstr "Håller redan på att plugga. Stäng denna kortlek först."
+msgstr "Одоо оройтож бэлтгэж байна. Эхлээд цуглуулгыг хаана уу?"
 
 #: ui/main.py:672
 #, python-format
@@ -929,20 +933,20 @@ msgstr "Alt+%d"
 
 #: forms/preferences.py:239
 msgid "Alternative theme"
-msgstr "Alternativt tema"
+msgstr "Өөр загвар"
 
 #: ui/facteditor.py:905
 #, python-format
 msgid "An error occured while opening %s"
-msgstr "Ett fel uppstod när %s skulle öppnas"
+msgstr "%s-г нээхэд алдаа болсон"
 
 #: ui/main.py:159
 msgid ""
 "An error occurred in a plugin. Please contact the plugin author.<br>\n"
 "Please do not file a bug report with Anki.<br><br>"
 msgstr ""
-"Ett fel inträffade i en insticksmodul. Kontakta insticksmodulens upphovsman.<br>\n"
-"Rapportera inte in felet till Anki.<br><br>"
+"Хавсарга програмын алдаа байсан.  Хавсарга програмын зохиолыг хэлж өгөөч.<br>\n"
+"Анки-н сайтын дээр алдааны тайлан битгий баглаарай.<br><br>"
 
 #: ui/main.py:606
 msgid ""
@@ -950,9 +954,9 @@ msgid ""
 "Would you like to try check the deck for errors?\n"
 "This may take some time."
 msgstr ""
-"Ett fel inträffade när kön skulle byggas.\n"
-"Vill du köra en kortlekskontroll?\n"
-"Detta kan ta lite tid."
+"Дарааллыг хийхэд алдаа болсон.\n"
+"Та цуглуулгыг алдаад шалгаж үзэх уу?\n"
+"Яаралгүй хийнэ байхаа."
 
 #: ui/main.py:150
 msgid ""
@@ -964,18 +968,18 @@ msgid ""
 "If it does not fix the problem, please copy the following<br>\n"
 "into a bug report:<br><br>\n"
 msgstr ""
-"Ett fel inträffade.<br>\n"
+"Алдаа болоо. Та:<p>\n"
 "<ol>\n"
-"<li><b>Starta om Anki</b>.\n"
-"<li>Kör <b>Verktyg > Avancerat > Kontrollera databasen</b>.\n"
+"<li><b>Анкиг дахин асаад</b>.\n"
+"<li><b>Багаж > Нэмэлт > Өгөгдлийн саныг шалгана уу</b>.\n"
 "</ol>\n"
-"Om detta inte löser problemet, kopiera följande text<br>\n"
-"till en felrapport:<br><br>\n"
+"Алдааг засварлахгүй бол дараагийн нь<br>\n"
+"алдааны тайланд хуулаарай:<br><br>\n"
 
 #: ui/deckproperties.py:183 ui/main.py:2216 forms/main.py:864 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
-msgstr "Anki"
+msgstr "Анки"
 
 #: ui/main.py:907
 #, python-format
@@ -983,52 +987,52 @@ msgid ""
 "Anki was unable to save your configuration file:\n"
 "%s"
 msgstr ""
-"Anki kunde inte spara din konfigurationsfil:\n"
+"Анки таны тохиргооны файлыг хадгалаагүй:\n"
 "%s"
 
 #: ui/cardlist.py:48 ui/cardlist.py:375
 msgid "Answer"
-msgstr "Svar"
+msgstr "Хариулт"
 
 #: forms/displayproperties.py:363
 msgid "Answer alignment"
-msgstr "Svarsjustering"
+msgstr "Хариултын жигдрүүлэг"
 
 #: forms/displayproperties.py:358
 msgid "Answer colour"
-msgstr "Svarsfärg"
+msgstr "Хариултын өнгө"
 
 #: forms/displayproperties.py:359
 msgid "Answer font"
-msgstr "Svarstypsnitt"
+msgstr "Хариултын фонт"
 
 #: forms/displayproperties.py:357
 msgid "Answer size"
-msgstr "Svarsstorlek"
+msgstr "Хариултын хэмжээ"
 
 #: forms/main.py:949
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
-msgstr "Sätt etiketten 'markerad' på denna faktauppgift så att du kan hitta den senare i bläddraren"
+msgstr "Дараа браузерын дээр энэ баримт хайхаар 'тэмдэглэсэн'-н шошгыг одоо нэм"
 
 #: ui/sync.py:111
 msgid "Applying reply..."
-msgstr "Tillämpar svar..."
+msgstr "Хариултыг хадгалж байна..."
 
 #: ui/status.py:220 ui/status.py:225
 msgid "Average time per answer: "
-msgstr "Genomsnittstid per svar: "
+msgstr "Нэг хариултын дундаж цаг:"
 
 #: forms/displayproperties.py:364
 msgid "Background colour"
-msgstr "Bakgrundsfärg"
+msgstr "Дэвсгэр өнгө"
 
 #: ui/facteditor.py:137
 msgid "Bold text (Ctrl+b)"
-msgstr "Fet text (Ctrl+b)"
+msgstr "Чанга текст (Ctrl+b)"
 
 #: ui/preferences.py:30
 msgid "Brazillian Portuguese"
-msgstr "Brasiliansk portugisiska"
+msgstr "Бразилын Португали хэл"
 
 #: ui/main.py:83
 #, python-format
@@ -1037,226 +1041,227 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Skadad insticksmodul:\n"
+"Ажилгүй хавсарга програм:\n"
 "\n"
 "%s"
 
 #: forms/main.py:912
 msgid "Brows&e Items..."
-msgstr "&Bläddra bland poster..."
+msgstr "Хэсгүүдийг &үз"
 
 #: forms/cardlist.py:231
 msgid "Browse Items"
-msgstr "Bläddra bland poster"
+msgstr "Хэсгүүдийг үз"
 
 #: forms/main.py:913
 msgid "Browse and edit all items"
-msgstr "Bläddra och redigera alla poster"
+msgstr "Бүх хэсгүүдээс нэг нэгийг нь үзээд засварлах"
 
 #: ui/cardlist.py:459
 #, python-format
 msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
 msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
-msgstr[0] "Bläddrare (%(cur)d av %(tot)d kort visas; %(sel)s)"
-msgstr[1] "Bläddrare (%(cur)d av %(tot)d kort visas; %(sel)s)"
+msgstr[0] "Браузер %(tot)d-с (%(cur)d карт үзүүлсэн; %(sel)s)"
+msgstr[1] "Браузер %(tot)d-с (%(cur)d картууд үзүүлсэн; %(sel)s)"
 
 #: forms/editfont.py:59
+#, fuzzy
 msgid "Browser Font"
-msgstr "Typsnitt för bläddrare"
+msgstr "Хэсгүүдийг үз"
 
 #: ui/cardlist.py:436
 msgid "Building Index..."
-msgstr "Konstruerar index..."
+msgstr "Индекс хийж байна..."
 
 #: forms/main.py:971
 msgid "C&ram..."
-msgstr "&Råplugga"
+msgstr "&Оройтож бэлтгэх"
 
 #: forms/main.py:989
 msgid "Cache LaTeX"
-msgstr "Läs in Latex i cachen"
+msgstr "Ойн дээр LaTeX-г хадгалах"
 
 #: ui/cardlist.py:788
 msgid "Can only change one model at a time."
-msgstr "Du kan bara ändra en modell åt gången."
+msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх чадна."
 
 #: ui/cardlist.py:744 ui/cardlist.py:880
 msgid "Can only operate on one model at a time."
-msgstr "Kan enbart arbeta med en modell åt gången."
+msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх чадна."
 
 #: ui/lookup.py:23
 msgid "Can't look up a selection with a newline."
-msgstr "Kan inte göra ett uppslag på en markering som innehåller en radbrytning."
+msgstr "Мөрийн эхэнд шилжүүлэгч тэмдэгттэй сонголтыг хайж болохгүй."
 
 #: ui/main.py:2231
 msgid "Cancel"
-msgstr "Avbryt"
+msgstr "Хүчингүй"
 
 #: ui/modelproperties.py:253
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
-msgstr "Kort %(num)d (%(name)s): använt %(cards)d gånger %(status)s"
+msgstr "%(num)d-р (%(name)s)-н карт: %(cards)d удаа%(status)s хэрэглэсэн"
 
 #: ui/modelproperties.py:335 ui/modelproperties.py:368
 #, python-format
 msgid "Card %d"
-msgstr "Kort  %d"
+msgstr "Карт %d"
 
 #: forms/modelproperties.py:316
 msgid "Card Templates"
-msgstr "Kortmallar"
+msgstr "Картын зүйлүүд"
 
 #: forms/displayproperties.py:355
 msgid "Card:"
-msgstr "Kort:"
+msgstr "Карт:"
 
 #: forms/displayproperties.py:365
 msgid "Cards"
-msgstr "Kort"
+msgstr "Картууд:"
 
 #: ui/tray.py:93
 msgid "Cards are waiting"
-msgstr "Det finns kort som väntar"
+msgstr "Картууд таныг хүлээж байна"
 
 #: ui/importing.py:199
 msgid "Change"
-msgstr "Ändra"
+msgstr "Өөрчлөх"
 
 #: ui/cardlist.py:1085
 #, python-format
 msgid "Change %s to:"
-msgstr "Ändra %s till:"
+msgstr "%s-с дараагийн нь өөрчлөх:"
 
 #: forms/cardlist.py:261
 msgid "Change &Model..."
-msgstr "Byt &modell..."
+msgstr "&Зүйлийг Өөрчлөх..."
 
 #: ui/cardlist.py:795 forms/changemodel.py:74
 msgid "Change Model"
-msgstr "Byt modell"
+msgstr "Зүлийг Өөрчлөх"
 
 #: forms/main.py:965
 msgid "Check Database..."
-msgstr "Kontrollera databasen..."
+msgstr "Өгөгдлийн саныг шалгах..."
 
 #: forms/main.py:969
 msgid "Check Media Database..."
-msgstr "Kontrollera mediadatabasen..."
+msgstr "Медианы өгөгдлийн саныг шалгах..."
 
 #: ui/sync.py:146
 msgid "Check complete."
-msgstr "Kontroll klar."
+msgstr "Шалгалт дууссан"
 
 #: forms/main.py:966
 msgid "Check the database for errors"
-msgstr "Undersök om databasen innehåller fel"
+msgstr "Өгөгдлийн саныг алдаануудад шалгах..."
 
 #: forms/main.py:970
 msgid "Check the files in the media directory"
-msgstr "Kontrollera filerna i mediebiblioteket"
+msgstr "Медиа каталогийн файлуудыг шалгах"
 
 #: ui/preferences.py:31
 msgid "Chinese - Simplified"
-msgstr "Förenklad kinesiska"
+msgstr "Хятад хэл - амархан тэмдгүүд"
 
 #: ui/preferences.py:32
 msgid "Chinese - Traditional"
-msgstr "Traditionell kinesiska"
+msgstr "Хятад хэл - уламжлалын тэмдгүүд"
 
 #: ui/facteditor.py:214
 msgid "Choose colour (F7 then F5)"
-msgstr "Välj färg (F7 därefter F5)"
+msgstr "Өнгийг сонго (F7 тэгээд F5)"
 
 #: ui/exporting.py:66
 msgid "Choose file to export to"
-msgstr "Välj en fil att exportera till"
+msgstr "Экспортын файлыг сонго"
 
 #: forms/main.py:980
 msgid "Choose the categories to show during review"
-msgstr "Välj vilka kategorier som skall visas under repetition"
+msgstr "Давталтын турш аль төрлийг нь сонго"
 
 #: ui/tray.py:96
 msgid "Click to hide Anki"
-msgstr "Klicka för att dölja Anki"
+msgstr "Анки нуухаар дар"
 
 #: ui/tray.py:98
 msgid "Click to show Anki"
-msgstr "Klicka för att visa Anki"
+msgstr "Анки-г үзэхээр энэ дээр дар"
 
 #: ui/addcards.py:69 forms/displayproperties.py:376
 msgid "Close"
-msgstr "Stäng"
+msgstr "Хаа"
 
 #: ui/addcards.py:165
 msgid "Close and lose current input?"
-msgstr "Stäng och gå miste om nuvarande inmatning?"
+msgstr "Хааж одоогийн оруулалтыг хаях уу?"
 
 #: ui/facteditor.py:290
 msgid "Cloze (F9)"
-msgstr "Cloze (F9)"
+msgstr "Хаа (F9)"
 
 #: ui/modelproperties.py:303
 #, python-format
 msgid "Compare with field '%s'"
-msgstr "Jämför med fält '%s'"
+msgstr "'%s' талбартай харьцуулах"
 
 #: forms/main.py:916
 msgid "Configure interface language and options"
-msgstr "Anpassa gränssnittets språk och andra alternativ"
+msgstr "програмын харагдах байдлын хэл бас тохиргоонуудыг өөрчлөх"
 
 #: forms/main.py:994
 msgid "Configure review options"
-msgstr "Anpassa repetitionsalternativ"
+msgstr "Давталтын тохиргоонуудыг өөрчлөх"
 
 #: ui/sync.py:68
 msgid "Connecting..."
-msgstr "Ansluter..."
+msgstr "Холбож байна..."
 
 #: ui/main.py:1113
 msgid "Continue &Reviewing"
-msgstr "&Fortsätt repetera"
+msgstr "Давтахыг &Үргэлжлэх"
 
 #: forms/main.py:875
 msgid "Continue Reviewing"
-msgstr "Fortsätt repetera"
+msgstr "Давтахыг Үргэлжлэх"
 
 #: ui/modelchooser.py:176
 #, python-format
 msgid "Copy: %s"
-msgstr "Kopiera: %s"
+msgstr "Хуулах: %s"
 
 #: ui/status.py:229
 msgid "Correct first time: "
-msgstr "Rätta första gången: "
+msgstr "Эхлээд удаахын нь"
 
 #: ui/status.py:218 ui/status.py:223
 msgid "Correct over a month: "
-msgstr "Rätta äldre än en månad:"
+msgstr "Сараас илүү зөв хариулсан нь:"
 
 #: ui/status.py:216
 msgid "Correct today: "
-msgstr "Rätta idag: "
+msgstr "Өнөөдөр зөв хариулсан нь:"
 
 #: ui/status.py:227
 msgid "Correct under a month: "
-msgstr "Rätta yngre än en månad: "
+msgstr "Сараас бага зөв хариулсан нь:"
 
 #: ui/main.py:1448
 msgid "Cram"
-msgstr "Råplugga"
+msgstr "Оройтож бэлтгэх"
 
 #: ui/cardlist.py:775
 msgid "Cram selected cards in new deck?"
-msgstr "Råplugga valda kort i en ny kortlek?"
+msgstr "Шинэ цуглуулгын сонгосон картуудыг нь оройтож бэлтгэх уу?"
 
 #: ui/sync.py:201
 #, python-format
 msgid "Create '%s' on server"
-msgstr "Skapa '%s' på server"
+msgstr "Серверийн дээр '%s' үүсгэх"
 
 #: ui/cardlist.py:229 ui/cardlist.py:376
 msgid "Created"
-msgstr "Skapad"
+msgstr "Үүсгэсэн"
 
 #: forms/main.py:919
 msgid "Ctrl+1"
@@ -1345,7 +1350,7 @@ msgstr "Ctrl+S"
 
 #: forms/cardlist.py:250
 msgid "Ctrl+Shift+F"
-msgstr "Ctrl+Skift+F"
+msgstr "Ctrl+Shift+F"
 
 #: forms/main.py:902
 msgid "Ctrl+W"
@@ -1385,35 +1390,35 @@ msgstr "Ctrl+u"
 
 #: ui/graphs.py:146
 msgid "Cumulative"
-msgstr "Kumulativ"
+msgstr "Хуримтлагдсан нь"
 
 #: forms/main.py:953
 msgid "Current &Model..."
-msgstr "Nuvarande &modell..."
+msgstr "Одоогийн зүйл"
 
 #: forms/cardlist.py:232
 msgid "Current Card"
-msgstr "Aktuellt kort"
+msgstr "Одоогийн карт"
 
 #: ui/modelchooser.py:42
 msgid "Customize Models"
-msgstr "Anpassa modeller"
+msgstr "Зүйлүүд тохируулах"
 
 #: forms/main.py:954
 msgid "Customize card layout, fields, etc"
-msgstr "Anpassa kortlayout, fält etc."
+msgstr "Картын байрлал, талбарууд, гэх мэтийг тохируулах"
 
 #: forms/main.py:946
 msgid "Customize fonts, colours and alignment"
-msgstr "Anpassa typsnitt, färger och justering"
+msgstr "Фонтууд, өнгүүд, бас жигдрүүлэгчийг тохируулах"
 
 #: forms/main.py:938
 msgid "Customize syncing, scheduling, priorities and models"
-msgstr "Anpassa synkronisering, schemaläggning, prioritering och modeller."
+msgstr "Давхцал, төлөвлөлт, яаралууд, бас зүйлүүдийг тохируулах"
 
 #: ui/preferences.py:33
 msgid "Czech"
-msgstr "Tjeckiska"
+msgstr "Чех хэл"
 
 #: ui/main.py:2212
 #, python-format
@@ -1421,185 +1426,185 @@ msgid ""
 "Database optimized.\n"
 "Shrunk by %dKB"
 msgstr ""
-"Databasen optimerad.\n"
-"Minskade med %dKB"
+"Өгөгдлийн сан зүгшрүүлсэн.\n"
+"%dКБ-р багасан"
 
 #: ui/graphs.py:161
 msgid "Deck Graphs"
-msgstr "Kortleksdiagram"
+msgstr "Цуглуулгын тохиргоонууд"
 
 #: ui/deckproperties.py:206 forms/deckproperties.py:328
 msgid "Deck Properties"
-msgstr "Kortleksegenskaper"
+msgstr "Диаграммууд"
 
 #: ui/main.py:816 ui/main.py:871
 msgid "Deck files (*.anki)"
-msgstr "Kortleksfiler (*.anki)"
+msgstr "Цуглуулгын файлууд (*.anki)"
 
 #: ui/main.py:576
 msgid "Deck is already open."
-msgstr "Kortleken är redan öppen."
+msgstr "Цуглуулга нээж л байна."
 
 #: ui/main.py:1341 forms/cardlist.py:237
 msgid "Delete"
-msgstr "Ta bort"
+msgstr "Устга"
 
 #: ui/cardlist.py:684
 msgid "Delete Cards"
-msgstr "Ta bort kort"
+msgstr "Картуудыг устга"
 
 #: ui/main.py:2229
 msgid "Delete Refs"
-msgstr "Ta bort referenser"
+msgstr "Лавлахуудыг устгах"
 
 #: ui/cardlist.py:703
 msgid "Delete Tags"
-msgstr "Ta bort etiketter"
+msgstr "Шошгыг устгах"
 
 #: forms/main.py:986
 msgid "Delete the currently displayed card"
-msgstr "Ta bort det kort som just nu visas"
+msgstr "Одоогийн картыг устгах"
 
 #: ui/sync.py:103
 msgid "Determining differences..."
-msgstr "Fastställer skillnader..."
+msgstr "Ялгааг тодорхойлж байна..."
 
 #: forms/infodialog.py:36
 msgid "Dialog"
-msgstr "Dialog"
+msgstr "Диалог"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
-msgstr "Inakti&vera"
+msgstr "&Унтраах"
 
 #: ui/importing.py:28
 msgid "Discard field"
-msgstr "Kassera fält"
+msgstr "Талбарыг устга"
 
 #: forms/preferences.py:224
 msgid "Display"
-msgstr "Visa"
+msgstr "Дэлгэц"
 
 #: forms/main.py:972
 msgid "Do an extra review of specified cards before a test"
-msgstr "Gör en extra repetition av angivna kort inför ett prov"
+msgstr "Тестийг хийхийн өмнө сонгосон картуудыг илүү давтах"
 
 #: forms/main.py:931
 msgid "Documentation"
-msgstr "Dokumentation"
+msgstr "Баримтжуулалт"
 
 #: ui/modelproperties.py:302
 msgid "Don't ask me to type in the answer"
-msgstr "Begär inte att jag skall skriva in svaret"
+msgstr "Хариултыг бичихийг надаас асуухгүй"
 
 #: ui/view.py:300
 msgid "Download Personal Deck"
-msgstr "Hämta personlig kortlek"
+msgstr "Өөрийнхөө Цуглуулгыг Тат"
 
 #: ui/getshared.py:36 ui/view.py:299
 msgid "Download Shared Deck"
-msgstr "Hämta delad kortlek"
+msgstr "Нийтийн Цуглуулгыг тат"
 
 #: ui/getshared.py:38
 msgid "Download Shared Plugin"
-msgstr "Hämta delad insticksmodul"
+msgstr "Нийтийн хавсарга програмыг тат"
 
 #: forms/main.py:1004
 msgid "Download a deck that people have shared publicly"
-msgstr "Hämta hem en kortlek som någon har delat ut publikt"
+msgstr "Өөр хүмүүсийн нээлттэй цуглуулгыг тат"
 
 #: forms/main.py:1002
 msgid "Download a deck that you synced from another computer"
-msgstr "Hämta hem en kortlek som du har synkroniserat från en annan dator"
+msgstr "Өөр компьютертой давхацсан цуглуулгыг татах"
 
 #: forms/main.py:1006
 msgid "Download a plugin to add new features or change Anki's behaviour"
-msgstr "Hämta hem en insticksmodul för att utöka eller ändra Ankis funktionalitet"
+msgstr "Шинэ чанар Анкит нэмэхээр хавсарга програмыг тат"
 
 #: ui/getshared.py:145 ui/getshared.py:149
 msgid "Downloads"
-msgstr "Hämtningar"
+msgstr "Таталтууд"
 
 #: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:378 ui/graphs.py:145
 msgid "Due"
-msgstr "Tidsfrist slut"
+msgstr "Хугацаа болсон"
 
 #: forms/main.py:895
 msgid "E&xit"
-msgstr "&Avsluta"
+msgstr "&Гарах"
 
 #: ui/status.py:199
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
-msgstr "Nedräkning:<b>%(timeLeft)s</b>"
+msgstr "<b>%(timeLeft)s</b> үлдлэж байна"
 
 #: ui/cardlist.py:237 ui/cardlist.py:381
 msgid "Ease"
-msgstr "Inlärningsgrad"
+msgstr "Амрын түвшин"
 
 #: ui/graphs.py:150
 msgid "Eases"
-msgstr "Inlärningsgrader"
+msgstr "Амрын төвшнүүд"
 
 #: forms/main.py:874
 msgid "Easy"
-msgstr "Lätt"
+msgstr "Амархан"
 
 #: ui/facteditor.py:467
 msgid "Edit"
-msgstr "Redigera"
+msgstr "Засварла"
 
 #: forms/main.py:981
 msgid "Edit &Current..."
-msgstr "Redigera &aktuell..."
+msgstr "Сонголтыг нь &засварлана..."
 
 #: forms/main.py:982
 msgid "Edit the currently displayed item"
-msgstr "Redigera det kort som just nu visas"
+msgstr "Одоогийн үзүүлсэн хэсгийг засварлах"
 
 #: ui/lookup.py:27
 msgid "Empty selection."
-msgstr "Avmarkera allt."
+msgstr "Хоосон сонголт."
 
 #: ui/modelproperties.py:327
 msgid "Ena&ble"
-msgstr "A&ktivera"
+msgstr "&Асаах"
 
 #: ui/preferences.py:29
 msgid "English"
-msgstr "Engelska"
+msgstr "Англи"
 
 #: ui/cardlist.py:692
 msgid "Enter tags to add:"
-msgstr "Skriv in etiketter att lägga till:"
+msgstr "Нэмэхийн шошгыг оруулах: "
 
 #: ui/cardlist.py:701
 msgid "Enter tags to delete:"
-msgstr "Skriv in vilka etiketter som skall tas bort"
+msgstr "Устгахын шошгыг оруулах:"
 
 #: ui/preferences.py:34
 msgid "Estonian"
-msgstr "Estniska"
+msgstr "Эстони хэл"
 
 #: forms/main.py:943
 msgid "Expor&t..."
-msgstr "&Exportera..."
+msgstr "&Экспорт..."
 
 #: forms/exporting.py:54
 msgid "Export"
-msgstr "Exportera"
+msgstr "Экспорт"
 
 #: ui/exporting.py:48
 msgid "Export..."
-msgstr "Exportera..."
+msgstr "Экспорт..."
 
 #: forms/cardlist.py:249
 msgid "F&act"
-msgstr "F&aktauppgift"
+msgstr "&Баримт"
 
 #: forms/cardlist.py:255
 msgid "F&irst Card"
-msgstr "F&örsta kort"
+msgstr "&Эхлэхийн Карт"
 
 #: ui/facteditor.py:272
 msgid "F2"
@@ -1638,495 +1643,496 @@ msgid "F9"
 msgstr "F9"
 
 #: ui/cardlist.py:382
+#, fuzzy
 msgid "Fact Created"
-msgstr "Faktauppgift skapad"
+msgstr "Үүсгэсэн"
 
 #: ui/getshared.py:145
 msgid "Facts"
-msgstr "Faktauppgifter"
+msgstr "Баримтууд"
 
 #: ui/main.py:1745
 msgid "Failed to upload media. Please run 'check media db'."
-msgstr "Misslyckades att skicka in media. Kör kommandot 'kontrollera mediadatabasen'."
+msgstr "Медиа илгээхийг дампуурсан. 'Медиа өгөгдлийн саныг шалгах' гүйцэтгээрэй.  "
 
 #: ui/sync.py:100
 msgid "Fetching summary from server..."
-msgstr "Hämtar sammanfattning från server..."
+msgstr "Серверээс конспектыг авч байна..."
 
 #: ui/displayproperties.py:192
 #, python-format
 msgid "Field %(num)d: %(name)s"
-msgstr "Fält %(num)d: %(name)s"
+msgstr "Талбар %(num)d: %(name)s"
 
 #: ui/modelproperties.py:77
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
-msgstr "Fält %(num)d: %(name)s [%(cards)s inte tomma]"
+msgstr "Талбар %(num)d: %(name)s [%(cards)s бүү хоосон]"
 
 #: ui/modelproperties.py:133 ui/modelproperties.py:151
 #, python-format
 msgid "Field %d"
-msgstr "Fält %d"
+msgstr "Талбар %d"
 
 #: ui/importing.py:190
 #, python-format
 msgid "Field <b>%d</b> of file is:"
-msgstr "Fält <b>%d</b> i fil är:"
+msgstr "Файлын талбар <b>%d</b> :"
 
 #: forms/importing.py:99
 msgid "Field mapping"
-msgstr "Fälthopparning"
+msgstr "Талбарын тааруулах"
 
 #: forms/changemodel.py:79 forms/displayproperties.py:373
 msgid "Fields"
-msgstr "Fält"
+msgstr "Талбарууд"
 
 #: forms/cardlist.py:263
 msgid "Find and Re&place..."
-msgstr "Sök och &ersätt"
+msgstr "Хайж &орлуулах..."
 
 #: ui/cardlist.py:893 forms/findreplace.py:60
 msgid "Find and Replace"
-msgstr "Sök och ersätt"
+msgstr "Хайж орлуулах"
 
 #: ui/preferences.py:35
 msgid "Finnish"
-msgstr "Finska"
+msgstr "Финлянд хэл"
 
 #: ui/graphs.py:149
 msgid "First Answered"
-msgstr "Först besvarad"
+msgstr "Эхлэхийн хариулсан"
 
 #: forms/cardlist.py:265
+#, fuzzy
 msgid "Font..."
-msgstr "Typsnitt..."
+msgstr "&Бэлэглэх..."
 
 #: forms/displayproperties.py:354
 msgid "Fonts & Colours"
-msgstr "Typsnitt och färger"
+msgstr "Фонт бас өнгөнүүд"
 
 #: ui/preferences.py:36
 msgid "French"
-msgstr "Franska"
+msgstr "Франц хэл"
 
 #: forms/modelproperties.py:302
 msgid "General && Fields"
-msgstr "Allmänt && Fält"
+msgstr "Ерөнхий && Талбарууд"
 
 #: ui/cardlist.py:754 forms/addcardmodels.py:34
 msgid "Generate Cards"
-msgstr "Skapa kort"
+msgstr "Картуудыг гаргах"
 
 #: ui/cardlist.py:760
 msgid "Generating Cards..."
-msgstr "Skapar kort..."
+msgstr "Картуудыг гаргах..."
 
 #: ui/preferences.py:37
 msgid "German"
-msgstr "Tyska"
+msgstr "Герман хэл"
 
 #: forms/share.py:73
 msgid "Get Shared Decks/Plugins"
-msgstr "Hämta delade kortlekar/insticksmoduler"
+msgstr "Нийтийн цуглуулга, Хавсарга програм хоёрыг ав"
 
 #: forms/main.py:998
 msgid "Get Shared..."
-msgstr "Hämta delad..."
+msgstr "Нийтийнх нь авах..."
 
 #: forms/main.py:872
 msgid "Good"
-msgstr "Bra"
+msgstr "Сайн"
 
 #: forms/edithtml.py:34
 msgid "HTML Editor"
-msgstr "HTML-redigerare"
+msgstr "HTML хэлний редактор  "
 
 #: ui/facteditor.py:338
+#, fuzzy
 msgid "HTML Editor (Ctrl+F9)"
-msgstr "HTML-redigerare (Ctrl+F9)"
+msgstr "HTML хэлний редактор  "
 
 #: forms/main.py:870
 msgid "Hard"
-msgstr "Svår"
+msgstr "Хэцүү"
 
 #: ui/addcards.py:73 forms/displayproperties.py:374 forms/main.py:881
 msgid "Help"
-msgstr "Hjälp"
+msgstr "Тусламж"
 
 #: forms/modelproperties.py:314
 msgid "Hide the question when showing answer"
-msgstr "Dölj frågan när svaret visas"
+msgstr "Хариултыг үзүүлэхэд асуултыг нуу"
 
 #: ui/deckproperties.py:83
 msgid "ID"
-msgstr "Id"
+msgstr "ялгах тэмдэг"
 
 #: ui/update.py:123
 msgid "Ignore this update"
-msgstr "Hoppa över denna uppdatering"
+msgstr "Энэ шинэчлэлийг үл тоох"
 
 #: ui/facteditor.py:830
 msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
-msgstr "Bilder (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
+msgstr "Зургууд (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 
 #: ui/importing.py:78 ui/importing.py:118 forms/changemap.py:39
 #: forms/importing.py:95
 msgid "Import"
-msgstr "Importera"
+msgstr "Импорт хий"
 
 #: forms/main.py:940
 msgid "Import cards from text files, Anki files and more"
-msgstr "Importera kort från textfiler, anki-filer med mera"
+msgstr "Текст файлууд, Анки файлууд, өөрөөс нь картыг импортлох"
 
 #: ui/importing.py:128
 #, python-format
 msgid "Import failed: %s\n"
-msgstr "Import misslyckades: %s\n"
+msgstr "Импортыг дампуурсан: %s\n"
 
 #: forms/importing.py:96
 msgid "Import options"
-msgstr "Importalternativ"
+msgstr "Импортын тохиргоонууд"
 
 #: ui/importing.py:135
 #, python-format
 msgid "Importing complete. %(num)d facts imported from %(file)s.\n"
-msgstr "Import genomförd. %(num)d faktauppgifter importerades från %(file)s.\n"
+msgstr "Импортыг дуусчихсан.  %(file)s-с %(num)d баримтуудыг импортолсон.\n"
 
 #: ui/importing.py:123
 msgid "Importing failed.\n"
-msgstr "Import misslyckades.\n"
+msgstr "Импортлохыг дампуурсан.\n"
 
 #: ui/importing.py:112
 msgid "Importing..."
-msgstr "Importerar..."
+msgstr "Импортолж байна..."
 
 #: forms/exporting.py:57
 msgid "Include scheduling information"
-msgstr "Inkludera schemaläggningsinformation"
+msgstr "Төлөвлөлтийн мэдээллийг хамрах"
 
 #: forms/exporting.py:58
 msgid "Include tags"
-msgstr "Inkludera etiketter"
+msgstr "Шошгуудыг оруулах"
 
 #: ui/cardlist.py:233 ui/cardlist.py:379 ui/graphs.py:147
 msgid "Interval"
-msgstr "Intervall"
+msgstr "Зай"
 
 #: ui/cardlist.py:911
 msgid "Invalid regular expression."
-msgstr "Ogiltigt reguljärt uttryck."
+msgstr "Хүчингүй байнгын илэрхийлэл"
 
 #: ui/activetags.py:25
 msgid "Invert"
-msgstr "Växla"
+msgstr ""
 
 #: ui/preferences.py:38
 msgid "Italian"
-msgstr "Italienska"
+msgstr "Итали хэл"
 
 #: ui/facteditor.py:148
 msgid "Italic text (Ctrl+i)"
-msgstr "Kursiv text (Ctrl+i)"
+msgstr "Налуу текст (Ctrl+i)"
 
 #: ui/preferences.py:39
 msgid "Japanese"
-msgstr "Japanska"
+msgstr "Япон хэл"
 
 #: ui/preferences.py:40
 msgid "Korean"
-msgstr "Koreanska"
+msgstr "Солонгон хэл"
 
 #: ui/facteditor.py:303
 msgid "Latex (Ctrl+l then l)"
-msgstr "Latex (Ctrl+l därefter l)"
+msgstr "LaTeX (Ctrl+l тэгээд l)"
 
 #: ui/facteditor.py:314
 msgid "Latex equation (Ctrl+l then e)"
-msgstr "Latexformel (Ctrl+l därefter e)"
+msgstr "LaTeX-н тэгшитгэл (Ctrl+l тэгээд e)"
 
 #: ui/facteditor.py:325
 msgid "Latex math environment (Ctrl+l then m)"
-msgstr "Matematikmiljö för Latex (Ctrl+l därpå m)"
+msgstr "LaTeX математикийн ахуй (Ctrl+l тэгээд m)"
 
 #: ui/main.py:1449
 msgid "Loading deck..."
-msgstr "Läser in kortlek..."
+msgstr "Цуглуулгын ачаалагдаж байна..."
 
 #: ui/main.py:1293
 msgid "Loading graphs (may take time)..."
-msgstr "Läser in diagram (kan ta tid)..."
+msgstr "Диаграммуудыг ачаалагдаж байна.  Та хүлээнэ уу..."
 
 #: forms/getshared.py:71
 msgid "Loading..."
-msgstr "Läser in..."
+msgstr "Ачаалагдаж байна..."
 
 #: ui/importing.py:138
 msgid "Log of import:\n"
-msgstr "Importlog:\n"
+msgstr "Импортын бүртгэлц:\n"
 
 #: ui/importing.py:22
 #, python-format
 msgid "Map to %s"
-msgstr "Mappa till %s"
+msgstr "%s-тай тааруулах"
 
 #: ui/importing.py:27
 msgid "Map to Tags"
-msgstr "Para ihop med etiketter"
+msgstr "Шошготой холбо"
 
 #: forms/deckproperties.py:358 forms/deckproperties.py:359
 #: forms/deckproperties.py:361 forms/reschedule.py:84
 msgid "Max"
-msgstr "Max"
+msgstr "Дээд"
 
 #: ui/sync.py:206
 #, python-format
 msgid "Merge with '%s' on server"
-msgstr "Slå ihop med '%s' på server"
+msgstr "Серверийн дээр '%s'-тай нэгтгэх"
 
 #: forms/deckproperties.py:354 forms/deckproperties.py:355
 #: forms/deckproperties.py:360 forms/reschedule.py:82
 msgid "Min"
-msgstr "Min"
+msgstr "Доод"
 
 #: ui/modelproperties.py:470
 msgid "Model"
-msgstr "Modell"
+msgstr "Зүйл"
 
 #: ui/modelproperties.py:35 forms/modelproperties.py:284
 msgid "Model Properties"
-msgstr "Modellegenskaper"
+msgstr "Зүйлийн чанарууд"
 
 #: forms/deckproperties.py:339
 msgid "Models && Priorities"
-msgstr "Modeller && Prioriteter"
+msgstr "Зүйлийн && чанарууд"
 
 #: ui/cardlist.py:231 ui/cardlist.py:377
 msgid "Modified"
-msgstr "Ändrad"
+msgstr "Өөрчилсөн"
 
 #: ui/preferences.py:41
 msgid "Mongolian"
-msgstr ""
+msgstr "Монгол хэл"
 
 #: forms/main.py:880
 msgid "More>>"
-msgstr "Mer>>"
+msgstr "Илүү>>"
 
 #: forms/modelproperties.py:293 forms/modelproperties.py:306
 msgid "Move &Up"
-msgstr "Flytta &upp"
+msgstr "Д&ээшээ хөдлөх"
 
 #: forms/modelproperties.py:296 forms/modelproperties.py:308
 msgid "Move Dow&n"
-msgstr "Fl&ytta ner"
+msgstr "Д&оошоо хөдлөх"
 
 #: forms/modelproperties.py:307
 msgid "Move selected card model down"
-msgstr "Flytta vald kortmodell neråt"
+msgstr "Сонгосон картын зүйл доошоо хөдлөх"
 
 #: forms/modelproperties.py:305
 msgid "Move selected card model up"
-msgstr "Flytta vald kortmodell uppåt"
+msgstr "Сонгосон картын зүйл дээшээ хөдлөх"
 
 #: forms/modelproperties.py:295
 msgid "Move selected field down"
-msgstr "Flytta valt fält nedåt"
+msgstr "Сонгосон талбарыг доошоо хөдлөх"
 
 #: forms/modelproperties.py:292
 msgid "Move selected field up"
-msgstr "Flytta valt fält uppåt"
+msgstr "Сонгосон талбарыг дээшээ хөдлөх"
 
 #: ui/deckproperties.py:84
 msgid "Name"
-msgstr "Namn"
+msgstr "Нэр"
 
 #: forms/deckproperties.py:350
 msgid "Name on server: "
-msgstr "Namn på server: "
+msgstr "Серверийн дээр нэр:"
 
 #: ui/facteditor.py:202
 msgid "Next colour (F7 then F8)"
-msgstr "Nästa färg (F7 därefter F8)"
+msgstr "Дараагийн өнгө (F7 тэгээд F8)"
 
 #: ui/facteditor.py:776
 msgid "Next field must be blank."
-msgstr "Nästa fält måste vara tomt."
+msgstr "Дараагийн талбар хоослуулах ёстой."
 
 #: ui/main.py:1442 ui/main.py:1489
 msgid "No cards matched the provided tags."
-msgstr "Inga kort är markerade med angivna etiketter."
+msgstr "Картуудаас сонгосон шошготой нь байхгүй."
 
 #: ui/facteditor.py:1056
 msgid "No cards to preview."
-msgstr "Det finns inte några kort att förhandsgranska"
+msgstr "Өмнөх үзэмжийн картууд байхгүй."
 
 #: ui/sync.py:122
 msgid "No changes found."
-msgstr "Inga ändringar funna."
+msgstr "Өөрчлөлт олоогүй."
 
 #: ui/main.py:1285
 msgid "No current card or last card."
-msgstr "Inget aktuellt eller senaste kort."
+msgstr "Одоогийн бас сүүлийн карт байхгүй."
 
 #: ui/main.py:1221
 msgid "No expression in current card."
-msgstr "Inget uttryck på aktuellt kort."
+msgstr "Одоогийн картын дээр илэрхийлэл байхгүй."
 
 #: ui/main.py:1228
 msgid "No meaning in current card."
-msgstr "Ingen betydelse på aktuellt kort."
+msgstr "Одоогийн картад утгагүй."
 
 #: ui/cardlist.py:368
 msgid "No tags"
-msgstr "Inga etiketter"
+msgstr "Шошгогүй"
 
 #: ui/cardlist.py:1081
 msgid "Nothing"
-msgstr "Ingenting"
+msgstr "Юу ч байхгүй"
 
 #: ui/getshared.py:115
 msgid "Nothing selected."
-msgstr "Inget valt."
+msgstr "Юуг ч сонгоогүй."
 
 #: forms/main.py:887
 msgid "Open &Recent"
-msgstr "Ö&ppna senaste"
+msgstr "&Сүүлд хаасан нь нээ"
 
 #: ui/view.py:298
 msgid "Open Local Deck"
-msgstr "Öppna lokal kortlek"
+msgstr "Цуглуулга дотоод нээ"
 
 #: forms/main.py:947
 msgid "Open Sa&mple..."
-msgstr "Öppna e&xempelkortlek..."
+msgstr "Жишээг нь нээ..."
 
 #: forms/main.py:999
 msgid "Open a pre-made deck or plugin"
-msgstr "Öppna en färdig kortlek eller insticksmodul"
+msgstr "Бэлэн цуглуулга, хавсарга програм хоёрыг нээ"
 
 #: ui/main.py:818
 msgid "Open deck"
-msgstr "Öppna kortlek"
+msgstr "Цуглуулгыг нээ"
 
 #: forms/main.py:933
 msgid "Open the bug tracker"
-msgstr "Öppna felspåraren"
+msgstr "Алдааны мөрчийг нээ"
 
 #: forms/main.py:967
 msgid "Optimize Database"
-msgstr "Optimera databas"
+msgstr "Өгөгдлийн саныг зүгшрүүлэх"
 
 #: forms/main.py:893
 msgid "P&lugins"
-msgstr "Insticksmodu&ler"
+msgstr "Хавсарга &програмууд"
 
 #: ui/exporting.py:17
 msgid "Packaged Anki Deck (*.zip)"
-msgstr "Paketerad ankikortlek (*.zip)"
+msgstr "Хэмжин савласан цуглуулга (*.zip)"
 
 #: forms/preferences.py:232
 msgid "Password"
-msgstr "Lösenord"
+msgstr "Нууц үг"
 
 #: ui/main.py:768
 msgid "Password:"
-msgstr "Lösenord:"
+msgstr "Нууц үг:"
 
 #: ui/status.py:210
 msgid "Performance"
-msgstr "Prestation"
+msgstr "Удирдлага"
 
 #: forms/main.py:1001
 msgid "Personal Deck"
-msgstr "Personlig kortlek"
+msgstr "Өөрийнхөө Цуглуулга"
 
 #: forms/main.py:958
 msgid "Play the last-played audio again"
-msgstr "Spela upp senaste ljudet igen"
+msgstr "Сүүлд тоглосон дуу дахиад тоглох"
 
 #: ui/modelproperties.py:382
 msgid "Please add a new card first."
-msgstr "Lägg först till ett nytt kort."
+msgstr "Эхлээд шинэ картыг нэмнэ уу?"
 
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
-msgstr "Lägg först till ett nytt fält."
+msgstr "Эхлээд шинэ талбарыг нэмнэ уу?"
 
 #: ui/deckproperties.py:144
 msgid "Please add another model first."
-msgstr "Lägg först till en annan modell."
+msgstr "Дахин зүйл нэмнэ уу?"
 
 #: forms/sort.py:46
 msgid "Please choose a field to sort by."
-msgstr "Välj ett fält att sortera efter"
+msgstr "Талбараас эрэмбэлэхээр нь сонго."
 
 #: ui/sync.py:49
 msgid "Please double-check your username/password."
-msgstr "Kontrollera ditt användarnamn och lösenord en gång till."
+msgstr "Та зөв хэрэглэгчийн нэр, нууц үгийг оруулна уу?"
 
 #: ui/modelproperties.py:410
 msgid "Please enable a different model first."
-msgstr "Aktivera först en annan modell."
+msgstr "Өөр зүйлийг асаана уу?"
 
 #: ui/cardlist.py:726
 msgid "Please enter a valid start and end range."
-msgstr "Ange ett giltigt start- och slutintervall"
+msgstr "Хүчинтэй хэрэглээний хүрээг оруулна уу?"
 
 #: ui/facteditor.py:882
 msgid ""
 "Please install <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "to enable recording."
-msgstr ""
-"Installera <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
-"för att möjliggöra inspelning."
+msgstr "Дуу хураахаар <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>-г суулгаарай."
 
 #: ui/main.py:1311
 msgid "Please install python-matplotlib to access graphs."
-msgstr "Installera python-matplotlib för att kunna använda diagram."
+msgstr "Диаграммууд руу орох болохоор python-matplotlib-г суулгаарай."
 
 #: ui/main.py:2189
 msgid "Please restart Anki before checking the DB."
-msgstr "Starta om Anki innan du kontrollerar databasen."
+msgstr "Өгөгдлийн саныг шалгахыг өмнө Анки дахин асаарай."
 
 #: ui/getshared.py:222
 msgid "Plugin downloaded. Please restart Anki."
-msgstr "Insticksmodul hämtad. Starta om Anki."
+msgstr "Хавсарга програм татуулсан.  Анки дахин ачаалаарай."
 
 #: ui/preferences.py:42
 msgid "Polish"
-msgstr "Polska"
+msgstr "Польш хэл"
 
 #: forms/main.py:990
 msgid "Pre-generate PNG images of LaTeX cards"
-msgstr "Generera png-bilder av LaTeX-kort i förväg"
+msgstr "LaTeX-н картуудын PNG-н форматын зураг өмнөх хийж"
 
 #: forms/preferences.py:216
 msgid "Preferences"
-msgstr "Inställningar"
+msgstr "Тохируулалтууд"
 
 #: forms/modelproperties.py:298
 msgid "Prevent duplicates"
-msgstr "Förhindra dubbletter"
+msgstr "Хуулбаруудыг хориглоно"
 
 #: forms/modelproperties.py:300
 msgid "Prevent empty entries"
-msgstr "Förhindra tomma poster"
+msgstr "Хоосон оролтуудыг хориглоно"
 
 #: forms/displayproperties.py:377
 msgid "Preview"
-msgstr "Förhandsgranska"
+msgstr "Өмнөх үзэмж"
 
 #: ui/facteditor.py:277
 msgid "Preview (F2)"
-msgstr "Förhandsgranska (F2)"
+msgstr "Өмнөх үзэмж (F2)"
 
 #: forms/previewcards.py:37
 msgid "Preview Cards"
-msgstr "Förhandsgranska kort"
+msgstr "Картуудыг өмнөх үзэх"
 
 #: ui/facteditor.py:191
 msgid "Previous colour (F7 then F6)"
-msgstr "Föregående färg (F7 därefter F6)"
+msgstr "Өнгөрсөн өнгө (F6 тэгээд F7)"
 
 #: ui/main.py:2204
 #, python-format
@@ -2134,371 +2140,373 @@ msgid ""
 "Problems found:\n"
 "%s"
 msgstr ""
-"Hittade problem:\n"
+"Олсон алдаанууд:\n"
 "%s"
 
 #: ui/graphs.py:250 ui/graphs.py:281 ui/utils.py:226
 msgid "Processing..."
-msgstr "Behandlar..."
+msgstr "Гүйцэтгэж байна..."
 
 #: forms/preferences.py:220
 msgid "Put space between question and answer"
-msgstr "Skilj fråga och svar åt med mellanslag"
+msgstr "Асуулт, хариулт хоёрын хооронд зай тавих"
 
 #: ui/cardlist.py:47 ui/cardlist.py:374
 msgid "Question"
-msgstr "Fråga"
+msgstr "Асуулт"
 
 #: forms/displayproperties.py:360
 msgid "Question alignment"
-msgstr "Frågejustering"
+msgstr "Асуултын жигдрүүлэг"
 
 #: forms/displayproperties.py:362
 msgid "Question colour"
-msgstr "Frågefärg"
+msgstr "Асуултын өнгө"
 
 #: forms/displayproperties.py:356
 msgid "Question font"
-msgstr "Frågetypsnitt:"
+msgstr "Асуултын фонт"
 
 #: forms/displayproperties.py:361
 msgid "Question size"
-msgstr "Frågestorlek"
+msgstr "Асуултын хэмжээ"
 
 #: ui/main.py:1466
 msgid "Randomizing..."
-msgstr "Blandar om..."
+msgstr "Санамсаргүй дараалал хийж байна..."
 
 #: forms/main.py:883
 msgid "Re&view Early"
-msgstr "Re&petera tidigt"
+msgstr "Эрт &давтах"
 
 #: forms/main.py:997
 msgid "Record 10 seconds of silence so that the record function can cancel noise"
-msgstr "Spela in 10 sekunder tystnad, så att inspelningsfunktionen kan ta bort brus"
+msgstr "Дуу хураалт чимээг дарахаар чимээгүй 10 секунд хуурах"
 
 #: ui/facteditor.py:253
 msgid "Record audio (F5)"
-msgstr "Spela in ljud (F5)"
+msgstr "Дуу хураах (F5)"
 
 #: ui/sound.py:27
 #, python-format
 msgid "Recording...<br>Time: %0.1f"
-msgstr "Spelar in...<br>Tid: %0.1f"
+msgstr "Дуу хурааж байна...<br>Цаг: %0.1f"
 
 #: ui/cardlist.py:476 ui/main.py:1936
 #, python-format
 msgid "Redo %s"
-msgstr "Gör om %s"
+msgstr "%s дахиад хий"
 
 #: ui/graphs.py:233
 msgid "Refresh"
-msgstr "Uppdatera"
+msgstr "Шинэчлэх"
 
 #: forms/main.py:973
 msgid "Release Notes..."
-msgstr "Versionsfakta..."
+msgstr "Чөлөөлөлтийн баримтууд..."
 
 #: ui/status.py:182
 msgid "Remaining cards"
-msgstr "Återstående kort"
+msgstr "Үлдээсэн картууд"
 
 #: ui/status.py:156
 msgid "Remaining: "
-msgstr "Återstående:"
+msgstr "Үлдэгдэл:"
 
 #: forms/main.py:992
 msgid "Remove generated PNG images of LaTeX cards"
-msgstr "Ta bort genererade png-bilder av LaTeX-kort"
+msgstr "LaTeX-н картуудын PNG-н форматын зураг өмнөх хийжийг нь устгах"
 
 #: forms/main.py:968
 msgid "Remove unused space, making the database file smaller"
-msgstr "Ta bort oanvänt utrymme så att databasen blir mindre"
+msgstr "Хэрэглээгүй хэмжээг устгаад өгөгдлийн санын файлын хэмжээг баглана"
 
 #: forms/main.py:956
 msgid "Repeat &Answer Audio"
-msgstr "Upprepa &svarsljud"
+msgstr "&Хариултын дуу дахиад тоглох"
 
 #: forms/main.py:957
 msgid "Repeat &Audio"
-msgstr "&Upprepa ljud"
+msgstr "Дуу &дахиад тоглох"
 
 #: forms/main.py:955
 msgid "Repeat &Question Audio"
-msgstr "Upprepa &frågeljud"
+msgstr "Асуултын дуу дахиад тоглох"
 
 #: ui/cardlist.py:896
 msgid "Replacing..."
-msgstr "Ersätter..."
+msgstr "Оруулж байна..."
 
 #: ui/cardlist.py:235 ui/cardlist.py:380 ui/graphs.py:151
 msgid "Reps"
-msgstr "Upprepningar"
+msgstr "Удаа"
 
 #: ui/cardlist.py:710 forms/reschedule.py:79
 msgid "Reschedule"
-msgstr "Schemalägg igen"
+msgstr "Дахин төлөвлөх"
 
 #: forms/reschedule.py:80
 msgid "Reschedule as new cards"
-msgstr "Schemalägg igen som nya kort"
+msgstr "Шинэ картуудаар дахин төлөвлөх"
 
 #: forms/reschedule.py:81
 msgid "Reschedule with initial interval in range:"
-msgstr "Schemalägg igen med in startintervall i skalan:"
+msgstr "Дараагийн эхлэхийн зайтай дахин төлөвлөх:"
 
 #: forms/cardlist.py:259
 msgid "Reverse &Order"
-msgstr "&Baklänges"
+msgstr "Дарааллыг &арах"
 
 #: forms/main.py:879
 msgid "Review"
-msgstr "Repetera"
+msgstr "Давталт"
 
 #: ui/graphs.py:152
 msgid "Review Time"
-msgstr "Repetitionstid"
+msgstr "Давталтын Цаг"
 
 #: ui/status.py:215
 msgid "Reviews today"
-msgstr "Repetitioner idag"
+msgstr "Өнөөдрийн давталтууд"
 
 #: forms/main.py:906
 msgid "S&ync"
-msgstr "S&ynka"
+msgstr "&Давхцах"
 
 #: ui/sound.py:50
 #, python-format
 msgid "Sampling silence...<br>Time: %0.1f"
-msgstr "Samplar tystnad...<br>Tid: %0.1f"
+msgstr "Чимээгүй хуурдаж байна...<br>Цаг: %0.1f"
 
 #: forms/preferences.py:236
 msgid "Save && Sync"
-msgstr "Spara && synka"
+msgstr "Хадгалаад давхцах"
 
 #: forms/main.py:963
 msgid "Save &As..."
-msgstr "Spara s&om..."
+msgstr "&Өөр нэрт хадгалах..."
 
 #: ui/main.py:864
 msgid "Save Deck As"
-msgstr "Spara kortlek som"
+msgstr "Цуглуулга өөр нэрийг хадгалах"
 
 #: forms/preferences.py:229
 msgid "Save after adding"
-msgstr "Spara efter utökning"
+msgstr "Нэмэхийн дараа хадгалах"
 
 #: forms/preferences.py:227
 msgid "Save after answering"
-msgstr "Spara efter svar"
+msgstr "Хариулахын дараа хадгалах"
 
 #: forms/main.py:944
 msgid "Save cards in a new deck or text file for sharing with others"
-msgstr "Spara kort i en ny kortlek eller textfil som kan delas med andra"
+msgstr "Нийтийн цуглуулга хийхээр энэ картууд шинэ цуглуулга, текст файлыг хадгалах"
 
 #: forms/main.py:904
 msgid "Save this deck now"
-msgstr "Spara denna kortlek nu"
+msgstr "Одоо энэ цуглуулгыг хадгалах"
 
 #: forms/main.py:964
 msgid "Save this deck, giving it a new name"
-msgstr "Spara denna kortlek under ett nytt namn"
+msgstr "Энэ цуглуулга шинэ нэртэй хадгалах"
 
 #: forms/preferences.py:226
 msgid "Save when closing"
-msgstr "Spara ändringar när programmet avslutas"
+msgstr "Хаахдаа хадгалах"
 
 #: forms/getshared.py:70 forms/share.py:74
 msgid "Search:"
-msgstr "Sök:"
+msgstr "Хайлт:"
 
 #: forms/cardlist.py:243
 msgid "Select &All"
-msgstr "Markera &alla"
+msgstr "&Бүгдийг сонго"
 
 #: forms/cardlist.py:262
 msgid "Select &Facts"
-msgstr "Välj &faktauppgifter"
+msgstr "&Баримтуудыг сонго"
 
 #: ui/activetags.py:17
+#, fuzzy
 msgid "Select All"
-msgstr "Markera alla"
+msgstr "&Бүгдийг сонго"
 
 #: ui/activetags.py:21
+#, fuzzy
 msgid "Select None"
-msgstr "Avmarkera alla"
+msgstr "&Бүгдийг сонго"
 
 #: forms/activetags.py:41
 msgid "Select tags to suspend. Deselect to unsuspend."
-msgstr "Välj vilka taggar som skall vara avaktiverade. Avmarkera för att återaktivera."
+msgstr ""
 
 #: ui/facteditor.py:168
 msgid "Set colour (F7 then F7)"
-msgstr "Ange färg (F7 därpå F7)"
+msgstr "Өнгийг сонго (F7 тэгээд F7)"
 
 #: forms/main.py:1000
 msgid "Share..."
-msgstr "Dela ut..."
+msgstr "Өөр хүмүүстэй хуваалцах..."
 
 #: forms/main.py:1003
 msgid "Shared Deck"
-msgstr "Delad kortlek"
+msgstr "Нийтийн Цуглуулга"
 
 #: forms/main.py:1005
 msgid "Shared Plugin"
-msgstr "Delad insticksmodul"
+msgstr "Нийтийн хавсарга програм"
 
 #: ui/modelchooser.py:41
 msgid "Shift+Alt+e"
-msgstr "Skift+Alt+e"
+msgstr "Shift+Alt+e"
 
 #: ui/modelchooser.py:28
 msgid "Shift+Alt+m"
-msgstr "Skift+Alt+m"
+msgstr "Shift+Alt+m"
 
 #: forms/main.py:866
 msgid "Show Answer"
-msgstr "Visa svar"
+msgstr "Хариулт үзүүлэх"
 
 #: ui/facteditor.py:260
 msgid "Show advanced options"
-msgstr "Visa avancerade inställningar"
+msgstr "Давтан тохиргоонуудыг үзүүлэх"
 
 #: forms/preferences.py:219
 msgid "Show divider between question and answer"
-msgstr "Visa skiljelinje mellan fråga och svar"
+msgstr "Асуулт, хариулт хоёрын хооронд хуваагч тэмдгийг тавих"
 
 #: forms/preferences.py:222
 msgid "Show due count and progress during review"
-msgstr "Visa fälten för antal återstående och prestation under repetition"
+msgstr "Давтахад хугацаа болсны тоо, процесс хоёрт үзүүлэх"
 
 #: forms/main.py:942
 msgid "Show graphical statistics about your deck"
-msgstr "Visa grafisk statistik om din kortlek"
+msgstr "Таны цуглуулгын тухай зургийн статистикс үзүүлэх"
 
 #: forms/preferences.py:221
 msgid "Show next time before answer"
-msgstr "Visa nästa gång innan svar"
+msgstr "Дараагийн удаа хариултын өмнө үзэх"
 
 #: forms/displayproperties.py:375
 msgid "Show preview"
-msgstr "Visa förhandsgranskning"
+msgstr "Өмнөх үзэмжит үзүүлэх"
 
 #: forms/main.py:930
 msgid "Show some textual statistics about your deck"
-msgstr "Visa viss statistik om din kortlek som text"
+msgstr "Таны цуглуулгын тухай текстийн статистикс үзүүлэх"
 
 #: forms/main.py:936
 msgid "Show statistics about the current card and last card"
-msgstr "Visa statistik om aktuellt och föregående kort."
+msgstr "Одоогийн бас сүүлийн картын статистиксуудыг үзүүлэх"
 
 #: forms/preferences.py:240
 msgid "Show study options on deck load"
-msgstr "Visa instuderingsalternativ vid inläsning av kortlek"
+msgstr "Цуглуулгыг ачаалагдахад сурахын тохиргоонууд үз"
 
 #: forms/main.py:865
 msgid "Show the answer (shortcut key: space or enter)"
-msgstr "Visa svaret (kortkommando: mellanslag eller enter)"
+msgstr "Хариулт үзүүлэх (богино холбоос: зай эсвэл буцалт товч)"
 
 #: forms/main.py:867
 msgid "Show this card again soon (shortcut key: 1)"
-msgstr "Visa detta kort igen snart (kortkommando: 1)"
+msgstr "Ийм карт одоохон үзүүлэх (богино холбоос: 1)"
 
 #: forms/preferences.py:238
 msgid "Show timer"
-msgstr "Visa tidtagare"
+msgstr "Секунд хэмжигчийг үзүүлэх"
 
 #: forms/preferences.py:241
 msgid "Show tray icon"
-msgstr "Visa ikon i systembrickan"
+msgstr "Мэдээллийн цэгийн тэмдэг үзүүлэх"
 
 #: ui/graphs.py:229
 msgid "Show/Hide"
-msgstr "Visa/Dölj"
+msgstr "Үзүүлэх/Hуух"
 
 #: ui/addcards.py:118 ui/cardlist.py:575
 msgid "Some fields are missing or not unique."
-msgstr "Några fält saknas eller är inte unika."
+msgstr "Зарим талбар байхгүй эсвэл цор ганц битгий байна."
 
 #: forms/preferences.py:223 forms/preferences.py:243
 msgid "Some settings will take effect after you restart Anki."
-msgstr "Vissa inställningar blir aktiva först efter att du startat om Anki."
+msgstr "Зарим тохируулгууд Анкиг дахин асаахийн дараа үр дүн нь гарна."
 
 #: ui/main.py:546
 msgid "Soon"
-msgstr "Snart"
+msgstr "Одоохон"
 
 #: forms/modelproperties.py:301
 msgid "Sort as numbers"
-msgstr "Sortera som tal"
+msgstr "Тоотоор эрэмбэлэх"
 
 #: ui/facteditor.py:859
 msgid "Sounds (*.mp3 *.ogg *.wav)"
-msgstr "Ljud (*.mp3 *.ogg *.wav)"
+msgstr "Дуунууд (*.mp3 *.ogg *.wav)"
 
 #: ui/deckproperties.py:184
 msgid "Source ID:"
-msgstr "Käll-ID:"
+msgstr "Эх үүсвэрийн ялгах тэмдэг:"
 
 #: ui/preferences.py:43
 msgid "Spanish"
-msgstr "Spanska"
+msgstr "Испани хэл"
 
 #: ui/main.py:1115
 msgid "Start &Reviewing"
-msgstr "&Börja repetera"
+msgstr "Давтахыг &эхлэх"
 
 #: ui/view.py:297
 msgid "Start adding your own material."
-msgstr "Börja lägga till ditt eget material."
+msgstr "Материалаа эхлэн нэм."
 
 #: forms/main.py:894
 msgid "Startup"
-msgstr "Start"
+msgstr "Эхлэл"
 
 #: forms/importing.py:101
 msgid "Status"
-msgstr "Status"
+msgstr "Байдал"
 
 #: forms/main.py:952
 msgid "Stop reviewing this card until it's unsuspended in the browser"
-msgstr "Repetera inte detta kort igen förrän du hävt åsidosättningen i bläddraren"
+msgstr "Энэ карт браузерт бүү түдгэлзүүлэхийн хүртэл давтахгүй"
 
 #: ui/main.py:1328
 msgid "Suspend"
-msgstr "Åsidosätt"
+msgstr "Түдгэлзэх"
 
 #: ui/preferences.py:44
 msgid "Swedish"
-msgstr "Svenska"
+msgstr "Швед хэл"
 
 #: ui/sync.py:116
 msgid "Sync complete."
-msgstr "Synkronisering färdig."
+msgstr "Давхцал дууссан."
 
 #: forms/preferences.py:234
 msgid "Sync on close"
-msgstr "Synkronisera vid stängning:"
+msgstr "Хаахдаа давхцах"
 
 #: forms/preferences.py:235
 msgid "Sync on open"
-msgstr "Synkronisera vid öppning"
+msgstr "Нээхдээ давхцах"
 
 #: forms/deckproperties.py:352
 msgid "Synchronisation"
-msgstr "Synkronisering"
+msgstr "Давхцал"
 
 #: forms/deckproperties.py:342
 msgid "Synchronize this deck"
-msgstr "Synkronisera denna kortlek"
+msgstr "Энэ цуглуулгыг давхац"
 
 #: forms/main.py:907
 msgid "Synchronize this deck with Anki Online"
-msgstr "Synkronisera denna kortlek med Anki Online"
+msgstr "Энэ цуглуулга Анки Вебтэй давхац"
 
 #: ui/main.py:1723 ui/main.py:1725
 msgid "Syncing Media..."
-msgstr "Synkroniserar media..."
+msgstr "Медиа түдгэлзүүлж байна..."
 
 #: ui/sync.py:53
 #, python-format
@@ -2508,39 +2516,39 @@ msgid ""
 "\n"
 "Error: %s"
 msgstr ""
-"Synkronisering misslyckades. Försök igen om några minuter.\n"
-"Om problemet kvarstår, rapportera detta på forumet.\n"
+"Давхцал дампуурсан. 2, 3 минутын дараа дахиад хийх гэж оролдох.\n"
+"Тэр алдааг үргэлжилж байвал форумд руу бичээрэй.\n"
 "\n"
-"Fel: %s"
+"Алдаа: %s"
 
 #: ui/sync.py:163
 #, python-format
 msgid "Syncing failed: %(a)s"
-msgstr "Synkronisering misslyckades: %(a)s"
+msgstr "Давхцал дампуурсан: %(a)s"
 
 #: ui/main.py:2227
 msgid "Tag Cards"
-msgstr "Sätt etikett på kort"
+msgstr "Картуудыг шошго хий"
 
 #: forms/importing.py:98
 msgid "Tag facts with duplicate fields instead of deleting"
-msgstr "Sätt etikett dubblettfält på faktauppgift i stället för att ta bort."
+msgstr "Устгахын оронд нь картуудыг хуулбар шошгуудтай хий"
 
 #: ui/facteditor.py:116
 msgid "Tags"
-msgstr "Etiketter"
+msgstr "Шошгууд"
 
 #: ui/main.py:1432
 msgid "Tags to cram:"
-msgstr "Etiketter att råplugga:"
+msgstr "Шошгоос оройтож бэлтгэх нь:"
 
 #: ui/cardlist.py:1157
 msgid "Targets must be unique."
-msgstr "Mål måste vara  unika."
+msgstr "Төлөвлөгөөт цор ганц ёстой."
 
 #: forms/changemodel.py:78
 msgid "Templates"
-msgstr "Mallar"
+msgstr "Бэлдцүүд"
 
 #: forms/changemodel.py:76 forms/share.py:76
 msgid "TextLabel"
@@ -2551,12 +2559,12 @@ msgid ""
 "The input you have provided would make an empty\n"
 "question or answer on all cards."
 msgstr ""
-"Det du har matat in skulle skapa en tom fråga\n"
-"eller ett tomt svar på alla kort."
+"Бичсэн хэсэг бүх картын дээр хоосон\n"
+"асуулт эсвэл хариулт болоо."
 
 #: ui/sync.py:51
 msgid "The sync protocol has changed. Please upgrade."
-msgstr "Synkningsprotokollet har ändrats. Du behöver uppgradera."
+msgstr "Давхцал протокол өөрчлүүлсэн. Программыг шинэчлээрэй."
 
 #: ui/status.py:211
 #, python-format
@@ -2566,54 +2574,54 @@ msgid ""
 "generally be between 80-95% - lower and you're forgetting mature cards<br>\n"
 "too often, higher and you're spending too much time reviewing."
 msgstr ""
-"Den översta linjen visar dagens prestation. Den nedre linjen visar hur du<br>\n"
-"har presterat på kort som varit schemalagda i 21 dagar eller mer. Den undre linjen<br>\n"
-"bör i vanliga fall ligga mellan 80-95% - om den är lägre så  glömmer du bort gamla kort<br>\n"
-"för ofta, högre så tillbringar du för mycket tid med repetition."
+"Графикийн дээр нь өнөөдрийн тоглолтыг үзүүлдэг.  Графикийн доор нь<br>\n"
+"21 хоногийн илүү картуудын тоглолтыг үзүүлдэг.  Ер нь доор нь<br>\n"
+"80-95% - lo хэрэгтэй.  Эндээс доош байхад хуучин картуудыг мартдаг<br>\n"
+"боловч эндээс дээш байхад хуучин давтахыг ихэддэг."
 
 #: ui/status.py:186
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
-msgstr[0] "Det finns <b>%d</b> kort som väntar på att repeteras."
-msgstr[1] "Det finns <b>%d</b> kort som väntar på att repeteras."
+msgstr[0] "<b>%d</b> карт давтах хэрэгтэй."
+msgstr[1] "<b>%d</b> картууд давтах хэрэгтэй."
 
 #: ui/status.py:195
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
-msgstr[0] "Det finns <b>%d</b> senarelagt kort."
-msgstr[1] "Det finns <b>%d</b> senarelagda kort."
+msgstr[0] "<b>%d</b> удаасан карт байна."
+msgstr[1] "<b>%d</b> удаасан картууд байна."
 
 #: ui/status.py:183
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
-msgstr[0] "Det finns <b>%d</b> felbesvarat kort vars tidsfrist snart är ute."
-msgstr[1] "Det finns <b>%d</b> felbesvarade kort vars tidsfrist snart är ute."
+msgstr[0] "<b>%d</b> дампуурсан карт бараг хугацаа болоо."
+msgstr[1] "Картуудаас <b>%d</b> дампуурсан нь бараг хугацаа болоо."
 
 #: ui/status.py:189
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
-msgstr[0] "Det finns <b>%d</b> nytt kort som skall visas i dag."
-msgstr[1] "Det finns <b>%d</b> nya kort som skall visas i dag."
+msgstr[0] "<b>%d</b> дампуурсан карт өнөөдөр хугацаа болоо."
+msgstr[1] "Картуудаас <b>%d</b> дампуурсан нь өнөөдөр хугацаа болоо."
 
 #: ui/status.py:192
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
-msgstr[0] "Det finns sammanlagt <b>%d</b> nytt kort."
-msgstr[1] "Det finns sammanlagt <b>%d</b> nya kort."
+msgstr[0] "Нийтийн <b>%d</b> шинэ карт байна."
+msgstr[1] "Нийтийн <b>%d</b> шинэ картууд байна."
 
 #: ui/view.py:220
 #, python-format
 msgid "This card was due in %s."
-msgstr "Detta korts tidsfrist skulle gått ut om %s."
+msgstr "Энэ карт %s-д хугацаа болсон."
 
 #: ui/view.py:247
 msgid "This card will appear again later."
-msgstr "Detta kort kommer att visas igen senare."
+msgstr "Ийм карт дараа болж байна."
 
 #: ui/modelproperties.py:171
 #, python-format
@@ -2623,14 +2631,14 @@ msgid ""
 "\n"
 "Really delete this field?"
 msgstr ""
-"Detta fält används av %d kort. Om du tar bort det,\n"
-"så kommer all information i detta fält att gå förlorad.\n"
+"%d картууд энэ талбарыг хэрэглэж байна. Устгах бол\n"
+"талбараас бүх мэдээллийг устгана.\n"
 "\n"
-"Verkligen ta bort detta fält?"
+"Энэ талбарыг устгах мөн уу?"
 
 #: ui/utils.py:155
 msgid "This file exists. Are you sure you want to overwrite it?"
-msgstr "Denna fil finns redan. Är du säker på att du vill skriva över den?"
+msgstr "Энэ файл аль хэзээний байна.  Та үүнийг дарж бичих мөн уу?"
 
 #: ui/modelproperties.py:389
 #, python-format
@@ -2643,13 +2651,13 @@ msgid ""
 "\n"
 "Really delete these cards?"
 msgstr ""
-"Denna modell används av %d kort. Om du tar bort den,\n"
-"kommer alla dessa kort också att tas bort. Om du\n"
-"bara vill förhindra att fler kort skapas med\n"
-"denna modell, så använd i stället knappen\n"
-"'avaktivera'.\n"
+"Ийм зүйл %d картуудтай хэрэглүүлдэг. Үүнийг устгах бол\n"
+"бүх хэрэглэсэн картыг устгана. Зөвхөн ирээдүйн карт\n"
+"үүнийг хэрэглэхгүй бол 'унтраах' товчийг хэрэглээрэй.\n"
 "\n"
-"Verkligen ta bort dessa kort?"
+"\n"
+"\n"
+"Ийм картыг устгах мөн уу?"
 
 #: ui/deckproperties.py:156
 #, python-format
@@ -2658,9 +2666,9 @@ msgid ""
 "Are you sure you want to delete it?\n"
 "If you delete it, these cards will be lost."
 msgstr ""
-"Denna modell används av %d faktauppgifter.\n"
-"Är du säker på att du vill ta bort den?\n"
-"Om du tar bort den så kommer dessa kort att gå förlorade."
+"%d баримтууд энэ зүйлийг хэрэглэдэг.\n"
+"Үүнийг устгаж болох уу?\n"
+"Хэрэв тийм бол ийм картуудыг бас устгана."
 
 #: ui/deckproperties.py:149
 #, python-format
@@ -2669,9 +2677,9 @@ msgid ""
 "%s\n"
 "You will need to remove the source first."
 msgstr ""
-"Denna modell används av kortlekskällan:\n"
+"Энэ зүйл цуглуулгын дараагийн эх үүсвэрийг хэрэглэж байна:\n"
 "%s\n"
-"Du måste ta bort den källan först."
+"Эхлээд та эх үүсвэрийг устгах хэрэгтэй."
 
 #: ui/main.py:2191
 msgid ""
@@ -2683,13 +2691,13 @@ msgid ""
 "<b>This operation is not undoable.</b><br>\n"
 "Proceed?"
 msgstr ""
-"Denna åtgärd hittar och lagar några vanliga problem.<br>\n"
+"Энэ гүйцэтгэл зарим түгээмэл асуудлыг олоод засварлана.<br>\n"
 "<br>\n"
-"Vid nästa synkning kommer alla kort att skickas upp till servern.<br>\n"
-"Alla ändringar på servern sedan sista synkning kommer att gå förlorade.<br>\n"
+"Дараагийн давхцал бүх карт сервер руу явуулна.<br>\n"
+"Сүүлийн сервертэй давхцалаас хойшдын өөрчлөлтийг устгана.<br>\n"
 "<br>\n"
-"<b>Denna åtgärd kan inte ångras.</b><br>\n"
-"Fortsätt?"
+"<b>Энэ гүйцэтгэлийг тайлж чадахгүй шүү дээ.</b><br>\n"
+"Үргэлжлэх мөн уу?"
 
 #: ui/main.py:2218
 msgid ""
@@ -2702,62 +2710,62 @@ msgid ""
 "<b>This operation is not undoable.</b><br>\n"
 "Consider backing up your media directory first."
 msgstr ""
-"Denna operation:<br>\n"
-" - tar bort filer som inte är länkade till något kort<br>\n"
-" - sätter antingen etikett på kort, eller tar bort länkar till saknade filer<br>\n"
-" - byter namn på filer till en sträng av siffror och bokstäver<br>\n"
-" - uppdaterar checksummor för filer som har ändrats<br>\n"
+"Энэ гүйдэл:<br>\n"
+" - Картуудын хэрэглэдэггүй файлуудыг устгаад<br>\n"
+" - Картуудыг шошго хийнэ эсвэл алга болсон файлуудын дурлалын устгаад<br>\n"
+" - Файлуудын нэрүүдийг өөрчлөөд<br>\n"
+" - Өөрчилсөн файлуудын хяналтын нийлбэрийг шинэчилнэ<br>\n"
 "<br>\n"
-"<b>Denna operation kan inte ångras.</b><br>\n"
-"Överväg att göra en säkerhetskopia av ditt mediebibliiotek först."
+"<b>Энэ гүйдэл тайлах чадахгүй.</b><br>\n"
+"Таны медианы каталог нөөц хийнэ уу?"
 
 #: ui/getshared.py:145 ui/getshared.py:149
 msgid "Title"
-msgstr "Titel"
+msgstr "Гарчиг"
 
 #: ui/main.py:1303
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
 msgstr ""
-"För att visa diagram behöver Anki en .dll-fil som\n"
-"du inte har. Installera:\n"
+"Диаграммуудыг үзэхээр Анки нэг .dll файл\n"
+"хэрэгтэй. Дарааг нь суулгаарай:\n"
 
 #: ui/tray.py:91
 msgid "Today's reviews are finished"
-msgstr "Dagens repetition är avslutad"
+msgstr "Өнөөдрийн давталтууд дууссан"
 
 #: ui/main.py:1199
 msgid "Toggle Toolbar"
-msgstr "Visa eller dölj verktygsraden"
+msgstr "Багажид самбарыг хөшүүрэгдэх"
 
 #: ui/status.py:231
 msgid "Total correct: "
-msgstr "Sammanlagt rätt: "
+msgstr "Зөв нь:"
 
 #: ui/status.py:221 ui/status.py:226
 msgid "Total review time: "
-msgstr "Sammanlagd repetitionstid: "
+msgstr "Нийт давталтын цаг:"
 
 #: ui/sync.py:108
 msgid "Transferring payload..."
-msgstr "Överför nyttolast..."
+msgstr "хэсэг шилжүүлж байна..."
 
 #: forms/findreplace.py:63
 msgid "Treat input as regular expression"
-msgstr "Behandla inmatning som ett reguljärt uttryck"
+msgstr "Бичсэн хэрэг байнгын илэрхийлэлтээр хэрэглэнэ"
 
 #: ui/main.py:521
 msgid "Type in the answer and hit enter"
-msgstr "Skriv in svaret och tryck enter"
+msgstr "Хариултыг бичээд  буцалт товчид дар"
 
 #: forms/share.py:75
 msgid "Type:"
-msgstr "Typ:"
+msgstr "Төрөл:"
 
 #: ui/getshared.py:67 ui/getshared.py:173
 msgid "Unable to connect to server."
-msgstr "Kan inte nå servern."
+msgstr "Сервертэй холбож чадаагүй."
 
 #: ui/main.py:581
 msgid ""
@@ -2771,27 +2779,27 @@ msgid ""
 "\n"
 "To upgrade an old deck, download Anki 0.9.8.7."
 msgstr ""
-"Kan inte läsa in kortlek.\n"
+"Цуглуулгыг ачаалагдах чадаагүй.\n"
 "\n"
-"Möjliga orsaker:\n"
-" - filen är inte en Anki-kortlek\n"
-" - kortleken är enbart läsbar\n"
-" - katalogen är enbart läsbar\n"
-" - kortleken skapades med en version av Anki < 0.9\n"
+"Магадгүй яагаад гэвэл дараагийн алдаанаас нэг нь:\n"
+" - тэр файл Анкигын цуглуулга биш\n"
+" - цуглуулга зөвхөн уншихад зориулсан\n"
+" - каталог зөвхөн уншихад зориулсан\n"
+" - цуглуулга Анки хувилбар 0.9-с багатай хийсэн\n"
 "\n"
-"För att uppgradera en gammal kortlek, hämta Anki 0.9.8.7."
+"Хөгшин цуглуулгыг дээшлүүлэхээр Анки 0.9.8.7-г тат."
 
 #: ui/main.py:826
 msgid "Unable to load file."
-msgstr "Kan inte läsa in filen."
+msgstr "Файлыг ачаалагдаж чадаагүй."
 
 #: ui/update.py:91
 msgid "Unable to open file"
-msgstr "Kan inte öppna filen"
+msgstr "Файлыг нээж чадаагүй"
 
 #: ui/update.py:86
 msgid "Unable to reach server"
-msgstr "Kan inte nå servern"
+msgstr "Серверийн хаяг шийдвэр хийж чадаагүй"
 
 #: ui/importing.py:165
 #, python-format
@@ -2800,30 +2808,30 @@ msgid ""
 "\n"
 "%(info)s"
 msgstr ""
-"Kan inte läsa fil.\n"
+"Файлыг уншиж чадаагүй.\n"
 "\n"
 "%(info)s"
 
 #: ui/main.py:615
 msgid "Unable to recover. Deck load failed."
-msgstr "Kan inte fortsätta. Inläsning av kortlek misslyckades."
+msgstr "Сэргээх  чадаагүй. Цуглуулга ачаалагдахыг дампуурсан. "
 
 #: forms/main.py:991
 msgid "Uncache LaTeX"
-msgstr "Ta bort Latex från cachen"
+msgstr "LaTeX ойгоос устгах"
 
 #: ui/facteditor.py:159
 msgid "Underline text (Ctrl+u)"
-msgstr "Stryk under text (Ctrl+u)"
+msgstr "Доогуур зурах (Ctrl+u)"
 
 #: ui/cardlist.py:470 ui/main.py:1930
 #, python-format
 msgid "Undo %s"
-msgstr "Ångra %s"
+msgstr "%s-г тайлах"
 
 #: ui/update.py:108
 msgid "Update complete. Please restart Anki."
-msgstr "Uppdatering genomförd. Starta om Anki."
+msgstr "Шинэчлэл дууссан.  Анки дахин асаарай."
 
 #: ui/main.py:1970
 msgid ""
@@ -2831,54 +2839,54 @@ msgid ""
 " - you can keep studying\n"
 " - please don't close this"
 msgstr ""
-"Uppdaterar Anki...\n"
-" - du kan fortsätta studera\n"
-" - stäng inte det här"
+"Анкийг шинэчилж байна...\n"
+" - сурахыг үргэлжилж болно\n"
+" - энэ битгий хаагаарай"
 
 #: forms/displayproperties.py:369
 msgid "Use custom colour"
-msgstr "Använd anpassade färger"
+msgstr "Тохируулалтын өнгийг хэрэглэх"
 
 #: forms/displayproperties.py:368 forms/displayproperties.py:372
 msgid "Use custom font"
-msgstr "Använd anpassat typsnitt"
+msgstr "Тохируулалтын фонтыг хэрэглэх"
 
 #: forms/displayproperties.py:367 forms/displayproperties.py:371
 msgid "Use custom size"
-msgstr "Använd anpassad storlek"
+msgstr "Тохируулалтын хэмжээг хэрэглэх"
 
 #: forms/preferences.py:233
 msgid "Username"
-msgstr "Användarnamn"
+msgstr "Хэрэглэгч"
 
 #: ui/main.py:764
 msgid "Username:"
-msgstr "Användarnamn:"
+msgstr "Хэрэглэгч:"
 
 #: forms/main.py:869
 msgid "Wait a little longer next time (shortcut key: 2)"
-msgstr "Vänta lite längre nästa gång (kortkommando: 2)"
+msgstr "Дараагийн удаа жаахан хүлээх (богино холбоос: 2)"
 
 #: forms/main.py:873
 msgid "Wait a lot longer next time (shortcut key: 4)"
-msgstr "Vänta mycket längre nästa gång (kortkommando: 4)"
+msgstr "Дараагийн удаа маш хүлээх (богино холбоос: 4)"
 
 #: forms/main.py:871
 msgid "Wait longer next time (shortcut key: 3)"
-msgstr "Vänta längre nästa gång (kortkommando: 3)"
+msgstr "Дараагийн удаа хүлээх (богино холбоос: 3)"
 
 #: ui/view.py:295
 msgid "Welcome to Anki!"
-msgstr "Välkommen till Anki!"
+msgstr "Анки тавтай морилно уу!"
 
 #: ui/view.py:243
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
-msgstr "Bra gjort! Detta kort kommer att visas igen om  <b>%(next)s</b>."
+msgstr "Сайн байна! Ийм картыг <b>%(next)s</b>-н дараа үзүүлнэ."
 
 #: ui/update.py:122
 msgid "Would you like to download it now?"
-msgstr "Vill du hämta hem det nu?"
+msgstr "Та одоо татах гэсийн юм уу?"
 
 #: ui/main.py:1961
 #, python-format
@@ -2887,9 +2895,9 @@ msgid ""
 "It is %(sec)d seconds %(type)s.\n"
 " Please ensure it is set correctly and then restart Anki."
 msgstr ""
-"Din datorklocka går fel.\n"
-"Den går  %(sec)d sekunder %(type)s.\n"
-" Ställ klockan rätt och starta sedan om Anki."
+"Таны компьютерын цаг буруу цагийг тааруулсан.\n"
+"Үүнийг %(sec)d секунд %(type)s.\n"
+"Цаг зөв тааруулаад Анки дахин асаагаарай."
 
 #: ui/main.py:1711
 #, python-format
@@ -2900,328 +2908,96 @@ msgid ""
 "Since this can cause many problems with syncing,\n"
 "syncing is disabled until you fix the problem."
 msgstr ""
-"Din datorklocka går inte rätt.\n"
-"Den går %d sekunder fel.\n"
+"Таны компьютерын цаг буруу цагийг тааруулсан.\n"
+"%d секундэд буруу байна.\n"
 "\n"
-"Då detta kan ställa till med många problem i samband\n"
-"med synkning, är synkning avaktiverad till problemet lösts."
+"Яагаад гэвэл үүнээс олон давхцалын алдаа шалтгаацаж чадна,\n"
+"Алдааг засварлахын хүртэл давхцал унтраасан."
 
 #: ui/main.py:1308
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
 msgstr ""
-"Din version av Matplotlib är korrupt.\n"
-"Läs mer på http://ichi2.net/anki/wiki/MatplotlibBroken"
+"Таны Matplotlib-н хувилбар хагаруулсан.\n"
+"http://ichi2.net/anki/wiki/MatplotlibBroken-т үзүүлэнэ уу?"
 
 #: forms/main.py:978
 msgid "a"
-msgstr "a"
+msgstr "нэг нь"
 
 #: forms/preferences.py:228
 msgid "cards"
-msgstr "kort"
+msgstr "картууд"
 
 #: forms/deckproperties.py:368 forms/deckproperties.py:369
 #: forms/deckproperties.py:370 forms/reschedule.py:83 forms/reschedule.py:85
 msgid "days"
-msgstr "dagar"
+msgstr "өдрүүд"
 
 #: ui/main.py:1959
 msgid "early"
-msgstr "tidigt"
+msgstr "эрт"
 
 #: forms/preferences.py:230
 msgid "facts"
-msgstr "faktauppgifter"
+msgstr "баримтууд"
 
 #: ui/cardlist.py:211
 #, python-format
 msgid "in %s"
-msgstr "om %s"
+msgstr "%s-н дотор"
 
 #: forms/deckproperties.py:340
 msgid "label"
-msgstr "etikett"
+msgstr "тэмдэг"
 
 #: ui/main.py:1957
 msgid "late"
-msgstr "sent"
+msgstr "хойш"
 
 #: ui/importing.py:193
 #, python-format
 msgid "mapped to <b>%s</b>"
-msgstr "parades ihop med <b>%s</b>"
+msgstr "<b>%s</b>-тай тааруулсан"
 
 #: ui/importing.py:195
 msgid "mapped to <b>Tags</b>"
-msgstr "parade i hop med <b>etiketter</b>"
+msgstr "<b>Шошгууд</b>-той тааруулах"
 
 #: forms/deckproperties.py:366 forms/deckproperties.py:367
 msgid "mins"
-msgstr "minuter"
+msgstr "минутууд"
 
 #: forms/deckproperties.py:351
 msgid "option"
-msgstr "alternativ"
+msgstr "тохиргоо"
 
 #: forms/syncdeck.py:43
 msgid "toplabel"
-msgstr "toppetikett"
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Anki</h1>\n"
-#~ "<img src=\":/icons/anki.png\">\n"
-#~ "<p>\n"
-#~ "<span>Anki is a spaced repetition flashcard program designed to maximise your\n"
-#~ "memory potential.<p/>It's free and licensed under the GPL.<p/>\n"
-#~ "Version %s<br>\n"
-#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Anki</h1>\n"
-#~ "<img src=\":/icons/anki.png\">\n"
-#~ "<p>\n"
-#~ "<span>Anki är ett tidsfördelat flashcard-repetitionsprogram konstruerat för att\n"
-#~ "maximera din minneskapacitet.<p/>Det är fritt och under GPL-licens.<p/>\n"
-#~ "Version %s<br>\n"
-#~ "<a href=\"http://ichi2.net/anki/\">Besök webbplats</a></span>\n"
-
-#~ msgid " (%(dYesTotal)d of %(dTotal)d)</b><br>"
-#~ msgstr " (%(dYesTotal)d av %(dTotal)d)</b><br>"
-
-#~ msgid ""
-#~ "%s.\n"
-#~ "Anki can only merge models if they have exactly\n"
-#~ "the same field count and card count."
-#~ msgstr ""
-#~ "%s.\n"
-#~ "Anki kan enbart slå ihop modeller om de har exact\n"
-#~ "samma antal fält och kort."
-
-#~ msgid "&Edit All..."
-#~ msgstr "&Redigera allt..."
-
-#~ msgid "&Get More Decks..."
-#~ msgstr "&Hämta fler kortlekar..."
-
-#, fuzzy
-#~ msgid "(%(gMatureYes)d of %(gMatureTotal)d)</b><br>"
-#~ msgstr " (%(dYesTotal)d av %(dTotal)d)</b><br>"
-
-#, fuzzy
-#~ msgid "(%(gNewYes)d of %(gNewTotal)d)<br>"
-#~ msgstr " (%(dYesTotal)d av %(dTotal)d)</b><br>"
-
-#, fuzzy
-#~ msgid "(%(gYoungYes)d of %(gYoungTotal)d)<br>"
-#~ msgstr " (%(dYesTotal)d av %(dTotal)d)</b><br>"
-
-#~ msgid "<Select Tag>"
-#~ msgstr "<Välj etikett>"
+msgstr "toplabel"
 
 #~ msgid "<b>File to import</b>:"
-#~ msgstr "<b>Fil att importera</b>:"
+#~ msgstr "<b>Импортын файл</b>:"
 
 #~ msgid "<b>Type of file</b>:"
-#~ msgstr "<b>Filtyp</b>:"
-
-#~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
-#~ msgstr "<h1>Avancerade inställningar</h1>Några inställningar kräver en omstart."
-
-#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-#~ msgstr "<h1>Återstående kort</h1><p/>Det finns <b>%(failed)d</b> felbesvarade kort vars tidsfrist snart är ute.<br>Det finns <b>%(rev)d</b> kort som väntar på att repeteras.<br>Det finns <b>%(new)d</b> nya kort som skall visas i dag.<br><br>Det finns sammanlagt <b>%(new2)d</b> nya kort.<br>Det finns <b>%(spaced)d</b> senarelagda kort."
+#~ msgstr "<b>Файлын төрөл</b>:"
 
 #~ msgid "<h1>Select tags to suspend</h1>"
-#~ msgstr "<h1>Välj de etiketter du vill åsidosätta</h1>"
-
-#~ msgid "<h1>Welcome Back!</h1>"
-#~ msgstr "<h1>Välkommen tillbaka!</h1>"
-
-#~ msgid ""
-#~ "<h1>Welcome to Anki!</h1>\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h1><a href=\"welcome:addfacts\">Add material</a></h1>\n"
-#~ "Start adding your own material.</td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<br>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">Open Local Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">Download Shared Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:openrem\">Download Personal Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "<h1>Välkommen till Ankii!</h1>\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h1><a href=\"welcome:addfacts\">Lägg till material</a></h1>\n"
-#~ "Börja lägga till ditt eget material.</td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<br>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">Öppna lokal kortlek</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">Hämta delad kortlek</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:openrem\">Hämta personlig kortlek</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>"
-
-#, fuzzy
-#~ msgid ""
-#~ "<h2>All Reviews</h2>\n"
-#~ "<b>Correct over a month: %(gMatureYes%)0.1f%%\n"
-#~ "(%(gMatureYes)d of %(gMatureTotal)d)</b><br>\n"
-#~ "Average time per answer: %(avgTime)s<br>\n"
-#~ "Total review time: %(revTime)s<br>\n"
-#~ "Correct under a month: %(gYoungYes%)0.1f%%\n"
-#~ "(%(gYoungYes)d of %(gYoungTotal)d)<br>\n"
-#~ "Correct first time: %(gNewYes%)0.1f%%\n"
-#~ "(%(gNewYes)d of %(gNewTotal)d)<br>\n"
-#~ "Total correct: %(gYesTotal%)0.1f%%\n"
-#~ "(%(gYesTotal)d of %(gTotal)d)"
-#~ msgstr ""
-#~ "<h2>Alla repetitioner</h2>\n"
-#~ "<b>Rätt äldre än en månad: %(gMatureYes%)0.1f%%\n"
-#~ "(%(gMatureYes)d of %(gMatureTotal)d)</b><br>\n"
-#~ "Genomsnittstid per svar: %(avgTime)s<br>\n"
-#~ "Sammanlagd repetitionstid: %(revTime)s<br>\n"
-#~ "Rätt yngre än en månad: %(gYoungYes%)0.1f%%\n"
-#~ "(%(gYoungYes)d of %(gYoungTotal)d)<br>\n"
-#~ "Rätt första gången: %(gNewYes%)0.1f%%\n"
-#~ "(%(gNewYes)d of %(gNewTotal)d)<br>\n"
-#~ "Sammanlagt rätt: %(gYesTotal%)0.1f%%\n"
-#~ "(%(gYesTotal)d of %(gTotal)d)"
-
-#~ msgid ""
-#~ "<h2>Reviews today</h2>\n"
-#~ "<b>Correct today: %(percTotal)s\n"
-#~ "(%(dYesTotal)d of %(dTotal)d)</b><br>\n"
-#~ "Average time per answer: %(avgTime)s<br>\n"
-#~ "Total review time: %(revTime)s"
-#~ msgstr ""
-#~ "<h2>Dagens repetitioner</h2>\n"
-#~ "<b>Rätta idag: %(percTotal)s\n"
-#~ "(%(dYesTotal)d av %(dTotal)d)</b><br>\n"
-#~ "Genomsnittstid per svar: %(avgTime)s<br>\n"
-#~ "Sammanlagd repetitionstid: %(revTime)s"
-
-#~ msgid "Application-wide preferences."
-#~ msgstr "Inställningar för hela programmet."
+#~ msgstr "<h1>Түдгэлзүүлэхийн шошгыг сонго</h1>"
 
 #~ msgid "Choose &file..."
-#~ msgstr "Välj &fil..."
+#~ msgstr "&Файлыг сонго..."
 
 #~ msgid "Choose file..."
-#~ msgstr "Välj fil..."
+#~ msgstr "Файлыг сонго..."
 
 #~ msgid ""
 #~ "Click the close button or import another file.\n"
 #~ "\n"
 #~ msgstr ""
-#~ "Klicka på stängningsknappen eller importera en fil till.\n"
+#~ "Хаа товчны дээр дар эсвэл дахин файлыг импорт хий.\n"
 #~ "\n"
 
-#~ msgid "Del"
-#~ msgstr "Ta bort"
-
-#~ msgid "Edit Items"
-#~ msgstr "Redigera poster"
-
-#~ msgid "Export to..."
-#~ msgstr "Exportera till..."
-
-#~ msgid "F6"
-#~ msgstr "F6"
-
-#~ msgid "Find"
-#~ msgstr "Sök"
-
 #~ msgid "Import file"
-#~ msgstr "Importera fil"
-
-#~ msgid "Merge complete."
-#~ msgstr "Sammanslagning klar."
-
-#~ msgid ""
-#~ "No models found to merge. If you want to merge models,\n"
-#~ "all models must have the same name, and must not be\n"
-#~ "from another person's deck."
-#~ msgstr ""
-#~ "Hittade inte några modeller att slå ihop. Om du vill slå ihop\n"
-#~ "modeller måste de alla ha samma namn, och kan inte höra\n"
-#~ "ihop med någon annans kortlek."
-
-#~ msgid "Open On&line..."
-#~ msgstr "Öppna p&å nätet..."
-
-#~ msgid "Replace"
-#~ msgstr "Ersätt"
-
-#~ msgid "Search"
-#~ msgstr "Sök"
-
-#~ msgid "Show information in status bar"
-#~ msgstr "Visa information i statusraden"
-
-#~ msgid "Unknown error: %s"
-#~ msgstr "Okänt fel: %s"
-
-#~ msgid "Would you like to merge models that have the same name?"
-#~ msgstr "Vill du slå ihop modeller med samma namn?"
-
-#~ msgid "xxx"
-#~ msgstr "xxx"
+#~ msgstr "Файлыг импортлох"
