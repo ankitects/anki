@@ -278,6 +278,10 @@ class StatusDelegate(QItemDelegate):
 class EditDeck(QMainWindow):
 
     def __init__(self, parent):
+        if parent.config['standaloneWindows']:
+            windParent = None
+        else:
+            windParent = parent
         QMainWindow.__init__(self, parent)
         self.parent = parent
         self.deck = self.parent.deck
