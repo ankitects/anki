@@ -516,13 +516,13 @@ combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
         self.flushMod()
 
-    def randomizeNewCards(self):
+    def randomizeNewCards(self, cardIds=None):
         "Randomize 'due' on all new cards."
-        self.startProgress()
-        self.updateProgress(_("Randomizing..."))
         now = time.time()
-        fids = self.s.column0("""
-select distinct factId from cards where type = 2""")
+        query = "select distinct factId from cards where type = 2"
+        if cardIds:
+            query += " and id in %s" % ids2str(cardIds)
+        fids = self.s.column0(query)
         data = [{'fid': fid,
                  'rand': random.uniform(0, now),
                  'now': now} for fid in fids]
@@ -533,19 +533,15 @@ combinedDue = max(:rand + ordinal, spaceUntil),
 modified = :now
 where factId = :fid
 and type = 2""", data)
-        self.finishProgress()
 
     def orderNewCards(self):
         "Set 'due' to card creation time."
-        self.startProgress()
-        self.updateProgress(_("Ordering..."))
         self.s.statement("""
 update cards set
 due = created,
 combinedDue = max(spaceUntil, due),
 modified = :now
 where type = 2""", now=time.time())
-        self.finishProgress()
 
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
@@ -1400,6 +1396,17 @@ select cards.id, cards.cardModelId, cards.factId, facts.modelId from
 cards, facts where
 cards.factId = facts.id and
 facts.modelId = :id""", id=model.id)
+        if not ids:
+            return
+        self.updateCardQACache(ids, dirty)
+
+    def updateCardsFromFactIds(self, ids, dirty=True):
+        "Update all card question/answer when model changes."
+        ids = self.s.all("""
+select cards.id, cards.cardModelId, cards.factId, facts.modelId from
+cards, facts where
+cards.factId = facts.id and
+facts.id in %s""" % ids2str(ids))
         if not ids:
             return
         self.updateCardQACache(ids, dirty)
