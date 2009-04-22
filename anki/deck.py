@@ -1651,7 +1651,7 @@ where id = :id""", pending)
                     pass
             if tmpTags != oldTags:
                 pending.append(
-                    {'id': id, 'now': now, 'tags': ", ".join(tmpTags)})
+                    {'id': id, 'now': now, 'tags': " ".join(tmpTags)})
         self.s.statements("""
 update facts set
 tags = :tags,
