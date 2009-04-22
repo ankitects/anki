@@ -47,7 +47,7 @@ REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
 REV_CARDS_RANDOM = 3
 
-DECK_VERSION = 33
+DECK_VERSION = 34
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -221,7 +221,7 @@ limit 1""")
         return self._getNewCard()
 
     def newCardTable(self):
-        return ("acqCardsRandom",
+        return ("acqCardsOld",
                 "acqCardsOld",
                 "acqCardsNew")[self.newCardOrder]
 
@@ -515,6 +515,27 @@ spaceUntil = 0, isDue = 0, type = 2,
 combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
         self.flushMod()
+
+    def randomizeNewCards(self):
+        "Randomize 'due' on all new cards."
+        now = time.time()
+        fids = self.s.column0("""
+select distinct factId from cards where type = 2""")
+        data = [{'fid': fid, 'rand': random.uniform(0, now)} for fid in fids]
+        self.s.statements("""
+update cards
+set due = :rand + ordinal,
+combinedDue = max(:rand + ordinal, spaceUntil)
+where factId = :fid
+and type = 2""", data)
+
+    def orderNewCards(self):
+        "Set 'due' to card creation time."
+        self.s.statement("""
+update cards set
+due = created,
+combinedDue = max(spaceUntil, due)
+where type = 2""")
 
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
@@ -935,8 +956,17 @@ and due < :now""", now=time.time())
         self.s.save(fact)
         self.factCount += 1
         self.flushMod()
+        random = self.newCardOrder == NEW_CARDS_RANDOM
+        if random:
+            oldest = self.s.scalar("""
+select min(due) from cards
+where type = 2 and priority in (1,2,3,4)""") or 0
+            due = random.uniform(oldest, time.time())
         for cardModel in cms:
             card = anki.cards.Card(fact, cardModel)
+            if random:
+                card.due = due + card.ordinal
+                card.combinedDue = card.due
             self.flushMod()
             cards.append(card)
         self.updateFactTags([fact.id])
@@ -2359,11 +2389,11 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
             required.append("intervalDesc")
         if self.revCardOrder == REV_CARDS_NEW_FIRST:
             required.append("intervalAsc")
-        if (self.revCardOrder == REV_CARDS_RANDOM or
-            self.newCardOrder == NEW_CARDS_RANDOM):
+        if self.revCardOrder == REV_CARDS_RANDOM:
             required.append("randomOrder")
         if (self.revCardOrder == REV_CARDS_DUE_FIRST or
-            self.newCardOrder == NEW_CARDS_OLD_FIRST):
+            self.newCardOrder == NEW_CARDS_OLD_FIRST or
+            self.newCardOrder == NEW_CARDS_RANDOM):
             required.append("dueAsc")
         if (self.newCardOrder == NEW_CARDS_NEW_FIRST):
             required.append("dueDesc")
@@ -2629,11 +2659,6 @@ select * from cards
 where type = 1 and isDue = 1
 order by priority desc, factId, ordinal""")
         # new cards
-        s.statement("""
-create view acqCardsRandom as
-select * from cards
-where type = 2 and isDue = 1
-order by priority desc, factId, ordinal""")
         s.statement("""
 create view acqCardsOld as
 select * from cards
@@ -2966,6 +2991,13 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.execute("drop index if exists ix_tags_tag")
             DeckStorage._addIndices(deck)
             deck.version = 33
+            deck.s.commit()
+        if deck.version < 34:
+            if deck.newCardOrder == NEW_CARDS_RANDOM:
+                deck.randomizeNewCards()
+            deck.updateDynamicIndices()
+            deck.s.execute("drop view if exists acqCardsRandom")
+            deck.version = 34
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
