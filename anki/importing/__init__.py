@@ -20,6 +20,7 @@ from anki.lang import _
 from anki.utils import genID, canonifyTags
 from anki.errors import *
 from anki.utils import canonifyTags
+from anki.deck import NEW_CARDS_RANDOM
 
 # Base importer
 ##########################################################################
@@ -47,14 +48,21 @@ class Importer(object):
 
     def doImport(self):
         "Import."
-        self.deck.startProgress(7)
+        random = self.deck.newCardOrder == NEW_CARDS_RANDOM
+        num = 7
+        if random:
+            num += 1
+        self.deck.startProgress(num)
         self.deck.updateProgress(_("Importing..."))
         c = self.foreignCards()
         self.importCards(c)
         self.deck.updateProgress()
-        self.deck.updateCardTags()
+        self.deck.updateCardTags(self.cardIds)
         self.deck.updateProgress()
-        self.deck.updateAllPriorities()
+        self.deck.updatePriorities(self.cardIds)
+        if random:
+            self.deck.updateProgress()
+            self.deck.randomizeNewCards(self.cardIds)
         self.deck.finishProgress()
         if c:
             self.deck.setModified()
@@ -124,6 +132,7 @@ all but one card template."""))
 
     def addCards(self, cards):
         "Add facts in bulk from foreign cards."
+        self.cardIds = []
         # map tags field to attr
         try:
             idx = self.mapping.index(0)
@@ -175,7 +184,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                 self.deck.s.execute(cardsTable.insert(),
                                     data)
         self.deck.updateProgress()
-        self.deck.updateCardsFromModel(self.model)
+        self.deck.updateCardsFromFactIds(factIds)
         self.deck.cardCount += len(cards)
         self.total = len(factIds)
 
@@ -188,6 +197,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         data['due'] = self._now
         self._now += .00001
         data.update(card.__dict__)
+        self.cardIds.append(data['id'])
         data['combinedDue'] = data['due']
         data['isDue'] = data['combinedDue'] < time.time()
         return data
