@@ -1857,10 +1857,14 @@ cardTags.tagId in %s""" % ids2str(ids)
         return ret
 
     def setVar(self, key, value, mod=True):
+        if self.s.scalar("""
+select value = :value from deckVars
+where key = :key""", key=key, value=value):
+            return
         self.s.statement("insert or replace into deckVars (key, value) "
                          "values (:key, :value)", key=key, value=value)
         if mod:
-            self.flushMod()
+            self.setModified()
 
     # Failed card handling
     ##########################################################################
