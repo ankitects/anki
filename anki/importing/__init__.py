@@ -55,14 +55,14 @@ class Importer(object):
         self.deck.startProgress(num)
         self.deck.updateProgress(_("Importing..."))
         c = self.foreignCards()
-        self.importCards(c)
-        self.deck.updateProgress()
-        self.deck.updateCardTags(self.cardIds)
-        self.deck.updateProgress()
-        self.deck.updatePriorities(self.cardIds)
-        if random:
+        if self.importCards(c):
             self.deck.updateProgress()
-            self.deck.randomizeNewCards(self.cardIds)
+            self.deck.updateCardTags(self.cardIds)
+            self.deck.updateProgress()
+            self.deck.updatePriorities(self.cardIds)
+            if random:
+                self.deck.updateProgress()
+                self.deck.randomizeNewCards(self.cardIds)
         self.deck.finishProgress()
         if c:
             self.deck.setModified()
@@ -127,12 +127,13 @@ all but one card template."""))
         # strip invalid cards
         cards = self.stripInvalid(cards)
         cards = self.stripOrTagDupes(cards)
+        self.cardIds = []
         if cards:
             self.addCards(cards)
+        return cards
 
     def addCards(self, cards):
         "Add facts in bulk from foreign cards."
-        self.cardIds = []
         # map tags field to attr
         try:
             idx = self.mapping.index(0)
