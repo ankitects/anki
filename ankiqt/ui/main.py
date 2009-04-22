@@ -685,8 +685,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onClose(self):
         if self.inMainWindow():
-            cramming = self.deck is not None and self.deck.name() == "cram"
-            self.saveAndClose(hideWelcome=cramming)
+            self.saveAndClose(hideWelcome=self.isCramming())
             if cramming:
                 self.loadRecent(0)
         else:
@@ -1374,6 +1373,9 @@ day = :d""", d=yesterday)
     ##########################################################################
 
     def onAddCard(self):
+        if self.isCramming():
+            ui.utils.showInfo(_("Can't add cards while cramming."))
+            return
         ui.dialogs.get("AddCards", self)
 
     def onEditDeck(self):
@@ -1437,8 +1439,11 @@ day = :d""", d=yesterday)
         e.exportInto(path)
         return (e, path)
 
+    def isCramming(self):
+        return self.deck is not None and self.deck.name() == "cram"
+
     def onCram(self, cardIds=[]):
-        if self.deck.name() == "cram":
+        if self.isCramming():
             ui.utils.showInfo(
                 _("Already cramming. Please close this deck first."))
             return
@@ -1458,7 +1463,7 @@ day = :d""", d=yesterday)
             ui.utils.showInfo(_("No cards matched the provided tags."))
             return
         if self.config['randomizeOnCram']:
-            n = 5
+            n = 3
         else:
             n = 2
         p = ui.utils.ProgressWin(self, n, 0, _("Cram"))
@@ -1478,22 +1483,11 @@ day = :d""", d=yesterday)
         self.deck.easyIntervalMax = 0.25
         self.deck.newCardOrder = 0
         self.deck.syncName = None
+        p.update()
+        self.deck.updateDynamicIndices()
         if self.config['randomizeOnCram']:
             p.update(_("Randomizing..."))
-            self.deck.s.statement(
-                "create temporary table idmap (old, new, primary key (old))")
-            self.deck.s.statement(
-                "insert into idmap select id, random() from facts")
-            self.deck.s.statement(
-                "update facts set id = (select new from idmap where old = id)")
-            p.update()
-            self.deck.s.statement(
-                "update cards set factId = (select new from idmap where old = factId)")
-            p.update()
-            self.deck.s.statement(
-                "update fields set factId = (select new from idmap where old = factId)")
-            p.update()
-            self.deck.updateDynamicIndices()
+            self.deck.randomizeNewCards()
         self.reset()
         p.finish()
 
