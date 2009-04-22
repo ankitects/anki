@@ -14,7 +14,7 @@ from PyQt4.QtGui import *
 from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue
-from anki.utils import addTags, deleteTags, parseTags
+from anki.utils import addTags, deleteTags, parseTags, canonifyTags
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError
 from anki.stdmodels import BasicModel
@@ -1330,11 +1330,11 @@ day = :d""", d=yesterday)
 
     def onMark(self, toggled):
         if self.currentCard.hasTag("Marked"):
-            self.currentCard.fact.tags = deleteTags(
-                "Marked", self.currentCard.fact.tags)
+            self.currentCard.fact.tags = canonifyTags(deleteTags(
+                "Marked", self.currentCard.fact.tags))
         else:
-            self.currentCard.fact.tags = addTags(
-                "Marked", self.currentCard.fact.tags)
+            self.currentCard.fact.tags = canonifyTags(addTags(
+                "Marked", self.currentCard.fact.tags))
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
         self.deck.setModified()
