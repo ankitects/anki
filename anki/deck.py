@@ -647,7 +647,10 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
     def nextDueMsg(self):
         next = self.earliestTime()
         if next:
-            newCardsTomorrow = min(self.newCount, self.newCardsPerDay)
+            newCount = self.s.scalar("""
+select count() from cards where type = 2
+and priority in (1,2,3,4)""")
+            newCardsTomorrow = min(newCount, self.newCardsPerDay)
             cards = self.cardsDueBy(time.time() + 86400)
             msg = _('''\
 <style>b { color: #00f; }</style>
@@ -696,15 +699,15 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         spaceSusp = ""
         c= self.newSpacedCount()
         if c:
-            spaceSusp += ngettext('There is <b>%d</b> delayed new card.',
-                                  'There are <b>%d</b> delayed new cards.',
+            spaceSusp += ngettext('There is <b>%d delayed</b> new card.',
+                                  'There are <b>%d delayed</b> new cards.',
                                   c) % c
         c2 = self.suspendedCardCount()
         if c2:
             if c:
                 spaceSusp += "<br>"
-            spaceSusp += ngettext('There is <b>%d</b> suspended card.',
-                                  'There are <b>%d</b> suspended cards.',
+            spaceSusp += ngettext('There is <b>%d suspended</b> card.',
+                                  'There are <b>%d suspended</b> cards.',
                                   c2) % c2
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
