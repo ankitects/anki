@@ -1342,7 +1342,8 @@ day = :d""", d=yesterday)
     def onSuspend(self):
         undo = _("Suspend")
         self.deck.setUndoStart(undo)
-        self.currentCard.fact.tags = addTags("Suspended", self.currentCard.fact.tags)
+        self.currentCard.fact.tags = canonifyTags(
+            addTags("Suspended", self.currentCard.fact.tags))
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
         for card in self.currentCard.fact.cards:
