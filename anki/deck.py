@@ -518,6 +518,8 @@ where id in %s""" % ids2str(ids), now=time.time(), new=0)
 
     def randomizeNewCards(self):
         "Randomize 'due' on all new cards."
+        self.startProgress()
+        self.updateProgress(_("Randomizing..."))
         now = time.time()
         fids = self.s.column0("""
 select distinct factId from cards where type = 2""")
@@ -528,14 +530,18 @@ set due = :rand + ordinal,
 combinedDue = max(:rand + ordinal, spaceUntil)
 where factId = :fid
 and type = 2""", data)
+        self.finishProgress()
 
     def orderNewCards(self):
         "Set 'due' to card creation time."
+        self.startProgress()
+        self.updateProgress(_("Ordering..."))
         self.s.statement("""
 update cards set
 due = created,
 combinedDue = max(spaceUntil, due)
 where type = 2""")
+        self.finishProgress()
 
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
