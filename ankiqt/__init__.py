@@ -173,7 +173,8 @@ def run():
     except (IOError, OSError):
         pass
 
-    app.exec_()
+    if not mw.abortOpen:
+        app.exec_()
 
 if __name__ == "__main__":
     run()

@@ -33,6 +33,7 @@ class AnkiQt(QMainWindow):
         QMainWindow.__init__(self)
         self.errorOccurred = False
         self.inDbHandler = False
+        self.abortOpen = False
         if sys.platform.startswith("darwin"):
             qt_mac_set_menubar_icons(False)
         ankiqt.mw = self
@@ -631,6 +632,12 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             r = self.loadDeck(path, interactive=False, sync=False)
             if r:
                 return r
+            else:
+                # deck is already open
+                if not ui.utils.askUser(
+                    _("Anki is already open. Open another copy?")):
+                    self.abortOpen = True
+                    return
         self.onNew(initial=True)
 
     def getDefaultDir(self, save=False):
