@@ -1158,10 +1158,16 @@ day = :d""", d=yesterday)
         if self.deck.newCardOrder != ncOrd:
             if self.deck.newCardOrder == 0 and ncOrd != 0:
                 # random to non-random
+                self.deck.startProgress()
+                self.deck.updateProgress(_("Ordering..."))
                 self.deck.orderNewCards()
+                self.deck.finishProgress()
             elif self.deck.newCardOrder != 0 and ncOrd == 0:
                 # non-random to random
+                self.deck.startProgress()
+                self.deck.updateProgress(_("Randomizing..."))
                 self.deck.randomizeNewCards()
+                self.deck.finishProgress()
         uf(self.deck, 'newCardOrder', ncOrd)
         uf(self.deck, 'newCardSpacing',
            self.mainWin.newCardScheduling.currentIndex())
