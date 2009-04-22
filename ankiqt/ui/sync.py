@@ -36,8 +36,11 @@ class Sync(QThread):
         self.syncDeck()
 
     def error(self, error):
-        error = self.getErrorMessage(error)
-        self.emit(SIGNAL("showWarning"), error)
+        if error.data.get('type') == 'noResponse':
+            self.emit(SIGNAL("noSyncResponse"))
+        else:
+            error = self.getErrorMessage(error)
+            self.emit(SIGNAL("showWarning"), error)
         if self.onlyMerge:
             # new file needs cleaning up
             self.emit(SIGNAL("cleanNewDeck"))
@@ -49,9 +52,6 @@ class Sync(QThread):
             msg=_("Please double-check your username/password.")
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
-        elif error.data.get('type') == 'noResponse':
-            msg=_("""\
-Couldn't contact Anki Online. Please check your internet connection.""")
         else:
             msg=_("Unknown error: %s" % `getattr(error, 'data')`)
         return msg

@@ -830,14 +830,17 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.updateRecentFiles(file)
             return True
 
-    def onUnsavedTimer(self):
+    def showToolTip(self, msg):
+        t = QTimer(self)
+        t.setSingleShot(True)
+        t.start(200)
+        self.connect(t, SIGNAL("timeout()"),
+                     lambda msg=msg: self._showToolTip(msg))
+
+    def _showToolTip(self, msg):
         QToolTip.showText(
-            self.mainWin.statusbar.mapToGlobal(QPoint(0, -100)),
-            _("""\
-<h1>Unsaved Deck</h1>
-Careful. You're editing an unsaved Deck.<br>
-Choose File -> Save to start autosaving<br>
-your deck."""))
+            self.mainWin.statusbar.mapToGlobal(QPoint(0, -40)),
+            msg)
 
     def save(self, required=False):
         if not self.deck.path:
@@ -845,10 +848,11 @@ your deck."""))
                 # backed in memory, make sure it's saved
                 return self.onSaveAs()
             else:
-                t = QTimer(self)
-                t.setSingleShot(True)
-                t.start(200)
-                self.connect(t, SIGNAL("timeout()"), self.onUnsavedTimer)
+                self.showToolTip(_("""\
+<h1>Unsaved Deck</h1>
+Careful. You're editing an unsaved Deck.<br>
+Choose File -> Save to start autosaving<br>
+your deck."""))
             return
         if not self.deck.modifiedSinceSave():
             return True
@@ -1657,6 +1661,7 @@ it to your friends.
                                        onlyMerge, self.sourcesToCheck)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
+        self.connect(self.syncThread, SIGNAL("noSyncResponse"), self.noSyncResponse)
         self.connect(self.syncThread, SIGNAL("moveToState"), self.moveToState)
         self.connect(self.syncThread, SIGNAL("noMatchingDeck"), self.selectSyncDeck)
         self.connect(self.syncThread, SIGNAL("syncClockOff"), self.syncClockOff)
@@ -1730,6 +1735,11 @@ it to your friends.
     def showSyncWarning(self, text):
         ui.utils.showWarning(text, self)
         self.setStatus("")
+
+    def noSyncResponse(self):
+        self.showToolTip(_("""\
+<h1>Sync Failed</h1>
+Couldn't contact Anki Online. Please check your internet connection."""))
 
     def openSyncProgress(self):
         self.syncProgressDialog = QProgressDialog(_("Syncing Media..."),
