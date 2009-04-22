@@ -1043,7 +1043,6 @@ your deck."""))
 
     def updateStudyStats(self):
         wasReached = self.deck.sessionLimitReached()
-        self.deck.sessionStartTime = 0
         sessionColour = '<font color=#0000ff>%s</font>'
         cardColour = '<font color=#0000ff>%s</font>'
         if not wasReached:

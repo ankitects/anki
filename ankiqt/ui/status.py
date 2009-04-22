@@ -64,13 +64,16 @@ class StatusView(object):
             shown = True
         self.progressBar.setShown(shown)
         self.retentionBar.setShown(shown)
-        self.timer.setShown(shown)
         self.etaText.setShown(shown)
         self.remText.setShown(shown)
         self.sep1.setShown(shown)
         self.sep2.setShown(shown)
-        self.sep3.setShown(shown)
         self.statusbar.hideOrShow()
+        # timer has a separate option
+        if not self.main.config['showTimer']:
+            shown = False
+        self.timer.setShown(shown)
+        self.sep3.setShown(shown)
 
     # Setup and teardown
     ##########################################################################
@@ -130,8 +133,6 @@ class StatusView(object):
         self.timer.setText("00:00")
         self.addWidget(self.timer)
         self.redraw()
-        if not self.main.config['showTimer']:
-            self.timer.setShown(False)
 
     def addWidget(self, w, stretch=0):
         self.statusbar.addWidget(w, stretch)
