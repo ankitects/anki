@@ -282,7 +282,7 @@ class EditDeck(QMainWindow):
             windParent = None
         else:
             windParent = parent
-        QMainWindow.__init__(self, parent)
+        QMainWindow.__init__(self, windParent)
         self.parent = parent
         self.deck = self.parent.deck
         self.config = parent.config
