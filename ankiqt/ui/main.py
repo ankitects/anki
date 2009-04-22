@@ -1154,8 +1154,15 @@ day = :d""", d=yesterday)
                int(self.mainWin.questionLimit.text()))
         except (ValueError, OverflowError):
             pass
-        uf(self.deck, 'newCardOrder',
-           self.mainWin.newCardOrder.currentIndex())
+        ncOrd = self.mainWin.newCardOrder.currentIndex()
+        if self.deck.newCardOrder != ncOrd:
+            if self.deck.newCardOrder == 0 and ncOrd != 0:
+                # random to non-random
+                self.deck.orderNewCards()
+            elif self.deck.newCardOrder != 0 and ncOrd == 0:
+                # non-random to random
+                self.deck.randomizeNewCards()
+        uf(self.deck, 'newCardOrder', ncOrd)
         uf(self.deck, 'newCardSpacing',
            self.mainWin.newCardScheduling.currentIndex())
         uf(self.deck, 'revCardOrder',
