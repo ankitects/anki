@@ -523,11 +523,14 @@ where id in %s""" % ids2str(ids), now=time.time(), new=0)
         now = time.time()
         fids = self.s.column0("""
 select distinct factId from cards where type = 2""")
-        data = [{'fid': fid, 'rand': random.uniform(0, now)} for fid in fids]
+        data = [{'fid': fid,
+                 'rand': random.uniform(0, now),
+                 'now': now} for fid in fids]
         self.s.statements("""
 update cards
 set due = :rand + ordinal,
-combinedDue = max(:rand + ordinal, spaceUntil)
+combinedDue = max(:rand + ordinal, spaceUntil),
+modified = :now
 where factId = :fid
 and type = 2""", data)
         self.finishProgress()
@@ -539,8 +542,9 @@ and type = 2""", data)
         self.s.statement("""
 update cards set
 due = created,
-combinedDue = max(spaceUntil, due)
-where type = 2""")
+combinedDue = max(spaceUntil, due),
+modified = :now
+where type = 2""", now=time.time())
         self.finishProgress()
 
     def rescheduleCards(self, ids, min, max):
