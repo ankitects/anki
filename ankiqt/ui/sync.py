@@ -49,12 +49,11 @@ class Sync(QThread):
             msg=_("Please double-check your username/password.")
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
-        else:
+        elif error.data.get('type') == 'noResponse':
             msg=_("""\
-Syncing failed. Please try again in a few minutes.
-If the problem persists, please report it on the forum.
-
-Error: %s""" % `getattr(error, 'data')`)
+Couldn't contact Anki Online. Please check your internet connection.""")
+        else:
+            msg=_("Unknown error: %s" % `getattr(error, 'data')`)
         return msg
 
     def connect(self, *args):
