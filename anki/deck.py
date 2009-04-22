@@ -3003,8 +3003,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.version = 33
             deck.s.commit()
         if deck.version < 34:
-            if deck.newCardOrder == NEW_CARDS_RANDOM:
-                deck.randomizeNewCards()
             deck.updateDynamicIndices()
             deck.s.execute("drop view if exists acqCardsRandom")
             deck.version = 34
