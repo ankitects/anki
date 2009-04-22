@@ -705,7 +705,7 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
                 spaceSusp += "<br>"
             spaceSusp += ngettext('There is <b>%d</b> suspended card.',
                                   'There are <b>%d</b> suspended cards.',
-                                  c) % c2
+                                  c2) % c2
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
         return _('''\
