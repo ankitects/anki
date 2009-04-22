@@ -1374,12 +1374,18 @@ day = :d""", d=yesterday)
 
     def onAddCard(self):
         if self.isCramming():
-            ui.utils.showInfo(_("Can't add cards while cramming."))
+            ui.utils.showInfo(_("""\
+You are currently cramming. Please close this deck first."""))
             return
         ui.dialogs.get("AddCards", self)
 
     def onEditDeck(self):
         ui.dialogs.get("CardList", self)
+        if self.isCramming():
+            self.showToolTip(_("""\
+<h1>Cramming</h1>
+You are currently cramming. Any edits you make to this deck
+will be lost when you close the deck."""))
 
     def onEditCurrent(self):
         self.moveToState("editCurrentFact")
@@ -1415,7 +1421,10 @@ day = :d""", d=yesterday)
     ##########################################################################
 
     def onImport(self):
-        import ui.importing
+        if self.isCramming():
+            ui.utils.showInfo(_("""\
+You are currently cramming. Please close this deck first."""))
+            return
         if self.deck is None:
             self.onNew()
         ui.importing.ImportDialog(self)
