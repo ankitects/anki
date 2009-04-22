@@ -2601,7 +2601,7 @@ create index if not exists ix_cards_duePriority on cards
 (type, isDue, combinedDue, priority)""")
         # card spacing
         deck.s.statement("""
-create index if not exists ix_cards_factId on cards (factId)""")
+create index if not exists ix_cards_factId on cards (factId, type)""")
         # stats
         deck.s.statement("""
 create index if not exists ix_stats_typeDay on stats (type, day)""")
@@ -3010,8 +3010,10 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.version = 33
             deck.s.commit()
         if deck.version < 34:
-            deck.updateDynamicIndices()
             deck.s.execute("drop view if exists acqCardsRandom")
+            deck.s.execute("drop index if exists ix_cards_factId")
+            DeckStorage._addIndices(deck)
+            deck.updateDynamicIndices()
             deck.version = 34
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
