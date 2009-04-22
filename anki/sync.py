@@ -157,7 +157,7 @@ class SyncTools(object):
         self.deck.rebuildCounts(full=False)
 
     def rebuildPriorities(self, cardIds, suspend=[]):
-        self.deck.updatePriorities(cardIds, suspend=suspend)
+        self.deck.updatePriorities(cardIds, suspend=suspend, dirty=False)
 
     def postSyncRefresh(self):
         "Flush changes to DB, and reload object associations."
