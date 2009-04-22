@@ -12,6 +12,10 @@
   <property name="windowTitle" >
    <string>Browse Items</string>
   </property>
+  <property name="windowIcon" >
+   <iconset resource="../icons.qrc" >
+    <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" name="verticalLayout" >
     <property name="spacing" >
