@@ -962,15 +962,15 @@ and due < :now""", now=time.time())
         self.s.save(fact)
         self.factCount += 1
         self.flushMod()
-        random = self.newCardOrder == NEW_CARDS_RANDOM
-        if random:
+        isRandom = self.newCardOrder == NEW_CARDS_RANDOM
+        if isRandom:
             oldest = self.s.scalar("""
 select min(due) from cards
 where type = 2 and priority in (1,2,3,4)""") or 0
             due = random.uniform(oldest, time.time())
         for cardModel in cms:
             card = anki.cards.Card(fact, cardModel)
-            if random:
+            if isRandom:
                 card.due = due + card.ordinal
                 card.combinedDue = card.due
             self.flushMod()
