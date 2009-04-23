@@ -697,18 +697,22 @@ where id in (%s)""" % ",".join([
         (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
         if tags:
             n = _("Add Tags")
+            self.parent.setProgressParent(self)
             self.deck.setUndoStart(n)
             self.deck.addTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(n)
+            self.parent.setProgressParent(None)
         self.updateAfterCardChange()
 
     def deleteTags(self):
         (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
         if tags:
             n = _("Delete Tags")
+            self.parent.setProgressParent(self)
             self.deck.setUndoStart(n)
             self.deck.deleteTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(n)
+            self.parent.setProgressParent(None)
         self.updateAfterCardChange()
 
     def reschedule(self):

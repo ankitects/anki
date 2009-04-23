@@ -33,6 +33,7 @@ class AnkiQt(QMainWindow):
         QMainWindow.__init__(self)
         self.errorOccurred = False
         self.inDbHandler = False
+        self.reviewingStarted = False
         if sys.platform.startswith("darwin"):
             qt_mac_set_menubar_icons(False)
         ankiqt.mw = self
