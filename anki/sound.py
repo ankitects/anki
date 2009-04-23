@@ -53,12 +53,12 @@ queue = []
 manager = None
 
 if sys.platform.startswith("win32"):
-    externalPlayer = ["mplayer.exe", "-ao", "win32", "-really-quiet"]
+    externalPlayer = ["mplayer.exe", "-ao", "win32", "-really-quiet", "-noconsolecontrols"]
     dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.environ['PATH'] += ";" + dir
     os.environ['PATH'] += ";" + dir + "\\..\\dist" # for testing
 else:
-    externalPlayer = ["mplayer", "-really-quiet"]
+    externalPlayer = ["mplayer", "-really-quiet", "-noconsolecontrols"]
 
 # don't show box on windows
 if sys.platform == "win32":
