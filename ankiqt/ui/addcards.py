@@ -22,7 +22,11 @@ class FocusButton(QPushButton):
 class AddCards(QDialog):
 
     def __init__(self, parent):
-        QDialog.__init__(self, parent, Qt.Window)
+        if parent.config['standaloneWindows']:
+            windParent = None
+        else:
+            windParent = parent
+        QDialog.__init__(self, windParent, Qt.Window)
         self.parent = parent
         self.config = parent.config
         self.dialog = ankiqt.forms.addcards.Ui_AddCards()

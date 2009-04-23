@@ -36,8 +36,11 @@ class Sync(QThread):
         self.syncDeck()
 
     def error(self, error):
-        error = self.getErrorMessage(error)
-        self.emit(SIGNAL("showWarning"), error)
+        if error.data.get('type') == 'noResponse':
+            self.emit(SIGNAL("noSyncResponse"))
+        else:
+            error = self.getErrorMessage(error)
+            self.emit(SIGNAL("showWarning"), error)
         if self.onlyMerge:
             # new file needs cleaning up
             self.emit(SIGNAL("cleanNewDeck"))
@@ -50,11 +53,7 @@ class Sync(QThread):
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
         else:
-            msg=_("""\
-Syncing failed. Please try again in a few minutes.
-If the problem persists, please report it on the forum.
-
-Error: %s""" % `getattr(error, 'data')`)
+            msg=_("Unknown error: %s" % `getattr(error, 'data')`)
         return msg
 
     def connect(self, *args):

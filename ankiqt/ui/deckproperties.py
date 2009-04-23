@@ -235,7 +235,7 @@ class DeckProperties(QDialog):
             v = float(self.dialog.delay2.text())
             self.updateField(self.d, 'delay2', v)
             v = int(self.dialog.failedCardMax.text())
-            self.updateField(self.d, 'failedCardMax', max(v, 5))
+            self.updateField(self.d, 'failedCardMax', v)
         except ValueError:
             pass
         # hour shift

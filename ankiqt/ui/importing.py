@@ -134,6 +134,8 @@ class ImportDialog(QDialog):
         txt = (
             _("Importing complete. %(num)d facts imported from %(file)s.\n") %
             {"num": self.importer.total, "file": os.path.basename(self.file)})
+        self.dialog.groupBox.setShown(False)
+        self.dialog.buttonBox.button(QDialogButtonBox.Close).setFocus()
         if self.importer.log:
             txt += _("Log of import:\n") + "\n".join(self.importer.log)
         self.dialog.status.setText(txt)

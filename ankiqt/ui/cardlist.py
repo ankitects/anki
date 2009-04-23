@@ -278,7 +278,11 @@ class StatusDelegate(QItemDelegate):
 class EditDeck(QMainWindow):
 
     def __init__(self, parent):
-        QMainWindow.__init__(self, parent)
+        if parent.config['standaloneWindows']:
+            windParent = None
+        else:
+            windParent = parent
+        QMainWindow.__init__(self, windParent)
         self.parent = parent
         self.deck = self.parent.deck
         self.config = parent.config
@@ -412,8 +416,7 @@ class EditDeck(QMainWindow):
             self.sortKey = ("field", self.sortFields[idx-9])
         self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
-        if self.deck.getInt('sortIndex') != idx:
-            self.deck.setVar('sortIndex', idx)
+        self.deck.setVar('sortIndex', idx)
         self.model.sortKey = self.sortKey
         self.model.updateHeader()
         if refresh:
@@ -499,6 +502,8 @@ class EditDeck(QMainWindow):
         self.updateSearch()
 
     def updateSearch(self, force=True):
+        if self.parent.inDbHandler:
+            return
         idx = self.dialog.tableView.currentIndex()
         row = idx.row()
         self.model.searchStr = unicode(self.dialog.filterEdit.text())

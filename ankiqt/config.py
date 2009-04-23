@@ -75,6 +75,7 @@ class Config(dict):
             'showStudyOptions': False,
             'showStudyStats': True,
             'showCardTimer': True,
+            'standaloneWindows': True,
             'extraNewCards': 5,
             'randomizeOnCram': True,
             'created': time.time(),

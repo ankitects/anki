@@ -42,9 +42,10 @@ class AnkiFigureCanvas (FigureCanvas):
 
 class AdjustableFigure(QWidget):
 
-    def __init__(self, config, name, figureFunc, choices=None):
+    def __init__(self, parent, name, figureFunc, choices=None):
         QWidget.__init__(self)
-        self.config = config
+        self.parent = parent
+        self.config = parent.config
         self.name = name
         self.vbox = QVBoxLayout()
         self.vbox.setSpacing(2)
@@ -75,6 +76,8 @@ class AdjustableFigure(QWidget):
         self.vbox.addLayout(self.hbox)
 
     def updateFigure(self):
+        if self.parent.inDbHandler:
+            return
         self.updateTimer = None
         self.setUpdatesEnabled(False)
         idx = self.vbox.indexOf(self.figureCanvas)
@@ -184,43 +187,43 @@ class GraphWindow(object):
         self.diag.show()
 
     def setupGraphs(self):
-        nextDue = AdjustableFigure(self.parent.config, 'due', self.dg.nextDue, self.range)
+        nextDue = AdjustableFigure(self.parent, 'due', self.dg.nextDue, self.range)
         nextDue.addWidget(QLabel(_("<h1>Due</h1>")))
         self.vbox.addWidget(nextDue)
         self.widgets.append(nextDue)
 
-        workload = AdjustableFigure(self.parent.config, 'reps', self.dg.workDone, self.range)
+        workload = AdjustableFigure(self.parent, 'reps', self.dg.workDone, self.range)
         workload.addWidget(QLabel(_("<h1>Reps</h1>")))
         self.vbox.addWidget(workload)
         self.widgets.append(workload)
 
-        times = AdjustableFigure(self.parent.config, 'times', self.dg.timeSpent, self.range)
+        times = AdjustableFigure(self.parent, 'times', self.dg.timeSpent, self.range)
         times.addWidget(QLabel(_("<h1>Review Time</h1>")))
         self.vbox.addWidget(times)
         self.widgets.append(times)
 
-        added = AdjustableFigure(self.parent.config, 'added', self.dg.addedRecently, self.range)
+        added = AdjustableFigure(self.parent, 'added', self.dg.addedRecently, self.range)
         added.addWidget(QLabel(_("<h1>Added</h1>")))
         self.vbox.addWidget(added)
         self.widgets.append(added)
 
-        answered = AdjustableFigure(self.parent.config, 'answered', lambda *args: apply(
+        answered = AdjustableFigure(self.parent, 'answered', lambda *args: apply(
             self.dg.addedRecently, args + ('firstAnswered',)), self.range)
         answered.addWidget(QLabel(_("<h1>First Answered</h1>")))
         self.vbox.addWidget(answered)
         self.widgets.append(answered)
 
-        cumDue = AdjustableFigure(self.parent.config, 'cum', self.dg.cumulativeDue, self.range)
+        cumDue = AdjustableFigure(self.parent, 'cum', self.dg.cumulativeDue, self.range)
         cumDue.addWidget(QLabel(_("<h1>Cumulative Due</h1>")))
         self.vbox.addWidget(cumDue)
         self.widgets.append(cumDue)
 
-        interval = AdjustableFigure(self.parent.config, 'interval', self.dg.intervalPeriod, self.range)
+        interval = AdjustableFigure(self.parent, 'interval', self.dg.intervalPeriod, self.range)
         interval.addWidget(QLabel(_("<h1>Intervals</h1>")))
         self.vbox.addWidget(interval)
         self.widgets.append(interval)
 
-        eases = AdjustableFigure(self.parent.config, 'eases', self.dg.easeBars)
+        eases = AdjustableFigure(self.parent, 'eases', self.dg.easeBars)
         eases.addWidget(QLabel(_("<h1>Eases</h1>")))
         self.vbox.addWidget(eases)
         self.widgets.append(eases)

@@ -14,7 +14,7 @@ from PyQt4.QtGui import *
 from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue
-from anki.utils import addTags, deleteTags, parseTags
+from anki.utils import addTags, deleteTags, parseTags, canonifyTags
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError
 from anki.stdmodels import BasicModel
@@ -685,8 +685,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onClose(self):
         if self.inMainWindow():
-            cramming = self.deck is not None and self.deck.name() == "cram"
-            self.saveAndClose(hideWelcome=cramming)
+            self.saveAndClose(hideWelcome=self.isCramming())
             if cramming:
                 self.loadRecent(0)
         else:
@@ -830,14 +829,17 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             self.updateRecentFiles(file)
             return True
 
-    def onUnsavedTimer(self):
+    def showToolTip(self, msg):
+        t = QTimer(self)
+        t.setSingleShot(True)
+        t.start(200)
+        self.connect(t, SIGNAL("timeout()"),
+                     lambda msg=msg: self._showToolTip(msg))
+
+    def _showToolTip(self, msg):
         QToolTip.showText(
-            self.mainWin.statusbar.mapToGlobal(QPoint(0, -100)),
-            _("""\
-<h1>Unsaved Deck</h1>
-Careful. You're editing an unsaved Deck.<br>
-Choose File -> Save to start autosaving<br>
-your deck."""))
+            self.mainWin.statusbar.mapToGlobal(QPoint(0, -40)),
+            msg)
 
     def save(self, required=False):
         if not self.deck.path:
@@ -845,10 +847,11 @@ your deck."""))
                 # backed in memory, make sure it's saved
                 return self.onSaveAs()
             else:
-                t = QTimer(self)
-                t.setSingleShot(True)
-                t.start(200)
-                self.connect(t, SIGNAL("timeout()"), self.onUnsavedTimer)
+                self.showToolTip(_("""\
+<h1>Unsaved Deck</h1>
+Careful. You're editing an unsaved Deck.<br>
+Choose File -> Save to start autosaving<br>
+your deck."""))
             return
         if not self.deck.modifiedSinceSave():
             return True
@@ -1036,7 +1039,6 @@ your deck."""))
 
     def updateStudyStats(self):
         wasReached = self.deck.sessionLimitReached()
-        self.deck.sessionStartTime = 0
         sessionColour = '<font color=#0000ff>%s</font>'
         cardColour = '<font color=#0000ff>%s</font>'
         if not wasReached:
@@ -1155,8 +1157,21 @@ day = :d""", d=yesterday)
                int(self.mainWin.questionLimit.text()))
         except (ValueError, OverflowError):
             pass
-        uf(self.deck, 'newCardOrder',
-           self.mainWin.newCardOrder.currentIndex())
+        ncOrd = self.mainWin.newCardOrder.currentIndex()
+        if self.deck.newCardOrder != ncOrd:
+            if self.deck.newCardOrder == 0 and ncOrd != 0:
+                # random to non-random
+                self.deck.startProgress()
+                self.deck.updateProgress(_("Ordering..."))
+                self.deck.orderNewCards()
+                self.deck.finishProgress()
+            elif self.deck.newCardOrder != 0 and ncOrd == 0:
+                # non-random to random
+                self.deck.startProgress()
+                self.deck.updateProgress(_("Randomizing..."))
+                self.deck.randomizeNewCards()
+                self.deck.finishProgress()
+        uf(self.deck, 'newCardOrder', ncOrd)
         uf(self.deck, 'newCardSpacing',
            self.mainWin.newCardScheduling.currentIndex())
         uf(self.deck, 'revCardOrder',
@@ -1315,11 +1330,11 @@ day = :d""", d=yesterday)
 
     def onMark(self, toggled):
         if self.currentCard.hasTag("Marked"):
-            self.currentCard.fact.tags = deleteTags(
-                "Marked", self.currentCard.fact.tags)
+            self.currentCard.fact.tags = canonifyTags(deleteTags(
+                "Marked", self.currentCard.fact.tags))
         else:
-            self.currentCard.fact.tags = addTags(
-                "Marked", self.currentCard.fact.tags)
+            self.currentCard.fact.tags = canonifyTags(addTags(
+                "Marked", self.currentCard.fact.tags))
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
         self.deck.setModified()
@@ -1327,7 +1342,8 @@ day = :d""", d=yesterday)
     def onSuspend(self):
         undo = _("Suspend")
         self.deck.setUndoStart(undo)
-        self.currentCard.fact.tags = addTags("Suspended", self.currentCard.fact.tags)
+        self.currentCard.fact.tags = canonifyTags(
+            addTags("Suspended", self.currentCard.fact.tags))
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
         for card in self.currentCard.fact.cards:
@@ -1358,10 +1374,19 @@ day = :d""", d=yesterday)
     ##########################################################################
 
     def onAddCard(self):
+        if self.isCramming():
+            ui.utils.showInfo(_("""\
+You are currently cramming. Please close this deck first."""))
+            return
         ui.dialogs.get("AddCards", self)
 
     def onEditDeck(self):
         ui.dialogs.get("CardList", self)
+        if self.isCramming():
+            self.showToolTip(_("""\
+<h1>Cramming</h1>
+You are currently cramming. Any edits you make to this deck
+will be lost when you close the deck."""))
 
     def onEditCurrent(self):
         self.moveToState("editCurrentFact")
@@ -1397,7 +1422,10 @@ day = :d""", d=yesterday)
     ##########################################################################
 
     def onImport(self):
-        import ui.importing
+        if self.isCramming():
+            ui.utils.showInfo(_("""\
+You are currently cramming. Please close this deck first."""))
+            return
         if self.deck is None:
             self.onNew()
         ui.importing.ImportDialog(self)
@@ -1421,8 +1449,11 @@ day = :d""", d=yesterday)
         e.exportInto(path)
         return (e, path)
 
+    def isCramming(self):
+        return self.deck is not None and self.deck.name() == "cram"
+
     def onCram(self, cardIds=[]):
-        if self.deck.name() == "cram":
+        if self.isCramming():
             ui.utils.showInfo(
                 _("Already cramming. Please close this deck first."))
             return
@@ -1442,7 +1473,7 @@ day = :d""", d=yesterday)
             ui.utils.showInfo(_("No cards matched the provided tags."))
             return
         if self.config['randomizeOnCram']:
-            n = 5
+            n = 3
         else:
             n = 2
         p = ui.utils.ProgressWin(self, n, 0, _("Cram"))
@@ -1462,22 +1493,11 @@ day = :d""", d=yesterday)
         self.deck.easyIntervalMax = 0.25
         self.deck.newCardOrder = 0
         self.deck.syncName = None
+        p.update()
+        self.deck.updateDynamicIndices()
         if self.config['randomizeOnCram']:
             p.update(_("Randomizing..."))
-            self.deck.s.statement(
-                "create temporary table idmap (old, new, primary key (old))")
-            self.deck.s.statement(
-                "insert into idmap select id, random() from facts")
-            self.deck.s.statement(
-                "update facts set id = (select new from idmap where old = id)")
-            p.update()
-            self.deck.s.statement(
-                "update cards set factId = (select new from idmap where old = factId)")
-            p.update()
-            self.deck.s.statement(
-                "update fields set factId = (select new from idmap where old = factId)")
-            p.update()
-            self.deck.updateDynamicIndices()
+            self.deck.randomizeNewCards()
         self.reset()
         p.finish()
 
@@ -1645,6 +1665,7 @@ it to your friends.
                                        onlyMerge, self.sourcesToCheck)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
+        self.connect(self.syncThread, SIGNAL("noSyncResponse"), self.noSyncResponse)
         self.connect(self.syncThread, SIGNAL("moveToState"), self.moveToState)
         self.connect(self.syncThread, SIGNAL("noMatchingDeck"), self.selectSyncDeck)
         self.connect(self.syncThread, SIGNAL("syncClockOff"), self.syncClockOff)
@@ -1718,6 +1739,11 @@ it to your friends.
     def showSyncWarning(self, text):
         ui.utils.showWarning(text, self)
         self.setStatus("")
+
+    def noSyncResponse(self):
+        self.showToolTip(_("""\
+<h1>Sync Failed</h1>
+Couldn't contact Anki Online. Please check your internet connection."""))
 
     def openSyncProgress(self):
         self.syncProgressDialog = QProgressDialog(_("Syncing Media..."),
