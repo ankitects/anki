@@ -126,29 +126,42 @@ class AnkiQt(QMainWindow):
                 self.parent = parent
                 self.timer = None
                 self.pool = ""
+                self.poolUpdated = 0
 
             def write(self, data):
                 print data.encode("utf-8"),
                 self.pool += data
-                self.updateTimer()
+                self.poolUpdated = time.time()
 
-            def updateTimer(self):
-                interval = 200
-                if not self.timer:
-                    self.timer = QTimer(self.parent)
-                    self.timer.setSingleShot(True)
-                    self.timer.start(interval)
-                    self.parent.connect(self.timer,
-                                        SIGNAL("timeout()"),
-                                        self.onTimeout)
-                else:
-                    self.timer.setInterval(interval)
+            def haveError(self):
+                if self.pool:
+                    if (time.time() - self.poolUpdated) > 1:
+                        return True
 
-            def onTimeout(self):
-                if "font_manager.py" in self.pool:
-                    # hack for matplotlib errors on osx
-                    self.pool = ""
-                stdText = _("""\
+            def getError(self):
+                p = self.pool
+                self.pool = ""
+                return p
+
+        self.errorPipe = ErrorPipe(self)
+        sys.stderr = self.errorPipe
+        self.errorTimer = QTimer(self)
+        self.errorTimer.start(1000)
+        self.connect(self.errorTimer,
+                            SIGNAL("timeout()"),
+                            self.onErrorTimer)
+
+    def onErrorTimer(self):
+        if self.errorPipe.haveError():
+            error = self.errorPipe.getError()
+            if "font_manager.py" in error:
+                # hack for matplotlib errors on osx
+                return
+            if "Audio player not found" in error:
+                ui.utils.showInfo(
+                    _("Couldn't play sound. Please install mplayer."))
+                return
+            stdText = _("""\
 An error occurred. Please:<p>
 <ol>
 <li><b>Restart Anki</b>.
@@ -157,21 +170,16 @@ An error occurred. Please:<p>
 If it does not fix the problem, please copy the following<br>
 into a bug report:<br><br>
 """)
-                pluginText = _("""\
+            pluginText = _("""\
 An error occurred in a plugin. Please contact the plugin author.<br>
 Please do not file a bug report with Anki.<br><br>""")
-                if "plugin" in self.pool:
-                    txt = pluginText
-                else:
-                    txt = stdText
-                if self.pool:
-                    self.parent.errorOccurred = True
-                    ui.utils.showText(txt + self.pool[0:10000].replace(
+            if "plugin" in error:
+                txt = pluginText
+            else:
+                txt = stdText
+            self.errorOccurred = True
+            ui.utils.showText(txt + error[0:10000].replace(
                         "\n", "<br>"))
-                self.pool = ""
-                self.timer = None
-        pipe = ErrorPipe(self)
-        sys.stderr = pipe
 
     def closeAllDeckWindows(self):
         ui.dialogs.closeAll()
