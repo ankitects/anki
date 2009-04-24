@@ -106,7 +106,7 @@ class View(object):
         self.buffer = self.addStyles() + self.buffer
         # hook for user css
         runHook("preFlushHook")
-        if self.main.deck.mediaDir():
+        if self.main.deck and self.main.deck.mediaDir():
             if sys.platform.startswith("win32"):
                 prefix = u"file:///"
             else:
