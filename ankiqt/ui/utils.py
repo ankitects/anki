@@ -185,24 +185,8 @@ def restoreHeader(widget, key):
         widget.restoreState(ankiqt.mw.config[key])
 
 def mungeQA(deck, txt):
-    def quote(match):
-        match = unicode(match.group(1))
-        if match.lower().startswith("http"):
-            src = match
-        else:
-            if sys.platform.startswith("win32"):
-                prefix = u"file:///"
-            else:
-                prefix = u"file://"
-            src = prefix + unicode(
-                urllib.quote(os.path.join(deck.mediaDir(
-                create=True), match).encode("utf-8")), "utf-8")
-        return src
-    def quoteImg(match):
-        return 'img src="%s"' % quote(match)
     txt = renderLatex(deck, txt)
     txt = stripSounds(txt)
-    txt = re.sub('img src="(.*?)"', quoteImg, txt)
     return txt
 
 class ProgressWin(object):

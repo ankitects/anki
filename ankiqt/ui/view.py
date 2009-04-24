@@ -106,6 +106,19 @@ class View(object):
         self.buffer = self.addStyles() + self.buffer
         # hook for user css
         runHook("preFlushHook")
+        if self.main.deck.mediaDir():
+            if sys.platform.startswith("win32"):
+                prefix = u"file:///"
+            else:
+                prefix = u"file://"
+            base = prefix + unicode(
+                urllib.quote(self.main.deck.mediaDir().encode("utf-8")),
+                "utf-8")
+            base = '<base href="%s/">' % base
+        else:
+            base = ""
+        self.buffer = '''<html><head>%s</head><body>%s</body></html>''' % (
+            base, self.buffer)
         #print self.buffer.encode("utf-8")
         self.body.setHtml(self.buffer)
 
