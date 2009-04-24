@@ -175,5 +175,8 @@ def run():
 
     app.exec_()
 
+    # ensure we kill any other threads
+    sys.exit(0)
+
 if __name__ == "__main__":
     run()
