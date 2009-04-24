@@ -63,6 +63,7 @@ class GetShared(QDialog):
             return
         self.parent.finishProgress()
         self.parent.setProgressParent(None)
+        self.form.search.setFocus()
         if err:
             showInfo(_("Unable to connect to server."), parent=self)
             self.close()
