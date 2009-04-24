@@ -121,8 +121,11 @@ class QueueMonitor(threading.Thread):
             time.sleep(0.1)
             if queue:
                 path = queue.pop(0)
-                retryWait(subprocess.Popen(
-                    externalPlayer + [path], startupinfo=si))
+                try:
+                    retryWait(subprocess.Popen(
+                        externalPlayer + [path], startupinfo=si))
+                except OSError:
+                    raise Exception("Audio player not found")
             else:
                 return
 
