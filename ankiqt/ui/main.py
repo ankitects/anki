@@ -1112,6 +1112,33 @@ day = :d""", d=yesterday)
 <p><table><tr>
 %s
 <td>%s</td></tr></table>""" % (stats1, stats2))
+        self.mainWin.optionsLabel.setToolTip(_("""\
+<h1>Session Statistics</h1>
+<dl>
+<dt><b>Cards/session</b></dt>
+<dd>The number of cards you studied in the current session (blue) and previous
+session (black)</dd>
+</dl>
+<dl>
+<dt><b>Cards/day</b></dt>
+<dd>The number of cards you studied today (blue) and yesterday (black)</dd>
+</dl>
+<dl>
+<dt><b>Time/day</b></dt>
+<dd>The number of minutes you studied today (blue) and yesterday (black)</dd>
+</dl>
+<dl>
+<dt><b>Reviews due</b></dt>
+<dd>The number of cards that are waiting to be reviewed today</dd>
+</dl>
+<dl>
+<dt><b>New today</b></dt>
+<dd>The number of new cards that are waiting to be learnt today</dd>
+</dl>
+<dl>
+<dt><b>New total</b></dt>
+<dd>The total number of new cards in the deck</dd>
+</dl>"""))
 
     def showStudyScreen(self):
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
