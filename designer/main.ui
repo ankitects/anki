@@ -514,7 +514,7 @@
                        </size>
                       </property>
                       <property name="text" >
-                       <string>&lt;b>Session limit (mins):&lt;/b></string>
+                       <string>&lt;b>Limit minutes per session to:&lt;/b></string>
                       </property>
                       <property name="margin" >
                        <number>4</number>
@@ -546,7 +546,7 @@
                        </size>
                       </property>
                       <property name="text" >
-                       <string>&lt;b>New cards per day:&lt;/b></string>
+                       <string>&lt;b>Limit new cards per day to:&lt;/b></string>
                       </property>
                       <property name="margin" >
                        <number>4</number>
@@ -601,7 +601,7 @@
                     <item row="2" column="0" >
                      <widget class="QLabel" name="label" >
                       <property name="text" >
-                       <string>&lt;b>Session limit (reps):</string>
+                       <string>&lt;b>Limit repetitions per session to:&lt;/b></string>
                       </property>
                       <property name="margin" >
                        <number>4</number>
