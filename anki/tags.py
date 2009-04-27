@@ -51,10 +51,8 @@ def tagIds(s, tags):
     ids = {}
     s.statements("insert or ignore into tags (tag) values (:tag)",
                 [{'tag': t} for t in tags])
-    tagsD = dict(s.all("""
-select lower(tag), id from tags
+    tagsD = dict([(x.lower(), y) for (x, y) in s.all("""
+select tag, id from tags
 where tag in (%s)""" % ",".join([
-        "'%s'" % t.replace("'", "''") for t in tags])))
-    for tag in tags:
-        ids[tag.lower()] = tagsD[tag.lower()]
-    return ids
+        "'%s'" % t.replace("'", "''") for t in tags]))])
+    return tagsD

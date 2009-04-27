@@ -3,6 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import sys, os
+from subprocess import Popen, PIPE
 from anki.utils import findTag, stripHTML
 from anki.hooks import addHook
 
@@ -45,7 +46,9 @@ class KakasiController(object):
                 from errno import ENOENT
                 raise OSError(ENOENT, 'Kakasi not available')
             # don't convert kana to hiragana
-            (self.kin, self.kout) = os.popen2("kakasi -isjis -osjis -u -JH -p")
+            p = Popen("kakasi -isjis -osjis -u -JH -p", shell=True,
+                      bufsize=-1, stdin=PIPE, stdout=PIPE)
+            (self.kin, self.kout) = (p.stdin, p.stdout)
             self._open = True
 
     def close(self):
