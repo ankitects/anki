@@ -453,7 +453,7 @@ class EditDeck(QMainWindow):
         elif idx == 1:
             self.dialog.filterEdit.setText("tag:none")
         else:
-            self.dialog.filterEdit.setText("tag:" + self.alltags[idx-2].lower())
+            self.dialog.filterEdit.setText("tag:" + self.alltags[idx-2])
         self.showFilterNow()
         self.dialog.tagList.setCurrentIndex(0)
 

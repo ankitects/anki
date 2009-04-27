@@ -63,6 +63,7 @@ class GetShared(QDialog):
             return
         self.parent.finishProgress()
         self.parent.setProgressParent(None)
+        self.form.search.setFocus()
         if err:
             showInfo(_("Unable to connect to server."), parent=self)
             self.close()
@@ -108,6 +109,7 @@ class GetShared(QDialog):
         else:
             self.form.table.sortItems(1, Qt.DescendingOrder)
         self.form.table.selectRow(0)
+        self.onCellChanged(None, None, None, None)
 
     def onCellChanged(self, row, col, x, y):
         ci = self.form.table.currentItem()

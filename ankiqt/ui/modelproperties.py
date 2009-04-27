@@ -289,8 +289,8 @@ class ModelProperties(QDialog):
         self.currentCard = self.m.cardModels[self.dialog.cardList.currentRow()]
         card = self.currentCard
         self.dialog.cardName.setText(card.name)
-        self.dialog.cardQuestion.setPlainText(card.qformat.replace("<br>", "\n"))
-        self.dialog.cardAnswer.setPlainText(card.aformat.replace("<br>", "\n"))
+        self.dialog.cardQuestion.setPlainText(card.qformat.replace("<br>", "<br>\n"))
+        self.dialog.cardAnswer.setPlainText(card.aformat.replace("<br>", "<br>\n"))
         self.dialog.questionInAnswer.setChecked(card.questionInAnswer)
         self.dialog.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
         self.dialog.typeAnswer.clear()
@@ -335,10 +335,10 @@ order by n""", id=card.id)
             newname = _("Card %d") % (self.m.cardModels.index(card) + 1)
         self.updateField(card, 'name', newname)
         s = unicode(self.dialog.cardQuestion.toPlainText())
-        s = s.replace("\n", "<br>")
+        s = s.replace("<br>\n", "<br>")
         changed = self.updateField(card, 'qformat', s)
         s = unicode(self.dialog.cardAnswer.toPlainText())
-        s = s.replace("\n", "<br>")
+        s = s.replace("<br>\n", "<br>")
         changed2 = self.updateField(card, 'aformat', s)
         changed = changed or changed2
         self.updateField(card, 'questionInAnswer', self.dialog.questionInAnswer.isChecked())

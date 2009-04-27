@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>517</width>
-    <height>411</height>
+    <width>715</width>
+    <height>598</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" >
@@ -29,8 +29,21 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QTableWidget" name="table" />
+     <widget class="QTableWidget" name="table" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
      <widget class="QScrollArea" name="scrollArea" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>3</verstretch>
+       </sizepolicy>
+      </property>
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -61,9 +74,15 @@
        <layout class="QVBoxLayout" name="verticalLayout_2" >
         <item>
          <widget class="QLabel" name="bottomLabel" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="maximumSize" >
            <size>
-            <width>430</width>
+            <width>500</width>
             <height>16777215</height>
            </size>
           </property>

@@ -6,7 +6,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 appName="Anki"
-appVersion="0.9.9.7.5"
+appVersion="0.9.9.7.6b"
 appWebsite="http://ichi2.net/anki/download/"
 appWiki="http://ichi2.net/anki/wiki/"
 appHelpSite="http://ichi2.net/anki/wiki/AnkiWiki"
@@ -174,6 +174,9 @@ def run():
         pass
 
     app.exec_()
+
+    # ensure we kill any other threads
+    sys.exit(0)
 
 if __name__ == "__main__":
     run()

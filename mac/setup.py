@@ -53,7 +53,8 @@ PLIST = dict(
 	CFBundleName = 'Anki',
         CFBundleDocumentTypes=[dict(CFBundleTypeExtensions=["anki"],
                                     CFBundleTypeName="Anki Deck",
-                                    CFBundleTypeRole="Editor")],
+                                    CFBundleTypeRole="Editor",
+                                    CFBundleTypeIconFile="anki.icns")],
 	CFBundleLocalizations = ['en'],
         )
 OPTIONS = {

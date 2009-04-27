@@ -995,6 +995,11 @@ class FactEdit(QTextEdit):
 
     # this shouldn't be necessary if/when we move away from kakasi
     def mouseDoubleClickEvent(self, evt):
+        t = self.parent.fact.model.tags.lower()
+        if (not "japanese" in t and
+            not "mandarin" in t and
+            not "cantonese" in t):
+            return QTextEdit.mouseDoubleClickEvent(self,evt)
         r = QRegExp("\\{(.*[|,].*)\\}")
         r.setMinimal(True)
 
@@ -1025,8 +1030,7 @@ class FactEdit(QTextEdit):
             result = r.indexIn(self.toPlainText(), blockoffset)
 
         if found == "":
-            QTextEdit.mouseDoubleClickEvent(self,evt)
-            return
+            return QTextEdit.mouseDoubleClickEvent(self,evt)
         self.setPlainText(self.toPlainText().replace(result, r.matchedLength(), found))
 
     def focusInEvent(self, evt):

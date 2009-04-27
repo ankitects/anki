@@ -9,6 +9,7 @@ def importAll():
     import addcards
     import cardlist
     import deckproperties
+    import importing
     import displayproperties
     import exporting
     import facteditor
