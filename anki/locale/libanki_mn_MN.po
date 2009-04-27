@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
 "PO-Revision-Date: 2009-04-18 17:49+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtaal 0.3.1\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -206,8 +206,9 @@ msgid "Added last week"
 msgstr "Өнгөрсөн 7 хоногт нэмсэн"
 
 #: importing/__init__.py:263
-msgid "Anki 1.0 deck (*.anki)"
-msgstr "Анки 1.0 цуглуулга (*.anki)"
+#, fuzzy
+msgid "Anki Deck (*.anki)"
+msgstr "Анки цуглуулга (*.anki)"
 
 #: exporting.py:237
 msgid "Anki deck (*.anki)"
@@ -298,7 +299,8 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr "Дүрсийг олоогүй. Мөрийн цуваад цахилгаанаар эсвэл цэгтэй таслалаар тусгаарласан утгуудтай файл хэрэглэх ёстой."
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+#, fuzzy
+msgid "CueCard Deck (*.wcu)"
 msgstr "КюуКарт цуглуулга (*.wcu)"
 
 #: deck.py:3113
@@ -480,7 +482,8 @@ msgid "Missing required/unique field '%(field)s'"
 msgstr "'%(field)s' гэдэг хэрэгтэй/цор ганцын талбар сураггүй алга болсон"
 
 #: importing/__init__.py:264
-msgid "Mnemosyne 1.x deck (*.mem)"
+#, fuzzy
+msgid "Mnemosyne Deck (*.mem)"
 msgstr "Мнэмосаян 1.x цуглуулга (*.mem)"
 
 #: stats.py:291
@@ -732,3 +735,6 @@ msgstr "%s-д"
 #: deck.py:714
 msgid "unknown"
 msgstr "мэдэхгүй"
+
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Анки 1.0 цуглуулга (*.anki)"

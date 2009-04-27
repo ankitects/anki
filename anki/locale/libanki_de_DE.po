@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
 "PO-Revision-Date: 2009-03-28 15:50+0100\n"
 "Last-Translator: Michael Keppler <bananeweizen@gmx.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -204,8 +204,9 @@ msgid "Added last week"
 msgstr "Letzte Woche hinzugefügt"
 
 #: importing/__init__.py:263
-msgid "Anki 1.0 deck (*.anki)"
-msgstr "Anki 1.0 Stapeldatei (*.anki)"
+#, fuzzy
+msgid "Anki Deck (*.anki)"
+msgstr "Anki Stapeldatei (*.anki)"
 
 #: exporting.py:237
 msgid "Anki deck (*.anki)"
@@ -299,7 +300,8 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr "Kann kein Muster finden. Die Datei sollte aus einer Folge von durch Tabulatoren oder Semikolons getrennten Zeilen bestehen."
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+#, fuzzy
+msgid "CueCard Deck (*.wcu)"
 msgstr "CueCard Stapel (*.wcu)"
 
 #: deck.py:3113
@@ -484,7 +486,8 @@ msgid "Missing required/unique field '%(field)s'"
 msgstr "Erforderliches/eindeutiges Feld '%(field)s' fehlt"
 
 #: importing/__init__.py:264
-msgid "Mnemosyne 1.x deck (*.mem)"
+#, fuzzy
+msgid "Mnemosyne Deck (*.mem)"
 msgstr "Mnemosyne 1.x Stapel (*.mem)"
 
 #: stats.py:291
@@ -774,6 +777,9 @@ msgstr "unbekannt"
 #~ "%(next)s\n"
 #~ "<br>\n"
 #~ "Es gibt <b>%(waiting)d</b> <a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">zurückgestellte</a> und <b>%(suspended)d</b> <a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-37d2db274e6caa23aef55e29655a6b806901774b\">ausgesetzte</a> Karten."
+
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Anki 1.0 Stapeldatei (*.anki)"
 
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Erstmalig gesehene Karten: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> von <b>%(gNewTotal)d</b>)<br><br>"

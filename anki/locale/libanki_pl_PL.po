@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
 "PO-Revision-Date: 2009-01-20 13:19+0100\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -202,7 +202,7 @@ msgstr "Dod. w ub. tyg."
 
 #: importing/__init__.py:263
 #, fuzzy
-msgid "Anki 1.0 deck (*.anki)"
+msgid "Anki Deck (*.anki)"
 msgstr "Talia Anki (*.anki)"
 
 #: exporting.py:237
@@ -299,7 +299,7 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr ""
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
 #: deck.py:3113
@@ -490,7 +490,7 @@ msgid "Missing required/unique field '%(field)s'"
 msgstr ""
 
 #: importing/__init__.py:264
-msgid "Mnemosyne 1.x deck (*.mem)"
+msgid "Mnemosyne Deck (*.mem)"
 msgstr ""
 
 #: stats.py:291
@@ -835,6 +835,10 @@ msgstr "nieznane"
 
 #~ msgid "<b>Averages</b><br>"
 #~ msgstr "<b>Średnie</b><br>"
+
+#, fuzzy
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Talia Anki (*.anki)"
 
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Widziane po raz pierwszy: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> z <b>%(gNewTotal)d</b>)<br><br>"
