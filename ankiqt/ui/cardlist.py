@@ -310,7 +310,7 @@ class EditDeck(QMainWindow):
         self.setupFilter()
         self.setupSort()
         self.setupHeaders()
-        self.setupUndo()
+        self.setupHooks()
         self.setupEditor()
         self.setupCardInfo()
         self.dialog.filterEdit.setFocus()
@@ -521,6 +521,8 @@ class EditDeck(QMainWindow):
             self.dialog.fieldsArea.hide()
         self.dialog.tableView.selectRow(row)
         self.dialog.tableView.scrollTo(idx, QAbstractItemView.PositionAtCenter)
+        if not self.model.cards:
+            self.editor.setFact(None)
 
     def focusCurrentCard(self):
         if self.currentCard:
@@ -587,7 +589,7 @@ class EditDeck(QMainWindow):
         self.hide()
         ui.dialogs.close("CardList")
         self.parent.moveToState("auto")
-        self.teardownUndo()
+        self.teardownHooks()
         return True
 
     def closeEvent(self, evt):
@@ -837,11 +839,13 @@ where id in %s""" % ids2str(sf))
     # Edit: undo/redo
     ######################################################################
 
-    def setupUndo(self):
+    def setupHooks(self):
         addHook("postUndoRedo", self.postUndoRedo)
+        addHook("currentCardDeleted", self.updateSearch)
 
-    def teardownUndo(self):
+    def teardownHooks(self):
         removeHook("postUndoRedo", self.postUndoRedo)
+        removeHook("currentCardDeleted", self.updateSearch)
 
     def postUndoRedo(self):
         self.updateFilterLabel()

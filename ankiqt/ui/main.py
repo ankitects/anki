@@ -1397,6 +1397,7 @@ session (black)</dd>
         self.deck.deleteCard(self.currentCard.id)
         self.reset()
         self.deck.setUndoEnd(undo)
+        runHook("currentCardDeleted")
 
     def onUndo(self):
         self.deck.undo()
