@@ -132,7 +132,6 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        self.reviewedAheadCards = []
         self.extraNewCards = 0
         self.reviewEarly = False
 
@@ -392,8 +391,7 @@ where id != :id and factId = :factId""",
         # temp suspend if learning ahead
         if self.reviewEarly and lastDelay < 0:
             if oldSuc or lastDelaySecs > self.delay0 or not self._showFailedLast():
-                card.priority = 0
-                self.reviewedAheadCards.append(card.id)
+                card.priority = -1
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
         card.toDB(self.s)
@@ -661,9 +659,9 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             self._dailyStats = dailyStats(self)
 
     def resetAfterReviewEarly(self):
-        if self.reviewedAheadCards:
-            self.updatePriorities(self.reviewedAheadCards)
-            self.reviewedAheadCards = []
+        ids = self.s.column0("select id from cards where priority = -1")
+        if ids:
+            self.updatePriorities(ids)
             self.reviewEarly = False
             self.flushMod()
         self.checkDue()
@@ -2560,12 +2558,16 @@ class DeckStorage(object):
             deck.currentModel = deck.models[0]
         # ensure the necessary indices are available
         deck.updateDynamicIndices()
-        # check counts
+        # save counts to determine if we should save deck after check
         oldc = deck.failedSoonCount + deck.revCount + deck.newCount
+        # update counts & unsuspend reviewed early cards
         deck.rebuildQueue()
+        deck.resetAfterReviewEarly()
         if ((oldc != deck.failedSoonCount + deck.revCount + deck.newCount) or
             deck.modifiedSinceSave()):
-            # save
+            # we don't want the deck marked as modified, but we don't want to
+            # bump the mod time either
+            deck.modified = deck.lastLoaded
             deck.s.commit()
         return deck
     Deck = staticmethod(Deck)
