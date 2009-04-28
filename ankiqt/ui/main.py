@@ -507,6 +507,7 @@ new:
                 else:
                     return QLineEdit.keyPressEvent(self, evt)
         self.typeAnswerField = QLineEditNoUndo(self)
+        self.typeAnswerField.setObjectName("typeAnswerField")
         self.typeAnswerField.setFixedWidth(351)
         f = QFont()
         if sys.platform.startswith("darwin"):
