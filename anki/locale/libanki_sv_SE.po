@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
-"PO-Revision-Date: 2009-04-23 18:06+0100\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
+"PO-Revision-Date: 2009-04-27 20:10+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-Language: Swedish\n"
 "X-Poedit-Country: SWEDEN\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -207,8 +207,8 @@ msgid "Added last week"
 msgstr "Tillagda förra veckan"
 
 #: importing/__init__.py:263
-msgid "Anki 1.0 deck (*.anki)"
-msgstr "Ankikortlek 1.0 (*.anki)"
+msgid "Anki Deck (*.anki)"
+msgstr "Ankikortlek (*.anki)"
 
 #: exporting.py:237
 msgid "Anki deck (*.anki)"
@@ -299,7 +299,7 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr "Kunde inte hitta mönstret. Filen skall vara en serie av rader som skiljs av tabbar eller semikolon."
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+msgid "CueCard Deck (*.wcu)"
 msgstr "CueCard-kortlek (*.wcu)"
 
 #: deck.py:3113
@@ -481,8 +481,8 @@ msgid "Missing required/unique field '%(field)s'"
 msgstr "Obligatoriska/unika fält '%(field)s' saknas"
 
 #: importing/__init__.py:264
-msgid "Mnemosyne 1.x deck (*.mem)"
-msgstr "Mnemosynekortlek 1.x (*.mem)"
+msgid "Mnemosyne Deck (*.mem)"
+msgstr "Mnemosynekortlek (*.mem)"
 
 #: stats.py:291
 msgid "Model Tags"
@@ -763,6 +763,9 @@ msgstr "okänt"
 
 #~ msgid "<b>Averages</b><br>"
 #~ msgstr "<b>Genomsnitt</b><br>"
+
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Ankikortlek 1.0 (*.anki)"
 
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Kort som sågs för första gången: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> av <b>%(gNewTotal)d</b>)<br><br>"

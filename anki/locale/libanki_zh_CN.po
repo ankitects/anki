@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
 "PO-Revision-Date: 2009-03-09 20:01-0000\n"
 "Last-Translator: Nick Cook <nick@n-line.co.uk>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -195,7 +195,7 @@ msgid "Added last week"
 msgstr ""
 
 #: importing/__init__.py:263
-msgid "Anki 1.0 deck (*.anki)"
+msgid "Anki Deck (*.anki)"
 msgstr ""
 
 #: exporting.py:237
@@ -287,7 +287,7 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr ""
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
 #: deck.py:3113
@@ -466,7 +466,7 @@ msgid "Missing required/unique field '%(field)s'"
 msgstr ""
 
 #: importing/__init__.py:264
-msgid "Mnemosyne 1.x deck (*.mem)"
+msgid "Mnemosyne Deck (*.mem)"
 msgstr ""
 
 #: stats.py:291

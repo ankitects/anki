@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -189,7 +189,7 @@ msgstr "Ajouté la semaine dernière"
 
 #: importing/__init__.py:263
 #, fuzzy
-msgid "Anki 1.0 deck (*.anki)"
+msgid "Anki Deck (*.anki)"
 msgstr "Paquet Anki (*.anki)"
 
 #: exporting.py:237
@@ -287,7 +287,7 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr "Impossible de trouver le motif. Le fichier doit être une série de lignes séparées par des virgules, des points-virgules ou des tabulations."
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
 #: deck.py:3113
@@ -472,7 +472,7 @@ msgstr ""
 
 #: importing/__init__.py:264
 #, fuzzy
-msgid "Mnemosyne 1.x deck (*.mem)"
+msgid "Mnemosyne Deck (*.mem)"
 msgstr "Fichier Mnemosyne (*.mem)"
 
 #: stats.py:291
@@ -930,6 +930,10 @@ msgstr "inconnu"
 
 #~ msgid "Actively test your recall by producing the target expression"
 #~ msgstr "Testez activement votre souvenir en produisant l'expression cible"
+
+#, fuzzy
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Paquet Anki (*.anki)"
 
 #~ msgid "At the end of the deck"
 #~ msgstr "À la fin du paquet"

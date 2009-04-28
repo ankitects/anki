@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -204,7 +204,7 @@ msgstr "Eelmisel nädalal lisatud "
 
 #: importing/__init__.py:263
 #, fuzzy
-msgid "Anki 1.0 deck (*.anki)"
+msgid "Anki Deck (*.anki)"
 msgstr "Anki kaardipakk (*.anki)"
 
 #: exporting.py:237
@@ -299,7 +299,7 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr ""
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
 #: deck.py:3113
@@ -484,7 +484,7 @@ msgid "Missing required/unique field '%(field)s'"
 msgstr ""
 
 #: importing/__init__.py:264
-msgid "Mnemosyne 1.x deck (*.mem)"
+msgid "Mnemosyne Deck (*.mem)"
 msgstr ""
 
 #: stats.py:291
@@ -765,6 +765,10 @@ msgstr "teadmata"
 
 #~ msgid "<b>Averages</b><br>"
 #~ msgstr "<b>Keskmised</b><br>"
+
+#, fuzzy
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Anki kaardipakk (*.anki)"
 
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Esmakordselt nähtud kaardid: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b>/<b>%(gNewTotal)d</b>)<br><br>"

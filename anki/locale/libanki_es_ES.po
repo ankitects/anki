@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 18:06+0200\n"
+"POT-Creation-Date: 2009-04-27 20:11+0200\n"
 "PO-Revision-Date: 2009-02-02 07:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-Language: Spanish\n"
 "X-Poedit-Country: SPAIN\n"
 
-#: sound.py:162
+#: sound.py:165
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -195,7 +195,7 @@ msgstr "Añadidas en la última semana"
 
 #: importing/__init__.py:263
 #, fuzzy
-msgid "Anki 1.0 deck (*.anki)"
+msgid "Anki Deck (*.anki)"
 msgstr "Mazo Anki (*.anki)"
 
 #: exporting.py:237
@@ -293,7 +293,7 @@ msgid "Couldn't find pattern. The file should be a series of lines separated by 
 msgstr "No se ajusta a la plantilla. El archivo debe estar compuesto por una serie de líneas separadas por punto, coma y punto o tabulador."
 
 #: importing/__init__.py:265
-msgid "CueCard deck (*.wcu)"
+msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
 #: deck.py:3113
@@ -480,7 +480,7 @@ msgstr ""
 
 #: importing/__init__.py:264
 #, fuzzy
-msgid "Mnemosyne 1.x deck (*.mem)"
+msgid "Mnemosyne Deck (*.mem)"
 msgstr "Archivo Mnemosyne (*.mem)"
 
 #: stats.py:291
@@ -974,6 +974,10 @@ msgstr "desconocido"
 
 #~ msgid "Actively test your recall by producing the target expression"
 #~ msgstr "Comprueba su memoria activamente escribiendo la expresión de destino"
+
+#, fuzzy
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Mazo Anki (*.anki)"
 
 #~ msgid "At the end of the deck"
 #~ msgstr "Al final del mazo"
