@@ -189,6 +189,19 @@ def mungeQA(deck, txt):
     txt = stripSounds(txt)
     return txt
 
+def getBase(deck):
+    if deck and deck.mediaDir():
+        if sys.platform.startswith("win32"):
+            prefix = u"file:///"
+        else:
+            prefix = u"file://"
+        base = prefix + unicode(
+            urllib.quote(deck.mediaDir().encode("utf-8")),
+            "utf-8")
+        return '<base href="%s/">' % base
+    else:
+        return ""
+
 class ProgressWin(object):
 
     def __init__(self, parent, max=0, min=0, title=None):

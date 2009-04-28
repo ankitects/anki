@@ -11,7 +11,7 @@ from anki.utils import stripHTML
 from anki.hooks import runHook
 import types, time, re, os, urllib, sys, difflib
 from ankiqt import ui
-from ankiqt.ui.utils import mungeQA
+from ankiqt.ui.utils import mungeQA, getBase
 from anki.utils import fmtTimeSpan
 from PyQt4.QtWebKit import QWebPage, QWebView
 
@@ -106,19 +106,8 @@ class View(object):
         self.buffer = self.addStyles() + self.buffer
         # hook for user css
         runHook("preFlushHook")
-        if self.main.deck and self.main.deck.mediaDir():
-            if sys.platform.startswith("win32"):
-                prefix = u"file:///"
-            else:
-                prefix = u"file://"
-            base = prefix + unicode(
-                urllib.quote(self.main.deck.mediaDir().encode("utf-8")),
-                "utf-8")
-            base = '<base href="%s/">' % base
-        else:
-            base = ""
         self.buffer = '''<html><head>%s</head><body>%s</body></html>''' % (
-            base, self.buffer)
+            getBase(self.main.deck), self.buffer)
         #print self.buffer.encode("utf-8")
         self.body.setHtml(self.buffer)
 
