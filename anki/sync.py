@@ -181,16 +181,13 @@ class SyncTools(object):
         if self.mediaSupported():
             h['lM'] = len(payload['added-media'])
             h['rM'] = len(payload['missing-media'])
+        else:
+            h['lM'] = _("off")
+            h['rM'] = _("off")
         return h
 
     def payloadChangeReport(self, payload):
         p = self.payloadChanges(payload)
-        if self.mediaSupported():
-            p['media'] = (
-                "<tr><td>Media</td><td>%(lM)d</td><td>%(rM)d</td></tr>" % p)
-        else:
-            p['media'] = (
-                "<tr><td>Media</td><td>off</td><td>off</td></tr>" % p)
         return _("""\
 <table>
 <tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>
@@ -198,7 +195,7 @@ class SyncTools(object):
 <tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>
 <tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>
 <tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>
-%(media)s
+<tr><td>Media</td><td>%(lM)s</td><td>%(rM)s</td></tr>
 </table>""") % p
 
     # Summaries
