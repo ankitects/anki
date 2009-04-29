@@ -1127,7 +1127,6 @@
     <addaction name="separator" />
     <addaction name="actionDonate" />
     <addaction name="actionAbout" />
-    <addaction name="separator" />
    </widget>
    <widget class="QMenu" name="menuEdit" >
     <property name="title" >
