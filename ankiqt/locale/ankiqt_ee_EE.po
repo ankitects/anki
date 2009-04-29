@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-28 18:01+0900\n"
+"POT-Creation-Date: 2009-04-30 05:22+0900\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -85,7 +85,7 @@ msgstr " <b>Kordamise ja muutmise ajal:</b>"
 msgid " applied %d modified cards."
 msgstr " panin peale %d muudetud kaarti."
 
-#: ui/main.py:2304
+#: ui/main.py:2337
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -94,14 +94,14 @@ msgstr ""
 "%(a)d puuduvat viidet.\n"
 "%(b)d kasutamata faili kustutatud."
 
-#: ui/cardlist.py:933
+#: ui/cardlist.py:978
 #, fuzzy, python-format
 msgid "%(a)d of %(b)d fact updated"
 msgid_plural "%(a)d of %(b)d facts updated"
 msgstr[0] "%(b)d-st faktist %(a)d uuendatud"
 msgstr[1] "%(b)d-st faktist %(a)d uuendatud"
 
-#: ui/deckproperties.py:107
+#: ui/deckproperties.py:106
 #, python-format
 msgid "%(name)s [%(facts)d fact]"
 msgid_plural "%(name)s [%(facts)d facts]"
@@ -114,7 +114,7 @@ msgstr[1] "%(name)s [%(facts)d fakti]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
 
-#: ui/main.py:1917
+#: ui/main.py:1945
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s %(cards)d kaarti, millest (%(due)d tähtaegunud) - %(title)s"
@@ -124,7 +124,7 @@ msgstr "%(path)s %(cards)d kaarti, millest (%(due)d tähtaegunud) - %(title)s"
 msgid "%d exported."
 msgstr "%d eksporditud."
 
-#: ui/cardlist.py:468
+#: ui/cardlist.py:509
 #, fuzzy, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -136,7 +136,7 @@ msgstr[1] "Mitte midagi valitud."
 msgid "%s ago"
 msgstr "%s tagasi"
 
-#: forms/main.py:934
+#: forms/main.py:942
 msgid "&About..."
 msgstr "&Andmeid..."
 
@@ -149,7 +149,7 @@ msgstr "&Tegevused"
 msgid "&Add"
 msgstr "&Lisa"
 
-#: forms/main.py:909
+#: forms/main.py:917
 msgid "&Add Items..."
 msgstr "&Lisa kaarte..."
 
@@ -161,11 +161,16 @@ msgstr "&Lisa allikas"
 msgid "&Add Tag..."
 msgstr "&Lisa silt..."
 
-#: forms/main.py:935
+#: forms/main.py:1016
+#, fuzzy
+msgid "&Bury Fact"
+msgstr "&Märgi fakt"
+
+#: forms/main.py:943
 msgid "&Card Statistics"
 msgstr "Kaardi s&tatistika"
 
-#: forms/main.py:901
+#: forms/main.py:909
 msgid "&Close"
 msgstr "&Sulge"
 
@@ -174,11 +179,11 @@ msgstr "&Sulge"
 msgid "&Cram..."
 msgstr "Tuubi..."
 
-#: forms/main.py:937
+#: forms/main.py:945
 msgid "&Deck Properties..."
 msgstr "Kaardi&paki omadused..."
 
-#: forms/main.py:929
+#: forms/main.py:937
 msgid "&Deck Statistics"
 msgstr "Kaardi&paki statistika"
 
@@ -187,11 +192,11 @@ msgstr "Kaardi&paki statistika"
 msgid "&Delete"
 msgstr "&Kustuta"
 
-#: forms/main.py:985
+#: forms/main.py:994
 msgid "&Delete Card"
 msgstr "&Kustuta kaart"
 
-#: forms/main.py:988
+#: forms/main.py:997
 msgid "&Delete Fact"
 msgstr "&Kustuta fakt"
 
@@ -203,27 +208,27 @@ msgstr "&Kustuta allikas"
 msgid "&Delete Tag..."
 msgstr "&Kustuta silt..."
 
-#: forms/main.py:977
+#: forms/main.py:986
 msgid "&Disable All Plugins"
 msgstr "&Blokeeri kõik pluginad"
 
-#: forms/main.py:995
+#: forms/main.py:1004
 msgid "&Donate..."
 msgstr "A&nneta..."
 
-#: forms/main.py:888
+#: forms/main.py:896
 msgid "&Download..."
 msgstr "&Lae alla..."
 
-#: forms/cardlist.py:236 forms/deckproperties.py:337 forms/main.py:885
+#: forms/cardlist.py:236 forms/deckproperties.py:337 forms/main.py:893
 msgid "&Edit"
 msgstr "&Muuda"
 
-#: forms/main.py:976
+#: forms/main.py:985
 msgid "&Enable All Plugins"
 msgstr "&Võimalda kõik pluginad"
 
-#: forms/main.py:886
+#: forms/main.py:894
 msgid "&File"
 msgstr "&Fail"
 
@@ -231,11 +236,11 @@ msgstr "&Fail"
 msgid "&Find"
 msgstr "&Otsi"
 
-#: forms/main.py:945
+#: forms/main.py:953
 msgid "&Fonts and Colours..."
 msgstr "&Kirjastiilid ja värvid..."
 
-#: forms/main.py:962
+#: forms/main.py:971
 msgid "&Forum..."
 msgstr "&Foorum..."
 
@@ -243,7 +248,7 @@ msgstr "&Foorum..."
 msgid "&Generate Cards..."
 msgstr "Tekita &kaardid..."
 
-#: forms/main.py:974
+#: forms/main.py:983
 msgid "&Get Plugins..."
 msgstr "&Tõmba pluginaid..."
 
@@ -251,7 +256,7 @@ msgstr "&Tõmba pluginaid..."
 msgid "&Go"
 msgstr "&Mine"
 
-#: forms/main.py:941
+#: forms/main.py:949
 msgid "&Graphs..."
 msgstr "&Graafik..."
 
@@ -259,7 +264,7 @@ msgstr "&Graafik..."
 msgid "&Guide..."
 msgstr "&Juhend..."
 
-#: forms/cardlist.py:239 forms/main.py:884
+#: forms/cardlist.py:239 forms/main.py:892
 msgid "&Help"
 msgstr "&Abi"
 
@@ -267,7 +272,7 @@ msgstr "&Abi"
 msgid "&Import"
 msgstr "&Impordi"
 
-#: forms/main.py:939
+#: forms/main.py:947
 msgid "&Import..."
 msgstr "&Impordi..."
 
@@ -275,7 +280,7 @@ msgstr "&Impordi..."
 msgid "&Invert Selection"
 msgstr "Inverteeri vali&k"
 
-#: forms/main.py:928
+#: forms/main.py:936
 msgid "&Kanji Statistics"
 msgstr "K&anji statistika"
 
@@ -283,19 +288,19 @@ msgstr "K&anji statistika"
 msgid "&Last Card"
 msgstr "&Viimane Kaart"
 
-#: forms/main.py:882
+#: forms/main.py:890
 msgid "&Learn More"
 msgstr "Õpi &veel"
 
-#: forms/main.py:890
+#: forms/main.py:898
 msgid "&Lookup"
 msgstr "&Vaata järele"
 
-#: forms/main.py:948
+#: forms/main.py:956
 msgid "&Mark Fact"
 msgstr "&Märgi fakt"
 
-#: forms/main.py:897
+#: forms/main.py:905
 msgid "&New"
 msgstr "&Uus"
 
@@ -303,15 +308,15 @@ msgstr "&Uus"
 msgid "&Next Card"
 msgstr "&Järgmine kaart"
 
-#: forms/main.py:975
+#: forms/main.py:984
 msgid "&Open Plugin Folder..."
 msgstr "&Ava pluginate kaust..."
 
-#: forms/main.py:899
+#: forms/main.py:907
 msgid "&Open..."
 msgstr "&Ava..."
 
-#: forms/main.py:915
+#: forms/main.py:923
 msgid "&Preferences"
 msgstr "&Programmi seaded"
 
@@ -319,15 +324,15 @@ msgstr "&Programmi seaded"
 msgid "&Previous Card"
 msgstr "&Eelmine kaart"
 
-#: forms/main.py:996
+#: forms/main.py:1005
 msgid "&Record Noise Profile..."
 msgstr "&Lindista müra profiil..."
 
-#: forms/cardlist.py:248 forms/main.py:984
+#: forms/cardlist.py:248 forms/main.py:993
 msgid "&Redo"
 msgstr "Tee &uuesti"
 
-#: forms/main.py:932
+#: forms/main.py:940
 msgid "&Report Bug..."
 msgstr "T&eata veast..."
 
@@ -335,31 +340,31 @@ msgstr "T&eata veast..."
 msgid "&Reschedule..."
 msgstr "&Ajasta uuesti..."
 
-#: forms/main.py:903
+#: forms/main.py:911
 msgid "&Save"
 msgstr "&Salvesta"
 
-#: forms/main.py:892
+#: forms/main.py:900
 msgid "&Settings"
 msgstr "&Seaded"
 
-#: forms/main.py:993
+#: forms/main.py:1002
 msgid "&Study Options..."
 msgstr "Õ&ppimise suvandid..."
 
-#: forms/main.py:951
+#: forms/main.py:959
 msgid "&Suspend Fact"
 msgstr "&Lükka fakt edasi"
 
-#: forms/main.py:889
+#: forms/main.py:897
 msgid "&Tools"
 msgstr "&Vahendid"
 
-#: forms/cardlist.py:247 forms/main.py:960
+#: forms/cardlist.py:247 forms/main.py:969
 msgid "&Undo"
 msgstr "&Võta tagasi"
 
-#: ui/cardlist.py:389
+#: ui/cardlist.py:425
 #, python-format
 msgid "'%s'"
 msgstr "'%s'"
@@ -368,23 +373,23 @@ msgstr "'%s'"
 msgid "(new card)"
 msgstr "(uus)"
 
-#: forms/main.py:918
+#: forms/main.py:926
 msgid "...&expression on ALC"
 msgstr "...&väljend ALC-s"
 
-#: forms/main.py:926
+#: forms/main.py:934
 msgid "...&kanji selection on Edict"
 msgstr "...&kanji valik Edict-st"
 
-#: forms/main.py:920
+#: forms/main.py:928
 msgid "...&meaning on ALC"
 msgstr "...&tähendus ALC-s"
 
-#: forms/main.py:922
+#: forms/main.py:930
 msgid "...&selection on ALC"
 msgstr "...&valik ALC-s"
 
-#: forms/main.py:924
+#: forms/main.py:932
 msgid "...&word selection on Edict"
 msgstr "...&sõna valik Edict-st"
 
@@ -422,22 +427,23 @@ msgstr ""
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"
 
 #: ui/cardlist.py:372
-msgid "<Tag filter>"
+#, fuzzy
+msgid "<Filter>"
 msgstr "<Sildi filter>"
 
 #: forms/deckproperties.py:329
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Abi</a>"
 
-#: ui/main.py:1298
+#: ui/main.py:1314
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr "<a href=py:miss>Puudub</a><br>"
 
-#: ui/main.py:1300
+#: ui/main.py:1316
 msgid "<a href=py:non>Non-jouyou</a><br>"
 msgstr "<a href=py:non>Ei-jouyou</a><br>"
 
-#: ui/main.py:1299
+#: ui/main.py:1315
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr "<a href=py:seen>Nähtud</a><br>"
 
@@ -535,7 +541,7 @@ msgstr "<b>Nimi</b>"
 msgid "<b>New Model</b>:"
 msgstr "<b>Uus mudel</b>:"
 
-#: forms/main.py:877
+#: forms/main.py:884
 msgid "<b>New cards per day:</b>"
 msgstr "<b>Uusi kaarte päevas:</b>"
 
@@ -560,12 +566,12 @@ msgstr "<b>Küsimus</b>"
 msgid "<b>Replace With</b>:"
 msgstr "<b>Imporditav fail</b>:"
 
-#: forms/main.py:876
+#: forms/main.py:882
 #, fuzzy
 msgid "<b>Session limit (minutes):</b>"
 msgstr "<b>Õppesessiooni kestvus minutites:</b>"
 
-#: forms/main.py:878
+#: forms/main.py:886
 #, fuzzy
 msgid "<b>Session limit (questions):"
 msgstr "<b>Kordamisi õppesessioonis:"
@@ -624,7 +630,7 @@ msgstr "<h1>Lisatud kaardid</h1>"
 msgid "<h1>Advanced Scheduling</h1>"
 msgstr "<h1>Lisavalikud</h1>"
 
-#: forms/preferences.py:237
+#: forms/preferences.py:242
 #, fuzzy
 msgid "<h1>Advanced settings</h1>"
 msgstr "<h1>Lisavalikud</h1>"
@@ -641,7 +647,7 @@ msgstr ""
 "<a href=\"http://ichi2.net/anki/download/index.html#changes\">Väljalaske andmed</a>\n"
 "<br><br>"
 
-#: forms/preferences.py:225
+#: forms/preferences.py:230
 msgid "<h1>Autosaving</h1>"
 msgstr "<h1>Varundus</h1>"
 
@@ -649,7 +655,7 @@ msgstr "<h1>Varundus</h1>"
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Kaardi mallid</h1>"
 
-#: ui/main.py:1423
+#: ui/main.py:1449
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -660,7 +666,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Tähtaeguvad kaardid kumulatiivselt</h1>"
 
-#: ui/main.py:1330
+#: ui/main.py:1346
 msgid "<h1>Current card</h1>"
 msgstr "<h1>See kaart</h1>"
 
@@ -692,11 +698,11 @@ msgstr "<h1>Üldised</h1>"
 msgid "<h1>Intervals</h1>"
 msgstr "<h1>Kordamise vahekaugused</h1>"
 
-#: forms/preferences.py:217
+#: forms/preferences.py:221
 msgid "<h1>Language</h1>"
 msgstr "<h1>Keel</h1>"
 
-#: ui/main.py:1333
+#: ui/main.py:1349
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Viimane kaart</h1>"
 
@@ -704,7 +710,7 @@ msgstr "<h1>Viimane kaart</h1>"
 msgid "<h1>Models</h1>"
 msgstr "<h1>Mudelid</h1>"
 
-#: ui/main.py:766
+#: ui/main.py:781
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr "<h1>Online konto</h1>Et kasutada tasuta <a href=\"http://anki.ichi2.net/\">online kontot</a>,<br>palun sisesta oma andmed.<br>"
 
@@ -724,7 +730,7 @@ msgstr "<h1>Kordamised</h1>"
 msgid "<h1>Review Time</h1>"
 msgstr "<h1>Kordamisaeg</h1>"
 
-#: forms/preferences.py:218
+#: forms/preferences.py:222
 msgid "<h1>Reviewing</h1>"
 msgstr "<h1>Kordamine</h1>"
 
@@ -732,7 +738,7 @@ msgstr "<h1>Kordamine</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Vali väli</h1>"
 
-#: ui/main.py:1115
+#: ui/main.py:1130
 msgid ""
 "<h1>Session Statistics</h1>\n"
 "<dl>\n"
@@ -762,11 +768,11 @@ msgid ""
 "</dl>"
 msgstr ""
 
-#: ui/main.py:1054
+#: ui/main.py:1069
 msgid "<h1>Study Options</h1>"
 msgstr "<h1>Õpingu suvandid</h1>"
 
-#: ui/main.py:1781
+#: ui/main.py:1808
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -776,7 +782,7 @@ msgstr ""
 msgid "<h1>Synchronisation</h1>"
 msgstr "<h1>Sünkroniseerimine</h1>"
 
-#: forms/preferences.py:231
+#: forms/preferences.py:236
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Sünkroniseerimine</h1><a href=\"http://anki.ichi2.net/\">Loo tasuta online konto</a>."
 
@@ -784,7 +790,7 @@ msgstr "<h1>Sünkroniseerimine</h1><a href=\"http://anki.ichi2.net/\">Loo tasuta
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Sünkroniseeri</h1>"
 
-#: ui/main.py:859
+#: ui/main.py:874
 msgid ""
 "<h1>Unsaved Deck</h1>\n"
 "Careful. You're editing an unsaved Deck.<br>\n"
@@ -805,7 +811,7 @@ msgstr ""
 "        muutusi.Kas Sa soovid salvestada või loobuda\n"
 "        neist? Tühista küsimus?"
 
-#: ui/main.py:1056
+#: ui/main.py:1071
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>Tubli!</h1>"
 
@@ -817,7 +823,7 @@ msgstr "<eiratud>"
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Peida</a>"
 
-#: ui/main.py:1100
+#: ui/main.py:1115
 #, python-format
 msgid ""
 "<table>\n"
@@ -832,7 +838,7 @@ msgstr ""
 "<tr><td>Uusi kokku:</td><td align=right>%(newof)s</td></tr>\n"
 "</table>"
 
-#: ui/main.py:1091
+#: ui/main.py:1106
 #, python-format
 msgid ""
 "<table>\n"
@@ -857,7 +863,7 @@ msgstr ""
 msgid "About Anki"
 msgstr "Andmeid Anki kohta"
 
-#: forms/main.py:979
+#: forms/main.py:988
 msgid "Active &Tags..."
 msgstr "Ak&tiivsed sildid..."
 
@@ -865,7 +871,7 @@ msgstr "Ak&tiivsed sildid..."
 msgid "Active Tags"
 msgstr "Aktiivsed sildid"
 
-#: forms/main.py:891
+#: forms/main.py:899
 msgid "Ad&vanced"
 msgstr "&Abitegevused"
 
@@ -889,7 +895,7 @@ msgstr "Lisa kaarte"
 msgid "Add Model"
 msgstr "Lisa mudel"
 
-#: ui/cardlist.py:701
+#: ui/cardlist.py:746
 msgid "Add Tags"
 msgstr "Lisa silte"
 
@@ -909,7 +915,7 @@ msgstr "Lisa heli"
 msgid "Add audio (F4)"
 msgstr "Lisa heli (F4)"
 
-#: forms/preferences.py:242
+#: forms/preferences.py:247
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr "Lisa peidetud märk tektile (parandab tai keele OSX peal)"
 
@@ -917,7 +923,7 @@ msgstr "Lisa peidetud märk tektile (parandab tai keele OSX peal)"
 msgid "Add material"
 msgstr ""
 
-#: forms/main.py:910
+#: forms/main.py:918
 msgid "Add new items to Anki by typing them in"
 msgstr ""
 
@@ -935,15 +941,15 @@ msgstr "Lisatud"
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "Lisatud %(num)d kaart(i) '%(str)s-i'."
 
-#: forms/deckproperties.py:374 forms/preferences.py:244
+#: forms/deckproperties.py:374 forms/preferences.py:249
 msgid "Advanced"
 msgstr "Lisaomadused"
 
-#: forms/main.py:868
+#: forms/main.py:873
 msgid "Again"
 msgstr "Uuesti"
 
-#: ui/cardlist.py:901
+#: ui/cardlist.py:946
 #, fuzzy
 msgid "All Fields"
 msgstr "Väljad"
@@ -957,16 +963,16 @@ msgstr "Korda"
 msgid "Allow the answer to be blank"
 msgstr "Vastus võib olla tühi"
 
-#: ui/main.py:1495
+#: ui/main.py:1521
 msgid "Already cramming. Please close this deck first."
 msgstr "Muutub tuupimiseks. Esmalt, sulge praegune kaardibak."
 
-#: ui/main.py:681
+#: ui/main.py:696
 #, python-format
 msgid "Alt+%d"
 msgstr "Alt+%d"
 
-#: forms/preferences.py:239
+#: forms/preferences.py:244
 msgid "Alternative theme"
 msgstr "Alternatiivne teema"
 
@@ -983,7 +989,7 @@ msgstr ""
 "Pluginas esines viga. Palun võta plugina autoriga ühendust.<br>\n"
 "See ei ole Anki viga.<br><br>"
 
-#: ui/main.py:615
+#: ui/main.py:630
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
@@ -1010,12 +1016,12 @@ msgstr ""
 "Kui see ei paranda probleemi, palun kopeeri järgnev<br>\n"
 "vearaportisse:<br><br>\n"
 
-#: ui/deckproperties.py:183 ui/main.py:2279 forms/main.py:864 forms/sort.py:45
+#: ui/deckproperties.py:182 ui/main.py:2312 forms/main.py:869 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
-#: ui/main.py:919
+#: ui/main.py:934
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1024,7 +1030,7 @@ msgstr ""
 "Häälestufaili salvestamine ebaõnnestus:\n"
 "%s"
 
-#: ui/cardlist.py:48 ui/cardlist.py:379
+#: ui/cardlist.py:48 ui/cardlist.py:415
 msgid "Answer"
 msgstr "Vastus"
 
@@ -1044,7 +1050,7 @@ msgstr "Vastuse kirjastiil"
 msgid "Answer size"
 msgstr "Vastuse suurus"
 
-#: forms/main.py:949
+#: forms/main.py:957
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
@@ -1080,7 +1086,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: forms/main.py:912
+#: forms/main.py:920
 #, fuzzy
 msgid "Brows&e Items..."
 msgstr "&Lisa kaarte..."
@@ -1089,11 +1095,11 @@ msgstr "&Lisa kaarte..."
 msgid "Browse Items"
 msgstr ""
 
-#: forms/main.py:913
+#: forms/main.py:921
 msgid "Browse and edit all items"
 msgstr ""
 
-#: ui/cardlist.py:462
+#: ui/cardlist.py:503
 #, fuzzy, python-format
 msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
 msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
@@ -1105,23 +1111,27 @@ msgstr[1] "Redigeerija (%(tot)d-st kaardist %(cur)d näidatud; %(sel)d valitud)"
 msgid "Browser Font"
 msgstr "Vastuse kirjastiil"
 
-#: ui/cardlist.py:439
+#: ui/cardlist.py:475
 msgid "Building Index..."
 msgstr "Indexit tekitamine..."
 
-#: forms/main.py:971
+#: ui/main.py:1419
+msgid "Bury"
+msgstr ""
+
+#: forms/main.py:980
 msgid "C&ram..."
 msgstr "Tuubi..."
 
-#: forms/main.py:989
+#: forms/main.py:998
 msgid "Cache LaTeX"
 msgstr "Vahemälu LaTeX-le"
 
-#: ui/cardlist.py:799
+#: ui/cardlist.py:844
 msgid "Can only change one model at a time."
 msgstr "Muuta saab ainult ühte mudelit korraga."
 
-#: ui/cardlist.py:755 ui/cardlist.py:893
+#: ui/cardlist.py:800 ui/cardlist.py:938
 msgid "Can only operate on one model at a time."
 msgstr "Tegutseda saab ainult ühe mudeliga korraga."
 
@@ -1129,7 +1139,7 @@ msgstr "Tegutseda saab ainult ühe mudeliga korraga."
 msgid "Can't look up a selection with a newline."
 msgstr "Ei saa otsida valikut, mis sisaldab reavahetust."
 
-#: ui/main.py:2294
+#: ui/main.py:2327
 msgid "Cancel"
 msgstr "Tühista"
 
@@ -1163,7 +1173,7 @@ msgstr "Kaarti on ootel"
 msgid "Change"
 msgstr "Muuda"
 
-#: ui/cardlist.py:1098
+#: ui/cardlist.py:1143
 #, python-format
 msgid "Change %s to:"
 msgstr "Muuda %s selleks:"
@@ -1172,15 +1182,15 @@ msgstr "Muuda %s selleks:"
 msgid "Change &Model..."
 msgstr "&Vaheta mudelit..."
 
-#: ui/cardlist.py:806 forms/changemodel.py:74
+#: ui/cardlist.py:851 forms/changemodel.py:74
 msgid "Change Model"
 msgstr "Vaheta mudelit"
 
-#: forms/main.py:965
+#: forms/main.py:974
 msgid "Check Database..."
 msgstr "Kontrolli andmebaasi"
 
-#: forms/main.py:969
+#: forms/main.py:978
 msgid "Check Media Database..."
 msgstr "Kontrolli meedia andmebaasi..."
 
@@ -1188,11 +1198,11 @@ msgstr "Kontrolli meedia andmebaasi..."
 msgid "Check complete."
 msgstr "Kontroll teostatud."
 
-#: forms/main.py:966
+#: forms/main.py:975
 msgid "Check the database for errors"
 msgstr ""
 
-#: forms/main.py:970
+#: forms/main.py:979
 msgid "Check the files in the media directory"
 msgstr ""
 
@@ -1212,7 +1222,7 @@ msgstr "Vali värv (F7, siis F5)"
 msgid "Choose file to export to"
 msgstr "Vali fail, kuhu eksportida"
 
-#: forms/main.py:980
+#: forms/main.py:989
 msgid "Choose the categories to show during review"
 msgstr ""
 
@@ -1241,11 +1251,11 @@ msgstr "Sulge (F9)"
 msgid "Compare with field '%s'"
 msgstr "Võrdle väljaga '%s'"
 
-#: forms/main.py:916
+#: forms/main.py:924
 msgid "Configure interface language and options"
 msgstr ""
 
-#: forms/main.py:994
+#: forms/main.py:1003
 #, fuzzy
 msgid "Configure review options"
 msgstr "Jätka kordamist"
@@ -1254,11 +1264,11 @@ msgstr "Jätka kordamist"
 msgid "Connecting..."
 msgstr "Ühenduse võtmine..."
 
-#: ui/main.py:1151
+#: ui/main.py:1166
 msgid "Continue &Reviewing"
 msgstr "Jätka &kordamist"
 
-#: forms/main.py:875
+#: forms/main.py:880
 msgid "Continue Reviewing"
 msgstr "Jätka kordamist"
 
@@ -1287,11 +1297,11 @@ msgstr ""
 msgid "Couldn't play sound. Please install mplayer."
 msgstr ""
 
-#: ui/main.py:1516
+#: ui/main.py:1542
 msgid "Cram"
 msgstr "Tuupimine"
 
-#: ui/cardlist.py:786
+#: ui/cardlist.py:831
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
@@ -1300,45 +1310,45 @@ msgstr ""
 msgid "Create '%s' on server"
 msgstr "Tekita '%s' serveris"
 
-#: ui/cardlist.py:229 ui/cardlist.py:380
+#: ui/cardlist.py:229 ui/cardlist.py:416
 msgid "Created"
 msgstr "Tekitatud"
 
-#: forms/main.py:919
+#: forms/main.py:927
 msgid "Ctrl+1"
 msgstr "Ctrl+1"
 
-#: forms/main.py:921
+#: forms/main.py:929
 msgid "Ctrl+2"
 msgstr "Ctrl+2"
 
-#: forms/main.py:923
+#: forms/main.py:931
 msgid "Ctrl+3"
 msgstr "Ctrl+3"
 
-#: forms/main.py:925
+#: forms/main.py:933
 msgid "Ctrl+4"
 msgstr "Ctrl+4"
 
-#: forms/main.py:927
+#: forms/main.py:935
 msgid "Ctrl+5"
 msgstr "Ctrl+5"
 
-#: ui/main.py:679
+#: ui/main.py:694
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr "Ctrl+Alt+%d"
 
-#: forms/main.py:911
+#: forms/main.py:919
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
-#: forms/cardlist.py:241 forms/main.py:987
+#: forms/cardlist.py:241 forms/main.py:996
 #, fuzzy
 msgid "Ctrl+Del"
 msgstr "Ctrl+D"
 
-#: forms/main.py:983
+#: forms/main.py:992
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
@@ -1350,7 +1360,7 @@ msgstr "Ctrl+End"
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:251 forms/main.py:914
+#: forms/cardlist.py:251 forms/main.py:922
 msgid "Ctrl+F"
 msgstr "Ctrl+F"
 
@@ -1362,23 +1372,23 @@ msgstr "Ctrl+F9"
 msgid "Ctrl+Home"
 msgstr "Ctrl+Home"
 
-#: forms/main.py:950
+#: forms/main.py:958
 msgid "Ctrl+M"
 msgstr "Ctrl+M"
 
-#: forms/cardlist.py:255 forms/main.py:898
+#: forms/cardlist.py:255 forms/main.py:906
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
-#: forms/main.py:900
+#: forms/main.py:908
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:257 forms/main.py:917
+#: forms/cardlist.py:257 forms/main.py:925
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
-#: forms/main.py:896
+#: forms/main.py:904
 msgid "Ctrl+Q"
 msgstr "Ctrl+Q"
 
@@ -1386,23 +1396,33 @@ msgstr "Ctrl+Q"
 msgid "Ctrl+Return"
 msgstr "Ctrl+Return"
 
-#: forms/main.py:905
+#: forms/main.py:913
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
+
+#: forms/main.py:1018
+#, fuzzy
+msgid "Ctrl+Shift+B"
+msgstr "Ctrl+Shift+F"
 
 #: forms/cardlist.py:253
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+Shift+F"
 
-#: forms/main.py:902
+#: forms/main.py:961
+#, fuzzy
+msgid "Ctrl+Shift+S"
+msgstr "Ctrl+Shift+F"
+
+#: forms/main.py:910
 msgid "Ctrl+W"
 msgstr "Ctrl+W"
 
-#: forms/main.py:908
+#: forms/main.py:916
 msgid "Ctrl+Y"
 msgstr "Ctrl+Y"
 
-#: forms/main.py:961
+#: forms/main.py:970
 msgid "Ctrl+Z"
 msgstr "Ctrl+Z"
 
@@ -1434,7 +1454,7 @@ msgstr "Ctrl+u"
 msgid "Cumulative"
 msgstr "Kulmineeruvad"
 
-#: forms/main.py:953
+#: forms/main.py:962
 msgid "Current &Model..."
 msgstr "Praegune &mudel..."
 
@@ -1446,17 +1466,17 @@ msgstr "Praegune Kaart"
 msgid "Customize Models"
 msgstr "Kohanda mudeleid"
 
-#: forms/main.py:954
+#: forms/main.py:963
 #, fuzzy
 msgid "Customize card layout, fields, etc"
 msgstr "Kohanda kaardi paigutust, väljad jne."
 
-#: forms/main.py:946
+#: forms/main.py:954
 #, fuzzy
 msgid "Customize fonts, colours and alignment"
 msgstr "Kohanda kirjasiile, värve ja joondamist."
 
-#: forms/main.py:938
+#: forms/main.py:946
 #, fuzzy
 msgid "Customize syncing, scheduling, priorities and models"
 msgstr "Kohanda sünkroniseerimist, ajastamist, prioriteete ja mudeleid."
@@ -1465,7 +1485,7 @@ msgstr "Kohanda sünkroniseerimist, ajastamist, prioriteete ja mudeleid."
 msgid "Czech"
 msgstr "Tšehh"
 
-#: ui/main.py:2275
+#: ui/main.py:2308
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1478,35 +1498,35 @@ msgstr ""
 msgid "Deck Graphs"
 msgstr "Kaardipaki graafik"
 
-#: ui/deckproperties.py:206 forms/deckproperties.py:328
+#: ui/deckproperties.py:205 forms/deckproperties.py:328
 msgid "Deck Properties"
 msgstr "Kaardipaki omadused"
 
-#: ui/main.py:824 ui/main.py:883
+#: ui/main.py:839 ui/main.py:898
 msgid "Deck files (*.anki)"
 msgstr "Kaardipakid (*.anki)"
 
-#: ui/main.py:585
+#: ui/main.py:600
 msgid "Deck is already open."
 msgstr "Kaardipakk on juba avatud."
 
-#: ui/main.py:1393 forms/cardlist.py:240
+#: ui/main.py:1409 forms/cardlist.py:240
 msgid "Delete"
 msgstr "Kustuta"
 
-#: ui/cardlist.py:691
+#: ui/cardlist.py:736
 msgid "Delete Cards"
 msgstr "Kustuta kaardid"
 
-#: ui/main.py:2292
+#: ui/main.py:2325
 msgid "Delete Refs"
 msgstr "Kustuta Viited"
 
-#: ui/cardlist.py:712
+#: ui/cardlist.py:757
 msgid "Delete Tags"
 msgstr "Kustuta silte"
 
-#: forms/main.py:986
+#: forms/main.py:995
 msgid "Delete the currently displayed card"
 msgstr ""
 
@@ -1526,15 +1546,15 @@ msgstr "&Blokeeri"
 msgid "Discard field"
 msgstr "Loobu väljast"
 
-#: forms/preferences.py:224
+#: forms/preferences.py:229
 msgid "Display"
 msgstr "Kuvaaken"
 
-#: forms/main.py:972
+#: forms/main.py:981
 msgid "Do an extra review of specified cards before a test"
 msgstr ""
 
-#: forms/main.py:931
+#: forms/main.py:939
 msgid "Documentation"
 msgstr "Dokumentatsioon"
 
@@ -1555,15 +1575,15 @@ msgstr "Lae alla ühiskasutusega kaardipakk"
 msgid "Download Shared Plugin"
 msgstr "Lae alla ühiskasutusega plugin"
 
-#: forms/main.py:1004
+#: forms/main.py:1013
 msgid "Download a deck that people have shared publicly"
 msgstr ""
 
-#: forms/main.py:1002
+#: forms/main.py:1011
 msgid "Download a deck that you synced from another computer"
 msgstr ""
 
-#: forms/main.py:1006
+#: forms/main.py:1015
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
@@ -1571,11 +1591,11 @@ msgstr ""
 msgid "Downloads"
 msgstr "Alla laadimised"
 
-#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:382 ui/graphs.py:148
+#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:418 ui/graphs.py:148
 msgid "Due"
 msgstr "Tähtaeguvad kaardid"
 
-#: forms/main.py:895
+#: forms/main.py:903
 msgid "E&xit"
 msgstr "&Lõpeta"
 
@@ -1584,7 +1604,7 @@ msgstr "&Lõpeta"
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Eeldatav ajakulu (ETA): "
 
-#: ui/cardlist.py:237 ui/cardlist.py:385
+#: ui/cardlist.py:237 ui/cardlist.py:421
 msgid "Ease"
 msgstr "Kergendav"
 
@@ -1592,7 +1612,7 @@ msgstr "Kergendav"
 msgid "Eases"
 msgstr "Kergendavad"
 
-#: forms/main.py:874
+#: forms/main.py:879
 msgid "Easy"
 msgstr "Litne"
 
@@ -1600,11 +1620,11 @@ msgstr "Litne"
 msgid "Edit"
 msgstr "Muuda"
 
-#: forms/main.py:981
+#: forms/main.py:990
 msgid "Edit &Current..."
 msgstr "Muuda &praegust..."
 
-#: forms/main.py:982
+#: forms/main.py:991
 msgid "Edit the currently displayed item"
 msgstr ""
 
@@ -1620,11 +1640,11 @@ msgstr "&Võimalda"
 msgid "English"
 msgstr "inglise keel"
 
-#: ui/cardlist.py:699
+#: ui/cardlist.py:744
 msgid "Enter tags to add:"
 msgstr "Sisesta lisatavad sildid:"
 
-#: ui/cardlist.py:710
+#: ui/cardlist.py:755
 msgid "Enter tags to delete:"
 msgstr "Sisesta kustutatavad sildid:"
 
@@ -1632,7 +1652,7 @@ msgstr "Sisesta kustutatavad sildid:"
 msgid "Estonian"
 msgstr ""
 
-#: forms/main.py:943
+#: forms/main.py:951
 msgid "Expor&t..."
 msgstr "&Ekspordi..."
 
@@ -1664,7 +1684,7 @@ msgstr "F3"
 msgid "F4"
 msgstr "F4"
 
-#: ui/facteditor.py:250 forms/main.py:959
+#: ui/facteditor.py:250 forms/main.py:968
 msgid "F5"
 msgstr "F5"
 
@@ -1688,7 +1708,7 @@ msgstr "F7, F8"
 msgid "F9"
 msgstr "F9"
 
-#: ui/cardlist.py:386
+#: ui/cardlist.py:422
 #, fuzzy
 msgid "Fact Created"
 msgstr "Tekitatud"
@@ -1697,7 +1717,7 @@ msgstr "Tekitatud"
 msgid "Facts"
 msgstr "Faktid"
 
-#: ui/main.py:1808
+#: ui/main.py:1835
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Meedia üleslaadimine ebaõnnestus. Palun käivita 'Kontrolli meedia andmebaasi'."
 
@@ -1737,7 +1757,7 @@ msgstr "Väljad"
 msgid "Find and Re&place..."
 msgstr "&Otsi ja asenda..."
 
-#: ui/cardlist.py:906 forms/findreplace.py:60
+#: ui/cardlist.py:951 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr "Otsi ja ssenda"
 
@@ -1766,11 +1786,11 @@ msgstr "prantsuse keel"
 msgid "General && Fields"
 msgstr "Andmed ja väljad"
 
-#: ui/cardlist.py:765 forms/addcardmodels.py:34
+#: ui/cardlist.py:810 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Tekita kaardid"
 
-#: ui/cardlist.py:771
+#: ui/cardlist.py:816
 msgid "Generating Cards..."
 msgstr "Tekitan kaarte..."
 
@@ -1782,11 +1802,11 @@ msgstr "saksa keel"
 msgid "Get Shared Decks/Plugins"
 msgstr "Tõmba ühiskasutatav kaardipakid/pluginad"
 
-#: forms/main.py:998
+#: forms/main.py:1007
 msgid "Get Shared..."
 msgstr "Tõmba ühiskasutatavad..."
 
-#: forms/main.py:872
+#: forms/main.py:877
 msgid "Good"
 msgstr "Normaalne"
 
@@ -1799,11 +1819,11 @@ msgstr "HTML redaktor"
 msgid "HTML Editor (Ctrl+F9)"
 msgstr "HTML redaktor"
 
-#: forms/main.py:870
+#: forms/main.py:875
 msgid "Hard"
 msgstr "Raske"
 
-#: ui/addcards.py:77 forms/displayproperties.py:374 forms/main.py:881
+#: ui/addcards.py:77 forms/displayproperties.py:374 forms/main.py:889
 msgid "Help"
 msgstr "Abi"
 
@@ -1811,7 +1831,7 @@ msgstr "Abi"
 msgid "Hide the question when showing answer"
 msgstr "Peida küsimus vastuse näitamisel"
 
-#: ui/deckproperties.py:83
+#: ui/deckproperties.py:82
 msgid "ID"
 msgstr "ID"
 
@@ -1828,7 +1848,7 @@ msgstr "Pildid (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgid "Import"
 msgstr "Impordi"
 
-#: forms/main.py:940
+#: forms/main.py:948
 msgid "Import cards from text files, Anki files and more"
 msgstr ""
 
@@ -1862,11 +1882,11 @@ msgstr "Pane kaasa ajastamiste andmed"
 msgid "Include tags"
 msgstr "Pane kaasa sildid"
 
-#: ui/cardlist.py:233 ui/cardlist.py:383 ui/graphs.py:150
+#: ui/cardlist.py:233 ui/cardlist.py:419 ui/graphs.py:150
 msgid "Interval"
 msgstr "Vahekaugus"
 
-#: ui/cardlist.py:924
+#: ui/cardlist.py:969
 msgid "Invalid regular expression."
 msgstr "Vigane regulaaravaldis."
 
@@ -1905,11 +1925,11 @@ msgstr "Latexi võrrand (Ctrl+l. siis e)"
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr "Latexi matemaatika keskkond (Ctrl+l, siis m)"
 
-#: ui/main.py:1517
+#: ui/main.py:1543
 msgid "Loading deck..."
 msgstr "Laen kaardipakki..."
 
-#: ui/main.py:1344
+#: ui/main.py:1360
 msgid "Loading graphs (may take time)..."
 msgstr "Laen graafikat (võib võtta aega)..."
 
@@ -1929,6 +1949,11 @@ msgstr "Liida väljadele %s"
 #: ui/importing.py:27
 msgid "Map to Tags"
 msgstr "Liida siltidega"
+
+#: ui/cardlist.py:374
+#, fuzzy
+msgid "Marked"
+msgstr "Raske"
 
 #: forms/deckproperties.py:358 forms/deckproperties.py:359
 #: forms/deckproperties.py:361 forms/reschedule.py:84
@@ -1957,7 +1982,7 @@ msgstr "Mudeli omadused"
 msgid "Models && Priorities"
 msgstr "Mudelid ja prioriteedid"
 
-#: ui/cardlist.py:231 ui/cardlist.py:381
+#: ui/cardlist.py:231 ui/cardlist.py:417
 msgid "Modified"
 msgstr "Muutmisaeg"
 
@@ -1965,8 +1990,9 @@ msgstr "Muutmisaeg"
 msgid "Mongolian"
 msgstr ""
 
-#: forms/main.py:880
-msgid "More>>"
+#: forms/main.py:888
+#, fuzzy
+msgid "More"
 msgstr "Lisavalikud>>"
 
 #: forms/modelproperties.py:293 forms/modelproperties.py:306
@@ -1993,7 +2019,7 @@ msgstr "Teisalda valitud völi allapoole"
 msgid "Move selected field up"
 msgstr "Teisalda valitud väli ülespoole"
 
-#: ui/deckproperties.py:84
+#: ui/deckproperties.py:83
 msgid "Name"
 msgstr "Nimi"
 
@@ -2009,7 +2035,7 @@ msgstr "Järgmine värv (F7, siis F8)"
 msgid "Next field must be blank."
 msgstr "Järgmine väli peab olema tühi."
 
-#: ui/main.py:1510 ui/main.py:1546
+#: ui/main.py:1536 ui/main.py:1572
 msgid "No cards matched the provided tags."
 msgstr "Siltidele vastavaid kaarte ei ole."
 
@@ -2021,23 +2047,24 @@ msgstr "Ei ole esitatavaid kaarte."
 msgid "No changes found."
 msgstr "Muutusi ei leitud."
 
-#: ui/main.py:1336
+#: ui/main.py:1352
 msgid "No current card or last card."
 msgstr "Praegust või eelmist kaart ei ole."
 
-#: ui/main.py:1272
+#: ui/main.py:1288
 msgid "No expression in current card."
 msgstr "Praegusel kaardil ei ole väljendit."
 
-#: ui/main.py:1279
+#: ui/cardlist.py:378
+#, fuzzy
+msgid "No fact tags"
+msgstr "Silte ei ole"
+
+#: ui/main.py:1295
 msgid "No meaning in current card."
 msgstr "Praegusel kaardil ei ole seletust."
 
-#: ui/cardlist.py:372
-msgid "No tags"
-msgstr "Silte ei ole"
-
-#: ui/cardlist.py:1094
+#: ui/cardlist.py:1139
 msgid "Nothing"
 msgstr "mitte midagi"
 
@@ -2045,7 +2072,7 @@ msgstr "mitte midagi"
 msgid "Nothing selected."
 msgstr "Mitte midagi valitud."
 
-#: forms/main.py:887
+#: forms/main.py:895
 msgid "Open &Recent"
 msgstr "Ava &hiljutised"
 
@@ -2054,33 +2081,33 @@ msgstr "Ava &hiljutised"
 msgid "Open Local Deck"
 msgstr "Ava kaardipakk"
 
-#: forms/main.py:947
+#: forms/main.py:955
 msgid "Open Sa&mple..."
 msgstr "Ava &näide..."
 
-#: forms/main.py:999
+#: forms/main.py:1008
 msgid "Open a pre-made deck or plugin"
 msgstr "Ava varem tehtud kaardipakk või plugin"
 
-#: ui/main.py:826
+#: ui/main.py:841
 msgid "Open deck"
 msgstr "Ava kaardipakk"
 
-#: forms/main.py:933
+#: forms/main.py:941
 #, fuzzy
 msgid "Open the bug tracker"
 msgstr "Ava vigade seiresüsteem."
 
-#: forms/main.py:967
+#: forms/main.py:976
 msgid "Optimize Database"
 msgstr "Optimeeri andmebaas"
 
-#: ui/main.py:1201
+#: ui/main.py:1216
 #, fuzzy
 msgid "Ordering..."
 msgstr "Laen kaardipakki..."
 
-#: forms/main.py:893
+#: forms/main.py:901
 msgid "P&lugins"
 msgstr "P&luginad"
 
@@ -2088,11 +2115,11 @@ msgstr "P&luginad"
 msgid "Packaged Anki Deck (*.zip)"
 msgstr "Pakitud Anki kaardipakk (*.zip)"
 
-#: forms/preferences.py:232
+#: forms/preferences.py:237
 msgid "Password"
 msgstr "Salasõna"
 
-#: ui/main.py:776
+#: ui/main.py:791
 msgid "Password:"
 msgstr "Salasõna:"
 
@@ -2101,11 +2128,11 @@ msgstr "Salasõna:"
 msgid "Performance"
 msgstr "Omadused"
 
-#: forms/main.py:1001
+#: forms/main.py:1010
 msgid "Personal Deck"
 msgstr "Isiklik kaardipakk"
 
-#: forms/main.py:958
+#: forms/main.py:967
 msgid "Play the last-played audio again"
 msgstr ""
 
@@ -2117,7 +2144,7 @@ msgstr "Lisa kõigepealt uus kaart."
 msgid "Please add a new field first."
 msgstr "Lisa kõigepealt uus väli."
 
-#: ui/deckproperties.py:144
+#: ui/deckproperties.py:143
 msgid "Please add another model first."
 msgstr "Lisa kõigepealt teine mudel."
 
@@ -2133,7 +2160,7 @@ msgstr "Palun kontrollige kasutajanime ja salasõna."
 msgid "Please enable a different model first."
 msgstr "Palun võimalda kõigepealt teine mudel."
 
-#: ui/cardlist.py:737
+#: ui/cardlist.py:782
 msgid "Please enter a valid start and end range."
 msgstr "Palun sisesta korrektne alguse ja lõppu vahemik."
 
@@ -2145,11 +2172,11 @@ msgstr ""
 "Heli lindistamiseks palun paigalda <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "."
 
-#: ui/main.py:1362
+#: ui/main.py:1378
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Palun paigalda python-matplotlib, kui soovid graafikuid."
 
-#: ui/main.py:2252
+#: ui/main.py:2285
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
@@ -2161,17 +2188,22 @@ msgstr "Plugin alla laetud. Palun taaskäivita Anki."
 msgid "Polish"
 msgstr "poola keel"
 
-#: forms/main.py:990
+#: forms/main.py:999
 msgid "Pre-generate PNG images of LaTeX cards"
 msgstr ""
 
-#: forms/preferences.py:216
+#: forms/preferences.py:220
 msgid "Preferences"
 msgstr "Omadused"
 
 #: forms/modelproperties.py:298
 msgid "Prevent duplicates"
 msgstr "Tõkesta kordsust"
+
+#: forms/preferences.py:227
+#, fuzzy
+msgid "Prevent edits until answer shown"
+msgstr "Tõkesta tühje sissekandeid"
 
 #: forms/modelproperties.py:300
 msgid "Prevent empty entries"
@@ -2193,7 +2225,7 @@ msgstr "Eelvaata kaarte"
 msgid "Previous colour (F7 then F6)"
 msgstr "Eelmine värv (F7, siis F6)"
 
-#: ui/main.py:2267
+#: ui/main.py:2300
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2206,11 +2238,11 @@ msgstr ""
 msgid "Processing..."
 msgstr "Töötlen..."
 
-#: forms/preferences.py:220
+#: forms/preferences.py:224
 msgid "Put space between question and answer"
 msgstr "Eralda küsimus ja vastus"
 
-#: ui/cardlist.py:47 ui/cardlist.py:378
+#: ui/cardlist.py:47 ui/cardlist.py:414
 msgid "Question"
 msgstr "Küsimus"
 
@@ -2230,15 +2262,15 @@ msgstr "Küsimuse kirjastiil"
 msgid "Question size"
 msgstr "Küsimuse suurus"
 
-#: ui/main.py:1207 ui/main.py:1536
+#: ui/main.py:1222 ui/main.py:1562
 msgid "Randomizing..."
 msgstr "Segan..."
 
-#: forms/main.py:883
+#: forms/main.py:891
 msgid "Re&view Early"
 msgstr "Korda tähtaeguvad kaardid varakult"
 
-#: forms/main.py:997
+#: forms/main.py:1006
 msgid "Record 10 seconds of silence so that the record function can cancel noise"
 msgstr ""
 
@@ -2251,7 +2283,7 @@ msgstr "Lindista heli (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Lindistan...<br>Kestvus: %0.1f"
 
-#: ui/cardlist.py:479 ui/main.py:1999
+#: ui/cardlist.py:520 ui/main.py:2032
 #, python-format
 msgid "Redo %s"
 msgstr "Tee uuesti %s"
@@ -2260,7 +2292,7 @@ msgstr "Tee uuesti %s"
 msgid "Refresh"
 msgstr "Värskenda"
 
-#: forms/main.py:973
+#: forms/main.py:982
 msgid "Release Notes..."
 msgstr "Versioonimärkmed..."
 
@@ -2273,35 +2305,35 @@ msgstr "Järgi jäänud: "
 msgid "Remaining: "
 msgstr "Järgi jäänud: "
 
-#: forms/main.py:992
+#: forms/main.py:1001
 msgid "Remove generated PNG images of LaTeX cards"
 msgstr ""
 
-#: forms/main.py:968
+#: forms/main.py:977
 msgid "Remove unused space, making the database file smaller"
 msgstr ""
 
-#: forms/main.py:956
+#: forms/main.py:965
 msgid "Repeat &Answer Audio"
 msgstr "Korda &vastuse heli"
 
-#: forms/main.py:957
+#: forms/main.py:966
 msgid "Repeat &Audio"
 msgstr "Korda &heli"
 
-#: forms/main.py:955
+#: forms/main.py:964
 msgid "Repeat &Question Audio"
 msgstr "Korda &küsimuse heli"
 
-#: ui/cardlist.py:909
+#: ui/cardlist.py:954
 msgid "Replacing..."
 msgstr "Asendan..."
 
-#: ui/cardlist.py:235 ui/cardlist.py:384 ui/graphs.py:154
+#: ui/cardlist.py:235 ui/cardlist.py:420 ui/graphs.py:154
 msgid "Reps"
 msgstr "Kordamised"
 
-#: ui/cardlist.py:721 forms/reschedule.py:79
+#: ui/cardlist.py:766 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr "Ajasta  uuesti"
 
@@ -2317,7 +2349,7 @@ msgstr "Ajasta uuesti koos algse vahekaugustega selles ulatuses:"
 msgid "Reverse &Order"
 msgstr "Pööra järjekord &ümber"
 
-#: forms/main.py:879
+#: forms/main.py:887
 msgid "Review"
 msgstr "Korda"
 
@@ -2330,7 +2362,7 @@ msgstr "Kordamisaeg"
 msgid "Reviews today"
 msgstr "Korda tähtaeguvad kaardid varakult"
 
-#: forms/main.py:906
+#: forms/main.py:914
 msgid "S&ync"
 msgstr "Sünkroniseeri"
 
@@ -2339,40 +2371,40 @@ msgstr "Sünkroniseeri"
 msgid "Sampling silence...<br>Time: %0.1f"
 msgstr "Diskreetimise vaikus...<br>Kestvus: %0.1f"
 
-#: forms/preferences.py:236
+#: forms/preferences.py:241
 msgid "Save && Sync"
 msgstr "Salvesta ja sünkroniseeri"
 
-#: forms/main.py:963
+#: forms/main.py:972
 msgid "Save &As..."
 msgstr "Salvesta &nimega..."
 
-#: ui/main.py:876
+#: ui/main.py:891
 msgid "Save Deck As"
 msgstr "Salvesta kaardipakk nimega"
 
-#: forms/preferences.py:229
+#: forms/preferences.py:234
 msgid "Save after adding"
 msgstr "Salvesta peale lisamist"
 
-#: forms/preferences.py:227
+#: forms/preferences.py:232
 msgid "Save after answering"
 msgstr "Salvesta peale vastamist"
 
-#: forms/main.py:944
+#: forms/main.py:952
 msgid "Save cards in a new deck or text file for sharing with others"
 msgstr ""
 
-#: forms/main.py:904
+#: forms/main.py:912
 #, fuzzy
 msgid "Save this deck now"
 msgstr "Sünkroniseeri see kaardipakk"
 
-#: forms/main.py:964
+#: forms/main.py:973
 msgid "Save this deck, giving it a new name"
 msgstr ""
 
-#: forms/preferences.py:226
+#: forms/preferences.py:231
 msgid "Save when closing"
 msgstr "Salvesta sulgemisel"
 
@@ -2406,15 +2438,15 @@ msgstr ""
 msgid "Set colour (F7 then F7)"
 msgstr "Pane värv (F7, siis F7)"
 
-#: forms/main.py:1000
+#: forms/main.py:1009
 msgid "Share..."
 msgstr "Ühiskasuta..."
 
-#: forms/main.py:1003
+#: forms/main.py:1012
 msgid "Shared Deck"
 msgstr "Ühiskasutatav kaardipakk"
 
-#: forms/main.py:1005
+#: forms/main.py:1014
 msgid "Shared Plugin"
 msgstr "Ühiskasutatav plugin"
 
@@ -2426,7 +2458,7 @@ msgstr "Shift+Alt+e"
 msgid "Shift+Alt+m"
 msgstr "Shift+Alt+m"
 
-#: forms/main.py:866
+#: forms/main.py:871
 msgid "Show Answer"
 msgstr "Näite vastus"
 
@@ -2434,19 +2466,19 @@ msgstr "Näite vastus"
 msgid "Show advanced options"
 msgstr "Näita lisasuvandeid"
 
-#: forms/preferences.py:219
+#: forms/preferences.py:223
 msgid "Show divider between question and answer"
 msgstr "Näita joont küsimuse ja vastuse vahel"
 
-#: forms/preferences.py:222
+#: forms/preferences.py:226
 msgid "Show due count and progress during review"
 msgstr ""
 
-#: forms/main.py:942
+#: forms/main.py:950
 msgid "Show graphical statistics about your deck"
 msgstr ""
 
-#: forms/preferences.py:221
+#: forms/preferences.py:225
 msgid "Show next time before answer"
 msgstr "Näita järgmist tähtaeg enne vastust"
 
@@ -2454,32 +2486,32 @@ msgstr "Näita järgmist tähtaeg enne vastust"
 msgid "Show preview"
 msgstr "Näita eelvaadet"
 
-#: forms/main.py:930
+#: forms/main.py:938
 msgid "Show some textual statistics about your deck"
 msgstr ""
 
-#: forms/main.py:936
+#: forms/main.py:944
 #, fuzzy
 msgid "Show statistics about the current card and last card"
 msgstr "Praegust või eelmist kaart ei ole."
 
-#: forms/preferences.py:240
+#: forms/preferences.py:245
 msgid "Show study options on deck load"
 msgstr "Näita õpingu suvandeid kaardipaki laadimisel"
 
-#: forms/main.py:865
+#: forms/main.py:870
 msgid "Show the answer (shortcut key: space or enter)"
 msgstr "Näita vastust (kiirklahv: tühik või enter)"
 
-#: forms/main.py:867
+#: forms/main.py:872
 msgid "Show this card again soon (shortcut key: 1)"
 msgstr "Näita seda kaarti varsti uuesti (kiirklahv: 1)"
 
-#: forms/preferences.py:238
+#: forms/preferences.py:243
 msgid "Show timer"
 msgstr "Näita stopperit"
 
-#: forms/preferences.py:241
+#: forms/preferences.py:246
 msgid "Show tray icon"
 msgstr "Näita süsteemisalvel ikooni"
 
@@ -2487,15 +2519,15 @@ msgstr "Näita süsteemisalvel ikooni"
 msgid "Show/Hide"
 msgstr "Näita/Peida"
 
-#: ui/addcards.py:122 ui/cardlist.py:582
+#: ui/addcards.py:122 ui/cardlist.py:627
 msgid "Some fields are missing or not unique."
 msgstr "Mõned väljad on puudu või ei ole kordumatud."
 
-#: forms/preferences.py:223 forms/preferences.py:243
+#: forms/preferences.py:228 forms/preferences.py:248
 msgid "Some settings will take effect after you restart Anki."
 msgstr ""
 
-#: ui/main.py:555
+#: ui/main.py:570
 msgid "Soon"
 msgstr "Varsti"
 
@@ -2507,7 +2539,7 @@ msgstr "Sorteeri nagu numbreid"
 msgid "Sounds (*.mp3 *.ogg *.wav)"
 msgstr "Helid (*.mp3 *.ogg *.wav)"
 
-#: ui/deckproperties.py:184
+#: ui/deckproperties.py:183
 msgid "Source ID:"
 msgstr "Allika ID:"
 
@@ -2515,7 +2547,7 @@ msgstr "Allika ID:"
 msgid "Spanish"
 msgstr "hispaania keel"
 
-#: ui/main.py:1153
+#: ui/main.py:1168
 msgid "Start &Reviewing"
 msgstr "&Alusta kordamist"
 
@@ -2523,7 +2555,7 @@ msgstr "&Alusta kordamist"
 msgid "Start adding your own material."
 msgstr ""
 
-#: forms/main.py:894
+#: forms/main.py:902
 msgid "Startup"
 msgstr "Käivitus"
 
@@ -2531,13 +2563,22 @@ msgstr "Käivitus"
 msgid "Status"
 msgstr "Seisund"
 
-#: forms/main.py:952
+#: forms/main.py:960
 #, fuzzy
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Peata selle kaardi kordamine kuniks see on jälle lubatud redaktorist"
 
-#: ui/main.py:1379
+#: ui/main.py:1395
 msgid "Suspend"
+msgstr "Peatatud"
+
+#: forms/main.py:1017
+msgid "Suspend the current fact until the deck is closed and opened again"
+msgstr ""
+
+#: ui/cardlist.py:376
+#, fuzzy
+msgid "Suspended"
 msgstr "Peatatud"
 
 #: ui/preferences.py:44
@@ -2548,11 +2589,11 @@ msgstr "rootsi keel"
 msgid "Sync complete."
 msgstr "Sünkroniseerimine teostatud."
 
-#: forms/preferences.py:234
+#: forms/preferences.py:239
 msgid "Sync on close"
 msgstr "Sünkroniseeri sulgemisel"
 
-#: forms/preferences.py:235
+#: forms/preferences.py:240
 msgid "Sync on open"
 msgstr "Sünkroniseeri avamisel"
 
@@ -2564,12 +2605,12 @@ msgstr "Sünkroniseerimine"
 msgid "Synchronize this deck"
 msgstr "Sünkroniseeri see kaardipakk"
 
-#: forms/main.py:907
+#: forms/main.py:915
 #, fuzzy
 msgid "Synchronize this deck with Anki Online"
 msgstr "Sünkroniseeri see kaardipakk"
 
-#: ui/main.py:1786 ui/main.py:1788
+#: ui/main.py:1813 ui/main.py:1815
 msgid "Syncing Media..."
 msgstr "Sünkroniseeri meedia..."
 
@@ -2578,7 +2619,7 @@ msgstr "Sünkroniseeri meedia..."
 msgid "Syncing failed: %(a)s"
 msgstr "Sünkroniseerimine ebaõnnestus: %(a)s"
 
-#: ui/main.py:2290
+#: ui/main.py:2323
 msgid "Tag Cards"
 msgstr "Sildista kaarte"
 
@@ -2590,11 +2631,11 @@ msgstr "Sildista faktid dubleeritud väljadega selmet kustutada"
 msgid "Tags"
 msgstr "Sildid"
 
-#: ui/main.py:1500
+#: ui/main.py:1526
 msgid "Tags to cram:"
 msgstr "Sildid, mida tuupida:"
 
-#: ui/cardlist.py:1170
+#: ui/cardlist.py:1215
 msgid "Targets must be unique."
 msgstr "Eesmärgid peavad olema kordumatud."
 
@@ -2606,6 +2647,14 @@ msgstr "Mallid"
 msgid "TextLabel"
 msgstr "Tekstisedel"
 
+#: forms/main.py:881
+msgid "The <b>number of minutes in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
+msgstr ""
+
+#: forms/main.py:885
+msgid "The <b>number of questions in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
+msgstr ""
+
 #: ui/addcards.py:126
 msgid ""
 "The input you have provided would make an empty\n"
@@ -2613,6 +2662,10 @@ msgid ""
 msgstr ""
 "Antud sisend teeb kõikidel kaartidel\n"
 "tühja küsimuse või vastuse."
+
+#: forms/main.py:883
+msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
+msgstr ""
 
 #: ui/sync.py:54
 msgid "The sync protocol has changed. Please upgrade."
@@ -2716,7 +2769,7 @@ msgstr ""
 "\n"
 "Kas oled kindel, et kustutada need kaardid?"
 
-#: ui/deckproperties.py:156
+#: ui/deckproperties.py:155
 #, python-format
 msgid ""
 "This model is used by %d facts.\n"
@@ -2727,7 +2780,7 @@ msgstr ""
 "Kas Sa oled kindel, et soovid selle kustutada?\n"
 "Kui Sa kustutad selle, siis ka need kaardi kustuvad."
 
-#: ui/deckproperties.py:149
+#: ui/deckproperties.py:148
 #, python-format
 msgid ""
 "This model is used by deck source:\n"
@@ -2738,7 +2791,7 @@ msgstr ""
 "%s\n"
 "Sa pead kõigepealt eemaldama selle allika."
 
-#: ui/main.py:2254
+#: ui/main.py:2287
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2756,7 +2809,7 @@ msgstr ""
 "<b>Seda tegevust ei saa tagasi võtta.</b><br>\n"
 "Soovid jätkata?"
 
-#: ui/main.py:2281
+#: ui/main.py:2314
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2780,7 +2833,7 @@ msgstr ""
 msgid "Title"
 msgstr "Pealkiri"
 
-#: ui/main.py:1354
+#: ui/main.py:1370
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2792,7 +2845,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr "Tänased kordamised on lõppenud"
 
-#: ui/main.py:1250
+#: ui/main.py:1266
 msgid "Toggle Toolbar"
 msgstr "Näita tööriisariba"
 
@@ -2813,7 +2866,7 @@ msgstr "Kannan üle andmeid..."
 msgid "Treat input as regular expression"
 msgstr "Kohtle sisendit kui regulaaravaldist"
 
-#: ui/main.py:530
+#: ui/main.py:539
 msgid "Type in the answer and hit enter"
 msgstr "Sisesta vastus ja vajuta enter"
 
@@ -2825,7 +2878,7 @@ msgstr "Tüüp:"
 msgid "Unable to connect to server."
 msgstr "Serveriga ühenduse võtmine ebaõnnestus."
 
-#: ui/main.py:590
+#: ui/main.py:605
 msgid ""
 "Unable to load deck.\n"
 "\n"
@@ -2847,7 +2900,7 @@ msgstr ""
 "\n"
 "Vandade kaardipakkide uuendamiseks laadi alla Anki 0.9.8.7."
 
-#: ui/main.py:834
+#: ui/main.py:849
 msgid "Unable to load file."
 msgstr "Faili laadimine ebaõnnestus."
 
@@ -2870,11 +2923,11 @@ msgstr ""
 "\n"
 "%(info)s"
 
-#: ui/main.py:624
+#: ui/main.py:639
 msgid "Unable to recover. Deck load failed."
 msgstr "Veast taastumine ebaõnnestus. Kaardipaki laadimine ebaõnnestus."
 
-#: forms/main.py:991
+#: forms/main.py:1000
 msgid "Uncache LaTeX"
 msgstr "Puhasta LaTeX vahemälu"
 
@@ -2882,7 +2935,7 @@ msgstr "Puhasta LaTeX vahemälu"
 msgid "Underline text (Ctrl+u)"
 msgstr "Allajoonitud tekst (Ctrl+u)"
 
-#: ui/cardlist.py:473 ui/main.py:1993
+#: ui/cardlist.py:514 ui/main.py:2026
 #, python-format
 msgid "Undo %s"
 msgstr "Võta tagasi %s"
@@ -2896,7 +2949,7 @@ msgstr ""
 msgid "Update complete. Please restart Anki."
 msgstr "Anki uuendamine teostatud. Palun taaskäivita Anki."
 
-#: ui/main.py:2033
+#: ui/main.py:2066
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2918,23 +2971,23 @@ msgstr "Teistsugune kirjastiili"
 msgid "Use custom size"
 msgstr "Teistsugune suurust"
 
-#: forms/preferences.py:233
+#: forms/preferences.py:238
 msgid "Username"
 msgstr "Kasutajanimi"
 
-#: ui/main.py:772
+#: ui/main.py:787
 msgid "Username:"
 msgstr "Kasutajanimi:"
 
-#: forms/main.py:869
+#: forms/main.py:874
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Oota järgmine kord natuke kauem (kiirklahv: 2)"
 
-#: forms/main.py:873
+#: forms/main.py:878
 msgid "Wait a lot longer next time (shortcut key: 4)"
 msgstr "Oota järgmine kord palju kauem (kiirklahv: 4)"
 
-#: forms/main.py:871
+#: forms/main.py:876
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr "Oota järgmine kord kauem (kiirklahv: 3)"
 
@@ -2951,12 +3004,12 @@ msgstr "Tubli! See kaart ilmub jälle <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Kas Sa soovid selle kohe alla laadida?"
 
-#: ui/main.py:1415 ui/main.py:1463
+#: ui/main.py:1441 ui/main.py:1489
 #, fuzzy
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Muutub tuupimiseks. Esmalt, sulge praegune kaardibak."
 
-#: ui/main.py:2024
+#: ui/main.py:2057
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2967,7 +3020,7 @@ msgstr ""
 "See on %(sec)d sekundit %(type)s.\n"
 " Palun taga, et kellaaeg oleks täpselt sätitud ja siis taaskäivita Anki."
 
-#: ui/main.py:1769
+#: ui/main.py:1796
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -2982,7 +3035,7 @@ msgstr ""
 "See võib põhjustada palju probleeme sünkroniseerimisel.\n"
 "Sünkroniseerimine on blokeeritud kuniks Sa parandad selle probleemi."
 
-#: ui/main.py:1359
+#: ui/main.py:1375
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -2990,11 +3043,11 @@ msgstr ""
 "Sinu Matplotlib on katki.\n"
 "Palun vaata http://ichi2.net/anki/wiki/MatplotlibBroken"
 
-#: forms/main.py:978
+#: forms/main.py:987
 msgid "a"
 msgstr ""
 
-#: forms/preferences.py:228
+#: forms/preferences.py:233
 msgid "cards"
 msgstr "kaardid"
 
@@ -3003,11 +3056,11 @@ msgstr "kaardid"
 msgid "days"
 msgstr "päeva"
 
-#: ui/main.py:2022
+#: ui/main.py:2055
 msgid "early"
 msgstr "ees"
 
-#: forms/preferences.py:230
+#: forms/preferences.py:235
 msgid "facts"
 msgstr "faktid"
 
@@ -3020,7 +3073,7 @@ msgstr "%s"
 msgid "label"
 msgstr "sedel"
 
-#: ui/main.py:2020
+#: ui/main.py:2053
 msgid "late"
 msgstr "maas"
 
