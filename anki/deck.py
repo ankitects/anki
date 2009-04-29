@@ -512,7 +512,10 @@ matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
 spaceUntil = 0, isDue = 0, type = 2,
 combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
-        self.flushMod()
+        if self.newCardOrder == NEW_CARDS_RANDOM:
+            # we need to re-randomize now
+            self.randomizeNewCards(ids)
+        self.refresh()
 
     def randomizeNewCards(self, cardIds=None):
         "Randomize 'due' on all new cards."
