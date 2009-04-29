@@ -344,16 +344,21 @@ Please do not file a bug report with Anki.<br><br>""")
             return
         if self.state == "showQuestion":
             if evt.key() in (Qt.Key_Enter,
-                             Qt.Key_Return):
+                             Qt.Key_Return,
+                             Qt.Key_Space):
                 evt.accept()
-                return self.moveToState("showAnswer")
+                return self.mainWin.showAnswerButton.click()
         elif self.state == "showAnswer":
-            key = unicode(evt.text())
+            if evt.key() == Qt.Key_Space:
+                key = str(self.defaultEaseButton())
+            else:
+                key = unicode(evt.text())
             if key and key >= "1" and key <= "4":
                 # user entered a quality setting
                 num=int(key)
                 evt.accept()
-                return self.cardAnswered(num)
+                return getattr(self.mainWin, "easeButton%d" %
+                               num).animateClick()
         elif self.state == "studyScreen":
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
@@ -534,17 +539,23 @@ new:
                 self.typeAnswerField.setText("")
         else:
             self.mainWin.buttonStack.setCurrentIndex(0)
-            self.mainWin.showAnswerButton.setFocus()
+            self.mainWin.mainText.setFocus()
         self.mainWin.buttonStack.show()
 
     def showEaseButtons(self):
         self.updateEaseButtons()
         self.mainWin.buttonStack.setCurrentIndex(1)
         self.mainWin.buttonStack.show()
-        if self.currentCard.reps and not self.currentCard.successive:
+        if self.defaultEaseButton() == 2:
             self.mainWin.easeButton2.setFocus()
         else:
             self.mainWin.easeButton3.setFocus()
+
+    def defaultEaseButton(self):
+        if self.currentCard.reps and not self.currentCard.successive:
+            return 2
+        else:
+            return 3
 
     def updateEaseButtons(self):
         nextInts = {}
