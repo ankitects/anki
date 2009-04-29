@@ -2563,9 +2563,13 @@ class DeckStorage(object):
         deck.updateDynamicIndices()
         # save counts to determine if we should save deck after check
         oldc = deck.failedSoonCount + deck.revCount + deck.newCount
-        # update counts & unsuspend reviewed early cards
+        # update counts
         deck.rebuildQueue()
-        deck.resetAfterReviewEarly()
+        # unsuspend reviewed early & buried
+        ids = deck.s.column0("select id from cards where priority in (-1, -2)")
+        if ids:
+            deck.updatePriorities(ids)
+            deck.checkDue()
         if ((oldc != deck.failedSoonCount + deck.revCount + deck.newCount) or
             deck.modifiedSinceSave()):
             # we don't want the deck marked as modified, but we don't want to
