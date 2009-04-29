@@ -11,9 +11,9 @@ __docformat__ = 'restructuredtext'
 class Error(Exception):
     def __init__(self, message="", **data):
         self.data = data
-        self.message = message
+        self._message = message
     def __str__(self):
-        m = self.message
+        m = self._message
         if self.data:
             m += ": %s" % repr(self.data)
         return m
