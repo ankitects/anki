@@ -289,6 +289,7 @@ class EditDeck(QMainWindow):
         self.forceClose = False
         self.origModTime = parent.deck.modified
         self.currentRow = None
+        self.lastFilter = ""
         self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
         self.dialog.setupUi(self)
         restoreGeom(self, "editor")
@@ -484,17 +485,18 @@ class EditDeck(QMainWindow):
 
     def tagChanged(self, idx):
         if idx == 0:
-            self.dialog.filterEdit.setText("")
+            filter = ""
         elif idx == 1:
-            self.dialog.filterEdit.setText("tag:marked")
+            filter = "tag:marked"
         elif idx == 2:
-            self.dialog.filterEdit.setText("tag:suspended")
+            filter = "tag:suspended"
         elif idx == 3:
-            self.dialog.filterEdit.setText("tag:none")
+            filter = "tag:none"
         else:
-            self.dialog.filterEdit.setText("tag:" + self.alltags[idx])
+            filter = "tag:" + self.alltags[idx]
+        self.lastFilter = filter
+        self.dialog.filterEdit.setText(filter)
         self.showFilterNow()
-        self.dialog.tagList.setCurrentIndex(0)
 
     def updateFilterLabel(self):
         selected = len(self.dialog.tableView.selectionModel().selectedRows())
@@ -526,6 +528,10 @@ class EditDeck(QMainWindow):
 
     def filterTextChanged(self):
         interval = 300
+        # update filter dropdown
+        if (self.lastFilter.lower()
+            not in unicode(self.dialog.filterEdit.text()).lower()):
+            self.dialog.tagList.setCurrentIndex(0)
         if self.filterTimer:
             self.filterTimer.setInterval(interval)
         else:
