@@ -700,7 +700,7 @@
                          </size>
                         </property>
                         <property name="text" >
-                         <string>More>></string>
+                         <string>More</string>
                         </property>
                         <property name="checkable" >
                          <bool>true</bool>
