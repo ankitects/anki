@@ -513,6 +513,9 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip" >
+                       <string>The &lt;b>number of minutes in a session&lt;/b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit.</string>
+                      </property>
                       <property name="text" >
                        <string>&lt;b>Session limit (minutes):&lt;/b></string>
                       </property>
@@ -544,6 +547,9 @@
                         <width>140</width>
                         <height>0</height>
                        </size>
+                      </property>
+                      <property name="toolTip" >
+                       <string>The maximum number of &lt;b>new cards shown per day&lt;/b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days.</string>
                       </property>
                       <property name="text" >
                        <string>&lt;b>New cards per day:&lt;/b></string>
@@ -600,6 +606,9 @@
                     </item>
                     <item row="2" column="0" >
                      <widget class="QLabel" name="label" >
+                      <property name="toolTip" >
+                       <string>The &lt;b>number of questions in a session&lt;/b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit.</string>
+                      </property>
                       <property name="text" >
                        <string>&lt;b>Session limit (questions):</string>
                       </property>
