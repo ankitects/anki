@@ -1132,6 +1132,7 @@
     <addaction name="actionEditdeck" />
     <addaction name="separator" />
     <addaction name="actionMarkCard" />
+    <addaction name="actionBuryFact" />
     <addaction name="actionSuspendCard" />
     <addaction name="actionDelete" />
    </widget>
@@ -1633,6 +1634,9 @@
    <property name="statusTip" >
     <string>Stop reviewing this card until it's unsuspended in the browser</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+S</string>
+   </property>
   </action>
   <action name="actionModelProperties" >
    <property name="icon" >
@@ -1932,6 +1936,21 @@
    </property>
    <property name="statusTip" >
     <string>Download a plugin to add new features or change Anki's behaviour</string>
+   </property>
+  </action>
+  <action name="actionBuryFact" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Bury Fact</string>
+   </property>
+   <property name="statusTip" >
+    <string>Suspend the current fact until the deck is closed and opened again</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+B</string>
    </property>
   </action>
  </widget>

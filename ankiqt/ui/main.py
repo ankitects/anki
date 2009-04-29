@@ -1411,6 +1411,16 @@ session (black)</dd>
         self.deck.setUndoEnd(undo)
         runHook("currentCardDeleted")
 
+    def onBuryFact(self):
+        undo = _("Bury")
+        self.deck.setUndoStart(undo)
+        for card in self.currentCard.fact.cards:
+            card.priority = -2
+            card.isDue = 0
+        self.deck.flushMod()
+        self.reset()
+        self.deck.setUndoEnd(undo)
+
     def onUndo(self):
         self.deck.undo()
         self.reset(count=False)
@@ -1902,6 +1912,7 @@ Couldn't contact Anki Online. Please check your internet connection."""))
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionRecordNoiseProfile, s, self.onRecordNoiseProfile)
+        self.connect(m.actionBuryFact, s, self.onBuryFact)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
@@ -1957,6 +1968,7 @@ Couldn't contact Anki Online. Please check your internet connection."""))
 	self.mainWin.actionMarkCard.setEnabled(False)
 	self.mainWin.actionSuspendCard.setEnabled(False)
 	self.mainWin.actionDelete.setEnabled(False)
+	self.mainWin.actionBuryFact.setEnabled(False)
         self.mainWin.actionRepeatAudio.setEnabled(False)
 
     def enableCardMenuItems(self):
@@ -1970,6 +1982,7 @@ Couldn't contact Anki Online. Please check your internet connection."""))
 	self.mainWin.actionMarkCard.setEnabled(True)
 	self.mainWin.actionSuspendCard.setEnabled(True)
 	self.mainWin.actionDelete.setEnabled(True)
+	self.mainWin.actionBuryFact.setEnabled(True)
         enableEdits = (not self.config['preventEditUntilAnswer'] or
                        self.state != "getQuestion")
         self.mainWin.actionEditCurrent.setEnabled(enableEdits)
