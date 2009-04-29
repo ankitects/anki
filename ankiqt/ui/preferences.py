@@ -115,6 +115,7 @@ class Preferences(QDialog):
         self.dialog.splitQA.setChecked(self.config['splitQA'])
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
         self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
+        self.dialog.showProgress.setChecked(self.config['showProgress'])
         self.dialog.preventEdits.setChecked(self.config['preventEditUntilAnswer'])
 
     def updateAdvanced(self):
