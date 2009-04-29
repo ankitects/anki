@@ -1630,10 +1630,11 @@ it to your friends.
             for f in os.listdir(mdir):
                 zip.write(os.path.join(mdir, f),
                           str(os.path.join("shared.media/", f)))
+            os.chdir(pwd)
             shutil.rmtree(mdir)
+        os.chdir(pwd)
         self.deck.updateProgress()
         zip.close()
-        os.chdir(pwd)
         os.unlink(path)
         self.deck.finishProgress()
         self.onOpenPluginFolder(dir)
