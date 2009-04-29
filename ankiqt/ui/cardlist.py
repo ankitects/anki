@@ -362,16 +362,51 @@ class EditDeck(QMainWindow):
         self.sortChanged(self.sortIndex, refresh=False)
 
     def drawTags(self):
+        self.dialog.tagList.view().setFixedWidth(200)
         self.dialog.tagList.setMaxVisibleItems(30)
-        tags = self.deck.allTags()
-        self.alltags = tags
-        self.alltags.sort()
         self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
-        self.dialog.tagList.addItems(QStringList(
-            [_('<Tag filter>'), _('No tags')] +
-            [x.replace("_", " ") for x in self.alltags]))
-        self.dialog.tagList.view().setFixedWidth(200)
+        alltags = [None, "Marked", "Suspended", None, None]
+        # system tags
+        self.dialog.tagList.addItem(_("<Filter>"))
+        self.dialog.tagList.addItem(QIcon(":/icons/rating.png"),
+                                    _('Marked'))
+        self.dialog.tagList.addItem(QIcon(":/icons/media-playback-pause.png"),
+                                    _('Suspended'))
+        self.dialog.tagList.addItem(QIcon(":/icons/editclear.png"),
+                                    _('No fact tags'))
+        self.dialog.tagList.insertSeparator(
+            self.dialog.tagList.count())
+        # model and card templates
+        for (type, sql, icon) in (
+            ("models", "select tags from models", "contents.png"),
+            ("cms", "select name from cardModels", "Anki_Card.png")):
+            d = {}
+            tagss = self.deck.s.column0(sql)
+            for tags in tagss:
+                for tag in parseTags(tags):
+                    d[tag] = 1
+            sortedtags = sorted(d.keys())
+            alltags.extend(sortedtags)
+            icon = QIcon(":/icons/" + icon)
+            for t in sortedtags:
+                self.dialog.tagList.addItem(icon, t)
+            alltags.append(None)
+            self.dialog.tagList.insertSeparator(
+                self.dialog.tagList.count())
+        # fact tags
+        alluser = sorted(self.deck.allTags())
+        for tag in alltags:
+            try:
+                alluser.remove(tag)
+            except:
+                pass
+        icon = QIcon(":/icons/Anki_Fact.png")
+        for t in alluser:
+            t = t.replace("_", " ")
+            self.dialog.tagList.addItem(icon, t)
+        alltags.extend(alluser)
+        self.alltags = alltags
 
     def drawSort(self):
         self.sortList = [
@@ -451,9 +486,13 @@ class EditDeck(QMainWindow):
         if idx == 0:
             self.dialog.filterEdit.setText("")
         elif idx == 1:
+            self.dialog.filterEdit.setText("tag:marked")
+        elif idx == 2:
+            self.dialog.filterEdit.setText("tag:suspended")
+        elif idx == 3:
             self.dialog.filterEdit.setText("tag:none")
         else:
-            self.dialog.filterEdit.setText("tag:" + self.alltags[idx-2])
+            self.dialog.filterEdit.setText("tag:" + self.alltags[idx])
         self.showFilterNow()
         self.dialog.tagList.setCurrentIndex(0)
 
