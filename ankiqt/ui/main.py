@@ -1229,6 +1229,7 @@ session (black)</dd>
             self.deck.setFailedCardPolicy(
                 self.mainWin.failedCardsOption.currentIndex())
             self.deck.flushMod()
+        self.deck.rebuildQueue()
         self.deck.startSession()
         self.moveToState("getQuestion")
 
