@@ -53,6 +53,6 @@ try:
 except ImportError:
     pass
 
-version = "0.9.9.7.7"
+version = "0.9.9.7.7b"
 
 from anki.deck import DeckStorage
