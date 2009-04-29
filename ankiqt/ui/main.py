@@ -1956,10 +1956,13 @@ Couldn't contact Anki Online. Please check your internet connection."""))
                (hasSound(self.currentCard.answer) and
                 self.state != "getQuestion"))
         self.mainWin.actionRepeatAudio.setEnabled(snd)
-        self.mainWin.actionEditCurrent.setEnabled(True)
 	self.mainWin.actionMarkCard.setEnabled(True)
 	self.mainWin.actionSuspendCard.setEnabled(True)
 	self.mainWin.actionDelete.setEnabled(True)
+        enableEdits = (not self.config['preventEditUntilAnswer'] or
+                       self.state != "getQuestion")
+        self.mainWin.actionEditCurrent.setEnabled(enableEdits)
+        self.mainWin.actionEditdeck.setEnabled(enableEdits)
 
     def maybeShowKanjiStats(self):
         if not self.deck:
