@@ -235,7 +235,10 @@ Please do not file a bug report with Anki.<br><br>""")
         elif state == "auto":
             self.currentCard = None
             if self.deck:
-                return self.moveToState("getQuestion")
+                if self.state == "studyScreen":
+                    return self.updateStudyStats()
+                else:
+                    return self.moveToState("getQuestion")
             else:
                 return self.moveToState("noDeck")
         # save the new & last state
