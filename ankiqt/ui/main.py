@@ -542,7 +542,7 @@ new:
                 self.typeAnswerField.setText("")
         else:
             self.mainWin.buttonStack.setCurrentIndex(0)
-            self.mainWin.mainText.setFocus()
+            self.mainWin.showAnswerButton.setFocus()
         self.mainWin.buttonStack.show()
 
     def showEaseButtons(self):
