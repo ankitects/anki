@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -2085,12 +2085,13 @@ msgstr "Isiklik kaardipakk"
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "Lisa kõigepealt uus kaart."
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
+msgstr "Lisa kõigepealt uus väli."
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "Lisa kõigepealt uus väli."
 
 #: ui/deckproperties.py:143
@@ -3294,6 +3295,9 @@ msgstr "üleminesedel"
 
 #~ msgid "Import file"
 #~ msgstr "Impordi fail"
+
+#~ msgid "Please add a new card first."
+#~ msgstr "Lisa kõigepealt uus kaart."
 
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "Palun vali väli, mille järgi sortida."

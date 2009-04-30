@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -2207,12 +2207,13 @@ msgstr ""
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "Veuillez d'abord ajouter une autre carte."
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
+msgstr "Veuillez d'abord ajouter un autre champ."
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "Veuillez d'abord ajouter un autre champ."
 
 #: ui/deckproperties.py:143
@@ -4405,6 +4406,9 @@ msgstr "tard"
 
 #~ msgid "Period"
 #~ msgstr "Période"
+
+#~ msgid "Please add a new card first."
+#~ msgstr "Veuillez d'abord ajouter une autre carte."
 
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "Choisissez un champ sur lequel trier."

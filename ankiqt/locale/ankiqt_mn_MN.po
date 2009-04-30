@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2009-04-19 00:56+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2083,12 +2083,13 @@ msgstr "Өөрийнхөө Цуглуулга"
 msgid "Play the last-played audio again"
 msgstr "Сүүлд тоглосон дуу дахиад тоглох"
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "Эхлээд шинэ картыг нэмнэ уу?"
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
+msgstr "Эхлээд шинэ талбарыг нэмнэ уу?"
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "Эхлээд шинэ талбарыг нэмнэ уу?"
 
 #: ui/deckproperties.py:143
@@ -3131,6 +3132,9 @@ msgstr "toplabel"
 
 #~ msgid "Import file"
 #~ msgstr "Файлыг импортлох"
+
+#~ msgid "Please add a new card first."
+#~ msgstr "Эхлээд шинэ картыг нэмнэ уу?"
 
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "Талбараас эрэмбэлэхээр нь сонго."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2179,14 +2179,14 @@ msgstr ""
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:382
-#, fuzzy
-msgid "Please add a new card first."
-msgstr "Prosím zodpovězte ještě několik kartiček."
-
 #: ui/modelproperties.py:164
 #, fuzzy
 msgid "Please add a new field first."
+msgstr "Prosím zodpovězte ještě několik kartiček."
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "Prosím zodpovězte ještě několik kartiček."
 
 #: ui/deckproperties.py:143
@@ -3990,6 +3990,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Open On&line..."
 #~ msgstr "Otevřít vzorový soubor..."
+
+#, fuzzy
+#~ msgid "Please add a new card first."
+#~ msgstr "Prosím zodpovězte ještě několik kartiček."
 
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "Prosím zvolte pole třídění"

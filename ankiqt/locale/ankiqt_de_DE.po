@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2009-03-28 15:50+0100\n"
 "Last-Translator: Michael Keppler <bananeweizen@gmx.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2079,12 +2079,13 @@ msgstr "Persönlicher Stapel"
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "Bitte füge zuerst eine neue Karte hinzu."
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
+msgstr "Bitte füge zuerst ein neues Feld hinzu."
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "Bitte füge zuerst ein neues Feld hinzu."
 
 #: ui/deckproperties.py:143
@@ -4050,6 +4051,9 @@ msgstr "Label"
 
 #~ msgid "Period"
 #~ msgstr "Zeitraum"
+
+#~ msgid "Please add a new card first."
+#~ msgstr "Bitte füge zuerst eine neue Karte hinzu."
 
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "Bitte wähle ein Feld, nach dem sortiert werden soll."

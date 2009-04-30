@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2184,12 +2184,13 @@ msgstr ""
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "먼저 새 카드를 추가해 주세요."
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
+msgstr "먼저 새 필드를 추가해 주세요."
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "먼저 새 필드를 추가해 주세요."
 
 #: ui/deckproperties.py:143
@@ -4002,6 +4003,9 @@ msgstr "Latex"
 
 #~ msgid "Percentage of minimum interval"
 #~ msgstr "최소 복습 간격 비율"
+
+#~ msgid "Please add a new card first."
+#~ msgstr "먼저 새 카드를 추가해 주세요."
 
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "정렬 기준이 될 필드를 선택해 주세요."

@@ -7,20 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-<<<<<<< HEAD:ankiqt/locale/ankiqt_pl_PL.po
-"POT-Creation-Date: 2009-04-29 22:44+0200\n"
-"PO-Revision-Date: 2009-04-29 22:39+0200\n"
-=======
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
-"PO-Revision-Date: 2009-04-29 20:32+0200\n"
->>>>>>> 09df5d7bac44d3654f0ee4a70f4fd3dfb7e45173:ankiqt/locale/ankiqt_pl_PL.po
-"Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
-"Language-Team: polski <pl@li.org>\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Susanna Bj�rverud <susanna.bjorverud@telia.com>\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: KBabel 1.11.4\n"
 
 #: ui/about.py:13
 #, python-format
@@ -964,11 +957,7 @@ msgstr ""
 "Jeśli po tym błąd będzie się powtarzał, załącz poniższy<br>\n"
 "tekst do raportu o błędzie.<br><br>\n"
 
-<<<<<<< HEAD:ankiqt/locale/ankiqt_pl_PL.po
-#: ui/deckproperties.py:182 ui/main.py:2312 forms/main.py:869
-=======
 #: ui/deckproperties.py:182 ui/main.py:2313 forms/main.py:871
->>>>>>> 09df5d7bac44d3654f0ee4a70f4fd3dfb7e45173:ankiqt/locale/ankiqt_pl_PL.po
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -2097,14 +2086,8 @@ msgid "Please double-check your username/password."
 msgstr "Sprawdź ponownie swoją nazwę użytkownika/hasło."
 
 #: ui/modelproperties.py:410
-<<<<<<< HEAD:ankiqt/locale/ankiqt_pl_PL.po
 msgid "Please enable a different template first."
 msgstr "Włącz najpierw inny szabon."
-=======
-#, fuzzy
-msgid "Please enable a different template first."
-msgstr "Włącz najpierw inny model."
->>>>>>> 09df5d7bac44d3654f0ee4a70f4fd3dfb7e45173:ankiqt/locale/ankiqt_pl_PL.po
 
 #: ui/cardlist.py:782
 msgid "Please enter a valid start and end range."
@@ -2781,11 +2764,7 @@ msgstr ""
 "Pomyśl o wykonaniu wcześniej kopii katalogu z plikami."
 
 #: ui/modelproperties.py:389
-<<<<<<< HEAD:ankiqt/locale/ankiqt_pl_PL.po
 #, python-format
-=======
-#, fuzzy, python-format
->>>>>>> 09df5d7bac44d3654f0ee4a70f4fd3dfb7e45173:ankiqt/locale/ankiqt_pl_PL.po
 msgid ""
 "This template is used by %d cards. If you delete it,\n"
 "all the cards will be deleted too. If you just\n"
@@ -2795,28 +2774,11 @@ msgid ""
 "\n"
 "Really delete these cards?"
 msgstr ""
-<<<<<<< HEAD:ankiqt/locale/ankiqt_pl_PL.po
-"Ten szablon jest używany przez %d kart. Jeśli go\n"
-"usuniesz, wszystkie te karty zostaną również\n"
-"usunięte. Jeśli chcesz jedynie zapobiec tworzeniu\n"
-"nowych kart w tym szablonie, użyj przycisku\n"
-=======
-"Ten model jest używany przez %d kart. Jeśli go\n"
-"usuniesz, wszystkie te karty zostaną również\n"
-"usunięte. Jeśli chcesz jedynie zapobiec tworzeniu\n"
-"nowych kart w tym modelu, użyj przycisku\n"
->>>>>>> 09df5d7bac44d3654f0ee4a70f4fd3dfb7e45173:ankiqt/locale/ankiqt_pl_PL.po
-"'wyłącz'.\n"
-"\n"
-"Na pewno chcesz usunąć te karty?"
 
-<<<<<<< HEAD:ankiqt/locale/ankiqt_pl_PL.po
-=======
 #: ui/main.py:1108
 msgid "Time/day:"
 msgstr ""
 
->>>>>>> 09df5d7bac44d3654f0ee4a70f4fd3dfb7e45173:ankiqt/locale/ankiqt_pl_PL.po
 #: ui/getshared.py:147 ui/getshared.py:151
 msgid "Title"
 msgstr "Tytuł"
@@ -3084,10 +3046,6 @@ msgstr "opcja"
 msgid "toplabel"
 msgstr "toplabel"
 
-<<<<<<< HEAD:ankiqt/locale/ankiqt_pl_PL.po
-#~ msgid "Please add a new card first."
-#~ msgstr "Dodaj najpierw nową kartę."
-=======
 #~ msgid ""
 #~ "<h1>Session Statistics</h1>\n"
 #~ "<dl>\n"
@@ -3180,6 +3138,9 @@ msgstr "toplabel"
 #~ msgid "Cards/day"
 #~ msgstr "Karty"
 
+#~ msgid "Please add a new card first."
+#~ msgstr "Dodaj najpierw nową kartę."
+
 #, fuzzy
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "Dodaj najpierw nowe pole."
@@ -3187,4 +3148,3 @@ msgstr "toplabel"
 #, fuzzy
 #~ msgid "Reviews due"
 #~ msgstr "Powtórki dzisiaj"
->>>>>>> 09df5d7bac44d3654f0ee4a70f4fd3dfb7e45173:ankiqt/locale/ankiqt_pl_PL.po

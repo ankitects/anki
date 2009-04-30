@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -2089,12 +2089,13 @@ msgstr "Henkilökohtainen pakka"
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "Lisää ensin kortteja."
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
+msgstr "Lisää ensin kenttä."
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "Lisää ensin kenttä."
 
 #: ui/deckproperties.py:143
@@ -3357,6 +3358,9 @@ msgstr ""
 
 #~ msgid "Open On&line..."
 #~ msgstr "Avaa &verkosta..."
+
+#~ msgid "Please add a new card first."
+#~ msgstr "Lisää ensin kortteja."
 
 #, fuzzy
 #~ msgid "Please choose a field to sort by."
