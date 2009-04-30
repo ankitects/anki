@@ -811,9 +811,11 @@ group by cardTags.cardId""" % ids2str(cardIds))
         self.s.statements(
             "update cards set priority = :pri %s where id = :id" % extra,
             [{'id': c[0], 'pri': c[1], 'm': time.time()} for c in cards])
-        self.s.execute(
+        cnt = self.s.execute(
             "update cards set isDue = 0 where type in (0,1,2) and "
-            "priority = 0 and isDue = 1")
+            "priority = 0 and isDue = 1").rowcount
+        if cnt:
+            self.rebuildCounts(full=False)
 
     def updatePriority(self, card):
         "Update priority on a single card."
