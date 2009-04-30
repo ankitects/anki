@@ -1103,20 +1103,27 @@ day = :d""", d=yesterday)
             anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
         h['timeTodayChg'] = str(anki.utils.fmtTimeSpan(
             tyest, short=True, point=1))
-        stats1 = _("""\
+        h['cs_header'] = _("Cards/session:")
+        h['cd_header'] = _("Cards/day:")
+        h['td_header'] = _("Time/day:")
+        h['rd_header'] = _("Reviews due:")
+        h['ntod_header'] = _("New today:")
+        h['ntot_header'] = _("New total:")
+        stats1 = ("""\
 <table>
-<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSesChg)s</b></td>
+<tr><td width=80>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>
 <td><b>%(repsInSes)s</b></td></tr>
-<tr><td>Cards/day:</td><td><b>%(repsTodayChg)s</b></td>
+ <tr><td>%(cd_header)s</td><td><b>%(repsTodayChg)s</b></td>
 <td><b>%(repsToday)s</b></td></tr>
-<tr><td>Time/day:</td><td><b>%(timeTodayChg)s</b></td>
+<tr><td>%(td_header)s</td><td><b>%(timeTodayChg)s</b></td>
 <td><b>%(timeToday)s</b></td></tr>
 </table>""") % h
-        stats2 = _("""\
+
+        stats2 = ("""\
 <table>
-<tr><td width=100>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>
-<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>
-<tr><td>New total:</td><td align=right>%(newof)s</td></tr>
+<tr><td width=100>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>
+<tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
         if (not dyest and not dtoday) or not self.config['showStudyStats']:
             stats1 = ""
@@ -1127,33 +1134,27 @@ day = :d""", d=yesterday)
 <p><table><tr>
 %s
 <td>%s</td></tr></table>""" % (stats1, stats2))
-        self.mainWin.optionsLabel.setToolTip(_("""\
-<h1>Session Statistics</h1>
-<dl>
-<dt><b>Cards/session</b></dt>
-<dd>The number of cards you studied in the current session (blue) and previous
-session (black)</dd>
-</dl>
-<dl>
-<dt><b>Cards/day</b></dt>
-<dd>The number of cards you studied today (blue) and yesterday (black)</dd>
-</dl>
-<dl>
-<dt><b>Time/day</b></dt>
-<dd>The number of minutes you studied today (blue) and yesterday (black)</dd>
-</dl>
-<dl>
-<dt><b>Reviews due</b></dt>
-<dd>The number of cards that are waiting to be reviewed today</dd>
-</dl>
-<dl>
-<dt><b>New today</b></dt>
-<dd>The number of new cards that are waiting to be learnt today</dd>
-</dl>
-<dl>
-<dt><b>New total</b></dt>
-<dd>The total number of new cards in the deck</dd>
-</dl>"""))
+        h['tt_header'] = _("Session Statistics")
+        h['cs_tip'] = _("The number of cards you studied in the current \
+session (blue) and previous session (black)")
+        h['cd_tip'] = _("The number of cards you studied today (blue) and \
+yesterday (black)")
+        h['td_tip'] = _("The number of minutes you studied today (blue) and \
+yesterday (black)")
+        h['rd_tip'] = _("The number of cards that are waiting to be reviewed \
+today")
+        h['ntod_tip'] = _("The number of new cards that are waiting to be \
+learnt today")
+        h['ntot_tip'] = _("The total number of new cards in the deck")
+        statToolTip = ("""<h1>%(tt_header)s</h1>
+<dl><dt><b>%(cs_header)s</b></dt><dd>%(cs_tip)s</dd></dl>
+<dl><dt><b>%(cd_header)s</b></dt><dd>%(cd_tip)s</dd></dl>
+<dl><dt><b>%(td_header)s</b></dt><dd>%(td_tip)s</dd></dl>
+<dl><dt><b>%(rd_header)s</b></dt><dd>%(rd_tip)s</dd></dl>
+<dl><dt><b>%(ntod_header)s</b></dt><dd>%(ntod_tip)s</dd></dl>
+<dl><dt><b>%(ntot_header)s</b></dt><dd>%(ntot_tip)s<</dd></dl>""") % h
+
+        self.mainWin.optionsLabel.setToolTip(statToolTip)
 
     def showStudyScreen(self):
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
