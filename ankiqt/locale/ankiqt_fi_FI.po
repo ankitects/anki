@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 10:23+0200\n"
+"POT-Creation-Date: 2009-04-30 11:35+0200\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -102,7 +102,7 @@ msgstr " <b>Kerratessa ja muokatessa:</b>"
 msgid " applied %d modified cards."
 msgstr " päivitettiin %d muutettua korttia."
 
-#: ui/main.py:2337
+#: ui/main.py:2338
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -131,7 +131,7 @@ msgstr[1] "%(name)s [%(facts)d faktaa]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
 
-#: ui/main.py:1945
+#: ui/main.py:1946
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(cards)d korttia, joista %(due)d erääntynyt) – %(title)s"
@@ -452,15 +452,15 @@ msgstr "Tägisuodin"
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Ohje</a>"
 
-#: ui/main.py:1314
+#: ui/main.py:1315
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr "<a href=py:miss>Puuttuva Kanji</a><br>"
 
-#: ui/main.py:1316
+#: ui/main.py:1317
 msgid "<a href=py:non>Non-jouyou</a><br>"
 msgstr "<a href=py:non>Ei-jouyou</a><br>"
 
-#: ui/main.py:1315
+#: ui/main.py:1316
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr "<a href=py:seen>Nähdyt</a><br>"
 
@@ -668,7 +668,7 @@ msgstr "<h1>Varmuuskopiointi</h1>"
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Korttimallit</h1>"
 
-#: ui/main.py:1449
+#: ui/main.py:1450
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -679,7 +679,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Erääntyvät kortit kasautuvasti</h1>"
 
-#: ui/main.py:1346
+#: ui/main.py:1347
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Tämä kortti</h1>"
 
@@ -715,7 +715,7 @@ msgstr "<h1>Kertaamisaikavälit</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Kieli</h1>"
 
-#: ui/main.py:1349
+#: ui/main.py:1350
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Edellinen kortti</h1>"
 
@@ -751,41 +751,11 @@ msgstr "<h1>Kertaaminen</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Valitse kohdekentät</h1>"
 
-#: ui/main.py:1130
-msgid ""
-"<h1>Session Statistics</h1>\n"
-"<dl>\n"
-"<dt><b>Cards/session</b></dt>\n"
-"<dd>The number of cards you studied in the current session (blue) and previous\n"
-"session (black)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Cards/day</b></dt>\n"
-"<dd>The number of cards you studied today (blue) and yesterday (black)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Time/day</b></dt>\n"
-"<dd>The number of minutes you studied today (blue) and yesterday (black)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Reviews due</b></dt>\n"
-"<dd>The number of cards that are waiting to be reviewed today</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>New today</b></dt>\n"
-"<dd>The number of new cards that are waiting to be learnt today</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>New total</b></dt>\n"
-"<dd>The total number of new cards in the deck</dd>\n"
-"</dl>"
-msgstr ""
-
 #: ui/main.py:1069
 msgid "<h1>Study Options</h1>"
 msgstr "<h1>Kertaustilanne</h1>"
 
-#: ui/main.py:1808
+#: ui/main.py:1809
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -833,42 +803,6 @@ msgstr "<hylätty>"
 #: ui/help.py:66
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Piilota</a>"
-
-#: ui/main.py:1115
-#, python-format
-msgid ""
-"<table>\n"
-"<tr><td width=100>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-"<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>\n"
-"<tr><td>New total:</td><td align=right>%(newof)s</td></tr>\n"
-"</table>"
-msgstr ""
-"<table>\n"
-"<tr><td width=100>Kerrattavia:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-"<tr><td>Uusia tänään:</td><td align=right><b>%(new)s</b></td></tr>\n"
-"<tr><td>Uusia yhteensä:</td><td align=right>%(newof)s</td></tr>\n"
-"</table>"
-
-#: ui/main.py:1106
-#, python-format
-msgid ""
-"<table>\n"
-"<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-"<td><b>%(repsInSes)s</b></td></tr>\n"
-"<tr><td>Cards/day:</td><td><b>%(repsTodayChg)s</b></td>\n"
-"<td><b>%(repsToday)s</b></td></tr>\n"
-"<tr><td>Time/day:</td><td><b>%(timeTodayChg)s</b></td>\n"
-"<td><b>%(timeToday)s</b></td></tr>\n"
-"</table>"
-msgstr ""
-"<table>\n"
-"<tr><td width=80>Kortteja/istunto:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-"<td><b>%(repsInSes)s</b></td></tr>\n"
-"<tr><td>Kortteja/päivä:</td><td><b>%(repsTodayChg)s</b></td>\n"
-"<td><b>%(repsToday)s</b></td></tr>\n"
-"<tr><td>Aikaa/päivä:</td><td><b>%(timeTodayChg)s</b></td>\n"
-"<td><b>%(timeToday)s</b></td></tr>\n"
-"</table>"
 
 #: forms/about.py:41
 msgid "About Anki"
@@ -973,7 +907,7 @@ msgstr "Kertaa"
 msgid "Allow the answer to be blank"
 msgstr "Vastaus saa olla tyhjä"
 
-#: ui/main.py:1521
+#: ui/main.py:1522
 msgid "Already cramming. Please close this deck first."
 msgstr "Olet jo pänttäystilassa. Sulje pakka ensin."
 
@@ -1026,7 +960,7 @@ msgstr ""
 "</ol>\n"
 "Jos se ei korjaa ongelmaa, liitä seuraavat tiedot virheraporttiin:<br><br>\n"
 
-#: ui/deckproperties.py:182 ui/main.py:2312 forms/main.py:871
+#: ui/deckproperties.py:182 ui/main.py:2313 forms/main.py:871
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1125,7 +1059,7 @@ msgstr "Vastauksen kirjasin"
 msgid "Building Index..."
 msgstr "Luodaan pikahakuluetteloa..."
 
-#: ui/main.py:1419
+#: ui/main.py:1420
 msgid "Bury"
 msgstr ""
 
@@ -1149,7 +1083,7 @@ msgstr "Vain yhtä mallia voi käsitellä kerrallaan."
 msgid "Can't look up a selection with a newline."
 msgstr "Ei voida etsiä valintaa, joka sisältää rivinvaihdon."
 
-#: ui/main.py:2327
+#: ui/main.py:2328
 msgid "Cancel"
 msgstr "Peruuta"
 
@@ -1178,6 +1112,15 @@ msgstr "Kortit"
 #: ui/tray.py:93
 msgid "Cards are waiting"
 msgstr "Kortteja odottaa"
+
+#: ui/main.py:1107
+#, fuzzy
+msgid "Cards/day:"
+msgstr "Kortit"
+
+#: ui/main.py:1106
+msgid "Cards/session:"
+msgstr ""
 
 #: ui/importing.py:201
 msgid "Change"
@@ -1274,7 +1217,7 @@ msgstr "Jatka kertaamista"
 msgid "Connecting..."
 msgstr "Yhdistetään..."
 
-#: ui/main.py:1166
+#: ui/main.py:1167
 msgid "Continue &Reviewing"
 msgstr "Jatka &kertaamista"
 
@@ -1307,7 +1250,7 @@ msgstr ""
 msgid "Couldn't play sound. Please install mplayer."
 msgstr ""
 
-#: ui/main.py:1542
+#: ui/main.py:1543
 msgid "Cram"
 msgstr "Pänttäys"
 
@@ -1494,7 +1437,7 @@ msgstr "Mukauta synkronointia, ajastusta, prioriteetteja ja malleja."
 msgid "Czech"
 msgstr "tšekki"
 
-#: ui/main.py:2308
+#: ui/main.py:2309
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1519,7 +1462,7 @@ msgstr "Pakat (*.anki)"
 msgid "Deck is already open."
 msgstr "Pakka on jo avoin."
 
-#: ui/main.py:1409 forms/cardlist.py:242
+#: ui/main.py:1410 forms/cardlist.py:242
 msgid "Delete"
 msgstr "Poista"
 
@@ -1527,7 +1470,7 @@ msgstr "Poista"
 msgid "Delete Cards"
 msgstr "Poista kortit"
 
-#: ui/main.py:2325
+#: ui/main.py:2326
 msgid "Delete Refs"
 msgstr "Poista viittaukset"
 
@@ -1721,7 +1664,7 @@ msgstr "Luomisaika"
 msgid "Facts"
 msgstr "Faktoja"
 
-#: ui/main.py:1835
+#: ui/main.py:1836
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Median lähettäminen epäonnistui. Aja Työkalut→Aputoiminnot→Tarkista mediatietokanta."
 
@@ -1926,11 +1869,11 @@ msgstr "Latex-yhtälö (Ctrl+l ja sitten e)"
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr "Latex-matematiikkaympäristö (Ctrl+l ja sitten m)"
 
-#: ui/main.py:1543
+#: ui/main.py:1544
 msgid "Loading deck..."
 msgstr "Ladataan pakkaa..."
 
-#: ui/main.py:1360
+#: ui/main.py:1361
 msgid "Loading graphs (may take time)..."
 msgstr "Luodaan kuvaajia..."
 
@@ -2028,6 +1971,16 @@ msgstr "Nimi"
 msgid "Name on server: "
 msgstr "Nimi palvelimella: "
 
+#: ui/main.py:1110
+#, fuzzy
+msgid "New today:"
+msgstr "&Kertaa erääntymättömiä kortteja etukäteen"
+
+#: ui/main.py:1111
+#, fuzzy
+msgid "New total:"
+msgstr "&Kertaa erääntymättömiä kortteja etukäteen"
+
 #: ui/facteditor.py:202
 msgid "Next colour (F7 then F8)"
 msgstr "Seuraava väri (F7 ja sitten F8)"
@@ -2036,7 +1989,7 @@ msgstr "Seuraava väri (F7 ja sitten F8)"
 msgid "Next field must be blank."
 msgstr "Seuraavan kentän on oltava tyhjä."
 
-#: ui/main.py:1536 ui/main.py:1572
+#: ui/main.py:1537 ui/main.py:1573
 msgid "No cards matched the provided tags."
 msgstr "Tägejä vastaavia kortteja ei ole."
 
@@ -2048,11 +2001,11 @@ msgstr "Ei esikatseltavia kortteja."
 msgid "No changes found."
 msgstr "Ei muutoksia."
 
-#: ui/main.py:1352
+#: ui/main.py:1353
 msgid "No current card or last card."
 msgstr "Ei nykyistä tai edellistä korttia."
 
-#: ui/main.py:1288
+#: ui/main.py:1289
 msgid "No expression in current card."
 msgstr "Ei <i>ilmaisua</i> nykyisessä kortissa."
 
@@ -2061,7 +2014,7 @@ msgstr "Ei <i>ilmaisua</i> nykyisessä kortissa."
 msgid "No fact tags"
 msgstr "Ei tägejä"
 
-#: ui/main.py:1295
+#: ui/main.py:1296
 msgid "No meaning in current card."
 msgstr "Ei <i>selitettä</i> nykyisessä kortissa."
 
@@ -2102,7 +2055,7 @@ msgstr "Avaa virheenseurantajärjestelmä."
 msgid "Optimize Database"
 msgstr "Optimoi tietokanta"
 
-#: ui/main.py:1216
+#: ui/main.py:1217
 #, fuzzy
 msgid "Ordering..."
 msgstr "Ladataan..."
@@ -2167,11 +2120,11 @@ msgid ""
 "to enable recording."
 msgstr "Nauhoittaminen vaatii <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>-ohjelmiston."
 
-#: ui/main.py:1378
+#: ui/main.py:1379
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Asenna python-matplotlib, jos haluat käyttää kuvaajia."
 
-#: ui/main.py:2285
+#: ui/main.py:2286
 msgid "Please restart Anki before checking the DB."
 msgstr "Käynnistä Anki uudelleen ennen tietokannan tarkistamista."
 
@@ -2220,7 +2173,7 @@ msgstr "Esikatsele kortteja"
 msgid "Previous colour (F7 then F6)"
 msgstr "Edellinen väri (F7 ja sitten F6)"
 
-#: ui/main.py:2300
+#: ui/main.py:2301
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2257,7 +2210,7 @@ msgstr "Kysymyksen kirjasin"
 msgid "Question size"
 msgstr "Kirjasinkoko"
 
-#: ui/main.py:1222 ui/main.py:1562
+#: ui/main.py:1223 ui/main.py:1563
 msgid "Randomizing..."
 msgstr "Satunnaistetaan..."
 
@@ -2278,7 +2231,7 @@ msgstr "Nauhoita ääni (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Nauhoitetaan...<br>Kesto: %0.1f"
 
-#: ui/cardlist.py:520 ui/main.py:2032
+#: ui/cardlist.py:520 ui/main.py:2033
 #, python-format
 msgid "Redo %s"
 msgstr "Tee uudelleen %s"
@@ -2351,6 +2304,11 @@ msgstr "Kertaa"
 #: ui/graphs.py:155
 msgid "Review Time"
 msgstr "Kertaamisaika"
+
+#: ui/main.py:1109
+#, fuzzy
+msgid "Reviews due:"
+msgstr "&Kertaa erääntymättömiä kortteja etukäteen"
 
 #: ui/status.py:216
 #, fuzzy
@@ -2428,6 +2386,11 @@ msgstr "Valitse &kaikki"
 #: forms/activetags.py:41
 msgid "Select tags to suspend. Deselect to unsuspend."
 msgstr ""
+
+#: ui/main.py:1137
+#, fuzzy
+msgid "Session Statistics"
+msgstr "&Pakan tilastot"
 
 #: ui/facteditor.py:168
 msgid "Set colour (F7 then F7)"
@@ -2544,7 +2507,7 @@ msgstr "Lähde-ID:"
 msgid "Spanish"
 msgstr "espanja"
 
-#: ui/main.py:1168
+#: ui/main.py:1169
 msgid "Start &Reviewing"
 msgstr "Aloita &kertaaminen"
 
@@ -2565,7 +2528,7 @@ msgstr "Tila"
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Lopettaa tämän kortin kertaamisen kunnes sen jäädytys poistetaan muokkaimella."
 
-#: ui/main.py:1395
+#: ui/main.py:1396
 msgid "Suspend"
 msgstr "Jäädytä"
 
@@ -2607,7 +2570,7 @@ msgstr "Synkronoi tämä pakka"
 msgid "Synchronize this deck with Anki Online"
 msgstr "Synkronoi tämä pakka"
 
-#: ui/main.py:1813 ui/main.py:1815
+#: ui/main.py:1814 ui/main.py:1816
 msgid "Syncing Media..."
 msgstr "Synkronoidaan mediaa..."
 
@@ -2616,7 +2579,7 @@ msgstr "Synkronoidaan mediaa..."
 msgid "Syncing failed: %(a)s"
 msgstr "Synkronointi epäonnistui: %(a)s"
 
-#: ui/main.py:2323
+#: ui/main.py:2324
 msgid "Tag Cards"
 msgstr "Tägää kortteja"
 
@@ -2628,7 +2591,7 @@ msgstr "Merkitse epäuniikit faktat tägeillä poistamisen sijaan"
 msgid "Tags"
 msgstr "Tägit"
 
-#: ui/main.py:1526
+#: ui/main.py:1527
 msgid "Tags to cram:"
 msgstr "Päntättävät tägit:"
 
@@ -2664,6 +2627,26 @@ msgstr ""
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr ""
 
+#: ui/main.py:1144
+msgid "The number of cards that are waiting to be reviewed today"
+msgstr ""
+
+#: ui/main.py:1138
+msgid "The number of cards you studied in the current session (blue) and previous session (black)"
+msgstr ""
+
+#: ui/main.py:1140
+msgid "The number of cards you studied today (blue) and yesterday (black)"
+msgstr ""
+
+#: ui/main.py:1142
+msgid "The number of minutes you studied today (blue) and yesterday (black)"
+msgstr ""
+
+#: ui/main.py:1146
+msgid "The number of new cards that are waiting to be learnt today"
+msgstr ""
+
 #: ui/sync.py:54
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Synkronointiprotokolla on muuttunut. Anki täytyy päivittää."
@@ -2687,6 +2670,10 @@ msgstr ""
 "(%(dYesTotal)d / %(dTotal)d)</b><br>\n"
 "Keskimääräinen vastausaika: %(avgTime)s<br>\n"
 "Kertaamiseen käytetty aika: %(revTime)s"
+
+#: ui/main.py:1148
+msgid "The total number of new cards in the deck"
+msgstr ""
 
 #: ui/status.py:187
 #, python-format
@@ -2771,7 +2758,7 @@ msgstr ""
 "%s\n"
 "Poista lähde ensin."
 
-#: ui/main.py:2287
+#: ui/main.py:2288
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2789,7 +2776,7 @@ msgstr ""
 "<b>Tämä operaatio on peruuttamaton</b><br>\n"
 "Haluatko jatkaa?"
 
-#: ui/main.py:2314
+#: ui/main.py:2315
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2827,11 +2814,15 @@ msgstr ""
 "\n"
 "Haluatko varmasti poistaa nämä kortit?"
 
+#: ui/main.py:1108
+msgid "Time/day:"
+msgstr ""
+
 #: ui/getshared.py:147 ui/getshared.py:151
 msgid "Title"
 msgstr "Nimi"
 
-#: ui/main.py:1370
+#: ui/main.py:1371
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2841,7 +2832,7 @@ msgstr "Kuvaajien näyttämiseen tarvittava dll-tiedosto puuttuu. Asenna:\n"
 msgid "Today's reviews are finished"
 msgstr "Tämän päivän kertaukset on tehty"
 
-#: ui/main.py:1266
+#: ui/main.py:1267
 msgid "Toggle Toolbar"
 msgstr "Näytä työkalurivi"
 
@@ -2931,7 +2922,7 @@ msgstr "Tyhjennä LaTeX-merkintöjen välimuisti"
 msgid "Underline text (Ctrl+u)"
 msgstr "Alleviivaa (Ctrl+u)"
 
-#: ui/cardlist.py:514 ui/main.py:2026
+#: ui/cardlist.py:514 ui/main.py:2027
 #, python-format
 msgid "Undo %s"
 msgstr "Kumoa %s"
@@ -2945,7 +2936,7 @@ msgstr "Tuntematon virhe: %s"
 msgid "Update complete. Please restart Anki."
 msgstr "Päivitys on valmis. Käynnistä Anki uudelleen."
 
-#: ui/main.py:2066
+#: ui/main.py:2067
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -3000,12 +2991,12 @@ msgstr "Hyvä! Tämän kortin uudelleen ilmestymiseen on aikaa <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Haluatko ladata sen nyt?"
 
-#: ui/main.py:1441 ui/main.py:1489
+#: ui/main.py:1442 ui/main.py:1490
 #, fuzzy
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Olet jo pänttäystilassa. Sulje pakka ensin."
 
-#: ui/main.py:2057
+#: ui/main.py:2058
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -3016,7 +3007,7 @@ msgstr ""
 "Se on %(sec)d sekuntia %(type)s.\n"
 "Aseta kello oikeaan aikaan ja käynnistä Anki uudelleen."
 
-#: ui/main.py:1796
+#: ui/main.py:1797
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -3032,7 +3023,7 @@ msgstr ""
 "synkronoidessa, joten se on estetty kunnes\n"
 "korjaat ongelman."
 
-#: ui/main.py:1375
+#: ui/main.py:1376
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3053,7 +3044,7 @@ msgstr "vastatun kortin jälkeen"
 msgid "days"
 msgstr "päiv."
 
-#: ui/main.py:2055
+#: ui/main.py:2056
 msgid "early"
 msgstr "aikaisessa"
 
@@ -3070,7 +3061,7 @@ msgstr "%s"
 msgid "label"
 msgstr ""
 
-#: ui/main.py:2053
+#: ui/main.py:2054
 msgid "late"
 msgstr "myöhässä"
 
@@ -3262,11 +3253,49 @@ msgstr ""
 #~ "Oikein yhteensä: %(gYesTotal%)0.1f%%\n"
 #~ "(%(gYesTotal)d/%(gTotal)d)"
 
+#, fuzzy
+#~ msgid ""
+#~ "<table>\n"
+#~ "<tr><td width=100>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>\n"
+#~ "<tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>\n"
+#~ "<tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>\n"
+#~ "</table>"
+#~ msgstr ""
+#~ "<table>\n"
+#~ "<tr><td width=100>Kerrattavia:</td><td align=right><b>%(ret)s</b></td></tr>\n"
+#~ "<tr><td>Uusia tänään:</td><td align=right><b>%(new)s</b></td></tr>\n"
+#~ "<tr><td>Uusia yhteensä:</td><td align=right>%(newof)s</td></tr>\n"
+#~ "</table>"
+
+#, fuzzy
+#~ msgid ""
+#~ "<table>\n"
+#~ "<tr><td width=80>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
+#~ "<td><b>%(repsInSes)s</b></td></tr>\n"
+#~ " <tr><td>%(cd_header)s</td><td><b>%(repsTodayChg)s</b></td>\n"
+#~ "<td><b>%(repsToday)s</b></td></tr>\n"
+#~ "<tr><td>%(td_header)s</td><td><b>%(timeTodayChg)s</b></td>\n"
+#~ "<td><b>%(timeToday)s</b></td></tr>\n"
+#~ "</table>"
+#~ msgstr ""
+#~ "<table>\n"
+#~ "<tr><td width=80>Kortteja/istunto:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
+#~ "<td><b>%(repsInSes)s</b></td></tr>\n"
+#~ "<tr><td>Kortteja/päivä:</td><td><b>%(repsTodayChg)s</b></td>\n"
+#~ "<td><b>%(repsToday)s</b></td></tr>\n"
+#~ "<tr><td>Aikaa/päivä:</td><td><b>%(timeTodayChg)s</b></td>\n"
+#~ "<td><b>%(timeToday)s</b></td></tr>\n"
+#~ "</table>"
+
 #~ msgid "All tags"
 #~ msgstr "Kaikki tägit"
 
 #~ msgid "Application-wide preferences."
 #~ msgstr "Koko sovelluksen asetukset."
+
+#, fuzzy
+#~ msgid "Cards/day"
+#~ msgstr "Kortit"
 
 #~ msgid "Change Template"
 #~ msgstr "Mallineen vaihto"
@@ -3335,6 +3364,10 @@ msgstr ""
 
 #~ msgid "Replace"
 #~ msgstr "Korvaa"
+
+#, fuzzy
+#~ msgid "Reviews due"
+#~ msgstr "&Kertaa erääntymättömiä kortteja etukäteen"
 
 #~ msgid "Save and S&ync"
 #~ msgstr "Tallenna ja s&ynkronoi"
