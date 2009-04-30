@@ -379,7 +379,7 @@ order by n""", id=card.id)
             return
         if len (self.m.cardModels) < 2:
             ui.utils.showWarning(
-                _("Please add a new card first."),
+                _("Please add a new template first."),
                 parent=self)
             return
         card = self.m.cardModels[row]

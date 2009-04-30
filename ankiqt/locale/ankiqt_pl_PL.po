@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 05:22+0900\n"
-"PO-Revision-Date: 2009-04-29 20:32+0200\n"
+"POT-Creation-Date: 2009-04-29 22:44+0200\n"
+"PO-Revision-Date: 2009-04-29 22:39+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -427,7 +427,6 @@ msgstr ""
 "<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Źródła</span></p></body></html>"
 
 #: forms/addcards.py:73
-#, fuzzy
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -1051,7 +1050,7 @@ msgstr ""
 "Jeśli po tym błąd będzie się powtarzał, załącz poniższy<br>\n"
 "tekst do raportu o błędzie.<br><br>\n"
 
-#: ui/deckproperties.py:182 ui/main.py:2312 forms/main.py:869 forms/sort.py:45
+#: ui/deckproperties.py:182 ui/main.py:2312 forms/main.py:869
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1559,10 +1558,6 @@ msgstr "Usuń aktualnie wyświetlaną kartę"
 #: ui/sync.py:102
 msgid "Determining differences..."
 msgstr "Ustalanie różnic..."
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2148,30 +2143,25 @@ msgstr "Własną talię"
 msgid "Play the last-played audio again"
 msgstr "Odtwórz ponownie ostatni plik audio"
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "Dodaj najpierw nową kartę."
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
 msgstr "Dodaj najpierw nowe pole."
 
+#: ui/modelproperties.py:382
+msgid "Please add a new template first."
+msgstr "Dodaj najpierw nowy szablon."
+
 #: ui/deckproperties.py:143
 msgid "Please add another model first."
 msgstr "Dodaj najpierw nowy model."
-
-#: forms/sort.py:46
-#, fuzzy
-msgid "Please choose a field to sort by."
-msgstr "Dodaj najpierw nowe pole."
 
 #: ui/sync.py:52
 msgid "Please double-check your username/password."
 msgstr "Sprawdź ponownie swoją nazwę użytkownika/hasło."
 
 #: ui/modelproperties.py:410
-msgid "Please enable a different model first."
-msgstr "Włącz najpierw inny model."
+msgid "Please enable a different template first."
+msgstr "Włącz najpierw inny szabon."
 
 #: ui/cardlist.py:782
 msgid "Please enter a valid start and end range."
@@ -2753,25 +2743,6 @@ msgstr ""
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Plik już istnieje. Na pewno chcesz go nadpisać?"
 
-#: ui/modelproperties.py:389
-#, python-format
-msgid ""
-"This model is used by %d cards. If you delete it,\n"
-"all the cards will be deleted too. If you just\n"
-"want to prevent the creation of future cards with\n"
-"this model, please use the 'disable'  button\n"
-"instead.\n"
-"\n"
-"Really delete these cards?"
-msgstr ""
-"Ten model jest używany przez %d kart. Jeśli go\n"
-"usuniesz, wszystkie te karty zostaną również\n"
-"usunięte. Jeśli chcesz jedynie zapobiec tworzeniu\n"
-"nowych kart w tym modelu, użyj przycisku\n"
-"'wyłącz'.\n"
-"\n"
-"Na pewno chcesz usunąć te karty?"
-
 #: ui/deckproperties.py:155
 #, python-format
 msgid ""
@@ -2831,6 +2802,25 @@ msgstr ""
 "<br>\n"
 "<b>Tej operacji nie można cofnąć.</b><br>\n"
 "Pomyśl o wykonaniu wcześniej kopii katalogu z plikami."
+
+#: ui/modelproperties.py:389
+#, python-format
+msgid ""
+"This template is used by %d cards. If you delete it,\n"
+"all the cards will be deleted too. If you just\n"
+"want to prevent the creation of future cards with\n"
+"this template, please use the 'disable'  button\n"
+"instead.\n"
+"\n"
+"Really delete these cards?"
+msgstr ""
+"Ten szablon jest używany przez %d kart. Jeśli go\n"
+"usuniesz, wszystkie te karty zostaną również\n"
+"usunięte. Jeśli chcesz jedynie zapobiec tworzeniu\n"
+"nowych kart w tym szablonie, użyj przycisku\n"
+"'wyłącz'.\n"
+"\n"
+"Na pewno chcesz usunąć te karty?"
 
 #: ui/getshared.py:147 ui/getshared.py:151
 msgid "Title"
@@ -3098,3 +3088,6 @@ msgstr "opcja"
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr "toplabel"
+
+#~ msgid "Please add a new card first."
+#~ msgstr "Dodaj najpierw nową kartę."
