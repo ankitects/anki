@@ -386,10 +386,10 @@ order by n""", id=card.id)
         count = self.deck.cardModelUseCount(card)
         if count:
             if not ui.utils.askUser(
-                _("This model is used by %d cards. If you delete it,\n"
+                _("This template is used by %d cards. If you delete it,\n"
                   "all the cards will be deleted too. If you just\n"
                   "want to prevent the creation of future cards with\n"
-                  "this model, please use the 'disable'  button\n"
+                  "this template, please use the 'disable'  button\n"
                   "instead.\n\nReally delete these cards?") % count,
                 parent=self):
                 return
@@ -407,7 +407,7 @@ order by n""", id=card.id)
                 active += 1
         if active < 2 and card.active:
             ui.utils.showWarning(
-                _("Please enable a different model first."),
+                _("Please enable a different template first."),
                 parent=self)
             return
         card.active = not card.active

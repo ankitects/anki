@@ -11,7 +11,6 @@ from anki.utils import parseTags
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
-from anki.lang import ngettext
 import ankiqt
 
 tabs = ("ModelsAndPriorities",

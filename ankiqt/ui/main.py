@@ -235,7 +235,10 @@ Please do not file a bug report with Anki.<br><br>""")
         elif state == "auto":
             self.currentCard = None
             if self.deck:
-                return self.moveToState("getQuestion")
+                if self.state == "studyScreen":
+                    return self.updateStudyStats()
+                else:
+                    return self.moveToState("getQuestion")
             else:
                 return self.moveToState("noDeck")
         # save the new & last state
@@ -344,16 +347,21 @@ Please do not file a bug report with Anki.<br><br>""")
             return
         if self.state == "showQuestion":
             if evt.key() in (Qt.Key_Enter,
-                             Qt.Key_Return):
+                             Qt.Key_Return,
+                             Qt.Key_Space):
                 evt.accept()
-                return self.moveToState("showAnswer")
+                return self.mainWin.showAnswerButton.click()
         elif self.state == "showAnswer":
-            key = unicode(evt.text())
+            if evt.key() == Qt.Key_Space:
+                key = str(self.defaultEaseButton())
+            else:
+                key = unicode(evt.text())
             if key and key >= "1" and key <= "4":
                 # user entered a quality setting
                 num=int(key)
                 evt.accept()
-                return self.cardAnswered(num)
+                return getattr(self.mainWin, "easeButton%d" %
+                               num).animateClick()
         elif self.state == "studyScreen":
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
@@ -507,6 +515,7 @@ new:
                 else:
                     return QLineEdit.keyPressEvent(self, evt)
         self.typeAnswerField = QLineEditNoUndo(self)
+        self.typeAnswerField.setObjectName("typeAnswerField")
         self.typeAnswerField.setFixedWidth(351)
         f = QFont()
         if sys.platform.startswith("darwin"):
@@ -533,17 +542,23 @@ new:
                 self.typeAnswerField.setText("")
         else:
             self.mainWin.buttonStack.setCurrentIndex(0)
-            self.mainWin.showAnswerButton.setFocus()
+            self.mainWin.mainText.setFocus()
         self.mainWin.buttonStack.show()
 
     def showEaseButtons(self):
         self.updateEaseButtons()
         self.mainWin.buttonStack.setCurrentIndex(1)
         self.mainWin.buttonStack.show()
-        if self.currentCard.reps and not self.currentCard.successive:
+        if self.defaultEaseButton() == 2:
             self.mainWin.easeButton2.setFocus()
         else:
             self.mainWin.easeButton3.setFocus()
+
+    def defaultEaseButton(self):
+        if self.currentCard.reps and not self.currentCard.successive:
+            return 2
+        else:
+            return 3
 
     def updateEaseButtons(self):
         nextInts = {}
@@ -1217,6 +1232,7 @@ session (black)</dd>
             self.deck.setFailedCardPolicy(
                 self.mainWin.failedCardsOption.currentIndex())
             self.deck.flushMod()
+        self.deck.rebuildQueue()
         self.deck.startSession()
         self.moveToState("getQuestion")
 
@@ -1395,6 +1411,17 @@ session (black)</dd>
             self.moveToState("saveEdit")
         self.deck.setUndoStart(undo)
         self.deck.deleteCard(self.currentCard.id)
+        self.reset()
+        self.deck.setUndoEnd(undo)
+        runHook("currentCardDeleted")
+
+    def onBuryFact(self):
+        undo = _("Bury")
+        self.deck.setUndoStart(undo)
+        for card in self.currentCard.fact.cards:
+            card.priority = -2
+            card.isDue = 0
+        self.deck.flushMod()
         self.reset()
         self.deck.setUndoEnd(undo)
 
@@ -1603,10 +1630,11 @@ it to your friends.
             for f in os.listdir(mdir):
                 zip.write(os.path.join(mdir, f),
                           str(os.path.join("shared.media/", f)))
+            os.chdir(pwd)
             shutil.rmtree(mdir)
+        os.chdir(pwd)
         self.deck.updateProgress()
         zip.close()
-        os.chdir(pwd)
         os.unlink(path)
         self.deck.finishProgress()
         self.onOpenPluginFolder(dir)
@@ -1889,6 +1917,7 @@ Couldn't contact Anki Online. Please check your internet connection."""))
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionRecordNoiseProfile, s, self.onRecordNoiseProfile)
+        self.connect(m.actionBuryFact, s, self.onBuryFact)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
@@ -1944,6 +1973,7 @@ Couldn't contact Anki Online. Please check your internet connection."""))
 	self.mainWin.actionMarkCard.setEnabled(False)
 	self.mainWin.actionSuspendCard.setEnabled(False)
 	self.mainWin.actionDelete.setEnabled(False)
+	self.mainWin.actionBuryFact.setEnabled(False)
         self.mainWin.actionRepeatAudio.setEnabled(False)
 
     def enableCardMenuItems(self):
@@ -1954,10 +1984,14 @@ Couldn't contact Anki Online. Please check your internet connection."""))
                (hasSound(self.currentCard.answer) and
                 self.state != "getQuestion"))
         self.mainWin.actionRepeatAudio.setEnabled(snd)
-        self.mainWin.actionEditCurrent.setEnabled(True)
 	self.mainWin.actionMarkCard.setEnabled(True)
 	self.mainWin.actionSuspendCard.setEnabled(True)
 	self.mainWin.actionDelete.setEnabled(True)
+	self.mainWin.actionBuryFact.setEnabled(True)
+        enableEdits = (not self.config['preventEditUntilAnswer'] or
+                       self.state != "getQuestion")
+        self.mainWin.actionEditCurrent.setEnabled(enableEdits)
+        self.mainWin.actionEditdeck.setEnabled(enableEdits)
 
     def maybeShowKanjiStats(self):
         if not self.deck:

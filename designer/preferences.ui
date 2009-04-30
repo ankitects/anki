@@ -97,6 +97,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="preventEdits" >
+         <property name="text" >
+          <string>Prevent edits until answer shown</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -415,6 +422,7 @@
   <tabstop>splitQA</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
+  <tabstop>preventEdits</tabstop>
   <tabstop>saveWhenClosing</tabstop>
   <tabstop>saveAfterEvery</tabstop>
   <tabstop>saveAfterEveryNum</tabstop>

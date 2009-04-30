@@ -88,6 +88,7 @@ class Config(dict):
             'typeAnswerFontSize': 20,
             'showProgress': True,
             'recentColours': ["#000000", "#0000ff"],
+            'preventEditUntilAnswer': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):

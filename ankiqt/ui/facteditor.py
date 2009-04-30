@@ -12,7 +12,7 @@ from ankiqt.ui.sound import getAudio
 import anki.sound
 from ankiqt import ui
 import ankiqt
-from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
+from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom, getBase
 from anki.hooks import addHook, removeHook, runHook
 from sqlalchemy.exceptions import InvalidRequestError
 
@@ -44,7 +44,7 @@ class FactEditor(object):
 
     def close(self):
         removeHook("deckClosed", self.deckClosedHook)
-        addHook("colourChanged", self.colourChanged)
+        removeHook("guiReset", self.refresh)
         removeHook("colourChanged", self.colourChanged)
 
     def setFact(self, fact, noFocus=False, check=False, scroll=False):
@@ -1075,12 +1075,13 @@ class PreviewDialog(QDialog):
     def updateCard(self):
         c = self.cards[self.currentCard]
         self.dialog.webView.setHtml(
+            ('<html><head>%s</head><body>' % getBase(self.deck)) +
             "<style>" + self.deck.css +
             ("\nhtml { background: %s }" % c.cardModel.lastFontColour) +
             "\ndiv { white-space: pre-wrap; }</style>" +
             mungeQA(self.deck, c.htmlQuestion()) +
             "<br><br><hr><br><br>" +
-            mungeQA(self.deck, c.htmlAnswer()))
+            mungeQA(self.deck, c.htmlAnswer()) + "</body></html>")
         playFromText(c.question)
         playFromText(c.answer)
 

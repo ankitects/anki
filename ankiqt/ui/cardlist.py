@@ -289,6 +289,7 @@ class EditDeck(QMainWindow):
         self.forceClose = False
         self.origModTime = parent.deck.modified
         self.currentRow = None
+        self.lastFilter = ""
         self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
         self.dialog.setupUi(self)
         restoreGeom(self, "editor")
@@ -310,7 +311,7 @@ class EditDeck(QMainWindow):
         self.setupFilter()
         self.setupSort()
         self.setupHeaders()
-        self.setupUndo()
+        self.setupHooks()
         self.setupEditor()
         self.setupCardInfo()
         self.dialog.filterEdit.setFocus()
@@ -362,16 +363,51 @@ class EditDeck(QMainWindow):
         self.sortChanged(self.sortIndex, refresh=False)
 
     def drawTags(self):
+        self.dialog.tagList.view().setFixedWidth(200)
         self.dialog.tagList.setMaxVisibleItems(30)
-        tags = self.deck.allTags()
-        self.alltags = tags
-        self.alltags.sort()
         self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
-        self.dialog.tagList.addItems(QStringList(
-            [_('<Tag filter>'), _('No tags')] +
-            [x.replace("_", " ") for x in self.alltags]))
-        self.dialog.tagList.view().setFixedWidth(200)
+        alltags = [None, "Marked", "Suspended", None, None]
+        # system tags
+        self.dialog.tagList.addItem(_("<Filter>"))
+        self.dialog.tagList.addItem(QIcon(":/icons/rating.png"),
+                                    _('Marked'))
+        self.dialog.tagList.addItem(QIcon(":/icons/media-playback-pause.png"),
+                                    _('Suspended'))
+        self.dialog.tagList.addItem(QIcon(":/icons/editclear.png"),
+                                    _('No fact tags'))
+        self.dialog.tagList.insertSeparator(
+            self.dialog.tagList.count())
+        # model and card templates
+        for (type, sql, icon) in (
+            ("models", "select tags from models", "contents.png"),
+            ("cms", "select name from cardModels", "Anki_Card.png")):
+            d = {}
+            tagss = self.deck.s.column0(sql)
+            for tags in tagss:
+                for tag in parseTags(tags):
+                    d[tag] = 1
+            sortedtags = sorted(d.keys())
+            alltags.extend(sortedtags)
+            icon = QIcon(":/icons/" + icon)
+            for t in sortedtags:
+                self.dialog.tagList.addItem(icon, t)
+            alltags.append(None)
+            self.dialog.tagList.insertSeparator(
+                self.dialog.tagList.count())
+        # fact tags
+        alluser = sorted(self.deck.allTags())
+        for tag in alltags:
+            try:
+                alluser.remove(tag)
+            except:
+                pass
+        icon = QIcon(":/icons/Anki_Fact.png")
+        for t in alluser:
+            t = t.replace("_", " ")
+            self.dialog.tagList.addItem(icon, t)
+        alltags.extend(alluser)
+        self.alltags = alltags
 
     def drawSort(self):
         self.sortList = [
@@ -449,13 +485,18 @@ class EditDeck(QMainWindow):
 
     def tagChanged(self, idx):
         if idx == 0:
-            self.dialog.filterEdit.setText("")
+            filter = ""
         elif idx == 1:
-            self.dialog.filterEdit.setText("tag:none")
+            filter = "tag:marked"
+        elif idx == 2:
+            filter = "tag:suspended"
+        elif idx == 3:
+            filter = "tag:none"
         else:
-            self.dialog.filterEdit.setText("tag:" + self.alltags[idx-2])
+            filter = "tag:" + self.alltags[idx]
+        self.lastFilter = filter
+        self.dialog.filterEdit.setText(filter)
         self.showFilterNow()
-        self.dialog.tagList.setCurrentIndex(0)
 
     def updateFilterLabel(self):
         selected = len(self.dialog.tableView.selectionModel().selectedRows())
@@ -487,6 +528,10 @@ class EditDeck(QMainWindow):
 
     def filterTextChanged(self):
         interval = 300
+        # update filter dropdown
+        if (self.lastFilter.lower()
+            not in unicode(self.dialog.filterEdit.text()).lower()):
+            self.dialog.tagList.setCurrentIndex(0)
         if self.filterTimer:
             self.filterTimer.setInterval(interval)
         else:
@@ -521,6 +566,8 @@ class EditDeck(QMainWindow):
             self.dialog.fieldsArea.hide()
         self.dialog.tableView.selectRow(row)
         self.dialog.tableView.scrollTo(idx, QAbstractItemView.PositionAtCenter)
+        if not self.model.cards:
+            self.editor.setFact(None)
 
     def focusCurrentCard(self):
         if self.currentCard:
@@ -587,7 +634,7 @@ class EditDeck(QMainWindow):
         self.hide()
         ui.dialogs.close("CardList")
         self.parent.moveToState("auto")
-        self.teardownUndo()
+        self.teardownHooks()
         return True
 
     def closeEvent(self, evt):
@@ -837,11 +884,13 @@ where id in %s""" % ids2str(sf))
     # Edit: undo/redo
     ######################################################################
 
-    def setupUndo(self):
+    def setupHooks(self):
         addHook("postUndoRedo", self.postUndoRedo)
+        addHook("currentCardDeleted", self.updateSearch)
 
-    def teardownUndo(self):
+    def teardownHooks(self):
         removeHook("postUndoRedo", self.postUndoRedo)
+        removeHook("currentCardDeleted", self.updateSearch)
 
     def postUndoRedo(self):
         self.updateFilterLabel()

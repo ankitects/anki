@@ -116,6 +116,7 @@ class Preferences(QDialog):
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
         self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
         self.dialog.showProgress.setChecked(self.config['showProgress'])
+        self.dialog.preventEdits.setChecked(self.config['preventEditUntilAnswer'])
 
     def updateAdvanced(self):
         self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
@@ -127,6 +128,7 @@ class Preferences(QDialog):
         self.config['addZeroSpace'] = self.dialog.addZeroSpace.isChecked()
         self.config['alternativeTheme'] = self.dialog.alternativeTheme.isChecked()
         self.config['showProgress'] = self.dialog.showProgress.isChecked()
+        self.config['preventEditUntilAnswer'] = self.dialog.preventEdits.isChecked()
 
     def codeToIndex(self, code):
         n = 0

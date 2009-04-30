@@ -513,8 +513,11 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip" >
+                       <string>The &lt;b>number of minutes in a session&lt;/b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit.</string>
+                      </property>
                       <property name="text" >
-                       <string>&lt;b>Limit minutes per session to:&lt;/b></string>
+                       <string>&lt;b>Session limit (minutes):&lt;/b></string>
                       </property>
                       <property name="margin" >
                        <number>4</number>
@@ -545,8 +548,11 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip" >
+                       <string>The maximum number of &lt;b>new cards shown per day&lt;/b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days.</string>
+                      </property>
                       <property name="text" >
-                       <string>&lt;b>Limit new cards per day to:&lt;/b></string>
+                       <string>&lt;b>New cards per day:&lt;/b></string>
                       </property>
                       <property name="margin" >
                        <number>4</number>
@@ -600,8 +606,11 @@
                     </item>
                     <item row="2" column="0" >
                      <widget class="QLabel" name="label" >
+                      <property name="toolTip" >
+                       <string>The &lt;b>number of questions in a session&lt;/b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit.</string>
+                      </property>
                       <property name="text" >
-                       <string>&lt;b>Limit repetitions per session to:&lt;/b></string>
+                       <string>&lt;b>Session limit (questions):</string>
                       </property>
                       <property name="margin" >
                        <number>4</number>
@@ -691,7 +700,7 @@
                          </size>
                         </property>
                         <property name="text" >
-                         <string>More>></string>
+                         <string>More</string>
                         </property>
                         <property name="checkable" >
                          <bool>true</bool>
@@ -1103,7 +1112,7 @@
      <x>0</x>
      <y>0</y>
      <width>723</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -1118,7 +1127,6 @@
     <addaction name="separator" />
     <addaction name="actionDonate" />
     <addaction name="actionAbout" />
-    <addaction name="separator" />
    </widget>
    <widget class="QMenu" name="menuEdit" >
     <property name="title" >
@@ -1132,6 +1140,7 @@
     <addaction name="actionEditdeck" />
     <addaction name="separator" />
     <addaction name="actionMarkCard" />
+    <addaction name="actionBuryFact" />
     <addaction name="actionSuspendCard" />
     <addaction name="actionDelete" />
    </widget>
@@ -1633,6 +1642,9 @@
    <property name="statusTip" >
     <string>Stop reviewing this card until it's unsuspended in the browser</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+S</string>
+   </property>
   </action>
   <action name="actionModelProperties" >
    <property name="icon" >
@@ -1932,6 +1944,21 @@
    </property>
    <property name="statusTip" >
     <string>Download a plugin to add new features or change Anki's behaviour</string>
+   </property>
+  </action>
+  <action name="actionBuryFact" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Bury Fact</string>
+   </property>
+   <property name="statusTip" >
+    <string>Suspend the current fact until the deck is closed and opened again</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+B</string>
    </property>
   </action>
  </widget>
