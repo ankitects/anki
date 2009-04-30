@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 05:21+0900\n"
+"POT-Creation-Date: 2009-04-30 10:30+0200\n"
 "PO-Revision-Date: 2009-04-29 20:41+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -423,7 +423,7 @@ msgstr "Pierwsze w ub. t."
 msgid "First-seen cards:"
 msgstr "Karty widziane po raz pierwszy:"
 
-#: importing/__init__.py:56 importing/anki10.py:25
+#: importing/anki10.py:25 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Importowanie..."
 

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 05:21+0900\n"
-"PO-Revision-Date: 2009-04-27 20:10+0100\n"
+"POT-Creation-Date: 2009-04-30 10:30+0200\n"
+"PO-Revision-Date: 2009-04-30 10:30+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -174,7 +174,7 @@ msgstr ""
 "- %(new)s"
 
 #: sync.py:191
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<table>\n"
 "<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>\n"
@@ -191,7 +191,7 @@ msgstr ""
 "<tr><td>Kort</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
 "<tr><td>Faktauppgifter</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
 "<tr><td>Modeller</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
-"%(media)s\n"
+"<tr><td>Media</td><td>%(lM)s</td><td>%(rM)s</td></tr>\n"
 "</table>"
 
 #: stats.py:265
@@ -413,7 +413,7 @@ msgstr "Första förra veckan"
 msgid "First-seen cards:"
 msgstr "Förstagångskort:"
 
-#: importing/__init__.py:56 importing/anki10.py:25
+#: importing/anki10.py:25 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Importerar..."
 
@@ -732,7 +732,7 @@ msgstr "om %s"
 
 #: sync.py:185 sync.py:186
 msgid "off"
-msgstr ""
+msgstr "av"
 
 #: deck.py:715
 msgid "unknown"
