@@ -477,8 +477,11 @@ class FactEditor(object):
         self.deck.setUndoEnd(n)
 
     def onFocusLost(self, widget):
+        from ankiqt import mw
         if self.fact is None:
             # editor or deck closed
+            return
+        if mw.inDbHandler:
             return
         self.saveFields()
         field = self.widgets[widget]
