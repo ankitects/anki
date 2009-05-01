@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, copy, time, sys, re
+import os, copy, time, sys, re, traceback
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki
@@ -125,7 +125,8 @@ class ImportDialog(QDialog):
                 self.dialog.status.setText(msg)
                 return
             except Exception, e:
-                msg = _("Import failed: %s\n") % `e`
+                msg = _("Import failed.\n")
+                msg += traceback.format_exc()
                 self.dialog.status.setText(msg)
                 return
         finally:
