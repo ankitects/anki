@@ -16,9 +16,9 @@ from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue
 from anki.utils import addTags, deleteTags, parseTags, canonifyTags
 from anki.media import rebuildMediaDir
-from anki.db import OperationalError
+from anki.db import OperationalError, SessionHelper
 from anki.stdmodels import BasicModel
-from anki.hooks import runHook, addHook, removeHook, _hooks
+from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels, failedCardOptionLabels
 import anki.latex
@@ -2220,6 +2220,15 @@ Couldn't contact Anki Online. Please check your internet connection."""))
         self.progressWins = []
         self.busyCursor = False
         self.mainThread = QThread.currentThread()
+        self.oldSessionHelperGetter = SessionHelper.__getattr__
+        SessionHelper.__getattr__ = wrap(SessionHelper.__getattr__,
+                                         self.checkProgressHandler,
+                                         pos="before")
+
+    def checkProgressHandler(self, ses, k):
+        "Catch attempts to access the DB from a progress handler."
+        if self.inDbHandler:
+            raise Exception("Accessed DB while in progress handler")
 
     def setProgressParent(self, parent):
         self.progressParent = parent
