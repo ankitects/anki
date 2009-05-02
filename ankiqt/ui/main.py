@@ -8,7 +8,6 @@ from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback, inspect
 import shutil, time, glob, tempfile, datetime, zipfile, locale
-from threading import Lock
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
