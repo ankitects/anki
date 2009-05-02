@@ -8,6 +8,7 @@ from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback, inspect
 import shutil, time, glob, tempfile, datetime, zipfile, locale
+from threading import Lock
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -2219,6 +2220,7 @@ Couldn't contact Anki Online. Please check your internet connection."""))
         self.progressParent = None
         self.progressWins = []
         self.busyCursor = False
+        self.updatingBusy = False
         self.mainThread = QThread.currentThread()
         self.oldSessionHelperGetter = SessionHelper.__getattr__
         SessionHelper.__getattr__ = wrap(SessionHelper.__getattr__,
@@ -2274,16 +2276,20 @@ Couldn't contact Anki Online. Please check your internet connection."""))
             self.unsetBusy()
 
     def setBusy(self):
-        if not self.busyCursor:
-            self.setEnabled(False)
-            self.app.setOverrideCursor(QCursor(Qt.WaitCursor))
+        if not self.busyCursor and not self.updatingBusy:
             self.busyCursor = True
+            self.app.setOverrideCursor(QCursor(Qt.WaitCursor))
+            self.updatingBusy = True
+            self.setEnabled(False)
+            self.updatingBusy = False
 
     def unsetBusy(self):
-        if self.busyCursor:
-            self.setEnabled(True)
+        if self.busyCursor and not self.updatingBusy:
             self.app.restoreOverrideCursor()
             self.busyCursor = None
+            self.updatingBusy = True
+            self.setEnabled(True)
+            self.updatingBusy = False
 
     # Advanced features
     ##########################################################################
