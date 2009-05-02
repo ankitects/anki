@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-30 11:35+0200\n"
+"POT-Creation-Date: 2009-05-01 00:40+0200\n"
 "PO-Revision-Date: 2008-03-28 17:07+0900\n"
 "Last-Translator: Andrew Wright <guswright80@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2158,12 +2158,13 @@ msgstr ""
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:382
-msgid "Please add a new card first."
-msgstr "まず新しいカードを入力してください。"
-
 #: ui/modelproperties.py:164
 msgid "Please add a new field first."
+msgstr "まず新しいフィールドを作成してください。"
+
+#: ui/modelproperties.py:382
+#, fuzzy
+msgid "Please add a new template first."
 msgstr "まず新しいフィールドを作成してください。"
 
 #: ui/deckproperties.py:143
@@ -4039,6 +4040,9 @@ msgstr ""
 
 #~ msgid "Percentage of minimum interval"
 #~ msgstr "最小期間のパーセンテージ"
+
+#~ msgid "Please add a new card first."
+#~ msgstr "まず新しいカードを入力してください。"
 
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "フィールドの整列を選んでください。"
