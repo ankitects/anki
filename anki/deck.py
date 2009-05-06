@@ -1791,7 +1791,11 @@ cardTags.tagId in %s""" % ids2str(ids)
                     else:
                         n = 0
                     qquery += "select id from cards where type = %d" % n
-                elif token == "due":
+                elif token == "delayed":
+                    qquery += ("select id from cards where "
+                               "due < %d and isDue = 0 and "
+                               "priority in (1,2,3,4)") % time.time()
+                else: # due
                     qquery += ("select id from cards where "
                                "type in (0,1) and isDue = 1")
             else:
