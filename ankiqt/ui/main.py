@@ -230,7 +230,7 @@ Please do not file a bug report with Anki.<br><br>""")
                 self.updateRecentFilesMenu()
                 self.updateViews(state)
                 if self.state == "studyScreen":
-                    return self.updateStudyStats()
+                    return self.showStudyScreen()
                 else:
                     return self.moveToState("getQuestion")
             else:
@@ -1822,9 +1822,13 @@ it to your friends.
         self.setStatus("")
 
     def noSyncResponse(self):
-        self.showToolTip(_("""\
+        msg = _("""\
 <h1>Sync Failed</h1>
-Couldn't contact Anki Online. Please check your internet connection."""))
+Couldn't contact Anki Online. Please check your internet connection.""")
+        if self.config['syncInMsgBox']:
+            ui.utils.showWarning(msg)
+        else:
+            self.showToolTip(msg)
 
     def openSyncProgress(self):
         self.syncProgressDialog = QProgressDialog(_("Syncing Media..."),

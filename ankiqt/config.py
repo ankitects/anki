@@ -44,6 +44,7 @@ class Config(dict):
             'iconSize': 32,
             'syncOnLoad': True,
             'syncOnClose': True,
+            'syncInMsgBox': False,
             'checkForUpdates': True,
             'interfaceLang': "",
             'syncUsername': "",
