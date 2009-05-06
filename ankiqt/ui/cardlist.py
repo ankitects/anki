@@ -493,7 +493,7 @@ class EditDeck(QMainWindow):
         elif idx == 2:
             filter = "tag:suspended"
         elif idx == 3:
-            filter = "type:due"
+            filter = "is:due"
         elif idx == 4:
             filter = "tag:none"
         else:
