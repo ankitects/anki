@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-06 12:34+0900\n"
-"PO-Revision-Date: 2009-04-29 22:39+0200\n"
+"POT-Creation-Date: 2009-05-06 12:46+0900\n"
+"PO-Revision-Date: 2009-05-02 16:26+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -620,7 +620,7 @@ msgstr ""
 
 #: forms/deckproperties.py:331
 msgid "<b>Very High Priority</b>"
-msgstr "<b>Bardzo wysoki priorytet</b>"
+msgstr "<b>Bardzo wysoki</b>"
 
 #: ui/sync.py:126
 msgid "<br><br>Checking deck subscriptions..."
@@ -1111,13 +1111,12 @@ msgid "Cards are waiting"
 msgstr "Są karty do przejrzenia"
 
 #: ui/main.py:1107
-#, fuzzy
 msgid "Cards/day:"
-msgstr "Karta:"
+msgstr "Kart dziennie:"
 
 #: ui/main.py:1106
 msgid "Cards/session:"
-msgstr ""
+msgstr "Kart na sesję:"
 
 #: ui/importing.py:202
 msgid "Change"
@@ -1531,7 +1530,7 @@ msgstr "Pobierz dodatek, by dodać nowe funkcje lub zmienić zachowanie Anki"
 
 #: ui/getshared.py:147 ui/getshared.py:151
 msgid "Downloads"
-msgstr "Transfery"
+msgstr "Pobrania"
 
 #: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:418 ui/graphs.py:148
 msgid "Due"
@@ -1962,13 +1961,12 @@ msgid "Name on server: "
 msgstr "Nazwa na serwerze:"
 
 #: ui/main.py:1110
-#, fuzzy
 msgid "New today:"
-msgstr "Powtórki dzisiaj"
+msgstr "Nowe dzisiaj:"
 
 #: ui/main.py:1111
 msgid "New total:"
-msgstr ""
+msgstr "Nowych ogólnie:"
 
 #: ui/facteditor.py:202
 msgid "Next colour (F7 then F8)"
@@ -2295,9 +2293,8 @@ msgid "Review Time"
 msgstr "Czas powtórki"
 
 #: ui/main.py:1109
-#, fuzzy
 msgid "Reviews due:"
-msgstr "Powtórki dzisiaj"
+msgstr "Do przeglądnięcia:"
 
 #: ui/status.py:216
 msgid "Reviews today"
@@ -2373,9 +2370,8 @@ msgid "Select tags to suspend. Deselect to unsuspend."
 msgstr "Wybierz etykiety do zawieszenia. Usuń zaznaczenie by usunąć zawieszenie."
 
 #: ui/main.py:1137
-#, fuzzy
 msgid "Session Statistics"
-msgstr "Statystyki &talii"
+msgstr "Statystyki sesji"
 
 #: ui/facteditor.py:168
 msgid "Set colour (F7 then F7)"
@@ -2608,23 +2604,23 @@ msgstr "Maksymalna liczba <b>nowych kart na dzień</b>. Domyślnie jest to 20, b
 
 #: ui/main.py:1144
 msgid "The number of cards that are waiting to be reviewed today"
-msgstr ""
+msgstr "Liczba kart będących dzisiaj do przeglądnięcia"
 
 #: ui/main.py:1138
 msgid "The number of cards you studied in the current session (blue) and previous session (black)"
-msgstr ""
+msgstr "Liczba kart powtarzanych w aktualnej (na niebiesko) i poprzedniej sesji (na czarno)"
 
 #: ui/main.py:1140
 msgid "The number of cards you studied today (blue) and yesterday (black)"
-msgstr ""
+msgstr "Liczba kart powtarzanych dzisiaj (na niebiesko) i wczoraj (na czarno)"
 
 #: ui/main.py:1142
 msgid "The number of minutes you studied today (blue) and yesterday (black)"
-msgstr ""
+msgstr "Liczba minut w trakcie powtórki dzisiaj (na niebiesko) i wczoraj (na czarno)"
 
 #: ui/main.py:1146
 msgid "The number of new cards that are waiting to be learnt today"
-msgstr ""
+msgstr "Liczba nowych kart oczekujących dzisiaj"
 
 #: ui/sync.py:54
 msgid "The sync protocol has changed. Please upgrade."
@@ -2645,7 +2641,7 @@ msgstr ""
 
 #: ui/main.py:1148
 msgid "The total number of new cards in the deck"
-msgstr ""
+msgstr "Ogólna liczba nowych kart w talii"
 
 #: ui/status.py:187
 #, python-format
@@ -2794,7 +2790,7 @@ msgstr ""
 
 #: ui/main.py:1108
 msgid "Time/day:"
-msgstr ""
+msgstr "Czas dziennie:"
 
 #: ui/getshared.py:147 ui/getshared.py:151
 msgid "Title"
@@ -3063,94 +3059,5 @@ msgstr "opcja"
 msgid "toplabel"
 msgstr "toplabel"
 
-#~ msgid ""
-#~ "<h1>Session Statistics</h1>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Cards/session</b></dt>\n"
-#~ "<dd>The number of cards you studied in the current session (blue) and previous\n"
-#~ "session (black)</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Cards/day</b></dt>\n"
-#~ "<dd>The number of cards you studied today (blue) and yesterday (black)</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Time/day</b></dt>\n"
-#~ "<dd>The number of minutes you studied today (blue) and yesterday (black)</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Reviews due</b></dt>\n"
-#~ "<dd>The number of cards that are waiting to be reviewed today</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>New today</b></dt>\n"
-#~ "<dd>The number of new cards that are waiting to be learnt today</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>New total</b></dt>\n"
-#~ "<dd>The total number of new cards in the deck</dd>\n"
-#~ "</dl>"
-#~ msgstr ""
-#~ "<h1>Statystyki sesji</h1>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Kart na sesję</b></dt>\n"
-#~ "<dd>Liczba kart powtarzanych w aktualnej (na niebiesko) i poprzedniej sesji (na czarno)</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Kart dziennie</b></dt>\n"
-#~ "<dd>Liczba kart powtarzanych dzisiaj (na niebiesko) i wczoraj (na czarno)</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Czas dziennie</b></dt>\n"
-#~ "<dd>Liczba minut w trakcie powtórki dzisiaj (na niebiesko) i wczoraj (na czarno)</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Do przeglądnięcia</b></dt>\n"
-#~ "<dd>Liczba kart będących dzisiaj do przeglądnięcia</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Nowe dzisiaj</b></dt>\n"
-#~ "<dd>Liczba nowych kart oczekujących dzisiaj</dd>\n"
-#~ "</dl>\n"
-#~ "<dl>\n"
-#~ "<dt><b>Nowych ogólnie</b></dt>\n"
-#~ "<dd>Ogólna liczba nowych kart w talii</dd>\n"
-#~ "</dl>"
-
-#~ msgid ""
-#~ "<table>\n"
-#~ "<tr><td width=100>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-#~ "<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>\n"
-#~ "<tr><td>New total:</td><td align=right>%(newof)s</td></tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "<table>\n"
-#~ "<tr><td width=100>Do przeglądnięcia:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-#~ "<tr><td>Nowe dzisiaj:</td><td align=right><b>%(new)s</b></td></tr>\n"
-#~ "<tr><td>Nowych ogólnie:</td><td align=right>%(newof)s</td></tr>\n"
-#~ "</table>"
-
-#~ msgid ""
-#~ "<table>\n"
-#~ "<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-#~ "<td><b>%(repsInSes)s</b></td></tr>\n"
-#~ "<tr><td>Cards/day:</td><td><b>%(repsTodayChg)s</b></td>\n"
-#~ "<td><b>%(repsToday)s</b></td></tr>\n"
-#~ "<tr><td>Time/day:</td><td><b>%(timeTodayChg)s</b></td>\n"
-#~ "<td><b>%(timeToday)s</b></td></tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "<table>\n"
-#~ "<tr><td width=80>Kart na sesję:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-#~ "<td>%(repsInSes)s</td></tr>\n"
-#~ "<tr><td>Kart dziennie:</td><td><b>%(repsTodayChg)s</b></td>\n"
-#~ "<td>%(repsToday)s</td></tr>\n"
-#~ "<tr><td>Czas dziennie:</td><td><b>%(timeTodayChg)s</b></td>\n"
-#~ "<td>%(timeToday)s</td></tr>\n"
-#~ "</table>"
-
 #~ msgid "Import failed: %s\n"
 #~ msgstr "Import nie powiódł się: %s\n"
-
-#~ msgid "Please add a new card first."
-#~ msgstr "Dodaj najpierw nową kartę."

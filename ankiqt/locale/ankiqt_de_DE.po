@@ -1,19 +1,21 @@
-# SOME DESCRIPTIVE TITLE.
+# translation of ankiqt_de_DE.po to polski
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+# Piotr Kubowicz <derbeth-fora@wp.pl>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: ankiqt_de_DE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-06 12:34+0900\n"
-"PO-Revision-Date: 2009-03-28 15:50+0100\n"
-"Last-Translator: Michael Keppler <bananeweizen@gmx.de>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2009-05-06 12:46+0900\n"
+"PO-Revision-Date: 2009-05-02 16:56+0200\n"
+"Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
+"Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ui/about.py:13
 #, python-format
@@ -429,9 +431,8 @@ msgid ""
 msgstr ""
 
 #: ui/cardlist.py:372
-#, fuzzy
 msgid "<Filter>"
-msgstr "Filtern nach Tags"
+msgstr "<Filter>"
 
 #: forms/deckproperties.py:329
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
@@ -566,12 +567,10 @@ msgid "<b>Replace With</b>:"
 msgstr "<b>Ersetzen mit</b>:"
 
 #: forms/main.py:882
-#, fuzzy
 msgid "<b>Session limit (minutes):</b>"
 msgstr "<b>Sitzungslimit (Minuten):</b>"
 
 #: forms/main.py:886
-#, fuzzy
 msgid "<b>Session limit (questions):"
 msgstr "<b>Sitzungslimit (Wiederholungen):"
 
@@ -1140,9 +1139,8 @@ msgid "Check complete."
 msgstr "Abgleich abgeschlossen."
 
 #: forms/main.py:975
-#, fuzzy
 msgid "Check the database for errors"
-msgstr "&Datenbankintegrität prüfen"
+msgstr "Datenbankintegrität prüfen"
 
 #: forms/main.py:979
 msgid "Check the files in the media directory"
@@ -1342,18 +1340,16 @@ msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
 #: forms/main.py:1018
-#, fuzzy
 msgid "Ctrl+Shift+B"
-msgstr "Ctrl+Shift+F"
+msgstr "Ctrl+Shift+B"
 
 #: forms/cardlist.py:253
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+Shift+F"
 
 #: forms/main.py:961
-#, fuzzy
 msgid "Ctrl+Shift+S"
-msgstr "Ctrl+Shift+F"
+msgstr "Ctrl+Shift+S"
 
 #: forms/main.py:910
 msgid "Ctrl+W"
@@ -1408,17 +1404,14 @@ msgid "Customize Models"
 msgstr "Modelle anpassen"
 
 #: forms/main.py:963
-#, fuzzy
 msgid "Customize card layout, fields, etc"
 msgstr "Kartenlayout, Felder, usw. anpassen"
 
 #: forms/main.py:954
-#, fuzzy
 msgid "Customize fonts, colours and alignment"
 msgstr "Schrift, Farbe und Ausrichtung anpassen."
 
 #: forms/main.py:946
-#, fuzzy
 msgid "Customize syncing, scheduling, priorities and models"
 msgstr "Synchronisierung, Zeitabstände, Prioritäten und Modelle anpassen."
 
@@ -1477,7 +1470,7 @@ msgstr "Ermittle Unterschiede..."
 
 #: forms/infodialog.py:36
 msgid "Dialog"
-msgstr "Dialog"
+msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1756,9 +1749,8 @@ msgid "HTML Editor"
 msgstr "HTML-Editor"
 
 #: ui/facteditor.py:338
-#, fuzzy
 msgid "HTML Editor (Ctrl+F9)"
-msgstr "HTML Editor (F9)"
+msgstr "HTML Editor (Ctrl+F9)"
 
 #: forms/main.py:875
 msgid "Hard"
@@ -1929,9 +1921,8 @@ msgid "Mongolian"
 msgstr ""
 
 #: forms/main.py:888
-#, fuzzy
 msgid "More"
-msgstr "Mehr>>"
+msgstr "Mehr"
 
 #: forms/modelproperties.py:293 forms/modelproperties.py:306
 msgid "Move &Up"
@@ -2097,8 +2088,9 @@ msgid "Please add another model first."
 msgstr "Bitte füge zuerst ein anderes Modell hinzu."
 
 #: forms/sort.py:46
+#, fuzzy
 msgid "Please choose a field to sort by."
-msgstr "Bitte wähle ein Feld, nach dem sortiert werden soll."
+msgstr "Bitte füge zuerst ein neues Feld hinzu."
 
 #: ui/sync.py:52
 msgid "Please double-check your username/password."
@@ -3094,1099 +3086,5 @@ msgstr "Optionen"
 msgid "toplabel"
 msgstr "Label"
 
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Adding cards</h1>\n"
-#~ "Please enter some things you want to learn.\n"
-#~ "<h2>Shortcuts</h2>\n"
-#~ "<table width=230>\n"
-#~ "<tr><td><b>Tab</b></td><td> change between fields.</td></tr>\n"
-#~ "<tr><td><b>Ctrl+Enter</b></td><td> add the current card.</td></tr>\n"
-#~ "<tr><td><b>Esc</b></td><td> close the dialog.</td></tr>\n"
-#~ "<tr><td><b>Ctrl+B</b></td><td> bold</td></tr>\n"
-#~ "<tr><td><b>Ctrl+I</b></td><td> italic</td></tr>\n"
-#~ "<tr><td><b>Ctrl+U</b></td><td> underline</td></tr>\n"
-#~ "<tr><td><b>Alt+1</b></td><td> enable/disable card model 1</td></tr>\n"
-#~ "<tr><td><b>Alt+2</b></td><td> enable/disable card model 2</td></tr>\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<h2>Cards</h2>Depending on the language you selected, more than one card may\n"
-#~ "be generated. This allows you to practice both <b>Production</b> (trying to produce\n"
-#~ "the target idea/phrase yourself), and <b>Recognition</b> (quickly recognizing and\n"
-#~ "understanding the target idea/phrase). To change which cards are automatically\n"
-#~ "generated, click the rightmost button at the top."
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Karten hinzufügen</h1>\n"
-#~ "<h2>Tastenkürzel</h2>\n"
-#~ "<table width=230>\n"
-#~ "<tr><td><b>Tab</b></td><td> zwischen Feldern wechseln.</td></tr>\n"
-#~ "<tr><td><b>Strg+Enter</b></td><td> diese Karte hinzufügen.</td></tr>\n"
-#~ "<tr><td><b>Esc</b></td><td> Dialogfenster schließen.</td></tr>\n"
-#~ "<tr><td><b>Strg+B</b></td><td> fett</td></tr>\n"
-#~ "<tr><td><b>Strg+I</b></td><td> kursiv</td></tr>\n"
-#~ "<tr><td><b>Strg+U</b></td><td> unterstrichen</td></tr>\n"
-#~ "<tr><td><b>Alt+1</b></td><td> Kartenmodell 1 aktivieren/deaktivieren</td></tr>\n"
-#~ "<tr><td><b>Alt+2</b></td><td> Kartenmodell 2 aktivieren/deaktivieren</td></tr>\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<h2>Mehrere Karten</h2>Die Anzahl der nach der Eingabe erzeugten Karten hängt vom aktuellen Modell\n"
-#~ "ab. Mit dem 'Modell editieren' Button kann das Modell ausgewählt werden."
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Anki</h1>\n"
-#~ "<img src=\":/icons/anki.png\">\n"
-#~ "<p>\n"
-#~ "<span>Anki is a spaced repetition flashcard program designed to maximise your\n"
-#~ "memory potential.<p/>It's free and licensed under the GPL.<p/>\n"
-#~ "Version %s<br>\n"
-#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Anki</h1>\n"
-#~ "<img src=\":/icons/anki.png\">\n"
-#~ "<p>\n"
-#~ "<span>Anki ist ein Karteikartenprogramm für Wiederholung in regelmäßigen Abständen. Es ist darauf ausgelegt, Deine Gedächtnisleistung zu maximieren.\n"
-#~ "<p/>Es ist freie Software unter der GPL-Lizenz.<p/>\n"
-#~ "Version %s<br>\n"
-#~ "<a href=\"http://ichi2.net/anki/\">Webseite besuchen</a></span>\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Empty deck</h1>The current deck has no cards in it. Please select 'Add\n"
-#~ "card' from the Edit menu."
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Kartenstapel leer</h1>Dieser Stapel hat keine Karten.\n"
-#~ "Diese können mit 'Karten hinzufügen' im Bearbeiten-Menü erstellt werden."
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Learning new cards</h1>Anki is currently in 'learning mode'.\n"
-#~ "<p>\n"
-#~ "As an alternative to using the mouse, spacebar and the number keys are\n"
-#~ "available.\n"
-#~ "<p>\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/Learning_new_cards\">More information</a>\n"
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Neue Karten lernen</h1>Anki ist momentan im 'Lern-Modus'.\n"
-#~ "<p>\n"
-#~ "Zusätzlich zur Maus kannst Du auch die Leertaste und die Zifferntaste benutzen.\n"
-#~ "<p>\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/Learning_new_cards\">Mehr Informationen</a>\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Reviewing</h1>You are currently looking at a card you have seen before.\n"
-#~ "Unlike new cards, it's important to try and review previously seen cards as\n"
-#~ "promptly as possible, in order to ensure your previous effort spent\n"
-#~ "remembering the cards is not wasted.<p> At the bottom of the main window, the\n"
-#~ "\"Remaining\" figure indicates how many previously reviewed words are waiting\n"
-#~ "for you today. Once this number reaches 0, you can close Anki, or continue\n"
-#~ "studying new cards."
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Wiederholen</h1>Diese Karte hast Du schon einmal gesehen. Anders als bei neuen Karten\n"
-#~ "ist es wichtig, die zu wiederholenden Karten baldmöglichst anzugehen,\n"
-#~ "damit der bisher geleistete Lernaufwand nicht verloren geht.<p>\n"
-#~ "Am unteren Rand des Hauptfensters wird unter \"Verbleibend\" angezeigt,\n"
-#~ "wie viele zuvor wiederholte Karten noch auf Dich warten. Wenn diese Zahl\n"
-#~ "auf 0 zurückgeht, kannst du Anki schließen, oder neue Karten dazulernen."
-
-#~ msgid " <b>When quizzing/adding/editing</b>"
-#~ msgstr " <b>Beim Abfragen/Hinzufügen/Bearbeiten</b>"
-
-#~ msgid ""
-#~ "%s.\n"
-#~ "Anki can only merge models if they have exactly\n"
-#~ "the same field count and card count."
-#~ msgstr ""
-#~ "%s.\n"
-#~ "Anki kann Modelle nur dann zusammenführen, wenn sie genau die gleiche\n"
-#~ "Anzahl von Feldern und Karten haben."
-
-#~ msgid "&Add cards"
-#~ msgstr "&Karten hinzufügen"
-
-#~ msgid "&Advanced"
-#~ msgstr "&Erweitert"
-
-#~ msgid "&Deck"
-#~ msgstr "&Stapel"
-
-#~ msgid "&Edit All..."
-#~ msgstr "&Alle Karten bearbeiten..."
-
-#, fuzzy
-#~ msgid "&Edit..."
-#~ msgstr "&Bearbeiten"
-
-#~ msgid "&Get More Decks..."
-#~ msgstr "&Weitere Stapel beziehen..."
-
-#, fuzzy
-#~ msgid "&Model Properties..."
-#~ msgstr "&Modelleinstellungen..."
-
-#, fuzzy
-#~ msgid "&Options>>"
-#~ msgstr "<b>Optionen</b>"
-
-#, fuzzy
-#~ msgid "&Preferences..."
-#~ msgstr "&Einstellungen..."
-
-#~ msgid "&Undo last answer"
-#~ msgstr "&Letzte Antwort rückgängig machen"
-
-#~ msgid "123"
-#~ msgstr "123"
-
-#, fuzzy
-#~ msgid "<Select Tag>"
-#~ msgstr "Tags löschen..."
-
-#~ msgid "<b>%(ease0)s</b>"
-#~ msgstr "<b>%(ease0)s</b>"
-
-#~ msgid "<b>%(ease1)s</b>"
-#~ msgstr "<b>%(ease1)s</b>"
-
-#~ msgid "<b>%(ease2)s</b>"
-#~ msgstr "<b>%(ease2)s</b>"
-
-#~ msgid "<b>%(ease3)s</b>"
-#~ msgstr "<b>%(ease3)s</b>"
-
-#~ msgid "<b>%(ease4)s</b>"
-#~ msgstr "<b>%(ease4)s</b>"
-
-#, fuzzy
-#~ msgid "<b>0: Totally Forgot</b>"
-#~ msgstr "<b>Völlig vergessen (0)</b>"
-
-#~ msgid "<b><u>C</u>ards</b>:"
-#~ msgstr "<b><u>K</u>arten</b>:"
-
-#~ msgid "<b>Answer format<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4\">?</a></b>"
-#~ msgstr "<b>Format der Antwort<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4\">?</a></b>"
-
-#~ msgid "<b>Card spacing<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">?</a></b>"
-#~ msgstr "<b>Kartenabstand<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-59a81e35b6afb23930005e943068945214d194b3\">?</a></b>"
-
-#~ msgid "<b>Card-specific tags</b>"
-#~ msgstr "<b>Karten-spezifische Tags</b>"
-
-#~ msgid "<b>Easy</b>"
-#~ msgstr "<b>Leicht</b>"
-
-#~ msgid "<b>Features<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-f57a8f871fc97ceb2f6daa43528fd640ee63b4f4\">?</a></b>"
-#~ msgstr "<b>Zusatzfunktionen<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-f57a8f871fc97ceb2f6daa43528fd640ee63b4f4\">?</a></b>"
-
-#~ msgid "<b>File to import</b>:"
-#~ msgstr "<b>Zu importierende Datei</b>:"
-
-#, fuzzy
-#~ msgid "<b>Hours to shift midnight</b>"
-#~ msgstr "<b>Frage verstecken</b>"
-
-#~ msgid "<b>How well did you remember?</b>"
-#~ msgstr "<b>Wie gut hast Du Dich erinnert?</b>"
-
-#~ msgid "<b>Made a mistake (1) on a mature<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-3b268fd372f260751f5e9020a79d54a4f68e1829\">?</a> card</b>"
-#~ msgstr "<b>Habe einen Fehler gemacht (1) bei einer alten<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-3b268fd372f260751f5e9020a79d54a4f68e1829\">?</a> Karte</b>"
-
-#~ msgid "<b>Made a mistake (1) on a young<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-3b268fd372f260751f5e9020a79d54a4f68e1829\">?</a> card"
-#~ msgstr "<b>Habe einen Fehler gemacht (1) bei einer jungen<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-3b268fd372f260751f5e9020a79d54a4f68e1829\">?</a> Karte</b>"
-
-#~ msgid "<b>Maximum failed cards<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-e081bb818555df4a9fd06e16e685835a95303e0c\">?</a></b>"
-#~ msgstr "<b>Maximale Anzahl falscher Antworten<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-e081bb818555df4a9fd06e16e685835a95303e0c\">?</a></b>"
-
-#~ msgid "<b>Medium</b>"
-#~ msgstr "<b>Mittel</b>"
-
-#, fuzzy
-#~ msgid "<b>Name/tag</b>"
-#~ msgstr "<b>Name</b>"
-
-#~ msgid "<b>Name/tag<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf\">?</a></b>"
-#~ msgstr "<b>Name/Tag<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf\">?</a></b>"
-
-#~ msgid "<b>Numeric?</b>"
-#~ msgstr "<b>Numerisch?</b>"
-
-#~ msgid "<b>Question format<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4\">?</a></b>"
-#~ msgstr "<b>Format der Frage<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-b8916ff117aa0da4a414ce9b9b9be4a232eab2f4\">?</a></b>"
-
-#~ msgid "<b>Required?</b>"
-#~ msgstr "<b>Benötigt?</b>"
-
-#~ msgid "<b>Show failed cards early<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-c34f83f4acaf3d9a8f59dcff02dd6abec930ebaf\">?</a></b>"
-#~ msgstr "<b>Wiederhole falsche Karten frühzeitig<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-c34f83f4acaf3d9a8f59dcff02dd6abec930ebaf\">?</a></b>"
-
-#~ msgid "<b>Statistics</b>"
-#~ msgstr "<b>Statistiken</b>"
-
-#~ msgid "<b>Tags<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf\">?</a></b>"
-#~ msgstr "<b>Tags<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-09efbe5fd6809ae0d90543adf92014b8eb9ef1bf\">?</a></b>"
-
-#, fuzzy
-#~ msgid "<b>Target Card Template</b>:"
-#~ msgstr "<h1>Kartenvorlage</h1>"
-
-#~ msgid "<b>Type of file</b>:"
-#~ msgstr "<b>Dateiart</b>:"
-
-#~ msgid "<b>Unique?"
-#~ msgstr "<b>Eindeutig?"
-
-#, fuzzy
-#~ msgid "<h1>Add Model</h1>"
-#~ msgstr "<h1>Modelle</h1>"
-
-#, fuzzy
-#~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
-#~ msgstr "<h1>Erweiterte Einstellungen</h1>"
-
-#~ msgid "<h1>Autosaving</h1>Anki can save your progress automatically."
-#~ msgstr "<h1>Automatisches Speichern</h1>Anki kann Deine Fortschritte automatisch speichern."
-
-#~ msgid "<h1>Available fields</h1>Please choose which field you would like to import into. If you select \"Discard field\", all data from this field will be lost."
-#~ msgstr ""
-#~ "<h1>Feld auswählen</h1>Bitte wähle aus, in welches Feld importiert werden soll. Wenn Du\n"
-#~ "\"Verwerfe Feld\" auswählst, gehen alle Daten aus diesem Feld verloren."
-
-#~ msgid "<h1>Basic Scheduling</h1>"
-#~ msgstr "<h1>Zeitplanung</h1>"
-
-#~ msgid "<h1>Building revision queue..</h1>"
-#~ msgstr "<h1>Zu wiederholende Karten werden zusammengestellt...</h1>"
-
-#, fuzzy
-#~ msgid "<h1>Card Models</h1>"
-#~ msgstr "<h1>Karten-Modelle</h1>"
-
-#, fuzzy
-#~ msgid "<h1>Day Rollover</h1>"
-#~ msgstr "<h1>Karten-Modelle</h1>"
-
-#~ msgid "<h1>Deck description</h1>"
-#~ msgstr "<h1>Stapelbeschreibung</h1>"
-
-#~ msgid "<h1>Delay on mistake</h1>The time until Anki shows you a card you got wrong. The default is 10 minutes."
-#~ msgstr ""
-#~ "<h1>Aufschub bei Fehler</h1>Die Zeit, nach der Anki eine falsch beantwortete Karte wieder anzeigt.\n"
-#~ "Standardeinstellung ist 10 Minuten."
-
-#~ msgid "<h1>Failed card limit & collapsing</h1>"
-#~ msgstr "<h1>Fehlerschranke</h1>"
-
-#~ msgid ""
-#~ "<h1>Final review</h1>You are now being\n"
-#~ "shown cards that are due soon (in the next 5 hours by default). This includes\n"
-#~ "any cards you failed recently. You can answer them now, or come back later -\n"
-#~ "it's up to you."
-#~ msgstr ""
-#~ "<h1>Letzte Wiederholung</h1>Du siehst jetzt Karten, \n"
-#~ "die bald wiederholt werden müssen (standardmäßig in den nächsten 5 Stunden). Es sind auch\n"
-#~ "die Karten dabei, bei denen du vor kurzem Fehler gemacht hast. Du kannst sie jetzt beantworten oder später zurückkommen -\n"
-#~ "das liegt ganz bei dir."
-
-#, fuzzy
-#~ msgid "<h1>Fonts & Colours</h1>"
-#~ msgstr "<h1>Karten-Modelle</h1>"
-
-#, fuzzy
-#~ msgid "<h1>Fonts</h1>"
-#~ msgstr "<h1>Felder</h1>"
-
-#, fuzzy
-#~ msgid "<h1>General Model Properties</h1>"
-#~ msgstr "<h1>Modelleinstellungen</h1>"
-
-#~ msgid "<h1>Interface language</h1>The language for the user interface: dialogs, menus, etc."
-#~ msgstr "<h1>Spracheinstellung</h1>Die Sprache für die Benutzeroberfläche: Dialoge, Menüs, usw."
-
-#~ msgid "<h1>Main Window</h1>"
-#~ msgstr "<h1>Hauptfenster</h1>"
-
-#~ msgid "<h1>Models</h1>Models define what sort of information you're studying, and the way to show it to you. Models range from a simple representation of a single flashcard with a \"front\" and \"back\" side, to more complicated domain specific models: a model for Russian verbs may define two verb forms, and test you on both of them."
-#~ msgstr "<h1>Modelle</h1>Mit Modellen wird festgelegt, welche Informationen gelernt und auf welche Art sie präsentiert werden. Ein einfaches Modell für einzelne Karteikarten hat nur eine Vorder- und Rückseite, es sind aber auch komplizierte Modelle denkbar, die z.B. unterschiedliche Verbformen definieren und alle abfragen."
-
-#, fuzzy
-#~ msgid "<h1>New cards</h1>"
-#~ msgstr "<h1>Fällige Karten</h1>"
-
-#~ msgid "<h1>New cards</h1>The initial times to use when scheduling cards, in days."
-#~ msgstr "<h1>Neue Karten</h1>Anfängliche Zeitplanung von Karten in Abhängigkeit von der Schwierigkeit (in Tagen)."
-
-#~ msgid "<h1>Please choose a template</h1>"
-#~ msgstr "<h1>Bitte wähle eine Vorlage</h1>"
-
-#~ msgid "<h1>Priorities</h1>A comma-separated list of tags to prioritize or deprioritize<a href=\"http://ichi2.net/anki/wiki/CardDisplayOrderAndPriorities\">?</a>"
-#~ msgstr "<h1>Prioritäten</h1>Eine durch Kommata getrennte Liste von Tags, die vorgezogen oder hintenangestellt werden sollen.<a href=\"http://ichi2.net/anki/wiki/CardDisplayOrderAndPriorities\">?</a>"
-
-#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-#~ msgstr ""
-#~ "<h1>Verbleibende Karten</h1>\n"
-#~ "<p/>Es gibt <b>%(failed)d</b> fehlerhafte Karten, die bald wiederholt werden.\n"
-#~ "<br>Es gibt <b>%(rev)d</b> zu wiederholende Karten.\n"
-#~ "<br>Es gibt <b>%(new)d</b> neue Karten.\n"
-#~ "<br>\n"
-#~ "<br>Es gibt <b>%(new2)d</b> neue Karten insgesamt.\n"
-#~ "<br>Es gibt <b>%(spaced)d</b> zurückgestellte Karten."
-
-#~ msgid "<h1>Select tags to suspend</h1>"
-#~ msgstr "<h1>Diese Tags aussetzen</h1>"
-
-#~ msgid "<h1>Standard colours</h1>These colours are used for all decks."
-#~ msgstr ""
-#~ "<h1>Standardfarben</h1>\n"
-#~ "Diese Farben werden für alle Kartenstapel benutzt."
-
-#~ msgid "<h1>Standard fonts</h1>See 'display properties' for deck specific font preferences."
-#~ msgstr ""
-#~ "<h1>Standardschriften</h1>\n"
-#~ "Stapelspezifische Schriftarten können unter 'Anzeigeeinstellungen' eingestellt werden."
-
-#~ msgid "<h1>Synchronisation</h1>Synchronisation lets you use your deck on multiple computers at the same time. You can also use it to study on the web, for when you're not at home. You can also study on your mobile phone if your phone has internet access."
-#~ msgstr ""
-#~ "<h1>Synchronisieren</h1>\n"
-#~ "Durch Synchronisieren kannst Du Deinen Stapel auf mehreren Rechnern gleichzeitig nutzen, oder auch online lernen, wenn Du nicht zuhause bist. Du kannst auch mit dem Mobiltelefon lernen, falls es einen Internetzugang hat."
-
-#, fuzzy
-#~ msgid "<h1>Welcome Back!</h1>"
-#~ msgstr "<h1>Kumulierte Fälligkeit</h1>"
-
-#~ msgid ""
-#~ "<h1>Welcome to Anki!</h1>\n"
-#~ "<p>\n"
-#~ "<table width=90%>\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "Anki is a tool which will help you remember things as quickly and easily as\n"
-#~ "possible. Anki works by asking you questions. After answering a question,\n"
-#~ "Anki will ask how well you remembered. If you made a mistake or had difficulty\n"
-#~ "remembering, Anki will show you the question again after a short amount of\n"
-#~ "time. If you answered the question easily, Anki will wait for a number of days\n"
-#~ "before asking you again. Each time you successfully remember something, the\n"
-#~ "time before you see it again will get bigger.\n"
-#~ "</td>\n"
-#~ "</tr>\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">Open a sample deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">Open an existing deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:new\"><img src=\":/icons/document-new.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle>\n"
-#~ "<h2><a href=\"welcome:new\">Create a new deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "</table>\n"
-#~ "<p>\n"
-#~ "<table width=90%>\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<h2>Adding material</h2>\n"
-#~ "There are three ways to add material to Anki: typing it in yourself, using a\n"
-#~ "pre-made Anki deck, or importing word lists that you find on the internet.\n"
-#~ "<p>\n"
-#~ "\n"
-#~ "For language learning, it's a good idea to add material yourself, from sources\n"
-#~ "like a textbook or a TV show. By adding words that you see or hear in context,\n"
-#~ "you also learn how they are used. While it may be tempting to use a big,\n"
-#~ "pre-made vocabulary list to save time, learning words and grammar in context\n"
-#~ "will ensure you can use them naturally.\n"
-#~ "<p>\n"
-#~ "\n"
-#~ "So if you're learning a language, consider adding material you want to learn\n"
-#~ "into Anki by yourself. Initially the time required to type in material may\n"
-#~ "seem daunting, but it's a small amount of time compared to the time you'll\n"
-#~ "save by not forgetting.\n"
-#~ "</td>\n"
-#~ "</tr>\n"
-#~ "</table>\n"
-#~ msgstr ""
-#~ "<h1>Willkommen bei Anki!</h1>\n"
-#~ "<p>\n"
-#~ "<table width=90%>\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "Anki ist eine Software, die Dir helfen wird, dir Fakten möglichst schnell und leicht zu merken.\n"
-#~ "Anki funktioniert so, dass es Dir Fragen stellt. Nach dem Beantworten einer Frage wird Anki nachhaken, wie gut Du Dich erinnert hast.\n"
-#~ "Wenn Du einen Fehler gemacht hast oder Schwierigkeiten beim Beantworten der Frage hattest,\n"
-#~ "wird Anki Dir die Frage schon nach kurzer Zeit erneut zeigen.\n"
-#~ "Fiel Dir die Antwort dagegen leicht, dann wird Anki ein paar Tage abwarten,\n"
-#~ "bevor die Frage wiederholt wird. Jedesmal wenn Du die Frage korrekt beantwortest,\n"
-#~ "wird die Zeitspanne bis zur nächsten Anzeige dieser Frage weiter erhöht.\n"
-#~ "</td>\n"
-#~ "</tr>\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">Einen Beispiel-Stapel öffnen</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">Einen vorhandenen Stapel öffnen</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:new\"><img src=\":/icons/document-new.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle>\n"
-#~ "<h2><a href=\"welcome:new\">Einen neuen Stapel anlegen</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "</table>\n"
-#~ "<p>\n"
-#~ "<table width=90%>\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<h2>Lernmaterial hinzufügen</h2>\n"
-#~ "Es gibt mehrere Wege, um Fakten zu Anki hinzuzufügen: Du kannst die Fakten selbst eintippen, einen vorhandenen Stapel benutzen\n"
-#~ "oder Wortlisten importieren, die Du im Internet findest..\n"
-#~ "<p>\n"
-#~ "\n"
-#~ "Um eine Sprache zu lernen ist es empfehlenswert, selbst Fakten hinzuzufügen, z.B. aus Lehrbüchern, Podcasts oder\n"
-#~ "TV-Sendungen. Wenn Du Worte hinzufügst, zu denen Du auch Beispiele und Übungen hast,\n"
-#~ "dann lernst Du gleichzeitig, wie sie benutzt werden. Es mag zwar verlockend sein, große vorgefertigte Wortlisten zu verwenden,\n"
-#~ "um Zeit zu sparen, aber nur wenn Du die Worte im Kontext lernst, wirst Du sie auf natürliche Art und Weise verwenden können.\n"
-#~ "<p>\n"
-#~ "\n"
-#~ "Anfangs mag Dir die Zeit zum Eingeben der Fakten sehr lang erscheinen, aber diese Zeit ist wirklich\n"
-#~ "gering im Vergleich zu der Zeit, die Du beim Lernen sparst, weil Du den Lernstoff nicht so leicht vergisst.\n"
-#~ "</td>\n"
-#~ "</tr>\n"
-#~ "</table>\n"
-
-#, fuzzy
-#~ msgid ""
-#~ "<h1>Welcome to Anki!</h1>\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h1><a href=\"welcome:addfacts\">Add material</a></h1>\n"
-#~ "Start adding your own material.</td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<br>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">Open Local Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">Download Shared Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:openrem\">Download Personal Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Willkommen bei Anki!</h1>\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h1><a href=\"welcome:addfacts\">Neue Daten hinzufügen</a></h1>\n"
-#~ "Beginne mit dem Hinzufügen deiner eigenen Daten.</td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<br>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">Lokaler Stapel öffnen</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:openrem\">Online Stapel öffnen</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">Beispielstapel öffnen</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:more\"><img src=\":/icons/khtml_kget.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:more\">Weitere Stapel beziehen</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>"
-
-#, fuzzy
-#~ msgid "<h1>Welcome!</h1>"
-#~ msgstr "<h1>Fälligkeit</h1>"
-
-#~ msgid "<h1>What would you like to study?</h1>"
-#~ msgstr "<h1>Was möchtest Du lernen?</h1>"
-
-#~ msgid "<h1>Where should we synchronize to?</h1>"
-#~ msgstr "<h1>Womit soll synchronisiert werden?</h1>"
-
-#~ msgid ""
-#~ "<h2>All Reviews</h2>\n"
-#~ "<b>Correct over a month: %(gMatureYes%)0.1f%%\n"
-#~ "(%(gMatureYes)d of %(gMatureTotal)d)</b><br>\n"
-#~ "Average time per answer: %(avgTime)s<br>\n"
-#~ "Total review time: %(revTime)s<br>\n"
-#~ "Correct under a month: %(gYoungYes%)0.1f%%\n"
-#~ "(%(gYoungYes)d of %(gYoungTotal)d)<br>\n"
-#~ "Correct first time: %(gNewYes%)0.1f%%\n"
-#~ "(%(gNewYes)d of %(gNewTotal)d)<br>\n"
-#~ "Total correct: %(gYesTotal%)0.1f%%\n"
-#~ "(%(gYesTotal)d of %(gTotal)d)"
-#~ msgstr ""
-#~ "<h2>Alle Wiederholungen</h2>\n"
-#~ "<b>Korrekt und über einen Monat: %(gMatureYes%)0.1f%%\n"
-#~ "(%(gMatureYes)d von %(gMatureTotal)d)</b><br>\n"
-#~ "Durchschnittliche Zeit pro Antwort: %(avgTime)s<br>\n"
-#~ "Gesamte Wiederholzeit: %(revTime)s<br>\n"
-#~ "Korrekt und unter einem Monat: %(gYoungYes%)0.1f%%\n"
-#~ "(%(gYoungYes)d von %(gYoungTotal)d)<br>\n"
-#~ "Beim ersten Mal korrekt: %(gNewYes%)0.1f%%\n"
-#~ "(%(gNewYes)d von %(gNewTotal)d)<br>\n"
-#~ "Insgesamt korrekt: %(gYesTotal%)0.1f%%\n"
-#~ "(%(gYesTotal)d von %(gTotal)d)"
-
-#, fuzzy
-#~ msgid ""
-#~ "<table>\n"
-#~ "<tr><td width=100>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>\n"
-#~ "<tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>\n"
-#~ "<tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "<table>\n"
-#~ "<tr><td width=100>Fällige Wiederholungen:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-#~ "<tr><td>Heute neu:</td><td align=right><b>%(new)s</b></td></tr>\n"
-#~ "<tr><td>Insgesamt neu:</td><td align=right>%(newof)s</td></tr>\n"
-#~ "</table>"
-
-#, fuzzy
-#~ msgid ""
-#~ "<table>\n"
-#~ "<tr><td width=80>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-#~ "<td><b>%(repsInSes)s</b></td></tr>\n"
-#~ " <tr><td>%(cd_header)s</td><td><b>%(repsTodayChg)s</b></td>\n"
-#~ "<td><b>%(repsToday)s</b></td></tr>\n"
-#~ "<tr><td>%(td_header)s</td><td><b>%(timeTodayChg)s</b></td>\n"
-#~ "<td><b>%(timeToday)s</b></td></tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "<table>\n"
-#~ "<tr><td width=80>Karten/Sitzung:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-#~ "<td><b>%(repsInSes)s</b></td></tr>\n"
-#~ "<tr><td>Karten/Tag:</td><td><b>%(repsTodayChg)s</b></td>\n"
-#~ "<td><b>%(repsToday)s</b></td></tr>\n"
-#~ "<tr><td>Zeit/Tag:</td><td><b>%(timeTodayChg)s</b></td>\n"
-#~ "<td><b>%(timeToday)s</b></td></tr>\n"
-#~ "</table>"
-
-#~ msgid "A flashcard is made from a number of fields, like \"meaning\", \"notes\", etc."
-#~ msgstr "Eine Karteikarte besteht aus mehreren Feldern, wie z.B. \"meaning\" (Bedeutung), \"notes\" (Anmerkungen), usw."
-
-#~ msgid "A pre-made quiz style."
-#~ msgstr "Einen Stapel für dieses Modell anlegen."
-
-#~ msgid "A simple front-to-back quiz style."
-#~ msgstr "Einen einfachen Stapel mit Vorder- und Rückseite anlegen."
-
-#~ msgid "About right"
-#~ msgstr "Ungefähr korrekt"
-
-#~ msgid "Add &Cards..."
-#~ msgstr "&Karten hinzufügen..."
-
-#~ msgid "Add Cards"
-#~ msgstr "Karten hinzufügen"
-
-#~ msgid "Add Missing Active Cards"
-#~ msgstr "Fehlende aktive Karten hinzufügen"
-
-#~ msgid "Add a new model"
-#~ msgstr "Neues Modell hinzufügen"
-
-#~ msgid "Add audio (Ctrl+s)"
-#~ msgstr "Audioausgabe hinzufügen (Ctrl+s)"
-
-#~ msgid "All fields valid"
-#~ msgstr "Alle Felder gültig"
-
-#~ msgid "All tags"
-#~ msgstr "Alle Tags"
-
-#~ msgid "Alt+A"
-#~ msgstr "Alt+A"
-
-#~ msgid "Alt+C"
-#~ msgstr "Alt+C"
-
-#~ msgid "Alt+E"
-#~ msgstr "Alt+E"
-
-#~ msgid "Alt+M"
-#~ msgstr "Alt+M"
-
-#~ msgid "An existing online deck."
-#~ msgstr "Einen bestehenden Online-Stapel herunterladen."
-
-#, fuzzy
-#~ msgid "Anki - Add Items"
-#~ msgstr "Anki - Karten hinzufügen"
-
-#~ msgid "Answer count"
-#~ msgstr "Anzahl Antworten"
-
-#~ msgid "Application-wide preferences."
-#~ msgstr "Einstellungen für die gesamte Anwendung."
-
-#~ msgid "Card editor"
-#~ msgstr "Karteneditor"
-
-#~ msgid "Card properties"
-#~ msgstr "Karteneinstellungen"
-
-#, fuzzy
-#~ msgid "Cards..."
-#~ msgstr "Karten..."
-
-#, fuzzy
-#~ msgid "Cards/day"
-#~ msgstr "Karten"
-
-#, fuzzy
-#~ msgid "Change &Template..."
-#~ msgstr "<h1>Kartenvorlage</h1>"
-
-#, fuzzy
-#~ msgid "Change Template"
-#~ msgstr "<h1>Kartenvorlage</h1>"
-
-#~ msgid "Change field mapping"
-#~ msgstr "Feldzuordnung ändern"
-
-#~ msgid "Choose &file..."
-#~ msgstr "Datei wählen..."
-
-#~ msgid "Choose file..."
-#~ msgstr "Datei wählen..."
-
-#~ msgid ""
-#~ "Click the close button or import another file.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Klicke auf Schließen oder importiere eine weitere Datei.\n"
-#~ "\n"
-
-#~ msgid "Completely forgot"
-#~ msgstr "Völlig vergessen."
-
-#~ msgid "Copy '%s' from server"
-#~ msgstr "Kopiere '%s' vom Server"
-
-#~ msgid "Created: %(c)s ago<br>Next due: %(n)s<br>Interval: %(i)0.0f days<br>Average: %(a)s<br>Total: %(t)s<br>Reviews: %(cor)d/%(tot)d<br>Successive: %(suc)d"
-#~ msgstr "Erstellt: vor %(c)s<br>Nächste fällig: %(n)s<br>Intervall: %(i)0.0f Tage<br>Durchschnitt: %(a)s<br>Gesamt: %(t)s<br>Wiederholungen: %(cor)d/%(tot)d<br>Aufeinanderfolgend: %(suc)d"
-
-#, fuzzy
-#~ msgid "Ctrl+%d"
-#~ msgstr "Ctrl+1"
-
-#~ msgid "Ctrl+A"
-#~ msgstr "Ctrl+A"
-
-#~ msgid "Ctrl+R"
-#~ msgstr "Ctrl+R"
-
-#~ msgid "Ctrl+p"
-#~ msgstr "Ctrl+p"
-
-#~ msgid "Ctrl+r"
-#~ msgstr "Ctrl+r"
-
-#~ msgid "Ctrl+s"
-#~ msgstr "Ctrl+s"
-
-#~ msgid "Deck is not modified."
-#~ msgstr "Stapel ist unverändert."
-
-#~ msgid "Del"
-#~ msgstr "Del"
-
-#, fuzzy
-#~ msgid "Description"
-#~ msgstr "<b>Beschreibung</b>"
-
-#~ msgid "Description && Synchronisation"
-#~ msgstr "Beschreibung && Synchronisation"
-
-#~ msgid "Difficult"
-#~ msgstr "Schwierig"
-
-#~ msgid "Difficulty"
-#~ msgstr "Schwierigkeitsgrad"
-
-#, fuzzy
-#~ msgid "Disp&lay Properties..."
-#~ msgstr "&Anzeige-Einstellungen..."
-
-#~ msgid "Don't show this again."
-#~ msgstr "Dies nicht wieder zeigen."
-
-#~ msgid "Downloading anki updater - %d%% complete."
-#~ msgstr "Download des Anki-Updaters %d%% fertig."
-
-#~ msgid "Due date"
-#~ msgstr "Fälligkeitsdatum"
-
-#~ msgid "Edit Items"
-#~ msgstr "Karten bearbeiten"
-
-#~ msgid "Edit card"
-#~ msgstr "Karte editieren"
-
-#~ msgid "Edit deck properties"
-#~ msgstr "Stapeleinstellungen ändern"
-
-#~ msgid "Enter tag(s) to add to each fact:"
-#~ msgstr "Fakten mit diesem Tag versehen:"
-
-#~ msgid "Enter tag(s) to delete from each fact:"
-#~ msgstr "Dieses Tag von den Fakten entfernen:"
-
-#~ msgid "Error building queue. Attempting recovery.."
-#~ msgstr "Fehler beim Anlegen der Warteschlange. Versuche Wiederherstellung..."
-
-#~ msgid "Error running initHook. Broken plugin?"
-#~ msgstr "Fehler beim Ausführen des initHook. Defektes Plugin?"
-
-#~ msgid "Esc"
-#~ msgstr "Esc"
-
-#~ msgid "Export to..."
-#~ msgstr "Exportieren nach..."
-
-#~ msgid "Field '%s'"
-#~ msgstr "Feld '%s'"
-
-#~ msgid "Field properties"
-#~ msgstr "Feldeinstellungen"
-
-#, fuzzy
-#~ msgid "Find"
-#~ msgstr "&Datei"
-
-#~ msgid "Foreground colour (Ctrl+r)"
-#~ msgstr "Schriftfarbe (Ctrl+r)"
-
-#, fuzzy
-#~ msgid "General"
-#~ msgstr "Intervall"
-
-#~ msgid "Generating report (may take time)..."
-#~ msgstr "Erstelle Report (kann eine Weile dauern)..."
-
-#~ msgid "Hide interval of last card"
-#~ msgstr "Intervall der vorherigen Karte verbergen"
-
-#~ msgid "Hide next interval when showing answer buttons"
-#~ msgstr "Intervall verbergen, wenn Antwortbuttons angezeigt werden"
-
-#~ msgid "Hide question/answer of last card"
-#~ msgstr "Frage und Antwort der vorherigen Karte verstecken"
-
 #~ msgid "Import failed: %s\n"
 #~ msgstr "Importieren ist fehlgeschlagen: %s\n"
-
-#~ msgid "Import file"
-#~ msgstr "Datei importieren"
-
-#~ msgid "Importing. Anki will freeze for a while.."
-#~ msgstr "Importiere. Das kann eine Weile dauern..."
-
-#~ msgid "Interface colour"
-#~ msgstr "Farbe der Oberfläche"
-
-#~ msgid "Interface font"
-#~ msgstr "Schriftart"
-
-#~ msgid "Language, Fonts and Colours"
-#~ msgstr "Sprache und Aussehen"
-
-#~ msgid "Last card colour"
-#~ msgstr "Farbe der vorherigen Karte"
-
-#~ msgid "Looking %s up on ALC.."
-#~ msgstr "Suche nach %s im ALC..."
-
-#~ msgid "Looking %s up on edict.."
-#~ msgstr "Suche nach %s im edict..."
-
-#~ msgid "Made a mistake"
-#~ msgstr "Habe mich geirrt."
-
-#~ msgid "Merge Models..."
-#~ msgstr "Modelle &zusammenführen..."
-
-#~ msgid "Merge complete."
-#~ msgstr "Zusammenführen beendet."
-
-#~ msgid "Minimum interval multiplier<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-51074b785bb6049b44fce9f18fca198100c4d2f7\">?</a>"
-#~ msgstr "Mindestfaktor für Intervall<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-51074b785bb6049b44fce9f18fca198100c4d2f7\">?</a>"
-
-#~ msgid "Minimum spacing<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-4ee3a58e2fdd61da8ef81984213862d3bc0ed4bd\">?</a>"
-#~ msgstr "Mindestwartezeit in Minuten<a href=\"http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-4ee3a58e2fdd61da8ef81984213862d3bc0ed4bd\">?</a>"
-
-#~ msgid "Model properties"
-#~ msgstr "Modelleinstellungen"
-
-#~ msgid "Models"
-#~ msgstr "Modelle"
-
-#~ msgid "Next in <b>%(ease2)s</b>"
-#~ msgstr "nächstes Mal in <b>%(ease2)s</b>"
-
-#~ msgid "Next in <b>%(ease3)s</b>"
-#~ msgstr "nächstes Mal in <b>%(ease3)s</b>"
-
-#~ msgid "Next in <b>%(ease4)s</b>"
-#~ msgstr "nächstes Mal in <b>%(ease4)s</b>"
-
-#~ msgid ""
-#~ "No models found to merge. If you want to merge models,\n"
-#~ "all models must have the same name, and must not be\n"
-#~ "from another person's deck."
-#~ msgstr ""
-#~ "Keine Modelle zum Zusammenführen gefunden. Wenn Du Modelle zusammenführen willst,\n"
-#~ "müssen alle Modelle den gleichen Namen haben und dürfen nicht zu einem Stapel einer\n"
-#~ "anderen Person gehören."
-
-#~ msgid ""
-#~ "No problems found. Some data structures have been rebuilt in case\n"
-#~ "they were causing problems. On the next sync, all cards will be\n"
-#~ "sent to the server."
-#~ msgstr ""
-#~ "Keine Probleme festgestellt. Einige Datenstrukturen sind neu angelegt worden,\n"
-#~ "falls sie Probleme bereitet haben. Beim nächsten Synchronisieren werden\n"
-#~ "alle Karten an den Server geschickt werden."
-
-#~ msgid ""
-#~ "No problems found. Some data structures have been rebuilt in case<br>\n"
-#~ "they were causing problems.<p>\n"
-#~ "<b>On the next sync, all cards will be sent to the server.</b><br>\n"
-#~ "If you have changes on the server and have not synced locally,<br>\n"
-#~ "do not sync your deck. Restore your deck from an automatic<br>\n"
-#~ "backup and then run this command again after syncing."
-#~ msgstr ""
-#~ "Keine Fehler gefunden. Gewisse Strukturen wurden vorsorglich optimiert.<p>\n"
-#~ "<b>Bei der nächsten Synchronisierung werden alle Daten dem Server übermittelt.</b><br>\n"
-#~ "Falls Du auf dem Server Änderungen vorgenommen hast, die noch nicht<br>\n"
-#~ "lokal vorhanden sind, bitte nicht synchronisieren: Zuerst lokal ein Backup<br>\n"
-#~ "einspielen, synchronisieren und dann diesen Befehl erneut ausführen."
-
-#~ msgid "Not syncing, username or password unset."
-#~ msgstr "Synchronisiere nicht, Benutzername oder Passwort fehlt."
-
-#~ msgid "One or more cards are generated for each piece of information you enter into Anki. Here you can control how many cards are generated, and what they look like. Spacing is the amount of time before showing a different card for the same piece of information."
-#~ msgstr "Für jede Information, die Du in Anki eingibst, werden eine oder mehrere Karten erzeugt. Hier kannst Du einstellen, wie viele Karten erzeugt werden, und wie sie aussehen. Zeitabstand ist die Zeit, die zwischen Karten gewartet werden soll, die von derselben Information abstammen."
-
-#~ msgid "Open On&line..."
-#~ msgstr "Online öffnen..."
-
-#~ msgid "Period"
-#~ msgstr "Zeitraum"
-
-#~ msgid "Please add a new card first."
-#~ msgstr "Bitte füge zuerst eine neue Karte hinzu."
-
-#~ msgid "Prevent me from entering the same thing in this field twice"
-#~ msgstr "Dieses Feld muss eindeutig sein"
-
-#~ msgid "Prevent new cards from being added if this field is blank"
-#~ msgstr "Dieses Feld darf nicht leer bleiben"
-
-#~ msgid "Priorities && Suspending"
-#~ msgstr "Priorität && Aufschub"
-
-#~ msgid "Reset Progress"
-#~ msgstr "&Fortschritt zurücksetzen"
-
-#, fuzzy
-#~ msgid "Reviews due"
-#~ msgstr "&Frühzeitig wiederholen"
-
-#~ msgid "S&ort"
-#~ msgstr "S&ortieren"
-
-#~ msgid "Save and S&ync"
-#~ msgstr "Speichern und s&ynchronisieren"
-
-#~ msgid "Saving...done"
-#~ msgstr "Speichern... fertig"
-
-#~ msgid "Scroll down to the answer when showing answer"
-#~ msgstr "Bei Anzeige der Antwort zu dieser scrollen"
-
-#, fuzzy
-#~ msgid "Search"
-#~ msgstr "&Suchen"
-
-#~ msgid "Server is down or operation failed."
-#~ msgstr "Server ist nicht verfügbar oder Vorgang fehlgeschlagen."
-
-#, fuzzy
-#~ msgid "Show failed cards last"
-#~ msgstr "<b>Zeige fehlerhafte Karten früher</b>"
-
-#~ msgid "Show information in status bar"
-#~ msgstr "Zeige Informationen in der Statuszeile an"
-
-#~ msgid "Show last card's interval"
-#~ msgstr "Zeige Intervall der letzten Karte"
-
-#~ msgid "Show last card's question/answer"
-#~ msgstr "Zeige Frage/Antwort der letzten Karte"
-
-#, fuzzy
-#~ msgid "Show welcome back screen on startup"
-#~ msgstr "Werkzeugleiste beim Start anzeigen"
-
-#~ msgid "Some fields are <a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-6ba367d55922a618ab147debfbac98635d1a4dc2>missing</a> or not <a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-0c33560cb828fde1c19af1cd260388457b57812a>unique</a>."
-#~ msgstr "Einige Felder <a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-6ba367d55922a618ab147debfbac98635d1a4dc2>fehlen</a> oder sind nicht <a href=http://ichi2.net/anki/wiki/Key_Terms_and_Concepts#head-0c33560cb828fde1c19af1cd260388457b57812a>eindeutig</a>."
-
-#~ msgid "Sort this field using numeric order instead of string order"
-#~ msgstr "Sortiere dieses Feld numerisch anstatt alphabetisch"
-
-#~ msgid "Start Edit Deck with only current card selected"
-#~ msgstr "Stapeleditor zeigt anfänglich nur aktuelle Karte (statt aller)"
-
-#~ msgid "Sync: nothing to do"
-#~ msgstr "Synchronisieren: nichts zu tun"
-
-#~ msgid ""
-#~ "Syncing failed. Please try again in a few minutes.\n"
-#~ "If the problem persists, please report it on the forum.\n"
-#~ "\n"
-#~ "Error: %s"
-#~ msgstr ""
-#~ "Synchronisieren fehlgeschlagen. Versuche es in ein paar Minuten erneut.\n"
-#~ "Wenn das Problem bestehen bleibt, dann melde es im Forum.\n"
-#~ "\n"
-#~ "Fehler: %s"
-
-#~ msgid "Tall buttons (for touchscreen)"
-#~ msgstr "Große Knöpfe (für Touchscreen)"
-
-#~ msgid "The amount of times you answered a card at each ease level."
-#~ msgstr "Verteilung der Antworten auf die Karten nach Schwierigkeitsgrad."
-
-#~ msgid ""
-#~ "The number of cards due each day over the period.\n"
-#~ "Today is 0; cards less than zero are overdue."
-#~ msgstr ""
-#~ "Anzahl der Karten die pro Tag fällig werden.\n"
-#~ "Heute ist 0; Karten unter 0 sind überfällig."
-
-#~ msgid "The number of cards due each day, assuming no study."
-#~ msgstr "Anzahl der fällig werdenden Karten pro Tag ohne zu lernen."
-
-#~ msgid ""
-#~ "The number of cards first answered on a given day.\n"
-#~ "This will be different to 'added cards' if you are\n"
-#~ "using a pre-made deck."
-#~ msgstr ""
-#~ "Anzahl der erstmals beantworteten Karten pro Tag.\n"
-#~ "Dies unterscheidet sich von den 'hinzugefügten Karten' wenn Du \n"
-#~ "einen vorgefertigten Stapel benutzt."
-
-#~ msgid "The number of cards scheduled for a given number of days."
-#~ msgstr "Anzahl der Karten die nach einem bestimmten Zeitraum gezeigt werden."
-
-#~ msgid "Toggle Delete"
-#~ msgstr "Zum Löschen vormerken"
-
-#~ msgid "Toolbar icon size"
-#~ msgstr "Größe der Icons in der Werkzeugleiste"
-
-#~ msgid "Unable to load the same deck twice."
-#~ msgstr "Kann nicht mehrfach den selben Stapel laden."
-
-#~ msgid "Updating.."
-#~ msgstr "Update..."
-
-#~ msgid "Use compact answer button style"
-#~ msgstr "Antwortbuttons in kompakter Form anzeigen"
-
-#~ msgid "Would you like to merge models that have the same name?"
-#~ msgstr "Möchtest Du Modelle zusammenführen, die den gleichen Namen haben?"
-
-#~ msgid ""
-#~ "Would you like to remove unused files from the media directory, and\n"
-#~ "tag or delete references to missing files?"
-#~ msgstr ""
-#~ "Möchtest du unbenutzte Dateien aus dem Medien-Verzeichnis und\n"
-#~ "Referenzen auf fehlende Dateien markieren oder löschen?"
