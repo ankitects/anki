@@ -788,6 +788,7 @@ where id in (%s)""" % ",".join([
                     return
                 self.deck.rescheduleCards(self.selectedCards(), min, max)
         finally:
+            self.deck.rebuildCounts()
             self.deck.rebuildQueue()
             self.deck.setUndoEnd(n)
         self.updateAfterCardChange(reset=True)
