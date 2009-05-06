@@ -114,8 +114,12 @@ class DeckProperties(QDialog):
             item = QListWidgetItem(name)
             self.dialog.modelsList.addItem(item)
             cm = self.d.currentModel
-            if ankiqt.mw.currentCard:
-                cm = ankiqt.mw.currentCard.fact.model
+            try:
+                if ankiqt.mw.currentCard:
+                    cm = ankiqt.mw.currentCard.fact.model
+            except:
+                # model has been deleted
+                pass
             if model == cm:
                 self.dialog.modelsList.setCurrentItem(item)
 
