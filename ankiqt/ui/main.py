@@ -863,7 +863,13 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
     def _showToolTip(self, msg):
         QToolTip.showText(
             self.mainWin.statusbar.mapToGlobal(QPoint(0, -40)),
-            msg)
+            """\
+<table cellpadding=10>
+<tr>
+<td><img src=":/icons/help-hint.png"></td>
+<td>%s</td>
+</tr>
+</table>""" % msg)
 
     def save(self, required=False):
         if not self.deck.path:
@@ -1644,12 +1650,16 @@ it to your friends.
     ##########################################################################
 
     def onLearnMore(self):
-        self.deck.extraNewCards += self.config['extraNewCards']
+        self.deck.newEarly = True
         self.reset()
+        self.showToolTip(_("""\
+<h1>Learning More</h1>Click the clock in the toolbar to finish."""))
 
     def onReviewEarly(self):
         self.deck.reviewEarly = True
         self.reset()
+        self.showToolTip(_("""\
+<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."""))
 
     # Language handling
     ##########################################################################

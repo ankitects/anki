@@ -175,7 +175,11 @@ class StatusView(object):
                     remStr += "%(failed1)s&nbsp;&nbsp;%(rev1)s&nbsp;&nbsp;<u>%(new1)s</u>"
         stats['failed1'] = '<font color=#990000>%s</font>' % stats['failed']
         stats['rev1'] = '<font color=#000000>%s</font>' % stats['rev']
-        stats['new1'] = '<font color=#0000ff>%s</font>' % stats['new']
+        if self.main.deck.newEarly:
+            new = self.main.deck.newCount
+        else:
+            new = stats['new']
+        stats['new1'] = '<font color=#0000ff>%s</font>' % new
         self.remText.setText(remStr % stats)
         stats['spaced'] = self.main.deck.spacedCardCount()
         stats['new2'] = self.main.deck.newCount
