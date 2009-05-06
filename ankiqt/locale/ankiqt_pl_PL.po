@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-29 22:44+0200\n"
+"POT-Creation-Date: 2009-05-06 12:34+0900\n"
 "PO-Revision-Date: 2009-04-29 22:39+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -99,7 +99,7 @@ msgstr " <b>Przy przeglądaniu i edycji:</b>"
 msgid " applied %d modified cards."
 msgstr " zastosowano %d zmodyfikowanych kart."
 
-#: ui/main.py:2337
+#: ui/main.py:2352
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -130,7 +130,7 @@ msgstr[2] "%(name)s [%(facts)d faktów]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d z %(totalSum)d"
 
-#: ui/main.py:1945
+#: ui/main.py:1946
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(due)d z %(cards)d do przeglądnięcia) - %(title)s"
@@ -448,15 +448,15 @@ msgstr "<Filtr>"
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Pomoc</a>"
 
-#: ui/main.py:1314
+#: ui/main.py:1315
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr "<a href=py:miss>Brakujące</a><br>"
 
-#: ui/main.py:1316
+#: ui/main.py:1317
 msgid "<a href=py:non>Non-jouyou</a><br>"
 msgstr "<a href=py:non>Nie-jouyou</a><br>"
 
-#: ui/main.py:1315
+#: ui/main.py:1316
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr "<a href=py:seen>Widziane</a><br>"
 
@@ -659,7 +659,7 @@ msgstr "<h1>Autozapis</h1>"
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Szablony kart</h1>"
 
-#: ui/main.py:1449
+#: ui/main.py:1450
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -673,7 +673,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Kumulatywny czas przyjścia</h1>"
 
-#: ui/main.py:1346
+#: ui/main.py:1347
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Aktualna karta</h1>"
 
@@ -709,7 +709,7 @@ msgstr "<h1>Przerwy</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Język</h1>"
 
-#: ui/main.py:1349
+#: ui/main.py:1350
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Ostatnia karta</h1>"
 
@@ -745,66 +745,11 @@ msgstr "<h1>Powtarzanie</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Wybierz pole docelowe</h1>"
 
-#: ui/main.py:1130
-msgid ""
-"<h1>Session Statistics</h1>\n"
-"<dl>\n"
-"<dt><b>Cards/session</b></dt>\n"
-"<dd>The number of cards you studied in the current session (blue) and previous\n"
-"session (black)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Cards/day</b></dt>\n"
-"<dd>The number of cards you studied today (blue) and yesterday (black)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Time/day</b></dt>\n"
-"<dd>The number of minutes you studied today (blue) and yesterday (black)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Reviews due</b></dt>\n"
-"<dd>The number of cards that are waiting to be reviewed today</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>New today</b></dt>\n"
-"<dd>The number of new cards that are waiting to be learnt today</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>New total</b></dt>\n"
-"<dd>The total number of new cards in the deck</dd>\n"
-"</dl>"
-msgstr ""
-"<h1>Statystyki sesji</h1>\n"
-"<dl>\n"
-"<dt><b>Kart na sesję</b></dt>\n"
-"<dd>Liczba kart powtarzanych w aktualnej (na niebiesko) i poprzedniej sesji (na czarno)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Kart dziennie</b></dt>\n"
-"<dd>Liczba kart powtarzanych dzisiaj (na niebiesko) i wczoraj (na czarno)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Czas dziennie</b></dt>\n"
-"<dd>Liczba minut w trakcie powtórki dzisiaj (na niebiesko) i wczoraj (na czarno)</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Do przeglądnięcia</b></dt>\n"
-"<dd>Liczba kart będących dzisiaj do przeglądnięcia</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Nowe dzisiaj</b></dt>\n"
-"<dd>Liczba nowych kart oczekujących dzisiaj</dd>\n"
-"</dl>\n"
-"<dl>\n"
-"<dt><b>Nowych ogólnie</b></dt>\n"
-"<dd>Ogólna liczba nowych kart w talii</dd>\n"
-"</dl>"
-
 #: ui/main.py:1069
 msgid "<h1>Study Options</h1>"
 msgstr "<b>Opcje nauki</b>"
 
-#: ui/main.py:1808
+#: ui/main.py:1809
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -850,49 +795,13 @@ msgstr ""
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>Brawo!</h1>"
 
-#: ui/importing.py:199
+#: ui/importing.py:200
 msgid "<ignored>"
 msgstr "<zignorowane>"
 
 #: ui/help.py:66
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Schowaj</a>"
-
-#: ui/main.py:1115
-#, python-format
-msgid ""
-"<table>\n"
-"<tr><td width=100>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-"<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>\n"
-"<tr><td>New total:</td><td align=right>%(newof)s</td></tr>\n"
-"</table>"
-msgstr ""
-"<table>\n"
-"<tr><td width=100>Do przeglądnięcia:</td><td align=right><b>%(ret)s</b></td></tr>\n"
-"<tr><td>Nowe dzisiaj:</td><td align=right><b>%(new)s</b></td></tr>\n"
-"<tr><td>Nowych ogólnie:</td><td align=right>%(newof)s</td></tr>\n"
-"</table>"
-
-#: ui/main.py:1106
-#, python-format
-msgid ""
-"<table>\n"
-"<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-"<td><b>%(repsInSes)s</b></td></tr>\n"
-"<tr><td>Cards/day:</td><td><b>%(repsTodayChg)s</b></td>\n"
-"<td><b>%(repsToday)s</b></td></tr>\n"
-"<tr><td>Time/day:</td><td><b>%(timeTodayChg)s</b></td>\n"
-"<td><b>%(timeToday)s</b></td></tr>\n"
-"</table>"
-msgstr ""
-"<table>\n"
-"<tr><td width=80>Kart na sesję:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
-"<td>%(repsInSes)s</td></tr>\n"
-"<tr><td>Kart dziennie:</td><td><b>%(repsTodayChg)s</b></td>\n"
-"<td>%(repsToday)s</td></tr>\n"
-"<tr><td>Czas dziennie:</td><td><b>%(timeTodayChg)s</b></td>\n"
-"<td>%(timeToday)s</td></tr>\n"
-"</table>"
 
 #: forms/about.py:41
 msgid "About Anki"
@@ -938,11 +847,11 @@ msgstr "Dodaj etykiety"
 msgid "Add a picture (F3)"
 msgstr "Dodaj grafikę (F3)"
 
-#: ui/facteditor.py:831
+#: ui/facteditor.py:834
 msgid "Add an image"
 msgstr "Dodaj grafikę"
 
-#: ui/facteditor.py:860
+#: ui/facteditor.py:863
 msgid "Add audio"
 msgstr "Dodaj nagranie"
 
@@ -996,7 +905,7 @@ msgstr "Wszystkie powtórki"
 msgid "Allow the answer to be blank"
 msgstr "Pozwól na pustą odpowiedź"
 
-#: ui/main.py:1521
+#: ui/main.py:1522
 msgid "Already cramming. Please close this deck first."
 msgstr "Jesteś już w trybie sprawdzianu. Musisz zamknąć tę talię."
 
@@ -1009,7 +918,7 @@ msgstr "Alt+%d"
 msgid "Alternative theme"
 msgstr "Alternatywny wygląd"
 
-#: ui/facteditor.py:905
+#: ui/facteditor.py:908
 #, python-format
 msgid "An error occured while opening %s"
 msgstr "Wystąpił błąd przy otwieraniu %s"
@@ -1050,7 +959,7 @@ msgstr ""
 "Jeśli po tym błąd będzie się powtarzał, załącz poniższy<br>\n"
 "tekst do raportu o błędzie.<br><br>\n"
 
-#: ui/deckproperties.py:182 ui/main.py:2312 forms/main.py:869
+#: ui/deckproperties.py:182 ui/main.py:2327 forms/main.py:869 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1147,7 +1056,7 @@ msgstr "Czcionka przeglądarki"
 msgid "Building Index..."
 msgstr "Budowanie indeksu..."
 
-#: ui/main.py:1419
+#: ui/main.py:1420
 msgid "Bury"
 msgstr "Zakop"
 
@@ -1171,7 +1080,7 @@ msgstr "Można działać tylko na jednym modelu jednocześnie."
 msgid "Can't look up a selection with a newline."
 msgstr "Nie można wyszukiwać tekstu ze znakiem nowej linii"
 
-#: ui/main.py:2327
+#: ui/main.py:2342
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1201,7 +1110,16 @@ msgstr "Karty"
 msgid "Cards are waiting"
 msgstr "Są karty do przejrzenia"
 
-#: ui/importing.py:201
+#: ui/main.py:1107
+#, fuzzy
+msgid "Cards/day:"
+msgstr "Karta:"
+
+#: ui/main.py:1106
+msgid "Cards/session:"
+msgstr ""
+
+#: ui/importing.py:202
 msgid "Change"
 msgstr "Zmień"
 
@@ -1295,7 +1213,7 @@ msgstr "Konfiguruj opcje powtórki"
 msgid "Connecting..."
 msgstr "Łączenie..."
 
-#: ui/main.py:1166
+#: ui/main.py:1167
 msgid "Continue &Reviewing"
 msgstr "&Kontynuuj powtórkę"
 
@@ -1328,7 +1246,7 @@ msgstr "Poprawne w ciągu miesiąca: "
 msgid "Couldn't play sound. Please install mplayer."
 msgstr "Nie można odtworzyć dźwięku. Zainstaluj mplayer."
 
-#: ui/main.py:1542
+#: ui/main.py:1543
 msgid "Cram"
 msgstr "Sprawdzian"
 
@@ -1510,7 +1428,7 @@ msgstr "Ustawianie synchronizacji, planowania, priorytetów i modeli"
 msgid "Czech"
 msgstr "Czeski"
 
-#: ui/main.py:2308
+#: ui/main.py:2323
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1535,7 +1453,7 @@ msgstr "Pliki talii (*.anki)"
 msgid "Deck is already open."
 msgstr "Talia jest już otwarta."
 
-#: ui/main.py:1409 forms/cardlist.py:240
+#: ui/main.py:1410 forms/cardlist.py:240
 msgid "Delete"
 msgstr "Usuń"
 
@@ -1543,7 +1461,7 @@ msgstr "Usuń"
 msgid "Delete Cards"
 msgstr "Usuń karty"
 
-#: ui/main.py:2325
+#: ui/main.py:2340
 msgid "Delete Refs"
 msgstr "Usuń odwołania"
 
@@ -1558,6 +1476,10 @@ msgstr "Usuń aktualnie wyświetlaną kartę"
 #: ui/sync.py:102
 msgid "Determining differences..."
 msgstr "Ustalanie różnic..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1736,7 +1658,7 @@ msgstr "Utworzenie faktu"
 msgid "Facts"
 msgstr "Fakty"
 
-#: ui/main.py:1835
+#: ui/main.py:1836
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Nie udało się przesłać pliku. Uruchom sprawdzanie bazy plików."
 
@@ -1759,7 +1681,7 @@ msgstr "Pole %(num)d: %(name)s [%(cards)s niepustych]"
 msgid "Field %d"
 msgstr "Pole %d"
 
-#: ui/importing.py:192
+#: ui/importing.py:193
 #, python-format
 msgid "Field <b>%d</b> of file is:"
 msgstr "Pole <b>%d</b> z pliku jest:"
@@ -1856,7 +1778,7 @@ msgstr "ID"
 msgid "Ignore this update"
 msgstr "Ignoruj tę aktualizację"
 
-#: ui/facteditor.py:830
+#: ui/facteditor.py:833
 msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgstr "Grafiki (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 
@@ -1870,15 +1792,15 @@ msgid "Import cards from text files, Anki files and more"
 msgstr "Importuj karty z plików tekstowych, plików Anki i innych"
 
 #: ui/importing.py:128
-#, python-format
-msgid "Import failed: %s\n"
-msgstr "Import nie powiódł się: %s\n"
+#, fuzzy
+msgid "Import failed.\n"
+msgstr "Import nie powiódł się.\n"
 
 #: forms/importing.py:96
 msgid "Import options"
 msgstr "Opcje importu"
 
-#: ui/importing.py:135
+#: ui/importing.py:136
 #, python-format
 msgid "Importing complete. %(num)d facts imported from %(file)s.\n"
 msgstr "Zakończono import. %(num)d faktów zostało zaimportowanych z %(file)s.\n"
@@ -1939,11 +1861,11 @@ msgstr "Równanie Latexa (Ctrl+l, następnie e)"
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr "Otoczenie matematyczne Latexa (Ctrl+l, następnie m)"
 
-#: ui/main.py:1543
+#: ui/main.py:1544
 msgid "Loading deck..."
 msgstr "Ładowanie talii..."
 
-#: ui/main.py:1360
+#: ui/main.py:1361
 msgid "Loading graphs (may take time)..."
 msgstr "Ładowanie wykresów (może to chwilę potrwać)..."
 
@@ -1951,7 +1873,7 @@ msgstr "Ładowanie wykresów (może to chwilę potrwać)..."
 msgid "Loading..."
 msgstr "Ładowanie..."
 
-#: ui/importing.py:140
+#: ui/importing.py:141
 msgid "Log of import:\n"
 msgstr "Log importu:\n"
 
@@ -2039,19 +1961,28 @@ msgstr "Nazwa"
 msgid "Name on server: "
 msgstr "Nazwa na serwerze:"
 
+#: ui/main.py:1110
+#, fuzzy
+msgid "New today:"
+msgstr "Powtórki dzisiaj"
+
+#: ui/main.py:1111
+msgid "New total:"
+msgstr ""
+
 #: ui/facteditor.py:202
 msgid "Next colour (F7 then F8)"
 msgstr "Następny kolor (F7, następnie F8)"
 
-#: ui/facteditor.py:776
+#: ui/facteditor.py:779
 msgid "Next field must be blank."
 msgstr "Następne pole musi być puste."
 
-#: ui/main.py:1536 ui/main.py:1572
+#: ui/main.py:1537 ui/main.py:1573
 msgid "No cards matched the provided tags."
 msgstr "Żadne karty nie pasują do podanych etykiet."
 
-#: ui/facteditor.py:1060
+#: ui/facteditor.py:1063
 msgid "No cards to preview."
 msgstr "Nie ma kart do podglądu."
 
@@ -2059,11 +1990,11 @@ msgstr "Nie ma kart do podglądu."
 msgid "No changes found."
 msgstr "Nie znaleziono zmian."
 
-#: ui/main.py:1352
+#: ui/main.py:1353
 msgid "No current card or last card."
 msgstr "Brak aktualnej karty lub ostatnia karta."
 
-#: ui/main.py:1288
+#: ui/main.py:1289
 msgid "No expression in current card."
 msgstr "Brak wyrażenia w aktualnej karcie."
 
@@ -2071,7 +2002,7 @@ msgstr "Brak wyrażenia w aktualnej karcie."
 msgid "No fact tags"
 msgstr "Bez etykiet faktu"
 
-#: ui/main.py:1295
+#: ui/main.py:1296
 msgid "No meaning in current card."
 msgstr "Brak znaczenia w aktualnej karcie."
 
@@ -2111,7 +2042,7 @@ msgstr "Otwórz zgłaszanie błędów"
 msgid "Optimize Database"
 msgstr "Optymalizacja bazy danych"
 
-#: ui/main.py:1216
+#: ui/main.py:1217
 msgid "Ordering..."
 msgstr "Sortowanie..."
 
@@ -2155,6 +2086,11 @@ msgstr "Dodaj najpierw nowy szablon."
 msgid "Please add another model first."
 msgstr "Dodaj najpierw nowy model."
 
+#: forms/sort.py:46
+#, fuzzy
+msgid "Please choose a field to sort by."
+msgstr "Dodaj najpierw nowe pole."
+
 #: ui/sync.py:52
 msgid "Please double-check your username/password."
 msgstr "Sprawdź ponownie swoją nazwę użytkownika/hasło."
@@ -2167,7 +2103,7 @@ msgstr "Włącz najpierw inny szabon."
 msgid "Please enter a valid start and end range."
 msgstr "Wpisz poprawny zakres początku i końca."
 
-#: ui/facteditor.py:882
+#: ui/facteditor.py:885
 msgid ""
 "Please install <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "to enable recording."
@@ -2175,11 +2111,11 @@ msgstr ""
 "Zainstaluj <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "by móc nagrywać."
 
-#: ui/main.py:1378
+#: ui/main.py:1379
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Zainstaluj python-mathplotlib, aby mieć dostęp do wykresów."
 
-#: ui/main.py:2285
+#: ui/main.py:2300
 msgid "Please restart Anki before checking the DB."
 msgstr "Uruchom ponownie Anki przed sprawdzaniem bazy danych."
 
@@ -2227,7 +2163,7 @@ msgstr "Podgląd kart"
 msgid "Previous colour (F7 then F6)"
 msgstr "Poprzednie kolory (F7, następnie F6)"
 
-#: ui/main.py:2300
+#: ui/main.py:2315
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2264,7 +2200,7 @@ msgstr "Czcionka pytania"
 msgid "Question size"
 msgstr "Rozmiar pytania"
 
-#: ui/main.py:1222 ui/main.py:1562
+#: ui/main.py:1223 ui/main.py:1563
 msgid "Randomizing..."
 msgstr "Losowanie..."
 
@@ -2285,7 +2221,7 @@ msgstr "Nagraj dźwięk (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Nagrywanie...<br>Czas: %0.1f"
 
-#: ui/cardlist.py:520 ui/main.py:2032
+#: ui/cardlist.py:520 ui/main.py:2033
 #, python-format
 msgid "Redo %s"
 msgstr "Powtórz %s"
@@ -2357,6 +2293,11 @@ msgstr "Powtórka"
 #: ui/graphs.py:155
 msgid "Review Time"
 msgstr "Czas powtórki"
+
+#: ui/main.py:1109
+#, fuzzy
+msgid "Reviews due:"
+msgstr "Powtórki dzisiaj"
 
 #: ui/status.py:216
 msgid "Reviews today"
@@ -2430,6 +2371,11 @@ msgstr "Wyczyść zaznaczenie"
 #: forms/activetags.py:41
 msgid "Select tags to suspend. Deselect to unsuspend."
 msgstr "Wybierz etykiety do zawieszenia. Usuń zaznaczenie by usunąć zawieszenie."
+
+#: ui/main.py:1137
+#, fuzzy
+msgid "Session Statistics"
+msgstr "Statystyki &talii"
 
 #: ui/facteditor.py:168
 msgid "Set colour (F7 then F7)"
@@ -2531,7 +2477,7 @@ msgstr "Wkrótce"
 msgid "Sort as numbers"
 msgstr "Sortuj jak liczby"
 
-#: ui/facteditor.py:859
+#: ui/facteditor.py:862
 msgid "Sounds (*.mp3 *.ogg *.wav)"
 msgstr "Dźwięk (*.mp3 *.ogg *.wav)"
 
@@ -2543,7 +2489,7 @@ msgstr "ID źródła:"
 msgid "Spanish"
 msgstr "Hiszpański"
 
-#: ui/main.py:1168
+#: ui/main.py:1169
 msgid "Start &Reviewing"
 msgstr "&Zacznij powtórkę"
 
@@ -2563,7 +2509,7 @@ msgstr "Stan"
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Nie wyświetlaj tej karty, dopóki nie zostanie odwieszona w edytorze."
 
-#: ui/main.py:1395
+#: ui/main.py:1396
 msgid "Suspend"
 msgstr "Zawieś"
 
@@ -2603,7 +2549,7 @@ msgstr "Synchronizuj tę talię"
 msgid "Synchronize this deck with Anki Online"
 msgstr "Synchronizuj tę talię z Anki Online"
 
-#: ui/main.py:1813 ui/main.py:1815
+#: ui/main.py:1814 ui/main.py:1816
 msgid "Syncing Media..."
 msgstr "Synchronizacja plików"
 
@@ -2612,7 +2558,7 @@ msgstr "Synchronizacja plików"
 msgid "Syncing failed: %(a)s"
 msgstr "Synchronizacja nie powiodła się: %(a)s"
 
-#: ui/main.py:2323
+#: ui/main.py:2338
 msgid "Tag Cards"
 msgstr "Nadaj etykietę"
 
@@ -2624,7 +2570,7 @@ msgstr "Nadaj etykiety faktom ze zduplikowanymi polami zamiast usuwać je"
 msgid "Tags"
 msgstr "Etykiety"
 
-#: ui/main.py:1526
+#: ui/main.py:1527
 msgid "Tags to cram:"
 msgstr "Etykiety wykorzystane w sprawdzianie:"
 
@@ -2660,6 +2606,26 @@ msgstr ""
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr "Maksymalna liczba <b>nowych kart na dzień</b>. Domyślnie jest to 20, by uniknąć przeciążenia cię powtórkami."
 
+#: ui/main.py:1144
+msgid "The number of cards that are waiting to be reviewed today"
+msgstr ""
+
+#: ui/main.py:1138
+msgid "The number of cards you studied in the current session (blue) and previous session (black)"
+msgstr ""
+
+#: ui/main.py:1140
+msgid "The number of cards you studied today (blue) and yesterday (black)"
+msgstr ""
+
+#: ui/main.py:1142
+msgid "The number of minutes you studied today (blue) and yesterday (black)"
+msgstr ""
+
+#: ui/main.py:1146
+msgid "The number of new cards that are waiting to be learnt today"
+msgstr ""
+
 #: ui/sync.py:54
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Zmienił się protokół synchronizacji. Zaktualizuj Anki."
@@ -2676,6 +2642,10 @@ msgstr ""
 "dla kart z przerwą ustaloną na 21 dni lub więcej. Dolny pasek powinien<br>\n"
 "generalnie być między 80 a 95% - gdy jest poniżej, zapominasz zbyt<br>\n"
 "często stare karty, gdy jest powyżej - zbyt dużo czasu poświęcasz powtórkom."
+
+#: ui/main.py:1148
+msgid "The total number of new cards in the deck"
+msgstr ""
 
 #: ui/status.py:187
 #, python-format
@@ -2765,7 +2735,7 @@ msgstr ""
 "%s\n"
 "Musisz najpierw usunąć źródło."
 
-#: ui/main.py:2287
+#: ui/main.py:2302
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2783,7 +2753,7 @@ msgstr ""
 "<b>Tej operacji nie można cofnąć.</b><br>\n"
 "Kontynuować?"
 
-#: ui/main.py:2314
+#: ui/main.py:2329
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2822,11 +2792,15 @@ msgstr ""
 "\n"
 "Na pewno chcesz usunąć te karty?"
 
+#: ui/main.py:1108
+msgid "Time/day:"
+msgstr ""
+
 #: ui/getshared.py:147 ui/getshared.py:151
 msgid "Title"
 msgstr "Tytuł"
 
-#: ui/main.py:1370
+#: ui/main.py:1371
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2838,7 +2812,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr "Zakończono dzisiejsze powtórki"
 
-#: ui/main.py:1266
+#: ui/main.py:1267
 msgid "Toggle Toolbar"
 msgstr "Pokaż/ukryj pasek narzędzi"
 
@@ -2904,7 +2878,7 @@ msgstr "Nie można otworzyć pliku."
 msgid "Unable to reach server"
 msgstr "Nie można znaleźć serwera"
 
-#: ui/importing.py:167
+#: ui/importing.py:168
 #, python-format
 msgid ""
 "Unable to read file.\n"
@@ -2927,7 +2901,7 @@ msgstr "Nie przechowuj LaTeXa"
 msgid "Underline text (Ctrl+u)"
 msgstr "Tekst podkreślony (Ctrl+u)"
 
-#: ui/cardlist.py:514 ui/main.py:2026
+#: ui/cardlist.py:514 ui/main.py:2027
 #, python-format
 msgid "Undo %s"
 msgstr "Cofnij %s"
@@ -2941,7 +2915,7 @@ msgstr "Nieznany błąd: %s"
 msgid "Update complete. Please restart Anki."
 msgstr "Aktualizacja zakończona. Zrestartuj Anki."
 
-#: ui/main.py:2066
+#: ui/main.py:2067
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2996,11 +2970,11 @@ msgstr "Brawo! Ta karta pojawi się ponownie za <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Czy chcesz ściągnąć ją teraz?"
 
-#: ui/main.py:1441 ui/main.py:1489
+#: ui/main.py:1442 ui/main.py:1490
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Jesteś już w trybie sprawdzianu. Musisz zamknąć tę talię."
 
-#: ui/main.py:2057
+#: ui/main.py:2058
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -3011,7 +2985,7 @@ msgstr ""
 "%(type)s %(sec)d sekund.\n"
 "Upewnij się, że jest ustawiony poprawnie i uruchom Anki ponownie."
 
-#: ui/main.py:1796
+#: ui/main.py:1797
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -3026,7 +3000,7 @@ msgstr ""
 "Since this can cause many problems with syncing,\n"
 "syncing is disabled until you fix the problem."
 
-#: ui/main.py:1375
+#: ui/main.py:1376
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3047,7 +3021,7 @@ msgstr "kart"
 msgid "days"
 msgstr "dni"
 
-#: ui/main.py:2055
+#: ui/main.py:2056
 msgid "early"
 msgstr "Spieszy o"
 
@@ -3064,16 +3038,16 @@ msgstr "w %s"
 msgid "label"
 msgstr "napis"
 
-#: ui/main.py:2053
+#: ui/main.py:2054
 msgid "late"
 msgstr "Spóźnia się"
 
-#: ui/importing.py:195
+#: ui/importing.py:196
 #, python-format
 msgid "mapped to <b>%s</b>"
 msgstr "odwzorowane na <b>%s</b>"
 
-#: ui/importing.py:197
+#: ui/importing.py:198
 msgid "mapped to <b>Tags</b>"
 msgstr "odwzorowane na <b>etykiety</b>"
 
@@ -3088,6 +3062,95 @@ msgstr "opcja"
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr "toplabel"
+
+#~ msgid ""
+#~ "<h1>Session Statistics</h1>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Cards/session</b></dt>\n"
+#~ "<dd>The number of cards you studied in the current session (blue) and previous\n"
+#~ "session (black)</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Cards/day</b></dt>\n"
+#~ "<dd>The number of cards you studied today (blue) and yesterday (black)</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Time/day</b></dt>\n"
+#~ "<dd>The number of minutes you studied today (blue) and yesterday (black)</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Reviews due</b></dt>\n"
+#~ "<dd>The number of cards that are waiting to be reviewed today</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>New today</b></dt>\n"
+#~ "<dd>The number of new cards that are waiting to be learnt today</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>New total</b></dt>\n"
+#~ "<dd>The total number of new cards in the deck</dd>\n"
+#~ "</dl>"
+#~ msgstr ""
+#~ "<h1>Statystyki sesji</h1>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Kart na sesję</b></dt>\n"
+#~ "<dd>Liczba kart powtarzanych w aktualnej (na niebiesko) i poprzedniej sesji (na czarno)</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Kart dziennie</b></dt>\n"
+#~ "<dd>Liczba kart powtarzanych dzisiaj (na niebiesko) i wczoraj (na czarno)</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Czas dziennie</b></dt>\n"
+#~ "<dd>Liczba minut w trakcie powtórki dzisiaj (na niebiesko) i wczoraj (na czarno)</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Do przeglądnięcia</b></dt>\n"
+#~ "<dd>Liczba kart będących dzisiaj do przeglądnięcia</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Nowe dzisiaj</b></dt>\n"
+#~ "<dd>Liczba nowych kart oczekujących dzisiaj</dd>\n"
+#~ "</dl>\n"
+#~ "<dl>\n"
+#~ "<dt><b>Nowych ogólnie</b></dt>\n"
+#~ "<dd>Ogólna liczba nowych kart w talii</dd>\n"
+#~ "</dl>"
+
+#~ msgid ""
+#~ "<table>\n"
+#~ "<tr><td width=100>Reviews due:</td><td align=right><b>%(ret)s</b></td></tr>\n"
+#~ "<tr><td>New today:</td><td align=right><b>%(new)s</b></td></tr>\n"
+#~ "<tr><td>New total:</td><td align=right>%(newof)s</td></tr>\n"
+#~ "</table>"
+#~ msgstr ""
+#~ "<table>\n"
+#~ "<tr><td width=100>Do przeglądnięcia:</td><td align=right><b>%(ret)s</b></td></tr>\n"
+#~ "<tr><td>Nowe dzisiaj:</td><td align=right><b>%(new)s</b></td></tr>\n"
+#~ "<tr><td>Nowych ogólnie:</td><td align=right>%(newof)s</td></tr>\n"
+#~ "</table>"
+
+#~ msgid ""
+#~ "<table>\n"
+#~ "<tr><td width=80>Cards/session:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
+#~ "<td><b>%(repsInSes)s</b></td></tr>\n"
+#~ "<tr><td>Cards/day:</td><td><b>%(repsTodayChg)s</b></td>\n"
+#~ "<td><b>%(repsToday)s</b></td></tr>\n"
+#~ "<tr><td>Time/day:</td><td><b>%(timeTodayChg)s</b></td>\n"
+#~ "<td><b>%(timeToday)s</b></td></tr>\n"
+#~ "</table>"
+#~ msgstr ""
+#~ "<table>\n"
+#~ "<tr><td width=80>Kart na sesję:</td><td width=50><b>%(repsInSesChg)s</b></td>\n"
+#~ "<td>%(repsInSes)s</td></tr>\n"
+#~ "<tr><td>Kart dziennie:</td><td><b>%(repsTodayChg)s</b></td>\n"
+#~ "<td>%(repsToday)s</td></tr>\n"
+#~ "<tr><td>Czas dziennie:</td><td><b>%(timeTodayChg)s</b></td>\n"
+#~ "<td>%(timeToday)s</td></tr>\n"
+#~ "</table>"
+
+#~ msgid "Import failed: %s\n"
+#~ msgstr "Import nie powiódł się: %s\n"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Dodaj najpierw nową kartę."
