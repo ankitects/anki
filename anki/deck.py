@@ -1783,7 +1783,7 @@ cardTags.tagId in %s""" % ids2str(ids)
                         qquery += " intersect "
                 elif isNeg:
                     qquery += "select id from cards except "
-                if token in ("rev", "new", "fail"):
+                if token in ("rev", "new", "failed"):
                     if token == "rev":
                         n = 1
                     elif token == "new":
