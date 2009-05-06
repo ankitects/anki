@@ -134,7 +134,7 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        self.extraNewCards = 0
+        self.newEarly = False
         self.reviewEarly = False
 
     def modifiedSinceSave(self):
@@ -217,7 +217,7 @@ limit 1""")
 
     def _maybeGetNewCard(self):
         "Get a new card, provided daily new card limit not exceeded."
-        if not self.newCountToday:
+        if not self.newCountToday and not self.newEarly:
             return
         return self._getNewCard()
 
@@ -405,9 +405,6 @@ where id != :id and factId = :factId""",
         entry.writeSQL(self.s)
         self.modified = now
         self.setUndoEnd(undoName)
-        # decrease new card boost
-        if self.extraNewCards:
-            self.extraNewCards -= 1
 
     # Interval management
     ##########################################################################
@@ -627,7 +624,7 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
             stmt % 2, now=time.time()).rowcount
         self.newCountToday = max(min(
             self.newCount, self.newCardsPerDay -
-            self.newCardsToday()), 0) + self.extraNewCards
+            self.newCardsToday()), 0)
 
     def rebuildQueue(self):
         "Update relative delays based on current time."
@@ -667,8 +664,9 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         ids = self.s.column0("select id from cards where priority = -1")
         if ids:
             self.updatePriorities(ids)
-            self.reviewEarly = False
-            self.flushMod()
+        self.reviewEarly = False
+        self.newEarly = False
+        self.flushMod()
         self.checkDue()
 
     # Times
