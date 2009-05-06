@@ -367,13 +367,15 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setMaxVisibleItems(30)
         self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
-        alltags = [None, "Marked", "Suspended", None, None]
+        alltags = [None, "Marked", "Suspended", None, None, None]
         # system tags
         self.dialog.tagList.addItem(_("<Filter>"))
         self.dialog.tagList.addItem(QIcon(":/icons/rating.png"),
                                     _('Marked'))
         self.dialog.tagList.addItem(QIcon(":/icons/media-playback-pause.png"),
                                     _('Suspended'))
+        self.dialog.tagList.addItem(QIcon(":/icons/chronometer.png"),
+                                    _('Due'))
         self.dialog.tagList.addItem(QIcon(":/icons/editclear.png"),
                                     _('No fact tags'))
         self.dialog.tagList.insertSeparator(
@@ -491,6 +493,8 @@ class EditDeck(QMainWindow):
         elif idx == 2:
             filter = "tag:suspended"
         elif idx == 3:
+            filter = "type:due"
+        elif idx == 4:
             filter = "tag:none"
         else:
             filter = "tag:" + self.alltags[idx]
