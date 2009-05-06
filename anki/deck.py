@@ -82,9 +82,9 @@ decksTable = Table(
     # collapsing future cards
     Column('collapseTime', Integer, nullable=False, default=1),
     # priorities & postponing
-    Column('highPriority', UnicodeText, nullable=False, default=u"VeryHighPriority"),
-    Column('medPriority', UnicodeText, nullable=False, default=u"HighPriority"),
-    Column('lowPriority', UnicodeText, nullable=False, default=u"LowPriority"),
+    Column('highPriority', UnicodeText, nullable=False, default=u"PriorityVeryHigh"),
+    Column('medPriority', UnicodeText, nullable=False, default=u"PriorityHigh"),
+    Column('lowPriority', UnicodeText, nullable=False, default=u"PriorityLow"),
     Column('suspended', UnicodeText, nullable=False, default=u"Suspended"),
     # 0 is random, 1 is by input date
     Column('newCardOrder', Integer, nullable=False, default=1),
