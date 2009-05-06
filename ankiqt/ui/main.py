@@ -229,7 +229,10 @@ Please do not file a bug report with Anki.<br><br>""")
                 self.enableDeckMenuItems()
                 self.updateRecentFilesMenu()
                 self.updateViews(state)
-                return self.moveToState("getQuestion")
+                if self.state == "studyScreen":
+                    return self.updateStudyStats()
+                else:
+                    return self.moveToState("getQuestion")
             else:
                 return self.moveToState("noDeck")
         elif state == "auto":
