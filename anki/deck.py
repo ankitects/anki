@@ -46,7 +46,9 @@ REV_CARDS_OLD_FIRST = 0
 REV_CARDS_NEW_FIRST = 1
 REV_CARDS_DUE_FIRST = 2
 REV_CARDS_RANDOM = 3
-
+SEARCH_TAG = 0
+SEARCH_TYPE = 1
+SEARCH_PHRASE = 2
 DECK_VERSION = 34
 
 deckVarsTable = Table(
@@ -1735,20 +1737,25 @@ where id = :id""", pending)
             isNeg = token.startswith("-")
             if isNeg:
                 token = token[1:]
-            isTag = token.startswith("tag:")
-            if isTag:
-                # tag
+            if token.startswith("tag:"):
                 token = token[4:]
-            res.append((token, isNeg, isTag))
+                type = SEARCH_TAG
+            elif token.startswith("type:"):
+                token = token[5:]
+                type = SEARCH_TYPE
+            else:
+                type = SEARCH_PHRASE
+            res.append((token, isNeg, type))
         return res
 
     def _findCards(self, query):
         "Find facts matching QUERY."
         tquery = ""
         fquery = ""
+        qquery = ""
         args = {}
-        for c, (token, isNeg, isTag) in enumerate(self._parseQuery(query)):
-            if isTag:
+        for c, (token, isNeg, type) in enumerate(self._parseQuery(query)):
+            if type == SEARCH_TAG:
                 # a tag
                 if tquery:
                     if isNeg:
@@ -1768,6 +1775,25 @@ and cards.factId = facts.id """
                     tquery += """
 select cardId from cardTags where
 cardTags.tagId in %s""" % ids2str(ids)
+            elif type == SEARCH_TYPE:
+                if qquery:
+                    if isNeg:
+                        qquery += " except "
+                    else:
+                        qquery += " intersect "
+                elif isNeg:
+                    qquery += "select id from cards except "
+                if token in ("rev", "new", "fail"):
+                    if token == "rev":
+                        n = 1
+                    elif token == "new":
+                        n = 2
+                    else:
+                        n = 0
+                    qquery += "select id from cards where type = %d" % n
+                elif token == "due":
+                    qquery += ("select id from cards where "
+                               "type in (0,1) and isDue = 1")
             else:
                 # a field
                 if fquery:
@@ -1781,16 +1807,18 @@ cardTags.tagId in %s""" % ids2str(ids)
                 args["_ff_%d" % c] = "%"+token+"%"
                 q = "select factId from fields where value like :_ff_%d" % c
                 fquery += q
-        return (tquery, fquery, args)
+        return (tquery, fquery, qquery, args)
 
     def findCardsWhere(self, query):
-        (tquery, fquery, args) = self._findCards(query)
+        (tquery, fquery, qquery, args) = self._findCards(query)
         q = ""
         x = []
         if tquery:
             x.append(" id in (%s)" % tquery)
         if fquery:
             x.append(" factId in (%s)" % fquery)
+        if qquery:
+            x.append(" id in (%s)" % qquery)
         if x:
             q += " and ".join(x)
         return q, args
