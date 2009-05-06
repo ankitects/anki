@@ -1738,8 +1738,8 @@ where id = :id""", pending)
             if token.startswith("tag:"):
                 token = token[4:]
                 type = SEARCH_TAG
-            elif token.startswith("type:"):
-                token = token[5:]
+            elif token.startswith("is:"):
+                token = token[3:]
                 type = SEARCH_TYPE
             else:
                 type = SEARCH_PHRASE
