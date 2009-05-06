@@ -391,7 +391,7 @@ class EditDeck(QMainWindow):
             alltags.extend(sortedtags)
             icon = QIcon(":/icons/" + icon)
             for t in sortedtags:
-                self.dialog.tagList.addItem(icon, t)
+                self.dialog.tagList.addItem(icon, t.replace("_", " "))
             alltags.append(None)
             self.dialog.tagList.insertSeparator(
                 self.dialog.tagList.count())
