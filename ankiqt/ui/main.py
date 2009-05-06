@@ -347,8 +347,11 @@ Please do not file a bug report with Anki.<br><br>""")
             return
         if self.state == "showQuestion":
             if evt.key() in (Qt.Key_Enter,
-                             Qt.Key_Return,
-                             Qt.Key_Space):
+                             Qt.Key_Return):
+                evt.accept()
+                return self.mainWin.showAnswerButton.click()
+            elif evt.key() == Qt.Key_Space and not (
+                self.currentCard.cardModel.typeAnswer):
                 evt.accept()
                 return self.mainWin.showAnswerButton.click()
         elif self.state == "showAnswer":
