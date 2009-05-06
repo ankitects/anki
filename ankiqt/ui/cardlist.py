@@ -172,7 +172,7 @@ where cards.factId = facts.id """
                                                         id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
                       index, self.index(index.row(), 1))
-        except IndexError:
+        except:
             # called after search changed
             pass
 
