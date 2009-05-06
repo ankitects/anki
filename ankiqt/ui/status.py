@@ -68,12 +68,12 @@ class StatusView(object):
         self.remText.setShown(shown)
         self.sep1.setShown(shown)
         self.sep2.setShown(shown)
-        self.statusbar.hideOrShow()
         # timer has a separate option
         if not self.main.config['showTimer']:
             shown = False
         self.timer.setShown(shown)
         self.sep3.setShown(shown)
+        self.statusbar.hideOrShow()
 
     # Setup and teardown
     ##########################################################################
