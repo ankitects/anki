@@ -664,9 +664,9 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         ids = self.s.column0("select id from cards where priority = -1")
         if ids:
             self.updatePriorities(ids)
+            self.flushMod()
         self.reviewEarly = False
         self.newEarly = False
-        self.flushMod()
         self.checkDue()
 
     # Times
