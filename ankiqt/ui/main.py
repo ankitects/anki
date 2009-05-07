@@ -230,7 +230,7 @@ Please do not file a bug report with Anki.<br><br>""")
                 self.updateRecentFilesMenu()
                 self.updateViews(state)
                 if self.state == "studyScreen":
-                    return self.showStudyScreen()
+                    return self.moveToState("studyScreen")
                 else:
                     return self.moveToState("getQuestion")
             else:
@@ -239,7 +239,7 @@ Please do not file a bug report with Anki.<br><br>""")
             self.currentCard = None
             if self.deck:
                 if self.state == "studyScreen":
-                    return self.updateStudyStats()
+                    return self.moveToState("studyScreen")
                 else:
                     return self.moveToState("getQuestion")
             else:
