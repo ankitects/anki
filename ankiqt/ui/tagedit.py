@@ -20,6 +20,7 @@ class TagEdit(QLineEdit):
         "Set the current deck, updating list of available tags."
         self.deck = deck
         tags = self.deck.allTags()
+        tags.sort(key=lambda x: x.lower())
         self.model.setStringList(
             QStringList(tags))
 
