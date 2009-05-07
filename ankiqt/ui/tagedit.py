@@ -26,6 +26,7 @@ class TagEdit(QLineEdit):
     def addTags(self, tags):
         l = list(set([unicode(x) for x in list(self.model.stringList())] +
                  tags))
+        l.sort(key=lambda x: x.lower())
         self.model.setStringList(QStringList(l))
 
     def focusOutEvent(self, evt):
