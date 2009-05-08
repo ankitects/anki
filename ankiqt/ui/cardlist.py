@@ -511,7 +511,7 @@ class EditDeck(QMainWindow):
             "cur": len(self.model.cards),
             "tot": self.deck.cardCount,
             "sel": ngettext("%d selected", "%d selected", selected) % selected
-            })
+            } + " - " + self.parent.deck.name())
 
     def onEvent(self, type='field'):
         if self.deck.undoAvailable():

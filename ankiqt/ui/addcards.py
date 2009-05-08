@@ -31,6 +31,7 @@ class AddCards(QDialog):
         self.config = parent.config
         self.dialog = ankiqt.forms.addcards.Ui_AddCards()
         self.dialog.setupUi(self)
+        self.setWindowTitle(_("Add Items - %s") % parent.deck.name())
         self.setupEditor()
         self.addChooser()
         self.addButtons()
