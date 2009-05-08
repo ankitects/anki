@@ -979,8 +979,7 @@ where type = 2 and priority in (1,2,3,4)""") or 0
             self.flushMod()
             cards.append(card)
         self.updateFactTags([fact.id])
-        for card in cards:
-            self.updatePriority(card)
+        self.updatePriorities([c.id for c in cards])
         self.cardCount += len(cards)
         self.newCount += len(cards)
         # keep track of last used tags for convenience
