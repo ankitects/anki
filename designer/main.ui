@@ -1511,6 +1511,9 @@
    <property name="text" >
     <string>Documentation</string>
    </property>
+   <property name="shortcut" >
+    <string>F1</string>
+   </property>
   </action>
   <action name="actionReportbug" >
    <property name="icon" >
