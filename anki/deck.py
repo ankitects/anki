@@ -1628,10 +1628,15 @@ facts.modelId = :id""", id=modelId))
 insert into cardTags
 (cardId, tagId, src) values
 (:cardId, :tagId, :src)""", d)
+        tags = self.s.column0("select id from tags")
+        unused = []
+        for t in tags:
+            if not self.s.scalar(
+                "select 1 from cardTags where tagId = :d limit 1",
+                d=t):
+                unused.append(t)
         self.s.statement("""
-delete from tags where id not in (select distinct tagId from cardTags)
-and priority = 2
-""")
+delete from tags where id in %s and priority = 2""" % ids2str(unused))
 
     def updateTagsForModel(self, model):
         cards = self.s.all("""
