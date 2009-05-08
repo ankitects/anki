@@ -1169,6 +1169,8 @@ learnt today")
         self.mainWin.optionsLabel.setToolTip(statToolTip)
 
     def showStudyScreen(self):
+        # forget last card
+        self.lastCard = None
         self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
         self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
         self.switchToStudyScreen()
