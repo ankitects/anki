@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-08 15:44+0900\n"
+"POT-Creation-Date: 2009-05-09 06:53+0900\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -101,7 +101,7 @@ msgstr " <b>Давтаад сурахдаа:</b>"
 msgid " applied %d modified cards."
 msgstr " %d өөрчилсөн картуудыг хэрэглэсэн."
 
-#: ui/main.py:2372
+#: ui/main.py:2374
 #, python-format
 msgid ""
 "%(a)d missing references.\n"
@@ -110,7 +110,7 @@ msgstr ""
 "%(a)d дутсан ишлэлүүд.\n"
 "%(b)d хэрэггүй файлуудыг устгасан."
 
-#: ui/cardlist.py:983
+#: ui/cardlist.py:1009
 #, python-format
 msgid "%(a)d of %(b)d fact updated"
 msgid_plural "%(a)d of %(b)d facts updated"
@@ -130,7 +130,7 @@ msgstr[1] "%(name)s [%(facts)d баримтууд]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(totalSum)d-с %(partOf)d"
 
-#: ui/main.py:1966
+#: ui/main.py:1968
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(cards)d-с %(due)d-г дахин давтах) - %(title)s"
@@ -140,7 +140,7 @@ msgstr "%(path)s (%(cards)d-с %(due)d-г дахин давтах) - %(title)s"
 msgid "%d exported."
 msgstr "%d экспортолсон."
 
-#: ui/cardlist.py:513
+#: ui/cardlist.py:514
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -152,11 +152,11 @@ msgstr[1] "%d-г сонгосон"
 msgid "%s ago"
 msgstr "%s-н өмнө"
 
-#: forms/main.py:942
+#: forms/main.py:943
 msgid "&About..."
 msgstr "&Тухай..."
 
-#: forms/cardlist.py:237
+#: forms/cardlist.py:263
 msgid "&Actions"
 msgstr "&Үйлдлүүд"
 
@@ -173,16 +173,16 @@ msgstr "&Зүйлийг нэм"
 msgid "&Add Source"
 msgstr "&Эх үүсвэрийг нэм"
 
-#: forms/cardlist.py:242
+#: forms/cardlist.py:268
 msgid "&Add Tag..."
 msgstr "&Шошгыг нэм"
 
-#: forms/main.py:1016
+#: forms/main.py:1017
 #, fuzzy
 msgid "&Bury Fact"
 msgstr "&Баримтыг тэмдэглэх"
 
-#: forms/main.py:943
+#: forms/main.py:944
 msgid "&Card Statistics"
 msgstr "&Картын статистикс"
 
@@ -190,11 +190,11 @@ msgstr "&Картын статистикс"
 msgid "&Close"
 msgstr "&Xaa"
 
-#: forms/cardlist.py:267
+#: forms/cardlist.py:294
 msgid "&Cram..."
 msgstr "&Оройтож бэлтгэх"
 
-#: forms/main.py:945
+#: forms/main.py:946
 msgid "&Deck Properties..."
 msgstr "&Цуглуулгын чанар"
 
@@ -207,11 +207,11 @@ msgstr "&Цуглуулгын статистикс"
 msgid "&Delete"
 msgstr "&Устга"
 
-#: forms/main.py:994
+#: forms/main.py:995
 msgid "&Delete Card"
 msgstr "&Картыг устга"
 
-#: forms/main.py:997
+#: forms/main.py:998
 msgid "&Delete Fact"
 msgstr "&Баримтыг устга"
 
@@ -219,15 +219,20 @@ msgstr "&Баримтыг устга"
 msgid "&Delete Source"
 msgstr "&Эх үүсвэрийг устга"
 
-#: forms/cardlist.py:243
+#: forms/cardlist.py:269
 msgid "&Delete Tag..."
 msgstr "&Шошгыг устга..."
 
-#: forms/main.py:986
+#: forms/main.py:987
 msgid "&Disable All Plugins"
 msgstr "&Бүх хавсарга програмыг унтраалт"
 
-#: forms/main.py:1004
+#: forms/cardlist.py:289
+#, fuzzy
+msgid "&Documentation"
+msgstr "Баримтжуулалт"
+
+#: forms/main.py:1005
 msgid "&Donate..."
 msgstr "&Бэлэглэх..."
 
@@ -235,11 +240,11 @@ msgstr "&Бэлэглэх..."
 msgid "&Download..."
 msgstr "&Тат..."
 
-#: forms/cardlist.py:236 forms/deckproperties.py:337 forms/main.py:893
+#: forms/cardlist.py:262 forms/deckproperties.py:337 forms/main.py:893
 msgid "&Edit"
 msgstr "&Засварла"
 
-#: forms/main.py:985
+#: forms/main.py:986
 msgid "&Enable All Plugins"
 msgstr "&Бүх хавсарга програмыг асаалт"
 
@@ -247,39 +252,35 @@ msgstr "&Бүх хавсарга програмыг асаалт"
 msgid "&File"
 msgstr "&Файл"
 
-#: forms/cardlist.py:250
+#: forms/cardlist.py:276
 msgid "&Find"
 msgstr "&Хайлт"
 
-#: forms/main.py:953
+#: forms/main.py:954
 msgid "&Fonts and Colours..."
 msgstr "&Фонт бичиг бас өнгөнүүд..."
 
-#: forms/main.py:971
+#: forms/main.py:972
 msgid "&Forum..."
 msgstr "&Форум..."
 
-#: forms/cardlist.py:244
+#: forms/cardlist.py:270
 msgid "&Generate Cards..."
 msgstr "&Картыг гарга..."
 
-#: forms/main.py:983
+#: forms/main.py:984
 msgid "&Get Plugins..."
 msgstr "&Хавсарга програмыг ав..."
 
-#: forms/cardlist.py:238
+#: forms/cardlist.py:264
 msgid "&Go"
 msgstr "&Оч"
 
-#: forms/main.py:949
+#: forms/main.py:950
 msgid "&Graphs..."
 msgstr "&Диаграммууд"
 
-#: forms/cardlist.py:263
-msgid "&Guide..."
-msgstr "&Гарын авлага..."
-
-#: forms/cardlist.py:239 forms/main.py:892
+#: forms/cardlist.py:265 forms/main.py:892
 msgid "&Help"
 msgstr "&Тусламж"
 
@@ -287,11 +288,11 @@ msgstr "&Тусламж"
 msgid "&Import"
 msgstr "И&мпорт"
 
-#: forms/main.py:947
+#: forms/main.py:948
 msgid "&Import..."
 msgstr "Им&порт..."
 
-#: forms/cardlist.py:249
+#: forms/cardlist.py:275
 msgid "&Invert Selection"
 msgstr "&Сонголтыг чанх эсрэг"
 
@@ -299,7 +300,7 @@ msgstr "&Сонголтыг чанх эсрэг"
 msgid "&Kanji Statistics"
 msgstr "&Канжий (Япон хэлний тэмдгийн) статистикс"
 
-#: forms/cardlist.py:260
+#: forms/cardlist.py:286
 msgid "&Last Card"
 msgstr "&Сүүлийн карт"
 
@@ -311,7 +312,7 @@ msgstr "&Илүү нь сур"
 msgid "&Lookup"
 msgstr "&Хайлт"
 
-#: forms/main.py:956
+#: forms/main.py:957
 msgid "&Mark Fact"
 msgstr "&Баримтыг тэмдэглэх"
 
@@ -319,11 +320,11 @@ msgstr "&Баримтыг тэмдэглэх"
 msgid "&New"
 msgstr "&Шинэ"
 
-#: forms/cardlist.py:254
+#: forms/cardlist.py:280
 msgid "&Next Card"
 msgstr "&Дараагийн карт"
 
-#: forms/main.py:984
+#: forms/main.py:985
 msgid "&Open Plugin Folder..."
 msgstr "&Хавсарга програмын хавтсыг нээ..."
 
@@ -335,23 +336,23 @@ msgstr "&Нээ..."
 msgid "&Preferences"
 msgstr "&Тохиргоо"
 
-#: forms/cardlist.py:256
+#: forms/cardlist.py:282
 msgid "&Previous Card"
 msgstr "&Өмнөх карт"
 
-#: forms/main.py:1005
+#: forms/main.py:1006
 msgid "&Record Noise Profile..."
 msgstr "&Чимээг дарахын тохиргоог дуу хураах..."
 
-#: forms/cardlist.py:248 forms/main.py:993
+#: forms/cardlist.py:274 forms/main.py:994
 msgid "&Redo"
 msgstr "&Дахин хий"
 
-#: forms/main.py:940
+#: forms/main.py:941
 msgid "&Report Bug..."
 msgstr "&Алдааг хэлэх..."
 
-#: forms/cardlist.py:245
+#: forms/cardlist.py:271
 msgid "&Reschedule..."
 msgstr "&Дахин төлөвлөх..."
 
@@ -363,11 +364,21 @@ msgstr "&Хадгал"
 msgid "&Settings"
 msgstr "&Тохиргоо"
 
-#: forms/main.py:1002
+#: forms/cardlist.py:300
+#, fuzzy
+msgid "&Sort"
+msgstr "И&мпорт"
+
+#: forms/main.py:1003
 msgid "&Study Options..."
 msgstr "&Сурахын тохиргоо..."
 
-#: forms/main.py:959
+#: forms/cardlist.py:296
+#, fuzzy
+msgid "&Suspend"
+msgstr "Түдгэлзэх"
+
+#: forms/main.py:960
 msgid "&Suspend Fact"
 msgstr "&Баримтыг түдгэлзэх"
 
@@ -375,11 +386,16 @@ msgstr "&Баримтыг түдгэлзэх"
 msgid "&Tools"
 msgstr "&Багаж"
 
-#: forms/cardlist.py:247 forms/main.py:969
+#: forms/cardlist.py:273 forms/main.py:970
 msgid "&Undo"
 msgstr "&Буцаа"
 
-#: ui/cardlist.py:427
+#: forms/cardlist.py:297
+#, fuzzy
+msgid "&Unsuspend"
+msgstr "Түдгэлзэх"
+
+#: ui/cardlist.py:428
 #, python-format
 msgid "'%s'"
 msgstr "'%s'"
@@ -426,7 +442,7 @@ msgstr ""
 "</style></head><body style=\" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Эх үүсвэрүүд</span></p></body></html>"
 
-#: forms/addcards.py:73
+#: forms/addcards.py:84
 #, fuzzy
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -450,15 +466,15 @@ msgstr "<Tag filter>"
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Тусламж</a>"
 
-#: ui/main.py:1327
+#: ui/main.py:1329
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr "<a href=py:miss>Дутсан</a><br>"
 
-#: ui/main.py:1329
+#: ui/main.py:1331
 msgid "<a href=py:non>Non-jouyou</a><br>"
 msgstr "<a href=py:non>Жууюу биш</a><br>"
 
-#: ui/main.py:1328
+#: ui/main.py:1330
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr "<a href=py:seen>Үзсэн</a><br>"
 
@@ -667,7 +683,7 @@ msgstr "<h1>Автоматаар  хадгалалт</h1>"
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Картын Бэлдцүүд</h1>"
 
-#: ui/main.py:1462
+#: ui/main.py:1464
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -678,7 +694,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Дахин давтах</h1>"
 
-#: ui/main.py:1359
+#: ui/main.py:1361
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Одоогийн карт</h1>"
 
@@ -714,11 +730,11 @@ msgstr "<h1>Зайнууд</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Хэл</h1>"
 
-#: ui/main.py:1362
+#: ui/main.py:1364
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Сүүлийн карт</h1>"
 
-#: ui/main.py:1661
+#: ui/main.py:1663
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
@@ -746,7 +762,7 @@ msgstr "<h1>Удаа</h1>"
 msgid "<h1>Review Time</h1>"
 msgstr "<h1>Хичээл давталтын цаг</h1>"
 
-#: ui/main.py:1667
+#: ui/main.py:1669
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
@@ -762,7 +778,7 @@ msgstr "<h1>Төлөвлөгөөний Талбарыг Сонго</h1>"
 msgid "<h1>Study Options</h1>"
 msgstr "<h1>Сурахын тохиргоонууд</h1>"
 
-#: ui/main.py:1825
+#: ui/main.py:1827
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -818,7 +834,7 @@ msgstr "<p><a href=hide:>Энхийг нуу</a>"
 msgid "About Anki"
 msgstr "Анкигын тухай"
 
-#: forms/main.py:988
+#: forms/main.py:989
 msgid "Active &Tags..."
 msgstr "Идэвхтэй &Шошгууд"
 
@@ -830,27 +846,32 @@ msgstr "Идэвхтэй Шошгууд"
 msgid "Ad&vanced"
 msgstr "Нэ&мэлт..."
 
-#: ui/addcards.py:62 ui/addcards.py:116
+#: ui/addcards.py:63 ui/addcards.py:117
 msgid "Add"
 msgstr "Нэм"
 
-#: ui/addcards.py:67
+#: ui/addcards.py:68
 msgid "Add (shortcut: command+return)"
 msgstr "Нэм (богино холбоос: command+return)"
 
-#: ui/addcards.py:69
+#: ui/addcards.py:70
 msgid "Add (shortcut: ctrl+return)"
 msgstr "Нэм (богино холбоос: ctrl+return)"
 
-#: forms/addcards.py:72
+#: forms/addcards.py:83
 msgid "Add Items"
+msgstr "Хэсгийг нэм"
+
+#: ui/addcards.py:34
+#, fuzzy, python-format
+msgid "Add Items - %s"
 msgstr "Хэсгийг нэм"
 
 #: forms/addmodel.py:43
 msgid "Add Model"
 msgstr "Зүйлийг нэм"
 
-#: ui/cardlist.py:750
+#: ui/cardlist.py:758
 msgid "Add Tags"
 msgstr "Шошгыг нэм"
 
@@ -891,7 +912,7 @@ msgstr "Нэм: %s"
 msgid "Added"
 msgstr "Нэмэгдсэн"
 
-#: ui/addcards.py:130
+#: ui/addcards.py:131
 #, python-format
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "'%(str)s'-д %(num)d карт(ууд)ыг нэмэгдсэн."
@@ -904,7 +925,7 @@ msgstr "Давтан"
 msgid "Again"
 msgstr "Дахиад"
 
-#: ui/cardlist.py:951
+#: ui/cardlist.py:977
 msgid "All Fields"
 msgstr "Бүх талбарууд"
 
@@ -916,7 +937,7 @@ msgstr "Бүх давталтууд"
 msgid "Allow the answer to be blank"
 msgstr "Хоосон хариулт хийхийг зөвшөөрөх"
 
-#: ui/main.py:1534
+#: ui/main.py:1536
 msgid "Already cramming. Please close this deck first."
 msgstr "Одоо оройтож бэлтгэж байна. Эхлээд цуглуулгыг хаана уу?"
 
@@ -970,7 +991,7 @@ msgstr ""
 "Алдааг засварлахгүй бол дараагийн нь<br>\n"
 "алдааны тайланд хуулаарай:<br><br>\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2347 forms/main.py:869 forms/sort.py:45
+#: ui/deckproperties.py:186 ui/main.py:2349 forms/main.py:869 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Анки"
@@ -984,7 +1005,7 @@ msgstr ""
 "Анки таны тохиргооны файлыг хадгалаагүй:\n"
 "%s"
 
-#: ui/cardlist.py:48 ui/cardlist.py:417
+#: ui/cardlist.py:48 ui/cardlist.py:418
 msgid "Answer"
 msgstr "Хариулт"
 
@@ -1004,7 +1025,7 @@ msgstr "Хариултын фонт"
 msgid "Answer size"
 msgstr "Хариултын хэмжээ"
 
-#: forms/main.py:957
+#: forms/main.py:958
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr "Дараа браузерын дээр энэ баримт хайхаар 'тэмдэглэсэн'-н шошгыг одоо нэм"
 
@@ -1043,7 +1064,7 @@ msgstr ""
 msgid "Brows&e Items..."
 msgstr "Хэсгүүдийг &үз"
 
-#: forms/cardlist.py:234
+#: forms/cardlist.py:260
 msgid "Browse Items"
 msgstr "Хэсгүүдийг үз"
 
@@ -1051,7 +1072,7 @@ msgstr "Хэсгүүдийг үз"
 msgid "Browse and edit all items"
 msgstr "Бүх хэсгүүдээс нэг нэгийг нь үзээд засварлах"
 
-#: ui/cardlist.py:507
+#: ui/cardlist.py:508
 #, python-format
 msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
 msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
@@ -1063,27 +1084,27 @@ msgstr[1] "Браузер %(tot)d-с (%(cur)d картууд үзүүлсэн; %
 msgid "Browser Font"
 msgstr "Хэсгүүдийг үз"
 
-#: ui/cardlist.py:477
+#: ui/cardlist.py:478
 msgid "Building Index..."
 msgstr "Индекс хийж байна..."
 
-#: ui/main.py:1432
+#: ui/main.py:1434
 msgid "Bury"
 msgstr ""
 
-#: forms/main.py:980
+#: forms/main.py:981
 msgid "C&ram..."
 msgstr "&Оройтож бэлтгэх"
 
-#: forms/main.py:998
+#: forms/main.py:999
 msgid "Cache LaTeX"
 msgstr "Ойн дээр LaTeX-г хадгалах"
 
-#: ui/cardlist.py:849
+#: ui/cardlist.py:875
 msgid "Can only change one model at a time."
 msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх чадна."
 
-#: ui/cardlist.py:805 ui/cardlist.py:943
+#: ui/cardlist.py:831 ui/cardlist.py:969
 msgid "Can only operate on one model at a time."
 msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх чадна."
 
@@ -1091,7 +1112,7 @@ msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх ча
 msgid "Can't look up a selection with a newline."
 msgstr "Мөрийн эхэнд шилжүүлэгч тэмдэгттэй сонголтыг хайж болохгүй."
 
-#: ui/main.py:2362
+#: ui/main.py:2364
 msgid "Cancel"
 msgstr "Хүчингүй"
 
@@ -1100,7 +1121,7 @@ msgstr "Хүчингүй"
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "%(num)d-р (%(name)s)-н карт: %(cards)d удаа%(status)s хэрэглэсэн"
 
-#: ui/modelproperties.py:335 ui/modelproperties.py:368
+#: ui/modelproperties.py:368
 #, python-format
 msgid "Card %d"
 msgstr "Карт %d"
@@ -1108,6 +1129,11 @@ msgstr "Карт %d"
 #: forms/modelproperties.py:316
 msgid "Card Templates"
 msgstr "Картын зүйлүүд"
+
+#: ui/modelproperties.py:335
+#, fuzzy, python-format
+msgid "Card-%d"
+msgstr "Карт %d"
 
 #: forms/displayproperties.py:355
 msgid "Card:"
@@ -1134,24 +1160,24 @@ msgstr ""
 msgid "Change"
 msgstr "Өөрчлөх"
 
-#: ui/cardlist.py:1148
+#: ui/cardlist.py:1180
 #, python-format
 msgid "Change %s to:"
 msgstr "%s-с дараагийн нь өөрчлөх:"
 
-#: forms/cardlist.py:264
+#: forms/cardlist.py:291
 msgid "Change &Model..."
 msgstr "&Зүйлийг Өөрчлөх..."
 
-#: ui/cardlist.py:856 forms/changemodel.py:74
+#: ui/cardlist.py:882 forms/changemodel.py:74
 msgid "Change Model"
 msgstr "Зүлийг Өөрчлөх"
 
-#: forms/main.py:974
+#: forms/main.py:975
 msgid "Check Database..."
 msgstr "Өгөгдлийн саныг шалгах..."
 
-#: forms/main.py:978
+#: forms/main.py:979
 msgid "Check Media Database..."
 msgstr "Медианы өгөгдлийн саныг шалгах..."
 
@@ -1159,11 +1185,11 @@ msgstr "Медианы өгөгдлийн саныг шалгах..."
 msgid "Check complete."
 msgstr "Шалгалт дууссан"
 
-#: forms/main.py:975
+#: forms/main.py:976
 msgid "Check the database for errors"
 msgstr "Өгөгдлийн саныг алдаануудад шалгах..."
 
-#: forms/main.py:979
+#: forms/main.py:980
 msgid "Check the files in the media directory"
 msgstr "Медиа каталогийн файлуудыг шалгах"
 
@@ -1183,7 +1209,7 @@ msgstr "Өнгийг сонго (F7 тэгээд F5)"
 msgid "Choose file to export to"
 msgstr "Экспортын файлыг сонго"
 
-#: forms/main.py:989
+#: forms/main.py:990
 msgid "Choose the categories to show during review"
 msgstr "Давталтын турш аль төрлийг нь сонго"
 
@@ -1195,11 +1221,11 @@ msgstr "Анки нуухаар дар"
 msgid "Click to show Anki"
 msgstr "Анки-г үзэхээр энэ дээр дар"
 
-#: ui/addcards.py:73 forms/displayproperties.py:376
+#: ui/addcards.py:74 forms/displayproperties.py:376
 msgid "Close"
 msgstr "Хаа"
 
-#: ui/addcards.py:169
+#: ui/addcards.py:170
 msgid "Close and lose current input?"
 msgstr "Хааж одоогийн оруулалтыг хаях уу?"
 
@@ -1216,7 +1242,7 @@ msgstr "'%s' талбартай харьцуулах"
 msgid "Configure interface language and options"
 msgstr "програмын харагдах байдлын хэл бас тохиргоонуудыг өөрчлөх"
 
-#: forms/main.py:1003
+#: forms/main.py:1004
 msgid "Configure review options"
 msgstr "Давталтын тохиргоонуудыг өөрчлөх"
 
@@ -1224,7 +1250,7 @@ msgstr "Давталтын тохиргоонуудыг өөрчлөх"
 msgid "Connecting..."
 msgstr "Холбож байна..."
 
-#: ui/main.py:1179
+#: ui/main.py:1181
 msgid "Continue &Reviewing"
 msgstr "Давтахыг &Үргэлжлэх"
 
@@ -1257,11 +1283,11 @@ msgstr "Сараас бага зөв хариулсан нь:"
 msgid "Couldn't play sound. Please install mplayer."
 msgstr ""
 
-#: ui/main.py:1555
+#: ui/main.py:1557
 msgid "Cram"
 msgstr "Оройтож бэлтгэх"
 
-#: ui/cardlist.py:836
+#: ui/cardlist.py:862
 msgid "Cram selected cards in new deck?"
 msgstr "Шинэ цуглуулгын сонгосон картуудыг нь оройтож бэлтгэх уу?"
 
@@ -1270,7 +1296,7 @@ msgstr "Шинэ цуглуулгын сонгосон картуудыг нь �
 msgid "Create '%s' on server"
 msgstr "Серверийн дээр '%s' үүсгэх"
 
-#: ui/cardlist.py:229 ui/cardlist.py:418
+#: ui/cardlist.py:229 ui/cardlist.py:419
 msgid "Created"
 msgstr "Үүсгэсэн"
 
@@ -1303,23 +1329,23 @@ msgstr "Ctrl+Alt+%d"
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
-#: forms/cardlist.py:241 forms/main.py:996
+#: forms/cardlist.py:267 forms/main.py:997
 msgid "Ctrl+Del"
 msgstr "Ctrl+Del"
 
-#: forms/main.py:992
+#: forms/main.py:993
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
-#: forms/cardlist.py:261
+#: forms/cardlist.py:287
 msgid "Ctrl+End"
 msgstr "Ctrl+End"
 
-#: ui/addcards.py:70
+#: ui/addcards.py:71
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:251 forms/main.py:922
+#: forms/cardlist.py:277 forms/main.py:922
 msgid "Ctrl+F"
 msgstr "Ctrl+F"
 
@@ -1327,15 +1353,15 @@ msgstr "Ctrl+F"
 msgid "Ctrl+F9"
 msgstr "Ctrl+F9"
 
-#: forms/cardlist.py:259
+#: forms/cardlist.py:285
 msgid "Ctrl+Home"
 msgstr "Ctrl+Home"
 
-#: forms/main.py:958
+#: forms/main.py:959
 msgid "Ctrl+M"
 msgstr "Ctrl+M"
 
-#: forms/cardlist.py:255 forms/main.py:906
+#: forms/cardlist.py:281 forms/main.py:906
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
@@ -1343,7 +1369,7 @@ msgstr "Ctrl+N"
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:257 forms/main.py:925
+#: forms/cardlist.py:283 forms/main.py:925
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
@@ -1351,7 +1377,7 @@ msgstr "Ctrl+P"
 msgid "Ctrl+Q"
 msgstr "Ctrl+Q"
 
-#: ui/addcards.py:65
+#: ui/addcards.py:66
 msgid "Ctrl+Return"
 msgstr "Ctrl+Return"
 
@@ -1359,19 +1385,24 @@ msgstr "Ctrl+Return"
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
-#: forms/main.py:1018
+#: forms/main.py:1019
 #, fuzzy
 msgid "Ctrl+Shift+B"
 msgstr "Ctrl+Shift+F"
 
-#: forms/cardlist.py:253
+#: forms/cardlist.py:279
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+Shift+F"
 
-#: forms/main.py:961
+#: forms/cardlist.py:301 forms/main.py:962
 #, fuzzy
 msgid "Ctrl+Shift+S"
 msgstr "Ctrl+Shift+F"
+
+#: forms/cardlist.py:299
+#, fuzzy
+msgid "Ctrl+T"
+msgstr "Ctrl+1"
 
 #: forms/main.py:910
 msgid "Ctrl+W"
@@ -1381,7 +1412,7 @@ msgstr "Ctrl+W"
 msgid "Ctrl+Y"
 msgstr "Ctrl+Y"
 
-#: forms/main.py:970
+#: forms/main.py:971
 msgid "Ctrl+Z"
 msgstr "Ctrl+Z"
 
@@ -1413,11 +1444,11 @@ msgstr "Ctrl+u"
 msgid "Cumulative"
 msgstr "Хуримтлагдсан нь"
 
-#: forms/main.py:962
+#: forms/main.py:963
 msgid "Current &Model..."
 msgstr "Одоогийн зүйл"
 
-#: forms/cardlist.py:235
+#: forms/cardlist.py:261
 msgid "Current Card"
 msgstr "Одоогийн карт"
 
@@ -1425,15 +1456,15 @@ msgstr "Одоогийн карт"
 msgid "Customize Models"
 msgstr "Зүйлүүд тохируулах"
 
-#: forms/main.py:963
+#: forms/main.py:964
 msgid "Customize card layout, fields, etc"
 msgstr "Картын байрлал, талбарууд, гэх мэтийг тохируулах"
 
-#: forms/main.py:954
+#: forms/main.py:955
 msgid "Customize fonts, colours and alignment"
 msgstr "Фонтууд, өнгүүд, бас жигдрүүлэгчийг тохируулах"
 
-#: forms/main.py:946
+#: forms/main.py:947
 msgid "Customize syncing, scheduling, priorities and models"
 msgstr "Давхцал, төлөвлөлт, яаралууд, бас зүйлүүдийг тохируулах"
 
@@ -1441,7 +1472,7 @@ msgstr "Давхцал, төлөвлөлт, яаралууд, бас зүйлү�
 msgid "Czech"
 msgstr "Чех хэл"
 
-#: ui/main.py:2343
+#: ui/main.py:2345
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1466,23 +1497,23 @@ msgstr "Цуглуулгын файлууд (*.anki)"
 msgid "Deck is already open."
 msgstr "Цуглуулга нээж л байна."
 
-#: ui/main.py:1422 forms/cardlist.py:240
+#: ui/main.py:1424 forms/cardlist.py:266
 msgid "Delete"
 msgstr "Устга"
 
-#: ui/cardlist.py:740
+#: ui/cardlist.py:748
 msgid "Delete Cards"
 msgstr "Картуудыг устга"
 
-#: ui/main.py:2360
+#: ui/main.py:2362
 msgid "Delete Refs"
 msgstr "Лавлахуудыг устгах"
 
-#: ui/cardlist.py:761
+#: ui/cardlist.py:769
 msgid "Delete Tags"
 msgstr "Шошгыг устгах"
 
-#: forms/main.py:995
+#: forms/main.py:996
 msgid "Delete the currently displayed card"
 msgstr "Одоогийн картыг устгах"
 
@@ -1506,7 +1537,7 @@ msgstr "Талбарыг устга"
 msgid "Display"
 msgstr "Дэлгэц"
 
-#: forms/main.py:981
+#: forms/main.py:982
 msgid "Do an extra review of specified cards before a test"
 msgstr "Тестийг хийхийн өмнө сонгосон картуудыг илүү давтах"
 
@@ -1530,15 +1561,15 @@ msgstr "Нийтийн Цуглуулгыг тат"
 msgid "Download Shared Plugin"
 msgstr "Нийтийн хавсарга програмыг тат"
 
-#: forms/main.py:1013
+#: forms/main.py:1014
 msgid "Download a deck that people have shared publicly"
 msgstr "Өөр хүмүүсийн нээлттэй цуглуулгыг тат"
 
-#: forms/main.py:1011
+#: forms/main.py:1012
 msgid "Download a deck that you synced from another computer"
 msgstr "Өөр компьютертой давхацсан цуглуулгыг татах"
 
-#: forms/main.py:1015
+#: forms/main.py:1016
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "Шинэ чанар Анкит нэмэхээр хавсарга програмыг тат"
 
@@ -1546,7 +1577,7 @@ msgstr "Шинэ чанар Анкит нэмэхээр хавсарга про�
 msgid "Downloads"
 msgstr "Таталтууд"
 
-#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:378 ui/cardlist.py:420
+#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:378 ui/cardlist.py:421
 #: ui/graphs.py:148
 msgid "Due"
 msgstr "Дахин давтах"
@@ -1560,7 +1591,7 @@ msgstr "&Гарах"
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "<b>%(timeLeft)s</b> үлдлэж байна"
 
-#: ui/cardlist.py:237 ui/cardlist.py:423
+#: ui/cardlist.py:237 ui/cardlist.py:424
 msgid "Ease"
 msgstr "Амрын түвшин"
 
@@ -1576,11 +1607,11 @@ msgstr "Амархан"
 msgid "Edit"
 msgstr "Засварла"
 
-#: forms/main.py:990
+#: forms/main.py:991
 msgid "Edit &Current..."
 msgstr "Сонголтыг нь &засварлана..."
 
-#: forms/main.py:991
+#: forms/main.py:992
 msgid "Edit the currently displayed item"
 msgstr "Одоогийн үзүүлсэн хэсгийг засварлах"
 
@@ -1596,11 +1627,11 @@ msgstr "&Асаах"
 msgid "English"
 msgstr "Англи"
 
-#: ui/cardlist.py:748
+#: ui/cardlist.py:756
 msgid "Enter tags to add:"
 msgstr "Нэмэхийн шошгыг оруулах: "
 
-#: ui/cardlist.py:759
+#: ui/cardlist.py:767
 msgid "Enter tags to delete:"
 msgstr "Устгахын шошгыг оруулах:"
 
@@ -1608,7 +1639,7 @@ msgstr "Устгахын шошгыг оруулах:"
 msgid "Estonian"
 msgstr "Эстони хэл"
 
-#: forms/main.py:951
+#: forms/main.py:952
 msgid "Expor&t..."
 msgstr "&Экспорт..."
 
@@ -1620,13 +1651,17 @@ msgstr "Экспорт"
 msgid "Export..."
 msgstr "Экспорт..."
 
-#: forms/cardlist.py:252
+#: forms/cardlist.py:278
 msgid "F&act"
 msgstr "&Баримт"
 
-#: forms/cardlist.py:258
+#: forms/cardlist.py:284
 msgid "F&irst Card"
 msgstr "&Эхлэхийн Карт"
+
+#: forms/cardlist.py:290 forms/main.py:940
+msgid "F1"
+msgstr ""
 
 #: ui/facteditor.py:272
 msgid "F2"
@@ -1640,7 +1675,7 @@ msgstr "F3"
 msgid "F4"
 msgstr "F4"
 
-#: ui/facteditor.py:250 forms/main.py:968
+#: ui/facteditor.py:250 forms/main.py:969
 msgid "F5"
 msgstr "F5"
 
@@ -1664,7 +1699,7 @@ msgstr "F7, F8"
 msgid "F9"
 msgstr "F9"
 
-#: ui/cardlist.py:424
+#: ui/cardlist.py:425
 #, fuzzy
 msgid "Fact Created"
 msgstr "Үүсгэсэн"
@@ -1673,7 +1708,7 @@ msgstr "Үүсгэсэн"
 msgid "Facts"
 msgstr "Баримтууд"
 
-#: ui/main.py:1856
+#: ui/main.py:1858
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Медиа илгээхийг дампуурсан. 'Медиа өгөгдлийн саныг шалгах' гүйцэтгээрэй.  "
 
@@ -1709,11 +1744,16 @@ msgstr "Талбарын тааруулах"
 msgid "Fields"
 msgstr "Талбарууд"
 
-#: forms/cardlist.py:266
+#: forms/cardlist.py:298
+#, fuzzy
+msgid "Fil&ters"
+msgstr "<Tag filter>"
+
+#: forms/cardlist.py:293
 msgid "Find and Re&place..."
 msgstr "Хайж &орлуулах..."
 
-#: ui/cardlist.py:956 forms/findreplace.py:60
+#: ui/cardlist.py:982 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr "Хайж орлуулах"
 
@@ -1725,7 +1765,7 @@ msgstr "Финлянд хэл"
 msgid "First Answered"
 msgstr "Эхлэхийн хариулсан"
 
-#: forms/cardlist.py:268
+#: forms/cardlist.py:295
 #, fuzzy
 msgid "Font..."
 msgstr "&Бэлэглэх..."
@@ -1742,11 +1782,11 @@ msgstr "Франц хэл"
 msgid "General && Fields"
 msgstr "Ерөнхий && Талбарууд"
 
-#: ui/cardlist.py:815 forms/addcardmodels.py:34
+#: ui/cardlist.py:841 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Картуудыг гаргах"
 
-#: ui/cardlist.py:821
+#: ui/cardlist.py:847
 msgid "Generating Cards..."
 msgstr "Картуудыг гаргах..."
 
@@ -1758,7 +1798,7 @@ msgstr "Герман хэл"
 msgid "Get Shared Decks/Plugins"
 msgstr "Нийтийн цуглуулга, Хавсарга програм хоёрыг ав"
 
-#: forms/main.py:1007
+#: forms/main.py:1008
 msgid "Get Shared..."
 msgstr "Нийтийнх нь авах..."
 
@@ -1779,7 +1819,7 @@ msgstr "HTML хэлний редактор  "
 msgid "Hard"
 msgstr "Хэцүү"
 
-#: ui/addcards.py:77 forms/displayproperties.py:374 forms/main.py:889
+#: ui/addcards.py:78 forms/displayproperties.py:374 forms/main.py:889
 msgid "Help"
 msgstr "Тусламж"
 
@@ -1804,7 +1844,7 @@ msgstr "Зургууд (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgid "Import"
 msgstr "Импорт хий"
 
-#: forms/main.py:948
+#: forms/main.py:949
 msgid "Import cards from text files, Anki files and more"
 msgstr "Текст файлууд, Анки файлууд, өөрөөс нь картыг импортлох"
 
@@ -1838,15 +1878,15 @@ msgstr "Төлөвлөлтийн мэдээллийг хамрах"
 msgid "Include tags"
 msgstr "Шошгуудыг оруулах"
 
-#: ui/cardlist.py:233 ui/cardlist.py:421 ui/graphs.py:150
+#: ui/cardlist.py:233 ui/cardlist.py:422 ui/graphs.py:150
 msgid "Interval"
 msgstr "Зай"
 
-#: ui/cardlist.py:974
+#: ui/cardlist.py:1000
 msgid "Invalid regular expression."
 msgstr "Хүчингүй байнгын илэрхийлэл"
 
-#: ui/activetags.py:25
+#: ui/activetags.py:26
 msgid "Invert"
 msgstr ""
 
@@ -1878,11 +1918,11 @@ msgstr "LaTeX-н тэгшитгэл (Ctrl+l тэгээд e)"
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr "LaTeX математикийн ахуй (Ctrl+l тэгээд m)"
 
-#: ui/main.py:1556
+#: ui/main.py:1558
 msgid "Loading deck..."
 msgstr "Цуглуулгын ачаалагдаж байна..."
 
-#: ui/main.py:1373
+#: ui/main.py:1375
 msgid "Loading graphs (may take time)..."
 msgstr "Диаграммуудыг ачаалагдаж байна.  Та хүлээнэ уу..."
 
@@ -1935,7 +1975,7 @@ msgstr "Зүйлийн чанарууд"
 msgid "Models && Priorities"
 msgstr "Зүйлийн && чанарууд"
 
-#: ui/cardlist.py:231 ui/cardlist.py:419
+#: ui/cardlist.py:231 ui/cardlist.py:420
 msgid "Modified"
 msgstr "Өөрчилсөн"
 
@@ -1997,7 +2037,7 @@ msgstr "Дараагийн өнгө (F7 тэгээд F8)"
 msgid "Next field must be blank."
 msgstr "Дараагийн талбар хоослуулах ёстой."
 
-#: ui/main.py:1549 ui/main.py:1585
+#: ui/main.py:1551 ui/main.py:1587
 msgid "No cards matched the provided tags."
 msgstr "Картуудаас сонгосон шошготой нь байхгүй."
 
@@ -2009,11 +2049,11 @@ msgstr "Өмнөх үзэмжийн картууд байхгүй."
 msgid "No changes found."
 msgstr "Өөрчлөлт олоогүй."
 
-#: ui/main.py:1365
+#: ui/main.py:1367
 msgid "No current card or last card."
 msgstr "Одоогийн бас сүүлийн карт байхгүй."
 
-#: ui/main.py:1301
+#: ui/main.py:1303
 msgid "No expression in current card."
 msgstr "Одоогийн картын дээр илэрхийлэл байхгүй."
 
@@ -2022,11 +2062,11 @@ msgstr "Одоогийн картын дээр илэрхийлэл байхгү
 msgid "No fact tags"
 msgstr "Шошгогүй"
 
-#: ui/main.py:1308
+#: ui/main.py:1310
 msgid "No meaning in current card."
 msgstr "Одоогийн картад утгагүй."
 
-#: ui/cardlist.py:1144
+#: ui/cardlist.py:1176
 msgid "Nothing"
 msgstr "Юу ч байхгүй"
 
@@ -2042,11 +2082,11 @@ msgstr "&Сүүлд хаасан нь нээ"
 msgid "Open Local Deck"
 msgstr "Цуглуулга дотоод нээ"
 
-#: forms/main.py:955
+#: forms/main.py:956
 msgid "Open Sa&mple..."
 msgstr "Жишээг нь нээ..."
 
-#: forms/main.py:1008
+#: forms/main.py:1009
 msgid "Open a pre-made deck or plugin"
 msgstr "Бэлэн цуглуулга, хавсарга програм хоёрыг нээ"
 
@@ -2054,15 +2094,15 @@ msgstr "Бэлэн цуглуулга, хавсарга програм хоёр�
 msgid "Open deck"
 msgstr "Цуглуулгыг нээ"
 
-#: forms/main.py:941
+#: forms/main.py:942
 msgid "Open the bug tracker"
 msgstr "Алдааны мөрчийг нээ"
 
-#: forms/main.py:976
+#: forms/main.py:977
 msgid "Optimize Database"
 msgstr "Өгөгдлийн саныг зүгшрүүлэх"
 
-#: ui/main.py:1229
+#: ui/main.py:1231
 #, fuzzy
 msgid "Ordering..."
 msgstr "Ачаалагдаж байна..."
@@ -2087,11 +2127,11 @@ msgstr "Нууц үг:"
 msgid "Performance"
 msgstr "Удирдлага"
 
-#: forms/main.py:1010
+#: forms/main.py:1011
 msgid "Personal Deck"
 msgstr "Өөрийнхөө Цуглуулга"
 
-#: forms/main.py:967
+#: forms/main.py:968
 msgid "Play the last-played audio again"
 msgstr "Сүүлд тоглосон дуу дахиад тоглох"
 
@@ -2121,7 +2161,7 @@ msgstr "Та зөв хэрэглэгчийн нэр, нууц үгийг ору�
 msgid "Please enable a different template first."
 msgstr "Өөр зүйлийг асаана уу?"
 
-#: ui/cardlist.py:786
+#: ui/cardlist.py:812
 msgid "Please enter a valid start and end range."
 msgstr "Хүчинтэй хэрэглээний хүрээг оруулна уу?"
 
@@ -2131,11 +2171,11 @@ msgid ""
 "to enable recording."
 msgstr "Дуу хураахаар <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>-г суулгаарай."
 
-#: ui/main.py:1391
+#: ui/main.py:1393
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Диаграммууд руу орох болохоор python-matplotlib-г суулгаарай."
 
-#: ui/main.py:2320
+#: ui/main.py:2322
 msgid "Please restart Anki before checking the DB."
 msgstr "Өгөгдлийн саныг шалгахыг өмнө Анки дахин асаарай."
 
@@ -2147,7 +2187,7 @@ msgstr "Хавсарга програм татуулсан.  Анки дахин
 msgid "Polish"
 msgstr "Польш хэл"
 
-#: forms/main.py:999
+#: forms/main.py:1000
 msgid "Pre-generate PNG images of LaTeX cards"
 msgstr "LaTeX-н картуудын PNG-н форматын зураг өмнөх хийж"
 
@@ -2184,7 +2224,7 @@ msgstr "Картуудыг өмнөх үзэх"
 msgid "Previous colour (F7 then F6)"
 msgstr "Өнгөрсөн өнгө (F6 тэгээд F7)"
 
-#: ui/main.py:2335
+#: ui/main.py:2337
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2201,7 +2241,7 @@ msgstr "Гүйцэтгэж байна..."
 msgid "Put space between question and answer"
 msgstr "Асуулт, хариулт хоёрын хооронд зай тавих"
 
-#: ui/cardlist.py:47 ui/cardlist.py:416
+#: ui/cardlist.py:47 ui/cardlist.py:417
 msgid "Question"
 msgstr "Асуулт"
 
@@ -2221,7 +2261,7 @@ msgstr "Асуултын фонт"
 msgid "Question size"
 msgstr "Асуултын хэмжээ"
 
-#: ui/main.py:1235 ui/main.py:1575
+#: ui/main.py:1237 ui/main.py:1577
 msgid "Randomizing..."
 msgstr "Санамсаргүй дараалал хийж байна..."
 
@@ -2229,7 +2269,7 @@ msgstr "Санамсаргүй дараалал хийж байна..."
 msgid "Re&view Early"
 msgstr "Эрт &давтах"
 
-#: forms/main.py:1006
+#: forms/main.py:1007
 msgid "Record 10 seconds of silence so that the record function can cancel noise"
 msgstr "Дуу хураалт чимээг дарахаар чимээгүй 10 секунд хуурах"
 
@@ -2242,7 +2282,7 @@ msgstr "Дуу хураах (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Дуу хурааж байна...<br>Цаг: %0.1f"
 
-#: ui/cardlist.py:524 ui/main.py:2053
+#: ui/cardlist.py:525 ui/main.py:2055
 #, python-format
 msgid "Redo %s"
 msgstr "%s дахиад хий"
@@ -2251,7 +2291,7 @@ msgstr "%s дахиад хий"
 msgid "Refresh"
 msgstr "Шинэчлэх"
 
-#: forms/main.py:982
+#: forms/main.py:983
 msgid "Release Notes..."
 msgstr "Чөлөөлөлтийн баримтууд..."
 
@@ -2263,35 +2303,35 @@ msgstr "Үлдээсэн картууд"
 msgid "Remaining: "
 msgstr "Үлдэгдэл:"
 
-#: forms/main.py:1001
+#: forms/main.py:1002
 msgid "Remove generated PNG images of LaTeX cards"
 msgstr "LaTeX-н картуудын PNG-н форматын зураг өмнөх хийжийг нь устгах"
 
-#: forms/main.py:977
+#: forms/main.py:978
 msgid "Remove unused space, making the database file smaller"
 msgstr "Хэрэглээгүй хэмжээг устгаад өгөгдлийн санын файлын хэмжээг баглана"
 
-#: forms/main.py:965
+#: forms/main.py:966
 msgid "Repeat &Answer Audio"
 msgstr "&Хариултын дуу дахиад тоглох"
 
-#: forms/main.py:966
+#: forms/main.py:967
 msgid "Repeat &Audio"
 msgstr "Дуу &дахиад тоглох"
 
-#: forms/main.py:964
+#: forms/main.py:965
 msgid "Repeat &Question Audio"
 msgstr "Асуултын дуу дахиад тоглох"
 
-#: ui/cardlist.py:959
+#: ui/cardlist.py:985
 msgid "Replacing..."
 msgstr "Оруулж байна..."
 
-#: ui/cardlist.py:235 ui/cardlist.py:422 ui/graphs.py:154
+#: ui/cardlist.py:235 ui/cardlist.py:423 ui/graphs.py:154
 msgid "Reps"
 msgstr "Удаа"
 
-#: ui/cardlist.py:770 forms/reschedule.py:79
+#: ui/cardlist.py:796 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr "Дахин төлөвлөх"
 
@@ -2303,7 +2343,7 @@ msgstr "Шинэ картуудаар дахин төлөвлөх"
 msgid "Reschedule with initial interval in range:"
 msgstr "Дараагийн эхлэхийн зайтай дахин төлөвлөх:"
 
-#: forms/cardlist.py:262
+#: forms/cardlist.py:288
 msgid "Reverse &Order"
 msgstr "Дарааллыг &арах"
 
@@ -2337,7 +2377,7 @@ msgstr "Чимээгүй хуурдаж байна...<br>Цаг: %0.1f"
 msgid "Save && Sync"
 msgstr "Хадгалаад давхцах"
 
-#: forms/main.py:972
+#: forms/main.py:973
 msgid "Save &As..."
 msgstr "&Өөр нэрт хадгалах..."
 
@@ -2353,7 +2393,7 @@ msgstr "Нэмэхийн дараа хадгалах"
 msgid "Save after answering"
 msgstr "Хариулахын дараа хадгалах"
 
-#: forms/main.py:952
+#: forms/main.py:953
 msgid "Save cards in a new deck or text file for sharing with others"
 msgstr "Нийтийн цуглуулга хийхээр энэ картууд шинэ цуглуулга, текст файлыг хадгалах"
 
@@ -2361,7 +2401,7 @@ msgstr "Нийтийн цуглуулга хийхээр энэ картууд �
 msgid "Save this deck now"
 msgstr "Одоо энэ цуглуулгыг хадгалах"
 
-#: forms/main.py:973
+#: forms/main.py:974
 msgid "Save this deck, giving it a new name"
 msgstr "Энэ цуглуулга шинэ нэртэй хадгалах"
 
@@ -2373,20 +2413,20 @@ msgstr "Хаахдаа хадгалах"
 msgid "Search:"
 msgstr "Хайлт:"
 
-#: forms/cardlist.py:246
+#: forms/cardlist.py:272
 msgid "Select &All"
 msgstr "&Бүгдийг сонго"
 
-#: forms/cardlist.py:265
+#: forms/cardlist.py:292
 msgid "Select &Facts"
 msgstr "&Баримтуудыг сонго"
 
-#: ui/activetags.py:17
+#: ui/activetags.py:18
 #, fuzzy
 msgid "Select All"
 msgstr "&Бүгдийг сонго"
 
-#: ui/activetags.py:21
+#: ui/activetags.py:22
 #, fuzzy
 msgid "Select None"
 msgstr "&Бүгдийг сонго"
@@ -2404,15 +2444,15 @@ msgstr "&Цуглуулгын статистикс"
 msgid "Set colour (F7 then F7)"
 msgstr "Өнгийг сонго (F7 тэгээд F7)"
 
-#: forms/main.py:1009
+#: forms/main.py:1010
 msgid "Share..."
 msgstr "Өөр хүмүүстэй хуваалцах..."
 
-#: forms/main.py:1012
+#: forms/main.py:1013
 msgid "Shared Deck"
 msgstr "Нийтийн Цуглуулга"
 
-#: forms/main.py:1014
+#: forms/main.py:1015
 msgid "Shared Plugin"
 msgstr "Нийтийн хавсарга програм"
 
@@ -2440,7 +2480,7 @@ msgstr "Асуулт, хариулт хоёрын хооронд хуваагч 
 msgid "Show due count and progress during review"
 msgstr "Дахин давтахын тоо, процесс хоёрт үзүүлэх"
 
-#: forms/main.py:950
+#: forms/main.py:951
 msgid "Show graphical statistics about your deck"
 msgstr "Таны цуглуулгын тухай зургийн статистикс үзүүлэх"
 
@@ -2456,7 +2496,7 @@ msgstr "Өмнөх үзэмжит үзүүлэх"
 msgid "Show some textual statistics about your deck"
 msgstr "Таны цуглуулгын тухай текстийн статистикс үзүүлэх"
 
-#: forms/main.py:944
+#: forms/main.py:945
 msgid "Show statistics about the current card and last card"
 msgstr "Одоогийн бас сүүлийн картын статистиксуудыг үзүүлэх"
 
@@ -2484,7 +2524,7 @@ msgstr "Мэдээллийн цэгийн тэмдэг үзүүлэх"
 msgid "Show/Hide"
 msgstr "Үзүүлэх/Hуух"
 
-#: ui/addcards.py:122 ui/cardlist.py:631
+#: ui/addcards.py:123 ui/cardlist.py:638
 msgid "Some fields are missing or not unique."
 msgstr "Зарим талбар байхгүй эсвэл цор ганц битгий байна."
 
@@ -2512,7 +2552,7 @@ msgstr "Эх үүсвэрийн ялгах тэмдэг:"
 msgid "Spanish"
 msgstr "Испани хэл"
 
-#: ui/main.py:1181
+#: ui/main.py:1183
 msgid "Start &Reviewing"
 msgstr "Давтахыг &эхлэх"
 
@@ -2528,15 +2568,15 @@ msgstr "Эхлэл"
 msgid "Status"
 msgstr "Байдал"
 
-#: forms/main.py:960
+#: forms/main.py:961
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Энэ карт браузерт бүү түдгэлзүүлэхийн хүртэл давтахгүй"
 
-#: ui/main.py:1408
+#: ui/cardlist.py:778 ui/main.py:1410
 msgid "Suspend"
 msgstr "Түдгэлзэх"
 
-#: forms/main.py:1017
+#: forms/main.py:1018
 msgid "Suspend the current fact until the deck is closed and opened again"
 msgstr ""
 
@@ -2573,7 +2613,7 @@ msgstr "Энэ цуглуулгыг давхац"
 msgid "Synchronize this deck with Anki Online"
 msgstr "Энэ цуглуулга Анки Вебтэй давхац"
 
-#: ui/main.py:1834 ui/main.py:1836
+#: ui/main.py:1836 ui/main.py:1838
 msgid "Syncing Media..."
 msgstr "Медиа түдгэлзүүлж байна..."
 
@@ -2582,7 +2622,7 @@ msgstr "Медиа түдгэлзүүлж байна..."
 msgid "Syncing failed: %(a)s"
 msgstr "Давхцал дампуурсан: %(a)s"
 
-#: ui/main.py:2358
+#: ui/main.py:2360
 msgid "Tag Cards"
 msgstr "Картуудыг шошго хий"
 
@@ -2594,11 +2634,11 @@ msgstr "Устгахын оронд нь картуудыг хуулбар шо�
 msgid "Tags"
 msgstr "Шошгууд"
 
-#: ui/main.py:1539
+#: ui/main.py:1541
 msgid "Tags to cram:"
 msgstr "Шошгоос оройтож бэлтгэх нь:"
 
-#: ui/cardlist.py:1220
+#: ui/cardlist.py:1252
 msgid "Targets must be unique."
 msgstr "Төлөвлөгөөт цор ганц ёстой."
 
@@ -2618,7 +2658,7 @@ msgstr ""
 msgid "The <b>number of questions in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr ""
 
-#: ui/addcards.py:126
+#: ui/addcards.py:127
 msgid ""
 "The input you have provided would make an empty\n"
 "question or answer on all cards."
@@ -2754,7 +2794,7 @@ msgstr ""
 "%s\n"
 "Эхлээд та эх үүсвэрийг устгах хэрэгтэй."
 
-#: ui/main.py:2322
+#: ui/main.py:2324
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2772,7 +2812,7 @@ msgstr ""
 "<b>Энэ гүйцэтгэлийг тайлж чадахгүй шүү дээ.</b><br>\n"
 "Үргэлжлэх мөн уу?"
 
-#: ui/main.py:2349
+#: ui/main.py:2351
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2819,7 +2859,7 @@ msgstr ""
 msgid "Title"
 msgstr "Гарчиг"
 
-#: ui/main.py:1383
+#: ui/main.py:1385
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2831,7 +2871,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr "Өнөөдрийн давталтууд дууссан"
 
-#: ui/main.py:1279
+#: ui/main.py:1281
 msgid "Toggle Toolbar"
 msgstr "Багажид самбарыг хөшүүрэгдэх"
 
@@ -2912,7 +2952,7 @@ msgstr ""
 msgid "Unable to recover. Deck load failed."
 msgstr "Сэргээх  чадаагүй. Цуглуулга ачаалагдахыг дампуурсан. "
 
-#: forms/main.py:1000
+#: forms/main.py:1001
 msgid "Uncache LaTeX"
 msgstr "LaTeX ойгоос устгах"
 
@@ -2920,7 +2960,7 @@ msgstr "LaTeX ойгоос устгах"
 msgid "Underline text (Ctrl+u)"
 msgstr "Доогуур зурах (Ctrl+u)"
 
-#: ui/cardlist.py:518 ui/main.py:2047
+#: ui/cardlist.py:519 ui/main.py:2049
 #, python-format
 msgid "Undo %s"
 msgstr "%s-г тайлах"
@@ -2930,11 +2970,16 @@ msgstr "%s-г тайлах"
 msgid "Unknown error: %s"
 msgstr ""
 
+#: ui/cardlist.py:787
+#, fuzzy
+msgid "Unsuspend"
+msgstr "Түдгэлзэх"
+
 #: ui/update.py:108
 msgid "Update complete. Please restart Anki."
 msgstr "Шинэчлэл дууссан.  Анки дахин асаарай."
 
-#: ui/main.py:2087
+#: ui/main.py:2089
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2989,12 +3034,12 @@ msgstr "Сайн байна! Ийм картыг <b>%(next)s</b>-н дараа �
 msgid "Would you like to download it now?"
 msgstr "Та одоо татах гэсийн юм уу?"
 
-#: ui/main.py:1454 ui/main.py:1502
+#: ui/main.py:1456 ui/main.py:1504
 #, fuzzy
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Одоо оройтож бэлтгэж байна. Эхлээд цуглуулгыг хаана уу?"
 
-#: ui/main.py:2078
+#: ui/main.py:2080
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -3005,7 +3050,7 @@ msgstr ""
 "Үүнийг %(sec)d секунд %(type)s.\n"
 "Цаг зөв тааруулаад Анки дахин асаагаарай."
 
-#: ui/main.py:1813
+#: ui/main.py:1815
 #, python-format
 msgid ""
 "Your computer clock is not set to the correct time.\n"
@@ -3020,7 +3065,7 @@ msgstr ""
 "Яагаад гэвэл үүнээс олон давхцалын алдаа шалтгаацаж чадна,\n"
 "Алдааг засварлахын хүртэл давхцал унтраасан."
 
-#: ui/main.py:1388
+#: ui/main.py:1390
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3028,7 +3073,7 @@ msgstr ""
 "Таны Matplotlib-н хувилбар хагаруулсан.\n"
 "http://ichi2.net/anki/wiki/MatplotlibBroken-т үзүүлэнэ уу?"
 
-#: forms/main.py:987
+#: forms/main.py:988
 msgid "a"
 msgstr "нэг нь"
 
@@ -3041,7 +3086,7 @@ msgstr "картууд"
 msgid "days"
 msgstr "өдрүүд"
 
-#: ui/main.py:2076
+#: ui/main.py:2078
 msgid "early"
 msgstr "эрт"
 
@@ -3058,7 +3103,7 @@ msgstr "%s-н дотор"
 msgid "label"
 msgstr "тэмдэг"
 
-#: ui/main.py:2074
+#: ui/main.py:2076
 msgid "late"
 msgstr "хойш"
 
@@ -3082,6 +3127,9 @@ msgstr "тохиргоо"
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr "toplabel"
+
+#~ msgid "&Guide..."
+#~ msgstr "&Гарын авлага..."
 
 #~ msgid "<b>File to import</b>:"
 #~ msgstr "<b>Импортын файл</b>:"
