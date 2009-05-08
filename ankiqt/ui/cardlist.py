@@ -394,10 +394,10 @@ class EditDeck(QMainWindow):
             icon = QIcon(":/icons/" + icon)
             for t in sortedtags:
                 self.dialog.tagList.addItem(icon, t.replace("_", " "))
-            alltags.append(None)
             if sortedtags:
                 self.dialog.tagList.insertSeparator(
                     self.dialog.tagList.count())
+                alltags.append(None)
         # fact tags
         alluser = sorted(self.deck.allTags())
         for tag in alltags:
@@ -623,6 +623,8 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionNextCard, SIGNAL("triggered()"), self.onNextCard)
         self.connect(self.dialog.actionFind, SIGNAL("triggered()"), self.onFind)
         self.connect(self.dialog.actionFact, SIGNAL("triggered()"), self.onFact)
+        self.connect(self.dialog.actionTags, SIGNAL("triggered()"), self.onTags)
+        self.connect(self.dialog.actionSort, SIGNAL("triggered()"), self.onSort)
         # help
         self.connect(self.dialog.actionGuide, SIGNAL("triggered()"), self.onHelp)
         runHook('editor.setupMenus', self)
@@ -1053,6 +1055,12 @@ where id in %s""" % ids2str(sf))
 
     def onFact(self):
         self.editor.focusFirst()
+
+    def onTags(self):
+        self.dialog.tagList.setFocus()
+
+    def onSort(self):
+        self.dialog.sortBox.setFocus()
 
     # Help
     ######################################################################

@@ -209,12 +209,15 @@
      <string>&amp;Go</string>
     </property>
     <addaction name="actionFind" />
+    <addaction name="actionTags" />
+    <addaction name="actionSort" />
     <addaction name="actionFact" />
     <addaction name="separator" />
     <addaction name="actionFirstCard" />
     <addaction name="actionPreviousCard" />
     <addaction name="actionNextCard" />
     <addaction name="actionLastCard" />
+    <addaction name="separator" />
    </widget>
    <widget class="QMenu" name="menu_Help" >
     <property name="title" >
@@ -391,6 +394,9 @@
    <property name="text" >
     <string>&amp;Guide...</string>
    </property>
+   <property name="shortcut" >
+    <string>F1</string>
+   </property>
   </action>
   <action name="actionChangeModel" >
    <property name="icon" >
@@ -441,6 +447,30 @@
    </property>
    <property name="text" >
     <string>&amp;Unsuspend</string>
+   </property>
+  </action>
+  <action name="actionTags" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/anki-tag.png</normaloff>:/icons/anki-tag.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Fil&amp;ters</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionSort" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/view-sort-ascending.png</normaloff>:/icons/view-sort-ascending.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Sort</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>

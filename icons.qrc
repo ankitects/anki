@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/view-sort-ascending.png</file>
     <file>icons/media-playback-start2.png</file>
     <file>icons/anki-logo-thin.png</file>
     <file>icons/anki-logo.png</file>
