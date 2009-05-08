@@ -193,6 +193,9 @@
     <addaction name="actionAddTag" />
     <addaction name="actionDeleteTag" />
     <addaction name="separator" />
+    <addaction name="actionSuspend" />
+    <addaction name="actionUnsuspend" />
+    <addaction name="separator" />
     <addaction name="actionAddCards" />
     <addaction name="actionChangeModel" />
     <addaction name="separator" />
@@ -420,6 +423,24 @@
   <action name="actionFont" >
    <property name="text" >
     <string>Font...</string>
+   </property>
+  </action>
+  <action name="actionSuspend" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Suspend</string>
+   </property>
+  </action>
+  <action name="actionUnsuspend" >
+   <property name="icon" >
+    <iconset resource="../icons.qrc" >
+     <normaloff>:/icons/media-playback-start2.png</normaloff>:/icons/media-playback-start2.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Unsuspend</string>
    </property>
   </action>
  </widget>

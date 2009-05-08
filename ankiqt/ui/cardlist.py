@@ -605,6 +605,8 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionCram, SIGNAL("triggered()"), self.cram)
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionChangeModel, SIGNAL("triggered()"), self.onChangeModel)
+        self.connect(self.dialog.actionSuspend, SIGNAL("triggered()"), self.onSuspend)
+        self.connect(self.dialog.actionUnsuspend, SIGNAL("triggered()"), self.onUnsuspend)
         # edit
         self.connect(self.dialog.actionFont, SIGNAL("triggered()"), self.onFont)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
@@ -767,6 +769,24 @@ where id in (%s)""" % ",".join([
             self.deck.deleteTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(n)
             self.parent.setProgressParent(None)
+        self.updateAfterCardChange()
+
+    def onSuspend(self):
+        n = _("Suspend")
+        self.parent.setProgressParent(self)
+        self.deck.setUndoStart(n)
+        self.deck.addTags(self.selectedFacts(), "Suspended")
+        self.deck.setUndoEnd(n)
+        self.parent.setProgressParent(None)
+        self.updateAfterCardChange()
+
+    def onUnsuspend(self):
+        n = _("Unsuspend")
+        self.parent.setProgressParent(self)
+        self.deck.setUndoStart(n)
+        self.deck.deleteTags(self.selectedFacts(), "Suspended")
+        self.deck.setUndoEnd(n)
+        self.parent.setProgressParent(None)
         self.updateAfterCardChange()
 
     def reschedule(self):
