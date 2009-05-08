@@ -758,7 +758,7 @@ where id in (%s)""" % ",".join([
             self.deck.addTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(n)
             self.parent.setProgressParent(None)
-        self.updateAfterCardChange()
+        self.updateAfterCardChange(reset=True)
 
     def deleteTags(self):
         (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
@@ -769,7 +769,7 @@ where id in (%s)""" % ",".join([
             self.deck.deleteTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(n)
             self.parent.setProgressParent(None)
-        self.updateAfterCardChange()
+        self.updateAfterCardChange(reset=True)
 
     def onSuspend(self):
         n = _("Suspend")
@@ -778,7 +778,7 @@ where id in (%s)""" % ",".join([
         self.deck.addTags(self.selectedFacts(), "Suspended")
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
-        self.updateAfterCardChange()
+        self.updateAfterCardChange(reset=True)
 
     def onUnsuspend(self):
         n = _("Unsuspend")
@@ -787,7 +787,7 @@ where id in (%s)""" % ",".join([
         self.deck.deleteTags(self.selectedFacts(), "Suspended")
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
-        self.updateAfterCardChange()
+        self.updateAfterCardChange(reset=True)
 
     def reschedule(self):
         n = _("Reschedule")
