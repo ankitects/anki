@@ -1122,6 +1122,21 @@ where facts.id not in (select distinct factId from cards)""")
         # note deleted
         data = [{'id': id, 'time': now} for id in ids]
         self.s.statements("insert into cardsDeleted values (:id, :time)", data)
+        # gather affected tags
+        tags = self.s.column0(
+            "select tagId from cardTags where cardId in %s" %
+            strids)
+        # delete
+        self.s.statement("delete from cardTags where cardId in %s" % strids)
+        # find out if they're used by anything else
+        unused = []
+        for tag in tags:
+            if not self.s.scalar(
+                "select 1 from cardTags where tagId = :d limit 1", d=tag):
+                unused.append(tag)
+        # delete unused
+        self.s.statement("delete from tags where id in %s and priority = 2" %
+                         ids2str(unused))
         # remove any dangling facts
         self.deleteDanglingFacts()
         self.rebuildCounts()
