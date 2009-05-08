@@ -395,8 +395,9 @@ class EditDeck(QMainWindow):
             for t in sortedtags:
                 self.dialog.tagList.addItem(icon, t.replace("_", " "))
             alltags.append(None)
-            self.dialog.tagList.insertSeparator(
-                self.dialog.tagList.count())
+            if sortedtags:
+                self.dialog.tagList.insertSeparator(
+                    self.dialog.tagList.count())
         # fact tags
         alluser = sorted(self.deck.allTags())
         for tag in alltags:
