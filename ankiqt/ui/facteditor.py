@@ -512,7 +512,7 @@ class FactEditor(object):
         self.saveFields()
         self.checkValid()
         if self.onChange:
-            self.onChange()
+            self.onChange('field')
         self.changeTimer = None
 
     def saveFieldsNow(self):
@@ -524,7 +524,7 @@ class FactEditor(object):
             self.changeTimer.stop()
             self.changeTimer = None
             if self.onChange:
-                self.onChange()
+                self.onChange('field')
         # save fields and run features
         w = self.focusedEdit()
         if w:
@@ -566,14 +566,14 @@ class FactEditor(object):
             return
         old = self.fact.tags
         self.fact.tags = canonifyTags(unicode(self.tags.text()))
-        if self.onChange:
-            self.onChange()
         if old != self.fact.tags:
             self.deck.s.flush()
             self.deck.updateFactTags([self.fact.id])
             self.deck.updatePriorities([c.id for c in self.fact.cards])
             self.fact.setModified(textChanged=True)
             self.deck.flushMod()
+        if self.onChange:
+            self.onChange('tag')
 
     def focusField(self, fieldName):
         self.fields[fieldName][1].setFocus()

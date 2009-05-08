@@ -513,7 +513,7 @@ class EditDeck(QMainWindow):
             "sel": ngettext("%d selected", "%d selected", selected) % selected
             })
 
-    def onEvent(self):
+    def onEvent(self, type='field'):
         if self.deck.undoAvailable():
             self.dialog.actionUndo.setText(_("Undo %s") %
                                            self.deck.undoName())
@@ -529,6 +529,8 @@ class EditDeck(QMainWindow):
         # update list
         if self.currentRow and self.model.cards:
             self.model.updateCard(self.currentRow)
+        if type == "tag":
+            self.drawTags()
 
     def filterTextChanged(self):
         interval = 300
@@ -730,6 +732,7 @@ where id in (%s)""" % ",".join([
         self.rowChanged(self.currentRow, None)
         if reset:
             self.updateSearch()
+        self.drawTags()
         self.parent.moveToState("auto")
 
     # Menu options
