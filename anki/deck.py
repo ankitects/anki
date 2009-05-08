@@ -1072,7 +1072,7 @@ where factId = :fid and cardModelId = :cmid""",
         "Delete any facts without cards. Return deleted ids."
         ids = self.s.column0("""
 select facts.id from facts
-where facts.id not in (select factId from cards)""")
+where facts.id not in (select distinct factId from cards)""")
         self.deleteFacts(ids)
         return ids
 
