@@ -49,7 +49,7 @@ REV_CARDS_RANDOM = 3
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
-DECK_VERSION = 34
+DECK_VERSION = 35
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -2655,9 +2655,13 @@ class DeckStorage(object):
 
     def _addIndices(deck):
         "Add indices to the DB."
-        # failed cards, review early, check due
+        # failed cards, review early
         deck.s.statement("""
 create index if not exists ix_cards_duePriority on cards
+(type, isDue, combinedDue, priority)""")
+        # check due
+        deck.s.statement("""
+create index if not exists ix_cards_priorityDue on cards
 (type, isDue, combinedDue, priority)""")
         # card spacing
         deck.s.statement("""
@@ -3075,6 +3079,10 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             DeckStorage._addIndices(deck)
             deck.updateDynamicIndices()
             deck.version = 34
+            deck.s.commit()
+        if deck.version < 35:
+            DeckStorage._addIndices(deck)
+            deck.version = 35
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
