@@ -118,6 +118,9 @@
         </disabled>
        </palette>
       </property>
+      <property name="acceptDrops" >
+       <bool>false</bool>
+      </property>
       <property name="autoFillBackground" >
        <bool>true</bool>
       </property>
@@ -129,6 +132,9 @@
       </property>
       <property name="horizontalScrollBarPolicy" >
        <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="readOnly" >
+       <bool>true</bool>
       </property>
       <property name="html" >
        <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">

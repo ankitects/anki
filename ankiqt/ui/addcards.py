@@ -83,10 +83,11 @@ class AddCards(QDialog):
 
     def setupStatus(self):
         "Make the status background the same colour as the frame."
-        p = self.dialog.status.palette()
-        c = unicode(p.color(QPalette.Window).name())
-        self.dialog.status.setStyleSheet(
-            "* { background: %s; color: #000000; }" % c)
+        if not sys.platform.startswith("darwin"):
+            p = self.dialog.status.palette()
+            c = unicode(p.color(QPalette.Window).name())
+            self.dialog.status.setStyleSheet(
+                "* { background: %s; color: #000000; }" % c)
 
     def modelChanged(self, model):
         oldFact = self.editor.fact
