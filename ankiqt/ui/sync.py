@@ -36,6 +36,8 @@ class Sync(QThread):
         self.syncDeck()
 
     def error(self, error):
+        if getattr(error, 'data', None) is None:
+            error.data = {}
         if error.data.get('type') == 'noResponse':
             self.emit(SIGNAL("noSyncResponse"))
         else:
@@ -53,7 +55,7 @@ class Sync(QThread):
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
         else:
-            msg=_("Unknown error: %s" % `getattr(error, 'data')`)
+            msg=_("Unknown error: %s" % traceback.format_exc())
         return msg
 
     def connect(self, *args):
