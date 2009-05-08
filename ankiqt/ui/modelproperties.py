@@ -332,7 +332,7 @@ order by n""", id=card.id)
         card = self.currentCard
         newname = unicode(self.dialog.cardName.text())
         if not newname:
-            newname = _("Card %d") % (self.m.cardModels.index(card) + 1)
+            newname = _("Card-%d") % (self.m.cardModels.index(card) + 1)
         self.updateField(card, 'name', newname)
         s = unicode(self.dialog.cardQuestion.toPlainText())
         s = s.replace("<br>\n", "<br>")
