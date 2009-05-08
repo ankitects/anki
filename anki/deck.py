@@ -757,7 +757,8 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         new = self.updateTagPriorities()
         if not partial:
             new = self.s.all("select id, priority as pri from tags")
-        cids = self.s.column0("select cardId from cardTags where tagId in %s" %
+        cids = self.s.column0(
+            "select distinct cardId from cardTags where tagId in %s" %
                               ids2str([x['id'] for x in new]))
         self.updatePriorities(cids, dirty=dirty)
 
@@ -793,6 +794,10 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
             self.s.statement(
                 "update tags set priority = 0 where id in %s" %
                 ids2str(ids.values()))
+        if len(cardIds) > 1000:
+            limit = ""
+        else:
+            limit = "and cardTags.cardId in %s" % ids2str(cardIds)
         cards = self.s.all("""
 select cardTags.cardId,
 case
@@ -802,15 +807,19 @@ when min(tags.priority) = 1 then 1
 else 2 end
 from cardTags, tags
 where cardTags.tagId = tags.id
-and cardTags.cardId in %s
-group by cardTags.cardId""" % ids2str(cardIds))
+%s
+group by cardTags.cardId""" % limit)
         if dirty:
             extra = ", modified = :m "
         else:
             extra = ""
-        self.s.statements(
-            "update cards set priority = :pri %s where id = :id" % extra,
-            [{'id': c[0], 'pri': c[1], 'm': time.time()} for c in cards])
+        for pri in range(5):
+            cs = [c[0] for c in cards if c[1] == pri]
+            if cs:
+                self.s.statement((
+                    "update cards set priority = :pri %s where id in %s "
+                    "and priority != :pri") % (
+                    extra, ids2str(cs)), pri=pri, m=time.time())
         cnt = self.s.execute(
             "update cards set isDue = 0 where type in (0,1,2) and "
             "priority = 0 and isDue = 1").rowcount
