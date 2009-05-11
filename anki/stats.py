@@ -153,8 +153,7 @@ def updateStats(s, stats, card, ease, oldState):
     stats.reps += 1
     delay = card.totalTime()
     if delay >= 60:
-        # make a guess as to the time spent answering
-        stats.reviewTime += stats.averageTime
+        stats.reviewTime += 60
     else:
         stats.reviewTime += delay
         stats.averageTime = (
