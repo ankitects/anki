@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-09 06:53+0900\n"
-"PO-Revision-Date: 2009-05-02 16:26+0200\n"
+"POT-Creation-Date: 2009-05-10 13:35+0200\n"
+"PO-Revision-Date: 2009-05-10 13:33+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -94,19 +94,14 @@ msgstr " <b>Przy edycji (nadpisuje powyższe):</b>"
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Przy przeglądaniu i edycji:</b>"
 
+#: ui/main.py:2085
+msgid " Please ensure it is set correctly and then restart Anki."
+msgstr "Upewnij się, że jest ustawiony poprawnie i uruchom Anki ponownie."
+
 #: ui/sync.py:142
 #, python-format
 msgid " applied %d modified cards."
 msgstr " zastosowano %d zmodyfikowanych kart."
-
-#: ui/main.py:2374
-#, python-format
-msgid ""
-"%(a)d missing references.\n"
-"%(b)d unused files removed."
-msgstr ""
-"%(a)d brakujących referencji.\n"
-"%(b)d usuniętych nieużywanych plików."
 
 #: ui/cardlist.py:1009
 #, python-format
@@ -130,7 +125,7 @@ msgstr[2] "%(name)s [%(facts)d faktów]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d z %(totalSum)d"
 
-#: ui/main.py:1968
+#: ui/main.py:1969
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(due)d z %(cards)d do przeglądnięcia) - %(title)s"
@@ -140,6 +135,14 @@ msgstr "%(path)s (%(due)d z %(cards)d do przeglądnięcia) - %(title)s"
 msgid "%d exported."
 msgstr "%d wyeksportowano."
 
+#: ui/main.py:2375
+#, python-format
+msgid "%d missing reference."
+msgid_plural "%d missing references."
+msgstr[0] "%d brakująca referencja."
+msgstr[1] "%d brakujące referencje."
+msgstr[2] "%d brakujących referencji."
+
 #: ui/cardlist.py:514
 #, python-format
 msgid "%d selected"
@@ -147,6 +150,14 @@ msgid_plural "%d selected"
 msgstr[0] "%d wybrana"
 msgstr[1] "%d wybrane"
 msgstr[2] "%d wybranych"
+
+#: ui/main.py:2377
+#, python-format
+msgid "%d unused file removed."
+msgid_plural "%d unused files removed."
+msgstr[0] "Usunięto %d nieużywany plik."
+msgstr[1] "Usunięto %d nieużywane pliki."
+msgstr[2] "Usunięto %d nieużywanych plików."
 
 #: ui/cardlist.py:209
 #, python-format
@@ -228,9 +239,8 @@ msgid "&Disable All Plugins"
 msgstr "&Wyłącz wszystkie dodatki"
 
 #: forms/cardlist.py:289
-#, fuzzy
 msgid "&Documentation"
-msgstr "Dokumentacja"
+msgstr "&Dokumentacja"
 
 #: forms/main.py:1005
 msgid "&Donate..."
@@ -365,18 +375,16 @@ msgid "&Settings"
 msgstr "&Ustawienia"
 
 #: forms/cardlist.py:300
-#, fuzzy
 msgid "&Sort"
-msgstr "I&mport"
+msgstr "&Sortuj"
 
 #: forms/main.py:1003
 msgid "&Study Options..."
 msgstr "Opcje &nauki..."
 
 #: forms/cardlist.py:296
-#, fuzzy
 msgid "&Suspend"
-msgstr "Zawieś"
+msgstr "&Zawieś"
 
 #: forms/main.py:960
 msgid "&Suspend Fact"
@@ -391,9 +399,8 @@ msgid "&Undo"
 msgstr "&Cofnij"
 
 #: forms/cardlist.py:297
-#, fuzzy
 msgid "&Unsuspend"
-msgstr "Zawieś"
+msgstr "&Cofnij zawieszenie"
 
 #: ui/cardlist.py:428
 #, python-format
@@ -442,7 +449,7 @@ msgstr ""
 "</style></head><body style=\" font-family:'Arial,sans-serif'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Źródła</span></p></body></html>"
 
-#: forms/addcards.py:84
+#: forms/addcards.py:86
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -731,7 +738,7 @@ msgstr "<h1>Ostatnia karta</h1>"
 
 #: ui/main.py:1663
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
-msgstr ""
+msgstr "<h1>Nauka kolejnych</h1>Kliknij zegar na pasku zadań, by zakończyć."
 
 #: forms/deckproperties.py:335
 msgid "<h1>Models</h1>"
@@ -759,7 +766,7 @@ msgstr "<h1>Czas powtórki</h1>"
 
 #: ui/main.py:1669
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
-msgstr ""
+msgstr "<h1>Wczesna powtórka</h1>Kliknij zegar na pasku zadań, by zakończyć."
 
 #: forms/preferences.py:222
 msgid "<h1>Reviewing</h1>"
@@ -773,7 +780,7 @@ msgstr "<h1>Wybierz pole docelowe</h1>"
 msgid "<h1>Study Options</h1>"
 msgstr "<b>Opcje nauki</b>"
 
-#: ui/main.py:1827
+#: ui/main.py:1828
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -843,7 +850,7 @@ msgstr "Aktywne etykiety"
 msgid "Ad&vanced"
 msgstr "&Zaawansowane"
 
-#: ui/addcards.py:63 ui/addcards.py:117
+#: ui/addcards.py:63 ui/addcards.py:118
 msgid "Add"
 msgstr "Dodaj"
 
@@ -855,14 +862,14 @@ msgstr "Dodaj (skrót: command+enter)"
 msgid "Add (shortcut: ctrl+return)"
 msgstr "Dodaj (skrót: ctrl+enter)"
 
-#: forms/addcards.py:83
+#: forms/addcards.py:85
 msgid "Add Items"
 msgstr "Dodawanie elementów"
 
 #: ui/addcards.py:34
-#, fuzzy, python-format
+#, python-format
 msgid "Add Items - %s"
-msgstr "Dodawanie elementów"
+msgstr "Dodawanie elementów - %s"
 
 #: forms/addmodel.py:43
 msgid "Add Model"
@@ -909,7 +916,7 @@ msgstr "Dodaj: %s"
 msgid "Added"
 msgstr "Dodana"
 
-#: ui/addcards.py:131
+#: ui/addcards.py:132
 #, python-format
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "Dodano %(num)d kartę(-y) '%(str)s'."
@@ -988,7 +995,7 @@ msgstr ""
 "Jeśli po tym błąd będzie się powtarzał, załącz poniższy<br>\n"
 "tekst do raportu o błędzie.<br><br>\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2349 forms/main.py:869 forms/sort.py:45
+#: ui/deckproperties.py:186 ui/main.py:2350 forms/main.py:869
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1109,7 +1116,7 @@ msgstr "Można działać tylko na jednym modelu jednocześnie."
 msgid "Can't look up a selection with a newline."
 msgstr "Nie można wyszukiwać tekstu ze znakiem nowej linii"
 
-#: ui/main.py:2364
+#: ui/main.py:2365
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1128,9 +1135,9 @@ msgid "Card Templates"
 msgstr "Szablony kart"
 
 #: ui/modelproperties.py:335
-#, fuzzy, python-format
+#, python-format
 msgid "Card-%d"
-msgstr "Karta %d"
+msgstr "Karta-%d"
 
 #: forms/displayproperties.py:355
 msgid "Card:"
@@ -1221,7 +1228,7 @@ msgstr "Kliknij by pokazać Anki"
 msgid "Close"
 msgstr "Zamknij"
 
-#: ui/addcards.py:170
+#: ui/addcards.py:171
 msgid "Close and lose current input?"
 msgstr "Zamknąć i porzucić aktualne dane?"
 
@@ -1394,9 +1401,8 @@ msgid "Ctrl+Shift+S"
 msgstr "Ctrl+Shift+S"
 
 #: forms/cardlist.py:299
-#, fuzzy
 msgid "Ctrl+T"
-msgstr "Ctrl+1"
+msgstr "Ctrl+T"
 
 #: forms/main.py:910
 msgid "Ctrl+W"
@@ -1466,7 +1472,7 @@ msgstr "Ustawianie synchronizacji, planowania, priorytetów i modeli"
 msgid "Czech"
 msgstr "Czeski"
 
-#: ui/main.py:2345
+#: ui/main.py:2346
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1499,7 +1505,7 @@ msgstr "Usuń"
 msgid "Delete Cards"
 msgstr "Usuń karty"
 
-#: ui/main.py:2362
+#: ui/main.py:2363
 msgid "Delete Refs"
 msgstr "Usuń odwołania"
 
@@ -1514,10 +1520,6 @@ msgstr "Usuń aktualnie wyświetlaną kartę"
 #: ui/sync.py:104
 msgid "Determining differences..."
 msgstr "Ustalanie różnic..."
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1655,7 +1657,7 @@ msgstr "P&ierwsza karta"
 
 #: forms/cardlist.py:290 forms/main.py:940
 msgid "F1"
-msgstr ""
+msgstr "F1"
 
 #: ui/facteditor.py:272
 msgid "F2"
@@ -1701,7 +1703,7 @@ msgstr "Utworzenie faktu"
 msgid "Facts"
 msgstr "Fakty"
 
-#: ui/main.py:1858
+#: ui/main.py:1859
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Nie udało się przesłać pliku. Uruchom sprawdzanie bazy plików."
 
@@ -1738,9 +1740,8 @@ msgid "Fields"
 msgstr "Pola"
 
 #: forms/cardlist.py:298
-#, fuzzy
 msgid "Fil&ters"
-msgstr "<Filtr>"
+msgstr "&Filtry"
 
 #: forms/cardlist.py:293
 msgid "Find and Re&place..."
@@ -1840,7 +1841,6 @@ msgid "Import cards from text files, Anki files and more"
 msgstr "Importuj karty z plików tekstowych, plików Anki i innych"
 
 #: ui/importing.py:128
-#, fuzzy
 msgid "Import failed.\n"
 msgstr "Import nie powiódł się.\n"
 
@@ -1880,6 +1880,32 @@ msgstr "Niepoprawne wyrażenie regularne."
 #: ui/activetags.py:26
 msgid "Invert"
 msgstr "Odwróć"
+
+#: ui/main.py:2082
+#, python-format
+msgid "It is %(sec)d second %(type)s.\n"
+msgid_plural "It is %(sec)d seconds %(type)s.\n"
+msgstr[0] "%(type)s %(sec)d sekundę.\n"
+msgstr[1] "%(type)s %(sec)d sekundy.\n"
+msgstr[2] "%(type)s %(sec)d sekund.\n"
+
+#: ui/main.py:1816
+#, python-format
+msgid ""
+"It is off by %d second.\n"
+"\n"
+msgid_plural ""
+"It is off by %d seconds.\n"
+"\n"
+msgstr[0] ""
+"Przesunął się o %d sekundę.\n"
+"\n"
+msgstr[1] ""
+"Przesunął się o %d sekundy.\n"
+"\n"
+msgstr[2] ""
+"Przesunął się o %d sekund.\n"
+"\n"
 
 #: ui/preferences.py:38
 msgid "Italian"
@@ -2133,11 +2159,6 @@ msgstr "Dodaj najpierw nowy szablon."
 msgid "Please add another model first."
 msgstr "Dodaj najpierw nowy model."
 
-#: forms/sort.py:46
-#, fuzzy
-msgid "Please choose a field to sort by."
-msgstr "Dodaj najpierw nowe pole."
-
 #: ui/sync.py:54
 msgid "Please double-check your username/password."
 msgstr "Sprawdź ponownie swoją nazwę użytkownika/hasło."
@@ -2162,7 +2183,7 @@ msgstr ""
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Zainstaluj python-mathplotlib, aby mieć dostęp do wykresów."
 
-#: ui/main.py:2322
+#: ui/main.py:2323
 msgid "Please restart Anki before checking the DB."
 msgstr "Uruchom ponownie Anki przed sprawdzaniem bazy danych."
 
@@ -2210,7 +2231,7 @@ msgstr "Podgląd kart"
 msgid "Previous colour (F7 then F6)"
 msgstr "Poprzednie kolory (F7, następnie F6)"
 
-#: ui/main.py:2337
+#: ui/main.py:2338
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2268,7 +2289,7 @@ msgstr "Nagraj dźwięk (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Nagrywanie...<br>Czas: %0.1f"
 
-#: ui/cardlist.py:525 ui/main.py:2055
+#: ui/cardlist.py:525 ui/main.py:2056
 #, python-format
 msgid "Redo %s"
 msgstr "Powtórz %s"
@@ -2506,7 +2527,15 @@ msgstr "Pokaż ikonę w zasobniku systemowym"
 msgid "Show/Hide"
 msgstr "Pokaż/Schowaj"
 
-#: ui/addcards.py:123 ui/cardlist.py:638
+#: ui/main.py:1818
+msgid ""
+"Since this can cause many problems with syncing,\n"
+"syncing is disabled until you fix the problem."
+msgstr ""
+"Ponieważ może to spowodować wiele problemów podczas synchronizacji,\n"
+"zostanie ona wyłączona do czasu usunięcia problemu."
+
+#: ui/addcards.py:124 ui/cardlist.py:638
 msgid "Some fields are missing or not unique."
 msgstr "Brakuje niektórych pól lub niektóre pola nie są unikalne."
 
@@ -2556,7 +2585,7 @@ msgstr "Nie wyświetlaj tej karty, dopóki nie zostanie odwieszona w edytorze."
 
 #: ui/cardlist.py:778 ui/main.py:1410
 msgid "Suspend"
-msgstr "Zawieś"
+msgstr "Zawieszenie"
 
 #: forms/main.py:1018
 msgid "Suspend the current fact until the deck is closed and opened again"
@@ -2594,7 +2623,7 @@ msgstr "Synchronizuj tę talię"
 msgid "Synchronize this deck with Anki Online"
 msgstr "Synchronizuj tę talię z Anki Online"
 
-#: ui/main.py:1836 ui/main.py:1838
+#: ui/main.py:1837 ui/main.py:1839
 msgid "Syncing Media..."
 msgstr "Synchronizacja plików"
 
@@ -2603,7 +2632,7 @@ msgstr "Synchronizacja plików"
 msgid "Syncing failed: %(a)s"
 msgstr "Synchronizacja nie powiodła się: %(a)s"
 
-#: ui/main.py:2360
+#: ui/main.py:2361
 msgid "Tag Cards"
 msgstr "Nadaj etykietę"
 
@@ -2639,7 +2668,7 @@ msgstr "Liczba <b>minut na sesję</b>. Kiedy sesja zakończy się, ten ekran bę
 msgid "The <b>number of questions in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr "Liczba <b>pytań w trakcie sesji</b>. Kiedy sesja zakończy się, ten ekran będzie pokazany ponownie, pozwalając ci na rozpoczęcie kolejnej sesji. Wpisz 0, by znieść limit."
 
-#: ui/addcards.py:127
+#: ui/addcards.py:128
 msgid ""
 "The input you have provided would make an empty\n"
 "question or answer on all cards."
@@ -2780,7 +2809,7 @@ msgstr ""
 "%s\n"
 "Musisz najpierw usunąć źródło."
 
-#: ui/main.py:2324
+#: ui/main.py:2325
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2798,7 +2827,7 @@ msgstr ""
 "<b>Tej operacji nie można cofnąć.</b><br>\n"
 "Kontynuować?"
 
-#: ui/main.py:2351
+#: ui/main.py:2352
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2946,7 +2975,7 @@ msgstr "Nie przechowuj LaTeXa"
 msgid "Underline text (Ctrl+u)"
 msgstr "Tekst podkreślony (Ctrl+u)"
 
-#: ui/cardlist.py:519 ui/main.py:2049
+#: ui/cardlist.py:519 ui/main.py:2050
 #, python-format
 msgid "Undo %s"
 msgstr "Cofnij %s"
@@ -2957,15 +2986,14 @@ msgid "Unknown error: %s"
 msgstr "Nieznany błąd: %s"
 
 #: ui/cardlist.py:787
-#, fuzzy
 msgid "Unsuspend"
-msgstr "Zawieś"
+msgstr "Wycofanie zawieszenia"
 
 #: ui/update.py:108
 msgid "Update complete. Please restart Anki."
 msgstr "Aktualizacja zakończona. Zrestartuj Anki."
 
-#: ui/main.py:2089
+#: ui/main.py:2090
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -3024,31 +3052,9 @@ msgstr "Czy chcesz ściągnąć ją teraz?"
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Jesteś już w trybie sprawdzianu. Musisz zamknąć tę talię."
 
-#: ui/main.py:2080
-#, python-format
-msgid ""
-"Your computer clock is not set to the correct time.\n"
-"It is %(sec)d seconds %(type)s.\n"
-" Please ensure it is set correctly and then restart Anki."
-msgstr ""
-"Zegar twojego komputera nie jest ustawiony na poprawny czas.\n"
-"%(type)s %(sec)d sekund.\n"
-"Upewnij się, że jest ustawiony poprawnie i uruchom Anki ponownie."
-
-#: ui/main.py:1815
-#, python-format
-msgid ""
-"Your computer clock is not set to the correct time.\n"
-"It is off by %d seconds.\n"
-"\n"
-"Since this can cause many problems with syncing,\n"
-"syncing is disabled until you fix the problem."
-msgstr ""
-"Your computer clock is not set to the correct time.\n"
-"It is off by %d seconds.\n"
-"\n"
-"Since this can cause many problems with syncing,\n"
-"syncing is disabled until you fix the problem."
+#: ui/main.py:1815 ui/main.py:2081
+msgid "Your computer clock is not set to the correct time.\n"
+msgstr "Zegar twojego komputera nie jest ustawiony na poprawny czas.\n"
 
 #: ui/main.py:1390
 msgid ""
@@ -3071,7 +3077,7 @@ msgstr "kart"
 msgid "days"
 msgstr "dni"
 
-#: ui/main.py:2078
+#: ui/main.py:2079
 msgid "early"
 msgstr "Spieszy o"
 
@@ -3088,7 +3094,7 @@ msgstr "w %s"
 msgid "label"
 msgstr "napis"
 
-#: ui/main.py:2076
+#: ui/main.py:2077
 msgid "late"
 msgstr "Spóźnia się"
 
@@ -3112,9 +3118,3 @@ msgstr "opcja"
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr "toplabel"
-
-#~ msgid "&Guide..."
-#~ msgstr "&Przewodnik..."
-
-#~ msgid "Import failed: %s\n"
-#~ msgstr "Import nie powiódł się: %s\n"

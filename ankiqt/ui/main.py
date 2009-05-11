@@ -1812,11 +1812,12 @@ it to your friends.
 
     def syncClockOff(self, diff):
         ui.utils.showWarning(
-            _("Your computer clock is not set to the correct time.\n"
-              "It is off by %d seconds.\n\n"
-              "Since this can cause many problems with syncing,\n"
+            _("Your computer clock is not set to the correct time.\n") +
+            ngettext("It is off by %d second.\n\n",
+                "It is off by %d seconds.\n\n", diff) % diff +
+            _("Since this can cause many problems with syncing,\n"
               "syncing is disabled until you fix the problem.")
-            % diff)
+            )
         self.syncFinished()
 
     def showSyncWarning(self, text):
@@ -2077,11 +2078,11 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         else:
             ret = _("early")
         ui.utils.showWarning(
-            _("Your computer clock is not set to the correct time.\n"
-              "It is %(sec)d seconds %(type)s.\n"
-              " Please ensure it is set correctly and then restart Anki.")
-            % { "sec": abs(diff),
-                "type": ret }
+            _("Your computer clock is not set to the correct time.\n") +
+            ngettext("It is %(sec)d second %(type)s.\n",
+                "It is %(sec)d seconds %(type)s.\n", abs(diff))
+                % {"sec": abs(diff), "type": ret} +
+            _(" Please ensure it is set correctly and then restart Anki.")
          )
 
     def updateStarted(self):
@@ -2370,11 +2371,11 @@ Consider backing up your media directory first."""))
             (missing, unused) = rebuildMediaDir(self.deck, True)
         else:
             return
-        ui.utils.showInfo(_(
-                "%(a)d missing references.\n"
-                "%(b)d unused files removed.") % {
-            'a': missing,
-            'b': unused})
+        ui.utils.showInfo(
+                ngettext("%d missing reference.", "%d missing references.",
+                    missing) % missing + "\n" +
+                ngettext("%d unused file removed.", "%d unused files removed.",
+                    unused) % unused)
 
     def addHook(self, *args):
         addHook(*args)
