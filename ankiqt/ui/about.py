@@ -28,11 +28,11 @@ donations.""") % {
 
 Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene
 Barina, Christian Rusche, David Smith, Dave Druelinger, Emmanuel Jarri, Frank
-Harper, H. Mijail, Ian Lewis, Iroiro, Jin Eun-Deok, Jo Nakashima, Christian Krause,
-LaC, Laurent Steffan, Marco Giancotti, Mark Wilbur, Meelis Vasser, Michael
-Penkov, Michael Keppler, Michal Čadil, Nathanael Law, Nick Cook, Niklas
-Laxström, Pcsl88, Piotr Kubowicz, Richard Colley, Samson Melamed, Susanna
-Björverud, Timm Preetz, Timo Paulssen, Victor Suba, and Xtru.
+Harper, H. Mijail, Ian Lewis, Iroiro, Jin Eun-Deok, Jo Nakashima, Christian
+Krause, LaC, Laurent Steffan, Marco Giancotti, Mari Egami, Mark Wilbur, Meelis
+Vasser, Michael Penkov, Michael Keppler, Michal Čadil, Nathanael Law, Nick
+Cook, Niklas Laxström, Pcsl88, Piotr Kubowicz, Richard Colley, Samson Melamed,
+Susanna Björverud, Timm Preetz, Timo Paulssen, Victor Suba, and Xtru.
 
 """,
     'ver': appVersion})
