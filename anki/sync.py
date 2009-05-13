@@ -184,6 +184,12 @@ class SyncTools(object):
         else:
             h['lM'] = _("off")
             h['rM'] = _("off")
+        if self.localTime > self.remoteTime:
+            h['ls'] = _('all')
+            h['rs'] = 0
+        else:
+            h['ls'] = 0
+            h['rs'] = _('all')
         return h
 
     def payloadChangeReport(self, payload):
@@ -196,6 +202,7 @@ class SyncTools(object):
 <tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>
 <tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>
 <tr><td>Media</td><td>%(lM)s</td><td>%(rM)s</td></tr>
+<tr><td>Stats</td><td>%(ls)s</td><td>%(rs)s</td></tr>
 </table>""") % p
 
     # Summaries
