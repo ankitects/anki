@@ -166,7 +166,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit" >
@@ -248,7 +248,7 @@
      <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Add Tag...</string>
+    <string>&amp;Add Tags...</string>
    </property>
   </action>
   <action name="actionDeleteTag" >
@@ -257,7 +257,7 @@
      <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Delete Tag...</string>
+    <string>&amp;Delete Tags...</string>
    </property>
   </action>
   <action name="actionAddCards" >
@@ -437,7 +437,7 @@
      <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Suspend</string>
+    <string>&amp;Suspend Facts</string>
    </property>
   </action>
   <action name="actionUnsuspend" >
@@ -446,7 +446,7 @@
      <normaloff>:/icons/media-playback-start2.png</normaloff>:/icons/media-playback-start2.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Unsuspend</string>
+    <string>&amp;Unsuspend Facts</string>
    </property>
   </action>
   <action name="actionTags" >
