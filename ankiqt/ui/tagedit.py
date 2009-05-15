@@ -4,7 +4,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from anki.utils import parseTags, canonifyTags, joinTags
-import re
+import re, sys
 
 class TagEdit(QLineEdit):
 
@@ -36,14 +36,15 @@ class TagEdit(QLineEdit):
 
     def keyPressEvent(self, evt):
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
-            evt.ignore()
             if not self.text():
-                pass
-            elif self.completer.completionCount():
-                self.setText(
-                    self.completer.pathFromIndex(self.completer.popup().currentIndex()))
+                evt.ignore()
             else:
-                self.setText(self.completer.completionPrefix())
+                evt.accept()
+                if self.completer.completionCount():
+                    self.setText(
+                        self.completer.pathFromIndex(self.completer.popup().currentIndex()))
+                else:
+                    self.setText(self.completer.completionPrefix())
             self.completer.popup().hide()
             return
         QLineEdit.keyPressEvent(self, evt)
