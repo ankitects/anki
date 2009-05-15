@@ -13,6 +13,11 @@ class QClickableLabel(QLabel):
     def mouseReleaseEvent(self, evt):
         QDesktopServices.openUrl(QUrl(self.url))
 
+class QClickableProgress(QProgressBar):
+    url = "http://ichi2.net/anki/wiki/ProgressBars"
+    def mouseReleaseEvent(self, evt):
+        QDesktopServices.openUrl(QUrl(self.url))
+
 # Status bar
 ##########################################################################
 
@@ -108,12 +113,12 @@ class StatusView(object):
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
         vbox.setMargin(0)
-        self.progressBar = QProgressBar()
+        self.progressBar = QClickableProgress()
         self.progressBar.setFixedSize(*progressBarSize)
         self.progressBar.setMaximum(100)
         self.progressBar.setTextVisible(False)
         vbox.addWidget(self.progressBar, 0)
-        self.retentionBar = QProgressBar()
+        self.retentionBar = QClickableProgress()
         self.retentionBar.setFixedSize(*progressBarSize)
         self.retentionBar.setMaximum(100)
         self.retentionBar.setTextVisible(False)
@@ -213,10 +218,7 @@ class StatusView(object):
         self.progressBar.setValue(stats['dYesTotal%'])
         # tooltips
         tip = "<h1>" + _("Performance") + "</h1>"
-        tip += _("""The top bar shows your performance today. The bottom bar shows your<br>
-performance on cards scheduled for 21 days or more. The bottom bar should<br>
-generally be between 80-95% - lower and you're forgetting mature cards<br>
-too often, higher and you're spending too much time reviewing.""")
+        tip += _("Click the bars to learn more.")
         tip += "<h2>" + _("Reviews today") + "</h2>"
         tip += "<b>" + _("Correct today: ") + anki.utils.fmtPercentage(stats['dYesTotal%'], point=1)
         tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dYesTotal'], 'totalSum' : stats['dTotal'] } + ")</b><br>"
