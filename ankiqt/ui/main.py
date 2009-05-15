@@ -585,7 +585,8 @@ new:
         anki.deck.backupDir = os.path.join(
             self.config.configPath, "backups")
 
-    def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True):
+    def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True,
+                 media=None):
         "Load a deck and update the user interface. Maybe sync."
         self.reviewingStarted = False
         # return True on success
@@ -621,6 +622,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                 traceback.print_exc()
             self.moveToState("noDeck")
             return
+        if media is not None:
+            self.deck.forceMediaDir = media
         if uprecent:
             self.updateRecentFiles(self.deck.path)
         if (sync and self.config['syncOnLoad']
@@ -1519,6 +1522,7 @@ You are currently cramming. Please close this deck first."""))
         path = os.path.join(ndir, name)
         from anki.exporting import AnkiExporter
         e = AnkiExporter(self.deck)
+        e.includeMedia = False
         if tags:
             e.limitTags = parseTags(tags)
         if ids:
@@ -1556,9 +1560,10 @@ You are currently cramming. Please close this deck first."""))
             n = 2
         p = ui.utils.ProgressWin(self, n, 0, _("Cram"))
         p.update(_("Loading deck..."))
+        oldMedia = self.deck.mediaDir()
         self.deck.close()
         self.deck = None
-        self.loadDeck(path)
+        self.loadDeck(path, media=oldMedia)
         self.config['recentDeckPaths'].pop(0)
         self.deck.newCardsPerDay = 99999
         self.deck.delay0 = 300
@@ -2361,6 +2366,10 @@ Proceed?""")):
         ui.utils.showInfo(_("Database optimized.\nShrunk by %dKB") % (size/1024.0))
 
     def onCheckMediaDB(self):
+        if self.isCramming():
+            ui.utils.showInfo(_("""\
+You are currently cramming. Please close this deck first."""))
+            return
         mb = QMessageBox(self)
         mb.setWindowTitle(_("Anki"))
         mb.setIcon(QMessageBox.Warning)
