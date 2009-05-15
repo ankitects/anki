@@ -58,6 +58,7 @@ class AnkiExporter(Exporter):
     def __init__(self, deck):
         Exporter.__init__(self, deck)
         self.includeSchedulingInfo = False
+        self.includeMedia = True
 
     def exportInto(self, path):
         n = 3
@@ -68,6 +69,7 @@ class AnkiExporter(Exporter):
         self.newDeck = DeckStorage.Deck(path)
         client = SyncClient(self.deck)
         server = SyncServer(self.newDeck)
+        server._mediaSupported = self.includeMedia
         client.setServer(server)
         client.localTime = self.deck.modified
         client.remoteTime = 0
