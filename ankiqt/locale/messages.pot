@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-09 06:53+0900\n"
+"POT-Creation-Date: 2009-05-14 14:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,16 +74,13 @@ msgstr ""
 msgid " <b>When reviewing and editing:</b>"
 msgstr ""
 
+#: ui/main.py:2085
+msgid " Please ensure it is set correctly and then restart Anki."
+msgstr ""
+
 #: ui/sync.py:142
 #, python-format
 msgid " applied %d modified cards."
-msgstr ""
-
-#: ui/main.py:2374
-#, python-format
-msgid ""
-"%(a)d missing references.\n"
-"%(b)d unused files removed."
 msgstr ""
 
 #: ui/cardlist.py:1009
@@ -106,7 +103,7 @@ msgstr[1] ""
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
 
-#: ui/main.py:1968
+#: ui/main.py:1969
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr ""
@@ -116,10 +113,24 @@ msgstr ""
 msgid "%d exported."
 msgstr ""
 
+#: ui/main.py:2375
+#, python-format
+msgid "%d missing reference."
+msgid_plural "%d missing references."
+msgstr[0] ""
+msgstr[1] ""
+
 #: ui/cardlist.py:514
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/main.py:2377
+#, python-format
+msgid "%d unused file removed."
+msgid_plural "%d unused files removed."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -128,133 +139,133 @@ msgstr[1] ""
 msgid "%s ago"
 msgstr ""
 
-#: forms/main.py:943
+#: forms/main.py:944
 msgid "&About..."
 msgstr ""
 
-#: forms/cardlist.py:263
+#: forms/cardlist.py:239
 msgid "&Actions"
 msgstr ""
 
-#: forms/deckproperties.py:336 forms/modelproperties.py:291
+#: forms/deckproperties.py:334 forms/modelproperties.py:291
 #: forms/modelproperties.py:304
 msgid "&Add"
 msgstr ""
 
-#: forms/main.py:917
+#: forms/main.py:919
 msgid "&Add Items..."
 msgstr ""
 
-#: forms/deckproperties.py:348
+#: forms/deckproperties.py:346
 msgid "&Add Source"
 msgstr ""
 
-#: forms/cardlist.py:268
+#: forms/cardlist.py:244
 msgid "&Add Tag..."
 msgstr ""
 
-#: forms/main.py:1017
+#: forms/main.py:1018
 msgid "&Bury Fact"
 msgstr ""
 
-#: forms/main.py:944
+#: forms/main.py:945
 msgid "&Card Statistics"
 msgstr ""
 
-#: forms/main.py:909
+#: forms/main.py:911
 msgid "&Close"
 msgstr ""
 
-#: forms/cardlist.py:294
+#: forms/cardlist.py:269
 msgid "&Cram..."
 msgstr ""
 
-#: forms/main.py:946
+#: forms/main.py:947
 msgid "&Deck Properties..."
 msgstr ""
 
-#: forms/main.py:937
+#: forms/main.py:939
 msgid "&Deck Statistics"
 msgstr ""
 
-#: forms/deckproperties.py:338 forms/modelproperties.py:294
+#: forms/deckproperties.py:336 forms/modelproperties.py:294
 #: forms/modelproperties.py:309
 msgid "&Delete"
 msgstr ""
 
-#: forms/main.py:995
+#: forms/main.py:996
 msgid "&Delete Card"
 msgstr ""
 
-#: forms/main.py:998
+#: forms/main.py:999
 msgid "&Delete Fact"
 msgstr ""
 
-#: forms/deckproperties.py:349
+#: forms/deckproperties.py:347
 msgid "&Delete Source"
 msgstr ""
 
-#: forms/cardlist.py:269
+#: forms/cardlist.py:245
 msgid "&Delete Tag..."
 msgstr ""
 
-#: forms/main.py:987
+#: forms/main.py:988
 msgid "&Disable All Plugins"
 msgstr ""
 
-#: forms/cardlist.py:289
-msgid "&Documentation"
-msgstr ""
-
-#: forms/main.py:1005
+#: forms/main.py:1006
 msgid "&Donate..."
 msgstr ""
 
-#: forms/main.py:896
+#: forms/main.py:898
 msgid "&Download..."
 msgstr ""
 
-#: forms/cardlist.py:262 forms/deckproperties.py:337 forms/main.py:893
+#: forms/cardlist.py:238 forms/deckproperties.py:335 forms/main.py:895
 msgid "&Edit"
 msgstr ""
 
-#: forms/main.py:986
+#: forms/main.py:987
 msgid "&Enable All Plugins"
 msgstr ""
 
-#: forms/main.py:894
+#: forms/main.py:896
 msgid "&File"
 msgstr ""
 
-#: forms/cardlist.py:276
+#: forms/cardlist.py:252
 msgid "&Find"
 msgstr ""
 
-#: forms/main.py:954
+#: forms/main.py:955
 msgid "&Fonts and Colours..."
 msgstr ""
 
-#: forms/main.py:972
+#: forms/main.py:973
 msgid "&Forum..."
 msgstr ""
 
-#: forms/cardlist.py:270
+#: forms/cardlist.py:246
 msgid "&Generate Cards..."
 msgstr ""
 
-#: forms/main.py:984
+#: forms/main.py:985
 msgid "&Get Plugins..."
 msgstr ""
 
-#: forms/cardlist.py:264
+#: forms/cardlist.py:240
 msgid "&Go"
 msgstr ""
 
-#: forms/main.py:950
+#: forms/main.py:951
 msgid "&Graphs..."
 msgstr ""
 
-#: forms/cardlist.py:265 forms/main.py:892
+#: forms/cardlist.py:265
+msgid "&Guide..."
+msgstr ""
+
+#: forms/cardlist.py:241 forms/main.py:894
 msgid "&Help"
 msgstr ""
 
@@ -262,108 +273,96 @@ msgstr ""
 msgid "&Import"
 msgstr ""
 
-#: forms/main.py:948
+#: forms/main.py:949
 msgid "&Import..."
 msgstr ""
 
-#: forms/cardlist.py:275
+#: forms/cardlist.py:251
 msgid "&Invert Selection"
 msgstr ""
 
-#: forms/main.py:936
+#: forms/main.py:938
 msgid "&Kanji Statistics"
 msgstr ""
 
-#: forms/cardlist.py:286
+#: forms/cardlist.py:262
 msgid "&Last Card"
 msgstr ""
 
-#: forms/main.py:890
+#: forms/main.py:892
 msgid "&Learn More"
 msgstr ""
 
-#: forms/main.py:898
+#: forms/main.py:900
 msgid "&Lookup"
 msgstr ""
 
-#: forms/main.py:957
+#: forms/main.py:958
 msgid "&Mark Fact"
 msgstr ""
 
-#: forms/main.py:905
+#: forms/main.py:907
 msgid "&New"
 msgstr ""
 
-#: forms/cardlist.py:280
+#: forms/cardlist.py:256
 msgid "&Next Card"
 msgstr ""
 
-#: forms/main.py:985
+#: forms/main.py:986
 msgid "&Open Plugin Folder..."
 msgstr ""
 
-#: forms/main.py:907
+#: forms/main.py:909
 msgid "&Open..."
 msgstr ""
 
-#: forms/main.py:923
+#: forms/main.py:925
 msgid "&Preferences"
 msgstr ""
 
-#: forms/cardlist.py:282
+#: forms/cardlist.py:258
 msgid "&Previous Card"
 msgstr ""
 
-#: forms/main.py:1006
+#: forms/main.py:1007
 msgid "&Record Noise Profile..."
 msgstr ""
 
-#: forms/cardlist.py:274 forms/main.py:994
+#: forms/cardlist.py:250 forms/main.py:995
 msgid "&Redo"
 msgstr ""
 
-#: forms/main.py:941
+#: forms/main.py:942
 msgid "&Report Bug..."
 msgstr ""
 
-#: forms/cardlist.py:271
+#: forms/cardlist.py:247
 msgid "&Reschedule..."
 msgstr ""
 
-#: forms/main.py:911
+#: forms/main.py:913
 msgid "&Save"
 msgstr ""
 
-#: forms/main.py:900
+#: forms/main.py:902
 msgid "&Settings"
 msgstr ""
 
-#: forms/cardlist.py:300
-msgid "&Sort"
-msgstr ""
-
-#: forms/main.py:1003
+#: forms/main.py:1004
 msgid "&Study Options..."
 msgstr ""
 
-#: forms/cardlist.py:296
-msgid "&Suspend"
-msgstr ""
-
-#: forms/main.py:960
+#: forms/main.py:961
 msgid "&Suspend Fact"
 msgstr ""
 
-#: forms/main.py:897
+#: forms/main.py:899
 msgid "&Tools"
 msgstr ""
 
-#: forms/cardlist.py:273 forms/main.py:970
+#: forms/cardlist.py:249 forms/main.py:971
 msgid "&Undo"
-msgstr ""
-
-#: forms/cardlist.py:297
-msgid "&Unsuspend"
 msgstr ""
 
 #: ui/cardlist.py:428
@@ -375,23 +374,23 @@ msgstr ""
 msgid "(new card)"
 msgstr ""
 
-#: forms/main.py:926
+#: forms/main.py:928
 msgid "...&expression on ALC"
 msgstr ""
 
-#: forms/main.py:934
+#: forms/main.py:936
 msgid "...&kanji selection on Edict"
 msgstr ""
 
-#: forms/main.py:928
+#: forms/main.py:930
 msgid "...&meaning on ALC"
 msgstr ""
 
-#: forms/main.py:930
+#: forms/main.py:932
 msgid "...&selection on ALC"
 msgstr ""
 
-#: forms/main.py:932
+#: forms/main.py:934
 msgid "...&word selection on Edict"
 msgstr ""
 
@@ -399,7 +398,7 @@ msgstr ""
 msgid "; disabled"
 msgstr ""
 
-#: forms/deckproperties.py:343
+#: forms/deckproperties.py:341
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -408,7 +407,7 @@ msgid ""
 "<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">Sources</span></p></body></html>"
 msgstr ""
 
-#: forms/addcards.py:84
+#: forms/addcards.py:73
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -421,7 +420,7 @@ msgstr ""
 msgid "<Filter>"
 msgstr ""
 
-#: forms/deckproperties.py:329
+#: forms/deckproperties.py:327
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr ""
 
@@ -437,27 +436,27 @@ msgstr ""
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr ""
 
-#: forms/deckproperties.py:363
+#: forms/deckproperties.py:364
 msgid "<b>1: Again (Mature)</b>"
 msgstr ""
 
-#: forms/deckproperties.py:365
+#: forms/deckproperties.py:366
 msgid "<b>1: Again (Young)</b>"
 msgstr ""
 
-#: forms/deckproperties.py:364
+#: forms/deckproperties.py:365
 msgid "<b>1: Failure Multiplier</b>"
 msgstr ""
 
-#: forms/deckproperties.py:362
+#: forms/deckproperties.py:363
 msgid "<b>2: Initial Hard Interval</b>"
 msgstr ""
 
-#: forms/deckproperties.py:357
+#: forms/deckproperties.py:358
 msgid "<b>3: Initial Good Interval</b>"
 msgstr ""
 
-#: forms/deckproperties.py:356
+#: forms/deckproperties.py:357
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr ""
 
@@ -485,7 +484,7 @@ msgstr ""
 msgid "<b>Font</b>:"
 msgstr ""
 
-#: forms/deckproperties.py:332
+#: forms/deckproperties.py:330
 msgid "<b>High Priority</b>"
 msgstr ""
 
@@ -501,11 +500,11 @@ msgstr ""
 msgid "<b>Line Size</b>:"
 msgstr ""
 
-#: forms/deckproperties.py:333
+#: forms/deckproperties.py:331
 msgid "<b>Low Priority</b>"
 msgstr ""
 
-#: forms/deckproperties.py:371
+#: forms/deckproperties.py:372
 msgid "<b>Maximum failed cards</b>"
 msgstr ""
 
@@ -526,11 +525,11 @@ msgstr ""
 msgid "<b>New Model</b>:"
 msgstr ""
 
-#: forms/main.py:884
+#: forms/main.py:886
 msgid "<b>New cards per day:</b>"
 msgstr ""
 
-#: forms/deckproperties.py:372
+#: forms/deckproperties.py:373
 msgid "<b>New day starts at</b>"
 msgstr ""
 
@@ -550,15 +549,15 @@ msgstr ""
 msgid "<b>Replace With</b>:"
 msgstr ""
 
-#: forms/main.py:882
+#: forms/main.py:884
 msgid "<b>Session limit (minutes):</b>"
 msgstr ""
 
-#: forms/main.py:886
+#: forms/main.py:888
 msgid "<b>Session limit (questions):"
 msgstr ""
 
-#: forms/deckproperties.py:373
+#: forms/deckproperties.py:374
 msgid "<b>Show failed cards early</b>"
 msgstr ""
 
@@ -566,7 +565,7 @@ msgstr ""
 msgid "<b>Spacing multipler</b>"
 msgstr ""
 
-#: forms/deckproperties.py:334
+#: forms/deckproperties.py:332
 msgid "<b>Suspended</b>"
 msgstr ""
 
@@ -589,7 +588,7 @@ msgid ""
 "<b>Description</b>:<br>%(description)s"
 msgstr ""
 
-#: forms/deckproperties.py:331
+#: forms/deckproperties.py:329
 msgid "<b>Very High Priority</b>"
 msgstr ""
 
@@ -601,7 +600,7 @@ msgstr ""
 msgid "<h1>Added</h1>"
 msgstr ""
 
-#: forms/deckproperties.py:353
+#: forms/deckproperties.py:354
 msgid "<h1>Advanced Scheduling</h1>"
 msgstr ""
 
@@ -681,7 +680,7 @@ msgstr ""
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
-#: forms/deckproperties.py:335
+#: forms/deckproperties.py:333
 msgid "<h1>Models</h1>"
 msgstr ""
 
@@ -693,7 +692,7 @@ msgstr ""
 msgid "<h1>Open Online Deck</h1>"
 msgstr ""
 
-#: forms/deckproperties.py:330
+#: forms/deckproperties.py:328
 msgid "<h1>Priorities</h1>"
 msgstr ""
 
@@ -721,13 +720,13 @@ msgstr ""
 msgid "<h1>Study Options</h1>"
 msgstr ""
 
-#: ui/main.py:1827
+#: ui/main.py:1828
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
 msgstr ""
 
-#: forms/deckproperties.py:341
+#: forms/deckproperties.py:339
 msgid "<h1>Synchronisation</h1>"
 msgstr ""
 
@@ -770,7 +769,7 @@ msgstr ""
 msgid "About Anki"
 msgstr ""
 
-#: forms/main.py:989
+#: forms/main.py:990
 msgid "Active &Tags..."
 msgstr ""
 
@@ -778,11 +777,11 @@ msgstr ""
 msgid "Active Tags"
 msgstr ""
 
-#: forms/main.py:899
+#: forms/main.py:901
 msgid "Ad&vanced"
 msgstr ""
 
-#: ui/addcards.py:63 ui/addcards.py:117
+#: ui/addcards.py:63 ui/addcards.py:118
 msgid "Add"
 msgstr ""
 
@@ -794,7 +793,7 @@ msgstr ""
 msgid "Add (shortcut: ctrl+return)"
 msgstr ""
 
-#: forms/addcards.py:83
+#: forms/addcards.py:72
 msgid "Add Items"
 msgstr ""
 
@@ -835,7 +834,7 @@ msgstr ""
 msgid "Add material"
 msgstr ""
 
-#: forms/main.py:918
+#: forms/main.py:920
 msgid "Add new items to Anki by typing them in"
 msgstr ""
 
@@ -848,16 +847,16 @@ msgstr ""
 msgid "Added"
 msgstr ""
 
-#: ui/addcards.py:131
+#: ui/addcards.py:132
 #, python-format
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr ""
 
-#: forms/deckproperties.py:374 forms/preferences.py:249
+#: forms/deckproperties.py:375 forms/preferences.py:249
 msgid "Advanced"
 msgstr ""
 
-#: forms/main.py:873
+#: forms/main.py:875
 msgid "Again"
 msgstr ""
 
@@ -915,7 +914,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:186 ui/main.py:2349 forms/main.py:869 forms/sort.py:45
+#: ui/deckproperties.py:186 ui/main.py:2350 forms/main.py:871
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -947,7 +946,7 @@ msgstr ""
 msgid "Answer size"
 msgstr ""
 
-#: forms/main.py:958
+#: forms/main.py:959
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
@@ -979,15 +978,15 @@ msgid ""
 "%s"
 msgstr ""
 
-#: forms/main.py:920
+#: forms/main.py:922
 msgid "Brows&e Items..."
 msgstr ""
 
-#: forms/cardlist.py:260
+#: forms/cardlist.py:236
 msgid "Browse Items"
 msgstr ""
 
-#: forms/main.py:921
+#: forms/main.py:923
 msgid "Browse and edit all items"
 msgstr ""
 
@@ -1010,11 +1009,11 @@ msgstr ""
 msgid "Bury"
 msgstr ""
 
-#: forms/main.py:981
+#: forms/main.py:982
 msgid "C&ram..."
 msgstr ""
 
-#: forms/main.py:999
+#: forms/main.py:1000
 msgid "Cache LaTeX"
 msgstr ""
 
@@ -1030,7 +1029,7 @@ msgstr ""
 msgid "Can't look up a selection with a newline."
 msgstr ""
 
-#: ui/main.py:2364
+#: ui/main.py:2365
 msgid "Cancel"
 msgstr ""
 
@@ -1082,7 +1081,7 @@ msgstr ""
 msgid "Change %s to:"
 msgstr ""
 
-#: forms/cardlist.py:291
+#: forms/cardlist.py:266
 msgid "Change &Model..."
 msgstr ""
 
@@ -1090,11 +1089,11 @@ msgstr ""
 msgid "Change Model"
 msgstr ""
 
-#: forms/main.py:975
+#: forms/main.py:976
 msgid "Check Database..."
 msgstr ""
 
-#: forms/main.py:979
+#: forms/main.py:980
 msgid "Check Media Database..."
 msgstr ""
 
@@ -1102,11 +1101,11 @@ msgstr ""
 msgid "Check complete."
 msgstr ""
 
-#: forms/main.py:976
+#: forms/main.py:977
 msgid "Check the database for errors"
 msgstr ""
 
-#: forms/main.py:980
+#: forms/main.py:981
 msgid "Check the files in the media directory"
 msgstr ""
 
@@ -1126,7 +1125,7 @@ msgstr ""
 msgid "Choose file to export to"
 msgstr ""
 
-#: forms/main.py:990
+#: forms/main.py:991
 msgid "Choose the categories to show during review"
 msgstr ""
 
@@ -1142,7 +1141,7 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: ui/addcards.py:170
+#: ui/addcards.py:171
 msgid "Close and lose current input?"
 msgstr ""
 
@@ -1155,11 +1154,11 @@ msgstr ""
 msgid "Compare with field '%s'"
 msgstr ""
 
-#: forms/main.py:924
+#: forms/main.py:926
 msgid "Configure interface language and options"
 msgstr ""
 
-#: forms/main.py:1004
+#: forms/main.py:1005
 msgid "Configure review options"
 msgstr ""
 
@@ -1171,7 +1170,7 @@ msgstr ""
 msgid "Continue &Reviewing"
 msgstr ""
 
-#: forms/main.py:880
+#: forms/main.py:882
 msgid "Continue Reviewing"
 msgstr ""
 
@@ -1217,23 +1216,23 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
-#: forms/main.py:927
+#: forms/main.py:929
 msgid "Ctrl+1"
 msgstr ""
 
-#: forms/main.py:929
+#: forms/main.py:931
 msgid "Ctrl+2"
 msgstr ""
 
-#: forms/main.py:931
+#: forms/main.py:933
 msgid "Ctrl+3"
 msgstr ""
 
-#: forms/main.py:933
+#: forms/main.py:935
 msgid "Ctrl+4"
 msgstr ""
 
-#: forms/main.py:935
+#: forms/main.py:937
 msgid "Ctrl+5"
 msgstr ""
 
@@ -1242,19 +1241,19 @@ msgstr ""
 msgid "Ctrl+Alt+%d"
 msgstr ""
 
-#: forms/main.py:919
+#: forms/main.py:921
 msgid "Ctrl+D"
 msgstr ""
 
-#: forms/cardlist.py:267 forms/main.py:997
+#: forms/cardlist.py:243 forms/main.py:998
 msgid "Ctrl+Del"
 msgstr ""
 
-#: forms/main.py:993
+#: forms/main.py:994
 msgid "Ctrl+E"
 msgstr ""
 
-#: forms/cardlist.py:287
+#: forms/cardlist.py:263
 msgid "Ctrl+End"
 msgstr ""
 
@@ -1262,7 +1261,7 @@ msgstr ""
 msgid "Ctrl+Enter"
 msgstr ""
 
-#: forms/cardlist.py:277 forms/main.py:922
+#: forms/cardlist.py:253 forms/main.py:924
 msgid "Ctrl+F"
 msgstr ""
 
@@ -1270,27 +1269,27 @@ msgstr ""
 msgid "Ctrl+F9"
 msgstr ""
 
-#: forms/cardlist.py:285
+#: forms/cardlist.py:261
 msgid "Ctrl+Home"
 msgstr ""
 
-#: forms/main.py:959
+#: forms/main.py:960
 msgid "Ctrl+M"
 msgstr ""
 
-#: forms/cardlist.py:281 forms/main.py:906
+#: forms/cardlist.py:257 forms/main.py:908
 msgid "Ctrl+N"
 msgstr ""
 
-#: forms/main.py:908
+#: forms/main.py:910
 msgid "Ctrl+O"
 msgstr ""
 
-#: forms/cardlist.py:283 forms/main.py:925
+#: forms/cardlist.py:259 forms/main.py:927
 msgid "Ctrl+P"
 msgstr ""
 
-#: forms/main.py:904
+#: forms/main.py:906
 msgid "Ctrl+Q"
 msgstr ""
 
@@ -1298,35 +1297,31 @@ msgstr ""
 msgid "Ctrl+Return"
 msgstr ""
 
-#: forms/main.py:913
+#: forms/main.py:915
 msgid "Ctrl+S"
 msgstr ""
 
-#: forms/main.py:1019
+#: forms/main.py:1020
 msgid "Ctrl+Shift+B"
 msgstr ""
 
-#: forms/cardlist.py:279
+#: forms/cardlist.py:255
 msgid "Ctrl+Shift+F"
 msgstr ""
 
-#: forms/cardlist.py:301 forms/main.py:962
+#: forms/main.py:963
 msgid "Ctrl+Shift+S"
 msgstr ""
 
-#: forms/cardlist.py:299
-msgid "Ctrl+T"
-msgstr ""
-
-#: forms/main.py:910
+#: forms/main.py:912
 msgid "Ctrl+W"
 msgstr ""
 
-#: forms/main.py:916
+#: forms/main.py:918
 msgid "Ctrl+Y"
 msgstr ""
 
-#: forms/main.py:971
+#: forms/main.py:972
 msgid "Ctrl+Z"
 msgstr ""
 
@@ -1358,11 +1353,11 @@ msgstr ""
 msgid "Cumulative"
 msgstr ""
 
-#: forms/main.py:963
+#: forms/main.py:964
 msgid "Current &Model..."
 msgstr ""
 
-#: forms/cardlist.py:261
+#: forms/cardlist.py:237
 msgid "Current Card"
 msgstr ""
 
@@ -1370,15 +1365,15 @@ msgstr ""
 msgid "Customize Models"
 msgstr ""
 
-#: forms/main.py:964
+#: forms/main.py:965
 msgid "Customize card layout, fields, etc"
 msgstr ""
 
-#: forms/main.py:955
+#: forms/main.py:956
 msgid "Customize fonts, colours and alignment"
 msgstr ""
 
-#: forms/main.py:947
+#: forms/main.py:948
 msgid "Customize syncing, scheduling, priorities and models"
 msgstr ""
 
@@ -1386,7 +1381,7 @@ msgstr ""
 msgid "Czech"
 msgstr ""
 
-#: ui/main.py:2345
+#: ui/main.py:2346
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1397,7 +1392,7 @@ msgstr ""
 msgid "Deck Graphs"
 msgstr ""
 
-#: ui/deckproperties.py:209 forms/deckproperties.py:328
+#: ui/deckproperties.py:209 forms/deckproperties.py:326
 msgid "Deck Properties"
 msgstr ""
 
@@ -1409,7 +1404,7 @@ msgstr ""
 msgid "Deck is already open."
 msgstr ""
 
-#: ui/main.py:1424 forms/cardlist.py:266
+#: ui/main.py:1424 forms/cardlist.py:242
 msgid "Delete"
 msgstr ""
 
@@ -1417,7 +1412,7 @@ msgstr ""
 msgid "Delete Cards"
 msgstr ""
 
-#: ui/main.py:2362
+#: ui/main.py:2363
 msgid "Delete Refs"
 msgstr ""
 
@@ -1425,16 +1420,12 @@ msgstr ""
 msgid "Delete Tags"
 msgstr ""
 
-#: forms/main.py:996
+#: forms/main.py:997
 msgid "Delete the currently displayed card"
 msgstr ""
 
 #: ui/sync.py:104
 msgid "Determining differences..."
-msgstr ""
-
-#: forms/infodialog.py:36
-msgid "Dialog"
 msgstr ""
 
 #: ui/modelproperties.py:325
@@ -1449,11 +1440,11 @@ msgstr ""
 msgid "Display"
 msgstr ""
 
-#: forms/main.py:982
+#: forms/main.py:983
 msgid "Do an extra review of specified cards before a test"
 msgstr ""
 
-#: forms/main.py:939
+#: forms/main.py:941
 msgid "Documentation"
 msgstr ""
 
@@ -1473,15 +1464,15 @@ msgstr ""
 msgid "Download Shared Plugin"
 msgstr ""
 
-#: forms/main.py:1014
+#: forms/main.py:1015
 msgid "Download a deck that people have shared publicly"
 msgstr ""
 
-#: forms/main.py:1012
+#: forms/main.py:1013
 msgid "Download a deck that you synced from another computer"
 msgstr ""
 
-#: forms/main.py:1016
+#: forms/main.py:1017
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
@@ -1494,7 +1485,7 @@ msgstr ""
 msgid "Due"
 msgstr ""
 
-#: forms/main.py:903
+#: forms/main.py:905
 msgid "E&xit"
 msgstr ""
 
@@ -1511,7 +1502,7 @@ msgstr ""
 msgid "Eases"
 msgstr ""
 
-#: forms/main.py:879
+#: forms/main.py:881
 msgid "Easy"
 msgstr ""
 
@@ -1519,11 +1510,11 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: forms/main.py:991
+#: forms/main.py:992
 msgid "Edit &Current..."
 msgstr ""
 
-#: forms/main.py:992
+#: forms/main.py:993
 msgid "Edit the currently displayed item"
 msgstr ""
 
@@ -1551,7 +1542,7 @@ msgstr ""
 msgid "Estonian"
 msgstr ""
 
-#: forms/main.py:952
+#: forms/main.py:953
 msgid "Expor&t..."
 msgstr ""
 
@@ -1563,16 +1554,12 @@ msgstr ""
 msgid "Export..."
 msgstr ""
 
-#: forms/cardlist.py:278
+#: forms/cardlist.py:254
 msgid "F&act"
 msgstr ""
 
-#: forms/cardlist.py:284
+#: forms/cardlist.py:260
 msgid "F&irst Card"
-msgstr ""
-
-#: forms/cardlist.py:290 forms/main.py:940
-msgid "F1"
 msgstr ""
 
 #: ui/facteditor.py:272
@@ -1587,7 +1574,7 @@ msgstr ""
 msgid "F4"
 msgstr ""
 
-#: ui/facteditor.py:250 forms/main.py:969
+#: ui/facteditor.py:250 forms/main.py:970
 msgid "F5"
 msgstr ""
 
@@ -1619,7 +1606,7 @@ msgstr ""
 msgid "Facts"
 msgstr ""
 
-#: ui/main.py:1858
+#: ui/main.py:1859
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr ""
 
@@ -1655,11 +1642,7 @@ msgstr ""
 msgid "Fields"
 msgstr ""
 
-#: forms/cardlist.py:298
-msgid "Fil&ters"
-msgstr ""
-
-#: forms/cardlist.py:293
+#: forms/cardlist.py:268
 msgid "Find and Re&place..."
 msgstr ""
 
@@ -1675,7 +1658,7 @@ msgstr ""
 msgid "First Answered"
 msgstr ""
 
-#: forms/cardlist.py:295
+#: forms/cardlist.py:270
 msgid "Font..."
 msgstr ""
 
@@ -1703,15 +1686,15 @@ msgstr ""
 msgid "German"
 msgstr ""
 
-#: forms/share.py:73
+#: forms/share.py:70
 msgid "Get Shared Decks/Plugins"
 msgstr ""
 
-#: forms/main.py:1008
+#: forms/main.py:1009
 msgid "Get Shared..."
 msgstr ""
 
-#: forms/main.py:877
+#: forms/main.py:879
 msgid "Good"
 msgstr ""
 
@@ -1723,11 +1706,11 @@ msgstr ""
 msgid "HTML Editor (Ctrl+F9)"
 msgstr ""
 
-#: forms/main.py:875
+#: forms/main.py:877
 msgid "Hard"
 msgstr ""
 
-#: ui/addcards.py:78 forms/displayproperties.py:374 forms/main.py:889
+#: ui/addcards.py:78 forms/displayproperties.py:374 forms/main.py:891
 msgid "Help"
 msgstr ""
 
@@ -1752,7 +1735,7 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: forms/main.py:949
+#: forms/main.py:950
 msgid "Import cards from text files, Anki files and more"
 msgstr ""
 
@@ -1796,6 +1779,24 @@ msgstr ""
 #: ui/activetags.py:26
 msgid "Invert"
 msgstr ""
+
+#: ui/main.py:2082
+#, python-format
+msgid "It is %(sec)d second %(type)s.\n"
+msgid_plural "It is %(sec)d seconds %(type)s.\n"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/main.py:1816
+#, python-format
+msgid ""
+"It is off by %d second.\n"
+"\n"
+msgid_plural ""
+"It is off by %d seconds.\n"
+"\n"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/preferences.py:38
 msgid "Italian"
@@ -1854,8 +1855,8 @@ msgstr ""
 msgid "Marked"
 msgstr ""
 
-#: forms/deckproperties.py:358 forms/deckproperties.py:359
-#: forms/deckproperties.py:361 forms/reschedule.py:84
+#: forms/deckproperties.py:359 forms/deckproperties.py:360
+#: forms/deckproperties.py:362 forms/reschedule.py:84
 msgid "Max"
 msgstr ""
 
@@ -1864,8 +1865,8 @@ msgstr ""
 msgid "Merge with '%s' on server"
 msgstr ""
 
-#: forms/deckproperties.py:354 forms/deckproperties.py:355
-#: forms/deckproperties.py:360 forms/reschedule.py:82
+#: forms/deckproperties.py:355 forms/deckproperties.py:356
+#: forms/deckproperties.py:361 forms/reschedule.py:82
 msgid "Min"
 msgstr ""
 
@@ -1877,7 +1878,7 @@ msgstr ""
 msgid "Model Properties"
 msgstr ""
 
-#: forms/deckproperties.py:339
+#: forms/deckproperties.py:337
 msgid "Models && Priorities"
 msgstr ""
 
@@ -1889,7 +1890,7 @@ msgstr ""
 msgid "Mongolian"
 msgstr ""
 
-#: forms/main.py:888
+#: forms/main.py:890
 msgid "More"
 msgstr ""
 
@@ -1921,7 +1922,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: forms/deckproperties.py:350
+#: forms/deckproperties.py:351
 msgid "Name on server: "
 msgstr ""
 
@@ -1977,7 +1978,7 @@ msgstr ""
 msgid "Nothing selected."
 msgstr ""
 
-#: forms/main.py:895
+#: forms/main.py:897
 msgid "Open &Recent"
 msgstr ""
 
@@ -1985,11 +1986,11 @@ msgstr ""
 msgid "Open Local Deck"
 msgstr ""
 
-#: forms/main.py:956
+#: forms/main.py:957
 msgid "Open Sa&mple..."
 msgstr ""
 
-#: forms/main.py:1009
+#: forms/main.py:1010
 msgid "Open a pre-made deck or plugin"
 msgstr ""
 
@@ -1997,11 +1998,11 @@ msgstr ""
 msgid "Open deck"
 msgstr ""
 
-#: forms/main.py:942
+#: forms/main.py:943
 msgid "Open the bug tracker"
 msgstr ""
 
-#: forms/main.py:977
+#: forms/main.py:978
 msgid "Optimize Database"
 msgstr ""
 
@@ -2009,7 +2010,7 @@ msgstr ""
 msgid "Ordering..."
 msgstr ""
 
-#: forms/main.py:901
+#: forms/main.py:903
 msgid "P&lugins"
 msgstr ""
 
@@ -2029,11 +2030,11 @@ msgstr ""
 msgid "Performance"
 msgstr ""
 
-#: forms/main.py:1011
+#: forms/main.py:1012
 msgid "Personal Deck"
 msgstr ""
 
-#: forms/main.py:968
+#: forms/main.py:969
 msgid "Play the last-played audio again"
 msgstr ""
 
@@ -2047,10 +2048,6 @@ msgstr ""
 
 #: ui/deckproperties.py:147
 msgid "Please add another model first."
-msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
 msgstr ""
 
 #: ui/sync.py:54
@@ -2075,7 +2072,7 @@ msgstr ""
 msgid "Please install python-matplotlib to access graphs."
 msgstr ""
 
-#: ui/main.py:2322
+#: ui/main.py:2323
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
@@ -2087,7 +2084,7 @@ msgstr ""
 msgid "Polish"
 msgstr ""
 
-#: forms/main.py:1000
+#: forms/main.py:1001
 msgid "Pre-generate PNG images of LaTeX cards"
 msgstr ""
 
@@ -2123,7 +2120,7 @@ msgstr ""
 msgid "Previous colour (F7 then F6)"
 msgstr ""
 
-#: ui/main.py:2337
+#: ui/main.py:2338
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2162,11 +2159,11 @@ msgstr ""
 msgid "Randomizing..."
 msgstr ""
 
-#: forms/main.py:891
+#: forms/main.py:893
 msgid "Re&view Early"
 msgstr ""
 
-#: forms/main.py:1007
+#: forms/main.py:1008
 msgid "Record 10 seconds of silence so that the record function can cancel noise"
 msgstr ""
 
@@ -2179,7 +2176,7 @@ msgstr ""
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:525 ui/main.py:2055
+#: ui/cardlist.py:525 ui/main.py:2056
 #, python-format
 msgid "Redo %s"
 msgstr ""
@@ -2188,7 +2185,7 @@ msgstr ""
 msgid "Refresh"
 msgstr ""
 
-#: forms/main.py:983
+#: forms/main.py:984
 msgid "Release Notes..."
 msgstr ""
 
@@ -2200,23 +2197,23 @@ msgstr ""
 msgid "Remaining: "
 msgstr ""
 
-#: forms/main.py:1002
+#: forms/main.py:1003
 msgid "Remove generated PNG images of LaTeX cards"
 msgstr ""
 
-#: forms/main.py:978
+#: forms/main.py:979
 msgid "Remove unused space, making the database file smaller"
 msgstr ""
 
-#: forms/main.py:966
+#: forms/main.py:967
 msgid "Repeat &Answer Audio"
 msgstr ""
 
-#: forms/main.py:967
+#: forms/main.py:968
 msgid "Repeat &Audio"
 msgstr ""
 
-#: forms/main.py:965
+#: forms/main.py:966
 msgid "Repeat &Question Audio"
 msgstr ""
 
@@ -2240,11 +2237,11 @@ msgstr ""
 msgid "Reschedule with initial interval in range:"
 msgstr ""
 
-#: forms/cardlist.py:288
+#: forms/cardlist.py:264
 msgid "Reverse &Order"
 msgstr ""
 
-#: forms/main.py:887
+#: forms/main.py:889
 msgid "Review"
 msgstr ""
 
@@ -2260,7 +2257,7 @@ msgstr ""
 msgid "Reviews today"
 msgstr ""
 
-#: forms/main.py:914
+#: forms/main.py:916
 msgid "S&ync"
 msgstr ""
 
@@ -2273,7 +2270,7 @@ msgstr ""
 msgid "Save && Sync"
 msgstr ""
 
-#: forms/main.py:973
+#: forms/main.py:974
 msgid "Save &As..."
 msgstr ""
 
@@ -2289,15 +2286,15 @@ msgstr ""
 msgid "Save after answering"
 msgstr ""
 
-#: forms/main.py:953
+#: forms/main.py:954
 msgid "Save cards in a new deck or text file for sharing with others"
 msgstr ""
 
-#: forms/main.py:912
+#: forms/main.py:914
 msgid "Save this deck now"
 msgstr ""
 
-#: forms/main.py:974
+#: forms/main.py:975
 msgid "Save this deck, giving it a new name"
 msgstr ""
 
@@ -2305,15 +2302,15 @@ msgstr ""
 msgid "Save when closing"
 msgstr ""
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:82 forms/share.py:71
 msgid "Search:"
 msgstr ""
 
-#: forms/cardlist.py:272
+#: forms/cardlist.py:248
 msgid "Select &All"
 msgstr ""
 
-#: forms/cardlist.py:292
+#: forms/cardlist.py:267
 msgid "Select &Facts"
 msgstr ""
 
@@ -2337,15 +2334,15 @@ msgstr ""
 msgid "Set colour (F7 then F7)"
 msgstr ""
 
-#: forms/main.py:1010
+#: forms/main.py:1011
 msgid "Share..."
 msgstr ""
 
-#: forms/main.py:1013
+#: forms/main.py:1014
 msgid "Shared Deck"
 msgstr ""
 
-#: forms/main.py:1015
+#: forms/main.py:1016
 msgid "Shared Plugin"
 msgstr ""
 
@@ -2357,7 +2354,7 @@ msgstr ""
 msgid "Shift+Alt+m"
 msgstr ""
 
-#: forms/main.py:871
+#: forms/main.py:873
 msgid "Show Answer"
 msgstr ""
 
@@ -2373,7 +2370,7 @@ msgstr ""
 msgid "Show due count and progress during review"
 msgstr ""
 
-#: forms/main.py:951
+#: forms/main.py:952
 msgid "Show graphical statistics about your deck"
 msgstr ""
 
@@ -2385,11 +2382,11 @@ msgstr ""
 msgid "Show preview"
 msgstr ""
 
-#: forms/main.py:938
+#: forms/main.py:940
 msgid "Show some textual statistics about your deck"
 msgstr ""
 
-#: forms/main.py:945
+#: forms/main.py:946
 msgid "Show statistics about the current card and last card"
 msgstr ""
 
@@ -2397,11 +2394,11 @@ msgstr ""
 msgid "Show study options on deck load"
 msgstr ""
 
-#: forms/main.py:870
+#: forms/main.py:872
 msgid "Show the answer (shortcut key: space or enter)"
 msgstr ""
 
-#: forms/main.py:872
+#: forms/main.py:874
 msgid "Show this card again soon (shortcut key: 1)"
 msgstr ""
 
@@ -2417,7 +2414,13 @@ msgstr ""
 msgid "Show/Hide"
 msgstr ""
 
-#: ui/addcards.py:123 ui/cardlist.py:638
+#: ui/main.py:1818
+msgid ""
+"Since this can cause many problems with syncing,\n"
+"syncing is disabled until you fix the problem."
+msgstr ""
+
+#: ui/addcards.py:124 ui/cardlist.py:638
 msgid "Some fields are missing or not unique."
 msgstr ""
 
@@ -2453,7 +2456,7 @@ msgstr ""
 msgid "Start adding your own material."
 msgstr ""
 
-#: forms/main.py:902
+#: forms/main.py:904
 msgid "Startup"
 msgstr ""
 
@@ -2461,7 +2464,7 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: forms/main.py:961
+#: forms/main.py:962
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr ""
 
@@ -2469,7 +2472,7 @@ msgstr ""
 msgid "Suspend"
 msgstr ""
 
-#: forms/main.py:1018
+#: forms/main.py:1019
 msgid "Suspend the current fact until the deck is closed and opened again"
 msgstr ""
 
@@ -2493,19 +2496,19 @@ msgstr ""
 msgid "Sync on open"
 msgstr ""
 
-#: forms/deckproperties.py:352
+#: forms/deckproperties.py:353
 msgid "Synchronisation"
 msgstr ""
 
-#: forms/deckproperties.py:342
+#: forms/deckproperties.py:340
 msgid "Synchronize this deck"
 msgstr ""
 
-#: forms/main.py:915
+#: forms/main.py:917
 msgid "Synchronize this deck with Anki Online"
 msgstr ""
 
-#: ui/main.py:1836 ui/main.py:1838
+#: ui/main.py:1837 ui/main.py:1839
 msgid "Syncing Media..."
 msgstr ""
 
@@ -2514,7 +2517,7 @@ msgstr ""
 msgid "Syncing failed: %(a)s"
 msgstr ""
 
-#: ui/main.py:2360
+#: ui/main.py:2361
 msgid "Tag Cards"
 msgstr ""
 
@@ -2542,21 +2545,21 @@ msgstr ""
 msgid "TextLabel"
 msgstr ""
 
-#: forms/main.py:881
+#: forms/main.py:883
 msgid "The <b>number of minutes in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr ""
 
-#: forms/main.py:885
+#: forms/main.py:887
 msgid "The <b>number of questions in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr ""
 
-#: ui/addcards.py:127
+#: ui/addcards.py:128
 msgid ""
 "The input you have provided would make an empty\n"
 "question or answer on all cards."
 msgstr ""
 
-#: forms/main.py:883
+#: forms/main.py:885
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr ""
 
@@ -2670,7 +2673,7 @@ msgid ""
 "You will need to remove the source first."
 msgstr ""
 
-#: ui/main.py:2324
+#: ui/main.py:2325
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2681,7 +2684,7 @@ msgid ""
 "Proceed?"
 msgstr ""
 
-#: ui/main.py:2351
+#: ui/main.py:2352
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2747,7 +2750,7 @@ msgstr ""
 msgid "Type in the answer and hit enter"
 msgstr ""
 
-#: forms/share.py:75
+#: forms/share.py:72
 msgid "Type:"
 msgstr ""
 
@@ -2792,7 +2795,7 @@ msgstr ""
 msgid "Unable to recover. Deck load failed."
 msgstr ""
 
-#: forms/main.py:1001
+#: forms/main.py:1002
 msgid "Uncache LaTeX"
 msgstr ""
 
@@ -2800,7 +2803,7 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr ""
 
-#: ui/cardlist.py:519 ui/main.py:2049
+#: ui/cardlist.py:519 ui/main.py:2050
 #, python-format
 msgid "Undo %s"
 msgstr ""
@@ -2818,7 +2821,7 @@ msgstr ""
 msgid "Update complete. Please restart Anki."
 msgstr ""
 
-#: ui/main.py:2089
+#: ui/main.py:2090
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -2845,15 +2848,15 @@ msgstr ""
 msgid "Username:"
 msgstr ""
 
-#: forms/main.py:874
+#: forms/main.py:876
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr ""
 
-#: forms/main.py:878
+#: forms/main.py:880
 msgid "Wait a lot longer next time (shortcut key: 4)"
 msgstr ""
 
-#: forms/main.py:876
+#: forms/main.py:878
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr ""
 
@@ -2874,22 +2877,8 @@ msgstr ""
 msgid "You are currently cramming. Please close this deck first."
 msgstr ""
 
-#: ui/main.py:2080
-#, python-format
-msgid ""
-"Your computer clock is not set to the correct time.\n"
-"It is %(sec)d seconds %(type)s.\n"
-" Please ensure it is set correctly and then restart Anki."
-msgstr ""
-
-#: ui/main.py:1815
-#, python-format
-msgid ""
-"Your computer clock is not set to the correct time.\n"
-"It is off by %d seconds.\n"
-"\n"
-"Since this can cause many problems with syncing,\n"
-"syncing is disabled until you fix the problem."
+#: ui/main.py:1815 ui/main.py:2081
+msgid "Your computer clock is not set to the correct time.\n"
 msgstr ""
 
 #: ui/main.py:1390
@@ -2898,7 +2887,7 @@ msgid ""
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
 msgstr ""
 
-#: forms/main.py:988
+#: forms/main.py:989
 msgid "a"
 msgstr ""
 
@@ -2906,12 +2895,12 @@ msgstr ""
 msgid "cards"
 msgstr ""
 
-#: forms/deckproperties.py:368 forms/deckproperties.py:369
-#: forms/deckproperties.py:370 forms/reschedule.py:83 forms/reschedule.py:85
+#: forms/deckproperties.py:369 forms/deckproperties.py:370
+#: forms/deckproperties.py:371 forms/reschedule.py:83 forms/reschedule.py:85
 msgid "days"
 msgstr ""
 
-#: ui/main.py:2078
+#: ui/main.py:2079
 msgid "early"
 msgstr ""
 
@@ -2924,11 +2913,11 @@ msgstr ""
 msgid "in %s"
 msgstr ""
 
-#: forms/deckproperties.py:340
+#: forms/deckproperties.py:338
 msgid "label"
 msgstr ""
 
-#: ui/main.py:2076
+#: ui/main.py:2077
 msgid "late"
 msgstr ""
 
@@ -2941,11 +2930,11 @@ msgstr ""
 msgid "mapped to <b>Tags</b>"
 msgstr ""
 
-#: forms/deckproperties.py:366 forms/deckproperties.py:367
+#: forms/deckproperties.py:367 forms/deckproperties.py:368
 msgid "mins"
 msgstr ""
 
-#: forms/deckproperties.py:351
+#: forms/deckproperties.py:352
 msgid "option"
 msgstr ""
 
