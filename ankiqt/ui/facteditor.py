@@ -686,8 +686,9 @@ class FactEditor(object):
     def insertLatex(self):
         w = self.focusedEdit()
         if w:
+            selected = w.textCursor().selectedText()
             self.deck.mediaDir(create=True)
-            w.insertHtml("[latex][/latex]")
+            w.insertHtml("[latex]%s[/latex]" % selected)
             w.moveCursor(QTextCursor.PreviousWord)
             if sys.platform.startswith("win32"):
                 w.moveCursor(QTextCursor.PreviousWord)
@@ -697,8 +698,9 @@ class FactEditor(object):
     def insertLatexEqn(self):
         w = self.focusedEdit()
         if w:
+            selected = w.textCursor().selectedText()
             self.deck.mediaDir(create=True)
-            w.insertHtml("[$][/$]")
+            w.insertHtml("[$]%s[/$]" % selected)
             w.moveCursor(QTextCursor.PreviousWord)
             if sys.platform.startswith("win32"):
                 w.moveCursor(QTextCursor.PreviousWord)
@@ -708,8 +710,9 @@ class FactEditor(object):
     def insertLatexMathEnv(self):
         w = self.focusedEdit()
         if w:
+            selected = w.textCursor().selectedText()
             self.deck.mediaDir(create=True)
-            w.insertHtml("[$$][/$$]")
+            w.insertHtml("[$$]%s[/$$]" % selected)
             w.moveCursor(QTextCursor.PreviousWord)
             if sys.platform.startswith("win32"):
                 w.moveCursor(QTextCursor.PreviousWord)
