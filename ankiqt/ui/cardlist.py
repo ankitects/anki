@@ -319,10 +319,9 @@ class EditDeck(QMainWindow):
         self.drawTags()
         self.updateFilterLabel()
         self.show()
-        self.updateSearch()
         if self.parent.currentCard:
             self.currentCard = self.parent.currentCard
-        self.focusCurrentCard()
+        self.updateSearch()
         if sys.platform.startswith("darwin"):
             self.macCloseShortcut = QShortcut(QKeySequence("Ctrl+w"), self)
             self.connect(self.macCloseShortcut, SIGNAL("activated()"),
@@ -556,23 +555,20 @@ class EditDeck(QMainWindow):
     def updateSearch(self, force=True):
         if self.parent.inDbHandler:
             return
-        idx = self.dialog.tableView.currentIndex()
-        row = idx.row()
         self.model.searchStr = unicode(self.dialog.filterEdit.text())
         self.model.showMatching(force)
         self.updateFilterLabel()
         self.onEvent()
         self.filterTimer = None
         if self.model.cards:
-            if row == -1:
-                row = 0
             self.dialog.cardInfoGroup.show()
             self.dialog.fieldsArea.show()
         else:
             self.dialog.cardInfoGroup.hide()
             self.dialog.fieldsArea.hide()
-        self.dialog.tableView.selectRow(row)
-        self.dialog.tableView.scrollTo(idx, QAbstractItemView.PositionAtCenter)
+        if not self.focusCurrentCard():
+            if self.model.cards:
+                self.dialog.tableView.selectRow(0)
         if not self.model.cards:
             self.editor.setFact(None)
 
@@ -587,6 +583,8 @@ class EditDeck(QMainWindow):
                 self.dialog.tableView.scrollTo(
                               self.model.index(currentCardIndex,0),
                               self.dialog.tableView.PositionAtCenter)
+                return True
+        return False
 
     def setupHeaders(self):
         if not sys.platform.startswith("win32"):
