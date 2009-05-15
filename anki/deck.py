@@ -2632,9 +2632,6 @@ class DeckStorage(object):
             deck.checkDue()
         if ((oldc != deck.failedSoonCount + deck.revCount + deck.newCount) or
             deck.modifiedSinceSave()):
-            # we don't want the deck marked as modified, but we don't want to
-            # bump the mod time either
-            deck.modified = deck.lastLoaded
             deck.s.commit()
         return deck
     Deck = staticmethod(Deck)
