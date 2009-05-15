@@ -2191,7 +2191,7 @@ Return new path, relative to media dir."""
             return _("Database file is damaged.\n"
                      "Please restore from automatic backup (see FAQ).")
         # ensure correct views and indexes are available
-        self.updateProgress(_("Adding views and indices..."))
+        self.updateProgress()
         DeckStorage._addViews(self)
         DeckStorage._addIndices(self)
         # does the user have a model?
