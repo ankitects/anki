@@ -147,7 +147,7 @@ class ModelProperties(QDialog):
         self.ignoreFieldUpdate = False
 
     def addField(self):
-        f = FieldModel()
+        f = FieldModel(required=False, unique=False)
         f.name = _("Field %d") % (len(self.m.fieldModels) + 1)
         self.deck.addFieldModel(self.m, f)
         self.updateFields()
