@@ -327,9 +327,9 @@ class EditDeck(QMainWindow):
             self.connect(self.macCloseShortcut, SIGNAL("activated()"),
                          self.close)
 
-    def findCardInDeckModel(self, model, card):
-        for i, thisCard in enumerate(model.cards):
-            if thisCard[0] == card.id:
+    def findCardInDeckModel(self):
+        for i, thisCard in enumerate(self.model.cards):
+            if thisCard[0] == self.currentCard.id:
                 return i
         return -1
 
@@ -574,8 +574,11 @@ class EditDeck(QMainWindow):
 
     def focusCurrentCard(self):
         if self.currentCard:
-            currentCardIndex = self.findCardInDeckModel(
-                                 self.model, self.currentCard)
+            try:
+                self.currentCard.id
+            except:
+                return False
+            currentCardIndex = self.findCardInDeckModel()
             if currentCardIndex >= 0:
                 sm = self.dialog.tableView.selectionModel()
                 sm.clear()
@@ -744,9 +747,12 @@ where id in (%s)""" % ",".join([
     def deleteCards(self):
         cards = self.selectedCards()
         n = _("Delete Cards")
+        new = self.findCardInDeckModel() + 1
         self.deck.setUndoStart(n)
         self.deck.deleteCards(cards)
         self.deck.setUndoEnd(n)
+        new = min(max(0, new), len(self.model.cards) - 1)
+        self.dialog.tableView.selectRow(new)
         self.updateSearch()
         self.updateAfterCardChange()
 
