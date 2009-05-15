@@ -718,8 +718,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onClose(self):
         if self.inMainWindow():
-            self.saveAndClose(hideWelcome=self.isCramming())
-            if self.isCramming():
+            isCram = self.isCramming()
+            self.saveAndClose(hideWelcome=isCram)
+            if isCram:
                 self.loadRecent(0)
         else:
             self.app.activeWindow().close()
