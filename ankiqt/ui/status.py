@@ -298,6 +298,7 @@ You should aim to answer each question within<br>
         if self.state in ("showQuestion", "showAnswer", "studyScreen"):
             self.main.deck.checkDue()
             self.redraw()
+            self.main.updateTitleBar()
             if self.state == "studyScreen":
                 self.main.updateStudyStats()
 
