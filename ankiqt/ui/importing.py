@@ -18,16 +18,21 @@ class ChangeMap(QDialog):
         self.dialog = ankiqt.forms.changemap.Ui_ChangeMap()
         self.dialog.setupUi(self)
         n = 0
+        setCurrent = False
         for field in self.model.fieldModels:
             item = QListWidgetItem(_("Map to %s") % field.name)
             self.dialog.fields.addItem(item)
-            if current == field.name:
+            if current and current.name == field.name:
+                setCurrent = True
                 self.dialog.fields.setCurrentRow(n)
             n += 1
         self.dialog.fields.addItem(QListWidgetItem(_("Map to Tags")))
         self.dialog.fields.addItem(QListWidgetItem(_("Discard field")))
-        if current is None:
-            self.dialog.fields.setCurrentRow(n)
+        if not setCurrent:
+            if current == 0:
+                self.dialog.fields.setCurrentRow(n)
+            else:
+                self.dialog.fields.setCurrentRow(n+1)
         self.field = None
 
     def getField(self):
