@@ -1926,7 +1926,8 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionRedo, s, self.onRedo)
-        self.connect(m.actionCheckDatabaseIntegrity, s, self.onCheckDB)
+        self.connect(m.actionCheckDatabaseIntegrity, s, self.onQuickCheckDB)
+        self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionCram, s, self.onCram)
@@ -2316,13 +2317,16 @@ Couldn't contact Anki Online. Please check your internet connection.""")
     # Advanced features
     ##########################################################################
 
-    def onCheckDB(self):
+    def onQuickCheckDB(self):
+        self.onCheckDB(full=False)
+
+    def onCheckDB(self, full=True):
         "True if no problems"
         if self.errorOccurred:
             ui.utils.showWarning(_(
                 "Please restart Anki before checking the DB."))
             return
-        if not ui.utils.askUser(_("""\
+        if full and not ui.utils.askUser(_("""\
 This operation will find and fix some common problems.<br>
 <br>
 On the next sync, all cards will be sent to the server.<br>
@@ -2331,12 +2335,23 @@ Any changes on the server since your last sync will be lost.<br>
 <b>This operation is not undoable.</b><br>
 Proceed?""")):
             return
-        ret = self.deck.fixIntegrity()
+        ret = self.deck.fixIntegrity(quick=not full)
         if ret == "ok":
             ret = True
         else:
             ret = _("Problems found:\n%s") % ret
-            ui.utils.showWarning(ret)
+            diag = QDialog(self)
+            diag.setWindowTitle("Anki")
+            layout = QVBoxLayout(diag)
+            diag.setLayout(layout)
+            text = QTextEdit()
+            text.setReadOnly(True)
+            text.setPlainText(ret)
+            layout.addWidget(text)
+            box = QDialogButtonBox(QDialogButtonBox.Close)
+            layout.addWidget(box)
+            self.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
+            diag.exec_()
             ret = False
         self.reset()
         return ret

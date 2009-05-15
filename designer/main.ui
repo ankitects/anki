@@ -1209,6 +1209,7 @@
       <string>Ad&amp;vanced</string>
      </property>
      <addaction name="actionCheckDatabaseIntegrity" />
+     <addaction name="actionFullDatabaseCheck" />
      <addaction name="actionOptimizeDatabase" />
      <addaction name="separator" />
      <addaction name="actionCheckMediaDatabase" />
@@ -1216,6 +1217,7 @@
      <addaction name="actionUncacheLatex" />
      <addaction name="separator" />
      <addaction name="actionRecordNoiseProfile" />
+     <addaction name="separator" />
     </widget>
     <addaction name="actionGraphs" />
     <addaction name="actionDstats" />
@@ -1731,7 +1733,7 @@
      <normaloff>:/icons/sqlitebrowser.png</normaloff>:/icons/sqlitebrowser.png</iconset>
    </property>
    <property name="text" >
-    <string>Check Database...</string>
+    <string>Quick Database Check</string>
    </property>
    <property name="statusTip" >
     <string>Check the database for errors</string>
@@ -1962,6 +1964,11 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+Shift+B</string>
+   </property>
+  </action>
+  <action name="actionFullDatabaseCheck" >
+   <property name="text" >
+    <string>Full Database Check...</string>
    </property>
   </action>
  </widget>
