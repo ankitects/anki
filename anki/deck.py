@@ -2167,20 +2167,26 @@ Return new path, relative to media dir."""
     # DB maintenance
     ##########################################################################
 
-    def fixIntegrity(self):
+    def fixIntegrity(self, quick=False):
         "Responsibility of caller to call rebuildQueue()"
         self.s.commit()
         self.resetUndo()
-        self.startProgress(12)
+        problems = []
+        deletedCards = []
+        if quick:
+            num = 4
+        else:
+            num = 9
+        self.startProgress(num)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
             self.finishProgress()
-            return _("Database file damaged. Restore from backup.")
+            return _("Database file is damaged.\n"
+                     "Please restore from automatic backup (see FAQ).")
         # ensure correct views and indexes are available
-        self.updateProgress()
+        self.updateProgress(_("Adding views and indices..."))
         DeckStorage._addViews(self)
         DeckStorage._addIndices(self)
-        problems = []
         # does the user have a model?
         self.updateProgress(_("Checking schema..."))
         if not self.s.scalar("select count(id) from models"):
@@ -2192,14 +2198,7 @@ select decks.id from decks, models where
 decks.currentModelId = models.id"""):
             self.currentModelId = self.models[0].id
             problems.append(_("The current model didn't exist"))
-        # forget all deletions (do this before deleting anything)
-        self.updateProgress()
-        self.s.statement("delete from cardsDeleted")
-        self.s.statement("delete from factsDeleted")
-        self.s.statement("delete from modelsDeleted")
-        self.s.statement("delete from mediaDeleted")
         # facts missing a field?
-        self.updateProgress()
         ids = self.s.column0("""
 select distinct facts.id from facts, fieldModels where
 facts.modelId = fieldModels.modelId and fieldModels.id not in
@@ -2213,6 +2212,9 @@ facts.modelId = fieldModels.modelId and fieldModels.id not in
         ids = self.s.column0("""
 select id from cards where factId not in (select id from facts)""")
         if ids:
+            deletedCards.extend(self.s.all(
+                "select question, answer from cards where id in %s" %
+                ids2str(ids)))
             self.deleteCards(ids)
             problems.append(ngettext("Deleted %d card with missing fact",
                             "Deleted %d cards with missing fact", len(ids)) %
@@ -2222,6 +2224,9 @@ select id from cards where factId not in (select id from facts)""")
 select id from cards where cardModelId not in
 (select id from cardModels)""")
         if ids:
+            deletedCards.extend(self.s.all(
+                "select question, answer from cards where id in %s" %
+                ids2str(ids)))
             self.deleteCards(ids)
             problems.append(ngettext("Deleted %d card with no card template",
                             "Deleted %d cards with no card template", len(ids)) %
@@ -2241,49 +2246,53 @@ select id from fields where factId not in (select id from facts)""")
             problems.append(ngettext("Deleted %d dangling field",
                             "Deleted %d dangling fields", len(ids)) %
                             len(ids))
+        for card in deletedCards:
+            print card
+            problems.append(_("Deleted: ") + "%s %s" % tuple(card))
         self.s.flush()
-        # fix problems with cards being scheduled when not due
-        self.updateProgress()
-        self.s.statement("update cards set isDue = 0")
-        # these sometimes end up null on upgrade
-        self.s.statement("update models set source = 0 where source is null")
-        self.s.statement(
-            "update cardModels set allowEmptyAnswer = 1, typeAnswer = '' "
-            "where allowEmptyAnswer is null or typeAnswer is null")
-        # fix tags
-        self.updateProgress(_("Rebuilding tag cache..."))
-        self.updateCardTags()
-        # fix any priorities
-        self.updateProgress(_("Updating priorities..."))
-        self.updateAllPriorities()
-        # fix problems with stripping html
-        self.updateProgress(_("Rebuilding QA cache..."))
-        fields = self.s.all("select id, value from fields")
-        newFields = []
-        for (id, value) in fields:
-            newFields.append({'id': id, 'value': tidyHTML(value)})
-        self.s.statements(
-            "update fields set value=:value where id=:id",
-            newFields)
-        # regenerate question/answer cache
-        for m in self.models:
-            self.updateCardsFromModel(m)
-        # mark everything changed to force sync
-        self.s.flush()
-        self.s.statement("update cards set modified = :t", t=time.time())
-        self.s.statement("update facts set modified = :t", t=time.time())
-        self.s.statement("update models set modified = :t", t=time.time())
-        self.lastSync = 0
-        # rebuild
-        self.updateProgress(_("Rebuilding types..."))
-        self.rebuildTypes()
+        if not quick:
+            # fix problems with cards being scheduled when not due
+            self.updateProgress()
+            self.s.statement("update cards set isDue = 0")
+            # these sometimes end up null on upgrade
+            self.s.statement("update models set source = 0 where source is null")
+            self.s.statement(
+                "update cardModels set allowEmptyAnswer = 1, typeAnswer = '' "
+                "where allowEmptyAnswer is null or typeAnswer is null")
+            # fix tags
+            self.updateProgress(_("Rebuilding tag cache..."))
+            self.updateCardTags()
+            # fix any priorities
+            self.updateProgress(_("Updating priorities..."))
+            self.updateAllPriorities()
+            # fix problems with stripping html
+            self.updateProgress(_("Rebuilding QA cache..."))
+            fields = self.s.all("select id, value from fields")
+            newFields = []
+            for (id, value) in fields:
+                newFields.append({'id': id, 'value': tidyHTML(value)})
+            self.s.statements(
+                "update fields set value=:value where id=:id",
+                newFields)
+            # regenerate question/answer cache
+            for m in self.models:
+                self.updateCardsFromModel(m)
+            # mark everything changed to force sync
+            self.s.flush()
+            self.s.statement("update cards set modified = :t", t=time.time())
+            self.s.statement("update facts set modified = :t", t=time.time())
+            self.s.statement("update models set modified = :t", t=time.time())
+            self.lastSync = 0
+            # rebuild
+            self.updateProgress(_("Rebuilding types..."))
+            self.rebuildTypes()
         self.updateProgress(_("Rebuilding counts..."))
         self.rebuildCounts()
         # update deck and save
-        self.flushMod()
-        self.save()
+        if not quick:
+            self.flushMod()
+            self.save()
         self.refresh()
-        self.updateProgress(_("Rebuilding queue..."))
         self.rebuildQueue()
         self.finishProgress()
         if problems:
