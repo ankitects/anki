@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ankiqt 0.9.9.6\n"
+"Project-Id-Version: ankiqt 0.9.9.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-15 20:09+0200\n"
-"PO-Revision-Date: 2009-05-15 20:16+0100\n"
+"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"PO-Revision-Date: 2009-05-17 19:05+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -96,7 +96,7 @@ msgstr " <b>Vid ändring (företräde framför ovan):</b>"
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Vid repetition och ändring:</b>"
 
-#: ui/main.py:2086
+#: ui/main.py:2092
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Ställ klockan rätt och starta sedan om Anki."
 
@@ -105,7 +105,7 @@ msgstr "Ställ klockan rätt och starta sedan om Anki."
 msgid " applied %d modified cards."
 msgstr "tillämpade %d ändrade kort."
 
-#: ui/cardlist.py:1009
+#: ui/cardlist.py:1013
 #, python-format
 msgid "%(a)d of %(b)d fact updated"
 msgid_plural "%(a)d of %(b)d facts updated"
@@ -119,17 +119,13 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d faktauppgift]"
 msgstr[1] "%(name)s [%(facts)d faktauppgifter]"
 
-#: ui/status.py:224
-#: ui/status.py:226
-#: ui/status.py:231
-#: ui/status.py:235
-#: ui/status.py:237
-#: ui/status.py:239
+#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
+#: ui/status.py:237 ui/status.py:239
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d av %(totalSum)d"
 
-#: ui/main.py:1970
+#: ui/main.py:1976
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(due)d av %(cards)d är dags att repetera) - %(title)s"
@@ -139,21 +135,21 @@ msgstr "%(path)s (%(due)d av %(cards)d är dags att repetera) - %(title)s"
 msgid "%d exported."
 msgstr "%d exporterades."
 
-#: ui/main.py:2390
+#: ui/main.py:2400
 #, python-format
 msgid "%d missing reference."
 msgid_plural "%d missing references."
 msgstr[0] "%d saknad referens"
 msgstr[1] "%d saknade referenser"
 
-#: ui/cardlist.py:514
+#: ui/cardlist.py:513
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] "%d valt"
 msgstr[1] "%d valda"
 
-#: ui/main.py:2392
+#: ui/main.py:2402
 #, python-format
 msgid "%d unused file removed."
 msgid_plural "%d unused files removed."
@@ -173,8 +169,7 @@ msgstr "&Om..."
 msgid "&Actions"
 msgstr "&Åtgärder"
 
-#: forms/deckproperties.py:336
-#: forms/modelproperties.py:291
+#: forms/deckproperties.py:336 forms/modelproperties.py:291
 #: forms/modelproperties.py:304
 msgid "&Add"
 msgstr "&Lägg till"
@@ -215,8 +210,7 @@ msgstr "&Kortleksegenskaper..."
 msgid "&Deck Statistics"
 msgstr "Kort&leksstatistik"
 
-#: forms/deckproperties.py:338
-#: forms/modelproperties.py:294
+#: forms/deckproperties.py:338 forms/modelproperties.py:294
 #: forms/modelproperties.py:309
 msgid "&Delete"
 msgstr "&Ta bort"
@@ -253,9 +247,7 @@ msgstr "&Donera..."
 msgid "&Download..."
 msgstr "&Hämta..."
 
-#: forms/cardlist.py:262
-#: forms/deckproperties.py:337
-#: forms/main.py:897
+#: forms/cardlist.py:262 forms/deckproperties.py:337 forms/main.py:897
 msgid "&Edit"
 msgstr "&Redigera"
 
@@ -295,8 +287,7 @@ msgstr "&Gå"
 msgid "&Graphs..."
 msgstr "&Grafer..."
 
-#: forms/cardlist.py:265
-#: forms/main.py:896
+#: forms/cardlist.py:265 forms/main.py:896
 msgid "&Help"
 msgstr "&Hjälp"
 
@@ -360,8 +351,7 @@ msgstr "&Föregående kort"
 msgid "&Record Noise Profile..."
 msgstr "&Spela in brusprofil"
 
-#: forms/cardlist.py:274
-#: forms/main.py:998
+#: forms/cardlist.py:274 forms/main.py:998
 msgid "&Redo"
 msgstr "&Gör om"
 
@@ -401,8 +391,7 @@ msgstr "&Åsidosätt faktauppgifter"
 msgid "&Tools"
 msgstr "&Verktyg"
 
-#: forms/cardlist.py:273
-#: forms/main.py:974
+#: forms/cardlist.py:273 forms/main.py:974
 msgid "&Undo"
 msgstr "Å&ngra"
 
@@ -410,7 +399,7 @@ msgstr "Å&ngra"
 msgid "&Unsuspend Facts"
 msgstr "Åt&erställ faktauppgifter"
 
-#: ui/cardlist.py:428
+#: ui/cardlist.py:427
 #, python-format
 msgid "'%s'"
 msgstr "'%s'"
@@ -471,7 +460,7 @@ msgstr ""
 "</style></head><body style=\" font-family:'Sans Serif'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Arial';\"></p></body></html>"
 
-#: ui/cardlist.py:372
+#: ui/cardlist.py:371
 msgid "<Filter>"
 msgstr "<Filter>"
 
@@ -479,15 +468,15 @@ msgstr "<Filter>"
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Hjälp</a>"
 
-#: ui/main.py:1329
+#: ui/main.py:1333
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr "<a href=py:miss>Saknade</a><br>"
 
-#: ui/main.py:1331
+#: ui/main.py:1335
 msgid "<a href=py:non>Non-jouyou</a><br>"
 msgstr "<a href=py:non>Icke-jouyou</a><br>"
 
-#: ui/main.py:1330
+#: ui/main.py:1334
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr "<a href=py:seen>Sedda</a><br>"
 
@@ -571,8 +560,7 @@ msgstr "<b>Minsta tillåtna tidsintervall</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Modell</b>:"
 
-#: forms/modelproperties.py:286
-#: forms/modelproperties.py:299
+#: forms/modelproperties.py:286 forms/modelproperties.py:299
 #: forms/modelproperties.py:312
 msgid "<b>Name</b>"
 msgstr "<b>Namn</b>"
@@ -593,8 +581,7 @@ msgstr "<b>Ny dag börjar kl. </b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Gammal modell</b>:"
 
-#: forms/modelproperties.py:297
-#: forms/modelproperties.py:310
+#: forms/modelproperties.py:297 forms/modelproperties.py:310
 msgid "<b>Options</b>"
 msgstr "<b>Alternativ</b>"
 
@@ -692,7 +679,7 @@ msgstr "<h1>Automatsparning</h1>"
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Kortmallar</h1>"
 
-#: ui/main.py:1464
+#: ui/main.py:1468
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -706,7 +693,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Ackumulerat antal vars tidsfrist är slut</h1>"
 
-#: ui/main.py:1361
+#: ui/main.py:1365
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Aktuellt kort</h1>"
 
@@ -742,11 +729,11 @@ msgstr "<h1>Intervall</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Språk</h1>"
 
-#: ui/main.py:1364
+#: ui/main.py:1368
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Förra kortet</h1>"
 
-#: ui/main.py:1663
+#: ui/main.py:1669
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr "<h1>Lär dig mer</h1>Klicka på klockan i verktygsraden för att avsluta."
 
@@ -754,7 +741,7 @@ msgstr "<h1>Lär dig mer</h1>Klicka på klockan i verktygsraden för att avsluta
 msgid "<h1>Models</h1>"
 msgstr "<h1>Modeller</h1>"
 
-#: ui/main.py:787
+#: ui/main.py:791
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr "<h1>Konto på nätet</h1>För att använda ditt fria <a href=\"http://anki.ichi2.net/\">konto på nätet</a>,<br>fyll i dina uppgifter här nedan.<br>"
 
@@ -774,7 +761,7 @@ msgstr "<h1>Repetitioner</h1>"
 msgid "<h1>Review Time</h1>"
 msgstr "<h1>Repetitionstid</h1>"
 
-#: ui/main.py:1669
+#: ui/main.py:1675
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
 msgstr "<h1>Repetera tidigt</h1>Klicka på klockan i verktygsraden för att avsluta."
 
@@ -786,11 +773,11 @@ msgstr "<h1>Repeterar</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Välj målfält</h1>"
 
-#: ui/main.py:1081
+#: ui/main.py:1085
 msgid "<h1>Study Options</h1>"
 msgstr "<h1>Instuderingsalternativ</h1>"
 
-#: ui/main.py:1828
+#: ui/main.py:1834
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -810,7 +797,7 @@ msgstr "<h1>Synkronisering</h1><a href=\"http://anki.ichi2.net/\">Skapa ett grat
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Synkronisera</h1>"
 
-#: ui/main.py:886
+#: ui/main.py:890
 msgid ""
 "<h1>Unsaved Deck</h1>\n"
 "Careful. You're editing an unsaved Deck.<br>\n"
@@ -832,11 +819,11 @@ msgstr ""
 "        ändringar. Vill du spara dem, förkasta\n"
 "        ändringarna eller avbryta?"
 
-#: ui/main.py:1083
+#: ui/main.py:1087
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>Bra gjort!</h1>"
 
-#: ui/importing.py:200
+#: ui/importing.py:205
 msgid "<ignored>"
 msgstr "<ignoreras>"
 
@@ -860,8 +847,7 @@ msgstr "Aktiva etiketter"
 msgid "Ad&vanced"
 msgstr "Ava&ncerat"
 
-#: ui/addcards.py:63
-#: ui/addcards.py:118
+#: ui/addcards.py:63 ui/addcards.py:118
 msgid "Add"
 msgstr "Lägg till"
 
@@ -886,7 +872,7 @@ msgstr "Lägg till poster - %s"
 msgid "Add Model"
 msgstr "Lägg till modell"
 
-#: ui/cardlist.py:758
+#: ui/cardlist.py:762
 msgid "Add Tags"
 msgstr "Lägg till etiketter"
 
@@ -894,11 +880,11 @@ msgstr "Lägg till etiketter"
 msgid "Add a picture (F3)"
 msgstr "Lägg till en bild (F3)"
 
-#: ui/facteditor.py:834
+#: ui/facteditor.py:837
 msgid "Add an image"
 msgstr "Lägg till bild"
 
-#: ui/facteditor.py:863
+#: ui/facteditor.py:866
 msgid "Add audio"
 msgstr "Lägg till ljud"
 
@@ -932,8 +918,7 @@ msgstr "Tillagt"
 msgid "Added %(num)d card(s) for '%(str)s'."
 msgstr "La till  %(num)d kort för '%(str)s'."
 
-#: forms/deckproperties.py:374
-#: forms/preferences.py:249
+#: forms/deckproperties.py:374 forms/preferences.py:249
 msgid "Advanced"
 msgstr "Avancerat"
 
@@ -941,7 +926,7 @@ msgstr "Avancerat"
 msgid "Again"
 msgstr "Igen"
 
-#: ui/cardlist.py:977
+#: ui/cardlist.py:981
 msgid "All Fields"
 msgstr "Alla fält"
 
@@ -953,11 +938,11 @@ msgstr "Alla repetitioner"
 msgid "Allow the answer to be blank"
 msgstr "Tillåt tomma svar"
 
-#: ui/main.py:1536
+#: ui/main.py:1541
 msgid "Already cramming. Please close this deck first."
 msgstr "Håller redan på att plugga. Stäng denna kortlek först."
 
-#: ui/main.py:702
+#: ui/main.py:705
 #, python-format
 msgid "Alt+%d"
 msgstr "Alt+%d"
@@ -966,7 +951,7 @@ msgstr "Alt+%d"
 msgid "Alternative theme"
 msgstr "Alternativt tema"
 
-#: ui/facteditor.py:908
+#: ui/facteditor.py:911
 #, python-format
 msgid "An error occured while opening %s"
 msgstr "Ett fel uppstod när %s skulle öppnas"
@@ -979,7 +964,7 @@ msgstr ""
 "Ett fel inträffade i en insticksmodul. Kontakta insticksmodulens upphovsman.<br>\n"
 "Rapportera inte in felet till Anki.<br><br>"
 
-#: ui/main.py:636
+#: ui/main.py:639
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
@@ -1007,14 +992,12 @@ msgstr ""
 "Om detta inte löser problemet, kopiera följande text<br>\n"
 "till en felrapport:<br><br>\n"
 
-#: ui/deckproperties.py:186
-#: ui/main.py:2365
-#: forms/main.py:873
+#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
-#: ui/main.py:946
+#: ui/main.py:950
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1023,8 +1006,7 @@ msgstr ""
 "Anki kunde inte spara din konfigurationsfil:\n"
 "%s"
 
-#: ui/cardlist.py:48
-#: ui/cardlist.py:418
+#: ui/cardlist.py:48 ui/cardlist.py:417
 msgid "Answer"
 msgstr "Svar"
 
@@ -1052,8 +1034,7 @@ msgstr "Sätt etiketten 'markerad' på denna faktauppgift så att du kan hitta d
 msgid "Applying reply..."
 msgstr "Tillämpar svar..."
 
-#: ui/status.py:227
-#: ui/status.py:232
+#: ui/status.py:227 ui/status.py:232
 msgid "Average time per answer: "
 msgstr "Genomsnittstid per svar: "
 
@@ -1092,7 +1073,7 @@ msgstr "Bläddra bland poster"
 msgid "Browse and edit all items"
 msgstr "Bläddra och redigera alla poster"
 
-#: ui/cardlist.py:508
+#: ui/cardlist.py:507
 #, python-format
 msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
 msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
@@ -1103,11 +1084,11 @@ msgstr[1] "Bläddrare (%(cur)d av %(tot)d kort visas; %(sel)s)"
 msgid "Browser Font"
 msgstr "Typsnitt för bläddrare"
 
-#: ui/cardlist.py:478
+#: ui/cardlist.py:477
 msgid "Building Index..."
 msgstr "Konstruerar index..."
 
-#: ui/main.py:1434
+#: ui/main.py:1438
 msgid "Bury"
 msgstr "Begrav"
 
@@ -1119,12 +1100,11 @@ msgstr "&Råplugga"
 msgid "Cache LaTeX"
 msgstr "Läs in Latex i cachen"
 
-#: ui/cardlist.py:875
+#: ui/cardlist.py:879
 msgid "Can only change one model at a time."
 msgstr "Du kan bara ändra en modell åt gången."
 
-#: ui/cardlist.py:831
-#: ui/cardlist.py:969
+#: ui/cardlist.py:835 ui/cardlist.py:973
 msgid "Can only operate on one model at a time."
 msgstr "Kan enbart arbeta med en modell åt gången."
 
@@ -1132,7 +1112,7 @@ msgstr "Kan enbart arbeta med en modell åt gången."
 msgid "Can't look up a selection with a newline."
 msgstr "Kan inte göra ett uppslag på en markering som innehåller en radbrytning."
 
-#: ui/main.py:2380
+#: ui/main.py:2390
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -1167,19 +1147,19 @@ msgstr "Kort"
 msgid "Cards are waiting"
 msgstr "Det finns kort som väntar"
 
-#: ui/main.py:1119
+#: ui/main.py:1123
 msgid "Cards/day:"
 msgstr "Kort/dag"
 
-#: ui/main.py:1118
+#: ui/main.py:1122
 msgid "Cards/session:"
 msgstr "Kort/studiepass:"
 
-#: ui/importing.py:202
+#: ui/importing.py:207
 msgid "Change"
 msgstr "Ändra"
 
-#: ui/cardlist.py:1180
+#: ui/cardlist.py:1184
 #, python-format
 msgid "Change %s to:"
 msgstr "Ändra %s till:"
@@ -1188,8 +1168,7 @@ msgstr "Ändra %s till:"
 msgid "Change &Model..."
 msgstr "Byt &modell..."
 
-#: ui/cardlist.py:882
-#: forms/changemodel.py:74
+#: ui/cardlist.py:886 forms/changemodel.py:74
 msgid "Change Model"
 msgstr "Byt modell"
 
@@ -1241,8 +1220,7 @@ msgstr "Klicka för att dölja Anki"
 msgid "Click to show Anki"
 msgstr "Klicka för att visa Anki"
 
-#: ui/addcards.py:74
-#: forms/displayproperties.py:376
+#: ui/addcards.py:74 forms/displayproperties.py:376
 msgid "Close"
 msgstr "Stäng"
 
@@ -1271,7 +1249,7 @@ msgstr "Anpassa repetitionsalternativ"
 msgid "Connecting..."
 msgstr "Ansluter..."
 
-#: ui/main.py:1181
+#: ui/main.py:1185
 msgid "Continue &Reviewing"
 msgstr "&Fortsätt repetera"
 
@@ -1288,8 +1266,7 @@ msgstr "Kopiera: %s"
 msgid "Correct first time: "
 msgstr "Rätta första gången: "
 
-#: ui/status.py:225
-#: ui/status.py:230
+#: ui/status.py:225 ui/status.py:230
 msgid "Correct over a month: "
 msgstr "Rätta äldre än en månad:"
 
@@ -1305,11 +1282,11 @@ msgstr "Rätta yngre än en månad: "
 msgid "Couldn't play sound. Please install mplayer."
 msgstr "Kunde inte spela ljud. Installera mplayer."
 
-#: ui/main.py:1557
+#: ui/main.py:1562
 msgid "Cram"
 msgstr "Råplugga"
 
-#: ui/cardlist.py:862
+#: ui/cardlist.py:866
 msgid "Cram selected cards in new deck?"
 msgstr "Råplugga valda kort i en ny kortlek?"
 
@@ -1318,8 +1295,7 @@ msgstr "Råplugga valda kort i en ny kortlek?"
 msgid "Create '%s' on server"
 msgstr "Skapa '%s' på server"
 
-#: ui/cardlist.py:229
-#: ui/cardlist.py:419
+#: ui/cardlist.py:229 ui/cardlist.py:418
 msgid "Created"
 msgstr "Skapad"
 
@@ -1343,7 +1319,7 @@ msgstr "Ctrl+4"
 msgid "Ctrl+5"
 msgstr "Ctrl+5"
 
-#: ui/main.py:700
+#: ui/main.py:703
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr "Ctrl+Alt+%d"
@@ -1352,8 +1328,7 @@ msgstr "Ctrl+Alt+%d"
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
-#: forms/cardlist.py:267
-#: forms/main.py:1001
+#: forms/cardlist.py:267 forms/main.py:1001
 msgid "Ctrl+Del"
 msgstr "Ctrl+Del"
 
@@ -1369,8 +1344,7 @@ msgstr "Ctrl+End"
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:277
-#: forms/main.py:926
+#: forms/cardlist.py:277 forms/main.py:926
 msgid "Ctrl+F"
 msgstr "Ctrl+F"
 
@@ -1386,8 +1360,7 @@ msgstr "Ctrl+Home"
 msgid "Ctrl+M"
 msgstr "Ctrl+M"
 
-#: forms/cardlist.py:281
-#: forms/main.py:910
+#: forms/cardlist.py:281 forms/main.py:910
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
@@ -1395,8 +1368,7 @@ msgstr "Ctrl+N"
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:283
-#: forms/main.py:929
+#: forms/cardlist.py:283 forms/main.py:929
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
@@ -1420,8 +1392,7 @@ msgstr "Ctrl+Skift+B"
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+Skift+F"
 
-#: forms/cardlist.py:301
-#: forms/main.py:966
+#: forms/cardlist.py:301 forms/main.py:966
 msgid "Ctrl+Shift+S"
 msgstr "Ctrl+Skift+S"
 
@@ -1497,7 +1468,7 @@ msgstr "Anpassa synkronisering, schemaläggning, prioritering och modeller."
 msgid "Czech"
 msgstr "Tjeckiska"
 
-#: ui/main.py:2361
+#: ui/main.py:2367
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1510,34 +1481,31 @@ msgstr ""
 msgid "Deck Graphs"
 msgstr "Kortleksdiagram"
 
-#: ui/deckproperties.py:209
-#: forms/deckproperties.py:328
+#: ui/deckproperties.py:209 forms/deckproperties.py:328
 msgid "Deck Properties"
 msgstr "Kortleksegenskaper"
 
-#: ui/main.py:845
-#: ui/main.py:910
+#: ui/main.py:849 ui/main.py:914
 msgid "Deck files (*.anki)"
 msgstr "Kortleksfiler (*.anki)"
 
-#: ui/main.py:606
+#: ui/main.py:607
 msgid "Deck is already open."
 msgstr "Kortleken är redan öppen."
 
-#: ui/main.py:1424
-#: forms/cardlist.py:266
+#: ui/main.py:1428 forms/cardlist.py:266
 msgid "Delete"
 msgstr "Ta bort"
 
-#: ui/cardlist.py:748
+#: ui/cardlist.py:749
 msgid "Delete Cards"
 msgstr "Ta bort kort"
 
-#: ui/main.py:2378
+#: ui/main.py:2388
 msgid "Delete Refs"
 msgstr "Ta bort referenser"
 
-#: ui/cardlist.py:769
+#: ui/cardlist.py:773
 msgid "Delete Tags"
 msgstr "Ta bort etiketter"
 
@@ -1553,7 +1521,7 @@ msgstr "Fastställer skillnader..."
 msgid "Disa&ble"
 msgstr "Inakti&vera"
 
-#: ui/importing.py:28
+#: ui/importing.py:30
 msgid "Discard field"
 msgstr "Kassera fält"
 
@@ -1577,8 +1545,7 @@ msgstr "Begär inte att jag skall skriva in svaret"
 msgid "Download Personal Deck"
 msgstr "Hämta personlig kortlek"
 
-#: ui/getshared.py:36
-#: ui/view.py:301
+#: ui/getshared.py:36 ui/view.py:301
 msgid "Download Shared Deck"
 msgstr "Hämta delad kortlek"
 
@@ -1598,15 +1565,11 @@ msgstr "Hämta hem en kortlek som du har synkroniserat från en annan dator"
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "Hämta hem en insticksmodul för att utöka eller ändra Ankis funktionalitet"
 
-#: ui/getshared.py:147
-#: ui/getshared.py:151
+#: ui/getshared.py:147 ui/getshared.py:151
 msgid "Downloads"
 msgstr "Hämtningar"
 
-#: ui/cardlist.py:49
-#: ui/cardlist.py:239
-#: ui/cardlist.py:378
-#: ui/cardlist.py:421
+#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:377 ui/cardlist.py:420
 #: ui/graphs.py:148
 msgid "Due"
 msgstr "Tidsfrist slut"
@@ -1620,8 +1583,7 @@ msgstr "&Avsluta"
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Nedräkning:<b>%(timeLeft)s</b>"
 
-#: ui/cardlist.py:237
-#: ui/cardlist.py:424
+#: ui/cardlist.py:237 ui/cardlist.py:423
 msgid "Ease"
 msgstr "Inlärningsgrad"
 
@@ -1657,11 +1619,11 @@ msgstr "A&ktivera"
 msgid "English"
 msgstr "Engelska"
 
-#: ui/cardlist.py:756
+#: ui/cardlist.py:760
 msgid "Enter tags to add:"
 msgstr "Skriv in etiketter att lägga till:"
 
-#: ui/cardlist.py:767
+#: ui/cardlist.py:771
 msgid "Enter tags to delete:"
 msgstr "Skriv in vilka etiketter som skall tas bort"
 
@@ -1689,8 +1651,7 @@ msgstr "F&aktauppgift"
 msgid "F&irst Card"
 msgstr "F&örsta kort"
 
-#: forms/cardlist.py:290
-#: forms/main.py:944
+#: forms/cardlist.py:290 forms/main.py:944
 msgid "F1"
 msgstr "F1"
 
@@ -1706,8 +1667,7 @@ msgstr "F3"
 msgid "F4"
 msgstr "F4"
 
-#: ui/facteditor.py:250
-#: forms/main.py:973
+#: ui/facteditor.py:250 forms/main.py:973
 msgid "F5"
 msgstr "F5"
 
@@ -1731,7 +1691,7 @@ msgstr "F7, F8"
 msgid "F9"
 msgstr "F9"
 
-#: ui/cardlist.py:425
+#: ui/cardlist.py:424
 msgid "Fact Created"
 msgstr "Faktauppgift skapad"
 
@@ -1739,7 +1699,7 @@ msgstr "Faktauppgift skapad"
 msgid "Facts"
 msgstr "Faktauppgifter"
 
-#: ui/main.py:1859
+#: ui/main.py:1865
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Misslyckades att skicka in media. Kör kommandot 'kontrollera mediadatabasen'."
 
@@ -1757,13 +1717,12 @@ msgstr "Fält %(num)d: %(name)s"
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Fält %(num)d: %(name)s [%(cards)s inte tomma]"
 
-#: ui/modelproperties.py:133
-#: ui/modelproperties.py:151
+#: ui/modelproperties.py:133 ui/modelproperties.py:151
 #, python-format
 msgid "Field %d"
 msgstr "Fält %d"
 
-#: ui/importing.py:193
+#: ui/importing.py:198
 #, python-format
 msgid "Field <b>%d</b> of file is:"
 msgstr "Fält <b>%d</b> i fil är:"
@@ -1772,8 +1731,7 @@ msgstr "Fält <b>%d</b> i fil är:"
 msgid "Field mapping"
 msgstr "Fälthopparning"
 
-#: forms/changemodel.py:79
-#: forms/displayproperties.py:373
+#: forms/changemodel.py:79 forms/displayproperties.py:373
 msgid "Fields"
 msgstr "Fält"
 
@@ -1785,8 +1743,7 @@ msgstr "Fil&ter"
 msgid "Find and Re&place..."
 msgstr "Sök och &ersätt"
 
-#: ui/cardlist.py:982
-#: forms/findreplace.py:60
+#: ui/cardlist.py:986 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr "Sök och ersätt"
 
@@ -1818,12 +1775,11 @@ msgstr "Fullständig databaskontroll..."
 msgid "General && Fields"
 msgstr "Allmänt && Fält"
 
-#: ui/cardlist.py:841
-#: forms/addcardmodels.py:34
+#: ui/cardlist.py:845 forms/addcardmodels.py:34
 msgid "Generate Cards"
 msgstr "Skapa kort"
 
-#: ui/cardlist.py:847
+#: ui/cardlist.py:851
 msgid "Generating Cards..."
 msgstr "Skapar kort..."
 
@@ -1855,9 +1811,7 @@ msgstr "HTML-redigerare (Ctrl+F9)"
 msgid "Hard"
 msgstr "Svår"
 
-#: ui/addcards.py:78
-#: forms/displayproperties.py:374
-#: forms/main.py:893
+#: ui/addcards.py:78 forms/displayproperties.py:374 forms/main.py:893
 msgid "Help"
 msgstr "Hjälp"
 
@@ -1873,13 +1827,11 @@ msgstr "Id"
 msgid "Ignore this update"
 msgstr "Hoppa över denna uppdatering"
 
-#: ui/facteditor.py:833
+#: ui/facteditor.py:836
 msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgstr "Bilder (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 
-#: ui/importing.py:78
-#: ui/importing.py:118
-#: forms/changemap.py:39
+#: ui/importing.py:83 ui/importing.py:123 forms/changemap.py:39
 #: forms/importing.py:95
 msgid "Import"
 msgstr "Importera"
@@ -1888,7 +1840,7 @@ msgstr "Importera"
 msgid "Import cards from text files, Anki files and more"
 msgstr "Importera kort från textfiler, anki-filer med mera"
 
-#: ui/importing.py:128
+#: ui/importing.py:133
 msgid "Import failed.\n"
 msgstr "Import misslyckades.\n"
 
@@ -1896,16 +1848,16 @@ msgstr "Import misslyckades.\n"
 msgid "Import options"
 msgstr "Importalternativ"
 
-#: ui/importing.py:136
+#: ui/importing.py:141
 #, python-format
 msgid "Importing complete. %(num)d facts imported from %(file)s.\n"
 msgstr "Import genomförd. %(num)d faktauppgifter importerades från %(file)s.\n"
 
-#: ui/importing.py:123
+#: ui/importing.py:128
 msgid "Importing failed.\n"
 msgstr "Import misslyckades.\n"
 
-#: ui/importing.py:112
+#: ui/importing.py:117
 msgid "Importing..."
 msgstr "Importerar..."
 
@@ -1917,13 +1869,11 @@ msgstr "Inkludera schemaläggningsinformation"
 msgid "Include tags"
 msgstr "Inkludera etiketter"
 
-#: ui/cardlist.py:233
-#: ui/cardlist.py:422
-#: ui/graphs.py:150
+#: ui/cardlist.py:233 ui/cardlist.py:421 ui/graphs.py:150
 msgid "Interval"
 msgstr "Intervall"
 
-#: ui/cardlist.py:1000
+#: ui/cardlist.py:1004
 msgid "Invalid regular expression."
 msgstr "Ogiltigt reguljärt uttryck."
 
@@ -1931,14 +1881,14 @@ msgstr "Ogiltigt reguljärt uttryck."
 msgid "Invert"
 msgstr "Växla"
 
-#: ui/main.py:2083
+#: ui/main.py:2089
 #, python-format
 msgid "It is %(sec)d second %(type)s.\n"
 msgid_plural "It is %(sec)d seconds %(type)s.\n"
 msgstr[0] "Den är %(sec)d sekund %(type)s.\n"
 msgstr[1] "Den är %(sec)d sekunder %(type)s.\n"
 
-#: ui/main.py:1816
+#: ui/main.py:1822
 #, python-format
 msgid ""
 "It is off by %d second.\n"
@@ -1981,11 +1931,11 @@ msgstr "Latexformel (Ctrl+l därefter e)"
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr "Matematikmiljö för Latex (Ctrl+l därpå m)"
 
-#: ui/main.py:1558
+#: ui/main.py:1563
 msgid "Loading deck..."
 msgstr "Läser in kortlek..."
 
-#: ui/main.py:1375
+#: ui/main.py:1379
 msgid "Loading graphs (may take time)..."
 msgstr "Läser in diagram (kan ta tid)..."
 
@@ -1993,27 +1943,25 @@ msgstr "Läser in diagram (kan ta tid)..."
 msgid "Loading..."
 msgstr "Läser in..."
 
-#: ui/importing.py:141
+#: ui/importing.py:146
 msgid "Log of import:\n"
 msgstr "Importlog:\n"
 
-#: ui/importing.py:22
+#: ui/importing.py:23
 #, python-format
 msgid "Map to %s"
 msgstr "Mappa till %s"
 
-#: ui/importing.py:27
+#: ui/importing.py:29
 msgid "Map to Tags"
 msgstr "Para ihop med etiketter"
 
-#: ui/cardlist.py:374
+#: ui/cardlist.py:373
 msgid "Marked"
 msgstr "Märkt"
 
-#: forms/deckproperties.py:358
-#: forms/deckproperties.py:359
-#: forms/deckproperties.py:361
-#: forms/reschedule.py:84
+#: forms/deckproperties.py:358 forms/deckproperties.py:359
+#: forms/deckproperties.py:361 forms/reschedule.py:84
 msgid "Max"
 msgstr "Max"
 
@@ -2022,10 +1970,8 @@ msgstr "Max"
 msgid "Merge with '%s' on server"
 msgstr "Slå ihop med '%s' på server"
 
-#: forms/deckproperties.py:354
-#: forms/deckproperties.py:355
-#: forms/deckproperties.py:360
-#: forms/reschedule.py:82
+#: forms/deckproperties.py:354 forms/deckproperties.py:355
+#: forms/deckproperties.py:360 forms/reschedule.py:82
 msgid "Min"
 msgstr "Min"
 
@@ -2033,8 +1979,7 @@ msgstr "Min"
 msgid "Model"
 msgstr "Modell"
 
-#: ui/modelproperties.py:35
-#: forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:284
 msgid "Model Properties"
 msgstr "Modellegenskaper"
 
@@ -2042,8 +1987,7 @@ msgstr "Modellegenskaper"
 msgid "Models && Priorities"
 msgstr "Modeller && Prioriteter"
 
-#: ui/cardlist.py:231
-#: ui/cardlist.py:420
+#: ui/cardlist.py:231 ui/cardlist.py:419
 msgid "Modified"
 msgstr "Ändrad"
 
@@ -2055,13 +1999,11 @@ msgstr "mongoliska"
 msgid "More"
 msgstr "Mer"
 
-#: forms/modelproperties.py:293
-#: forms/modelproperties.py:306
+#: forms/modelproperties.py:293 forms/modelproperties.py:306
 msgid "Move &Up"
 msgstr "Flytta &upp"
 
-#: forms/modelproperties.py:296
-#: forms/modelproperties.py:308
+#: forms/modelproperties.py:296 forms/modelproperties.py:308
 msgid "Move Dow&n"
 msgstr "Fl&ytta ner"
 
@@ -2089,11 +2031,11 @@ msgstr "Namn"
 msgid "Name on server: "
 msgstr "Namn på server: "
 
-#: ui/main.py:1122
+#: ui/main.py:1126
 msgid "New today:"
 msgstr "Nya idag:"
 
-#: ui/main.py:1123
+#: ui/main.py:1127
 msgid "New total:"
 msgstr "Nya totalt:"
 
@@ -2101,16 +2043,15 @@ msgstr "Nya totalt:"
 msgid "Next colour (F7 then F8)"
 msgstr "Nästa färg (F7 därefter F8)"
 
-#: ui/facteditor.py:779
+#: ui/facteditor.py:782
 msgid "Next field must be blank."
 msgstr "Nästa fält måste vara tomt."
 
-#: ui/main.py:1551
-#: ui/main.py:1587
+#: ui/main.py:1556 ui/main.py:1593
 msgid "No cards matched the provided tags."
 msgstr "Inga kort är markerade med angivna etiketter."
 
-#: ui/facteditor.py:1063
+#: ui/facteditor.py:1066
 msgid "No cards to preview."
 msgstr "Det finns inte några kort att förhandsgranska"
 
@@ -2118,23 +2059,23 @@ msgstr "Det finns inte några kort att förhandsgranska"
 msgid "No changes found."
 msgstr "Inga ändringar funna."
 
-#: ui/main.py:1367
+#: ui/main.py:1371
 msgid "No current card or last card."
 msgstr "Inget aktuellt eller senaste kort."
 
-#: ui/main.py:1303
+#: ui/main.py:1307
 msgid "No expression in current card."
 msgstr "Inget uttryck på aktuellt kort."
 
-#: ui/cardlist.py:380
+#: ui/cardlist.py:379
 msgid "No fact tags"
 msgstr "Inga etiketter på faktauppgifter"
 
-#: ui/main.py:1310
+#: ui/main.py:1314
 msgid "No meaning in current card."
 msgstr "Ingen betydelse på aktuellt kort."
 
-#: ui/cardlist.py:1176
+#: ui/cardlist.py:1180
 msgid "Nothing"
 msgstr "Ingenting"
 
@@ -2158,7 +2099,7 @@ msgstr "Öppna e&xempelkortlek..."
 msgid "Open a pre-made deck or plugin"
 msgstr "Öppna en färdig kortlek eller insticksmodul"
 
-#: ui/main.py:847
+#: ui/main.py:851
 msgid "Open deck"
 msgstr "Öppna kortlek"
 
@@ -2170,7 +2111,7 @@ msgstr "Öppna felspåraren"
 msgid "Optimize Database"
 msgstr "Optimera databas"
 
-#: ui/main.py:1231
+#: ui/main.py:1235
 msgid "Ordering..."
 msgstr "Ordningsföljd..."
 
@@ -2186,7 +2127,7 @@ msgstr "Paketerad ankikortlek (*.zip)"
 msgid "Password"
 msgstr "Lösenord"
 
-#: ui/main.py:797
+#: ui/main.py:801
 msgid "Password:"
 msgstr "Lösenord:"
 
@@ -2222,11 +2163,11 @@ msgstr "Kontrollera ditt användarnamn och lösenord en gång till."
 msgid "Please enable a different template first."
 msgstr "Aktivera först en annan modell."
 
-#: ui/cardlist.py:812
+#: ui/cardlist.py:816
 msgid "Please enter a valid start and end range."
 msgstr "Ange ett giltigt start- och slutintervall"
 
-#: ui/facteditor.py:885
+#: ui/facteditor.py:888
 msgid ""
 "Please install <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "to enable recording."
@@ -2234,11 +2175,11 @@ msgstr ""
 "Installera <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "för att möjliggöra inspelning."
 
-#: ui/main.py:1393
+#: ui/main.py:1397
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Installera python-matplotlib för att kunna använda diagram."
 
-#: ui/main.py:2327
+#: ui/main.py:2333
 msgid "Please restart Anki before checking the DB."
 msgstr "Starta om Anki innan du kontrollerar databasen."
 
@@ -2286,7 +2227,7 @@ msgstr "Förhandsgranska kort"
 msgid "Previous colour (F7 then F6)"
 msgstr "Föregående färg (F7 därefter F6)"
 
-#: ui/main.py:2342
+#: ui/main.py:2348
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2295,9 +2236,7 @@ msgstr ""
 "Hittade problem:\n"
 "%s"
 
-#: ui/graphs.py:253
-#: ui/graphs.py:284
-#: ui/utils.py:223
+#: ui/graphs.py:253 ui/graphs.py:284 ui/utils.py:223
 msgid "Processing..."
 msgstr "Behandlar..."
 
@@ -2305,8 +2244,7 @@ msgstr "Behandlar..."
 msgid "Put space between question and answer"
 msgstr "Skilj fråga och svar åt med mellanslag"
 
-#: ui/cardlist.py:47
-#: ui/cardlist.py:417
+#: ui/cardlist.py:47 ui/cardlist.py:416
 msgid "Question"
 msgstr "Fråga"
 
@@ -2330,8 +2268,7 @@ msgstr "Frågestorlek"
 msgid "Quick Database Check"
 msgstr "Snabb databaskontroll"
 
-#: ui/main.py:1237
-#: ui/main.py:1577
+#: ui/main.py:1241 ui/main.py:1583
 msgid "Randomizing..."
 msgstr "Blandar om..."
 
@@ -2352,8 +2289,7 @@ msgstr "Spela in ljud (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Spelar in...<br>Tid: %0.1f"
 
-#: ui/cardlist.py:525
-#: ui/main.py:2057
+#: ui/cardlist.py:524 ui/main.py:2063
 #, python-format
 msgid "Redo %s"
 msgstr "Gör om %s"
@@ -2394,18 +2330,15 @@ msgstr "&Upprepa ljud"
 msgid "Repeat &Question Audio"
 msgstr "Upprepa &frågeljud"
 
-#: ui/cardlist.py:985
+#: ui/cardlist.py:989
 msgid "Replacing..."
 msgstr "Ersätter..."
 
-#: ui/cardlist.py:235
-#: ui/cardlist.py:423
-#: ui/graphs.py:154
+#: ui/cardlist.py:235 ui/cardlist.py:422 ui/graphs.py:154
 msgid "Reps"
 msgstr "Upprepningar"
 
-#: ui/cardlist.py:796
-#: forms/reschedule.py:79
+#: ui/cardlist.py:800 forms/reschedule.py:79
 msgid "Reschedule"
 msgstr "Schemalägg igen"
 
@@ -2429,7 +2362,7 @@ msgstr "Repetera"
 msgid "Review Time"
 msgstr "Repetitionstid"
 
-#: ui/main.py:1121
+#: ui/main.py:1125
 msgid "Reviews due:"
 msgstr "Dags att repetera:"
 
@@ -2454,7 +2387,7 @@ msgstr "Spara && synka"
 msgid "Save &As..."
 msgstr "Spara s&om..."
 
-#: ui/main.py:903
+#: ui/main.py:907
 msgid "Save Deck As"
 msgstr "Spara kortlek som"
 
@@ -2482,8 +2415,7 @@ msgstr "Spara denna kortlek under ett nytt namn"
 msgid "Save when closing"
 msgstr "Spara ändringar när programmet avslutas"
 
-#: forms/getshared.py:85
-#: forms/share.py:74
+#: forms/getshared.py:85 forms/share.py:74
 msgid "Search:"
 msgstr "Sök:"
 
@@ -2507,7 +2439,7 @@ msgstr "Avmarkera alla"
 msgid "Select tags to suspend. Deselect to unsuspend."
 msgstr "Välj vilka taggar som skall vara avaktiverade. Avmarkera för att återaktivera."
 
-#: ui/main.py:1149
+#: ui/main.py:1153
 msgid "Session Statistics"
 msgstr "Statistik för studiepass"
 
@@ -2595,7 +2527,7 @@ msgstr "Visa ikon i systembrickan"
 msgid "Show/Hide"
 msgstr "Visa/Dölj"
 
-#: ui/main.py:1818
+#: ui/main.py:1824
 msgid ""
 "Since this can cause many problems with syncing,\n"
 "syncing is disabled until you fix the problem."
@@ -2603,13 +2535,11 @@ msgstr ""
 "Då detta kan ställa till med många problem i samband\n"
 "med synkning, är synkning avaktiverad till problemet lösts."
 
-#: ui/addcards.py:124
-#: ui/cardlist.py:638
+#: ui/addcards.py:124 ui/cardlist.py:639
 msgid "Some fields are missing or not unique."
 msgstr "Några fält saknas eller är inte unika."
 
-#: forms/preferences.py:228
-#: forms/preferences.py:248
+#: forms/preferences.py:228 forms/preferences.py:248
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Vissa inställningar blir aktiva först efter att du startat om Anki."
 
@@ -2621,7 +2551,7 @@ msgstr "Snart"
 msgid "Sort as numbers"
 msgstr "Sortera som tal"
 
-#: ui/facteditor.py:862
+#: ui/facteditor.py:865
 msgid "Sounds (*.mp3 *.ogg *.wav)"
 msgstr "Ljud (*.mp3 *.ogg *.wav)"
 
@@ -2633,7 +2563,7 @@ msgstr "Käll-ID:"
 msgid "Spanish"
 msgstr "Spanska"
 
-#: ui/main.py:1183
+#: ui/main.py:1187
 msgid "Start &Reviewing"
 msgstr "&Börja repetera"
 
@@ -2653,8 +2583,7 @@ msgstr "Status"
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Repetera inte detta kort igen förrän du hävt åsidosättningen i bläddraren"
 
-#: ui/cardlist.py:778
-#: ui/main.py:1410
+#: ui/cardlist.py:782 ui/main.py:1414
 msgid "Suspend"
 msgstr "Åsidosätt"
 
@@ -2662,7 +2591,7 @@ msgstr "Åsidosätt"
 msgid "Suspend the current fact until the deck is closed and opened again"
 msgstr "Åsidosätt aktuell faktauppgift till kortleken har stängts och öppnats igen."
 
-#: ui/cardlist.py:376
+#: ui/cardlist.py:375
 msgid "Suspended"
 msgstr "Åsidosatt"
 
@@ -2694,8 +2623,7 @@ msgstr "Synkronisera denna kortlek"
 msgid "Synchronize this deck with Anki Online"
 msgstr "Synkronisera denna kortlek med Anki Online"
 
-#: ui/main.py:1837
-#: ui/main.py:1839
+#: ui/main.py:1843 ui/main.py:1845
 msgid "Syncing Media..."
 msgstr "Synkroniserar media..."
 
@@ -2704,7 +2632,7 @@ msgstr "Synkroniserar media..."
 msgid "Syncing failed: %(a)s"
 msgstr "Synkronisering misslyckades: %(a)s"
 
-#: ui/main.py:2376
+#: ui/main.py:2386
 msgid "Tag Cards"
 msgstr "Sätt etikett på kort"
 
@@ -2716,11 +2644,11 @@ msgstr "Sätt etikett dubblettfält på faktauppgift i stället för att ta bort
 msgid "Tags"
 msgstr "Etiketter"
 
-#: ui/main.py:1541
+#: ui/main.py:1546
 msgid "Tags to cram:"
 msgstr "Etiketter att råplugga:"
 
-#: ui/cardlist.py:1252
+#: ui/cardlist.py:1256
 msgid "Targets must be unique."
 msgstr "Mål måste vara  unika."
 
@@ -2728,8 +2656,7 @@ msgstr "Mål måste vara  unika."
 msgid "Templates"
 msgstr "Mallar"
 
-#: forms/changemodel.py:76
-#: forms/share.py:76
+#: forms/changemodel.py:76 forms/share.py:76
 msgid "TextLabel"
 msgstr "TextLabel"
 
@@ -2753,23 +2680,23 @@ msgstr ""
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr "Det största tillåtna antalet <b>nya kort som visas på en dag</b>. Förvalt värde är 20, som är valt för att garantera att du inte blir översvämmad av repetitioner efter några dagar."
 
-#: ui/main.py:1156
+#: ui/main.py:1160
 msgid "The number of cards that are waiting to be reviewed today"
 msgstr "Antalet kort som väntar på att repeteras idag"
 
-#: ui/main.py:1150
+#: ui/main.py:1154
 msgid "The number of cards you studied in the current session (blue) and previous session (black)"
 msgstr "Antalet kort som du studerat i aktuellt studiepass (blå) och föregående studiepass (svart)"
 
-#: ui/main.py:1152
+#: ui/main.py:1156
 msgid "The number of cards you studied today (blue) and yesterday (black)"
 msgstr "Antalet kort som du studerat idag (blå) och igår (svart)"
 
-#: ui/main.py:1154
+#: ui/main.py:1158
 msgid "The number of minutes you studied today (blue) and yesterday (black)"
 msgstr "Antalet minuter som du studerat idag (blå) och igår (svart)"
 
-#: ui/main.py:1158
+#: ui/main.py:1162
 msgid "The number of new cards that are waiting to be learnt today"
 msgstr "Antalet nya kort som väntas på att läras in idag"
 
@@ -2777,7 +2704,7 @@ msgstr "Antalet nya kort som väntas på att läras in idag"
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Synkningsprotokollet har ändrats. Du behöver uppgradera."
 
-#: ui/main.py:1160
+#: ui/main.py:1164
 msgid "The total number of new cards in the deck"
 msgstr "Det sammanlagda antalet nya kort i kortleken"
 
@@ -2864,7 +2791,7 @@ msgstr ""
 "%s\n"
 "Du måste ta bort den källan först."
 
-#: ui/main.py:2329
+#: ui/main.py:2335
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2882,7 +2809,7 @@ msgstr ""
 "<b>Denna åtgärd kan inte ångras.</b><br>\n"
 "Fortsätt?"
 
-#: ui/main.py:2367
+#: ui/main.py:2377
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2921,16 +2848,15 @@ msgstr ""
 "\n"
 "Verkligen ta bort dessa kort?"
 
-#: ui/main.py:1120
+#: ui/main.py:1124
 msgid "Time/day:"
 msgstr "Tid/dag:"
 
-#: ui/getshared.py:147
-#: ui/getshared.py:151
+#: ui/getshared.py:147 ui/getshared.py:151
 msgid "Title"
 msgstr "Titel"
 
-#: ui/main.py:1385
+#: ui/main.py:1389
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2942,7 +2868,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr "Dagens repetition är avslutad"
 
-#: ui/main.py:1281
+#: ui/main.py:1285
 msgid "Toggle Toolbar"
 msgstr "Visa eller dölj verktygsraden"
 
@@ -2950,8 +2876,7 @@ msgstr "Visa eller dölj verktygsraden"
 msgid "Total correct: "
 msgstr "Sammanlagt rätt: "
 
-#: ui/status.py:228
-#: ui/status.py:233
+#: ui/status.py:228 ui/status.py:233
 msgid "Total review time: "
 msgstr "Sammanlagd repetitionstid: "
 
@@ -2971,12 +2896,11 @@ msgstr "Skriv in svaret och tryck enter"
 msgid "Type:"
 msgstr "Typ:"
 
-#: ui/getshared.py:68
-#: ui/getshared.py:175
+#: ui/getshared.py:68 ui/getshared.py:175
 msgid "Unable to connect to server."
 msgstr "Kan inte nå servern."
 
-#: ui/main.py:611
+#: ui/main.py:612
 msgid ""
 "Unable to load deck.\n"
 "\n"
@@ -2998,7 +2922,7 @@ msgstr ""
 "\n"
 "För att uppgradera en gammal kortlek, hämta Anki 0.9.8.7."
 
-#: ui/main.py:855
+#: ui/main.py:859
 msgid "Unable to load file."
 msgstr "Kan inte läsa in filen."
 
@@ -3010,7 +2934,7 @@ msgstr "Kan inte öppna filen"
 msgid "Unable to reach server"
 msgstr "Kan inte nå servern"
 
-#: ui/importing.py:168
+#: ui/importing.py:173
 #, python-format
 msgid ""
 "Unable to read file.\n"
@@ -3021,7 +2945,7 @@ msgstr ""
 "\n"
 "%(info)s"
 
-#: ui/main.py:645
+#: ui/main.py:648
 msgid "Unable to recover. Deck load failed."
 msgstr "Kan inte fortsätta. Inläsning av kortlek misslyckades."
 
@@ -3033,8 +2957,7 @@ msgstr "Ta bort Latex från cachen"
 msgid "Underline text (Ctrl+u)"
 msgstr "Stryk under text (Ctrl+u)"
 
-#: ui/cardlist.py:519
-#: ui/main.py:2051
+#: ui/cardlist.py:518 ui/main.py:2057
 #, python-format
 msgid "Undo %s"
 msgstr "Ångra %s"
@@ -3044,7 +2967,7 @@ msgstr "Ångra %s"
 msgid "Unknown error: %s"
 msgstr "Okänt fel: %s"
 
-#: ui/cardlist.py:787
+#: ui/cardlist.py:791
 msgid "Unsuspend"
 msgstr "Återaktivera"
 
@@ -3052,7 +2975,7 @@ msgstr "Återaktivera"
 msgid "Update complete. Please restart Anki."
 msgstr "Uppdatering genomförd. Starta om Anki."
 
-#: ui/main.py:2091
+#: ui/main.py:2097
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -3066,13 +2989,11 @@ msgstr ""
 msgid "Use custom colour"
 msgstr "Använd anpassade färger"
 
-#: forms/displayproperties.py:368
-#: forms/displayproperties.py:372
+#: forms/displayproperties.py:368 forms/displayproperties.py:372
 msgid "Use custom font"
 msgstr "Använd anpassat typsnitt"
 
-#: forms/displayproperties.py:367
-#: forms/displayproperties.py:371
+#: forms/displayproperties.py:367 forms/displayproperties.py:371
 msgid "Use custom size"
 msgstr "Använd anpassad storlek"
 
@@ -3080,7 +3001,7 @@ msgstr "Använd anpassad storlek"
 msgid "Username"
 msgstr "Användarnamn"
 
-#: ui/main.py:793
+#: ui/main.py:797
 msgid "Username:"
 msgstr "Användarnamn:"
 
@@ -3109,17 +3030,15 @@ msgstr "Bra gjort! Detta kort kommer att visas igen om  <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Vill du hämta hem det nu?"
 
-#: ui/main.py:1456
-#: ui/main.py:1504
+#: ui/main.py:1460 ui/main.py:1508 ui/main.py:2371
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Du håller för närvarande på med att råplugga. Stäng denna kortlek först."
 
-#: ui/main.py:1815
-#: ui/main.py:2082
+#: ui/main.py:1821 ui/main.py:2088
 msgid "Your computer clock is not set to the correct time.\n"
 msgstr "Din datorklocka går fel.\n"
 
-#: ui/main.py:1390
+#: ui/main.py:1394
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3135,15 +3054,12 @@ msgstr "a"
 msgid "cards"
 msgstr "kort"
 
-#: forms/deckproperties.py:368
-#: forms/deckproperties.py:369
-#: forms/deckproperties.py:370
-#: forms/reschedule.py:83
-#: forms/reschedule.py:85
+#: forms/deckproperties.py:368 forms/deckproperties.py:369
+#: forms/deckproperties.py:370 forms/reschedule.py:83 forms/reschedule.py:85
 msgid "days"
 msgstr "dagar"
 
-#: ui/main.py:2080
+#: ui/main.py:2086
 msgid "early"
 msgstr "tidigt"
 
@@ -3160,21 +3076,20 @@ msgstr "om %s"
 msgid "label"
 msgstr "etikett"
 
-#: ui/main.py:2078
+#: ui/main.py:2084
 msgid "late"
 msgstr "sent"
 
-#: ui/importing.py:196
+#: ui/importing.py:201
 #, python-format
 msgid "mapped to <b>%s</b>"
 msgstr "parades ihop med <b>%s</b>"
 
-#: ui/importing.py:198
+#: ui/importing.py:203
 msgid "mapped to <b>Tags</b>"
 msgstr "parade i hop med <b>etiketter</b>"
 
-#: forms/deckproperties.py:366
-#: forms/deckproperties.py:367
+#: forms/deckproperties.py:366 forms/deckproperties.py:367
 msgid "mins"
 msgstr "minuter"
 
@@ -3204,8 +3119,10 @@ msgstr "toppetikett"
 #~ "maximera din minneskapacitet.<p/>Det är fritt och under GPL-licens.<p/>\n"
 #~ "Version %s<br>\n"
 #~ "<a href=\"http://ichi2.net/anki/\">Besök webbplats</a></span>\n"
+
 #~ msgid " (%(dYesTotal)d of %(dTotal)d)</b><br>"
 #~ msgstr " (%(dYesTotal)d av %(dTotal)d)</b><br>"
+
 #~ msgid ""
 #~ "%s.\n"
 #~ "Anki can only merge models if they have exactly\n"
@@ -3214,10 +3131,13 @@ msgstr "toppetikett"
 #~ "%s.\n"
 #~ "Anki kan enbart slå ihop modeller om de har exact\n"
 #~ "samma antal fält och kort."
+
 #~ msgid "&Edit All..."
 #~ msgstr "&Redigera allt..."
+
 #~ msgid "&Get More Decks..."
 #~ msgstr "&Hämta fler kortlekar..."
+
 #~ msgid "&Guide..."
 #~ msgstr "&Manual..."
 
@@ -3240,18 +3160,25 @@ msgstr "toppetikett"
 #, fuzzy
 #~ msgid "(%(gYoungYes)d of %(gYoungTotal)d)<br>"
 #~ msgstr " (%(dYesTotal)d av %(dTotal)d)</b><br>"
+
 #~ msgid "<Select Tag>"
 #~ msgstr "<Välj etikett>"
+
 #~ msgid "<b>File to import</b>:"
 #~ msgstr "<b>Fil att importera</b>:"
+
 #~ msgid "<b>Type of file</b>:"
 #~ msgstr "<b>Filtyp</b>:"
+
 #~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
 #~ msgstr "<h1>Avancerade inställningar</h1>Några inställningar kräver en omstart."
+
 #~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
 #~ msgstr "<h1>Återstående kort</h1><p/>Det finns <b>%(failed)d</b> felbesvarade kort vars tidsfrist snart är ute.<br>Det finns <b>%(rev)d</b> kort som väntar på att repeteras.<br>Det finns <b>%(new)d</b> nya kort som skall visas i dag.<br><br>Det finns sammanlagt <b>%(new2)d</b> nya kort.<br>Det finns <b>%(spaced)d</b> senarelagda kort."
+
 #~ msgid "<h1>Select tags to suspend</h1>"
 #~ msgstr "<h1>Välj de etiketter du vill åsidosätta</h1>"
+
 #~ msgid ""
 #~ "<h1>Session Statistics</h1>\n"
 #~ "<dl>\n"
@@ -3306,8 +3233,10 @@ msgstr "toppetikett"
 #~ "<dt><b>Nya totalt</b></dt>\n"
 #~ "<dd>Det sammanlagda antalet nya kort i kortleken</dd>\n"
 #~ "</dl>"
+
 #~ msgid "<h1>Welcome Back!</h1>"
 #~ msgstr "<h1>Välkommen tillbaka!</h1>"
+
 #~ msgid ""
 #~ "<h1>Welcome to Anki!</h1>\n"
 #~ "<p>\n"
@@ -3414,6 +3343,7 @@ msgstr "toppetikett"
 #~ "(%(gNewYes)d of %(gNewTotal)d)<br>\n"
 #~ "Sammanlagt rätt: %(gYesTotal%)0.1f%%\n"
 #~ "(%(gYesTotal)d of %(gTotal)d)"
+
 #~ msgid ""
 #~ "<h2>Reviews today</h2>\n"
 #~ "<b>Correct today: %(percTotal)s\n"
@@ -3460,40 +3390,54 @@ msgstr "toppetikett"
 #~ "<tr><td>Tid/dag:</td><td><b>%(timeTodayChg)s</b></td>\n"
 #~ "<td><b>%(timeToday)s</b></td></tr>\n"
 #~ "</table>"
+
 #~ msgid "Application-wide preferences."
 #~ msgstr "Inställningar för hela programmet."
 
 #, fuzzy
 #~ msgid "Cards/day"
 #~ msgstr "Kort"
+
 #~ msgid "Choose &file..."
 #~ msgstr "Välj &fil..."
+
 #~ msgid "Choose file..."
 #~ msgstr "Välj fil..."
+
 #~ msgid ""
 #~ "Click the close button or import another file.\n"
 #~ "\n"
 #~ msgstr ""
 #~ "Klicka på stängningsknappen eller importera en fil till.\n"
 #~ "\n"
+
 #~ msgid "Del"
 #~ msgstr "Ta bort"
+
 #~ msgid "Dialog"
 #~ msgstr "Dialog"
+
 #~ msgid "Edit Items"
 #~ msgstr "Redigera poster"
+
 #~ msgid "Export to..."
 #~ msgstr "Exportera till..."
+
 #~ msgid "F6"
 #~ msgstr "F6"
+
 #~ msgid "Find"
 #~ msgstr "Sök"
+
 #~ msgid "Import failed: %s\n"
 #~ msgstr "Import misslyckades: %s\n"
+
 #~ msgid "Import file"
 #~ msgstr "Importera fil"
+
 #~ msgid "Merge complete."
 #~ msgstr "Sammanslagning klar."
+
 #~ msgid ""
 #~ "No models found to merge. If you want to merge models,\n"
 #~ "all models must have the same name, and must not be\n"
@@ -3502,22 +3446,29 @@ msgstr "toppetikett"
 #~ "Hittade inte några modeller att slå ihop. Om du vill slå ihop\n"
 #~ "modeller måste de alla ha samma namn, och kan inte höra\n"
 #~ "ihop med någon annans kortlek."
+
 #~ msgid "Open On&line..."
 #~ msgstr "Öppna p&å nätet..."
+
 #~ msgid "Please add a new card first."
 #~ msgstr "Lägg först till ett nytt kort."
+
 #~ msgid "Please choose a field to sort by."
 #~ msgstr "Välj ett fält att sortera efter"
+
 #~ msgid "Replace"
 #~ msgstr "Ersätt"
 
 #, fuzzy
 #~ msgid "Reviews due"
 #~ msgstr "Repetitioner idag"
+
 #~ msgid "Search"
 #~ msgstr "Sök"
+
 #~ msgid "Show information in status bar"
 #~ msgstr "Visa information i statusraden"
+
 #~ msgid ""
 #~ "Syncing failed. Please try again in a few minutes.\n"
 #~ "If the problem persists, please report it on the forum.\n"
@@ -3528,6 +3479,7 @@ msgstr "toppetikett"
 #~ "Om problemet kvarstår, rapportera detta på forumet.\n"
 #~ "\n"
 #~ "Fel: %s"
+
 #~ msgid ""
 #~ "The top bar shows your performance today. The bottom bar shows your<br>\n"
 #~ "performance on cards scheduled for 21 days or more. The bottom bar should<br>\n"
@@ -3538,8 +3490,10 @@ msgstr "toppetikett"
 #~ "har presterat på kort som varit schemalagda i 21 dagar eller mer. Den undre linjen<br>\n"
 #~ "bör i vanliga fall ligga mellan 80-95% - om den är lägre så  glömmer du bort gamla kort<br>\n"
 #~ "för ofta, högre så tillbringar du för mycket tid med repetition."
+
 #~ msgid "Would you like to merge models that have the same name?"
 #~ msgstr "Vill du slå ihop modeller med samma namn?"
+
 #~ msgid ""
 #~ "Your computer clock is not set to the correct time.\n"
 #~ "It is %(sec)d seconds %(type)s.\n"
@@ -3548,6 +3502,6 @@ msgstr "toppetikett"
 #~ "Din datorklocka går fel.\n"
 #~ "Den går  %(sec)d sekunder %(type)s.\n"
 #~ " Ställ klockan rätt och starta sedan om Anki."
+
 #~ msgid "xxx"
 #~ msgstr "xxx"
-
