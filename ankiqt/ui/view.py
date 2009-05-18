@@ -173,6 +173,7 @@ class View(object):
                 cor = stripHTML(self.main.currentCard.fact[
                     self.main.currentCard.cardModel.typeAnswer])
             except KeyError:
+                self.main.currentCard.cardModel.typeAnswer = ""
                 cor = ""
             if cor:
                 given = unicode(self.main.typeAnswerField.text())
