@@ -35,13 +35,13 @@ def setup_local(loadDecks=None):
         deck1.currentModel.cardModels[1].active = True
         deck1.newCardOrder = 1
         f = deck1.newFact()
-        f['Front'] = u"foo"; f['Back'] = u"bar"
+        f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = u"foo"
         deck1.addFact(f)
         deck2 = DeckStorage.Deck()
         deck2.addModel(BasicModel())
         deck2.currentModel.cardModels[1].active = True
         f = deck2.newFact()
-        f['Front'] = u"baz"; f['Back'] = u"qux"
+        f['Front'] = u"baz"; f['Back'] = u"qux"; f.tags = u"bar"
         deck2.addFact(f)
         deck2.newCardOrder = 1
     client = SyncClient(deck1)
@@ -256,10 +256,18 @@ def test_localsync_media():
 def test_oneway_simple():
     assert deck1.s.scalar("select count(1) from cards") == 2
     assert deck2.s.scalar("select count(1) from cards") == 2
+    assert deck1.cardCount == 2
+    assert deck2.cardCount == 2
+    assert deck1.s.scalar("select id from tags where tag = 'foo'")
+    assert not deck1.s.scalar("select id from tags where tag = 'bar'")
     server.deckName = "dummy"
     client.syncOneWay(0)
     assert deck1.s.scalar("select count(1) from cards") == 4
     assert deck2.s.scalar("select count(1) from cards") == 2
+    assert deck1.cardCount == 4
+    assert deck2.cardCount == 2
+    assert deck1.s.scalar("select id from tags where tag = 'foo'")
+    assert deck1.s.scalar("select id from tags where tag = 'bar'")
     # should be a noop
     client.syncOneWay(0)
 

@@ -844,6 +844,10 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
         self.deck.s.flush()
         self.deck.updateCardQACache(
             [(c[0], c[2], c[1], models[c[0]]) for c in cards])
+        # rebuild priorities on client
+        cardIds = [c[0] for c in cards]
+        self.deck.updateCardTags(cardIds)
+        self.rebuildPriorities(cardIds)
 
     # Tools
     ##########################################################################
