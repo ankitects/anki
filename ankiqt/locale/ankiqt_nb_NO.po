@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.7.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-21 01:09+0900\n"
+"POT-Creation-Date: 2009-05-20 19:56+0200\n"
 "PO-Revision-Date: 2009-05-03 15:29+0100\n"
 "Last-Translator: Lars Lem <larslem@online.no>\n"
 "Language-Team: Norwegian <larslem@online.no>\n"
@@ -96,7 +96,7 @@ msgstr " <b>Ved endring (foretrekkes før det over):</b>"
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Ved repetisjon og endring:</b>"
 
-#: ui/main.py:2092
+#: ui/main.py:2093
 #, fuzzy
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Angi et gyldig start- og sluttintervall"
@@ -126,7 +126,7 @@ msgstr[1] "%(name)s [%(facts)d fakta]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d av %(totalSum)d"
 
-#: ui/main.py:1976
+#: ui/main.py:1977
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(due)d av %(cards)d er på tide å repetere) - %(title)s"
@@ -136,7 +136,7 @@ msgstr "%(path)s (%(due)d av %(cards)d er på tide å repetere) - %(title)s"
 msgid "%d exported."
 msgstr "%d eksportert."
 
-#: ui/main.py:2400
+#: ui/main.py:2401
 #, python-format
 msgid "%d missing reference."
 msgid_plural "%d missing references."
@@ -150,7 +150,7 @@ msgid_plural "%d selected"
 msgstr[0] "%d valgt"
 msgstr[1] "%d valgt"
 
-#: ui/main.py:2402
+#: ui/main.py:2403
 #, fuzzy, python-format
 msgid "%d unused file removed."
 msgid_plural "%d unused files removed."
@@ -479,15 +479,15 @@ msgstr "<Filter>"
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Hjelp</a>"
 
-#: ui/main.py:1333
+#: ui/main.py:1334
 msgid "<a href=py:miss>Missing</a><br>"
 msgstr "<a href=py:miss>Savnet</a><br>"
 
-#: ui/main.py:1335
+#: ui/main.py:1336
 msgid "<a href=py:non>Non-jouyou</a><br>"
 msgstr "<a href=py:non>Ikke-jouyou</a><br>"
 
-#: ui/main.py:1334
+#: ui/main.py:1335
 msgid "<a href=py:seen>Seen</a><br>"
 msgstr "<a href=py:seen>Lest</a><br>"
 
@@ -691,7 +691,7 @@ msgstr "<h1>Automatlagring</h1>"
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Kortmaler</h1>"
 
-#: ui/main.py:1468
+#: ui/main.py:1469
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -705,7 +705,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Akkumulert antall hvis frist er ute</h1>"
 
-#: ui/main.py:1365
+#: ui/main.py:1366
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Dette kort</h1>"
 
@@ -741,11 +741,11 @@ msgstr "<h1>Intervall</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Språk</h1>"
 
-#: ui/main.py:1368
+#: ui/main.py:1369
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Siste kortet</h1>"
 
-#: ui/main.py:1669
+#: ui/main.py:1670
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr "<h1>Lær deg mer</h1>Trykk på klokken på verktøylinjen for å avslutte."
 
@@ -753,7 +753,7 @@ msgstr "<h1>Lær deg mer</h1>Trykk på klokken på verktøylinjen for å avslutt
 msgid "<h1>Models</h1>"
 msgstr "<h1>Modeller</h1>"
 
-#: ui/main.py:791
+#: ui/main.py:792
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br>"
 msgstr "<h1>Konto på nettet</h1>For å bruke din gratis <a href=\"http://anki.ichi2.net/\">konto på nettet</a>,<br>fyller du inn dine data her.<br>"
 
@@ -773,7 +773,7 @@ msgstr "<h1>Repetisjoner</h1>"
 msgid "<h1>Review Time</h1>"
 msgstr "<h1>Øvingstid</h1>"
 
-#: ui/main.py:1675
+#: ui/main.py:1676
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
 msgstr "<h1>Repeter tidlig</h1>Trykk på klokken på verktøylinjen for å avslutte."
 
@@ -785,11 +785,11 @@ msgstr "<h1>Øving</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Velg målfelt</h1>"
 
-#: ui/main.py:1085
+#: ui/main.py:1086
 msgid "<h1>Study Options</h1>"
 msgstr "<h1>Innlæringsalternativ</h1>"
 
-#: ui/main.py:1834
+#: ui/main.py:1835
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -809,7 +809,7 @@ msgstr "<h1>Synkronisering</h1><a href=\"http://anki.ichi2.net/\">Opprett en gra
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Synkronisere</h1>"
 
-#: ui/main.py:890
+#: ui/main.py:891
 msgid ""
 "<h1>Unsaved Deck</h1>\n"
 "Careful. You're editing an unsaved Deck.<br>\n"
@@ -831,7 +831,7 @@ msgstr ""
 "        endringer. Vil du lagre dem, forkaste\n"
 "        endringene eller avbryte?"
 
-#: ui/main.py:1087
+#: ui/main.py:1088
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>Bra gjort!</h1>"
 
@@ -950,11 +950,11 @@ msgstr "Alle repetisjoner"
 msgid "Allow the answer to be blank"
 msgstr "Tillat tomme svar"
 
-#: ui/main.py:1541
+#: ui/main.py:1542
 msgid "Already cramming. Please close this deck first."
 msgstr "Holder allerede på med å øve. Avslutt denne kortstokken først."
 
-#: ui/main.py:705
+#: ui/main.py:706
 #, python-format
 msgid "Alt+%d"
 msgstr "Alt+%d"
@@ -968,7 +968,7 @@ msgstr "Alternativt tema"
 msgid "An error occured while opening %s"
 msgstr "Det oppstod en feil når %s skulle åpnes"
 
-#: ui/main.py:173
+#: ui/main.py:174
 msgid ""
 "An error occurred in a plugin. Please contact the plugin author.<br>\n"
 "Please do not file a bug report with Anki.<br><br>"
@@ -976,7 +976,7 @@ msgstr ""
 "Det oppstod en feil i en innstikksmodul. Kontakt instikksmodulens opphavsmann.<br>\n"
 "Ikke rapporter feilen til Anki.<br><br>"
 
-#: ui/main.py:639
+#: ui/main.py:640
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
@@ -986,7 +986,7 @@ msgstr ""
 "Vil du kjøre en kortstokkskontroll?\n"
 "Dette kan ta litt tid."
 
-#: ui/main.py:164
+#: ui/main.py:165
 msgid ""
 "An error occurred. Please:<p>\n"
 "<ol>\n"
@@ -1004,12 +1004,12 @@ msgstr ""
 "Hvis dette ikke løser problemet, kopier følgende tekst<br>\n"
 "til en feilrapport:<br><br>\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873 forms/sort.py:45
+#: ui/deckproperties.py:186 ui/main.py:2376 forms/main.py:873
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
-#: ui/main.py:950
+#: ui/main.py:951
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1062,7 +1062,7 @@ msgstr "Fet tekst (Ctrl+b)"
 msgid "Brazillian Portuguese"
 msgstr "Brasiliansk portugisisk"
 
-#: ui/main.py:84
+#: ui/main.py:85
 #, python-format
 msgid ""
 "Broken plugin:\n"
@@ -1100,7 +1100,7 @@ msgstr "Font for browser"
 msgid "Building Index..."
 msgstr "Konstruerer indeks..."
 
-#: ui/main.py:1438
+#: ui/main.py:1439
 msgid "Bury"
 msgstr "Gravlegg"
 
@@ -1124,7 +1124,7 @@ msgstr "Du kan bare arbeide med en modell av gangen."
 msgid "Can't look up a selection with a newline."
 msgstr "Du kan gjøre et oppslag på en markering som inneholder et linjeskift."
 
-#: ui/main.py:2390
+#: ui/main.py:2391
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -1160,11 +1160,11 @@ msgstr "Kort"
 msgid "Cards are waiting"
 msgstr "Det finnes kort som venter"
 
-#: ui/main.py:1123
+#: ui/main.py:1124
 msgid "Cards/day:"
 msgstr "Kort/dag"
 
-#: ui/main.py:1122
+#: ui/main.py:1123
 msgid "Cards/session:"
 msgstr "Kort/øvingssesjon:"
 
@@ -1263,7 +1263,7 @@ msgstr "Tilpasse repetisjonsalternativ"
 msgid "Connecting..."
 msgstr "Tilkobler..."
 
-#: ui/main.py:1185
+#: ui/main.py:1186
 msgid "Continue &Reviewing"
 msgstr "&Fortsett gjennomgåelsen"
 
@@ -1292,11 +1292,11 @@ msgstr "Riktig idag: "
 msgid "Correct under a month: "
 msgstr "Riktig yngre enn en måned: "
 
-#: ui/main.py:162
+#: ui/main.py:163
 msgid "Couldn't play sound. Please install mplayer."
 msgstr "Kunne ikke spille lyd. Installer mplayer."
 
-#: ui/main.py:1562
+#: ui/main.py:1563
 msgid "Cram"
 msgstr "Råpugge"
 
@@ -1333,7 +1333,7 @@ msgstr "Ctrl+4"
 msgid "Ctrl+5"
 msgstr "Ctrl+5"
 
-#: ui/main.py:703
+#: ui/main.py:704
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr "Ctrl+Alt+%d"
@@ -1483,7 +1483,7 @@ msgstr "Tilpasse synkronisering, planlegging, prioritering og modeller."
 msgid "Czech"
 msgstr "Tjekkisk"
 
-#: ui/main.py:2367
+#: ui/main.py:2368
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1500,15 +1500,15 @@ msgstr "Kortstokksdiagram"
 msgid "Deck Properties"
 msgstr "Kortstokksegenskaper"
 
-#: ui/main.py:849 ui/main.py:914
+#: ui/main.py:850 ui/main.py:915
 msgid "Deck files (*.anki)"
 msgstr "Kortstokksfiler (*.anki)"
 
-#: ui/main.py:607
+#: ui/main.py:608
 msgid "Deck is already open."
 msgstr "Kortstokken er allerede åpen."
 
-#: ui/main.py:1428 forms/cardlist.py:266
+#: ui/main.py:1429 forms/cardlist.py:266
 msgid "Delete"
 msgstr "Ta bort"
 
@@ -1516,7 +1516,7 @@ msgstr "Ta bort"
 msgid "Delete Cards"
 msgstr "Ta bort kort"
 
-#: ui/main.py:2388
+#: ui/main.py:2389
 msgid "Delete Refs"
 msgstr "Ta bort referanser"
 
@@ -1531,10 +1531,6 @@ msgstr "Ta bort det kortet som vises nå"
 #: ui/sync.py:104
 msgid "Determining differences..."
 msgstr "Kartlegger forskjeller..."
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1718,7 +1714,7 @@ msgstr "Fakta opprettet"
 msgid "Facts"
 msgstr "Fakta"
 
-#: ui/main.py:1865
+#: ui/main.py:1866
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Mislyktes med å laste opp media. Kjør kommandoen 'kontrollere mediadatabasen'."
 
@@ -1903,14 +1899,14 @@ msgstr "Ugyldig regular expression."
 msgid "Invert"
 msgstr "Veksle"
 
-#: ui/main.py:2089
+#: ui/main.py:2090
 #, python-format
 msgid "It is %(sec)d second %(type)s.\n"
 msgid_plural "It is %(sec)d seconds %(type)s.\n"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:1822
+#: ui/main.py:1823
 #, python-format
 msgid ""
 "It is off by %d second.\n"
@@ -1949,11 +1945,11 @@ msgstr "Latexformel (Ctrl+l deretter e)"
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr "Matematikkmiljø for Latex (Ctrl+l deretter m)"
 
-#: ui/main.py:1563
+#: ui/main.py:1564
 msgid "Loading deck..."
 msgstr "Leser inn kortstokk..."
 
-#: ui/main.py:1379
+#: ui/main.py:1380
 msgid "Loading graphs (may take time)..."
 msgstr "Leser inn diagram (kan ta tid)..."
 
@@ -2049,11 +2045,11 @@ msgstr "Navn"
 msgid "Name on server: "
 msgstr "Navn på server: "
 
-#: ui/main.py:1126
+#: ui/main.py:1127
 msgid "New today:"
 msgstr "Nye idag:"
 
-#: ui/main.py:1127
+#: ui/main.py:1128
 msgid "New total:"
 msgstr "Nye totalt:"
 
@@ -2065,7 +2061,7 @@ msgstr "Neste farge (F7 deretter F8)"
 msgid "Next field must be blank."
 msgstr "Neste felt må være tomt."
 
-#: ui/main.py:1556 ui/main.py:1593
+#: ui/main.py:1557 ui/main.py:1594
 msgid "No cards matched the provided tags."
 msgstr "Ingen kort er markert med angitte etiketter."
 
@@ -2077,11 +2073,11 @@ msgstr "Det finnes ikke noen kort å forhåndsvise"
 msgid "No changes found."
 msgstr "Ingen endringer ble funnet."
 
-#: ui/main.py:1371
+#: ui/main.py:1372
 msgid "No current card or last card."
 msgstr "Ingen åpent kort eller seneste kort."
 
-#: ui/main.py:1307
+#: ui/main.py:1308
 msgid "No expression in current card."
 msgstr "Ingen expression på dette kort."
 
@@ -2089,9 +2085,14 @@ msgstr "Ingen expression på dette kort."
 msgid "No fact tags"
 msgstr "Ingen etiketter på fakta"
 
-#: ui/main.py:1314
+#: ui/main.py:1315
 msgid "No meaning in current card."
 msgstr "Ingen betydning på dette kort."
+
+#: ui/preferences.py:42
+#, fuzzy
+msgid "Norwegian"
+msgstr "Koreansk"
 
 #: ui/cardlist.py:1180
 msgid "Nothing"
@@ -2117,7 +2118,7 @@ msgstr "Åpne d&emokortstokk..."
 msgid "Open a pre-made deck or plugin"
 msgstr "Åpne en ferdig kortstokk eller innstikksmodul"
 
-#: ui/main.py:851
+#: ui/main.py:852
 msgid "Open deck"
 msgstr "Åpne kortstokk"
 
@@ -2129,7 +2130,7 @@ msgstr "Åpne bug tracker"
 msgid "Optimize Database"
 msgstr "Optimalisere database"
 
-#: ui/main.py:1235
+#: ui/main.py:1236
 msgid "Ordering..."
 msgstr "Bestiller..."
 
@@ -2145,7 +2146,7 @@ msgstr "Pakket Ankikortstokk (*.zip)"
 msgid "Password"
 msgstr "Passord"
 
-#: ui/main.py:801
+#: ui/main.py:802
 msgid "Password:"
 msgstr "Passord:"
 
@@ -2173,10 +2174,6 @@ msgstr "Legg først til en ny mal."
 msgid "Please add another model first."
 msgstr "Legg først til en annen modell."
 
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Velg et felt å sortere etter"
-
 #: ui/sync.py:54
 msgid "Please double-check your username/password."
 msgstr "Kontroller ditt brukernavn og passord en gang til."
@@ -2198,11 +2195,11 @@ msgstr ""
 "Innstaller <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "for å muliggjøre innspilling."
 
-#: ui/main.py:1397
+#: ui/main.py:1398
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Innstaller python-matplotlib for å kunne bruke diagram."
 
-#: ui/main.py:2333
+#: ui/main.py:2334
 msgid "Please restart Anki before checking the DB."
 msgstr "Restarte Anki før du kontrollerer databasen."
 
@@ -2210,7 +2207,7 @@ msgstr "Restarte Anki før du kontrollerer databasen."
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Innstikksmodul lastet ned. Restart Anki."
 
-#: ui/preferences.py:42
+#: ui/preferences.py:43
 msgid "Polish"
 msgstr "Polsk"
 
@@ -2250,7 +2247,7 @@ msgstr "Forhåndsvise kort"
 msgid "Previous colour (F7 then F6)"
 msgstr "Forrige farge (F7 deretter F6)"
 
-#: ui/main.py:2348
+#: ui/main.py:2349
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2291,7 +2288,7 @@ msgstr "Spørsmålsstørrelse"
 msgid "Quick Database Check"
 msgstr ""
 
-#: ui/main.py:1241 ui/main.py:1583
+#: ui/main.py:1242 ui/main.py:1584
 msgid "Randomizing..."
 msgstr "Stokker..."
 
@@ -2312,7 +2309,7 @@ msgstr "Spill inn lyd (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Opptak...<br>Tid: %0.1f"
 
-#: ui/cardlist.py:524 ui/main.py:2063
+#: ui/cardlist.py:524 ui/main.py:2064
 #, python-format
 msgid "Redo %s"
 msgstr "Gjenta %s"
@@ -2385,7 +2382,7 @@ msgstr "Repetere"
 msgid "Review Time"
 msgstr "Repetisjonstid"
 
-#: ui/main.py:1125
+#: ui/main.py:1126
 msgid "Reviews due:"
 msgstr "På tide å repetere:"
 
@@ -2410,7 +2407,7 @@ msgstr "Lagre && synkr"
 msgid "Save &As..."
 msgstr "Lagre s&om..."
 
-#: ui/main.py:907
+#: ui/main.py:908
 msgid "Save Deck As"
 msgstr "Lagre kortstokk som"
 
@@ -2462,7 +2459,7 @@ msgstr "Tøm alt"
 msgid "Select tags to suspend. Deselect to unsuspend."
 msgstr "Velg hvilke tagger som skal være deaktivert. Tøm alt for å reaktivere."
 
-#: ui/main.py:1153
+#: ui/main.py:1154
 msgid "Session Statistics"
 msgstr "Statistikk over øvingssesjoner"
 
@@ -2550,7 +2547,7 @@ msgstr "Vis ikon i systemruta"
 msgid "Show/Hide"
 msgstr "Vis/Skjul"
 
-#: ui/main.py:1824
+#: ui/main.py:1825
 #, fuzzy
 msgid ""
 "Since this can cause many problems with syncing,\n"
@@ -2570,7 +2567,7 @@ msgstr "Noen felt mangler eller er ikke unike"
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Visse innstillinger blir aktive først etter at du har restartet Anki."
 
-#: ui/main.py:576
+#: ui/main.py:577
 msgid "Soon"
 msgstr "Snart"
 
@@ -2586,11 +2583,11 @@ msgstr "Lyd (*.mp3 *.ogg *.wav)"
 msgid "Source ID:"
 msgstr "Kilde-ID:"
 
-#: ui/preferences.py:43
+#: ui/preferences.py:44
 msgid "Spanish"
 msgstr "Spansk"
 
-#: ui/main.py:1187
+#: ui/main.py:1188
 msgid "Start &Reviewing"
 msgstr "&Start øving"
 
@@ -2610,7 +2607,7 @@ msgstr "Status"
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Ikke repeter dette kortet før du har opphevet deaktiveringen i browseren"
 
-#: ui/cardlist.py:782 ui/main.py:1414
+#: ui/cardlist.py:782 ui/main.py:1415
 msgid "Suspend"
 msgstr "Deaktiver"
 
@@ -2622,7 +2619,7 @@ msgstr "Deaktiver denne faktaen til kortstokken er blitt lukket og åpnet igjen.
 msgid "Suspended"
 msgstr "Åsidosatt"
 
-#: ui/preferences.py:44
+#: ui/preferences.py:45
 msgid "Swedish"
 msgstr "Svensk"
 
@@ -2650,7 +2647,7 @@ msgstr "Synkroniser denne kortstokken"
 msgid "Synchronize this deck with Anki Online"
 msgstr "Synkroniser denne kortstokken med Anki Online"
 
-#: ui/main.py:1843 ui/main.py:1845
+#: ui/main.py:1844 ui/main.py:1846
 msgid "Syncing Media..."
 msgstr "Synkroniserer media..."
 
@@ -2659,7 +2656,7 @@ msgstr "Synkroniserer media..."
 msgid "Syncing failed: %(a)s"
 msgstr "Synkroniseringen mislyktes: %(a)s"
 
-#: ui/main.py:2386
+#: ui/main.py:2387
 msgid "Tag Cards"
 msgstr "Sett etikett på kort"
 
@@ -2671,7 +2668,7 @@ msgstr "Sett etikett på fakta i duplikerte felt i stedet for å slette."
 msgid "Tags"
 msgstr "Etiketter"
 
-#: ui/main.py:1546
+#: ui/main.py:1547
 msgid "Tags to cram:"
 msgstr "Etiketter å råpugge:"
 
@@ -2707,23 +2704,23 @@ msgstr ""
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr "Maksimalt antall <b>nye kort som vises på en dag</b>. Standardverdien er 20, og er valgt for å garantere at du ikke blir oversvømt av repetisjoner etter noen dager."
 
-#: ui/main.py:1160
+#: ui/main.py:1161
 msgid "The number of cards that are waiting to be reviewed today"
 msgstr "Antall kort som venter på å bli repetert idag"
 
-#: ui/main.py:1154
+#: ui/main.py:1155
 msgid "The number of cards you studied in the current session (blue) and previous session (black)"
 msgstr "Antall kort som du har øvd på i aktuell øvingssesjon (blå) og i forrige øvingssesjon (svart)"
 
-#: ui/main.py:1156
+#: ui/main.py:1157
 msgid "The number of cards you studied today (blue) and yesterday (black)"
 msgstr "Antall kort som du har øvd på idag (blå) og igår (svart)"
 
-#: ui/main.py:1158
+#: ui/main.py:1159
 msgid "The number of minutes you studied today (blue) and yesterday (black)"
 msgstr "Antall minutter som du har øvd idag (blå) og igår (svart)"
 
-#: ui/main.py:1162
+#: ui/main.py:1163
 msgid "The number of new cards that are waiting to be learnt today"
 msgstr "Antall nye kort som venter på å øves på idag"
 
@@ -2731,7 +2728,7 @@ msgstr "Antall nye kort som venter på å øves på idag"
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Synkroniseringsprotokollen er endret. Du må oppgradere."
 
-#: ui/main.py:1164
+#: ui/main.py:1165
 msgid "The total number of new cards in the deck"
 msgstr "Det totale antall nye kort i kortstokken"
 
@@ -2818,7 +2815,7 @@ msgstr ""
 "%s\n"
 "Du må ta bort kilden først."
 
-#: ui/main.py:2335
+#: ui/main.py:2336
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2836,7 +2833,7 @@ msgstr ""
 "<b>Denne operasjonen kan ikke gjøres om.</b><br>\n"
 "Fortsett?"
 
-#: ui/main.py:2377
+#: ui/main.py:2378
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2875,7 +2872,7 @@ msgstr ""
 "\n"
 "Er du sikker på at du vil fjerne disse kortene?"
 
-#: ui/main.py:1124
+#: ui/main.py:1125
 msgid "Time/day:"
 msgstr "Tid/dag:"
 
@@ -2883,7 +2880,7 @@ msgstr "Tid/dag:"
 msgid "Title"
 msgstr "Tittel"
 
-#: ui/main.py:1389
+#: ui/main.py:1390
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2895,7 +2892,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr "Dagens repetisjon er avsluttet"
 
-#: ui/main.py:1285
+#: ui/main.py:1286
 msgid "Toggle Toolbar"
 msgstr "Vis eller skjul verktøyslinja"
 
@@ -2915,7 +2912,7 @@ msgstr "Overfører payload..."
 msgid "Treat input as regular expression"
 msgstr "Behandle input som regular expression"
 
-#: ui/main.py:545
+#: ui/main.py:546
 msgid "Type in the answer and hit enter"
 msgstr "Skriv inn svaret og trykk enter"
 
@@ -2927,7 +2924,7 @@ msgstr "Type:"
 msgid "Unable to connect to server."
 msgstr "Kan ikke koble til serveren."
 
-#: ui/main.py:612
+#: ui/main.py:613
 msgid ""
 "Unable to load deck.\n"
 "\n"
@@ -2949,7 +2946,7 @@ msgstr ""
 "\n"
 "For å oppgradere en gammel kortstokk, last ned Anki 0.9.8.7."
 
-#: ui/main.py:859
+#: ui/main.py:860
 msgid "Unable to load file."
 msgstr "Kan ikke lese inn filen."
 
@@ -2972,7 +2969,7 @@ msgstr ""
 "\n"
 "%(info)s"
 
-#: ui/main.py:648
+#: ui/main.py:649
 msgid "Unable to recover. Deck load failed."
 msgstr "Kan ikke fortsette. Innlesing av kortstokken mislyktes."
 
@@ -2984,7 +2981,7 @@ msgstr "Ta bort Latex fra cachen"
 msgid "Underline text (Ctrl+u)"
 msgstr "Strek under tekst (Ctrl+u)"
 
-#: ui/cardlist.py:518 ui/main.py:2057
+#: ui/cardlist.py:518 ui/main.py:2058
 #, python-format
 msgid "Undo %s"
 msgstr "Angre %s"
@@ -3003,7 +3000,7 @@ msgstr "Aktivere"
 msgid "Update complete. Please restart Anki."
 msgstr "Oppdatering gjennomført. Restart Anki."
 
-#: ui/main.py:2097
+#: ui/main.py:2098
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -3029,7 +3026,7 @@ msgstr "Bruk tilpasset størrelse"
 msgid "Username"
 msgstr "Brukernavn"
 
-#: ui/main.py:797
+#: ui/main.py:798
 msgid "Username:"
 msgstr "Brukernavn:"
 
@@ -3058,15 +3055,15 @@ msgstr "Bra gjort! Dette kortet blir vist om igjen om <b>%(next)s</b>."
 msgid "Would you like to download it now?"
 msgstr "Vil du laste det ned nå?"
 
-#: ui/main.py:1460 ui/main.py:1508 ui/main.py:2371
+#: ui/main.py:1461 ui/main.py:1509 ui/main.py:2372
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Du holder nå på med å råpugge. Steng denne kortstokken først."
 
-#: ui/main.py:1821 ui/main.py:2088
+#: ui/main.py:1822 ui/main.py:2089
 msgid "Your computer clock is not set to the correct time.\n"
 msgstr ""
 
-#: ui/main.py:1394
+#: ui/main.py:1395
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3087,7 +3084,7 @@ msgstr "kort"
 msgid "days"
 msgstr "dager"
 
-#: ui/main.py:2086
+#: ui/main.py:2087
 msgid "early"
 msgstr "tidlig"
 
@@ -3104,7 +3101,7 @@ msgstr "om %s"
 msgid "label"
 msgstr "etikett"
 
-#: ui/main.py:2084
+#: ui/main.py:2085
 msgid "late"
 msgstr "sent"
 
@@ -3442,6 +3439,9 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #~ msgid "Edit Items"
 #~ msgstr "Redigere poster"
 
@@ -3477,6 +3477,9 @@ msgstr "toppetikett"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Legg først til et nytt kort."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Velg et felt å sortere etter"
 
 #~ msgid "Replace"
 #~ msgstr "Erstatt"
