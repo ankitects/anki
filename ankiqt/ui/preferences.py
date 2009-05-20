@@ -39,6 +39,7 @@ class Preferences(QDialog):
             (_("Japanese"), "ja_JP"),
             (_("Korean"), "ko_KR"),
 	    (_("Mongolian"),"mn_MN"),
+	    (_("Norwegian"),"nb_NO"),
             (_("Polish"), "pl_PL"),
             (_("Spanish"), "es_ES"),
             (_("Swedish"), "sv_SE"),
