@@ -1,0 +1,793 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: libanki 0.9.9.7.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-05-03 18:06+0200\n"
+"PO-Revision-Date: 2009-05-15 14:27+0100\n"
+"Last-Translator: Lars Lem <larslem@online.no>\n"
+"Language-Team: Norwegian <larslem@online.no>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Language: Norwegian\n"
+"X-Poedit-Country: NORWAY\n"
+
+#: sound.py:165
+msgid ""
+"\n"
+"Error processing audio.\n"
+"\n"
+"If you're on Linux and don't have sox 14.1+, you\n"
+"need to disable normalization. See the wiki.\n"
+"\n"
+"Command was:\n"
+msgstr ""
+"\n"
+"Feil under behandling av lyd.\n"
+"\n"
+"Hvis du bruker Linux og ikke har sox 14.1+ så\n"
+"må du stenge av normalisering. Se på wiki'en.\n"
+"\n"
+"Kommandoen var:\n"
+
+#: importing/__init__.py:124
+msgid ""
+"\n"
+"The current importer only supports a single active card template. Please disable\n"
+"all but one card template."
+msgstr ""
+"\n"
+"Den nåværende importfunksjonen støtter kun en aktiv kortmal. Deaktiver\n"
+"alle unntatt en kortmal."
+
+#: stats.py:510
+#, python-format
+msgid "%(count)s %(gradename)s kanji."
+msgstr "%(count)s %(gradename)s kanji."
+
+#: stats.py:508
+#, python-format
+msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
+msgstr "%(gradename)s: %(count)s av totalt %(total)s (%(percent)0.1f%%)."
+
+#: stats.py:343 stats.py:347 stats.py:351
+#, python-format
+msgid "%(partOf)d of %(totalSum)d"
+msgstr "%(partOf)d av %(totalSum)d"
+
+#: stats.py:271 stats.py:278 stats.py:301
+#, python-format
+msgid "%s ago"
+msgstr "%s siden"
+
+#: deck.py:1208
+#, python-format
+msgid "%s copy"
+msgstr "%s-kopi"
+
+#: utils.py:35
+#, python-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "%s dag"
+msgstr[1] "%s dager"
+
+#: utils.py:36
+#, python-format
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] "%s time"
+msgstr[1] "%s timer"
+
+#: utils.py:37
+#, python-format
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] "%s minutt"
+msgstr[1] "%s minutter"
+
+#: utils.py:34
+#, python-format
+msgid "%s month"
+msgid_plural "%s months"
+msgstr[0] "%s måned"
+msgstr[1] "%s måneder"
+
+#: utils.py:38
+#, python-format
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] "%s sekund"
+msgstr[1] "%s sekunder"
+
+#: utils.py:33
+#, python-format
+msgid "%s year"
+msgid_plural "%s years"
+msgstr[0] "%s år"
+msgstr[1] "%s år"
+
+#: stats.py:380 stats.py:383 stats.py:386 stats.py:389
+#, python-format
+msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
+msgstr "<b>%(a)d</b> (<b>%(b)s</b>/dag)"
+
+#: stats.py:377
+#, python-format
+msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
+msgstr "<b>%(a)s</b>/dag, <b>%(b)s</b>/mån"
+
+#: deck.py:742
+#, python-format
+msgid ""
+"<div style=\"white-space: normal;\">\n"
+"<h1>Congratulations!</h1>You have finished for now.<br><br>\n"
+"%(next)s\n"
+"%(spaceSusp)s\n"
+"</div>"
+msgstr ""
+"<div style=\"white-space: normal;\">\n"
+"<h1>Gratulerer!</h1>Du er ferdig for denne gang.<br><br>\n"
+"%(next)s\n"
+"%(spaceSusp)s\n"
+"</div>"
+
+#: stats.py:536
+#, python-format
+msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
+msgstr "<h1>Kanji-statistikk</h1>De %d gjennomgåtte kortene i denne stokken inneholder:"
+
+#: stats.py:561
+msgid "<h1>Missing</h1>"
+msgstr "<h1>Savnede</h1>"
+
+#: stats.py:588
+msgid "<h1>Non-Jouyou</h1>"
+msgstr "<h1>Ikke-jouyou</h1>"
+
+#: stats.py:563
+msgid "<h1>Seen</h1>"
+msgstr "<h1>Gjennomgått</h1>"
+
+#: stats.py:540
+#, python-format
+msgid "<li>%d total unique kanji.</li>"
+msgstr "<li>Sammenlagt %d unike kanji.</li>"
+
+#: deck.py:683
+#, python-format
+msgid ""
+"<style>b { color: #00f; }</style>\n"
+"At this time tomorrow:<br>\n"
+"%(wait)s<br>\n"
+"%(new)s"
+msgstr ""
+"<style>b { color: #00f; }</style>\n"
+"På denne tiden imorgen:<br>\n"
+"- %(wait)s<br>\n"
+"- %(new)s"
+
+#: sync.py:191
+#, python-format
+msgid ""
+"<table>\n"
+"<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>\n"
+"<td><b>Here&nbsp;&nbsp;&nbsp;</b></td><td><b>Server</b></td></tr>\n"
+"<tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
+"<tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
+"<tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
+"%(media)s\n"
+"</table>"
+msgstr ""
+"<table>\n"
+"<tr><td><b>Nye/Endret&nbsp;&nbsp;&nbsp;</b></td>\n"
+"<td><b>Her&nbsp;&nbsp;&nbsp;</b></td><td><b>Server</b></td></tr>\n"
+"<tr><td>Kort</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
+"<tr><td>Fakta</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
+"<tr><td>Modeller</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
+"%(media)s\n"
+"</table>"
+
+#: stats.py:265
+msgid "Added"
+msgstr "Nye"
+
+#: stats.py:383
+msgid "Added last month"
+msgstr "Nye forrige måned"
+
+#: stats.py:380
+msgid "Added last week"
+msgstr "Nye forrige uke"
+
+#: importing/__init__.py:263
+msgid "Anki deck (*.anki)"
+msgstr "Ankikortstokk (*.anki)"
+
+#: exporting.py:237
+msgid "Anki deck (*.anki)"
+msgstr "Ankikortstokk (*.anki)"
+
+#: exporting.py:55
+msgid "Anki decks (*.anki)"
+msgstr "Ankikortstokker (*.anki)"
+
+#: deck.py:328
+msgid "Answer Card"
+msgstr "Svarkort"
+
+#: stats.py:288
+msgid "Average Time"
+msgstr "Gjennomsnittstid"
+
+#: stats.py:367
+msgid "Average reps"
+msgstr "Gjennomsnittlig antall gjentagelser"
+
+#: stats.py:361
+msgid "Averages"
+msgstr "Gjennomsnitt"
+
+#: stats.py:377
+msgid "Avg. added"
+msgstr "Gjennomsn. nye"
+
+#: stdmodels.py:31
+msgid "Basic"
+msgstr "Grunnleggende"
+
+#: stdmodels.py:77
+msgid "Cantonese"
+msgstr "Kantonesisk"
+
+#: stats.py:292
+msgid "Card Template"
+msgstr "Kortmal"
+
+#: stats.py:334
+msgid "Card counts"
+msgstr "Antall kort"
+
+#: exporting.py:238
+msgid "Cards in tab-separated text file (*.txt)"
+msgstr "Kort til tabb-separert tekstfil (*.txt)"
+
+#: models.py:26
+msgid "Center"
+msgstr "Sentrer"
+
+#: stats.py:268
+msgid "Changed"
+msgstr "Endret"
+
+#: deck.py:1271
+msgid "Changing cards..."
+msgstr "Endrer kort..."
+
+#: deck.py:1231
+msgid "Changing fields..."
+msgstr "Endrer felt..."
+
+#: media.py:122
+msgid "Check Media DB"
+msgstr "Kontroller mediadatabase"
+
+#: deck.py:2117
+msgid "Checking integrity..."
+msgstr "Kontrollerer databaseintegritet"
+
+#: deck.py:2127
+msgid "Checking schema..."
+msgstr "Kontrollerer skjema..."
+
+#: media.py:124
+msgid "Checksum files..."
+msgstr "Lager filnavn basert på sjekksum..."
+
+#: stats.py:341
+msgid "Correct answers"
+msgstr "Rett svarene"
+
+#: importing/csv.py:87
+msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+msgstr "Kunne ikke finne mønsteret. Filen skal inneholde en serie av rader som deles med tabber eller semikolon."
+
+#: importing/__init__.py:265
+msgid "CueCard deck (*.wcu)"
+msgstr "CueCard-kortstokk (*.wcu)"
+
+#: deck.py:3124
+msgid "Custom failed cards handling"
+msgstr "Tilpasset håndtering av feilbesvarte kort"
+
+#: deck.py:2120
+msgid "Database file damaged. Restore from backup."
+msgstr "Databasefilen er ødelagt. Gjenopprett fra sikkerhetskopi."
+
+#: stats.py:318
+msgid "Deck Statistics"
+msgstr "Kortstokkstatistikk"
+
+#: stats.py:319
+#, python-format
+msgid "Deck created: <b>%s</b> ago<br>"
+msgstr "Korstokk opprettet: for <b>%s</b> siden<br>"
+
+#: deck.py:2130
+msgid "Deck was missing a model"
+msgstr "Det manglet en modell i kortstokken"
+
+#: media.py:200
+msgid "Delete stale references..."
+msgstr "Ta bort foreldede referanser..."
+
+#: media.py:181
+msgid "Delete unused files..."
+msgstr "Ta bort ubrukte filer..."
+
+#: deck.py:2159
+#, python-format
+msgid "Deleted %d card with missing fact"
+msgid_plural "Deleted %d cards with missing fact"
+msgstr[0] "Tok bort %d kort som manglet fakta"
+msgstr[1] "Tok bort %d kort som manglet fakta"
+
+#: deck.py:2168
+#, python-format
+msgid "Deleted %d card with no card template"
+msgid_plural "Deleted %d cards with no card template"
+msgstr[0] "Tok bort %d kort som manglet kortmal"
+msgstr[1] "Tok bort %d kort som manglet kortmal"
+
+#: deck.py:2183
+#, python-format
+msgid "Deleted %d dangling field"
+msgid_plural "Deleted %d dangling fields"
+msgstr[0] "Tok bort %d ubrukte felt"
+msgstr[1] "Tok bort %d ubrukte felt"
+
+#: deck.py:2151
+#, python-format
+msgid "Deleted %d fact with missing fields"
+msgid_plural "Deleted %d facts with missing fields"
+msgstr[0] "Tok bort %d fakta som manglet felt"
+msgstr[1] "Tok bort %d fakta som manglet felt"
+
+#: deck.py:2174
+#, python-format
+msgid "Deleted %d fact with no cards"
+msgid_plural "Deleted %d facts with no cards"
+msgstr[0] "Tok bort %d fakta uten kort"
+msgstr[1] "Tok bort %d fakta uten kort"
+
+#: stats.py:274
+msgid "Due"
+msgstr "Tidsfristen er ute"
+
+#: stats.py:276
+msgid "Ease"
+msgstr "Innlæringsgrad"
+
+#: latex.py:131
+#, python-format
+msgid ""
+"Error executing 'latex' or 'dvipng'.\n"
+"A log file is available here:\n"
+"%s"
+msgstr ""
+"Feil under kjøring av  'latex' eller 'dvipng'.\n"
+"Det finnes en loggfil her:\n"
+"%s"
+
+#: exporting.py:67
+msgid "Exporting..."
+msgstr "Eksporterer..."
+
+#: exporting.py:239
+msgid "Facts in tab-separated text file (*.txt)"
+msgstr "Fakta i tabb-separert tekstfil (*.txt)"
+
+#: deck.py:2549
+msgid "File is in use by another process"
+msgstr "Filen brukes av en annen prosess"
+
+#: stats.py:267
+msgid "First Review"
+msgstr "Første repetisjon"
+
+#: stats.py:389
+msgid "First last month"
+msgstr "Første forrige måned"
+
+#: stats.py:386
+msgid "First last week"
+msgstr "Første forrige uke"
+
+#: stats.py:350
+msgid "First-seen cards:"
+msgstr "Nye kort:"
+
+#: importing/__init__.py:56 importing/anki10.py:25
+msgid "Importing..."
+msgstr "Importerer..."
+
+#: stats.py:275 stats.py:366
+msgid "Interval"
+msgstr "Intervall"
+
+#: stdmodels.py:46
+msgid "Japanese"
+msgstr "Japansk"
+
+#: stats.py:551
+msgid "Jouyou levels:"
+msgstr "Jouyou-nivåer:"
+
+#: stats.py:279
+msgid "Last Due"
+msgstr "Sist tidsfristen utløp"
+
+#: stats.py:283
+msgid "Last Ease"
+msgstr "Seneste innlæringsgrad"
+
+#: stats.py:282
+msgid "Last Interval"
+msgstr "Seneste intervall"
+
+#: models.py:27
+msgid "Left"
+msgstr "Venstre"
+
+#: importing/csv.py:40
+#, python-format
+msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+msgstr "Rad %(line)d følger ikke mønsteret '%(pat)s'"
+
+#: importing/csv.py:49
+#, python-format
+msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
+msgstr "Rad %(line)d har %(num1)d felt, forventet antall er %(num2)d"
+
+#: stdmodels.py:99
+msgid "Mandarin"
+msgstr "Standard kinesisk"
+
+#: graphs.py:151 graphs.py:177 graphs.py:335
+msgid "Mature"
+msgstr "Gamle"
+
+#: stats.py:335
+msgid "Mature cards: <!--card count-->"
+msgstr "Gamle kort: <!--card count-->"
+
+#: stats.py:342
+msgid "Mature cards: <!--correct answers-->"
+msgstr "Gamle kort: <!--correct answers-->"
+
+#: media.py:176 media.py:178 media.py:179
+msgid "MediaMissing"
+msgstr "Mediefil mangler"
+
+#: importing/__init__.py:117
+#, python-format
+msgid "Missing required/unique field '%(field)s'"
+msgstr "Obligatoriske/unike felt '%(field)s' mangler"
+
+#: importing/__init__.py:264
+msgid "Mnemosyne Deck (*.mem)"
+msgstr "Mnemosynekortstokk (*.mem)"
+
+#: stats.py:291
+msgid "Model Tags"
+msgstr "Modelletiketter"
+
+#: media.py:169
+msgid "Modify fields..."
+msgstr "Endre felt..."
+
+#: graphs.py:175 graphs.py:333
+msgid "New"
+msgstr "Nye"
+
+#: deck.py:698
+msgid "No cards are due."
+msgstr "Ingen kort der tiden er inne for repetisjon."
+
+#: stats.py:316
+msgid "Please add some cards first."
+msgstr "Legg til noen kort først."
+
+#: deck.py:2366
+msgid "Processing..."
+msgstr "Behandler..."
+
+#: deck.py:2202
+msgid "Rebuilding QA cache..."
+msgstr "Bygger om spørsmål/svars-cachen..."
+
+#: deck.py:2222
+msgid "Rebuilding counts..."
+msgstr "Bygger om antallsberegninger..."
+
+#: deck.py:2228
+msgid "Rebuilding queue..."
+msgstr "Bygger om kø..."
+
+#: deck.py:2196
+msgid "Rebuilding tag cache..."
+msgstr "Bygger om etikett-cachen..."
+
+#: deck.py:2220
+msgid "Rebuilding types..."
+msgstr "Bygger om typer..."
+
+#: stats.py:375
+msgid "Reps last month"
+msgstr "Repetisjoner forrige måned"
+
+#: stats.py:373
+msgid "Reps last week"
+msgstr "Repetisjoner forrige uke"
+
+#: stats.py:371
+msgid "Reps next month"
+msgstr "Repetisjoner neste måned"
+
+#: stats.py:369
+msgid "Reps next week"
+msgstr "Repetisjoner neste uke"
+
+#: deck.py:3111
+msgid "Review cards from largest interval"
+msgstr "Repetere kort fra største intervall"
+
+#: deck.py:3112
+msgid "Review cards from smallest interval"
+msgstr "Repetere kort fra minste intervall"
+
+#: deck.py:3113
+msgid "Review cards in order due"
+msgstr "Repetere kort ordnet etter når de forfaller"
+
+#: deck.py:3114
+msgid "Review cards in random order"
+msgstr "Repetere kort i tilfeldig rekkefølge"
+
+#: stats.py:285
+msgid "Reviews"
+msgstr "Repetisjoner"
+
+#: models.py:28
+msgid "Right"
+msgstr "Høyre"
+
+#: media.py:142
+msgid "Scan fields..."
+msgstr "Søker gjennom felt"
+
+#: deck.py:3120
+msgid "Show failed cards at end"
+msgstr "Vis feilbesvarte kort til slutt"
+
+#: deck.py:3121
+msgid "Show failed cards in 10 minutes"
+msgstr "Vis feilbesvarte kort om ti minutter"
+
+#: deck.py:3123
+msgid "Show failed cards in 3 days"
+msgstr "Vis feilbesvarte kort om tre dager"
+
+#: deck.py:3122
+msgid "Show failed cards in 8 hours"
+msgstr "Vis feilbesvarte kort om 8 timer"
+
+#: deck.py:3119
+msgid "Show failed cards soon"
+msgstr "Vis feilbesvarte kort snart"
+
+#: deck.py:3105
+msgid "Show new cards after all other cards"
+msgstr "Vis nye kort etter alle de andre"
+
+#: deck.py:3106
+msgid "Show new cards before reviews"
+msgstr "Vis nye kort før repetisjoner"
+
+#: deck.py:3098
+msgid "Show new cards in order added"
+msgstr "Vis nye kort i den rekkefølgen de ble lagt til"
+
+#: deck.py:3097
+msgid "Show new cards in random order"
+msgstr "Vis nye kort i tilfeldig rekkefølge"
+
+#: deck.py:3099
+msgid "Show new cards in reverse order added"
+msgstr "Vis nye kort i omvendt rekkefølge av slik de ble lagt til"
+
+#: deck.py:3104
+msgid "Spread new cards out through reviews"
+msgstr "Fordel nye kort blant repetisjoner"
+
+#: exporting.py:166 exporting.py:198
+msgid "Text files (*.txt)"
+msgstr "Tekstfiler (*.txt)"
+
+#: importing/__init__.py:262
+msgid "Text separated by tabs or semicolons (*)"
+msgstr "Tekst adskilt av tabber eller semikolon (*)"
+
+#: deck.py:2136
+msgid "The current model didn't exist"
+msgstr "Den ønskede modellen fantes ikke"
+
+#: importing/csv.py:76
+msgid "The file had no non-empty lines."
+msgstr "Det fantes bare tomme rader i filen."
+
+#: importing/csv.py:105 importing/wcu.py:29
+msgid "The file was not in UTF8 format."
+msgstr "Filen var ikke i UTF8-format"
+
+#: deck.py:695
+#, python-format
+msgid "The next review is in <b>%s</b>."
+msgstr "Neste repetisjon er om <b>%s</b>."
+
+#: deck.py:730
+#, python-format
+msgid "There is <b>%d delayed</b> new card."
+msgid_plural "There are <b>%d delayed</b> new cards."
+msgstr[0] "Det finnes <b>%d utsatt</b> nytt kort."
+msgstr[1] "Det finnes <b>%d utsatte</b> nye kort."
+
+#: deck.py:737
+#, python-format
+msgid "There is <b>%d suspended</b> card."
+msgid_plural "There are <b>%d suspended</b> cards."
+msgstr[0] "Det finnes <b>%d inaktiv</b> kort."
+msgstr[1] "Det finnes <b>%d inaktive</b> kort."
+
+#: deck.py:688
+#, python-format
+msgid "There will be <b>%d new</b> card."
+msgid_plural "There will be <b>%d new</b> cards."
+msgstr[0] "<b>%d</b> nytt kort skal læres inn."
+msgstr[1] "<b>%d</b> nye kort skal læres inn."
+
+#: deck.py:691
+#, python-format
+msgid "There will be <b>%s review</b>."
+msgid_plural "There will be <b>%s reviews</b>."
+msgstr[0] "<b>%s</b> kort skal repeteres."
+msgstr[1] "<b>%s</b> kort skal repeteres."
+
+#: stats.py:290
+msgid "Total Time"
+msgstr "Total tid"
+
+#: stats.py:331
+msgid "Total number of cards:"
+msgstr "Totalt antall kort:"
+
+#: stats.py:332
+msgid "Total number of facts:"
+msgstr "Totalt antall fakta:"
+
+#: deck.py:917
+msgid "Unknown"
+msgstr "Ukjent"
+
+#: stats.py:339
+msgid "Unseen cards:"
+msgstr "Uleste kort:"
+
+#: media.py:173
+msgid "Update tags..."
+msgstr "Oppdatere etiketter..."
+
+#: deck.py:2199
+msgid "Updating priorities..."
+msgstr "Oppdaterer prioteringer..."
+
+#: deck.py:2707
+msgid "Upgrading Deck..."
+msgstr "Oppgraderer kortstokk..."
+
+#: graphs.py:150 graphs.py:176 graphs.py:334
+msgid "Young"
+msgstr "Ung"
+
+#: stats.py:337
+msgid "Young cards: <!--card count-->"
+msgstr "Unge kort: <!--card count-->"
+
+#: stats.py:346
+msgid "Young cards: <!--correct answers-->"
+msgstr "Unge kort: <!--correct answers-->"
+
+#: models.py:153
+msgid "[invalid question/answer format]"
+msgstr "[ugyldig format for spørsmål/svar]"
+
+#: stats.py:368 stats.py:370 stats.py:372 stats.py:374 stats.py:376
+msgid "cards/day"
+msgstr "kort/dag"
+
+#: stats.py:366
+msgid "days"
+msgstr "dager"
+
+#: stats.py:273
+#, python-format
+msgid "in %s"
+msgstr "om %s"
+
+#: sync.py:185 sync.py:186
+msgid "off"
+msgstr "av"
+
+#: deck.py:715
+msgid "unknown"
+msgstr "ukjent"
+
+#~ msgid "%(a)d.%(b)df"
+#~ msgstr "%(a)d,%(b)df"
+
+#~ msgid "%0.1f seconds"
+#~ msgstr "%0.1f sekunder"
+
+#~ msgid "%sd"
+#~ msgstr "%s dag"
+
+#~ msgid "%sh"
+#~ msgstr "%s tim."
+
+#~ msgid "%sm"
+#~ msgstr "%s min"
+
+#~ msgid "%ss"
+#~ msgstr "%s sek"
+
+#~ msgid "%sy"
+#~ msgstr "%s år"
+
+#~ msgid "<b>%0.0f</b> days"
+#~ msgstr "<b>%0.0f</b> dager"
+
+#~ msgid "<b>%0.1f</b> cards/day"
+#~ msgstr "<b>%0.1f</b> kort/dag"
+
+#~ msgid "<b>Averages</b><br>"
+#~ msgstr "<b>Gjennomsnitt</b><br>"
+
+#~ msgid "Anki 1.0 deck (*.anki)"
+#~ msgstr "Ankikortstokk 1.0 (*.anki)"
+
+#~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
+#~ msgstr "Kort som vises for første gang: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> av <b>%(gNewTotal)d</b>)<br><br>"
+
+#~ msgid "Mature cards: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> of <b>%(gMatureTotal)d</b>)<br>"
+#~ msgstr "Gamle kort: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> av <b>%(gMatureTotal)d</b>)<br>"
+
+#~ msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
+#~ msgstr "Gamle kort: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
+
+#~ msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
+#~ msgstr "Kort som aldri er vist: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
+
+#~ msgid "Young cards:"
+#~ msgstr "Unge kort:"
+
+#~ msgid "Young cards: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> of <b>%(gYoungTotal)d</b>)<br>"
+#~ msgstr "Unge kort: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> av <b>%(gYoungTotal)d</b>)<br>"
+
+#~ msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
+#~ msgstr "Unge kort: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
