@@ -52,7 +52,7 @@ class Exporter(object):
 
 class AnkiExporter(Exporter):
 
-    key = _("Anki decks (*.anki)")
+    key = _("Anki Deck (*.anki)")
     ext = ".anki"
 
     def __init__(self, deck):
@@ -236,6 +236,6 @@ order by factId, ordinal""" % ids2str(cardIds))
 
 def exporters():
     return (
-        (_("Anki deck (*.anki)"), AnkiExporter),
+        (_("Anki Deck (*.anki)"), AnkiExporter),
         (_("Cards in tab-separated text file (*.txt)"), TextCardExporter),
         (_("Facts in tab-separated text file (*.txt)"), TextFactExporter))

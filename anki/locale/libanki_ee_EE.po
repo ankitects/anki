@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:03+0900\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -203,18 +203,10 @@ msgstr "Eelmisel kuu lisatud"
 msgid "Added last week"
 msgstr "Eelmisel nädalal lisatud "
 
-#: importing/__init__.py:263
+#: exporting.py:55 exporting.py:239 importing/__init__.py:263
 #, fuzzy
 msgid "Anki Deck (*.anki)"
 msgstr "Anki kaardipakk (*.anki)"
-
-#: exporting.py:239
-msgid "Anki deck (*.anki)"
-msgstr "Anki kaardipakk (*.anki)"
-
-#: exporting.py:55
-msgid "Anki decks (*.anki)"
-msgstr "Anki kaardipakid (*.anki)"
 
 #: deck.py:331
 msgid "Answer Card"
@@ -421,7 +413,7 @@ msgstr "Esimene eelmisel nädalal"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:25
 #, fuzzy
 msgid "Importing..."
 msgstr "Ekspordin..."
@@ -781,6 +773,12 @@ msgstr "teadmata"
 #, fuzzy
 #~ msgid "Anki 1.0 deck (*.anki)"
 #~ msgstr "Anki kaardipakk (*.anki)"
+
+#~ msgid "Anki deck (*.anki)"
+#~ msgstr "Anki kaardipakk (*.anki)"
+
+#~ msgid "Anki decks (*.anki)"
+#~ msgstr "Anki kaardipakid (*.anki)"
 
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Esmakordselt nähtud kaardid: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b>/<b>%(gNewTotal)d</b>)<br><br>"

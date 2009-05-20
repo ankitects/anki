@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_de_DE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:03+0900\n"
 "PO-Revision-Date: 2009-05-02 16:25+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -206,17 +206,9 @@ msgstr "Letzten Monat hinzugefügt"
 msgid "Added last week"
 msgstr "Letzte Woche hinzugefügt"
 
-#: importing/__init__.py:263
+#: exporting.py:55 exporting.py:239 importing/__init__.py:263
 msgid "Anki Deck (*.anki)"
 msgstr "Anki Stapeldatei (*.anki)"
-
-#: exporting.py:239
-msgid "Anki deck (*.anki)"
-msgstr "Anki Stapeldatei (*.anki)"
-
-#: exporting.py:55
-msgid "Anki decks (*.anki)"
-msgstr "Anki Stapeldateien (*.anki)"
 
 #: deck.py:331
 msgid "Answer Card"
@@ -421,7 +413,7 @@ msgstr "Erstmalig letzte Woche"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:25
 msgid "Importing..."
 msgstr "Importiere..."
 
@@ -750,6 +742,12 @@ msgstr ""
 #: deck.py:716
 msgid "unknown"
 msgstr "unbekannt"
+
+#~ msgid "Anki deck (*.anki)"
+#~ msgstr "Anki Stapeldatei (*.anki)"
+
+#~ msgid "Anki decks (*.anki)"
+#~ msgstr "Anki Stapeldateien (*.anki)"
 
 #~ msgid "Rebuilding queue..."
 #~ msgstr "Warteschlange neu anlegen..."

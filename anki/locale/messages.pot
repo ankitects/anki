@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:03+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -179,16 +179,8 @@ msgstr ""
 msgid "Added last week"
 msgstr ""
 
-#: importing/__init__.py:263
+#: exporting.py:55 exporting.py:239 importing/__init__.py:263
 msgid "Anki Deck (*.anki)"
-msgstr ""
-
-#: exporting.py:239
-msgid "Anki deck (*.anki)"
-msgstr ""
-
-#: exporting.py:55
-msgid "Anki decks (*.anki)"
 msgstr ""
 
 #: deck.py:331
@@ -389,7 +381,7 @@ msgstr ""
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:25
 msgid "Importing..."
 msgstr ""
 

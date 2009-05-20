@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:03+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -188,18 +188,10 @@ msgstr "Ajouté le mois dernier"
 msgid "Added last week"
 msgstr "Ajouté la semaine dernière"
 
-#: importing/__init__.py:263
+#: exporting.py:55 exporting.py:239 importing/__init__.py:263
 #, fuzzy
 msgid "Anki Deck (*.anki)"
 msgstr "Paquet Anki (*.anki)"
-
-#: exporting.py:239
-msgid "Anki deck (*.anki)"
-msgstr "Paquet Anki (*.anki)"
-
-#: exporting.py:55
-msgid "Anki decks (*.anki)"
-msgstr "Paquets Anki (*.anki)"
 
 #: deck.py:331
 msgid "Answer Card"
@@ -407,7 +399,7 @@ msgstr "Première fois la semaine dernière"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:25 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:25
 msgid "Importing..."
 msgstr ""
 
@@ -946,6 +938,12 @@ msgstr "inconnu"
 #, fuzzy
 #~ msgid "Anki 1.0 deck (*.anki)"
 #~ msgstr "Paquet Anki (*.anki)"
+
+#~ msgid "Anki deck (*.anki)"
+#~ msgstr "Paquet Anki (*.anki)"
+
+#~ msgid "Anki decks (*.anki)"
+#~ msgstr "Paquets Anki (*.anki)"
 
 #~ msgid "At the end of the deck"
 #~ msgstr "À la fin du paquet"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:03+0900\n"
 "PO-Revision-Date: 2009-05-17 19:06+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -208,17 +208,9 @@ msgstr "Tillagda förra månaden"
 msgid "Added last week"
 msgstr "Tillagda förra veckan"
 
-#: importing/__init__.py:263
+#: exporting.py:55 exporting.py:239 importing/__init__.py:263
 msgid "Anki Deck (*.anki)"
 msgstr "Ankikortlek (*.anki)"
-
-#: exporting.py:239
-msgid "Anki deck (*.anki)"
-msgstr "Ankikortlek (*.anki)"
-
-#: exporting.py:55
-msgid "Anki decks (*.anki)"
-msgstr "Ankikortlekar (*.anki)"
 
 #: deck.py:331
 msgid "Answer Card"
@@ -423,7 +415,7 @@ msgstr "Första förra veckan"
 msgid "First-seen cards:"
 msgstr "Förstagångskort:"
 
-#: importing/anki10.py:25 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:25
 msgid "Importing..."
 msgstr "Importerar..."
 
@@ -783,6 +775,12 @@ msgstr "okänt"
 
 #~ msgid "Anki 1.0 deck (*.anki)"
 #~ msgstr "Ankikortlek 1.0 (*.anki)"
+
+#~ msgid "Anki deck (*.anki)"
+#~ msgstr "Ankikortlek (*.anki)"
+
+#~ msgid "Anki decks (*.anki)"
+#~ msgstr "Ankikortlekar (*.anki)"
 
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Kort som sågs för första gången: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> av <b>%(gNewTotal)d</b>)<br><br>"

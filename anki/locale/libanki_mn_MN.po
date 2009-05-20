@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:03+0900\n"
 "PO-Revision-Date: 2009-04-20 13:12+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -206,18 +206,10 @@ msgstr "Өнгөрсөн сард нэмсэн"
 msgid "Added last week"
 msgstr "Өнгөрсөн 7 хоногт нэмсэн"
 
-#: importing/__init__.py:263
+#: exporting.py:55 exporting.py:239 importing/__init__.py:263
 #, fuzzy
 msgid "Anki Deck (*.anki)"
 msgstr "Анки цуглуулга (*.anki)"
-
-#: exporting.py:239
-msgid "Anki deck (*.anki)"
-msgstr "Анки цуглуулга (*.anki)"
-
-#: exporting.py:55
-msgid "Anki decks (*.anki)"
-msgstr "Анки цуглуулгууд (*.anki)"
 
 #: deck.py:331
 msgid "Answer Card"
@@ -422,7 +414,7 @@ msgstr "Өнгөрсөн 7 хоногийн анх нь"
 msgid "First-seen cards:"
 msgstr "Эхлээд үзсэн картууд:"
 
-#: importing/anki10.py:25 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:25
 msgid "Importing..."
 msgstr "Импортолж байна..."
 
@@ -750,6 +742,12 @@ msgstr "мэдэхгүй"
 
 #~ msgid "Anki 1.0 deck (*.anki)"
 #~ msgstr "Анки 1.0 цуглуулга (*.anki)"
+
+#~ msgid "Anki deck (*.anki)"
+#~ msgstr "Анки цуглуулга (*.anki)"
+
+#~ msgid "Anki decks (*.anki)"
+#~ msgstr "Анки цуглуулгууд (*.anki)"
 
 #~ msgid "Rebuilding queue..."
 #~ msgstr "Дараалалыг дахин барж байна..."
