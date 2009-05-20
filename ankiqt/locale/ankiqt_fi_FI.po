@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:09+0900\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -909,7 +909,7 @@ msgstr "Lisää ääni (F4)"
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr "Lisää piilotettuja merkkejä teksteihin (korjaa Thain OSX:llä)"
 
-#: ui/view.py:298
+#: ui/view.py:299
 msgid "Add material"
 msgstr "Lisää materiaalia"
 
@@ -1005,7 +1005,7 @@ msgstr ""
 "</ol>\n"
 "Jos se ei korjaa ongelmaa, liitä seuraavat tiedot virheraporttiin:<br><br>\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873
+#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1541,6 +1541,10 @@ msgstr ""
 msgid "Determining differences..."
 msgstr "Etsitään eroavaisuuksia..."
 
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
+
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Poista &käytöstä"
@@ -1565,11 +1569,11 @@ msgstr "Ohjeet"
 msgid "Don't ask me to type in the answer"
 msgstr "Älä pyydä vastausta kirjoittamalla"
 
-#: ui/view.py:302
+#: ui/view.py:303
 msgid "Download Personal Deck"
 msgstr "Lataa henkilökohtainen pakka"
 
-#: ui/getshared.py:36 ui/view.py:301
+#: ui/getshared.py:36 ui/view.py:302
 msgid "Download Shared Deck"
 msgstr "Lataa jaettu pakka"
 
@@ -2118,7 +2122,7 @@ msgstr "Ei valintaa."
 msgid "Open &Recent"
 msgstr "Avaa &viimeaikainen"
 
-#: ui/view.py:300
+#: ui/view.py:301
 msgid "Open Local Deck"
 msgstr "Avaa paikallinen pakka"
 
@@ -2189,6 +2193,11 @@ msgstr "Lisää ensin kenttä."
 #: ui/deckproperties.py:147
 msgid "Please add another model first."
 msgstr "Lisää toinen malli ensin."
+
+#: forms/sort.py:46
+#, fuzzy
+msgid "Please choose a field to sort by."
+msgstr "Lisää ensin kenttä."
 
 #: ui/sync.py:54
 msgid "Please double-check your username/password."
@@ -2617,7 +2626,7 @@ msgstr "espanja"
 msgid "Start &Reviewing"
 msgstr "Aloita &kertaaminen"
 
-#: ui/view.py:299
+#: ui/view.py:300
 msgid "Start adding your own material."
 msgstr "Aloita oman materiaalin lisääminen."
 
@@ -2796,12 +2805,12 @@ msgid_plural "There are <b>%d</b> new cards in total."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/view.py:222
+#: ui/view.py:223
 #, python-format
 msgid "This card was due in %s."
 msgstr "Aikaa kortin erääntymiseen olisi ollut %s."
 
-#: ui/view.py:249
+#: ui/view.py:250
 msgid "This card will appear again later."
 msgstr "Tämä kortti näytetään uudelleen myöhemmin."
 
@@ -3069,11 +3078,11 @@ msgstr "Odota paljon kauemmin ensikerralla (pikanäppäin: 4)"
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr "Odota kauemmin ensi kerralla (pikanäppäin: 3)"
 
-#: ui/view.py:297
+#: ui/view.py:298
 msgid "Welcome to Anki!"
 msgstr "Tervetuloa Ankiin."
 
-#: ui/view.py:245
+#: ui/view.py:246
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "Hyvä! Tämän kortin uudelleen ilmestymiseen on aikaa <b>%(next)s</b>."
@@ -3442,10 +3451,6 @@ msgstr ""
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Lisää ensin kortteja."
-
-#, fuzzy
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Lisää ensin kenttä."
 
 #~ msgid "Replace"
 #~ msgstr "Korvaa"

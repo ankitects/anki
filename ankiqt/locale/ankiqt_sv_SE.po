@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:09+0900\n"
 "PO-Revision-Date: 2009-05-17 19:05+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -896,7 +896,7 @@ msgstr "Lägg till ljud (F4)"
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr "Lägg till dolt tecken till text (fixar thai på OSX)"
 
-#: ui/view.py:298
+#: ui/view.py:299
 msgid "Add material"
 msgstr "Lägg till material"
 
@@ -992,7 +992,7 @@ msgstr ""
 "Om detta inte löser problemet, kopiera följande text<br>\n"
 "till en felrapport:<br><br>\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873
+#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1517,6 +1517,10 @@ msgstr "Ta bort det kort som just nu visas"
 msgid "Determining differences..."
 msgstr "Fastställer skillnader..."
 
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Dialog"
+
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Inakti&vera"
@@ -1541,11 +1545,11 @@ msgstr "Dokumentation"
 msgid "Don't ask me to type in the answer"
 msgstr "Begär inte att jag skall skriva in svaret"
 
-#: ui/view.py:302
+#: ui/view.py:303
 msgid "Download Personal Deck"
 msgstr "Hämta personlig kortlek"
 
-#: ui/getshared.py:36 ui/view.py:301
+#: ui/getshared.py:36 ui/view.py:302
 msgid "Download Shared Deck"
 msgstr "Hämta delad kortlek"
 
@@ -2087,7 +2091,7 @@ msgstr "Inget valt."
 msgid "Open &Recent"
 msgstr "Ö&ppna senaste"
 
-#: ui/view.py:300
+#: ui/view.py:301
 msgid "Open Local Deck"
 msgstr "Öppna lokal kortlek"
 
@@ -2154,6 +2158,10 @@ msgstr "Lägg först till en ny mall."
 #: ui/deckproperties.py:147
 msgid "Please add another model first."
 msgstr "Lägg först till en annan modell."
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Välj ett fält att sortera efter"
 
 #: ui/sync.py:54
 msgid "Please double-check your username/password."
@@ -2567,7 +2575,7 @@ msgstr "Spanska"
 msgid "Start &Reviewing"
 msgstr "&Börja repetera"
 
-#: ui/view.py:299
+#: ui/view.py:300
 msgid "Start adding your own material."
 msgstr "Börja lägga till ditt eget material."
 
@@ -2743,12 +2751,12 @@ msgid_plural "There are <b>%d</b> new cards in total."
 msgstr[0] "Det finns sammanlagt <b>%d</b> nytt kort."
 msgstr[1] "Det finns sammanlagt <b>%d</b> nya kort."
 
-#: ui/view.py:222
+#: ui/view.py:223
 #, python-format
 msgid "This card was due in %s."
 msgstr "Detta korts tidsfrist skulle gått ut om %s."
 
-#: ui/view.py:249
+#: ui/view.py:250
 msgid "This card will appear again later."
 msgstr "Detta kort kommer att visas igen senare."
 
@@ -3017,11 +3025,11 @@ msgstr "Vänta mycket längre nästa gång (kortkommando: 4)"
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr "Vänta längre nästa gång (kortkommando: 3)"
 
-#: ui/view.py:297
+#: ui/view.py:298
 msgid "Welcome to Anki!"
 msgstr "Välkommen till Anki!"
 
-#: ui/view.py:245
+#: ui/view.py:246
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "Bra gjort! Detta kort kommer att visas igen om  <b>%(next)s</b>."
@@ -3414,9 +3422,6 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
-#~ msgid "Dialog"
-#~ msgstr "Dialog"
-
 #~ msgid "Edit Items"
 #~ msgstr "Redigera poster"
 
@@ -3452,9 +3457,6 @@ msgstr "toppetikett"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Lägg först till ett nytt kort."
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Välj ett fält att sortera efter"
 
 #~ msgid "Replace"
 #~ msgstr "Ersätt"

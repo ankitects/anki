@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:09+0900\n"
 "PO-Revision-Date: 2008-03-28 17:07+0900\n"
 "Last-Translator: Andrew Wright <guswright80@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -929,7 +929,7 @@ msgstr "音声を追加 (F4)"
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr ""
 
-#: ui/view.py:298
+#: ui/view.py:299
 msgid "Add material"
 msgstr ""
 
@@ -1022,7 +1022,7 @@ msgstr ""
 "エラーが発生しました。下記の内容をバグ報告にコピーしてください。\n"
 "\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873
+#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
@@ -1574,6 +1574,10 @@ msgstr ""
 msgid "Determining differences..."
 msgstr ""
 
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
+
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "無効にする(&b)"
@@ -1598,11 +1602,11 @@ msgstr ""
 msgid "Don't ask me to type in the answer"
 msgstr ""
 
-#: ui/view.py:302
+#: ui/view.py:303
 msgid "Download Personal Deck"
 msgstr ""
 
-#: ui/getshared.py:36 ui/view.py:301
+#: ui/getshared.py:36 ui/view.py:302
 msgid "Download Shared Deck"
 msgstr ""
 
@@ -2179,7 +2183,7 @@ msgstr ""
 msgid "Open &Recent"
 msgstr "最近使用した単語帳"
 
-#: ui/view.py:300
+#: ui/view.py:301
 #, fuzzy
 msgid "Open Local Deck"
 msgstr "ファイルを開く"
@@ -2253,6 +2257,10 @@ msgstr "まず新しいフィールドを作成してください。"
 #: ui/deckproperties.py:147
 msgid "Please add another model first."
 msgstr "まずもう一つのモデルを作成してください。"
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "フィールドの整列を選んでください。"
 
 #: ui/sync.py:54
 msgid "Please double-check your username/password."
@@ -2698,7 +2706,7 @@ msgstr "スペイン語"
 msgid "Start &Reviewing"
 msgstr ""
 
-#: ui/view.py:299
+#: ui/view.py:300
 msgid "Start adding your own material."
 msgstr ""
 
@@ -2892,12 +2900,12 @@ msgid_plural "There are <b>%d</b> new cards in total."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/view.py:222
+#: ui/view.py:223
 #, fuzzy, python-format
 msgid "This card was due in %s."
 msgstr "次のカードは%s"
 
-#: ui/view.py:249
+#: ui/view.py:250
 #, fuzzy
 msgid "This card will appear again later."
 msgstr "このカードは次に表示されるのは <b>%(next)s後</b>です。"
@@ -3143,11 +3151,11 @@ msgstr ""
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr ""
 
-#: ui/view.py:297
+#: ui/view.py:298
 msgid "Welcome to Anki!"
 msgstr ""
 
-#: ui/view.py:245
+#: ui/view.py:246
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "よくできました！次に表示されるのは <b>%(next)s後</b>です。"
@@ -4134,9 +4142,6 @@ msgstr ""
 
 #~ msgid "Please add a new card first."
 #~ msgstr "まず新しいカードを入力してください。"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "フィールドの整列を選んでください。"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "ユーザー名を確認してください。"

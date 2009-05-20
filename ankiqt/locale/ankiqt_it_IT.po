@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:09+0900\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -944,7 +944,7 @@ msgstr "Aggiungi audio"
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr ""
 
-#: ui/view.py:298
+#: ui/view.py:299
 msgid "Add material"
 msgstr ""
 
@@ -1036,7 +1036,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873
+#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1596,6 +1596,10 @@ msgstr ""
 msgid "Determining differences..."
 msgstr "Determinazione differenze"
 
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Finestra di dialogo"
+
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Disa&bilita"
@@ -1620,11 +1624,11 @@ msgstr ""
 msgid "Don't ask me to type in the answer"
 msgstr ""
 
-#: ui/view.py:302
+#: ui/view.py:303
 msgid "Download Personal Deck"
 msgstr ""
 
-#: ui/getshared.py:36 ui/view.py:301
+#: ui/getshared.py:36 ui/view.py:302
 msgid "Download Shared Deck"
 msgstr ""
 
@@ -2197,7 +2201,7 @@ msgstr "Azioni sulla selezione.."
 msgid "Open &Recent"
 msgstr "Apri &Recente"
 
-#: ui/view.py:300
+#: ui/view.py:301
 #, fuzzy
 msgid "Open Local Deck"
 msgstr "Apri mazzo"
@@ -2270,6 +2274,10 @@ msgstr "Aggiungere un nuovo campo prima di procedere."
 #: ui/deckproperties.py:147
 msgid "Please add another model first."
 msgstr "Aggiungere un altro modello prima di procedere."
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Scegliere un campo col quale ordinare l'elenco."
 
 #: ui/sync.py:54
 msgid "Please double-check your username/password."
@@ -2713,7 +2721,7 @@ msgstr "Spagnolo"
 msgid "Start &Reviewing"
 msgstr ""
 
-#: ui/view.py:299
+#: ui/view.py:300
 msgid "Start adding your own material."
 msgstr ""
 
@@ -2903,12 +2911,12 @@ msgid_plural "There are <b>%d</b> new cards in total."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/view.py:222
+#: ui/view.py:223
 #, fuzzy, python-format
 msgid "This card was due in %s."
 msgstr "Questa carta apparirà di nuovo in meno di <b>%(next)s</b>."
 
-#: ui/view.py:249
+#: ui/view.py:250
 #, fuzzy
 msgid "This card will appear again later."
 msgstr "Questa carta apparirà di nuovo in meno di <b>%(next)s</b>."
@@ -3155,11 +3163,11 @@ msgstr ""
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr ""
 
-#: ui/view.py:297
+#: ui/view.py:298
 msgid "Welcome to Anki!"
 msgstr ""
 
-#: ui/view.py:245
+#: ui/view.py:246
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "Ben fatto! Questa carta apparirà di nuovo tra <b>%(next)s</b>."
@@ -3638,9 +3646,6 @@ msgstr "etichetta"
 #~ msgid "Description"
 #~ msgstr "Descrizione"
 
-#~ msgid "Dialog"
-#~ msgstr "Finestra di dialogo"
-
 #~ msgid "Difficulty"
 #~ msgstr "Difficoltà"
 
@@ -3759,9 +3764,6 @@ msgstr "etichetta"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Aggiungere una nuova carta prima di procedere."
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Scegliere un campo col quale ordinare l'elenco."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "Impediscimi di inserire la stessa cosa in questo campo più di una volta"

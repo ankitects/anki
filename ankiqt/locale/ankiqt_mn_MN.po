@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:09+0900\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -911,7 +911,7 @@ msgstr "Дуурийг нэм (F4)"
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr "Нуусан тэмдгийг текстэд нэм (Тай хэлний асуудлыг OSX-д засварлана)"
 
-#: ui/view.py:298
+#: ui/view.py:299
 msgid "Add material"
 msgstr "Материалыг нэм"
 
@@ -1007,7 +1007,7 @@ msgstr ""
 "Алдааг засварлахгүй бол дараагийн нь<br>\n"
 "алдааны тайланд хуулаарай:<br><br>\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873
+#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Анки"
@@ -1538,6 +1538,10 @@ msgstr "Одоогийн картыг устгах"
 msgid "Determining differences..."
 msgstr "Ялгааг тодорхойлж байна..."
 
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Диалог"
+
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "&Унтраах"
@@ -1562,11 +1566,11 @@ msgstr "Баримтжуулалт"
 msgid "Don't ask me to type in the answer"
 msgstr "Хариултыг бичихийг надаас асуухгүй"
 
-#: ui/view.py:302
+#: ui/view.py:303
 msgid "Download Personal Deck"
 msgstr "Өөрийнхөө Цуглуулгыг Тат"
 
-#: ui/getshared.py:36 ui/view.py:301
+#: ui/getshared.py:36 ui/view.py:302
 msgid "Download Shared Deck"
 msgstr "Нийтийн Цуглуулгыг тат"
 
@@ -2114,7 +2118,7 @@ msgstr "Юуг ч сонгоогүй."
 msgid "Open &Recent"
 msgstr "&Сүүлд хаасан нь нээ"
 
-#: ui/view.py:300
+#: ui/view.py:301
 msgid "Open Local Deck"
 msgstr "Цуглуулга дотоод нээ"
 
@@ -2183,6 +2187,10 @@ msgstr "Эхлээд шинэ талбарыг нэмнэ уу?"
 #: ui/deckproperties.py:147
 msgid "Please add another model first."
 msgstr "Дахин зүйл нэмнэ уу?"
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Талбараас эрэмбэлэхээр нь сонго."
 
 #: ui/sync.py:54
 msgid "Please double-check your username/password."
@@ -2604,7 +2612,7 @@ msgstr "Испани хэл"
 msgid "Start &Reviewing"
 msgstr "Давтахыг &эхлэх"
 
-#: ui/view.py:299
+#: ui/view.py:300
 msgid "Start adding your own material."
 msgstr "Материалаа эхлэн нэм."
 
@@ -2781,12 +2789,12 @@ msgid_plural "There are <b>%d</b> new cards in total."
 msgstr[0] "Нийтийн <b>%d</b> шинэ карт байна."
 msgstr[1] "Нийтийн <b>%d</b> шинэ картууд байна."
 
-#: ui/view.py:222
+#: ui/view.py:223
 #, python-format
 msgid "This card was due in %s."
 msgstr "Энэ карт %s-д дахин давтсан."
 
-#: ui/view.py:249
+#: ui/view.py:250
 msgid "This card will appear again later."
 msgstr "Ийм карт дараа болж байна."
 
@@ -3056,11 +3064,11 @@ msgstr "Дараагийн удаа маш хүлээх (богино холбо
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr "Дараагийн удаа хүлээх (богино холбоос: 3)"
 
-#: ui/view.py:297
+#: ui/view.py:298
 msgid "Welcome to Anki!"
 msgstr "Анки тавтай морилно уу!"
 
-#: ui/view.py:245
+#: ui/view.py:246
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "Сайн байна! Ийм картыг <b>%(next)s</b>-н дараа үзүүлнэ."
@@ -3206,9 +3214,6 @@ msgstr "toplabel"
 #~ "Хаа товчны дээр дар эсвэл дахин файлыг импорт хий.\n"
 #~ "\n"
 
-#~ msgid "Dialog"
-#~ msgstr "Диалог"
-
 #~ msgid "Import failed: %s\n"
 #~ msgstr "Импортыг дампуурсан: %s\n"
 
@@ -3217,9 +3222,6 @@ msgstr "toplabel"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Эхлээд шинэ картыг нэмнэ уу?"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Талбараас эрэмбэлэхээр нь сонго."
 
 #~ msgid ""
 #~ "Syncing failed. Please try again in a few minutes.\n"

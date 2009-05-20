@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-17 19:06+0200\n"
+"POT-Creation-Date: 2009-05-21 01:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -842,7 +842,7 @@ msgstr ""
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr ""
 
-#: ui/view.py:298
+#: ui/view.py:299
 msgid "Add material"
 msgstr ""
 
@@ -926,7 +926,7 @@ msgid ""
 "into a bug report:<br><br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873
+#: ui/deckproperties.py:186 ui/main.py:2375 forms/main.py:873 forms/sort.py:45
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
@@ -1444,6 +1444,10 @@ msgstr ""
 msgid "Determining differences..."
 msgstr ""
 
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
+
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr ""
@@ -1468,11 +1472,11 @@ msgstr ""
 msgid "Don't ask me to type in the answer"
 msgstr ""
 
-#: ui/view.py:302
+#: ui/view.py:303
 msgid "Download Personal Deck"
 msgstr ""
 
-#: ui/getshared.py:36 ui/view.py:301
+#: ui/getshared.py:36 ui/view.py:302
 msgid "Download Shared Deck"
 msgstr ""
 
@@ -2010,7 +2014,7 @@ msgstr ""
 msgid "Open &Recent"
 msgstr ""
 
-#: ui/view.py:300
+#: ui/view.py:301
 msgid "Open Local Deck"
 msgstr ""
 
@@ -2076,6 +2080,10 @@ msgstr ""
 
 #: ui/deckproperties.py:147
 msgid "Please add another model first."
+msgstr ""
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
 msgstr ""
 
 #: ui/sync.py:54
@@ -2484,7 +2492,7 @@ msgstr ""
 msgid "Start &Reviewing"
 msgstr ""
 
-#: ui/view.py:299
+#: ui/view.py:300
 msgid "Start adding your own material."
 msgstr ""
 
@@ -2658,12 +2666,12 @@ msgid_plural "There are <b>%d</b> new cards in total."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/view.py:222
+#: ui/view.py:223
 #, python-format
 msgid "This card was due in %s."
 msgstr ""
 
-#: ui/view.py:249
+#: ui/view.py:250
 msgid "This card will appear again later."
 msgstr ""
 
@@ -2883,11 +2891,11 @@ msgstr ""
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr ""
 
-#: ui/view.py:297
+#: ui/view.py:298
 msgid "Welcome to Anki!"
 msgstr ""
 
-#: ui/view.py:245
+#: ui/view.py:246
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr ""
