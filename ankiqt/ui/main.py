@@ -59,6 +59,7 @@ class AnkiQt(QMainWindow):
         self.setupAnchors()
         self.setupToolbar()
         self.setupProgressInfo()
+        self.setupBackups()
         if self.config['mainWindowState']:
             self.restoreGeometry(self.config['mainWindowGeom'])
             self.restoreState(self.config['mainWindowState'])
@@ -2443,5 +2444,10 @@ Consider backing up your media directory first."""))
     ##########################################################################
 
     def setupMisc(self):
+        # if they've just upgraded, set created time based on deck age
         if time.time() - self.config['created'] < 60 and self.deck:
             self.config['created'] = self.deck.created
+
+    def setupBackups(self):
+        # set backups
+        anki.deck.numBackups = self.config['numBackups']
