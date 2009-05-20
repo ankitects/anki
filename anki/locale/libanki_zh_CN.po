@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-15 20:13+0200\n"
+"POT-Creation-Date: 2009-05-17 19:06+0200\n"
 "PO-Revision-Date: 2009-03-09 20:01-0000\n"
 "Last-Translator: Nick Cook <nick@n-line.co.uk>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "%s前"
 
-#: deck.py:1231
+#: deck.py:1232
 #, fuzzy, python-format
 msgid "%s copy"
 msgstr "%s秒"
@@ -111,7 +111,7 @@ msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b>/day)"
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b>/day)"
 
-#: deck.py:742
+#: deck.py:743
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -148,7 +148,7 @@ msgstr ""
 msgid "<li>%d total unique kanji.</li>"
 msgstr "<li>一共有％个独特的汉字。</li>"
 
-#: deck.py:683
+#: deck.py:684
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -195,15 +195,11 @@ msgstr ""
 msgid "Added last week"
 msgstr ""
 
-#: deck.py:2187
-msgid "Adding views and indices..."
-msgstr ""
-
 #: importing/__init__.py:263
 msgid "Anki Deck (*.anki)"
 msgstr ""
 
-#: exporting.py:237
+#: exporting.py:239
 msgid "Anki deck (*.anki)"
 msgstr ""
 
@@ -211,7 +207,7 @@ msgstr ""
 msgid "Anki decks (*.anki)"
 msgstr ""
 
-#: deck.py:330
+#: deck.py:331
 msgid "Answer Card"
 msgstr ""
 
@@ -247,7 +243,7 @@ msgstr "卡片模板"
 msgid "Card counts"
 msgstr ""
 
-#: exporting.py:238
+#: exporting.py:240
 msgid "Cards in tab-separated text file (*.txt)"
 msgstr ""
 
@@ -259,11 +255,11 @@ msgstr "居中"
 msgid "Changed"
 msgstr "变更日期"
 
-#: deck.py:1294
+#: deck.py:1295
 msgid "Changing cards..."
 msgstr ""
 
-#: deck.py:1254
+#: deck.py:1255
 msgid "Changing fields..."
 msgstr ""
 
@@ -271,11 +267,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:2181
+#: deck.py:2188
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:2191
+#: deck.py:2198
 msgid "Checking schema..."
 msgstr ""
 
@@ -295,11 +291,11 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3196
+#: deck.py:3203
 msgid "Custom failed cards handling"
 msgstr "自定义忘记卡片处理"
 
-#: deck.py:2184
+#: deck.py:2191
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -314,7 +310,7 @@ msgstr ""
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:2194
+#: deck.py:2201
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -326,42 +322,42 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:2219
+#: deck.py:2226
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2231
+#: deck.py:2238
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2246
+#: deck.py:2253
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2208
+#: deck.py:2215
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2237
+#: deck.py:2244
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2251
+#: deck.py:2258
 msgid "Deleted: "
 msgstr ""
 
@@ -381,15 +377,15 @@ msgid ""
 "%s"
 msgstr ""
 
-#: exporting.py:67
+#: exporting.py:68
 msgid "Exporting..."
 msgstr ""
 
-#: exporting.py:239
+#: exporting.py:241
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr ""
 
-#: deck.py:2616
+#: deck.py:2623
 msgid "File is in use by another process"
 msgstr ""
 
@@ -492,7 +488,7 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: deck.py:698
+#: deck.py:699
 msgid "No cards are due."
 msgstr ""
 
@@ -500,23 +496,23 @@ msgstr ""
 msgid "Please add some cards first."
 msgstr ""
 
-#: deck.py:2433
+#: deck.py:2440
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:2269
+#: deck.py:2276
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:2289
+#: deck.py:2296
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:2263
+#: deck.py:2270
 msgid "Rebuilding tag cache..."
 msgstr ""
 
-#: deck.py:2287
+#: deck.py:2294
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -536,19 +532,19 @@ msgstr "下个月回答次数"
 msgid "Reps next week"
 msgstr "下周回答次数"
 
-#: deck.py:3183
+#: deck.py:3190
 msgid "Review cards from largest interval"
 msgstr "先复习早期卡片"
 
-#: deck.py:3184
+#: deck.py:3191
 msgid "Review cards from smallest interval"
 msgstr "先复习近期卡片"
 
-#: deck.py:3185
+#: deck.py:3192
 msgid "Review cards in order due"
 msgstr "按正常顺序复习"
 
-#: deck.py:3186
+#: deck.py:3193
 msgid "Review cards in random order"
 msgstr "按随机顺序进行复习"
 
@@ -564,51 +560,51 @@ msgstr "右对齐"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:3192
+#: deck.py:3199
 msgid "Show failed cards at end"
 msgstr "最后显示忘记的卡片"
 
-#: deck.py:3193
+#: deck.py:3200
 msgid "Show failed cards in 10 minutes"
 msgstr "10分钟后显示忘记的卡片"
 
-#: deck.py:3195
+#: deck.py:3202
 msgid "Show failed cards in 3 days"
 msgstr "3天后显示忘记的卡片"
 
-#: deck.py:3194
+#: deck.py:3201
 msgid "Show failed cards in 8 hours"
 msgstr "8小时后显示忘记的卡片"
 
-#: deck.py:3191
+#: deck.py:3198
 msgid "Show failed cards soon"
 msgstr "立即显示忘记的卡片"
 
-#: deck.py:3177
+#: deck.py:3184
 msgid "Show new cards after all other cards"
 msgstr "先复习，再学习新卡片"
 
-#: deck.py:3178
+#: deck.py:3185
 msgid "Show new cards before reviews"
 msgstr "先学习新卡片，再复习"
 
-#: deck.py:3170
+#: deck.py:3177
 msgid "Show new cards in order added"
 msgstr "按创建顺序学习新卡片"
 
-#: deck.py:3169
+#: deck.py:3176
 msgid "Show new cards in random order"
 msgstr "按随机顺序学习新卡片"
 
-#: deck.py:3171
+#: deck.py:3178
 msgid "Show new cards in reverse order added"
 msgstr "按与创建相反的顺序学习新卡片"
 
-#: deck.py:3176
+#: deck.py:3183
 msgid "Spread new cards out through reviews"
 msgstr "将学习与复习穿插进行"
 
-#: exporting.py:166 exporting.py:198
+#: exporting.py:168 exporting.py:200
 msgid "Text files (*.txt)"
 msgstr "文本文件 (*.txt)"
 
@@ -616,7 +612,7 @@ msgstr "文本文件 (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "用制表符或分号分割的文本文件 (*)"
 
-#: deck.py:2200
+#: deck.py:2207
 msgid "The current model didn't exist"
 msgstr ""
 
@@ -628,33 +624,33 @@ msgstr ""
 msgid "The file was not in UTF8 format."
 msgstr ""
 
-#: deck.py:695
+#: deck.py:696
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr ""
 
-#: deck.py:730
+#: deck.py:731
 #, fuzzy, python-format
 msgid "There is <b>%d delayed</b> new card."
 msgid_plural "There are <b>%d delayed</b> new cards."
 msgstr[0] "目前有<b>%d 张</b>卡片被延迟。"
 msgstr[1] "目前有<b>%d 张</b>卡片被延迟。"
 
-#: deck.py:737
+#: deck.py:738
 #, fuzzy, python-format
 msgid "There is <b>%d suspended</b> card."
 msgid_plural "There are <b>%d suspended</b> cards."
 msgstr[0] "有<b>%d</b>张被挂起的卡片。"
 msgstr[1] "有<b>%d</b>张被挂起的卡片。"
 
-#: deck.py:688
+#: deck.py:689
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] "你的学习任务是 <b>%d 张</b> 新卡片。"
 msgstr[1] "你的学习任务是 <b>%d 张</b> 新卡片。"
 
-#: deck.py:691
+#: deck.py:692
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -673,7 +669,7 @@ msgstr ""
 msgid "Total number of facts:"
 msgstr ""
 
-#: deck.py:926
+#: deck.py:927
 msgid "Unknown"
 msgstr ""
 
@@ -685,11 +681,11 @@ msgstr ""
 msgid "Update tags..."
 msgstr ""
 
-#: deck.py:2266
+#: deck.py:2273
 msgid "Updating priorities..."
 msgstr ""
 
-#: deck.py:2775
+#: deck.py:2782
 msgid "Upgrading Deck..."
 msgstr ""
 
@@ -731,7 +727,7 @@ msgstr "%s后"
 msgid "off"
 msgstr ""
 
-#: deck.py:715
+#: deck.py:716
 msgid "unknown"
 msgstr ""
 
