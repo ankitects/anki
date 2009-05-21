@@ -89,8 +89,8 @@ def run():
             os.makedirs(os.path.expanduser("~/.anki"))
         except:
             pass
-        if os.path.exists(oldConf) and not os.path.exists(oldConf.replace(
-            "config.db", "config.db.old")):
+        if (oldConf and os.path.exists(oldConf) and not os.path.exists(
+            oldConf.replace("config.db", "config.db.old"))):
             try:
                 shutil.copy2(oldConf,
                              os.path.expanduser("~/.anki/config.db"))
