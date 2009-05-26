@@ -15,6 +15,8 @@ import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom, getBase
 from anki.hooks import addHook, removeHook, runHook
 from sqlalchemy.exceptions import InvalidRequestError
+from PyQt4 import pyqtconfig
+QtConfig = pyqtconfig.Configuration()
 
 clozeColour = "#0000ff"
 
@@ -683,6 +685,13 @@ class FactEditor(object):
             runHook("colourChanged")
             self.setForeground(w)
 
+    def _needExtraWord(self):
+        ver = QtConfig.qt_version >> 8
+        if ver == 0x404:
+            # qt4.4 behaviour is wrong
+            return False
+        return True
+
     def insertLatex(self):
         w = self.focusedEdit()
         if w:
@@ -690,7 +699,7 @@ class FactEditor(object):
             self.deck.mediaDir(create=True)
             w.insertHtml("[latex]%s[/latex]" % selected)
             w.moveCursor(QTextCursor.PreviousWord)
-            if sys.platform.startswith("win32"):
+            if self._needExtraWord():
                 w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
@@ -702,7 +711,7 @@ class FactEditor(object):
             self.deck.mediaDir(create=True)
             w.insertHtml("[$]%s[/$]" % selected)
             w.moveCursor(QTextCursor.PreviousWord)
-            if sys.platform.startswith("win32"):
+            if self._needExtraWord():
                 w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
@@ -714,7 +723,7 @@ class FactEditor(object):
             self.deck.mediaDir(create=True)
             w.insertHtml("[$$]%s[/$$]" % selected)
             w.moveCursor(QTextCursor.PreviousWord)
-            if sys.platform.startswith("win32"):
+            if self._needExtraWord():
                 w.moveCursor(QTextCursor.PreviousWord)
             w.moveCursor(QTextCursor.PreviousCharacter)
             w.moveCursor(QTextCursor.PreviousCharacter)
