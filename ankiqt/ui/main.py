@@ -2311,7 +2311,7 @@ Couldn't contact Anki Online. Please check your internet connection.""")
             return
         self.setBusy()
         self.inDbHandler = True
-        self.app.processEvents()
+        self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
         self.inDbHandler = False
 
     def onDbFinished(self):
