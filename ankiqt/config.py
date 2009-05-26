@@ -90,7 +90,7 @@ class Config(dict):
             'showProgress': True,
             'recentColours': ["#000000", "#0000ff"],
             'preventEditUntilAnswer': False,
-            'numBackups': 20,
+            'numBackups': 30,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
