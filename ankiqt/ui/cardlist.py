@@ -748,6 +748,7 @@ where id in (%s)""" % ",".join([
         cards = self.selectedCards()
         n = _("Delete Cards")
         new = self.findCardInDeckModel() + 1
+        self.dialog.tableView.setFocus()
         self.deck.setUndoStart(n)
         self.deck.deleteCards(cards)
         self.deck.setUndoEnd(n)
