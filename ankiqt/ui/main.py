@@ -791,7 +791,9 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             l = QLabel(_(
                 '<h1>Online Account</h1>'
                 'To use your free <a href="http://anki.ichi2.net/">online account</a>,<br>'
-                "please enter your details below.<br>"))
+                "please enter your details below.<br><br>"
+                "You can change your details later with<br>"
+                "Settings->Preferences->Sync<br>"))
             l.setOpenExternalLinks(True)
             vbox.addWidget(l)
             g = QGridLayout()
