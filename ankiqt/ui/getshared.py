@@ -65,7 +65,8 @@ class GetShared(QDialog):
         self.parent.setProgressParent(None)
         self.form.search.setFocus()
         if err:
-            showInfo(_("Unable to connect to server."), parent=self)
+            showInfo(_("Unable to connect to server.") + "\n" +
+                     self.http.errorString(), parent=self)
             self.close()
             return
         data = self.http.readAll()
@@ -172,7 +173,8 @@ class GetShared(QDialog):
             self.parent.finishProgress()
             self.parent.setProgressParent(None)
             if err:
-                showInfo(_("Unable to connect to server."), parent=self)
+                showInfo(_("Unable to connect to server.") + "\n" +
+                         self.http.errorString(), parent=self)
                 self.close()
                 return
             data = self.http.readAll()
