@@ -169,18 +169,31 @@ An error occurred. Please:<p>
 <li><b>Tools > Advanced > Check DB</b>.
 </ol>
 If it does not fix the problem, please copy the following<br>
-into a bug report:<br><br>
+into a bug report:<br>
 """)
             pluginText = _("""\
 An error occurred in a plugin. Please contact the plugin author.<br>
-Please do not file a bug report with Anki.<br><br>""")
+Please do not file a bug report with Anki.<br>""")
             if "plugin" in error:
                 txt = pluginText
             else:
                 txt = stdText
             self.errorOccurred = True
-            ui.utils.showText(txt + error[0:10000].replace(
-                        "\n", "<br>"))
+            # show dialog
+            diag = QDialog(self.app.activeWindow())
+            diag.setWindowTitle("Anki")
+            layout = QVBoxLayout(diag)
+            diag.setLayout(layout)
+            text = QTextEdit()
+            text.setReadOnly(True)
+            text.setHtml(txt + "<div style='white-space: pre-wrap'>" + error + "</div>")
+            layout.addWidget(text)
+            box = QDialogButtonBox(QDialogButtonBox.Close)
+            layout.addWidget(box)
+            self.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
+            diag.setMinimumHeight(400)
+            diag.setMinimumWidth(500)
+            diag.exec_()
 
     def closeAllDeckWindows(self):
         ui.dialogs.closeAll()
