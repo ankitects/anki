@@ -100,7 +100,7 @@ decksTable = Table(
     Column('sessionRepLimit', Integer, nullable=False, default=0),
     Column('sessionTimeLimit', Integer, nullable=False, default=600),
     # stats offset
-    Column('utcOffset', Float, nullable=False, default=0),
+    Column('utcOffset', Float, nullable=False, default=-1),
     # count cache
     Column('cardCount', Integer, nullable=False, default=0),
     Column('factCount', Integer, nullable=False, default=0),
