@@ -7,10 +7,11 @@ import os, types, socket, time, traceback
 import ankiqt
 import anki
 from anki.sync import SyncClient, HttpSyncServerProxy, BulkMediaSyncerProxy
-from anki.sync import BulkMediaSyncer
+from anki.sync import BulkMediaSyncer, SYNC_HOST, SYNC_PORT
 from anki.errors import *
 from anki import DeckStorage
 import ankiqt.forms
+from anki.hooks import addHook, removeHook
 
 # Synchronising a deck with a public server
 ##########################################################################
@@ -28,12 +29,27 @@ class Sync(QThread):
         self.ok = True
         self.onlyMerge = onlyMerge
         self.sourcesToCheck = sourcesToCheck
+        addHook('fullSyncStarted', self.fullSyncStarted)
+        addHook('fullSyncFinished', self.fullSyncFinished)
+        addHook('fullSyncProgress', self.fullSyncProgress)
 
     def setStatus(self, msg, timeout=5000):
         self.emit(SIGNAL("setStatus"), msg, timeout)
 
     def run(self):
         self.syncDeck()
+        removeHook('fullSyncStarted', self.fullSyncStarted)
+        removeHook('fullSyncFinished', self.fullSyncFinished)
+        removeHook('fullSyncProgress', self.fullSyncProgress)
+
+    def fullSyncStarted(self, ret):
+        self.emit(SIGNAL("fullSyncStarted"), ret)
+
+    def fullSyncFinished(self):
+        self.emit(SIGNAL("fullSyncFinished"))
+
+    def fullSyncProgress(self, val):
+        self.emit(SIGNAL("fullSyncProgress"), val)
 
     def error(self, error):
         if getattr(error, 'data', None) is None:
@@ -101,24 +117,29 @@ class Sync(QThread):
                 # summary
                 self.setStatus(_("Fetching summary from server..."), 0)
                 sums = client.summaries()
-                # diff
-                self.setStatus(_("Determining differences..."), 0)
-                payload = client.genPayload(sums)
-                # send payload
-                pr = client.payloadChangeReport(payload)
-                self.setStatus("<br>" + pr + "<br>", 0)
-                self.setStatus(_("Transferring payload..."), 0)
-                res = client.server.applyPayload(payload)
-                # apply reply
-                self.setStatus(_("Applying reply..."), 0)
-                client.applyPayloadReply(res)
-                if client.mediaSyncPending:
-                    self.doBulkDownload(proxy.deckName)
-                # finished. save deck, preserving mod time
-                self.setStatus(_("Sync complete."))
-                self.deck.lastLoaded = self.deck.modified
-                self.deck.s.flush()
-                self.deck.s.commit()
+                if client.needFullSync(sums):
+                    self.setStatus(_("Preparing full sync..."), 0)
+                    client.fullSync()
+                    self.setStatus(_("Sync complete."), 0)
+                else:
+                    # diff
+                    self.setStatus(_("Determining differences..."), 0)
+                    payload = client.genPayload(sums)
+                    # send payload
+                    pr = client.payloadChangeReport(payload)
+                    self.setStatus("<br>" + pr + "<br>", 0)
+                    self.setStatus(_("Transferring payload..."), 0)
+                    res = client.server.applyPayload(payload)
+                    # apply reply
+                    self.setStatus(_("Applying reply..."), 0)
+                    client.applyPayloadReply(res)
+                    if client.mediaSyncPending:
+                        self.doBulkDownload(proxy.deckName)
+                    # finished. save deck, preserving mod time
+                    self.setStatus(_("Sync complete."))
+                    self.deck.lastLoaded = self.deck.modified
+                    self.deck.s.flush()
+                    self.deck.s.commit()
             else:
                 changes = False
                 self.setStatus(_("No changes found."))

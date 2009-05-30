@@ -1787,6 +1787,9 @@ it to your friends.
         self.connect(self.syncThread, SIGNAL("closeSyncProgress"), self.closeSyncProgress)
         self.connect(self.syncThread, SIGNAL("updateSyncProgress"), self.updateSyncProgress)
         self.connect(self.syncThread, SIGNAL("bulkSyncFailed"), self.bulkSyncFailed)
+        self.connect(self.syncThread, SIGNAL("fullSyncStarted"), self.fullSyncStarted)
+        self.connect(self.syncThread, SIGNAL("fullSyncFinished"), self.fullSyncFinished)
+        self.connect(self.syncThread, SIGNAL("fullSyncProgress"), self.fullSyncProgress)
         self.syncThread.start()
         self.switchToWelcomeScreen()
         self.setEnabled(False)
@@ -1886,6 +1889,20 @@ Couldn't contact Anki Online. Please check your internet connection.""")
     def bulkSyncFailed(self):
         ui.utils.showWarning(_(
             "Failed to upload media. Please run 'check media db'."), self)
+
+    def fullSyncStarted(self, ret):
+        self.startProgress(max=ret[2])
+        if ret[0] == "fromLocal":
+            s = _("Uploading to server...")
+        else:
+            s = _("Downloading from server...")
+        self.updateProgress(label=s)
+
+    def fullSyncFinished(self):
+        self.finishProgress()
+
+    def fullSyncProgress(self, val):
+        self.updateProgress(value=val)
 
     # Menu, title bar & status
     ##########################################################################
