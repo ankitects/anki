@@ -275,6 +275,8 @@ Please do not file a bug report with Anki.<br>""")
             # hide all deck-associated dialogs
             self.closeAllDeckWindows()
         elif state == "getQuestion":
+            # stop anything playing
+            clearAudioQueue()
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
@@ -414,8 +416,6 @@ Please do not file a bug report with Anki.<br>""")
             stats = self.deck.getStats()
             if stats['gTotal'] % num == 0:
                 self.save()
-        # stop anything playing
-        clearAudioQueue()
         self.moveToState("getQuestion")
 
     def startRefreshTimer(self):
