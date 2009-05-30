@@ -521,8 +521,7 @@ new:
                 lambda i=i: self.cardAnswered(i))
         # type answer
         outer = QHBoxLayout()
-        self.typeAnswerSpacer1 = QSpacerItem(5, 5)
-        outer.addSpacerItem(self.typeAnswerSpacer1)
+        outer.addStretch(0)
         class QLineEditNoUndo(QLineEdit):
             def __init__(self, parent):
                 self.parent = parent
@@ -542,9 +541,20 @@ new:
             self.typeAnswerField.setFixedHeight(40)
         f.setPixelSize(self.config['typeAnswerFontSize'])
         self.typeAnswerField.setFont(f)
-        outer.addWidget(self.typeAnswerField)
-        self.typeAnswerSpacer2 = QSpacerItem(5, 5)
-        outer.addSpacerItem(self.typeAnswerSpacer2)
+        vbox = QVBoxLayout()
+        vbox.setSpacing(0)
+        vbox.setContentsMargins(0,0,0,0)
+        vbox.addWidget(self.typeAnswerField)
+        self.typeAnswerShowButton = QPushButton(_("Show Answer"))
+        hbox = QHBoxLayout()
+        hbox.addStretch(0)
+        hbox.addWidget(self.typeAnswerShowButton)
+        hbox.addStretch(0)
+        vbox.addLayout(hbox)
+        self.connect(self.typeAnswerShowButton, SIGNAL("clicked()"),
+                     lambda: self.moveToState("showAnswer"))
+        outer.addLayout(vbox)
+        outer.addStretch(0)
         self.mainWin.typeAnswerPage.setLayout(outer)
 
     def hideButtons(self):
@@ -554,12 +564,7 @@ new:
         if self.currentCard.cardModel.typeAnswer:
             self.mainWin.buttonStack.setCurrentIndex(2)
             self.typeAnswerField.setFocus()
-            if not unicode(self.typeAnswerField.text()):
-                self.typeAnswerField.setText(_(
-                    "Type in the answer and hit enter"))
-                self.typeAnswerField.selectAll()
-            else:
-                self.typeAnswerField.setText("")
+            self.typeAnswerField.setText("")
         else:
             self.mainWin.buttonStack.setCurrentIndex(0)
             self.mainWin.showAnswerButton.setFocus()
