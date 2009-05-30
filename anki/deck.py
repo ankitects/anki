@@ -49,6 +49,7 @@ REV_CARDS_RANDOM = 3
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
+SEARCH_FID = 3
 DECK_VERSION = 35
 
 deckVarsTable = Table(
@@ -1773,6 +1774,9 @@ where id = :id""", pending)
             elif token.startswith("is:"):
                 token = token[3:]
                 type = SEARCH_TYPE
+            elif token.startswith("fid:") and len(token) > 4:
+                token = token[4:]
+                type = SEARCH_FID
             else:
                 type = SEARCH_PHRASE
             res.append((token, isNeg, type))
@@ -1783,6 +1787,7 @@ where id = :id""", pending)
         tquery = ""
         fquery = ""
         qquery = ""
+        fidquery = ""
         args = {}
         for c, (token, isNeg, type) in enumerate(self._parseQuery(query)):
             if type == SEARCH_TAG:
@@ -1828,6 +1833,15 @@ cardTags.tagId in %s""" % ids2str(ids)
                 else: # due
                     qquery += ("select id from cards where "
                                "type in (0,1) and isDue = 1")
+            elif type == SEARCH_FID:
+                if fidquery:
+                    if isNeg:
+                        fidquery += " except "
+                    else:
+                        fidquery += " intersect "
+                elif isNeg:
+                    fidquery += "select id from cards except "
+                fidquery += "select id from cards where factId = %s" % token
             else:
                 # a field
                 if fquery:
@@ -1841,10 +1855,10 @@ cardTags.tagId in %s""" % ids2str(ids)
                 args["_ff_%d" % c] = "%"+token+"%"
                 q = "select factId from fields where value like :_ff_%d" % c
                 fquery += q
-        return (tquery, fquery, qquery, args)
+        return (tquery, fquery, qquery, fidquery, args)
 
     def findCardsWhere(self, query):
-        (tquery, fquery, qquery, args) = self._findCards(query)
+        (tquery, fquery, qquery, fidquery, args) = self._findCards(query)
         q = ""
         x = []
         if tquery:
@@ -1853,6 +1867,8 @@ cardTags.tagId in %s""" % ids2str(ids)
             x.append(" factId in (%s)" % fquery)
         if qquery:
             x.append(" id in (%s)" % qquery)
+        if fidquery:
+            x.append(" id in (%s)" % fidquery)
         if x:
             q += " and ".join(x)
         return q, args
