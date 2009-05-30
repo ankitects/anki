@@ -88,6 +88,7 @@ class Sync(QThread):
             self.emit(SIGNAL("syncClockOff"), timediff)
             return
         # reconnect
+        self.deck = None
         try:
             self.deck = DeckStorage.Deck(self.parent.deckPath, backup=False)
             client = SyncClient(self.deck)
@@ -158,7 +159,8 @@ class Sync(QThread):
         except Exception, e:
             self.ok = False
             #traceback.print_exc()
-            self.deck.close()
+            if self.deck:
+                self.deck.close()
             # cheap hack to ensure message is displayed
             err = `getattr(e, 'data', None) or e`
             self.setStatus(_("Syncing failed: %(a)s") % {
