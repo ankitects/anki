@@ -1424,6 +1424,8 @@ learnt today")
                 "Marked", self.currentCard.fact.tags))
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
+        for card in self.currentCard.fact.cards:
+            self.deck.updatePriority(card)
         self.deck.setModified()
 
     def onSuspend(self):
