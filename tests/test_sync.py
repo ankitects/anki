@@ -307,3 +307,16 @@ def test_remotesync_toserver():
     deck1.setModified()
     client.sync()
     assert deck2.modified == deck1.modified
+
+# Full sync
+##########################################################################
+
+@nose.with_setup(setup_remote, teardown)
+def test_formdata():
+    global deck1
+    (fd, name) = tempfile.mkstemp()
+    deck1 = deck1.saveAs(name)
+    deck1.setModified()
+    client.deck = deck1
+    client.prepareSync()
+    print client.prepareFullSync()

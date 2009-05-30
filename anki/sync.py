@@ -21,7 +21,7 @@ createDeck(name): create a deck on the server
 __docformat__ = 'restructuredtext'
 
 import zlib, re, urllib, urllib2, socket, simplejson, time
-import os, base64, httplib, sys
+import os, base64, httplib, sys, tempfile, httplib
 from datetime import date
 import anki, anki.deck, anki.cards
 from anki.errors import *
@@ -34,9 +34,18 @@ from anki.stats import globalStats
 from anki.media import checksum
 from anki.utils import ids2str, hexifyID
 from anki.lang import _
+from hooks import runHook
 
 if simplejson.__version__ < "1.7.3":
     raise "SimpleJSON must be 1.7.3 or later."
+
+MIME_BOUNDARY = "Anki-sync-boundary"
+# live
+SYNC_URL = "http://anki.ichi2.net/sync/"
+SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
+# testing
+SYNC_URL = "http://localhost:8001/sync/"
+SYNC_HOST = "localhost"; SYNC_PORT = 8001
 
 ##########################################################################
 
@@ -894,6 +903,87 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             return standardKeys + ("media",)
         return standardKeys
 
+    # Full sync
+    ##########################################################################
+
+    def needFullSync(self, sums):
+        if self.deck.lastSync <= 0:
+            return True
+        for sum in sums:
+            for l in sum.values():
+                if len(l) > 500:
+                    return True
+        return True
+        return False
+
+    def prepareFullSync(self):
+        t = time.time()
+        self.deck.lastSync = t
+        self.deck.s.commit()
+        self.deck.close()
+        if True: # self.localTime > self.remoteTime:
+            return ("fromLocal",) + self._encode_formdata({
+                "p": self.server.password,
+                "u": self.server.username,
+                "d": self.server.deckName.encode("utf-8")
+                }, open(self.deck.path, "rb"))
+
+    def fullSync(self):
+        ret = self.prepareFullSync()
+        if ret[0] == "fromLocal":
+            try:
+                runHook("fullSyncStarted", ret)
+                h = httplib.HTTP(SYNC_HOST, SYNC_PORT)
+                h.putrequest('POST', "/sync/fullup")
+                h.putheader('Content-type', ret[1])
+                h.putheader('Content-length', str(ret[2]))
+                h.endheaders()
+                f = open(ret[3], "rb")
+                h._conn.sock.makefile("wb", 32768)
+                cnt = 0
+                t = time.time()
+                while 1:
+                    data = f.read(32768)
+                    if not data:
+                        break
+                    h._conn.sock.send(data)
+                    cnt += 32768
+                    if time.time() - t > 0.1:
+                        runHook("fullSyncProgress", min(cnt, ret[2] - 1))
+                        t = time.time()
+                runHook("fullSyncProgress", ret[2] - 1)
+                errcode, errmsg, headers = h.getreply()
+                assert errcode == 200
+            finally:
+                runHook("fullSyncFinished")
+
+    def _encode_formdata(self, fields, src):
+        (fd, name) = tempfile.mkstemp(prefix='anki')
+        file = os.fdopen(fd, "w")
+        for (key, value) in fields.items():
+            file.write('--' + MIME_BOUNDARY + "\r\n")
+            file.write('Content-Disposition: form-data; name="%s"\r\n' % key)
+            file.write('\r\n')
+            file.write(value)
+            file.write('\r\n')
+        file.write('--' + MIME_BOUNDARY + "\r\n")
+        file.write(
+            'Content-Disposition: form-data; name="deck"; filename="deck"\r\n')
+        file.write('Content-Type: application/octet-stream\r\n')
+        file.write('\r\n')
+        comp = zlib.compressobj()
+        while 1:
+            data = src.read(32768)
+            if not data:
+                file.write(comp.flush())
+                break
+            file.write(comp.compress(data))
+        file.write('\r\n--' + MIME_BOUNDARY + '--\r\n\r\n')
+        size = file.tell()
+        file.close()
+        type = 'multipart/form-data; boundary=%s' % MIME_BOUNDARY
+        return type, size, name
+
 # Local syncing
 ##########################################################################
 
@@ -924,8 +1014,6 @@ class HttpSyncServerProxy(SyncServer):
         self.deckName = None
         self.username = user
         self.password = passwd
-        self.syncURL="http://anki.ichi2.net/sync/"
-        #self.syncURL="http://localhost:8001/sync/"
         self.protocolVersion = 4
         self.sourcesToCheck = []
 
@@ -990,7 +1078,7 @@ class HttpSyncServerProxy(SyncServer):
         data.update(args)
         data = urllib.urlencode(data)
         try:
-            f = urllib2.urlopen(self.syncURL + action, data)
+            f = urllib2.urlopen(SYNC_URL + action, data)
         except (urllib2.URLError, socket.error, socket.timeout,
                 httplib.BadStatusLine):
             raise SyncError(type="noResponse")
@@ -1131,7 +1219,7 @@ class BulkMediaSyncerProxy(HttpSyncServerProxy):
         data.update(args)
         data = urllib.urlencode(data)
         try:
-            f = urllib2.urlopen(self.syncURL + action, data)
+            f = urllib2.urlopen(SYNC_URL + action, data)
         except (urllib2.URLError, socket.error, socket.timeout,
                 httplib.BadStatusLine):
             raise SyncError(type="noResponse")
