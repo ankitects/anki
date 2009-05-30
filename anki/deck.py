@@ -2591,6 +2591,8 @@ class DeckStorage(object):
                         except:
                             pass
                 deck = s.query(Deck).get(1)
+                if not deck:
+                    raise DeckAccessError(_("Deck missing core table"))
             # attach db vars
             deck.path = path
             deck.engine = engine
