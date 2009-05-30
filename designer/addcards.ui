@@ -71,7 +71,7 @@
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QTextEdit" name="status" >
+     <widget class="QTextBrowser" name="status" >
       <property name="enabled" >
        <bool>true</bool>
       </property>
@@ -142,6 +142,12 @@
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:8pt; font-weight:400; font-style:normal;">
 &lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Arial';">&lt;/p>&lt;/body>&lt;/html></string>
+      </property>
+      <property name="textInteractionFlags" >
+       <set>Qt::TextBrowserInteraction</set>
+      </property>
+      <property name="openLinks" >
+       <bool>false</bool>
       </property>
      </widget>
     </widget>

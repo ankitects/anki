@@ -88,6 +88,14 @@ class AddCards(QDialog):
             c = unicode(p.color(QPalette.Window).name())
             self.dialog.status.setStyleSheet(
                 "* { background: %s; color: #000000; }" % c)
+        self.connect(self.dialog.status, SIGNAL("anchorClicked(QUrl)"),
+                     self.onLink)
+
+    def onLink(self, url):
+        browser = ui.dialogs.get("CardList", self.parent)
+        browser.dialog.filterEdit.setText("fid:" + url.toString())
+        browser.updateSearch()
+        browser.onFact()
 
     def modelChanged(self, model):
         oldFact = self.editor.fact
@@ -129,8 +137,11 @@ class AddCards(QDialog):
 The input you have provided would make an empty
 question or answer on all cards."""), parent=self)
             return
-        self.dialog.status.append(_("Added %(num)d card(s) for '%(str)s'.") % {
+        self.dialog.status.append(
+            _("Added %(num)d card(s) for <a href=\"%(id)d\">"
+              "%(str)s</a>.") % {
             "num": len(fact.cards),
+            "id": fact.id,
             # we're guaranteed that all fields will exist now
             "str": stripHTML(fact[fact.fields[0].name]),
             })

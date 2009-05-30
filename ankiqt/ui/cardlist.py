@@ -1057,6 +1057,7 @@ where id in %s""" % ids2str(sf))
 
     def onFind(self):
         self.dialog.filterEdit.setFocus()
+        self.dialog.filterEdit.selectAll()
 
     def onFact(self):
         self.editor.focusFirst()
