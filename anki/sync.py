@@ -44,8 +44,8 @@ MIME_BOUNDARY = "Anki-sync-boundary"
 SYNC_URL = "http://anki.ichi2.net/sync/"
 SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
 # testing
-SYNC_URL = "http://localhost:8001/sync/"
-SYNC_HOST = "localhost"; SYNC_PORT = 8001
+#SYNC_URL = "http://localhost:8001/sync/"
+#SYNC_HOST = "localhost"; SYNC_PORT = 8001
 
 ##########################################################################
 
@@ -974,6 +974,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             h.putheader('Content-type', 'multipart/form-data; boundary=%s' %
                         MIME_BOUNDARY)
             h.putheader('Content-length', str(size))
+            h.putheader('Host', SYNC_HOST)
             h.endheaders()
             dst = h._conn.sock.makefile("wb", 65536)
             # dump file
