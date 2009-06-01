@@ -221,10 +221,8 @@ class ProgressWin(object):
         self.app = QApplication.instance()
         if max == 0:
             self.diag.setLabelText(_("Processing..."))
-        self.app.processEvents()
 
     def update(self, label=None, value=None):
-        self.app.processEvents()
         #print self.min, self.counter, self.max, label, time.time() - self.lastTime
         self.lastTime = time.time()
         if label:
