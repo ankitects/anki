@@ -621,7 +621,7 @@ new:
         try:
             self.deck = DeckStorage.Deck(deckPath)
         except Exception, e:
-            if hasattr(e, 'data') and e.data['type'] == 'inuse':
+            if hasattr(e, 'data') and e.data.get('type') == 'inuse':
                 if interactive:
                     ui.utils.showInfo(_("Deck is already open."))
             else:
