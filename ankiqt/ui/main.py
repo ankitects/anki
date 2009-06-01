@@ -1771,6 +1771,7 @@ it to your friends.
             self.loadAfterSync = reload
         # bug triggered by preferences dialog - underlying c++ widgets are not
         # garbage collected until the middle of the child thread
+        self.state = "nostate"
         import gc; gc.collect()
         self.mainWin.welcomeText.setText(u"")
         self.syncThread = ui.sync.Sync(self, u, p, interactive, create,
