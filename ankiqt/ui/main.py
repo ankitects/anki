@@ -1891,19 +1891,18 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         ui.utils.showWarning(_(
             "Failed to upload media. Please run 'check media db'."), self)
 
-    def fullSyncStarted(self, ret):
-        self.startProgress(max=ret[2])
-        if ret[0] == "fromLocal":
-            s = _("Uploading to server...")
-        else:
-            s = _("Downloading from server...")
-        self.updateProgress(label=s)
+    def fullSyncStarted(self, max):
+        self.startProgress(max=max)
 
     def fullSyncFinished(self):
         self.finishProgress()
 
-    def fullSyncProgress(self, val):
-        self.updateProgress(value=val)
+    def fullSyncProgress(self, type, val):
+        if type == "fromLocal":
+            s = _("Uploaded %dKB to server...")
+        else:
+            s = _("Downloaded %dKB from server...")
+        self.updateProgress(label=s % (val / 1024), value=val)
 
     # Menu, title bar & status
     ##########################################################################

@@ -42,14 +42,14 @@ class Sync(QThread):
         removeHook('fullSyncFinished', self.fullSyncFinished)
         removeHook('fullSyncProgress', self.fullSyncProgress)
 
-    def fullSyncStarted(self, ret):
-        self.emit(SIGNAL("fullSyncStarted"), ret)
+    def fullSyncStarted(self, max):
+        self.emit(SIGNAL("fullSyncStarted"), max)
 
     def fullSyncFinished(self):
         self.emit(SIGNAL("fullSyncFinished"))
 
-    def fullSyncProgress(self, val):
-        self.emit(SIGNAL("fullSyncProgress"), val)
+    def fullSyncProgress(self, type, val):
+        self.emit(SIGNAL("fullSyncProgress"), type, val)
 
     def error(self, error):
         if getattr(error, 'data', None) is None:
@@ -119,7 +119,13 @@ class Sync(QThread):
                 sums = client.summaries()
                 if client.needFullSync(sums):
                     self.setStatus(_("Preparing full sync..."), 0)
-                    client.fullSync()
+                    ret = client.prepareFullSync()
+                    if ret[0] == "fromLocal":
+                        self.setStatus(_("Uploading..."), 0)
+                        client.fullSyncFromLocal(ret[1], ret[2])
+                    else:
+                        self.setStatus(_("Downloading..."), 0)
+                        client.fullSyncFromServer(ret[1], ret[2])
                     self.setStatus(_("Sync complete."), 0)
                 else:
                     # diff
