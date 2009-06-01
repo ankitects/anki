@@ -911,9 +911,8 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             return True
         for sum in sums:
             for l in sum.values():
-                if len(l) > 500:
+                if len(l) > 1000:
                     return True
-        return True
         return False
 
     def prepareFullSync(self):
@@ -921,68 +920,99 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
         self.deck.lastSync = t
         self.deck.s.commit()
         self.deck.close()
-        if True: # self.localTime > self.remoteTime:
-            return ("fromLocal",) + self._encode_formdata({
-                "p": self.server.password,
-                "u": self.server.username,
-                "d": self.server.deckName.encode("utf-8")
-                }, open(self.deck.path, "rb"))
+        fields = {
+            "p": self.server.password,
+            "u": self.server.username,
+            "d": self.server.deckName.encode("utf-8"),
+            }
+        if self.localTime > self.remoteTime:
+            return ("fromLocal", fields, self.deck.path)
+        else:
+            return ("fromServer", fields, self.deck.path)
 
     def fullSync(self):
         ret = self.prepareFullSync()
         if ret[0] == "fromLocal":
-            try:
-                runHook("fullSyncStarted", ret)
-                h = httplib.HTTP(SYNC_HOST, SYNC_PORT)
-                h.putrequest('POST', "/sync/fullup")
-                h.putheader('Content-type', ret[1])
-                h.putheader('Content-length', str(ret[2]))
-                h.endheaders()
-                f = open(ret[3], "rb")
-                h._conn.sock.makefile("wb", 32768)
-                cnt = 0
-                t = time.time()
-                while 1:
-                    data = f.read(32768)
-                    if not data:
-                        break
-                    h._conn.sock.send(data)
-                    cnt += 32768
-                    if time.time() - t > 0.1:
-                        runHook("fullSyncProgress", min(cnt, ret[2] - 1))
-                        t = time.time()
-                runHook("fullSyncProgress", ret[2] - 1)
-                errcode, errmsg, headers = h.getreply()
-                assert errcode == 200
-            finally:
-                runHook("fullSyncFinished")
+            self.fullSyncFromLocal(ret[1], ret[2])
+        else:
+            self.fullSyncFromServer(ret[1], ret[2])
 
-    def _encode_formdata(self, fields, src):
-        (fd, name) = tempfile.mkstemp(prefix='anki')
-        file = os.fdopen(fd, "w")
-        for (key, value) in fields.items():
-            file.write('--' + MIME_BOUNDARY + "\r\n")
-            file.write('Content-Disposition: form-data; name="%s"\r\n' % key)
-            file.write('\r\n')
-            file.write(value)
-            file.write('\r\n')
-        file.write('--' + MIME_BOUNDARY + "\r\n")
-        file.write(
-            'Content-Disposition: form-data; name="deck"; filename="deck"\r\n')
-        file.write('Content-Type: application/octet-stream\r\n')
-        file.write('\r\n')
-        comp = zlib.compressobj()
-        while 1:
-            data = src.read(32768)
-            if not data:
-                file.write(comp.flush())
-                break
-            file.write(comp.compress(data))
-        file.write('\r\n--' + MIME_BOUNDARY + '--\r\n\r\n')
-        size = file.tell()
-        file.close()
-        type = 'multipart/form-data; boundary=%s' % MIME_BOUNDARY
-        return type, size, name
+    def fullSyncFromLocal(self, fields, path):
+        try:
+            # write into a temporary file, since POST needs content-length
+            src = open(path, "rb")
+            (fd, name) = tempfile.mkstemp(prefix="anki")
+            tmp = open(name, "w+b")
+            # post vars
+            for (key, value) in fields.items():
+                tmp.write('--' + MIME_BOUNDARY + "\r\n")
+                tmp.write('Content-Disposition: form-data; name="%s"\r\n' % key)
+                tmp.write('\r\n')
+                tmp.write(value)
+                tmp.write('\r\n')
+            # file header
+            tmp.write('--' + MIME_BOUNDARY + "\r\n")
+            tmp.write(
+                'Content-Disposition: form-data; name="deck"; filename="deck"\r\n')
+            tmp.write('Content-Type: application/octet-stream\r\n')
+            tmp.write('\r\n')
+            # data
+            comp = zlib.compressobj()
+            while 1:
+                data = src.read(65536)
+                if not data:
+                    tmp.write(comp.flush())
+                    break
+                tmp.write(comp.compress(data))
+            tmp.write('\r\n--' + MIME_BOUNDARY + '--\r\n\r\n')
+            size = tmp.tell()
+            tmp.seek(0)
+            # open http connection
+            runHook("fullSyncStarted", size)
+            h = httplib.HTTP(SYNC_HOST, SYNC_PORT)
+            h.putrequest('POST', "/sync/fullup")
+            h.putheader('Content-type', 'multipart/form-data; boundary=%s' %
+                        MIME_BOUNDARY)
+            h.putheader('Content-length', str(size))
+            h.endheaders()
+            dst = h._conn.sock.makefile("wb", 65536)
+            # dump file
+            cnt = 0
+            while 1:
+                runHook("fullSyncProgress", "fromLocal", cnt)
+                data = tmp.read(65536)
+                if not data:
+                    break
+                dst.write(data)
+                cnt += len(data)
+            # wait for reply
+            dst.close()
+            tmp.close()
+            errcode, errmsg, headers = h.getreply()
+            assert errcode == 200
+        finally:
+            runHook("fullSyncFinished")
+
+    def fullSyncFromServer(self, fields, path):
+        try:
+            runHook("fullSyncStarted", 0)
+            fields = urllib.urlencode(fields)
+            src = urllib.urlopen(SYNC_URL + "fulldown", fields)
+            dst = open(path, "wb")
+            decomp = zlib.decompressobj()
+            cnt = 0
+            while 1:
+                data = src.read(65536)
+                if not data:
+                    dst.write(decomp.flush())
+                    break
+                dst.write(decomp.decompress(data))
+                cnt += 65536
+                runHook("fullSyncProgress", "fromServer", cnt)
+            src.close()
+            dst.close()
+        finally:
+            runHook("fullSyncFinished")
 
 # Local syncing
 ##########################################################################
