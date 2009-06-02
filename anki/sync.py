@@ -999,19 +999,24 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             runHook("fullSyncStarted", 0)
             fields = urllib.urlencode(fields)
             src = urllib.urlopen(SYNC_URL + "fulldown", fields)
-            dst = open(path, "wb")
+            (fd, tmpname) = tempfile.mkstemp(dir=os.path.dirname(path),
+                                             prefix="fullsync")
+            tmp = open(tmpname, "wb")
             decomp = zlib.decompressobj()
             cnt = 0
             while 1:
                 data = src.read(65536)
                 if not data:
-                    dst.write(decomp.flush())
+                    tmp.write(decomp.flush())
                     break
-                dst.write(decomp.decompress(data))
+                tmp.write(decomp.decompress(data))
                 cnt += 65536
                 runHook("fullSyncProgress", "fromServer", cnt)
             src.close()
-            dst.close()
+            tmp.close()
+            # if we were successful, overwrite old deck
+            os.unlink(path)
+            os.rename(tmpname, path)
         finally:
             runHook("fullSyncFinished")
 
