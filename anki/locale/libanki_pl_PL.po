@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-21 01:03+0900\n"
-"PO-Revision-Date: 2009-04-29 20:41+0200\n"
+"POT-Creation-Date: 2009-05-31 00:41+0200\n"
+"PO-Revision-Date: 2009-05-31 00:22+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -148,15 +148,15 @@ msgstr ""
 msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
 msgstr "<h1>Statystyki kanji</h1>%d przejrzanych kart w tej talii zawiera:"
 
-#: stats.py:560
+#: stats.py:564
 msgid "<h1>Missing</h1>"
 msgstr "<h1>Brakujące</h1>"
 
-#: stats.py:587
+#: stats.py:591
 msgid "<h1>Non-Jouyou</h1>"
 msgstr "<h1>Nie-Jouyou</h1>"
 
-#: stats.py:562
+#: stats.py:566
 msgid "<h1>Seen</h1>"
 msgstr "<h1>Widziane</h1>"
 
@@ -179,7 +179,7 @@ msgstr ""
 "%(new)s"
 
 #: sync.py:197
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<table>\n"
 "<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>\n"
@@ -198,6 +198,7 @@ msgstr ""
 "<tr><td>Fakty</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
 "<tr><td>Modele</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
 "<tr><td>Pliki</td><td>%(lM)s</td><td>%(rM)s</td></tr>\n"
+"<tr><td>Statystyki</td><td>%(ls)s</td><td>%(rs)s</td></tr>\n"
 "</table>"
 
 #: stats.py:264
@@ -305,11 +306,12 @@ msgid "Custom failed cards handling"
 msgstr "Własna obsługa źle rozwiązanych kart"
 
 #: deck.py:2191
-#, fuzzy
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
-msgstr "Baza danych uszkodzona. Wykonaj odzyskiwanie z kopii zapasowej."
+msgstr ""
+"Baza danych uszkodzona.\n"
+"Wykonaj odzyskiwanie z kopii zapasowej (zobacz FAQ)."
 
 #: stats.py:317
 msgid "Deck Statistics"
@@ -374,7 +376,7 @@ msgstr[2] "Usunięto %d faktów bez karty"
 
 #: deck.py:2258
 msgid "Deleted: "
-msgstr ""
+msgstr "Usunięto: "
 
 #: stats.py:273
 msgid "Due"
@@ -423,7 +425,7 @@ msgstr "Pierwsze w ub. t."
 msgid "First-seen cards:"
 msgstr "Karty widziane po raz pierwszy:"
 
-#: importing/__init__.py:56 importing/anki10.py:25
+#: importing/anki10.py:25 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Importowanie..."
 
@@ -435,7 +437,7 @@ msgstr "Przerwa"
 msgid "Japanese"
 msgstr "Japoński"
 
-#: stats.py:550
+#: stats.py:554
 msgid "Jouyou levels:"
 msgstr "Poziomy Jouyou:"
 
@@ -729,7 +731,7 @@ msgstr "[nieprawidłowy format pytania/odpowiedzi]"
 
 #: sync.py:188 sync.py:192
 msgid "all"
-msgstr ""
+msgstr "wszystkie"
 
 #: stats.py:367 stats.py:369 stats.py:371 stats.py:373 stats.py:375
 msgid "cards/day"
@@ -751,12 +753,3 @@ msgstr "wył."
 #: deck.py:716
 msgid "unknown"
 msgstr "nieznane"
-
-#~ msgid "Anki deck (*.anki)"
-#~ msgstr "Talia Anki (*.anki)"
-
-#~ msgid "Anki decks (*.anki)"
-#~ msgstr "Talie Anki (*.anki)"
-
-#~ msgid "Rebuilding queue..."
-#~ msgstr "Przebudowywanie kolejek..."
