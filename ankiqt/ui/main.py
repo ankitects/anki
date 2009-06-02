@@ -1900,9 +1900,10 @@ Couldn't contact Anki Online. Please check your internet connection.""")
     def fullSyncProgress(self, type, val):
         if type == "fromLocal":
             s = _("Uploaded %dKB to server...")
+            self.updateProgress(label=s % (val / 1024), value=val)
         else:
             s = _("Downloaded %dKB from server...")
-        self.updateProgress(label=s % (val / 1024), value=val)
+            self.updateProgress(label=s % (val / 1024))
 
     # Menu, title bar & status
     ##########################################################################
