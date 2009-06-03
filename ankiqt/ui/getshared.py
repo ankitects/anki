@@ -31,7 +31,6 @@ class GetShared(QDialog):
         restoreGeom(self, "getshared")
         self.setupTable()
         self.onChangeType(type)
-        self.ok = False
         if type == 0:
             self.setWindowTitle(_("Download Shared Deck"))
         else:
@@ -163,6 +162,8 @@ class GetShared(QDialog):
         self.form.table.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def accept(self):
+        if not self.parent.saveAndClose(hideWelcome=True, parent=self):
+            return QDialog.accept(self)
         h = QHttp(self)
         h.connect(h, SIGNAL("requestFinished(int,bool)"), self.onReqFin2)
         h.connect(h, SIGNAL("proxyAuthenticationRequired(QNetworkProxy,"
@@ -216,7 +217,6 @@ class GetShared(QDialog):
                         open(os.path.join(dd, tit + ".media",
                                           os.path.basename(l)),"wb").write(z.read(l))
                 self.parent.loadDeck(dpath)
-                self.ok = True
             else:
                 pd = self.parent.pluginsFolder()
                 if z:
@@ -232,7 +232,6 @@ class GetShared(QDialog):
                                               write(z.read(l.filename))
                 else:
                     open(os.path.join(pd, tit + ext), "wb").write(data)
-                self.ok = True
                 showInfo(_("Plugin downloaded. Please restart Anki."),
                          parent=self)
                 return

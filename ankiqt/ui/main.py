@@ -745,8 +745,10 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         else:
             self.app.activeWindow().close()
 
-    def saveAndClose(self, hideWelcome=False):
+    def saveAndClose(self, hideWelcome=False, parent=None):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
+        if not parent:
+            parent = self
         self.hideWelcome = hideWelcome
         self.closeAllDeckWindows()
         if self.deck is not None:
@@ -758,7 +760,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                      not self.config['syncOnClose'])):
                     # backed in memory or autosave/sync off, must confirm
                     while 1:
-                        res = ui.unsaved.ask(self)
+                        res = ui.unsaved.ask(parent)
                         if res == ui.unsaved.save:
                             if self.save(required=True):
                                 break
@@ -856,11 +858,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
 
     def onGetSharedDeck(self):
         if not self.inMainWindow(): return
-        if not self.saveAndClose(hideWelcome=True): return
-        s = ui.getshared.GetShared(self, 0)
-        if not s.ok:
-            self.deck = None
-            self.moveToState("initial")
+        ui.getshared.GetShared(self, 0)
 
     def onGetSharedPlugin(self):
         if not self.inMainWindow(): return
