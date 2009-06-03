@@ -2221,6 +2221,16 @@ select decks.id from decks, models where
 decks.currentModelId = models.id"""):
             self.currentModelId = self.models[0].id
             problems.append(_("The current model didn't exist"))
+        # fields missing a field model
+        ids = self.s.column0("""
+select id from fields where fieldModelId not in (
+select distinct id from fieldModels)""")
+        if ids:
+            self.s.statement("delete from fields where id in %s" %
+                             ids2str(ids))
+            problems.append(ngettext("Deleted %d field with missing field model",
+                            "Deleted %d fields with missing field model", len(ids)) %
+                            len(ids))
         # facts missing a field?
         ids = self.s.column0("""
 select distinct facts.id from facts, fieldModels where
