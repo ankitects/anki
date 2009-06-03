@@ -3199,7 +3199,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
         os.utime(newpath, (modified, modified))
     backup = staticmethod(backup)
 
-
 def newCardOrderLabels():
     return {
         0: _("Show new cards in random order"),
