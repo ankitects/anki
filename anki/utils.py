@@ -128,6 +128,7 @@ def fmtFloat(float_value, point=1):
 ##############################################################################
 
 def stripHTML(s):
+    s = re.sub("(?s)<style.*?>.*?</style>", "", s)
     s = re.sub("<.*?>", "", s)
     s = s.replace("&lt;", "<")
     s = s.replace("&gt;", ">")
