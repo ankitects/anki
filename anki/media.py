@@ -66,7 +66,7 @@ Update media table. If file already exists, don't copy."""
     if not os.path.exists(new):
         if new.lower() == path.lower():
             # case insensitive filesystems suck
-            pass
+            os.rename(path, new)
         else:
             shutil.copy2(path, new)
     newSize = os.stat(new)[stat.ST_SIZE]
