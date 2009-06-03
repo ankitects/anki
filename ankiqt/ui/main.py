@@ -64,9 +64,6 @@ class AnkiQt(QMainWindow):
         if self.config['mainWindowState']:
             self.restoreGeometry(self.config['mainWindowGeom'])
             self.restoreState(self.config['mainWindowState'])
-        if sys.platform.startswith("darwin"):
-            self.setUnifiedTitleAndToolBarOnMac(True)
-            pass
         # load deck
         ui.splash.update()
         if not self.maybeLoadLastDeck(args):
@@ -2458,6 +2455,9 @@ Consider backing up your media directory first."""))
         self.setupDocumentDir()
         self.changeLayoutSpacing()
         addHook("macLoadEvent", self.onMacLoad)
+        if sys.platform.startswith("darwin"):
+            self.setUnifiedTitleAndToolBarOnMac(True)
+            self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
 
     def onMacLoad(self, fname):
         self.loadDeck(fname)
