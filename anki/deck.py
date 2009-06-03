@@ -3164,7 +3164,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             path = os.path.join(backupDir, path)
             path = re.sub("\.anki$", ".backup-%d.anki" % num, path)
             return path
-        if os.path.exists(backupDir.replace("backups", "nobackups")):
+        if not numBackups:
             return
         if not os.path.exists(backupDir):
             os.makedirs(backupDir)
