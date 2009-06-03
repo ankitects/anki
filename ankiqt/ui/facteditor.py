@@ -798,6 +798,7 @@ class FactEditor(object):
             return
         # create
         s = unicode(src.toHtml())
+        s = stripHTML(s)
         def repl(match):
             exp = ""
             if match.group(2):
