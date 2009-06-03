@@ -91,6 +91,10 @@ class Config(dict):
             'recentColours': ["#000000", "#0000ff"],
             'preventEditUntilAnswer': False,
             'numBackups': 30,
+            'proxyHost': '',
+            'proxyPort': 8080,
+            'proxyUser': '',
+            'proxyPass': '',
             }
         for (k,v) in fields.items():
             if not self.has_key(k):

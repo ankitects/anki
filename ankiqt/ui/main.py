@@ -46,6 +46,7 @@ class AnkiQt(QMainWindow):
         self.setLang()
         self.setupFonts()
         self.setupBackupDir()
+        self.setupProxy()
         self.setupMainWindow()
         self.setupSystemHacks()
         self.setupSound()
@@ -2479,6 +2480,34 @@ Consider backing up your media directory first."""))
             self.mainWin.studyOptionsReviewBar.setContentsMargins(0, 20, 0, 0)
             self.mainWin.optionsBox.layout().setSpacing(10)
             self.mainWin.optionsBox.layout().setContentsMargins(4, 10, 4, 4)
+
+    # Proxy support
+    ##########################################################################
+
+    def setupProxy(self):
+        from PyQt4.QtNetwork import QNetworkProxy
+        import urllib2
+        if self.config['proxyHost']:
+            # qt
+            proxy = QNetworkProxy()
+            proxy.setType(QNetworkProxy.HttpProxy)
+            proxy.setHostName(self.config['proxyHost'])
+            proxy.setPort(self.config['proxyPort'])
+            if self.config['proxyUser']:
+                proxy.setUser(self.config['proxyUser'])
+                proxy.setPass(self.config['proxyPass'])
+            QNetworkProxy.setApplicationProxy(proxy)
+            # python
+            proxy = "http://"
+            if self.config['proxyUser']:
+                proxy += (self.config['proxyUser'] + ":" +
+                          self.config['proxyPass'] + "@")
+            proxy += (self.config['proxyHost'] + ":" +
+                      str(self.config['proxyPort']))
+            os.environ["http_proxy"] = proxy
+            proxy_handler = urllib2.ProxyHandler()
+            opener = urllib2.build_opener(proxy_handler)
+            urllib2.install_opener(opener)
 
     # Misc
     ##########################################################################

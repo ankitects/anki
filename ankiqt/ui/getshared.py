@@ -50,12 +50,19 @@ class GetShared(QDialog):
     def fetchData(self):
         h = QHttp(self)
         h.connect(h, SIGNAL("requestFinished(int,bool)"), self.onReqFin)
+        h.connect(h, SIGNAL("proxyAuthenticationRequired(QNetworkProxy,"
+                            "QAuthenticator*)"),
+                  self.onProxyAuth)
         h.setHost("anki.ichi2.net")
         #h.setHost("localhost", 8001)
         self.conId = h.get("/file/search?t=%d" % self.type)
         self.http = h
         self.parent.setProgressParent(self)
         self.parent.startProgress()
+
+    def onProxyAuth(self, proxy, auth):
+        auth.setUser(self.parent.config['proxyUser'])
+        auth.setPassword(self.parent.config['proxyPass'])
 
     def onReqFin(self, id, err):
         "List fetched."
@@ -158,6 +165,9 @@ class GetShared(QDialog):
     def accept(self):
         h = QHttp(self)
         h.connect(h, SIGNAL("requestFinished(int,bool)"), self.onReqFin2)
+        h.connect(h, SIGNAL("proxyAuthenticationRequired(QNetworkProxy,"
+                            "QAuthenticator*)"),
+                  self.onProxyAuth)
         h.setHost("anki.ichi2.net")
         #h.setHost("localhost", 8001)
         self.conId = h.get("/file/get?id=%d" % self.curRow[R_ID])
