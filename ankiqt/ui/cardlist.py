@@ -1128,6 +1128,7 @@ class ChangeModelDialog(QDialog):
     def __init__(self, parent, oldModel, oldTemplate):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
+        self.origModel = self.parent.deck.currentModel
         self.oldModel = oldModel
         self.oldTemplate = oldTemplate
         self.form = ankiqt.forms.changemodel.Ui_Dialog()
@@ -1247,8 +1248,13 @@ class ChangeModelDialog(QDialog):
             combos=self.fieldCombos,
             new=self.targetModel.fieldModels)
 
+    def reject(self):
+        self.parent.deck.currentModel = self.origModel
+        return QDialog.reject(self)
+
     def accept(self):
         saveGeom(self, "changeModel")
+        self.parent.deck.currentModel = self.origModel
         # check maps
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
