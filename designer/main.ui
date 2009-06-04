@@ -1003,7 +1003,7 @@
                      </spacer>
                     </item>
                     <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_16" >
+                     <layout class="QHBoxLayout" name="verticalLayout_16" >
                       <item>
                        <widget class="QPushButton" name="downloadDeckButton" >
                         <property name="text" >
