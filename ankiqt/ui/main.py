@@ -1956,6 +1956,8 @@ it to your friends.
         msg = _("""\
 <h1>Sync Failed</h1>
 Couldn't contact Anki Online. Please check your internet connection.""")
+        if self.config['proxyHost']:
+            msg += _(" Also check your proxy settings.")
         if self.config['syncInMsgBox']:
             ui.utils.showWarning(msg)
         else:
@@ -2592,7 +2594,7 @@ Consider backing up your media directory first."""))
             proxy.setPort(self.config['proxyPort'])
             if self.config['proxyUser']:
                 proxy.setUser(self.config['proxyUser'])
-                proxy.setPass(self.config['proxyPass'])
+                proxy.setPassword(self.config['proxyPass'])
             QNetworkProxy.setApplicationProxy(proxy)
             # python
             proxy = "http://"

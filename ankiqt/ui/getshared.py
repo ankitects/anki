@@ -71,8 +71,25 @@ class GetShared(QDialog):
         self.parent.setProgressParent(None)
         self.form.search.setFocus()
         if err:
+            errorString = self.http.errorString()
+        else:
+            # double check ... make sure http status code was valid
+            # this is to counter bugs in handling proxy responses
+            respHeader = self.http.lastResponse()
+            if respHeader.isValid():
+                statusCode = respHeader.statusCode()
+                if statusCode < 200 or statusCode >= 300:
+                    err = True
+                    errorString = respHeader.reasonPhrase()
+            else:
+                err = True
+                errorString = "Invalid HTTP header received!"
+
+        if err:
+            if self.parent.config['proxyHost']:
+                errorString += "\n" + _("Please check the proxy settings.")
             showInfo(_("Unable to connect to server.") + "\n" +
-                     self.http.errorString(), parent=self)
+                     errorString, parent=self)
             self.close()
             return
         data = self.http.readAll()
