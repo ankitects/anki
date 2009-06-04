@@ -110,10 +110,12 @@ class Card(object):
         "Generate a random offset to spread intervals."
         self.fuzz = random.uniform(0.95, 1.05)
 
-    def htmlQuestion(self, type="question"):
+    def htmlQuestion(self, type="question", align=True):
         div = '''<div id="cm%s%s">%s</div>''' % (
-            type[0], hexifyID(self.cardModel.id), getattr(self, type))
+            type[0], hexifyID(self.cardModelId), getattr(self, type))
         # add outer div & alignment (with tables due to qt's html handling)
+        if not align:
+            return div
         attr = type + 'Align'
         if getattr(self.cardModel, attr) == 0:
             align = "center"
@@ -124,8 +126,8 @@ class Card(object):
         return (("<center><table width=95%%><tr><td align=%s>" % align) +
                 div + "</td></tr></table></center>")
 
-    def htmlAnswer(self):
-        return self.htmlQuestion(type="answer")
+    def htmlAnswer(self, align=True):
+        return self.htmlQuestion(type="answer", align=align)
 
     def updateStats(self, ease, state):
         self.reps += 1
