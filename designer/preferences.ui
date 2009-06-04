@@ -566,7 +566,7 @@
          <item row="8" column="0" >
           <widget class="QCheckBox" name="openLastDeck" >
            <property name="text" >
-            <string>Open last deck instead of deck browser</string>
+            <string>Open last deck even when multiple decks available</string>
            </property>
           </widget>
          </item>
