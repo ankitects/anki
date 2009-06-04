@@ -1053,7 +1053,6 @@ your deck."""))
             # delete
             deck = self.deckBrowserDecks[c]
             if ui.utils.askUser(_("Delete %s?") % os.path.basename(deck)):
-                print "deleting", deck
                 os.unlink(deck)
                 self.config['recentDeckPaths'].remove(deck)
             self.showDeckBrowser()
