@@ -118,7 +118,6 @@ class QueueMonitor(threading.Thread):
 
     def run(self):
         while 1:
-            time.sleep(0.1)
             if queue:
                 path = queue.pop(0)
                 try:
@@ -128,6 +127,7 @@ class QueueMonitor(threading.Thread):
                     raise Exception("Audio player not found")
             else:
                 return
+            time.sleep(0.1)
 
 def playExternal(path):
     global manager
