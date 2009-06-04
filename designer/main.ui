@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>723</width>
-    <height>523</height>
+    <width>552</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -355,7 +355,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex" >
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="blankPage" />
          <widget class="QWidget" name="welcomePage" >
@@ -912,6 +912,183 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="page" >
+          <layout class="QVBoxLayout" name="verticalLayout_15" >
+           <item>
+            <spacer name="verticalSpacer_7" >
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>20</width>
+               <height>150</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5" >
+             <item>
+              <spacer name="horizontalSpacer" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QFrame" name="frame_3" >
+               <property name="frameShape" >
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow" >
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_13" >
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_14" >
+                  <property name="margin" >
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_2" >
+                    <property name="text" >
+                     <string>&lt;h1>Decks&lt;/h1></string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="Line" name="line_3" >
+                    <property name="orientation" >
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="decksFrame" >
+                    <property name="frameShape" >
+                     <enum>QFrame::NoFrame</enum>
+                    </property>
+                    <property name="frameShadow" >
+                     <enum>QFrame::Raised</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="Line" name="line_4" >
+                    <property name="orientation" >
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_7" >
+                    <item>
+                     <spacer name="horizontalSpacer" >
+                      <property name="orientation" >
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0" >
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <layout class="QVBoxLayout" name="verticalLayout_16" >
+                      <item>
+                       <widget class="QPushButton" name="downloadDeckButton" >
+                        <property name="text" >
+                         <string>Download Deck</string>
+                        </property>
+                        <property name="icon" >
+                         <iconset resource="../icons.qrc" >
+                          <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="newDeckButton" >
+                        <property name="text" >
+                         <string>Create Deck</string>
+                        </property>
+                        <property name="icon" >
+                         <iconset resource="../icons.qrc" >
+                          <normaloff>:/icons/document-new.png</normaloff>:/icons/document-new.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="importDeckButton" >
+                        <property name="text" >
+                         <string>Import Text File</string>
+                        </property>
+                        <property name="icon" >
+                         <iconset resource="../icons.qrc" >
+                          <normaloff>:/icons/document-import.png</normaloff>:/icons/document-import.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_2" >
+                      <property name="orientation" >
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0" >
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_8" >
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>20</width>
+               <height>150</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -1111,7 +1288,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>723</width>
+     <width>552</width>
      <height>22</height>
     </rect>
    </property>
@@ -1148,15 +1325,6 @@
     <property name="title" >
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="menuOpenRecent" >
-     <property name="title" >
-      <string>Open &amp;Recent</string>
-     </property>
-     <property name="icon" >
-      <iconset resource="../icons.qrc" >
-       <normaloff>:/icons/document-open-recent.png</normaloff>:/icons/document-open-recent.png</iconset>
-     </property>
-    </widget>
     <widget class="QMenu" name="menuDownload" >
      <property name="title" >
       <string>&amp;Download...</string>
@@ -1172,7 +1340,6 @@
     </widget>
     <addaction name="actionNew" />
     <addaction name="actionOpen" />
-    <addaction name="menuOpenRecent" />
     <addaction name="menuDownload" />
     <addaction name="actionImport" />
     <addaction name="separator" />
@@ -1354,10 +1521,13 @@
   <action name="actionClose" >
    <property name="icon" >
     <iconset resource="../icons.qrc" >
-     <normaloff>:/icons/fileclose.png</normaloff>:/icons/fileclose.png</iconset>
+     <normaloff>:/icons/go-previous.png</normaloff>:/icons/go-previous.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Close</string>
+   </property>
+   <property name="statusTip" >
+    <string>Close this deck and return to the deck browser</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+W</string>
@@ -1985,14 +2155,17 @@
   <tabstop>optionsHelpButton</tabstop>
   <tabstop>learnMoreButton</tabstop>
   <tabstop>reviewEarlyButton</tabstop>
-  <tabstop>help</tabstop>
-  <tabstop>welcomeText</tabstop>
-  <tabstop>showAnswerButton</tabstop>
+  <tabstop>downloadDeckButton</tabstop>
+  <tabstop>newDeckButton</tabstop>
+  <tabstop>importDeckButton</tabstop>
   <tabstop>easeButton1</tabstop>
   <tabstop>easeButton2</tabstop>
   <tabstop>easeButton3</tabstop>
   <tabstop>easeButton4</tabstop>
   <tabstop>saveEditorButton</tabstop>
+  <tabstop>welcomeText</tabstop>
+  <tabstop>showAnswerButton</tabstop>
+  <tabstop>help</tabstop>
  </tabstops>
  <resources>
   <include location="../icons.qrc" />

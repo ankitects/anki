@@ -48,6 +48,7 @@ class AnkiQt(QMainWindow):
         self.setupBackupDir()
         self.setupProxy()
         self.setupMainWindow()
+        self.setupDeckBrowser()
         self.setupSystemHacks()
         self.setupSound()
         self.setupTray()
@@ -66,9 +67,9 @@ class AnkiQt(QMainWindow):
             self.restoreState(self.config['mainWindowState'])
         # load deck
         ui.splash.update()
-        if not self.maybeLoadLastDeck(args):
+        if self.config['loadLastDeck'] and not self.maybeLoadLastDeck(args):
             self.setEnabled(True)
-            self.moveToState("auto")
+        self.moveToState("auto")
         # check for updates
         ui.splash.update()
         self.setupErrorHandler()
@@ -239,7 +240,6 @@ Please do not file a bug report with Anki.<br>""")
             self.editor.deck = self.deck
             if self.deck:
                 self.enableDeckMenuItems()
-                self.updateRecentFilesMenu()
                 self.updateViews(state)
                 if self.state == "studyScreen":
                     return self.moveToState("studyScreen")
@@ -264,14 +264,13 @@ Please do not file a bug report with Anki.<br>""")
             self.switchToReviewScreen()
         if state == "noDeck":
             self.deck = None
-            self.switchToWelcomeScreen()
             self.help.hide()
             self.currentCard = None
             self.lastCard = None
             self.disableDeckMenuItems()
-            self.updateRecentFilesMenu()
             # hide all deck-associated dialogs
             self.closeAllDeckWindows()
+            self.showDeckBrowser()
         elif state == "getQuestion":
             # stop anything playing
             clearAudioQueue()
@@ -494,7 +493,11 @@ new:
         self.mainWin.mainStack.setCurrentIndex(4)
 
     def switchToReviewScreen(self):
+        self.mainWin.mainStack.setCurrentIndex(6)
+
+    def switchToDecksScreen(self):
         self.mainWin.mainStack.setCurrentIndex(5)
+        self.hideButtons()
 
     # Buttons
     ##########################################################################
@@ -700,32 +703,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         if path in self.config['recentDeckPaths']:
             self.config['recentDeckPaths'].remove(path)
         self.config['recentDeckPaths'].insert(0, path)
-        del self.config['recentDeckPaths'][8:]
+        del self.config['recentDeckPaths'][20:]
         self.config.save()
-        self.updateRecentFilesMenu()
-
-    def updateRecentFilesMenu(self):
-        self.config['recentDeckPaths'] = [
-            p for p in self.config['recentDeckPaths']
-            if os.path.exists(p)]
-        if not self.config['recentDeckPaths']:
-            self.mainWin.menuOpenRecent.setEnabled(False)
-            return
-        self.mainWin.menuOpenRecent.setEnabled(True)
-        self.mainWin.menuOpenRecent.clear()
-        n = 1
-        for file in self.config['recentDeckPaths']:
-            a = QAction(self)
-            if sys.platform.startswith("darwin"):
-                a.setShortcut(_("Ctrl+Alt+%d" % n))
-            else:
-                a.setShortcut(_("Alt+%d" % n))
-            a.setText(os.path.basename(file))
-            a.setStatusTip(os.path.abspath(file))
-            self.connect(a, SIGNAL("triggered()"),
-                         lambda n=n: self.loadRecent(n-1))
-            self.mainWin.menuOpenRecent.addAction(a)
-            n += 1
 
     def loadRecent(self, n):
         self.loadDeck(self.config['recentDeckPaths'][n])
@@ -951,6 +930,132 @@ your deck."""))
         self.moveToState("initial")
         return file
 
+    # Deck browser
+    ##########################################################################
+
+    def setupDeckBrowser(self):
+        self.connect(self.mainWin.downloadDeckButton,
+                     SIGNAL("clicked()"),
+                     self.onGetSharedDeck)
+        self.connect(self.mainWin.newDeckButton,
+                     SIGNAL("clicked()"),
+                     self.onNew)
+        self.connect(self.mainWin.importDeckButton,
+                     SIGNAL("clicked()"),
+                     self.onImport)
+
+    def showDeckBrowser(self):
+        import sip
+        focusButton = None
+        self.switchToDecksScreen()
+        if self.mainWin.decksFrame.layout():
+            while 1:
+                obj = self.mainWin.decksFrame.layout().takeAt(0)
+                if not obj:
+                    break
+                if "QLabel" in repr(obj.widget()):
+                    sip.delete(obj.widget())
+                else:
+                    obj.widget().deleteLater()
+                sip.delete(obj)
+            sip.delete(self.mainWin.decksFrame.layout())
+        layout = QGridLayout()
+        self.deckBrowserDecks = []
+        if self.config['recentDeckPaths']:
+            layout.addWidget(QLabel(_("<b>Deck</b>")), 0, 0)
+            l = QLabel(_("<b>Due</b>"))
+            l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            layout.addWidget(l, 0, 1)
+            l = QLabel(_("<b>New</b>"))
+            l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            layout.addWidget(l, 0, 2)
+            toRemove = []
+            self.startProgress(max=len(self.config['recentDeckPaths']))
+            for c, d in enumerate(self.config['recentDeckPaths']):
+                self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
+                    'x': c, 'y': len(self.config['recentDeckPaths'])})
+                if not os.path.exists(d):
+                    toRemove.append(d)
+                    continue
+                try:
+                    deck = DeckStorage.Deck(d, backup=False)
+                except:
+                    toRemove.append(d)
+                    continue
+                self.deckBrowserDecks.append(d)
+                # name & stats
+                n = deck.name()
+                if len(n) > 30:
+                    n = n[:30] + "..."
+                layout.addWidget(QLabel(n), c+1, 0)
+                l = QLabel("<b>" + str(deck.failedSoonCount + deck.revCount) +
+                           "</b>")
+                l.setMinimumWidth(50)
+                l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                layout.addWidget(l, c+1, 1)
+                l = QLabel(str(deck.newCount))
+                l.setMinimumWidth(50)
+                l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                layout.addWidget(l, c+1, 2)
+                # open
+                openButton = QPushButton(_("Open"))
+                extra = ""
+                if c < 9:
+                    extra = " (Alt+%d)" % (c+1)
+                openButton.setToolTip(_("Open this deck%s") % extra)
+                if c < 9:
+                    if sys.platform.startswith("darwin"):
+                        openButton.setShortcut(_("Ctrl+Alt+%d" % (c+1)))
+                    else:
+                        openButton.setShortcut(_("Alt+%d" % (c+1)))
+                self.connect(openButton, SIGNAL("clicked()"),
+                             lambda d=d: self.loadDeck(d))
+                layout.addWidget(openButton, c+1, 3)
+                if c == 0:
+                    focusButton = openButton
+                # more
+                moreButton = QComboBox()
+                moreButton.addItems(QStringList([
+                    _("More"),
+                    _("Forget"),
+                    _("Delete")]))
+                moreButton.setToolTip(
+                    _("Forget removes the deck from the list without deleting."))
+                self.connect(moreButton, SIGNAL("currentIndexChanged(int)"),
+                             lambda idx, c=c: self.onDeckBrowserMore(idx, c))
+                layout.addWidget(moreButton, c+1, 4)
+                deck.close()
+            refresh = QPushButton(_("Refresh"))
+            self.connect(refresh, SIGNAL("clicked()"),
+                         self.showDeckBrowser)
+            layout.addWidget(refresh, c+2, 3)
+            for d in toRemove:
+                self.config['recentDeckPaths'].remove(d)
+            self.finishProgress()
+        else:
+            layout.addWidget(QLabel(_(
+                "Welcome to Anki! Click 'Download Deck' to get started.")), 0, 0)
+        self.mainWin.decksFrame.setLayout(layout)
+        self.app.processEvents()
+        if focusButton:
+            focusButton.setFocus()
+
+    def onDeckBrowserMore(self, idx, c):
+        if idx == 0:
+            return
+        elif idx == 1:
+            # forget
+            self.config['recentDeckPaths'].remove(self.deckBrowserDecks[c])
+            self.showDeckBrowser()
+        elif idx == 2:
+            # delete
+            deck = self.deckBrowserDecks[c]
+            if ui.utils.askUser(_("Delete %s?") % os.path.basename(deck)):
+                print "deleting", deck
+                os.unlink(deck)
+                self.config['recentDeckPaths'].remove(deck)
+            self.showDeckBrowser()
+
     # Opening and closing the app
     ##########################################################################
 
@@ -983,17 +1088,9 @@ your deck."""))
     ##########################################################################
 
     def onWelcomeAnchor(self, str):
-        if str == "new":
-            self.onNew()
-        elif str == "open":
-            self.onOpen()
-        elif str == "sample":
-            self.onGetSharedDeck()
-        elif str == "openrem":
-            self.onOpenOnline()
+        if str == "back":
+            self.saveAndClose()
         if str == "addfacts":
-            if not self.deck:
-                self.onNew()
             if self.deck:
                 self.onAddCard()
 
@@ -1295,6 +1392,7 @@ learnt today")
             mw.toolBar.addAction(mw.actionGraphs)
             mw.toolBar.addAction(mw.actionMarkCard)
             mw.toolBar.addAction(mw.actionRepeatAudio)
+            mw.toolBar.addAction(mw.actionClose)
             self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
         mw.toolBar.setIconSize(QSize(self.config['iconSize'],
                                      self.config['iconSize']))

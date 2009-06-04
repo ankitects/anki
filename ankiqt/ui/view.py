@@ -274,33 +274,18 @@ class View(object):
 <table>
 
 <tr>
-<td>
-<a href="welcome:open"><img src=":/icons/document-open.png"></a>
-</td>
-<td valign=middle><h2><a href="welcome:open">%(local)s</a></h2></td>
-</tr>
-
-<tr>
 <td width=50>
-<a href="welcome:sample"><img src=":/icons/anki.png"></a>
+<a href="welcome:back"><img src=":/icons/go-previous.png"></a>
 </td>
-<td valign=middle><h2><a href="welcome:sample">%(dl_shared)s</a></h2></td>
-</tr>
-
-<tr>
-<td>
-<a href="welcome:openrem"><img src=":/icons/document-open-remote.png"></a>
-</td>
-<td valign=middle><h2><a href="welcome:openrem">%(dl_personal)s</a></h2></td>
+<td valign=middle><h2><a href="welcome:back">%(back)s</a></h2></td>
 </tr>
 
 </table>""" % \
 	{"welcome":_("Welcome to Anki!"),
-         "add":_("Add material"),
+         "add":_("Add Material"),
          "start":_("Start adding your own material."),
-         "local":_("Open Local Deck"),
-         "dl_shared":_("Download Shared Deck"),
-         "dl_personal":_("Download Personal Deck")})
+         "back":_("Back to Deck Browser"),
+         })
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."

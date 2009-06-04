@@ -556,10 +556,17 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0" >
+         <item row="9" column="0" >
           <widget class="QCheckBox" name="addZeroSpace" >
            <property name="text" >
             <string>Add hidden char to text (fixes Thai on OSX)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" >
+          <widget class="QCheckBox" name="openLastDeck" >
+           <property name="text" >
+            <string>Open last deck instead of deck browser</string>
            </property>
           </widget>
          </item>
@@ -605,6 +612,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>tabWidget</tabstop>
   <tabstop>interfaceLang</tabstop>
   <tabstop>label_2</tabstop>
   <tabstop>showDivider</tabstop>
@@ -630,9 +638,9 @@
   <tabstop>showTimer</tabstop>
   <tabstop>showTray</tabstop>
   <tabstop>showStudyOptions</tabstop>
+  <tabstop>openLastDeck</tabstop>
   <tabstop>addZeroSpace</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

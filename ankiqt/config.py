@@ -95,6 +95,7 @@ class Config(dict):
             'proxyPort': 8080,
             'proxyUser': '',
             'proxyPass': '',
+            'loadLastDeck': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
