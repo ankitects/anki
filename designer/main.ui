@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>552</width>
+    <width>641</width>
     <height>646</height>
    </rect>
   </property>
@@ -41,70 +41,6 @@
     </property>
     <item>
      <widget class="QFrame" name="mainTextFrame" >
-      <property name="palette" >
-       <palette>
-        <active>
-         <colorrole role="Base" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="Base" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="Base" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
       <property name="autoFillBackground" >
        <bool>true</bool>
       </property>
@@ -128,6 +64,73 @@
            <horstretch>0</horstretch>
            <verstretch>1</verstretch>
           </sizepolicy>
+         </property>
+         <property name="palette" >
+          <palette>
+           <active>
+            <colorrole role="Base" >
+             <brush brushstyle="SolidPattern" >
+              <color alpha="255" >
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Window" >
+             <brush brushstyle="SolidPattern" >
+              <color alpha="255" >
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </active>
+           <inactive>
+            <colorrole role="Base" >
+             <brush brushstyle="SolidPattern" >
+              <color alpha="255" >
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Window" >
+             <brush brushstyle="SolidPattern" >
+              <color alpha="255" >
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </inactive>
+           <disabled>
+            <colorrole role="Base" >
+             <brush brushstyle="SolidPattern" >
+              <color alpha="255" >
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Window" >
+             <brush brushstyle="SolidPattern" >
+              <color alpha="255" >
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </disabled>
+          </palette>
+         </property>
+         <property name="autoFillBackground" >
+          <bool>true</bool>
          </property>
          <property name="currentIndex" >
           <number>3</number>
@@ -1288,7 +1291,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>552</width>
+     <width>641</width>
      <height>22</height>
     </rect>
    </property>
