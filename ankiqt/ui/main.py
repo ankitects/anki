@@ -1098,7 +1098,16 @@ your deck."""))
                 layout.addWidget(l, c+1, 2)
                 # open
                 openButton = QPushButton(_("Open"))
-                openButton.setToolTip(_("Open this deck"))
+                if c < 9:
+                    if sys.platform.startswith("darwin"):
+                        extra = _(" (Command+Option+%d)") % (c+1)
+                        openButton.setShortcut(_("Ctrl+Alt+%d" % (c+1)))
+                    else:
+                        extra = _(" (Ctrl+%d)") % (c+1)
+                        openButton.setShortcut(_("Alt+%d" % (c+1)))
+                else:
+                    extra = ""
+                openButton.setToolTip(_("Open this deck%s") % extra)
                 self.connect(openButton, SIGNAL("clicked()"),
                              lambda d=deck['path']: self.loadDeck(d))
                 layout.addWidget(openButton, c+1, 4)
