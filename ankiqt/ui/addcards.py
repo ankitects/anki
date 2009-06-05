@@ -12,6 +12,7 @@ from anki.utils import stripHTML, parseTags
 from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from ankiqt import ui
 from anki.sound import clearAudioQueue
+from anki.hooks import addHook, removeHook
 
 class FocusButton(QPushButton):
     def focusInEvent(self, evt):
@@ -36,12 +37,13 @@ class AddCards(QDialog):
         self.addChooser()
         self.addButtons()
         self.setupStatus()
-        self.modelChanged(self.parent.deck.currentModel)
+        self.modelChanged()
         self.addedItems = 0
         self.forceClose = False
         restoreGeom(self, "add")
         restoreSplitter(self.dialog.splitter, "add")
         self.show()
+        addHook('guiReset', self.modelChanged)
         ui.dialogs.open("AddCards", self)
 
     def setupEditor(self):
@@ -52,8 +54,7 @@ class AddCards(QDialog):
     def addChooser(self):
         self.modelChooser = ui.modelchooser.ModelChooser(self,
                                                          self.parent,
-                                                         self.parent.deck,
-                                                         self.modelChanged)
+                                                         self.parent.deck)
         self.dialog.modelArea.setLayout(self.modelChooser)
 
     def helpRequested(self):
@@ -97,7 +98,7 @@ class AddCards(QDialog):
         browser.updateSearch()
         browser.onFact()
 
-    def modelChanged(self, model):
+    def modelChanged(self):
         oldFact = self.editor.fact
         # create a new fact
         fact = self.parent.deck.newFact()
@@ -176,6 +177,7 @@ question or answer on all cards."""), parent=self)
             QDialog.reject(self)
 
     def onClose(self):
+        removeHook('guiReset', self.modelChanged)
         # stop anything playing
         clearAudioQueue()
         if (self.forceClose or self.editor.fieldsAreBlank() or

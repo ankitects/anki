@@ -9,10 +9,11 @@ from anki import stdmodels
 from anki.models import *
 from ankiqt import ui
 import ankiqt.forms
+from anki.hooks import addHook, removeHook
 
 class ModelChooser(QHBoxLayout):
 
-    def __init__(self, parent, main, deck, onChangeFunc, cards=True, label=True):
+    def __init__(self, parent, main, deck, onChangeFunc=None, cards=True, label=True):
         QHBoxLayout.__init__(self)
         self.parent = parent
         self.main = main
@@ -54,6 +55,7 @@ class ModelChooser(QHBoxLayout):
             self.connect(self.cards, SIGNAL("clicked()"), self.onCardChange)
             self.addWidget(self.cards)
             self.drawCardModels()
+        addHook('guiReset', self.onModelEdited)
 
     def show(self):
         for i in range(self.count()):
@@ -68,6 +70,9 @@ class ModelChooser(QHBoxLayout):
                                            onFinish=self.onModelEdited)
 
     def onModelEdited(self):
+        # hack
+        from ankiqt import mw
+        self.deck = mw.deck
         self.drawModels()
         self.changed(self.deck.currentModel)
 
@@ -79,7 +84,8 @@ class ModelChooser(QHBoxLayout):
 
     def changed(self, model):
         self.deck.addModel(model)
-        self.onChangeFunc(model)
+        if self.onChangeFunc:
+            self.onChangeFunc(model)
         self.drawCardModels()
 
     def drawModels(self):
