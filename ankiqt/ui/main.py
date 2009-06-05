@@ -240,6 +240,7 @@ Please do not file a bug report with Anki.<br>""")
             self.currentCard = None
             self.lastCard = None
             self.editor.deck = self.deck
+            self.updateRecentFilesMenu()
             if self.deck:
                 self.enableDeckMenuItems()
                 self.updateViews(state)
@@ -269,6 +270,7 @@ Please do not file a bug report with Anki.<br>""")
             self.help.hide()
             self.currentCard = None
             self.lastCard = None
+            self.updateRecentFilesMenu()
             self.disableDeckMenuItems()
             # hide all deck-associated dialogs
             self.closeAllDeckWindows()
@@ -707,6 +709,30 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         self.config['recentDeckPaths'].insert(0, path)
         del self.config['recentDeckPaths'][20:]
         self.config.save()
+        self.updateRecentFilesMenu()
+
+    def updateRecentFilesMenu(self):
+        self.config['recentDeckPaths'] = [
+            p for p in self.config['recentDeckPaths']
+            if os.path.exists(p)]
+        if not self.config['recentDeckPaths']:
+            self.mainWin.menuOpenRecent.setEnabled(False)
+            return
+        self.mainWin.menuOpenRecent.setEnabled(True)
+        self.mainWin.menuOpenRecent.clear()
+        n = 1
+        for file in self.config['recentDeckPaths']:
+            a = QAction(self)
+            if sys.platform.startswith("darwin"):
+                a.setShortcut(_("Ctrl+Alt+%d" % n))
+            else:
+                a.setShortcut(_("Alt+%d" % n))
+            a.setText(os.path.basename(file))
+            a.setStatusTip(os.path.abspath(file))
+            self.connect(a, SIGNAL("triggered()"),
+                         lambda n=n: self.loadRecent(n-1))
+            self.mainWin.menuOpenRecent.addAction(a)
+            n += 1
 
     def loadRecent(self, n):
         self.loadDeck(self.config['recentDeckPaths'][n])
@@ -972,10 +998,12 @@ your deck."""))
             l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             layout.addWidget(l, 0, 2)
             toRemove = []
-            self.startProgress(max=len(self.config['recentDeckPaths']))
+            if ui.splash.finished:
+                self.startProgress(max=len(self.config['recentDeckPaths']))
             for c, d in enumerate(self.config['recentDeckPaths']):
-                self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
-                    'x': c, 'y': len(self.config['recentDeckPaths'])})
+                if ui.splash.finished:
+                    self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
+                        'x': c, 'y': len(self.config['recentDeckPaths'])})
                 if not os.path.exists(d):
                     toRemove.append(d)
                     continue
@@ -1033,7 +1061,8 @@ your deck."""))
             layout.addWidget(refresh, c+2, 3)
             for d in toRemove:
                 self.config['recentDeckPaths'].remove(d)
-            self.finishProgress()
+            if ui.splash.finished:
+                self.finishProgress()
         else:
             layout.addWidget(QLabel(_(
                 "Welcome to Anki! Click 'Download Deck' to get started.")), 0, 0)

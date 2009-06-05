@@ -1501,8 +1501,14 @@
      <addaction name="actionDownloadSharedDeck" />
      <addaction name="actionDownloadSharedPlugin" />
     </widget>
+    <widget class="QMenu" name="menuOpenRecent" >
+     <property name="title" >
+      <string>Open &amp;Recent</string>
+     </property>
+    </widget>
     <addaction name="actionNew" />
     <addaction name="actionOpen" />
+    <addaction name="menuOpenRecent" />
     <addaction name="menuDownload" />
     <addaction name="actionImport" />
     <addaction name="separator" />
@@ -2302,6 +2308,11 @@
   <action name="actionFullDatabaseCheck" >
    <property name="text" >
     <string>Full Database Check...</string>
+   </property>
+  </action>
+  <action name="action123" >
+   <property name="text" >
+    <string>123</string>
    </property>
   </action>
  </widget>

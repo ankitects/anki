@@ -32,6 +32,7 @@ sys.path.append(os.path.dirname(__file__))
 class SplashScreen(object):
 
     def __init__(self, max=100):
+        self.finished = False
         self.pixmap = QPixmap(":/icons/anki-logo.png")
         self.splash = QSplashScreen(self.pixmap)
         self.prog = QProgressBar(self.splash)
@@ -63,6 +64,7 @@ color: #13486c;
 
     def finish(self, obj):
         self.splash.finish(obj)
+        self.finished = True
 
 class AnkiApp(QApplication):
 
