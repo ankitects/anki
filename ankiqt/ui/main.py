@@ -995,7 +995,7 @@ your deck."""))
         for c, d in enumerate(self.config['recentDeckPaths']):
             if ui.splash.finished:
                 self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
-                    'x': c, 'y': len(self.config['recentDeckPaths'])})
+                    'x': c+1, 'y': len(self.config['recentDeckPaths'])})
             if not os.path.exists(d):
                 toRemove.append(d)
                 continue
@@ -1074,8 +1074,9 @@ your deck."""))
                     n = n[:30] + "..."
                 mod = _("%s ago") % anki.utils.fmtTimeSpan(
                     time.time() - deck['mod'])
+                mod = "<font size=-1>%s</font>" % mod
                 layout.addWidget(QLabel(
-                    "%d. <b>%s</b><br>&nbsp;&nbsp;&nbsp;&nbsp;<i>%s</i>" %
+                    "%d. <b>%s</b><br>&nbsp;&nbsp;&nbsp;&nbsp;%s" %
                     (c+1, n, mod)), c+1, 0)
                 # due
                 col = '<b><font color=#0000ff>%s</font></b>'
