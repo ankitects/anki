@@ -67,7 +67,7 @@ class AnkiQt(QMainWindow):
             self.restoreState(self.config['mainWindowState'])
         # load deck
         ui.splash.update()
-        if (self.config['loadLastDeck'] or
+        if (args or self.config['loadLastDeck'] or
             len(self.config['recentDeckPaths']) == 1) and \
             not self.maybeLoadLastDeck(args):
             self.setEnabled(True)
