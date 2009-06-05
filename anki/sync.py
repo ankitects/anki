@@ -68,9 +68,12 @@ class SyncTools(object):
         if not self.prepareSync():
             return
         sums = self.summaries()
-        payload = self.genPayload(sums)
-        res = self.server.applyPayload(payload)
-        self.applyPayloadReply(res)
+        if self.needFullSync(sums):
+            self.fullSync()
+        else:
+            payload = self.genPayload(sums)
+            res = self.server.applyPayload(payload)
+            self.applyPayloadReply(res)
         if self.mediaSyncPending:
             bulkClient = BulkMediaSyncer(self.deck)
             bulkServer = BulkMediaSyncer(self.server.deck)
@@ -989,6 +992,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             # wait for reply
             dst.close()
             tmp.close()
+            os.close(fd)
             errcode, errmsg, headers = h.getreply()
             assert errcode == 200
         finally:
@@ -1014,6 +1018,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                 runHook("fullSyncProgress", "fromServer", cnt)
             src.close()
             tmp.close()
+            os.close(fd)
             # if we were successful, overwrite old deck
             os.unlink(path)
             os.rename(tmpname, path)
