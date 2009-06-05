@@ -298,6 +298,7 @@ class EditDeck(QMainWindow):
         self.deck.s.flush()
         self.model = DeckModel(self.parent, self.parent.deck)
         self.dialog.tableView.setSortingEnabled(False)
+        self.dialog.tableView.setShowGrid(False)
         self.dialog.tableView.setModel(self.model)
         self.dialog.tableView.selectionModel()
         self.connect(self.dialog.tableView.selectionModel(),
