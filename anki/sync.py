@@ -68,12 +68,9 @@ class SyncTools(object):
         if not self.prepareSync():
             return
         sums = self.summaries()
-        if self.needFullSync(sums):
-            self.fullSync()
-        else:
-            payload = self.genPayload(sums)
-            res = self.server.applyPayload(payload)
-            self.applyPayloadReply(res)
+        payload = self.genPayload(sums)
+        res = self.server.applyPayload(payload)
+        self.applyPayloadReply(res)
         if self.mediaSyncPending:
             bulkClient = BulkMediaSyncer(self.deck)
             bulkServer = BulkMediaSyncer(self.server.deck)
