@@ -2559,6 +2559,10 @@ Consider backing up your media directory first."""))
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
+        if sys.platform.startswith("win32"):
+            self.mainWin.frame_3.setFrameStyle(QFrame.Panel)
+            self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
+            self.mainWin.studyOptionsFrame.setFrameStyle(QFrame.Panel)
 
     def onMacLoad(self, fname):
         self.loadDeck(fname)
