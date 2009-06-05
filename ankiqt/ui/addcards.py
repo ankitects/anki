@@ -87,7 +87,7 @@ class AddCards(QDialog):
             p = self.dialog.status.palette()
             c = unicode(p.color(QPalette.Window).name())
             self.dialog.status.setStyleSheet(
-                "* { background: %s; color: #000000; }" % c)
+                "* { background: %s; }" % c)
         self.connect(self.dialog.status, SIGNAL("anchorClicked(QUrl)"),
                      self.onLink)
 
