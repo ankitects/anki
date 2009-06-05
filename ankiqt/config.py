@@ -96,6 +96,7 @@ class Config(dict):
             'proxyUser': '',
             'proxyPass': '',
             'loadLastDeck': False,
+            'deckBrowserRefreshPeriod': 3600,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):
