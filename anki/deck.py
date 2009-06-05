@@ -2279,7 +2279,6 @@ select id from fields where factId not in (select id from facts)""")
                             "Deleted %d dangling fields", len(ids)) %
                             len(ids))
         for card in deletedCards:
-            print card
             problems.append(_("Deleted: ") + "%s %s" % tuple(card))
         self.s.flush()
         if not quick:
