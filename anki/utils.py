@@ -111,18 +111,18 @@ def _pluralCount(time):
         return 1
     return round(time, 1)
 
-# locale
+# Locale
 ##############################################################################
 
 def fmtPercentage(float_value, point=1):
-	"Return string representing a float respecting current locale followed by a percentage sign"
-	fmt = '%' + "0.%(b)df" % {'b': point}
-	return locale.format_string(fmt, float_value) + "%"
+    "Return float with percentage sign"
+    fmt = '%' + "0.%(b)df" % {'b': point}
+    return locale.format_string(fmt, float_value) + "%"
 
 def fmtFloat(float_value, point=1):
-	"Return a string representing a float with decimal separator according to current locale"
-	fmt = '%' + "0.%(b)df" % {'b': point}
-	return locale.format_string(fmt, float_value)
+    "Return a string with decimal separator according to current locale"
+    fmt = '%' + "0.%(b)df" % {'b': point}
+    return locale.format_string(fmt, float_value)
 
 # HTML
 ##############################################################################

@@ -83,6 +83,8 @@ class Card(object):
             self.fact = fact
         if cardModel:
             self.cardModel = cardModel
+            # for non-orm use
+            self.cardModelId = cardModel.id
             self.ordinal = cardModel.ordinal
             d = {}
             for f in self.fact.model.fieldModels:
