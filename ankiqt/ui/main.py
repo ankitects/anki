@@ -1162,8 +1162,8 @@ later by clicking on the left-pointing arrow on the toolbar.
         elif idx == 2:
             # delete
             deck = self.browserDecks[c]['path']
-            del self.browserDecks[c]
             if ui.utils.askUser(_("Delete %s?") % os.path.basename(deck)):
+                del self.browserDecks[c]
                 os.unlink(deck)
                 self.config['recentDeckPaths'].remove(deck)
             self.showDeckBrowser()
