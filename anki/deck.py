@@ -604,14 +604,20 @@ and combinedDue <= :t""", t=time.time())
             "select count(*) from cards where "
             "type = 2 and priority in (1,2,3,4) and isDue = 1")
 
+    def forceIndex(self, index):
+        ver = sqlite.sqlite_version.split(".")
+        if int(ver[1]) >= 6 and int(ver[2]) >= 4:
+            # only supported in 3.6.4+
+            return " indexed by " + index + " "
+        return ""
+
     def checkDue(self):
         "Mark expired cards due, and update counts."
         self.checkDailyStats()
         # mark due & update counts
-        stmt = """
-update cards set
-isDue = 1 where type = %d and isDue = 0 and
-priority in (1,2,3,4) and combinedDue <= :now"""
+        stmt = ("update cards " + self.forceIndex("ix_cards_priorityDue") +
+                "set isDue = 1 where type = %d and isDue = 0 and " +
+                "priority in (1,2,3,4) and combinedDue <= :now")
         # failed cards
         self.failedSoonCount += self.s.statement(
             stmt % 0, now=time.time()+self.delay0).rowcount
@@ -630,7 +636,6 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
 
     def rebuildQueue(self):
         "Update relative delays based on current time."
-        t = time.time()
         # setup global/daily stats
         self._globalStats = globalStats(self)
         self._dailyStats = dailyStats(self)
@@ -655,7 +660,6 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
                                or Deck.initialFactor)
         # recache css
         self.rebuildCSS()
-        #print "rebuild queue", time.time() - t
 
     def checkDailyStats(self):
         # check if the day has rolled over
@@ -667,9 +671,10 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         if ids:
             self.updatePriorities(ids)
             self.flushMod()
-        self.reviewEarly = False
-        self.newEarly = False
-        self.checkDue()
+        if self.reviewEarly or self.newEarly:
+            self.reviewEarly = False
+            self.newEarly = False
+            self.checkDue()
 
     # Times
     ##########################################################################
@@ -856,9 +861,9 @@ select count(id) from cards where type in (0,1,2) and priority = 0""")
 
     def spacedCardCount(self):
         return self.s.scalar("""
-select count(cards.id) from cards where
-type in (1,2) and isDue = 0 and priority in (1,2,3,4) and combinedDue > :now
-and due < :now""", now=time.time())
+select count(cards.id) from cards %s where
+type = 2 and isDue = 0 and priority in (1,2,3,4) and combinedDue > :now
+and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
 
     def isEmpty(self):
         return not self.cardCount
@@ -1225,7 +1230,6 @@ answerAlign from cardModels""")])
         (hexifyID(row[0]), row[1]) for row in self.s.all("""
 select id, lastFontColour from cardModels""")])
         self.css = css
-        #print css
         return css
 
     def copyModel(self, oldModel):
@@ -2466,7 +2470,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         for c, s in enumerate(sql):
             if mod and not c % mod:
                 self.updateProgress()
-            #print "--", s.encode("utf-8")[0:30]
             self.engine.execute(s)
         newend = self._latestUndoRow()
         dst.append([u[0], newstart, newend])
@@ -2669,7 +2672,9 @@ class DeckStorage(object):
         # update counts
         deck.rebuildQueue()
         # unsuspend reviewed early & buried
-        ids = deck.s.column0("select id from cards where priority in (-1, -2)")
+        ids = deck.s.column0(
+            "select id from cards where type in (0,1,2) and isDue = 0 and "
+            "priority in (-1, -2)")
         if ids:
             deck.updatePriorities(ids)
             deck.checkDue()
@@ -2711,7 +2716,7 @@ create index if not exists ix_cards_duePriority on cards
         # check due
         deck.s.statement("""
 create index if not exists ix_cards_priorityDue on cards
-(type, isDue, combinedDue, priority)""")
+(type, isDue, priority, combinedDue)""")
         # average factor
         deck.s.statement("""
 create index if not exists ix_cards_factor on cards
@@ -3134,6 +3139,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.version = 34
             deck.s.commit()
         if deck.version < 36:
+            deck.s.statement("drop index if exists ix_cards_priorityDue")
             DeckStorage._addIndices(deck)
             deck.s.execute("analyze")
             deck.version = 36
