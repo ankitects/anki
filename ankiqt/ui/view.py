@@ -8,7 +8,7 @@ import anki, anki.utils
 from anki.sound import playFromText, stripSounds
 from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
-from anki.hooks import runHook
+from anki.hooks import runHook, runFilter
 import types, time, re, os, urllib, sys, difflib
 from ankiqt import ui
 from ankiqt.ui.utils import mungeQA, getBase
@@ -136,6 +136,7 @@ class View(object):
             height = 35
         else:
             height = 45
+        q = runFilter("drawQuestion", q)
         self.write(self.center(self.mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
@@ -168,6 +169,7 @@ class View(object):
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
+        a = runFilter("drawAnswer", a)
         if self.main.currentCard.cardModel.typeAnswer:
             try:
                 cor = stripHTML(self.main.currentCard.fact[
