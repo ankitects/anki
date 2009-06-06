@@ -1003,9 +1003,12 @@ your deck."""))
                 continue
             try:
                 deck = DeckStorage.Deck(d, backup=False)
-            except:
-                toRemove.append(d)
-                continue
+            except Exception, e:
+                if not "File is in use" in str(e):
+                    print "remove"
+                    toRemove.append(d)
+                else:
+                    continue
             self.browserDecks.append({
                 'path': d,
                 'name': deck.name(),
