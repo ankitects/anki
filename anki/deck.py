@@ -50,7 +50,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 35
+DECK_VERSION = 36
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -2712,6 +2712,10 @@ create index if not exists ix_cards_duePriority on cards
         deck.s.statement("""
 create index if not exists ix_cards_priorityDue on cards
 (type, isDue, combinedDue, priority)""")
+        # average factor
+        deck.s.statement("""
+create index if not exists ix_cards_factor on cards
+(type, factor)""")
         # card spacing
         deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId, type)""")
@@ -3129,9 +3133,9 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.updateDynamicIndices()
             deck.version = 34
             deck.s.commit()
-        if deck.version < 35:
+        if deck.version < 36:
             DeckStorage._addIndices(deck)
-            deck.version = 35
+            deck.version = 36
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
