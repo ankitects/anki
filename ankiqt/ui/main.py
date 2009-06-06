@@ -1005,7 +1005,6 @@ your deck."""))
                 deck = DeckStorage.Deck(d, backup=False)
             except Exception, e:
                 if not "File is in use" in str(e):
-                    print "remove"
                     toRemove.append(d)
                 else:
                     continue
