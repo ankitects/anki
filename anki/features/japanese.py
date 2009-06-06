@@ -10,6 +10,7 @@ from anki.hooks import addHook
 modelTag = "Japanese"
 srcField = "Expression"
 dstField = "Reading"
+kakasiCmd = "kakasi -isjis -osjis -u -f -s -JH -p"
 
 class KakasiController(object):
     def __init__(self):
@@ -46,7 +47,7 @@ class KakasiController(object):
                 from errno import ENOENT
                 raise OSError(ENOENT, 'Kakasi not available')
             # don't convert kana to hiragana
-            p = Popen("kakasi -isjis -osjis -u -f -s -JH -p", shell=True,
+            p = Popen(kakasiCmd, shell=True,
                       bufsize=-1, stdin=PIPE, stdout=PIPE)
             (self.kin, self.kout) = (p.stdin, p.stdout)
             self._open = True
