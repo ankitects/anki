@@ -72,4 +72,7 @@ class Mnemosyne10Importer(Importer):
     def fudgeText(self, text):
         text = text.replace("\n", "<br>")
         text = re.sub('<sound src="(.*?)">', '[sound:\\1]', text)
+        text = re.sub('<(/?latex)>', '[\\1]', text)
+        text = re.sub('<(/?\$)>', '[\\1]', text)
+        text = re.sub('<(/?\$\$)>', '[\\1]', text)
         return text
