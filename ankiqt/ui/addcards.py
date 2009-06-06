@@ -54,7 +54,8 @@ class AddCards(QDialog):
     def addChooser(self):
         self.modelChooser = ui.modelchooser.ModelChooser(self,
                                                          self.parent,
-                                                         self.parent.deck)
+                                                         self.parent.deck,
+                                                         self.modelChanged)
         self.dialog.modelArea.setLayout(self.modelChooser)
 
     def helpRequested(self):
@@ -98,7 +99,7 @@ class AddCards(QDialog):
         browser.updateSearch()
         browser.onFact()
 
-    def modelChanged(self):
+    def modelChanged(self, model=None):
         oldFact = self.editor.fact
         # create a new fact
         fact = self.parent.deck.newFact()
