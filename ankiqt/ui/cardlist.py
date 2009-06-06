@@ -646,7 +646,10 @@ class EditDeck(QMainWindow):
         saveHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.hide()
         ui.dialogs.close("CardList")
-        self.parent.moveToState("auto")
+        if self.parent.currentCard:
+            self.parent.moveToState("showQuestion")
+        else:
+            self.parent.moveToState("auto")
         self.teardownHooks()
         return True
 
