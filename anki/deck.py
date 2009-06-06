@@ -3135,6 +3135,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.commit()
         if deck.version < 36:
             DeckStorage._addIndices(deck)
+            deck.s.execute("analyze")
             deck.version = 36
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
