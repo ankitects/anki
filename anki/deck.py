@@ -50,7 +50,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 36
+DECK_VERSION = 37
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -2013,7 +2013,6 @@ where key = :key""", key=key, value=value):
             self.failedCardMax = 20
         elif idx == 1:
             d = 0
-            self.failedCardMax = 1000
         elif idx == 2:
             d = 600
         elif idx == 3:
@@ -3143,6 +3142,11 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             DeckStorage._addIndices(deck)
             deck.s.execute("analyze")
             deck.version = 36
+            deck.s.commit()
+        if deck.version < 37:
+            if deck.getFailedCardPolicy() == 1:
+                deck.failedCardMax = 0
+            deck.version = 37
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
