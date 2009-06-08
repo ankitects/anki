@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-07 18:47+0200\n"
+"POT-Creation-Date: 2009-06-09 04:09+0900\n"
 "PO-Revision-Date: 2008-01-01 19:00+0100\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -250,11 +250,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:2207
+#: deck.py:2206
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:2217
+#: deck.py:2216
 msgid "Checking schema..."
 msgstr ""
 
@@ -276,11 +276,11 @@ msgstr "Vzor nenalezen. Soubor musí být řádky s výrazy oddělenými čárka
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3240
+#: deck.py:3244
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:2210
+#: deck.py:2209
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -295,11 +295,11 @@ msgstr "Statistika balíku"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Balík vytvořen před: <b>%s</b><br>"
 
-#: deck.py:2606
+#: deck.py:2605
 msgid "Deck missing core table"
 msgstr ""
 
-#: deck.py:2220
+#: deck.py:2219
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -311,49 +311,49 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:2255
+#: deck.py:2254
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2267
+#: deck.py:2266
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2282
+#: deck.py:2281
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2244
+#: deck.py:2243
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2273
+#: deck.py:2272
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2234
+#: deck.py:2233
 #, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2286
+#: deck.py:2285
 msgid "Deleted: "
 msgstr ""
 
@@ -381,7 +381,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "výrazy oddělené tabulátory (*.txt)"
 
-#: deck.py:2653
+#: deck.py:2652
 msgid "File is in use by another process"
 msgstr ""
 
@@ -404,7 +404,7 @@ msgstr "Poprvé"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 msgid "Importing..."
 msgstr ""
 
@@ -502,23 +502,23 @@ msgstr ""
 msgid "Please add some cards first."
 msgstr "Nejprve vložte nějaké kartičky"
 
-#: deck.py:2468
+#: deck.py:2467
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:2304
+#: deck.py:2303
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:2324
+#: deck.py:2323
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:2298
+#: deck.py:2297
 msgid "Rebuilding tag cache..."
 msgstr ""
 
-#: deck.py:2322
+#: deck.py:2321
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -540,19 +540,19 @@ msgstr "%s měsíc"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:3227
+#: deck.py:3231
 msgid "Review cards from largest interval"
 msgstr ""
 
-#: deck.py:3228
+#: deck.py:3232
 msgid "Review cards from smallest interval"
 msgstr ""
 
-#: deck.py:3229
+#: deck.py:3233
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:3230
+#: deck.py:3234
 msgid "Review cards in random order"
 msgstr ""
 
@@ -569,47 +569,47 @@ msgstr "Správně"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:3236
+#: deck.py:3240
 msgid "Show failed cards at end"
 msgstr ""
 
-#: deck.py:3237
+#: deck.py:3241
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:3239
+#: deck.py:3243
 msgid "Show failed cards in 3 days"
 msgstr ""
 
-#: deck.py:3238
+#: deck.py:3242
 msgid "Show failed cards in 8 hours"
 msgstr ""
 
-#: deck.py:3235
+#: deck.py:3239
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:3221
+#: deck.py:3225
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:3222
+#: deck.py:3226
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:3214
+#: deck.py:3218
 msgid "Show new cards in order added"
 msgstr ""
 
-#: deck.py:3213
+#: deck.py:3217
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:3215
+#: deck.py:3219
 msgid "Show new cards in reverse order added"
 msgstr ""
 
-#: deck.py:3220
+#: deck.py:3224
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -621,7 +621,7 @@ msgstr "Textové soubory (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: deck.py:2226
+#: deck.py:2225
 msgid "The current model didn't exist"
 msgstr ""
 
@@ -695,11 +695,11 @@ msgstr "Nové kartičky"
 msgid "Update tags..."
 msgstr "Štítky výrazů"
 
-#: deck.py:2301
+#: deck.py:2300
 msgid "Updating priorities..."
 msgstr ""
 
-#: deck.py:2818
+#: deck.py:2817
 msgid "Upgrading Deck..."
 msgstr ""
 

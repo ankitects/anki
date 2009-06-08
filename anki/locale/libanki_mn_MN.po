@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-07 18:47+0200\n"
+"POT-Creation-Date: 2009-06-09 04:09+0900\n"
 "PO-Revision-Date: 2009-04-20 13:12+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -271,11 +271,11 @@ msgstr "Талбаруудыг өөрчилж байна..."
 msgid "Check Media DB"
 msgstr "Мэдиа өгөгдлийн саныг шалгах"
 
-#: deck.py:2207
+#: deck.py:2206
 msgid "Checking integrity..."
 msgstr "Чанарыг шалгаж байна..."
 
-#: deck.py:2217
+#: deck.py:2216
 msgid "Checking schema..."
 msgstr "Cхемийг шалгаж байна..."
 
@@ -296,11 +296,11 @@ msgstr "Дүрсийг олоогүй. Мөрийн цуваад цахилга�
 msgid "CueCard Deck (*.wcu)"
 msgstr "КюуКарт цуглуулга (*.wcu)"
 
-#: deck.py:3240
+#: deck.py:3244
 msgid "Custom failed cards handling"
 msgstr "Дампуурсан картын тохируулсан боловсруулалт"
 
-#: deck.py:2210
+#: deck.py:2209
 #, fuzzy
 msgid ""
 "Database file is damaged.\n"
@@ -316,12 +316,12 @@ msgstr "Цуглуулгын статистикс"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "<b>%s</b>-н өмнө<br> цуглуулгыг үүсгэсэн"
 
-#: deck.py:2606
+#: deck.py:2605
 #, fuzzy
 msgid "Deck missing core table"
 msgstr "Цуглуулгаас нэг зүйл сураггүй алга болсон"
 
-#: deck.py:2220
+#: deck.py:2219
 msgid "Deck was missing a model"
 msgstr "Цуглуулгаас нэг зүйл сураггүй алга болсон"
 
@@ -333,49 +333,49 @@ msgstr "Хуучин лавлахыг устгах..."
 msgid "Delete unused files..."
 msgstr "Хэрэглээгүй файлуудыг устга"
 
-#: deck.py:2255
+#: deck.py:2254
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] "Баримтгүй картыг %d устгасан"
 msgstr[1] "Баримтгүй картуудыг %d устгасан"
 
-#: deck.py:2267
+#: deck.py:2266
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] "%d бэлдэцгүй картыг устгасан"
 msgstr[1] "%d бэлдэцгүй картуудыг устгасан"
 
-#: deck.py:2282
+#: deck.py:2281
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] "%d унжиж байгаа талбарыг устгасан"
 msgstr[1] "%d унжиж байгаа талбаруудыг устгасан"
 
-#: deck.py:2244
+#: deck.py:2243
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] "%d талбар сураггүй алга болсон баримтыг устгасан"
 msgstr[1] "%d талбар сураггүй алга болсон баримтуудыг устгасан"
 
-#: deck.py:2273
+#: deck.py:2272
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] "%d картгүй баримтыг устгасан"
 msgstr[1] "%d картгүй баримтуудыг устгасан"
 
-#: deck.py:2234
+#: deck.py:2233
 #, fuzzy, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] "%d талбар сураггүй алга болсон баримтыг устгасан"
 msgstr[1] "%d талбар сураггүй алга болсон баримтуудыг устгасан"
 
-#: deck.py:2286
+#: deck.py:2285
 msgid "Deleted: "
 msgstr ""
 
@@ -406,7 +406,7 @@ msgstr "Экспортолж байна..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Цахилгаанаар тусгаарласан утгуудтай баримтын файл (*.txt)"
 
-#: deck.py:2653
+#: deck.py:2652
 msgid "File is in use by another process"
 msgstr "Файл өөр процессоор хэрэгжүүлж байна"
 
@@ -426,7 +426,7 @@ msgstr "Өнгөрсөн 7 хоногийн анх нь"
 msgid "First-seen cards:"
 msgstr "Эхлээд үзсэн картууд:"
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 msgid "Importing..."
 msgstr "Импортолж байна..."
 
@@ -518,23 +518,23 @@ msgstr "Дахин давтсан карт байхгүй."
 msgid "Please add some cards first."
 msgstr "Эхлээд картуудыг нэмнэ уу?"
 
-#: deck.py:2468
+#: deck.py:2467
 msgid "Processing..."
 msgstr "Хийж байна..."
 
-#: deck.py:2304
+#: deck.py:2303
 msgid "Rebuilding QA cache..."
 msgstr "Асуулт, хариултын ойг дахин барж байна..."
 
-#: deck.py:2324
+#: deck.py:2323
 msgid "Rebuilding counts..."
 msgstr "Тооцоонуудыг дахин барж байна..."
 
-#: deck.py:2298
+#: deck.py:2297
 msgid "Rebuilding tag cache..."
 msgstr "Шошгын ойг дахин барж байна..."
 
-#: deck.py:2322
+#: deck.py:2321
 msgid "Rebuilding types..."
 msgstr "Төрөлтүүдийг дахин барж байна..."
 
@@ -554,19 +554,19 @@ msgstr "Ирэх сарын удаа"
 msgid "Reps next week"
 msgstr "Ирэх 7 хоногийн удаа"
 
-#: deck.py:3227
+#: deck.py:3231
 msgid "Review cards from largest interval"
 msgstr "Зүйлээс хамгийн томоос нь картуудыг давтах"
 
-#: deck.py:3228
+#: deck.py:3232
 msgid "Review cards from smallest interval"
 msgstr "Зүйлээс хамгийн багаас нь картуудыг давтах"
 
-#: deck.py:3229
+#: deck.py:3233
 msgid "Review cards in order due"
 msgstr "Дахин давтахын дарааллаар картуудыг давтах"
 
-#: deck.py:3230
+#: deck.py:3234
 msgid "Review cards in random order"
 msgstr "Санамсаргүй дарааллаар картуудыг давтах"
 
@@ -582,47 +582,47 @@ msgstr "Баруун"
 msgid "Scan fields..."
 msgstr "Талбаруудыг хайх..."
 
-#: deck.py:3236
+#: deck.py:3240
 msgid "Show failed cards at end"
 msgstr "Дампуурсан картууд сүүлт үзүүлэх"
 
-#: deck.py:3237
+#: deck.py:3241
 msgid "Show failed cards in 10 minutes"
 msgstr "Дампуурсан картууд 10 минутын дараа үзүүлэх"
 
-#: deck.py:3239
+#: deck.py:3243
 msgid "Show failed cards in 3 days"
 msgstr "Дампуурсан картууд 3 хоногийн дараа үзүүлэх"
 
-#: deck.py:3238
+#: deck.py:3242
 msgid "Show failed cards in 8 hours"
 msgstr "Дампуурсан картууд 8 цагийн дараа үзүүлэх"
 
-#: deck.py:3235
+#: deck.py:3239
 msgid "Show failed cards soon"
 msgstr "Дампуурсан картууд эрт үзүүлэх"
 
-#: deck.py:3221
+#: deck.py:3225
 msgid "Show new cards after all other cards"
 msgstr "Шинэ картыг бүх хуучин картын дараа үзэх"
 
-#: deck.py:3222
+#: deck.py:3226
 msgid "Show new cards before reviews"
 msgstr "Шинэ картыг бүх хуучин картын өмнө үзэх"
 
-#: deck.py:3214
+#: deck.py:3218
 msgid "Show new cards in order added"
 msgstr "Шинэ картыг нэмсэн дарааллаар үзэх"
 
-#: deck.py:3213
+#: deck.py:3217
 msgid "Show new cards in random order"
 msgstr "Шинэ картыг санамсаргүй дарааллаар үзэх"
 
-#: deck.py:3215
+#: deck.py:3219
 msgid "Show new cards in reverse order added"
 msgstr "Шинэ картыг арын нэмсэн дарааллаар үзэх"
 
-#: deck.py:3220
+#: deck.py:3224
 msgid "Spread new cards out through reviews"
 msgstr "Шинэ картыг давталтаар тэнцүү хуваах"
 
@@ -634,7 +634,7 @@ msgstr "Текстийн файлууд (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Цахилгаанаар эсвэл цэгтэй таслалаар тусгаарласан утгуудтай текст (*)"
 
-#: deck.py:2226
+#: deck.py:2225
 msgid "The current model didn't exist"
 msgstr "Одоогийн зүйл байхгүй"
 
@@ -703,11 +703,11 @@ msgstr "Үзээгүй картууд нь:"
 msgid "Update tags..."
 msgstr "Шошгыг шинэчлэх..."
 
-#: deck.py:2301
+#: deck.py:2300
 msgid "Updating priorities..."
 msgstr "Яарлыг шинэчилж байна..."
 
-#: deck.py:2818
+#: deck.py:2817
 msgid "Upgrading Deck..."
 msgstr "Цуглуулгыг шинэчилж байна..."
 

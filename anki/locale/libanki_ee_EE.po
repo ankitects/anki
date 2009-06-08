@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-07 18:47+0200\n"
+"POT-Creation-Date: 2009-06-09 04:09+0900\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -270,11 +270,11 @@ msgstr "Muudan väljasid..."
 msgid "Check Media DB"
 msgstr "Kontrolli meedia andmebaasi"
 
-#: deck.py:2207
+#: deck.py:2206
 msgid "Checking integrity..."
 msgstr "Kontrollin terviklikkust"
 
-#: deck.py:2217
+#: deck.py:2216
 msgid "Checking schema..."
 msgstr "Kontrollin skeemi..."
 
@@ -295,11 +295,11 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3240
+#: deck.py:3244
 msgid "Custom failed cards handling"
 msgstr "Kohanda ununendud kaartide töötlust"
 
-#: deck.py:2210
+#: deck.py:2209
 #, fuzzy
 msgid ""
 "Database file is damaged.\n"
@@ -315,12 +315,12 @@ msgstr "Kaardipaki statistika"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Kaardipakk loodud: <b>%s</b> tagasi<br>"
 
-#: deck.py:2606
+#: deck.py:2605
 #, fuzzy
 msgid "Deck missing core table"
 msgstr "Kaardipakil puudus mudel"
 
-#: deck.py:2220
+#: deck.py:2219
 msgid "Deck was missing a model"
 msgstr "Kaardipakil puudus mudel"
 
@@ -332,49 +332,49 @@ msgstr "Kustuta iganenenud viited..."
 msgid "Delete unused files..."
 msgstr "Kustuta mittekasutatavad failid..."
 
-#: deck.py:2255
+#: deck.py:2254
 #, fuzzy, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] "%d puuduva faktita kaarti kustutatud."
 msgstr[1] "%d puuduva faktita kaarti kustutatud."
 
-#: deck.py:2267
+#: deck.py:2266
 #, fuzzy, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] "%d kaardimallita kaarti kustutatud"
 msgstr[1] "%d kaardimallita kaarti kustutatud"
 
-#: deck.py:2282
+#: deck.py:2281
 #, fuzzy, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] "%d ripnevat välja kustutatud"
 msgstr[1] "%d ripnevat välja kustutatud"
 
-#: deck.py:2244
+#: deck.py:2243
 #, fuzzy, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] "%d puuduva väljaga fakti kustutatud"
 msgstr[1] "%d puuduva väljaga fakti kustutatud"
 
-#: deck.py:2273
+#: deck.py:2272
 #, fuzzy, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] "%d kaardita fakti kustutatud"
 msgstr[1] "%d kaardita fakti kustutatud"
 
-#: deck.py:2234
+#: deck.py:2233
 #, fuzzy, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] "%d puuduva väljaga fakti kustutatud"
 msgstr[1] "%d puuduva väljaga fakti kustutatud"
 
-#: deck.py:2286
+#: deck.py:2285
 msgid "Deleted: "
 msgstr ""
 
@@ -405,7 +405,7 @@ msgstr "Ekspordin..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Faktid tabulaatoriga eraldatud tekstifailis (*.txt)"
 
-#: deck.py:2653
+#: deck.py:2652
 msgid "File is in use by another process"
 msgstr "Fail on kasutusel teise protsessi käes"
 
@@ -425,7 +425,7 @@ msgstr "Esimene eelmisel nädalal"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 #, fuzzy
 msgid "Importing..."
 msgstr "Ekspordin..."
@@ -520,23 +520,23 @@ msgstr "Ühtegi kaarti ei ole tähtaegumas."
 msgid "Please add some cards first."
 msgstr "Palun lisa esmalt kaarte.<p/>"
 
-#: deck.py:2468
+#: deck.py:2467
 msgid "Processing..."
 msgstr "Töötlen..."
 
-#: deck.py:2304
+#: deck.py:2303
 msgid "Rebuilding QA cache..."
 msgstr "Ehitan uuesti QA vahemälu..."
 
-#: deck.py:2324
+#: deck.py:2323
 msgid "Rebuilding counts..."
 msgstr "Ehitan uuesti statistikat..."
 
-#: deck.py:2298
+#: deck.py:2297
 msgid "Rebuilding tag cache..."
 msgstr "Ehitan uuesti siltide vahemälu..."
 
-#: deck.py:2322
+#: deck.py:2321
 msgid "Rebuilding types..."
 msgstr "Ehitan uuesti tüüpe..."
 
@@ -556,19 +556,19 @@ msgstr "Kordamisi järgmisel kuul"
 msgid "Reps next week"
 msgstr "Kordamisi järgmisel nädalal"
 
-#: deck.py:3227
+#: deck.py:3231
 msgid "Review cards from largest interval"
 msgstr "Korda suurima vahekaugusega kaarte"
 
-#: deck.py:3228
+#: deck.py:3232
 msgid "Review cards from smallest interval"
 msgstr "Korda vähima vahekaugusega kaarte"
 
-#: deck.py:3229
+#: deck.py:3233
 msgid "Review cards in order due"
 msgstr "Korda kaarte tähtaegumise järjekorras"
 
-#: deck.py:3230
+#: deck.py:3234
 msgid "Review cards in random order"
 msgstr "Korda kaarte suvalises järjekorras"
 
@@ -584,47 +584,47 @@ msgstr "Parem"
 msgid "Scan fields..."
 msgstr "Uuri väljasid..."
 
-#: deck.py:3236
+#: deck.py:3240
 msgid "Show failed cards at end"
 msgstr "Näita ununenud kaarte lõpus"
 
-#: deck.py:3237
+#: deck.py:3241
 msgid "Show failed cards in 10 minutes"
 msgstr "Näita ununenud kaarte 10 minuti pärast"
 
-#: deck.py:3239
+#: deck.py:3243
 msgid "Show failed cards in 3 days"
 msgstr "Näita ununenud kaarte 3 päeva pärast"
 
-#: deck.py:3238
+#: deck.py:3242
 msgid "Show failed cards in 8 hours"
 msgstr "Näita ununenud kaarte 8 tunni pärast"
 
-#: deck.py:3235
+#: deck.py:3239
 msgid "Show failed cards soon"
 msgstr "Näita ununenud kaarte varsti"
 
-#: deck.py:3221
+#: deck.py:3225
 msgid "Show new cards after all other cards"
 msgstr "Näita uusi kaarte pärast kõiki teisi kaarte"
 
-#: deck.py:3222
+#: deck.py:3226
 msgid "Show new cards before reviews"
 msgstr "Näita uusi kaarte enne kordamist"
 
-#: deck.py:3214
+#: deck.py:3218
 msgid "Show new cards in order added"
 msgstr "Näita uusi kaarte lisamise järjekorras"
 
-#: deck.py:3213
+#: deck.py:3217
 msgid "Show new cards in random order"
 msgstr "Näita uusi kaarte suvalises järjekorras"
 
-#: deck.py:3215
+#: deck.py:3219
 msgid "Show new cards in reverse order added"
 msgstr "Näita uusi kaarte tagurpidi lisamise järjekorras"
 
-#: deck.py:3220
+#: deck.py:3224
 msgid "Spread new cards out through reviews"
 msgstr "Jaota uued kaardid üle kordamiste laiali"
 
@@ -636,7 +636,7 @@ msgstr "Tekstifailid (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: deck.py:2226
+#: deck.py:2225
 msgid "The current model didn't exist"
 msgstr "Praegune mudel ei olnud olemas"
 
@@ -707,11 +707,11 @@ msgstr ""
 msgid "Update tags..."
 msgstr "Uuenda silte..."
 
-#: deck.py:2301
+#: deck.py:2300
 msgid "Updating priorities..."
 msgstr "Uuendan omadusi..."
 
-#: deck.py:2818
+#: deck.py:2817
 msgid "Upgrading Deck..."
 msgstr "Uuendan kaardipakki..."
 

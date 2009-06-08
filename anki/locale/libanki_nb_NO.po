@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.7.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-07 18:47+0200\n"
+"POT-Creation-Date: 2009-06-09 04:09+0900\n"
 "PO-Revision-Date: 2009-05-15 14:27+0100\n"
 "Last-Translator: Lars Lem <larslem@online.no>\n"
 "Language-Team: Norwegian <larslem@online.no>\n"
@@ -272,11 +272,11 @@ msgstr "Endrer felt..."
 msgid "Check Media DB"
 msgstr "Kontroller mediadatabase"
 
-#: deck.py:2207
+#: deck.py:2206
 msgid "Checking integrity..."
 msgstr "Kontrollerer databaseintegritet"
 
-#: deck.py:2217
+#: deck.py:2216
 msgid "Checking schema..."
 msgstr "Kontrollerer skjema..."
 
@@ -297,11 +297,11 @@ msgstr "Kunne ikke finne mønsteret. Filen skal inneholde en serie av rader som 
 msgid "CueCard Deck (*.wcu)"
 msgstr "CueCard-kortstokk (*.wcu)"
 
-#: deck.py:3240
+#: deck.py:3244
 msgid "Custom failed cards handling"
 msgstr "Tilpasset håndtering av feilbesvarte kort"
 
-#: deck.py:2210
+#: deck.py:2209
 #, fuzzy
 msgid ""
 "Database file is damaged.\n"
@@ -317,12 +317,12 @@ msgstr "Kortstokkstatistikk"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Korstokk opprettet: for <b>%s</b> siden<br>"
 
-#: deck.py:2606
+#: deck.py:2605
 #, fuzzy
 msgid "Deck missing core table"
 msgstr "Det manglet en modell i kortstokken"
 
-#: deck.py:2220
+#: deck.py:2219
 msgid "Deck was missing a model"
 msgstr "Det manglet en modell i kortstokken"
 
@@ -334,49 +334,49 @@ msgstr "Ta bort foreldede referanser..."
 msgid "Delete unused files..."
 msgstr "Ta bort ubrukte filer..."
 
-#: deck.py:2255
+#: deck.py:2254
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] "Tok bort %d kort som manglet fakta"
 msgstr[1] "Tok bort %d kort som manglet fakta"
 
-#: deck.py:2267
+#: deck.py:2266
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] "Tok bort %d kort som manglet kortmal"
 msgstr[1] "Tok bort %d kort som manglet kortmal"
 
-#: deck.py:2282
+#: deck.py:2281
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] "Tok bort %d ubrukte felt"
 msgstr[1] "Tok bort %d ubrukte felt"
 
-#: deck.py:2244
+#: deck.py:2243
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] "Tok bort %d fakta som manglet felt"
 msgstr[1] "Tok bort %d fakta som manglet felt"
 
-#: deck.py:2273
+#: deck.py:2272
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] "Tok bort %d fakta uten kort"
 msgstr[1] "Tok bort %d fakta uten kort"
 
-#: deck.py:2234
+#: deck.py:2233
 #, fuzzy, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] "Tok bort %d fakta som manglet felt"
 msgstr[1] "Tok bort %d fakta som manglet felt"
 
-#: deck.py:2286
+#: deck.py:2285
 msgid "Deleted: "
 msgstr ""
 
@@ -407,7 +407,7 @@ msgstr "Eksporterer..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Fakta i tabb-separert tekstfil (*.txt)"
 
-#: deck.py:2653
+#: deck.py:2652
 msgid "File is in use by another process"
 msgstr "Filen brukes av en annen prosess"
 
@@ -427,7 +427,7 @@ msgstr "Første forrige uke"
 msgid "First-seen cards:"
 msgstr "Nye kort:"
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 msgid "Importing..."
 msgstr "Importerer..."
 
@@ -518,23 +518,23 @@ msgstr "Ingen kort der tiden er inne for repetisjon."
 msgid "Please add some cards first."
 msgstr "Legg til noen kort først."
 
-#: deck.py:2468
+#: deck.py:2467
 msgid "Processing..."
 msgstr "Behandler..."
 
-#: deck.py:2304
+#: deck.py:2303
 msgid "Rebuilding QA cache..."
 msgstr "Bygger om spørsmål/svars-cachen..."
 
-#: deck.py:2324
+#: deck.py:2323
 msgid "Rebuilding counts..."
 msgstr "Bygger om antallsberegninger..."
 
-#: deck.py:2298
+#: deck.py:2297
 msgid "Rebuilding tag cache..."
 msgstr "Bygger om etikett-cachen..."
 
-#: deck.py:2322
+#: deck.py:2321
 msgid "Rebuilding types..."
 msgstr "Bygger om typer..."
 
@@ -554,19 +554,19 @@ msgstr "Repetisjoner neste måned"
 msgid "Reps next week"
 msgstr "Repetisjoner neste uke"
 
-#: deck.py:3227
+#: deck.py:3231
 msgid "Review cards from largest interval"
 msgstr "Repetere kort fra største intervall"
 
-#: deck.py:3228
+#: deck.py:3232
 msgid "Review cards from smallest interval"
 msgstr "Repetere kort fra minste intervall"
 
-#: deck.py:3229
+#: deck.py:3233
 msgid "Review cards in order due"
 msgstr "Repetere kort ordnet etter når de forfaller"
 
-#: deck.py:3230
+#: deck.py:3234
 msgid "Review cards in random order"
 msgstr "Repetere kort i tilfeldig rekkefølge"
 
@@ -582,47 +582,47 @@ msgstr "Høyre"
 msgid "Scan fields..."
 msgstr "Søker gjennom felt"
 
-#: deck.py:3236
+#: deck.py:3240
 msgid "Show failed cards at end"
 msgstr "Vis feilbesvarte kort til slutt"
 
-#: deck.py:3237
+#: deck.py:3241
 msgid "Show failed cards in 10 minutes"
 msgstr "Vis feilbesvarte kort om ti minutter"
 
-#: deck.py:3239
+#: deck.py:3243
 msgid "Show failed cards in 3 days"
 msgstr "Vis feilbesvarte kort om tre dager"
 
-#: deck.py:3238
+#: deck.py:3242
 msgid "Show failed cards in 8 hours"
 msgstr "Vis feilbesvarte kort om 8 timer"
 
-#: deck.py:3235
+#: deck.py:3239
 msgid "Show failed cards soon"
 msgstr "Vis feilbesvarte kort snart"
 
-#: deck.py:3221
+#: deck.py:3225
 msgid "Show new cards after all other cards"
 msgstr "Vis nye kort etter alle de andre"
 
-#: deck.py:3222
+#: deck.py:3226
 msgid "Show new cards before reviews"
 msgstr "Vis nye kort før repetisjoner"
 
-#: deck.py:3214
+#: deck.py:3218
 msgid "Show new cards in order added"
 msgstr "Vis nye kort i den rekkefølgen de ble lagt til"
 
-#: deck.py:3213
+#: deck.py:3217
 msgid "Show new cards in random order"
 msgstr "Vis nye kort i tilfeldig rekkefølge"
 
-#: deck.py:3215
+#: deck.py:3219
 msgid "Show new cards in reverse order added"
 msgstr "Vis nye kort i omvendt rekkefølge av slik de ble lagt til"
 
-#: deck.py:3220
+#: deck.py:3224
 msgid "Spread new cards out through reviews"
 msgstr "Fordel nye kort blant repetisjoner"
 
@@ -634,7 +634,7 @@ msgstr "Tekstfiler (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Tekst adskilt av tabber eller semikolon (*)"
 
-#: deck.py:2226
+#: deck.py:2225
 msgid "The current model didn't exist"
 msgstr "Den ønskede modellen fantes ikke"
 
@@ -703,11 +703,11 @@ msgstr "Uleste kort:"
 msgid "Update tags..."
 msgstr "Oppdatere etiketter..."
 
-#: deck.py:2301
+#: deck.py:2300
 msgid "Updating priorities..."
 msgstr "Oppdaterer prioteringer..."
 
-#: deck.py:2818
+#: deck.py:2817
 msgid "Upgrading Deck..."
 msgstr "Oppgraderer kortstokk..."
 
