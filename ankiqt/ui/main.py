@@ -750,7 +750,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
             isCram = self.isCramming()
             self.saveAndClose(hideWelcome=isCram)
             if isCram:
-                self.loadRecent(0)
+                self.loadDeck(self.config['recentDeckPaths'][0])
         else:
             self.app.activeWindow().close()
 
