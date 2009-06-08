@@ -1135,6 +1135,9 @@ your deck."""))
                 moreButton = QComboBox()
                 if sys.platform.startswith("darwin"):
                     moreButton.setFixedWidth(80)
+                if sys.platform.startswith("win32") and \
+                   self.config['alternativeTheme']:
+                        moreButton.setFixedHeight(24)
                 moreButton.addItems(QStringList([
                     _("More"),
                     _("Forget"),

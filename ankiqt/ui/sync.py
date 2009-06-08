@@ -126,6 +126,8 @@ class Sync(QThread):
                     else:
                         self.setStatus(_("Downloading..."), 0)
                         client.fullSyncFromServer(ret[1], ret[2])
+                    if client.mediaSupported():
+                        self.doBulkDownload(proxy.deckName)
                     self.setStatus(_("Sync complete."), 0)
                 else:
                     # diff
