@@ -10,7 +10,6 @@ from anki.models import FieldModel, CardModel
 from ankiqt import ui
 
 tabs = ("General",
-        "Fields",
         "Cards")
 
 class ModelProperties(QDialog):
