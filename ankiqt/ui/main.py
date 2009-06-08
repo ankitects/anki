@@ -1059,7 +1059,8 @@ your deck."""))
                 if "QLabel" in repr(obj.widget()):
                     sip.delete(obj.widget())
                 else:
-                    obj.widget().deleteLater()
+                    if obj.widget():
+                        obj.widget().deleteLater()
                 sip.delete(obj)
             sip.delete(self.mainWin.decksFrame.layout())
         # build new layout
@@ -1143,7 +1144,11 @@ your deck."""))
             refresh.setShortcut(_("Ctrl+Shift+r"))
             self.connect(refresh, SIGNAL("clicked()"),
                          self.forceBrowserRefresh)
-            layout.addWidget(refresh, c+2, 4)
+            layout.addWidget(refresh, c+2, 3)
+            # make sure top labels don't expand
+            layout.addItem(QSpacerItem(1,1, QSizePolicy.Expanding,
+                                       QSizePolicy.Expanding),
+                           c+3, 4)
         else:
             l = QLabel(_("""\
 <br>
@@ -1156,7 +1161,6 @@ later by clicking on the left-pointing arrow on the toolbar.
             l.setWordWrap(True)
             layout.addWidget(l, 0, 0)
         self.mainWin.decksFrame.setLayout(layout)
-        self.app.processEvents()
         if focusButton:
             focusButton.setFocus()
 
@@ -1165,13 +1169,14 @@ later by clicking on the left-pointing arrow on the toolbar.
             return
         elif idx == 1:
             # forget
-            self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
-            del self.browserDecks[c]
+            if ui.utils.askUser(_("Forget %s?") % self.browserDecks[c]['name']):
+                self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
+                del self.browserDecks[c]
             self.showDeckBrowser()
         elif idx == 2:
             # delete
             deck = self.browserDecks[c]['path']
-            if ui.utils.askUser(_("Delete %s?") % os.path.basename(deck)):
+            if ui.utils.askUser(_("Delete %s?") % self.browserDecks[c]['name']):
                 del self.browserDecks[c]
                 os.unlink(deck)
                 self.config['recentDeckPaths'].remove(deck)
@@ -2692,7 +2697,7 @@ Consider backing up your media directory first."""))
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
         if sys.platform.startswith("win32"):
-            self.mainWin.frame_3.setFrameStyle(QFrame.Panel)
+            self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
             self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
             self.mainWin.studyOptionsFrame.setFrameStyle(QFrame.Panel)
 
