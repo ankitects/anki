@@ -564,7 +564,7 @@ and facts.modelId in %s
             out = _("<h1>Missing</h1>")
         else:
             out = _("<h1>Seen</h1>")
-        for grade in range(1, 10):
+        for grade in range(1, len(self.kanjiGrades)):
             missing = "".join(self.missingInGrade(grade, check))
             if not missing:
                 continue
