@@ -67,6 +67,8 @@ class AnkiQt(QMainWindow):
         if self.config['mainWindowState']:
             self.restoreGeometry(self.config['mainWindowGeom'])
             self.restoreState(self.config['mainWindowState'])
+        else:
+            self.resize(500, 500)
         # load deck
         ui.splash.update()
         if (args or self.config['loadLastDeck'] or
@@ -1087,8 +1089,8 @@ your deck."""))
             for c, deck in enumerate(self.browserDecks):
                 # name
                 n = deck['name']
-                if len(n) > 30:
-                    n = n[:30] + "..."
+                if len(n) > 15:
+                    n = n[:15] + "..."
                 mod = _("%s ago") % anki.utils.fmtTimeSpan(
                     time.time() - deck['mod'])
                 mod = "<font size=-1>%s</font>" % mod
@@ -2705,7 +2707,7 @@ Consider backing up your media directory first."""))
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
-            self.mainWin.deckBrowserOuterFrame.setFixedWidth(600)
+            #self.mainWin.deckBrowserOuterFrame.setFixedWidth(600)
         if sys.platform.startswith("win32"):
             self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
             self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
@@ -2726,7 +2728,6 @@ Consider backing up your media directory first."""))
 
     def changeLayoutSpacing(self):
         if sys.platform.startswith("darwin"):
-            #self.mainWin.studyOptionsFrame.setFixedWidth(400)
             self.mainWin.studyOptionsReviewBar.setContentsMargins(0, 20, 0, 0)
             self.mainWin.optionsBox.layout().setSpacing(10)
             self.mainWin.optionsBox.layout().setContentsMargins(4, 10, 4, 4)
