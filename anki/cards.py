@@ -113,8 +113,9 @@ class Card(object):
         self.fuzz = random.uniform(0.95, 1.05)
 
     def htmlQuestion(self, type="question", align=True):
-        div = '''<div id="cm%s%s">%s</div>''' % (
-            type[0], hexifyID(self.cardModelId), getattr(self, type))
+        div = '''<div class="card%s" id="cm%s%s">%s</div>''' % (
+            type[0], type[0], hexifyID(self.cardModelId),
+            getattr(self, type))
         # add outer div & alignment (with tables due to qt's html handling)
         if not align:
             return div
