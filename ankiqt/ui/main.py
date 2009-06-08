@@ -1065,7 +1065,10 @@ your deck."""))
             sip.delete(self.mainWin.decksFrame.layout())
         # build new layout
         layout = QGridLayout()
-        layout.setSpacing(0)
+        if sys.platform.startswith("darwin"):
+            layout.setSpacing(6)
+        else:
+            layout.setSpacing(2)
         if (time.time() - self.browserLastRefreshed >
             self.config['deckBrowserRefreshPeriod']):
             self.refreshBrowserDecks()
@@ -1130,6 +1133,8 @@ your deck."""))
                     focusButton = openButton
                 # more
                 moreButton = QComboBox()
+                if sys.platform.startswith("darwin"):
+                    moreButton.setFixedWidth(80)
                 moreButton.addItems(QStringList([
                     _("More"),
                     _("Forget"),
@@ -2696,6 +2701,7 @@ Consider backing up your media directory first."""))
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
+            self.mainWin.deckBrowserOuterFrame.setFixedWidth(600)
         if sys.platform.startswith("win32"):
             self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
             self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
