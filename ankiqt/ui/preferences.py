@@ -142,7 +142,7 @@ class Preferences(QDialog):
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
         self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
         self.dialog.showProgress.setChecked(self.config['showProgress'])
-        self.dialog.openLastDeck.setChecked(self.config['loadLastDeck'])
+        self.dialog.deckBrowserOrder.setChecked(self.config['deckBrowserOrder'])
 
     def updateAdvanced(self):
         self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
@@ -156,6 +156,10 @@ class Preferences(QDialog):
         self.config['showProgress'] = self.dialog.showProgress.isChecked()
         self.config['preventEditUntilAnswer'] = self.dialog.preventEdits.isChecked()
         self.config['loadLastDeck'] = self.dialog.openLastDeck.isChecked()
+        if self.dialog.deckBrowserOrder.isChecked():
+            self.config['deckBrowserOrder'] = 1
+        else:
+            self.config['deckBrowserOrder'] = 0
 
     def codeToIndex(self, code):
         n = 0

@@ -8,6 +8,7 @@ from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback, inspect
 import shutil, time, glob, tempfile, datetime, zipfile, locale
+from operator import itemgetter
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -1024,17 +1025,22 @@ your deck."""))
         if ui.splash.finished:
             self.finishProgress()
         self.browserLastRefreshed = time.time()
+        self.reorderBrowserDecks()
 
     def reorderBrowserDecks(self):
-        h = {}
-        for d in self.browserDecks:
-            h[d['path']] = d
-        self.browserDecks = []
-        for path in self.config['recentDeckPaths']:
-            try:
-                self.browserDecks.append(h[path])
-            except:
-                pass
+        if self.config['deckBrowserOrder'] == 0:
+            self.browserDecks.sort(key=itemgetter('mod'),
+                                   reverse=True)
+        else:
+            def custcmp(a, b):
+                x = cmp(not not b['due'], not not a['due'])
+                if x:
+                    return x
+                x = cmp(not not b['new'], not not a['new'])
+                if x:
+                    return x
+                return cmp(a['mod'], b['mod'])
+            self.browserDecks.sort(cmp=custcmp)
 
     def forceBrowserRefresh(self):
         self.browserLastRefreshed = 0
@@ -1058,6 +1064,7 @@ your deck."""))
             sip.delete(self.mainWin.decksFrame.layout())
         # build new layout
         layout = QGridLayout()
+        layout.setSpacing(0)
         if (time.time() - self.browserLastRefreshed >
             self.config['deckBrowserRefreshPeriod']):
             self.refreshBrowserDecks()
@@ -1065,14 +1072,13 @@ your deck."""))
             self.reorderBrowserDecks()
         if self.browserDecks:
             layout.addWidget(QLabel(_("<b>Deck</b>")), 0, 0)
+            layout.setColumnStretch(0, 1)
             l = QLabel(_("<b>Due<br>Today</b>"))
             l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             layout.addWidget(l, 0, 1)
             l = QLabel(_("<b>New<br>Today</b>"))
             l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             layout.addWidget(l, 0, 2)
-            # space
-            layout.addWidget(QLabel(" " * 4), 0, 3)
             for c, deck in enumerate(self.browserDecks):
                 # name
                 n = deck['name']
@@ -1081,9 +1087,9 @@ your deck."""))
                 mod = _("%s ago") % anki.utils.fmtTimeSpan(
                     time.time() - deck['mod'])
                 mod = "<font size=-1>%s</font>" % mod
-                layout.addWidget(QLabel(
-                    "%d. <b>%s</b><br>&nbsp;&nbsp;&nbsp;&nbsp;%s" %
-                    (c+1, n, mod)), c+1, 0)
+                l = QLabel("%d. <b>%s</b><br>&nbsp;&nbsp;&nbsp;&nbsp;%s" %
+                           (c+1, n, mod))
+                layout.addWidget(l, c+1, 0)
                 # due
                 col = '<b><font color=#0000ff>%s</font></b>'
                 if deck['due'] > 0:
@@ -1100,6 +1106,7 @@ your deck."""))
                 else:
                     s = ""
                 l = QLabel(s)
+                l.setMargin(10)
                 l.setMinimumWidth(50)
                 l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 layout.addWidget(l, c+1, 2)
@@ -1117,7 +1124,7 @@ your deck."""))
                 openButton.setToolTip(_("Open this deck%s") % extra)
                 self.connect(openButton, SIGNAL("clicked()"),
                              lambda d=deck['path']: self.loadDeck(d))
-                layout.addWidget(openButton, c+1, 4)
+                layout.addWidget(openButton, c+1, 3)
                 if c == 0:
                     focusButton = openButton
                 # more
@@ -1130,7 +1137,7 @@ your deck."""))
                     _("Forget removes the deck from the list without deleting."))
                 self.connect(moreButton, SIGNAL("currentIndexChanged(int)"),
                              lambda idx, c=c: self.onDeckBrowserMore(idx, c))
-                layout.addWidget(moreButton, c+1, 5)
+                layout.addWidget(moreButton, c+1, 4)
             refresh = QPushButton(_("Refresh"))
             refresh.setToolTip(_("Check due counts again (Ctrl+Shift+r)"))
             refresh.setShortcut(_("Ctrl+Shift+r"))
