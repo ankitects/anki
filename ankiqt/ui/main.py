@@ -528,6 +528,8 @@ new:
                 lambda i=i: self.cardAnswered(i))
         # type answer
         outer = QHBoxLayout()
+        outer.setSpacing(0)
+        outer.setContentsMargins(0,0,0,0)
         outer.addStretch(0)
         class QLineEditNoUndo(QLineEdit):
             def __init__(self, parent):
@@ -544,8 +546,6 @@ new:
         self.typeAnswerField.setObjectName("typeAnswerField")
         self.typeAnswerField.setFixedWidth(351)
         f = QFont()
-        if sys.platform.startswith("darwin"):
-            self.typeAnswerField.setFixedHeight(40)
         f.setPixelSize(self.config['typeAnswerFontSize'])
         self.typeAnswerField.setFont(f)
         vbox = QVBoxLayout()
@@ -554,6 +554,7 @@ new:
         vbox.addWidget(self.typeAnswerField)
         self.typeAnswerShowButton = QPushButton(_("Show Answer"))
         hbox = QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
         hbox.addStretch(0)
         hbox.addWidget(self.typeAnswerShowButton)
         hbox.addStretch(0)
