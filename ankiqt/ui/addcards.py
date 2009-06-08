@@ -175,6 +175,7 @@ question or answer on all cards."""), parent=self)
 
     def reject(self):
         if self.onClose():
+            self.modelChooser.deinit()
             QDialog.reject(self)
 
     def onClose(self):

@@ -1254,6 +1254,7 @@ class ChangeModelDialog(QDialog):
 
     def reject(self):
         self.parent.deck.currentModel = self.origModel
+        self.modelChooser.deinit()
         return QDialog.reject(self)
 
     def accept(self):
@@ -1269,6 +1270,7 @@ class ChangeModelDialog(QDialog):
         if self.targetModel == self.oldModel:
             self.ret = (self.targetModel, None, cmap)
             return QDialog.accept(self)
+        self.modelChooser.deinit()
         self.ret = (self.targetModel, fmap, cmap)
         return QDialog.accept(self)
 

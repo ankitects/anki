@@ -152,6 +152,7 @@ class ImportDialog(QDialog):
             # this fixes a strange bug in sqlite
             self.parent.deck.s.all("pragma integrity_check")
         self.parent.reset()
+        self.modelChooser.deinit()
 
     def setupMappingFrame(self):
         # qt seems to have a bug with adding/removing from a grid, so we add

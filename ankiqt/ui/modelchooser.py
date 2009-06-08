@@ -57,6 +57,9 @@ class ModelChooser(QHBoxLayout):
             self.drawCardModels()
         addHook('guiReset', self.onModelEdited)
 
+    def deinit(self):
+        removeHook('guiReset', self.onModelEdited)
+
     def show(self):
         for i in range(self.count()):
             self.itemAt(i).widget().show()

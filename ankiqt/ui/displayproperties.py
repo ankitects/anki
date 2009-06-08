@@ -299,6 +299,7 @@ class DisplayProperties(QDialog):
 
     def reject(self):
         ui.dialogs.close("DisplayProperties")
+        self.modelChooser.deinit()
         QDialog.reject(self)
 
     def onHelp(self):
