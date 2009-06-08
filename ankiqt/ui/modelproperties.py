@@ -23,6 +23,7 @@ class ModelProperties(QDialog):
         self.deck = deck
         self.origModTime = self.deck.modified
         self.m = model
+        self.needRebuild = False
         self.onFinish = onFinish
         self.dialog = ankiqt.forms.modelproperties.Ui_ModelProperties()
         self.dialog.setupUi(self)
@@ -340,7 +341,7 @@ order by n""", id=card.id)
         s = unicode(self.dialog.cardAnswer.toPlainText())
         s = s.replace("<br>\n", "<br>")
         changed2 = self.updateField(card, 'aformat', s)
-        changed = changed or changed2
+        self.needRebuild = self.needRebuild or changed or changed2
         self.updateField(card, 'questionInAnswer', self.dialog.questionInAnswer.isChecked())
         self.updateField(card, 'allowEmptyAnswer', self.dialog.allowEmptyAnswer.isChecked())
         idx = self.dialog.typeAnswer.currentIndex()
@@ -348,9 +349,6 @@ order by n""", id=card.id)
             self.updateField(card, 'typeAnswer', u"")
         else:
             self.updateField(card, 'typeAnswer', self.fieldNames[idx-1])
-        if changed:
-            # need to generate all question/answers for this card
-            self.deck.updateCardsFromModel(self.m)
         self.ignoreCardUpdate = True
         self.updateCards()
         self.ignoreCardUpdate = False
@@ -491,8 +489,15 @@ order by n""", id=card.id)
             self.m.setModified()
             self.deck.setModified()
         # if changed, reset deck
+        reset = False
         if self.origModTime != self.deck.modified:
             self.deck.updateTagsForModel(self.m)
+            reset = True
+        if self.needRebuild:
+            # need to generate q/a templates
+            self.deck.updateCardsFromModel(self.m)
+            reset = True
+        if reset:
             ankiqt.mw.reset()
         if self.onFinish:
             self.onFinish()
