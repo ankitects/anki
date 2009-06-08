@@ -44,6 +44,7 @@ class AnkiQt(QMainWindow):
         self.hideWelcome = False
         self.views = []
         self.setLang()
+        self.setupStyle()
         self.setupFonts()
         self.setupBackupDir()
         self.setupProxy()
@@ -2467,6 +2468,17 @@ Couldn't contact Anki Online. Please check your internet connection.""")
     def setupFonts(self):
         for (s, p) in anki.fonts.substitutions():
             QFont.insertSubstitution(s, p)
+
+    # Custom styles
+    ##########################################################################
+
+    def setupStyle(self):
+        try:
+            styleFile = open(os.path.join(self.config.configPath,
+                                          "style.css"))
+            self.setStyleSheet(styleFile.read())
+        except (IOError, OSError):
+            pass
 
     # Sounds
     ##########################################################################
