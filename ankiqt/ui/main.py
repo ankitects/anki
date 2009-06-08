@@ -2707,7 +2707,8 @@ Consider backing up your media directory first."""))
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
-            #self.mainWin.deckBrowserOuterFrame.setFixedWidth(600)
+            self.mainWin.deckBrowserOuterFrame.setMaximumWidth(550)
+            self.mainWin.verticalLayout_14.setContentsMargins(2,2,2,2)
         if sys.platform.startswith("win32"):
             self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
             self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
