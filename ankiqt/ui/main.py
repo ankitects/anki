@@ -1448,6 +1448,8 @@ learnt today")
                      self.onStartReview)
         self.setupStudyOptions()
         self.mainWin.studyOptionsFrame.show()
+        self.mainWin.studyOptionsFrame.setFixedWidth(
+            self.mainWin.optionsLabel.sizeHint().width() + 50)
 
     def setupStudyOptions(self):
         self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
@@ -2713,7 +2715,7 @@ Consider backing up your media directory first."""))
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
-            self.mainWin.deckBrowserOuterFrame.setMaximumWidth(550)
+            #self.mainWin.deckBrowserOuterFrame.setMaximumWidth(550)
             self.mainWin.verticalLayout_14.setContentsMargins(2,2,2,2)
         if sys.platform.startswith("win32"):
             self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
