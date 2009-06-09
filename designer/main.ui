@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>715</width>
-    <height>499</height>
+    <width>689</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1095,7 +1095,7 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>20</height>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -1107,9 +1107,12 @@
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>1</width>
+                 <width>10</width>
                  <height>20</height>
                 </size>
                </property>
@@ -1118,21 +1121,15 @@
              <item>
               <widget class="QFrame" name="deckBrowserOuterFrame">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                 <horstretch>10</horstretch>
-                 <verstretch>10</verstretch>
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
-                 <height>250</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>450</width>
-                 <height>16777215</height>
+                 <width>200</width>
+                 <height>200</height>
                 </size>
                </property>
                <property name="frameShape">
@@ -1159,65 +1156,6 @@
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QScrollArea" name="decksScrollArea">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::NoFrame</enum>
-                    </property>
-                    <property name="horizontalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAsNeeded</enum>
-                    </property>
-                    <property name="widgetResizable">
-                     <bool>true</bool>
-                    </property>
-                    <widget class="QWidget" name="scrollAreaWidgetContents">
-                     <property name="geometry">
-                      <rect>
-                       <x>0</x>
-                       <y>0</y>
-                       <width>392</width>
-                       <height>183</height>
-                      </rect>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_18">
-                      <property name="spacing">
-                       <number>0</number>
-                      </property>
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QFrame" name="decksFrame">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="frameShape">
-                         <enum>QFrame::NoFrame</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
                    </widget>
                   </item>
                   <item>
@@ -1304,9 +1242,12 @@
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>1</width>
+                 <width>10</width>
                  <height>20</height>
                 </size>
                </property>
@@ -1325,7 +1266,7 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>20</height>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -1531,8 +1472,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>715</width>
-     <height>23</height>
+     <width>689</width>
+     <height>36</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">

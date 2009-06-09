@@ -981,6 +981,11 @@ your deck."""))
     ##########################################################################
 
     def setupDeckBrowser(self):
+        self.decksScrollArea = QScrollArea()
+        self.decksScrollArea.setFrameStyle(QFrame.NoFrame)
+        self.decksScrollArea.setWidgetResizable(True)
+        self.mainWin.verticalLayout_14.insertWidget(2, self.decksScrollArea)
+        self.decksFrame = QFrame()
         self.connect(self.mainWin.downloadDeckButton,
                      SIGNAL("clicked()"),
                      self.onGetSharedDeck)
@@ -1052,11 +1057,10 @@ your deck."""))
     def showDeckBrowser(self):
         import sip
         focusButton = None
-        self.switchToDecksScreen()
         # remove all widgets from layout & layout itself
-        if self.mainWin.decksFrame.layout():
+        if self.decksFrame.layout():
             while 1:
-                obj = self.mainWin.decksFrame.layout().takeAt(0)
+                obj = self.decksFrame.layout().takeAt(0)
                 if not obj:
                     break
                 if "QLabel" in repr(obj.widget()):
@@ -1065,9 +1069,10 @@ your deck."""))
                     if obj.widget():
                         obj.widget().deleteLater()
                 sip.delete(obj)
-            sip.delete(self.mainWin.decksFrame.layout())
+            sip.delete(self.decksFrame.layout())
         # build new layout
         layout = QGridLayout()
+        self.decksFrame.setLayout(layout)
         if sys.platform.startswith("darwin"):
             layout.setSpacing(6)
         else:
@@ -1083,9 +1088,11 @@ your deck."""))
             l = QLabel(_("<b>Due<br>Today</b>"))
             l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             layout.addWidget(l, 0, 1)
+            layout.setColumnMinimumWidth(2, 10)
             l = QLabel(_("<b>New<br>Today</b>"))
             l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            layout.addWidget(l, 0, 2)
+            layout.addWidget(l, 0, 3)
+            layout.setColumnMinimumWidth(4, 10)
             for c, deck in enumerate(self.browserDecks):
                 # name
                 n = deck['name']
@@ -1104,7 +1111,6 @@ your deck."""))
                 else:
                     s = ""
                 l = QLabel(s)
-                l.setMinimumWidth(50)
                 l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 layout.addWidget(l, c+1, 1)
                 # new
@@ -1113,10 +1119,8 @@ your deck."""))
                 else:
                     s = ""
                 l = QLabel(s)
-                l.setMargin(10)
-                l.setMinimumWidth(50)
                 l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                layout.addWidget(l, c+1, 2)
+                layout.addWidget(l, c+1, 3)
                 # open
                 openButton = QPushButton(_("Open"))
                 if c < 9:
@@ -1131,7 +1135,7 @@ your deck."""))
                 openButton.setToolTip(_("Open this deck%s") % extra)
                 self.connect(openButton, SIGNAL("clicked()"),
                              lambda d=deck['path']: self.loadDeck(d))
-                layout.addWidget(openButton, c+1, 3)
+                layout.addWidget(openButton, c+1, 5)
                 if c == 0:
                     focusButton = openButton
                 # more
@@ -1149,17 +1153,17 @@ your deck."""))
                     _("Forget removes the deck from the list without deleting."))
                 self.connect(moreButton, SIGNAL("currentIndexChanged(int)"),
                              lambda idx, c=c: self.onDeckBrowserMore(idx, c))
-                layout.addWidget(moreButton, c+1, 4)
+                layout.addWidget(moreButton, c+1, 6)
             refresh = QPushButton(_("Refresh"))
             refresh.setToolTip(_("Check due counts again (Ctrl+Shift+r)"))
             refresh.setShortcut(_("Ctrl+Shift+r"))
             self.connect(refresh, SIGNAL("clicked()"),
                          self.forceBrowserRefresh)
-            layout.addWidget(refresh, c+2, 3)
+            layout.addWidget(refresh, c+2, 5)
             # make sure top labels don't expand
             layout.addItem(QSpacerItem(1,1, QSizePolicy.Expanding,
                                        QSizePolicy.Expanding),
-                           c+3, 4)
+                           c+3, 5)
         else:
             l = QLabel(_("""\
 <br>
@@ -1171,9 +1175,11 @@ later by clicking on the left-pointing arrow on the toolbar.
 """))
             l.setWordWrap(True)
             layout.addWidget(l, 0, 0)
-        self.mainWin.decksFrame.setLayout(layout)
+        self.decksScrollArea.setWidget(self.decksFrame)
         if focusButton:
             focusButton.setFocus()
+        # do this last
+        self.switchToDecksScreen()
 
     def onDeckBrowserMore(self, idx, c):
         if idx == 0:
