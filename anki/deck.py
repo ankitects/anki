@@ -2299,7 +2299,7 @@ select id from fields where factId not in (select id from facts)""")
             self.updateCardTags()
             # fix any priorities
             self.updateProgress(_("Updating priorities..."))
-            self.updateAllPriorities()
+            self.updateAllPriorities(dirty=False)
             # fix problems with stripping html
             self.updateProgress(_("Rebuilding QA cache..."))
             fields = self.s.all("select id, value from fields")
@@ -2311,12 +2311,8 @@ select id from fields where factId not in (select id from facts)""")
                 newFields)
             # regenerate question/answer cache
             for m in self.models:
-                self.updateCardsFromModel(m)
-            # mark everything changed to force sync
-            self.s.flush()
-            self.s.statement("update cards set modified = :t", t=time.time())
-            self.s.statement("update facts set modified = :t", t=time.time())
-            self.s.statement("update models set modified = :t", t=time.time())
+                self.updateCardsFromModel(m, dirty=False)
+            # force a full sync
             self.lastSync = 0
             # rebuild
             self.updateProgress(_("Rebuilding types..."))
