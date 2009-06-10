@@ -1128,7 +1128,7 @@ your deck."""))
                         extra = _(" (Command+Option+%d)") % (c+1)
                         openButton.setShortcut(_("Ctrl+Alt+%d" % (c+1)))
                     else:
-                        extra = _(" (Ctrl+%d)") % (c+1)
+                        extra = _(" (Alt+%d)") % (c+1)
                         openButton.setShortcut(_("Alt+%d" % (c+1)))
                 else:
                     extra = ""
