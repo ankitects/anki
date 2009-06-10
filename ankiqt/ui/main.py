@@ -1402,8 +1402,10 @@ day = :d""", d=yesterday)
 <tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
         if (not dyest and not dtoday) or not self.config['showStudyStats']:
+            self.haveYesterday = False
             stats1 = ""
         else:
+            self.haveYesterday = True
             stats1 = (
                 "<td>%s</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>" % stats1)
         self.mainWin.optionsLabel.setText(top + """\
@@ -1448,8 +1450,9 @@ learnt today")
         self.mainWin.startReviewingButton.setFocus()
         self.setupStudyOptions()
         self.mainWin.studyOptionsFrame.show()
-        self.mainWin.studyOptionsFrame.setFixedWidth(
-            self.mainWin.optionsLabel.sizeHint().width() + 50)
+        if self.haveYesterday:
+            size = self.mainWin.optionsLabel.sizeHint().width() + 50
+            self.mainWin.studyOptionsFrame.setFixedWidth(size)
 
     def setupStudyOptions(self):
         self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
