@@ -2104,7 +2104,6 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         "Export",
         "Graphs",
         "Dstats",
-        "Kstats",
         "Cstats",
         "ActiveTags",
         "StudyOptions",
@@ -2125,7 +2124,6 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         self.connect(m.actionOpen, s, self.onOpen)
         self.connect(m.actionSave, s, self.onSave)
         self.connect(m.actionSaveAs, s, self.onSaveAs)
-        self.connect(m.actionShare, s, self.onShare)
         self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionSyncdeck, s, self.syncDeck)
@@ -2155,7 +2153,6 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionCram, s, self.onCram)
-        self.connect(m.actionGetPlugins, s, self.onGetPlugins)
         self.connect(m.actionOpenPluginFolder, s, self.onOpenPluginFolder)
         self.connect(m.actionEnableAllPlugins, s, self.onEnableAllPlugins)
         self.connect(m.actionDisableAllPlugins, s, self.onDisableAllPlugins)
@@ -2222,6 +2219,7 @@ Couldn't contact Anki Online. Please check your internet connection.""")
 	self.mainWin.actionDelete.setEnabled(False)
 	self.mainWin.actionBuryFact.setEnabled(False)
         self.mainWin.actionRepeatAudio.setEnabled(False)
+        runHook("disableCardMenuItems")
 
     def enableCardMenuItems(self):
         self.maybeEnableUndo()
@@ -2237,6 +2235,7 @@ Couldn't contact Anki Online. Please check your internet connection.""")
                        self.state != "getQuestion")
         self.mainWin.actionEditCurrent.setEnabled(enableEdits)
         self.mainWin.actionEditdeck.setEnabled(enableEdits)
+        runHook("enableCardMenuItems")
 
     def maybeEnableUndo(self):
         if self.deck and self.deck.undoAvailable():
