@@ -2313,6 +2313,7 @@ Couldn't contact Anki Online. Please check your internet connection.""")
                 print "Error in %s" % plugin
                 traceback.print_exc()
         self.checkForUpdatedPlugins()
+        self.disableCardMenuItems()
 
     def rebuildPluginsMenu(self):
         if getattr(self, "pluginActions", None) is None:
