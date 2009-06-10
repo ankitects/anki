@@ -269,7 +269,10 @@ class StatusDelegate(QItemDelegate):
         row = self.model.cards[index.row()]
         if row[CARD_PRIORITY] == 0:
             # custom render
-            brush = QBrush(QColor("#ffffaa"))
+            if index.row() % 2 == 0:
+                brush = QBrush(QColor("#ffffcc"))
+            else:
+                brush = QBrush(QColor("#ffffaa"))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
