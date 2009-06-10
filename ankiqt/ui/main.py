@@ -1309,6 +1309,9 @@ later by clicking on the left-pointing arrow on the toolbar.
                      SIGNAL("textChanged(QString)"), self.onMinuteLimitChanged)
         self.connect(self.mainWin.newPerDay,
                      SIGNAL("textChanged(QString)"), self.onNewLimitChanged)
+        self.connect(self.mainWin.startReviewingButton,
+                     SIGNAL("clicked()"),
+                     self.onStartReview)
 
     def onMinuteLimitChanged(self, qstr):
         try:
@@ -1443,9 +1446,6 @@ learnt today")
         else:
             self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
         self.mainWin.startReviewingButton.setFocus()
-        self.connect(self.mainWin.startReviewingButton,
-                     SIGNAL("clicked()"),
-                     self.onStartReview)
         self.setupStudyOptions()
         self.mainWin.studyOptionsFrame.show()
         self.mainWin.studyOptionsFrame.setFixedWidth(
