@@ -1552,67 +1552,8 @@ learnt today")
         tb = self.mainWin.toolBar
         self.config['showToolbar'] = tb.isVisible()
 
-    # Tools - looking up words in the dictionary
-    ##########################################################################
-
-    def initLookup(self):
-        if not getattr(self, "lookup", None):
-            self.lookup = ui.lookup.Lookup(self)
-
-    def onLookupExpression(self):
-        self.initLookup()
-        try:
-            self.lookup.alc(self.currentCard.fact['Expression'])
-        except KeyError:
-            ui.utils.showInfo(_("No expression in current card."))
-
-    def onLookupMeaning(self):
-        self.initLookup()
-        try:
-            self.lookup.alc(self.currentCard.fact['Meaning'])
-        except KeyError:
-            ui.utils.showInfo(_("No meaning in current card."))
-
-    def onLookupEdictSelection(self):
-        self.initLookup()
-        self.lookup.selection(self.lookup.edict)
-
-    def onLookupEdictKanjiSelection(self):
-        self.initLookup()
-        self.lookup.selection(self.lookup.edictKanji)
-
-    def onLookupAlcSelection(self):
-        self.initLookup()
-        self.lookup.selection(self.lookup.alc)
-
     # Tools - statistics
     ##########################################################################
-
-    def onKanjiStats(self):
-        rep = anki.stats.KanjiStats(self.deck).report()
-        rep += _("<a href=py:miss>Missing</a><br>")
-        rep += _("<a href=py:seen>Seen</a><br>")
-        rep += _("<a href=py:non>Non-jouyou</a><br>")
-        self.help.showText(rep, py={
-            "miss": self.onMissingStats,
-            "seen": self.onSeenKanjiStats,
-            "non": self.onNonJouyouKanjiStats,
-            })
-
-    def onMissingStats(self):
-        ks = anki.stats.KanjiStats(self.deck)
-        ks.genKanjiSets()
-        self.help.showText(ks.missingReport())
-
-    def onSeenKanjiStats(self):
-        ks = anki.stats.KanjiStats(self.deck)
-        ks.genKanjiSets()
-        self.help.showText(ks.seenReport())
-
-    def onNonJouyouKanjiStats(self):
-        ks = anki.stats.KanjiStats(self.deck)
-        ks.genKanjiSets()
-        self.help.showText(ks.nonJouyouReport())
 
     def onDeckStats(self):
         txt = anki.stats.DeckStats(self.deck).report()
@@ -2194,13 +2135,7 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         self.connect(m.actionEditdeck, s, self.onEditDeck)
         self.connect(m.actionEditCurrent, s, self.onEditCurrent)
         self.connect(m.actionPreferences, s, self.onPrefs)
-        self.connect(m.actionLookup_es, s, self.onLookupEdictSelection)
-        self.connect(m.actionLookup_esk, s, self.onLookupEdictKanjiSelection)
-        self.connect(m.actionLookup_expr, s, self.onLookupExpression)
-        self.connect(m.actionLookup_mean, s, self.onLookupMeaning)
-        self.connect(m.actionLookup_as, s, self.onLookupAlcSelection)
         self.connect(m.actionDstats, s, self.onDeckStats)
-        self.connect(m.actionKstats, s, self.onKanjiStats)
         self.connect(m.actionCstats, s, self.onCardStats)
         self.connect(m.actionGraphs, s, self.onShowGraph)
         self.connect(m.actionAbout, s, self.onAbout)
@@ -2281,8 +2216,6 @@ Couldn't contact Anki Online. Please check your internet connection.""")
 
     def disableCardMenuItems(self):
         self.maybeEnableUndo()
-        self.maybeShowLookup(False)
-        self.maybeShowKanjiStats()
         self.mainWin.actionEditCurrent.setEnabled(False)
 	self.mainWin.actionMarkCard.setEnabled(False)
 	self.mainWin.actionSuspendCard.setEnabled(False)
@@ -2292,8 +2225,6 @@ Couldn't contact Anki Online. Please check your internet connection.""")
 
     def enableCardMenuItems(self):
         self.maybeEnableUndo()
-        self.maybeShowLookup(True)
-        self.maybeShowKanjiStats()
         snd = (hasSound(self.currentCard.question) or
                (hasSound(self.currentCard.answer) and
                 self.state != "getQuestion"))
@@ -2306,34 +2237,6 @@ Couldn't contact Anki Online. Please check your internet connection.""")
                        self.state != "getQuestion")
         self.mainWin.actionEditCurrent.setEnabled(enableEdits)
         self.mainWin.actionEditdeck.setEnabled(enableEdits)
-
-    def maybeShowKanjiStats(self):
-        if not self.deck:
-            have = False
-        else:
-            if getattr(self.deck, "haveJapanese", None) is None:
-                self.deck.haveJapanese = False
-                if self.deck:
-                    for m in self.deck.models:
-                        if "Japanese" in m.tags:
-                            self.deck.haveJapanese = True
-                            break
-            have = self.deck.haveJapanese
-        self.mainWin.actionKstats.setVisible(have)
-
-    def maybeShowLookup(self, enable):
-        if (self.currentCard and
-            "Japanese" in self.currentCard.fact.model.tags):
-            self.mainWin.menu_Lookup.menuAction().setVisible(True)
-        else:
-            self.mainWin.menu_Lookup.menuAction().setVisible(False)
-            enable = False
-        self.mainWin.menu_Lookup.setEnabled(enable)
-        self.mainWin.actionLookup_es.setEnabled(enable)
-        self.mainWin.actionLookup_esk.setEnabled(enable)
-        self.mainWin.actionLookup_expr.setEnabled(enable)
-        self.mainWin.actionLookup_mean.setEnabled(enable)
-        self.mainWin.actionLookup_as.setEnabled(enable)
 
     def maybeEnableUndo(self):
         if self.deck and self.deck.undoAvailable():

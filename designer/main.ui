@@ -1473,7 +1473,7 @@
      <x>0</x>
      <y>0</y>
      <width>696</width>
-     <height>36</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -1541,21 +1541,6 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <widget class="QMenu" name="menu_Lookup">
-     <property name="title">
-      <string>&amp;Lookup</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../icons.qrc">
-       <normaloff>:/icons/edit-find.png</normaloff>:/icons/edit-find.png</iconset>
-     </property>
-     <addaction name="actionLookup_expr"/>
-     <addaction name="actionLookup_mean"/>
-     <addaction name="separator"/>
-     <addaction name="actionLookup_as"/>
-     <addaction name="actionLookup_es"/>
-     <addaction name="actionLookup_esk"/>
-    </widget>
     <widget class="QMenu" name="menuAdvanced">
      <property name="title">
       <string>Ad&amp;vanced</string>
@@ -1573,11 +1558,9 @@
     </widget>
     <addaction name="actionGraphs"/>
     <addaction name="actionDstats"/>
-    <addaction name="actionKstats"/>
     <addaction name="actionCstats"/>
     <addaction name="separator"/>
     <addaction name="actionRepeatAudio"/>
-    <addaction name="menu_Lookup"/>
     <addaction name="separator"/>
     <addaction name="menuAdvanced"/>
     <addaction name="separator"/>

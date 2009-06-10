@@ -14,7 +14,6 @@ def importAll():
     import exporting
     import facteditor
     import help
-    import lookup
     import modelchooser
     import modelproperties
     import preferences

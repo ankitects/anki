@@ -502,6 +502,5 @@ order by n""", id=card.id)
             self.onFinish()
         self.deck.setUndoEnd(self.undoName)
         # check again
-        self.deck.haveJapanese = None
         self.deck.finishProgress()
         QDialog.reject(self)

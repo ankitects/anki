@@ -7,7 +7,6 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki, anki.utils
 from anki.facts import Fact
-from anki.stdmodels import JapaneseModel
 from ankiqt import ui
 import ankiqt.forms
 

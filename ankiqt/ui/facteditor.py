@@ -1009,46 +1009,6 @@ class FactEdit(QTextEdit):
         self.parent.disableButtons()
         self.emit(SIGNAL("lostFocus"))
 
-    # this shouldn't be necessary if/when we move away from kakasi
-    def mouseDoubleClickEvent(self, evt):
-        t = self.parent.fact.model.tags.lower()
-        if (not "japanese" in t and
-            not "mandarin" in t and
-            not "cantonese" in t):
-            return QTextEdit.mouseDoubleClickEvent(self,evt)
-        r = QRegExp("\\{(.*[|,].*)\\}")
-        r.setMinimal(True)
-
-        mouseposition = self.textCursor().position()
-
-        blockoffset = 0
-        result = r.indexIn(self.toPlainText(), 0)
-
-        found = ""
-
-        while result != -1:
-            if mouseposition > result and mouseposition < result + r.matchedLength():
-                mouseposition -= result + 1
-                frompos = 0
-                topos = 0
-
-                string = r.cap(1)
-                offset = 0
-                bits = re.split("[|,]", unicode(string))
-                for index in range(0, len(bits)):
-                    offset += len(bits[index]) + 1
-                    if mouseposition < offset:
-                        found = bits[index]
-                        break
-                break
-
-            blockoffset= result + r.matchedLength()
-            result = r.indexIn(self.toPlainText(), blockoffset)
-
-        if found == "":
-            return QTextEdit.mouseDoubleClickEvent(self,evt)
-        self.setPlainText(self.toPlainText().replace(result, r.matchedLength(), found))
-
     def focusInEvent(self, evt):
         if (self.parent.lastFocusedEdit and
             self.parent.lastFocusedEdit is not self):
