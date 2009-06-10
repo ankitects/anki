@@ -2426,6 +2426,7 @@ Couldn't contact Anki Online. Please check your internet connection.""")
             self.mainWin.actionRecordNoiseProfile.setEnabled(False)
 
     def onRepeatAudio(self):
+        clearAudioQueue()
         playFromText(self.currentCard.question)
         if self.state != "showQuestion":
             playFromText(self.currentCard.answer)
