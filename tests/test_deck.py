@@ -6,8 +6,8 @@ from tests.shared import assertException
 from anki.errors import *
 from anki import DeckStorage
 from anki.db import *
-from anki.models import FieldModel
-from anki.stdmodels import JapaneseModel, BasicModel
+from anki.models import FieldModel, Model, CardModel
+from anki.stdmodels import BasicModel
 from anki.utils import stripHTML
 
 newPath = None
@@ -113,24 +113,13 @@ def test_factAddDelete():
     # and the second should clear the fact
     deck.deleteCard(id2)
 
-def test_cardOrder():
-    deck = DeckStorage.Deck()
-    deck.addModel(JapaneseModel())
-    f = deck.newFact()
-    f['Expression'] = u'1'
-    f['Meaning'] = u'2'
-    deck.addFact(f)
-    card = deck.getCard()
-    # recognition should come first
-    assert card.cardModel.name == u"Recognition"
-
 def test_modelAddDelete():
     deck = DeckStorage.Deck()
-    deck.addModel(JapaneseModel())
-    deck.addModel(JapaneseModel())
+    deck.addModel(BasicModel())
+    deck.addModel(BasicModel())
     f = deck.newFact()
-    f['Expression'] = u'1'
-    f['Meaning'] = u'2'
+    f['Front'] = u'1'
+    f['Back'] = u'2'
     deck.addFact(f)
     assert deck.cardCount == 1
     deck.deleteModel(deck.currentModel)
@@ -139,20 +128,20 @@ def test_modelAddDelete():
 
 def test_modelCopy():
     deck = DeckStorage.Deck()
-    m = JapaneseModel()
-    assert len(m.fieldModels) == 3
+    m = BasicModel()
+    assert len(m.fieldModels) == 2
     assert len(m.cardModels) == 2
     deck.addModel(m)
     f = deck.newFact()
-    f['Expression'] = u'1'
+    f['Front'] = u'1'
     deck.addFact(f)
     m2 = deck.copyModel(m)
-    assert m2.name == "Japanese copy"
+    assert m2.name == "Basic copy"
     assert m2.id != m.id
     assert m2.fieldModels[0].id != m.fieldModels[0].id
     assert m2.cardModels[0].id != m.cardModels[0].id
-    assert len(m2.fieldModels) == 3
-    assert len(m.fieldModels) == 3
+    assert len(m2.fieldModels) == 2
+    assert len(m.fieldModels) == 2
     assert len(m2.fieldModels) == len(m.fieldModels)
     assert len(m.cardModels) == 2
     assert len(m2.cardModels) == 2
@@ -176,7 +165,21 @@ def test_media():
 
 def test_modelChange():
     deck = DeckStorage.Deck()
-    m1 = JapaneseModel()
+    m = Model(u"Japanese")
+    m1 = m
+    f = FieldModel(u'Expression', True, True)
+    m.addFieldModel(f)
+    m.addFieldModel(FieldModel(u'Meaning', False, False))
+    f = FieldModel(u'Reading', False, False)
+    m.addFieldModel(f)
+    m.addCardModel(CardModel(u"Recognition",
+                             u"%(Expression)s",
+                             u"%(Reading)s<br>%(Meaning)s"))
+    m.addCardModel(CardModel(u"Recall",
+                             u"%(Meaning)s",
+                             u"%(Expression)s<br>%(Reading)s",
+                             active=False))
+    m.tags = u"Japanese"
     m1.cardModels[1].active = True
     deck.addModel(m1)
     f = deck.newFact()
@@ -246,15 +249,15 @@ def test_findCards():
     # make sure card templates and models match too
     assert len(deck.findCards('tag:basic')) == 3
     assert len(deck.findCards('tag:forward')) == 3
-    deck.addModel(JapaneseModel())
+    deck.addModel(BasicModel())
     f = deck.newFact()
-    f['Expression'] = u'foo'
-    f['Meaning'] = u'bar'
+    f['Front'] = u'foo'
+    f['Back'] = u'bar'
     deck.addFact(f)
     deck.currentModel.cardModels[1].active = True
     f = deck.newFact()
-    f['Expression'] = u'baz'
-    f['Meaning'] = u'qux'
+    f['Front'] = u'baz'
+    f['Back'] = u'qux'
     c = deck.addFact(f)
-    assert len(deck.findCards('tag:recognition')) == 2
-    assert len(deck.findCards('tag:recall')) == 1
+    assert len(deck.findCards('tag:forward')) == 5
+    assert len(deck.findCards('tag:reverse')) == 1

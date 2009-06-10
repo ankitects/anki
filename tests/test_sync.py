@@ -6,7 +6,7 @@ from tests.shared import assertException
 from anki.errors import *
 from anki import DeckStorage
 from anki.db import *
-from anki.stdmodels import BasicModel, JapaneseModel
+from anki.stdmodels import BasicModel
 from anki.sync import SyncClient, SyncServer, HttpSyncServer, HttpSyncServerProxy
 from anki.stats import dailyStats, globalStats
 from anki.facts import Fact
@@ -116,7 +116,7 @@ def test_localsync_deck():
 def test_localsync_models():
     client.sync()
     # add a model
-    deck1.addModel(JapaneseModel())
+    deck1.addModel(BasicModel())
     assert len(deck1.models) == 3
     assert len(deck2.models) == 2
     client.sync()

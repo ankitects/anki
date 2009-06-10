@@ -21,7 +21,6 @@ from anki.models import Model, CardModel, formatQA
 from anki.stats import dailyStats, globalStats, genToday
 from anki.fonts import toPlatformFont
 from anki.tags import initTagTables, tagIds
-import anki.features
 from operator import itemgetter
 from itertools import groupby
 from anki.hooks import runHook
