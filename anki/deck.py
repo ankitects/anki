@@ -554,7 +554,8 @@ where type = 2""", now=time.time())
             vals.append({
                 'id': id,
                 'due': r + time.time(),
-                'int': r / 86400.0
+                'int': r / 86400.0,
+                't': time.time(),
                 })
         self.s.statements("""
 update cards set
@@ -564,6 +565,7 @@ combinedDue = :due,
 reps = 1,
 successive = 1,
 yesCount = 1,
+firstAnswered = :t,
 type = 1,
 isDue = 0
 where id = :id""", vals)
