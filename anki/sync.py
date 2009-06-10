@@ -992,6 +992,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             os.close(fd)
             errcode, errmsg, headers = h.getreply()
             assert errcode == 200
+            assert h.file.read() == "OK"
         finally:
             runHook("fullSyncFinished")
 
