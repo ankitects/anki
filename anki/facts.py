@@ -92,7 +92,7 @@ class Fact(object):
     def get(self, key, default):
         try:
             return self[key]
-        except IndexError:
+        except (IndexError, KeyError):
             return default
 
     def assertValid(self):
