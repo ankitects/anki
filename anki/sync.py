@@ -166,6 +166,7 @@ class SyncTools(object):
         self.deck.rebuildCounts(full=False)
 
     def rebuildPriorities(self, cardIds, suspend=[]):
+        self.deck.updateAllPriorities(partial=True, dirty=False)
         self.deck.updatePriorities(cardIds, suspend=suspend, dirty=False)
 
     def postSyncRefresh(self):
@@ -587,7 +588,6 @@ insert or replace into deckVars
             del deck['meta']
         self.applyDict(self.deck, deck)
         self.deck.lastSync = self.deck.modified
-        self.deck.updateTagPriorities()
         self.deck.updateDynamicIndices()
 
     def bundleStats(self):
