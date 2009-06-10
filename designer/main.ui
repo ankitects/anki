@@ -1780,55 +1780,6 @@
     <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
-  <action name="actionLookup_expr">
-   <property name="text">
-    <string>...&amp;expression on ALC</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+1</string>
-   </property>
-  </action>
-  <action name="actionLookup_mean">
-   <property name="text">
-    <string>...&amp;meaning on ALC</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+2</string>
-   </property>
-  </action>
-  <action name="actionLookup_as">
-   <property name="text">
-    <string>...&amp;selection on ALC</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+3</string>
-   </property>
-  </action>
-  <action name="actionLookup_es">
-   <property name="text">
-    <string>...&amp;word selection on Edict</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+4</string>
-   </property>
-  </action>
-  <action name="actionLookup_esk">
-   <property name="text">
-    <string>...&amp;kanji selection on Edict</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+5</string>
-   </property>
-  </action>
-  <action name="actionKstats">
-   <property name="icon">
-    <iconset resource="../icons.qrc">
-     <normaloff>:/icons/kanji.png</normaloff>:/icons/kanji.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Kanji Statistics</string>
-   </property>
-  </action>
   <action name="actionDstats">
    <property name="icon">
     <iconset resource="../icons.qrc">
@@ -1949,11 +1900,6 @@
     <string>Customize fonts, colours and alignment</string>
    </property>
   </action>
-  <action name="actionOpenSamples">
-   <property name="text">
-    <string>Open Sa&amp;mple...</string>
-   </property>
-  </action>
   <action name="actionMarkCard">
    <property name="checkable">
     <bool>true</bool>
@@ -1985,28 +1931,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
-   </property>
-  </action>
-  <action name="actionModelProperties">
-   <property name="icon">
-    <iconset resource="../icons.qrc">
-     <normaloff>:/icons/kpersonalizer.png</normaloff>:/icons/kpersonalizer.png</iconset>
-   </property>
-   <property name="text">
-    <string>Current &amp;Model...</string>
-   </property>
-   <property name="statusTip">
-    <string>Customize card layout, fields, etc</string>
-   </property>
-  </action>
-  <action name="actionRepeatQuestionAudio">
-   <property name="text">
-    <string>Repeat &amp;Question Audio</string>
-   </property>
-  </action>
-  <action name="actionRepeatAnswerAudio">
-   <property name="text">
-    <string>Repeat &amp;Answer Audio</string>
    </property>
   </action>
   <action name="actionRepeatAudio">
@@ -2120,11 +2044,6 @@
     <string>Release Notes...</string>
    </property>
   </action>
-  <action name="actionGetPlugins">
-   <property name="text">
-    <string>&amp;Get Plugins...</string>
-   </property>
-  </action>
   <action name="actionOpenPluginFolder">
    <property name="text">
     <string>&amp;Open Plugin Folder...</string>
@@ -2138,11 +2057,6 @@
   <action name="actionDisableAllPlugins">
    <property name="text">
     <string>&amp;Disable All Plugins</string>
-   </property>
-  </action>
-  <action name="actionA">
-   <property name="text">
-    <string>a</string>
    </property>
   </action>
   <action name="actionActiveTags">
@@ -2196,11 +2110,6 @@
     <string>Ctrl+Del</string>
    </property>
   </action>
-  <action name="action_Delete_Fact">
-   <property name="text">
-    <string>&amp;Delete Fact</string>
-   </property>
-  </action>
   <action name="actionCacheLatex">
    <property name="text">
     <string>Cache LaTeX</string>
@@ -2250,19 +2159,6 @@
     <string>Record 10 seconds of silence so that the record function can cancel noise</string>
    </property>
   </action>
-  <action name="actionGetShared">
-   <property name="text">
-    <string>Get Shared...</string>
-   </property>
-   <property name="statusTip">
-    <string>Open a pre-made deck or plugin</string>
-   </property>
-  </action>
-  <action name="actionShare">
-   <property name="text">
-    <string>Share...</string>
-   </property>
-  </action>
   <action name="actionOpenOnline">
    <property name="text">
     <string>Personal Deck</string>
@@ -2305,11 +2201,6 @@
   <action name="actionFullDatabaseCheck">
    <property name="text">
     <string>Full Database Check...</string>
-   </property>
-  </action>
-  <action name="action123">
-   <property name="text">
-    <string>123</string>
    </property>
   </action>
   <action name="actionOpenRecent">
