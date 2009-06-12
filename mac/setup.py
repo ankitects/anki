@@ -43,10 +43,8 @@ DATA_FILES = [
 #    'ankiqt',
     'libanki/anki/locale',
     'ankiqt/ankiqt/locale',
-    'kakasi',
     'audio',
     'ankiqt/imageformats',
-    'libanki/anki/features/chinese/unihan.db',
     ]
 PLIST = dict(
 	CFBundleIdentifier = 'net.ichi2.anki',
