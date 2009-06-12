@@ -135,7 +135,10 @@ class AnkiQt(QMainWindow):
                 self.poolUpdated = 0
 
             def write(self, data):
-                print data.encode("utf-8"),
+                try:
+                    print data.encode("utf-8"),
+                except:
+                    print data
                 self.pool += data
                 self.poolUpdated = time.time()
 
@@ -191,7 +194,10 @@ Please do not file a bug report with Anki.<br>""")
             diag.setLayout(layout)
             text = QTextEdit()
             text.setReadOnly(True)
-            text.setHtml(txt + "<div style='white-space: pre-wrap'>" + error + "</div>")
+            try:
+                text.setHtml(txt + "<div style='white-space: pre-wrap'>" + error + "</div>")
+            except:
+                text.setHtml("couldn't set error")
             layout.addWidget(text)
             box = QDialogButtonBox(QDialogButtonBox.Close)
             layout.addWidget(box)
