@@ -63,7 +63,7 @@ OPTIONS = {
 	'iconfile': 'ankiqt/mac/anki.icns',
     "includes": ["sip", "cgi", "encodings", "encodings.utf_8",
                  "encodings.shift_jis", "_multibytecodec",
-                 "PyQt4.QtNetwork"],
+                 "PyQt4.QtNetwork", "platform"],
     'packages': ["sqlalchemy", "pysqlite2", "simplejson"],
     'excludes': ['_gtkagg', '_tkagg', "_wxagg",
                  "wx", "_wx",
