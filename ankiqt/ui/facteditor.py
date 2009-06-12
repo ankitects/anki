@@ -13,7 +13,7 @@ import anki.sound
 from ankiqt import ui
 import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom, getBase
-from anki.hooks import addHook, removeHook, runHook
+from anki.hooks import addHook, removeHook, runHook, runFilter
 from sqlalchemy.exceptions import InvalidRequestError
 from PyQt4 import pyqtconfig
 QtConfig = pyqtconfig.Configuration()
@@ -1048,14 +1048,17 @@ class PreviewDialog(QDialog):
 
     def updateCard(self):
         c = self.cards[self.currentCard]
+        styles = (self.deck.css +
+                  ("\nhtml { background: %s }" % c.cardModel.lastFontColour) +
+                  "\ndiv { white-space: pre-wrap; }")
+        styles = runFilter("addStyles", styles)
         self.dialog.webView.setHtml(
             ('<html><head>%s</head><body>' % getBase(self.deck)) +
-            "<style>" + self.deck.css +
-            ("\nhtml { background: %s }" % c.cardModel.lastFontColour) +
-            "\ndiv { white-space: pre-wrap; }</style>" +
-            mungeQA(self.deck, c.htmlQuestion()) +
+            "<style>" + styles + "</style>" +
+            runFilter("drawQuestion", mungeQA(self.deck, c.htmlQuestion())) +
             "<br><br><hr><br><br>" +
-            mungeQA(self.deck, c.htmlAnswer()) + "</body></html>")
+            runFilter("drawAnswer", mungeQA(self.deck, c.htmlAnswer()))
+            + "</body></html>")
         playFromText(c.question)
         playFromText(c.answer)
 
