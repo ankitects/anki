@@ -24,10 +24,6 @@ For audio recording support:
 - pyaudio
 - lame
 
-For furigana generation:
-
-- kakasi
-
 Running / Installation
 -------------------------------------
 
