@@ -2651,6 +2651,7 @@ class DeckStorage(object):
             DeckStorage._addIndices(deck)
             for m in deck.models:
                 deck.updateCardsFromModel(m)
+            deck.created = time.time()
             deck.finishProgress()
         # fix a bug with current model being unset
         if not deck.currentModel and deck.models:
