@@ -184,8 +184,9 @@ class GetShared(QDialog):
         self.form.table.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def accept(self):
-        if not self.parent.saveAndClose(hideWelcome=True, parent=self):
-            return QDialog.accept(self)
+        if self.type == 0:
+            if not self.parent.saveAndClose(hideWelcome=True, parent=self):
+                return QDialog.accept(self)
         h = QHttp(self)
         h.connect(h, SIGNAL("requestFinished(int,bool)"), self.onReqFin2)
         h.connect(h, SIGNAL("proxyAuthenticationRequired(QNetworkProxy,"
