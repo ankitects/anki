@@ -137,7 +137,7 @@ class View(object):
             height = 35
         else:
             height = 45
-        q = runFilter("drawQuestion", q)
+        q = runFilter("drawQuestion", q, self.main.currentCard)
         self.write(self.center(self.mungeQA(self.main.deck, q), height))
         if self.state != self.oldState and not nosound:
             playFromText(q)
@@ -170,7 +170,7 @@ class View(object):
     def drawAnswer(self):
         "Show the answer."
         a = self.main.currentCard.htmlAnswer()
-        a = runFilter("drawAnswer", a)
+        a = runFilter("drawAnswer", a, self.main.currentCard)
         if self.main.currentCard.cardModel.typeAnswer:
             try:
                 cor = stripHTML(self.main.currentCard.fact[

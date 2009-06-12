@@ -1055,9 +1055,11 @@ class PreviewDialog(QDialog):
         self.dialog.webView.setHtml(
             ('<html><head>%s</head><body>' % getBase(self.deck)) +
             "<style>" + styles + "</style>" +
-            runFilter("drawQuestion", mungeQA(self.deck, c.htmlQuestion())) +
+            runFilter("drawQuestion", mungeQA(self.deck, c.htmlQuestion()),
+                      c) +
             "<br><br><hr><br><br>" +
-            runFilter("drawAnswer", mungeQA(self.deck, c.htmlAnswer()))
+            runFilter("drawAnswer", mungeQA(self.deck, c.htmlAnswer()),
+                      c)
             + "</body></html>")
         playFromText(c.question)
         playFromText(c.answer)
