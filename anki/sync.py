@@ -1053,7 +1053,7 @@ class HttpSyncServerProxy(SyncServer):
         self.deckName = None
         self.username = user
         self.password = passwd
-        self.protocolVersion = 4
+        self.protocolVersion = 5
         self.sourcesToCheck = []
 
     def connect(self, clientVersion=""):
