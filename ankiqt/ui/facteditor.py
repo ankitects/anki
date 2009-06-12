@@ -290,7 +290,6 @@ class FactEditor(object):
         self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
                                   self.onCloze)
         self.cloze.setToolTip(_("Cloze (F9)"))
-        #self.cloze.setIcon(QIcon(":/icons/document-cloze.png"))
         self.cloze.setFixedWidth(30)
         self.cloze.setFixedHeight(26)
         self.cloze.setText("[...]")
@@ -746,8 +745,8 @@ class FactEditor(object):
         src = self.focusedEdit()
         if not src:
             return
-        re1 = "\[.+?(:(.+?))?\]"
-        re2 = "\[(.+?)(:.+?)?\]"
+        re1 = "\[(?:<.+?>)?.+?(:(.+?))?\](?:</.+?>)?"
+        re2 = "\[(?:<.+?>)?(.+?)(:.+?)?\](?:</.+?>)?"
         # add brackets because selected?
         cursor = src.textCursor()
         oldSrc = None
@@ -798,7 +797,6 @@ class FactEditor(object):
             return
         # create
         s = unicode(src.toHtml())
-        s = stripHTML(s)
         def repl(match):
             exp = ""
             if match.group(2):
