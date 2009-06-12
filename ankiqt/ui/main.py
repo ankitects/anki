@@ -2623,12 +2623,18 @@ Consider backing up your media directory first."""))
         if sys.platform.startswith("darwin"):
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
-            #self.mainWin.deckBrowserOuterFrame.setMaximumWidth(550)
             self.mainWin.verticalLayout_14.setContentsMargins(2,2,2,2)
+            # mac users expect a minimum option
+            self.minimizeShortcut = QShortcut("Ctrl+m", self)
+            self.connect(self.minimizeShortcut, SIGNAL("activated()"),
+                         self.onMacMinimize)
         if sys.platform.startswith("win32"):
             self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
             self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
             self.mainWin.studyOptionsFrame.setFrameStyle(QFrame.Panel)
+
+    def onMacMinimize(self):
+        self.setWindowState(self.windowState() | Qt.WindowMinimized)
 
     def onMacLoad(self, fname):
         self.loadDeck(fname)
