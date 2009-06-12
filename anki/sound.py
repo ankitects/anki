@@ -8,7 +8,7 @@ Sound support
 """
 __docformat__ = 'restructuredtext'
 
-import re, sys, threading, time, subprocess, os, signal
+import re, sys, threading, time, subprocess, os, signal, atexit
 
 # Shared utils
 ##########################################################################
@@ -160,8 +160,17 @@ def clearMplayerQueue():
     mplayerQueue.append(None)
     mplayerCond.release()
 
+def stopMplayer():
+    mplayerCond.acquire()
+    if mplayerManager.mplayer:
+        mplayerManager.mplayer.communicate("quit\n")
+    mplayerManager.mplayer = -1
+    mplayerCond.notify()
+    mplayerCond.release()
+
 mplayerManager = MplayerMonitor()
 mplayerManager.start()
+atexit.register(stopMplayer)
 
 # PyAudio recording
 ##########################################################################
