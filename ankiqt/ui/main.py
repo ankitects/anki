@@ -1014,19 +1014,20 @@ your deck."""))
                 continue
             try:
                 deck = DeckStorage.Deck(d, backup=False)
+                self.browserDecks.append({
+                    'path': d,
+                    'name': deck.name(),
+                    'due': deck.failedSoonCount + deck.revCount,
+                    'new': deck.newCountToday,
+                    'mod': deck.modified,
+                    })
+                deck.close()
             except Exception, e:
                 if not "File is in use" in str(e):
                     toRemove.append(d)
                 else:
+                    print "ignoring", d
                     continue
-            self.browserDecks.append({
-                'path': d,
-                'name': deck.name(),
-                'due': deck.failedSoonCount + deck.revCount,
-                'new': deck.newCountToday,
-                'mod': deck.modified,
-                })
-            deck.close()
         for d in toRemove:
             self.config['recentDeckPaths'].remove(d)
         self.config.save()
