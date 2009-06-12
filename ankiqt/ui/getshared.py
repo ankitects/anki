@@ -116,11 +116,14 @@ class GetShared(QDialog):
         if self.type == 0:
             cols = (R_TITLE, R_FACTS, R_COUNT)
         else:
-            cols = (R_TITLE, R_COUNT)
+            cols = (R_TITLE, R_COUNT, R_MODIFIED)
         for rc, r in enumerate(self.curList):
             for cc, c in enumerate(cols):
                 if c == R_FACTS or c == R_COUNT:
                     txt = unicode("%15d" % r[c])
+                elif c == R_MODIFIED:
+                    days = int(((time.time() - r[c])/(24*60*60)))
+                    txt = ngettext("%6d day ago", "%6d days ago", days) % days
                 else:
                     txt = unicode(r[c])
                 item = QTableWidgetItem(txt)
@@ -148,12 +151,14 @@ class GetShared(QDialog):
 <b>Size</b>: %(size)0.2fKB<br>
 <b>Uploader</b>: %(author)s<br>
 <b>Downloads</b>: %(count)s<br>
-<b>Description</b>:<br>%(description)s""") % {
+<b>Modified</b>: %(mod)s ago<br>
+<br>%(description)s""") % {
             'title': r[R_TITLE],
             'tags': r[R_TAGS],
             'size': r[R_SIZE] / 1024.0,
             'author': r[R_USERNAME],
             'count': r[R_COUNT],
+            'mod': fmtTimeSpan(time.time() - r[R_MODIFIED]),
             'description': r[R_DESCRIPTION].replace("\n", "<br>"),
             })
         self.form.scrollAreaWidgetContents.adjustSize()
@@ -170,9 +175,9 @@ class GetShared(QDialog):
             self.form.table.setHorizontalHeaderLabels([
                 _("Title"), _("Facts"), _("Downloads")])
         else:
-            self.form.table.setColumnCount(2)
+            self.form.table.setColumnCount(3)
             self.form.table.setHorizontalHeaderLabels([
-                _("Title"), _("Downloads")])
+                _("Title"), _("Downloads"), _("Modified")])
         self.form.table.horizontalHeader().setResizeMode(
             0, QHeaderView.Stretch)
         self.form.table.verticalHeader().hide()
