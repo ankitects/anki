@@ -144,7 +144,8 @@ class MplayerMonitor(threading.Thread):
     def startProcess(self):
         try:
             self.mplayer = subprocess.Popen(
-                mplayerCmd, startupinfo=si, stdin=subprocess.PIPE)
+                mplayerCmd, startupinfo=si, stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except OSError:
             raise Exception("Audio player not found")
 
