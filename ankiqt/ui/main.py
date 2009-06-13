@@ -2482,12 +2482,11 @@ Couldn't contact Anki Online. Please check your internet connection.""")
         p = ui.utils.ProgressWin(parent, max, min, title)
         self.progressWins.append(p)
 
-    def updateProgress(self, label=None, value=None):
+    def updateProgress(self, label=None, value=None, process=True):
         if self.mainThread != QThread.currentThread():
             return
         if self.progressWins:
-            self.progressWins[-1].update(label, value)
-        self.app.processEvents()
+            self.progressWins[-1].update(label, value, process)
 
     def finishProgress(self):
         if self.mainThread != QThread.currentThread():

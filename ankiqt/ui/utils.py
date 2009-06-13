@@ -222,7 +222,7 @@ class ProgressWin(object):
         if max == 0:
             self.diag.setLabelText(_("Processing..."))
 
-    def update(self, label=None, value=None):
+    def update(self, label=None, value=None, process=True):
         #print self.min, self.counter, self.max, label, time.time() - self.lastTime
         self.lastTime = time.time()
         if label:
@@ -233,7 +233,8 @@ class ProgressWin(object):
         else:
             self.counter = value + 1
         self.diag.setValue(value)
-        self.app.processEvents()
+        if process:
+            self.app.processEvents()
 
     def finish(self):
         if self.max:

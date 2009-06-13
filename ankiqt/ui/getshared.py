@@ -189,6 +189,7 @@ class GetShared(QDialog):
                 return QDialog.accept(self)
         h = QHttp(self)
         h.connect(h, SIGNAL("requestFinished(int,bool)"), self.onReqFin2)
+        h.connect(h, SIGNAL("dataReadProgress(int,int)"), self.dataRead)
         h.connect(h, SIGNAL("proxyAuthenticationRequired(QNetworkProxy,"
                             "QAuthenticator*)"),
                   self.onProxyAuth)
@@ -198,6 +199,11 @@ class GetShared(QDialog):
         self.http = h
         self.parent.setProgressParent(self)
         self.parent.startProgress()
+
+    def dataRead(self, done, total):
+        self.parent.updateProgress(label=_("Downloaded %dKB") %
+                                   (done/1024),
+                                   process=False)
 
     def onReqFin2(self, id, err):
         "File fetched."
