@@ -164,7 +164,13 @@ def clearMplayerQueue():
 def stopMplayer():
     mplayerCond.acquire()
     if mplayerManager.mplayer:
-        mplayerManager.mplayer.communicate("quit\n")
+        while 1:
+            try:
+                mplayerManager.mplayer.communicate("quit\n")
+                break
+            except OSError:
+                # osx throws these regularly
+                pass
     mplayerManager.mplayer = -1
     mplayerCond.notify()
     mplayerCond.release()
