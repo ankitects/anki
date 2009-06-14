@@ -471,7 +471,7 @@ where id != :id and factId = :factId""",
             else:
                 due = self.delay0
         else:
-            due =  card.interval * 86400.0
+            due = card.interval * 86400.0
         return due + time.time()
 
     def updateFactor(self, card, ease):
@@ -515,6 +515,7 @@ where id in %s""" % ids2str(ids), now=time.time(), new=0)
         if self.newCardOrder == NEW_CARDS_RANDOM:
             # we need to re-randomize now
             self.randomizeNewCards(ids)
+        self.flushMod()
         self.refresh()
 
     def randomizeNewCards(self, cardIds=None):
