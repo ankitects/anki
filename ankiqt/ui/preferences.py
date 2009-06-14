@@ -141,6 +141,7 @@ class Preferences(QDialog):
         self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
         self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
         self.dialog.showProgress.setChecked(self.config['showProgress'])
+        self.dialog.openLastDeck.setChecked(self.config['loadLastDeck'])
         self.dialog.deckBrowserOrder.setChecked(self.config['deckBrowserOrder'])
 
     def updateAdvanced(self):
