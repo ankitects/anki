@@ -987,7 +987,11 @@ your deck."""))
     ##########################################################################
 
     def setupDeckBrowser(self):
-        self.decksScrollArea = QScrollArea()
+        class PaddedScroll(QScrollArea):
+            def sizeHint(self):
+                hint = QScrollArea.sizeHint(self)
+                return QSize(max(hint.width(), 450), hint.height())
+        self.decksScrollArea = PaddedScroll()
         self.decksScrollArea.setFrameStyle(QFrame.NoFrame)
         self.decksScrollArea.setWidgetResizable(True)
         self.mainWin.verticalLayout_14.insertWidget(2, self.decksScrollArea)
