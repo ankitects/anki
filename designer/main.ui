@@ -1159,6 +1159,16 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QLabel" name="deckBrowserSummary">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="Line" name="line_4">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>

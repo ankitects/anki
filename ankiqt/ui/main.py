@@ -778,6 +778,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
                     d['due'] = self.deck.failedSoonCount + self.deck.revCount
                     d['new'] = self.deck.newCountToday
                     d['mod'] = self.deck.modified
+                    d['time'] = self.deck._dailyStats.reviewTime
+                    d['reps'] = self.deck._dailyStats.reps
             if self.deck.modifiedSinceSave():
                 if (self.deck.path is None or
                     (not self.config['saveOnClose'] and
@@ -1030,6 +1032,8 @@ your deck."""))
                     'due': deck.failedSoonCount + deck.revCount,
                     'new': deck.newCountToday,
                     'mod': deck.modified,
+                    'time': deck._dailyStats.reviewTime,
+                    'reps': deck._dailyStats.reps,
                     })
                 deck.close()
             except Exception, e:
@@ -1175,6 +1179,20 @@ your deck."""))
             layout.addItem(QSpacerItem(1,1, QSizePolicy.Expanding,
                                        QSizePolicy.Expanding),
                            c+3, 5)
+            # summarize
+            reps = 0
+            mins = 0
+            due = 0
+            for d in self.browserDecks:
+                reps += d['reps']
+                mins += d['time']
+            self.mainWin.deckBrowserSummary.setText(ngettext(
+                "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today.",
+                "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today.",
+                reps) % {
+                'reps': reps,
+                'time': anki.utils.fmtTimeSpan(mins),
+                })
         else:
             l = QLabel(_("""\
 <br>
