@@ -15,7 +15,7 @@ from PyQt4.QtGui import *
 from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue
-from anki.utils import addTags, deleteTags, parseTags, canonifyTags
+from anki.utils import addTags, deleteTags, parseTags, canonifyTags, stripHTML
 from anki.media import rebuildMediaDir
 from anki.db import OperationalError, SessionHelper
 from anki.stdmodels import BasicModel
@@ -115,6 +115,14 @@ class AnkiQt(QMainWindow):
         self.connect(self.mainWin.reviewEarlyButton,
                      SIGNAL("clicked()"),
                      self.onReviewEarly)
+        # notices
+        self.mainWin.noticeFrame.setShown(False)
+        self.connect(self.mainWin.noticeButton, SIGNAL("clicked()"),
+                     lambda: self.mainWin.noticeFrame.setShown(False))
+
+    def setNotice(self, str):
+        self.mainWin.noticeLabel.setText(str)
+        self.mainWin.noticeFrame.setShown(True)
 
     def setupViews(self):
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
@@ -414,6 +422,8 @@ Please do not file a bug report with Anki.<br>""")
         self.deck.s.expunge(self.currentCard)
         # answer
         self.deck.answerCard(self.currentCard, quality)
+        if self.currentCard.reps > 15 and self.currentCard.successive == 0:
+            self.handleLeech()
         self.lastScheduledTime = anki.utils.fmtTimeSpan(
             self.currentCard.due - time.time())
         self.lastQuality = quality
@@ -425,6 +435,21 @@ Please do not file a bug report with Anki.<br>""")
             if stats['gTotal'] % num == 0:
                 self.save()
         self.moveToState("getQuestion")
+
+    def handleLeech(self):
+        self.deck.refresh()
+        tags = self.currentCard.fact.tags
+        tags = addTags("Suspended", tags)
+        tags = addTags("Leech", tags)
+        self.currentCard.fact.tags = canonifyTags(tags)
+        self.currentCard.fact.setModified(textChanged=True)
+        self.deck.updateFactTags([self.currentCard.fact.id])
+        for card in self.currentCard.fact.cards:
+            self.deck.updatePriority(card)
+        self.deck.refresh()
+        self.setNotice(_("""\
+%s... was a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""") %
+                       stripHTML(self.currentCard.question)[0:30])
 
     def startRefreshTimer(self):
         "Update the screen once a minute until next card is displayed."
@@ -2079,15 +2104,10 @@ it to your friends.
                                          setCurrentIndex(1)
 
     def noSyncResponse(self):
-        msg = _("""\
-<h1>Sync Failed</h1>
-Couldn't contact Anki Online. Please check your internet connection.""")
+        msg = _("Sync Failed. Please check your internet connection.")
         if self.config['proxyHost']:
-            msg += _(" Also check your proxy settings.")
-        if self.config['syncInMsgBox']:
-            ui.utils.showWarning(msg)
-        else:
-            self.showToolTip(msg)
+            msg += _(" (and proxy settings)")
+        self.setNotice(msg)
 
     def openSyncProgress(self):
         self.syncProgressDialog = QProgressDialog(_("Syncing Media..."),

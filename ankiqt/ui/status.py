@@ -304,4 +304,3 @@ You should aim to answer each question within<br>
 
     def setTimer(self, txt):
         self.timer.setText("<qt>" + txt + "&nbsp;")
-
