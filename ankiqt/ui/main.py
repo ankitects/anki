@@ -150,7 +150,7 @@ class AnkiQt(QMainWindow):
             def getError(self):
                 p = self.pool
                 self.pool = ""
-                return p
+                return unicode(p, 'utf8', 'replace')
 
         self.errorPipe = ErrorPipe(self)
         sys.stderr = self.errorPipe
@@ -194,10 +194,7 @@ Please do not file a bug report with Anki.<br>""")
             diag.setLayout(layout)
             text = QTextEdit()
             text.setReadOnly(True)
-            try:
-                text.setHtml(txt + "<div style='white-space: pre-wrap'>" + error + "</div>")
-            except:
-                text.setHtml("couldn't set error")
+            text.setHtml(txt + "<div style='white-space: pre-wrap'>" + error + "</div>")
             layout.addWidget(text)
             box = QDialogButtonBox(QDialogButtonBox.Close)
             layout.addWidget(box)
