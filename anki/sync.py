@@ -48,6 +48,35 @@ SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
 #SYNC_HOST = "localhost"; SYNC_PORT = 8001
 
 ##########################################################################
+# Monkey-patch httplib to incrementally send instead of chewing up large
+# amounts of memory
+
+def incrementalSend(self, strOrFile):
+    if self.sock is None:
+        if self.auto_open:
+            self.connect()
+        else:
+            raise NotConnected()
+    if self.debuglevel > 0:
+        print "send:", repr(str)
+    try:
+        if (isinstance(strOrFile, str) or
+            isinstance(strOrFile, unicode)):
+            self.sock.sendall(strOrFile)
+        else:
+            while 1:
+                data = strOrFile.read(65536)
+                if not data:
+                    break
+                self.sock.sendall(data)
+    except socket.error, v:
+        if v[0] == 32:      # Broken pipe
+            self.close()
+        raise
+
+httplib.HTTPConnection.send = incrementalSend
+
+##########################################################################
 
 class SyncTools(object):
 
@@ -969,30 +998,19 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             tmp.seek(0)
             # open http connection
             runHook("fullSyncStarted", size)
-            h = httplib.HTTP(SYNC_HOST, SYNC_PORT)
-            h.putrequest('POST', "/sync/fullup")
-            h.putheader('Content-type', 'multipart/form-data; boundary=%s' %
-                        MIME_BOUNDARY)
-            h.putheader('Content-length', str(size))
-            h.putheader('Host', SYNC_HOST)
-            h.endheaders()
-            dst = h._conn.sock.makefile("wb", 65536)
-            # dump file
-            cnt = 0
-            while 1:
-                runHook("fullSyncProgress", "fromLocal", cnt)
-                data = tmp.read(65536)
-                if not data:
-                    break
-                dst.write(data)
-                cnt += len(data)
-            # wait for reply
-            dst.close()
-            tmp.close()
-            os.close(fd)
-            errcode, errmsg, headers = h.getreply()
-            assert errcode == 200
-            assert h.file.read() == "OK"
+            headers = {
+                'Content-type': 'multipart/form-data; boundary=%s' %
+                MIME_BOUNDARY,
+                'Content-length': str(size),
+                'Host': SYNC_HOST,
+                }
+            req = urllib2.Request(SYNC_URL + "fullup", tmp, headers)
+            try:
+                assert urllib2.urlopen(req).read() == "OK"
+            finally:
+                dst.close()
+                tmp.close()
+                os.close(fd)
         finally:
             runHook("fullSyncFinished")
 
