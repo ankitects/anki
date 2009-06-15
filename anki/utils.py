@@ -38,6 +38,15 @@ timeTable = {
     "seconds": lambda n: ngettext("%s second", "%s seconds", n),
     }
 
+afterTimeTable = {
+    "years": lambda n: ngettext("%s year<!--after>", "%s years<!--after>", n),
+    "months": lambda n: ngettext("%s month<!--after>", "%s months<!--after>", n),
+    "days": lambda n: ngettext("%s day<!--after>", "%s days<!--after>", n),
+    "hours": lambda n: ngettext("%s hour<!--after>", "%s hours<!--after>", n),
+    "minutes": lambda n: ngettext("%s minute<!--after>", "%s minutes<!--after>", n),
+    "seconds": lambda n: ngettext("%s second<!--after>", "%s seconds<!--after>", n),
+    }
+
 shortTimeTable = {
     "years": "%sy",
     "months": "%sm",
@@ -47,18 +56,21 @@ shortTimeTable = {
     "seconds": "%ss",
     }
 
-def fmtTimeSpan(time, pad=0, point=0, short=False):
+def fmtTimeSpan(time, pad=0, point=0, short=False, after=False):
     "Return a string representing a time span (eg '2 days')."
     (type, point) = optimalPeriod(time, point)
     time = convertSecondsTo(time, type)
     if short:
         fmt = shortTimeTable[type]
     else:
-        fmt = timeTable[type](_pluralCount(round(time, point)))
+        if after:
+            fmt = afterTimeTable[type](_pluralCount(round(time, point)))
+        else:
+            fmt = timeTable[type](_pluralCount(round(time, point)))
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
     return locale.format_string("%" + (fmt % timestr), time)
 
-def fmtTimeSpanPair(time1, time2, short=False):
+def fmtTimeSpanPair(time1, time2, short=False, after=False):
     (type, point) = optimalPeriod(time1, 0)
     time1 = convertSecondsTo(time1, type)
     time2 = convertSecondsTo(time2, type)
@@ -66,7 +78,10 @@ def fmtTimeSpanPair(time1, time2, short=False):
     if short:
         fmt = shortTimeTable[type]
     else:
-        fmt = timeTable[type](2)
+        if after:
+            fmt = afterTimeTable[type](2)
+        else:
+            fmt = timeTable[type](2)
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
     finalstr = "%s-%s" % (
         locale.format_string('%' + timestr, time1),
