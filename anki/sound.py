@@ -8,7 +8,7 @@ Sound support
 """
 __docformat__ = 'restructuredtext'
 
-import re, sys, threading, time, subprocess, os, signal, atexit
+import re, sys, threading, time, subprocess, os, signal, atexit, errno
 
 # Shared utils
 ##########################################################################
@@ -171,9 +171,11 @@ def stopMplayer():
             try:
                 mplayerManager.mplayer.communicate("quit\n")
                 break
-            except OSError:
-                # osx throws these regularly
-                pass
+            except OSError, e:
+                if e.errno != errno.EINTR:
+                    # osx throws interrupt errors regularly, but we want to
+                    # ignore other errors on shutdown
+                    break
     mplayerManager.mplayer = -1
     mplayerCond.notify()
     mplayerCond.release()
