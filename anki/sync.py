@@ -68,7 +68,6 @@ def incrementalSend(self, strOrFile):
         else:
             cnt = 0
             while 1:
-                time.sleep(0.1)
                 if sendProgressHook:
                     sendProgressHook(cnt)
                 data = strOrFile.read(65536)
