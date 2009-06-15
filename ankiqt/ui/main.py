@@ -515,6 +515,10 @@ new:
     # Main stack
     ##########################################################################
 
+    def switchToBlankScreen(self):
+        self.mainWin.mainStack.setCurrentIndex(0)
+        self.hideButtons()
+
     def switchToWelcomeScreen(self):
         self.mainWin.mainStack.setCurrentIndex(1)
         self.hideButtons()
@@ -1099,6 +1103,7 @@ your deck."""))
         self.showDeckBrowser()
 
     def showDeckBrowser(self):
+        self.switchToBlankScreen()
         import sip
         focusButton = None
         # remove all widgets from layout & layout itself
