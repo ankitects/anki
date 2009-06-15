@@ -242,7 +242,7 @@ class FactEditor(object):
         self.addSound.setShortcut(_("F4"))
         self.addSound.setEnabled(False)
         self.addSound.setIcon(QIcon(":/icons/text-speak.png"))
-        self.addSound.setToolTip(_("Add audio (F4)"))
+        self.addSound.setToolTip(_("Add audio/video (F4)"))
         self.iconsBox.addWidget(self.addSound)
         self.addSound.setStyle(self.plastiqueStyle)
         # sounds
@@ -870,7 +870,7 @@ class FactEditor(object):
     def onAddSound(self):
         # get this before we open the dialog
         w = self.focusedEdit()
-        key = _("Sounds (*.mp3 *.ogg *.wav)")
+        key = _("Sounds/Videos (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg)")
         file = ui.utils.getFile(self.parent, _("Add audio"), "audio", key)
         if not file:
             return
@@ -1051,7 +1051,7 @@ class PreviewDialog(QDialog):
         styles = (self.deck.css +
                   ("\nhtml { background: %s }" % c.cardModel.lastFontColour) +
                   "\ndiv { white-space: pre-wrap; }")
-        styles = runFilter("addStyles", styles)
+        styles = runFilter("addStyles", styles, c)
         self.dialog.webView.setHtml(
             ('<html><head>%s</head><body>' % getBase(self.deck)) +
             "<style>" + styles + "</style>" +

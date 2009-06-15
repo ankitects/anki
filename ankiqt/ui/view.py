@@ -87,7 +87,7 @@ class View(object):
         if self.main.deck:
             s += self.main.deck.css
         s += "div { white-space: pre-wrap; }\n"
-        s = runFilter("addStyles", s)
+        s = runFilter("addStyles", s, self.main.currentCard)
         s += "</style>"
         return s
 
@@ -135,6 +135,8 @@ class View(object):
         q = self.main.currentCard.htmlQuestion()
         if self.haveTop:
             height = 35
+        elif self.main.currentCard.cardModel.questionInAnswer:
+            height = 40
         else:
             height = 45
         q = runFilter("drawQuestion", q, self.main.currentCard)
