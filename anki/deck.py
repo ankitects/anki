@@ -1033,7 +1033,8 @@ where type = 2 and priority in (1,2,3,4)""") or 0
 select count(id) from cards
 where factId = :fid and cardModelId = :cmid""",
                                  fid=fact.id, cmid=cardModel.id) == 0:
-                    card = anki.cards.Card(fact, cardModel)
+                    card = anki.cards.Card(
+                        fact, cardModel, due=fact.created+cardModel.ordinal)
                     self.updateCardTags([card.id])
                     self.updatePriority(card)
                     self.cardCount += 1
