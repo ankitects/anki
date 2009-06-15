@@ -121,6 +121,9 @@ class AnkiQt(QMainWindow):
                      lambda: self.mainWin.noticeFrame.setShown(False))
         if sys.platform.startswith("win32"):
             self.mainWin.noticeButton.setFixedWidth(24)
+        elif sys.platform.startswith("darwin"):
+            self.mainWin.noticeButton.setFixedWidth(20)
+            self.mainWin.noticeButton.setFixedHeight(20)
 
     def setNotice(self, str):
         self.mainWin.noticeLabel.setText(str)
