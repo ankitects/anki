@@ -777,8 +777,8 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         diag.setLayout(vbox)
         diag.show()
         self.app.processEvents()
-        combo.showPopup()
         combo.setFocus()
+        combo.showPopup()
         self.switchDeckDiag = diag
         diag.exec_()
 
