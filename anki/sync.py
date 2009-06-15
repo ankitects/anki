@@ -1008,7 +1008,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             try:
                 assert urllib2.urlopen(req).read() == "OK"
             finally:
-                dst.close()
                 tmp.close()
                 os.close(fd)
         finally:
