@@ -450,7 +450,8 @@ Please do not file a bug report with Anki.<br>""")
             self.deck.updatePriority(card)
         self.deck.refresh()
         self.setNotice(_("""\
-%s... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""") %
+%s... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>
+and has been suspended.""") %
                        stripHTML(self.currentCard.question)[0:30])
 
     def startRefreshTimer(self):
