@@ -226,7 +226,7 @@ class View(object):
             return
         self.write("<span style='color: %s'>" % futureWarningColour +
                    _("This card was due in %s.") % fmtTimeSpan(
-            self.main.currentCard.due - time.time()) +
+            self.main.currentCard.due - time.time(), after=True) +
                    "</span>")
 
     def drawLastCard(self):
