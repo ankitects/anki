@@ -992,7 +992,11 @@ your deck."""))
         class PaddedScroll(QScrollArea):
             def sizeHint(self):
                 hint = QScrollArea.sizeHint(self)
-                return QSize(max(hint.width(), 450), hint.height())
+                if sys.platform.startswith("darwin"):
+                    m = 500
+                else:
+                    m = 450
+                return QSize(max(hint.width(), m), hint.height())
         self.decksScrollArea = PaddedScroll()
         self.decksScrollArea.setFrameStyle(QFrame.NoFrame)
         self.decksScrollArea.setWidgetResizable(True)
