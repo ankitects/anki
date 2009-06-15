@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libanki 0.9.9.8\n"
+"Project-Id-Version: libanki 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-09 04:09+0900\n"
-"PO-Revision-Date: 2009-06-07 18:47+0100\n"
+"PO-Revision-Date: 2009-06-12 08:41+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
