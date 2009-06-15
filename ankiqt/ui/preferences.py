@@ -143,6 +143,7 @@ class Preferences(QDialog):
         self.dialog.showProgress.setChecked(self.config['showProgress'])
         self.dialog.openLastDeck.setChecked(self.config['loadLastDeck'])
         self.dialog.deckBrowserOrder.setChecked(self.config['deckBrowserOrder'])
+        self.dialog.deleteMedia.setChecked(self.config['deleteMedia'])
 
     def updateAdvanced(self):
         self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
@@ -160,6 +161,7 @@ class Preferences(QDialog):
             self.config['deckBrowserOrder'] = 1
         else:
             self.config['deckBrowserOrder'] = 0
+        self.config['deleteMedia'] = self.dialog.deleteMedia.isChecked()
 
     def codeToIndex(self, code):
         n = 0

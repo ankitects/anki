@@ -557,7 +557,7 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="0">
+         <item row="11" column="0">
           <widget class="QCheckBox" name="addZeroSpace">
            <property name="text">
             <string>Add hidden char to text (fixes Thai on OSX)</string>
@@ -575,6 +575,13 @@
           <widget class="QCheckBox" name="deckBrowserOrder">
            <property name="text">
             <string>Show decks with cards due first in browser</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QCheckBox" name="deleteMedia">
+           <property name="text">
+            <string>Delete original media on add</string>
            </property>
           </widget>
          </item>
@@ -648,6 +655,7 @@
   <tabstop>showStudyOptions</tabstop>
   <tabstop>openLastDeck</tabstop>
   <tabstop>deckBrowserOrder</tabstop>
+  <tabstop>deleteMedia</tabstop>
   <tabstop>addZeroSpace</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

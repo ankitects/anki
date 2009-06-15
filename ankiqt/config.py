@@ -98,6 +98,7 @@ class Config(dict):
             'loadLastDeck': False,
             'deckBrowserRefreshPeriod': 3600,
             'deckBrowserOrder': 0,
+            'deleteMedia': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):

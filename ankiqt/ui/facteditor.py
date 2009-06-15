@@ -865,6 +865,7 @@ class FactEditor(object):
         else:
             w = self.focusedEdit()
         path = self.deck.addMedia(file)
+        self.maybeDelete(path, file)
         w.insertHtml('<img src="%s">' % path)
 
     def onAddSound(self):
@@ -883,8 +884,19 @@ class FactEditor(object):
         else:
             w = self.focusedEdit()
         path = self.deck.addMedia(file)
+        self.maybeDelete(path, file)
         anki.sound.play(path)
         w.insertHtml('[sound:%s]' % path)
+
+    def maybeDelete(self, new, old):
+        if not ankiqt.mw.config['deleteMedia']:
+            return
+        if new == os.path.basename(old):
+            return
+        try:
+            os.unlink(old)
+        except:
+            pass
 
     def onRecSound(self):
         self.initMedia()
