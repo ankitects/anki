@@ -126,7 +126,7 @@ class MplayerMonitor(threading.Thread):
                 mplayerCond.wait()
             if not self.mplayer:
                 self.startProcess()
-            if self.mplayer.poll() is not None:
+            if self.mplayer != -1 and self.mplayer.poll() is not None:
                 self.mplayer.wait()
                 self.startProcess()
             nextClears = False
