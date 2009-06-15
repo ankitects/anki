@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-13 15:53+0900\n"
+"POT-Creation-Date: 2009-06-15 17:45+0200\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,27 +50,27 @@ msgstr ""
 msgid "  Stop"
 msgstr ""
 
-#: ui/main.py:1138
+#: ui/main.py:1150
 #, python-format
 msgid " (Alt+%d)"
 msgstr ""
 
-#: ui/main.py:1135
+#: ui/main.py:1147
 #, python-format
 msgid " (Command+Option+%d)"
 msgstr ""
 
-#: ui/sync.py:170
+#: ui/sync.py:171
 #, fuzzy, python-format
 msgid " * %s fetching payload..."
 msgstr "Synchronizuji kartičky..."
 
-#: ui/sync.py:167
+#: ui/sync.py:168
 #, python-format
 msgid " * %s no changes found."
 msgstr ""
 
-#: ui/sync.py:164
+#: ui/sync.py:165
 #, python-format
 msgid " * %s no longer exists."
 msgstr ""
@@ -85,15 +85,15 @@ msgstr " <b>Při vkládání/úpravě</b>"
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Při vkládání/úpravě</b>"
 
-#: ui/main.py:2055
+#: ui/main.py:2086
 msgid " Also check your proxy settings."
 msgstr ""
 
-#: ui/main.py:2287
+#: ui/main.py:2318
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/sync.py:172
+#: ui/sync.py:173
 #, python-format
 msgid " applied %d modified cards."
 msgstr ""
@@ -118,7 +118,7 @@ msgstr[1] "%(name)s [%(facts)d údaje, %(cards)d kartičky]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
 
-#: ui/main.py:2201
+#: ui/main.py:2232
 #, fuzzy, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(facts)d údaje, %(cards)d kartičky) - %(title)s"
@@ -135,7 +135,7 @@ msgstr[1] ""
 msgid "%d exported."
 msgstr "%d exportováno"
 
-#: ui/main.py:2607
+#: ui/main.py:2638
 #, python-format
 msgid "%d missing reference."
 msgid_plural "%d missing references."
@@ -149,19 +149,19 @@ msgid_plural "%d selected"
 msgstr[0] "%(del)d smazáno."
 msgstr[1] "%(del)d smazáno."
 
-#: ui/main.py:2609
+#: ui/main.py:2640
 #, python-format
 msgid "%d unused file removed."
 msgid_plural "%d unused files removed."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/cardlist.py:209 ui/main.py:1108
+#: ui/cardlist.py:209 ui/main.py:1120
 #, python-format
 msgid "%s ago"
 msgstr "před %s"
 
-#: forms/main.py:1014
+#: forms/main.py:1018
 #, fuzzy
 msgid "&About..."
 msgstr "&O programu..."
@@ -175,7 +175,7 @@ msgstr ""
 msgid "&Add"
 msgstr "&Přidat"
 
-#: forms/main.py:999
+#: forms/main.py:1003
 #, fuzzy
 msgid "&Add Items..."
 msgstr "Přidat štítek vlastnosti..."
@@ -189,17 +189,17 @@ msgstr ""
 msgid "&Add Tags..."
 msgstr "Přidejte štítek..."
 
-#: forms/main.py:1077
+#: forms/main.py:1081
 #, fuzzy
 msgid "&Bury Fact"
 msgstr "&Označit kartičku"
 
-#: forms/main.py:1015
+#: forms/main.py:1019
 #, fuzzy
 msgid "&Card Statistics"
 msgstr "&Statistika balíku"
 
-#: forms/main.py:990
+#: forms/main.py:994
 msgid "&Close"
 msgstr "&Zavřít"
 
@@ -208,12 +208,12 @@ msgstr "&Zavřít"
 msgid "&Cram..."
 msgstr "&O programu..."
 
-#: forms/main.py:1017
+#: forms/main.py:1021
 #, fuzzy
 msgid "&Deck Properties..."
 msgstr "&Vlastnosti balíku..."
 
-#: forms/main.py:1008
+#: forms/main.py:1012
 #, fuzzy
 msgid "&Deck Statistics"
 msgstr "&Statistika balíku"
@@ -223,7 +223,7 @@ msgstr "&Statistika balíku"
 msgid "&Delete"
 msgstr "&Smazat"
 
-#: forms/main.py:1059
+#: forms/main.py:1063
 #, fuzzy
 msgid "&Delete Card"
 msgstr "&Smazat"
@@ -238,7 +238,7 @@ msgstr "&Smazat kartičku"
 msgid "&Delete Tags..."
 msgstr "Smazat štítek u kartičky..."
 
-#: forms/main.py:1052
+#: forms/main.py:1056
 msgid "&Disable All Plugins"
 msgstr ""
 
@@ -246,25 +246,25 @@ msgstr ""
 msgid "&Documentation"
 msgstr ""
 
-#: forms/main.py:1068
+#: forms/main.py:1072
 #, fuzzy
 msgid "&Donate..."
 msgstr "&O programu..."
 
-#: forms/main.py:978
+#: forms/main.py:982
 #, fuzzy
 msgid "&Download..."
 msgstr "&O programu..."
 
-#: forms/cardlist.py:262 forms/deckproperties.py:337 forms/main.py:976
+#: forms/cardlist.py:262 forms/deckproperties.py:337 forms/main.py:980
 msgid "&Edit"
 msgstr "&Upravit"
 
-#: forms/main.py:1051
+#: forms/main.py:1055
 msgid "&Enable All Plugins"
 msgstr ""
 
-#: forms/main.py:977
+#: forms/main.py:981
 #, fuzzy
 msgid "&File"
 msgstr "Poslední"
@@ -274,12 +274,12 @@ msgstr "Poslední"
 msgid "&Find"
 msgstr "Poslední"
 
-#: forms/main.py:1025
+#: forms/main.py:1029
 #, fuzzy
 msgid "&Fonts and Colours..."
 msgstr "Písmo a barvy"
 
-#: forms/main.py:1038
+#: forms/main.py:1042
 #, fuzzy
 msgid "&Forum..."
 msgstr "&O programu..."
@@ -293,12 +293,12 @@ msgstr "&Smazat"
 msgid "&Go"
 msgstr ""
 
-#: forms/main.py:1021
+#: forms/main.py:1025
 #, fuzzy
 msgid "&Graphs..."
 msgstr "&Grafy"
 
-#: forms/cardlist.py:265 forms/main.py:975
+#: forms/cardlist.py:265 forms/main.py:979
 msgid "&Help"
 msgstr "&Nápověda"
 
@@ -307,7 +307,7 @@ msgstr "&Nápověda"
 msgid "&Import"
 msgstr "Import"
 
-#: forms/main.py:1019
+#: forms/main.py:1023
 #, fuzzy
 msgid "&Import..."
 msgstr "&Import..."
@@ -322,16 +322,16 @@ msgstr "Prázdný výběr"
 msgid "&Last Card"
 msgstr "Poslední kartička"
 
-#: forms/main.py:969
+#: forms/main.py:973
 msgid "&Learn More"
 msgstr ""
 
-#: forms/main.py:1027
+#: forms/main.py:1031
 #, fuzzy
 msgid "&Mark Fact"
 msgstr "&Označit kartičku"
 
-#: forms/main.py:986
+#: forms/main.py:990
 #, fuzzy
 msgid "&New"
 msgstr "&Nový"
@@ -341,17 +341,17 @@ msgstr "&Nový"
 msgid "&Next Card"
 msgstr "&Smazat"
 
-#: forms/main.py:1050
+#: forms/main.py:1054
 #, fuzzy
 msgid "&Open Plugin Folder..."
 msgstr "Otevřít vzorový soubor..."
 
-#: forms/main.py:988
+#: forms/main.py:992
 #, fuzzy
 msgid "&Open..."
 msgstr "&Otevřít..."
 
-#: forms/main.py:1005
+#: forms/main.py:1009
 #, fuzzy
 msgid "&Preferences"
 msgstr "Nastavení"
@@ -361,16 +361,16 @@ msgstr "Nastavení"
 msgid "&Previous Card"
 msgstr "Náhled"
 
-#: forms/main.py:1069
+#: forms/main.py:1073
 #, fuzzy
 msgid "&Record Noise Profile..."
 msgstr "Zvolte soubor..."
 
-#: forms/cardlist.py:274 forms/main.py:1058
+#: forms/cardlist.py:274 forms/main.py:1062
 msgid "&Redo"
 msgstr ""
 
-#: forms/main.py:1012
+#: forms/main.py:1016
 #, fuzzy
 msgid "&Report Bug..."
 msgstr "&Ohlásit chybu programu..."
@@ -379,11 +379,11 @@ msgstr "&Ohlásit chybu programu..."
 msgid "&Reschedule..."
 msgstr ""
 
-#: forms/main.py:993
+#: forms/main.py:997
 msgid "&Save"
 msgstr "&Uložit"
 
-#: forms/main.py:981
+#: forms/main.py:985
 #, fuzzy
 msgid "&Settings"
 msgstr "Pokročilé nastavení"
@@ -393,11 +393,11 @@ msgstr "Pokročilé nastavení"
 msgid "&Sort"
 msgstr "S&eřadit"
 
-#: forms/main.py:1066
+#: forms/main.py:1070
 msgid "&Study Options..."
 msgstr ""
 
-#: forms/main.py:1030
+#: forms/main.py:1034
 #, fuzzy
 msgid "&Suspend Fact"
 msgstr "&Zmrazit položku"
@@ -407,11 +407,11 @@ msgstr "&Zmrazit položku"
 msgid "&Suspend Facts"
 msgstr "&Zmrazit položku"
 
-#: forms/main.py:979
+#: forms/main.py:983
 msgid "&Tools"
 msgstr "&Nástroje"
 
-#: forms/cardlist.py:273 forms/main.py:1036
+#: forms/cardlist.py:273 forms/main.py:1040
 msgid "&Undo"
 msgstr ""
 
@@ -504,12 +504,12 @@ msgstr "<b>Formát odpovědi</b>"
 msgid "<b>Cards</b>:"
 msgstr "<b>Těžké</b>"
 
-#: ui/main.py:1093
+#: ui/main.py:1105
 #, fuzzy
 msgid "<b>Deck</b>"
 msgstr "<b>Název</b>"
 
-#: ui/main.py:1095
+#: ui/main.py:1107
 #, fuzzy
 msgid "<b>Due<br>Today</b>"
 msgstr "<b>Název</b>"
@@ -581,7 +581,7 @@ msgstr "<b>Název</b>"
 msgid "<b>New Model</b>:"
 msgstr "<b><u>M</u>odel</b>:"
 
-#: forms/main.py:963
+#: forms/main.py:967
 #, fuzzy
 msgid "<b>New cards per day:</b>"
 msgstr "<b>Vlastnosti</b>"
@@ -591,7 +591,7 @@ msgstr "<b>Vlastnosti</b>"
 msgid "<b>New day starts at</b>"
 msgstr "<b>Vlastnosti</b>"
 
-#: ui/main.py:1099
+#: ui/main.py:1111
 #, fuzzy
 msgid "<b>New<br>Today</b>"
 msgstr "<b>Název</b>"
@@ -616,12 +616,12 @@ msgstr "<b>Formát odpovědi</b>"
 msgid "<b>Replace With</b>:"
 msgstr "<b>Název</b>"
 
-#: forms/main.py:961
+#: forms/main.py:965
 #, fuzzy
 msgid "<b>Session limit (minutes):</b>"
 msgstr "<b>Skrývání odpovědi</b>"
 
-#: forms/main.py:965
+#: forms/main.py:969
 #, fuzzy
 msgid "<b>Session limit (questions):"
 msgstr "Pozice odpovědi"
@@ -665,7 +665,7 @@ msgstr ""
 msgid "<b>Very High Priority</b>"
 msgstr ""
 
-#: ui/main.py:1175
+#: ui/main.py:1201
 msgid ""
 "<br>\n"
 "<font size=+1>\n"
@@ -675,7 +675,7 @@ msgid ""
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:158
+#: ui/sync.py:159
 msgid "<br><br>Checking deck subscriptions..."
 msgstr ""
 
@@ -717,7 +717,7 @@ msgstr ""
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Obtížnost kartičky</h1>"
 
-#: ui/main.py:1681
+#: ui/main.py:1707
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -729,11 +729,11 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Kumulativní pohled na kartičky k opakování</h1>"
 
-#: ui/main.py:1576
+#: ui/main.py:1602
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Tato kartička</h1>"
 
-#: forms/main.py:971
+#: forms/main.py:975
 #, fuzzy
 msgid "<h1>Decks</h1>"
 msgstr "<h1>Kartičky k zopakování</h1>"
@@ -777,11 +777,11 @@ msgstr "<h1>Intervaly kartičky</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Obtížnost kartičky</h1>"
 
-#: ui/main.py:1579
+#: ui/main.py:1605
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Poslední kartička</h1>"
 
-#: ui/main.py:1882
+#: ui/main.py:1908
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
@@ -790,11 +790,11 @@ msgstr ""
 msgid "<h1>Models</h1>"
 msgstr "<h1>Modely kartičky</h1>"
 
-#: ui/main.py:838
+#: ui/main.py:840
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr ""
 
-#: ui/sync.py:230
+#: ui/sync.py:231
 #, fuzzy
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Kumulativní pohled na kartičky k opakování</h1>"
@@ -819,7 +819,7 @@ msgstr "<h1>Pole</h1>"
 msgid "<h1>Review Time</h1>"
 msgstr "<h1>Pole</h1>"
 
-#: ui/main.py:1888
+#: ui/main.py:1914
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
@@ -833,12 +833,12 @@ msgstr "<h1>Pole</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Kartičky k zopakování</h1>"
 
-#: ui/main.py:1352
+#: ui/main.py:1378
 #, fuzzy
 msgid "<h1>Study Options</h1>"
 msgstr "<b>Popis</b>"
 
-#: ui/main.py:2051
+#: ui/main.py:2082
 msgid ""
 "<h1>Sync Failed</h1>\n"
 "Couldn't contact Anki Online. Please check your internet connection."
@@ -854,12 +854,12 @@ msgstr "<h1>Popis balíku</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Synchronizace</h1>Synchronizace umožňuje přístup k balíku přes web a mobilní telefon. Můžete si vytvořit <a href=\"http://anki.ichi2.net/\">účet zdarma</a>."
 
-#: ui/sync.py:228
+#: ui/sync.py:229
 #, fuzzy
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Popis balíku</h1>"
 
-#: ui/main.py:938
+#: ui/main.py:940
 msgid ""
 "<h1>Unsaved Deck</h1>\n"
 "Careful. You're editing an unsaved Deck.<br>\n"
@@ -878,7 +878,7 @@ msgstr ""
 " nejsou uloženy. Chcete je uložit, smazat\n"
 " nebo zrušit operaci?"
 
-#: ui/main.py:1354
+#: ui/main.py:1380
 #, fuzzy
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>Pole</h1>"
@@ -895,7 +895,7 @@ msgstr "<p><a href=hide:>Toto schovejte</a>"
 msgid "About Anki"
 msgstr "O Anki..."
 
-#: forms/main.py:1053
+#: forms/main.py:1057
 #, fuzzy
 msgid "Active &Tags..."
 msgstr "Smazat štítek u kartičky..."
@@ -904,7 +904,7 @@ msgstr "Smazat štítek u kartičky..."
 msgid "Active Tags"
 msgstr ""
 
-#: forms/main.py:980
+#: forms/main.py:984
 #, fuzzy
 msgid "Ad&vanced"
 msgstr "&Přidat"
@@ -932,7 +932,7 @@ msgstr "Přidat štítek vlastnosti..."
 msgid "Add Items - %s"
 msgstr "Přidat štítek vlastnosti..."
 
-#: ui/view.py:288
+#: ui/view.py:290
 #, fuzzy
 msgid "Add Material"
 msgstr "<h1>Modely kartičky</h1>"
@@ -962,14 +962,14 @@ msgstr "Přidat audio"
 
 #: ui/facteditor.py:245
 #, fuzzy
-msgid "Add audio (F4)"
+msgid "Add audio/video (F4)"
 msgstr "Přidat audio"
 
 #: forms/preferences.py:347
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr ""
 
-#: forms/main.py:1000
+#: forms/main.py:1004
 msgid "Add new items to Anki by typing them in"
 msgstr ""
 
@@ -993,7 +993,7 @@ msgstr "Přidáno %(num)d kartiček do '%(str)s'."
 msgid "Advanced"
 msgstr "&Přidat"
 
-#: forms/main.py:952
+#: forms/main.py:956
 msgid "Again"
 msgstr ""
 
@@ -1011,16 +1011,16 @@ msgstr "Opakování"
 msgid "Allow the answer to be blank"
 msgstr ""
 
-#: ui/main.py:1754
+#: ui/main.py:1780
 msgid "Already cramming. Please close this deck first."
 msgstr ""
 
-#: ui/main.py:1139
+#: ui/main.py:1151
 #, python-format
 msgid "Alt+%d"
 msgstr ""
 
-#: ui/main.py:2630
+#: ui/main.py:2661
 msgid "Alt+m"
 msgstr ""
 
@@ -1063,12 +1063,12 @@ msgid ""
 "into a bug report:<br>\n"
 msgstr ""
 
-#: ui/deckproperties.py:186 ui/main.py:2582 forms/main.py:948 forms/sort.py:45
+#: ui/deckproperties.py:186 ui/main.py:2613 forms/main.py:952
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
-#: ui/main.py:1222
+#: ui/main.py:1248
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1097,11 +1097,11 @@ msgstr "Písmo odpovědi"
 msgid "Answer size"
 msgstr "Velikost odpovědi"
 
-#: forms/main.py:1028
+#: forms/main.py:1032
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
-#: ui/sync.py:142
+#: ui/sync.py:143
 msgid "Applying reply..."
 msgstr ""
 
@@ -1109,7 +1109,7 @@ msgstr ""
 msgid "Average time per answer: "
 msgstr ""
 
-#: ui/view.py:290
+#: ui/view.py:292
 msgid "Back to Deck Browser"
 msgstr ""
 
@@ -1134,7 +1134,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: forms/main.py:1002
+#: forms/main.py:1006
 #, fuzzy
 msgid "Brows&e Items..."
 msgstr "Přidat štítek vlastnosti..."
@@ -1143,7 +1143,7 @@ msgstr "Přidat štítek vlastnosti..."
 msgid "Browse Items"
 msgstr ""
 
-#: forms/main.py:1003
+#: forms/main.py:1007
 msgid "Browse and edit all items"
 msgstr ""
 
@@ -1163,16 +1163,16 @@ msgstr "Písmo odpovědi"
 msgid "Building Index..."
 msgstr ""
 
-#: ui/main.py:1651
+#: ui/main.py:1677
 msgid "Bury"
 msgstr ""
 
-#: forms/main.py:1047
+#: forms/main.py:1051
 #, fuzzy
 msgid "C&ram..."
 msgstr "&O programu..."
 
-#: forms/main.py:1062
+#: forms/main.py:1066
 msgid "Cache LaTeX"
 msgstr ""
 
@@ -1184,7 +1184,7 @@ msgstr ""
 msgid "Can only operate on one model at a time."
 msgstr ""
 
-#: ui/main.py:2597
+#: ui/main.py:2628
 #, fuzzy
 msgid "Cancel"
 msgstr "Změna"
@@ -1222,12 +1222,12 @@ msgstr "Kartička:"
 msgid "Cards are waiting"
 msgstr ""
 
-#: ui/main.py:1390
+#: ui/main.py:1416
 #, fuzzy
 msgid "Cards/day:"
 msgstr "Kartička:"
 
-#: ui/main.py:1389
+#: ui/main.py:1415
 msgid "Cards/session:"
 msgstr ""
 
@@ -1250,28 +1250,28 @@ msgstr "<h1>Obtížnost kartičky</h1>"
 msgid "Change Model"
 msgstr "<h1>Obtížnost kartičky</h1>"
 
-#: forms/main.py:1045
+#: forms/main.py:1049
 msgid "Check Media Database..."
 msgstr ""
 
-#: ui/sync.py:177
+#: ui/sync.py:178
 #, fuzzy
 msgid "Check complete."
 msgstr "Synchronizovat při otevření"
 
-#: ui/main.py:1165
+#: ui/main.py:1177
 msgid "Check due counts again (Ctrl+Shift+r)"
 msgstr ""
 
-#: forms/main.py:1042
+#: forms/main.py:1046
 msgid "Check the database for errors"
 msgstr ""
 
-#: forms/main.py:1046
+#: forms/main.py:1050
 msgid "Check the files in the media directory"
 msgstr ""
 
-#: ui/main.py:1016
+#: ui/main.py:1026
 #, python-format
 msgid "Checking deck %(x)d of %(y)d..."
 msgstr ""
@@ -1292,7 +1292,7 @@ msgstr ""
 msgid "Choose file to export to"
 msgstr "Zvolte soubor pro export"
 
-#: forms/main.py:1054
+#: forms/main.py:1058
 msgid "Choose the categories to show during review"
 msgstr ""
 
@@ -1316,7 +1316,7 @@ msgstr "Zavřít"
 msgid "Close and lose current input?"
 msgstr "Zavřít a zrušit momentálně vkládaná data?"
 
-#: forms/main.py:991
+#: forms/main.py:995
 msgid "Close this deck and return to the deck browser"
 msgstr ""
 
@@ -1329,24 +1329,24 @@ msgstr ""
 msgid "Compare with field '%s'"
 msgstr ""
 
-#: forms/main.py:1006
+#: forms/main.py:1010
 msgid "Configure interface language and options"
 msgstr ""
 
-#: forms/main.py:1067
+#: forms/main.py:1071
 msgid "Configure review options"
 msgstr ""
 
-#: ui/sync.py:85
+#: ui/sync.py:86
 #, fuzzy
 msgid "Connecting..."
 msgstr "Probíhá synchronizace..."
 
-#: ui/main.py:1454
+#: ui/main.py:1480
 msgid "Continue &Reviewing"
 msgstr ""
 
-#: forms/main.py:959
+#: forms/main.py:963
 msgid "Continue Reviewing"
 msgstr ""
 
@@ -1375,7 +1375,7 @@ msgstr ""
 msgid "Couldn't play sound. Please install mplayer."
 msgstr ""
 
-#: ui/main.py:1775
+#: ui/main.py:1801
 #, fuzzy
 msgid "Cram"
 msgstr "&O programu..."
@@ -1384,12 +1384,12 @@ msgstr "&O programu..."
 msgid "Cram selected cards in new deck?"
 msgstr ""
 
-#: forms/main.py:973
+#: forms/main.py:977
 #, fuzzy
 msgid "Create"
 msgstr "Datum vytvoření"
 
-#: ui/sync.py:233
+#: ui/sync.py:234
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Vytvořit '%s' na serveru"
@@ -1399,20 +1399,20 @@ msgstr "Vytvořit '%s' na serveru"
 msgid "Created"
 msgstr "Datum vytvoření"
 
-#: ui/main.py:1136
+#: ui/main.py:1148
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr ""
 
-#: forms/main.py:1001
+#: forms/main.py:1005
 msgid "Ctrl+D"
 msgstr ""
 
-#: forms/cardlist.py:267 forms/main.py:1061
+#: forms/cardlist.py:267 forms/main.py:1065
 msgid "Ctrl+Del"
 msgstr ""
 
-#: forms/main.py:1057
+#: forms/main.py:1061
 msgid "Ctrl+E"
 msgstr ""
 
@@ -1424,7 +1424,7 @@ msgstr ""
 msgid "Ctrl+Enter"
 msgstr ""
 
-#: forms/cardlist.py:277 forms/main.py:1004
+#: forms/cardlist.py:277 forms/main.py:1008
 msgid "Ctrl+F"
 msgstr ""
 
@@ -1436,27 +1436,27 @@ msgstr ""
 msgid "Ctrl+Home"
 msgstr ""
 
-#: forms/main.py:1029
+#: forms/main.py:1033
 msgid "Ctrl+M"
 msgstr ""
 
-#: forms/cardlist.py:281 forms/main.py:987
+#: forms/cardlist.py:281 forms/main.py:991
 msgid "Ctrl+N"
 msgstr ""
 
-#: forms/main.py:989
+#: forms/main.py:993
 msgid "Ctrl+O"
 msgstr ""
 
-#: forms/cardlist.py:283 forms/main.py:1007
+#: forms/cardlist.py:283 forms/main.py:1011
 msgid "Ctrl+P"
 msgstr ""
 
-#: forms/main.py:985
+#: forms/main.py:989
 msgid "Ctrl+Q"
 msgstr ""
 
-#: forms/main.py:1082
+#: forms/main.py:1086
 msgid "Ctrl+R"
 msgstr ""
 
@@ -1464,11 +1464,11 @@ msgstr ""
 msgid "Ctrl+Return"
 msgstr ""
 
-#: forms/main.py:995
+#: forms/main.py:999
 msgid "Ctrl+S"
 msgstr ""
 
-#: forms/main.py:1079
+#: forms/main.py:1083
 msgid "Ctrl+Shift+B"
 msgstr ""
 
@@ -1476,11 +1476,11 @@ msgstr ""
 msgid "Ctrl+Shift+F"
 msgstr ""
 
-#: forms/cardlist.py:301 forms/main.py:1032
+#: forms/cardlist.py:301 forms/main.py:1036
 msgid "Ctrl+Shift+S"
 msgstr ""
 
-#: ui/main.py:1166
+#: ui/main.py:1178
 msgid "Ctrl+Shift+r"
 msgstr ""
 
@@ -1488,15 +1488,15 @@ msgstr ""
 msgid "Ctrl+T"
 msgstr ""
 
-#: forms/main.py:992
+#: forms/main.py:996
 msgid "Ctrl+W"
 msgstr ""
 
-#: forms/main.py:998
+#: forms/main.py:1002
 msgid "Ctrl+Y"
 msgstr ""
 
-#: forms/main.py:1037
+#: forms/main.py:1041
 msgid "Ctrl+Z"
 msgstr ""
 
@@ -1537,12 +1537,12 @@ msgstr "<h1>Tato kartička</h1>"
 msgid "Customize Models"
 msgstr ""
 
-#: forms/main.py:1026
+#: forms/main.py:1030
 #, fuzzy
 msgid "Customize fonts, colours and alignment"
 msgstr "Přizpůsobit písmo, barvy, pozici."
 
-#: forms/main.py:1018
+#: forms/main.py:1022
 #, fuzzy
 msgid "Customize syncing, scheduling, priorities and models"
 msgstr "Přizpůsobit synchronizaci, plánování, priority a modely"
@@ -1551,7 +1551,7 @@ msgstr "Přizpůsobit synchronizaci, plánování, priority a modely"
 msgid "Czech"
 msgstr ""
 
-#: ui/main.py:2574
+#: ui/main.py:2605
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1568,7 +1568,7 @@ msgstr "Grafy balíku"
 msgid "Deck Properties"
 msgstr "&Vlastnosti balíku..."
 
-#: ui/main.py:896 ui/main.py:962
+#: ui/main.py:898 ui/main.py:964
 msgid "Deck files (*.anki)"
 msgstr "Soubory balíku (*.anki)"
 
@@ -1576,12 +1576,12 @@ msgstr "Soubory balíku (*.anki)"
 msgid "Deck is already open."
 msgstr ""
 
-#: ui/main.py:1158 ui/main.py:1641 forms/cardlist.py:266
+#: ui/main.py:1170 ui/main.py:1667 forms/cardlist.py:266
 #, fuzzy
 msgid "Delete"
 msgstr "&Smazat"
 
-#: ui/main.py:1203
+#: ui/main.py:1229
 #, fuzzy, python-format
 msgid "Delete %s?"
 msgstr "Smazat štítek u kartičky..."
@@ -1591,7 +1591,7 @@ msgstr "Smazat štítek u kartičky..."
 msgid "Delete Cards"
 msgstr "&Smazat"
 
-#: ui/main.py:2595
+#: ui/main.py:2626
 #, fuzzy
 msgid "Delete Refs"
 msgstr "Smazat štítek u kartičky..."
@@ -1601,17 +1601,13 @@ msgstr "Smazat štítek u kartičky..."
 msgid "Delete Tags"
 msgstr "Smazat štítek u kartičky..."
 
-#: forms/main.py:1060
+#: forms/main.py:1064
 msgid "Delete the currently displayed card"
 msgstr ""
 
-#: ui/sync.py:134
+#: ui/sync.py:135
 msgid "Determining differences..."
 msgstr ""
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1625,11 +1621,11 @@ msgstr "Zrušit pole"
 msgid "Display"
 msgstr ""
 
-#: forms/main.py:1048
+#: forms/main.py:1052
 msgid "Do an extra review of specified cards before a test"
 msgstr ""
 
-#: forms/main.py:1010
+#: forms/main.py:1014
 msgid "Documentation"
 msgstr ""
 
@@ -1637,7 +1633,7 @@ msgstr ""
 msgid "Don't ask me to type in the answer"
 msgstr ""
 
-#: forms/main.py:972
+#: forms/main.py:976
 #, fuzzy
 msgid "Download"
 msgstr "&O programu..."
@@ -1650,15 +1646,15 @@ msgstr ""
 msgid "Download Shared Plugin"
 msgstr ""
 
-#: forms/main.py:1074
+#: forms/main.py:1078
 msgid "Download a deck that people have shared publicly"
 msgstr ""
 
-#: forms/main.py:1072
+#: forms/main.py:1076
 msgid "Download a deck that you synced from another computer"
 msgstr ""
 
-#: forms/main.py:1076
+#: forms/main.py:1080
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
@@ -1667,12 +1663,12 @@ msgstr ""
 msgid "Downloaded %dKB"
 msgstr "&O programu..."
 
-#: ui/main.py:2097
+#: ui/main.py:2128
 #, python-format
 msgid "Downloaded %dKB from server..."
 msgstr ""
 
-#: ui/sync.py:127
+#: ui/sync.py:128
 #, fuzzy
 msgid "Downloading..."
 msgstr "&O programu..."
@@ -1687,7 +1683,7 @@ msgstr "&O programu..."
 msgid "Due"
 msgstr ""
 
-#: forms/main.py:984
+#: forms/main.py:988
 msgid "E&xit"
 msgstr "&Ukončit"
 
@@ -1704,7 +1700,7 @@ msgstr ""
 msgid "Eases"
 msgstr ""
 
-#: forms/main.py:958
+#: forms/main.py:962
 msgid "Easy"
 msgstr ""
 
@@ -1713,12 +1709,12 @@ msgstr ""
 msgid "Edit"
 msgstr "&Upravit"
 
-#: forms/main.py:1055
+#: forms/main.py:1059
 #, fuzzy
 msgid "Edit &Current..."
 msgstr "<h1>Tato kartička</h1>"
 
-#: forms/main.py:1056
+#: forms/main.py:1060
 #, fuzzy
 msgid "Edit the currently displayed item"
 msgstr "Upravit současný model"
@@ -1745,7 +1741,7 @@ msgstr "Vložte štítek k odstranění ze všech kartiček"
 msgid "Estonian"
 msgstr ""
 
-#: forms/main.py:1023
+#: forms/main.py:1027
 msgid "Expor&t..."
 msgstr "Expor&t..."
 
@@ -1768,7 +1764,7 @@ msgstr "výrazy"
 msgid "F&irst Card"
 msgstr "<h1>Poprvé opovězeno</h1>"
 
-#: forms/cardlist.py:290 forms/main.py:1011
+#: forms/cardlist.py:290 forms/main.py:1015
 msgid "F1"
 msgstr ""
 
@@ -1784,7 +1780,7 @@ msgstr ""
 msgid "F4"
 msgstr ""
 
-#: ui/facteditor.py:252 forms/main.py:1035
+#: ui/facteditor.py:252 forms/main.py:1039
 msgid "F5"
 msgstr ""
 
@@ -1818,11 +1814,11 @@ msgstr "Datum vytvoření"
 msgid "Facts"
 msgstr "výrazy"
 
-#: ui/main.py:2084
+#: ui/main.py:2115
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr ""
 
-#: ui/sync.py:118
+#: ui/sync.py:119
 #, fuzzy
 msgid "Fetching summary from server..."
 msgstr "Stahuji souhrn ze serveru..."
@@ -1888,17 +1884,17 @@ msgstr "&O programu..."
 msgid "Fonts & Colours"
 msgstr "Písmo a barvy"
 
-#: ui/main.py:1157
+#: ui/main.py:1169
 #, fuzzy
 msgid "Forget"
 msgstr "Modely"
 
-#: ui/main.py:1196
+#: ui/main.py:1222
 #, fuzzy, python-format
 msgid "Forget %s?"
 msgstr "Modely"
 
-#: ui/main.py:1160
+#: ui/main.py:1172
 msgid "Forget removes the deck from the list without deleting."
 msgstr ""
 
@@ -1906,7 +1902,7 @@ msgstr ""
 msgid "French"
 msgstr "Francouzština"
 
-#: forms/main.py:1080
+#: forms/main.py:1084
 msgid "Full Database Check..."
 msgstr ""
 
@@ -1933,7 +1929,7 @@ msgstr "Němčina"
 msgid "Get Shared Decks/Plugins"
 msgstr ""
 
-#: forms/main.py:956
+#: forms/main.py:960
 msgid "Good"
 msgstr ""
 
@@ -1946,12 +1942,12 @@ msgstr ""
 msgid "HTML Editor (Ctrl+F9)"
 msgstr "Přidat audio"
 
-#: forms/main.py:954
+#: forms/main.py:958
 #, fuzzy
 msgid "Hard"
 msgstr "Kartička:"
 
-#: ui/addcards.py:80 forms/displayproperties.py:374 forms/main.py:968
+#: ui/addcards.py:80 forms/displayproperties.py:374 forms/main.py:972
 #, fuzzy
 msgid "Help"
 msgstr "&Nápověda"
@@ -1977,11 +1973,11 @@ msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgstr ""
 
 #: ui/importing.py:83 ui/importing.py:123 forms/changemap.py:39
-#: forms/importing.py:95 forms/main.py:974
+#: forms/importing.py:95 forms/main.py:978
 msgid "Import"
 msgstr "Import"
 
-#: forms/main.py:1020
+#: forms/main.py:1024
 msgid "Import cards from text files, Anki files and more"
 msgstr ""
 
@@ -2030,14 +2026,14 @@ msgstr ""
 msgid "Invert"
 msgstr ""
 
-#: ui/main.py:2284
+#: ui/main.py:2315
 #, python-format
 msgid "It is %(sec)d second %(type)s.\n"
 msgid_plural "It is %(sec)d seconds %(type)s.\n"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:2039
+#: ui/main.py:2066
 #, python-format
 msgid ""
 "It is off by %d second.\n"
@@ -2084,11 +2080,11 @@ msgstr "Vzorec latexu"
 msgid "Latex math environment (Ctrl+l then m)"
 msgstr "Matematické prostředí latexu"
 
-#: ui/main.py:1776
+#: ui/main.py:1802
 msgid "Loading deck..."
 msgstr ""
 
-#: ui/main.py:1590
+#: ui/main.py:1616
 #, fuzzy
 msgid "Loading graphs (may take time)..."
 msgstr "Nahrávají se grafy (může chvíli trvat)..."
@@ -2122,7 +2118,7 @@ msgstr "Kartička:"
 msgid "Max"
 msgstr ""
 
-#: ui/sync.py:238
+#: ui/sync.py:239
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Sloučit s '%s' na serveru"
@@ -2154,7 +2150,7 @@ msgstr "Datum změny"
 msgid "Mongolian"
 msgstr ""
 
-#: ui/main.py:1156 forms/main.py:967
+#: ui/main.py:1168 forms/main.py:971
 #, fuzzy
 msgid "More"
 msgstr "Modely"
@@ -2197,12 +2193,12 @@ msgstr "Vytvořit '%s' na serveru"
 msgid "Network"
 msgstr ""
 
-#: ui/main.py:1393
+#: ui/main.py:1419
 #, fuzzy
 msgid "New today:"
 msgstr "Opakování"
 
-#: ui/main.py:1394
+#: ui/main.py:1420
 #, fuzzy
 msgid "New total:"
 msgstr "Opakování"
@@ -2215,7 +2211,7 @@ msgstr ""
 msgid "Next field must be blank."
 msgstr ""
 
-#: ui/main.py:1769 ui/main.py:1806
+#: ui/main.py:1795 ui/main.py:1832
 msgid "No cards matched the provided tags."
 msgstr ""
 
@@ -2223,11 +2219,11 @@ msgstr ""
 msgid "No cards to preview."
 msgstr ""
 
-#: ui/sync.py:153
+#: ui/sync.py:154
 msgid "No changes found."
 msgstr ""
 
-#: ui/main.py:1582
+#: ui/main.py:1608
 msgid "No current card or last card."
 msgstr "Žádná aktivní nebo poslední kartička."
 
@@ -2248,7 +2244,7 @@ msgstr "Importovat nastavení"
 msgid "Nothing selected."
 msgstr ""
 
-#: ui/main.py:1132
+#: ui/main.py:1144
 #, fuzzy
 msgid "Open"
 msgstr "&Otevřít..."
@@ -2258,35 +2254,35 @@ msgstr "&Otevřít..."
 msgid "Open Recent Deck"
 msgstr "Otevřít &nedávný"
 
-#: forms/main.py:1081
+#: forms/main.py:1085
 #, fuzzy
 msgid "Open Recent..."
 msgstr "Otevřít &nedávný"
 
-#: ui/main.py:898
+#: ui/main.py:900
 msgid "Open deck"
 msgstr "Otevřít balík"
 
-#: forms/main.py:1013
+#: forms/main.py:1017
 #, fuzzy
 msgid "Open the bug tracker"
 msgstr "Otevřít databázi chyb"
 
-#: ui/main.py:1142
+#: ui/main.py:1154
 #, fuzzy, python-format
 msgid "Open this deck%s"
 msgstr "Otevřít balík"
 
-#: forms/main.py:1043
+#: forms/main.py:1047
 msgid "Optimize Database"
 msgstr ""
 
-#: ui/main.py:1504
+#: ui/main.py:1530
 #, fuzzy
 msgid "Ordering..."
 msgstr "Ukládá se..."
 
-#: forms/main.py:982
+#: forms/main.py:986
 msgid "P&lugins"
 msgstr ""
 
@@ -2298,7 +2294,7 @@ msgstr ""
 msgid "Password"
 msgstr "Heslo"
 
-#: ui/main.py:850
+#: ui/main.py:852
 #, fuzzy
 msgid "Password:"
 msgstr "Heslo"
@@ -2308,11 +2304,11 @@ msgstr "Heslo"
 msgid "Performance"
 msgstr "Nastavení"
 
-#: forms/main.py:1071
+#: forms/main.py:1075
 msgid "Personal Deck"
 msgstr ""
 
-#: forms/main.py:1034
+#: forms/main.py:1038
 msgid "Play the last-played audio again"
 msgstr ""
 
@@ -2337,10 +2333,6 @@ msgstr ""
 msgid "Please check the proxy settings."
 msgstr ""
 
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Prosím zvolte pole třídění"
-
 #: ui/sync.py:70
 #, fuzzy
 msgid "Please double-check your username/password."
@@ -2361,11 +2353,11 @@ msgid ""
 "to enable recording."
 msgstr ""
 
-#: ui/main.py:1608
+#: ui/main.py:1634
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Prosím nainstalujte python-mathplotlib pro přístup ke grafům."
 
-#: ui/main.py:2540
+#: ui/main.py:2571
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
@@ -2384,7 +2376,7 @@ msgstr "Anglicky"
 msgid "Port"
 msgstr "S&eřadit"
 
-#: forms/main.py:1063
+#: forms/main.py:1067
 msgid "Pre-generate PNG images of LaTeX cards"
 msgstr ""
 
@@ -2392,7 +2384,7 @@ msgstr ""
 msgid "Preferences"
 msgstr "Nastavení"
 
-#: ui/sync.py:121
+#: ui/sync.py:122
 msgid "Preparing full sync..."
 msgstr ""
 
@@ -2426,7 +2418,7 @@ msgstr "Náhled"
 msgid "Previous colour (F7 then F6)"
 msgstr ""
 
-#: ui/main.py:2555
+#: ui/main.py:2586
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2463,21 +2455,21 @@ msgstr "Písmo odpovědi"
 msgid "Question size"
 msgstr "Velikost odpovědi"
 
-#: forms/main.py:1041
+#: forms/main.py:1045
 msgid "Quick Database Check"
 msgstr ""
 
-#: ui/main.py:1510 ui/main.py:1796
+#: ui/main.py:1536 ui/main.py:1822
 #, fuzzy
 msgid "Randomizing..."
 msgstr "Ukládá se..."
 
-#: forms/main.py:970
+#: forms/main.py:974
 #, fuzzy
 msgid "Re&view Early"
 msgstr "Opakování"
 
-#: forms/main.py:1070
+#: forms/main.py:1074
 msgid "Record 10 seconds of silence so that the record function can cancel noise"
 msgstr ""
 
@@ -2491,16 +2483,16 @@ msgstr "Přidat audio"
 msgid "Recording...<br>Time: %0.1f"
 msgstr ""
 
-#: ui/cardlist.py:528 ui/main.py:2258
+#: ui/cardlist.py:528 ui/main.py:2289
 #, python-format
 msgid "Redo %s"
 msgstr ""
 
-#: ui/graphs.py:236 ui/main.py:1164
+#: ui/graphs.py:236 ui/main.py:1176
 msgid "Refresh"
 msgstr ""
 
-#: forms/main.py:1049
+#: forms/main.py:1053
 msgid "Release Notes..."
 msgstr ""
 
@@ -2513,15 +2505,15 @@ msgstr "Zbývá: "
 msgid "Remaining: "
 msgstr "Zbývá: "
 
-#: forms/main.py:1065
+#: forms/main.py:1069
 msgid "Remove generated PNG images of LaTeX cards"
 msgstr ""
 
-#: forms/main.py:1044
+#: forms/main.py:1048
 msgid "Remove unused space, making the database file smaller"
 msgstr ""
 
-#: forms/main.py:1033
+#: forms/main.py:1037
 #, fuzzy
 msgid "Repeat &Audio"
 msgstr "Opakova&t poslední audio"
@@ -2554,7 +2546,7 @@ msgstr ""
 msgid "Reverse &Order"
 msgstr "Opačný směr"
 
-#: forms/main.py:966
+#: forms/main.py:970
 #, fuzzy
 msgid "Review"
 msgstr "Opakování"
@@ -2564,7 +2556,7 @@ msgstr "Opakování"
 msgid "Review Time"
 msgstr "Opakování"
 
-#: ui/main.py:1392
+#: ui/main.py:1418
 #, fuzzy
 msgid "Reviews due:"
 msgstr "Opakování"
@@ -2574,7 +2566,7 @@ msgstr "Opakování"
 msgid "Reviews today"
 msgstr "Opakování"
 
-#: forms/main.py:996
+#: forms/main.py:1000
 msgid "S&ync"
 msgstr "S&ynchronizovat"
 
@@ -2583,12 +2575,12 @@ msgstr "S&ynchronizovat"
 msgid "Sampling silence...<br>Time: %0.1f"
 msgstr ""
 
-#: forms/main.py:1039
+#: forms/main.py:1043
 #, fuzzy
 msgid "Save &As..."
 msgstr "Uložit &jako..."
 
-#: ui/main.py:955
+#: ui/main.py:957
 #, fuzzy
 msgid "Save Deck As"
 msgstr "Otevřít balík"
@@ -2601,16 +2593,16 @@ msgstr "Uložit po přidání"
 msgid "Save after answering"
 msgstr "Uložit po zodpovězení"
 
-#: forms/main.py:1024
+#: forms/main.py:1028
 msgid "Save cards in a new deck or text file for sharing with others"
 msgstr ""
 
-#: forms/main.py:994
+#: forms/main.py:998
 #, fuzzy
 msgid "Save this deck now"
 msgstr "Synchronizovat tento balík s jménem:"
 
-#: forms/main.py:1040
+#: forms/main.py:1044
 msgid "Save this deck, giving it a new name"
 msgstr ""
 
@@ -2651,7 +2643,7 @@ msgstr "Smazat štítek u kartičky..."
 msgid "Select tags to suspend. Deselect to unsuspend."
 msgstr ""
 
-#: ui/main.py:1422
+#: ui/main.py:1448
 #, fuzzy
 msgid "Session Statistics"
 msgstr "&Statistika balíku"
@@ -2660,12 +2652,12 @@ msgstr "&Statistika balíku"
 msgid "Set colour (F7 then F7)"
 msgstr ""
 
-#: forms/main.py:1073
+#: forms/main.py:1077
 #, fuzzy
 msgid "Shared Deck"
 msgstr "Otevřít balík"
 
-#: forms/main.py:1075
+#: forms/main.py:1079
 msgid "Shared Plugin"
 msgstr ""
 
@@ -2677,7 +2669,7 @@ msgstr ""
 msgid "Shift+Alt+m"
 msgstr ""
 
-#: ui/main.py:563 forms/main.py:950
+#: ui/main.py:563 forms/main.py:954
 #, fuzzy
 msgid "Show Answer"
 msgstr "Zobrazit odpověď"
@@ -2699,7 +2691,7 @@ msgstr "Skrýt otázku při zobrazení odpovědi"
 msgid "Show due count and progress during review"
 msgstr ""
 
-#: forms/main.py:1022
+#: forms/main.py:1026
 msgid "Show graphical statistics about your deck"
 msgstr ""
 
@@ -2711,11 +2703,11 @@ msgstr ""
 msgid "Show preview"
 msgstr "Zobrazit náhled"
 
-#: forms/main.py:1009
+#: forms/main.py:1013
 msgid "Show some textual statistics about your deck"
 msgstr ""
 
-#: forms/main.py:1016
+#: forms/main.py:1020
 #, fuzzy
 msgid "Show statistics about the current card and last card"
 msgstr "Žádná aktivní nebo poslední kartička."
@@ -2725,11 +2717,11 @@ msgstr "Žádná aktivní nebo poslední kartička."
 msgid "Show study options on deck load"
 msgstr "Zobrazit tlačítkovou lištu při spuštění"
 
-#: forms/main.py:949
+#: forms/main.py:953
 msgid "Show the answer (shortcut key: space or enter)"
 msgstr ""
 
-#: forms/main.py:951
+#: forms/main.py:955
 msgid "Show this card again soon (shortcut key: 1)"
 msgstr ""
 
@@ -2747,7 +2739,7 @@ msgstr ""
 msgid "Show/Hide"
 msgstr "Zobrazit odpověď"
 
-#: ui/main.py:2041
+#: ui/main.py:2068
 msgid ""
 "Since this can cause many problems with syncing,\n"
 "syncing is disabled until you fix the problem."
@@ -2772,7 +2764,8 @@ msgid "Sort as numbers"
 msgstr ""
 
 #: ui/facteditor.py:873
-msgid "Sounds (*.mp3 *.ogg *.wav)"
+#, fuzzy
+msgid "Sounds/Videos (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg)"
 msgstr "Zvuky (*.mp3 *.ogg *.wav)"
 
 #: ui/deckproperties.py:187
@@ -2783,15 +2776,15 @@ msgstr ""
 msgid "Spanish"
 msgstr "Španělština"
 
-#: ui/main.py:1456
+#: ui/main.py:1482
 msgid "Start &Reviewing"
 msgstr ""
 
-#: ui/view.py:289
+#: ui/view.py:291
 msgid "Start adding your own material."
 msgstr ""
 
-#: forms/main.py:983
+#: forms/main.py:987
 #, fuzzy
 msgid "Startup"
 msgstr "Stav"
@@ -2800,17 +2793,24 @@ msgstr "Stav"
 msgid "Status"
 msgstr "Stav"
 
-#: forms/main.py:1031
+#: forms/main.py:1035
 #, fuzzy
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Ukončit opakování této kartičky, dokud nebude znovu aktivována v editoru."
 
-#: ui/cardlist.py:790 ui/main.py:1627
+#: ui/main.py:1194
+#, python-format
+msgid "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today."
+msgid_plural "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/cardlist.py:790 ui/main.py:1653
 #, fuzzy
 msgid "Suspend"
 msgstr "&Zmrazit položku"
 
-#: forms/main.py:1078
+#: forms/main.py:1082
 msgid "Suspend the current fact until the deck is closed and opened again"
 msgstr ""
 
@@ -2823,7 +2823,7 @@ msgstr "&Zmrazit položku"
 msgid "Swedish"
 msgstr ""
 
-#: ui/sync.py:131 ui/sync.py:147
+#: ui/sync.py:132 ui/sync.py:148
 #, fuzzy
 msgid "Sync complete."
 msgstr "Synchronizovat při otevření"
@@ -2846,22 +2846,22 @@ msgstr "Automatické ukládání a synchronizace"
 msgid "Synchronize this deck"
 msgstr "Synchronizovat tento balík s jménem:"
 
-#: forms/main.py:997
+#: forms/main.py:1001
 #, fuzzy
 msgid "Synchronize this deck with Anki Online"
 msgstr "Synchronizovat tento balík s jménem:"
 
-#: ui/main.py:2062 ui/main.py:2064
+#: ui/main.py:2093 ui/main.py:2095
 #, fuzzy
 msgid "Syncing Media..."
 msgstr "Synchronizuji výrazy..."
 
-#: ui/sync.py:195
+#: ui/sync.py:196
 #, fuzzy, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Synchronizace selhala."
 
-#: ui/main.py:2593
+#: ui/main.py:2624
 #, fuzzy
 msgid "Tag Cards"
 msgstr "Kartičky"
@@ -2874,7 +2874,7 @@ msgstr ""
 msgid "Tags"
 msgstr "Štítky"
 
-#: ui/main.py:1759
+#: ui/main.py:1785
 msgid "Tags to cram:"
 msgstr ""
 
@@ -2892,11 +2892,11 @@ msgstr "<h1>Obtížnost kartičky</h1>"
 msgid "TextLabel"
 msgstr ""
 
-#: forms/main.py:960
+#: forms/main.py:964
 msgid "The <b>number of minutes in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr ""
 
-#: forms/main.py:964
+#: forms/main.py:968
 msgid "The <b>number of questions in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr ""
 
@@ -2906,39 +2906,39 @@ msgid ""
 "question or answer on all cards."
 msgstr ""
 
-#: forms/main.py:962
+#: forms/main.py:966
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr ""
 
-#: ui/main.py:1429
+#: ui/main.py:1455
 #, fuzzy
 msgid "The number of cards that are waiting to be reviewed today"
 msgstr "Počet vložených kartičk za daný den"
 
-#: ui/main.py:1423
+#: ui/main.py:1449
 #, fuzzy
 msgid "The number of cards you studied in the current session (blue) and previous session (black)"
 msgstr "Počet vložených kartičk za daný den"
 
-#: ui/main.py:1425
+#: ui/main.py:1451
 #, fuzzy
 msgid "The number of cards you studied today (blue) and yesterday (black)"
 msgstr "Počet vložených kartičk za daný den"
 
-#: ui/main.py:1427
+#: ui/main.py:1453
 msgid "The number of minutes you studied today (blue) and yesterday (black)"
 msgstr ""
 
-#: ui/main.py:1431
+#: ui/main.py:1457
 #, fuzzy
 msgid "The number of new cards that are waiting to be learnt today"
 msgstr "Počet vložených kartičk za daný den"
 
-#: ui/sync.py:72
+#: ui/sync.py:73
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Protokol pro synchronizaci se změnil. Aktualizujte Anki."
 
-#: ui/main.py:1433
+#: ui/main.py:1459
 #, fuzzy
 msgid "The total number of new cards in the deck"
 msgstr "Počet vložených kartičk za daný den"
@@ -2978,12 +2978,12 @@ msgid_plural "There are <b>%d</b> new cards in total."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/view.py:226
+#: ui/view.py:228
 #, fuzzy, python-format
 msgid "This card was due in %s."
 msgstr "Výborně! Tato kartička se objeví znovu za <b>%(next)s</b>"
 
-#: ui/view.py:253
+#: ui/view.py:255
 #, fuzzy
 msgid "This card will appear again later."
 msgstr "Výborně! Tato kartička se objeví znovu za <b>%(next)s</b>"
@@ -3024,7 +3024,7 @@ msgid ""
 "You will need to remove the source first."
 msgstr ""
 
-#: ui/main.py:2542
+#: ui/main.py:2573
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -3035,7 +3035,7 @@ msgid ""
 "Proceed?"
 msgstr ""
 
-#: ui/main.py:2584
+#: ui/main.py:2615
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -3066,7 +3066,7 @@ msgstr ""
 "\n"
 "Opravdu chcete smazat tyto kartičky?"
 
-#: ui/main.py:1391
+#: ui/main.py:1417
 msgid "Time/day:"
 msgstr ""
 
@@ -3075,7 +3075,7 @@ msgstr ""
 msgid "Title"
 msgstr "Poslední"
 
-#: ui/main.py:1600
+#: ui/main.py:1626
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -3087,7 +3087,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr ""
 
-#: ui/main.py:1555
+#: ui/main.py:1581
 msgid "Toggle Toolbar"
 msgstr ""
 
@@ -3100,7 +3100,7 @@ msgstr ""
 msgid "Total review time: "
 msgstr "Opakování"
 
-#: ui/sync.py:139
+#: ui/sync.py:140
 #, fuzzy
 msgid "Transferring payload..."
 msgstr "Synchronizuji kartičky..."
@@ -3131,7 +3131,7 @@ msgid ""
 "To upgrade an old deck, download Anki 0.9.8.7."
 msgstr ""
 
-#: ui/main.py:906
+#: ui/main.py:908
 msgid "Unable to load file."
 msgstr "Nelze načíst soubor"
 
@@ -3151,7 +3151,7 @@ msgstr ""
 msgid "Unable to recover. Deck load failed."
 msgstr "Nelze načíst soubor"
 
-#: forms/main.py:1064
+#: forms/main.py:1068
 msgid "Uncache LaTeX"
 msgstr ""
 
@@ -3160,12 +3160,12 @@ msgstr ""
 msgid "Underline text (Ctrl+u)"
 msgstr "Podtržené písmo"
 
-#: ui/cardlist.py:522 ui/main.py:2252
+#: ui/cardlist.py:522 ui/main.py:2283
 #, fuzzy, python-format
 msgid "Undo %s"
 msgstr "v %s"
 
-#: ui/sync.py:74
+#: ui/sync.py:75
 #, python-format
 msgid "Unknown error: %s"
 msgstr "Neznámá chyba: %s"
@@ -3175,19 +3175,19 @@ msgstr "Neznámá chyba: %s"
 msgid "Unsuspend"
 msgstr "&Zmrazit položku"
 
-#: ui/main.py:2292
+#: ui/main.py:2323
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
 " - please don't close this"
 msgstr ""
 
-#: ui/main.py:2094
+#: ui/main.py:2125
 #, python-format
 msgid "Uploaded %dKB to server..."
 msgstr ""
 
-#: ui/sync.py:124
+#: ui/sync.py:125
 #, fuzzy
 msgid "Uploading..."
 msgstr "Ukládá se..."
@@ -3208,28 +3208,28 @@ msgstr "Použít vlastní velikost"
 msgid "Username"
 msgstr "Přihlašovací jméno"
 
-#: ui/main.py:846
+#: ui/main.py:848
 #, fuzzy
 msgid "Username:"
 msgstr "Přihlašovací jméno"
 
-#: forms/main.py:953
+#: forms/main.py:957
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr ""
 
-#: forms/main.py:957
+#: forms/main.py:961
 msgid "Wait a lot longer next time (shortcut key: 4)"
 msgstr ""
 
-#: forms/main.py:955
+#: forms/main.py:959
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr ""
 
-#: ui/view.py:287
+#: ui/view.py:289
 msgid "Welcome to Anki!"
 msgstr ""
 
-#: ui/view.py:249
+#: ui/view.py:251
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "Výborně! Tato kartička se objeví znovu za <b>%(next)s</b>"
@@ -3238,15 +3238,15 @@ msgstr "Výborně! Tato kartička se objeví znovu za <b>%(next)s</b>"
 msgid "Would you like to download it now?"
 msgstr "Chcete nyní stáhnout aktualizaci?"
 
-#: ui/main.py:1673 ui/main.py:1721 ui/main.py:2578
+#: ui/main.py:1699 ui/main.py:1747 ui/main.py:2609
 msgid "You are currently cramming. Please close this deck first."
 msgstr ""
 
-#: ui/main.py:2038 ui/main.py:2283
+#: ui/main.py:2065 ui/main.py:2314
 msgid "Your computer clock is not set to the correct time.\n"
 msgstr ""
 
-#: ui/main.py:1605
+#: ui/main.py:1631
 #, fuzzy
 msgid ""
 "Your version of Matplotlib is broken.\n"
@@ -3268,7 +3268,7 @@ msgstr "kartičky"
 msgid "days"
 msgstr ""
 
-#: ui/main.py:2281
+#: ui/main.py:2312
 msgid "early"
 msgstr ""
 
@@ -3285,7 +3285,7 @@ msgstr "v %s"
 msgid "label"
 msgstr ""
 
-#: ui/main.py:2279
+#: ui/main.py:2310
 msgid "late"
 msgstr ""
 
@@ -4010,6 +4010,9 @@ msgstr ""
 #~ msgid "Description && Synchronisation"
 #~ msgstr "Popis && synchronizace"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #, fuzzy
 #~ msgid "Disp&lay Properties..."
 #~ msgstr "Vlastnosti &zobrazení"
@@ -4215,6 +4218,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Please add a new card first."
 #~ msgstr "Prosím zodpovězte ještě několik kartiček."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Prosím zvolte pole třídění"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "Prosím dvakrát zkontrolujte přihlašovací jméno"
