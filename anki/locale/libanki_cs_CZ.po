@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-09 04:09+0900\n"
+"POT-Creation-Date: 2009-06-15 20:06+0200\n"
 "PO-Revision-Date: 2008-01-01 19:00+0100\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: sound.py:165
+#: sound.py:208
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -35,16 +35,6 @@ msgid ""
 "all but one card template."
 msgstr ""
 
-#: stats.py:509
-#, python-format
-msgid "%(count)s %(gradename)s kanji."
-msgstr "%(count)s %(gradename)s kanji."
-
-#: stats.py:507
-#, python-format
-msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
-msgstr ""
-
 #: stats.py:342 stats.py:346 stats.py:350
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
@@ -55,7 +45,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "%s dní"
 
-#: deck.py:1237
+#: deck.py:1234
 #, fuzzy, python-format
 msgid "%s copy"
 msgstr "%s sekunda"
@@ -67,6 +57,13 @@ msgid_plural "%s days"
 msgstr[0] "%s den"
 msgstr[1] "%s dní"
 
+#: utils.py:44
+#, python-format
+msgid "%s day<!--after>"
+msgid_plural "%s days<!--after>"
+msgstr[0] ""
+msgstr[1] ""
+
 #: utils.py:36
 #, python-format
 msgid "%s hour"
@@ -74,10 +71,24 @@ msgid_plural "%s hours"
 msgstr[0] "%s hodina"
 msgstr[1] "%s hodin"
 
+#: utils.py:45
+#, python-format
+msgid "%s hour<!--after>"
+msgid_plural "%s hours<!--after>"
+msgstr[0] ""
+msgstr[1] ""
+
 #: utils.py:37
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
+msgstr[0] "%s minuta"
+msgstr[1] "%s minut"
+
+#: utils.py:46
+#, fuzzy, python-format
+msgid "%s minute<!--after>"
+msgid_plural "%s minutes<!--after>"
 msgstr[0] "%s minuta"
 msgstr[1] "%s minut"
 
@@ -88,10 +99,24 @@ msgid_plural "%s months"
 msgstr[0] "%s měsíc"
 msgstr[1] "%s měsíců"
 
+#: utils.py:43
+#, fuzzy, python-format
+msgid "%s month<!--after>"
+msgid_plural "%s months<!--after>"
+msgstr[0] "%s měsíc"
+msgstr[1] "%s měsíců"
+
 #: utils.py:38
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
+msgstr[0] "%s sekunda"
+msgstr[1] "%s sekund"
+
+#: utils.py:47
+#, fuzzy, python-format
+msgid "%s second<!--after>"
+msgid_plural "%s seconds<!--after>"
 msgstr[0] "%s sekunda"
 msgstr[1] "%s sekund"
 
@@ -101,6 +126,13 @@ msgid "%s year"
 msgid_plural "%s years"
 msgstr[0] "%s rok"
 msgstr[1] "%s let"
+
+#: utils.py:42
+#, python-format
+msgid "%s year<!--after>"
+msgid_plural "%s years<!--after>"
+msgstr[0] ""
+msgstr[1] ""
 
 #: stats.py:379 stats.py:382 stats.py:385 stats.py:388
 #, fuzzy, python-format
@@ -112,7 +144,7 @@ msgstr "<br>Karty starší než týden: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "Přidané karty: <b>%(a)d</b> denně, <b>%(b)d</b> měsíčně<br>"
 
-#: deck.py:749
+#: deck.py:751
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -122,29 +154,7 @@ msgid ""
 "</div>"
 msgstr ""
 
-#: stats.py:535
-#, fuzzy, python-format
-msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
-msgstr "<h1>Statistika kanji</h1>%d karet v tomto balíku obsahuje:"
-
-#: stats.py:564
-msgid "<h1>Missing</h1>"
-msgstr ""
-
-#: stats.py:591
-msgid "<h1>Non-Jouyou</h1>"
-msgstr ""
-
-#: stats.py:566
-msgid "<h1>Seen</h1>"
-msgstr ""
-
-#: stats.py:539
-#, python-format
-msgid "<li>%d total unique kanji.</li>"
-msgstr "<li>%d celkem unikátních kanji.<"
-
-#: deck.py:690
+#: deck.py:692
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -153,7 +163,7 @@ msgid ""
 "%(new)s"
 msgstr ""
 
-#: sync.py:206
+#: sync.py:236
 #, python-format
 msgid ""
 "<table>\n"
@@ -184,7 +194,7 @@ msgstr ""
 msgid "Anki Deck (*.anki)"
 msgstr "Balík anki"
 
-#: deck.py:332
+#: deck.py:331
 msgid "Answer Card"
 msgstr ""
 
@@ -212,10 +222,6 @@ msgstr "Přidáno"
 msgid "Basic"
 msgstr ""
 
-#: stdmodels.py:77
-msgid "Cantonese"
-msgstr "kantonština"
-
 #: stats.py:291
 #, fuzzy
 msgid "Card Template"
@@ -238,11 +244,11 @@ msgstr "Střed"
 msgid "Changed"
 msgstr "Změněno"
 
-#: deck.py:1300
+#: deck.py:1297
 msgid "Changing cards..."
 msgstr ""
 
-#: deck.py:1260
+#: deck.py:1257
 msgid "Changing fields..."
 msgstr ""
 
@@ -250,11 +256,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:2206
+#: deck.py:2203
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:2216
+#: deck.py:2213
 msgid "Checking schema..."
 msgstr ""
 
@@ -276,11 +282,11 @@ msgstr "Vzor nenalezen. Soubor musí být řádky s výrazy oddělenými čárka
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3244
+#: deck.py:3238
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:2209
+#: deck.py:2206
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -295,11 +301,11 @@ msgstr "Statistika balíku"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Balík vytvořen před: <b>%s</b><br>"
 
-#: deck.py:2605
+#: deck.py:2598
 msgid "Deck missing core table"
 msgstr ""
 
-#: deck.py:2219
+#: deck.py:2216
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -311,49 +317,49 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:2254
+#: deck.py:2251
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2266
+#: deck.py:2263
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2281
+#: deck.py:2278
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2243
+#: deck.py:2240
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2272
+#: deck.py:2269
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2233
+#: deck.py:2230
 #, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2285
+#: deck.py:2282
 msgid "Deleted: "
 msgstr ""
 
@@ -381,7 +387,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "výrazy oddělené tabulátory (*.txt)"
 
-#: deck.py:2652
+#: deck.py:2645
 msgid "File is in use by another process"
 msgstr ""
 
@@ -404,7 +410,7 @@ msgstr "Poprvé"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr ""
 
@@ -412,14 +418,6 @@ msgstr ""
 #, fuzzy
 msgid "Interval"
 msgstr "Poslední interval"
-
-#: stdmodels.py:46
-msgid "Japanese"
-msgstr "japonsky"
-
-#: stats.py:554
-msgid "Jouyou levels:"
-msgstr "úrovně Jouyou"
 
 #: stats.py:278
 msgid "Last Due"
@@ -447,10 +445,6 @@ msgstr "Řádek %(line)d neodpovídá vzoru '%(pat)s"
 #, python-format
 msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
 msgstr "Řádek %(line)d měl %(num1)d polí, očekáváno %(num2)d"
-
-#: stdmodels.py:99
-msgid "Mandarin"
-msgstr "mandarínština"
 
 #: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
@@ -493,7 +487,7 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: deck.py:705
+#: deck.py:707
 msgid "No cards are due."
 msgstr ""
 
@@ -502,23 +496,23 @@ msgstr ""
 msgid "Please add some cards first."
 msgstr "Nejprve vložte nějaké kartičky"
 
-#: deck.py:2467
+#: deck.py:2460
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:2303
+#: deck.py:2300
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:2323
+#: deck.py:2316
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:2297
+#: deck.py:2294
 msgid "Rebuilding tag cache..."
 msgstr ""
 
-#: deck.py:2321
+#: deck.py:2314
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -540,19 +534,19 @@ msgstr "%s měsíc"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:3231
+#: deck.py:3225
 msgid "Review cards from largest interval"
 msgstr ""
 
-#: deck.py:3232
+#: deck.py:3226
 msgid "Review cards from smallest interval"
 msgstr ""
 
-#: deck.py:3233
+#: deck.py:3227
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:3234
+#: deck.py:3228
 msgid "Review cards in random order"
 msgstr ""
 
@@ -569,47 +563,47 @@ msgstr "Správně"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:3240
+#: deck.py:3234
 msgid "Show failed cards at end"
 msgstr ""
 
-#: deck.py:3241
+#: deck.py:3235
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:3243
+#: deck.py:3237
 msgid "Show failed cards in 3 days"
 msgstr ""
 
-#: deck.py:3242
+#: deck.py:3236
 msgid "Show failed cards in 8 hours"
 msgstr ""
 
-#: deck.py:3239
+#: deck.py:3233
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:3225
+#: deck.py:3219
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:3226
+#: deck.py:3220
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:3218
+#: deck.py:3212
 msgid "Show new cards in order added"
 msgstr ""
 
-#: deck.py:3217
+#: deck.py:3211
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:3219
+#: deck.py:3213
 msgid "Show new cards in reverse order added"
 msgstr ""
 
-#: deck.py:3224
+#: deck.py:3218
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -621,7 +615,7 @@ msgstr "Textové soubory (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: deck.py:2225
+#: deck.py:2222
 msgid "The current model didn't exist"
 msgstr ""
 
@@ -633,33 +627,33 @@ msgstr "Pole nemá žádné neprázdné řádky"
 msgid "The file was not in UTF8 format."
 msgstr "Soubor nebyl ve formátu UTF8"
 
-#: deck.py:702
+#: deck.py:704
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr ""
 
-#: deck.py:737
+#: deck.py:739
 #, python-format
 msgid "There is <b>%d delayed</b> new card."
 msgid_plural "There are <b>%d delayed</b> new cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:744
+#: deck.py:746
 #, python-format
 msgid "There is <b>%d suspended</b> card."
 msgid_plural "There are <b>%d suspended</b> cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:695
+#: deck.py:697
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:698
+#: deck.py:700
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -681,7 +675,7 @@ msgstr "Celkový pošet kartiček: <b>%d</b><br>"
 msgid "Total number of facts:"
 msgstr "Celkový pošet kartiček: <b>%d</b><br>"
 
-#: deck.py:933
+#: deck.py:929
 msgid "Unknown"
 msgstr "Neznámý"
 
@@ -695,11 +689,11 @@ msgstr "Nové kartičky"
 msgid "Update tags..."
 msgstr "Štítky výrazů"
 
-#: deck.py:2300
+#: deck.py:2297
 msgid "Updating priorities..."
 msgstr ""
 
-#: deck.py:2817
+#: deck.py:2811
 msgid "Upgrading Deck..."
 msgstr ""
 
@@ -720,7 +714,7 @@ msgstr ""
 msgid "[invalid question/answer format]"
 msgstr ""
 
-#: sync.py:197 sync.py:201
+#: sync.py:227 sync.py:231
 msgid "all"
 msgstr ""
 
@@ -738,11 +732,11 @@ msgstr "%s den"
 msgid "in %s"
 msgstr "za %s"
 
-#: sync.py:194 sync.py:195
+#: sync.py:224 sync.py:225
 msgid "off"
 msgstr ""
 
-#: deck.py:722
+#: deck.py:724
 msgid "unknown"
 msgstr "neznámý"
 
@@ -800,6 +794,9 @@ msgstr "neznámý"
 #~ "Automatické generování významu není bezchybné a před vložením\n"
 #~ "karty by měl být význam překontrolován."
 
+#~ msgid "%(count)s %(gradename)s kanji."
+#~ msgstr "%(count)s %(gradename)s kanji."
+
 #~ msgid "%0.1f seconds"
 #~ msgstr "%0.1f sekund"
 
@@ -825,6 +822,13 @@ msgstr "neznámý"
 #, fuzzy
 #~ msgid "<b>%0.1f</b> cards/day"
 #~ msgstr "Průměrná zátěž: <b>%0.1f</b> karet denně<br/>"
+
+#, fuzzy
+#~ msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
+#~ msgstr "<h1>Statistika kanji</h1>%d karet v tomto balíku obsahuje:"
+
+#~ msgid "<li>%d total unique kanji.</li>"
+#~ msgstr "<li>%d celkem unikátních kanji.<"
 
 #~ msgid ""
 #~ "A basic flashcard with a front and a back.\n"
@@ -880,6 +884,9 @@ msgstr "neznámý"
 #~ msgid "Back to front"
 #~ msgstr "Ze zadní strany na přední"
 
+#~ msgid "Cantonese"
+#~ msgstr "kantonština"
+
 #~ msgid "Cards"
 #~ msgstr "Kartičky"
 
@@ -932,6 +939,15 @@ msgstr "neznámý"
 
 #~ msgid "Import: same %s"
 #~ msgstr "Import: stejné %s"
+
+#~ msgid "Japanese"
+#~ msgstr "japonsky"
+
+#~ msgid "Jouyou levels:"
+#~ msgstr "úrovně Jouyou"
+
+#~ msgid "Mandarin"
+#~ msgstr "mandarínština"
 
 #, fuzzy
 #~ msgid "Mature cards: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> of <b>%(gMatureTotal)d</b>)<br>"

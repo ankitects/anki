@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-09 04:09+0900\n"
+"POT-Creation-Date: 2009-06-15 20:06+0200\n"
 "PO-Revision-Date: 2008-05-24 09:18+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sound.py:165
+#: sound.py:208
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -33,16 +33,6 @@ msgid ""
 "all but one card template."
 msgstr ""
 
-#: stats.py:509
-#, python-format
-msgid "%(count)s %(gradename)s kanji."
-msgstr "%(count)s %(gradename)s kanji."
-
-#: stats.py:507
-#, python-format
-msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
-msgstr "%(gradename)s: %(total)s자 중에 %(count)s자 (%(percent)0.1f%%)."
-
 #: stats.py:342 stats.py:346 stats.py:350
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
@@ -53,7 +43,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "%s전"
 
-#: deck.py:1237
+#: deck.py:1234
 #, fuzzy, python-format
 msgid "%s copy"
 msgstr "%s초"
@@ -65,6 +55,13 @@ msgid_plural "%s days"
 msgstr[0] "%s일"
 msgstr[1] "%s일"
 
+#: utils.py:44
+#, python-format
+msgid "%s day<!--after>"
+msgid_plural "%s days<!--after>"
+msgstr[0] ""
+msgstr[1] ""
+
 #: utils.py:36
 #, python-format
 msgid "%s hour"
@@ -72,10 +69,24 @@ msgid_plural "%s hours"
 msgstr[0] "%s시간"
 msgstr[1] "%s시간"
 
+#: utils.py:45
+#, python-format
+msgid "%s hour<!--after>"
+msgid_plural "%s hours<!--after>"
+msgstr[0] ""
+msgstr[1] ""
+
 #: utils.py:37
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
+msgstr[0] "%s분"
+msgstr[1] "%s분"
+
+#: utils.py:46
+#, fuzzy, python-format
+msgid "%s minute<!--after>"
+msgid_plural "%s minutes<!--after>"
 msgstr[0] "%s분"
 msgstr[1] "%s분"
 
@@ -86,10 +97,24 @@ msgid_plural "%s months"
 msgstr[0] "%s개월"
 msgstr[1] "%s개월"
 
+#: utils.py:43
+#, fuzzy, python-format
+msgid "%s month<!--after>"
+msgid_plural "%s months<!--after>"
+msgstr[0] "%s개월"
+msgstr[1] "%s개월"
+
 #: utils.py:38
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
+msgstr[0] "%s초"
+msgstr[1] "%s초"
+
+#: utils.py:47
+#, fuzzy, python-format
+msgid "%s second<!--after>"
+msgid_plural "%s seconds<!--after>"
 msgstr[0] "%s초"
 msgstr[1] "%s초"
 
@@ -99,6 +124,13 @@ msgid "%s year"
 msgid_plural "%s years"
 msgstr[0] "%s년"
 msgstr[1] "%s년"
+
+#: utils.py:42
+#, python-format
+msgid "%s year<!--after>"
+msgid_plural "%s years<!--after>"
+msgstr[0] ""
+msgstr[1] ""
 
 #: stats.py:379 stats.py:382 stats.py:385 stats.py:388
 #, fuzzy, python-format
@@ -110,7 +142,7 @@ msgstr "성숙한 카드: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "카드 추가: 하루에 <b>%(a)d</b>개, 한달에 <b>%(b)d</b>개<br>"
 
-#: deck.py:749
+#: deck.py:751
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -120,29 +152,7 @@ msgid ""
 "</div>"
 msgstr ""
 
-#: stats.py:535
-#, python-format
-msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
-msgstr "<h1>일본 한자 통계</h1>현재 묶음에서 지금까지 본 %d개의 카드 중:"
-
-#: stats.py:564
-msgid "<h1>Missing</h1>"
-msgstr ""
-
-#: stats.py:591
-msgid "<h1>Non-Jouyou</h1>"
-msgstr ""
-
-#: stats.py:566
-msgid "<h1>Seen</h1>"
-msgstr ""
-
-#: stats.py:539
-#, python-format
-msgid "<li>%d total unique kanji.</li>"
-msgstr "<li>전체 한자 %d자</li>"
-
-#: deck.py:690
+#: deck.py:692
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -151,7 +161,7 @@ msgid ""
 "%(new)s"
 msgstr ""
 
-#: sync.py:206
+#: sync.py:236
 #, python-format
 msgid ""
 "<table>\n"
@@ -182,7 +192,7 @@ msgstr ""
 msgid "Anki Deck (*.anki)"
 msgstr "앙키 묶음 (*.anki)"
 
-#: deck.py:332
+#: deck.py:331
 msgid "Answer Card"
 msgstr ""
 
@@ -210,10 +220,6 @@ msgstr "추가한 날"
 msgid "Basic"
 msgstr "기본"
 
-#: stdmodels.py:77
-msgid "Cantonese"
-msgstr "광동어"
-
 #: stats.py:291
 #, fuzzy
 msgid "Card Template"
@@ -236,11 +242,11 @@ msgstr "가운데"
 msgid "Changed"
 msgstr "변경"
 
-#: deck.py:1300
+#: deck.py:1297
 msgid "Changing cards..."
 msgstr ""
 
-#: deck.py:1260
+#: deck.py:1257
 msgid "Changing fields..."
 msgstr ""
 
@@ -248,11 +254,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:2206
+#: deck.py:2203
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:2216
+#: deck.py:2213
 msgid "Checking schema..."
 msgstr ""
 
@@ -273,11 +279,11 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3244
+#: deck.py:3238
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:2209
+#: deck.py:2206
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -292,11 +298,11 @@ msgstr "묶음 통계"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "묶음 생성: <b>%s</b> 전<br>"
 
-#: deck.py:2605
+#: deck.py:2598
 msgid "Deck missing core table"
 msgstr ""
 
-#: deck.py:2219
+#: deck.py:2216
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -308,49 +314,49 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:2254
+#: deck.py:2251
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2266
+#: deck.py:2263
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2281
+#: deck.py:2278
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2243
+#: deck.py:2240
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2272
+#: deck.py:2269
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2233
+#: deck.py:2230
 #, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2285
+#: deck.py:2282
 msgid "Deleted: "
 msgstr ""
 
@@ -378,7 +384,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "탭으로 구분한 지식 텍스트 파일 (*.txt)"
 
-#: deck.py:2652
+#: deck.py:2645
 msgid "File is in use by another process"
 msgstr "다른 프로세스가 파일을 사용하고 있습니다."
 
@@ -401,7 +407,7 @@ msgstr "처음"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr ""
 
@@ -409,14 +415,6 @@ msgstr ""
 #, fuzzy
 msgid "Interval"
 msgstr "지난 복습 간격"
-
-#: stdmodels.py:46
-msgid "Japanese"
-msgstr "일본어"
-
-#: stats.py:554
-msgid "Jouyou levels:"
-msgstr "상용한자 수준"
 
 #: stats.py:278
 msgid "Last Due"
@@ -445,10 +443,6 @@ msgstr ""
 #, python-format
 msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
 msgstr ""
-
-#: stdmodels.py:99
-msgid "Mandarin"
-msgstr "북경어"
 
 #: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
@@ -490,7 +484,7 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: deck.py:705
+#: deck.py:707
 msgid "No cards are due."
 msgstr ""
 
@@ -499,23 +493,23 @@ msgstr ""
 msgid "Please add some cards first."
 msgstr "카드를 먼저 추가해 주세요.<p/>"
 
-#: deck.py:2467
+#: deck.py:2460
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:2303
+#: deck.py:2300
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:2323
+#: deck.py:2316
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:2297
+#: deck.py:2294
 msgid "Rebuilding tag cache..."
 msgstr ""
 
-#: deck.py:2321
+#: deck.py:2314
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -537,22 +531,22 @@ msgstr "%s개월"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:3231
+#: deck.py:3225
 #, fuzzy
 msgid "Review cards from largest interval"
 msgstr "무작위로 보여주기"
 
-#: deck.py:3232
+#: deck.py:3226
 #, fuzzy
 msgid "Review cards from smallest interval"
 msgstr "무작위로 보여주기"
 
-#: deck.py:3233
+#: deck.py:3227
 #, fuzzy
 msgid "Review cards in order due"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:3234
+#: deck.py:3228
 #, fuzzy
 msgid "Review cards in random order"
 msgstr "무작위로 보여주기"
@@ -570,54 +564,54 @@ msgstr "오른쪽"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:3240
+#: deck.py:3234
 #, fuzzy
 msgid "Show failed cards at end"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:3241
+#: deck.py:3235
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:3243
+#: deck.py:3237
 #, fuzzy
 msgid "Show failed cards in 3 days"
 msgstr "무작위로 보여주기"
 
-#: deck.py:3242
+#: deck.py:3236
 #, fuzzy
 msgid "Show failed cards in 8 hours"
 msgstr "무작위로 보여주기"
 
-#: deck.py:3239
+#: deck.py:3233
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:3225
+#: deck.py:3219
 #, fuzzy
 msgid "Show new cards after all other cards"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:3226
+#: deck.py:3220
 #, fuzzy
 msgid "Show new cards before reviews"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:3218
+#: deck.py:3212
 #, fuzzy
 msgid "Show new cards in order added"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:3217
+#: deck.py:3211
 msgid "Show new cards in random order"
 msgstr "무작위로 보여주기"
 
-#: deck.py:3219
+#: deck.py:3213
 #, fuzzy
 msgid "Show new cards in reverse order added"
 msgstr "추가된 순서대로 보여주기"
 
-#: deck.py:3224
+#: deck.py:3218
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -629,7 +623,7 @@ msgstr "텍스트 파일 (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: deck.py:2225
+#: deck.py:2222
 msgid "The current model didn't exist"
 msgstr ""
 
@@ -641,33 +635,33 @@ msgstr ""
 msgid "The file was not in UTF8 format."
 msgstr ""
 
-#: deck.py:702
+#: deck.py:704
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr ""
 
-#: deck.py:737
+#: deck.py:739
 #, python-format
 msgid "There is <b>%d delayed</b> new card."
 msgid_plural "There are <b>%d delayed</b> new cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:744
+#: deck.py:746
 #, python-format
 msgid "There is <b>%d suspended</b> card."
 msgid_plural "There are <b>%d suspended</b> cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:695
+#: deck.py:697
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:698
+#: deck.py:700
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -689,7 +683,7 @@ msgstr "전체 카드 개수: <b>%d</b><br><br>"
 msgid "Total number of facts:"
 msgstr "전체 카드 개수: <b>%d</b><br><br>"
 
-#: deck.py:933
+#: deck.py:929
 msgid "Unknown"
 msgstr "알 수 없음"
 
@@ -703,11 +697,11 @@ msgstr "새 카드"
 msgid "Update tags..."
 msgstr "지식 꼬리표"
 
-#: deck.py:2300
+#: deck.py:2297
 msgid "Updating priorities..."
 msgstr ""
 
-#: deck.py:2817
+#: deck.py:2811
 msgid "Upgrading Deck..."
 msgstr ""
 
@@ -728,7 +722,7 @@ msgstr ""
 msgid "[invalid question/answer format]"
 msgstr ""
 
-#: sync.py:197 sync.py:201
+#: sync.py:227 sync.py:231
 msgid "all"
 msgstr ""
 
@@ -746,11 +740,11 @@ msgstr "%s일"
 msgid "in %s"
 msgstr "%s 안에"
 
-#: sync.py:194 sync.py:195
+#: sync.py:224 sync.py:225
 msgid "off"
 msgstr ""
 
-#: deck.py:722
+#: deck.py:724
 msgid "unknown"
 msgstr "알 수 없음"
 
@@ -807,6 +801,12 @@ msgstr "알 수 없음"
 #~ "자동 생성된 독음은 틀릴 수 있습니다.\n"
 #~ "카드를 추가하기 전에 다시 확인해 주세요."
 
+#~ msgid "%(count)s %(gradename)s kanji."
+#~ msgstr "%(count)s %(gradename)s kanji."
+
+#~ msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
+#~ msgstr "%(gradename)s: %(total)s자 중에 %(count)s자 (%(percent)0.1f%%)."
+
 #~ msgid "%0.1f seconds"
 #~ msgstr "%0.1f초"
 
@@ -835,6 +835,12 @@ msgstr "알 수 없음"
 
 #~ msgid "<b>Card counts</b><br>"
 #~ msgstr "<b>카드 개수</b><br>"
+
+#~ msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
+#~ msgstr "<h1>일본 한자 통계</h1>현재 묶음에서 지금까지 본 %d개의 카드 중:"
+
+#~ msgid "<li>%d total unique kanji.</li>"
+#~ msgstr "<li>전체 한자 %d자</li>"
 
 #~ msgid ""
 #~ "A basic flashcard with a front and a back.\n"
@@ -896,6 +902,9 @@ msgstr "알 수 없음"
 #~ msgid "Can't read/write directory"
 #~ msgstr "디렉토리를 읽고 쓸 수 없음"
 
+#~ msgid "Cantonese"
+#~ msgstr "광동어"
+
 #, fuzzy
 #~ msgid "Cards"
 #~ msgstr "카드 꼬리표"
@@ -932,6 +941,15 @@ msgstr "알 수 없음"
 
 #~ msgid "Heisig"
 #~ msgstr "Heisig"
+
+#~ msgid "Japanese"
+#~ msgstr "일본어"
+
+#~ msgid "Jouyou levels:"
+#~ msgstr "상용한자 수준"
+
+#~ msgid "Mandarin"
+#~ msgstr "북경어"
 
 #~ msgid "Mature cards: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> of <b>%(gMatureTotal)d</b>)<br>"
 #~ msgstr "성숙한 카드: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureTotal)d</b>개 중에 <b>%(gMatureYes)d</b>개)<br>"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-09 04:09+0900\n"
+"POT-Creation-Date: 2009-06-15 20:06+0200\n"
 "PO-Revision-Date: 2009-04-20 13:12+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtaal 0.3.1\n"
 
-#: sound.py:165
+#: sound.py:208
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -45,16 +45,6 @@ msgstr ""
 "Одоогийн импортлогч зөвхөн нэг идэвхтэй картын зүйлийг зөвшөөдөг. Картын\n"
 "зүйлээс ганц нэг нь асаагаарай."
 
-#: stats.py:509
-#, python-format
-msgid "%(count)s %(gradename)s kanji."
-msgstr "%(count)s %(gradename)s канжий."
-
-#: stats.py:507
-#, python-format
-msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
-msgstr "%(gradename)s: %(total)s-с %(count)s (%(percent)0.1f%%)."
-
 #: stats.py:342 stats.py:346 stats.py:350
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
@@ -65,7 +55,7 @@ msgstr "%(totalSum)d-с %(partOf)d"
 msgid "%s ago"
 msgstr "%s-н өмнө"
 
-#: deck.py:1237
+#: deck.py:1234
 #, python-format
 msgid "%s copy"
 msgstr "%s хуулах"
@@ -77,6 +67,13 @@ msgid_plural "%s days"
 msgstr[0] "%s өдөр"
 msgstr[1] "%s өдрүүд"
 
+#: utils.py:44
+#, python-format
+msgid "%s day<!--after>"
+msgid_plural "%s days<!--after>"
+msgstr[0] ""
+msgstr[1] ""
+
 #: utils.py:36
 #, python-format
 msgid "%s hour"
@@ -84,10 +81,24 @@ msgid_plural "%s hours"
 msgstr[0] "%s цаг"
 msgstr[1] "%s·цагууд"
 
+#: utils.py:45
+#, python-format
+msgid "%s hour<!--after>"
+msgid_plural "%s hours<!--after>"
+msgstr[0] ""
+msgstr[1] ""
+
 #: utils.py:37
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
+msgstr[0] "%s минут"
+msgstr[1] "%s минутууд"
+
+#: utils.py:46
+#, fuzzy, python-format
+msgid "%s minute<!--after>"
+msgid_plural "%s minutes<!--after>"
 msgstr[0] "%s минут"
 msgstr[1] "%s минутууд"
 
@@ -98,10 +109,24 @@ msgid_plural "%s months"
 msgstr[0] "%s сар"
 msgstr[1] "%s сарууд"
 
+#: utils.py:43
+#, fuzzy, python-format
+msgid "%s month<!--after>"
+msgid_plural "%s months<!--after>"
+msgstr[0] "%s сар"
+msgstr[1] "%s сарууд"
+
 #: utils.py:38
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
+msgstr[0] "%s секунд"
+msgstr[1] "%s секундүүд"
+
+#: utils.py:47
+#, fuzzy, python-format
+msgid "%s second<!--after>"
+msgid_plural "%s seconds<!--after>"
 msgstr[0] "%s секунд"
 msgstr[1] "%s секундүүд"
 
@@ -111,6 +136,13 @@ msgid "%s year"
 msgid_plural "%s years"
 msgstr[0] "%s жил"
 msgstr[1] "%s жилүүд"
+
+#: utils.py:42
+#, python-format
+msgid "%s year<!--after>"
+msgid_plural "%s years<!--after>"
+msgstr[0] ""
+msgstr[1] ""
 
 #: stats.py:379 stats.py:382 stats.py:385 stats.py:388
 #, python-format
@@ -122,7 +154,7 @@ msgstr "<b>%(a)d</b> (Нэг өдрийн <b>%(b)s</b>)"
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "Нэг өдрийн <b>%(a)s</b>, нэг сарын <b>%(b)s</b>"
 
-#: deck.py:749
+#: deck.py:751
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -137,29 +169,7 @@ msgstr ""
 "%(spaceSusp)s\n"
 "</div>"
 
-#: stats.py:535
-#, python-format
-msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
-msgstr "<h1>Канжийгийн статистикс</h1>Энэ цуглуулгын %d үзүүлсэн картын тухай:"
-
-#: stats.py:564
-msgid "<h1>Missing</h1>"
-msgstr "<h1>Байгүй нь</h1>"
-
-#: stats.py:591
-msgid "<h1>Non-Jouyou</h1>"
-msgstr "<h1>Жууюу биш нь</h1>"
-
-#: stats.py:566
-msgid "<h1>Seen</h1>"
-msgstr "<h1>Үзсэн нь</h1>"
-
-#: stats.py:539
-#, python-format
-msgid "<li>%d total unique kanji.</li>"
-msgstr "<li>Цор ганцын канжийгийн нийт: %d</li>"
-
-#: deck.py:690
+#: deck.py:692
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -172,7 +182,7 @@ msgstr ""
 "%(wait)s<br>\n"
 "%(new)s"
 
-#: sync.py:206
+#: sync.py:236
 #, fuzzy, python-format
 msgid ""
 "<table>\n"
@@ -211,7 +221,7 @@ msgstr "Өнгөрсөн 7 хоногт нэмсэн"
 msgid "Anki Deck (*.anki)"
 msgstr "Анки цуглуулга (*.anki)"
 
-#: deck.py:332
+#: deck.py:331
 msgid "Answer Card"
 msgstr "Хариултын Карт"
 
@@ -235,10 +245,6 @@ msgstr "Дундаж нэмсэн"
 msgid "Basic"
 msgstr "Үндсэн"
 
-#: stdmodels.py:77
-msgid "Cantonese"
-msgstr "Гуанчжоу мужийн хэл"
-
 #: stats.py:291
 msgid "Card Template"
 msgstr "Картын зүйл"
@@ -259,11 +265,11 @@ msgstr "Төвд"
 msgid "Changed"
 msgstr "Өөрчилсөн"
 
-#: deck.py:1300
+#: deck.py:1297
 msgid "Changing cards..."
 msgstr "Картуудыг өөрчилж байна..."
 
-#: deck.py:1260
+#: deck.py:1257
 msgid "Changing fields..."
 msgstr "Талбаруудыг өөрчилж байна..."
 
@@ -271,11 +277,11 @@ msgstr "Талбаруудыг өөрчилж байна..."
 msgid "Check Media DB"
 msgstr "Мэдиа өгөгдлийн саныг шалгах"
 
-#: deck.py:2206
+#: deck.py:2203
 msgid "Checking integrity..."
 msgstr "Чанарыг шалгаж байна..."
 
-#: deck.py:2216
+#: deck.py:2213
 msgid "Checking schema..."
 msgstr "Cхемийг шалгаж байна..."
 
@@ -296,11 +302,11 @@ msgstr "Дүрсийг олоогүй. Мөрийн цуваад цахилга�
 msgid "CueCard Deck (*.wcu)"
 msgstr "КюуКарт цуглуулга (*.wcu)"
 
-#: deck.py:3244
+#: deck.py:3238
 msgid "Custom failed cards handling"
 msgstr "Дампуурсан картын тохируулсан боловсруулалт"
 
-#: deck.py:2209
+#: deck.py:2206
 #, fuzzy
 msgid ""
 "Database file is damaged.\n"
@@ -316,12 +322,12 @@ msgstr "Цуглуулгын статистикс"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "<b>%s</b>-н өмнө<br> цуглуулгыг үүсгэсэн"
 
-#: deck.py:2605
+#: deck.py:2598
 #, fuzzy
 msgid "Deck missing core table"
 msgstr "Цуглуулгаас нэг зүйл сураггүй алга болсон"
 
-#: deck.py:2219
+#: deck.py:2216
 msgid "Deck was missing a model"
 msgstr "Цуглуулгаас нэг зүйл сураггүй алга болсон"
 
@@ -333,49 +339,49 @@ msgstr "Хуучин лавлахыг устгах..."
 msgid "Delete unused files..."
 msgstr "Хэрэглээгүй файлуудыг устга"
 
-#: deck.py:2254
+#: deck.py:2251
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] "Баримтгүй картыг %d устгасан"
 msgstr[1] "Баримтгүй картуудыг %d устгасан"
 
-#: deck.py:2266
+#: deck.py:2263
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] "%d бэлдэцгүй картыг устгасан"
 msgstr[1] "%d бэлдэцгүй картуудыг устгасан"
 
-#: deck.py:2281
+#: deck.py:2278
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] "%d унжиж байгаа талбарыг устгасан"
 msgstr[1] "%d унжиж байгаа талбаруудыг устгасан"
 
-#: deck.py:2243
+#: deck.py:2240
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] "%d талбар сураггүй алга болсон баримтыг устгасан"
 msgstr[1] "%d талбар сураггүй алга болсон баримтуудыг устгасан"
 
-#: deck.py:2272
+#: deck.py:2269
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] "%d картгүй баримтыг устгасан"
 msgstr[1] "%d картгүй баримтуудыг устгасан"
 
-#: deck.py:2233
+#: deck.py:2230
 #, fuzzy, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] "%d талбар сураггүй алга болсон баримтыг устгасан"
 msgstr[1] "%d талбар сураггүй алга болсон баримтуудыг устгасан"
 
-#: deck.py:2285
+#: deck.py:2282
 msgid "Deleted: "
 msgstr ""
 
@@ -406,7 +412,7 @@ msgstr "Экспортолж байна..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Цахилгаанаар тусгаарласан утгуудтай баримтын файл (*.txt)"
 
-#: deck.py:2652
+#: deck.py:2645
 msgid "File is in use by another process"
 msgstr "Файл өөр процессоор хэрэгжүүлж байна"
 
@@ -426,21 +432,13 @@ msgstr "Өнгөрсөн 7 хоногийн анх нь"
 msgid "First-seen cards:"
 msgstr "Эхлээд үзсэн картууд:"
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Импортолж байна..."
 
 #: stats.py:274 stats.py:365
 msgid "Interval"
 msgstr "Зай"
-
-#: stdmodels.py:46
-msgid "Japanese"
-msgstr "Япон хэл"
-
-#: stats.py:554
-msgid "Jouyou levels:"
-msgstr "Жууюу түвшин үүд:"
 
 #: stats.py:278
 msgid "Last Due"
@@ -467,10 +465,6 @@ msgstr "%(line)d-р мөр '%(pat)s'-н дүрстэй тааруулаагүй"
 #, python-format
 msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
 msgstr "%(line)d-р мөрийн дээр %(num1)d талбартай боловч %(num2)d нь хэрэгтэй байсан"
-
-#: stdmodels.py:99
-msgid "Mandarin"
-msgstr "Хятад хэл"
 
 #: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
@@ -510,7 +504,7 @@ msgstr "Талбаруудыг өөрчлөх..."
 msgid "New"
 msgstr "Шинэ"
 
-#: deck.py:705
+#: deck.py:707
 msgid "No cards are due."
 msgstr "Дахин давтсан карт байхгүй."
 
@@ -518,23 +512,23 @@ msgstr "Дахин давтсан карт байхгүй."
 msgid "Please add some cards first."
 msgstr "Эхлээд картуудыг нэмнэ уу?"
 
-#: deck.py:2467
+#: deck.py:2460
 msgid "Processing..."
 msgstr "Хийж байна..."
 
-#: deck.py:2303
+#: deck.py:2300
 msgid "Rebuilding QA cache..."
 msgstr "Асуулт, хариултын ойг дахин барж байна..."
 
-#: deck.py:2323
+#: deck.py:2316
 msgid "Rebuilding counts..."
 msgstr "Тооцоонуудыг дахин барж байна..."
 
-#: deck.py:2297
+#: deck.py:2294
 msgid "Rebuilding tag cache..."
 msgstr "Шошгын ойг дахин барж байна..."
 
-#: deck.py:2321
+#: deck.py:2314
 msgid "Rebuilding types..."
 msgstr "Төрөлтүүдийг дахин барж байна..."
 
@@ -554,19 +548,19 @@ msgstr "Ирэх сарын удаа"
 msgid "Reps next week"
 msgstr "Ирэх 7 хоногийн удаа"
 
-#: deck.py:3231
+#: deck.py:3225
 msgid "Review cards from largest interval"
 msgstr "Зүйлээс хамгийн томоос нь картуудыг давтах"
 
-#: deck.py:3232
+#: deck.py:3226
 msgid "Review cards from smallest interval"
 msgstr "Зүйлээс хамгийн багаас нь картуудыг давтах"
 
-#: deck.py:3233
+#: deck.py:3227
 msgid "Review cards in order due"
 msgstr "Дахин давтахын дарааллаар картуудыг давтах"
 
-#: deck.py:3234
+#: deck.py:3228
 msgid "Review cards in random order"
 msgstr "Санамсаргүй дарааллаар картуудыг давтах"
 
@@ -582,47 +576,47 @@ msgstr "Баруун"
 msgid "Scan fields..."
 msgstr "Талбаруудыг хайх..."
 
-#: deck.py:3240
+#: deck.py:3234
 msgid "Show failed cards at end"
 msgstr "Дампуурсан картууд сүүлт үзүүлэх"
 
-#: deck.py:3241
+#: deck.py:3235
 msgid "Show failed cards in 10 minutes"
 msgstr "Дампуурсан картууд 10 минутын дараа үзүүлэх"
 
-#: deck.py:3243
+#: deck.py:3237
 msgid "Show failed cards in 3 days"
 msgstr "Дампуурсан картууд 3 хоногийн дараа үзүүлэх"
 
-#: deck.py:3242
+#: deck.py:3236
 msgid "Show failed cards in 8 hours"
 msgstr "Дампуурсан картууд 8 цагийн дараа үзүүлэх"
 
-#: deck.py:3239
+#: deck.py:3233
 msgid "Show failed cards soon"
 msgstr "Дампуурсан картууд эрт үзүүлэх"
 
-#: deck.py:3225
+#: deck.py:3219
 msgid "Show new cards after all other cards"
 msgstr "Шинэ картыг бүх хуучин картын дараа үзэх"
 
-#: deck.py:3226
+#: deck.py:3220
 msgid "Show new cards before reviews"
 msgstr "Шинэ картыг бүх хуучин картын өмнө үзэх"
 
-#: deck.py:3218
+#: deck.py:3212
 msgid "Show new cards in order added"
 msgstr "Шинэ картыг нэмсэн дарааллаар үзэх"
 
-#: deck.py:3217
+#: deck.py:3211
 msgid "Show new cards in random order"
 msgstr "Шинэ картыг санамсаргүй дарааллаар үзэх"
 
-#: deck.py:3219
+#: deck.py:3213
 msgid "Show new cards in reverse order added"
 msgstr "Шинэ картыг арын нэмсэн дарааллаар үзэх"
 
-#: deck.py:3224
+#: deck.py:3218
 msgid "Spread new cards out through reviews"
 msgstr "Шинэ картыг давталтаар тэнцүү хуваах"
 
@@ -634,7 +628,7 @@ msgstr "Текстийн файлууд (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Цахилгаанаар эсвэл цэгтэй таслалаар тусгаарласан утгуудтай текст (*)"
 
-#: deck.py:2225
+#: deck.py:2222
 msgid "The current model didn't exist"
 msgstr "Одоогийн зүйл байхгүй"
 
@@ -646,33 +640,33 @@ msgstr "Тэр файл хоосон мөр байхгүй."
 msgid "The file was not in UTF8 format."
 msgstr "Тэр файл UTF8-н форматаар хадгалаагүй."
 
-#: deck.py:702
+#: deck.py:704
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr "Дараагийн давталт <b>%s</b>-д байна."
 
-#: deck.py:737
+#: deck.py:739
 #, fuzzy, python-format
 msgid "There is <b>%d delayed</b> new card."
 msgid_plural "There are <b>%d delayed</b> new cards."
 msgstr[0] "<b>%d</b> удаасан шинэ карт байна."
 msgstr[1] "<b>%d</b> удаасан шинэ картууд байна."
 
-#: deck.py:744
+#: deck.py:746
 #, fuzzy, python-format
 msgid "There is <b>%d suspended</b> card."
 msgid_plural "There are <b>%d suspended</b> cards."
 msgstr[0] "<b>%d</b> түдгэлзсэн карт байна."
 msgstr[1] "<b>%d</b> түдгэлзсэн картууд байна."
 
-#: deck.py:695
+#: deck.py:697
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] "<b>%d шинэ</b> карт болж байна."
 msgstr[1] "<b>%d шинэ</b> картууд болж байна."
 
-#: deck.py:698
+#: deck.py:700
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -691,7 +685,7 @@ msgstr "Картуудын нийт:"
 msgid "Total number of facts:"
 msgstr "Баримтуудын нийт:"
 
-#: deck.py:933
+#: deck.py:929
 msgid "Unknown"
 msgstr "Мэдэхгүй"
 
@@ -703,11 +697,11 @@ msgstr "Үзээгүй картууд нь:"
 msgid "Update tags..."
 msgstr "Шошгыг шинэчлэх..."
 
-#: deck.py:2300
+#: deck.py:2297
 msgid "Updating priorities..."
 msgstr "Яарлыг шинэчилж байна..."
 
-#: deck.py:2817
+#: deck.py:2811
 msgid "Upgrading Deck..."
 msgstr "Цуглуулгыг шинэчилж байна..."
 
@@ -727,7 +721,7 @@ msgstr "Залуу картууд: <!--зөв хариултууд-->"
 msgid "[invalid question/answer format]"
 msgstr "[хүчингүй асуулт/хариултын формат]"
 
-#: sync.py:197 sync.py:201
+#: sync.py:227 sync.py:231
 msgid "all"
 msgstr ""
 
@@ -744,13 +738,34 @@ msgstr "өдрүүд"
 msgid "in %s"
 msgstr "%s-д"
 
-#: sync.py:194 sync.py:195
+#: sync.py:224 sync.py:225
 msgid "off"
 msgstr ""
 
-#: deck.py:722
+#: deck.py:724
 msgid "unknown"
 msgstr "мэдэхгүй"
+
+#~ msgid "%(count)s %(gradename)s kanji."
+#~ msgstr "%(count)s %(gradename)s канжий."
+
+#~ msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
+#~ msgstr "%(gradename)s: %(total)s-с %(count)s (%(percent)0.1f%%)."
+
+#~ msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
+#~ msgstr "<h1>Канжийгийн статистикс</h1>Энэ цуглуулгын %d үзүүлсэн картын тухай:"
+
+#~ msgid "<h1>Missing</h1>"
+#~ msgstr "<h1>Байгүй нь</h1>"
+
+#~ msgid "<h1>Non-Jouyou</h1>"
+#~ msgstr "<h1>Жууюу биш нь</h1>"
+
+#~ msgid "<h1>Seen</h1>"
+#~ msgstr "<h1>Үзсэн нь</h1>"
+
+#~ msgid "<li>%d total unique kanji.</li>"
+#~ msgstr "<li>Цор ганцын канжийгийн нийт: %d</li>"
 
 #~ msgid "Anki 1.0 deck (*.anki)"
 #~ msgstr "Анки 1.0 цуглуулга (*.anki)"
@@ -760,6 +775,18 @@ msgstr "мэдэхгүй"
 
 #~ msgid "Anki decks (*.anki)"
 #~ msgstr "Анки цуглуулгууд (*.anki)"
+
+#~ msgid "Cantonese"
+#~ msgstr "Гуанчжоу мужийн хэл"
+
+#~ msgid "Japanese"
+#~ msgstr "Япон хэл"
+
+#~ msgid "Jouyou levels:"
+#~ msgstr "Жууюу түвшин үүд:"
+
+#~ msgid "Mandarin"
+#~ msgstr "Хятад хэл"
 
 #~ msgid "Rebuilding queue..."
 #~ msgstr "Дараалалыг дахин барж байна..."
