@@ -2003,6 +2003,7 @@ it to your friends.
         self.connect(self.syncThread, SIGNAL("fullSyncStarted"), self.fullSyncStarted)
         self.connect(self.syncThread, SIGNAL("fullSyncFinished"), self.fullSyncFinished)
         self.connect(self.syncThread, SIGNAL("fullSyncProgress"), self.fullSyncProgress)
+        self.connect(self.syncThread, SIGNAL("badUserPass"), self.badUserPass)
         self.syncThread.start()
         self.switchToWelcomeScreen()
         self.setEnabled(False)
@@ -2068,6 +2069,10 @@ it to your friends.
     def showSyncWarning(self, text):
         ui.utils.showWarning(text, self)
         self.setStatus("")
+
+    def badUserPass(self):
+        ui.preferences.Preferences(self, self.config).dialog.tabWidget.\
+                                         setCurrentIndex(1)
 
     def noSyncResponse(self):
         msg = _("""\

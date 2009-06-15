@@ -68,6 +68,7 @@ class Sync(QThread):
     def getErrorMessage(self, error):
         if error.data.get('status') == "invalidUserPass":
             msg=_("Please double-check your username/password.")
+            self.emit(SIGNAL("badUserPass"))
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
         else:
