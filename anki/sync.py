@@ -49,7 +49,9 @@ SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
 
 ##########################################################################
 # Monkey-patch httplib to incrementally send instead of chewing up large
-# amounts of memory
+# amounts of memory, and track progress.
+
+sendProgressHook = None
 
 def incrementalSend(self, strOrFile):
     if self.sock is None:
@@ -64,8 +66,13 @@ def incrementalSend(self, strOrFile):
             isinstance(strOrFile, unicode)):
             self.sock.sendall(strOrFile)
         else:
+            cnt = 0
             while 1:
+                time.sleep(0.1)
+                if sendProgressHook:
+                    sendProgressHook(cnt)
                 data = strOrFile.read(65536)
+                cnt += len(data)
                 if not data:
                     break
                 self.sock.sendall(data)
@@ -75,6 +82,9 @@ def incrementalSend(self, strOrFile):
         raise
 
 httplib.HTTPConnection.send = incrementalSend
+
+def fullSyncProgressHook(cnt):
+    runHook("fullSyncProgress", "fromLocal", cnt)
 
 ##########################################################################
 
@@ -967,6 +977,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             self.fullSyncFromServer(ret[1], ret[2])
 
     def fullSyncFromLocal(self, fields, path):
+        global sendProgressHook
         try:
             # write into a temporary file, since POST needs content-length
             src = open(path, "rb")
@@ -1006,8 +1017,10 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                 }
             req = urllib2.Request(SYNC_URL + "fullup", tmp, headers)
             try:
+                sendProgressHook = fullSyncProgressHook
                 assert urllib2.urlopen(req).read() == "OK"
             finally:
+                sendProgressHook = None
                 tmp.close()
                 os.close(fd)
         finally:
