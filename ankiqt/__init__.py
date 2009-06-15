@@ -78,8 +78,11 @@ class AnkiApp(QApplication):
 def run():
     import config
 
+    mustQuit = False
+
     # home on win32 is broken
     if sys.platform == "win32":
+        # use appdata if available
         if 'APPDATA' in os.environ:
             oldConf = os.path.expanduser("~/.anki/config.db")
             oldPlugins = os.path.expanduser("~/.anki/plugins")
@@ -87,10 +90,25 @@ def run():
         else:
             oldConf = None
             os.environ['HOME'] = "c:\\anki"
+        # make and check accessible
         try:
             os.makedirs(os.path.expanduser("~/.anki"))
         except:
             pass
+        try:
+            os.listdir(os.path.expanduser("~/.anki"))
+        except:
+            oldConf = None
+            os.environ['HOME'] = "c:\\anki"
+        # check accessible again
+        try:
+            os.makedirs(os.path.expanduser("~/.anki"))
+        except:
+            pass
+        try:
+            os.listdir(os.path.expanduser("~/.anki"))
+        except:
+            mustQuit = True
         if (oldConf and os.path.exists(oldConf) and not os.path.exists(
             oldConf.replace("config.db", "config.db.old"))):
             try:
@@ -114,6 +132,12 @@ def run():
 
     app = AnkiApp(sys.argv)
     QCoreApplication.setApplicationName("Anki")
+
+    if mustQuit:
+        QMessageBox.warning(
+            None, "Anki", "Can't open APPDATA, nor c:\\anki.\n"
+            "Please try removing foreign characters from your username.")
+        sys.exit(1)
 
     import forms
     import ui
