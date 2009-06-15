@@ -25,11 +25,11 @@ def runHook(hook, *args):
         for func in hook:
             func(*args)
 
-def runFilter(hook, arg):
+def runFilter(hook, arg, *args):
     hook = _hooks.get(hook, None)
     if hook:
         for func in hook:
-            arg = func(arg)
+            arg = func(arg, *args)
     return arg
 
 def addHook(hook, func):

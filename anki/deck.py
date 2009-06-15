@@ -471,7 +471,7 @@ where id != :id and factId = :factId""",
             else:
                 due = self.delay0
         else:
-            due =  card.interval * 86400.0
+            due = card.interval * 86400.0
         return due + time.time()
 
     def updateFactor(self, card, ease):
@@ -515,6 +515,7 @@ where id in %s""" % ids2str(ids), now=time.time(), new=0)
         if self.newCardOrder == NEW_CARDS_RANDOM:
             # we need to re-randomize now
             self.randomizeNewCards(ids)
+        self.flushMod()
         self.refresh()
 
     def randomizeNewCards(self, cardIds=None):
@@ -1032,7 +1033,8 @@ where type = 2 and priority in (1,2,3,4)""") or 0
 select count(id) from cards
 where factId = :fid and cardModelId = :cmid""",
                                  fid=fact.id, cmid=cardModel.id) == 0:
-                    card = anki.cards.Card(fact, cardModel)
+                    card = anki.cards.Card(
+                        fact, cardModel, due=fact.created+cardModel.ordinal)
                     self.updateCardTags([card.id])
                     self.updatePriority(card)
                     self.cardCount += 1
@@ -2651,6 +2653,7 @@ class DeckStorage(object):
             DeckStorage._addIndices(deck)
             for m in deck.models:
                 deck.updateCardsFromModel(m)
+            deck.created = time.time()
             deck.finishProgress()
         # fix a bug with current model being unset
         if not deck.currentModel and deck.models:

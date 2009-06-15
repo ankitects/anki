@@ -8,7 +8,7 @@ Sound support
 """
 __docformat__ = 'restructuredtext'
 
-import re, sys, threading, time, subprocess, os, signal
+import re, sys, threading, time, subprocess, os, signal, atexit, errno
 
 # Shared utils
 ##########################################################################
@@ -126,6 +126,9 @@ class MplayerMonitor(threading.Thread):
                 mplayerCond.wait()
             if not self.mplayer:
                 self.startProcess()
+            if self.mplayer != -1 and self.mplayer.poll() is not None:
+                self.mplayer.wait()
+                self.startProcess()
             nextClears = False
             while mplayerQueue:
                 item = mplayerQueue.pop(0)
@@ -144,7 +147,8 @@ class MplayerMonitor(threading.Thread):
     def startProcess(self):
         try:
             self.mplayer = subprocess.Popen(
-                mplayerCmd, startupinfo=si, stdin=subprocess.PIPE)
+                mplayerCmd, startupinfo=si, stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except OSError:
             raise Exception("Audio player not found")
 
@@ -160,8 +164,25 @@ def clearMplayerQueue():
     mplayerQueue.append(None)
     mplayerCond.release()
 
+def stopMplayer():
+    mplayerCond.acquire()
+    if mplayerManager.mplayer:
+        while 1:
+            try:
+                mplayerManager.mplayer.communicate("quit\n")
+                break
+            except OSError, e:
+                if e.errno != errno.EINTR:
+                    # osx throws interrupt errors regularly, but we want to
+                    # ignore other errors on shutdown
+                    break
+    mplayerManager.mplayer = -1
+    mplayerCond.notify()
+    mplayerCond.release()
+
 mplayerManager = MplayerMonitor()
 mplayerManager.start()
+atexit.register(stopMplayer)
 
 # PyAudio recording
 ##########################################################################

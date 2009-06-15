@@ -68,7 +68,7 @@ cardsTable = Table(
 class Card(object):
     "A card."
 
-    def __init__(self, fact=None, cardModel=None):
+    def __init__(self, fact=None, cardModel=None, due=None):
         self.tags = u""
         self.id = genID()
         # new cards start as new & due
@@ -77,8 +77,11 @@ class Card(object):
         self.timerStarted = False
         self.timerStopped = False
         self.modified = time.time()
-        self.due = self.modified
-        self.combinedDue = self.modified
+        if due:
+            self.due = due
+        else:
+            self.due = self.modified
+        self.combinedDue = self.due
         if fact:
             self.fact = fact
         if cardModel:
