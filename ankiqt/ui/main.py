@@ -427,7 +427,7 @@ Please do not file a bug report with Anki.<br>""")
         self.deck.s.expunge(self.currentCard)
         # answer
         self.deck.answerCard(self.currentCard, quality)
-        if self.currentCard.reps > 15 and self.currentCard.successive == 0:
+        if self.isLeech():
             self.handleLeech()
         self.lastScheduledTime = anki.utils.fmtTimeSpan(
             self.currentCard.due - time.time())
@@ -441,6 +441,9 @@ Please do not file a bug report with Anki.<br>""")
                 self.save()
         self.moveToState("getQuestion")
 
+    def isLeech(self):
+        return not self.currentCard.successive and self.currentCard.noCount > 15
+
     def handleLeech(self):
         self.deck.refresh()
         tags = self.currentCard.fact.tags
@@ -453,9 +456,10 @@ Please do not file a bug report with Anki.<br>""")
             self.deck.updatePriority(card)
         self.deck.refresh()
         self.setNotice(_("""\
-%s... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>
+<b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>
 and has been suspended.""") %
-                       stripHTML(self.currentCard.question)[0:30])
+                       stripHTML(self.currentCard.question)[0:30].\
+                       replace("\n", " "))
 
     def startRefreshTimer(self):
         "Update the screen once a minute until next card is displayed."
