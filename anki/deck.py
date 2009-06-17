@@ -742,23 +742,30 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         spaceSusp = ""
         c= self.spacedCardCount()
         if c:
-            spaceSusp += ngettext('There is <b>%d delayed</b> new card.',
-                                  'There are <b>%d delayed</b> new cards.',
+            spaceSusp += ngettext('There is %d delayed new card.',
+                                  'There are %d delayed new cards.',
                                   c) % c
         c2 = self.suspendedCardCount()
         if c2:
             if spaceSusp:
                 spaceSusp += "<br>"
-            spaceSusp += ngettext('There is <b>%d suspended</b> card.',
-                                  'There are <b>%d suspended</b> cards.',
+            spaceSusp += ngettext('There is %d suspended card.',
+                                  'There are %d suspended cards.',
                                   c2) % c2
         c3 = self.inactiveCardCount()
         if c3:
             if spaceSusp:
                 spaceSusp += "<br>"
-            spaceSusp += ngettext('There is <b>%d inactive</b> card.',
-                                  'There are <b>%d inactive</b> cards.',
+            spaceSusp += ngettext('There is %d inactive card.',
+                                  'There are %d inactive cards.',
                                   c3) % c3
+        c4 = self.leechCardCount()
+        if c4:
+            if spaceSusp:
+                spaceSusp += "<br>"
+            spaceSusp += ngettext('There is %d leech.',
+                                  'There are %d leeches.',
+                                  c4) % c4
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
         return _('''\
@@ -883,6 +890,9 @@ select count(id) from cards where priority = -3""")
     def inactiveCardCount(self):
         return self.s.scalar("""
 select count(id) from cards where priority = 0""")
+
+    def leechCardCount(self):
+        return len(self.findCards("is:suspended tag:leech"))
 
     def seenCardCount(self):
         return self.s.scalar(
