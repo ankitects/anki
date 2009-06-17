@@ -3151,7 +3151,7 @@
      <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Suspend Fact</string>
+    <string>&amp;Suspend Card</string>
    </property>
    <property name="statusTip">
     <string>Stop reviewing this card until it's unsuspended in the browser</string>
