@@ -3206,7 +3206,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
                     "where id in %s" % ids2str(ids)),
                                 "Suspended")
             # suspended tag obsolete
-            deck.suspended = re.sub(" ?Suspended ?", "", deck.suspended)
+            deck.suspended = re.sub(u" ?Suspended ?", u"", deck.suspended)
             deck.updateTagPriorities()
             deck.version = 38
             deck.s.commit()
