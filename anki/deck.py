@@ -747,11 +747,18 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
                                   c) % c
         c2 = self.suspendedCardCount()
         if c2:
-            if c:
+            if spaceSusp:
                 spaceSusp += "<br>"
             spaceSusp += ngettext('There is <b>%d suspended</b> card.',
                                   'There are <b>%d suspended</b> cards.',
                                   c2) % c2
+        c3 = self.inactiveCardCount()
+        if c3:
+            if spaceSusp:
+                spaceSusp += "<br>"
+            spaceSusp += ngettext('There is <b>%d inactive</b> card.',
+                                  'There are <b>%d inactive</b> cards.',
+                                  c3) % c3
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
         return _('''\
@@ -871,7 +878,11 @@ group by cardTags.cardId""" % limit)
 
     def suspendedCardCount(self):
         return self.s.scalar("""
-select count(id) from cards where type in (0,1,2) and priority = 0""")
+select count(id) from cards where priority = -3""")
+
+    def inactiveCardCount(self):
+        return self.s.scalar("""
+select count(id) from cards where priority = 0""")
 
     def seenCardCount(self):
         return self.s.scalar(
@@ -1859,7 +1870,7 @@ cardTags.tagId in %s""" % ids2str(ids)
                                "priority in (1,2,3,4)") % time.time()
                 elif token == "suspended":
                     qquery += ("select id from cards where "
-                               "priority in (-3, 0)")
+                               "priority = -3")
                 else: # due
                     qquery += ("select id from cards where "
                                "type in (0,1) and isDue = 1")
