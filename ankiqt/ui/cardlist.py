@@ -267,7 +267,7 @@ class StatusDelegate(QItemDelegate):
         if len(self.model.cards[index.row()]) == 1:
             self.model.updateCard(index)
         row = self.model.cards[index.row()]
-        if row[CARD_PRIORITY] == 0:
+        if row[CARD_PRIORITY] in (-3, 0):
             # custom render
             if index.row() % 2 == 0:
                 brush = QBrush(QColor("#ffffcc"))
@@ -370,7 +370,7 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setMaxVisibleItems(30)
         self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
-        alltags = [None, "Marked", "Suspended", None, None, None]
+        alltags = [None, "Marked", None, None, "Leech", None, None]
         # system tags
         self.dialog.tagList.addItem(_("<Filter>"))
         self.dialog.tagList.addItem(QIcon(":/icons/rating.png"),
@@ -379,6 +379,8 @@ class EditDeck(QMainWindow):
                                     _('Suspended'))
         self.dialog.tagList.addItem(QIcon(":/icons/chronometer.png"),
                                     _('Due'))
+        self.dialog.tagList.addItem(QIcon(":/icons/emblem-important.png"),
+                                    _('Leech'))
         self.dialog.tagList.addItem(QIcon(":/icons/editclear.png"),
                                     _('No fact tags'))
         self.dialog.tagList.insertSeparator(
@@ -495,10 +497,12 @@ class EditDeck(QMainWindow):
         elif idx == 1:
             filter = "tag:marked"
         elif idx == 2:
-            filter = "tag:suspended"
+            filter = "is:suspended"
         elif idx == 3:
             filter = "is:due"
         elif idx == 4:
+            filter = "is:suspended tag:leech"
+        elif idx == 5:
             filter = "tag:none"
         else:
             filter = "tag:" + self.alltags[idx]
@@ -790,7 +794,7 @@ where id in (%s)""" % ",".join([
         n = _("Suspend")
         self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
-        self.deck.addTags(self.selectedFacts(), "Suspended")
+        self.deck.suspendCards(self.selectedCards())
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
         self.updateAfterCardChange(reset=True)
@@ -799,7 +803,7 @@ where id in (%s)""" % ",".join([
         n = _("Unsuspend")
         self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
-        self.deck.deleteTags(self.selectedFacts(), "Suspended")
+        self.deck.unsuspendCards(self.selectedCards())
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
         self.updateAfterCardChange(reset=True)
