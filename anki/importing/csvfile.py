@@ -32,7 +32,12 @@ class TextImporter(Importer):
         ignored = 0
         reader = csv.reader(self.data, self.dialect)
         for row in reader:
-            row = [unicode(x, "utf-8") for x in row]
+            try:
+                row = [unicode(x, "utf-8") for x in row]
+            except UnicodeDecodeError, e:
+                raise ImportFormatError(
+                    type="encodingError",
+                    info=_("The file was not in UTF8 format."))
             if len(row) != self.numFields:
                 log.append(_(
                     "'%(row)s' had %(num1)d fields, "
@@ -62,24 +67,19 @@ class TextImporter(Importer):
     def openFile(self):
         self.dialect = None
         self.fileobj = open(self.file, "rb")
-        try:
-            self.data = self.fileobj.read()
-            self.data = re.sub("^ *#.*", "", self.data)
-            self.data = [x for x in self.data.split("\n") if x]
-            if self.data:
-                # strip out comments and blank lines
-                try:
-                    self.dialect = csv.Sniffer().sniff("\n".join(self.data[:10]))
-                except:
-                    self.dialect = csv.Sniffer().sniff(self.data[0])
-                reader = csv.reader(self.data, self.dialect)
-                self.numFields = len(reader.next())
-            else:
-                self.dialect = None
-        except UnicodeDecodeError, e:
-            raise ImportFormatError(
-                type="encodingError",
-                info=_("The file was not in UTF8 format."))
+        self.data = self.fileobj.read()
+        self.data = re.sub("^ *#.*", "", self.data)
+        self.data = [x for x in self.data.split("\n") if x]
+        if self.data:
+            # strip out comments and blank lines
+            try:
+                self.dialect = csv.Sniffer().sniff("\n".join(self.data[:10]))
+            except:
+                self.dialect = csv.Sniffer().sniff(self.data[0])
+            reader = csv.reader(self.data, self.dialect)
+            self.numFields = len(reader.next())
+        else:
+            self.dialect = None
         if not self.dialect:
             raise ImportFormatError(
                 type="encodingError",
