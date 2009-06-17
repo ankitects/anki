@@ -9,6 +9,7 @@ Sound support
 __docformat__ = 'restructuredtext'
 
 import re, sys, threading, time, subprocess, os, signal, atexit, errno
+from anki.hooks import addHook
 
 # Shared utils
 ##########################################################################
@@ -164,7 +165,7 @@ def clearMplayerQueue():
     mplayerQueue.append(None)
     mplayerCond.release()
 
-def stopMplayer():
+def stopMplayer(restart=False):
     mplayerCond.acquire()
     if mplayerManager.mplayer:
         while 1:
@@ -176,13 +177,22 @@ def stopMplayer():
                     # osx throws interrupt errors regularly, but we want to
                     # ignore other errors on shutdown
                     break
-    mplayerManager.mplayer = -1
+            except ValueError:
+                # already closed
+                break
+    if not restart:
+        mplayerManager.mplayer = -1
     mplayerCond.notify()
     mplayerCond.release()
+
+def stopMplayerOnce():
+    stopMplayer(restart=True)
 
 mplayerManager = MplayerMonitor()
 mplayerManager.start()
 atexit.register(stopMplayer)
+
+addHook("deckClosed", stopMplayerOnce)
 
 # PyAudio recording
 ##########################################################################
