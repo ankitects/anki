@@ -51,17 +51,11 @@ class ActiveTagsChooser(QDialog):
         alltags = []
         # get list of currently suspended
         for t in parseTags(self.deck.suspended):
-            if t == "Suspended":
-                continue
             self.suspended[t] = 1
             if t not in self.tags:
                 self.tags.append(t)
         # sort and remove special 'Suspended' tag
         self.tags.sort()
-        try:
-            self.tags.remove("Suspended")
-        except ValueError:
-            pass
         # render models and templates
         for (type, sql, icon) in (
             ("models", "select tags from models", "contents.png"),
@@ -85,7 +79,7 @@ class ActiveTagsChooser(QDialog):
                     mode = QItemSelectionModel.Deselect
                 self.dialog.list.selectionModel().select(idx, mode)
         # remove from user tags
-        for tag in alltags + ["Suspended"]:
+        for tag in alltags:
             try:
                 self.tags.remove(tag)
             except:
@@ -114,7 +108,7 @@ class ActiveTagsChooser(QDialog):
             if self.dialog.list.selectionModel().isSelected(idx):
                 suspended.append(self.tags[n])
             n += 1
-        self.deck.suspended = canonifyTags(joinTags(suspended + ["Suspended"]))
+        self.deck.suspended = canonifyTags(joinTags(suspended))
         self.deck.setModified()
         self.deck.updateAllPriorities(partial=True, dirty=False)
         self.parent.reset()
