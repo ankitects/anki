@@ -60,6 +60,7 @@ class Anki10Importer(Importer):
         if client.mediaSyncPending:
             bulkClient = BulkMediaSyncer(client.deck)
             bulkServer = BulkMediaSyncer(server.deck)
+            bulkClient.oneWay = True
             bulkClient.server = bulkServer
             bulkClient.sync()
         # add tags
