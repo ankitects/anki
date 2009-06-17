@@ -117,6 +117,19 @@ mplayerQueue = []
 mplayerManager = None
 mplayerCond = threading.Condition()
 
+class MplayerReader(threading.Thread):
+    "Read any debugging info to prevent mplayer from blocking."
+
+    def run(self):
+        while 1:
+            mplayerCond.acquire()
+            mplayerCond.wait()
+            mplayerCond.release()
+            try:
+                mplayerManager.mplayer.stdout.read()
+            except:
+                pass
+
 class MplayerMonitor(threading.Thread):
 
     def run(self):
@@ -157,7 +170,7 @@ def queueMplayer(path):
     path = path.encode(sys.getfilesystemencoding())
     mplayerCond.acquire()
     mplayerQueue.append(path)
-    mplayerCond.notify()
+    mplayerCond.notifyAll()
     mplayerCond.release()
 
 def clearMplayerQueue():
@@ -190,6 +203,8 @@ def stopMplayerOnce():
 
 mplayerManager = MplayerMonitor()
 mplayerManager.start()
+mplayerReader = MplayerReader()
+mplayerReader.start()
 atexit.register(stopMplayer)
 
 addHook("deckClosed", stopMplayerOnce)
