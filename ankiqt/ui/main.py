@@ -2693,10 +2693,18 @@ Consider backing up your media directory first."""))
             self.minimizeShortcut = QShortcut("Ctrl+m", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
                          self.onMacMinimize)
+            self.hideAccelerators()
         if sys.platform.startswith("win32"):
             self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
             self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
             self.mainWin.studyOptionsFrame.setFrameStyle(QFrame.Panel)
+
+    def hideAccelerators(self):
+        for action in self.findChildren(QAction):
+            txt = unicode(action.text())
+            m = re.match("^(.+)\(&.+\)(.+)?", txt)
+            if m:
+                action.setText(m.group(1) + (m.group(2) or ""))
 
     def onMacMinimize(self):
         self.setWindowState(self.windowState() | Qt.WindowMinimized)
