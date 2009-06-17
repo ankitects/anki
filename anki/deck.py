@@ -3196,18 +3196,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.version = 37
             deck.s.commit()
         if deck.version < 38:
-            deck.rebuildQueue()
-            # manually suspend all suspended cards
-            ids = deck.findCards("tag:suspended")
-            if ids:
-                deck.suspendCards(ids)
-                deck.deleteTags(deck.s.column0(
-                    "select distinct factId from cards "
-                    "where id in %s" % ids2str(ids)),
-                                "Suspended")
-            # suspended tag obsolete
-            deck.suspended = re.sub(u" ?Suspended ?", u"", deck.suspended)
-            deck.updateTagPriorities()
+            # don't automatically upgrade suspended
             deck.version = 38
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
