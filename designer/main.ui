@@ -2914,7 +2914,7 @@
   <action name="actionClose">
    <property name="icon">
     <iconset resource="../icons.qrc">
-     <normaloff>:/icons/go-previous.png</normaloff>:/icons/go-previous.png</iconset>
+     <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Close</string>
