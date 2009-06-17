@@ -168,16 +168,23 @@ class StatusView(object):
             remStr += "<b>0</b>"
         else:
             # remaining string, bolded depending on current card
+            if sys.platform.startswith("linux"):
+                s = "&nbsp;"
+            else:
+                s = "&nbsp;&nbsp;"
             if not self.main.currentCard:
-                remStr += "%(failed1)s&nbsp;%(rev1)s&nbsp;%(new1)s"
+                remStr += "%(failed1)s" + s + "%(rev1)s" + s + "%(new1)s"
             else:
                 q = self.main.deck.queueForCard(self.main.currentCard)
                 if q == "failed":
-                    remStr += "<u>%(failed1)s</u>&nbsp;%(rev1)s&nbsp;%(new1)s"
+                    remStr += ("<u>%(failed1)s</u>" + s +
+                               "%(rev1)s" + s + "%(new1)s")
                 elif q == "rev":
-                    remStr += "%(failed1)s&nbsp;<u>%(rev1)s</u>&nbsp;%(new1)s"
+                    remStr += ("%(failed1)s" + s + "<u>%(rev1)s</u>" + s +
+                               "%(new1)s")
                 else:
-                    remStr += "%(failed1)s&nbsp;%(rev1)s&nbsp;<u>%(new1)s</u>"
+                    remStr += ("%(failed1)s" + s + "%(rev1)s" + s +
+                               "<u>%(new1)s</u>")
         stats['failed1'] = '<font color=#990000>%s</font>' % stats['failed']
         stats['rev1'] = '<font color=#000000>%s</font>' % stats['rev']
         if self.main.deck.newEarly:
