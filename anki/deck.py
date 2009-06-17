@@ -2838,6 +2838,7 @@ order by priority desc, due desc""")
             prog = True
             deck.startProgress()
             deck.updateProgress(_("Upgrading Deck..."))
+            deck.rebuildQueue()
         else:
             prog = False
         deck.path = path
