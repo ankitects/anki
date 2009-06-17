@@ -202,8 +202,10 @@ def stopMplayerOnce():
     stopMplayer(restart=True)
 
 mplayerManager = MplayerMonitor()
+mplayerManager.daemon = True
 mplayerManager.start()
 mplayerReader = MplayerReader()
+mplayerReader.daemon = True
 mplayerReader.start()
 atexit.register(stopMplayer)
 
