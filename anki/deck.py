@@ -29,11 +29,17 @@ from anki.hooks import runHook
 import anki.models, anki.facts, anki.cards, anki.stats
 import anki.history, anki.media
 
+# auto priorities
 PRIORITY_HIGH = 4
 PRIORITY_MED = 3
 PRIORITY_NORM = 2
 PRIORITY_LOW = 1
 PRIORITY_NONE = 0
+# manual priorities
+PRIORITY_REVEARLY = -1
+PRIORITY_BURIED = -2
+PRIORITY_SUSPENDED = -3
+# rest
 MATURE_THRESHOLD = 21
 NEW_CARDS_DISTRIBUTE = 0
 NEW_CARDS_LAST = 1
@@ -49,7 +55,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 37
+DECK_VERSION = 38
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -87,7 +93,7 @@ decksTable = Table(
     Column('highPriority', UnicodeText, nullable=False, default=u"PriorityVeryHigh"),
     Column('medPriority', UnicodeText, nullable=False, default=u"PriorityHigh"),
     Column('lowPriority', UnicodeText, nullable=False, default=u"PriorityLow"),
-    Column('suspended', UnicodeText, nullable=False, default=u"Suspended"),
+    Column('suspended', UnicodeText, nullable=False, default=u""),
     # 0 is random, 1 is by input date
     Column('newCardOrder', Integer, nullable=False, default=1),
     # when to show new cards
@@ -827,7 +833,7 @@ group by cardTags.cardId""" % limit)
             if cs:
                 self.s.statement((
                     "update cards set priority = :pri %s where id in %s "
-                    "and priority != :pri") % (
+                    "and priority != :pri and priority >= 0") % (
                     extra, ids2str(cs)), pri=pri, m=time.time())
         cnt = self.s.execute(
             "update cards set isDue = 0 where type in (0,1,2) and "
@@ -839,6 +845,26 @@ group by cardTags.cardId""" % limit)
         "Update priority on a single card."
         self.s.flush()
         self.updatePriorities([card.id])
+
+    # Suspending
+    ##########################################################################
+
+    def suspendCards(self, ids):
+        self.startProgress()
+        self.s.statement(
+            "update cards set isDue=0, priority=-3, modified=:t "
+            "where id in %s" % ids2str(ids), t=time.time())
+        self.rebuildCounts(full=False)
+        self.finishProgress()
+
+    def unsuspendCards(self, ids):
+        self.startProgress()
+        self.s.statement(
+            "update cards set priority=0, modified=:t where id in %s" %
+            ids2str(ids), t=time.time())
+        self.updatePriorities(ids)
+        self.rebuildCounts(full=False)
+        self.finishProgress()
 
     # Card/fact counts - all in deck, not just due
     ##########################################################################
@@ -1831,6 +1857,9 @@ cardTags.tagId in %s""" % ids2str(ids)
                     qquery += ("select id from cards where "
                                "due < %d and isDue = 0 and "
                                "priority in (1,2,3,4)") % time.time()
+                elif token == "suspended":
+                    qquery += ("select id from cards where "
+                               "priority in (-3, 0)")
                 else: # due
                     qquery += ("select id from cards where "
                                "type in (0,1) and isDue = 1")
@@ -3141,6 +3170,20 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             if deck.getFailedCardPolicy() == 1:
                 deck.failedCardMax = 0
             deck.version = 37
+            deck.s.commit()
+        if deck.version < 38:
+            # manually suspend all suspended cards
+            ids = deck.findCards("tag:suspended")
+            if ids:
+                deck.suspendCards(ids)
+                deck.deleteTags(deck.s.column0(
+                    "select distinct factId from cards "
+                    "where id in %s" % ids2str(ids)),
+                                "Suspended")
+            # suspended tag obsolete
+            deck.suspended = re.sub(" ?Suspended ?", "", deck.suspended)
+            deck.updateTagPriorities()
+            deck.version = 38
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
