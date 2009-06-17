@@ -1,23 +1,23 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Japanese Translation for ankiqt
+# Copyright (C) 2009 Jarvik7
+# This file is distributed under the same license as the Anki package.
+# Jarvik7 <jarvik7@gmail.com>, 2009.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.1\n"
+"Project-Id-Version: Anki Japanese Translation v0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-15 20:24+0200\n"
-"PO-Revision-Date: 2009-06-12 08:23-0800\n"
-"Last-Translator: Andrew Wright <guswright80@hotmail.com>\n"
+"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"PO-Revision-Date: 2009-06-17 01:43-0800\n"
+"Last-Translator: Jarvik7 <jarvik7@gmail.com>\n"
 "Language-Team: Jarvik7 <jarvik7@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Japanese\n"
 "X-Poedit-Country: JAPAN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
-# This is actually the "Add Fact" dialog's status bar tooltip.
 #: ui/about.py:13
 #, python-format
 msgid ""
@@ -52,183 +52,172 @@ msgstr ""
 msgid "  Stop"
 msgstr ""
 
-#: ui/main.py:1183
+#: ui/main.py:1189
 #, fuzzy, python-format
 msgid " (Alt+%d)"
-msgstr "Ctrl+Alt+%d"
+msgstr "Alt+%d"
 
-#: ui/main.py:1180
+#: ui/main.py:1186
 #, python-format
 msgid " (Command+Option+%d)"
-msgstr ""
+msgstr " (Command+Option+%d)"
 
-#: ui/main.py:2117
+#: ui/main.py:2118
+#, fuzzy
 msgid " (and proxy settings)"
-msgstr ""
+msgstr "プロキシの設定を確認してくださし。"
 
 #: ui/sync.py:171
 #, fuzzy, python-format
 msgid " * %s fetching payload..."
-msgstr "カードを同期中.."
+msgstr "データを転送中.."
 
 #: ui/sync.py:168
 #, python-format
 msgid " * %s no changes found."
-msgstr " * %s は変更されていません。"
+msgstr " * %sは変更されていません。"
 
 #: ui/sync.py:165
 #, python-format
 msgid " * %s no longer exists."
-msgstr " * %s は存在しません。"
+msgstr " * %sは存在しません。"
 
 #: forms/displayproperties.py:370
-#, fuzzy
 msgid " <b>When editing (overrides above):</b>"
-msgstr "追加又は編集の時"
+msgstr "<b>編集する時（上の設定より優先）：</b>"
 
 #: forms/displayproperties.py:366
-#, fuzzy
 msgid " <b>When reviewing and editing:</b>"
-msgstr "追加又は編集の時"
+msgstr "<b>編集と勉強する時：</b>"
 
-#: ui/main.py:2346
+#: ui/main.py:2347
 msgid " Please ensure it is set correctly and then restart Anki."
-msgstr ""
+msgstr "設定を確認してAnkiを再起動してください。"
 
 #: ui/sync.py:173
 #, python-format
 msgid " applied %d modified cards."
 msgstr " 変更されたカードを%d個更新しました。"
 
-#: ui/cardlist.py:1021
+#: ui/cardlist.py:1025
 #, python-format
 msgid "%(a)d of %(b)d fact updated"
 msgid_plural "%(a)d of %(b)d facts updated"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/deckproperties.py:106
-#, fuzzy, python-format
+#: ui/deckproperties.py:105
+#, python-format
 msgid "%(name)s [%(facts)d fact]"
 msgid_plural "%(name)s [%(facts)d facts]"
-msgstr[0] "%(name)s [ファクト　%(facts)d個]"
-msgstr[1] "%(name)s [ファクト　%(facts)d個]"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
 #: ui/status.py:237 ui/status.py:239
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
-msgstr ""
+msgstr "%(totalSum)dのうちに%(partOf)d"
 
-#: ui/main.py:2260
-#, fuzzy, python-format
+#: ui/main.py:2261
+#, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
-msgstr "%(path)s (ファクト　%(facts)d個, カード　%(cards)d個) - %(title)s"
+msgstr "%(path)s（%(cards)d枚のうちに%(due)d枚のカードは満期）- %(title)s"
 
 #: ui/getshared.py:126
 #, python-format
 msgid "%6d day ago"
 msgid_plural "%6d days ago"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ui/exporting.py:76
 #, python-format
 msgid "%d exported."
 msgstr "%d個をエクスポートしました。"
 
-#: ui/main.py:2666
+#: ui/main.py:2667
 #, python-format
 msgid "%d missing reference."
 msgid_plural "%d missing references."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/cardlist.py:517
-#, fuzzy, python-format
+#: ui/cardlist.py:521
+#, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
-msgstr[0] "%(del)d個を削除しました。"
-msgstr[1] "%(del)d個を削除しました。"
+msgstr[0] "%d個が選択されている"
 
-#: ui/main.py:2668
+#: ui/main.py:2669
 #, python-format
 msgid "%d unused file removed."
 msgid_plural "%d unused files removed."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d個使用されていないファイルを削除しました。"
 
-#: ui/cardlist.py:209 ui/main.py:1153
+#: ui/cardlist.py:209 ui/main.py:1159
 #, python-format
 msgid "%s ago"
 msgstr "%s前"
 
-#: ui/main.py:452
-#, fuzzy, python-format
-msgid ""
-"%s... is a <a href=\"http://ichi2.net/anki/wiki/Leeches\">leech</a>\n"
-"and has been suspended."
-msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">ヘルプ</a>"
-
-#: forms/main.py:1433
+#: forms/main.py:1435
 msgid "&About..."
-msgstr "Ankiについて(&A)..."
+msgstr "Ankiについて(&A)…"
 
 #: forms/cardlist.py:263
 msgid "&Actions"
 msgstr "アクション(&A)"
 
-#: forms/deckproperties.py:336 forms/modelproperties.py:291
+#: forms/deckproperties.py:327 forms/modelproperties.py:291
 #: forms/modelproperties.py:304
 msgid "&Add"
 msgstr "追加(&A)"
 
-#: forms/main.py:1418
+#: forms/main.py:1420
 msgid "&Add Items..."
-msgstr "項目を追加…"
+msgstr "項目を追加(&A)…"
 
-#: forms/deckproperties.py:348
+#: forms/deckproperties.py:339
 msgid "&Add Source"
 msgstr "ソースを追加(&A)"
 
 #: forms/cardlist.py:268
 msgid "&Add Tags..."
-msgstr "タグを追加(&A)..."
+msgstr "タグを追加(&A)…"
 
-#: forms/main.py:1496
+#: forms/main.py:1498
 msgid "&Bury Fact"
-msgstr "ファクトを延期する"
+msgstr "ファクトを延期する(&B)"
 
-#: forms/main.py:1434
+#: forms/main.py:1436
 msgid "&Card Statistics"
 msgstr "カードの統計(&C)"
 
-#: forms/main.py:1409
+#: forms/main.py:1411
 msgid "&Close"
 msgstr "閉じる(&C)"
 
 #: forms/cardlist.py:294
 msgid "&Cram..."
-msgstr "詰め込み勉強…"
+msgstr "詰め込み勉強(&C)…"
 
-#: forms/main.py:1436
+#: forms/main.py:1438
 msgid "&Deck Properties..."
-msgstr "単語帳プロパティ(&D)..."
+msgstr "単語帳プロパティ(&D)…"
 
-#: forms/main.py:1427
+#: forms/main.py:1429
 msgid "&Deck Statistics"
 msgstr "単語帳の統計(&D)"
 
-#: forms/deckproperties.py:338 forms/modelproperties.py:294
+#: forms/deckproperties.py:329 forms/modelproperties.py:294
 #: forms/modelproperties.py:309
 msgid "&Delete"
 msgstr "削除(&D)"
 
-#: forms/main.py:1478
+#: forms/main.py:1480
 msgid "&Delete Card"
-msgstr "カードを削除"
+msgstr "カードを削除(&D)"
 
-#: forms/deckproperties.py:349
+#: forms/deckproperties.py:340
 msgid "&Delete Source"
 msgstr "ソースを削除(&D)"
 
@@ -236,60 +225,59 @@ msgstr "ソースを削除(&D)"
 msgid "&Delete Tags..."
 msgstr "タグを削除(&D)…"
 
-#: forms/main.py:1471
+#: forms/main.py:1473
 msgid "&Disable All Plugins"
 msgstr "すべてのプラグインを無効にする(&D)"
 
 #: forms/cardlist.py:289
 msgid "&Documentation"
-msgstr ""
+msgstr "ドキュメンテーション(&D)"
 
-#: forms/main.py:1487
+#: forms/main.py:1489
 msgid "&Donate..."
-msgstr "寄付する…"
+msgstr "寄付する(&D)…"
 
-#: forms/main.py:1397
+#: forms/main.py:1399
 msgid "&Download..."
-msgstr "ダウンロード…"
+msgstr "ダウンロード(&D)…"
 
-#: forms/cardlist.py:262 forms/deckproperties.py:337 forms/main.py:1395
+#: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
 msgstr "編集(&E)"
 
-#: forms/main.py:1470
+#: forms/main.py:1472
 msgid "&Enable All Plugins"
 msgstr "すべてのプラグインを有効にする(&E)"
 
-#: forms/main.py:1396
+#: forms/main.py:1398
 msgid "&File"
-msgstr "ファイル"
+msgstr "ファイル(&F)"
 
 #: forms/cardlist.py:276
 msgid "&Find"
-msgstr "検索"
+msgstr "検索(&F)"
 
-#: forms/main.py:1444
+#: forms/main.py:1446
 msgid "&Fonts and Colours..."
-msgstr "フォント設定"
+msgstr "フォント設定(&F)…"
 
-#: forms/main.py:1457
+#: forms/main.py:1459
 msgid "&Forum..."
 msgstr "フォーラム(&F)…"
 
 #: forms/cardlist.py:270
-#, fuzzy
 msgid "&Generate Cards..."
-msgstr "削除"
+msgstr "カードを作成(&G)…"
 
 #: forms/cardlist.py:264
 msgid "&Go"
 msgstr ""
 
-#: forms/main.py:1440
+#: forms/main.py:1442
 msgid "&Graphs..."
-msgstr "グラフ(&G)..."
+msgstr "グラフ(&G)…"
 
-#: forms/cardlist.py:265 forms/main.py:1394
+#: forms/cardlist.py:265 forms/main.py:1396
 msgid "&Help"
 msgstr "ヘルプ(&H)"
 
@@ -297,9 +285,9 @@ msgstr "ヘルプ(&H)"
 msgid "&Import"
 msgstr "インポート(&I)"
 
-#: forms/main.py:1438
+#: forms/main.py:1440
 msgid "&Import..."
-msgstr "インポート(&I)..."
+msgstr "インポート(&I)…"
 
 #: forms/cardlist.py:275
 #, fuzzy
@@ -308,50 +296,49 @@ msgstr "文字を反転表示してください。"
 
 #: forms/cardlist.py:286
 msgid "&Last Card"
-msgstr "最後のカード"
+msgstr "最後のカード(&L)"
 
-#: forms/main.py:1378
+#: forms/main.py:1380
 msgid "&Learn More"
-msgstr ""
+msgstr "もっとを学ぶ(&L)"
 
-#: forms/main.py:1446
+#: forms/main.py:1448
 msgid "&Mark Fact"
 msgstr "スターを付ける(&M)"
 
-#: forms/main.py:1405
+#: forms/main.py:1407
 msgid "&New"
 msgstr "新規(&N)"
 
 #: forms/cardlist.py:280
 msgid "&Next Card"
-msgstr "次のカード"
+msgstr "次のカード(&N)"
 
-#: forms/main.py:1469
+#: forms/main.py:1471
 msgid "&Open Plugin Folder..."
 msgstr "プラグインフォルダを開く(&O)…"
 
-#: forms/main.py:1407
+#: forms/main.py:1409
 msgid "&Open..."
-msgstr "開く(&O)..."
+msgstr "開く(&O)…"
 
-#: forms/main.py:1424
+#: forms/main.py:1426
 msgid "&Preferences"
-msgstr "設定"
+msgstr "設定(&P)"
 
 #: forms/cardlist.py:282
 msgid "&Previous Card"
-msgstr "前のカード"
+msgstr "前のカード(&P)"
 
-#: forms/main.py:1488
-#, fuzzy
+#: forms/main.py:1490
 msgid "&Record Noise Profile..."
-msgstr "ファイルを選"
+msgstr ""
 
-#: forms/cardlist.py:274 forms/main.py:1477
+#: forms/cardlist.py:274 forms/main.py:1479
 msgid "&Redo"
 msgstr "やり直す(&R)"
 
-#: forms/main.py:1431
+#: forms/main.py:1433
 msgid "&Report Bug..."
 msgstr "バグを報告(&R)…"
 
@@ -359,57 +346,59 @@ msgstr "バグを報告(&R)…"
 msgid "&Reschedule..."
 msgstr ""
 
-#: forms/main.py:1412
+#: forms/main.py:1414
 msgid "&Save"
 msgstr "保存(&S)"
 
-#: forms/main.py:1400
+#: forms/main.py:1402
 msgid "&Settings"
-msgstr "設定"
+msgstr "設定(&S)"
 
 #: forms/cardlist.py:300
-#, fuzzy
 msgid "&Sort"
-msgstr "整理"
+msgstr "順に分ける(&S)"
 
-#: forms/main.py:1485
+#: forms/main.py:1487
 msgid "&Study Options..."
-msgstr "勉強オプション…"
+msgstr "勉強オプション(&S)…"
 
-#: forms/main.py:1449
-msgid "&Suspend Fact"
+#: forms/main.py:1451
+#, fuzzy
+msgid "&Suspend Card"
 msgstr "ファクトを保留(&S)"
 
 #: forms/cardlist.py:296
-msgid "&Suspend Facts"
+#, fuzzy
+msgid "&Suspend Cards"
 msgstr "保留されている(&S)"
 
-#: forms/main.py:1398
+#: forms/main.py:1400
 msgid "&Tools"
-msgstr "ツール (&T)"
+msgstr "ツール(&T)"
 
-#: forms/cardlist.py:273 forms/main.py:1455
+#: forms/cardlist.py:273 forms/main.py:1457
 msgid "&Undo"
 msgstr "取り消す(&U)"
 
 #: forms/cardlist.py:297
-msgid "&Unsuspend Facts"
-msgstr "ファクトを続ける (&U)"
+#, fuzzy
+msgid "&Unsuspend Cards"
+msgstr "ファクトを活性化する(&U)"
 
-#: ui/cardlist.py:431
+#: ui/cardlist.py:433
 #, python-format
 msgid "'%s'"
 msgstr ""
 
 #: ui/cardlist.py:207
 msgid "(new card)"
-msgstr "(新しいカード)"
+msgstr "(新規カード)"
 
 #: ui/modelproperties.py:252
 msgid "; disabled"
-msgstr "; 無効"
+msgstr "；無効"
 
-#: forms/deckproperties.py:343
+#: forms/deckproperties.py:334
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -424,7 +413,6 @@ msgstr ""
 "<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">ソース</span></p></body></html>"
 
 #: forms/addcards.py:88
-#, fuzzy
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -435,8 +423,8 @@ msgstr ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Arial'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:xx-large; font-weight:600;\"><span style=\" font-size:xx-large;\">ソース</span></p></body></html>"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Arial';\"></p></body></html>"
 
 #: ui/cardlist.py:375
 msgid "<Filter>"
@@ -444,52 +432,56 @@ msgstr "＜フィルタ＞"
 
 #: forms/preferences.py:343
 msgid "<a href=\"backups\">Open backup folder</a>"
-msgstr ""
+msgstr "<a href=\"backups\">バックアップフォルダーを開く</a>"
 
-#: forms/deckproperties.py:329
+#: forms/deckproperties.py:321
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">ヘルプ</a>"
 
-#: forms/deckproperties.py:363
-#, fuzzy
+#: ui/main.py:456
+#, python-format
+msgid ""
+"<b>%s</b>... is a <a href=\"http://ichi2.net/anki/wiki/Leeches\">leech</a>\n"
+"and has been suspended."
+msgstr ""
+
+#: forms/deckproperties.py:354
 msgid "<b>1: Again (Mature)</b>"
-msgstr "<b>特別な機能</b>"
-
-#: forms/deckproperties.py:365
-msgid "<b>1: Again (Young)</b>"
-msgstr ""
-
-#: forms/deckproperties.py:364
-#, fuzzy
-msgid "<b>1: Failure Multiplier</b>"
-msgstr "<b>読み込みファイル</b>:"
-
-#: forms/deckproperties.py:362
-msgid "<b>2: Initial Hard Interval</b>"
-msgstr ""
-
-#: forms/deckproperties.py:357
-msgid "<b>3: Initial Good Interval</b>"
-msgstr ""
+msgstr "<b>もう一回（熟成）</b>"
 
 #: forms/deckproperties.py:356
+msgid "<b>1: Again (Young)</b>"
+msgstr "<b>もう一回（新しい）</b>"
+
+#: forms/deckproperties.py:355
+msgid "<b>1: Failure Multiplier</b>"
+msgstr "<b>1：失敗乗数</b>"
+
+#: forms/deckproperties.py:353
+msgid "<b>2: Initial Hard Interval</b>"
+msgstr "<b>2：初めての「難しい」期間</b>"
+
+#: forms/deckproperties.py:348
+msgid "<b>3: Initial Good Interval</b>"
+msgstr "<b>3：初めての「普通」期間</b>"
+
+#: forms/deckproperties.py:347
 msgid "<b>4: Initial Easy Interval</b>"
-msgstr ""
+msgstr "<b>4：初めての「簡単」期間</b>"
 
 #: forms/modelproperties.py:311
-#, fuzzy
 msgid "<b>Answer</b>"
-msgstr "<b>解答形式</b>"
+msgstr "<b>解答</b>"
 
 #: ui/modelchooser.py:51
 msgid "<b>Cards</b>:"
-msgstr "<b>カード</b>:"
+msgstr "<b>カード</b>："
 
-#: ui/main.py:1138
+#: ui/main.py:1143
 msgid "<b>Deck</b>"
 msgstr "<b>単語帳</b>"
 
-#: ui/main.py:1140
+#: ui/main.py:1145
 msgid "<b>Due<br>Today</b>"
 msgstr "<b>今日<br>満期</b>"
 
@@ -498,54 +490,50 @@ msgid "<b>Export format</b>:"
 msgstr "<b>エクスポートファイルの形式</b>"
 
 #: forms/findreplace.py:61
-#, fuzzy
 msgid "<b>Find</b>:"
-msgstr "<b>カード</b>"
+msgstr "<b>検索文字列</b>："
 
 #: forms/editfont.py:61
-#, fuzzy
 msgid "<b>Font Size</b>:"
-msgstr "<b>カード</b>"
+msgstr "<b>フォントサイズ</b>："
 
 #: forms/editfont.py:60
-#, fuzzy
 msgid "<b>Font</b>:"
-msgstr "<b>カード</b>"
+msgstr "<b>フォント</b>："
 
-#: forms/deckproperties.py:332
+#: forms/deckproperties.py:324
 msgid "<b>High Priority</b>"
-msgstr "<h1>高優先</h1>"
+msgstr "<b>高優先</b>"
 
 #: forms/findreplace.py:64
 #, fuzzy
 msgid "<b>In</b>:"
-msgstr "<b>名前</b>："
+msgstr "<b>カード</b>："
 
 #: forms/exporting.py:56
 msgid "<b>Limit to tags</b>:"
-msgstr "<b>このタグが付いている条件で</b>:"
+msgstr "<b>このタグが付いている条件で</b>："
 
 #: forms/editfont.py:62
 #, fuzzy
 msgid "<b>Line Size</b>:"
-msgstr "<b>カード</b>"
+msgstr "<b>モデル</b>："
 
-#: forms/deckproperties.py:333
+#: forms/deckproperties.py:325
 msgid "<b>Low Priority</b>"
-msgstr "<h1>低優先</h1>"
+msgstr "<b>低優先</b>"
 
-#: forms/deckproperties.py:371
+#: forms/deckproperties.py:362
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>最大失敗されたカード数</b>"
 
 #: forms/modelproperties.py:288
-#, fuzzy
 msgid "<b>Minimum spacing</b>"
-msgstr "<b>カードのスペーシング</b>"
+msgstr "<b>最低の間隔</b>"
 
 #: ui/modelchooser.py:26
 msgid "<b>Model</b>:"
-msgstr "<b>モデル</b>:"
+msgstr "<b>モデル</b>："
 
 #: forms/modelproperties.py:286 forms/modelproperties.py:299
 #: forms/modelproperties.py:312
@@ -555,25 +543,24 @@ msgstr "<b>名前</b>"
 #: forms/changemodel.py:77
 #, fuzzy
 msgid "<b>New Model</b>:"
-msgstr "<b>モデル</b>:"
+msgstr "<b>モデル</b>："
 
-#: forms/main.py:1372
+#: forms/main.py:1374
 #, fuzzy
 msgid "<b>New cards per day:</b>"
-msgstr "<b>一日の新しいカード数"
+msgstr "<b>失敗されたカードを最優先する</b>"
 
-#: forms/deckproperties.py:372
-#, fuzzy
+#: forms/deckproperties.py:363
 msgid "<b>New day starts at</b>"
-msgstr "<b>特別な機能</b>"
+msgstr "<b>新しい日オフセット</b>"
 
-#: ui/main.py:1144
+#: ui/main.py:1149
 msgid "<b>New<br>Today</b>"
 msgstr "<b>今日<br>新しい</b>"
 
 #: forms/changemodel.py:75
 msgid "<b>Old Model</b>:"
-msgstr "<b>旧モデル</b>:"
+msgstr "<b>旧モデル</b>："
 
 #: forms/modelproperties.py:297 forms/modelproperties.py:310
 msgid "<b>Options</b>"
@@ -584,37 +571,29 @@ msgid "<b>Question</b>"
 msgstr "<b>質問</b>"
 
 #: forms/findreplace.py:62
-#, fuzzy
 msgid "<b>Replace With</b>:"
-msgstr "<b>カード入れ方</b>"
+msgstr "<b>置き換え文字列</b>："
 
-#: forms/main.py:1370
-#, fuzzy
+#: forms/main.py:1372
 msgid "<b>Session limit (minutes):</b>"
-msgstr "<b>質問の隠し</b>"
+msgstr ""
 
-#: forms/main.py:1374
-#, fuzzy
+#: forms/main.py:1376
 msgid "<b>Session limit (questions):"
-msgstr "質問揃え"
+msgstr ""
 
-#: forms/deckproperties.py:373
+#: forms/deckproperties.py:364
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>失敗されたカードを最優先する</b>"
 
 #: forms/modelproperties.py:289
-#, fuzzy
 msgid "<b>Spacing multipler</b>"
-msgstr "<b>読み込みファイル</b>:"
-
-#: forms/deckproperties.py:334
-msgid "<b>Suspended</b>"
-msgstr "<b>保留された</b>"
+msgstr "<b>間隔の乗数</b>"
 
 #: forms/importing.py:97
 #, fuzzy
 msgid "<b>Tags to append</b>:"
-msgstr "このタグを付け加える："
+msgstr "<b>追加するタグ</b>："
 
 #: forms/modelproperties.py:287
 msgid "<b>Tags</b>"
@@ -632,12 +611,11 @@ msgid ""
 "<br>%(description)s"
 msgstr ""
 
-#: forms/deckproperties.py:331
+#: forms/deckproperties.py:323
 msgid "<b>Very High Priority</b>"
 msgstr "<b>最優先</b>"
 
-#: ui/main.py:1234
-#, fuzzy
+#: ui/main.py:1240
 msgid ""
 "<br>\n"
 "<font size=+1>\n"
@@ -646,12 +624,6 @@ msgid ""
 "</font>\n"
 "<br>\n"
 msgstr ""
-"<br>\n"
-"<font size=+1>\n"
-"Ankiへようこうそ！ Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
-"</font>\n"
-"<br>\n"
 
 #: ui/sync.py:159
 msgid "<br><br>Checking deck subscriptions..."
@@ -659,17 +631,15 @@ msgstr ""
 
 #: ui/graphs.py:206
 msgid "<h1>Added</h1>"
-msgstr "<h1>入力された</h1>"
+msgstr "<h1>入力</h1>"
 
-#: forms/deckproperties.py:353
-#, fuzzy
+#: forms/deckproperties.py:344
 msgid "<h1>Advanced Scheduling</h1>"
-msgstr "<h1>上級スケジューリング</h1>"
+msgstr "<h1>上級スケジュール設定</h1>"
 
 #: forms/preferences.py:346
-#, fuzzy
 msgid "<h1>Advanced settings</h1>"
-msgstr "<h1>上級スケジューリング</h1>"
+msgstr "<h1>上級設定</h1>"
 
 #: ui/update.py:69
 #, python-format
@@ -679,169 +649,163 @@ msgid ""
 "<a href=\"http://ichi2.net/anki/download/index.html#changes\">here</a>.\n"
 "<br><br>"
 msgstr ""
-"<h1>Ankiの更新</h1>Anki %s がリリースされました。<br>\n"
-"リリースメモは\n"
-"<a href=\"http://ichi2.net/anki/download/index.html#changes\">こちら</a>。\n"
+"<h1>Ankiの更新</h1>Anki %s が公開されました。<br>\n"
+"更新履歴は\n"
+"<a href=\"http://ichi2.net/anki/download/index.html#changes\">こちら</a>にあります。\n"
 "<br><br>"
 
 #: forms/preferences.py:334
 msgid "<h1>Autosaving</h1>"
-msgstr "<h1>自動保存</h1>"
+msgstr "<h1>自動保存中</h1>"
 
 #: forms/preferences.py:340
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
-msgstr ""
+msgstr "<h1>バックアップ</h1>単語帳を開く時に以前のバックアップより変わったら新規のバックアップを作成します。"
 
 #: forms/modelproperties.py:303
 #, fuzzy
 msgid "<h1>Card Templates</h1>"
-msgstr "<h1>カードの易しさ</h1>"
+msgstr "<h1>カードテンプレート</h1>"
 
-#: ui/main.py:1740
+#: ui/main.py:1741
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
 "will be lost when you close the deck."
-msgstr ""
+msgstr "<h1>詰め込み勉強中</h1>現在は詰め込み中です。編集されるところは単語帳を閉じる時になくなります。"
 
 #: ui/graphs.py:217
-#, fuzzy
 msgid "<h1>Cumulative Due</h1>"
-msgstr "<h1>カード累積表</h1>"
+msgstr "<h1>累加的な満期</h1>"
 
-#: ui/main.py:1635
+#: ui/main.py:1641
 msgid "<h1>Current card</h1>"
 msgstr "<h1>現在のカード</h1>"
 
-#: forms/main.py:1380
+#: forms/main.py:1382
 msgid "<h1>Decks</h1>"
 msgstr "<h1>単語帳一覧</h1>"
 
 #: ui/graphs.py:191
-#, fuzzy
 msgid "<h1>Due</h1>"
-msgstr "<h1>言語</h1>"
+msgstr "<h1>満期</h1>"
 
 #: ui/graphs.py:227
-#, fuzzy
 msgid "<h1>Eases</h1>"
-msgstr "<h1>モデル</h1>"
+msgstr "<h1>優しさ</h1>"
 
 #: ui/status.py:106
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
-msgstr ""
+msgstr "<h1>完了予定時刻</h1>この調子で続けたら現在のモードは後このぐらい済みます。"
 
 #: forms/modelproperties.py:290
-#, fuzzy
 msgid "<h1>Fields</h1>"
-msgstr "<h1>フィールドモデル</h1>"
+msgstr "<h1>フィールド</h1>"
 
 #: ui/graphs.py:212
-#, fuzzy
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>初めて答えた</h1>"
 
 #: forms/modelproperties.py:285
-#, fuzzy
 msgid "<h1>General</h1>"
-msgstr "<h1>カードの期間</h1>"
+msgstr "<h1>一般</h1>"
 
 #: ui/graphs.py:222
-#, fuzzy
 msgid "<h1>Intervals</h1>"
-msgstr "<h1>カードの期間</h1>"
+msgstr "<h1>期間</h1>"
 
 #: forms/preferences.py:313
 msgid "<h1>Language</h1>"
 msgstr "<h1>言語</h1>"
 
-#: ui/main.py:1638
+#: ui/main.py:1644
 msgid "<h1>Last card</h1>"
 msgstr "<h1>先のカード</h1>"
 
-#: ui/main.py:1941
+#: ui/main.py:1942
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
-#: forms/deckproperties.py:335
+#: forms/deckproperties.py:326
 msgid "<h1>Models</h1>"
 msgstr "<h1>モデル</h1>"
 
-#: ui/main.py:872
+#: ui/main.py:877
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr ""
 
 #: ui/sync.py:231
 #, fuzzy
 msgid "<h1>Open Online Deck</h1>"
-msgstr "<h1>カード累積表</h1>"
+msgstr "<h1>オンライン単語帳を開く</h1>"
 
-#: forms/deckproperties.py:330
+#: forms/deckproperties.py:322
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>優先</h1>"
 
 #: forms/preferences.py:327
-#, fuzzy
 msgid "<h1>Proxy</h1>"
-msgstr "<h1>優先</h1>"
+msgstr "<h1>プロキシ</h1>"
 
 #: ui/graphs.py:196
-#, fuzzy
 msgid "<h1>Reps</h1>"
-msgstr "<h1>フィールドモデル</h1>"
+msgstr "<h1>繰り返し数</h1>"
 
 #: ui/graphs.py:201
-#, fuzzy
 msgid "<h1>Review Time</h1>"
-msgstr "<h1>フィールドモデル</h1>"
+msgstr "<h1>勉強時間</h1>"
 
-#: ui/main.py:1947
+#: ui/main.py:1948
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
-msgstr ""
+msgstr "<h1>予習しています</h1>辞めたい時にツールバーにある時計をクリックしてください。"
 
 #: forms/preferences.py:314
-#, fuzzy
 msgid "<h1>Reviewing</h1>"
-msgstr "<h1>フィールドモデル</h1>"
+msgstr "<h1>勉強</h1>"
 
 #: forms/changemap.py:40
 #, fuzzy
 msgid "<h1>Select Target Field</h1>"
-msgstr "<h1>入力されたカード</h1>"
+msgstr "<h1>現在のカード</h1>"
 
-#: ui/main.py:1411
+#: ui/main.py:1417
 msgid "<h1>Study Options</h1>"
 msgstr "<h1>勉強オプション</h1>"
 
-#: forms/deckproperties.py:341
+#: forms/deckproperties.py:332
 msgid "<h1>Synchronisation</h1>"
 msgstr "<h1>同期</h1>"
 
 #: forms/preferences.py:322
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
-msgstr "<h1>同期</h1>同期の機能でウェブや携帯でも利用することができます。<a href=\"http://anki.ichi2.net/\">無料で登録します</a>"
+msgstr "<h1>同期</h1><a href=\"http://anki.ichi2.net/\">無料で登録する</a>"
 
 #: ui/sync.py:229
 #, fuzzy
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>同期</h1>"
 
-#: ui/main.py:972
+#: ui/main.py:977
 msgid ""
 "<h1>Unsaved Deck</h1>\n"
 "Careful. You're editing an unsaved Deck.<br>\n"
 "Choose File -> Save to start autosaving<br>\n"
 "your deck."
 msgstr ""
+"<h1>保存されていない単語帳</h1>\n"
+"御注意してください。保存されていない単語帳を編集しています。<br>\n"
+"単語帳を自動的に保存出来るために「ファイル→保存」を選んでください。"
 
 #: ui/unsaved.py:13
 msgid ""
 "<h1>Unsaved changes</h1>There are unsaved\n"
 "        changes. Would you like to save them, discard your\n"
 "        changes, or cancel?"
-msgstr "<h1>変更した内容</h1>保存されてない変更内容があります。閉じる前に保存しますか？"
+msgstr ""
+"<h1>変更された内容</h1>保存されてない変更内容があります。\n"
+"閉じる前に保存しますか。"
 
-#: ui/main.py:1413
+#: ui/main.py:1419
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>よく出来まして！</h1>"
 
@@ -857,7 +821,7 @@ msgstr "<p><a href=hide:>消す</a>"
 msgid "About Anki"
 msgstr "Ankiについて"
 
-#: forms/main.py:1472
+#: forms/main.py:1474
 msgid "Active &Tags..."
 msgstr "活性タグ(&T)…"
 
@@ -865,22 +829,21 @@ msgstr "活性タグ(&T)…"
 msgid "Active Tags"
 msgstr "活性タグ"
 
-#: forms/main.py:1399
+#: forms/main.py:1401
 msgid "Ad&vanced"
-msgstr "上級機能"
+msgstr "上級機能(&V)"
 
 #: ui/addcards.py:65 ui/addcards.py:128
-#, fuzzy
 msgid "Add"
-msgstr "追加(&A)"
+msgstr "追加する"
 
 #: ui/addcards.py:70
 msgid "Add (shortcut: command+return)"
-msgstr ""
+msgstr "追加する（shortcut：Command＋Return）"
 
 #: ui/addcards.py:72
 msgid "Add (shortcut: ctrl+return)"
-msgstr ""
+msgstr "追加する（shortcut：Ctrl＋Return）"
 
 #: forms/addcards.py:87
 msgid "Add Items"
@@ -892,21 +855,20 @@ msgid "Add Items - %s"
 msgstr "項目を追加 - %s"
 
 #: ui/view.py:290
-#, fuzzy
 msgid "Add Material"
-msgstr "モデル"
+msgstr "項目を追加する"
 
 #: forms/addmodel.py:43
 msgid "Add Model"
 msgstr "モデルを追加"
 
-#: ui/cardlist.py:770
+#: ui/cardlist.py:774
 msgid "Add Tags"
-msgstr "タグを追加(&A)..."
+msgstr "タグを追加"
 
 #: ui/facteditor.py:235
 msgid "Add a picture (F3)"
-msgstr "画像を追加 (F3)"
+msgstr "画像を追加（F3）"
 
 #: ui/facteditor.py:845
 msgid "Add an image"
@@ -917,98 +879,91 @@ msgid "Add audio"
 msgstr "音声を追加"
 
 #: ui/facteditor.py:245
-#, fuzzy
 msgid "Add audio/video (F4)"
-msgstr "音声を追加 (F4)"
+msgstr "音声・ビデオを追加（F4）"
 
 #: forms/preferences.py:351
 msgid "Add hidden char to text (fixes Thai on OSX)"
-msgstr ""
+msgstr "テキストに透明な時を付ける（OSXでタイ語を直す）"
 
-#: forms/main.py:1419
+#: forms/main.py:1421
 msgid "Add new items to Anki by typing them in"
 msgstr "入力してファクトを追加する"
 
 #: ui/modelchooser.py:179
-#, fuzzy, python-format
+#, python-format
 msgid "Add: %s"
-msgstr "タグを追加(&A)..."
+msgstr "%sを追加"
 
 #: ui/graphs.py:151
 msgid "Added"
 msgstr "追加された"
 
 #: ui/addcards.py:143
-#, fuzzy, python-format
+#, python-format
 msgid "Added %(num)d card(s) for <a href=\"%(id)d\">%(str)s</a>."
-msgstr "'%(str)sのカードを%(num)d個追加しました。"
+msgstr "「<a href=\"%(id)d\">%(str)s</a>」のファクトで%(num)d枚のカードを追加しました。"
 
-#: forms/deckproperties.py:374 forms/preferences.py:356
+#: forms/deckproperties.py:365 forms/preferences.py:356
 msgid "Advanced"
 msgstr "上級設定"
 
-#: forms/main.py:1387
+#: forms/main.py:1389
 msgid "Again"
 msgstr "もう一回"
 
-#: ui/cardlist.py:989
-#, fuzzy
+#: ui/cardlist.py:993
 msgid "All Fields"
-msgstr "フィールド"
+msgstr "全フィールド"
 
 #: ui/status.py:229
-#, fuzzy
 msgid "All Reviews"
-msgstr "復習中"
+msgstr "全ての勉強"
 
 #: forms/modelproperties.py:315
 msgid "Allow the answer to be blank"
-msgstr ""
+msgstr "解答を入力しなくていい"
 
-#: ui/main.py:1813
+#: ui/main.py:1814
 msgid "Already cramming. Please close this deck first."
-msgstr ""
+msgstr "既に詰め込み勉強中です。先にこの単語帳を閉じてください。"
 
-#: ui/main.py:1184
+#: ui/main.py:1190
 #, python-format
 msgid "Alt+%d"
-msgstr ""
+msgstr "Alt+%d"
 
-#: ui/main.py:2689
+#: ui/main.py:2690
 msgid "Alt+m"
-msgstr ""
+msgstr "Alt+M"
 
 #: forms/preferences.py:348
 msgid "Alternative theme"
-msgstr ""
+msgstr "代替のスキンを使用する"
 
 #: forms/preferences.py:352
 msgid "Always open last deck on startup"
-msgstr ""
+msgstr "Ankiを起動する時に最後の単語帳を自動的に開く"
 
 #: ui/facteditor.py:931
 #, python-format
 msgid "An error occured while opening %s"
-msgstr ""
+msgstr "%sを開けませんでした"
 
-#: ui/main.py:192
-#, fuzzy
+#: ui/main.py:195
 msgid ""
 "An error occurred in a plugin. Please contact the plugin author.<br>\n"
 "Please do not file a bug report with Anki.<br>"
 msgstr ""
-"エラーが発生しました。下記の内容をバグ報告にコピーしてください。\n"
-"\n"
 
-#: ui/main.py:706
+#: ui/main.py:711
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
 "This may take some time."
 msgstr ""
 
-#: ui/main.py:183
-#, fuzzy
+#: ui/main.py:186
 msgid ""
 "An error occurred. Please:<p>\n"
 "<ol>\n"
@@ -1018,24 +973,22 @@ msgid ""
 "If it does not fix the problem, please copy the following<br>\n"
 "into a bug report:<br>\n"
 msgstr ""
-"エラーが発生しました。下記の内容をバグ報告にコピーしてください。\n"
-"\n"
 
-#: ui/deckproperties.py:186 ui/main.py:2641 forms/main.py:1365
-#: forms/syncdeck.py:42
+#: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
-#: ui/main.py:1281
+#: ui/main.py:1287
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
 "%s"
 msgstr ""
-"設定ファイルを保存できませんでした。\n"
+"設定ファイルを保存できませんでした：\n"
 "%s"
 
-#: ui/cardlist.py:48 ui/cardlist.py:421
+#: ui/cardlist.py:48 ui/cardlist.py:423
 msgid "Answer"
 msgstr "解答"
 
@@ -1055,9 +1008,9 @@ msgstr "解答フォント"
 msgid "Answer size"
 msgstr "解答サイズ"
 
-#: forms/main.py:1447
+#: forms/main.py:1449
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
-msgstr ""
+msgstr "カードブラウザで簡単に見つけれるように、このファクトにスターを付ける"
 
 #: ui/sync.py:143
 msgid "Applying reply..."
@@ -1065,7 +1018,7 @@ msgstr ""
 
 #: ui/status.py:227 ui/status.py:232
 msgid "Average time per answer: "
-msgstr ""
+msgstr "一枚当りかかった時間の平均："
 
 #: ui/view.py:292
 msgid "Back to Deck Browser"
@@ -1077,7 +1030,7 @@ msgstr "バックグラウンドの色"
 
 #: ui/facteditor.py:139
 msgid "Bold text (Ctrl+b)"
-msgstr "太字 (Ctrl+b)"
+msgstr "太字（Ctrl+B）"
 
 #: ui/preferences.py:30
 msgid "Brazillian Portuguese"
@@ -1094,62 +1047,60 @@ msgstr ""
 "\n"
 "%s"
 
-#: forms/main.py:1421
+#: forms/main.py:1423
 msgid "Brows&e Items..."
-msgstr "項目を閲覧すす…"
+msgstr "カードブラウザを表示(&E)…"
 
 #: forms/cardlist.py:260
 msgid "Browse Items"
 msgstr "項目を閲覧する"
 
-#: forms/main.py:1422
+#: forms/main.py:1424
 msgid "Browse and edit all items"
 msgstr "全項目を閲覧して編集する"
 
-#: ui/cardlist.py:511
+#: ui/cardlist.py:515
 #, python-format
 msgid "Browser (%(cur)d of %(tot)d card shown; %(sel)s)"
 msgid_plural "Browser (%(cur)d of %(tot)d cards shown; %(sel)s)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "カードブラウザ（%(tot)d枚のうちに%(cur)d枚のカードを表示しています；%(sel)s）"
 
 #: forms/editfont.py:59
-#, fuzzy
 msgid "Browser Font"
-msgstr "解答フォント"
+msgstr "カードブラウザのフォント"
 
-#: ui/cardlist.py:481
+#: ui/cardlist.py:483
 msgid "Building Index..."
-msgstr ""
+msgstr "索引を作成中’…"
 
-#: ui/main.py:1710
+#: ui/main.py:1711
 msgid "Bury"
 msgstr "延期する"
 
-#: forms/main.py:1466
+#: forms/main.py:1468
 msgid "C&ram..."
-msgstr "積み込み勉強…"
+msgstr "積み込み勉強(&R)…"
 
-#: forms/main.py:1481
+#: forms/main.py:1483
 msgid "Cache LaTeX"
 msgstr ""
 
-#: ui/cardlist.py:887
+#: ui/cardlist.py:891
 msgid "Can only change one model at a time."
 msgstr ""
 
-#: ui/cardlist.py:843 ui/cardlist.py:981
+#: ui/cardlist.py:847 ui/cardlist.py:985
 msgid "Can only operate on one model at a time."
 msgstr ""
 
-#: ui/main.py:2656
+#: ui/main.py:2657
 msgid "Cancel"
 msgstr "キャンセル"
 
 #: ui/modelproperties.py:253
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
-msgstr ""
+msgstr "カード%(num)d「(%(name)s)」：%(cards)d回使用されている%(status)s"
 
 #: ui/modelproperties.py:365
 #, python-format
@@ -1157,9 +1108,8 @@ msgid "Card %d"
 msgstr "カード%d"
 
 #: forms/modelproperties.py:316
-#, fuzzy
 msgid "Card Templates"
-msgstr "<h1>カードの易しさ</h1>"
+msgstr "カードテンプレート"
 
 #: ui/modelproperties.py:335
 #, fuzzy, python-format
@@ -1168,10 +1118,11 @@ msgstr "カード%d"
 
 #: forms/displayproperties.py:355
 msgid "Card:"
-msgstr "カード:"
+msgstr ""
+"カード\n"
+"テンプレート："
 
 #: forms/displayproperties.py:365
-#, fuzzy
 msgid "Cards"
 msgstr "カード"
 
@@ -1179,58 +1130,56 @@ msgstr "カード"
 msgid "Cards are waiting"
 msgstr ""
 
-#: ui/main.py:1449
+#: ui/main.py:1455
 #, fuzzy
 msgid "Cards/day:"
-msgstr "カード"
+msgstr "カード:"
 
-#: ui/main.py:1448
+#: ui/main.py:1454
 msgid "Cards/session:"
-msgstr ""
+msgstr "一セッション当りのカードの枚数："
 
 #: ui/importing.py:208
 msgid "Change"
 msgstr "変更"
 
-#: ui/cardlist.py:1194
+#: ui/cardlist.py:1198
 #, fuzzy, python-format
 msgid "Change %s to:"
-msgstr "<h1>カードの易しさ</h1>"
+msgstr "変更"
 
 #: forms/cardlist.py:291
-#, fuzzy
 msgid "Change &Model..."
-msgstr "<h1>カードの易しさ</h1>"
+msgstr "モデルを変える(&M)…"
 
-#: ui/cardlist.py:894 forms/changemodel.py:74
-#, fuzzy
+#: ui/cardlist.py:898 forms/changemodel.py:74
 msgid "Change Model"
-msgstr "<h1>カードの易しさ</h1>"
+msgstr "モデルを変える…"
 
-#: forms/main.py:1464
+#: forms/main.py:1466
 msgid "Check Media Database..."
-msgstr "メディアデータベースを検査..."
+msgstr "メディアデータベースを検査…"
 
 #: ui/sync.py:178
 msgid "Check complete."
 msgstr "検査を完了しました。"
 
-#: ui/main.py:1210
-msgid "Check due counts again (Ctrl+Shift+r)"
+#: ui/main.py:1216
+msgid "Check due counts again (F5)"
 msgstr ""
 
-#: forms/main.py:1461
+#: forms/main.py:1463
 msgid "Check the database for errors"
-msgstr ""
+msgstr "データベースはエラーがないかを検査する"
 
-#: forms/main.py:1465
+#: forms/main.py:1467
 msgid "Check the files in the media directory"
-msgstr ""
+msgstr "メディアフォルダにあるファイルを検査"
 
-#: ui/main.py:1058
+#: ui/main.py:1063
 #, python-format
 msgid "Checking deck %(x)d of %(y)d..."
-msgstr ""
+msgstr "%(y)d個のうちに%(x)d番目の単語帳を検査しています…"
 
 #: ui/preferences.py:31
 msgid "Chinese - Simplified"
@@ -1242,19 +1191,19 @@ msgstr "繁體中文"
 
 #: ui/facteditor.py:216
 msgid "Choose colour (F7 then F5)"
-msgstr "色を選ぶ (F7 then F5)"
+msgstr "色を選ぶ（F7そしてF5）"
 
 #: ui/exporting.py:66
 msgid "Choose file to export to"
 msgstr "どのファイルに対するエクスポートするか、選択してください。"
 
-#: forms/main.py:1473
+#: forms/main.py:1475
 msgid "Choose the categories to show during review"
 msgstr ""
 
 #: ui/status.py:221
 msgid "Click the bars to learn more."
-msgstr ""
+msgstr "詳しくはバーをクリックしてください。"
 
 #: ui/tray.py:96
 msgid "Click to hide Anki"
@@ -1271,214 +1220,209 @@ msgstr "閉じる"
 #: ui/addcards.py:186
 msgid "Close and lose current input?"
 msgstr ""
+"入力したデータはなくなります。\n"
+"よろしいですか。"
 
-#: forms/main.py:1410
+#: forms/main.py:1412
 msgid "Close this deck and return to the deck browser"
-msgstr ""
+msgstr "この単語帳を閉じて単語帳一覧に戻る"
 
 #: ui/facteditor.py:292
 msgid "Cloze (F9)"
-msgstr ""
+msgstr "Cloze (F9)"
 
 #: ui/modelproperties.py:303
 #, python-format
 msgid "Compare with field '%s'"
-msgstr ""
+msgstr "フィールド「%s」と比べる"
 
-#: forms/main.py:1425
+#: forms/main.py:1427
 #, fuzzy
 msgid "Configure interface language and options"
-msgstr "言語を%sに変えました。"
+msgstr "勉強オプションを設定する"
 
-#: forms/main.py:1486
+#: forms/main.py:1488
 msgid "Configure review options"
 msgstr "勉強オプションを設定する"
 
 #: ui/sync.py:86
-#, fuzzy
 msgid "Connecting..."
-msgstr "接続中.."
+msgstr "接続中…"
 
-#: ui/main.py:1513
+#: ui/main.py:1519
 msgid "Continue &Reviewing"
-msgstr ""
+msgstr "勉強を続ける"
 
-#: forms/main.py:1368
+#: forms/main.py:1370
 msgid "Continue Reviewing"
 msgstr "勉強を続ける"
 
 #: ui/modelchooser.py:185
 #, python-format
 msgid "Copy: %s"
-msgstr ""
+msgstr "%sをコピーして追加"
 
 #: ui/status.py:236
 msgid "Correct first time: "
-msgstr ""
+msgstr "初めて当たった："
 
 #: ui/status.py:225 ui/status.py:230
 msgid "Correct over a month: "
-msgstr ""
+msgstr "一ヶ月以上当たった："
 
 #: ui/status.py:223
 msgid "Correct today: "
-msgstr ""
+msgstr "今日当たった："
 
 #: ui/status.py:234
 msgid "Correct under a month: "
-msgstr ""
+msgstr "一ヶ月以下当たった："
 
-#: ui/main.py:181
+#: ui/main.py:184
 msgid "Couldn't play sound. Please install mplayer."
 msgstr "音声を再生出来ませんでした。mplayerをインストールしてください。"
 
-#: ui/main.py:1834
+#: ui/main.py:1835
 msgid "Cram"
 msgstr "詰め込み勉強"
 
-#: ui/cardlist.py:874
+#: ui/cardlist.py:878
 msgid "Cram selected cards in new deck?"
-msgstr ""
+msgstr "選択されたカードを新規単語帳で詰め込み勉強しますか。"
 
-#: forms/main.py:1382
-#, fuzzy
+#: forms/main.py:1384
 msgid "Create"
-msgstr "登録日"
+msgstr "製作"
 
 #: ui/sync.py:234
 #, python-format
 msgid "Create '%s' on server"
 msgstr "%sという単語帳をサーバーで作成"
 
-#: ui/cardlist.py:229 ui/cardlist.py:422
-#, fuzzy
+#: ui/cardlist.py:229 ui/cardlist.py:424
 msgid "Created"
-msgstr "登録日"
+msgstr "カードの登録日"
 
-#: ui/main.py:1181
+#: ui/main.py:1187
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr "Ctrl+Alt+%d"
 
-#: forms/main.py:1420
+#: forms/main.py:1422
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
-#: forms/cardlist.py:267 forms/main.py:1480
+#: forms/cardlist.py:267 forms/main.py:1482
 msgid "Ctrl+Del"
-msgstr ""
+msgstr "Ctrl+Del"
 
-#: forms/main.py:1476
+#: forms/main.py:1478
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
 #: forms/cardlist.py:287
 msgid "Ctrl+End"
-msgstr ""
+msgstr "Ctrl+End"
 
 #: ui/addcards.py:73
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:277 forms/main.py:1423
+#: forms/cardlist.py:277 forms/main.py:1425
 msgid "Ctrl+F"
-msgstr ""
+msgstr "Ctrl+F"
 
 #: ui/facteditor.py:340
 msgid "Ctrl+F9"
-msgstr ""
+msgstr "Ctrl+F9"
 
 #: forms/cardlist.py:285
 msgid "Ctrl+Home"
-msgstr ""
+msgstr "Ctrl+Home"
 
-#: forms/main.py:1448
+#: forms/main.py:1450
 msgid "Ctrl+M"
-msgstr ""
+msgstr "Ctrl+M"
 
-#: forms/cardlist.py:281 forms/main.py:1406
+#: forms/cardlist.py:281 forms/main.py:1408
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
-#: forms/main.py:1408
+#: forms/main.py:1410
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:283 forms/main.py:1426
+#: forms/cardlist.py:283 forms/main.py:1428
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
-#: forms/main.py:1404
+#: forms/main.py:1406
 msgid "Ctrl+Q"
 msgstr "Ctrl+Q"
 
-#: forms/main.py:1501
+#: forms/main.py:1503
 msgid "Ctrl+R"
-msgstr ""
+msgstr "Ctrl+R"
 
 #: ui/addcards.py:68
 msgid "Ctrl+Return"
 msgstr "Ctrl+Return"
 
-#: forms/main.py:1414
+#: forms/main.py:1416
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
-#: forms/main.py:1498
+#: forms/main.py:1500
 msgid "Ctrl+Shift+B"
-msgstr ""
+msgstr "Ctrl+Shift+B"
 
 #: forms/cardlist.py:279
 msgid "Ctrl+Shift+F"
-msgstr ""
+msgstr "Ctrl+Shift+F"
 
-#: forms/cardlist.py:301 forms/main.py:1451
+#: forms/cardlist.py:301 forms/main.py:1453
 msgid "Ctrl+Shift+S"
-msgstr ""
-
-#: ui/main.py:1211
-msgid "Ctrl+Shift+r"
-msgstr ""
+msgstr "Ctrl+Shift+S"
 
 #: forms/cardlist.py:299
 msgid "Ctrl+T"
-msgstr ""
+msgstr "Ctrl+T"
 
-#: forms/main.py:1411
+#: forms/main.py:1413
 msgid "Ctrl+W"
 msgstr "Ctrl+W"
 
-#: forms/main.py:1417
+#: forms/main.py:1419
 msgid "Ctrl+Y"
 msgstr "Ctrl+Y"
 
-#: forms/main.py:1456
+#: forms/main.py:1458
 msgid "Ctrl+Z"
-msgstr ""
+msgstr "Ctrl+Z"
 
 #: ui/facteditor.py:140
 msgid "Ctrl+b"
-msgstr "Ctrl+b"
+msgstr "Ctrl+B"
 
 #: ui/facteditor.py:151
 msgid "Ctrl+i"
-msgstr "Ctrl+i"
+msgstr "Ctrl+I"
 
 #: ui/facteditor.py:316
 msgid "Ctrl+l, e"
-msgstr "Ctrl+l, e"
+msgstr "Ctrl+L, E"
 
 #: ui/facteditor.py:305
 msgid "Ctrl+l, l"
-msgstr "Ctrl+l, l"
+msgstr "Ctrl+L, L"
 
 #: ui/facteditor.py:327
 msgid "Ctrl+l, m"
-msgstr "Ctrl+l, m"
+msgstr "Ctrl+L, M"
 
 #: ui/facteditor.py:162
 msgid "Ctrl+u"
-msgstr "Ctrl+u"
+msgstr "Ctrl+U"
 
 #: ui/graphs.py:149
 msgid "Cumulative"
@@ -1490,77 +1434,81 @@ msgstr "現在のカード"
 
 #: ui/modelchooser.py:43
 msgid "Customize Models"
-msgstr ""
+msgstr "モデルを編集する"
 
-#: forms/main.py:1445
-#, fuzzy
+#: forms/main.py:1447
 msgid "Customize fonts, colours and alignment"
-msgstr "フォント、文字色、揃えなどをカストマイズ"
+msgstr "フォント、フォントの色、テキストの揃えなどを設定する"
 
-#: forms/main.py:1437
-#, fuzzy
+#: forms/main.py:1439
 msgid "Customize syncing, scheduling, priorities and models"
-msgstr "同期、スケジュール、カードの優先、モデルなどをカストマイズ"
+msgstr "同期、スケジュール、優先設定、モデルなどを設定する"
 
 #: ui/preferences.py:33
 msgid "Czech"
 msgstr "Česky"
 
-#: ui/main.py:2633
+#: ui/main.py:2634
 #, python-format
 msgid ""
 "Database optimized.\n"
 "Shrunk by %dKB"
 msgstr ""
+"データベースを最適化しました。\n"
+"%dKBで圧縮しました。"
 
 #: ui/graphs.py:164
 msgid "Deck Graphs"
 msgstr "単語帳のグラフ"
 
-#: ui/deckproperties.py:209 forms/deckproperties.py:328
+#: ui/deckproperties.py:208 forms/deckproperties.py:320
 msgid "Deck Properties"
 msgstr "単語帳プロパティ"
 
-#: ui/main.py:930 ui/main.py:996
+#: ui/main.py:935 ui/main.py:1001
 msgid "Deck files (*.anki)"
-msgstr "Ankiの単語帳 (*.anki)"
+msgstr "Ankiの単語帳（*.anki）"
 
-#: ui/main.py:674
+#: ui/main.py:679
 msgid "Deck is already open."
 msgstr "単語帳は既に開いています。"
 
-#: ui/main.py:1203 ui/main.py:1700 forms/cardlist.py:266
+#: ui/main.py:1209 ui/main.py:1701 forms/cardlist.py:266
 msgid "Delete"
 msgstr "削除"
 
-#: ui/main.py:1262
-#, fuzzy, python-format
+#: ui/main.py:1268
+#, python-format
 msgid "Delete %s?"
-msgstr "カードタグを削除(&D)..."
+msgstr "%sをさくじょしますか。"
 
-#: ui/cardlist.py:756
+#: ui/cardlist.py:760
 msgid "Delete Cards"
 msgstr "カードを削除"
 
-#: ui/main.py:2654
-#, fuzzy
+#: ui/main.py:2655
 msgid "Delete Refs"
-msgstr "カードタグを削除(&D)..."
+msgstr "カードタグを削除"
 
-#: ui/cardlist.py:781
+#: ui/cardlist.py:785
 msgid "Delete Tags"
-msgstr "タグを削除(&D)…"
+msgstr "タグを削除"
 
 #: forms/preferences.py:354
 msgid "Delete original media on add"
-msgstr ""
+msgstr "追加する時に元のメディアを削除する"
 
-#: forms/main.py:1479
+#: forms/main.py:1481
 msgid "Delete the currently displayed card"
-msgstr ""
+msgstr "現在のカードを削除する"
 
 #: ui/sync.py:135
+#, fuzzy
 msgid "Determining differences..."
+msgstr "格差を究明中…"
+
+#: forms/infodialog.py:36
+msgid "Dialog"
 msgstr ""
 
 #: ui/modelproperties.py:325
@@ -1575,69 +1523,67 @@ msgstr ""
 msgid "Display"
 msgstr "表示"
 
-#: forms/main.py:1467
+#: forms/main.py:1469
 msgid "Do an extra review of specified cards before a test"
-msgstr ""
+msgstr "テストの前に余分の復習する"
 
-#: forms/main.py:1429
+#: forms/main.py:1431
 msgid "Documentation"
 msgstr "ドキュメンテーション"
 
 #: ui/modelproperties.py:302
 msgid "Don't ask me to type in the answer"
-msgstr ""
+msgstr "解答を入力しない"
 
-#: forms/main.py:1381
-#, fuzzy
+#: forms/main.py:1383
 msgid "Download"
-msgstr "Ankiについて..."
+msgstr "ダウンロード"
 
 #: ui/getshared.py:35
 msgid "Download Shared Deck"
-msgstr ""
+msgstr "公開された単語帳をダウンロードする"
 
 #: ui/getshared.py:37
 msgid "Download Shared Plugin"
-msgstr ""
-
-#: forms/main.py:1493
-msgid "Download a deck that people have shared publicly"
-msgstr ""
-
-#: forms/main.py:1491
-msgid "Download a deck that you synced from another computer"
-msgstr ""
+msgstr "公開されたプラグインをダウンロード"
 
 #: forms/main.py:1495
+msgid "Download a deck that people have shared publicly"
+msgstr "公開された単語帳をダウンロードする"
+
+#: forms/main.py:1493
+msgid "Download a deck that you synced from another computer"
+msgstr "別のパソコンで同期された単語帳をダウンロードする"
+
+#: forms/main.py:1497
 msgid "Download a plugin to add new features or change Anki's behaviour"
-msgstr ""
+msgstr "プラグインをダウンロードして昨日を付けるかAnkiの作用を変更する"
 
 #: ui/getshared.py:204
-#, fuzzy, python-format
+#, python-format
 msgid "Downloaded %dKB"
-msgstr "Ankiについて..."
+msgstr "%dKBをダウンロードしました"
 
-#: ui/main.py:2156
+#: ui/main.py:2157
 #, python-format
 msgid "Downloaded %dKB from server..."
-msgstr ""
+msgstr "%dKBをサーバーからダウンロードしました…"
 
 #: ui/sync.py:128
-#, fuzzy
 msgid "Downloading..."
-msgstr "Ankiについて..."
+msgstr "ダウンロード中…"
 
 #: ui/getshared.py:176 ui/getshared.py:180
 #, fuzzy
 msgid "Downloads"
-msgstr "Ankiについて..."
+msgstr "ダウンロード…"
 
-#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:381 ui/cardlist.py:424
+#: ui/cardlist.py:49 ui/cardlist.py:239 ui/cardlist.py:381 ui/cardlist.py:426
 #: ui/graphs.py:148
 msgid "Due"
 msgstr "満期"
 
-#: forms/main.py:1403
+#: forms/main.py:1405
 msgid "E&xit"
 msgstr "終了(&X)"
 
@@ -1646,7 +1592,7 @@ msgstr "終了(&X)"
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "完了予定時刻：後<b>%(timeLeft)s</b>"
 
-#: ui/cardlist.py:237 ui/cardlist.py:427
+#: ui/cardlist.py:237 ui/cardlist.py:429
 msgid "Ease"
 msgstr "易しさ"
 
@@ -1654,19 +1600,19 @@ msgstr "易しさ"
 msgid "Eases"
 msgstr "易しさ"
 
-#: forms/main.py:1393
+#: forms/main.py:1395
 msgid "Easy"
 msgstr "簡単"
 
 #: ui/facteditor.py:468
 msgid "Edit"
-msgstr "編集(&E)"
+msgstr "編集"
 
-#: forms/main.py:1474
+#: forms/main.py:1476
 msgid "Edit &Current..."
-msgstr "現在のカードを編集…"
+msgstr "現在のカードを編集(&C)…"
 
-#: forms/main.py:1475
+#: forms/main.py:1477
 msgid "Edit the currently displayed item"
 msgstr "現在の項目を編集"
 
@@ -1678,22 +1624,21 @@ msgstr "有効にする(&B)"
 msgid "English"
 msgstr ""
 
-#: ui/cardlist.py:768
-#, fuzzy
+#: ui/cardlist.py:772
 msgid "Enter tags to add:"
-msgstr "このタグを付け加える："
+msgstr "タグを追加する："
 
-#: ui/cardlist.py:779
+#: ui/cardlist.py:783
 msgid "Enter tags to delete:"
-msgstr ""
+msgstr "タグを削除する："
 
 #: ui/preferences.py:34
 msgid "Estonian"
 msgstr "Eesti"
 
-#: forms/main.py:1442
+#: forms/main.py:1444
 msgid "Expor&t..."
-msgstr "エクスポート...(&t)"
+msgstr "エクスポート(&T)…"
 
 #: forms/exporting.py:54
 msgid "Export"
@@ -1701,83 +1646,82 @@ msgstr "エクスポート"
 
 #: ui/exporting.py:48
 msgid "Export..."
-msgstr "エクスポート...(&t)"
+msgstr "エクスポート…"
 
 #: forms/cardlist.py:278
 msgid "F&act"
-msgstr "ファクト"
+msgstr "ファクト(&A)"
 
 #: forms/cardlist.py:284
 msgid "F&irst Card"
-msgstr "最初のカード"
+msgstr "最初のカード(&I)"
 
-#: forms/cardlist.py:290 forms/main.py:1430
+#: forms/cardlist.py:290 forms/main.py:1432
 msgid "F1"
-msgstr ""
+msgstr "F1"
 
 #: ui/facteditor.py:274
 msgid "F2"
-msgstr ""
+msgstr "F2"
 
 #: ui/facteditor.py:232
 msgid "F3"
-msgstr ""
+msgstr "F3"
 
 #: ui/facteditor.py:242
 msgid "F4"
-msgstr ""
+msgstr "F4"
 
-#: ui/facteditor.py:252 forms/main.py:1454
+#: ui/facteditor.py:252 ui/main.py:1217 forms/main.py:1456
 msgid "F5"
-msgstr ""
+msgstr "F5"
 
 #: ui/facteditor.py:218
 msgid "F7, F5"
-msgstr ""
+msgstr "F7, F5"
 
 #: ui/facteditor.py:195
 msgid "F7, F6"
-msgstr ""
+msgstr "F7, F6"
 
 #: ui/facteditor.py:171
 msgid "F7, F7"
-msgstr ""
+msgstr "F7, F7"
 
 #: ui/facteditor.py:206
 msgid "F7, F8"
-msgstr ""
+msgstr "F7, F8"
 
 #: ui/facteditor.py:287
 msgid "F9"
-msgstr ""
+msgstr "F9"
 
-#: ui/cardlist.py:428
+#: ui/cardlist.py:430
 msgid "Fact Created"
-msgstr "登録日"
+msgstr "ファクトの登録日"
 
 #: ui/getshared.py:176
 #, fuzzy
 msgid "Facts"
-msgstr "ファクト毎に保存する"
+msgstr "ファクト"
 
-#: ui/main.py:2143
+#: ui/main.py:2144
 msgid "Failed to upload media. Please run 'check media db'."
-msgstr ""
+msgstr "メディアのアップロードが失敗しました。「メディアデータベースを検査…」をしてください。"
 
 #: ui/sync.py:119
-#, fuzzy
 msgid "Fetching summary from server..."
-msgstr "サマリーをダウンロード中.."
+msgstr ""
 
 #: ui/displayproperties.py:192
 #, python-format
 msgid "Field %(num)d: %(name)s"
-msgstr ""
+msgstr "フィールド%(num)d：「%(name)s」"
 
 #: ui/modelproperties.py:77
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
-msgstr ""
+msgstr "フィールド%(num)d：「%(name)s」（%(cards)sは空白ではない）"
 
 #: ui/modelproperties.py:133 ui/modelproperties.py:151
 #, python-format
@@ -1787,7 +1731,7 @@ msgstr "フィールド %d"
 #: ui/importing.py:199
 #, python-format
 msgid "Field <b>%d</b> of file is:"
-msgstr ""
+msgstr "ファイルの<b>%d</b>番のフィールドは："
 
 #: forms/importing.py:99
 msgid "Field mapping"
@@ -1799,25 +1743,23 @@ msgstr "フィールド"
 
 #: forms/cardlist.py:298
 msgid "Fil&ters"
-msgstr "フィルタ"
+msgstr "フィルタ(&T)"
 
 #: forms/cardlist.py:293
 msgid "Find and Re&place..."
-msgstr "置き換えて検索"
+msgstr "置き換えて検索(&P)…"
 
-#: ui/cardlist.py:994 forms/findreplace.py:60
+#: ui/cardlist.py:998 forms/findreplace.py:60
 msgid "Find and Replace"
 msgstr "置き換えて検索"
 
-# It makes sense to put each language's name in that language, so that natives can find the correct setting even if they can't read whatever the current set language.
 #: ui/preferences.py:35
 msgid "Finnish"
 msgstr "Svenska"
 
 #: ui/graphs.py:152
-#, fuzzy
 msgid "First Answered"
-msgstr "<h1>初めて答えた</h1>"
+msgstr "最初答えた"
 
 #: forms/cardlist.py:295
 msgid "Font..."
@@ -1825,44 +1767,41 @@ msgstr "フォント…"
 
 #: forms/displayproperties.py:354
 msgid "Fonts & Colours"
-msgstr "フォントパネルを表示"
+msgstr "フォントパネル"
 
-#: ui/main.py:1202
+#: ui/main.py:1208
 msgid "Forget"
 msgstr "忘れる"
 
-#: ui/main.py:1255
+#: ui/main.py:1261
 #, python-format
 msgid "Forget %s?"
-msgstr "%s を忘れる？"
+msgstr "%sを忘れる？"
 
-#: ui/main.py:1205
+#: ui/main.py:1211
 msgid "Forget removes the deck from the list without deleting."
-msgstr ""
+msgstr "「忘れる」は単語帳を削除せずに一覧から取り除く。"
 
 #: ui/preferences.py:36
 msgid "French"
 msgstr "Français"
 
-#: forms/main.py:1499
-#, fuzzy
+#: forms/main.py:1501
 msgid "Full Database Check..."
-msgstr "データベースを検査..."
+msgstr "データベースを詳しく検査する…"
 
 #: forms/modelproperties.py:302
-#, fuzzy
 msgid "General && Fields"
-msgstr "フィールド"
+msgstr "一般とフィールド設定"
 
-#: ui/cardlist.py:853 forms/addcardmodels.py:34
+#: ui/cardlist.py:857 forms/addcardmodels.py:34
 #, fuzzy
 msgid "Generate Cards"
-msgstr "削除"
+msgstr "カードを削除"
 
-#: ui/cardlist.py:859
-#, fuzzy
+#: ui/cardlist.py:863
 msgid "Generating Cards..."
-msgstr "削除"
+msgstr "カードを作成中…"
 
 #: ui/preferences.py:37
 msgid "German"
@@ -1870,26 +1809,25 @@ msgstr "Deutsch"
 
 #: forms/share.py:73
 msgid "Get Shared Decks/Plugins"
-msgstr ""
+msgstr "公開単語帳とプラグインを取得"
 
-#: forms/main.py:1391
+#: forms/main.py:1393
 msgid "Good"
 msgstr "普通"
 
 #: forms/edithtml.py:34
 msgid "HTML Editor"
-msgstr ""
+msgstr "HTMLエディタ"
 
 #: ui/facteditor.py:339
-#, fuzzy
 msgid "HTML Editor (Ctrl+F9)"
-msgstr "音声を追加する"
+msgstr "HTMLエディタ（Ctrl＋F9）"
 
-#: forms/main.py:1389
+#: forms/main.py:1391
 msgid "Hard"
 msgstr "難しい"
 
-#: ui/addcards.py:80 forms/displayproperties.py:374 forms/main.py:1377
+#: ui/addcards.py:80 forms/displayproperties.py:374 forms/main.py:1379
 msgid "Help"
 msgstr "ヘルプ"
 
@@ -1899,28 +1837,28 @@ msgstr "解答を表示する時に、質問を隠す"
 
 #: forms/preferences.py:328
 msgid "Host"
-msgstr ""
+msgstr "ホスト名"
 
-#: ui/deckproperties.py:82
+#: ui/deckproperties.py:81
 msgid "ID"
 msgstr ""
 
 #: ui/update.py:78
 msgid "Ignore this update"
-msgstr ""
+msgstr "このアップデートを無視する"
 
 #: ui/facteditor.py:844
 msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
-msgstr "映像 (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
+msgstr "映像（*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg）"
 
 #: ui/importing.py:83 ui/importing.py:123 forms/changemap.py:39
-#: forms/importing.py:95 forms/main.py:1383
+#: forms/importing.py:95 forms/main.py:1385
 msgid "Import"
 msgstr "インポート"
 
-#: forms/main.py:1439
+#: forms/main.py:1441
 msgid "Import cards from text files, Anki files and more"
-msgstr ""
+msgstr "テキストファイルやAnki式単語帳などからカードをインポートする。"
 
 #: ui/importing.py:133
 msgid "Import failed.\n"
@@ -1933,7 +1871,7 @@ msgstr "インポートオプション"
 #: ui/importing.py:141
 #, python-format
 msgid "Importing complete. %(num)d facts imported from %(file)s.\n"
-msgstr "インポート完了しました。%(file)sから、ファクトを%(num)d個インポートしました。\n"
+msgstr "インポート完了しました。%(file)sから%(num)d個ファクトをインポートしました。\n"
 
 #: ui/importing.py:128
 msgid "Importing failed.\n"
@@ -1941,36 +1879,36 @@ msgstr "インポートは失敗しました。\n"
 
 #: ui/importing.py:117
 msgid "Importing..."
-msgstr "インポート中..."
+msgstr "インポート中…"
 
 #: forms/exporting.py:57
 msgid "Include scheduling information"
-msgstr ""
+msgstr "スケジュール情報を付属する"
 
 #: forms/exporting.py:58
 msgid "Include tags"
-msgstr ""
+msgstr "タグを付属する"
 
-#: ui/cardlist.py:233 ui/cardlist.py:425 ui/graphs.py:150
+#: ui/cardlist.py:233 ui/cardlist.py:427 ui/graphs.py:150
 msgid "Interval"
 msgstr "期間"
 
-#: ui/cardlist.py:1012
+#: ui/cardlist.py:1016
 msgid "Invalid regular expression."
-msgstr ""
+msgstr "無効な正規表現。"
 
 #: ui/activetags.py:26
 msgid "Invert"
 msgstr ""
 
-#: ui/main.py:2343
+#: ui/main.py:2344
 #, python-format
 msgid "It is %(sec)d second %(type)s.\n"
 msgid_plural "It is %(sec)d seconds %(type)s.\n"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:2099
+#: ui/main.py:2100
 #, python-format
 msgid ""
 "It is off by %d second.\n"
@@ -1987,7 +1925,7 @@ msgstr "Italiano"
 
 #: ui/facteditor.py:150
 msgid "Italic text (Ctrl+i)"
-msgstr "斜体"
+msgstr "斜体（Ctrl+I）"
 
 #: ui/preferences.py:39
 msgid "Japanese"
@@ -1995,40 +1933,40 @@ msgstr "日本語"
 
 #: forms/preferences.py:341
 msgid "Keep"
-msgstr ""
+msgstr "バックアップファイルを"
 
 #: ui/preferences.py:40
 msgid "Korean"
 msgstr "한국어"
 
 #: ui/facteditor.py:304
-#, fuzzy
 msgid "Latex (Ctrl+l then l)"
-msgstr "Ctrl+l"
+msgstr "LaTeX（Ctrl+LそしてL）"
 
 #: ui/facteditor.py:315
-#, fuzzy
 msgid "Latex equation (Ctrl+l then e)"
-msgstr "Latex方程式"
+msgstr "LaTeX方程式（Ctrl+LそしてE）"
 
 #: ui/facteditor.py:326
-#, fuzzy
 msgid "Latex math environment (Ctrl+l then m)"
-msgstr "Latex数学環境"
+msgstr ""
 
-#: ui/main.py:1835
+#: ui/cardlist.py:383
+#, fuzzy
+msgid "Leech"
+msgstr "Česky"
+
+#: ui/main.py:1836
 msgid "Loading deck..."
 msgstr "単語帳を読み込み中…"
 
-#: ui/main.py:1649
-#, fuzzy
+#: ui/main.py:1655
 msgid "Loading graphs (may take time)..."
-msgstr "グラフを集計中。しばらくお待ちください"
+msgstr "グラフを作成中、しばらくお待ちしてください…"
 
 #: forms/getshared.py:86
-#, fuzzy
 msgid "Loading..."
-msgstr "保存中…"
+msgstr "読み込み中…"
 
 #: ui/importing.py:146
 msgid "Log of import:\n"
@@ -2047,8 +1985,8 @@ msgstr ""
 msgid "Marked"
 msgstr "スターが付いている"
 
-#: forms/deckproperties.py:358 forms/deckproperties.py:359
-#: forms/deckproperties.py:361 forms/reschedule.py:84
+#: forms/deckproperties.py:349 forms/deckproperties.py:350
+#: forms/deckproperties.py:352 forms/reschedule.py:84
 msgid "Max"
 msgstr "最大"
 
@@ -2057,8 +1995,8 @@ msgstr "最大"
 msgid "Merge with '%s' on server"
 msgstr "「%s」というサーバにある単語帳に合体する"
 
-#: forms/deckproperties.py:354 forms/deckproperties.py:355
-#: forms/deckproperties.py:360 forms/reschedule.py:82
+#: forms/deckproperties.py:345 forms/deckproperties.py:346
+#: forms/deckproperties.py:351 forms/reschedule.py:82
 msgid "Min"
 msgstr "最低"
 
@@ -2070,81 +2008,75 @@ msgstr "モデル"
 msgid "Model Properties"
 msgstr "モデルプロパティ"
 
-#: forms/deckproperties.py:339
-#, fuzzy
+#: forms/deckproperties.py:330
 msgid "Models && Priorities"
-msgstr "モデルプロパティ"
+msgstr "モデルと優先設定"
 
-#: ui/cardlist.py:231 ui/cardlist.py:423 ui/getshared.py:180
-#, fuzzy
+#: ui/cardlist.py:231 ui/cardlist.py:425 ui/getshared.py:180
 msgid "Modified"
-msgstr "更新日時"
+msgstr "変更日"
 
 #: ui/preferences.py:41
 msgid "Mongolian"
 msgstr "Монгол хэл"
 
-#: ui/main.py:1201 forms/main.py:1376
+#: ui/main.py:1207 forms/main.py:1378
 msgid "More"
-msgstr "もっと…"
+msgstr "もっと"
 
 #: forms/modelproperties.py:293 forms/modelproperties.py:306
 msgid "Move &Up"
-msgstr ""
+msgstr "上に移転(&U)"
 
 #: forms/modelproperties.py:296 forms/modelproperties.py:308
 msgid "Move Dow&n"
-msgstr ""
+msgstr "下に移転(&N)"
 
 #: forms/modelproperties.py:307
 msgid "Move selected card model down"
-msgstr ""
+msgstr "選択されたカードモデルを下に移転"
 
 #: forms/modelproperties.py:305
 msgid "Move selected card model up"
-msgstr ""
+msgstr "選択されたカードモデルを上に移転"
 
 #: forms/modelproperties.py:295
 msgid "Move selected field down"
-msgstr ""
+msgstr "選択されたフィールドを下に移転"
 
 #: forms/modelproperties.py:292
 msgid "Move selected field up"
-msgstr ""
+msgstr "選択されたフィールドを上に移転"
 
-#: ui/deckproperties.py:83
-#, fuzzy
+#: ui/deckproperties.py:82
 msgid "Name"
-msgstr "例"
+msgstr "名"
 
-#: forms/deckproperties.py:350
-#, fuzzy
+#: forms/deckproperties.py:341
 msgid "Name on server: "
-msgstr "%sという単語帳をサーバーで作成"
+msgstr "サーバーでの名前"
 
 #: forms/preferences.py:333
 msgid "Network"
 msgstr "ネットワーク"
 
-#: ui/main.py:1452
-#, fuzzy
+#: ui/main.py:1458
 msgid "New today:"
-msgstr "復習中"
+msgstr "今日新しい："
 
-#: ui/main.py:1453
-#, fuzzy
+#: ui/main.py:1459
 msgid "New total:"
-msgstr "復習中"
+msgstr "全部で新しい："
 
 #: ui/facteditor.py:204
 msgid "Next colour (F7 then F8)"
-msgstr "次の色 (F7 then F8)"
+msgstr "次の色（F7そしてF8）"
 
 #: ui/facteditor.py:790
 msgid "Next field must be blank."
 msgstr ""
 
-#: ui/main.py:1828 ui/main.py:1865
+#: ui/main.py:1829 ui/main.py:1866
 msgid "No cards matched the provided tags."
 msgstr ""
 
@@ -2153,14 +2085,15 @@ msgid "No cards to preview."
 msgstr ""
 
 #: ui/sync.py:154
+#, fuzzy
 msgid "No changes found."
-msgstr ""
+msgstr " * %sは変更されていません。"
 
-#: ui/main.py:1641
+#: ui/main.py:1647
 msgid "No current card or last card."
 msgstr "現在のカードも先のカードもありません。"
 
-#: ui/cardlist.py:383
+#: ui/cardlist.py:385
 msgid "No fact tags"
 msgstr "タグが付いていない"
 
@@ -2168,53 +2101,51 @@ msgstr "タグが付いていない"
 msgid "Norwegian"
 msgstr "Norsk"
 
-#: ui/cardlist.py:1190
-#, fuzzy
+#: ui/cardlist.py:1194
 msgid "Nothing"
-msgstr "インポートオプション"
+msgstr ""
 
 #: ui/getshared.py:144
 msgid "Nothing selected."
-msgstr ""
+msgstr "何も選択されていません。"
 
-#: ui/main.py:1177
+#: ui/main.py:1183
 msgid "Open"
-msgstr "開く(&O)..."
+msgstr "開く"
 
-#: ui/main.py:758
+#: ui/main.py:763
 msgid "Open Recent Deck"
 msgstr "最近使った単語帳を開く"
 
-#: forms/main.py:1500
+#: forms/main.py:1502
 msgid "Open Recent..."
 msgstr "最近使った項目を開く…"
 
-#: ui/main.py:932
+#: ui/main.py:937
 msgid "Open deck"
 msgstr "単語帳を開く"
 
-#: forms/main.py:1432
-#, fuzzy
+#: forms/main.py:1434
 msgid "Open the bug tracker"
-msgstr "バグトラッカーを開く"
+msgstr "バグ管理システムを開く"
 
-#: ui/main.py:1187
+#: ui/main.py:1193
 #, python-format
 msgid "Open this deck%s"
 msgstr "この単語帳を開く%s"
 
-#: forms/main.py:1462
+#: forms/main.py:1464
 msgid "Optimize Database"
 msgstr "データベースを最適化"
 
-#: ui/main.py:1563
+#: ui/main.py:1569
 #, fuzzy
 msgid "Ordering..."
-msgstr "保存中.."
+msgstr "読み込み中…"
 
-#: forms/main.py:1401
+#: forms/main.py:1403
 msgid "P&lugins"
-msgstr "プラグイン(&P)"
+msgstr "プラグイン(&L)"
 
 #: ui/exporting.py:17
 msgid "Packaged Anki Deck (*.zip)"
@@ -2224,20 +2155,19 @@ msgstr ""
 msgid "Password"
 msgstr "パスワード"
 
-#: ui/main.py:884
+#: ui/main.py:889
 msgid "Password:"
-msgstr "パスワード:"
+msgstr "パスワード："
 
 #: ui/status.py:220
-#, fuzzy
 msgid "Performance"
-msgstr "設定"
+msgstr "実績"
 
-#: forms/main.py:1490
+#: forms/main.py:1492
 msgid "Personal Deck"
-msgstr ""
+msgstr "個人の単語帳"
 
-#: forms/main.py:1453
+#: forms/main.py:1455
 msgid "Play the last-played audio again"
 msgstr "最後に再生された音声を更に再生する"
 
@@ -2246,28 +2176,30 @@ msgid "Please add a new field first."
 msgstr "まず新しいフィールドを作成してください。"
 
 #: ui/modelproperties.py:379
-#, fuzzy
 msgid "Please add a new template first."
-msgstr "まず新しいフィールドを作成してください。"
+msgstr "先に新規テンプレートを追加してください。"
 
-#: ui/deckproperties.py:147
+#: ui/deckproperties.py:146
 msgid "Please add another model first."
 msgstr "まずもう一つのモデルを作成してください。"
 
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
-msgstr ""
+msgstr "プロキシの設定を確認してくださし。"
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "フィールドの整列を選んでください。"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
 msgstr "ユーザー名とパスワードを確認してください。"
 
 #: ui/modelproperties.py:407
-#, fuzzy
 msgid "Please enable a different template first."
-msgstr "まず他のモデルを有効してください。"
+msgstr "先に他のテンプレートを有効にしてください。"
 
-#: ui/cardlist.py:824
+#: ui/cardlist.py:828
 msgid "Please enter a valid start and end range."
 msgstr ""
 
@@ -2279,29 +2211,29 @@ msgstr ""
 "録音が出来るために<a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "をインストールしてください。"
 
-#: ui/main.py:1667
+#: ui/main.py:1673
 msgid "Please install python-matplotlib to access graphs."
 msgstr "python-matplotlabが必要です。python-matplotlibをインストールしてください。"
 
-#: ui/main.py:2599
+#: ui/main.py:2600
 msgid "Please restart Anki before checking the DB."
-msgstr ""
+msgstr "データベースを検査する前にAnkiを再起動してください。"
 
 #: ui/getshared.py:264
-#, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
-msgstr "Ankiを再起動してください。"
+msgstr ""
+"プラグインのダウンロードは完了しました。\n"
+"Ankiを再起動してください。"
 
 #: ui/preferences.py:43
 msgid "Polish"
 msgstr "Polski"
 
 #: forms/preferences.py:331
-#, fuzzy
 msgid "Port"
-msgstr "整理"
+msgstr "ポート番号"
 
-#: forms/main.py:1482
+#: forms/main.py:1484
 msgid "Pre-generate PNG images of LaTeX cards"
 msgstr ""
 
@@ -2315,15 +2247,15 @@ msgstr "完全同期を準備中…"
 
 #: forms/modelproperties.py:298
 msgid "Prevent duplicates"
-msgstr ""
+msgstr "重複を許さない"
 
 #: forms/preferences.py:319
 msgid "Prevent edits until answer shown"
-msgstr ""
+msgstr "解答の表示するまで編集をさせない"
 
 #: forms/modelproperties.py:300
 msgid "Prevent empty entries"
-msgstr ""
+msgstr "空白のを許さない"
 
 #: forms/displayproperties.py:377
 msgid "Preview"
@@ -2331,7 +2263,7 @@ msgstr "プレビュー"
 
 #: ui/facteditor.py:279
 msgid "Preview (F2)"
-msgstr "プレビュー (F2)"
+msgstr "プレビュー（F2）"
 
 #: forms/previewcards.py:37
 msgid "Preview Cards"
@@ -2339,26 +2271,26 @@ msgstr "カードをプレビュー"
 
 #: ui/facteditor.py:193
 msgid "Previous colour (F7 then F6)"
-msgstr "前の色 (F7 then F6)"
+msgstr "前の色（F7そしてF6）"
 
-#: ui/main.py:2614
+#: ui/main.py:2615
 #, python-format
 msgid ""
 "Problems found:\n"
 "%s"
 msgstr ""
+"問題発見：\n"
+"%s"
 
 #: ui/graphs.py:253 ui/graphs.py:284 ui/utils.py:223
-#, fuzzy
 msgid "Processing..."
-msgstr "接続中.."
+msgstr "処理中…"
 
 #: forms/preferences.py:316
-#, fuzzy
 msgid "Put space between question and answer"
-msgstr "解答を表示する時に、質問を隠す"
+msgstr "質問と解答の間にスペースを残る"
 
-#: ui/cardlist.py:47 ui/cardlist.py:420
+#: ui/cardlist.py:47 ui/cardlist.py:422
 msgid "Question"
 msgstr "質問"
 
@@ -2378,86 +2310,81 @@ msgstr "質問フォント"
 msgid "Question size"
 msgstr "質問サイズ"
 
-#: forms/main.py:1460
+#: forms/main.py:1462
 msgid "Quick Database Check"
-msgstr ""
+msgstr "データベースを軽く検査する"
 
-#: ui/main.py:1569 ui/main.py:1855
+#: ui/main.py:1575 ui/main.py:1856
 #, fuzzy
 msgid "Randomizing..."
-msgstr "保存中.."
+msgstr "読み込み中…"
 
-#: forms/main.py:1379
-#, fuzzy
+#: forms/main.py:1381
 msgid "Re&view Early"
-msgstr "復習中"
+msgstr "予習する"
 
-#: forms/main.py:1489
-#, fuzzy
+#: forms/main.py:1491
 msgid "Record 10 seconds of silence so that the record function can cancel noise"
-msgstr "キャンセル"
+msgstr "録音機能は雑音を取り消せるように、10秒の沈黙を録音してください"
 
 #: ui/facteditor.py:255
 msgid "Record audio (F5)"
-msgstr "録音する (F5)"
+msgstr "録音する（F5）"
 
 #: ui/sound.py:27
-#, python-format
-msgid "Recording...<br>Time: %0.1f"
-msgstr ""
-
-#: ui/cardlist.py:528 ui/main.py:2317
 #, fuzzy, python-format
-msgid "Redo %s"
-msgstr "入力された日付"
+msgid "Recording...<br>Time: %0.1f"
+msgstr "録音中…<br>Time: %0.1f"
 
-#: ui/graphs.py:236 ui/main.py:1209
+#: ui/cardlist.py:532 ui/main.py:2318
+#, python-format
+msgid "Redo %s"
+msgstr "やり直す - %s"
+
+#: ui/graphs.py:236 ui/main.py:1215
 msgid "Refresh"
 msgstr "再読み込み"
 
-#: forms/main.py:1468
+#: forms/main.py:1470
 msgid "Release Notes..."
-msgstr "リリースノート…"
+msgstr "更新履歴…"
 
 #: ui/status.py:192
-#, fuzzy
 msgid "Remaining cards"
-msgstr "残り: "
+msgstr "残っているカード"
 
 #: ui/status.py:162
 msgid "Remaining: "
-msgstr "残り: "
+msgstr "残り："
 
-#: forms/main.py:1484
+#: forms/main.py:1486
 msgid "Remove generated PNG images of LaTeX cards"
 msgstr ""
 
-#: forms/main.py:1463
+#: forms/main.py:1465
 msgid "Remove unused space, making the database file smaller"
 msgstr ""
 
-#: forms/main.py:1452
+#: forms/main.py:1454
 msgid "Repeat &Audio"
-msgstr "音声を再生"
+msgstr "音声を再生(&A)"
 
-#: ui/cardlist.py:997
+#: ui/cardlist.py:1001
 #, fuzzy
 msgid "Replacing..."
-msgstr "接続中.."
+msgstr "読み込み中…"
 
-#: ui/cardlist.py:235 ui/cardlist.py:426 ui/graphs.py:154
+#: ui/cardlist.py:235 ui/cardlist.py:428 ui/graphs.py:154
 msgid "Reps"
+msgstr "繰り返し数"
+
+#: ui/cardlist.py:812 forms/reschedule.py:79
+msgid "Reschedule"
 msgstr ""
 
-#: ui/cardlist.py:808 forms/reschedule.py:79
-#, fuzzy
-msgid "Reschedule"
-msgstr "スケジューリング"
-
 #: forms/reschedule.py:80
-#, fuzzy
 msgid "Reschedule as new cards"
-msgstr "まず新しいカードを入力してください。"
+msgstr ""
 
 #: forms/reschedule.py:81
 msgid "Reschedule with initial interval in range:"
@@ -2465,29 +2392,26 @@ msgstr ""
 
 #: forms/cardlist.py:288
 msgid "Reverse &Order"
-msgstr "逆順"
+msgstr "逆順(&O)"
 
-#: forms/main.py:1375
+#: forms/main.py:1377
 #, fuzzy
 msgid "Review"
-msgstr "復習中"
+msgstr "プレビュー"
 
 #: ui/graphs.py:155
-#, fuzzy
 msgid "Review Time"
-msgstr "復習中"
+msgstr "勉強した時間"
 
-#: ui/main.py:1451
-#, fuzzy
+#: ui/main.py:1457
 msgid "Reviews due:"
-msgstr "復習中"
+msgstr "満期カード："
 
 #: ui/status.py:222
-#, fuzzy
 msgid "Reviews today"
-msgstr "復習中"
+msgstr "今日の勉強"
 
-#: forms/main.py:1415
+#: forms/main.py:1417
 msgid "S&ync"
 msgstr "同期(&Y)"
 
@@ -2496,35 +2420,33 @@ msgstr "同期(&Y)"
 msgid "Sampling silence...<br>Time: %0.1f"
 msgstr ""
 
-#: forms/main.py:1458
+#: forms/main.py:1460
 msgid "Save &As..."
-msgstr "別名で保存(&A)"
+msgstr "別名で保存(&A)…"
 
-#: ui/main.py:989
+#: ui/main.py:994
 msgid "Save Deck As"
 msgstr "別名で保存"
 
-# due to word order, display this after
 #: forms/preferences.py:336
 msgid "Save after adding"
 msgstr "カードを追加する時に"
 
-# due to word order, display this after
 #: forms/preferences.py:335
 msgid "Save after answering"
 msgstr "カードを答える時に"
 
-#: forms/main.py:1443
+#: forms/main.py:1445
 msgid "Save cards in a new deck or text file for sharing with others"
-msgstr ""
+msgstr "公開するために別の単語帳かテキストファイルに保存する"
 
-#: forms/main.py:1413
+#: forms/main.py:1415
 msgid "Save this deck now"
 msgstr "今すぐ単語帳を保存する"
 
-#: forms/main.py:1459
+#: forms/main.py:1461
 msgid "Save this deck, giving it a new name"
-msgstr ""
+msgstr "この単語帳を別の名前で保存する"
 
 #: forms/preferences.py:337
 msgid "Save when closing"
@@ -2532,11 +2454,11 @@ msgstr "閉じる時に自動的に保存する"
 
 #: forms/preferences.py:345
 msgid "Saving"
-msgstr "保存中"
+msgstr "保存"
 
 #: forms/getshared.py:85 forms/share.py:74
 msgid "Search:"
-msgstr "検索:"
+msgstr "検索："
 
 #: forms/cardlist.py:272
 msgid "Select &All"
@@ -2544,71 +2466,68 @@ msgstr "すべてを選択(&A)"
 
 #: forms/cardlist.py:292
 msgid "Select &Facts"
-msgstr "ファクトを選ぶ(&F)"
+msgstr "ファクトを選択(&F)"
 
 #: ui/activetags.py:18
 msgid "Select All"
 msgstr "すべてを選択"
 
 #: ui/activetags.py:22
-#, fuzzy
 msgid "Select None"
-msgstr "すべてを選択"
+msgstr "すべてを除外"
 
 #: forms/activetags.py:41
-msgid "Select tags to suspend. Deselect to unsuspend."
-msgstr ""
-
-#: ui/main.py:1481
 #, fuzzy
+msgid "Select tags to deactivate. Deselct tags to active again."
+msgstr "se保留させたいタグを選択してください。なお、活性化するためにタグを除外してください。"
+
+#: ui/main.py:1487
 msgid "Session Statistics"
-msgstr "単語帳の統計"
+msgstr "セッションの統計"
 
 #: ui/facteditor.py:170
 msgid "Set colour (F7 then F7)"
-msgstr "色を付ける (F7 then F7)"
-
-#: forms/main.py:1492
-#, fuzzy
-msgid "Shared Deck"
-msgstr "単語帳を保存する"
+msgstr "色を付ける（F7そしてF7）"
 
 #: forms/main.py:1494
+msgid "Shared Deck"
+msgstr "公開された単語帳"
+
+#: forms/main.py:1496
 msgid "Shared Plugin"
-msgstr ""
+msgstr "公開されたプラグイン"
 
 #: ui/modelchooser.py:42
 msgid "Shift+Alt+e"
-msgstr ""
+msgstr "Shift+Alt+E"
 
 #: ui/modelchooser.py:29
 msgid "Shift+Alt+m"
-msgstr ""
+msgstr "Shift+Alt+M"
 
-#: ui/main.py:595 forms/main.py:1385
+#: ui/main.py:600 forms/main.py:1387
 msgid "Show Answer"
 msgstr "解答を表示"
 
 #: ui/facteditor.py:262
 msgid "Show advanced options"
-msgstr "上級設定を表示する"
+msgstr "上級設定を表示"
 
 #: forms/preferences.py:353
 msgid "Show decks with cards due first in browser"
-msgstr ""
+msgstr "満期カードのある単語帳を単語帳一覧に先に表示"
 
 #: forms/preferences.py:315
-#, fuzzy
 msgid "Show divider between question and answer"
-msgstr "解答を表示する時に、質問を隠す"
+msgstr "質問と解答の間に線を引く"
 
 #: forms/preferences.py:318
 msgid "Show due count and progress during review"
 msgstr ""
 
-#: forms/main.py:1441
+#: forms/main.py:1443
 msgid "Show graphical statistics about your deck"
-msgstr ""
+msgstr "単語帳についてのグラフを表示する"
 
 #: forms/preferences.py:317
 msgid "Show next time before answer"
@@ -2618,27 +2537,25 @@ msgstr ""
 msgid "Show preview"
 msgstr "プレビューを表示"
 
-#: forms/main.py:1428
+#: forms/main.py:1430
 msgid "Show some textual statistics about your deck"
-msgstr ""
+msgstr "単語帳についての総計を表示する"
 
-#: forms/main.py:1435
-#, fuzzy
+#: forms/main.py:1437
 msgid "Show statistics about the current card and last card"
-msgstr "現在のカードも先のカードもありません。"
+msgstr "現在のカードと先のカードの総計を表示する"
 
 #: forms/preferences.py:349
-#, fuzzy
 msgid "Show study options on deck load"
-msgstr "起動する時にツールバーを表示する"
-
-#: forms/main.py:1384
-msgid "Show the answer (shortcut key: space or enter)"
-msgstr ""
+msgstr "単語帳を開くときに勉強オプションを表示"
 
 #: forms/main.py:1386
+msgid "Show the answer (shortcut key: space or enter)"
+msgstr "解答を表示する（shortcut key: SpaceかReturn）"
+
+#: forms/main.py:1388
 msgid "Show this card again soon (shortcut key: 1)"
-msgstr ""
+msgstr "このカードをすぐにまた表示する（shortcut key：1）"
 
 #: forms/preferences.py:347
 msgid "Show timer"
@@ -2646,218 +2563,206 @@ msgstr "タイマーを表示"
 
 #: forms/preferences.py:350
 msgid "Show tray icon"
-msgstr ""
+msgstr "システムトレイにアイコンを表示"
 
 #: ui/graphs.py:232
 msgid "Show/Hide"
 msgstr "表示／隠し"
 
-#: ui/main.py:2101
+#: ui/main.py:2102
 msgid ""
 "Since this can cause many problems with syncing,\n"
 "syncing is disabled until you fix the problem."
 msgstr ""
+"これで同期の問題がよく起こるので\n"
+"直すまで同期は無効しています。"
 
-#: ui/addcards.py:134 ui/cardlist.py:643
+#: ui/addcards.py:134 ui/cardlist.py:647
 msgid "Some fields are missing or not unique."
-msgstr ""
+msgstr "或フィールドは空白か重複しています。"
 
 #: forms/preferences.py:320 forms/preferences.py:332 forms/preferences.py:344
 #: forms/preferences.py:355
 msgid "Some settings will take effect after you restart Anki."
-msgstr ""
+msgstr "或設定はAnkiを再起動後発効します。"
 
-#: ui/main.py:643
+#: ui/main.py:648
 msgid "Soon"
 msgstr "すぐに"
 
 #: forms/modelproperties.py:301
 msgid "Sort as numbers"
-msgstr ""
+msgstr "番号順に分ける"
 
 #: ui/facteditor.py:874
-#, fuzzy
 msgid "Sounds/Videos (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg)"
-msgstr "音声 (*.mp3 *.ogg *.wav)"
+msgstr "音声・ビデオ（*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg）"
 
-#: ui/deckproperties.py:187
+#: ui/deckproperties.py:186
 msgid "Source ID:"
-msgstr ""
+msgstr "ソースID："
 
 #: ui/preferences.py:44
 msgid "Spanish"
 msgstr "Español"
 
-#: ui/main.py:1515
+#: ui/main.py:1521
 msgid "Start &Reviewing"
-msgstr ""
+msgstr "勉強を始める"
 
 #: ui/view.py:291
 msgid "Start adding your own material."
-msgstr ""
+msgstr "自分の勉強したいことを入力しましょう！"
 
-#: forms/main.py:1402
-#, fuzzy
+#: forms/main.py:1404
 msgid "Startup"
-msgstr "ステイタス"
+msgstr "スタートアップ"
 
 #: forms/importing.py:101
 msgid "Status"
 msgstr "ステイタス"
 
-#: forms/main.py:1450
-#, fuzzy
+#: forms/main.py:1452
 msgid "Stop reviewing this card until it's unsuspended in the browser"
-msgstr "このカードは、保留を削除するまで、表示しません。"
+msgstr "カードブラウザで活性化するまでこのカードを保留する"
 
-#: ui/main.py:1227
+#: ui/main.py:1233
 #, python-format
 msgid "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today."
 msgid_plural "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "今日は<b>%(time)s</b>で<b>%(reps)d枚</b>のカードを勉強しました。"
 
-#: ui/cardlist.py:790 ui/main.py:1686
+#: ui/cardlist.py:794 ui/main.py:1692
 #, fuzzy
 msgid "Suspend"
-msgstr "ファクトを保留"
+msgstr "保留されたファクト"
 
-#: forms/main.py:1497
+#: forms/main.py:1499
 msgid "Suspend the current fact until the deck is closed and opened again"
-msgstr ""
+msgstr "このファクトを単語帳が閉じて再開かせるまで保留する"
 
 #: ui/cardlist.py:379
 msgid "Suspended"
-msgstr "保留されたファクト"
+msgstr "保留された"
 
 #: ui/preferences.py:45
 msgid "Swedish"
 msgstr "Suomi"
 
-#: ui/main.py:2115
+#: ui/main.py:2116
+#, fuzzy
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
+"<h1>同期が失敗しました</h1>\n"
+"Anki Onlineに接続出来ませんでした。インタネットコネクションを確認してください。"
 
 #: ui/sync.py:132 ui/sync.py:148
-#, fuzzy
 msgid "Sync complete."
-msgstr "ファイルを開く時に自動的に同期する"
+msgstr "同期を完了しました。"
 
 #: forms/preferences.py:325
 msgid "Sync on close"
-msgstr "ファイルを閉じる時に自動的に同期する"
+msgstr "単語帳を閉じる時に自動的に同期する"
 
 #: forms/preferences.py:326
 msgid "Sync on open"
-msgstr "ファイルを開く時に自動的に同期する"
+msgstr "単語帳を開く時に自動的に同期する"
 
-#: forms/deckproperties.py:352
-#, fuzzy
+#: forms/deckproperties.py:343
 msgid "Synchronisation"
-msgstr "自動保存・同期"
+msgstr "同期"
 
-#: forms/deckproperties.py:342
+#: forms/deckproperties.py:333
 msgid "Synchronize this deck"
 msgstr "単語帳を同期する"
 
-#: forms/main.py:1416
+#: forms/main.py:1418
 msgid "Synchronize this deck with Anki Online"
-msgstr "Anki Onlineと同期する"
+msgstr "Anki Onlineと同期します"
 
-#: ui/main.py:2121 ui/main.py:2123
-#, fuzzy
+#: ui/main.py:2122 ui/main.py:2124
 msgid "Syncing Media..."
-msgstr "ファクトを同期中.."
+msgstr "メディアを同期中…"
 
 #: ui/sync.py:196
 #, python-format
 msgid "Syncing failed: %(a)s"
-msgstr "同期が出来ませんでした: %(a)s"
+msgstr "同期が出来ませんでした：%(a)s"
 
-#: ui/main.py:2652
+#: ui/main.py:2653
 #, fuzzy
 msgid "Tag Cards"
-msgstr "カード"
+msgstr "最後のカード"
 
 #: forms/importing.py:98
 msgid "Tag facts with duplicate fields instead of deleting"
-msgstr ""
-"インポートするファクトのフィールドは、単語帳の中のファクトのフィールドと二重ある場合は、タグを付ける。\n"
-"（タグをつけないとそのファクトは削除されます。）"
+msgstr "重複しているファクトを削除の代わりにタグを付ける"
 
 #: ui/facteditor.py:118
 msgid "Tags"
 msgstr "タグ"
 
-#: ui/main.py:1818
-#, fuzzy
+#: ui/main.py:1819
 msgid "Tags to cram:"
-msgstr "このタグを付け加える："
+msgstr "詰め込み勉強するタグ："
 
-#: ui/cardlist.py:1272
-#, fuzzy
+#: ui/cardlist.py:1276
 msgid "Targets must be unique."
-msgstr "'%s'は一意項目です"
+msgstr ""
 
 #: forms/changemodel.py:78
-#, fuzzy
 msgid "Templates"
-msgstr "<h1>カードの易しさ</h1>"
+msgstr "テンプレート"
 
-#: forms/changemodel.py:76 forms/main.py:1366 forms/share.py:76
+#: forms/changemodel.py:76 forms/main.py:1368 forms/share.py:76
 msgid "TextLabel"
 msgstr "タグ名"
 
-#: forms/main.py:1369
+#: forms/main.py:1371
 msgid "The <b>number of minutes in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
-msgstr ""
+msgstr "<b>一回のセッション</b>のある分間。セッションが終わったらこの場面はまた表示されて、新しいセッションを始まれます。限界無しの場合は０を選択してください。"
 
-#: forms/main.py:1373
+#: forms/main.py:1375
 msgid "The <b>number of questions in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
-msgstr ""
+msgstr "<b>一回のセッション</b>の出るカードの枚数。セッションが終わったらこの場面はまた表示されて、新しいセッションを始まれます。限界無しの場合は０を選択してください。"
 
 #: ui/addcards.py:138
 msgid ""
 "The input you have provided would make an empty\n"
 "question or answer on all cards."
-msgstr ""
+msgstr "入力されたデータで全枚のカードの質問か解答は空白になります。"
 
-#: forms/main.py:1371
+#: forms/main.py:1373
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
+msgstr "<b>一日あたりの出て来る新しいカード</b>の最大枚数。数日間後圧倒しないように、初期設定は20枚。"
+
+#: ui/main.py:1494
+msgid "The number of cards that are waiting to be reviewed today"
 msgstr ""
 
 #: ui/main.py:1488
-#, fuzzy
-msgid "The number of cards that are waiting to be reviewed today"
-msgstr "当日に作成されたカードの枚数"
-
-#: ui/main.py:1482
-#, fuzzy
 msgid "The number of cards you studied in the current session (blue) and previous session (black)"
-msgstr "当日に作成されたカードの枚数"
-
-#: ui/main.py:1484
-#, fuzzy
-msgid "The number of cards you studied today (blue) and yesterday (black)"
-msgstr "当日に作成されたカードの枚数"
-
-#: ui/main.py:1486
-msgid "The number of minutes you studied today (blue) and yesterday (black)"
-msgstr ""
+msgstr "最後（青）とその前（黒）のセッションの勉強していたカードの枚数"
 
 #: ui/main.py:1490
-#, fuzzy
+msgid "The number of cards you studied today (blue) and yesterday (black)"
+msgstr "今日（青）と昨日（黒）の勉強していたカードの枚数"
+
+#: ui/main.py:1492
+msgid "The number of minutes you studied today (blue) and yesterday (black)"
+msgstr "今日（青）と昨日（黒）の勉強していた時間"
+
+#: ui/main.py:1496
 msgid "The number of new cards that are waiting to be learnt today"
-msgstr "当日に作成されたカードの枚数"
+msgstr ""
 
 #: ui/sync.py:73
 msgid "The sync protocol has changed. Please upgrade."
-msgstr "同期するプロトコルがかわりました。新しいバージョンをダウンロードしてください。"
+msgstr "同期プロトコルがかわりました。最新のAnkiにアップデートしてください。"
 
-#: ui/main.py:1492
-#, fuzzy
+#: ui/main.py:1498
 msgid "The total number of new cards in the deck"
-msgstr "当日に作成されたカードの枚数"
+msgstr "単語帳の新しいカードの枚数"
 
 #: ui/status.py:196
 #, python-format
@@ -2870,34 +2775,30 @@ msgstr[1] ""
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "<b>%d</b>枚のカードは延期しています。"
 
 #: ui/status.py:193
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "<b>%d</b>枚の失敗されたカードはすぐに満期に成ります。"
 
 #: ui/status.py:199
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "<b>%d</b>枚の新しいカードは今日満期になりました。"
 
 #: ui/status.py:202
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "全部で<b>%d</b>枚のカードは新しいです。"
 
 #: ui/view.py:228
-#, fuzzy, python-format
+#, python-format
 msgid "This card was due in %s."
-msgstr "次のカードは%s"
+msgstr "このカードはあと%s満期になる予定でした。"
 
 #: ui/view.py:255
 msgid "This card will appear again later."
@@ -2911,16 +2812,16 @@ msgid ""
 "\n"
 "Really delete this field?"
 msgstr ""
-"このフィールドは%d個のカードに使われています。\n"
+"このフィールドは%d枚のカードに使われています。\n"
 "このフィールドを削除すれば、カードが使っているデータが無くなります。\n"
 "\n"
-"本当にフィールドを削除しますか？"
+"本当にフィールドを削除しますか。"
 
 #: ui/utils.py:155
 msgid "This file exists. Are you sure you want to overwrite it?"
-msgstr "このファイルは既存します。上書きしますか？"
+msgstr "このファイルは既存しています。上書きしますか。"
 
-#: ui/deckproperties.py:159
+#: ui/deckproperties.py:158
 #, python-format
 msgid ""
 "This model is used by %d facts.\n"
@@ -2931,15 +2832,18 @@ msgstr ""
 "このモデルを削除すれば、関係しているカードも削除されます。\n"
 "このモデルを削除しますか。"
 
-#: ui/deckproperties.py:152
+#: ui/deckproperties.py:151
 #, python-format
 msgid ""
 "This model is used by deck source:\n"
 "%s\n"
 "You will need to remove the source first."
 msgstr ""
+"単語ソース「%s」\n"
+"はこのモデルを使用しています。\n"
+"先にソースを削除してください。"
 
-#: ui/main.py:2601
+#: ui/main.py:2602
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2950,7 +2854,7 @@ msgid ""
 "Proceed?"
 msgstr ""
 
-#: ui/main.py:2643
+#: ui/main.py:2644
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2963,7 +2867,7 @@ msgid ""
 msgstr ""
 
 #: ui/modelproperties.py:386
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"
 "all the cards will be deleted too. If you just\n"
@@ -2973,65 +2877,60 @@ msgid ""
 "\n"
 "Really delete these cards?"
 msgstr ""
-"このモデルは%d個のカードに使われています。\n"
-"このモデルを削除すれば、使っているカードも削除されます。\n"
-"もし、使わないようにすれば、「無効にする」ボタンを使ってください。\n"
+"%d枚のカードはこのテンプレートを使用しています。\n"
+"テンプレートを削除したら、そのカードも削除されます。ただ以降追加するカードにこのテンプレートそ使用したくなかったら、「無効」ボッタンを使ってください。\n"
 "\n"
-"本当にモデルとカードを削除しますか？"
+"カードを削除してよろしいですか。"
 
-#: ui/main.py:1450
+#: ui/main.py:1456
 msgid "Time/day:"
 msgstr ""
 
 #: ui/getshared.py:176 ui/getshared.py:180
 #, fuzzy
 msgid "Title"
-msgstr "フィルタ"
+msgstr "ファイル"
 
-#: ui/main.py:1659
+#: ui/main.py:1665
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
-msgstr ""
-"グラフを表示するために、ある「.dll」という種類のファイルが\n"
-"必要です。インストールしてください：\n"
+msgstr "グラフを表示するための必要「.DLL」ファイルはありません。インストールしてください：\n"
 
 #: ui/tray.py:91
 msgid "Today's reviews are finished"
-msgstr ""
+msgstr "今日の勉強は済みました"
 
-#: ui/main.py:1614
-#, fuzzy
+#: ui/main.py:1620
 msgid "Toggle Toolbar"
-msgstr "簡単ツールバー"
+msgstr "ツールバーを表示"
 
 #: ui/status.py:238
+#, fuzzy
 msgid "Total correct: "
-msgstr ""
+msgstr "当てる："
 
 #: ui/status.py:228 ui/status.py:233
-#, fuzzy
 msgid "Total review time: "
-msgstr "復習中"
+msgstr "総使用時間："
 
 #: ui/sync.py:140
 msgid "Transferring payload..."
-msgstr "データを転送中.."
+msgstr "データを転送中…"
 
 #: forms/findreplace.py:63
 msgid "Treat input as regular expression"
-msgstr ""
+msgstr "条件を正規表現として扱う"
 
 #: forms/share.py:75
 msgid "Type:"
 msgstr ""
 
 #: ui/getshared.py:91 ui/getshared.py:216
-#, fuzzy
 msgid "Unable to connect to server."
-msgstr "サーバーの接続ができませんでした。"
+msgstr "サーバーに接続出来ませんでした。"
 
-#: ui/main.py:679
+#: ui/main.py:684
 msgid ""
 "Unable to load deck.\n"
 "\n"
@@ -3043,8 +2942,17 @@ msgid ""
 "\n"
 "To upgrade an old deck, download Anki 0.9.8.7."
 msgstr ""
+"単語帳を開けませんでした。\n"
+"\n"
+"可能性の原因：\n"
+"●ファイルはAnki式の単語帳でないこと\n"
+"●単語帳ファイルの書き込み権利はないこと\n"
+"●フォルダの書き込み権利はないこと\n"
+"●単語帳はAnki 0.9以下のバーションで作られたこと\n"
+"\n"
+"古い単語帳をアップデートするためにAnki0.9.8.7をダウンロードしてください。"
 
-#: ui/main.py:940
+#: ui/main.py:945
 msgid "Unable to load file."
 msgstr "ファイルを開けませんでした。"
 
@@ -3059,20 +2967,20 @@ msgstr ""
 "\n"
 "%(info)s"
 
-#: ui/main.py:715
+#: ui/main.py:720
 #, fuzzy
 msgid "Unable to recover. Deck load failed."
 msgstr "ファイルを開けませんでした。"
 
-#: forms/main.py:1483
+#: forms/main.py:1485
 msgid "Uncache LaTeX"
 msgstr ""
 
 #: ui/facteditor.py:161
 msgid "Underline text (Ctrl+u)"
-msgstr "下線 (Ctrl+u)"
+msgstr "下線（Ctrl+U）"
 
-#: ui/cardlist.py:522 ui/main.py:2311
+#: ui/cardlist.py:526 ui/main.py:2312
 #, python-format
 msgid "Undo %s"
 msgstr "取り消す - %s"
@@ -3080,29 +2988,30 @@ msgstr "取り消す - %s"
 #: ui/sync.py:75
 #, python-format
 msgid "Unknown error: %s"
-msgstr "一般エラー: %s"
+msgstr "一般エラー：%s"
 
-#: ui/cardlist.py:799
-#, fuzzy
+#: ui/cardlist.py:803
 msgid "Unsuspend"
-msgstr "ファクトを保留"
+msgstr "活性化する"
 
-#: ui/main.py:2351
+#: ui/main.py:2352
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
 " - please don't close this"
 msgstr ""
+"Ankiを更新しています…\n"
+"●勉強を続けれるんですが、\n"
+"●このウインドウを閉じないでください"
 
-#: ui/main.py:2153
+#: ui/main.py:2154
 #, python-format
 msgid "Uploaded %dKB to server..."
-msgstr ""
+msgstr "%dKBをサーバーにアップロードされまして…"
 
 #: ui/sync.py:125
-#, fuzzy
 msgid "Uploading..."
-msgstr "保存中.."
+msgstr "アップロード中…"
 
 #: forms/displayproperties.py:369
 msgid "Use custom colour"
@@ -3120,21 +3029,21 @@ msgstr "カスタムサイズを使用"
 msgid "Username"
 msgstr "ユーザー名"
 
-#: ui/main.py:880
+#: ui/main.py:885
 msgid "Username:"
-msgstr "ユーザー名:"
-
-#: forms/main.py:1388
-msgid "Wait a little longer next time (shortcut key: 2)"
-msgstr ""
-
-#: forms/main.py:1392
-msgid "Wait a lot longer next time (shortcut key: 4)"
-msgstr ""
+msgstr "ユーザー名："
 
 #: forms/main.py:1390
+msgid "Wait a little longer next time (shortcut key: 2)"
+msgstr "今度はもうちょっとだけ待つ（shortcut key：2）"
+
+#: forms/main.py:1394
+msgid "Wait a lot longer next time (shortcut key: 4)"
+msgstr "今度は結構待つ（shortcut key：4）"
+
+#: forms/main.py:1392
 msgid "Wait longer next time (shortcut key: 3)"
-msgstr ""
+msgstr "今度はもっと待つ（shortcut key：3）"
 
 #: ui/view.py:289
 msgid "Welcome to Anki!"
@@ -3143,25 +3052,25 @@ msgstr "Ankiへようこそ！"
 #: ui/view.py:251
 #, python-format
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
-msgstr "よくできました！このカードは後 <b>%(next)s</b>出て来る。"
+msgstr "よく来ました！このカードは後<b>%(next)s</b>また出て来る。"
 
 #: ui/update.py:77
 msgid "Would you like to download it now?"
 msgstr "今ダウンロードしますか。"
 
-#: forms/main.py:1367
+#: forms/main.py:1369
 msgid "X"
 msgstr ""
 
-#: ui/main.py:1732 ui/main.py:1780 ui/main.py:2637
+#: ui/main.py:1733 ui/main.py:1781 ui/main.py:2638
 msgid "You are currently cramming. Please close this deck first."
-msgstr ""
+msgstr "現在は詰め込み勉強中です。先にこの単語帳を閉じてください。"
 
-#: ui/main.py:2098 ui/main.py:2342
+#: ui/main.py:2099 ui/main.py:2343
 msgid "Your computer clock is not set to the correct time.\n"
-msgstr ""
+msgstr "パソコンの時刻設定は正しくありません。\n"
 
-#: ui/main.py:1664
+#: ui/main.py:1670
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3171,18 +3080,18 @@ msgstr ""
 
 #: forms/preferences.py:342
 msgid "backups of each deck"
-msgstr ""
+msgstr "個を取っておきます"
 
 #: forms/preferences.py:338
 msgid "cards"
 msgstr "カード毎に保存する"
 
-#: forms/deckproperties.py:368 forms/deckproperties.py:369
-#: forms/deckproperties.py:370 forms/reschedule.py:83 forms/reschedule.py:85
+#: forms/deckproperties.py:359 forms/deckproperties.py:360
+#: forms/deckproperties.py:361 forms/reschedule.py:83 forms/reschedule.py:85
 msgid "days"
-msgstr ""
+msgstr "日"
 
-#: ui/main.py:2340
+#: ui/main.py:2341
 msgid "early"
 msgstr ""
 
@@ -3193,15 +3102,16 @@ msgstr "ファクト毎に保存する"
 #: ui/cardlist.py:211
 #, python-format
 msgid "in %s"
-msgstr "%s後"
+msgstr "後%s"
 
-#: forms/deckproperties.py:340
+#: forms/deckproperties.py:331
 msgid "label"
 msgstr ""
 
-#: ui/main.py:2338
+#: ui/main.py:2339
+#, fuzzy
 msgid "late"
-msgstr ""
+msgstr "削除"
 
 #: ui/importing.py:202
 #, python-format
@@ -3213,12 +3123,11 @@ msgstr "<b>%s</b>へ写像しました"
 msgid "mapped to <b>Tags</b>"
 msgstr "<b>%s</b>へ写像しました"
 
-#: forms/deckproperties.py:366 forms/deckproperties.py:367
-#, fuzzy
+#: forms/deckproperties.py:357 forms/deckproperties.py:358
 msgid "mins"
-msgstr "%s後"
+msgstr "分"
 
-#: forms/deckproperties.py:351
+#: forms/deckproperties.py:342
 #, fuzzy
 msgid "option"
 msgstr "インポートオプション"
@@ -3227,194 +3136,14 @@ msgstr "インポートオプション"
 msgid "toplabel"
 msgstr ""
 
-#, fuzzy
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Adding cards</h1>\n"
-#~ "Please enter some things you want to learn.\n"
-#~ "<h2>Shortcuts</h2>\n"
-#~ "<table width=230>\n"
-#~ "<tr><td><b>Tab</b></td><td> change between fields.</td></tr>\n"
-#~ "<tr><td><b>Ctrl+Enter</b></td><td> add the current card.</td></tr>\n"
-#~ "<tr><td><b>Esc</b></td><td> close the dialog.</td></tr>\n"
-#~ "<tr><td><b>Ctrl+B</b></td><td> bold</td></tr>\n"
-#~ "<tr><td><b>Ctrl+I</b></td><td> italic</td></tr>\n"
-#~ "<tr><td><b>Ctrl+U</b></td><td> underline</td></tr>\n"
-#~ "<tr><td><b>Alt+1</b></td><td> enable/disable card model 1</td></tr>\n"
-#~ "<tr><td><b>Alt+2</b></td><td> enable/disable card model 2</td></tr>\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<h2>Cards</h2>Depending on the language you selected, more than one card may\n"
-#~ "be generated. This allows you to practice both <b>Production</b> (trying to produce\n"
-#~ "the target idea/phrase yourself), and <b>Recognition</b> (quickly recognizing and\n"
-#~ "understanding the target idea/phrase). To change which cards are automatically\n"
-#~ "generated, click the rightmost button at the top."
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>カード入力</h1>\n"
-#~ "暗記したいものを入力してください。\n"
-#~ "<h2>ショートカット</h2>\n"
-#~ "<table width=230>\n"
-#~ "<tr><td><b>Tab</b></td><td> 次のフィールド</td></tr>\n"
-#~ "<tr><td><b>Ctrl+Enter</b></td><td> 現在のカードを入力する</td></tr>\n"
-#~ "<tr><td><b>Esc</b></td><td> ウィンドーを閉じる</td></tr>\n"
-#~ "<tr><td><b>Ctrl+B</b></td><td> 太字</td></tr>\n"
-#~ "<tr><td><b>Ctrl+I</b></td><td> 斜体</td></tr>\n"
-#~ "<tr><td><b>Ctrl+U</b></td><td> 下線</td></tr>\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<h2>カード</h2>選択したモデルによって、入力した情報から作れるカードの枚数が変わります。\n"
-#~ "たとえば、覚えたい外国語の単語とその単語の意味を入力すると、カードは二枚作ることができます。\n"
-#~ "一枚目は、質問が外国語の単語になって答えが意味になるというカードです。二枚目は、その逆、\n"
-#~ "質問が意味になって、答えが外国語の単語になります。作りたいカードを選択するために、\n"
-#~ "右上にあるボタンをクリックしてください。"
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Anki</h1>\n"
-#~ "<img src=\":/icons/anki.png\">\n"
-#~ "<p>\n"
-#~ "<span>Anki is a spaced repetition flashcard program designed to maximise your\n"
-#~ "memory potential.<p/>It's free and licensed under the GPL.<p/>\n"
-#~ "Version %s<br>\n"
-#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Anki</h1>\n"
-#~ "<img src=\":/icons/anki.png\">\n"
-#~ "<p>\n"
-#~ "<span>Ankiはあたなの記憶の可能性を最適するように作られた反復練習単語帳プログラムです。\n"
-#~ "GPLに則って提供されています。<p/>\n"
-#~ "バージョン %s<br>\n"
-#~ "<a href=\"http://ichi2.net/anki/\">ウェブサイトへ</a></span>\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Congratulations!</h1>You have finished the deck for now.<br>\n"
-#~ "The next question will be shown in <b>%(next)s</b>.<p>\n"
-#~ "There are %(waiting)d\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/FrequentlyAskedQuestions#head-ef653836eaddb2b9c1af6b8fa56bcea458a04c20\">spaced</a> cards.<br>\n"
-#~ "There are %(suspended)d suspended cards.<p>\n"
-#~ "Spaced cards are cards that won't be shown for a while, because you have seen<br>\n"
-#~ "a related card recently. Suspended cards are cards removed from the learning<br>\n"
-#~ "process - they won't be shown until you unsuspend them."
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>おつかれさまです!</h1>とりあえず、勉強は終わりました。<br>\n"
-#~ "次に表示されるカードはあと<b>%(next)s</b>です。<p>\n"
-#~ "<a href=\"http://ichi2.net/anki/wiki/FrequentlyAskedQuestions#head-ef653836eaddb2b9c1af6b8fa56bcea458a04c20\">延期された</a>カードは%(waiting)d枚あります。<br>\n"
-#~ "保留されたカードは%(suspended)d枚あります。<p>\n"
-#~ "延期されたカードは、最近関係しているカードを見たため、しばらく表示されません。<br>\n"
-#~ "保留されたカードは、保留を解除するまで、表示されません。"
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Congratulations!</h1>You have finished the deck for now.<br> The next card\n"
-#~ "will be shown in %(next)s."
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>おめでとうございます！</h1>現在は登録された単語は全て完了です。<br>次の単語は%(next)sに表示されます。"
-
-#~ msgid ""
-#~ "\n"
-#~ "<h1>Empty deck</h1>The current deck has no cards in it. Please select 'Add\n"
-#~ "card' from the Edit menu."
-#~ msgstr ""
-#~ "\n"
-#~ " 現在の単語帳には単語や表現が登録されていません。\n"
-#~ " 編集メニューの「新しい単語の入力」にクリックしてください。"
-
-#~ msgid ""
-#~ "\n"
-#~ "<table border='0' width=\"100%%\">\n"
-#~ "<tr><td></td><td><b>0</b>: Completely forgot. Go back to day 1.</td></tr>\n"
-#~ "<tr><td></td><td><b>1</b>: Made a mistake. Repeat sooner.</td></tr>\n"
-#~ "<tr><td></td><td><b>2</b>: Barely remembered - repeat at the same time.</td><td>Next in <b>%(ease2)s</b></td></tr>\n"
-#~ "<tr><td></td><td><b>3</b>: Remembered after thinking for a while.</td><td>    Next in <b>%(ease3)s</b></td></tr>\n"
-#~ "<tr><td></td><td><b>4</b>: Remembered very easily.</td><td>    Next in <b>%(ease4)s</b></td></tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "\n"
-#~ "<table border='0' width=400>\n"
-#~ "<tr><td></td><td><b>0</b>: 全然覚えてない。最初からやり直す。</td></tr>\n"
-#~ "<tr><td></td><td><b>1</b>: 間違えた。期間を短くする。</td></tr>\n"
-#~ "<tr><td></td><td><b>2</b>: 忘れそうだった。</td><td>次回: <b>%(ease2)s後</b></td></tr>\n"
-#~ "<tr><td></td><td><b>3</b>: 考えたら思い出した。</td><td>次回: <b>%(ease3)s後</b></td></tr>\n"
-#~ "<tr><td></td><td><b>4</b>: すぐ思い出した。</td><td>次回: <b>%(ease4)s後</b></td></tr>\n"
-#~ "</table>"
-
-#~ msgid ""
-#~ "\n"
-#~ "<table border='0' width=\"100%%\">\n"
-#~ "<tr><td></td><td><b>0</b>: Completely forgot. Go back to day 1.</td></tr>\n"
-#~ "<tr><td></td><td><b>1</b>: Made a mistake. Repeat sooner.</td></tr>\n"
-#~ "<tr><td></td><td><b>2</b>: Want to practice again tomorrow.</td><td>Next in <b>1 day</b></td></tr>\n"
-#~ "<tr><td></td><td><b>3</b>: Want to practice again in a few days.</td><td>    Next in <b>%(ease3)s</b></td></tr>\n"
-#~ "<tr><td></td><td><b>4</b>: Remembered easily - ready to level up.</td><td>    Next in <b>%(ease4)s</b></td></tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "\n"
-#~ "<table border='0' width=400>\n"
-#~ "<tr><td></td><td><b>0</b>: 全然覚えてない。最初からやり直す。</td></tr>\n"
-#~ "<tr><td></td><td><b>1</b>: 間違えた。期間を短くする。</td></tr>\n"
-#~ "<tr><td></td><td><b>2</b>: 明日やってみる。</td><td>次回: <b>%(ease2)s後</b></td></tr>\n"
-#~ "<tr><td></td><td><b>3</b>: 数日後にやってみる。</td><td>次回: <b>%(ease3)s後</b></td></tr>\n"
-#~ "<tr><td></td><td><b>4</b>: すぐ思い出した。レベルアップ。</td><td>次回: <b>%(ease4)s後</b></td></tr>\n"
-#~ "</table>"
-
-#~ msgid " (A new version of %s is available!)"
-#~ msgstr " (%sの新しいバージョンがあります！詳しくはHPへ)"
-
-#~ msgid " <b>When quizzing/adding/editing</b>"
-#~ msgstr "クイズ/追加/編集の時"
-
-#~ msgid ""
-#~ "%s.\n"
-#~ "Anki can only merge models if they have exactly\n"
-#~ "the same field count and card count."
-#~ msgstr ""
-#~ "%s.\n"
-#~ "フィールド数が一緒ではないとAnkiはモデルをマージできません。"
-
-#~ msgid "&Add cards"
-#~ msgstr "新しい単語を入力(&A)"
-
-#~ msgid "&Add cards...\tCtrl+D"
-#~ msgstr "新しい単語を入力...(&A)\tCtrl+D"
-
-#~ msgid "&Advanced"
-#~ msgstr "上級(&A)"
-
-#~ msgid "&Anki deck"
-#~ msgstr "Ankiのファイル(&A)"
-
-#~ msgid "&Current"
-#~ msgstr "現在のカード(&C)"
-
-#~ msgid "&Deck"
-#~ msgstr "単語帳(&D)"
+#~ msgid " (Ctrl+%d)"
+#~ msgstr " (Ctrl+%d)"
 
 #~ msgid "&Delete Fact"
 #~ msgstr "ファクトを削除(&D)"
 
-#~ msgid "&Delete/undelete row"
-#~ msgstr "指定した行を消すかアンドゥ(&D)"
-
-#~ msgid "&Edit All..."
-#~ msgstr "単語帳を編集(&E)..."
-
-#~ msgid "&Edit..."
-#~ msgstr "編集(&E)..."
-
-#~ msgid "&Get More Decks..."
-#~ msgstr "単語帳を取得(&G)..."
-
 #~ msgid "&Get Plugins..."
-#~ msgstr "プラグインを取得(&G)..."
-
-#, fuzzy
-#~ msgid "&Guide..."
-#~ msgstr "新規作成(&N)..."
+#~ msgstr "プラグインを取得(&G)…"
 
 #~ msgid "&Kanji Statistics"
 #~ msgstr "漢字の統計(&K)"
@@ -3422,489 +3151,38 @@ msgstr ""
 #~ msgid "&Lookup"
 #~ msgstr "辞書で調べる(&L)"
 
-#~ msgid "&Model Properties..."
-#~ msgstr "モデルプロパティ(&M)..."
-
-#, fuzzy
-#~ msgid "&Options>>"
-#~ msgstr "<b>メモ</b>"
-
-#~ msgid "&Preferences..."
-#~ msgstr "設定(&P)..."
-
-#~ msgid "&Start Here..."
-#~ msgstr "初めから(&S)..."
-
-#, fuzzy
-#~ msgid "&Suspend"
-#~ msgstr "ファクトを保留(&S)"
-
-#~ msgid "&Text file"
-#~ msgstr "テキストファイル(&T)"
-
-#~ msgid "&Undo last answer"
-#~ msgstr "元に戻す(&U)"
-
-#, fuzzy
-#~ msgid "&Unsuspend"
-#~ msgstr "ファクトを保留(&S)"
-
-#~ msgid "'%s' must not be empty"
-#~ msgstr "'%s'は必須項目です"
-
-#~ msgid "...&answer on ALC"
-#~ msgstr "答えをALCで"
-
 #~ msgid "...&expression on ALC"
-#~ msgstr "表現をALCで(&E)..."
+#~ msgstr "表現をALCで(&E)…"
 
 #~ msgid "...&kanji selection on Edict"
-#~ msgstr "反転された漢字をedictで...\tCtrl+5"
+#~ msgstr "選択されている漢字をALCで(&K)…"
 
 #~ msgid "...&meaning on ALC"
-#~ msgstr "意味をALCで...(&M)"
+#~ msgstr "意味をALCで(&M)…"
 
 #~ msgid "...&selection on ALC"
-#~ msgstr "反転された表現をALCで(&S)..."
+#~ msgstr "選択をALCで(&S)…"
 
 #~ msgid "...&word selection on Edict"
-#~ msgstr "反転された単語をedictで(&W)..."
+#~ msgstr "選択された言葉をEDICTで(&W)…"
 
-#, fuzzy
-#~ msgid "<Select Tag>"
-#~ msgstr "カードタグを削除(&D)..."
+#~ msgid "123"
+#~ msgstr "123"
 
-#, fuzzy
 #~ msgid "<a href=py:miss>Missing</a><br>"
-#~ msgstr "<a href=py:miss>欠落した漢字</a><br>"
+#~ msgstr "<a href=py:miss>必要の</a><br>"
 
-#, fuzzy
 #~ msgid "<a href=py:non>Non-jouyou</a><br>"
-#~ msgstr "<a href=py:miss>欠落した漢字</a><br>"
+#~ msgstr "<a href=py:non>常用漢字以外の</a><br>"
 
-#, fuzzy
 #~ msgid "<a href=py:seen>Seen</a><br>"
-#~ msgstr "<a href=py:miss>欠落した漢字</a><br>"
+#~ msgstr "<a href=py:seen>出たの</a><br>"
 
-#~ msgid "<b>%(ease0)s</b>"
-#~ msgstr "<b>%(ease0)s後</b>"
-
-#~ msgid "<b>%(ease1)s</b>"
-#~ msgstr "<b>%(ease1)s後</b>"
-
-#~ msgid "<b>%(ease2)s</b>"
-#~ msgstr "<b>%(ease2)s後</b>"
-
-#~ msgid "<b>%(ease3)s</b>"
-#~ msgstr "<b>%(ease3)s後</b>"
-
-#~ msgid "<b>%(ease4)s</b>"
-#~ msgstr "<b>%(ease4)s後</b>"
-
-#, fuzzy
-#~ msgid "<b>0: Totally Forgot</b>"
-#~ msgstr "<b>全く覚えていない (0)</b>"
-
-#~ msgid "<b><u>C</u>ards</b>:"
-#~ msgstr "<b>カード(<u>C</u>)</b>:"
-
-#~ msgid "<b>Description</b>:"
-#~ msgstr "<b>メモ</b>"
-
-#~ msgid "<b>Easy</b>"
-#~ msgstr "<b>簡単</b>"
-
-#~ msgid "<b>Features</b>:"
-#~ msgstr "<b>特別な機能</b>:"
-
-#~ msgid "<b>File to import</b>:"
-#~ msgstr "<b>読み込みファイル</b>:"
-
-#, fuzzy
-#~ msgid "<b>Hours to shift midnight</b>"
-#~ msgstr "<b>質問の隠し</b>"
-
-#~ msgid "<b>How well did you remember?</b>"
-#~ msgstr "<b>どのぐらい覚えていましたか。</b>"
-
-#~ msgid "<b>Medium</b>"
-#~ msgstr "<b>普通</b>"
-
-#~ msgid "<b>Name/tag</b>"
-#~ msgstr "<b>名前/タグ</b>"
-
-#~ msgid "<b>Numeric?</b>"
-#~ msgstr "<b>数字</b>"
-
-#~ msgid "<b>Required?</b>"
-#~ msgstr "<b>必須</b>"
-
-#~ msgid "<b>Statistics</b>"
-#~ msgstr "<b>単語帳の統計</b>"
-
-#~ msgid "<b>Tags</b>:"
-#~ msgstr "<b>タグ</b>:"
-
-#, fuzzy
-#~ msgid "<b>Target Card Template</b>:"
-#~ msgstr "<h1>カードの易しさ</h1>"
-
-#~ msgid "<b>Type of file</b>:"
-#~ msgstr "<b>ファイルの種類</b>:"
-
-#~ msgid "<b>Unique?"
-#~ msgstr "<b>ユニーク"
-
-#, fuzzy
-#~ msgid "<h1>Add Model</h1>"
-#~ msgstr "<h1>モデル</h1>"
-
-#, fuzzy
-#~ msgid "<h1>Advanced settings</h1>Some settings require a restart."
-#~ msgstr "<h1>上級設定</h1>"
-
-#, fuzzy
-#~ msgid "<h1>Anki updated</h1>Anki %s has been released.<br>"
-#~ msgstr ""
-#~ "<h1>Ankiは更新されました</h1>新しい更新が\n"
-#~ "        あります。<br/>"
-
-#~ msgid "<h1>Autosaving</h1>Anki can save your progress automatically."
-#~ msgstr "<h1>オートセーブ</h1>自動的に保存することができます。"
-
-#~ msgid "<h1>Basic Scheduling</h1>"
-#~ msgstr "<h1>基本スケジューリング</h1>"
-
-#~ msgid "<h1>Card Models</h1>"
-#~ msgstr "<h1>モデル</h1>"
-
-#~ msgid ""
-#~ "<h1>Congratulations!</h1>You\n"
-#~ "        have finished the deck for now.<br>\n"
-#~ "        The next card will be shown in %(next)s."
-#~ msgstr "<h1>おめでとうございます！</h1>現在は登録された単語は全て完了です。<br>次の単語は%(next)sに表示されます。"
-
-#, fuzzy
-#~ msgid ""
-#~ "<h1>Daily recall</h1>This \n"
-#~ "        bar shows the total percentage of correct answers<br>\n"
-#~ "        for today. It may be low if you've recently added lots of<br>\n"
-#~ "        difficult material. Don't worry too much about it, as the<br>\n"
-#~ "        retention bar on the right is more important.<p/>Correct and over a month: %(dMatureYes%)0.1f%% (%(dMatureYes)d of %(dMatureTotal)d)<br>Correct and under a month: %(dYoungYes%)0.1f%% (%(dYoungYes)d of %(dYoungTotal)d)<br>Correct when seen the first time: %(dNewYes%)0.1f%% (%(dNewYes)d of %(dNewTotal)d)<br><b>Total correct: %(dYesTotal%)0.1f%% (%(dYesTotal)d of %(dTotal)d)</b><br><br>Average time per answer: %(avgTime)s<br>Total distracted time: %(disTime)s<br>Total review time: %(revTime)s"
-#~ msgstr ""
-#~ "<h1>毎日の成績</h1>この \n"
-#~ "        グラフは今日の答えの正解率を示しています。"
-
-#, fuzzy
-#~ msgid "<h1>Day Rollover</h1>"
-#~ msgstr "<h1>ツールバー</h1>"
-
-#~ msgid "<h1>Deck description</h1>"
-#~ msgstr "<h1>コメント</h1>"
-
-#, fuzzy
-#~ msgid ""
-#~ "<h1>Empty deck</h1>The\n"
-#~ "current deck has no cards in it. Please select 'Add card' from the Edit\n"
-#~ "menu."
-#~ msgstr ""
-#~ " 現在の単語帳には単語や表現が登録されていません。\n"
-#~ " 編集メニューの「新しい単語の入力」にクリックしてください。"
-
-#~ msgid "<h1>Empty deck</h1>Your deck is empty. Please add some cards."
-#~ msgstr "<h1>空単語帳</h1>この単語帳はカードがありません。カードを追加してください"
-
-#, fuzzy
-#~ msgid "<h1>Failed card limit & collapsing</h1>"
-#~ msgstr "<h1>最終ドリルと間違えたカードの制限</h1>"
-
-#~ msgid "<h1>Finished</h1>You have finished the deck for now."
-#~ msgstr "<h1>完了</h1>単語帳を一応完了しました。"
-
-#~ msgid "<h1>Fonts & Colours</h1>"
-#~ msgstr "<h1>フォントと色</h1>"
-
-#, fuzzy
-#~ msgid "<h1>Fonts</h1>"
-#~ msgstr "<h1>フィールド</h1>"
-
-#~ msgid "<h1>General Model Properties</h1>"
-#~ msgstr "<h1>一般モデルプロパティ</h1>"
-
-#~ msgid "<h1>High priority</h1>Matching cards are placed at the top of the revision queue or new card queue, depending on if they have been seen before."
-#~ msgstr "<h1>高い優先</h1>このタグに付かれているカードは普通のカードより優先を高くします。新しいカードは普通のカードの後に復習されます。"
-
-#~ msgid "<h1>Interface language</h1>The language for the user interface: dialogs, menus, etc."
-#~ msgstr "<h1>インタフェースの言語</h1>ダイアログ、メニュー等の言語"
-
-#~ msgid "<h1>Learning</h1>You are currently learning new cards."
-#~ msgstr "<h1>勉強</h1>新しいカードを勉強しています。"
-
-#~ msgid "<h1>Low priority</h1>Matching cards are placed at the bottom of the new card queue."
-#~ msgstr "<h1>低い優先</h1>このタグに付かれているカードは最後に復習されます。"
-
-#, fuzzy
-#~ msgid "<h1>Main Window</h1>"
-#~ msgstr "<h1>先のカード</h1>"
-
-#~ msgid "<h1>Models</h1>Models define what sort of information you're studying, and the way to show it to you. Models range from a simple representation of a single flashcard with a \"front\" and \"back\" side, to more complicated domain specific models: a model for Russian verbs may define two verb forms, and test you on both of them."
-#~ msgstr "<h1>モデル</h1>モデルで勉強する情報を定義します。モデルの中に情報は「フィールド」というものに保存されています。モデルそのものは簡単な「表」と「裏」のモデルから、様々な情報が付いてるモデルまで、柔軟なものに広がっています。"
-
-#, fuzzy
-#~ msgid "<h1>New cards</h1>The initial times to use when scheduling cards, in days."
-#~ msgstr "<h1>新しいカード</h1>最初の時にこの日日を使います。"
-
-#~ msgid "<h1>Postponing</h1>Any matching cards will not be shown until unsuspended. The web and phone interfaces automatically add 'noweb' and 'nophone' - give these tags to your cards to prevent them from showing on the phone or web interface."
-#~ msgstr "<h1>保留</h1>いづれかのタグがカードに付いてると、復習の時に表示しない。ウェブと携帯電話のインタフェースは保留すると「noweb」と「nophone」のタグを自動的に付ける。ウェブと携帯電話のインタフェースに表示させない場合はこのタグを使ってください。"
-
-#, fuzzy
-#~ msgid "<h1>Remaining cards</h1><p/>There are <b>%(failed)d</b> failed cards due soon.<br>There are <b>%(rev)d</b> cards awaiting review.<br>There are <b>%(new)d</b> new cards due today.<br><br>There are <b>%(new2)d</b> new cards in total.<br>There are <b>%(spaced)d</b> delayed cards."
-#~ msgstr "<h1>残っているカード</h1>残っているカードの数です。<p/>間違えたカードが<b>%(failed)d</b>個あります。<br>復習を待っているカードが<b>%(successive)d</b>個あります。<br>新しいカードが<b>%(new)d</b>個あります。<br>延期されたカードが<b>%(spaced)d</b>個あります。<br>保留されたカードが<b>%(suspended)d</b>個あります。"
-
-#, fuzzy
-#~ msgid ""
-#~ "<h1>Retention</h1>The \n"
-#~ "        percentage of material you've remembered over the life of<br>\n"
-#~ "        the deck. The bar shows your recall rate for cards answered<br>\n"
-#~ "        correctly after a month or more. Cards less than a month old<br>\n"
-#~ "        are not considered memorized yet.<br><br><b>Correct and over a month: %(gMatureYes%)0.1f%% (%(gMatureYes)d of %(gMatureTotal)d)</b><br>Correct and under a month: %(gYoungYes%)0.1f%% (%(gYoungYes)d of %(gYoungTotal)d)<br>Correct when seen the first time: %(gNewYes%)0.1f%% (%(gNewYes)d of %(gNewTotal)d)<br>Total correct: %(gYesTotal%)0.1f%% (%(gYesTotal)d of %(gTotal)d)<br><br>Average time per answer: %(avgTime)s<br>Total distracted time: %(disTime)s<br>Total review time: %(revTime)s"
-#~ msgstr ""
-#~ "<h1>毎日の成績</h1>この \n"
-#~ "        グラフは今日の答えの正解率を示しています。"
-
-#~ msgid "<h1>Reviewing</h1>You are reviewing previously-seen cards."
-#~ msgstr "<h1>復習中</h1>勉強されたカードを復習しています。"
-
-#, fuzzy
-#~ msgid "<h1>Select tags to suspend</h1>"
-#~ msgstr "<h1>入力されたカード</h1>"
-
-#~ msgid "<h1>Standard colours</h1>These colours are used for all decks."
-#~ msgstr "<h1>標準色</h1>全ての単語帳に載せます。"
-
-#~ msgid "<h1>Standard fonts</h1>See 'display properties' for deck specific font preferences."
-#~ msgstr "<h1>標準フォント</h1>単語帳のフォントにはディスプレープロパティをご参照ください。"
-
-#~ msgid "<h1>Synchronisation</h1>Synchronisation lets you use your deck on multiple computers at the same time. You can also use it to study on the web, for when you're not at home. You can also study on your mobile phone if your phone has internet access."
-#~ msgstr "<h1>同期</h1>同期の機能でウェッブや携帯でも利用することができます。"
-
-#~ msgid "<h1>Very high priority</h1>A comma-separated list of tags to prioritize. Matching cards are placed at the top of the revision queue."
-#~ msgstr "<h1>最高優先</h1>このタグに付かれているカードは最初に復習します。"
-
-#, fuzzy
-#~ msgid "<h1>Welcome Back!</h1>"
-#~ msgstr "<h1>カード累積表</h1>"
-
-#, fuzzy
-#~ msgid ""
-#~ "<h1>Welcome to Anki!</h1>\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h1><a href=\"welcome:addfacts\">Add material</a></h1>\n"
-#~ "Start adding your own material.</td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<br>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">Open Local Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">Download Shared Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:openrem\">Download Personal Deck</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "\n"
-#~ "<h1>Ankiへようこそ!</h1>\n"
-#~ "<p>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:addfacts\"><img src=\":/icons/list-add.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h1><a href=\"welcome:addfacts\">カードを追加</a></h1>\n"
-#~ "カードの追加を始めよう.</td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>\n"
-#~ "\n"
-#~ "<br>\n"
-#~ "<table>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:open\"><img src=\":/icons/document-open.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:open\">ローカル単語帳を開く</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td>\n"
-#~ "<a href=\"welcome:openrem\"><img src=\":/icons/document-open-remote.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:openrem\">オンライン単語帳を開く</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:sample\"><img src=\":/icons/anki.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:sample\">見本単語帳を開く</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "<tr>\n"
-#~ "<td width=50>\n"
-#~ "<a href=\"welcome:more\"><img src=\":/icons/khtml_kget.png\"></a>\n"
-#~ "</td>\n"
-#~ "<td valign=middle><h2><a href=\"welcome:more\">単語帳を取得</a></h2></td>\n"
-#~ "</tr>\n"
-#~ "\n"
-#~ "</table>"
-
-#, fuzzy
-#~ msgid "<h1>Welcome!</h1>"
-#~ msgstr "<h1>言語</h1>"
-
-#~ msgid "<h1>What would you like to study?</h1>"
-#~ msgstr "何を勉強しましょうか？"
-
-#~ msgid "<h1>Where should we synchronize to?</h1>"
-#~ msgstr "どこへ同期しますか？"
-
-#~ msgid "<h1>入力されたカード</h1>"
-#~ msgstr "新しい単語を入力"
-
-#~ msgid "A flashcard is made from a number of fields, like \"meaning\", \"notes\", etc."
-#~ msgstr "カードは数個のフィールドで創られています。例え、「意味」、「備考」など。"
-
-#~ msgid "A simple front-to-back quiz style."
-#~ msgstr "簡単な質問/解答クイズスタイル"
-
-#~ msgid "About right"
-#~ msgstr "よかった"
-
-#~ msgid "Add &Cards..."
-#~ msgstr "新しい単語を入力(&C)..."
-
-#~ msgid "Add Cards"
-#~ msgstr "新しい単語を入力"
-
-#~ msgid "Add Missing Active Cards"
-#~ msgstr "このファクトに関する入力していないカードを入力する"
-
-#~ msgid "Add a new model"
-#~ msgstr "モデルを追加"
-
-#~ msgid "Added card Q: %(q)s, A: %(a)s\n"
-#~ msgstr "登録された: 質問: %(q)s, 答え: %(a)s\n"
-
-#~ msgid "All tags"
-#~ msgstr "すべてのタグ"
-
-#, fuzzy
-#~ msgid "Anki - Add Items"
-#~ msgstr "Anki - 新しい単語を入力"
-
-#~ msgid "Anki: Import text file"
-#~ msgstr "インポート"
-
-#~ msgid "Answer count"
-#~ msgstr "答え数"
-
-#~ msgid "Application-wide preferences."
-#~ msgstr "全体の設定"
-
-#~ msgid "Barely remembered. Back one step."
-#~ msgstr "忘れそうだった。期間をちょっと短くする。"
+#~ msgid "<b>Suspended</b>"
+#~ msgstr "<b>保留された</b>"
 
 #~ msgid "Can't look up a selection with a newline."
 #~ msgstr "改行文字があると調べれることができません。"
-
-#, fuzzy
-#~ msgid "Card"
-#~ msgstr "カード:"
-
-#~ msgid "Card editor"
-#~ msgstr "カード編集"
-
-#~ msgid "Card info"
-#~ msgstr "カード情報"
-
-#~ msgid "Card properties"
-#~ msgstr "カードプロパティ"
-
-#, fuzzy
-#~ msgid "Cards..."
-#~ msgstr "カード.."
-
-#, fuzzy
-#~ msgid "Cards/day"
-#~ msgstr "カード(&C)"
-
-#, fuzzy
-#~ msgid "Change &Template..."
-#~ msgstr "<h1>カードの易しさ</h1>"
-
-#, fuzzy
-#~ msgid "Change Template"
-#~ msgstr "<h1>カードの易しさ</h1>"
-
-#~ msgid "Choose &file..."
-#~ msgstr "ファイルを選択する（&f)"
-
-#~ msgid "Choose file..."
-#~ msgstr "ファイルを選"
-
-#~ msgid "Completely forgot"
-#~ msgstr "全然覚えていない。"
-
-#~ msgid "Completely forgot. Go back to day 1."
-#~ msgstr "全然覚えていない。最初からやり直す。"
-
-#~ msgid "Completely forgot. Reset progress."
-#~ msgstr "全然覚えていない。最初からやり直す。"
-
-#~ msgid "Congratulations!\n"
-#~ msgstr "おめでとうございます！\n"
-
-#, fuzzy
-#~ msgid "Copy '%s' from server"
-#~ msgstr "%sという単語帳をサーバーで作成"
-
-#~ msgid ""
-#~ "Couldn't connect to the server.\n"
-#~ "Either your internet connection is down,\n"
-#~ "or Damien's server is down.\n"
-#~ "\n"
-#~ "(sometimes the ISP is bad, so please\n"
-#~ "try again later.)"
-#~ msgstr ""
-#~ "サーバーと接続出来ませんでした。\n"
-#~ "Damienのインターネットは一時壊れてる可能性があります。"
 
 #~ msgid "Create Deck"
 #~ msgstr "単語帳を作る"
@@ -3924,554 +3202,38 @@ msgstr ""
 #~ msgid "Ctrl+5"
 #~ msgstr "Ctrl+5"
 
-#~ msgid "Ctrl+A"
-#~ msgstr "Ctrl+A"
-
-#~ msgid "Ctrl+p"
-#~ msgstr "Ctrl+p"
-
-#~ msgid "Ctrl+r"
-#~ msgstr "Ctrl+r"
-
-#~ msgid "Ctrl+s"
-#~ msgstr "Ctrl+s"
-
-#~ msgid "Current &Fact"
-#~ msgstr "現在のファクト(&F)"
+#~ msgid "Ctrl+Shift+r"
+#~ msgstr "Ctrl+Shift+R"
 
 #~ msgid "Current &Model..."
-#~ msgstr "現在のモデル"
-
-#, fuzzy
-#~ msgid "Customize card layout, fields, etc"
-#~ msgstr "カード流れ、フィールドなどをカストマイズ"
-
-#~ msgid "Deck files (*.fc *.anki)"
-#~ msgstr "Ankiの単語帳 (*.fc *.anki)"
-
-#~ msgid "Deck files (*.fc)"
-#~ msgstr "Ankiの単語帳 (*.fc)"
-
-#~ msgid "Deck has unsaved changes. Continue?"
-#~ msgstr ""
-#~ "保存されてない変更内容があります！\n"
-#~ "本当に続けてもいいですか？"
-
-#~ msgid "Deck is not modified."
-#~ msgstr "ファイルが変更されていません。"
-
-#, fuzzy
-#~ msgid "Del"
-#~ msgstr "削除"
-
-#~ msgid "Delete Fact Tag..."
-#~ msgstr "タグを削除"
-
-#~ msgid "Description"
-#~ msgstr "メモ"
-
-#~ msgid "Description && Synchronisation"
-#~ msgstr "単語帳の説明・同期"
-
-#~ msgid "Difficult"
-#~ msgstr "難しかった"
-
-#~ msgid "Disp&lay Properties..."
-#~ msgstr "ディスプレープロパティ..."
-
-#~ msgid "Don't show this again."
-#~ msgstr "今度から表示されない。"
+#~ msgstr "現在のモデル(&M)…"
 
 #~ msgid "Download Deck"
 #~ msgstr "単語帳をダウンロード"
 
-#~ msgid "Downloading anki updater - %d%% complete."
-#~ msgstr "Anki最新版をダウンロード中 - %d%%"
-
-#~ msgid "Due date"
-#~ msgstr "期限"
-
-#~ msgid "Edit Items"
-#~ msgstr "アイテムを編集"
-
-#~ msgid "Edit card"
-#~ msgstr "編集"
-
-#~ msgid "Edit deck properties"
-#~ msgstr "単語帳プロパティを編集"
-
-#~ msgid "Empty"
-#~ msgstr "空っぽ"
-
 #~ msgid "Empty selection."
-#~ msgstr "文字を反転表示してください。"
+#~ msgstr "何も選択されていません。"
 
-#~ msgid "English font"
-#~ msgstr "英語のフォント"
-
-#~ msgid "English/other"
-#~ msgstr "英語か他の言語"
-
-#~ msgid ""
-#~ "Enter the question and answer, using tab to move between fields.\n"
-#~ "Hit the Enter key when you are finished.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "新しい単語や表現と意味を入れてください。\n"
-#~ "\n"
-
-#~ msgid "Example added card:\n"
-#~ msgstr "例：\n"
-
-#~ msgid "Explanation/translation: "
-#~ msgstr "意味: "
-
-#~ msgid "Export file"
-#~ msgstr "エクスポート"
-
-#~ msgid "Export to..."
-#~ msgstr "エクスポート..."
-
-#~ msgid "Exported successfully."
-#~ msgstr "エクスポートされました。"
-
-#~ msgid "Field '%s'"
-#~ msgstr "フィールド '%s'"
-
-#~ msgid "Field properties"
-#~ msgstr "フィールドのプロパティ"
-
-#, fuzzy
-#~ msgid "Find"
-#~ msgstr "フィルタ"
-
-#~ msgid "Flashcard text files (*.*)"
-#~ msgstr "単語帳テクストファイル (*.*)"
-
-#~ msgid "Foreground colour (Ctrl+r)"
-#~ msgstr "前景の色 (Ctrl+r)"
-
-#~ msgid "Fresh &Anki deck"
-#~ msgstr "新しいAnkiの単語帳"
-
-#~ msgid "Furigana font"
-#~ msgstr "振り仮名のフォント"
-
-#~ msgid "Furigana:"
-#~ msgstr "振り仮名:"
-
-#~ msgid "General"
-#~ msgstr "一般"
-
-#, fuzzy
-#~ msgid "Generating report (may take time)..."
-#~ msgstr "レポートを集計中。しばらくお待ちください"
-
-#, fuzzy
 #~ msgid "Get Shared..."
-#~ msgstr "削除"
-
-#, fuzzy
-#~ msgid "Hide next interval when showing answer buttons"
-#~ msgstr "解答を表示する時に、質問を隠す"
-
-#, fuzzy
-#~ msgid "Hide question/answer of last card"
-#~ msgstr "解答を表示する時に、質問を隠す"
-
-#~ msgid "Hiragana"
-#~ msgstr "ひらがな"
-
-#~ msgid "Images (*.jpg *.png)"
-#~ msgstr "画像 (*.jpg *.png)"
+#~ msgstr "公開のを取得…"
 
 #~ msgid "Import Text File"
 #~ msgstr "テキストファイルをインポート"
 
-#~ msgid "Import failed. Required field '%s' was empty."
-#~ msgstr "インポートできませんでした。必須項目が空っぽでした。"
-
-#, fuzzy
-#~ msgid "Import failed: %s\n"
-#~ msgstr "インポートできませんでした： %s"
-
-#~ msgid "Importing. Anki will freeze for a while.."
-#~ msgstr "インポート中。しばらくお待ちください"
-
-#~ msgid "Interface colour"
-#~ msgstr "インターフェースの色"
-
-#, fuzzy
-#~ msgid "Interface font"
-#~ msgstr "インターフェース"
-
-#~ msgid "Interface language"
-#~ msgstr "インターフェースの言語"
-
-#~ msgid "Japanese (includes furigana)"
-#~ msgstr "日本語 (includes furigana)"
-
-#~ msgid "Japanese phrase: "
-#~ msgstr "日本語の単語: "
-
-#~ msgid "Kanji"
-#~ msgstr "日本語のフォント"
-
-#~ msgid "Language"
-#~ msgstr "言語"
-
-#~ msgid "Language, Fonts and Colours"
-#~ msgstr "言語・フォント・色"
-
-#~ msgid "Language/Appearance"
-#~ msgstr "言語/フォント"
-
-#~ msgid "Last card colour"
-#~ msgstr "前の質問の色"
-
-#~ msgid "Learning"
-#~ msgstr "勉強中"
-
-#~ msgid "Looking %s up on ALC.."
-#~ msgstr "%sをALCで検索しています。"
-
-#~ msgid "Looking %s up on edict.."
-#~ msgstr "%sをedictで検索しています。"
-
-#~ msgid "Lookup answe&r on ALC...\tCtrl+2"
-#~ msgstr "答えをALCで検索...\tCtrl+2"
-
-#~ msgid "Lookup que&stion on ALC...\tCtrl+1"
-#~ msgstr "質問をALCで検索...\tCtrl+1"
-
-#~ msgid "Lookup selection on &ALC...\tCtrl+3"
-#~ msgstr "反転された文字をALCで検索...\tCtrl+3"
-
-#~ msgid "Made a mistake"
-#~ msgstr "間違えた"
-
-#~ msgid "Made a mistake. Back two steps."
-#~ msgstr "間違えた。期間を短くする。"
-
-#~ msgid "Merge Models..."
-#~ msgstr "モデルをマージ..."
-
-#~ msgid "Miscellaneous"
-#~ msgstr "その他"
-
-#~ msgid "Missing question or answer."
-#~ msgstr "表現か意味が入力されていません。"
-
-#~ msgid "Model properties"
-#~ msgstr "モデルプロパティ"
-
-#~ msgid "Model:"
-#~ msgstr "モデル"
-
-#~ msgid "Models"
-#~ msgstr "モデル"
-
-#~ msgid "New word/phrase:"
-#~ msgstr "英単語や表現:"
-
-#~ msgid "Next due"
-#~ msgstr "次に表示される"
-
-#~ msgid "Next in <b>%(ease2)s</b>"
-#~ msgstr "次回: <b>%(ease2)s後</b>"
-
-#~ msgid "Next in <b>%(ease3)s</b>"
-#~ msgstr "次回: <b>%(ease3)s後</b>"
-
-#~ msgid "Next in <b>%(ease4)s</b>"
-#~ msgstr "次回: <b>%(ease4)s後</b>"
-
 #~ msgid "No expression in current card."
-#~ msgstr "このカードは、「表現」のフィールドに入力されていません。"
+#~ msgstr "現在のカードは、「表現」のフィールドは空白です。"
 
 #~ msgid "No meaning in current card."
-#~ msgstr "このカードは、「意味」のフィールドに入力されていません。"
-
-#~ msgid "Not syncing, username or password unset."
-#~ msgstr "ユーザー名またはパスワードが登録されてないので、同期が出来ません。"
-
-#~ msgid "Note: question text changed\n"
-#~ msgstr "同じ単語が登録されています。\n"
-
-#~ msgid "Now"
-#~ msgstr "今"
-
-#, fuzzy
-#~ msgid "Open Local Deck"
-#~ msgstr "ファイルを開く"
-
-#~ msgid "Open On&line..."
-#~ msgstr "オンライン単語帳の開く(&l)..."
+#~ msgstr "現在のカードは、「意味」のフィールドは空白です。"
 
 #~ msgid "Open Sa&mple..."
-#~ msgstr "例の単語帳を開く(&O)…"
-
-#~ msgid "Percentage of minimum interval"
-#~ msgstr "最小期間のパーセンテージ"
-
-#~ msgid "Please add a new card first."
-#~ msgstr "まず新しいカードを入力してください。"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "フィールドの整列を選んでください。"
-
-#~ msgid "Please double-check your username."
-#~ msgstr "ユーザー名を確認してください。"
-
-#~ msgid "Please ensure all cards have a unique name."
-#~ msgstr "カードの一意をご確認してください。"
-
-#~ msgid "Please ensure all fields have a unique name."
-#~ msgstr "フィールドの一意をご確認してください。"
-
-#~ msgid "Please save the current file."
-#~ msgstr "現在のファイルを先に保存してください。"
-
-#~ msgid "Please select a language to learn."
-#~ msgstr "勉強する言語を選んでください。"
-
-#~ msgid "Prevent me from entering the same thing in this field twice"
-#~ msgstr "同じ値を入力することを拒否します。"
-
-#~ msgid "Prevent new cards from being added if this field is blank"
-#~ msgstr "空白の値を拒否します。"
-
-#, fuzzy
-#~ msgid "Priorities && Suspending"
-#~ msgstr "優先・延期"
-
-#~ msgid "Question/Answer:"
-#~ msgstr "質問/解答"
-
-#~ msgid "Remaining: <b>%(pending)s</b> "
-#~ msgstr "残りの復習: %(pending)s</b> "
-
-#~ msgid "Remembered after thinking for a while."
-#~ msgstr "集中したら思い出した。"
-
-#~ msgid "Remembered easily - ready to level up."
-#~ msgstr "簡単に思い出した。レベルアップ。"
-
-#~ msgid "Remembered easily."
-#~ msgstr "簡単に思い出した。"
+#~ msgstr "例の単語帳を開く(&M)…"
 
 #~ msgid "Repeat &Answer Audio"
-#~ msgstr "解答の音声を再生"
+#~ msgstr "解答の音声を再生(&A)"
 
 #~ msgid "Repeat &Question Audio"
-#~ msgstr "質問の音声を再生"
+#~ msgstr "質問の音声を再生(&Q)"
 
-#~ msgid "Reset Progress"
-#~ msgstr "新しいカードの状態に戻す。"
-
-#, fuzzy
-#~ msgid "Reviews due"
-#~ msgstr "復習中"
-
-#~ msgid "Same question exists: %(q)s = %(a)s"
-#~ msgstr "同じ単語が登録されています。%(q)s = %(a)s"
-
-#, fuzzy
-#~ msgid "Save && Sync"
-#~ msgstr "保存と同期をします(&y)"
-
-#~ msgid "Save and S&ync"
-#~ msgstr "保存と同期をします(&y)"
-
-#~ msgid "Save when deck is finished"
-#~ msgstr "単語を全て答えられたら自動に保存する"
-
-#, fuzzy
-#~ msgid "Saving...done"
-#~ msgstr "保存を完了しました。"
-
-#, fuzzy
-#~ msgid "Scroll down to the answer when showing answer"
-#~ msgstr "解答を表示する時に、質問を隠す"
-
-#, fuzzy
-#~ msgid "Search"
-#~ msgstr "検索(&S)"
-
-#~ msgid "Sending payload (local +%(a)d/-%(b)d, remote +%(c)d/-%(d)d cards).."
-#~ msgstr "送信中です。（ローカル +%(a)d/-%(b)d、 リモート +%(c)d/-%(d)d カード）"
-
-#~ msgid "Server is down or operation failed."
-#~ msgstr "サーバに接続できませんでした。"
-
-#~ msgid "Set language to %s"
-#~ msgstr "言語を%sに変えました"
-
-#, fuzzy
 #~ msgid "Share..."
-#~ msgstr "整理..."
-
-#, fuzzy
-#~ msgid "Show failed cards last"
-#~ msgstr "<b>失敗されたカードを最優先する</b>"
-
-#, fuzzy
-#~ msgid "Show welcome back screen on startup"
-#~ msgstr "起動する時にツールバーを表示する"
-
-#~ msgid "Sort this field using numeric order instead of string order"
-#~ msgstr "このフィールドは数字です。数の順番に整理します。"
-
-#~ msgid "Special features used by the field."
-#~ msgstr "フィールドの特別な機能"
-
-#~ msgid "Special features used by the model."
-#~ msgstr "モデルの特別な機能"
-
-#~ msgid "Sync finished. Note, a new version of %s is available. Please consider upgrading."
-#~ msgstr "動機が終了です。(新しいバージョンがあります！詳しくはHPへ)"
-
-#~ msgid "Sync: nothing to do"
-#~ msgstr "同期：更新は不要"
-
-#~ msgid "Syncing deck metadata.."
-#~ msgstr "単語帳メタデータを同期中.."
-
-#~ msgid "Syncing deck scheduling data.."
-#~ msgstr "単語帳のスケジュールデータを同期中.."
-
-#~ msgid "Syncing facts metadata.."
-#~ msgstr "ファクトメタデータを同期中.."
-
-#~ msgid ""
-#~ "Syncing failed halfway through. If it fails again, please\n"
-#~ "email your deck to the Anki author.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "同期が途中に失敗しました。もう一回同期してみてください。\n"
-#~ "そうすると、また失敗する結果になれば、\n"
-#~ "あなたの単語帳ファイルをAnkiの開発者にメールしてください。\n"
-
-#~ msgid "Syncing..done. Local +%(a)d/-%(b)d, remote +%(c)d/-%(d)d cards."
-#~ msgstr "同期が終了です。ローカル +%(a)d/-%(b)d, リモート +%(c)d/-%(d)d カード"
-
-#~ msgid "Tag:"
-#~ msgstr "タグ"
-
-#~ msgid "Tall buttons (for touchscreen)"
-#~ msgstr "高いボタンを使う。(タッチスクリーンの為)"
-
-#~ msgid ""
-#~ "Target language is the language you want to learn. If you select Japanese,\n"
-#~ "you will be asked for Furigana in addition to a question and answer."
-#~ msgstr ""
-#~ "勉強する言語によって、単語の入力方法が変わります。日本語にすると漢字の\n"
-#~ "読み方も入れられます。"
-
-#~ msgid "The amount of times you answered a card at each ease level."
-#~ msgstr "カードを答えるとき、ボタンを押した回数。"
-
-#~ msgid "The cards in this deck contain %d different kanji."
-#~ msgstr "この単語帳には%dの漢字があります。"
-
-#~ msgid ""
-#~ "The current deck (%(deck)s) doesn't exist on the server.\n"
-#~ "Please ensure that the local deck and deck on the server\n"
-#~ "have the same filename."
-#~ msgstr ""
-#~ "現在のファイル(%(deck)s)はサーバにありません。\n"
-#~ "サーバにあるファイルの名前と現在のファイルの名前を確認してください。"
-
-#~ msgid "The maximum number of failed cards to allow at once."
-#~ msgstr "間違えたカードの最大枚数。"
-
-#~ msgid ""
-#~ "The number of cards due each day over the period.\n"
-#~ "Today is 0; cards less than zero are overdue."
-#~ msgstr ""
-#~ "当日に表示するカードの枚数。\n"
-#~ "今日は0になります。明日は1になります。等\n"
-#~ "負数の場合は期限を過ぎているカードです。"
-
-#~ msgid "The number of cards due each day, assuming no study."
-#~ msgstr ""
-#~ "ずっとカードを答えなかったら、期限を過ぎているカードの枚数は以上になります。\n"
-#~ "今日は0、明日は1、明後日は2・・・など。"
-
-#~ msgid ""
-#~ "The number of cards first answered on a given day.\n"
-#~ "This will be different to 'added cards' if you are\n"
-#~ "using a pre-made deck."
-#~ msgstr ""
-#~ "当日に初めて答えたカードの枚数。\n"
-#~ "他人に作成された単語帳を使っているなら、\n"
-#~ "「入力されたカード」のグラフと異なる可能性があります。"
-
-#~ msgid "The number of cards scheduled for a given number of days."
-#~ msgstr "横には、表示された日から次に表示する日までの日数です。縦には、その日数があるカードの枚数。"
-
-#~ msgid "The number of hours to collapse in the final drill. Use 0 to disable."
-#~ msgstr "勉強が終わったら、カードの期限が右にある時間の前だったら、最終ドリルに含まれる。"
-
-#~ msgid "The order to show new cards."
-#~ msgstr "新しいカードを表示する順番:"
-
-#~ msgid "This card has been scheduled for review in <b>%s</b>."
-#~ msgstr "このカードは<b>%s</b>後にまた表示されます。"
-
-#~ msgid "This run: <b>%(correct)d/%(total)d</b> (<b>%(correct_perc)3.1f%%</b>) correct. Average: <b>%(retention_perc)3.1f%%</b>. "
-#~ msgstr "正解: %(correct)d/%(total)d (%(correct_perc)3.1f%%) 平均: %(retention_perc)3.1f%% "
-
-#~ msgid "Toggle Delete"
-#~ msgstr "削除(&D)"
-
-#~ msgid "Toolbar icon size"
-#~ msgstr "ツールバーアイコンサイズ"
-
-#, fuzzy
-#~ msgid "Type in the answer and hit enter"
-#~ msgstr "思い出したらEnterを押してください。"
-
-#~ msgid "Unable to load the same deck twice."
-#~ msgstr "この単語帳はもう開いています。二度と開けることができません。"
-
-#~ msgid "Unable to open file"
-#~ msgstr "ファイルを開けませんでした。"
-
-#~ msgid "Unable to open file to import."
-#~ msgstr "ファイルを開けませんでした。"
-
-#~ msgid "Unable to reach server"
-#~ msgstr "サーバーの接続ができませんでした。"
-
-#, fuzzy
-#~ msgid ""
-#~ "Unable to save file!\n"
-#~ "%s"
-#~ msgstr "ファイルを開けませんでした。"
-
-#~ msgid "Undecided"
-#~ msgstr "不決定"
-
-#~ msgid "Update complete. Please restart Anki."
-#~ msgstr "Ankiを再起動してください。"
-
-#~ msgid "Updating.."
-#~ msgstr "アップデート中.."
-
-#~ msgid "Use compact answer button style"
-#~ msgstr "コンパクト解答ボタンスタイルを使う"
-
-#~ msgid "Visit website..."
-#~ msgstr "HPへ..."
-
-#~ msgid "Want to practice again in a few days."
-#~ msgstr "数日後にやってみる。"
-
-#~ msgid "Want to practice again tomorrow."
-#~ msgstr "明日やってみる。"
-
-#~ msgid "You can display new facts randomly or in the order they were added.<br>After the first review, they will be shown in order of priority."
-#~ msgstr ""
-#~ "最後のモデルを削除できません。\n"
-#~ "まず新しいモデルを追加してください。"
+#~ msgstr "公開する…"
