@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-15 20:06+0200\n"
+"POT-Creation-Date: 2009-06-18 05:38+0900\n"
 "PO-Revision-Date: 2009-03-22 11:07+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -55,7 +55,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "%s sitten"
 
-#: deck.py:1234
+#: deck.py:1281
 #, python-format
 msgid "%s copy"
 msgstr "%s (kopio)"
@@ -144,6 +144,11 @@ msgid_plural "%s years<!--after>"
 msgstr[0] ""
 msgstr[1] ""
 
+#: importing/csvfile.py:43
+#, python-format
+msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
+msgstr ""
+
 #: stats.py:379 stats.py:382 stats.py:385 stats.py:388
 #, fuzzy, python-format
 msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
@@ -154,7 +159,7 @@ msgstr "<b>%(a)d</b> (<b>%(b)0.1f</b>/päivä)"
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "<b>%(a)d</b>/päivä, <b>%(b)d</b>/kuukausi"
 
-#: deck.py:751
+#: deck.py:771
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -169,7 +174,7 @@ msgstr ""
 "%(spaceSusp)s\n"
 "</div>"
 
-#: deck.py:692
+#: deck.py:698
 #, fuzzy, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -182,7 +187,7 @@ msgstr ""
 "%(wait)s<br>\n"
 "%(new)s"
 
-#: sync.py:236
+#: sync.py:246
 #, fuzzy, python-format
 msgid ""
 "<table>\n"
@@ -221,7 +226,7 @@ msgstr "Lisätty viimeviikolla"
 msgid "Anki Deck (*.anki)"
 msgstr "Anki-pakka (*.anki)"
 
-#: deck.py:331
+#: deck.py:337
 msgid "Answer Card"
 msgstr "korttiin vastaaminen"
 
@@ -267,11 +272,11 @@ msgstr "Keskitä"
 msgid "Changed"
 msgstr "Muutettu"
 
-#: deck.py:1297
+#: deck.py:1344
 msgid "Changing cards..."
 msgstr "Vaihdetaan kortteja..."
 
-#: deck.py:1257
+#: deck.py:1304
 msgid "Changing fields..."
 msgstr "Vaihdetaan kenttiä..."
 
@@ -279,11 +284,11 @@ msgstr "Vaihdetaan kenttiä..."
 msgid "Check Media DB"
 msgstr "Tarkista mediatietokanta"
 
-#: deck.py:2203
+#: deck.py:2256
 msgid "Checking integrity..."
 msgstr "Tarkistetaan eheyttä..."
 
-#: deck.py:2213
+#: deck.py:2266
 msgid "Checking schema..."
 msgstr "Tarkistetaan skeemaa..."
 
@@ -296,19 +301,19 @@ msgstr "Lasketaan tiedostojen tarkistuslukemia..."
 msgid "Correct answers"
 msgstr "<b>Oikeat vastaukset</b><br>"
 
-#: importing/csv.py:87
-msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+#: importing/csvfile.py:86
+msgid "Couldn't determine format of file."
 msgstr ""
 
 #: importing/__init__.py:265
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3238
+#: deck.py:3306
 msgid "Custom failed cards handling"
 msgstr "Mukautettu unohtuneiden korttien käsittely"
 
-#: deck.py:2206
+#: deck.py:2259
 #, fuzzy
 msgid ""
 "Database file is damaged.\n"
@@ -324,12 +329,12 @@ msgstr "Pakan tilastot"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Luotu: <b>%s</b> sitten<br>"
 
-#: deck.py:2598
+#: deck.py:2651
 #, fuzzy
 msgid "Deck missing core table"
 msgstr "Pakassa ei ollut mallia"
 
-#: deck.py:2216
+#: deck.py:2269
 msgid "Deck was missing a model"
 msgstr "Pakassa ei ollut mallia"
 
@@ -341,49 +346,49 @@ msgstr "Poistetaan kuolleita viittauksia..."
 msgid "Delete unused files..."
 msgstr "Poistetaan käyttämättömiä tiedostoja..."
 
-#: deck.py:2251
+#: deck.py:2304
 #, fuzzy, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] "Poistettiin %d faktatonta korttia"
 msgstr[1] "Poistettiin %d faktatonta korttia"
 
-#: deck.py:2263
+#: deck.py:2316
 #, fuzzy, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] "Poistettiin %d korttia, joilla ei ollut kelvollista korttimallinetta"
 msgstr[1] "Poistettiin %d korttia, joilla ei ollut kelvollista korttimallinetta"
 
-#: deck.py:2278
+#: deck.py:2331
 #, fuzzy, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] "Poistettiin %d eksynyttä kenttää"
 msgstr[1] "Poistettiin %d eksynyttä kenttää"
 
-#: deck.py:2240
+#: deck.py:2293
 #, fuzzy, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] "Poistettiin %d faktaa, joista puuttui kenttiä"
 msgstr[1] "Poistettiin %d faktaa, joista puuttui kenttiä"
 
-#: deck.py:2269
+#: deck.py:2322
 #, fuzzy, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] "Poistettiin %d kortitonta faktaa"
 msgstr[1] "Poistettiin %d kortitonta faktaa"
 
-#: deck.py:2230
+#: deck.py:2283
 #, fuzzy, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] "Poistettiin %d faktaa, joista puuttui kenttiä"
 msgstr[1] "Poistettiin %d faktaa, joista puuttui kenttiä"
 
-#: deck.py:2282
+#: deck.py:2335
 msgid "Deleted: "
 msgstr ""
 
@@ -414,7 +419,7 @@ msgstr "Viedään..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Sarkaimella erotetut faktatiedostot (*.txt)"
 
-#: deck.py:2645
+#: deck.py:2698
 msgid "File is in use by another process"
 msgstr "Tiedosto on toisen prosessin käytössä"
 
@@ -434,7 +439,7 @@ msgstr "Ensimmäisiä viimeviikolla"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 #, fuzzy
 msgid "Importing..."
 msgstr "Viedään..."
@@ -458,16 +463,6 @@ msgstr "Edellinen aikaväli"
 #: models.py:27
 msgid "Left"
 msgstr "Vasen"
-
-#: importing/csv.py:40
-#, python-format
-msgid "Line %(line)d doesn't match pattern '%(pat)s'"
-msgstr ""
-
-#: importing/csv.py:49
-#, python-format
-msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
-msgstr ""
 
 #: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
@@ -508,7 +503,7 @@ msgstr "Muutetaan kenttiä..."
 msgid "New"
 msgstr "Uudet"
 
-#: deck.py:707
+#: deck.py:713
 msgid "No cards are due."
 msgstr "Ei erääntyneitä kortteja."
 
@@ -517,23 +512,23 @@ msgstr "Ei erääntyneitä kortteja."
 msgid "Please add some cards first."
 msgstr "Lisää ensin kortteja.</p>"
 
-#: deck.py:2460
+#: deck.py:2513
 msgid "Processing..."
 msgstr "Käsitellään..."
 
-#: deck.py:2300
+#: deck.py:2353
 msgid "Rebuilding QA cache..."
 msgstr "Alustetaan QA-välimuistia..."
 
-#: deck.py:2316
+#: deck.py:2369
 msgid "Rebuilding counts..."
 msgstr "Alustetaan lukumääriä..."
 
-#: deck.py:2294
+#: deck.py:2347
 msgid "Rebuilding tag cache..."
 msgstr "Alustetaan tägivälimuistia..."
 
-#: deck.py:2314
+#: deck.py:2367
 msgid "Rebuilding types..."
 msgstr "Alustetaan tyyppejä..."
 
@@ -553,19 +548,19 @@ msgstr "Kertauksia ensikuussa"
 msgid "Reps next week"
 msgstr "Kertauksia ensiviikolla"
 
-#: deck.py:3225
+#: deck.py:3293
 msgid "Review cards from largest interval"
 msgstr "Kertaa suurimmat kertausvälit ensin"
 
-#: deck.py:3226
+#: deck.py:3294
 msgid "Review cards from smallest interval"
 msgstr "Kertaa lyhyimmät kertausvälit ensin"
 
-#: deck.py:3227
+#: deck.py:3295
 msgid "Review cards in order due"
 msgstr "Kertaa kortit erääntymisjärjestyksessä"
 
-#: deck.py:3228
+#: deck.py:3296
 msgid "Review cards in random order"
 msgstr "Kertaa kortit satunnaisessa järjestyksessä"
 
@@ -581,47 +576,47 @@ msgstr "Oikea"
 msgid "Scan fields..."
 msgstr "Tutkitaan kenttiä..."
 
-#: deck.py:3234
+#: deck.py:3302
 msgid "Show failed cards at end"
 msgstr "Näytä unohtuneet kortit muiden jälkeen"
 
-#: deck.py:3235
+#: deck.py:3303
 msgid "Show failed cards in 10 minutes"
 msgstr "Näytä unohtuneet kortit 10 minuutin kuluttua"
 
-#: deck.py:3237
+#: deck.py:3305
 msgid "Show failed cards in 3 days"
 msgstr "Näytä unohtuneet kortit 3 päivän kuluttua"
 
-#: deck.py:3236
+#: deck.py:3304
 msgid "Show failed cards in 8 hours"
 msgstr "Näytä unohtuneet kortit 8 tunnin kuluttua"
 
-#: deck.py:3233
+#: deck.py:3301
 msgid "Show failed cards soon"
 msgstr "Näytä unohtuneet kortit aikaisin"
 
-#: deck.py:3219
+#: deck.py:3287
 msgid "Show new cards after all other cards"
 msgstr "Näytä uudet kortit muiden korttien jälkeen"
 
-#: deck.py:3220
+#: deck.py:3288
 msgid "Show new cards before reviews"
 msgstr "Näytä uudet kortit ennen kertauksia"
 
-#: deck.py:3212
+#: deck.py:3280
 msgid "Show new cards in order added"
 msgstr "Näytä uudet kortit lisäysjärjestyksessä"
 
-#: deck.py:3211
+#: deck.py:3279
 msgid "Show new cards in random order"
 msgstr "Näytä uudet kortit satunnaisessa järjestyksessä"
 
-#: deck.py:3213
+#: deck.py:3281
 msgid "Show new cards in reverse order added"
 msgstr "Näytä uudet kortit käänteisessä lisäysjärjestyksessä"
 
-#: deck.py:3218
+#: deck.py:3286
 msgid "Spread new cards out through reviews"
 msgstr "Levitä uudet kortit läpi koko kertausten"
 
@@ -633,45 +628,55 @@ msgstr "Tekstitiedostot (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: deck.py:2222
+#: deck.py:2275
 msgid "The current model didn't exist"
 msgstr "Nykyistä mallia ei ollut olemassa."
 
-#: importing/csv.py:76
-msgid "The file had no non-empty lines."
-msgstr ""
-
-#: importing/csv.py:105 importing/wcu.py:29
+#: importing/csvfile.py:40 importing/wcu.py:29
 msgid "The file was not in UTF8 format."
 msgstr ""
 
-#: deck.py:704
+#: deck.py:710
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr "Aikaa seuraavaan kertaukseen on vielä <b>%s</b>."
 
-#: deck.py:739
+#: deck.py:745
 #, fuzzy, python-format
-msgid "There is <b>%d delayed</b> new card."
-msgid_plural "There are <b>%d delayed</b> new cards."
+msgid "There is %d delayed new card."
+msgid_plural "There are %d delayed new cards."
 msgstr[0] "<b>%d</b> välitetty kortti."
 msgstr[1] "<b>%d</b> välitettyä korttia."
 
-#: deck.py:746
+#: deck.py:759
 #, fuzzy, python-format
-msgid "There is <b>%d suspended</b> card."
-msgid_plural "There are <b>%d suspended</b> cards."
+msgid "There is %d inactive card."
+msgid_plural "There are %d inactive cards."
 msgstr[0] "<b>%d</b> jäädytetty kortti."
 msgstr[1] "<b>%d</b> jäädytettyä korttia."
 
-#: deck.py:697
+#: deck.py:766
+#, fuzzy, python-format
+msgid "There is %d leech."
+msgid_plural "There are %d leeches."
+msgstr[0] "<b>%d</b> välitetty kortti."
+msgstr[1] "<b>%d</b> välitettyä korttia."
+
+#: deck.py:752
+#, fuzzy, python-format
+msgid "There is %d suspended card."
+msgid_plural "There are %d suspended cards."
+msgstr[0] "<b>%d</b> jäädytetty kortti."
+msgstr[1] "<b>%d</b> jäädytettyä korttia."
+
+#: deck.py:703
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] "<b>%d</b> uusi kortti."
 msgstr[1] "<b>%d</b> uutta korttia."
 
-#: deck.py:700
+#: deck.py:706
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -692,7 +697,7 @@ msgstr "Kortteja yhteensä: <b>%d</b><br>"
 msgid "Total number of facts:"
 msgstr "Faktoja yhteensä: <b>%d</b><br><br>"
 
-#: deck.py:929
+#: deck.py:976
 msgid "Unknown"
 msgstr "– –"
 
@@ -704,11 +709,11 @@ msgstr ""
 msgid "Update tags..."
 msgstr "Päivitetään tägejä..."
 
-#: deck.py:2297
+#: deck.py:2350
 msgid "Updating priorities..."
 msgstr "Päivitetään prioriteetteja..."
 
-#: deck.py:2811
+#: deck.py:2864
 msgid "Upgrading Deck..."
 msgstr "Päivitetään pakkaa..."
 
@@ -729,7 +734,7 @@ msgstr ""
 msgid "[invalid question/answer format]"
 msgstr "[kysymys- tai vastausmuoto on virheellinen]"
 
-#: sync.py:227 sync.py:231
+#: sync.py:237 sync.py:241
 msgid "all"
 msgstr ""
 
@@ -748,11 +753,11 @@ msgstr "%s päivä"
 msgid "in %s"
 msgstr "%s myöhemmin"
 
-#: sync.py:224 sync.py:225
+#: sync.py:234 sync.py:235
 msgid "off"
 msgstr ""
 
-#: deck.py:724
+#: deck.py:730
 msgid "unknown"
 msgstr "tuntematon"
 

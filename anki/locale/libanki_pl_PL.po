@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-15 20:06+0200\n"
+"POT-Creation-Date: 2009-06-18 05:38+0900\n"
 "PO-Revision-Date: 2009-05-31 00:22+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -55,7 +55,7 @@ msgstr "%(partOf)d z %(totalSum)d"
 msgid "%s ago"
 msgstr "%s temu"
 
-#: deck.py:1234
+#: deck.py:1281
 #, python-format
 msgid "%s copy"
 msgstr "kopia %s"
@@ -156,6 +156,11 @@ msgstr[0] "%s rok"
 msgstr[1] "%s lata"
 msgstr[2] "%s lat"
 
+#: importing/csvfile.py:43
+#, fuzzy, python-format
+msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
+msgstr "Linia %(line)d miała %(num1)d pól, oczekiwano %(num2)d"
+
 #: stats.py:379 stats.py:382 stats.py:385 stats.py:388
 #, python-format
 msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
@@ -166,7 +171,7 @@ msgstr "<b>%(a)d</b> (<b>%(b)s</b>/dzień)"
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "<b>%(a)s</b>/dzień, <b>%(b)s</b>/mies"
 
-#: deck.py:751
+#: deck.py:771
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -181,7 +186,7 @@ msgstr ""
 "%(spaceSusp)s\n"
 "</div>"
 
-#: deck.py:692
+#: deck.py:698
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -194,7 +199,7 @@ msgstr ""
 "%(wait)s<br>\n"
 "%(new)s"
 
-#: sync.py:236
+#: sync.py:246
 #, python-format
 msgid ""
 "<table>\n"
@@ -233,7 +238,7 @@ msgstr "Dod. w ub. tyg."
 msgid "Anki Deck (*.anki)"
 msgstr "Talia Anki (*.anki)"
 
-#: deck.py:331
+#: deck.py:337
 msgid "Answer Card"
 msgstr "Odpowiedź w karcie"
 
@@ -277,11 +282,11 @@ msgstr "Wyśrodkowanie"
 msgid "Changed"
 msgstr "Zmieniona"
 
-#: deck.py:1297
+#: deck.py:1344
 msgid "Changing cards..."
 msgstr "Modyfikacja kart..."
 
-#: deck.py:1257
+#: deck.py:1304
 msgid "Changing fields..."
 msgstr "Modyfikacja pól..."
 
@@ -289,11 +294,11 @@ msgstr "Modyfikacja pól..."
 msgid "Check Media DB"
 msgstr "Sprawdzanie bazy danych plików"
 
-#: deck.py:2203
+#: deck.py:2256
 msgid "Checking integrity..."
 msgstr "Sprawdzanie integralności..."
 
-#: deck.py:2213
+#: deck.py:2266
 msgid "Checking schema..."
 msgstr "Sprawdzanie schematu..."
 
@@ -305,19 +310,19 @@ msgstr "Suma kontrolna plików..."
 msgid "Correct answers"
 msgstr "Poprawne odpowiedzi"
 
-#: importing/csv.py:87
-msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
-msgstr "Nie udało się znaleźć wzorca. Plik powinien być ciągiem linii podzielonych tabulatorami lub średnikami."
+#: importing/csvfile.py:86
+msgid "Couldn't determine format of file."
+msgstr ""
 
 #: importing/__init__.py:265
 msgid "CueCard Deck (*.wcu)"
 msgstr "Talia CueCard (*.wcu)"
 
-#: deck.py:3238
+#: deck.py:3306
 msgid "Custom failed cards handling"
 msgstr "Własna obsługa źle rozwiązanych kart"
 
-#: deck.py:2206
+#: deck.py:2259
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -334,12 +339,12 @@ msgstr "Statystyki talii"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Talia stworzona: <b>%s</b> temu<br>"
 
-#: deck.py:2598
+#: deck.py:2651
 #, fuzzy
 msgid "Deck missing core table"
 msgstr "W talii brakowało modelu"
 
-#: deck.py:2216
+#: deck.py:2269
 msgid "Deck was missing a model"
 msgstr "W talii brakowało modelu"
 
@@ -351,7 +356,7 @@ msgstr "Usuwanie nieaktualnych odwołań..."
 msgid "Delete unused files..."
 msgstr "Usuwanie nieużywanych plików..."
 
-#: deck.py:2251
+#: deck.py:2304
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
@@ -359,7 +364,7 @@ msgstr[0] "Usunięto %d kartę z brakującym faktem"
 msgstr[1] "Usunięto %d karty z brakującym faktem"
 msgstr[2] "Usunięto %d kart z brakującym faktem"
 
-#: deck.py:2263
+#: deck.py:2316
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
@@ -367,7 +372,7 @@ msgstr[0] "Usunięto %d kartę bez szablonu karty"
 msgstr[1] "Usunięto %d karty bez szablonu karty"
 msgstr[2] "Usunięto %d kart bez szablonu karty"
 
-#: deck.py:2278
+#: deck.py:2331
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
@@ -375,7 +380,7 @@ msgstr[0] "Usunięto %d niezakotwiczone pole"
 msgstr[1] "Usunięto %d niezakotwiczone pola"
 msgstr[2] "Usunięto %d niezakotwiczonych pól"
 
-#: deck.py:2240
+#: deck.py:2293
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
@@ -383,7 +388,7 @@ msgstr[0] "Usunięto %d fakt z brakującymi polami"
 msgstr[1] "Usunięto %d fakty z brakującymi polami"
 msgstr[2] "Usunięto %d faktów z brakującymi polami"
 
-#: deck.py:2269
+#: deck.py:2322
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
@@ -391,7 +396,7 @@ msgstr[0] "Usunięto %d fakt bez karty"
 msgstr[1] "Usunięto %d fakty bez karty"
 msgstr[2] "Usunięto %d faktów bez karty"
 
-#: deck.py:2230
+#: deck.py:2283
 #, fuzzy, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
@@ -399,7 +404,7 @@ msgstr[0] "Usunięto %d fakt z brakującymi polami"
 msgstr[1] "Usunięto %d fakty z brakującymi polami"
 msgstr[2] "Usunięto %d faktów z brakującymi polami"
 
-#: deck.py:2282
+#: deck.py:2335
 msgid "Deleted: "
 msgstr "Usunięto: "
 
@@ -430,7 +435,7 @@ msgstr "Eksportowanie..."
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Fakty oddzielone tabulacją w pliku tekstowym (*.txt)"
 
-#: deck.py:2645
+#: deck.py:2698
 msgid "File is in use by another process"
 msgstr "Plik jest używany przez inny proces"
 
@@ -450,7 +455,7 @@ msgstr "Pierwsze w ub. t."
 msgid "First-seen cards:"
 msgstr "Karty widziane po raz pierwszy:"
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 msgid "Importing..."
 msgstr "Importowanie..."
 
@@ -473,16 +478,6 @@ msgstr "Ostatnia przerwa"
 #: models.py:27
 msgid "Left"
 msgstr "Po lewej"
-
-#: importing/csv.py:40
-#, python-format
-msgid "Line %(line)d doesn't match pattern '%(pat)s'"
-msgstr "Linia %(line)d nie pasuje do wzorca '%(pat)s'"
-
-#: importing/csv.py:49
-#, python-format
-msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
-msgstr "Linia %(line)d miała %(num1)d pól, oczekiwano %(num2)d"
 
 #: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
@@ -521,7 +516,7 @@ msgstr "Modyfikowanie pól..."
 msgid "New"
 msgstr "Nowe"
 
-#: deck.py:707
+#: deck.py:713
 msgid "No cards are due."
 msgstr "Nie ma kart do wyświetlenia."
 
@@ -529,23 +524,23 @@ msgstr "Nie ma kart do wyświetlenia."
 msgid "Please add some cards first."
 msgstr "Dodaj najpierw jakieś karty."
 
-#: deck.py:2460
+#: deck.py:2513
 msgid "Processing..."
 msgstr "Przetwarzanie..."
 
-#: deck.py:2300
+#: deck.py:2353
 msgid "Rebuilding QA cache..."
 msgstr "Przebudowywanie pamięci podręcznej pytań/odpowiedzi..."
 
-#: deck.py:2316
+#: deck.py:2369
 msgid "Rebuilding counts..."
 msgstr "Przebudowywanie liczników..."
 
-#: deck.py:2294
+#: deck.py:2347
 msgid "Rebuilding tag cache..."
 msgstr "Przebudowywanie pamięci podręcznej etykiet..."
 
-#: deck.py:2314
+#: deck.py:2367
 msgid "Rebuilding types..."
 msgstr "Przebudowywanie typów..."
 
@@ -565,19 +560,19 @@ msgstr "w nast. mies."
 msgid "Reps next week"
 msgstr "Powt. w nast. tyg."
 
-#: deck.py:3225
+#: deck.py:3293
 msgid "Review cards from largest interval"
 msgstr "Zacznij od kart o największej przerwie"
 
-#: deck.py:3226
+#: deck.py:3294
 msgid "Review cards from smallest interval"
 msgstr "Zacznij od kart o najmniejszej przerwie"
 
-#: deck.py:3227
+#: deck.py:3295
 msgid "Review cards in order due"
 msgstr "Przeglądaj karty w kolejności daty pojawienia się"
 
-#: deck.py:3228
+#: deck.py:3296
 msgid "Review cards in random order"
 msgstr "Przeglądaj karty w losowej kolejności"
 
@@ -593,47 +588,47 @@ msgstr "Po prawej"
 msgid "Scan fields..."
 msgstr "Skanowanie pól..."
 
-#: deck.py:3234
+#: deck.py:3302
 msgid "Show failed cards at end"
 msgstr "Pokaż źle rozwiązane karty na końcu"
 
-#: deck.py:3235
+#: deck.py:3303
 msgid "Show failed cards in 10 minutes"
 msgstr "Pokaż źle rozwiązane karty za 10 minut"
 
-#: deck.py:3237
+#: deck.py:3305
 msgid "Show failed cards in 3 days"
 msgstr "Pokaż źle rozwiązane karty za 3 dni"
 
-#: deck.py:3236
+#: deck.py:3304
 msgid "Show failed cards in 8 hours"
 msgstr "Pokaż źle rozwiązane karty za 8 godzin"
 
-#: deck.py:3233
+#: deck.py:3301
 msgid "Show failed cards soon"
 msgstr "Pokaż wkrótce źle rozwiązane karty"
 
-#: deck.py:3219
+#: deck.py:3287
 msgid "Show new cards after all other cards"
 msgstr "Pokaż nowe karty po wszystkich innych kartach"
 
-#: deck.py:3220
+#: deck.py:3288
 msgid "Show new cards before reviews"
 msgstr "Pokaż nowe karty przed powtórką"
 
-#: deck.py:3212
+#: deck.py:3280
 msgid "Show new cards in order added"
 msgstr "Pokaż nowe karty w kolejności dodania"
 
-#: deck.py:3211
+#: deck.py:3279
 msgid "Show new cards in random order"
 msgstr "Pokaż nowe karty w losowej kolejności"
 
-#: deck.py:3213
+#: deck.py:3281
 msgid "Show new cards in reverse order added"
 msgstr "Pokaż nowe karty w odwóconej kolejności dodania"
 
-#: deck.py:3218
+#: deck.py:3286
 msgid "Spread new cards out through reviews"
 msgstr "Rozprosz nowe karty między powtórkami"
 
@@ -645,40 +640,52 @@ msgstr "Pliki tekstowe (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Tekst rozdzielony tabulatorami lub średnikami (*)"
 
-#: deck.py:2222
+#: deck.py:2275
 msgid "The current model didn't exist"
 msgstr "Aktualny model nie istnieje"
 
-#: importing/csv.py:76
-msgid "The file had no non-empty lines."
-msgstr "Plik nie miał niepustych linii."
-
-#: importing/csv.py:105 importing/wcu.py:29
+#: importing/csvfile.py:40 importing/wcu.py:29
 msgid "The file was not in UTF8 format."
 msgstr "Plik nie był w formacie UTF8."
 
-#: deck.py:704
+#: deck.py:710
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr "Następna powtórka za <b>%s</b>."
 
-#: deck.py:739
-#, python-format
-msgid "There is <b>%d delayed</b> new card."
-msgid_plural "There are <b>%d delayed</b> new cards."
+#: deck.py:745
+#, fuzzy, python-format
+msgid "There is %d delayed new card."
+msgid_plural "There are %d delayed new cards."
 msgstr[0] "Jest <b>%d odroczona</b> nowa karta."
 msgstr[1] "Są <b>%d odroczone</b> nowe karty."
 msgstr[2] "Jest <b>%d odroczonych</b> nowych kart."
 
-#: deck.py:746
-#, python-format
-msgid "There is <b>%d suspended</b> card."
-msgid_plural "There are <b>%d suspended</b> cards."
+#: deck.py:759
+#, fuzzy, python-format
+msgid "There is %d inactive card."
+msgid_plural "There are %d inactive cards."
 msgstr[0] "Jest <b>%d zawieszona</b> nowa karta."
 msgstr[1] "Są <b>%d zawieszone</b> nowe karty."
 msgstr[2] "Jest <b>%d zawieszonych</b> nowych kart."
 
-#: deck.py:697
+#: deck.py:766
+#, fuzzy, python-format
+msgid "There is %d leech."
+msgid_plural "There are %d leeches."
+msgstr[0] "Jest <b>%d odroczona</b> nowa karta."
+msgstr[1] "Są <b>%d odroczone</b> nowe karty."
+msgstr[2] "Jest <b>%d odroczonych</b> nowych kart."
+
+#: deck.py:752
+#, fuzzy, python-format
+msgid "There is %d suspended card."
+msgid_plural "There are %d suspended cards."
+msgstr[0] "Jest <b>%d zawieszona</b> nowa karta."
+msgstr[1] "Są <b>%d zawieszone</b> nowe karty."
+msgstr[2] "Jest <b>%d zawieszonych</b> nowych kart."
+
+#: deck.py:703
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
@@ -686,7 +693,7 @@ msgstr[0] "Będzie <b>%d nowa</b> karta."
 msgstr[1] "Będą <b>%d nowe</b> karty."
 msgstr[2] "Będzie <b>%d nowych</b> kart."
 
-#: deck.py:700
+#: deck.py:706
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -706,7 +713,7 @@ msgstr "Całkowita liczba kart:"
 msgid "Total number of facts:"
 msgstr "Całkowita liczba faktów:"
 
-#: deck.py:929
+#: deck.py:976
 msgid "Unknown"
 msgstr "Nieznany"
 
@@ -718,11 +725,11 @@ msgstr "Nieprzejrzane karty:"
 msgid "Update tags..."
 msgstr "Aktualizacja etykiet..."
 
-#: deck.py:2297
+#: deck.py:2350
 msgid "Updating priorities..."
 msgstr "Aktualizacja priorytetów..."
 
-#: deck.py:2811
+#: deck.py:2864
 msgid "Upgrading Deck..."
 msgstr "Aktualizacja talii..."
 
@@ -742,7 +749,7 @@ msgstr "Nowe karty:"
 msgid "[invalid question/answer format]"
 msgstr "[nieprawidłowy format pytania/odpowiedzi]"
 
-#: sync.py:227 sync.py:231
+#: sync.py:237 sync.py:241
 msgid "all"
 msgstr "wszystkie"
 
@@ -759,11 +766,11 @@ msgstr "dni"
 msgid "in %s"
 msgstr "w %s"
 
-#: sync.py:224 sync.py:225
+#: sync.py:234 sync.py:235
 msgid "off"
 msgstr "wył."
 
-#: deck.py:724
+#: deck.py:730
 msgid "unknown"
 msgstr "nieznane"
 
@@ -791,11 +798,20 @@ msgstr "nieznane"
 #~ msgid "Cantonese"
 #~ msgstr "Kantoński"
 
+#~ msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+#~ msgstr "Nie udało się znaleźć wzorca. Plik powinien być ciągiem linii podzielonych tabulatorami lub średnikami."
+
 #~ msgid "Japanese"
 #~ msgstr "Japoński"
 
 #~ msgid "Jouyou levels:"
 #~ msgstr "Poziomy Jouyou:"
 
+#~ msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+#~ msgstr "Linia %(line)d nie pasuje do wzorca '%(pat)s'"
+
 #~ msgid "Mandarin"
 #~ msgstr "Mandaryński"
+
+#~ msgid "The file had no non-empty lines."
+#~ msgstr "Plik nie miał niepustych linii."

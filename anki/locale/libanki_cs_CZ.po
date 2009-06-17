@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-15 20:06+0200\n"
+"POT-Creation-Date: 2009-06-18 05:38+0900\n"
 "PO-Revision-Date: 2008-01-01 19:00+0100\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,7 +45,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "%s dní"
 
-#: deck.py:1234
+#: deck.py:1281
 #, fuzzy, python-format
 msgid "%s copy"
 msgstr "%s sekunda"
@@ -134,6 +134,11 @@ msgid_plural "%s years<!--after>"
 msgstr[0] ""
 msgstr[1] ""
 
+#: importing/csvfile.py:43
+#, fuzzy, python-format
+msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
+msgstr "Řádek %(line)d měl %(num1)d polí, očekáváno %(num2)d"
+
 #: stats.py:379 stats.py:382 stats.py:385 stats.py:388
 #, fuzzy, python-format
 msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
@@ -144,7 +149,7 @@ msgstr "<br>Karty starší než týden: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "Přidané karty: <b>%(a)d</b> denně, <b>%(b)d</b> měsíčně<br>"
 
-#: deck.py:751
+#: deck.py:771
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -154,7 +159,7 @@ msgid ""
 "</div>"
 msgstr ""
 
-#: deck.py:692
+#: deck.py:698
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -163,7 +168,7 @@ msgid ""
 "%(new)s"
 msgstr ""
 
-#: sync.py:236
+#: sync.py:246
 #, python-format
 msgid ""
 "<table>\n"
@@ -194,7 +199,7 @@ msgstr ""
 msgid "Anki Deck (*.anki)"
 msgstr "Balík anki"
 
-#: deck.py:331
+#: deck.py:337
 msgid "Answer Card"
 msgstr ""
 
@@ -244,11 +249,11 @@ msgstr "Střed"
 msgid "Changed"
 msgstr "Změněno"
 
-#: deck.py:1297
+#: deck.py:1344
 msgid "Changing cards..."
 msgstr ""
 
-#: deck.py:1257
+#: deck.py:1304
 msgid "Changing fields..."
 msgstr ""
 
@@ -256,11 +261,11 @@ msgstr ""
 msgid "Check Media DB"
 msgstr ""
 
-#: deck.py:2203
+#: deck.py:2256
 msgid "Checking integrity..."
 msgstr ""
 
-#: deck.py:2213
+#: deck.py:2266
 msgid "Checking schema..."
 msgstr ""
 
@@ -273,20 +278,19 @@ msgstr ""
 msgid "Correct answers"
 msgstr "Známé kartičky"
 
-#: importing/csv.py:87
-#, fuzzy
-msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
-msgstr "Vzor nenalezen. Soubor musí být řádky s výrazy oddělenými čárkami, středníky nebo tabulátory."
+#: importing/csvfile.py:86
+msgid "Couldn't determine format of file."
+msgstr ""
 
 #: importing/__init__.py:265
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3238
+#: deck.py:3306
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:2206
+#: deck.py:2259
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -301,11 +305,11 @@ msgstr "Statistika balíku"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Balík vytvořen před: <b>%s</b><br>"
 
-#: deck.py:2598
+#: deck.py:2651
 msgid "Deck missing core table"
 msgstr ""
 
-#: deck.py:2216
+#: deck.py:2269
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -317,49 +321,49 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr ""
 
-#: deck.py:2251
+#: deck.py:2304
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2263
+#: deck.py:2316
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2278
+#: deck.py:2331
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2240
+#: deck.py:2293
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2269
+#: deck.py:2322
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2230
+#: deck.py:2283
 #, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2282
+#: deck.py:2335
 msgid "Deleted: "
 msgstr ""
 
@@ -387,7 +391,7 @@ msgstr ""
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "výrazy oddělené tabulátory (*.txt)"
 
-#: deck.py:2645
+#: deck.py:2698
 msgid "File is in use by another process"
 msgstr ""
 
@@ -410,7 +414,7 @@ msgstr "Poprvé"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 msgid "Importing..."
 msgstr ""
 
@@ -435,16 +439,6 @@ msgstr "Poslední interval"
 #: models.py:27
 msgid "Left"
 msgstr "Zbývá"
-
-#: importing/csv.py:40
-#, python-format
-msgid "Line %(line)d doesn't match pattern '%(pat)s'"
-msgstr "Řádek %(line)d neodpovídá vzoru '%(pat)s"
-
-#: importing/csv.py:49
-#, python-format
-msgid "Line %(line)d had %(num1)d fields, expected %(num2)d"
-msgstr "Řádek %(line)d měl %(num1)d polí, očekáváno %(num2)d"
 
 #: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
@@ -487,7 +481,7 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: deck.py:707
+#: deck.py:713
 msgid "No cards are due."
 msgstr ""
 
@@ -496,23 +490,23 @@ msgstr ""
 msgid "Please add some cards first."
 msgstr "Nejprve vložte nějaké kartičky"
 
-#: deck.py:2460
+#: deck.py:2513
 msgid "Processing..."
 msgstr ""
 
-#: deck.py:2300
+#: deck.py:2353
 msgid "Rebuilding QA cache..."
 msgstr ""
 
-#: deck.py:2316
+#: deck.py:2369
 msgid "Rebuilding counts..."
 msgstr ""
 
-#: deck.py:2294
+#: deck.py:2347
 msgid "Rebuilding tag cache..."
 msgstr ""
 
-#: deck.py:2314
+#: deck.py:2367
 msgid "Rebuilding types..."
 msgstr ""
 
@@ -534,19 +528,19 @@ msgstr "%s měsíc"
 msgid "Reps next week"
 msgstr ""
 
-#: deck.py:3225
+#: deck.py:3293
 msgid "Review cards from largest interval"
 msgstr ""
 
-#: deck.py:3226
+#: deck.py:3294
 msgid "Review cards from smallest interval"
 msgstr ""
 
-#: deck.py:3227
+#: deck.py:3295
 msgid "Review cards in order due"
 msgstr ""
 
-#: deck.py:3228
+#: deck.py:3296
 msgid "Review cards in random order"
 msgstr ""
 
@@ -563,47 +557,47 @@ msgstr "Správně"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:3234
+#: deck.py:3302
 msgid "Show failed cards at end"
 msgstr ""
 
-#: deck.py:3235
+#: deck.py:3303
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:3237
+#: deck.py:3305
 msgid "Show failed cards in 3 days"
 msgstr ""
 
-#: deck.py:3236
+#: deck.py:3304
 msgid "Show failed cards in 8 hours"
 msgstr ""
 
-#: deck.py:3233
+#: deck.py:3301
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:3219
+#: deck.py:3287
 msgid "Show new cards after all other cards"
 msgstr ""
 
-#: deck.py:3220
+#: deck.py:3288
 msgid "Show new cards before reviews"
 msgstr ""
 
-#: deck.py:3212
+#: deck.py:3280
 msgid "Show new cards in order added"
 msgstr ""
 
-#: deck.py:3211
+#: deck.py:3279
 msgid "Show new cards in random order"
 msgstr ""
 
-#: deck.py:3213
+#: deck.py:3281
 msgid "Show new cards in reverse order added"
 msgstr ""
 
-#: deck.py:3218
+#: deck.py:3286
 msgid "Spread new cards out through reviews"
 msgstr ""
 
@@ -615,45 +609,55 @@ msgstr "Textové soubory (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: deck.py:2222
+#: deck.py:2275
 msgid "The current model didn't exist"
 msgstr ""
 
-#: importing/csv.py:76
-msgid "The file had no non-empty lines."
-msgstr "Pole nemá žádné neprázdné řádky"
-
-#: importing/csv.py:105 importing/wcu.py:29
+#: importing/csvfile.py:40 importing/wcu.py:29
 msgid "The file was not in UTF8 format."
 msgstr "Soubor nebyl ve formátu UTF8"
 
-#: deck.py:704
+#: deck.py:710
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr ""
 
-#: deck.py:739
+#: deck.py:745
+#, fuzzy, python-format
+msgid "There is %d delayed new card."
+msgid_plural "There are %d delayed new cards."
+msgstr[0] "Nejprve vložte nějaké kartičky"
+msgstr[1] "Nejprve vložte nějaké kartičky"
+
+#: deck.py:759
 #, python-format
-msgid "There is <b>%d delayed</b> new card."
-msgid_plural "There are <b>%d delayed</b> new cards."
+msgid "There is %d inactive card."
+msgid_plural "There are %d inactive cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:746
+#: deck.py:766
 #, python-format
-msgid "There is <b>%d suspended</b> card."
-msgid_plural "There are <b>%d suspended</b> cards."
+msgid "There is %d leech."
+msgid_plural "There are %d leeches."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:697
+#: deck.py:752
+#, python-format
+msgid "There is %d suspended card."
+msgid_plural "There are %d suspended cards."
+msgstr[0] ""
+msgstr[1] ""
+
+#: deck.py:703
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:700
+#: deck.py:706
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -675,7 +679,7 @@ msgstr "Celkový pošet kartiček: <b>%d</b><br>"
 msgid "Total number of facts:"
 msgstr "Celkový pošet kartiček: <b>%d</b><br>"
 
-#: deck.py:929
+#: deck.py:976
 msgid "Unknown"
 msgstr "Neznámý"
 
@@ -689,11 +693,11 @@ msgstr "Nové kartičky"
 msgid "Update tags..."
 msgstr "Štítky výrazů"
 
-#: deck.py:2297
+#: deck.py:2350
 msgid "Updating priorities..."
 msgstr ""
 
-#: deck.py:2811
+#: deck.py:2864
 msgid "Upgrading Deck..."
 msgstr ""
 
@@ -714,7 +718,7 @@ msgstr ""
 msgid "[invalid question/answer format]"
 msgstr ""
 
-#: sync.py:227 sync.py:231
+#: sync.py:237 sync.py:241
 msgid "all"
 msgstr ""
 
@@ -732,11 +736,11 @@ msgstr "%s den"
 msgid "in %s"
 msgstr "za %s"
 
-#: sync.py:224 sync.py:225
+#: sync.py:234 sync.py:235
 msgid "off"
 msgstr ""
 
-#: deck.py:724
+#: deck.py:730
 msgid "unknown"
 msgstr "neznámý"
 
@@ -894,6 +898,10 @@ msgstr "neznámý"
 #~ msgstr "Textový soubor oddělený čárkou/středníkem (*.*)"
 
 #, fuzzy
+#~ msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
+#~ msgstr "Vzor nenalezen. Soubor musí být řádky s výrazy oddělenými čárkami, středníky nebo tabulátory."
+
+#, fuzzy
 #~ msgid "Current factor"
 #~ msgstr "Současný interval"
 
@@ -946,6 +954,9 @@ msgstr "neznámý"
 #~ msgid "Jouyou levels:"
 #~ msgstr "úrovně Jouyou"
 
+#~ msgid "Line %(line)d doesn't match pattern '%(pat)s'"
+#~ msgstr "Řádek %(line)d neodpovídá vzoru '%(pat)s"
+
 #~ msgid "Mandarin"
 #~ msgstr "mandarínština"
 
@@ -993,9 +1004,8 @@ msgstr "neznámý"
 #~ msgid "The answer."
 #~ msgstr "Odpověď"
 
-#, fuzzy
-#~ msgid "The deck is empty. Please add some cards."
-#~ msgstr "Nejprve vložte nějaké kartičky"
+#~ msgid "The file had no non-empty lines."
+#~ msgstr "Pole nemá žádné neprázdné řádky"
 
 #~ msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 #~ msgstr "Zatím nezobrazené kartičky: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
