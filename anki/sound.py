@@ -183,19 +183,22 @@ def stopMplayer(restart=False):
     if mplayerManager.mplayer:
         while 1:
             try:
-                mplayerManager.mplayer.communicate("quit\n")
+                mplayerManager.mplayer.stdin.write("quit\n")
                 break
             except OSError, e:
                 if e.errno != errno.EINTR:
                     # osx throws interrupt errors regularly, but we want to
                     # ignore other errors on shutdown
                     break
+            except IOError:
+                # already closed
+                break
             except ValueError:
                 # already closed
                 break
     if not restart:
         mplayerManager.mplayer = -1
-    mplayerCond.notify()
+    mplayerCond.notifyAll()
     mplayerCond.release()
 
 def stopMplayerOnce():
