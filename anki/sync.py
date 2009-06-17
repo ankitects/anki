@@ -35,6 +35,7 @@ from anki.media import checksum
 from anki.utils import ids2str, hexifyID
 from anki.lang import _
 from hooks import runHook
+from anki import DeckStorage
 
 if simplejson.__version__ < "1.7.3":
     raise "SimpleJSON must be 1.7.3 or later."
@@ -975,9 +976,23 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
         else:
             self.fullSyncFromServer(ret[1], ret[2])
 
+    def resetNoWeb(self, path, suspend):
+        if suspend:
+            suspend = ["noweb"]
+        else:
+            suspend = []
+        d = DeckStorage.Deck(path, backup=False)
+        ids = d.findCards("tag:noweb")
+        if not suspend:
+            d.updateTagPriorities()
+        d.updatePriorities(ids, suspend=suspend, dirty=False)
+        d.s.commit()
+        d.close()
+
     def fullSyncFromLocal(self, fields, path):
         global sendProgressHook
         try:
+            self.resetNoWeb(path, suspend=True)
             # write into a temporary file, since POST needs content-length
             src = open(path, "rb")
             (fd, name) = tempfile.mkstemp(prefix="anki")
@@ -1049,6 +1064,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             # if we were successful, overwrite old deck
             os.unlink(path)
             os.rename(tmpname, path)
+            self.resetNoWeb(path, suspend=False)
         finally:
             runHook("fullSyncFinished")
 
