@@ -447,13 +447,11 @@ Please do not file a bug report with Anki.<br>""")
     def handleLeech(self):
         self.deck.refresh()
         tags = self.currentCard.fact.tags
-        tags = addTags("Suspended", tags)
         tags = addTags("Leech", tags)
         self.currentCard.fact.tags = canonifyTags(tags)
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
-        for card in self.currentCard.fact.cards:
-            self.deck.updatePriority(card)
+        self.deck.suspendCards([self.currentCard.id])
         self.deck.refresh()
         self.setNotice(_("""\
 <b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>
@@ -1693,12 +1691,7 @@ learnt today")
     def onSuspend(self):
         undo = _("Suspend")
         self.deck.setUndoStart(undo)
-        self.currentCard.fact.tags = canonifyTags(
-            addTags("Suspended", self.currentCard.fact.tags))
-        self.currentCard.fact.setModified(textChanged=True)
-        self.deck.updateFactTags([self.currentCard.fact.id])
-        for card in self.currentCard.fact.cards:
-            self.deck.updatePriority(card)
+        self.deck.suspendCards([self.currentCard.id])
         self.deck.setModified()
         self.lastScheduledTime = None
         self.reset()
@@ -1887,7 +1880,7 @@ You are currently cramming. Please close this deck first."""))
         d.easyIntervalMin = 7.0
         d.easyIntervalMax = 9.0
         d.syncName = None
-        d.suspended = u"Suspended"
+        d.suspended = u""
         self.deck.updateProgress()
         d.updateAllPriorities()
         d.utcOffset = -1
