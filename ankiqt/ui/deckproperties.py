@@ -51,7 +51,6 @@ class DeckProperties(QDialog):
         self.dialog.highPriority.setText(self.d.highPriority)
         self.dialog.medPriority.setText(self.d.medPriority)
         self.dialog.lowPriority.setText(self.d.lowPriority)
-        self.dialog.postponing.setText(self.d.suspended)
         # scheduling
         for type in ("hard", "mid", "easy"):
             v = getattr(self.d, type + "IntervalMin")
@@ -260,9 +259,6 @@ class DeckProperties(QDialog):
         self.updateField(self.d,
                          "lowPriority",
                          unicode(self.dialog.lowPriority.text()))
-        self.updateField(self.d,
-                         "suspended",
-                         unicode(self.dialog.postponing.text()))
         prioritiesChanged = was != self.d.modified
         # sources
         d = {}
