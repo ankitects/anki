@@ -253,7 +253,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
 # Export modules
 ##########################################################################
 
-from anki.importing.csv import TextImporter
+from anki.importing.csvfile import TextImporter
 from anki.importing.anki10 import Anki10Importer
 from anki.importing.mnemosyne10 import Mnemosyne10Importer
 from anki.importing.wcu import WCUImporter
