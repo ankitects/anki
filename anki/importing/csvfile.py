@@ -90,14 +90,6 @@ class TextImporter(Importer):
         self.sniff()
         return self.numFields
 
-    def setNumFields(self, line):
-        self.numFields = len(self.parseLine(line))
-
-    def parseLine(self, line):
-        fields = line.split(self.pattern)
-        fields = [tidyHTML(f.strip()) for f in fields]
-        return fields
-
     def cardFromFields(self, fields):
         card = ForeignCard()
         card.fields.extend(fields)
