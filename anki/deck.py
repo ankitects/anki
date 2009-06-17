@@ -2862,7 +2862,6 @@ order by priority desc, due desc""")
             prog = True
             deck.startProgress()
             deck.updateProgress(_("Upgrading Deck..."))
-            deck.rebuildQueue()
         else:
             prog = False
         deck.path = path
@@ -3197,6 +3196,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.version = 37
             deck.s.commit()
         if deck.version < 38:
+            deck.rebuildQueue()
             # manually suspend all suspended cards
             ids = deck.findCards("tag:suspended")
             if ids:
