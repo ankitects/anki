@@ -1155,8 +1155,9 @@ your deck."""))
             for c, deck in enumerate(self.browserDecks):
                 # name
                 n = deck['name']
-                if len(n) > 15:
-                    n = n[:15] + "..."
+                lim = self.config['deckBrowserNameLength']
+                if len(n) > lim:
+                    n = n[:lim] + "..."
                 mod = _("%s ago") % anki.utils.fmtTimeSpan(
                     time.time() - deck['mod'])
                 mod = "<font size=-1>%s</font>" % mod
