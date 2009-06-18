@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:38+0900\n"
+"POT-Creation-Date: 2009-06-18 09:54+0200\n"
 "PO-Revision-Date: 2009-05-31 00:22+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: sound.py:208
+#: sound.py:238
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -318,7 +318,7 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr "Talia CueCard (*.wcu)"
 
-#: deck.py:3306
+#: deck.py:3295
 msgid "Custom failed cards handling"
 msgstr "Własna obsługa źle rozwiązanych kart"
 
@@ -455,7 +455,7 @@ msgstr "Pierwsze w ub. t."
 msgid "First-seen cards:"
 msgstr "Karty widziane po raz pierwszy:"
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Importowanie..."
 
@@ -560,19 +560,19 @@ msgstr "w nast. mies."
 msgid "Reps next week"
 msgstr "Powt. w nast. tyg."
 
-#: deck.py:3293
+#: deck.py:3282
 msgid "Review cards from largest interval"
 msgstr "Zacznij od kart o największej przerwie"
 
-#: deck.py:3294
+#: deck.py:3283
 msgid "Review cards from smallest interval"
 msgstr "Zacznij od kart o najmniejszej przerwie"
 
-#: deck.py:3295
+#: deck.py:3284
 msgid "Review cards in order due"
 msgstr "Przeglądaj karty w kolejności daty pojawienia się"
 
-#: deck.py:3296
+#: deck.py:3285
 msgid "Review cards in random order"
 msgstr "Przeglądaj karty w losowej kolejności"
 
@@ -588,47 +588,47 @@ msgstr "Po prawej"
 msgid "Scan fields..."
 msgstr "Skanowanie pól..."
 
-#: deck.py:3302
+#: deck.py:3291
 msgid "Show failed cards at end"
 msgstr "Pokaż źle rozwiązane karty na końcu"
 
-#: deck.py:3303
+#: deck.py:3292
 msgid "Show failed cards in 10 minutes"
 msgstr "Pokaż źle rozwiązane karty za 10 minut"
 
-#: deck.py:3305
+#: deck.py:3294
 msgid "Show failed cards in 3 days"
 msgstr "Pokaż źle rozwiązane karty za 3 dni"
 
-#: deck.py:3304
+#: deck.py:3293
 msgid "Show failed cards in 8 hours"
 msgstr "Pokaż źle rozwiązane karty za 8 godzin"
 
-#: deck.py:3301
+#: deck.py:3290
 msgid "Show failed cards soon"
 msgstr "Pokaż wkrótce źle rozwiązane karty"
 
-#: deck.py:3287
+#: deck.py:3276
 msgid "Show new cards after all other cards"
 msgstr "Pokaż nowe karty po wszystkich innych kartach"
 
-#: deck.py:3288
+#: deck.py:3277
 msgid "Show new cards before reviews"
 msgstr "Pokaż nowe karty przed powtórką"
 
-#: deck.py:3280
+#: deck.py:3269
 msgid "Show new cards in order added"
 msgstr "Pokaż nowe karty w kolejności dodania"
 
-#: deck.py:3279
+#: deck.py:3268
 msgid "Show new cards in random order"
 msgstr "Pokaż nowe karty w losowej kolejności"
 
-#: deck.py:3281
+#: deck.py:3270
 msgid "Show new cards in reverse order added"
 msgstr "Pokaż nowe karty w odwóconej kolejności dodania"
 
-#: deck.py:3286
+#: deck.py:3275
 msgid "Spread new cards out through reviews"
 msgstr "Rozprosz nowe karty między powtórkami"
 

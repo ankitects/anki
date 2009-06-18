@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:38+0900\n"
+"POT-Creation-Date: 2009-06-18 09:54+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: sound.py:208
+#: sound.py:238
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -306,7 +306,7 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3306
+#: deck.py:3295
 msgid "Custom failed cards handling"
 msgstr "Kohanda ununendud kaartide töötlust"
 
@@ -436,7 +436,7 @@ msgstr "Esimene eelmisel nädalal"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 #, fuzzy
 msgid "Importing..."
 msgstr "Ekspordin..."
@@ -545,19 +545,19 @@ msgstr "Kordamisi järgmisel kuul"
 msgid "Reps next week"
 msgstr "Kordamisi järgmisel nädalal"
 
-#: deck.py:3293
+#: deck.py:3282
 msgid "Review cards from largest interval"
 msgstr "Korda suurima vahekaugusega kaarte"
 
-#: deck.py:3294
+#: deck.py:3283
 msgid "Review cards from smallest interval"
 msgstr "Korda vähima vahekaugusega kaarte"
 
-#: deck.py:3295
+#: deck.py:3284
 msgid "Review cards in order due"
 msgstr "Korda kaarte tähtaegumise järjekorras"
 
-#: deck.py:3296
+#: deck.py:3285
 msgid "Review cards in random order"
 msgstr "Korda kaarte suvalises järjekorras"
 
@@ -573,47 +573,47 @@ msgstr "Parem"
 msgid "Scan fields..."
 msgstr "Uuri väljasid..."
 
-#: deck.py:3302
+#: deck.py:3291
 msgid "Show failed cards at end"
 msgstr "Näita ununenud kaarte lõpus"
 
-#: deck.py:3303
+#: deck.py:3292
 msgid "Show failed cards in 10 minutes"
 msgstr "Näita ununenud kaarte 10 minuti pärast"
 
-#: deck.py:3305
+#: deck.py:3294
 msgid "Show failed cards in 3 days"
 msgstr "Näita ununenud kaarte 3 päeva pärast"
 
-#: deck.py:3304
+#: deck.py:3293
 msgid "Show failed cards in 8 hours"
 msgstr "Näita ununenud kaarte 8 tunni pärast"
 
-#: deck.py:3301
+#: deck.py:3290
 msgid "Show failed cards soon"
 msgstr "Näita ununenud kaarte varsti"
 
-#: deck.py:3287
+#: deck.py:3276
 msgid "Show new cards after all other cards"
 msgstr "Näita uusi kaarte pärast kõiki teisi kaarte"
 
-#: deck.py:3288
+#: deck.py:3277
 msgid "Show new cards before reviews"
 msgstr "Näita uusi kaarte enne kordamist"
 
-#: deck.py:3280
+#: deck.py:3269
 msgid "Show new cards in order added"
 msgstr "Näita uusi kaarte lisamise järjekorras"
 
-#: deck.py:3279
+#: deck.py:3268
 msgid "Show new cards in random order"
 msgstr "Näita uusi kaarte suvalises järjekorras"
 
-#: deck.py:3281
+#: deck.py:3270
 msgid "Show new cards in reverse order added"
 msgstr "Näita uusi kaarte tagurpidi lisamise järjekorras"
 
-#: deck.py:3286
+#: deck.py:3275
 msgid "Spread new cards out through reviews"
 msgstr "Jaota uued kaardid üle kordamiste laiali"
 

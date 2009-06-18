@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:38+0900\n"
+"POT-Creation-Date: 2009-06-18 09:54+0200\n"
 "PO-Revision-Date: 2009-03-09 20:01-0000\n"
 "Last-Translator: Nick Cook <nick@n-line.co.uk>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sound.py:208
+#: sound.py:238
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -294,7 +294,7 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3306
+#: deck.py:3295
 msgid "Custom failed cards handling"
 msgstr "自定义忘记卡片处理"
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr ""
 
@@ -524,19 +524,19 @@ msgstr "下个月回答次数"
 msgid "Reps next week"
 msgstr "下周回答次数"
 
-#: deck.py:3293
+#: deck.py:3282
 msgid "Review cards from largest interval"
 msgstr "先复习早期卡片"
 
-#: deck.py:3294
+#: deck.py:3283
 msgid "Review cards from smallest interval"
 msgstr "先复习近期卡片"
 
-#: deck.py:3295
+#: deck.py:3284
 msgid "Review cards in order due"
 msgstr "按正常顺序复习"
 
-#: deck.py:3296
+#: deck.py:3285
 msgid "Review cards in random order"
 msgstr "按随机顺序进行复习"
 
@@ -552,47 +552,47 @@ msgstr "右对齐"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:3302
+#: deck.py:3291
 msgid "Show failed cards at end"
 msgstr "最后显示忘记的卡片"
 
-#: deck.py:3303
+#: deck.py:3292
 msgid "Show failed cards in 10 minutes"
 msgstr "10分钟后显示忘记的卡片"
 
-#: deck.py:3305
+#: deck.py:3294
 msgid "Show failed cards in 3 days"
 msgstr "3天后显示忘记的卡片"
 
-#: deck.py:3304
+#: deck.py:3293
 msgid "Show failed cards in 8 hours"
 msgstr "8小时后显示忘记的卡片"
 
-#: deck.py:3301
+#: deck.py:3290
 msgid "Show failed cards soon"
 msgstr "立即显示忘记的卡片"
 
-#: deck.py:3287
+#: deck.py:3276
 msgid "Show new cards after all other cards"
 msgstr "先复习，再学习新卡片"
 
-#: deck.py:3288
+#: deck.py:3277
 msgid "Show new cards before reviews"
 msgstr "先学习新卡片，再复习"
 
-#: deck.py:3280
+#: deck.py:3269
 msgid "Show new cards in order added"
 msgstr "按创建顺序学习新卡片"
 
-#: deck.py:3279
+#: deck.py:3268
 msgid "Show new cards in random order"
 msgstr "按随机顺序学习新卡片"
 
-#: deck.py:3281
+#: deck.py:3270
 msgid "Show new cards in reverse order added"
 msgstr "按与创建相反的顺序学习新卡片"
 
-#: deck.py:3286
+#: deck.py:3275
 msgid "Spread new cards out through reviews"
 msgstr "将学习与复习穿插进行"
 
