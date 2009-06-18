@@ -847,9 +847,10 @@ group by cardTags.cardId""" % limit)
         for pri in range(5):
             cs = [c[0] for c in cards if c[1] == pri]
             if cs:
+                # catch review early & buried but not suspended
                 self.s.statement((
                     "update cards set priority = :pri %s where id in %s "
-                    "and priority != :pri and priority >= 0") % (
+                    "and priority != :pri and priority >= -2") % (
                     extra, ids2str(cs)), pri=pri, m=time.time())
         cnt = self.s.execute(
             "update cards set isDue = 0 where type in (0,1,2) and "
