@@ -348,7 +348,9 @@ where factId in (select factId from %s limit 60))""" % (new, new))
         if lastDelay >= 0:
             # keep last interval if reviewing early
             card.lastInterval = last
-        card.lastDue = card.due
+        if card.reps:
+            # only update if card was not new
+            card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
         card.isDue = 0
         card.lastFactor = card.factor

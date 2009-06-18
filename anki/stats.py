@@ -265,12 +265,13 @@ class CardStats(object):
         if c.firstAnswered:
             self.addLine(_("First Review"), self.strTime(c.firstAnswered))
         self.addLine(_("Changed"), self.strTime(c.modified))
-        next = time.time() - c.due
-        if next > 0:
-            next = _("%s ago") % fmt(next)
-        else:
-            next = _("in %s") % fmt(abs(next))
-        self.addLine(_("Due"), next)
+        if c.reps:
+            next = time.time() - c.due
+            if next > 0:
+                next = _("%s ago") % fmt(next)
+            else:
+                next = _("in %s") % fmt(abs(next))
+            self.addLine(_("Due"), next)
         self.addLine(_("Interval"), fmt(c.interval * 86400))
         self.addLine(_("Ease"), fmtFloat(c.factor, point=2))
         if c.lastDue:
