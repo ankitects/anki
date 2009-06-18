@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"POT-Creation-Date: 2009-06-18 09:46+0200\n"
 "PO-Revision-Date: 2009-05-31 00:26+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -49,7 +49,7 @@ msgstr ""
 "Podziękowania dla wszystkich osób, które podawały pomysły, zgłaszały błędy\n"
 "i wpłacały dary pieniężne."
 
-#: ui/status.py:243
+#: ui/status.py:250
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -133,8 +133,8 @@ msgstr[0] "%(name)s [%(facts)d fakt]"
 msgstr[1] "%(name)s [%(facts)d fakty]"
 msgstr[2] "%(name)s [%(facts)d faktów]"
 
-#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
-#: ui/status.py:237 ui/status.py:239
+#: ui/status.py:231 ui/status.py:233 ui/status.py:238 ui/status.py:242
+#: ui/status.py:244 ui/status.py:246
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d z %(totalSum)d"
@@ -951,7 +951,7 @@ msgstr "Znowu"
 msgid "All Fields"
 msgstr "Wszystkie pola"
 
-#: ui/status.py:229
+#: ui/status.py:236
 msgid "All Reviews"
 msgstr "Wszystkie powtórki"
 
@@ -1023,7 +1023,7 @@ msgstr ""
 "tekst do raportu o błędzie.<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1064,7 +1064,7 @@ msgstr "Dodaj do tego faktu etykietę 'zaznaczony', żeby potem można było go 
 msgid "Applying reply..."
 msgstr "Wprowadzanie odpowiedzi..."
 
-#: ui/status.py:227 ui/status.py:232
+#: ui/status.py:234 ui/status.py:239
 msgid "Average time per answer: "
 msgstr "Średni czas na odpowiedź: "
 
@@ -1248,7 +1248,7 @@ msgstr "Wybierz plik, do którego ma nastąpić eksport"
 msgid "Choose the categories to show during review"
 msgstr "Wybierz kategorie wyświetlane podczas powtórki"
 
-#: ui/status.py:221
+#: ui/status.py:228
 msgid "Click the bars to learn more."
 msgstr "Kliknij na paski, by dowiedzieć się więcej."
 
@@ -1306,19 +1306,19 @@ msgstr "Kontynuuj powtórkę"
 msgid "Copy: %s"
 msgstr "Kopia: %s"
 
-#: ui/status.py:236
+#: ui/status.py:243
 msgid "Correct first time: "
 msgstr "Poprawne za pierwszym razem: "
 
-#: ui/status.py:225 ui/status.py:230
+#: ui/status.py:232 ui/status.py:237
 msgid "Correct over a month: "
 msgstr "Poprawne w ciągu miesiąca: "
 
-#: ui/status.py:223
+#: ui/status.py:230
 msgid "Correct today: "
 msgstr "Poprawne dzisiaj: "
 
-#: ui/status.py:234
+#: ui/status.py:241
 msgid "Correct under a month: "
 msgstr "Poprawne w ciągu miesiąca: "
 
@@ -1552,10 +1552,6 @@ msgstr "Usuń aktualnie wyświetlaną kartę"
 msgid "Determining differences..."
 msgstr "Ustalanie różnic..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr ""
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "&Wyłącz"
@@ -1633,7 +1629,7 @@ msgstr "Pojawienie się"
 msgid "E&xit"
 msgstr "Zakoń&cz"
 
-#: ui/status.py:209
+#: ui/status.py:216
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Do końca: <b>%(timeLeft)s</b>"
@@ -2213,7 +2209,7 @@ msgstr "Hasło"
 msgid "Password:"
 msgstr "Hasło:"
 
-#: ui/status.py:220
+#: ui/status.py:227
 msgid "Performance"
 msgstr "Forma"
 
@@ -2240,11 +2236,6 @@ msgstr "Dodaj najpierw nowy model."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-#, fuzzy
-msgid "Please choose a field to sort by."
-msgstr "Dodaj najpierw nowe pole."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2402,7 +2393,7 @@ msgstr "Odśwież"
 msgid "Release Notes..."
 msgstr "Informacje o wydaniu..."
 
-#: ui/status.py:192
+#: ui/status.py:199
 msgid "Remaining cards"
 msgstr "Pozostałe karty"
 
@@ -2458,7 +2449,7 @@ msgstr "Czas powtórki"
 msgid "Reviews due:"
 msgstr "Do przeglądnięcia:"
 
-#: ui/status.py:222
+#: ui/status.py:229
 msgid "Reviews today"
 msgstr "Powtórki dzisiaj"
 
@@ -2529,7 +2520,7 @@ msgstr "Wyczyść zaznaczenie"
 
 #: forms/activetags.py:41
 #, fuzzy
-msgid "Select tags to deactivate. Deselct tags to active again."
+msgid "Select tags to deactivate. Deselect tags to activate again."
 msgstr "Wybierz etykiety do zawieszenia. Usuń zaznaczenie by usunąć zawieszenie."
 
 #: ui/main.py:1487
@@ -2818,7 +2809,7 @@ msgstr "Zmienił się protokół synchronizacji. Zaktualizuj Anki."
 msgid "The total number of new cards in the deck"
 msgstr "Ogólna liczba nowych kart w talii"
 
-#: ui/status.py:196
+#: ui/status.py:203
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
@@ -2826,7 +2817,7 @@ msgstr[0] "<b>%d</b> karta czeka na powtórzenie."
 msgstr[1] "<b>%d</b> karty czekają na powtórzenie."
 msgstr[2] "<b>%d</b> kart czeka na powtórzenie."
 
-#: ui/status.py:205
+#: ui/status.py:212
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
@@ -2834,7 +2825,7 @@ msgstr[0] "<b>%d</b> karta jest odroczona."
 msgstr[1] "<b>%d</b> karty są odroczone."
 msgstr[2] "<b>%d</b> kart jest odroczonych."
 
-#: ui/status.py:193
+#: ui/status.py:200
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
@@ -2842,7 +2833,7 @@ msgstr[0] "<b>%d</b> źle rozwiązana karta pojawi się wkrótce."
 msgstr[1] "<b>%d</b> źle rozwiązane kart pojawią się wkrótce."
 msgstr[2] "<b>%d</b> źle rozwiązanych kart pojawi się wkrótce."
 
-#: ui/status.py:199
+#: ui/status.py:206
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
@@ -2850,7 +2841,7 @@ msgstr[0] "Dzisiaj pojawi się <b>%d</b> nowa karta."
 msgstr[1] "Dzisiaj pojawią się <b>%d</b> nowe karty."
 msgstr[2] "Dzisiaj pojawi się <b>%d</b> nowych kart."
 
-#: ui/status.py:202
+#: ui/status.py:209
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
@@ -2987,11 +2978,11 @@ msgstr "Zakończono dzisiejsze powtórki"
 msgid "Toggle Toolbar"
 msgstr "Pokaż/ukryj pasek narzędzi"
 
-#: ui/status.py:238
+#: ui/status.py:245
 msgid "Total correct: "
 msgstr "Razem poprawnych: "
 
-#: ui/status.py:228 ui/status.py:233
+#: ui/status.py:235 ui/status.py:240
 msgid "Total review time: "
 msgstr "Całkowity czas powtórki: "
 
@@ -3320,6 +3311,10 @@ msgstr "toplabel"
 
 #~ msgid "Open a pre-made deck or plugin"
 #~ msgstr "Otwórz przygotowaną talię lub dodatek"
+
+#, fuzzy
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Dodaj najpierw nowe pole."
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Powtórz &nagranie odpowiedzi"

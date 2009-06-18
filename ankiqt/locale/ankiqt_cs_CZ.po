@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"POT-Creation-Date: 2009-06-18 09:46+0200\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,7 +35,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:243
+#: ui/status.py:250
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -112,8 +112,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d údaje, %(cards)d kartičky]"
 msgstr[1] "%(name)s [%(facts)d údaje, %(cards)d kartičky]"
 
-#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
-#: ui/status.py:237 ui/status.py:239
+#: ui/status.py:231 ui/status.py:233 ui/status.py:238 ui/status.py:242
+#: ui/status.py:244 ui/status.py:246
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -998,7 +998,7 @@ msgstr ""
 msgid "All Fields"
 msgstr "Pole"
 
-#: ui/status.py:229
+#: ui/status.py:236
 #, fuzzy
 msgid "All Reviews"
 msgstr "Opakování"
@@ -1060,7 +1060,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
@@ -1101,7 +1101,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr ""
 
-#: ui/status.py:227 ui/status.py:232
+#: ui/status.py:234 ui/status.py:239
 msgid "Average time per answer: "
 msgstr ""
 
@@ -1292,7 +1292,7 @@ msgstr "Zvolte soubor pro export"
 msgid "Choose the categories to show during review"
 msgstr ""
 
-#: ui/status.py:221
+#: ui/status.py:228
 msgid "Click the bars to learn more."
 msgstr ""
 
@@ -1351,19 +1351,19 @@ msgstr ""
 msgid "Copy: %s"
 msgstr ""
 
-#: ui/status.py:236
+#: ui/status.py:243
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:225 ui/status.py:230
+#: ui/status.py:232 ui/status.py:237
 msgid "Correct over a month: "
 msgstr ""
 
-#: ui/status.py:223
+#: ui/status.py:230
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:234
+#: ui/status.py:241
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1605,10 +1605,6 @@ msgstr ""
 msgid "Determining differences..."
 msgstr ""
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Deak&tivovat"
@@ -1687,7 +1683,7 @@ msgstr ""
 msgid "E&xit"
 msgstr "&Ukončit"
 
-#: ui/status.py:209
+#: ui/status.py:216
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Zbývající čas: <b>%(timeLeft)s</b>"
@@ -2303,7 +2299,7 @@ msgstr "Heslo"
 msgid "Password:"
 msgstr "Heslo"
 
-#: ui/status.py:220
+#: ui/status.py:227
 #, fuzzy
 msgid "Performance"
 msgstr "Nastavení"
@@ -2336,10 +2332,6 @@ msgstr ""
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Prosím zvolte pole třídění"
 
 #: ui/sync.py:70
 #, fuzzy
@@ -2504,7 +2496,7 @@ msgstr ""
 msgid "Release Notes..."
 msgstr ""
 
-#: ui/status.py:192
+#: ui/status.py:199
 #, fuzzy
 msgid "Remaining cards"
 msgstr "Zbývá: "
@@ -2569,7 +2561,7 @@ msgstr "Opakování"
 msgid "Reviews due:"
 msgstr "Opakování"
 
-#: ui/status.py:222
+#: ui/status.py:229
 #, fuzzy
 msgid "Reviews today"
 msgstr "Opakování"
@@ -2648,7 +2640,7 @@ msgid "Select None"
 msgstr "Smazat štítek u kartičky..."
 
 #: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselct tags to active again."
+msgid "Select tags to deactivate. Deselect tags to activate again."
 msgstr ""
 
 #: ui/main.py:1487
@@ -2955,35 +2947,35 @@ msgstr "Protokol pro synchronizaci se změnil. Aktualizujte Anki."
 msgid "The total number of new cards in the deck"
 msgstr "Počet vložených kartičk za daný den"
 
-#: ui/status.py:196
+#: ui/status.py:203
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:205
+#: ui/status.py:212
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:193
+#: ui/status.py:200
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:199
+#: ui/status.py:206
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:202
+#: ui/status.py:209
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
@@ -3103,11 +3095,11 @@ msgstr ""
 msgid "Toggle Toolbar"
 msgstr ""
 
-#: ui/status.py:238
+#: ui/status.py:245
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:228 ui/status.py:233
+#: ui/status.py:235 ui/status.py:240
 #, fuzzy
 msgid "Total review time: "
 msgstr "Opakování"
@@ -4030,6 +4022,9 @@ msgstr ""
 #~ msgid "Description && Synchronisation"
 #~ msgstr "Popis && synchronizace"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #, fuzzy
 #~ msgid "Disp&lay Properties..."
 #~ msgstr "Vlastnosti &zobrazení"
@@ -4235,6 +4230,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Please add a new card first."
 #~ msgstr "Prosím zodpovězte ještě několik kartiček."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Prosím zvolte pole třídění"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "Prosím dvakrát zkontrolujte přihlašovací jméno"

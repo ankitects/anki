@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"POT-Creation-Date: 2009-06-18 09:46+0200\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,7 +51,7 @@ msgstr ""
 "A big thanks to all the people who have provided suggestions, bug reports and\n"
 "donations."
 
-#: ui/status.py:243
+#: ui/status.py:250
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -134,8 +134,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d баримт]"
 msgstr[1] "%(name)s [%(facts)d баримтууд]"
 
-#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
-#: ui/status.py:237 ui/status.py:239
+#: ui/status.py:231 ui/status.py:233 ui/status.py:238 ui/status.py:242
+#: ui/status.py:244 ui/status.py:246
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(totalSum)d-с %(partOf)d"
@@ -963,7 +963,7 @@ msgstr "Дахиад"
 msgid "All Fields"
 msgstr "Бүх талбарууд"
 
-#: ui/status.py:229
+#: ui/status.py:236
 msgid "All Reviews"
 msgstr "Бүх давталтууд"
 
@@ -1037,7 +1037,7 @@ msgstr ""
 "алдааны тайланд хуулаарай:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Анки"
 
@@ -1078,7 +1078,7 @@ msgstr "Дараа браузерын дээр энэ баримт хайхаа�
 msgid "Applying reply..."
 msgstr "Хариултыг хадгалж байна..."
 
-#: ui/status.py:227 ui/status.py:232
+#: ui/status.py:234 ui/status.py:239
 msgid "Average time per answer: "
 msgstr "Нэг хариултын дундаж цаг:"
 
@@ -1263,7 +1263,7 @@ msgstr "Экспортын файлыг сонго"
 msgid "Choose the categories to show during review"
 msgstr "Давталтын турш аль төрлийг нь сонго"
 
-#: ui/status.py:221
+#: ui/status.py:228
 #, fuzzy
 msgid "Click the bars to learn more."
 msgstr "Өгөгдлийн саныг алдаануудад шалгах..."
@@ -1322,19 +1322,19 @@ msgstr "Давтахыг Үргэлжлэх"
 msgid "Copy: %s"
 msgstr "Хуулах: %s"
 
-#: ui/status.py:236
+#: ui/status.py:243
 msgid "Correct first time: "
 msgstr "Эхлээд удаахын нь"
 
-#: ui/status.py:225 ui/status.py:230
+#: ui/status.py:232 ui/status.py:237
 msgid "Correct over a month: "
 msgstr "Сараас илүү зөв хариулсан нь:"
 
-#: ui/status.py:223
+#: ui/status.py:230
 msgid "Correct today: "
 msgstr "Өнөөдөр зөв хариулсан нь:"
 
-#: ui/status.py:234
+#: ui/status.py:241
 msgid "Correct under a month: "
 msgstr "Сараас бага зөв хариулсан нь:"
 
@@ -1571,10 +1571,6 @@ msgstr "Одоогийн картыг устгах"
 msgid "Determining differences..."
 msgstr "Ялгааг тодорхойлж байна..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Диалог"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "&Унтраах"
@@ -1652,7 +1648,7 @@ msgstr "Дахин давтах"
 msgid "E&xit"
 msgstr "&Гарах"
 
-#: ui/status.py:209
+#: ui/status.py:216
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "<b>%(timeLeft)s</b> үлдлэж байна"
@@ -2236,7 +2232,7 @@ msgstr "Нууц үг"
 msgid "Password:"
 msgstr "Нууц үг:"
 
-#: ui/status.py:220
+#: ui/status.py:227
 msgid "Performance"
 msgstr "Удирдлага"
 
@@ -2264,10 +2260,6 @@ msgstr "Дахин зүйл нэмнэ уу?"
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Талбараас эрэмбэлэхээр нь сонго."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2425,7 +2417,7 @@ msgstr "Шинэчлэх"
 msgid "Release Notes..."
 msgstr "Чөлөөлөлтийн баримтууд..."
 
-#: ui/status.py:192
+#: ui/status.py:199
 msgid "Remaining cards"
 msgstr "Үлдээсэн картууд"
 
@@ -2482,7 +2474,7 @@ msgstr "Давталтын Цаг"
 msgid "Reviews due:"
 msgstr "Өнөөдрийн давталтууд"
 
-#: ui/status.py:222
+#: ui/status.py:229
 msgid "Reviews today"
 msgstr "Өнөөдрийн давталтууд"
 
@@ -2554,7 +2546,7 @@ msgid "Select None"
 msgstr "&Бүгдийг сонго"
 
 #: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselct tags to active again."
+msgid "Select tags to deactivate. Deselect tags to activate again."
 msgstr ""
 
 #: ui/main.py:1487
@@ -2845,35 +2837,35 @@ msgstr "Давхцал протокол өөрчлүүлсэн. Программ
 msgid "The total number of new cards in the deck"
 msgstr ""
 
-#: ui/status.py:196
+#: ui/status.py:203
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
 msgstr[0] "<b>%d</b> карт давтах хэрэгтэй."
 msgstr[1] "<b>%d</b> картууд давтах хэрэгтэй."
 
-#: ui/status.py:205
+#: ui/status.py:212
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
 msgstr[0] "<b>%d</b> удаасан карт байна."
 msgstr[1] "<b>%d</b> удаасан картууд байна."
 
-#: ui/status.py:193
+#: ui/status.py:200
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
 msgstr[0] "<b>%d</b> дампуурсан карт одоохон дахин давтах хэрэгтэй."
 msgstr[1] "<b>%d</b> дампуурсан картууд одоохон дахин давтах хэрэгтэй."
 
-#: ui/status.py:199
+#: ui/status.py:206
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
 msgstr[0] "<b>%d</b> дампуурсан карт өнөөдөр дахин давтах хэрэгтэй."
 msgstr[1] "Картуудаас <b>%d</b> дампуурсан нь өнөөдөр дахин давтах хэрэгтэй."
 
-#: ui/status.py:202
+#: ui/status.py:209
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
@@ -3009,11 +3001,11 @@ msgstr "Өнөөдрийн давталтууд дууссан"
 msgid "Toggle Toolbar"
 msgstr "Багажид самбарыг хөшүүрэгдэх"
 
-#: ui/status.py:238
+#: ui/status.py:245
 msgid "Total correct: "
 msgstr "Зөв нь:"
 
-#: ui/status.py:228 ui/status.py:233
+#: ui/status.py:235 ui/status.py:240
 msgid "Total review time: "
 msgstr "Нийт давталтын цаг:"
 
@@ -3378,6 +3370,9 @@ msgstr "toplabel"
 #~ msgid "Customize card layout, fields, etc"
 #~ msgstr "Картын байрлал, талбарууд, гэх мэтийг тохируулах"
 
+#~ msgid "Dialog"
+#~ msgstr "Диалог"
+
 #, fuzzy
 #~ msgid "Download Deck"
 #~ msgstr "Нийтийн Цуглуулгыг тат"
@@ -3415,6 +3410,9 @@ msgstr "toplabel"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Эхлээд шинэ картыг нэмнэ уу?"
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Талбараас эрэмбэлэхээр нь сонго."
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "&Хариултын дуу дахиад тоглох"
