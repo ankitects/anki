@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select tags to deactivate. Deselct tags to active again.</string>
+      <string>Select tags to deactivate. Deselect tags to activate again.</string>
      </property>
     </widget>
    </item>
