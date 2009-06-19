@@ -6,8 +6,8 @@ from PyQt4.QtCore import *
 import os, types, socket, time, traceback
 import ankiqt
 import anki
-from anki.sync import SyncClient, HttpSyncServerProxy, BulkMediaSyncerProxy
-from anki.sync import BulkMediaSyncer, SYNC_HOST, SYNC_PORT
+from anki.sync import SyncClient, HttpSyncServerProxy, copyLocalMedia
+from anki.sync import SYNC_HOST, SYNC_PORT
 from anki.errors import *
 from anki import DeckStorage
 import ankiqt.forms
@@ -127,8 +127,6 @@ class Sync(QThread):
                     else:
                         self.setStatus(_("Downloading..."), 0)
                         client.fullSyncFromServer(ret[1], ret[2])
-                    if client.mediaSupported():
-                        self.doBulkDownload(proxy.deckName)
                     self.setStatus(_("Sync complete."), 0)
                 else:
                     # diff
@@ -142,8 +140,6 @@ class Sync(QThread):
                     # apply reply
                     self.setStatus(_("Applying reply..."), 0)
                     client.applyPayloadReply(res)
-                    if client.mediaSyncPending:
-                        self.doBulkDownload(proxy.deckName)
                     # finished. save deck, preserving mod time
                     self.setStatus(_("Sync complete."))
                     self.deck.lastLoaded = self.deck.modified
@@ -173,8 +169,6 @@ class Sync(QThread):
                     self.setStatus(msg + _(" applied %d modified cards.") %
                                    len(payload['cards']))
                     client.applyOneWayPayload(payload)
-                    if client.mediaSyncPending:
-                        self.doBulkDownload("")
                 self.setStatus(_("Check complete."))
                 self.deck.s.flush()
                 self.deck.s.commit()
@@ -196,22 +190,6 @@ class Sync(QThread):
             self.setStatus(_("Syncing failed: %(a)s") % {
                 'a': err})
             self.error(e)
-
-    def doBulkDownload(self, deckname):
-        self.emit(SIGNAL("openSyncProgress"))
-        client = BulkMediaSyncer(self.deck)
-        client.server = BulkMediaSyncerProxy(self.user, self.pwd)
-        client.server.deckName = deckname
-        client.progressCallback = self.bulkCallback
-        try:
-            client.sync()
-        except:
-            self.emit(SIGNAL("bulkSyncFailed"))
-        time.sleep(0.1)
-        self.emit(SIGNAL("closeSyncProgress"))
-
-    def bulkCallback(self, *args):
-        self.emit(SIGNAL("updateSyncProgress"), args)
 
 # Choosing a deck to sync to
 ##########################################################################
