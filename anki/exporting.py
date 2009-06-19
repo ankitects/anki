@@ -12,7 +12,7 @@ import itertools, time, re
 from operator import itemgetter
 from anki import DeckStorage
 from anki.cards import Card
-from anki.sync import SyncClient, SyncServer, BulkMediaSyncer
+from anki.sync import SyncClient, SyncServer, copyLocalMedia
 from anki.lang import _
 from anki.utils import findTag, parseTags, stripHTML, ids2str
 from anki.tags import tagIds
@@ -118,11 +118,7 @@ modified = :now
             self.newDeck.s.statement("""
 delete from stats""")
         # media
-        if client.mediaSyncPending:
-            bulkClient = BulkMediaSyncer(client.deck)
-            bulkServer = BulkMediaSyncer(server.deck)
-            bulkClient.server = bulkServer
-            bulkClient.sync()
+        copyLocalMedia(client.deck, server.deck)
         # need to save manually
         self.newDeck.rebuildCounts()
         self.newDeck.updateAllPriorities()

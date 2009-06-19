@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext'
 
 from anki import DeckStorage
 from anki.importing import Importer
-from anki.sync import SyncClient, SyncServer, BulkMediaSyncer
+from anki.sync import SyncClient, SyncServer, copyLocalMedia
 from anki.lang import _
 from anki.utils import ids2str
 from anki.deck import NEW_CARDS_RANDOM
@@ -57,12 +57,7 @@ class Anki10Importer(Importer):
         res = server.applyPayload(payload)
         self.deck.updateProgress()
         client.applyPayloadReply(res)
-        if client.mediaSyncPending:
-            bulkClient = BulkMediaSyncer(client.deck)
-            bulkServer = BulkMediaSyncer(server.deck)
-            bulkClient.oneWay = True
-            bulkClient.server = bulkServer
-            bulkClient.sync()
+        copyLocalMedia(server.deck, client.deck)
         # add tags
         self.deck.updateProgress()
         fids = [f[0] for f in res['added-facts']['facts']]

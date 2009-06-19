@@ -8,6 +8,7 @@ from anki import DeckStorage
 from anki.db import *
 from anki.stdmodels import BasicModel
 from anki.sync import SyncClient, SyncServer, HttpSyncServer, HttpSyncServerProxy
+from anki.sync import copyLocalMedia
 from anki.stats import dailyStats, globalStats
 from anki.facts import Fact
 from anki.cards import Card
@@ -237,13 +238,20 @@ def test_localsync_media():
     assert len(os.listdir(deck1media)) == 2
     assert len(os.listdir(deck2media)) == 1
     client.sync()
-    assert len(os.listdir(deck1media)) == 3
-    assert len(os.listdir(deck2media)) == 3
+    # metadata should have been copied
     assert deck1.s.scalar("select count(1) from media") == 3
     assert deck2.s.scalar("select count(1) from media") == 3
+    # copy local files
+    copyLocalMedia(deck1, deck2)
+    assert len(os.listdir(deck1media)) == 2
+    assert len(os.listdir(deck2media)) == 3
+    copyLocalMedia(deck2, deck1)
+    assert len(os.listdir(deck1media)) == 3
+    assert len(os.listdir(deck2media)) == 3
     # check delete
     os.unlink(os.path.join(deck1media, "22161b29b0c18e068038021f54eee1ee.png"))
-    time.sleep(0.1)
+    os.system("sync")
+    time.sleep(0.2)
     rebuildMediaDir(deck1)
     client.sync()
     assert deck1.s.scalar("select count(1) from media") == 2

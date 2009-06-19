@@ -20,7 +20,7 @@ createDeck(name): create a deck on the server
 """
 __docformat__ = 'restructuredtext'
 
-import zlib, re, urllib, urllib2, socket, simplejson, time
+import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
 import os, base64, httplib, sys, tempfile, httplib
 from datetime import date
 import anki, anki.deck, anki.cards
@@ -31,7 +31,6 @@ from anki.cards import Card
 from anki.stats import Stats, globalStats
 from anki.history import CardHistoryEntry
 from anki.stats import globalStats
-from anki.media import checksum
 from anki.utils import ids2str, hexifyID
 from anki.lang import _
 from hooks import runHook
@@ -46,6 +45,8 @@ SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
 # testing
 #SYNC_URL = "http://localhost:8001/sync/"
 #SYNC_HOST = "localhost"; SYNC_PORT = 8001
+
+KEYS = ("models", "facts", "cards", "media")
 
 ##########################################################################
 # Monkey-patch httplib to incrementally send instead of chewing up large
@@ -93,7 +94,6 @@ class SyncTools(object):
         self.deck = deck
         self.diffs = {}
         self.serverExcludedTags = []
-        self.mediaSyncPending = False
 
     # Control
     ##########################################################################
@@ -109,11 +109,6 @@ class SyncTools(object):
         payload = self.genPayload(sums)
         res = self.server.applyPayload(payload)
         self.applyPayloadReply(res)
-        if self.mediaSyncPending:
-            bulkClient = BulkMediaSyncer(self.deck)
-            bulkServer = BulkMediaSyncer(self.server.deck)
-            bulkClient.server = bulkServer
-            bulkClient.sync()
 
     def prepareSync(self):
         "Sync setup. True if sync needed."
@@ -137,7 +132,7 @@ class SyncTools(object):
         self.preSyncRefresh()
         payload = {}
         # first, handle models, facts and cards
-        for key in self.keys():
+        for key in KEYS:
             diff = self.diffSummary(lsum, rsum, key)
             payload["added-" + key] = self.getObjsFromKey(diff[0], key)
             payload["deleted-" + key] = diff[1]
@@ -156,12 +151,14 @@ class SyncTools(object):
         reply = {}
         self.preSyncRefresh()
         # model, facts and cards
-        for key in self.keys():
+        for key in KEYS:
+            k = 'added-' + key
             # send back any requested
-            reply['added-' + key] = self.getObjsFromKey(
+            reply[k] = self.getObjsFromKey(
                 payload['missing-' + key], key)
-            self.updateObjsFromKey(payload['added-' + key], key)
-            self.deleteObjsFromKey(payload['deleted-' + key], key)
+            if k in payload:
+                self.updateObjsFromKey(payload['added-' + key], key)
+                self.deleteObjsFromKey(payload['deleted-' + key], key)
         # send back deck-related stuff if it wasn't sent to us
         if not 'deck' in payload:
             reply['deck'] = self.bundleDeck()
@@ -186,8 +183,11 @@ class SyncTools(object):
 
     def applyPayloadReply(self, reply):
         # model, facts and cards
-        for key in self.keys():
-            self.updateObjsFromKey(reply['added-' + key], key)
+        for key in KEYS:
+            k = 'added-' + key
+            # old version may not send media
+            if k in reply:
+                self.updateObjsFromKey(reply['added-' + key], key)
         # deck
         if 'deck' in reply:
             self.updateDeck(reply['deck'])
@@ -226,12 +226,6 @@ class SyncTools(object):
             'lm': len(payload['added-models']),
             'rm': len(payload['missing-models']),
             }
-        if self.mediaSupported():
-            h['lM'] = len(payload['added-media'])
-            h['rM'] = len(payload['missing-media'])
-        else:
-            h['lM'] = _("off")
-            h['rM'] = _("off")
         if self.localTime > self.remoteTime:
             h['ls'] = _('all')
             h['rs'] = 0
@@ -249,7 +243,6 @@ class SyncTools(object):
 <tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>
 <tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>
 <tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>
-<tr><td>Media</td><td>%(lM)s</td><td>%(rM)s</td></tr>
 <tr><td>Stats</td><td>%(ls)s</td><td>%(rs)s</td></tr>
 </table>""") % p
 
@@ -709,22 +702,13 @@ insert or replace into sources values
                                   lastSync=s[3],
                                   syncPeriod=s[4])
 
-    # Media
+    # Media metadata
     ##########################################################################
 
-    def getMedia(self, ids, updateCreated=False):
-        size = self.deck.s.scalar(
-            "select sum(size) from media where id in %s" %
-            ids2str(ids))
-        if ids:
-            self.mediaSyncPending = True
-        if updateCreated:
-            created = time.time()
-        else:
-            created = "created"
+    def getMedia(self, ids):
         return [tuple(row) for row in self.deck.s.all("""
-select id, filename, size, %s, originalPath, description
-from media where id in %s""" % (created, ids2str(ids)))]
+select id, filename, size, created, originalPath, description
+from media where id in %s""" % ids2str(ids))]
 
     def updateMedia(self, media):
         meta = []
@@ -739,7 +723,6 @@ from media where id in %s""" % (created, ids2str(ids)))]
                 'description': m[5]})
         # apply metadata
         if meta:
-            self.mediaSyncPending = True
             self.deck.s.statements("""
 insert or replace into media (id, filename, size, created,
 originalPath, description)
@@ -759,21 +742,6 @@ select id, :now from media
 where media.id in %s""" % sids, now=time.time())
         self.deck.s.execute(
             "delete from media where id in %s" % sids)
-        for file in files:
-            self.deleteMediaFile(file)
-
-    # the following routines are reimplemented by the anki server so that
-    # media can be shared and accounted
-
-    def deleteMediaFile(self, file):
-        try:
-            os.unlink(self.mediaPath(file))
-        except OSError:
-            pass
-
-    def mediaPath(self, path):
-        "Return the path to store media in. Defaults to the deck media dir."
-        return os.path.join(self.deck.mediaDir(create=True), path)
 
     # One-way syncing (sharing)
     ##########################################################################
@@ -810,12 +778,9 @@ where media.id in %s""" % sids, now=time.time())
             "select id from models where modified > :l", l=lastSync)
         p['models'] = self.getModels(modelIds, updateModified=True)
         # media
-        if self.mediaSupported():
-            mediaIds = self.deck.s.column0(
-                "select id from media where created > :l", l=lastSync)
-            p['media'] = self.getMedia(mediaIds, updateCreated=True)
-            if p['media']:
-                self.mediaSyncPending = True
+        mediaIds = self.deck.s.column0(
+            "select id from media where created > :l", l=lastSync)
+        p['media'] = self.getMedia(mediaIds)
         # cards
         cardIds = self.deck.s.column0(
             "select id from cards where modified > :l", l=lastSync)
@@ -823,7 +788,7 @@ where media.id in %s""" % sids, now=time.time())
         return p
 
     def applyOneWayPayload(self, payload):
-        keys = [k for k in self.keys() if k != "cards"]
+        keys = [k for k in KEYS if k != "cards"]
         # model, facts, media
         for key in keys:
             self.updateObjsFromKey(payload[key], key)
@@ -833,9 +798,6 @@ where media.id in %s""" % sids, now=time.time())
                                   "where id = :id",
                                   s=self.server.deckName,
                                   id=m['id'])
-        # if media arrived, we'll need to download the data
-        self.mediaSyncPending = (self.mediaSyncPending or
-                                 self.mediaSupported() and payload['media'])
         # cards last, handled differently
         t = time.time()
         try:
@@ -935,11 +897,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
 
     def updateObjsFromKey(self, ids, key):
         return getattr(self, "update" + key.capitalize())(ids)
-
-    def keys(self):
-        if self.mediaSupported():
-            return standardKeys + ("media",)
-        return standardKeys
 
     # Full sync
     ##########################################################################
@@ -1055,7 +1012,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
 # Local syncing
 ##########################################################################
 
-standardKeys = ("models", "facts", "cards")
 
 class SyncServer(SyncTools):
 
@@ -1188,110 +1144,20 @@ class HttpSyncServer(SyncServer):
         "Create a deck on the server. Not implemented."
         return self.stuff("OK")
 
-# Bulk uploader/downloader
+# Local media copying
 ##########################################################################
 
-class BulkMediaSyncer(SyncTools):
-
-    def __init__(self, deck):
-        self.deck = deck
-        self.server = None
-        self.oneWay = False
-
-    def missingMedia(self):
-        fnames = self.deck.s.column0(
-            "select filename from media")
-        return [f for f in fnames if
-                not os.path.exists(self.mediaPath(f))]
-
-    def progressCallback(self, type, count, total, fname):
+def copyLocalMedia(src, dst):
+    src = src.mediaDir()
+    if not src:
         return
-
-    def sync(self):
-        # upload to server
-        if not self.oneWay:
-            missing = self.server.missingMedia()
-            total = len(missing)
-            for n in range(total):
-                fname = missing[n]
-                self.progressCallback('up', n, total, fname)
-                data = self.getFile(fname)
-                if data:
-                    self.server.addFile(fname, data)
-                n += 1
-            if total > 0:
-                self.progressCallback('up', total, total, missing[total-1])
-
-        # download from server
-        missing = self.missingMedia()
-        total = len(missing)
-        for n in range(total):
-            fname = missing[n]
-            self.progressCallback('down', n, total, fname)
-            data = self.server.getFile(fname)
-            if data:
-                self.addFile(fname, data)
-            n += 1
-        if total > 0:
-            self.progressCallback('down', total, total, missing[total-1])
-
-    def getFile(self, fname):
-        try:
-            return open(self.mediaPath(fname), "rb").read()
-        except (IOError, OSError):
-            return None
-
-    def addFile(self, fname, data):
-        path = self.mediaPath(fname)
-        assert not os.path.exists(path)
-        size = self.deck.s.scalar(
-            "select size from media where filename = :f",
-            f=fname)
-        # don't bother checksumming locally
-        #assert size
-        #assert size == len(data)
-        #assert checksum(data) == os.path.splitext(fname)[0]
-        open(path, "wb").write(data)
-
-class BulkMediaSyncerProxy(HttpSyncServerProxy):
-
-    def missingMedia(self):
-        return self.unstuff(self.runCmd("missingMedia"))
-
-    def _splitMedia(self, fname):
-        return "%s/%s/%s" % (fname[0:1], fname[0:2], fname)
-
-    def _relativeMediaPath(self, fname):
-        return "http://ankimedia.ichi2.net/%s" % (
-            self._splitMedia(fname))
-
-    def getFile(self, fname):
-        try:
-            f = urllib2.urlopen(self._relativeMediaPath(fname))
-        except (urllib2.URLError, socket.error, socket.timeout):
-            return ""
-        ret = f.read()
-        if not ret:
-            return ""
-        return ret
-
-    def addFile(self, fname, data):
-        oldsum = os.path.splitext(fname)[0]
-        assert oldsum == checksum(data)
-        return self.runCmd("addFile", fname=fname, data=data)
-
-    def runCmd(self, action, **args):
-        data = {"p": self.password,
-                "u": self.username,
-                "d": self.deckName.encode("utf-8")}
-        data.update(args)
-        data = urllib.urlencode(data)
-        try:
-            f = urllib2.urlopen(SYNC_URL + action, data)
-        except (urllib2.URLError, socket.error, socket.timeout,
-                httplib.BadStatusLine):
-            raise SyncError(type="noResponse")
-        ret = f.read()
-        if not ret:
-            raise SyncError(type="noResponse")
-        return ret
+    dst = dst.mediaDir(create=True)
+    files = os.listdir(src)
+    for file in files:
+        srcfile = os.path.join(src, file)
+        dstfile = os.path.join(dst, file)
+        if not os.path.exists(dstfile):
+            try:
+                shutil.copy2(srcfile, dstfile)
+            except IOError, OSError:
+                pass
