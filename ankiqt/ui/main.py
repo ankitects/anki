@@ -1241,7 +1241,7 @@ your deck."""))
 <br>
 <font size=+1>
 Welcome to Anki! Click <b>download deck</b> to get started. You can return here
-later by clicking on the left-pointing arrow on the toolbar.
+later by using File>Close.
 </font>
 <br>
 """))
