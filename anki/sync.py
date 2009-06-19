@@ -17,6 +17,7 @@ applyPayload(payload): apply any sent changes and return any changed remote
                        objects
 createDeck(name): create a deck on the server
 
+Full sync support is not documented yet.
 """
 __docformat__ = 'restructuredtext'
 
@@ -1017,15 +1018,10 @@ class SyncServer(SyncTools):
 
     def __init__(self, deck=None):
         SyncTools.__init__(self, deck)
-        self._mediaSupported = True
-
-    def mediaSupported(self):
-        return self._mediaSupported
 
 class SyncClient(SyncTools):
 
-    def mediaSupported(self):
-        return self.server._mediaSupported
+    pass
 
 # HTTP proxy: act as a server and direct requests to the real server
 ##########################################################################
@@ -1054,7 +1050,6 @@ class HttpSyncServerProxy(SyncServer):
             socket.setdefaulttimeout(None)
             if d['status'] != "OK":
                 raise SyncError(type="authFailed", status=d['status'])
-            self._mediaSupported = d['mediaSupported']
             self.decks = d['decks']
             self.timestamp = d['timestamp']
 
@@ -1136,7 +1131,6 @@ class HttpSyncServer(SyncServer):
         return self.stuff({
             "status": "OK",
             "decks": self.decks,
-            "mediaSupported": self.mediaSupported(),
             "timestamp": time.time(),
             })
 
