@@ -55,7 +55,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 38
+DECK_VERSION = 39
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -3198,9 +3198,21 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
                 deck.failedCardMax = 0
             deck.version = 37
             deck.s.commit()
-        if deck.version < 38:
-            # don't automatically upgrade suspended
-            deck.version = 38
+        # skip 38
+        if deck.version < 39:
+            deck.rebuildQueue()
+            # manually suspend all suspended cards
+            ids = deck.findCards("tag:suspended")
+            if ids:
+                # unrolled from suspendCards() to avoid marking dirty
+                deck.s.statement(
+                    "update cards set isDue=0, priority=-3 "
+                    "where id in %s" % ids2str(ids))
+                deck.rebuildCounts(full=False)
+            # suspended tag obsolete - don't do this yet
+            #deck.suspended = re.sub(u" ?Suspended ?", u"", deck.suspended)
+            #deck.updateTagPriorities()
+            deck.version = 39
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
