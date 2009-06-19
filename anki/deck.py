@@ -3234,48 +3234,48 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
     _setUTCOffset = staticmethod(_setUTCOffset)
 
     def backup(modified, path):
-        # need a non-unicode path
-        def backupName(path, num):
+        """Path must not be unicode."""
+        #path = os.path.join(backupDir, path)
+        if not numBackups:
+            return
+        def escape(path):
             path = os.path.abspath(path)
             path = path.replace("\\", "!")
             path = path.replace("/", "!")
             path = path.replace(":", "")
-            path = os.path.join(backupDir, path)
-            path = re.sub("\.anki$", ".backup-%d.anki" % num, path)
             return path
-        if not numBackups:
-            return
-        if not os.path.exists(backupDir):
-            os.makedirs(backupDir)
-        # if the mod time is identical, don't make a new backup
-        firstBack = backupName(path, 0)
-        if os.path.exists(firstBack):
-            s1 = int(modified)
-            s2 = int(os.stat(firstBack)[stat.ST_MTIME])
-            if s1 == s2:
+        escp = escape(path)
+        # find existing backups
+        gen = re.sub("\.anki$", ".backup-(\d+).anki", re.escape(escp))
+        backups = []
+        for file in os.listdir(backupDir):
+            m = re.match(gen, file)
+            if m:
+                backups.append((int(m.group(1)), file))
+        backups.sort()
+        # check if last backup is the same
+        if backups:
+            latest = os.path.join(backupDir, backups[-1][1])
+            if int(modified) == int(
+                os.stat(latest)[stat.ST_MTIME]):
                 return
-        # remove the oldest backup if it exists
-        oldest = backupName(path, numBackups)
-        if os.path.exists(oldest):
-            os.chmod(oldest, 0666)
-            os.unlink(oldest)
-        # move all the other backups up one
-        for n in range(numBackups - 1, -1, -1):
-            name = backupName(path, n)
-            if os.path.exists(name):
-                newname = backupName(path, n+1)
-                if os.path.exists(newname):
-                    os.chmod(newname, 0666)
-                    os.unlink(newname)
-                os.rename(name, newname)
-        # save the current path
-        newpath = backupName(path, 0)
-        if os.path.exists(newpath):
-            os.chmod(newpath, 0666)
-            os.unlink(newpath)
+        # get next num
+        if not backups:
+            n = 1
+        else:
+            n = backups[-1][0] + 1
+        # do backup
+        newpath = os.path.join(backupDir, os.path.basename(
+            re.sub("\.anki$", ".backup-%s.anki" % n, escp)))
         shutil.copy2(path, newpath)
         # set mtimes to be identical
         os.utime(newpath, (modified, modified))
+        # remove if over
+        if len(backups) + 1 > numBackups:
+            delete = len(backups) + 1 - numBackups
+            delete = backups[:delete]
+            for file in delete:
+                os.unlink(os.path.join(backupDir, file[1]))
     backup = staticmethod(backup)
 
 def newCardOrderLabels():
