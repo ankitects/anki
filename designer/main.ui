@@ -2738,7 +2738,7 @@
     </property>
     <widget class="QMenu" name="menuDownload">
      <property name="title">
-      <string>&amp;Download...</string>
+      <string>&amp;Download</string>
      </property>
      <property name="icon">
       <iconset resource="../icons.qrc">
@@ -3388,7 +3388,7 @@
   </action>
   <action name="actionOpenOnline">
    <property name="text">
-    <string>Personal Deck</string>
+    <string>Personal Deck...</string>
    </property>
    <property name="statusTip">
     <string>Download a deck that you synced from another computer</string>
@@ -3396,7 +3396,7 @@
   </action>
   <action name="actionDownloadSharedDeck">
    <property name="text">
-    <string>Shared Deck</string>
+    <string>Shared Deck...</string>
    </property>
    <property name="statusTip">
     <string>Download a deck that people have shared publicly</string>
@@ -3404,7 +3404,7 @@
   </action>
   <action name="actionDownloadSharedPlugin">
    <property name="text">
-    <string>Shared Plugin</string>
+    <string>Shared Plugin...</string>
    </property>
    <property name="statusTip">
     <string>Download a plugin to add new features or change Anki's behaviour</string>
