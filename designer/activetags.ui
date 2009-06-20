@@ -17,7 +17,10 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select tags to deactivate. Deselct tags to active again.</string>
+      <string>Cards with any of the selected tags below will not be shown.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
