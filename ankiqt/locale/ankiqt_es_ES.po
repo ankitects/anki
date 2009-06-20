@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-06-08 20:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -257,8 +257,9 @@ msgid "&Donate..."
 msgstr "&Donar..."
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "&Descargar..."
+#, fuzzy
+msgid "&Download"
+msgstr "Descargas"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1599,7 +1600,7 @@ msgstr "Descargar un mazo que haya sincronizado desde otro ordenador"
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "Descargar un complemento para añadir nuevas característica o cambiar el comportamiento de Anki"
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "Descargas"
@@ -2005,7 +2006,7 @@ msgstr "Cargando mazo..."
 msgid "Loading graphs (may take time)..."
 msgstr "Cargando gráficas (puede tardar un rato)..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -2205,7 +2206,8 @@ msgid "Performance"
 msgstr "Rendimiendo"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "Mazo Personal"
 
 #: forms/main.py:1455
@@ -2260,7 +2262,7 @@ msgstr "Por favor, instale python-matplotlib para ver las gráficas."
 msgid "Please restart Anki before checking the DB."
 msgstr "Por favor, reinicie Anki antes de comprobar la BD"
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Complemento descargado. Por favor, reinicie Anki."
 
@@ -2492,7 +2494,7 @@ msgstr "Guardar al cerrar"
 msgid "Saving"
 msgstr "Guardando"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "Buscar:"
 
@@ -2521,11 +2523,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "Establecer color (F7, F7)"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "Mazo Compartido"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "Complemento Compartido"
 
 #: ui/modelchooser.py:42
@@ -2981,7 +2985,7 @@ msgstr "Tratar entrado como expresión regular"
 msgid "Type:"
 msgstr "Tipo"
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr "Imposible conectar al servidor."
 
@@ -3221,6 +3225,9 @@ msgstr "toplabel"
 
 #~ msgid "&Delete Fact"
 #~ msgstr "&Eliminar Hecho"
+
+#~ msgid "&Download..."
+#~ msgstr "&Descargar..."
 
 #~ msgid "&Edit All..."
 #~ msgstr "&Editar Todos..."

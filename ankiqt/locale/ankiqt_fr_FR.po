@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -265,7 +265,7 @@ msgstr "À &propos..."
 
 #: forms/main.py:1399
 #, fuzzy
-msgid "&Download..."
+msgid "&Download"
 msgstr "À &propos..."
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
@@ -1698,7 +1698,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "À &propos..."
@@ -2133,7 +2133,7 @@ msgstr ""
 msgid "Loading graphs (may take time)..."
 msgstr "Chargement des graphiques (peut être long).."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 #, fuzzy
 msgid "Loading..."
 msgstr "Enregistrement.."
@@ -2353,7 +2353,7 @@ msgid "Performance"
 msgstr "Préférences"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+msgid "Personal Deck..."
 msgstr ""
 
 #: forms/main.py:1455
@@ -2408,7 +2408,7 @@ msgstr "Installez python-matplotlib pour accéder aux graphes."
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 #, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Mise à jour terminée. Veuillez redémarrer Anki."
@@ -2664,7 +2664,7 @@ msgstr "Enregistrer à la fermeture"
 msgid "Saving"
 msgstr "Échec de l'enregistrement"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 #, fuzzy
 msgid "Search:"
 msgstr "&Recherche"
@@ -2699,12 +2699,13 @@ msgstr ""
 
 #: forms/main.py:1494
 #, fuzzy
-msgid "Shared Deck"
+msgid "Shared Deck..."
 msgstr "Enregistrer le paquet"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
-msgstr ""
+#, fuzzy
+msgid "Shared Plugin..."
+msgstr "Tri.."
 
 #: ui/modelchooser.py:42
 #, fuzzy
@@ -3167,7 +3168,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 #, fuzzy
 msgid "Unable to connect to server."
 msgstr "Impossible de se connecter au serveur"
@@ -3625,6 +3626,10 @@ msgstr "tard"
 #, fuzzy
 #~ msgid "&Delete Fact"
 #~ msgstr "Effacer"
+
+#, fuzzy
+#~ msgid "&Download..."
+#~ msgstr "À &propos..."
 
 #, fuzzy
 #~ msgid "&Edit All..."
@@ -4738,10 +4743,6 @@ msgstr "tard"
 
 #~ msgid "Server is down or operation failed."
 #~ msgstr "Le serveur est arrêté ou l'opération a échoué."
-
-#, fuzzy
-#~ msgid "Share..."
-#~ msgstr "Tri.."
 
 #, fuzzy
 #~ msgid "Show welcome back screen on startup"

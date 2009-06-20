@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -253,7 +253,7 @@ msgstr "&O programu..."
 
 #: forms/main.py:1399
 #, fuzzy
-msgid "&Download..."
+msgid "&Download"
 msgstr "&O programu..."
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
@@ -1667,7 +1667,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "&O programu..."
@@ -2102,7 +2102,7 @@ msgstr ""
 msgid "Loading graphs (may take time)..."
 msgstr "Nahrávají se grafy (může chvíli trvat)..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 #, fuzzy
 msgid "Loading..."
 msgstr "Ukládá se..."
@@ -2318,7 +2318,7 @@ msgid "Performance"
 msgstr "Nastavení"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+msgid "Personal Deck..."
 msgstr ""
 
 #: forms/main.py:1455
@@ -2378,7 +2378,7 @@ msgstr "Prosím nainstalujte python-mathplotlib pro přístup ke grafům."
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 #, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Aktualizace hotova. Prosím, restartujte Anki."
@@ -2632,7 +2632,7 @@ msgstr "Uložit při zavírání"
 msgid "Saving"
 msgstr "Ukládání selhalo"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 #, fuzzy
 msgid "Search:"
 msgstr "&Hledat"
@@ -2667,12 +2667,13 @@ msgstr ""
 
 #: forms/main.py:1494
 #, fuzzy
-msgid "Shared Deck"
+msgid "Shared Deck..."
 msgstr "Otevřít balík"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
-msgstr ""
+#, fuzzy
+msgid "Shared Plugin..."
+msgstr "Seřadit..."
 
 #: ui/modelchooser.py:42
 msgid "Shift+Alt+e"
@@ -3130,7 +3131,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 #, fuzzy
 msgid "Unable to connect to server."
 msgstr "Nelze se spojit se serverem"
@@ -3544,6 +3545,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "&Delete Fact"
 #~ msgstr "&Smazat"
+
+#, fuzzy
+#~ msgid "&Download..."
+#~ msgstr "&O programu..."
 
 #, fuzzy
 #~ msgid "&Edit All..."
@@ -4317,10 +4322,6 @@ msgstr ""
 
 #~ msgid "Server is down or operation failed."
 #~ msgstr "Server je mimo provoz nebo operace selhala"
-
-#, fuzzy
-#~ msgid "Share..."
-#~ msgstr "Seřadit..."
 
 #, fuzzy
 #~ msgid "Show welcome back screen on startup"

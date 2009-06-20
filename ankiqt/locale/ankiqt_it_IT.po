@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -261,7 +261,7 @@ msgstr "Info (&A).."
 
 #: forms/main.py:1399
 #, fuzzy
-msgid "&Download..."
+msgid "&Download"
 msgstr "Info (&A).."
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
@@ -1678,7 +1678,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "Info (&A).."
@@ -2107,7 +2107,7 @@ msgstr ""
 msgid "Loading graphs (may take time)..."
 msgstr "Caricamento grafici (potrebbe richiedere tempo).."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 #, fuzzy
 msgid "Loading..."
 msgstr "Salvataggio.."
@@ -2322,7 +2322,7 @@ msgid "Performance"
 msgstr "Preferenze"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+msgid "Personal Deck..."
 msgstr ""
 
 #: forms/main.py:1455
@@ -2377,7 +2377,7 @@ msgstr "Installare python-matplotlib per visualizzare i grafici."
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 #, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Aggiornamento completo. Riavviare Anki."
@@ -2626,7 +2626,7 @@ msgstr "Salva in chiusura"
 msgid "Saving"
 msgstr "Salvataggio..fatto"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 #, fuzzy
 msgid "Search:"
 msgstr "Cerca (&S)"
@@ -2661,12 +2661,13 @@ msgstr ""
 
 #: forms/main.py:1494
 #, fuzzy
-msgid "Shared Deck"
+msgid "Shared Deck..."
 msgstr "Salva mazzo"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
-msgstr ""
+#, fuzzy
+msgid "Shared Plugin..."
+msgstr "Altri Plu&gin.."
 
 #: ui/modelchooser.py:42
 msgid "Shift+Alt+e"
@@ -3129,7 +3130,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 #, fuzzy
 msgid "Unable to connect to server."
 msgstr "Impossibile contattare server"
@@ -3376,6 +3377,10 @@ msgstr "etichetta"
 #~ msgstr "Elimina (&D)"
 
 #, fuzzy
+#~ msgid "&Download..."
+#~ msgstr "Info (&A).."
+
+#, fuzzy
 #~ msgid "&Edit All..."
 #~ msgstr "Modifica Fatti.."
 
@@ -3386,10 +3391,6 @@ msgstr "etichetta"
 #, fuzzy
 #~ msgid "&Get More Decks..."
 #~ msgstr "Ottieni altri mazzi (&G).."
-
-#, fuzzy
-#~ msgid "&Get Plugins..."
-#~ msgstr "Altri Plu&gin.."
 
 #, fuzzy
 #~ msgid "&Guide..."

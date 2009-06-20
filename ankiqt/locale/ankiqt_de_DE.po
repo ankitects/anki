@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_de_DE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-06-20 20:41+0100\n"
 "Last-Translator: Michael Jürges <michael.juerges@googlemail.com>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -260,8 +260,9 @@ msgid "&Donate..."
 msgstr "&Spenden..."
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "&Download..."
+#, fuzzy
+msgid "&Download"
+msgstr "Herunterladen"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1595,7 +1596,7 @@ msgstr "Lade einen Stapel herunter, den du von einem anderen Computer aus hochge
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "Lade ein Plugin herunter, um Ankis Verhalten zu ändern oder neue Funktionen hinzuzufügen"
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, python-format
 msgid "Downloaded %dKB"
 msgstr "%dKB heruntergeladen"
@@ -2001,7 +2002,7 @@ msgstr "Lade Stapel..."
 msgid "Loading graphs (may take time)..."
 msgstr "Lade Diagramme (kann eine Weile dauern)..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -2199,7 +2200,8 @@ msgid "Performance"
 msgstr "Abschneiden"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "Persönlicher Stapel"
 
 #: forms/main.py:1455
@@ -2255,7 +2257,7 @@ msgstr "Bitte installiere python-matplotlib zur Anzeige der Diagramme."
 msgid "Please restart Anki before checking the DB."
 msgstr "Bitte starte Anki neu, bevor die Datenbank geprüft wird."
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Plugin heruntergeladen. Bitte starte Anki neu."
 
@@ -2487,7 +2489,7 @@ msgstr "Speichern beim Beenden"
 msgid "Saving"
 msgstr "Speichern"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "Suchen:"
 
@@ -2516,11 +2518,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "Farbe setzen (F7, dann F7)"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "Freigegebener Stapel"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "Freigegebenes Plugin"
 
 #: ui/modelchooser.py:42
@@ -2973,7 +2977,7 @@ msgstr "Eingabe als regulären Ausdruck behandeln"
 msgid "Type:"
 msgstr "Typ:"
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr "Keine Verbindung zum Server möglich"
 
@@ -3186,6 +3190,9 @@ msgstr "Label"
 
 #~ msgid "&Delete Fact"
 #~ msgstr "Fakt &löschen"
+
+#~ msgid "&Download..."
+#~ msgstr "&Download..."
 
 #~ msgid "&Get Plugins..."
 #~ msgstr "&Plugins beziehen..."

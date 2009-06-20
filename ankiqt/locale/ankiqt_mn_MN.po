@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -270,8 +270,9 @@ msgid "&Donate..."
 msgstr "&Бэлэглэх..."
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "&Тат..."
+#, fuzzy
+msgid "&Download"
+msgstr "Таталтууд"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1632,7 +1633,7 @@ msgstr "Өөр компьютертой давхацсан цуглуулгыг 
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "Шинэ чанар Анкит нэмэхээр хавсарга програмыг тат"
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "Таталтууд"
@@ -2042,7 +2043,7 @@ msgstr "Цуглуулгын ачаалагдаж байна..."
 msgid "Loading graphs (may take time)..."
 msgstr "Диаграммуудыг ачаалагдаж байна.  Та хүлээнэ уу..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "Ачаалагдаж байна..."
 
@@ -2249,7 +2250,8 @@ msgid "Performance"
 msgstr "Удирдлага"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "Өөрийнхөө Цуглуулга"
 
 #: forms/main.py:1455
@@ -2304,7 +2306,7 @@ msgstr "Диаграммууд руу орох болохоор python-matplotli
 msgid "Please restart Anki before checking the DB."
 msgstr "Өгөгдлийн саныг шалгахыг өмнө Анки дахин асаарай."
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Хавсарга програм татуулсан.  Анки дахин ачаалаарай."
 
@@ -2539,7 +2541,7 @@ msgstr "Хаахдаа хадгалах"
 msgid "Saving"
 msgstr ""
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "Хайлт:"
 
@@ -2571,11 +2573,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "Өнгийг сонго (F7 тэгээд F7)"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "Нийтийн Цуглуулга"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "Нийтийн хавсарга програм"
 
 #: ui/modelchooser.py:42
@@ -3033,7 +3037,7 @@ msgstr "Бичсэн хэрэг байнгын илэрхийлэлтээр хэ
 msgid "Type:"
 msgstr "Төрөл:"
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr "Сервертэй холбож чадаагүй."
 
@@ -3248,6 +3252,9 @@ msgstr "toplabel"
 
 #~ msgid "&Delete Fact"
 #~ msgstr "&Баримтыг устга"
+
+#~ msgid "&Download..."
+#~ msgstr "&Тат..."
 
 #~ msgid "&Get Plugins..."
 #~ msgstr "&Хавсарга програмыг ав..."

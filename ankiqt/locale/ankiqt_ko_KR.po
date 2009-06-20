@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -252,7 +252,7 @@ msgstr "소개(&A)..."
 
 #: forms/main.py:1399
 #, fuzzy
-msgid "&Download..."
+msgid "&Download"
 msgstr "소개(&A)..."
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
@@ -1675,7 +1675,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "소개(&A)..."
@@ -2109,7 +2109,7 @@ msgstr ""
 msgid "Loading graphs (may take time)..."
 msgstr "그래프 불러오는 중 (시간이 걸릴 수 있음)..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 #, fuzzy
 msgid "Loading..."
 msgstr "저장 중..."
@@ -2327,7 +2327,7 @@ msgid "Performance"
 msgstr "환경 설정"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+msgid "Personal Deck..."
 msgstr ""
 
 #: forms/main.py:1455
@@ -2382,7 +2382,7 @@ msgstr "그래프를 보려면 python-matplotlib를 설치해 주세요."
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 #, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "업데이트가 끝났습니다. 앙키를 다시 실행해 주세요."
@@ -2635,7 +2635,7 @@ msgstr "종료할 때 저장"
 msgid "Saving"
 msgstr "저장 중... 완료"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 #, fuzzy
 msgid "Search:"
 msgstr "검색(&S)"
@@ -2670,12 +2670,13 @@ msgstr ""
 
 #: forms/main.py:1494
 #, fuzzy
-msgid "Shared Deck"
+msgid "Shared Deck..."
 msgstr "묶음 저장"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
-msgstr ""
+#, fuzzy
+msgid "Shared Plugin..."
+msgstr "여기서 시작(&S)..."
 
 #: ui/modelchooser.py:42
 #, fuzzy
@@ -3134,7 +3135,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 #, fuzzy
 msgid "Unable to connect to server."
 msgstr "서버에 연결할 수 없음"
@@ -3482,6 +3483,10 @@ msgstr "Latex"
 #, fuzzy
 #~ msgid "&Delete Fact"
 #~ msgstr "삭제(&D)"
+
+#, fuzzy
+#~ msgid "&Download..."
+#~ msgstr "소개(&A)..."
 
 #, fuzzy
 #~ msgid "&Edit All..."
@@ -4312,10 +4317,6 @@ msgstr "Latex"
 
 #~ msgid "Server is down or operation failed."
 #~ msgstr "서버가 다운됐거나 작업 실패입니다."
-
-#, fuzzy
-#~ msgid "Share..."
-#~ msgstr "여기서 시작(&S)..."
 
 #~ msgid "Show tray icon only when minimized"
 #~ msgstr "시스템 트레이 아이콘 표시"

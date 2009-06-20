@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-04-03 13:49+0100\n"
 "Last-Translator: Alaya129 <alaya129@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -262,8 +262,9 @@ msgid "&Donate..."
 msgstr "捐赠开发者(&D)..."
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "下载(&D)..."
+#, fuzzy
+msgid "&Download"
+msgstr "Anki捐献(&A)..."
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1602,7 +1603,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "Anki捐献(&A)..."
@@ -2016,7 +2017,7 @@ msgstr "正在读取卡片组..."
 msgid "Loading graphs (may take time)..."
 msgstr ""
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "读取中..."
 
@@ -2223,7 +2224,8 @@ msgid "Performance"
 msgstr "表现"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "私人卡片组"
 
 #: forms/main.py:1455
@@ -2278,7 +2280,7 @@ msgstr ""
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr ""
 
@@ -2514,7 +2516,7 @@ msgstr "关闭时自动保存"
 msgid "Saving"
 msgstr ""
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "搜索："
 
@@ -2544,11 +2546,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "设置颜色 (F7 然后 F7)"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "网友共享卡片组"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "网友共享插件"
 
 #: ui/modelchooser.py:42
@@ -2981,7 +2985,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr ""
 
@@ -3179,6 +3183,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "&Delete Fact"
 #~ msgstr "删除(&D)"
+
+#~ msgid "&Download..."
+#~ msgstr "下载(&D)..."
 
 #~ msgid "&Get Plugins..."
 #~ msgstr "取得plugins(&G)..."

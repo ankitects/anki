@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki Japanese Translation v0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-06-17 01:43-0800\n"
 "Last-Translator: Jarvik7 <jarvik7@gmail.com>\n"
 "Language-Team: Jarvik7 <jarvik7@gmail.com>\n"
@@ -238,8 +238,9 @@ msgid "&Donate..."
 msgstr "寄付する(&D)…"
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "ダウンロード(&D)…"
+#, fuzzy
+msgid "&Download"
+msgstr "ダウンロード"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1475,7 +1476,7 @@ msgstr "単語帳プロパティ"
 
 #: ui/main.py:935 ui/main.py:1001
 msgid "Deck files (*.anki)"
-msgstr "Ankiの単語帳（*.anki）"
+msgstr "Ankiの単語帳 (*.anki)"
 
 #: ui/main.py:679
 msgid "Deck is already open."
@@ -1567,7 +1568,7 @@ msgstr "別のパソコンで同期された単語帳をダウンロードする
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "プラグインをダウンロードして昨日を付けるかAnkiの作用を変更する"
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, python-format
 msgid "Downloaded %dKB"
 msgstr "%dKBをダウンロードしました"
@@ -1857,7 +1858,7 @@ msgstr "このアップデートを無視する"
 
 #: ui/facteditor.py:844
 msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
-msgstr "映像（*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg）"
+msgstr "映像 (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 
 #: ui/importing.py:83 ui/importing.py:123 forms/changemap.py:39
 #: forms/importing.py:95 forms/main.py:1385
@@ -1972,7 +1973,7 @@ msgstr "単語帳を読み込み中…"
 msgid "Loading graphs (may take time)..."
 msgstr "グラフを作成中、しばらくお待ちしてください…"
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "読み込み中…"
 
@@ -2172,7 +2173,8 @@ msgid "Performance"
 msgstr "実績"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "個人の単語帳"
 
 #: forms/main.py:1455
@@ -2227,7 +2229,7 @@ msgstr "python-matplotlabが必要です。python-matplotlibをインストー�
 msgid "Please restart Anki before checking the DB."
 msgstr "データベースを検査する前にAnkiを再起動してください。"
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr ""
 "プラグインのダウンロードは完了しました。\n"
@@ -2464,7 +2466,7 @@ msgstr "閉じる時に自動的に保存する"
 msgid "Saving"
 msgstr "保存"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "検索："
 
@@ -2493,11 +2495,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "色を付ける（F7そしてF7）"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "公開された単語帳"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "公開されたプラグイン"
 
 #: ui/modelchooser.py:42
@@ -2599,7 +2603,7 @@ msgstr "番号順に分ける"
 
 #: ui/facteditor.py:874
 msgid "Sounds/Videos (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg)"
-msgstr "音声・ビデオ（*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg）"
+msgstr "音声・ビデオ (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg)"
 
 #: ui/deckproperties.py:186
 msgid "Source ID:"
@@ -2929,7 +2933,7 @@ msgstr "条件を正規表現として扱う"
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr "サーバーに接続出来ませんでした。"
 
@@ -3144,6 +3148,9 @@ msgstr ""
 
 #~ msgid "&Delete Fact"
 #~ msgstr "ファクトを削除(&D)"
+
+#~ msgid "&Download..."
+#~ msgstr "ダウンロード(&D)…"
 
 #~ msgid "&Get Plugins..."
 #~ msgstr "プラグインを取得(&G)…"

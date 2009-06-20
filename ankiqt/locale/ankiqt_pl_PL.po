@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-05-31 00:26+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -265,8 +265,9 @@ msgid "&Donate..."
 msgstr "&Dary pieniężne..."
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "Ścią&gnij..."
+#, fuzzy
+msgid "&Download"
+msgstr "Pobrania"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1613,7 +1614,7 @@ msgstr "Pobierz talię synchronizowaną przez ciebie z innego komputera"
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "Pobierz dodatek, by dodać nowe funkcje lub zmienić zachowanie Anki"
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "Pobrania"
@@ -2025,7 +2026,7 @@ msgstr "Ładowanie talii..."
 msgid "Loading graphs (may take time)..."
 msgstr "Ładowanie wykresów (może to chwilę potrwać)..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "Ładowanie..."
 
@@ -2226,7 +2227,8 @@ msgid "Performance"
 msgstr "Forma"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "Własną talię"
 
 #: forms/main.py:1455
@@ -2282,7 +2284,7 @@ msgstr "Zainstaluj python-mathplotlib, aby mieć dostęp do wykresów."
 msgid "Please restart Anki before checking the DB."
 msgstr "Uruchom ponownie Anki przed sprawdzaniem bazy danych."
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Pobrano dodatek. Zrestartuj Anki."
 
@@ -2515,7 +2517,7 @@ msgstr "Zapis przy zamykaniu"
 msgid "Saving"
 msgstr ""
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "Znajdź:"
 
@@ -2544,11 +2546,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "Ustaw kolor (F7, następnie F7)"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "Udostępnioną talię"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "Udostępniony dodatek"
 
 #: ui/modelchooser.py:42
@@ -3010,7 +3014,7 @@ msgstr "Traktuj wejście jako wyrażenie regularne"
 msgid "Type:"
 msgstr "Typ:"
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr "Nie można połączyć się z serwerem."
 
@@ -3223,6 +3227,9 @@ msgstr "toplabel"
 
 #~ msgid "&Delete Fact"
 #~ msgstr "&Usuń fakt"
+
+#~ msgid "&Download..."
+#~ msgstr "Ścią&gnij..."
 
 #~ msgid "&Get Plugins..."
 #~ msgstr "&Pobierz dodatki..."

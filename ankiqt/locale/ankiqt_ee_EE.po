@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -255,8 +255,9 @@ msgid "&Donate..."
 msgstr "A&nneta..."
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "&Lae alla..."
+#, fuzzy
+msgid "&Download"
+msgstr "Alla laadimised"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1624,7 +1625,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "Alla laadimised"
@@ -2037,7 +2038,7 @@ msgstr "Laen kaardipakki..."
 msgid "Loading graphs (may take time)..."
 msgstr "Laen graafikat (võib võtta aega)..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "Laen kaardipakki..."
 
@@ -2247,7 +2248,8 @@ msgid "Performance"
 msgstr "Omadused"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "Isiklik kaardipakk"
 
 #: forms/main.py:1455
@@ -2304,7 +2306,7 @@ msgstr "Palun paigalda python-matplotlib, kui soovid graafikuid."
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Plugin alla laetud. Palun taaskäivita Anki."
 
@@ -2542,7 +2544,7 @@ msgstr "Salvesta sulgemisel"
 msgid "Saving"
 msgstr ""
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "Otsi:"
 
@@ -2574,11 +2576,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "Pane värv (F7, siis F7)"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "Ühiskasutatav kaardipakk"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "Ühiskasutatav plugin"
 
 #: ui/modelchooser.py:42
@@ -3039,7 +3043,7 @@ msgstr "Kohtle sisendit kui regulaaravaldist"
 msgid "Type:"
 msgstr "Tüüp:"
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr "Serveriga ühenduse võtmine ebaõnnestus."
 
@@ -3273,6 +3277,9 @@ msgstr "üleminesedel"
 
 #~ msgid "&Delete Fact"
 #~ msgstr "&Kustuta fakt"
+
+#~ msgid "&Download..."
+#~ msgstr "&Lae alla..."
 
 #~ msgid "&Edit All..."
 #~ msgstr "Muud&a kõiki..."

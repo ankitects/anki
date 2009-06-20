@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-04-07 15:53+0800\n"
 "Last-Translator: \n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -252,7 +252,7 @@ msgstr "捐獻給Anki(&D)..."
 
 #: forms/main.py:1399
 #, fuzzy
-msgid "&Download..."
+msgid "&Download"
 msgstr "捐獻給Anki(&D)..."
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
@@ -1637,7 +1637,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "捐獻給Anki(&D)..."
@@ -2065,7 +2065,7 @@ msgstr ""
 msgid "Loading graphs (may take time)..."
 msgstr "グラフを集計中。しばらくお待ちください"
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 #, fuzzy
 msgid "Loading..."
 msgstr "保存中.."
@@ -2283,7 +2283,7 @@ msgid "Performance"
 msgstr "設定"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+msgid "Personal Deck..."
 msgstr ""
 
 #: forms/main.py:1455
@@ -2340,7 +2340,7 @@ msgstr "python-matplotlabが必要です。python-matplotlibをインストー�
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 #, fuzzy
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Anki更新完成了請重開。"
@@ -2594,7 +2594,7 @@ msgstr "關閉時自動儲存"
 msgid "Saving"
 msgstr "保存が出来ませんでした。"
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 #, fuzzy
 msgid "Search:"
 msgstr "検索(&S)"
@@ -2628,12 +2628,12 @@ msgstr ""
 
 #: forms/main.py:1494
 #, fuzzy
-msgid "Shared Deck"
+msgid "Shared Deck..."
 msgstr "単語帳を保存する"
 
 #: forms/main.py:1496
 #, fuzzy
-msgid "Shared Plugin"
+msgid "Shared Plugin..."
 msgstr "スケジューリング"
 
 #: ui/modelchooser.py:42
@@ -3090,7 +3090,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 #, fuzzy
 msgid "Unable to connect to server."
 msgstr "サーバーの接続ができませんでした。"
@@ -3566,6 +3566,10 @@ msgstr ""
 
 #~ msgid "&Delete/undelete row"
 #~ msgstr "指定した行を消すかアンドゥ(&D)"
+
+#, fuzzy
+#~ msgid "&Download..."
+#~ msgstr "捐獻給Anki(&D)..."
 
 #~ msgid "&Edit All..."
 #~ msgstr "編輯全部(&E)..."

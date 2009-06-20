@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -239,7 +239,7 @@ msgid "&Donate..."
 msgstr ""
 
 #: forms/main.py:1399
-msgid "&Download..."
+msgid "&Download"
 msgstr ""
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
@@ -1523,7 +1523,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, python-format
 msgid "Downloaded %dKB"
 msgstr ""
@@ -1924,7 +1924,7 @@ msgstr ""
 msgid "Loading graphs (may take time)..."
 msgstr ""
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr ""
 
@@ -2122,7 +2122,7 @@ msgid "Performance"
 msgstr ""
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+msgid "Personal Deck..."
 msgstr ""
 
 #: forms/main.py:1455
@@ -2175,7 +2175,7 @@ msgstr ""
 msgid "Please restart Anki before checking the DB."
 msgstr ""
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr ""
 
@@ -2405,7 +2405,7 @@ msgstr ""
 msgid "Saving"
 msgstr ""
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr ""
 
@@ -2434,11 +2434,11 @@ msgid "Set colour (F7 then F7)"
 msgstr ""
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+msgid "Shared Deck..."
 msgstr ""
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+msgid "Shared Plugin..."
 msgstr ""
 
 #: ui/modelchooser.py:42
@@ -2852,7 +2852,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr ""
 

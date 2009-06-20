@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"POT-Creation-Date: 2009-06-21 07:30+0900\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -272,8 +272,9 @@ msgid "&Donate..."
 msgstr "&Lahjoita..."
 
 #: forms/main.py:1399
-msgid "&Download..."
-msgstr "&Lataa..."
+#, fuzzy
+msgid "&Download"
+msgstr "Latauksia"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -1634,7 +1635,7 @@ msgstr ""
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr ""
 
-#: ui/getshared.py:204
+#: ui/getshared.py:203
 #, fuzzy, python-format
 msgid "Downloaded %dKB"
 msgstr "Latauksia"
@@ -2044,7 +2045,7 @@ msgstr "Ladataan pakkaa..."
 msgid "Loading graphs (may take time)..."
 msgstr "Luodaan kuvaajia..."
 
-#: forms/getshared.py:86
+#: forms/getshared.py:90
 msgid "Loading..."
 msgstr "Ladataan..."
 
@@ -2254,7 +2255,8 @@ msgid "Performance"
 msgstr "Asetukset"
 
 #: forms/main.py:1492
-msgid "Personal Deck"
+#, fuzzy
+msgid "Personal Deck..."
 msgstr "Henkilökohtainen pakka"
 
 #: forms/main.py:1455
@@ -2310,7 +2312,7 @@ msgstr "Asenna python-matplotlib, jos haluat käyttää kuvaajia."
 msgid "Please restart Anki before checking the DB."
 msgstr "Käynnistä Anki uudelleen ennen tietokannan tarkistamista."
 
-#: ui/getshared.py:264
+#: ui/getshared.py:263
 msgid "Plugin downloaded. Please restart Anki."
 msgstr "Liitännäinen on ladattu. Käynnistä Anki uudelleen."
 
@@ -2548,7 +2550,7 @@ msgstr "Tallenna suljettaessa"
 msgid "Saving"
 msgstr ""
 
-#: forms/getshared.py:85 forms/share.py:74
+#: forms/getshared.py:89 forms/share.py:74
 msgid "Search:"
 msgstr "Etsi"
 
@@ -2580,11 +2582,13 @@ msgid "Set colour (F7 then F7)"
 msgstr "Aseta väri (F7 ja sitten F7)"
 
 #: forms/main.py:1494
-msgid "Shared Deck"
+#, fuzzy
+msgid "Shared Deck..."
 msgstr "Jaettu pakka"
 
 #: forms/main.py:1496
-msgid "Shared Plugin"
+#, fuzzy
+msgid "Shared Plugin..."
 msgstr "Jaettu liitännäinen"
 
 #: ui/modelchooser.py:42
@@ -3046,7 +3050,7 @@ msgstr "Tulkitse syöte säännöllisenä lausekkeena"
 msgid "Type:"
 msgstr "Nimi"
 
-#: ui/getshared.py:91 ui/getshared.py:216
+#: ui/getshared.py:91 ui/getshared.py:215
 msgid "Unable to connect to server."
 msgstr "Palvelimeen ei saatu yhteyttä."
 
@@ -3290,6 +3294,9 @@ msgstr ""
 
 #~ msgid "&Delete Fact"
 #~ msgstr "&Poista fakta"
+
+#~ msgid "&Download..."
+#~ msgstr "&Lataa..."
 
 #~ msgid "&Edit All..."
 #~ msgstr "Muokkaa k&aikkia..."
