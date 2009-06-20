@@ -181,7 +181,6 @@ class GetShared(QDialog):
         self.form.table.horizontalHeader().setResizeMode(
             0, QHeaderView.Stretch)
         self.form.table.verticalHeader().hide()
-        self.form.table.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def accept(self):
         if self.type == 0:
