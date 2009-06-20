@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:38+0900\n"
+"POT-Creation-Date: 2009-06-18 10:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Jo Nakashima <jonakashima@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-Language: Portugues\n"
 "X-Poedit-Country: BRAZIL\n"
 
-#: sound.py:208
+#: sound.py:238
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -301,7 +301,7 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr ""
 
-#: deck.py:3306
+#: deck.py:3295
 msgid "Custom failed cards handling"
 msgstr ""
 
@@ -430,7 +430,7 @@ msgstr "Primeiro na última semana"
 msgid "First-seen cards:"
 msgstr ""
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 #, fuzzy
 msgid "Importing..."
 msgstr "Exportando..."
@@ -541,21 +541,21 @@ msgstr "Reps no próximo mês"
 msgid "Reps next week"
 msgstr "Reps na próxima semana"
 
-#: deck.py:3293
+#: deck.py:3282
 #, fuzzy
 msgid "Review cards from largest interval"
 msgstr "Revisar cards em ordem aleatória"
 
-#: deck.py:3294
+#: deck.py:3283
 #, fuzzy
 msgid "Review cards from smallest interval"
 msgstr "Revisar cards em ordem aleatória"
 
-#: deck.py:3295
+#: deck.py:3284
 msgid "Review cards in order due"
 msgstr "Revisar cards na ordem programada"
 
-#: deck.py:3296
+#: deck.py:3285
 msgid "Review cards in random order"
 msgstr "Revisar cards em ordem aleatória"
 
@@ -571,52 +571,52 @@ msgstr "Direita"
 msgid "Scan fields..."
 msgstr ""
 
-#: deck.py:3302
+#: deck.py:3291
 #, fuzzy
 msgid "Show failed cards at end"
 msgstr "Mostrar novos cards antes de todos os outros cards"
 
-#: deck.py:3303
+#: deck.py:3292
 msgid "Show failed cards in 10 minutes"
 msgstr ""
 
-#: deck.py:3305
+#: deck.py:3294
 #, fuzzy
 msgid "Show failed cards in 3 days"
 msgstr "Mostrar novos cards em ordem aleatória"
 
-#: deck.py:3304
+#: deck.py:3293
 #, fuzzy
 msgid "Show failed cards in 8 hours"
 msgstr "Mostrar novos cards em ordem aleatória"
 
-#: deck.py:3301
+#: deck.py:3290
 msgid "Show failed cards soon"
 msgstr ""
 
-#: deck.py:3287
+#: deck.py:3276
 msgid "Show new cards after all other cards"
 msgstr "Mostrar novos cards antes de todos os outros cards"
 
-#: deck.py:3288
+#: deck.py:3277
 msgid "Show new cards before reviews"
 msgstr "Mostrar novos cards antes das revisões"
 
-#: deck.py:3280
+#: deck.py:3269
 #, fuzzy
 msgid "Show new cards in order added"
 msgstr "Mostrar novos cards na ordem de criação"
 
-#: deck.py:3279
+#: deck.py:3268
 msgid "Show new cards in random order"
 msgstr "Mostrar novos cards em ordem aleatória"
 
-#: deck.py:3281
+#: deck.py:3270
 #, fuzzy
 msgid "Show new cards in reverse order added"
 msgstr "Mostrar novos cards na ordem de criação"
 
-#: deck.py:3286
+#: deck.py:3275
 msgid "Spread new cards out through reviews"
 msgstr "Espalhar novos cards entre as revisões"
 

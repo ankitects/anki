@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:38+0900\n"
+"POT-Creation-Date: 2009-06-18 10:36+0200\n"
 "PO-Revision-Date: 2009-04-20 13:12+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtaal 0.3.1\n"
 
-#: sound.py:208
+#: sound.py:238
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -307,7 +307,7 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr "КюуКарт цуглуулга (*.wcu)"
 
-#: deck.py:3306
+#: deck.py:3295
 msgid "Custom failed cards handling"
 msgstr "Дампуурсан картын тохируулсан боловсруулалт"
 
@@ -437,7 +437,7 @@ msgstr "Өнгөрсөн 7 хоногийн анх нь"
 msgid "First-seen cards:"
 msgstr "Эхлээд үзсэн картууд:"
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Импортолж байна..."
 
@@ -543,19 +543,19 @@ msgstr "Ирэх сарын удаа"
 msgid "Reps next week"
 msgstr "Ирэх 7 хоногийн удаа"
 
-#: deck.py:3293
+#: deck.py:3282
 msgid "Review cards from largest interval"
 msgstr "Зүйлээс хамгийн томоос нь картуудыг давтах"
 
-#: deck.py:3294
+#: deck.py:3283
 msgid "Review cards from smallest interval"
 msgstr "Зүйлээс хамгийн багаас нь картуудыг давтах"
 
-#: deck.py:3295
+#: deck.py:3284
 msgid "Review cards in order due"
 msgstr "Дахин давтахын дарааллаар картуудыг давтах"
 
-#: deck.py:3296
+#: deck.py:3285
 msgid "Review cards in random order"
 msgstr "Санамсаргүй дарааллаар картуудыг давтах"
 
@@ -571,47 +571,47 @@ msgstr "Баруун"
 msgid "Scan fields..."
 msgstr "Талбаруудыг хайх..."
 
-#: deck.py:3302
+#: deck.py:3291
 msgid "Show failed cards at end"
 msgstr "Дампуурсан картууд сүүлт үзүүлэх"
 
-#: deck.py:3303
+#: deck.py:3292
 msgid "Show failed cards in 10 minutes"
 msgstr "Дампуурсан картууд 10 минутын дараа үзүүлэх"
 
-#: deck.py:3305
+#: deck.py:3294
 msgid "Show failed cards in 3 days"
 msgstr "Дампуурсан картууд 3 хоногийн дараа үзүүлэх"
 
-#: deck.py:3304
+#: deck.py:3293
 msgid "Show failed cards in 8 hours"
 msgstr "Дампуурсан картууд 8 цагийн дараа үзүүлэх"
 
-#: deck.py:3301
+#: deck.py:3290
 msgid "Show failed cards soon"
 msgstr "Дампуурсан картууд эрт үзүүлэх"
 
-#: deck.py:3287
+#: deck.py:3276
 msgid "Show new cards after all other cards"
 msgstr "Шинэ картыг бүх хуучин картын дараа үзэх"
 
-#: deck.py:3288
+#: deck.py:3277
 msgid "Show new cards before reviews"
 msgstr "Шинэ картыг бүх хуучин картын өмнө үзэх"
 
-#: deck.py:3280
+#: deck.py:3269
 msgid "Show new cards in order added"
 msgstr "Шинэ картыг нэмсэн дарааллаар үзэх"
 
-#: deck.py:3279
+#: deck.py:3268
 msgid "Show new cards in random order"
 msgstr "Шинэ картыг санамсаргүй дарааллаар үзэх"
 
-#: deck.py:3281
+#: deck.py:3270
 msgid "Show new cards in reverse order added"
 msgstr "Шинэ картыг арын нэмсэн дарааллаар үзэх"
 
-#: deck.py:3286
+#: deck.py:3275
 msgid "Spread new cards out through reviews"
 msgstr "Шинэ картыг давталтаар тэнцүү хуваах"
 
