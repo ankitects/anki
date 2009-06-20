@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 10:36+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-06-18 10:36+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -46,17 +46,17 @@ msgstr ""
 "Den nuvarande importfunktionen stödjer enbart en enda aktiv kortmall. Avaktivera\n"
 "alla utom en kortmall."
 
-#: stats.py:342 stats.py:346 stats.py:350
+#: stats.py:343 stats.py:347 stats.py:351
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d av %(totalSum)d"
 
-#: stats.py:270 stats.py:277 stats.py:300
+#: stats.py:271 stats.py:278 stats.py:301
 #, python-format
 msgid "%s ago"
 msgstr "%s sedan"
 
-#: deck.py:1281
+#: deck.py:1284
 #, python-format
 msgid "%s copy"
 msgstr "%s-kopia"
@@ -150,17 +150,17 @@ msgstr[1] "%s år<!--after>"
 msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
 msgstr "Rad %(row)s har %(num1)d fält, förväntat antal är %(num2)d"
 
-#: stats.py:379 stats.py:382 stats.py:385 stats.py:388
+#: stats.py:380 stats.py:383 stats.py:386 stats.py:389
 #, python-format
 msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
 msgstr "<b>%(a)d</b> (<b>%(b)s</b>/dag)"
 
-#: stats.py:376
+#: stats.py:377
 #, python-format
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr "<b>%(a)s</b>/dag, <b>%(b)s</b>/mån"
 
-#: deck.py:771
+#: deck.py:773
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -175,7 +175,7 @@ msgstr ""
 "%(spaceSusp)s\n"
 "</div>"
 
-#: deck.py:698
+#: deck.py:700
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -188,8 +188,8 @@ msgstr ""
 "- %(wait)s<br>\n"
 "- %(new)s"
 
-#: sync.py:246
-#, python-format
+#: sync.py:240
+#, fuzzy, python-format
 msgid ""
 "<table>\n"
 "<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>\n"
@@ -197,7 +197,6 @@ msgid ""
 "<tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
 "<tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
 "<tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
-"<tr><td>Media</td><td>%(lM)s</td><td>%(rM)s</td></tr>\n"
 "<tr><td>Stats</td><td>%(ls)s</td><td>%(rs)s</td></tr>\n"
 "</table>"
 msgstr ""
@@ -215,15 +214,15 @@ msgstr ""
 msgid "Added"
 msgstr "Tillagt"
 
-#: stats.py:382
+#: stats.py:383
 msgid "Added last month"
 msgstr "Tillagda förra månaden"
 
-#: stats.py:379
+#: stats.py:380
 msgid "Added last week"
 msgstr "Tillagda förra veckan"
 
-#: exporting.py:55 exporting.py:239 importing/__init__.py:263
+#: exporting.py:55 exporting.py:235 importing/__init__.py:263
 msgid "Anki Deck (*.anki)"
 msgstr "Ankikortlek (*.anki)"
 
@@ -231,19 +230,19 @@ msgstr "Ankikortlek (*.anki)"
 msgid "Answer Card"
 msgstr "Svarskort"
 
-#: stats.py:287
+#: stats.py:288
 msgid "Average Time"
 msgstr "Genomsnittstid"
 
-#: stats.py:366
+#: stats.py:367
 msgid "Average reps"
 msgstr "Genomsnittligt antal upprepningar"
 
-#: stats.py:360
+#: stats.py:361
 msgid "Averages"
 msgstr "Medelvärden"
 
-#: stats.py:376
+#: stats.py:377
 msgid "Avg. added"
 msgstr "Genomsn. tillagda"
 
@@ -251,15 +250,15 @@ msgstr "Genomsn. tillagda"
 msgid "Basic"
 msgstr "Grundläggande"
 
-#: stats.py:291
+#: stats.py:292
 msgid "Card Template"
 msgstr "Kortmall"
 
-#: stats.py:333
+#: stats.py:334
 msgid "Card counts"
 msgstr "Kortantal"
 
-#: exporting.py:240
+#: exporting.py:236
 msgid "Cards in tab-separated text file (*.txt)"
 msgstr "Kort till tabb-separerade textfil (*.txt)"
 
@@ -271,11 +270,11 @@ msgstr "Center"
 msgid "Changed"
 msgstr "Ändrat"
 
-#: deck.py:1344
+#: deck.py:1347
 msgid "Changing cards..."
 msgstr "Ändrar kort..."
 
-#: deck.py:1304
+#: deck.py:1307
 msgid "Changing fields..."
 msgstr "Ändrar fält..."
 
@@ -283,11 +282,11 @@ msgstr "Ändrar fält..."
 msgid "Check Media DB"
 msgstr "Kontrollera mediadatabas"
 
-#: deck.py:2256
+#: deck.py:2259
 msgid "Checking integrity..."
 msgstr "Kontrollerar databasintegritet"
 
-#: deck.py:2266
+#: deck.py:2269
 msgid "Checking schema..."
 msgstr "Kontrollerar schema..."
 
@@ -295,7 +294,7 @@ msgstr "Kontrollerar schema..."
 msgid "Checksum files..."
 msgstr "Sätter filnamn baserat på checksumma..."
 
-#: stats.py:340
+#: stats.py:341
 msgid "Correct answers"
 msgstr "Rätta svar"
 
@@ -307,11 +306,11 @@ msgstr "Kunde inte avgöra filens format."
 msgid "CueCard Deck (*.wcu)"
 msgstr "CueCard-kortlek (*.wcu)"
 
-#: deck.py:3295
+#: deck.py:3310
 msgid "Custom failed cards handling"
 msgstr "Anpassad hantering av felbesvarade kort"
 
-#: deck.py:2259
+#: deck.py:2262
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -319,20 +318,20 @@ msgstr ""
 "Databasfilen är korrupt.\n"
 "Återställ från säkerhetskopia (se FAQ)."
 
-#: stats.py:317
+#: stats.py:318
 msgid "Deck Statistics"
 msgstr "Kortleksstatistik"
 
-#: stats.py:318
+#: stats.py:319
 #, python-format
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr "Kortlek skapades: för <b>%s</b> sedan<br>"
 
-#: deck.py:2651
+#: deck.py:2654
 msgid "Deck missing core table"
 msgstr "Det saknas en nödvändig tabell i kortleken"
 
-#: deck.py:2269
+#: deck.py:2272
 msgid "Deck was missing a model"
 msgstr "Det saknades en modell i kortleken"
 
@@ -344,57 +343,57 @@ msgstr "Ta bort förlegade referenser..."
 msgid "Delete unused files..."
 msgstr "Ta bort oanvända filer..."
 
-#: deck.py:2304
+#: deck.py:2307
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] "Tog bort %d kort som saknade faktauppgift"
 msgstr[1] "Tog bort %d kort som saknade faktauppgift"
 
-#: deck.py:2316
+#: deck.py:2319
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] "Tog bort %d kort som saknade kortmall"
 msgstr[1] "Tog bort %d kort som saknade kortmall"
 
-#: deck.py:2331
+#: deck.py:2334
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] "Tog bort %d kvarglömt fält"
 msgstr[1] "Tog bort %d kvarglömda fält"
 
-#: deck.py:2293
+#: deck.py:2296
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] "Tog bort %d faktauppgift som saknade fält"
 msgstr[1] "Tog bort %d faktauppgifter som saknade fält"
 
-#: deck.py:2322
+#: deck.py:2325
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] "Tog bort %d faktauppgift utan kort"
 msgstr[1] "Tog bort %d faktauppgifter utan kort"
 
-#: deck.py:2283
+#: deck.py:2286
 #, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] "Tog bort %d faktauppgift som saknade fältmodell"
 msgstr[1] "Tog bort %d faktauppgifter som saknade fältmodell"
 
-#: deck.py:2335
+#: deck.py:2338
 msgid "Deleted: "
 msgstr "Borttagna:"
 
-#: stats.py:273
+#: stats.py:274
 msgid "Due"
 msgstr "Tidsfrist slut"
 
-#: stats.py:275
+#: stats.py:276
 msgid "Ease"
 msgstr "Inlärningsgrad"
 
@@ -413,11 +412,11 @@ msgstr ""
 msgid "Exporting..."
 msgstr "Exporterar..."
 
-#: exporting.py:241
+#: exporting.py:237
 msgid "Facts in tab-separated text file (*.txt)"
 msgstr "Faktauppgifter i tabb-separerad textfil (*.txt)"
 
-#: deck.py:2698
+#: deck.py:2701
 msgid "File is in use by another process"
 msgstr "Filen används av en annan process"
 
@@ -425,35 +424,35 @@ msgstr "Filen används av en annan process"
 msgid "First Review"
 msgstr "Första repetition"
 
-#: stats.py:388
+#: stats.py:389
 msgid "First last month"
 msgstr "Första förra månaden"
 
-#: stats.py:385
+#: stats.py:386
 msgid "First last week"
 msgstr "Första förra veckan"
 
-#: stats.py:349
+#: stats.py:350
 msgid "First-seen cards:"
 msgstr "Förstagångskort:"
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:56 importing/anki10.py:30
 msgid "Importing..."
 msgstr "Importerar..."
 
-#: stats.py:274 stats.py:365
+#: stats.py:275 stats.py:366
 msgid "Interval"
 msgstr "Intervall"
 
-#: stats.py:278
+#: stats.py:279
 msgid "Last Due"
 msgstr "Sist tidsfristen utlöpte"
 
-#: stats.py:282
+#: stats.py:283
 msgid "Last Ease"
 msgstr "Senaste inlärningsgrad"
 
-#: stats.py:281
+#: stats.py:282
 msgid "Last Interval"
 msgstr "Senaste intervall"
 
@@ -465,11 +464,11 @@ msgstr "Vänster"
 msgid "Mature"
 msgstr "Gamla"
 
-#: stats.py:334
+#: stats.py:335
 msgid "Mature cards: <!--card count-->"
 msgstr "Gamla kort: <!--card count-->"
 
-#: stats.py:341
+#: stats.py:342
 msgid "Mature cards: <!--correct answers-->"
 msgstr "Gamla kort: <!--correct answers-->"
 
@@ -486,7 +485,7 @@ msgstr "Obligatoriska/unika fält '%(field)s' saknas"
 msgid "Mnemosyne Deck (*.mem)"
 msgstr "Mnemosynekortlek (*.mem)"
 
-#: stats.py:290
+#: stats.py:291
 msgid "Model Tags"
 msgstr "Modelletiketter"
 
@@ -498,67 +497,67 @@ msgstr "Ändra fält..."
 msgid "New"
 msgstr "Nya"
 
-#: deck.py:713
+#: deck.py:715
 msgid "No cards are due."
 msgstr "Inga kort har passerat förfallotid."
 
-#: stats.py:315
+#: stats.py:316
 msgid "Please add some cards first."
 msgstr "Lägg till några kort först."
 
-#: deck.py:2513
+#: deck.py:2516
 msgid "Processing..."
 msgstr "Behandlar..."
 
-#: deck.py:2353
+#: deck.py:2356
 msgid "Rebuilding QA cache..."
 msgstr "Bygger om fråge-/svarscachen..."
 
-#: deck.py:2369
+#: deck.py:2372
 msgid "Rebuilding counts..."
 msgstr "Bygger om antalsberäkningar..."
 
-#: deck.py:2347
+#: deck.py:2350
 msgid "Rebuilding tag cache..."
 msgstr "Bygger om etikettcachen..."
 
-#: deck.py:2367
+#: deck.py:2370
 msgid "Rebuilding types..."
 msgstr "Bygger om typer..."
 
-#: stats.py:374
+#: stats.py:375
 msgid "Reps last month"
 msgstr "Upprepn. förra månaden"
 
-#: stats.py:372
+#: stats.py:373
 msgid "Reps last week"
 msgstr "Upprepn. förra veckan"
 
-#: stats.py:370
+#: stats.py:371
 msgid "Reps next month"
 msgstr "Upprepn. nästa månad"
 
-#: stats.py:368
+#: stats.py:369
 msgid "Reps next week"
 msgstr "Upprepn. nästa vecka"
 
-#: deck.py:3282
+#: deck.py:3297
 msgid "Review cards from largest interval"
 msgstr "Repetera kort från största intervall"
 
-#: deck.py:3283
+#: deck.py:3298
 msgid "Review cards from smallest interval"
 msgstr "Repetera kort från minsta intervall"
 
-#: deck.py:3284
+#: deck.py:3299
 msgid "Review cards in order due"
 msgstr "Repetera kort ordnade efter den tid de förfaller"
 
-#: deck.py:3285
+#: deck.py:3300
 msgid "Review cards in random order"
 msgstr "Repetera kort i slumpmässig ordning"
 
-#: stats.py:284
+#: stats.py:285
 msgid "Reviews"
 msgstr "Repetitioner"
 
@@ -570,51 +569,51 @@ msgstr "Höger"
 msgid "Scan fields..."
 msgstr "Söker igenom fält..."
 
-#: deck.py:3291
+#: deck.py:3306
 msgid "Show failed cards at end"
 msgstr "Visa felbesvarade kort i slutet"
 
-#: deck.py:3292
+#: deck.py:3307
 msgid "Show failed cards in 10 minutes"
 msgstr "Visa felbesvarade kort om tio minuter"
 
-#: deck.py:3294
+#: deck.py:3309
 msgid "Show failed cards in 3 days"
 msgstr "Visa felbesvarade kort om tre dagar"
 
-#: deck.py:3293
+#: deck.py:3308
 msgid "Show failed cards in 8 hours"
 msgstr "Visa felbesvarade kort om åtta timmar"
 
-#: deck.py:3290
+#: deck.py:3305
 msgid "Show failed cards soon"
 msgstr "Visa felbesvarade kort snart"
 
-#: deck.py:3276
+#: deck.py:3291
 msgid "Show new cards after all other cards"
 msgstr "Visa nya kort efter alla andra kort"
 
-#: deck.py:3277
+#: deck.py:3292
 msgid "Show new cards before reviews"
 msgstr "Visa nya kort innan repetitioner"
 
-#: deck.py:3269
+#: deck.py:3284
 msgid "Show new cards in order added"
 msgstr "Visa nya kort i den ordning de lades till"
 
-#: deck.py:3268
+#: deck.py:3283
 msgid "Show new cards in random order"
 msgstr "Visa nya kort i slumpmässig ordning"
 
-#: deck.py:3270
+#: deck.py:3285
 msgid "Show new cards in reverse order added"
 msgstr "Visa nya kort i omvänd ordning från hur de lades till"
 
-#: deck.py:3275
+#: deck.py:3290
 msgid "Spread new cards out through reviews"
 msgstr "Fördela nya kort bland repetitioner"
 
-#: exporting.py:168 exporting.py:200
+#: exporting.py:164 exporting.py:196
 msgid "Text files (*.txt)"
 msgstr "Textfiler (*.txt)"
 
@@ -622,7 +621,7 @@ msgstr "Textfiler (*.txt)"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Text åtskiljd av tabbar eller semikolon (*)"
 
-#: deck.py:2275
+#: deck.py:2278
 msgid "The current model didn't exist"
 msgstr "Den nuvarande modellen fanns inte"
 
@@ -630,70 +629,70 @@ msgstr "Den nuvarande modellen fanns inte"
 msgid "The file was not in UTF8 format."
 msgstr "Filen var inte i UTF8-format"
 
-#: deck.py:710
+#: deck.py:712
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr "Nästa repetition är om <b>%s</b>."
 
-#: deck.py:745
+#: deck.py:747
 #, python-format
 msgid "There is %d delayed new card."
 msgid_plural "There are %d delayed new cards."
 msgstr[0] "Det finns %d senarelagt nytt kort."
 msgstr[1] "Det finns %d senarelagda nya kort."
 
-#: deck.py:759
+#: deck.py:761
 #, python-format
 msgid "There is %d inactive card."
 msgid_plural "There are %d inactive cards."
 msgstr[0] "Det finns %d avaktiverat kort."
 msgstr[1] "Det finns %d avaktiverade kort."
 
-#: deck.py:766
+#: deck.py:768
 #, python-format
 msgid "There is %d leech."
 msgid_plural "There are %d leeches."
 msgstr[0] "Det finns %d utsugarkort."
 msgstr[1] "Det finns %d utsugarkort."
 
-#: deck.py:752
+#: deck.py:754
 #, python-format
 msgid "There is %d suspended card."
 msgid_plural "There are %d suspended cards."
 msgstr[0] "Det finns %d åsidosatt kort."
 msgstr[1] "Det finns %d åsidosatta kort."
 
-#: deck.py:703
+#: deck.py:705
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] "Skall <b>%d</b> nytt kort läras in."
 msgstr[1] "Skall <b>%d</b> nya kort läras in."
 
-#: deck.py:706
+#: deck.py:708
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
 msgstr[0] "Skall <b>%s</b> kort repeteras."
 msgstr[1] "Skall <b>%s</b> kort repeteras."
 
-#: stats.py:289
+#: stats.py:290
 msgid "Total Time"
 msgstr "Sammanlagd tid"
 
-#: stats.py:330
+#: stats.py:331
 msgid "Total number of cards:"
 msgstr "Antal kort:"
 
-#: stats.py:331
+#: stats.py:332
 msgid "Total number of facts:"
 msgstr "Antal faktauppgifter:"
 
-#: deck.py:976
+#: deck.py:979
 msgid "Unknown"
 msgstr "Okänt"
 
-#: stats.py:338
+#: stats.py:339
 msgid "Unseen cards:"
 msgstr "Osedda kort:"
 
@@ -701,11 +700,11 @@ msgstr "Osedda kort:"
 msgid "Update tags..."
 msgstr "Uppdatera etiketter..."
 
-#: deck.py:2350
+#: deck.py:2353
 msgid "Updating priorities..."
 msgstr "Uppdaterar prioteringar..."
 
-#: deck.py:2864
+#: deck.py:2867
 msgid "Upgrading Deck..."
 msgstr "Uppgraderar kortlek..."
 
@@ -713,11 +712,11 @@ msgstr "Uppgraderar kortlek..."
 msgid "Young"
 msgstr "Unga"
 
-#: stats.py:336
+#: stats.py:337
 msgid "Young cards: <!--card count-->"
 msgstr "Unga kort: <!--card count-->"
 
-#: stats.py:345
+#: stats.py:346
 msgid "Young cards: <!--correct answers-->"
 msgstr "Unga kort: <!--correct answers-->"
 
@@ -725,28 +724,24 @@ msgstr "Unga kort: <!--correct answers-->"
 msgid "[invalid question/answer format]"
 msgstr "[ogiltigt format för fråga/svar]"
 
-#: sync.py:237 sync.py:241
+#: sync.py:231 sync.py:235
 msgid "all"
 msgstr "alla"
 
-#: stats.py:367 stats.py:369 stats.py:371 stats.py:373 stats.py:375
+#: stats.py:368 stats.py:370 stats.py:372 stats.py:374 stats.py:376
 msgid "cards/day"
 msgstr "kort/dag"
 
-#: stats.py:365
+#: stats.py:366
 msgid "days"
 msgstr "dagar"
 
-#: stats.py:272
+#: stats.py:273
 #, python-format
 msgid "in %s"
 msgstr "om %s"
 
-#: sync.py:234 sync.py:235
-msgid "off"
-msgstr "av"
-
-#: deck.py:730
+#: deck.py:732
 msgid "unknown"
 msgstr "okänt"
 
@@ -857,3 +852,6 @@ msgstr "okänt"
 
 #~ msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 #~ msgstr "Unga kort: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
+
+#~ msgid "off"
+#~ msgstr "av"
