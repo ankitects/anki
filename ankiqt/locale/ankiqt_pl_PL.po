@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-05-31 00:26+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -85,17 +85,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr " * %s pobieranie danych..."
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s nie znaleziono zmian."
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s nie istnieje już."
@@ -112,7 +112,7 @@ msgstr " <b>Przy przeglądaniu i edycji:</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Upewnij się, że jest ustawiony poprawnie i uruchom Anki ponownie."
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr " zastosowano %d zmodyfikowanych kart."
@@ -650,12 +650,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr "<br><br>Sprawdzanie subskrypcji talii..."
 
@@ -767,7 +767,7 @@ msgstr "<h1>Modele</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr "<h1>Konto online</h1>Aby wykorzystać swoje darmowe <a href=\"http://anki.ichi2.net/\">konto online</a>,<br>wpisz jego dane poniżej.<br><br>Możesz później zmienić szczegółowe dane wchodząc w<br>Ustawienia->Preferencje->Synchronizacja<br>"
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Otwórz talię z Internetu</h1>"
 
@@ -812,7 +812,7 @@ msgstr "<h1>Synchronizacja</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Synchronizacja</h1><a href=\"http://anki.ichi2.net/\">Stwórz darmowe konto</a>."
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Synchronizacja</h1>"
 
@@ -858,7 +858,7 @@ msgstr "O Anki"
 msgid "Active &Tags..."
 msgstr "Aktywne &etykiety..."
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "Aktywne etykiety"
 
@@ -1023,7 +1023,7 @@ msgstr ""
 "tekst do raportu o błędzie.<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1060,7 +1060,7 @@ msgstr "Rozmiar odpowiedzi"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr "Dodaj do tego faktu etykietę 'zaznaczony', żeby potem można było go łatwiej odnaleźć w przeglądarce"
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr "Wprowadzanie odpowiedzi..."
 
@@ -1178,6 +1178,10 @@ msgstr "Karty"
 msgid "Cards are waiting"
 msgstr "Są karty do przejrzenia"
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 msgid "Cards/day:"
 msgstr "Kart dziennie:"
@@ -1207,7 +1211,7 @@ msgstr "Zmiana modelu"
 msgid "Check Media Database..."
 msgstr "Sprawdź bazę plików..."
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "Zakończono sprawdzanie."
 
@@ -1339,7 +1343,7 @@ msgstr "Czy zacząć w nowej talii sprawdzian z wybranych kart?"
 msgid "Create"
 msgstr "Utworzona"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Tworzenie '%s' na serwerze"
@@ -1548,9 +1552,13 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr "Usuń aktualnie wyświetlaną kartę"
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Ustalanie różnic..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2039,7 +2047,7 @@ msgstr "Zaznaczone"
 msgid "Max"
 msgstr "Maks."
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Łączenie z '%s' na serwerze"
@@ -2133,7 +2141,7 @@ msgstr "Żadne karty nie pasują do podanych etykiet."
 msgid "No cards to preview."
 msgstr "Nie ma kart do podglądu."
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr "Nie znaleziono zmian."
 
@@ -2236,6 +2244,11 @@ msgstr "Dodaj najpierw nowy model."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
+
+#: forms/sort.py:46
+#, fuzzy
+msgid "Please choose a field to sort by."
+msgstr "Dodaj najpierw nowe pole."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2518,11 +2531,6 @@ msgstr "Zaznacz wszystko"
 msgid "Select None"
 msgstr "Wyczyść zaznaczenie"
 
-#: forms/activetags.py:41
-#, fuzzy
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr "Wybierz etykiety do zawieszenia. Usuń zaznaczenie by usunąć zawieszenie."
-
 #: ui/main.py:1487
 msgid "Session Statistics"
 msgstr "Statystyki sesji"
@@ -2700,7 +2708,7 @@ msgstr ""
 "<h1>Synchronizacja nie powiodła się</h1>\n"
 "Nie udało się połączyć z Anki Online. Sprawdź swoje połączenie internetowe."
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr "Zakończono synchronizację."
 
@@ -2728,7 +2736,7 @@ msgstr "Synchronizuj tę talię z Anki Online"
 msgid "Syncing Media..."
 msgstr "Synchronizacja plików"
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Synchronizacja nie powiodła się: %(a)s"
@@ -2986,7 +2994,7 @@ msgstr "Razem poprawnych: "
 msgid "Total review time: "
 msgstr "Całkowity czas powtórki: "
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "Przesyłanie danych..."
 
@@ -3312,10 +3320,6 @@ msgstr "toplabel"
 #~ msgid "Open a pre-made deck or plugin"
 #~ msgstr "Otwórz przygotowaną talię lub dodatek"
 
-#, fuzzy
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Dodaj najpierw nowe pole."
-
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Powtórz &nagranie odpowiedzi"
 
@@ -3324,6 +3328,10 @@ msgstr "toplabel"
 
 #~ msgid "Save && Sync"
 #~ msgstr "Zapis i synchronizacja"
+
+#, fuzzy
+#~ msgid "Select tags to deactivate. Deselect tags to activate again."
+#~ msgstr "Wybierz etykiety do zawieszenia. Usuń zaznaczenie by usunąć zawieszenie."
 
 #~ msgid "Share..."
 #~ msgstr "Udostępnij..."

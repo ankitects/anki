@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.7.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-05-03 15:29+0100\n"
 "Last-Translator: Lars Lem <larslem@online.no>\n"
 "Language-Team: Norwegian <larslem@online.no>\n"
@@ -87,17 +87,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr " * %s henter data..."
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s fant ingen endringer."
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s finnes ikke lenger."
@@ -115,7 +115,7 @@ msgstr " <b>Ved repetisjon og endring:</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Angi et gyldig start- og sluttintervall"
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr "tatt i bruk %d endrede kort."
@@ -656,12 +656,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr "<br><br>Kontrollerer kortstokkabonnemanger..."
 
@@ -774,7 +774,7 @@ msgstr "<h1>Modeller</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr "<h1>Konto på nettet</h1>For å bruke din gratis <a href=\"http://anki.ichi2.net/\">konto på nettet</a>,<br>fyller du inn dine data her.<br>"
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Tilgjengelig kortstokk på nettet</h1>"
 
@@ -819,7 +819,7 @@ msgstr "<h1>Synkronisering</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Synkronisering</h1><a href=\"http://anki.ichi2.net/\">Opprett en gratis konto</a>."
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Synkronisere</h1>"
 
@@ -865,7 +865,7 @@ msgstr "Om Anki"
 msgid "Active &Tags..."
 msgstr "Aktive &etiketter"
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "Aktive etiketter"
 
@@ -1032,7 +1032,7 @@ msgstr ""
 "til en feilrapport:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1069,7 +1069,7 @@ msgstr "Svarstørrelse"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr "Sett etiketten 'markert' på denne faktaen så du senere kan finne den igjen"
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr "Tilpasser svaret..."
 
@@ -1187,6 +1187,10 @@ msgstr "Kort"
 msgid "Cards are waiting"
 msgstr "Det finnes kort som venter"
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 msgid "Cards/day:"
 msgstr "Kort/dag"
@@ -1216,7 +1220,7 @@ msgstr "Bytt modell"
 msgid "Check Media Database..."
 msgstr "Kontroller mediadatabasen..."
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "Kontroll ferdig."
 
@@ -1349,7 +1353,7 @@ msgstr "Råpugge valgte kort i en ny kortstokk?"
 msgid "Create"
 msgstr "Opprettet"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Opprette '%s' på server"
@@ -1559,9 +1563,13 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr "Ta bort det kortet som vises nå"
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Kartlegger forskjeller..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Dialog"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2045,7 +2053,7 @@ msgstr "Merket"
 msgid "Max"
 msgstr "Maks"
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Flette inn i '%s' på server"
@@ -2139,7 +2147,7 @@ msgstr "Ingen kort er markert med angitte etiketter."
 msgid "No cards to preview."
 msgstr "Det finnes ikke noen kort å forhåndsvise"
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr "Ingen endringer ble funnet."
 
@@ -2243,6 +2251,10 @@ msgstr "Legg først til en annen modell."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Velg et felt å sortere etter"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2526,11 +2538,6 @@ msgstr "Marker alt"
 msgid "Select None"
 msgstr "Tøm alt"
 
-#: forms/activetags.py:41
-#, fuzzy
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr "Velg hvilke tagger som skal være deaktivert. Tøm alt for å reaktivere."
-
 #: ui/main.py:1487
 msgid "Session Statistics"
 msgstr "Statistikk over øvingssesjoner"
@@ -2711,7 +2718,7 @@ msgstr ""
 "<h1>Synkroniseringen mislyktes</h1>\n"
 "Fikk ikke kontakt med Anki Online. Kontroller din internetoppkobling."
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr "Synkronisering ferdig."
 
@@ -2739,7 +2746,7 @@ msgstr "Synkroniser denne kortstokken med Anki Online"
 msgid "Syncing Media..."
 msgstr "Synkroniserer media..."
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Synkroniseringen mislyktes: %(a)s"
@@ -2992,7 +2999,7 @@ msgstr "Totalt antall riktige: "
 msgid "Total review time: "
 msgstr "Total øvingstid: "
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "Overfører payload..."
 
@@ -3600,9 +3607,6 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
-#~ msgid "Dialog"
-#~ msgstr "Dialog"
-
 #, fuzzy
 #~ msgid "Download Deck"
 #~ msgstr "Laste ned delt kortstokk"
@@ -3668,9 +3672,6 @@ msgstr "toppetikett"
 #~ msgid "Please add a new card first."
 #~ msgstr "Legg først til et nytt kort."
 
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Velg et felt å sortere etter"
-
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Gjenta  &svarlyd"
 
@@ -3689,6 +3690,10 @@ msgstr "toppetikett"
 
 #~ msgid "Search"
 #~ msgstr "Søk"
+
+#, fuzzy
+#~ msgid "Select tags to deactivate. Deselect tags to activate again."
+#~ msgstr "Velg hvilke tagger som skal være deaktivert. Tøm alt for å reaktivere."
 
 #~ msgid "Share..."
 #~ msgstr "Dele med andre..."

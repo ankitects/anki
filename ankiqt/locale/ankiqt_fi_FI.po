@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -87,17 +87,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr " * %s siirretään hyötykuormaa..."
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s muutoksia ei löytynyt."
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s ei ole enää olemassa."
@@ -116,7 +116,7 @@ msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Anna kelvollinen alku ja loppu välille."
 
 # after " * %s fetching payload..."
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr " päivitettiin %d muutettua korttia."
@@ -666,12 +666,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr "<br><br>Tarkistetaan pakan tilauksia..."
 
@@ -780,7 +780,7 @@ msgstr "<h1>Mallit</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr "<h1>Verkkotunnus</h1> Jos haluat käyttää <a href=\"http://anki.ichi2.net/\">verkkotunnusta</a>,<br>täydennä tunnuksen tiedot alle.<br>"
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Verkkopakan avaus</h1>"
 
@@ -825,7 +825,7 @@ msgstr "<h1>Synkronointi</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Synkronointi</h1><a href=\"http://anki.ichi2.net/\">Luo ilmainen tunnus</a>."
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Synkronointi</h1>"
 
@@ -868,7 +868,7 @@ msgstr "Tietoja Ankista"
 msgid "Active &Tags..."
 msgstr "Aktiiviset &tägit..."
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "Aktiiviset tägit"
 
@@ -1035,7 +1035,7 @@ msgstr ""
 "Jos se ei korjaa ongelmaa, liitä seuraavat tiedot virheraporttiin:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1072,7 +1072,7 @@ msgstr "Kirjasinkoko"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr "Päivitetään paikallisia tietoja..."
 
@@ -1192,6 +1192,10 @@ msgstr "Kortit"
 msgid "Cards are waiting"
 msgstr "Kortteja odottaa"
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 #, fuzzy
 msgid "Cards/day:"
@@ -1222,7 +1226,7 @@ msgstr "Vaihda mallia"
 msgid "Check Media Database..."
 msgstr "Tarkista mediatietokanta..."
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "Tarkistus on valmis."
 
@@ -1355,7 +1359,7 @@ msgstr ""
 msgid "Create"
 msgstr "Luomisaika"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Luo ”%s” palvelimella"
@@ -1569,9 +1573,13 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr ""
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Etsitään eroavaisuuksia..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2059,7 +2067,7 @@ msgstr "Vaikea"
 msgid "Max"
 msgstr "enint."
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Liitä palvelimen pakkaan ”%s”"
@@ -2156,7 +2164,7 @@ msgstr "Tägejä vastaavia kortteja ei ole."
 msgid "No cards to preview."
 msgstr "Ei esikatseltavia kortteja."
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr "Ei muutoksia."
 
@@ -2265,6 +2273,11 @@ msgstr "Lisää toinen malli ensin."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
+
+#: forms/sort.py:46
+#, fuzzy
+msgid "Please choose a field to sort by."
+msgstr "Lisää ensin kenttä."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2553,10 +2566,6 @@ msgstr "Valitse &kaikki"
 msgid "Select None"
 msgstr "Valitse &kaikki"
 
-#: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr ""
-
 #: ui/main.py:1487
 #, fuzzy
 msgid "Session Statistics"
@@ -2741,7 +2750,7 @@ msgstr "ruotsi"
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr "Synkronointi on valmis."
 
@@ -2770,7 +2779,7 @@ msgstr "Synkronoi tämä pakka"
 msgid "Syncing Media..."
 msgstr "Synkronoidaan mediaa..."
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Synkronointi epäonnistui: %(a)s"
@@ -3021,7 +3030,7 @@ msgstr ""
 msgid "Total review time: "
 msgstr "Kertaamisaika"
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "Siirretään hyötykuormaa..."
 
@@ -3635,10 +3644,6 @@ msgstr ""
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Lisää ensin kortteja."
-
-#, fuzzy
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Lisää ensin kenttä."
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Toista &vastauksen ääni"

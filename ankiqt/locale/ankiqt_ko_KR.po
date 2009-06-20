@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,17 +63,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr ""
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr ""
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr ""
@@ -92,7 +92,7 @@ msgstr " <b>추가/편집 할때</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr ""
@@ -664,12 +664,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr ""
 
@@ -788,7 +788,7 @@ msgstr "<h1>카드 모델</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr ""
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 #, fuzzy
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>카드 누적 개수</h1>"
@@ -842,7 +842,7 @@ msgstr "<h1>묶음 설명</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>동기화</h1>동기화 기능을 사용하면 묶음을 웹과 휴대폰에서 사용할 수 있습니다. <a href=\"http://anki.ichi2.net/\">무료 회원 가입</a>이 필요합니다."
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 #, fuzzy
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>묶음 설명</h1>"
@@ -887,7 +887,7 @@ msgstr "앙키 소개"
 msgid "Active &Tags..."
 msgstr "꼬리표 삭제..."
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr ""
 
@@ -1052,7 +1052,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "앙키"
 
@@ -1089,7 +1089,7 @@ msgstr "답 글자 크기"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 #, fuzzy
 msgid "Applying reply..."
 msgstr "응답 적용 중.."
@@ -1211,6 +1211,10 @@ msgstr "카드:"
 msgid "Cards are waiting"
 msgstr ""
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 #, fuzzy
 msgid "Cards/day:"
@@ -1243,7 +1247,7 @@ msgstr "<h1>카드 난이도</h1>"
 msgid "Check Media Database..."
 msgstr ""
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 #, fuzzy
 msgid "Check complete."
 msgstr "열 때 동기화"
@@ -1378,7 +1382,7 @@ msgstr ""
 msgid "Create"
 msgstr "만든 날"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "서버에 '%s' 묶음 만들기"
@@ -1608,10 +1612,14 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr ""
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 #, fuzzy
 msgid "Determining differences..."
 msgstr "묶음 비교하는 중.."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "대화상자"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2125,7 +2133,7 @@ msgstr "카드:"
 msgid "Max"
 msgstr "최대"
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "서버의 '%s' 묶음과 합치기"
@@ -2225,7 +2233,7 @@ msgstr ""
 msgid "No cards to preview."
 msgstr ""
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr ""
 
@@ -2337,6 +2345,10 @@ msgstr "먼저 새 모델을 추가해 주세요."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "정렬 기준이 될 필드를 선택해 주세요."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2642,10 +2654,6 @@ msgstr "꼬리표 삭제..."
 msgid "Select None"
 msgstr "꼬리표 삭제..."
 
-#: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr ""
-
 #: ui/main.py:1487
 #, fuzzy
 msgid "Session Statistics"
@@ -2833,7 +2841,7 @@ msgstr ""
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 #, fuzzy
 msgid "Sync complete."
 msgstr "열 때 동기화"
@@ -2866,7 +2874,7 @@ msgstr "동기시킬 묶음 이름:"
 msgid "Syncing Media..."
 msgstr "동기화 실패: %(a)s"
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "동기화 실패: %(a)s"
@@ -3109,7 +3117,7 @@ msgstr ""
 msgid "Total review time: "
 msgstr "복습 중"
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr ""
 
@@ -4081,9 +4089,6 @@ msgstr "Latex"
 #~ msgid "Description && Synchronisation"
 #~ msgstr "설명 및 동기화"
 
-#~ msgid "Dialog"
-#~ msgstr "대화상자"
-
 #~ msgid "Difficult"
 #~ msgstr "어려움"
 
@@ -4259,9 +4264,6 @@ msgstr "Latex"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "먼저 새 카드를 추가해 주세요."
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "정렬 기준이 될 필드를 선택해 주세요."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "이 필드에 같은 내용이 입력되는 것을 방지"

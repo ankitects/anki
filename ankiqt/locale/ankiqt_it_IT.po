@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,17 +71,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, fuzzy, python-format
 msgid " * %s fetching payload..."
 msgstr " * %s ricezione delle informazioni.."
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s nessuna modifica rilevata."
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s non esiste più."
@@ -100,7 +100,7 @@ msgstr " <b>Nelle fasi di creazione/modifica</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr " validato %d carte modificate."
@@ -668,12 +668,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 #, fuzzy
 msgid "<br><br>Checking deck subscriptions..."
 msgstr "<br><br>Controllo iscrizioni al mazzo.."
@@ -794,7 +794,7 @@ msgstr "<h1>Modelli</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr "<h1>Account Online</h1>Per utilizzare il tuo <a href=\"http://anki.ichi2.net/\">account online/a> gratuitamente,<br>inserisci le informazioni sottostanti.<br>"
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 #, fuzzy
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Rappresentazione cumulativa carte da ripassare</h1>"
@@ -845,7 +845,7 @@ msgstr "<h1>Sincronizzazione</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Sincronizzazione</h1><a href=\"http://anki.ichi2.net/\">Crea gratuitamente un account</a>."
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 #, fuzzy
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Sincronizzazione</h1>"
@@ -890,7 +890,7 @@ msgstr ""
 msgid "Active &Tags..."
 msgstr "&Tag attive.."
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "Tag Attive"
 
@@ -1056,7 +1056,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
@@ -1093,7 +1093,7 @@ msgstr "Dimensioni risposta"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 #, fuzzy
 msgid "Applying reply..."
 msgstr "Invio risposta.."
@@ -1217,6 +1217,10 @@ msgstr "Carta:"
 msgid "Cards are waiting"
 msgstr ""
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 #, fuzzy
 msgid "Cards/day:"
@@ -1250,7 +1254,7 @@ msgstr "<h1>Facilità carte</h1>"
 msgid "Check Media Database..."
 msgstr "Controllo Database Multimediale.."
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "Controllo completo."
 
@@ -1386,7 +1390,7 @@ msgstr ""
 msgid "Create"
 msgstr "Data creazione"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Crea '%s' sul server"
@@ -1612,10 +1616,14 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr ""
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 #, fuzzy
 msgid "Determining differences..."
 msgstr "Determinazione differenze"
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Finestra di dialogo"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2124,7 +2132,7 @@ msgstr "Difficile"
 msgid "Max"
 msgstr ""
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Unisci con '%s' sul server"
@@ -2221,7 +2229,7 @@ msgstr ""
 msgid "No cards to preview."
 msgstr ""
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr "Nessuna modifica trovata."
 
@@ -2333,6 +2341,10 @@ msgstr "Aggiungere un altro modello prima di procedere."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Scegliere un campo col quale ordinare l'elenco."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2634,10 +2646,6 @@ msgstr "Elimina Tag.."
 msgid "Select None"
 msgstr "Elimina Tag.."
 
-#: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr ""
-
 #: ui/main.py:1487
 #, fuzzy
 msgid "Session Statistics"
@@ -2826,7 +2834,7 @@ msgstr ""
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr "Sincronizzazione completa."
 
@@ -2857,7 +2865,7 @@ msgstr "Sincronizza questo mazzo"
 msgid "Syncing Media..."
 msgstr "Sincronizzazione Media.."
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Sincronizzazione fallita: %(a)s"
@@ -3105,7 +3113,7 @@ msgstr ""
 msgid "Total review time: "
 msgstr ""
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "Trasferimento informazioni.."
 
@@ -3777,9 +3785,6 @@ msgstr "etichetta"
 #~ msgid "Description"
 #~ msgstr "Descrizione"
 
-#~ msgid "Dialog"
-#~ msgstr "Finestra di dialogo"
-
 #~ msgid "Difficulty"
 #~ msgstr "Difficoltà"
 
@@ -3923,9 +3928,6 @@ msgstr "etichetta"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Aggiungere una nuova carta prima di procedere."
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Scegliere un campo col quale ordinare l'elenco."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "Impediscimi di inserire la stessa cosa in questo campo più di una volta"

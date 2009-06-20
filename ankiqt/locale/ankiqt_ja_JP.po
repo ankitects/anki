@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki Japanese Translation v0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-06-17 01:43-0800\n"
 "Last-Translator: Jarvik7 <jarvik7@gmail.com>\n"
 "Language-Team: Jarvik7 <jarvik7@gmail.com>\n"
@@ -67,17 +67,17 @@ msgstr " (Command+Option+%d)"
 msgid " (and proxy settings)"
 msgstr "プロキシの設定を確認してくださし。"
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, fuzzy, python-format
 msgid " * %s fetching payload..."
 msgstr "データを転送中.."
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %sは変更されていません。"
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %sは存在しません。"
@@ -94,7 +94,7 @@ msgstr "<b>編集と勉強する時：</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "設定を確認してAnkiを再起動してください。"
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr " 変更されたカードを%d個更新しました。"
@@ -620,12 +620,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr ""
 
@@ -734,7 +734,7 @@ msgstr "<h1>モデル</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr ""
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 #, fuzzy
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>オンライン単語帳を開く</h1>"
@@ -780,7 +780,7 @@ msgstr "<h1>同期</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>同期</h1><a href=\"http://anki.ichi2.net/\">無料で登録する</a>"
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 #, fuzzy
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>同期</h1>"
@@ -825,7 +825,7 @@ msgstr "Ankiについて"
 msgid "Active &Tags..."
 msgstr "活性タグ(&T)…"
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "活性タグ"
 
@@ -975,7 +975,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1012,7 +1012,7 @@ msgstr "解答サイズ"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr "カードブラウザで簡単に見つけれるように、このファクトにスターを付ける"
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr ""
 
@@ -1130,6 +1130,10 @@ msgstr "カード"
 msgid "Cards are waiting"
 msgstr ""
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 #, fuzzy
 msgid "Cards/day:"
@@ -1160,7 +1164,7 @@ msgstr "モデルを変える…"
 msgid "Check Media Database..."
 msgstr "メディアデータベースを検査…"
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "検査を完了しました。"
 
@@ -1294,7 +1298,7 @@ msgstr "選択されたカードを新規単語帳で詰め込み勉強します
 msgid "Create"
 msgstr "製作"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "%sという単語帳をサーバーで作成"
@@ -1502,10 +1506,14 @@ msgstr "追加する時に元のメディアを削除する"
 msgid "Delete the currently displayed card"
 msgstr "現在のカードを削除する"
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 #, fuzzy
 msgid "Determining differences..."
 msgstr "格差を究明中…"
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr ""
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -1986,7 +1994,7 @@ msgstr "スターが付いている"
 msgid "Max"
 msgstr "最大"
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "「%s」というサーバにある単語帳に合体する"
@@ -2080,7 +2088,7 @@ msgstr ""
 msgid "No cards to preview."
 msgstr ""
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 #, fuzzy
 msgid "No changes found."
 msgstr " * %sは変更されていません。"
@@ -2182,6 +2190,10 @@ msgstr "まずもう一つのモデルを作成してください。"
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr "プロキシの設定を確認してくださし。"
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "フィールドの整列を選んでください。"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2468,11 +2480,6 @@ msgstr "すべてを選択"
 msgid "Select None"
 msgstr "すべてを除外"
 
-#: forms/activetags.py:41
-#, fuzzy
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr "se保留させたいタグを選択してください。なお、活性化するためにタグを除外してください。"
-
 #: ui/main.py:1487
 msgid "Session Statistics"
 msgstr "セッションの統計"
@@ -2648,7 +2655,7 @@ msgstr ""
 "<h1>同期が失敗しました</h1>\n"
 "Anki Onlineに接続出来ませんでした。インタネットコネクションを確認してください。"
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr "同期を完了しました。"
 
@@ -2676,7 +2683,7 @@ msgstr "Anki Onlineと同期します"
 msgid "Syncing Media..."
 msgstr "メディアを同期中…"
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "同期が出来ませんでした：%(a)s"
@@ -2906,7 +2913,7 @@ msgstr "当てる："
 msgid "Total review time: "
 msgstr "総使用時間："
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "データを転送中…"
 
@@ -3221,14 +3228,15 @@ msgstr ""
 #~ msgid "Open Sa&mple..."
 #~ msgstr "例の単語帳を開く(&M)…"
 
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "フィールドの整列を選んでください。"
-
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "解答の音声を再生(&A)"
 
 #~ msgid "Repeat &Question Audio"
 #~ msgstr "質問の音声を再生(&Q)"
+
+#, fuzzy
+#~ msgid "Select tags to deactivate. Deselect tags to activate again."
+#~ msgstr "se保留させたいタグを選択してください。なお、活性化するためにタグを除外してください。"
 
 #~ msgid "Share..."
 #~ msgstr "公開する…"

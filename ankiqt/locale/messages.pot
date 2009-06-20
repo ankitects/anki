@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,17 +65,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr ""
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr ""
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr ""
@@ -92,7 +92,7 @@ msgstr ""
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr ""
@@ -602,12 +602,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr ""
 
@@ -711,7 +711,7 @@ msgstr ""
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr ""
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 msgid "<h1>Open Online Deck</h1>"
 msgstr ""
 
@@ -755,7 +755,7 @@ msgstr ""
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr ""
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 msgid "<h1>Synchronize</h1>"
 msgstr ""
 
@@ -794,7 +794,7 @@ msgstr ""
 msgid "Active &Tags..."
 msgstr ""
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr ""
 
@@ -944,7 +944,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
@@ -979,7 +979,7 @@ msgstr ""
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr ""
 
@@ -1093,6 +1093,10 @@ msgstr ""
 msgid "Cards are waiting"
 msgstr ""
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 msgid "Cards/day:"
 msgstr ""
@@ -1122,7 +1126,7 @@ msgstr ""
 msgid "Check Media Database..."
 msgstr ""
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr ""
 
@@ -1253,7 +1257,7 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr ""
@@ -1459,8 +1463,12 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr ""
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 msgid "Determining differences..."
+msgstr ""
+
+#: forms/infodialog.py:36
+msgid "Dialog"
 msgstr ""
 
 #: ui/modelproperties.py:325
@@ -1938,7 +1946,7 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr ""
@@ -2032,7 +2040,7 @@ msgstr ""
 msgid "No cards to preview."
 msgstr ""
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr ""
 
@@ -2131,6 +2139,10 @@ msgstr ""
 
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
+msgstr ""
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
 msgstr ""
 
 #: ui/sync.py:70
@@ -2409,10 +2421,6 @@ msgstr ""
 msgid "Select None"
 msgstr ""
 
-#: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr ""
-
 #: ui/main.py:1487
 msgid "Session Statistics"
 msgstr ""
@@ -2583,7 +2591,7 @@ msgstr ""
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr ""
 
@@ -2611,7 +2619,7 @@ msgstr ""
 msgid "Syncing Media..."
 msgstr ""
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr ""
@@ -2828,7 +2836,7 @@ msgstr ""
 msgid "Total review time: "
 msgstr ""
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr ""
 

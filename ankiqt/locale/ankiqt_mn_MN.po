@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,17 +87,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr " * %s мэдээллийн хэсэг авч явж байна..."
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s өөрчлөлт бүү олсон."
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s байхгүй."
@@ -115,7 +115,7 @@ msgstr " <b>Давтаад сурахдаа:</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Хүчинтэй хэрэглээний хүрээг оруулна уу?"
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr " %d өөрчилсөн картуудыг хэрэглэсэн."
@@ -664,12 +664,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr "<br><br>Цуглуулгын захиалгыг шалгаж байна..."
 
@@ -779,7 +779,7 @@ msgstr "<h1>Зүйлүүд</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr "<h1>Вебийн данс</h1>Таны үнэгүй <a href=\"http://anki.ichi2.net/\">вебийн дансыг</a> хэрэглэхээр,<br>дараагийн маягт баглаарай.<br>"
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Вебийн цуглуулгыг нээ</h1>"
 
@@ -824,7 +824,7 @@ msgstr "<h1>Давхцал</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Давхцал</h1><a href=\"http://anki.ichi2.net/\">Үнэгүй дансыг бүртгэх</a>."
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Давхцах</h1>"
 
@@ -870,7 +870,7 @@ msgstr "Анкигын тухай"
 msgid "Active &Tags..."
 msgstr "Идэвхтэй &Шошгууд"
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "Идэвхтэй Шошгууд"
 
@@ -1037,7 +1037,7 @@ msgstr ""
 "алдааны тайланд хуулаарай:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Анки"
 
@@ -1074,7 +1074,7 @@ msgstr "Хариултын хэмжээ"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr "Дараа браузерын дээр энэ баримт хайхаар 'тэмдэглэсэн'-н шошгыг одоо нэм"
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr "Хариултыг хадгалж байна..."
 
@@ -1192,6 +1192,10 @@ msgstr "Картууд:"
 msgid "Cards are waiting"
 msgstr "Картууд таныг хүлээж байна"
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 #, fuzzy
 msgid "Cards/day:"
@@ -1222,7 +1226,7 @@ msgstr "Зүлийг Өөрчлөх"
 msgid "Check Media Database..."
 msgstr "Медианы өгөгдлийн саныг шалгах..."
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "Шалгалт дууссан"
 
@@ -1355,7 +1359,7 @@ msgstr "Шинэ цуглуулгын сонгосон картуудыг нь �
 msgid "Create"
 msgstr "Үүсгэсэн"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Серверийн дээр '%s' үүсгэх"
@@ -1567,9 +1571,13 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr "Одоогийн картыг устгах"
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Ялгааг тодорхойлж байна..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Диалог"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2057,7 +2065,7 @@ msgstr "Хэцүү"
 msgid "Max"
 msgstr "Дээд"
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Серверийн дээр '%s'-тай нэгтгэх"
@@ -2153,7 +2161,7 @@ msgstr "Картуудаас сонгосон шошготой нь байхгү
 msgid "No cards to preview."
 msgstr "Өмнөх үзэмжийн картууд байхгүй."
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr "Өөрчлөлт олоогүй."
 
@@ -2260,6 +2268,10 @@ msgstr "Дахин зүйл нэмнэ уу?"
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Талбараас эрэмбэлэхээр нь сонго."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2545,10 +2557,6 @@ msgstr "&Бүгдийг сонго"
 msgid "Select None"
 msgstr "&Бүгдийг сонго"
 
-#: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr ""
-
 #: ui/main.py:1487
 #, fuzzy
 msgid "Session Statistics"
@@ -2728,7 +2736,7 @@ msgstr "Швед хэл"
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr "Давхцал дууссан."
 
@@ -2756,7 +2764,7 @@ msgstr "Энэ цуглуулга Анки Вебтэй давхац"
 msgid "Syncing Media..."
 msgstr "Медиа түдгэлзүүлж байна..."
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Давхцал дампуурсан: %(a)s"
@@ -3009,7 +3017,7 @@ msgstr "Зөв нь:"
 msgid "Total review time: "
 msgstr "Нийт давталтын цаг:"
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "хэсэг шилжүүлж байна..."
 
@@ -3370,9 +3378,6 @@ msgstr "toplabel"
 #~ msgid "Customize card layout, fields, etc"
 #~ msgstr "Картын байрлал, талбарууд, гэх мэтийг тохируулах"
 
-#~ msgid "Dialog"
-#~ msgstr "Диалог"
-
 #, fuzzy
 #~ msgid "Download Deck"
 #~ msgstr "Нийтийн Цуглуулгыг тат"
@@ -3410,9 +3415,6 @@ msgstr "toplabel"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Эхлээд шинэ картыг нэмнэ уу?"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Талбараас эрэмбэлэхээр нь сонго."
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "&Хариултын дуу дахиад тоглох"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-06-18 09:46+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -87,17 +87,17 @@ msgstr " (Command+Option+%d)"
 msgid " (and proxy settings)"
 msgstr "(och proxyinställningar)"
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr " * %s hämtar nyttolast..."
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s inga ändringar hittades."
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s finns inte längre."
@@ -114,7 +114,7 @@ msgstr " <b>Vid repetition och ändring:</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Ställ klockan rätt och starta sedan om Anki."
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr "tillämpade %d ändrade kort."
@@ -639,11 +639,12 @@ msgid "<b>Very High Priority</b>"
 msgstr "<b>Mycket hög prioritet</b>"
 
 #: ui/main.py:1240
+#, fuzzy
 msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
@@ -654,7 +655,7 @@ msgstr ""
 "</font>\n"
 "<br>\n"
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr "<br><br>Kontrollerar prenumerationer på kortlek..."
 
@@ -765,7 +766,7 @@ msgstr "<h1>Modeller</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr "<h1>Konto på nätet</h1>För att använda ditt fria <a href=\"http://anki.ichi2.net/\">konto på nätet</a>,<br>fyll i dina uppgifter här nedan.<br><br>Du kan ändra dina uppgifter senare med hjälp av<br>Inställningar->Inställningar->Synka<br>"
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>Öppet tillgänglig kortlek på nätet</h1>"
 
@@ -809,7 +810,7 @@ msgstr "<h1>Synkronisering</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Synkronisering</h1><a href=\"http://anki.ichi2.net/\">Skapa ett gratis konto</a>."
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Synkronisera</h1>"
 
@@ -855,7 +856,7 @@ msgstr "Om Anki"
 msgid "Active &Tags..."
 msgstr "Aktiva &etiketter"
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "Aktiva etiketter"
 
@@ -1017,7 +1018,7 @@ msgstr ""
 "till en felrapport:<br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1054,7 +1055,7 @@ msgstr "Svarsstorlek"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr "Sätt etiketten 'markerad' på denna faktauppgift så att du kan hitta den senare i bläddraren"
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr "Tillämpar svar..."
 
@@ -1171,6 +1172,10 @@ msgstr "Kort"
 msgid "Cards are waiting"
 msgstr "Det finns kort som väntar"
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 msgid "Cards/day:"
 msgstr "Kort/dag"
@@ -1200,7 +1205,7 @@ msgstr "Byt modell"
 msgid "Check Media Database..."
 msgstr "Kontrollera mediadatabasen..."
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "Kontroll klar."
 
@@ -1331,7 +1336,7 @@ msgstr "Råplugga valda kort i en ny kortlek?"
 msgid "Create"
 msgstr "Skapa"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "Skapa '%s' på server"
@@ -1539,9 +1544,13 @@ msgstr "Ta bort ursprungliga media vid tillägg"
 msgid "Delete the currently displayed card"
 msgstr "Ta bort det kort som just nu visas"
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Fastställer skillnader..."
+
+#: forms/infodialog.py:36
+msgid "Dialog"
+msgstr "Dialog"
 
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
@@ -2022,7 +2031,7 @@ msgstr "Märkt"
 msgid "Max"
 msgstr "Max"
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "Slå ihop med '%s' på server"
@@ -2116,7 +2125,7 @@ msgstr "Inga kort är markerade med angivna etiketter."
 msgid "No cards to preview."
 msgstr "Det finns inte några kort att förhandsgranska"
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr "Inga ändringar funna."
 
@@ -2216,6 +2225,10 @@ msgstr "Lägg först till en annan modell."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr "Kontrollera proxyinställningar"
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "Välj ett fält att sortera efter"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2497,10 +2510,6 @@ msgstr "Markera alla"
 msgid "Select None"
 msgstr "Avmarkera alla"
 
-#: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr "Välj vilka taggar som skall vara avaktiverade. Avmarkera för att återaktivera."
-
 #: ui/main.py:1487
 msgid "Session Statistics"
 msgstr "Statistik för studiepass"
@@ -2673,7 +2682,7 @@ msgstr "Svenska"
 msgid "Sync Failed. Please check your internet connection."
 msgstr "Synkronisering misslyckades. Kontrollera din internetuppkoppling."
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 msgid "Sync complete."
 msgstr "Synkronisering färdig."
 
@@ -2701,7 +2710,7 @@ msgstr "Synkronisera denna kortlek med Anki Online"
 msgid "Syncing Media..."
 msgstr "Synkroniserar media..."
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "Synkronisering misslyckades: %(a)s"
@@ -2954,7 +2963,7 @@ msgstr "Sammanlagt rätt: "
 msgid "Total review time: "
 msgstr "Sammanlagd repetitionstid: "
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "Överför nyttolast..."
 
@@ -3560,9 +3569,6 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
-#~ msgid "Dialog"
-#~ msgstr "Dialog"
-
 #~ msgid "Download Deck"
 #~ msgstr "Hämta kortlek"
 
@@ -3629,9 +3635,6 @@ msgstr "toppetikett"
 #~ msgid "Please add a new card first."
 #~ msgstr "Lägg först till ett nytt kort."
 
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "Välj ett fält att sortera efter"
-
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Upprepa &svarsljud"
 
@@ -3650,6 +3653,9 @@ msgstr "toppetikett"
 
 #~ msgid "Search"
 #~ msgstr "Sök"
+
+#~ msgid "Select tags to deactivate. Deselect tags to activate again."
+#~ msgstr "Välj vilka taggar som skall vara avaktiverade. Avmarkera för att återaktivera."
 
 #~ msgid "Share..."
 #~ msgstr "Dela ut..."

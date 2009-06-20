@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 09:46+0200\n"
+"POT-Creation-Date: 2009-06-21 03:33+0900\n"
 "PO-Revision-Date: 2009-04-07 15:53+0800\n"
 "Last-Translator: \n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,17 +70,17 @@ msgstr ""
 msgid " (and proxy settings)"
 msgstr ""
 
-#: ui/sync.py:171
+#: ui/sync.py:167
 #, python-format
 msgid " * %s fetching payload..."
 msgstr ""
 
-#: ui/sync.py:168
+#: ui/sync.py:164
 #, python-format
 msgid " * %s no changes found."
 msgstr " * %s 沒有變。"
 
-#: ui/sync.py:165
+#: ui/sync.py:161
 #, python-format
 msgid " * %s no longer exists."
 msgstr " * %s 不存在。"
@@ -99,7 +99,7 @@ msgstr "<b>當你在複習和編輯時:</b>"
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr ""
 
-#: ui/sync.py:173
+#: ui/sync.py:169
 #, python-format
 msgid " applied %d modified cards."
 msgstr " 更改%d張。"
@@ -659,12 +659,12 @@ msgid ""
 "<br>\n"
 "<font size=+1>\n"
 "Welcome to Anki! Click <b>download deck</b> to get started. You can return here\n"
-"later by clicking on the left-pointing arrow on the toolbar.\n"
+"later by using File>Close.\n"
 "</font>\n"
 "<br>\n"
 msgstr ""
 
-#: ui/sync.py:159
+#: ui/sync.py:155
 msgid "<br><br>Checking deck subscriptions..."
 msgstr ""
 
@@ -777,7 +777,7 @@ msgstr "<h1>モデル</h1>"
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr ""
 
-#: ui/sync.py:231
+#: ui/sync.py:209
 msgid "<h1>Open Online Deck</h1>"
 msgstr "<h1>打開線上牌組</h1>"
 
@@ -823,7 +823,7 @@ msgstr "<h1>同期</h1>"
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>同期</h1>同期の機能でウェブや携帯でも利用することができます。<a href=\"http://anki.ichi2.net/\">無料で登録します</a>"
 
-#: ui/sync.py:229
+#: ui/sync.py:207
 #, fuzzy
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>同期</h1>"
@@ -863,7 +863,7 @@ msgstr "關於Anki"
 msgid "Active &Tags..."
 msgstr "活性タグ(&T)"
 
-#: forms/activetags.py:40
+#: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "活性タグ"
 
@@ -1027,7 +1027,7 @@ msgstr ""
 "\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/syncdeck.py:42
+#: forms/sort.py:45 forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1064,7 +1064,7 @@ msgstr "解答サイズ"
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr ""
 
-#: ui/sync.py:143
+#: ui/sync.py:141
 msgid "Applying reply..."
 msgstr ""
 
@@ -1181,6 +1181,10 @@ msgstr "卡片(&C)"
 msgid "Cards are waiting"
 msgstr ""
 
+#: forms/activetags.py:42
+msgid "Cards with any of the selected tags below will not be shown."
+msgstr ""
+
 #: ui/main.py:1455
 #, fuzzy
 msgid "Cards/day:"
@@ -1213,7 +1217,7 @@ msgstr "変更"
 msgid "Check Media Database..."
 msgstr "メディアデータベースを検査..."
 
-#: ui/sync.py:178
+#: ui/sync.py:172
 msgid "Check complete."
 msgstr "検査を完了しました。"
 
@@ -1348,7 +1352,7 @@ msgstr ""
 msgid "Create"
 msgstr "登録日"
 
-#: ui/sync.py:234
+#: ui/sync.py:212
 #, python-format
 msgid "Create '%s' on server"
 msgstr "%sという単語帳をサーバーで作成"
@@ -1571,8 +1575,12 @@ msgstr ""
 msgid "Delete the currently displayed card"
 msgstr ""
 
-#: ui/sync.py:135
+#: ui/sync.py:133
 msgid "Determining differences..."
+msgstr ""
+
+#: forms/infodialog.py:36
+msgid "Dialog"
 msgstr ""
 
 #: ui/modelproperties.py:325
@@ -2080,7 +2088,7 @@ msgstr "難:"
 msgid "Max"
 msgstr "最多"
 
-#: ui/sync.py:239
+#: ui/sync.py:217
 #, python-format
 msgid "Merge with '%s' on server"
 msgstr "「%s」というサーバにある単語帳に合体する"
@@ -2181,7 +2189,7 @@ msgstr "沒有卡片有此標誌"
 msgid "No cards to preview."
 msgstr "沒有卡片預習"
 
-#: ui/sync.py:154
+#: ui/sync.py:150
 msgid "No changes found."
 msgstr ""
 
@@ -2293,6 +2301,10 @@ msgstr "まずもう一つのモデルを作成してください。"
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
+
+#: forms/sort.py:46
+msgid "Please choose a field to sort by."
+msgstr "フィールドの整列を選んでください。"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2600,10 +2612,6 @@ msgstr "全選(&A)"
 msgid "Select None"
 msgstr "全選(&A)"
 
-#: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselect tags to activate again."
-msgstr ""
-
 #: ui/main.py:1487
 #, fuzzy
 msgid "Session Statistics"
@@ -2787,7 +2795,7 @@ msgstr ""
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
 
-#: ui/sync.py:132 ui/sync.py:148
+#: ui/sync.py:130 ui/sync.py:144
 #, fuzzy
 msgid "Sync complete."
 msgstr "ファイルを開く時に自動的に同期する"
@@ -2820,7 +2828,7 @@ msgstr "この名前を使って単語帳を同期します。"
 msgid "Syncing Media..."
 msgstr "ファクトを同期中.."
 
-#: ui/sync.py:196
+#: ui/sync.py:190
 #, python-format
 msgid "Syncing failed: %(a)s"
 msgstr "同期が出来ませんでした: %(a)s"
@@ -3065,7 +3073,7 @@ msgstr ""
 msgid "Total review time: "
 msgstr "復習中"
 
-#: ui/sync.py:140
+#: ui/sync.py:138
 msgid "Transferring payload..."
 msgstr "データを転送中.."
 
@@ -4288,9 +4296,6 @@ msgstr ""
 
 #~ msgid "Please add a new card first."
 #~ msgstr "まず新しいカードを入力してください。"
-
-#~ msgid "Please choose a field to sort by."
-#~ msgstr "フィールドの整列を選んでください。"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "ユーザー名を確認してください。"
