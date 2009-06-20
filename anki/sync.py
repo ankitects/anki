@@ -155,9 +155,9 @@ class SyncTools(object):
         for key in KEYS:
             k = 'added-' + key
             # send back any requested
-            reply[k] = self.getObjsFromKey(
-                payload['missing-' + key], key)
             if k in payload:
+                reply[k] = self.getObjsFromKey(
+                    payload['missing-' + key], key)
                 self.updateObjsFromKey(payload['added-' + key], key)
                 self.deleteObjsFromKey(payload['deleted-' + key], key)
         # send back deck-related stuff if it wasn't sent to us
@@ -1123,9 +1123,9 @@ class HttpSyncServer(SyncServer):
         return self.stuff(SyncServer.applyPayload(self,
             self.unstuff(payload)))
 
-    def genOneWayPayload(self, payload):
-        return self.stuff(SyncServer.genOneWayPayload(self,
-            self.unstuff(payload)))
+    def genOneWayPayload(self, lastSync):
+        return self.stuff(SyncServer.genOneWayPayload(
+            self, float(zlib.decompress(lastSync))))
 
     def getDecks(self, libanki, client, sources, pversion):
         return self.stuff({
