@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.7.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"POT-Creation-Date: 2009-06-18 09:46+0200\n"
 "PO-Revision-Date: 2009-05-03 15:29+0100\n"
 "Last-Translator: Lars Lem <larslem@online.no>\n"
 "Language-Team: Norwegian <larslem@online.no>\n"
@@ -51,7 +51,7 @@ msgstr ""
 "Et stort takk til alle som har kommet med forslag, feilrapporter og\n"
 "donasjoner."
 
-#: ui/status.py:243
+#: ui/status.py:250
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -134,8 +134,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d fakta]"
 msgstr[1] "%(name)s [%(facts)d fakta]"
 
-#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
-#: ui/status.py:237 ui/status.py:239
+#: ui/status.py:231 ui/status.py:233 ui/status.py:238 ui/status.py:242
+#: ui/status.py:244 ui/status.py:246
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d av %(totalSum)d"
@@ -958,7 +958,7 @@ msgstr "Igjen"
 msgid "All Fields"
 msgstr "Alle felt"
 
-#: ui/status.py:229
+#: ui/status.py:236
 msgid "All Reviews"
 msgstr "Alle repetisjoner"
 
@@ -1032,7 +1032,7 @@ msgstr ""
 "til en feilrapport:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1073,7 +1073,7 @@ msgstr "Sett etiketten 'markert' på denne faktaen så du senere kan finne den i
 msgid "Applying reply..."
 msgstr "Tilpasser svaret..."
 
-#: ui/status.py:227 ui/status.py:232
+#: ui/status.py:234 ui/status.py:239
 msgid "Average time per answer: "
 msgstr "Gjenomsnittstid per svar: "
 
@@ -1257,7 +1257,7 @@ msgstr "Velg en fil å eksportere til"
 msgid "Choose the categories to show during review"
 msgstr "Velg hvilke kategorier som skal vises under gjennomgåelsen"
 
-#: ui/status.py:221
+#: ui/status.py:228
 #, fuzzy
 msgid "Click the bars to learn more."
 msgstr "Undersøk om databasen inneholder feil"
@@ -1316,19 +1316,19 @@ msgstr "Fortsett gjennomgåelsen"
 msgid "Copy: %s"
 msgstr "Kopiere: %s"
 
-#: ui/status.py:236
+#: ui/status.py:243
 msgid "Correct first time: "
 msgstr "Riktig første gangen: "
 
-#: ui/status.py:225 ui/status.py:230
+#: ui/status.py:232 ui/status.py:237
 msgid "Correct over a month: "
 msgstr "Riktig eldre enn en måned:"
 
-#: ui/status.py:223
+#: ui/status.py:230
 msgid "Correct today: "
 msgstr "Riktig idag: "
 
-#: ui/status.py:234
+#: ui/status.py:241
 msgid "Correct under a month: "
 msgstr "Riktig yngre enn en måned: "
 
@@ -1563,10 +1563,6 @@ msgstr "Ta bort det kortet som vises nå"
 msgid "Determining differences..."
 msgstr "Kartlegger forskjeller..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "Inakti&ver"
@@ -1644,7 +1640,7 @@ msgstr "Tidsfrist ute"
 msgid "E&xit"
 msgstr "&Avslutt"
 
-#: ui/status.py:209
+#: ui/status.py:216
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Nedtelling:<b>%(timeLeft)s</b>"
@@ -2220,7 +2216,7 @@ msgstr "Passord"
 msgid "Password:"
 msgstr "Passord:"
 
-#: ui/status.py:220
+#: ui/status.py:227
 msgid "Performance"
 msgstr "Prestasjon"
 
@@ -2247,10 +2243,6 @@ msgstr "Legg først til en annen modell."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Velg et felt å sortere etter"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2409,7 +2401,7 @@ msgstr "Oppfrisk"
 msgid "Release Notes..."
 msgstr "Versjonsfakta..."
 
-#: ui/status.py:192
+#: ui/status.py:199
 msgid "Remaining cards"
 msgstr "Gjenværende kort"
 
@@ -2465,7 +2457,7 @@ msgstr "Repetisjonstid"
 msgid "Reviews due:"
 msgstr "På tide å repetere:"
 
-#: ui/status.py:222
+#: ui/status.py:229
 msgid "Reviews today"
 msgstr "Repetisjoner idag"
 
@@ -2536,7 +2528,7 @@ msgstr "Tøm alt"
 
 #: forms/activetags.py:41
 #, fuzzy
-msgid "Select tags to deactivate. Deselct tags to active again."
+msgid "Select tags to deactivate. Deselect tags to activate again."
 msgstr "Velg hvilke tagger som skal være deaktivert. Tøm alt for å reaktivere."
 
 #: ui/main.py:1487
@@ -2828,35 +2820,35 @@ msgstr "Synkroniseringsprotokollen er endret. Du må oppgradere."
 msgid "The total number of new cards in the deck"
 msgstr "Det totale antall nye kort i kortstokken"
 
-#: ui/status.py:196
+#: ui/status.py:203
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
 msgstr[0] "Det finnes <b>%d</b> kort som venter på å repeteres."
 msgstr[1] "Det finnes <b>%d</b> kort som venter på å repeteres."
 
-#: ui/status.py:205
+#: ui/status.py:212
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
 msgstr[0] "Det finnes <b>%d</b> kort forskjøvet frem i tid."
 msgstr[1] "Det finnes <b>%d</b> kort forskjøvet frem i tid."
 
-#: ui/status.py:193
+#: ui/status.py:200
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
 msgstr[0] "Det finnes <b>%d</b> feilbesvarte kort hvis tidsfrist snart er ute."
 msgstr[1] "Det finnes <b>%d</b> feilbesvarte kort hvis tidsfrist snart er ute."
 
-#: ui/status.py:199
+#: ui/status.py:206
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
 msgstr[0] "Det finnes <b>%d</b> nytt kort som skal vises i dag."
 msgstr[1] "Det finnes <b>%d</b> nye kort som skal vises i dag."
 
-#: ui/status.py:202
+#: ui/status.py:209
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
@@ -2992,11 +2984,11 @@ msgstr "Dagens repetisjon er avsluttet"
 msgid "Toggle Toolbar"
 msgstr "Vis eller skjul verktøyslinja"
 
-#: ui/status.py:238
+#: ui/status.py:245
 msgid "Total correct: "
 msgstr "Totalt antall riktige: "
 
-#: ui/status.py:228 ui/status.py:233
+#: ui/status.py:235 ui/status.py:240
 msgid "Total review time: "
 msgstr "Total øvingstid: "
 
@@ -3608,6 +3600,9 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #, fuzzy
 #~ msgid "Download Deck"
 #~ msgstr "Laste ned delt kortstokk"
@@ -3672,6 +3667,9 @@ msgstr "toppetikett"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Legg først til et nytt kort."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Velg et felt å sortere etter"
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Gjenta  &svarlyd"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"POT-Creation-Date: 2009-06-18 09:46+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -35,7 +35,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:243
+#: ui/status.py:250
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -118,8 +118,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d fakt]"
 msgstr[1] "%(name)s [%(facts)d fakti]"
 
-#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
-#: ui/status.py:237 ui/status.py:239
+#: ui/status.py:231 ui/status.py:233 ui/status.py:238 ui/status.py:242
+#: ui/status.py:244 ui/status.py:246
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -951,7 +951,7 @@ msgstr "Uuesti"
 msgid "All Fields"
 msgstr "Väljad"
 
-#: ui/status.py:229
+#: ui/status.py:236
 #, fuzzy
 msgid "All Reviews"
 msgstr "Korda"
@@ -1024,7 +1024,7 @@ msgstr ""
 "vearaportisse:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1065,7 +1065,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr "Värskendan kohalike andmeid..."
 
-#: ui/status.py:227 ui/status.py:232
+#: ui/status.py:234 ui/status.py:239
 #, fuzzy
 msgid "Average time per answer: "
 msgstr "Näita järgmist tähtaeg enne vastust"
@@ -1252,7 +1252,7 @@ msgstr "Vali fail, kuhu eksportida"
 msgid "Choose the categories to show during review"
 msgstr ""
 
-#: ui/status.py:221
+#: ui/status.py:228
 msgid "Click the bars to learn more."
 msgstr ""
 
@@ -1311,19 +1311,19 @@ msgstr "Jätka kordamist"
 msgid "Copy: %s"
 msgstr "Kopeeri: %s"
 
-#: ui/status.py:236
+#: ui/status.py:243
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:225 ui/status.py:230
+#: ui/status.py:232 ui/status.py:237
 msgid "Correct over a month: "
 msgstr ""
 
-#: ui/status.py:223
+#: ui/status.py:230
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:234
+#: ui/status.py:241
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1563,10 +1563,6 @@ msgstr ""
 msgid "Determining differences..."
 msgstr "Selgitan erinevusi..."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialoog"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "&Blokeeri"
@@ -1644,7 +1640,7 @@ msgstr "Tähtaeguvad kaardid"
 msgid "E&xit"
 msgstr "&Lõpeta"
 
-#: ui/status.py:209
+#: ui/status.py:216
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "Eeldatav ajakulu (ETA): "
@@ -2233,7 +2229,7 @@ msgstr "Salasõna"
 msgid "Password:"
 msgstr "Salasõna:"
 
-#: ui/status.py:220
+#: ui/status.py:227
 #, fuzzy
 msgid "Performance"
 msgstr "Omadused"
@@ -2262,10 +2258,6 @@ msgstr "Lisa kõigepealt teine mudel."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Palun vali väli, mille järgi sortida."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2425,7 +2417,7 @@ msgstr "Värskenda"
 msgid "Release Notes..."
 msgstr "Versioonimärkmed..."
 
-#: ui/status.py:192
+#: ui/status.py:199
 #, fuzzy
 msgid "Remaining cards"
 msgstr "Järgi jäänud: "
@@ -2483,7 +2475,7 @@ msgstr "Kordamisaeg"
 msgid "Reviews due:"
 msgstr "Korda tähtaeguvad kaardid varakult"
 
-#: ui/status.py:222
+#: ui/status.py:229
 #, fuzzy
 msgid "Reviews today"
 msgstr "Korda tähtaeguvad kaardid varakult"
@@ -2557,7 +2549,7 @@ msgid "Select None"
 msgstr "Märgi &kõik"
 
 #: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselct tags to active again."
+msgid "Select tags to deactivate. Deselect tags to activate again."
 msgstr ""
 
 #: ui/main.py:1487
@@ -2851,35 +2843,35 @@ msgstr "Sünkroniseerimise protokoll on muutunud. Palun uuenda rakendust."
 msgid "The total number of new cards in the deck"
 msgstr ""
 
-#: ui/status.py:196
+#: ui/status.py:203
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:205
+#: ui/status.py:212
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:193
+#: ui/status.py:200
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:199
+#: ui/status.py:206
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:202
+#: ui/status.py:209
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
@@ -3014,11 +3006,11 @@ msgstr "Tänased kordamised on lõppenud"
 msgid "Toggle Toolbar"
 msgstr "Näita tööriisariba"
 
-#: ui/status.py:238
+#: ui/status.py:245
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:228 ui/status.py:233
+#: ui/status.py:235 ui/status.py:240
 #, fuzzy
 msgid "Total review time: "
 msgstr "Kordamisaeg"
@@ -3532,6 +3524,9 @@ msgstr "üleminesedel"
 #~ msgid "Del"
 #~ msgstr "Del"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialoog"
+
 #, fuzzy
 #~ msgid "Download Deck"
 #~ msgstr "Lae alla ühiskasutusega kaardipakk"
@@ -3577,6 +3572,9 @@ msgstr "üleminesedel"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Lisa kõigepealt uus kaart."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Palun vali väli, mille järgi sortida."
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Korda &vastuse heli"

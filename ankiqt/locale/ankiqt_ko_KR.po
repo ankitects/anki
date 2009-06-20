@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"POT-Creation-Date: 2009-06-18 09:46+0200\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:243
+#: ui/status.py:250
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -111,8 +111,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] "%(name)s [%(facts)d지식]"
 msgstr[1] "%(name)s [%(facts)d지식]"
 
-#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
-#: ui/status.py:237 ui/status.py:239
+#: ui/status.py:231 ui/status.py:233 ui/status.py:238 ui/status.py:242
+#: ui/status.py:244 ui/status.py:246
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr ""
@@ -989,7 +989,7 @@ msgstr ""
 msgid "All Fields"
 msgstr "필드"
 
-#: ui/status.py:229
+#: ui/status.py:236
 #, fuzzy
 msgid "All Reviews"
 msgstr "복습 중"
@@ -1052,7 +1052,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "앙키"
 
@@ -1094,7 +1094,7 @@ msgstr ""
 msgid "Applying reply..."
 msgstr "응답 적용 중.."
 
-#: ui/status.py:227 ui/status.py:232
+#: ui/status.py:234 ui/status.py:239
 msgid "Average time per answer: "
 msgstr ""
 
@@ -1285,7 +1285,7 @@ msgstr "내보낼 파일 선택"
 msgid "Choose the categories to show during review"
 msgstr ""
 
-#: ui/status.py:221
+#: ui/status.py:228
 msgid "Click the bars to learn more."
 msgstr ""
 
@@ -1344,19 +1344,19 @@ msgstr ""
 msgid "Copy: %s"
 msgstr ""
 
-#: ui/status.py:236
+#: ui/status.py:243
 msgid "Correct first time: "
 msgstr ""
 
-#: ui/status.py:225 ui/status.py:230
+#: ui/status.py:232 ui/status.py:237
 msgid "Correct over a month: "
 msgstr ""
 
-#: ui/status.py:223
+#: ui/status.py:230
 msgid "Correct today: "
 msgstr ""
 
-#: ui/status.py:234
+#: ui/status.py:241
 msgid "Correct under a month: "
 msgstr ""
 
@@ -1613,10 +1613,6 @@ msgstr ""
 msgid "Determining differences..."
 msgstr "묶음 비교하는 중.."
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "대화상자"
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "끄기(&B)"
@@ -1695,7 +1691,7 @@ msgstr ""
 msgid "E&xit"
 msgstr "종료(&X)"
 
-#: ui/status.py:209
+#: ui/status.py:216
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "예상 시간: <b>%(timeLeft)s</b>"
@@ -2312,7 +2308,7 @@ msgstr "비밀번호"
 msgid "Password:"
 msgstr "비밀번호"
 
-#: ui/status.py:220
+#: ui/status.py:227
 #, fuzzy
 msgid "Performance"
 msgstr "환경 설정"
@@ -2341,10 +2337,6 @@ msgstr "먼저 새 모델을 추가해 주세요."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "정렬 기준이 될 필드를 선택해 주세요."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2508,7 +2500,7 @@ msgstr ""
 msgid "Release Notes..."
 msgstr ""
 
-#: ui/status.py:192
+#: ui/status.py:199
 #, fuzzy
 msgid "Remaining cards"
 msgstr "남은 카드:"
@@ -2572,7 +2564,7 @@ msgstr "복습 중"
 msgid "Reviews due:"
 msgstr "복습 중"
 
-#: ui/status.py:222
+#: ui/status.py:229
 #, fuzzy
 msgid "Reviews today"
 msgstr "복습 중"
@@ -2651,7 +2643,7 @@ msgid "Select None"
 msgstr "꼬리표 삭제..."
 
 #: forms/activetags.py:41
-msgid "Select tags to deactivate. Deselct tags to active again."
+msgid "Select tags to deactivate. Deselect tags to activate again."
 msgstr ""
 
 #: ui/main.py:1487
@@ -2961,35 +2953,35 @@ msgstr "동기화 프로토콜이 변경되었습니다. 업데이트 해 주세
 msgid "The total number of new cards in the deck"
 msgstr "매일 추가된 카드 개수"
 
-#: ui/status.py:196
+#: ui/status.py:203
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:205
+#: ui/status.py:212
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:193
+#: ui/status.py:200
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:199
+#: ui/status.py:206
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:202
+#: ui/status.py:209
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
@@ -3108,11 +3100,11 @@ msgstr ""
 msgid "Toggle Toolbar"
 msgstr ""
 
-#: ui/status.py:238
+#: ui/status.py:245
 msgid "Total correct: "
 msgstr ""
 
-#: ui/status.py:228 ui/status.py:233
+#: ui/status.py:235 ui/status.py:240
 #, fuzzy
 msgid "Total review time: "
 msgstr "복습 중"
@@ -4089,6 +4081,9 @@ msgstr "Latex"
 #~ msgid "Description && Synchronisation"
 #~ msgstr "설명 및 동기화"
 
+#~ msgid "Dialog"
+#~ msgstr "대화상자"
+
 #~ msgid "Difficult"
 #~ msgstr "어려움"
 
@@ -4264,6 +4259,9 @@ msgstr "Latex"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "먼저 새 카드를 추가해 주세요."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "정렬 기준이 될 필드를 선택해 주세요."
 
 #~ msgid "Prevent me from entering the same thing in this field twice"
 #~ msgstr "이 필드에 같은 내용이 입력되는 것을 방지"

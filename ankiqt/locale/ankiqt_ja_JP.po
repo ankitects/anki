@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki Japanese Translation v0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-18 05:39+0900\n"
+"POT-Creation-Date: 2009-06-18 09:46+0200\n"
 "PO-Revision-Date: 2009-06-17 01:43-0800\n"
 "Last-Translator: Jarvik7 <jarvik7@gmail.com>\n"
 "Language-Team: Jarvik7 <jarvik7@gmail.com>\n"
@@ -37,7 +37,7 @@ msgid ""
 "donations."
 msgstr ""
 
-#: ui/status.py:243
+#: ui/status.py:250
 msgid ""
 "\n"
 "<h1>Time</h1>\n"
@@ -113,8 +113,8 @@ msgid_plural "%(name)s [%(facts)d facts]"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:224 ui/status.py:226 ui/status.py:231 ui/status.py:235
-#: ui/status.py:237 ui/status.py:239
+#: ui/status.py:231 ui/status.py:233 ui/status.py:238 ui/status.py:242
+#: ui/status.py:244 ui/status.py:246
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(totalSum)dのうちに%(partOf)d"
@@ -916,7 +916,7 @@ msgstr "もう一回"
 msgid "All Fields"
 msgstr "全フィールド"
 
-#: ui/status.py:229
+#: ui/status.py:236
 msgid "All Reviews"
 msgstr "全ての勉強"
 
@@ -975,7 +975,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1016,7 +1016,7 @@ msgstr "カードブラウザで簡単に見つけれるように、このファ
 msgid "Applying reply..."
 msgstr ""
 
-#: ui/status.py:227 ui/status.py:232
+#: ui/status.py:234 ui/status.py:239
 msgid "Average time per answer: "
 msgstr "一枚当りかかった時間の平均："
 
@@ -1201,7 +1201,7 @@ msgstr "どのファイルに対するエクスポートするか、選択して
 msgid "Choose the categories to show during review"
 msgstr ""
 
-#: ui/status.py:221
+#: ui/status.py:228
 msgid "Click the bars to learn more."
 msgstr "詳しくはバーをクリックしてください。"
 
@@ -1262,19 +1262,19 @@ msgstr "勉強を続ける"
 msgid "Copy: %s"
 msgstr "%sをコピーして追加"
 
-#: ui/status.py:236
+#: ui/status.py:243
 msgid "Correct first time: "
 msgstr "初めて当たった："
 
-#: ui/status.py:225 ui/status.py:230
+#: ui/status.py:232 ui/status.py:237
 msgid "Correct over a month: "
 msgstr "一ヶ月以上当たった："
 
-#: ui/status.py:223
+#: ui/status.py:230
 msgid "Correct today: "
 msgstr "今日当たった："
 
-#: ui/status.py:234
+#: ui/status.py:241
 msgid "Correct under a month: "
 msgstr "一ヶ月以下当たった："
 
@@ -1507,10 +1507,6 @@ msgstr "現在のカードを削除する"
 msgid "Determining differences..."
 msgstr "格差を究明中…"
 
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr ""
-
 #: ui/modelproperties.py:325
 msgid "Disa&ble"
 msgstr "無効にする(&B)"
@@ -1587,7 +1583,7 @@ msgstr "満期"
 msgid "E&xit"
 msgstr "終了(&X)"
 
-#: ui/status.py:209
+#: ui/status.py:216
 #, python-format
 msgid "ETA: <b>%(timeLeft)s</b>"
 msgstr "完了予定時刻：後<b>%(timeLeft)s</b>"
@@ -2159,7 +2155,7 @@ msgstr "パスワード"
 msgid "Password:"
 msgstr "パスワード："
 
-#: ui/status.py:220
+#: ui/status.py:227
 msgid "Performance"
 msgstr "実績"
 
@@ -2186,10 +2182,6 @@ msgstr "まずもう一つのモデルを作成してください。"
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr "プロキシの設定を確認してくださし。"
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "フィールドの整列を選んでください。"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2349,7 +2341,7 @@ msgstr "再読み込み"
 msgid "Release Notes..."
 msgstr "更新履歴…"
 
-#: ui/status.py:192
+#: ui/status.py:199
 msgid "Remaining cards"
 msgstr "残っているカード"
 
@@ -2407,7 +2399,7 @@ msgstr "勉強した時間"
 msgid "Reviews due:"
 msgstr "満期カード："
 
-#: ui/status.py:222
+#: ui/status.py:229
 msgid "Reviews today"
 msgstr "今日の勉強"
 
@@ -2478,7 +2470,7 @@ msgstr "すべてを除外"
 
 #: forms/activetags.py:41
 #, fuzzy
-msgid "Select tags to deactivate. Deselct tags to active again."
+msgid "Select tags to deactivate. Deselect tags to activate again."
 msgstr "se保留させたいタグを選択してください。なお、活性化するためにタグを除外してください。"
 
 #: ui/main.py:1487
@@ -2764,32 +2756,32 @@ msgstr "同期プロトコルがかわりました。最新のAnkiにアップ�
 msgid "The total number of new cards in the deck"
 msgstr "単語帳の新しいカードの枚数"
 
-#: ui/status.py:196
+#: ui/status.py:203
 #, python-format
 msgid "There is <b>%d</b> card awaiting review."
 msgid_plural "There are <b>%d</b> cards awaiting review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/status.py:205
+#: ui/status.py:212
 #, python-format
 msgid "There is <b>%d</b> delayed card."
 msgid_plural "There are <b>%d</b> delayed cards."
 msgstr[0] "<b>%d</b>枚のカードは延期しています。"
 
-#: ui/status.py:193
+#: ui/status.py:200
 #, python-format
 msgid "There is <b>%d</b> failed card due soon."
 msgid_plural "There are <b>%d</b> failed cards due soon."
 msgstr[0] "<b>%d</b>枚の失敗されたカードはすぐに満期に成ります。"
 
-#: ui/status.py:199
+#: ui/status.py:206
 #, python-format
 msgid "There is <b>%d</b> new card due today."
 msgid_plural "There are <b>%d</b> new cards due today."
 msgstr[0] "<b>%d</b>枚の新しいカードは今日満期になりました。"
 
-#: ui/status.py:202
+#: ui/status.py:209
 #, python-format
 msgid "There is <b>%d</b> new card in total."
 msgid_plural "There are <b>%d</b> new cards in total."
@@ -2905,12 +2897,12 @@ msgstr "今日の勉強は済みました"
 msgid "Toggle Toolbar"
 msgstr "ツールバーを表示"
 
-#: ui/status.py:238
+#: ui/status.py:245
 #, fuzzy
 msgid "Total correct: "
 msgstr "当てる："
 
-#: ui/status.py:228 ui/status.py:233
+#: ui/status.py:235 ui/status.py:240
 msgid "Total review time: "
 msgstr "総使用時間："
 
@@ -3228,6 +3220,9 @@ msgstr ""
 
 #~ msgid "Open Sa&mple..."
 #~ msgstr "例の単語帳を開く(&M)…"
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "フィールドの整列を選んでください。"
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "解答の音声を再生(&A)"
