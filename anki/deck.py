@@ -55,7 +55,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 39
+DECK_VERSION = 40
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -3213,6 +3213,11 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             #deck.suspended = re.sub(u" ?Suspended ?", u"", deck.suspended)
             #deck.updateTagPriorities()
             deck.version = 39
+            deck.s.commit()
+        if deck.version < 40:
+            # now stores media url
+            deck.s.statement("update models set features = ''")
+            deck.version = 40
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
