@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2009-04-07 15:53+0800\n"
 "Last-Translator: \n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -175,8 +175,8 @@ msgstr "關於Anki(&A)..."
 msgid "&Actions"
 msgstr "動作(&A)"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "加(&A)"
 
@@ -219,8 +219,8 @@ msgstr "牌組內容(&D)..."
 msgid "&Deck Statistics"
 msgstr "牌組總計(&D)"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "刪除(&D)"
 
@@ -418,7 +418,7 @@ msgstr ""
 msgid "(new card)"
 msgstr "(新卡片)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; 無効"
 
@@ -495,7 +495,7 @@ msgstr ""
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr ""
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr ""
 
@@ -558,7 +558,12 @@ msgstr "<h1>低優先</h1>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>最多失敗卡片</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+#, fuzzy
+msgid "<b>Media URL</B>"
+msgstr "<b>普通</b>"
+
+#: forms/modelproperties.py:296
 #, fuzzy
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>最少spacing</b>"
@@ -567,8 +572,8 @@ msgstr "<b>最少spacing</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>模型</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>名字</b>"
 
@@ -595,12 +600,12 @@ msgstr "<b>名字</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>模型</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 #, fuzzy
 msgid "<b>Options</b>"
 msgstr "<b>選擇</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 #, fuzzy
 msgid "<b>Question</b>"
 msgstr "<b>問題</b>"
@@ -624,7 +629,7 @@ msgstr "<b>限制(次):</b>"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>先表示失敗的卡片</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 #, fuzzy
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>読み込みファイル</b>:"
@@ -634,7 +639,7 @@ msgstr "<b>読み込みファイル</b>:"
 msgid "<b>Tags to append</b>:"
 msgstr "要添加的標誌："
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>タグ</b>"
 
@@ -703,7 +708,7 @@ msgstr "<h1>自動儲存</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 #, fuzzy
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>カードの易しさ</h1>"
@@ -740,7 +745,7 @@ msgstr "<h1>容易度</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr ""
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 #, fuzzy
 msgid "<h1>Fields</h1>"
 msgstr "<h1>フィールドモデル</h1>"
@@ -749,7 +754,7 @@ msgstr "<h1>フィールドモデル</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>第一次回答的</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>一般</h1>"
 
@@ -965,7 +970,7 @@ msgstr "フィールド"
 msgid "All Reviews"
 msgstr "復習中"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr ""
 
@@ -1149,22 +1154,22 @@ msgstr ""
 msgid "Cancel"
 msgstr "取消"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr ""
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "カード%d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 #, fuzzy
 msgid "Card Templates"
 msgstr "<h1>カードの易しさ</h1>"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, fuzzy, python-format
 msgid "Card-%d"
 msgstr "カード%d"
@@ -1287,7 +1292,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr "閉じる(&C)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr ""
@@ -1583,7 +1588,7 @@ msgstr ""
 msgid "Dialog"
 msgstr ""
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "無効にする(&b)"
 
@@ -1603,7 +1608,7 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr ""
 
@@ -1692,7 +1697,7 @@ msgstr "現在のカードを編集(&C)..."
 msgid "Edit the currently displayed item"
 msgstr "現在のモデルを編集"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "有効にする(&b)"
 
@@ -1800,12 +1805,12 @@ msgstr "サマリーをダウンロード中.."
 msgid "Field %(num)d: %(name)s"
 msgstr ""
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr ""
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "フィールド %d"
@@ -1877,7 +1882,7 @@ msgstr "法文"
 msgid "Full Database Check..."
 msgstr "データベースを検査..."
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 #, fuzzy
 msgid "General && Fields"
 msgstr "フィールド"
@@ -1921,7 +1926,7 @@ msgstr "難:"
 msgid "Help"
 msgstr "說明(英文)"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "解答を表示する時に、質問を隠す"
 
@@ -2098,11 +2103,11 @@ msgstr "「%s」というサーバにある単語帳に合体する"
 msgid "Min"
 msgstr "最少"
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "モデル"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "モデルプロパティ"
 
@@ -2125,27 +2130,27 @@ msgstr ""
 msgid "More"
 msgstr "モデル"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr ""
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr ""
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr ""
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr ""
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr ""
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr ""
 
@@ -2285,11 +2290,11 @@ msgstr ""
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "まず新しいフィールドを作成してください。"
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 #, fuzzy
 msgid "Please add a new template first."
 msgstr "まず新しいフィールドを作成してください。"
@@ -2310,7 +2315,7 @@ msgstr "フィールドの整列を選んでください。"
 msgid "Please double-check your username/password."
 msgstr "ユーザー名とパスワードを確認してください。"
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 #, fuzzy
 msgid "Please enable a different template first."
 msgstr "まず他のモデルを有効してください。"
@@ -2362,7 +2367,7 @@ msgstr "設定"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "防止複製的"
 
@@ -2371,7 +2376,7 @@ msgstr "防止複製的"
 msgid "Prevent edits until answer shown"
 msgstr "防止空百的磁條"
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "防止空百的磁條"
 
@@ -2727,7 +2732,7 @@ msgstr ""
 msgid "Soon"
 msgstr "不久"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr ""
 
@@ -2962,7 +2967,7 @@ msgstr "次のカードは%s"
 msgid "This card will appear again later."
 msgstr "このカードは次に表示されるのは <b>%(next)s後</b>です。"
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -3021,7 +3026,7 @@ msgid ""
 "Consider backing up your media directory first."
 msgstr ""
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, fuzzy, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"
@@ -3669,9 +3674,6 @@ msgstr ""
 
 #~ msgid "<b>How well did you remember?</b>"
 #~ msgstr "<b>どのぐらい覚えていましたか。</b>"
-
-#~ msgid "<b>Medium</b>"
-#~ msgstr "<b>普通</b>"
 
 #~ msgid "<b>Name/tag</b>"
 #~ msgstr "<b>名前/タグ</b>"

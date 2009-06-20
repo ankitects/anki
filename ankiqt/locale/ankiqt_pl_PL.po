@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2009-05-31 00:26+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -194,8 +194,8 @@ msgstr "&O programie..."
 msgid "&Actions"
 msgstr "&Działania"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Dodaj"
 
@@ -235,8 +235,8 @@ msgstr "&Właściwości talii..."
 msgid "&Deck Statistics"
 msgstr "Statystyki &talii"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Usuń"
 
@@ -420,7 +420,7 @@ msgstr "'%s'"
 msgid "(new card)"
 msgstr "(nowa karta)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; wyłączona"
 
@@ -495,7 +495,7 @@ msgstr "<b>3: Pocz. przerwa dla dobrych</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>4: Pocz. przerwa dla łatwych</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr "<b>Odpowiedź</b>"
 
@@ -553,7 +553,11 @@ msgstr "<b>Niski priorytet</b>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>Maksymalnie nierozwiązanych kart</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+msgid "<b>Media URL</B>"
+msgstr ""
+
+#: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Minimalny odstęp</b>"
 
@@ -561,8 +565,8 @@ msgstr "<b>Minimalny odstęp</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Model</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Nazwa</b>"
 
@@ -587,11 +591,11 @@ msgstr "<b>Nazwa</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Stary model</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 msgid "<b>Options</b>"
 msgstr "<b>Opcje</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 msgid "<b>Question</b>"
 msgstr "<b>Pytanie</b>"
 
@@ -611,7 +615,7 @@ msgstr "<b>Limit sesji (pytania):"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>Wcześnie pokazuj nierozwiązane karty</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Mnożnik odstępu</b>"
 
@@ -619,7 +623,7 @@ msgstr "<b>Mnożnik odstępu</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "<b>Etykiety do dodania</b>:"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Etykiety</b>"
 
@@ -692,7 +696,7 @@ msgstr "<h1>Autozapis</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Szablony kart</h1>"
 
@@ -731,7 +735,7 @@ msgstr "<h1>Łatwość</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Szacowany czas</h1>Określa, jak długo zajmie ci zakończenie obecnego trybu przy utrzymaniu obecnego tempa."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Pola</h1>"
 
@@ -739,7 +743,7 @@ msgstr "<h1>Pola</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Rozwiązywane po raz pierwszy</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>Ogólne</h1>"
 
@@ -955,7 +959,7 @@ msgstr "Wszystkie pola"
 msgid "All Reviews"
 msgstr "Wszystkie powtórki"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr "Pozwól na pustą odpowiedź"
 
@@ -1147,21 +1151,21 @@ msgstr "Można działać tylko na jednym modelu jednocześnie."
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "Karta %(num)d (%(name)s): użyta %(cards)d razy%(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Karta %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 msgid "Card Templates"
 msgstr "Szablony kart"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, python-format
 msgid "Card-%d"
 msgstr "Karta-%d"
@@ -1280,7 +1284,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr "Luki (F9)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr "Porównaj z polem '%s'"
@@ -1560,7 +1564,7 @@ msgstr "Ustalanie różnic..."
 msgid "Dialog"
 msgstr ""
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "&Wyłącz"
 
@@ -1580,7 +1584,7 @@ msgstr "Wykonaj dodatkowy sprawdzian wybranych kart przed testem"
 msgid "Documentation"
 msgstr "Dokumentacja"
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr "Nie proś mnie o wpisanie odpowiedzi"
 
@@ -1666,7 +1670,7 @@ msgstr "Edytuj &wyświetlany..."
 msgid "Edit the currently displayed item"
 msgstr "Edytuj aktualnie wyświetlany element"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "Włą&cz"
 
@@ -1767,12 +1771,12 @@ msgstr "Pobieranie podsumowania z serwera..."
 msgid "Field %(num)d: %(name)s"
 msgstr "Pole %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Pole %(num)d: %(name)s [%(cards)s niepustych]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "Pole %d"
@@ -1840,7 +1844,7 @@ msgstr "Francuski"
 msgid "Full Database Check..."
 msgstr "Pełne sprawdzenie bazy danych..."
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr "Ogólne i pola"
 
@@ -1880,7 +1884,7 @@ msgstr "Trudna"
 msgid "Help"
 msgstr "Pomoc"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Ukryj pytanie przy pokazywaniu odpowiedzi"
 
@@ -2057,11 +2061,11 @@ msgstr "Łączenie z '%s' na serwerze"
 msgid "Min"
 msgstr "Min."
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "Model"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Właściwości modelu"
 
@@ -2081,27 +2085,27 @@ msgstr "Mongolski"
 msgid "More"
 msgstr "Więcej"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr "Przesuń &wyżej"
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr "Przesuń &niżej"
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr "Przesuń wybrany model kart niżej"
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr "Przesuń wybrany model kart wyżej"
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr "Przesuń wybrane pole niżej"
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr "Przesuń wybrane pole wyżej"
 
@@ -2229,11 +2233,11 @@ msgstr "Własną talię"
 msgid "Play the last-played audio again"
 msgstr "Odtwórz ponownie ostatni plik audio"
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "Dodaj najpierw nowe pole."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 msgid "Please add a new template first."
 msgstr "Dodaj najpierw nowy szablon."
 
@@ -2254,7 +2258,7 @@ msgstr "Dodaj najpierw nowe pole."
 msgid "Please double-check your username/password."
 msgstr "Sprawdź ponownie swoją nazwę użytkownika/hasło."
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 msgid "Please enable a different template first."
 msgstr "Włącz najpierw inny szabon."
 
@@ -2303,7 +2307,7 @@ msgstr "Preferencje"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "Nie dopuszczaj duplikatów"
 
@@ -2311,7 +2315,7 @@ msgstr "Nie dopuszczaj duplikatów"
 msgid "Prevent edits until answer shown"
 msgstr "Nie pozwalaj na edycję przed pokazaniem odpowiedzi"
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "Nie dopuszczaj pustych wpisów"
 
@@ -2640,7 +2644,7 @@ msgstr "Niektóre ustawienia zadziałają po ponownym uruchomieniu Anki."
 msgid "Soon"
 msgstr "Wkrótce"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr "Sortuj jak liczby"
 
@@ -2866,7 +2870,7 @@ msgstr "Ta karta miała pojawić się za %s."
 msgid "This card will appear again later."
 msgstr "Karta pojawi się ponownie później."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2943,7 +2947,7 @@ msgstr ""
 "<b>Tej operacji nie można cofnąć.</b><br>\n"
 "Pomyśl o wykonaniu wcześniej kopii katalogu z plikami."
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"

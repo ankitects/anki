@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_de_DE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
-"PO-Revision-Date: 2009-06-19 19:31+0100\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
+"PO-Revision-Date: 2009-06-20 20:41+0100\n"
 "Last-Translator: Michael Jürges <michael.juerges@googlemail.com>\n"
 "Language-Team: polski <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -189,8 +189,8 @@ msgstr "&Info..."
 msgid "&Actions"
 msgstr "&Aktionen"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Hinzufügen"
 
@@ -230,8 +230,8 @@ msgstr "&Stapeleinstellungen..."
 msgid "&Deck Statistics"
 msgstr "&Stapelstatistik"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Entfernen"
 
@@ -415,7 +415,7 @@ msgstr "'%s'"
 msgid "(new card)"
 msgstr "(neue Karte)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; gesperrt"
 
@@ -482,7 +482,7 @@ msgstr "<b>3: Startintervall für Mittel</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>4: Startintervally für Einfach</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr "<b>Antwort</b>"
 
@@ -538,7 +538,11 @@ msgstr "<b>Niedrige Priorität</b>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>Maximale Anzahl verfehlter Karten</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+msgid "<b>Media URL</B>"
+msgstr ""
+
+#: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Minimaler Abstand</b>"
 
@@ -546,8 +550,8 @@ msgstr "<b>Minimaler Abstand</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Modell</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Name</b>"
 
@@ -571,11 +575,11 @@ msgstr "<b>Heute<br>neu</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Altes Modell</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 msgid "<b>Options</b>"
 msgstr "<b>Optionen</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 msgid "<b>Question</b>"
 msgstr "<b>Frage</b>"
 
@@ -595,7 +599,7 @@ msgstr "<b>Sitzungslimit (Wiederholungen):"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>Zeige verfehlte Karten früher</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Abstands-Multiplikator</b>"
 
@@ -603,7 +607,7 @@ msgstr "<b>Abstands-Multiplikator</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "Hinzuzufügende Tags:"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Tags</b>"
 
@@ -682,9 +686,9 @@ msgstr "<h1>Automatisch speichern</h1>"
 
 #: forms/preferences.py:340
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
-msgstr "<h1>Sicherungen</1>Kartenstapel werden gesichert, wenn sie geöffnet werden und dann nur, wenn seit der letzten Sicherung keinen Veränderungen vorgenommen wurden."
+msgstr "<h1>Sicherungen</h1>Kartenstapel werden gesichert, wenn sie geöffnet werden und dann nur, wenn seit der letzten Sicherung keine Veränderungen vorgenommen wurden."
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Kartenvorlage</h1>"
 
@@ -722,7 +726,7 @@ msgstr "<h1>Schwierigkeit</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Geschätzte Zeit</h1>Wenn Du mit gleicher Geschwindigkeit weitermachst, wird es ungefähr so lange dauern, bis Du die Karten wiederholt hast."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Felder</h1>"
 
@@ -730,7 +734,7 @@ msgstr "<h1>Felder</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Erstmals beantwortet</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>Allgemein</h1>"
 
@@ -942,7 +946,7 @@ msgstr "Alle Felder"
 msgid "All Reviews"
 msgstr "Alle Wiederholungen"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr "Antwort darf leer sein"
 
@@ -1131,21 +1135,21 @@ msgstr "Kann nur mit einem Modell gleichzeitig arbeiten."
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "Karte %(num)d (%(name)s): %(cards)d mal benutzt%(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Karte %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 msgid "Card Templates"
 msgstr "Kartenvorlagen"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, python-format
 msgid "Card-%d"
 msgstr "Karte-%d"
@@ -1265,7 +1269,7 @@ msgstr "Schließe diesen Stapel und kehre zum Stapelbrowser zurück"
 msgid "Cloze (F9)"
 msgstr "Lückentext (F9)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr "Mit Feld '%s' vergleichen"
@@ -1543,7 +1547,7 @@ msgstr "Ermittle Unterschiede..."
 msgid "Dialog"
 msgstr ""
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "&Sperren"
 
@@ -1563,7 +1567,7 @@ msgstr "Pauke die angegebenen Karten separat um z.B. auf eine Prüfung zu lernen
 msgid "Documentation"
 msgstr "&Dokumentation..."
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr "Fordere mich nicht auf, die Antwort einzugeben"
 
@@ -1647,7 +1651,7 @@ msgstr "&Aktuellen Fakt bearbeiten..."
 msgid "Edit the currently displayed item"
 msgstr "Momentan angezeigte Karte editieren"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "&Aktivieren"
 
@@ -1748,12 +1752,12 @@ msgstr "Zusammenfassung vom Server abrufen..."
 msgid "Field %(num)d: %(name)s"
 msgstr "Feld %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Feld %(num)d: %(name)s [%(cards)s Mal benutzt]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "Feld %d"
@@ -1820,7 +1824,7 @@ msgstr "Französisch"
 msgid "Full Database Check..."
 msgstr "Datenbank komplett prüfen..."
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr "Allgemein und Felder"
 
@@ -1860,7 +1864,7 @@ msgstr "Schwer"
 msgid "Help"
 msgstr "Hilfe"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Frage beim Anzeigen der Antwort verstecken"
 
@@ -2033,11 +2037,11 @@ msgstr "Führe mit '%s' auf dem Server zusammen"
 msgid "Min"
 msgstr "Minimum"
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "Modell"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Modelleinstellungen"
 
@@ -2057,27 +2061,27 @@ msgstr "Mongolisch"
 msgid "More"
 msgstr "Mehr"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr "Nach &oben"
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr "Nach &unten"
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr "Ausgewähltes Kartenmodell nach unten schieben"
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr "Ausgewähltes Kartenmodell nach oben schieben"
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr "Ausgewähltes Feld nach unten schieben"
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr "Ausgewähltes Feld nach oben schieben"
 
@@ -2202,11 +2206,11 @@ msgstr "Persönlicher Stapel"
 msgid "Play the last-played audio again"
 msgstr "Spiele die zuletzt abgespielte Audiodatei erneut"
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "Bitte füge zuerst ein neues Feld hinzu."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 msgid "Please add a new template first."
 msgstr "Bitte füge zuerst ein neues Kartenmodell hinzu."
 
@@ -2227,7 +2231,7 @@ msgstr "Bitte füge zuerst ein neues Feld hinzu."
 msgid "Please double-check your username/password."
 msgstr "Bitte überprüfe Deinen Benutzernamen und Dein Passwort."
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 msgid "Please enable a different template first."
 msgstr "Bitte aktiviere zuerst ein anderes Kartenmodell."
 
@@ -2275,7 +2279,7 @@ msgstr "Einstellungen"
 msgid "Preparing full sync..."
 msgstr "Bereite komplette Synchronisation vor ..."
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "Doppelte Einträge verhindern"
 
@@ -2283,7 +2287,7 @@ msgstr "Doppelte Einträge verhindern"
 msgid "Prevent edits until answer shown"
 msgstr "Verhindere Editieren vor Anzeigen der Antwort"
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "Leere Einträge verhindern"
 
@@ -2613,7 +2617,7 @@ msgstr "Einige Einstellungen werden erst nach einem Neustart von Anki angewendet
 msgid "Soon"
 msgstr "Bald"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr "Als Zahlen sortieren"
 
@@ -2829,7 +2833,7 @@ msgstr "Diese Karte war vor %s fällig."
 msgid "This card will appear again later."
 msgstr "Diese Karte wird später wieder angezeigt werden."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2906,7 +2910,7 @@ msgstr ""
 "<b>Dieser Vorgang kann nicht rückgängig gemacht werden.</b><br>\n"
 "Du solltest vorher dein Medien-Verzeichnis sichern."
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"

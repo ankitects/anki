@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2008-05-24 09:54+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -169,8 +169,8 @@ msgstr "소개(&A)..."
 msgid "&Actions"
 msgstr ""
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "추가(&A)"
 
@@ -217,8 +217,8 @@ msgstr "묶음 속성(&D)..."
 msgid "&Deck Statistics"
 msgstr "묶음 통계(&D)"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "삭제(&D)"
 
@@ -425,7 +425,7 @@ msgstr ""
 msgid "(new card)"
 msgstr "(새 카드)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; 꺼짐"
 
@@ -493,7 +493,7 @@ msgstr ""
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr ""
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 #, fuzzy
 msgid "<b>Answer</b>"
 msgstr "<b>답 형식</b>"
@@ -560,7 +560,12 @@ msgstr "<h1>모델 속성</h1>"
 msgid "<b>Maximum failed cards</b>"
 msgstr ""
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+#, fuzzy
+msgid "<b>Media URL</B>"
+msgstr "<b>알맞음</b>"
+
+#: forms/modelproperties.py:296
 #, fuzzy
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>카드 연기</b>"
@@ -570,8 +575,8 @@ msgstr "<b>카드 연기</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>모델(<u>M</u>)</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>이름</b>"
 
@@ -600,12 +605,12 @@ msgstr "<b>이름</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>모델(<u>M</u>)</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 #, fuzzy
 msgid "<b>Options</b>"
 msgstr "<b>설명</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 #, fuzzy
 msgid "<b>Question</b>"
 msgstr "<b>질문 형식</b>"
@@ -629,7 +634,7 @@ msgstr "질문 정렬"
 msgid "<b>Show failed cards early</b>"
 msgstr ""
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 #, fuzzy
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>가져올 파일</b>:"
@@ -639,7 +644,7 @@ msgstr "<b>가져올 파일</b>:"
 msgid "<b>Tags to append</b>:"
 msgstr "꼬리표 추가:"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>꼬리표</b>"
 
@@ -706,7 +711,7 @@ msgstr "<h1>앙키</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 #, fuzzy
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>카드 난이도</h1>"
@@ -746,7 +751,7 @@ msgstr "<h1>카드 모델</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>예상 시간</h1>현재 진행 속도를 기준으로 현재 학습 모드를 완료할 때까지 걸리는 시간."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 #, fuzzy
 msgid "<h1>Fields</h1>"
 msgstr "<h1>필드</h1>"
@@ -756,7 +761,7 @@ msgstr "<h1>필드</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>처음 공부할 때 맞춘 카드/h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 #, fuzzy
 msgid "<h1>General</h1>"
 msgstr "<h1>복습 간격</h1>"
@@ -994,7 +999,7 @@ msgstr "필드"
 msgid "All Reviews"
 msgstr "복습 중"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr ""
 
@@ -1178,22 +1183,22 @@ msgstr ""
 msgid "Cancel"
 msgstr "수정"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "카드 %(num)d (%(name)s): %(cards)d번 사용됨%(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "카드 %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 #, fuzzy
 msgid "Card Templates"
 msgstr "<h1>카드 난이도</h1>"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, fuzzy, python-format
 msgid "Card-%d"
 msgstr "카드 %d"
@@ -1317,7 +1322,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr ""
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr ""
@@ -1621,7 +1626,7 @@ msgstr "묶음 비교하는 중.."
 msgid "Dialog"
 msgstr "대화상자"
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "끄기(&B)"
 
@@ -1641,7 +1646,7 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr ""
 
@@ -1733,7 +1738,7 @@ msgstr "현재 카드"
 msgid "Edit the currently displayed item"
 msgstr "현재 모델 편집"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "켜기(&B)"
 
@@ -1842,12 +1847,12 @@ msgstr "서버에서 정보 가져오는 중..."
 msgid "Field %(num)d: %(name)s"
 msgstr "필드 %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "필드 %(num)d: %(name)s [%(cards)s 사용 중]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "필드 %d"
@@ -1919,7 +1924,7 @@ msgstr "프랑스어"
 msgid "Full Database Check..."
 msgstr ""
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr ""
 
@@ -1964,7 +1969,7 @@ msgstr "카드:"
 msgid "Help"
 msgstr "도움말(&H)"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "답을 보여줄 때, 질문을 감춤"
 
@@ -2143,11 +2148,11 @@ msgstr "서버의 '%s' 묶음과 합치기"
 msgid "Min"
 msgstr "최소"
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "모델"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "모델 속성"
 
@@ -2170,27 +2175,27 @@ msgstr ""
 msgid "More"
 msgstr "모델"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr ""
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr ""
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr ""
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr ""
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr ""
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr ""
 
@@ -2329,11 +2334,11 @@ msgstr ""
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "먼저 새 필드를 추가해 주세요."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 #, fuzzy
 msgid "Please add a new template first."
 msgstr "먼저 새 필드를 추가해 주세요."
@@ -2354,7 +2359,7 @@ msgstr "정렬 기준이 될 필드를 선택해 주세요."
 msgid "Please double-check your username/password."
 msgstr "아이디와 비밀번호를 다시 확인해 주세요."
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 #, fuzzy
 msgid "Please enable a different template first."
 msgstr "먼저 다른 모델을 켜주세요."
@@ -2404,7 +2409,7 @@ msgstr "환경 설정"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr ""
 
@@ -2412,7 +2417,7 @@ msgstr ""
 msgid "Prevent edits until answer shown"
 msgstr ""
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr ""
 
@@ -2773,7 +2778,7 @@ msgstr ""
 msgid "Soon"
 msgstr "가져오기 설정"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr ""
 
@@ -3006,7 +3011,7 @@ msgstr "이 카드는 앞으로 <b>%(next)s</b>안에 등장합니다."
 msgid "This card will appear again later."
 msgstr "이 카드는 앞으로 <b>%(next)s</b>안에 등장합니다."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -3065,7 +3070,7 @@ msgid ""
 "Consider backing up your media directory first."
 msgstr ""
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, fuzzy, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"
@@ -3597,9 +3602,6 @@ msgstr "Latex"
 
 #~ msgid "<b>Made a mistake (1) on a young card"
 #~ msgstr "<b>어린 카드를 실수로 틀림 (1)"
-
-#~ msgid "<b>Medium</b>"
-#~ msgstr "<b>알맞음</b>"
 
 #~ msgid "<b>Name/tag</b>"
 #~ msgstr "<b>이름/꼬리표</b>"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.7.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2009-05-03 15:29+0100\n"
 "Last-Translator: Lars Lem <larslem@online.no>\n"
 "Language-Team: Norwegian <larslem@online.no>\n"
@@ -195,8 +195,8 @@ msgstr "&Om..."
 msgid "&Actions"
 msgstr "&Oppgaver"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Legg til"
 
@@ -237,8 +237,8 @@ msgstr "&Kortstokkegenskaper..."
 msgid "&Deck Statistics"
 msgstr "Kort&stokkstatistikk"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Slett"
 
@@ -425,7 +425,7 @@ msgstr "'%s'"
 msgid "(new card)"
 msgstr "(nytt kort)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; deaktivert"
 
@@ -500,7 +500,7 @@ msgstr "<b>3: Startintervall middels</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>4: Startintervall lett</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr "<b>Svar</b>"
 
@@ -558,7 +558,11 @@ msgstr "<b>Lav prioritet</b>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>Største antall felbesvarte kort</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+msgid "<b>Media URL</B>"
+msgstr ""
+
+#: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Minste tillatte tidsintervall</b>"
 
@@ -566,8 +570,8 @@ msgstr "<b>Minste tillatte tidsintervall</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Modell</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Navn</b>"
 
@@ -592,11 +596,11 @@ msgstr "<b>Navn</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Gammel modell</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 msgid "<b>Options</b>"
 msgstr "<b>Alternativ</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 msgid "<b>Question</b>"
 msgstr "<b>Spørsmål</b>"
 
@@ -617,7 +621,7 @@ msgstr "<b>Største antall spørsmål/øvingssesjon:"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>Vis feilbesvarte kort tidlig</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Multippel for tiden mellom kort</b>"
 
@@ -625,7 +629,7 @@ msgstr "<b>Multippel for tiden mellom kort</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "<b>Etiketter å legge til</b>:"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Etiketter</b>"
 
@@ -698,7 +702,7 @@ msgstr "<h1>Automatlagring</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Kortmaler</h1>"
 
@@ -737,7 +741,7 @@ msgstr "<h1>Innlæringsgradering</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Antatt tid</h1> Dette er den tiden du bruker på denne vanskelighetsgraden med din normale fart."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Felt</h1>"
 
@@ -745,7 +749,7 @@ msgstr "<h1>Felt</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Besvart først</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>Allment</h1>"
 
@@ -962,7 +966,7 @@ msgstr "Alle felt"
 msgid "All Reviews"
 msgstr "Alle repetisjoner"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr "Tillat tomme svar"
 
@@ -1155,21 +1159,21 @@ msgstr "Du kan bare arbeide med en modell av gangen."
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "Kort %(num)d (%(name)s): brukt %(cards)d ganger %(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Kort  %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 msgid "Card Templates"
 msgstr "Kortmaler"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, fuzzy, python-format
 msgid "Card-%d"
 msgstr "Kort  %d"
@@ -1290,7 +1294,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr "Steng (F9)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr "Sammenlign med felt '%s'"
@@ -1571,7 +1575,7 @@ msgstr "Kartlegger forskjeller..."
 msgid "Dialog"
 msgstr "Dialog"
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "Inakti&ver"
 
@@ -1591,7 +1595,7 @@ msgstr "Gjennomfør en ekstra repetisjon av angitt kort før en test"
 msgid "Documentation"
 msgstr "Dokumentasjon"
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr "Ikke be meg om å skrive inn svaret"
 
@@ -1677,7 +1681,7 @@ msgstr "Redigere &aktuell..."
 msgid "Edit the currently displayed item"
 msgstr "Redigere kortet som vises nå"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "A&ktivere"
 
@@ -1778,12 +1782,12 @@ msgstr "Henter sammendrag fra server..."
 msgid "Field %(num)d: %(name)s"
 msgstr "Felt %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Felt %(num)d: %(name)s [%(cards)s ikke tomme]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "Felt %d"
@@ -1853,7 +1857,7 @@ msgstr "Fransk"
 msgid "Full Database Check..."
 msgstr "Kontroller databasen..."
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr "Allment && Felt"
 
@@ -1893,7 +1897,7 @@ msgstr "Vanskelig"
 msgid "Help"
 msgstr "Hjelp"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Skjul spørsmålet når svaret vises"
 
@@ -2063,11 +2067,11 @@ msgstr "Flette inn i '%s' på server"
 msgid "Min"
 msgstr "Min"
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "Modell"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Modellegenskaper"
 
@@ -2087,27 +2091,27 @@ msgstr "mongolsk"
 msgid "More"
 msgstr "Mer"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr "Flytt &opp"
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr "Fl&ytt ned"
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr "Flytt valgt kortmodell ned"
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr "Flytt valgt kortmodell opp"
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr "Flytt valgt felt ned"
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr "Flytt valgt felt opp"
 
@@ -2236,11 +2240,11 @@ msgstr "Personlig kortstokk"
 msgid "Play the last-played audio again"
 msgstr "Spill den sist spilte lyden igjen"
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "Legg først til ett nytt felt."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 msgid "Please add a new template first."
 msgstr "Legg først til en ny mal."
 
@@ -2260,7 +2264,7 @@ msgstr "Velg et felt å sortere etter"
 msgid "Please double-check your username/password."
 msgstr "Kontroller ditt brukernavn og passord en gang til."
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 #, fuzzy
 msgid "Please enable a different template first."
 msgstr "Aktiver først en annen modell."
@@ -2310,7 +2314,7 @@ msgstr "Innstillinger"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "Unngå duplikater"
 
@@ -2318,7 +2322,7 @@ msgstr "Unngå duplikater"
 msgid "Prevent edits until answer shown"
 msgstr "Unngå redigeringer før svaret vises."
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "Unngå tomme poster"
 
@@ -2651,7 +2655,7 @@ msgstr "Visse innstillinger blir aktive først etter at du har restartet Anki."
 msgid "Soon"
 msgstr "Snart"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr "Sorter som tall"
 
@@ -2871,7 +2875,7 @@ msgstr "Dette kortets tidsfrist skulle gått ut om %s."
 msgid "This card will appear again later."
 msgstr "Dette kortet blir vist igjen senere."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2948,7 +2952,7 @@ msgstr ""
 "<b>Denne operasjonen kan ikke angres.</b><br>\n"
 "Overvei å lage en sikkerhetskopi av ditt mediebibliotek først."
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"

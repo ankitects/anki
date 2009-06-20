@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -170,8 +170,8 @@ msgstr "&O programu..."
 msgid "&Actions"
 msgstr ""
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Přidat"
 
@@ -218,8 +218,8 @@ msgstr "&Vlastnosti balíku..."
 msgid "&Deck Statistics"
 msgstr "&Statistika balíku"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Smazat"
 
@@ -429,7 +429,7 @@ msgstr ""
 msgid "(new card)"
 msgstr "(nová karta)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; neaktivní"
 
@@ -501,7 +501,7 @@ msgstr "<b>Původní pořadí</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>Původní pořadí</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 #, fuzzy
 msgid "<b>Answer</b>"
 msgstr "<b>Formát odpovědi</b>"
@@ -568,7 +568,12 @@ msgstr "<h1>Vlastnosti modelu</h1>"
 msgid "<b>Maximum failed cards</b>"
 msgstr ""
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+#, fuzzy
+msgid "<b>Media URL</B>"
+msgstr "<b>Střední</b>"
+
+#: forms/modelproperties.py:296
 #, fuzzy
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Odstup kartiček</b>"
@@ -578,8 +583,8 @@ msgstr "<b>Odstup kartiček</b>"
 msgid "<b>Model</b>:"
 msgstr "<b><u>M</u>odel</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Název</b>"
 
@@ -608,12 +613,12 @@ msgstr "<b>Název</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b><u>M</u>odel</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 #, fuzzy
 msgid "<b>Options</b>"
 msgstr "<b>Popis</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 #, fuzzy
 msgid "<b>Question</b>"
 msgstr "<b>Formát odpovědi</b>"
@@ -637,7 +642,7 @@ msgstr "Pozice odpovědi"
 msgid "<b>Show failed cards early</b>"
 msgstr ""
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 #, fuzzy
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Soubor pro import</b>"
@@ -647,7 +652,7 @@ msgstr "<b>Soubor pro import</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "<b>Štítky</b>"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Štítky</b>"
 
@@ -714,7 +719,7 @@ msgstr "<h1>Anki</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 #, fuzzy
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Obtížnost kartičky</h1>"
@@ -754,7 +759,7 @@ msgstr "<h1>Modely kartičky</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Odhadnutý čas</h1>Ukazuje, jaká doba zbývá do dokončení současného módu při současném tempu."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 #, fuzzy
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Pole</h1>"
@@ -764,7 +769,7 @@ msgstr "<h1>Pole</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Poprvé opovězeno</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 #, fuzzy
 msgid "<h1>General</h1>"
 msgstr "<h1>Intervaly kartičky</h1>"
@@ -1003,7 +1008,7 @@ msgstr "Pole"
 msgid "All Reviews"
 msgstr "Opakování"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr ""
 
@@ -1185,22 +1190,22 @@ msgstr ""
 msgid "Cancel"
 msgstr "Změna"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "Kartička %(num)d (%(name)s): použita %(cards)d krát%(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Kartička %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 #, fuzzy
 msgid "Card Templates"
 msgstr "<h1>Obtížnost kartičky</h1>"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, fuzzy, python-format
 msgid "Card-%d"
 msgstr "Kartička %d"
@@ -1324,7 +1329,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr ""
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr ""
@@ -1613,7 +1618,7 @@ msgstr ""
 msgid "Dialog"
 msgstr "Dialog"
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "Deak&tivovat"
 
@@ -1633,7 +1638,7 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr ""
 
@@ -1723,7 +1728,7 @@ msgstr "<h1>Tato kartička</h1>"
 msgid "Edit the currently displayed item"
 msgstr "Upravit současný model"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "&Aktivovat"
 
@@ -1832,12 +1837,12 @@ msgstr "Stahuji souhrn ze serveru..."
 msgid "Field %(num)d: %(name)s"
 msgstr "Pole %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Pole %(num)d: %(name)s [%(cards)s neprázdné]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "Pole %d"
@@ -1910,7 +1915,7 @@ msgstr "Francouzština"
 msgid "Full Database Check..."
 msgstr ""
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 #, fuzzy
 msgid "General && Fields"
 msgstr "&Pole"
@@ -1956,7 +1961,7 @@ msgstr "Kartička:"
 msgid "Help"
 msgstr "&Nápověda"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Skrýt otázku při zobrazení odpovědi"
 
@@ -2136,11 +2141,11 @@ msgstr "Sloučit s '%s' na serveru"
 msgid "Min"
 msgstr ""
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr ""
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Vlastnosti modelu"
 
@@ -2163,27 +2168,27 @@ msgstr ""
 msgid "More"
 msgstr "Modely"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr ""
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr ""
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr ""
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr ""
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr ""
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr ""
 
@@ -2320,12 +2325,12 @@ msgstr ""
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 #, fuzzy
 msgid "Please add a new field first."
 msgstr "Prosím zodpovězte ještě několik kartiček."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 #, fuzzy
 msgid "Please add a new template first."
 msgstr "Prosím zodpovězte ještě několik kartiček."
@@ -2350,7 +2355,7 @@ msgstr "Prosím zvolte pole třídění"
 msgid "Please double-check your username/password."
 msgstr "Prosím dvakrát zkontrolujte heslo"
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 #, fuzzy
 msgid "Please enable a different template first."
 msgstr "Prosím zodpovězte ještě několik kartiček."
@@ -2400,7 +2405,7 @@ msgstr "Nastavení"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr ""
 
@@ -2408,7 +2413,7 @@ msgstr ""
 msgid "Prevent edits until answer shown"
 msgstr ""
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr ""
 
@@ -2767,7 +2772,7 @@ msgstr ""
 msgid "Soon"
 msgstr "Importovat nastavení"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr ""
 
@@ -3000,7 +3005,7 @@ msgstr "Výborně! Tato kartička se objeví znovu za <b>%(next)s</b>"
 msgid "This card will appear again later."
 msgstr "Výborně! Tato kartička se objeví znovu za <b>%(next)s</b>"
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -3059,7 +3064,7 @@ msgid ""
 "Consider backing up your media directory first."
 msgstr ""
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, fuzzy, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"
@@ -3676,9 +3681,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "<b>Made a mistake (1) on a young card"
 #~ msgstr "<b>Chyboval(a) jsem</b>"
-
-#~ msgid "<b>Medium</b>"
-#~ msgstr "<b>Střední</b>"
 
 #, fuzzy
 #~ msgid "<b>Name/tag</b>"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -179,8 +179,8 @@ msgstr "&Andmeid..."
 msgid "&Actions"
 msgstr "&Tegevused"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Lisa"
 
@@ -223,8 +223,8 @@ msgstr "Kaardi&paki omadused..."
 msgid "&Deck Statistics"
 msgstr "Kaardi&paki statistika"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Kustuta"
 
@@ -411,7 +411,7 @@ msgstr "'%s'"
 msgid "(new card)"
 msgstr "(uus)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; blokitud"
 
@@ -488,7 +488,7 @@ msgstr "<b>3: Normaalne algne vahekaugus</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>4: Kerge algne vahekaugus</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr "<b>Vastus</b>"
 
@@ -551,7 +551,11 @@ msgstr "<b>Madal prioriteet</b>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>Ununenud kaarte kuni</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+msgid "<b>Media URL</B>"
+msgstr ""
+
+#: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Vähim vahe jätmine</b>"
 
@@ -559,8 +563,8 @@ msgstr "<b>Vähim vahe jätmine</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Mudel</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Nimi</b>"
 
@@ -585,11 +589,11 @@ msgstr "<b>Nimi</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Vana mudel</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 msgid "<b>Options</b>"
 msgstr "<b>Suvandid</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 msgid "<b>Question</b>"
 msgstr "<b>Küsimus</b>"
 
@@ -612,7 +616,7 @@ msgstr "<b>Kordamisi õppesessioonis:"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>Näita ununenud kaarte varakult</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Vahejätmise korrutaja</b>"
 
@@ -621,7 +625,7 @@ msgstr "<b>Vahejätmise korrutaja</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "Lisatavad sildid"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Sildid</b>"
 
@@ -694,7 +698,7 @@ msgstr "<h1>Varundus</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Kaardi mallid</h1>"
 
@@ -730,7 +734,7 @@ msgstr "<h1>Kergendavad</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Eeldatav kestvus</h1>See näitab, kui kaua võtab aega praegune kordamine praeguse kiiruse juures."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Väljad</h1>"
 
@@ -738,7 +742,7 @@ msgstr "<h1>Väljad</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Esimesena vastatud</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>Üldised</h1>"
 
@@ -956,7 +960,7 @@ msgstr "Väljad"
 msgid "All Reviews"
 msgstr "Korda"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr "Vastus võib olla tühi"
 
@@ -1150,21 +1154,21 @@ msgstr "Tegutseda saab ainult ühe mudeliga korraga."
 msgid "Cancel"
 msgstr "Tühista"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "Kaart %(num)d (%(name)s): kasutatud %(cards)d korda%(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Kaart %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 msgid "Card Templates"
 msgstr "Kaardi mallid"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, fuzzy, python-format
 msgid "Card-%d"
 msgstr "Kaart %d"
@@ -1284,7 +1288,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr "Sulge (F9)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr "Võrdle väljaga '%s'"
@@ -1571,7 +1575,7 @@ msgstr "Selgitan erinevusi..."
 msgid "Dialog"
 msgstr "Dialoog"
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "&Blokeeri"
 
@@ -1591,7 +1595,7 @@ msgstr ""
 msgid "Documentation"
 msgstr "Dokumentatsioon"
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr "Ära palu minult vastuse sisse türkkimist"
 
@@ -1677,7 +1681,7 @@ msgstr "Muuda &praegust..."
 msgid "Edit the currently displayed item"
 msgstr ""
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "&Võimalda"
 
@@ -1779,12 +1783,12 @@ msgstr "Tõmban serverist kokkuvõttet..."
 msgid "Field %(num)d: %(name)s"
 msgstr "%(num)d. väli: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "%(num)d. väli: %(name)s [%(cards)s mittetühjad]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "%d. väli"
@@ -1855,7 +1859,7 @@ msgstr "prantsuse keel"
 msgid "Full Database Check..."
 msgstr "Kontrolli andmebaasi"
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr "Andmed ja väljad"
 
@@ -1896,7 +1900,7 @@ msgstr "Raske"
 msgid "Help"
 msgstr "Abi"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Peida küsimus vastuse näitamisel"
 
@@ -2070,11 +2074,11 @@ msgstr "Ühenda serveris oleava '%s'-ga"
 msgid "Min"
 msgstr "Vähim"
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "Mudel"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Mudeli omadused"
 
@@ -2095,27 +2099,27 @@ msgstr ""
 msgid "More"
 msgstr "Lisavalikud>>"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr "&Teisalda ülespoole"
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr "T&eisalda allapoole"
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr "Teisalda valitud mudel allapoole"
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr "Teisalda valitud mudel ülespoole"
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr "Teisalda valitud völi allapoole"
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr "Teisalda valitud väli ülespoole"
 
@@ -2250,11 +2254,11 @@ msgstr "Isiklik kaardipakk"
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "Lisa kõigepealt uus väli."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 #, fuzzy
 msgid "Please add a new template first."
 msgstr "Lisa kõigepealt uus väli."
@@ -2275,7 +2279,7 @@ msgstr "Palun vali väli, mille järgi sortida."
 msgid "Please double-check your username/password."
 msgstr "Palun kontrollige kasutajanime ja salasõna."
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 #, fuzzy
 msgid "Please enable a different template first."
 msgstr "Palun võimalda kõigepealt teine mudel."
@@ -2325,7 +2329,7 @@ msgstr "Omadused"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "Tõkesta kordsust"
 
@@ -2334,7 +2338,7 @@ msgstr "Tõkesta kordsust"
 msgid "Prevent edits until answer shown"
 msgstr "Tõkesta tühje sissekandeid"
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "Tõkesta tühje sissekandeid"
 
@@ -2675,7 +2679,7 @@ msgstr ""
 msgid "Soon"
 msgstr "Varsti"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr "Sorteeri nagu numbreid"
 
@@ -2895,7 +2899,7 @@ msgstr "Selle kaardi tähtaeg oli %s."
 msgid "This card will appear again later."
 msgstr "See kaart ilmub hiljem uuesti."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2972,7 +2976,7 @@ msgstr ""
 "<b>Seda tegevust ei saa tagasi võtta.</b><br>\n"
 "Vaagi meediakataloogist varunduse tegemist."
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, fuzzy, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"

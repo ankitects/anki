@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2009-06-18 09:46+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -190,8 +190,8 @@ msgstr "&Om..."
 msgid "&Actions"
 msgstr "&Åtgärder"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Lägg till"
 
@@ -231,8 +231,8 @@ msgstr "&Kortleksegenskaper..."
 msgid "&Deck Statistics"
 msgstr "Kort&leksstatistik"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Ta bort"
 
@@ -413,7 +413,7 @@ msgstr "'%s'"
 msgid "(new card)"
 msgstr "(nytt kort)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; avaktiverad"
 
@@ -490,7 +490,7 @@ msgstr "<b>3: Startintervall för bra</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>4: Startintervall för lätt</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr "<b>Svar</b>"
 
@@ -546,7 +546,11 @@ msgstr "<b>Låg prioritet</b>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>Största antal felbesvarade kort</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+msgid "<b>Media URL</B>"
+msgstr ""
+
+#: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Minsta tillåtna tidsintervall</b>"
 
@@ -554,8 +558,8 @@ msgstr "<b>Minsta tillåtna tidsintervall</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Modell</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Namn</b>"
 
@@ -579,11 +583,11 @@ msgstr "<b>Nya<br>idag</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Gammal modell</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 msgid "<b>Options</b>"
 msgstr "<b>Alternativ</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 msgid "<b>Question</b>"
 msgstr "<b>Fråga</b>"
 
@@ -603,7 +607,7 @@ msgstr "<b>Största antal frågor/studiepass:"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>Visa felbesvarade kort tidigt</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Multipel för tidsfördelning</b>"
 
@@ -611,7 +615,7 @@ msgstr "<b>Multipel för tidsfördelning</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "<b>Etiketter att lägga till</b>:"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Etiketter</b>"
 
@@ -692,7 +696,7 @@ msgstr "<h1>Automatsparning</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr "<h1>Säkerhetskopior</h1>Kortlekar säkerhetskopieras  när de öppnas, och då enbart om de har ändrats sedan sista säkerhetskopieringen."
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Kortmallar</h1>"
 
@@ -730,7 +734,7 @@ msgstr "<h1>Inlärningsgrader</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Uppskattad tid</h1> Detta avser hur lång tid det kommer att ta att slutföra aktuellt beting i nuvarande takt."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Fält</h1>"
 
@@ -738,7 +742,7 @@ msgstr "<h1>Fält</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Först besvarade</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>Allmänt</h1>"
 
@@ -951,7 +955,7 @@ msgstr "Alla fält"
 msgid "All Reviews"
 msgstr "Alla repetitioner"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr "Tillåt tomma svar"
 
@@ -1141,21 +1145,21 @@ msgstr "Kan enbart arbeta med en modell åt gången."
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "Kort %(num)d (%(name)s): använt %(cards)d gånger %(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Kort  %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 msgid "Card Templates"
 msgstr "Kortmallar"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, python-format
 msgid "Card-%d"
 msgstr "Kort- %d"
@@ -1274,7 +1278,7 @@ msgstr "Stäng denna kortlek och återvänd till kortleksbläddraren"
 msgid "Cloze (F9)"
 msgstr "Cloze (F9)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr "Jämför med fält '%s'"
@@ -1552,7 +1556,7 @@ msgstr "Fastställer skillnader..."
 msgid "Dialog"
 msgstr "Dialog"
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "Inakti&vera"
 
@@ -1572,7 +1576,7 @@ msgstr "Gör en extra repetition av angivna kort inför ett prov"
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr "Begär inte att jag skall skriva in svaret"
 
@@ -1656,7 +1660,7 @@ msgstr "Redigera &aktuell..."
 msgid "Edit the currently displayed item"
 msgstr "Redigera det kort som just nu visas"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "A&ktivera"
 
@@ -1757,12 +1761,12 @@ msgstr "Hämtar sammanfattning från server..."
 msgid "Field %(num)d: %(name)s"
 msgstr "Fält %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Fält %(num)d: %(name)s [%(cards)s inte tomma]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "Fält %d"
@@ -1829,7 +1833,7 @@ msgstr "Franska"
 msgid "Full Database Check..."
 msgstr "Fullständig databaskontroll..."
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr "Allmänt && Fält"
 
@@ -1869,7 +1873,7 @@ msgstr "Svår"
 msgid "Help"
 msgstr "Hjälp"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Dölj frågan när svaret visas"
 
@@ -2041,11 +2045,11 @@ msgstr "Slå ihop med '%s' på server"
 msgid "Min"
 msgstr "Min"
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "Modell"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Modellegenskaper"
 
@@ -2065,27 +2069,27 @@ msgstr "mongoliska"
 msgid "More"
 msgstr "Mer"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr "Flytta &upp"
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr "Fl&ytta ner"
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr "Flytta vald kortmodell neråt"
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr "Flytta vald kortmodell uppåt"
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr "Flytta valt fält nedåt"
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr "Flytta valt fält uppåt"
 
@@ -2210,11 +2214,11 @@ msgstr "Personlig kortlek"
 msgid "Play the last-played audio again"
 msgstr "Spela upp senaste ljudet igen"
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "Lägg först till ett nytt fält."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 msgid "Please add a new template first."
 msgstr "Lägg först till en ny mall."
 
@@ -2234,7 +2238,7 @@ msgstr "Välj ett fält att sortera efter"
 msgid "Please double-check your username/password."
 msgstr "Kontrollera ditt användarnamn och lösenord en gång till."
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 msgid "Please enable a different template first."
 msgstr "Aktivera först en annan modell."
 
@@ -2282,7 +2286,7 @@ msgstr "Inställningar"
 msgid "Preparing full sync..."
 msgstr "Förbereder fullständig synkning..."
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "Förhindra dubbletter"
 
@@ -2290,7 +2294,7 @@ msgstr "Förhindra dubbletter"
 msgid "Prevent edits until answer shown"
 msgstr "Förhindra redigeringar innan svaret visats."
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "Förhindra tomma poster"
 
@@ -2619,7 +2623,7 @@ msgstr "Vissa inställningar blir aktiva först efter att du startat om Anki."
 msgid "Soon"
 msgstr "Snart"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr "Sortera som tal"
 
@@ -2835,7 +2839,7 @@ msgstr "Detta korts tidsfrist skulle gått ut om %s."
 msgid "This card will appear again later."
 msgstr "Detta kort kommer att visas igen senare."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2912,7 +2916,7 @@ msgstr ""
 "<b>Denna operation kan inte ångras.</b><br>\n"
 "Överväg att göra en säkerhetskopia av ditt mediebibliiotek först."
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"

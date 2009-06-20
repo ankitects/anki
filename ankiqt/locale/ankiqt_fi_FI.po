@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -196,8 +196,8 @@ msgstr "&Tietoja..."
 msgid "&Actions"
 msgstr "&Toiminnot"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Lisää"
 
@@ -240,8 +240,8 @@ msgstr "&Pakka..."
 msgid "&Deck Statistics"
 msgstr "&Pakan tilastot"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Poista"
 
@@ -428,7 +428,7 @@ msgstr "’%s’"
 msgid "(new card)"
 msgstr "(uusi)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; pois käytöstä"
 
@@ -505,7 +505,7 @@ msgstr "<b>3: Hyvien ajanjakso alussa</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>4: Helppojen ajanjakso alussa</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr "<b>Vastaus</b>"
 
@@ -566,7 +566,11 @@ msgstr "<b>Matala prioriteetti</b>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>Unohtuneita kortteja enintään</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+msgid "<b>Media URL</B>"
+msgstr ""
+
+#: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Vähimmäisetäisyys</b>"
 
@@ -574,8 +578,8 @@ msgstr "<b>Vähimmäisetäisyys</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Malli</b>"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Nimi</b>"
 
@@ -600,11 +604,11 @@ msgstr "<b>Nimi</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Vanha malli</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 msgid "<b>Options</b>"
 msgstr "<h1>Asetukset</h1>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 msgid "<b>Question</b>"
 msgstr "<b>Kysymys</b>"
 
@@ -626,7 +630,7 @@ msgstr "<b>Istunnon raja kertauksissa:"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>Näytä unohtuneet kortit aikaisin</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Etäisyyskerroin</b>"
 
@@ -635,7 +639,7 @@ msgstr "<b>Etäisyyskerroin</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "Lisättävät tägit:"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Tägit</b>"
 
@@ -707,7 +711,7 @@ msgstr "<h1>Varmuuskopiointi</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Korttimallit</h1>"
 
@@ -743,7 +747,7 @@ msgstr "<h1>Helppousjakauma</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Arvioitu kesto</h1>Arvioitu kesto kertoo kuinka kauan sinulla kestää käydä tämä kertaus läpi nykyisellä nopeudellasi."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Kentät</h1>"
 
@@ -751,7 +755,7 @@ msgstr "<h1>Kentät</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Ensimmäisen kerran vastatut kortit</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>Asetukset</h1>"
 
@@ -966,7 +970,7 @@ msgstr "Kaikki kentät"
 msgid "All Reviews"
 msgstr "Kertaa"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr "Vastaus saa olla tyhjä"
 
@@ -1161,21 +1165,21 @@ msgstr "Vain yhtä mallia voi käsitellä kerrallaan."
 msgid "Cancel"
 msgstr "Peruuta"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "Kortti %(num)d (%(name)s): käytetty %(cards)d kertaa%(status)s"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Kortti %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 msgid "Card Templates"
 msgstr "Korttimallineet"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, fuzzy, python-format
 msgid "Card-%d"
 msgstr "Kortti %d"
@@ -1295,7 +1299,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr "Sulje (F9)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr "Vertaa kenttään ”%s”"
@@ -1581,7 +1585,7 @@ msgstr "Etsitään eroavaisuuksia..."
 msgid "Dialog"
 msgstr ""
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "Poista &käytöstä"
 
@@ -1601,7 +1605,7 @@ msgstr ""
 msgid "Documentation"
 msgstr "Ohjeet"
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr "Älä pyydä vastausta kirjoittamalla"
 
@@ -1687,7 +1691,7 @@ msgstr "Muokkaa &nykyistä..."
 msgid "Edit the currently displayed item"
 msgstr ""
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "Ota &käyttöön"
 
@@ -1789,12 +1793,12 @@ msgstr "Haetaan yhteenvetoa palvelimelta..."
 msgid "Field %(num)d: %(name)s"
 msgstr "Kenttä %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Kenttä %(num)d: %(name)s [%(cards)s ei-tyhjää]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "Kenttä %d"
@@ -1865,7 +1869,7 @@ msgstr "ranska"
 msgid "Full Database Check..."
 msgstr "Tarkista tietokannan eheys..."
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr "Tiedot ja kentät"
 
@@ -1906,7 +1910,7 @@ msgstr "Vaikea"
 msgid "Help"
 msgstr "Ohje"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Piilota kysymys vastausta näytettäessä"
 
@@ -2077,11 +2081,11 @@ msgstr "Liitä palvelimen pakkaan ”%s”"
 msgid "Min"
 msgstr "Väh."
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "Malli"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Mallin ominaisuudet"
 
@@ -2102,27 +2106,27 @@ msgstr ""
 msgid "More"
 msgstr "Lisäasetukset"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr "Siirrä &ylös"
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr "Siirrä &alas"
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr "Siirrä valittua korttimallia alas"
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr "Siirrä valittua korttimallia ylös"
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr "Siirrä valittua kenttää alas"
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr "Siirrä valittua kenttää ylös"
 
@@ -2257,11 +2261,11 @@ msgstr "Henkilökohtainen pakka"
 msgid "Play the last-played audio again"
 msgstr ""
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "Lisää ensin kenttä."
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 #, fuzzy
 msgid "Please add a new template first."
 msgstr "Lisää ensin kenttä."
@@ -2283,7 +2287,7 @@ msgstr "Lisää ensin kenttä."
 msgid "Please double-check your username/password."
 msgstr "Tarkista käyttäjätunnus ja salasana."
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 #, fuzzy
 msgid "Please enable a different template first."
 msgstr "Ota ensin toinen malli käyttöön."
@@ -2331,7 +2335,7 @@ msgstr "Asetukset"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "Estä kaksoiskappaleet"
 
@@ -2340,7 +2344,7 @@ msgstr "Estä kaksoiskappaleet"
 msgid "Prevent edits until answer shown"
 msgstr "Estä tyhjät kentät"
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "Estä tyhjät kentät"
 
@@ -2684,7 +2688,7 @@ msgstr ""
 msgid "Soon"
 msgstr "Pian"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr "Lajittele lukuna"
 
@@ -2904,7 +2908,7 @@ msgstr "Aikaa kortin erääntymiseen olisi ollut %s."
 msgid "This card will appear again later."
 msgstr "Tämä kortti näytetään uudelleen myöhemmin."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2981,7 +2985,7 @@ msgstr ""
 "<b>Tämä operaatio on peruuttamaton</b><br>\n"
 "Mediahakemistosta kannattaa tehdä ensin varmuuskopio."
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, fuzzy, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"

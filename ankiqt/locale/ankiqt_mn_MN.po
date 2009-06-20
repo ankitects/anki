@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 06:53+0900\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -195,8 +195,8 @@ msgstr "&Тухай..."
 msgid "&Actions"
 msgstr "&Үйлдлүүд"
 
-#: forms/deckproperties.py:327 forms/modelproperties.py:291
-#: forms/modelproperties.py:304
+#: forms/deckproperties.py:327 forms/modelproperties.py:300
+#: forms/modelproperties.py:313
 msgid "&Add"
 msgstr "&Нэм"
 
@@ -238,8 +238,8 @@ msgstr "&Цуглуулгын чанар"
 msgid "&Deck Statistics"
 msgstr "&Цуглуулгын статистикс"
 
-#: forms/deckproperties.py:329 forms/modelproperties.py:294
-#: forms/modelproperties.py:309
+#: forms/deckproperties.py:329 forms/modelproperties.py:303
+#: forms/modelproperties.py:318
 msgid "&Delete"
 msgstr "&Устга"
 
@@ -426,7 +426,7 @@ msgstr "'%s'"
 msgid "(new card)"
 msgstr "(new card)"
 
-#: ui/modelproperties.py:252
+#: ui/modelproperties.py:253
 msgid "; disabled"
 msgstr "; хаагдсан  "
 
@@ -503,7 +503,7 @@ msgstr "<b>3: Эхлэхийн сайн мэддэгийнх нь зай</b>"
 msgid "<b>4: Initial Easy Interval</b>"
 msgstr "<b>4: Эхлэхийн маш сайн мэддэгийнх нь зай</b>"
 
-#: forms/modelproperties.py:311
+#: forms/modelproperties.py:320
 msgid "<b>Answer</b>"
 msgstr "<b>Хариулт</b>"
 
@@ -564,7 +564,11 @@ msgstr "<b>Бага Яаралтай</b>"
 msgid "<b>Maximum failed cards</b>"
 msgstr "<b>Максимум дампуурсан картууд</b>"
 
-#: forms/modelproperties.py:288
+#: forms/modelproperties.py:298
+msgid "<b>Media URL</B>"
+msgstr ""
+
+#: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
 msgstr "<b>Минимум зай</b>"
 
@@ -572,8 +576,8 @@ msgstr "<b>Минимум зай</b>"
 msgid "<b>Model</b>:"
 msgstr "<b>Зүйл</b>:"
 
-#: forms/modelproperties.py:286 forms/modelproperties.py:299
-#: forms/modelproperties.py:312
+#: forms/modelproperties.py:294 forms/modelproperties.py:308
+#: forms/modelproperties.py:321
 msgid "<b>Name</b>"
 msgstr "<b>Нэр</b>"
 
@@ -598,11 +602,11 @@ msgstr "<b>Нэр</b>"
 msgid "<b>Old Model</b>:"
 msgstr "<b>Хөгшин Зүйл</b>:"
 
-#: forms/modelproperties.py:297 forms/modelproperties.py:310
+#: forms/modelproperties.py:306 forms/modelproperties.py:319
 msgid "<b>Options</b>"
 msgstr "<b>Тохиргоонууд</b>"
 
-#: forms/modelproperties.py:313
+#: forms/modelproperties.py:322
 msgid "<b>Question</b>"
 msgstr "<b>Асуулт</b>"
 
@@ -624,7 +628,7 @@ msgstr "<b>Чуулганы хугацаа (удаа):"
 msgid "<b>Show failed cards early</b>"
 msgstr "<b>Дампуурсан картууд эрт үзүүлэх</b>"
 
-#: forms/modelproperties.py:289
+#: forms/modelproperties.py:297
 msgid "<b>Spacing multipler</b>"
 msgstr "<b>Зайн олшруулагч</b>"
 
@@ -633,7 +637,7 @@ msgstr "<b>Зайн олшруулагч</b>"
 msgid "<b>Tags to append</b>:"
 msgstr "Нэмэхийн шошгууд:"
 
-#: forms/modelproperties.py:287
+#: forms/modelproperties.py:295
 msgid "<b>Tags</b>"
 msgstr "<b>Шошгууд</b>"
 
@@ -706,7 +710,7 @@ msgstr "<h1>Автоматаар  хадгалалт</h1>"
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
-#: forms/modelproperties.py:303
+#: forms/modelproperties.py:312
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Картын Бэлдцүүд</h1>"
 
@@ -742,7 +746,7 @@ msgstr "<h1>Амрын төвшнүүд</h1>"
 msgid "<h1>Estimated time</h1>This is how long it will take to complete the current mode at your current pace."
 msgstr "<h1>Ойролцоо цаг</h1>Таны одоогийн түвшинээр энэ горимыг дуусахаар хэдэн цаг хэрэгтэй."
 
-#: forms/modelproperties.py:290
+#: forms/modelproperties.py:299
 msgid "<h1>Fields</h1>"
 msgstr "<h1>Талбарууд</h1>"
 
@@ -750,7 +754,7 @@ msgstr "<h1>Талбарууд</h1>"
 msgid "<h1>First Answered</h1>"
 msgstr "<h1>Анхны хариулсан</h1>"
 
-#: forms/modelproperties.py:285
+#: forms/modelproperties.py:293
 msgid "<h1>General</h1>"
 msgstr "<h1>Ерөнхий</h1>"
 
@@ -967,7 +971,7 @@ msgstr "Бүх талбарууд"
 msgid "All Reviews"
 msgstr "Бүх давталтууд"
 
-#: forms/modelproperties.py:315
+#: forms/modelproperties.py:324
 msgid "Allow the answer to be blank"
 msgstr "Хоосон хариулт хийхийг зөвшөөрөх"
 
@@ -1161,21 +1165,21 @@ msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх ча
 msgid "Cancel"
 msgstr "Хүчингүй"
 
-#: ui/modelproperties.py:253
+#: ui/modelproperties.py:254
 #, python-format
 msgid "Card %(num)d (%(name)s): used %(cards)d times%(status)s"
 msgstr "%(num)d-р (%(name)s)-н карт: %(cards)d удаа%(status)s хэрэглэсэн"
 
-#: ui/modelproperties.py:365
+#: ui/modelproperties.py:366
 #, python-format
 msgid "Card %d"
 msgstr "Карт %d"
 
-#: forms/modelproperties.py:316
+#: forms/modelproperties.py:325
 msgid "Card Templates"
 msgstr "Картын зүйлүүд"
 
-#: ui/modelproperties.py:335
+#: ui/modelproperties.py:336
 #, fuzzy, python-format
 msgid "Card-%d"
 msgstr "Карт %d"
@@ -1296,7 +1300,7 @@ msgstr ""
 msgid "Cloze (F9)"
 msgstr "Хаа (F9)"
 
-#: ui/modelproperties.py:303
+#: ui/modelproperties.py:304
 #, python-format
 msgid "Compare with field '%s'"
 msgstr "'%s' талбартай харьцуулах"
@@ -1579,7 +1583,7 @@ msgstr "Ялгааг тодорхойлж байна..."
 msgid "Dialog"
 msgstr "Диалог"
 
-#: ui/modelproperties.py:325
+#: ui/modelproperties.py:326
 msgid "Disa&ble"
 msgstr "&Унтраах"
 
@@ -1599,7 +1603,7 @@ msgstr "Тестийг хийхийн өмнө сонгосон картууды
 msgid "Documentation"
 msgstr "Баримтжуулалт"
 
-#: ui/modelproperties.py:302
+#: ui/modelproperties.py:303
 msgid "Don't ask me to type in the answer"
 msgstr "Хариултыг бичихийг надаас асуухгүй"
 
@@ -1685,7 +1689,7 @@ msgstr "Сонголтыг нь &засварлана..."
 msgid "Edit the currently displayed item"
 msgstr "Одоогийн үзүүлсэн хэсгийг засварлах"
 
-#: ui/modelproperties.py:327
+#: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "&Асаах"
 
@@ -1787,12 +1791,12 @@ msgstr "Серверээс конспектыг авч байна..."
 msgid "Field %(num)d: %(name)s"
 msgstr "Талбар %(num)d: %(name)s"
 
-#: ui/modelproperties.py:77
+#: ui/modelproperties.py:78
 #, python-format
 msgid "Field %(num)d: %(name)s [%(cards)s non-empty]"
 msgstr "Талбар %(num)d: %(name)s [%(cards)s бүү хоосон]"
 
-#: ui/modelproperties.py:133 ui/modelproperties.py:151
+#: ui/modelproperties.py:134 ui/modelproperties.py:152
 #, python-format
 msgid "Field %d"
 msgstr "Талбар %d"
@@ -1863,7 +1867,7 @@ msgstr "Франц хэл"
 msgid "Full Database Check..."
 msgstr "Өгөгдлийн саныг шалгах..."
 
-#: forms/modelproperties.py:302
+#: forms/modelproperties.py:311
 msgid "General && Fields"
 msgstr "Ерөнхий && Талбарууд"
 
@@ -1904,7 +1908,7 @@ msgstr "Хэцүү"
 msgid "Help"
 msgstr "Тусламж"
 
-#: forms/modelproperties.py:314
+#: forms/modelproperties.py:323
 msgid "Hide the question when showing answer"
 msgstr "Хариултыг үзүүлэхэд асуултыг нуу"
 
@@ -2075,11 +2079,11 @@ msgstr "Серверийн дээр '%s'-тай нэгтгэх"
 msgid "Min"
 msgstr "Доод"
 
-#: ui/modelproperties.py:467
+#: ui/modelproperties.py:468
 msgid "Model"
 msgstr "Зүйл"
 
-#: ui/modelproperties.py:35 forms/modelproperties.py:284
+#: ui/modelproperties.py:35 forms/modelproperties.py:292
 msgid "Model Properties"
 msgstr "Зүйлийн чанарууд"
 
@@ -2100,27 +2104,27 @@ msgstr "Монгол хэл"
 msgid "More"
 msgstr "Илүү>>"
 
-#: forms/modelproperties.py:293 forms/modelproperties.py:306
+#: forms/modelproperties.py:302 forms/modelproperties.py:315
 msgid "Move &Up"
 msgstr "Д&ээшээ хөдлөх"
 
-#: forms/modelproperties.py:296 forms/modelproperties.py:308
+#: forms/modelproperties.py:305 forms/modelproperties.py:317
 msgid "Move Dow&n"
 msgstr "Д&оошоо хөдлөх"
 
-#: forms/modelproperties.py:307
+#: forms/modelproperties.py:316
 msgid "Move selected card model down"
 msgstr "Сонгосон картын зүйл доошоо хөдлөх"
 
-#: forms/modelproperties.py:305
+#: forms/modelproperties.py:314
 msgid "Move selected card model up"
 msgstr "Сонгосон картын зүйл дээшээ хөдлөх"
 
-#: forms/modelproperties.py:295
+#: forms/modelproperties.py:304
 msgid "Move selected field down"
 msgstr "Сонгосон талбарыг доошоо хөдлөх"
 
-#: forms/modelproperties.py:292
+#: forms/modelproperties.py:301
 msgid "Move selected field up"
 msgstr "Сонгосон талбарыг дээшээ хөдлөх"
 
@@ -2252,11 +2256,11 @@ msgstr "Өөрийнхөө Цуглуулга"
 msgid "Play the last-played audio again"
 msgstr "Сүүлд тоглосон дуу дахиад тоглох"
 
-#: ui/modelproperties.py:164
+#: ui/modelproperties.py:165
 msgid "Please add a new field first."
 msgstr "Эхлээд шинэ талбарыг нэмнэ уу?"
 
-#: ui/modelproperties.py:379
+#: ui/modelproperties.py:380
 #, fuzzy
 msgid "Please add a new template first."
 msgstr "Эхлээд шинэ талбарыг нэмнэ уу?"
@@ -2277,7 +2281,7 @@ msgstr "Талбараас эрэмбэлэхээр нь сонго."
 msgid "Please double-check your username/password."
 msgstr "Та зөв хэрэглэгчийн нэр, нууц үгийг оруулна уу?"
 
-#: ui/modelproperties.py:407
+#: ui/modelproperties.py:408
 #, fuzzy
 msgid "Please enable a different template first."
 msgstr "Өөр зүйлийг асаана уу?"
@@ -2325,7 +2329,7 @@ msgstr "Тохируулалтууд"
 msgid "Preparing full sync..."
 msgstr ""
 
-#: forms/modelproperties.py:298
+#: forms/modelproperties.py:307
 msgid "Prevent duplicates"
 msgstr "Хуулбаруудыг хориглоно"
 
@@ -2334,7 +2338,7 @@ msgstr "Хуулбаруудыг хориглоно"
 msgid "Prevent edits until answer shown"
 msgstr "Хоосон оролтуудыг хориглоно"
 
-#: forms/modelproperties.py:300
+#: forms/modelproperties.py:309
 msgid "Prevent empty entries"
 msgstr "Хоосон оролтуудыг хориглоно"
 
@@ -2671,7 +2675,7 @@ msgstr "Зарим тохируулгууд Анкиг дахин асаахий
 msgid "Soon"
 msgstr "Одоохон"
 
-#: forms/modelproperties.py:301
+#: forms/modelproperties.py:310
 msgid "Sort as numbers"
 msgstr "Тоотоор эрэмбэлэх"
 
@@ -2889,7 +2893,7 @@ msgstr "Энэ карт %s-д дахин давтсан."
 msgid "This card will appear again later."
 msgstr "Ийм карт дараа болж байна."
 
-#: ui/modelproperties.py:171
+#: ui/modelproperties.py:172
 #, python-format
 msgid ""
 "This field is used by %d cards. If you delete it,\n"
@@ -2966,7 +2970,7 @@ msgstr ""
 "<b>Энэ гүйдэл тайлах чадахгүй.</b><br>\n"
 "Таны медианы каталог нөөц хийнэ уу?"
 
-#: ui/modelproperties.py:386
+#: ui/modelproperties.py:387
 #, fuzzy, python-format
 msgid ""
 "This template is used by %d cards. If you delete it,\n"
