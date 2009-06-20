@@ -42,6 +42,7 @@ class ModelProperties(QDialog):
         self.dialog.tags.setText(self.m.tags)
         self.dialog.spacing.setText(str(self.m.spacing))
         self.dialog.initialSpacing.setText(str(self.m.initialSpacing/60))
+        self.dialog.mediaURL.setText(str(self.m.features))
 
     # Fields
     ##########################################################################
@@ -468,6 +469,13 @@ order by n""", id=card.id)
         self.updateField(self.m, 'name', mname)
         self.updateField(self.m, 'tags',
                          unicode(self.dialog.tags.text()))
+        url = unicode(self.dialog.mediaURL.text())
+        if url:
+            if not re.match("^(http|ftp)://", url, re.I):
+                url = "http://" + url
+            if not url.endswith("/"):
+                url += "/"
+        self.updateField(self.m, 'features', url)
         try:
             self.updateField(self.m, 'spacing',
                              float(self.dialog.spacing.text()))

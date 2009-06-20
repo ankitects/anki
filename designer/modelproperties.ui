@@ -1,156 +1,159 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ModelProperties</class>
- <widget class="QDialog" name="ModelProperties" >
-  <property name="windowModality" >
+ <widget class="QDialog" name="ModelProperties">
+  <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>376</width>
-    <height>518</height>
+    <width>393</width>
+    <height>551</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Model Properties</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTabWidget" name="tabWidget" >
-     <property name="currentIndex" >
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>360</width>
-        <height>452</height>
-       </rect>
-      </property>
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
        <string>General &amp;&amp; Fields</string>
       </attribute>
-      <layout class="QVBoxLayout" >
-       <property name="spacing" >
+      <layout class="QVBoxLayout">
+       <property name="spacing">
         <number>6</number>
        </property>
-       <property name="margin" >
+       <property name="margin">
         <number>9</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_2" >
-         <property name="text" >
-          <string>&lt;h1>General&lt;/h1></string>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>&lt;h1&gt;General&lt;/h1&gt;</string>
          </property>
         </widget>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout" >
-         <property name="leftMargin" >
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="leftMargin">
           <number>4</number>
          </property>
-         <property name="spacing" >
+         <property name="spacing">
           <number>4</number>
          </property>
-         <item row="0" column="0" >
-          <widget class="QLabel" name="label" >
-           <property name="text" >
-            <string>&lt;b>Name&lt;/b></string>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>&lt;b&gt;Name&lt;/b&gt;</string>
            </property>
-           <property name="alignment" >
+           <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" >
-          <widget class="QLineEdit" name="name" />
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="name"/>
          </item>
-         <item row="1" column="0" >
-          <widget class="QLabel" name="label_3" >
-           <property name="text" >
-            <string>&lt;b>Tags&lt;/b></string>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>&lt;b&gt;Tags&lt;/b&gt;</string>
            </property>
-           <property name="alignment" >
+           <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
-           <property name="openExternalLinks" >
+           <property name="openExternalLinks">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="1" column="1" >
-          <widget class="QLineEdit" name="tags" />
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="tags"/>
          </item>
-         <item row="2" column="0" >
-          <widget class="QLabel" name="label_19" >
-           <property name="text" >
-            <string>&lt;b>Minimum spacing&lt;/b></string>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>&lt;b&gt;Minimum spacing&lt;/b&gt;</string>
            </property>
-           <property name="openExternalLinks" >
+           <property name="openExternalLinks">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
-          <widget class="QLabel" name="label_25" >
-           <property name="text" >
-            <string>&lt;b>Spacing multipler&lt;/b></string>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>&lt;b&gt;Spacing multipler&lt;/b&gt;</string>
            </property>
-           <property name="openExternalLinks" >
+           <property name="openExternalLinks">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="2" column="1" >
-          <layout class="QHBoxLayout" name="horizontalLayout_3" >
+         <item row="2" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QLineEdit" name="initialSpacing" />
+            <widget class="QLineEdit" name="initialSpacing"/>
            </item>
           </layout>
          </item>
-         <item row="3" column="1" >
-          <layout class="QHBoxLayout" name="horizontalLayout_4" >
+         <item row="3" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QLineEdit" name="spacing" />
+            <widget class="QLineEdit" name="spacing"/>
            </item>
           </layout>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>&lt;b&gt;Media URL&lt;/B&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="mediaURL"/>
          </item>
         </layout>
        </item>
        <item>
-        <widget class="Line" name="line_3" >
-         <property name="orientation" >
+        <widget class="Line" name="line_3">
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_6" >
-         <property name="text" >
-          <string>&lt;h1>Fields&lt;/h1></string>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>&lt;h1&gt;Fields&lt;/h1&gt;</string>
          </property>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" >
-         <property name="spacing" >
+        <layout class="QHBoxLayout">
+         <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin" >
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QListWidget" name="fieldList" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+          <widget class="QListWidget" name="fieldList">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="minimumSize" >
+           <property name="minimumSize">
             <size>
              <width>0</width>
              <height>60</height>
@@ -161,49 +164,49 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout" >
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QPushButton" name="fieldAdd" >
-           <property name="text" >
+          <widget class="QPushButton" name="fieldAdd">
+           <property name="text">
             <string>&amp;Add</string>
            </property>
-           <property name="autoDefault" >
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="fieldUp" >
-           <property name="toolTip" >
+          <widget class="QPushButton" name="fieldUp">
+           <property name="toolTip">
             <string>Move selected field up</string>
            </property>
-           <property name="text" >
+           <property name="text">
             <string>Move &amp;Up</string>
            </property>
-           <property name="autoDefault" >
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="fieldDelete" >
-           <property name="text" >
+          <widget class="QPushButton" name="fieldDelete">
+           <property name="text">
             <string>&amp;Delete</string>
            </property>
-           <property name="autoDefault" >
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="fieldDown" >
-           <property name="toolTip" >
+          <widget class="QPushButton" name="fieldDown">
+           <property name="toolTip">
             <string>Move selected field down</string>
            </property>
-           <property name="text" >
+           <property name="text">
             <string>Move Dow&amp;n</string>
            </property>
-           <property name="autoDefault" >
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
           </widget>
@@ -211,59 +214,59 @@
         </layout>
        </item>
        <item>
-        <widget class="QGroupBox" name="fieldEditBox" >
-         <property name="title" >
+        <widget class="QGroupBox" name="fieldEditBox">
+         <property name="title">
           <string/>
          </property>
-         <property name="flat" >
+         <property name="flat">
           <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2" >
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <layout class="QGridLayout" name="_2" >
-            <property name="margin" >
+           <layout class="QGridLayout" name="_2">
+            <property name="margin">
              <number>0</number>
             </property>
-            <property name="spacing" >
+            <property name="spacing">
              <number>6</number>
             </property>
-            <item row="1" column="0" >
-             <widget class="QLabel" name="label_18" >
-              <property name="text" >
-               <string>&lt;b>Options&lt;/b></string>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>&lt;b&gt;Options&lt;/b&gt;</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1" >
-             <widget class="QLineEdit" name="fieldName" />
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="fieldName"/>
             </item>
-            <item row="1" column="1" >
-             <widget class="QCheckBox" name="fieldUnique" >
-              <property name="text" >
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="fieldUnique">
+              <property name="text">
                <string>Prevent duplicates</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="label_20" >
-              <property name="text" >
-               <string>&lt;b>Name&lt;/b></string>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>&lt;b&gt;Name&lt;/b&gt;</string>
               </property>
-              <property name="alignment" >
+              <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="2" column="1" >
-             <widget class="QCheckBox" name="fieldRequired" >
-              <property name="text" >
+            <item row="2" column="1">
+             <widget class="QCheckBox" name="fieldRequired">
+              <property name="text">
                <string>Prevent empty entries</string>
               </property>
              </widget>
             </item>
-            <item row="3" column="1" >
-             <widget class="QCheckBox" name="numeric" >
-              <property name="text" >
+            <item row="3" column="1">
+             <widget class="QCheckBox" name="numeric">
+              <property name="text">
                <string>Sort as numbers</string>
               </property>
              </widget>
@@ -275,43 +278,35 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>360</width>
-        <height>452</height>
-       </rect>
-      </property>
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
        <string>Card Templates</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_8" >
-         <property name="text" >
-          <string>&lt;h1>Card Templates&lt;/h1></string>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>&lt;h1&gt;Card Templates&lt;/h1&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <layout class="QHBoxLayout" >
-         <property name="spacing" >
+       <item row="1" column="0">
+        <layout class="QHBoxLayout">
+         <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin" >
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QListWidget" name="cardList" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+          <widget class="QListWidget" name="cardList">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>1</verstretch>
             </sizepolicy>
            </property>
-           <property name="minimumSize" >
+           <property name="minimumSize">
             <size>
              <width>0</width>
              <height>60</height>
@@ -321,174 +316,174 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" >
-        <layout class="QHBoxLayout" name="horizontalLayout_2" >
+       <item row="2" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QPushButton" name="cardAdd" >
-           <property name="text" >
+          <widget class="QPushButton" name="cardAdd">
+           <property name="text">
             <string>&amp;Add</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cardUp" >
-           <property name="toolTip" >
+          <widget class="QPushButton" name="cardUp">
+           <property name="toolTip">
             <string>Move selected card model up</string>
            </property>
-           <property name="text" >
+           <property name="text">
             <string>Move &amp;Up</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cardDown" >
-           <property name="toolTip" >
+          <widget class="QPushButton" name="cardDown">
+           <property name="toolTip">
             <string>Move selected card model down</string>
            </property>
-           <property name="text" >
+           <property name="text">
             <string>Move Dow&amp;n</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cardToggle" >
-           <property name="text" >
+          <widget class="QPushButton" name="cardToggle">
+           <property name="text">
             <string/>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cardDelete" >
-           <property name="text" >
+          <widget class="QPushButton" name="cardDelete">
+           <property name="text">
             <string>&amp;Delete</string>
            </property>
           </widget>
          </item>
         </layout>
        </item>
-       <item row="3" column="0" >
-        <widget class="QGroupBox" name="cardEditBox" >
-         <property name="title" >
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="cardEditBox">
+         <property name="title">
           <string/>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3" >
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <layout class="QGridLayout" name="_3" >
-            <property name="margin" >
+           <layout class="QGridLayout" name="_3">
+            <property name="margin">
              <number>0</number>
             </property>
-            <property name="spacing" >
+            <property name="spacing">
              <number>6</number>
             </property>
-            <item row="3" column="0" >
-             <widget class="QLabel" name="label_23" >
-              <property name="text" >
-               <string>&lt;b>Options&lt;/b></string>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_23">
+              <property name="text">
+               <string>&lt;b&gt;Options&lt;/b&gt;</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="1" >
-             <widget class="QTextEdit" name="cardAnswer" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+            <item row="2" column="1">
+             <widget class="QTextEdit" name="cardAnswer">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize" >
+              <property name="maximumSize">
                <size>
                 <width>16777215</width>
                 <height>60</height>
                </size>
               </property>
-              <property name="horizontalScrollBarPolicy" >
+              <property name="horizontalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOff</enum>
               </property>
-              <property name="tabChangesFocus" >
+              <property name="tabChangesFocus">
                <bool>true</bool>
               </property>
-              <property name="acceptRichText" >
+              <property name="acceptRichText">
                <bool>false</bool>
               </property>
              </widget>
             </item>
-            <item row="2" column="0" >
-             <widget class="QLabel" name="label_15" >
-              <property name="text" >
-               <string>&lt;b>Answer&lt;/b></string>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>&lt;b&gt;Answer&lt;/b&gt;</string>
               </property>
-              <property name="alignment" >
+              <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
-              <property name="openExternalLinks" >
+              <property name="openExternalLinks">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="0" column="1" >
-             <widget class="QLineEdit" name="cardName" />
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="cardName"/>
             </item>
-            <item row="1" column="1" >
-             <widget class="QTextEdit" name="cardQuestion" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+            <item row="1" column="1">
+             <widget class="QTextEdit" name="cardQuestion">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize" >
+              <property name="maximumSize">
                <size>
                 <width>16777215</width>
                 <height>60</height>
                </size>
               </property>
-              <property name="horizontalScrollBarPolicy" >
+              <property name="horizontalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOff</enum>
               </property>
-              <property name="tabChangesFocus" >
+              <property name="tabChangesFocus">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="label_12" >
-              <property name="text" >
-               <string>&lt;b>Name&lt;/b></string>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>&lt;b&gt;Name&lt;/b&gt;</string>
               </property>
-              <property name="alignment" >
+              <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
-              <property name="openExternalLinks" >
+              <property name="openExternalLinks">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="1" column="0" >
-             <widget class="QLabel" name="label_14" >
-              <property name="text" >
-               <string>&lt;b>Question&lt;/b></string>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>&lt;b&gt;Question&lt;/b&gt;</string>
               </property>
-              <property name="alignment" >
+              <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
-              <property name="openExternalLinks" >
+              <property name="openExternalLinks">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="3" column="1" >
-             <widget class="QComboBox" name="typeAnswer" />
+            <item row="3" column="1">
+             <widget class="QComboBox" name="typeAnswer"/>
             </item>
-            <item row="4" column="1" >
-             <widget class="QCheckBox" name="questionInAnswer" >
-              <property name="text" >
+            <item row="4" column="1">
+             <widget class="QCheckBox" name="questionInAnswer">
+              <property name="text">
                <string>Hide the question when showing answer</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="1" >
-             <widget class="QCheckBox" name="allowEmptyAnswer" >
-              <property name="text" >
+            <item row="5" column="1">
+             <widget class="QCheckBox" name="allowEmptyAnswer">
+              <property name="text">
                <string>Allow the answer to be blank</string>
               </property>
              </widget>
@@ -503,11 +498,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
      </property>
     </widget>
@@ -522,6 +517,7 @@
   <tabstop>tags</tabstop>
   <tabstop>initialSpacing</tabstop>
   <tabstop>spacing</tabstop>
+  <tabstop>mediaURL</tabstop>
   <tabstop>fieldList</tabstop>
   <tabstop>fieldAdd</tabstop>
   <tabstop>fieldUp</tabstop>
@@ -540,6 +536,9 @@
   <tabstop>cardName</tabstop>
   <tabstop>cardQuestion</tabstop>
   <tabstop>cardAnswer</tabstop>
+  <tabstop>typeAnswer</tabstop>
+  <tabstop>questionInAnswer</tabstop>
+  <tabstop>allowEmptyAnswer</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -550,11 +549,11 @@
    <receiver>ModelProperties</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>252</x>
      <y>513</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -566,11 +565,11 @@
    <receiver>ModelProperties</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>320</x>
      <y>513</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
