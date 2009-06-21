@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_ee_EE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 07:30+0900\n"
+"POT-Creation-Date: 2009-06-21 20:05+0200\n"
 "PO-Revision-Date: 2009-03-17 18:43+0200\n"
 "Last-Translator: Meelis Vasser <meelis.vasser@gmail.com>\n"
 "Language-Team: Estonian <>\n"
@@ -1029,7 +1029,7 @@ msgstr ""
 "vearaportisse:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1571,10 +1571,6 @@ msgstr ""
 #: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Selgitan erinevusi..."
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialoog"
 
 #: ui/modelproperties.py:326
 msgid "Disa&ble"
@@ -2272,10 +2268,6 @@ msgstr "Lisa kõigepealt teine mudel."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Palun vali väli, mille järgi sortida."
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -3543,6 +3535,9 @@ msgstr "üleminesedel"
 #~ msgid "Del"
 #~ msgstr "Del"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialoog"
+
 #, fuzzy
 #~ msgid "Download Deck"
 #~ msgstr "Lae alla ühiskasutusega kaardipakk"
@@ -3588,6 +3583,9 @@ msgstr "üleminesedel"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Lisa kõigepealt uus kaart."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Palun vali väli, mille järgi sortida."
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Korda &vastuse heli"

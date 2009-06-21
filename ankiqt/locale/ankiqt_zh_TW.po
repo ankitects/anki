@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 07:30+0900\n"
+"POT-Creation-Date: 2009-06-21 20:05+0200\n"
 "PO-Revision-Date: 2009-04-07 15:53+0800\n"
 "Last-Translator: \n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1032,7 +1032,7 @@ msgstr ""
 "\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1582,10 +1582,6 @@ msgstr ""
 
 #: ui/sync.py:133
 msgid "Determining differences..."
-msgstr ""
-
-#: forms/infodialog.py:36
-msgid "Dialog"
 msgstr ""
 
 #: ui/modelproperties.py:326
@@ -2306,10 +2302,6 @@ msgstr "まずもう一つのモデルを作成してください。"
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "フィールドの整列を選んでください。"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -4302,6 +4294,9 @@ msgstr ""
 
 #~ msgid "Please add a new card first."
 #~ msgstr "まず新しいカードを入力してください。"
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "フィールドの整列を選んでください。"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "ユーザー名を確認してください。"

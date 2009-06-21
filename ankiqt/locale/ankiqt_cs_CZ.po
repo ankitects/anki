@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 07:30+0900\n"
+"POT-Creation-Date: 2009-06-21 20:05+0200\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1065,7 +1065,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
@@ -1613,10 +1613,6 @@ msgstr ""
 #: ui/sync.py:133
 msgid "Determining differences..."
 msgstr ""
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
 
 #: ui/modelproperties.py:326
 msgid "Disa&ble"
@@ -2345,10 +2341,6 @@ msgstr ""
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Prosím zvolte pole třídění"
 
 #: ui/sync.py:70
 #, fuzzy
@@ -4037,6 +4029,9 @@ msgstr ""
 #~ msgid "Description && Synchronisation"
 #~ msgstr "Popis && synchronizace"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #, fuzzy
 #~ msgid "Disp&lay Properties..."
 #~ msgstr "Vlastnosti &zobrazení"
@@ -4242,6 +4237,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Please add a new card first."
 #~ msgstr "Prosím zodpovězte ještě několik kartiček."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Prosím zvolte pole třídění"
 
 #~ msgid "Please double-check your username."
 #~ msgstr "Prosím dvakrát zkontrolujte přihlašovací jméno"

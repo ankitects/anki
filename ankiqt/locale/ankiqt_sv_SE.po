@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 07:30+0900\n"
-"PO-Revision-Date: 2009-06-18 09:46+0100\n"
+"POT-Creation-Date: 2009-06-21 20:05+0200\n"
+"PO-Revision-Date: 2009-06-21 20:03+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -261,9 +261,8 @@ msgid "&Donate..."
 msgstr "&Donera..."
 
 #: forms/main.py:1399
-#, fuzzy
 msgid "&Download"
-msgstr "Hämta hem"
+msgstr "&Hämta hem"
 
 #: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
 msgid "&Edit"
@@ -549,7 +548,7 @@ msgstr "<b>Största antal felbesvarade kort</b>"
 
 #: forms/modelproperties.py:298
 msgid "<b>Media URL</B>"
-msgstr ""
+msgstr "<b>Media-URL</b>"
 
 #: forms/modelproperties.py:296
 msgid "<b>Minimum spacing</b>"
@@ -644,7 +643,6 @@ msgid "<b>Very High Priority</b>"
 msgstr "<b>Mycket hög prioritet</b>"
 
 #: ui/main.py:1240
-#, fuzzy
 msgid ""
 "<br>\n"
 "<font size=+1>\n"
@@ -656,7 +654,7 @@ msgstr ""
 "<br>\n"
 "<font size=+1>\n"
 "Välkommen till Anki! Klicka på <b>hämta hem kortlek</b> för att komma igång. Du kan komma tillbaka hit\n"
-"senare genom att klicka på pilen som pekar åt vänster i verktygsraden.\n"
+"senare genom att välja Arkiv>Stäng.\n"
 "</font>\n"
 "<br>\n"
 
@@ -1023,7 +1021,7 @@ msgstr ""
 "till en felrapport:<br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
@@ -1179,7 +1177,7 @@ msgstr "Det finns kort som väntar"
 
 #: forms/activetags.py:42
 msgid "Cards with any of the selected tags below will not be shown."
-msgstr ""
+msgstr "Kort som har någon av nedan valda taggar kommer inte att visas."
 
 #: ui/main.py:1455
 msgid "Cards/day:"
@@ -1552,10 +1550,6 @@ msgstr "Ta bort det kort som just nu visas"
 #: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Fastställer skillnader..."
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Dialog"
 
 #: ui/modelproperties.py:326
 msgid "Disa&ble"
@@ -2208,9 +2202,8 @@ msgid "Performance"
 msgstr "Prestation"
 
 #: forms/main.py:1492
-#, fuzzy
 msgid "Personal Deck..."
-msgstr "Personlig kortlek"
+msgstr "Personlig kortlek..."
 
 #: forms/main.py:1455
 msgid "Play the last-played audio again"
@@ -2231,10 +2224,6 @@ msgstr "Lägg först till en annan modell."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr "Kontrollera proxyinställningar"
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Välj ett fält att sortera efter"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -2525,14 +2514,12 @@ msgid "Set colour (F7 then F7)"
 msgstr "Ange färg (F7 därpå F7)"
 
 #: forms/main.py:1494
-#, fuzzy
 msgid "Shared Deck..."
-msgstr "Delad kortlek"
+msgstr "Delad kortlek..."
 
 #: forms/main.py:1496
-#, fuzzy
 msgid "Shared Plugin..."
-msgstr "Delad insticksmodul"
+msgstr "Delad insticksmodul..."
 
 #: ui/modelchooser.py:42
 msgid "Shift+Alt+e"
@@ -3580,6 +3567,9 @@ msgstr "toppetikett"
 #~ msgid "Del"
 #~ msgstr "Ta bort"
 
+#~ msgid "Dialog"
+#~ msgstr "Dialog"
+
 #~ msgid "Download Deck"
 #~ msgstr "Hämta kortlek"
 
@@ -3645,6 +3635,9 @@ msgstr "toppetikett"
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Lägg först till ett nytt kort."
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Välj ett fält att sortera efter"
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Upprepa &svarsljud"

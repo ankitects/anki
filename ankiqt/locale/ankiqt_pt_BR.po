@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 07:30+0900\n"
+"POT-Creation-Date: 2009-06-21 20:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Jo Nakashima <jonakashima@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1025,7 +1025,7 @@ msgstr ""
 "em um bug report:<br><br>\n"
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
@@ -1567,10 +1567,6 @@ msgstr ""
 #: ui/sync.py:133
 msgid "Determining differences..."
 msgstr "Determinando diferenças..."
-
-#: forms/infodialog.py:36
-msgid "Dialog"
-msgstr "Diálogo"
 
 #: ui/modelproperties.py:326
 msgid "Disa&ble"
@@ -2270,10 +2266,6 @@ msgstr "Por favor adicione outro modelo primeiro."
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
 msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
-msgstr "Por favor escolha um campo para ordenar"
 
 #: ui/sync.py:70
 msgid "Please double-check your username/password."
@@ -3553,6 +3545,9 @@ msgstr ""
 #~ msgid "Customize card layout, fields, etc"
 #~ msgstr "Customizar layout de card, campos, etc."
 
+#~ msgid "Dialog"
+#~ msgstr "Diálogo"
+
 #, fuzzy
 #~ msgid "Download Deck"
 #~ msgstr "&Doar..."
@@ -3613,6 +3608,9 @@ msgstr ""
 
 #~ msgid "Please add a new card first."
 #~ msgstr "Por favor adicione um novo card primeiro"
+
+#~ msgid "Please choose a field to sort by."
+#~ msgstr "Por favor escolha um campo para ordenar"
 
 #~ msgid "Repeat &Answer Audio"
 #~ msgstr "Repetir &Áudio da Resposta"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 07:30+0900\n"
+"POT-Creation-Date: 2009-06-21 20:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -948,7 +948,7 @@ msgid ""
 msgstr ""
 
 #: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
-#: forms/sort.py:45 forms/syncdeck.py:42
+#: forms/syncdeck.py:42
 msgid "Anki"
 msgstr ""
 
@@ -1469,10 +1469,6 @@ msgstr ""
 
 #: ui/sync.py:133
 msgid "Determining differences..."
-msgstr ""
-
-#: forms/infodialog.py:36
-msgid "Dialog"
 msgstr ""
 
 #: ui/modelproperties.py:326
@@ -2143,10 +2139,6 @@ msgstr ""
 
 #: ui/getshared.py:90
 msgid "Please check the proxy settings."
-msgstr ""
-
-#: forms/sort.py:46
-msgid "Please choose a field to sort by."
 msgstr ""
 
 #: ui/sync.py:70
