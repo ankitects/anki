@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
-"PO-Revision-Date: 2009-06-18 10:36+0100\n"
+"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"PO-Revision-Date: 2009-06-21 20:04+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -189,7 +189,7 @@ msgstr ""
 "- %(new)s"
 
 #: sync.py:240
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<table>\n"
 "<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>\n"
@@ -206,7 +206,6 @@ msgstr ""
 "<tr><td>Kort</td><td>%(lc)d</td><td>%(rc)d</td></tr>\n"
 "<tr><td>Faktauppgifter</td><td>%(lf)d</td><td>%(rf)d</td></tr>\n"
 "<tr><td>Modeller</td><td>%(lm)d</td><td>%(rm)d</td></tr>\n"
-"<tr><td>Media</td><td>%(lM)s</td><td>%(rM)s</td></tr>\n"
 "<tr><td>Statistik</td><td>%(ls)s</td><td>%(rs)s</td></tr>\n"
 "</table>"
 
@@ -306,7 +305,7 @@ msgstr "Kunde inte avgöra filens format."
 msgid "CueCard Deck (*.wcu)"
 msgstr "CueCard-kortlek (*.wcu)"
 
-#: deck.py:3310
+#: deck.py:3315
 msgid "Custom failed cards handling"
 msgstr "Anpassad hantering av felbesvarade kort"
 
@@ -436,7 +435,7 @@ msgstr "Första förra veckan"
 msgid "First-seen cards:"
 msgstr "Förstagångskort:"
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Importerar..."
 
@@ -541,19 +540,19 @@ msgstr "Upprepn. nästa månad"
 msgid "Reps next week"
 msgstr "Upprepn. nästa vecka"
 
-#: deck.py:3297
+#: deck.py:3302
 msgid "Review cards from largest interval"
 msgstr "Repetera kort från största intervall"
 
-#: deck.py:3298
+#: deck.py:3303
 msgid "Review cards from smallest interval"
 msgstr "Repetera kort från minsta intervall"
 
-#: deck.py:3299
+#: deck.py:3304
 msgid "Review cards in order due"
 msgstr "Repetera kort ordnade efter den tid de förfaller"
 
-#: deck.py:3300
+#: deck.py:3305
 msgid "Review cards in random order"
 msgstr "Repetera kort i slumpmässig ordning"
 
@@ -569,47 +568,47 @@ msgstr "Höger"
 msgid "Scan fields..."
 msgstr "Söker igenom fält..."
 
-#: deck.py:3306
+#: deck.py:3311
 msgid "Show failed cards at end"
 msgstr "Visa felbesvarade kort i slutet"
 
-#: deck.py:3307
+#: deck.py:3312
 msgid "Show failed cards in 10 minutes"
 msgstr "Visa felbesvarade kort om tio minuter"
 
-#: deck.py:3309
+#: deck.py:3314
 msgid "Show failed cards in 3 days"
 msgstr "Visa felbesvarade kort om tre dagar"
 
-#: deck.py:3308
+#: deck.py:3313
 msgid "Show failed cards in 8 hours"
 msgstr "Visa felbesvarade kort om åtta timmar"
 
-#: deck.py:3305
+#: deck.py:3310
 msgid "Show failed cards soon"
 msgstr "Visa felbesvarade kort snart"
 
-#: deck.py:3291
+#: deck.py:3296
 msgid "Show new cards after all other cards"
 msgstr "Visa nya kort efter alla andra kort"
 
-#: deck.py:3292
+#: deck.py:3297
 msgid "Show new cards before reviews"
 msgstr "Visa nya kort innan repetitioner"
 
-#: deck.py:3284
+#: deck.py:3289
 msgid "Show new cards in order added"
 msgstr "Visa nya kort i den ordning de lades till"
 
-#: deck.py:3283
+#: deck.py:3288
 msgid "Show new cards in random order"
 msgstr "Visa nya kort i slumpmässig ordning"
 
-#: deck.py:3285
+#: deck.py:3290
 msgid "Show new cards in reverse order added"
 msgstr "Visa nya kort i omvänd ordning från hur de lades till"
 
-#: deck.py:3290
+#: deck.py:3295
 msgid "Spread new cards out through reviews"
 msgstr "Fördela nya kort bland repetitioner"
 

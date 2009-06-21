@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.7.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 03:33+0900\n"
+"POT-Creation-Date: 2009-06-21 20:04+0200\n"
 "PO-Revision-Date: 2009-05-15 14:27+0100\n"
 "Last-Translator: Lars Lem <larslem@online.no>\n"
 "Language-Team: Norwegian <larslem@online.no>\n"
@@ -307,7 +307,7 @@ msgstr ""
 msgid "CueCard Deck (*.wcu)"
 msgstr "CueCard-kortstokk (*.wcu)"
 
-#: deck.py:3310
+#: deck.py:3315
 msgid "Custom failed cards handling"
 msgstr "Tilpasset håndtering av feilbesvarte kort"
 
@@ -437,7 +437,7 @@ msgstr "Første forrige uke"
 msgid "First-seen cards:"
 msgstr "Nye kort:"
 
-#: importing/__init__.py:56 importing/anki10.py:30
+#: importing/anki10.py:30 importing/__init__.py:56
 msgid "Importing..."
 msgstr "Importerer..."
 
@@ -542,19 +542,19 @@ msgstr "Repetisjoner neste måned"
 msgid "Reps next week"
 msgstr "Repetisjoner neste uke"
 
-#: deck.py:3297
+#: deck.py:3302
 msgid "Review cards from largest interval"
 msgstr "Repetere kort fra største intervall"
 
-#: deck.py:3298
+#: deck.py:3303
 msgid "Review cards from smallest interval"
 msgstr "Repetere kort fra minste intervall"
 
-#: deck.py:3299
+#: deck.py:3304
 msgid "Review cards in order due"
 msgstr "Repetere kort ordnet etter når de forfaller"
 
-#: deck.py:3300
+#: deck.py:3305
 msgid "Review cards in random order"
 msgstr "Repetere kort i tilfeldig rekkefølge"
 
@@ -570,47 +570,47 @@ msgstr "Høyre"
 msgid "Scan fields..."
 msgstr "Søker gjennom felt"
 
-#: deck.py:3306
+#: deck.py:3311
 msgid "Show failed cards at end"
 msgstr "Vis feilbesvarte kort til slutt"
 
-#: deck.py:3307
+#: deck.py:3312
 msgid "Show failed cards in 10 minutes"
 msgstr "Vis feilbesvarte kort om ti minutter"
 
-#: deck.py:3309
+#: deck.py:3314
 msgid "Show failed cards in 3 days"
 msgstr "Vis feilbesvarte kort om tre dager"
 
-#: deck.py:3308
+#: deck.py:3313
 msgid "Show failed cards in 8 hours"
 msgstr "Vis feilbesvarte kort om 8 timer"
 
-#: deck.py:3305
+#: deck.py:3310
 msgid "Show failed cards soon"
 msgstr "Vis feilbesvarte kort snart"
 
-#: deck.py:3291
+#: deck.py:3296
 msgid "Show new cards after all other cards"
 msgstr "Vis nye kort etter alle de andre"
 
-#: deck.py:3292
+#: deck.py:3297
 msgid "Show new cards before reviews"
 msgstr "Vis nye kort før repetisjoner"
 
-#: deck.py:3284
+#: deck.py:3289
 msgid "Show new cards in order added"
 msgstr "Vis nye kort i den rekkefølgen de ble lagt til"
 
-#: deck.py:3283
+#: deck.py:3288
 msgid "Show new cards in random order"
 msgstr "Vis nye kort i tilfeldig rekkefølge"
 
-#: deck.py:3285
+#: deck.py:3290
 msgid "Show new cards in reverse order added"
 msgstr "Vis nye kort i omvendt rekkefølge av slik de ble lagt til"
 
-#: deck.py:3290
+#: deck.py:3295
 msgid "Spread new cards out through reviews"
 msgstr "Fordel nye kort blant repetisjoner"
 
