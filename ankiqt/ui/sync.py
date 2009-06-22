@@ -214,7 +214,7 @@ class DeckChooser(QDialog):
         for name in decks:
             name = os.path.splitext(name)[0]
             if self.create:
-                msg = _("Merge with '%s' on server") % name
+                msg = _("Overwrite '%s' on server") % name
             else:
                 msg = name
             item = QListWidgetItem(msg)
