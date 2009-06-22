@@ -137,6 +137,8 @@ class MplayerMonitor(threading.Thread):
         while 1:
             mplayerCond.acquire()
             while not mplayerQueue:
+                if not mplayerCond:
+                    return
                 mplayerCond.wait()
             if not self.mplayer:
                 self.startProcess()
