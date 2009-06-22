@@ -8,7 +8,7 @@ Media support
 """
 __docformat__ = 'restructuredtext'
 
-import os, stat, time, shutil, re, sys
+import os, stat, time, shutil, re, sys, urllib2
 from anki.db import *
 from anki.facts import Fact
 from anki.utils import addTags, genID, ids2str, checksum
@@ -218,3 +218,33 @@ def mediaRefs(string):
         for (full, fname) in re.findall(reg, string):
             l.append((full, fname, repl))
     return l
+
+def downloadMissing(deck):
+    urls = dict(
+        deck.s.all("select id, features from models where features != ''"))
+    if not urls:
+        return None
+    mdir = deck.mediaDir(create=True)
+    os.chdir(mdir)
+    deck.startProgress()
+    missing = {}
+    for (id, fid, val, mid) in deck.s.all("""
+select fields.id, factId, value, modelId from fields, facts
+where facts.id = fields.factId"""):
+        for (full, fname, repl) in mediaRefs(val):
+            if not os.path.exists(os.path.join(mdir, fname)) and mid in urls:
+                missing[fname] = mid
+    success = 0
+    for c, file in enumerate(missing.keys()):
+        deck.updateProgress(label=_("Downloading %(a)d of %(b)d...") % {
+            'a': c,
+            'b': len(missing),
+            })
+        try:
+            data = urllib2.urlopen(urls[missing[file]] + file).read()
+            open(file, "wb").write(data)
+            success += 1
+        except:
+            pass
+    deck.finishProgress()
+    return len(missing), success
