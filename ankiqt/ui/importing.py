@@ -220,3 +220,8 @@ class ImportDialog(QDialog):
             pass
         self.mapping[n] = f
         self.showMapping(keepMapping=True)
+
+    def reject(self):
+        print "deinit"
+        self.modelChooser.deinit()
+        QDialog.reject(self)
