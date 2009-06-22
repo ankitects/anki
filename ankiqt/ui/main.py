@@ -16,7 +16,7 @@ from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue
 from anki.utils import addTags, deleteTags, parseTags, canonifyTags, stripHTML
-from anki.media import rebuildMediaDir
+from anki.media import rebuildMediaDir, downloadMissing
 from anki.db import OperationalError, SessionHelper
 from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
@@ -2226,6 +2226,7 @@ it to your friends.
         self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
+        self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
         self.connect(m.actionCram, s, self.onCram)
         self.connect(m.actionOpenPluginFolder, s, self.onOpenPluginFolder)
         self.connect(m.actionEnableAllPlugins, s, self.onEnableAllPlugins)
@@ -2673,6 +2674,17 @@ Consider backing up your media directory first."""))
                     missing) % missing + "\n" +
                 ngettext("%d unused file removed.", "%d unused files removed.",
                     unused) % unused)
+
+    def onDownloadMissingMedia(self):
+        res = downloadMissing(self.deck)
+        if res is None:
+            ui.utils.showInfo(_("No media URLs defined for this deck."),
+                              help="MediaSupport")
+        ui.utils.showInfo(_("%(a)d missing files found.<br>"
+                            "%(b)d successfully retrieved.") % {
+            'a': res[0],
+            'b': res[1],
+            }, parent=self)
 
     def addHook(self, *args):
         addHook(*args)

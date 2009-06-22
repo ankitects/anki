@@ -2792,6 +2792,7 @@
      <addaction name="actionCheckMediaDatabase"/>
      <addaction name="actionCacheLatex"/>
      <addaction name="actionUncacheLatex"/>
+     <addaction name="actionDownloadMissingMedia"/>
      <addaction name="separator"/>
      <addaction name="actionRecordNoiseProfile"/>
      <addaction name="separator"/>
@@ -3453,6 +3454,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionDownloadMissingMedia">
+   <property name="text">
+    <string>Download Missing Media</string>
    </property>
   </action>
  </widget>
