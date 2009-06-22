@@ -2500,7 +2500,8 @@ it to your friends.
 
     def onRepeatAudio(self):
         clearAudioQueue()
-        playFromText(self.currentCard.question)
+        if not self.currentCard.cardModel.questionInAnswer:
+            playFromText(self.currentCard.question)
         if self.state != "showQuestion":
             playFromText(self.currentCard.answer)
 
