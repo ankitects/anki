@@ -1213,6 +1213,19 @@
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <widget class="QPushButton" name="finishButton">
+                    <property name="text">
+                     <string>Fi&amp;nish</string>
+                    </property>
+                    <property name="autoDefault">
+                     <bool>true</bool>
+                    </property>
+                    <property name="default">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -3456,6 +3469,7 @@
   <tabstop>optionsHelpButton</tabstop>
   <tabstop>learnMoreButton</tabstop>
   <tabstop>reviewEarlyButton</tabstop>
+  <tabstop>finishButton</tabstop>
   <tabstop>downloadDeckButton</tabstop>
   <tabstop>newDeckButton</tabstop>
   <tabstop>importDeckButton</tabstop>
@@ -3466,6 +3480,8 @@
   <tabstop>saveEditorButton</tabstop>
   <tabstop>showAnswerButton</tabstop>
   <tabstop>help</tabstop>
+  <tabstop>noticeButton</tabstop>
+  <tabstop>welcomeText</tabstop>
  </tabstops>
  <resources>
   <include location="../icons.qrc"/>

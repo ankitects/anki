@@ -115,6 +115,9 @@ class AnkiQt(QMainWindow):
         self.connect(self.mainWin.reviewEarlyButton,
                      SIGNAL("clicked()"),
                      self.onReviewEarly)
+        self.connect(self.mainWin.finishButton,
+                     SIGNAL("clicked()"),
+                     self.onClose)
         # notices
         self.mainWin.noticeFrame.setShown(False)
         self.connect(self.mainWin.noticeButton, SIGNAL("clicked()"),
@@ -330,8 +333,8 @@ Please do not file a bug report with Anki.<br>""")
                 not not self.deck.newCount)
             self.startRefreshTimer()
             self.bodyView.setState(state)
-            # make sure the buttons aren't focused
-            self.mainWin.congratsLabel.setFocus()
+            # focus finish button
+            self.mainWin.finishButton.setFocus()
         elif state == "showQuestion":
             self.reviewingStarted = True
             if self.deck.mediaDir():
