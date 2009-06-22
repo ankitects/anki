@@ -3305,7 +3305,7 @@
      <normaloff>:/icons/anki-tag.png</normaloff>:/icons/anki-tag.png</iconset>
    </property>
    <property name="text">
-    <string>Active &amp;Tags...</string>
+    <string>Inactive &amp;Tags...</string>
    </property>
    <property name="statusTip">
     <string>Choose the categories to show during review</string>
