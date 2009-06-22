@@ -185,6 +185,7 @@ question or answer on all cards."""), parent=self)
         if (self.forceClose or self.editor.fieldsAreBlank() or
             ui.utils.askUser(_("Close and lose current input?"),
                             self)):
+            self.modelChooser.deinit()
             self.editor.close()
             ui.dialogs.close("AddCards")
             self.parent.deck.s.flush()
