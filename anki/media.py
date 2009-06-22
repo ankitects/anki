@@ -220,6 +220,7 @@ def mediaRefs(string):
     return l
 
 def downloadMissing(deck):
+    from anki.latex import renderLatex
     urls = dict(
         deck.s.all("select id, features from models where features != ''"))
     if not urls:
@@ -231,6 +232,8 @@ def downloadMissing(deck):
     for (id, fid, val, mid) in deck.s.all("""
 select fields.id, factId, value, modelId from fields, facts
 where facts.id = fields.factId"""):
+        # add latex tags
+        val = renderLatex(deck, val, False)
         for (full, fname, repl) in mediaRefs(val):
             if not os.path.exists(os.path.join(mdir, fname)) and mid in urls:
                 missing[fname] = mid
