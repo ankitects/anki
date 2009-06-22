@@ -2680,6 +2680,7 @@ Consider backing up your media directory first."""))
         if res is None:
             ui.utils.showInfo(_("No media URLs defined for this deck."),
                               help="MediaSupport")
+            return
         ui.utils.showInfo(_("%(a)d missing files found.<br>"
                             "%(b)d successfully retrieved.") % {
             'a': res[0],
