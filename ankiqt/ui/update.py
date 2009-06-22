@@ -50,12 +50,13 @@ class LatestVersionFinder(QThread):
         d = urllib.urlencode(d)
         try:
             f = urllib2.urlopen(baseUrl + "getQtVersion", d)
-        except (urllib2.URLError, httplib.BadStatusLine):
+            resp = f.read()
+            if not resp:
+                return
+            resp = simplejson.loads(resp)
+        except:
+            # behind proxy, corrupt message, etc
             return
-        resp = f.read()
-        if not resp:
-            return
-        resp = simplejson.loads(resp)
         if resp['latestVersion'] > ankiqt.appVersion:
             self.emit(SIGNAL("newVerAvail"), resp)
         diff = resp['currentTime'] - time.time()
