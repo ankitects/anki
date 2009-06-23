@@ -98,7 +98,7 @@ class Config(dict):
             'loadLastDeck': False,
             'deckBrowserRefreshPeriod': 3600,
             'deckBrowserOrder': 0,
-            'deckBrowserNameLength': 15,
+            'deckBrowserNameLength': 30,
             'deleteMedia': False,
             }
         for (k,v) in fields.items():

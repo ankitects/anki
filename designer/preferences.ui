@@ -608,7 +608,7 @@
          <item>
           <widget class="QLabel" name="label_22">
            <property name="text">
-            <string>Deck browser name length</string>
+            <string>Max deck name length in deck browser:</string>
            </property>
           </widget>
          </item>

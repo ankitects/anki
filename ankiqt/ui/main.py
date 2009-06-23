@@ -1164,6 +1164,7 @@ your deck."""))
                 mod = "<font size=-1>%s</font>" % mod
                 l = QLabel("%d. <b>%s</b><br>&nbsp;&nbsp;&nbsp;&nbsp;%s" %
                            (c+1, n, mod))
+                l.setWordWrap(True)
                 layout.addWidget(l, c+1, 0)
                 # due
                 col = '<b><font color=#0000ff>%s</font></b>'
