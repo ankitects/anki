@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:05+0200\n"
+"POT-Creation-Date: 2009-06-23 09:16+0200\n"
 "PO-Revision-Date: 2009-06-08 20:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -68,17 +68,17 @@ msgstr ""
 msgid "  Stop"
 msgstr " Parar"
 
-#: ui/main.py:1189
+#: ui/main.py:1192
 #, fuzzy, python-format
 msgid " (Alt+%d)"
 msgstr "Alt+%d"
 
-#: ui/main.py:1186
+#: ui/main.py:1189
 #, python-format
 msgid " (Command+Option+%d)"
 msgstr ""
 
-#: ui/main.py:2118
+#: ui/main.py:2122
 #, fuzzy
 msgid " (and proxy settings)"
 msgstr "Compruebe también su configuración del proxy."
@@ -106,7 +106,7 @@ msgstr " <b>Al editar (anula lo superior):</b>"
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Al repasar y editar:</b>"
 
-#: ui/main.py:2347
+#: ui/main.py:2352
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Por favor, asegurese de que está ajustado correctamente y reinicie Anki."
 
@@ -135,7 +135,7 @@ msgstr[1] "%(name)s [%(facts)d hechos]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d de %(totalSum)d"
 
-#: ui/main.py:2261
+#: ui/main.py:2266
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(due)d of %(cards)d programadas) - %(title)s"
@@ -152,7 +152,14 @@ msgstr[1] ""
 msgid "%d exported."
 msgstr "%d exportadas."
 
-#: ui/main.py:2667
+#: ui/main.py:2684
+#, fuzzy, python-format
+msgid "%d missing file found.<br>"
+msgid_plural "%d missing files found.<br>"
+msgstr[0] "%d referencia no encontrada."
+msgstr[1] "%d referencias no encontradas."
+
+#: ui/main.py:2673
 #, python-format
 msgid "%d missing reference."
 msgid_plural "%d missing references."
@@ -166,19 +173,24 @@ msgid_plural "%d selected"
 msgstr[0] "%d seleccionada"
 msgstr[1] "%d seleccionadas"
 
-#: ui/main.py:2669
+#: ui/main.py:2687
+#, python-format
+msgid "%d successfully retrieved."
+msgstr ""
+
+#: ui/main.py:2675
 #, python-format
 msgid "%d unused file removed."
 msgid_plural "%d unused files removed."
 msgstr[0] "%d archivo no usado eliminado."
 msgstr[1] "%d archivo no usados eliminados."
 
-#: ui/cardlist.py:209 ui/main.py:1159
+#: ui/cardlist.py:209 ui/main.py:1162
 #, python-format
 msgid "%s ago"
 msgstr "Hace %s"
 
-#: forms/main.py:1435
+#: forms/main.py:1447
 msgid "&About..."
 msgstr "&Acerca de..."
 
@@ -191,7 +203,7 @@ msgstr "&Acciones"
 msgid "&Add"
 msgstr "&Añadir"
 
-#: forms/main.py:1420
+#: forms/main.py:1432
 msgid "&Add Items..."
 msgstr "&Añadir Elementos..."
 
@@ -203,15 +215,15 @@ msgstr "&Añadir Fuente"
 msgid "&Add Tags..."
 msgstr "&Añadir Etiquetas...."
 
-#: forms/main.py:1498
+#: forms/main.py:1510
 msgid "&Bury Fact"
 msgstr "&Enterrar Hecho"
 
-#: forms/main.py:1436
+#: forms/main.py:1448
 msgid "&Card Statistics"
 msgstr "&Estadísticas de la Tarjeta"
 
-#: forms/main.py:1411
+#: forms/main.py:1423
 msgid "&Close"
 msgstr "&Cerrar"
 
@@ -219,11 +231,11 @@ msgstr "&Cerrar"
 msgid "&Cram..."
 msgstr "&Empollar..."
 
-#: forms/main.py:1438
+#: forms/main.py:1450
 msgid "&Deck Properties..."
 msgstr "&Propiedades del Mazo..."
 
-#: forms/main.py:1429
+#: forms/main.py:1441
 msgid "&Deck Statistics"
 msgstr "&Estadísticas del Mazo"
 
@@ -232,7 +244,7 @@ msgstr "&Estadísticas del Mazo"
 msgid "&Delete"
 msgstr "&Eliminar"
 
-#: forms/main.py:1480
+#: forms/main.py:1492
 msgid "&Delete Card"
 msgstr "&Eliminar Tarjeta"
 
@@ -244,7 +256,7 @@ msgstr "&Eliminar Fuente"
 msgid "&Delete Tags..."
 msgstr "&Eliminar Etiquetas..."
 
-#: forms/main.py:1473
+#: forms/main.py:1485
 msgid "&Disable All Plugins"
 msgstr "&Desactivar Todos los Complementos"
 
@@ -252,24 +264,24 @@ msgstr "&Desactivar Todos los Complementos"
 msgid "&Documentation"
 msgstr "&Documentación"
 
-#: forms/main.py:1489
+#: forms/main.py:1501
 msgid "&Donate..."
 msgstr "&Donar..."
 
-#: forms/main.py:1399
+#: forms/main.py:1411
 #, fuzzy
 msgid "&Download"
 msgstr "Descargas"
 
-#: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1397
+#: forms/cardlist.py:262 forms/deckproperties.py:328 forms/main.py:1409
 msgid "&Edit"
 msgstr "&Editar"
 
-#: forms/main.py:1472
+#: forms/main.py:1484
 msgid "&Enable All Plugins"
 msgstr "&Activar Todos los Complementos"
 
-#: forms/main.py:1398
+#: forms/main.py:1410
 msgid "&File"
 msgstr "&Archivo"
 
@@ -277,11 +289,11 @@ msgstr "&Archivo"
 msgid "&Find"
 msgstr "&Buscar"
 
-#: forms/main.py:1446
+#: forms/main.py:1458
 msgid "&Fonts and Colours..."
 msgstr "&Fuentes y Colores..."
 
-#: forms/main.py:1459
+#: forms/main.py:1471
 msgid "&Forum..."
 msgstr "&Foro..."
 
@@ -293,11 +305,11 @@ msgstr "&Producir Tarjetas..."
 msgid "&Go"
 msgstr "&Ir"
 
-#: forms/main.py:1442
+#: forms/main.py:1454
 msgid "&Graphs..."
 msgstr "&Gráficas..."
 
-#: forms/cardlist.py:265 forms/main.py:1396
+#: forms/cardlist.py:265 forms/main.py:1408
 msgid "&Help"
 msgstr "&Ayuda"
 
@@ -305,7 +317,7 @@ msgstr "&Ayuda"
 msgid "&Import"
 msgstr "&Importar"
 
-#: forms/main.py:1440
+#: forms/main.py:1452
 msgid "&Import..."
 msgstr "&Importar..."
 
@@ -317,15 +329,15 @@ msgstr "&Invertir Selección"
 msgid "&Last Card"
 msgstr "&Última Tarjeta"
 
-#: forms/main.py:1380
+#: forms/main.py:1391
 msgid "&Learn More"
 msgstr "&Aprender Más"
 
-#: forms/main.py:1448
+#: forms/main.py:1460
 msgid "&Mark Fact"
 msgstr "&Marcar Hecho"
 
-#: forms/main.py:1407
+#: forms/main.py:1419
 msgid "&New"
 msgstr "&Nuevo"
 
@@ -333,15 +345,15 @@ msgstr "&Nuevo"
 msgid "&Next Card"
 msgstr "&Siguiente Tarjeta"
 
-#: forms/main.py:1471
+#: forms/main.py:1483
 msgid "&Open Plugin Folder..."
 msgstr "&Abrir Carpeta de Complementos..."
 
-#: forms/main.py:1409
+#: forms/main.py:1421
 msgid "&Open..."
 msgstr "&Abrir..."
 
-#: forms/main.py:1426
+#: forms/main.py:1438
 msgid "&Preferences"
 msgstr "&Preferencias"
 
@@ -349,15 +361,15 @@ msgstr "&Preferencias"
 msgid "&Previous Card"
 msgstr "&Tarjeta Anterior"
 
-#: forms/main.py:1490
+#: forms/main.py:1502
 msgid "&Record Noise Profile..."
 msgstr "&Grabar Perfil de Ruido..."
 
-#: forms/cardlist.py:274 forms/main.py:1479
+#: forms/cardlist.py:274 forms/main.py:1491
 msgid "&Redo"
 msgstr "&Rehacer"
 
-#: forms/main.py:1433
+#: forms/main.py:1445
 msgid "&Report Bug..."
 msgstr "&Avisar de Fallo..."
 
@@ -365,11 +377,11 @@ msgstr "&Avisar de Fallo..."
 msgid "&Reschedule..."
 msgstr "&Reprogramar..."
 
-#: forms/main.py:1414
+#: forms/main.py:1426
 msgid "&Save"
 msgstr "&Guardar"
 
-#: forms/main.py:1402
+#: forms/main.py:1414
 msgid "&Settings"
 msgstr "&Ajustes"
 
@@ -377,11 +389,11 @@ msgstr "&Ajustes"
 msgid "&Sort"
 msgstr "&Ordenar"
 
-#: forms/main.py:1487
+#: forms/main.py:1499
 msgid "&Study Options..."
 msgstr "&Opciones de Estudio..."
 
-#: forms/main.py:1451
+#: forms/main.py:1463
 #, fuzzy
 msgid "&Suspend Card"
 msgstr "&Suspender Hecho"
@@ -391,11 +403,11 @@ msgstr "&Suspender Hecho"
 msgid "&Suspend Cards"
 msgstr "&Suspender Hechos"
 
-#: forms/main.py:1400
+#: forms/main.py:1412
 msgid "&Tools"
 msgstr "&Herramientas"
 
-#: forms/cardlist.py:273 forms/main.py:1457
+#: forms/cardlist.py:273 forms/main.py:1469
 msgid "&Undo"
 msgstr "&Deshacer"
 
@@ -457,7 +469,7 @@ msgstr "<a href=\"backups\">Abrir carpeta de respaldo</a>"
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Ayuda</a>"
 
-#: ui/main.py:456
+#: ui/main.py:459
 #, fuzzy, python-format
 msgid ""
 "<b>%s</b>... is a <a href=\"http://ichi2.net/anki/wiki/Leeches\">leech</a>\n"
@@ -496,11 +508,11 @@ msgstr "<b>Respuesta</b>"
 msgid "<b>Cards</b>:"
 msgstr "<b>Tarjetas</b>:"
 
-#: ui/main.py:1143
+#: ui/main.py:1146
 msgid "<b>Deck</b>"
 msgstr "<b>Mazo</b>"
 
-#: ui/main.py:1145
+#: ui/main.py:1148
 #, fuzzy
 msgid "<b>Due<br>Today</b>"
 msgstr "<b>Programadas</b>"
@@ -566,7 +578,7 @@ msgstr "<b>Nombre</b>"
 msgid "<b>New Model</b>:"
 msgstr "<b>Nuevo Modelo</b>:"
 
-#: forms/main.py:1374
+#: forms/main.py:1385
 msgid "<b>New cards per day:</b>"
 msgstr "<b>Nuevas tarjetas por día:</b>"
 
@@ -574,7 +586,7 @@ msgstr "<b>Nuevas tarjetas por día:</b>"
 msgid "<b>New day starts at</b>"
 msgstr "<b>El nuevo día empieza a las</b>"
 
-#: ui/main.py:1149
+#: ui/main.py:1152
 #, fuzzy
 msgid "<b>New<br>Today</b>"
 msgstr "<b>Nuevo</b>"
@@ -595,11 +607,11 @@ msgstr "<b>Pregunta</b>"
 msgid "<b>Replace With</b>:"
 msgstr "<b>Reemplazar Con</b>:"
 
-#: forms/main.py:1372
+#: forms/main.py:1383
 msgid "<b>Session limit (minutes):</b>"
 msgstr "<b>Límite por sesión (minutos):</b>"
 
-#: forms/main.py:1376
+#: forms/main.py:1387
 msgid "<b>Session limit (questions):"
 msgstr "<b>Límite por sesión (preguntas):"
 
@@ -641,7 +653,7 @@ msgstr ""
 msgid "<b>Very High Priority</b>"
 msgstr "<b>Prioridad Muy Alta</b>"
 
-#: ui/main.py:1240
+#: ui/main.py:1243
 msgid ""
 "<br>\n"
 "<font size=+1>\n"
@@ -667,7 +679,7 @@ msgstr "<h1>Programación Avanzada</h1>"
 msgid "<h1>Advanced settings</h1>"
 msgstr "<h1>Configuración avanzada</h1>"
 
-#: ui/update.py:69
+#: ui/update.py:70
 #, python-format
 msgid ""
 "<h1>Anki updated</h1>Anki %s has been released.<br>\n"
@@ -692,7 +704,7 @@ msgstr "<h1>Respaldos</h1>Los mazos son respaldados cuando están abierto, y sol
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Plantillas de Tarjetas</h1>"
 
-#: ui/main.py:1741
+#: ui/main.py:1744
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -706,11 +718,11 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Acumulativo de las Programadas</h1>"
 
-#: ui/main.py:1641
+#: ui/main.py:1644
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Tarjeta actual</h1>"
 
-#: forms/main.py:1382
+#: forms/main.py:1394
 msgid "<h1>Decks</h1>"
 msgstr "<h1>Mazos</h1>"
 
@@ -746,11 +758,11 @@ msgstr "<h1>Intervalos</h1>"
 msgid "<h1>Language</h1>"
 msgstr "<h1>Idioma</h1>"
 
-#: ui/main.py:1644
+#: ui/main.py:1647
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Última tarjeta</h1>"
 
-#: ui/main.py:1942
+#: ui/main.py:1945
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr "<h1>Saber Más</h1>Pulsa el reloj en la barra de herramientas para terminar."
 
@@ -758,7 +770,7 @@ msgstr "<h1>Saber Más</h1>Pulsa el reloj en la barra de herramientas para termi
 msgid "<h1>Models</h1>"
 msgstr "<h1>Modelos</h1>"
 
-#: ui/main.py:877
+#: ui/main.py:880
 msgid "<h1>Online Account</h1>To use your free <a href=\"http://anki.ichi2.net/\">online account</a>,<br>please enter your details below.<br><br>You can change your details later with<br>Settings->Preferences->Sync<br>"
 msgstr "<h1>Cuenta Online</h1>Parar su <a href=\"http://anki.ichi2.net/\">cuenta online</a> gratuita,<br>por favor introduzca sus detalles a continuación.<br><br>Puede cambiar sus detalles despues con<br>Ajustes->Preferencias->Sincronización<br>"
 
@@ -782,7 +794,7 @@ msgstr "<h1>Reps</h1>"
 msgid "<h1>Review Time</h1>"
 msgstr "<h1>Tiempo de Repaso</h1>"
 
-#: ui/main.py:1948
+#: ui/main.py:1951
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
 msgstr "<h1>Repasando Anticipadamente</h1>Pulsa el reloj en la barra de herramientas para terminar."
 
@@ -794,7 +806,7 @@ msgstr "<h1>Repasando</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Seleccionar Campo de Destino</h1>"
 
-#: ui/main.py:1417
+#: ui/main.py:1420
 msgid "<h1>Study Options</h1>"
 msgstr "<b>Opciones de Estudio</b>"
 
@@ -810,7 +822,7 @@ msgstr "<h1>Sincronización</h1><a href=\"http://anki.ichi2.net/\">Crear una cue
 msgid "<h1>Synchronize</h1>"
 msgstr "<h1>Sincronizar</h1>"
 
-#: ui/main.py:977
+#: ui/main.py:980
 msgid ""
 "<h1>Unsaved Deck</h1>\n"
 "Careful. You're editing an unsaved Deck.<br>\n"
@@ -832,7 +844,7 @@ msgstr ""
 "        guardados. ¿Desea guardarlos, descartarlos\n"
 "        o cancelar?"
 
-#: ui/main.py:1419
+#: ui/main.py:1422
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>¡Bien hecho!</h1>"
 
@@ -848,15 +860,11 @@ msgstr "<p><a href=hide:>Ocultar esto</a>"
 msgid "About Anki"
 msgstr "Acerca de Anki"
 
-#: forms/main.py:1474
-msgid "Active &Tags..."
-msgstr "Activar &Etiquetas..."
-
 #: forms/activetags.py:41
 msgid "Active Tags"
 msgstr "Etiquetas Activadas"
 
-#: forms/main.py:1401
+#: forms/main.py:1413
 msgid "Ad&vanced"
 msgstr "A&vanzado"
 
@@ -914,7 +922,7 @@ msgstr "Añadir sonido (F4)"
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr "Añadir carácter oculto al texto (arregla el tailandés en OSX)"
 
-#: forms/main.py:1421
+#: forms/main.py:1433
 msgid "Add new items to Anki by typing them in"
 msgstr "Añadir nuevos elementos a Anki escribiéndolos"
 
@@ -936,7 +944,7 @@ msgstr "Añadidas %(num)d tarjeta(s) para <a href=\"%(id)d\">%(str)s</a>."
 msgid "Advanced"
 msgstr "Avanzado"
 
-#: forms/main.py:1389
+#: forms/main.py:1401
 msgid "Again"
 msgstr "Otra vez"
 
@@ -952,16 +960,16 @@ msgstr "Todos los Repasos"
 msgid "Allow the answer to be blank"
 msgstr "Permitir respuestas en blanco"
 
-#: ui/main.py:1814
+#: ui/main.py:1817
 msgid "Already cramming. Please close this deck first."
 msgstr "Empollando ya. Por favor, cierre antes el mazo."
 
-#: ui/main.py:1190
+#: ui/main.py:1193
 #, python-format
 msgid "Alt+%d"
 msgstr "Alt+%d"
 
-#: ui/main.py:2690
+#: ui/main.py:2708
 msgid "Alt+m"
 msgstr "Alt+m"
 
@@ -978,7 +986,7 @@ msgstr ""
 msgid "An error occured while opening %s"
 msgstr "Ha ocurrido un error mientras se abría %s"
 
-#: ui/main.py:195
+#: ui/main.py:198
 msgid ""
 "An error occurred in a plugin. Please contact the plugin author.<br>\n"
 "Please do not file a bug report with Anki.<br>"
@@ -986,7 +994,7 @@ msgstr ""
 "Ocurrió un error en un complemento. Por favor, contacte con el autor del complemento.<br>\n"
 "Por favor, no use el aviso de fallo de Anki.<br><br>"
 
-#: ui/main.py:711
+#: ui/main.py:714
 msgid ""
 "An error occurred while trying to build the queue.\n"
 "Would you like to try check the deck for errors?\n"
@@ -996,7 +1004,7 @@ msgstr ""
 "¿Le gustaría comprobar errores en el mazo?\n"
 "Esto quizá tarde un tiempo."
 
-#: ui/main.py:186
+#: ui/main.py:189
 msgid ""
 "An error occurred. Please:<p>\n"
 "<ol>\n"
@@ -1014,12 +1022,12 @@ msgstr ""
 "Si eso no arregla el problema, por favor copie lo siguiente<br>\n"
 "en un aviso de fallo:<br>\n"
 
-#: ui/deckproperties.py:185 ui/main.py:2642 forms/main.py:1367
+#: ui/deckproperties.py:185 ui/main.py:2648 forms/main.py:1378
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
 
-#: ui/main.py:1287
+#: ui/main.py:1290
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1048,7 +1056,7 @@ msgstr "Fuente de la respuesta"
 msgid "Answer size"
 msgstr "Tamaño de la respuesta"
 
-#: forms/main.py:1449
+#: forms/main.py:1461
 msgid "Apply the 'marked' tag to this fact, so you find it later in the browser"
 msgstr "Aplicar la etiqueta 'marcada' a este hecho, para encontrarla más tarde en el explorador"
 
@@ -1087,7 +1095,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: forms/main.py:1423
+#: forms/main.py:1435
 msgid "Brows&e Items..."
 msgstr "Explora&r Elementos..."
 
@@ -1095,7 +1103,7 @@ msgstr "Explora&r Elementos..."
 msgid "Browse Items"
 msgstr "Explorar Elementos"
 
-#: forms/main.py:1424
+#: forms/main.py:1436
 msgid "Browse and edit all items"
 msgstr "Explorar y editar todos los elementos"
 
@@ -1114,15 +1122,15 @@ msgstr "Fuente del Explorador"
 msgid "Building Index..."
 msgstr "Reconstruyendo Índice..."
 
-#: ui/main.py:1711
+#: ui/main.py:1714
 msgid "Bury"
 msgstr "Enterrar"
 
-#: forms/main.py:1468
+#: forms/main.py:1480
 msgid "C&ram..."
 msgstr "E&mpollar..."
 
-#: forms/main.py:1483
+#: forms/main.py:1495
 msgid "Cache LaTeX"
 msgstr "Caché LaTeX"
 
@@ -1134,7 +1142,7 @@ msgstr "Puede cambiar solamente un modelo a la vez."
 msgid "Can only operate on one model at a time."
 msgstr "Solo se puede operar con un modelo a la vez"
 
-#: ui/main.py:2657
+#: ui/main.py:2663
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1173,11 +1181,11 @@ msgstr "Tarjetas esperando"
 msgid "Cards with any of the selected tags below will not be shown."
 msgstr ""
 
-#: ui/main.py:1455
+#: ui/main.py:1458
 msgid "Cards/day:"
 msgstr "Tarjetas/día:"
 
-#: ui/main.py:1454
+#: ui/main.py:1457
 msgid "Cards/session:"
 msgstr "Tarjetas/sesión:"
 
@@ -1198,7 +1206,7 @@ msgstr "Cambiar &Modelo..."
 msgid "Change Model"
 msgstr "Cambiar Modelo"
 
-#: forms/main.py:1466
+#: forms/main.py:1478
 msgid "Check Media Database..."
 msgstr "Comprobar Base de Datos Multimedia..."
 
@@ -1206,19 +1214,19 @@ msgstr "Comprobar Base de Datos Multimedia..."
 msgid "Check complete."
 msgstr "Comprobación completada."
 
-#: ui/main.py:1216
+#: ui/main.py:1219
 msgid "Check due counts again (F5)"
 msgstr ""
 
-#: forms/main.py:1463
+#: forms/main.py:1475
 msgid "Check the database for errors"
 msgstr "Comprobar errores en la base de datos"
 
-#: forms/main.py:1467
+#: forms/main.py:1479
 msgid "Check the files in the media directory"
 msgstr "Comprobar archivos del directorio media"
 
-#: ui/main.py:1063
+#: ui/main.py:1066
 #, python-format
 msgid "Checking deck %(x)d of %(y)d..."
 msgstr "Comprobando mazo %(x)d de %(y)d..."
@@ -1239,7 +1247,7 @@ msgstr "Elegir color (F7, F5)"
 msgid "Choose file to export to"
 msgstr "Elija el archivo a exportar"
 
-#: forms/main.py:1475
+#: forms/main.py:1487
 msgid "Choose the categories to show during review"
 msgstr "Elegir las categorías mostradas durante el repaso"
 
@@ -1263,7 +1271,7 @@ msgstr "Cerrar"
 msgid "Close and lose current input?"
 msgstr "¿Cerrar y perder la información actual?"
 
-#: forms/main.py:1412
+#: forms/main.py:1424
 msgid "Close this deck and return to the deck browser"
 msgstr "Cerrar este mazo y volver al explorador del mazo"
 
@@ -1276,11 +1284,11 @@ msgstr "Cierre (F9)"
 msgid "Compare with field '%s'"
 msgstr "Comparar con el campo '%s'"
 
-#: forms/main.py:1427
+#: forms/main.py:1439
 msgid "Configure interface language and options"
 msgstr "Configurar idioma de la interfaz y las opciones"
 
-#: forms/main.py:1488
+#: forms/main.py:1500
 msgid "Configure review options"
 msgstr "Configurar opciones de repaso"
 
@@ -1288,11 +1296,11 @@ msgstr "Configurar opciones de repaso"
 msgid "Connecting..."
 msgstr "Conectando..."
 
-#: ui/main.py:1519
+#: ui/main.py:1522
 msgid "Continue &Reviewing"
 msgstr "Continuar &Repasando"
 
-#: forms/main.py:1370
+#: forms/main.py:1381
 msgid "Continue Reviewing"
 msgstr "Continuar Repasando"
 
@@ -1317,11 +1325,11 @@ msgstr "Correctas hoy:"
 msgid "Correct under a month: "
 msgstr "Correctas antes de un mes:"
 
-#: ui/main.py:184
+#: ui/main.py:187
 msgid "Couldn't play sound. Please install mplayer."
 msgstr "No se pueden reproducir sonidos. Por favor, instale mplayer."
 
-#: ui/main.py:1835
+#: ui/main.py:1838
 msgid "Cram"
 msgstr "Empollar"
 
@@ -1329,7 +1337,7 @@ msgstr "Empollar"
 msgid "Cram selected cards in new deck?"
 msgstr "¿Empollar las tarjetas seleccionadas en un nuevo mazo?"
 
-#: forms/main.py:1384
+#: forms/main.py:1396
 #, fuzzy
 msgid "Create"
 msgstr "Creada"
@@ -1343,20 +1351,20 @@ msgstr "Creado '%s' en el servidor"
 msgid "Created"
 msgstr "Creada"
 
-#: ui/main.py:1187
+#: ui/main.py:1190
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr "Ctrl+Alt+%d"
 
-#: forms/main.py:1422
+#: forms/main.py:1434
 msgid "Ctrl+D"
 msgstr "Ctrl+D"
 
-#: forms/cardlist.py:267 forms/main.py:1482
+#: forms/cardlist.py:267 forms/main.py:1494
 msgid "Ctrl+Del"
 msgstr "Ctrl+Supr"
 
-#: forms/main.py:1478
+#: forms/main.py:1490
 msgid "Ctrl+E"
 msgstr "Ctrl+E"
 
@@ -1368,7 +1376,7 @@ msgstr "Ctrl+Fin"
 msgid "Ctrl+Enter"
 msgstr "Ctrl+Enter"
 
-#: forms/cardlist.py:277 forms/main.py:1425
+#: forms/cardlist.py:277 forms/main.py:1437
 msgid "Ctrl+F"
 msgstr "Ctrl+F"
 
@@ -1380,27 +1388,27 @@ msgstr "Ctrl+F9"
 msgid "Ctrl+Home"
 msgstr "Ctrl+Inicio"
 
-#: forms/main.py:1450
+#: forms/main.py:1462
 msgid "Ctrl+M"
 msgstr "Ctrl+M"
 
-#: forms/cardlist.py:281 forms/main.py:1408
+#: forms/cardlist.py:281 forms/main.py:1420
 msgid "Ctrl+N"
 msgstr "Ctrl+N"
 
-#: forms/main.py:1410
+#: forms/main.py:1422
 msgid "Ctrl+O"
 msgstr "Ctrl+O"
 
-#: forms/cardlist.py:283 forms/main.py:1428
+#: forms/cardlist.py:283 forms/main.py:1440
 msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
-#: forms/main.py:1406
+#: forms/main.py:1418
 msgid "Ctrl+Q"
 msgstr "Ctrl+Q"
 
-#: forms/main.py:1503
+#: forms/main.py:1515
 #, fuzzy
 msgid "Ctrl+R"
 msgstr "Ctrl+1"
@@ -1409,11 +1417,11 @@ msgstr "Ctrl+1"
 msgid "Ctrl+Return"
 msgstr "Ctrl+Return"
 
-#: forms/main.py:1416
+#: forms/main.py:1428
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
-#: forms/main.py:1500
+#: forms/main.py:1512
 msgid "Ctrl+Shift+B"
 msgstr "Ctrl+Shift+B"
 
@@ -1421,7 +1429,7 @@ msgstr "Ctrl+Shift+B"
 msgid "Ctrl+Shift+F"
 msgstr "Ctrl+Shift+F"
 
-#: forms/cardlist.py:301 forms/main.py:1453
+#: forms/cardlist.py:301 forms/main.py:1465
 msgid "Ctrl+Shift+S"
 msgstr "Ctrl+Shift+S"
 
@@ -1429,15 +1437,15 @@ msgstr "Ctrl+Shift+S"
 msgid "Ctrl+T"
 msgstr "Ctrl+T"
 
-#: forms/main.py:1413
+#: forms/main.py:1425
 msgid "Ctrl+W"
 msgstr "Ctrl+W"
 
-#: forms/main.py:1419
+#: forms/main.py:1431
 msgid "Ctrl+Y"
 msgstr "Ctrl+Y"
 
-#: forms/main.py:1458
+#: forms/main.py:1470
 msgid "Ctrl+Z"
 msgstr "Ctrl+Z"
 
@@ -1477,11 +1485,11 @@ msgstr "Tarjeta Actual"
 msgid "Customize Models"
 msgstr "Personalizar Modelos"
 
-#: forms/main.py:1447
+#: forms/main.py:1459
 msgid "Customize fonts, colours and alignment"
 msgstr "Personalizar fuentes, colores y alineación"
 
-#: forms/main.py:1439
+#: forms/main.py:1451
 msgid "Customize syncing, scheduling, priorities and models"
 msgstr "Personalizar sincronización, programación, prioridades y modelos"
 
@@ -1489,7 +1497,7 @@ msgstr "Personalizar sincronización, programación, prioridades y modelos"
 msgid "Czech"
 msgstr "Checo"
 
-#: ui/main.py:2634
+#: ui/main.py:2640
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1506,19 +1514,19 @@ msgstr "Gráficas del Mazo"
 msgid "Deck Properties"
 msgstr "Propiedades del Mazo"
 
-#: ui/main.py:935 ui/main.py:1001
+#: ui/main.py:938 ui/main.py:1004
 msgid "Deck files (*.anki)"
 msgstr "Archivos de mazo (*.anki)"
 
-#: ui/main.py:679
+#: ui/main.py:682
 msgid "Deck is already open."
 msgstr "El mazo está ya abierto."
 
-#: ui/main.py:1209 ui/main.py:1701 forms/cardlist.py:266
+#: ui/main.py:1212 ui/main.py:1704 forms/cardlist.py:266
 msgid "Delete"
 msgstr "Eliminar"
 
-#: ui/main.py:1268
+#: ui/main.py:1271
 #, python-format
 msgid "Delete %s?"
 msgstr "¿Eliminar %s?"
@@ -1527,7 +1535,7 @@ msgstr "¿Eliminar %s?"
 msgid "Delete Cards"
 msgstr "Eliminar Tarjetas"
 
-#: ui/main.py:2655
+#: ui/main.py:2661
 msgid "Delete Refs"
 msgstr "Eliminar Refs"
 
@@ -1539,7 +1547,7 @@ msgstr "Eliminar Etiquetas"
 msgid "Delete original media on add"
 msgstr ""
 
-#: forms/main.py:1481
+#: forms/main.py:1493
 msgid "Delete the currently displayed card"
 msgstr "Eliminar la tarjeta mostrada actualmente"
 
@@ -1559,11 +1567,11 @@ msgstr "Descartar campo"
 msgid "Display"
 msgstr "Visualización"
 
-#: forms/main.py:1469
+#: forms/main.py:1481
 msgid "Do an extra review of specified cards before a test"
 msgstr "Hacer un repaso extra de las tarjetas especificadas antes de un examen"
 
-#: forms/main.py:1431
+#: forms/main.py:1443
 msgid "Documentation"
 msgstr "Dcoumentación"
 
@@ -1571,10 +1579,15 @@ msgstr "Dcoumentación"
 msgid "Don't ask me to type in the answer"
 msgstr "No pedirme que introduzca la respuesta"
 
-#: forms/main.py:1383
+#: forms/main.py:1395
 #, fuzzy
 msgid "Download"
 msgstr "Descargas"
+
+#: forms/main.py:1516
+#, fuzzy
+msgid "Download Missing Media"
+msgstr "Descargando..."
 
 #: ui/getshared.py:35
 msgid "Download Shared Deck"
@@ -1584,15 +1597,15 @@ msgstr "Descargar Mazo Compartido"
 msgid "Download Shared Plugin"
 msgstr "Descargar Complemento Compartido"
 
-#: forms/main.py:1495
+#: forms/main.py:1507
 msgid "Download a deck that people have shared publicly"
 msgstr "Descargar un mazo que haya sido compartido publicamente"
 
-#: forms/main.py:1493
+#: forms/main.py:1505
 msgid "Download a deck that you synced from another computer"
 msgstr "Descargar un mazo que haya sincronizado desde otro ordenador"
 
-#: forms/main.py:1497
+#: forms/main.py:1509
 msgid "Download a plugin to add new features or change Anki's behaviour"
 msgstr "Descargar un complemento para añadir nuevas característica o cambiar el comportamiento de Anki"
 
@@ -1601,7 +1614,7 @@ msgstr "Descargar un complemento para añadir nuevas característica o cambiar e
 msgid "Downloaded %dKB"
 msgstr "Descargas"
 
-#: ui/main.py:2157
+#: ui/main.py:2161
 #, python-format
 msgid "Downloaded %dKB from server..."
 msgstr "Descargados %dKB desde el servidor..."
@@ -1619,7 +1632,7 @@ msgstr "Descargas"
 msgid "Due"
 msgstr "Programada"
 
-#: forms/main.py:1405
+#: forms/main.py:1417
 msgid "E&xit"
 msgstr "S&alir"
 
@@ -1636,7 +1649,7 @@ msgstr "Dificultad"
 msgid "Eases"
 msgstr "Dificultad"
 
-#: forms/main.py:1395
+#: forms/main.py:1407
 msgid "Easy"
 msgstr "Fácil"
 
@@ -1644,17 +1657,21 @@ msgstr "Fácil"
 msgid "Edit"
 msgstr "Editar"
 
-#: forms/main.py:1476
+#: forms/main.py:1488
 msgid "Edit &Current..."
 msgstr "Editar &Actual"
 
-#: forms/main.py:1477
+#: forms/main.py:1489
 msgid "Edit the currently displayed item"
 msgstr "Editar el elemento mostrado actualmente"
 
 #: ui/modelproperties.py:328
 msgid "Ena&ble"
 msgstr "Acti&var"
+
+#: ui/main.py:2002
+msgid "Enable syncing, choose a name, then sync again."
+msgstr ""
 
 #: ui/preferences.py:29
 msgid "English"
@@ -1672,7 +1689,7 @@ msgstr "Introduzca las etiquetas que se eliminarán:"
 msgid "Estonian"
 msgstr "Estonio"
 
-#: forms/main.py:1444
+#: forms/main.py:1456
 msgid "Expor&t..."
 msgstr "Expor&tar..."
 
@@ -1692,7 +1709,7 @@ msgstr "H&echos"
 msgid "F&irst Card"
 msgstr "P&rimera Tarjeta"
 
-#: forms/cardlist.py:290 forms/main.py:1432
+#: forms/cardlist.py:290 forms/main.py:1444
 msgid "F1"
 msgstr "F1"
 
@@ -1708,7 +1725,7 @@ msgstr "F3"
 msgid "F4"
 msgstr "F4"
 
-#: ui/facteditor.py:252 ui/main.py:1217 forms/main.py:1456
+#: ui/facteditor.py:252 ui/main.py:1220 forms/main.py:1468
 msgid "F5"
 msgstr "F5"
 
@@ -1740,13 +1757,18 @@ msgstr "Hecho Creado"
 msgid "Facts"
 msgstr "Hechos"
 
-#: ui/main.py:2144
+#: ui/main.py:2148
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Error al subir multimedia. Por favor, ejecute 'Comprobar BD Multimedia'"
 
 #: ui/sync.py:119
 msgid "Fetching summary from server..."
 msgstr "Recopilando resumen del servidor..."
+
+#: forms/main.py:1393
+#, fuzzy
+msgid "Fi&nish"
+msgstr "Finés"
 
 #: ui/displayproperties.py:192
 #, python-format
@@ -1804,16 +1826,16 @@ msgstr "Fuente..."
 msgid "Fonts & Colours"
 msgstr "Fuentes & colores"
 
-#: ui/main.py:1208
+#: ui/main.py:1211
 msgid "Forget"
 msgstr "Olvidado"
 
-#: ui/main.py:1261
+#: ui/main.py:1264
 #, fuzzy, python-format
 msgid "Forget %s?"
 msgstr "Olvidado"
 
-#: ui/main.py:1211
+#: ui/main.py:1214
 msgid "Forget removes the deck from the list without deleting."
 msgstr "Olvidar borra el mazo de la lista sin eliminarlo"
 
@@ -1821,7 +1843,7 @@ msgstr "Olvidar borra el mazo de la lista sin eliminarlo"
 msgid "French"
 msgstr "Francés"
 
-#: forms/main.py:1501
+#: forms/main.py:1513
 msgid "Full Database Check..."
 msgstr "Comprobar Base de Datos completa..."
 
@@ -1845,7 +1867,7 @@ msgstr "Alemán"
 msgid "Get Shared Decks/Plugins"
 msgstr "Oberner Mazos Compartidos/Complementos"
 
-#: forms/main.py:1393
+#: forms/main.py:1405
 msgid "Good"
 msgstr "Bien"
 
@@ -1857,11 +1879,11 @@ msgstr "Editor HTML"
 msgid "HTML Editor (Ctrl+F9)"
 msgstr "Editor HTML (Ctrl+F9)"
 
-#: forms/main.py:1391
+#: forms/main.py:1403
 msgid "Hard"
 msgstr "Difícil"
 
-#: ui/addcards.py:80 forms/displayproperties.py:374 forms/main.py:1379
+#: ui/addcards.py:80 forms/displayproperties.py:374 forms/main.py:1390
 msgid "Help"
 msgstr "Ayuda"
 
@@ -1877,7 +1899,7 @@ msgstr "Sevidor"
 msgid "ID"
 msgstr "ID"
 
-#: ui/update.py:78
+#: ui/update.py:79
 msgid "Ignore this update"
 msgstr "Ignorar esta actualización"
 
@@ -1886,11 +1908,11 @@ msgid "Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 msgstr "Imágenes (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)"
 
 #: ui/importing.py:83 ui/importing.py:123 forms/changemap.py:39
-#: forms/importing.py:95 forms/main.py:1385
+#: forms/importing.py:95 forms/main.py:1397
 msgid "Import"
 msgstr "Importar"
 
-#: forms/main.py:1441
+#: forms/main.py:1453
 msgid "Import cards from text files, Anki files and more"
 msgstr "Importar tarjetas desde archivos de texto, archivos Anki y más"
 
@@ -1915,6 +1937,11 @@ msgstr "Error al importar.\n"
 msgid "Importing..."
 msgstr "Importando..."
 
+#: forms/main.py:1486
+#, fuzzy
+msgid "Inactive &Tags..."
+msgstr "Activar &Etiquetas..."
+
 #: forms/exporting.py:57
 msgid "Include scheduling information"
 msgstr "Incluir información de programación"
@@ -1935,14 +1962,14 @@ msgstr "Expresión regular incorrecta"
 msgid "Invert"
 msgstr "Invertir"
 
-#: ui/main.py:2344
+#: ui/main.py:2349
 #, python-format
 msgid "It is %(sec)d second %(type)s.\n"
 msgid_plural "It is %(sec)d seconds %(type)s.\n"
 msgstr[0] "Está %(sec)d segundos %(type)s.\n"
 msgstr[1] "Está %(sec)d segundos %(type)s.\n"
 
-#: ui/main.py:2100
+#: ui/main.py:2104
 #, python-format
 msgid ""
 "It is off by %d second.\n"
@@ -1994,11 +2021,11 @@ msgstr "Entorno matemático Latex (Ctrl+l, m)"
 msgid "Leech"
 msgstr "Checo"
 
-#: ui/main.py:1836
+#: ui/main.py:1839
 msgid "Loading deck..."
 msgstr "Cargando mazo..."
 
-#: ui/main.py:1655
+#: ui/main.py:1658
 msgid "Loading graphs (may take time)..."
 msgstr "Cargando gráficas (puede tardar un rato)..."
 
@@ -2028,11 +2055,6 @@ msgstr "Marcada"
 msgid "Max"
 msgstr "Máx"
 
-#: ui/sync.py:217
-#, python-format
-msgid "Merge with '%s' on server"
-msgstr "Unir con '%s' en el servidor"
-
 #: forms/deckproperties.py:345 forms/deckproperties.py:346
 #: forms/deckproperties.py:351 forms/reschedule.py:82
 msgid "Min"
@@ -2058,7 +2080,7 @@ msgstr "Modificada"
 msgid "Mongolian"
 msgstr "Mongol"
 
-#: ui/main.py:1207 forms/main.py:1378
+#: ui/main.py:1210 forms/main.py:1389
 msgid "More"
 msgstr "Más"
 
@@ -2098,11 +2120,11 @@ msgstr "Nombre en el servidor:"
 msgid "Network"
 msgstr "Red"
 
-#: ui/main.py:1458
+#: ui/main.py:1461
 msgid "New today:"
 msgstr "Nuevas hoy:"
 
-#: ui/main.py:1459
+#: ui/main.py:1462
 msgid "New total:"
 msgstr "Nuevas totales:"
 
@@ -2114,7 +2136,7 @@ msgstr "Siguiente color (F7, F8)"
 msgid "Next field must be blank."
 msgstr "El siguiente campo debe estar vacío."
 
-#: ui/main.py:1829 ui/main.py:1866
+#: ui/main.py:1832 ui/main.py:1869
 msgid "No cards matched the provided tags."
 msgstr "Ninguna tarjeta tiene la etiqueta introducida"
 
@@ -2126,13 +2148,17 @@ msgstr "No hay tarjetas para previsualizar."
 msgid "No changes found."
 msgstr "No se encontró ningún cambio."
 
-#: ui/main.py:1647
+#: ui/main.py:1650
 msgid "No current card or last card."
 msgstr "No hay tarjeta actual ni anterior."
 
 #: ui/cardlist.py:385
 msgid "No fact tags"
 msgstr "Sin etiquetas de hecho"
+
+#: ui/main.py:2681
+msgid "No media URLs defined for this deck."
+msgstr ""
 
 #: ui/preferences.py:42
 msgid "Norwegian"
@@ -2146,42 +2172,47 @@ msgstr "Nada"
 msgid "Nothing selected."
 msgstr "Nada seleccionado."
 
-#: ui/main.py:1183
+#: ui/main.py:1186
 msgid "Open"
 msgstr "Abrir"
 
-#: ui/main.py:763
+#: ui/main.py:766
 #, fuzzy
 msgid "Open Recent Deck"
 msgstr "Abrir &Reciente"
 
-#: forms/main.py:1502
+#: forms/main.py:1514
 #, fuzzy
 msgid "Open Recent..."
 msgstr "Abrir &Reciente"
 
-#: ui/main.py:937
+#: ui/main.py:940
 msgid "Open deck"
 msgstr "Abrir mazo"
 
-#: forms/main.py:1434
+#: forms/main.py:1446
 msgid "Open the bug tracker"
 msgstr "Abrir la base de datos de fallos"
 
-#: ui/main.py:1193
+#: ui/main.py:1196
 #, python-format
 msgid "Open this deck%s"
 msgstr "Abrir este mazo%s"
 
-#: forms/main.py:1464
+#: forms/main.py:1476
 msgid "Optimize Database"
 msgstr "Optimizar Base de Datos"
 
-#: ui/main.py:1569
+#: ui/main.py:1572
 msgid "Ordering..."
 msgstr "Ordenando..."
 
-#: forms/main.py:1403
+#: ui/sync.py:217
+#, fuzzy, python-format
+msgid "Overwrite '%s' on server"
+msgstr "Unir con '%s' en el servidor"
+
+#: forms/main.py:1415
 msgid "P&lugins"
 msgstr "P&lugins"
 
@@ -2193,7 +2224,7 @@ msgstr "Mazo Anki Empaquetado (*.zip)"
 msgid "Password"
 msgstr "Contraseña"
 
-#: ui/main.py:889
+#: ui/main.py:892
 msgid "Password:"
 msgstr "Contraseña:"
 
@@ -2201,12 +2232,12 @@ msgstr "Contraseña:"
 msgid "Performance"
 msgstr "Rendimiendo"
 
-#: forms/main.py:1492
+#: forms/main.py:1504
 #, fuzzy
 msgid "Personal Deck..."
 msgstr "Mazo Personal"
 
-#: forms/main.py:1455
+#: forms/main.py:1467
 msgid "Play the last-played audio again"
 msgstr "Reproducir el último sonido escuchado de nuevo"
 
@@ -2246,11 +2277,11 @@ msgstr ""
 "Por favor, instale <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>\n"
 "para activar la grabación."
 
-#: ui/main.py:1673
+#: ui/main.py:1676
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Por favor, instale python-matplotlib para ver las gráficas."
 
-#: ui/main.py:2600
+#: ui/main.py:2606
 msgid "Please restart Anki before checking the DB."
 msgstr "Por favor, reinicie Anki antes de comprobar la BD"
 
@@ -2266,7 +2297,7 @@ msgstr "Polaco"
 msgid "Port"
 msgstr "Puerto"
 
-#: forms/main.py:1484
+#: forms/main.py:1496
 msgid "Pre-generate PNG images of LaTeX cards"
 msgstr "Pregenerar imágenes PNG de tarjetas LaTeX"
 
@@ -2306,7 +2337,7 @@ msgstr "Previsualizar Tarjetas"
 msgid "Previous colour (F7 then F6)"
 msgstr "Color anterior (F7, F6)"
 
-#: ui/main.py:2615
+#: ui/main.py:2621
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2343,19 +2374,19 @@ msgstr "Fuente de la pregunta"
 msgid "Question size"
 msgstr "Tamaño de la pregunta"
 
-#: forms/main.py:1462
+#: forms/main.py:1474
 msgid "Quick Database Check"
 msgstr "Rápida Comprobación de la Base de Datos"
 
-#: ui/main.py:1575 ui/main.py:1856
+#: ui/main.py:1578 ui/main.py:1859
 msgid "Randomizing..."
 msgstr "Distribuyendo Aleatoriamente..."
 
-#: forms/main.py:1381
+#: forms/main.py:1392
 msgid "Re&view Early"
 msgstr "Re&pasar Anticipadamente"
 
-#: forms/main.py:1491
+#: forms/main.py:1503
 msgid "Record 10 seconds of silence so that the record function can cancel noise"
 msgstr "Grabar 10 segundos de silencio para que la función de grabado pueda anular el ruido"
 
@@ -2368,16 +2399,16 @@ msgstr "Grabar sonido (F4)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Grabando...<br>Tiempo: %0.1f"
 
-#: ui/cardlist.py:532 ui/main.py:2318
+#: ui/cardlist.py:532 ui/main.py:2323
 #, python-format
 msgid "Redo %s"
 msgstr "Deshacer %s"
 
-#: ui/graphs.py:236 ui/main.py:1215
+#: ui/graphs.py:236 ui/main.py:1218
 msgid "Refresh"
 msgstr "Actualizar"
 
-#: forms/main.py:1470
+#: forms/main.py:1482
 msgid "Release Notes..."
 msgstr "Notas de la Versión..."
 
@@ -2389,15 +2420,15 @@ msgstr "Tarjetas restantes"
 msgid "Remaining: "
 msgstr "Quedan: "
 
-#: forms/main.py:1486
+#: forms/main.py:1498
 msgid "Remove generated PNG images of LaTeX cards"
 msgstr "Eliminar las imágenes generadas PNG de las tarjetas LaTeX"
 
-#: forms/main.py:1465
+#: forms/main.py:1477
 msgid "Remove unused space, making the database file smaller"
 msgstr "Eliminar espacio no usado, haciendo el fichero de la base de datos menor"
 
-#: forms/main.py:1454
+#: forms/main.py:1466
 msgid "Repeat &Audio"
 msgstr "Repetir &Sonido"
 
@@ -2425,7 +2456,7 @@ msgstr "Reprogramar con intervalo inicial en el rango:"
 msgid "Reverse &Order"
 msgstr "Orden &Inverso"
 
-#: forms/main.py:1377
+#: forms/main.py:1388
 msgid "Review"
 msgstr "Repaso"
 
@@ -2433,7 +2464,7 @@ msgstr "Repaso"
 msgid "Review Time"
 msgstr "Tiempo de Repaso"
 
-#: ui/main.py:1457
+#: ui/main.py:1460
 msgid "Reviews due:"
 msgstr "Repasos previsto:"
 
@@ -2441,7 +2472,7 @@ msgstr "Repasos previsto:"
 msgid "Reviews today"
 msgstr "Repasos hoy"
 
-#: forms/main.py:1417
+#: forms/main.py:1429
 msgid "S&ync"
 msgstr "S&incronizar"
 
@@ -2450,11 +2481,11 @@ msgstr "S&incronizar"
 msgid "Sampling silence...<br>Time: %0.1f"
 msgstr "Muestreo digital del silencio...<br>Tiempo: %0.1f"
 
-#: forms/main.py:1460
+#: forms/main.py:1472
 msgid "Save &As..."
 msgstr "Guardar &Como..."
 
-#: ui/main.py:994
+#: ui/main.py:997
 msgid "Save Deck As"
 msgstr "Guardar Mazo Como"
 
@@ -2466,15 +2497,15 @@ msgstr "Guardar después de añadir"
 msgid "Save after answering"
 msgstr "Guardar después de responder"
 
-#: forms/main.py:1445
+#: forms/main.py:1457
 msgid "Save cards in a new deck or text file for sharing with others"
 msgstr "Guardar tarjetas en un nuevo mazo o archivo de texto para compartir con otros"
 
-#: forms/main.py:1415
+#: forms/main.py:1427
 msgid "Save this deck now"
 msgstr "Guardar este mazo ahora"
 
-#: forms/main.py:1461
+#: forms/main.py:1473
 msgid "Save this deck, giving it a new name"
 msgstr "Guardar este mazo, dándolo un nuevo nombre"
 
@@ -2506,7 +2537,7 @@ msgstr "Seleccionar Todo"
 msgid "Select None"
 msgstr "Seleccionar Nada"
 
-#: ui/main.py:1487
+#: ui/main.py:1490
 msgid "Session Statistics"
 msgstr "Estadísticas de la Sesión"
 
@@ -2514,12 +2545,12 @@ msgstr "Estadísticas de la Sesión"
 msgid "Set colour (F7 then F7)"
 msgstr "Establecer color (F7, F7)"
 
-#: forms/main.py:1494
+#: forms/main.py:1506
 #, fuzzy
 msgid "Shared Deck..."
 msgstr "Mazo Compartido"
 
-#: forms/main.py:1496
+#: forms/main.py:1508
 #, fuzzy
 msgid "Shared Plugin..."
 msgstr "Complemento Compartido"
@@ -2532,7 +2563,7 @@ msgstr "Shift+Alt+e"
 msgid "Shift+Alt+m"
 msgstr "Shift+Alt+m"
 
-#: ui/main.py:600 forms/main.py:1387
+#: ui/main.py:603 forms/main.py:1399
 msgid "Show Answer"
 msgstr "Mostrar Respuesta"
 
@@ -2552,7 +2583,7 @@ msgstr "Mostrar separador entre pregunta y respuesta"
 msgid "Show due count and progress during review"
 msgstr "Mostrar número de programadas y progresos durante el repaso"
 
-#: forms/main.py:1443
+#: forms/main.py:1455
 msgid "Show graphical statistics about your deck"
 msgstr "Mostras estadísticas gráficas sobre su mazo"
 
@@ -2564,11 +2595,11 @@ msgstr "Mostrar el siguiente tiempo antes de contestar"
 msgid "Show preview"
 msgstr "Previsualizar"
 
-#: forms/main.py:1430
+#: forms/main.py:1442
 msgid "Show some textual statistics about your deck"
 msgstr "Mostrar algunas estadísticas textuales sobre su mazo"
 
-#: forms/main.py:1437
+#: forms/main.py:1449
 msgid "Show statistics about the current card and last card"
 msgstr "Mostrar estadísticas de la tarjeta actual y de la tarjeta anterior."
 
@@ -2576,11 +2607,11 @@ msgstr "Mostrar estadísticas de la tarjeta actual y de la tarjeta anterior."
 msgid "Show study options on deck load"
 msgstr "Mostrar opciones de estudio al cargar el mazo"
 
-#: forms/main.py:1386
+#: forms/main.py:1398
 msgid "Show the answer (shortcut key: space or enter)"
 msgstr "Mostrar la respuesta (tecla de atajo: espacio o intro)"
 
-#: forms/main.py:1388
+#: forms/main.py:1400
 msgid "Show this card again soon (shortcut key: 1)"
 msgstr "Mostrar esta tarjeta otra vez próximamente (tecla de atajo: 1)"
 
@@ -2596,7 +2627,7 @@ msgstr "Mostrar icono en la barra de tareas"
 msgid "Show/Hide"
 msgstr "Ocultar/Mostrar"
 
-#: ui/main.py:2102
+#: ui/main.py:2106
 msgid ""
 "Since this can cause many problems with syncing,\n"
 "syncing is disabled until you fix the problem."
@@ -2613,7 +2644,7 @@ msgstr "Algunos campos faltan o no son únicos."
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Algunos ajustes tendrán efecto después de reiniciar Anki."
 
-#: ui/main.py:648
+#: ui/main.py:651
 msgid "Soon"
 msgstr "Próximamente"
 
@@ -2634,7 +2665,7 @@ msgstr "ID de la fuente:"
 msgid "Spanish"
 msgstr "Español"
 
-#: ui/main.py:1521
+#: ui/main.py:1524
 msgid "Start &Reviewing"
 msgstr "Empezar &Repaso"
 
@@ -2642,7 +2673,7 @@ msgstr "Empezar &Repaso"
 msgid "Start adding your own material."
 msgstr "Empiece añadiendo su propio material"
 
-#: forms/main.py:1404
+#: forms/main.py:1416
 msgid "Startup"
 msgstr "Arranque"
 
@@ -2650,22 +2681,22 @@ msgstr "Arranque"
 msgid "Status"
 msgstr "Estado"
 
-#: forms/main.py:1452
+#: forms/main.py:1464
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Dejar de repasar esta tarjeta hasta que sea activada en el explorador."
 
-#: ui/main.py:1233
+#: ui/main.py:1236
 #, python-format
 msgid "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today."
 msgid_plural "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/cardlist.py:794 ui/main.py:1692
+#: ui/cardlist.py:794 ui/main.py:1695
 msgid "Suspend"
 msgstr "Suspender"
 
-#: forms/main.py:1499
+#: forms/main.py:1511
 msgid "Suspend the current fact until the deck is closed and opened again"
 msgstr "Suspender el hecho actual hasta que el mazo sea cerrado y abierto de nuevo"
 
@@ -2677,7 +2708,7 @@ msgstr "Suspendida"
 msgid "Swedish"
 msgstr "Sueco"
 
-#: ui/main.py:2116
+#: ui/main.py:2120
 #, fuzzy
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
@@ -2704,11 +2735,11 @@ msgstr "Sincronización"
 msgid "Synchronize this deck"
 msgstr "Sincronizar este mazo"
 
-#: forms/main.py:1418
+#: forms/main.py:1430
 msgid "Synchronize this deck with Anki Online"
 msgstr "Sincronizar este mazo con Anki Online"
 
-#: ui/main.py:2122 ui/main.py:2124
+#: ui/main.py:2126 ui/main.py:2128
 msgid "Syncing Media..."
 msgstr "Sincronizando Multimedia..."
 
@@ -2717,7 +2748,7 @@ msgstr "Sincronizando Multimedia..."
 msgid "Syncing failed: %(a)s"
 msgstr "Sincronización fallida: %(a)s"
 
-#: ui/main.py:2653
+#: ui/main.py:2659
 msgid "Tag Cards"
 msgstr "Etiquetas de Tarjetas"
 
@@ -2729,7 +2760,7 @@ msgstr "Etiquetar hechos con campos duplicados en lugar de eliminar"
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: ui/main.py:1819
+#: ui/main.py:1822
 msgid "Tags to cram:"
 msgstr "Etiquetas a empollar:"
 
@@ -2741,15 +2772,15 @@ msgstr "El objetivo debe ser único"
 msgid "Templates"
 msgstr "Plantillas"
 
-#: forms/changemodel.py:76 forms/main.py:1368 forms/share.py:76
+#: forms/changemodel.py:76 forms/main.py:1379 forms/share.py:76
 msgid "TextLabel"
 msgstr "TextLabel"
 
-#: forms/main.py:1371
+#: forms/main.py:1382
 msgid "The <b>number of minutes in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr "El <b>número de minutos por sesión</b>. Cuando una sesión termine, se mostrará esta pantalla otra vez, permitiendo empezar otra sesión. Elija 0 para no tener ímite."
 
-#: forms/main.py:1375
+#: forms/main.py:1386
 msgid "The <b>number of questions in a session</b>. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit."
 msgstr "El <b>número de preguntas por sesión</b>. Cuando una sesión termine, se mostrará esta pantalla otra vez, permitiendo empezar otra sesión. Elija 0 para no tener ímite."
 
@@ -2761,27 +2792,27 @@ msgstr ""
 "La entrada introducida crearía una pregunta o una\n"
 "respuesta vacía en todas las tarjetas."
 
-#: forms/main.py:1373
+#: forms/main.py:1384
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr "El máximo número de <b>nuevas tarjetas mostradas pro día</b>. Por defecto es 20, para asegurarse de que no se vea abrumado después de unos pocos días."
 
-#: ui/main.py:1494
+#: ui/main.py:1497
 msgid "The number of cards that are waiting to be reviewed today"
 msgstr "El número de tarjetas que esperan repaso hoy"
 
-#: ui/main.py:1488
+#: ui/main.py:1491
 msgid "The number of cards you studied in the current session (blue) and previous session (black)"
 msgstr "El número de tarjetas que estudió en la sesión actual (azul) y la sesión previa (negro)"
 
-#: ui/main.py:1490
+#: ui/main.py:1493
 msgid "The number of cards you studied today (blue) and yesterday (black)"
 msgstr "El número de tarjetas que estudió hoy (azul) y ayer (negro)"
 
-#: ui/main.py:1492
+#: ui/main.py:1495
 msgid "The number of minutes you studied today (blue) and yesterday (black)"
 msgstr "El número de minutos que estudió hoy (azul) y ayer (negro)"
 
-#: ui/main.py:1496
+#: ui/main.py:1499
 msgid "The number of new cards that are waiting to be learnt today"
 msgstr "El número total de nuevas tarjetas que esperan ser aprendidas hoy"
 
@@ -2789,7 +2820,7 @@ msgstr "El número total de nuevas tarjetas que esperan ser aprendidas hoy"
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "El protocolo de sincronización ha cambiado. Por favor, actualize."
 
-#: ui/main.py:1498
+#: ui/main.py:1501
 msgid "The total number of new cards in the deck"
 msgstr "El número total de nuevas tarjetas en el mazo"
 
@@ -2876,7 +2907,7 @@ msgstr ""
 "%s\n"
 "Necesitará eleminar el origen primero."
 
-#: ui/main.py:2602
+#: ui/main.py:2608
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2894,7 +2925,7 @@ msgstr ""
 "<b>Esta operación no es reversible.</b><br>\n"
 "¿Continuar?"
 
-#: ui/main.py:2644
+#: ui/main.py:2650
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -2933,7 +2964,7 @@ msgstr ""
 "\n"
 "¿Realmente desea eliminar estas tarjetas?"
 
-#: ui/main.py:1456
+#: ui/main.py:1459
 msgid "Time/day:"
 msgstr "Tiempo/día:"
 
@@ -2941,7 +2972,7 @@ msgstr "Tiempo/día:"
 msgid "Title"
 msgstr "Título"
 
-#: ui/main.py:1665
+#: ui/main.py:1668
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -2953,7 +2984,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr "Los repasos han acabado por hoy"
 
-#: ui/main.py:1620
+#: ui/main.py:1623
 msgid "Toggle Toolbar"
 msgstr "Activar Barra de Herramientas"
 
@@ -2981,7 +3012,7 @@ msgstr "Tipo"
 msgid "Unable to connect to server."
 msgstr "Imposible conectar al servidor."
 
-#: ui/main.py:684
+#: ui/main.py:687
 msgid ""
 "Unable to load deck.\n"
 "\n"
@@ -3003,7 +3034,7 @@ msgstr ""
 "\n"
 "Para actualizar un mazo antiguo, descargue Anki 0.9.8.7."
 
-#: ui/main.py:945
+#: ui/main.py:948
 msgid "Unable to load file."
 msgstr "Imposible cargar el archivo."
 
@@ -3018,11 +3049,11 @@ msgstr ""
 "\n"
 "%(info)s"
 
-#: ui/main.py:720
+#: ui/main.py:723
 msgid "Unable to recover. Deck load failed."
 msgstr "Imposible la recuperación. Carga del mazo fallida."
 
-#: forms/main.py:1485
+#: forms/main.py:1497
 msgid "Uncache LaTeX"
 msgstr "Sin Caché LaTeX"
 
@@ -3030,7 +3061,7 @@ msgstr "Sin Caché LaTeX"
 msgid "Underline text (Ctrl+u)"
 msgstr "Texto subrayado (Ctrl+u)"
 
-#: ui/cardlist.py:526 ui/main.py:2312
+#: ui/cardlist.py:526 ui/main.py:2317
 #, python-format
 msgid "Undo %s"
 msgstr "Deshacer %s"
@@ -3044,7 +3075,7 @@ msgstr "Error desconocido: %s"
 msgid "Unsuspend"
 msgstr "Activar"
 
-#: ui/main.py:2352
+#: ui/main.py:2357
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -3054,7 +3085,7 @@ msgstr ""
 " - puede seguir estudiando\n"
 " - por favor, no cierre esto"
 
-#: ui/main.py:2154
+#: ui/main.py:2158
 #, python-format
 msgid "Uploaded %dKB to server..."
 msgstr "Subidos %dKB al servidor..."
@@ -3079,19 +3110,19 @@ msgstr "Personalizar tamaño"
 msgid "Username"
 msgstr "Nombre de usuario"
 
-#: ui/main.py:885
+#: ui/main.py:888
 msgid "Username:"
 msgstr "Nombre de usuario:"
 
-#: forms/main.py:1390
+#: forms/main.py:1402
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Esperar un poco más la próxima vez. (tecla de atajo: 2)"
 
-#: forms/main.py:1394
+#: forms/main.py:1406
 msgid "Wait a lot longer next time (shortcut key: 4)"
 msgstr "Esperar mucho más la próxima vez (tecla de atajo: 4)"
 
-#: forms/main.py:1392
+#: forms/main.py:1404
 msgid "Wait longer next time (shortcut key: 3)"
 msgstr "Esperar más la próxima vez (tecla de atajo: 3)"
 
@@ -3104,23 +3135,23 @@ msgstr "¡Bienvenido a Anki!"
 msgid "Well done! This card will appear again in <b>%(next)s</b>."
 msgstr "¡Bien hecho! Esta tarjeta aparecerá otra vez dentro de <b>%(next)s</b>."
 
-#: ui/update.py:77
+#: ui/update.py:78
 msgid "Would you like to download it now?"
 msgstr "¿Desea descargarlo ahora?"
 
-#: forms/main.py:1369
+#: forms/main.py:1380
 msgid "X"
 msgstr ""
 
-#: ui/main.py:1733 ui/main.py:1781 ui/main.py:2638
+#: ui/main.py:1736 ui/main.py:1784 ui/main.py:2644
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Está empollando actualmente. Por favor, cierre antes el mazo."
 
-#: ui/main.py:2099 ui/main.py:2343
+#: ui/main.py:2103 ui/main.py:2348
 msgid "Your computer clock is not set to the correct time.\n"
 msgstr "El reloj de su ordenador no se ajusta a la hora correcta.\n"
 
-#: ui/main.py:1670
+#: ui/main.py:1673
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3141,7 +3172,7 @@ msgstr "tarjetas"
 msgid "days"
 msgstr "días"
 
-#: ui/main.py:2341
+#: ui/main.py:2346
 msgid "early"
 msgstr "anticipadamente"
 
@@ -3158,7 +3189,7 @@ msgstr "en %s"
 msgid "label"
 msgstr "etiqueta"
 
-#: ui/main.py:2339
+#: ui/main.py:2344
 msgid "late"
 msgstr "retrasado"
 
