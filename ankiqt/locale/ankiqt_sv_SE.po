@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-23 09:16+0200\n"
-"PO-Revision-Date: 2009-06-23 09:16+0100\n"
+"POT-Creation-Date: 2009-06-23 09:20+0200\n"
+"PO-Revision-Date: 2009-06-23 09:20+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -157,11 +157,11 @@ msgid "%d exported."
 msgstr "%d exporterades."
 
 #: ui/main.py:2684
-#, fuzzy, python-format
+#, python-format
 msgid "%d missing file found.<br>"
 msgid_plural "%d missing files found.<br>"
-msgstr[0] "%d saknad referens"
-msgstr[1] "%d saknade referenser"
+msgstr[0] "%d saknad fil har hittats.<br>"
+msgstr[1] "%d saknade filer har hittats.<br>"
 
 #: ui/main.py:2673
 #, python-format
@@ -178,9 +178,9 @@ msgstr[0] "%d valt"
 msgstr[1] "%d valda"
 
 #: ui/main.py:2687
-#, fuzzy, python-format
+#, python-format
 msgid "%d successfully retrieved."
-msgstr "%(a)d saknade filer funna.<br>%(b)d har återställts."
+msgstr "%d har återställts."
 
 #: ui/main.py:2675
 #, python-format
