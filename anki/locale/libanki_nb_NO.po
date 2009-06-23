@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.7.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
 "PO-Revision-Date: 2009-05-15 14:27+0100\n"
 "Last-Translator: Lars Lem <larslem@online.no>\n"
 "Language-Team: Norwegian <larslem@online.no>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-Language: Norwegian\n"
 "X-Poedit-Country: NORWAY\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -388,6 +388,11 @@ msgstr[1] "Tok bort %d fakta som manglet felt"
 
 #: deck.py:2338
 msgid "Deleted: "
+msgstr ""
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
 msgstr ""
 
 #: stats.py:274

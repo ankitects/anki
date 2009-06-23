@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
 "PO-Revision-Date: 2009-06-08 20:53+0100\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <pcsl88@gmail.com>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "X-Poedit-Country: SPAIN\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -387,6 +387,11 @@ msgstr[1] "Borrados %d hechos con campos ausentes de modelo"
 #: deck.py:2338
 msgid "Deleted: "
 msgstr "Eliminadas:"
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
+msgstr ""
 
 #: stats.py:274
 msgid "Due"

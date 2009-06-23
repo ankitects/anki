@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
 "PO-Revision-Date: 2008-05-24 09:18+0900\n"
 "Last-Translator: Jin Eun-Deok <jin.eundeok@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -362,6 +362,11 @@ msgstr[1] ""
 
 #: deck.py:2338
 msgid "Deleted: "
+msgstr ""
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
 msgstr ""
 
 #: stats.py:274

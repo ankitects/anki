@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
 "PO-Revision-Date: 2009-05-31 00:22+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -406,6 +406,11 @@ msgstr[2] "Usunięto %d faktów z brakującymi polami"
 #: deck.py:2338
 msgid "Deleted: "
 msgstr "Usunięto: "
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
+msgstr ""
 
 #: stats.py:274
 msgid "Due"

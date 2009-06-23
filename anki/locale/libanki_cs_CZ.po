@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
 "PO-Revision-Date: 2008-01-01 19:00+0100\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -364,6 +364,11 @@ msgstr[1] ""
 
 #: deck.py:2338
 msgid "Deleted: "
+msgstr ""
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
 msgstr ""
 
 #: stats.py:274

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.9.7.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Jo Nakashima <jonakashima@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-Language: Portugues\n"
 "X-Poedit-Country: BRAZIL\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -380,6 +380,11 @@ msgstr[1] "Deletados %d fatos com campos faltando"
 
 #: deck.py:2338
 msgid "Deleted: "
+msgstr ""
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
 msgstr ""
 
 #: stats.py:274

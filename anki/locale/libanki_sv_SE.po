@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki 0.9.9.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
-"PO-Revision-Date: 2009-06-21 20:04+0100\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
+"PO-Revision-Date: 2009-06-23 09:05+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-Language: Swedish\n"
 "X-Poedit-Country: SWEDEN\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -387,6 +387,11 @@ msgstr[1] "Tog bort %d faktauppgifter som saknade fältmodell"
 #: deck.py:2338
 msgid "Deleted: "
 msgstr "Borttagna:"
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
+msgstr "Hämtar %(a)d av %(b)d..."
 
 #: stats.py:274
 msgid "Due"

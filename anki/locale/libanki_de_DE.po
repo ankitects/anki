@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libanki_de_DE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-21 20:04+0200\n"
+"POT-Creation-Date: 2009-06-23 09:05+0200\n"
 "PO-Revision-Date: 2009-06-19 19:18+0100\n"
 "Last-Translator: Michael Jürges <michael.juerges@googlemail.com>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: sound.py:238
+#: sound.py:240
 msgid ""
 "\n"
 "Error processing audio.\n"
@@ -385,6 +385,11 @@ msgstr[1] "%d Felder mit fehlenden Stapelmodell gelöscht"
 #: deck.py:2338
 msgid "Deleted: "
 msgstr "Gelöscht: "
+
+#: media.py:242
+#, python-format
+msgid "Downloading %(a)d of %(b)d..."
+msgstr ""
 
 #: stats.py:274
 msgid "Due"
