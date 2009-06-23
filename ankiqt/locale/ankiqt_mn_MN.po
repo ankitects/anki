@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-23 09:20+0200\n"
+"POT-Creation-Date: 2009-06-23 16:48+0200\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,17 +73,17 @@ msgstr ""
 msgid "  Stop"
 msgstr "  Зогс"
 
-#: ui/main.py:1192
+#: ui/main.py:1193
 #, fuzzy, python-format
 msgid " (Alt+%d)"
 msgstr "Alt+%d"
 
-#: ui/main.py:1189
+#: ui/main.py:1190
 #, python-format
 msgid " (Command+Option+%d)"
 msgstr ""
 
-#: ui/main.py:2122
+#: ui/main.py:2123
 msgid " (and proxy settings)"
 msgstr ""
 
@@ -110,7 +110,7 @@ msgstr " <b>Засварлахдаа (дээрхийг нь орлоно):</b>"
 msgid " <b>When reviewing and editing:</b>"
 msgstr " <b>Давтаад сурахдаа:</b>"
 
-#: ui/main.py:2352
+#: ui/main.py:2353
 #, fuzzy
 msgid " Please ensure it is set correctly and then restart Anki."
 msgstr "Хүчинтэй хэрэглээний хүрээг оруулна уу?"
@@ -140,7 +140,7 @@ msgstr[1] "%(name)s [%(facts)d баримтууд]"
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(totalSum)d-с %(partOf)d"
 
-#: ui/main.py:2266
+#: ui/main.py:2267
 #, python-format
 msgid "%(path)s (%(due)d of %(cards)d due) - %(title)s"
 msgstr "%(path)s (%(cards)d-с %(due)d-г дахин давтах) - %(title)s"
@@ -157,14 +157,14 @@ msgstr[1] ""
 msgid "%d exported."
 msgstr "%d экспортолсон."
 
-#: ui/main.py:2684
+#: ui/main.py:2685
 #, python-format
 msgid "%d missing file found.<br>"
 msgid_plural "%d missing files found.<br>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:2673
+#: ui/main.py:2674
 #, python-format
 msgid "%d missing reference."
 msgid_plural "%d missing references."
@@ -178,12 +178,12 @@ msgid_plural "%d selected"
 msgstr[0] "%d-г сонгосон"
 msgstr[1] "%d-г сонгосон"
 
-#: ui/main.py:2687
+#: ui/main.py:2688
 #, python-format
 msgid "%d successfully retrieved."
 msgstr ""
 
-#: ui/main.py:2675
+#: ui/main.py:2676
 #, fuzzy, python-format
 msgid "%d unused file removed."
 msgid_plural "%d unused files removed."
@@ -477,7 +477,7 @@ msgstr ""
 msgid "<Filter>"
 msgstr "<Tag filter>"
 
-#: forms/preferences.py:343
+#: forms/preferences.py:357
 msgid "<a href=\"backups\">Open backup folder</a>"
 msgstr ""
 
@@ -676,7 +676,7 @@ msgstr ""
 msgid "<b>Very High Priority</b>"
 msgstr "<b>Хамгийн Чухал</b>"
 
-#: ui/main.py:1243
+#: ui/main.py:1244
 msgid ""
 "<br>\n"
 "<font size=+1>\n"
@@ -698,7 +698,7 @@ msgstr "<h1>Нэмсэн</h1>"
 msgid "<h1>Advanced Scheduling</h1>"
 msgstr "<h1>Дээд төлөвлөлт</h1>"
 
-#: forms/preferences.py:346
+#: forms/preferences.py:360
 msgid "<h1>Advanced settings</h1>"
 msgstr "<h1>Дээд тохиргоо</h1>"
 
@@ -715,11 +715,11 @@ msgstr ""
 "<a href=\"http://ichi2.net/anki/download/index.html#changes\">энэ</a> байгаа.\n"
 "<br><br>"
 
-#: forms/preferences.py:334
+#: forms/preferences.py:348
 msgid "<h1>Autosaving</h1>"
 msgstr "<h1>Автоматаар  хадгалалт</h1>"
 
-#: forms/preferences.py:340
+#: forms/preferences.py:354
 msgid "<h1>Backups</h1>Decks are backed up when they are opened, and only if they have been modified since the last backup."
 msgstr ""
 
@@ -727,7 +727,7 @@ msgstr ""
 msgid "<h1>Card Templates</h1>"
 msgstr "<h1>Картын Бэлдцүүд</h1>"
 
-#: ui/main.py:1744
+#: ui/main.py:1745
 msgid ""
 "<h1>Cramming</h1>\n"
 "You are currently cramming. Any edits you make to this deck\n"
@@ -738,7 +738,7 @@ msgstr ""
 msgid "<h1>Cumulative Due</h1>"
 msgstr "<h1>Дахин давтах</h1>"
 
-#: ui/main.py:1644
+#: ui/main.py:1645
 msgid "<h1>Current card</h1>"
 msgstr "<h1>Одоогийн карт</h1>"
 
@@ -775,15 +775,15 @@ msgstr "<h1>Ерөнхий</h1>"
 msgid "<h1>Intervals</h1>"
 msgstr "<h1>Зайнууд</h1>"
 
-#: forms/preferences.py:313
+#: forms/preferences.py:327
 msgid "<h1>Language</h1>"
 msgstr "<h1>Хэл</h1>"
 
-#: ui/main.py:1647
+#: ui/main.py:1648
 msgid "<h1>Last card</h1>"
 msgstr "<h1>Сүүлийн карт</h1>"
 
-#: ui/main.py:1945
+#: ui/main.py:1946
 msgid "<h1>Learning More</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
@@ -804,7 +804,7 @@ msgstr "<h1>Вебийн цуглуулгыг нээ</h1>"
 msgid "<h1>Priorities</h1>"
 msgstr "<h1>Эрхүүд</h1>"
 
-#: forms/preferences.py:327
+#: forms/preferences.py:341
 #, fuzzy
 msgid "<h1>Proxy</h1>"
 msgstr "<h1>Эрхүүд</h1>"
@@ -817,11 +817,11 @@ msgstr "<h1>Удаа</h1>"
 msgid "<h1>Review Time</h1>"
 msgstr "<h1>Хичээл давталтын цаг</h1>"
 
-#: ui/main.py:1951
+#: ui/main.py:1952
 msgid "<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."
 msgstr ""
 
-#: forms/preferences.py:314
+#: forms/preferences.py:328
 msgid "<h1>Reviewing</h1>"
 msgstr "<h1>Давталт</h1>"
 
@@ -829,7 +829,7 @@ msgstr "<h1>Давталт</h1>"
 msgid "<h1>Select Target Field</h1>"
 msgstr "<h1>Төлөвлөгөөний Талбарыг Сонго</h1>"
 
-#: ui/main.py:1420
+#: ui/main.py:1421
 msgid "<h1>Study Options</h1>"
 msgstr "<h1>Сурахын тохиргоонууд</h1>"
 
@@ -837,7 +837,7 @@ msgstr "<h1>Сурахын тохиргоонууд</h1>"
 msgid "<h1>Synchronisation</h1>"
 msgstr "<h1>Давхцал</h1>"
 
-#: forms/preferences.py:322
+#: forms/preferences.py:336
 msgid "<h1>Synchronisation</h1><a href=\"http://anki.ichi2.net/\">Create a free account</a>."
 msgstr "<h1>Давхцал</h1><a href=\"http://anki.ichi2.net/\">Үнэгүй дансыг бүртгэх</a>."
 
@@ -867,7 +867,7 @@ msgstr ""
 "        байна. Өөрчлөлтүүдийг нь хадгалах, устгах,\n"
 "        эсвэл хүчингүй гэсийн юм?"
 
-#: ui/main.py:1422
+#: ui/main.py:1423
 msgid "<h1>Well done!</h1>"
 msgstr "<h1>Сайн байна!</h1>"
 
@@ -942,7 +942,7 @@ msgstr "Дуурийг нэм"
 msgid "Add audio/video (F4)"
 msgstr "Дуурийг нэм (F4)"
 
-#: forms/preferences.py:351
+#: forms/preferences.py:365
 msgid "Add hidden char to text (fixes Thai on OSX)"
 msgstr "Нуусан тэмдгийг текстэд нэм (Тай хэлний асуудлыг OSX-д засварлана)"
 
@@ -964,7 +964,7 @@ msgstr "Нэмэгдсэн"
 msgid "Added %(num)d card(s) for <a href=\"%(id)d\">%(str)s</a>."
 msgstr "'%(str)s'-д %(num)d карт(ууд)ыг нэмэгдсэн."
 
-#: forms/deckproperties.py:365 forms/preferences.py:356
+#: forms/deckproperties.py:365 forms/preferences.py:371
 msgid "Advanced"
 msgstr "Давтан"
 
@@ -984,25 +984,25 @@ msgstr "Бүх давталтууд"
 msgid "Allow the answer to be blank"
 msgstr "Хоосон хариулт хийхийг зөвшөөрөх"
 
-#: ui/main.py:1817
+#: ui/main.py:1818
 msgid "Already cramming. Please close this deck first."
 msgstr "Одоо оройтож бэлтгэж байна. Эхлээд цуглуулгыг хаана уу?"
 
-#: ui/main.py:1193
+#: ui/main.py:1194
 #, python-format
 msgid "Alt+%d"
 msgstr "Alt+%d"
 
-#: ui/main.py:2708
+#: ui/main.py:2709
 #, fuzzy
 msgid "Alt+m"
 msgstr "Alt+%d"
 
-#: forms/preferences.py:348
+#: forms/preferences.py:362
 msgid "Alternative theme"
 msgstr "Өөр загвар"
 
-#: forms/preferences.py:352
+#: forms/preferences.py:366
 msgid "Always open last deck on startup"
 msgstr ""
 
@@ -1049,12 +1049,12 @@ msgstr ""
 "Алдааг засварлахгүй бол дараагийн нь<br>\n"
 "алдааны тайланд хуулаарай:<br><br>\n"
 
-#: ui/deckproperties.py:185 ui/main.py:2648 forms/main.py:1378
+#: ui/deckproperties.py:185 ui/main.py:2649 forms/main.py:1378
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Анки"
 
-#: ui/main.py:1290
+#: ui/main.py:1291
 #, python-format
 msgid ""
 "Anki was unable to save your configuration file:\n"
@@ -1150,7 +1150,7 @@ msgstr "Хэсгүүдийг үз"
 msgid "Building Index..."
 msgstr "Индекс хийж байна..."
 
-#: ui/main.py:1714
+#: ui/main.py:1715
 msgid "Bury"
 msgstr ""
 
@@ -1170,7 +1170,7 @@ msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх ча
 msgid "Can only operate on one model at a time."
 msgstr "Зүйлээс зөвхөн нэг нэгийг нь өөрчлөх чадна."
 
-#: ui/main.py:2663
+#: ui/main.py:2664
 msgid "Cancel"
 msgstr "Хүчингүй"
 
@@ -1209,12 +1209,12 @@ msgstr "Картууд таныг хүлээж байна"
 msgid "Cards with any of the selected tags below will not be shown."
 msgstr ""
 
-#: ui/main.py:1458
+#: ui/main.py:1459
 #, fuzzy
 msgid "Cards/day:"
 msgstr "Карт:"
 
-#: ui/main.py:1457
+#: ui/main.py:1458
 msgid "Cards/session:"
 msgstr ""
 
@@ -1243,7 +1243,7 @@ msgstr "Медианы өгөгдлийн саныг шалгах..."
 msgid "Check complete."
 msgstr "Шалгалт дууссан"
 
-#: ui/main.py:1219
+#: ui/main.py:1220
 msgid "Check due counts again (F5)"
 msgstr ""
 
@@ -1326,7 +1326,7 @@ msgstr "Давталтын тохиргоонуудыг өөрчлөх"
 msgid "Connecting..."
 msgstr "Холбож байна..."
 
-#: ui/main.py:1522
+#: ui/main.py:1523
 msgid "Continue &Reviewing"
 msgstr "Давтахыг &Үргэлжлэх"
 
@@ -1359,7 +1359,7 @@ msgstr "Сараас бага зөв хариулсан нь:"
 msgid "Couldn't play sound. Please install mplayer."
 msgstr ""
 
-#: ui/main.py:1838
+#: ui/main.py:1839
 msgid "Cram"
 msgstr "Оройтож бэлтгэх"
 
@@ -1381,7 +1381,7 @@ msgstr "Серверийн дээр '%s' үүсгэх"
 msgid "Created"
 msgstr "Үүсгэсэн"
 
-#: ui/main.py:1190
+#: ui/main.py:1191
 #, python-format
 msgid "Ctrl+Alt+%d"
 msgstr "Ctrl+Alt+%d"
@@ -1530,7 +1530,7 @@ msgstr "Давхцал, төлөвлөлт, яаралууд, бас зүйлү�
 msgid "Czech"
 msgstr "Чех хэл"
 
-#: ui/main.py:2640
+#: ui/main.py:2641
 #, python-format
 msgid ""
 "Database optimized.\n"
@@ -1555,11 +1555,11 @@ msgstr "Цуглуулгын файлууд (*.anki)"
 msgid "Deck is already open."
 msgstr "Цуглуулга нээж л байна."
 
-#: ui/main.py:1212 ui/main.py:1704 forms/cardlist.py:266
+#: ui/main.py:1213 ui/main.py:1705 forms/cardlist.py:266
 msgid "Delete"
 msgstr "Устга"
 
-#: ui/main.py:1271
+#: ui/main.py:1272
 #, fuzzy, python-format
 msgid "Delete %s?"
 msgstr "Лавлахуудыг устгах"
@@ -1568,7 +1568,7 @@ msgstr "Лавлахуудыг устгах"
 msgid "Delete Cards"
 msgstr "Картуудыг устга"
 
-#: ui/main.py:2661
+#: ui/main.py:2662
 msgid "Delete Refs"
 msgstr "Лавлахуудыг устгах"
 
@@ -1576,7 +1576,7 @@ msgstr "Лавлахуудыг устгах"
 msgid "Delete Tags"
 msgstr "Шошгыг устгах"
 
-#: forms/preferences.py:354
+#: forms/preferences.py:368
 msgid "Delete original media on add"
 msgstr ""
 
@@ -1596,7 +1596,7 @@ msgstr "&Унтраах"
 msgid "Discard field"
 msgstr "Талбарыг устга"
 
-#: forms/preferences.py:321
+#: forms/preferences.py:335
 msgid "Display"
 msgstr "Дэлгэц"
 
@@ -1647,7 +1647,7 @@ msgstr "Шинэ чанар Анкит нэмэхээр хавсарга про�
 msgid "Downloaded %dKB"
 msgstr "Таталтууд"
 
-#: ui/main.py:2161
+#: ui/main.py:2162
 #, python-format
 msgid "Downloaded %dKB from server..."
 msgstr ""
@@ -1703,7 +1703,7 @@ msgstr "Одоогийн үзүүлсэн хэсгийг засварлах"
 msgid "Ena&ble"
 msgstr "&Асаах"
 
-#: ui/main.py:2002
+#: ui/main.py:2003
 msgid "Enable syncing, choose a name, then sync again."
 msgstr ""
 
@@ -1759,7 +1759,7 @@ msgstr "F3"
 msgid "F4"
 msgstr "F4"
 
-#: ui/facteditor.py:252 ui/main.py:1220 forms/main.py:1468
+#: ui/facteditor.py:252 ui/main.py:1221 forms/main.py:1468
 msgid "F5"
 msgstr "F5"
 
@@ -1792,7 +1792,7 @@ msgstr "Үүсгэсэн"
 msgid "Facts"
 msgstr "Баримтууд"
 
-#: ui/main.py:2148
+#: ui/main.py:2149
 msgid "Failed to upload media. Please run 'check media db'."
 msgstr "Медиа илгээхийг дампуурсан. 'Медиа өгөгдлийн саныг шалгах' гүйцэтгээрэй.  "
 
@@ -1863,17 +1863,17 @@ msgstr "&Бэлэглэх..."
 msgid "Fonts & Colours"
 msgstr "Фонт бас өнгөнүүд"
 
-#: ui/main.py:1211
+#: ui/main.py:1212
 #, fuzzy
 msgid "Forget"
 msgstr "Илүү>>"
 
-#: ui/main.py:1264
+#: ui/main.py:1265
 #, fuzzy, python-format
 msgid "Forget %s?"
 msgstr "Илүү>>"
 
-#: ui/main.py:1214
+#: ui/main.py:1215
 msgid "Forget removes the deck from the list without deleting."
 msgstr ""
 
@@ -1931,7 +1931,7 @@ msgstr "Тусламж"
 msgid "Hide the question when showing answer"
 msgstr "Хариултыг үзүүлэхэд асуултыг нуу"
 
-#: forms/preferences.py:328
+#: forms/preferences.py:342
 msgid "Host"
 msgstr ""
 
@@ -2003,14 +2003,14 @@ msgstr "Хүчингүй байнгын илэрхийлэл"
 msgid "Invert"
 msgstr ""
 
-#: ui/main.py:2349
+#: ui/main.py:2350
 #, python-format
 msgid "It is %(sec)d second %(type)s.\n"
 msgid_plural "It is %(sec)d seconds %(type)s.\n"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/main.py:2104
+#: ui/main.py:2105
 #, python-format
 msgid ""
 "It is off by %d second.\n"
@@ -2033,7 +2033,7 @@ msgstr "Налуу текст (Ctrl+i)"
 msgid "Japanese"
 msgstr "Япон хэл"
 
-#: forms/preferences.py:341
+#: forms/preferences.py:355
 msgid "Keep"
 msgstr ""
 
@@ -2058,11 +2058,11 @@ msgstr "LaTeX математикийн ахуй (Ctrl+l тэгээд m)"
 msgid "Leech"
 msgstr "Чех хэл"
 
-#: ui/main.py:1839
+#: ui/main.py:1840
 msgid "Loading deck..."
 msgstr "Цуглуулгын ачаалагдаж байна..."
 
-#: ui/main.py:1658
+#: ui/main.py:1659
 msgid "Loading graphs (may take time)..."
 msgstr "Диаграммуудыг ачаалагдаж байна.  Та хүлээнэ уу..."
 
@@ -2093,6 +2093,10 @@ msgstr "Хэцүү"
 msgid "Max"
 msgstr "Дээд"
 
+#: forms/preferences.py:369
+msgid "Max deck name length in deck browser:"
+msgstr ""
+
 #: forms/deckproperties.py:345 forms/deckproperties.py:346
 #: forms/deckproperties.py:351 forms/reschedule.py:82
 msgid "Min"
@@ -2118,7 +2122,7 @@ msgstr "Өөрчилсөн"
 msgid "Mongolian"
 msgstr "Монгол хэл"
 
-#: ui/main.py:1210 forms/main.py:1389
+#: ui/main.py:1211 forms/main.py:1389
 #, fuzzy
 msgid "More"
 msgstr "Илүү>>"
@@ -2155,16 +2159,16 @@ msgstr "Нэр"
 msgid "Name on server: "
 msgstr "Серверийн дээр нэр:"
 
-#: forms/preferences.py:333
+#: forms/preferences.py:347
 msgid "Network"
 msgstr ""
 
-#: ui/main.py:1461
+#: ui/main.py:1462
 #, fuzzy
 msgid "New today:"
 msgstr "Өнөөдрийн давталтууд"
 
-#: ui/main.py:1462
+#: ui/main.py:1463
 msgid "New total:"
 msgstr ""
 
@@ -2176,7 +2180,7 @@ msgstr "Дараагийн өнгө (F7 тэгээд F8)"
 msgid "Next field must be blank."
 msgstr "Дараагийн талбар хоослуулах ёстой."
 
-#: ui/main.py:1832 ui/main.py:1869
+#: ui/main.py:1833 ui/main.py:1870
 msgid "No cards matched the provided tags."
 msgstr "Картуудаас сонгосон шошготой нь байхгүй."
 
@@ -2188,7 +2192,7 @@ msgstr "Өмнөх үзэмжийн картууд байхгүй."
 msgid "No changes found."
 msgstr "Өөрчлөлт олоогүй."
 
-#: ui/main.py:1650
+#: ui/main.py:1651
 msgid "No current card or last card."
 msgstr "Одоогийн бас сүүлийн карт байхгүй."
 
@@ -2197,7 +2201,7 @@ msgstr "Одоогийн бас сүүлийн карт байхгүй."
 msgid "No fact tags"
 msgstr "Шошгогүй"
 
-#: ui/main.py:2681
+#: ui/main.py:2682
 msgid "No media URLs defined for this deck."
 msgstr ""
 
@@ -2214,7 +2218,7 @@ msgstr "Юу ч байхгүй"
 msgid "Nothing selected."
 msgstr "Юуг ч сонгоогүй."
 
-#: ui/main.py:1186
+#: ui/main.py:1187
 #, fuzzy
 msgid "Open"
 msgstr "&Нээ..."
@@ -2237,7 +2241,7 @@ msgstr "Цуглуулгыг нээ"
 msgid "Open the bug tracker"
 msgstr "Алдааны мөрчийг нээ"
 
-#: ui/main.py:1196
+#: ui/main.py:1197
 #, fuzzy, python-format
 msgid "Open this deck%s"
 msgstr "Цуглуулгыг нээ"
@@ -2246,7 +2250,7 @@ msgstr "Цуглуулгыг нээ"
 msgid "Optimize Database"
 msgstr "Өгөгдлийн саныг зүгшрүүлэх"
 
-#: ui/main.py:1572
+#: ui/main.py:1573
 #, fuzzy
 msgid "Ordering..."
 msgstr "Ачаалагдаж байна..."
@@ -2264,7 +2268,7 @@ msgstr "Хавсарга &програмууд"
 msgid "Packaged Anki Deck (*.zip)"
 msgstr "Хэмжин савласан цуглуулга (*.zip)"
 
-#: forms/preferences.py:323 forms/preferences.py:330
+#: forms/preferences.py:337 forms/preferences.py:344
 msgid "Password"
 msgstr "Нууц үг"
 
@@ -2321,11 +2325,11 @@ msgid ""
 "to enable recording."
 msgstr "Дуу хураахаар <a href=\"http://www.thalictrum.com/software/lame-3.97.dmg.gz\">lame</a>-г суулгаарай."
 
-#: ui/main.py:1676
+#: ui/main.py:1677
 msgid "Please install python-matplotlib to access graphs."
 msgstr "Диаграммууд руу орох болохоор python-matplotlib-г суулгаарай."
 
-#: ui/main.py:2606
+#: ui/main.py:2607
 msgid "Please restart Anki before checking the DB."
 msgstr "Өгөгдлийн саныг шалгахыг өмнө Анки дахин асаарай."
 
@@ -2337,7 +2341,7 @@ msgstr "Хавсарга програм татуулсан.  Анки дахин
 msgid "Polish"
 msgstr "Польш хэл"
 
-#: forms/preferences.py:331
+#: forms/preferences.py:345
 #, fuzzy
 msgid "Port"
 msgstr "И&мпорт"
@@ -2346,7 +2350,7 @@ msgstr "И&мпорт"
 msgid "Pre-generate PNG images of LaTeX cards"
 msgstr "LaTeX-н картуудын PNG-н форматын зураг өмнөх хийж"
 
-#: forms/preferences.py:312
+#: forms/preferences.py:326
 msgid "Preferences"
 msgstr "Тохируулалтууд"
 
@@ -2358,7 +2362,7 @@ msgstr ""
 msgid "Prevent duplicates"
 msgstr "Хуулбаруудыг хориглоно"
 
-#: forms/preferences.py:319
+#: forms/preferences.py:333
 #, fuzzy
 msgid "Prevent edits until answer shown"
 msgstr "Хоосон оролтуудыг хориглоно"
@@ -2383,7 +2387,7 @@ msgstr "Картуудыг өмнөх үзэх"
 msgid "Previous colour (F7 then F6)"
 msgstr "Өнгөрсөн өнгө (F6 тэгээд F7)"
 
-#: ui/main.py:2621
+#: ui/main.py:2622
 #, python-format
 msgid ""
 "Problems found:\n"
@@ -2396,7 +2400,7 @@ msgstr ""
 msgid "Processing..."
 msgstr "Гүйцэтгэж байна..."
 
-#: forms/preferences.py:316
+#: forms/preferences.py:330
 msgid "Put space between question and answer"
 msgstr "Асуулт, хариулт хоёрын хооронд зай тавих"
 
@@ -2424,7 +2428,7 @@ msgstr "Асуултын хэмжээ"
 msgid "Quick Database Check"
 msgstr ""
 
-#: ui/main.py:1578 ui/main.py:1859
+#: ui/main.py:1579 ui/main.py:1860
 msgid "Randomizing..."
 msgstr "Санамсаргүй дараалал хийж байна..."
 
@@ -2445,12 +2449,12 @@ msgstr "Дуу хураах (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Дуу хурааж байна...<br>Цаг: %0.1f"
 
-#: ui/cardlist.py:532 ui/main.py:2323
+#: ui/cardlist.py:532 ui/main.py:2324
 #, python-format
 msgid "Redo %s"
 msgstr "%s дахиад хий"
 
-#: ui/graphs.py:236 ui/main.py:1218
+#: ui/graphs.py:236 ui/main.py:1219
 msgid "Refresh"
 msgstr "Шинэчлэх"
 
@@ -2510,7 +2514,7 @@ msgstr "Давталт"
 msgid "Review Time"
 msgstr "Давталтын Цаг"
 
-#: ui/main.py:1460
+#: ui/main.py:1461
 #, fuzzy
 msgid "Reviews due:"
 msgstr "Өнөөдрийн давталтууд"
@@ -2536,11 +2540,11 @@ msgstr "&Өөр нэрт хадгалах..."
 msgid "Save Deck As"
 msgstr "Цуглуулга өөр нэрийг хадгалах"
 
-#: forms/preferences.py:336
+#: forms/preferences.py:350
 msgid "Save after adding"
 msgstr "Нэмэхийн дараа хадгалах"
 
-#: forms/preferences.py:335
+#: forms/preferences.py:349
 msgid "Save after answering"
 msgstr "Хариулахын дараа хадгалах"
 
@@ -2556,11 +2560,11 @@ msgstr "Одоо энэ цуглуулгыг хадгалах"
 msgid "Save this deck, giving it a new name"
 msgstr "Энэ цуглуулга шинэ нэртэй хадгалах"
 
-#: forms/preferences.py:337
+#: forms/preferences.py:351
 msgid "Save when closing"
 msgstr "Хаахдаа хадгалах"
 
-#: forms/preferences.py:345
+#: forms/preferences.py:359
 msgid "Saving"
 msgstr ""
 
@@ -2586,7 +2590,7 @@ msgstr "&Бүгдийг сонго"
 msgid "Select None"
 msgstr "&Бүгдийг сонго"
 
-#: ui/main.py:1490
+#: ui/main.py:1491
 #, fuzzy
 msgid "Session Statistics"
 msgstr "&Цуглуулгын статистикс"
@@ -2621,15 +2625,15 @@ msgstr "Хариулт үзүүлэх"
 msgid "Show advanced options"
 msgstr "Давтан тохиргоонуудыг үзүүлэх"
 
-#: forms/preferences.py:353
+#: forms/preferences.py:367
 msgid "Show decks with cards due first in browser"
 msgstr ""
 
-#: forms/preferences.py:315
+#: forms/preferences.py:329
 msgid "Show divider between question and answer"
 msgstr "Асуулт, хариулт хоёрын хооронд хуваагч тэмдгийг тавих"
 
-#: forms/preferences.py:318
+#: forms/preferences.py:332
 msgid "Show due count and progress during review"
 msgstr "Дахин давтахын тоо, процесс хоёрт үзүүлэх"
 
@@ -2637,7 +2641,7 @@ msgstr "Дахин давтахын тоо, процесс хоёрт үзүүл
 msgid "Show graphical statistics about your deck"
 msgstr "Таны цуглуулгын тухай зургийн статистикс үзүүлэх"
 
-#: forms/preferences.py:317
+#: forms/preferences.py:331
 msgid "Show next time before answer"
 msgstr "Дараагийн удаа хариултын өмнө үзэх"
 
@@ -2653,7 +2657,7 @@ msgstr "Таны цуглуулгын тухай текстийн статист
 msgid "Show statistics about the current card and last card"
 msgstr "Одоогийн бас сүүлийн картын статистиксуудыг үзүүлэх"
 
-#: forms/preferences.py:349
+#: forms/preferences.py:363
 msgid "Show study options on deck load"
 msgstr "Цуглуулгыг ачаалагдахад сурахын тохиргоонууд үз"
 
@@ -2665,11 +2669,11 @@ msgstr "Хариулт үзүүлэх (богино холбоос: зай эс�
 msgid "Show this card again soon (shortcut key: 1)"
 msgstr "Ийм карт одоохон үзүүлэх (богино холбоос: 1)"
 
-#: forms/preferences.py:347
+#: forms/preferences.py:361
 msgid "Show timer"
 msgstr "Секунд хэмжигчийг үзүүлэх"
 
-#: forms/preferences.py:350
+#: forms/preferences.py:364
 msgid "Show tray icon"
 msgstr "Мэдээллийн цэгийн тэмдэг үзүүлэх"
 
@@ -2677,7 +2681,7 @@ msgstr "Мэдээллийн цэгийн тэмдэг үзүүлэх"
 msgid "Show/Hide"
 msgstr "Үзүүлэх/Hуух"
 
-#: ui/main.py:2106
+#: ui/main.py:2107
 #, fuzzy
 msgid ""
 "Since this can cause many problems with syncing,\n"
@@ -2693,8 +2697,8 @@ msgstr ""
 msgid "Some fields are missing or not unique."
 msgstr "Зарим талбар байхгүй эсвэл цор ганц битгий байна."
 
-#: forms/preferences.py:320 forms/preferences.py:332 forms/preferences.py:344
-#: forms/preferences.py:355
+#: forms/preferences.py:334 forms/preferences.py:346 forms/preferences.py:358
+#: forms/preferences.py:370
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Зарим тохируулгууд Анкиг дахин асаахийн дараа үр дүн нь гарна."
 
@@ -2719,7 +2723,7 @@ msgstr "Эх үүсвэрийн ялгах тэмдэг:"
 msgid "Spanish"
 msgstr "Испани хэл"
 
-#: ui/main.py:1524
+#: ui/main.py:1525
 msgid "Start &Reviewing"
 msgstr "Давтахыг &эхлэх"
 
@@ -2739,14 +2743,14 @@ msgstr "Байдал"
 msgid "Stop reviewing this card until it's unsuspended in the browser"
 msgstr "Энэ карт браузерт бүү түдгэлзүүлэхийн хүртэл давтахгүй"
 
-#: ui/main.py:1236
+#: ui/main.py:1237
 #, python-format
 msgid "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today."
 msgid_plural "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/cardlist.py:794 ui/main.py:1695
+#: ui/cardlist.py:794 ui/main.py:1696
 msgid "Suspend"
 msgstr "Түдгэлзэх"
 
@@ -2763,7 +2767,7 @@ msgstr "Түдгэлзэх"
 msgid "Swedish"
 msgstr "Швед хэл"
 
-#: ui/main.py:2120
+#: ui/main.py:2121
 msgid "Sync Failed. Please check your internet connection."
 msgstr ""
 
@@ -2771,11 +2775,11 @@ msgstr ""
 msgid "Sync complete."
 msgstr "Давхцал дууссан."
 
-#: forms/preferences.py:325
+#: forms/preferences.py:339
 msgid "Sync on close"
 msgstr "Хаахдаа давхцах"
 
-#: forms/preferences.py:326
+#: forms/preferences.py:340
 msgid "Sync on open"
 msgstr "Нээхдээ давхцах"
 
@@ -2791,7 +2795,7 @@ msgstr "Энэ цуглуулгыг давхац"
 msgid "Synchronize this deck with Anki Online"
 msgstr "Энэ цуглуулга Анки Вебтэй давхац"
 
-#: ui/main.py:2126 ui/main.py:2128
+#: ui/main.py:2127 ui/main.py:2129
 msgid "Syncing Media..."
 msgstr "Медиа түдгэлзүүлж байна..."
 
@@ -2800,7 +2804,7 @@ msgstr "Медиа түдгэлзүүлж байна..."
 msgid "Syncing failed: %(a)s"
 msgstr "Давхцал дампуурсан: %(a)s"
 
-#: ui/main.py:2659
+#: ui/main.py:2660
 msgid "Tag Cards"
 msgstr "Картуудыг шошго хий"
 
@@ -2812,7 +2816,7 @@ msgstr "Устгахын оронд нь картуудыг хуулбар шо�
 msgid "Tags"
 msgstr "Шошгууд"
 
-#: ui/main.py:1822
+#: ui/main.py:1823
 msgid "Tags to cram:"
 msgstr "Шошгоос оройтож бэлтгэх нь:"
 
@@ -2848,23 +2852,23 @@ msgstr ""
 msgid "The maximum number of <b>new cards shown per day</b>. The default is 20, to ensure you don't get overwhelmed with reviews after a few days."
 msgstr ""
 
-#: ui/main.py:1497
+#: ui/main.py:1498
 msgid "The number of cards that are waiting to be reviewed today"
 msgstr ""
 
-#: ui/main.py:1491
+#: ui/main.py:1492
 msgid "The number of cards you studied in the current session (blue) and previous session (black)"
 msgstr ""
 
-#: ui/main.py:1493
+#: ui/main.py:1494
 msgid "The number of cards you studied today (blue) and yesterday (black)"
 msgstr ""
 
-#: ui/main.py:1495
+#: ui/main.py:1496
 msgid "The number of minutes you studied today (blue) and yesterday (black)"
 msgstr ""
 
-#: ui/main.py:1499
+#: ui/main.py:1500
 msgid "The number of new cards that are waiting to be learnt today"
 msgstr ""
 
@@ -2872,7 +2876,7 @@ msgstr ""
 msgid "The sync protocol has changed. Please upgrade."
 msgstr "Давхцал протокол өөрчлүүлсэн. Программыг шинэчлээрэй."
 
-#: ui/main.py:1501
+#: ui/main.py:1502
 msgid "The total number of new cards in the deck"
 msgstr ""
 
@@ -2959,7 +2963,7 @@ msgstr ""
 "%s\n"
 "Эхлээд та эх үүсвэрийг устгах хэрэгтэй."
 
-#: ui/main.py:2608
+#: ui/main.py:2609
 msgid ""
 "This operation will find and fix some common problems.<br>\n"
 "<br>\n"
@@ -2977,7 +2981,7 @@ msgstr ""
 "<b>Энэ гүйцэтгэлийг тайлж чадахгүй шүү дээ.</b><br>\n"
 "Үргэлжлэх мөн уу?"
 
-#: ui/main.py:2650
+#: ui/main.py:2651
 msgid ""
 "This operation:<br>\n"
 " - deletes files not referenced by cards<br>\n"
@@ -3016,7 +3020,7 @@ msgstr ""
 "\n"
 "Ийм картыг устгах мөн уу?"
 
-#: ui/main.py:1459
+#: ui/main.py:1460
 msgid "Time/day:"
 msgstr ""
 
@@ -3024,7 +3028,7 @@ msgstr ""
 msgid "Title"
 msgstr "Гарчиг"
 
-#: ui/main.py:1668
+#: ui/main.py:1669
 msgid ""
 "To display graphs, Anki needs a .dll file which\n"
 "you don't have. Please install:\n"
@@ -3036,7 +3040,7 @@ msgstr ""
 msgid "Today's reviews are finished"
 msgstr "Өнөөдрийн давталтууд дууссан"
 
-#: ui/main.py:1623
+#: ui/main.py:1624
 msgid "Toggle Toolbar"
 msgstr "Багажид самбарыг хөшүүрэгдэх"
 
@@ -3113,7 +3117,7 @@ msgstr "LaTeX ойгоос устгах"
 msgid "Underline text (Ctrl+u)"
 msgstr "Доогуур зурах (Ctrl+u)"
 
-#: ui/cardlist.py:526 ui/main.py:2317
+#: ui/cardlist.py:526 ui/main.py:2318
 #, python-format
 msgid "Undo %s"
 msgstr "%s-г тайлах"
@@ -3128,7 +3132,7 @@ msgstr ""
 msgid "Unsuspend"
 msgstr "Түдгэлзэх"
 
-#: ui/main.py:2357
+#: ui/main.py:2358
 msgid ""
 "Updating Anki...\n"
 " - you can keep studying\n"
@@ -3138,7 +3142,7 @@ msgstr ""
 " - сурахыг үргэлжилж болно\n"
 " - энэ битгий хаагаарай"
 
-#: ui/main.py:2158
+#: ui/main.py:2159
 #, python-format
 msgid "Uploaded %dKB to server..."
 msgstr ""
@@ -3160,7 +3164,7 @@ msgstr "Тохируулалтын фонтыг хэрэглэх"
 msgid "Use custom size"
 msgstr "Тохируулалтын хэмжээг хэрэглэх"
 
-#: forms/preferences.py:324 forms/preferences.py:329
+#: forms/preferences.py:338 forms/preferences.py:343
 msgid "Username"
 msgstr "Хэрэглэгч"
 
@@ -3197,16 +3201,16 @@ msgstr "Та одоо татах гэсийн юм уу?"
 msgid "X"
 msgstr ""
 
-#: ui/main.py:1736 ui/main.py:1784 ui/main.py:2644
+#: ui/main.py:1737 ui/main.py:1785 ui/main.py:2645
 #, fuzzy
 msgid "You are currently cramming. Please close this deck first."
 msgstr "Одоо оройтож бэлтгэж байна. Эхлээд цуглуулгыг хаана уу?"
 
-#: ui/main.py:2103 ui/main.py:2348
+#: ui/main.py:2104 ui/main.py:2349
 msgid "Your computer clock is not set to the correct time.\n"
 msgstr ""
 
-#: ui/main.py:1673
+#: ui/main.py:1674
 msgid ""
 "Your version of Matplotlib is broken.\n"
 "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"
@@ -3214,11 +3218,11 @@ msgstr ""
 "Таны Matplotlib-н хувилбар хагаруулсан.\n"
 "http://ichi2.net/anki/wiki/MatplotlibBroken-т үзүүлэнэ уу?"
 
-#: forms/preferences.py:342
+#: forms/preferences.py:356
 msgid "backups of each deck"
 msgstr ""
 
-#: forms/preferences.py:338
+#: forms/preferences.py:352
 msgid "cards"
 msgstr "картууд"
 
@@ -3227,11 +3231,11 @@ msgstr "картууд"
 msgid "days"
 msgstr "өдрүүд"
 
-#: ui/main.py:2346
+#: ui/main.py:2347
 msgid "early"
 msgstr "эрт"
 
-#: forms/preferences.py:339
+#: forms/preferences.py:353
 msgid "facts"
 msgstr "баримтууд"
 
@@ -3244,7 +3248,7 @@ msgstr "%s-н дотор"
 msgid "label"
 msgstr "тэмдэг"
 
-#: ui/main.py:2344
+#: ui/main.py:2345
 msgid "late"
 msgstr "хойш"
 
