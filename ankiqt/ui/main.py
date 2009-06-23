@@ -2681,11 +2681,11 @@ Consider backing up your media directory first."""))
             ui.utils.showInfo(_("No media URLs defined for this deck."),
                               help="MediaSupport")
             return
-        ui.utils.showInfo(_("%(a)d missing files found.<br>"
-                            "%(b)d successfully retrieved.") % {
-            'a': res[0],
-            'b': res[1],
-            }, parent=self)
+        ui.utils.showInfo(ngettext("%d missing file found.<br>", 
+		                           "%d missing files found.<br>",
+								   res[0]) + 
+								   _("%d successfully retrieved.") 
+								   % res[1], parent=self)
 
     def addHook(self, *args):
         addHook(*args)
