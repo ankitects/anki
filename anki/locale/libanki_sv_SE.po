@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libanki 0.9.9.8.1\n"
+"Project-Id-Version: libanki 0.9.9.8.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-23 09:05+0200\n"
-"PO-Revision-Date: 2009-06-23 09:05+0100\n"
+"POT-Creation-Date: 2009-06-23 16:46+0200\n"
+"PO-Revision-Date: 2009-06-23 16:47+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -46,12 +46,16 @@ msgstr ""
 "Den nuvarande importfunktionen stödjer enbart en enda aktiv kortmall. Avaktivera\n"
 "alla utom en kortmall."
 
-#: stats.py:343 stats.py:347 stats.py:351
+#: stats.py:343
+#: stats.py:347
+#: stats.py:351
 #, python-format
 msgid "%(partOf)d of %(totalSum)d"
 msgstr "%(partOf)d av %(totalSum)d"
 
-#: stats.py:271 stats.py:278 stats.py:301
+#: stats.py:271
+#: stats.py:278
+#: stats.py:301
 #, python-format
 msgid "%s ago"
 msgstr "%s sedan"
@@ -150,7 +154,10 @@ msgstr[1] "%s år<!--after>"
 msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
 msgstr "Rad %(row)s har %(num1)d fält, förväntat antal är %(num2)d"
 
-#: stats.py:380 stats.py:383 stats.py:386 stats.py:389
+#: stats.py:380
+#: stats.py:383
+#: stats.py:386
+#: stats.py:389
 #, python-format
 msgid "<b>%(a)d</b> (<b>%(b)s</b>/day)"
 msgstr "<b>%(a)d</b> (<b>%(b)s</b>/dag)"
@@ -221,7 +228,9 @@ msgstr "Tillagda förra månaden"
 msgid "Added last week"
 msgstr "Tillagda förra veckan"
 
-#: exporting.py:55 exporting.py:235 importing/__init__.py:263
+#: exporting.py:55
+#: exporting.py:235
+#: importing/__init__.py:263
 msgid "Anki Deck (*.anki)"
 msgstr "Ankikortlek (*.anki)"
 
@@ -440,11 +449,13 @@ msgstr "Första förra veckan"
 msgid "First-seen cards:"
 msgstr "Förstagångskort:"
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/anki10.py:30
+#: importing/__init__.py:56
 msgid "Importing..."
 msgstr "Importerar..."
 
-#: stats.py:275 stats.py:366
+#: stats.py:275
+#: stats.py:366
 msgid "Interval"
 msgstr "Intervall"
 
@@ -464,7 +475,9 @@ msgstr "Senaste intervall"
 msgid "Left"
 msgstr "Vänster"
 
-#: graphs.py:151 graphs.py:177 graphs.py:335
+#: graphs.py:151
+#: graphs.py:177
+#: graphs.py:335
 msgid "Mature"
 msgstr "Gamla"
 
@@ -476,7 +489,9 @@ msgstr "Gamla kort: <!--card count-->"
 msgid "Mature cards: <!--correct answers-->"
 msgstr "Gamla kort: <!--correct answers-->"
 
-#: media.py:176 media.py:178 media.py:179
+#: media.py:176
+#: media.py:178
+#: media.py:179
 msgid "MediaMissing"
 msgstr "Mediefil saknas"
 
@@ -497,7 +512,8 @@ msgstr "Modelletiketter"
 msgid "Modify fields..."
 msgstr "Ändra fält..."
 
-#: graphs.py:175 graphs.py:333
+#: graphs.py:175
+#: graphs.py:333
 msgid "New"
 msgstr "Nya"
 
@@ -617,7 +633,8 @@ msgstr "Visa nya kort i omvänd ordning från hur de lades till"
 msgid "Spread new cards out through reviews"
 msgstr "Fördela nya kort bland repetitioner"
 
-#: exporting.py:164 exporting.py:196
+#: exporting.py:164
+#: exporting.py:196
 msgid "Text files (*.txt)"
 msgstr "Textfiler (*.txt)"
 
@@ -629,7 +646,8 @@ msgstr "Text åtskiljd av tabbar eller semikolon (*)"
 msgid "The current model didn't exist"
 msgstr "Den nuvarande modellen fanns inte"
 
-#: importing/csvfile.py:40 importing/wcu.py:29
+#: importing/csvfile.py:40
+#: importing/wcu.py:29
 msgid "The file was not in UTF8 format."
 msgstr "Filen var inte i UTF8-format"
 
@@ -712,7 +730,9 @@ msgstr "Uppdaterar prioteringar..."
 msgid "Upgrading Deck..."
 msgstr "Uppgraderar kortlek..."
 
-#: graphs.py:150 graphs.py:176 graphs.py:334
+#: graphs.py:150
+#: graphs.py:176
+#: graphs.py:334
 msgid "Young"
 msgstr "Unga"
 
@@ -728,11 +748,16 @@ msgstr "Unga kort: <!--correct answers-->"
 msgid "[invalid question/answer format]"
 msgstr "[ogiltigt format för fråga/svar]"
 
-#: sync.py:231 sync.py:235
+#: sync.py:231
+#: sync.py:235
 msgid "all"
 msgstr "alla"
 
-#: stats.py:368 stats.py:370 stats.py:372 stats.py:374 stats.py:376
+#: stats.py:368
+#: stats.py:370
+#: stats.py:372
+#: stats.py:374
+#: stats.py:376
 msgid "cards/day"
 msgstr "kort/dag"
 
@@ -751,111 +776,76 @@ msgstr "okänt"
 
 #~ msgid "%(a)d.%(b)df"
 #~ msgstr "%(a)d,%(b)df"
-
 #~ msgid "%(count)s %(gradename)s kanji."
 #~ msgstr "%(count)s %(gradename)s kanji."
-
 #~ msgid "%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%)."
 #~ msgstr "%(gradename)s: %(count)s av sammanlagt %(total)s (%(percent)0.1f%%)."
-
 #~ msgid "%0.1f seconds"
 #~ msgstr "%0.1f sekunder"
-
 #~ msgid "%sd"
 #~ msgstr "%s dag"
-
 #~ msgid "%sh"
 #~ msgstr "%s tim."
-
 #~ msgid "%sm"
 #~ msgstr "%s min"
-
 #~ msgid "%ss"
 #~ msgstr "%s sek"
-
 #~ msgid "%sy"
 #~ msgstr "%s år"
-
 #~ msgid "<b>%0.0f</b> days"
 #~ msgstr "<b>%0.0f</b> dagar"
-
 #~ msgid "<b>%0.1f</b> cards/day"
 #~ msgstr "<b>%0.1f</b> kort/dag"
-
 #~ msgid "<b>Averages</b><br>"
 #~ msgstr "<b>Genomsnitt</b><br>"
-
 #~ msgid "<h1>Kanji statistics</h1>The %d seen cards in this deck contain:"
 #~ msgstr "<h1>Kanji-statistik</h1>De %d kort i denna kortlek som setts innehåller:"
-
 #~ msgid "<h1>Missing</h1>"
 #~ msgstr "<h1>Saknade</h1>"
-
 #~ msgid "<h1>Non-Jouyou</h1>"
 #~ msgstr "<h1>Icke-jouyou</h1>"
-
 #~ msgid "<h1>Seen</h1>"
 #~ msgstr "<h1>Sedda</h1>"
-
 #~ msgid "<li>%d total unique kanji.</li>"
 #~ msgstr "<li>Sammanlagt %d unika kanji.</li>"
-
 #~ msgid "Adding views and indices..."
 #~ msgstr "Lägger till visningsätt och index..."
-
 #~ msgid "Anki 1.0 deck (*.anki)"
 #~ msgstr "Ankikortlek 1.0 (*.anki)"
-
 #~ msgid "Anki deck (*.anki)"
 #~ msgstr "Ankikortlek (*.anki)"
-
 #~ msgid "Anki decks (*.anki)"
 #~ msgstr "Ankikortlekar (*.anki)"
-
 #~ msgid "Cantonese"
 #~ msgstr "Kantonesiska"
-
 #~ msgid "Couldn't find pattern. The file should be a series of lines separated by tabs or semicolons."
 #~ msgstr "Kunde inte hitta mönstret. Filen skall vara en serie av rader som skiljs av tabbar eller semikolon."
-
 #~ msgid "First-seen cards: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> of <b>%(gNewTotal)d</b>)<br><br>"
 #~ msgstr "Kort som sågs för första gången: <b>%(gNewYes%)0.1f%%</b> (<b>%(gNewYes)d</b> av <b>%(gNewTotal)d</b>)<br><br>"
-
 #~ msgid "Japanese"
 #~ msgstr "Japanska"
-
 #~ msgid "Jouyou levels:"
 #~ msgstr "Jouyou-nivåer:"
-
 #~ msgid "Line %(line)d doesn't match pattern '%(pat)s'"
 #~ msgstr "Rad %(line)d följer inte mönstret '%(pat)s'"
-
 #~ msgid "Mandarin"
 #~ msgstr "Standardkinesiska"
-
 #~ msgid "Mature cards: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> of <b>%(gMatureTotal)d</b>)<br>"
 #~ msgstr "Gamla kort: <b>%(gMatureYes%)0.1f%%</b> (<b>%(gMatureYes)d</b> av <b>%(gMatureTotal)d</b>)<br>"
-
 #~ msgid "Mature cards: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
 #~ msgstr "Gamla kort: <b>%(old)d</b> (<b>%(oldP)0.2f%%</b>)<br>"
-
 #~ msgid "Rebuilding queue..."
 #~ msgstr "Bygger om kö..."
-
 #~ msgid "The file had no non-empty lines."
 #~ msgstr "Det fanns enbart tomma rader i filen."
-
 #~ msgid "Unseen cards: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
 #~ msgstr "Kort som inte setts: <b>%(new)d</b> (<b>%(newP)0.2f%%</b>)<br><br>"
-
 #~ msgid "Young cards:"
 #~ msgstr "Unga kort:"
-
 #~ msgid "Young cards: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> of <b>%(gYoungTotal)d</b>)<br>"
 #~ msgstr "Unga kort: <b>%(gYoungYes%)0.1f%%</b> (<b>%(gYoungYes)d</b> av <b>%(gYoungTotal)d</b>)<br>"
-
 #~ msgid "Young cards: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
 #~ msgstr "Unga kort: <b>%(young)d</b> (<b>%(youngP)0.2f%%</b>)<br>"
-
 #~ msgid "off"
 #~ msgstr "av"
+
