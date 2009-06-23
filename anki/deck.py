@@ -3210,8 +3210,8 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
                     "where id in %s" % ids2str(ids))
                 deck.rebuildCounts(full=False)
             # suspended tag obsolete - don't do this yet
-            #deck.suspended = re.sub(u" ?Suspended ?", u"", deck.suspended)
-            #deck.updateTagPriorities()
+            deck.suspended = re.sub(u" ?Suspended ?", u"", deck.suspended)
+            deck.updateTagPriorities()
             deck.version = 39
             deck.s.commit()
         if deck.version < 40:
