@@ -452,9 +452,16 @@ Please do not file a bug report with Anki.<br>""")
 
     def isLeech(self):
         no = self.currentCard.noCount
-        max = self.deck.getInt('leechFails')
-        return (not self.currentCard.successive and
-                no >= max and (max - no) % (max/2) == 0)
+        fmax = self.deck.getInt('leechFails')
+        if not fmax:
+            return
+        return (
+            # failed
+            not self.currentCard.successive and
+            # greater than fail threshold
+            no >= fmax and
+            # at least threshold/2 reps since last time
+            (fmax - no) % (max(fmax/2, 1)) == 0)
 
     def handleLeech(self):
         self.deck.refresh()
