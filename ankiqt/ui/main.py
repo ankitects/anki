@@ -359,6 +359,7 @@ Please do not file a bug report with Anki.<br>""")
             self.deck.s.flush()
             self.showEditor()
         elif state == "saveEdit":
+            self.mainWin.actionRepeatAudio.setEnabled(True)
             self.editor.saveFieldsNow()
             self.mainWin.buttonStack.show()
             self.deck.refresh()
