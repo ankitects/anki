@@ -72,6 +72,9 @@ class DeckProperties(QDialog):
         # hour shift
         self.dialog.timeOffset.setText(str(
             (self.d.utcOffset - time.timezone) / 60.0 / 60.0))
+        # leeches
+        self.dialog.suspendLeeches.setChecked(self.d.getBool("suspendLeeches"))
+        self.dialog.leechFails.setValue(self.d.getInt("leechFails"))
 
     def drawSourcesTable(self):
         self.dialog.sourcesTable.clear()
@@ -238,6 +241,13 @@ class DeckProperties(QDialog):
             self.updateField(self.d, 'delay2', v)
             v = int(self.dialog.failedCardMax.text())
             self.updateField(self.d, 'failedCardMax', v)
+        except ValueError:
+            pass
+        try:
+            self.d.setVar("suspendLeeches",
+                          not not self.dialog.suspendLeeches.isChecked())
+            self.d.setVar("leechFails",
+                          int(self.dialog.leechFails.value()))
         except ValueError:
             pass
         # hour shift

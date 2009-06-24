@@ -14,7 +14,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki import DeckStorage
 from anki.errors import *
-from anki.sound import hasSound, playFromText, clearAudioQueue
+from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
 from anki.utils import addTags, deleteTags, parseTags, canonifyTags, stripHTML
 from anki.media import rebuildMediaDir, downloadMissing
 from anki.db import OperationalError, SessionHelper
@@ -119,6 +119,7 @@ class AnkiQt(QMainWindow):
                      SIGNAL("clicked()"),
                      self.onClose)
         # notices
+        self.noticeShown = 0
         self.mainWin.noticeFrame.setShown(False)
         self.connect(self.mainWin.noticeButton, SIGNAL("clicked()"),
                      lambda: self.mainWin.noticeFrame.setShown(False))
@@ -129,8 +130,13 @@ class AnkiQt(QMainWindow):
             self.mainWin.noticeButton.setFixedHeight(20)
 
     def setNotice(self, str):
+        self.noticeShown = time.time()
         self.mainWin.noticeLabel.setText(str)
         self.mainWin.noticeFrame.setShown(True)
+
+    def maybeClearNotice(self):
+        if time.time() - self.noticeShown > 5:
+            self.mainWin.noticeFrame.setShown(False)
 
     def setupViews(self):
         self.bodyView = ui.view.View(self, self.mainWin.mainText,
@@ -299,6 +305,7 @@ Please do not file a bug report with Anki.<br>""")
         elif state == "getQuestion":
             # stop anything playing
             clearAudioQueue()
+            self.maybeClearNotice()
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
@@ -445,7 +452,8 @@ Please do not file a bug report with Anki.<br>""")
         self.moveToState("getQuestion")
 
     def isLeech(self):
-        return not self.currentCard.successive and self.currentCard.noCount > 15
+        return (not self.currentCard.successive and
+                self.currentCard.noCount >= self.deck.getInt('leechFails'))
 
     def handleLeech(self):
         self.deck.refresh()
@@ -454,13 +462,15 @@ Please do not file a bug report with Anki.<br>""")
         self.currentCard.fact.tags = canonifyTags(tags)
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
-        self.deck.suspendCards([self.currentCard.id])
+        txt = (_("""\
+<b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""")
+               % stripHTML(stripSounds(self.currentCard.question)).\
+               replace("\n", " ")[0:30])
+        if self.deck.getBool('suspendLeeches'):
+            self.deck.suspendCards([self.currentCard.id])
+            txt += _(" It has been suspended.")
         self.deck.refresh()
-        self.setNotice(_("""\
-<b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>
-and has been suspended.""") %
-                       stripHTML(self.currentCard.question)[0:30].\
-                       replace("\n", " "))
+        self.setNotice(txt)
 
     def startRefreshTimer(self):
         "Update the screen once a minute until next card is displayed."

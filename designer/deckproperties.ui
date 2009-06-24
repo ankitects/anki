@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>426</width>
-    <height>401</height>
+    <width>419</width>
+    <height>457</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -294,7 +294,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QLabel" name="label_27">
          <property name="text">
-          <string>&lt;h1&gt;Advanced Scheduling&lt;/h1&gt;</string>
+          <string>&lt;h1&gt;Advanced&lt;/h1&gt;</string>
          </property>
         </widget>
        </item>
@@ -569,6 +569,30 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>&lt;b&gt;Suspend leeches&lt;/b&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QCheckBox" name="suspendLeeches">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>&lt;b&gt;Leech failure threshold&lt;/b&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QSpinBox" name="leechFails"/>
+         </item>
         </layout>
        </item>
        <item>
@@ -626,6 +650,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>collapse</tabstop>
   <tabstop>failedCardMax</tabstop>
   <tabstop>timeOffset</tabstop>
+  <tabstop>suspendLeeches</tabstop>
+  <tabstop>leechFails</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
