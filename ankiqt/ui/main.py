@@ -2751,18 +2751,45 @@ Consider backing up your media directory first."""))
     ##########################################################################
 
     def setupProxy(self):
-        from PyQt4.QtNetwork import QNetworkProxy
+        from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory, QNetworkProxyQuery
+
+        class MyQNetworkProxyFactory(QNetworkProxyFactory):
+            def __init__(self, host, port, user, password):
+                QNetworkProxyFactory.__init__(self)
+                self.host=host
+                self.port=port
+                self.user=user
+                self.password=password
+
+            def makeProxy(self, proxyType):
+                proxy = QNetworkProxy()
+                proxy.setType(proxyType)
+                proxy.setHostName(self.host)
+                proxy.setPort(self.port)
+                if self.user:
+                    proxy.setUser(self.user)
+                    proxy.setPassword(self.password)
+                return proxy
+
+            def queryProxy(self, proxyQuery):
+                proxyList = []
+                if self.host:
+                    proxyList.append(self.makeProxy(QNetworkProxy.HttpProxy))
+                    proxyList.append(self.makeProxy(QNetworkProxy.HttpCachingProxy))
+                proxyList += QNetworkProxyFactory.systemProxyForQuery(proxyQuery)
+                return proxyList
+
         import urllib2
         if self.config['proxyHost']:
             # qt
-            proxy = QNetworkProxy()
-            proxy.setType(QNetworkProxy.HttpProxy)
-            proxy.setHostName(self.config['proxyHost'])
-            proxy.setPort(self.config['proxyPort'])
-            if self.config['proxyUser']:
-                proxy.setUser(self.config['proxyUser'])
-                proxy.setPassword(self.config['proxyPass'])
-            QNetworkProxy.setApplicationProxy(proxy)
+            QNetworkProxyFactory.setApplicationProxyFactory(
+                       MyQNetworkProxyFactory(
+                           self.config['proxyHost'],
+                           self.config['proxyPort'],
+                           self.config['proxyUser'],
+                           self.config['proxyPass']
+                       )
+            )
             # python
             proxy = "http://"
             if self.config['proxyUser']:
