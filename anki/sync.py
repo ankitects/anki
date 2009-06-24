@@ -907,8 +907,17 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             return True
         for sum in sums:
             for l in sum.values():
-                if len(l) > 1000:
+                if len(l) > 500:
                     return True
+        if self.deck.s.scalar(
+            "select count() from reviewHistory where time > :ls",
+            ls=self.deck.lastSync) > 500:
+            return True
+        lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))
+        if self.deck.s.scalar(
+            "select count() from stats where day >= :day",
+            day=lastDay) > 100:
+            return True
         return False
 
     def prepareFullSync(self):
