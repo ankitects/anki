@@ -459,6 +459,7 @@ Please do not file a bug report with Anki.<br>""")
     def handleLeech(self):
         self.deck.refresh()
         tags = self.currentCard.fact.tags
+        wasLeech = "Leech" in tags
         tags = addTags("Leech", tags)
         self.currentCard.fact.tags = canonifyTags(tags)
         self.currentCard.fact.setModified(textChanged=True)
@@ -467,7 +468,7 @@ Please do not file a bug report with Anki.<br>""")
 <b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""")
                % stripHTML(stripSounds(self.currentCard.question)).\
                replace("\n", " ")[0:30])
-        if self.deck.getBool('suspendLeeches'):
+        if self.deck.getBool('suspendLeeches') and not wasLeech:
             self.deck.suspendCards([self.currentCard.id])
             txt += _(" It has been suspended.")
         self.deck.refresh()
