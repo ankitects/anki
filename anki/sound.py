@@ -115,6 +115,7 @@ else:
 
 mplayerQueue = []
 mplayerManager = None
+mplayerReader = None
 mplayerCond = threading.Condition()
 
 class MplayerReader(threading.Thread):
@@ -166,9 +167,11 @@ class MplayerMonitor(threading.Thread):
                 mplayerCmd, startupinfo=si, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except OSError:
+            mplayerCond.release()
             raise Exception("Audio player not found")
 
 def queueMplayer(path):
+    ensureMplayerThreads()
     path = path.encode(sys.getfilesystemencoding())
     mplayerCond.acquire()
     mplayerQueue.append(path)
@@ -180,7 +183,20 @@ def clearMplayerQueue():
     mplayerQueue.append(None)
     mplayerCond.release()
 
+def ensureMplayerThreads():
+    global mplayerManager, mplayerReader
+    if not mplayerManager:
+        mplayerManager = MplayerMonitor()
+        mplayerManager.daemon = True
+        mplayerManager.start()
+        mplayerReader = MplayerReader()
+        mplayerReader.daemon = True
+        mplayerReader.start()
+        atexit.register(stopMplayer)
+
 def stopMplayer(restart=False):
+    if not mplayerManager:
+        return
     mplayerCond.acquire()
     if mplayerManager.mplayer:
         while 1:
@@ -205,14 +221,6 @@ def stopMplayer(restart=False):
 
 def stopMplayerOnce():
     stopMplayer(restart=True)
-
-mplayerManager = MplayerMonitor()
-mplayerManager.daemon = True
-mplayerManager.start()
-mplayerReader = MplayerReader()
-mplayerReader.daemon = True
-mplayerReader.start()
-atexit.register(stopMplayer)
 
 addHook("deckClosed", stopMplayerOnce)
 
