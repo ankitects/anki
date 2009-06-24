@@ -55,7 +55,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 40
+DECK_VERSION = 41
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -2041,6 +2041,13 @@ cardTags.tagId in %s""" % ids2str(ids)
             ret = int(ret)
         return ret
 
+    def getBool(self, key):
+        ret = self.s.scalar("select value from deckVars where key = :k",
+                            k=key)
+        if ret is not None:
+            ret = not not int(ret)
+        return ret
+
     def setVar(self, key, value, mod=True):
         if self.s.scalar("""
 select value = :value from deckVars
@@ -3218,6 +3225,12 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             # now stores media url
             deck.s.statement("update models set features = ''")
             deck.version = 40
+            deck.s.commit()
+        if deck.version < 41:
+            # leech control in deck
+            deck.setVar("suspendLeeches", True)
+            deck.setVar("leechFails", 16)
+            deck.version = 41
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
