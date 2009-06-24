@@ -4,8 +4,8 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtNetwork import *
 import ankiqt, simplejson, time, cStringIO, zipfile, tempfile, os, re
+import traceback, urllib2
 from ankiqt.ui.utils import saveGeom, restoreGeom, showInfo
 from anki.utils import fmtTimeSpan
 
@@ -47,53 +47,16 @@ class GetShared(QDialog):
                      self.limit)
 
     def fetchData(self):
-        h = QHttp(self)
-        h.connect(h, SIGNAL("requestFinished(int,bool)"), self.onReqFin)
-        h.connect(h, SIGNAL("proxyAuthenticationRequired(QNetworkProxy,"
-                            "QAuthenticator*)"),
-                  self.onProxyAuth)
-        h.setHost("anki.ichi2.net")
-        #h.setHost("localhost", 8001)
-        self.conId = h.get("/file/search?t=%d" % self.type)
-        self.http = h
-        self.parent.setProgressParent(self)
-        self.parent.startProgress()
-
-    def onProxyAuth(self, proxy, auth):
-        auth.setUser(self.parent.config['proxyUser'])
-        auth.setPassword(self.parent.config['proxyPass'])
-
-    def onReqFin(self, id, err):
-        "List fetched."
-        if id != self.conId:
-            return
-        self.parent.finishProgress()
-        self.parent.setProgressParent(None)
-        self.form.search.setFocus()
-        if err:
-            errorString = self.http.errorString()
-        else:
-            # double check ... make sure http status code was valid
-            # this is to counter bugs in handling proxy responses
-            respHeader = self.http.lastResponse()
-            if respHeader.isValid():
-                statusCode = respHeader.statusCode()
-                if statusCode < 200 or statusCode >= 300:
-                    err = True
-                    errorString = respHeader.reasonPhrase()
-            else:
-                err = True
-                errorString = "Invalid HTTP header received!"
-
-        if err:
-            if self.parent.config['proxyHost']:
-                errorString += "\n" + _("Please check the proxy settings.")
-            showInfo(_("Unable to connect to server.") + "\n" +
-                     errorString, parent=self)
+        try:
+            sock = urllib2.urlopen(
+                "http://anki.ichi2.net/file/search?t=%d" % self.type)
+            self.allList = simplejson.loads(unicode(sock.read()))
+        except:
+            showInfo(_("Unable to connect to server.\n\n") +
+                     traceback.format_exc())
             self.close()
             return
-        data = self.http.readAll()
-        self.allList = simplejson.loads(unicode(data))
+        self.form.search.setFocus()
         self.typeChanged()
         self.limit()
 
@@ -186,83 +149,80 @@ class GetShared(QDialog):
         if self.type == 0:
             if not self.parent.saveAndClose(hideWelcome=True, parent=self):
                 return QDialog.accept(self)
-        h = QHttp(self)
-        h.connect(h, SIGNAL("requestFinished(int,bool)"), self.onReqFin2)
-        h.connect(h, SIGNAL("dataReadProgress(int,int)"), self.dataRead)
-        h.connect(h, SIGNAL("proxyAuthenticationRequired(QNetworkProxy,"
-                            "QAuthenticator*)"),
-                  self.onProxyAuth)
-        h.setHost("anki.ichi2.net")
-        #h.setHost("localhost", 8001)
-        self.conId = h.get("/file/get?id=%d" % self.curRow[R_ID])
-        self.http = h
-        self.parent.setProgressParent(self)
-        self.parent.startProgress()
-
-    def dataRead(self, done, total):
-        self.parent.updateProgress(label=_("Downloaded %dKB") %
-                                   (done/1024),
-                                   process=False)
-
-    def onReqFin2(self, id, err):
-        "File fetched."
-        if id != self.conId:
-            return
+        (fd, tmpname) = tempfile.mkstemp(prefix="anki")
+        tmpfile = os.fdopen(fd, "w+b")
+        cnt = 0
         try:
-            self.parent.finishProgress()
-            self.parent.setProgressParent(None)
-            if err:
-                showInfo(_("Unable to connect to server.") + "\n" +
-                         self.http.errorString(), parent=self)
+            self.parent.setProgressParent(self)
+            self.parent.startProgress()
+            try:
+                sock = urllib2.urlopen(
+                    "http://anki.ichi2.net/file/get?id=%d" %
+                    self.curRow[R_ID])
+                while 1:
+                    data = sock.read(65536)
+                    if not data:
+                        break
+                    cnt += len(data)
+                    tmpfile.write(data)
+                    self.parent.updateProgress(
+                        label=_("Downloaded %dKB") % (cnt/1024.0))
+            except:
+                showInfo(_("Unable to connect to server.\n\n") +
+                         traceback.format_exc())
                 self.close()
                 return
-            data = self.http.readAll()
-            ext = os.path.splitext(self.curRow[R_FNAME])[1]
-            if ext == ".zip":
-                f = cStringIO.StringIO()
-                f.write(data)
-                z = zipfile.ZipFile(f)
-            else:
-                z = None
-            tit = self.curRow[R_TITLE]
-            tit = re.sub("[^][A-Za-z0-9 ()\-]", "", tit)
-            tit = tit[0:40]
-            if self.type == 0:
-                # deck
-                dd = self.parent.documentDir
-                p = os.path.join(dd, tit + ".anki")
-                if os.path.exists(p):
-                    tit += "%d" % time.time()
-                for l in z.namelist():
-                    if l == "shared.anki":
-                        dpath = os.path.join(dd, tit + ".anki")
-                        open(dpath, "wb").write(z.read(l))
-                    elif l.startswith("shared.media/"):
-                        try:
-                            os.mkdir(os.path.join(dd, tit + ".media"))
-                        except OSError:
-                            pass
-                        open(os.path.join(dd, tit + ".media",
-                                          os.path.basename(l)),"wb").write(z.read(l))
-                self.parent.loadDeck(dpath)
-            else:
-                pd = self.parent.pluginsFolder()
-                if z:
-                    for l in z.infolist():
-                        if not l.file_size:
-                            continue
-                        try:
-                            os.makedirs(os.path.join(
-                                pd, os.path.dirname(l.filename)))
-                        except OSError:
-                            pass
-                        open(os.path.join(pd, l.filename), "wb").\
-                                              write(z.read(l.filename))
-                else:
-                    open(os.path.join(pd, tit + ext), "wb").write(data)
-                showInfo(_("Plugin downloaded. Please restart Anki."),
-                         parent=self)
-                return
         finally:
+            self.parent.setProgressParent(None)
+            self.parent.finishProgress()
             QDialog.accept(self)
+        # file is fetched
+        tmpfile.seek(0)
+        self.handleFile(tmpfile)
+        QDialog.accept(self)
+
+    def handleFile(self, file):
+        ext = os.path.splitext(self.curRow[R_FNAME])[1]
+        if ext == ".zip":
+            z = zipfile.ZipFile(file)
+        else:
+            z = None
+        tit = self.curRow[R_TITLE]
+        tit = re.sub("[^][A-Za-z0-9 ()\-]", "", tit)
+        tit = tit[0:40]
+        if self.type == 0:
+            # deck
+            dd = self.parent.documentDir
+            p = os.path.join(dd, tit + ".anki")
+            if os.path.exists(p):
+                tit += "%d" % time.time()
+            for l in z.namelist():
+                if l == "shared.anki":
+                    dpath = os.path.join(dd, tit + ".anki")
+                    open(dpath, "wb").write(z.read(l))
+                elif l.startswith("shared.media/"):
+                    try:
+                        os.mkdir(os.path.join(dd, tit + ".media"))
+                    except OSError:
+                        pass
+                    open(os.path.join(dd, tit + ".media",
+                                      os.path.basename(l)),"wb").write(z.read(l))
+            self.parent.loadDeck(dpath)
+        else:
+            pd = self.parent.pluginsFolder()
+            if z:
+                for l in z.infolist():
+                    if not l.file_size:
+                        continue
+                    try:
+                        os.makedirs(os.path.join(
+                            pd, os.path.dirname(l.filename)))
+                    except OSError:
+                        pass
+                    open(os.path.join(pd, l.filename), "wb").\
+                                          write(z.read(l.filename))
+            else:
+                open(os.path.join(pd, tit + ext), "wb").write(file.read())
+            showInfo(_("Plugin downloaded. Please restart Anki."),
+                     parent=self)
 
