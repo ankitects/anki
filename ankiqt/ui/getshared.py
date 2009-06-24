@@ -28,6 +28,7 @@ class GetShared(QDialog):
         self.parent = parent
         self.form = ankiqt.forms.getshared.Ui_Dialog()
         self.form.setupUi(self)
+        self.ok = True
         restoreGeom(self, "getshared")
         self.setupTable()
         self.onChangeType(type)
@@ -35,7 +36,8 @@ class GetShared(QDialog):
             self.setWindowTitle(_("Download Shared Deck"))
         else:
             self.setWindowTitle(_("Download Shared Plugin"))
-        self.exec_()
+        if self.ok:
+            self.exec_()
 
     def setupTable(self):
         self.connect(
@@ -55,6 +57,7 @@ class GetShared(QDialog):
             showInfo(_("Unable to connect to server.\n\n") +
                      traceback.format_exc())
             self.close()
+            self.ok = False
             return
         self.form.search.setFocus()
         self.typeChanged()
