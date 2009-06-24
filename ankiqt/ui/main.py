@@ -119,7 +119,6 @@ class AnkiQt(QMainWindow):
                      SIGNAL("clicked()"),
                      self.onClose)
         # notices
-        self.noticeShown = 0
         self.mainWin.noticeFrame.setShown(False)
         self.connect(self.mainWin.noticeButton, SIGNAL("clicked()"),
                      lambda: self.mainWin.noticeFrame.setShown(False))
@@ -129,13 +128,11 @@ class AnkiQt(QMainWindow):
             self.mainWin.noticeButton.setFixedWidth(20)
             self.mainWin.noticeButton.setFixedHeight(20)
 
-    def setNotice(self, str):
-        self.noticeShown = time.time()
-        self.mainWin.noticeLabel.setText(str)
-        self.mainWin.noticeFrame.setShown(True)
-
-    def maybeClearNotice(self):
-        if time.time() - self.noticeShown > 5:
+    def setNotice(self, str=""):
+        if str:
+            self.mainWin.noticeLabel.setText(str)
+            self.mainWin.noticeFrame.setShown(True)
+        else:
             self.mainWin.noticeFrame.setShown(False)
 
     def setupViews(self):
@@ -305,7 +302,6 @@ Please do not file a bug report with Anki.<br>""")
         elif state == "getQuestion":
             # stop anything playing
             clearAudioQueue()
-            self.maybeClearNotice()
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
@@ -440,6 +436,8 @@ Please do not file a bug report with Anki.<br>""")
         self.deck.answerCard(self.currentCard, quality)
         if self.isLeech():
             self.handleLeech()
+        else:
+            self.setNotice()
         self.lastScheduledTime = anki.utils.fmtTimeSpan(
             self.currentCard.due - time.time())
         self.lastQuality = quality
