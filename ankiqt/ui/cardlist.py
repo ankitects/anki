@@ -1274,6 +1274,9 @@ class ChangeModelDialog(QDialog):
                         not fmap):
             return ui.utils.showInfo(
                 _("Targets must be unique."), parent=self)
+        if not any(cmap.values()):
+            return ui.utils.showInfo(
+                _("Must map at least one template."), parent=self)
         if self.targetModel == self.oldModel:
             self.ret = (self.targetModel, None, cmap)
             return QDialog.accept(self)
