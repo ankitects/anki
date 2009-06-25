@@ -2691,6 +2691,9 @@ class DeckStorage(object):
                 deck.s.statement("analyze")
                 deck._initVars()
                 deck.updateTagPriorities()
+                # leech control in deck
+                deck.setVar("suspendLeeches", True)
+                deck.setVar("leechFails", 16)
             else:
                 if backup:
                     DeckStorage.backup(deck.modified, path)
@@ -3226,11 +3229,13 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.statement("update models set features = ''")
             deck.version = 40
             deck.s.commit()
-        if deck.version < 41:
+        # skip 41
+        if deck.version < 42:
             # leech control in deck
-            deck.setVar("suspendLeeches", True)
-            deck.setVar("leechFails", 16)
-            deck.version = 41
+            if deck.getBool("suspendLeeches") is None:
+                deck.setVar("suspendLeeches", True)
+                deck.setVar("leechFails", 16)
+            deck.version = 42
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
