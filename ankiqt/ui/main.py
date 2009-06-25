@@ -127,6 +127,7 @@ class AnkiQt(QMainWindow):
         elif sys.platform.startswith("darwin"):
             self.mainWin.noticeButton.setFixedWidth(20)
             self.mainWin.noticeButton.setFixedHeight(20)
+        addHook("cardAnswered", self.onCardAnsweredHook)
 
     def setNotice(self, str=""):
         if str:
@@ -434,10 +435,6 @@ Please do not file a bug report with Anki.<br>""")
         self.deck.s.expunge(self.currentCard)
         # answer
         self.deck.answerCard(self.currentCard, quality)
-        if self.isLeech():
-            self.handleLeech()
-        else:
-            self.setNotice()
         self.lastScheduledTime = anki.utils.fmtTimeSpan(
             self.currentCard.due - time.time())
         self.lastQuality = quality
@@ -450,34 +447,16 @@ Please do not file a bug report with Anki.<br>""")
                 self.save()
         self.moveToState("getQuestion")
 
-    def isLeech(self):
-        no = self.currentCard.noCount
-        fmax = self.deck.getInt('leechFails')
-        if not fmax:
+    def onCardAnsweredHook(self, card, isLeech):
+        if not isLeech:
+            self.setNotice()
             return
-        return (
-            # failed
-            not self.currentCard.successive and
-            # greater than fail threshold
-            no >= fmax and
-            # at least threshold/2 reps since last time
-            (fmax - no) % (max(fmax/2, 1)) == 0)
-
-    def handleLeech(self):
-        self.deck.refresh()
-        tags = self.currentCard.fact.tags
-        tags = addTags("Leech", tags)
-        self.currentCard.fact.tags = canonifyTags(tags)
-        self.currentCard.fact.setModified(textChanged=True)
-        self.deck.updateFactTags([self.currentCard.fact.id])
         txt = (_("""\
 <b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""")
                % stripHTML(stripSounds(self.currentCard.question)).\
                replace("\n", " ")[0:30])
-        if self.deck.getBool('suspendLeeches'):
-            self.deck.suspendCards([self.currentCard.id])
+        if isLeech:
             txt += _(" It has been suspended.")
-        self.deck.refresh()
         self.setNotice(txt)
 
     def startRefreshTimer(self):
