@@ -25,7 +25,7 @@ def test_new():
 
 def test_attachNew():
     global newPath, newModified
-    path = "/tmp/test_attachNew"
+    path = "/tmp/test_attachNew.anki"
     try:
         os.unlink(path)
     except OSError:
@@ -56,7 +56,7 @@ def test_attachReadOnly():
     os.unlink(newPath)
 
 def test_saveAs():
-    path = "/tmp/test_saveAs"
+    path = "/tmp/test_saveAs.anki"
     try:
         os.unlink(path)
     except OSError:
