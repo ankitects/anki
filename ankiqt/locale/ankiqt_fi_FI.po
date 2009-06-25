@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_fi_FI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 10:48+0200\n"
+"POT-Creation-Date: 2009-06-25 11:24+0200\n"
 "PO-Revision-Date: 2009-03-22 11:12+0200\n"
 "Last-Translator: Niklas Laxström <niklas.laxstrom AT gmail.com>\n"
 "Language-Team: Finnish <>\n"
@@ -17,39 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
-
-#: ui/about.py:13
-#, python-format
-msgid ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
-"source.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-"<p>\n"
-"Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
-"<p>\n"
-"If you have contributed and are not on this list, please get in touch.\n"
-"<p>\n"
-"A big thanks to all the people who have provided suggestions, bug reports and\n"
-"donations."
-msgstr ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
-"source.<p>\n"
-"Versio %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Vieraile verkkosivulla</a></span>\n"
-"<p>\n"
-"Kirjoittanut Damien Elmes. Korjauksia, käännöksiä ja testaamisessa auttaneet:<p>%(cont)s\n"
-"<p>\n"
-"Jos olet ottanut osaa, mutta nimeäsi ei ole listalla, ota meihin yhteyttä.\n"
-"<p>\n"
-"Suuri kiitos kaikille, jotka ovat antaneet ehdotuksia, tehneet virheraportteja tai\n"
-"lahjoittaneet."
 
 #: ui/status.py:250
 msgid ""
@@ -890,6 +857,10 @@ msgstr "<hylätty>"
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Piilota</a>"
 
+#: ui/about.py:33
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr ""
+
 #: forms/about.py:41
 msgid "About Anki"
 msgstr "Tietoja Ankista"
@@ -1064,6 +1035,10 @@ msgstr ""
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
+
+#: ui/about.py:14
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
+msgstr ""
 
 #: ui/main.py:1309
 #, python-format
@@ -1953,6 +1928,10 @@ msgstr ""
 #: ui/deckproperties.py:84
 msgid "ID"
 msgstr "ID"
+
+#: ui/about.py:31
+msgid "If you have contributed and are not on this list, please get in touch."
+msgstr ""
 
 #: ui/update.py:79
 msgid "Ignore this update"
@@ -3196,6 +3175,15 @@ msgstr "Tunnus"
 msgid "Username:"
 msgstr "Tunnus:"
 
+#: ui/about.py:16
+#, fuzzy, python-format
+msgid "Version %s"
+msgstr "%s"
+
+#: ui/about.py:17
+msgid "Visit website"
+msgstr ""
+
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Odota vähän kauemmin ensi kerralla (pikanäppäin: 2)"
@@ -3220,6 +3208,11 @@ msgstr "Hyvä! Tämän kortin uudelleen ilmestymiseen on aikaa <b>%(next)s</b>."
 #: ui/update.py:78
 msgid "Would you like to download it now?"
 msgstr "Haluatko ladata sen nyt?"
+
+#: ui/about.py:19
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s"
+msgstr ""
 
 #: forms/main.py:1379
 msgid "X"
@@ -3296,6 +3289,37 @@ msgstr ""
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki is a friendly, intelligent spaced learning system. It's free and open\n"
+#~ "source.<p>\n"
+#~ "Version %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
+#~ "<p>\n"
+#~ "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "If you have contributed and are not on this list, please get in touch.\n"
+#~ "<p>\n"
+#~ "A big thanks to all the people who have provided suggestions, bug reports and\n"
+#~ "donations."
+#~ msgstr ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki is a friendly, intelligent spaced learning system. It's free and open\n"
+#~ "source.<p>\n"
+#~ "Versio %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Vieraile verkkosivulla</a></span>\n"
+#~ "<p>\n"
+#~ "Kirjoittanut Damien Elmes. Korjauksia, käännöksiä ja testaamisessa auttaneet:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "Jos olet ottanut osaa, mutta nimeäsi ei ole listalla, ota meihin yhteyttä.\n"
+#~ "<p>\n"
+#~ "Suuri kiitos kaikille, jotka ovat antaneet ehdotuksia, tehneet virheraportteja tai\n"
+#~ "lahjoittaneet."
 
 #~ msgid ""
 #~ "\n"

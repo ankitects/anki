@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 10:48+0200\n"
+"POT-Creation-Date: 2009-06-25 11:24+0200\n"
 "PO-Revision-Date: 2009-04-20 13:10+0600\n"
 "Last-Translator: Charlene <charlener@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,39 +17,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 0.3.1\n"
 "X-Poedit-Bookmarks: -1,132,-1,-1,-1,-1,-1,-1,-1,-1\n"
-
-#: ui/about.py:13
-#, python-format
-msgid ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
-"source.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-"<p>\n"
-"Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
-"<p>\n"
-"If you have contributed and are not on this list, please get in touch.\n"
-"<p>\n"
-"A big thanks to all the people who have provided suggestions, bug reports and\n"
-"donations."
-msgstr ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"\"Анки\" гэж ажиллахад хялбар ба ухаалаг зайны боловсролын тогтолцоо юм. Анки нь үнэгүй ба нээлттэй\n"
-"эхийн юм.<p>\n"
-"Хувилбар %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Веб сайтыг орчих</a></span>\n"
-"<p>\n"
-"Зохиогч: Дамиэн Элмэс. Дараагийн хүмүүс засварлагч, орчуулагч, хяналт, бас өөр зохиолыг тусалсан:<p>%(cont)s\n"
-"<p>\n"
-"Та энэ программыг нэмэрлээд нэрээ нь өмнө жагсаалтын дээр байхгүй бол намайг хэлээрэй.\n"
-"<p>\n"
-"A big thanks to all the people who have provided suggestions, bug reports and\n"
-"donations."
 
 #: ui/status.py:250
 msgid ""
@@ -892,6 +859,10 @@ msgstr "<ignored>"
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Энхийг нуу</a>"
 
+#: ui/about.py:33
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr ""
+
 #: forms/about.py:41
 msgid "About Anki"
 msgstr "Анкигын тухай"
@@ -1066,6 +1037,10 @@ msgstr ""
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Анки"
+
+#: ui/about.py:14
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
+msgstr ""
 
 #: ui/main.py:1309
 #, python-format
@@ -1951,6 +1926,10 @@ msgstr ""
 #: ui/deckproperties.py:84
 msgid "ID"
 msgstr "ялгах тэмдэг"
+
+#: ui/about.py:31
+msgid "If you have contributed and are not on this list, please get in touch."
+msgstr ""
 
 #: ui/update.py:79
 msgid "Ignore this update"
@@ -3184,6 +3163,15 @@ msgstr "Хэрэглэгч"
 msgid "Username:"
 msgstr "Хэрэглэгч:"
 
+#: ui/about.py:16
+#, fuzzy, python-format
+msgid "Version %s"
+msgstr "%s-н дотор"
+
+#: ui/about.py:17
+msgid "Visit website"
+msgstr ""
+
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Дараагийн удаа жаахан хүлээх (богино холбоос: 2)"
@@ -3208,6 +3196,11 @@ msgstr "Сайн байна! Ийм картыг <b>%(next)s</b>-н дараа �
 #: ui/update.py:78
 msgid "Would you like to download it now?"
 msgstr "Та одоо татах гэсийн юм уу?"
+
+#: ui/about.py:19
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s"
+msgstr ""
 
 #: forms/main.py:1379
 msgid "X"
@@ -3284,6 +3277,37 @@ msgstr "тохиргоо"
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr "toplabel"
+
+#~ msgid ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki is a friendly, intelligent spaced learning system. It's free and open\n"
+#~ "source.<p>\n"
+#~ "Version %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
+#~ "<p>\n"
+#~ "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "If you have contributed and are not on this list, please get in touch.\n"
+#~ "<p>\n"
+#~ "A big thanks to all the people who have provided suggestions, bug reports and\n"
+#~ "donations."
+#~ msgstr ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "\"Анки\" гэж ажиллахад хялбар ба ухаалаг зайны боловсролын тогтолцоо юм. Анки нь үнэгүй ба нээлттэй\n"
+#~ "эхийн юм.<p>\n"
+#~ "Хувилбар %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Веб сайтыг орчих</a></span>\n"
+#~ "<p>\n"
+#~ "Зохиогч: Дамиэн Элмэс. Дараагийн хүмүүс засварлагч, орчуулагч, хяналт, бас өөр зохиолыг тусалсан:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "Та энэ программыг нэмэрлээд нэрээ нь өмнө жагсаалтын дээр байхгүй бол намайг хэлээрэй.\n"
+#~ "<p>\n"
+#~ "A big thanks to all the people who have provided suggestions, bug reports and\n"
+#~ "donations."
 
 #, fuzzy
 #~ msgid " (Ctrl+%d)"

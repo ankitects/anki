@@ -8,32 +8,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 10:48+0200\n"
+"POT-Creation-Date: 2009-06-25 11:24+0200\n"
 "PO-Revision-Date: 2008-01-01 HO:MI+ZONE\n"
 "Last-Translator: Michal Čadil <mcadil@gmail.comm>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#: ui/about.py:13
-#, python-format
-msgid ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
-"source.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-"<p>\n"
-"Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
-"<p>\n"
-"If you have contributed and are not on this list, please get in touch.\n"
-"<p>\n"
-"A big thanks to all the people who have provided suggestions, bug reports and\n"
-"donations."
-msgstr ""
 
 #: ui/status.py:250
 msgid ""
@@ -915,6 +896,10 @@ msgstr ""
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Toto schovejte</a>"
 
+#: ui/about.py:33
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr ""
+
 #: forms/about.py:41
 msgid "About Anki"
 msgstr "O Anki..."
@@ -1085,6 +1070,10 @@ msgstr ""
 #: ui/deckproperties.py:188 ui/main.py:2668 forms/main.py:1378
 #: forms/syncdeck.py:42
 msgid "Anki"
+msgstr ""
+
+#: ui/about.py:14
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
 msgstr ""
 
 #: ui/main.py:1309
@@ -1999,6 +1988,10 @@ msgstr ""
 
 #: ui/deckproperties.py:84
 msgid "ID"
+msgstr ""
+
+#: ui/about.py:31
+msgid "If you have contributed and are not on this list, please get in touch."
 msgstr ""
 
 #: ui/update.py:79
@@ -3266,6 +3259,15 @@ msgstr "Přihlašovací jméno"
 msgid "Username:"
 msgstr "Přihlašovací jméno"
 
+#: ui/about.py:16
+#, fuzzy, python-format
+msgid "Version %s"
+msgstr "v %s"
+
+#: ui/about.py:17
+msgid "Visit website"
+msgstr ""
+
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr ""
@@ -3290,6 +3292,11 @@ msgstr "Výborně! Tato kartička se objeví znovu za <b>%(next)s</b>"
 #: ui/update.py:78
 msgid "Would you like to download it now?"
 msgstr "Chcete nyní stáhnout aktualizaci?"
+
+#: ui/about.py:19
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s"
+msgstr ""
 
 #: forms/main.py:1379
 msgid "X"

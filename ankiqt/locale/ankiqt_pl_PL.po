@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 10:48+0200\n"
+"POT-Creation-Date: 2009-06-25 11:24+0200\n"
 "PO-Revision-Date: 2009-05-31 00:26+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -16,38 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: KBabel 1.11.4\n"
-
-#: ui/about.py:13
-#, python-format
-msgid ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
-"source.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-"<p>\n"
-"Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
-"<p>\n"
-"If you have contributed and are not on this list, please get in touch.\n"
-"<p>\n"
-"A big thanks to all the people who have provided suggestions, bug reports and\n"
-"donations."
-msgstr ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki to przyjazny w użyciu, inteligentny system wspomagający naukę. Jest wolnym i otwartym oprogramowaniem.<p>\n"
-"Wersja %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Odwiedź stronę internetową</a></span>\n"
-"<p>\n"
-"Stworzone przez Damiena Elmesa, z poprawkami, tłumaczeniami, testowaniem i projektem autorstwa następujących osób:<p>%(cont)s\n"
-"<p>\n"
-"Jeśli masz swój wkład w program i nie jesteś na liście, zgłoś to.\n"
-"<p>\n"
-"Podziękowania dla wszystkich osób, które podawały pomysły, zgłaszały błędy\n"
-"i wpłacały dary pieniężne."
 
 #: ui/status.py:250
 msgid ""
@@ -881,6 +849,10 @@ msgstr "<zignorowane>"
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Schowaj</a>"
 
+#: ui/about.py:33
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr ""
+
 #: forms/about.py:41
 msgid "About Anki"
 msgstr "O Anki"
@@ -1053,6 +1025,10 @@ msgstr ""
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
+
+#: ui/about.py:14
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
+msgstr ""
 
 #: ui/main.py:1309
 #, python-format
@@ -1928,6 +1904,10 @@ msgstr ""
 #: ui/deckproperties.py:84
 msgid "ID"
 msgstr "ID"
+
+#: ui/about.py:31
+msgid "If you have contributed and are not on this list, please get in touch."
+msgstr ""
 
 #: ui/update.py:79
 msgid "Ignore this update"
@@ -3160,6 +3140,15 @@ msgstr "Nazwa użytkownika"
 msgid "Username:"
 msgstr "Nazwa użytkownika:"
 
+#: ui/about.py:16
+#, fuzzy, python-format
+msgid "Version %s"
+msgstr "w %s"
+
+#: ui/about.py:17
+msgid "Visit website"
+msgstr ""
+
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Następnym razem poczekaj nieco dłużej (skrót: 2)"
@@ -3184,6 +3173,11 @@ msgstr "Brawo! Ta karta pojawi się ponownie za <b>%(next)s</b>."
 #: ui/update.py:78
 msgid "Would you like to download it now?"
 msgstr "Czy chcesz ściągnąć ją teraz?"
+
+#: ui/about.py:19
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s"
+msgstr ""
 
 #: forms/main.py:1379
 msgid "X"
@@ -3259,6 +3253,36 @@ msgstr "opcja"
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr "toplabel"
+
+#~ msgid ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki is a friendly, intelligent spaced learning system. It's free and open\n"
+#~ "source.<p>\n"
+#~ "Version %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
+#~ "<p>\n"
+#~ "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "If you have contributed and are not on this list, please get in touch.\n"
+#~ "<p>\n"
+#~ "A big thanks to all the people who have provided suggestions, bug reports and\n"
+#~ "donations."
+#~ msgstr ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki to przyjazny w użyciu, inteligentny system wspomagający naukę. Jest wolnym i otwartym oprogramowaniem.<p>\n"
+#~ "Wersja %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Odwiedź stronę internetową</a></span>\n"
+#~ "<p>\n"
+#~ "Stworzone przez Damiena Elmesa, z poprawkami, tłumaczeniami, testowaniem i projektem autorstwa następujących osób:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "Jeśli masz swój wkład w program i nie jesteś na liście, zgłoś to.\n"
+#~ "<p>\n"
+#~ "Podziękowania dla wszystkich osób, które podawały pomysły, zgłaszały błędy\n"
+#~ "i wpłacały dary pieniężne."
 
 #, fuzzy
 #~ msgid " (Ctrl+%d)"

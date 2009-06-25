@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_de_DE\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 10:48+0200\n"
+"POT-Creation-Date: 2009-06-25 11:24+0200\n"
 "PO-Revision-Date: 2009-06-20 20:41+0100\n"
 "Last-Translator: Michael Jürges <michael.juerges@googlemail.com>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -16,39 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: KBabel 1.11.4\n"
-
-#: ui/about.py:13
-#, python-format
-msgid ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
-"source.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-"<p>\n"
-"Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
-"<p>\n"
-"If you have contributed and are not on this list, please get in touch.\n"
-"<p>\n"
-"A big thanks to all the people who have provided suggestions, bug reports and\n"
-"donations."
-msgstr ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki ist ein nettes, intelligentes Karteikarten-Lernsystem. Es ist frei und\n"
-"Open Source.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Webseite öffnen</a></span>\n"
-"<p>\n"
-"Geschrieben von Damien Elmes, mit Patches, Übersetzungen, Tests und Designs von:<p>%(cont)s\n"
-"<p>\n"
-"Wenn auch du etwas beigetragen hast und nicht in dieser Liste bist, melde dich.\n"
-"<p>\n"
-"Vielen Dank an alle Personen, die Vorschläge, Fehlermeldungen und Spenden\n"
-"beigetragen haben."
 
 #: ui/status.py:250
 msgid ""
@@ -869,6 +836,10 @@ msgstr "<ignoriert>"
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Ausblenden</a>"
 
+#: ui/about.py:33
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr ""
+
 #: forms/about.py:41
 msgid "About Anki"
 msgstr "Über Anki"
@@ -1037,6 +1008,10 @@ msgstr ""
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
+
+#: ui/about.py:14
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
+msgstr ""
 
 #: ui/main.py:1309
 #, python-format
@@ -1907,6 +1882,10 @@ msgstr "Host"
 #: ui/deckproperties.py:84
 msgid "ID"
 msgstr "ID"
+
+#: ui/about.py:31
+msgid "If you have contributed and are not on this list, please get in touch."
+msgstr ""
 
 #: ui/update.py:79
 msgid "Ignore this update"
@@ -3122,6 +3101,15 @@ msgstr "Benutzername"
 msgid "Username:"
 msgstr "Benutzername:"
 
+#: ui/about.py:16
+#, fuzzy, python-format
+msgid "Version %s"
+msgstr "in %s"
+
+#: ui/about.py:17
+msgid "Visit website"
+msgstr ""
+
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Beim nächsten Mal etwas länger warten (Tastatur: 3)"
@@ -3146,6 +3134,11 @@ msgstr "Gut gemacht! Diese Karte wird in <b>%(next)s</b> wiederholt."
 #: ui/update.py:78
 msgid "Would you like to download it now?"
 msgstr "Möchtest du es jetzt herunterladen?"
+
+#: ui/about.py:19
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s"
+msgstr ""
 
 #: forms/main.py:1379
 msgid "X"
@@ -3222,6 +3215,37 @@ msgstr "Optionen"
 #, fuzzy
 msgid "toplabel"
 msgstr "Label"
+
+#~ msgid ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki is a friendly, intelligent spaced learning system. It's free and open\n"
+#~ "source.<p>\n"
+#~ "Version %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
+#~ "<p>\n"
+#~ "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "If you have contributed and are not on this list, please get in touch.\n"
+#~ "<p>\n"
+#~ "A big thanks to all the people who have provided suggestions, bug reports and\n"
+#~ "donations."
+#~ msgstr ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki ist ein nettes, intelligentes Karteikarten-Lernsystem. Es ist frei und\n"
+#~ "Open Source.<p>\n"
+#~ "Version %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Webseite öffnen</a></span>\n"
+#~ "<p>\n"
+#~ "Geschrieben von Damien Elmes, mit Patches, Übersetzungen, Tests und Designs von:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "Wenn auch du etwas beigetragen hast und nicht in dieser Liste bist, melde dich.\n"
+#~ "<p>\n"
+#~ "Vielen Dank an alle Personen, die Vorschläge, Fehlermeldungen und Spenden\n"
+#~ "beigetragen haben."
 
 #, fuzzy
 #~ msgid " (Ctrl+%d)"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 10:48+0200\n"
-"PO-Revision-Date: 2009-06-25 10:48+0100\n"
+"POT-Creation-Date: 2009-06-25 11:24+0200\n"
+"PO-Revision-Date: 2009-06-25 11:23+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -17,39 +17,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-Language: Swedish\n"
 "X-Poedit-Country: Sweden\n"
-
-#: ui/about.py:13
-#, python-format
-msgid ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki is a friendly, intelligent spaced learning system. It's free and open\n"
-"source.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
-"<p>\n"
-"Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
-"<p>\n"
-"If you have contributed and are not on this list, please get in touch.\n"
-"<p>\n"
-"A big thanks to all the people who have provided suggestions, bug reports and\n"
-"donations."
-msgstr ""
-"\n"
-"<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
-"<p>\n"
-"Anki är ett vänligt, intelligent tidsfördelat inlärningssystem. Det är fritt och med öppen\n"
-"källkod.<p>\n"
-"Version %(ver)s<br>\n"
-"<a href=\"http://ichi2.net/anki/\">Besök hemsidan</a></span>\n"
-"<p>\n"
-"Skrivet av Damien Elmes, med patchar, översättning, uttestning och utformning av:<p>%(cont)s\n"
-"<p>\n"
-"Om du har bidragit och inte finns med på denna lista, kontakta oss.\n"
-"<p>\n"
-"Ett stort tack till alla som har kommit med förslag, felrapporter och\n"
-"donationer."
 
 #: ui/status.py:250
 msgid ""
@@ -871,6 +838,10 @@ msgstr "<ignoreras>"
 msgid "<p><a href=hide:>Hide this</a>"
 msgstr "<p><a href=hide:>Dölj detta</a>"
 
+#: ui/about.py:33
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr "Ett stort tack till alla som har kommit med förslag, felrapporter och donationer"
+
 #: forms/about.py:41
 msgid "About Anki"
 msgstr "Om Anki"
@@ -1040,6 +1011,10 @@ msgstr ""
 #: forms/syncdeck.py:42
 msgid "Anki"
 msgstr "Anki"
+
+#: ui/about.py:14
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
+msgstr "Anki är ett vänligt, intelligent tidsfördelat inlärningssystem. Det är fritt och med öppen källkod."
 
 #: ui/main.py:1309
 #, python-format
@@ -1907,6 +1882,10 @@ msgstr "Värd"
 #: ui/deckproperties.py:84
 msgid "ID"
 msgstr "Id"
+
+#: ui/about.py:31
+msgid "If you have contributed and are not on this list, please get in touch."
+msgstr "Om du har bidragit och inte finns med på denna lista, kontakta oss."
 
 #: ui/update.py:79
 msgid "Ignore this update"
@@ -3116,6 +3095,15 @@ msgstr "Användarnamn"
 msgid "Username:"
 msgstr "Användarnamn:"
 
+#: ui/about.py:16
+#, python-format
+msgid "Version %s"
+msgstr "Version %s"
+
+#: ui/about.py:17
+msgid "Visit website"
+msgstr "Besök webbplatsen"
+
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Vänta lite längre nästa gång (kortkommando: 2)"
@@ -3140,6 +3128,11 @@ msgstr "Bra gjort! Detta kort kommer att visas igen om  <b>%(next)s</b>."
 #: ui/update.py:78
 msgid "Would you like to download it now?"
 msgstr "Vill du hämta hem den nu?"
+
+#: ui/about.py:19
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s"
+msgstr "Skrivet av Damien Elmes, med patchar, översättning, uttestning och utformning av:<p>%(cont)s"
 
 #: forms/main.py:1379
 msgid "X"
@@ -3215,6 +3208,37 @@ msgstr "alternativ"
 #: forms/syncdeck.py:43
 msgid "toplabel"
 msgstr "toppetikett"
+
+#~ msgid ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki is a friendly, intelligent spaced learning system. It's free and open\n"
+#~ "source.<p>\n"
+#~ "Version %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Visit website</a></span>\n"
+#~ "<p>\n"
+#~ "Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "If you have contributed and are not on this list, please get in touch.\n"
+#~ "<p>\n"
+#~ "A big thanks to all the people who have provided suggestions, bug reports and\n"
+#~ "donations."
+#~ msgstr ""
+#~ "\n"
+#~ "<center><img src=\":/icons/anki-logo-thin.png\"></center>\n"
+#~ "<p>\n"
+#~ "Anki är ett vänligt, intelligent tidsfördelat inlärningssystem. Det är fritt och med öppen\n"
+#~ "källkod.<p>\n"
+#~ "Version %(ver)s<br>\n"
+#~ "<a href=\"http://ichi2.net/anki/\">Besök hemsidan</a></span>\n"
+#~ "<p>\n"
+#~ "Skrivet av Damien Elmes, med patchar, översättning, uttestning och utformning av:<p>%(cont)s\n"
+#~ "<p>\n"
+#~ "Om du har bidragit och inte finns med på denna lista, kontakta oss.\n"
+#~ "<p>\n"
+#~ "Ett stort tack till alla som har kommit med förslag, felrapporter och\n"
+#~ "donationer."
 
 #~ msgid ""
 #~ "\n"
