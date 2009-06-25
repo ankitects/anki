@@ -15,7 +15,7 @@ from anki.lang import _, ngettext
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
-     canonifyTags, joinTags
+     canonifyTags, joinTags, addTags
 from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel, formatQA
 from anki.stats import dailyStats, globalStats, genToday
@@ -413,7 +413,38 @@ where id != :id and factId = :factId""",
         entry = CardHistoryEntry(card, ease, lastDelay)
         entry.writeSQL(self.s)
         self.modified = now
+        isLeech = self.isLeech(card)
+        if isLeech:
+            card = self.handleLeech(card)
+        runHook("cardAnswered", card, isLeech)
         self.setUndoEnd(undoName)
+
+    def isLeech(self, card):
+        no = card.noCount
+        fmax = self.getInt('leechFails')
+        if not fmax:
+            return
+        return (
+            # failed
+            not card.successive and
+            # greater than fail threshold
+            no >= fmax and
+            # at least threshold/2 reps since last time
+            (fmax - no) % (max(fmax/2, 1)) == 0)
+
+    def handleLeech(self, card):
+        self.refresh()
+        scard = self.cardFromId(card.id, True)
+        tags = scard.fact.tags
+        tags = addTags("Leech", tags)
+        scard.fact.tags = canonifyTags(tags)
+        scard.fact.setModified(textChanged=True)
+        self.updateFactTags([scard.fact.id])
+        self.s.flush()
+        self.s.expunge(scard)
+        if self.getBool('suspendLeeches'):
+            self.suspendCards([card.id])
+        self.refresh()
 
     # Interval management
     ##########################################################################
