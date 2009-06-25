@@ -30,7 +30,8 @@ CARD_CREATED = 6
 CARD_MODIFIED = 7
 CARD_INTERVAL = 8
 CARD_EASE = 9
-CARD_PRIORITY = 10
+CARD_NO = 10
+CARD_PRIORITY = 11
 
 # Deck editor
 ##########################################################################
@@ -69,6 +70,8 @@ class DeckModel(QAbstractTableModel):
             f = QFont()
             f.setPixelSize(self.parent.config['editFontSize'])
             return QVariant(f)
+        if role == Qt.TextAlignmentRole and index.column() == 2:
+            return QVariant(Qt.AlignHCenter)
         elif role == Qt.DisplayRole or role == Qt.EditRole:
             if len(self.cards[index.row()]) == 1:
                 # not cached yet
@@ -168,7 +171,7 @@ where cards.factId = facts.id """
         try:
             self.cards[index.row()] = self.deck.s.first("""
     select id, question, answer, due, reps, factId, created, modified,
-    interval, factor, priority from cards where id = :id""",
+    interval, noCount, factor, priority from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
                       index, self.index(index.row(), 1))
@@ -221,6 +224,8 @@ where cards.factId = facts.id """
             return self.repsColumn(index)
         elif self.sortKey == "factor":
             return self.easeColumn(index)
+        elif self.sortKey == "noCount":
+            return self.noColumn(index)
         else:
             return self.nextDue(index)
 
@@ -235,6 +240,8 @@ where cards.factId = facts.id """
             k = _("Reps")
         elif self.sortKey == "factor":
             k = _("Ease")
+        elif self.sortKey == "noCount":
+            k = _("Lapses")
         else:
             k = _("Due")
         self.columns[-1][0] = k
@@ -256,6 +263,9 @@ where cards.factId = facts.id """
 
     def easeColumn(self, index):
         return "%0.2f" % self.cards[index.row()][CARD_EASE]
+
+    def noColumn(self, index):
+        return "%d" % self.cards[index.row()][CARD_EASE]
 
 class StatusDelegate(QItemDelegate):
 
@@ -428,6 +438,7 @@ class EditDeck(QMainWindow):
             _("Reps"),
             _("Ease"),
             _("Fact Created"),
+            _("Lapses"),
             ]
         self.sortFields = sorted(self.deck.allFields())
         self.sortList.extend([_("'%s'") % f for f in self.sortFields])
@@ -456,8 +467,10 @@ class EditDeck(QMainWindow):
             self.sortKey = "factor"
         elif idx == 8:
             self.sortKey = "fact"
+        elif idx == 9:
+            self.sortKey = "noCount"
         else:
-            self.sortKey = ("field", self.sortFields[idx-9])
+            self.sortKey = ("field", self.sortFields[idx-10])
         self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
         self.deck.setVar('sortIndex', idx)
@@ -472,7 +485,7 @@ class EditDeck(QMainWindow):
     def rebuildSortIndex(self, key):
         if key not in (
             "question", "answer", "created", "modified", "due", "interval",
-            "reps", "factor"):
+            "reps", "factor", "noCount"):
             return
         old = self.deck.s.scalar("select sql from sqlite_master where name = :k",
                                  k="ix_cards_sort")
