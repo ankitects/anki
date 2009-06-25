@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt_pl_PL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 11:24+0200\n"
+"POT-Creation-Date: 2009-06-25 11:33+0200\n"
 "PO-Revision-Date: 2009-05-31 00:26+0200\n"
 "Last-Translator: Piotr Kubowicz <derbeth-fora@wp.pl>\n"
 "Language-Team: polski <pl@li.org>\n"
@@ -448,6 +448,11 @@ msgstr ""
 
 #: forms/deckproperties.py:335
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
+msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Pomoc</a>"
+
+#: ui/about.py:17
+#, fuzzy
+msgid "<a href='http://ichi2.net/anki/'>Visit website</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Pomoc</a>"
 
 #: ui/main.py:473
@@ -3144,10 +3149,6 @@ msgstr "Nazwa użytkownika:"
 #, fuzzy, python-format
 msgid "Version %s"
 msgstr "w %s"
-
-#: ui/about.py:17
-msgid "Visit website"
-msgstr ""
 
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"

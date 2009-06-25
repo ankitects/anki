@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 11:24+0200\n"
+"POT-Creation-Date: 2009-06-25 11:33+0200\n"
 "PO-Revision-Date: 2008-10-24 14:28+0100\n"
 "Last-Translator: Marco Giancotti <nac.est@libero.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -461,6 +461,11 @@ msgstr ""
 
 #: forms/deckproperties.py:335
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
+msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Aiuto</a>"
+
+#: ui/about.py:17
+#, fuzzy
+msgid "<a href='http://ichi2.net/anki/'>Visit website</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Aiuto</a>"
 
 #: ui/main.py:473
@@ -3260,10 +3265,6 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Version %s"
 msgstr "tra %s"
-
-#: ui/about.py:17
-msgid "Visit website"
-msgstr ""
 
 #: forms/main.py:1401
 #, fuzzy

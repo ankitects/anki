@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 11:24+0200\n"
+"POT-Creation-Date: 2009-06-25 11:33+0200\n"
 "PO-Revision-Date: 2008-09-24 02:36+0100\n"
 "Last-Translator: Emmanuel JARRI <emmanuel.jarri@gmail.com>\n"
 "Language-Team: LMS <anki_tradu@laurentsteffan.com>\n"
@@ -467,6 +467,10 @@ msgstr ""
 
 #: forms/deckproperties.py:335
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
+msgstr ""
+
+#: ui/about.py:17
+msgid "<a href='http://ichi2.net/anki/'>Visit website</a>"
 msgstr ""
 
 #: ui/main.py:473
@@ -3299,10 +3303,6 @@ msgstr "Nom d'utilisateur"
 #, fuzzy, python-format
 msgid "Version %s"
 msgstr "dans %s : "
-
-#: ui/about.py:17
-msgid "Visit website"
-msgstr ""
 
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 11:24+0200\n"
-"PO-Revision-Date: 2009-06-25 11:23+0100\n"
+"POT-Creation-Date: 2009-06-25 11:33+0200\n"
+"PO-Revision-Date: 2009-06-25 11:32+0100\n"
 "Last-Translator: Susanna Björverud <susanna.bjorverud@telia.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -439,6 +439,10 @@ msgstr "<a href=\"backups\">Öppna katalogen för säkerhetskopior</a>"
 #: forms/deckproperties.py:335
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
 msgstr "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Hjälp</a>"
+
+#: ui/about.py:17
+msgid "<a href='http://ichi2.net/anki/'>Visit website</a>"
+msgstr "<a href='http://ichi2.net/anki/'>Besök webbplatsen</a>"
 
 #: ui/main.py:473
 #, python-format
@@ -3100,10 +3104,6 @@ msgstr "Användarnamn:"
 msgid "Version %s"
 msgstr "Version %s"
 
-#: ui/about.py:17
-msgid "Visit website"
-msgstr "Besök webbplatsen"
-
 #: forms/main.py:1401
 msgid "Wait a little longer next time (shortcut key: 2)"
 msgstr "Vänta lite längre nästa gång (kortkommando: 2)"
@@ -3767,6 +3767,9 @@ msgstr "toppetikett"
 
 #~ msgid "Update complete. Please restart Anki."
 #~ msgstr "Uppdatering genomförd. Starta om Anki."
+
+#~ msgid "Visit website"
+#~ msgstr "Besök webbplatsen"
 
 #~ msgid "Welcome to Anki! Click 'Download Deck' to get started."
 #~ msgstr "Välkommen till Anki! Klicka på 'Hämta kortlek' för att komma igång."

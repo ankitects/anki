@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ankiqt 0.9.9.8.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 11:24+0200\n"
+"POT-Creation-Date: 2009-06-25 11:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -420,6 +420,10 @@ msgstr ""
 
 #: forms/deckproperties.py:335
 msgid "<a href=\"http://ichi2.net/anki/wiki/DeckProperties#Synchronization\">Help</a>"
+msgstr ""
+
+#: ui/about.py:17
+msgid "<a href='http://ichi2.net/anki/'>Visit website</a>"
 msgstr ""
 
 #: ui/main.py:473
@@ -2971,10 +2975,6 @@ msgstr ""
 #: ui/about.py:16
 #, python-format
 msgid "Version %s"
-msgstr ""
-
-#: ui/about.py:17
-msgid "Visit website"
 msgstr ""
 
 #: forms/main.py:1401
