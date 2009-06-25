@@ -6,6 +6,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki
 import anki.importing as importing
+from ankiqt.ui.utils import getOnlyText
 from anki.errors import *
 import ankiqt.forms
 from ankiqt import ui
@@ -59,6 +60,8 @@ class ImportDialog(QDialog):
         self.tags = ui.tagedit.TagEdit(parent)
         self.tags.setDeck(parent.deck)
         self.dialog.topGrid.addWidget(self.tags,0,1,1,1)
+        self.setTabOrder(self.tags, self.dialog.tagDuplicates)
+        self.setTabOrder(self.dialog.tagDuplicates, self.dialog.autoDetect)
         self.setupMappingFrame()
         self.setupOptions()
         self.getFile()
@@ -66,6 +69,9 @@ class ImportDialog(QDialog):
             return
         self.dialog.groupBox.setTitle(os.path.basename(self.file))
         self.maybePreview()
+        self.connect(self.dialog.autoDetect, SIGNAL("clicked()"),
+                     self.onDelimiter)
+        self.updateDelimiterButtonText()
         self.exec_()
 
     def setupOptions(self):
@@ -101,6 +107,7 @@ class ImportDialog(QDialog):
         else:
             self.modelChooser.hide()
             self.dialog.tagDuplicates.hide()
+        self.dialog.autoDetect.setShown(self.importerFunc.needDelimiter)
 
     def maybePreview(self):
         if self.file and self.model:
@@ -112,6 +119,43 @@ class ImportDialog(QDialog):
     def modelChanged(self, model):
         self.model = model
         self.maybePreview()
+
+    def onDelimiter(self):
+        str = getOnlyText(_("""\
+By default, Anki will detect the character between fields, such as
+a tab, comma, and so on. If Anki is detecting the character incorrectly,
+you can enter it here. Use \\t to represent tab."""),
+                self, help="FileImport")
+        str = str.replace("\\t", "\t")
+        str = str.encode("ascii")
+        self.hideMapping()
+        def updateDelim():
+            self.importer.delimiter = str
+        self.showMapping(hook=updateDelim)
+        self.updateDelimiterButtonText()
+
+    def updateDelimiterButtonText(self):
+        if self.importer.delimiter:
+            d = self.importer.delimiter
+        else:
+            d = self.importer.dialect.delimiter
+        if d == "\t":
+            d = "Tab"
+        elif d == ",":
+            d = "Comma"
+        elif d == " ":
+            d = "Space"
+        elif d == ";":
+            d = "Semicolon"
+        elif d == ":":
+            d = "Colon"
+        else:
+            d = `d`
+        if self.importer.delimiter:
+            txt = _("Manual &delimiter: %s") % d
+        else:
+            txt = _("Auto-detected &delimiter: %s") % d
+        self.dialog.autoDetect.setText(txt)
 
     def doImport(self):
         self.dialog.status.setText(_("Importing..."))
@@ -163,10 +207,12 @@ class ImportDialog(QDialog):
     def hideMapping(self):
         self.dialog.mappingGroup.hide()
 
-    def showMapping(self, keepMapping=False):
+    def showMapping(self, keepMapping=False, hook=None):
         # first, check that we can read the file
         try:
             self.importer = self.importerFunc(self.parent.deck, self.file)
+            if hook:
+                hook()
             if not keepMapping:
                 self.mapping = self.importer.mapping
         except ImportFormatError, e:
@@ -209,6 +255,7 @@ class ImportDialog(QDialog):
             self.grid.addWidget(button, num, 2)
             self.connect(button, SIGNAL("clicked()"),
                          lambda s=self,n=num: s.changeMappingNum(n))
+        self.tags.setFocus()
 
     def changeMappingNum(self, n):
         f = ChangeMap(self.parent, self.model, self.mapping[n]).getField()
@@ -222,6 +269,5 @@ class ImportDialog(QDialog):
         self.showMapping(keepMapping=True)
 
     def reject(self):
-        print "deinit"
         self.modelChooser.deinit()
         QDialog.reject(self)
