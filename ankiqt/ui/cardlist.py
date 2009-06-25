@@ -514,7 +514,7 @@ class EditDeck(QMainWindow):
         elif idx == 3:
             filter = "is:due"
         elif idx == 4:
-            filter = "is:suspended tag:leech"
+            filter = "tag:leech"
         elif idx == 5:
             filter = "tag:none"
         else:
