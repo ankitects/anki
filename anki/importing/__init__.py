@@ -36,6 +36,7 @@ class Importer(object):
     needMapper = True
     tagDuplicates = False
     multipleCardsAllowed = True
+    needDelimiter = False
 
     def __init__(self, deck, file):
         self.file = file

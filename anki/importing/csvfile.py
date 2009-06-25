@@ -16,12 +16,14 @@ from anki.utils import tidyHTML
 
 class TextImporter(Importer):
 
+    needDelimiter = True
     patterns = ("\t", ";")
 
     def __init__(self, *args):
         Importer.__init__(self, *args)
         self.lines = None
         self.fileobj = None
+        self.delimiter = None
 
     def foreignCards(self):
         self.sniff()
@@ -30,7 +32,10 @@ class TextImporter(Importer):
         cards = []
         lineNum = 0
         ignored = 0
-        reader = csv.reader(self.data, self.dialect)
+        if self.delimiter:
+            reader = csv.reader(self.data, delimiter=self.delimiter)
+        else:
+            reader = csv.reader(self.data, self.dialect)
         for row in reader:
             try:
                 row = [unicode(x, "utf-8") for x in row]
@@ -71,19 +76,36 @@ class TextImporter(Importer):
         self.data = re.sub("^ *#.*", "", self.data)
         self.data = [x for x in self.data.split("\n") if x]
         if self.data:
-            # strip out comments and blank lines
-            try:
-                self.dialect = csv.Sniffer().sniff("\n".join(self.data[:10]))
-            except:
-                self.dialect = csv.Sniffer().sniff(self.data[0])
-            reader = csv.reader(self.data, self.dialect)
-            self.numFields = len(reader.next())
-        else:
-            self.dialect = None
-        if not self.dialect:
+            self.updateDelimiter()
+        if not self.dialect and not self.delimiter:
             raise ImportFormatError(
                 type="encodingError",
                 info=_("Couldn't determine format of file."))
+
+    def updateDelimiter(self):
+        self.dialect = None
+        if not self.delimiter:
+            try:
+                self.dialect = csv.Sniffer().sniff("\n".join(self.data[:10]))
+            except:
+                try:
+                    self.dialect = csv.Sniffer().sniff(self.data[0])
+                except:
+                    pass
+        if self.dialect:
+            reader = csv.reader(self.data, self.dialect)
+        else:
+            if not self.delimiter:
+                if "\t" in self.data[0]:
+                    self.delimiter = "\t"
+                elif ";" in self.data[0]:
+                    self.delimiter = ";"
+                elif "," in self.data[0]:
+                    self.delimiter = ","
+                else:
+                    self.delimiter = " "
+            reader = csv.reader(self.data, delimiter=self.delimiter)
+        self.numFields = len(reader.next())
 
     def fields(self):
         "Number of fields."
