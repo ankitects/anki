@@ -10,21 +10,14 @@ def show(parent):
     dialog = QDialog(parent)
     abt = ankiqt.forms.about.Ui_About()
     abt.setupUi(dialog)
-    abt.label.setText(_("""
-<center><img src=":/icons/anki-logo-thin.png"></center>
-<p>
-Anki is a friendly, intelligent spaced learning system. It's free and open
-source.<p>
-Version %(ver)s<br>
-<a href="http://ichi2.net/anki/">Visit website</a></span>
-<p>
-Written by Damien Elmes, with patches, translation, testing and design from:<p>%(cont)s
-<p>
-If you have contributed and are not on this list, please get in touch.
-<p>
-A big thanks to all the people who have provided suggestions, bug reports and
-donations.""") % {
-    'cont': u"""
+    abouttext = "<center><img src=':/icons/anki-logo-thin.png'></center>"
+    abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
+system. It's free and open source.")
+    abouttext += '<p>' + _("Version %s") % appVersion + '<br>'
+    abouttext += _("<a href='http://ichi2.net/anki/'>Visit website</a>") + \
+"</span>"
+    abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
+ testing and design from:<p>%(cont)s") %  {'cont': u"""
 
 Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene
 Barina, Christian Rusche, David Smith, Dave Druelinger, Emilio Wuerges,
@@ -33,10 +26,13 @@ Jarvik7, Jo Nakashima, Christian Krause, LaC, Laurent Steffan, Marco
 Giancotti, Mari Egami, Michael Jürges, Mark Wilbur, Meelis Vasser, Michael
 Penkov, Michael Keppler, Michal Čadil, Nathanael Law, Nick Cook, Niklas
 Laxström, Pcsl88, Piotr Kubowicz, Richard Colley, Samson Melamed, Susanna
-Björverud, Timm Preetz, Timo Paulssen, Victor Suba, and Xtru.
-
-""",
-    'ver': appVersion})
+Björverud, Timm Preetz, Timo Paulssen, Victor Suba, and Xtru."""
+}
+    abouttext += '<p>' + _("If you have contributed and are not on this list, \
+please get in touch.")
+    abouttext += '<p>' + _("A big thanks to all the people who have provided \
+suggestions, bug reports and donations.")
+    abt.label.setText(abouttext)
     dialog.show()
     dialog.adjustSize()
     dialog.exec_()
