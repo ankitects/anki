@@ -135,6 +135,8 @@ you can enter it here. Use \\t to represent tab."""),
         self.updateDelimiterButtonText()
 
     def updateDelimiterButtonText(self):
+        if not self.importerFunc.needDelimiter:
+            return
         if self.importer.delimiter:
             d = self.importer.delimiter
         else:
