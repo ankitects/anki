@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Anki Japanese Translation v0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-25 10:42+0200\n"
-"PO-Revision-Date: 2009-06-17 01:57-0800\n"
+"POT-Creation-Date: 2009-06-26 09:47+0900\n"
+"PO-Revision-Date: 2009-06-23 20:59-0800\n"
 "Last-Translator: Jarvik7 <jarvik7@gmail.com>\n"
 "Language-Team: Jarvik7 <jarvik7@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -29,7 +29,7 @@ msgid ""
 "Command was:\n"
 msgstr ""
 
-#: importing/__init__.py:124
+#: importing/__init__.py:125
 msgid ""
 "\n"
 "The current importer only supports a single active card template. Please disable\n"
@@ -46,7 +46,7 @@ msgstr ""
 msgid "%s ago"
 msgstr "%s前"
 
-#: deck.py:1284
+#: deck.py:1315
 #, python-format
 msgid "%s copy"
 msgstr ""
@@ -61,7 +61,7 @@ msgstr[0] "%s日"
 #, python-format
 msgid "%s day<!--after>"
 msgid_plural "%s days<!--after>"
-msgstr[0] ""
+msgstr[0] "%s日間"
 
 #: utils.py:36
 #, python-format
@@ -123,7 +123,7 @@ msgid "%s year<!--after>"
 msgid_plural "%s years<!--after>"
 msgstr[0] "%s年間"
 
-#: importing/csvfile.py:43
+#: importing/csvfile.py:48
 #, python-format
 msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
 msgstr ""
@@ -138,7 +138,7 @@ msgstr ""
 msgid "<b>%(a)s</b>/day, <b>%(b)s</b>/mon"
 msgstr ""
 
-#: deck.py:773
+#: deck.py:804
 #, python-format
 msgid ""
 "<div style=\"white-space: normal;\">\n"
@@ -153,7 +153,7 @@ msgstr ""
 "%(spaceSusp)s\n"
 "</div>"
 
-#: deck.py:700
+#: deck.py:731
 #, python-format
 msgid ""
 "<style>b { color: #00f; }</style>\n"
@@ -181,35 +181,35 @@ msgstr ""
 
 #: stats.py:264
 msgid "Added"
-msgstr ""
+msgstr "追加済み"
 
 #: stats.py:383
 msgid "Added last month"
-msgstr ""
+msgstr "先月に追加した"
 
 #: stats.py:380
 msgid "Added last week"
-msgstr ""
+msgstr "先週に追加した"
 
-#: exporting.py:55 exporting.py:235 importing/__init__.py:263
+#: exporting.py:55 exporting.py:235 importing/__init__.py:264
 msgid "Anki Deck (*.anki)"
-msgstr "Anki式単語帳（*.anki）"
+msgstr "Anki式単語帳 (*.anki)"
 
 #: deck.py:337
 msgid "Answer Card"
-msgstr ""
+msgstr "カードを解答する"
 
 #: stats.py:288
 msgid "Average Time"
-msgstr ""
+msgstr "平均時間"
 
 #: stats.py:367
 msgid "Average reps"
-msgstr ""
+msgstr "平均解答数"
 
 #: stats.py:361
 msgid "Averages"
-msgstr ""
+msgstr "平均"
 
 #: stats.py:377
 msgid "Avg. added"
@@ -217,15 +217,15 @@ msgstr ""
 
 #: stdmodels.py:31
 msgid "Basic"
-msgstr ""
+msgstr "基本"
 
 #: stats.py:292
 msgid "Card Template"
-msgstr ""
+msgstr "カードのテンプレート"
 
 #: stats.py:334
 msgid "Card counts"
-msgstr ""
+msgstr "カードの数"
 
 #: exporting.py:236
 msgid "Cards in tab-separated text file (*.txt)"
@@ -233,53 +233,53 @@ msgstr ""
 
 #: models.py:26
 msgid "Center"
-msgstr ""
+msgstr "真ん中"
 
 #: stats.py:267
 msgid "Changed"
-msgstr ""
+msgstr "編集された時"
 
-#: deck.py:1347
+#: deck.py:1378
 msgid "Changing cards..."
-msgstr ""
+msgstr "カードを変更中…"
 
-#: deck.py:1307
+#: deck.py:1338
 msgid "Changing fields..."
-msgstr ""
+msgstr "フィールドを変更中…"
 
 #: media.py:122
 msgid "Check Media DB"
 msgstr "メディアデータベースを検査する"
 
-#: deck.py:2266
+#: deck.py:2297
 msgid "Checking integrity..."
-msgstr ""
+msgstr "データの保全を確認中…"
 
-#: deck.py:2276
+#: deck.py:2307
 msgid "Checking schema..."
-msgstr ""
+msgstr "スキーマを確認中…"
 
 #: media.py:124
 msgid "Checksum files..."
-msgstr ""
+msgstr "ファイルのチェックサムを計算中…"
 
 #: stats.py:341
 msgid "Correct answers"
-msgstr ""
+msgstr "正解"
 
-#: importing/csvfile.py:86
+#: importing/csvfile.py:83
 msgid "Couldn't determine format of file."
-msgstr ""
+msgstr "ファイルの形式を認識できませんでした。"
 
-#: importing/__init__.py:265
+#: importing/__init__.py:266
 msgid "CueCard Deck (*.wcu)"
-msgstr "CueCard式単語帳（*.wcu）"
+msgstr "CueCard式単語帳 (*.wcu)"
 
-#: deck.py:3328
+#: deck.py:3364
 msgid "Custom failed cards handling"
 msgstr ""
 
-#: deck.py:2269
+#: deck.py:2300
 msgid ""
 "Database file is damaged.\n"
 "Please restore from automatic backup (see FAQ)."
@@ -294,11 +294,11 @@ msgstr "単語帳の総計"
 msgid "Deck created: <b>%s</b> ago<br>"
 msgstr ""
 
-#: deck.py:2661
+#: deck.py:2692
 msgid "Deck missing core table"
 msgstr ""
 
-#: deck.py:2279
+#: deck.py:2310
 msgid "Deck was missing a model"
 msgstr ""
 
@@ -310,51 +310,51 @@ msgstr ""
 msgid "Delete unused files..."
 msgstr "使用されていないファイルを削除する…"
 
-#: deck.py:2314
+#: deck.py:2345
 #, python-format
 msgid "Deleted %d card with missing fact"
 msgid_plural "Deleted %d cards with missing fact"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2326
+#: deck.py:2357
 #, python-format
 msgid "Deleted %d card with no card template"
 msgid_plural "Deleted %d cards with no card template"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2341
+#: deck.py:2372
 #, python-format
 msgid "Deleted %d dangling field"
 msgid_plural "Deleted %d dangling fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2303
+#: deck.py:2334
 #, python-format
 msgid "Deleted %d fact with missing fields"
 msgid_plural "Deleted %d facts with missing fields"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2332
+#: deck.py:2363
 #, python-format
 msgid "Deleted %d fact with no cards"
 msgid_plural "Deleted %d facts with no cards"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2293
+#: deck.py:2324
 #, python-format
 msgid "Deleted %d field with missing field model"
 msgid_plural "Deleted %d fields with missing field model"
 msgstr[0] ""
 msgstr[1] ""
 
-#: deck.py:2345
+#: deck.py:2376
 msgid "Deleted: "
-msgstr ""
+msgstr "削除済み："
 
 #: media.py:242
 #, python-format
@@ -363,7 +363,7 @@ msgstr ""
 
 #: stats.py:274
 msgid "Due"
-msgstr "満期"
+msgstr "期限切れ"
 
 #: stats.py:276
 msgid "Ease"
@@ -383,11 +383,11 @@ msgstr "エクスポート中…"
 
 #: exporting.py:237
 msgid "Facts in tab-separated text file (*.txt)"
-msgstr ""
+msgstr "ネタがタブ区切り形式ファイルにある (*.txt)"
 
-#: deck.py:2708
+#: deck.py:2742
 msgid "File is in use by another process"
-msgstr ""
+msgstr "他のプロセスによりファイルが使用中です。"
 
 #: stats.py:266
 msgid "First Review"
@@ -395,17 +395,17 @@ msgstr "初めての勉強"
 
 #: stats.py:389
 msgid "First last month"
-msgstr ""
+msgstr "先月に初めて"
 
 #: stats.py:386
 msgid "First last week"
-msgstr ""
+msgstr "先週に初めて"
 
 #: stats.py:350
 msgid "First-seen cards:"
 msgstr "初めて出て来たカード："
 
-#: importing/anki10.py:30 importing/__init__.py:56
+#: importing/__init__.py:57 importing/anki10.py:30
 msgid "Importing..."
 msgstr "インポート中…"
 
@@ -415,225 +415,225 @@ msgstr "期間"
 
 #: stats.py:279
 msgid "Last Due"
-msgstr "最後の満期"
+msgstr "前回の期限切れ"
 
 #: stats.py:283
 msgid "Last Ease"
-msgstr "最後の易しさ"
+msgstr "前回の易しさ"
 
 #: stats.py:282
 msgid "Last Interval"
-msgstr "最後の期間"
+msgstr "前回の期間"
 
 #: models.py:27
 msgid "Left"
-msgstr ""
+msgstr "左"
 
 #: graphs.py:151 graphs.py:177 graphs.py:335
 msgid "Mature"
-msgstr ""
+msgstr "復習期間が長い"
 
 #: stats.py:335
 msgid "Mature cards: <!--card count-->"
-msgstr ""
+msgstr "復習期間の長いカード: <!--card count-->"
 
 #: stats.py:342
 msgid "Mature cards: <!--correct answers-->"
-msgstr ""
+msgstr "復習期間の長いカード: <!--correct answers-->"
 
 #: media.py:176 media.py:178 media.py:179
 msgid "MediaMissing"
 msgstr ""
 
-#: importing/__init__.py:117
+#: importing/__init__.py:118
 #, python-format
 msgid "Missing required/unique field '%(field)s'"
 msgstr ""
 
-#: importing/__init__.py:264
+#: importing/__init__.py:265
 msgid "Mnemosyne Deck (*.mem)"
-msgstr "Mnemosyne式単語帳（*.mem）"
+msgstr "Mnemosyne式単語帳 (*.mem)"
 
 #: stats.py:291
 msgid "Model Tags"
-msgstr ""
+msgstr "モデルのタグ"
 
 #: media.py:169
 msgid "Modify fields..."
-msgstr ""
+msgstr "フィールドを編集..."
 
 #: graphs.py:175 graphs.py:333
 msgid "New"
-msgstr ""
+msgstr "新しい"
 
-#: deck.py:715
+#: deck.py:746
 msgid "No cards are due."
-msgstr "満期しているカードはありません。"
+msgstr "期限切れのカードはありません。"
 
 #: stats.py:316
 msgid "Please add some cards first."
 msgstr "先にカードを追加してください。"
 
-#: deck.py:2523
+#: deck.py:2554
 msgid "Processing..."
-msgstr ""
+msgstr "処理中..."
 
-#: deck.py:2363
+#: deck.py:2394
 msgid "Rebuilding QA cache..."
-msgstr ""
+msgstr "QAキャッシュを再処理中..."
 
-#: deck.py:2379
+#: deck.py:2410
 msgid "Rebuilding counts..."
-msgstr ""
+msgstr "合計の再処理中..."
 
-#: deck.py:2357
+#: deck.py:2388
 msgid "Rebuilding tag cache..."
-msgstr ""
+msgstr "タグ・キャッシュを再処理中..."
 
-#: deck.py:2377
+#: deck.py:2408
 msgid "Rebuilding types..."
-msgstr ""
+msgstr "タイプの再処理中..."
 
 #: stats.py:375
 msgid "Reps last month"
-msgstr ""
+msgstr "先月の復習回数"
 
 #: stats.py:373
 msgid "Reps last week"
-msgstr ""
+msgstr "先週の復習回数"
 
 #: stats.py:371
 msgid "Reps next month"
-msgstr ""
+msgstr "来月の復習回数"
 
 #: stats.py:369
 msgid "Reps next week"
-msgstr ""
+msgstr "来週の復習回数"
 
-#: deck.py:3315
+#: deck.py:3351
 msgid "Review cards from largest interval"
-msgstr ""
+msgstr "復習期間の一番長いカードから勉強する"
 
-#: deck.py:3316
+#: deck.py:3352
 msgid "Review cards from smallest interval"
-msgstr ""
+msgstr "復習期間の一番短いカードから勉強する"
 
-#: deck.py:3317
+#: deck.py:3353
 msgid "Review cards in order due"
-msgstr ""
+msgstr "期限切れのカードから勉強する"
 
-#: deck.py:3318
+#: deck.py:3354
 msgid "Review cards in random order"
-msgstr ""
+msgstr "カードを無作為に選んで勉強する"
 
 #: stats.py:285
 msgid "Reviews"
-msgstr ""
+msgstr "復習"
 
 #: models.py:28
 msgid "Right"
-msgstr ""
+msgstr "右"
 
 #: media.py:142
 msgid "Scan fields..."
-msgstr ""
+msgstr "フィールドの検索…"
 
-#: deck.py:3324
+#: deck.py:3360
 msgid "Show failed cards at end"
-msgstr ""
+msgstr "解答できなかったカードを最後に表示"
 
-#: deck.py:3325
+#: deck.py:3361
 msgid "Show failed cards in 10 minutes"
-msgstr ""
+msgstr "解答できなかったカードの表示は10分後"
 
-#: deck.py:3327
+#: deck.py:3363
 msgid "Show failed cards in 3 days"
-msgstr ""
+msgstr "解答できなかったカードの表示は3日間後"
 
-#: deck.py:3326
+#: deck.py:3362
 msgid "Show failed cards in 8 hours"
-msgstr ""
+msgstr "解答できなかったカードの表示は8時間後"
 
-#: deck.py:3323
+#: deck.py:3359
 msgid "Show failed cards soon"
-msgstr ""
+msgstr "解答できなかったカードをまたすぐに表示"
 
-#: deck.py:3309
+#: deck.py:3345
 msgid "Show new cards after all other cards"
-msgstr ""
+msgstr "新しいカードを他のカードの後に表示する"
 
-#: deck.py:3310
+#: deck.py:3346
 msgid "Show new cards before reviews"
-msgstr ""
+msgstr "新しいカードを復習の前に表示する"
 
-#: deck.py:3302
+#: deck.py:3338
 msgid "Show new cards in order added"
-msgstr ""
+msgstr "新しいカードを追加順に表示する"
 
-#: deck.py:3301
+#: deck.py:3337
 msgid "Show new cards in random order"
-msgstr ""
+msgstr "新しいカードを無作為に選んで表示する"
 
-#: deck.py:3303
+#: deck.py:3339
 msgid "Show new cards in reverse order added"
-msgstr ""
+msgstr "新しいカードを追加順と逆に表示する"
 
-#: deck.py:3308
+#: deck.py:3344
 msgid "Spread new cards out through reviews"
-msgstr ""
+msgstr "新しいカードを勉強中にばらばらに表示する"
 
 #: exporting.py:164 exporting.py:196
 msgid "Text files (*.txt)"
-msgstr "テキストファイル（*.txt）"
+msgstr "テキストファイル (*.txt)"
 
-#: importing/__init__.py:262
+#: importing/__init__.py:263
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: deck.py:2285
+#: deck.py:2316
 msgid "The current model didn't exist"
-msgstr ""
+msgstr "現在のモデルが存在しません。"
 
-#: importing/csvfile.py:40 importing/wcu.py:29
+#: importing/csvfile.py:45 importing/wcu.py:29
 msgid "The file was not in UTF8 format."
 msgstr "ファイルはUTF8式ではありませんでした。"
 
-#: deck.py:712
+#: deck.py:743
 #, python-format
 msgid "The next review is in <b>%s</b>."
 msgstr "次の勉強はあと<b>%s間</b>。"
 
-#: deck.py:747
+#: deck.py:778
 #, fuzzy, python-format
 msgid "There is %d delayed new card."
 msgid_plural "There are %d delayed new cards."
 msgstr[0] "<b>%d枚</b>の新しいカードがある予定です。"
 
-#: deck.py:761
+#: deck.py:792
 #, fuzzy, python-format
 msgid "There is %d inactive card."
 msgid_plural "There are %d inactive cards."
 msgstr[0] "<b>%d枚</b>の新しいカードがある予定です。"
 
-#: deck.py:768
+#: deck.py:799
 #, python-format
 msgid "There is %d leech."
 msgid_plural "There are %d leeches."
 msgstr[0] ""
 
-#: deck.py:754
+#: deck.py:785
 #, fuzzy, python-format
 msgid "There is %d suspended card."
 msgid_plural "There are %d suspended cards."
 msgstr[0] "<b>%d枚</b>の新しいカードがある予定です。"
 
-#: deck.py:705
+#: deck.py:736
 #, python-format
 msgid "There will be <b>%d new</b> card."
 msgid_plural "There will be <b>%d new</b> cards."
 msgstr[0] "<b>%d枚</b>の新しいカードがある予定です。"
 
-#: deck.py:708
+#: deck.py:739
 #, python-format
 msgid "There will be <b>%s review</b>."
 msgid_plural "There will be <b>%s reviews</b>."
@@ -641,55 +641,55 @@ msgstr[0] "<b>%s枚</b>の満期しているカードがある予定です。"
 
 #: stats.py:290
 msgid "Total Time"
-msgstr ""
+msgstr "合計時間"
 
 #: stats.py:331
 msgid "Total number of cards:"
-msgstr ""
+msgstr "カードの合計数："
 
 #: stats.py:332
 msgid "Total number of facts:"
-msgstr ""
+msgstr "ネタの合計数："
 
-#: deck.py:979
+#: deck.py:1010
 msgid "Unknown"
 msgstr "不明"
 
 #: stats.py:339
 msgid "Unseen cards:"
-msgstr ""
+msgstr "まだ見ていないカード"
 
 #: media.py:173
 msgid "Update tags..."
 msgstr "タグを更新する…"
 
-#: deck.py:2360
+#: deck.py:2391
 msgid "Updating priorities..."
 msgstr "優先設定を更新中…"
 
-#: deck.py:2874
+#: deck.py:2908
 msgid "Upgrading Deck..."
 msgstr "単語帳を更新中…"
 
 #: graphs.py:150 graphs.py:176 graphs.py:334
 msgid "Young"
-msgstr ""
+msgstr "復習期間が短い"
 
 #: stats.py:337
 msgid "Young cards: <!--card count-->"
-msgstr ""
+msgstr "復習期間の短いカード: <!--card count-->"
 
 #: stats.py:346
 msgid "Young cards: <!--correct answers-->"
-msgstr ""
+msgstr "復習期間の短いカード: <!--correct answers-->"
 
 #: models.py:153
 msgid "[invalid question/answer format]"
-msgstr ""
+msgstr "[質問・解答の形式が正しくありません]"
 
 #: sync.py:231 sync.py:235
 msgid "all"
-msgstr ""
+msgstr "全て"
 
 #: stats.py:368 stats.py:370 stats.py:372 stats.py:374 stats.py:376
 msgid "cards/day"
@@ -704,9 +704,9 @@ msgstr "日間"
 msgid "in %s"
 msgstr ""
 
-#: deck.py:732
+#: deck.py:763
 msgid "unknown"
-msgstr ""
+msgstr "不明"
 
 #, fuzzy
 #~ msgid "%sd"
