@@ -2512,13 +2512,15 @@ it to your friends.
         recordNoiseProfile(self)
 
     def onSoundQueued(self):
-        if sys.platform.startswith("darwin"):
-            # because the gui doesn't return focus, manually focus anki again
-            t = QTimer(self)
-            t.setSingleShot(True)
-            t.start(1000)
-            self.connect(t, SIGNAL("timeout()"),
-                         self.onSoundTimer)
+        pass
+        # this doesn't work
+#         if sys.platform.startswith("darwin"):
+#             # because the gui doesn't return focus, manually focus anki again
+#             t = QTimer(self)
+#             t.setSingleShot(True)
+#             t.start(1000)
+#             self.connect(t, SIGNAL("timeout()"),
+#                          self.onSoundTimer)
 
     def onSoundTimer(self):
         self.activateWindow()
