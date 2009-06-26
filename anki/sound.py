@@ -9,7 +9,7 @@ Sound support
 __docformat__ = 'restructuredtext'
 
 import re, sys, threading, time, subprocess, os, signal, atexit, errno
-from anki.hooks import addHook
+from anki.hooks import addHook, runHook
 
 # Shared utils
 ##########################################################################
@@ -111,7 +111,8 @@ if sys.platform.startswith("win32"):
     os.environ['PATH'] += ";" + dir
     os.environ['PATH'] += ";" + dir + "\\..\\dist" # for testing
 else:
-    mplayerCmd = ["mplayer", "-really-quiet", "-slave", "-idle"]
+    mplayerCmd = ["mplayer", "-really-quiet", "-slave", "-idle",
+                  "-ontop"]
 
 mplayerQueue = []
 mplayerManager = None
@@ -177,6 +178,7 @@ def queueMplayer(path):
     mplayerQueue.append(path)
     mplayerCond.notifyAll()
     mplayerCond.release()
+    runHook("soundQueued")
 
 def clearMplayerQueue():
     mplayerCond.acquire()
