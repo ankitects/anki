@@ -2253,6 +2253,7 @@ Return new path, relative to media dir."""
         s("delete from new.stats")
         s("delete from new.tags")
         s("delete from new.cardTags")
+        s("delete from new.deckVars")
         s("insert into new.decks select * from decks")
         s("insert into new.fieldModels select * from fieldModels")
         s("insert into new.modelsDeleted select * from modelsDeleted")
@@ -2268,6 +2269,7 @@ Return new path, relative to media dir."""
         s("insert into new.media select * from media")
         s("insert into new.tags select * from tags")
         s("insert into new.cardTags select * from cardTags")
+        s("insert into new.deckVars select * from deckVars")
         s("detach database new")
         # close ourselves
         self.s.commit()
