@@ -2908,6 +2908,10 @@ order by priority desc, due desc""")
             prog = True
             deck.startProgress()
             deck.updateProgress(_("Upgrading Deck..."))
+            if deck.utcOffset == -1:
+                # we're opening a shared deck with no indices - we'll need
+                # them if we want to rebuild the queue
+                DeckStorage._addIndices(deck)
         else:
             prog = False
         deck.path = path
