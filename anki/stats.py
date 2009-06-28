@@ -331,62 +331,92 @@ class DeckStats(object):
         html += _("Total number of cards:") + " <b>%d</b><br>" % total
         html += _("Total number of facts:") + " <b>%d</b><br><br>" % d.factCount
 
-        html += "<b>" + _("Card counts") + "</b><br>"
+        html += "<b>" + _("Card Maturity") + "</b><br>"
         html += _("Mature cards: <!--card count-->") + " <b>%(old)d</b> (%(oldP)s)<br>" % {
                 'old': stats['old'], 'oldP' : fmtPerc(stats['oldP'])}
         html += _("Young cards: <!--card count-->") + " <b>%(young)d</b> (%(youngP)s)<br>" % {
                 'young': stats['young'], 'youngP' : fmtPerc(stats['youngP'])}
-        html += _("Unseen cards:") + " <b>%(new)d</b> (%(newP)s)<br><br>" % {
+        html += _("Unseen cards:") + " <b>%(new)d</b> (%(newP)s)<br>" % {
                 'new': stats['new'], 'newP' : fmtPerc(stats['newP'])}
-        html += "<b>" + _("Correct answers") + "</b><br>"
+        avgInt = self.getAverageInterval()
+        if avgInt:
+            html += _("Average interval: ") + ("<b>%s</b> ") % fmtFloat(avgInt) + _("days")
+            html += "<br>"
+        html += "<br>"
+        inactive = d.inactiveCardCount()
+        suspended = d.suspendedCardCount()
+        active = total - inactive - suspended
+        inactiveP = inactive / float(total) * 100
+        suspendedP = suspended / float(total) * 100
+        activeP = active / float(total) * 100
+        html += "<b>" + _("Card State") + "</b><br>"
+        html += _("Active cards:") + " <b>%(a)d</b> (%(b)s)<br>" % {
+            'a': active, 'b' : fmtPerc(activeP)}
+        html += _("Inactive cards:") + " <b>%(a)d</b> (%(b)s)<br>" % {
+            'a': inactive, 'b' : fmtPerc(inactiveP)}
+        html += _("Suspended cards:") + " <b>%(a)d</b> (%(b)s)<br><br>" % {
+            'a': suspended, 'b' : fmtPerc(suspendedP)}
+        html += "<b>" + _("Correct Answers") + "</b><br>"
         html += _("Mature cards: <!--correct answers-->") + " <b>" + fmtPerc(stats['gMatureYes%']) + (
-                "</b> " + _("%(partOf)d of %(totalSum)d") % {
+                "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
                 'partOf' : stats['gMatureYes'],
                 'totalSum' : stats['gMatureTotal'] } + "<br>")
         html += _("Young cards: <!--correct answers-->")  + " <b>" + fmtPerc(stats['gYoungYes%']) + (
-                "</b> " + _("%(partOf)d of %(totalSum)d") % {
+                "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
                 'partOf' : stats['gYoungYes'],
                 'totalSum' : stats['gYoungTotal'] } + "<br>")
         html += _("First-seen cards:") + " <b>" + fmtPerc(stats['gNewYes%']) + (
-                "</b> " + _("%(partOf)d of %(totalSum)d") % {
+                "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
                 'partOf' : stats['gNewYes'],
                 'totalSum' : stats['gNewTotal'] } + "<br><br>")
 
         # average pending time
         existing = d.cardCount - d.newCountToday
-        avgInt = self.getAverageInterval()
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
         if existing and avgInt:
-            html += "<b>" + _("Averages") + "</b>"
+            html += "<b>" + _("Average Reviews") + "</b>"
             if sys.platform.startswith("darwin"):
                 html += "<table width=250>"
             else:
                 html += "<table width=200>"
-            html += tr(_("Interval"), ("<b>%s</b> ") % fmtFloat(avgInt) + _("days") )
-            html += tr(_("Average reps"), ("<b>%s</b> ") % (
+            html += tr(_("Deck life"), ("<b>%s</b> ") % (
                 fmtFloat(self.getSumInverseRoundInterval())) + _("cards/day"))
-            html += tr(_("Reps next week"), ("<b>%s</b> ") % (
+            html += tr(_("In next week"), ("<b>%s</b> ") % (
                 fmtFloat(self.getWorkloadPeriod(7))) + _("cards/day"))
-            html += tr(_("Reps next month"), ("<b>%s</b> ") % (
+            html += tr(_("In next month"), ("<b>%s</b> ") % (
                 fmtFloat(self.getWorkloadPeriod(30))) + _("cards/day"))
-            html += tr(_("Reps last week"), ("<b>%s</b> ") % (
+            html += tr(_("In last week"), ("<b>%s</b> ") % (
                 fmtFloat(self.getPastWorkloadPeriod(7))) + _("cards/day"))
-            html += tr(_("Reps last month"), ("<b>%s</b> ") % (
+            html += tr(_("In last month"), ("<b>%s</b> ") % (
                 fmtFloat(self.getPastWorkloadPeriod(30))) + _("cards/day"))
-            html += tr(_("Avg. added"), _("<b>%(a)s</b>/day, <b>%(b)s</b>/mon") % {
+            html += "</table>"
+
+            html += "<br><br><b>" + _("Average Added") + "</b>"
+            if sys.platform.startswith("darwin"):
+                html += "<table width=250>"
+            else:
+                html += "<table width=200>"
+            html += tr(_("Deck life"), _("<b>%(a)s</b>/day, <b>%(b)s</b>/mon") % {
                 'a': fmtFloat(self.newAverage()), 'b': fmtFloat(self.newAverage()*30)})
             np = self.getNewPeriod(7)
-            html += tr(_("Added last week"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+            html += tr(_("In last week"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(7))}))
             np = self.getNewPeriod(30)
-            html += tr(_("Added last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+            html += tr(_("In last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(30))}))
+            html += "</table>"
+
+            html += "<br><br><b>" + _("Average New Seen") + "</b>"
+            if sys.platform.startswith("darwin"):
+                html += "<table width=250>"
+            else:
+                html += "<table width=200>"
             np = self.getFirstPeriod(7)
-            html += tr(_("First last week"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+            html += tr(_("In last week"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(7))}))
             np = self.getFirstPeriod(30)
-            html += tr(_("First last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+            html += tr(_("In last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(30))}))
             html += "</table>"
         return html
