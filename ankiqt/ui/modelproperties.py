@@ -471,7 +471,7 @@ order by n""", id=card.id)
                          unicode(self.dialog.tags.text()))
         url = unicode(self.dialog.mediaURL.text())
         if url:
-            if not re.match("^(http|ftp)://", url, re.I):
+            if not re.match("^(http|https|ftp)://", url, re.I):
                 url = "http://" + url
             if not url.endswith("/"):
                 url += "/"
