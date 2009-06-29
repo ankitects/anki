@@ -172,12 +172,14 @@ class TextCardExporter(Exporter):
         strids = ids2str(self.cardIds())
         cards = self.deck.s.all("""
 select cards.question, cards.answer, cards.id from cards
-where cards.id in %s""" % strids)
+where cards.id in %s
+order by cards.created""" % strids)
         if self.includeTags:
             self.cardTags = dict(self.deck.s.all("""
 select cards.id, cards.tags || "," || facts.tags from cards, facts
 where cards.factId = facts.id
-and cards.id in %s""" % strids))
+and cards.id in %s
+order by cards.created""" % strids))
         out = u"\n".join(["%s\t%s%s" % (self.escapeText(c[0]),
                                         self.escapeText(c[1]),
                                         self.tags(c[2]))
@@ -203,21 +205,26 @@ class TextFactExporter(Exporter):
     def doExport(self, file):
         cardIds = self.cardIds()
         facts = self.deck.s.all("""
-select factId, value from fields
+select factId, value, facts.created from facts, fields
 where
-factId in
-(select distinct facts.id from facts, cards
-where facts.id = cards.factId
-and cards.id in %s)
+facts.id in
+(select distinct factId from cards
+where cards.id in %s)
+and facts.id = fields.factId
 order by factId, ordinal""" % ids2str(cardIds))
         txt = ""
         if self.includeTags:
             self.factTags = dict(self.deck.s.all(
                 "select id, tags from facts where id in %s" %
                 ids2str([fact[0] for fact in facts])))
-        out = ["\t".join([self.escapeText(x[1]) for x in ret[1]]) +
-               self.tags(ret[0])
-               for ret in (itertools.groupby(facts, itemgetter(0)))]
+        groups = itertools.groupby(facts, itemgetter(0))
+        groups = [[x for x in y[1]] for y in groups]
+        groups = [(group[0][2],
+                   "\t".join([self.escapeText(x[1]) for x in group]) +
+                   self.tags(group[0][0]))
+                  for group in groups]
+        groups.sort(key=itemgetter(0))
+        out = [ret[1] for ret in groups]
         self.count = len(out)
         out = "\n".join(out)
         file.write(out.encode("utf-8"))
