@@ -191,6 +191,8 @@
     <property name="title">
      <string>&amp;Actions</string>
     </property>
+    <addaction name="actionAddItems"/>
+    <addaction name="separator"/>
     <addaction name="actionAddTag"/>
     <addaction name="actionDeleteTag"/>
     <addaction name="separator"/>
@@ -472,6 +474,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionAddItems">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add &amp;Items</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

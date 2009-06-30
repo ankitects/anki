@@ -2497,7 +2497,6 @@ it to your friends.
         anki.sound.checkForNoiseProfile()
         if sys.platform.startswith("darwin"):
             self.mainWin.actionRecordNoiseProfile.setEnabled(False)
-        addHook("soundQueued", self.onSoundQueued)
 
     def onRepeatAudio(self):
         clearAudioQueue()
@@ -2510,20 +2509,6 @@ it to your friends.
     def onRecordNoiseProfile(self):
         from ui.sound import recordNoiseProfile
         recordNoiseProfile(self)
-
-    def onSoundQueued(self):
-        pass
-        # this doesn't work
-#         if sys.platform.startswith("darwin"):
-#             # because the gui doesn't return focus, manually focus anki again
-#             t = QTimer(self)
-#             t.setSingleShot(True)
-#             t.start(1000)
-#             self.connect(t, SIGNAL("timeout()"),
-#                          self.onSoundTimer)
-
-    def onSoundTimer(self):
-        self.activateWindow()
 
     # Progress info
     ##########################################################################

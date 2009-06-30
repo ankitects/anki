@@ -621,6 +621,7 @@ class EditDeck(QMainWindow):
 
     def setupMenus(self):
         # actions
+        self.connect(self.dialog.actionAddItems, SIGNAL("triggered()"), self.parent.onAddCard)
         self.connect(self.dialog.actionDelete, SIGNAL("triggered()"), self.deleteCards)
         self.connect(self.dialog.actionAddTag, SIGNAL("triggered()"), self.addTags)
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
