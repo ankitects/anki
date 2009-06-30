@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>AddCards</class>
- <widget class="QDialog" name="AddCards" >
-  <property name="geometry" >
+ <widget class="QDialog" name="AddCards">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,46 +10,46 @@
     <height>381</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Add Items</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../icons.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../icons.qrc">
     <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
-   <property name="spacing" >
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
     <number>0</number>
    </property>
-   <property name="margin" >
+   <property name="margin">
     <number>4</number>
    </property>
    <item>
-    <layout class="QGridLayout" >
-     <property name="leftMargin" >
+    <layout class="QGridLayout">
+     <property name="leftMargin">
       <number>0</number>
      </property>
-     <property name="topMargin" >
+     <property name="topMargin">
       <number>4</number>
      </property>
-     <property name="rightMargin" >
+     <property name="rightMargin">
       <number>0</number>
      </property>
-     <property name="bottomMargin" >
+     <property name="bottomMargin">
       <number>4</number>
      </property>
-     <property name="horizontalSpacing" >
+     <property name="horizontalSpacing">
       <number>0</number>
      </property>
-     <property name="verticalSpacing" >
+     <property name="verticalSpacing">
       <number>4</number>
      </property>
-     <item row="0" column="0" >
-      <widget class="QWidget" native="1" name="modelArea" />
+     <item row="0" column="0">
+      <widget class="QWidget" name="modelArea" native="true"/>
      </item>
-     <item row="1" column="0" >
-      <widget class="Line" name="line" >
-       <property name="orientation" >
+     <item row="1" column="0">
+      <widget class="Line" name="line">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
@@ -56,37 +57,37 @@
     </layout>
    </item>
    <item>
-    <widget class="QSplitter" name="splitter" >
-     <property name="orientation" >
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" native="1" name="fieldsArea" >
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+     <widget class="QWidget" name="fieldsArea" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>10</verstretch>
        </sizepolicy>
       </property>
-      <property name="autoFillBackground" >
+      <property name="autoFillBackground">
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QTextBrowser" name="status" >
-      <property name="enabled" >
+     <widget class="QTextBrowser" name="status">
+      <property name="enabled">
        <bool>true</bool>
       </property>
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
       </property>
-      <property name="palette" >
+      <property name="palette">
        <palette>
         <active>
-         <colorrole role="Base" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
             <red>228</red>
             <green>228</green>
             <blue>228</blue>
@@ -95,9 +96,9 @@
          </colorrole>
         </active>
         <inactive>
-         <colorrole role="Base" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
             <red>228</red>
             <green>228</green>
             <blue>228</blue>
@@ -106,9 +107,9 @@
          </colorrole>
         </inactive>
         <disabled>
-         <colorrole role="Base" >
-          <brush brushstyle="SolidPattern" >
-           <color alpha="255" >
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
             <red>255</red>
             <green>255</green>
             <blue>255</blue>
@@ -118,46 +119,39 @@
         </disabled>
        </palette>
       </property>
-      <property name="acceptDrops" >
+      <property name="acceptDrops">
        <bool>false</bool>
       </property>
-      <property name="autoFillBackground" >
+      <property name="autoFillBackground">
        <bool>true</bool>
       </property>
-      <property name="frameShape" >
+      <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
-      <property name="verticalScrollBarPolicy" >
+      <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
-      <property name="horizontalScrollBarPolicy" >
+      <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
-      <property name="readOnly" >
+      <property name="readOnly">
        <bool>true</bool>
       </property>
-      <property name="html" >
-       <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:8pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Arial';">&lt;/p>&lt;/body>&lt;/html></string>
-      </property>
-      <property name="textInteractionFlags" >
+      <property name="textInteractionFlags">
        <set>Qt::TextBrowserInteraction</set>
       </property>
-      <property name="openLinks" >
+      <property name="openLinks">
        <bool>false</bool>
       </property>
      </widget>
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::NoButton</set>
      </property>
     </widget>
@@ -168,7 +162,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
-  <include location="../icons.qrc" />
+  <include location="../icons.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -177,11 +171,11 @@ p, li { white-space: pre-wrap; }
    <receiver>AddCards</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>301</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
