@@ -172,7 +172,7 @@ class Preferences(QDialog):
                 return n
             n += 1
         # default to english
-        return self.codeToIndex("en_US")
+        return self.codeToIndex("en")
 
     def helpRequested(self):
         idx = self.dialog.tabWidget.currentIndex()

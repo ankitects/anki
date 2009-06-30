@@ -2,13 +2,20 @@ You need to have the python-pyqt development packages installed (specifically,
 you need the binary pyuic4). 
 
 To use the development version:
+
 $ git clone git://ichi2.net/libanki
 $ git clone git://ichi2.net/ankiqt
-$ cd libanki
-$ ./tools/translate.sh
-$ cd ../ankiqt
+$ cd ankiqt
 $ ./tools/build_ui.sh
-$ ./tools/translate.sh
+
+The translations are stored in a bazaar repo for integration with launchpad's
+translation services. If you want to use a language other than English:
+
+$ cd ..
+$ bzr clone lp:anki
+$ cd anki
+$ ./update-mos.sh
+$ cd ../ankiqt
 
 And now you're ready to run Anki:
 $ ./anki
