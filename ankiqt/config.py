@@ -163,4 +163,4 @@ class Config(dict):
         elif self["interfaceLang"] == "es":
             self["interfaceLang"]="es_ES"
         elif not self["interfaceLang"]:
-            self["interfaceLang"]="en_US"
+            self["interfaceLang"]="en"

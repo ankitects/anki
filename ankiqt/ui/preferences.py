@@ -26,23 +26,23 @@ class Preferences(QDialog):
         self.dialog = ankiqt.forms.preferences.Ui_Preferences()
         self.dialog.setupUi(self)
         self.supportedLanguages = [
-            (_("English"), "en_US"),
+            (_("English"), "en"),
             (_("Brazillian Portuguese"), "pt_BR"),
             (_("Chinese - Simplified"), "zh_CN"),
             (_("Chinese - Traditional"), "zh_TW"),
-            (_("Czech"), "cs_CZ"),
-            (_("Estonian"), "ee_EE"),
-            (_("Finnish"), "fi_FI"),
-            (_("French"), "fr_FR"),
-            (_("German"), "de_DE"),
-            (_("Italian"), "it_IT"),
-            (_("Japanese"), "ja_JP"),
-            (_("Korean"), "ko_KR"),
-	    (_("Mongolian"),"mn_MN"),
-	    (_("Norwegian"),"nb_NO"),
-            (_("Polish"), "pl_PL"),
-            (_("Spanish"), "es_ES"),
-            (_("Swedish"), "sv_SE"),
+            (_("Czech"), "cs"),
+            (_("Estonian"), "et"),
+            (_("Finnish"), "fi"),
+            (_("French"), "fr"),
+            (_("German"), "de"),
+            (_("Italian"), "it"),
+            (_("Japanese"), "ja"),
+            (_("Korean"), "ko"),
+	    (_("Mongolian"),"mn"),
+	    (_("Norwegian"),"nb"),
+            (_("Polish"), "pl"),
+            (_("Spanish"), "es"),
+            (_("Swedish"), "sv"),
             ]
         self.supportedLanguages.sort()
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.helpRequested)
