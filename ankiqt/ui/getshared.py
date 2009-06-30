@@ -80,7 +80,7 @@ class GetShared(QDialog):
         self.form.table.setRowCount(len(self.curList))
         self.items = {}
         if self.type == 0:
-            cols = (R_TITLE, R_FACTS, R_COUNT)
+            cols = (R_TITLE, R_FACTS, R_COUNT, R_MODIFIED)
         else:
             cols = (R_TITLE, R_COUNT, R_MODIFIED)
         for rc, r in enumerate(self.curList):
@@ -137,9 +137,9 @@ class GetShared(QDialog):
     def typeChanged(self):
         self.form.table.clear()
         if self.type == 0:
-            self.form.table.setColumnCount(3)
+            self.form.table.setColumnCount(4)
             self.form.table.setHorizontalHeaderLabels([
-                _("Title"), _("Facts"), _("Downloads")])
+                _("Title"), _("Facts"), _("Downloads"), _("Modified")])
         else:
             self.form.table.setColumnCount(3)
             self.form.table.setHorizontalHeaderLabels([
