@@ -232,7 +232,8 @@ class ProgressWin(object):
             self.counter += 1
         else:
             self.counter = value + 1
-        self.diag.setValue(value)
+        if self.max:
+            self.diag.setValue(value)
         if process:
             self.app.processEvents()
 
