@@ -903,6 +903,7 @@ group by cardTags.cardId""" % limit)
             "update cards set isDue=0, priority=-3, modified=:t "
             "where id in %s" % ids2str(ids), t=time.time())
         self.rebuildCounts(full=False)
+        self.flushMod()
         self.finishProgress()
 
     def unsuspendCards(self, ids):
@@ -912,6 +913,7 @@ group by cardTags.cardId""" % limit)
             ids2str(ids), t=time.time())
         self.updatePriorities(ids)
         self.rebuildCounts(full=False)
+        self.flushMod()
         self.finishProgress()
 
     # Card/fact counts - all in deck, not just due
