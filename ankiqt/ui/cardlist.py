@@ -922,13 +922,18 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def selectFacts(self):
+        self.deck.startProgress()
         sm = self.dialog.tableView.selectionModel()
+        sm.blockSignals(True)
         cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
         for i, card in enumerate(self.model.cards):
             if card.id in cardIds:
                 sm.select(self.model.index(i, 0),
                           QItemSelectionModel.Select | QItemSelectionModel.Rows)
-
+            if i % 100 == 0:
+                self.deck.updateProgress()
+        sm.blockSignals(False)
+        self.deck.finishProgress()
 
     def invertSelection(self):
         sm = self.dialog.tableView.selectionModel()
