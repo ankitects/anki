@@ -194,7 +194,7 @@ class AnkiQt(QMainWindow):
 An error occurred. Please:<p>
 <ol>
 <li><b>Restart Anki</b>.
-<li><b>Tools > Advanced > Check DB</b>.
+<li><b>Tools > Advanced > Full Database Check</b>.
 </ol>
 If it does not fix the problem, please copy the following<br>
 into a bug report:<br>
