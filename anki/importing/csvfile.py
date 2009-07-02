@@ -71,7 +71,7 @@ class TextImporter(Importer):
 
     def openFile(self):
         self.dialect = None
-        self.fileobj = open(self.file, "rb")
+        self.fileobj = open(self.file, "rbU")
         self.data = self.fileobj.read()
         self.data = re.sub("^ *#.*", "", self.data)
         self.data = [x for x in self.data.split("\n") if x]
