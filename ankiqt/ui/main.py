@@ -2182,6 +2182,7 @@ it to your friends.
         )
 
     deckRelatedMenus = (
+        "Edit",
         "Tools",
         )
 
