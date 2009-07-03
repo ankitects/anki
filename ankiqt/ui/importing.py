@@ -268,7 +268,13 @@ you can enter it here. Use \\t to represent tab."""),
         except ValueError:
             pass
         self.mapping[n] = f
-        self.showMapping(keepMapping=True)
+        if getattr(self.importer, "delimiter", False):
+            self.savedDelimiter = self.importer.delimiter
+            def updateDelim():
+                self.importer.delimiter = self.savedDelimiter
+            self.showMapping(hook=updateDelim, keepMapping=True)
+        else:
+            self.showMapping(keepMapping=True)
 
     def reject(self):
         self.modelChooser.deinit()
