@@ -171,7 +171,7 @@ where cards.factId = facts.id """
         try:
             self.cards[index.row()] = self.deck.s.first("""
     select id, question, answer, due, reps, factId, created, modified,
-    interval, noCount, factor, priority from cards where id = :id""",
+    interval, factor, noCount, priority from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
                       index, self.index(index.row(), 1))
@@ -265,7 +265,7 @@ where cards.factId = facts.id """
         return "%0.2f" % self.cards[index.row()][CARD_EASE]
 
     def noColumn(self, index):
-        return "%d" % self.cards[index.row()][CARD_EASE]
+        return "%d" % self.cards[index.row()][CARD_NO]
 
 class StatusDelegate(QItemDelegate):
 
@@ -1289,6 +1289,11 @@ class ChangeModelDialog(QDialog):
         # check maps
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
+        def any(l):
+            for x in l:
+                if x:
+                    return True
+            return False
         if not cmap or (self.targetModel != self.oldModel and
                         not fmap):
             return ui.utils.showInfo(
