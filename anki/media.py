@@ -73,6 +73,17 @@ Update media table. If file already exists, don't copy."""
     if not deck.s.scalar(
         "select 1 from media where filename = :f",
         f=newBase):
+        if description != "latex":
+            # if the user has modified a hashed file, try to remember the old
+            # filename
+            old = deck.s.scalar(
+                "select originalPath from media where filename = :s",
+                s=os.path.basename(origPath))
+            if old:
+                origPath = old
+                description = os.path.splitext(os.path.basename(origPath))[0]
+                print "orig", old
+                print "desc", description
         try:
             path = unicode(path, sys.getfilesystemencoding())
         except TypeError:
