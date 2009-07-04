@@ -3272,8 +3272,8 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
         if deck.version < 42:
             # leech control in deck
             if deck.getBool("suspendLeeches") is None:
-                deck.setVar("suspendLeeches", True)
-                deck.setVar("leechFails", 16)
+                deck.setVar("suspendLeeches", True, mod=False)
+                deck.setVar("leechFails", 16, mod=False)
             deck.version = 42
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
