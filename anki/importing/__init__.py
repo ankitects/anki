@@ -172,9 +172,11 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         # and cards
         self.deck.updateProgress()
         now = time.time()
+        active = 0
         for cm in self.model.cardModels:
             self._now = now
             if cm.active:
+                active += 1
                 data = [self.addMeta({
                     'id': genID(),
                     'factId': factIds[m],
@@ -187,7 +189,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                                     data)
         self.deck.updateProgress()
         self.deck.updateCardsFromFactIds(factIds)
-        self.deck.cardCount += len(cards)
+        self.deck.cardCount += len(cards) * active
         self.total = len(factIds)
 
     def addMeta(self, data, card):
