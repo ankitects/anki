@@ -1851,6 +1851,7 @@ You are currently cramming. Please close this deck first."""))
         self.deck.easyIntervalMax = 0.25
         self.deck.newCardOrder = 0
         self.deck.syncName = None
+        self.deck.collapseTime = 1
         p.update()
         self.deck.updateDynamicIndices()
         if self.config['randomizeOnCram']:
