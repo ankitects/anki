@@ -6,7 +6,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import os, sys, cPickle, locale, types, shutil, time
+import os, sys, cPickle, locale, types, shutil, time, re
 from anki.utils import genID
 
 # compatability
@@ -135,6 +135,13 @@ class Config(dict):
             os.unlink(path)
         os.rename(tmpname, path)
 
+    def fixLang(self, lang):
+        if lang and lang not in ("pt_BR", "zh_CN", "zh_TW"):
+            lang = re.sub("(.*)_.*", "\\1", lang)
+        if not lang:
+            lang = "en"
+        return lang
+
     def load(self):
         base = self.configPath
         db = self.getDbPath()
@@ -151,16 +158,5 @@ class Config(dict):
             s = self['recentDeckPaths'][n]
             if not isinstance(s, types.UnicodeType):
                 self['recentDeckPaths'][n] = unicode(s, sys.getfilesystemencoding())
-        # fix old locale settings
-        if self["interfaceLang"] == "ja":
-            self["interfaceLang"]="ja_JP"
-        elif self["interfaceLang"] == "fr":
-            self["interfaceLang"]="fr_FR"
-        elif self["interfaceLang"] == "en":
-            self["interfaceLang"]="en_US"
-        elif self["interfaceLang"] == "de":
-            self["interfaceLang"]="de_DE"
-        elif self["interfaceLang"] == "es":
-            self["interfaceLang"]="es_ES"
-        elif not self["interfaceLang"]:
-            self["interfaceLang"]="en"
+        # fix locale settings
+        self["interfaceLang"] = self.fixLang(self["interfaceLang"])
