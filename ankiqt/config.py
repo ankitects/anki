@@ -100,6 +100,7 @@ class Config(dict):
             'deckBrowserOrder': 0,
             'deckBrowserNameLength': 30,
             'deleteMedia': False,
+            'forceLTR': False,
             }
         for (k,v) in fields.items():
             if not self.has_key(k):

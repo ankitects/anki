@@ -1965,6 +1965,10 @@ it to your friends.
             self.mainWin.retranslateUi(self)
         anki.lang.setLang(self.config["interfaceLang"], local=False)
         self.updateTitleBar()
+        if self.config['interfaceLang'] in ("he",) and not self.config['forceLTR']:
+            self.app.setLayoutDirection(Qt.RightToLeft)
+        else:
+            self.app.setLayoutDirection(Qt.LeftToRight)
 
     def getTranslation(self, text):
         return self.languageTrans.ugettext(text)
