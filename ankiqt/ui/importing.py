@@ -177,7 +177,7 @@ you can enter it here. Use \\t to represent tab."""),
                 return
             except Exception, e:
                 msg = _("Import failed.\n")
-                msg += traceback.format_exc()
+                msg += unicode(traceback.format_exc(), "ascii", "replace")
                 self.dialog.status.setText(msg)
                 return
         finally:
