@@ -180,6 +180,10 @@ class DisplayProperties(QDialog):
                 self.connect(w,
                              SIGNAL("clicked()"),
                              lambda w=w: self.chooseColour(w))
+            elif type == "edit":
+                self.connect(self.dialog.rtl,
+                             SIGNAL("stateChanged(int)"),
+                             self.saveField)
         self.currentField = None
         self.drawFields()
 
@@ -229,8 +233,8 @@ class DisplayProperties(QDialog):
             else:
                 self.fwidget("useSize", type).setCheckState(Qt.Unchecked)
                 self.fwidget("fontSize", type).setEnabled(False)
-            # colour
             if type == "quiz":
+                # colour
                 if getattr(field, type + 'FontColour'):
                     self.fwidget("useColour", type).setCheckState(Qt.Checked)
                     self.fwidget("fontColour", type).setPalette(QPalette(QColor(
@@ -239,6 +243,8 @@ class DisplayProperties(QDialog):
                 else:
                     self.fwidget("useColour", type).setCheckState(Qt.Unchecked)
                     self.fwidget("fontColour", type).setEnabled(False)
+            elif type == "edit":
+                self.dialog.rtl.setChecked(not not field.features)
         self.currentField = field
 
     def saveField(self, *args):
@@ -268,6 +274,11 @@ class DisplayProperties(QDialog):
                     setattr(field, type + 'FontColour', str(c.name()))
                 else:
                     setattr(field, type + 'FontColour', None)
+            elif type == "edit":
+                if self.dialog.rtl.isChecked():
+                    field.features = u"rtl"
+                else:
+                    field.features = u""
         field.model.setModified()
         self.deck.flushMod()
         self.drawQuestionAndAnswer()
