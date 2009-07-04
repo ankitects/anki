@@ -106,6 +106,18 @@ cards.factId = facts.id and facts.id in %s"""
     deck.updateCardQACache(ids, dirty)
     deck.flushMod()
 
+
+def mediaRefs(string):
+    "Return list of (fullMatch, filename, replacementString)."
+    l = []
+    for (reg, repl) in regexps:
+        for (full, fname) in re.findall(reg, string):
+            l.append((full, fname, repl))
+    return l
+
+# Rebuilding DB
+##########################################################################
+
 def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     "Delete references to missing files, delete unused files."
     localFiles = {}
@@ -211,13 +223,8 @@ values (:id, strftime('%s', 'now'))""", id=id)
     deck.finishProgress()
     return missingFileCount, unusedFileCount - len(renamedFiles)
 
-def mediaRefs(string):
-    "Return list of (fullMatch, filename, replacementString)."
-    l = []
-    for (reg, repl) in regexps:
-        for (full, fname) in re.findall(reg, string):
-            l.append((full, fname, repl))
-    return l
+# Download missing
+##########################################################################
 
 def downloadMissing(deck):
     from anki.latex import renderLatex
@@ -251,3 +258,33 @@ where facts.id = fields.factId"""):
             pass
     deck.finishProgress()
     return len(missing), success
+
+# Export original files
+##########################################################################
+
+def exportOriginalFiles(deck):
+    deck.startProgress()
+    origDir = deck.mediaDir(create=True)
+    newDir = origDir.replace(".media", ".originals")
+    try:
+        os.mkdir(newDir)
+    except (IOError, OSError):
+        pass
+    cnt = 0
+    for row in deck.s.all("""
+select filename, originalPath from media
+where description != 'latex'"""):
+        (fname, path) = row
+        base = os.path.basename(path)
+        if base == fname:
+            continue
+        cnt += 1
+        deck.updateProgress(label="Exporting %s" % base)
+        old = os.path.join(origDir, fname)
+        new = os.path.join(newDir, base)
+        if os.path.exists(new):
+            new = re.sub("(.*)(\..*?)$", "\\1-%s\\2" %
+                         os.path.splitext(fname)[0], new)
+        shutil.copy2(old, new)
+    deck.finishProgress()
+    return cnt
