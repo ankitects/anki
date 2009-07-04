@@ -2238,6 +2238,7 @@ it to your friends.
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionRecordNoiseProfile, s, self.onRecordNoiseProfile)
         self.connect(m.actionBuryFact, s, self.onBuryFact)
+        self.connect(m.actionExportOriginalFiles, s, self.onExportOriginal)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
@@ -2681,11 +2682,10 @@ Consider backing up your media directory first."""))
             ui.utils.showInfo(_("No media URLs defined for this deck."),
                               help="MediaSupport")
             return
-        ui.utils.showInfo(ngettext("%d missing file found.<br>", 
-		                           "%d missing files found.<br>",
-								   res[0]) + 
-								   _("%d successfully retrieved.") 
-								   % res[1], parent=self)
+        ui.utils.showInfo(ngettext("%d missing file found.<br>",
+                                   "%d missing files found.<br>", res[0]) +
+                          _("%d successfully retrieved.")
+                          % res[1], parent=self)
 
     def addHook(self, *args):
         addHook(*args)
@@ -2695,6 +2695,11 @@ Consider backing up your media directory first."""))
 
     def onUncacheLatex(self):
         anki.latex.deleteAllLatexImages(self.deck)
+
+    def onExportOriginal(self):
+        cnt = anki.media.exportOriginalFiles(self.deck)
+        ui.utils.showInfo(_("%(a)d files exported to %(b)s.originals folder") %
+                          {'a': cnt, 'b': self.deck.name()})
 
     # System specific misc
     ##########################################################################
