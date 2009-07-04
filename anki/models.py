@@ -39,7 +39,8 @@ fieldModelsTable = Table(
     Column('modelId', Integer, ForeignKey('models.id'), nullable=False),
     Column('name', UnicodeText, nullable=False),
     Column('description', UnicodeText, nullable=False, default=u""), # obsolete
-    Column('features', UnicodeText, nullable=False, default=u""), # obsolete
+    # reused as RTL marker
+    Column('features', UnicodeText, nullable=False, default=u""),
     Column('required', Boolean, nullable=False, default=True),
     Column('unique', Boolean, nullable=False, default=True), # sqlite keyword
     Column('numeric', Boolean, nullable=False, default=False),

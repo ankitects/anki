@@ -55,7 +55,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 41
+DECK_VERSION = 43
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -3275,6 +3275,10 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
                 deck.setVar("suspendLeeches", True, mod=False)
                 deck.setVar("leechFails", 16, mod=False)
             deck.version = 42
+            deck.s.commit()
+        if deck.version < 43:
+            deck.s.statement("update fieldModels set features = ''")
+            deck.version = 43
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
