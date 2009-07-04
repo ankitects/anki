@@ -19,6 +19,7 @@ from anki.utils import genID, canonifyTags
 from anki.fonts import toPlatformFont
 from anki.utils import parseTags, hexifyID, checksum
 from anki.lang import _
+from anki.hooks import runFilter
 from copy import copy
 
 def alignmentLabels():
@@ -151,7 +152,7 @@ def formatQA(cid, mid, fact, tags, cm):
             html = format % fields
         except (KeyError, TypeError, ValueError):
             html = _("[invalid question/answer format]")
-        d[type] = html
+        d[type] = runFilter("formatQA", html, type, cid, mid, fact, tags, cm)
     return d
 
 # Model table
