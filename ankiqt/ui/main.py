@@ -627,6 +627,7 @@ new:
         self.updateEaseButtons()
         self.mainWin.buttonStack.setCurrentIndex(1)
         self.mainWin.buttonStack.show()
+        self.mainWin.buttonStack.setLayoutDirection(Qt.LeftToRight)
         if self.defaultEaseButton() == 2:
             self.mainWin.easeButton2.setFocus()
         else:
