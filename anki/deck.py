@@ -1175,7 +1175,7 @@ where facts.id not in (select distinct factId from cards)""")
     def previewFact(self, oldFact):
         "Duplicate fact and generate cards for preview. Don't add to deck."
         # check we have card models available
-        cms = self.availableCardModels(oldFact)
+        cms = self.availableCardModels(oldFact, checkActive=False)
         if not cms:
             return []
         fact = self.cloneFact(oldFact)
