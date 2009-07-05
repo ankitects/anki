@@ -18,6 +18,7 @@ from datetime import date
 from anki.db import *
 from anki.lang import _
 from anki.utils import canonifyTags, ids2str
+from anki.hooks import runFilter
 
 # Tracking stats on the DB
 ##########################################################################
@@ -427,6 +428,7 @@ class DeckStats(object):
                 "select avg(factor) from cards") + "<br>"
             html += _("Highest factor: %.1fx") % d.s.scalar(
                 "select max(factor) from cards") + "<br>"
+            html = runFilter("deckStats", html)
 
         return html
 
