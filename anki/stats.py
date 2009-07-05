@@ -419,6 +419,15 @@ class DeckStats(object):
             html += tr(_("In last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(30))}))
             html += "</table>"
+
+            html += "<br><br><b>" + _("Card Ease") + "</b><br>"
+            html += _("Lowest factor: %.1fx") % d.s.scalar(
+                "select min(factor) from cards") + "<br>"
+            html += _("Average factor: %.1fx") % d.s.scalar(
+                "select avg(factor) from cards") + "<br>"
+            html += _("Highest factor: %.1fx") % d.s.scalar(
+                "select max(factor) from cards") + "<br>"
+
         return html
 
     def getAverageInterval(self):
