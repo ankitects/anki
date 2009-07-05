@@ -2444,13 +2444,23 @@ it to your friends.
 
     def enablePlugin(self, p):
         pd = self.pluginsFolder()
-        os.rename(os.path.join(pd, p),
-                  os.path.join(pd, p.replace(".off", "")))
+        old = os.path.join(pd, p)
+        new = os.path.join(pd, p.replace(".off", ""))
+        try:
+            os.unlink(new)
+        except:
+            pass
+        os.rename(old, new)
 
     def disablePlugin(self, p):
         pd = self.pluginsFolder()
-        os.rename(os.path.join(pd, p),
-                  os.path.join(pd, p.replace(".py", ".py.off")))
+        old = os.path.join(pd, p)
+        new = os.path.join(pd, p.replace(".py", ".py.off"))
+        try:
+            os.unlink(new)
+        except:
+            pass
+        os.rename(old, new)
 
     def onEnableAllPlugins(self):
         for p in self.disabledPlugins():
