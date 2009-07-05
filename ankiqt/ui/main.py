@@ -1386,6 +1386,8 @@ later by using File>Close.
         self.connect(self.mainWin.startReviewingButton,
                      SIGNAL("clicked()"),
                      self.onStartReview)
+        self.connect(self.mainWin.newCardOrder,
+                     SIGNAL("activated(int)"), self.onNewCardOrderChanged)
 
     def onMinuteLimitChanged(self, qstr):
         try:
@@ -1410,6 +1412,26 @@ later by using File>Close.
         self.deck.flushMod()
         self.statusView.redraw()
         self.updateStudyStats()
+
+    def onNewCardOrderChanged(self, ncOrd):
+        def uf(obj, field, value):
+            if getattr(obj, field) != value:
+                setattr(obj, field, value)
+                self.deck.flushMod()
+        if self.deck.newCardOrder != ncOrd:
+            if self.deck.newCardOrder == 0 and ncOrd != 0:
+                # random to non-random
+                self.deck.startProgress()
+                self.deck.updateProgress(_("Ordering..."))
+                self.deck.orderNewCards()
+                self.deck.finishProgress()
+            elif self.deck.newCardOrder != 0 and ncOrd == 0:
+                # non-random to random
+                self.deck.startProgress()
+                self.deck.updateProgress(_("Randomizing..."))
+                self.deck.randomizeNewCards()
+                self.deck.finishProgress()
+            uf(self.deck, 'newCardOrder', ncOrd)
 
     def updateStudyStats(self):
         wasReached = self.deck.sessionLimitReached()
@@ -1563,21 +1585,6 @@ learnt today")
                int(self.mainWin.questionLimit.text()))
         except (ValueError, OverflowError):
             pass
-        ncOrd = self.mainWin.newCardOrder.currentIndex()
-        if self.deck.newCardOrder != ncOrd:
-            if self.deck.newCardOrder == 0 and ncOrd != 0:
-                # random to non-random
-                self.deck.startProgress()
-                self.deck.updateProgress(_("Ordering..."))
-                self.deck.orderNewCards()
-                self.deck.finishProgress()
-            elif self.deck.newCardOrder != 0 and ncOrd == 0:
-                # non-random to random
-                self.deck.startProgress()
-                self.deck.updateProgress(_("Randomizing..."))
-                self.deck.randomizeNewCards()
-                self.deck.finishProgress()
-        uf(self.deck, 'newCardOrder', ncOrd)
         uf(self.deck, 'newCardSpacing',
            self.mainWin.newCardScheduling.currentIndex())
         uf(self.deck, 'revCardOrder',
