@@ -105,7 +105,12 @@ class TextImporter(Importer):
                 else:
                     self.delimiter = " "
             reader = csv.reader(self.data, delimiter=self.delimiter)
-        self.numFields = len(reader.next())
+        try:
+            self.numFields = len(reader.next())
+        except:
+            raise ImportFormatError(
+                type="encodingError",
+                info=_("File is not encoded in UTF-8"))
 
     def fields(self):
         "Number of fields."
