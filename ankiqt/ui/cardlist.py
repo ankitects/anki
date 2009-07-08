@@ -324,6 +324,7 @@ class EditDeck(QMainWindow):
         self.lastFilter = ""
         self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
         self.dialog.setupUi(self)
+        self.setUnifiedTitleAndToolBarOnMac(True)
         restoreGeom(self, "editor")
         restoreSplitter(self.dialog.splitter, "editor")
         self.dialog.toolBar.setIconSize(QSize(self.config['iconSize'],
