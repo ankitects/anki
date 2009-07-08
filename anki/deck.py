@@ -2707,8 +2707,8 @@ class DeckStorage(object):
                     deck.progressHandler, 100)
             except:
                 print "please install pysqlite 2.4 for better progress dialogs"
+            deck.engine.execute("pragma locking_mode = exclusive")
             deck.s = SessionHelper(s, lock=lock)
-            deck.s.execute("pragma locking_mode = exclusive")
             # force a write lock
             deck.s.execute("update decks set modified = modified")
             if ver < 27:
