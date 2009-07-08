@@ -93,15 +93,12 @@ def mungeLatex(latex):
     return latex
 
 def deleteAllLatexImages(deck):
-    for f in deck.s.column0(
-        "select filename from media where description = 'latex'"):
-        path = latexImgPath(deck, f)
-        try:
-            os.unlink(path)
-        except (OSError, IOError):
-            pass
-    deck.s.statement("delete from media where description = 'latex'")
-    deck.flushMod()
+    mdir = deck.mediaDir()
+    if not mdir:
+        return
+    for f in os.listdir(mdir):
+        if f.startswith("latex-"):
+            os.unlink(os.path.join(mdir, f))
 
 def cacheAllLatexImages(deck):
     fields = deck.s.column0("select value from fields")
