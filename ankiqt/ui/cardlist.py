@@ -279,12 +279,21 @@ class StatusDelegate(QItemDelegate):
         if len(self.model.cards[index.row()]) == 1:
             self.model.updateCard(index)
         row = self.model.cards[index.row()]
-        if row[CARD_PRIORITY] in (-3, 0):
+        if row[CARD_PRIORITY] == -3:
             # custom render
             if index.row() % 2 == 0:
                 brush = QBrush(QColor("#ffffcc"))
             else:
                 brush = QBrush(QColor("#ffffaa"))
+            painter.save()
+            painter.fillRect(option.rect, brush)
+            painter.restore()
+        if row[CARD_PRIORITY] == 0:
+            # custom render
+            if index.row() % 2 == 0:
+                brush = QBrush(QColor("#ffcccc"))
+            else:
+                brush = QBrush(QColor("#ffaaaa"))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
