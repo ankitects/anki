@@ -229,16 +229,16 @@ class StatusView(object):
         tip += "<h2>" + _("Reviews today") + "</h2>"
         tip += "<b>" + _("Correct today: ") + anki.utils.fmtPercentage(stats['dYesTotal%'], point=1)
         tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dYesTotal'], 'totalSum' : stats['dTotal'] } + ")</b><br>"
-        tip += _("Correct over a month: ") + anki.utils.fmtPercentage(stats['dMatureYes%'], point=1)
+        tip += _("Correct mature: ") + anki.utils.fmtPercentage(stats['dMatureYes%'], point=1)
         tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dMatureYes'], 'totalSum' : stats['dMatureTotal'] } + ")</b><br>"
         tip += _("Average time per answer: ") + anki.utils.fmtTimeSpan(stats['dAverageTime'], point=2) +"<br>"
         tip += _("Total review time: ") + anki.utils.fmtTimeSpan(stats['dReviewTime'], point=2)
         tip += "<h2>" + _("All Reviews") + "</h2>"
-        tip += "<b>" + _("Correct over a month: ") + anki.utils.fmtPercentage(stats['gMatureYes%'], point=1)
+        tip += "<b>" + _("Correct mature: ") + anki.utils.fmtPercentage(stats['gMatureYes%'], point=1)
         tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gMatureYes'], 'totalSum' : stats['gMatureTotal'] } + ")</b><br>"
         tip += _("Average time per answer: ") + anki.utils.fmtTimeSpan(stats['gAverageTime'], point=2) +"<br>"
         tip += _("Total review time: ") + anki.utils.fmtTimeSpan(stats['gReviewTime'], point=2) +"<br>"
-        tip += _("Correct under a month: ") + anki.utils.fmtPercentage(stats['gYoungYes%'], point=1)
+        tip += _("Correct young: ") + anki.utils.fmtPercentage(stats['gYoungYes%'], point=1)
         tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gYoungYes'], 'totalSum' : stats['gYoungTotal'] } + ")</b><br>"
         tip += _("Correct first time: ") + anki.utils.fmtPercentage(stats['gNewYes%'], point=1)
         tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gNewYes'], 'totalSum' : stats['gNewTotal'] } + ")</b><br>"
