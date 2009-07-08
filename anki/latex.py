@@ -100,7 +100,7 @@ def deleteAllLatexImages(deck):
     for c, f in enumerate(os.listdir(mdir)):
         if f.startswith("latex-"):
             os.unlink(os.path.join(mdir, f))
-        if c % 10 == 0:
+        if c % 100 == 0:
             deck.updateProgress()
     deck.finishProgress()
 
