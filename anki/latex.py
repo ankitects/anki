@@ -96,14 +96,22 @@ def deleteAllLatexImages(deck):
     mdir = deck.mediaDir()
     if not mdir:
         return
-    for f in os.listdir(mdir):
+    deck.startProgress()
+    for c, f in enumerate(os.listdir(mdir)):
         if f.startswith("latex-"):
             os.unlink(os.path.join(mdir, f))
+        if c % 10 == 0:
+            deck.updateProgress()
+    deck.finishProgress()
 
 def cacheAllLatexImages(deck):
+    deck.startProgress()
     fields = deck.s.column0("select value from fields")
-    for field in fields:
+    for c, field in enumerate(fields):
+        if c % 10 == 0:
+            deck.updateProgress()
         renderLatex(deck, field)
+    deck.finishProgress()
 
 def buildImg(deck, latex):
     log = open(os.path.join(tmpdir, "latex_log.txt"), "w+")
