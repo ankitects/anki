@@ -2720,8 +2720,10 @@ Consider backing up your media directory first."""))
 
     def onExportOriginal(self):
         cnt = anki.media.exportOriginalFiles(self.deck)
-        ui.utils.showInfo(_("%(a)d files exported to %(b)s.originals folder") %
-                          {'a': cnt, 'b': self.deck.name()})
+        ui.utils.showInfo(ngettext(
+            "%(a)d file exported to %(b)s.originals folder.",
+            "%(a)d files exported to %(b)s.originals folder.",
+            cnt) % {'a': cnt, 'b': self.deck.name()})
 
     # System specific misc
     ##########################################################################
