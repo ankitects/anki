@@ -8,9 +8,8 @@ Latex support
 """
 __docformat__ = 'restructuredtext'
 
-import re, tempfile, os, sys, subprocess, stat, time
+import re, tempfile, os, sys, subprocess, stat, time, shutil
 from anki.utils import genID, checksum
-from anki.media import copyToMedia
 from htmlentitydefs import entitydefs
 
 latexPreamble = ("\\documentclass[12pt]{article}\n"
@@ -77,8 +76,7 @@ def call(argv, wait=True, **kwargs):
 
 def latexImgFile(deck, latexCode):
     key = checksum(latexCode)
-    return deck.s.scalar("select filename from media where originalPath = :k",
-                         k=key)
+    return "latex-%s.png" % key
 
 def latexImgPath(deck, file):
     "Return the path to the cache file in system encoding format."
@@ -137,8 +135,9 @@ def buildImg(deck, latex):
                 stdout=log, stderr=log, startupinfo=si):
             return (False, errmsg)
         # add to media
-        path = copyToMedia(deck, "tmp.png", latex=checksum(latex))
-        return (True, path)
+        target = latexImgPath(deck, latexImgFile(deck, latex))
+        shutil.copy2("tmp.png", target)
+        return (True, target)
     finally:
         os.chdir(oldcwd)
 

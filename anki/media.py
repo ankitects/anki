@@ -51,15 +51,11 @@ def mediaFilename(path):
     ext = os.path.splitext(path)[1].lower()
     return "%s%s" % (new, ext)
 
-def copyToMedia(deck, path, latex=None):
+def copyToMedia(deck, path):
     """Copy PATH to MEDIADIR, and return new filename.
 Update media table. If file already exists, don't copy."""
-    if latex:
-        origPath = latex
-        description = "latex"
-    else:
-        origPath = path
-        description = os.path.splitext(os.path.basename(path))[0]
+    origPath = path
+    description = os.path.splitext(os.path.basename(path))[0]
     newBase = mediaFilename(path)
     new = os.path.join(deck.mediaDir(create=True), newBase)
     # copy if not existing
@@ -73,17 +69,14 @@ Update media table. If file already exists, don't copy."""
     if not deck.s.scalar(
         "select 1 from media where filename = :f",
         f=newBase):
-        if description != "latex":
-            # if the user has modified a hashed file, try to remember the old
-            # filename
-            old = deck.s.scalar(
-                "select originalPath from media where filename = :s",
-                s=os.path.basename(origPath))
-            if old:
-                origPath = old
-                description = os.path.splitext(os.path.basename(origPath))[0]
-                print "orig", old
-                print "desc", description
+        # if the user has modified a hashed file, try to remember the old
+        # filename
+        old = deck.s.scalar(
+            "select originalPath from media where filename = :s",
+            s=os.path.basename(origPath))
+        if old:
+            origPath = old
+            description = os.path.splitext(os.path.basename(origPath))[0]
         try:
             path = unicode(path, sys.getfilesystemencoding())
         except TypeError:
@@ -150,6 +143,8 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     for c, oldBase in enumerate(files):
         if mod and not c % mod:
             deck.updateProgress()
+        if oldBase.startswith("latex-"):
+            continue
         oldPath = os.path.join(deck.mediaDir(), oldBase)
         if oldBase.startswith("."):
             continue
@@ -203,13 +198,11 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
     # build cache of db records
     deck.updateProgress(_("Delete unused files..."))
     mediaIds = dict(deck.s.all("select filename, id from media"))
-    # assume latex files exist
-    for f in deck.s.column0(
-        "select filename from media where description = 'latex'"):
-        usedFiles[f] = 1
     # look through the media dir for any unused files, and delete
     for f in os.listdir(unicode(deck.mediaDir())):
         if f.startswith("."):
+            continue
+        if f.startswith("latex-"):
             continue
         path = os.path.join(deck.mediaDir(), f)
         if os.path.isdir(path):
@@ -282,9 +275,7 @@ def exportOriginalFiles(deck):
     except (IOError, OSError):
         pass
     cnt = 0
-    for row in deck.s.all("""
-select filename, originalPath from media
-where description != 'latex'"""):
+    for row in deck.s.all("select filename, originalPath from media"):
         (fname, path) = row
         base = os.path.basename(path)
         if base == fname:
