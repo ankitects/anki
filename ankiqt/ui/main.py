@@ -1418,20 +1418,19 @@ later by using File>Close.
             if getattr(obj, field) != value:
                 setattr(obj, field, value)
                 self.deck.flushMod()
-        if self.deck.newCardOrder != ncOrd:
-            if self.deck.newCardOrder == 0 and ncOrd != 0:
-                # random to non-random
-                self.deck.startProgress()
-                self.deck.updateProgress(_("Ordering..."))
-                self.deck.orderNewCards()
-                self.deck.finishProgress()
-            elif self.deck.newCardOrder != 0 and ncOrd == 0:
-                # non-random to random
-                self.deck.startProgress()
-                self.deck.updateProgress(_("Randomizing..."))
-                self.deck.randomizeNewCards()
-                self.deck.finishProgress()
+        if self.deck.newCardOrder == 0 and ncOrd != 0:
+            # random to non-random
+            self.deck.startProgress()
+            self.deck.updateProgress(_("Ordering..."))
+            self.deck.orderNewCards()
+            self.deck.finishProgress()
             uf(self.deck, 'newCardOrder', ncOrd)
+        elif ncOrd == 0:
+            # (re-)randomize
+            self.deck.startProgress()
+            self.deck.updateProgress(_("Randomizing..."))
+            self.deck.randomizeNewCards()
+            self.deck.finishProgress()
 
     def updateStudyStats(self):
         wasReached = self.deck.sessionLimitReached()
@@ -2706,7 +2705,7 @@ Consider backing up your media directory first."""))
                               help="MediaSupport")
             return
         ui.utils.showInfo(ngettext("%d missing file found.<br>",
-                                   "%d missing files found.<br>", res[0]) +
+                                   "%d missing files found.<br>", res[0]) % res[0] +
                           _("%d successfully retrieved.")
                           % res[1], parent=self)
 
