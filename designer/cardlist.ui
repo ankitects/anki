@@ -192,14 +192,14 @@
      <string>&amp;Actions</string>
     </property>
     <addaction name="actionAddItems"/>
+    <addaction name="actionAddCards"/>
     <addaction name="separator"/>
     <addaction name="actionAddTag"/>
     <addaction name="actionDeleteTag"/>
     <addaction name="separator"/>
-    <addaction name="actionSuspend"/>
-    <addaction name="actionUnsuspend"/>
+    <addaction name="actionToggleSuspend"/>
+    <addaction name="actionToggleMark"/>
     <addaction name="separator"/>
-    <addaction name="actionAddCards"/>
     <addaction name="actionChangeModel"/>
     <addaction name="separator"/>
     <addaction name="actionCram"/>
@@ -232,6 +232,33 @@
    <addaction name="menuEdit"/>
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAddItems"/>
+   <addaction name="actionAddCards"/>
+   <addaction name="separator"/>
+   <addaction name="actionAddTag"/>
+   <addaction name="actionDeleteTag"/>
+   <addaction name="separator"/>
+   <addaction name="actionToggleMark"/>
+   <addaction name="actionToggleSuspend"/>
+   <addaction name="separator"/>
+   <addaction name="actionDelete"/>
   </widget>
   <action name="actionDelete">
    <property name="icon">
@@ -486,6 +513,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionToggleSuspend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
+   </property>
+   <property name="text">
+    <string>Toggle Suspend</string>
+   </property>
+  </action>
+  <action name="actionToggleMark">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/rating.png</normaloff>:/icons/rating.png</iconset>
+   </property>
+   <property name="text">
+    <string>Toggle Mark</string>
    </property>
   </action>
  </widget>

@@ -32,6 +32,7 @@ CARD_INTERVAL = 8
 CARD_EASE = 9
 CARD_NO = 10
 CARD_PRIORITY = 11
+CARD_TAGS = 12
 
 # Deck editor
 ##########################################################################
@@ -170,8 +171,9 @@ where cards.factId = facts.id """
     def updateCard(self, index):
         try:
             self.cards[index.row()] = self.deck.s.first("""
-    select id, question, answer, due, reps, factId, created, modified,
-    interval, factor, noCount, priority from cards where id = :id""",
+select id, question, answer, due, reps, factId, created, modified,
+interval, factor, noCount, priority, (select tags from facts where
+facts.id = cards.factId) from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
                       index, self.index(index.row(), 1))
@@ -286,6 +288,14 @@ class StatusDelegate(QItemDelegate):
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
+        elif "Marked" in row[CARD_TAGS]:
+            if index.row() % 2 == 0:
+                brush = QBrush(QColor("#ccccff"))
+            else:
+                brush = QBrush(QColor("#aaaaff"))
+            painter.save()
+            painter.fillRect(option.rect, brush)
+            painter.restore()
         return QItemDelegate.paint(self, painter, option, index)
 
 class EditDeck(QMainWindow):
@@ -307,6 +317,8 @@ class EditDeck(QMainWindow):
         self.dialog.setupUi(self)
         restoreGeom(self, "editor")
         restoreSplitter(self.dialog.splitter, "editor")
+        self.dialog.toolBar.setIconSize(QSize(self.config['iconSize'],
+                                              self.config['iconSize']))
         # flush all changes before we load
         self.deck.s.flush()
         self.model = DeckModel(self.parent, self.parent.deck)
@@ -629,8 +641,8 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionCram, SIGNAL("triggered()"), self.cram)
         self.connect(self.dialog.actionAddCards, SIGNAL("triggered()"), self.addCards)
         self.connect(self.dialog.actionChangeModel, SIGNAL("triggered()"), self.onChangeModel)
-        self.connect(self.dialog.actionSuspend, SIGNAL("triggered()"), self.onSuspend)
-        self.connect(self.dialog.actionUnsuspend, SIGNAL("triggered()"), self.onUnsuspend)
+        self.connect(self.dialog.actionToggleSuspend, SIGNAL("triggered(bool)"), self.onSuspend)
+        self.connect(self.dialog.actionToggleMark, SIGNAL("triggered(bool)"), self.onMark)
         # edit
         self.connect(self.dialog.actionFont, SIGNAL("triggered()"), self.onFont)
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
@@ -728,6 +740,7 @@ class EditDeck(QMainWindow):
         self.editor.setFact(fact, True)
         self.showCardInfo(self.currentCard)
         self.onEvent()
+        self.updateToggles()
 
     def setupCardInfo(self):
         self.currentCard = None
@@ -782,29 +795,46 @@ where id in (%s)""" % ",".join([
         self.updateSearch()
         self.updateAfterCardChange()
 
-    def addTags(self):
-        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
+    def addTags(self, tags=None, label=None):
+        if tags is None:
+            (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
+        if label is None:
+            label = _("Add Tags")
         if tags:
-            n = _("Add Tags")
             self.parent.setProgressParent(self)
-            self.deck.setUndoStart(n)
+            self.deck.setUndoStart(label)
             self.deck.addTags(self.selectedFacts(), tags)
-            self.deck.setUndoEnd(n)
+            self.deck.setUndoEnd(label)
             self.parent.setProgressParent(None)
         self.updateAfterCardChange(reset=True)
 
-    def deleteTags(self):
-        (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
+    def deleteTags(self, tags=None, label=None):
+        if tags is None:
+            (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
+        if label is None:
+            label = _("Delete Tags")
         if tags:
-            n = _("Delete Tags")
             self.parent.setProgressParent(self)
-            self.deck.setUndoStart(n)
+            self.deck.setUndoStart(label)
             self.deck.deleteTags(self.selectedFacts(), tags)
-            self.deck.setUndoEnd(n)
+            self.deck.setUndoEnd(label)
             self.parent.setProgressParent(None)
         self.updateAfterCardChange(reset=True)
 
-    def onSuspend(self):
+    def updateToggles(self):
+        self.dialog.actionToggleSuspend.setChecked(self.isSuspended())
+        self.dialog.actionToggleMark.setChecked(self.isMarked())
+
+    def isSuspended(self):
+        return self.currentCard and self.currentCard.priority == -3
+
+    def onSuspend(self, sus):
+        if sus:
+            self._onSuspend()
+        else:
+            self._onUnsuspend()
+
+    def _onSuspend(self):
         n = _("Suspend")
         self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
@@ -813,7 +843,7 @@ where id in (%s)""" % ",".join([
         self.parent.setProgressParent(None)
         self.updateAfterCardChange(reset=True)
 
-    def onUnsuspend(self):
+    def _onUnsuspend(self):
         n = _("Unsuspend")
         self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
@@ -821,6 +851,21 @@ where id in (%s)""" % ",".join([
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
         self.updateAfterCardChange(reset=True)
+
+    def isMarked(self):
+        return self.currentCard and "Marked" in self.currentCard.fact.tags
+
+    def onMark(self, mark):
+        if mark:
+            self._onMark()
+        else:
+            self._onUnmark()
+
+    def _onMark(self):
+        self.addTags(tags="Marked", label=_("Toggle Mark"))
+
+    def _onUnmark(self):
+        self.deleteTags(tags="Marked", label=_("Toggle Mark"))
 
     def reschedule(self):
         n = _("Reschedule")
