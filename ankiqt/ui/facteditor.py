@@ -947,6 +947,9 @@ class FactEdit(QTextEdit):
                 if "\n" in txt:
                     txt = txt.split("\n")[0]
                     hadN = True
+                if "\r" in txt:
+                    txt = txt.split("\r")[0]
+                    hadN = True
                 if not source.hasImage() or hadN:
                     # firefox on linux just gives us a url
                     ext = txt.split(".")[-1].lower()
