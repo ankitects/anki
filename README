@@ -24,6 +24,10 @@ For audio recording support:
 - pyaudio
 - lame
 
+For importing SuperMemo XML:
+
+- python-beautifulsoup
+
 Running / Installation
 -------------------------------------
 
