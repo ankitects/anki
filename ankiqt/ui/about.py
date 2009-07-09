@@ -20,13 +20,15 @@ system. It's free and open source.")
  testing and design from:<p>%(cont)s") %  {'cont': u"""
 
 Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene
-Barina, Christian Rusche, David Smith, Dave Druelinger, Emilio Wuerges,
-Emmanuel Jarri, Frank Harper, H. Mijail, Ian Lewis, Iroiro, Jin Eun-Deok,
-Jarvik7, Jo Nakashima, Christian Krause, LaC, Laurent Steffan, Marco
-Giancotti, Mari Egami, Michael Jürges, Mark Wilbur, Meelis Vasser, Michael
-Penkov, Michael Keppler, Michal Čadil, Nathanael Law, Nick Cook, Niklas
-Laxström, Pcsl88, Piotr Kubowicz, Richard Colley, Samson Melamed, Susanna
-Björverud, Timm Preetz, Timo Paulssen, Victor Suba, and Xtru."""
+Barina, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen, Emilio
+Wuerges, Emmanuel Jarri, Frank Harper, H. Mijail, Ian Lewis, Iroiro, Jin
+Eun-Deok, Jarvik7, Jo Nakashima, Christian Krause, LaC, Laurent Steffan, Marco
+Giancotti, Mari Egami, Michael Jürges, Mark Wilbur, Matthew Holtz, Meelis
+Vasser, Michael Penkov, Michael Keppler, Michal Čadil, Nathanael Law, Nick
+Cook, Niklas Laxström, Pcsl88, Petr Michalec, Piotr Kubowicz, Richard Colley,
+Samson Melamed, Stefaan Depooter, Susanna Björverud, Tacutu, Timm Preetz, Timo
+Paulssen, Ursus, Victor Suba, and Xtru."""
+
 }
     abouttext += '<p>' + _("If you have contributed and are not on this list, \
 please get in touch.")
