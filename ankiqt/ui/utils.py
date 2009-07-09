@@ -166,6 +166,15 @@ def restoreGeom(widget, key):
     if ankiqt.mw.config.get(key):
         widget.restoreGeometry(ankiqt.mw.config[key])
 
+def saveState(widget, key):
+    key += "State"
+    ankiqt.mw.config[key] = widget.saveState()
+
+def restoreState(widget, key):
+    key += "State"
+    if ankiqt.mw.config.get(key):
+        widget.restoreState(ankiqt.mw.config[key])
+
 def saveSplitter(widget, key):
     key += "Splitter"
     ankiqt.mw.config[key] = widget.saveState()

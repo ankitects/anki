@@ -14,7 +14,7 @@ from anki.facts import factsTable, fieldsTable, Fact
 from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
      stripHTML, ids2str
 from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
-from ankiqt.ui.utils import saveHeader, restoreHeader
+from ankiqt.ui.utils import saveHeader, restoreHeader, saveState, restoreState
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats
@@ -326,9 +326,12 @@ class EditDeck(QMainWindow):
         self.dialog.setupUi(self)
         self.setUnifiedTitleAndToolBarOnMac(True)
         restoreGeom(self, "editor")
+        restoreState(self, "editor")
         restoreSplitter(self.dialog.splitter, "editor")
+        # toolbar
         self.dialog.toolBar.setIconSize(QSize(self.config['iconSize'],
                                               self.config['iconSize']))
+        self.dialog.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
         # flush all changes before we load
         self.deck.s.flush()
         self.model = DeckModel(self.parent, self.parent.deck)
@@ -686,6 +689,7 @@ class EditDeck(QMainWindow):
         self.editor.setFact(None)
         self.editor.close()
         saveGeom(self, "editor")
+        saveState(self, "editor")
         saveHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.hide()
         ui.dialogs.close("CardList")
