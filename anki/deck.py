@@ -122,7 +122,7 @@ class Deck(object):
 
     factorFour = 1.3
     initialFactor = 2.5
-    maxScheduleTime = 1825
+    maxScheduleTime = 36500
 
     def __init__(self, path=None):
         "Create a new deck."
