@@ -128,6 +128,9 @@ class Sync(QThread):
                         self.setStatus(_("Downloading..."), 0)
                         client.fullSyncFromServer(ret[1], ret[2])
                     self.setStatus(_("Sync complete."), 0)
+                    # reopen the deck in case we have sources
+                    self.deck = DeckStorage.Deck(self.parent.deckPath)
+                    client.deck = self.deck
                 else:
                     # diff
                     self.setStatus(_("Determining differences..."), 0)
