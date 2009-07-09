@@ -18,7 +18,6 @@ from xml.dom import minidom, Node
 from types import DictType, InstanceType
 from string import capwords, maketrans
 import re, unicodedata, time
-from BeautifulSoup import BeautifulStoneSoup
 #import chardet
 
 
@@ -133,7 +132,7 @@ class SupermemoXmlImporter(Importer):
 
     def _decode_htmlescapes(self,s):
         """Unescape HTML code."""
-
+        from BeautifulSoup import BeautifulStoneSoup
         #my sm2004 also ecaped & chars in escaped sequences.
         s = re.sub(u'&amp;',u'&',s) 
         return unicode(BeautifulStoneSoup(s,convertEntities=BeautifulStoneSoup.HTML_ENTITIES ))
