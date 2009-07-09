@@ -1431,6 +1431,7 @@ later by using File>Close.
             self.deck.updateProgress(_("Randomizing..."))
             self.deck.randomizeNewCards()
             self.deck.finishProgress()
+            uf(self.deck, 'newCardOrder', ncOrd)
 
     def updateStudyStats(self):
         wasReached = self.deck.sessionLimitReached()
@@ -1996,6 +1997,7 @@ it to your friends.
                  reload=True, checkSources=True):
         "Synchronise a deck with the server."
         if not self.inMainWindow() and interactive: return
+        self.setNotice()
         # vet input
         self.ensureSyncParams()
         u=self.config['syncUsername']
