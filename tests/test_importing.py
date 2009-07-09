@@ -5,7 +5,7 @@ from tests.shared import assertException
 
 from anki.errors import *
 from anki import DeckStorage
-from anki.importing import anki10, csvfile, mnemosyne10
+from anki.importing import anki10, csvfile, mnemosyne10, supermemo_xml
 from anki.stdmodels import BasicModel
 from anki.facts import Fact
 from anki.sync import SyncClient, SyncServer
@@ -43,6 +43,44 @@ def test_mnemosyne10():
     i = mnemosyne10.Mnemosyne10Importer(deck, file)
     i.doImport()
     assert i.total == 5
+    deck.s.close()
+
+def test_supermemo_xml_01_unicode():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    file = unicode(os.path.join(testDir, "importing/supermemo_ENGLISHFORBEGGINERS_noOEM.xml"))
+    i = supermemo_xml.SupermemoXmlImporter(deck, file)
+    #i.META.logToStdOutput = True
+    i.doImport()
+    assert i.total == 92
+    deck.s.close()
+
+def test_supermemo_xml_02_escaped():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    file = unicode(os.path.join(testDir, "importing/supermemo_ENGLISHFORBEGGINERS_oem_1250.xml"))
+    i = supermemo_xml.SupermemoXmlImporter(deck, file)
+    i.doImport()
+    assert i.total == 30
+    deck.s.close()
+
+def test_supermemo_xml_03():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    file = unicode(os.path.join(testDir, "importing/supermemo_EnglishPronunciationTop100.xml"))
+    i = supermemo_xml.SupermemoXmlImporter(deck, file)
+    #i.META.logToStdOutput = True
+    i.doImport()
+    assert i.total == 100
+    deck.s.close()
+
+def test_supermemo_xml_04():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    file = unicode(os.path.join(testDir, "importing/supermemo_ENGLISHVOCABULARYBUILDER.xml"))
+    i = supermemo_xml.SupermemoXmlImporter(deck, file)
+    i.doImport()
+    assert i.total == 60
     deck.s.close()
 
 def test_anki10():

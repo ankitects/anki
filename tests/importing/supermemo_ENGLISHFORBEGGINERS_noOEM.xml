@@ -1,0 +1,2637 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SuperMemoCollection>
+  <Count>3572</Count>
+
+  <SuperMemoElement>
+    <ID>1</ID>
+
+    <Type>Topic</Type>
+
+    <Content>
+      <Question />
+
+      <Answer />
+    </Content>
+
+    <SuperMemoElement>
+      <ID>40326</ID>
+
+      <Title>English for begginers - czech</Title>
+
+      <Type>Topic</Type>
+
+      <SuperMemoElement>
+        <ID>40327</ID>
+
+        <Title>1-400</Title>
+
+        <Type>Topic</Type>
+
+        <SuperMemoElement>
+          <ID>40615</ID>
+
+          <Title>dolů ... pohybovat</Title>
+
+          <Type>Topic</Type>
+
+          <SuperMemoElement>
+            <ID>10247</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>sedět</Question>
+
+              <Answer>sit [sit]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1844</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>19.09.2002</LastRepetition>
+
+              <AFactor>5,701</AFactor>
+
+              <UFactor>2,452</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40616</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dolů (např.: dívat se dolů)</Question>
+
+              <Answer>down [daun] (look down)</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>8201</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>6,699</AFactor>
+
+              <UFactor>6,635</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40617</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>létat, letět</Question>
+
+              <Answer>fly [flai]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4917</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>6,272</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40618</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>slyšet</Question>
+
+              <Answer>hear [hiđr]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6296</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>21.01.2004</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>5,835</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40619</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dívat se (na)</Question>
+
+              <Answer>look (at) [luk]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1662</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>22.09.2002</LastRepetition>
+
+              <AFactor>5,401</AFactor>
+
+              <UFactor>2,115</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40620</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>mnoho</Question>
+
+              <Answer>many ['męni]&lt;br&gt;a lot of [đ lot đv]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1706</Interval>
+
+              <Repetitions>8</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>04.07.2005</LastRepetition>
+
+              <AFactor>3,805</AFactor>
+
+              <UFactor>1,644</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40621</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>musím to udělat</Question>
+
+              <Answer>I must do it [ai mast du: it]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>3500</Interval>
+
+              <Repetitions>8</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>5,954</AFactor>
+
+              <UFactor>5,564</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40622</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>nic</Question>
+
+              <Answer>nothing ['naőiű]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4897</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,410</AFactor>
+
+              <UFactor>6,302</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40623</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>prosím (např.: buďte potichu prosím)</Question>
+
+              <Answer>please [pli:z] (be quiet please)</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5819</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,698</AFactor>
+
+              <UFactor>6,583</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40624</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dát, dávat, položit</Question>
+
+              <Answer>put [put]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5000</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,763</AFactor>
+
+              <UFactor>6,906</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40625</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>věta (jako skupina výrazů)</Question>
+
+              <Answer>sentence ['sentđns]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4862</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>6,298</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40626</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>on by měl, on musí</Question>
+
+              <Answer>he should [- šud]&lt;br&gt;he ought to [- o:t
+              -]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1111</Interval>
+
+              <Repetitions>8</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>31.12.2004</LastRepetition>
+
+              <AFactor>3,893</AFactor>
+
+              <UFactor>1,337</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40627</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>pravdivý, věrný (např.: pravdivá zpráva)</Question>
+
+              <Answer>true [tru:] (true message)</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5051</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,407</AFactor>
+
+              <UFactor>6,290</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40628</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>(det) each [i:č] (in: each time I see you)</Question>
+
+              <Answer>every</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2700</Interval>
+
+              <Repetitions>9</Repetitions>
+
+              <Lapses>1</Lapses>
+
+              <LastRepetition>01.10.2002</LastRepetition>
+
+              <AFactor>5,854</AFactor>
+
+              <UFactor>3,694</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40629</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>angličtina, Angličané</Question>
+
+              <Answer>English ['iűgliš]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4187</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,208</AFactor>
+
+              <UFactor>6,287</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40630</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>na shledanou, sbohem</Question>
+
+              <Answer>goodbye [gud'bai]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>3314</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>08.11.2004</LastRepetition>
+
+              <AFactor>4,541</AFactor>
+
+              <UFactor>2,245</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40631</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>je deset hodin</Question>
+
+              <Answer>it's ten o'clock [- - đ'klok]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4810</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,409</AFactor>
+
+              <UFactor>6,371</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40632</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>hrát, hrát si</Question>
+
+              <Answer>play [plei]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4508</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>6,296</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40633</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>cesta, způsob (např.: to je jediný způsob)</Question>
+
+              <Answer>way [wei] (it's the only way)</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5478</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>6,297</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40634</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>pohybovat, přemisťovat, stěhovat</Question>
+
+              <Answer>move [mu:v]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6976</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>21.01.2004</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>5,917</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+
+        <SuperMemoElement>
+          <ID>40392</ID>
+
+          <Title>Osobní zájmena, členy, sloveso býti</Title>
+
+          <Type>Topic</Type>
+
+          <SuperMemoElement>
+            <ID>38619</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>ono, to</Question>
+
+              <Answer>it [it]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4478</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,321</AFactor>
+
+              <UFactor>6,289</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40393</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>já</Question>
+
+              <Answer>I [ai]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4328</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,249</AFactor>
+
+              <UFactor>6,263</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40394</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>ty</Question>
+
+              <Answer>you [ju]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1861</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>4,254</AFactor>
+
+              <UFactor>2,275</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40395</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>on</Question>
+
+              <Answer>he [hi:]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>3919</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>19.01.2004</LastRepetition>
+
+              <AFactor>5,059</AFactor>
+
+              <UFactor>3,302</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40396</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>ona</Question>
+
+              <Answer>she [ši:]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1869</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>4,254</AFactor>
+
+              <UFactor>2,307</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40397</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>my</Question>
+
+              <Answer>we [wi:]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4860</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,322</AFactor>
+
+              <UFactor>6,320</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40398</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>vy</Question>
+
+              <Answer>you [ju:]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>8075</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>06.11.2004</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>5,482</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40399</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>oni</Question>
+
+              <Answer>they [÷ei]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6993</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>6,086</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40400</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>člen předcházející neznámým nebo
+              dříve&lt;br&gt;neuvedeným věcem</Question>
+
+              <Answer>a [đ]&lt;br&gt;an [đn] (před samohláskou)</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6802</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>5,988</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40401</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>člen předcházející dříve uváděným podst.
+              jménům</Question>
+
+              <Answer>the [÷đ]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>7480</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>19.01.2004</LastRepetition>
+
+              <AFactor>6,249</AFactor>
+
+              <UFactor>6,302</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40402</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>být</Question>
+
+              <Answer>be [bi:]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2932</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>01.10.2002</LastRepetition>
+
+              <AFactor>6,076</AFactor>
+
+              <UFactor>3,598</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40403</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>já jsem</Question>
+
+              <Answer>I am [ai đm]&lt;br&gt;I'm [aim]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5285</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,249</AFactor>
+
+              <UFactor>6,299</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40404</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>nejsem</Question>
+
+              <Answer>I am not [ai đm not]&lt;br&gt;I'm not [aim not]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5056</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,317</AFactor>
+
+              <UFactor>6,242</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40405</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>ty jsi</Question>
+
+              <Answer>you are [ju a:r]&lt;br&gt;you're [jđr]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4846</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,249</AFactor>
+
+              <UFactor>6,343</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40406</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>on (ona,ono) je</Question>
+
+              <Answer>he (she, it) is [hi: iz]&lt;br&gt;he's [hiz]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4934</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,249</AFactor>
+
+              <UFactor>6,342</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40407</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>my jsme</Question>
+
+              <Answer>we are [wi: a:r]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6831</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>22.01.2004</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>5,740</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40408</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>vy jste</Question>
+
+              <Answer>you are [ju: a:r]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4367</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,318</AFactor>
+
+              <UFactor>6,320</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40409</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>oni jsou</Question>
+
+              <Answer>they are [÷ei a:r]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5326</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>6,281</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40410</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>zkrácený tvar: I am</Question>
+
+              <Answer>I'm [aim]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6890</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>21.01.2004</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>5,864</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40411</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>zkrácený tvar: he is</Question>
+
+              <Answer>he's [hi:z]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>0</Interval>
+
+              <Repetitions>0</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>04.08.2000</LastRepetition>
+
+              <AFactor>3,000</AFactor>
+
+              <UFactor>0,000</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40412</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>zkrácený tvar: she is</Question>
+
+              <Answer>she's [ši:z]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5296</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>6,245</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40413</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>zkrácený tvar: is not</Question>
+
+              <Answer>isn't ['izđnt]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6885</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>19.01.2004</LastRepetition>
+
+              <AFactor>6,446</AFactor>
+
+              <UFactor>6,115</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40414</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>zkrácený tvar: are not</Question>
+
+              <Answer>aren't [a:nt]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5097</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,322</AFactor>
+
+              <UFactor>6,293</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40415</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>zkrácený tvar: you are</Question>
+
+              <Answer>you're [jđr]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>7328</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>19.01.2004</LastRepetition>
+
+              <AFactor>6,249</AFactor>
+
+              <UFactor>6,163</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+
+        <Type>Topic</Type>
+
+        <Content>
+          <Question>Následuje prvých 400 položek &lt;br&gt;= dvojic otázka -
+          odpověď</Question>
+
+          <Answer />
+        </Content>
+
+        <LearningData>
+          <Interval>0</Interval>
+
+          <Repetitions>0</Repetitions>
+
+          <Lapses>0</Lapses>
+
+          <LastRepetition>04.08.2000</LastRepetition>
+
+          <AFactor>3,000</AFactor>
+
+          <UFactor>0,000</UFactor>
+        </LearningData>
+
+        <SuperMemoElement>
+          <ID>40328</ID>
+
+          <Type>Topic</Type>
+
+          <Content>
+            <Question>ano, ne, základní číslovky</Question>
+
+            <Answer />
+          </Content>
+
+          <LearningData>
+            <Interval>0</Interval>
+
+            <Repetitions>0</Repetitions>
+
+            <Lapses>0</Lapses>
+
+            <LastRepetition>04.08.2000</LastRepetition>
+
+            <AFactor>3,000</AFactor>
+
+            <UFactor>0,000</UFactor>
+          </LearningData>
+
+          <SuperMemoElement>
+            <ID>40329</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>ano</Question>
+
+              <Answer>yes [jes]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>0</Interval>
+
+              <Repetitions>0</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>04.08.2000</LastRepetition>
+
+              <AFactor>3,000</AFactor>
+
+              <UFactor>0,000</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40330</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>ne</Question>
+
+              <Answer>no [nđu]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>3627</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>01.10.2002</LastRepetition>
+
+              <AFactor>6,155</AFactor>
+
+              <UFactor>4,450</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40331</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>nula</Question>
+
+              <Answer>zero ['zi:rđu]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5044</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,247</AFactor>
+
+              <UFactor>6,385</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40332</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>jeden</Question>
+
+              <Answer>one [wan]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4974</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,247</AFactor>
+
+              <UFactor>6,272</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40333</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dva</Question>
+
+              <Answer>two [tu:]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5316</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,444</AFactor>
+
+              <UFactor>6,269</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40334</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>tři</Question>
+
+              <Answer>three [őri:]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5165</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>6,306</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40335</ID>
+
+            <Type>Topic</Type>
+
+            <Content>
+              <Question>Zobrazuje se vám správně přepis
+              výslovnosti?&lt;br&gt;&lt;br&gt;Pokud ne, možná jste po
+              instalaci programu neprovedli reset počítače, aby se mohlo
+              použít nově nainstalované písmo Fonetik.ttf. Zkuste provést
+              reset a znovu spustit program. Nebo nemáte Fonetik.ttf (nebo
+              Eng_Cze.ttf) ve Windows nainstalován. Zkontrolujete to tak, že
+              vyberete Start: Nastavení: Ovládací panely: Písma; v seznamu
+              písem byste jej měli najít. Není-li tam, můžete jej nainstalovat
+              pomocí nabídky Soubor: Přidat nové písmo (Fonetik.ttf je na
+              CD-ROM).</Question>
+
+              <Answer />
+            </Content>
+
+            <LearningData>
+              <Interval>0</Interval>
+
+              <Repetitions>0</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>04.08.2000</LastRepetition>
+
+              <AFactor>1,010</AFactor>
+
+              <UFactor>0,000</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40336</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>čtyři</Question>
+
+              <Answer>four [fo:r]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4382</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>6,342</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40337</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>pět</Question>
+
+              <Answer>five [faiv]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1844</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>4,252</AFactor>
+
+              <UFactor>2,355</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40338</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>šest</Question>
+
+              <Answer>six [siks]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5089</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,247</AFactor>
+
+              <UFactor>6,322</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40339</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>sedm</Question>
+
+              <Answer>seven ['sevđn]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4010</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,247</AFactor>
+
+              <UFactor>6,266</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40340</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>osm</Question>
+
+              <Answer>eight [eit]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4678</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>6,330</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40341</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>devět</Question>
+
+              <Answer>nine [nain]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>3717</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>5,051</AFactor>
+
+              <UFactor>3,155</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40342</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>deset</Question>
+
+              <Answer>ten [ten]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6570</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>22.01.2004</LastRepetition>
+
+              <AFactor>6,444</AFactor>
+
+              <UFactor>5,558</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40343</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>jedenáct</Question>
+
+              <Answer>eleven [i'levđn]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4556</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,245</AFactor>
+
+              <UFactor>6,293</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40344</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dvanáct</Question>
+
+              <Answer>twelve [twelv]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>7962</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>21.01.2004</LastRepetition>
+
+              <AFactor>6,703</AFactor>
+
+              <UFactor>6,624</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40345</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>třináct</Question>
+
+              <Answer>thirteen [,őđ:r'ti:n]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4802</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,416</AFactor>
+
+              <UFactor>6,360</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40346</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>čtrnáct</Question>
+
+              <Answer>fourteen [,fo:r'ti:n]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4931</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,413</AFactor>
+
+              <UFactor>6,290</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40347</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>patnáct</Question>
+
+              <Answer>fifteen [fif'ti:n]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2731</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>13.10.2002</LastRepetition>
+
+              <AFactor>5,595</AFactor>
+
+              <UFactor>3,646</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40348</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>šestnáct</Question>
+
+              <Answer>sixteen [,sik'sti:n]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>7499</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>6,442</AFactor>
+
+              <UFactor>6,122</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40349</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>sedmnáct</Question>
+
+              <Answer>seventeen [,sevđn'ti:n]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1785</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>14.11.2002</LastRepetition>
+
+              <AFactor>4,314</AFactor>
+
+              <UFactor>2,280</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40350</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>osmnáct</Question>
+
+              <Answer>eighteen [ei'ti:n]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>6815</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>22.01.2004</LastRepetition>
+
+              <AFactor>6,442</AFactor>
+
+              <UFactor>5,712</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40351</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>devatenáct</Question>
+
+              <Answer>nineteen [,nain'ti:n]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1671</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>3,974</AFactor>
+
+              <UFactor>2,008</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40352</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dvacet</Question>
+
+              <Answer>twenty ['twenti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4916</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,305</AFactor>
+
+              <UFactor>6,254</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40353</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>třicet</Question>
+
+              <Answer>thirty ['őđ:rti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>7717</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>19.01.2004</LastRepetition>
+
+              <AFactor>6,602</AFactor>
+
+              <UFactor>6,658</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40354</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>čtyřicet</Question>
+
+              <Answer>forty ['fo:rti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5537</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,432</AFactor>
+
+              <UFactor>6,314</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40355</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>padesát</Question>
+
+              <Answer>fifty ['fifti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4939</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,312</AFactor>
+
+              <UFactor>6,348</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40356</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>šedesát</Question>
+
+              <Answer>sixty ['siksti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4557</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,313</AFactor>
+
+              <UFactor>6,294</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40357</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>sedmdesát</Question>
+
+              <Answer>seventy ['sevđnti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1293</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>13.11.2002</LastRepetition>
+
+              <AFactor>3,572</AFactor>
+
+              <UFactor>1,671</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40358</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>osmdesát</Question>
+
+              <Answer>eighty ['eiti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>3778</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>4,989</AFactor>
+
+              <UFactor>3,167</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40359</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>devadesát</Question>
+
+              <Answer>ninety ['nainti]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2437</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>01.10.2002</LastRepetition>
+
+              <AFactor>5,701</AFactor>
+
+              <UFactor>3,190</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40360</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>sto</Question>
+
+              <Answer>(one) hundred [- 'handrid]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>4932</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,315</AFactor>
+
+              <UFactor>6,243</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40361</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dvěstě</Question>
+
+              <Answer>two hundred [- -]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5162</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,316</AFactor>
+
+              <UFactor>6,303</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40362</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>tisíc</Question>
+
+              <Answer>(one) thousand ['őauzđnd]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5604</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,552</AFactor>
+
+              <UFactor>6,608</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40363</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>milion</Question>
+
+              <Answer>(one) million [- 'miljđn]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>5305</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>28.12.2002</LastRepetition>
+
+              <AFactor>6,320</AFactor>
+
+              <UFactor>6,323</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40364</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>miliarda</Question>
+
+              <Answer>(one) billion [- 'biljđn]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>7132</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>6,321</AFactor>
+
+              <UFactor>5,988</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+
+        <SuperMemoElement>
+          <ID>40719</ID>
+
+          <Title>dohromady ... řidič</Title>
+
+          <Type>Topic</Type>
+
+          <SuperMemoElement>
+            <ID>40720</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>dohromady, společně</Question>
+
+              <Answer>together [tđ'ge÷đr]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2389</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>22.09.2002</LastRepetition>
+
+              <AFactor>5,969</AFactor>
+
+              <UFactor>2,997</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>40721</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>strýc</Question>
+
+              <Answer>uncle ['aűkđl]</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>3331</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>4,863</AFactor>
+
+              <UFactor>2,797</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+      </SuperMemoElement>
+    </SuperMemoElement>
+
+    <SuperMemoElement>
+      <ID>43617</ID>
+
+      <Title>Vocabulary</Title>
+
+      <Type>Topic</Type>
+
+      <SuperMemoElement>
+        <ID>43832</ID>
+
+        <Title>gramatika</Title>
+
+        <Type>Item</Type>
+
+        <SuperMemoElement>
+          <ID>43872</ID>
+
+          <Title>lekce9</Title>
+
+          <Type>Item</Type>
+
+          <SuperMemoElement>
+            <ID>16328</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>tazaci dovetky</Question>
+
+              <Answer>let =&gt; shall ..&lt;br&gt;.. ??</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2768</Interval>
+
+              <Repetitions>4</Repetitions>
+
+              <Lapses>1</Lapses>
+
+              <LastRepetition>21.09.2005</LastRepetition>
+
+              <AFactor>5,797</AFactor>
+
+              <UFactor>3,647</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>43873</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>Which pouzijeme mluvime li o ..&lt;br&gt;What
+              --//--</Question>
+
+              <Answer>which - o omezene moznosti vyberu //... which do you
+              want?&lt;br&gt;&lt;br&gt;what - mame na mysly neomez. vyber //
+              What car do you drive?</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>674</Interval>
+
+              <Repetitions>4</Repetitions>
+
+              <Lapses>2</Lapses>
+
+              <LastRepetition>08.11.2004</LastRepetition>
+
+              <AFactor>4,912</AFactor>
+
+              <UFactor>2,390</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+
+        <SuperMemoElement>
+          <ID>43877</ID>
+
+          <Title>lekce10</Title>
+
+          <Type>Item</Type>
+
+          <SuperMemoElement>
+            <ID>40126</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>Nechala by nas myt se ve studene vode.</Question>
+
+              <Answer>She WOULD make us wash in ice-cold water.</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>82</Interval>
+
+              <Repetitions>4</Repetitions>
+
+              <Lapses>2</Lapses>
+
+              <LastRepetition>27.09.2005</LastRepetition>
+
+              <AFactor>5,470</AFactor>
+
+              <UFactor>6,308</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>43878</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>prislovce castosti deje..&lt;br&gt;&lt;br&gt;- malokdy
+              casto obvykle zridka malokdy normalne&lt;br&gt;- chovani ve
+              vete?&lt;br&gt;&lt;br&gt;dalsi: nekdy prilezitostne</Question>
+
+              <Answer>hardly frequently usually rarely seldom
+              normally&lt;br&gt;&lt;br&gt;davaji se pred hlavni vyznamove
+              sloveso.. !!&lt;br&gt;We don't usually eat
+              fish.&lt;br&gt;&lt;br&gt;ostani : sometimes
+              occasionally</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>69</Interval>
+
+              <Repetitions>2</Repetitions>
+
+              <Lapses>3</Lapses>
+
+              <LastRepetition>05.09.2005</LastRepetition>
+
+              <AFactor>3,036</AFactor>
+
+              <UFactor>1,971</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+
+        <SuperMemoElement>
+          <ID>43849</ID>
+
+          <Title>lekce8</Title>
+
+          <Type>Item</Type>
+
+          <SuperMemoElement>
+            <ID>43850</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>modalni slovesa pravdepodobnosti&lt;br&gt;-
+              nenistejsi&lt;br&gt;- mene jista</Question>
+
+              <Answer>- will a won't // I'll see you later.. urcite&lt;br&gt;-
+              might/could&lt;br&gt;&lt;br&gt;Will a won't -&gt; take, jme
+              presvedceni nebo povazujeme z a pravdive v soucasnosti</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>806</Interval>
+
+              <Repetitions>5</Repetitions>
+
+              <Lapses>2</Lapses>
+
+              <LastRepetition>16.11.2004</LastRepetition>
+
+              <AFactor>5,072</AFactor>
+
+              <UFactor>2,931</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>43851</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>modalni slovesa pravdepodobnosti&lt;br&gt;-
+              nejlogictejsi, vyklad je mene jisty nez s will</Question>
+
+              <Answer>must a can't&lt;br&gt;&lt;br&gt;He must be
+              joking!&lt;br&gt;&lt;br&gt;can't -&gt; jsme-li presvedceni ze se
+              to nestalo ci to nemuze byt log pravdive..</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1613</Interval>
+
+              <Repetitions>9</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>22.01.2004</LastRepetition>
+
+              <AFactor>5,706</AFactor>
+
+              <UFactor>4,136</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+      </SuperMemoElement>
+
+      <SuperMemoElement>
+        <ID>43760</ID>
+
+        <Title>testy</Title>
+
+        <Type>Item</Type>
+
+        <SuperMemoElement>
+          <ID>43761</ID>
+
+          <Title>01</Title>
+
+          <Type>Item</Type>
+
+          <SuperMemoElement>
+            <ID>16676</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>Icouldn't get __ to Joe. I don't thing his phone's
+              working.</Question>
+
+              <Answer>get throught</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>1307</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>22.01.2004</LastRepetition>
+
+              <AFactor>5,223</AFactor>
+
+              <UFactor>2,964</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>43762</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>You always get __ of doing the washing-up. It's not
+              fair.</Question>
+
+              <Answer>get out</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>704</Interval>
+
+              <Repetitions>4</Repetitions>
+
+              <Lapses>3</Lapses>
+
+              <LastRepetition>04.07.2005</LastRepetition>
+
+              <AFactor>3,080</AFactor>
+
+              <UFactor>1,326</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+
+        <SuperMemoElement>
+          <ID>43812</ID>
+
+          <Title>03</Title>
+
+          <Type>Item</Type>
+
+          <SuperMemoElement>
+            <ID>38568</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>Did you succeed __ telling ...</Question>
+
+              <Answer>succeed in</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2861</Interval>
+
+              <Repetitions>6</Repetitions>
+
+              <Lapses>1</Lapses>
+
+              <LastRepetition>20.01.2004</LastRepetition>
+
+              <AFactor>6,340</AFactor>
+
+              <UFactor>6,011</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>43831</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question />
+
+              <Answer />
+            </Content>
+          </SuperMemoElement>
+        </SuperMemoElement>
+
+        <SuperMemoElement>
+          <ID>43778</ID>
+
+          <Title>02</Title>
+
+          <Type>Item</Type>
+
+          <SuperMemoElement>
+            <ID>43524</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>bez vasne xx</Question>
+
+              <Answer>dispassionate</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>2719</Interval>
+
+              <Repetitions>7</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>21.11.2004</LastRepetition>
+
+              <AFactor>5,712</AFactor>
+
+              <UFactor>3,918</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+
+          <SuperMemoElement>
+            <ID>43811</ID>
+
+            <Type>Item</Type>
+
+            <Content>
+              <Question>When She started her career, she ___ racism and
+              prejudice.</Question>
+
+              <Answer>??</Answer>
+            </Content>
+
+            <LearningData>
+              <Interval>0</Interval>
+
+              <Repetitions>0</Repetitions>
+
+              <Lapses>0</Lapses>
+
+              <LastRepetition>04.08.2000</LastRepetition>
+
+              <AFactor>3,000</AFactor>
+
+              <UFactor>0,000</UFactor>
+            </LearningData>
+          </SuperMemoElement>
+        </SuperMemoElement>
+      </SuperMemoElement>
+    </SuperMemoElement>
+  </SuperMemoElement>
+</SuperMemoCollection>
