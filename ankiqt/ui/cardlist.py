@@ -734,6 +734,7 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setEnabled(True)
         self.dialog.menubar.setEnabled(True)
         self.dialog.cardInfoGroup.setEnabled(True)
+        self.dialog.toolBar.setEnabled(True)
 
     def onFactInvalid(self, fact):
         self.factValid = False
@@ -743,6 +744,7 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.setEnabled(False)
         self.dialog.menubar.setEnabled(False)
         self.dialog.cardInfoGroup.setEnabled(False)
+        self.dialog.toolBar.setEnabled(False)
 
     def rowChanged(self, current, previous):
         self.currentRow = current
