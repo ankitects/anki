@@ -266,7 +266,8 @@ class PyAudioThreadedRecorder(threading.Thread):
         try:
             p = pyaudio.PyAudio()
         except NameError:
-            raise Exception("Recording not supported on OSX10.3.")
+            raise Exception(
+                "Pyaudio not installed (recording not supported on OSX10.3)")
         stream = p.open(format=PYAU_FORMAT,
                         channels=PYAU_CHANNELS,
                         rate=PYAU_RATE,
