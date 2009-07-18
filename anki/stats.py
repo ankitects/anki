@@ -422,11 +422,11 @@ class DeckStats(object):
             html += "</table>"
 
             html += "<br><br><b>" + _("Card Ease") + "</b><br>"
-            html += _("Lowest factor: %.1fx") % d.s.scalar(
+            html += _("Lowest factor: %.2f") % d.s.scalar(
                 "select min(factor) from cards") + "<br>"
-            html += _("Average factor: %.1fx") % d.s.scalar(
+            html += _("Average factor: %.2f") % d.s.scalar(
                 "select avg(factor) from cards") + "<br>"
-            html += _("Highest factor: %.1fx") % d.s.scalar(
+            html += _("Highest factor: %.2f") % d.s.scalar(
                 "select max(factor) from cards") + "<br>"
             html = runFilter("deckStats", html)
 
