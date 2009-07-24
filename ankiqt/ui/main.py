@@ -2263,6 +2263,7 @@ it to your friends.
             getattr(self.mainWin, "action" + item).setEnabled(enabled)
         if not enabled:
             self.disableCardMenuItems()
+        runHook("enableDeckMenuItems", enabled)
 
     def disableDeckMenuItems(self):
         "Disable deck-related items."
