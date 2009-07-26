@@ -111,7 +111,7 @@ class SupermemoXmlImporter(Importer):
         self.META.resetLearningData  = False            # implemented
         self.META.onlyMemorizedItems = False            # implemented
         self.META.loggerLevel = 2                       # implemented 0no,1info,2error,3debug
-        self.META.tagAllTopics = False
+        self.META.tagAllTopics = True
         self.META.pathsToBeTagged = ['English for begginers', 'Advanced English 97', 'Phrasal Verbs']                # path patterns to be tagged - in gui entered like 'Advanced English 97|My Vocablary'
         self.META.tagMemorizedItems = True              # implemented
         self.META.logToStdOutput   = False              # implemented
@@ -132,10 +132,16 @@ class SupermemoXmlImporter(Importer):
 
     def _decode_htmlescapes(self,s):
         """Unescape HTML code."""
-        from BeautifulSoup import BeautifulStoneSoup
-        #my sm2004 also ecaped & chars in escaped sequences.
+        #In case of bad formated html you can import MinimalSoup etc.. see btflsoup source code
+        from BeautifulSoup import BeautifulStoneSoup as btflsoup    
+
+        #my sm2004 also ecaped & char in escaped sequences.
         s = re.sub(u'&amp;',u'&',s) 
-        return unicode(BeautifulStoneSoup(s,convertEntities=BeautifulStoneSoup.HTML_ENTITIES ))
+        #unescaped solitary chars < or > that were ok for minidom confuse btfl soup
+        s = re.sub(u'>',u'&gt;',s) 
+        s = re.sub(u'<',u'&lt;',s) 
+
+        return unicode(btflsoup(s,convertEntities=btflsoup.HTML_ENTITIES ))
 
 
     def _unescape(self,s,initilize):
