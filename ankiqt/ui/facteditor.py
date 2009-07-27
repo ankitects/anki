@@ -20,6 +20,14 @@ QtConfig = pyqtconfig.Configuration()
 
 clozeColour = "#0000ff"
 
+if sys.platform.startswith("win32"):
+    ActivateKeyboardLayout = ctypes.windll.user32.ActivateKeyboardLayout
+    ActivateKeyboardLayout.restype = ctypes.c_void_p
+    ActivateKeyboardLayout.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+    GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
+    GetKeyboardLayout.restype = ctypes.c_void_p
+    GetKeyboardLayout.argtypes = [ctypes.c_uint]
+
 class FactEditor(object):
     """An editor for new/existing facts.
 
@@ -926,14 +934,6 @@ class FactEdit(QTextEdit):
         QTextEdit.__init__(self, *args)
         self.parent = parent
         if sys.platform.startswith("win32"):
-            self._ActivateKeyboardLayout = ctypes.windll.user32.ActivateKeyboardLayout
-            self._ActivateKeyboardLayout.restype = ctypes.c_void_p
-            self._ActivateKeyboardLayout.argtypes = [ ctypes.c_void_p, ctypes.c_uint ]
-
-            self._GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
-            self._GetKeyboardLayout.restype = ctypes.c_void_p
-            self._GetKeyboardLayout.argtypes = [ ctypes.c_uint ]
-
             self._ownLayout = None
 
     def canInsertFromMimeData(self, source):
@@ -1038,8 +1038,8 @@ class FactEdit(QTextEdit):
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
         if sys.platform.startswith("win32"):
-            self._ownLayout = self._GetKeyboardLayout(0)
-            self._ActivateKeyboardLayout(self._programLayout, 0)
+            self._ownLayout = GetKeyboardLayout(0)
+            ActivateKeyboardLayout(self._programLayout, 0)
         self.emit(SIGNAL("lostFocus"))
 
     def focusInEvent(self, evt):
@@ -1058,11 +1058,10 @@ class FactEdit(QTextEdit):
         self.parent.formatChanged(None)
         self.parent.enableButtons()
         if sys.platform.startswith("win32"):
-            self._programLayout = self._GetKeyboardLayout(0)
+            self._programLayout = GetKeyboardLayout(0)
             if self._ownLayout == None:
                 self._ownLayout = self._programLayout
-            self._ActivateKeyboardLayout(self._ownLayout, 0)
-
+            ActivateKeyboardLayout(self._ownLayout, 0)
 
 class PreviewDialog(QDialog):
 
