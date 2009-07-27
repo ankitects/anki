@@ -5,7 +5,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
-import re, os, sys, tempfile, urllib2
+import re, os, sys, tempfile, urllib2, ctypes
 from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
 from ankiqt.ui.sound import getAudio
@@ -925,6 +925,16 @@ class FactEdit(QTextEdit):
     def __init__(self, parent, *args):
         QTextEdit.__init__(self, *args)
         self.parent = parent
+        if sys.platform.startswith("win32"):
+            self._ActivateKeyboardLayout = ctypes.windll.user32.ActivateKeyboardLayout
+            self._ActivateKeyboardLayout.restype = ctypes.c_void_p
+            self._ActivateKeyboardLayout.argtypes = [ ctypes.c_void_p, ctypes.c_uint ]
+
+            self._GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
+            self._GetKeyboardLayout.restype = ctypes.c_void_p
+            self._GetKeyboardLayout.argtypes = [ ctypes.c_uint ]
+
+            self._ownLayout = None
 
     def canInsertFromMimeData(self, source):
         return (source.hasUrls() or
@@ -1027,6 +1037,9 @@ class FactEdit(QTextEdit):
         self.parent.lastFocusedEdit = self
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
+        if sys.platform.startswith("win32"):
+            self._ownLayout = self._GetKeyboardLayout(0)
+            self._ActivateKeyboardLayout(self._programLayout, 0)
         self.emit(SIGNAL("lostFocus"))
 
     def focusInEvent(self, evt):
@@ -1044,6 +1057,12 @@ class FactEdit(QTextEdit):
         QTextEdit.focusInEvent(self, evt)
         self.parent.formatChanged(None)
         self.parent.enableButtons()
+        if sys.platform.startswith("win32"):
+            self._programLayout = self._GetKeyboardLayout(0)
+            if self._ownLayout == None:
+                self._ownLayout = self._programLayout
+            self._ActivateKeyboardLayout(self._ownLayout, 0)
+
 
 class PreviewDialog(QDialog):
 
