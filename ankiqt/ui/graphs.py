@@ -151,7 +151,7 @@ class GraphWindow(object):
         'added': _("Added"),
         'answered': _("First Answered"),
         'eases': _("Eases"),
-        'reps': _("Reps"),
+        'reps': _("Repetitions"),
         'times': _("Review Time"),
         }
 
