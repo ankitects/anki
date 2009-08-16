@@ -1282,11 +1282,13 @@ facts.id = cards.factId""", id=model.id))
     def rebuildCSS(self):
         # css for all fields
         def _genCSS(prefix, row):
-            (id, fam, siz, col, align) = row
+            (id, fam, siz, col, align, rtl) = row
             t = ""
             if fam: t += 'font-family:"%s";' % toPlatformFont(fam)
             if siz: t += 'font-size:%dpx;' % siz
             if col: t += 'color:%s;' % col
+            if rtl == "rtl":
+                t += "direction:rtl;unicode-bidi:embed;"
             if align != -1:
                 if align == 0: align = "center"
                 elif align == 1: align = "left"
@@ -1296,13 +1298,13 @@ facts.id = cards.factId""", id=model.id))
                 t = "%s%s {%s}\n" % (prefix, hexifyID(id), t)
             return t
         css = "".join([_genCSS(".fm", row) for row in self.s.all("""
-select id, quizFontFamily, quizFontSize, quizFontColour, -1 from fieldModels""")])
+select id, quizFontFamily, quizFontSize, quizFontColour, -1, features from fieldModels""")])
         css += "".join([_genCSS("#cmq", row) for row in self.s.all("""
 select id, questionFontFamily, questionFontSize, questionFontColour,
-questionAlign from cardModels""")])
+questionAlign, 0 from cardModels""")])
         css += "".join([_genCSS("#cma", row) for row in self.s.all("""
 select id, answerFontFamily, answerFontSize, answerFontColour,
-answerAlign from cardModels""")])
+answerAlign, 0 from cardModels""")])
         css += "".join([".cmb%s {background:%s;}\n" %
         (hexifyID(row[0]), row[1]) for row in self.s.all("""
 select id, lastFontColour from cardModels""")])
