@@ -995,6 +995,7 @@ where id in %s""" % ids2str(sf))
                 self.deck.updateProgress()
         sm.blockSignals(False)
         self.deck.finishProgress()
+        self.updateFilterLabel()
 
     def invertSelection(self):
         sm = self.dialog.tableView.selectionModel()
