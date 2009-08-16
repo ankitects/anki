@@ -1062,10 +1062,7 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
         self.flushMod()
         isRandom = self.newCardOrder == NEW_CARDS_RANDOM
         if isRandom:
-            oldest = self.s.scalar("""
-select min(due) from cards
-where type = 2 and priority in (1,2,3,4)""") or 0
-            due = random.uniform(oldest, time.time())
+            due = random.uniform(0, time.time())
         for cardModel in cms:
             card = anki.cards.Card(fact, cardModel)
             if isRandom:
