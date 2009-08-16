@@ -429,7 +429,8 @@ class FactEditor(object):
             extra = -1
         tagsw = self.tagsLabel.sizeHint().width()
         self.tagsLabel.setFixedWidth(max(tagsw,
-                                         max(*[l.width() for l in self.labels]))
+                                         max(*([
+            l.width() for l in self.labels] + [0])))
                                      + extra)
         self.parent.setTabOrder(last, self.tags)
 
