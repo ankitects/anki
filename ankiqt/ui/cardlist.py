@@ -33,6 +33,7 @@ CARD_EASE = 9
 CARD_NO = 10
 CARD_PRIORITY = 11
 CARD_TAGS = 12
+CARD_FACTCREATED = 13
 
 # Deck editor
 ##########################################################################
@@ -174,6 +175,7 @@ where cards.factId = facts.id """
             self.cards[index.row()] = self.deck.s.first("""
 select id, question, answer, due, reps, factId, created, modified,
 interval, factor, noCount, priority, (select tags from facts where
+facts.id = cards.factId), (select created from facts where
 facts.id = cards.factId) from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
@@ -229,6 +231,8 @@ facts.id = cards.factId) from cards where id = :id""",
             return self.easeColumn(index)
         elif self.sortKey == "noCount":
             return self.noColumn(index)
+        elif self.sortKey == "fact":
+            return self.factCreatedColumn(index)
         else:
             return self.nextDue(index)
 
@@ -245,6 +249,8 @@ facts.id = cards.factId) from cards where id = :id""",
             k = _("Ease")
         elif self.sortKey == "noCount":
             k = _("Lapses")
+        elif self.sortKey == "fact":
+            k = _("Fact Created")
         else:
             k = _("Due")
         self.columns[-1][0] = k
@@ -252,6 +258,10 @@ facts.id = cards.factId) from cards where id = :id""",
     def createdColumn(self, index):
         return time.strftime("%Y-%m-%d", time.localtime(
             self.cards[index.row()][CARD_CREATED]))
+
+    def factCreatedColumn(self, index):
+        return time.strftime("%Y-%m-%d", time.localtime(
+            self.cards[index.row()][CARD_FACTCREATED]))
 
     def modifiedColumn(self, index):
         return time.strftime("%Y-%m-%d", time.localtime(
