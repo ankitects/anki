@@ -827,7 +827,7 @@ where id in (%s)""" % ",".join([
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
         if label is None:
             label = _("Add Tags")
-        if tags:
+        if r:
             self.parent.setProgressParent(self)
             self.deck.setUndoStart(label)
             self.deck.addTags(self.selectedFacts(), tags)
@@ -840,7 +840,7 @@ where id in (%s)""" % ",".join([
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
         if label is None:
             label = _("Delete Tags")
-        if tags:
+        if r:
             self.parent.setProgressParent(self)
             self.deck.setUndoStart(label)
             self.deck.deleteTags(self.selectedFacts(), tags)
