@@ -1965,7 +1965,10 @@ it to your friends.
 
     def setLang(self):
         "Set the user interface language."
-        locale.setlocale(locale.LC_ALL, '')
+        try:
+            locale.setlocale(locale.LC_ALL, '')
+        except:
+            pass
         languageDir=os.path.join(ankiqt.modDir, "locale")
         self.languageTrans = gettext.translation('ankiqt', languageDir,
                                             languages=[self.config["interfaceLang"]],
@@ -2074,20 +2077,19 @@ it to your friends.
         "Reopen after sync finished."
         self.mainWin.buttonStack.show()
         if self.loadAfterSync:
-            uprecent = self.loadAfterSync != 2
-            self.loadDeck(self.deckPath, sync=False, uprecent=uprecent)
+            if self.loadAfterSync == 2:
+                p = os.path.join(self.documentDir,
+                                              self.syncName + ".anki")
+                if os.path.exists(p):
+                    p = os.path.join(self.documentDir,
+                                     self.syncName + "%d.anki"
+                                     % time.time())
+                shutil.copy2(self.deckPath, p)
+                self.deckPath = p
+            self.loadDeck(self.deckPath, sync=False)
             self.deck.syncName = self.syncName
             self.deck.s.flush()
             self.deck.s.commit()
-            if self.loadAfterSync == 2:
-                # ugly hack for open online: mark temp deck as in-memory
-                self.deck.tmpMediaDir = re.sub(
-                    "(?i)\.(anki)$", ".media", self.deck.path)
-                self.deck.path = None
-                self.deck.flushMod()
-                if not self.onSaveAs():
-                    self.deck = None
-                    self.moveToState("noDeck")
         elif not self.hideWelcome:
             self.moveToState("noDeck")
         self.deckPath = None
