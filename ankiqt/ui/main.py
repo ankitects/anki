@@ -1418,12 +1418,13 @@ later by using File>Close.
             if getattr(obj, field) != value:
                 setattr(obj, field, value)
                 self.deck.flushMod()
-        if self.deck.newCardOrder == 0 and ncOrd != 0:
-            # random to non-random
-            self.deck.startProgress()
-            self.deck.updateProgress(_("Ordering..."))
-            self.deck.orderNewCards()
-            self.deck.finishProgress()
+        if ncOrd != 0:
+            if self.deck.newCardOrder == 0:
+                # need to put back in order
+                self.deck.startProgress()
+                self.deck.updateProgress(_("Ordering..."))
+                self.deck.orderNewCards()
+                self.deck.finishProgress()
             uf(self.deck, 'newCardOrder', ncOrd)
         elif ncOrd == 0:
             # (re-)randomize
