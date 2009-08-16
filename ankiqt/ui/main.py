@@ -2768,6 +2768,8 @@ Consider backing up your media directory first."""))
             s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
             s.beginGroup("CurrentVersion/Explorer/Shell Folders")
             self.documentDir = unicode(s.value("Personal").toString())
+            if not os.path.exists(self.documentDir):
+                self.documentDir = os.path.expanduser("~/.anki")
         elif sys.platform.startswith("darwin"):
             self.documentDir = os.path.expanduser("~/Documents")
         else:
