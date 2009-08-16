@@ -1243,7 +1243,7 @@ your deck."""))
             l = QLabel(_("""\
 <br>
 <font size=+1>
-Welcome to Anki! Click <b>download deck</b> to get started. You can return here
+Welcome to Anki! Click <b>'Download'</b> to get started. You can return here
 later by using File>Close.
 </font>
 <br>
