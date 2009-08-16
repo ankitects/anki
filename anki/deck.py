@@ -1430,7 +1430,9 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         # update q/a formats
         for cm in model.cardModels:
             cm.qformat = cm.qformat.replace("%%(%s)s" % field.name, "")
+            cm.qformat = cm.qformat.replace("%%(text:%s)s" % field.name, "")
             cm.aformat = cm.aformat.replace("%%(%s)s" % field.name, "")
+            cm.aformat = cm.aformat.replace("%%(text:%s)s" % field.name, "")
         self.updateCardsFromModel(model)
         model.setModified()
         self.flushMod()
@@ -1457,8 +1459,12 @@ update facts set modified = :t where modelId = :mid"""
         for cm in model.cardModels:
             cm.qformat = cm.qformat.replace(
                 "%%(%s)s" % field.name, "%%(%s)s" % newName)
+            cm.qformat = cm.qformat.replace(
+                "%%(text:%s)s" % field.name, "%%(text:%s)s" % newName)
             cm.aformat = cm.aformat.replace(
                 "%%(%s)s" % field.name, "%%(%s)s" % newName)
+            cm.aformat = cm.aformat.replace(
+                "%%(text:%s)s" % field.name, "%%(text:%s)s" % newName)
         field.name = newName
         model.setModified()
         self.flushMod()
