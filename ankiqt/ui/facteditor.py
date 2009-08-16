@@ -5,6 +5,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
+from PyQt4.QtWebKit import QWebPage
 import re, os, sys, tempfile, urllib2, ctypes
 from anki.utils import stripHTML, tidyHTML, canonifyTags
 from anki.sound import playFromText
@@ -1079,6 +1080,8 @@ class PreviewDialog(QDialog):
         self.currentCard = 0
         self.dialog = ankiqt.forms.previewcards.Ui_Dialog()
         self.dialog.setupUi(self)
+        self.dialog.webView.page().setLinkDelegationPolicy(
+            QWebPage.DelegateExternalLinks)
         self.dialog.comboBox.addItems(QStringList(
             [c.cardModel.name for c in self.cards]))
         self.connect(self.dialog.comboBox, SIGNAL("activated(int)"),
