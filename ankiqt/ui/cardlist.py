@@ -83,6 +83,7 @@ class DeckModel(QAbstractTableModel):
             s = s.replace("\n", u"  ")
             s = stripHTML(s)
             s = re.sub("\[sound:[^]]+\]", "", s)
+            s = s.replace("&amp;", "&")
             s = s.strip()
             return QVariant(s)
         else:
