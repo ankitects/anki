@@ -913,7 +913,7 @@ where id in (%s)""" % ",".join([
                     max = float(frm.rangeMax.value())
                 except ValueError:
                     ui.utils.showInfo(
-                        _("Please enter a valid start and end range."),
+                        _("Please enter a valid range."),
                         parent=self)
                     return
                 self.deck.rescheduleCards(self.selectedCards(), min, max)
