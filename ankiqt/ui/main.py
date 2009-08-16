@@ -1015,6 +1015,7 @@ your deck."""))
             if not ui.utils.askUser(
                 "This file exists. Are you sure you want to overwrite it?"):
                 return
+        self.closeAllDeckWindows()
         self.deck = self.deck.saveAs(file)
         self.deck.initUndo()
         self.updateTitleBar()
