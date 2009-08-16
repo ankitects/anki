@@ -240,7 +240,7 @@ class DeckProperties(QDialog):
             v = float(self.dialog.delay2.text())
             self.updateField(self.d, 'delay2', v)
             v = int(self.dialog.failedCardMax.text())
-            self.updateField(self.d, 'failedCardMax', v)
+            self.updateField(self.d, 'failedCardMax', max(v, 2))
         except ValueError:
             pass
         try:
