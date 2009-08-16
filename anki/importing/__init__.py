@@ -196,9 +196,10 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         "Add any scheduling metadata to cards"
         if 'fields' in card.__dict__:
             del card.fields
-        data['created'] = self._now
-        data['modified'] = self._now
-        data['due'] = self._now
+        t = self._now + data['ordinal']
+        data['created'] = t
+        data['modified'] = t
+        data['due'] = t
         self._now += .00001
         data.update(card.__dict__)
         self.cardIds.append(data['id'])
