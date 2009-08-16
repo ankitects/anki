@@ -909,8 +909,8 @@ where id in (%s)""" % ",".join([
                 self.deck.resetCards(self.selectedCards())
             else:
                 try:
-                    min = float(str(frm.rangeMin.text()))
-                    max = float(str(frm.rangeMax.text()))
+                    min = float(frm.rangeMin.value())
+                    max = float(frm.rangeMax.value())
                 except ValueError:
                     ui.utils.showInfo(
                         _("Please enter a valid start and end range."),
