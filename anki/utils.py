@@ -48,12 +48,12 @@ afterTimeTable = {
     }
 
 shortTimeTable = {
-    "years": "%sy",
-    "months": "%sm",
-    "days": "%sd",
-    "hours": "%sh",
-    "minutes": "%sm",
-    "seconds": "%ss",
+    "years": _("%sy"),
+    "months": _("%sm"),
+    "days": _("%sd"),
+    "hours": _("%sh"),
+    "minutes": _("%sm"),
+    "seconds": _("%ss"),
     }
 
 def fmtTimeSpan(time, pad=0, point=0, short=False, after=False):
