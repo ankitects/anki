@@ -858,7 +858,8 @@ where id in (%s)""" % ",".join([
         self.deck.suspendCards(self.selectedCards())
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
-        self.updateAfterCardChange(reset=True)
+        self.updateAfterCardChange(reset=False)
+        self.model.cards = [[x[0]] for x in self.model.cards]
 
     def _onUnsuspend(self):
         n = _("Unsuspend")
@@ -867,7 +868,8 @@ where id in (%s)""" % ",".join([
         self.deck.unsuspendCards(self.selectedCards())
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
-        self.updateAfterCardChange(reset=True)
+        self.updateAfterCardChange(reset=False)
+        self.model.cards = [[x[0]] for x in self.model.cards]
 
     def isMarked(self):
         return self.currentCard and "Marked" in self.currentCard.fact.tags
