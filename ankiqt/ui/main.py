@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from PyQt4.QtWebKit import QWebPage
 
 import os, sys, re, types, gettext, stat, traceback, inspect
 import shutil, time, glob, tempfile, datetime, zipfile, locale
@@ -12,6 +9,7 @@ from operator import itemgetter
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from PyQt4.QtWebKit import QWebPage
 from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
