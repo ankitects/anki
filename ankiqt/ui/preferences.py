@@ -26,6 +26,8 @@ class Preferences(QDialog):
         self.dialog = ankiqt.forms.preferences.Ui_Preferences()
         self.dialog.setupUi(self)
         self.supportedLanguages = [
+            (u"Bahasa Melayu", "ms"),
+            (u"Dansk", "da"),
             (u"Deutsch", "de"),
             (u"Eesti", "et"),
             (u"English", "en"),
@@ -39,12 +41,17 @@ class Preferences(QDialog):
             (u"Polski", "pl"),
             (u"Português Brasileiro", "pt_BR"),
             (u"Româneşte", "ro"),
+            (u"Slovenščina", "sl"),
             (u"Suomi", "fi"),
             (u"Svenska", "sv"),
+            (u"Tiếng Việt", "vi"),
             (u"Čeština", "cs"),
-            (u"العربية", "ar"),
-            (u"עִבְרִית", "he"),
+            (u"Ελληνικά", "el"),
+            (u"Български", "bg"),
             (u"Монгол хэл","mn"),
+            (u"עִבְרִית", "he"),
+            (u"العربية", "ar"),
+            (u"فارسی", "fa"),
             (u"日本語", "ja"),
             (u"简体中文", "zh_CN"),
             (u"繁體中文", "zh_TW"),
