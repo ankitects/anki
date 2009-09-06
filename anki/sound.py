@@ -242,9 +242,12 @@ except:
 
 class _Recorder(object):
 
-    def postprocess(self):
+    def postprocess(self, encode=True):
+        self.encode = encode
         for c in processingChain:
             #print c
+            if not self.encode and c[0] == 'lame':
+                continue
             ret = retryWait(subprocess.Popen(c, startupinfo=si))
             if ret:
                 raise Exception(_("""
@@ -303,6 +306,7 @@ class PyAudioRecorder(_Recorder):
                 os.unlink(t)
             except OSError:
                 pass
+        self.encode = False
 
     def start(self):
         self.thread = PyAudioThreadedRecorder()
@@ -313,7 +317,10 @@ class PyAudioRecorder(_Recorder):
         self.thread.join()
 
     def file(self):
-        return processingDst
+        if self.encode:
+            return processingDst
+        else:
+            return tmpFiles[1]
 
 # Default audio player
 ##########################################################################
