@@ -1864,7 +1864,12 @@ where id = :id""", pending)
                 token = token[3:]
                 type = SEARCH_TYPE
             elif token.startswith("fid:") and len(token) > 4:
-                token = token[4:]
+                dec = token[4:]
+                try:
+                    int(dec)
+                    token = token[4:]
+                except:
+                    token = "0"
                 type = SEARCH_FID
             else:
                 type = SEARCH_PHRASE
