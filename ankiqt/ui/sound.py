@@ -8,7 +8,7 @@ import time
 from anki.sound import Recorder, play, generateNoiseProfile
 from ankiqt.ui.utils import saveGeom, restoreGeom
 
-def getAudio(parent, string=""):
+def getAudio(parent, string="", encode=True):
     "Record and return filename"
     # record first
     r = Recorder()
@@ -34,7 +34,7 @@ def getAudio(parent, string=""):
         time.sleep(0.1)
     r.stop()
     # process
-    r.postprocess()
+    r.postprocess(encode)
     return r.file()
 
 def recordNoiseProfile(parent):
