@@ -2514,7 +2514,10 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
         return self.undoEnabled and self.redoStack
 
     def resetUndo(self):
-        self.s.statement("delete from undoLog")
+        try:
+            self.s.statement("delete from undoLog")
+        except:
+            pass
         self.undoStack = []
         self.redoStack = []
 
