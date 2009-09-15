@@ -215,8 +215,6 @@ class GetShared(QDialog):
             pd = self.parent.pluginsFolder()
             if z:
                 for l in z.infolist():
-                    if not l.file_size:
-                        continue
                     try:
                         os.makedirs(os.path.join(
                             pd, os.path.dirname(l.filename)))
