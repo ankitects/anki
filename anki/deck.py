@@ -2795,7 +2795,7 @@ class DeckStorage(object):
         "Attach to a file, initializing DB"
         if apsw:
             import apsw
-            acon = apsw.Connection(path)
+            acon = apsw.Connection(unicode(path, "utf-8"))
             def connect():
                 pycon = sqlite.connect(acon)
                 return pycon
