@@ -2664,7 +2664,7 @@ backupDir = os.path.expanduser("~/.anki/backups")
 
 class DeckStorage(object):
 
-    def Deck(path=None, backup=True, lock=True):
+    def Deck(path=None, backup=True, lock=True, apsw=False):
         "Create a new deck or attach to an existing one."
         create = True
         if path is None:
@@ -2677,7 +2677,7 @@ class DeckStorage(object):
             # sqlite needs utf8
             sqlpath = path.encode("utf-8")
         try:
-            (engine, session) = DeckStorage._attach(sqlpath, create)
+            (engine, session) = DeckStorage._attach(sqlpath, create, apsw)
             s = session()
             metadata.create_all(engine)
             if create:
@@ -2791,15 +2791,23 @@ class DeckStorage(object):
         return deck
     Deck = staticmethod(Deck)
 
-    def _attach(path, create):
+    def _attach(path, create, apsw=False):
         "Attach to a file, initializing DB"
-        if path is None:
-            path = "sqlite://"
+        if apsw:
+            import apsw
+            acon = apsw.Connection(path)
+            def connect():
+                pycon = sqlite.connect(acon)
+                return pycon
+            engine = create_engine('sqlite:///', creator=connect)
         else:
-            path = "sqlite:///" + path
-        engine = create_engine(path,
-                               strategy='threadlocal',
-                               connect_args={'timeout': 0})
+            if path is None:
+                path = "sqlite://"
+            else:
+                path = "sqlite:///" + path
+            engine = create_engine(path,
+                                   strategy='threadlocal',
+                                   connect_args={'timeout': 2})
         session = sessionmaker(bind=engine,
                                autoflush=False,
                                autocommit=True)
