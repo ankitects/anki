@@ -2715,11 +2715,12 @@ class DeckStorage(object):
             deck.needLock = lock
             deck.progressHandlerCalled = 0
             deck.progressHandlerEnabled = False
-            try:
-                deck.engine.raw_connection().set_progress_handler(
-                    deck.progressHandler, 100)
-            except:
-                print "please install pysqlite 2.4 for better progress dialogs"
+            if not apsw:
+                try:
+                    deck.engine.raw_connection().set_progress_handler(
+                        deck.progressHandler, 100)
+                except:
+                    print "please install pysqlite 2.4 for better progress dialogs"
             deck.engine.execute("pragma locking_mode = exclusive")
             deck.s = SessionHelper(s, lock=lock)
             # force a write lock
