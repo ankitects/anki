@@ -2798,7 +2798,7 @@ class DeckStorage(object):
             import apsw
             acon = apsw.Connection(unicode(path, "utf-8"))
             def connect():
-                pycon = sqlite.connect(acon)
+                pycon = sqlite.connect(acon, isolation_level=None)
                 return pycon
             engine = create_engine('sqlite:///', creator=connect)
         else:
