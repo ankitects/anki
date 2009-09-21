@@ -31,6 +31,7 @@ from sqlalchemy.orm import mapper, sessionmaker as _sessionmaker, relation, back
      object_session as _object_session, class_mapper
 from sqlalchemy.sql import select, text, and_
 from sqlalchemy.exceptions import DBAPIError, OperationalError
+from sqlalchemy.pool import NullPool
 import sqlalchemy
 
 # some users are still on 0.4.x..
@@ -44,6 +45,14 @@ try:
 except ImportError:
     from sqlalchemy import Unicode
     UnicodeText = Unicode
+
+# don't allow newlines when logging
+import logging
+_originalLog = logging.Logger._log
+def _log(self, level, msg, *arg, **kwarg):
+    return _originalLog(
+        self, level, msg.replace("\n", " "), *arg, **kwarg)
+logging.Logger._log = _log
 
 from anki.hooks import runHook
 
