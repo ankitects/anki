@@ -2804,7 +2804,7 @@ class DeckStorage(object):
         else:
             engine = create_engine(path,
                                    poolclass=NullPool,
-                                   connect_args={'timeout': 30})
+                                   connect_args={'timeout': 90})
         session = sessionmaker(bind=engine,
                                autoflush=False,
                                autocommit=True)
