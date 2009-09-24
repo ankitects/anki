@@ -54,9 +54,9 @@ class DeckProperties(QDialog):
         # scheduling
         for type in ("hard", "mid", "easy"):
             v = getattr(self.d, type + "IntervalMin")
-            getattr(self.dialog, type + "Min").setText("%0.3f" % v)
+            getattr(self.dialog, type + "Min").setText(str(v))
             v = getattr(self.d, type + "IntervalMax")
-            getattr(self.dialog, type + "Max").setText("%0.3f" % v)
+            getattr(self.dialog, type + "Max").setText(str(v))
         self.dialog.delay0.setText(unicode(self.d.delay0/60.0))
         self.dialog.delay1.setText(unicode(self.d.delay1/60.0))
         self.dialog.delay2.setText(unicode(self.d.delay2))
