@@ -78,11 +78,6 @@ def latexImgFile(deck, latexCode):
     key = checksum(latexCode)
     return "latex-%s.png" % key
 
-def latexImgPath(deck, file):
-    "Return the path to the cache file in system encoding format."
-    path = os.path.join(deck.mediaDir(create=True), file)
-    return path.encode(sys.getfilesystemencoding())
-
 def mungeLatex(latex):
     "Convert entities, fix newlines, and convert to utf8."
     for match in re.compile("&([a-z]+);", re.IGNORECASE).finditer(latex):
@@ -140,8 +135,9 @@ def buildImg(deck, latex):
                 stdout=log, stderr=log, startupinfo=si):
             return (False, errmsg)
         # add to media
-        target = latexImgPath(deck, latexImgFile(deck, latex))
-        shutil.copy2("tmp.png", target)
+        target = latexImgFile(deck, latex)
+        shutil.copy2("tmp.png", os.path.join(deck.mediaDir(create=True),
+                                             target))
         return (True, target)
     finally:
         os.chdir(oldcwd)
@@ -149,10 +145,8 @@ def buildImg(deck, latex):
 def imageForLatex(deck, latex, build=True):
     "Return an image that represents 'latex', building if necessary."
     imageFile = latexImgFile(deck, latex)
-    if imageFile:
-        path = latexImgPath(deck, imageFile)
     ok = True
-    if build and (not imageFile or not os.path.exists(path)):
+    if build and (not imageFile or not os.path.exists(imageFile)):
         (ok, imageFile) = buildImg(deck, latex)
     if not ok:
         return (False, imageFile)
