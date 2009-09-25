@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
+    <width>557</width>
     <height>563</height>
    </rect>
   </property>
@@ -2712,7 +2712,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>550</width>
+     <width>557</width>
      <height>23</height>
     </rect>
    </property>
@@ -3235,7 +3235,7 @@
      <normaloff>:/icons/sqlitebrowser.png</normaloff>:/icons/sqlitebrowser.png</iconset>
    </property>
    <property name="text">
-    <string>Quick Database Check</string>
+    <string>&amp;Quick Database Check</string>
    </property>
    <property name="statusTip">
     <string>Check the database for errors</string>
@@ -3247,7 +3247,7 @@
      <normaloff>:/icons/games-solve.png</normaloff>:/icons/games-solve.png</iconset>
    </property>
    <property name="text">
-    <string>Optimize Database</string>
+    <string>&amp;Optimize Database</string>
    </property>
    <property name="statusTip">
     <string>Remove unused space, making the database file smaller</string>
@@ -3442,7 +3442,7 @@
   </action>
   <action name="actionFullDatabaseCheck">
    <property name="text">
-    <string>Full Database Check...</string>
+    <string>&amp;Full Database Check...</string>
    </property>
   </action>
   <action name="actionOpenRecent">
