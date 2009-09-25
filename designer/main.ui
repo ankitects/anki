@@ -2935,7 +2935,7 @@
     <string>&amp;Close</string>
    </property>
    <property name="statusTip">
-    <string>Close this deck and return to the deck browser</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
@@ -2983,7 +2983,7 @@
     <string>&amp;Add Items...</string>
    </property>
    <property name="statusTip">
-    <string>Add new items to Anki by typing them in</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
@@ -2998,7 +2998,7 @@
     <string>Brows&amp;e Items...</string>
    </property>
    <property name="statusTip">
-    <string>Browse and edit all items</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
@@ -3115,7 +3115,7 @@
     <string>&amp;Graphs...</string>
    </property>
    <property name="statusTip">
-    <string>Show graphical statistics about your deck</string>
+    <string/>
    </property>
   </action>
   <action name="actionExport">
@@ -3154,7 +3154,7 @@
     <string>&amp;Mark Fact</string>
    </property>
    <property name="statusTip">
-    <string>Apply the 'marked' tag to this fact, so you find it later in the browser</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
@@ -3187,7 +3187,7 @@
     <string>Repeat &amp;Audio</string>
    </property>
    <property name="statusTip">
-    <string>Play the last-played audio again</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>F5</string>
@@ -3322,7 +3322,7 @@
     <string>Edit &amp;Current...</string>
    </property>
    <property name="statusTip">
-    <string>Edit the currently displayed item</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -3377,7 +3377,7 @@
     <string>&amp;Study Options...</string>
    </property>
    <property name="statusTip">
-    <string>Configure review options</string>
+    <string/>
    </property>
   </action>
   <action name="actionDonate">
