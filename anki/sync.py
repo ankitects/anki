@@ -72,7 +72,7 @@ def incrementalSend(self, strOrFile):
             while 1:
                 if sendProgressHook:
                     sendProgressHook(cnt)
-                data = strOrFile.read(65536)
+                data = strOrFile.read(32768)
                 cnt += len(data)
                 if not data:
                     break
@@ -965,7 +965,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             # data
             comp = zlib.compressobj()
             while 1:
-                data = src.read(65536)
+                data = src.read(32768)
                 if not data:
                     tmp.write(comp.flush())
                     break
@@ -1003,12 +1003,12 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             decomp = zlib.decompressobj()
             cnt = 0
             while 1:
-                data = src.read(65536)
+                data = src.read(32768)
                 if not data:
                     tmp.write(decomp.flush())
                     break
                 tmp.write(decomp.decompress(data))
-                cnt += 65536
+                cnt += 32768
                 runHook("fullSyncProgress", "fromServer", cnt)
             src.close()
             tmp.close()
