@@ -85,8 +85,9 @@ class AnkiQt(QMainWindow):
         try:
             runHook('init')
         except:
-            ui.utils.showWarning(_("Broken plugin:\n\n%s") %
-                                 traceback.format_exc())
+            ui.utils.showWarning(
+                _("Broken plugin:\n\n%s") %
+                unicode(traceback.format_exc(), "utf-8", "replace"))
         ui.splash.update()
         ui.splash.finish(self)
         self.show()
