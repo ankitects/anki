@@ -2664,7 +2664,7 @@ backupDir = os.path.expanduser("~/.anki/backups")
 
 class DeckStorage(object):
 
-    def Deck(path=None, backup=True, lock=True, progress=False):
+    def Deck(path=None, backup=True, lock=True, pool=True):
         "Create a new deck or attach to an existing one."
         create = True
         if path is None:
@@ -2677,7 +2677,7 @@ class DeckStorage(object):
             # sqlite needs utf8
             sqlpath = path.encode("utf-8")
         try:
-            (engine, session) = DeckStorage._attach(sqlpath, create, progress)
+            (engine, session) = DeckStorage._attach(sqlpath, create, pool)
             s = session()
             metadata.create_all(engine)
             if create:
@@ -2715,7 +2715,7 @@ class DeckStorage(object):
             deck.needLock = lock
             deck.progressHandlerCalled = 0
             deck.progressHandlerEnabled = False
-            if progress:
+            if pool:
                 try:
                     deck.engine.raw_connection().set_progress_handler(
                         deck.progressHandler, 100)
@@ -2792,19 +2792,20 @@ class DeckStorage(object):
         return deck
     Deck = staticmethod(Deck)
 
-    def _attach(path, create, progress=False):
+    def _attach(path, create, pool=True):
         "Attach to a file, initializing DB"
         if path is None:
             path = "sqlite://"
         else:
             path = "sqlite:///" + path
-        if progress:
-            engine = create_engine(path,
-                                   connect_args={'timeout': 0})
+        if pool:
+            # open and lock connection for single use
+            engine = create_engine(path, connect_args={'timeout': 0})
         else:
+            # no pool & concurrent access w/ timeout
             engine = create_engine(path,
                                    poolclass=NullPool,
-                                   connect_args={'timeout': 90})
+                                   connect_args={'timeout': 30})
         session = sessionmaker(bind=engine,
                                autoflush=False,
                                autocommit=True)
