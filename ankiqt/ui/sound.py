@@ -43,6 +43,7 @@ def recordNoiseProfile(parent):
     mb.setStandardButtons(QMessageBox.NoButton)
     mb.setIconPixmap(QPixmap(":/icons/media-record.png"))
     mb.show()
+    mb.setWindowTitle("Anki")
     QApplication.instance().processEvents()
     f = time.time() + 10
     r.start()
