@@ -671,7 +671,7 @@ new:
             self.moveToState("noDeck")
             return
         try:
-            self.deck = DeckStorage.Deck(deckPath, progress=True)
+            self.deck = DeckStorage.Deck(deckPath)
         except Exception, e:
             if hasattr(e, 'data') and e.data.get('type') == 'inuse':
                 if interactive:
@@ -1066,7 +1066,7 @@ your deck."""))
                 toRemove.append(d)
                 continue
             try:
-                deck = DeckStorage.Deck(d, backup=False, progress=True)
+                deck = DeckStorage.Deck(d, backup=False)
                 self.browserDecks.append({
                     'path': d,
                     'name': deck.name(),
