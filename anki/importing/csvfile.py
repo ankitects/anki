@@ -83,6 +83,10 @@ class TextImporter(Importer):
                 info=_("Couldn't determine format of file."))
 
     def updateDelimiter(self):
+        def err():
+            raise ImportFormatError(
+                type="encodingError",
+                info=_("File is not encoded in UTF-8."))
         self.dialect = None
         if not self.delimiter:
             try:
@@ -93,7 +97,10 @@ class TextImporter(Importer):
                 except:
                     pass
         if self.dialect:
-            reader = csv.reader(self.data, self.dialect)
+            try:
+                reader = csv.reader(self.data, self.dialect)
+            except:
+                err()
         else:
             if not self.delimiter:
                 if "\t" in self.data[0]:
@@ -108,9 +115,7 @@ class TextImporter(Importer):
         try:
             self.numFields = len(reader.next())
         except:
-            raise ImportFormatError(
-                type="encodingError",
-                info=_("File is not encoded in UTF-8"))
+            err()
 
     def fields(self):
         "Number of fields."
