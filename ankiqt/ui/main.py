@@ -1063,7 +1063,6 @@ your deck."""))
                 self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
                     'x': c+1, 'y': len(self.config['recentDeckPaths'])})
             if not os.path.exists(d):
-                toRemove.append(d)
                 continue
             try:
                 deck = DeckStorage.Deck(d, backup=False)
@@ -1078,11 +1077,10 @@ your deck."""))
                     })
                 deck.close()
             except Exception, e:
-                if not "File is in use" in str(e):
-                    toRemove.append(d)
-                else:
-                    print "ignoring", d
+                if "File is in use" in str(e):
                     continue
+                else:
+                    toRemove.append(d)
         for d in toRemove:
             self.config['recentDeckPaths'].remove(d)
         self.config.save()
