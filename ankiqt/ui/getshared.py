@@ -220,8 +220,11 @@ class GetShared(QDialog):
                             pd, os.path.dirname(l.filename)))
                     except OSError:
                         pass
-                    open(os.path.join(pd, l.filename), "wb").\
-                                          write(z.read(l.filename))
+                    if l.filename.endswith("/"):
+                        # directory
+                        continue
+                    path = os.path.join(pd, l.filename)
+                    open(path, "wb").write(z.read(l.filename))
             else:
                 open(os.path.join(pd, tit + ext), "wb").write(file.read())
             showInfo(_("Plugin downloaded. Please restart Anki."),
