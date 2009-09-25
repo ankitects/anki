@@ -147,8 +147,8 @@ where type = 1""")
         b2 = cheat.bar(1, 0, color = dueMatureC)
 
         cheat.legend([b1, b2], [
-            _("Young"),
-            _("Mature")], loc='upper right')
+            "Young",
+            "Mature"], loc='upper right')
 
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
         return fig
@@ -172,9 +172,9 @@ where type = 1""")
         b3 = cheat.bar(-5, 0, color = reviewMatureC)
 
         cheat.legend([b1, b2, b3], [
-            _("New"),
-            _("Young"),
-            _("Mature")], loc='upper left')
+            "New",
+            "Young",
+            "Mature"], loc='upper left')
 
         graph.set_xlim(xmin=-days, xmax=0)
         graph.set_ylim(ymax=max(max(a for a in args[1::2])) + 10)
@@ -330,9 +330,9 @@ where type = 1""")
             offset += 5
             n += 1
         x = ([""] + [str(n) for n in range(1, enum)]) * 3
-        graph.legend([p[0] for p in bars], (_("New"),
-                                            _("Young"),
-                                            _("Mature")),
+        graph.legend([p[0] for p in bars], ("New",
+                                            "Young",
+                                            "Mature"),
                      'upper left')
         graph.set_ylim(ymax=100)
         graph.set_xlim(xmax=15)
