@@ -101,18 +101,19 @@ def generateNoiseProfile():
     processingChain[0] = ["sox", processingSrc, "tmp2.wav",
                           "noisered", noiseProfile, NOISE_AMOUNT]
 
-# Mplayer
+# Mplayer settings
 ##########################################################################
 
 if sys.platform.startswith("win32"):
-    mplayerCmd = ["mplayer.exe", "-ao", "win32", "-really-quiet",
-                  "-slave", "-idle"]
+    mplayerCmd = ["mplayer.exe", "-ao", "win32", "-really-quiet"]
     dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.environ['PATH'] += ";" + dir
     os.environ['PATH'] += ";" + dir + "\\..\\dist" # for testing
 else:
-    mplayerCmd = ["mplayer", "-really-quiet", "-slave", "-idle",
-                  "-ontop"]
+    mplayerCmd = ["mplayer", "-really-quiet"]
+
+# Mplayer in slave mode
+##########################################################################
 
 mplayerQueue = []
 mplayerManager = None
@@ -164,8 +165,9 @@ class MplayerMonitor(threading.Thread):
 
     def startProcess(self):
         try:
+            cmd = mplayerCmd + ["-slave", "-idle"]
             self.mplayer = subprocess.Popen(
-                mplayerCmd, startupinfo=si, stdin=subprocess.PIPE,
+                cmd, startupinfo=si, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except OSError:
             mplayerCond.release()
@@ -225,6 +227,38 @@ def stopMplayerOnce():
     stopMplayer(restart=True)
 
 addHook("deckClosed", stopMplayerOnce)
+
+# Simple player
+##########################################################################
+
+externalManager = None
+
+class QueueMonitor(threading.Thread):
+
+    def run(self):
+        while 1:
+            if queue:
+                path = queue.pop(0)
+                try:
+                    retryWait(subprocess.Popen(
+                        mplayerCmd + [path], startupinfo=si))
+                except OSError:
+                    raise Exception("Audio player not found")
+            else:
+                return
+            time.sleep(0.1)
+
+def queueExternal(path):
+    global externalManager
+    path = path.encode(sys.getfilesystemencoding())
+    queue.append(path)
+    if not externalManager or not externalManager.isAlive():
+        externalManager = QueueMonitor()
+        externalManager.start()
+
+def clearExternalQueue():
+    global queue
+    queue = []
 
 # PyAudio recording
 ##########################################################################
@@ -322,10 +356,21 @@ class PyAudioRecorder(_Recorder):
         else:
             return tmpFiles[1]
 
-# Default audio player
+# Audio interface
 ##########################################################################
 
-play = queueMplayer
-clearAudioQueue = clearMplayerQueue
+if sys.platform.startswith("darwin") and platform.mac_ver()[0] < "10.4":
+    # fall back to primitive player
+    _player = queueExternal
+    _queueEraser = clearExternalQueue
+else:
+    _player = queueMplayer
+    _queueEraser = clearMplayerQueue
+
+def play(path):
+    _player(path)
+
+def clearAudioQueue():
+    _queueEraser()
 
 Recorder = PyAudioRecorder
