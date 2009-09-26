@@ -228,38 +228,6 @@ def stopMplayerOnce():
 
 addHook("deckClosed", stopMplayerOnce)
 
-# Simple player
-##########################################################################
-
-externalManager = None
-
-class QueueMonitor(threading.Thread):
-
-    def run(self):
-        while 1:
-            if queue:
-                path = queue.pop(0)
-                try:
-                    retryWait(subprocess.Popen(
-                        mplayerCmd + [path], startupinfo=si))
-                except OSError:
-                    raise Exception("Audio player not found")
-            else:
-                return
-            time.sleep(0.1)
-
-def queueExternal(path):
-    global externalManager
-    path = path.encode(sys.getfilesystemencoding())
-    queue.append(path)
-    if not externalManager or not externalManager.isAlive():
-        externalManager = QueueMonitor()
-        externalManager.start()
-
-def clearExternalQueue():
-    global queue
-    queue = []
-
 # PyAudio recording
 ##########################################################################
 
@@ -359,13 +327,8 @@ class PyAudioRecorder(_Recorder):
 # Audio interface
 ##########################################################################
 
-if sys.platform.startswith("darwin") and platform.mac_ver()[0] < "10.4":
-    # fall back to primitive player
-    _player = queueExternal
-    _queueEraser = clearExternalQueue
-else:
-    _player = queueMplayer
-    _queueEraser = clearMplayerQueue
+_player = queueMplayer
+_queueEraser = clearMplayerQueue
 
 def play(path):
     _player(path)
