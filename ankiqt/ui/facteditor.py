@@ -804,13 +804,17 @@ class FactEditor(object):
                 self.saveFields()
                 return
             else:
-                ui.utils.showInfo(_("Next field must be blank."),
-                                  parent=self.parent)
+                ui.utils.showInfo(
+                    _("Next field must be blank."),
+                    help="ClozeDeletion",
+                    parent=self.parent)
                 return
         # check if there's anything to change
         if not re.search("\[.+?\]", unicode(src.toPlainText())):
-            QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                          "ClozeDeletion"))
+            ui.utils.showInfo(
+                _("You didn't specify anything to occlude."),
+                help="ClozeDeletion",
+                parent=self.parent)
             return
         # create
         s = unicode(src.toHtml())
