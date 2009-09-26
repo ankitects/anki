@@ -150,7 +150,7 @@ class Config(dict):
         try:
             f = open(db)
             self.update(cPickle.load(f))
-        except (IOError, EOFError):
+        except:
             # config file was corrupted previously
             pass
         self.defaults()
