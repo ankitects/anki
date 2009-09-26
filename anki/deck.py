@@ -2417,6 +2417,10 @@ select id from fields where factId not in (select id from facts)""")
             for m in self.models:
                 self.updateCardsFromModel(m, dirty=False)
             # force a full sync
+            self.s.flush()
+            self.s.statement("update cards set modified = :t", t=time.time())
+            self.s.statement("update facts set modified = :t", t=time.time())
+            self.s.statement("update models set modified = :t", t=time.time())
             self.lastSync = 0
             # rebuild
             self.updateProgress(_("Rebuilding types..."))
