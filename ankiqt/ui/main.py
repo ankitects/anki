@@ -2746,6 +2746,7 @@ Consider backing up your media directory first."""))
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
                          self.onMacMinimize)
             self.hideAccelerators()
+            self.hideStatusTips()
         if sys.platform.startswith("win32"):
             self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
             self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
@@ -2757,6 +2758,10 @@ Consider backing up your media directory first."""))
             m = re.match("^(.+)\(&.+\)(.+)?", txt)
             if m:
                 action.setText(m.group(1) + (m.group(2) or ""))
+
+    def hideStatusTips(self):
+        for action in self.findChildren(QAction):
+            action.setStatusTip("")
 
     def onMacMinimize(self):
         self.setWindowState(self.windowState() | Qt.WindowMinimized)
