@@ -2721,7 +2721,8 @@ Consider backing up your media directory first."""))
         anki.latex.cacheAllLatexImages(self.deck)
 
     def onUncacheLatex(self):
-        anki.latex.deleteAllLatexImages(self.deck)
+        if ui.utils.askUser(_("Delete LaTeX image cache?")):
+            anki.latex.deleteAllLatexImages(self.deck)
 
     def onExportOriginal(self):
         cnt = anki.media.exportOriginalFiles(self.deck)
