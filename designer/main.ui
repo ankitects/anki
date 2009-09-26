@@ -2790,13 +2790,12 @@
      <addaction name="actionOptimizeDatabase"/>
      <addaction name="separator"/>
      <addaction name="actionCheckMediaDatabase"/>
-     <addaction name="actionCacheLatex"/>
-     <addaction name="actionUncacheLatex"/>
+     <addaction name="actionRecordNoiseProfile"/>
      <addaction name="actionDownloadMissingMedia"/>
      <addaction name="actionExportOriginalFiles"/>
      <addaction name="separator"/>
-     <addaction name="actionRecordNoiseProfile"/>
-     <addaction name="separator"/>
+     <addaction name="actionCacheLatex"/>
+     <addaction name="actionUncacheLatex"/>
     </widget>
     <addaction name="actionGraphs"/>
     <addaction name="actionDstats"/>
@@ -3458,11 +3457,19 @@
    </property>
   </action>
   <action name="actionDownloadMissingMedia">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
+   </property>
    <property name="text">
     <string>Download Missing Media</string>
    </property>
   </action>
   <action name="actionExportOriginalFiles">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/document-export.png</normaloff>:/icons/document-export.png</iconset>
+   </property>
    <property name="text">
     <string>Export Original Files</string>
    </property>
