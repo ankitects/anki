@@ -33,7 +33,12 @@ firstC = "#b380ff"
 intervC = "#80e5ff"
 
 # support frozen distribs
-if getattr(sys, "frozen", None):
+if sys.platform.startswith("darwin"):
+    try:
+        del os.environ['MATPLOTLIBDATA']
+    except:
+        pass
+elif getattr(sys, "frozen", None):
     os.environ['MATPLOTLIBDATA'] = os.path.join(
         os.path.dirname(sys.argv[0]),
         "matplotlibdata")
