@@ -27,6 +27,12 @@ class bdist_dmg(Command):
 
 	def run(self):
                 self.run_command('py2app')
+                os.system("\
+mkdir -p dist/Anki.app/Contents/Resources/include/python2.6")
+                os.system("\
+cp /Library/Frameworks/Python.framework/Versions/2.6/include/\
+python2.6/pyconfig.h dist/Anki.app/Contents/Resources/include/\
+python2.6/pyconfig.h")
                 if 'debug' in os.environ:
                         return
                 # zlib
@@ -58,7 +64,7 @@ PLIST = dict(
 OPTIONS = {
 	'argv_emulation': True,
     'optimize': 0,
-        'alias': 'debug' in os.environ,
+        'alias': 'debug' in os.environ and os.environ['debug'] == "2",
 	'plist': PLIST,
 	'iconfile': 'ankiqt/mac/anki.icns',
     "includes": ["sip", "cgi", "encodings", "encodings.utf_8",
