@@ -163,7 +163,7 @@ class GetShared(QDialog):
                     "http://anki.ichi2.net/file/get?id=%d" %
                     self.curRow[R_ID])
                 while 1:
-                    data = sock.read(65536)
+                    data = sock.read(32768)
                     if not data:
                         break
                     cnt += len(data)
@@ -172,7 +172,7 @@ class GetShared(QDialog):
                         label=_("Downloaded %dKB") % (cnt/1024.0))
             except:
                 showInfo(_("Unable to connect to server.\n\n") +
-                         traceback.format_exc())
+                         unicode(traceback.format_exc(), "utf-8", "replace"))
                 self.close()
                 return
         finally:
