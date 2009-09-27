@@ -3,7 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 
-import os, sys, re, types, gettext, stat, traceback, inspect
+import os, sys, re, types, gettext, stat, traceback, inspect, signal
 import shutil, time, glob, tempfile, datetime, zipfile, locale
 from operator import itemgetter
 
@@ -94,6 +94,10 @@ class AnkiQt(QMainWindow):
         if (self.deck and self.config['syncOnLoad'] and
             self.deck.syncName):
             self.syncDeck(interactive=False)
+        signal.signal(signal.SIGINT, self.onSigInt)
+
+    def onSigInt(self, signum, frame):
+        self.close()
 
     def setupMainWindow(self):
         # main window
