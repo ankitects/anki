@@ -1953,13 +1953,13 @@ it to your friends.
         self.deck.newEarly = True
         self.reset()
         self.showToolTip(_("""\
-<h1>Learning More</h1>Click the clock in the toolbar to finish."""))
+<h1>Learning More</h1>Click the stopwatch at the top to finish."""))
 
     def onReviewEarly(self):
         self.deck.reviewEarly = True
         self.reset()
         self.showToolTip(_("""\
-<h1>Reviewing Early</h1>Click the clock in the toolbar to finish."""))
+<h1>Reviewing Early</h1>Click the stopwatch at the top to finish."""))
 
     # Language handling
     ##########################################################################
