@@ -196,6 +196,9 @@ def restoreHeader(widget, key):
 def mungeQA(deck, txt):
     txt = renderLatex(deck, txt)
     txt = stripSounds(txt)
+    # webkit currently doesn't handle underline
+    txt = txt.replace("text-decoration: underline;",
+                      "border-bottom: 1px solid #000;")
     return txt
 
 def getBase(deck):
