@@ -173,7 +173,7 @@ where cards.factId = facts.id """
     def updateCard(self, index):
         try:
             self.cards[index.row()] = self.deck.s.first("""
-select id, question, answer, due, reps, factId, created, modified,
+select id, question, answer, combinedDue, reps, factId, created, modified,
 interval, factor, noCount, priority, (select tags from facts where
 facts.id = cards.factId), (select created from facts where
 facts.id = cards.factId) from cards where id = :id""",
