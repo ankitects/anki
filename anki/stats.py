@@ -267,7 +267,7 @@ class CardStats(object):
             self.addLine(_("First Review"), self.strTime(c.firstAnswered))
         self.addLine(_("Changed"), self.strTime(c.modified))
         if c.reps:
-            next = time.time() - c.due
+            next = time.time() - c.combinedDue
             if next > 0:
                 next = _("%s ago") % fmt(next)
             else:
