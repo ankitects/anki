@@ -376,7 +376,38 @@ class DeckStats(object):
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
         if existing and avgInt:
-            html += "<b>" + _("Average Reviews") + "</b>"
+            html += "<b>" + _("Recent Work") + "</b>"
+            if sys.platform.startswith("darwin"):
+                html += "<table width=250>"
+            else:
+                html += "<table width=200>"
+            html += tr(_("In last week"),
+                       ("<b>%d</b> reps/<b>%d</b> days") % (
+                self.getRepsDone(-7, 0),
+                self.getDaysReviewed(-7, 0)))
+            html += tr(_("In last month"),
+                       ("<b>%d</b> reps/<b>%d</b> days") % (
+                self.getRepsDone(-30, 0),
+                self.getDaysReviewed(-30, 0)))
+            html += tr(_("In last 3 months"),
+                       ("<b>%d</b> reps/<b>%d</b> days") % (
+                self.getRepsDone(-92, 0),
+                self.getDaysReviewed(-92, 0)))
+            html += tr(_("In last 6 months"),
+                       ("<b>%d</b> reps/<b>%d</b> days") % (
+                self.getRepsDone(-182, 0),
+                self.getDaysReviewed(-182, 0)))
+            html += tr(_("In last year"),
+                       ("<b>%d</b> reps/<b>%d</b> days") % (
+                self.getRepsDone(-365, 0),
+                self.getDaysReviewed(-365, 0)))
+            html += tr(_("Deck life"),
+                       ("<b>%d</b> reps/<b>%d</b> days") % (
+                self.getRepsDone(-13000, 0),
+                self.getDaysReviewed(-13000, 0)))
+            html += "</table>"
+
+            html += "<br><br><b>" + _("Average Daily Reviews") + "</b>"
             if sys.platform.startswith("darwin"):
                 html += "<table width=250>"
             else:
@@ -391,6 +422,12 @@ class DeckStats(object):
                 fmtFloat(self.getPastWorkloadPeriod(7))) + _("cards/day"))
             html += tr(_("In last month"), ("<b>%s</b> ") % (
                 fmtFloat(self.getPastWorkloadPeriod(30))) + _("cards/day"))
+            html += tr(_("In last 3 months"), ("<b>%s</b> ") % (
+                fmtFloat(self.getPastWorkloadPeriod(92))) + _("cards/day"))
+            html += tr(_("In last 6 months"), ("<b>%s</b> ") % (
+                fmtFloat(self.getPastWorkloadPeriod(182))) + _("cards/day"))
+            html += tr(_("In last year"), ("<b>%s</b> ") % (
+                fmtFloat(self.getPastWorkloadPeriod(365))) + _("cards/day"))
             html += "</table>"
 
             html += "<br><br><b>" + _("Average Added") + "</b>"
@@ -406,6 +443,15 @@ class DeckStats(object):
             np = self.getNewPeriod(30)
             html += tr(_("In last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(30))}))
+            np = self.getNewPeriod(92)
+            html += tr(_("In last 3 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+                {'a': np, 'b': fmtFloat(np / float(30))}))
+            np = self.getNewPeriod(182)
+            html += tr(_("In last 6 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+                {'a': np, 'b': fmtFloat(np / float(30))}))
+            np = self.getNewPeriod(365)
+            html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+                {'a': np, 'b': fmtFloat(np / float(30))}))
             html += "</table>"
 
             html += "<br><br><b>" + _("Average New Seen") + "</b>"
@@ -419,6 +465,15 @@ class DeckStats(object):
             np = self.getFirstPeriod(30)
             html += tr(_("In last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(30))}))
+            np = self.getFirstPeriod(92)
+            html += tr(_("In last 3 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+                {'a': np, 'b': fmtFloat(np / float(30))}))
+            np = self.getFirstPeriod(182)
+            html += tr(_("In last 6 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+                {'a': np, 'b': fmtFloat(np / float(30))}))
+            np = self.getFirstPeriod(365)
+            html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
+                {'a': np, 'b': fmtFloat(np / float(30))}))
             html += "</table>"
 
             html += "<br><br><b>" + _("Card Ease") + "</b><br>"
@@ -428,9 +483,26 @@ class DeckStats(object):
                 "select avg(factor) from cards") + "<br>"
             html += _("Highest factor: %.2f") % d.s.scalar(
                 "select max(factor) from cards") + "<br>"
-            html = runFilter("deckStats", html)
 
+            html = runFilter("deckStats", html)
         return html
+
+    def getDaysReviewed(self, start, finish):
+        now = datetime.datetime.today()
+        x = now + datetime.timedelta(start)
+        y = now + datetime.timedelta(finish)
+        return self.deck.s.scalar(
+            "select count() from stats where "
+            "day >= :x and day <= :y and reps > 0",
+            x=x, y=y)
+
+    def getRepsDone(self, start, finish):
+        now = datetime.datetime.today()
+        x = time.mktime((now + datetime.timedelta(start)).timetuple())
+        y = time.mktime((now + datetime.timedelta(finish)).timetuple())
+        return self.deck.s.scalar(
+            "select count() from reviewHistory where time >= :x and time <= :y",
+            x=x, y=y)
 
     def getAverageInterval(self):
         return self.deck.s.scalar(
