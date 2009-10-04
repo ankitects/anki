@@ -1861,7 +1861,7 @@ where id = :id""", pending)
                 token = token[4:]
                 type = SEARCH_TAG
             elif token.startswith("is:"):
-                token = token[3:]
+                token = token[3:].lower()
                 type = SEARCH_TYPE
             elif token.startswith("fid:") and len(token) > 4:
                 dec = token[4:]
