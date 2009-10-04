@@ -989,6 +989,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                 sendProgressHook = None
                 tmp.close()
                 os.close(fd)
+                os.unlink(name)
         finally:
             runHook("fullSyncFinished")
 
