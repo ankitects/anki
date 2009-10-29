@@ -759,7 +759,7 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         if path in self.config['recentDeckPaths']:
             self.config['recentDeckPaths'].remove(path)
         self.config['recentDeckPaths'].insert(0, path)
-        del self.config['recentDeckPaths'][20:]
+        del self.config['recentDeckPaths'][100:]
         self.config.save()
 
     def onSwitchToDeck(self):
@@ -1723,8 +1723,9 @@ learnt today")
         undo = _("Bury")
         self.deck.setUndoStart(undo)
         for card in self.currentCard.fact.cards:
-            card.priority = -2
-            card.isDue = 0
+            if card.priority > 0:
+                card.priority = -2
+                card.isDue = 0
         self.deck.flushMod()
         self.reset()
         self.deck.setUndoEnd(undo)
