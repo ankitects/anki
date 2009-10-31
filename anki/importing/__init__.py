@@ -236,7 +236,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
             fmid=field.id))
 
     def cardIsUnique(self, card):
-        fields = []
+        fieldsAsTags = []
         for n in range(len(self.mapping)):
             if self.mapping[n] and self.mapping[n].unique:
                 if card.fields[n] in self.uniqueCache[self.mapping[n].id]:
@@ -245,12 +245,12 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                                         (self.mapping[n].name,
                                          ", ".join(card.fields)))
                         return False
-                    fields.append(self.mapping[n].name)
+                    fieldsAsTags.append(self.mapping[n].name.replace(" ", "-"))
                 else:
                     self.uniqueCache[self.mapping[n].id][card.fields[n]] = 1
-        if fields:
+        if fieldsAsTags:
             card.tags += u" Duplicate:" + (
-                "+".join(fields))
+                "+".join(fieldsAsTags))
             card.tags = canonifyTags(card.tags)
         return True
 
