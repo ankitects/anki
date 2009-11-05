@@ -5,7 +5,7 @@ from tests.shared import assertException
 
 from anki.errors import *
 from anki import DeckStorage
-from anki.importing import anki10, csvfile, mnemosyne10, supermemo_xml
+from anki.importing import anki10, csvfile, mnemosyne10, supermemo_xml, dingsbums
 from anki.stdmodels import BasicModel
 from anki.facts import Fact
 from anki.sync import SyncClient, SyncServer
@@ -131,3 +131,13 @@ def test_anki10_modtime():
     assert deck2.s.scalar("select count(*) from cards") == 2
     assert deck2.s.scalar("select count(*) from facts") == 2
     assert deck2.s.scalar("select count(*) from models") == 2
+
+def test_dingsbums():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    startNumberOfFacts = deck.factCount
+    file = unicode(os.path.join(testDir, "importing/dingsbums.xml"))
+    i = dingsbums.DingsBumsImporter(deck, file)
+    i.doImport()
+    assert 7 == i.total
+    deck.s.close()

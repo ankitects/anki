@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vocabulary version="3">
+<info><title>Deutsch - Italienisch</title><author>Rick Gruber-Riemer</author><notes>Klett Grund- und Aufbauwortschatz</notes><copyright></copyright><licence></licence><blabel>Deutsch</blabel><tlabel>Italienisch</tlabel><alabel>Attributes</alabel><ulabel>Lektion</ulabel><clabel>Kategori</clabel><olabel>Others</olabel><explabel>Erklärung</explabel><exlabel>Unregelmässig</exlabel><bor>en_US</bor><tor>en_US</tor><aor>en_US</aor><uor>en_US</uor><cor>en_US</cor><expor>en_US</expor><exor>en_US</exor><por>en_US</por><ror>en_US</ror><visa>1</visa><visu>0</visu><viscat>0</viscat><visexp>0</visexp><visex>2</visex><vispro>2</vispro><visrel>2</visrel><syllb>false</syllb><syllt>false</syllt></info>
+<etattributes>
+<eta eid="ETA4" n="Steigerung" di="ETAI10" lu="20061222 07:56:27 CET"><etai eid="ETAI10" ir="false">Regelmässig</etai><etai eid="ETAI11" ir="false">Unregelmässig</etai></eta>
+<eta eid="ETA5" n="Perfekt" di="ETAI12" lu="20070210 13:20:09 CET"><etai eid="ETAI12" ir="false">avere</etai><etai eid="ETAI13" ir="false">essere</etai><etai eid="ETAI14" ir="false">avere oder essere</etai></eta>
+<eta eid="ETA1" n="Konjugation" di="ETAI1" lu="20070211 12:35:19 CET"><etai eid="ETAI1" ir="false">-are (regelmässig)</etai><etai eid="ETAI16" ir="false">-ere (regelmässig)</etai><etai eid="ETAI15" ir="false">-ire (regelmässig)</etai><etai eid="ETAI2" ir="false">Unregelmässig</etai></eta>
+<eta eid="ETA2" n="Geschlecht" di="ETAI3" lu="20070210 21:08:17 CET"><etai eid="ETAI3" ir="false">il</etai><etai eid="ETAI4" ir="false">la</etai></eta>
+<eta eid="ETA3" n="Mehrzahl" di="ETAI6" lu="20070212 10:03:56 CET"><etai eid="ETAI6" ir="false">Regelmässig</etai><etai eid="ETAI7" ir="false">Unregelmässig</etai><etai eid="ETAI8" ir="false">Nur Einzahl</etai><etai eid="ETAI9" ir="false">Nur Mehrzahl</etai></eta>
+</etattributes>
+<entrytypes>
+<entrytype eid="ET8" n="Sätze und Redewendungen" lu="20070310 20:16:30 CET"></entrytype>
+<entrytype eid="ET7" n="Slang" lu="20070210 20:58:29 CET"></entrytype>
+<entrytype eid="ET4" n="Adjektiv / Adverb" a1="ETA4" lu="20061222 07:58:14 CET"></entrytype>
+<entrytype eid="ET3" n="Substantiv" a1="ETA2" a2="ETA3" lu="20061222 07:55:39 CET"></entrytype>
+<entrytype eid="ET6" n="Modi di dire" lu="20070210 13:29:14 CET"></entrytype>
+<entrytype eid="ET5" n="Konjugation" lu="20070210 13:20:36 CET"></entrytype>
+<entrytype eid="ET2" n="Anderes" lu="20061222 07:52:31 CET"></entrytype>
+<entrytype eid="ET1" n="Verb" a1="ETA1" a2="ETA5" lu="20061222 07:57:41 CET"></entrytype>
+</entrytypes>
+<units>
+<unit eid="U4" lu="20070217 20:14:02 CET"><name>Rest</name><desc></desc></unit>
+<unit eid="U3" lu="20070217 20:03:30 CET"><name>Harenberg Kalender Italienisch 2007</name><desc></desc></unit>
+<unit eid="U5" lu="20070310 20:15:52 CET"><name>50. Restaurant, Café, Hotel</name><desc></desc></unit>
+<unit eid="U2" lu="20070210 13:31:47 CET"><name>Berlitz Kalender 2005</name><desc></desc></unit>
+<unit eid="U1" lu="20061222 07:48:58 CET"><name>A</name><desc></desc></unit>
+</units>
+<categories>
+<category eid="C1" lu="20061222 07:46:40 CET"><name>Default</name><desc></desc></category>
+</categories>
+<entries>
+<e et="ET1" eid="E113" u="U1" c="C1" lv="1" st="true" lu="20070211 14:18:49 CET" ll="19700101 01:00:00 CET" a1="ETAI1" a2="ETAI12"><o>entfernen, beseitigen</o><d>allontanare</d></e>
+<e et="ET2" eid="E114" u="U1" c="C1" lv="2" st="true" lu="20070211 14:20:31 CET" ll="19700101 01:00:00 CET"><o>dann; damals, also; früher</o><d>allora</d></e>
+<e et="ET3" eid="E112" u="U1" c="C1" lv="3" st="true" lu="20070211 14:17:19 CET" ll="19700101 01:00:00 CET" a1="ETAI3" a2="ETAI6"><o>Schüler, Zögling</o><d>allievo</d></e>
+<e et="ET4" eid="E110" u="U1" c="C1" lv="4" st="true" lu="20070211 14:10:56 CET" ll="19700101 01:00:00 CET" a1="ETAI10"><o>lustig, heiter</o><d>allegro</d></e>
+<e et="ET6" eid="E8" u="U2" c="C1" lv="5" st="true" lu="20070210 13:31:58 CET" ll="19700101 01:00:00 CET"><o>sich in einer unbequemen Situation befinden</o><d>essere un pesche four d&apos; aqua</d></e>
+<e et="ET7" eid="E49" u="U2" c="C1" lv="6" st="true" lu="20070210 20:59:34 CET" ll="19700101 01:00:00 CET"><o>das ist mir egal</o><d>me ne frego</d><ep>Geste: unter dem Kinn mit der Hand vonhinten nach vorne reiben</ep></e>
+<e et="ET3" eid="E251" u="U5" c="C1" lv="7" st="true" lu="20070310 20:29:49 CET" ll="19700101 01:00:00 CET" a1="ETAI4" a2="ETAI6"><o>Wirtin</o><d>ostessa</d></e>
+</entries>
+<stats>
+<sset ts="20070310 21:16:36 CET"><sne lv="1">236</sne><sne lv="2">19</sne><sne lv="3">1</sne><sne lv="4">5</sne><sne lv="5">3</sne><sne lv="6">1</sne><sne lv="7">2</sne></sset>
+<sset ts="20070217 20:37:22 CET"><sne lv="1">196</sne><sne lv="2">19</sne><sne lv="3">1</sne><sne lv="4">5</sne><sne lv="5">3</sne><sne lv="6">1</sne><sne lv="7">2</sne></sset>
+<sset ts="20070212 10:13:05 CET"><sne lv="1">125</sne><sne lv="2">12</sne><sne lv="3">5</sne><sne lv="4">1</sne><sne lv="5">1</sne><sne lv="6">0</sne><sne lv="7">0</sne></sset>
+<sset ts="20070228 21:44:04 CET"><sne lv="1">202</sne><sne lv="2">19</sne><sne lv="3">1</sne><sne lv="4">5</sne><sne lv="5">3</sne><sne lv="6">1</sne><sne lv="7">2</sne></sset>
+<sset ts="20070217 19:10:49 CET"><sne lv="1">188</sne><sne lv="2">12</sne><sne lv="3">5</sne><sne lv="4">1</sne><sne lv="5">1</sne><sne lv="6">0</sne><sne lv="7">0</sne></sset>
+<sset ts="20070211 20:55:08 CET"><sne lv="1">124</sne><sne lv="2">18</sne><sne lv="3">1</sne><sne lv="4">1</sne><sne lv="5">0</sne><sne lv="6">0</sne><sne lv="7">0</sne></sset>
+<sset ts="20070217 19:14:04 CET"><sne lv="1">176</sne><sne lv="2">19</sne><sne lv="3">1</sne><sne lv="4">5</sne><sne lv="5">3</sne><sne lv="6">1</sne><sne lv="7">2</sne></sset>
+<sset ts="20070211 20:57:10 CET"><sne lv="1">124</sne><sne lv="2">18</sne><sne lv="3">1</sne><sne lv="4">1</sne><sne lv="5">0</sne><sne lv="6">0</sne><sne lv="7">0</sne></sset>
+</stats>
+</vocabulary>

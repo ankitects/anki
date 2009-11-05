@@ -262,6 +262,7 @@ from anki.importing.anki10 import Anki10Importer
 from anki.importing.mnemosyne10 import Mnemosyne10Importer
 from anki.importing.wcu import WCUImporter
 from anki.importing.supermemo_xml import SupermemoXmlImporter
+from anki.importing.dingsbums import DingsBumsImporter
 
 Importers = (
     (_("Text separated by tabs or semicolons (*)"), TextImporter),
@@ -269,4 +270,5 @@ Importers = (
     (_("Mnemosyne Deck (*.mem)"), Mnemosyne10Importer),
     (_("CueCard Deck (*.wcu)"), WCUImporter),
     (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
+    (_("DingsBums?! Deck (*.xml)"), DingsBumsImporter),
     )
