@@ -159,7 +159,7 @@ class MplayerMonitor(threading.Thread):
                     extra = ""
                 else:
                     extra = " 1"
-                cmd = "loadfile %s%s\n" % (item, extra)
+                cmd = 'loadfile "%s"%s\n' % (item, extra)
                 self.mplayer.stdin.write(cmd)
             mplayerCond.release()
 
