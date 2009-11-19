@@ -2306,7 +2306,7 @@ Return new path, relative to media dir."""
         if quick:
             num = 4
         else:
-            num = 9
+            num = 10
         self.startProgress(num)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
@@ -2404,6 +2404,11 @@ select id from fields where factId not in (select id from facts)""")
             # fix any priorities
             self.updateProgress(_("Updating priorities..."))
             self.updateAllPriorities(dirty=False)
+            # make sure
+            self.updateProgress(_("Updating ordinals..."))
+            self.s.statement("""
+update fields set ordinal = (select ordinal from fieldModels
+where id = fieldModelId)""")
             # fix problems with stripping html
             self.updateProgress(_("Rebuilding QA cache..."))
             fields = self.s.all("select id, value from fields")
