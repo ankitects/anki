@@ -825,6 +825,8 @@ where id in (%s)""" % ",".join([
     def addTags(self, tags=None, label=None):
         if tags is None:
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
+        else:
+            r = True
         if label is None:
             label = _("Add Tags")
         if r:
@@ -838,6 +840,8 @@ where id in (%s)""" % ",".join([
     def deleteTags(self, tags=None, label=None):
         if tags is None:
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
+        else:
+            r = True
         if label is None:
             label = _("Delete Tags")
         if r:
