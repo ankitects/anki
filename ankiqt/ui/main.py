@@ -603,9 +603,7 @@ new:
         self.typeAnswerShowButton = QPushButton(_("Show Answer"))
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
-        hbox.addStretch(0)
         hbox.addWidget(self.typeAnswerShowButton)
-        hbox.addStretch(0)
         vbox.addLayout(hbox)
         self.connect(self.typeAnswerShowButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("showAnswer"))
