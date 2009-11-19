@@ -55,8 +55,8 @@ Error was:<pre>%s</pre>""")
 
     def fetchData(self):
         self.parent.setProgressParent(None)
-        self.parent.deck.startProgress()
-        self.parent.deck.updateProgress()
+        self.parent.startProgress()
+        self.parent.updateProgress()
         try:
             socket.setdefaulttimeout(30)
             try:
@@ -70,7 +70,7 @@ Error was:<pre>%s</pre>""")
                 self.ok = False
                 return
         finally:
-            self.parent.deck.finishProgress()
+            self.parent.finishProgress()
             socket.setdefaulttimeout(None)
         self.form.search.setFocus()
         self.typeChanged()
