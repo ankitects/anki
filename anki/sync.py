@@ -48,7 +48,6 @@ SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
 #SYNC_HOST = "localhost"; SYNC_PORT = 8001
 
 KEYS = ("models", "facts", "cards", "media")
-SOCKET_TIMEOUT=30
 
 ##########################################################################
 # Monkey-patch httplib to incrementally send instead of chewing up large
@@ -975,7 +974,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             size = tmp.tell()
             tmp.seek(0)
             # open http connection
-            socket.setdefaulttimeout(SOCKET_TIMEOUT)
             runHook("fullSyncStarted", size)
             headers = {
                 'Content-type': 'multipart/form-data; boundary=%s' %
@@ -993,13 +991,11 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                 os.close(fd)
                 os.unlink(name)
         finally:
-            socket.setdefaulttimeout(None)
             runHook("fullSyncFinished")
 
     def fullSyncFromServer(self, fields, path):
         try:
             runHook("fullSyncStarted", 0)
-            socket.setdefaulttimeout(SOCKET_TIMEOUT)
             fields = urllib.urlencode(fields)
             src = urllib.urlopen(SYNC_URL + "fulldown", fields)
             (fd, tmpname) = tempfile.mkstemp(dir=os.path.dirname(path),
@@ -1022,7 +1018,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             os.unlink(path)
             os.rename(tmpname, path)
         finally:
-            socket.setdefaulttimeout(None)
             runHook("fullSyncFinished")
 
 # Local syncing
@@ -1055,11 +1050,14 @@ class HttpSyncServerProxy(SyncServer):
     def connect(self, clientVersion=""):
         "Check auth, protocol & grab deck list."
         if not self.decks:
+            import socket
+            socket.setdefaulttimeout(30)
             d = self.runCmd("getDecks",
                             libanki=anki.version,
                             client=clientVersion,
                             sources=simplejson.dumps(self.sourcesToCheck),
                             pversion=self.protocolVersion)
+            socket.setdefaulttimeout(None)
             if d['status'] != "OK":
                 raise SyncError(type="authFailed", status=d['status'])
             self.decks = d['decks']
@@ -1108,15 +1106,11 @@ class HttpSyncServerProxy(SyncServer):
             data['d'] = None
         data.update(args)
         data = urllib.urlencode(data)
-        socket.setdefaulttimeout(SOCKET_TIMEOUT)
         try:
-            try:
-                f = urllib2.urlopen(SYNC_URL + action, data)
-            except (urllib2.URLError, socket.error, socket.timeout,
-                    httplib.BadStatusLine):
-                raise SyncError(type="noResponse")
-        finally:
-            socket.setdefaulttimeout(None)
+            f = urllib2.urlopen(SYNC_URL + action, data)
+        except (urllib2.URLError, socket.error, socket.timeout,
+                httplib.BadStatusLine):
+            raise SyncError(type="noResponse")
         ret = f.read()
         if not ret:
             raise SyncError(type="noResponse")
