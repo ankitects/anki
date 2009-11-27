@@ -35,6 +35,13 @@ CARD_PRIORITY = 11
 CARD_TAGS = 12
 CARD_FACTCREATED = 13
 
+COLOUR_SUSPENDED1 = "#ffffcc"
+COLOUR_SUSPENDED2 = "#ffffaa"
+COLOUR_INACTIVE1 = "#ffcccc"
+COLOUR_INACTIVE2 = "#ffaaaa"
+COLOUR_MARKED1 = "#ccccff"
+COLOUR_MARKED2 = "#aaaaff"
+
 # Deck editor
 ##########################################################################
 
@@ -293,26 +300,26 @@ class StatusDelegate(QItemDelegate):
         if row[CARD_PRIORITY] == -3:
             # custom render
             if index.row() % 2 == 0:
-                brush = QBrush(QColor("#ffffcc"))
+                brush = QBrush(QColor(COLOUR_SUSPENDED1))
             else:
-                brush = QBrush(QColor("#ffffaa"))
+                brush = QBrush(QColor(COLOUR_SUSPENDED2))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
         if row[CARD_PRIORITY] == 0:
             # custom render
             if index.row() % 2 == 0:
-                brush = QBrush(QColor("#ffcccc"))
+                brush = QBrush(QColor(COLOUR_INACTIVE1))
             else:
-                brush = QBrush(QColor("#ffaaaa"))
+                brush = QBrush(QColor(COLOUR_INACTIVE2))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
         elif "Marked" in row[CARD_TAGS]:
             if index.row() % 2 == 0:
-                brush = QBrush(QColor("#ccccff"))
+                brush = QBrush(QColor(COLOUR_MARKED1))
             else:
-                brush = QBrush(QColor("#aaaaff"))
+                brush = QBrush(QColor(COLOUR_MARKED2))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
