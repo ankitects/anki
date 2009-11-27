@@ -812,7 +812,11 @@ where id in (%s)""" % ",".join([
     def deleteCards(self):
         cards = self.selectedCards()
         n = _("Delete Cards")
-        new = self.findCardInDeckModel() + 1
+        try:
+            new = self.findCardInDeckModel() + 1
+        except:
+            # card has been deleted
+            return
         self.dialog.tableView.setFocus()
         self.deck.setUndoStart(n)
         self.deck.deleteCards(cards)
