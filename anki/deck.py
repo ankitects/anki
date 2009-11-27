@@ -415,8 +415,8 @@ where id != :id and factId = :factId""",
         self.modified = now
         isLeech = self.isLeech(card)
         if isLeech:
-            card = self.handleLeech(card)
-        runHook("cardAnswered", card, isLeech)
+            self.handleLeech(card)
+        runHook("cardAnswered", card.id, isLeech)
         self.setUndoEnd(undoName)
 
     def isLeech(self, card):
