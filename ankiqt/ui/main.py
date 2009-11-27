@@ -450,7 +450,7 @@ Please do not file a bug report with Anki.<br>""")
                 self.save()
         self.moveToState("getQuestion")
 
-    def onCardAnsweredHook(self, card, isLeech):
+    def onCardAnsweredHook(self, cardId, isLeech):
         if not isLeech:
             self.setNotice()
             return
@@ -458,7 +458,8 @@ Please do not file a bug report with Anki.<br>""")
 <b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""")
                % stripHTML(stripSounds(self.currentCard.question)).\
                replace("\n", " ")[0:30])
-        if isLeech:
+        if isLeech and self.deck.s.scalar(
+            "select 1 from cards where id = :id and priority < 1", id=cardId):
             txt += _(" It has been suspended.")
         self.setNotice(txt)
 
