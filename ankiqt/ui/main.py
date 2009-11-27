@@ -758,7 +758,6 @@ To upgrade an old deck, download Anki 0.9.8.7."""))
         if path in self.config['recentDeckPaths']:
             self.config['recentDeckPaths'].remove(path)
         self.config['recentDeckPaths'].insert(0, path)
-        del self.config['recentDeckPaths'][100:]
         self.config.save()
 
     def onSwitchToDeck(self):
