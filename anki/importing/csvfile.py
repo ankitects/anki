@@ -57,6 +57,7 @@ class TextImporter(Importer):
             cards.append(card)
         self.log = log
         self.ignored = ignored
+        self.fileobj.close()
         return cards
 
     def sniff(self):
