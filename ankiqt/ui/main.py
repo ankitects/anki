@@ -1979,7 +1979,7 @@ it to your friends.
             self.mainWin.retranslateUi(self)
         anki.lang.setLang(self.config["interfaceLang"], local=False)
         self.updateTitleBar()
-        if self.config['interfaceLang'] in ("he","ar") and \
+        if self.config['interfaceLang'] in ("he","ar","fa") and \
                not self.config['forceLTR']:
             self.app.setLayoutDirection(Qt.RightToLeft)
         else:
