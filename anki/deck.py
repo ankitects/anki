@@ -2096,8 +2096,13 @@ cardTags.tagId in %s""" % ids2str(ids)
 select value = :value from deckVars
 where key = :key""", key=key, value=value):
             return
-        self.s.statement("insert or replace into deckVars (key, value) "
-                         "values (:key, :value)", key=key, value=value)
+        # can't use insert or replace as it confuses the undo code
+        if self.s.scalar("select 1 from deckVars where key = :key", key=key):
+            self.s.statement("update deckVars set value=:value where key = :key",
+                             key=key, value=value)
+        else:
+            self.s.statement("insert into deckVars (key, value) "
+                             "values (:key, :value)", key=key, value=value)
         if mod:
             self.setModified()
 
