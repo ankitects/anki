@@ -2117,7 +2117,7 @@ it to your friends.
 
     def syncClockOff(self, diff):
         ui.utils.showWarning(
-            _("Your computer clock is not set to the correct time.\n") +
+            _("The time or date on your computer is not correct.\n") +
             ngettext("It is off by %d second.\n\n",
                 "It is off by %d seconds.\n\n", diff) % diff +
             _("Since this can cause many problems with syncing,\n"
@@ -2365,7 +2365,7 @@ it to your friends.
         else:
             ret = _("early")
         ui.utils.showWarning(
-            _("Your computer clock is not set to the correct time.\n") +
+            _("The time or date on your computer is not correct.\n") +
             ngettext("It is %(sec)d second %(type)s.\n",
                 "It is %(sec)d seconds %(type)s.\n", abs(diff))
                 % {"sec": abs(diff), "type": ret} +
