@@ -33,6 +33,8 @@ mkdir -p dist/Anki.app/Contents/Resources/include/python2.6")
 cp /Library/Frameworks/Python.framework/Versions/2.6/include/\
 python2.6/pyconfig.h dist/Anki.app/Contents/Resources/include/\
 python2.6/pyconfig.h")
+                os.system("\
+chmod a+x dist/Anki.app/Contents/Resources/audio/mplayer")
                 if 'debug' in os.environ:
                         return
                 # zlib
