@@ -46,14 +46,6 @@ except ImportError:
     from sqlalchemy import Unicode
     UnicodeText = Unicode
 
-# don't allow newlines when logging
-import logging
-_originalLog = logging.Logger._log
-def _log(self, level, msg, *arg, **kwarg):
-    return _originalLog(
-        self, level, msg.replace("\n", " "), *arg, **kwarg)
-logging.Logger._log = _log
-
 from anki.hooks import runHook
 
 # shared metadata
