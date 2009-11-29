@@ -445,13 +445,13 @@ class DeckStats(object):
                 {'a': np, 'b': fmtFloat(np / float(30))}))
             np = self.getNewPeriod(92)
             html += tr(_("In last 3 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
+                {'a': np, 'b': fmtFloat(np / float(92))}))
             np = self.getNewPeriod(182)
             html += tr(_("In last 6 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
+                {'a': np, 'b': fmtFloat(np / float(182))}))
             np = self.getNewPeriod(365)
             html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
+                {'a': np, 'b': fmtFloat(np / float(365))}))
             html += "</table>"
 
             html += "<br><br><b>" + _("Average New Seen") + "</b>"
@@ -467,13 +467,13 @@ class DeckStats(object):
                 {'a': np, 'b': fmtFloat(np / float(30))}))
             np = self.getFirstPeriod(92)
             html += tr(_("In last 3 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
+                {'a': np, 'b': fmtFloat(np / float(92))}))
             np = self.getFirstPeriod(182)
             html += tr(_("In last 6 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
+                {'a': np, 'b': fmtFloat(np / float(182))}))
             np = self.getFirstPeriod(365)
             html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
+                {'a': np, 'b': fmtFloat(np / float(365))}))
             html += "</table>"
 
             html += "<br><br><b>" + _("Card Ease") + "</b><br>"
