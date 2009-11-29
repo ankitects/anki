@@ -2814,7 +2814,8 @@ class DeckStorage(object):
             path = "sqlite:///" + path
         if pool:
             # open and lock connection for single use
-            engine = create_engine(path, connect_args={'timeout': 0})
+            engine = create_engine(path, connect_args={'timeout': 0},
+                                   strategy="threadlocal")
         else:
             # no pool & concurrent access w/ timeout
             engine = create_engine(path,
