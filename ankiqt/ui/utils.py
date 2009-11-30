@@ -17,21 +17,25 @@ def openLink(link):
 def openWikiLink(page):
     openLink(ankiqt.appWiki + page)
 
-def showWarning(text, parent=None):
+def showWarning(text, parent=None, help=""):
     "Show a small warning with an OK button."
-    if not parent:
-        parent = ankiqt.mw
-    QMessageBox.warning(parent, "Anki", text)
+    return showInfo(text, parent, help, QMessageBox.warning)
 
-def showInfo(text, parent=None, help=""):
+def showCritical(text, parent=None, help=""):
+    "Show a small critical error with an OK button."
+    return showInfo(text, parent, help, QMessageBox.critical)
+
+def showInfo(text, parent=None, help="", func=None):
     "Show a small info window with an OK button."
     if not parent:
         parent = ankiqt.mw
+    if not func:
+        func = QMessageBox.information
     sb = QMessageBox.Ok
     if help:
         sb |= QMessageBox.Help
     while 1:
-        ret = QMessageBox.information(parent, "Anki", text, sb)
+        ret = func(parent, "Anki", text, sb)
         if ret == QMessageBox.Help:
             openWikiLink(help)
         else:

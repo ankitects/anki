@@ -679,24 +679,17 @@ new:
         except Exception, e:
             if hasattr(e, 'data') and e.data.get('type') == 'inuse':
                 if interactive:
-                    ui.utils.showInfo(_("Deck is already open."))
+                    ui.utils.showWarning(_("Deck is already open."))
+                else:
+                    return
+            elif hasattr(e, 'data') and e.data.get('type') == 'corrupt':
+                ui.utils.showCritical(_("\
+File is corrupt.\nPlease restore from backup."), help="DeckErrors")
             else:
-                fmt = traceback.format_exc().split("\n")
-                fmt1 = "\n".join(fmt[0:3])
-                fmt2 = "\n".join(fmt[-3:])
-                ui.utils.showInfo(_("""\
-Unable to load deck.
-
-Possible reasons:
- - file is not an Anki deck
- - deck is read only
- - directory is read only
- - deck was created with Anki < 0.9
-
-To upgrade an old deck, download Anki 0.9.8.7."""))
-                traceback.print_exc()
+                ui.utils.showCritical(_("""\
+File is corrupt or not an Anki database."""), help="DeckErrors")
             self.moveToState("noDeck")
-            return
+            return 0
         if media is not None:
             self.deck.forceMediaDir = media
         if uprecent:
