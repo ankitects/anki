@@ -3335,9 +3335,14 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
 
     def backup(modified, path):
         """Path must not be unicode."""
-        #path = os.path.join(backupDir, path)
+        from anki.db import sqlite
         if not numBackups:
             return
+        # check integrity
+        con = sqlite.connect(path)
+        if not con.execute("pragma integrity_check").fetchone() == ("ok",):
+            raise DeckAccessError(_("Deck is corrupt."), type="corrupt")
+        con.close()
         def escape(path):
             path = os.path.abspath(path)
             path = path.replace("\\", "!")
