@@ -359,8 +359,8 @@ class SyncTools(object):
 
     def bundleModel(self, id, updateModified):
         "Return a model representation suitable for transport."
-        # force load of lazy attributes
         mod = self.deck.s.query(Model).get(id)
+        # force load of lazy attributes
         mod.fieldModels; mod.cardModels
         m = self.dictFromObj(mod)
         m['fieldModels'] = [self.bundleFieldModel(fm) for fm in m['fieldModels']]
