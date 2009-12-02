@@ -2233,7 +2233,6 @@ it to your friends.
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionRedo, s, self.onRedo)
-        self.connect(m.actionCheckDatabaseIntegrity, s, self.onQuickCheckDB)
         self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
@@ -2620,16 +2619,13 @@ it to your friends.
     # Advanced features
     ##########################################################################
 
-    def onQuickCheckDB(self):
-        self.onCheckDB(full=False)
-
-    def onCheckDB(self, full=True):
+    def onCheckDB(self):
         "True if no problems"
         if self.errorOccurred:
             ui.utils.showWarning(_(
                 "Please restart Anki before checking the DB."))
             return
-        if full and not ui.utils.askUser(_("""\
+        if not ui.utils.askUser(_("""\
 This operation will find and fix some common problems.<br>
 <br>
 On the next sync, all cards will be sent to the server.<br>
@@ -2638,7 +2634,7 @@ Any changes on the server since your last sync will be lost.<br>
 <b>This operation is not undoable.</b><br>
 Proceed?""")):
             return
-        ret = self.deck.fixIntegrity(quick=not full)
+        ret = self.deck.fixIntegrity()
         if ret == "ok":
             ret = True
         else:
