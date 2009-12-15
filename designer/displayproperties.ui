@@ -495,7 +495,7 @@
                   <item row="2" column="0">
                    <widget class="QCheckBox" name="rtl">
                     <property name="text">
-                     <string>Reverse text (RTL)</string>
+                     <string>Right to Left (RTL)</string>
                     </property>
                    </widget>
                   </item>
