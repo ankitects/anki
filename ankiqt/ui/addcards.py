@@ -150,7 +150,9 @@ question or answer on all cards."""), parent=self)
         # stop anything playing
         clearAudioQueue()
         self.parent.deck.setUndoEnd(n)
+        self.parent.deck.checkDue()
         self.parent.updateTitleBar()
+        self.parent.statusView.redraw()
         # start a new fact
         f = self.parent.deck.newFact()
         f.tags = self.parent.deck.lastTags
