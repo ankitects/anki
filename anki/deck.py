@@ -2759,7 +2759,7 @@ class DeckStorage(object):
                 deck.setVar("leechFails", 16)
             else:
                 if backup:
-                    DeckStorage.backup(deck.modified, path)
+                    DeckStorage.backup(deck, path)
                 deck._initVars()
                 try:
                     deck = DeckStorage._upgradeDeck(deck, path)
@@ -3333,16 +3333,13 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
         deck.utcOffset = time.timezone + 60*60*4
     _setUTCOffset = staticmethod(_setUTCOffset)
 
-    def backup(modified, path):
+    def backup(deck, path):
         """Path must not be unicode."""
-        from anki.db import sqlite
         if not numBackups:
             return
         # check integrity
-        con = sqlite.connect(path)
-        if not con.execute("pragma integrity_check").fetchone() == ("ok",):
+        if not deck.s.scalar("pragma integrity_check") == "ok":
             raise DeckAccessError(_("Deck is corrupt."), type="corrupt")
-        con.close()
         def escape(path):
             path = os.path.abspath(path)
             path = path.replace("\\", "!")
@@ -3361,7 +3358,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
         # check if last backup is the same
         if backups:
             latest = os.path.join(backupDir, backups[-1][1])
-            if int(modified) == int(
+            if int(deck.modified) == int(
                 os.stat(latest)[stat.ST_MTIME]):
                 return
         # get next num
@@ -3374,7 +3371,7 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             re.sub("\.anki$", ".backup-%s.anki" % n, escp)))
         shutil.copy2(path, newpath)
         # set mtimes to be identical
-        os.utime(newpath, (modified, modified))
+        os.utime(newpath, (deck.modified, deck.modified))
         # remove if over
         if len(backups) + 1 > numBackups:
             delete = len(backups) + 1 - numBackups
