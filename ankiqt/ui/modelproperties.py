@@ -42,7 +42,7 @@ class ModelProperties(QDialog):
         self.dialog.tags.setText(self.m.tags)
         self.dialog.spacing.setText(str(self.m.spacing))
         self.dialog.initialSpacing.setText(str(self.m.initialSpacing/60))
-        self.dialog.mediaURL.setText(str(self.m.features))
+        self.dialog.mediaURL.setText(unicode(self.m.features))
 
     # Fields
     ##########################################################################
