@@ -17,7 +17,7 @@ from sqlalchemy.ext.orderinglist import ordering_list
 from anki.db import *
 from anki.utils import genID, canonifyTags
 from anki.fonts import toPlatformFont
-from anki.utils import parseTags, hexifyID, checksum
+from anki.utils import parseTags, hexifyID, checksum, stripHTML
 from anki.lang import _
 from anki.hooks import runFilter
 from copy import copy
@@ -135,7 +135,7 @@ def formatQA(cid, mid, fact, tags, cm):
     d = {'id': cid}
     fields = {}
     for (k, v) in fact.items():
-        fields["text:"+k] = v[1]
+        fields["text:"+k] = stripHTML(v[1])
         if v[1]:
             fields[k] = '<span class="fm%s">%s</span>' % (
                 hexifyID(v[0]), v[1])
