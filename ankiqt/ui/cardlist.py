@@ -185,8 +185,10 @@ interval, factor, noCount, priority, (select tags from facts where
 facts.id = cards.factId), (select created from facts where
 facts.id = cards.factId) from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
+            # storing this in a local var first avoids a segfault
+            end = self.index(idx, 1)
             self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
-                      index, self.index(index.row(), 1))
+                      index, end)
         except:
             # called after search changed
             pass
