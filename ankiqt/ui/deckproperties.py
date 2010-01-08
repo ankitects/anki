@@ -235,8 +235,12 @@ class DeckProperties(QDialog):
         try:
             v = float(self.dialog.delay0.text()) * 60.0
             self.updateField(self.d, 'delay0', v)
-            v = float(self.dialog.delay1.text()) * 60.0
-            self.updateField(self.d, 'delay1', v)
+            v2 = float(self.dialog.delay1.text()) * 60.0
+            if v2 < v:
+                ui.utils.showInfo(_("Again (Young) must be <= Again (Mature)."),
+                                  parent=self.parent)
+                v2 = v
+            self.updateField(self.d, 'delay1', v2)
             v = float(self.dialog.delay2.text())
             self.updateField(self.d, 'delay2', min(v, 1))
             v = int(self.dialog.failedCardMax.text())
