@@ -125,15 +125,14 @@ def buildImg(deck, latex):
         si = None
     try:
         os.chdir(tmpdir)
-        errmsg = _(
-            "Error executing 'latex' or 'dvipng'.\n"
+        errmsg = _("Error executing %s.\n") + _(
             "A log file is available here:\n%s") % tmpdir
         if call(["latex", "-interaction=nonstopmode",
                  texpath], stdout=log, stderr=log, startupinfo=si):
-            return (False, errmsg)
+            return (False, errmsg % "latex")
         if call(latexDviPngCmd + ["tmp.dvi", "-o", "tmp.png"],
                 stdout=log, stderr=log, startupinfo=si):
-            return (False, errmsg)
+            return (False, errmsg % "dvipng")
         # add to media
         target = latexImgFile(deck, latex)
         shutil.copy2("tmp.png", os.path.join(deck.mediaDir(create=True),
