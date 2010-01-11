@@ -682,12 +682,10 @@ new:
                     ui.utils.showWarning(_("Deck is already open."))
                 else:
                     return
-            elif hasattr(e, 'data') and e.data.get('type') == 'corrupt':
-                ui.utils.showCritical(_("\
-File is corrupt.\nPlease restore from backup."), help="DeckErrors")
             else:
                 ui.utils.showCritical(_("""\
-File is corrupt or not an Anki database."""), help="DeckErrors")
+File is corrupt or not an Anki database. Click help for more info.\n
+Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("noDeck")
             return 0
         if media is not None:
