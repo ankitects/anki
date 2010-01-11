@@ -598,17 +598,23 @@ class FactEditor(object):
 
     def formatChanged(self, fmt):
         w = self.focusedEdit()
-        if not w or w.textCursor().hasSelection():
+        if not w:
             return
         else:
+            l = self.bold, self.italic, self.underline
+            for b in l:
+                b.blockSignals(True)
             self.bold.setChecked(w.fontWeight() == QFont.Bold)
             self.italic.setChecked(w.fontItalic())
             self.underline.setChecked(w.fontUnderline())
+            for b in l:
+                b.blockSignals(False)
 
     def resetFormatButtons(self):
-        self.bold.setChecked(False)
-        self.italic.setChecked(False)
-        self.underline.setChecked(False)
+        for b in self.bold, self.italic, self.underline:
+            b.blockSignals(True)
+            b.setChecked(False)
+            b.blockSignals(False)
 
     def enableButtons(self, val=True):
         self.bold.setEnabled(val)
