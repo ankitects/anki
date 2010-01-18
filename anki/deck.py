@@ -2091,6 +2091,11 @@ cardTags.tagId in %s""" % ids2str(ids)
             ret = not not int(ret)
         return ret
 
+    def getVar(self, key):
+        "Return value for key as string, or None."
+        return self.s.scalar("select value from deckVars where key = :k",
+                             k=key)
+
     def setVar(self, key, value, mod=True):
         if self.s.scalar("""
 select value = :value from deckVars
