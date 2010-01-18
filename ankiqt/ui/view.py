@@ -108,7 +108,7 @@ class View(object):
         # hook for user css
         runHook("preFlushHook")
         self.buffer = '''<html><head>%s</head><body>%s</body></html>''' % (
-            getBase(self.main.deck), self.buffer)
+            getBase(self.main.deck, self.main.currentCard), self.buffer)
         #print self.buffer.encode("utf-8")
         self.body.setHtml(self.buffer)
 

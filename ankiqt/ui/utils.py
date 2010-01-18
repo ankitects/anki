@@ -205,16 +205,21 @@ def mungeQA(deck, txt):
                       "border-bottom: 1px solid #000;")
     return txt
 
-def getBase(deck):
-    if deck and deck.mediaDir():
-        if sys.platform.startswith("win32"):
-            prefix = u"file:///"
-        else:
-            prefix = u"file://"
-        base = prefix + unicode(
-            urllib.quote(deck.mediaDir().encode("utf-8")),
-            "utf-8")
-        return '<base href="%s/">' % base
+def getBase(deck, card):
+    base = None
+    if deck:
+        if deck.getBool("remoteImages") and card.fact.model.features:
+            base = card.fact.model.features
+        elif deck.mediaDir():
+            if sys.platform.startswith("win32"):
+                prefix = u"file:///"
+            else:
+                prefix = u"file://"
+            base = prefix + unicode(
+                urllib.quote(deck.mediaDir().encode("utf-8")),
+                "utf-8") + "/"
+    if base:
+        return '<base href="%s">' % base
     else:
         return ""
 
