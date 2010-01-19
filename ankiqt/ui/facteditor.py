@@ -1107,7 +1107,7 @@ class PreviewDialog(QDialog):
                   "\ndiv { white-space: pre-wrap; }")
         styles = runFilter("addStyles", styles, c)
         self.dialog.webView.setHtml(
-            ('<html><head>%s</head><body>' % getBase(self.deck)) +
+            ('<html><head>%s</head><body>' % getBase(self.deck, c)) +
             "<style>" + styles + "</style>" +
             runFilter("drawQuestion", mungeQA(self.deck, c.htmlQuestion()),
                       c) +
