@@ -2566,24 +2566,30 @@ it to your friends.
         if self.mainThread != QThread.currentThread():
             return
         self.setBusy()
-        parent = self.progressParent or self.app.activeWindow() or self
-        if self.progressWins:
-            parent = self.progressWins[-1].diag
-        p = ui.utils.ProgressWin(parent, max, min, title)
+        if not self.progressWins:
+            parent = self.progressParent or self.app.activeWindow() or self
+            p = ui.utils.ProgressWin(parent, max, min, title)
+        else:
+            p = None
         self.progressWins.append(p)
 
     def updateProgress(self, label=None, value=None, process=True):
         if self.mainThread != QThread.currentThread():
             return
-        if self.progressWins:
-            self.progressWins[-1].update(label, value, process)
+        if len(self.progressWins) == 1:
+            self.progressWins[0].update(label, value, process)
+        else:
+            # just redraw
+            if process:
+                self.app.processEvents()
 
     def finishProgress(self):
         if self.mainThread != QThread.currentThread():
             return
         if self.progressWins:
             p = self.progressWins.pop()
-            p.finish()
+            if p:
+                p.finish()
         if not self.progressWins:
             self.unsetBusy()
 
