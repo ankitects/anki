@@ -1885,6 +1885,9 @@ You are currently cramming. Please close this deck first."""))
         d.syncName = None
         d.suspended = u""
         self.deck.updateProgress()
+        # unsuspend cards
+        d.unsuspendCards(d.s.column0("select id from cards where priority = -3"))
+        self.deck.updateProgress()
         d.updateAllPriorities()
         d.utcOffset = -1
         d.flushMod()
