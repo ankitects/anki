@@ -207,7 +207,7 @@ def mungeQA(deck, txt):
 
 def getBase(deck, card):
     base = None
-    if deck:
+    if deck and card:
         if deck.getBool("remoteImages") and card.fact.model.features:
             base = card.fact.model.features
         elif deck.mediaDir():
