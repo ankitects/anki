@@ -1107,6 +1107,7 @@ your deck."""))
         import sip
         focusButton = None
         # remove all widgets from layout & layout itself
+        self.moreMenus = []
         if self.decksFrame.layout():
             while 1:
                 obj = self.decksFrame.layout().takeAt(0)
@@ -1190,20 +1191,23 @@ your deck."""))
                 if c == 0:
                     focusButton = openButton
                 # more
-                moreButton = QComboBox()
+                moreButton = QPushButton(_("More"))
                 if sys.platform.startswith("darwin"):
                     moreButton.setFixedWidth(80)
                 if sys.platform.startswith("win32") and \
                    self.config['alternativeTheme']:
                         moreButton.setFixedHeight(24)
-                moreButton.addItems(QStringList([
-                    _("More"),
-                    _("Forget"),
-                    _("Delete")]))
-                moreButton.setToolTip(
-                    _("Forget removes the deck from the list without deleting."))
-                self.connect(moreButton, SIGNAL("currentIndexChanged(int)"),
-                             lambda idx, c=c: self.onDeckBrowserMore(idx, c))
+                moreMenu = QMenu()
+                a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
+                                       _("Hide from list"))
+                a.connect(a, SIGNAL("activated()"),
+                          lambda c=c: self.onDeckBrowserForget(c))
+                a = moreMenu.addAction(QIcon(":/icons/editdelete.png"),
+                                       _("Delete"))
+                a.connect(a, SIGNAL("activated()"),
+                          lambda c=c: self.onDeckBrowserDelete(c))
+                moreButton.setMenu(moreMenu)
+                self.moreMenus.append(moreMenu)
                 layout.addWidget(moreButton, c+1, 6)
             refresh = QPushButton(_("Refresh"))
             refresh.setToolTip(_("Check due counts again (F5)"))
@@ -1246,23 +1250,20 @@ later by using File>Close.
         # do this last
         self.switchToDecksScreen()
 
-    def onDeckBrowserMore(self, idx, c):
-        if idx == 0:
-            return
-        elif idx == 1:
-            # forget
-            if ui.utils.askUser(_("Forget %s?") % self.browserDecks[c]['name']):
-                self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
-                del self.browserDecks[c]
-            self.showDeckBrowser()
-        elif idx == 2:
-            # delete
-            deck = self.browserDecks[c]['path']
-            if ui.utils.askUser(_("Delete %s?") % self.browserDecks[c]['name']):
-                del self.browserDecks[c]
-                os.unlink(deck)
-                self.config['recentDeckPaths'].remove(deck)
-            self.showDeckBrowser()
+    def onDeckBrowserForget(self, c):
+        if ui.utils.askUser(_("Hide %s from the list?") % self.browserDecks[c]['name'],
+                            help="DeckBrowser"):
+            self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
+            del self.browserDecks[c]
+        self.showDeckBrowser()
+
+    def onDeckBrowserDelete(self, c):
+        deck = self.browserDecks[c]['path']
+        if ui.utils.askUser(_("Delete %s?") % self.browserDecks[c]['name']):
+            del self.browserDecks[c]
+            os.unlink(deck)
+            self.config['recentDeckPaths'].remove(deck)
+        self.showDeckBrowser()
 
     # Opening and closing the app
     ##########################################################################
