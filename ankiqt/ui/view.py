@@ -152,10 +152,10 @@ class View(object):
         s = difflib.SequenceMatcher(None, b, a)
 
         sz = self.main.currentCard.cardModel.answerFontSize
-        ok = "background: %s; color: #000; font-size: %dpx" % (
-            passedCharColour, sz)
-        bad = "background: %s; color: #000; font-size: %dpx;" % (
-            failedCharColour, sz)
+        fn = self.main.currentCard.cardModel.answerFontFamily
+        st = "background: %s; color: #000; font-size: %dpx; font-family: %s;"
+        ok = st % (passedCharColour, sz, fn)
+        bad = st % (failedCharColour, sz, fn)
 
         for tag, i1, i2, j1, j2 in s.get_opcodes():
             if tag == "equal":
