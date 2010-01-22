@@ -146,7 +146,7 @@ class DingsBumsHandler(ContentHandler):
                 m.addFieldModel(FieldModel(self.labels[aField], False, False))
         # field models for attributes
         for attr in ["a1", "a2" "a3", "a4"]:
-            if attr in attrs:
+            if attr in attrs.keys():
                 m.addFieldModel(FieldModel(self.attributes[attrs[attr]], False, False))
                 self.typeAttributes[attrs["eid"] + "_" + attr] = self.attributes[attrs[attr]]
 
@@ -174,7 +174,7 @@ class DingsBumsHandler(ContentHandler):
         self.f = Fact(model)
         # process attributes
         for attr in ["a1", "a2" "a3", "a4"]:
-            if attr in attrs:
+            if attr in attrs.keys():
                 self.f.__setitem__(self.typeAttributes[attrs["et"] + "_" + attr], self.attributeItems[attrs[attr]])
         # process tags. Unit, Category plus entry type name
         tagString = unicode(self.unitCategories[attrs["u"]] + " " + self.unitCategories[attrs["c"]] + " " + model.tags)
