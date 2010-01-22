@@ -17,6 +17,7 @@ from anki.lang import _
 from anki.utils import findTag, parseTags, stripHTML, ids2str
 from anki.tags import tagIds
 from anki.db import *
+from BeautifulSoup import BeautifulSoup as BS
 
 class Exporter(object):
     def __init__(self, deck):
@@ -29,11 +30,16 @@ class Exporter(object):
         self.doExport(file)
         file.close()
 
-    def escapeText(self, text):
+    def escapeText(self, text, removeFields=False):
         "Escape newlines and tabs, and strip Anki HTML."
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
-        text = re.sub('<span class="fm.*?">(.*?)</span>', '\\1', text)
+        if removeFields:
+            s = BS(text)
+            all = s('span', {'class': re.compile("fm.*")})
+            for e in all:
+                e.replaceWith("".join([unicode(x) for x in e.contents]))
+            text = unicode(s)
         return text
 
     def cardIds(self):
@@ -180,9 +186,10 @@ select cards.id, cards.tags || "," || facts.tags from cards, facts
 where cards.factId = facts.id
 and cards.id in %s
 order by cards.created""" % strids))
-        out = u"\n".join(["%s\t%s%s" % (self.escapeText(c[0]),
-                                        self.escapeText(c[1]),
-                                        self.tags(c[2]))
+        out = u"\n".join(["%s\t%s%s" % (
+            self.escapeText(c[0], removeFields=True),
+            self.escapeText(c[1], removeFields=True),
+            self.tags(c[2]))
                           for c in cards])
         if out:
             out += "\n"
