@@ -1654,6 +1654,11 @@ learnt today")
         removeHook("showQuestion", self.onCardStats)
 
     def onShowGraph(self):
+        if ui.utils.pyQtBroken:
+            ui.utils.showInfo(
+                "Your PyQt installation is broken. "
+                "Please upgrade or downgrade PyQt.")
+            return
         self.setStatus(_("Loading graphs (may take time)..."))
         self.app.processEvents()
         import anki.graphs
