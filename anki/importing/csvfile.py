@@ -89,12 +89,15 @@ class TextImporter(Importer):
                 type="encodingError",
                 info=_("File is not encoded in UTF-8."))
         self.dialect = None
+        sniffer = csv.Sniffer()
+        delims = [',', '\t', ';', ':']
         if not self.delimiter:
             try:
-                self.dialect = csv.Sniffer().sniff("\n".join(self.data[:10]))
+                self.dialect = sniffer.sniff("\n".join(self.data[:10]),
+                                             delims)
             except:
                 try:
-                    self.dialect = csv.Sniffer().sniff(self.data[0])
+                    self.dialect = sniffer.sniff(self.data[0], delims)
                 except:
                     pass
         if self.dialect:
