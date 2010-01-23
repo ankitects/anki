@@ -944,22 +944,51 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             return True
 
     def showToolTip(self, msg):
-        t = QTimer(self)
-        t.setSingleShot(True)
-        t.start(200)
-        self.connect(t, SIGNAL("timeout()"),
-                     lambda msg=msg: self._showToolTip(msg))
-
-    def _showToolTip(self, msg):
-        QToolTip.showText(
-            self.mainWin.statusbar.mapToGlobal(QPoint(0, -40)),
-            """\
+        class CustomLabel(QLabel):
+            def mousePressEvent(self, evt):
+                evt.accept()
+                self.hide()
+        old = getattr(self, 'toolTipFrame', None)
+        if old:
+            old.deleteLater()
+        old = getattr(self, 'toolTipTimer', None)
+        if old:
+            old.stop()
+            old.deleteLater()
+        self.toolTipLabel = CustomLabel("""\
 <table cellpadding=10>
 <tr>
 <td><img src=":/icons/help-hint.png"></td>
 <td>%s</td>
 </tr>
 </table>""" % msg)
+        self.toolTipLabel.setFrameStyle(QFrame.Panel)
+        self.toolTipLabel.setLineWidth(2)
+        self.toolTipLabel.setWindowFlags(Qt.ToolTip)
+        p = QPalette()
+        p.setColor(QPalette.Window, QColor("#feffc4"))
+        self.toolTipLabel.setPalette(p)
+        aw = (self.app.instance().activeWindow() or
+              self)
+        self.toolTipLabel.move(
+            aw.mapToGlobal(QPoint(0, -100 + aw.height())))
+        self.toolTipLabel.show()
+        self.toolTipTimer = QTimer(self)
+        self.toolTipTimer.setSingleShot(True)
+        self.toolTipTimer.start(2000)
+        self.connect(self.toolTipTimer, SIGNAL("timeout()"),
+                     self.closeToolTip)
+
+    def closeToolTip(self):
+        label = getattr(self, 'toolTipLabel', None)
+        if label:
+            label.deleteLater()
+            self.toolTipLabel = None
+        timer = getattr(self, 'toolTipTimer', None)
+        if timer:
+            timer.stop()
+            timer.deleteLater()
+            self.toolTipTimer = None
 
     def save(self, required=False):
         if not self.deck.path:
