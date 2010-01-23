@@ -975,7 +975,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.toolTipLabel.show()
         self.toolTipTimer = QTimer(self)
         self.toolTipTimer.setSingleShot(True)
-        self.toolTipTimer.start(2000)
+        self.toolTipTimer.start(5000)
         self.connect(self.toolTipTimer, SIGNAL("timeout()"),
                      self.closeToolTip)
 
