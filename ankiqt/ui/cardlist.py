@@ -428,7 +428,7 @@ class EditDeck(QMainWindow):
         self.dialog.tagList.clear()
         alltags = [None, "Marked", None, None, "Leech", None, None]
         # system tags
-        self.dialog.tagList.addItem(_("<Filter>"))
+        self.dialog.tagList.addItem(_("Show All Cards"))
         self.dialog.tagList.addItem(QIcon(":/icons/rating.png"),
                                     _('Marked'))
         self.dialog.tagList.addItem(QIcon(":/icons/media-playback-pause.png"),
