@@ -26,6 +26,7 @@ class Exporter(object):
         self.limitCardIds = []
 
     def exportInto(self, path):
+        self._escapeCount = 0
         file = open(path, "wb")
         self.doExport(file)
         file.close()
@@ -35,6 +36,10 @@ class Exporter(object):
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
         if removeFields:
+            # beautifulsoup is slow
+            self._escapeCount += 1
+            if self._escapeCount % 100 == 0:
+                self.deck.updateProgress()
             s = BS(text)
             all = s('span', {'class': re.compile("fm.*")})
             for e in all:
@@ -175,11 +180,15 @@ class TextCardExporter(Exporter):
         self.includeTags = False
 
     def doExport(self, file):
-        strids = ids2str(self.cardIds())
+        ids = self.cardIds()
+        strids = ids2str(ids)
+        self.deck.startProgress((len(ids) + 1) / 50)
+        self.deck.updateProgress(_("Exporting..."))
         cards = self.deck.s.all("""
 select cards.question, cards.answer, cards.id from cards
 where cards.id in %s
 order by cards.created""" % strids)
+        self.deck.updateProgress()
         if self.includeTags:
             self.cardTags = dict(self.deck.s.all("""
 select cards.id, cards.tags || "," || facts.tags from cards, facts
@@ -194,6 +203,7 @@ order by cards.created""" % strids))
         if out:
             out += "\n"
         file.write(out.encode("utf-8"))
+        self.deck.finishProgress()
 
     def tags(self, id):
         if self.includeTags:
@@ -211,6 +221,8 @@ class TextFactExporter(Exporter):
 
     def doExport(self, file):
         cardIds = self.cardIds()
+        self.deck.startProgress()
+        self.deck.updateProgress(_("Exporting..."))
         facts = self.deck.s.all("""
 select factId, value, facts.created from facts, fields
 where
@@ -220,6 +232,7 @@ where cards.id in %s)
 and facts.id = fields.factId
 order by factId, ordinal""" % ids2str(cardIds))
         txt = ""
+        self.deck.updateProgress()
         if self.includeTags:
             self.factTags = dict(self.deck.s.all(
                 "select id, tags from facts where id in %s" %
@@ -230,11 +243,13 @@ order by factId, ordinal""" % ids2str(cardIds))
                    "\t".join([self.escapeText(x[1]) for x in group]) +
                    self.tags(group[0][0]))
                   for group in groups]
+        self.deck.updateProgress()
         groups.sort(key=itemgetter(0))
         out = [ret[1] for ret in groups]
         self.count = len(out)
         out = "\n".join(out)
         file.write(out.encode("utf-8"))
+        self.deck.finishProgress()
 
     def tags(self, id):
         if self.includeTags:
