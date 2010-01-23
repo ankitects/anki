@@ -190,6 +190,10 @@ facts.id = cards.factId) from cards where id = :id""",
             # called after search changed
             pass
 
+    def refresh(self):
+        self.cards = [[x[0]] for x in self.cards]
+        self.emit(SIGNAL("layoutChanged()"))
+
     # Tools
     ######################################################################
 
@@ -803,12 +807,11 @@ where id in (%s)""" % ",".join([
             "select id from cards where factId in (%s)" %
             ",".join([str(s) for s in self.selectedFacts()]))
 
-    def updateAfterCardChange(self, reset=False):
+    def updateAfterCardChange(self):
         "Refresh info like stats on current card"
         self.currentRow = self.dialog.tableView.currentIndex()
         self.rowChanged(self.currentRow, None)
-        if reset:
-            self.updateSearch()
+        self.model.refresh()
         self.drawTags()
         self.parent.moveToState("auto")
 
@@ -845,7 +848,7 @@ where id in (%s)""" % ",".join([
             self.deck.addTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(label)
             self.parent.setProgressParent(None)
-        self.updateAfterCardChange(reset=True)
+        self.updateAfterCardChange()
 
     def deleteTags(self, tags=None, label=None):
         if tags is None:
@@ -860,7 +863,7 @@ where id in (%s)""" % ",".join([
             self.deck.deleteTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(label)
             self.parent.setProgressParent(None)
-        self.updateAfterCardChange(reset=True)
+        self.updateAfterCardChange()
 
     def updateToggles(self):
         self.dialog.actionToggleSuspend.setChecked(self.isSuspended())
@@ -882,7 +885,7 @@ where id in (%s)""" % ",".join([
         self.deck.suspendCards(self.selectedCards())
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
-        self.model.cards = [[x[0]] for x in self.model.cards]
+        self.model.refresh()
 
     def _onUnsuspend(self):
         n = _("Unsuspend")
@@ -891,7 +894,7 @@ where id in (%s)""" % ",".join([
         self.deck.unsuspendCards(self.selectedCards())
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
-        self.model.cards = [[x[0]] for x in self.model.cards]
+        self.model.refresh()
 
     def isMarked(self):
         return self.currentCard and "Marked" in self.currentCard.fact.tags
@@ -933,7 +936,7 @@ where id in (%s)""" % ",".join([
             self.deck.rebuildCounts(full=False)
             self.deck.rebuildQueue()
             self.deck.setUndoEnd(n)
-        self.updateAfterCardChange(reset=True)
+        self.updateAfterCardChange()
 
     def addCards(self):
         sf = self.selectedFacts()
