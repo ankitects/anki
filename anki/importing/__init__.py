@@ -202,6 +202,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         data['due'] = t
         self._now += .00001
         data.update(card.__dict__)
+        data['tags'] = u""
         self.cardIds.append(data['id'])
         data['combinedDue'] = data['due']
         data['isDue'] = data['combinedDue'] < time.time()

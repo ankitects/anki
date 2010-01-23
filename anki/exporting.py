@@ -191,7 +191,7 @@ order by cards.created""" % strids)
         self.deck.updateProgress()
         if self.includeTags:
             self.cardTags = dict(self.deck.s.all("""
-select cards.id, cards.tags || "," || facts.tags from cards, facts
+select cards.id, facts.tags from cards, facts
 where cards.factId = facts.id
 and cards.id in %s
 order by cards.created""" % strids))
