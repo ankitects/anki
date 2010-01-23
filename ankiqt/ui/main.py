@@ -991,6 +991,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.toolTipTimer = None
 
     def save(self, required=False):
+        if not self.deck.modifiedSinceSave():
+            return True
         if not self.deck.path:
             if required:
                 # backed in memory, make sure it's saved
@@ -1002,8 +1004,6 @@ Careful. You're editing an unsaved Deck.<br>
 Choose File -> Save to start autosaving<br>
 your deck."""))
             return
-        if not self.deck.modifiedSinceSave():
-            return True
         self.deck.save()
         self.updateTitleBar()
         return True
