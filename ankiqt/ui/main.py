@@ -785,7 +785,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onClose(self):
-        if self.inMainWindow():
+        if self.inMainWindow() or not self.app.activeWindow():
             isCram = self.isCramming()
             self.saveAndClose(hideWelcome=isCram)
             if isCram:
