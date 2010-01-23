@@ -427,7 +427,7 @@ class FactEditor(object):
         elif sys.platform.startswith("win32"):
             extra = 3
         else:
-            extra = -1
+            extra = 2
         tagsw = self.tagsLabel.sizeHint().width()
         self.tagsLabel.setFixedWidth(max(tagsw,
                                          max(*([
