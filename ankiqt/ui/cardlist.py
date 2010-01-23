@@ -185,10 +185,7 @@ interval, factor, noCount, priority, (select tags from facts where
 facts.id = cards.factId), (select created from facts where
 facts.id = cards.factId) from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
-            if ankiqt.ui.utils.pyQtBroken:
-                raise
-            self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"),
-                      index, self.index(index.row(), 1))
+            self.emit(SIGNAL("layoutChanged()"))
         except:
             # called after search changed
             pass
