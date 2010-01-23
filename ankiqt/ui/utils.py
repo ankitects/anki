@@ -233,15 +233,21 @@ class ProgressWin(object):
         self.diag.setCancelButton(None)
         self.diag.setAutoClose(False)
         self.diag.setAutoReset(False)
-        self.diag.setMinimumDuration(0)
-        self.diag.show()
+        # qt doesn't seem to honour this consistently, and it's not triggered
+        # by the db progress handler, so we set it high and use maybeShow() below
+        self.diag.setMinimumDuration(100000)
         self.counter = min
         self.min = min
         self.max = max
+        self.firstTime = time.time()
         self.lastTime = time.time()
         self.app = QApplication.instance()
         if max == 0:
             self.diag.setLabelText(_("Processing..."))
+
+    def maybeShow(self):
+        if time.time() - self.firstTime > 2:
+            self.diag.show()
 
     def update(self, label=None, value=None, process=True):
         #print self.min, self.counter, self.max, label, time.time() - self.lastTime

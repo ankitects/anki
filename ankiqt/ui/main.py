@@ -2604,6 +2604,8 @@ it to your friends.
             return
         self.setBusy()
         self.inDbHandler = True
+        if self.progressWins:
+            self.progressWins[0].maybeShow()
         self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
         self.inDbHandler = False
 
