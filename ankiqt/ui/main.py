@@ -1255,7 +1255,7 @@ later by using File>Close.
                             help="DeckBrowser"):
             self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
             del self.browserDecks[c]
-        self.showDeckBrowser()
+            self.showDeckBrowser()
 
     def onDeckBrowserDelete(self, c):
         deck = self.browserDecks[c]['path']
@@ -1263,7 +1263,7 @@ later by using File>Close.
             del self.browserDecks[c]
             os.unlink(deck)
             self.config['recentDeckPaths'].remove(deck)
-        self.showDeckBrowser()
+            self.showDeckBrowser()
 
     # Opening and closing the app
     ##########################################################################
