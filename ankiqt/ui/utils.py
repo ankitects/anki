@@ -251,6 +251,7 @@ class ProgressWin(object):
 
     def update(self, label=None, value=None, process=True):
         #print self.min, self.counter, self.max, label, time.time() - self.lastTime
+        self.maybeShow()
         self.lastTime = time.time()
         if label:
             self.diag.setLabelText(label)
