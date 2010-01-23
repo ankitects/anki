@@ -1930,7 +1930,7 @@ http://anki.ichi2.net/file/upload</a>, or email
 it to your friends.
 </body></html>''')
         readme.close()
-        zip.write(readmep, "README.txt")
+        zip.write(readmep, "README.html")
         zip.write(path, "shared.anki")
         if mdir:
             for f in os.listdir(mdir):
