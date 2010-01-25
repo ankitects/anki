@@ -2540,12 +2540,7 @@ it to your friends.
     ##########################################################################
 
     def setupStyle(self):
-        try:
-            styleFile = open(os.path.join(self.config.configPath,
-                                          "style.css"))
-            self.setStyleSheet(styleFile.read())
-        except (IOError, OSError):
-            pass
+        ui.utils.applyStyles(self)
 
     # Sounds
     ##########################################################################

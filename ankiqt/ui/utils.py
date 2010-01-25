@@ -205,6 +205,14 @@ def mungeQA(deck, txt):
                       "font-weight: 900;")
     return txt
 
+def applyStyles(widget):
+    try:
+        styleFile = open(os.path.join(ankiqt.mw.config.configPath,
+                                      "style.css"))
+        widget.setStyleSheet(styleFile.read())
+    except (IOError, OSError):
+        pass
+
 def getBase(deck, card):
     base = None
     if deck and card:

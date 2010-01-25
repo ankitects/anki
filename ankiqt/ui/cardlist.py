@@ -14,7 +14,8 @@ from anki.facts import factsTable, fieldsTable, Fact
 from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
      stripHTML, ids2str
 from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
-from ankiqt.ui.utils import saveHeader, restoreHeader, saveState, restoreState
+from ankiqt.ui.utils import saveHeader, restoreHeader, saveState, \
+     restoreState, applyStyles
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats
@@ -336,6 +337,7 @@ class EditDeck(QMainWindow):
         else:
             windParent = parent
         QMainWindow.__init__(self, windParent)
+        applyStyles(self)
         self.parent = parent
         self.deck = self.parent.deck
         self.config = parent.config

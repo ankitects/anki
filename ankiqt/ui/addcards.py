@@ -29,6 +29,7 @@ class AddCards(QDialog):
             windParent = parent
         QDialog.__init__(self, windParent, Qt.Window)
         self.parent = parent
+        ui.utils.applyStyles(self)
         self.config = parent.config
         self.dialog = ankiqt.forms.addcards.Ui_AddCards()
         self.dialog.setupUi(self)
