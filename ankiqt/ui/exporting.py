@@ -61,7 +61,7 @@ class ExportDialog(QDialog):
 
     def accept(self):
         if isinstance(self.exporter, PackagedAnkiExporter):
-            self.parent.onShare(parseTags(unicode(self.tags.text())))
+            self.parent.onShare(unicode(self.tags.text()))
             return QDialog.accept(self)
         file = ui.utils.getSaveFile(self, _("Choose file to export to"), "export",
                                     self.exporter.key, self.exporter.ext)
