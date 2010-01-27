@@ -52,7 +52,7 @@ class View(object):
         "Idempotently display the current state (prompt for question, etc)"
         if self.state == "noDeck" or self.state == "studyScreen":
             return
-        self.clearWindow()
+        self.buffer = ""
         self.haveTop = (self.main.lastCard and (
             self.main.config['showLastCardContent'] or
             self.main.config['showLastCardInterval'])) or (
@@ -196,7 +196,7 @@ class View(object):
             txt = txt.replace("</span>", "&#8203;</span>")
         return txt
 
-    def onLoadFinished(self):
+    def onLoadFinished(self, bool):
         if self.state == "showAnswer":
             if self.main.config['scrollToAnswer']:
                 mf = self.body.page().mainFrame()
