@@ -5,10 +5,11 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki, anki.utils
-from anki.sound import playFromText, stripSounds
+from anki.sound import playFromText
 from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
 from anki.hooks import runHook, runFilter
+from anki.media import stripMedia
 import types, time, re, os, urllib, sys, difflib
 from ankiqt import ui
 from ankiqt.ui.utils import mungeQA, getBase
@@ -175,8 +176,8 @@ class View(object):
         a = runFilter("drawAnswer", a, self.main.currentCard)
         if self.main.currentCard.cardModel.typeAnswer:
             try:
-                cor = stripHTML(self.main.currentCard.fact[
-                    self.main.currentCard.cardModel.typeAnswer])
+                cor = stripMedia(stripHTML(self.main.currentCard.fact[
+                    self.main.currentCard.cardModel.typeAnswer]))
             except KeyError:
                 self.main.currentCard.cardModel.typeAnswer = ""
                 cor = ""
