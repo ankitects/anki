@@ -119,6 +119,11 @@ def mediaRefs(string):
             l.append((full, fname, repl))
     return l
 
+def stripMedia(txt):
+    for (reg, x) in regexps:
+        txt = re.sub(reg, "", txt)
+    return txt
+
 # Rebuilding DB
 ##########################################################################
 
