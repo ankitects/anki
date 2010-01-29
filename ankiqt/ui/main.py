@@ -632,8 +632,14 @@ new:
         self.mainWin.buttonStack.setLayoutDirection(Qt.LeftToRight)
         if self.defaultEaseButton() == 2:
             self.mainWin.easeButton2.setFocus()
+            self.mainWin.easeButton2.setText(_("Good"))
+            self.mainWin.easeButton3.setText(_("Easy"))
+            self.mainWin.easeButton4.setText(_("Very Easy"))
         else:
             self.mainWin.easeButton3.setFocus()
+            self.mainWin.easeButton2.setText(_("Hard"))
+            self.mainWin.easeButton3.setText(_("Good"))
+            self.mainWin.easeButton4.setText(_("Easy"))
 
     def defaultEaseButton(self):
         if self.currentCard.reps and not self.currentCard.successive:
