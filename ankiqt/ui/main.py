@@ -1090,6 +1090,7 @@ your deck."""))
                     toRemove.append(d)
                 continue
             try:
+                mod = os.stat(d)[stat.ST_MTIME]
                 deck = DeckStorage.Deck(d, backup=False)
                 self.browserDecks.append({
                     'path': d,
@@ -1101,6 +1102,7 @@ your deck."""))
                     'reps': deck._dailyStats.reps,
                     })
                 deck.close()
+                os.utime(d, (mod, mod))
             except Exception, e:
                 if "File is in use" in str(e):
                     continue
