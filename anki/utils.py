@@ -64,9 +64,9 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False):
         fmt = shortTimeTable[type]
     else:
         if after:
-            fmt = afterTimeTable[type](_pluralCount(round(time, point)))
+            fmt = afterTimeTable[type](_pluralCount(time, point))
         else:
-            fmt = timeTable[type](_pluralCount(round(time, point)))
+            fmt = timeTable[type](_pluralCount(time, point))
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
     return locale.format_string("%" + (fmt % timestr), time)
 
@@ -103,10 +103,10 @@ def convertSecondsTo(seconds, type):
         return seconds / 31536000.0
     assert False
 
-def _pluralCount(time):
-    if round(time, 1) == 1:
-        return 1
-    return round(time, 1)
+def _pluralCount(time, point):
+    if point:
+        return 2
+    return round(time)
 
 # Locale
 ##############################################################################
