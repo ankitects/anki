@@ -2695,6 +2695,7 @@ Proceed?""")):
         ret = self.deck.fixIntegrity()
         if ret == "ok":
             ret = True
+            ui.utils.showInfo(_("No problems found."))
         else:
             ret = _("Problems found:\n%s") % ret
             diag = QDialog(self)
