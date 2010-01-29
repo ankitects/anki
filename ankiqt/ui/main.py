@@ -1074,7 +1074,7 @@ your deck."""))
         self.browserLastRefreshed = 0
         self.browserDecks = []
 
-    def refreshBrowserDecks(self):
+    def refreshBrowserDecks(self, forget=False):
         self.browserDecks = []
         if not self.config['recentDeckPaths']:
             return
@@ -1086,6 +1086,8 @@ your deck."""))
                 self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
                     'x': c+1, 'y': len(self.config['recentDeckPaths'])})
             if not os.path.exists(d):
+                if forget:
+                    toRemove.append(d)
                 continue
             try:
                 deck = DeckStorage.Deck(d, backup=False)
@@ -1243,11 +1245,22 @@ your deck."""))
             refresh.setShortcut(_("F5"))
             self.connect(refresh, SIGNAL("clicked()"),
                          self.forceBrowserRefresh)
-            layout.addWidget(refresh, c+2, 5)
+            layout.addItem(QSpacerItem(1,20, QSizePolicy.Preferred,
+                                       QSizePolicy.Preferred), c+2, 5)
+            layout.addWidget(refresh, c+3, 5)
+            more = QPushButton(_("More"))
+            moreMenu = QMenu()
+            a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
+                                   _("Forget Inaccessible Decks"))
+            a.connect(a, SIGNAL("activated()"),
+                      self.onDeckBrowserForgetInaccessible)
+            more.setMenu(moreMenu)
+            layout.addWidget(more, c+3, 6)
+            self.moreMenus.append(moreMenu)
             # make sure top labels don't expand
             layout.addItem(QSpacerItem(1,1, QSizePolicy.Expanding,
                                        QSizePolicy.Expanding),
-                           c+3, 5)
+                           c+4, 5)
             # summarize
             reps = 0
             mins = 0
@@ -1293,6 +1306,9 @@ later by using File>Close.
             os.unlink(deck)
             self.config['recentDeckPaths'].remove(deck)
             self.showDeckBrowser()
+
+    def onDeckBrowserForgetInaccessible(self):
+        self.refreshBrowserDecks(forget=True)
 
     # Opening and closing the app
     ##########################################################################
