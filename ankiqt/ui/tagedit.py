@@ -36,15 +36,19 @@ class TagEdit(QLineEdit):
 
     def keyPressEvent(self, evt):
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+            oldtxt = self.text()
             if not self.text():
                 evt.ignore()
             else:
-                evt.accept()
                 if self.completer.completionCount():
                     self.setText(
                         self.completer.pathFromIndex(self.completer.popup().currentIndex()))
                 else:
                     self.setText(self.completer.completionPrefix())
+                if self.text() == oldtxt:
+                    evt.ignore()
+                else:
+                    evt.accept()
             self.completer.popup().hide()
             return
         QLineEdit.keyPressEvent(self, evt)
