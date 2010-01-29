@@ -642,7 +642,7 @@ new:
             self.mainWin.easeButton4.setText(_("Easy"))
 
     def defaultEaseButton(self):
-        if self.currentCard.reps and not self.currentCard.successive:
+        if not self.currentCard.successive:
             return 2
         else:
             return 3
