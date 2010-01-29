@@ -70,24 +70,6 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False):
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
     return locale.format_string("%" + (fmt % timestr), time)
 
-def fmtTimeSpanPair(time1, time2, short=False, after=False):
-    (type, point) = optimalPeriod(time1, 0)
-    time1 = convertSecondsTo(time1, type)
-    time2 = convertSecondsTo(time2, type)
-    # a pair is always  should always be read as plural
-    if short:
-        fmt = shortTimeTable[type]
-    else:
-        if after:
-            fmt = afterTimeTable[type](2)
-        else:
-            fmt = timeTable[type](2)
-    timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
-    finalstr = "%s-%s" % (
-        locale.format_string('%' + timestr, time1),
-        locale.format_string('%' + timestr, time2),)
-    return fmt % finalstr
-
 def optimalPeriod(time, point):
     if abs(time) < 60:
         type = "seconds"
