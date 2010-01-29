@@ -2832,12 +2832,18 @@ Consider backing up your media directory first."""))
             s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
             s.beginGroup("CurrentVersion/Explorer/Shell Folders")
             self.documentDir = unicode(s.value("Personal").toString())
-            if not os.path.exists(self.documentDir):
-                self.documentDir = os.path.expanduser("~/.anki")
+            if os.path.exists(self.documentDir):
+                self.documentDir = os.path.join(self.documentDir, "Anki")
+            else:
+                self.documentDir = os.path.expanduser("~/.anki/decks")
         elif sys.platform.startswith("darwin"):
-            self.documentDir = os.path.expanduser("~/Documents")
+            self.documentDir = os.path.expanduser("~/Documents/Anki")
         else:
-            self.documentDir = os.path.expanduser("~/.anki")
+            self.documentDir = os.path.expanduser("~/.anki/decks")
+        try:
+            os.mkdir(self.documentDir)
+        except (OSError, IOError):
+            pass
 
     def changeLayoutSpacing(self):
         if sys.platform.startswith("darwin"):
