@@ -1281,7 +1281,7 @@ your deck."""))
                 "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today.",
                 reps) % {
                 'reps': reps,
-                'time': anki.utils.fmtTimeSpan(mins),
+                'time': anki.utils.fmtTimeSpan(mins, point=2),
                 })
         else:
             l = QLabel(_("""\
