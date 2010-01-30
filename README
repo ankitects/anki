@@ -3,7 +3,7 @@ Anki
 
 Prerequisites for Linux/FreeBSD/etc:
 
-- a recent python (2.4 should be fine)
+- a recent Python (2.4 should be fine)
 - python-qt/pyqt 4.4+
 - sqlalchemy 0.4.3+
 - simplejson 1.7.3+
@@ -44,3 +44,15 @@ $ anki
 For more information and the latest version, please see the website at:
 
 http://ichi2.net/anki/
+
+Notes
+-------------------------------------
+
+There is a known issue with pysqlite 2.5.2-2.5.5 and older versions of
+sqlalchemy. Either downgrade pysqlite to 2.5.1, or upgrade sqlalchemy to
+0.5.3.
+
+If you are unable to find pyqt 4.4+ in your distro and you run Ubuntu, you can
+get it by adding the following to your /etc/sources.list:
+
+deb http://ppa.launchpad.net/kubuntu-members-kde4/ubuntu hardy main
