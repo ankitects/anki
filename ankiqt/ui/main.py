@@ -332,6 +332,7 @@ Please do not file a bug report with Anki.<br>""")
             self.switchToWelcomeScreen()
             self.disableCardMenuItems()
         elif state == "deckFinished":
+            self.currentCard = None
             self.deck.s.flush()
             self.hideButtons()
             self.disableCardMenuItems()
