@@ -984,7 +984,7 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
 
     def cardIsBeingLearnt(self, card):
         "True if card should use present intervals."
-        return card.interval < 7
+        return card.lastInterval < 7
 
     def cardIsYoung(self, card):
         "True if card is not new and not mature."
