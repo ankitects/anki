@@ -122,6 +122,7 @@ class Deck(object):
 
     factorFour = 1.3
     initialFactor = 2.5
+    minimumAverage = 1.7
     maxScheduleTime = 36500
 
     def __init__(self, path=None):
@@ -696,6 +697,7 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         self.averageFactor = (self.s.scalar(
             "select avg(factor) from cards where type = 1")
                                or Deck.initialFactor)
+        self.averageFactor = max(self.averageFactor, Deck.minimumAverage)
         # recache css
         self.rebuildCSS()
 
