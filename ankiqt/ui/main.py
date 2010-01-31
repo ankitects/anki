@@ -342,6 +342,7 @@ Please do not file a bug report with Anki.<br>""")
             self.bodyView.setState(state)
             # focus finish button
             self.mainWin.finishButton.setFocus()
+            runHook('deckFinished')
         elif state == "showQuestion":
             self.reviewingStarted = True
             if self.deck.mediaDir():
@@ -1691,6 +1692,7 @@ learnt today")
 
     def onCardStats(self):
         addHook("showQuestion", self.onCardStats)
+        addHook("deckFinished", self.onCardStats)
         txt = ""
         if self.currentCard:
             txt += _("<h1>Current card</h1>")
@@ -1705,6 +1707,7 @@ learnt today")
     def removeCardStatsHook(self):
         "Remove the update hook if the help menu was changed."
         removeHook("showQuestion", self.onCardStats)
+        removeHook("deckFinished", self.onCardStats)
 
     def onShowGraph(self):
         if ui.utils.pyQtBroken:
