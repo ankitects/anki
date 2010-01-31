@@ -519,14 +519,9 @@ where id != :id and factId = :factId""",
         if not card.reps:
             # card is new, inherit beginning factor
             card.factor = self.averageFactor
-        if self.cardIsBeingLearnt(card) and ease in [0, 1, 2]:
-            # only penalize failures after success when starting
-            if card.successive and ease != 2:
-                card.factor -= 0.20
-        elif ease in [0, 1]:
-            card.factor -= 0.20
-        elif ease == 2:
-            card.factor -= 0.15
+        if ease == 2:
+            if card.successive and not self.cardIsBeingLearnt(card):
+                card.factor -= 0.15
         elif ease == 4:
             card.factor += 0.10
         card.factor = max(1.3, card.factor)
@@ -985,7 +980,7 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
 
     def cardIsBeingLearnt(self, card):
         "True if card should use present intervals."
-        return card.interval < self.easyIntervalMin
+        return card.interval < 7
 
     def cardIsYoung(self, card):
         "True if card is not new and not mature."
