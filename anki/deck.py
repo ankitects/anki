@@ -519,10 +519,12 @@ where id != :id and factId = :factId""",
         if not card.reps:
             # card is new, inherit beginning factor
             card.factor = self.averageFactor
-        if ease == 2:
-            if card.successive and not self.cardIsBeingLearnt(card):
+        if card.successive and not self.cardIsBeingLearnt(card):
+            if ease == 1:
+                card.factor -= 0.20
+            elif ease == 2:
                 card.factor -= 0.15
-        elif ease == 4:
+        if ease == 4:
             card.factor += 0.10
         card.factor = max(1.3, card.factor)
 
