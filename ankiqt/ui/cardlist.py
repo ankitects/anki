@@ -1026,6 +1026,7 @@ where id in %s""" % ids2str(sf))
         sm.blockSignals(False)
         self.deck.finishProgress()
         self.updateFilterLabel()
+        self.updateAfterCardChange()
 
     def invertSelection(self):
         sm = self.dialog.tableView.selectionModel()
