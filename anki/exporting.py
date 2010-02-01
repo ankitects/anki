@@ -8,7 +8,7 @@ Exporting support
 """
 __docformat__ = 'restructuredtext'
 
-import itertools, time, re
+import itertools, time, re, os
 from operator import itemgetter
 from anki import DeckStorage
 from anki.cards import Card
@@ -77,6 +77,10 @@ class AnkiExporter(Exporter):
             n += 1
         self.deck.startProgress(n)
         self.deck.updateProgress(_("Exporting..."))
+        try:
+            os.unlink(path)
+        except (IOError, OSError):
+            pass
         self.newDeck = DeckStorage.Deck(path)
         client = SyncClient(self.deck)
         server = SyncServer(self.newDeck)
