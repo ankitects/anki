@@ -767,7 +767,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.switchDecks = (
             [(os.path.basename(x).replace(".anki", ""), x)
              for x in self.config['recentDeckPaths']
-             if not self.deck or self.deck.path != x])
+             if not self.deck or self.deck.path != x and
+             os.path.exists(x)])
         self.switchDecks.sort()
         combo.addItems(QStringList([x[0] for x in self.switchDecks]))
         self.connect(combo, SIGNAL("activated(int)"),
