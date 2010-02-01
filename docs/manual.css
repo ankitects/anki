@@ -14,7 +14,7 @@ body blockquote {
 }
 
 html body {
-  margin: 1em 5% 1em 5%;
+  width: 65em; margin: 0 auto 0;
   line-height: 1.2;
 }
 
