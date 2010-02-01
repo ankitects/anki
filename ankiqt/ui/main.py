@@ -281,6 +281,7 @@ Please do not file a bug report with Anki.<br>""")
                 return self.moveToState("noDeck")
         elif state == "auto":
             self.currentCard = None
+            self.lastCard = None
             if self.deck:
                 if self.state == "studyScreen":
                     return self.moveToState("studyScreen")
