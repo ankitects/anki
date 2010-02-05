@@ -30,71 +30,76 @@ config = ankiqt.config
 class AnkiQt(QMainWindow):
     def __init__(self, app, config, args):
         QMainWindow.__init__(self)
-        self.errorOccurred = False
-        self.inDbHandler = False
-        self.reviewingStarted = False
-        if sys.platform.startswith("darwin"):
-            qt_mac_set_menubar_icons(False)
-        ankiqt.mw = self
-        self.app = app
-        self.config = config
-        self.deck = None
-        self.state = "initial"
-        self.hideWelcome = False
-        self.views = []
-        self.setLang()
-        self.setupStyle()
-        self.setupFonts()
-        self.setupBackupDir()
-        self.setupProxy()
-        self.setupMainWindow()
-        self.setupDeckBrowser()
-        self.setupSystemHacks()
-        self.setupSound()
-        self.setupTray()
-        self.connectMenuActions()
-        ui.splash.update()
-        self.setupViews()
-        self.setupEditor()
-        self.setupStudyScreen()
-        self.setupButtons()
-        self.setupAnchors()
-        self.setupToolbar()
-        self.setupProgressInfo()
-        self.setupBackups()
-        if self.config['mainWindowState']:
-            self.restoreGeometry(self.config['mainWindowGeom'])
-            self.restoreState(self.config['mainWindowState'])
-        else:
-            self.resize(500, 500)
-        # load deck
-        ui.splash.update()
-        if (args or self.config['loadLastDeck'] or
-            len(self.config['recentDeckPaths']) == 1) and \
-            not self.maybeLoadLastDeck(args):
-            self.setEnabled(True)
-        self.moveToState("auto")
-        # check for updates
-        ui.splash.update()
-        self.setupErrorHandler()
-        self.setupMisc()
-        self.loadPlugins()
-        self.setupAutoUpdate()
-        self.rebuildPluginsMenu()
-        # run after-init hook
         try:
-            runHook('init')
+            self.errorOccurred = False
+            self.inDbHandler = False
+            self.reviewingStarted = False
+            if sys.platform.startswith("darwin"):
+                qt_mac_set_menubar_icons(False)
+            ankiqt.mw = self
+            self.app = app
+            self.config = config
+            self.deck = None
+            self.state = "initial"
+            self.hideWelcome = False
+            self.views = []
+            self.setLang()
+            self.setupStyle()
+            self.setupFonts()
+            self.setupBackupDir()
+            self.setupProxy()
+            self.setupMainWindow()
+            self.setupDeckBrowser()
+            self.setupSystemHacks()
+            self.setupSound()
+            self.setupTray()
+            self.connectMenuActions()
+            ui.splash.update()
+            self.setupViews()
+            self.setupEditor()
+            self.setupStudyScreen()
+            self.setupButtons()
+            self.setupAnchors()
+            self.setupToolbar()
+            self.setupProgressInfo()
+            self.setupBackups()
+            if self.config['mainWindowState']:
+                self.restoreGeometry(self.config['mainWindowGeom'])
+                self.restoreState(self.config['mainWindowState'])
+            else:
+                self.resize(500, 500)
+            # load deck
+            ui.splash.update()
+            if (args or self.config['loadLastDeck'] or
+                len(self.config['recentDeckPaths']) == 1) and \
+                not self.maybeLoadLastDeck(args):
+                self.setEnabled(True)
+            self.moveToState("auto")
+            # check for updates
+            ui.splash.update()
+            self.setupErrorHandler()
+            self.setupMisc()
+            self.loadPlugins()
+            self.setupAutoUpdate()
+            self.rebuildPluginsMenu()
+            # run after-init hook
+            try:
+                runHook('init')
+            except:
+                ui.utils.showWarning(
+                    _("Broken plugin:\n\n%s") %
+                    unicode(traceback.format_exc(), "utf-8", "replace"))
+            ui.splash.update()
+            ui.splash.finish(self)
+            self.show()
+            if (self.deck and self.config['syncOnLoad'] and
+                self.deck.syncName):
+                self.syncDeck(interactive=False)
+            signal.signal(signal.SIGINT, self.onSigInt)
         except:
-            ui.utils.showWarning(
-                _("Broken plugin:\n\n%s") %
-                unicode(traceback.format_exc(), "utf-8", "replace"))
-        ui.splash.update()
-        ui.splash.finish(self)
-        self.show()
-        if (self.deck and self.config['syncOnLoad'] and
-            self.deck.syncName):
-            self.syncDeck(interactive=False)
-        signal.signal(signal.SIGINT, self.onSigInt)
+            ui.utils.showInfo("Error during startup:\n%s" %
+                              traceback.format_exc())
+            sys.exit(1)
 
     def onSigInt(self, signum, frame):
         self.close()
