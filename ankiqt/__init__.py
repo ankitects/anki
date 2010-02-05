@@ -164,11 +164,6 @@ def run():
     conf = ankiqt.config.Config(
         unicode(os.path.abspath(opts.config), sys.getfilesystemencoding()))
 
-    # backups
-    from anki import DeckStorage
-    DeckStorage.backupDir = os.path.join(conf.configPath,
-                                         "backups")
-
     # qt translations
     translationPath = ''
     if 'linux' in sys.platform or 'unix' in sys.platform:
