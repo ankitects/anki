@@ -966,12 +966,13 @@ where id in %s""" % ids2str(sf))
         facts = self.deck.s.query(Fact).filter(
             text("id in %s" % ids2str(sf))).order_by(Fact.created).all()
         self.deck.updateProgress(_("Generating Cards..."))
+        ids = []
         for c, fact in enumerate(facts):
-            self.deck.addCards(fact, d.selectedCms)
+            ids.extend(self.deck.addCards(fact, d.selectedCms))
             if c % 50 == 0:
                 self.deck.updateProgress()
         self.deck.flushMod()
-        self.deck.updateAllPriorities()
+        self.deck.updatePriorities(ids)
         self.deck.finishProgress()
         self.parent.setProgressParent(None)
         self.deck.setUndoEnd(n)
