@@ -3381,7 +3381,8 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             re.sub("\.anki$", ".backup-%s.anki" % n, escp)))
         shutil.copy2(path, newpath)
         # set mtimes to be identical
-        os.utime(newpath, (deck.modified, deck.modified))
+        if deck.modified:
+            os.utime(newpath, (deck.modified, deck.modified))
         # remove if over
         if len(backups) + 1 > numBackups:
             delete = len(backups) + 1 - numBackups
