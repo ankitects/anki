@@ -2142,12 +2142,11 @@ it to your friends.
         self.mainWin.buttonStack.show()
         if self.loadAfterSync:
             if self.loadAfterSync == 2:
-                p = os.path.join(self.documentDir,
-                                              self.syncName + ".anki")
+                name = re.sub("[<>]", "", self.syncName)
+                p = os.path.join(self.documentDir, name + ".anki")
                 if os.path.exists(p):
                     p = os.path.join(self.documentDir,
-                                     self.syncName + "%d.anki"
-                                     % time.time())
+                                     name + "%d.anki" % time.time())
                 shutil.copy2(self.deckPath, p)
                 self.deckPath = p
             self.loadDeck(self.deckPath, sync=False)
