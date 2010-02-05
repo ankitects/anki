@@ -1383,18 +1383,16 @@ class ChangeModelDialog(QDialog):
         # check maps
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
-        def any(l):
-            for x in l:
-                if x:
-                    return True
-            return False
         if not cmap or (self.targetModel != self.oldModel and
                         not fmap):
             return ui.utils.showInfo(
                 _("Targets must be unique."), parent=self)
-        if not any(cmap.values()):
-            return ui.utils.showInfo(
-                _("Must map at least one template."), parent=self)
+        if [c for c in cmap.values() if not c]:
+            if not ui.utils.askUser(_("""\
+Any cards with templates mapped to nothing will be deleted.
+If a fact has no remaining cards, it will be lost.
+Are you sure you want to continue?"""), parent=self):
+                return
         if self.targetModel == self.oldModel:
             self.ret = (self.targetModel, None, cmap)
             return QDialog.accept(self)
