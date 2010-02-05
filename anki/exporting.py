@@ -54,7 +54,8 @@ class Exporter(object):
         if not self.limitTags:
             cards = self.deck.s.column0("select id from cards")
         else:
-            d = tagIds(self.deck.s, self.limitTags)
+            d = tagIds(self.deck.s, self.limitTags, create=False)
+            print d
             cards = self.deck.s.column0(
                 "select cardId from cardTags where tagid in %s" %
                 ids2str(d.values()))

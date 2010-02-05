@@ -36,21 +36,22 @@ primary key(id))""")
     except:
         pass
 
-def tagId(s, tag):
+def tagId(s, tag, create=True):
     "Return ID for tag, creating if necessary."
     id = s.scalar("select id from tags where tag = :tag", tag=tag)
-    if id:
+    if id or not create:
         return id
     s.statement("""
 insert or ignore into tags
 (tag) values (:tag)""", tag=tag)
     return s.scalar("select id from tags where tag = :tag", tag=tag)
 
-def tagIds(s, tags):
+def tagIds(s, tags, create=True):
     "Return an ID for all tags, creating if necessary."
     ids = {}
-    s.statements("insert or ignore into tags (tag) values (:tag)",
-                [{'tag': t} for t in tags])
+    if create:
+        s.statements("insert or ignore into tags (tag) values (:tag)",
+                    [{'tag': t} for t in tags])
     tagsD = dict([(x.lower(), y) for (x, y) in s.all("""
 select tag, id from tags
 where tag in (%s)""" % ",".join([
