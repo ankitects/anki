@@ -1107,6 +1107,7 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
 
     def addCards(self, fact, cardModelIds):
         "Caller must flush first, flushMod after, rebuild priorities."
+        ids = []
         for cardModel in self.availableCardModels(fact, False):
             if cardModel.id not in cardModelIds:
                 continue
@@ -1120,7 +1121,9 @@ where factId = :fid and cardModelId = :cmid""",
                     self.updatePriority(card)
                     self.cardCount += 1
                     self.newCount += 1
+                    ids.append(card.id)
         self.setModified()
+        return ids
 
     def factIsInvalid(self, fact):
         "True if existing fact is invalid. Returns the error."
