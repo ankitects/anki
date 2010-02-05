@@ -321,7 +321,8 @@ type, due, interval, factor, priority from """
 cards where type = 0 and isDue = 1 and
 combinedDue <= :now limit 30""", now=time.time())
         d['rev'] = self.s.all(sel + rev + " limit 30")
-        if self.newCountToday:
+        if self.newCountToday and (self.newCardSpacing != NEW_CARDS_LAST or
+                                   not d['rev']):
             d['acq'] = self.s.all(sel + """
 %s where factId in (select distinct factId from cards
 where factId in (select factId from %s limit 60))""" % (new, new))
