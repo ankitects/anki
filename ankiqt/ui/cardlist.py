@@ -1385,18 +1385,19 @@ class ChangeModelDialog(QDialog):
         cmap = self.getTemplateMap()
         if not cmap or (self.targetModel != self.oldModel and
                         not fmap):
-            return ui.utils.showInfo(
+            ui.utils.showInfo(
                 _("Targets must be unique."), parent=self)
+            return
         if [c for c in cmap.values() if not c]:
             if not ui.utils.askUser(_("""\
 Any cards with templates mapped to nothing will be deleted.
 If a fact has no remaining cards, it will be lost.
 Are you sure you want to continue?"""), parent=self):
                 return
+        self.modelChooser.deinit()
         if self.targetModel == self.oldModel:
             self.ret = (self.targetModel, None, cmap)
             return QDialog.accept(self)
-        self.modelChooser.deinit()
         self.ret = (self.targetModel, fmap, cmap)
         return QDialog.accept(self)
 
