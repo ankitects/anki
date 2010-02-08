@@ -2271,6 +2271,7 @@ Return new path, relative to media dir."""
             os.unlink(newPath)
         except OSError:
             pass
+        self.startProgress()
         # copy tables, avoiding implicit commit on current db
         DeckStorage.Deck(newPath).close()
         new = sqlite.connect(newPath)
@@ -2285,8 +2286,12 @@ Return new path, relative to media dir."""
             q += ",".join(["'||quote(\"" + col + "\")||'" for col in cols])
             q += ")' from %(table)s"
             q = q % {'table': table}
+            c = 0
             for row in self.s.execute(q):
                 new.execute(row[0])
+                if c % 1000:
+                    self.updateProgress()
+                c += 1
         # save new, close both
         new.commit()
         new.close()
@@ -2300,6 +2305,7 @@ Return new path, relative to media dir."""
         newDeck.syncName = None
         newDeck.s.commit()
         # and return the new deck
+        self.finishProgress()
         return newDeck
 
     # DB maintenance
