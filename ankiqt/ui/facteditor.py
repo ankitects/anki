@@ -898,7 +898,8 @@ class FactEditor(object):
     def onAddSound(self):
         # get this before we open the dialog
         w = self.focusedEdit()
-        key = _("Sounds/Videos (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov)")
+        key = _("Sounds/Videos (*.mp3 *.ogg *.wav *.avi *.ogv "
+                "*.mpg *.mpeg *.mov *.mp4 *.mkv)")
         file = ui.utils.getFile(self.parent, _("Add audio"), "audio", key)
         if not file:
             return
