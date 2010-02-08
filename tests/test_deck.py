@@ -61,17 +61,33 @@ def test_saveAs():
         os.unlink(path)
     except OSError:
         pass
+    path2 = "/tmp/test_saveAs2.anki"
+    try:
+        os.unlink(path2)
+    except OSError:
+        pass
+    # start with an in-memory deck
     deck = DeckStorage.Deck()
     deck.addModel(BasicModel())
     # add a card
     f = deck.newFact()
     f['Front'] = u"foo"; f['Back'] = u"bar"
     deck.addFact(f)
+    assert deck.cardCount == 1
     # save in new deck
     newDeck = deck.saveAs(path)
     assert newDeck.cardCount == 1
+    # delete card
+    id = newDeck.s.scalar("select id from cards")
+    newDeck.deleteCard(id)
+    # save into new deck
+    newDeck2 = newDeck.saveAs(path2)
+    # new deck should have zero cards
+    assert newDeck2.cardCount == 0
+    # but old deck should have reverted the unsaved changes
+    newDeck = DeckStorage.Deck(path)
+    assert newDeck.cardCount == 1
     newDeck.close()
-    deck.close()
 
 def test_factAddDelete():
     deck = DeckStorage.Deck()

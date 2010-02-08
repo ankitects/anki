@@ -2263,6 +2263,7 @@ Return new path, relative to media dir."""
         self.s.flush()
 
     def saveAs(self, newPath):
+        "Returns new deck. Old connection is closed without saving."
         oldMediaDir = self.mediaDir()
         self.s.flush()
         # remove new deck if it exists
@@ -2270,43 +2271,32 @@ Return new path, relative to media dir."""
             os.unlink(newPath)
         except OSError:
             pass
-        # setup new db tables, then close
-        newDeck = DeckStorage.Deck(newPath)
-        newDeck.close()
-        # attach new db and copy everything in
-        s = self.s.statement
-        s("attach database :path as new", path=newPath)
-        s("delete from new.decks")
-        s("delete from new.stats")
-        s("delete from new.tags")
-        s("delete from new.cardTags")
-        s("delete from new.deckVars")
-        s("insert into new.decks select * from decks")
-        s("insert into new.fieldModels select * from fieldModels")
-        s("insert into new.modelsDeleted select * from modelsDeleted")
-        s("insert into new.cardModels select * from cardModels")
-        s("insert into new.facts select * from facts")
-        s("insert into new.fields select * from fields")
-        s("insert into new.cards select * from cards")
-        s("insert into new.factsDeleted select * from factsDeleted")
-        s("insert into new.reviewHistory select * from reviewHistory")
-        s("insert into new.cardsDeleted select * from cardsDeleted")
-        s("insert into new.models select * from models")
-        s("insert into new.stats select * from stats")
-        s("insert into new.media select * from media")
-        s("insert into new.tags select * from tags")
-        s("insert into new.cardTags select * from cardTags")
-        s("insert into new.deckVars select * from deckVars")
-        s("detach database new")
-        # close ourselves
-        self.s.commit()
+        # copy tables, avoiding implicit commit on current db
+        DeckStorage.Deck(newPath).close()
+        new = sqlite.connect(newPath)
+        for table in self.s.column0(
+            "select name from sqlite_master where type = 'table'"):
+            if table.startswith("sqlite_"):
+                continue
+            new.execute("delete from %s" % table)
+            cols = [str(x[1]) for x in new.execute(
+                "pragma table_info('%s')" % table).fetchall()]
+            q = "select 'insert into %(table)s values("
+            q += ",".join(["'||quote(\"" + col + "\")||'" for col in cols])
+            q += ")' from %(table)s"
+            q = q % {'table': table}
+            for row in self.s.execute(q):
+                new.execute(row[0])
+        # save new, close both
+        new.commit()
+        new.close()
         self.close()
-        # open new db
+        # open again in orm
         newDeck = DeckStorage.Deck(newPath)
         # move media
         if oldMediaDir:
             newDeck.renameMediaDir(oldMediaDir)
-        # and return the new deck object
+        # and return the new deck
         return newDeck
 
     # DB maintenance
