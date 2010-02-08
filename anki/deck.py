@@ -2296,6 +2296,9 @@ Return new path, relative to media dir."""
         # move media
         if oldMediaDir:
             newDeck.renameMediaDir(oldMediaDir)
+        # forget sync name
+        newDeck.syncName = None
+        newDeck.s.commit()
         # and return the new deck
         return newDeck
 
