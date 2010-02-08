@@ -3340,9 +3340,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
         """Path must not be unicode."""
         if not numBackups:
             return
-        # check integrity
-        if not deck.s.scalar("pragma integrity_check") == "ok":
-            raise DeckAccessError(_("Deck is corrupt."), type="corrupt")
         def escape(path):
             path = os.path.abspath(path)
             path = path.replace("\\", "!")
@@ -3364,6 +3361,9 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             if int(deck.modified) == int(
                 os.stat(latest)[stat.ST_MTIME]):
                 return
+        # check integrity
+        if not deck.s.scalar("pragma integrity_check") == "ok":
+            raise DeckAccessError(_("Deck is corrupt."), type="corrupt")
         # get next num
         if not backups:
             n = 1
