@@ -868,7 +868,8 @@ class FactEditor(object):
     def onAddPicture(self):
         # get this before we open the dialog
         w = self.focusedEdit()
-        key = _("Images (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)")
+        key = (_("Images") +
+               " (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)")
         file = ui.utils.getFile(self.parent, _("Add an image"), "picture", key)
         if not file:
             return
@@ -898,8 +899,9 @@ class FactEditor(object):
     def onAddSound(self):
         # get this before we open the dialog
         w = self.focusedEdit()
-        key = _("Sounds/Videos (*.mp3 *.ogg *.wav *.avi *.ogv "
-                "*.mpg *.mpeg *.mov *.mp4 *.mkv)")
+        key = (_("Sounds/Videos") +
+               " (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
+               "*.mkv *.ogx *.ogv *.oga)")
         file = ui.utils.getFile(self.parent, _("Add audio"), "audio", key)
         if not file:
             return
