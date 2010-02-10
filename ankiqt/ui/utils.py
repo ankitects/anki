@@ -200,9 +200,11 @@ def restoreHeader(widget, key):
 def mungeQA(deck, txt):
     txt = renderLatex(deck, txt)
     txt = stripSounds(txt)
-    # webkit currently doesn't handle bold properly
+    # webkit currently doesn't handle bold/underline properly
     txt = txt.replace("font-weight: 600;",
                       "font-weight: 900;")
+    txt = txt.replace("text-decoration: underline;",
+                      "border-bottom: 1px solid #000;")
     return txt
 
 def applyStyles(widget):
