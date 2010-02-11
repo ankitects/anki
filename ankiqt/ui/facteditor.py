@@ -232,9 +232,24 @@ class FactEditor(object):
         vbox.addWidget(self.fchoose)
         self.fchoose.setStyle(self.plastiqueStyle)
         self.iconsBox.addLayout(vbox)
-        # pictures
+        # cloze
         spc = QSpacerItem(5,5)
         self.iconsBox.addItem(spc)
+        self.cloze = QPushButton(self.widget)
+        self.clozeSC = QShortcut(QKeySequence(_("F9")), self.widget)
+        self.cloze.connect(self.cloze, SIGNAL("clicked()"),
+                                  self.onCloze)
+        self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
+                                  self.onCloze)
+        self.cloze.setToolTip(_("Cloze (F9)"))
+        self.cloze.setFixedWidth(30)
+        self.cloze.setFixedHeight(26)
+        self.cloze.setText("[...]")
+        self.cloze.setFocusPolicy(Qt.NoFocus)
+        self.cloze.setEnabled(False)
+        self.iconsBox.addWidget(self.cloze)
+        self.cloze.setStyle(self.plastiqueStyle)
+        # pictures
         self.addPicture = QPushButton(self.widget)
         self.addPicture.connect(self.addPicture, SIGNAL("clicked()"), self.onAddPicture)
         self.addPicture.setFocusPolicy(Qt.NoFocus)
@@ -264,21 +279,9 @@ class FactEditor(object):
         self.recSound.setToolTip(_("Record audio (F5)"))
         self.iconsBox.addWidget(self.recSound)
         self.recSound.setStyle(self.plastiqueStyle)
-        # more
-        self.more = QPushButton(self.widget)
-        self.more.connect(self.more, SIGNAL("clicked()"),
-                                  self.onMore)
-        self.more.setToolTip(_("Show advanced options"))
-        self.more.setText(">>")
-        self.more.setFocusPolicy(Qt.NoFocus)
-        self.more.setEnabled(False)
-        self.more.setFixedWidth(30)
-        self.more.setFixedHeight(26)
-        self.iconsBox.addWidget(self.more)
-        self.more.setStyle(self.plastiqueStyle)
         # preview
         spc = QSpacerItem(5,5)
-        self.iconsBox2.addItem(spc)
+        self.iconsBox.addItem(spc)
         self.preview = QPushButton(self.widget)
         self.previewSC = QShortcut(QKeySequence(_("F2")), self.widget)
         self.preview.connect(self.preview, SIGNAL("clicked()"),
@@ -288,24 +291,19 @@ class FactEditor(object):
         self.preview.setToolTip(_("Preview (F2)"))
         self.preview.setIcon(QIcon(":/icons/document-preview.png"))
         self.preview.setFocusPolicy(Qt.NoFocus)
-        self.preview.setEnabled(False)
-        self.iconsBox2.addWidget(self.preview)
+        self.iconsBox.addWidget(self.preview)
         self.preview.setStyle(self.plastiqueStyle)
-        # cloze
-        self.cloze = QPushButton(self.widget)
-        self.clozeSC = QShortcut(QKeySequence(_("F9")), self.widget)
-        self.cloze.connect(self.cloze, SIGNAL("clicked()"),
-                                  self.onCloze)
-        self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
-                                  self.onCloze)
-        self.cloze.setToolTip(_("Cloze (F9)"))
-        self.cloze.setFixedWidth(30)
-        self.cloze.setFixedHeight(26)
-        self.cloze.setText("[...]")
-        self.cloze.setFocusPolicy(Qt.NoFocus)
-        self.cloze.setEnabled(False)
-        self.iconsBox2.addWidget(self.cloze)
-        self.cloze.setStyle(self.plastiqueStyle)
+        # more
+        self.more = QPushButton(self.widget)
+        self.more.connect(self.more, SIGNAL("clicked()"),
+                                  self.onMore)
+        self.more.setToolTip(_("Show advanced options"))
+        self.more.setText(">>")
+        self.more.setFocusPolicy(Qt.NoFocus)
+        self.more.setFixedWidth(30)
+        self.more.setFixedHeight(26)
+        self.iconsBox.addWidget(self.more)
+        self.more.setStyle(self.plastiqueStyle)
         # latex
         spc = QSpacerItem(5,5)
         self.iconsBox2.addItem(spc)
@@ -629,11 +627,9 @@ class FactEditor(object):
         self.latex.setEnabled(val)
         self.latexEqn.setEnabled(val)
         self.latexMathEnv.setEnabled(val)
-        self.preview.setEnabled(val)
         self.cloze.setEnabled(val)
         self.htmlEdit.setEnabled(val)
         self.recSound.setEnabled(val)
-        self.more.setEnabled(val)
 
     def disableButtons(self):
         self.enableButtons(False)
@@ -752,10 +748,8 @@ class FactEditor(object):
 
     def onMore(self, toggle=None):
         if toggle is None:
-            toggle = not self.preview.isVisible()
+            toggle = not self.latex.isVisible()
             ankiqt.mw.config['factEditorAdvanced'] = toggle
-        self.preview.setShown(toggle)
-        self.cloze.setShown(toggle)
         self.latex.setShown(toggle)
         self.latexEqn.setShown(toggle)
         self.latexMathEnv.setShown(toggle)
