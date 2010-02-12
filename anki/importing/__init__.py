@@ -145,10 +145,17 @@ The current importer only supports a single active card template. Please disable
         # add facts
         self.deck.updateProgress()
         factIds = [genID() for n in range(len(cards))]
+        def fudgeCreated(d, tmp=[]):
+            if not tmp:
+                tmp.append(time.time())
+            else:
+                tmp[0] += 0.00001
+            d['created'] = tmp[0]
+            return d
         self.deck.s.execute(factsTable.insert(),
-            [{'modelId': self.model.id,
+            [fudgeCreated({'modelId': self.model.id,
               'tags': canonifyTags(self.tagsToAdd + " " + cards[n].tags),
-              'id': factIds[n]} for n in range(len(cards))])
+              'id': factIds[n]}) for n in range(len(cards))])
         self.deck.factCount += len(factIds)
         self.deck.s.execute("""
 delete from factsDeleted
