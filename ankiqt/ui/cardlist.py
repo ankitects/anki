@@ -366,8 +366,7 @@ class EditDeck(QMainWindow):
                      SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
                      self.updateFilterLabel)
         self.dialog.tableView.setItemDelegate(StatusDelegate(self, self.model))
-        if self.deck.getInt("reverseOrder"):
-            self.dialog.actionReverseOrder.setChecked(True)
+        self.updateSortOrder()
         self.updateFont()
         self.setupMenus()
         self.setupFilter()
@@ -422,6 +421,8 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.sortBox, SIGNAL("activated(int)"),
                      self.sortChanged)
         self.sortChanged(self.sortIndex, refresh=False)
+        self.connect(self.dialog.sortOrder, SIGNAL("clicked()"),
+                     self.reverseOrder)
 
     def drawTags(self):
         self.dialog.tagList.view().setFixedWidth(200)
@@ -495,6 +496,12 @@ class EditDeck(QMainWindow):
         if self.sortIndex >= len(self.sortList):
             self.sortIndex = 0
         self.dialog.sortBox.setCurrentIndex(self.sortIndex)
+
+    def updateSortOrder(self):
+        if self.deck.getInt("reverseOrder"):
+            self.dialog.sortOrder.setIcon(QIcon(":/icons/view-sort-descending.png"))
+        else:
+            self.dialog.sortOrder.setIcon(QIcon(":/icons/view-sort-ascending.png"))
 
     def sortChanged(self, idx, refresh=True):
         if idx == 0:
@@ -684,7 +691,6 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionUndo, SIGNAL("triggered()"), self.onUndo)
         self.connect(self.dialog.actionRedo, SIGNAL("triggered()"), self.onRedo)
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
-        self.connect(self.dialog.actionReverseOrder, SIGNAL("triggered()"), self.reverseOrder)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionFindReplace, SIGNAL("triggered()"), self.onFindReplace)
         # jumps
@@ -696,6 +702,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionFact, SIGNAL("triggered()"), self.onFact)
         self.connect(self.dialog.actionTags, SIGNAL("triggered()"), self.onTags)
         self.connect(self.dialog.actionSort, SIGNAL("triggered()"), self.onSort)
+        self.connect(self.dialog.actionCardList, SIGNAL("triggered()"), self.onCardList)
         # help
         self.connect(self.dialog.actionGuide, SIGNAL("triggered()"), self.onHelp)
         runHook('editor.setupMenus', self)
@@ -1040,6 +1047,7 @@ where id in %s""" % ids2str(sf))
         self.model.cards.reverse()
         self.model.reset()
         self.focusCurrentCard()
+        self.updateSortOrder()
 
     # Edit: undo/redo
     ######################################################################
@@ -1191,6 +1199,9 @@ where id in %s""" % ids2str(sf))
 
     def onSort(self):
         self.dialog.sortBox.setFocus()
+
+    def onCardList(self):
+        self.dialog.tableView.setFocus()
 
     # Help
     ######################################################################
