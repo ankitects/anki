@@ -230,6 +230,7 @@ Please do not file a bug report with Anki.<br>""")
             diag.setMinimumHeight(400)
             diag.setMinimumWidth(500)
             diag.exec_()
+            self.clearProgress()
 
     def closeAllDeckWindows(self):
         ui.dialogs.closeAll()
@@ -2660,6 +2661,11 @@ it to your friends.
                 p.finish()
         if not self.progressWins:
             self.unsetBusy()
+
+    def clearProgress(self):
+        # recover on error
+        self.progressWins = []
+        self.finishProgress()
 
     def onDbProgress(self):
         if self.mainThread != QThread.currentThread():
