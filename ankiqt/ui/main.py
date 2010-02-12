@@ -1250,7 +1250,7 @@ your deck."""))
                         moreButton.setFixedHeight(24)
                 moreMenu = QMenu()
                 a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
-                                       _("Hide from list"))
+                                       _("Hide From List"))
                 a.connect(a, SIGNAL("activated()"),
                           lambda c=c: self.onDeckBrowserForget(c))
                 a = moreMenu.addAction(QIcon(":/icons/editdelete.png"),
