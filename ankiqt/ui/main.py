@@ -638,16 +638,19 @@ new:
         self.mainWin.buttonStack.setCurrentIndex(1)
         self.mainWin.buttonStack.show()
         self.mainWin.buttonStack.setLayoutDirection(Qt.LeftToRight)
-        if self.defaultEaseButton() == 2:
-            self.mainWin.easeButton2.setFocus()
+        if self.learningButtons():
             self.mainWin.easeButton2.setText(_("Good"))
             self.mainWin.easeButton3.setText(_("Easy"))
             self.mainWin.easeButton4.setText(_("Very Easy"))
         else:
-            self.mainWin.easeButton3.setFocus()
             self.mainWin.easeButton2.setText(_("Hard"))
             self.mainWin.easeButton3.setText(_("Good"))
             self.mainWin.easeButton4.setText(_("Easy"))
+        getattr(self.mainWin, "easeButton%d" % self.defaultEaseButton()).\
+                              setFocus()
+
+    def learningButtons(self):
+        return not self.currentCard.successive
 
     def defaultEaseButton(self):
         if not self.currentCard.successive:
