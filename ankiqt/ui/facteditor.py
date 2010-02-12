@@ -1089,6 +1089,9 @@ class PreviewDialog(QDialog):
         self.dialog.setupUi(self)
         self.dialog.webView.page().setLinkDelegationPolicy(
             QWebPage.DelegateExternalLinks)
+        self.connect(self.dialog.webView,
+                     SIGNAL("linkClicked(QUrl)"),
+                     self.linkClicked)
         self.dialog.comboBox.addItems(QStringList(
             [c.cardModel.name for c in self.cards]))
         self.connect(self.dialog.comboBox, SIGNAL("activated(int)"),
@@ -1096,6 +1099,9 @@ class PreviewDialog(QDialog):
         self.updateCard()
         restoreGeom(self, "preview")
         self.exec_()
+
+    def linkClicked(self, url):
+        QDesktopServices.openUrl(QUrl(url))
 
     def updateCard(self):
         c = self.cards[self.currentCard]
