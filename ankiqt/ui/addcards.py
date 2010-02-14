@@ -149,9 +149,12 @@ question or answer on all cards."""), parent=self)
         self.reportAddedFact(fact)
         return fact
 
-    def clearOldFact(self, fact):
+    def initializeNewFact(self, old_fact):
         f = self.parent.deck.newFact()
         f.tags = self.parent.deck.lastTags
+
+    def clearOldFact(self, old_fact):
+        f = self.initializeNewFact(old_fact)
         self.editor.setFact(f, check=True, scroll=True)
         # let completer know our extra tags
         self.editor.tags.addTags(parseTags(self.parent.deck.lastTags))
