@@ -370,6 +370,36 @@ class FactEditor(object):
         self.fieldsFrame.setLayout(self.fieldsGrid)
         self.fieldsGrid.setMargin(0)
 
+    def drawField(self, field, n):
+        # label
+        l = QLabel(field.name)
+        self.labels.append(l)
+        self.fieldsGrid.addWidget(l, n, 0)
+        # edit widget
+        w = FactEdit(self)
+        w.setTabChangesFocus(True)
+        w.setAcceptRichText(True)
+        w.setMinimumSize(20, 60)
+        w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        w.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        w.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        if field.fieldModel.features:
+            w.setLayoutDirection(Qt.RightToLeft)
+        else:
+            w.setLayoutDirection(Qt.LeftToRight)
+        runHook("makeField", w, field)
+        self.fieldsGrid.addWidget(w, n, 1)
+        self.fields[field.name] = (field, w)
+        self.widgets[w] = field
+        # catch changes
+        w.connect(w, SIGNAL("lostFocus"),
+                    lambda w=w: self.onFocusLost(w))
+        w.connect(w, SIGNAL("textChanged()"),
+                    self.onTextChanged)
+        w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
+                    lambda w=w: self.formatChanged(w))
+        return w
+
     def drawFields(self, noFocus=False, check=False):
         self.parent.setUpdatesEnabled(False)
         self._makeGrid()
@@ -381,39 +411,15 @@ class FactEditor(object):
         n = 0
         first = True
         last = None
+
         for field in fields:
-            # label
-            l = QLabel(field.name)
-            self.labels.append(l)
-            self.fieldsGrid.addWidget(l, n, 0)
-            # edit widget
-            w = FactEdit(self)
+            w = self.drawField(field, n)
             last = w
-            w.setTabChangesFocus(True)
-            w.setAcceptRichText(True)
-            w.setMinimumSize(20, 60)
-            w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            w.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            w.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            if field.fieldModel.features:
-                w.setLayoutDirection(Qt.RightToLeft)
-            else:
-                w.setLayoutDirection(Qt.LeftToRight)
-            runHook("makeField", w, field)
-            self.fieldsGrid.addWidget(w, n, 1)
-            self.fields[field.name] = (field, w)
-            self.widgets[w] = field
-            # catch changes
-            w.connect(w, SIGNAL("lostFocus"),
-                      lambda w=w: self.onFocusLost(w))
-            w.connect(w, SIGNAL("textChanged()"),
-                      self.onTextChanged)
-            w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
-                      lambda w=w: self.formatChanged(w))
             if first:
                 self.focusTarget = w
                 first = False
             n += 1
+
         # update available tags
         self.tags.setDeck(self.deck)
         # update fields
