@@ -122,6 +122,16 @@ class AddCards(QDialog):
         self.setTabOrder(self.addButton, self.closeButton)
         self.setTabOrder(self.closeButton, self.helpButton)
 
+    def reportAddedFact(self, fact):
+        self.dialog.status.append(
+            _("Added %(num)d card(s) for <a href=\"%(id)d\">"
+              "%(str)s</a>.") % {
+            "num": len(fact.cards),
+            "id": fact.id,
+            # we're guaranteed that all fields will exist now
+            "str": stripHTML(fact[fact.fields[0].name]),
+            })
+
     def addCards(self):
         # make sure updated
         self.editor.saveFieldsNow()
@@ -140,14 +150,9 @@ class AddCards(QDialog):
 The input you have provided would make an empty
 question or answer on all cards."""), parent=self)
             return
-        self.dialog.status.append(
-            _("Added %(num)d card(s) for <a href=\"%(id)d\">"
-              "%(str)s</a>.") % {
-            "num": len(fact.cards),
-            "id": fact.id,
-            # we're guaranteed that all fields will exist now
-            "str": stripHTML(fact[fact.fields[0].name]),
-            })
+
+        self.reportAddedFact(fact)
+
         # stop anything playing
         clearAudioQueue()
         self.parent.deck.setUndoEnd(n)
