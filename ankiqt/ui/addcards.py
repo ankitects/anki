@@ -132,12 +132,7 @@ class AddCards(QDialog):
             "str": stripHTML(fact[fact.fields[0].name]),
             })
 
-    def addCards(self):
-        # make sure updated
-        self.editor.saveFieldsNow()
-        fact = self.editor.fact
-        n = _("Add")
-        self.parent.deck.setUndoStart(n)
+    def addFact(self, fact):
         try:
             fact = self.parent.deck.addFact(fact)
         except FactInvalidError:
@@ -152,6 +147,18 @@ question or answer on all cards."""), parent=self)
             return
 
         self.reportAddedFact(fact)
+        return fact
+
+    def addCards(self):
+        # make sure updated
+        self.editor.saveFieldsNow()
+        fact = self.editor.fact
+        n = _("Add")
+        self.parent.deck.setUndoStart(n)
+
+        fact = self.addFact(fact)
+        if not fact:
+            return
 
         # stop anything playing
         clearAudioQueue()
