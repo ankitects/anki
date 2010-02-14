@@ -149,6 +149,14 @@ question or answer on all cards."""), parent=self)
         self.reportAddedFact(fact)
         return fact
 
+    def clearOldFact(self, fact):
+        f = self.parent.deck.newFact()
+        f.tags = self.parent.deck.lastTags
+        self.editor.setFact(f, check=True, scroll=True)
+        # let completer know our extra tags
+        self.editor.tags.addTags(parseTags(self.parent.deck.lastTags))
+        return f
+
     def addCards(self):
         # make sure updated
         self.editor.saveFieldsNow()
@@ -162,16 +170,15 @@ question or answer on all cards."""), parent=self)
 
         # stop anything playing
         clearAudioQueue()
+
         self.parent.deck.setUndoEnd(n)
         self.parent.deck.checkDue()
         self.parent.updateTitleBar()
         self.parent.statusView.redraw()
+
         # start a new fact
-        f = self.parent.deck.newFact()
-        f.tags = self.parent.deck.lastTags
-        self.editor.setFact(f, check=True, scroll=True)
-        # let completer know our extra tags
-        self.editor.tags.addTags(parseTags(self.parent.deck.lastTags))
+        self.clearOldFact(fact)
+
         self.maybeSave()
 
     def keyPressEvent(self, evt):
