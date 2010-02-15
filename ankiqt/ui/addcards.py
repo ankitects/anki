@@ -152,6 +152,7 @@ question or answer on all cards."""), parent=self)
     def initializeNewFact(self, old_fact):
         f = self.parent.deck.newFact()
         f.tags = self.parent.deck.lastTags
+        return f
 
     def clearOldFact(self, old_fact):
         f = self.initializeNewFact(old_fact)
