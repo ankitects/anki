@@ -51,6 +51,7 @@ class AddCards(QDialog):
         self.editor = ui.facteditor.FactEditor(self,
                                                self.dialog.fieldsArea,
                                                self.parent.deck)
+        self.editor.addMode = True
 
     def addChooser(self):
         self.modelChooser = ui.modelchooser.ModelChooser(self,

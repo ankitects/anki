@@ -42,6 +42,7 @@ class FactEditor(object):
         self.deck = deck
         self.fact = None
         self.fontChanged = False
+        self.addMode = False
         self.setupFields()
         self.onChange = None
         self.onFactValid = None
