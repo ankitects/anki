@@ -13,8 +13,18 @@ mkdir -p ankiqt/forms
 
 if [ xDarwin = x$(uname) ]
 then
-    pyuic=/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4
-    pyrcc=/Library/Frameworks/Python.framework/Versions/2.5/bin/pyrcc4
+    if [ -e /Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4 ]
+    then
+        pyuic=/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4
+        pyrcc=/Library/Frameworks/Python.framework/Versions/2.5/bin/pyrcc4
+    elif [ -e /opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4 ]
+    then
+        pyuic=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4
+        pyrcc=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyrcc4
+    else
+        echo 'Unable to find pyuic4. Try `port install py-pyqt4`?'
+        exit
+    fi
 else
     pyuic=pyuic4
     pyrcc=pyrcc4
