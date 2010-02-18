@@ -59,6 +59,7 @@ class TagCompleter(QCompleter):
         QCompleter.__init__(self, model, parent)
         self.tags = []
         self.edit = edit
+        self.cursor = None
 
     def splitPath(self, str):
         str = unicode(str).strip()
@@ -70,6 +71,8 @@ class TagCompleter(QCompleter):
         return QStringList(self.tags[self.cursor])
 
     def pathFromIndex(self, idx):
+        if not self.cursor:
+            return self.edit.text()
         ret = QCompleter.pathFromIndex(self, idx)
         self.tags[self.cursor] = unicode(ret)
         try:
