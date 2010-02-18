@@ -39,6 +39,7 @@ from hooks import runHook
 if simplejson.__version__ < "1.7.3":
     raise "SimpleJSON must be 1.7.3 or later."
 
+CHUNK_SIZE = 32768
 MIME_BOUNDARY = "Anki-sync-boundary"
 # live
 SYNC_URL = "http://anki.ichi2.net/sync/"
@@ -46,6 +47,7 @@ SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
 # testing
 #SYNC_URL = "http://localhost:8001/sync/"
 #SYNC_HOST = "localhost"; SYNC_PORT = 8001
+
 
 KEYS = ("models", "facts", "cards", "media")
 
@@ -72,7 +74,7 @@ def incrementalSend(self, strOrFile):
             while 1:
                 if sendProgressHook:
                     sendProgressHook(cnt)
-                data = strOrFile.read(32768)
+                data = strOrFile.read(CHUNK_SIZE)
                 cnt += len(data)
                 if not data:
                     break
@@ -965,7 +967,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             # data
             comp = zlib.compressobj()
             while 1:
-                data = src.read(32768)
+                data = src.read(CHUNK_SIZE)
                 if not data:
                     tmp.write(comp.flush())
                     break
@@ -1004,12 +1006,12 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             decomp = zlib.decompressobj()
             cnt = 0
             while 1:
-                data = src.read(32768)
+                data = src.read(CHUNK_SIZE)
                 if not data:
                     tmp.write(decomp.flush())
                     break
                 tmp.write(decomp.decompress(data))
-                cnt += 32768
+                cnt += CHUNK_SIZE
                 runHook("fullSyncProgress", "fromServer", cnt)
             src.close()
             tmp.close()
