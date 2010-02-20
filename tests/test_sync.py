@@ -28,8 +28,8 @@ server=None
 def setup_local(loadDecks=None):
     global deck1, deck2, client, server
     if loadDecks:
-        deck1 = DeckStorage.Deck(loadDecks[0])
-        deck2 = DeckStorage.Deck(loadDecks[1])
+        deck1 = DeckStorage.Deck(loadDecks[0], backup=False)
+        deck2 = DeckStorage.Deck(loadDecks[1], backup=False)
     else:
         deck1 = DeckStorage.Deck()
         deck1.addModel(BasicModel())

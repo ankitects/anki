@@ -40,7 +40,7 @@ def test_attachNew():
     del deck
 
 def test_attachOld():
-    deck = DeckStorage.Deck(newPath)
+    deck = DeckStorage.Deck(newPath, backup=False)
     assert deck.modified == newModified
     deck.close()
 
