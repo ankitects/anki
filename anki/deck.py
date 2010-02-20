@@ -2273,7 +2273,7 @@ Return new path, relative to media dir."""
             pass
         self.startProgress()
         # copy tables, avoiding implicit commit on current db
-        DeckStorage.Deck(newPath).close()
+        DeckStorage.Deck(newPath, backup=False).close()
         new = sqlite.connect(newPath)
         for table in self.s.column0(
             "select name from sqlite_master where type = 'table'"):
@@ -2297,7 +2297,7 @@ Return new path, relative to media dir."""
         new.close()
         self.close()
         # open again in orm
-        newDeck = DeckStorage.Deck(newPath)
+        newDeck = DeckStorage.Deck(newPath, backup=False)
         # move media
         if oldMediaDir:
             newDeck.renameMediaDir(oldMediaDir)
