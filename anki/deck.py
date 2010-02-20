@@ -3353,6 +3353,11 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             path = path.replace(":", "")
             return path
         escp = escape(path)
+        # make sure backup dir exists
+        try:
+            os.makedirs(backupDir)
+        except (OSError, IOError):
+            pass
         # find existing backups
         gen = re.sub("\.anki$", ".backup-(\d+).anki", re.escape(escp))
         backups = []
