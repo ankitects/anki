@@ -91,6 +91,8 @@ class AnkiQt(QMainWindow):
                     unicode(traceback.format_exc(), "utf-8", "replace"))
             ui.splash.update()
             ui.splash.finish(self)
+            # ensure actions are updated after plugins loaded
+            self.moveToState("auto")
             self.show()
             if (self.deck and self.config['syncOnLoad'] and
                 self.deck.syncName):
