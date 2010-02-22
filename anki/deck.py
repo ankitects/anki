@@ -373,6 +373,7 @@ where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
         space = space * spaceFactor * 86400.0
         space = max(minSpacing, space)
         space += time.time()
+        card.combinedDue = max(card.due, space)
         # check what other cards we've spaced
         if self.reviewEarly:
             extra = ""
