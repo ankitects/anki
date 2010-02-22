@@ -496,7 +496,8 @@ class FactEditor(object):
                 modified = True
         if modified:
             self.fact.setModified(textChanged=True)
-            self.deck.setModified()
+            if not self.fact.isNew():
+                self.deck.setModified()
         self.deck.setUndoEnd(n)
 
     def onFocusLost(self, widget):
