@@ -104,6 +104,9 @@ class AnkiQt(QMainWindow):
     def onSigInt(self, signum, frame):
         self.close()
 
+    def onReload(self):
+        self.moveToState("auto")
+
     def setupMainWindow(self):
         # main window
         self.mainWin = ankiqt.forms.main.Ui_MainWindow()
@@ -115,7 +118,7 @@ class AnkiQt(QMainWindow):
         self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
         self.connect(self.mainWin.mainText.pageAction(QWebPage.Reload),
                      SIGNAL("activated()"),
-                     lambda: self.moveToState("auto"))
+                     self.onReload)
         # congrats
         self.connect(self.mainWin.learnMoreButton,
                      SIGNAL("clicked()"),
