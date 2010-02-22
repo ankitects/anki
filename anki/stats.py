@@ -16,7 +16,7 @@ import unicodedata, time, sys, os, datetime
 import anki, anki.utils
 from datetime import date
 from anki.db import *
-from anki.lang import _
+from anki.lang import _, ngettext
 from anki.utils import canonifyTags, ids2str
 from anki.hooks import runFilter
 
@@ -375,34 +375,32 @@ class DeckStats(object):
         existing = d.cardCount - d.newCountToday
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
+        def repsPerDay(reps,days):
+            retval =  ("<b>%d</b> " % reps)  + ngettext("rep", "reps", reps)
+            retval += ("/<b>%d</b> " % days) + ngettext("day", "days", days)
+            return retval
         if existing and avgInt:
             html += "<b>" + _("Recent Work") + "</b>"
             if sys.platform.startswith("darwin"):
                 html += "<table width=250>"
             else:
                 html += "<table width=200>"
-            html += tr(_("In last week"),
-                       ("<b>%d</b> reps/<b>%d</b> days") % (
+            html += tr(_("In last week"), repsPerDay(
                 self.getRepsDone(-7, 0),
                 self.getDaysReviewed(-7, 0)))
-            html += tr(_("In last month"),
-                       ("<b>%d</b> reps/<b>%d</b> days") % (
+            html += tr(_("In last month"), repsPerDay(
                 self.getRepsDone(-30, 0),
                 self.getDaysReviewed(-30, 0)))
-            html += tr(_("In last 3 months"),
-                       ("<b>%d</b> reps/<b>%d</b> days") % (
+            html += tr(_("In last 3 months"), repsPerDay(
                 self.getRepsDone(-92, 0),
                 self.getDaysReviewed(-92, 0)))
-            html += tr(_("In last 6 months"),
-                       ("<b>%d</b> reps/<b>%d</b> days") % (
+            html += tr(_("In last 6 months"), repsPerDay(
                 self.getRepsDone(-182, 0),
                 self.getDaysReviewed(-182, 0)))
-            html += tr(_("In last year"),
-                       ("<b>%d</b> reps/<b>%d</b> days") % (
+            html += tr(_("In last year"), repsPerDay(
                 self.getRepsDone(-365, 0),
                 self.getDaysReviewed(-365, 0)))
-            html += tr(_("Deck life"),
-                       ("<b>%d</b> reps/<b>%d</b> days") % (
+            html += tr(_("Deck life"), repsPerDay(
                 self.getRepsDone(-13000, 0),
                 self.getDaysReviewed(-13000, 0)))
             html += "</table>"
