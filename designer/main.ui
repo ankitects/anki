@@ -2972,7 +2972,7 @@
     <string>Synchronize this deck with Anki Online</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Y</string>
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionAddcards">
