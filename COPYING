@@ -1,3 +1,15 @@
+Libanki is dual licensed - distributed under the terms of the GPL3 for
+Anki on the desktop, and under a proprietary license for AnkiOnline
+(so that AnkiOnline can be resold to other companies and academic
+institutions wanting to run a private server).
+
+You are free to make changes to libanki and distribute those changes
+as per the GPL3. However, if you want your changes to be integrated
+back into the official libanki, it is necessary to assign copyrights
+for the changes over to Damien Elmes. To do this, please send
+anki@ichi2.net an email indicating you wish to assign copyright over.
+
+The text of the GPL3 license follows:
 
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 3, 29 June 2007
