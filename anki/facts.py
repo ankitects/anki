@@ -70,6 +70,10 @@ class Fact(object):
         if model:
             for fm in model.fieldModels:
                 self.fields.append(Field(fm))
+        self.new = True
+
+    def isNew(self):
+        return getattr(self, 'new', False)
 
     def keys(self):
         return [field.name for field in self.fields]
