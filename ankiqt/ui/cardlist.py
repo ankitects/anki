@@ -341,7 +341,6 @@ class EditDeck(QMainWindow):
         self.parent = parent
         self.deck = self.parent.deck
         self.config = parent.config
-        self.forceClose = False
         self.origModTime = parent.deck.modified
         self.currentRow = None
         self.lastFilter = ""
@@ -710,12 +709,6 @@ class EditDeck(QMainWindow):
     def onClose(self):
         saveSplitter(self.dialog.splitter, "editor")
         self.editor.saveFieldsNow()
-        if not self.forceClose:
-            if not self.factValid:
-                ui.utils.showInfo(_(
-                    "Some fields are missing or not unique."),
-                                  parent=self, help="AddItems#AddError")
-                return
         self.editor.setFact(None)
         self.editor.close()
         saveGeom(self, "editor")
@@ -748,33 +741,10 @@ class EditDeck(QMainWindow):
         self.editor = ui.facteditor.FactEditor(self,
                                                self.dialog.fieldsArea,
                                                self.deck)
-        self.factValid = True
-        self.editor.onFactValid = self.onFactValid
-        self.editor.onFactInvalid = self.onFactInvalid
         self.editor.onChange = self.onEvent
         self.connect(self.dialog.tableView.selectionModel(),
                      SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
                      self.rowChanged)
-
-    def onFactValid(self, fact):
-        self.factValid = True
-        self.dialog.tableView.setEnabled(True)
-        self.dialog.filterEdit.setEnabled(True)
-        self.dialog.sortBox.setEnabled(True)
-        self.dialog.tagList.setEnabled(True)
-        self.dialog.menubar.setEnabled(True)
-        self.dialog.cardInfoGroup.setEnabled(True)
-        self.dialog.toolBar.setEnabled(True)
-
-    def onFactInvalid(self, fact):
-        self.factValid = False
-        self.dialog.tableView.setEnabled(False)
-        self.dialog.filterEdit.setEnabled(False)
-        self.dialog.sortBox.setEnabled(False)
-        self.dialog.tagList.setEnabled(False)
-        self.dialog.menubar.setEnabled(False)
-        self.dialog.cardInfoGroup.setEnabled(False)
-        self.dialog.toolBar.setEnabled(False)
 
     def rowChanged(self, current, previous):
         self.currentRow = current
