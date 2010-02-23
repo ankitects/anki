@@ -137,9 +137,10 @@ def tidyHTML(html):
     html = re.sub(u".*<body.*?>(.*)</body></html>",
                   "\\1", html.replace("\n", u""))
     # strip superfluous Qt formatting
-    html = re.sub(u"margin-top:\d+px; margin-bottom:\d+px; margin-left:\d+px; "
-                  "margin-right:\d+px; -qt-block-indent:0; "
-                  "text-indent:0px;", u"", html)
+    html = re.sub(u"(?:-qt-table-type: root; )?"
+                  "margin-top:\d+px; margin-bottom:\d+px; margin-left:\d+px; "
+                  "margin-right:\d+px;(?: -qt-block-indent:0; "
+                  "text-indent:0px;)?", u"", html)
     html = re.sub(u"-qt-paragraph-type:empty;", u"", html)
     # strip leading space in style statements, and remove if no contents
     html = re.sub(u'style=" ', u'style="', html)
@@ -148,6 +149,7 @@ def tidyHTML(html):
     html = re.sub(u'<p( style=.+?)>(.*?)</p>', u'<span\\1>\\2</span><br>', html)
     html = re.sub(u'<p>(.*?)</p>', u'\\1<br>', html)
     html = re.sub(u'<br>$', u'', html)
+    html = re.sub(u"^<table><tr><td style=\"border: none;\">(.*)<br></td></tr></table>$", u"\\1", html)
     return html
 
 # IDs
