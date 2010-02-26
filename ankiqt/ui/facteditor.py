@@ -903,7 +903,7 @@ class FactEditor(object):
         w = self.focusedEdit()
         key = (_("Sounds/Videos") +
                " (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
-               "*.mkv *.ogx *.ogv *.oga)")
+               "*.mkv *.ogx *.ogv *.oga *.flv *.swf)")
         file = ui.utils.getFile(self.parent, _("Add audio"), "audio", key)
         if not file:
             return
