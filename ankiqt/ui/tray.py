@@ -29,7 +29,7 @@ class AnkiTrayIcon(QtCore.QObject):
                 mw.addView(self)
                 mw.connect(self.ti, QtCore.SIGNAL("activated(QSystemTrayIcon::ActivationReason)"),lambda i: self.activated(i))
                 mw.connect(self.ti, QtCore.SIGNAL("messageClicked()"), lambda : self.messageClicked())
-                mw.connect(self.mw.app, QtCore.SIGNAL("focusChanged(QWidget*,QWidget*)"), lambda old,now: self.focusChanged(old,now))
+                mw.connect(self.mw.app, QtCore.SIGNAL("focusChanged(QWidget*,QWidget*)"), self.focusChanged)
                 self.ti.show()
 
     def showAll(self):
