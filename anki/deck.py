@@ -1068,7 +1068,7 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
         for cardModel in cms:
             card = anki.cards.Card(fact, cardModel, t)
             if isRandom:
-                card.due = due + card.ordinal
+                card.due = due + 0.000001*card.ordinal
                 card.combinedDue = card.due
             self.flushMod()
             cards.append(card)
