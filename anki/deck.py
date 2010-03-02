@@ -1117,8 +1117,9 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
 select count(id) from cards
 where factId = :fid and cardModelId = :cmid""",
                                  fid=fact.id, cmid=cardModel.id) == 0:
+                    # enough for 10 card models assuming 0.00001 timer precision
                     card = anki.cards.Card(
-                        fact, cardModel, created=fact.created+cardModel.ordinal)
+                        fact, cardModel, created=fact.created+0.000001*cardModel.ordinal)
                     self.updateCardTags([card.id])
                     self.updatePriority(card)
                     self.cardCount += 1
