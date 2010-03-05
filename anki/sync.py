@@ -806,7 +806,8 @@ where media.id in %s""" % sids, now=time.time())
         try:
             self.updateOneWayCards(payload['cards'])
         except KeyError:
-            sys.stderr.write("Error in one way sync\n")
+            sys.stderr.write("Subscribed to a broken deck. "
+                             "Try removing your deck subscriptions.")
             t = 0
         # update sync time
         self.deck.s.statement(
