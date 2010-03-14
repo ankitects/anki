@@ -90,7 +90,7 @@ class TextImporter(Importer):
                 info=_("File is not encoded in UTF-8."))
         self.dialect = None
         sniffer = csv.Sniffer()
-        delims = [',', '\t', ';', ':']
+        delims = [',', '\t', ';', ':', '=']
         if not self.delimiter:
             try:
                 self.dialect = sniffer.sniff("\n".join(self.data[:10]),
@@ -128,5 +128,5 @@ class TextImporter(Importer):
 
     def cardFromFields(self, fields):
         card = ForeignCard()
-        card.fields.extend(fields)
+        card.fields.extend([x.strip() for x in fields])
         return card

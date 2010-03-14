@@ -2,5 +2,6 @@
 *~
 *.mo
 *\#
+.*.swp
 samples
 unihan.db
