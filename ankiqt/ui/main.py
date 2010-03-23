@@ -1128,7 +1128,7 @@ your deck."""))
                 deck.close()
                 os.utime(d, (mod, mod))
             except Exception, e:
-                if "File is in use" in str(e):
+                if "File is in use" in unicode(e):
                     continue
                 else:
                     toRemove.append(d)
