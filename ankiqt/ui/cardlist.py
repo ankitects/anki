@@ -512,7 +512,7 @@ class EditDeck(QMainWindow):
         elif idx == 3:
             self.sortKey = "modified"
         elif idx == 4:
-            self.sortKey = "due"
+            self.sortKey = "combinedDue"
         elif idx == 5:
             self.sortKey = "interval"
         elif idx == 6:
