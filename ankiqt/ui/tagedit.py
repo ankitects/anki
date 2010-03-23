@@ -71,7 +71,7 @@ class TagCompleter(QCompleter):
         return QStringList(self.tags[self.cursor])
 
     def pathFromIndex(self, idx):
-        if not self.cursor:
+        if self.cursor is None:
             return self.edit.text()
         ret = QCompleter.pathFromIndex(self, idx)
         self.tags[self.cursor] = unicode(ret)
