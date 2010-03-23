@@ -2852,7 +2852,9 @@ Consider backing up your media directory first."""))
         self.loadDeck(fname)
 
     def setupDocumentDir(self):
-        if sys.platform.startswith("win32"):
+        if self.config['documentDir']:
+            self.documentDir = self.config['documentDir']
+        elif sys.platform.startswith("win32"):
             s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
             s.beginGroup("CurrentVersion/Explorer/Shell Folders")
             self.documentDir = unicode(s.value("Personal").toString())

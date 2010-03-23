@@ -49,6 +49,7 @@ class Config(dict):
             'deckBrowserOrder': 0,
             'deckBrowserRefreshPeriod': 3600,
             'deleteMedia': False,
+            'documentDir': u"",
             'editFontFamily': 'Arial',
             'editFontSize': 12,
             'editLineSize': 20,
