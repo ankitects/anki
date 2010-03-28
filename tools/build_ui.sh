@@ -21,6 +21,10 @@ then
     then
         pyuic=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4
         pyrcc=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyrcc4
+    elif [ -e /System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 ]
+    then
+        pyuic=/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4
+        pyrcc=/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyrcc4
     elif [ -e /Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 ]
     then
         pyuic=/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4
