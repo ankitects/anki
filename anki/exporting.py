@@ -17,7 +17,6 @@ from anki.lang import _
 from anki.utils import findTag, parseTags, stripHTML, ids2str
 from anki.tags import tagIds
 from anki.db import *
-from BeautifulSoup import BeautifulSoup as BS
 
 class Exporter(object):
     def __init__(self, deck):
@@ -33,6 +32,7 @@ class Exporter(object):
 
     def escapeText(self, text, removeFields=False):
         "Escape newlines and tabs, and strip Anki HTML."
+        from BeautifulSoup import BeautifulSoup as BS
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
         if removeFields:
