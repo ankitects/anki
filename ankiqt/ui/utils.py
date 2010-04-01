@@ -281,6 +281,3 @@ class ProgressWin(object):
             self.app.processEvents()
             time.sleep(0.1)
         self.diag.cancel()
-
-import PyQt4.pyqtconfig as PyConf;
-pyQtBroken = PyConf.Configuration().pyqt_version_str.startswith("4.6")
