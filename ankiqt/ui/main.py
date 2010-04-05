@@ -1384,7 +1384,7 @@ later by using File>Close.
                      self.anchorClicked)
         # main
         self.mainWin.mainText.page().setLinkDelegationPolicy(
-            QWebPage.DelegateExternalLinks)
+            QWebPage.DelegateAllLinks)
         self.connect(self.mainWin.mainText,
                      SIGNAL("linkClicked(QUrl)"),
                      self.linkClicked)
