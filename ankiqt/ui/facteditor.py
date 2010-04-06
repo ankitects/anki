@@ -894,9 +894,16 @@ class FactEditor(object):
             w = widget
         else:
             w = self.focusedEdit()
-        path = self.deck.addMedia(file)
+        path = self._addMedia(file)
         self.maybeDelete(path, file)
         w.insertHtml('<img src="%s">' % path)
+
+    def _addMedia(self, file):
+        try:
+            self.deck.addMedia(file)
+        except (IOError, OSError), e:
+            ui.utils.showWarning(_("Unable to add media: %s") % unicode(e),
+                                 parent=self.parent)
 
     def onAddSound(self):
         # get this before we open the dialog
@@ -915,7 +922,7 @@ class FactEditor(object):
             w = widget
         else:
             w = self.focusedEdit()
-        path = self.deck.addMedia(file)
+        path = self._addMedia(file)
         self.maybeDelete(path, file)
         anki.sound.play(path)
         w.insertHtml('[sound:%s]' % path)
