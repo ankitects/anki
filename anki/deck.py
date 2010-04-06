@@ -1959,6 +1959,7 @@ cardTags.tagId in %s""" % ids2str(ids)
                 elif isNeg:
                     fquery += "select id from facts except "
                 token = token.replace("*", "%")
+                token = token.replace("?", "_")
                 args["_ff_%d" % c] = "%"+token+"%"
                 q = "select factId from fields where value like :_ff_%d" % c
                 fquery += q
