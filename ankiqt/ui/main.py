@@ -1024,7 +1024,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             else:
                 self.showToolTip(_("""\
 <h1>Unsaved Deck</h1>
-Careful. You're editing an unsaved Deck.<br>
+Careful. You're editing an unsaved deck.<br>
 Choose File -> Save to start autosaving<br>
 your deck."""))
             return
