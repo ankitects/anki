@@ -204,12 +204,13 @@ class AnkiQt(QMainWindow):
                     _("Couldn't play sound. Please install mplayer."))
                 return
             stdText = _("""\
-An error occurred. Please:<p>
-<ol>
-<li><b>Restart Anki</b>.
-<li><b>Tools > Advanced > Full Database Check</b>.
-</ol>
-If it does not fix the problem, please copy the following<br>
+
+An error occurred. It may have been caused by a harmless bug, <br>
+or your deck may have a problem.
+<p>To confirm it's not a problem with your deck, please <b>restart<br>
+Anki</b> and run <b>Tools > Advanced > Check Database</b>.
+
+<p>If that doesn't fix the problem, please copy the following<br>
 into a bug report:<br>
 """)
             pluginText = _("""\
