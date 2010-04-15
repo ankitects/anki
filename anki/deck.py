@@ -682,7 +682,6 @@ type = 0 and isDue = 1 and combinedDue <= :now""", now=time.time())
         self._dailyStats = dailyStats(self)
         # mark due cards and update counts
         self.checkDue()
-        # invalid card count
         # determine new card distribution
         if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
             if self.newCountToday:
