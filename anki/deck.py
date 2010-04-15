@@ -1066,13 +1066,13 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
             due = random.uniform(0, time.time())
         t = time.time()
         for cardModel in cms:
-            card = anki.cards.Card(fact, cardModel, t)
+            created = fact.created + 0.000001*cardModel.ordinal
+            card = anki.cards.Card(fact, cardModel, created)
             if isRandom:
-                card.due = due + 0.000001*card.ordinal
-                card.combinedDue = card.due
+                card.due = due
+                card.combinedDue = due
             self.flushMod()
             cards.append(card)
-            t += .00001
         self.updateFactTags([fact.id])
         self.updatePriorities([c.id for c in cards])
         self.cardCount += len(cards)
