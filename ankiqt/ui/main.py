@@ -1331,7 +1331,10 @@ later by using File>Close.
         if ui.utils.askUser(_("Delete %s?") % self.browserDecks[c]['name']):
             del self.browserDecks[c]
             os.unlink(deck)
-            shutil.rmtree(re.sub(".anki$", ".media", deck))
+            try:
+                shutil.rmtree(re.sub(".anki$", ".media", deck))
+            except OSError:
+                pass
             self.config['recentDeckPaths'].remove(deck)
             self.showDeckBrowser()
 
