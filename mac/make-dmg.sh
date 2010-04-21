@@ -22,23 +22,23 @@ fi
 echo --- Configuring 'dist' folder...
 
 if [ ! -e "dist/Applications" ]
-then 
+then
     ln -s /Applications dist/Applications
 fi
 
 if [ ! -d "dist/.background" ]
-then 
+then
     mkdir dist/.background
     cp ankiqt/mac/anki-logo-bg.png dist/.background
 fi
 
 if [ ! -f "dist/.DS_Store" ]
-then 
+then
     cp ankiqt/mac/dmg_ds_store dist/.DS_Store
 fi
 
 echo --- Creating writable DMG...
-hdiutil create -attach -ov -format UDRW -volname Anki -srcfolder dist -o Anki-rw.dmg 
+hdiutil create -attach -ov -format UDRW -volname Anki -srcfolder dist -o Anki-rw.dmg
 
 RESULT=$?
 
@@ -69,7 +69,7 @@ fi
 
 echo --- Making final compressed DMG...
 
-hdiutil convert "Anki-rw.dmg" -ov -format UDZO -imagekey zlib-level=9 -o Anki.dmg 
+hdiutil convert "Anki-rw.dmg" -ov -format UDZO -imagekey zlib-level=9 -o Anki.dmg
 
 RESULT=$?
 
