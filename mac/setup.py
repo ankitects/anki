@@ -37,19 +37,8 @@ python2.6/pyconfig.h")
 chmod a+x dist/Anki.app/Contents/Resources/audio/mplayer")
                 if 'debug' in os.environ:
                         return
-                os.system("\
-ln -s /Applications dist/Applications")
-                os.system("\
-mkdir dist/.background")
-                os.system("\
-cp ankiqt/mac/anki-logo-bg.png dist/.background")
-                os.system("\
-cp ankiqt/mac/dmg_ds_store dist/.DS_Store")
-                # zlib
-                result = os.spawnvp(os.P_WAIT, 'hdiutil', (
-                        'hdiutil create -ov -format UDZO ' +
-                        '-volname Anki -srcfolder dist ' +
-                        '-o Anki.dmg -imagekey zlib-level=9').split())
+                # make the dmg with the shell script
+                result = os.system('ankiqt/mac/make-dmg.sh')
                 if result is not 0:
                         raise Exception('dmg creation failed %d' % result)
 
