@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
+    <width>617</width>
     <height>563</height>
    </rect>
   </property>
@@ -2715,8 +2715,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>557</width>
-     <height>20</height>
+     <width>617</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -2972,7 +2972,7 @@
     <string>Synchronize this deck with Anki Online</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
+    <string>Ctrl+Shift+Y</string>
    </property>
   </action>
   <action name="actionAddcards">
