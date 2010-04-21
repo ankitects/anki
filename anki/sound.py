@@ -238,7 +238,7 @@ try:
     PYAU_FORMAT = pyaudio.paInt16
     PYAU_CHANNELS = 1
     PYAU_RATE = 44100
-    PYAU_INPUT_INDEX = 0
+    PYAU_INPUT_INDEX = None
 except:
     pass
 
