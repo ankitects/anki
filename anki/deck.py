@@ -2841,7 +2841,10 @@ class DeckStorage(object):
     def _init(s):
         "Add a new deck to the database. Return saved deck."
         deck = Deck()
-        s.save(deck)
+        if sqlalchemy.__version__.startswith("0.4."):
+            s.save(deck)
+        else:
+            s.add(deck)
         s.flush()
         return deck
     _init = staticmethod(_init)
