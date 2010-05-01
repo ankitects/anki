@@ -900,7 +900,7 @@ class FactEditor(object):
 
     def _addMedia(self, file):
         try:
-            self.deck.addMedia(file)
+            return self.deck.addMedia(file)
         except (IOError, OSError), e:
             ui.utils.showWarning(_("Unable to add media: %s") % unicode(e),
                                  parent=self.parent)
