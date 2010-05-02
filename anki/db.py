@@ -142,4 +142,8 @@ def sessionmaker(*args, **kwargs):
         if 'autocommit' in kwargs:
             kwargs['transactional'] = not kwargs['autocommit']
             del kwargs['autocommit']
+    else:
+        if 'transactional' in kwargs:
+            kwargs['autocommit'] = not kwargs['transactional']
+            del kwargs['transactional']
     return _sessionmaker(*args, **kwargs)
