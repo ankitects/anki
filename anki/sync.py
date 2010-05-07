@@ -261,31 +261,31 @@ class SyncTools(object):
         self.deck.s.flush()
         return {
             # cards
-            "cards": self.realTuples(self.deck.s.all(
+            "cards": self.realLists(self.deck.s.all(
             "select id, modified from cards where modified > :mod",
             mod=lastSync)),
-            "delcards": self.realTuples(self.deck.s.all(
+            "delcards": self.realLists(self.deck.s.all(
             "select cardId, deletedTime from cardsDeleted "
             "where deletedTime > :mod", mod=lastSync)),
             # facts
-            "facts": self.realTuples(self.deck.s.all(
+            "facts": self.realLists(self.deck.s.all(
             "select id, modified from facts where modified > :mod",
             mod=lastSync)),
-            "delfacts": self.realTuples(self.deck.s.all(
+            "delfacts": self.realLists(self.deck.s.all(
             "select factId, deletedTime from factsDeleted "
             "where deletedTime > :mod", mod=lastSync)),
             # models
-            "models": self.realTuples(self.deck.s.all(
+            "models": self.realLists(self.deck.s.all(
             "select id, modified from models where modified > :mod",
             mod=lastSync)),
-            "delmodels": self.realTuples(self.deck.s.all(
+            "delmodels": self.realLists(self.deck.s.all(
             "select modelId, deletedTime from modelsDeleted "
             "where deletedTime > :mod", mod=lastSync)),
             # media
-            "media": self.realTuples(self.deck.s.all(
+            "media": self.realLists(self.deck.s.all(
             "select id, created from media where created > :mod",
             mod=lastSync)),
-            "delmedia":  self.realTuples(self.deck.s.all(
+            "delmedia":  self.realLists(self.deck.s.all(
             "select mediaId, deletedTime from mediaDeleted "
             "where deletedTime > :mod", mod=lastSync)),
             }
@@ -459,10 +459,10 @@ class SyncTools(object):
             modified = "modified"
         factIds = ids2str(ids)
         return {
-            'facts': self.realTuples(self.deck.s.all("""
+            'facts': self.realLists(self.deck.s.all("""
 select id, modelId, created, %s, tags, spaceUntil, lastCardId from facts
 where id in %s""" % (modified, factIds))),
-            'fields': self.realTuples(self.deck.s.all("""
+            'fields': self.realLists(self.deck.s.all("""
 select id, factId, fieldModelId, ordinal, value from fields
 where factId in %s""" % factIds))
             }
@@ -519,7 +519,7 @@ values
     ##########################################################################
 
     def getCards(self, ids):
-        return self.realTuples(self.deck.s.all("""
+        return self.realLists(self.deck.s.all("""
 select id, factId, cardModelId, created, modified, tags, ordinal,
 priority, interval, lastInterval, due, lastDue, factor,
 firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
@@ -609,7 +609,7 @@ values
         # these may be deleted before bundling
         if 'models' in d: del d['models']
         if 'currentModel' in d: del d['currentModel']
-        d['meta'] = self.realTuples(self.deck.s.all("select * from deckVars"))
+        d['meta'] = self.realLists(self.deck.s.all("select * from deckVars"))
         return d
 
     def updateDeck(self, deck):
@@ -661,7 +661,7 @@ insert or replace into deckVars
             stat.toDB(self.deck.s)
 
     def bundleHistory(self):
-        return self.realTuples(self.deck.s.all("""
+        return self.realLists(self.deck.s.all("""
 select cardId, time, lastInterval, nextInterval, ease, delay,
 lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount
 from reviewHistory where time > :ls""",
@@ -692,7 +692,7 @@ values
                          dlist)
 
     def bundleSources(self):
-        return self.realTuples(self.deck.s.all("select * from sources"))
+        return self.realLists(self.deck.s.all("select * from sources"))
 
     def updateSources(self, sources):
         for s in sources:
@@ -787,7 +787,7 @@ where media.id in %s""" % sids, now=time.time())
         # cards
         cardIds = self.deck.s.column0(
             "select id from cards where modified > :l", l=lastSync)
-        p['cards'] = self.realTuples(self.getOneWayCards(cardIds))
+        p['cards'] = self.realLists(self.getOneWayCards(cardIds))
         return p
 
     def applyOneWayPayload(self, payload):
@@ -889,9 +889,9 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
         for (k,v) in dict.items():
             setattr(obj, k, v)
 
-    def realTuples(self, result):
-        "Convert an SQLAlchemy response into a list of real tuples."
-        return [tuple(x) for x in result]
+    def realLists(self, result):
+        "Convert an SQLAlchemy response into a list of real lists."
+        return [list(x) for x in result]
 
     def getObjsFromKey(self, ids, key):
         return getattr(self, "get" + key.capitalize())(ids)
