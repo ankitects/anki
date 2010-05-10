@@ -1315,6 +1315,7 @@ answerAlign, 0 from cardModels""")])
         (hexifyID(row[0]), row[1]) for row in self.s.all("""
 select id, lastFontColour from cardModels""")])
         self.css = css
+        self.setVar("cssCache", css)
         return css
 
     def copyModel(self, oldModel):
