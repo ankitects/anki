@@ -8,7 +8,8 @@ The Deck
 """
 __docformat__ = 'restructuredtext'
 
-import tempfile, time, os, random, sys, re, stat, shutil, types, traceback
+import tempfile, time, os, random, sys, re, stat, shutil
+import types, traceback, simplejson
 
 from anki.db import *
 from anki.lang import _, ngettext
@@ -1315,8 +1316,19 @@ answerAlign, 0 from cardModels""")])
         (hexifyID(row[0]), row[1]) for row in self.s.all("""
 select id, lastFontColour from cardModels""")])
         self.css = css
-        self.setVar("cssCache", css)
+        self.setVar("cssCache", css, mod=False)
+        self.addHexCache()
         return css
+
+    def addHexCache(self):
+        ids = self.s.column0("""
+select id from fieldModels union
+select id from cardModels union
+select id from models""")
+        cache = {}
+        for id in ids:
+            cache[id] = hexifyID(id)
+        self.setVar("hexCache", simplejson.dumps(cache), mod=False)
 
     def copyModel(self, oldModel):
         "Add a new model to DB based on MODEL."
