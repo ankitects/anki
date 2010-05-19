@@ -766,6 +766,8 @@ class FactEditor(object):
     def onPreview(self):
         PreviewDialog(self.parent, self.deck, self.fact)
 
+    # FIXME: in some future version, we should use a different delimiter, as
+    # [sound] et al conflicts
     def onCloze(self):
         src = self.focusedEdit()
         if not src:
