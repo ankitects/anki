@@ -1237,8 +1237,6 @@ where facts.id not in (select distinct factId from cards)""")
         # delete unused
         self.s.statement("delete from tags where id in %s and priority = 2" %
                          ids2str(unused))
-        # remove any dangling facts
-        self.deleteDanglingFacts()
         self.rebuildCounts()
         self.refresh()
         self.flushMod()
