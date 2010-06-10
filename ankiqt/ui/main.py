@@ -250,7 +250,7 @@ Please do not file a bug report with Anki.<br>""")
 
     def updateViews(self, status):
         if self.deck is None and status != "noDeck":
-            raise "updateViews() called with no deck. status=%s" % status
+            raise Exception("updateViews() called with no deck. status=%s" % status)
         for view in self.views:
             view.setState(status)
 
