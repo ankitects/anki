@@ -37,7 +37,7 @@ from anki.lang import _
 from hooks import runHook
 
 if simplejson.__version__ < "1.7.3":
-    raise "SimpleJSON must be 1.7.3 or later."
+    raise Exception("SimpleJSON must be 1.7.3 or later.")
 
 CHUNK_SIZE = 32768
 MIME_BOUNDARY = "Anki-sync-boundary"
