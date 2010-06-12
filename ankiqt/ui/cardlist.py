@@ -35,6 +35,7 @@ CARD_NO = 10
 CARD_PRIORITY = 11
 CARD_TAGS = 12
 CARD_FACTCREATED = 13
+CARD_FIRSTANSWERED = 14
 
 COLOUR_SUSPENDED1 = "#ffffcc"
 COLOUR_SUSPENDED2 = "#ffffaa"
@@ -184,7 +185,7 @@ where cards.factId = facts.id """
 select id, question, answer, combinedDue, reps, factId, created, modified,
 interval, factor, noCount, priority, (select tags from facts where
 facts.id = cards.factId), (select created from facts where
-facts.id = cards.factId) from cards where id = :id""",
+facts.id = cards.factId), firstAnswered from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
             self.emit(SIGNAL("layoutChanged()"))
         except:
@@ -244,6 +245,8 @@ facts.id = cards.factId) from cards where id = :id""",
             return self.noColumn(index)
         elif self.sortKey == "fact":
             return self.factCreatedColumn(index)
+        elif self.sortKey == "firstAnswered":
+            return self.firstAnsweredColumn(index)
         else:
             return self.nextDue(index)
 
@@ -260,6 +263,8 @@ facts.id = cards.factId) from cards where id = :id""",
             k = _("Ease")
         elif self.sortKey == "noCount":
             k = _("Lapses")
+        elif self.sortKey == "firstAnswered":
+            k = _("First Review")
         elif self.sortKey == "fact":
             k = _("Fact Created")
         else:
@@ -290,6 +295,14 @@ facts.id = cards.factId) from cards where id = :id""",
 
     def noColumn(self, index):
         return "%d" % self.cards[index.row()][CARD_NO]
+
+    def firstAnsweredColumn(self, index):
+        firstAnswered = self.cards[index.row()][CARD_FIRSTANSWERED]
+        if firstAnswered == 0:
+            return _("(new card)")
+        else:
+            return time.strftime("%Y-%m-%d", time.localtime(firstAnswered))
+
 
 class StatusDelegate(QItemDelegate):
 
@@ -487,6 +500,7 @@ class EditDeck(QMainWindow):
             _("Ease"),
             _("Fact Created"),
             _("Lapses"),
+            _("First Review"),
             ]
         self.sortFields = sorted(self.deck.allFields())
         self.sortList.extend([_("'%s'") % f for f in self.sortFields])
@@ -523,6 +537,8 @@ class EditDeck(QMainWindow):
             self.sortKey = "fact"
         elif idx == 9:
             self.sortKey = "noCount"
+        elif idx == 10:
+            self.sortKey = "firstAnswered"
         else:
             self.sortKey = ("field", self.sortFields[idx-10])
         self.rebuildSortIndex(self.sortKey)
