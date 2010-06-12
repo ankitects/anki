@@ -555,7 +555,7 @@ class EditDeck(QMainWindow):
     def rebuildSortIndex(self, key):
         if key not in (
             "question", "answer", "created", "modified", "due", "interval",
-            "reps", "factor", "noCount"):
+            "reps", "factor", "noCount", "firstAnswered"):
             return
         old = self.deck.s.scalar("select sql from sqlite_master where name = :k",
                                  k="ix_cards_sort")
