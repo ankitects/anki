@@ -38,6 +38,7 @@ class Preferences(QDialog):
             (u"Magyar", "hu"),
             (u"Nederlands","nl"),
             (u"Norsk","nb"),
+            (u"Occitan","oc"),
             (u"Polski", "pl"),
             (u"Português Brasileiro", "pt_BR"),
             (u"Português", "pt"),
