@@ -8,7 +8,7 @@ Exporting support
 """
 __docformat__ = 'restructuredtext'
 
-import itertools, time, re, os
+import itertools, time, re, os, HTMLParser
 from operator import itemgetter
 from anki import DeckStorage
 from anki.cards import Card
@@ -40,11 +40,14 @@ class Exporter(object):
             self._escapeCount += 1
             if self._escapeCount % 100 == 0:
                 self.deck.updateProgress()
-            s = BS(text)
-            all = s('span', {'class': re.compile("fm.*")})
-            for e in all:
-                e.replaceWith("".join([unicode(x) for x in e.contents]))
-            text = unicode(s)
+            try:
+                s = BS(text)
+                all = s('span', {'class': re.compile("fm.*")})
+                for e in all:
+                    e.replaceWith("".join([unicode(x) for x in e.contents]))
+                text = unicode(s)
+            except HTMLParser.HTMLParseError:
+                pass
         return text
 
     def cardIds(self):
