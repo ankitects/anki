@@ -165,7 +165,11 @@ class View(object):
                 ret += ("<span style='%s'>%s</span>"
                         % (bad, b[i1:i2] + (" " * ((j2 - j1) - (i2 - i1)))))
             elif tag == "delete":
-                ret += ("<span style='%s'>%s</span>" % (bad, b[i1:i2]))
+                p = re.compile(r"\s*\w+\s*")
+                if p.match(b[i1:i2]):
+                    ret += ("<span style='%s'>%s</span>" % (bad, b[i1:i2]))
+                else:
+                    ret += ("<span style='%s'>%s</span>" % (ok, b[i1:i2]))
             elif tag == "insert":
                 ret += ("<span style='%s'>%s</span>" % (bad, " " * (j2 - j1)))
         return ret
