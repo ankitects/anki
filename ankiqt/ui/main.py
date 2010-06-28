@@ -860,12 +860,14 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                     return True
             # auto save
             if self.config['saveOnClose'] or self.config['syncOnClose']:
-                self.save()
-            # close
-            self.deck.rollback()
-            self.deck.close()
-            self.deck = None
-        if not hideWelcome:
+                if self.deck:
+                    self.save()
+            # close if the deck wasn't already closed by a failed sync
+            if self.deck:
+                self.deck.rollback()
+                self.deck.close()
+                self.deck = None
+        if hideWelcome:
             self.moveToState("noDeck")
         return True
 
