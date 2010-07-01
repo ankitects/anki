@@ -540,7 +540,7 @@ class EditDeck(QMainWindow):
         elif idx == 10:
             self.sortKey = "firstAnswered"
         else:
-            self.sortKey = ("field", self.sortFields[idx-10])
+            self.sortKey = ("field", self.sortFields[idx-11])
         self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
         self.deck.setVar('sortIndex', idx)
