@@ -824,6 +824,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             parent = self
         self.hideWelcome = hideWelcome
         self.closeAllDeckWindows()
+        synced = False
         if self.deck is not None:
             if self.deck.reviewEarly:
                 self.deck.resetAfterReviewEarly()
@@ -854,6 +855,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 # force save, the user may not have set passwd/etc
                 self.deck.save()
                 if self.syncDeck(False, reload=False):
+                    synced = True
                     while self.deckPath:
                         self.app.processEvents()
                         time.sleep(0.1)
@@ -867,7 +869,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 self.deck.rollback()
                 self.deck.close()
                 self.deck = None
-        if hideWelcome:
+        if hideWelcome or not synced:
             self.moveToState("noDeck")
         return True
 
