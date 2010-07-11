@@ -44,6 +44,7 @@ class Config(dict):
             'addZeroSpace': False,
             'alternativeTheme': False,
             'checkForUpdates': True,
+            'colourTimes': True,
             'created': time.time(),
             'deckBrowserNameLength': 30,
             'deckBrowserOrder': 0,

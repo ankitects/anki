@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-
 import os, sys, re, types, gettext, stat, traceback, inspect, signal
 import shutil, time, glob, tempfile, datetime, zipfile, locale
 from operator import itemgetter
@@ -672,10 +671,17 @@ new:
             if self.config['suppressEstimates']:
                 l.setText("")
             elif i == 1:
-                l.setText(_("Soon"))
+                txt = _("Soon")
+                if self.config['colourTimes']:
+                    txt = '<span style="color: #700"><b>%s</b></span>' % txt
+                l.setText(txt)
             else:
-                l.setText("<b>" + self.deck.nextIntervalStr(
-                    self.currentCard, i) + "</b>")
+                txt = self.deck.nextIntervalStr(
+                    self.currentCard, i)
+                txt = "<b>" + txt + "</b>"
+                if i == self.defaultEaseButton() and self.config['colourTimes']:
+                    txt = '<span style="color: #070">' + txt + '</span>'
+                l.setText(txt)
 
     # Deck loading & saving: backend
     ##########################################################################

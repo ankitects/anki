@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>332</width>
+    <width>365</width>
     <height>467</height>
    </rect>
   </property>
@@ -513,7 +513,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QCheckBox" name="showTimer">
            <property name="text">
             <string>Show timer</string>
@@ -543,45 +543,52 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="8" column="0">
           <widget class="QCheckBox" name="showStudyOptions">
            <property name="text">
             <string>Show study options on deck load</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QCheckBox" name="showTray">
            <property name="text">
             <string>Show tray icon</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="0">
+         <item row="12" column="0">
           <widget class="QCheckBox" name="addZeroSpace">
            <property name="text">
             <string>Add hidden char to text (fixes Thai on OSX)</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
+         <item row="9" column="0">
           <widget class="QCheckBox" name="openLastDeck">
            <property name="text">
             <string>Always open last deck on startup</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="10" column="0">
           <widget class="QCheckBox" name="deckBrowserOrder">
            <property name="text">
             <string>Show decks with cards due first in browser</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="0">
+         <item row="11" column="0">
           <widget class="QCheckBox" name="deleteMedia">
            <property name="text">
             <string>Delete original media on add</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QCheckBox" name="colourTimes">
+           <property name="text">
+            <string>Colour next times</string>
            </property>
           </widget>
          </item>
@@ -693,6 +700,7 @@
   <tabstop>saveWhenClosing</tabstop>
   <tabstop>numBackups</tabstop>
   <tabstop>alternativeTheme</tabstop>
+  <tabstop>colourTimes</tabstop>
   <tabstop>showTimer</tabstop>
   <tabstop>showTray</tabstop>
   <tabstop>showStudyOptions</tabstop>

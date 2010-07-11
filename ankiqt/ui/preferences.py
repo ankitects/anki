@@ -149,6 +149,7 @@ class Preferences(QDialog):
         self.config['numBackups'] = self.dialog.numBackups.value()
 
     def setupAdvanced(self):
+        self.dialog.colourTimes.setChecked(self.config['colourTimes'])
         self.dialog.showEstimates.setChecked(not self.config['suppressEstimates'])
         self.dialog.showStudyOptions.setChecked(self.config['showStudyScreen'])
         self.dialog.showTray.setChecked(self.config['showTrayIcon'])
@@ -164,6 +165,7 @@ class Preferences(QDialog):
         self.dialog.deckBrowserLen.setValue(self.config['deckBrowserNameLength'])
 
     def updateAdvanced(self):
+        self.config['colourTimes'] = self.dialog.colourTimes.isChecked()
         self.config['showTrayIcon'] = self.dialog.showTray.isChecked()
         self.config['showTimer'] = self.dialog.showTimer.isChecked()
         self.config['suppressEstimates'] = not self.dialog.showEstimates.isChecked()
