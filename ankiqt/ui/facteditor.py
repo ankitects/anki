@@ -8,7 +8,7 @@ from PyQt4.QtSvg import *
 from PyQt4.QtWebKit import QWebPage
 import re, os, sys, tempfile, urllib2, ctypes
 from anki.utils import stripHTML, tidyHTML, canonifyTags
-from anki.sound import playFromText
+from anki.sound import playFromText, clearAudioQueue
 from ankiqt.ui.sound import getAudio
 import anki.sound
 from ankiqt import ui
@@ -1135,6 +1135,7 @@ class PreviewDialog(QDialog):
             runFilter("drawAnswer", mungeQA(self.deck, c.htmlAnswer()),
                       c)
             + "</body></html>")
+        clearAudioQueue()
         playFromText(c.question)
         playFromText(c.answer)
 
