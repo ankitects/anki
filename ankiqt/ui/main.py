@@ -78,6 +78,9 @@ class AnkiQt(QMainWindow):
             ui.splash.update()
             self.setupErrorHandler()
             self.setupMisc()
+            # activate & raise is useful when run from the command line on osx
+            self.activateWindow()
+            self.raise_()
             self.loadPlugins()
             self.setupAutoUpdate()
             self.rebuildPluginsMenu()
@@ -2833,7 +2836,7 @@ Consider backing up your media directory first."""))
             self.setUnifiedTitleAndToolBarOnMac(True)
             self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
             self.mainWin.verticalLayout_14.setContentsMargins(2,2,2,2)
-            # mac users expect a minimum option
+            # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+m", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
                          self.onMacMinimize)
