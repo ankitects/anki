@@ -264,7 +264,7 @@ facts.id = cards.factId), firstAnswered from cards where id = :id""",
         elif self.sortKey == "noCount":
             k = _("Lapses")
         elif self.sortKey == "firstAnswered":
-            k = _("First Review")
+            k = _("First Answered")
         elif self.sortKey == "fact":
             k = _("Fact Created")
         else:
