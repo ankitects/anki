@@ -878,7 +878,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 self.deck.rollback()
                 self.deck.close()
                 self.deck = None
-        if hideWelcome or not synced:
+        if not hideWelcome and not synced:
             self.moveToState("noDeck")
         return True
 
