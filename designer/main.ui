@@ -946,7 +946,7 @@
                        <string>The &lt;b&gt;number of questions in a session&lt;/b&gt;. When a session is finished, this screen will be shown again, allowing you to start another session. Choose 0 for no limit.</string>
                       </property>
                       <property name="text">
-                       <string>&lt;b&gt;Session limit (questions)&lt;/b&gt;:</string>
+                       <string>&lt;b&gt;Session limit (questions):&lt;/b&gt;</string>
                       </property>
                       <property name="margin">
                        <number>4</number>
