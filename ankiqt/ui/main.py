@@ -2240,7 +2240,7 @@ Really <b>overwrite</b> the online version?<br>
 There is no way to undo this.<p>
 
 If you want to download an online deck to<br>
-your computer, use File>Download>Personal Deck
+your computer, use File>Download>Personal Deck<br>
 instead."""),
                 ["Overwrite", "Cancel"])
             diag.setDefault(1)
