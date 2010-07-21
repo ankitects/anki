@@ -145,12 +145,14 @@ The current importer only supports a single active card template. Please disable
         # add facts
         self.deck.updateProgress()
         factIds = [genID() for n in range(len(cards))]
+        factCreated = {}
         def fudgeCreated(d, tmp=[]):
             if not tmp:
                 tmp.append(time.time())
             else:
                 tmp[0] += 0.00001
             d['created'] = tmp[0]
+            factCreated[d['id']] = d['created']
             return d
         self.deck.s.execute(factsTable.insert(),
             [fudgeCreated({'modelId': self.model.id,
@@ -178,15 +180,14 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                                 data)
         # and cards
         self.deck.updateProgress()
-        now = time.time()
         active = 0
         for cm in self.model.cardModels:
-            self._now = now
             if cm.active:
                 active += 1
                 data = [self.addMeta({
                     'id': genID(),
                     'factId': factIds[m],
+                    'factCreated': factCreated[factIds[m]],
                     'cardModelId': cm.id,
                     'ordinal': cm.ordinal,
                     'question': u"",
@@ -203,11 +204,10 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         "Add any scheduling metadata to cards"
         if 'fields' in card.__dict__:
             del card.fields
-        t = self._now + data['ordinal']
+        t = data['factCreated'] + data['ordinal'] * 0.000001
         data['created'] = t
         data['modified'] = t
         data['due'] = t
-        self._now += .00001
         data.update(card.__dict__)
         data['tags'] = u""
         self.cardIds.append(data['id'])
