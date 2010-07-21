@@ -926,7 +926,8 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
 
     def prepareFullSync(self):
         t = time.time()
-        self.deck.lastSync = t
+        self.deck.flushMod()
+        self.deck.lastSync = self.deck.modified
         self.deck.s.commit()
         self.deck.close()
         fields = {
@@ -1096,6 +1097,9 @@ class HttpSyncServerProxy(SyncServer):
     def _lastSync(self):
         self.connect()
         return self.decks[self.deckName][1]
+
+    def hasChanged(self, deckName):
+        return self.decks[deckName][0] > self.decks[deckName][1]
 
     def applyPayload(self, payload):
         return self.runCmd("applyPayload",
