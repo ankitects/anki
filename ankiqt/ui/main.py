@@ -1341,7 +1341,7 @@ later by using File>Close.
                             help="DeckBrowser"):
             self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
             del self.browserDecks[c]
-            self.showDeckBrowser()
+            self.doLater(100, self.showDeckBrowser)
 
     def onDeckBrowserDelete(self, c):
         deck = self.browserDecks[c]['path']
@@ -1353,10 +1353,16 @@ later by using File>Close.
             except OSError:
                 pass
             self.config['recentDeckPaths'].remove(deck)
-            self.showDeckBrowser()
+            self.doLater(100, self.showDeckBrowser)
 
     def onDeckBrowserForgetInaccessible(self):
         self.refreshBrowserDecks(forget=True)
+
+    def doLater(self, msecs, func):
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.start(msecs)
+        self.connect(timer, SIGNAL("timeout()"), func)
 
     # Opening and closing the app
     ##########################################################################
