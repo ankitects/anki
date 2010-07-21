@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
+    <width>420</width>
     <height>551</height>
    </rect>
   </property>
@@ -189,9 +189,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="fieldDelete">
+          <widget class="QPushButton" name="fieldDown">
+           <property name="toolTip">
+            <string>Move selected field down</string>
+           </property>
            <property name="text">
-            <string>&amp;Delete</string>
+            <string>Move Dow&amp;n</string>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
@@ -199,12 +202,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="fieldDown">
-           <property name="toolTip">
-            <string>Move selected field down</string>
-           </property>
+          <widget class="QPushButton" name="fieldDelete">
            <property name="text">
-            <string>Move Dow&amp;n</string>
+            <string>&amp;Delete</string>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
@@ -521,8 +521,8 @@
   <tabstop>fieldList</tabstop>
   <tabstop>fieldAdd</tabstop>
   <tabstop>fieldUp</tabstop>
-  <tabstop>fieldDelete</tabstop>
   <tabstop>fieldDown</tabstop>
+  <tabstop>fieldDelete</tabstop>
   <tabstop>fieldName</tabstop>
   <tabstop>fieldUnique</tabstop>
   <tabstop>fieldRequired</tabstop>
