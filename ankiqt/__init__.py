@@ -142,7 +142,7 @@ def run():
     import forms
     import ui
 
-    ui.splash = SplashScreen(5)
+    ui.splash = SplashScreen(3)
 
     import anki
     if anki.version != appVersion:

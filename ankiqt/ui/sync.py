@@ -10,6 +10,7 @@ from anki.sync import SyncClient, HttpSyncServerProxy, copyLocalMedia
 from anki.sync import SYNC_HOST, SYNC_PORT
 from anki.errors import *
 from anki import DeckStorage
+from anki.db import sqlite
 import ankiqt.forms
 from anki.hooks import addHook, removeHook
 
@@ -29,6 +30,7 @@ class Sync(QThread):
         self.ok = True
         self.onlyMerge = onlyMerge
         self.sourcesToCheck = sourcesToCheck
+        self.proxy = None
         addHook('fullSyncStarted', self.fullSyncStarted)
         addHook('fullSyncFinished', self.fullSyncFinished)
         addHook('fullSyncProgress', self.fullSyncProgress)
@@ -37,7 +39,10 @@ class Sync(QThread):
         self.emit(SIGNAL("setStatus"), msg, timeout)
 
     def run(self):
-        self.syncDeck()
+        if self.parent.syncName:
+            self.syncDeck()
+        else:
+            self.syncAllDecks()
         removeHook('fullSyncStarted', self.fullSyncStarted)
         removeHook('fullSyncFinished', self.fullSyncFinished)
         removeHook('fullSyncProgress', self.fullSyncProgress)
@@ -77,22 +82,44 @@ class Sync(QThread):
 
     def connect(self, *args):
         # connect, check auth
-        proxy = HttpSyncServerProxy(self.user, self.pwd)
-        proxy.sourcesToCheck = self.sourcesToCheck
-        proxy.connect("ankiqt-" + ankiqt.appVersion)
-        return proxy
+        if not self.proxy:
+            self.setStatus(_("Connecting..."), 0)
+            proxy = HttpSyncServerProxy(self.user, self.pwd)
+            proxy.sourcesToCheck = self.sourcesToCheck
+            proxy.connect("ankiqt-" + ankiqt.appVersion)
+            self.proxy = proxy
+        return self.proxy
 
-    def syncDeck(self):
-        self.setStatus(_("Connecting..."), 0)
+    def syncAllDecks(self):
+        decks = self.parent.syncDecks
+        for d in decks:
+            self.syncDeck(deck=d)
+        self.emit(SIGNAL("syncFinished"))
+
+    def syncDeck(self, deck=None):
+        # multi-mode setup
+        if deck:
+            c = sqlite.connect(deck)
+            syncName = c.execute("select syncName from decks").fetchone()[0]
+            c.close()
+            if not syncName:
+                return
+            path = deck
+        else:
+            syncName = self.parent.syncName
+            path = self.parent.deckPath
+        # ensure deck mods cached
         try:
             proxy = self.connect()
         except SyncError, e:
             return self.error(e)
         # exists on server?
-        if not proxy.hasDeck(self.parent.syncName):
+        if not proxy.hasDeck(syncName):
+            if deck:
+                return
             if self.create:
                 try:
-                    proxy.createDeck(self.parent.syncName)
+                    proxy.createDeck(syncName)
                 except SyncError, e:
                     return self.error(e)
             else:
@@ -100,17 +127,18 @@ class Sync(QThread):
                 self.emit(SIGNAL("noMatchingDeck"), keys, not self.onlyMerge)
                 self.setStatus("")
                 return
+        self.setStatus(_("Syncing <b>%s</b>...") % syncName, 0)
         timediff = abs(proxy.timestamp - time.time())
         if timediff > 300:
             self.emit(SIGNAL("syncClockOff"), timediff)
             return
-        # reconnect
+        # reopen
         self.deck = None
         try:
-            self.deck = DeckStorage.Deck(self.parent.deckPath)
+            self.deck = DeckStorage.Deck(path)
             client = SyncClient(self.deck)
             client.setServer(proxy)
-            proxy.deckName = self.parent.syncName
+            proxy.deckName = syncName
             # need to do anything?
             start = time.time()
             if client.prepareSync():
@@ -129,15 +157,16 @@ class Sync(QThread):
                         client.fullSyncFromServer(ret[1], ret[2])
                     self.setStatus(_("Sync complete."), 0)
                     # reopen the deck in case we have sources
-                    self.deck = DeckStorage.Deck(self.parent.deckPath)
+                    self.deck = DeckStorage.Deck(path)
                     client.deck = self.deck
                 else:
                     # diff
                     self.setStatus(_("Determining differences..."), 0)
                     payload = client.genPayload(sums)
                     # send payload
-                    pr = client.payloadChangeReport(payload)
-                    self.setStatus("<br>" + pr + "<br>", 0)
+                    if not deck:
+                        pr = client.payloadChangeReport(payload)
+                        self.setStatus("<br>" + pr + "<br>", 0)
                     self.setStatus(_("Transferring payload..."), 0)
                     res = client.server.applyPayload(payload)
                     # apply reply
@@ -150,7 +179,8 @@ class Sync(QThread):
                     self.deck.s.commit()
             else:
                 changes = False
-                self.setStatus(_("No changes found."))
+                if not deck:
+                    self.setStatus(_("No changes found."))
             # check sources
             srcChanged = False
             if self.sourcesToCheck:
@@ -177,12 +207,13 @@ class Sync(QThread):
                 self.deck.s.commit()
             # close and send signal to main thread
             self.deck.close()
-            taken = time.time() - start
-            if (changes or srcChanged) and taken < 2.5:
-                time.sleep(2.5 - taken)
-            else:
-                time.sleep(0.25)
-            self.emit(SIGNAL("syncFinished"))
+            if not deck:
+                taken = time.time() - start
+                if (changes or srcChanged) and taken < 2.5:
+                    time.sleep(2.5 - taken)
+                else:
+                    time.sleep(0.25)
+                self.emit(SIGNAL("syncFinished"))
         except Exception, e:
             self.ok = False
             #traceback.print_exc()
@@ -192,7 +223,8 @@ class Sync(QThread):
             err = `getattr(e, 'data', None) or e`
             self.setStatus(_("Syncing failed: %(a)s") % {
                 'a': err})
-            self.error(e)
+            if not deck:
+                self.error(e)
 
 # Choosing a deck to sync to
 ##########################################################################

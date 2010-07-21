@@ -204,7 +204,7 @@
              <item row="3" column="0">
               <widget class="QCheckBox" name="syncOnClose">
                <property name="text">
-                <string>Sync on close</string>
+                <string>Sync on deck close</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
@@ -221,10 +221,24 @@
              <item row="2" column="0">
               <widget class="QCheckBox" name="syncOnOpen">
                <property name="text">
-                <string>Sync on open</string>
+                <string>Sync on deck open</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QCheckBox" name="syncOnProgramOpen">
+               <property name="text">
+                <string>Sync on program open</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QCheckBox" name="syncOnProgramClose">
+               <property name="text">
+                <string>Sync on program close</string>
                </property>
               </widget>
              </item>
@@ -689,6 +703,8 @@
   <tabstop>syncPass</tabstop>
   <tabstop>syncOnOpen</tabstop>
   <tabstop>syncOnClose</tabstop>
+  <tabstop>syncOnProgramOpen</tabstop>
+  <tabstop>syncOnProgramClose</tabstop>
   <tabstop>proxyHost</tabstop>
   <tabstop>proxyPort</tabstop>
   <tabstop>proxyUser</tabstop>
@@ -720,8 +736,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>270</x>
-     <y>412</y>
+     <x>279</x>
+     <y>457</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -736,8 +752,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>317</x>
-     <y>412</y>
+     <x>326</x>
+     <y>457</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

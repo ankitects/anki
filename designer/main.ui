@@ -2972,7 +2972,7 @@
     <string>S&amp;ync</string>
    </property>
    <property name="statusTip">
-    <string>Synchronize this deck with Anki Online</string>
+    <string>Synchronize with Anki Online</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Y</string>

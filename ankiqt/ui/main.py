@@ -42,6 +42,7 @@ class AnkiQt(QMainWindow):
             self.state = "initial"
             self.hideWelcome = False
             self.views = []
+            signal.signal(signal.SIGINT, self.onSigInt)
             self.setLang()
             self.setupStyle()
             self.setupFonts()
@@ -69,37 +70,40 @@ class AnkiQt(QMainWindow):
                 self.resize(500, 500)
             # load deck
             ui.splash.update()
-            if (args or self.config['loadLastDeck'] or
-                len(self.config['recentDeckPaths']) == 1) and \
-                not self.maybeLoadLastDeck(args):
-                self.setEnabled(True)
-            self.moveToState("auto")
-            # check for updates
-            ui.splash.update()
             self.setupErrorHandler()
             self.setupMisc()
             # activate & raise is useful when run from the command line on osx
             self.activateWindow()
             self.raise_()
+            # plugins might be looking at this
+            self.state = "noDeck"
             self.loadPlugins()
             self.setupAutoUpdate()
             self.rebuildPluginsMenu()
-            # run after-init hook
+            # plugins loaded, now show interface
+            ui.splash.finish(self)
+            self.show()
+            # program open sync
+            if self.config['syncOnProgramOpen']:
+                self.syncDeck(interactive=False)
+            if (args or self.config['loadLastDeck'] or
+                len(self.config['recentDeckPaths']) == 1):
+                # open the last deck
+                self.maybeLoadLastDeck(args)
+            if self.deck:
+                # deck open sync?
+                if self.config['syncOnLoad'] and self.deck.syncName:
+                    self.syncDeck(interactive=False)
+            elif not self.config['syncOnProgramOpen'] or not self.browserDecks:
+                # sync disabled or no user/pass, so draw deck browser manually
+                self.moveToState("noDeck")
+            # all setup is done, run after-init hook
             try:
                 runHook('init')
             except:
                 ui.utils.showWarning(
                     _("Broken plugin:\n\n%s") %
                     unicode(traceback.format_exc(), "utf-8", "replace"))
-            ui.splash.update()
-            ui.splash.finish(self)
-            # ensure actions are updated after plugins loaded
-            self.moveToState("auto")
-            self.show()
-            if (self.deck and self.config['syncOnLoad'] and
-                self.deck.syncName):
-                self.syncDeck(interactive=False)
-            signal.signal(signal.SIGINT, self.onSigInt)
         except:
             ui.utils.showInfo("Error during startup:\n%s" %
                               traceback.format_exc())
@@ -1117,8 +1121,8 @@ your deck."""))
         if not self.config['recentDeckPaths']:
             return
         toRemove = []
-        if ui.splash.finished:
-            self.startProgress(max=len(self.config['recentDeckPaths']))
+        self.startProgress(max=len(self.config['recentDeckPaths']),
+                           immediate=True)
         for c, d in enumerate(self.config['recentDeckPaths']):
             if ui.splash.finished:
                 self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
@@ -1378,6 +1382,8 @@ later by using File>Close.
         if not self.saveAndClose(hideWelcome=True):
             event.ignore()
         else:
+            if self.config['syncOnProgramClose']:
+                self.syncDeck(interactive=False)
             self.prepareForExit()
             event.accept()
             self.app.quit()
@@ -2095,7 +2101,8 @@ it to your friends.
         if not self.inMainWindow() and interactive: return
         self.setNotice()
         # vet input
-        self.ensureSyncParams()
+        if interactive:
+            self.ensureSyncParams()
         u=self.config['syncUsername']
         p=self.config['syncPassword']
         if not u or not p:
@@ -2110,28 +2117,34 @@ it to your friends.
                 self.deckProperties.dialog.qtabwidget.setCurrentIndex(1)
                 self.showToolTip(_("Enable syncing, choose a name, then sync again."))
             return
-        if self.deck is None and self.deckPath is None:
-            # qt on linux incorrectly accepts shortcuts for disabled actions
-            return
-        # hide all deck-associated dialogs
-        self.closeAllDeckWindows()
-        if self.deck:
-            # save first, so we can rollback on failure
-            self.deck.save()
-            # store data we need before closing the deck
-            self.deckPath = self.deck.path
-            self.syncName = self.deck.syncName or self.deck.name()
-            self.lastSync = self.deck.lastSync
-            if checkSources:
-                self.sourcesToCheck = self.deck.s.column0(
-                    "select id from sources where syncPeriod != -1 "
-                    "and syncPeriod = 0 or :t - lastSync > syncPeriod",
-                    t=time.time())
-            else:
-                self.sourcesToCheck = []
-            self.deck.close()
-            self.deck = None
-            self.loadAfterSync = reload
+        if self.deck is None and getattr(self, 'deckPath', None) is None:
+            # sync all decks
+            self.loadAfterSync = -1
+            self.syncName = None
+            self.sourcesToCheck = []
+            self.syncDecks = self.decksToSync()
+        else:
+            # sync one deck
+            # hide all deck-associated dialogs
+            self.closeAllDeckWindows()
+
+            if self.deck:
+                # save first, so we can rollback on failure
+                self.deck.save()
+                # store data we need before closing the deck
+                self.deckPath = self.deck.path
+                self.syncName = self.deck.syncName or self.deck.name()
+                self.lastSync = self.deck.lastSync
+                if checkSources:
+                    self.sourcesToCheck = self.deck.s.column0(
+                        "select id from sources where syncPeriod != -1 "
+                        "and syncPeriod = 0 or :t - lastSync > syncPeriod",
+                        t=time.time())
+                else:
+                    self.sourcesToCheck = []
+                self.deck.close()
+                self.deck = None
+                self.loadAfterSync = reload
         # bug triggered by preferences dialog - underlying c++ widgets are not
         # garbage collected until the middle of the child thread
         self.state = "nostate"
@@ -2146,7 +2159,7 @@ it to your friends.
         self.connect(self.syncThread, SIGNAL("noMatchingDeck"), self.selectSyncDeck)
         self.connect(self.syncThread, SIGNAL("syncClockOff"), self.syncClockOff)
         self.connect(self.syncThread, SIGNAL("cleanNewDeck"), self.cleanNewDeck)
-        self.connect(self.syncThread, SIGNAL("syncFinished"), self.syncFinished)
+        self.connect(self.syncThread, SIGNAL("syncFinished"), self.onSyncFinished)
         self.connect(self.syncThread, SIGNAL("openSyncProgress"), self.openSyncProgress)
         self.connect(self.syncThread, SIGNAL("closeSyncProgress"), self.closeSyncProgress)
         self.connect(self.syncThread, SIGNAL("updateSyncProgress"), self.updateSyncProgress)
@@ -2158,16 +2171,27 @@ it to your friends.
         self.syncThread.start()
         self.switchToWelcomeScreen()
         self.setEnabled(False)
-        while not self.syncThread.isFinished():
+        self.syncFinished = False
+        while not self.syncFinished:
             self.app.processEvents()
             self.syncThread.wait(100)
         self.setEnabled(True)
         return self.syncThread.ok
 
-    def syncFinished(self):
+    def decksToSync(self):
+        ok = []
+        for d in self.config['recentDeckPaths']:
+            if os.path.exists(d):
+                ok.append(d)
+        return ok
+
+    def onSyncFinished(self):
         "Reopen after sync finished."
         self.mainWin.buttonStack.show()
-        if self.loadAfterSync:
+        if self.loadAfterSync == -1:
+            # after sync all, so refresh browser list
+            self.moveToState("noDeck")
+        elif self.loadAfterSync:
             if self.loadAfterSync == 2:
                 name = re.sub("[<>]", "", self.syncName)
                 p = os.path.join(self.documentDir, name + ".anki")
@@ -2183,6 +2207,7 @@ it to your friends.
         elif not self.hideWelcome:
             self.moveToState("noDeck")
         self.deckPath = None
+        self.syncFinished = True
 
     def selectSyncDeck(self, decks, create=True):
         name = ui.sync.DeckChooser(self, decks, create).getName()
@@ -2195,7 +2220,7 @@ it to your friends.
             if not create:
                 self.cleanNewDeck()
             else:
-                self.syncFinished()
+                self.onSyncFinished()
 
     def cleanNewDeck(self):
         "Unload a new deck if an initial sync failed."
@@ -2213,7 +2238,7 @@ it to your friends.
             _("Since this can cause many problems with syncing,\n"
               "syncing is disabled until you fix the problem.")
             )
-        self.syncFinished()
+        self.onSyncFinished()
 
     def showSyncWarning(self, text):
         ui.utils.showWarning(text, self)
@@ -2259,6 +2284,8 @@ it to your friends.
 
     def fullSyncFinished(self):
         self.finishProgress()
+        # need to deactivate interface again
+        self.setEnabled(False)
 
     def fullSyncProgress(self, type, val):
         if type == "fromLocal":
@@ -2277,7 +2304,6 @@ it to your friends.
         "Close",
         "Addcards",
         "Editdeck",
-        "Syncdeck",
         "DisplayProperties",
         "DeckProperties",
         "Undo",
@@ -2654,13 +2680,13 @@ it to your friends.
     def setProgressParent(self, parent):
         self.progressParent = parent
 
-    def startProgress(self, max=0, min=0, title=None):
+    def startProgress(self, max=0, min=0, title=None, immediate=False):
         if self.mainThread != QThread.currentThread():
             return
         self.setBusy()
         if not self.progressWins:
             parent = self.progressParent or self.app.activeWindow() or self
-            p = ui.utils.ProgressWin(parent, max, min, title)
+            p = ui.utils.ProgressWin(parent, max, min, title, immediate)
         else:
             p = None
         self.progressWins.append(p)

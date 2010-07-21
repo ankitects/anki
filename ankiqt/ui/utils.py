@@ -235,7 +235,7 @@ def getBase(deck, card):
 
 class ProgressWin(object):
 
-    def __init__(self, parent, max=0, min=0, title=None):
+    def __init__(self, parent, max=0, min=0, title=None, immediate=False):
         if not title:
             title = "Anki"
         self.diag = QProgressDialog("", "", min, max, parent)
@@ -245,7 +245,10 @@ class ProgressWin(object):
         self.diag.setAutoReset(False)
         # qt doesn't seem to honour this consistently, and it's not triggered
         # by the db progress handler, so we set it high and use maybeShow() below
-        self.diag.setMinimumDuration(100000)
+        if immediate:
+            self.diag.show()
+        else:
+            self.diag.setMinimumDuration(100000)
         self.counter = min
         self.min = min
         self.max = max

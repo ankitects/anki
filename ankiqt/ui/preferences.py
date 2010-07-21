@@ -101,6 +101,8 @@ class Preferences(QDialog):
     def setupNetwork(self):
         self.dialog.syncOnOpen.setChecked(self.config['syncOnLoad'])
         self.dialog.syncOnClose.setChecked(self.config['syncOnClose'])
+        self.dialog.syncOnProgramOpen.setChecked(self.config['syncOnProgramOpen'])
+        self.dialog.syncOnProgramClose.setChecked(self.config['syncOnProgramClose'])
         self.dialog.syncUser.setText(self.config['syncUsername'])
         self.dialog.syncPass.setText(self.config['syncPassword'])
         self.dialog.proxyHost.setText(self.config['proxyHost'])
@@ -113,6 +115,8 @@ class Preferences(QDialog):
     def updateNetwork(self):
         self.config['syncOnLoad'] = self.dialog.syncOnOpen.isChecked()
         self.config['syncOnClose'] = self.dialog.syncOnClose.isChecked()
+        self.config['syncOnProgramOpen'] = self.dialog.syncOnProgramOpen.isChecked()
+        self.config['syncOnProgramClose'] = self.dialog.syncOnProgramClose.isChecked()
         self.config['syncUsername'] = unicode(self.dialog.syncUser.text())
         self.config['syncPassword'] = unicode(self.dialog.syncPass.text())
         self.config['proxyHost'] = unicode(self.dialog.proxyHost.text())
