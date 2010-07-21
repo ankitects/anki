@@ -2234,6 +2234,18 @@ and remote side. What do you want to do?""" % deckName),
 
     def selectSyncDeck(self, decks, create=True):
         name = ui.sync.DeckChooser(self, decks, create).getName()
+        if self.syncName != name:
+            diag = ui.utils.askUserDialog(_("""\
+Really <b>overwrite</b> the online version?<br>
+There is no way to undo this.<p>
+
+If you want to download an online deck to<br>
+your computer, use File>Download>Personal Deck
+instead."""),
+                ["Overwrite", "Cancel"])
+            diag.setDefault(1)
+            if diag.run() == "Cancel":
+                name = None
         self.syncName = name
         if name:
             # name chosen
