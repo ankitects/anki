@@ -75,6 +75,44 @@ def askUser(text, parent=None, help=""):
             break
     return r == QMessageBox.Yes
 
+class ButtonedDialog(QMessageBox):
+
+    def __init__(self, text, buttons, parent=None, help=""):
+        QDialog.__init__(self, parent)
+        self.buttons = []
+        self.setWindowTitle("Anki")
+        self.help = help
+        self.setIcon(QMessageBox.Warning)
+        self.setText(text)
+        # v = QVBoxLayout()
+        # v.addWidget(QLabel(text))
+        # box = QDialogButtonBox()
+        # v.addWidget(box)
+        for b in buttons:
+            self.buttons.append(
+                self.addButton(b, QMessageBox.AcceptRole))
+        if help:
+            self.addButton(_("Help"), QMessageBox.HelpRole)
+            buttons.append(_("Help"))
+        #self.setLayout(v)
+
+    def run(self):
+        self.exec_()
+        but = self.clickedButton().text()
+        if but == "Help":
+            # FIXME stop dialog closing?
+            openWikiLink(self.help)
+        return self.clickedButton().text()
+
+    def setDefault(self, idx):
+        self.setDefaultButton(self.buttons[idx])
+
+def askUserDialog(text, buttons, parent=None, help=""):
+    if not parent:
+        parent = ankiqt.mw
+    diag = ButtonedDialog(text, buttons, parent, help)
+    return diag
+
 class GetTextDialog(QDialog):
 
     def __init__(self, parent, question, help=None, edit=None):

@@ -100,7 +100,8 @@ class Sync(QThread):
         # multi-mode setup
         if deck:
             c = sqlite.connect(deck)
-            syncName = c.execute("select syncName from decks").fetchone()[0]
+            (syncName, localChanged) = c.execute(
+                "select syncName, modified > lastSync from decks").fetchone()
             c.close()
             if not syncName:
                 return
@@ -108,6 +109,10 @@ class Sync(QThread):
         else:
             syncName = self.parent.syncName
             path = self.parent.deckPath
+            c = sqlite.connect(path)
+            localChanged = c.execute(
+                "select modified > lastSync from decks").fetchone()[0]
+            c.close()
         # ensure deck mods cached
         try:
             proxy = self.connect()
@@ -127,12 +132,25 @@ class Sync(QThread):
                 self.emit(SIGNAL("noMatchingDeck"), keys, not self.onlyMerge)
                 self.setStatus("")
                 return
-        self.setStatus(_("Syncing <b>%s</b>...") % syncName, 0)
+        # check clock
         timediff = abs(proxy.timestamp - time.time())
         if timediff > 300:
             self.emit(SIGNAL("syncClockOff"), timediff)
             return
+        # check conflicts
+        remoteChanged = proxy.hasChanged(syncName)
+        self.conflictResolution = None
+        if localChanged and remoteChanged:
+            self.emit(SIGNAL("syncConflicts"), syncName)
+            while not self.conflictResolution:
+                time.sleep(0.2)
+            if self.conflictResolution == "cancel":
+                if not deck:
+                    # alert we're finished early
+                    self.emit(SIGNAL("syncFinished"))
+                return
         # reopen
+        self.setStatus(_("Syncing <b>%s</b>...") % syncName, 0)
         self.deck = None
         try:
             self.deck = DeckStorage.Deck(path)
@@ -146,8 +164,12 @@ class Sync(QThread):
                 # summary
                 self.setStatus(_("Fetching summary from server..."), 0)
                 sums = client.summaries()
-                if client.needFullSync(sums):
+                if self.conflictResolution or client.needFullSync(sums):
                     self.setStatus(_("Preparing full sync..."), 0)
+                    if self.conflictResolution == "keepLocal":
+                        client.remoteTime = 0
+                    elif self.conflictResolution == "keepRemote":
+                        client.localTime = 0
                     ret = client.prepareFullSync()
                     if ret[0] == "fromLocal":
                         self.setStatus(_("Uploading..."), 0)

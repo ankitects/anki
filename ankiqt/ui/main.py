@@ -2168,6 +2168,7 @@ it to your friends.
         self.connect(self.syncThread, SIGNAL("fullSyncFinished"), self.fullSyncFinished)
         self.connect(self.syncThread, SIGNAL("fullSyncProgress"), self.fullSyncProgress)
         self.connect(self.syncThread, SIGNAL("badUserPass"), self.badUserPass)
+        self.connect(self.syncThread, SIGNAL("syncConflicts"), self.onConflict)
         self.syncThread.start()
         self.switchToWelcomeScreen()
         self.setEnabled(False)
@@ -2184,6 +2185,22 @@ it to your friends.
             if os.path.exists(d):
                 ok.append(d)
         return ok
+
+    def onConflict(self, deckName):
+        diag = ui.utils.askUserDialog(_("""\
+<b>%s</b> has been changed on both the local<br>
+and remote side. What do you want to do?""" % deckName),
+                          [_("Keep Local"),
+                           _("Keep Remote"),
+                           _("Cancel")])
+        diag.setDefault(2)
+        ret = diag.run()
+        if ret == _("Keep Local"):
+            self.syncThread.conflictResolution = "keepLocal"
+        elif ret == _("Keep Remote"):
+            self.syncThread.conflictResolution = "keepRemote"
+        else:
+            self.syncThread.conflictResolution = "cancel"
 
     def onSyncFinished(self):
         "Reopen after sync finished."
