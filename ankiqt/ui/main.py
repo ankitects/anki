@@ -2194,8 +2194,9 @@ it to your friends.
 
     def onConflict(self, deckName):
         diag = ui.utils.askUserDialog(_("""\
-<b>%s</b> has been changed on both the local<br>
-and remote side. What do you want to do?""" % deckName),
+<b>%s</b> has been changed on both
+the local and remote side. What do
+you want to do?""" % deckName),
                           [_("Keep Local"),
                            _("Keep Remote"),
                            _("Cancel")])
