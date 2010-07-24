@@ -396,6 +396,7 @@ class SyncTools(object):
 
     def getModel(self, id, create=True):
         "Return a local model with same ID, or create."
+        id = int(id)
         for l in self.deck.models:
             if l.id == id:
                 return l
