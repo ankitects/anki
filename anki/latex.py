@@ -116,7 +116,6 @@ def buildImg(deck, latex):
     texfile.write(latex + "\n")
     texfile.write(latexPostamble + "\n")
     texfile.close()
-    texpath = texpath.encode(sys.getfilesystemencoding())
     # make sure we have a valid mediaDir
     deck.mediaDir(create=True)
     oldcwd = os.getcwd()
@@ -130,7 +129,7 @@ def buildImg(deck, latex):
         errmsg = _("Error executing %s.\n") + _(
             "A log file is available here:\n%s") % tmpdir
         if call(["latex", "-interaction=nonstopmode",
-                 texpath], stdout=log, stderr=log, startupinfo=si):
+                 "tmp.tex"], stdout=log, stderr=log, startupinfo=si):
             return (False, errmsg % "latex")
         if call(latexDviPngCmd + ["tmp.dvi", "-o", "tmp.png"],
                 stdout=log, stderr=log, startupinfo=si):
