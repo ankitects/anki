@@ -93,7 +93,10 @@ class Sync(QThread):
     def syncAllDecks(self):
         decks = self.parent.syncDecks
         for d in decks:
-            self.syncDeck(deck=d)
+            try:
+                self.syncDeck(deck=d)
+            except SyncError, e:
+                return
         self.emit(SIGNAL("syncFinished"))
 
     def syncDeck(self, deck=None):
@@ -117,7 +120,11 @@ class Sync(QThread):
         try:
             proxy = self.connect()
         except SyncError, e:
-            return self.error(e)
+            self.error(e)
+            if deck:
+                raise
+            else:
+                return
         # exists on server?
         if not proxy.hasDeck(syncName):
             if deck:
