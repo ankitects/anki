@@ -258,7 +258,7 @@ Error processing audio.
 If you're on Linux and don't have sox 14.1+, you
 need to disable normalization. See the wiki.
 
-Command was:\n""") + " ".join(c))
+Command was:\n""") + u" ".join(c))
 
 class PyAudioThreadedRecorder(threading.Thread):
 
