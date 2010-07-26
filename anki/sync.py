@@ -417,8 +417,9 @@ class SyncTools(object):
                 self.deck.deleteFieldModel(model, fm)
 
     def getFieldModel(self, model, remote):
+        id = int(remote['id'])
         for fm in model.fieldModels:
-            if fm.id == remote['id']:
+            if fm.id == id:
                 return fm
         fm = FieldModel()
         model.addFieldModel(fm)
@@ -437,8 +438,9 @@ class SyncTools(object):
                 self.deck.deleteCardModel(model, cm)
 
     def getCardModel(self, model, remote):
+        id = int(remote['id'])
         for cm in model.cardModels:
-            if cm.id == remote['id']:
+            if cm.id == id:
                 return cm
         cm = CardModel()
         model.addCardModel(cm)
