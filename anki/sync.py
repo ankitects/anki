@@ -120,8 +120,11 @@ class SyncTools(object):
         if self.localTime == self.remoteTime:
             return False
         l = self._lastSync(); r = self.server._lastSync()
+        # Set lastSync to the lower of the two sides, minus some leeway for
+        # clock skew. Near the end of the sync we'll bump this to the new
+        # time.
         if l != r:
-            self.deck.lastSync = min(l, r) - 600
+            self.deck.lastSync = min(l, r) - 350
         else:
             self.deck.lastSync = l
         return True
@@ -143,11 +146,11 @@ class SyncTools(object):
             self.deleteObjsFromKey(diff[3], key)
         # handle the remainder
         if self.localTime > self.remoteTime:
-            payload['deck'] = self.bundleDeck()
             payload['stats'] = self.bundleStats()
             payload['history'] = self.bundleHistory()
             payload['sources'] = self.bundleSources()
-            self.deck.lastSync = self.deck.modified
+            # finally, set new lastSync and bundle the deck info
+            payload['deck'] = self.bundleDeck()
         return payload
 
     def applyPayload(self, payload):
@@ -164,11 +167,11 @@ class SyncTools(object):
                 self.deleteObjsFromKey(payload['deleted-' + key], key)
         # send back deck-related stuff if it wasn't sent to us
         if not 'deck' in payload:
-            reply['deck'] = self.bundleDeck()
             reply['stats'] = self.bundleStats()
             reply['history'] = self.bundleHistory()
             reply['sources'] = self.bundleSources()
-            self.deck.lastSync = self.deck.modified
+            # finally, set new lastSync and bundle the deck info
+            reply['deck'] = self.bundleDeck()
         else:
             self.updateDeck(payload['deck'])
             self.updateStats(payload['stats'])
@@ -602,6 +605,7 @@ values
     ##########################################################################
 
     def bundleDeck(self):
+        self.deck.lastSync = time.time()
         d = self.dictFromObj(self.deck)
         del d['Session']
         del d['engine']
@@ -625,7 +629,6 @@ insert or replace into deckVars
 (key, value) values (:k, :v)""", k=k, v=v)
             del deck['meta']
         self.applyDict(self.deck, deck)
-        self.deck.lastSync = self.deck.modified
         self.deck.updateDynamicIndices()
 
     def bundleStats(self):
@@ -914,11 +917,11 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             return True
         for sum in sums:
             for l in sum.values():
-                if len(l) > 500:
+                if len(l) > 1000:
                     return True
         if self.deck.s.scalar(
             "select count() from reviewHistory where time > :ls",
-            ls=self.deck.lastSync) > 500:
+            ls=self.deck.lastSync) > 1000:
             return True
         lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))
         if self.deck.s.scalar(
@@ -929,8 +932,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
 
     def prepareFullSync(self):
         t = time.time()
-        self.deck.flushMod()
-        self.deck.lastSync = self.deck.modified
+        self.deck.lastSync = time.time()
         self.deck.s.commit()
         self.deck.close()
         fields = {
