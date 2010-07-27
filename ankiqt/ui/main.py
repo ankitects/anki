@@ -1188,12 +1188,8 @@ your deck."""))
                 obj = self.decksFrame.layout().takeAt(0)
                 if not obj:
                     break
-                if "QLabel" in repr(obj.widget()):
-                    sip.delete(obj.widget())
-                else:
-                    if obj.widget():
-                        obj.widget().deleteLater()
-                sip.delete(obj)
+                if obj.widget():
+                    obj.widget().deleteLater()
             sip.delete(self.decksFrame.layout())
         # build new layout
         layout = QGridLayout()
