@@ -2232,8 +2232,6 @@ Are you sure?""" % deckName),
             pass
         else:
             if self.loadAfterSync == -1:
-
-                print self.hideWelcome
                 # after sync all, so refresh browser list
                 self.browserLastRefreshed = 0
                 self.moveToState("noDeck")
