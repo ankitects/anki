@@ -1103,9 +1103,6 @@ class HttpSyncServerProxy(SyncServer):
         self.connect()
         return self.decks[self.deckName][1]
 
-    def hasChanged(self, deckName):
-        return self.decks[deckName][0] > self.decks[deckName][1]
-
     def applyPayload(self, payload):
         return self.runCmd("applyPayload",
                            payload=self.stuff(payload))
