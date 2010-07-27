@@ -711,6 +711,7 @@ new:
         if not os.path.exists(deckPath):
             self.moveToState("noDeck")
             return
+        self.hideWelcome = False
         try:
             self.deck = DeckStorage.Deck(deckPath)
         except Exception, e:
@@ -754,6 +755,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 self.deck = None
                 return 0
             self.moveToState("noDeck")
+        runHook("loadDeck")
         return True
 
     def maybeLoadLastDeck(self, args):
@@ -2224,24 +2226,32 @@ Are you sure?""" % deckName),
     def onSyncFinished(self):
         "Reopen after sync finished."
         self.mainWin.buttonStack.show()
-        if self.loadAfterSync == -1:
-            # after sync all, so refresh browser list
-            self.moveToState("noDeck")
-        elif self.loadAfterSync:
-            if self.loadAfterSync == 2:
-                name = re.sub("[<>]", "", self.syncName)
-                p = os.path.join(self.documentDir, name + ".anki")
-                if os.path.exists(p):
-                    p = os.path.join(self.documentDir,
-                                     name + "%d.anki" % time.time())
-                shutil.copy2(self.deckPath, p)
-                self.deckPath = p
-            self.loadDeck(self.deckPath, sync=False)
-            self.deck.syncName = self.syncName
-            self.deck.s.flush()
-            self.deck.s.commit()
-        elif not self.hideWelcome:
-            self.moveToState("noDeck")
+        if self.hideWelcome:
+            # no deck load & no deck browser, as we're about to quit or do
+            # something manually
+            pass
+        else:
+            if self.loadAfterSync == -1:
+
+                print self.hideWelcome
+                # after sync all, so refresh browser list
+                self.browserLastRefreshed = 0
+                self.moveToState("noDeck")
+            elif self.loadAfterSync:
+                if self.loadAfterSync == 2:
+                    name = re.sub("[<>]", "", self.syncName)
+                    p = os.path.join(self.documentDir, name + ".anki")
+                    if os.path.exists(p):
+                        p = os.path.join(self.documentDir,
+                                         name + "%d.anki" % time.time())
+                    shutil.copy2(self.deckPath, p)
+                    self.deckPath = p
+                self.loadDeck(self.deckPath, sync=False)
+                self.deck.syncName = self.syncName
+                self.deck.s.flush()
+                self.deck.s.commit()
+            else:
+                self.moveToState("noDeck")
         self.deckPath = None
         self.syncFinished = True
 
