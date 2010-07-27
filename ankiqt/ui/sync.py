@@ -103,8 +103,8 @@ class Sync(QThread):
         # multi-mode setup
         if deck:
             c = sqlite.connect(deck)
-            (syncName, localChanged) = c.execute(
-                "select syncName, modified > lastSync from decks").fetchone()
+            (syncName, localMod, localSync) = c.execute(
+                "select syncName, modified, lastSync from decks").fetchone()
             c.close()
             if not syncName:
                 return
@@ -113,8 +113,8 @@ class Sync(QThread):
             syncName = self.parent.syncName
             path = self.parent.deckPath
             c = sqlite.connect(path)
-            localChanged = c.execute(
-                "select modified > lastSync from decks").fetchone()[0]
+            (localMod, localSync) = c.execute(
+                "select modified, lastSync from decks").fetchone()
             c.close()
         # ensure deck mods cached
         try:
@@ -145,9 +145,12 @@ class Sync(QThread):
             self.emit(SIGNAL("syncClockOff"), timediff)
             return
         # check conflicts
-        remoteChanged = proxy.hasChanged(syncName)
+        proxy.deckName = syncName
+        remoteMod = proxy.modified()
+        remoteSync = proxy._lastSync()
+        minSync = min(localSync, remoteSync)
         self.conflictResolution = None
-        if localChanged and remoteChanged:
+        if minSync > 0 and localMod > minSync and remoteMod > minSync:
             self.emit(SIGNAL("syncConflicts"), syncName)
             while not self.conflictResolution:
                 time.sleep(0.2)
@@ -163,7 +166,6 @@ class Sync(QThread):
             self.deck = DeckStorage.Deck(path)
             client = SyncClient(self.deck)
             client.setServer(proxy)
-            proxy.deckName = syncName
             # need to do anything?
             start = time.time()
             if client.prepareSync():
