@@ -1192,6 +1192,7 @@ your deck."""))
                     break
                 if obj.widget():
                     obj.widget().deleteLater()
+            self.app.processEvents(QEventLoop.DeferredDeletion)
             sip.delete(self.decksFrame.layout())
         # build new layout
         layout = QGridLayout()
