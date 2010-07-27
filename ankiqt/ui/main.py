@@ -711,7 +711,6 @@ new:
         if not os.path.exists(deckPath):
             self.moveToState("noDeck")
             return
-        self.hideWelcome = False
         try:
             self.deck = DeckStorage.Deck(deckPath)
         except Exception, e:
@@ -862,6 +861,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                             if self.save(required=True):
                                 break
                         elif res == ui.unsaved.cancel:
+                            self.hideWelcome = False
                             return False
                         else:
                             break
@@ -874,6 +874,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                     while self.deckPath:
                         self.app.processEvents()
                         time.sleep(0.1)
+                    self.hideWelcome = False
                     return True
             # auto save
             if self.config['saveOnClose'] or self.config['syncOnClose']:
@@ -886,6 +887,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 self.deck = None
         if not hideWelcome and not synced:
             self.moveToState("noDeck")
+        self.hideWelcome = False
         return True
 
     def inMainWindow(self):
@@ -1388,6 +1390,7 @@ later by using File>Close.
             event.ignore()
         else:
             if self.config['syncOnProgramClose']:
+                self.hideWelcome = True
                 self.syncDeck(interactive=False)
             self.prepareForExit()
             event.accept()
