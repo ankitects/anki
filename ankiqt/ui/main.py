@@ -2171,6 +2171,7 @@ it to your friends.
         self.connect(self.syncThread, SIGNAL("fullSyncProgress"), self.fullSyncProgress)
         self.connect(self.syncThread, SIGNAL("badUserPass"), self.badUserPass)
         self.connect(self.syncThread, SIGNAL("syncConflicts"), self.onConflict)
+        self.connect(self.syncThread, SIGNAL("syncClobber"), self.onClobber)
         self.syncThread.start()
         self.switchToWelcomeScreen()
         self.setEnabled(False)
@@ -2205,6 +2206,21 @@ you want to do?""" % deckName),
         else:
             self.syncThread.conflictResolution = "cancel"
 
+    def onClobber(self, deckName):
+        diag = ui.utils.askUserDialog(_("""\
+You are about to upload <b>%s</b>
+to AnkiOnline. This will overwrite
+the online version if one exists.
+Are you sure?""" % deckName),
+                          [_("Overwrite"),
+                           _("Cancel")])
+        diag.setDefault(1)
+        ret = diag.run()
+        if ret == _("Overwrite"):
+            self.syncThread.clobberChoice = "overwrite"
+        else:
+            self.syncThread.clobberChoice = "cancel"
+
     def onSyncFinished(self):
         "Reopen after sync finished."
         self.mainWin.buttonStack.show()
@@ -2231,18 +2247,6 @@ you want to do?""" % deckName),
 
     def selectSyncDeck(self, decks, create=True):
         name = ui.sync.DeckChooser(self, decks, create).getName()
-        if self.syncName != name:
-            diag = ui.utils.askUserDialog(_("""\
-Really <b>overwrite</b> the online version?<br>
-There is no way to undo this.<p>
-
-If you want to download an online deck to<br>
-your computer, use File>Download>Personal Deck<br>
-instead."""),
-                ["Overwrite", "Cancel"])
-            diag.setDefault(1)
-            if diag.run() == "Cancel":
-                name = None
         self.syncName = name
         if name:
             # name chosen
@@ -2250,6 +2254,7 @@ instead."""),
             self.syncDeck(create=True, interactive=False, onlyMerge=onlyMerge)
         else:
             if not create:
+                self.syncFinished = True
                 self.cleanNewDeck()
             else:
                 self.onSyncFinished()

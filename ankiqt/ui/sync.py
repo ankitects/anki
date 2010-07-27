@@ -177,8 +177,21 @@ class Sync(QThread):
                         client.remoteTime = 0
                     elif self.conflictResolution == "keepRemote":
                         client.localTime = 0
+                    lastSync = self.deck.lastSync
                     ret = client.prepareFullSync()
                     if ret[0] == "fromLocal":
+                        if not self.conflictResolution:
+                            if lastSync <= 0:
+                                self.clobberChoice = None
+                                self.emit(SIGNAL("syncClobber"), syncName)
+                                while not self.clobberChoice:
+                                    time.sleep(0.2)
+                                if self.clobberChoice == "cancel":
+                                    self.deck.close()
+                                    if not deck:
+                                        # alert we're finished early
+                                        self.emit(SIGNAL("syncFinished"))
+                                    return
                         self.setStatus(_("Uploading..."), 0)
                         client.fullSyncFromLocal(ret[1], ret[2])
                     else:
