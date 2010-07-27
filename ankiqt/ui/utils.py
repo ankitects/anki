@@ -293,11 +293,13 @@ class ProgressWin(object):
         self.firstTime = time.time()
         self.lastTime = time.time()
         self.app = QApplication.instance()
+        self.shown = False
         if max == 0:
             self.diag.setLabelText(_("Processing..."))
 
     def maybeShow(self):
-        if time.time() - self.firstTime > 2:
+        if time.time() - self.firstTime > 2 and not self.shown:
+            self.shown = True
             self.diag.show()
 
     def update(self, label=None, value=None, process=True):
