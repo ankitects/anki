@@ -2218,11 +2218,11 @@ You are about to upload <b>%s</b>
 to AnkiOnline. This will overwrite
 the online version if one exists.
 Are you sure?""" % deckName),
-                          [_("Overwrite"),
+                          [_("Upload"),
                            _("Cancel")])
         diag.setDefault(1)
         ret = diag.run()
-        if ret == _("Overwrite"):
+        if ret == _("Upload"):
             self.syncThread.clobberChoice = "overwrite"
         else:
             self.syncThread.clobberChoice = "cancel"
