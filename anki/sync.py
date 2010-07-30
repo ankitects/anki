@@ -120,11 +120,9 @@ class SyncTools(object):
         if self.localTime == self.remoteTime:
             return False
         l = self._lastSync(); r = self.server._lastSync()
-        # Set lastSync to the lower of the two sides, minus some leeway for
-        # clock skew. Near the end of the sync we'll bump this to the new
-        # time.
+        # set lastSync to the lower of the two sides
         if l != r:
-            self.deck.lastSync = min(l, r) - 350
+            self.deck.lastSync = min(l, r)
         else:
             self.deck.lastSync = l
         return True
