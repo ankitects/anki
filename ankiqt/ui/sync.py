@@ -107,22 +107,29 @@ class Sync(QThread):
         self.emit(SIGNAL("syncFinished"))
 
     def syncDeck(self, deck=None):
-        # multi-mode setup
-        if deck:
-            c = sqlite.connect(deck)
-            (syncName, localMod, localSync) = c.execute(
-                "select syncName, modified, lastSync from decks").fetchone()
-            c.close()
-            if not syncName:
+        try:
+            if deck:
+                # multi-mode setup
+                c = sqlite.connect(deck)
+                (syncName, localMod, localSync) = c.execute(
+                    "select syncName, modified, lastSync from decks").fetchone()
+                c.close()
+                if not syncName:
+                    return
+                path = deck
+            else:
+                syncName = self.parent.syncName
+                path = self.parent.deckPath
+                c = sqlite.connect(path)
+                (localMod, localSync) = c.execute(
+                    "select modified, lastSync from decks").fetchone()
+                c.close()
+        except Exception, e:
+            # we don't know which db library we're using, so do string match
+            if "locked" in unicode(e):
                 return
-            path = deck
-        else:
-            syncName = self.parent.syncName
-            path = self.parent.deckPath
-            c = sqlite.connect(path)
-            (localMod, localSync) = c.execute(
-                "select modified, lastSync from decks").fetchone()
-            c.close()
+            # unknown error
+            raise
         # ensure deck mods cached
         try:
             proxy = self.connect()
