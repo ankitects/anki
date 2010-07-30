@@ -61,6 +61,8 @@ class Sync(QThread):
             error.data = {}
         if error.data.get('type') == 'noResponse':
             self.emit(SIGNAL("noSyncResponse"))
+        elif error.data.get('type') == 'clockOff':
+            pass
         else:
             error = self.getErrorMessage(error)
             self.emit(SIGNAL("showWarning"), error)
@@ -88,6 +90,11 @@ class Sync(QThread):
             proxy.sourcesToCheck = self.sourcesToCheck
             proxy.connect("ankiqt-" + ankiqt.appVersion)
             self.proxy = proxy
+            # check clock
+            timediff = abs(proxy.timestamp - time.time())
+            if timediff > 300:
+                self.emit(SIGNAL("syncClockOff"), timediff)
+                raise SyncError(type="clockOff")
         return self.proxy
 
     def syncAllDecks(self):
@@ -139,11 +146,6 @@ class Sync(QThread):
                 self.emit(SIGNAL("noMatchingDeck"), keys, not self.onlyMerge)
                 self.setStatus("")
                 return
-        # check clock
-        timediff = abs(proxy.timestamp - time.time())
-        if timediff > 300:
-            self.emit(SIGNAL("syncClockOff"), timediff)
-            return
         # check conflicts
         proxy.deckName = syncName
         remoteMod = proxy.modified()
