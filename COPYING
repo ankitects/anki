@@ -3,11 +3,12 @@ Anki on the desktop, and under a proprietary license for AnkiOnline
 (so that AnkiOnline can be resold to other companies and academic
 institutions wanting to run a private server).
 
-You are free to make changes to libanki and distribute those changes
-as per the GPL3. However, if you want your changes to be integrated
-back into the official libanki, it is necessary to assign copyrights
-for the changes over to Damien Elmes. To do this, please send
-anki@ichi2.net an email indicating you wish to assign copyright over.
+You are free to make changes to libanki and distribute those changes as per
+the GPL3. However, if you want your changes to be integrated back into the
+official libanki, you must license your code under the BSD three-clause (no
+advertising) license, or a similarly permissive license, so that the code can
+be used in both the GPL3 and AnkiOnline version. This restriction applies only
+to libanki - ankiqt is licensed under GPL3 only.
 
 The text of the GPL3 license follows:
 
