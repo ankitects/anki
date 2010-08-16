@@ -147,6 +147,7 @@ class AnkiQt(QMainWindow):
             self.mainWin.noticeButton.setFixedWidth(20)
             self.mainWin.noticeButton.setFixedHeight(20)
         addHook("cardAnswered", self.onCardAnsweredHook)
+        addHook("undoEnd", self.maybeEnableUndo)
 
     def setNotice(self, str=""):
         if str:
