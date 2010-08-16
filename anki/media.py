@@ -214,7 +214,10 @@ def rebuildMediaDir(deck, deleteRefs=False, dirty=True):
             shutil.rmtree(path)
             continue
         if f in usedFiles:
-            del mediaIds[f]
+            try:
+                del mediaIds[f]
+            except:
+                pass # case errors
         else:
             os.unlink(path)
             unusedFileCount += 1
