@@ -12,7 +12,7 @@ appWiki="http://ichi2.net/anki/wiki/"
 appHelpSite="http://ichi2.net/anki/wiki/AnkiWiki"
 appIssueTracker="http://code.google.com/p/anki/issues/list"
 appForum="http://groups.google.com/group/ankisrs/topics"
-appReleaseNotes="http://ichi2.net/anki/download/index.html#changes"
+appReleaseNotes="http://ichi2.net/anki/changes.html"
 appMoreDecks="http://ichi2.net/anki/wiki/PreMadeDecks"
 appDonate="http://ichi2.net/anki/donate.html"
 
