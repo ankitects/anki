@@ -1008,7 +1008,7 @@ where id in %s""" % ids2str(sf))
         sm.blockSignals(True)
         cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
         for i, card in enumerate(self.model.cards):
-            if card.id in cardIds:
+            if card[0] in cardIds:
                 sm.select(self.model.index(i, 0),
                           QItemSelectionModel.Select | QItemSelectionModel.Rows)
             if i % 100 == 0:
