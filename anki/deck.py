@@ -2581,6 +2581,7 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
             self.undoStack.pop()
         else:
             self.redoStack = []
+        runHook("undoEnd")
 
     def _latestUndoRow(self):
         return self.s.scalar("select max(rowid) from undoLog") or 0
