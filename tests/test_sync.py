@@ -77,7 +77,7 @@ def test_localsync_deck():
     assert deck1.lastSync == 0 and deck2.lastSync == 0
     client.sync()
     assert deck1.modified == deck2.modified
-    assert deck1.lastSync == deck1.modified
+    assert deck1.modified <= deck1.lastSync
     assert deck1.lastSync == deck2.lastSync
     # ensure values are being synced
     deck1.lowPriority += u",foo"
