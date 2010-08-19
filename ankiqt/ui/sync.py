@@ -159,7 +159,8 @@ class Sync(QThread):
         remoteSync = proxy._lastSync()
         minSync = min(localSync, remoteSync)
         self.conflictResolution = None
-        if minSync > 0 and localMod > minSync and remoteMod > minSync:
+        if (localMod != remoteMod and minSync > 0 and
+            localMod > minSync and remoteMod > minSync):
             self.emit(SIGNAL("syncConflicts"), syncName)
             while not self.conflictResolution:
                 time.sleep(0.2)
