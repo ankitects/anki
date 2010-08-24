@@ -110,7 +110,8 @@ class Sync(QThread):
         try:
             if deck:
                 # multi-mode setup
-                c = sqlite.connect(deck)
+                sqlpath = deck.encode("utf-8")
+                c = sqlite.connect(sqlpath)
                 (syncName, localMod, localSync) = c.execute(
                     "select syncName, modified, lastSync from decks").fetchone()
                 c.close()
@@ -120,7 +121,8 @@ class Sync(QThread):
             else:
                 syncName = self.parent.syncName
                 path = self.parent.deckPath
-                c = sqlite.connect(path)
+                sqlpath = path.encode("utf-8")
+                c = sqlite.connect(sqlpath)
                 (localMod, localSync) = c.execute(
                     "select modified, lastSync from decks").fetchone()
                 c.close()
