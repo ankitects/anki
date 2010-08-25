@@ -383,7 +383,6 @@ class FactEditor(object):
         w.setMinimumSize(20, 60)
         w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         w.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        w.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if field.fieldModel.features:
             w.setLayoutDirection(Qt.RightToLeft)
         else:
