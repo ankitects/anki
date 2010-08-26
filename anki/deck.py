@@ -831,7 +831,8 @@ and priority in (1,2,3,4) and type in (0, 1)""", time=time)
         for s in (self.lowPriority, self.medPriority,
                   self.highPriority, self.suspended):
             tagIds(self.s, parseTags(s))
-        tags = self.s.all("select lower(tag), id, priority from tags")
+        tags = self.s.all("select tag, id, priority from tags")
+        tags = [(x[0].lower(), x[1], x[2]) for x in tags]
         up = {}
         for (type, pri) in ((self.lowPriority, 1),
                             (self.medPriority, 3),
