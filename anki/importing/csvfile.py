@@ -33,9 +33,9 @@ class TextImporter(Importer):
         lineNum = 0
         ignored = 0
         if self.delimiter:
-            reader = csv.reader(self.data, delimiter=self.delimiter)
+            reader = csv.reader(self.data, delimiter=self.delimiter, doublequote=True)
         else:
-            reader = csv.reader(self.data, self.dialect)
+            reader = csv.reader(self.data, self.dialect, doublequote=True)
         for row in reader:
             try:
                 row = [unicode(x, "utf-8") for x in row]
@@ -74,6 +74,7 @@ class TextImporter(Importer):
         self.dialect = None
         self.fileobj = open(self.file, "rbU")
         self.data = self.fileobj.read()
+        self.data = self.data.lstrip(codecs.BOM_UTF8)
         self.data = re.sub("^ *#.*", "", self.data)
         self.data = [x for x in self.data.split("\n") if x]
         if self.data:
@@ -102,7 +103,7 @@ class TextImporter(Importer):
                     pass
         if self.dialect:
             try:
-                reader = csv.reader(self.data, self.dialect)
+                reader = csv.reader(self.data, self.dialect, doublequote=True)
             except:
                 err()
         else:
@@ -115,7 +116,7 @@ class TextImporter(Importer):
                     self.delimiter = ","
                 else:
                     self.delimiter = " "
-            reader = csv.reader(self.data, delimiter=self.delimiter)
+            reader = csv.reader(self.data, delimiter=self.delimiter, doublequote=True)
         try:
             self.numFields = len(reader.next())
         except:
