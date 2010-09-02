@@ -42,7 +42,7 @@ class TextImporter(Importer):
             except UnicodeDecodeError, e:
                 raise ImportFormatError(
                     type="encodingError",
-                    info=_("The file was not in UTF8 format."))
+                    info=_("Please save in UTF-8 format. Click help for info."))
             if len(row) != self.numFields:
                 log.append(_(
                     "'%(row)s' had %(num1)d fields, "
