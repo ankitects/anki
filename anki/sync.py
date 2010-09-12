@@ -206,6 +206,12 @@ class SyncTools(object):
         self.rebuildPriorities(cardIds)
         # rebuild due counts
         self.deck.rebuildCounts(full=False)
+        assert self.missingFacts() == 0
+
+    def missingFacts(self):
+        return self.deck.s.scalar(
+            "select count() from cards where factId "+
+                "not in (select id from facts)");
 
     def rebuildPriorities(self, cardIds, suspend=[]):
         self.deck.updateAllPriorities(partial=True, dirty=False)
