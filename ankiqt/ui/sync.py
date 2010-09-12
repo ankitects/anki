@@ -79,7 +79,12 @@ class Sync(QThread):
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
         else:
-            msg=_("Unknown error: %s") % traceback.format_exc()
+            tb = traceback.format_exc()
+            if "missingFacts" in tb:
+                msg=_("""Facts were missing after sync, so the \
+sync was aborted. Please report this error.""")
+            else:
+                msg=_("Unknown error: %s") % tb
         return msg
 
     def connect(self, *args):
