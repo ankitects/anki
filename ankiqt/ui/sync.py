@@ -109,6 +109,8 @@ sync was aborted. Please report this error.""")
                 self.syncDeck(deck=d)
             except SyncError, e:
                 return
+        self.setStatus(_("Sync Finished."), 0)
+        time.sleep(1)
         self.emit(SIGNAL("syncFinished"))
 
     def syncDeck(self, deck=None):
