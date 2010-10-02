@@ -2240,7 +2240,7 @@ Are you sure?""" % deckName),
                 # after sync all, so refresh browser list
                 self.browserLastRefreshed = 0
                 self.moveToState("noDeck")
-            elif self.loadAfterSync:
+            elif self.loadAfterSync and self.deckPath:
                 if self.loadAfterSync == 2:
                     name = re.sub("[<>]", "", self.syncName)
                     p = os.path.join(self.documentDir, name + ".anki")
