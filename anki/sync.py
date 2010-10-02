@@ -122,7 +122,7 @@ class SyncTools(object):
         l = self._lastSync(); r = self.server._lastSync()
         # set lastSync to the lower of the two sides
         if l != r:
-            self.deck.lastSync = min(l, r)
+            self.deck.lastSync = min(l, r) - 350
         else:
             self.deck.lastSync = l
         return True
