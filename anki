@@ -4,7 +4,7 @@ import os, sys
 
 if __name__ == "__main__":
     try:
-        modDir=os.path.dirname(os.path.abspath(__file__))
+        modDir=os.path.dirname(os.path.realpath(__file__))
         runningDir=os.path.split(modDir)[0]
     except NameError:
         # py2exe
