@@ -1897,7 +1897,13 @@ You are currently cramming. Please close this deck first."""))
             return
         if self.deck is None:
             self.onNew()
-        ui.importing.ImportDialog(self)
+        if not self.deck.path:
+            self.showToolTip(_("""\
+Please choose a name for this deck. After saving, the importing \
+window will open."""))
+            self.onSaveAs()
+        if self.deck.path:
+            ui.importing.ImportDialog(self)
 
     def onExport(self):
         ui.exporting.ExportDialog(self)

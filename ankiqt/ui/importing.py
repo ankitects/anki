@@ -194,9 +194,6 @@ you can enter it here. Use \\t to represent tab."""),
         self.file = None
         self.maybePreview()
         self.parent.deck.s.flush()
-        if sys.platform.startswith("win32") and not self.parent.deck.path:
-            # this fixes a strange bug in sqlite
-            self.parent.deck.s.all("pragma integrity_check")
         self.parent.reset()
         self.modelChooser.deinit()
 
