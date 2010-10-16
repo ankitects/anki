@@ -33,6 +33,7 @@ from anki.stats import Stats, globalStats
 from anki.history import CardHistoryEntry
 from anki.stats import globalStats
 from anki.utils import ids2str, hexifyID
+from anki.media import mediaRefs
 from anki.lang import _
 from hooks import runHook
 
@@ -1166,14 +1167,27 @@ class HttpSyncServer(SyncServer):
 ##########################################################################
 
 def copyLocalMedia(src, dst):
-    src = src.mediaDir()
-    if not src:
+    srcDir = src.mediaDir()
+    if not srcDir:
         return
-    dst = dst.mediaDir(create=True)
-    files = os.listdir(src)
+    dstDir = dst.mediaDir(create=True)
+    files = os.listdir(srcDir)
+    # find media references; ignore latex cache
+    used = {}
+    for col in ("question", "answer"):
+        txt = dst.s.column0("""
+select %(c)s from cards where
+%(c)s like '%%<img %%'
+or %(c)s like '%%[sound:%%'""" % {'c': col})
+        for entry in txt:
+            for (full, fname, repl) in mediaRefs(entry):
+                used[fname] = True
+    # copy only used media
     for file in files:
-        srcfile = os.path.join(src, file)
-        dstfile = os.path.join(dst, file)
+        if file not in used:
+            continue
+        srcfile = os.path.join(srcDir, file)
+        dstfile = os.path.join(dstDir, file)
         if not os.path.exists(dstfile):
             try:
                 shutil.copy2(srcfile, dstfile)
