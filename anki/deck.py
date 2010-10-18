@@ -1096,7 +1096,7 @@ and due < :now""" % self.forceIndex("ix_cards_priorityDue"), now=time.time())
                    for k in fact.keys():
                        empty[k] = u""
                        empty["text:"+k] = u""
-                       local["text:"+k] = u""
+                       local["text:"+k] = local[k]
                    empty['tags'] = ""
                    local['tags'] = fact.tags
                    try:
