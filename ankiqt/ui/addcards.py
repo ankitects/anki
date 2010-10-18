@@ -177,7 +177,6 @@ question or answer on all cards."""), parent=self)
         clearAudioQueue()
 
         self.parent.deck.setUndoEnd(n)
-        self.parent.deck.checkDue()
         self.parent.updateTitleBar()
         self.parent.statusView.redraw()
 

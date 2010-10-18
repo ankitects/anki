@@ -275,12 +275,10 @@ Please do not file a bug report with Anki.<br>""")
 
     def reset(self, count=True, priorities=False):
         if self.deck:
-            self.deck.refresh()
+            self.deck.refreshSession()
             if priorities:
                 self.deck.updateAllPriorities()
-            if count:
-                self.deck.rebuildCounts()
-            self.deck.rebuildQueue()
+            self.deck.reset()
             runHook("guiReset")
             self.moveToState("initial")
 
@@ -386,7 +384,7 @@ Please do not file a bug report with Anki.<br>""")
             self.mainWin.actionRepeatAudio.setEnabled(True)
             self.editor.saveFieldsNow()
             self.mainWin.buttonStack.show()
-            self.deck.refresh()
+            self.deck.refreshSession()
             if self.currentCard.priority == 0:
                 return self.moveToState("auto")
             return self.moveToState("showQuestion")
@@ -1506,8 +1504,8 @@ later by using File>Close.
             self.deck.newCardsPerDay = val
         except ValueError:
             pass
-        self.deck.checkDue()
         self.deck.flushMod()
+        self.deck.reset()
         self.statusView.redraw()
         self.updateStudyStats()
 
@@ -1693,7 +1691,7 @@ learnt today")
             self.deck.setFailedCardPolicy(
                 self.mainWin.failedCardsOption.currentIndex())
             self.deck.flushMod()
-        self.deck.rebuildQueue()
+        self.deck.reset()
         self.deck.startSession()
         self.moveToState("getQuestion")
 
@@ -1834,11 +1832,11 @@ learnt today")
 
     def onUndo(self):
         self.deck.undo()
-        self.reset(count=False)
+        self.reset()
 
     def onRedo(self):
         self.deck.redo()
-        self.reset(count=False)
+        self.reset()
 
     # Other menu operations
     ##########################################################################
