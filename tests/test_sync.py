@@ -186,8 +186,8 @@ def test_localsync_factsandcards():
     client.sync()
     f2 = deck1.s.query(Fact).get(f1.id)
     assert f2['Front'] == u"myfront"
-    deck1.rebuildQueue()
-    deck2.rebuildQueue()
+    deck1.reset()
+    deck2.reset()
     c1 = deck1.getCard()
     c2 = deck2.getCard()
     assert c1.id == c2.id

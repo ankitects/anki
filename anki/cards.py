@@ -61,7 +61,7 @@ cardsTable = Table(
     # caching
     Column('spaceUntil', Float, nullable=False, default=0),
     Column('relativeDelay', Float, nullable=False, default=0), # obsolete
-    Column('isDue', Boolean, nullable=False, default=0),
+    Column('isDue', Boolean, nullable=False, default=0), # obsolete
     Column('type', Integer, nullable=False, default=2),
     Column('combinedDue', Integer, nullable=False, default=0))
 

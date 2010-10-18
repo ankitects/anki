@@ -22,7 +22,7 @@ Full sync support is not documented yet.
 __docformat__ = 'restructuredtext'
 
 import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
-import os, base64, httplib, sys, tempfile, httplib
+import os, base64, httplib, sys, tempfile, httplib, types
 from datetime import date
 import anki, anki.deck, anki.cards
 from anki.errors import *
@@ -183,7 +183,7 @@ class SyncTools(object):
         self.deck.updateCardTags(cardIds)
         self.rebuildPriorities(cardIds, self.serverExcludedTags)
         # rebuild due counts
-        self.deck.rebuildCounts(full=False)
+        self.deck.rebuildCounts()
         return reply
 
     def applyPayloadReply(self, reply):
@@ -205,8 +205,6 @@ class SyncTools(object):
         cardIds = [x[0] for x in reply['added-cards']]
         self.deck.updateCardTags(cardIds)
         self.rebuildPriorities(cardIds)
-        # rebuild due counts
-        self.deck.rebuildCounts(full=False)
         assert self.missingFacts() == 0
 
     def missingFacts(self):
@@ -622,6 +620,10 @@ values
         # these may be deleted before bundling
         if 'models' in d: del d['models']
         if 'currentModel' in d: del d['currentModel']
+        keys = d.keys()
+        for k in keys:
+            if isinstance(d[k], types.MethodType):
+                del d[k]
         d['meta'] = self.realLists(self.deck.s.all("select * from deckVars"))
         return d
 

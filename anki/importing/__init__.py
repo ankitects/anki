@@ -150,7 +150,7 @@ The current importer only supports a single active card template. Please disable
             if not tmp:
                 tmp.append(time.time())
             else:
-                tmp[0] += 0.00001
+                tmp[0] += 0.0001
             d['created'] = tmp[0]
             factCreated[d['id']] = d['created']
             return d
@@ -204,7 +204,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         "Add any scheduling metadata to cards"
         if 'fields' in card.__dict__:
             del card.fields
-        t = data['factCreated'] + data['ordinal'] * 0.000001
+        t = data['factCreated'] + data['ordinal'] * 0.00001
         data['created'] = t
         data['modified'] = t
         data['due'] = t
