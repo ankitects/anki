@@ -329,7 +329,7 @@ Please do not file a bug report with Anki.<br>""")
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
-                if not self.deck.reviewEarly:
+                if not self.deck.finishScheduler:
                     if (self.config['showStudyScreen'] and
                         not self.deck.sessionStartTime):
                         return self.moveToState("studyScreen")
@@ -390,7 +390,8 @@ Please do not file a bug report with Anki.<br>""")
             return self.moveToState("showQuestion")
         elif state == "studyScreen":
             self.currentCard = None
-            self.deck.resetAfterReviewEarly()
+            if self.deck.finishScheduler:
+                self.deck.finishScheduler()
             self.disableCardMenuItems()
             self.showStudyScreen()
         self.updateViews(state)
@@ -841,8 +842,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.closeAllDeckWindows()
         synced = False
         if self.deck is not None:
-            if self.deck.reviewEarly:
-                self.deck.resetAfterReviewEarly()
+            if self.deck.finishScheduler:
+                self.deck.finishScheduler()
             # update counts
             for d in self.browserDecks:
                 if d['path'] == self.deck.path:
@@ -1531,6 +1532,7 @@ later by using File>Close.
             uf(self.deck, 'newCardOrder', ncOrd)
 
     def updateStudyStats(self):
+        self.deck.reset()
         wasReached = self.deck.sessionLimitReached()
         sessionColour = '<font color=#0000ff>%s</font>'
         cardColour = '<font color=#0000ff>%s</font>'
@@ -2065,13 +2067,13 @@ it to your friends.
     ##########################################################################
 
     def onLearnMore(self):
-        self.deck.newEarly = True
+        self.deck.setupLearnMoreScheduler()
         self.reset()
         self.showToolTip(_("""\
 <h1>Learning More</h1>Click the stopwatch at the top to finish."""))
 
     def onReviewEarly(self):
-        self.deck.reviewEarly = True
+        self.deck.setupReviewEarlyScheduler()
         self.reset()
         self.showToolTip(_("""\
 <h1>Reviewing Early</h1>Click the stopwatch at the top to finish."""))

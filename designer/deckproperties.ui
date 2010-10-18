@@ -589,6 +589,20 @@
          <item row="5" column="2">
           <widget class="QSpinBox" name="leechFails"/>
          </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>&lt;b&gt;Per-day scheduling&lt;/b&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QCheckBox" name="perDay">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -648,6 +662,7 @@
   <tabstop>timeOffset</tabstop>
   <tabstop>suspendLeeches</tabstop>
   <tabstop>leechFails</tabstop>
+  <tabstop>perDay</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

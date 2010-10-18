@@ -63,6 +63,8 @@ class DeckProperties(QDialog):
         self.dialog.collapse.setCheckState(self.d.collapseTime
                                            and Qt.Checked or Qt.Unchecked)
         self.dialog.failedCardMax.setText(unicode(self.d.failedCardMax))
+        self.dialog.perDay.setCheckState(self.d.getBool("perDay")
+                                         and Qt.Checked or Qt.Unchecked)
         # sources
         self.sources = self.d.s.all("select id, name from sources")
         self.sourcesToRemove = []
@@ -266,6 +268,8 @@ class DeckProperties(QDialog):
         was = self.d.modified
         self.updateField(self.d, 'collapseTime',
                          self.dialog.collapse.isChecked() and 1 or 0)
+        if self.dialog.perDay.isChecked() != self.d.getBool("perDay"):
+            self.d.setVar('perDay', self.dialog.perDay.isChecked())
         self.updateField(self.d,
                          "highPriority",
                          unicode(self.dialog.highPriority.text()))
