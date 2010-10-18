@@ -128,7 +128,6 @@ matureEase4 = 0,
 yesCount = 0,
 noCount = 0,
 spaceUntil = 0,
-isDue = 1,
 type = 2,
 combinedDue = created,
 modified = :now

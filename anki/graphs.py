@@ -79,11 +79,10 @@ class DeckGraphs(object):
             t = time.time()
             young = self.deck.s.all("""
 select interval, combinedDue
-from cards where priority in (1,2,3,4) and
-type in (0, 1) and interval <= 21""")
+from cards where type in (0, 1) and interval <= 21""")
             mature = self.deck.s.all("""
 select interval, combinedDue
-from cards where type = 1 and priority in (1,2,3,4) and interval > 21""")
+from cards where type = 1 and interval > 21""")
 
             for (src, dest) in [(young, daysYoung),
                                 (mature, daysMature)]:

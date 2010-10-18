@@ -212,7 +212,6 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         data['tags'] = u""
         self.cardIds.append(data['id'])
         data['combinedDue'] = data['due']
-        data['isDue'] = data['combinedDue'] < time.time()
         return data
 
     def stripInvalid(self, cards):

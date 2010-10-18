@@ -143,14 +143,13 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        self.newEarly = False
-        self.reviewEarly = False
         self.updateCutoff()
         self.setupStandardScheduler()
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'leechFails'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'perDay'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
+            self.setVarDefault("perDay", True)
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -166,6 +165,13 @@ class Deck(object):
         self.rebuildRevCount = self._rebuildRevCount
         self.rebuildNewCount = self._rebuildNewCount
         self.requeueCard = self._requeueCard
+        self.timeForNewCard = self._timeForNewCard
+        self.updateNewCountToday = self._updateNewCountToday
+        self.finishScheduler = None
+
+    def _noop(self):
+        "Do nothing."
+        pass
 
     def fillQueues(self):
         self.fillFailedQueue()
@@ -198,10 +204,10 @@ class Deck(object):
             "and combinedDue < :lim", lim=self.dueCutoff)
         self.updateNewCountToday()
 
-    def updateNewCountToday(self):
+    def _updateNewCountToday(self):
         self.newCountToday = max(min(
             self.newCount, self.newCardsPerDay -
-            self.newCardsToday()), 0)
+            self.newCardsDoneToday()), 0)
 
     def _fillFailedQueue(self):
         if self.failedSoonCount and not self.failedQueue:
@@ -295,8 +301,11 @@ end)""" + where)
             "update cards set type = type + 3 where priority <= 0")
 
     def updateCutoff(self):
-        today = genToday(self) + datetime.timedelta(days=1)
-        self.dueCutoff = time.mktime(today.timetuple())
+        if self.getBool("perDay"):
+            today = genToday(self) + datetime.timedelta(days=1)
+            self.dueCutoff = time.mktime(today.timetuple())
+        else:
+            self.dueCutoff = time.time()
 
     def reset(self):
         # setup global/daily stats
@@ -329,15 +338,55 @@ end)""" + where)
         if genToday(self) != self._dailyStats.day:
             self._dailyStats = dailyStats(self)
 
+    # Review early
+    ##########################################################################
+
+    def setupReviewEarlyScheduler(self):
+        self.fillRevQueue = self._fillRevEarlyQueue
+        self.rebuildRevCount = self._rebuildRevEarlyCount
+        self.finishScheduler = self._onReviewEarlyFinished
+
     def resetAfterReviewEarly(self):
         ids = self.s.column0("select id from cards where priority = -1")
         if ids:
             self.updatePriorities(ids)
             self.flushMod()
-        if self.reviewEarly or self.newEarly:
-            self.reviewEarly = False
-            self.newEarly = False
-            self.checkDue()
+
+    def _onReviewEarlyFinished(self):
+        # clean up buried cards
+        self.resetAfterReviewEarly()
+        # and go back to regular scheduler
+        self.setupStandardScheduler()
+
+    def _rebuildRevEarlyCount(self):
+        # in the future it would be nice to skip the first x days of due cards
+        extraLim = ""
+        self.revCount = self.s.scalar("""
+select count() from cards where type = 1 and combinedDue > :now
+%s""" % extraLim, now=self.dueCutoff)
+
+    def _fillRevEarlyQueue(self):
+        if self.revCount and not self.revQueue:
+            self.revQueue = self.s.all("""
+select id, factId from cards where type = 1 and combinedDue > :lim
+order by combinedDue limit 50""", lim=self.dueCutoff)
+            self.revQueue.reverse()
+
+    # Learn more
+    ##########################################################################
+
+    def setupLearnMoreScheduler(self):
+        self.rebuildNewCount = self._rebuildLearnMoreCount
+        self.updateNewCountToday = self._updateLearnMoreCountToday
+        self.finishScheduler = self.setupStandardScheduler
+
+    def _rebuildLearnMoreCount(self):
+        self.newCount = self.s.scalar("""
+select count() from cards where type = 2 and combinedDue < :now
+""", now=self.dueCutoff)
+
+    def _updateLearnMoreCountToday(self):
+        self.newCountToday = self.newCount
 
     # Getting the next card
     ##########################################################################
@@ -348,7 +397,7 @@ end)""" + where)
         if id:
             return self.cardFromId(id, orm)
 
-    def getCardId(self):
+    def getCardId(self, check=True):
         "Return the next due card id, or None."
         self.checkDailyStats()
         self.fillQueues()
@@ -368,34 +417,28 @@ end)""" + where)
         if self.revNoSpaced():
             return self.revQueue[-1][0]
         # new cards left?
-        if self.newQueue:
+        if self.newCountToday:
             return self.newQueue[-1][0]
-        # # review ahead?
-        # if self.reviewEarly:
-        #     id = self.getCardIdAhead()
-        #     if id:
-        #         return id
-        #     else:
-        #         self.resetAfterReviewEarly()
-        #         self.checkDue()
         # display failed cards early/last
         if self.showFailedLast() and self.failedQueue:
             return self.failedQueue[-1][0]
-
-    def getCardIdAhead(self):
-        "Return the first card that would become due."
-        id = self.s.scalar("""
-select id from cards
-where type = 1 and isDue = 0 and priority in (1,2,3,4)
-order by combinedDue
-limit 1""")
-        return id
+        if check:
+            # check for expired cards, or new day rollover
+            self.updateCutoff()
+            return self.getCardId(check=False)
+        # if we're in a custom scheduler, we may need to switch back
+        if self.finishScheduler:
+            self.finishScheduler()
+            self.reset()
+            return self.getCardId()
 
     # Get card: helper functions
     ##########################################################################
 
-    def timeForNewCard(self):
+    def _timeForNewCard(self):
         "True if it's time to display a new card when distributing."
+        if not self.newCountToday:
+            return False
         if self.newCardSpacing == NEW_CARDS_LAST:
             return False
         if self.newCardSpacing == NEW_CARDS_FIRST:
@@ -406,7 +449,7 @@ limit 1""")
                 "select 1 from cards where id = :id and priority = 4",
                 id = self.revQueue[-1][0]):
                 return False
-        if self.newCardModulus and (self.newCountToday or self.newEarly):
+        if self.newCardModulus:
             return self._dailyStats.reps % self.newCardModulus == 0
         else:
             return False
@@ -515,7 +558,6 @@ where factId in (select factId from %s limit 60))""" % (new, new))
             # only update if card was not new
             card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
-        card.isDue = 0
         card.lastFactor = card.factor
         if lastDelay >= 0:
             # don't update factor if learning ahead
@@ -536,22 +578,16 @@ where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
         space += time.time()
         card.combinedDue = max(card.due, space)
         # check what other cards we've spaced
-        if self.reviewEarly:
-            extra = ""
-        else:
-            # if not reviewing early, make sure the current card is counted
-            # even if it was not due yet (it's a failed card)
-            extra = "or id = :cid"
         for (type, count) in self.s.all("""
 select type, count(type) from cards
 where factId = :fid and
-(isDue = 1 %s)
-group by type""" % extra, fid=card.factId, cid=card.id):
+(combinedDue < :now or id = :cid)
+group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
             if type == 0:
                 self.failedSoonCount -= count
             elif type == 1:
                 self.revCount -= count
-            else:
+            elif type == 2:
                 self.newCount -= count
         # bump failed count if necessary
         if ease == 1:
@@ -561,15 +597,14 @@ group by type""" % extra, fid=card.factId, cid=card.id):
 update cards set
 spaceUntil = :space,
 combinedDue = max(:space, due),
-modified = :now,
-isDue = 0
+modified = :now
 where id != :id and factId = :factId""",
                          id=card.id, space=space, now=now, factId=card.factId)
         card.spaceUntil = 0
         self.spacedFacts[card.factId] = space
-        # temp suspend if learning ahead
-        if self.reviewEarly and lastDelay < 0:
-            if oldSuc or lastDelaySecs > self.delay0 or not self._showFailedLast():
+        # temp suspend if it's a review card & we're reviewing early
+        if oldSuc and lastDelay < 0:
+            if lastDelaySecs > self.delay0:
                 card.priority = -1
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
@@ -715,7 +750,7 @@ factor = 2.5, reps = 0, successive = 0, averageTime = 0, reviewTime = 0,
 youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
 youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
 matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
-spaceUntil = 0, isDue = 0, type = 2,
+spaceUntil = 0, type = 2,
 combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
         if self.newCardOrder == NEW_CARDS_RANDOM:
@@ -772,8 +807,7 @@ reps = 1,
 successive = 1,
 yesCount = 1,
 firstAnswered = :t,
-type = 1,
-isDue = 0
+type = 1
 where id = :id""", vals)
         self.flushMod()
 
@@ -783,9 +817,8 @@ where id = :id""", vals)
     def nextDueMsg(self):
         next = self.earliestTime()
         if next:
-            newCount = self.s.scalar("""
-select count() from cards where type = 2
-and priority in (1,2,3,4)""")
+            newCount = self.s.scalar(
+                "select count() from cards where type = 2")
             newCardsTomorrow = min(newCount, self.newCardsPerDay)
             cards = self.cardsDueBy(time.time() + 86400)
             msg = _('''\
@@ -812,8 +845,8 @@ This may be in the past if the deck is not finished.
 If the deck has no (enabled) cards, return None.
 Ignore new cards."""
         return self.s.scalar("""
-select combinedDue from cards where priority in (1,2,3,4) and
-type in (0, 1) order by combinedDue limit 1""")
+select combinedDue from cards where type in (0, 1)
+order by combinedDue limit 1""")
 
     def earliestTimeStr(self, next=None):
         """Return the relative time to the earliest card as a string."""
@@ -828,10 +861,9 @@ type in (0, 1) order by combinedDue limit 1""")
         "Number of cards due at TIME. Ignore new cards"
         return self.s.scalar("""
 select count(id) from cards where combinedDue < :time
-and priority in (1,2,3,4) and type in (0, 1)""", time=time)
+and type in (0, 1)""", time=time)
 
     def deckFinishedMsg(self):
-        self.resetAfterReviewEarly()
         spaceSusp = ""
         c= self.spacedCardCount()
         if c:
@@ -944,9 +976,12 @@ group by cardTags.cardId""" % limit)
                     "update cards set priority = :pri %s where id in %s "
                     "and priority != :pri and priority >= -2") % (
                     extra, ids2str(cs)), pri=pri, m=time.time())
-        cnt = self.s.execute(
-            "update cards set isDue = 0 where type in (0,1,2) and "
-            "priority = 0 and isDue = 1").rowcount
+        self.s.execute(
+            "update cards set type = type + 3 where type in (0,1,2) and "
+            "priority = 0").rowcount
+        self.s.execute(
+            "update cards set type = type - 3 where type in (3,4,5) and "
+            "priority > 0").rowcount
         self.reset()
 
     def updatePriority(self, card):
@@ -960,16 +995,17 @@ group by cardTags.cardId""" % limit)
     def suspendCards(self, ids):
         self.startProgress()
         self.s.statement(
-            "update cards set isDue=0, priority=-3, modified=:t "
-            "where id in %s" % ids2str(ids), t=time.time())
+            "update cards set type = type + 3, priority=-3, modified=:t "
+            "where type in (0,1,2) and id in %s" % ids2str(ids), t=time.time())
         self.flushMod()
         self.reset()
         self.finishProgress()
 
     def unsuspendCards(self, ids):
         self.startProgress()
-        self.s.statement(
-            "update cards set priority=0, modified=:t where id in %s" %
+        self.s.statement("""
+update cards set type = type - 3, priority=0, modified=:t
+where type in (3,4,5) and id in %s""" %
             ids2str(ids), t=time.time())
         self.updatePriorities(ids)
         self.flushMod()
@@ -997,7 +1033,7 @@ select count(id) from cards where priority = 0""")
     # Counts related to due cards
     ##########################################################################
 
-    def newCardsToday(self):
+    def newCardsDoneToday(self):
         return (self._dailyStats.newEase0 +
                 self._dailyStats.newEase1 +
                 self._dailyStats.newEase2 +
@@ -1008,7 +1044,7 @@ select count(id) from cards where priority = 0""")
         "Number of spaced new cards."
         return self.s.scalar("""
 select count(cards.id) from cards where
-type = 2 and isDue = 0 and priority in (1,2,3,4) and combinedDue > :now
+type = 2 and combinedDue > :now
 and due < :now""", now=time.time())
 
     def isEmpty(self):
@@ -1993,8 +2029,9 @@ cardTags.tagId in %s""" % ids2str(ids)
                     qquery += "select id from cards where type = %d" % n
                 elif token == "delayed":
                     qquery += ("select id from cards where "
-                               "due < %d and isDue = 0 and "
-                               "priority in (1,2,3,4)") % time.time()
+                               "due < %d and combinedDue > %d and "
+                               "type in (0,1,2)") % (
+                        self.dueCutoff, self.dueCutoff)
                 elif token == "suspended":
                     qquery += ("select id from cards where "
                                "priority = -3")
@@ -2003,7 +2040,7 @@ cardTags.tagId in %s""" % ids2str(ids)
                                "priority = 0")
                 else: # due
                     qquery += ("select id from cards where "
-                               "type in (0,1) and isDue = 1")
+                               "type in (0,1) and combinedDue < %d") % self.dueCutoff
             elif type == SEARCH_FID:
                 if fidquery:
                     if isNeg:
@@ -2476,9 +2513,7 @@ select id from fields where factId not in (select id from facts)""")
             problems.append(_("Deleted: ") + "%s %s" % tuple(card))
         self.s.flush()
         if not quick:
-            # fix problems with cards being scheduled when not due
             self.updateProgress()
-            self.s.statement("update cards set isDue = 0")
             # these sometimes end up null on upgrade
             self.s.statement("update models set source = 0 where source is null")
             self.s.statement(
@@ -3399,6 +3434,9 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             DeckStorage._addIndices(deck)
             # new type handling
             deck.rebuildTypes()
+            # per-day scheduling necessitates an increase here
+            deck.hardIntervalMin = 1
+            deck.hardIntervalMax = 1.1
             deck.version = 44
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store

@@ -73,7 +73,6 @@ class Card(object):
         self.id = genID()
         # new cards start as new & due
         self.type = 2
-        self.isDue = True
         self.timerStarted = False
         self.timerStopped = False
         self.modified = time.time()
@@ -226,7 +225,7 @@ from cards where id = :id""", id=id)
         return True
 
     def toDB(self, s):
-        "Write card to DB. Note that isDue assumes card is not spaced."
+        "Write card to DB."
         if self.reps == 0:
             self.type = 2
         elif self.successive:
@@ -260,7 +259,7 @@ matureEase4=:matureEase4,
 yesCount=:yesCount,
 noCount=:noCount,
 spaceUntil = :spaceUntil,
-isDue = :isDue,
+isDue = 0,
 type = :type,
 combinedDue = max(:spaceUntil, :due),
 relativeDelay = 0,
