@@ -16,8 +16,6 @@ import ankiqt
 from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom, getBase
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from sqlalchemy.exceptions import InvalidRequestError
-from PyQt4 import pyqtconfig
-QtConfig = pyqtconfig.Configuration()
 
 clozeColour = "#0000ff"
 
@@ -711,7 +709,7 @@ class FactEditor(object):
             self.setForeground(w)
 
     def _needExtraWord(self):
-        ver = QtConfig.qt_version >> 8
+        ver = ui.main.QtConfig.qt_version >> 8
         if ver == 0x404:
             # qt4.4 behaviour is wrong
             return False

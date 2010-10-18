@@ -9,6 +9,8 @@ from operator import itemgetter
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import QWebPage
+from PyQt4 import pyqtconfig
+QtConfig = pyqtconfig.Configuration()
 from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
@@ -1709,6 +1711,10 @@ learnt today")
         if self.config['simpleToolbar']:
             self.removeToolBar(mw.toolBar)
             mw.toolBar.hide()
+            ver = QtConfig.qt_version >> 8
+            if ver >= 0x407:
+                # this became necessary in 4.7 or we end up with two toolbars
+                mw.toolBar.deleteLater()
             mw.toolBar = QToolBar(self)
             mw.toolBar.setObjectName("toolBar")
             mw.toolBar.addAction(mw.actionAddcards)
