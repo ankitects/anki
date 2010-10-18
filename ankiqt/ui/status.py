@@ -303,7 +303,7 @@ You should aim to answer each question within<br>
         if not self.main.deck:
             return
         if self.state in ("showQuestion", "showAnswer", "studyScreen"):
-            self.main.deck.checkDue()
+            self.main.deck.reset()
             self.redraw()
             self.main.updateTitleBar()
             if self.state == "studyScreen":
