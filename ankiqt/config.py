@@ -86,7 +86,6 @@ class Config(dict):
             'showLastCardContent': False,
             'showLastCardInterval': False,
             'showProgress': True,
-            'showStudyOptions': False,
             'showStudyScreen': True,
             'showStudyStats': True,
             'showTimer': True,

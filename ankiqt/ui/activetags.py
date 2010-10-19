@@ -9,53 +9,33 @@ from ankiqt.ui.utils import saveGeom, restoreGeom
 
 class ActiveTagsChooser(QDialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent, active, inactive):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.deck = self.parent.deck
+        self.active = active
+        self.inactive = inactive
         self.dialog = ankiqt.forms.activetags.Ui_Dialog()
         self.dialog.setupUi(self)
-        self.selectAll = QPushButton(_("Select All"))
-        self.connect(self.selectAll, SIGNAL("clicked()"), self.onSelectAll)
-        self.dialog.buttonBox.addButton(self.selectAll,
-                                        QDialogButtonBox.ActionRole)
-        self.selectNone = QPushButton(_("Select None"))
-        self.connect(self.selectNone, SIGNAL("clicked()"), self.onSelectNone)
-        self.dialog.buttonBox.addButton(self.selectNone,
-                                        QDialogButtonBox.ActionRole)
-        self.invert = QPushButton(_("Invert"))
-        self.connect(self.invert, SIGNAL("clicked()"), self.onInvert)
-        self.dialog.buttonBox.addButton(self.invert,
-                                        QDialogButtonBox.ActionRole)
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.rebuildTagList()
         restoreGeom(self, "activeTags")
 
-    def onSelectAll(self):
-        self.dialog.list.selectAll()
-
-    def onSelectNone(self):
-        self.dialog.list.clearSelection()
-
-    def onInvert(self):
-        sm = self.dialog.list.selectionModel()
-        sel = sm.selection()
-        self.dialog.list.selectAll()
-        sm.select(sel, QItemSelectionModel.Deselect)
-
     def rebuildTagList(self):
-        self.tags = self.deck.allTags()
+        usertags = self.deck.allTags()
         self.items = []
         self.suspended = {}
-        alltags = []
-        # get list of currently suspended
-        for t in parseTags(self.deck.suspended):
-            self.suspended[t] = 1
-            if t not in self.tags:
-                self.tags.append(t)
-        # sort and remove special 'Suspended' tag
-        self.tags.sort()
+        yes = parseTags(self.deck.getVar(self.active))
+        no = parseTags(self.deck.getVar(self.inactive))
+        yesHash = {}
+        noHash = {}
+        for y in yes:
+            yesHash[y] = True
+        for n in no:
+            noHash[n] = True
+        groupedTags = []
+        usertags.sort()
         # render models and templates
         for (type, sql, icon) in (
             ("models", "select tags from models", "contents.png"),
@@ -66,60 +46,74 @@ class ActiveTagsChooser(QDialog):
                 for tag in parseTags(tags):
                     d[tag] = 1
             sortedtags = sorted(d.keys())
-            alltags.extend(sortedtags)
             icon = QIcon(":/icons/" + icon)
-            for t in sortedtags:
-                item = QListWidgetItem(icon, t.replace("_", " "))
-                self.dialog.list.addItem(item)
-                self.items.append(item)
-                idx = self.dialog.list.indexFromItem(item)
-                if t in self.suspended:
-                    mode = QItemSelectionModel.Select
-                else:
-                    mode = QItemSelectionModel.Deselect
-                self.dialog.list.selectionModel().select(idx, mode)
+            groupedTags.append([icon, sortedtags])
         # remove from user tags
-        for tag in alltags:
+        for tag in groupedTags[0][1] + groupedTags[1][1]:
             try:
-                self.tags.remove(tag)
+                usertags.remove(tag)
             except:
                 pass
         # user tags
         icon = QIcon(":/icons/Anki_Fact.png")
-        for t in self.tags:
-            item = QListWidgetItem(icon, t.replace("_", " "))
-            self.dialog.list.addItem(item)
-            self.items.append(item)
-            idx = self.dialog.list.indexFromItem(item)
-            if t in self.suspended:
-                mode = QItemSelectionModel.Select
-            else:
-                mode = QItemSelectionModel.Deselect
-            self.dialog.list.selectionModel().select(idx, mode)
-        self.tags = alltags + self.tags
+        groupedTags.append([icon, usertags])
+        self.tags = []
+        for (icon, tags) in groupedTags:
+            for t in tags:
+                self.tags.append(t)
+                item = QListWidgetItem(icon, t.replace("_", " "))
+                self.dialog.activeList.addItem(item)
+                if t in yesHash:
+                    mode = QItemSelectionModel.Select
+                    self.dialog.activeCheck.setChecked(True)
+                else:
+                    mode = QItemSelectionModel.Deselect
+                idx = self.dialog.activeList.indexFromItem(item)
+                self.dialog.activeList.selectionModel().select(idx, mode)
+                # inactive
+                item = QListWidgetItem(icon, t.replace("_", " "))
+                self.dialog.inactiveList.addItem(item)
+                if t in noHash:
+                    mode = QItemSelectionModel.Select
+                    self.dialog.inactiveCheck.setChecked(True)
+                else:
+                    mode = QItemSelectionModel.Deselect
+                idx = self.dialog.inactiveList.indexFromItem(item)
+                self.dialog.inactiveList.selectionModel().select(idx, mode)
 
     def accept(self):
         self.hide()
-        self.deck.startProgress()
         n = 0
-        suspended = []
-        for item in self.items:
-            idx = self.dialog.list.indexFromItem(item)
-            if self.dialog.list.selectionModel().isSelected(idx):
-                suspended.append(self.tags[n])
-            n += 1
-        self.deck.suspended = canonifyTags(joinTags(suspended))
-        self.deck.setModified()
-        self.deck.updateAllPriorities(partial=True, dirty=False)
+        yes = []
+        no = []
+        for c in range(self.dialog.activeList.count()):
+            # active
+            item = self.dialog.activeList.item(c)
+            idx = self.dialog.activeList.indexFromItem(item)
+            if self.dialog.activeList.selectionModel().isSelected(idx):
+                yes.append(self.tags[c])
+            # inactive
+            item = self.dialog.inactiveList.item(c)
+            idx = self.dialog.inactiveList.indexFromItem(item)
+            if self.dialog.inactiveList.selectionModel().isSelected(idx):
+                no.append(self.tags[c])
+
+        if self.dialog.activeCheck.isChecked():
+            self.deck.setVar(self.active, joinTags(yes))
+        else:
+            self.deck.setVar(self.active, "")
+        if self.dialog.inactiveCheck.isChecked():
+            self.deck.setVar(self.inactive, joinTags(no))
+        else:
+            self.deck.setVar(self.inactive, "")
         self.parent.reset()
         saveGeom(self, "activeTags")
-        self.deck.finishProgress()
         QDialog.accept(self)
 
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "ActiveTags"))
 
-def show(parent):
-    at = ActiveTagsChooser(parent)
+def show(parent, active, inactive):
+    at = ActiveTagsChooser(parent, active, inactive)
     at.exec_()

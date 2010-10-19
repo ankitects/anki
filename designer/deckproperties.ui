@@ -486,40 +486,14 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>&lt;b&gt;Maximum failed cards&lt;/b&gt;</string>
-           </property>
-           <property name="openExternalLinks">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="failedCardMax"/>
-         </item>
-         <item row="3" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="label_29">
            <property name="text">
             <string>&lt;b&gt;New day starts at&lt;/b&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="2" column="1">
           <spacer name="horizontalSpacer_3">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -532,7 +506,7 @@
            </property>
           </spacer>
          </item>
-         <item row="3" column="2">
+         <item row="2" column="2">
           <widget class="QLineEdit" name="timeOffset"/>
          </item>
          <item row="0" column="0">
@@ -565,38 +539,38 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="label_11">
            <property name="text">
             <string>&lt;b&gt;Suspend leeches&lt;/b&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
+         <item row="3" column="2">
           <widget class="QCheckBox" name="suspendLeeches">
            <property name="text">
             <string/>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_15">
            <property name="text">
             <string>&lt;b&gt;Leech failure threshold&lt;/b&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="4" column="2">
           <widget class="QSpinBox" name="leechFails"/>
          </item>
-         <item row="6" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
             <string>&lt;b&gt;Per-day scheduling&lt;/b&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
+         <item row="1" column="2">
           <widget class="QCheckBox" name="perDay">
            <property name="text">
             <string/>
@@ -658,11 +632,10 @@
   <tabstop>easyMin</tabstop>
   <tabstop>easyMax</tabstop>
   <tabstop>collapse</tabstop>
-  <tabstop>failedCardMax</tabstop>
+  <tabstop>perDay</tabstop>
   <tabstop>timeOffset</tabstop>
   <tabstop>suspendLeeches</tabstop>
   <tabstop>leechFails</tabstop>
-  <tabstop>perDay</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

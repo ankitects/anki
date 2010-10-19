@@ -11,27 +11,48 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Inactive Tags</string>
+   <string>Selective Study</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Cards with any of the selected tags below will not be shown.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="list">
-       <property name="selectionMode">
-        <enum>QAbstractItemView::MultiSelection</enum>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="activeCheck">
+         <property name="text">
+          <string>Show only cards with these tags:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="activeList">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="inactiveCheck">
+         <property name="text">
+          <string>Hide cards with these tags:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="inactiveList">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
@@ -56,8 +77,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>358</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -78,6 +99,38 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>activeCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>activeList</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>133</x>
+     <y>85</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>inactiveCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>inactiveList</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>146</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>68</x>
+     <y>276</y>
     </hint>
    </hints>
   </connection>

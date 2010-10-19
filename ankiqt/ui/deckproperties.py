@@ -62,7 +62,6 @@ class DeckProperties(QDialog):
         self.dialog.delay2.setText(unicode(self.d.delay2))
         self.dialog.collapse.setCheckState(self.d.collapseTime
                                            and Qt.Checked or Qt.Unchecked)
-        self.dialog.failedCardMax.setText(unicode(self.d.failedCardMax))
         self.dialog.perDay.setCheckState(self.d.getBool("perDay")
                                          and Qt.Checked or Qt.Unchecked)
         # sources
@@ -245,10 +244,6 @@ class DeckProperties(QDialog):
             self.updateField(self.d, 'delay1', v2)
             v = float(self.dialog.delay2.text())
             self.updateField(self.d, 'delay2', min(v, 1))
-            v = int(self.dialog.failedCardMax.text())
-            if v == 1 or v < 0:
-                v = 2
-            self.updateField(self.d, 'failedCardMax', v)
         except ValueError:
             pass
         try:

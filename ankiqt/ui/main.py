@@ -826,6 +826,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onClose(self):
+        # allow focusOut to save
         if self.inMainWindow() or not self.app.activeWindow():
             isCram = self.isCramming()
             self.saveAndClose(hideWelcome=isCram)
@@ -836,6 +837,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def saveAndClose(self, hideWelcome=False, parent=None):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
+        # allow any focusOut()s to run first
+        self.setFocus()
         if not parent:
             parent = self
         self.hideWelcome = hideWelcome
@@ -1465,6 +1468,7 @@ later by using File>Close.
     ##########################################################################
 
     def setupStudyScreen(self):
+        self.mainWin.buttonStack.hide()
         self.mainWin.newCardOrder.insertItems(
             0, QStringList(newCardOrderLabels().values()))
         self.mainWin.newCardScheduling.insertItems(
@@ -1475,9 +1479,10 @@ later by using File>Close.
                      SIGNAL("clicked()"),
                      lambda: QDesktopServices.openUrl(QUrl(
             ankiqt.appWiki + "StudyOptions")))
-        self.mainWin.optionsBox.setShown(False)
         self.connect(self.mainWin.minuteLimit,
                      SIGNAL("textChanged(QString)"), self.onMinuteLimitChanged)
+        self.connect(self.mainWin.questionLimit,
+                     SIGNAL("textChanged(QString)"), self.onQuestionLimitChanged)
         self.connect(self.mainWin.newPerDay,
                      SIGNAL("textChanged(QString)"), self.onNewLimitChanged)
         self.connect(self.mainWin.startReviewingButton,
@@ -1485,6 +1490,37 @@ later by using File>Close.
                      self.onStartReview)
         self.connect(self.mainWin.newCardOrder,
                      SIGNAL("activated(int)"), self.onNewCardOrderChanged)
+        self.connect(self.mainWin.advancedOptions,
+                     SIGNAL("clicked()"),
+                     self.onAdvancedOptions)
+        self.connect(self.mainWin.failedCardMax,
+                     SIGNAL("editingFinished()"),
+                     self.onFailedMaxChanged)
+        self.connect(self.mainWin.newCategories,
+                     SIGNAL("clicked()"), self.onNewCategoriesClicked)
+        self.connect(self.mainWin.revCategories,
+                     SIGNAL("clicked()"), self.onRevCategoriesClicked)
+
+    def onNewCategoriesClicked(self):
+        ui.activetags.show(self, "newActive", "newInactive")
+
+    def onRevCategoriesClicked(self):
+        ui.activetags.show(self, "revActive", "revInactive")
+
+    def onFailedMaxChanged(self):
+        try:
+            v = int(self.mainWin.failedCardMax.text())
+            if v == 1 or v < 0:
+                v = 2
+            self.deck.failedCardMax = v
+        except ValueError:
+            pass
+        self.mainWin.failedCardMax.setText(str(self.deck.failedCardMax))
+        self.deck.flushMod()
+
+    def onAdvancedOptions(self):
+        self.onDeckProperties()
+        self.deckProperties.dialog.qtabwidget.setCurrentIndex(2)
 
     def onMinuteLimitChanged(self, qstr):
         try:
@@ -1492,6 +1528,17 @@ later by using File>Close.
             if self.deck.sessionTimeLimit == val:
                 return
             self.deck.sessionTimeLimit = val
+        except ValueError:
+            pass
+        self.deck.flushMod()
+        self.updateStudyStats()
+
+    def onQuestionLimitChanged(self, qstr):
+        try:
+            val = int(self.mainWin.questionLimit.text())
+            if self.deck.sessionRepLimit == val:
+                return
+            self.deck.sessionRepLimit = val
         except ValueError:
             pass
         self.deck.flushMod()
@@ -1531,15 +1578,28 @@ later by using File>Close.
             self.deck.finishProgress()
             uf(self.deck, 'newCardOrder', ncOrd)
 
+    def updateActives(self):
+        labels = [
+            u"Show All Due Cards",
+            u"Show Chosen Categories"
+            ]
+        if self.deck.getVar("newActive") or self.deck.getVar("newInactive"):
+            new = labels[1]
+        else:
+            new = labels[0]
+        self.mainWin.newCategoryLabel.setText(new)
+        if self.deck.getVar("revActive") or self.deck.getVar("revInactive"):
+            rev = labels[1]
+        else:
+            rev = labels[0]
+        self.mainWin.revCategoryLabel.setText(rev)
+
     def updateStudyStats(self):
         self.deck.reset()
+        self.updateActives()
         wasReached = self.deck.sessionLimitReached()
         sessionColour = '<font color=#0000ff>%s</font>'
         cardColour = '<font color=#0000ff>%s</font>'
-        if not wasReached:
-            top = _("<h1>Study Options</h1>")
-        else:
-            top = _("<h1>Well done!</h1>")
         # top label
         h = {}
         s = self.deck.getStats()
@@ -1574,15 +1634,15 @@ day = :d""", d=yesterday)
             anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
         h['timeTodayChg'] = str(anki.utils.fmtTimeSpan(
             tyest, short=True, point=1))
-        h['cs_header'] = _("Cards/session:")
-        h['cd_header'] = _("Cards/day:")
-        h['td_header'] = _("Time/day:")
-        h['rd_header'] = _("Reviews due:")
-        h['ntod_header'] = _("New today:")
-        h['ntot_header'] = _("New total:")
+        h['cs_header'] = "<b>" + _("Cards/session:") + "</b>"
+        h['cd_header'] = "<b>" + _("Cards/day:") + "</b>"
+        h['td_header'] = "<b>" + _("Time/day:") + "</b>"
+        h['rd_header'] = "<b>" + _("Reviews due:") + "</b>"
+        h['ntod_header'] = "<b>" + _("New today:") + "</b>"
+        h['ntot_header'] = "<b>" + _("New total:") + "</b>"
         stats1 = ("""\
 <table>
-<tr><td width=80>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>
+<tr><td width=190>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>
 <td><b>%(repsInSes)s</b></td></tr>
  <tr><td>%(cd_header)s</td><td><b>%(repsTodayChg)s</b></td>
 <td><b>%(repsToday)s</b></td></tr>
@@ -1592,7 +1652,7 @@ day = :d""", d=yesterday)
 
         stats2 = ("""\
 <table>
-<tr><td width=100>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>
+<tr><td width=220>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>
 <tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
@@ -1603,10 +1663,11 @@ day = :d""", d=yesterday)
             self.haveYesterday = True
             stats1 = (
                 "<td>%s</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>" % stats1)
-        self.mainWin.optionsLabel.setText(top + """\
+        self.mainWin.optionsLabel.setText("""\
 <p><table><tr>
 %s
-<td>%s</td></tr></table>""" % (stats1, stats2))
+</tr><tr>
+<td><hr>%s<hr></td></tr></table>""" % (stats1, stats2))
         h['tt_header'] = _("Session Statistics")
         h['cs_tip'] = _("The number of cards you studied in the current \
 session (blue) and previous session (black)")
@@ -1632,22 +1693,12 @@ learnt today")
     def showStudyScreen(self):
         # forget last card
         self.lastCard = None
-        self.mainWin.optionsButton.setChecked(self.config['showStudyOptions'])
-        self.mainWin.optionsBox.setShown(self.config['showStudyOptions'])
         self.switchToStudyScreen()
         self.updateStudyStats()
-        # start reviewing button
-        self.mainWin.buttonStack.hide()
-        if self.reviewingStarted:
-            self.mainWin.startReviewingButton.setText(_("Continue &Reviewing"))
-        else:
-            self.mainWin.startReviewingButton.setText(_("Start &Reviewing"))
         self.mainWin.startReviewingButton.setFocus()
         self.setupStudyOptions()
+        self.mainWin.studyOptionsFrame.setFixedWidth(300)
         self.mainWin.studyOptionsFrame.show()
-        if self.haveYesterday:
-            size = self.mainWin.optionsLabel.sizeHint().width() + 50
-            self.mainWin.studyOptionsFrame.setFixedWidth(size)
 
     def setupStudyOptions(self):
         self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
@@ -1666,6 +1717,7 @@ learnt today")
             labels = failedCardOptionLabels().values()[0:-1]
         self.mainWin.failedCardsOption.insertItems(0, labels)
         self.mainWin.failedCardsOption.setCurrentIndex(self.deck.getFailedCardPolicy())
+        self.mainWin.failedCardMax.setText(unicode(self.deck.failedCardMax))
 
     def onStartReview(self):
         def uf(obj, field, value):
@@ -1675,15 +1727,6 @@ learnt today")
         self.mainWin.studyOptionsFrame.hide()
         # make sure the size is updated before button stack shown
         self.app.processEvents()
-        self.config['showStudyOptions'] = self.mainWin.optionsButton.isChecked()
-        try:
-            uf(self.deck, 'newCardsPerDay', int(self.mainWin.newPerDay.text()))
-            uf(self.deck, 'sessionTimeLimit', min(float(
-                self.mainWin.minuteLimit.text()), 3600) * 60)
-            uf(self.deck, 'sessionRepLimit',
-               int(self.mainWin.questionLimit.text()))
-        except (ValueError, OverflowError):
-            pass
         uf(self.deck, 'newCardSpacing',
            self.mainWin.newCardScheduling.currentIndex())
         uf(self.deck, 'revCardOrder',
@@ -1889,9 +1932,6 @@ will be lost when you close the deck."""))
 
     def onDonate(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appDonate))
-
-    def onActiveTags(self):
-        ui.activetags.show(self)
 
     # Importing & exporting
     ##########################################################################
@@ -2374,7 +2414,6 @@ Are you sure?""" % deckName),
         "Graphs",
         "Dstats",
         "Cstats",
-        "ActiveTags",
         "StudyOptions",
         )
 
@@ -2426,7 +2465,6 @@ Are you sure?""" % deckName),
         self.connect(m.actionOpenPluginFolder, s, self.onOpenPluginFolder)
         self.connect(m.actionEnableAllPlugins, s, self.onEnableAllPlugins)
         self.connect(m.actionDisableAllPlugins, s, self.onDisableAllPlugins)
-        self.connect(m.actionActiveTags, s, self.onActiveTags)
         self.connect(m.actionReleaseNotes, s, self.onReleaseNotes)
         self.connect(m.actionCacheLatex, s, self.onCacheLatex)
         self.connect(m.actionUncacheLatex, s, self.onUncacheLatex)
@@ -2980,8 +3018,6 @@ Consider backing up your media directory first."""))
     def changeLayoutSpacing(self):
         if sys.platform.startswith("darwin"):
             self.mainWin.studyOptionsReviewBar.setContentsMargins(0, 20, 0, 0)
-            self.mainWin.optionsBox.layout().setSpacing(10)
-            self.mainWin.optionsBox.layout().setContentsMargins(4, 10, 4, 4)
 
     # Proxy support
     ##########################################################################
