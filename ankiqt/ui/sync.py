@@ -20,7 +20,7 @@ from anki.hooks import addHook, removeHook
 class Sync(QThread):
 
     def __init__(self, parent, user, pwd, interactive, create,
-                 onlyMerge, sourcesToCheck):
+                 onlyMerge):
         QThread.__init__(self)
         self.parent = parent
         self.interactive = interactive
@@ -29,7 +29,6 @@ class Sync(QThread):
         self.create = create
         self.ok = True
         self.onlyMerge = onlyMerge
-        self.sourcesToCheck = sourcesToCheck
         self.proxy = None
         addHook('fullSyncStarted', self.fullSyncStarted)
         addHook('fullSyncFinished', self.fullSyncFinished)
@@ -92,7 +91,6 @@ sync was aborted. Please report this error.""")
         if not self.proxy:
             self.setStatus(_("Connecting..."), 0)
             proxy = HttpSyncServerProxy(self.user, self.pwd)
-            proxy.sourcesToCheck = self.sourcesToCheck
             proxy.connect("ankiqt-" + ankiqt.appVersion)
             self.proxy = proxy
             # check clock
@@ -219,9 +217,6 @@ sync was aborted. Please report this error.""")
                         self.setStatus(_("Downloading..."), 0)
                         client.fullSyncFromServer(ret[1], ret[2])
                     self.setStatus(_("Sync complete."), 0)
-                    # reopen the deck in case we have sources
-                    self.deck = DeckStorage.Deck(path)
-                    client.deck = self.deck
                 else:
                     # diff
                     self.setStatus(_("Determining differences..."), 0)
@@ -244,35 +239,11 @@ sync was aborted. Please report this error.""")
                 changes = False
                 if not deck:
                     self.setStatus(_("No changes found."))
-            # check sources
-            srcChanged = False
-            if self.sourcesToCheck:
-                start = time.time()
-                self.setStatus(_("<br><br>Checking deck subscriptions..."))
-                srcChanged = False
-                for source in self.sourcesToCheck:
-                    proxy.deckName = str(source)
-                    msg = "%s:" % client.syncOneWayDeckName()
-                    if not proxy.hasDeck(str(source)):
-                        self.setStatus(_(" * %s no longer exists.") % msg)
-                        continue
-                    if not client.prepareOneWaySync():
-                        self.setStatus(_(" * %s no changes found.") % msg)
-                        continue
-                    srcChanged = True
-                    self.setStatus(_(" * %s fetching payload...") % msg)
-                    payload = proxy.genOneWayPayload(client.deck.lastSync)
-                    self.setStatus(msg + _(" applied %d modified cards.") %
-                                   len(payload['cards']))
-                    client.applyOneWayPayload(payload)
-                self.setStatus(_("Check complete."))
-                self.deck.s.flush()
-                self.deck.s.commit()
             # close and send signal to main thread
             self.deck.close()
             if not deck:
                 taken = time.time() - start
-                if (changes or srcChanged) and taken < 2.5:
+                if changes and taken < 2.5:
                     time.sleep(2.5 - taken)
                 else:
                     time.sleep(0.25)

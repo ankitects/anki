@@ -2160,7 +2160,7 @@ it to your friends.
     ##########################################################################
 
     def syncDeck(self, interactive=True, create=False, onlyMerge=False,
-                 reload=True, checkSources=True):
+                 reload=True):
         "Synchronise a deck with the server."
         if not self.inMainWindow() and interactive: return
         self.setNotice()
@@ -2185,7 +2185,6 @@ it to your friends.
             # sync all decks
             self.loadAfterSync = -1
             self.syncName = None
-            self.sourcesToCheck = []
             self.syncDecks = self.decksToSync()
         else:
             # sync one deck
@@ -2199,13 +2198,6 @@ it to your friends.
                 self.deckPath = self.deck.path
                 self.syncName = self.deck.syncName or self.deck.name()
                 self.lastSync = self.deck.lastSync
-                if checkSources:
-                    self.sourcesToCheck = self.deck.s.column0(
-                        "select id from sources where syncPeriod != -1 "
-                        "and syncPeriod = 0 or :t - lastSync > syncPeriod",
-                        t=time.time())
-                else:
-                    self.sourcesToCheck = []
                 self.deck.close()
                 self.deck = None
                 self.loadAfterSync = reload
@@ -2215,7 +2207,7 @@ it to your friends.
         import gc; gc.collect()
         self.mainWin.welcomeText.setText(u"")
         self.syncThread = ui.sync.Sync(self, u, p, interactive, create,
-                                       onlyMerge, self.sourcesToCheck)
+                                       onlyMerge)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
         self.connect(self.syncThread, SIGNAL("noSyncResponse"), self.noSyncResponse)
