@@ -178,45 +178,8 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_28">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>40</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>&lt;h1&gt;Sources&lt;/h1&gt;</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QPushButton" name="addSource">
-             <property name="text">
-              <string>&amp;Add Source</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="deleteSource">
-             <property name="text">
-              <string>&amp;Delete Source</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="7" column="0">
-          <widget class="QTableWidget" name="sourcesTable"/>
+         <item row="4" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_3"/>
          </item>
          <item row="3" column="0">
           <spacer name="verticalSpacer_4">
@@ -251,26 +214,6 @@
             </widget>
            </item>
           </layout>
-         </item>
-         <item row="4" column="0">
-          <widget class="Line" name="line_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <spacer name="verticalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </item>
@@ -619,9 +562,6 @@
   <tabstop>lowPriority</tabstop>
   <tabstop>doSync</tabstop>
   <tabstop>syncName</tabstop>
-  <tabstop>sourcesTable</tabstop>
-  <tabstop>addSource</tabstop>
-  <tabstop>deleteSource</tabstop>
   <tabstop>delay0</tabstop>
   <tabstop>delay1</tabstop>
   <tabstop>delay2</tabstop>
