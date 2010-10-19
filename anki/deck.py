@@ -145,6 +145,7 @@ class Deck(object):
         self.lastSessionStart = 0
         self.updateCutoff()
         self.setupStandardScheduler()
+        self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
         if not self.s.scalar("select 1 from deckVars where key = 'revInactive'"):
             self.setVarDefault("suspendLeeches", True)
@@ -232,7 +233,7 @@ and combinedDue < :lim """ + self.cardLimit("newActive", "newInactive"),
 select id, factId, combinedDue from cards
 where type = 0 and combinedDue < :lim
 order by combinedDue
-limit 200""", lim=self.dueCutoff)
+limit %d""" % self.queueLimit, lim=self.dueCutoff)
             self.failedQueue.reverse()
 
     def _fillRevQueue(self):
@@ -242,8 +243,8 @@ select id, factId from cards
 where type = 1 and combinedDue < :lim
 %s
 order by %s
-limit 200""" % (self.cardLimit("revActive", "revInactive"),
-                self.revOrder()), lim=self.dueCutoff)
+limit %s""" % (self.cardLimit("revActive", "revInactive"),
+               self.revOrder(), self.queueLimit), lim=self.dueCutoff)
             self.revQueue.reverse()
 
     def _fillNewQueue(self):
@@ -253,8 +254,8 @@ select id, factId from cards
 where type = 2 and combinedDue < :lim
 %s
 order by %s
-limit 200""" % (self.cardLimit("newActive", "newInactive"),
-                self.newOrder()), lim=self.dueCutoff)
+limit %s""" % (self.cardLimit("newActive", "newInactive"),
+               self.newOrder(), self.queueLimit), lim=self.dueCutoff)
             self.newQueue.reverse()
 
     def queueNotEmpty(self, queue, fillFunc):
@@ -390,7 +391,7 @@ select count() from cards where type = 1 and combinedDue > :now
         if self.revCount and not self.revQueue:
             self.revQueue = self.s.all("""
 select id, factId from cards where type = 1 and combinedDue > :lim
-order by combinedDue limit 200""", lim=self.dueCutoff)
+order by combinedDue limit %d""" % self.queueLimit, lim=self.dueCutoff)
             self.revQueue.reverse()
 
     # Learn more
@@ -535,26 +536,20 @@ select count() from cards where type = 2 and combinedDue < :now
                     "finishedMsg": fin}
 
     def _getCardTables(self):
-        self.checkDue()
+        t = time.time()
+        c = self.getCard()
         sel = """
 select id, factId, modified, question, answer, cardModelId,
-type, due, interval, factor, priority from """
-        new = self.newCardTable()
-        rev = self.revCardTable()
+type, due, interval, factor, priority from cards
+where id in """
         d = {}
-        d['fail'] = self.s.all(sel + """
-cards where type = 0 and isDue = 1 and
-combinedDue <= :now limit 30""", now=time.time())
-        d['rev'] = self.s.all(sel + rev + " limit 30")
-        if self.newCountToday and (self.newCardSpacing != NEW_CARDS_LAST or
-                                   not d['rev']):
-            d['acq'] = self.s.all(sel + """
-%s where factId in (select distinct factId from cards
-where factId in (select factId from %s limit 60))""" % (new, new))
-        else:
-            d['acq'] = []
-        if (not d['fail'] and not d['rev'] and not d['acq']):
-            d['fail'] = self.s.all(sel + "failedCards limit 100")
+        d['fail'] = self.s.all(sel + ids2str(
+            [x[0] for x in self.failedQueue]))
+        d['rev'] = self.s.all(sel + ids2str(
+            [x[0] for x in self.revQueue]))
+        d['acq'] = self.s.all(sel + ids2str(
+            [x[0] for x in self.newQueue]))
+        print "card tables", time.time() - t
         return d
 
     # Answering a card
