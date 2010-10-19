@@ -94,7 +94,7 @@ decksTable = Table(
     Column('highPriority', UnicodeText, nullable=False, default=u"PriorityVeryHigh"),
     Column('medPriority', UnicodeText, nullable=False, default=u"PriorityHigh"),
     Column('lowPriority', UnicodeText, nullable=False, default=u"PriorityLow"),
-    Column('suspended', UnicodeText, nullable=False, default=u""),
+    Column('suspended', UnicodeText, nullable=False, default=u""), # obsolete
     # 0 is random, 1 is by input date
     Column('newCardOrder', Integer, nullable=False, default=1),
     # when to show new cards
@@ -146,10 +146,14 @@ class Deck(object):
         self.updateCutoff()
         self.setupStandardScheduler()
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'perDay'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'revInactive'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
+            self.setVarDefault("newActive", "")
+            self.setVarDefault("revActive", "")
+            self.setVarDefault("newInactive", self.suspended)
+            self.setVarDefault("revInactive", self.suspended)
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -169,10 +173,6 @@ class Deck(object):
         self.updateNewCountToday = self._updateNewCountToday
         self.finishScheduler = None
 
-    def _noop(self):
-        "Do nothing."
-        pass
-
     def fillQueues(self):
         self.fillFailedQueue()
         self.fillRevQueue()
@@ -187,6 +187,21 @@ class Deck(object):
         self.rebuildRevCount()
         self.rebuildNewCount()
 
+    def cardLimit(self, active, inactive):
+        yes = parseTags(self.getVar(active))
+        no = parseTags(self.getVar(inactive))
+        if yes:
+            yids = tagIds(self.s, yes).values()
+            nids = tagIds(self.s, no).values()
+            return """
+and id in (select cardId from cardTags where
+tagId in %s and tagId not in %s)""" % (ids2str(yids), ids2str(nids))
+        else:
+            nids = tagIds(self.s, no).values()
+            return """
+and id not in (select cardId from cardTags where
+tagId in %s)""" % (ids2str(nids))
+
     def _rebuildFailedCount(self):
         self.failedSoonCount = self.s.scalar(
             "select count(*) from cards where type = 0 "
@@ -194,14 +209,16 @@ class Deck(object):
             lim=self.dueCutoff)
 
     def _rebuildRevCount(self):
-        self.revCount = self.s.scalar(
-            "select count(*) from cards where type = 1 "
-            "and combinedDue < :lim", lim=self.dueCutoff)
+        self.revCount = self.s.scalar("""
+select count(*) from cards where type = 1
+and combinedDue < :lim """ + self.cardLimit("revActive", "revInactive"),
+                                      lim=self.dueCutoff)
 
     def _rebuildNewCount(self):
-        self.newCount = self.s.scalar(
-            "select count(*) from cards where type = 2 "
-            "and combinedDue < :lim", lim=self.dueCutoff)
+        self.newCount = self.s.scalar("""
+select count(*) from cards where type = 2
+and combinedDue < :lim """ + self.cardLimit("newActive", "newInactive"),
+                                      lim=self.dueCutoff)
         self.updateNewCountToday()
 
     def _updateNewCountToday(self):
@@ -215,7 +232,7 @@ class Deck(object):
 select id, factId, combinedDue from cards
 where type = 0 and combinedDue < :lim
 order by combinedDue
-limit 50""", lim=self.dueCutoff)
+limit 200""", lim=self.dueCutoff)
             self.failedQueue.reverse()
 
     def _fillRevQueue(self):
@@ -223,8 +240,10 @@ limit 50""", lim=self.dueCutoff)
             self.revQueue = self.s.all("""
 select id, factId from cards
 where type = 1 and combinedDue < :lim
+%s
 order by %s
-limit 50""" % self.revOrder(), lim=self.dueCutoff)
+limit 200""" % (self.cardLimit("revActive", "revInactive"),
+                self.revOrder()), lim=self.dueCutoff)
             self.revQueue.reverse()
 
     def _fillNewQueue(self):
@@ -232,8 +251,10 @@ limit 50""" % self.revOrder(), lim=self.dueCutoff)
             self.newQueue = self.s.all("""
 select id, factId from cards
 where type = 2 and combinedDue < :lim
+%s
 order by %s
-limit 50""" % self.newOrder(), lim=self.dueCutoff)
+limit 200""" % (self.cardLimit("newActive", "newInactive"),
+                self.newOrder()), lim=self.dueCutoff)
             self.newQueue.reverse()
 
     def queueNotEmpty(self, queue, fillFunc):
@@ -369,7 +390,7 @@ select count() from cards where type = 1 and combinedDue > :now
         if self.revCount and not self.revQueue:
             self.revQueue = self.s.all("""
 select id, factId from cards where type = 1 and combinedDue > :lim
-order by combinedDue limit 50""", lim=self.dueCutoff)
+order by combinedDue limit 200""", lim=self.dueCutoff)
             self.revQueue.reverse()
 
     # Learn more
