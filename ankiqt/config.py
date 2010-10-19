@@ -95,6 +95,7 @@ class Config(dict):
             'sortIndex': 0,
             'splitQA': True,
             'standaloneWindows': True,
+            'studyOptionsScreen': 0,
             'suppressEstimates': False,
             'suppressUpdate': False,
             'syncInMsgBox': False,

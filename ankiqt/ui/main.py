@@ -1500,6 +1500,7 @@ later by using File>Close.
                      SIGNAL("clicked()"), self.onNewCategoriesClicked)
         self.connect(self.mainWin.revCategories,
                      SIGNAL("clicked()"), self.onRevCategoriesClicked)
+        self.mainWin.tabWidget.setCurrentIndex(self.config['studyOptionsScreen'])
 
     def onNewCategoriesClicked(self):
         ui.activetags.show(self, "newActive", "newInactive")
@@ -1595,6 +1596,7 @@ later by using File>Close.
         self.mainWin.revCategoryLabel.setText(rev)
 
     def updateStudyStats(self):
+        self.mainWin.buttonStack.hide()
         self.deck.reset()
         self.updateActives()
         wasReached = self.deck.sessionLimitReached()
@@ -1738,6 +1740,7 @@ learnt today")
             self.deck.flushMod()
         self.deck.reset()
         self.deck.startSession()
+        self.config['studyOptionsScreen'] = self.mainWin.tabWidget.currentIndex()
         self.moveToState("getQuestion")
 
     def onStudyOptions(self):
