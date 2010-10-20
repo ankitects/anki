@@ -176,6 +176,7 @@ class Deck(object):
         self.cardType = self._cardType
         self.finishScheduler = None
         self.answerCard = self._answerCard
+        self.scheduler = "standard"
 
     def fillQueues(self):
         self.fillFailedQueue()
@@ -381,6 +382,7 @@ end)""" + where)
         self.fillRevQueue = self._fillRevEarlyQueue
         self.rebuildRevCount = self._rebuildRevEarlyCount
         self.finishScheduler = self._onReviewEarlyFinished
+        self.scheduler = "reviewEarly"
 
     def resetAfterReviewEarly(self):
         ids = self.s.column0("select id from cards where priority = -1")
@@ -415,6 +417,7 @@ order by combinedDue limit %d""" % self.queueLimit, lim=self.dueCutoff)
         self.rebuildNewCount = self._rebuildLearnMoreCount
         self.updateNewCountToday = self._updateLearnMoreCountToday
         self.finishScheduler = self.setupStandardScheduler
+        self.scheduler = "learnMore"
 
     def _rebuildLearnMoreCount(self):
         self.newCount = self.s.scalar("""
@@ -442,6 +445,7 @@ select count() from cards where type = 2 and combinedDue < :now
         self.requeueCard = self._requeueCramCard
         self.cardType = self._cramCardType
         self.answerCard = self._answerCramCard
+        self.scheduler = "cram"
 
     def _answerCramCard(self, card, ease):
         if ease == 1:
