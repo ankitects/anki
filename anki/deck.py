@@ -163,6 +163,7 @@ class Deck(object):
     ##########################################################################
 
     def setupStandardScheduler(self):
+        self.getCardId = self._getCardId
         self.fillFailedQueue = self._fillFailedQueue
         self.fillRevQueue = self._fillRevQueue
         self.fillNewQueue = self._fillNewQueue
@@ -172,7 +173,9 @@ class Deck(object):
         self.requeueCard = self._requeueCard
         self.timeForNewCard = self._timeForNewCard
         self.updateNewCountToday = self._updateNewCountToday
+        self.cardType = self._cardType
         self.finishScheduler = None
+        self.answerCard = self._answerCard
 
     def fillQueues(self):
         self.fillFailedQueue()
@@ -197,11 +200,13 @@ class Deck(object):
             return """
 and id in (select cardId from cardTags where
 tagId in %s and tagId not in %s)""" % (ids2str(yids), ids2str(nids))
-        else:
+        elif no:
             nids = tagIds(self.s, no).values()
             return """
 and id not in (select cardId from cardTags where
 tagId in %s)""" % (ids2str(nids))
+        else:
+            return ""
 
     def _rebuildFailedCount(self):
         self.failedSoonCount = self.s.scalar(
@@ -322,6 +327,15 @@ end)""" + where)
         self.s.statement(
             "update cards set type = type + 3 where priority <= 0")
 
+    def _cardType(self, card):
+        "Return the type of the current card (what queue it's in)"
+        if self.cardIsNew(card):
+            return 2
+        elif card.successive == 0:
+            return 0
+        else:
+            return 1
+
     def updateCutoff(self):
         if self.getBool("perDay"):
             today = genToday(self) + datetime.timedelta(days=1)
@@ -410,6 +424,105 @@ select count() from cards where type = 2 and combinedDue < :now
     def _updateLearnMoreCountToday(self):
         self.newCountToday = self.newCount
 
+    # Cramming
+    ##########################################################################
+
+    def setupCramScheduler(self, active, order):
+        # need option to randomize
+        self.getCardId = self._getCramCardId
+        self.activeCramTags = active
+        self.cramOrder = order
+        self.rebuildNewCount = self._rebuildCramNewCount
+        self.rebuildRevCount = self._rebuildCramCount
+        self.rebuildFailedCount = self._rebuildFailedCramCount
+        self.fillRevQueue = self._fillCramQueue
+        self.fillFailedQueue = self._fillFailedCramQueue
+        self.finishScheduler = self.setupStandardScheduler
+        self.failedCramQueue = []
+        self.requeueCard = self._requeueCramCard
+        self.cardType = self._cramCardType
+        self.answerCard = self._answerCramCard
+
+    def _answerCramCard(self, card, ease):
+        if ease == 1:
+            if self._cramCardType(card) != 0:
+                self.failedSoonCount += 1
+                self.revCount -= 1
+            self.requeueCard(card, None)
+            self.failedCramQueue.insert(0, [card.id, card.factId])
+        else:
+            self._answerCard(card, ease)
+
+    def _getCramCardId(self, check=True):
+        self.checkDailyStats()
+        self.fillQueues()
+        if self.failedSoonCount >= self.failedCardMax:
+            return self.failedQueue[-1][0]
+        # card due for review?
+        if self.revNoSpaced():
+            return self.revQueue[-1][0]
+        if self.failedQueue:
+            return self.failedQueue[-1][0]
+        if check:
+            # check for expired cards, or new day rollover
+            self.updateCutoff()
+            return self.getCardId(check=False)
+        # if we're in a custom scheduler, we may need to switch back
+        if self.finishScheduler:
+            self.finishScheduler()
+            self.reset()
+            return self.getCardId()
+
+    def _cramCardType(self, card):
+        if self.revQueue and self.revQueue[-1][0] == card.id:
+            return 1
+        else:
+            return 0
+
+    def _requeueCramCard(self, card, oldSuc):
+        if self._cramCardType(card) == 1:
+            self.revQueue.pop()
+        else:
+            self.failedCramQueue.pop()
+
+    def _rebuildCramNewCount(self):
+        self.newCount = 0
+        self.newCountToday = 0
+
+    def _cramCardLimit(self, active):
+        if isinstance(active, list):
+            return " and id in " + ids2str(active)
+        else:
+            yes = parseTags(active)
+            if yes:
+                yids = tagIds(self.s, yes).values()
+                return """
+and id in (select cardId from cardTags where
+tagId in %s)""" % (ids2str(yids))
+            else:
+                return ""
+
+    def _fillCramQueue(self):
+        if self.revCount and not self.revQueue:
+            self.revQueue = self.s.all("""
+select id, factId from cards
+where type in (0,1,2) %s
+order by %s
+limit %s""" % (self._cramCardLimit(self.activeCramTags),
+               self.cramOrder, self.queueLimit))
+            self.revQueue.reverse()
+
+    def _rebuildCramCount(self):
+        self.revCount = self.s.scalar("""
+select count(*) from cards where type in (0,1,2) %s
+""" % self._cramCardLimit(self.activeCramTags))
+
+    def _rebuildFailedCramCount(self):
+        self.failedSoonCount = len(self.failedCramQueue)
+
+    def _fillFailedCramQueue(self):
+        self.failedQueue = self.failedCramQueue
+
     # Getting the next card
     ##########################################################################
 
@@ -419,7 +532,7 @@ select count() from cards where type = 2 and combinedDue < :now
         if id:
             return self.cardFromId(id, orm)
 
-    def getCardId(self, check=True):
+    def _getCardId(self, check=True):
         "Return the next due card id, or None."
         self.checkDailyStats()
         self.fillQueues()
@@ -555,12 +668,13 @@ where id in """
     # Answering a card
     ##########################################################################
 
-    def answerCard(self, card, ease):
+    def _answerCard(self, card, ease):
         undoName = _("Answer Card")
         self.setUndoStart(undoName)
         now = time.time()
         # old state
         oldState = self.cardState(card)
+        oldQueue = self.cardType(card)
         lastDelaySecs = time.time() - card.combinedDue
         lastDelay = lastDelaySecs / 86400.0
         oldSuc = card.successive
@@ -597,7 +711,7 @@ where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
         for (type, count) in self.s.all("""
 select type, count(type) from cards
 where factId = :fid and
-(combinedDue < :now or id = :cid)
+combinedDue < :now and id != :cid
 group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
             if type == 0:
                 self.failedSoonCount -= count
@@ -605,9 +719,18 @@ group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
                 self.revCount -= count
             elif type == 2:
                 self.newCount -= count
-        # bump failed count if necessary
+        # adjust counts for current card
         if ease == 1:
             self.failedSoonCount += 1
+        if oldQueue == 0:
+            if ease == 1:
+                self.failedSoonCount -= 1
+            else:
+                self.failedSoonCount -= 1
+        elif oldQueue == 1:
+            self.revCount -= 1
+        else:
+            self.newCount -= 1
         # space other cards
         self.s.statement("""
 update cards set
@@ -680,6 +803,8 @@ where id != :id and factId = :factId""",
         factor = card.factor
         # if shown early and not failed
         if delay < 0 and card.successive:
+            # FIXME: this should recreate lastInterval from interval /
+            # lastFactor, or we lose delay information when reviewing early
             interval = max(card.lastInterval, card.interval + delay)
             if interval < self.midIntervalMin:
                 interval = 0
@@ -943,8 +1068,7 @@ and type in (0, 1)""", time=time)
         up = {}
         for (type, pri) in ((self.lowPriority, 1),
                             (self.medPriority, 3),
-                            (self.highPriority, 4),
-                            (self.suspended, 0)):
+                            (self.highPriority, 4)):
             for tag in parseTags(type.lower()):
                 up[tag] = pri
         new = []
@@ -972,7 +1096,6 @@ and type in (0, 1)""", time=time)
         cards = self.s.all("""
 select cardTags.cardId,
 case
-when min(tags.priority) = 0 then 0
 when max(tags.priority) > 2 then max(tags.priority)
 when min(tags.priority) = 1 then 1
 else 2 end
@@ -992,9 +1115,6 @@ group by cardTags.cardId""" % limit)
                     "update cards set priority = :pri %s where id in %s "
                     "and priority != :pri and priority >= -2") % (
                     extra, ids2str(cs)), pri=pri, m=time.time())
-        self.s.execute(
-            "update cards set type = type + 3 where type in (0,1,2) and "
-            "priority = 0").rowcount
         self.s.execute(
             "update cards set type = type - 3 where type in (3,4,5) and "
             "priority > 0").rowcount
@@ -1137,15 +1257,6 @@ and due < :now""", now=time.time())
                   (failedMod * (stats['failed'] - failedBaseCount)))
         left += stats['failed'] * stats['dAverageTime'] * factor
         return left
-
-    def queueForCard(self, card):
-        "Return the queue the current card is in."
-        if self.cardIsNew(card):
-            return "new"
-        elif card.successive == 0:
-            return "failed"
-        elif card.reps:
-            return "rev"
 
     # Facts
     ##########################################################################
