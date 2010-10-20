@@ -329,6 +329,7 @@ Please do not file a bug report with Anki.<br>""")
             if self.deck.isEmpty():
                 return self.moveToState("deckEmpty")
             else:
+                # timeboxing only supported using the standard scheduler
                 if not self.deck.finishScheduler:
                     if (self.config['showStudyScreen'] and
                         not self.deck.sessionStartTime):
@@ -828,10 +829,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onClose(self):
         # allow focusOut to save
         if self.inMainWindow() or not self.app.activeWindow():
-            isCram = self.isCramming()
-            self.saveAndClose(hideWelcome=isCram)
-            if isCram:
-                self.loadDeck(self.config['recentDeckPaths'][0])
+            self.saveAndClose()
         else:
             self.app.activeWindow().close()
 
@@ -1739,7 +1737,8 @@ learnt today")
                 self.mainWin.failedCardsOption.currentIndex())
             self.deck.flushMod()
         self.deck.reset()
-        self.deck.startSession()
+        if not self.deck.finishScheduler:
+            self.deck.startSession()
         self.config['studyOptionsScreen'] = self.mainWin.tabWidget.currentIndex()
         self.moveToState("getQuestion")
 
@@ -1890,26 +1889,12 @@ learnt today")
     ##########################################################################
 
     def onAddCard(self):
-        if self.isCramming():
-            ui.utils.showInfo(_("""\
-You are currently cramming. Please close this deck first."""))
-            return
         ui.dialogs.get("AddCards", self)
-
-    def cramEditWarning(self):
-        self.showToolTip(_("""\
-<h1>Cramming</h1>
-You are currently cramming. Any edits you make to this deck
-will be lost when you close the deck."""))
 
     def onEditDeck(self):
         ui.dialogs.get("CardList", self)
-        if self.isCramming():
-            self.cramEditWarning()
 
     def onEditCurrent(self):
-        if self.isCramming():
-            self.cramEditWarning()
         self.moveToState("editCurrentFact")
 
     def onDeckProperties(self):
@@ -1940,10 +1925,6 @@ will be lost when you close the deck."""))
     ##########################################################################
 
     def onImport(self):
-        if self.isCramming():
-            ui.utils.showInfo(_("""\
-You are currently cramming. Please close this deck first."""))
-            return
         if self.deck is None:
             self.onNew()
         if not self.deck.path:
@@ -1974,59 +1955,48 @@ window will open."""))
         e.exportInto(path)
         return (e, path)
 
-    def isCramming(self):
-        return self.deck is not None and self.deck.name() == "cram"
-
     def onCram(self, cardIds=[]):
-        if self.isCramming():
-            ui.utils.showInfo(
-                _("Already cramming. Please close this deck first."))
-            return
-        if not self.save(required=True):
-            return
-        if not cardIds:
-            (s, ret) = ui.utils.getTag(self, self.deck, _("Tags to cram:"),
-                                       help="CramMode", tags="all")
-            if not ret:
-                return
-            s = unicode(s)
-            # open tmp deck
-            (e, path) = self._copyToTmpDeck(tags=s)
-        else:
-            (e, path) = self._copyToTmpDeck(ids=cardIds)
-        if not e.exportedCards:
-            ui.utils.showInfo(_("No cards matched the provided tags."))
-            return
-        if self.config['randomizeOnCram']:
-            n = 3
-        else:
-            n = 2
-        p = ui.utils.ProgressWin(self, n, 0, _("Cram"))
-        p.update(_("Loading deck..."))
-        oldMedia = self.deck.mediaDir()
-        self.deck.close()
-        self.deck = None
-        self.loadDeck(path, media=oldMedia)
-        self.config['recentDeckPaths'].pop(0)
-        self.deck.newCardsPerDay = 99999
-        self.deck.delay0 = 300
-        self.deck.delay1 = 600
-        self.deck.hardIntervalMin = 0.01388
-        self.deck.hardIntervalMax = 0.02083
-        self.deck.midIntervalMin = 0.0416
-        self.deck.midIntervalMax = 0.0486
-        self.deck.easyIntervalMin = 0.2083
-        self.deck.easyIntervalMax = 0.25
-        self.deck.newCardOrder = 0
-        self.deck.syncName = None
-        self.deck.collapseTime = 1
-        p.update()
-        self.deck.updateDynamicIndices()
-        if self.config['randomizeOnCram']:
-            p.update(_("Randomizing..."))
-            self.deck.randomizeNewCards()
-        self.reset()
-        p.finish()
+        te = ui.tagedit.TagEdit(self)
+        te.setDeck(self.deck, "all")
+        diag = ui.utils.GetTextDialog(
+            self, _("Tags to cram:"), help="CramMode", edit=te)
+        l = diag.layout()
+        g = QGroupBox(_("Review Mode"))
+        l.insertWidget(2, g)
+        box = QVBoxLayout()
+        g.setLayout(box)
+        keep = QRadioButton(_("Show oldest modified first"))
+        box.addWidget(keep)
+        keep.setChecked(True)
+        diag.setTabOrder(diag.l, keep)
+        order = QRadioButton(_("Show in order added"))
+        box.addWidget(order)
+        random = QRadioButton(_("Show in random order"))
+        box.addWidget(random)
+        # hide tag list if we have ids
+        if cardIds:
+            diag.l.hide()
+            diag.qlabel.hide()
+        if diag.exec_():
+            if keep.isChecked():
+                order = "modified"
+            elif order.isChecked():
+                order = "created"
+            else:
+                order = "random()"
+            if cardIds:
+                active = cardIds
+            else:
+                active = unicode(diag.l.text())
+            self.deck.setupCramScheduler(active, order)
+            if self.state == "studyScreen":
+                self.onStartReview()
+            else:
+                self.deck.reset()
+                self.deck.getCard() # so scheduler will reset if empty
+                self.moveToState("initial")
+            if not self.deck.finishScheduler:
+                ui.utils.showInfo(_("No cards matched the provided tags."))
 
     def onShare(self, tags):
         pwd = os.getcwd()
@@ -2888,10 +2858,6 @@ Proceed?""")):
         ui.utils.showInfo(_("Database optimized.\nShrunk by %dKB") % (size/1024.0))
 
     def onCheckMediaDB(self):
-        if self.isCramming():
-            ui.utils.showInfo(_("""\
-You are currently cramming. Please close this deck first."""))
-            return
         mb = QMessageBox(self)
         mb.setWindowTitle(_("Anki"))
         mb.setIcon(QMessageBox.Warning)

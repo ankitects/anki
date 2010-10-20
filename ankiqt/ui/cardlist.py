@@ -323,15 +323,6 @@ class StatusDelegate(QItemDelegate):
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
-        if row[CARD_PRIORITY] == 0:
-            # custom render
-            if index.row() % 2 == 0:
-                brush = QBrush(QColor(COLOUR_INACTIVE1))
-            else:
-                brush = QBrush(QColor(COLOUR_INACTIVE2))
-            painter.save()
-            painter.fillRect(option.rect, brush)
-            painter.restore()
         elif "Marked" in row[CARD_TAGS]:
             if index.row() % 2 == 0:
                 brush = QBrush(QColor(COLOUR_MARKED1))
@@ -968,12 +959,8 @@ where id in %s""" % ids2str(sf))
         self.updateAfterCardChange()
 
     def cram(self):
-        if ui.utils.askUser(
-            _("Cram selected cards in new deck?"),
-            help="CramMode",
-            parent=self):
-            self.close()
-            self.parent.onCram(self.selectedCards())
+        self.close()
+        self.parent.onCram(self.selectedCards())
 
     def onChangeModel(self):
         sf = self.selectedFacts()

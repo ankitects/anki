@@ -120,8 +120,9 @@ class GetTextDialog(QDialog):
         self.setWindowTitle("Anki")
         self.question = question
         self.help = help
+        self.qlabel = QLabel(question)
         v = QVBoxLayout()
-        v.addWidget(QLabel(question))
+        v.addWidget(self.qlabel)
         if not edit:
             edit = QLineEdit()
         self.l = edit

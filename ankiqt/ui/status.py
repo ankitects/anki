@@ -173,11 +173,11 @@ class StatusView(object):
             if not self.main.currentCard:
                 remStr += "%(failed1)s" + s + "%(rev1)s" + s + "%(new1)s"
             else:
-                q = self.main.deck.queueForCard(self.main.currentCard)
-                if q == "failed":
+                t = self.main.deck.cardType(self.main.currentCard)
+                if t == 0:
                     remStr += ("<u>%(failed1)s</u>" + s +
                                "%(rev1)s" + s + "%(new1)s")
-                elif q == "rev":
+                elif t == 1:
                     remStr += ("%(failed1)s" + s + "<u>%(rev1)s</u>" + s +
                                "%(new1)s")
                 else:
