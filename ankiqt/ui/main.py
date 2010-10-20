@@ -335,7 +335,10 @@ Please do not file a bug report with Anki.<br>""")
                         not self.deck.sessionStartTime):
                         return self.moveToState("studyScreen")
                     if self.deck.sessionLimitReached():
-                        return self.moveToState("studyScreen")
+                        self.moveToState("studyScreen")
+                        # switch to timeboxing screen
+                        self.mainWin.tabWidget.setCurrentIndex(2)
+                        return
                 if not self.currentCard:
                     self.currentCard = self.deck.getCard()
                 if self.currentCard:
@@ -1642,9 +1645,12 @@ day = :d""", d=yesterday)
         h['ntot_header'] = "<b>" + _("New total:") + "</b>"
         stats1 = ("""\
 <table>
-<tr><td width=190>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>
-<td><b>%(repsInSes)s</b></td></tr>
- <tr><td>%(cd_header)s</td><td><b>%(repsTodayChg)s</b></td>
+<tr><td width=180>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>
+<td><b>%(repsInSes)s</b></td></tr></table>
+<hr>
+<table>
+<tr><td width=180>
+%(cd_header)s</td><td width=50><b>%(repsTodayChg)s</b></td>
 <td><b>%(repsToday)s</b></td></tr>
 <tr><td>%(td_header)s</td><td><b>%(timeTodayChg)s</b></td>
 <td><b>%(timeToday)s</b></td></tr>

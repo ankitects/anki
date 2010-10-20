@@ -220,9 +220,11 @@ class View(object):
     def needFutureWarning(self):
         if not self.main.currentCard:
             return
-        if self.main.currentCard.due <= time.time():
+        if self.main.currentCard.due <= self.main.deck.dueCutoff:
             return
         if self.main.currentCard.due - time.time() <= self.main.deck.delay0:
+            return
+        if self.main.deck.scheduler == "cram":
             return
         return True
 
