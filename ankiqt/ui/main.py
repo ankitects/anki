@@ -1763,7 +1763,7 @@ learnt today")
             self.removeToolBar(mw.toolBar)
             mw.toolBar.hide()
             ver = QtConfig.qt_version >> 8
-            if ver >= 0x407:
+            if not sys.platform.startswith("darwin") and ver >= 0x407:
                 # this became necessary in 4.7 or we end up with two toolbars
                 mw.toolBar.deleteLater()
             mw.toolBar = QToolBar(self)
