@@ -507,8 +507,6 @@ Please do not file a bug report with Anki.<br>""")
                 c = self.deck.getCard()
                 if c:
                     return self.moveToState("auto")
-                new = self.deck.newCardTable()
-                rev = self.deck.revCardTable()
                 sys.stderr.write("""\
 earliest time returned %f
 
@@ -516,22 +514,10 @@ please report this error, but it's not serious.
 closing and opening your deck should fix it.
 
 counts are %d %d %d
-according to the db %d %d %d
-failed:
-%s
-rev:
-%s
-new:
-%s""" % (delay,
+""" % (delay,
          self.deck.failedSoonCount,
          self.deck.revCount,
-         self.deck.newCountToday,
-         self.deck.s.scalar("select count(*) from failedCards"),
-         self.deck.s.scalar("select count(*) from %s" % rev),
-         self.deck.s.scalar("select count(*) from %s" % new),
-         self.deck.s.all("select * from failedCards limit 2"),
-         self.deck.s.all("select * from %s limit 2" % rev),
-         self.deck.s.all("select * from %s limit 2" % new)))
+         self.deck.newCountToday))
                 return
             t = QTimer(self)
             t.setSingleShot(True)
@@ -1849,8 +1835,6 @@ learnt today")
                 "Marked", self.currentCard.fact.tags))
         self.currentCard.fact.setModified(textChanged=True)
         self.deck.updateFactTags([self.currentCard.fact.id])
-        for card in self.currentCard.fact.cards:
-            self.deck.updatePriority(card)
         self.deck.setModified()
 
     def onSuspend(self):

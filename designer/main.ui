@@ -776,8 +776,8 @@
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+               <property name="lineWidth">
+                <number>0</number>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_6">
                 <property name="margin">
