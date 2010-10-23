@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON=/Library/Frameworks/Python.framework/Versions/2.6/bin/python2.6
+PYTHON=/Library/Frameworks/Python.framework/Versions/2.7/bin/python2.7
 
 if [ "x$debug" = "x" ]; then
     echo "cleaning up..."

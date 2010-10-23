@@ -28,11 +28,11 @@ class bdist_dmg(Command):
 	def run(self):
                 self.run_command('py2app')
                 os.system("\
-mkdir -p dist/Anki.app/Contents/Resources/include/python2.6")
+mkdir -p dist/Anki.app/Contents/Resources/include/python2.7")
                 os.system("\
-cp /Library/Frameworks/Python.framework/Versions/2.6/include/\
-python2.6/pyconfig.h dist/Anki.app/Contents/Resources/include/\
-python2.6/pyconfig.h")
+cp /Library/Frameworks/Python.framework/Versions/2.7/include/\
+python2.7/pyconfig.h dist/Anki.app/Contents/Resources/include/\
+python2.7/pyconfig.h")
                 os.system("\
 chmod a+x dist/Anki.app/Contents/Resources/audio/mplayer")
                 if 'debug' in os.environ:
@@ -61,7 +61,7 @@ PLIST = dict(
 	CFBundleLocalizations = ['en'],
         )
 OPTIONS = {
-	'argv_emulation': True,
+	'argv_emulation': False,
     'optimize': 0,
         'alias': 'debug' in os.environ and os.environ['debug'] == "2",
 	'plist': PLIST,
