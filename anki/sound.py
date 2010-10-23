@@ -53,7 +53,11 @@ processingChain = [
 # don't show box on windows
 if sys.platform == "win32":
     si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    try:
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    except:
+        # python2.7+
+        si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 else:
     si = None
 
