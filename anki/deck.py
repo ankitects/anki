@@ -210,10 +210,10 @@ tagId in %s)""" % (ids2str(nids))
             return ""
 
     def _rebuildFailedCount(self):
-        self.failedSoonCount = self.s.scalar(
-            "select count(*) from cards where type = 0 "
-            "and combinedDue < :lim",
-            lim=self.dueCutoff)
+        self.failedSoonCount = self.s.scalar("""
+select count(*) from cards where type = 0
+and combinedDue < :lim """ + self.cardLimit("revActive", "revInactive"),
+                                             lim=self.dueCutoff)
 
     def _rebuildRevCount(self):
         self.revCount = self.s.scalar("""
@@ -238,8 +238,10 @@ and combinedDue < :lim """ + self.cardLimit("newActive", "newInactive"),
             self.failedQueue = self.s.all("""
 select id, factId, combinedDue from cards
 where type = 0 and combinedDue < :lim
+%s
 order by combinedDue
-limit %d""" % self.queueLimit, lim=self.dueCutoff)
+limit %d""" % (self.cardLimit("revActive", "revInactive"),
+               self.queueLimit), lim=self.dueCutoff)
             self.failedQueue.reverse()
 
     def _fillRevQueue(self):
