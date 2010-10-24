@@ -389,9 +389,7 @@ Please do not file a bug report with Anki.<br>""")
             self.editor.saveFieldsNow()
             self.mainWin.buttonStack.show()
             self.deck.refreshSession()
-            if self.currentCard.priority == 0:
-                return self.moveToState("auto")
-            return self.moveToState("showQuestion")
+            return self.moveToState("getQuestion")
         elif state == "studyScreen":
             self.currentCard = None
             if self.deck.finishScheduler:
