@@ -761,13 +761,15 @@ where id != :id and factId = :factId""",
         entry = CardHistoryEntry(card, ease, lastDelay)
         entry.writeSQL(self.s)
         self.modified = now
-        # leech handling
+        # remove from queue
+        self.requeueCard(card, oldSuc)
+        # leech handling - we need to do this after the queue, as it may cause
+        # a reset()
         isLeech = self.isLeech(card)
         if isLeech:
             self.handleLeech(card)
         runHook("cardAnswered", card.id, isLeech)
         self.setUndoEnd(undoName)
-        self.requeueCard(card, oldSuc)
 
     def isLeech(self, card):
         no = card.noCount
