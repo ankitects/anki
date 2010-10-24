@@ -1159,6 +1159,15 @@ where type in (3,4,5) and id in %s""" %
         self.reset()
         self.finishProgress()
 
+    def buryFact(self, fact):
+        for card in fact.cards:
+            if card.priority > 0:
+                card.priority = -2
+                card.type += 3
+                card.isDue = 0
+        self.flushMod()
+        self.reset()
+
     # Card/fact counts - all in deck, not just due
     ##########################################################################
 
