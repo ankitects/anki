@@ -1857,11 +1857,7 @@ learnt today")
     def onBuryFact(self):
         undo = _("Bury")
         self.deck.setUndoStart(undo)
-        for card in self.currentCard.fact.cards:
-            if card.priority > 0:
-                card.priority = -2
-                card.isDue = 0
-        self.deck.flushMod()
+        self.deck.buryFact(self.currentCard.fact)
         self.reset()
         self.deck.setUndoEnd(undo)
 
