@@ -344,19 +344,6 @@ class DeckStats(object):
             html += _("Average interval: ") + ("<b>%s</b> ") % fmtFloat(avgInt) + _("days")
             html += "<br>"
         html += "<br>"
-        inactive = d.inactiveCardCount()
-        suspended = d.suspendedCardCount()
-        active = total - inactive - suspended
-        inactiveP = inactive / float(total) * 100
-        suspendedP = suspended / float(total) * 100
-        activeP = active / float(total) * 100
-        html += "<b>" + _("Card State") + "</b><br>"
-        html += _("Active cards:") + " <b>%(a)d</b> (%(b)s)<br>" % {
-            'a': active, 'b' : fmtPerc(activeP)}
-        html += _("Inactive cards:") + " <b>%(a)d</b> (%(b)s)<br>" % {
-            'a': inactive, 'b' : fmtPerc(inactiveP)}
-        html += _("Suspended cards:") + " <b>%(a)d</b> (%(b)s)<br><br>" % {
-            'a': suspended, 'b' : fmtPerc(suspendedP)}
         html += "<b>" + _("Correct Answers") + "</b><br>"
         html += _("Mature cards: <!--correct answers-->") + " <b>" + fmtPerc(stats['gMatureYes%']) + (
                 "</b> " + _("(%(partOf)d of %(totalSum)d)") % {

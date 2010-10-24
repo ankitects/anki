@@ -1207,7 +1207,7 @@ and due < :now""", now=time.time())
     def newCountAll(self):
         "All new cards, including spaced."
         return self.s.scalar(
-            "select count(id) from cards where type = 2")
+            "select count(id) from cards where type in (2,5)")
 
     # Card predicates
     ##########################################################################
