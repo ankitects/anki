@@ -2172,9 +2172,6 @@ cardTags.tagId in %s""" % ids2str(ids)
                 elif token == "suspended":
                     qquery += ("select id from cards where "
                                "priority = -3")
-                elif token == "inactive":
-                    qquery += ("select id from cards where "
-                               "priority = 0")
                 else: # due
                     qquery += ("select id from cards where "
                                "type in (0,1) and combinedDue < %d") % self.dueCutoff
