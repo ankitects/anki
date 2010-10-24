@@ -992,8 +992,10 @@ This may be in the past if the deck is not finished.
 If the deck has no (enabled) cards, return None.
 Ignore new cards."""
         return self.s.scalar("""
-select combinedDue from cards where type in (0, 1)
-order by combinedDue limit 1""")
+select combinedDue from cards where type in (0,1)
+%s
+order by combinedDue
+limit 1""" % (self.cardLimit("revActive", "revInactive")))
 
     def earliestTimeStr(self, next=None):
         """Return the relative time to the earliest card as a string."""
