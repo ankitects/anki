@@ -3049,6 +3049,10 @@ class DeckStorage(object):
             deck.currentModel = deck.models[0]
         # ensure the necessary indices are available
         deck.updateDynamicIndices()
+        # FIXME: temporary code to ensure cards suspended on older clients are
+        # recognized
+        deck.s.statement("""
+update cards set type = type + 3 where type < 3 and priority <= 0""")
         # unsuspend reviewed early & buried
         ids = deck.s.column0(
             "select id from cards where type in (3,4,5) and priority in (-1, -2)")
