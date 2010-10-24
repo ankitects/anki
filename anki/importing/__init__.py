@@ -277,5 +277,5 @@ Importers = (
     (_("Mnemosyne Deck (*.mem)"), Mnemosyne10Importer),
     (_("CueCard Deck (*.wcu)"), WCUImporter),
     (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
-    (_("DingsBums?! Deck (*.xml)"), DingsBumsImporter),
+    (_("DingsBums?! Deck (*.dbxml)"), DingsBumsImporter),
     )
