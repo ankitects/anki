@@ -694,6 +694,7 @@ where id in """
             # only update if card was not new
             card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
+        card.isDue = 0
         card.lastFactor = card.factor
         if lastDelay >= 0:
             # don't update factor if learning ahead
