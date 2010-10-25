@@ -932,7 +932,7 @@ and type = 2""", data)
         self.s.statement("""
 update cards set
 due = created,
-combinedDue = max(spaceUntil, due),
+combinedDue = max(spaceUntil, created),
 modified = :now
 where type = 2""", now=time.time())
 
