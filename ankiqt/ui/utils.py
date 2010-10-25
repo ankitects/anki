@@ -240,7 +240,7 @@ def mungeQA(deck, txt):
     txt = renderLatex(deck, txt)
     txt = stripSounds(txt)
     # osx webkit doesn't understand font weight 600
-    txt = re.sub("font-weight:.+?;", "font-weight: bold", txt)
+    txt = re.sub("font-weight:.+?;", "font-weight: bold;", txt)
     return txt
 
 def applyStyles(widget):
