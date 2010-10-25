@@ -1126,9 +1126,6 @@ group by cardTags.cardId""" % limit)
                     "update cards set priority = :pri %s where id in %s "
                     "and priority != :pri and priority >= -2") % (
                     extra, ids2str(cs)), pri=pri, m=time.time())
-        self.s.execute(
-            "update cards set type = type - 3 where type in (3,4,5) and "
-            "priority > 0")
         self.reset()
 
     def updatePriority(self, card):
