@@ -143,8 +143,6 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        self.updateCutoff()
-        self.setupStandardScheduler()
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
         if not self.s.scalar("select 1 from deckVars where key = 'revInactive'"):
@@ -155,6 +153,8 @@ class Deck(object):
             self.setVarDefault("revActive", "")
             self.setVarDefault("newInactive", self.suspended)
             self.setVarDefault("revInactive", self.suspended)
+        self.updateCutoff()
+        self.setupStandardScheduler()
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
