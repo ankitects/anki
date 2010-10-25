@@ -743,7 +743,7 @@ group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
 update cards set
 spaceUntil = :space,
 combinedDue = max(:space, due),
-modified = :now
+modified = :now, isDue = 0
 where id != :id and factId = :factId""",
                          id=card.id, space=space, now=now, factId=card.factId)
         card.spaceUntil = 0
