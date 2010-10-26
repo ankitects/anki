@@ -78,8 +78,8 @@ decksTable = Table(
     # scheduling
     ##############
     # initial intervals
-    Column('hardIntervalMin', Float, nullable=False, default=0.333),
-    Column('hardIntervalMax', Float, nullable=False, default=0.5),
+    Column('hardIntervalMin', Float, nullable=False, default=1.0),
+    Column('hardIntervalMax', Float, nullable=False, default=1.1),
     Column('midIntervalMin', Float, nullable=False, default=3.0),
     Column('midIntervalMax', Float, nullable=False, default=5.0),
     Column('easyIntervalMin', Float, nullable=False, default=7.0),
@@ -545,7 +545,7 @@ select count(*) from cards where type in (0,1,2) %s
         self.updateNewCountToday()
         if self.failedNoSpaced():
             # failed card due?
-            if self.delay0:
+            if self.delay0 and self.failedQueue[-1][2] < time.time():
                 return self.failedQueue[-1][0]
             # failed card queue too big?
             if (self.failedCardMax and
@@ -3046,10 +3046,14 @@ class DeckStorage(object):
             deck.currentModel = deck.models[0]
         # ensure the necessary indices are available
         deck.updateDynamicIndices()
-        # FIXME: temporary code to ensure cards suspended on older clients are
-        # recognized
+        # FIXME: temporary code for upgrade
+        # - ensure cards suspended on older clients are recognized
         deck.s.statement("""
 update cards set type = type + 3 where type < 3 and priority <= 0""")
+        # - ensure hard scheduling over a day if per day
+        if deck.getBool("perDay"):
+            deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
+            deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
         # unsuspend reviewed early & buried
         ids = deck.s.column0(
             "select id from cards where type in (3,4,5) and priority in (-1, -2)")
