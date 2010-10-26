@@ -8,7 +8,7 @@ Miscellaneous utilities
 """
 __docformat__ = 'restructuredtext'
 
-import re, os, random, time, types
+import re, os, random, time, types, math
 
 try:
     import hashlib
@@ -60,6 +60,8 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False):
     "Return a string representing a time span (eg '2 days')."
     (type, point) = optimalPeriod(time, point)
     time = convertSecondsTo(time, type)
+    if not point:
+        time = math.floor(time)
     if short:
         fmt = shortTimeTable[type]
     else:
@@ -106,7 +108,7 @@ def convertSecondsTo(seconds, type):
 def _pluralCount(time, point):
     if point:
         return 2
-    return round(time)
+    return math.floor(time)
 
 # Locale
 ##############################################################################
