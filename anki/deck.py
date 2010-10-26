@@ -56,7 +56,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 44
+DECK_VERSION = 47
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -752,6 +752,7 @@ where id != :id and factId = :factId""",
         if oldSuc and lastDelay < 0:
             if lastDelaySecs > self.delay0:
                 card.priority = -1
+                card.type += 3
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
         card.toDB(self.s)
@@ -2867,15 +2868,15 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def updateDynamicIndices(self):
         indices = {
             'intervalDesc':
-            '(type, isDue, priority desc, interval desc)',
+            '(type, priority desc, interval desc)',
             'intervalAsc':
-            '(type, isDue, priority desc, interval)',
+            '(type, priority desc, interval)',
             'randomOrder':
-            '(type, isDue, priority desc, factId, ordinal)',
+            '(type, priority desc, factId, ordinal)',
             'dueAsc':
-            '(type, isDue, priority desc, due)',
+            '(type, priority desc, combinedDue)',
             'dueDesc':
-            '(type, isDue, priority desc, due desc)',
+            '(type, priority desc, combinedDue desc)',
             }
         # determine required
         required = []
@@ -2895,10 +2896,12 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         for (k, v) in indices.items():
             if k in required:
                 self.s.statement(
-                    "create index if not exists ix_cards_%s on cards %s" %
+                    "create index if not exists ix_cards_%s2 on cards %s" %
                     (k, v))
             else:
-                self.s.statement("drop index if exists ix_cards_%s" % k)
+                # leave old indices for older clients
+                #self.s.statement("drop index if exists ix_cards_%s" % k)
+                self.s.statement("drop index if exists ix_cards_%s2" % k)
 
 # Shared decks
 ##########################################################################
@@ -3056,7 +3059,7 @@ update cards set type = type + 3 where type < 3 and priority <= 0""")
             deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
         # unsuspend reviewed early & buried
         ids = deck.s.column0(
-            "select id from cards where type in (3,4,5) and priority in (-1, -2)")
+            "select id from cards where type > 2 and priority in (-1,-2)")
         if ids:
             deck.updatePriorities(ids)
             deck.s.commit()
@@ -3065,8 +3068,9 @@ update cards set type = type + 3 where type < 3 and priority <= 0""")
             "select avg(factor) from cards where type = 1")
                                or Deck.initialFactor)
         deck.averageFactor = max(deck.averageFactor, Deck.minimumAverage)
-        # set due cutoff and rebuild queue
-        deck.reset()
+        #  rebuild queue if not rebuild already
+        if not ids:
+            deck.reset()
         return deck
     Deck = staticmethod(Deck)
 
@@ -3104,6 +3108,10 @@ update cards set type = type + 3 where type < 3 and priority <= 0""")
 
     def _addIndices(deck):
         "Add indices to the DB."
+        # counts, failed cards
+        deck.s.statement("""
+create index if not exists ix_cards_typeCombined on cards
+(type, combinedDue)""")
         # failed cards, review early
         deck.s.statement("""
 create index if not exists ix_cards_duePriority on cards
@@ -3587,6 +3595,14 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.hardIntervalMin = 1
             deck.hardIntervalMax = 1.1
             deck.version = 44
+            deck.s.commit()
+        if deck.version < 47:
+            # add an index for (type, combinedDue)
+            DeckStorage._addIndices(deck)
+            # add new indices that exclude isDue - we'll clean up the old ones later
+            deck.updateDynamicIndices()
+            deck.s.execute("analyze")
+            deck.version = 47
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
