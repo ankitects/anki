@@ -192,40 +192,43 @@ class Deck(object):
         self.rebuildRevCount()
         self.rebuildNewCount()
 
-    def cardLimit(self, active, inactive):
+    def cardLimit(self, active, inactive, sql):
         yes = parseTags(self.getVar(active))
         no = parseTags(self.getVar(inactive))
         if yes:
             yids = tagIds(self.s, yes).values()
             nids = tagIds(self.s, no).values()
-            return """
-and id in (select cardId from cardTags where
-tagId in %s and tagId not in %s)""" % (ids2str(yids), ids2str(nids))
+            repl = (
+                "c.id = ct.cardId and tagId in %s and "
+                "tagId not in %s and ") % (ids2str(yids), ids2str(nids))
         elif no:
             nids = tagIds(self.s, no).values()
-            return """
-and id not in (select cardId from cardTags where
-tagId in %s)""" % (ids2str(nids))
+            repl = "c.id = ct.cardId and tagId not in %s and " % ids2str(nids)
         else:
-            return ""
+            return sql
+        return sql.replace("from cards c where",
+                           "from cards c, cardTags ct where " + repl)
 
     def _rebuildFailedCount(self):
-        self.failedSoonCount = self.s.scalar("""
-select count(*) from cards where type = 0
-and combinedDue < :lim """ + self.cardLimit("revActive", "revInactive"),
-                                             lim=self.dueCutoff)
+        self.failedSoonCount = self.s.scalar(
+            self.cardLimit(
+            "revActive", "revInactive",
+            "select count(*) from cards c where type = 0 "
+            "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildRevCount(self):
-        self.revCount = self.s.scalar("""
-select count(*) from cards where type = 1
-and combinedDue < :lim """ + self.cardLimit("revActive", "revInactive"),
-                                      lim=self.dueCutoff)
+        self.revCount = self.s.scalar(
+            self.cardLimit(
+            "revActive", "revInactive",
+            "select count(*) from cards c where type = 1 "
+            "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildNewCount(self):
-        self.newCount = self.s.scalar("""
-select count(*) from cards where type = 2
-and combinedDue < :lim """ + self.cardLimit("newActive", "newInactive"),
-                                      lim=self.dueCutoff)
+        self.newCount = self.s.scalar(
+            self.cardLimit(
+            "newActive", "newInactive",
+            "select count(*) from cards c where type = 2 "
+            "and combinedDue < :lim"), lim=self.dueCutoff)
         self.updateNewCountToday()
 
     def _updateNewCountToday(self):
@@ -235,35 +238,32 @@ and combinedDue < :lim """ + self.cardLimit("newActive", "newInactive"),
 
     def _fillFailedQueue(self):
         if self.failedSoonCount and not self.failedQueue:
-            self.failedQueue = self.s.all("""
-select id, factId, combinedDue from cards
-where type = 0 and combinedDue < :lim
-%s
-order by combinedDue
-limit %d""" % (self.cardLimit("revActive", "revInactive"),
-               self.queueLimit), lim=self.dueCutoff)
+            self.failedQueue = self.s.all(
+                self.cardLimit(
+                "revActive", "revInactive", """
+select c.id, factId, combinedDue from cards c where
+type = 0 and combinedDue < :lim order by combinedDue
+limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.failedQueue.reverse()
 
     def _fillRevQueue(self):
         if self.revCount and not self.revQueue:
-            self.revQueue = self.s.all("""
-select id, factId from cards
-where type = 1 and combinedDue < :lim
-%s
-order by %s
-limit %s""" % (self.cardLimit("revActive", "revInactive"),
-               self.revOrder(), self.queueLimit), lim=self.dueCutoff)
+            self.revQueue = self.s.all(
+                self.cardLimit(
+                "revActive", "revInactive", """
+select c.id, factId from cards c where
+type = 1 and combinedDue < :lim order by %s
+limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.revQueue.reverse()
 
     def _fillNewQueue(self):
         if self.newCount and not self.newQueue:
-            self.newQueue = self.s.all("""
-select id, factId from cards
-where type = 2 and combinedDue < :lim
-%s
-order by %s
-limit %s""" % (self.cardLimit("newActive", "newInactive"),
-               self.newOrder(), self.queueLimit), lim=self.dueCutoff)
+            self.newQueue = self.s.all(
+                self.cardLimit(
+                "newActive", "newInactive", """
+select c.id, factId from cards c where
+type = 2 and combinedDue < :lim order by %s
+limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.newQueue.reverse()
 
     def queueNotEmpty(self, queue, fillFunc):
