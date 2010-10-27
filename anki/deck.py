@@ -56,7 +56,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-DECK_VERSION = 47
+DECK_VERSION = 48
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -1829,12 +1829,27 @@ order by fields.factId""" % ids2str([x[2] for x in ids])),
         pend = [formatQA(cid, mid, facts[fid], tags[cid], cms[cmid])
                 for (cid, cmid, fid, mid) in ids]
         if pend:
+            # update q/a
             self.s.execute("""
     update cards set
     question = :question, answer = :answer
     %s
     where id = :id""" % mod, pend)
+            # update fields cache
+            self.updateFieldCache(facts.keys())
         self.flushMod()
+
+    def updateFieldCache(self, fids):
+        "Add stripped HTML cache for sorting/searching."
+        all = self.s.all(
+            ("select factId, group_concat(value, ' ') from fields "
+             "where factId in %s group by factId") % ids2str(fids))
+        r = []
+        from anki.utils import stripHTMLMedia
+        for a in all:
+            r.append({'id':a[0], 'v':stripHTMLMedia(a[1])})
+        self.s.statements(
+            "update facts set spaceUntil=:v where id=:id", r)
 
     def rebuildCardOrdinals(self, ids):
         "Update all card models in IDS. Caller must update model modtime."
@@ -3603,6 +3618,10 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.updateDynamicIndices()
             deck.s.execute("analyze")
             deck.version = 47
+            deck.s.commit()
+        if deck.version < 48:
+            deck.updateFieldCache(deck.s.column0("select id from facts"))
+            deck.version = 48
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record

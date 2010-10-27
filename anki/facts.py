@@ -12,7 +12,7 @@ import time
 from anki.db import *
 from anki.errors import *
 from anki.models import Model, FieldModel, fieldModelsTable, formatQA
-from anki.utils import genID
+from anki.utils import genID, stripHTMLMedia
 from anki.hooks import runHook
 
 # Fields in a fact
@@ -56,8 +56,9 @@ factsTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('tags', UnicodeText, nullable=False, default=u""),
-    # the following two fields are obsolete and now stored in cards table
-    Column('spaceUntil', Float, nullable=False, default=0),
+    # spaceUntil is reused as a html-stripped cache of the fields
+    Column('spaceUntil', UnicodeText, nullable=False, default=u""),
+    # obsolete
     Column('lastCardId', Integer, ForeignKey(
     "cards.id", use_alter=True, name="lastCardIdfk")))
 
@@ -135,6 +136,7 @@ class Fact(object):
             d = {}
             for f in self.model.fieldModels:
                 d[f.name] = (f.id, self[f.name])
+            self.spaceUntil = stripHTMLMedia(u" ".join([x[1] for x in d.values()]))
             for card in self.cards:
                 qa = formatQA(None, self.modelId, d, card.splitTags(), card.cardModel)
                 card.question = qa['question']

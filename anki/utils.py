@@ -128,10 +128,16 @@ def fmtFloat(float_value, point=1):
 
 def stripHTML(s):
     s = re.sub("(?s)<style.*?>.*?</style>", "", s)
+    s = re.sub("(?s)<script.*?>.*?</script>", "", s)
     s = re.sub("<.*?>", "", s)
     s = s.replace("&lt;", "<")
     s = s.replace("&gt;", ">")
     return s
+
+def stripHTMLMedia(s):
+    "Strip HTML but keep media filenames"
+    s = re.sub("<img src=[\"']?([^\"'>]+)[\"']? ?/?>", " \\1 ", s)
+    return stripHTML(s)
 
 def tidyHTML(html):
     "Remove cruft like body tags and return just the important part."
