@@ -2347,7 +2347,8 @@ where id = :id""", pending)
                     fieldName = filter['field'].lower()
                     if (fieldName in cardFilters) is False:
                         cardFilters[fieldName] = []
-                    regexp = re.compile(r'\b' + re.escape(filter['value']) + r'\b', flags=re.I)
+                    regexp = re.compile(r'\b' + re.escape(filter['value']) +
+                                        r'\b', flags=re.I)
                     cardFilters[fieldName].append(
                         {'value': filter['value'], 'regexp': regexp,
                          'is_neg': filter['is_neg']})
@@ -2490,11 +2491,14 @@ where id = :id""", pending)
                 elif isNeg:
                     tquery += "select id from cards except "
                 if token == "none":
-                    tquery += """select cards.id from cards, facts where facts.tags = '' and cards.factId = facts.id """
+                    tquery += """
+select cards.id from cards, facts where facts.tags = '' and cards.factId = facts.id """
                 else:
                     token = token.replace("*", "%")
-                    ids = self.s.column0("select id from tags where tag like :tag escape '\\'", tag=token)
-                    tquery += """select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
+                    ids = self.s.column0("""
+select id from tags where tag like :tag escape '\\'""", tag=token)
+                    tquery += """
+select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
             elif type == SEARCH_TYPE:
                 if qquery:
                     if isNeg:
@@ -2537,15 +2541,18 @@ where id = :id""", pending)
                 fidquery += "select id from cards where factId = %s" % token
             elif type == SEARCH_CARD:
                 token = token.replace("*", "%")
-                ids = self.s.column0("select id from tags where tag like :tag escape '\\'", tag=token)
+                ids = self.s.column0("""
+select id from tags where tag like :tag escape '\\'""", tag=token)
                 if isNeg:
                     if cmquery['neg']:
                         cmquery['neg'] += " intersect "
-                    cmquery['neg'] += """select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
+                    cmquery['neg'] += """
+select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
                 else:
                     if cmquery['pos']:
                         cmquery['pos'] += " intersect "
-                    cmquery['pos'] += """select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
+                    cmquery['pos'] += """
+select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
             elif type == SEARCH_FIELD or type == SEARCH_FIELD_EXISTS:
                 field = value = ''
                 if type == SEARCH_FIELD:
@@ -2557,7 +2564,10 @@ where id = :id""", pending)
                     field = token
                     value = '*'
                 if (type == SEARCH_FIELD and filter != 'none'):
-                    if field and value: filters.append({'scope': 'field', 'type': filter, 'field': field, 'value': value, 'is_neg': isNeg})
+                    if field and value:
+                        filters.append(
+                            {'scope': 'field', 'type': filter,
+                             'field': field, 'value': value, 'is_neg': isNeg})
                 else:
                     if field and value:
                         if sfquery:
@@ -2570,8 +2580,11 @@ where id = :id""", pending)
                         field = field.replace("*", "%")
                         value = value.replace("*", "%")
                         args["_ff_%d" % c] = "%"+value+"%"
-                        ids = self.s.column0("select id from fieldmodels where name like :field escape '\\'", field=field)
-                        sfquery += "select factId from fields where fieldModelId in %s and value like :_ff_%d escape '\\'" % (ids2str(ids), c)
+                        ids = self.s.column0("""
+select id from fieldmodels where name like :field escape '\\'""", field=field)
+                        sfquery += """
+select factId from fields where fieldModelId in %s and
+value like :_ff_%d escape '\\'""" % (ids2str(ids), c)
             elif type == SEARCH_QA:
                 field = value = ''
                 parts = token.split(':', 1);
@@ -2579,7 +2592,10 @@ where id = :id""", pending)
                     field = parts[0]
                     value = parts[1]
                 if (filter != 'none'):
-                    if field and value: filters.append({'scope': 'card', 'type': filter, 'field': field, 'value': value, 'is_neg': isNeg})
+                    if field and value:
+                        filters.append(
+                            {'scope': 'card', 'type': filter, 'field': field,
+                             'value': value, 'is_neg': isNeg})
                 else:
                     if field and value:
                         if qaquery:
@@ -2592,14 +2608,22 @@ where id = :id""", pending)
                         value = value.replace("*", "%")
                         args["_ff_%d" % c] = "%"+value+"%"
 
-                        if field == 'question': qaquery += "select id from cards where question like :_ff_%d escape '\\'" % c
-                        else: qaquery += "select id from cards where answer like :_ff_%d escape '\\'" % c
+                        if field == 'question':
+                            qaquery += """
+select id from cards where question like :_ff_%d escape '\\'""" % c
+                        else:
+                            qaquery += """
+select id from cards where answer like :_ff_%d escape '\\'""" % c
             elif type == SEARCH_DISTINCT:
-                if isNeg is False: showdistinct = True if token == "one" else False
-                else: showdistinct = False if token == "one" else True
+                if isNeg is False:
+                    showdistinct = True if token == "one" else False
+                else:
+                    showdistinct = False if token == "one" else True
             else:
                 if (filter != 'none'):
-                    filters.append({'scope': 'fact', 'type': filter, 'value': token, 'is_neg': isNeg})
+                    filters.append(
+                        {'scope': 'fact', 'type': filter,
+                         'value': token, 'is_neg': isNeg})
                 else:
                     if fquery:
                         if isNeg:
@@ -2610,8 +2634,10 @@ where id = :id""", pending)
                         fquery += "select id from facts except "
                     token = token.replace("*", "%")
                     args["_ff_%d" % c] = "%"+token+"%"
-                    fquery += "select factId from fields where value like :_ff_%d escape '\\'" % c
-        return (tquery, fquery, qquery, fidquery, cmquery, sfquery, qaquery, showdistinct, filters, args)
+                    fquery += """
+select factId from fields where value like :_ff_%d escape '\\'""" % c
+        return (tquery, fquery, qquery, fidquery, cmquery, sfquery,
+                qaquery, showdistinct, filters, args)
 
     # Find and replace
     ##########################################################################
