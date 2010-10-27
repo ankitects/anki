@@ -12,7 +12,7 @@ class TagEdit(QLineEdit):
         QLineEdit.__init__(self, parent, *args)
         self.model = QStringListModel()
         self.completer = TagCompleter(self.model, parent, self)
-        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+        self.completer.setCompletionMode(QCompleter.PopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompleter(self.completer)
 
