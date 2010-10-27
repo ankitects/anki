@@ -2513,19 +2513,19 @@ where id = :id""", pending)
                     qquery += "select id from cards where type = %d" % n
                 elif token == "delayed":
                     qquery += ("select id from cards where "
-                               "due < %d and isDue = 0 and "
-                               "priority in (1,2,3,4)") % time.time()
+                               "due < %d and combinedDue > %d and "
+                               "type in (0,1,2)") % (
+                        self.dueCutoff, self.dueCutoff)
                 elif token == "suspended":
                     qquery += ("select id from cards where "
                                "priority = -3")
-                elif token == "inactive":
-                    qquery += ("select id from cards where "
-                               "priority = 0")
                 elif token == "leech":
-                    qquery += ("select id from cards where noCount >= (select value from deckvars where key = \"leechFails\")")
+                    qquery += (
+                        "select id from cards where noCount >= (select value "
+                        "from deckvars where key = 'leechFails')")
                 else: # due
                     qquery += ("select id from cards where "
-                               "type in (0,1) and isDue = 1")
+                               "type in (0,1) and combinedDue < %d") % self.dueCutoff
             elif type == SEARCH_FID:
                 if fidquery:
                     if isNeg:
