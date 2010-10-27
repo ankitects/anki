@@ -1743,24 +1743,14 @@ learnt today")
 
     def setupToolbar(self):
         mw = self.mainWin
-        if self.config['simpleToolbar']:
-            self.removeToolBar(mw.toolBar)
-            mw.toolBar.hide()
-            ver = QtConfig.qt_version >> 8
-            if not sys.platform.startswith("darwin") and ver >= 0x407:
-                # this became necessary in 4.7 or we end up with two toolbars
-                mw.toolBar.deleteLater()
-            mw.toolBar = QToolBar(self)
-            mw.toolBar.setObjectName("toolBar")
-            mw.toolBar.addAction(mw.actionAddcards)
-            mw.toolBar.addAction(mw.actionEditCurrent)
-            mw.toolBar.addAction(mw.actionEditdeck)
-            mw.toolBar.addAction(mw.actionStudyOptions)
-            mw.toolBar.addAction(mw.actionGraphs)
-            mw.toolBar.addAction(mw.actionMarkCard)
-            mw.toolBar.addAction(mw.actionRepeatAudio)
-            mw.toolBar.addAction(mw.actionClose)
-            self.addToolBar(Qt.TopToolBarArea, mw.toolBar)
+        mw.toolBar.addAction(mw.actionAddcards)
+        mw.toolBar.addAction(mw.actionEditCurrent)
+        mw.toolBar.addAction(mw.actionEditdeck)
+        mw.toolBar.addAction(mw.actionStudyOptions)
+        mw.toolBar.addAction(mw.actionGraphs)
+        mw.toolBar.addAction(mw.actionMarkCard)
+        mw.toolBar.addAction(mw.actionRepeatAudio)
+        mw.toolBar.addAction(mw.actionClose)
         mw.toolBar.setIconSize(QSize(self.config['iconSize'],
                                      self.config['iconSize']))
         toggle = mw.toolBar.toggleViewAction()

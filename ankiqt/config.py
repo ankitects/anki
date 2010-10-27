@@ -91,7 +91,6 @@ class Config(dict):
             'showTimer': True,
             'showToolbar': True,
             'showTrayIcon': False,
-            'simpleToolbar': True,
             'sortIndex': 0,
             'splitQA': True,
             'standaloneWindows': True,

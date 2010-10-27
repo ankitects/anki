@@ -3171,22 +3171,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionNew"/>
-   <addaction name="actionOpen"/>
-   <addaction name="actionSave"/>
-   <addaction name="actionSyncdeck"/>
-   <addaction name="separator"/>
-   <addaction name="actionAddcards"/>
-   <addaction name="actionEditCurrent"/>
-   <addaction name="actionEditdeck"/>
-   <addaction name="actionStudyOptions"/>
-   <addaction name="separator"/>
-   <addaction name="actionGraphs"/>
-   <addaction name="actionDstats"/>
-   <addaction name="actionCstats"/>
-   <addaction name="separator"/>
-   <addaction name="actionRepeatAudio"/>
-   <addaction name="actionMarkCard"/>
   </widget>
   <action name="actionExit">
    <property name="icon">
