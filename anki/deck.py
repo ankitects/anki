@@ -2635,7 +2635,7 @@ select id from cards where answer like :_ff_%d escape '\\'""" % c
                     token = token.replace("*", "%")
                     args["_ff_%d" % c] = "%"+token+"%"
                     fquery += """
-select factId from fields where value like :_ff_%d escape '\\'""" % c
+select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
         return (tquery, fquery, qquery, fidquery, cmquery, sfquery,
                 qaquery, showdistinct, filters, args)
 
