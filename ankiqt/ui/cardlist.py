@@ -88,16 +88,23 @@ class DeckModel(QAbstractTableModel):
                 # not cached yet
                 self.updateCard(index)
             s = self.columns[index.column()][1](index)
+            s = self.limitContent(s)
             s = s.replace("<br>", u" ")
             s = s.replace("<br />", u" ")
-            s = s.replace("\n", u"  ")
-            s = stripHTML(s)
+            s = s.replace("\n", u" ")
             s = re.sub("\[sound:[^]]+\]", "", s)
-            s = s.replace("&amp;", "&")
+            s = stripHTML(s)
             s = s.strip()
             return QVariant(s)
         else:
             return QVariant()
+
+    def limitContent(self, txt):
+        if "<c>" in txt:
+            matches = re.findall("(?s)<c>(.*?)</c>", txt)
+            return " ".join(matches)
+        else:
+            return txt
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Vertical:
