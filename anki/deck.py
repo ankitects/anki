@@ -219,21 +219,21 @@ class Deck(object):
         self.failedSoonCount = self.s.scalar(
             self.cardLimit(
             "revActive", "revInactive",
-            "select count(*) from cards c where type = 0 "
+            "select count(distinct c.id) from cards c where type = 0 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildRevCount(self):
         self.revCount = self.s.scalar(
             self.cardLimit(
             "revActive", "revInactive",
-            "select count(*) from cards c where type = 1 "
+            "select count(distinct c.id) from cards c where type = 1 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildNewCount(self):
         self.newCount = self.s.scalar(
             self.cardLimit(
             "newActive", "newInactive",
-            "select count(*) from cards c where type = 2 "
+            "select count(distinct c.id) from cards c where type = 2 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
         self.updateNewCountToday()
 
@@ -247,7 +247,7 @@ class Deck(object):
             self.failedQueue = self.s.all(
                 self.cardLimit(
                 "revActive", "revInactive", """
-select c.id, factId, combinedDue from cards c where
+select distinct c.id, factId, combinedDue from cards c where
 type = 0 and combinedDue < :lim order by combinedDue
 limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.failedQueue.reverse()
@@ -257,7 +257,7 @@ limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.revQueue = self.s.all(
                 self.cardLimit(
                 "revActive", "revInactive", """
-select c.id, factId from cards c where
+select distinct c.id, factId from cards c where
 type = 1 and combinedDue < :lim order by %s
 limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.revQueue.reverse()
@@ -267,7 +267,7 @@ limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.newQueue = self.s.all(
                 self.cardLimit(
                 "newActive", "newInactive", """
-select c.id, factId from cards c where
+select distinct c.id, factId from cards c where
 type = 2 and combinedDue < :lim order by %s
 limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.newQueue.reverse()
