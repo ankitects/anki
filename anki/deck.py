@@ -1346,8 +1346,10 @@ and due < :now""", now=time.time())
                    try:
                        if format % local == format % empty:
                            ok = False
+                           break
                    except (KeyError, TypeError, ValueError):
                        ok = False
+                       break
                if ok or type == "a" and cardModel.allowEmptyAnswer:
                    models.append(cardModel)
         return models
