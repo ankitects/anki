@@ -127,7 +127,7 @@ class AnkiQt(QMainWindow):
         self.mainWin.mainStack.addWidget(self.mainWin.mainText)
         self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
         self.connect(self.mainWin.mainText.pageAction(QWebPage.Reload),
-                     SIGNAL("activated()"),
+                     SIGNAL("triggered()"),
                      self.onReload)
         # congrats
         self.connect(self.mainWin.learnMoreButton,
@@ -1266,11 +1266,11 @@ your deck."""))
                 moreMenu = QMenu()
                 a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
                                        _("Hide From List"))
-                a.connect(a, SIGNAL("activated()"),
+                a.connect(a, SIGNAL("triggered()"),
                           lambda c=c: self.onDeckBrowserForget(c))
                 a = moreMenu.addAction(QIcon(":/icons/editdelete.png"),
                                        _("Delete"))
-                a.connect(a, SIGNAL("activated()"),
+                a.connect(a, SIGNAL("triggered()"),
                           lambda c=c: self.onDeckBrowserDelete(c))
                 moreButton.setMenu(moreMenu)
                 self.moreMenus.append(moreMenu)
@@ -1287,7 +1287,7 @@ your deck."""))
             moreMenu = QMenu()
             a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
                                    _("Forget Inaccessible Decks"))
-            a.connect(a, SIGNAL("activated()"),
+            a.connect(a, SIGNAL("triggered()"),
                       self.onDeckBrowserForgetInaccessible)
             more.setMenu(moreMenu)
             layout.addWidget(more, c+3, 6)
