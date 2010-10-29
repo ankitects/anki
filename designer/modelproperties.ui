@@ -62,22 +62,6 @@
           <widget class="QLineEdit" name="name"/>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>&lt;b&gt;Tags&lt;/b&gt;</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-           <property name="openExternalLinks">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="tags"/>
-         </item>
-         <item row="2" column="0">
           <widget class="QLabel" name="label_19">
            <property name="text">
             <string>&lt;b&gt;Minimum spacing&lt;/b&gt;</string>
@@ -87,7 +71,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="label_25">
            <property name="text">
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -101,28 +85,28 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="1" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QLineEdit" name="initialSpacing"/>
            </item>
           </layout>
          </item>
-         <item row="3" column="1">
+         <item row="2" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
             <widget class="QLineEdit" name="spacing"/>
            </item>
           </layout>
          </item>
-         <item row="4" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
             <string>&lt;b&gt;Media URL&lt;/B&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="3" column="1">
           <widget class="QLineEdit" name="mediaURL"/>
          </item>
         </layout>
@@ -512,7 +496,6 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>name</tabstop>
-  <tabstop>tags</tabstop>
   <tabstop>initialSpacing</tabstop>
   <tabstop>spacing</tabstop>
   <tabstop>mediaURL</tabstop>

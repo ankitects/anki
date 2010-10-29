@@ -39,7 +39,6 @@ class ModelProperties(QDialog):
     def readData(self):
         # properties section
         self.dialog.name.setText(self.m.name)
-        self.dialog.tags.setText(self.m.tags)
         self.dialog.spacing.setText(str(self.m.spacing))
         self.dialog.initialSpacing.setText(str(self.m.initialSpacing/60))
         self.dialog.mediaURL.setText(unicode(self.m.features))
@@ -467,8 +466,7 @@ order by n""", id=card.id)
         if not mname:
             mname = _("Model")
         self.updateField(self.m, 'name', mname)
-        self.updateField(self.m, 'tags',
-                         unicode(self.dialog.tags.text()))
+        self.updateField(self.m, 'tags', mname)
         url = unicode(self.dialog.mediaURL.text())
         if url:
             if not re.match("^(http|https|ftp)://", url, re.I):
