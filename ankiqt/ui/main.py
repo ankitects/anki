@@ -1488,10 +1488,10 @@ later by using File>Close.
         self.mainWin.tabWidget.setCurrentIndex(self.config['studyOptionsScreen'])
 
     def onNewCategoriesClicked(self):
-        ui.activetags.show(self, "newActive", "newInactive")
+        ui.activetags.show(self, "newActive")
 
     def onRevCategoriesClicked(self):
-        ui.activetags.show(self, "revActive", "revInactive")
+        ui.activetags.show(self, "revActive")
 
     def onFailedMaxChanged(self):
         try:
@@ -1569,12 +1569,12 @@ later by using File>Close.
             u"Show All Due Cards",
             u"Show Chosen Categories"
             ]
-        if self.deck.getVar("newActive") or self.deck.getVar("newInactive"):
+        if self.deck.getVar("newActive"):
             new = labels[1]
         else:
             new = labels[0]
         self.mainWin.newCategoryLabel.setText(new)
-        if self.deck.getVar("revActive") or self.deck.getVar("revInactive"):
+        if self.deck.getVar("revActive"):
             rev = labels[1]
         else:
             rev = labels[0]
