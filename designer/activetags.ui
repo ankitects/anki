@@ -21,7 +21,7 @@
        <item>
         <widget class="QCheckBox" name="activeCheck">
          <property name="text">
-          <string>Show only cards with these tags:</string>
+          <string>Show only cards with selected tags:</string>
          </property>
         </widget>
        </item>

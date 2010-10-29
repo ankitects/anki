@@ -1641,8 +1641,8 @@ day = :d""", d=yesterday)
 </table>""") % h
 
         stats2 = ("""\
-<table width=120>
-<tr><td>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>
+<table>
+<tr><td width=180>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>
 <tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
