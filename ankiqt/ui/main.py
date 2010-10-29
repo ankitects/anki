@@ -1629,11 +1629,11 @@ day = :d""", d=yesterday)
         h['ntot_header'] = "<b>" + _("New total:") + "</b>"
         stats1 = ("""\
 <table>
-<tr><td width=180>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>
+<tr><td width=150>%(cs_header)s</td><td width=50><b>%(repsInSesChg)s</b></td>
 <td><b>%(repsInSes)s</b></td></tr></table>
 <hr>
 <table>
-<tr><td width=180>
+<tr><td width=150>
 %(cd_header)s</td><td width=50><b>%(repsTodayChg)s</b></td>
 <td><b>%(repsToday)s</b></td></tr>
 <tr><td>%(td_header)s</td><td><b>%(timeTodayChg)s</b></td>
@@ -1641,8 +1641,8 @@ day = :d""", d=yesterday)
 </table>""") % h
 
         stats2 = ("""\
-<table>
-<tr><td width=220>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>
+<table width=120>
+<tr><td>%(rd_header)s</td><td align=right><b>%(ret)s</b></td></tr>
 <tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
