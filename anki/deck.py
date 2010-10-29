@@ -2220,7 +2220,7 @@ where id = :id""", pending)
                 elif token['value'].startswith("is:"):
                     token['value'] = token['value'][3:].lower()
                     type = SEARCH_TYPE
-                elif token['value'].startswith("fid:") and len(token) > 4:
+                elif token['value'].startswith("fid:") and len(token['value']) > 4:
                     dec = token['value'][4:]
                     try:
                         int(dec)
