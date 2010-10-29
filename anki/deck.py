@@ -151,14 +151,12 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'revInactive'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'revActive'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
             self.setVarDefault("newActive", "")
             self.setVarDefault("revActive", "")
-            self.setVarDefault("newInactive", self.suspended)
-            self.setVarDefault("revInactive", self.suspended)
         self.updateCutoff()
         self.setupStandardScheduler()
 
@@ -198,42 +196,36 @@ class Deck(object):
         self.rebuildRevCount()
         self.rebuildNewCount()
 
-    def cardLimit(self, active, inactive, sql):
+    def cardLimit(self, active, sql):
         yes = parseTags(self.getVar(active))
-        no = parseTags(self.getVar(inactive))
         if yes:
             yids = tagIds(self.s, yes).values()
-            nids = tagIds(self.s, no).values()
-            repl = (
-                "c.id = ct.cardId and tagId in %s and "
-                "tagId not in %s and ") % (ids2str(yids), ids2str(nids))
-        elif no:
-            nids = tagIds(self.s, no).values()
-            repl = "c.id = ct.cardId and tagId not in %s and " % ids2str(nids)
+            return sql.replace(
+                "where ",
+                "where +c.id in (select cardId from cardTags where "
+                "tagId in %s) and " % ids2str(yids))
         else:
             return sql
-        return sql.replace("from cards c where",
-                           "from cards c, cardTags ct where " + repl)
 
     def _rebuildFailedCount(self):
         self.failedSoonCount = self.s.scalar(
             self.cardLimit(
-            "revActive", "revInactive",
-            "select count(distinct c.id) from cards c where type = 0 "
+            "revActive",
+            "select count(*) from cards c where type = 0 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildRevCount(self):
         self.revCount = self.s.scalar(
             self.cardLimit(
-            "revActive", "revInactive",
-            "select count(distinct c.id) from cards c where type = 1 "
+            "revActive",
+            "select count(*) from cards c where type = 1 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildNewCount(self):
         self.newCount = self.s.scalar(
             self.cardLimit(
-            "newActive", "newInactive",
-            "select count(distinct c.id) from cards c where type = 2 "
+            "newActive",
+            "select count(*) from cards c where type = 2 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
         self.updateNewCountToday()
 
@@ -246,8 +238,8 @@ class Deck(object):
         if self.failedSoonCount and not self.failedQueue:
             self.failedQueue = self.s.all(
                 self.cardLimit(
-                "revActive", "revInactive", """
-select distinct c.id, factId, combinedDue from cards c where
+                "revActive", """
+select c.id, factId, combinedDue from cards c where
 type = 0 and combinedDue < :lim order by combinedDue
 limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.failedQueue.reverse()
@@ -256,8 +248,8 @@ limit %d""" % self.queueLimit), lim=self.dueCutoff)
         if self.revCount and not self.revQueue:
             self.revQueue = self.s.all(
                 self.cardLimit(
-                "revActive", "revInactive", """
-select distinct c.id, factId from cards c where
+                "revActive", """
+select c.id, factId from cards c where
 type = 1 and combinedDue < :lim order by %s
 limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.revQueue.reverse()
@@ -266,8 +258,8 @@ limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
         if self.newCount and not self.newQueue:
             self.newQueue = self.s.all(
                 self.cardLimit(
-                "newActive", "newInactive", """
-select distinct c.id, factId from cards c where
+                "newActive", """
+select c.id, factId from cards c where
 type = 2 and combinedDue < :lim order by %s
 limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.newQueue.reverse()
@@ -1001,11 +993,10 @@ At this time tomorrow:<br>
 This may be in the past if the deck is not finished.
 If the deck has no (enabled) cards, return None.
 Ignore new cards."""
-        return self.s.scalar("""
-select combinedDue from cards where type in (0,1)
-%s
+        return self.s.scalar(self.cardLimit("revActive", """
+select combinedDue from cards c where type in (0,1)
 order by combinedDue
-limit 1""" % (self.cardLimit("revActive", "revInactive")))
+limit 1"""))
 
     def earliestTimeStr(self, next=None):
         """Return the relative time to the earliest card as a string."""
@@ -1036,13 +1027,13 @@ and type in (0, 1)""", time=time)
             spaceSusp += ngettext('There is %d suspended card.',
                                   'There are %d suspended cards.',
                                   c2) % c2
-        c3 = self.inactiveCardCount()
-        if c3:
-            if spaceSusp:
-                spaceSusp += "<br>"
-            spaceSusp += ngettext('There is %d inactive card.',
-                                  'There are %d inactive cards.',
-                                  c3) % c3
+        # c3 = self.inactiveCardCount()
+        # if c3:
+        #     if spaceSusp:
+        #         spaceSusp += "<br>"
+        #     spaceSusp += ngettext('There is %d inactive card.',
+        #                           'There are %d inactive cards.',
+        #                           c3) % c3
         c4 = self.leechCardCount()
         if c4:
             if spaceSusp:
@@ -1178,10 +1169,6 @@ where type in (3,4,5) and id in %s""" %
     def suspendedCardCount(self):
         return self.s.scalar("""
 select count(id) from cards where priority = -3""")
-
-    def inactiveCardCount(self):
-        return self.s.scalar("""
-select count(id) from cards where priority = 0""")
 
     def leechCardCount(self):
         return len(self.findCards("is:suspended tag:leech"))
