@@ -1288,6 +1288,8 @@ and due < :now""", now=time.time())
         # proceed
         cards = []
         self.s.save(fact)
+        # update field cache
+        fact.setModified(True)
         self.factCount += 1
         self.flushMod()
         isRandom = self.newCardOrder == NEW_CARDS_RANDOM
@@ -2279,6 +2281,7 @@ where id = :id""", pending)
             query += " id IN %s" % ids2str(cardIdList)
         if showdistinct:
             query += " group by factId"
+        #print query, args
         return self.s.column0(query, **args)
 
     def findCardsWhere(self, query):
