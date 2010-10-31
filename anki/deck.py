@@ -180,6 +180,7 @@ class Deck(object):
         self.cardType = self._cardType
         self.finishScheduler = None
         self.answerCard = self._answerCard
+        self.cardLimit = self._cardLimit
         self.scheduler = "standard"
 
     def fillQueues(self):
@@ -196,7 +197,7 @@ class Deck(object):
         self.rebuildRevCount()
         self.rebuildNewCount()
 
-    def cardLimit(self, active, sql):
+    def _cardLimit(self, active, sql):
         yes = parseTags(self.getVar(active))
         if yes:
             yids = tagIds(self.s, yes).values()
@@ -444,6 +445,7 @@ select count() from cards where type = 2 and combinedDue < :now
         self.requeueCard = self._requeueCramCard
         self.cardType = self._cramCardType
         self.answerCard = self._answerCramCard
+        self.cardLimit = self._cramCardLimit
         self.scheduler = "cram"
 
     def _answerCramCard(self, card, ease):
@@ -504,18 +506,18 @@ select count() from cards where type = 2 and combinedDue < :now
 
     def _fillCramQueue(self):
         if self.revCount and not self.revQueue:
-            self.revQueue = self.s.all(this.cardLimit(
+            self.revQueue = self.s.all(self.cardLimit(
                 self.activeCramTags, """
-select id, factId from cards
+select id, factId from cards c
 where type in (0,1,2)
 order by %s
 limit %s""" % (self.cramOrder, self.queueLimit)))
             self.revQueue.reverse()
 
     def _rebuildCramCount(self):
-        self.revCount = self.s.scalar(this.cardLimit(
+        self.revCount = self.s.scalar(self.cardLimit(
             self.activeCramTags,
-            "select count(*) from cards where type in (0,1,2)"))
+            "select count(*) from cards c where type in (0,1,2)"))
 
     def _rebuildFailedCramCount(self):
         self.failedSoonCount = len(self.failedCramQueue)
