@@ -431,7 +431,6 @@ select count() from cards where type = 2 and combinedDue < :now
     ##########################################################################
 
     def setupCramScheduler(self, active, order):
-        # need option to randomize
         self.getCardId = self._getCramCardId
         self.activeCramTags = active
         self.cramOrder = order
@@ -467,10 +466,6 @@ select count() from cards where type = 2 and combinedDue < :now
             return self.revQueue[-1][0]
         if self.failedQueue:
             return self.failedQueue[-1][0]
-        if check:
-            # check for expired cards, or new day rollover
-            self.updateCutoff()
-            return self.getCardId(check=False)
         # if we're in a custom scheduler, we may need to switch back
         if self.finishScheduler:
             self.finishScheduler()
@@ -493,33 +488,34 @@ select count() from cards where type = 2 and combinedDue < :now
         self.newCount = 0
         self.newCountToday = 0
 
-    def _cramCardLimit(self, active):
+    def _cramCardLimit(self, active, sql):
         if isinstance(active, list):
-            return " and id in " + ids2str(active)
+            return sql.replace("where ", "where +c.id in " + ids2str(active))
         else:
             yes = parseTags(active)
             if yes:
                 yids = tagIds(self.s, yes).values()
-                return """
-and id in (select cardId from cardTags where
-tagId in %s)""" % (ids2str(yids))
+                return sql.replace(
+                    "where ",
+                    "where +c.id in (select cardId from cardTags where "
+                    "tagId in %s) and " % ids2str(yids))
             else:
-                return ""
+                return sql
 
     def _fillCramQueue(self):
         if self.revCount and not self.revQueue:
-            self.revQueue = self.s.all("""
+            self.revQueue = self.s.all(this.cardLimit(
+                self.activeCramTags, """
 select id, factId from cards
-where type in (0,1,2) %s
+where type in (0,1,2)
 order by %s
-limit %s""" % (self._cramCardLimit(self.activeCramTags),
-               self.cramOrder, self.queueLimit))
+limit %s""" % (self.cramOrder, self.queueLimit)))
             self.revQueue.reverse()
 
     def _rebuildCramCount(self):
-        self.revCount = self.s.scalar("""
-select count(*) from cards where type in (0,1,2) %s
-""" % self._cramCardLimit(self.activeCramTags))
+        self.revCount = self.s.scalar(this.cardLimit(
+            self.activeCramTags,
+            "select count(*) from cards where type in (0,1,2)"))
 
     def _rebuildFailedCramCount(self):
         self.failedSoonCount = len(self.failedCramQueue)
