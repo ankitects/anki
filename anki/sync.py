@@ -178,9 +178,9 @@ class SyncTools(object):
             if 'sources' in payload:
                 self.updateSources(payload['sources'])
         self.postSyncRefresh()
-        # rebuild priorities on server
         cardIds = [x[0] for x in payload['added-cards']]
         self.deck.updateCardTags(cardIds)
+        # rebuild priorities on server
         self.rebuildPriorities(cardIds, self.serverExcludedTags)
         # rebuild due counts
         self.deck.rebuildCounts()
@@ -215,6 +215,9 @@ class SyncTools(object):
     def rebuildPriorities(self, cardIds, suspend=[]):
         self.deck.updateAllPriorities(partial=True, dirty=False)
         self.deck.updatePriorities(cardIds, suspend=suspend, dirty=False)
+        # FIXME: adjust types if cards were suspended in the old way
+        self.deck.s.statement(
+            "update cards set type = type - 3 where priority = 0 and type >= 0")
 
     def postSyncRefresh(self):
         "Flush changes to DB, and reload object associations."

@@ -30,16 +30,22 @@ from anki.hooks import runHook
 import anki.models, anki.facts, anki.cards, anki.stats
 import anki.history, anki.media
 
-# auto priorities
+# the current code set type -= 3 for manually suspended cards, and += 3*n
+# for temporary suspends, (where n=1 for bury, n=2 for review/cram).
+# This way we don't need to recalculate priorities when enabling the cards
+# again, and paves the way for an arbitrary number of priorities in the
+# future. But until all clients are upgraded, we need to keep munging the
+# priorities to prevent older clients from getting confused
+# PRIORITY_REVEARLY = -1
+# PRIORITY_BURIED = -2
+# PRIORITY_SUSPENDED = -3
+
+# priorities
 PRIORITY_HIGH = 4
 PRIORITY_MED = 3
 PRIORITY_NORM = 2
 PRIORITY_LOW = 1
 PRIORITY_NONE = 0
-# manual priorities
-PRIORITY_REVEARLY = -1
-PRIORITY_BURIED = -2
-PRIORITY_SUSPENDED = -3
 # rest
 MATURE_THRESHOLD = 21
 NEW_CARDS_DISTRIBUTE = 0
@@ -62,7 +68,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 48
+DECK_VERSION = 49
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -177,11 +183,14 @@ class Deck(object):
         self.requeueCard = self._requeueCard
         self.timeForNewCard = self._timeForNewCard
         self.updateNewCountToday = self._updateNewCountToday
-        self.cardType = self._cardType
+        self.cardQueue = self._cardQueue
         self.finishScheduler = None
         self.answerCard = self._answerCard
         self.cardLimit = self._cardLimit
+        self.answerPreSave = None
         self.scheduler = "standard"
+        # restore any cards temporarily suspended by alternate schedulers
+        self.resetAfterReviewEarly()
 
     def fillQueues(self):
         self.fillFailedQueue()
@@ -317,6 +326,11 @@ limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
 
     def rebuildTypes(self, where=""):
         "Rebuild the type cache. Only necessary on upgrade."
+        lim = "type >= 0" # don't touch suspended cards
+        if where:
+            where += " and " + lim
+        else:
+            where = " where " + lim
         self.s.statement("""
 update cards
 set type = (case
@@ -326,22 +340,31 @@ when successive != 0 and reps != 0
 then 1 -- review
 else 2 -- new
 end)""" + where)
+        # old-style suspended cards
         self.s.statement(
-            "update cards set type = type + 3 where priority <= 0")
+            "update cards set type = type - 3 where priority = 0 and type >= 0")
 
-    def _cardType(self, card):
+    def _cardQueue(self, card):
+        return self.cardType(card)
+
+    def cardType(self, card):
         "Return the type of the current card (what queue it's in)"
-        if self.cardIsNew(card):
-            return 2
-        elif card.successive == 0:
+        if card.successive:
+            return 1
+        elif card.reps:
             return 0
         else:
-            return 1
+            return 2
 
     def updateCutoff(self):
         if self.getBool("perDay"):
-            today = genToday(self) + datetime.timedelta(days=1)
-            self.dueCutoff = time.mktime(today.timetuple())
+            d = datetime.datetime.utcfromtimestamp(
+                time.time() - self.utcOffset) + datetime.timedelta(days=1)
+            d = datetime.datetime(d.year, d.month, d.day)
+            newday = self.utcOffset - time.timezone
+            d += datetime.timedelta(seconds=newday)
+            self.dueCutoff = time.mktime(d.timetuple())
+            assert self.dueCutoff > time.time()
         else:
             self.dueCutoff = time.time()
 
@@ -383,12 +406,22 @@ end)""" + where)
         self.fillRevQueue = self._fillRevEarlyQueue
         self.rebuildRevCount = self._rebuildRevEarlyCount
         self.finishScheduler = self._onReviewEarlyFinished
+        self.answerPreSave = self._reviewEarlyPreSave
         self.scheduler = "reviewEarly"
 
+    def _reviewEarlyPreSave(self, card, ease):
+        if ease > 1:
+            # prevent it from appearing in next queue fill
+            card.type += 6
+
     def resetAfterReviewEarly(self):
-        ids = self.s.column0("select id from cards where priority = -1")
+        # FIXME: can ignore priorities in the future
+        ids = self.s.column0(
+            "select id from cards where type in (6,7,8) or priority = -1")
         if ids:
             self.updatePriorities(ids)
+            self.s.statement(
+                "update cards set type = type - 6 where type in (6,7,8)")
             self.flushMod()
 
     def _onReviewEarlyFinished(self):
@@ -443,14 +476,16 @@ select count() from cards where type = 2 and combinedDue < :now
         self.finishScheduler = self.setupStandardScheduler
         self.failedCramQueue = []
         self.requeueCard = self._requeueCramCard
-        self.cardType = self._cramCardType
+        self.cardQueue = self._cramCardQueue
         self.answerCard = self._answerCramCard
+        # reuse review early's code
+        self.answerPreSave = self._reviewEarlyPreSave
         self.cardLimit = self._cramCardLimit
         self.scheduler = "cram"
 
     def _answerCramCard(self, card, ease):
         if ease == 1:
-            if self._cramCardType(card) != 0:
+            if self.cardQueue(card) != 0:
                 self.failedSoonCount += 1
                 self.revCount -= 1
             self.requeueCard(card, None)
@@ -474,14 +509,14 @@ select count() from cards where type = 2 and combinedDue < :now
             self.reset()
             return self.getCardId()
 
-    def _cramCardType(self, card):
+    def _cramCardQueue(self, card):
         if self.revQueue and self.revQueue[-1][0] == card.id:
             return 1
         else:
             return 0
 
     def _requeueCramCard(self, card, oldSuc):
-        if self._cramCardType(card) == 1:
+        if self.cardQueue(card) == 1:
             self.revQueue.pop()
         else:
             self.failedCramQueue.pop()
@@ -676,7 +711,7 @@ where id in """
         now = time.time()
         # old state
         oldState = self.cardState(card)
-        oldQueue = self.cardType(card)
+        oldQueue = self.cardQueue(card)
         lastDelaySecs = time.time() - card.combinedDue
         lastDelay = lastDelaySecs / 86400.0
         oldSuc = card.successive
@@ -696,32 +731,8 @@ where id in """
             # don't update factor if learning ahead
             self.updateFactor(card, ease)
         # spacing
-        (minSpacing, spaceFactor) = self.s.first("""
-select models.initialSpacing, models.spacing from
-facts, models where facts.modelId = models.id and facts.id = :id""", id=card.factId)
-        minOfOtherCards = self.s.scalar("""
-select min(interval) from cards
-where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
-        if minOfOtherCards:
-            space = min(minOfOtherCards, card.interval)
-        else:
-            space = 0
-        space = space * spaceFactor * 86400.0
-        space = max(minSpacing, space)
-        space += time.time()
-        card.combinedDue = max(card.due, space)
-        # check what other cards we've spaced
-        for (type, count) in self.s.all("""
-select type, count(type) from cards
-where factId = :fid and
-combinedDue < :now and id != :cid
-group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
-            if type == 0:
-                self.failedSoonCount -= count
-            elif type == 1:
-                self.revCount -= count
-            elif type == 2:
-                self.newCount -= count
+        space = self.spaceUntilTime(card)
+        self.spaceCards(card, space)
         # adjust counts for current card
         if ease == 1:
             self.failedSoonCount += 1
@@ -734,23 +745,14 @@ group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
             self.revCount -= 1
         else:
             self.newCount -= 1
-        # space other cards
-        self.s.statement("""
-update cards set
-spaceUntil = :space,
-combinedDue = max(:space, due),
-modified = :now, isDue = 0
-where id != :id and factId = :factId""",
-                         id=card.id, space=space, now=now, factId=card.factId)
-        card.spaceUntil = 0
-        self.spacedFacts[card.factId] = space
-        # temp suspend if it's a review card & we're reviewing early
-        if oldSuc and lastDelay < 0:
-            if lastDelaySecs > self.delay0:
-                card.priority = -1
-                card.type += 3
+        # update type
+        card.type = self.cardType(card)
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
+        # allow custom schedulers to munge the card
+        if self.answerPreSave:
+            self.answerPreSave(card, ease)
+        # save
         card.toDB(self.s)
         # global/daily stats
         anki.stats.updateAllStats(self.s, self._globalStats, self._dailyStats,
@@ -768,6 +770,47 @@ where id != :id and factId = :factId""",
             self.handleLeech(card)
         runHook("cardAnswered", card.id, isLeech)
         self.setUndoEnd(undoName)
+
+    def spaceUntilTime(self, card):
+        (minSpacing, spaceFactor) = self.s.first("""
+select models.initialSpacing, models.spacing from
+facts, models where facts.modelId = models.id and facts.id = :id""", id=card.factId)
+        minOfOtherCards = self.s.scalar("""
+select min(interval) from cards
+where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
+        if minOfOtherCards:
+            space = min(minOfOtherCards, card.interval)
+        else:
+            space = 0
+        space = space * spaceFactor * 86400.0
+        space = max(minSpacing, space)
+        space += time.time()
+        return space
+
+    def spaceCards(self, card, space):
+        # adjust counts
+        for (type, count) in self.s.all("""
+select type, count(type) from cards
+where factId = :fid and
+combinedDue < :now and id != :cid
+group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
+            if type == 0:
+                self.failedSoonCount -= count
+            elif type == 1:
+                self.revCount -= count
+            elif type == 2:
+                self.newCount -= count
+        # space other cards
+        self.s.statement("""
+update cards set
+spaceUntil = :space,
+combinedDue = max(:space, due),
+modified = :now, isDue = 0
+where id != :id and factId = :factId""",
+                         id=card.id, space=space, now=time.time(),
+                         factId=card.factId)
+        # update local cache of seen facts
+        self.spacedFacts[card.factId] = space
 
     def isLeech(self, card):
         no = card.noCount
@@ -1132,11 +1175,17 @@ group by cardTags.cardId""" % limit)
     # Suspending
     ##########################################################################
 
+    # when older clients are upgraded, we can move the code which touches
+    # priorities & isDue
+
     def suspendCards(self, ids):
         self.startProgress()
-        self.s.statement(
-            "update cards set type = type + 3, priority=-3, modified=:t "
-            "where type in (0,1,2) and id in %s" % ids2str(ids), t=time.time())
+        self.s.statement("""
+update cards
+set type = (case
+when successive then -2 when reps then -3 else -1),
+priority = -3, modified = :t, isDue=0
+where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
         self.flushMod()
         self.reset()
         self.finishProgress()
@@ -1144,8 +1193,8 @@ group by cardTags.cardId""" % limit)
     def unsuspendCards(self, ids):
         self.startProgress()
         self.s.statement("""
-update cards set type = type - 3, priority=0, modified=:t
-where type in (3,4,5) and id in %s""" %
+update cards set type = type + 3, priority=0, modified=:t
+where type < 0 and id in %s""" %
             ids2str(ids), t=time.time())
         self.updatePriorities(ids)
         self.flushMod()
@@ -1154,7 +1203,7 @@ where type in (3,4,5) and id in %s""" %
 
     def buryFact(self, fact):
         for card in fact.cards:
-            if card.priority > 0:
+            if card.type in (0,1,2):
                 card.priority = -2
                 card.type += 3
                 card.isDue = 0
@@ -1166,7 +1215,7 @@ where type in (3,4,5) and id in %s""" %
 
     def suspendedCardCount(self):
         return self.s.scalar("""
-select count(id) from cards where priority = -3""")
+select count(id) from cards where type < 0""")
 
     def leechCardCount(self):
         return len(self.findCards("is:suspended tag:leech"))
@@ -3442,6 +3491,7 @@ class DeckStorage(object):
                 deck.updateCardsFromModel(m)
             deck.created = time.time()
             deck.finishProgress()
+        oldMod = deck.modified
         # fix a bug with current model being unset
         if not deck.currentModel and deck.models:
             deck.currentModel = deck.models[0]
@@ -3450,25 +3500,29 @@ class DeckStorage(object):
         # FIXME: temporary code for upgrade
         # - ensure cards suspended on older clients are recognized
         deck.s.statement("""
-update cards set type = type + 3 where type < 3 and priority <= 0""")
+update cards set type = type - 3 where type in (0,1,2) and priority = -3""")
         # - ensure hard scheduling over a day if per day
         if deck.getBool("perDay"):
             deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
             deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
-        # unsuspend reviewed early & buried
+        # unsuspend buried - can remove priorities in the future
         ids = deck.s.column0(
-            "select id from cards where type > 2 and priority in (-1,-2)")
+            "select id from cards where type in (3,4,5) or priority in (-1,-2)")
         if ids:
             deck.updatePriorities(ids)
+            deck.s.statement(
+                "update cards set type = type - 3 where type in (3,4,5)")
             deck.s.commit()
         # determine starting factor for new cards
         deck.averageFactor = (deck.s.scalar(
             "select avg(factor) from cards where type = 1")
                                or Deck.initialFactor)
         deck.averageFactor = max(deck.averageFactor, Deck.minimumAverage)
-        #  rebuild queue if not rebuild already
+        # rebuild queue if not rebuild already
         if not ids:
             deck.reset()
+        # make sure we haven't accidentally bumped the modification time
+        assert deck.modified == oldMod
         return deck
     Deck = staticmethod(Deck)
 
@@ -3987,8 +4041,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             # leaner indices
             deck.s.statement("drop index if exists ix_cards_factId")
             DeckStorage._addIndices(deck)
-            # new type handling
-            deck.rebuildTypes()
             # per-day scheduling necessitates an increase here
             deck.hardIntervalMin = 1
             deck.hardIntervalMax = 1.1
@@ -4005,6 +4057,11 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
         if deck.version < 48:
             deck.updateFieldCache(deck.s.column0("select id from facts"))
             deck.version = 48
+            deck.s.commit()
+        if deck.version < 49:
+            # new type handling
+            deck.rebuildTypes()
+            deck.version = 49
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record

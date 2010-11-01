@@ -226,12 +226,6 @@ from cards where id = :id""", id=id)
 
     def toDB(self, s):
         "Write card to DB."
-        if self.reps == 0:
-            self.type = 2
-        elif self.successive:
-            self.type = 1
-        else:
-            self.type = 0
         s.execute("""update cards set
 modified=:modified,
 tags=:tags,
