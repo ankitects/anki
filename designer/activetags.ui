@@ -35,6 +35,23 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QCheckBox" name="inactiveCheck">
+         <property name="text">
+          <string>Hide cards with these tags:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="inactiveList">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -98,6 +115,22 @@
     <hint type="destinationlabel">
      <x>133</x>
      <y>85</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>inactiveCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>inactiveList</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>146</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>68</x>
+     <y>276</y>
     </hint>
    </hints>
   </connection>

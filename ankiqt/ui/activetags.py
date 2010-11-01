@@ -9,11 +9,12 @@ from ankiqt.ui.utils import saveGeom, restoreGeom
 
 class ActiveTagsChooser(QDialog):
 
-    def __init__(self, parent, active):
+    def __init__(self, parent, active, inactive):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.deck = self.parent.deck
         self.active = active
+        self.inactive = inactive
         self.dialog = ankiqt.forms.activetags.Ui_Dialog()
         self.dialog.setupUi(self)
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
@@ -26,9 +27,13 @@ class ActiveTagsChooser(QDialog):
         self.items = []
         self.suspended = {}
         yes = parseTags(self.deck.getVar(self.active))
+        no = parseTags(self.deck.getVar(self.inactive))
         yesHash = {}
+        noHash = {}
         for y in yes:
             yesHash[y] = True
+        for n in no:
+            noHash[n] = True
         groupedTags = []
         usertags.sort()
         # render models and templates
@@ -65,6 +70,16 @@ class ActiveTagsChooser(QDialog):
                     mode = QItemSelectionModel.Deselect
                 idx = self.dialog.activeList.indexFromItem(item)
                 self.dialog.activeList.selectionModel().select(idx, mode)
+                # inactive
+                item = QListWidgetItem(icon, t.replace("_", " "))
+                self.dialog.inactiveList.addItem(item)
+                if t in noHash:
+                    mode = QItemSelectionModel.Select
+                    self.dialog.inactiveCheck.setChecked(True)
+                else:
+                    mode = QItemSelectionModel.Deselect
+                idx = self.dialog.inactiveList.indexFromItem(item)
+                self.dialog.inactiveList.selectionModel().select(idx, mode)
 
     def accept(self):
         self.hide()
@@ -77,10 +92,20 @@ class ActiveTagsChooser(QDialog):
             idx = self.dialog.activeList.indexFromItem(item)
             if self.dialog.activeList.selectionModel().isSelected(idx):
                 yes.append(self.tags[c])
+            # inactive
+            item = self.dialog.inactiveList.item(c)
+            idx = self.dialog.inactiveList.indexFromItem(item)
+            if self.dialog.inactiveList.selectionModel().isSelected(idx):
+                no.append(self.tags[c])
+
         if self.dialog.activeCheck.isChecked():
             self.deck.setVar(self.active, joinTags(yes))
         else:
             self.deck.setVar(self.active, "")
+        if self.dialog.inactiveCheck.isChecked():
+            self.deck.setVar(self.inactive, joinTags(no))
+        else:
+            self.deck.setVar(self.inactive, "")
         self.parent.reset()
         saveGeom(self, "activeTags")
         QDialog.accept(self)
@@ -89,6 +114,6 @@ class ActiveTagsChooser(QDialog):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "ActiveTags"))
 
-def show(parent, active):
-    at = ActiveTagsChooser(parent, active)
+def show(parent, active, inactive):
+    at = ActiveTagsChooser(parent, active, inactive)
     at.exec_()
