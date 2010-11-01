@@ -190,7 +190,11 @@ class Deck(object):
         self.answerPreSave = None
         self.scheduler = "standard"
         # restore any cards temporarily suspended by alternate schedulers
-        self.resetAfterReviewEarly()
+        try:
+            self.resetAfterReviewEarly()
+        except OperationalError, e:
+            # will fail if deck hasn't been upgraded yet
+            pass
 
     def fillQueues(self):
         self.fillFailedQueue()
@@ -3476,7 +3480,7 @@ class DeckStorage(object):
                     traceback.print_exc()
                     deck.fixIntegrity()
                     deck = DeckStorage._upgradeDeck(deck, path)
-        except OperationalError, e:
+        except SyntaxError: # OperationalError, e:
             engine.dispose()
             if (str(e.orig).startswith("database table is locked") or
                 str(e.orig).startswith("database is locked")):
