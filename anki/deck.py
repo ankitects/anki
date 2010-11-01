@@ -157,12 +157,14 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'revActive'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'revInactive'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
             self.setVarDefault("newActive", "")
             self.setVarDefault("revActive", "")
+            self.setVarDefault("newInactive", self.suspended)
+            self.setVarDefault("revInactive", self.suspended)
         self.updateCutoff()
         self.setupStandardScheduler()
 
@@ -210,35 +212,45 @@ class Deck(object):
         self.rebuildRevCount()
         self.rebuildNewCount()
 
-    def _cardLimit(self, active, sql):
+    def _cardLimit(self, active, inactive, sql):
         yes = parseTags(self.getVar(active))
+        no = parseTags(self.getVar(inactive))
         if yes:
             yids = tagIds(self.s, yes).values()
+            nids = tagIds(self.s, no).values()
             return sql.replace(
                 "where ",
                 "where +c.id in (select cardId from cardTags where "
-                "tagId in %s) and " % ids2str(yids))
+                "tagId in %s and tagId not in %s) and " % (
+                ids2str(yids),
+                ids2str(nids)))
+        elif no:
+            nids = tagIds(self.s, no).values()
+            return sql.replace(
+                "where ",
+                "where +c.id not in (select cardId from cardTags where "
+                "tagId in %s) and " % ids2str(nids))
         else:
             return sql
 
     def _rebuildFailedCount(self):
         self.failedSoonCount = self.s.scalar(
             self.cardLimit(
-            "revActive",
+            "revActive", "revInactive",
             "select count(*) from cards c where type = 0 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildRevCount(self):
         self.revCount = self.s.scalar(
             self.cardLimit(
-            "revActive",
+            "revActive", "revInactive",
             "select count(*) from cards c where type = 1 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildNewCount(self):
         self.newCount = self.s.scalar(
             self.cardLimit(
-            "newActive",
+            "newActive", "newInactive",
             "select count(*) from cards c where type = 2 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
         self.updateNewCountToday()
@@ -252,7 +264,7 @@ class Deck(object):
         if self.failedSoonCount and not self.failedQueue:
             self.failedQueue = self.s.all(
                 self.cardLimit(
-                "revActive", """
+                "revActive", "revInactive", """
 select c.id, factId, combinedDue from cards c where
 type = 0 and combinedDue < :lim order by combinedDue
 limit %d""" % self.queueLimit), lim=self.dueCutoff)
@@ -262,7 +274,7 @@ limit %d""" % self.queueLimit), lim=self.dueCutoff)
         if self.revCount and not self.revQueue:
             self.revQueue = self.s.all(
                 self.cardLimit(
-                "revActive", """
+                "revActive", "revInactive", """
 select c.id, factId from cards c where
 type = 1 and combinedDue < :lim order by %s
 limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
@@ -272,7 +284,7 @@ limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
         if self.newCount and not self.newQueue:
             self.newQueue = self.s.all(
                 self.cardLimit(
-                "newActive", """
+                "newActive", "newInactive", """
 select c.id, factId from cards c where
 type = 2 and combinedDue < :lim order by %s
 limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
@@ -1038,7 +1050,7 @@ At this time tomorrow:<br>
 This may be in the past if the deck is not finished.
 If the deck has no (enabled) cards, return None.
 Ignore new cards."""
-        return self.s.scalar(self.cardLimit("revActive", """
+        return self.s.scalar(self.cardLimit("revActive", "revInactive", """
 select combinedDue from cards c where type in (0,1)
 order by combinedDue
 limit 1"""))
