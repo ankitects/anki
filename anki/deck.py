@@ -312,9 +312,6 @@ limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
             else:
                 return
 
-    def failedNoSpaced(self):
-        return self.queueNotEmpty(self.failedQueue, self.fillFailedQueue)
-
     def revNoSpaced(self):
         return self.queueNotEmpty(self.revQueue, self.fillRevQueue)
 
@@ -590,7 +587,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         self.checkDailyStats()
         self.fillQueues()
         self.updateNewCountToday()
-        if self.failedNoSpaced():
+        if self.failedQueue:
             # failed card due?
             if self.delay0 and self.failedQueue[-1][2] < time.time():
                 return self.failedQueue[-1][0]
@@ -761,10 +758,10 @@ where id in """
             self.revCount -= 1
         else:
             self.newCount -= 1
-        # update type
-        card.type = self.cardType(card)
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
+        # update type
+        card.type = self.cardType(card)
         # allow custom schedulers to munge the card
         if self.answerPreSave:
             self.answerPreSave(card, ease)
