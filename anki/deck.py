@@ -1199,7 +1199,7 @@ group by cardTags.cardId""" % limit)
         self.s.statement("""
 update cards
 set type = (case
-when successive then -2 when reps then -3 else -1),
+when successive then -2 when reps then -3 else -1 end),
 priority = -3, modified = :t, isDue=0
 where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
         self.flushMod()
