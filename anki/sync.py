@@ -215,9 +215,6 @@ class SyncTools(object):
     def rebuildPriorities(self, cardIds, suspend=[]):
         self.deck.updateAllPriorities(partial=True, dirty=False)
         self.deck.updatePriorities(cardIds, suspend=suspend, dirty=False)
-        # FIXME: adjust types if cards were suspended in the old way
-        self.deck.s.statement(
-            "update cards set type = type - 3 where priority = 0 and type >= 0")
 
     def postSyncRefresh(self):
         "Flush changes to DB, and reload object associations."
