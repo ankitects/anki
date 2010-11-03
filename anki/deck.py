@@ -747,12 +747,8 @@ where id in """
         space = self.spaceUntilTime(card)
         self.spaceCards(card, space)
         # adjust counts for current card
-        if ease == 1:
-            self.failedSoonCount += 1
         if oldQueue == 0:
-            if ease == 1:
-                self.failedSoonCount -= 1
-            else:
+            if ease != 1:
                 self.failedSoonCount -= 1
         elif oldQueue == 1:
             self.revCount -= 1
