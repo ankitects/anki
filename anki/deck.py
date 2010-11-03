@@ -610,6 +610,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         if check:
             # check for expired cards, or new day rollover
             self.updateCutoff()
+            self.reset()
             return self.getCardId(check=False)
         # if we're in a custom scheduler, we may need to switch back
         if self.finishScheduler:
