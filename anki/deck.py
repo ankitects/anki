@@ -190,6 +190,7 @@ class Deck(object):
         self.answerCard = self._answerCard
         self.cardLimit = self._cardLimit
         self.answerPreSave = None
+        self.spaceCards = self._spaceCards
         self.scheduler = "standard"
         # restore any cards temporarily suspended by alternate schedulers
         try:
@@ -491,10 +492,16 @@ select count() from cards where type = 2 and combinedDue < :now
         self.requeueCard = self._requeueCramCard
         self.cardQueue = self._cramCardQueue
         self.answerCard = self._answerCramCard
+        self.spaceCards = self._spaceCramCards
         # reuse review early's code
         self.answerPreSave = self._reviewEarlyPreSave
         self.cardLimit = self._cramCardLimit
         self.scheduler = "cram"
+
+    def _spaceCramCards(self, card, space):
+        # if non-zero spacing, limit to 10 minutes or queue refill
+        if space > time.time():
+            self.spacedFacts[card.factId] = time.time() + 600
 
     def _answerCramCard(self, card, ease):
         if ease == 1:
@@ -516,6 +523,10 @@ select count() from cards where type = 2 and combinedDue < :now
             return self.revQueue[-1][0]
         if self.failedQueue:
             return self.failedQueue[-1][0]
+        if check:
+            # collapse spaced cards before reverting back to old scheduler
+            self.reset()
+            return self.getCardId(False)
         # if we're in a custom scheduler, we may need to switch back
         if self.finishScheduler:
             self.finishScheduler()
@@ -797,7 +808,7 @@ where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
         space += time.time()
         return space
 
-    def spaceCards(self, card, space):
+    def _spaceCards(self, card, space):
         # adjust counts
         for (type, count) in self.s.all("""
 select type, count(type) from cards
