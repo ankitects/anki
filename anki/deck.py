@@ -320,12 +320,29 @@ limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
         return self.queueNotEmpty(self.newQueue, self.fillNewQueue)
 
     def _requeueCard(self, card, oldSuc):
-        if card.reps == 1:
-            self.newQueue.pop()
-        elif oldSuc == 0:
-            self.failedQueue.pop()
-        else:
-            self.revQueue.pop()
+        try:
+            if card.reps == 1:
+                self.newQueue.pop()
+            elif oldSuc == 0:
+                self.failedQueue.pop()
+            else:
+                self.revQueue.pop()
+        except:
+            if card.reps:
+                type = 2
+            elif oldSuc == 0:
+                type = 0
+            else:
+                type = 1
+            raise Exception("""\
+requeueCard() failed.
+
+Counts %d %d %d
+Queue %d %d %d
+
+Card type: %d""" % (self.failedSoonCount, self.revCount, self.newCountToday,
+                    len(self.failedQueue), len(self.revQueue),
+                    len(self.newQueue), type))
 
     def revOrder(self):
         return ("priority desc, interval desc",
