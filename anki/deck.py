@@ -328,21 +328,15 @@ limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
             else:
                 self.revQueue.pop()
         except:
-            if card.reps:
-                type = 2
-            elif oldSuc == 0:
-                type = 0
-            else:
-                type = 1
             raise Exception("""\
 requeueCard() failed.
 
 Counts %d %d %d
 Queue %d %d %d
-
-Card type: %d""" % (self.failedSoonCount, self.revCount, self.newCountToday,
-                    len(self.failedQueue), len(self.revQueue),
-                    len(self.newQueue), type))
+Card info: %d %d %d""" % (self.failedSoonCount, self.revCount, self.newCountToday,
+                          len(self.failedQueue), len(self.revQueue),
+                          len(self.newQueue),
+                          card.reps, card.successive, oldSuc))
 
     def revOrder(self):
         return ("priority desc, interval desc",
