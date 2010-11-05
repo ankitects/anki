@@ -3538,13 +3538,15 @@ update cards set type = type - 3 where type in (0,1,2) and priority = -3""")
         if deck.getBool("perDay"):
             deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
             deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
-        # unsuspend buried - can remove priorities in the future
+        # unsuspend buried/rev early - can remove priorities in the future
         ids = deck.s.column0(
-            "select id from cards where type in (3,4,5) or priority in (-1,-2)")
+            "select id from cards where type > 2 or priority in (-1,-2)")
         if ids:
             deck.updatePriorities(ids)
             deck.s.statement(
                 "update cards set type = type - 3 where type in (3,4,5)")
+            deck.s.statement(
+                "update cards set type = type - 6 where type in (6,7,8)")
             deck.s.commit()
         # determine starting factor for new cards
         deck.averageFactor = (deck.s.scalar(
