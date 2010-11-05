@@ -488,7 +488,7 @@ where factId in %s""" % factIds))
             'created': f[2],
             'modified': f[3],
             'tags': f[4],
-            'spaceUntil': f[5],
+            'spaceUntil': f[5] or "",
             'lastCardId': f[6]
             } for f in facts]
         self.deck.factCount += (len(facts) - self.deck.s.scalar(
