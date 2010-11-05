@@ -442,11 +442,11 @@ end)""" + where)
     def resetAfterReviewEarly(self):
         # FIXME: can ignore priorities in the future
         ids = self.s.column0(
-            "select id from cards where type in (6,7,8) or priority = -1")
+            "select id from cards where type between 6 and 8 or priority = -1")
         if ids:
             self.updatePriorities(ids)
             self.s.statement(
-                "update cards set type = type - 6 where type in (6,7,8)")
+                "update cards set type = type - 6 where type between 6 and 8")
             self.flushMod()
 
     def _onReviewEarlyFinished(self):
@@ -579,7 +579,7 @@ select count() from cards where type = 2 and combinedDue < :now
             self.revQueue = self.s.all(self.cardLimit(
                 self.activeCramTags, """
 select id, factId from cards c
-where type in (0,1,2)
+where type between 0 and 2
 order by %s
 limit %s""" % (self.cramOrder, self.queueLimit)))
             self.revQueue.reverse()
@@ -587,7 +587,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
     def _rebuildCramCount(self):
         self.revCount = self.s.scalar(self.cardLimit(
             self.activeCramTags,
-            "select count(*) from cards c where type in (0,1,2)"))
+            "select count(*) from cards c where type between 0 and 2"))
 
     def _rebuildFailedCramCount(self):
         self.failedSoonCount = len(self.failedCramQueue)
@@ -1068,7 +1068,7 @@ This may be in the past if the deck is not finished.
 If the deck has no (enabled) cards, return None.
 Ignore new cards."""
         return self.s.scalar(self.cardLimit("revActive", "revInactive", """
-select combinedDue from cards c where type in (0,1)
+select combinedDue from cards c where type between 0 and 1
 order by combinedDue
 limit 1"""))
 
@@ -1085,7 +1085,7 @@ limit 1"""))
         "Number of cards due at TIME. Ignore new cards"
         return self.s.scalar("""
 select count(id) from cards where combinedDue < :time
-and type in (0, 1)""", time=time)
+and type between 0 and 1""", time=time)
 
     def deckFinishedMsg(self):
         spaceSusp = ""
@@ -1290,7 +1290,7 @@ and due < :now""", now=time.time())
     def newCountAll(self):
         "All new cards, including spaced."
         return self.s.scalar(
-            "select count(id) from cards where type in (2,5)")
+            "select count(id) from cards where type = 2")
 
     # Card predicates
     ##########################################################################
@@ -3533,20 +3533,20 @@ class DeckStorage(object):
         # FIXME: temporary code for upgrade
         # - ensure cards suspended on older clients are recognized
         deck.s.statement("""
-update cards set type = type - 3 where type in (0,1,2) and priority = -3""")
+update cards set type = type - 3 where type between 0 and 2 and priority = -3""")
         # - ensure hard scheduling over a day if per day
         if deck.getBool("perDay"):
             deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
             deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
         # unsuspend buried/rev early - can remove priorities in the future
         ids = deck.s.column0(
-            "select id from cards where type > 2 or priority in (-1,-2)")
+            "select id from cards where type > 2 or priority between -2 and -1")
         if ids:
             deck.updatePriorities(ids)
             deck.s.statement(
-                "update cards set type = type - 3 where type in (3,4,5)")
+                "update cards set type = type - 3 where type between 3 and 5")
             deck.s.statement(
-                "update cards set type = type - 6 where type in (6,7,8)")
+                "update cards set type = type - 6 where type between 6 and 8")
             deck.s.commit()
         # determine starting factor for new cards
         deck.averageFactor = (deck.s.scalar(
