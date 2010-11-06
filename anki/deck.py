@@ -763,6 +763,7 @@ where id in """
         card.due = self.nextDue(card, ease, oldState)
         card.isDue = 0
         card.lastFactor = card.factor
+        card.spaceUntil = 0;
         if lastDelay >= 0:
             # don't update factor if learning ahead
             self.updateFactor(card, ease)
@@ -780,8 +781,9 @@ where id in """
             self.newCount -= 1
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
-        # update type
+        # update type & ensure past cutoff
         card.type = self.cardType(card)
+        card.due = max(card.due, this.dueCutoff+1)
         # allow custom schedulers to munge the card
         if self.answerPreSave:
             self.answerPreSave(card, ease)
@@ -985,7 +987,7 @@ where id in %s""" % ids2str(ids), now=time.time(), new=0)
     def randomizeNewCards(self, cardIds=None):
         "Randomize 'due' on all new cards."
         now = time.time()
-        query = "select distinct factId from cards where type = 2"
+        query = "select distinct factId from cards where reps = 0"
         if cardIds:
             query += " and id in %s" % ids2str(cardIds)
         fids = self.s.column0(query)
