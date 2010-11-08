@@ -43,8 +43,8 @@ if simplejson.__version__ < "1.7.3":
 CHUNK_SIZE = 32768
 MIME_BOUNDARY = "Anki-sync-boundary"
 # live
-SYNC_URL = "http://anki.ichi2.net/sync/"
-SYNC_HOST = "anki.ichi2.net"; SYNC_PORT = 80
+SYNC_URL = "http://ankiweb.net/sync/"
+SYNC_HOST = "ankiweb.net"; SYNC_PORT = 80
 # testing
 #SYNC_URL = "http://localhost:8001/sync/"
 #SYNC_HOST = "localhost"; SYNC_PORT = 8001
