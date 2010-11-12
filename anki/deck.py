@@ -784,7 +784,8 @@ where id in """
         anki.cards.Card.updateStats(card, ease, oldState)
         # update type & ensure past cutoff
         card.type = self.cardType(card)
-        card.due = max(card.due, self.dueCutoff+1)
+        if ease != 1:
+            card.due = max(card.due, self.dueCutoff+1)
         # allow custom schedulers to munge the card
         if self.answerPreSave:
             self.answerPreSave(card, ease)
