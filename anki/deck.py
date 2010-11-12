@@ -560,7 +560,8 @@ select count() from cards where type = 2 and combinedDue < :now
         self.newCount = 0
         self.newCountToday = 0
 
-    def _cramCardLimit(self, active, sql):
+    def _cramCardLimit(self, active, inactive, sql):
+        # inactive is (currently) ignored
         if isinstance(active, list):
             return sql.replace("where ", "where +c.id in " + ids2str(active))
         else:
@@ -577,7 +578,7 @@ select count() from cards where type = 2 and combinedDue < :now
     def _fillCramQueue(self):
         if self.revCount and not self.revQueue:
             self.revQueue = self.s.all(self.cardLimit(
-                self.activeCramTags, """
+                self.activeCramTags, "", """
 select id, factId from cards c
 where type between 0 and 2
 order by %s
@@ -586,7 +587,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
 
     def _rebuildCramCount(self):
         self.revCount = self.s.scalar(self.cardLimit(
-            self.activeCramTags,
+            self.activeCramTags, "",
             "select count(*) from cards c where type between 0 and 2"))
 
     def _rebuildFailedCramCount(self):
