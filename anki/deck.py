@@ -98,7 +98,8 @@ decksTable = Table(
     Column('easyIntervalMax', Float, nullable=False, default=9.0),
     # delays on failure
     Column('delay0', Integer, nullable=False, default=600),
-    Column('delay1', Integer, nullable=False, default=600),
+    # days to delay mature fails
+    Column('delay1', Integer, nullable=False, default=0),
     Column('delay2', Float, nullable=False, default=0.0),
     # collapsing future cards
     Column('collapseTime', Integer, nullable=False, default=1),
@@ -239,7 +240,7 @@ class Deck(object):
             self.cardLimit(
             "revActive", "revInactive",
             "select count(*) from cards c where type = 0 "
-            "and combinedDue < :lim"), lim=self.dueCutoff)
+            "and combinedDue < :lim"), lim=self.failedCutoff)
 
     def _rebuildRevCount(self):
         self.revCount = self.s.scalar(
@@ -268,7 +269,7 @@ class Deck(object):
                 "revActive", "revInactive", """
 select c.id, factId, combinedDue from cards c where
 type = 0 and combinedDue < :lim order by combinedDue
-limit %d""" % self.queueLimit), lim=self.dueCutoff)
+limit %d""" % self.queueLimit), lim=self.failedCutoff)
             self.failedQueue.reverse()
 
     def _fillRevQueue(self):
@@ -380,18 +381,20 @@ when successive then 1 when reps then 0 else 2 end)
             return 2
 
     def updateCutoff(self):
+        d = datetime.datetime.utcfromtimestamp(
+            time.time() - self.utcOffset) + datetime.timedelta(days=1)
+        d = datetime.datetime(d.year, d.month, d.day)
+        newday = self.utcOffset - time.timezone
+        d += datetime.timedelta(seconds=newday)
+        cutoff = time.mktime(d.timetuple())
+        # cutoff must not be in the past
+        while cutoff < time.time():
+            cutoff += 86400
+        # cutoff must not be more than 24 hours in the future
+        cutoff = min(time.time() + 86400, cutoff)
+        self.failedCutoff = cutoff
         if self.getBool("perDay"):
-            d = datetime.datetime.utcfromtimestamp(
-                time.time() - self.utcOffset) + datetime.timedelta(days=1)
-            d = datetime.datetime(d.year, d.month, d.day)
-            newday = self.utcOffset - time.timezone
-            d += datetime.timedelta(seconds=newday)
-            self.dueCutoff = time.mktime(d.timetuple())
-            # cutoff must not be in the past
-            while self.dueCutoff < time.time():
-                self.dueCutoff += 86400
-            # cutoff must not be more than 24 hours in the future
-            self.dueCutoff = min(time.time() + 86400, self.dueCutoff)
+            self.dueCutoff = cutoff
         else:
             self.dueCutoff = time.time()
 
@@ -614,8 +617,9 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         self.updateNewCountToday()
         if self.failedQueue:
             # failed card due?
-            if self.delay0 and self.failedQueue[-1][2] < time.time():
-                return self.failedQueue[-1][0]
+            if self.delay0:
+                if self.failedQueue[-1][2] < time.time() + self.delay0:
+                    return self.failedQueue[-1][0]
             # failed card queue too big?
             if (self.failedCardMax and
                 self.failedSoonCount >= self.failedCardMax):
@@ -941,9 +945,9 @@ where id != :id and factId = :factId""",
         "Return time when CARD will expire given EASE."
         if ease == 1:
             if oldState == "mature":
-                due = self.delay1
+                due = 0 + self.delay1*86400
             else:
-                due = self.delay0
+                due = 0
         else:
             due = card.interval * 86400.0
         return due + time.time()
@@ -2878,10 +2882,10 @@ where key = :key""", key=key, value=value):
         elif idx == 4:
             d = 259200
         self.delay0 = d
-        self.delay1 = d
+        self.delay1 = 0
 
     def getFailedCardPolicy(self):
-        if self.delay0 != self.delay1:
+        if self.delay1:
             return 5
         d = self.delay0
         if self.collapseTime == 1:
@@ -3559,6 +3563,13 @@ update cards set type = type - 3 where type between 0 and 2 and priority = -3"""
         if deck.getBool("perDay"):
             deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
             deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
+        # - new delay1 handling
+        if deck.delay0 == deck.delay1:
+            deck.delay1 = 0
+        elif deck.delay1 >= 28800:
+            deck.delay1 = 1
+        else:
+            deck.delay1 = 0
         # unsuspend buried/rev early - can remove priorities in the future
         ids = deck.s.column0(
             "select id from cards where type > 2 or priority between -2 and -1")
