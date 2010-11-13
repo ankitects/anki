@@ -221,17 +221,17 @@ class Deck(object):
             yids = tagIds(self.s, yes).values()
             nids = tagIds(self.s, no).values()
             return sql.replace(
-                "where ",
+                "where",
                 "where +c.id in (select cardId from cardTags where "
-                "tagId in %s and tagId not in %s) and " % (
+                "tagId in %s and tagId not in %s) and" % (
                 ids2str(yids),
                 ids2str(nids)))
         elif no:
             nids = tagIds(self.s, no).values()
             return sql.replace(
-                "where ",
+                "where",
                 "where +c.id not in (select cardId from cardTags where "
-                "tagId in %s) and " % ids2str(nids))
+                "tagId in %s) and" % ids2str(nids))
         else:
             return sql
 
@@ -618,7 +618,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         if self.failedQueue:
             # failed card due?
             if self.delay0:
-                if self.failedQueue[-1][2] < time.time() + self.delay0:
+                if self.failedQueue[-1][2] + self.delay0 < time.time():
                     return self.failedQueue[-1][0]
             # failed card queue too big?
             if (self.failedCardMax and
@@ -779,7 +779,8 @@ where id in """
         self.spaceCards(card, space)
         # adjust counts for current card
         if ease == 1:
-            self.failedSoonCount += 1
+            if not (oldState == "mature" and self.delay1):
+                self.failedSoonCount += 1
         if oldQueue == 0:
             self.failedSoonCount -= 1
         elif oldQueue == 1:
