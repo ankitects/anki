@@ -366,7 +366,7 @@ when successive then 1 when reps then 0 else 2 end)
 """)
         # old-style suspended cards
         self.s.statement(
-            "update cards set type = type - 3 where priority = 0 and type >= 0")
+            "update cards set type = type - 3 where priority = -3 and type >= 0")
 
     def _cardQueue(self, card):
         return self.cardType(card)
