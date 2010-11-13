@@ -78,11 +78,11 @@ class DeckGraphs(object):
             self.endOfDay = time.mktime(now) - midnightOffset
             t = time.time()
             young = self.deck.s.all("""
-select interval, combinedDue
-from cards where relativeDelay between 0 and 1 and interval <= 21""")
+select interval, combinedDue from cards
+where relativeDelay between 0 and 1 and type >= 0 and interval <= 21""")
             mature = self.deck.s.all("""
 select interval, combinedDue
-from cards where relativeDelay = 1 and interval > 21""")
+from cards where relativeDelay = 1 and type >= 0 and interval > 21""")
 
             for (src, dest) in [(young, daysYoung),
                                 (mature, daysMature)]:
