@@ -3124,6 +3124,19 @@ select id from cards where cardModelId not in
             problems.append(ngettext("Deleted %d card with no card template",
                             "Deleted %d cards with no card template", len(ids)) %
                             len(ids))
+        # cards with a card model from the wrong model
+        ids = self.s.column0("""
+select id from cards where cardModelId not in (select cm.id from
+cardModels cm, facts f where cm.modelId = f.modelId and
+f.id = cards.factId)""")
+        if ids:
+            deletedCards.extend(self.s.all(
+                "select question, answer from cards where id in %s" %
+                ids2str(ids)))
+            self.deleteCards(ids)
+            problems.append(ngettext("Deleted %d card with wrong card template",
+                            "Deleted %d cards with wrong card template", len(ids)) %
+                            len(ids))
         # facts missing a card?
         ids = self.deleteDanglingFacts()
         if ids:
