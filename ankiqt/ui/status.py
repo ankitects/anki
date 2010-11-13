@@ -298,6 +298,7 @@ You should aim to answer each question within<br>
         if not self.main.deck:
             return
         if self.state in ("deckFinished", "studyScreen"):
+            self.main.deck.updateCutoff()
             self.main.deck.reset()
             self.redraw()
             self.main.updateTitleBar()
