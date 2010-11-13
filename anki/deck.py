@@ -389,7 +389,11 @@ end)""" + where)
             newday = self.utcOffset - time.timezone
             d += datetime.timedelta(seconds=newday)
             self.dueCutoff = time.mktime(d.timetuple())
-            assert self.dueCutoff > time.time()
+            # cutoff must not be in the past
+            while self.dueCutoff < time.time():
+                self.dueCutoff += 86400
+            # cutoff must not be more than 24 hours in the future
+            self.dueCutoff = min(time.time() + 86400, self.dueCutoff)
         else:
             self.dueCutoff = time.time()
 
