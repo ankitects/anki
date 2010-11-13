@@ -191,8 +191,8 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                     'cardModelId': cm.id,
                     'ordinal': cm.ordinal,
                     'question': u"",
-                    'answer': u"",
-                    'type': 2},cards[m]) for m in range(len(cards))]
+                    'answer': u""
+                    },cards[m]) for m in range(len(cards))]
                 self.deck.s.execute(cardsTable.insert(),
                                     data)
         self.deck.updateProgress()
@@ -212,6 +212,14 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         data['tags'] = u""
         self.cardIds.append(data['id'])
         data['combinedDue'] = data['due']
+        if data.get('successive', 0):
+            t = 1
+        elif data.get('reps', 0):
+            t = 0
+        else:
+            t = 2
+        data['type'] = t
+        data['relativeDelay'] = t
         return data
 
     def stripInvalid(self, cards):

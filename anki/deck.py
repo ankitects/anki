@@ -68,7 +68,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 49
+DECK_VERSION = 50
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -357,14 +357,12 @@ Card info: %d %d %d""" % (self.failedSoonCount, self.revCount, self.newCountToda
         else:
             where = " where " + lim
         self.s.statement("""
-update cards
-set type = (case
-when successive = 0 and reps != 0
-then 0 -- failed
-when successive != 0 and reps != 0
-then 1 -- review
-else 2 -- new
-end)""" + where)
+update cards set
+type = (case
+when successive then 1 when reps then 0 else 2 end),
+relativeDelay = (case
+when successive then 1 when reps then 0 else 2 end)
+""")
         # old-style suspended cards
         self.s.statement(
             "update cards set type = type - 3 where priority = 0 and type >= 0")
@@ -788,6 +786,7 @@ where id in """
         anki.cards.Card.updateStats(card, ease, oldState)
         # update type & ensure past cutoff
         card.type = self.cardType(card)
+        card.relativeDelay = card.type
         if ease != 1:
             card.due = max(card.due, self.dueCutoff+1)
         # allow custom schedulers to munge the card
@@ -981,7 +980,7 @@ factor = 2.5, reps = 0, successive = 0, averageTime = 0, reviewTime = 0,
 youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
 youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
 matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
-spaceUntil = 0, type = 2,
+spaceUntil = 0, type = 2, relativeDelay = 2,
 combinedDue = created, modified = :now, due = created
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
         if self.newCardOrder == NEW_CARDS_RANDOM:
@@ -1006,7 +1005,7 @@ set due = :rand + ordinal,
 combinedDue = max(:rand + ordinal, spaceUntil),
 modified = :now
 where factId = :fid
-and type = 2""", data)
+and relativeDelay = 2""", data)
 
     def orderNewCards(self):
         "Set 'due' to card creation time."
@@ -1015,7 +1014,7 @@ update cards set
 due = created,
 combinedDue = max(spaceUntil, created),
 modified = :now
-where type = 2""", now=time.time())
+where relativeDelay = 2""", now=time.time())
 
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
@@ -1038,7 +1037,8 @@ reps = 1,
 successive = 1,
 yesCount = 1,
 firstAnswered = :t,
-type = 1
+type = 1,
+relativeDelay = 1
 where id = :id""", vals)
         self.flushMod()
 
@@ -1048,8 +1048,9 @@ where id = :id""", vals)
     def nextDueMsg(self):
         next = self.earliestTime()
         if next:
-            newCount = self.s.scalar(
-                "select count() from cards where type = 2")
+            # all new cards except suspended
+            newCount = self.s.scalar("""
+select count() from cards where relativeDelay = 2 and type != -1""")
             newCardsTomorrow = min(newCount, self.newCardsPerDay)
             cards = self.cardsDueBy(time.time() + 86400)
             msg = _('''\
@@ -1216,15 +1217,14 @@ group by cardTags.cardId""" % limit)
     # Suspending
     ##########################################################################
 
-    # when older clients are upgraded, we can move the code which touches
+    # when older clients are upgraded, we can remove the code which touches
     # priorities & isDue
 
     def suspendCards(self, ids):
         self.startProgress()
         self.s.statement("""
 update cards
-set type = (case
-when successive then -2 when reps then -3 else -1 end),
+set type = relativeDelay - 3,
 priority = -3, modified = :t, isDue=0
 where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
         self.flushMod()
@@ -1234,7 +1234,7 @@ where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
     def unsuspendCards(self, ids):
         self.startProgress()
         self.s.statement("""
-update cards set type = type + 3, priority=0, modified=:t
+update cards set type = relativeDelay, priority=0, modified=:t
 where type < 0 and id in %s""" %
             ids2str(ids), t=time.time())
         self.updatePriorities(ids)
@@ -1279,7 +1279,7 @@ select count(id) from cards where type < 0""")
         "Number of spaced new cards."
         return self.s.scalar("""
 select count(cards.id) from cards where
-type = 2 and combinedDue > :now
+relativeDelay = 2 and combinedDue > :now
 and due < :now""", now=time.time())
 
     def isEmpty(self):
@@ -1298,7 +1298,7 @@ and due < :now""", now=time.time())
     def newCountAll(self):
         "All new cards, including spaced."
         return self.s.scalar(
-            "select count(id) from cards where type = 2")
+            "select count(id) from cards where relativeDelay = 2")
 
     # Card predicates
     ##########################################################################
@@ -3565,9 +3565,7 @@ update cards set type = type - 3 where type between 0 and 2 and priority = -3"""
         if ids:
             deck.updatePriorities(ids)
             deck.s.statement(
-                "update cards set type = type - 3 where type between 3 and 5")
-            deck.s.statement(
-                "update cards set type = type - 6 where type between 6 and 8")
+                "update cards set type = relativeDelay where type > 2")
             deck.s.commit()
         # determine starting factor for new cards
         deck.averageFactor = (deck.s.scalar(
@@ -3620,11 +3618,15 @@ update cards set type = type - 3 where type between 0 and 2 and priority = -3"""
         deck.s.statement("""
 create index if not exists ix_cards_typeCombined on cards
 (type, combinedDue)""")
-        # failed cards, review early
+        # scheduler-agnostic type
+        deck.s.statement("""
+create index if not exists ix_cards_relativeDelay on cards
+(relativeDelay)""")
+        # failed cards, review early - obsolete
         deck.s.statement("""
 create index if not exists ix_cards_duePriority on cards
 (type, isDue, combinedDue, priority)""")
-        # check due
+        # check due - obsolete
         deck.s.statement("""
 create index if not exists ix_cards_priorityDue on cards
 (type, isDue, priority, combinedDue)""")
@@ -4118,6 +4120,13 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             # new type handling
             deck.rebuildTypes()
             deck.version = 49
+            deck.s.commit()
+        if deck.version < 50:
+            # more new type handling
+            deck.rebuildTypes()
+            # add an index for relativeDelay (type cache)
+            DeckStorage._addIndices(deck)
+            deck.version = 50
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record

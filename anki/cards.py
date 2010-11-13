@@ -60,7 +60,9 @@ cardsTable = Table(
     Column('noCount', Integer, nullable=False, default=0),
     # caching
     Column('spaceUntil', Float, nullable=False, default=0),
-    Column('relativeDelay', Float, nullable=False, default=0), # obsolete
+    # relativeDelay is reused as type without scheduling (ie, it remains 0-2
+    # even if card is suspended, etc)
+    Column('relativeDelay', Float, nullable=False, default=0),
     Column('isDue', Boolean, nullable=False, default=0), # obsolete
     Column('type', Integer, nullable=False, default=2),
     Column('combinedDue', Integer, nullable=False, default=0))
@@ -73,6 +75,7 @@ class Card(object):
         self.id = genID()
         # new cards start as new & due
         self.type = 2
+        self.relativeDelay = self.type
         self.timerStarted = False
         self.timerStopped = False
         self.modified = time.time()

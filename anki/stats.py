@@ -539,7 +539,7 @@ class DeckStats(object):
         return (self.deck.s.scalar("""
 select count(id) from cards
 where combinedDue < :cutoff
-and priority > 0 and type in (0,1)""", cutoff=cutoff) or 0) / float(period)
+and priority > 0 and relativeDelay in (0,1)""", cutoff=cutoff) or 0) / float(period)
 
     def getPastWorkloadPeriod(self, period):
         cutoff = time.time() - 86400 * period

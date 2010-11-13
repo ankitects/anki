@@ -129,6 +129,7 @@ yesCount = 0,
 noCount = 0,
 spaceUntil = 0,
 type = 2,
+relativeDelay = 2,
 combinedDue = created,
 modified = :now
 """, now=time.time())

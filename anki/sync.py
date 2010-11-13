@@ -491,9 +491,6 @@ where factId in %s""" % factIds))
             'spaceUntil': f[5] or "",
             'lastCardId': f[6]
             } for f in facts]
-        self.deck.factCount += (len(facts) - self.deck.s.scalar(
-            "select count(*) from facts where id in %s" %
-            ids2str([f[0] for f in facts])))
         self.deck.s.execute("""
 insert or replace into facts
 (id, modelId, created, modified, tags, spaceUntil, lastCardId)
@@ -534,12 +531,21 @@ priority, interval, lastInterval, due, lastDue, factor,
 firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
 youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
 matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, type, combinedDue
+question, answer, lastFactor, spaceUntil, type, combinedDue, relativeDelay
 from cards where id in %s""" % ids2str(ids)))
 
     def updateCards(self, cards):
         if not cards:
             return
+        # FIXME: older clients won't send this, so this is temp compat code
+        def getType(row):
+            if len(row) > 37:
+                return row[37]
+            if row[15]:
+                return 1
+            elif row[14]:
+                return 0
+            return 2
         dlist = [{'id': c[0],
                   'factId': c[1],
                   'cardModelId': c[2],
@@ -576,10 +582,8 @@ from cards where id in %s""" % ids2str(ids)))
                   'spaceUntil': c[33],
                   'type': c[34],
                   'combinedDue': c[35],
+                  'rd': getType(c)
                   } for c in cards]
-        self.deck.cardCount += (len(cards) - self.deck.s.scalar(
-            "select count(*) from cards where id in %s" %
-            ids2str([c[0] for c in cards])))
         self.deck.s.execute("""
 insert or replace into cards
 (id, factId, cardModelId, created, modified, tags, ordinal,
@@ -596,7 +600,7 @@ values
 :youngEase1, :youngEase2, :youngEase3, :youngEase4, :matureEase0,
 :matureEase1, :matureEase2, :matureEase3, :matureEase4, :yesCount,
 :noCount, :question, :answer, :lastFactor, :spaceUntil,
-:type, :combinedDue, 0, 0)""", dlist)
+:type, :combinedDue, :rd, 0)""", dlist)
         self.deck.s.statement(
             "delete from cardsDeleted where cardId in %s" %
             ids2str([c[0] for c in cards]))
@@ -841,9 +845,6 @@ where media.id in %s""" % sids, now=time.time())
         t = time.time()
         dlist = [{'id': c[0], 'factId': c[1], 'cardModelId': c[2],
                   'ordinal': c[3], 'created': c[4], 't': t} for c in cards]
-        self.deck.cardCount += (len(cards) - self.deck.s.scalar(
-            "select count(*) from cards where id in %s" %
-            ids2str([c[0] for c in cards])))
         # add any missing cards
         self.deck.s.statements("""
 insert or ignore into cards
