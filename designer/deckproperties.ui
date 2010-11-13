@@ -174,7 +174,7 @@
          <item row="1" column="0">
           <widget class="QCheckBox" name="doSync">
            <property name="text">
-            <string>Synchronize this deck</string>
+            <string>Synchronise this deck</string>
            </property>
           </widget>
          </item>
@@ -339,7 +339,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_22">
            <property name="text">
-            <string>&lt;b&gt;1: Again (Mature)&lt;/b&gt;</string>
+            <string>&lt;b&gt;1: Extra Mature Delay&lt;/b&gt;</string>
            </property>
            <property name="openExternalLinks">
             <bool>true</bool>
@@ -379,7 +379,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_20">
            <property name="text">
-            <string>&lt;b&gt;1: Again (Young)&lt;/b&gt;</string>
+            <string>&lt;b&gt;1: Again Delay&lt;/b&gt;</string>
            </property>
           </widget>
          </item>
@@ -393,7 +393,7 @@
          <item row="1" column="5">
           <widget class="QLabel" name="label_25">
            <property name="text">
-            <string>mins</string>
+            <string>days</string>
            </property>
           </widget>
          </item>
