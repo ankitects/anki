@@ -1057,7 +1057,7 @@ where id = :id""", vals)
             newCount = self.s.scalar("""
 select count() from cards where relativeDelay = 2 and type != -1""")
             newCardsTomorrow = min(newCount, self.newCardsPerDay)
-            cards = self.cardsDueBy(time.time() + 86400)
+            cards = self.cardsDueBy(self.dueCutoff + 86400)
             msg = _('''\
 <style>b { color: #00f; }</style>
 At this time tomorrow:<br>
