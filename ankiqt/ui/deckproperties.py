@@ -202,9 +202,9 @@ class DeckProperties(QDialog):
             pass
         # hour shift
         try:
-            self.updateField(self.d, 'utcOffset',
-                             float(str(self.dialog.timeOffset.text()))
-                             *60*60 + time.timezone)
+            offset = float(str(self.dialog.timeOffset.text()))
+            offset = max(min(offset, 24), -24)
+            self.updateField(self.d, 'utcOffset', offset*60*60+time.timezone)
         except:
             pass
         was = self.d.modified
@@ -226,6 +226,7 @@ class DeckProperties(QDialog):
         if self.origMod != self.d.modified:
             if prioritiesChanged:
                 self.d.updateAllPriorities()
+            ankiqt.mw.deck.updateCutoff()
             ankiqt.mw.reset()
         self.d.setUndoEnd(n)
         self.d.finishProgress()
