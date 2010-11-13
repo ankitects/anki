@@ -6,8 +6,7 @@ from PyQt4.QtGui import *
 import urllib, urllib2, os, sys, time, httplib
 import anki, anki.utils, anki.lang, anki.stats
 import ankiqt
-import simplejson
-import tempfile
+import simplejson, platform
 
 baseUrl = "http://anki.ichi2.net/update/"
 #baseUrl = "http://localhost:8001/update/"
@@ -22,7 +21,7 @@ class LatestVersionFinder(QThread):
         self.config = main.config
         # calculate stats before we start a new thread
         plat=sys.platform
-        pver=sys.version.replace("\n", "--")
+        pver=platform.platform()
         if self.main.deck != None:
             deckSize = self.main.deck.cardCount
             stats = self.main.deck.getStats()
