@@ -358,6 +358,7 @@ type = (case
 when successive then 1 when reps then 0 else 2 end),
 relativeDelay = (case
 when successive then 1 when reps then 0 else 2 end)
+where type >= 0
 """)
         # old-style suspended cards
         self.s.statement(
