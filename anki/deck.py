@@ -352,11 +352,6 @@ Card info: %d %d %d""" % (self.failedSoonCount, self.revCount, self.newCountToda
 
     def rebuildTypes(self):
         "Rebuild the type cache. Only necessary on upgrade."
-        lim = "type >= 0" # don't touch suspended cards
-        if where:
-            where += " and " + lim
-        else:
-            where = " where " + lim
         self.s.statement("""
 update cards set
 type = (case
