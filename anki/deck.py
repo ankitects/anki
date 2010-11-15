@@ -350,7 +350,7 @@ Card info: %d %d %d""" % (self.failedSoonCount, self.revCount, self.newCountToda
                 "priority desc, combinedDue",
                 "priority desc, combinedDue desc")[self.newCardOrder]
 
-    def rebuildTypes(self, where=""):
+    def rebuildTypes(self):
         "Rebuild the type cache. Only necessary on upgrade."
         lim = "type >= 0" # don't touch suspended cards
         if where:
