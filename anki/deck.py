@@ -794,6 +794,7 @@ where id in """
         if self.answerPreSave:
             self.answerPreSave(card, ease)
         # save
+        card.combinedDue = card.due
         card.toDB(self.s)
         # global/daily stats
         anki.stats.updateAllStats(self.s, self._globalStats, self._dailyStats,
