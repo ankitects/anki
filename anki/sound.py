@@ -46,7 +46,7 @@ cmd = ["sox", processingSrc, "tmp2.wav"]
 processingChain = [
     None, # placeholder
     ["sox", "tmp2.wav", "tmp3.wav", "norm", NORM_AMOUNT,
-     "bass", BASS_AMOUNT, "fade", FADE_AMOUNT, "0"],
+     "bass", BASS_AMOUNT, "fade", FADE_AMOUNT],
     ["lame", "tmp3.wav", processingDst, "--noreplaygain", "--quiet"],
     ]
 
