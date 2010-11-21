@@ -1953,7 +1953,7 @@ window will open."""))
             diag.qlabel.hide()
         if diag.exec_():
             if keep.isChecked():
-                order = "modified"
+                order = "type, modified"
             elif order.isChecked():
                 order = "created"
             else:
