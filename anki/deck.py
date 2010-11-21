@@ -566,7 +566,8 @@ select count() from cards where type = 2 and combinedDue < :now
     def _cramCardLimit(self, active, inactive, sql):
         # inactive is (currently) ignored
         if isinstance(active, list):
-            return sql.replace("where ", "where +c.id in " + ids2str(active))
+            return sql.replace(
+                "where", "where +c.id in " + ids2str(active) + " and")
         else:
             yes = parseTags(active)
             if yes:
