@@ -775,7 +775,7 @@ where id in """
         self.spaceCards(card, space)
         # adjust counts for current card
         if ease == 1:
-            if not (oldState == "mature" and self.delay1):
+            if card.due < self.failedCutoff:
                 self.failedSoonCount += 1
         if oldQueue == 0:
             self.failedSoonCount -= 1
