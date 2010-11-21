@@ -236,6 +236,9 @@ class Deck(object):
             return sql
 
     def _rebuildFailedCount(self):
+        # This is a count of all failed cards within the current day cutoff.
+        # The cards may not be ready for review yet, but can still be
+        # displayed if failedCardsMax is reached.
         self.failedSoonCount = self.s.scalar(
             self.cardLimit(
             "revActive", "revInactive",
@@ -1078,10 +1081,15 @@ At this time tomorrow:<br>
 This may be in the past if the deck is not finished.
 If the deck has no (enabled) cards, return None.
 Ignore new cards."""
-        return self.s.scalar(self.cardLimit("revActive", "revInactive", """
-select combinedDue from cards c where type between 0 and 1
+        earliestRev = self.s.scalar(self.cardLimit("revActive", "revInactive", """
+select combinedDue from cards c where type = 1
 order by combinedDue
 limit 1"""))
+        earliestFail = self.s.scalar(self.cardLimit("revActive", "revInactive", """
+select combinedDue+%d from cards c where type = 0 and combinedDue > :lim
+order by combinedDue
+limit 1""" % self.delay0))
+        return min(earliestRev, earliestFail)
 
     def earliestTimeStr(self, next=None):
         """Return the relative time to the earliest card as a string."""
