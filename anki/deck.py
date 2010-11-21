@@ -4115,9 +4115,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             # leaner indices
             deck.s.statement("drop index if exists ix_cards_factId")
             DeckStorage._addIndices(deck)
-            # per-day scheduling necessitates an increase here
-            deck.hardIntervalMin = 1
-            deck.hardIntervalMax = 1.1
             deck.version = 44
             deck.s.commit()
         if deck.version < 47:
