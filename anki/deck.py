@@ -509,9 +509,13 @@ select count() from cards where type = 2 and combinedDue < :now
         self.answerCard = self._answerCramCard
         self.spaceCards = self._spaceCramCards
         # reuse review early's code
-        self.answerPreSave = self._reviewEarlyPreSave
+        self.answerPreSave = self._cramPreSave
         self.cardLimit = self._cramCardLimit
         self.scheduler = "cram"
+
+    def _cramPreSave(self, card, ease):
+        # prevent it from appearing in next queue fill
+        card.type += 6
 
     def _spaceCramCards(self, card, space):
         # if non-zero spacing, limit to 10 minutes or queue refill
@@ -519,14 +523,9 @@ select count() from cards where type = 2 and combinedDue < :now
             self.spacedFacts[card.factId] = time.time() + 600
 
     def _answerCramCard(self, card, ease):
+        self._answerCard(card, ease)
         if ease == 1:
-            if self.cardQueue(card) != 0:
-                self.failedSoonCount += 1
-                self.revCount -= 1
-            self.requeueCard(card, None)
             self.failedCramQueue.insert(0, [card.id, card.factId])
-        else:
-            self._answerCard(card, ease)
 
     def _getCramCardId(self, check=True):
         self.checkDailyStats()
