@@ -496,8 +496,10 @@ class FactEditor(object):
             self.fact.setModified(textChanged=True)
             if not self.fact.isNew():
                 self.deck.setModified()
+            oldFocus = ankiqt.mw.app.focusWidget()
             if self.resetOnEdit:
                 ankiqt.mw.reset()
+            oldFocus.setFocus()
         self.deck.setUndoEnd(n)
 
     def onFocusLost(self, widget):
