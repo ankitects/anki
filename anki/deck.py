@@ -68,7 +68,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 52
+DECK_VERSION = 53
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -3616,10 +3616,6 @@ class DeckStorage(object):
         # - ensure cards suspended on older clients are recognized
         deck.s.statement("""
 update cards set type = type - 3 where type between 0 and 2 and priority = -3""")
-        # - ensure hard scheduling over a day if per day
-        if deck.getBool("perDay"):
-            deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
-            deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
         # - new delay1 handling
         if deck.delay0 == deck.delay1:
             deck.delay1 = 0
@@ -4216,6 +4212,13 @@ syncing again via Settings>Deck Properties>Synchronsiation. \
             elif sname:
                 deck.enableSyncing()
             deck.version = 52
+            deck.s.commit()
+        if deck.version < 53:
+            if deck.getBool("perDay"):
+                if deck.hardIntervalMin = 0.333:
+                    deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
+                    deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
+            deck.version = 53
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
