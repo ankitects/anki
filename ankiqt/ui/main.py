@@ -388,7 +388,7 @@ Please do not file a bug report with Anki.<br>""")
             self.mainWin.actionRepeatAudio.setEnabled(True)
             self.editor.saveFieldsNow()
             self.mainWin.buttonStack.show()
-            self.deck.refreshSession()
+            self.reset()
             return self.moveToState("getQuestion")
         elif state == "studyScreen":
             self.currentCard = None
