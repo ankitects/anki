@@ -1430,6 +1430,7 @@ later by using File>Close.
             self, self.mainWin.fieldsArea, self.deck)
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
+        self.editor.resetOnEdit = False
         # editor
         self.connect(self.mainWin.saveEditorButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("saveEdit"))
