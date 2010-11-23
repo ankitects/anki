@@ -38,13 +38,10 @@ class DeckProperties(QDialog):
 
     def readData(self):
         # syncing
-        sn = self.d.syncName
-        if sn:
+        if self.d.syncName:
             self.dialog.doSync.setCheckState(Qt.Checked)
-            self.dialog.syncName.setText(sn)
         else:
             self.dialog.doSync.setCheckState(Qt.Unchecked)
-            self.dialog.syncName.setText(self.d.name())
         # priorities
         self.dialog.highPriority.setText(self.d.highPriority)
         self.dialog.medPriority.setText(self.d.medPriority)
@@ -160,12 +157,15 @@ class DeckProperties(QDialog):
         n = _("Deck Properties")
         self.d.startProgress()
         self.d.setUndoStart(n)
+        needSync = False
         # syncing
         if self.dialog.doSync.checkState() == Qt.Checked:
-            self.updateField(self.d, 'syncName',
-                             unicode(self.dialog.syncName.text()))
+            old = self.d.syncName
+            self.d.enableSyncing()
+            if self.d.syncName != old:
+                needSync = True
         else:
-            self.updateField(self.d, 'syncName', None)
+            self.d.disableSyncing()
         # scheduling
         minmax = ("Min", "Max")
         for type in ("hard", "mid", "easy"):
@@ -231,3 +231,5 @@ class DeckProperties(QDialog):
         if self.onFinish:
             self.onFinish()
         QDialog.reject(self)
+        if needSync:
+            ankiqt.mw.syncDeck(interactive=-1)

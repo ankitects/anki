@@ -195,25 +195,7 @@
           </spacer>
          </item>
          <item row="2" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QLabel" name="label_18">
-             <property name="text">
-              <string>Name on server: </string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="syncName">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="whatsThis">
-              <string>option</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QHBoxLayout" name="horizontalLayout_2"/>
          </item>
         </layout>
        </item>
@@ -561,7 +543,6 @@
   <tabstop>medPriority</tabstop>
   <tabstop>lowPriority</tabstop>
   <tabstop>doSync</tabstop>
-  <tabstop>syncName</tabstop>
   <tabstop>delay0</tabstop>
   <tabstop>delay1</tabstop>
   <tabstop>delay2</tabstop>
@@ -609,22 +590,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doSync</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>syncName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>58</x>
-     <y>445</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>327</x>
-     <y>477</y>
     </hint>
    </hints>
   </connection>

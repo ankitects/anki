@@ -19,14 +19,12 @@ from anki.hooks import addHook, removeHook
 
 class Sync(QThread):
 
-    def __init__(self, parent, user, pwd, interactive, create,
-                 onlyMerge):
+    def __init__(self, parent, user, pwd, interactive, onlyMerge):
         QThread.__init__(self)
         self.parent = parent
         self.interactive = interactive
         self.user = user
         self.pwd = pwd
-        self.create = create
         self.ok = True
         self.onlyMerge = onlyMerge
         self.proxy = None
@@ -122,6 +120,7 @@ sync was aborted. Please report this error.""")
                 c.close()
                 if not syncName:
                     return
+                syncName = os.path.splitext(os.path.basename(deck))[0]
                 path = deck
             else:
                 syncName = self.parent.syncName
@@ -147,19 +146,21 @@ sync was aborted. Please report this error.""")
             else:
                 return
         # exists on server?
+        deckCreated = False
         if not proxy.hasDeck(syncName):
+            # multi-mode?
             if deck:
                 return
-            if self.create:
-                try:
-                    proxy.createDeck(syncName)
-                except SyncError, e:
-                    return self.error(e)
-            else:
+            if self.onlyMerge:
                 keys = [k for (k,v) in proxy.decks.items() if v[1] != -1]
-                self.emit(SIGNAL("noMatchingDeck"), keys, not self.onlyMerge)
+                self.emit(SIGNAL("noMatchingDeck"), keys)
                 self.setStatus("")
                 return
+            try:
+                proxy.createDeck(syncName)
+                deckCreated = True
+            except SyncError, e:
+                return self.error(e)
         # check conflicts
         proxy.deckName = syncName
         remoteMod = proxy.modified()
@@ -188,25 +189,36 @@ sync was aborted. Please report this error.""")
             if client.prepareSync():
                 changes = True
                 # summary
-                self.setStatus(_("Fetching summary from server..."), 0)
-                sums = client.summaries()
-                if self.conflictResolution or client.needFullSync(sums):
+                if not self.conflictResolution and not self.onlyMerge:
+                    self.setStatus(_("Fetching summary from server..."), 0)
+                    sums = client.summaries()
+                if (self.conflictResolution or
+                    self.onlyMerge or client.needFullSync(sums)):
                     self.setStatus(_("Preparing full sync..."), 0)
                     if self.conflictResolution == "keepLocal":
                         client.remoteTime = 0
-                    elif self.conflictResolution == "keepRemote":
+                    elif self.conflictResolution == "keepRemote" or self.onlyMerge:
                         client.localTime = 0
                     lastSync = self.deck.lastSync
                     ret = client.prepareFullSync()
                     if ret[0] == "fromLocal":
                         if not self.conflictResolution:
-                            if lastSync <= 0:
+                            if lastSync <= 0 and not deckCreated:
                                 self.clobberChoice = None
                                 self.emit(SIGNAL("syncClobber"), syncName)
                                 while not self.clobberChoice:
                                     time.sleep(0.2)
                                 if self.clobberChoice == "cancel":
+                                    # deck has already been closed in
+                                    # prepareFullSync(), so clean up
                                     self.deck.close()
+                                    # disable syncing on this deck
+                                    c = sqlite.connect(sqlpath)
+                                    c.execute(
+                                        "update decks set syncName = null, "
+                                        "lastSync = 0")
+                                    c.commit()
+                                    c.close()
                                     if not deck:
                                         # alert we're finished early
                                         self.emit(SIGNAL("syncFinished"))
@@ -260,32 +272,22 @@ sync was aborted. Please report this error.""")
             if not deck:
                 self.error(e)
 
-# Choosing a deck to sync to
+# Downloading personal decks
 ##########################################################################
 
 class DeckChooser(QDialog):
 
-    def __init__(self, parent, decks, create):
+    def __init__(self, parent, decks):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.decks = decks
         self.dialog = ankiqt.forms.syncdeck.Ui_DeckChooser()
         self.dialog.setupUi(self)
-        self.create = create
-        if self.create:
-            self.dialog.topLabel.setText(_("<h1>Synchronize</h1>"))
-        else:
-            self.dialog.topLabel.setText(_("<h1>Open Online Deck</h1>"))
-        if self.create:
-            self.dialog.decks.addItem(QListWidgetItem(
-                _("Create '%s' on server") % self.parent.syncName))
+        self.dialog.topLabel.setText(_("<h1>Dowload Personal Deck</h1>"))
         self.decks.sort()
         for name in decks:
             name = os.path.splitext(name)[0]
-            if self.create:
-                msg = _("Overwrite '%s' on server") % name
-            else:
-                msg = name
+            msg = name
             item = QListWidgetItem(msg)
             self.dialog.decks.addItem(item)
         self.dialog.decks.setCurrentRow(0)
@@ -300,12 +302,5 @@ class DeckChooser(QDialog):
 
     def accept(self):
         idx = self.dialog.decks.currentRow()
-        if self.create:
-            offset = 1
-        else:
-            offset = 0
-        if idx == 0 and self.create:
-            self.name = self.parent.syncName
-        else:
-            self.name = self.decks[self.dialog.decks.currentRow() - offset]
+        self.name = self.decks[self.dialog.decks.currentRow()]
         self.close()

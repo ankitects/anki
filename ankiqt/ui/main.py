@@ -150,6 +150,14 @@ class AnkiQt(QMainWindow):
             self.mainWin.noticeButton.setFixedHeight(20)
         addHook("cardAnswered", self.onCardAnsweredHook)
         addHook("undoEnd", self.maybeEnableUndo)
+        addHook("notify", self.onNotify)
+
+    def onNotify(self, msg):
+        if self.mainThread != QThread.currentThread():
+            # decks may be opened in a sync thread
+            sys.stderr.write(msg + "\n")
+        else:
+            ui.utils.showInfo(msg)
 
     def setNotice(self, str=""):
         if str:
@@ -192,7 +200,11 @@ class AnkiQt(QMainWindow):
             def getError(self):
                 p = self.pool
                 self.pool = ""
-                return unicode(p, 'utf8', 'replace')
+                try:
+                    return unicode(p, 'utf8', 'replace')
+                except TypeError:
+                    # already unicode
+                    return p
 
         self.errorPipe = ErrorPipe(self)
         sys.stderr = self.errorPipe
@@ -211,6 +223,12 @@ class AnkiQt(QMainWindow):
             if "Audio player not found" in error:
                 ui.utils.showInfo(
                     _("Couldn't play sound. Please install mplayer."))
+                return
+            if "ERR-0100" in error:
+                ui.utils.showInfo(error)
+                return
+            if "ERR-0101" in error:
+                ui.utils.showInfo(error)
                 return
             stdText = _("""\
 
@@ -2099,10 +2117,9 @@ it to your friends.
     # Syncing
     ##########################################################################
 
-    def syncDeck(self, interactive=True, create=False, onlyMerge=False,
-                 reload=True):
+    def syncDeck(self, interactive=True, onlyMerge=False, reload=True):
         "Synchronise a deck with the server."
-        if not self.inMainWindow() and interactive: return
+        if not self.inMainWindow() and interactive and interactive!=-1: return
         self.setNotice()
         # vet input
         if interactive:
@@ -2117,10 +2134,10 @@ it to your friends.
                     return
         if self.deck and not self.deck.syncName:
             if interactive:
-                self.onDeckProperties()
-                self.deckProperties.dialog.qtabwidget.setCurrentIndex(1)
-                self.showToolTip(_("Enable syncing, choose a name, then sync again."))
-            return
+                # enable syncing
+                self.deck.enableSyncing()
+            else:
+                return
         if self.deck is None and getattr(self, 'deckPath', None) is None:
             # sync all decks
             self.loadAfterSync = -1
@@ -2130,13 +2147,12 @@ it to your friends.
             # sync one deck
             # hide all deck-associated dialogs
             self.closeAllDeckWindows()
-
             if self.deck:
                 # save first, so we can rollback on failure
                 self.deck.save()
                 # store data we need before closing the deck
                 self.deckPath = self.deck.path
-                self.syncName = self.deck.syncName or self.deck.name()
+                self.syncName = self.deck.name()
                 self.lastSync = self.deck.lastSync
                 self.deck.close()
                 self.deck = None
@@ -2146,8 +2162,7 @@ it to your friends.
         self.state = "nostate"
         import gc; gc.collect()
         self.mainWin.welcomeText.setText(u"")
-        self.syncThread = ui.sync.Sync(self, u, p, interactive, create,
-                                       onlyMerge)
+        self.syncThread = ui.sync.Sync(self, u, p, interactive, onlyMerge)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
         self.connect(self.syncThread, SIGNAL("noSyncResponse"), self.noSyncResponse)
@@ -2204,7 +2219,7 @@ you want to do?""" % deckName),
         diag = ui.utils.askUserDialog(_("""\
 You are about to upload <b>%s</b>
 to AnkiOnline. This will overwrite
-the online version if one exists.
+the online copy of this deck.
 Are you sure?""" % deckName),
                           [_("Upload"),
                            _("Cancel")])
@@ -2231,33 +2246,34 @@ Are you sure?""" % deckName),
                 if self.loadAfterSync == 2:
                     name = re.sub("[<>]", "", self.syncName)
                     p = os.path.join(self.documentDir, name + ".anki")
-                    if os.path.exists(p):
-                        p = os.path.join(self.documentDir,
-                                         name + "%d.anki" % time.time())
                     shutil.copy2(self.deckPath, p)
                     self.deckPath = p
                 self.loadDeck(self.deckPath, sync=False)
-                self.deck.syncName = self.syncName
-                self.deck.s.flush()
-                self.deck.s.commit()
+                if self.loadAfterSync == 2:
+                    self.deck.enableSyncing()
             else:
                 self.moveToState("noDeck")
         self.deckPath = None
         self.syncFinished = True
 
-    def selectSyncDeck(self, decks, create=True):
-        name = ui.sync.DeckChooser(self, decks, create).getName()
+    def selectSyncDeck(self, decks):
+        name = ui.sync.DeckChooser(self, decks).getName()
         self.syncName = name
         if name:
             # name chosen
-            onlyMerge = self.loadAfterSync == 2
-            self.syncDeck(create=True, interactive=False, onlyMerge=onlyMerge)
-        else:
-            if not create:
-                self.syncFinished = True
-                self.cleanNewDeck()
+            p = os.path.join(self.documentDir, name + ".anki")
+            if os.path.exists(p):
+                d = ui.utils.askUserDialog(_("""\
+This deck already exists on your computer. Overwrite the local copy?"""),
+                                         ["Overwrite", "Cancel"])
+                d.setDefault(1)
+                if d.run() == "Overwrite":
+                    self.syncDeck(interactive=False, onlyMerge=True)
             else:
-                self.onSyncFinished()
+                self.syncDeck(interactive=False, onlyMerge=True)
+            return
+        self.syncFinished = True
+        self.cleanNewDeck()
 
     def cleanNewDeck(self):
         "Unload a new deck if an initial sync failed."
