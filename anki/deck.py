@@ -1069,7 +1069,7 @@ At this time tomorrow:<br>
                 'wait': ngettext("There will be <b>%s review</b>.",
                           "There will be <b>%s reviews</b>.", cards) % cards,
                 }
-            if next - time.time() > 86400 and not newCardsTomorrow:
+            if next > (self.dueCutoff+86400) and not newCardsTomorrow:
                 msg = (_("The next review is in <b>%s</b>.") %
                        self.earliestTimeStr())
         else:
@@ -1089,7 +1089,12 @@ limit 1"""))
 select combinedDue+%d from cards c where type = 0 and combinedDue > :lim
 order by combinedDue
 limit 1""" % self.delay0))
-        return min(earliestRev, earliestFail)
+        if earliestRev and earliestFail:
+            return min(earliestRev, earliestFail)
+        elif earliestRev:
+            return earliestRev
+        else:
+            return earliestFail
 
     def earliestTimeStr(self, next=None):
         """Return the relative time to the earliest card as a string."""
