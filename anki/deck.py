@@ -4215,7 +4215,7 @@ syncing again via Settings>Deck Properties>Synchronsiation. \
             deck.s.commit()
         if deck.version < 53:
             if deck.getBool("perDay"):
-                if deck.hardIntervalMin = 0.333:
+                if deck.hardIntervalMin == 0.333:
                     deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
                     deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
             deck.version = 53
