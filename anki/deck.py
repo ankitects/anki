@@ -1435,7 +1435,11 @@ and due < :now""", now=time.time())
                                       ("a", cardModel.aformat)]:
                    empty = {}
                    local = {}; local.update(fact)
-                   for k in fact.keys():
+                   local['tags'] = u""
+                   local['Tags'] = u""
+                   local['cardModel'] = u""
+                   local['modelName'] = u""
+                   for k in local.keys():
                        empty[k] = u""
                        empty["text:"+k] = u""
                        local["text:"+k] = local[k]
