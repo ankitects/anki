@@ -150,6 +150,9 @@ where type = 1""")
             "Mature"], loc='upper right')
 
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days+1)
+        graph.set_xlabel("Day (0 = today)")
+        graph.set_ylabel("Cards Due")
+
         return fig
 
     def workDone(self, days=30):
@@ -177,6 +180,8 @@ where type = 1""")
 
         graph.set_xlim(xmin=-days+1, xmax=1)
         graph.set_ylim(ymax=max(max(a for a in args[1::2])) + 10)
+        graph.set_xlabel("Day (0 = today)")
+        graph.set_ylabel("Cards Answered")
 
         return fig
 
@@ -191,6 +196,8 @@ where type = 1""")
         self.varGraph(graph, days, reviewTimeC, *times)
         graph.set_xlim(xmin=-days+1, xmax=1)
         graph.set_ylim(ymax=max(a for a in times[1]) + 0.1)
+        graph.set_xlabel("Day (0 = today)")
+        graph.set_ylabel("Minutes")
         return fig
 
     def cumulativeDue(self, days=30):
@@ -212,6 +219,8 @@ where type = 1""")
         self._filledGraph(graph, days, dueCumulC, 1, x, y)
         graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days-1)
         graph.set_ylim(ymax=graph.get_ylim()[1]+10)
+        graph.set_xlabel("Day (0 = today)")
+        graph.set_ylabel("Cards Due")
         return fig
 
     def intervalPeriod(self, days=30):
@@ -223,6 +232,8 @@ where type = 1""")
         graph = fig.add_subplot(111)
         self.varGraph(graph, days, intervC, *intervals)
         graph.set_xlim(xmin=0, xmax=days+1)
+        graph.set_xlabel("Card Interval")
+        graph.set_ylabel("Number of Cards")
         return fig
 
     def addedRecently(self, numdays=30, attr='created'):
@@ -244,6 +255,11 @@ where type = 1""")
             colour = firstC
         self.varGraph(graph, numdays, colour, *intervals)
         graph.set_xlim(xmin=-numdays+1, xmax=1)
+        graph.set_xlabel("Day (0 = today)")
+        if attr == 'created':
+            graph.set_ylabel("Cards Added")
+        else:
+            graph.set_ylabel("Cards First Answered")
         return fig
 
     def addMissing(self, dic, min, max):
@@ -379,5 +395,7 @@ where type = 1""")
         graph.set_xlim(xmax=15)
         graph.set_xticks(range(arrsize))
         graph.set_xticklabels(x)
+        graph.set_ylabel("% of Answers")
+        graph.set_xlabel("Answer Buttons")
         graph.grid(True)
         return fig
