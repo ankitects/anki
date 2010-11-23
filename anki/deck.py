@@ -16,7 +16,7 @@ from anki.lang import _, ngettext
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
-     canonifyTags, joinTags, addTags
+     canonifyTags, joinTags, addTags, checksum
 from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel, formatQA
 from anki.stats import dailyStats, globalStats, genToday
@@ -24,7 +24,7 @@ from anki.fonts import toPlatformFont
 from anki.tags import initTagTables, tagIds
 from operator import itemgetter
 from itertools import groupby
-from anki.hooks import runHook
+from anki.hooks import runHook, hookEmpty
 
 # ensure all the metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.stats
@@ -68,7 +68,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 50
+DECK_VERSION = 52
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -84,7 +84,9 @@ decksTable = Table(
     Column('description', UnicodeText, nullable=False, default=u""),
     Column('version', Integer, nullable=False, default=DECK_VERSION),
     Column('currentModelId', Integer, ForeignKey("models.id")),
-    # syncing
+    # syncName stores an md5sum of the deck path when syncing is enabled. If
+    # it doesn't match the current deck path, the deck has been moved,
+    # and syncing is disabled on load.
     Column('syncName', UnicodeText),
     Column('lastSync', Float, nullable=False, default=0),
     # scheduling
@@ -2800,6 +2802,16 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
     def disableProgressHandler(self):
         self.progressHandlerEnabled = False
 
+    # Notifications
+    ##########################################################################
+
+    def notify(self, msg):
+        "Send a notice to all listeners, or display on stdout."
+        if hookEmpty("notify"):
+            sys.stderr.write(msg + "\n")
+        else:
+            runHook("notify", msg)
+
     # File-related
     ##########################################################################
 
@@ -3065,6 +3077,33 @@ Return new path, relative to media dir."""
         # and return the new deck
         self.finishProgress()
         return newDeck
+
+    # Syncing
+    ##########################################################################
+    # toggling does not bump deck mod time, since it may happen on upgrade,
+    # and the variable is not synced
+
+    def enableSyncing(self):
+        self.syncName = unicode(checksum(self.path))
+        self.lastSync = 0
+        self.s.commit()
+
+    def disableSyncing(self):
+        self.syncName = None
+        self.lastSync = 0
+        self.s.commit()
+
+    def syncingEnabled(self):
+        return self.syncName
+
+    def checkSyncHash(self):
+        if self.syncName and self.syncName != checksum(self.path):
+            self.notify(_("""\
+Because '%s' has been moved or copied, automatic synchronisation \
+has been disabled. (ERR-0100)""") % self.name())
+            self.disableSyncing()
+            self.syncName = None
+            self.lastSync = 0
 
     # DB maintenance
     ##########################################################################
@@ -3592,6 +3631,8 @@ update cards set type = type - 3 where type between 0 and 2 and priority = -3"""
             deck.s.statement(
                 "update cards set type = relativeDelay where type > 2")
             deck.s.commit()
+        # check if deck has been moved, and disable syncing
+        deck.checkSyncHash()
         # determine starting factor for new cards
         deck.averageFactor = (deck.s.scalar(
             "select avg(factor) from cards where type = 1")
@@ -4149,6 +4190,28 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             # add an index for relativeDelay (type cache)
             DeckStorage._addIndices(deck)
             deck.version = 50
+            deck.s.commit()
+        # skip 51
+        if deck.version < 52:
+            dname = deck.name()
+            sname = deck.syncName
+            if sname and dname != sname:
+                deck.notify(_("""\
+When syncing, Anki now uses the same deck name on the server as the deck \
+name on your computer. Because you had '%(dname)s' set to sync to \
+'%(sname)s' on the server, syncing has been temporarily disabled.
+
+If you want to keep your changes to the online version, please use \
+File>Download>Personal Deck to download the online version.
+
+If you want to keep the version on your computer, please enable \
+syncing again via Settings>Deck Properties>Synchronsiation. \
+(ERR-0101)""") % {
+                    'sname':sname, 'dname':dname})
+                deck.disableSyncing()
+            elif sname:
+                deck.enableSyncing()
+            deck.version = 52
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
