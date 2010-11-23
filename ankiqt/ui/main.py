@@ -388,8 +388,7 @@ Please do not file a bug report with Anki.<br>""")
             self.mainWin.actionRepeatAudio.setEnabled(True)
             self.editor.saveFieldsNow()
             self.mainWin.buttonStack.show()
-            self.reset()
-            return self.moveToState("getQuestion")
+            return self.reset()
         elif state == "studyScreen":
             self.currentCard = None
             if self.deck.finishScheduler:
@@ -463,8 +462,6 @@ Please do not file a bug report with Anki.<br>""")
         self.deck.s.expunge(self.currentCard)
         # answer
         self.deck.answerCard(self.currentCard, quality)
-        self.lastScheduledTime = anki.utils.fmtTimeSpan(
-            self.currentCard.due - time.time())
         self.lastQuality = quality
         self.lastCard = self.currentCard
         self.currentCard = None
@@ -1829,8 +1826,6 @@ learnt today")
         undo = _("Suspend")
         self.deck.setUndoStart(undo)
         self.deck.suspendCards([self.currentCard.id])
-        self.deck.setModified()
-        self.lastScheduledTime = None
         self.reset()
         self.deck.setUndoEnd(undo)
 

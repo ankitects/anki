@@ -135,7 +135,7 @@ class AddCards(QDialog):
 
     def addFact(self, fact):
         try:
-            fact = self.parent.deck.addFact(fact)
+            fact = self.parent.deck.addFact(fact, False)
         except FactInvalidError:
             ui.utils.showInfo(_(
                 "Some fields are missing or not unique."),
@@ -148,6 +148,7 @@ question or answer on all cards."""), parent=self)
             return
 
         self.reportAddedFact(fact)
+        # we don't reset() until the add cards dialog is closed
         return fact
 
     def initializeNewFact(self, old_fact):
@@ -216,7 +217,7 @@ question or answer on all cards."""), parent=self)
             ui.dialogs.close("AddCards")
             self.parent.deck.s.flush()
             self.parent.deck.rebuildCSS()
-            self.parent.moveToState("auto")
+            self.parent.reset()
             saveGeom(self, "add")
             saveSplitter(self.dialog.splitter, "add")
             return True

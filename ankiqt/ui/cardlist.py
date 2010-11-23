@@ -726,10 +726,6 @@ class EditDeck(QMainWindow):
         saveHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.hide()
         ui.dialogs.close("CardList")
-        if self.parent.currentCard:
-            self.parent.moveToState("showQuestion")
-        else:
-            self.parent.moveToState("auto")
         self.teardownHooks()
         return True
 
@@ -797,12 +793,12 @@ where id in (%s)""" % ",".join([
             ",".join([str(s) for s in self.selectedFacts()]))
 
     def updateAfterCardChange(self):
-        "Refresh info like stats on current card"
+        "Refresh info like stats on current card, and rebuild mw queue."
         self.currentRow = self.dialog.tableView.currentIndex()
         self.rowChanged(self.currentRow, None)
         self.model.refresh()
         self.drawTags()
-        self.parent.moveToState("auto")
+        self.parent.reset()
 
     # Menu options
     ######################################################################
@@ -872,9 +868,11 @@ where id in (%s)""" % ",".join([
         self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
         self.deck.suspendCards(self.selectedCards())
+        self.parent.reset()
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
         self.model.refresh()
+        self.updateAfterCardChange()
 
     def _onUnsuspend(self):
         n = _("Unsuspend")
@@ -884,6 +882,7 @@ where id in (%s)""" % ",".join([
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
         self.model.refresh()
+        self.updateAfterCardChange()
 
     def isMarked(self):
         return self.currentCard and "Marked" in self.currentCard.fact.tags

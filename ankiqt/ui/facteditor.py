@@ -495,6 +495,7 @@ class FactEditor(object):
             self.fact.setModified(textChanged=True)
             if not self.fact.isNew():
                 self.deck.setModified()
+            ankiqt.mw.reset()
         self.deck.setUndoEnd(n)
 
     def onFocusLost(self, widget):
@@ -593,6 +594,7 @@ class FactEditor(object):
             self.deck.updatePriorities([c.id for c in self.fact.cards])
             self.fact.setModified(textChanged=True)
             self.deck.flushMod()
+            ankiqt.mw.reset()
         if self.onChange:
             self.onChange('tag')
 

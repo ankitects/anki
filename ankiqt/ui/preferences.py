@@ -77,7 +77,7 @@ class Preferences(QDialog):
         self.origConfig.update(self.config)
         self.origConfig.save()
         self.parent.setLang()
-        self.parent.moveToState("auto")
+        self.parent.reset()
         self.done(0)
 
     def reject(self):

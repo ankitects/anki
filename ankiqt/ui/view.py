@@ -54,10 +54,7 @@ class View(object):
         if self.state == "noDeck" or self.state == "studyScreen":
             return
         self.buffer = ""
-        self.haveTop = (self.main.lastCard and (
-            self.main.config['showLastCardContent'] or
-            self.main.config['showLastCardInterval'])) or (
-            self.needFutureWarning())
+        self.haveTop = self.needFutureWarning()
         self.drawRule = (self.main.config['qaDivider'] and
                          self.main.currentCard and
                          not self.main.currentCard.cardModel.questionInAnswer)
@@ -214,7 +211,6 @@ class View(object):
         "Show previous card, next scheduled time, and stats."
         self.buffer += "<center>"
         self.drawFutureWarning()
-        self.drawLastCard()
         self.buffer += "</center>"
 
     def needFutureWarning(self):
@@ -235,33 +231,6 @@ class View(object):
                    _("This card was due in %s.") % fmtTimeSpan(
             self.main.currentCard.due - time.time(), after=True) +
                    "</span>")
-
-    def drawLastCard(self):
-        "Show the last card if not the current one, and next time."
-        if self.main.lastCard:
-            if self.main.config['showLastCardContent']:
-                if (self.state == "deckFinished" or
-                    self.main.currentCard.id != self.main.lastCard.id):
-                    q = self.main.lastCard.question.replace("<br>", "  ")
-                    q = stripHTML(q)
-                    if len(q) > 50:
-                        q = q[:50] + "..."
-                    a = self.main.lastCard.answer.replace("<br>", "  ")
-                    a = stripHTML(a)
-                    if len(a) > 50:
-                        a = a[:50] + "..."
-                    s = "%s<br>%s" % (q, a)
-                    s = stripLatex(s)
-                    self.write('<span class="lastCard">%s</span><br>' % s)
-            if self.main.config['showLastCardInterval']:
-                if self.main.lastQuality > 1:
-                    msg = _("Well done! This card will appear again in "
-                            "<b>%(next)s</b>.") % \
-                            {"next":self.main.lastScheduledTime}
-                else:
-                    msg = _("This card will appear again later.")
-                self.write(msg)
-            self.write("<br>")
 
     # Welcome/empty/finished deck messages
     ##########################################################################
