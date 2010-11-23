@@ -113,6 +113,7 @@ class SyncTools(object):
         payload = self.genPayload(sums)
         res = self.server.applyPayload(payload)
         self.applyPayloadReply(res)
+        self.deck.reset()
 
     def prepareSync(self):
         "Sync setup. True if sync needed."
@@ -771,6 +772,7 @@ where media.id in %s""" % sids, now=time.time())
         "Sync two decks one way."
         payload = self.server.genOneWayPayload(lastSync)
         self.applyOneWayPayload(payload)
+        self.deck.reset()
 
     def syncOneWayDeckName(self):
         return (self.deck.s.scalar("select name from sources where id = :id",

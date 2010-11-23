@@ -444,6 +444,7 @@ where type >= 0
             card.type += 6
 
     def resetAfterReviewEarly(self):
+        "Put temporarily suspended cards back into play. Caller must .reset()"
         # FIXME: can ignore priorities in the future
         ids = self.s.column0(
             "select id from cards where type between 6 and 8 or priority = -1")
@@ -882,6 +883,7 @@ where id != :id and factId = :factId""",
         self.s.expunge(scard)
         if self.getBool('suspendLeeches'):
             self.suspendCards([card.id])
+        self.reset()
         self.refreshSession()
 
     # Interval management
@@ -1155,7 +1157,7 @@ and type between 0 and 1""", time=time)
     ##########################################################################
 
     def updateAllPriorities(self, partial=False, dirty=True):
-        "Update all card priorities if changed."
+        "Update all card priorities if changed. Caller must .reset()"
         new = self.updateTagPriorities()
         if not partial:
             new = self.s.all("select id, priority as pri from tags")
@@ -1190,6 +1192,7 @@ and type between 0 and 1""", time=time)
         return new
 
     def updatePriorities(self, cardIds, suspend=[], dirty=True):
+        "Update priorities for cardIds. Caller must .reset()."
         # any tags to suspend
         if suspend:
             ids = tagIds(self.s, suspend)
@@ -1222,7 +1225,6 @@ group by cardTags.cardId""" % limit)
                     "update cards set priority = :pri %s where id in %s "
                     "and priority != :pri and priority >= -2") % (
                     extra, ids2str(cs)), pri=pri, m=time.time())
-        self.reset()
 
     def updatePriority(self, card):
         "Update priority on a single card."
@@ -1236,6 +1238,7 @@ group by cardTags.cardId""" % limit)
     # priorities & isDue
 
     def suspendCards(self, ids):
+        "Suspend cards. Caller must .reset()"
         self.startProgress()
         self.s.statement("""
 update cards
@@ -1243,10 +1246,10 @@ set type = relativeDelay - 3,
 priority = -3, modified = :t, isDue=0
 where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
         self.flushMod()
-        self.reset()
         self.finishProgress()
 
     def unsuspendCards(self, ids):
+        "Unsuspend cards. Caller must .reset()"
         self.startProgress()
         self.s.statement("""
 update cards set type = relativeDelay, priority=0, modified=:t
@@ -1254,17 +1257,16 @@ where type < 0 and id in %s""" %
             ids2str(ids), t=time.time())
         self.updatePriorities(ids)
         self.flushMod()
-        self.reset()
         self.finishProgress()
 
     def buryFact(self, fact):
+        "Bury all cards for fact until next session. Caller must .reset()"
         for card in fact.cards:
             if card.type in (0,1,2):
                 card.priority = -2
                 card.type += 3
                 card.isDue = 0
         self.flushMod()
-        self.reset()
 
     # Card/fact counts - all in deck, not just due
     ##########################################################################
@@ -1381,7 +1383,7 @@ and due < :now""", now=time.time())
             model = self.currentModel
         return anki.facts.Fact(model)
 
-    def addFact(self, fact):
+    def addFact(self, fact, reset=True):
         "Add a fact to the deck. Return list of new cards."
         if not fact.model:
             fact.model = self.currentModel
@@ -1417,6 +1419,8 @@ and due < :now""", now=time.time())
         # keep track of last used tags for convenience
         self.lastTags = fact.tags
         self.flushMod()
+        if reset:
+            self.reset()
         return fact
 
     def availableCardModels(self, fact, checkActive=True):
@@ -1494,7 +1498,7 @@ where factId = :fid and cardModelId = :cmid""",
         self.setModified()
 
     def deleteFacts(self, ids):
-        "Bulk delete facts by ID. Assume any cards have already been removed."
+        "Bulk delete facts by ID; don't touch cards. Caller must .reset()."
         if not ids:
             return
         self.s.flush()
@@ -1505,7 +1509,6 @@ where factId = :fid and cardModelId = :cmid""",
         data = [{'id': id, 'time': now} for id in ids]
         self.s.statements("insert into factsDeleted values (:id, :time)", data)
         self.setModified()
-        self.reset()
 
     def deleteDanglingFacts(self):
         "Delete any facts without cards. Return deleted ids."
@@ -1546,7 +1549,7 @@ where facts.id not in (select distinct factId from cards)""")
         self.deleteCards([id])
 
     def deleteCards(self, ids):
-        "Bulk delete cards by ID."
+        "Bulk delete cards by ID. Caller must .reset()"
         if not ids:
             return
         self.s.flush()
@@ -1580,7 +1583,6 @@ where facts.id not in (select distinct factId from cards)""")
         self.deleteDanglingFacts()
         self.refreshSession()
         self.flushMod()
-        self.reset()
         self.finishProgress()
 
     # Models
@@ -1593,7 +1595,7 @@ where facts.id not in (select distinct factId from cards)""")
         self.flushMod()
 
     def deleteModel(self, model):
-        "Delete MODEL, and delete any referencing cards/facts. Maybe flush."
+        "Delete MODEL, and all its cards/facts. Caller must .reset()."
         if self.s.scalar("select count(id) from models where id=:id",
                          id=model.id):
             # delete facts/cards
@@ -1684,7 +1686,7 @@ select id from models""")
         return m
 
     def changeModel(self, factIds, newModel, fieldMap, cardMap):
-        "Caller must call reset."
+        "Caller must .reset()"
         self.s.flush()
         fids = ids2str(factIds)
         changed = False
@@ -1767,7 +1769,6 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         self.updatePriorities(cardIds)
         self.updateProgress()
         self.refreshSession()
-        self.reset()
         self.finishProgress()
 
     # Fields
@@ -2151,6 +2152,7 @@ and priority = 2
     # these could be optimized to use the tag cache in the future
 
     def addTags(self, ids, tags):
+        "Add tags in bulk. Caller must .reset()"
         self.startProgress()
         tlist = self.factTags(ids)
         newTags = parseTags(tags)
@@ -2179,6 +2181,7 @@ where id = :id""", pending)
         self.refreshSession()
 
     def deleteTags(self, ids, tags):
+        "Delete tags in bulk. Caller must .reset()"
         self.startProgress()
         tlist = self.factTags(ids)
         newTags = parseTags(tags)
@@ -3067,6 +3070,7 @@ Return new path, relative to media dir."""
     ##########################################################################
 
     def fixIntegrity(self, quick=False):
+        "Fix some problems and rebuild caches. Caller must .reset()"
         self.s.commit()
         self.resetUndo()
         problems = []
@@ -3214,7 +3218,6 @@ where id = fieldModelId)""")
             self.flushMod()
             self.save()
         self.refreshSession()
-        self.reset()
         self.finishProgress()
         if problems:
             return "\n".join(problems)
@@ -3367,15 +3370,15 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
             self.finishProgress()
 
     def undo(self):
+        "Undo the last action(s). Caller must .reset()"
         self._undoredo(self.undoStack, self.redoStack)
         self.refreshSession()
-        self.reset()
         runHook("postUndoRedo")
 
     def redo(self):
+        "Redo the last action(s). Caller must .reset()"
         self._undoredo(self.redoStack, self.undoStack)
         self.refreshSession()
-        self.reset()
         runHook("postUndoRedo")
 
     # Dynamic indices

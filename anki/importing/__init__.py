@@ -48,7 +48,7 @@ class Importer(object):
         self.tagsToAdd = u""
 
     def doImport(self):
-        "Import."
+        "Import. Caller must .reset()"
         random = self.deck.newCardOrder == NEW_CARDS_RANDOM
         num = 7
         if random:
