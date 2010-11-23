@@ -19,9 +19,9 @@ dueYoungC = "#ffb380"
 dueMatureC = "#ff5555"
 dueCumulC = "#ff8080"
 
-reviewNewC = "#80b3ff"
-reviewYoungC = "#5555ff"
-reviewMatureC = "#0f5aff"
+reviewNewC = "#80ccff"
+reviewYoungC = "#3377ff"
+reviewMatureC = "#0000ff"
 reviewTimeC = "#0fcaff"
 
 easesNewC = "#80b3ff"
@@ -72,10 +72,7 @@ class DeckGraphs(object):
             months = {}
             next = {}
             lowestInDay = 0
-            midnightOffset = time.timezone - self.deck.utcOffset
-            now = list(time.localtime(time.time()))
-            now[3] = 23; now[4] = 59
-            self.endOfDay = time.mktime(now) - midnightOffset
+            self.endOfDay = self.deck.failedCutoff
             t = time.time()
             young = self.deck.s.all("""
 select interval, combinedDue from cards
@@ -115,16 +112,16 @@ select day, reviewTime as reviewTime
 from stats
 where type = 1""")
 
-            todaydt = datetime.datetime(*list(time.localtime(time.time())[:3]))
+            todaydt = self.deck._dailyStats.day
             for dest, source in [("dayRepsNew", "combinedNewReps"),
                                  ("dayRepsYoung", "combinedYoungReps"),
                                  ("dayRepsMature", "matureReps")]:
                 self.stats[dest] = dict(
-                    map(lambda dr: (-(todaydt -datetime.datetime(
+                    map(lambda dr: (-(todaydt -datetime.date(
                     *(int(x)for x in dr["day"].split("-")))).days, dr[source]), dayReps))
 
             self.stats['dayTimes'] = dict(
-                map(lambda dr: (-(todaydt -datetime.datetime(
+                map(lambda dr: (-(todaydt -datetime.date(
                 *(int(x)for x in dr["day"].split("-")))).days, dr["reviewTime"]/60.0), dayTimes))
 
     def nextDue(self, days=30):
@@ -142,7 +139,7 @@ where type = 1""")
             dl = [x for x in dayslist.items() if x[0] <= days]
             argl.extend(list(self.unzip(dl)))
 
-        self.filledGraph(graph, days, [dueYoungC, dueMatureC], *argl)
+        self.varGraph(graph, days, [dueYoungC, dueMatureC], *argl)
 
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(0, 0, color = dueYoungC)
@@ -152,7 +149,7 @@ where type = 1""")
             "Young",
             "Mature"], loc='upper right')
 
-        graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
+        graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days+1)
         return fig
 
     def workDone(self, days=30):
@@ -166,7 +163,7 @@ where type = 1""")
 
         args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"][::-1]), [])
 
-        self.filledGraph(graph, days, [reviewNewC, reviewYoungC, reviewMatureC], *args)
+        self.varGraph(graph, days, [reviewNewC, reviewYoungC, reviewMatureC], *args)
 
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(-3, 0, color = reviewNewC)
@@ -178,7 +175,7 @@ where type = 1""")
             "Young",
             "Mature"], loc='upper left')
 
-        graph.set_xlim(xmin=-days, xmax=0)
+        graph.set_xlim(xmin=-days+1, xmax=1)
         graph.set_ylim(ymax=max(max(a for a in args[1::2])) + 10)
 
         return fig
@@ -187,12 +184,12 @@ where type = 1""")
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         times = self.stats['dayTimes']
-        self.addMissing(times, -days, 0)
+        self.addMissing(times, -days+1, 0)
         times = self.unzip([(day,y) for (day,y) in times.items()
                             if day + days >= 0])
         graph = fig.add_subplot(111)
-        self.filledGraph(graph, days, reviewTimeC, *times)
-        graph.set_xlim(xmin=-days, xmax=0)
+        self.varGraph(graph, days, reviewTimeC, *times)
+        graph.set_xlim(xmin=-days+1, xmax=1)
         graph.set_ylim(ymax=max(a for a in times[1]) + 0.1)
         return fig
 
@@ -200,6 +197,7 @@ where type = 1""")
         self.calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
+        self.addMissing(self.stats['next'], 0, days-1)
         dl = [x for x in self.stats['next'].items() if x[0] <= days]
         (x, y) = self.unzip(dl)
         count=0
@@ -211,10 +209,8 @@ where type = 1""")
             y[i] = count
             if x[i] > days:
                 break
-        x = list(x); x.append(99999)
-        y.append(count)
-        self.filledGraph(graph, days, dueCumulC, x, y)
-        graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days)
+        self._filledGraph(graph, days, dueCumulC, 1, x, y)
+        graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days-1)
         graph.set_ylim(ymax=graph.get_ylim()[1]+10)
         return fig
 
@@ -225,29 +221,29 @@ where type = 1""")
         self.addMissing(ints, 0, days)
         intervals = self.unzip(ints.items(), limit=days)
         graph = fig.add_subplot(111)
-        self.filledGraph(graph, days, intervC, *intervals)
-        graph.set_xlim(xmin=0, xmax=days)
+        self.varGraph(graph, days, intervC, *intervals)
+        graph.set_xlim(xmin=0, xmax=days+1)
         return fig
 
     def addedRecently(self, numdays=30, attr='created'):
         self.calcStats()
         days = {}
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
-        limit = self.endOfDay - (numdays + 1) * 86400
+        limit = self.endOfDay - (numdays) * 86400
         res = self.deck.s.column0("select %s from cards where %s >= %f" %
                                   (attr, attr, limit))
         for r in res:
             d = int((r - self.endOfDay) / 86400.0)
             days[d] = days.get(d, 0) + 1
-        self.addMissing(days, -numdays, 0)
+        self.addMissing(days, -numdays+1, 0)
         graph = fig.add_subplot(111)
         intervals = self.unzip(days.items())
         if attr == 'created':
             colour = addedC
         else:
             colour = firstC
-        self.filledGraph(graph, numdays, colour, *intervals)
-        graph.set_xlim(xmin=-numdays, xmax=0)
+        self.varGraph(graph, numdays, colour, *intervals)
+        graph.set_xlim(xmin=-numdays+1, xmax=1)
         return fig
 
     def addMissing(self, dic, min, max):
@@ -259,17 +255,24 @@ where type = 1""")
         tuples.sort(cmp=lambda x,y: cmp(x[0], y[0]))
         if limit:
             if reverseLimit:
-                tuples = tuples[-limit - 1:]
+                tuples = tuples[-limit:]
             else:
-                tuples = tuples[:limit + 1]
-
+                tuples = tuples[:limit+1]
         new = zip(*tuples)
         return new
 
+    def varGraph(self, graph, days, colours=["b"], *args):
+        if len(args[0]) < 120:
+            return self.barGraph(graph, days, colours, *args)
+        else:
+            return self.filledGraph(graph, days, colours, *args)
+
     def filledGraph(self, graph, days, colours=["b"], *args):
+        self._filledGraph(graph, days, colours, 0, *args)
+
+    def _filledGraph(self, graph, days, colours, lw, *args):
         if isinstance(colours, str):
             colours = [colours]
-        thick = True
         for triplet in [(args[n], args[n + 1], colours[n / 2]) for n in range(0, len(args), 2)]:
             x = list(triplet[0])
             y = list(triplet[1])
@@ -287,18 +290,53 @@ where type = 1""")
             x.append(highest + 1)
             y.append(0)
             # plot
-            lw = 0
-            if days < 180:
-                lw += 1
-            if thick:
-                lw += 1
-            if days > 360:
-                lw = 0
-            graph.fill(x, y, c, lw = lw)
-            thick = False
-
+            graph.fill(x, y, c, lw=lw)
         graph.grid(True)
         graph.set_ylim(ymin=0, ymax=max(2, graph.get_ylim()[1]))
+
+    def barGraph(self, graph, days, colours, *args):
+        if isinstance(colours, str):
+            colours = [colours]
+        lim = None
+        for triplet in [(args[n], args[n + 1], colours[n / 2]) for n in range(0, len(args), 2)]:
+            x = list(triplet[0])
+            y = list(triplet[1])
+            c = triplet[2]
+            lw = 0
+            if lim is None:
+                lim = (x[0], x[-1])
+                length = (lim[1] - lim[0])
+                if len(args) > 4:
+                    if length <= 30:
+                        lw = 1
+                else:
+                    if length <= 90:
+                        lw = 1
+            lowest = 99999
+            highest = -lowest
+            for i in range(len(x)):
+                if x[i] < lowest:
+                    lowest = x[i]
+                if x[i] > highest:
+                    highest = x[i]
+            graph.bar(x, y, color=c, width=1, linewidth=lw)
+        graph.grid(True)
+        graph.set_ylim(ymin=0, ymax=max(2, graph.get_ylim()[1]))
+        import numpy as np
+        if length > 10:
+            step = length / 10.0
+            # python's range() won't accept float step args, so we do it manually
+            if lim[0] < 0:
+                ticks = [int(lim[1] - step * x) for x in range(10)]
+            else:
+                ticks = [int(lim[0] + step * x) for x in range(10)]
+        else:
+            ticks = list(xrange(lim[0], lim[1]+1))
+        graph.set_xticks(np.array(ticks) + 0.5)
+        graph.set_xticklabels([str(int(x)) for x in ticks])
+        for tick in graph.xaxis.get_major_ticks():
+            tick.tick1On = False
+            tick.tick2On = False
 
     def easeBars(self):
         fig = Figure(figsize=(3, 3), dpi=self.dpi)
