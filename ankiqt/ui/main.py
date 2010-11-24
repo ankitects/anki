@@ -1153,7 +1153,11 @@ your deck."""))
                     'reps': deck._dailyStats.reps,
                     })
                 deck.close()
-                os.utime(d, (mod, mod))
+                try:
+                    os.utime(d, (mod, mod))
+                except:
+                    # some misbehaving filesystems may fail here
+                    pass
             except Exception, e:
                 if "File is in use" in unicode(e):
                     continue
