@@ -431,9 +431,10 @@ class EditDeck(QMainWindow):
                      self.reverseOrder)
 
     def drawTags(self):
-        self.dialog.tagList.view().setFixedWidth(200)
         self.dialog.tagList.setMaxVisibleItems(30)
-        self.dialog.tagList.setFixedWidth(130)
+        if not sys.platform.startswith("darwin"):
+            self.dialog.tagList.view().setFixedWidth(130)
+            self.dialog.tagList.setFixedWidth(130)
         self.dialog.tagList.clear()
         alltags = [None, "Marked", None, None, "Leech", None, None]
         # system tags
