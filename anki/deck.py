@@ -1172,7 +1172,7 @@ and type between 0 and 1""", time=time)
         "Update priority setting on tags table."
         # make sure all priority tags exist
         for s in (self.lowPriority, self.medPriority,
-                  self.highPriority, self.suspended):
+                  self.highPriority):
             tagIds(self.s, parseTags(s))
         tags = self.s.all("select tag, id, priority from tags")
         tags = [(x[0].lower(), x[1], x[2]) for x in tags]
