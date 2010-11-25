@@ -990,7 +990,7 @@ youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
 youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
 matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
 spaceUntil = 0, type = 2, relativeDelay = 2,
-combinedDue = created, modified = :now, due = created
+combinedDue = created, modified = :now, due = created, isDue = 0
 where id in %s""" % ids2str(ids), now=time.time(), new=0)
         if self.newCardOrder == NEW_CARDS_RANDOM:
             # we need to re-randomize now
@@ -1047,7 +1047,8 @@ successive = 1,
 yesCount = 1,
 firstAnswered = :t,
 type = 1,
-relativeDelay = 1
+relativeDelay = 1,
+isDue = 0
 where id = :id""", vals)
         self.flushMod()
 
