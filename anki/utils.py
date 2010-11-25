@@ -237,7 +237,8 @@ def joinTags(tags):
 
 def canonifyTags(tags):
     "Strip leading/trailing/superfluous commas and duplicates."
-    return joinTags(sorted(set(parseTags(tags))))
+    tags = [t.lstrip(":") for t in set(parseTags(tags))]
+    return joinTags(sorted(tags))
 
 def findTag(tag, tags):
     "True if TAG is in TAGS. Ignore case."
