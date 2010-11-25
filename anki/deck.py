@@ -2784,6 +2784,23 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
                                           type="facts")
         return len(set([f['fid'] for f in modded]))
 
+    # Find duplicates
+    ##########################################################################
+
+    def findDuplicates(self, fmids):
+        data = self.s.all(
+            "select factId, value from fields where fieldModelId in %s" %
+            ids2str(fmids))
+        vals = {}
+        for (fid, val) in data:
+            if not val.strip():
+                continue
+            if val not in vals:
+                vals[val] = [fid]
+            else:
+                vals[val].append(fid)
+        return [(k,v) for (k,v) in vals.items() if len(v) > 1]
+
     # Progress info
     ##########################################################################
 
