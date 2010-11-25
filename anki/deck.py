@@ -2328,7 +2328,12 @@ where id = :id""", pending)
                         int(dec)
                         token['value'] = token['value'][4:]
                     except:
-                        token['value'] = "0"
+                        try:
+                            for d in dec.split(","):
+                                int(d)
+                            token['value'] = token['value'][4:]
+                        except:
+                            token['value'] = "0"
                     type = SEARCH_FID
                 elif token['value'].startswith("card:"):
                     token['value'] = token['value'][5:]
@@ -2643,7 +2648,8 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                         fidquery += " intersect "
                 elif isNeg:
                     fidquery += "select id from cards except "
-                fidquery += "select id from cards where factId = %s" % token
+                fidquery += "select id from cards where factId in (%s)" % token
+                print fidquery
             elif type == SEARCH_CARD:
                 token = token.replace("*", "%")
                 ids = self.s.column0("""
