@@ -121,6 +121,8 @@ class ImportDialog(QDialog):
             self.modelChooser.show()
         else:
             self.modelChooser.hide()
+            self.dialog.groupBox.setShown(False)
+            self.dialog.mappingGroup.setTitle("")
         self.dialog.autoDetect.setShown(self.importerFunc.needDelimiter)
 
     def maybePreview(self):
