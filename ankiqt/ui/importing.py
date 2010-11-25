@@ -50,6 +50,25 @@ class ChangeMap(QDialog):
             self.field = 0
         QDialog.accept(self)
 
+class UpdateMap(QDialog):
+    def __init__(self, parent, numFields, fieldModels):
+        QDialog.__init__(self, parent, Qt.Window)
+        self.parent = parent
+        self.fieldModels = fieldModels
+        self.dialog = ankiqt.forms.importup.Ui_Dialog()
+        self.dialog.setupUi(self)
+        for i in range(numFields):
+            self.dialog.fileField.addItem("Field %d" % (i+1))
+        for m in fieldModels:
+            self.dialog.deckField.addItem(m.name)
+        self.exec_()
+
+    def accept(self):
+        self.updateKey = (
+            self.dialog.fileField.currentIndex(),
+            self.fieldModels[self.dialog.deckField.currentIndex()].id)
+        QDialog.accept(self)
+
 class ImportDialog(QDialog):
 
     def __init__(self, parent):
@@ -57,11 +76,6 @@ class ImportDialog(QDialog):
         self.parent = parent
         self.dialog = ankiqt.forms.importing.Ui_ImportDialog()
         self.dialog.setupUi(self)
-        self.tags = ui.tagedit.TagEdit(parent)
-        self.tags.setDeck(parent.deck)
-        self.dialog.topGrid.addWidget(self.tags,0,1,1,1)
-        self.setTabOrder(self.tags, self.dialog.tagDuplicates)
-        self.setTabOrder(self.dialog.tagDuplicates, self.dialog.autoDetect)
         self.setupMappingFrame()
         self.setupOptions()
         self.getFile()
@@ -83,6 +97,8 @@ class ImportDialog(QDialog):
         self.dialog.modelArea.setLayout(self.modelChooser)
         self.connect(self.dialog.importButton, SIGNAL("clicked()"),
                      self.doImport)
+        self.connect(self.dialog.updateButton, SIGNAL("clicked()"),
+                     self.doUpdate)
 
     def getFile(self):
         key = ";;".join([x[0] for x in importing.Importers])
@@ -103,10 +119,8 @@ class ImportDialog(QDialog):
         self.importerFunc = self.importer[1]
         if self.importerFunc.needMapper:
             self.modelChooser.show()
-            self.dialog.tagDuplicates.show()
         else:
             self.modelChooser.hide()
-            self.dialog.tagDuplicates.hide()
         self.dialog.autoDetect.setShown(self.importerFunc.needDelimiter)
 
     def maybePreview(self):
@@ -159,12 +173,17 @@ you can enter it here. Use \\t to represent tab."""),
             txt = _("Auto-detected &delimiter: %s") % d
         self.dialog.autoDetect.setText(txt)
 
-    def doImport(self):
+    def doUpdate(self):
+        f = UpdateMap(self.parent,
+                      self.importer.fields(),
+                      self.model.fieldModels)
+        self.importer.updateKey = f.updateKey
+        self.doImport(True)
+
+    def doImport(self, update=False):
         self.dialog.status.setText(_("Importing..."))
         t = time.time()
         self.importer.mapping = self.mapping
-        self.importer.tagsToAdd = unicode(self.tags.text())
-        self.importer.tagDuplicates = self.dialog.tagDuplicates.isChecked()
         try:
             n = _("Import")
             self.parent.deck.setUndoStart(n)
@@ -228,6 +247,7 @@ you can enter it here. Use \\t to represent tab."""),
             self.dialog.mappingArea.show()
         else:
             self.dialog.mappingArea.hide()
+            self.dialog.updateButton.hide()
             return
         # set up the mapping grid
         if self.mapwidget:
@@ -254,7 +274,6 @@ you can enter it here. Use \\t to represent tab."""),
             self.grid.addWidget(button, num, 2)
             self.connect(button, SIGNAL("clicked()"),
                          lambda s=self,n=num: s.changeMappingNum(n))
-        self.tags.setFocus()
 
     def changeMappingNum(self, n):
         f = ChangeMap(self.parent, self.model, self.mapping[n]).getField()

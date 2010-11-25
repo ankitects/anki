@@ -27,30 +27,6 @@
        <number>9</number>
       </property>
       <item>
-       <layout class="QGridLayout" name="topGrid">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>6</number>
-        </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>&lt;b&gt;Tags to append&lt;/b&gt;:</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="tagDuplicates">
-        <property name="text">
-         <string>Tag facts with duplicate fields instead of deleting</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="autoDetect">
         <property name="text">
          <string>Auto-detect file format</string>
@@ -74,7 +50,7 @@
      <property name="title">
       <string>Field mapping</string>
      </property>
-     <layout class="QHBoxLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
        <number>6</number>
       </property>
@@ -82,20 +58,7 @@
        <number>9</number>
       </property>
       <item>
-       <layout class="QGridLayout">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>6</number>
-        </property>
-        <item row="0" column="2">
-         <widget class="QPushButton" name="importButton">
-          <property name="text">
-           <string>&amp;Import</string>
-          </property>
-         </widget>
-        </item>
+       <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
          <widget class="QFrame" name="mappingArea">
           <property name="sizePolicy">
@@ -111,6 +74,24 @@
            <enum>QFrame::Raised</enum>
           </property>
          </widget>
+        </item>
+        <item row="0" column="1">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QPushButton" name="importButton">
+            <property name="text">
+             <string>&amp;Import</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="updateButton">
+            <property name="text">
+             <string>&amp;Update</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -152,9 +133,9 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tagDuplicates</tabstop>
   <tabstop>autoDetect</tabstop>
   <tabstop>importButton</tabstop>
+  <tabstop>updateButton</tabstop>
   <tabstop>status</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
