@@ -2030,6 +2030,8 @@ window will open."""))
             d.s.statement("drop index %s" % i)
         # and q/a cache
         d.s.statement("update cards set question = '', answer = ''")
+        # media db
+        d.s.statement("update media set originalPath = description")
         self.deck.updateProgress()
         d.s.statement("vacuum")
         self.deck.updateProgress()
