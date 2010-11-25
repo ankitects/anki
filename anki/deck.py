@@ -2649,7 +2649,6 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                 elif isNeg:
                     fidquery += "select id from cards except "
                 fidquery += "select id from cards where factId in (%s)" % token
-                print fidquery
             elif type == SEARCH_CARD:
                 token = token.replace("*", "%")
                 ids = self.s.column0("""
