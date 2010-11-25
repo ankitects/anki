@@ -75,9 +75,15 @@ class TextImporter(Importer):
         self.fileobj = open(self.file, "rbU")
         self.data = self.fileobj.read()
         self.data = self.data.lstrip(codecs.BOM_UTF8)
-        self.data = re.sub("^ *#.*", "", self.data)
-        self.data = [x for x in self.data.split("\n") if x]
+        def sub(s):
+            return re.sub(
+                "^\#.*", "", re.sub(
+                "^ +", "", s))
+        self.data = [sub(x) for x in self.data.split("\n") if sub(x)]
         if self.data:
+            if self.data[0].startswith("tags:"):
+                self.tagsToAdd = self.data[0][5:]
+                del self.data[0]
             self.updateDelimiter()
         if not self.dialect and not self.delimiter:
             raise ImportFormatError(
