@@ -5,8 +5,9 @@
 import sre_constants
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtWebKit import QWebPage
 import time, types, sys, re
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 import anki, anki.utils, ankiqt.forms
 from ankiqt import ui
 from anki.cards import cardsTable, Card
@@ -703,6 +704,7 @@ class EditDeck(QMainWindow):
         self.connect(self.dialog.actionInvertSelection, SIGNAL("triggered()"), self.invertSelection)
         self.connect(self.dialog.actionSelectFacts, SIGNAL("triggered()"), self.selectFacts)
         self.connect(self.dialog.actionFindReplace, SIGNAL("triggered()"), self.onFindReplace)
+        self.connect(self.dialog.actionFindDuplicates, SIGNAL("triggered()"), self.onFindDupes)
         # jumps
         self.connect(self.dialog.actionFirstCard, SIGNAL("triggered()"), self.onFirstCard)
         self.connect(self.dialog.actionLastCard, SIGNAL("triggered()"), self.onLastCard)
@@ -1126,6 +1128,81 @@ where id in %s""" % ids2str(sf))
     def onFindReplaceHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "Browser#FindReplace"))
+    # Edit: finding dupes
+    ######################################################################
+
+    def onFindDupes(self):
+        win = QDialog(self)
+        dialog = ankiqt.forms.finddupes.Ui_Dialog()
+        dialog.setupUi(win)
+        restoreGeom(win, "findDupes")
+        fields = sorted(self.currentCard.fact.model.fieldModels, key=attrgetter("name"))
+        # per-model data
+        data = self.deck.s.all("""
+select fm.id, m.name || '>' || fm.name from fieldmodels fm, models m
+where fm.modelId = m.id""")
+        data.sort(key=itemgetter(1))
+        # all-model data
+        data2 = self.deck.s.all("""
+select fm.id, fm.name from fieldmodels fm""")
+        byName = {}
+        for d in data2:
+            if d[1] in byName:
+                byName[d[1]].append(d[0])
+            else:
+                byName[d[1]] = [d[0]]
+        names = byName.keys()
+        names.sort()
+        alldata = [(byName[n], n) for n in names] + data
+        dialog.searchArea.addItems(QStringList([d[1] for d in alldata]))
+        # links
+        dialog.webView.page().setLinkDelegationPolicy(
+            QWebPage.DelegateAllLinks)
+        self.connect(dialog.webView,
+                     SIGNAL("linkClicked(QUrl)"),
+                     self.dupeLinkClicked)
+
+        def onFin(code):
+            saveGeom(win, "findDupes")
+        self.connect(win, SIGNAL("finished(int)"), onFin)
+
+        def onClick():
+            idx = dialog.searchArea.currentIndex()
+            data = alldata[idx]
+            if isinstance(data[0], list):
+                # all models
+                fmids = data[0]
+            else:
+                # single model
+                fmids = [data[0]]
+            self.duplicatesReport(dialog.webView, fmids)
+
+        self.connect(dialog.searchButton, SIGNAL("clicked()"),
+                     onClick)
+        win.show()
+
+    def duplicatesReport(self, web, fmids):
+        self.deck.startProgress(2)
+        self.deck.updateProgress(_("Finding..."))
+        res = self.deck.findDuplicates(fmids)
+        t = "<html><body>"
+        t += _("Duplicate Groups: %d") % len(res)
+        t += "<p><ol>"
+
+        for group in res:
+            t += '<li><a href="%s">%s</a>' % (
+                "fid:" + ",".join(str(id) for id in group[1]),
+                group[0])
+
+        t += "</ol>"
+        t += "</body></html>"
+        web.setHtml(t)
+        self.deck.finishProgress()
+
+    def dupeLinkClicked(self, link):
+        self.dialog.filterEdit.setText(str(link.toString()))
+        self.updateSearch()
+        self.onFact()
 
     # Jumping
     ######################################################################

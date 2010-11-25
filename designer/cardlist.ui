@@ -226,6 +226,7 @@
     <addaction name="actionInvertSelection"/>
     <addaction name="separator"/>
     <addaction name="actionFindReplace"/>
+    <addaction name="actionFindDuplicates"/>
     <addaction name="separator"/>
     <addaction name="actionFont"/>
    </widget>
@@ -583,6 +584,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionFindDuplicates">
+   <property name="text">
+    <string>Find &amp;Duplicates...</string>
    </property>
   </action>
  </widget>
