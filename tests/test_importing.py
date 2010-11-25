@@ -114,3 +114,26 @@ def test_dingsbums():
     i.doImport()
     assert 7 == i.total
     deck.s.close()
+
+def test_updating():
+    # get the standard csv deck first
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    file = unicode(os.path.join(testDir, "importing/text-2fields.txt"))
+    i = csvfile.TextImporter(deck, file)
+    i.doImport()
+    # now update
+    file = unicode(os.path.join(testDir, "importing/text-update.txt"))
+    i = csvfile.TextImporter(deck, file)
+    # first field
+    i.updateKey = (0, deck.currentModel.fieldModels[0].id)
+    i.multipleCardsAllowed = False
+    i.doImport()
+    ans = deck.s.scalar(
+        u"select answer from cards where question like '%食べる%'")
+    assert "to ate" in ans
+    # try again with tags
+    i.updateKey = (0, deck.currentModel.fieldModels[0].id)
+    i.mapping[1] = 0
+    i.doImport()
+    deck.s.close()

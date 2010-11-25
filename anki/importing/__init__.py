@@ -18,8 +18,8 @@ from anki.cards import cardsTable
 from anki.facts import factsTable, fieldsTable
 from anki.lang import _
 from anki.utils import genID, canonifyTags
+from anki.utils import canonifyTags, ids2str
 from anki.errors import *
-from anki.utils import canonifyTags
 from anki.deck import NEW_CARDS_RANDOM
 
 # Base importer
@@ -35,6 +35,9 @@ class Importer(object):
 
     needMapper = True
     tagDuplicates = False
+    # if set, update instead of regular importing
+    # (foreignCardFieldIndex, fieldModelId)
+    updateKey = None
     multipleCardsAllowed = True
     needDelimiter = False
 
@@ -49,6 +52,8 @@ class Importer(object):
 
     def doImport(self):
         "Import. Caller must .reset()"
+        if self.updateKey is not None:
+            return self.doUpdate()
         random = self.deck.newCardOrder == NEW_CARDS_RANDOM
         num = 7
         if random:
@@ -67,6 +72,85 @@ class Importer(object):
         self.deck.finishProgress()
         if c:
             self.deck.setModified()
+
+    def doUpdate(self):
+        self.deck.startProgress(8)
+        # grab the data from the external file
+        self.deck.updateProgress(_("Updating..."))
+        cards = self.foreignCards()
+        # grab data from db
+        self.deck.updateProgress()
+        fields = self.deck.s.all("""
+select factId, value from fields where fieldModelId = :id
+and value != ''""",
+                               id=self.updateKey[1])
+        # hash it
+        self.deck.updateProgress()
+        vhash = {}
+        fids = []
+        for (fid, val) in fields:
+            fids.append(fid)
+            vhash[val] = fid
+        # prepare tags
+        tagsIdx = None
+        try:
+            tagsIdx = self.mapping.index(0)
+            for c in cards:
+                c.tags = canonifyTags(self.tagsToAdd + " " + c.fields[tagsIdx])
+        except ValueError:
+            pass
+        # look for matches
+        self.deck.updateProgress()
+        upcards = []
+        newcards = []
+        for c in cards:
+            v = c.fields[self.updateKey[0]]
+            if v in vhash:
+                # ignore empty keys
+                if v:
+                    # fid, card
+                    upcards.append((vhash[v], c))
+            else:
+                newcards.append(c)
+        # update fields
+        for fm in self.model.fieldModels:
+            if fm.id == self.updateKey[1]:
+                # don't update key
+                continue
+            try:
+                index = self.mapping.index(fm)
+            except ValueError:
+                # not mapped
+                continue
+            data = [{'fid': fid,
+                     'fmid': fm.id,
+                     'v': c.fields[index]}
+                    for (fid, c) in upcards]
+            self.deck.s.execute("""
+update fields set value = :v where factId = :fid and fieldModelId = :fmid""",
+                                data)
+        # update tags
+        self.deck.updateProgress()
+        if tagsIdx:
+            data = [{'factId': fid,
+                     'tags': c.fields[tagsIdx]}
+                    for (fid, c) in upcards]
+            self.deck.s.execute(
+                "update facts set tags = :t where id = :fid",
+                data)
+        # rebuild caches
+        self.deck.updateProgress()
+        cids = self.deck.s.column0(
+            "select id from cards where factId in %s" %
+            ids2str(fids))
+        self.deck.updateCardTags(cids)
+        self.deck.updateProgress()
+        self.deck.updatePriorities(cids)
+        self.deck.updateProgress()
+        self.deck.updateCardsFromFactIds(fids)
+        self.total = len(fids)
+        self.deck.setModified()
+        self.deck.finishProgress()
 
     def fields(self):
         "The number of fields."
