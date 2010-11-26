@@ -126,8 +126,6 @@ def run():
     if sys.platform.startswith("darwin"):
         rd = os.path.abspath(runningDir + "/../../..")
         QCoreApplication.setLibraryPaths(QStringList([rd]))
-    else:
-        QCoreApplication.addLibraryPath(runningDir)
 
     app = AnkiApp(sys.argv)
     QCoreApplication.setApplicationName("Anki")
