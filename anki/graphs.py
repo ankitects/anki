@@ -38,8 +38,6 @@ if sys.platform.startswith("darwin"):
         del os.environ['MATPLOTLIBDATA']
     except:
         pass
-elif getattr(sys, "frozen", None):
-    os.environ['MATPLOTLIBDATA'] = os.path.dirname(sys.argv[0])
 
 try:
     from matplotlib.figure import Figure
