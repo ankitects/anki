@@ -283,7 +283,7 @@ class DeckChooser(QDialog):
         self.decks = decks
         self.dialog = ankiqt.forms.syncdeck.Ui_DeckChooser()
         self.dialog.setupUi(self)
-        self.dialog.topLabel.setText(_("<h1>Dowload Personal Deck</h1>"))
+        self.dialog.topLabel.setText(_("<h1>Download Personal Deck</h1>"))
         self.decks.sort()
         for name in decks:
             name = os.path.splitext(name)[0]
