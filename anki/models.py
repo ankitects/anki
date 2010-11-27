@@ -12,7 +12,7 @@ Model - define the way in which facts are added and shown
 
 """
 
-import time
+import time, re, pystache
 from sqlalchemy.ext.orderinglist import ordering_list
 from anki.db import *
 from anki.utils import genID, canonifyTags
@@ -149,10 +149,11 @@ def formatQA(cid, mid, fact, tags, cm):
     ret = []
     for (type, format) in (("question", cm.qformat),
                            ("answer", cm.aformat)):
-        try:
-            html = format % fields
-        except (KeyError, TypeError, ValueError):
-            html = _("[invalid question/answer format]")
+        # convert old style
+        format = re.sub("%\((.+?)\)s", "{{\\1}}", format)
+        # allow custom rendering functions & info
+        fields = runFilter("prepareFields", fields, cid, mid, fact, tags, cm)
+        html = pystache.render(format, fields)
         d[type] = runFilter("formatQA", html, type, cid, mid, fact, tags, cm)
     return d
 
