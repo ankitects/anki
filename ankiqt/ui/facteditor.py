@@ -980,6 +980,7 @@ class FactEdit(QTextEdit):
     def __init__(self, parent, *args):
         QTextEdit.__init__(self, *args)
         self.parent = parent
+        self._programLayout = None
         if sys.platform.startswith("win32"):
             self._ownLayout = None
 
@@ -1084,7 +1085,8 @@ class FactEdit(QTextEdit):
         self.parent.lastFocusedEdit = self
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
-        if sys.platform.startswith("win32"):
+        # for some reason this can be fired before a focus in has fired
+        if sys.platform.startswith("win32") and self._programLayout:
             self._ownLayout = GetKeyboardLayout(0)
             ActivateKeyboardLayout(self._programLayout, 0)
         self.emit(SIGNAL("lostFocus"))
