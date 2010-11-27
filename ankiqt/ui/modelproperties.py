@@ -274,6 +274,16 @@ class ModelProperties(QDialog):
         self.saveCurrentCard()
         self.readCurrentCard()
 
+    def formatToScreen(self, fmt):
+        fmt = fmt.replace("<br>", "<br>\n")
+        fmt = re.sub("%\((.+?)\)s", "{{\\1}}", fmt)
+        return fmt
+
+    def screenToFormat(self, fmt):
+        fmt = fmt.replace("<br>\n", "<br>")
+        fmt = re.sub("{{(.+?)}}", "%(\\1)s", fmt)
+        return fmt
+
     def readCurrentCard(self):
         if not len(self.m.cardModels):
             self.dialog.cardEditBox.hide()
@@ -289,8 +299,8 @@ class ModelProperties(QDialog):
         self.currentCard = self.m.cardModels[self.dialog.cardList.currentRow()]
         card = self.currentCard
         self.dialog.cardName.setText(card.name)
-        self.dialog.cardQuestion.setPlainText(card.qformat.replace("<br>", "<br>\n"))
-        self.dialog.cardAnswer.setPlainText(card.aformat.replace("<br>", "<br>\n"))
+        self.dialog.cardQuestion.setPlainText(self.formatToScreen(card.qformat))
+        self.dialog.cardAnswer.setPlainText(self.formatToScreen(card.aformat))
         self.dialog.questionInAnswer.setChecked(card.questionInAnswer)
         self.dialog.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
         self.dialog.typeAnswer.clear()
@@ -335,11 +345,9 @@ order by n""", id=card.id)
             newname = _("Card-%d") % (self.m.cardModels.index(card) + 1)
         self.updateField(card, 'name', newname)
         s = unicode(self.dialog.cardQuestion.toPlainText())
-        s = s.replace("<br>\n", "<br>")
-        changed = self.updateField(card, 'qformat', s)
+        changed = self.updateField(card, 'qformat', self.screenToFormat(s))
         s = unicode(self.dialog.cardAnswer.toPlainText())
-        s = s.replace("<br>\n", "<br>")
-        changed2 = self.updateField(card, 'aformat', s)
+        changed2 = self.updateField(card, 'aformat', self.screenToFormat(s))
         self.needRebuild = self.needRebuild or changed or changed2
         self.updateField(card, 'questionInAnswer', self.dialog.questionInAnswer.isChecked())
         self.updateField(card, 'allowEmptyAnswer', self.dialog.allowEmptyAnswer.isChecked())
