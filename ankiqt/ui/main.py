@@ -847,6 +847,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         if self.deck is not None:
             if self.deck.finishScheduler:
                 self.deck.finishScheduler()
+                self.deck.reset()
             # update counts
             for d in self.browserDecks:
                 if d['path'] == self.deck.path:
