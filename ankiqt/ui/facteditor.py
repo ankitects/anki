@@ -785,6 +785,7 @@ class FactEditor(object):
         self.htmlEdit.setShown(toggle)
 
     def onPreview(self):
+        self.saveFields()
         PreviewDialog(self.parent, self.deck, self.fact)
 
     # FIXME: in some future version, we should use a different delimiter, as
