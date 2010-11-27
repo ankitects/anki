@@ -110,9 +110,12 @@ class Template(object):
 
             tag, tag_type, tag_name = match.group(0, 1, 2)
             tag_name = tag_name.strip()
-            func = modifiers[tag_type]
-            replacement = func(self, tag_name, context)
-            template = template.replace(tag, replacement)
+            try:
+                func = modifiers[tag_type]
+                replacement = func(self, tag_name, context)
+                template = template.replace(tag, replacement)
+            except:
+                return "{{invalid template}}"
 
         return template
 
@@ -133,7 +136,7 @@ class Template(object):
     @modifier(None)
     def render_unescaped(self, tag_name=None, context=None):
         """Render a tag without escaping it."""
-        return unicode(get_or_attr(context, tag_name, ''))
+        return unicode(get_or_attr(context, tag_name, '{unknown field %s}' % tag_name))
 
     # @modifier('>')
     # def render_partial(self, tag_name=None, context=None):
