@@ -3111,7 +3111,7 @@ Return new path, relative to media dir."""
     # and the variable is not synced
 
     def enableSyncing(self):
-        self.syncName = unicode(checksum(self.path))
+        self.syncName = unicode(checksum(self.path.encode("utf-8")))
         self.lastSync = 0
         self.s.commit()
 
@@ -3124,7 +3124,7 @@ Return new path, relative to media dir."""
         return self.syncName
 
     def checkSyncHash(self):
-        if self.syncName and self.syncName != checksum(self.path):
+        if self.syncName and self.syncName != checksum(self.path.encode("utf-8")):
             self.notify(_("""\
 Because '%s' has been moved or copied, automatic synchronisation \
 has been disabled. (ERR-0100)""") % self.name())
