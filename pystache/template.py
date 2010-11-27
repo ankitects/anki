@@ -135,16 +135,16 @@ class Template(object):
         """Render a tag without escaping it."""
         return unicode(get_or_attr(context, tag_name, ''))
 
-    @modifier('>')
-    def render_partial(self, tag_name=None, context=None):
-        """Renders a partial within the current context."""
-        # Import view here to avoid import loop
-        from pystache.view import View
+    # @modifier('>')
+    # def render_partial(self, tag_name=None, context=None):
+    #     """Renders a partial within the current context."""
+    #     # Import view here to avoid import loop
+    #     from pystache.view import View
 
-        view = View(context=context)
-        view.template_name = tag_name
+    #     view = View(context=context)
+    #     view.template_name = tag_name
 
-        return view.render()
+    #     return view.render()
 
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None):
