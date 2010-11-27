@@ -116,7 +116,8 @@ class Template(object):
 
         return template
 
-    @modifier(None)
+    @modifier('{')
+    @modifier('&')
     def render_tag(self, tag_name, context):
         """Given a tag name and context, finds, escapes, and renders the tag."""
         raw = get_or_attr(context, tag_name, '')
@@ -129,8 +130,7 @@ class Template(object):
         """Rendering a comment always returns nothing."""
         return ''
 
-    @modifier('{')
-    @modifier('&')
+    @modifier(None)
     def render_unescaped(self, tag_name=None, context=None):
         """Render a tag without escaping it."""
         return unicode(get_or_attr(context, tag_name, ''))
