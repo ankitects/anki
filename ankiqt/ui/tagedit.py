@@ -34,25 +34,6 @@ class TagEdit(QLineEdit):
         QLineEdit.focusOutEvent(self, evt)
         self.emit(SIGNAL("lostFocus"))
 
-    def keyPressEvent(self, evt):
-        if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
-            oldtxt = self.text()
-            if not self.text():
-                evt.ignore()
-            else:
-                if self.completer.completionCount():
-                    self.setText(
-                        self.completer.pathFromIndex(self.completer.popup().currentIndex()))
-                else:
-                    self.setText(self.completer.completionPrefix())
-                if self.text() == oldtxt:
-                    evt.ignore()
-                else:
-                    evt.accept()
-            self.completer.popup().hide()
-            return
-        QLineEdit.keyPressEvent(self, evt)
-
 class TagCompleter(QCompleter):
 
     def __init__(self, model, parent, edit, *args):
