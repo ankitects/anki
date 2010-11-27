@@ -9,7 +9,7 @@ The Deck
 __docformat__ = 'restructuredtext'
 
 import tempfile, time, os, random, sys, re, stat, shutil
-import types, traceback, simplejson, datetime
+import types, traceback, simplejson, datetime, pystache
 
 from anki.db import *
 from anki.lang import _, ngettext
@@ -1434,6 +1434,8 @@ and due < :now""", now=time.time())
                ok = True
                for (type, format) in [("q", cardModel.qformat),
                                       ("a", cardModel.aformat)]:
+                   # compat
+                   format = re.sub("%\((.+?)\)s", "{{\\1}}", format)
                    empty = {}
                    local = {}; local.update(fact)
                    local['tags'] = u""
@@ -1447,7 +1449,8 @@ and due < :now""", now=time.time())
                    empty['tags'] = ""
                    local['tags'] = fact.tags
                    try:
-                       if format % local == format % empty:
+                       if (pystache.render(format, local) ==
+                           pystache.render(format, empty)):
                            ok = False
                            break
                    except (KeyError, TypeError, ValueError):
@@ -1794,10 +1797,14 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         model.fieldModels.remove(field)
         # update q/a formats
         for cm in model.cardModels:
-            cm.qformat = cm.qformat.replace("%%(%s)s" % field.name, "")
-            cm.qformat = cm.qformat.replace("%%(text:%s)s" % field.name, "")
-            cm.aformat = cm.aformat.replace("%%(%s)s" % field.name, "")
-            cm.aformat = cm.aformat.replace("%%(text:%s)s" % field.name, "")
+            types = ("%%(%s)s" % field.name,
+                     "%%(text:%s)s" % field.name,
+                     # new style
+                     "<<%s>>" % field.name,
+                     "<<text:%s>>" % field.name)
+            for t in types:
+                for fmt in ('qformat', 'aformat'):
+                    setattr(cm, fmt, getattr(cm, fmt).replace(t, ""))
         self.updateCardsFromModel(model)
         model.setModified()
         self.flushMod()
@@ -1822,14 +1829,15 @@ update facts set modified = :t where modelId = :mid"""
     def renameFieldModel(self, model, field, newName):
         "Change FIELD's name in MODEL and update FIELD in all facts."
         for cm in model.cardModels:
-            cm.qformat = cm.qformat.replace(
-                "%%(%s)s" % field.name, "%%(%s)s" % newName)
-            cm.qformat = cm.qformat.replace(
-                "%%(text:%s)s" % field.name, "%%(text:%s)s" % newName)
-            cm.aformat = cm.aformat.replace(
-                "%%(%s)s" % field.name, "%%(%s)s" % newName)
-            cm.aformat = cm.aformat.replace(
-                "%%(text:%s)s" % field.name, "%%(text:%s)s" % newName)
+            types = ("%%(%s)s",
+                     "%%(text:%s)s",
+                     # new style
+                     "<<%s>>",
+                     "<<text:%s>>")
+            for t in types:
+                for fmt in ('qformat', 'aformat'):
+                    setattr(cm, fmt, getattr(cm, fmt).replace(t%field.name,
+                                                              t%newName))
         field.name = newName
         model.setModified()
         self.flushMod()
