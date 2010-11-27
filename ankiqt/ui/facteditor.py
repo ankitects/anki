@@ -496,11 +496,8 @@ class FactEditor(object):
             self.fact.setModified(textChanged=True)
             if not self.fact.isNew():
                 self.deck.setModified()
-            oldFocus = ankiqt.mw.app.focusWidget()
-            if self.resetOnEdit:
-                ankiqt.mw.reset()
-            oldFocus.setFocus()
         self.deck.setUndoEnd(n)
+        return modified
 
     def onFocusLost(self, widget):
         from ankiqt import mw
@@ -509,11 +506,16 @@ class FactEditor(object):
             return
         if mw.inDbHandler:
             return
-        self.saveFields()
+        modified = self.saveFields()
         field = self.widgets[widget]
         self.fact.focusLost(field)
         self.fact.setModified(textChanged=True)
         self.loadFields(font=False)
+        if modified and self.resetOnEdit:
+            oldFocus = ankiqt.mw.app.focusWidget()
+            ankiqt.mw.reset()
+            if oldFocus:
+                oldFocus.setFocus()
 
     def onTextChanged(self):
         interval = 250
@@ -535,10 +537,7 @@ class FactEditor(object):
         if mw.inDbHandler:
             self.changeTimer.start(interval)
             return
-        self.saveFields()
         self.checkValid()
-        if self.onChange:
-            self.onChange('field')
         self.changeTimer = None
 
     def saveFieldsNow(self):
@@ -565,11 +564,11 @@ class FactEditor(object):
         for field in self.fact.fields:
             p = QPalette()
             p.setColor(QPalette.Text, QColor("#000000"))
-            if not self.fact.fieldValid(field):
+            if not self.fieldValid(field):
                 empty.append(field)
                 p.setColor(QPalette.Base, QColor("#ffffcc"))
                 self.fields[field.name][1].setPalette(p)
-            elif not self.fact.fieldUnique(field, self.deck.s):
+            elif not self.fieldUnique(field):
                 dupe.append(field)
                 p.setColor(QPalette.Base, QColor("#ffcccc"))
                 self.fields[field.name][1].setPalette(p)
@@ -586,6 +585,24 @@ class FactEditor(object):
             if self.onFactInvalid:
                 self.onFactInvalid(self.fact)
             self.factState = "invalid"
+
+    def textForField(self, field):
+        "Current edited value for field."
+        w = self.fields[field.name][1]
+        v = tidyHTML(unicode(w.toHtml()))
+        return v
+
+    def fieldValid(self, field):
+        return not (field.fieldModel.required and
+                    not self.textForField(field).strip())
+
+    def fieldUnique(self, field):
+        if not field.fieldModel.unique:
+            return True
+        req = ("select value from fields "
+               "where fieldModelId = :fmid and value = :val and id != :id")
+        return not self.deck.s.scalar(
+            req, val=self.textForField(field), fmid=field.fieldModel.id, id=field.id)
 
     def onTagChange(self):
         if not self.fact:
