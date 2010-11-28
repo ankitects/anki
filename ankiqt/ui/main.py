@@ -291,13 +291,14 @@ Please do not file a bug report with Anki.<br>""")
         self.views = self.viewsBackup
         self.viewsBackup = None
 
-    def reset(self, count=True, priorities=False):
+    def reset(self, count=True, priorities=False, runHooks=True):
         if self.deck:
             self.deck.refreshSession()
             if priorities:
                 self.deck.updateAllPriorities()
             self.deck.reset()
-            runHook("guiReset")
+            if runHooks:
+                runHook("guiReset")
             self.moveToState("initial")
 
     def moveToState(self, state):

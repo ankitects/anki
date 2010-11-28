@@ -512,10 +512,7 @@ class FactEditor(object):
         self.fact.setModified(textChanged=True)
         self.loadFields(font=False)
         if modified and self.resetOnEdit:
-            oldFocus = ankiqt.mw.app.focusWidget()
-            ankiqt.mw.reset()
-            if oldFocus:
-                oldFocus.setFocus()
+            ankiqt.mw.reset(runHooks=False)
 
     def onTextChanged(self):
         interval = 250
@@ -981,7 +978,6 @@ class FactEdit(QTextEdit):
     def __init__(self, parent, *args):
         QTextEdit.__init__(self, *args)
         self.parent = parent
-        self._programLayout = None
         if sys.platform.startswith("win32"):
             self._ownLayout = None
 
@@ -1086,8 +1082,7 @@ class FactEdit(QTextEdit):
         self.parent.lastFocusedEdit = self
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
-        # for some reason this can be fired before a focus in has fired
-        if sys.platform.startswith("win32") and self._programLayout:
+        if sys.platform.startswith("win32"):
             self._ownLayout = GetKeyboardLayout(0)
             ActivateKeyboardLayout(self._programLayout, 0)
         self.emit(SIGNAL("lostFocus"))
