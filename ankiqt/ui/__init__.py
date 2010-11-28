@@ -10,7 +10,7 @@ def importAll():
     import cardlist
     import deckproperties
     import importing
-    import displayproperties
+    import clayout
     import exporting
     import facteditor
     import help
@@ -67,7 +67,6 @@ class DialogManager(object):
     def registerDialogs(self):
         self.registerDialog("AddCards", addcards.AddCards)
         self.registerDialog("CardList", cardlist.EditDeck)
-        self.registerDialog("DisplayProperties", displayproperties.DisplayProperties)
         self.registerDialog("Graphs", self.graphProxy)
 
 dialogs = DialogManager()

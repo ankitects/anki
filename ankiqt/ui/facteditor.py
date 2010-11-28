@@ -49,6 +49,7 @@ class FactEditor(object):
         self.changeTimer = None
         self.lastCloze = None
         self.resetOnEdit = True
+        self.card=None
         addHook("deckClosed", self.deckClosedHook)
         addHook("guiReset", self.refresh)
         addHook("colourChanged", self.colourChanged)
@@ -106,6 +107,9 @@ class FactEditor(object):
     def setupFields(self):
         # init for later
         self.fields = {}
+        # button styles for mac
+        self.plastiqueStyle = QStyleFactory.create("plastique")
+        self.widget.setStyle(self.plastiqueStyle)
         # top level vbox
         self.fieldsBox = QVBoxLayout(self.widget)
         self.fieldsBox.setMargin(0)
@@ -115,6 +119,20 @@ class FactEditor(object):
         self.iconsBox2 = QHBoxLayout()
         self.fieldsBox.addLayout(self.iconsBox)
         self.fieldsBox.addLayout(self.iconsBox2)
+        # card layout
+        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
+        self.clayout = QPushButton("&Edit Card")
+        self.clayout.connect(self.clayout, SIGNAL("clicked()"), self.onCardLayout)
+        self.clayout.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
+        self.clayout.setFixedHeight(20)
+        # self.clayout.setFixedWidth(48)
+        self.clayout.setIcon(QIcon(":/icons/edit.png"))
+        #self.clayout.setIconSize(QSize(32,32))
+        #self.clayout.setToolTip(_("Bold text (Ctrl+b)"))
+        #self.clayout.setShortcut(_("Ctrl+b"))
+        self.clayout.setFocusPolicy(Qt.NoFocus)
+        self.iconsBox.addWidget(self.clayout)
+        self.clayout.setStyle(self.plastiqueStyle)
         # scrollarea
         self.fieldsScroll = QScrollArea()
         self.fieldsScroll.setWidgetResizable(True)
@@ -133,15 +151,13 @@ class FactEditor(object):
         self.fieldsBox.addLayout(self.tagsBox)
         # icons
         self.iconsBox.setMargin(0)
-        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         self.iconsBox2.setMargin(0)
-        self.iconsBox2.setMargin(0)
-        self.iconsBox2.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
-        # button styles for mac
-        self.plastiqueStyle = QStyleFactory.create("plastique")
-        self.widget.setStyle(self.plastiqueStyle)
         # bold
+        spc = QSpacerItem(5,5)
+        self.iconsBox.addItem(spc)
         self.bold = QPushButton()
+        self.bold.setFixedHeight(20)
+        self.bold.setFixedWidth(20)
         self.bold.setCheckable(True)
         self.bold.connect(self.bold, SIGNAL("toggled(bool)"), self.toggleBold)
         self.bold.setIcon(QIcon(":/icons/text_bold.png"))
@@ -153,6 +169,8 @@ class FactEditor(object):
         self.bold.setStyle(self.plastiqueStyle)
         # italic
         self.italic = QPushButton(self.widget)
+        self.italic.setFixedHeight(20)
+        self.italic.setFixedWidth(20)
         self.italic.setCheckable(True)
         self.italic.connect(self.italic, SIGNAL("toggled(bool)"), self.toggleItalic)
         self.italic.setIcon(QIcon(":/icons/text_italic.png"))
@@ -164,6 +182,8 @@ class FactEditor(object):
         self.italic.setStyle(self.plastiqueStyle)
         # underline
         self.underline = QPushButton(self.widget)
+        self.underline.setFixedHeight(20)
+        self.underline.setFixedWidth(20)
         self.underline.setCheckable(True)
         self.underline.connect(self.underline, SIGNAL("toggled(bool)"), self.toggleUnderline)
         self.underline.setIcon(QIcon(":/icons/text_under.png"))
@@ -180,8 +200,8 @@ class FactEditor(object):
         self.foreground.setShortcut(_("F7, F7"))
         self.foreground.setFocusPolicy(Qt.NoFocus)
         self.foreground.setEnabled(False)
-        self.foreground.setFixedWidth(30)
-        self.foreground.setFixedHeight(26)
+        self.foreground.setFixedWidth(20)
+        self.foreground.setFixedHeight(20)
         self.foregroundFrame = QFrame()
         self.foregroundFrame.setAutoFillBackground(True)
         hbox = QHBoxLayout()
@@ -190,60 +210,62 @@ class FactEditor(object):
         self.foreground.setLayout(hbox)
         self.iconsBox.addWidget(self.foreground)
         self.foreground.setStyle(self.plastiqueStyle)
+        self.iconsBox.addItem(QSpacerItem(5,1, QSizePolicy.Fixed))
         # picker
-        vbox = QVBoxLayout()
-        vbox.setMargin(0)
-        vbox.setSpacing(0)
-        hbox = QHBoxLayout()
-        hbox.setMargin(0)
-        hbox.setSpacing(0)
-        self.fleft = QPushButton()
-        self.fleft.connect(self.fleft, SIGNAL("clicked()"), self.previousForeground)
-        self.fleft.setToolTip(_("Previous colour (F7 then F6)"))
-        self.fleft.setText("<")
-        self.fleft.setShortcut(_("F7, F6"))
-        self.fleft.setFocusPolicy(Qt.NoFocus)
-        self.fleft.setEnabled(False)
-        self.fleft.setFixedWidth(15)
-        self.fleft.setFixedHeight(14)
-        hbox.addWidget(self.fleft)
-        self.fleft.setStyle(self.plastiqueStyle)
-        self.fright = QPushButton()
-        self.fright.connect(self.fright, SIGNAL("clicked()"), self.nextForeground)
-        self.fright.setToolTip(_("Next colour (F7 then F8)"))
-        self.fright.setText(">")
-        self.fright.setShortcut(_("F7, F8"))
-        self.fright.setFocusPolicy(Qt.NoFocus)
-        self.fright.setEnabled(False)
-        self.fright.setFixedWidth(15)
-        self.fright.setFixedHeight(14)
-        hbox.addWidget(self.fright)
-        self.fright.setStyle(self.plastiqueStyle)
-        vbox.addLayout(hbox)
-        self.fchoose = QPushButton()
-        self.fchoose.connect(self.fchoose, SIGNAL("clicked()"), self.selectForeground)
-        self.fchoose.setToolTip(_("Choose colour (F7 then F5)"))
-        self.fchoose.setText("+")
-        self.fchoose.setShortcut(_("F7, F5"))
-        self.fchoose.setFocusPolicy(Qt.NoFocus)
-        self.fchoose.setEnabled(False)
-        self.fchoose.setFixedWidth(30)
-        self.fchoose.setFixedHeight(12)
-        vbox.addWidget(self.fchoose)
-        self.fchoose.setStyle(self.plastiqueStyle)
-        self.iconsBox.addLayout(vbox)
+        # vbox = QVBoxLayout()
+        # vbox.setMargin(0)
+        # vbox.setSpacing(0)
+        # hbox = QHBoxLayout()
+        # hbox.setMargin(0)
+        # hbox.setSpacing(0)
+        # self.fleft = QPushButton()
+        # self.fleft.connect(self.fleft, SIGNAL("clicked()"), self.previousForeground)
+        # self.fleft.setToolTip(_("Previous colour (F7 then F6)"))
+        # self.fleft.setText("<")
+        # self.fleft.setShortcut(_("F7, F6"))
+        # self.fleft.setFocusPolicy(Qt.NoFocus)
+        # self.fleft.setEnabled(False)
+        # self.fleft.setFixedWidth(15)
+        # self.fleft.setFixedHeight(14)
+        # hbox.addWidget(self.fleft)
+        # self.fleft.setStyle(self.plastiqueStyle)
+        # self.fright = QPushButton()
+        # self.fright.setFixedHeight(20)
+        # self.fright.connect(self.fright, SIGNAL("clicked()"), self.nextForeground)
+        # self.fright.setToolTip(_("Next colour (F7 then F8)"))
+        # self.fright.setText(">")
+        # self.fright.setShortcut(_("F7, F8"))
+        # self.fright.setFocusPolicy(Qt.NoFocus)
+        # self.fright.setEnabled(False)
+        # self.fright.setFixedWidth(15)
+        # self.fright.setFixedHeight(14)
+        # hbox.addWidget(self.fright)
+        # self.fright.setStyle(self.plastiqueStyle)
+        # vbox.addLayout(hbox)
+        # self.fchoose = QPushButton()
+        # self.fchoose.connect(self.fchoose, SIGNAL("clicked()"), self.selectForeground)
+        # self.fchoose.setToolTip(_("Choose colour (F7 then F5)"))
+        # self.fchoose.setText("+")
+        # self.fchoose.setShortcut(_("F7, F5"))
+        # self.fchoose.setFocusPolicy(Qt.NoFocus)
+        # self.fchoose.setEnabled(False)
+        # self.fchoose.setFixedWidth(30)
+        # self.fchoose.setFixedHeight(12)
+        # vbox.addWidget(self.fchoose)
+        # self.fchoose.setStyle(self.plastiqueStyle)
+        # self.iconsBox.addLayout(vbox)
         # cloze
-        spc = QSpacerItem(5,5)
-        self.iconsBox.addItem(spc)
+        # spc = QSpacerItem(5,5)
+        # self.iconsBox2.addItem(spc)
         self.cloze = QPushButton(self.widget)
+        self.cloze.setFixedHeight(20)
         self.clozeSC = QShortcut(QKeySequence(_("F9")), self.widget)
         self.cloze.connect(self.cloze, SIGNAL("clicked()"),
                                   self.onCloze)
         self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
                                   self.onCloze)
         self.cloze.setToolTip(_("Cloze (F9)"))
-        self.cloze.setFixedWidth(30)
-        self.cloze.setFixedHeight(26)
+        self.cloze.setFixedWidth(24)
         self.cloze.setText("[...]")
         self.cloze.setFocusPolicy(Qt.NoFocus)
         self.cloze.setEnabled(False)
@@ -251,6 +273,8 @@ class FactEditor(object):
         self.cloze.setStyle(self.plastiqueStyle)
         # pictures
         self.addPicture = QPushButton(self.widget)
+        self.addPicture.setFixedHeight(20)
+        self.addPicture.setFixedWidth(20)
         self.addPicture.connect(self.addPicture, SIGNAL("clicked()"), self.onAddPicture)
         self.addPicture.setFocusPolicy(Qt.NoFocus)
         self.addPicture.setShortcut(_("F3"))
@@ -261,6 +285,8 @@ class FactEditor(object):
         self.addPicture.setStyle(self.plastiqueStyle)
         # sounds
         self.addSound = QPushButton(self.widget)
+        self.addSound.setFixedHeight(20)
+        self.addSound.setFixedWidth(20)
         self.addSound.connect(self.addSound, SIGNAL("clicked()"), self.onAddSound)
         self.addSound.setFocusPolicy(Qt.NoFocus)
         self.addSound.setShortcut(_("F4"))
@@ -271,6 +297,8 @@ class FactEditor(object):
         self.addSound.setStyle(self.plastiqueStyle)
         # sounds
         self.recSound = QPushButton(self.widget)
+        self.recSound.setFixedHeight(20)
+        self.recSound.setFixedWidth(20)
         self.recSound.connect(self.recSound, SIGNAL("clicked()"), self.onRecSound)
         self.recSound.setFocusPolicy(Qt.NoFocus)
         self.recSound.setShortcut(_("F5"))
@@ -279,35 +307,23 @@ class FactEditor(object):
         self.recSound.setToolTip(_("Record audio (F5)"))
         self.iconsBox.addWidget(self.recSound)
         self.recSound.setStyle(self.plastiqueStyle)
-        # preview
-        spc = QSpacerItem(5,5)
-        self.iconsBox.addItem(spc)
-        self.preview = QPushButton(self.widget)
-        self.previewSC = QShortcut(QKeySequence(_("F2")), self.widget)
-        self.preview.connect(self.preview, SIGNAL("clicked()"),
-                                  self.onPreview)
-        self.preview.connect(self.previewSC, SIGNAL("activated()"),
-                                  self.onPreview)
-        self.preview.setToolTip(_("Preview (F2)"))
-        self.preview.setIcon(QIcon(":/icons/document-preview.png"))
-        self.preview.setFocusPolicy(Qt.NoFocus)
-        self.iconsBox.addWidget(self.preview)
-        self.preview.setStyle(self.plastiqueStyle)
         # more
         self.more = QPushButton(self.widget)
+        self.more.setFixedHeight(20)
+        self.more.setFixedWidth(20)
         self.more.connect(self.more, SIGNAL("clicked()"),
                                   self.onMore)
         self.more.setToolTip(_("Show advanced options"))
         self.more.setText(">>")
         self.more.setFocusPolicy(Qt.NoFocus)
-        self.more.setFixedWidth(30)
-        self.more.setFixedHeight(26)
         self.iconsBox.addWidget(self.more)
         self.more.setStyle(self.plastiqueStyle)
         # latex
-        spc = QSpacerItem(5,5)
+        spc = QSpacerItem(5,5, QSizePolicy.Expanding)
         self.iconsBox2.addItem(spc)
         self.latex = QPushButton(self.widget)
+        self.latex.setFixedHeight(20)
+        self.latex.setFixedWidth(20)
         self.latex.setToolTip(_("Latex (Ctrl+l then l)"))
         self.latexSC = QShortcut(QKeySequence(_("Ctrl+l, l")), self.widget)
         self.latex.connect(self.latex, SIGNAL("clicked()"), self.insertLatex)
@@ -319,6 +335,8 @@ class FactEditor(object):
         self.latex.setStyle(self.plastiqueStyle)
         # latex eqn
         self.latexEqn = QPushButton(self.widget)
+        self.latexEqn.setFixedHeight(20)
+        self.latexEqn.setFixedWidth(20)
         self.latexEqn.setToolTip(_("Latex equation (Ctrl+l then e)"))
         self.latexEqnSC = QShortcut(QKeySequence(_("Ctrl+l, e")), self.widget)
         self.latexEqn.connect(self.latexEqn, SIGNAL("clicked()"), self.insertLatexEqn)
@@ -330,6 +348,8 @@ class FactEditor(object):
         self.latexEqn.setStyle(self.plastiqueStyle)
         # latex math env
         self.latexMathEnv = QPushButton(self.widget)
+        self.latexMathEnv.setFixedHeight(20)
+        self.latexMathEnv.setFixedWidth(20)
         self.latexMathEnv.setToolTip(_("Latex math environment (Ctrl+l then m)"))
         self.latexMathEnvSC = QShortcut(QKeySequence(_("Ctrl+l, m")), self.widget)
         self.latexMathEnv.connect(self.latexMathEnv, SIGNAL("clicked()"),
@@ -343,6 +363,8 @@ class FactEditor(object):
         self.latexMathEnv.setStyle(self.plastiqueStyle)
         # html
         self.htmlEdit = QPushButton(self.widget)
+        self.htmlEdit.setFixedHeight(20)
+        self.htmlEdit.setFixedWidth(20)
         self.htmlEdit.setToolTip(_("HTML Editor (Ctrl+F9)"))
         self.htmlEditSC = QShortcut(QKeySequence(_("Ctrl+F9")), self.widget)
         self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
@@ -369,6 +391,7 @@ class FactEditor(object):
         self.fieldsGrid = QGridLayout(self.fieldsFrame)
         self.fieldsFrame.setLayout(self.fieldsGrid)
         self.fieldsGrid.setMargin(0)
+        self.fieldsGrid.setSpacing(5)
 
     def drawField(self, field, n):
         # label
@@ -645,9 +668,9 @@ class FactEditor(object):
         self.italic.setEnabled(val)
         self.underline.setEnabled(val)
         self.foreground.setEnabled(val)
-        self.fchoose.setEnabled(val)
-        self.fleft.setEnabled(val)
-        self.fright.setEnabled(val)
+        # self.fchoose.setEnabled(val)
+        # self.fleft.setEnabled(val)
+        # self.fright.setEnabled(val)
         self.addPicture.setEnabled(val)
         self.addSound.setEnabled(val)
         self.latex.setEnabled(val)
@@ -781,9 +804,9 @@ class FactEditor(object):
         self.latexMathEnv.setShown(toggle)
         self.htmlEdit.setShown(toggle)
 
-    def onPreview(self):
+    def onCardLayout(self):
         self.saveFields()
-        PreviewDialog(self.parent, self.deck, self.fact)
+        ui.clayout.CardLayout(self.parent, self.fact, self.card)
 
     # FIXME: in some future version, we should use a different delimiter, as
     # [sound] et al conflicts
@@ -1107,61 +1130,3 @@ class FactEdit(QTextEdit):
             if self._ownLayout == None:
                 self._ownLayout = self._programLayout
             ActivateKeyboardLayout(self._ownLayout, 0)
-
-class PreviewDialog(QDialog):
-
-    def __init__(self, parent, deck, fact, *args):
-        QDialog.__init__(self, parent, *args)
-        self.deck = deck
-        self.fact = fact
-        cards = self.deck.previewFact(self.fact)
-        if not cards:
-            ui.utils.showInfo(_("No cards to preview."),
-                              parent=parent)
-            return
-        self.cards = cards
-        self.currentCard = 0
-        self.dialog = ankiqt.forms.previewcards.Ui_Dialog()
-        self.dialog.setupUi(self)
-        self.dialog.webView.page().setLinkDelegationPolicy(
-            QWebPage.DelegateExternalLinks)
-        self.connect(self.dialog.webView,
-                     SIGNAL("linkClicked(QUrl)"),
-                     self.linkClicked)
-        self.dialog.comboBox.addItems(QStringList(
-            [c.cardModel.name for c in self.cards]))
-        self.connect(self.dialog.comboBox, SIGNAL("activated(int)"),
-                     self.onChange)
-        self.updateCard()
-        restoreGeom(self, "preview")
-        self.exec_()
-
-    def linkClicked(self, url):
-        QDesktopServices.openUrl(QUrl(url))
-
-    def updateCard(self):
-        c = self.cards[self.currentCard]
-        styles = (self.deck.css +
-                  ("\nhtml { background: %s }" % c.cardModel.lastFontColour) +
-                  "\ndiv { white-space: pre-wrap; }")
-        styles = runFilter("addStyles", styles, c)
-        self.dialog.webView.setHtml(
-            ('<html><head>%s</head><body>' % getBase(self.deck, c)) +
-            "<style>" + styles + "</style>" +
-            runFilter("drawQuestion", mungeQA(self.deck, c.htmlQuestion()),
-                      c) +
-            "<br><br><hr><br><br>" +
-            runFilter("drawAnswer", mungeQA(self.deck, c.htmlAnswer()),
-                      c)
-            + "</body></html>")
-        clearAudioQueue()
-        playFromText(c.question)
-        playFromText(c.answer)
-
-    def onChange(self, idx):
-        self.currentCard = idx
-        self.updateCard()
-
-    def reject(self):
-        saveGeom(self, "preview")
-        QDialog.reject(self)

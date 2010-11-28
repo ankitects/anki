@@ -1905,9 +1905,6 @@ learnt today")
     def onDeckProperties(self):
         self.deckProperties = ui.deckproperties.DeckProperties(self, self.deck)
 
-    def onDisplayProperties(self):
-        ui.dialogs.get("DisplayProperties", self)
-
     def onPrefs(self):
         ui.preferences.Preferences(self, self.config)
 
@@ -2376,7 +2373,6 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         "Close",
         "Addcards",
         "Editdeck",
-        "DisplayProperties",
         "DeckProperties",
         "Undo",
         "Redo",
@@ -2407,7 +2403,6 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionSyncdeck, s, self.syncDeck)
         self.connect(m.actionDeckProperties, s, self.onDeckProperties)
-        self.connect(m.actionDisplayProperties, s,self.onDisplayProperties)
         self.connect(m.actionAddcards, s, self.onAddCard)
         self.connect(m.actionEditdeck, s, self.onEditDeck)
         self.connect(m.actionEditCurrent, s, self.onEditCurrent)

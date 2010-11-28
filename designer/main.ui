@@ -3135,7 +3135,6 @@
      <addaction name="separator"/>
     </widget>
     <addaction name="actionStudyOptions"/>
-    <addaction name="actionDisplayProperties"/>
     <addaction name="actionDeckProperties"/>
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>

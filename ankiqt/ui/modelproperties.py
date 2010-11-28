@@ -28,9 +28,8 @@ class ModelProperties(QDialog):
         self.dialog.setupUi(self)
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.helpRequested)
-        self.setupFields()
-        self.setupCards()
         self.readData()
+        self.setupCards()
         self.show()
         self.undoName = _("Model Properties")
         self.deck.setUndoStart(self.undoName)
@@ -42,178 +41,6 @@ class ModelProperties(QDialog):
         self.dialog.spacing.setText(str(self.m.spacing))
         self.dialog.initialSpacing.setText(str(self.m.initialSpacing/60))
         self.dialog.mediaURL.setText(unicode(self.m.features))
-
-    # Fields
-    ##########################################################################
-
-    def setupFields(self):
-        self.fieldOrdinalUpdatedIds = []
-        self.ignoreFieldUpdate = False
-        self.currentField = None
-        self.updateFields()
-        self.readCurrentField()
-        self.connect(self.dialog.fieldList, SIGNAL("currentRowChanged(int)"),
-                     self.fieldRowChanged)
-        self.connect(self.dialog.tabWidget, SIGNAL("currentChanged(int)"),
-                     self.fieldRowChanged)
-        self.connect(self.dialog.fieldAdd, SIGNAL("clicked()"),
-                     self.addField)
-        self.connect(self.dialog.fieldDelete, SIGNAL("clicked()"),
-                     self.deleteField)
-        self.connect(self.dialog.fieldUp, SIGNAL("clicked()"),
-                     self.moveFieldUp)
-        self.connect(self.dialog.fieldDown, SIGNAL("clicked()"),
-                     self.moveFieldDown)
-        self.connect(self.dialog.fieldName, SIGNAL("lostFocus()"),
-                     self.updateFields)
-
-    def updateFields(self, row = None):
-        oldRow = self.dialog.fieldList.currentRow()
-        if oldRow == -1:
-            oldRow = 0
-        self.dialog.fieldList.clear()
-        n = 1
-        for field in self.m.fieldModels:
-            label = _("Field %(num)d: %(name)s [%(cards)s non-empty]") % {
-                'num': n,
-                'name': field.name,
-                'cards': self.deck.fieldModelUseCount(field)
-                }
-            item = QListWidgetItem(label)
-            self.dialog.fieldList.addItem(item)
-            n += 1
-        count = self.dialog.fieldList.count()
-        if row != None:
-            self.dialog.fieldList.setCurrentRow(row)
-        else:
-            while (count > 0 and oldRow > (count - 1)):
-                    oldRow -= 1
-            self.dialog.fieldList.setCurrentRow(oldRow)
-        self.enableFieldMoveButtons()
-
-    def fieldRowChanged(self):
-        if self.ignoreFieldUpdate:
-            return
-        self.saveCurrentField()
-        self.readCurrentField()
-
-    def readCurrentField(self):
-        if not len(self.m.fieldModels):
-            self.dialog.fieldEditBox.hide()
-            self.dialog.fieldUp.setEnabled(False)
-            self.dialog.fieldDown.setEnabled(False)
-            return
-        else:
-            self.dialog.fieldEditBox.show()
-        self.currentField = self.m.fieldModels[self.dialog.fieldList.currentRow()]
-        field = self.currentField
-        self.dialog.fieldName.setText(field.name)
-        self.dialog.fieldUnique.setChecked(field.unique)
-        self.dialog.fieldRequired.setChecked(field.required)
-        self.dialog.numeric.setChecked(field.numeric)
-
-    def enableFieldMoveButtons(self):
-        row = self.dialog.fieldList.currentRow()
-        if row < 1:
-            self.dialog.fieldUp.setEnabled(False)
-        else:
-            self.dialog.fieldUp.setEnabled(True)
-        if row == -1 or row >= (self.dialog.fieldList.count() - 1):
-            self.dialog.fieldDown.setEnabled(False)
-        else:
-            self.dialog.fieldDown.setEnabled(True)
-
-    def saveCurrentField(self):
-        if not self.currentField:
-            return
-        field = self.currentField
-        name = unicode(self.dialog.fieldName.text()).strip()
-        # renames
-        if not name:
-            name = _("Field %d") % (self.m.fieldModels.index(field) + 1)
-        if name != field.name:
-            self.deck.renameFieldModel(self.m, field, name)
-            # the card models will have been updated
-            self.readCurrentCard()
-        # unique, required, numeric
-        self.updateField(field, 'unique',
-                         self.dialog.fieldUnique.checkState() == Qt.Checked)
-        self.updateField(field, 'required',
-                         self.dialog.fieldRequired.checkState() == Qt.Checked)
-        self.updateField(field, 'numeric',
-                         self.dialog.numeric.checkState() == Qt.Checked)
-        self.ignoreFieldUpdate = True
-        self.updateFields()
-        self.ignoreFieldUpdate = False
-
-    def addField(self):
-        f = FieldModel(required=False, unique=False)
-        f.name = _("Field %d") % (len(self.m.fieldModels) + 1)
-        self.deck.addFieldModel(self.m, f)
-        self.updateFields()
-        self.dialog.fieldList.setCurrentRow(len(self.m.fieldModels)-1)
-        self.dialog.fieldName.setFocus()
-        self.dialog.fieldName.selectAll()
-
-    def deleteField(self):
-        row = self.dialog.fieldList.currentRow()
-        if row == -1:
-            return
-        if len(self.m.fieldModels) < 2:
-            ui.utils.showInfo(
-                _("Please add a new field first."),
-                parent=self)
-            return
-        field = self.m.fieldModels[row]
-        count = self.deck.fieldModelUseCount(field)
-        if count:
-            if not ui.utils.askUser(
-                _("This field is used by %d cards. If you delete it,\n"
-                  "all information in this field will be lost.\n"
-                  "\nReally delete this field?") % count,
-                parent=self):
-                return
-        self.deck.deleteFieldModel(self.m, field)
-        self.currentField = None
-        self.updateFields()
-        # need to update q/a format
-        self.readCurrentCard()
-
-    def moveFieldUp(self):
-        row = self.dialog.fieldList.currentRow()
-        if row == -1:
-            return
-        if row == 0:
-            return
-        field = self.m.fieldModels[row]
-        tField = self.m.fieldModels[row - 1]
-        self.m.fieldModels.remove(field)
-        self.m.fieldModels.insert(row - 1, field)
-        if field.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(field.id)
-        if tField.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(tField.id)
-        self.ignoreFieldUpdate = True
-        self.updateFields(row - 1)
-        self.ignoreFieldUpdate = False
-
-    def moveFieldDown(self):
-        row = self.dialog.fieldList.currentRow()
-        if row == -1:
-            return
-        if row == len(self.m.fieldModels) - 1:
-            return
-        field = self.m.fieldModels[row]
-        tField = self.m.fieldModels[row + 1]
-        self.m.fieldModels.remove(field)
-        self.m.fieldModels.insert(row + 1, field)
-        if field.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(field.id)
-        if tField.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(tField.id)
-        self.ignoreFieldUpdate = True
-        self.updateFields(row + 1)
-        self.ignoreFieldUpdate = False
 
     # Cards
     ##########################################################################
@@ -236,8 +63,12 @@ class ModelProperties(QDialog):
                      self.moveCardUp)
         self.connect(self.dialog.cardDown, SIGNAL("clicked()"),
                      self.moveCardDown)
-        self.connect(self.dialog.cardName, SIGNAL("lostFocus()"),
-                     self.updateCards)
+        self.connect(self.dialog.cardRename, SIGNAL("clicked()"),
+                     self.renameCard)
+
+    def renameCard(self):
+        self.needRebuild = True
+        self.updateCards()
 
     def updateCards(self, row = None):
         oldRow = self.dialog.cardList.currentRow()
@@ -250,7 +81,7 @@ class ModelProperties(QDialog):
                 status=""
             else:
                 status=_("; disabled")
-            label = _("Card %(num)d (%(name)s): used %(cards)d times%(status)s") % {
+            label = _("%(name)s: used %(cards)d times%(status)s") % {
                 'num': n,
                 'name': card.name,
                 'status': status,
@@ -274,49 +105,18 @@ class ModelProperties(QDialog):
         self.saveCurrentCard()
         self.readCurrentCard()
 
-    def formatToScreen(self, fmt):
-        fmt = fmt.replace("<br>", "<br>\n")
-        fmt = re.sub("%\((.+?)\)s", "{{\\1}}", fmt)
-        return fmt
-
-    def screenToFormat(self, fmt):
-        fmt = fmt.replace("<br>\n", "<br>")
-        fmt = re.sub("{{(.+?)}}", "%(\\1)s", fmt)
-        return fmt
-
     def readCurrentCard(self):
         if not len(self.m.cardModels):
-            self.dialog.cardEditBox.hide()
             self.dialog.cardToggle.setEnabled(False)
             self.dialog.cardDelete.setEnabled(False)
             self.dialog.cardUp.setEnabled(False)
             self.dialog.cardDown.setEnabled(False)
             return
         else:
-            self.dialog.cardEditBox.show()
             self.dialog.cardToggle.setEnabled(True)
             self.dialog.cardDelete.setEnabled(True)
         self.currentCard = self.m.cardModels[self.dialog.cardList.currentRow()]
         card = self.currentCard
-        self.dialog.cardName.setText(card.name)
-        self.dialog.cardQuestion.setPlainText(self.formatToScreen(card.qformat))
-        self.dialog.cardAnswer.setPlainText(self.formatToScreen(card.aformat))
-        self.dialog.questionInAnswer.setChecked(card.questionInAnswer)
-        self.dialog.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
-        self.dialog.typeAnswer.clear()
-        self.fieldNames = self.deck.s.column0("""
-select fieldModels.name as n from fieldModels, cardModels
-where cardModels.modelId = fieldModels.modelId
-and cardModels.id = :id
-order by n""", id=card.id)
-        s = [_("Don't ask me to type in the answer")]
-        s += [_("Compare with field '%s'") % f for f in self.fieldNames]
-        self.dialog.typeAnswer.insertItems(0, QStringList(s))
-        try:
-            idx = self.fieldNames.index(card.typeAnswer)
-        except ValueError:
-            idx = -1
-        self.dialog.typeAnswer.setCurrentIndex(idx + 1)
         self.updateToggleButtonText(card)
 
     def enableCardMoveButtons(self):
@@ -340,22 +140,6 @@ order by n""", id=card.id)
         if not self.currentCard:
             return
         card = self.currentCard
-        newname = unicode(self.dialog.cardName.text())
-        if not newname:
-            newname = _("Card-%d") % (self.m.cardModels.index(card) + 1)
-        self.updateField(card, 'name', newname)
-        s = unicode(self.dialog.cardQuestion.toPlainText())
-        changed = self.updateField(card, 'qformat', self.screenToFormat(s))
-        s = unicode(self.dialog.cardAnswer.toPlainText())
-        changed2 = self.updateField(card, 'aformat', self.screenToFormat(s))
-        self.needRebuild = self.needRebuild or changed or changed2
-        self.updateField(card, 'questionInAnswer', self.dialog.questionInAnswer.isChecked())
-        self.updateField(card, 'allowEmptyAnswer', self.dialog.allowEmptyAnswer.isChecked())
-        idx = self.dialog.typeAnswer.currentIndex()
-        if not idx:
-            self.updateField(card, 'typeAnswer', u"")
-        else:
-            self.updateField(card, 'typeAnswer', self.fieldNames[idx-1])
         self.ignoreCardUpdate = True
         self.updateCards()
         self.ignoreCardUpdate = False
@@ -370,13 +154,11 @@ order by n""", id=card.id)
 
     def addCard(self):
         cards = len(self.m.cardModels)
-        name = _("Card %d") % (cards+1)
+        name = _("Name_%d") % (cards+1)
         cm = CardModel(name=name)
         self.m.addCardModel(cm)
         self.updateCards()
         self.dialog.cardList.setCurrentRow(len(self.m.cardModels)-1)
-        self.dialog.cardName.setFocus()
-        self.dialog.cardName.selectAll()
 
     def deleteCard(self):
         row = self.dialog.cardList.currentRow()
@@ -491,18 +273,12 @@ order by n""", id=card.id)
             pass
         # before field, or it's overwritten
         self.saveCurrentCard()
-        self.saveCurrentField()
-        # rebuild ordinals if changed
-        if len(self.fieldOrdinalUpdatedIds) > 0:
-            self.deck.rebuildFieldOrdinals(self.m.id, self.fieldOrdinalUpdatedIds)
-            self.m.setModified()
-            self.deck.setModified()
+        # if changed, reset deck
+        reset = False
         if len(self.cardOrdinalUpdatedIds) > 0:
             self.deck.rebuildCardOrdinals(self.cardOrdinalUpdatedIds)
             self.m.setModified()
             self.deck.setModified()
-        # if changed, reset deck
-        reset = False
         if self.origModTime != self.deck.modified:
             self.deck.updateTagsForModel(self.m)
             reset = True
