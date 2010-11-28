@@ -77,6 +77,17 @@ class AnkiQt(QMainWindow):
             # activate & raise is useful when run from the command line on osx
             self.activateWindow()
             self.raise_()
+            # check if we've been updated
+            if "version" not in self.config:
+                # could be new user, or upgrade from older version
+                # which didn't have version variable
+                self.appUpdated = "first"
+            elif self.config['version'] != ankiqt.appVersion:
+                self.appUpdated = self.config['version']
+            else:
+                self.appUpdated = False
+            if self.appUpdated:
+                self.config['version'] = ankiqt.appVersion
             # plugins might be looking at this
             self.state = "noDeck"
             self.loadPlugins()
@@ -1588,8 +1599,8 @@ later by using File>Close.
 
     def updateActives(self):
         labels = [
-            u"Show All Due Cards",
-            u"Show Chosen Categories"
+            _("Show All Due Cards"),
+            _("Show Chosen Categories")
             ]
         if self.deck.getVar("newActive") or self.deck.getVar("newInactive"):
             new = labels[1]
@@ -2569,6 +2580,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         return os.path.join(dir, "plugins")
 
     def loadPlugins(self):
+        if self.appUpdated:
+            self.clearPluginCache()
         plugdir = self.pluginsFolder()
         sys.path.insert(0, plugdir)
         plugins = self.enabledPlugins()
@@ -2583,6 +2596,15 @@ This deck already exists on your computer. Overwrite the local copy?"""),
                 traceback.print_exc()
         self.checkForUpdatedPlugins()
         self.disableCardMenuItems()
+
+    def clearPluginCache(self):
+        "Clear .pyc files which may cause crashes if Python version updated."
+        dir = self.pluginsFolder()
+        for curdir, dirs, files in os.walk(dir):
+            for f in files:
+                if not f.endswith(".pyc"):
+                    continue
+                os.unlink(os.path.join(curdir, f))
 
     def rebuildPluginsMenu(self):
         if getattr(self, "pluginActions", None) is None:
