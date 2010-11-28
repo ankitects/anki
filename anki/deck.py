@@ -335,7 +335,8 @@ limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
                 self.revQueue.pop()
         except:
             raise Exception("""\
-requeueCard() failed.
+requeueCard() failed. Please report this along with the steps you take to
+produce the problem.
 
 Counts %d %d %d
 Queue %d %d %d
