@@ -84,7 +84,6 @@ class View(object):
         s = "<style>\n"
         if self.main.deck:
             s += self.main.deck.css
-        s += "div { white-space: pre-wrap; }\n"
         s = runFilter("addStyles", s, self.main.currentCard)
         s += "</style>"
         return s

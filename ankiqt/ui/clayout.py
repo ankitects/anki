@@ -241,8 +241,7 @@ order by n""", id=card.id)
                 return
             pass
         styles = (self.deck.rebuildCSS() +
-                  ("\nhtml { background: %s }" % c.cardModel.lastFontColour) +
-                  "\ndiv { white-space: pre-wrap; }")
+                  ("\nhtml { background: %s }" % c.cardModel.lastFontColour))
         styles = runFilter("addStyles", styles, c)
         self.form.preview.setHtml(
             ('<html><head>%s</head><body>' % getBase(self.deck, c)) +
@@ -316,6 +315,14 @@ order by n""", id=card.id)
                      self.saveField)
         self.connect(self.form.fieldName, SIGNAL("textEdited(QString)"),
                      self.saveField)
+        self.connect(self.form.preserveWhitespace, SIGNAL("stateChanged(int)"),
+                     self.saveField)
+        self.connect(self.form.fieldUnique, SIGNAL("stateChanged(int)"),
+                     self.saveField)
+        self.connect(self.form.fieldRequired, SIGNAL("stateChanged(int)"),
+                     self.saveField)
+        self.connect(self.form.numeric, SIGNAL("stateChanged(int)"),
+                     self.saveField)
         w = self.form.fontColour
         if self.plastiqueStyle:
             w.setStyle(self.plastiqueStyle)
@@ -346,11 +353,13 @@ order by n""", id=card.id)
         self.form.fontColour.setPalette(QPalette(QColor(
                         field.quizFontColour or "#000000")))
         self.form.rtl.setChecked(not not field.features)
+        self.form.preserveWhitespace.setChecked(not not field.editFontFamily)
 
     def saveField(self, *args):
         self.needFieldRebuild = True
         if self.updatingFields:
             return
+        self.updatingFields = True
         field = self.field
         name = unicode(self.form.fieldName.text()) or _("Field")
         if field.name != name:
@@ -370,10 +379,12 @@ order by n""", id=card.id)
             field.features = u"rtl"
         else:
             field.features = u""
+        field.editFontFamily = self.form.preserveWhitespace.isChecked()
         field.model.setModified()
         self.deck.flushMod()
         self.renderPreview()
         self.fillFieldList()
+        self.updatingFields = False
 
     def fillFieldList(self, row = None):
         oldRow = self.form.fieldList.currentRow()
