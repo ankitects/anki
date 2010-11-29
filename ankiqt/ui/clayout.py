@@ -48,6 +48,8 @@ class CardLayout(QDialog):
                 return
         self.form = ankiqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
+        # FIXME: add this
+        self.form.editTemplates.hide()
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.setupCards()
@@ -74,6 +76,8 @@ class CardLayout(QDialog):
             self.form.templateLayout.addWidget(w, r[0], r[1])
         self.connect(self.form.cardList, SIGNAL("activated(int)"),
                      self.cardChanged)
+        # self.connect(self.form.editTemplates, SIGNAL("clicked())"),
+        #              self.onEdit)
         self.connect(self.form.cardQuestion, SIGNAL("textChanged()"),
                      lambda: self.formatChanged("question"))
         self.connect(self.form.cardAnswer, SIGNAL("textChanged()"),
@@ -117,11 +121,10 @@ class CardLayout(QDialog):
         fmt = re.sub("{{(.+?)}}", "%(\\1)s", fmt)
         return fmt
 
-    # def realCardModel(self, card):
-    #     # get on disk representation from detached object
-    #     for cm in self.fact.model.cardModels:
-    #         if cm.id == card.cardModelId:
-    #             return cm
+    # def onEdit(self):
+    #     ui.modelproperties.ModelProperties(
+    #         self, self.deck, self.model, self.mw,
+    #         onFinish=self.updateModelsList)
 
     def formatChanged(self, type):
         if self.updatingCards:
