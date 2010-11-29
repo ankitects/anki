@@ -167,6 +167,7 @@ class CardLayout(QDialog):
         self.form.cardAnswer.setPlainText(self.formatToScreen(card.aformat))
         self.form.questionInAnswer.setChecked(card.questionInAnswer)
         self.form.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
+        self.form.alignment.setCurrentIndex(card.questionAlign)
         self.form.typeAnswer.clear()
         self.typeFieldNames = self.deck.s.column0("""
 select fieldModels.name as n from fieldModels, cardModels
@@ -182,14 +183,6 @@ order by n""", id=card.id)
             idx = -1
         self.form.typeAnswer.setCurrentIndex(idx + 1)
         self.updatingCards = False
-
-    # def updateField(self, obj, field, value):
-    #     if getattr(obj, field) != value:
-    #         setattr(obj, field, value)
-    #         self.model.setModified()
-    #         self.deck.setModified()
-    #         return True
-    #     return False
 
     def fillCardList(self):
         self.form.cardList.clear()
