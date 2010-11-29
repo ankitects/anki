@@ -24,7 +24,7 @@ class CardLayout(QDialog):
 
     def __init__(self, factedit, fact, card=None):
         self.parent = factedit.parent
-        QDialog.__init__(self, self.parent)
+        QDialog.__init__(self, self.parent, Qt.Window)
         self.factedit = factedit
         self.mw = ankiqt.mw
         self.deck = self.mw.deck
