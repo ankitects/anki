@@ -48,9 +48,8 @@ class CardLayout(QDialog):
                 return
         self.form = ankiqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
-        # self.connect(self.form.helpButton, SIGNAL("clicked()"),
-        #              self.onHelp)
-
+        self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
+                     self.onHelp)
         self.setupCards()
         self.setupFields()
         restoreGeom(self, "CardLayout")
@@ -285,7 +284,7 @@ order by n""", id=card.id)
 
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "DisplayProperties"))
+                                      "CardLayout"))
 
     # Fields
     ##########################################################################

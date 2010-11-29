@@ -1475,6 +1475,7 @@ later by using File>Close.
         self.mainWin.buttonStack.hide()
         self.switchToEditScreen()
         self.editor.setFact(self.currentCard.fact)
+        self.editor.card = self.currentCard
 
     def onFactValid(self, fact):
         self.mainWin.saveEditorButton.setEnabled(True)
