@@ -118,7 +118,7 @@ class AddCards(QDialog):
         else:
             fact.tags = self.parent.deck.lastTags
         # set the new fact
-        self.editor.setFact(fact, check=True)
+        self.editor.setFact(fact, check=True, forceRedraw=True)
         self.setTabOrder(self.editor.tags, self.addButton)
         self.setTabOrder(self.addButton, self.closeButton)
         self.setTabOrder(self.closeButton, self.helpButton)

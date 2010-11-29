@@ -16,6 +16,10 @@ from ankiqt.ui.utils import saveGeom, restoreGeom, getBase, mungeQA
 from anki.hooks import runFilter
 from ankiqt import ui
 
+class ResizingTextEdit(QTextEdit):
+    def sizeHint(self):
+        return QSize(200, 800)
+
 class CardLayout(QDialog):
 
     def __init__(self, factedit, fact, card=None):
@@ -27,13 +31,10 @@ class CardLayout(QDialog):
         self.fact = fact
         self.model = fact.model
         self.card = card
-        self.ignoreUpdate = False
-        self.needFormatRebuild = False
         self.plastiqueStyle = None
         if (sys.platform.startswith("darwin") or
             sys.platform.startswith("win32")):
             self.plastiqueStyle = QStyleFactory.create("plastique")
-
         if self.card:
             # limited to an existing card
             self.cards = [self.card]
@@ -51,7 +52,7 @@ class CardLayout(QDialog):
         #              self.onHelp)
 
         self.setupCards()
-        # self.setupFields()
+        self.setupFields()
         restoreGeom(self, "CardLayout")
         self.exec_()
 
@@ -59,6 +60,19 @@ class CardLayout(QDialog):
     ##########################################################################
 
     def setupCards(self):
+        self.needFormatRebuild = False
+        self.updatingCards = False
+        # replace with more appropriate size hints
+        for e in ("cardQuestion", "cardAnswer"):
+            w = getattr(self.form, e)
+            idx = self.form.templateLayout.indexOf(w)
+            r = self.form.templateLayout.getItemPosition(idx)
+            self.form.templateLayout.removeWidget(w)
+            w.hide()
+            w.deleteLater()
+            w = ResizingTextEdit(self)
+            setattr(self.form, e, w)
+            self.form.templateLayout.addWidget(w, r[0], r[1])
         self.connect(self.form.cardList, SIGNAL("activated(int)"),
                      self.cardChanged)
         self.connect(self.form.cardQuestion, SIGNAL("textChanged()"),
@@ -245,16 +259,27 @@ order by n""", id=card.id)
         playFromText(c.answer)
 
     def reject(self):
+        modified = False
+        self.deck.startProgress()
+        self.deck.updateProgress(_("Applying changes..."))
         if self.needFormatRebuild:
             # need to generate q/a templates
-            self.deck.startProgress()
-            self.deck.updateProgress(_("Applying template..."))
             self.deck.updateCardsFromModel(self.fact.model)
             self.deck.finishProgress()
+            modified = True
+        if len(self.fieldOrdinalUpdatedIds) > 0:
+            self.deck.rebuildFieldOrdinals(self.model.id, self.fieldOrdinalUpdatedIds)
+            modified = True
+        if self.needFieldRebuild:
+            modified = True
+        if modified:
+            self.fact.model.setModified()
+            self.deck.flushMod()
             if self.factedit.onChange:
                 self.factedit.onChange("all")
             else:
                 self.mw.reset()
+        self.deck.finishProgress()
         saveGeom(self, "CardLayout")
         QDialog.reject(self)
 
@@ -265,323 +290,183 @@ order by n""", id=card.id)
     # Fields
     ##########################################################################
 
-    # def setupFields(self):
-    #     self.connect(self.form.fieldList, SIGNAL("currentRowChanged(int)"),
-    #                  self.fieldChanged)
-    #     for type in ("quiz", "edit"):
-    #         self.connect(self.fwidget("fontFamily", type),
-    #                      SIGNAL("currentFontChanged(QFont)"),
-    #                      self.saveField)
-    #         self.connect(self.fwidget("fontSize", type),
-    #                      SIGNAL("valueChanged(int)"),
-    #                      self.saveField)
-    #         self.connect(self.fwidget("useFamily", type),
-    #                      SIGNAL("stateChanged(int)"),
-    #                      self.saveField)
-    #         self.connect(self.fwidget("useSize", type),
-    #                      SIGNAL("stateChanged(int)"),
-    #                      self.saveField)
-    #         if type == "quiz":
-    #             self.connect(self.fwidget("useColour", type),
-    #                          SIGNAL("stateChanged(int)"),
-    #                          self.saveField)
-    #             w = self.fwidget("fontColour", type)
-    #             if self.plastiqueStyle:
-    #                 w.setStyle(self.plastiqueStyle)
-    #             self.connect(w,
-    #                          SIGNAL("clicked()"),
-    #                          lambda w=w: self.chooseColour(w))
-    #         elif type == "edit":
-    #             self.connect(self.form.rtl,
-    #                          SIGNAL("stateChanged(int)"),
-    #                          self.saveField)
-    #     self.currentField = None
-    #     self.drawFields()
+    def setupFields(self):
+        self.fieldOrdinalUpdatedIds = []
+        self.updatingFields = False
+        self.needFieldRebuild = False
+        self.fillFieldList()
+        self.fieldChanged(0)
+        self.readField()
+        self.connect(self.form.fieldList, SIGNAL("currentRowChanged(int)"),
+                     self.fieldChanged)
+        self.connect(self.form.fieldAdd, SIGNAL("clicked()"),
+                     self.addField)
+        self.connect(self.form.fieldDelete, SIGNAL("clicked()"),
+                     self.deleteField)
+        self.connect(self.form.fieldUp, SIGNAL("clicked()"),
+                     self.moveFieldUp)
+        self.connect(self.form.fieldDown, SIGNAL("clicked()"),
+                     self.moveFieldDown)
+        self.connect(self.form.fieldName, SIGNAL("lostFocus()"),
+                     self.fillFieldList)
+        self.connect(self.form.fontFamily, SIGNAL("currentFontChanged(QFont)"),
+                     self.saveField)
+        self.connect(self.form.fontSize, SIGNAL("valueChanged(int)"),
+                     self.saveField)
+        self.connect(self.form.fontSizeEdit, SIGNAL("valueChanged(int)"),
+                     self.saveField)
+        self.connect(self.form.fieldName, SIGNAL("textEdited(QString)"),
+                     self.saveField)
+        w = self.form.fontColour
+        if self.plastiqueStyle:
+            w.setStyle(self.plastiqueStyle)
+        self.connect(w, SIGNAL("clicked()"),
+                     lambda w=w: self.chooseColour(w))
+        self.connect(self.form.rtl,
+                     SIGNAL("stateChanged(int)"),
+                     self.saveField)
 
-    # def drawFields(self):
-    #     self.form.fieldList.clear()
-    #     n = 1
-    #     self.ignoreUpdate = True
-    #     for field in self.model.fieldModels:
-    #         item = QListWidgetItem(
-    #             _("Field %(num)d: %(name)s") % {
-    #             'num': n,
-    #             'name': field.name,
-    #             })
-    #         self.form.fieldList.addItem(item)
-    #         n += 1
-    #     self.form.fieldList.setCurrentRow(0)
-    #     self.fieldChanged(0)
-    #     self.ignoreUpdate = False
+    def fieldChanged(self, idx):
+        if self.updatingFields:
+            return
+        self.field = self.model.fieldModels[idx]
+        self.readField()
+        self.enableFieldMoveButtons()
 
-    # def fwidget(self, name, type):
-    #     "Return a field widget."
-    #     if type == "edit":
-    #         return getattr(self.form, name+"Edit")
-    #     else:
-    #         return getattr(self.form, name)
+    def readField(self):
+        field = self.field
+        self.form.fieldName.setText(field.name)
+        self.form.fieldUnique.setChecked(field.unique)
+        self.form.fieldRequired.setChecked(field.required)
+        self.form.numeric.setChecked(field.numeric)
+        if field.quizFontFamily:
+            self.form.fontFamily.setCurrentFont(QFont(
+                field.quizFontFamily))
+        self.form.fontSize.setValue(field.quizFontSize or 20)
+        self.form.fontSizeEdit.setValue(field.editFontSize or 20)
+        self.form.fontColour.setPalette(QPalette(QColor(
+                        field.quizFontColour or "#000000")))
+        self.form.rtl.setChecked(not not field.features)
 
-    # def fieldChanged(self, idx):
-    #     self.saveField()
-    #     self.currentField = None
-    #     field = self.model.fieldModels[idx]
-    #     for type in ("quiz", "edit"):
-    #         # family
-    #         if getattr(field, type + 'FontFamily'):
-    #             self.fwidget("useFamily", type).setCheckState(Qt.Checked)
-    #             self.fwidget("fontFamily", type).setCurrentFont(QFont(
-    #                 getattr(field, type + 'FontFamily')))
-    #             self.fwidget("fontFamily", type).setEnabled(True)
-    #         else:
-    #             self.fwidget("useFamily", type).setCheckState(Qt.Unchecked)
-    #             self.fwidget("fontFamily", type).setEnabled(False)
-    #         # size
-    #         if getattr(field, type + 'FontSize'):
-    #             self.fwidget("useSize", type).setCheckState(Qt.Checked)
-    #             self.fwidget("fontSize", type).setValue(
-    #                 getattr(field, type + 'FontSize'))
-    #             self.fwidget("fontSize", type).setEnabled(True)
-    #         else:
-    #             self.fwidget("useSize", type).setCheckState(Qt.Unchecked)
-    #             self.fwidget("fontSize", type).setEnabled(False)
-    #         if type == "quiz":
-    #             # colour
-    #             if getattr(field, type + 'FontColour'):
-    #                 self.fwidget("useColour", type).setCheckState(Qt.Checked)
-    #                 self.fwidget("fontColour", type).setPalette(QPalette(QColor(
-    #                     getattr(field, type + 'FontColour'))))
-    #                 self.fwidget("fontColour", type).setEnabled(True)
-    #             else:
-    #                 self.fwidget("useColour", type).setCheckState(Qt.Unchecked)
-    #                 self.fwidget("fontColour", type).setEnabled(False)
-    #         elif type == "edit":
-    #             self.form.rtl.setChecked(not not field.features)
-    #     self.currentField = field
+    def saveField(self, *args):
+        self.needFieldRebuild = True
+        if self.updatingFields:
+            return
+        field = self.field
+        name = unicode(self.form.fieldName.text()) or _("Field")
+        if field.name != name:
+            self.deck.renameFieldModel(self.model, field, name)
+            # the card models will have been updated
+            self.readCard()
+        field.unique = self.form.fieldUnique.isChecked()
+        field.required = self.form.fieldRequired.isChecked()
+        field.numeric = self.form.numeric.isChecked()
+        field.quizFontFamily = toCanonicalFont(unicode(
+            self.form.fontFamily.currentFont().family()))
+        field.quizFontSize = int(self.form.fontSize.value())
+        field.editFontSize = int(self.form.fontSizeEdit.value())
+        field.quizFontColour = str(
+            self.form.fontColour.palette().window().color().name())
+        if self.form.rtl.isChecked():
+            field.features = u"rtl"
+        else:
+            field.features = u""
+        field.model.setModified()
+        self.deck.flushMod()
+        self.renderPreview()
+        self.fillFieldList()
 
-    # def saveField(self, *args):
-    #     if self.ignoreUpdate:
-    #         return
-    #     field = self.currentField
-    #     if not field:
-    #         return
-    #     for type in ("quiz", "edit"):
-    #         # family
-    #         if self.fwidget("useFamily", type).isChecked():
-    #             setattr(field, type + 'FontFamily', toCanonicalFont(unicode(
-    #                 self.fwidget("fontFamily", type).currentFont().family())))
-    #         else:
-    #             setattr(field, type + 'FontFamily', None)
-    #         # size
-    #         if self.fwidget("useSize", type).isChecked():
-    #             setattr(field, type + 'FontSize',
-    #                     int(self.fwidget("fontSize", type).value()))
-    #         else:
-    #             setattr(field, type + 'FontSize', None)
-    #         # colour
-    #         if type == "quiz":
-    #             if self.fwidget("useColour", type).isChecked():
-    #                 w = self.fwidget("fontColour", type)
-    #                 c = w.palette().window().color()
-    #                 setattr(field, type + 'FontColour', str(c.name()))
-    #             else:
-    #                 setattr(field, type + 'FontColour', None)
-    #         elif type == "edit":
-    #             if self.form.rtl.isChecked():
-    #                 field.features = u"rtl"
-    #             else:
-    #                 field.features = u""
-    #     field.model.setModified()
-    #     self.deck.flushMod()
-    #     self.drawQuestionAndAnswer()
+    def fillFieldList(self, row = None):
+        oldRow = self.form.fieldList.currentRow()
+        if oldRow == -1:
+            oldRow = 0
+        self.form.fieldList.clear()
+        n = 1
+        for field in self.model.fieldModels:
+            label = field.name
+            item = QListWidgetItem(label)
+            self.form.fieldList.addItem(item)
+            n += 1
+        count = self.form.fieldList.count()
+        if row != None:
+            self.form.fieldList.setCurrentRow(row)
+        else:
+            while (count > 0 and oldRow > (count - 1)):
+                    oldRow -= 1
+            self.form.fieldList.setCurrentRow(oldRow)
+        self.enableFieldMoveButtons()
 
-    # def setupFields(self):
-    #     self.fieldOrdinalUpdatedIds = []
-    #     self.ignoreFieldUpdate = False
-    #     self.currentField = None
-    #     self.updateFields()
-    #     self.readCurrentField()
-    #     self.connect(self.form.fieldList, SIGNAL("currentRowChanged(int)"),
-    #                  self.fieldRowChanged)
-    #     self.connect(self.form.tabWidget, SIGNAL("currentChanged(int)"),
-    #                  self.fieldRowChanged)
-    #     self.connect(self.form.fieldAdd, SIGNAL("clicked()"),
-    #                  self.addField)
-    #     self.connect(self.form.fieldDelete, SIGNAL("clicked()"),
-    #                  self.deleteField)
-    #     self.connect(self.form.fieldUp, SIGNAL("clicked()"),
-    #                  self.moveFieldUp)
-    #     self.connect(self.form.fieldDown, SIGNAL("clicked()"),
-    #                  self.moveFieldDown)
-    #     self.connect(self.form.fieldName, SIGNAL("lostFocus()"),
-    #                  self.updateFields)
+    def enableFieldMoveButtons(self):
+        row = self.form.fieldList.currentRow()
+        if row < 1:
+            self.form.fieldUp.setEnabled(False)
+        else:
+            self.form.fieldUp.setEnabled(True)
+        if row == -1 or row >= (self.form.fieldList.count() - 1):
+            self.form.fieldDown.setEnabled(False)
+        else:
+            self.form.fieldDown.setEnabled(True)
 
-    # def updateFields(self, row = None):
-    #     oldRow = self.form.fieldList.currentRow()
-    #     if oldRow == -1:
-    #         oldRow = 0
-    #     self.form.fieldList.clear()
-    #     n = 1
-    #     for field in self.model.fieldModels:
-    #         label = _("Field %(num)d: %(name)s [%(cards)s non-empty]") % {
-    #             'num': n,
-    #             'name': field.name,
-    #             'cards': self.deck.fieldModelUseCount(field)
-    #             }
-    #         item = QListWidgetItem(label)
-    #         self.form.fieldList.addItem(item)
-    #         n += 1
-    #     count = self.form.fieldList.count()
-    #     if row != None:
-    #         self.form.fieldList.setCurrentRow(row)
-    #     else:
-    #         while (count > 0 and oldRow > (count - 1)):
-    #                 oldRow -= 1
-    #         self.form.fieldList.setCurrentRow(oldRow)
-    #     self.enableFieldMoveButtons()
+    def addField(self):
+        f = FieldModel(required=False, unique=False)
+        f.name = _("Field %d") % (len(self.model.fieldModels) + 1)
+        self.deck.addFieldModel(self.model, f)
+        self.fillFieldList()
+        self.form.fieldList.setCurrentRow(len(self.model.fieldModels)-1)
+        self.form.fieldName.setFocus()
+        self.form.fieldName.selectAll()
 
-    # def fieldRowChanged(self):
-    #     if self.ignoreFieldUpdate:
-    #         return
-    #     self.saveCurrentField()
-    #     self.readCurrentField()
+    def deleteField(self):
+        row = self.form.fieldList.currentRow()
+        if row == -1:
+            return
+        if len(self.model.fieldModels) < 2:
+            ui.utils.showInfo(
+                _("Please add a new field first."),
+                parent=self)
+            return
+        field = self.model.fieldModels[row]
+        count = self.deck.fieldModelUseCount(field)
+        if count:
+            if not ui.utils.askUser(
+                _("This field is used by %d cards. If you delete it,\n"
+                  "all information in this field will be lost.\n"
+                  "\nReally delete this field?") % count,
+                parent=self):
+                return
+        self.deck.deleteFieldModel(self.model, field)
+        self.fillFieldList()
+        # need to update q/a format
+        self.readCard()
 
-    # def readCurrentField(self):
-    #     if not len(self.model.fieldModels):
-    #         self.form.fieldEditBox.hide()
-    #         self.form.fieldUp.setEnabled(False)
-    #         self.form.fieldDown.setEnabled(False)
-    #         return
-    #     else:
-    #         self.form.fieldEditBox.show()
-    #     self.currentField = self.model.fieldModels[self.form.fieldList.currentRow()]
-    #     field = self.currentField
-    #     self.form.fieldName.setText(field.name)
-    #     self.form.fieldUnique.setChecked(field.unique)
-    #     self.form.fieldRequired.setChecked(field.required)
-    #     self.form.numeric.setChecked(field.numeric)
+    def moveFieldUp(self):
+        row = self.form.fieldList.currentRow()
+        if row == -1:
+            return
+        if row == 0:
+            return
+        field = self.model.fieldModels[row]
+        tField = self.model.fieldModels[row - 1]
+        self.model.fieldModels.remove(field)
+        self.model.fieldModels.insert(row - 1, field)
+        if field.id not in self.fieldOrdinalUpdatedIds:
+            self.fieldOrdinalUpdatedIds.append(field.id)
+        if tField.id not in self.fieldOrdinalUpdatedIds:
+            self.fieldOrdinalUpdatedIds.append(tField.id)
+        self.fillFieldList(row - 1)
 
-    # def enableFieldMoveButtons(self):
-    #     row = self.form.fieldList.currentRow()
-    #     if row < 1:
-    #         self.form.fieldUp.setEnabled(False)
-    #     else:
-    #         self.form.fieldUp.setEnabled(True)
-    #     if row == -1 or row >= (self.form.fieldList.count() - 1):
-    #         self.form.fieldDown.setEnabled(False)
-    #     else:
-    #         self.form.fieldDown.setEnabled(True)
-
-    # def saveCurrentField(self):
-    #     if not self.currentField:
-    #         return
-    #     field = self.currentField
-    #     name = unicode(self.form.fieldName.text()).strip()
-    #     # renames
-    #     if not name:
-    #         name = _("Field %d") % (self.model.fieldModels.index(field) + 1)
-    #     if name != field.name:
-    #         self.deck.renameFieldModel(self.m, field, name)
-    #         # the card models will have been updated
-    #         self.readCurrentCard()
-    #     # unique, required, numeric
-    #     self.updateField(field, 'unique',
-    #                      self.form.fieldUnique.checkState() == Qt.Checked)
-    #     self.updateField(field, 'required',
-    #                      self.form.fieldRequired.checkState() == Qt.Checked)
-    #     self.updateField(field, 'numeric',
-    #                      self.form.numeric.checkState() == Qt.Checked)
-    #     self.ignoreFieldUpdate = True
-    #     self.updateFields()
-    #     self.ignoreFieldUpdate = False
-
-    # def addField(self):
-    #     f = FieldModel(required=False, unique=False)
-    #     f.name = _("Field %d") % (len(self.model.fieldModels) + 1)
-    #     self.deck.addFieldModel(self.m, f)
-    #     self.updateFields()
-    #     self.form.fieldList.setCurrentRow(len(self.model.fieldModels)-1)
-    #     self.form.fieldName.setFocus()
-    #     self.form.fieldName.selectAll()
-
-    # def deleteField(self):
-    #     row = self.form.fieldList.currentRow()
-    #     if row == -1:
-    #         return
-    #     if len(self.model.fieldModels) < 2:
-    #         ui.utils.showInfo(
-    #             _("Please add a new field first."),
-    #             parent=self)
-    #         return
-    #     field = self.model.fieldModels[row]
-    #     count = self.deck.fieldModelUseCount(field)
-    #     if count:
-    #         if not ui.utils.askUser(
-    #             _("This field is used by %d cards. If you delete it,\n"
-    #               "all information in this field will be lost.\n"
-    #               "\nReally delete this field?") % count,
-    #             parent=self):
-    #             return
-    #     self.deck.deleteFieldModel(self.m, field)
-    #     self.currentField = None
-    #     self.updateFields()
-    #     # need to update q/a format
-    #     self.readCurrentCard()
-
-    # def moveFieldUp(self):
-    #     row = self.form.fieldList.currentRow()
-    #     if row == -1:
-    #         return
-    #     if row == 0:
-    #         return
-    #     field = self.model.fieldModels[row]
-    #     tField = self.model.fieldModels[row - 1]
-    #     self.model.fieldModels.remove(field)
-    #     self.model.fieldModels.insert(row - 1, field)
-    #     if field.id not in self.fieldOrdinalUpdatedIds:
-    #         self.fieldOrdinalUpdatedIds.append(field.id)
-    #     if tField.id not in self.fieldOrdinalUpdatedIds:
-    #         self.fieldOrdinalUpdatedIds.append(tField.id)
-    #     self.ignoreFieldUpdate = True
-    #     self.updateFields(row - 1)
-    #     self.ignoreFieldUpdate = False
-
-    # def moveFieldDown(self):
-    #     row = self.form.fieldList.currentRow()
-    #     if row == -1:
-    #         return
-    #     if row == len(self.model.fieldModels) - 1:
-    #         return
-    #     field = self.model.fieldModels[row]
-    #     tField = self.model.fieldModels[row + 1]
-    #     self.model.fieldModels.remove(field)
-    #     self.model.fieldModels.insert(row + 1, field)
-    #     if field.id not in self.fieldOrdinalUpdatedIds:
-    #         self.fieldOrdinalUpdatedIds.append(field.id)
-    #     if tField.id not in self.fieldOrdinalUpdatedIds:
-    #         self.fieldOrdinalUpdatedIds.append(tField.id)
-    #     self.ignoreFieldUpdate = True
-    #     self.updateFields(row + 1)
-    #     self.ignoreFieldUpdate = False
-
-
-
-        # rebuild ordinals if changed
-        # if len(self.fieldOrdinalUpdatedIds) > 0:
-        #     self.deck.rebuildFieldOrdinals(self.model.id, self.fieldOrdinalUpdatedIds)
-        #     self.model.setModified()
-        #     self.deck.setModified()
-
-
-
-
-
-
-
-# class PreviewDialog(QDialog):
-
-#         cards = self.deck.previewFact(self.fact)
-#         if not cards:
-#             ui.utils.showInfo(_("No cards to preview."),
-#                               parent=parent)
-#             return
-
+    def moveFieldDown(self):
+        row = self.form.fieldList.currentRow()
+        if row == -1:
+            return
+        if row == len(self.model.fieldModels) - 1:
+            return
+        field = self.model.fieldModels[row]
+        tField = self.model.fieldModels[row + 1]
+        self.model.fieldModels.remove(field)
+        self.model.fieldModels.insert(row + 1, field)
+        if field.id not in self.fieldOrdinalUpdatedIds:
+            self.fieldOrdinalUpdatedIds.append(field.id)
+        if tField.id not in self.fieldOrdinalUpdatedIds:
+            self.fieldOrdinalUpdatedIds.append(tField.id)
+        self.fillFieldList(row + 1)

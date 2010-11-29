@@ -33,7 +33,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <layout class="QGridLayout" name="_6">
+          <layout class="QGridLayout" name="templateLayout">
            <property name="margin">
             <number>0</number>
            </property>

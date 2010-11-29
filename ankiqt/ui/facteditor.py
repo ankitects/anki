@@ -58,14 +58,15 @@ class FactEditor(object):
         removeHook("guiReset", self.refresh)
         removeHook("colourChanged", self.colourChanged)
 
-    def setFact(self, fact, noFocus=False, check=False, scroll=False):
+    def setFact(self, fact, noFocus=False, check=False, scroll=False,
+                forceRedraw=False):
         "Make FACT the current fact."
         self.fact = fact
         self.factState = None
         if self.changeTimer:
             self.changeTimer.stop()
             self.changeTimer = None
-        if self.needToRedraw():
+        if self.needToRedraw() or forceRedraw:
             if self.fact:
                 self.drawFields(noFocus, check)
             else:
@@ -91,7 +92,7 @@ class FactEditor(object):
             except InvalidRequestError:
                 # not attached to session yet, add cards dialog will handle
                 return
-            self.setFact(self.fact, check=True)
+            self.setFact(self.fact, check=True, forceRedraw=True)
 
     def focusFirst(self):
         if self.focusTarget:
