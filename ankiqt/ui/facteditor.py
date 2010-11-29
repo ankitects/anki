@@ -634,7 +634,7 @@ class FactEditor(object):
             self.fact.setModified(textChanged=True)
             self.deck.flushMod()
             if self.resetOnEdit:
-                ankiqt.mw.reset()
+                ankiqt.mw.reset(runHooks=False)
         if self.onChange:
             self.onChange('tag')
 
