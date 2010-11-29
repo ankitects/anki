@@ -6,59 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>464</height>
+    <width>619</width>
+    <height>458</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Card Layout</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QHBoxLayout" name="horizontalLayout_3">
    <item>
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="1" rowspan="3">
-      <widget class="QGroupBox" name="previewGroup">
-       <property name="title">
-        <string>Preview</string>
-       </property>
-       <layout class="QVBoxLayout" name="_3">
-        <property name="spacing">
-         <number>6</number>
-        </property>
-        <property name="margin">
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QTextEdit" name="preview">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>2</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -82,7 +44,7 @@
             <widget class="QTextEdit" name="cardQuestion">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
+               <horstretch>2</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
@@ -172,12 +134,13 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="flipLabel">
+              <widget class="QPushButton" name="flipButton">
                <property name="text">
-                <string>&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a href=&quot;#&quot;&gt;(flip)&lt;/a&gt;</string>
+                <string>Flip</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               <property name="icon">
+                <iconset resource="../icons.qrc">
+                 <normaloff>:/icons/multisynk.png</normaloff>:/icons/multisynk.png</iconset>
                </property>
               </widget>
              </item>
@@ -527,10 +490,95 @@
        </widget>
       </widget>
      </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
+       </property>
+      </widget>
+     </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="previewGroup">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Preview</string>
+     </property>
+     <layout class="QVBoxLayout" name="_3">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="margin">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QWebView" name="preview">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="url">
+         <url>
+          <string>about:blank</string>
+         </url>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>cardList</tabstop>
+  <tabstop>editTemplates</tabstop>
+  <tabstop>cardQuestion</tabstop>
+  <tabstop>flipButton</tabstop>
+  <tabstop>cardAnswer</tabstop>
+  <tabstop>alignment</tabstop>
+  <tabstop>background</tabstop>
+  <tabstop>typeAnswer</tabstop>
+  <tabstop>questionInAnswer</tabstop>
+  <tabstop>allowEmptyAnswer</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>fieldList</tabstop>
+  <tabstop>fieldAdd</tabstop>
+  <tabstop>fieldUp</tabstop>
+  <tabstop>fieldDown</tabstop>
+  <tabstop>fieldDelete</tabstop>
+  <tabstop>fieldName</tabstop>
+  <tabstop>fontFamily</tabstop>
+  <tabstop>fontSize</tabstop>
+  <tabstop>fontSizeEdit</tabstop>
+  <tabstop>fontColour</tabstop>
+  <tabstop>fieldUnique</tabstop>
+  <tabstop>fieldRequired</tabstop>
+  <tabstop>numeric</tabstop>
+  <tabstop>rtl</tabstop>
+  <tabstop>preview</tabstop>
+ </tabstops>
  <resources>
   <include location="../icons.qrc"/>
  </resources>

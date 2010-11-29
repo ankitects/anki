@@ -613,11 +613,14 @@ class EditDeck(QMainWindow):
             self.dialog.actionRedo.setEnabled(True)
         else:
             self.dialog.actionRedo.setEnabled(False)
-        # update list
-        if self.currentRow and self.model.cards:
-            self.model.updateCard(self.currentRow)
-        if type == "tag":
-            self.drawTags()
+        if type=="all":
+            self.updateAfterCardChange()
+        else:
+            # update list
+            if self.currentRow and self.model.cards:
+                self.model.updateCard(self.currentRow)
+            if type == "tag":
+                self.drawTags()
 
     def filterTextChanged(self):
         interval = 300
@@ -763,6 +766,7 @@ class EditDeck(QMainWindow):
             return
         fact = self.currentCard.fact
         self.editor.setFact(fact, True)
+        self.editor.card = self.currentCard
         self.showCardInfo(self.currentCard)
         self.onEvent()
         self.updateToggles()

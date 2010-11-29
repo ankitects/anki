@@ -8,12 +8,11 @@ from PyQt4.QtSvg import *
 from PyQt4.QtWebKit import QWebPage
 import re, os, sys, tempfile, urllib2, ctypes
 from anki.utils import stripHTML, tidyHTML, canonifyTags
-from anki.sound import playFromText, clearAudioQueue
 from ankiqt.ui.sound import getAudio
 import anki.sound
 from ankiqt import ui
 import ankiqt
-from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom, getBase
+from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from sqlalchemy.exceptions import InvalidRequestError
 
@@ -121,15 +120,15 @@ class FactEditor(object):
         self.fieldsBox.addLayout(self.iconsBox2)
         # card layout
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
-        self.clayout = QPushButton("&Edit Card")
+        self.clayout = QPushButton("Card Layout")
         self.clayout.connect(self.clayout, SIGNAL("clicked()"), self.onCardLayout)
         self.clayout.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
         self.clayout.setFixedHeight(20)
         # self.clayout.setFixedWidth(48)
         self.clayout.setIcon(QIcon(":/icons/edit.png"))
         #self.clayout.setIconSize(QSize(32,32))
-        #self.clayout.setToolTip(_("Bold text (Ctrl+b)"))
-        #self.clayout.setShortcut(_("Ctrl+b"))
+        self.clayout.setToolTip(_("Edit how cards are displayed (F2)"))
+        self.clayout.setShortcut(_("F2"))
         self.clayout.setFocusPolicy(Qt.NoFocus)
         self.iconsBox.addWidget(self.clayout)
         self.clayout.setStyle(self.plastiqueStyle)
@@ -489,13 +488,11 @@ class FactEditor(object):
                 # apply fonts
                 font = QFont()
                 # family
-                family = (field.fieldModel.editFontFamily or
-                          field.fieldModel.quizFontFamily)
+                family = field.fieldModel.quizFontFamily
                 if family:
                     font.setFamily(family)
                 # size
-                size = (field.fieldModel.editFontSize or
-                        field.fieldModel.quizFontSize)
+                size = field.fieldModel.editFontSize
                 if size:
                     font.setPixelSize(size)
                 w.setFont(font)
@@ -806,7 +803,7 @@ class FactEditor(object):
 
     def onCardLayout(self):
         self.saveFields()
-        ui.clayout.CardLayout(self.parent, self.fact, self.card)
+        ui.clayout.CardLayout(self, self.fact, self.card)
 
     # FIXME: in some future version, we should use a different delimiter, as
     # [sound] et al conflicts
