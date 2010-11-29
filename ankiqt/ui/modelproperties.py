@@ -67,6 +67,9 @@ class ModelProperties(QDialog):
                      self.renameCard)
 
     def renameCard(self):
+        txt = ui.utils.getText(_("New name?"), parent=self)
+        if txt[0]:
+            self.currentCard.name = txt[0]
         self.needRebuild = True
         self.updateCards()
 
