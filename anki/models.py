@@ -48,7 +48,7 @@ fieldModelsTable = Table(
     Column('quizFontFamily', UnicodeText),
     Column('quizFontSize', Integer),
     Column('quizFontColour', String(7)),
-    Column('editFontFamily', UnicodeText),
+    Column('editFontFamily', UnicodeText), # unused
     Column('editFontSize', Integer, default=20))
 
 class FieldModel(object):
