@@ -89,16 +89,17 @@ cardModelsTable = Table(
     Column('qedformat', UnicodeText),
     Column('aedformat', UnicodeText),
     Column('questionInAnswer', Boolean, nullable=False, default=False),
-    # display
+    # unused
     Column('questionFontFamily', UnicodeText, default=u"Arial"),
     Column('questionFontSize', Integer, default=20),
     Column('questionFontColour', String(7), default=u"#000000"),
+    # used for both question & answer
     Column('questionAlign', Integer, default=0),
+    # ununsed
     Column('answerFontFamily', UnicodeText, default=u"Arial"),
     Column('answerFontSize', Integer, default=20),
     Column('answerFontColour', String(7), default=u"#000000"),
     Column('answerAlign', Integer, default=0),
-    # not used
     Column('lastFontFamily', UnicodeText, default=u"Arial"),
     Column('lastFontSize', Integer, default=20),
     # used as background colour

@@ -1658,12 +1658,10 @@ facts.id = cards.factId""", id=model.id))
             return t
         css = "".join([_genCSS(".fm", row) for row in self.s.all("""
 select id, quizFontFamily, quizFontSize, quizFontColour, -1, features from fieldModels""")])
-        css += "".join([_genCSS("#cmq", row) for row in self.s.all("""
-select id, questionFontFamily, questionFontSize, questionFontColour,
-questionAlign, 0 from cardModels""")])
-        css += "".join([_genCSS("#cma", row) for row in self.s.all("""
-select id, answerFontFamily, answerFontSize, answerFontColour,
-answerAlign, 0 from cardModels""")])
+        cardRows = self.s.all("""
+select id, null, null, null, questionAlign, 0 from cardModels""")
+        css += "".join([_genCSS("#cmq", row) for row in cardRows])
+        css += "".join([_genCSS("#cma", row) for row in cardRows])
         css += "".join([".cmb%s {background:%s;}\n" %
         (hexifyID(row[0]), row[1]) for row in self.s.all("""
 select id, lastFontColour from cardModels""")])
