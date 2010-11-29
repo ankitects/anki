@@ -12,7 +12,7 @@ Model - define the way in which facts are added and shown
 
 """
 
-import time, re, pystache
+import time, re
 from sqlalchemy.ext.orderinglist import ordering_list
 from anki.db import *
 from anki.utils import genID, canonifyTags
@@ -20,6 +20,7 @@ from anki.fonts import toPlatformFont
 from anki.utils import parseTags, hexifyID, checksum, stripHTML
 from anki.lang import _
 from anki.hooks import runFilter
+from anki.template import render
 from copy import copy
 
 def alignmentLabels():
@@ -154,7 +155,7 @@ def formatQA(cid, mid, fact, tags, cm):
         format = re.sub("%\((.+?)\)s", "{{\\1}}", format)
         # allow custom rendering functions & info
         fields = runFilter("prepareFields", fields, cid, mid, fact, tags, cm)
-        html = pystache.render(format, fields)
+        html = render(format, fields)
         d[type] = runFilter("formatQA", html, type, cid, mid, fact, tags, cm)
     return d
 

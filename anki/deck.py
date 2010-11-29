@@ -9,7 +9,7 @@ The Deck
 __docformat__ = 'restructuredtext'
 
 import tempfile, time, os, random, sys, re, stat, shutil
-import types, traceback, simplejson, datetime, pystache
+import types, traceback, simplejson, datetime
 
 from anki.db import *
 from anki.lang import _, ngettext
@@ -25,6 +25,7 @@ from anki.tags import initTagTables, tagIds
 from operator import itemgetter
 from itertools import groupby
 from anki.hooks import runHook, hookEmpty
+from anki.template import render
 
 # ensure all the metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.stats
@@ -1450,8 +1451,8 @@ and due < :now""", now=time.time())
                    empty['tags'] = ""
                    local['tags'] = fact.tags
                    try:
-                       if (pystache.render(format, local) ==
-                           pystache.render(format, empty)):
+                       if (render(format, local) ==
+                           render(format, empty)):
                            ok = False
                            break
                    except (KeyError, TypeError, ValueError):
