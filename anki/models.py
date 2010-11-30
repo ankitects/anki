@@ -46,7 +46,7 @@ fieldModelsTable = Table(
     Column('unique', Boolean, nullable=False, default=True), # sqlite keyword
     Column('numeric', Boolean, nullable=False, default=False),
     # display
-    Column('quizFontFamily', UnicodeText),
+    Column('quizFontFamily', UnicodeText, default=u"Arial"),
     Column('quizFontSize', Integer, default=20),
     Column('quizFontColour', String(7)),
     Column('editFontFamily', Boolean, default=True), # reused as <pre> toggle

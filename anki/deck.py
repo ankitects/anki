@@ -69,7 +69,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 54
+DECK_VERSION = 55
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -4257,6 +4257,13 @@ syncing again via Settings>Deck Properties>Synchronsiation. \
             # non-int value
             deck.s.statement("update fieldModels set editFontFamily = 1");
             deck.version = 54
+            deck.s.commit()
+        if deck.version < 55:
+            # set a default font for unset fonts
+            deck.s.statement("""
+update fieldModels set quizFontFamily = 'Arial' where not quizFontFamily
+or quizFontFamily is null""")
+            deck.version = 55
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
