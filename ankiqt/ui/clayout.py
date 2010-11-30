@@ -63,6 +63,7 @@ class CardLayout(QDialog):
     def setupCards(self):
         self.needFormatRebuild = False
         self.updatingCards = False
+        self.playedAudio = False
         # replace with more appropriate size hints
         for e in ("cardQuestion", "cardAnswer"):
             w = getattr(self.form, e)
@@ -249,8 +250,10 @@ order by n""", id=card.id)
                       c)
             + "</body></html>")
         clearAudioQueue()
-        playFromText(c.question)
-        playFromText(c.answer)
+        if not self.playedAudio:
+            playFromText(c.question)
+            playFromText(c.answer)
+            self.playedAudio = True
 
     def reject(self):
         modified = False
