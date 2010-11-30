@@ -61,6 +61,9 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
      <widget class="QWidget" name="fieldsArea" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
