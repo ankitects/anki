@@ -834,10 +834,13 @@ where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
             space = 0
         space = space * spaceFactor * 86400.0
         space = max(minSpacing, space)
-        space += time.time()
+        if space:
+            space += time.time()
         return space
 
     def _spaceCards(self, card, space):
+        if not space:
+            return
         # adjust counts
         for (type, count) in self.s.all("""
 select type, count(type) from cards
