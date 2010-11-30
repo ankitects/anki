@@ -97,7 +97,7 @@ class CardLayout(QDialog):
                      self.saveCard)
         self.connect(self.form.flipButton, SIGNAL("clicked()"),
                      self.onFlip)
-        def linkClicked(self, url):
+        def linkClicked(url):
             QDesktopServices.openUrl(QUrl(url))
         self.form.preview.page().setLinkDelegationPolicy(
             QWebPage.DelegateExternalLinks)
