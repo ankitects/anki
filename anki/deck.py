@@ -69,7 +69,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 53
+DECK_VERSION = 54
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -4251,6 +4251,12 @@ syncing again via Settings>Deck Properties>Synchronsiation. \
                     deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
                     deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
             deck.version = 53
+            deck.s.commit()
+        if deck.version < 54:
+            # broken versions of the DB orm die if this is a bool with a
+            # non-int value
+            deck.s.statement("update fieldModels set editFontFamily = 1");
+            deck.version = 54
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
