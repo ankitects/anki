@@ -1721,7 +1721,7 @@ learnt today")
         self.updateStudyStats()
         self.mainWin.startReviewingButton.setFocus()
         self.setupStudyOptions()
-        self.mainWin.studyOptionsFrame.setFixedWidth(300)
+        self.mainWin.studyOptionsFrame.setMaximumWidth(500)
         self.mainWin.studyOptionsFrame.show()
 
     def setupStudyOptions(self):
