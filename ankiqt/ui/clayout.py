@@ -337,19 +337,23 @@ order by n""", id=card.id)
 
     def readField(self):
         field = self.field
+        self.updatingFields = True
         self.form.fieldName.setText(field.name)
         self.form.fieldUnique.setChecked(field.unique)
         self.form.fieldRequired.setChecked(field.required)
         self.form.numeric.setChecked(field.numeric)
-        if field.quizFontFamily:
-            self.form.fontFamily.setCurrentFont(QFont(
-                field.quizFontFamily))
+        if not field.quizFontFamily:
+            # backwards compat
+            field.quizFontFamily = u"Arial"
+        self.form.fontFamily.setCurrentFont(QFont(
+            field.quizFontFamily))
         self.form.fontSize.setValue(field.quizFontSize or 20)
         self.form.fontSizeEdit.setValue(field.editFontSize or 20)
         self.form.fontColour.setPalette(QPalette(QColor(
                         field.quizFontColour or "#000000")))
         self.form.rtl.setChecked(not not field.features)
         self.form.preserveWhitespace.setChecked(not not field.editFontFamily)
+        self.updatingFields = False
 
     def saveField(self, *args):
         self.needFieldRebuild = True
