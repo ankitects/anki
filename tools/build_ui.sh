@@ -67,9 +67,5 @@ echo "]" >> $init
 cat $temp >> $init
 rm $temp
 
-# use older integer format so qt4.4 still works
-sed -i 's/setProperty("value", 14)/setProperty("value", QtCore.QVariant(14))/' \
-  ankiqt/forms/clayout.py
-
 echo "Building resources.."
 $pyrcc icons.qrc -o icons_rc.py
