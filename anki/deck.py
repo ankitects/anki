@@ -161,7 +161,7 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'revInactive'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'newSpacing'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
@@ -169,6 +169,7 @@ class Deck(object):
             self.setVarDefault("revActive", "")
             self.setVarDefault("newInactive", self.suspended)
             self.setVarDefault("revInactive", self.suspended)
+            self.setVarDefault("newSpacing", 60)
         self.updateCutoff()
         self.setupStandardScheduler()
 
@@ -262,6 +263,7 @@ class Deck(object):
             "select count(*) from cards c where type = 2 "
             "and combinedDue < :lim"), lim=self.dueCutoff)
         self.updateNewCountToday()
+        self.spacedCards = []
 
     def _updateNewCountToday(self):
         self.newCountToday = max(min(
@@ -289,7 +291,7 @@ limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.revQueue.reverse()
 
     def _fillNewQueue(self):
-        if self.newCount and not self.newQueue:
+        if self.newCountToday and not self.newQueue and not self.spacedCards:
             self.newQueue = self.s.all(
                 self.cardLimit(
                 "newActive", "newInactive", """
@@ -298,38 +300,55 @@ type = 2 and combinedDue < :lim order by %s
 limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.newQueue.reverse()
 
-    def queueNotEmpty(self, queue, fillFunc):
+    def queueNotEmpty(self, queue, fillFunc, new=False):
         while True:
-            self.removeSpaced(queue)
+            self.removeSpaced(queue, new)
             if queue:
                 return True
             fillFunc()
             if not queue:
                 return False
 
-    def removeSpaced(self, queue):
+    def removeSpaced(self, queue, new=False):
+        popped = []
+        delay = None
         while queue:
             fid = queue[-1][1]
             if fid in self.spacedFacts:
-                if time.time() > self.spacedFacts[fid]:
-                    # no longer spaced; clean up
-                    del self.spacedFacts[fid]
-                else:
-                    # still spaced
-                    queue.pop()
+                # still spaced
+                id = queue.pop()[0]
+                # assuming 10 cards/minute, track id if likely to expire
+                # before queue refilled
+                if new and self.newSpacing < self.queueLimit * 6:
+                    popped.append(id)
+                    delay = self.spacedFacts[fid]
             else:
+                if popped:
+                    self.spacedCards.append((delay, popped))
                 return
 
     def revNoSpaced(self):
         return self.queueNotEmpty(self.revQueue, self.fillRevQueue)
 
     def newNoSpaced(self):
-        return self.queueNotEmpty(self.newQueue, self.fillNewQueue)
+        return self.queueNotEmpty(self.newQueue, self.fillNewQueue, True)
 
     def _requeueCard(self, card, oldSuc):
+        newType = None
         try:
             if card.reps == 1:
-                self.newQueue.pop()
+                if self.newFromCache:
+                    # fetched from spaced cache
+                    newType = 2
+                    cards = self.spacedCards.pop(0)[1]
+                    # reschedule the siblings
+                    if len(cards) > 1:
+                        self.spacedCards.append(
+                            (time.time() + self.newSpacing, cards[1:]))
+                else:
+                    # fetched from normal queue
+                    newType = 1
+                    self.newQueue.pop()
             elif oldSuc == 0:
                 self.failedQueue.pop()
             else:
@@ -341,10 +360,11 @@ produce the problem.
 
 Counts %d %d %d
 Queue %d %d %d
-Card info: %d %d %d""" % (self.failedSoonCount, self.revCount, self.newCountToday,
+Card info: %d %d %d
+New type: %s""" % (self.failedSoonCount, self.revCount, self.newCountToday,
                           len(self.failedQueue), len(self.revQueue),
                           len(self.newQueue),
-                          card.reps, card.successive, oldSuc))
+                          card.reps, card.successive, oldSuc, `newType`))
 
     def revOrder(self):
         return ("priority desc, interval desc",
@@ -426,6 +446,9 @@ where type >= 0
             self.newCardModulus = 0
         # recache css
         self.rebuildCSS()
+        # spacing for delayed cards - not to be confused with newCardSpacing
+        # above
+        self.newSpacing = self.getFloat('newSpacing')
 
     def checkDailyStats(self):
         # check if the day has rolled over
@@ -630,13 +653,13 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
                 return self.failedQueue[-1][0]
         # distribute new cards?
         if self.newNoSpaced() and self.timeForNewCard():
-            return self.newQueue[-1][0]
+            return self.getNewCard()
         # card due for review?
         if self.revNoSpaced():
             return self.revQueue[-1][0]
         # new cards left?
         if self.newCountToday:
-            return self.newQueue[-1][0]
+            return self.getNewCard()
         # display failed cards early/last
         if self.showFailedLast() and self.failedQueue:
             return self.failedQueue[-1][0]
@@ -672,6 +695,16 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             return self._dailyStats.reps % self.newCardModulus == 0
         else:
             return False
+
+    def getNewCard(self):
+        if (not self.newQueue or
+            self.spacedCards and
+            self.spacedCards[0][0] < time.time()):
+            cards = self.spacedCards[0][1]
+            self.newFromCache = True
+            return cards[0]
+        self.newFromCache = False
+        return self.newQueue[-1][0]
 
     def showFailedLast(self):
         return self.collapseTime or not self.delay0
@@ -733,6 +766,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
                     "finishedMsg": fin}
 
     def _getCardTables(self):
+        raise "needs to account for spaced new"
         t = time.time()
         c = self.getCard()
         sel = """
@@ -772,15 +806,15 @@ where id in """
             # only update if card was not new
             card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
+        card.combinedDue = card.due
         card.isDue = 0
         card.lastFactor = card.factor
-        card.spaceUntil = 0;
+        card.spaceUntil = 0
         if lastDelay >= 0:
             # don't update factor if learning ahead
             self.updateFactor(card, ease)
         # spacing
-        space = self.spaceUntilTime(card)
-        self.spaceCards(card, space)
+        self.spaceCards(card)
         # adjust counts for current card
         if ease == 1:
             if card.due < self.failedCutoff:
@@ -821,49 +855,30 @@ where id in """
         runHook("cardAnswered", card.id, isLeech)
         self.setUndoEnd(undoName)
 
-    def spaceUntilTime(self, card):
-        (minSpacing, spaceFactor) = self.s.first("""
-select models.initialSpacing, models.spacing from
-facts, models where facts.modelId = models.id and facts.id = :id""", id=card.factId)
-        minOfOtherCards = self.s.scalar("""
-select min(interval) from cards
-where factId = :fid and id != :id""", fid=card.factId, id=card.id) or 0
-        if minOfOtherCards:
-            space = min(minOfOtherCards, card.interval)
-        else:
-            space = 0
-        space = space * spaceFactor * 86400.0
-        space = max(minSpacing, space)
-        if space:
-            space += time.time()
-        return space
-
-    def _spaceCards(self, card, space):
-        if not space:
-            return
-        # adjust counts
-        for (type, count) in self.s.all("""
-select type, count(type) from cards
-where factId = :fid and
-combinedDue < :now and id != :cid
-group by type""", fid=card.factId, cid=card.id, now=self.dueCutoff):
-            if type == 0:
-                self.failedSoonCount -= count
-            elif type == 1:
-                self.revCount -= count
-            elif type == 2:
-                self.newCount -= count
-        # space other cards
+    def _spaceCards(self, card):
+        # update new counts
+        new = time.time() + self.newSpacing
+        if new > self.dueCutoff:
+            self.newCount -= self.s.scalar("""
+select count() from cards
+where factId = :fid and id != :cid
+and combinedDue < :cut and type = 2
+""", cid=card.id, fid=card.factId, cut=self.dueCutoff, new=new)
+        # space cards
         self.s.statement("""
 update cards set
-spaceUntil = :space,
-combinedDue = max(:space, due),
+combinedDue = (case
+when type = 1 then :cut - 1
+when type = 2 then :new
+end),
 modified = :now, isDue = 0
-where id != :id and factId = :factId""",
-                         id=card.id, space=space, now=time.time(),
-                         factId=card.factId)
+where id != :id and factId = :factId
+and combinedDue < :cut
+and type between 1 and 2""",
+                         id=card.id, now=time.time(), factId=card.factId,
+                         cut=self.dueCutoff, new=new)
         # update local cache of seen facts
-        self.spacedFacts[card.factId] = space
+        self.spacedFacts[card.factId] = time.time() + self.newSpacing
 
     def isLeech(self, card):
         no = card.noCount
@@ -1016,7 +1031,7 @@ where id in %s""" % ids2str(ids), now=time.time(), new=0)
         self.s.statements("""
 update cards
 set due = :rand + ordinal,
-combinedDue = max(:rand + ordinal, spaceUntil),
+combinedDue = :rand + ordinal,
 modified = :now
 where factId = :fid
 and relativeDelay = 2""", data)
@@ -1026,7 +1041,7 @@ and relativeDelay = 2""", data)
         self.s.statement("""
 update cards set
 due = created,
-combinedDue = max(spaceUntil, created),
+combinedDue = created,
 modified = :now
 where relativeDelay = 2""", now=time.time())
 
@@ -1533,10 +1548,11 @@ where facts.id not in (select distinct factId from cards)""")
         self.deleteFacts(ids)
         return ids
 
-    def previewFact(self, oldFact):
+    def previewFact(self, oldFact, cms=None):
         "Duplicate fact and generate cards for preview. Don't add to deck."
         # check we have card models available
-        cms = self.availableCardModels(oldFact, checkActive=True)
+        if cms is None:
+            cms = self.availableCardModels(oldFact, checkActive=True)
         if not cms:
             return []
         fact = self.cloneFact(oldFact)
@@ -2887,12 +2903,15 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
     # Meta vars
     ##########################################################################
 
-    def getInt(self, key):
+    def getInt(self, key, type=int):
         ret = self.s.scalar("select value from deckVars where key = :k",
                             k=key)
         if ret is not None:
-            ret = int(ret)
+            ret = type(ret)
         return ret
+
+    def getFloat(self, key):
+        return self.getInt(key, float)
 
     def getBool(self, key):
         ret = self.s.scalar("select value from deckVars where key = :k",

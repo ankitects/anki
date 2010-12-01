@@ -58,7 +58,7 @@ cardsTable = Table(
     # data to the above
     Column('yesCount', Integer, nullable=False, default=0),
     Column('noCount', Integer, nullable=False, default=0),
-    # caching
+    # obsolete
     Column('spaceUntil', Float, nullable=False, default=0),
     # relativeDelay is reused as type without scheduling (ie, it remains 0-2
     # even if card is suspended, etc)
@@ -258,7 +258,7 @@ noCount=:noCount,
 spaceUntil = :spaceUntil,
 isDue = 0,
 type = :type,
-combinedDue = max(:spaceUntil, :due),
+combinedDue = :combinedDue,
 relativeDelay = 0,
 priority = :priority
 where id=:id""", self.__dict__)

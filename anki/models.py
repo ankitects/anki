@@ -172,8 +172,8 @@ modelsTable = Table(
     Column('name', UnicodeText, nullable=False),
     Column('description', UnicodeText, nullable=False, default=u""), # obsolete
     Column('features', UnicodeText, nullable=False, default=u""), # used as mediaURL
-    Column('spacing', Float, nullable=False, default=0.1),
-    Column('initialSpacing', Float, nullable=False, default=60),
+    Column('spacing', Float, nullable=False, default=0.1), # obsolete
+    Column('initialSpacing', Float, nullable=False, default=60), # obsolete
     Column('source', Integer, nullable=False, default=0))
 
 class Model(object):
