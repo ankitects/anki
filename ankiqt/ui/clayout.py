@@ -22,14 +22,27 @@ class ResizingTextEdit(QTextEdit):
 
 class CardLayout(QDialog):
 
-    def __init__(self, factedit, fact, card=None):
-        self.parent = factedit.parent
-        QDialog.__init__(self, self.parent, Qt.Window)
-        self.factedit = factedit
+    def __init__(self, parent, factedit, factOrModel, card=None):
+        self.parent = parent
+        QDialog.__init__(self, parent, Qt.Window)
         self.mw = ankiqt.mw
         self.deck = self.mw.deck
-        self.fact = fact
-        self.model = fact.model
+        self.factedit = factedit
+        if factedit:
+            self.fact = factOrModel
+            self.model = fact.model
+        else:
+            self.model = factOrModel
+            # see if there's an available fact
+            id = self.deck.s.scalar(
+                "select id from facts where modelId = :id", id=self.model.id)
+            if id:
+                self.fact = self.deck.s.query(Fact).get(id)
+            else:
+                # generate a dummy one
+                self.fact = self.deck.newFact(self.model)
+                for f in self.fact.keys():
+                    self.fact[f] = f
         self.card = card
         self.plastiqueStyle = None
         if (sys.platform.startswith("darwin") or
@@ -39,8 +52,12 @@ class CardLayout(QDialog):
             # limited to an existing card
             self.cards = [self.card]
         else:
-            # active & possible
-            self.cards = self.deck.previewFact(self.fact)
+            if factedit:
+                # active & possible
+                self.cards = self.deck.previewFact(self.fact)
+            else:
+                # all
+                self.cards = self.deck.previewFact(self.fact, cms=self.model.cardModels)
             if not self.cards:
                 ui.utils.showInfo(_(
                     "Please enter some text first."),
@@ -272,7 +289,7 @@ order by n""", id=card.id)
         if modified:
             self.fact.model.setModified()
             self.deck.flushMod()
-            if self.factedit.onChange:
+            if self.factedit and self.factedit.onChange:
                 self.factedit.onChange("all")
             else:
                 self.mw.reset()

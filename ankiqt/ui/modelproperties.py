@@ -63,6 +63,11 @@ class ModelProperties(QDialog):
                      self.moveCardDown)
         self.connect(self.dialog.cardRename, SIGNAL("clicked()"),
                      self.renameCard)
+        self.connect(self.dialog.cardLayout, SIGNAL("clicked()"),
+                     self.cardLayout)
+
+    def cardLayout(self):
+        ui.clayout.CardLayout(self, None, self.m)
 
     def renameCard(self):
         txt = ui.utils.getText(_("New name?"), parent=self)

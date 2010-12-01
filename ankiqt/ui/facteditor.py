@@ -804,7 +804,7 @@ class FactEditor(object):
 
     def onCardLayout(self):
         self.saveFields()
-        ui.clayout.CardLayout(self, self.fact, self.card)
+        ui.clayout.CardLayout(self.parent, self, self.fact, self.card)
 
     # FIXME: in some future version, we should use a different delimiter, as
     # [sound] et al conflicts

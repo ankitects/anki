@@ -146,6 +146,13 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="cardLayout">
+            <property name="text">
+             <string>Card &amp;Layout</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
@@ -165,6 +172,19 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>name</tabstop>
+  <tabstop>mediaURL</tabstop>
+  <tabstop>cardList</tabstop>
+  <tabstop>cardAdd</tabstop>
+  <tabstop>cardRename</tabstop>
+  <tabstop>cardUp</tabstop>
+  <tabstop>cardDown</tabstop>
+  <tabstop>cardToggle</tabstop>
+  <tabstop>cardDelete</tabstop>
+  <tabstop>cardLayout</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
