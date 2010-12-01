@@ -160,8 +160,14 @@ class ModelProperties(QDialog):
 
     def addCard(self):
         cards = len(self.m.cardModels)
-        name = _("Name_%d") % (cards+1)
-        cm = CardModel(name=name)
+        name = _("Template_%d") % (cards+1)
+        fields = self.m.fieldModels
+        qformat = "{{%s}}" % fields[0].name
+        if len(fields) > 1:
+            aformat = "{{%s}}" % fields[1].name
+        else:
+            aformat = ""
+        cm = CardModel(name, qformat, aformat)
         self.m.addCardModel(cm)
         self.updateCards()
         self.dialog.cardList.setCurrentRow(len(self.m.cardModels)-1)

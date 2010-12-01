@@ -28,9 +28,10 @@ class CardLayout(QDialog):
         self.mw = ankiqt.mw
         self.deck = self.mw.deck
         self.factedit = factedit
+        self.card = card
         if factedit:
             self.fact = factOrModel
-            self.model = fact.model
+            self.model = self.fact.model
         else:
             self.model = factOrModel
             # see if there's an available fact
@@ -43,7 +44,6 @@ class CardLayout(QDialog):
                 self.fact = self.deck.newFact(self.model)
                 for f in self.fact.keys():
                     self.fact[f] = f
-        self.card = card
         self.plastiqueStyle = None
         if (sys.platform.startswith("darwin") or
             sys.platform.startswith("win32")):
