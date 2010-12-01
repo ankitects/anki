@@ -38,8 +38,6 @@ class ModelProperties(QDialog):
     def readData(self):
         # properties section
         self.dialog.name.setText(self.m.name)
-        self.dialog.spacing.setText(str(self.m.spacing))
-        self.dialog.initialSpacing.setText(str(self.m.initialSpacing/60))
         self.dialog.mediaURL.setText(unicode(self.m.features))
 
     # Cards
@@ -84,7 +82,7 @@ class ModelProperties(QDialog):
                 status=""
             else:
                 status=_("; disabled")
-            label = _("%(name)s: used %(cards)d times%(status)s") % {
+            label = _("%(name)s [%(cards)d cards%(status)s]") % {
                 'num': n,
                 'name': card.name,
                 'status': status,
@@ -267,13 +265,6 @@ class ModelProperties(QDialog):
             if not url.endswith("/"):
                 url += "/"
         self.updateField(self.m, 'features', url)
-        try:
-            self.updateField(self.m, 'spacing',
-                             float(self.dialog.spacing.text()))
-            self.updateField(self.m, 'initialSpacing',
-                             float(self.dialog.initialSpacing.text())*60)
-        except ValueError:
-            pass
         # before field, or it's overwritten
         self.saveCurrentCard()
         # if changed, reset deck
