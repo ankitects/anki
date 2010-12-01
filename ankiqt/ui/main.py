@@ -14,9 +14,10 @@ QtConfig = pyqtconfig.Configuration()
 from anki import DeckStorage
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
-from anki.utils import addTags, deleteTags, parseTags, canonifyTags, stripHTML
+from anki.utils import addTags, deleteTags, parseTags, canonifyTags, \
+     stripHTML, checksum
 from anki.media import rebuildMediaDir, downloadMissing
-from anki.db import OperationalError, SessionHelper
+from anki.db import OperationalError, SessionHelper, sqlite
 from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
@@ -2265,9 +2266,14 @@ Are you sure?""" % deckName),
                     p = os.path.join(self.documentDir, name + ".anki")
                     shutil.copy2(self.deckPath, p)
                     self.deckPath = p
+                    # since we've moved the deck, we have to set sync path
+                    # ourselves
+                    c = sqlite.connect(p)
+                    c.execute("update decks set syncName = ?",
+                              [checksum(p.encode("utf-8"))])
+                    c.commit()
+                    c.close()
                 self.loadDeck(self.deckPath, sync=False)
-                if self.loadAfterSync == 2:
-                    self.deck.enableSyncing()
             else:
                 self.moveToState("noDeck")
         self.deckPath = None
