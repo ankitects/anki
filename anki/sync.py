@@ -25,6 +25,7 @@ import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
 import os, base64, httplib, sys, tempfile, httplib, types
 from datetime import date
 import anki, anki.deck, anki.cards
+from anki.db import sqlite
 from anki.errors import *
 from anki.models import Model, FieldModel, CardModel
 from anki.facts import Fact, Field
@@ -32,7 +33,7 @@ from anki.cards import Card
 from anki.stats import Stats, globalStats
 from anki.history import CardHistoryEntry
 from anki.stats import globalStats
-from anki.utils import ids2str, hexifyID
+from anki.utils import ids2str, hexifyID, checksum
 from anki.media import mediaRefs
 from anki.lang import _
 from hooks import runHook
@@ -1037,6 +1038,12 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             # if we were successful, overwrite old deck
             os.unlink(path)
             os.rename(tmpname, path)
+            # reset the deck name
+            c = sqlite.connect(path)
+            c.execute("update decks set syncName = ?",
+                      [checksum(path.encode("utf-8"))])
+            c.commit()
+            c.close()
         finally:
             runHook("fullSyncFinished")
 
