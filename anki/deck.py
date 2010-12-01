@@ -545,10 +545,8 @@ select count() from cards where type = 2 and combinedDue < :now
         # prevent it from appearing in next queue fill
         card.type += 6
 
-    def _spaceCramCards(self, card, space):
-        # if non-zero spacing, limit to 10 minutes or queue refill
-        if space > time.time():
-            self.spacedFacts[card.factId] = time.time() + 600
+    def _spaceCramCards(self, card):
+        self.spacedFacts[card.factId] = time.time() + self.newSpacing
 
     def _answerCramCard(self, card, ease):
         self._answerCard(card, ease)
