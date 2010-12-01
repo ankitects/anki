@@ -514,6 +514,7 @@ order by combinedDue limit %d""" % self.queueLimit, lim=self.dueCutoff)
         self.newCount = self.s.scalar("""
 select count() from cards where type = 2 and combinedDue < :now
 """, now=self.dueCutoff)
+        self.spacedCards = []
 
     def _updateLearnMoreCountToday(self):
         self.newCountToday = self.newCount
