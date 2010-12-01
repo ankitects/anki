@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>379</width>
-    <height>396</height>
+    <width>373</width>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -208,7 +208,7 @@
          <property name="spacing">
           <number>6</number>
          </property>
-         <item row="6" column="3">
+         <item row="6" column="2">
           <widget class="QLineEdit" name="easyMin">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -216,29 +216,27 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Min</string>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Min</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="5">
+         <item row="5" column="4">
           <widget class="QLineEdit" name="midMax">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
            </property>
           </widget>
          </item>
@@ -256,14 +254,17 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="4">
+         <item row="6" column="3">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Max</string>
+            <string>~</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item row="4" column="3">
+         <item row="4" column="2">
           <widget class="QLineEdit" name="hardMin">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -271,9 +272,21 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
           </widget>
          </item>
-         <item row="5" column="3">
+         <item row="5" column="2">
           <widget class="QLineEdit" name="midMin">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -281,16 +294,25 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-          </widget>
-         </item>
-         <item row="4" column="4">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Max</string>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
            </property>
           </widget>
          </item>
-         <item row="6" column="5">
+         <item row="4" column="3">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>~</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="4">
           <widget class="QLineEdit" name="easyMax">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -298,9 +320,15 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
           </widget>
          </item>
-         <item row="4" column="5">
+         <item row="4" column="4">
           <widget class="QLineEdit" name="hardMax">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -308,19 +336,27 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Min</string>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
            </property>
           </widget>
          </item>
-         <item row="5" column="4">
+         <item row="5" column="3">
           <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>Max</string>
+            <string>~</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -331,16 +367,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="5">
-          <widget class="QLineEdit" name="delay0">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_20">
            <property name="text">
@@ -348,28 +374,21 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="6">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>mins</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="6">
+         <item row="4" column="5">
           <widget class="QLabel" name="label_30">
            <property name="text">
             <string>days</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="6">
+         <item row="5" column="5">
           <widget class="QLabel" name="label_31">
            <property name="text">
             <string>days</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="6">
+         <item row="6" column="5">
           <widget class="QLabel" name="label_32">
            <property name="text">
             <string>days</string>
@@ -412,14 +431,43 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="6">
-          <widget class="QLabel" name="label_25">
-           <property name="text">
-            <string>days</string>
+         <item row="3" column="0" colspan="6">
+          <widget class="Line" name="line_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
-         <item row="1" column="5">
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="delay0">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3" colspan="2">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>minutes</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
           <widget class="QLineEdit" name="delay2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -427,9 +475,15 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
           </widget>
          </item>
-         <item row="2" column="5">
+         <item row="2" column="2">
           <widget class="QLineEdit" name="delay1">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -437,50 +491,36 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="7">
-          <widget class="Line" name="line_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_29">
-           <property name="text">
-            <string>New day starts at</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+           <property name="maximumSize">
             <size>
-             <width>40</width>
-             <height>20</height>
+             <width>50</width>
+             <height>16777215</height>
             </size>
            </property>
-          </spacer>
+          </widget>
          </item>
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="timeOffset"/>
+         <item row="2" column="3" colspan="2">
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
          </item>
-         <item row="0" column="0">
+         <item row="7" column="0" colspan="6">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="6">
+          <widget class="Line" name="line_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="0">
           <widget class="QLabel" name="label_26">
            <property name="text">
             <string>Show failed cards early</string>
@@ -490,61 +530,189 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="2">
+         <item row="13" column="2">
           <widget class="QCheckBox" name="collapse">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string/>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Suspend leeches</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QCheckBox" name="suspendLeeches">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Leech failure threshold</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QSpinBox" name="leechFails"/>
-         </item>
-         <item row="1" column="0">
+         <item row="15" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
             <string>Per-day scheduling</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item row="15" column="2">
           <widget class="QCheckBox" name="perDay">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Leech threshold</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="2">
+          <widget class="QSpinBox" name="leechFails">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>Shift midnight by</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="2">
+          <widget class="QLineEdit" name="timeOffset">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>New card spacing</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="2">
+          <widget class="QLineEdit" name="newSpacing">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="3" colspan="2">
+          <widget class="QLabel" name="label_27">
+           <property name="text">
+            <string>minutes</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Suspend leeches</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="2">
+          <widget class="QCheckBox" name="suspendLeeches">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Review card spacing</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="2">
+          <widget class="QLineEdit" name="revSpacing">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="3">
+          <widget class="QLabel" name="label_28">
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QLabel" name="label_33">
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="3" colspan="3">
+          <widget class="QLabel" name="label_34">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>hours</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="3" colspan="2">
+          <widget class="QLabel" name="label_35">
+           <property name="text">
+            <string>failures</string>
            </property>
           </widget>
          </item>
@@ -599,11 +767,13 @@
   <tabstop>midMax</tabstop>
   <tabstop>easyMin</tabstop>
   <tabstop>easyMax</tabstop>
-  <tabstop>collapse</tabstop>
-  <tabstop>perDay</tabstop>
-  <tabstop>timeOffset</tabstop>
-  <tabstop>suspendLeeches</tabstop>
   <tabstop>leechFails</tabstop>
+  <tabstop>timeOffset</tabstop>
+  <tabstop>newSpacing</tabstop>
+  <tabstop>revSpacing</tabstop>
+  <tabstop>collapse</tabstop>
+  <tabstop>suspendLeeches</tabstop>
+  <tabstop>perDay</tabstop>
  </tabstops>
  <resources/>
  <connections>

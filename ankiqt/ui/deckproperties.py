@@ -54,7 +54,7 @@ class DeckProperties(QDialog):
             getattr(self.dialog, type + "Max").setText(str(v))
         self.dialog.delay0.setText(unicode(self.d.delay0/60.0))
         self.dialog.delay1.setText(unicode(self.d.delay1))
-        self.dialog.delay2.setText(unicode(self.d.delay2))
+        self.dialog.delay2.setText(unicode(int(self.d.delay2*100)))
         self.dialog.collapse.setCheckState(self.d.collapseTime
                                            and Qt.Checked or Qt.Unchecked)
         self.dialog.perDay.setCheckState(self.d.getBool("perDay")
@@ -67,6 +67,9 @@ class DeckProperties(QDialog):
         # leeches
         self.dialog.suspendLeeches.setChecked(self.d.getBool("suspendLeeches"))
         self.dialog.leechFails.setValue(self.d.getInt("leechFails"))
+        # spacing
+        self.dialog.newSpacing.setText(unicode(self.d.getFloat("newSpacing")/60.0))
+        self.dialog.revSpacing.setText(unicode(int(self.d.getFloat("revSpacing")*100)))
 
     def updateModelsList(self):
         idx = self.dialog.modelsList.currentRow()
@@ -187,8 +190,8 @@ class DeckProperties(QDialog):
             v2 = int(self.dialog.delay1.text())
             v2 = max(0, v2)
             self.updateField(self.d, 'delay1', v2)
-            v = float(self.dialog.delay2.text())
-            self.updateField(self.d, 'delay2', min(v, 1))
+            v = float(self.dialog.delay2.text()) / 100.0
+            self.updateField(self.d, 'delay2', max(0, min(100, v)))
         except ValueError:
             pass
         try:
@@ -196,6 +199,12 @@ class DeckProperties(QDialog):
                           not not self.dialog.suspendLeeches.isChecked())
             self.d.setVar("leechFails",
                           int(self.dialog.leechFails.value()))
+        except ValueError:
+            pass
+        try:
+            self.d.setVar("newSpacing", float(self.dialog.newSpacing.text()) * 60)
+            self.d.setVar("revSpacing", float(
+                self.dialog.revSpacing.text()) / 100.0)
         except ValueError:
             pass
         # hour shift
