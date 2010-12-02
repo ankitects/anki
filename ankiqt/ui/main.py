@@ -2251,33 +2251,39 @@ Are you sure?""" % deckName),
     def onSyncFinished(self):
         "Reopen after sync finished."
         self.mainWin.buttonStack.show()
-        if self.hideWelcome:
-            # no deck load & no deck browser, as we're about to quit or do
-            # something manually
-            pass
-        else:
-            if self.loadAfterSync == -1:
-                # after sync all, so refresh browser list
-                self.browserLastRefreshed = 0
+        try:
+            try:
+                if self.hideWelcome:
+                    # no deck load & no deck browser, as we're about to quit or do
+                    # something manually
+                    pass
+                else:
+                    if self.loadAfterSync == -1:
+                        # after sync all, so refresh browser list
+                        self.browserLastRefreshed = 0
+                        self.moveToState("noDeck")
+                    elif self.loadAfterSync and self.deckPath:
+                        if self.loadAfterSync == 2:
+                            name = re.sub("[<>]", "", self.syncName)
+                            p = os.path.join(self.documentDir, name + ".anki")
+                            shutil.copy2(self.deckPath, p)
+                            self.deckPath = p
+                            # since we've moved the deck, we have to set sync path
+                            # ourselves
+                            c = sqlite.connect(p)
+                            c.execute("update decks set syncName = ?",
+                                      [checksum(p.encode("utf-8"))])
+                            c.commit()
+                            c.close()
+                        self.loadDeck(self.deckPath, sync=False)
+                    else:
+                        self.moveToState("noDeck")
+            except:
                 self.moveToState("noDeck")
-            elif self.loadAfterSync and self.deckPath:
-                if self.loadAfterSync == 2:
-                    name = re.sub("[<>]", "", self.syncName)
-                    p = os.path.join(self.documentDir, name + ".anki")
-                    shutil.copy2(self.deckPath, p)
-                    self.deckPath = p
-                    # since we've moved the deck, we have to set sync path
-                    # ourselves
-                    c = sqlite.connect(p)
-                    c.execute("update decks set syncName = ?",
-                              [checksum(p.encode("utf-8"))])
-                    c.commit()
-                    c.close()
-                self.loadDeck(self.deckPath, sync=False)
-            else:
-                self.moveToState("noDeck")
-        self.deckPath = None
-        self.syncFinished = True
+                raise
+        finally:
+            self.deckPath = None
+            self.syncFinished = True
 
     def selectSyncDeck(self, decks):
         name = ui.sync.DeckChooser(self, decks).getName()
