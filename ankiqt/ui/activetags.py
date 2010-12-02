@@ -112,7 +112,7 @@ class ActiveTagsChooser(QDialog):
 
     def onHelp(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "ActiveTags"))
+                                      "SelectiveStudy"))
 
 def show(parent, active, inactive):
     at = ActiveTagsChooser(parent, active, inactive)

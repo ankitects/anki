@@ -13,10 +13,6 @@ from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
 import ankiqt
 
-tabs = ("ModelsAndPriorities",
-        "Synchronization",
-        "Advanced")
-
 class DeckProperties(QDialog):
 
     def __init__(self, parent, deck, onFinish=None):
@@ -153,10 +149,8 @@ class DeckProperties(QDialog):
             self.d.setModified()
 
     def helpRequested(self):
-        idx = self.dialog.qtabwidget.currentIndex()
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
-                                      "DeckProperties#" +
-                                      tabs[idx]))
+                                      "DeckProperties"))
 
     def reject(self):
         n = _("Deck Properties")
