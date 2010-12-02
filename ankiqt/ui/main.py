@@ -2298,6 +2298,9 @@ This deck already exists on your computer. Overwrite the local copy?"""),
                 d.setDefault(1)
                 if d.run() == "Overwrite":
                     self.syncDeck(interactive=False, onlyMerge=True)
+                else:
+                    self.syncFinished = True
+                    self.cleanNewDeck()
             else:
                 self.syncDeck(interactive=False, onlyMerge=True)
             return
