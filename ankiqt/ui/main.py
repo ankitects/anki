@@ -1056,7 +1056,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.toolTipTimer = None
 
     def save(self, required=False):
-        if not self.deck.modifiedSinceSave():
+        if not self.deck.modifiedSinceSave() and self.deck.path:
             return True
         if not self.deck.path:
             if required:
