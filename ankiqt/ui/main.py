@@ -2152,6 +2152,9 @@ it to your friends.
                     return
         if self.deck and not self.deck.syncName:
             if interactive:
+                if not self.deck.path:
+                    ui.utils.showInfo(_("Please save the deck first."))
+                    return
                 # enable syncing
                 self.deck.enableSyncing()
             else:

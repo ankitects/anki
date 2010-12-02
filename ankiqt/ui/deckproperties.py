@@ -25,6 +25,9 @@ class DeckProperties(QDialog):
         self.d = deck
         self.onFinish = onFinish
         self.origMod = self.d.modified
+        if not self.d.path:
+            ui.utils.showInfo(_("Please save the deck first."))
+            return
         self.dialog = ankiqt.forms.deckproperties.Ui_DeckProperties()
         self.dialog.setupUi(self)
         self.dialog.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
