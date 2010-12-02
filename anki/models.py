@@ -49,7 +49,7 @@ fieldModelsTable = Table(
     Column('quizFontFamily', UnicodeText, default=u"Arial"),
     Column('quizFontSize', Integer, default=20),
     Column('quizFontColour', String(7)),
-    Column('editFontFamily', Boolean, default=True), # reused as <pre> toggle
+    Column('editFontFamily', UnicodeText, default=u"1"), # reused as <pre> toggle
     Column('editFontSize', Integer, default=20))
 
 class FieldModel(object):
