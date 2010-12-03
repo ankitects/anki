@@ -1332,17 +1332,28 @@ your deck."""))
             # summarize
             reps = 0
             mins = 0
-            due = 0
+            revC = 0
+            newC = 0
             for d in self.browserDecks:
                 reps += d['reps']
                 mins += d['time']
-            self.mainWin.deckBrowserSummary.setText(ngettext(
+                revC += d['due']
+                newC += d['new']
+            line1 = ngettext(
                 "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today.",
                 "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today.",
                 reps) % {
                 'reps': reps,
                 'time': anki.utils.fmtTimeSpan(mins, point=2),
-                })
+                }
+            rev = ngettext(
+                "<b><font color=#0000ff>%d</font></b> review",
+                "<b><font color=#0000ff>%d</font></b> reviews",
+                revC) % revC
+            new = ngettext("<b>%d</b> new card", "<b>%d</b> new cards", newC) % newC
+            line2 = _("Due: %(rev)s, %(new)s") % {
+                'rev': rev, 'new': new}
+            self.mainWin.deckBrowserSummary.setText(line1 + "<br>" + line2)
         else:
             l = QLabel(_("""\
 <br>
