@@ -9,7 +9,7 @@ from ankiqt.ui.utils import saveGeom, restoreGeom
 
 class ActiveTagsChooser(QDialog):
 
-    def __init__(self, parent, active, inactive):
+    def __init__(self, parent, active, inactive, title):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.deck = self.parent.deck
@@ -17,6 +17,7 @@ class ActiveTagsChooser(QDialog):
         self.inactive = inactive
         self.dialog = ankiqt.forms.activetags.Ui_Dialog()
         self.dialog.setupUi(self)
+        self.setWindowTitle(title)
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.rebuildTagList()
@@ -114,6 +115,6 @@ class ActiveTagsChooser(QDialog):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "SelectiveStudy"))
 
-def show(parent, active, inactive):
-    at = ActiveTagsChooser(parent, active, inactive)
+def show(parent, active, inactive, title):
+    at = ActiveTagsChooser(parent, active, inactive, title)
     at.exec_()
