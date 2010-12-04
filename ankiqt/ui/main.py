@@ -1522,9 +1522,6 @@ later by using File>Close.
                      self.onStartReview)
         self.connect(self.mainWin.newCardOrder,
                      SIGNAL("activated(int)"), self.onNewCardOrderChanged)
-        self.connect(self.mainWin.advancedOptions,
-                     SIGNAL("clicked()"),
-                     self.onAdvancedOptions)
         self.connect(self.mainWin.failedCardMax,
                      SIGNAL("editingFinished()"),
                      self.onFailedMaxChanged)
@@ -1552,10 +1549,6 @@ later by using File>Close.
             pass
         self.mainWin.failedCardMax.setText(str(self.deck.failedCardMax))
         self.deck.flushMod()
-
-    def onAdvancedOptions(self):
-        self.onDeckProperties()
-        self.deckProperties.dialog.qtabwidget.setCurrentIndex(2)
 
     def onMinuteLimitChanged(self, qstr):
         try:

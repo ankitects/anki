@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>605</width>
-    <height>565</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1146,21 +1146,10 @@
                         <property name="sizeHint" stdset="0">
                          <size>
                           <width>20</width>
-                          <height>15</height>
+                          <height>40</height>
                          </size>
                         </property>
                        </spacer>
-                      </item>
-                      <item>
-                       <layout class="QGridLayout" name="gridLayout_5">
-                        <item row="0" column="0">
-                         <widget class="QPushButton" name="advancedOptions">
-                          <property name="text">
-                           <string>&amp;Advanced</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
                       </item>
                      </layout>
                     </widget>
@@ -3774,7 +3763,6 @@
   <tabstop>revCardOrder</tabstop>
   <tabstop>failedCardsOption</tabstop>
   <tabstop>revCategories</tabstop>
-  <tabstop>advancedOptions</tabstop>
   <tabstop>minuteLimit</tabstop>
   <tabstop>questionLimit</tabstop>
   <tabstop>welcomeText</tabstop>
