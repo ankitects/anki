@@ -148,9 +148,6 @@ sync was aborted. Please report this error.""")
         # exists on server?
         deckCreated = False
         if not proxy.hasDeck(syncName):
-            # multi-mode?
-            if deck:
-                return
             if self.onlyMerge:
                 keys = [k for (k,v) in proxy.decks.items() if v[1] != -1]
                 self.emit(SIGNAL("noMatchingDeck"), keys)
