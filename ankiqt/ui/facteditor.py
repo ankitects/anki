@@ -687,7 +687,7 @@ class FactEditor(object):
         for n, c in enumerate(reversed(ankiqt.mw.config['recentColours'])):
             col = QToolButton()
             col.setAutoRaise(True)
-            col.setFixedWidth(16)
+            col.setFixedWidth(64)
             col.setFixedHeight(16)
             col.setAutoFillBackground(True)
             col.setPalette(QPalette(QColor(c)))
@@ -710,7 +710,7 @@ class FactEditor(object):
         g.addItem(spc, n+1, 0)
         cb = QPushButton(_("+"))
         cb.connect(cb, SIGNAL("clicked()"), self.onNewColour)
-        cb.setFixedWidth(32)
+        cb.setFixedWidth(80)
         cb.setFixedHeight(16)
         cb.setAutoDefault(False)
         g.addWidget(cb, n+2, 0, 1, 2)
