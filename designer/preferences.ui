@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>365</width>
-    <height>467</height>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>&lt;h1&gt;Language&lt;/h1&gt;</string>
+          <string>&lt;b&gt;Language&lt;/b&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -62,7 +62,7 @@
           <enum>Qt::TabFocus</enum>
          </property>
          <property name="text">
-          <string>&lt;h1&gt;Reviewing&lt;/h1&gt;</string>
+          <string>&lt;b&gt;Reviewing&lt;/b&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -166,7 +166,7 @@
            <item>
             <widget class="QLabel" name="label_16">
              <property name="text">
-              <string>&lt;h1&gt;Synchronisation&lt;/h1&gt;&lt;a href=&quot;http://anki.ichi2.net/&quot;&gt;Create a free account&lt;/a&gt;.</string>
+              <string>&lt;b&gt;Synchronisation&lt;/b&gt;&lt;a href=&quot;http://anki.ichi2.net/&quot;&gt;&lt;br&gt;Create a free account&lt;/a&gt;.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -201,16 +201,6 @@
              <item row="0" column="1">
               <widget class="QLineEdit" name="syncUser"/>
              </item>
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="syncOnClose">
-               <property name="text">
-                <string>Sync on deck close</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
              <item row="1" column="1">
               <widget class="QLineEdit" name="syncPass">
                <property name="echoMode">
@@ -218,27 +208,27 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="2" column="0" colspan="2">
               <widget class="QCheckBox" name="syncOnOpen">
                <property name="text">
-                <string>Sync on deck open</string>
+                <string>Sync on deck open/close</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item row="3" column="0" colspan="2">
               <widget class="QCheckBox" name="syncOnProgramOpen">
                <property name="text">
-                <string>Sync on program open</string>
+                <string>Sync on program open/close</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="0">
-              <widget class="QCheckBox" name="syncOnProgramClose">
+             <item row="4" column="0" colspan="2">
+              <widget class="QCheckBox" name="disableWhenMoved">
                <property name="text">
-                <string>Sync on program close</string>
+                <string>Disable sync when deck moved</string>
                </property>
               </widget>
              </item>
@@ -251,7 +241,7 @@
        <item>
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>&lt;h1&gt;Proxy&lt;/h1&gt;</string>
+          <string>&lt;b&gt;Proxy&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -349,7 +339,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>&lt;h1&gt;Autosaving&lt;/h1&gt;</string>
+          <string>&lt;b&gt;Autosaving&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -427,7 +417,7 @@
        <item>
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>&lt;h1&gt;Backups&lt;/h1&gt;Decks are backed up when they are opened, and only if they have been modified since the last backup.</string>
+          <string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Decks are backed up when they are opened or synchronised, and only if they have been modified since the last backup.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -520,86 +510,63 @@
       <layout class="QVBoxLayout">
        <item>
         <layout class="QGridLayout">
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>&lt;h1&gt;Advanced settings&lt;/h1&gt;</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
+         <item row="4" column="0">
           <widget class="QCheckBox" name="showTimer">
            <property name="text">
             <string>Show timer</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <spacer name="verticalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>10</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="4" column="0">
+         <item row="2" column="0">
           <widget class="QCheckBox" name="alternativeTheme">
            <property name="text">
             <string>Alternative theme</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
+         <item row="6" column="0">
           <widget class="QCheckBox" name="showStudyOptions">
            <property name="text">
             <string>Show study options on deck load</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="5" column="0">
           <widget class="QCheckBox" name="showTray">
            <property name="text">
             <string>Show tray icon</string>
            </property>
           </widget>
          </item>
-         <item row="12" column="0">
+         <item row="10" column="0">
           <widget class="QCheckBox" name="addZeroSpace">
            <property name="text">
             <string>Add hidden char to text (fixes Thai on OSX)</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="7" column="0">
           <widget class="QCheckBox" name="openLastDeck">
            <property name="text">
             <string>Always open last deck on startup</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="0">
+         <item row="8" column="0">
           <widget class="QCheckBox" name="deckBrowserOrder">
            <property name="text">
             <string>Show decks with cards due first in browser</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="0">
+         <item row="9" column="0">
           <widget class="QCheckBox" name="deleteMedia">
            <property name="text">
             <string>Delete original media on add</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="3" column="0">
           <widget class="QCheckBox" name="colourTimes">
            <property name="text">
             <string>Colour next times</string>
@@ -702,9 +669,8 @@
   <tabstop>syncUser</tabstop>
   <tabstop>syncPass</tabstop>
   <tabstop>syncOnOpen</tabstop>
-  <tabstop>syncOnClose</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
-  <tabstop>syncOnProgramClose</tabstop>
+  <tabstop>disableWhenMoved</tabstop>
   <tabstop>proxyHost</tabstop>
   <tabstop>proxyPort</tabstop>
   <tabstop>proxyUser</tabstop>

@@ -56,6 +56,7 @@ class AnkiQt(QMainWindow):
             self.setupSystemHacks()
             self.setupSound()
             self.setupTray()
+            self.setupSync()
             self.connectMenuActions()
             ui.splash.update()
             self.setupViews()
@@ -872,7 +873,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             if self.deck.modifiedSinceSave():
                 if (self.deck.path is None or
                     (not self.config['saveOnClose'] and
-                     not self.config['syncOnClose'])):
+                     not self.config['syncOnLoad'])):
                     # backed in memory or autosave/sync off, must confirm
                     while 1:
                         res = ui.unsaved.ask(parent)
@@ -885,7 +886,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                         else:
                             break
             # auto sync (saving automatically)
-            if self.config['syncOnClose'] and self.deck.syncName:
+            if self.config['syncOnLoad'] and self.deck.syncName:
                 # force save, the user may not have set passwd/etc
                 self.deck.save()
                 if self.syncDeck(False, reload=False):
@@ -896,7 +897,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                     self.hideWelcome = False
                     return True
             # auto save
-            if self.config['saveOnClose'] or self.config['syncOnClose']:
+            if self.config['saveOnClose'] or self.config['syncOnLoad']:
                 if self.deck:
                     self.save()
             # close if the deck wasn't already closed by a failed sync
@@ -1423,7 +1424,7 @@ later by using File>Close.
         if not self.saveAndClose(hideWelcome=True):
             event.ignore()
         else:
-            if self.config['syncOnProgramClose']:
+            if self.config['syncOnProgramOpen']:
                 self.hideWelcome = True
                 self.syncDeck(interactive=False)
             self.prepareForExit()
@@ -2145,6 +2146,10 @@ it to your friends.
 
     # Syncing
     ##########################################################################
+
+    def setupSync(self):
+        if not self.config['syncDisableWhenMoved']:
+            anki.deck.Deck.checkSyncHash = lambda self: True
 
     def syncDeck(self, interactive=True, onlyMerge=False, reload=True):
         "Synchronise a deck with the server."
