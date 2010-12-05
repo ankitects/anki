@@ -3159,7 +3159,9 @@ Return new path, relative to media dir."""
         if self.syncName and self.syncName != checksum(self.path.encode("utf-8")):
             self.notify(_("""\
 Because '%s' has been moved or copied, automatic synchronisation \
-has been disabled. (ERR-0100)""") % self.name())
+has been disabled (ERR-0100).
+
+You can disable this check in Settings>Preferences>Network.""") % self.name())
             self.disableSyncing()
             self.syncName = None
             self.lastSync = 0
