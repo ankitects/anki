@@ -160,9 +160,13 @@ class DeckProperties(QDialog):
         # syncing
         if self.dialog.doSync.checkState() == Qt.Checked:
             old = self.d.syncName
+            oldSync = self.d.lastSync
             self.d.enableSyncing()
             if self.d.syncName != old:
                 needSync = True
+            else:
+                # put it back
+                self.d.lastSync = oldSync
         else:
             self.d.disableSyncing()
         # scheduling
