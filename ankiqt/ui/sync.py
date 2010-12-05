@@ -206,9 +206,6 @@ sync was aborted. Please report this error.""")
                                 while not self.clobberChoice:
                                     time.sleep(0.2)
                                 if self.clobberChoice == "cancel":
-                                    # deck has already been closed in
-                                    # prepareFullSync(), so clean up
-                                    self.deck.close()
                                     # disable syncing on this deck
                                     c = sqlite.connect(sqlpath)
                                     c.execute(
