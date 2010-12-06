@@ -862,7 +862,7 @@ where id in """
 select count() from cards
 where factId = :fid and id != :cid
 and combinedDue < :cut and type = 2
-""", cid=card.id, fid=card.factId, cut=self.dueCutoff, new=new)
+""", cid=card.id, fid=card.factId, cut=self.dueCutoff)
         # space cards
         self.s.statement("""
 update cards set
