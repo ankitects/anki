@@ -829,6 +829,8 @@ where id in (%s)""" % ",".join([
         self.updateAfterCardChange()
 
     def addTags(self, tags=None, label=None):
+        # focus lost hook may not have chance to fire
+        self.editor.saveFieldsNow()
         if tags is None:
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
         else:
@@ -844,6 +846,8 @@ where id in (%s)""" % ",".join([
         self.updateAfterCardChange()
 
     def deleteTags(self, tags=None, label=None):
+        # focus lost hook may not have chance to fire
+        self.editor.saveFieldsNow()
         if tags is None:
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
         else:
@@ -866,6 +870,8 @@ where id in (%s)""" % ",".join([
         return self.currentCard and self.currentCard.priority == -3
 
     def onSuspend(self, sus):
+        # focus lost hook may not have chance to fire
+        self.editor.saveFieldsNow()
         if sus:
             self._onSuspend()
         else:
