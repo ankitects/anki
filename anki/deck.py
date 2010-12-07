@@ -2321,10 +2321,10 @@ where id = :id""", pending)
                     if token['value'].startswith(":") and len(phraselog) == 1:
                         #we now know a colon is next, so mark it as field
                         # and keep looking for the value
-                        field = phraselog[0][0]
+                        field = phraselog[0]['value']
                         parts = token['value'].split(':', 1)
                         phraselog.append(
-                            {'value': token, 'is_neg': False,
+                            {'value': token['value'], 'is_neg': False,
                              'type': SEARCH_PHRASE, 'filter': token['filter']})
                         if parts[1]:
                             #value is included with the :, so wrap it up
