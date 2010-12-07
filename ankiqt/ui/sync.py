@@ -73,6 +73,16 @@ class Sync(QThread):
             self.emit(SIGNAL("badUserPass"))
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
+        elif error.data.get('type') == 'noResponse':
+            msg=_("""\
+The server didn't reply. Please try again shortly, and if the problem \
+persists, please report it on the forums.""")
+        elif error.data.get('type') == 'connectionError':
+            msg=_("""\
+There was a connection error. If it persists, please try disabing your
+firewall software temporarily, or try again from a different network.
+
+Debugging info: %s""") % error.data.get("exc", "<none>")
         else:
             tb = traceback.format_exc()
             if "missingFacts" in tb:
