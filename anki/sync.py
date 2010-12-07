@@ -1143,12 +1143,17 @@ class HttpSyncServerProxy(SyncServer):
         try:
             f = urllib2.urlopen(SYNC_URL + action, data)
         except (urllib2.URLError, socket.error, socket.timeout,
-                httplib.BadStatusLine):
-            raise SyncError(type="noResponse")
+                httplib.BadStatusLine), e:
+            raise SyncError(type="connectionError",
+                            exc=`e`)
         ret = f.read()
         if not ret:
             raise SyncError(type="noResponse")
-        return self.unstuff(ret)
+        try:
+            return self.unstuff(ret)
+        except Exception, e:
+            raise SyncError(type="connectionError",
+                            exc=`e`)
 
 # HTTP server: respond to proxy requests and return data
 ##########################################################################
