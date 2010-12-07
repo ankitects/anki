@@ -234,11 +234,12 @@ sync was aborted. Please report this error.""")
                     # apply reply
                     self.setStatus(_("Applying reply..."), 0)
                     client.applyPayloadReply(res)
-                    # finished. save deck, preserving mod time
-                    self.setStatus(_("Sync complete."))
+                    # now that both sides have successfully applied, tell
+                    # server to save, then save local
+                    client.server.finish()
                     self.deck.lastLoaded = self.deck.modified
-                    self.deck.s.flush()
                     self.deck.s.commit()
+                    self.setStatus(_("Sync complete."))
             else:
                 changes = False
                 if not deck:
