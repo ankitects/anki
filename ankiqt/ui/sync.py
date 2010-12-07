@@ -56,9 +56,7 @@ class Sync(QThread):
     def error(self, error):
         if getattr(error, 'data', None) is None:
             error.data = {}
-        if error.data.get('type') == 'noResponse':
-            self.emit(SIGNAL("noSyncResponse"))
-        elif error.data.get('type') == 'clockOff':
+        if error.data.get('type') == 'clockOff':
             pass
         else:
             error = self.getErrorMessage(error)

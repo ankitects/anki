@@ -2197,7 +2197,6 @@ it to your friends.
         self.syncThread = ui.sync.Sync(self, u, p, interactive, onlyMerge)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
-        self.connect(self.syncThread, SIGNAL("noSyncResponse"), self.noSyncResponse)
         self.connect(self.syncThread, SIGNAL("moveToState"), self.moveToState)
         self.connect(self.syncThread, SIGNAL("noMatchingDeck"), self.selectSyncDeck)
         self.connect(self.syncThread, SIGNAL("syncClockOff"), self.syncClockOff)
@@ -2346,12 +2345,6 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     def badUserPass(self):
         ui.preferences.Preferences(self, self.config).dialog.tabWidget.\
                                          setCurrentIndex(1)
-
-    def noSyncResponse(self):
-        msg = _("Sync Failed. Please check your internet connection.")
-        if self.config['proxyHost']:
-            msg += _(" (and proxy settings)")
-        self.setNotice(msg)
 
     def openSyncProgress(self):
         self.syncProgressDialog = QProgressDialog(_("Syncing Media..."),
