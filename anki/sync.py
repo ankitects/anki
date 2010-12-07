@@ -943,8 +943,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
 
     def prepareFullSync(self):
         t = time.time()
-        self.deck.lastSync = time.time()
-        self.deck.s.commit()
         self.deck.close()
         fields = {
             "p": self.server.password,
@@ -991,6 +989,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                     tmp.write(comp.flush())
                     break
                 tmp.write(comp.compress(data))
+            src.close()
             tmp.write('\r\n--' + MIME_BOUNDARY + '--\r\n\r\n')
             size = tmp.tell()
             tmp.seek(0)
@@ -1002,10 +1001,17 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                 'Content-length': str(size),
                 'Host': SYNC_HOST,
                 }
-            req = urllib2.Request(SYNC_URL + "fullup", tmp, headers)
+            req = urllib2.Request(SYNC_URL + "fullup?v=2", tmp, headers)
             try:
                 sendProgressHook = fullSyncProgressHook
-                assert urllib2.urlopen(req).read() == "OK"
+                res = urllib2.urlopen(req).read()
+                assert res.startswith("OK")
+                # update local modification time
+                c = sqlite.connect(path)
+                c.execute("update decks set lastSync = ?",
+                          (res[3:],))
+                c.commit()
+                c.close()
             finally:
                 sendProgressHook = None
                 tmp.close()
@@ -1126,7 +1132,8 @@ class HttpSyncServerProxy(SyncServer):
 
     def runCmd(self, action, **args):
         data = {"p": self.password,
-                "u": self.username}
+                "u": self.username,
+                "v": 2}
         if self.deckName:
             data['d'] = self.deckName.encode("utf-8")
         else:
