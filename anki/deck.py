@@ -2977,7 +2977,7 @@ where key = :key""", key=key, value=value):
             if d == 600 and self.failedCardMax == 20:
                 return 0
             return 5
-        if d == 0:
+        if d == 0 and self.failedCardMax == 0:
             return 1
         elif d == 600:
             return 2
