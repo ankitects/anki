@@ -2606,7 +2606,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         return os.path.join(dir, "plugins")
 
     def loadPlugins(self):
-        if self.appUpdated:
+        if sys.platform.startswith("win32"):
             self.clearPluginCache()
         plugdir = self.pluginsFolder()
         sys.path.insert(0, plugdir)
