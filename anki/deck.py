@@ -3648,7 +3648,7 @@ class DeckStorage(object):
                     traceback.print_exc()
                     deck.fixIntegrity()
                     deck = DeckStorage._upgradeDeck(deck, path)
-        except SyntaxError: # OperationalError, e:
+        except OperationalError, e:
             engine.dispose()
             if (str(e.orig).startswith("database table is locked") or
                 str(e.orig).startswith("database is locked")):
