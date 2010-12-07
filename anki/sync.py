@@ -263,7 +263,6 @@ class SyncTools(object):
         "Generate a full summary of modtimes for two-way syncing."
         # client may have selected an earlier sync time
         self.deck.lastSync = lastSync
-        self.deck.s.commit()
         # ensure we're flushed first
         self.deck.s.flush()
         return {
@@ -641,7 +640,6 @@ insert or replace into deckVars
 (key, value) values (:k, :v)""", k=k, v=v)
             del deck['meta']
         self.applyDict(self.deck, deck)
-        self.deck.updateDynamicIndices()
 
     def bundleStats(self):
         def bundleStat(stat):
