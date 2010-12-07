@@ -15,6 +15,7 @@ getDecks(): return a list of deck names & modtimes
 summary(lastSync): a list of all objects changed after lastSync
 applyPayload(payload): apply any sent changes and return any changed remote
                        objects
+finish(): save deck on server after payload applied and response received
 createDeck(name): create a deck on the server
 
 Full sync support is not documented yet.
@@ -184,8 +185,6 @@ class SyncTools(object):
         self.deck.updateCardTags(cardIds)
         # rebuild priorities on server
         self.rebuildPriorities(cardIds, self.serverExcludedTags)
-        # rebuild due counts
-        self.deck.rebuildCounts()
         return reply
 
     def applyPayloadReply(self, reply):
