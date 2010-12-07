@@ -1130,6 +1130,9 @@ class HttpSyncServerProxy(SyncServer):
         return self.runCmd("applyPayload",
                            payload=self.stuff(payload))
 
+    def finish(self):
+        assert self.runCmd("finish") == "OK"
+
     def runCmd(self, action, **args):
         data = {"p": self.password,
                 "u": self.username,
