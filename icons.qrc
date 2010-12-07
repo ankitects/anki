@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/">
+    <file>icons/layout.png</file>
     <file>icons/generate_07.png</file>
     <file>icons/view-sort-descending.png</file>
     <file>icons/emblem-important.png</file>

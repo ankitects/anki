@@ -151,6 +151,10 @@
             <property name="text">
              <string>Card &amp;Layout</string>
             </property>
+            <property name="icon">
+             <iconset resource="../icons.qrc">
+              <normaloff>:/icons/layout.png</normaloff>:/icons/layout.png</iconset>
+            </property>
            </widget>
           </item>
          </layout>
@@ -185,7 +189,9 @@
   <tabstop>cardLayout</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

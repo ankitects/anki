@@ -1787,6 +1787,7 @@ learnt today")
         mw = self.mainWin
         mw.toolBar.addAction(mw.actionAddcards)
         mw.toolBar.addAction(mw.actionEditCurrent)
+        mw.toolBar.addAction(mw.actionEditLayout)
         mw.toolBar.addAction(mw.actionEditdeck)
         mw.toolBar.addAction(mw.actionStudyOptions)
         mw.toolBar.addAction(mw.actionGraphs)
@@ -1910,6 +1911,10 @@ learnt today")
 
     def onEditCurrent(self):
         self.moveToState("editCurrentFact")
+
+    def onCardLayout(self):
+        ui.clayout.CardLayout(self, None, self.currentCard.fact.model,
+                              card=self.currentCard)
 
     def onDeckProperties(self):
         self.deckProperties = ui.deckproperties.DeckProperties(self, self.deck)
@@ -2433,6 +2438,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionDstats, s, self.onDeckStats)
         self.connect(m.actionCstats, s, self.onCardStats)
         self.connect(m.actionGraphs, s, self.onShowGraph)
+        self.connect(m.actionEditLayout, s, self.onCardLayout)
         self.connect(m.actionAbout, s, self.onAbout)
         self.connect(m.actionReportbug, s, self.onReportBug)
         self.connect(m.actionForum, s, self.onForum)
@@ -2512,6 +2518,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     def disableCardMenuItems(self):
         self.maybeEnableUndo()
         self.mainWin.actionEditCurrent.setEnabled(False)
+        self.mainWin.actionEditLayout.setEnabled(False)
 	self.mainWin.actionMarkCard.setEnabled(False)
 	self.mainWin.actionSuspendCard.setEnabled(False)
 	self.mainWin.actionDelete.setEnabled(False)
@@ -2524,6 +2531,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         snd = (hasSound(self.currentCard.question) or
                (hasSound(self.currentCard.answer) and
                 self.state != "getQuestion"))
+	self.mainWin.actionEditLayout.setEnabled(True)
         self.mainWin.actionRepeatAudio.setEnabled(snd)
 	self.mainWin.actionMarkCard.setEnabled(True)
 	self.mainWin.actionSuspendCard.setEnabled(True)

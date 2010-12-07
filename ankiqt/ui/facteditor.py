@@ -126,7 +126,7 @@ class FactEditor(object):
         self.clayout.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
         self.clayout.setFixedHeight(20)
         # self.clayout.setFixedWidth(48)
-        self.clayout.setIcon(QIcon(":/icons/edit.png"))
+        self.clayout.setIcon(QIcon(":/icons/layout.png"))
         #self.clayout.setIconSize(QSize(32,32))
         self.clayout.setToolTip(_("Edit how cards are displayed (F2)"))
         self.clayout.setShortcut(_("F2"))

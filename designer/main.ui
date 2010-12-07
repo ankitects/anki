@@ -3029,6 +3029,7 @@
     <addaction name="separator"/>
     <addaction name="actionAddcards"/>
     <addaction name="actionEditCurrent"/>
+    <addaction name="actionEditLayout"/>
     <addaction name="actionEditdeck"/>
     <addaction name="separator"/>
     <addaction name="actionMarkCard"/>
@@ -3580,7 +3581,7 @@
      <normaloff>:/icons/edit-rename.png</normaloff>:/icons/edit-rename.png</iconset>
    </property>
    <property name="text">
-    <string>Edit &amp;Current...</string>
+    <string>&amp;Current Fact...</string>
    </property>
    <property name="statusTip">
     <string/>
@@ -3741,6 +3742,18 @@
    </property>
    <property name="statusTip">
     <string>Save media files using original file names</string>
+   </property>
+  </action>
+  <action name="actionEditLayout">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/layout.png</normaloff>:/icons/layout.png</iconset>
+   </property>
+   <property name="text">
+    <string>Card Layout...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>
