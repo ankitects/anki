@@ -109,10 +109,8 @@ sync was aborted. Please report this error.""")
     def syncAllDecks(self):
         decks = self.parent.syncDecks
         for d in decks:
-            try:
-                self.syncDeck(deck=d)
-            except SyncError, e:
-                return
+            if not self.syncDeck(deck=d):
+                break
         self.setStatus(_("Sync Finished."), 0)
         time.sleep(1)
         self.emit(SIGNAL("syncFinished"))
@@ -165,7 +163,8 @@ sync was aborted. Please report this error.""")
                 proxy.createDeck(syncName)
                 deckCreated = True
             except SyncError, e:
-                return self.error(e)
+                self.error(e)
+                return
         # check conflicts
         proxy.deckName = syncName
         remoteMod = proxy.modified()
@@ -263,6 +262,7 @@ sync was aborted. Please report this error.""")
                 else:
                     time.sleep(0.25)
                 self.emit(SIGNAL("syncFinished"))
+            return True
         except Exception, e:
             self.ok = False
             #traceback.print_exc()
@@ -272,8 +272,7 @@ sync was aborted. Please report this error.""")
             err = `getattr(e, 'data', None) or e`
             self.setStatus(_("Syncing failed: %(a)s") % {
                 'a': err})
-            if not deck:
-                self.error(e)
+            self.error(e)
 
 # Downloading personal decks
 ##########################################################################
