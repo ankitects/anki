@@ -620,8 +620,8 @@ values
         del d['path']
         del d['syncName']
         del d['version']
-        del d['css']
         # these may be deleted before bundling
+        if 'css' in d: del d['css']
         if 'models' in d: del d['models']
         if 'currentModel' in d: del d['currentModel']
         keys = d.keys()
