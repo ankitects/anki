@@ -110,7 +110,7 @@ sync was aborted. Please report this error.""")
         decks = self.parent.syncDecks
         for d in decks:
             if not self.syncDeck(deck=d):
-                break
+                return
         self.setStatus(_("Sync Finished."), 0)
         time.sleep(1)
         self.emit(SIGNAL("syncFinished"))
