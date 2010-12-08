@@ -231,7 +231,7 @@ facts.id = cards.factId), firstAnswered from cards where id = :id""",
         reps = self.cards[index.row()][CARD_REPS]
         secs = d - time.time()
         if secs <= 0:
-            if not reps:
+            if not reps and self.deck.newCardOrder == 0:
                 return _("(new card)")
             else:
                 return _("%s ago") % fmtTimeSpan(abs(secs), pad=0)
