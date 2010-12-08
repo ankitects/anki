@@ -131,9 +131,9 @@ update fields set value = :v where factId = :fid and fieldModelId = :fmid""",
                                 data)
         # update tags
         self.deck.updateProgress()
-        if tagsIdx:
-            data = [{'factId': fid,
-                     'tags': c.fields[tagsIdx]}
+        if tagsIdx is not None:
+            data = [{'fid': fid,
+                     't': c.fields[tagsIdx]}
                     for (fid, c) in upcards]
             self.deck.s.execute(
                 "update facts set tags = :t where id = :fid",
