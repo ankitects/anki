@@ -3556,7 +3556,7 @@ backupDir = os.path.expanduser("~/.anki/backups")
 
 class DeckStorage(object):
 
-    def Deck(path=None, backup=True, lock=True, pool=True):
+    def Deck(path=None, backup=True, lock=True, pool=True, rebuild=True):
         "Create a new deck or attach to an existing one."
         create = True
         if path is None:
@@ -3571,9 +3571,9 @@ class DeckStorage(object):
         try:
             (engine, session) = DeckStorage._attach(sqlpath, create, pool)
             s = session()
-            metadata.create_all(engine)
             if create:
                 ver = 999
+                metadata.create_all(engine)
                 deck = DeckStorage._init(s)
             else:
                 ver = s.scalar("select version from decks limit 1")
@@ -3596,6 +3596,8 @@ class DeckStorage(object):
                             s.execute("alter table " + st)
                         except:
                             pass
+                if ver < DECK_VERSION:
+                    metadata.create_all(engine)
                 deck = s.query(Deck).get(1)
                 if not deck:
                     raise DeckAccessError(_("Deck missing core table"),
@@ -3656,6 +3658,11 @@ class DeckStorage(object):
                                       type="inuse")
             else:
                 raise e
+        if not rebuild:
+            # minimal startup
+            deck._globalStats = globalStats(deck)
+            deck._dailyStats = dailyStats(deck)
+            return deck
         if needUnpack:
             deck.startProgress()
             DeckStorage._addIndices(deck)
