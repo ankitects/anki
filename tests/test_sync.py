@@ -175,6 +175,7 @@ def test_localsync_factsandcards():
     assert deck1.factCount == 1 and deck1.cardCount == 2
     assert deck2.factCount == 1 and deck2.cardCount == 2
     client.sync()
+    deck1.reset(); deck2.reset()
     assert deck1.factCount == 2 and deck1.cardCount == 4
     assert deck2.factCount == 2 and deck2.cardCount == 4
     # ensure the fact was copied across
@@ -184,10 +185,10 @@ def test_localsync_factsandcards():
     f1.setModified()
     deck1.setModified()
     client.sync()
+    deck1.rebuildCounts()
+    deck2.rebuildCounts()
     f2 = deck1.s.query(Fact).get(f1.id)
     assert f2['Front'] == u"myfront"
-    deck1.reset()
-    deck2.reset()
     c1 = deck1.getCard()
     c2 = deck2.getCard()
     assert c1.id == c2.id
@@ -215,6 +216,7 @@ def test_localsync_threeway():
     # delete a card on deck1
     deck1.deleteCard(card.id)
     client.sync()
+    deck1.reset(); deck2.reset()
     assert deck1.cardCount == 5
     assert deck2.cardCount == 5
     # make sure the delete is now propagated from the server to deck3
