@@ -69,7 +69,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 56
+DECK_VERSION = 57
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -3750,6 +3750,13 @@ create index if not exists ix_cards_typeCombined on cards
         deck.s.statement("""
 create index if not exists ix_cards_relativeDelay on cards
 (relativeDelay)""")
+        # index on modified, to speed up sync summaries
+        deck.s.statement("""
+create index if not exists ix_cards_modified on cards
+(modified)""")
+        deck.s.statement("""
+create index if not exists ix_facts_modified on facts
+(modified)""")
         # priority - temporary index to make compat code faster. this can be
         # removed when all clients are on 1.2, as can the ones below
         deck.s.statement("""
@@ -4300,10 +4307,11 @@ update fieldModels set quizFontFamily = 'Arial' where not quizFontFamily
 or quizFontFamily is null""")
             deck.version = 55
             deck.s.commit()
-        if deck.version < 56:
-            # add an index for priority
+        if deck.version < 57:
+            # add an index for priority & modified
             DeckStorage._addIndices(deck)
-            deck.version = 56
+            deck.s.statement("analyze")
+            deck.version = 57
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
