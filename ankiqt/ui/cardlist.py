@@ -434,11 +434,8 @@ class EditDeck(QMainWindow):
 
     def drawTags(self):
         self.dialog.tagList.setMaxVisibleItems(30)
-        if not sys.platform.startswith("darwin"):
-            self.dialog.tagList.view().setFixedWidth(200)
-            self.dialog.tagList.setFixedWidth(130)
-        else:
-            self.dialog.tagList.setFixedWidth(200)
+        self.dialog.tagList.view().setMinimumWidth(200)
+        self.dialog.tagList.setFixedWidth(170)
         self.dialog.tagList.clear()
         alltags = [None, "Marked", None, None, "Leech", None, None]
         # system tags
