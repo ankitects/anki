@@ -267,13 +267,8 @@ sync was aborted. Please report this error.""")
             return True
         except Exception, e:
             self.ok = False
-            #traceback.print_exc()
             if self.deck:
                 self.deck.close()
-            # cheap hack to ensure message is displayed
-            err = `getattr(e, 'data', None) or e`
-            self.setStatus(_("Syncing failed: %(a)s") % {
-                'a': err})
             self.error(e)
             return -1
 
