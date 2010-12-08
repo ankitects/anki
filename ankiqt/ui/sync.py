@@ -109,7 +109,12 @@ sync was aborted. Please report this error.""")
     def syncAllDecks(self):
         decks = self.parent.syncDecks
         for d in decks:
-            if not self.syncDeck(deck=d):
+            ret = self.syncDeck(deck=d)
+            if not ret:
+                # failed but not cleaned up
+                break
+            elif ret == -1:
+                # failed and already cleaned up
                 return
         self.setStatus(_("Sync Finished."), 0)
         time.sleep(1)
@@ -141,16 +146,14 @@ sync was aborted. Please report this error.""")
             if "locked" in unicode(e):
                 return
             # unknown error
-            raise
+            self.error(e)
+            return -1
         # ensure deck mods cached
         try:
             proxy = self.connect()
         except SyncError, e:
             self.error(e)
-            if deck:
-                raise
-            else:
-                return
+            return -1
         # exists on server?
         deckCreated = False
         if not proxy.hasDeck(syncName):
@@ -164,7 +167,7 @@ sync was aborted. Please report this error.""")
                 deckCreated = True
             except SyncError, e:
                 self.error(e)
-                return
+                return -1
         # check conflicts
         proxy.deckName = syncName
         remoteMod = proxy.modified()
@@ -177,10 +180,9 @@ sync was aborted. Please report this error.""")
             while not self.conflictResolution:
                 time.sleep(0.2)
             if self.conflictResolution == "cancel":
-                if not deck:
-                    # alert we're finished early
-                    self.emit(SIGNAL("syncFinished"))
-                return
+                # alert we're finished early
+                self.emit(SIGNAL("syncFinished"))
+                return -1
         # reopen
         self.setStatus(_("Syncing <b>%s</b>...") % syncName, 0)
         self.deck = None
@@ -223,7 +225,7 @@ sync was aborted. Please report this error.""")
                                     if not deck:
                                         # alert we're finished early
                                         self.emit(SIGNAL("syncFinished"))
-                                    return
+                                    return True
                         self.setStatus(_("Uploading..."), 0)
                         client.fullSyncFromLocal(ret[1], ret[2])
                     else:
@@ -273,6 +275,7 @@ sync was aborted. Please report this error.""")
             self.setStatus(_("Syncing failed: %(a)s") % {
                 'a': err})
             self.error(e)
+            return -1
 
 # Downloading personal decks
 ##########################################################################
