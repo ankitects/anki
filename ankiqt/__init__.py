@@ -123,7 +123,7 @@ def run():
     sys.path.append(modDir)
     # jpeg module
     rd = runningDir
-    if sys.platform.startswith("darwin"):
+    if sys.platform.startswith("darwin") and getattr(sys, 'frozen', None):
         rd = os.path.abspath(runningDir + "/../../..")
         QCoreApplication.setLibraryPaths(QStringList([rd]))
 
