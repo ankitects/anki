@@ -969,7 +969,12 @@ and type between 1 and 2""",
         "Return time when CARD will expire given EASE."
         if ease == 1:
             if oldState == "mature":
-                due = 0 + self.delay1*86400
+                # FIXME: magic value until we have old clients updated
+                if self.delay1 == 600:
+                    d = 0
+                else:
+                    d = self.delay1
+                due = 0 + d*86400
             else:
                 due = 0
         else:
@@ -3681,10 +3686,9 @@ class DeckStorage(object):
         deck.s.statement("""
 update cards set type = type - 3 where type between 0 and 2 and priority = -3""")
         # - new delay1 handling
-        if deck.delay0 == deck.delay1:
-            deck.delay1 = 0
-        else:
-            deck.delay1 = min(deck.delay1, 7)
+        if deck.delay1 > 7:
+            # we treat 600==0 to avoid breaking older clients
+            deck.delay1 = 600
         # unsuspend buried/rev early - can remove priorities in the future
         ids = deck.s.column0(
             "select id from cards where type > 2 or priority between -2 and -1")
