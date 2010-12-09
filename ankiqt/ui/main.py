@@ -2875,13 +2875,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         if not prefix:
             next = ""
         elif prefix == "dropbox":
-            if sys.platform.startswith("win32"):
-                s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
-                s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-                p = os.path.join(unicode(s.value("Personal").toString()),
-                                 "My Dropbox")
-            else:
-                p = os.path.expanduser("~/Dropbox")
+            p = self.dropboxFolder()
             next = os.path.join(p, "Public", "Anki")
         else:
             next = prefix
@@ -2924,6 +2918,16 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         if not skipped:
             # everything copied, we can remove old folder
             shutil.rmtree(from_, ignore_errors=True)
+
+    def dropboxFolder(self):
+        if sys.platform.startswith("win32"):
+            s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
+            s.beginGroup("CurrentVersion/Explorer/Shell Folders")
+            p = os.path.join(unicode(s.value("Personal").toString()),
+                             "My Dropbox")
+        else:
+            p = os.path.expanduser("~/Dropbox")
+        return p
 
     def setupDropbox(self, deck):
         if not self.config['dropboxPublicFolder']:
