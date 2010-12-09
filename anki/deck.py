@@ -3004,8 +3004,6 @@ where key = :key""", key=key, value=value):
             if dir and not os.path.exists(dir) and create:
                 try:
                     os.mkdir(dir)
-                    # change to the current dir
-                    os.chdir(dir)
                 except OSError:
                     # permission denied
                     return None
@@ -3016,6 +3014,8 @@ where key = :key""", key=key, value=value):
             dir = self.tmpMediaDir
         if not dir or not os.path.exists(dir):
             return None
+        # change to the current dir
+        os.chdir(dir)
         return dir
 
     def addMedia(self, path):
