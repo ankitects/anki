@@ -716,8 +716,7 @@ counts are %d %d %d
         anki.deck.backupDir = os.path.join(
             self.config.configPath, "backups")
 
-    def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True,
-                 media=None):
+    def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True):
         "Load a deck and update the user interface. Maybe sync."
         self.reviewingStarted = False
         # return True on success
@@ -744,8 +743,6 @@ File is corrupt or not an Anki database. Click help for more info.\n
 Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("noDeck")
             return 0
-        if media is not None:
-            self.deck.forceMediaDir = media
         if uprecent:
             self.updateRecentFiles(self.deck.path)
         if (sync and self.config['syncOnLoad']
