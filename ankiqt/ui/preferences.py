@@ -25,6 +25,7 @@ class Preferences(QDialog):
         self.origInterfaceLang = self.config['interfaceLang']
         self.dialog = ankiqt.forms.preferences.Ui_Preferences()
         self.dialog.setupUi(self)
+        self.needDeckClose = False
         self.supportedLanguages = [
             (u"Bahasa Melayu", "ms"),
             (u"Dansk", "da"),
@@ -68,17 +69,22 @@ class Preferences(QDialog):
         self.setupNetwork()
         self.setupSave()
         self.setupAdvanced()
+        self.setupMedia()
         self.show()
 
     def accept(self):
         self.updateNetwork()
         self.updateSave()
         self.updateAdvanced()
+        self.updateMedia()
         self.config['interfaceLang'] = self.origConfig['interfaceLang']
         self.origConfig.update(self.config)
         self.origConfig.save()
         self.parent.setLang()
-        self.parent.reset()
+        if self.needDeckClose:
+            self.parent.saveAndClose(parent=self)
+        else:
+            self.parent.reset()
         self.done(0)
 
     def reject(self):
@@ -98,6 +104,37 @@ class Preferences(QDialog):
             self.supportedLanguages[self.dialog.interfaceLang.currentIndex()])[1]
         self.parent.setLang()
         self.dialog.retranslateUi(self)
+
+    def setupMedia(self):
+        self.dialog.mediaChoice.addItems(
+            QStringList([
+            _("Keep media next to deck"),
+            _("Keep media in DropBox"),
+            _("Keep media in custom folder"),
+            ]))
+        if not self.config['mediaLocation']:
+            idx = 0
+        elif self.config['mediaLocation'] == "dropbox":
+            idx = 1
+        else:
+            idx = 2
+        self.dialog.mediaChoice.setCurrentIndex(idx)
+        self.mediaChoiceChanged(idx)
+        self.connect(self.dialog.mediaChoice,
+                     SIGNAL("currentIndexChanged(int)"),
+                     self.mediaChoiceChanged)
+        self.origMediaChoice = idx
+
+    def mediaChoiceChanged(self, idx):
+        mp = self.dialog.mediaPath
+        mpl = self.dialog.mediaPrefix
+        if idx == 2:
+            mp.setText(self.config['mediaLocation'])
+            mp.setShown(True)
+            mpl.setShown(True)
+        else:
+            mp.setShown(False)
+            mpl.setShown(False)
 
     def setupNetwork(self):
         self.dialog.syncOnOpen.setChecked(self.config['syncOnLoad'])
@@ -142,6 +179,20 @@ class Preferences(QDialog):
                             wait=False)
         else:
             QDesktopServices.openUrl(QUrl("file://" + path))
+
+    def updateMedia(self):
+        orig = self.origMediaChoice
+        new = self.dialog.mediaChoice.currentIndex()
+        if orig == new:
+            return
+        if new == 0:
+            p = ""
+        elif new == 1:
+            p = "dropbox"
+        else:
+            p = unicode(self.dialog.mediaPath.text())
+        self.config['mediaLocation'] = p
+        self.needDeckClose = True
 
     def updateSave(self):
         self.config['saveAfterAnswer'] = self.dialog.saveAfterEvery.isChecked()

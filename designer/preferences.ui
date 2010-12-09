@@ -24,7 +24,7 @@
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
-       <string>Display</string>
+       <string>Basic</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
@@ -103,6 +103,30 @@
           <string>Prevent edits until answer shown</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>&lt;b&gt;Media&lt;/b&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="mediaChoice"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="mediaPrefix">
+           <property name="text">
+            <string>Prefix:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="mediaPath"/>
+         </item>
+        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer">
@@ -666,6 +690,8 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>preventEdits</tabstop>
+  <tabstop>mediaChoice</tabstop>
+  <tabstop>mediaPath</tabstop>
   <tabstop>syncUser</tabstop>
   <tabstop>syncPass</tabstop>
   <tabstop>syncOnOpen</tabstop>

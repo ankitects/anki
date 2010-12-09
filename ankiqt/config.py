@@ -64,6 +64,9 @@ class Config(dict):
             'loadLastDeck': False,
             'mainWindowGeom': None,
             'mainWindowState': None,
+            # one of empty, 'dropbox', or path used as prefix
+            'mediaLocation': "",
+            'mainWindowState': None,
             'numBackups': 30,
             'preventEditUntilAnswer': False,
             'proxyHost': '',
