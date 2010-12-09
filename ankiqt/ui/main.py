@@ -2870,7 +2870,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 
     def setupMedia(self, deck):
         prefix = self.config['mediaLocation']
-        prev = deck.getVar("mediaLocation")
+        prev = deck.getVar("mediaLocation") or ""
         # set the media prefix
         if not prefix:
             next = ""
@@ -2910,6 +2910,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             self.setupDropbox(deck)
 
     def migrateMedia(self, from_, to):
+        assert from_ != to
         files = os.listdir(from_)
         skipped = False
         for f in files:
@@ -2952,7 +2953,7 @@ is next loaded."""))
         if self.config['dropboxPublicFolder']:
             # update media urls
             deck.s.statement("update models set features = :url",
-                             url=self.config['dropboxPublicFolder'])
+                             url=self.config['dropboxPublicFolder'] + "/")
 
     # Advanced features
     ##########################################################################
