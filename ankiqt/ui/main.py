@@ -2618,6 +2618,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     def loadPlugins(self):
         if sys.platform.startswith("win32"):
             self.clearPluginCache()
+        self.disableObsoletePlugins()
         plugdir = self.pluginsFolder()
         sys.path.insert(0, plugdir)
         plugins = self.enabledPlugins()
@@ -2641,6 +2642,22 @@ This deck already exists on your computer. Overwrite the local copy?"""),
                 if not f.endswith(".pyc"):
                     continue
                 os.unlink(os.path.join(curdir, f))
+
+    def disableObsoletePlugins(self):
+        dir = self.pluginsFolder()
+        plugins = [
+            ("Custom Media Directory.py", _("""\
+The custom media folder plugin has been disabled, as Anki supports \
+this natively now. Please visit the preferences screen.""")),
+            ("Regenerate Reading Field.py", _("""\
+The regenerate reading field plugin has been disabled, as the Japanese \
+support plugin supports this now. Please download the latest version."""))
+            ]
+        for p in plugins:
+            path = os.path.join(dir, p[0])
+            if os.path.exists(path):
+                os.rename(path, path.replace(".py", ".disabled"))
+                ui.utils.showInfo(p[1])
 
     def rebuildPluginsMenu(self):
         if getattr(self, "pluginActions", None) is None:
