@@ -2937,8 +2937,9 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             # tell user what to do
             ui.utils.showInfo(_("""\
 A file called right-click-me.txt has been placed in DropBox's public folder. \
-After clicking OK, this folder will appear. Please right click on the file, \
-choose DropBox>Copy Public Link, and paste the link into Anki."""))
+After clicking OK, this folder will appear. Please right click on the file (\
+command+click on a Mac), choose DropBox>Copy Public Link, and paste the \
+link into Anki."""))
             # open folder and text prompt
             self.onOpenPluginFolder(deck.mediaPrefix)
             txt = ui.utils.getText(_("Paste path here:"), parent=self)
