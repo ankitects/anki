@@ -2957,7 +2957,8 @@ is next loaded."""))
         if self.config['dropboxPublicFolder']:
             # update media urls
             deck.s.statement("update models set features = :url",
-                             url=self.config['dropboxPublicFolder'] + "/")
+                             url=self.config['dropboxPublicFolder'] + "/" +
+                             os.path.basename(deck.mediaDir()) + "/")
 
     # Advanced features
     ##########################################################################
