@@ -2900,7 +2900,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             dir = deck.mediaDir()
         # update location
         deck.setVar("mediaLocation", next)
-        if prefix == "dropbox":
+        if dir and prefix == "dropbox":
             self.setupDropbox(deck)
 
     def migrateMedia(self, from_, to):
