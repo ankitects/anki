@@ -152,6 +152,7 @@ class Deck(object):
 
     def _initVars(self):
         self.tmpMediaDir = None
+        self.mediaPrefix = ""
         self.lastTags = u""
         self.lastLoaded = time.time()
         self.undoEnabled = False
@@ -2997,13 +2998,18 @@ where key = :key""", key=key, value=value):
     def mediaDir(self, create=False):
         "Return the media directory if exists. None if couldn't create."
         if self.path:
-            dir = re.sub("(?i)\.(anki)$", ".media", self.path)
+            if self.mediaPrefix:
+                dir = os.path.join(
+                    self.mediaPrefix, os.path.basename(self.path))
+            else:
+                dir = self.path
+            dir = re.sub("(?i)\.(anki)$", ".media", dir)
             if create == None:
                 # don't create, but return dir
                 return dir
-            if dir and not os.path.exists(dir) and create:
+            if not os.path.exists(dir) and create:
                 try:
-                    os.mkdir(dir)
+                    os.makedirs(dir)
                 except OSError:
                     # permission denied
                     return None
@@ -3012,7 +3018,7 @@ where key = :key""", key=key, value=value):
             if not self.tmpMediaDir and create:
                 self.tmpMediaDir = tempfile.mkdtemp(prefix="anki")
             dir = self.tmpMediaDir
-        if not dir or not os.path.exists(dir):
+        if not os.path.exists(dir):
             return None
         # change to the current dir
         os.chdir(dir)
