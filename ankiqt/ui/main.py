@@ -2289,8 +2289,19 @@ Are you sure?""" % deckName),
                             # since we've moved the deck, we have to set sync path
                             # ourselves
                             c = sqlite.connect(p)
-                            c.execute("update decks set syncName = ?",
-                                      [checksum(p.encode("utf-8"))])
+                            v = c.execute(
+                                "select version from decks").fetchone()[0]
+                            if v >= 52:
+                                # deck has bene upgraded already, so we can
+                                # use a checksum
+                                name = checksum(p.encode("utf-8"))
+                            else:
+                                # FIXME: compat code because deck hasn't been
+                                # upgraded yet. can be deleted in the future.
+                                # strip off .anki part
+                                name = os.path.splitext(
+                                    os.path.basename(p))[0]
+                            c.execute("update decks set syncName = ?", (name,))
                             c.commit()
                             c.close()
                         self.loadDeck(self.deckPath, sync=False)
