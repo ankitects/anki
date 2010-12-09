@@ -402,8 +402,8 @@ Please do not file a bug report with Anki.<br>""")
             runHook('deckFinished')
         elif state == "showQuestion":
             self.reviewingStarted = True
-            if self.deck.mediaDir():
-                os.chdir(self.deck.mediaDir())
+            # ensure cwd set to media dir
+            self.deck.mediaDir()
             self.showAnswerButton()
             self.updateMarkAction()
             runHook('showQuestion')
