@@ -51,6 +51,7 @@ class Config(dict):
             'deckBrowserRefreshPeriod': 3600,
             'deleteMedia': False,
             'documentDir': u"",
+            'dropboxPublicFolder': u"",
             'editFontFamily': 'Arial',
             'editFontSize': 12,
             'editLineSize': 20,

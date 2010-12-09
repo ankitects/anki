@@ -745,6 +745,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             return 0
         if uprecent:
             self.updateRecentFiles(self.deck.path)
+        if interactive:
+            self.setupMedia(self.deck)
         if (sync and self.config['syncOnLoad']
             and self.deck.syncName):
             if self.syncDeck(interactive=False):
@@ -2862,6 +2864,95 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             self.updatingBusy = True
             self.setEnabled(True)
             self.updatingBusy = False
+
+    # Media locations
+    ##########################################################################
+
+    def setupMedia(self, deck):
+        prefix = self.config['mediaLocation']
+        prev = deck.getVar("mediaLocation")
+        # set the media prefix
+        if not prefix:
+            next = ""
+        elif prefix == "dropbox":
+            if sys.platform.startswith("win32"):
+                s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
+                s.beginGroup("CurrentVersion/Explorer/Shell Folders")
+                p = os.path.join(unicode(s.value("Personal").toString()),
+                                 "My Dropbox")
+            else:
+                p = os.path.expanduser("~/Dropbox")
+            next = os.path.join(p, "Public", "Anki")
+        else:
+            next = prefix
+        # check if the media has moved
+        migrateFrom = None
+        if prev != next:
+            # find the old location
+            deck.mediaPrefix = prev
+            dir = deck.mediaDir()
+            if dir and os.listdir(dir):
+                # it contains files; we'll need to migrate
+                migrateFrom = dir
+        # setup new folder
+        deck.mediaPrefix = next
+        if migrateFrom:
+            # force creation of new folder
+            dir = deck.mediaDir(create=True)
+            # migrate old files
+            self.migrateMedia(migrateFrom, dir)
+        else:
+            # chdir if dir exists
+            dir = deck.mediaDir()
+        # update location
+        deck.setVar("mediaLocation", next)
+        if prefix == "dropbox":
+            self.setupDropbox(deck)
+
+    def migrateMedia(self, from_, to):
+        files = os.listdir(from_)
+        skipped = False
+        for f in files:
+            src = os.path.join(from_, f)
+            dst = os.path.join(to, f)
+            if not os.path.isfile(src):
+                skipped = True
+                continue
+            if not os.path.exists(dst):
+                shutil.copy2(src, dst)
+        if not skipped:
+            # everything copied, we can remove old folder
+            shutil.rmtree(from_, ignore_errors=True)
+
+    def setupDropbox(self, deck):
+        if not self.config['dropboxPublicFolder']:
+            # put a file in the folder
+            open(os.path.join(
+                deck.mediaPrefix, "right-click-me.txt"), "w").write("")
+            # tell user what to do
+            ui.utils.showInfo(_("""\
+A file called right-click-me.txt has been placed in DropBox's public folder. \
+After clicking OK, this folder will appear. Please right click on the file, \
+choose DropBox>Copy Public Link, and paste the link into Anki."""))
+            # open folder and text prompt
+            self.onOpenPluginFolder(deck.mediaPrefix)
+            txt = ui.utils.getText(_("Paste path here:"), parent=self)
+            if txt[0]:
+                fail = False
+                if not txt[0].lower().startswith("http"):
+                    fail = True
+                if not txt[0].lower().endswith("right-click-me.txt"):
+                    fail = True
+                if fail:
+                    ui.utils.showInfo(_("""\
+That doesn't appear to be a public link. You'll be asked again when the deck\
+is next loaded."""))
+                else:
+                    self.config['dropboxPublicFolder'] = os.path.dirname(txt[0])
+        if self.config['dropboxPublicFolder']:
+            # update media urls
+            deck.s.statement("update models set features = :url",
+                             url=self.config['dropboxPublicFolder'])
 
     # Advanced features
     ##########################################################################

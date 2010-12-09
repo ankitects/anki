@@ -189,6 +189,8 @@ class Preferences(QDialog):
             p = ""
         elif new == 1:
             p = "dropbox"
+            # reset public folder location
+            self.config['dropboxPublicFolder'] = ""
         else:
             p = unicode(self.dialog.mediaPath.text())
         self.config['mediaLocation'] = p
