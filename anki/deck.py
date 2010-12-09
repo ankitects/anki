@@ -69,7 +69,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 57
+DECK_VERSION = 58
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -4312,6 +4312,17 @@ or quizFontFamily is null""")
             DeckStorage._addIndices(deck)
             deck.s.statement("analyze")
             deck.version = 57
+            deck.s.commit()
+        if deck.version < 58:
+            # orderNewCards() had a bug in older versions where combinedDue
+            # was not updated, and since we're sorting on combinedDue now we
+            # need to make sure it's correct. This will discard any spacing
+            # the cards had.
+            if deck.newCardOrder != 0:
+                deck.s.statement("""
+update cards set due = created, combinedDue = created
+where relativeDelay = 2""")
+            deck.version = 58
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
