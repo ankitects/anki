@@ -745,12 +745,12 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             return 0
         if uprecent:
             self.updateRecentFiles(self.deck.path)
-        if interactive:
-            self.setupMedia(self.deck)
         if (sync and self.config['syncOnLoad']
             and self.deck.syncName):
             if self.syncDeck(interactive=False):
                 return True
+        if interactive:
+            self.setupMedia(self.deck)
         try:
             self.deck.initUndo()
             self.moveToState("initial")
