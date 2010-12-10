@@ -13,12 +13,6 @@ from anki.utils import genID, checksum, call
 from anki.hooks import addHook
 from htmlentitydefs import entitydefs
 
-latexPreamble = ("\\documentclass[12pt]{article}\n"
-                 "\\special{papersize=3in,5in}"
-                 "\\usepackage[utf8]{inputenc}"
-                 "\\pagestyle{empty}\n"
-                 "\\begin{document}")
-latexPostamble = "\\end{document}"
 latexDviPngCmd = ["dvipng", "-D", "200", "-T", "tight"]
 
 regexps = {
@@ -61,22 +55,23 @@ def latexImgFile(deck, latexCode):
     key = checksum(latexCode)
     return "latex-%s.png" % key
 
-def mungeLatex(latex):
-    "Convert entities, fix newlines, and convert to utf8."
+def mungeLatex(deck, latex):
+    "Convert entities, fix newlines, convert to utf8, and wrap pre/postamble."
     for match in re.compile("&([a-z]+);", re.IGNORECASE).finditer(latex):
         if match.group(1) in entitydefs:
             latex = latex.replace(match.group(), entitydefs[match.group(1)])
     latex = re.sub("<br( /)?>", "\n", latex)
     latex = latex.encode("utf-8")
+    latex = (deck.getVar("latexPre") + "\n" +
+             latex + "\n" +
+             deck.getVar("latexPost"))
     return latex
 
 def buildImg(deck, latex):
     log = open(os.path.join(tmpdir, "latex_log.txt"), "w+")
     texpath = os.path.join(tmpdir, "tmp.tex")
     texfile = file(texpath, "w")
-    texfile.write(latexPreamble + "\n")
-    texfile.write(latex + "\n")
-    texfile.write(latexPostamble + "\n")
+    texfile.write(latex)
     texfile.close()
     # make sure we have a valid mediaDir
     mdir = deck.mediaDir(create=True)
@@ -125,7 +120,7 @@ def imageForLatex(deck, latex, build=True):
 
 def imgLink(deck, latex, build=True):
     "Parse LATEX and return a HTML image representing the output."
-    latex = mungeLatex(latex)
+    latex = mungeLatex(deck, latex)
     (ok, img) = imageForLatex(deck, latex, build)
     if ok:
         return '<img src="%s">' % img

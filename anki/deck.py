@@ -164,7 +164,7 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'mediaURL'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'latexPost'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
@@ -174,6 +174,14 @@ class Deck(object):
             self.setVarDefault("revInactive", self.suspended)
             self.setVarDefault("newSpacing", 60)
             self.setVarDefault("mediaURL", "")
+            self.setVarDefault("latexPre", (
+                "\\documentclass[12pt]{article}\n"
+                "\\special{papersize=3in,5in}"
+                "\\usepackage[utf8]{inputenc}"
+                "\\usepackage{amssymb,amsmath}"
+                "\\pagestyle{empty}\n"
+                "\\begin{document}"))
+            self.setVarDefault("latexPost", "\\end{document}")
         self.updateCutoff()
         self.setupStandardScheduler()
 
