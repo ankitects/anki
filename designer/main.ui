@@ -3083,10 +3083,7 @@
      <addaction name="actionCheckMediaDatabase"/>
      <addaction name="actionRecordNoiseProfile"/>
      <addaction name="actionDownloadMissingMedia"/>
-     <addaction name="actionExportOriginalFiles"/>
      <addaction name="separator"/>
-     <addaction name="actionCacheLatex"/>
-     <addaction name="actionUncacheLatex"/>
     </widget>
     <addaction name="actionGraphs"/>
     <addaction name="actionDstats"/>
@@ -3614,22 +3611,6 @@
     <string>Ctrl+Del</string>
    </property>
   </action>
-  <action name="actionCacheLatex">
-   <property name="text">
-    <string>Cache LaTeX</string>
-   </property>
-   <property name="statusTip">
-    <string>Pre-generate PNG images of LaTeX cards</string>
-   </property>
-  </action>
-  <action name="actionUncacheLatex">
-   <property name="text">
-    <string>Uncache LaTeX</string>
-   </property>
-   <property name="statusTip">
-    <string>Remove generated PNG images of LaTeX cards</string>
-   </property>
-  </action>
   <action name="actionStudyOptions">
    <property name="icon">
     <iconset resource="../icons.qrc">
@@ -3730,18 +3711,6 @@
    </property>
    <property name="text">
     <string>Download Missing Media</string>
-   </property>
-  </action>
-  <action name="actionExportOriginalFiles">
-   <property name="icon">
-    <iconset resource="../icons.qrc">
-     <normaloff>:/icons/document-export.png</normaloff>:/icons/document-export.png</iconset>
-   </property>
-   <property name="text">
-    <string>Export Original Files</string>
-   </property>
-   <property name="statusTip">
-    <string>Save media files using original file names</string>
    </property>
   </action>
   <action name="actionEditLayout">
