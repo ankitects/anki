@@ -1867,7 +1867,7 @@ learnt today")
         else:
             self.currentCard.fact.tags = canonifyTags(addTags(
                 "Marked", self.currentCard.fact.tags))
-        self.currentCard.fact.setModified(textChanged=True)
+        self.currentCard.fact.setModified(textChanged=True, deck=self.deck)
         self.deck.updateFactTags([self.currentCard.fact.id])
         self.deck.setModified()
 

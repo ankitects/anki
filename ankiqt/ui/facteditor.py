@@ -469,7 +469,7 @@ class FactEditor(object):
                 self.fact[f.name] = v
                 modified = True
         if modified:
-            self.fact.setModified(textChanged=True)
+            self.fact.setModified(textChanged=True, deck=self.deck)
             if not self.fact.isNew():
                 self.deck.setModified()
         self.deck.setUndoEnd(n)
@@ -485,7 +485,7 @@ class FactEditor(object):
         modified = self.saveFields()
         field = self.widgets[widget]
         self.fact.focusLost(field)
-        self.fact.setModified(textChanged=True)
+        self.fact.setModified(textChanged=True, deck=self.deck)
         self.loadFields(font=False)
         if modified and self.resetOnEdit:
             ankiqt.mw.reset(runHooks=False)
@@ -586,7 +586,7 @@ class FactEditor(object):
             self.deck.s.flush()
             self.deck.updateFactTags([self.fact.id])
             self.deck.updatePriorities([c.id for c in self.fact.cards])
-            self.fact.setModified(textChanged=True)
+            self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.flushMod()
             if self.resetOnEdit:
                 ankiqt.mw.reset(runHooks=False)
