@@ -79,7 +79,7 @@ def buildImg(deck, latex):
     texfile.write(latexPostamble + "\n")
     texfile.close()
     # make sure we have a valid mediaDir
-    deck.mediaDir(create=True)
+    mdir = deck.mediaDir(create=True)
     oldcwd = os.getcwd()
     if sys.platform == "win32":
         si = subprocess.STARTUPINFO()
@@ -107,7 +107,8 @@ def buildImg(deck, latex):
             return (False, errmsg("dvipng"))
         # add to media
         target = latexImgFile(deck, latex)
-        shutil.copy2("tmp.png", os.path.join(deck.mediaDir(), target))
+        shutil.copy2(os.path.join(tmpdir, "tmp.png"),
+                     os.path.join(mdir, target))
         return (True, target)
     finally:
         os.chdir(oldcwd)
