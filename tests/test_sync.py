@@ -254,8 +254,8 @@ def test_localsync_media():
     os.unlink(os.path.join(deck1media, "22161b29b0c18e068038021f54eee1ee.png"))
     rebuildMediaDir(deck1)
     client.sync()
-    assert deck1.s.scalar("select count(1) from media") == 2
-    assert deck2.s.scalar("select count(1) from media") == 2
+    assert deck1.s.scalar("select count(1) from media") == 3
+    assert deck2.s.scalar("select count(1) from media") == 3
 
 # One way syncing
 ##########################################################################

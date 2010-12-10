@@ -35,7 +35,7 @@ from anki.stats import Stats, globalStats
 from anki.history import CardHistoryEntry
 from anki.stats import globalStats
 from anki.utils import ids2str, hexifyID, checksum
-from anki.media import mediaRefs
+from anki.media import mediaFiles
 from anki.lang import _
 from hooks import runHook
 
@@ -1204,7 +1204,7 @@ select %(c)s from cards where
 %(c)s like '%%<img %%'
 or %(c)s like '%%[sound:%%'""" % {'c': col})
         for entry in txt:
-            for (full, fname, repl) in mediaRefs(entry):
+            for fname in mediaFiles(entry):
                 used[fname] = True
     # copy only used media
     for file in files:

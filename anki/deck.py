@@ -26,8 +26,10 @@ from operator import itemgetter
 from itertools import groupby
 from anki.hooks import runHook, hookEmpty
 from anki.template import render
+from anki.media import updateMediaCount, mediaFiles, \
+     rebuildMediaDir
 
-# ensure all the metadata in other files is loaded before proceeding
+# ensure all the DB metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.stats
 import anki.history, anki.media
 
@@ -69,7 +71,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 58
+DECK_VERSION = 60
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -161,7 +163,7 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'newSpacing'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'mediaURL'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
@@ -170,6 +172,7 @@ class Deck(object):
             self.setVarDefault("newInactive", self.suspended)
             self.setVarDefault("revInactive", self.suspended)
             self.setVarDefault("newSpacing", 60)
+            self.setVarDefault("mediaURL", "")
         self.updateCutoff()
         self.setupStandardScheduler()
 
@@ -719,6 +722,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             card = anki.cards.Card()
             if not card.fromDB(self.s, id):
                 return
+        card.deck = self
         card.genFuzz()
         card.startTimer()
         return card
@@ -898,7 +902,7 @@ and type between 1 and 2""",
         tags = scard.fact.tags
         tags = addTags("Leech", tags)
         scard.fact.tags = canonifyTags(tags)
-        scard.fact.setModified(textChanged=True)
+        scard.fact.setModified(textChanged=True, deck=self)
         self.updateFactTags([scard.fact.id])
         self.s.flush()
         self.s.expunge(scard)
@@ -1425,7 +1429,6 @@ and due < :now""", now=time.time())
         cards = []
         self.s.save(fact)
         # update field cache
-        fact.setModified(True)
         self.factCount += 1
         self.flushMod()
         isRandom = self.newCardOrder == NEW_CARDS_RANDOM
@@ -1440,6 +1443,8 @@ and due < :now""", now=time.time())
                 card.combinedDue = due
             self.flushMod()
             cards.append(card)
+        # update card q/a
+        fact.setModified(True, self)
         self.updateFactTags([fact.id])
         # this will call reset() which will update counts
         self.updatePriorities([c.id for c in cards])
@@ -1496,13 +1501,17 @@ where factId = :fid and cardModelId = :cmid""",
                                  fid=fact.id, cmid=cardModel.id) == 0:
                     # enough for 10 card models assuming 0.00001 timer precision
                     card = anki.cards.Card(
-                        fact, cardModel, created=fact.created+0.0001*cardModel.ordinal)
+                        fact, cardModel,
+                        fact.created+0.0001*cardModel.ordinal)
                     self.updateCardTags([card.id])
                     self.updatePriority(card)
                     self.cardCount += 1
                     self.newCount += 1
                     ids.append(card.id)
-        self.setModified()
+
+        if ids:
+            fact.setModified(textChanged=True, deck=self)
+            self.setModified()
         return ids
 
     def factIsInvalid(self, fact):
@@ -1565,6 +1574,7 @@ where facts.id not in (select distinct factId from cards)""")
         for cardModel in cms:
             card = anki.cards.Card(fact, cardModel)
             cards.append(card)
+        fact.setModified(textChanged=True, deck=self, media=False)
         return cards
 
     def cloneFact(self, oldFact):
@@ -1951,10 +1961,10 @@ and c.id in %s""" % ids2str(ids))
         else:
             mod = ""
         # tags
+        cids = ids2str([x[0] for x in ids])
         tags = dict([(x[0], x[1:]) for x in
                      self.splitTagsList(
-            where="and cards.id in %s" %
-            ids2str([x[0] for x in ids]))])
+            where="and cards.id in %s" % cids)])
         facts = {}
         # fields
         for k, g in groupby(self.s.all("""
@@ -1968,9 +1978,33 @@ order by fields.factId""" % ids2str([x[2] for x in ids])),
         cms = {}
         for c in self.s.query(CardModel).all():
             cms[c.id] = c
-        pend = [formatQA(cid, mid, facts[fid], tags[cid], cms[cmid])
+        pend = [formatQA(cid, mid, facts[fid], tags[cid], cms[cmid], self)
                 for (cid, cmid, fid, mid) in ids]
         if pend:
+            # find existing media references
+            files = {}
+            for txt in self.s.column0(
+                "select question || answer from cards where id in %s" %
+                cids):
+                for f in mediaFiles(txt):
+                    if f in files:
+                        files[f] -= 1
+                    else:
+                        files[f] = -1
+            # determine ref count delta
+            for p in pend:
+                for type in ("question", "answer"):
+                    txt = p[type]
+                    for f in mediaFiles(txt):
+                        if f in files:
+                            files[f] += 1
+                        else:
+                            files[f] = 1
+            # update references - this could be more efficient
+            for (f, cnt) in files.items():
+                if not cnt:
+                    continue
+                updateMediaCount(self, f, cnt)
             # update q/a
             self.s.execute("""
     update cards set
@@ -1979,7 +2013,8 @@ order by fields.factId""" % ids2str([x[2] for x in ids])),
     where id = :id""" % mod, pend)
             # update fields cache
             self.updateFieldCache(facts.keys())
-        self.flushMod()
+        if dirty:
+            self.flushMod()
 
     def updateFieldCache(self, fids):
         "Add stripped HTML cache for sorting/searching."
@@ -3018,7 +3053,7 @@ where key = :key""", key=key, value=value):
             if not self.tmpMediaDir and create:
                 self.tmpMediaDir = tempfile.mkdtemp(prefix="anki")
             dir = self.tmpMediaDir
-        if not os.path.exists(dir):
+        if not dir or not os.path.exists(dir):
             return None
         # change to the current dir
         os.chdir(dir)
@@ -3090,6 +3125,7 @@ Return new path, relative to media dir."""
             self.s = None
 
     def setModified(self, newTime=None):
+        #import traceback; traceback.print_stack()
         self.modified = newTime or time.time()
 
     def flushMod(self):
@@ -3878,6 +3914,7 @@ order by priority desc, due desc""")
                 # we're opening a shared deck with no indices - we'll need
                 # them if we want to rebuild the queue
                 DeckStorage._addIndices(deck)
+            oldmod = deck.modified
         else:
             prog = False
         deck.path = path
@@ -3996,10 +4033,6 @@ select filename, size, created, originalPath, description from media""")
                 deck.s.statements("""
 insert into media values (
 :id, :filename, :size, :created, :originalPath, :description)""", h)
-            # rerun check
-            anki.media.rebuildMediaDir(deck, dirty=False)
-            # no need to track deleted media yet
-            deck.s.execute("delete from mediaDeleted")
             deck.version = 9
         if deck.version < 10:
             deck.s.statement("""
@@ -4211,7 +4244,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
                 deck.failedCardMax = 0
             deck.version = 37
             deck.s.commit()
-        # skip 38
         if deck.version < 39:
             deck.reset()
             # manually suspend all suspended cards
@@ -4232,7 +4264,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.statement("update models set features = ''")
             deck.version = 40
             deck.s.commit()
-        # skip 41
         if deck.version < 42:
             deck.version = 42
             deck.s.commit()
@@ -4270,7 +4301,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             DeckStorage._addIndices(deck)
             deck.version = 50
             deck.s.commit()
-        # skip 51
         if deck.version < 52:
             dname = deck.name()
             sname = deck.syncName
@@ -4329,6 +4359,11 @@ update cards set due = created, combinedDue = created
 where relativeDelay = 2""")
             deck.version = 58
             deck.s.commit()
+        if deck.version < 60:
+            # rebuild the media db based on new format
+            rebuildMediaDir(deck, dirty=False)
+            deck.version = 60
+            deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
         if not deck.getInt("pageSize") == 4096:
@@ -4339,6 +4374,7 @@ where relativeDelay = 2""")
             deck.setVar("pageSize", 4096, mod=False)
             deck.s.commit()
         if prog:
+            assert deck.modified == oldmod
             deck.finishProgress()
         return deck
     _upgradeDeck = staticmethod(_upgradeDeck)

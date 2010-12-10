@@ -13,6 +13,7 @@ from anki.db import *
 from anki.models import CardModel, Model, FieldModel, formatQA
 from anki.facts import Fact, factsTable, Field
 from anki.utils import parseTags, findTag, stripHTML, genID, hexifyID
+from anki.media import updateMediaCount, mediaFiles
 
 # Cards
 ##########################################################################
@@ -92,12 +93,37 @@ class Card(object):
             # for non-orm use
             self.cardModelId = cardModel.id
             self.ordinal = cardModel.ordinal
-            d = {}
-            for f in self.fact.model.fieldModels:
-                d[f.name] = (f.id, self.fact[f.name])
-            qa = formatQA(None, fact.modelId, d, self.splitTags(), cardModel)
-            self.question = qa['question']
-            self.answer = qa['answer']
+
+    def rebuildQA(self, deck, media=True):
+        # format qa
+        d = {}
+        for f in self.fact.model.fieldModels:
+            d[f.name] = (f.id, self.fact[f.name])
+        qa = formatQA(None, self.fact.modelId, d, self.splitTags(),
+                      self.cardModel, deck)
+        # find old media references
+        files = {}
+        for type in ("question", "answer"):
+            for f in mediaFiles(getattr(self, type) or ""):
+                if f in files:
+                    files[f] -= 1
+                else:
+                    files[f] = -1
+        # update q/a
+        self.question = qa['question']
+        self.answer = qa['answer']
+        # determine media delta
+        for type in ("question", "answer"):
+            for f in mediaFiles(getattr(self, type)):
+                if f in files:
+                    files[f] += 1
+                else:
+                    files[f] = 1
+        # update media counts if we're attached to deck
+        if media:
+            for (f, cnt) in files.items():
+                updateMediaCount(deck, f, cnt)
+        self.setModified()
 
     def setModified(self):
         self.modified = time.time()

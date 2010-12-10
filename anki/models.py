@@ -132,7 +132,7 @@ class CardModel(object):
 
 mapper(CardModel, cardModelsTable)
 
-def formatQA(cid, mid, fact, tags, cm):
+def formatQA(cid, mid, fact, tags, cm, deck):
     "Return a dict of {id, question, answer}"
     d = {'id': cid}
     fields = {}
@@ -154,9 +154,9 @@ def formatQA(cid, mid, fact, tags, cm):
         # convert old style
         format = re.sub("%\((.+?)\)s", "{{\\1}}", format)
         # allow custom rendering functions & info
-        fields = runFilter("prepareFields", fields, cid, mid, fact, tags, cm)
+        fields = runFilter("prepareFields", fields, cid, mid, fact, tags, cm, deck)
         html = render(format, fields)
-        d[type] = runFilter("formatQA", html, type, cid, mid, fact, tags, cm)
+        d[type] = runFilter("formatQA", html, type, cid, mid, fact, tags, cm, deck)
     return d
 
 # Model table

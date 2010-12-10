@@ -129,19 +129,15 @@ class Fact(object):
     def focusLost(self, field):
         runHook('fact.focusLost', self, field)
 
-    def setModified(self, textChanged=False):
+    def setModified(self, textChanged=False, deck=None, media=True):
         "Mark modified and update cards."
         self.modified = time.time()
         if textChanged:
-            d = {}
-            for f in self.model.fieldModels:
-                d[f.name] = (f.id, self[f.name])
-            self.spaceUntil = stripHTMLMedia(u" ".join([x[1] for x in d.values()]))
+            assert deck
+            self.spaceUntil = stripHTMLMedia(u" ".join(
+                self.values()))
             for card in self.cards:
-                qa = formatQA(None, self.modelId, d, card.splitTags(), card.cardModel)
-                card.question = qa['question']
-                card.answer = qa['answer']
-                card.setModified()
+                card.rebuildQA(deck)
 
 # Fact deletions
 ##########################################################################
