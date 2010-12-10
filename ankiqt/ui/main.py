@@ -3026,32 +3026,43 @@ Proceed?""")):
         mb.setWindowTitle(_("Anki"))
         mb.setIcon(QMessageBox.Warning)
         mb.setText(_("""\
-This operation:<br>
- - deletes files not referenced by cards<br>
- - either tags cards, or deletes references to missing files<br>
- - renames files to a string of numbers and letters<br>
- - updates checksums for files which have been changed<br>
-<br>
-<b>This operation is not undoable.</b><br>
-Consider backing up your media directory first."""))
-        bTag = QPushButton(_("Tag Cards"))
-        mb.addButton(bTag, QMessageBox.RejectRole)
-        bDelete = QPushButton(_("Delete Refs"))
+This operation looks through the content of your cards for media, and \
+registers it so that it can be used with the online and mobile clients.
+
+If you choose Scan+Delete, any media in your media folder that is not \
+used by cards will be deleted. Please note that media is only \
+counted as used if it appears on the question or answer of a card. If \
+media is in a field that is not on your cards, the media will \
+be deleted, and there is no way to undo this. Please make a backup if in \
+doubt."""))
+        bScan = QPushButton(_("Scan"))
+        mb.addButton(bScan, QMessageBox.RejectRole)
+        bDelete = QPushButton(_("Scan+Delete"))
         mb.addButton(bDelete, QMessageBox.RejectRole)
         bCancel = QPushButton(_("Cancel"))
         mb.addButton(bCancel, QMessageBox.RejectRole)
         mb.exec_()
-        if mb.clickedButton() == bTag:
-            (missing, unused) = rebuildMediaDir(self.deck, False)
+        if mb.clickedButton() == bScan:
+            delete = False
         elif mb.clickedButton() == bDelete:
-            (missing, unused) = rebuildMediaDir(self.deck, True)
+            delete = True
         else:
             return
-        ui.utils.showInfo(
-                ngettext("%d missing reference.", "%d missing references.",
-                    missing) % missing + "\n" +
-                ngettext("%d unused file removed.", "%d unused files removed.",
-                    unused) % unused)
+        (have, nohave, unused) = rebuildMediaDir(self.deck, delete=delete)
+        # generate report
+        report = ngettext("%d media in use.", "%d media in use.", have) % have
+        if nohave:
+            report += "\n\n" + _(
+                "Used on cards but missing from media folder:")
+            report += "\n" + "\n".join(nohave)
+        if unused:
+            if delete:
+                report += "\n\n" + _("Deleted unused:")
+            else:
+                report += "\n\n" + _(
+                    "In media folder but not used by any cards:")
+            report += "\n" + "\n".join(unused)
+        ui.utils.showText(report, parent=self, type="text")
 
     def onDownloadMissingMedia(self):
         res = downloadMissing(self.deck)

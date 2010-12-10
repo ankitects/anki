@@ -3518,7 +3518,7 @@
      <normaloff>:/icons/text-speak.png</normaloff>:/icons/text-speak.png</iconset>
    </property>
    <property name="text">
-    <string>Check Media Database...</string>
+    <string>Check &amp;Media Database...</string>
    </property>
    <property name="statusTip">
     <string>Check the files in the media directory</string>
@@ -3689,7 +3689,7 @@
      <normaloff>:/icons/sqlitebrowser.png</normaloff>:/icons/sqlitebrowser.png</iconset>
    </property>
    <property name="text">
-    <string>Check Database...</string>
+    <string>&amp;Check Database...</string>
    </property>
   </action>
   <action name="actionOpenRecent">

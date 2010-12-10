@@ -40,23 +40,26 @@ def showInfo(text, parent=None, help="", func=None):
         else:
             break
 
-def showText(text, parent=None):
+def showText(txt, parent=None, type="text"):
     if not parent:
         parent = ankiqt.mw
-    d = QDialog(parent)
-    d.setWindowTitle("Anki")
-    v = QVBoxLayout()
-    l = QLabel(text)
-    l.setWordWrap(True)
-    l.setTextInteractionFlags(Qt.TextSelectableByMouse)
-    v.addWidget(l)
-    buts = QDialogButtonBox.Ok
-    b = QDialogButtonBox(buts)
-    v.addWidget(b)
-    d.setLayout(v)
-    d.connect(b.button(QDialogButtonBox.Ok),
-              SIGNAL("clicked()"), d.accept)
-    d.exec_()
+    diag = QDialog(parent)
+    diag.setWindowTitle("Anki")
+    layout = QVBoxLayout(diag)
+    diag.setLayout(layout)
+    text = QTextEdit()
+    text.setReadOnly(True)
+    if type == "text":
+        text.setPlainText(txt)
+    else:
+        text.setHtml(txt)
+    layout.addWidget(text)
+    box = QDialogButtonBox(QDialogButtonBox.Close)
+    layout.addWidget(box)
+    diag.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
+    diag.setMinimumHeight(400)
+    diag.setMinimumWidth(500)
+    diag.exec_()
 
 def askUser(text, parent=None, help=""):
     "Show a yes/no question. Return true if yes."
