@@ -1089,7 +1089,7 @@ class FactEdit(QTextEdit):
             'User-Agent': 'Mozilla/5.0 (compatible; Anki/%s)' %
             ankiqt.appVersion })
         filecontents = urllib2.urlopen(req).read()
-        (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".%s" %
+        (fd, name) = tempfile.mkstemp(prefix="paste", suffix=".%s" %
                                       ext.encode("ascii"))
         file = os.fdopen(fd, "wb")
         file.write(filecontents)
