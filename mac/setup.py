@@ -34,7 +34,7 @@ cp /Library/Frameworks/Python.framework/Versions/2.7/include/\
 python2.7/pyconfig.h dist/Anki.app/Contents/Resources/include/\
 python2.7/pyconfig.h")
                 os.system("\
-chmod a+x dist/Anki.app/Contents/Resources/audio/mplayer")
+chmod a+x dist/Anki.app/Contents/Resources/audio/*")
                 if 'debug' in os.environ:
                         return
                 # make the dmg with the shell script
