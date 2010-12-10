@@ -1372,15 +1372,19 @@ later by using File>Close.
         self.switchToDecksScreen()
 
     def onDeckBrowserForget(self, c):
-        if ui.utils.askUser(_("Hide %s from the list?") % self.browserDecks[c]['name'],
-                            help="DeckBrowser"):
+        if ui.utils.askUser(_("""\
+Hide %s from the list? You can File>Open it again later.""") %
+                            self.browserDecks[c]['name']):
             self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
             del self.browserDecks[c]
             self.doLater(100, self.showDeckBrowser)
 
     def onDeckBrowserDelete(self, c):
         deck = self.browserDecks[c]['path']
-        if ui.utils.askUser(_("Delete %s?") % self.browserDecks[c]['name']):
+        if ui.utils.askUser(_("""\
+Delete %s? If this deck is synchronized the online version will \
+not be touched.""") %
+                            self.browserDecks[c]['name']):
             del self.browserDecks[c]
             os.unlink(deck)
             try:
