@@ -3048,20 +3048,24 @@ doubt."""))
             delete = True
         else:
             return
-        (have, nohave, unused) = rebuildMediaDir(self.deck, delete=delete)
+        (nohave, unused) = rebuildMediaDir(self.deck, delete=delete)
         # generate report
-        report = ngettext("%d media in use.", "%d media in use.", have) % have
+        report = ""
         if nohave:
-            report += "\n\n" + _(
+            report += _(
                 "Used on cards but missing from media folder:")
             report += "\n" + "\n".join(nohave)
         if unused:
+            if report:
+                report += "\n\n"
             if delete:
-                report += "\n\n" + _("Deleted unused:")
+                report += _("Deleted unused:")
             else:
-                report += "\n\n" + _(
+                report += _(
                     "In media folder but not used by any cards:")
             report += "\n" + "\n".join(unused)
+        if not report:
+            report = _("No unused or missing files found.")
         ui.utils.showText(report, parent=self, type="text")
 
     def onDownloadMissingMedia(self):
