@@ -72,7 +72,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 60
+DECK_VERSION = 61
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -4368,10 +4368,14 @@ update cards set due = created, combinedDue = created
 where relativeDelay = 2""")
             deck.version = 58
             deck.s.commit()
-        if deck.version < 60:
+        if deck.version < 61:
+            # because we've changed the way latex is handled, we're going to
+            # need to rebuild the q/a
+            for m in deck.models:
+                deck.updateCardsFromModel(m, dirty=False)
             # rebuild the media db based on new format
             rebuildMediaDir(deck, dirty=False)
-            deck.version = 60
+            deck.version = 61
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
