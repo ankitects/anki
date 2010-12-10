@@ -37,17 +37,17 @@ FADE_AMOUNT = "0.25"
 
 noiseProfile = ""
 
-processingSrc = "tmp.wav"
-processingDst = "tmp.mp3"
+processingSrc = "rec.wav"
+processingDst = "rec.mp3"
 processingChain = []
-tmpFiles = ["tmp2.wav", "tmp3.wav"]
+recFiles = ["rec2.wav", "rec3.wav"]
 
-cmd = ["sox", processingSrc, "tmp2.wav"]
+cmd = ["sox", processingSrc, "rec2.wav"]
 processingChain = [
     None, # placeholder
-    ["sox", "tmp2.wav", "tmp3.wav", "norm", NORM_AMOUNT,
+    ["sox", "rec2.wav", "rec3.wav", "norm", NORM_AMOUNT,
      "bass", BASS_AMOUNT, "fade", FADE_AMOUNT],
-    ["lame", "tmp3.wav", processingDst, "--noreplaygain", "--quiet"],
+    ["lame", "rec3.wav", processingDst, "--noreplaygain", "--quiet"],
     ]
 
 # don't show box on windows
@@ -84,9 +84,9 @@ def checkForNoiseProfile():
     if sys.platform.startswith("darwin"):
         # not currently supported
         processingChain = [
-            ["lame", "tmp.wav", "tmp.mp3", "--noreplaygain", "--quiet"]]
+            ["lame", "rec.wav", "rec.mp3", "--noreplaygain", "--quiet"]]
     else:
-        cmd = ["sox", processingSrc, "tmp2.wav"]
+        cmd = ["sox", processingSrc, "rec2.wav"]
         if os.path.exists(noiseProfile):
             cmd = cmd + ["noisered", noiseProfile, NOISE_AMOUNT]
         processingChain[0] = cmd
@@ -97,12 +97,12 @@ def generateNoiseProfile():
     except OSError:
         pass
     retryWait(subprocess.Popen(
-        ["sox", processingSrc, tmpFiles[0], "trim", "1.5", "1.5"],
+        ["sox", processingSrc, recFiles[0], "trim", "1.5", "1.5"],
         startupinfo=si))
-    retryWait(subprocess.Popen(["sox", tmpFiles[0], tmpFiles[1],
+    retryWait(subprocess.Popen(["sox", recFiles[0], recFiles[1],
                                 "noiseprof", noiseProfile],
                                startupinfo=si))
-    processingChain[0] = ["sox", processingSrc, "tmp2.wav",
+    processingChain[0] = ["sox", processingSrc, "rec2.wav",
                           "noisered", noiseProfile, NOISE_AMOUNT]
 
 # Mplayer settings
@@ -307,7 +307,7 @@ class PyAudioThreadedRecorder(threading.Thread):
 class PyAudioRecorder(_Recorder):
 
     def __init__(self):
-        for t in tmpFiles + [processingSrc, processingDst]:
+        for t in recFiles + [processingSrc, processingDst]:
             try:
                 os.unlink(t)
             except OSError:
@@ -326,7 +326,7 @@ class PyAudioRecorder(_Recorder):
         if self.encode:
             return processingDst
         else:
-            return tmpFiles[1]
+            return recFiles[1]
 
 # Audio interface
 ##########################################################################
