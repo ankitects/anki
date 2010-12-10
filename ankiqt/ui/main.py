@@ -2977,10 +2977,10 @@ is next loaded."""))
                 else:
                     self.config['dropboxPublicFolder'] = os.path.dirname(txt[0])
         if self.config['dropboxPublicFolder']:
-            # update media urls
-            deck.s.statement("update models set features = :url",
-                             url=self.config['dropboxPublicFolder'] + "/" +
-                             os.path.basename(deck.mediaDir()) + "/")
+            # update media url
+            deck.setVar(
+                "mediaURL", self.config['dropboxPublicFolder'] + "/" +
+                os.path.basename(deck.mediaDir()) + "/")
 
     # Advanced features
     ##########################################################################
