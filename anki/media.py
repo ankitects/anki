@@ -185,10 +185,9 @@ update media set originalPath = :sum, created = :c where filename = :f""",
     # update deck and get return info
     if dirty:
         deck.flushMod()
-    have = deck.s.scalar("select count() from media where originalPath != ''")
     nohave = deck.s.column0("select filename from media where originalPath = ''")
     deck.finishProgress()
-    return (have, nohave, unused)
+    return (nohave, unused)
 
 # Download missing
 ##########################################################################
