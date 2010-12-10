@@ -28,6 +28,7 @@ from anki.hooks import runHook, hookEmpty
 from anki.template import render
 from anki.media import updateMediaCount, mediaFiles, \
      rebuildMediaDir
+import anki.latex # sets up hook
 
 # ensure all the DB metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.stats

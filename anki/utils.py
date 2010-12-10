@@ -8,7 +8,7 @@ Miscellaneous utilities
 """
 __docformat__ = 'restructuredtext'
 
-import re, os, random, time, types, math, htmlentitydefs
+import re, os, random, time, types, math, htmlentitydefs, subprocess
 
 try:
     import hashlib
@@ -269,3 +269,21 @@ def deleteTags(tagstr, tags):
 
 def checksum(data):
     return md5(data).hexdigest()
+
+def call(argv, wait=True, **kwargs):
+    try:
+        o = subprocess.Popen(argv, **kwargs)
+    except OSError:
+        # command not found
+        return -1
+    if wait:
+        while 1:
+            try:
+                ret = o.wait()
+            except OSError:
+                # interrupted system call
+                continue
+            break
+    else:
+        ret = 0
+    return ret

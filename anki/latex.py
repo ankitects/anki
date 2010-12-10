@@ -8,8 +8,9 @@ Latex support
 """
 __docformat__ = 'restructuredtext'
 
-import re, tempfile, os, sys, subprocess, stat, time, shutil
-from anki.utils import genID, checksum
+import re, tempfile, os, sys, shutil, cgi
+from anki.utils import genID, checksum, call
+from anki.hooks import addHook
 from htmlentitydefs import entitydefs
 
 latexPreamble = ("\\documentclass[12pt]{article}\n"
@@ -56,24 +57,6 @@ def stripLatex(text):
         text = text.replace(match.group(), "")
     return text
 
-def call(argv, wait=True, **kwargs):
-    try:
-        o = subprocess.Popen(argv, **kwargs)
-    except OSError:
-        # command not found
-        return -1
-    if wait:
-        while 1:
-            try:
-                ret = o.wait()
-            except OSError:
-                # interrupted system call
-                continue
-            break
-    else:
-        ret = 0
-    return ret
-
 def latexImgFile(deck, latexCode):
     key = checksum(latexCode)
     return "latex-%s.png" % key
@@ -86,27 +69,6 @@ def mungeLatex(latex):
     latex = re.sub("<br( /)?>", "\n", latex)
     latex = latex.encode("utf-8")
     return latex
-
-def deleteAllLatexImages(deck):
-    mdir = deck.mediaDir()
-    if not mdir:
-        return
-    deck.startProgress()
-    for c, f in enumerate(os.listdir(mdir)):
-        if f.startswith("latex-"):
-            os.unlink(os.path.join(mdir, f))
-        if c % 100 == 0:
-            deck.updateProgress()
-    deck.finishProgress()
-
-def cacheAllLatexImages(deck):
-    deck.startProgress()
-    fields = deck.s.column0("select value from fields")
-    for c, field in enumerate(fields):
-        if c % 10 == 0:
-            deck.updateProgress()
-        renderLatex(deck, field)
-    deck.finishProgress()
 
 def buildImg(deck, latex):
     log = open(os.path.join(tmpdir, "latex_log.txt"), "w+")
@@ -129,14 +91,20 @@ def buildImg(deck, latex):
         si = None
     try:
         os.chdir(tmpdir)
-        errmsg = _("Error executing %s.\n") + _(
-            "A log file is available here:\n%s") % tmpdir
+        def errmsg(type):
+            msg = _("Error executing %s.\n") % type
+            try:
+                log = open(os.path.join(tmpdir, "latex_log.txt")).read()
+                msg += "<small><pre>" + cgi.escape(log) + "</pre></small>"
+            except:
+                pass
+            return msg
         if call(["latex", "-interaction=nonstopmode",
                  "tmp.tex"], stdout=log, stderr=log, startupinfo=si):
-            return (False, errmsg % "latex")
+            return (False, errmsg("latex"))
         if call(latexDviPngCmd + ["tmp.dvi", "-o", "tmp.png"],
                 stdout=log, stderr=log, startupinfo=si):
-            return (False, errmsg % "dvipng")
+            return (False, errmsg("dvipng"))
         # add to media
         target = latexImgFile(deck, latex)
         shutil.copy2("tmp.png", os.path.join(deck.mediaDir(), target))
@@ -162,3 +130,9 @@ def imgLink(deck, latex, build=True):
         return '<img src="%s">' % img
     else:
         return img
+
+def formatQA(html, type, cid, mid, fact, tags, cm, deck):
+    return renderLatex(deck, html)
+
+# setup q/a filter
+addHook("formatQA", formatQA)
