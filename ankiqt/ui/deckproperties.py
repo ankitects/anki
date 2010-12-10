@@ -41,6 +41,7 @@ class DeckProperties(QDialog):
             self.dialog.doSync.setCheckState(Qt.Checked)
         else:
             self.dialog.doSync.setCheckState(Qt.Unchecked)
+        self.dialog.mediaURL.setText(self.d.getVar("mediaURL") or "")
         # priorities
         self.dialog.highPriority.setText(self.d.highPriority)
         self.dialog.medPriority.setText(self.d.medPriority)
@@ -169,6 +170,15 @@ class DeckProperties(QDialog):
                 self.d.lastSync = oldSync
         else:
             self.d.disableSyncing()
+        url = unicode(self.dialog.mediaURL.text())
+        if url:
+            if not re.match("^(http|https|ftp)://", url, re.I):
+                url = "http://" + url
+            if not url.endswith("/"):
+                url += "/"
+            old = self.d.getVar("mediaURL") or ""
+            if old != url:
+                self.d.setVar("mediaURL", url)
         # scheduling
         minmax = ("Min", "Max")
         for type in ("hard", "mid", "easy"):

@@ -35,7 +35,6 @@ class ModelProperties(QDialog):
     def readData(self):
         # properties section
         self.dialog.name.setText(self.m.name)
-        self.dialog.mediaURL.setText(unicode(self.m.features))
 
     # Cards
     ##########################################################################
@@ -264,14 +263,6 @@ class ModelProperties(QDialog):
             mname = _("Model")
         self.updateField(self.m, 'name', mname)
         self.updateField(self.m, 'tags', mname)
-        url = unicode(self.dialog.mediaURL.text())
-        if url:
-            if not re.match("^(http|https|ftp)://", url, re.I):
-                url = "http://" + url
-            if not url.endswith("/"):
-                url += "/"
-        self.updateField(self.m, 'features', url)
-        # before field, or it's overwritten
         self.saveCurrentCard()
         # if changed, reset deck
         reset = False
