@@ -5,7 +5,6 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from anki.sound import playFromText, stripSounds
-from anki.latex import renderLatex, stripLatex
 from ankiqt import ui
 
 import re, os, sys, urllib, time
@@ -237,7 +236,6 @@ def restoreHeader(widget, key):
         widget.restoreState(ankiqt.mw.config[key])
 
 def mungeQA(deck, txt):
-    txt = renderLatex(deck, txt)
     txt = stripSounds(txt)
     # osx webkit doesn't understand font weight 600
     txt = re.sub("font-weight:.+?;", "font-weight: bold;", txt)

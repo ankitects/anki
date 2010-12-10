@@ -6,7 +6,6 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki, anki.utils
 from anki.sound import playFromText
-from anki.latex import renderLatex, stripLatex
 from anki.utils import stripHTML
 from anki.hooks import runHook, runFilter
 from anki.media import stripMedia

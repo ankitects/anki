@@ -595,7 +595,7 @@
     <string>Card List</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+L</string>
+    <string>Ctrl+Shift+L</string>
    </property>
   </action>
   <action name="actionFindDuplicates">

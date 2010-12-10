@@ -22,7 +22,6 @@ from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels, failedCardOptionLabels
-import anki.latex
 import anki.lang
 import anki.deck
 import ankiqt
@@ -2696,8 +2695,7 @@ support plugin supports this now. Please download the latest version."""))
         if path is None:
             path = self.pluginsFolder()
         if sys.platform == "win32":
-            # reuse our process handling code from latex
-            anki.latex.call(["explorer", path.encode(
+            anki.utils.call(["explorer", path.encode(
                 sys.getfilesystemencoding())],
                             wait=False)
         else:

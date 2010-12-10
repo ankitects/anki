@@ -174,7 +174,7 @@ class Preferences(QDialog):
     def onOpenBackup(self):
         path = os.path.join(self.config.configPath, "backups")
         if sys.platform == "win32":
-            anki.latex.call(["explorer", path.encode(
+            anki.utils.call(["explorer", path.encode(
                 sys.getfilesystemencoding())],
                             wait=False)
         else:
