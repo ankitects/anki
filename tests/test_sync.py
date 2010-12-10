@@ -229,7 +229,7 @@ def test_localsync_media():
         shutil.rmtree(tmpdir)
     except OSError:
         pass
-    shutil.copytree(os.path.join(os.getcwd(),
+    shutil.copytree(os.path.join(os.path.dirname(__file__), "..",
                                  "tests/syncing/media-tests"),
                     tmpdir)
     deck1anki = os.path.join(tmpdir, "1.anki")
@@ -252,8 +252,6 @@ def test_localsync_media():
     assert len(os.listdir(deck2media)) == 3
     # check delete
     os.unlink(os.path.join(deck1media, "22161b29b0c18e068038021f54eee1ee.png"))
-    os.system("sync")
-    time.sleep(0.2)
     rebuildMediaDir(deck1)
     client.sync()
     assert deck1.s.scalar("select count(1) from media") == 2
