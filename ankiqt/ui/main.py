@@ -3061,12 +3061,15 @@ Consider backing up your media directory first."""))
     def onDownloadMissingMedia(self):
         res = downloadMissing(self.deck)
         if res is None:
-            ui.utils.showInfo(_("No media URLs defined for this deck."),
+            ui.utils.showInfo(_("No media URL defined for this deck."),
                               help="MediaSupport")
             return
         if res[0] == True:
             # success
-            msg = _("%d successfully retrieved.") % res[1]
+            (grabbed, missing) = res[1:]
+            msg = _("%d successfully retrieved.") % grabbed
+            if missing:
+                msg += "\n" + _("%d missing.") % missing
         else:
             msg = _("Unable to download %s\nDownload aborted.") % res[1]
         ui.utils.showInfo(msg)
