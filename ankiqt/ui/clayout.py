@@ -277,6 +277,7 @@ order by n""", id=card.id)
         modified = False
         self.deck.startProgress()
         self.deck.updateProgress(_("Applying changes..."))
+        reset=True
         if self.needFormatRebuild:
             # need to generate q/a templates
             self.deck.updateCardsFromModel(self.fact.model)
@@ -292,8 +293,9 @@ order by n""", id=card.id)
             self.deck.flushMod()
             if self.factedit and self.factedit.onChange:
                 self.factedit.onChange("all")
-            else:
-                self.mw.reset()
+                reset=False
+        if reset:
+            self.mw.reset()
         self.deck.finishProgress()
         saveGeom(self, "CardLayout")
         QDialog.reject(self)
