@@ -987,7 +987,7 @@ and type between 1 and 2""",
                     d = 0
                 else:
                     d = self.delay1
-                due = 0 + d*86400
+                due = d*86400
             else:
                 due = 0
         else:
