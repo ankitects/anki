@@ -15,6 +15,8 @@ from anki.facts import Fact, factsTable, Field
 from anki.utils import parseTags, findTag, stripHTML, genID, hexifyID
 from anki.media import updateMediaCount, mediaFiles
 
+MAX_TIMER = 60
+
 # Cards
 ##########################################################################
 
@@ -170,14 +172,12 @@ class Card(object):
             self.successive += 1
         else:
             self.successive = 0
-        delay = self.totalTime()
-        # ignore any times over 60 seconds
-        if delay < 60:
-            self.reviewTime += delay
-            if self.averageTime:
-                self.averageTime = (self.averageTime + delay) / 2.0
-            else:
-                self.averageTime = delay
+        delay = min(self.totalTime(), MAX_TIMER)
+        self.reviewTime += delay
+        if self.averageTime:
+            self.averageTime = (self.averageTime + delay) / 2.0
+        else:
+            self.averageTime = delay
         # we don't track first answer for cards
         if state == "new":
             state = "young"
