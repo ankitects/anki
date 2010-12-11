@@ -201,7 +201,7 @@ def downloadMissing(deck):
     missing = 0
     grabbed = 0
     for c, (f, sum) in enumerate(deck.s.all(
-        "select filename, not not originalPath from media")):
+        "select filename, originalPath from media")):
         path = os.path.join(mdir, f)
         if not os.path.exists(path):
             try:
