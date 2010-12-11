@@ -3750,9 +3750,8 @@ update cards set type = type - 3 where type between 0 and 2 and priority = -3"""
             "select avg(factor) from cards where type = 1")
                                or Deck.initialFactor)
         deck.averageFactor = max(deck.averageFactor, Deck.minimumAverage)
-        # rebuild queue if not rebuild already
-        if not ids:
-            deck.reset()
+        # rebuild queue
+        deck.reset()
         # make sure we haven't accidentally bumped the modification time
         assert deck.modified == oldMod
         return deck
