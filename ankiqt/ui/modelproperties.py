@@ -83,7 +83,7 @@ class ModelProperties(QDialog):
                 status=""
             else:
                 status=_("; disabled")
-            label = _("%(name)s [%(cards)d cards%(status)s]") % {
+            label = _("%(name)s [%(cards)d facts%(status)s]") % {
                 'num': n,
                 'name': card.name,
                 'status': status,
