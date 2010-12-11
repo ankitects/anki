@@ -162,7 +162,8 @@ class CardLayout(QDialog):
         for f in self.fact.model.fieldModels:
             d[f.name] = (f.id, self.fact[f.name])
         for card in self.cards:
-            qa = formatQA(None, self.fact.modelId, d, card.splitTags(), card.cardModel)
+            qa = formatQA(None, self.fact.modelId, d, card.splitTags(),
+                          card.cardModel, self.deck)
             card.question = qa['question']
             card.answer = qa['answer']
             card.setModified()
@@ -441,6 +442,7 @@ order by n""", id=card.id)
         f = FieldModel(required=False, unique=False)
         f.name = _("Field %d") % (len(self.model.fieldModels) + 1)
         self.deck.addFieldModel(self.model, f)
+        self.deck.s.refresh(self.fact)
         self.fillFieldList()
         self.form.fieldList.setCurrentRow(len(self.model.fieldModels)-1)
         self.form.fieldName.setFocus()
