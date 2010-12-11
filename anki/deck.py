@@ -818,7 +818,6 @@ where id in """
             # only update if card was not new
             card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
-        card.combinedDue = card.due
         card.isDue = 0
         card.lastFactor = card.factor
         card.spaceUntil = 0
