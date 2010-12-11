@@ -135,9 +135,11 @@ class Fact(object):
         if textChanged:
             if not deck:
                 # FIXME: compat code
-                import sys; sys.stderr.write(
-                    "plugin needs to pass deck to fact.setModified()")
                 import ankiqt
+                if not getattr(ankiqt, 'setModWarningShown', None):
+                    import sys; sys.stderr.write(
+                        "plugin needs to pass deck to fact.setModified()")
+                    ankiqt.setModWarningShown = True
                 deck = ankiqt.mw.deck
             assert deck
             self.spaceUntil = stripHTMLMedia(u" ".join(
