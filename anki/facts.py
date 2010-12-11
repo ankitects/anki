@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext'
 import time
 from anki.db import *
 from anki.errors import *
-from anki.models import Model, FieldModel, fieldModelsTable, formatQA
+from anki.models import Model, FieldModel, fieldModelsTable
 from anki.utils import genID, stripHTMLMedia
 from anki.hooks import runHook
 
@@ -133,6 +133,12 @@ class Fact(object):
         "Mark modified and update cards."
         self.modified = time.time()
         if textChanged:
+            if not deck:
+                # FIXME: compat code
+                import sys; sys.stderr.write(
+                    "plugin needs to pass deck to fact.setModified()")
+                import ankiqt
+                deck = ankiqt.mw.deck
             assert deck
             self.spaceUntil = stripHTMLMedia(u" ".join(
                 self.values()))
