@@ -172,7 +172,7 @@ def test_media():
     deck.addMedia(file)
     # make sure it gets copied on saveas
     path = "/tmp/saveAs2.anki"
-    sum = "0bee89b07a248e27c83fc3d5951213c1.png"
+    sum = "fake.png"
     try:
         os.unlink(path)
     except OSError:
