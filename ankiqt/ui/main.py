@@ -2174,6 +2174,12 @@ it to your friends.
                 if not self.deck.path:
                     ui.utils.showInfo(_("Please save the deck first."))
                     return
+                if (not self.config['mediaLocation']
+                    and self.deck.s.scalar("select 1 from media limit 1")):
+                    ui.utils.showInfo(_("""\
+Syncing sounds and images requires a free file synchronization service like \
+DropBox. Click help to learn more, and OK to continue syncing."""),
+                                      help="SyncingMedia")
                 # enable syncing
                 self.deck.enableSyncing()
             else:
