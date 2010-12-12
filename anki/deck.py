@@ -3562,15 +3562,22 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         if (self.newCardOrder == NEW_CARDS_NEW_FIRST):
             required.append("dueDesc")
         # add/delete
+        analyze = False
         for (k, v) in indices.items():
+            n = "ix_cards_%s2" % k
             if k in required:
-                self.s.statement(
-                    "create index if not exists ix_cards_%s2 on cards %s" %
-                    (k, v))
+                if not self.s.scalar(
+                    "select 1 from sqlite_master where name = :n", n=n):
+                    self.s.statement(
+                        "create index %s on cards %s" %
+                        (n, v))
+                    analyze = True
             else:
                 # leave old indices for older clients
                 #self.s.statement("drop index if exists ix_cards_%s" % k)
-                self.s.statement("drop index if exists ix_cards_%s2" % k)
+                self.s.statement("drop index if exists %s" % n)
+        if analyze:
+            self.s.statement("analyze")
 
 # Shared decks
 ##########################################################################
