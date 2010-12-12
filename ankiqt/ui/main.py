@@ -1478,6 +1478,7 @@ not be touched.""") %
     def setupEditor(self):
         self.editor = ui.facteditor.FactEditor(
             self, self.mainWin.fieldsArea, self.deck)
+        self.editor.clayout.setShortcut("")
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
         self.editor.resetOnEdit = False
