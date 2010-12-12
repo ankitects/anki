@@ -38,3 +38,14 @@ def BasicModel():
     return m
 
 models['Basic'] = BasicModel
+
+# Recovery
+##########################################################################
+
+def RecoveryModel():
+    m = Model(_('Recovery'))
+    m.addFieldModel(FieldModel(u'Question', False, False))
+    m.addFieldModel(FieldModel(u'Answer', False, False))
+    m.addCardModel(CardModel(u'Single', u'{{{Question}}}', u'{{{Answer}}}'))
+    m.tags = u"Recovery"
+    return m

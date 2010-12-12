@@ -3220,12 +3220,39 @@ You can disable this check in Settings>Preferences>Network.""") % self.name())
     # DB maintenance
     ##########################################################################
 
+    def recoverCards(self, ids):
+        "Put cards with damaged facts into new facts."
+        # create a new model in case the user has modified a previous one
+        from anki.stdmodels import RecoveryModel
+        m = RecoveryModel()
+        last = self.currentModel
+        self.addModel(m)
+        def repl(s):
+            # strip field model text
+            return re.sub("<span class=\"fm.*?>(.*?)</span>", "\\1", s)
+        # add new facts, pointing old card at new fact
+        for (id, q, a) in self.s.all("""
+select id, question, answer from cards
+where id in %s""" % ids2str(ids)):
+            f = self.newFact()
+            f['Question'] = repl(q)
+            f['Answer'] = repl(a)
+            cards = self.addFact(f)
+            # delete the freshly created card and point old card to this fact
+            self.s.statement("delete from cards where id = :id",
+                             id=f.cards[0].id)
+            self.s.statement("""
+update cards set factId = :fid, cardModelId = :cmid, ordinal = 0
+where id = :id""", fid=f.id, cmid=m.cardModels[0].id, id=id)
+        # restore old model
+        self.currentModel = last
+
     def fixIntegrity(self, quick=False):
         "Fix some problems and rebuild caches. Caller must .reset()"
         self.s.commit()
         self.resetUndo()
         problems = []
-        deletedCards = []
+        recover = False
         if quick:
             num = 4
         else:
@@ -3275,24 +3302,20 @@ facts.modelId = fieldModels.modelId and fieldModels.id not in
         ids = self.s.column0("""
 select id from cards where factId not in (select id from facts)""")
         if ids:
-            deletedCards.extend(self.s.all(
-                "select question, answer from cards where id in %s" %
-                ids2str(ids)))
-            self.deleteCards(ids)
-            problems.append(ngettext("Deleted %d card with missing fact",
-                            "Deleted %d cards with missing fact", len(ids)) %
+            recover = True
+            self.recoverCards(ids)
+            problems.append(ngettext("Recovered %d card with missing fact",
+                            "Recovered %d cards with missing fact", len(ids)) %
                             len(ids))
         # cards missing a card model?
         ids = self.s.column0("""
 select id from cards where cardModelId not in
 (select id from cardModels)""")
         if ids:
-            deletedCards.extend(self.s.all(
-                "select question, answer from cards where id in %s" %
-                ids2str(ids)))
-            self.deleteCards(ids)
-            problems.append(ngettext("Deleted %d card with no card template",
-                            "Deleted %d cards with no card template", len(ids)) %
+            recover = True
+            self.recoverCards(ids)
+            problems.append(ngettext("Recovered %d card with no card template",
+                            "Recovered %d cards with no card template", len(ids)) %
                             len(ids))
         # cards with a card model from the wrong model
         ids = self.s.column0("""
@@ -3300,12 +3323,10 @@ select id from cards where cardModelId not in (select cm.id from
 cardModels cm, facts f where cm.modelId = f.modelId and
 f.id = cards.factId)""")
         if ids:
-            deletedCards.extend(self.s.all(
-                "select question, answer from cards where id in %s" %
-                ids2str(ids)))
-            self.deleteCards(ids)
-            problems.append(ngettext("Deleted %d card with wrong card template",
-                            "Deleted %d cards with wrong card template", len(ids)) %
+            recover = True
+            self.recoverCards(ids)
+            problems.append(ngettext("Recovered %d card with wrong card template",
+                            "Recovered %d cards with wrong card template", len(ids)) %
                             len(ids))
         # facts missing a card?
         ids = self.deleteDanglingFacts()
@@ -3322,8 +3343,6 @@ select id from fields where factId not in (select id from facts)""")
             problems.append(ngettext("Deleted %d dangling field",
                             "Deleted %d dangling fields", len(ids)) %
                             len(ids))
-        for card in deletedCards:
-            problems.append(_("Deleted: ") + "%s %s" % tuple(card))
         self.s.flush()
         if not quick:
             self.updateProgress()
@@ -3371,6 +3390,11 @@ where id = fieldModelId)""")
         self.refreshSession()
         self.finishProgress()
         if problems:
+            if recover:
+                problems.append("\n" + _("""\
+Cards with corrupt or missing facts have been placed into new facts. \
+Your scheduling info and card content has been preserved, but the \
+original layout of the facts has been lost."""))
             return "\n".join(problems)
         return "ok"
 
