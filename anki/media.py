@@ -13,8 +13,8 @@ from anki.db import *
 from anki.utils import checksum, genID
 from anki.lang import _
 
-regexps = ("(\[sound:([^]]+)\])",
-           "(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]?)")
+regexps = ("(?i)(\[sound:([^]]+)\])",
+           "(?i)(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]?)")
 
 # Tables
 ##########################################################################
