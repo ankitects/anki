@@ -1915,7 +1915,7 @@ learnt today")
         self.moveToState("editCurrentFact")
 
     def onCardLayout(self):
-        ui.clayout.CardLayout(self, None, self.currentCard.fact.model,
+        ui.clayout.CardLayout(self, 0, self.currentCard.fact,
                               card=self.currentCard)
 
     def onDeckProperties(self):

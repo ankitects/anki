@@ -29,7 +29,7 @@ class CardLayout(QDialog):
         self.deck = self.mw.deck
         self.factedit = factedit
         self.card = card
-        if factedit:
+        if factedit is not None:
             self.fact = factOrModel
             self.model = self.fact.model
         else:
