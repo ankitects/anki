@@ -72,7 +72,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 61
+DECK_VERSION = 62
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -385,9 +385,9 @@ New type: %s""" % (self.failedSoonCount, self.revCount, self.newCountToday,
                 "priority desc, factId, ordinal")[self.revCardOrder]
 
     def newOrder(self):
-        return ("priority desc, combinedDue",
-                "priority desc, combinedDue",
-                "priority desc, combinedDue desc")[self.newCardOrder]
+        return ("priority desc, due",
+                "priority desc, due",
+                "priority desc, due desc")[self.newCardOrder]
 
     def rebuildTypes(self):
         "Rebuild the type cache. Only necessary on upgrade."
@@ -3537,15 +3537,15 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def updateDynamicIndices(self):
         indices = {
             'intervalDesc':
-            '(type, priority desc, interval desc)',
+            '(type, priority desc, interval desc, factId, combinedDue)',
             'intervalAsc':
-            '(type, priority desc, interval)',
+            '(type, priority desc, interval, factId, combinedDue)',
             'randomOrder':
-            '(type, priority desc, factId, ordinal)',
+            '(type, priority desc, factId, ordinal, combinedDue)',
             'dueAsc':
-            '(type, priority desc, combinedDue)',
+            '(type, priority desc, due, factId, combinedDue)',
             'dueDesc':
-            '(type, priority desc, combinedDue desc)',
+            '(type, priority desc, due desc, factId, combinedDue)',
             }
         # determine required
         required = []
@@ -3800,7 +3800,7 @@ update cards set type = type - 3 where type between 0 and 2 and priority = -3"""
         # counts, failed cards
         deck.s.statement("""
 create index if not exists ix_cards_typeCombined on cards
-(type, combinedDue)""")
+(type, combinedDue, factId)""")
         # scheduler-agnostic type
         deck.s.statement("""
 create index if not exists ix_cards_relativeDelay on cards
@@ -4381,6 +4381,17 @@ where relativeDelay = 2""")
             # rebuild the media db based on new format
             rebuildMediaDir(deck, dirty=False)
             deck.version = 61
+            deck.s.commit()
+        if deck.version < 62:
+            # updated indices
+            for d in ("intervalDesc", "intervalAsc", "randomOrder",
+                      "dueAsc", "dueDesc"):
+                deck.s.statement("drop index if exists ix_cards_%s2" % d)
+            deck.s.statement("drop index if exists ix_cards_typeCombined")
+            DeckStorage._addIndices(deck)
+            deck.updateDynamicIndices()
+            deck.s.execute("vacuum")
+            deck.version = 62
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
