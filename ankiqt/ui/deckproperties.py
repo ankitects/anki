@@ -46,6 +46,9 @@ class DeckProperties(QDialog):
         self.dialog.highPriority.setText(self.d.highPriority)
         self.dialog.medPriority.setText(self.d.medPriority)
         self.dialog.lowPriority.setText(self.d.lowPriority)
+        # latex
+        self.dialog.latexHeader.setText(self.d.getVar("latexPre"))
+        self.dialog.latexFooter.setText(self.d.getVar("latexPost"))
         # scheduling
         for type in ("hard", "mid", "easy"):
             v = getattr(self.d, type + "IntervalMin")
@@ -179,6 +182,9 @@ class DeckProperties(QDialog):
             old = self.d.getVar("mediaURL") or ""
             if old != url:
                 self.d.setVar("mediaURL", url)
+        # latex
+        self.d.setVar('latexPre', unicode(self.dialog.latexHeader.toPlainText()))
+        self.d.setVar('latexPost', unicode(self.dialog.latexFooter.toPlainText()))
         # scheduling
         minmax = ("Min", "Max")
         for type in ("hard", "mid", "easy"):

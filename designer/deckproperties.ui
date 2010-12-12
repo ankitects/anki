@@ -206,6 +206,41 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>LaTeX</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Header</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="latexHeader">
+         <property name="tabChangesFocus">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Footer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="latexFooter">
+         <property name="tabChangesFocus">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
        <string>Advanced</string>
@@ -746,6 +781,8 @@
   <tabstop>medPriority</tabstop>
   <tabstop>lowPriority</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>latexHeader</tabstop>
+  <tabstop>latexFooter</tabstop>
   <tabstop>delay0</tabstop>
   <tabstop>delay2</tabstop>
   <tabstop>delay1</tabstop>
