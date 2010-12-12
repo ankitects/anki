@@ -174,13 +174,14 @@ class Deck(object):
             self.setVarDefault("revInactive", self.suspended)
             self.setVarDefault("newSpacing", 60)
             self.setVarDefault("mediaURL", "")
-            self.setVarDefault("latexPre", (
-                "\\documentclass[12pt]{article}\n"
-                "\\special{papersize=3in,5in}"
-                "\\usepackage[utf8]{inputenc}"
-                "\\usepackage{amssymb,amsmath}"
-                "\\pagestyle{empty}\n"
-                "\\begin{document}"))
+            self.setVarDefault("latexPre", """\
+\\documentclass[12pt]{article}
+\\special{papersize=3in,5in}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amssymb,amsmath}
+\\pagestyle{empty}
+\\begin{document}
+""")
             self.setVarDefault("latexPost", "\\end{document}")
         self.updateCutoff()
         self.setupStandardScheduler()
