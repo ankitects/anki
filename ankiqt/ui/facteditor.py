@@ -1021,7 +1021,7 @@ class FactEdit(QTextEdit):
         if source.hasHtml() and "qrichtext" in unicode(source.html()):
             self.insertHtml(source.html())
             return
-        if source.hasText():
+        if source.hasText() and ankiqt.mw.config['stripHTML']:
             txt = unicode(source.text())
             l = txt.lower()
             if l.startswith("http://") or l.startswith("file://"):
@@ -1095,6 +1095,8 @@ class FactEdit(QTextEdit):
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
+        if not ankiqt.mw.config['stripHTML']:
+            return html
         html = re.sub("\n", " ", html)
         html = re.sub("<br ?/?>", "\n", html)
         html = re.sub("<p ?/?>", "\n\n", html)

@@ -98,6 +98,7 @@ class Config(dict):
             'sortIndex': 0,
             'splitQA': True,
             'standaloneWindows': True,
+            'stripHTML': True,
             'studyOptionsScreen': 0,
             'suppressEstimates': False,
             'suppressUpdate': False,
