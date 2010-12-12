@@ -4278,9 +4278,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
             deck.s.statement("update models set features = ''")
             deck.version = 40
             deck.s.commit()
-        if deck.version < 42:
-            deck.version = 42
-            deck.s.commit()
         if deck.version < 43:
             deck.s.statement("update fieldModels set features = ''")
             deck.version = 43
@@ -4288,31 +4285,15 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
         if deck.version < 44:
             # leaner indices
             deck.s.statement("drop index if exists ix_cards_factId")
-            DeckStorage._addIndices(deck)
             deck.version = 44
-            deck.s.commit()
-        if deck.version < 47:
-            # add an index for (type, combinedDue)
-            DeckStorage._addIndices(deck)
-            # add new indices that exclude isDue - we'll clean up the old ones later
-            deck.updateDynamicIndices()
-            deck.s.execute("analyze")
-            deck.version = 47
             deck.s.commit()
         if deck.version < 48:
             deck.updateFieldCache(deck.s.column0("select id from facts"))
             deck.version = 48
             deck.s.commit()
-        if deck.version < 49:
-            # new type handling
-            deck.rebuildTypes()
-            deck.version = 49
-            deck.s.commit()
         if deck.version < 50:
             # more new type handling
             deck.rebuildTypes()
-            # add an index for relativeDelay (type cache)
-            DeckStorage._addIndices(deck)
             deck.version = 50
             deck.s.commit()
         if deck.version < 52:
@@ -4357,9 +4338,6 @@ or quizFontFamily is null""")
             deck.version = 55
             deck.s.commit()
         if deck.version < 57:
-            # add an index for priority & modified
-            DeckStorage._addIndices(deck)
-            deck.s.statement("analyze")
             deck.version = 57
             deck.s.commit()
         if deck.version < 58:
