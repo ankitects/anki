@@ -4365,17 +4365,6 @@ or quizFontFamily is null""")
         if deck.version < 57:
             deck.version = 57
             deck.s.commit()
-        if deck.version < 58:
-            # orderNewCards() had a bug in older versions where combinedDue
-            # was not updated, and since we're sorting on combinedDue now we
-            # need to make sure it's correct. This will discard any spacing
-            # the cards had.
-            if deck.newCardOrder != 0:
-                deck.s.statement("""
-update cards set due = created, combinedDue = created
-where relativeDelay = 2""")
-            deck.version = 58
-            deck.s.commit()
         if deck.version < 61:
             # because we've changed the way latex is handled, we're going to
             # need to rebuild the q/a
