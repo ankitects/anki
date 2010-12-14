@@ -386,9 +386,13 @@ order by n""", id=card.id)
         field = self.field
         name = unicode(self.form.fieldName.text()) or _("Field")
         if field.name != name:
+            oldVal = self.fact[field.name]
             self.deck.renameFieldModel(self.model, field, name)
             # the card models will have been updated
             self.readCard()
+            # for add card case
+            self.updateFact()
+            self.fact[name] = oldVal
         field.unique = self.form.fieldUnique.isChecked()
         field.required = self.form.fieldRequired.isChecked()
         field.numeric = self.form.numeric.isChecked()
@@ -444,11 +448,27 @@ order by n""", id=card.id)
         f = FieldModel(required=False, unique=False)
         f.name = _("Field %d") % (len(self.model.fieldModels) + 1)
         self.deck.addFieldModel(self.model, f)
-        self.deck.s.refresh(self.fact)
+        try:
+            self.deck.s.refresh(self.fact)
+        except:
+            # not yet added
+            self.updateFact()
         self.fillFieldList()
         self.form.fieldList.setCurrentRow(len(self.model.fieldModels)-1)
         self.form.fieldName.setFocus()
         self.form.fieldName.selectAll()
+
+    def updateFact(self):
+        oldFact = self.fact
+        model = self.deck.s.query(Model).get(oldFact.model.id)
+        fact = self.deck.newFact(model)
+        for field in fact.fields:
+            try:
+                fact[field.name] = oldFact[field.name]
+            except KeyError:
+                fact[field.name] = u""
+        fact.tags = oldFact.tags
+        self.fact = fact
 
     def deleteField(self):
         row = self.form.fieldList.currentRow()
