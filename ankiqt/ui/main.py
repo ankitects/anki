@@ -2620,6 +2620,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 
     def pluginsFolder(self):
         dir = self.config.configPath
+        if sys.platform.startswith("win32"):
+            dir = dir.encode(sys.getfilesystemencoding())
         return os.path.join(dir, "plugins")
 
     def loadPlugins(self):
