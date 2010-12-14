@@ -890,7 +890,7 @@ and type between 1 and 2""",
                          id=card.id, now=time.time(), factId=card.factId,
                          cut=self.dueCutoff, new=new)
         # update local cache of seen facts
-        self.spacedFacts[card.factId] = time.time() + self.newSpacing
+        self.spacedFacts[card.factId] = new
 
     def isLeech(self, card):
         no = card.noCount
