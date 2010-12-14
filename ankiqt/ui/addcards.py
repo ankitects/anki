@@ -53,6 +53,7 @@ class AddCards(QDialog):
                                                self.dialog.fieldsArea,
                                                self.parent.deck)
         self.editor.addMode = True
+        self.editor.resetOnEdit = False
 
     def addChooser(self):
         self.modelChooser = ui.modelchooser.ModelChooser(self,
@@ -179,6 +180,7 @@ question or answer on all cards."""), parent=self)
         clearAudioQueue()
 
         self.parent.deck.setUndoEnd(n)
+        self.parent.deck.rebuildCounts()
         self.parent.updateTitleBar()
         self.parent.statusView.redraw()
 
