@@ -1290,8 +1290,6 @@ your deck."""))
                     focusButton = openButton
                 # more
                 moreButton = QPushButton(_("More"))
-                if sys.platform.startswith("darwin"):
-                    moreButton.setFixedWidth(80)
                 if sys.platform.startswith("win32") and \
                    self.config['alternativeTheme']:
                         moreButton.setFixedHeight(24)
