@@ -3,6 +3,8 @@
 import os, sys
 
 if __name__ == "__main__":
+    if sys.version_info[0] > 2:
+        raise Exception("Anki should be run with python2.x.")
     try:
         modDir=os.path.dirname(os.path.realpath(__file__))
         runningDir=os.path.split(modDir)[0]
@@ -16,16 +18,10 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.join(os.path.join(modDir, ".."), "libanki"))
 
     import ankiqt
-    
+
     try:
         import ankiqt.forms
     except ImportError:
-        print
-        print "You need to run tools/build_ui.sh in order for anki to work."
-        print
-        raise
-        
+        raise Exception("You need to run tools/build_ui.sh in order for anki to work.")
 
-    #import profile
-    #profile.run("ankiqt.run()", sort="cumulative")
     ankiqt.run()
