@@ -4366,8 +4366,32 @@ or quizFontFamily is null""")
             deck.version = 57
             deck.s.commit()
         if deck.version < 61:
-            # because we've changed the way latex is handled, we're going to
-            # need to rebuild the q/a
+            txt = '''\
+<span style="font-family: %s; font-size: %spx; color: %s;">%s</span>'''
+            for m in deck.models:
+                for cm in m.cardModels:
+                    # embed the old font information into card templates if
+                    # it's been customized
+                    if (cm.questionFontFamily != "Arial" or
+                        cm.questionFontSize != 20 or
+                        cm.questionFontColour != "#000000"):
+                        cm.qformat = txt % (
+                            cm.questionFontFamily,
+                            cm.questionFontSize,
+                            cm.questionFontColour,
+                            cm.qformat)
+                    if (cm.answerFontFamily != "Arial" or
+                        cm.answerFontSize != 20 or
+                        cm.answerFontColour != "#000000"):
+                        cm.aformat = txt % (
+                            cm.answerFontFamily,
+                            cm.answerFontSize,
+                            cm.answerFontColour,
+                            cm.aformat)
+                    # fix newlines
+                    cm.qformat = cm.qformat.replace("\n", "<br>\n")
+                    cm.aformat = cm.aformat.replace("\n", "<br>\n")
+            # rebuild q/a for the above & because latex has changed
             for m in deck.models:
                 deck.updateCardsFromModel(m, dirty=False)
             # rebuild the media db based on new format
