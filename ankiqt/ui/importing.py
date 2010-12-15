@@ -179,6 +179,9 @@ you can enter it here. Use \\t to represent tab."""),
         f = UpdateMap(self.parent,
                       self.importer.fields(),
                       self.model.fieldModels)
+        if not getattr(f, "updateKey", None):
+            # user cancelled
+            return
         self.importer.updateKey = f.updateKey
         self.doImport(True)
 
