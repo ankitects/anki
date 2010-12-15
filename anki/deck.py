@@ -524,9 +524,11 @@ order by combinedDue limit %d""" % self.queueLimit, lim=self.dueCutoff)
         self.scheduler = "learnMore"
 
     def _rebuildLearnMoreCount(self):
-        self.newCount = self.s.scalar("""
-select count() from cards where type = 2 and combinedDue < :now
-""", now=self.dueCutoff)
+        self.newCount = self.s.scalar(
+            self.cardLimit(
+            "newActive", "newInactive",
+            "select count(*) from cards c where type = 2 "
+            "and combinedDue < :lim"), lim=self.dueCutoff)
         self.spacedCards = []
 
     def _updateLearnMoreCountToday(self):
