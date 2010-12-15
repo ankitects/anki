@@ -161,10 +161,11 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
             unused.append(file)
     # optionally delete
     if delete:
-        removeUnusedMedia(deck)
         for f in unused:
             path = os.path.join(mdir, f)
             os.unlink(path)
+    # remove entries in db for unused media
+    removeUnusedMedia(deck)
     # check md5s are up to date
     update = []
     for (file, created, md5) in deck.s.all(
