@@ -674,14 +674,14 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         # new cards left?
         if self.newCountToday:
             return self.getNewCard()
-        # display failed cards early/last
-        if self.showFailedLast() and self.failedQueue:
-            return self.failedQueue[-1][0]
         if check:
             # check for expired cards, or new day rollover
             self.updateCutoff()
             self.reset()
             return self.getCardId(check=False)
+        # display failed cards early/last
+        if not check and self.showFailedLast() and self.failedQueue:
+            return self.failedQueue[-1][0]
         # if we're in a custom scheduler, we may need to switch back
         if self.finishScheduler:
             self.finishScheduler()
