@@ -100,6 +100,7 @@ class SyncTools(object):
         self.deck = deck
         self.diffs = {}
         self.serverExcludedTags = []
+        self.timediff = 0
 
     # Control
     ##########################################################################
@@ -117,18 +118,16 @@ class SyncTools(object):
         self.applyPayloadReply(res)
         self.deck.reset()
 
-    def prepareSync(self):
+    def prepareSync(self, timediff):
         "Sync setup. True if sync needed."
         self.localTime = self.modified()
         self.remoteTime = self.server.modified()
         if self.localTime == self.remoteTime:
             return False
         l = self._lastSync(); r = self.server._lastSync()
-        # set lastSync to the lower of the two sides
-        if l != r:
-            self.deck.lastSync = min(l, r)
-        else:
-            self.deck.lastSync = l
+        # set lastSync to the lower of the two sides, and account for slow
+        # clocks & assume it took up to 10 seconds for the reply to arrive
+        self.deck.lastSync = min(l, r) - timediff - 10
         return True
 
     def summaries(self):
@@ -1092,6 +1091,7 @@ class HttpSyncServerProxy(SyncServer):
                 raise SyncError(type="authFailed", status=d['status'])
             self.decks = d['decks']
             self.timestamp = d['timestamp']
+            self.timediff = abs(self.timestamp - time.time())
 
     def hasDeck(self, deckName):
         self.connect()
