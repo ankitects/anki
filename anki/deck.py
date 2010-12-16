@@ -878,11 +878,17 @@ select count() from cards
 where factId = :fid and id != :cid
 and combinedDue < :cut and type = 2
 """, cid=card.id, fid=card.factId, cut=self.dueCutoff)
+        # update due counts
+        self.revCount -= self.s.scalar("""
+select count() from cards
+where factId = :fid and id != :cid
+and combinedDue < :cut and type = 1
+""", cid=card.id, fid=card.factId, cut=self.dueCutoff)
         # space cards
         self.s.statement("""
 update cards set
 combinedDue = (case
-when type = 1 then :cut - 1
+when type = 1 then :daycut
 when type = 2 then :new
 end),
 modified = :now, isDue = 0
@@ -890,7 +896,8 @@ where id != :id and factId = :factId
 and combinedDue < :cut
 and type between 1 and 2""",
                          id=card.id, now=time.time(), factId=card.factId,
-                         cut=self.dueCutoff, new=new)
+                         cut=self.dueCutoff, daycut=self.failedCutoff,
+                         new=new)
         # update local cache of seen facts
         self.spacedFacts[card.factId] = new
 
