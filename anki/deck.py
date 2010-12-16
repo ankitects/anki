@@ -2922,7 +2922,7 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
     def notify(self, msg):
         "Send a notice to all listeners, or display on stdout."
         if hookEmpty("notify"):
-            sys.stderr.write(msg + "\n")
+            pass
         else:
             runHook("notify", msg)
 
