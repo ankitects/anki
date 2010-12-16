@@ -3246,6 +3246,9 @@ where id in %s""" % ids2str(ids)):
             f = self.newFact()
             f['Question'] = repl(q)
             f['Answer'] = repl(a)
+            f.tags = self.s.scalar("""
+select group_concat(tag, " ") from tags t, cardTags ct
+where cardId = :cid and ct.tagId = t.id""", cid=id) or u""
             cards = self.addFact(f)
             # delete the freshly created card and point old card to this fact
             self.s.statement("delete from cards where id = :id",
