@@ -100,8 +100,7 @@ sync was aborted. Please report this error.""")
             proxy.connect("ankiqt-" + ankiqt.appVersion)
             self.proxy = proxy
             # check clock
-            timediff = abs(proxy.timestamp - time.time())
-            if timediff > 300:
+            if proxy.timediff > 300:
                 self.emit(SIGNAL("syncClockOff"), timediff)
                 raise SyncError(type="clockOff")
         return self.proxy
@@ -192,7 +191,7 @@ sync was aborted. Please report this error.""")
             client.setServer(proxy)
             # need to do anything?
             start = time.time()
-            if client.prepareSync():
+            if client.prepareSync(proxy.timediff):
                 changes = True
                 # summary
                 if not self.conflictResolution and not self.onlyMerge:
