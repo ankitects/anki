@@ -1111,7 +1111,7 @@ class FactEdit(QTextEdit):
         self.parent.lastFocusedEdit = self
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
-        if sys.platform.startswith("win32"):
+        if ankiqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
             self._ownLayout = GetKeyboardLayout(0)
             ActivateKeyboardLayout(self._programLayout, 0)
         self.emit(SIGNAL("lostFocus"))
@@ -1131,7 +1131,7 @@ class FactEdit(QTextEdit):
         QTextEdit.focusInEvent(self, evt)
         self.parent.formatChanged(None)
         self.parent.enableButtons()
-        if sys.platform.startswith("win32"):
+        if ankiqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
             self._programLayout = GetKeyboardLayout(0)
             if self._ownLayout == None:
                 self._ownLayout = self._programLayout

@@ -69,6 +69,7 @@ class Config(dict):
             'mediaLocation': "",
             'mainWindowState': None,
             'numBackups': 30,
+            'preserveKeyboard': True,
             'preventEditUntilAnswer': False,
             'proxyHost': '',
             'proxyPass': '',
