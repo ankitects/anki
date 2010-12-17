@@ -74,9 +74,11 @@ def incrementalSend(self, strOrFile):
             self.sock.sendall(strOrFile)
         else:
             cnt = 0
+            t = time.time()
             while 1:
-                if sendProgressHook:
+                if sendProgressHook and time.time() - t > 1:
                     sendProgressHook(cnt)
+                    t = time.time()
                 data = strOrFile.read(CHUNK_SIZE)
                 cnt += len(data)
                 if not data:
