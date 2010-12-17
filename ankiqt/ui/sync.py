@@ -187,6 +187,8 @@ sync was aborted. Please report this error.""")
         self.deck = None
         try:
             self.deck = DeckStorage.Deck(path)
+            if not self.deck.lastSync:
+                self.conflictResolution = "keepLocal"
             client = SyncClient(self.deck)
             client.setServer(proxy)
             # need to do anything?
