@@ -121,7 +121,8 @@ def mediaFiles(string):
     l = []
     for reg in regexps:
         for (full, fname) in re.findall(reg, string):
-            l.append(fname)
+            if not re.match("(https?|ftp)://", fname.lower()):
+                l.append(fname)
     return l
 
 def stripMedia(txt):
