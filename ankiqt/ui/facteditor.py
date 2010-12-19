@@ -477,7 +477,7 @@ class FactEditor(object):
 
     def onFocusLost(self, widget):
         from ankiqt import mw
-        if self.fact is None:
+        if not self.fact:
             # editor or deck closed
             return
         if mw.inDbHandler:

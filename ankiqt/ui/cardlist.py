@@ -818,6 +818,9 @@ where id in (%s)""" % ",".join([
         except:
             # card has been deleted
             return
+        # ensure the change timer doesn't fire after deletion but before reset
+        self.editor.saveFieldsNow()
+        self.editor.fact = None
         self.dialog.tableView.setFocus()
         self.deck.setUndoStart(n)
         self.deck.deleteCards(cards)
