@@ -1198,7 +1198,7 @@ def copyLocalMedia(src, dst):
         return
     dstDir = dst.mediaDir(create=True)
     files = os.listdir(srcDir)
-    # find media references; ignore latex cache
+    # find media references
     used = {}
     for col in ("question", "answer"):
         txt = dst.s.column0("""
