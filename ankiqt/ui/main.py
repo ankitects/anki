@@ -2652,13 +2652,21 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 
     def disableObsoletePlugins(self):
         dir = self.pluginsFolder()
+        native = _(
+            "The %s plugin has been disabled, as Anki supports "+
+            "this natively now.")
         plugins = [
-            ("Custom Media Directory.py", _("""\
-The custom media folder plugin has been disabled, as Anki supports \
-this natively now. Please visit the preferences screen.""")),
+            ("Custom Media Directory.py",
+             (native % "custom media folder") + _(""" \
+Please visit Settings>Preferences.""")),
             ("Regenerate Reading Field.py", _("""\
 The regenerate reading field plugin has been disabled, as the Japanese \
-support plugin supports this now. Please download the latest version."""))
+support plugin supports this now. Please download the latest version.""")),
+            ("Sync LaTeX with iPhone client.py",
+             native % "sync LaTeX"),
+            ("Learn Mode.py", _("""\
+The learn mode plugin has been disabled because it needs to be rewritten \
+to work with this version of Anki."""))
             ]
         for p in plugins:
             path = os.path.join(dir, p[0])
