@@ -176,7 +176,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.dialog.autoDetect.setText(txt)
 
     def doUpdate(self):
-        f = UpdateMap(self.parent,
+        f = UpdateMap(self,
                       self.importer.fields(),
                       self.model.fieldModels)
         if not getattr(f, "updateKey", None):
