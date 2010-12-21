@@ -909,6 +909,11 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         return True
 
     def inMainWindow(self):
+        if not self.app.activeWindow():
+            # make sure window is shown
+            self.setWindowState(self.windowState() & ~Qt.WindowMinimized)
+        return True
+        # FIXME: no longer necessary?
         return self.app.activeWindow() == self
 
     def onNew(self, initial=False, path=None):
