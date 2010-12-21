@@ -748,8 +748,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             and self.deck.syncName):
             if self.syncDeck(interactive=False):
                 return True
-        if interactive:
-            self.setupMedia(self.deck)
+        self.setupMedia(self.deck)
         try:
             self.deck.initUndo()
             self.moveToState("initial")
@@ -2918,12 +2917,19 @@ to work with this version of Anki."""))
         # check if the media has moved
         migrateFrom = None
         if prev != next:
-            # find the old location
-            deck.mediaPrefix = prev
-            dir = deck.mediaDir()
-            if dir and os.listdir(dir):
-                # it contains files; we'll need to migrate
-                migrateFrom = dir
+            # check if they were using plugin
+            if not prev:
+                p = self.dropboxFolder()
+                p = p.replace("/Anki", "").replace("\\Anki", "")
+                deck.mediaPrefix = p
+                migrateFrom = deck.mediaDir()
+            if not migrateFrom:
+                # find the old location
+                deck.mediaPrefix = prev
+                dir = deck.mediaDir()
+                if dir and os.listdir(dir):
+                    # it contains files; we'll need to migrate
+                    migrateFrom = dir
         # setup new folder
         deck.mediaPrefix = next
         if migrateFrom:
