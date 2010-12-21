@@ -75,9 +75,6 @@ class AnkiQt(QMainWindow):
             ui.splash.update()
             self.setupErrorHandler()
             self.setupMisc()
-            # activate & raise is useful when run from the command line on osx
-            self.activateWindow()
-            self.raise_()
             # check if we've been updated
             if "version" not in self.config:
                 # could be new user, or upgrade from older version
@@ -118,6 +115,9 @@ class AnkiQt(QMainWindow):
                 ui.utils.showWarning(
                     _("Broken plugin:\n\n%s") %
                     unicode(traceback.format_exc(), "utf-8", "replace"))
+            # activate & raise is useful when run from the command line on osx
+            self.activateWindow()
+            self.raise_()
         except:
             ui.utils.showInfo("Error during startup:\n%s" %
                               traceback.format_exc())
