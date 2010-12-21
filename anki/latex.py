@@ -61,10 +61,10 @@ def mungeLatex(deck, latex):
         if match.group(1) in entitydefs:
             latex = latex.replace(match.group(), entitydefs[match.group(1)])
     latex = re.sub("<br( /)?>", "\n", latex)
-    latex = latex.encode("utf-8")
     latex = (deck.getVar("latexPre") + "\n" +
              latex + "\n" +
              deck.getVar("latexPost"))
+    latex = latex.encode("utf-8")
     return latex
 
 def buildImg(deck, latex):
