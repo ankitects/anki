@@ -869,7 +869,7 @@ where id in (%s)""" % ",".join([
         self.dialog.actionToggleMark.setChecked(self.isMarked())
 
     def isSuspended(self):
-        return self.currentCard and self.currentCard.priority == -3
+        return self.currentCard and self.currentCard.type < 0
 
     def onSuspend(self, sus):
         # focus lost hook may not have chance to fire
@@ -895,6 +895,7 @@ where id in (%s)""" % ",".join([
         self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
         self.deck.unsuspendCards(self.selectedCards())
+        self.parent.reset()
         self.deck.setUndoEnd(n)
         self.parent.setProgressParent(None)
         self.model.refresh()
