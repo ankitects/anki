@@ -49,15 +49,21 @@ class CardLayout(QDialog):
             sys.platform.startswith("win32")):
             self.plastiqueStyle = QStyleFactory.create("plastique")
         if self.card:
-            # limited to an existing card
-            self.cards = [self.card]
+            # limited to an existing templates
+            self.cards = [self.deck.s.query(Card).get(id) for id in
+                          self.deck.s.column0(
+                "select id from cards where factId = :fid "
+                "order by ordinal", fid=self.fact.id)]
+            type = 0
         else:
             if factedit:
                 # active & possible
                 self.cards = self.deck.previewFact(self.fact)
+                type = 1
             else:
                 # all
                 self.cards = self.deck.previewFact(self.fact, cms=self.model.cardModels)
+                type = 2
             if not self.cards:
                 ui.utils.showInfo(_(
                     "Please enter some text first."),
@@ -65,6 +71,15 @@ class CardLayout(QDialog):
                 return
         self.form = ankiqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
+        if type == 0:
+            self.form.templateType.setText(
+                _("Templates used by fact:"))
+        elif type == 1:
+            self.form.templateType.setText(
+                _("Templates that will be created:"))
+        else:
+            self.form.templateType.setText(
+                _("All templates:"))
         # FIXME: add this
         self.form.editTemplates.hide()
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
@@ -205,12 +220,21 @@ order by n""", id=card.id)
 
     def fillCardList(self):
         self.form.cardList.clear()
+        cards = []
+        idx = 0
+        for n, c in enumerate(self.cards):
+            if c == self.card:
+                cards.append(_("%s (current)") % c.cardModel.name)
+                idx = n
+            else:
+                cards.append(c.cardModel.name)
         self.form.cardList.addItems(
-            QStringList([c.cardModel.name for c in self.cards]))
-        if [self.card] == self.cards:
-            self.form.cardList.setEnabled(False)
-            self.form.editTemplates.setEnabled(False)
-        self.cardChanged(0)
+            QStringList(cards))
+        self.form.editTemplates.setEnabled(False)
+        if idx != 0:
+            self.form.cardList.setCurrentIndex(idx)
+        self.cardChanged(idx)
+        self.form.cardList.setFocus()
 
     def cardChanged(self, idx):
         self.card = self.cards[idx]
