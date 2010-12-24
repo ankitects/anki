@@ -105,6 +105,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="autoplaySounds">
+         <property name="text">
+          <string>Automatically play audio</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>&lt;b&gt;Media&lt;/b&gt;</string>
@@ -697,6 +704,7 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>preventEdits</tabstop>
+  <tabstop>autoplaySounds</tabstop>
   <tabstop>mediaChoice</tabstop>
   <tabstop>mediaPath</tabstop>
   <tabstop>syncUser</tabstop>

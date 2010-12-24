@@ -137,7 +137,8 @@ class View(object):
             height = 45
         q = runFilter("drawQuestion", q, self.main.currentCard)
         self.write(self.center(self.mungeQA(self.main.deck, q), height))
-        if self.state != self.oldState and not nosound:
+        if (self.state != self.oldState and not nosound
+            and self.main.config['autoplaySounds']):
             playFromText(q)
 
     def correct(self, a, b):
@@ -186,7 +187,7 @@ class View(object):
                 a = res + "<br>" + a
         self.write(self.center('<span id=answer />'
                                + self.mungeQA(self.main.deck, a)))
-        if self.state != self.oldState:
+        if self.state != self.oldState and self.main.config['autoplaySounds']:
             playFromText(a)
 
     def mungeQA(self, deck, txt):

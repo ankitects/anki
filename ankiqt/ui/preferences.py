@@ -219,6 +219,7 @@ class Preferences(QDialog):
         self.dialog.deckBrowserOrder.setChecked(self.config['deckBrowserOrder'])
         self.dialog.deleteMedia.setChecked(self.config['deleteMedia'])
         self.dialog.stripHTML.setChecked(self.config['stripHTML'])
+        self.dialog.autoplaySounds.setChecked(self.config['autoplaySounds'])
         self.dialog.deckBrowserLen.setValue(self.config['deckBrowserNameLength'])
 
     def updateAdvanced(self):
@@ -234,6 +235,7 @@ class Preferences(QDialog):
         self.config['showProgress'] = self.dialog.showProgress.isChecked()
         self.config['preventEditUntilAnswer'] = self.dialog.preventEdits.isChecked()
         self.config['stripHTML'] = self.dialog.stripHTML.isChecked()
+        self.config['autoplaySounds'] = self.dialog.autoplaySounds.isChecked()
         self.config['loadLastDeck'] = self.dialog.openLastDeck.isChecked()
         if self.dialog.deckBrowserOrder.isChecked():
             self.config['deckBrowserOrder'] = 1

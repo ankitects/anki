@@ -43,6 +43,7 @@ class Config(dict):
         fields = {
             'addZeroSpace': False,
             'alternativeTheme': False,
+            'autoplaySounds': True,
             'checkForUpdates': True,
             'colourTimes': True,
             'created': time.time(),
