@@ -148,8 +148,13 @@ class View(object):
         ret = "";
         s = difflib.SequenceMatcher(None, b, a)
 
-        sz = self.main.currentCard.cardModel.answerFontSize
-        fn = self.main.currentCard.cardModel.answerFontFamily
+        sz = 20
+        fn = u"Arial"
+        for fm in self.main.currentCard.fact.model.fieldModels:
+            if fm.name == self.main.currentCard.cardModel.typeAnswer:
+                sz = fm.quizFontSize
+                fn = fm.quizFontFamily
+                break
         st = "background: %s; color: #000; font-size: %dpx; font-family: %s;"
         ok = st % (passedCharColour, sz, fn)
         bad = st % (failedCharColour, sz, fn)
