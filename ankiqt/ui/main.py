@@ -375,10 +375,11 @@ Please do not file a bug report with Anki.<br>""")
                 if self.currentCard:
                     if self.lastCard:
                         if self.lastCard.id == self.currentCard.id:
-                            if self.currentCard.combinedDue > time.time():
-                                # if the same card is being shown and it's not
-                                # due yet, give up
-                                return self.moveToState("deckFinished")
+                            pass
+                            # if self.currentCard.combinedDue > time.time():
+                            #     # if the same card is being shown and it's not
+                            #     # due yet, give up
+                            #     return self.moveToState("deckFinished")
                     self.enableCardMenuItems()
                     return self.moveToState("showQuestion")
                 else:
