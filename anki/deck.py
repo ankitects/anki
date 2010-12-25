@@ -1312,13 +1312,6 @@ where type < 0 and id in %s""" %
         return self.s.scalar("""
 select 1 from cards where combinedDue < :now limit 1""", now=self.dueCutoff)
 
-    def leechCardCount(self):
-        return len(self.findCards("is:suspended tag:leech"))
-
-    def seenCardCount(self):
-        return self.s.scalar(
-            "select count(id) from cards where type != 2")
-
     def newCardsDoneToday(self):
         return (self._dailyStats.newEase0 +
                 self._dailyStats.newEase1 +
