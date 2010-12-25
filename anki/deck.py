@@ -673,7 +673,9 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             return self.revQueue[-1][0]
         # new cards left?
         if self.newCountToday:
-            return self.getNewCard()
+            id = self.getNewCard()
+            if id:
+                return id
         if check:
             # check for expired cards, or new day rollover
             self.updateCutoff()
@@ -711,14 +713,27 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             return False
 
     def getNewCard(self):
-        if (not self.newQueue or
-            self.spacedCards and
+        src = None
+        if (self.spacedCards and
             self.spacedCards[0][0] < time.time()):
+            # spaced card has expired
+            src = 0
+        elif self.newQueue:
+            # card left in new queue
+            src = 1
+        elif self.spacedCards:
+            # card left in spaced queue
+            src = 0
+        else:
+            # only cards spaced to another day left
+            return
+        if src == 0:
             cards = self.spacedCards[0][1]
             self.newFromCache = True
             return cards[0]
-        self.newFromCache = False
-        return self.newQueue[-1][0]
+        else:
+            self.newFromCache = False
+            return self.newQueue[-1][0]
 
     def showFailedLast(self):
         return self.collapseTime or not self.delay0
@@ -870,20 +885,7 @@ where id in """
         self.setUndoEnd(undoName)
 
     def _spaceCards(self, card):
-        # update new counts
         new = time.time() + self.newSpacing
-        if new > self.dueCutoff:
-            self.newCount -= self.s.scalar("""
-select count() from cards
-where factId = :fid and id != :cid
-and combinedDue < :cut and type = 2
-""", cid=card.id, fid=card.factId, cut=self.dueCutoff)
-        # update due counts
-        self.revCount -= self.s.scalar("""
-select count() from cards
-where factId = :fid and id != :cid
-and combinedDue < :cut and type = 1
-""", cid=card.id, fid=card.factId, cut=self.dueCutoff)
         # space cards
         self.s.statement("""
 update cards set
