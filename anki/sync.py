@@ -112,7 +112,7 @@ class SyncTools(object):
 
     def sync(self):
         "Sync two decks locally. Reimplement this for finer control."
-        if not self.prepareSync():
+        if not self.prepareSync(0):
             return
         sums = self.summaries()
         payload = self.genPayload(sums)
