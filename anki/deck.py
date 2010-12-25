@@ -1171,27 +1171,12 @@ and type between 0 and 1""", time=time)
             spaceSusp += ngettext(
                 'There is <b>%d delayed</b> card.',
                 'There are <b>%d delayed</b> cards.', c) % c
-        c2 = self.suspendedCardCount()
+        c2 = self.hiddenCards()
         if c2:
             if spaceSusp:
                 spaceSusp += "<br>"
-            spaceSusp += ngettext('There is %d suspended card.',
-                                  'There are %d suspended cards.',
-                                  c2) % c2
-        # c3 = self.inactiveCardCount()
-        # if c3:
-        #     if spaceSusp:
-        #         spaceSusp += "<br>"
-        #     spaceSusp += ngettext('There is %d inactive card.',
-        #                           'There are %d inactive cards.',
-        #                           c3) % c3
-        c4 = self.leechCardCount()
-        if c4:
-            if spaceSusp:
-                spaceSusp += "<br>"
-            spaceSusp += ngettext('There is %d leech.',
-                                  'There are %d leeches.',
-                                  c4) % c4
+            spaceSusp += _(
+                "Some cards are inactive or suspended.")
         if spaceSusp:
             spaceSusp = "<br><br>" + spaceSusp
         return _('''\
@@ -1319,12 +1304,13 @@ where type < 0 and id in %s""" %
                 card.isDue = 0
         self.flushMod()
 
-    # Card/fact counts - all in deck, not just due
+    # Counts
     ##########################################################################
 
-    def suspendedCardCount(self):
+    def hiddenCards(self):
+        "Assumes queue finished. True if some due cards have not been shown."
         return self.s.scalar("""
-select count(id) from cards where type < 0""")
+select 1 from cards where combinedDue < :now limit 1""", now=self.dueCutoff)
 
     def leechCardCount(self):
         return len(self.findCards("is:suspended tag:leech"))
@@ -1332,9 +1318,6 @@ select count(id) from cards where type < 0""")
     def seenCardCount(self):
         return self.s.scalar(
             "select count(id) from cards where type != 2")
-
-    # Counts related to due cards
-    ##########################################################################
 
     def newCardsDoneToday(self):
         return (self._dailyStats.newEase0 +
