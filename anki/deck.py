@@ -1168,9 +1168,9 @@ and type between 0 and 1""", time=time)
         spaceSusp = ""
         c= self.spacedCardCount()
         if c:
-            spaceSusp += ngettext('There is %d delayed new card.',
-                                  'There are %d delayed new cards.',
-                                  c) % c
+            spaceSusp += ngettext(
+                'There is <b>%d delayed</b> card.',
+                'There are <b>%d delayed</b> cards.', c) % c
         c2 = self.suspendedCardCount()
         if c2:
             if spaceSusp:
@@ -1344,11 +1344,10 @@ select count(id) from cards where type < 0""")
                 self._dailyStats.newEase4)
 
     def spacedCardCount(self):
-        "Number of spaced new cards."
+        "Number of spaced cards."
         return self.s.scalar("""
 select count(cards.id) from cards where
-relativeDelay = 2 and combinedDue > :now
-and due < :now""", now=time.time())
+combinedDue > :now and due < :now""", now=time.time())
 
     def isEmpty(self):
         return not self.cardCount
