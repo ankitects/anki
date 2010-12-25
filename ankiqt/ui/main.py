@@ -16,7 +16,7 @@ from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
 from anki.utils import addTags, deleteTags, parseTags, canonifyTags, \
      stripHTML, checksum
-from anki.media import rebuildMediaDir, downloadMissing
+from anki.media import rebuildMediaDir, downloadMissing, downloadRemote
 from anki.db import OperationalError, SessionHelper, sqlite
 from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
@@ -2478,6 +2478,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
+        self.connect(m.actionLocalizeMedia, s, self.onLocalizeMedia)
         self.connect(m.actionCram, s, self.onCram)
         self.connect(m.actionOpenPluginFolder, s, self.onOpenPluginFolder)
         self.connect(m.actionEnableAllPlugins, s, self.onEnableAllPlugins)
@@ -3110,6 +3111,13 @@ doubt."""))
         else:
             msg = _("Unable to download %s\nDownload aborted.") % res[1]
         ui.utils.showInfo(msg)
+
+    def onLocalizeMedia(self):
+        res = downloadRemote(self.deck)
+        msg = _("%d successfully downloaded.") % len(res[0])
+        if len(res[1]):
+            msg += "\n\n" + _("Couldn't find:") + "\n" + "\n".join(res[1])
+        ui.utils.showText(msg, parent=self, type="text")
 
     def addHook(self, *args):
         addHook(*args)

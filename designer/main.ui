@@ -3083,6 +3083,7 @@
      <addaction name="actionCheckMediaDatabase"/>
      <addaction name="actionRecordNoiseProfile"/>
      <addaction name="actionDownloadMissingMedia"/>
+     <addaction name="actionLocalizeMedia"/>
      <addaction name="separator"/>
     </widget>
     <addaction name="actionGraphs"/>
@@ -3723,6 +3724,11 @@
    </property>
    <property name="shortcut">
     <string>F2</string>
+   </property>
+  </action>
+  <action name="actionLocalizeMedia">
+   <property name="text">
+    <string>Localize Media</string>
    </property>
   </action>
  </widget>
