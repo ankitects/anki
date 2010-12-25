@@ -8,7 +8,7 @@ Media support
 """
 __docformat__ = 'restructuredtext'
 
-import os, shutil, re, urllib2, time
+import os, shutil, re, urllib2, time, tempfile
 from anki.db import *
 from anki.utils import checksum, genID
 from anki.lang import _
@@ -117,11 +117,14 @@ def removeUnusedMedia(deck):
 # String manipulation
 ##########################################################################
 
-def mediaFiles(string):
+def mediaFiles(string, remote=False):
     l = []
     for reg in regexps:
         for (full, fname) in re.findall(reg, string):
-            if not re.match("(https?|ftp)://", fname.lower()):
+            isLocal = not re.match("(https?|ftp)://", fname.lower())
+            if not remote and isLocal:
+                l.append(fname)
+            elif remote and not isLocal:
                 l.append(fname)
     return l
 
@@ -222,3 +225,42 @@ def downloadMissing(deck):
         deck.updateProgress(label=_("File %d...") % (grabbed+missing))
     deck.finishProgress()
     return (True, grabbed, missing)
+
+# Convert remote links to local ones
+##########################################################################
+
+def downloadRemote(deck):
+    mdir = deck.mediaDir(create=True)
+    refs = {}
+    deck.startProgress()
+    for (question, answer) in deck.s.all(
+        "select question, answer from cards"):
+        for txt in (question, answer):
+            for f in mediaFiles(txt, remote=True):
+                refs[f] = True
+
+    tmpdir = tempfile.mkdtemp(prefix="anki")
+    failed = []
+    passed = []
+    for c, link in enumerate(refs.keys()):
+        try:
+            path = os.path.join(tmpdir, os.path.basename(link))
+            url = urllib2.urlopen(link)
+            open(path, "wb").write(url.read())
+            newpath = copyToMedia(deck, path)
+            passed.append([link, newpath])
+        except:
+            failed.append(link)
+        deck.updateProgress(label=_("Download %d...") % c)
+    for (url, name) in passed:
+        deck.s.statement(
+            "update fields set value = replace(value, :url, :name)",
+            url=url, name=name)
+        deck.updateProgress(label=_("Updating references..."))
+    deck.updateProgress(label=_("Updating cards..."))
+    # rebuild entire q/a cache
+    for m in deck.models:
+        deck.updateCardsFromModel(m, dirty=True)
+    deck.finishProgress()
+    deck.flushMod()
+    return (passed, failed)
