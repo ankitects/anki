@@ -326,5 +326,5 @@ def test_formdata():
     deck1 = deck1.saveAs(name)
     deck1.setModified()
     client.deck = deck1
-    client.prepareSync()
+    client.prepareSync(0)
     client.prepareFullSync()
