@@ -964,14 +964,17 @@ class FactEditor(object):
             return
         self._addSound(file, widget=w)
 
-    def _addSound(self, file, widget=None):
+    def _addSound(self, file, widget=None, copy=True):
         self.initMedia()
         if widget:
             w = widget
         else:
             w = self.focusedEdit()
-        path = self._addMedia(file)
-        self.maybeDelete(path, file)
+        if copy:
+            path = self._addMedia(file)
+            self.maybeDelete(path, file)
+        else:
+            path = file
         anki.sound.play(path)
         w.insertHtml('[sound:%s]' % path)
 
@@ -998,7 +1001,7 @@ to enable recording.'''), parent=self.parent)
                 return
             raise
         if file:
-            self._addSound(unicode(file), widget=w)
+            self._addSound(file, w, copy=False)
 
 class FactEdit(QTextEdit):
 
