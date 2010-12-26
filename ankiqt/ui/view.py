@@ -152,8 +152,8 @@ class View(object):
         fn = u"Arial"
         for fm in self.main.currentCard.fact.model.fieldModels:
             if fm.name == self.main.currentCard.cardModel.typeAnswer:
-                sz = fm.quizFontSize
-                fn = fm.quizFontFamily
+                sz = fm.quizFontSize or sz
+                fn = fm.quizFontFamily or fn
                 break
         st = "background: %s; color: #000; font-size: %dpx; font-family: %s;"
         ok = st % (passedCharColour, sz, fn)
