@@ -3375,7 +3375,7 @@
     <string>&amp;Import...</string>
    </property>
    <property name="statusTip">
-    <string>Import cards from text files, Anki files and more</string>
+    <string>Import cards into the current deck</string>
    </property>
   </action>
   <action name="actionGraphs">

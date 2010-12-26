@@ -61,7 +61,7 @@ def showText(txt, parent=None, type="text"):
     diag.setMinimumWidth(500)
     diag.exec_()
 
-def askUser(text, parent=None, help=""):
+def askUser(text, parent=None, help="", defaultno=False):
     "Show a yes/no question. Return true if yes."
     if not parent:
         parent = ankiqt.mw
@@ -69,8 +69,12 @@ def askUser(text, parent=None, help=""):
     if help:
         sb |= QMessageBox.Help
     while 1:
+        if defaultno:
+            default = QMessageBox.No
+        else:
+            default = QMessageBox.Yes
         r = QMessageBox.question(parent, "Anki", text, sb,
-                                 QMessageBox.Yes)
+                                 default)
         if r == QMessageBox.Help:
             openWikiLink(help)
         else:
@@ -117,9 +121,10 @@ def askUserDialog(text, buttons, parent=None, help=""):
 
 class GetTextDialog(QDialog):
 
-    def __init__(self, parent, question, help=None, edit=None):
+    def __init__(self, parent, question, help=None, edit=None, default=u"",
+                 title="Anki"):
         QDialog.__init__(self, parent, Qt.Window)
-        self.setWindowTitle("Anki")
+        self.setWindowTitle(title)
         self.question = question
         self.help = help
         self.qlabel = QLabel(question)
@@ -128,6 +133,9 @@ class GetTextDialog(QDialog):
         if not edit:
             edit = QLineEdit()
         self.l = edit
+        if default:
+            self.l.setText(default)
+            self.l.selectAll()
         v.addWidget(self.l)
         buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         if help:
@@ -152,10 +160,11 @@ class GetTextDialog(QDialog):
     def helpRequested(self):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki + self.help))
 
-def getText(prompt, parent=None, help=None, edit=None):
+def getText(prompt, parent=None, help=None, edit=None, default=u"", title="Anki"):
     if not parent:
         parent = ankiqt.mw
-    d = GetTextDialog(parent, prompt, help=help, edit=edit)
+    d = GetTextDialog(parent, prompt, help=help, edit=edit,
+                      default=default, title=title)
     ret = d.exec_()
     return (unicode(d.l.text()), ret)
 

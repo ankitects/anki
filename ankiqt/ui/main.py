@@ -785,7 +785,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             r = self.loadDeck(path, interactive=False, sync=False)
             if r:
                 return r
-        self.onNew(initial=True)
 
     def getDefaultDir(self, save=False):
         "Try and get default dir from most recently opened file."
@@ -916,18 +915,32 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         # FIXME: no longer necessary?
         return self.app.activeWindow() == self
 
-    def onNew(self, initial=False, path=None):
+    def onNew(self, path=None, prompt=None):
         if not self.inMainWindow() and not path: return
         if not self.saveAndClose(hideWelcome=True): return
-        if initial:
-            path = os.path.join(self.documentDir, "mydeck.anki")
+        register = not path
+        if not path:
+            if not prompt:
+                prompt = _("Please give your deck a name:")
+            name = ui.utils.getOnlyText(
+                prompt, default=_("mydeck"), title=_("New Deck"))
+            if not name:
+                return
+            if not name.endswith(".anki"):
+                name += ".anki"
+            path = os.path.join(self.documentDir, name)
             if os.path.exists(path):
-                # load mydeck instead
-                return self.loadDeck(path)
+                if ui.utils.askUser(_("That deck already exists. Overwrite?"),
+                                    defaultno=True):
+                    os.unlink(path)
+                else:
+                    return
         self.deck = DeckStorage.Deck(path)
         self.deck.initUndo()
         self.deck.addModel(BasicModel())
         self.deck.save()
+        if register:
+            self.updateRecentFiles(self.deck.path)
         self.browserLastRefreshed = 0
         self.moveToState("initial")
 
@@ -1948,12 +1961,13 @@ learnt today")
 
     def onImport(self):
         if self.deck is None:
-            self.onNew()
-        if not self.deck.path:
-            self.showToolTip(_("""\
-Please choose a name for this deck. After saving, the importing \
-window will open."""))
-            self.onSaveAs()
+            self.onNew(prompt=_("""\
+Importing copies cards to the current deck,
+so we need to create a new deck first.
+
+Please give your deck a name:"""))
+        if not self.deck:
+            return
         if self.deck.path:
             ui.importing.ImportDialog(self)
 
@@ -2174,9 +2188,6 @@ it to your friends.
                     return
         if self.deck and not self.deck.syncName:
             if interactive:
-                if not self.deck.path:
-                    ui.utils.showInfo(_("Please save the deck first."))
-                    return
                 if (not self.config['mediaLocation']
                     and self.deck.s.scalar("select 1 from media limit 1")):
                     ui.utils.showInfo(_("""\
@@ -2943,7 +2954,7 @@ to work with this version of Anki."""))
             # chdir if dir exists
             dir = deck.mediaDir()
         # update location
-        deck.setVar("mediaLocation", next)
+        deck.setVar("mediaLocation", next, mod=False)
         if dir and prefix == "dropbox":
             self.setupDropbox(deck)
 
