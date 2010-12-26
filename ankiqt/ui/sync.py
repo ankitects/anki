@@ -101,7 +101,7 @@ sync was aborted. Please report this error.""")
             self.proxy = proxy
             # check clock
             if proxy.timediff > 300:
-                self.emit(SIGNAL("syncClockOff"), timediff)
+                self.emit(SIGNAL("syncClockOff"), proxy.timediff)
                 raise SyncError(type="clockOff")
         return self.proxy
 
