@@ -4,10 +4,13 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import ankiqt, simplejson, time, cStringIO, zipfile, tempfile, os, re
+import ankiqt, simplejson, time, cStringIO, zipfile, tempfile, os, re, gzip
 import traceback, urllib2, socket, cgi
 from ankiqt.ui.utils import saveGeom, restoreGeom, showInfo
 from anki.utils import fmtTimeSpan
+
+URL = "http://ankiweb.net/file/"
+#URL = "http://localhost:8001/file/"
 
 R_ID = 0
 R_USERNAME = 1
@@ -61,8 +64,10 @@ Error was:<pre>%s</pre>""")
             socket.setdefaulttimeout(30)
             try:
                 sock = urllib2.urlopen(
-                    "http://anki.ichi2.net/file/search?t=%d" % self.type)
-                self.allList = simplejson.loads(unicode(sock.read()))
+                    URL + "search?t=%d&c=1" % self.type)
+                data = sock.read()
+                data = gzip.GzipFile(fileobj=cStringIO.StringIO(data)).read()
+                self.allList = simplejson.loads(unicode(data))
             except:
                 showInfo(self.conErrMsg % cgi.escape(unicode(
                     traceback.format_exc(), "utf-8", "replace")))
@@ -175,7 +180,7 @@ Error was:<pre>%s</pre>""")
             self.parent.updateProgress()
             try:
                 sock = urllib2.urlopen(
-                    "http://anki.ichi2.net/file/get?id=%d" %
+                    URL + "get?id=%d" %
                     self.curRow[R_ID])
                 while 1:
                     data = sock.read(32768)
