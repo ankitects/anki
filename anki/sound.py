@@ -324,7 +324,9 @@ class PyAudioRecorder(_Recorder):
 
     def file(self):
         if self.encode:
-            return processingDst
+            tgt = "rec%d.mp3" % time.time()
+            os.rename(processingDst, tgt)
+            return tgt
         else:
             return recFiles[1]
 
