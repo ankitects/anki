@@ -188,14 +188,5 @@ def run():
 
     app.exec_()
 
-    if sys.platform.startswith("darwin"):
-        # buggy on osx
-        from anki.sound import stopMplayer
-        stopMplayer()
-        os._exit(0)
-    else:
-        # ensure we kill any other threads
-        sys.exit(0)
-
 if __name__ == "__main__":
     run()
