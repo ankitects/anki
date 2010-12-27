@@ -8,7 +8,7 @@ Sound support
 """
 __docformat__ = 'restructuredtext'
 
-import re, sys, threading, time, subprocess, os, signal, atexit, errno
+import re, sys, threading, time, subprocess, os, signal, errno
 from anki.hooks import addHook, runHook
 
 # Shared utils
@@ -123,6 +123,7 @@ mplayerQueue = []
 mplayerManager = None
 mplayerReader = None
 mplayerCond = threading.Condition()
+mplayerClear = False
 
 class MplayerReader(threading.Thread):
     "Read any debugging info to prevent mplayer from blocking."
@@ -140,32 +141,49 @@ class MplayerReader(threading.Thread):
 class MplayerMonitor(threading.Thread):
 
     def run(self):
+        global mplayerClear
         self.mplayer = None
+        self.deadPlayers = []
         while 1:
             mplayerCond.acquire()
-            while not mplayerQueue:
-                if not mplayerCond:
-                    return
-                mplayerCond.wait()
-            if not self.mplayer:
-                self.startProcess()
-            if self.mplayer != -1 and self.mplayer.poll() is not None:
-                self.mplayer.wait()
-                self.startProcess()
-            nextClears = False
-            while mplayerQueue:
-                item = mplayerQueue.pop(0)
-                if item is None:
-                    nextClears = True
-                    continue
-                if nextClears:
-                    nextClears = False
-                    extra = ""
+            mplayerCond.wait()
+            # clearing playing file if mplayer is running
+            if mplayerClear and self.mplayer:
+                self.mplayer.stdin.write("stop\n")
+            if mplayerQueue:
+                # ensure started
+                if not self.mplayer:
+                    self.startProcess()
+                # loop through files to play
+                while mplayerQueue:
+                    item = mplayerQueue.pop(0)
+                    if mplayerClear:
+                        mplayerClear = False
+                        extra = ""
+                    else:
+                        extra = " 1"
+                    cmd = 'loadfile "%s"%s\n' % (item, extra)
+                    self.mplayer.stdin.write(cmd)
+            # wait() on finished processes. we don't want to block on the
+            # wait, so we keep trying each time we're reactivated
+            def clean(pl):
+                if pl.poll() is not None:
+                    pl.wait()
+                    return False
                 else:
-                    extra = " 1"
-                cmd = 'loadfile "%s"%s\n' % (item, extra)
-                self.mplayer.stdin.write(cmd)
+                    return True
+            self.deadPlayers = [pl for pl in self.deadPlayers if clean(pl)]
             mplayerCond.release()
+
+    def kill(self):
+        if not self.mplayer:
+            return
+        try:
+            self.mplayer.stdin.write("quit\n")
+            self.deadPlayers.append(self.mplayer)
+        except:
+            pass
+        self.mplayer = None
 
     def startProcess(self):
         try:
@@ -187,8 +205,10 @@ def queueMplayer(path):
     runHook("soundQueued")
 
 def clearMplayerQueue():
+    global mplayerClear
     mplayerCond.acquire()
-    mplayerQueue.append(None)
+    mplayerClear = True
+    mplayerCond.notifyAll()
     mplayerCond.release()
 
 def ensureMplayerThreads():
@@ -200,37 +220,13 @@ def ensureMplayerThreads():
         mplayerReader = MplayerReader()
         mplayerReader.daemon = True
         mplayerReader.start()
-        atexit.register(stopMplayer)
 
-def stopMplayer(restart=False):
+def stopMplayer():
     if not mplayerManager:
         return
-    mplayerCond.acquire()
-    if mplayerManager.mplayer:
-        while 1:
-            try:
-                mplayerManager.mplayer.stdin.write("quit\n")
-                break
-            except OSError, e:
-                if e.errno != errno.EINTR:
-                    # osx throws interrupt errors regularly, but we want to
-                    # ignore other errors on shutdown
-                    break
-            except IOError:
-                # already closed
-                break
-            except ValueError:
-                # already closed
-                break
-    if not restart:
-        mplayerManager.mplayer = -1
-    mplayerCond.notifyAll()
-    mplayerCond.release()
+    mplayerManager.kill()
 
-def stopMplayerOnce():
-    stopMplayer(restart=True)
-
-addHook("deckClosed", stopMplayerOnce)
+addHook("deckClosed", stopMplayer)
 
 # PyAudio recording
 ##########################################################################
