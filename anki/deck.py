@@ -572,7 +572,7 @@ order by combinedDue limit %d""" % self.queueLimit, lim=self.dueCutoff)
     def _getCramCardId(self, check=True):
         self.checkDailyStats()
         self.fillQueues()
-        if self.failedSoonCount >= self.failedCardMax:
+        if self.failedCardMax and self.failedSoonCount >= self.failedCardMax:
             return self.failedQueue[-1][0]
         # card due for review?
         if self.revNoSpaced():
