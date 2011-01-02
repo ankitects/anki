@@ -2016,9 +2016,21 @@ order by fields.factId""" % ids2str([x[2] for x in ids])),
 
     def updateFieldCache(self, fids):
         "Add stripped HTML cache for sorting/searching."
-        all = self.s.all(
-            ("select factId, group_concat(value, ' ') from fields "
-             "where factId in %s group by factId") % ids2str(fids))
+        try:
+            all = self.s.all(
+                ("select factId, group_concat(value, ' ') from fields "
+                 "where factId in %s group by factId") % ids2str(fids))
+        except:
+            # older sqlite doesn't support group_concat. this code taken from
+            # the wm port
+            all=[]
+            for factId in fids:
+                values=self.s.all("select value from fields where value is not NULL and factId=%(factId)i" % {"factId": factId})
+                value_list=[]
+                for row in values:
+                        value_list.append(row[0])
+                concatenated_values=' '.join(value_list)
+                all.append([factId, concatenated_values])
         r = []
         from anki.utils import stripHTMLMedia
         for a in all:
@@ -3226,9 +3238,12 @@ where id in %s""" % ids2str(ids)):
             f = self.newFact()
             f['Question'] = repl(q)
             f['Answer'] = repl(a)
-            f.tags = self.s.scalar("""
+            try:
+                f.tags = self.s.scalar("""
 select group_concat(tag, " ") from tags t, cardTags ct
 where cardId = :cid and ct.tagId = t.id""", cid=id) or u""
+            except:
+                raise Exception("Your sqlite is too old.")
             cards = self.addFact(f)
             # delete the freshly created card and point old card to this fact
             self.s.statement("delete from cards where id = :id",
