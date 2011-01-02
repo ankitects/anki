@@ -55,12 +55,13 @@ def graphsAvailable():
 
 class DeckGraphs(object):
 
-    def __init__(self, deck, width=8, height=3, dpi=75):
+    def __init__(self, deck, width=8, height=3, dpi=75, selective=True):
         self.deck = deck
         self.stats = None
         self.width = width
         self.height = height
         self.dpi = dpi
+        self.selective = selective
 
     def calcStats (self):
         if not self.stats:
@@ -72,13 +73,19 @@ class DeckGraphs(object):
             lowestInDay = 0
             self.endOfDay = self.deck.failedCutoff
             t = time.time()
-            young = self.deck.s.all("""
-select interval, combinedDue from cards
-where relativeDelay between 0 and 1 and type >= 0 and interval <= 21""")
-            mature = self.deck.s.all("""
+            young = """
+select interval, combinedDue from cards c
+where relativeDelay between 0 and 1 and type >= 0 and interval <= 21"""
+            mature = """
 select interval, combinedDue
-from cards where relativeDelay = 1 and type >= 0 and interval > 21""")
-
+from cards c where relativeDelay = 1 and type >= 0 and interval > 21"""
+            if self.selective:
+                young = self.deck._cardLimit("revActive", "revInactive",
+                                             young)
+                mature = self.deck._cardLimit("revActive", "revInactive",
+                                             mature)
+            young = self.deck.s.all(young)
+            mature = self.deck.s.all(mature)
             for (src, dest) in [(young, daysYoung),
                                 (mature, daysMature)]:
                 for (interval, due) in src:
