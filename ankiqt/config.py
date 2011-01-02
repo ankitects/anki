@@ -87,6 +87,7 @@ class Config(dict):
             'saveAfterAnswerNum': 10,
             'saveOnClose': True,
             'scrollToAnswer': True,
+            'selectiveGraphs': True,
             'showCardTimer': True,
             'showFontPreview': False,
             'showLastCardContent': False,
