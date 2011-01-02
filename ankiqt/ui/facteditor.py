@@ -756,48 +756,38 @@ class FactEditor(object):
             runHook("colourChanged")
             self.onChooseColour(txtcol)
 
-    def _needExtraWord(self):
-        ver = ui.main.QtConfig.qt_version >> 8
-        if ver == 0x404:
-            # qt4.4 behaviour is wrong
-            return False
-        return True
-
     def insertLatex(self):
         w = self.focusedEdit()
         if w:
             selected = w.textCursor().selectedText()
             self.deck.mediaDir(create=True)
+            cur = w.textCursor()
+            pos = cur.position()
             w.insertHtml("[latex]%s[/latex]" % selected)
-            w.moveCursor(QTextCursor.PreviousWord)
-            if self._needExtraWord():
-                w.moveCursor(QTextCursor.PreviousWord)
-            w.moveCursor(QTextCursor.PreviousCharacter)
-            w.moveCursor(QTextCursor.PreviousCharacter)
+            cur.setPosition(pos+7)
+            w.setTextCursor(cur)
 
     def insertLatexEqn(self):
         w = self.focusedEdit()
         if w:
             selected = w.textCursor().selectedText()
             self.deck.mediaDir(create=True)
+            cur = w.textCursor()
+            pos = cur.position()
             w.insertHtml("[$]%s[/$]" % selected)
-            w.moveCursor(QTextCursor.PreviousWord)
-            if self._needExtraWord():
-                w.moveCursor(QTextCursor.PreviousWord)
-            w.moveCursor(QTextCursor.PreviousCharacter)
-            w.moveCursor(QTextCursor.PreviousCharacter)
+            cur.setPosition(pos+3)
+            w.setTextCursor(cur)
 
     def insertLatexMathEnv(self):
         w = self.focusedEdit()
         if w:
             selected = w.textCursor().selectedText()
             self.deck.mediaDir(create=True)
+            cur = w.textCursor()
+            pos = cur.position()
             w.insertHtml("[$$]%s[/$$]" % selected)
-            w.moveCursor(QTextCursor.PreviousWord)
-            if self._needExtraWord():
-                w.moveCursor(QTextCursor.PreviousWord)
-            w.moveCursor(QTextCursor.PreviousCharacter)
-            w.moveCursor(QTextCursor.PreviousCharacter)
+            cur.setPosition(pos+4)
+            w.setTextCursor(cur)
 
     def onMore(self, toggle=None):
         if toggle is None:
