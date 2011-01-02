@@ -2362,7 +2362,9 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     def cleanNewDeck(self):
         "Unload a new deck if an initial sync failed."
         self.deck = None
-        self.moveToState("initial")
+        self.deckPath = None
+        self.moveToState("noDeck")
+        self.syncFinished = True
 
     def setSyncStatus(self, text, *args):
         self.mainWin.welcomeText.append("<font size=+2>" + text + "</font>")
