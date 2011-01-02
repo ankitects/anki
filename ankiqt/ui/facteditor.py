@@ -747,7 +747,8 @@ class FactEditor(object):
         runHook("colourChanged")
 
     def onNewColour(self):
-        new = QColorDialog.getColor(Qt.black, self.colourDiag)
+        new = QColorDialog.getColor(Qt.black, self.parent)
+        self.parent.raise_()
         recent = ankiqt.mw.config['recentColours']
         if new.isValid():
             txtcol = unicode(new.name())
