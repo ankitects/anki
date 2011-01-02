@@ -161,8 +161,7 @@ class GraphWindow(object):
         self.parent = parent
         self.deck = deck
         self.widgets = []
-        self.dg = anki.graphs.DeckGraphs(
-            deck, selective=self.parent.config['selectiveGraphs'])
+        self.dg = anki.graphs.DeckGraphs(deck)
         self.diag = IntervalGraph(parent)
         self.diag.setWindowTitle(_("Deck Graphs"))
         if parent.config.get('graphsGeom'):
@@ -238,11 +237,6 @@ class GraphWindow(object):
                               self.onShowHide)
         refresh = QPushButton(_("Refresh"))
         self.hbox.addWidget(refresh)
-        sel = QCheckBox(_("Selective Study"))
-        self.hbox.addWidget(sel)
-        sel.setChecked(self.parent.config['selectiveGraphs'])
-        sel.connect(sel, SIGNAL("stateChanged(int)"),
-                              self.onSelective)
         self.showhide.connect(refresh, SIGNAL("clicked()"),
                               self.onRefresh)
         buttonBox = QDialogButtonBox(self.diag)
@@ -254,11 +248,6 @@ class GraphWindow(object):
         self.diag.connect(buttonBox, SIGNAL("helpRequested()"),
                   self.onHelp)
         self.hbox.addWidget(buttonBox)
-
-    def onSelective(self, bool):
-        self.parent.config['selectiveGraphs'] = bool
-        self.dg.selective = bool
-        self.onRefresh()
 
     def showHideAll(self):
         self.deck.startProgress(len(self.widgets))
