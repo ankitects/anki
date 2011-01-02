@@ -224,7 +224,10 @@ you can enter it here. Use \\t to represent tab."""),
     def setupMappingFrame(self):
         # qt seems to have a bug with adding/removing from a grid, so we add
         # to a separate object and add/remove that instead
-        self.mapbox = QVBoxLayout(self.dialog.mappingArea)
+        self.frame = QFrame(self.dialog.mappingArea)
+        self.dialog.mappingArea.setWidget(self.frame)
+        self.mapbox = QVBoxLayout(self.frame)
+        self.mapbox.setContentsMargins(0,0,0,0)
         self.mapwidget = None
 
     def hideMapping(self):
@@ -262,8 +265,8 @@ you can enter it here. Use \\t to represent tab."""),
         self.mapbox.addWidget(self.mapwidget)
         self.grid = QGridLayout(self.mapwidget)
         self.mapwidget.setLayout(self.grid)
-        self.grid.setMargin(6)
-        self.grid.setSpacing(12)
+        self.grid.setMargin(3)
+        self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
             text = _("Field <b>%d</b> of file is:") % (num + 1)
