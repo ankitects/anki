@@ -83,11 +83,12 @@ class ModelProperties(QDialog):
                 status=""
             else:
                 status=_("; disabled")
-            label = _("%(name)s [%(cards)d facts%(status)s]") % {
+            cards = self.deck.cardModelUseCount(card)
+            label = "%(name)s [%(cards)s%(status)s]" % {
                 'num': n,
                 'name': card.name,
                 'status': status,
-                'cards': self.deck.cardModelUseCount(card),
+                'cards': ngettext("%d fact", "%d facts", cards) % cards
                 }
             item = QListWidgetItem(label)
             self.dialog.cardList.addItem(item)

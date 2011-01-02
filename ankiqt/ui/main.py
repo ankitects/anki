@@ -3006,7 +3006,7 @@ link into Anki."""))
                     fail = True
                 if fail:
                     ui.utils.showInfo(_("""\
-That doesn't appear to be a public link. You'll be asked again when the deck\
+That doesn't appear to be a public link. You'll be asked again when the deck \
 is next loaded."""))
                 else:
                     self.config['dropboxPublicFolder'] = os.path.dirname(txt[0])
@@ -3118,14 +3118,16 @@ doubt."""))
             (grabbed, missing) = res[1:]
             msg = _("%d successfully retrieved.") % grabbed
             if missing:
-                msg += "\n" + _("%d missing.") % missing
+                msg += "\n" + ngettext("%d missing.", "%d missing.", missing) % missing
         else:
             msg = _("Unable to download %s\nDownload aborted.") % res[1]
         ui.utils.showInfo(msg)
 
     def onLocalizeMedia(self):
         res = downloadRemote(self.deck)
-        msg = _("%d successfully downloaded.") % len(res[0])
+        count = len(res[0])
+        msg = ngettext("%d successfully downloaded.",
+            "%d successfully downloaded.", count) % count
         if len(res[1]):
             msg += "\n\n" + _("Couldn't find:") + "\n" + "\n".join(res[1])
         ui.utils.showText(msg, parent=self, type="text")
