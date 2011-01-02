@@ -1343,6 +1343,10 @@ combinedDue > :now and due < :now""", now=time.time())
         return self.s.scalar(
             "select count(id) from cards where relativeDelay = 2")
 
+    def seenCardCount(self):
+        return self.s.scalar(
+            "select count(id) from cards where relativeDelay between 0 and 1")
+
     # Card predicates
     ##########################################################################
 
