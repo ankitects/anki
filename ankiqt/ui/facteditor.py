@@ -1024,7 +1024,8 @@ class FactEdit(QTextEdit):
         if source.hasHtml() and "qrichtext" in unicode(source.html()):
             self.insertHtml(source.html())
             return
-        if source.hasText() and ankiqt.mw.config['stripHTML']:
+        if source.hasText() and (ankiqt.mw.config['stripHTML'] or
+                                 not source.hasHtml()):
             txt = unicode(source.text())
             l = txt.lower()
             if l.startswith("http://") or l.startswith("file://"):
