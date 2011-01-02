@@ -890,7 +890,7 @@ where id in """
         self.s.statement("""
 update cards set
 combinedDue = (case
-when type = 1 then :daycut
+when type = 1 then :cut
 when type = 2 then :new
 end),
 modified = :now, isDue = 0
@@ -898,8 +898,7 @@ where id != :id and factId = :factId
 and combinedDue < :cut
 and type between 1 and 2""",
                          id=card.id, now=time.time(), factId=card.factId,
-                         cut=self.dueCutoff, daycut=self.failedCutoff,
-                         new=new)
+                         cut=self.dueCutoff, new=new)
         # update local cache of seen facts
         self.spacedFacts[card.factId] = new
 
