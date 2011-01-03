@@ -147,9 +147,6 @@ class MplayerMonitor(threading.Thread):
         while 1:
             mplayerCond.acquire()
             mplayerCond.wait()
-            # clearing playing file if mplayer is running
-            if mplayerClear and self.mplayer:
-                self.mplayer.stdin.write("stop\n")
             if mplayerQueue:
                 # ensure started
                 if not self.mplayer:
