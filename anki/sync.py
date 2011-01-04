@@ -613,7 +613,11 @@ values
     ##########################################################################
 
     def bundleDeck(self):
-        self.deck.lastSync = time.time()
+        # ensure modified is not greater than server time
+        if getattr(self, "server", None):
+            self.deck.modified = min(self.deck.modified,self.server.timestamp)
+        # and ensure lastSync is greater than modified
+        self.deck.lastSync = max(time.time(), self.deck.modified+1)
         d = self.dictFromObj(self.deck)
         del d['Session']
         del d['engine']
@@ -941,6 +945,9 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
 
     def prepareFullSync(self):
         t = time.time()
+        # ensure modified is not greater than server time
+        self.deck.modified = min(self.deck.modified, self.server.timestamp)
+        self.deck.s.commit()
         self.deck.close()
         fields = {
             "p": self.server.password,
@@ -1004,7 +1011,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                 sendProgressHook = fullSyncProgressHook
                 res = urllib2.urlopen(req).read()
                 assert res.startswith("OK")
-                # update local modification time
+                # update lastSync
                 c = sqlite.connect(path)
                 c.execute("update decks set lastSync = ?",
                           (res[3:],))
