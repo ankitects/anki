@@ -122,7 +122,7 @@ else:
 mplayerQueue = []
 mplayerManager = None
 mplayerReader = None
-mplayerCond = threading.Condition()
+mplayerEvt = threading.Event()
 mplayerClear = False
 
 class MplayerReader(threading.Thread):
@@ -130,9 +130,7 @@ class MplayerReader(threading.Thread):
 
     def run(self):
         while 1:
-            mplayerCond.acquire()
-            mplayerCond.wait()
-            mplayerCond.release()
+            mplayerEvt.wait()
             try:
                 mplayerManager.mplayer.stdout.read()
             except:
@@ -145,8 +143,7 @@ class MplayerMonitor(threading.Thread):
         self.mplayer = None
         self.deadPlayers = []
         while 1:
-            mplayerCond.acquire()
-            mplayerCond.wait()
+            mplayerEvt.wait()
             if mplayerQueue:
                 # ensure started
                 if not self.mplayer:
@@ -170,7 +167,7 @@ class MplayerMonitor(threading.Thread):
                 else:
                     return True
             self.deadPlayers = [pl for pl in self.deadPlayers if clean(pl)]
-            mplayerCond.release()
+            mplayerEvt.clear()
 
     def kill(self):
         if not self.mplayer:
@@ -189,24 +186,22 @@ class MplayerMonitor(threading.Thread):
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except OSError:
-            mplayerCond.release()
+            mplayerEvt.clear()
             raise Exception("Audio player not found")
 
 def queueMplayer(path):
     ensureMplayerThreads()
+    while mplayerEvt.isSet():
+        time.sleep(0.1)
     path = path.encode(sys.getfilesystemencoding())
-    mplayerCond.acquire()
     mplayerQueue.append(path)
-    mplayerCond.notifyAll()
-    mplayerCond.release()
+    mplayerEvt.set()
     runHook("soundQueued")
 
 def clearMplayerQueue():
     global mplayerClear
-    mplayerCond.acquire()
     mplayerClear = True
-    mplayerCond.notifyAll()
-    mplayerCond.release()
+    mplayerEvt.set()
 
 def ensureMplayerThreads():
     global mplayerManager, mplayerReader
