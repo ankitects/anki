@@ -614,7 +614,8 @@ values
 
     def bundleDeck(self):
         # ensure modified is not greater than server time
-        if getattr(self, "server", None):
+        if getattr(self, "server", None) and getattr(
+            self.server, "timestamp", None):
             self.deck.modified = min(self.deck.modified,self.server.timestamp)
         # and ensure lastSync is greater than modified
         self.deck.lastSync = max(time.time(), self.deck.modified+1)
