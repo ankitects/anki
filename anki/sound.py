@@ -157,7 +157,14 @@ class MplayerMonitor(threading.Thread):
                     else:
                         extra = " 1"
                     cmd = 'loadfile "%s"%s\n' % (item, extra)
-                    self.mplayer.stdin.write(cmd)
+                    try:
+                        self.mplayer.stdin.write(cmd)
+                    except:
+                        # mplayer has quit and needs restarting
+                        self.deadPlayers.append(self.mplayer)
+                        self.mplayer = None
+                        self.startProcess()
+                        self.mplayer.stdin.write(cmd)
             # wait() on finished processes. we don't want to block on the
             # wait, so we keep trying each time we're reactivated
             def clean(pl):
