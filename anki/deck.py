@@ -1159,9 +1159,11 @@ limit 1""" % self.delay0))
 
     def cardsDueBy(self, time):
         "Number of cards due at TIME. Ignore new cards"
-        return self.s.scalar("""
-select count(id) from cards where combinedDue < :time
-and type between 0 and 1""", time=time)
+        return self.s.scalar(
+            self.cardLimit(
+            "revActive", "revInactive",
+            "select count(*) from cards c where type between 0 and 1 "
+            "and combinedDue < :lim"), lim=time)
 
     def deckFinishedMsg(self):
         spaceSusp = ""
