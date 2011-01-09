@@ -1138,7 +1138,7 @@ select combinedDue from cards c where type = 1
 order by combinedDue
 limit 1"""))
         earliestFail = self.s.scalar(self.cardLimit("revActive", "revInactive", """
-select combinedDue+%d from cards c where type = 0 and combinedDue > :lim
+select combinedDue+%d from cards c where type = 0
 order by combinedDue
 limit 1""" % self.delay0))
         if earliestRev and earliestFail:
