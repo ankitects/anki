@@ -2961,7 +2961,8 @@ to work with this version of Anki."""))
             self.setupDropbox(deck)
 
     def migrateMedia(self, from_, to):
-        assert from_ != to
+        if from_ == to:
+            return
         files = os.listdir(from_)
         skipped = False
         for f in files:
