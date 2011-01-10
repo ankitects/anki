@@ -1106,8 +1106,7 @@ where id = :id""", vals)
         next = self.earliestTime()
         if next:
             # all new cards except suspended
-            newCount = self.s.scalar("""
-select count() from cards where relativeDelay = 2 and type != -1""")
+            newCount = self.newCardsDueBy(self.dueCutoff + 86400)
             newCardsTomorrow = min(newCount, self.newCardsPerDay)
             cards = self.cardsDueBy(self.dueCutoff + 86400)
             msg = _('''\
@@ -1163,6 +1162,14 @@ limit 1""" % self.delay0))
             self.cardLimit(
             "revActive", "revInactive",
             "select count(*) from cards c where type between 0 and 1 "
+            "and combinedDue < :lim"), lim=time)
+
+    def newCardsDueBy(self, time):
+        "Number of new cards due at TIME."
+        return self.s.scalar(
+            self.cardLimit(
+            "newActive", "newInactive",
+            "select count(*) from cards c where type = 2 "
             "and combinedDue < :lim"), lim=time)
 
     def deckFinishedMsg(self):
