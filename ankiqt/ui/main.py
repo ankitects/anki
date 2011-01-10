@@ -3127,6 +3127,11 @@ doubt."""))
         ui.utils.showInfo(msg)
 
     def onLocalizeMedia(self):
+        if not ui.utils.askUser(_("""\
+This will look for remote images and sounds on your cards, download them to \
+your media folder, and convert the links to local ones. \
+It can take a long time. Proceed?""")):
+            return
         res = downloadRemote(self.deck)
         count = len(res[0])
         msg = ngettext("%d successfully downloaded.",
