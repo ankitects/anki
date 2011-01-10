@@ -754,65 +754,6 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         card.startTimer()
         return card
 
-    # Getting cards in bulk
-    ##########################################################################
-    # this is used for the website and ankimini
-    # done in rows for efficiency
-
-    def getCards(self, extraMunge=None):
-        "Get a number of cards and related data for client display."
-        d = self._getCardTables()
-        def munge(row):
-            row = list(row)
-            row[0] = str(row[0])
-            row[1] = str(row[1])
-            row[2] = int(row[2])
-            row[5] = hexifyID(row[5])
-            if extraMunge:
-                return extraMunge(row)
-            return row
-        for type in ('fail', 'rev', 'acq'):
-            d[type] = [munge(x) for x in d[type]]
-        if d['fail'] or d['rev'] or d['acq']:
-            d['stats'] = self.getStats()
-            d['status'] = 'cardsAvailable'
-            d['initialIntervals'] = (
-                self.hardIntervalMin,
-                self.hardIntervalMax,
-                self.midIntervalMin,
-                self.midIntervalMax,
-                self.easyIntervalMin,
-                self.easyIntervalMax,
-                )
-            d['newCardSpacing'] = self.newCardSpacing
-            d['newCardModulus'] = self.newCardModulus
-            return d
-        else:
-            if self.isEmpty():
-                fin = ""
-            else:
-                fin = self.deckFinishedMsg()
-            return {"status": "deckFinished",
-                    "finishedMsg": fin}
-
-    def _getCardTables(self):
-        raise "needs to account for spaced new"
-        t = time.time()
-        c = self.getCard()
-        sel = """
-select id, factId, modified, question, answer, cardModelId,
-type, due, interval, factor, priority from cards
-where id in """
-        d = {}
-        d['fail'] = self.s.all(sel + ids2str(
-            [x[0] for x in self.failedQueue]))
-        d['rev'] = self.s.all(sel + ids2str(
-            [x[0] for x in self.revQueue]))
-        d['acq'] = self.s.all(sel + ids2str(
-            [x[0] for x in self.newQueue]))
-        print "card tables", time.time() - t
-        return d
-
     # Answering a card
     ##########################################################################
 
