@@ -81,6 +81,8 @@ class ImportDialog(QDialog):
         self.parent = parent
         self.dialog = ankiqt.forms.importing.Ui_ImportDialog()
         self.dialog.setupUi(self)
+        self.connect(self.dialog.buttonBox.button(QDialogButtonBox.Help),
+                     SIGNAL("clicked()"), self.helpRequested)
         self.setupMappingFrame()
         self.setupOptions()
         self.getFile()
@@ -308,3 +310,6 @@ you can enter it here. Use \\t to represent tab."""),
     def reject(self):
         self.modelChooser.deinit()
         QDialog.reject(self)
+
+    def helpRequested(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "FileImport"))
