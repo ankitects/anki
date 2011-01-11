@@ -57,11 +57,16 @@ class UpdateMap(QDialog):
         self.fieldModels = fieldModels
         self.dialog = ankiqt.forms.importup.Ui_Dialog()
         self.dialog.setupUi(self)
+        self.connect(self.dialog.buttonBox.button(QDialogButtonBox.Help),
+                     SIGNAL("clicked()"), self.helpRequested)
         for i in range(numFields):
             self.dialog.fileField.addItem("Field %d" % (i+1))
         for m in fieldModels:
             self.dialog.deckField.addItem(m.name)
         self.exec_()
+
+    def helpRequested(self):
+        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "FileImport"))
 
     def accept(self):
         self.updateKey = (
