@@ -626,6 +626,10 @@ values
         del d['path']
         del d['syncName']
         del d['version']
+        if 'newQueue' in d:
+            del d['newQueue']
+            del d['failedQueue']
+            del d['revQueue']
         # these may be deleted before bundling
         if 'css' in d: del d['css']
         if 'models' in d: del d['models']
