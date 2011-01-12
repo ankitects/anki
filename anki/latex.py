@@ -128,9 +128,6 @@ def imgLink(deck, latex, build=True):
         return img
 
 def formatQA(html, type, cid, mid, fact, tags, cm, deck):
-    import socket
-    if socket.gethostname() == "phat.ichi2.net":
-        return html
     return renderLatex(deck, html)
 
 # setup q/a filter
