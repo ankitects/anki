@@ -72,7 +72,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 62
+DECK_VERSION = 63
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -4375,6 +4375,16 @@ or quizFontFamily is null""")
             deck.updateDynamicIndices()
             deck.s.execute("vacuum")
             deck.version = 62
+            deck.s.commit()
+        if deck.version < 63:
+            # set a default font for unset font sizes
+            deck.s.statement("""
+update fieldModels set quizFontSize = 20 where quizFontSize = ''
+or quizFontSize is null""")
+            deck.s.statement("""
+update fieldModels set editFontSize = 20 where editFontSize = ''
+or editFontSize is null""")
+            deck.version = 63
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
