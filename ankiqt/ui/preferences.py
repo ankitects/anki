@@ -183,7 +183,7 @@ class Preferences(QDialog):
     def updateMedia(self):
         orig = self.origMediaChoice
         new = self.dialog.mediaChoice.currentIndex()
-        if orig == new:
+        if orig == new and orig != 2:
             return
         if new == 0:
             p = ""
