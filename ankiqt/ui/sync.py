@@ -187,13 +187,16 @@ sync was aborted. Please report this error.""")
         self.deck = None
         try:
             self.deck = DeckStorage.Deck(path)
-            if not self.deck.lastSync:
-                self.conflictResolution = "keepLocal"
             client = SyncClient(self.deck)
             client.setServer(proxy)
             # need to do anything?
             start = time.time()
             if client.prepareSync(proxy.timediff):
+                if self.deck.lastSync <= 0:
+                    if client.remoteTime > client.localTime:
+                        self.conflictResolution = "keepRemote"
+                    else:
+                        self.conflictResolution = "keepLocal"
                 changes = True
                 # summary
                 if not self.conflictResolution and not self.onlyMerge:
