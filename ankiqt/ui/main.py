@@ -2817,7 +2817,7 @@ to work with this version of Anki."""))
             playFromText(self.currentCard.answer)
 
     def onRecordNoiseProfile(self):
-        from ui.sound import recordNoiseProfile
+        from ankiqt.ui.sound import recordNoiseProfile
         recordNoiseProfile(self)
 
     # Progress info
