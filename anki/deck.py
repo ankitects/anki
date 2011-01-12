@@ -2916,7 +2916,13 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
         ret = self.s.scalar("select value from deckVars where key = :k",
                             k=key)
         if ret is not None:
-            ret = not not int(ret)
+            # hack to work around ankidroid bug
+            if ret.lower() == "true":
+                return True
+            elif ret.lower() == "false":
+                return False
+            else:
+                ret = not not int(ret)
         return ret
 
     def getVar(self, key):
