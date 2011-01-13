@@ -2978,13 +2978,17 @@ to work with this version of Anki."""))
             shutil.rmtree(from_, ignore_errors=True)
 
     def dropboxFolder(self):
-        if sys.platform.startswith("win32"):
-            s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
-            s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-            p = os.path.join(unicode(s.value("Personal").toString()),
-                             "My Dropbox")
-        else:
-            p = os.path.expanduser("~/Dropbox")
+        try:
+            import ankiqt.ui.dropbox as db
+            p = db.getPath()
+        except:
+            if sys.platform.startswith("win32"):
+                s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
+                s.beginGroup("CurrentVersion/Explorer/Shell Folders")
+                p = os.path.join(unicode(s.value("Personal").toString()),
+                                 "My Dropbox")
+            else:
+                p = os.path.expanduser("~/Dropbox")
         return p
 
     def setupDropbox(self, deck):
