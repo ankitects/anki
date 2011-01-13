@@ -151,7 +151,6 @@ class CardLayout(QDialog):
 
     def screenToFormat(self, fmt):
         fmt = fmt.replace("}}\n", "}}<br>")
-        fmt = re.sub("{{(.+?)}}", "%(\\1)s", fmt)
         return fmt
 
     # def onEdit(self):
