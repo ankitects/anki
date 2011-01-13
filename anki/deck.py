@@ -72,7 +72,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 63
+DECK_VERSION = 64
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -3807,14 +3807,6 @@ create index if not exists ix_facts_modified on facts
         deck.s.statement("""
 create index if not exists ix_cards_priority on cards
 (priority)""")
-        # failed cards, review early - obsolete
-        deck.s.statement("""
-create index if not exists ix_cards_duePriority on cards
-(type, isDue, combinedDue, priority)""")
-        # check due - obsolete
-        deck.s.statement("""
-create index if not exists ix_cards_priorityDue on cards
-(type, isDue, priority, combinedDue)""")
         # average factor
         deck.s.statement("""
 create index if not exists ix_cards_factor on cards
@@ -4386,6 +4378,19 @@ update fieldModels set editFontSize = 20 where editFontSize = ''
 or editFontSize is null""")
             deck.version = 63
             deck.s.commit()
+        if deck.version < 64:
+            # remove old static indices, as all clients should be libanki1.2+
+            for d in ("ix_cards_duePriority",
+                      "ix_cards_priorityDue"):
+                deck.s.statement("drop index if exists %s" % d)
+            # remove old dynamic indices
+            for d in ("intervalDesc", "intervalAsc", "randomOrder",
+                      "dueAsc", "dueDesc"):
+                deck.s.statement("drop index if exists ix_cards_%s" % d)
+            deck.s.execute("analyze")
+            deck.version = 64
+            deck.s.commit()
+            # note: we keep the priority index for now
         # executing a pragma here is very slow on large decks, so we store
         # our own record
         if not deck.getInt("pageSize") == 4096:
