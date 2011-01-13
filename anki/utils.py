@@ -157,6 +157,8 @@ def tidyHTML(html):
     html = re.sub(u'<p>(.*?)</p>', u'\\1<br>', html)
     html = re.sub(u'<br>$', u'', html)
     html = re.sub(u"^<table><tr><td style=\"border: none;\">(.*)<br></td></tr></table>$", u"\\1", html)
+    # this is being added by qt's html editor, and leads to unwanted spaces
+    html = re.sub(u"^<p dir='rtl'>(.*?)</p>$", u'\\1', html)
     return html
 
 def entsToTxt(html):
