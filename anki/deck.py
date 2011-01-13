@@ -1815,9 +1815,12 @@ update facts set modified = :t where modelId = :mid"""
         for cm in model.cardModels:
             types = ("%%(%s)s",
                      "%%(text:%s)s",
-                     # new style
-                     "<<%s>>",
-                     "<<text:%s>>")
+                     # new styles
+                     "{{%s}}",
+                     "{{text:%s}}",
+                     "{{# %s}}",
+                     "{{^ %s}}",
+                     "{{/ %s}}")
             for t in types:
                 for fmt in ('qformat', 'aformat'):
                     setattr(cm, fmt, getattr(cm, fmt).replace(t%field.name,
