@@ -205,7 +205,7 @@ def queueMplayer(path):
     ensureMplayerThreads()
     while mplayerEvt.isSet():
         time.sleep(0.1)
-    if tmpdir:
+    if tmpdir and os.path.exists(path):
         # mplayer on windows doesn't like the encoding, so we create a
         # temporary file instead
         (fd, name) = tempfile.mkstemp(suffix=os.path.splitext(path)[1],
