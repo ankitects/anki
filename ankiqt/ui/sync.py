@@ -73,6 +73,9 @@ class Sync(QThread):
             self.emit(SIGNAL("badUserPass"))
         elif error.data.get('status') == "oldVersion":
             msg=_("The sync protocol has changed. Please upgrade.")
+        elif "busy" in error.data.get('status', ''):
+            msg=_("""\
+AnkiWeb is under heavy load at the moment. Please try again in a little while.""")
         elif error.data.get('type') == 'noResponse':
             msg=_("""\
 The server didn't reply. Please try again shortly, and if the problem \
