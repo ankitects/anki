@@ -8,7 +8,7 @@ Media support
 """
 __docformat__ = 'restructuredtext'
 
-import os, shutil, re, urllib2, time, tempfile
+import os, shutil, re, urllib2, time, tempfile, unicodedata
 from anki.db import *
 from anki.utils import checksum, genID
 from anki.lang import _
@@ -147,6 +147,7 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         "select question, answer from cards"):
         for txt in (question, answer):
             for f in mediaFiles(txt):
+                f = unicodedata.normalize('NFD', f)
                 if f in refs:
                     refs[f] += 1
                 else:
@@ -161,6 +162,7 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         if not os.path.isfile(path):
             # ignore directories
             continue
+        file = unicodedata.normalize('NFD', file)
         if file not in refs:
             unused.append(file)
     # optionally delete
