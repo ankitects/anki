@@ -8,7 +8,8 @@ Sound support
 """
 __docformat__ = 'restructuredtext'
 
-import re, sys, threading, time, subprocess, os, signal, errno
+import re, sys, threading, time, subprocess, os, signal, errno, atexit
+import tempfile, shutil
 from anki.hooks import addHook, runHook
 
 # Shared utils
@@ -50,6 +51,8 @@ processingChain = [
     ["lame", "rec3.wav", processingDst, "--noreplaygain", "--quiet"],
     ]
 
+tmpdir = None
+
 # don't show box on windows
 if sys.platform == "win32":
     si = subprocess.STARTUPINFO()
@@ -58,6 +61,8 @@ if sys.platform == "win32":
     except:
         # python2.7+
         si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
+    # tmp dir for non-hashed media
+    tmpdir = tempfile.mkdtemp(prefix="anki")
 else:
     si = None
 
@@ -200,7 +205,18 @@ def queueMplayer(path):
     ensureMplayerThreads()
     while mplayerEvt.isSet():
         time.sleep(0.1)
-    path = path.encode(sys.getfilesystemencoding())
+    if tmpdir:
+        # mplayer on windows doesn't like the encoding, so we create a
+        # temporary file instead
+        (fd, name) = tempfile.mkstemp(suffix=os.path.splitext(path)[1],
+                                      dir=tmpdir)
+        f = os.fdopen(fd, "wb")
+        f.write(open(path, "rb").read())
+        f.close()
+        # it wants unix paths, too!
+        path = name.replace("\\", "/")
+    else:
+        path = path.encode("utf-8")
     mplayerQueue.append(path)
     mplayerEvt.set()
     runHook("soundQueued")
@@ -225,7 +241,12 @@ def stopMplayer():
         return
     mplayerManager.kill()
 
+def onExit():
+    if tmpdir:
+        shutil.rmtree(tmpdir)
+
 addHook("deckClosed", stopMplayer)
+atexit.register(onExit)
 
 # PyAudio recording
 ##########################################################################
