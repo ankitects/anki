@@ -240,7 +240,8 @@ class Deck(object):
             return sql.replace(
                 "where",
                 "where +c.id in (select cardId from cardTags where "
-                "tagId in %s and tagId not in %s) and" % (
+                "tagId in %s) and +c.id not in (select cardId from "
+                "cardTags where tagId in %s) and" % (
                 ids2str(yids),
                 ids2str(nids)))
         elif no:
