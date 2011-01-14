@@ -190,11 +190,15 @@ sync was aborted. Please report this error.""")
         self.deck = None
         try:
             self.deck = DeckStorage.Deck(path)
+            disable = False
+            if deck and not self.deck.syncName:
+                # multi-mode sync and syncing has been disabled by upgrade
+                disable = True
             client = SyncClient(self.deck)
             client.setServer(proxy)
             # need to do anything?
             start = time.time()
-            if client.prepareSync(proxy.timediff):
+            if client.prepareSync(proxy.timediff) and not disable:
                 if self.deck.lastSync <= 0:
                     if client.remoteTime > client.localTime:
                         self.conflictResolution = "keepRemote"
@@ -260,7 +264,9 @@ sync was aborted. Please report this error.""")
                     self.setStatus(_("Sync complete."))
             else:
                 changes = False
-                if not deck:
+                if disable:
+                    self.setStatus(_("Disabled by upgrade."))
+                elif not deck:
                     self.setStatus(_("No changes found."))
             # close and send signal to main thread
             self.deck.close()
