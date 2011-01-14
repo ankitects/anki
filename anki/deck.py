@@ -1259,7 +1259,8 @@ where type < 0 and id in %s""" %
     def hiddenCards(self):
         "Assumes queue finished. True if some due cards have not been shown."
         return self.s.scalar("""
-select 1 from cards where combinedDue < :now limit 1""", now=self.dueCutoff)
+select 1 from cards where combinedDue < :now
+and type between 0 and 1 limit 1""", now=self.dueCutoff)
 
     def newCardsDoneToday(self):
         return (self._dailyStats.newEase0 +
