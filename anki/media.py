@@ -143,11 +143,15 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
     deck.s.statement("update media set size = 0")
     # look through cards for media references
     refs = {}
+    def norm(s):
+        if isinstance(s, unicode):
+            return unicodedata.normalize('NFD', s)
+        return s
     for (question, answer) in deck.s.all(
         "select question, answer from cards"):
         for txt in (question, answer):
             for f in mediaFiles(txt):
-                f = unicodedata.normalize('NFD', f)
+                f = norm(f)
                 if f in refs:
                     refs[f] += 1
                 else:
@@ -162,7 +166,7 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         if not os.path.isfile(path):
             # ignore directories
             continue
-        file = unicodedata.normalize('NFD', file)
+        file = norm(file)
         if file not in refs:
             unused.append(file)
     # optionally delete
