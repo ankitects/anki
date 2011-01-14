@@ -2683,6 +2683,9 @@ The regenerate reading field plugin has been disabled, as the Japanese \
 support plugin supports this now. Please download the latest version.""")),
             ("Sync LaTeX with iPhone client.py",
              native % "sync LaTeX"),
+            ("Incremental Reading.py",
+             _("""The incremental reading plugin has been disabled because \
+it needs updates.""")),
             ("Learn Mode.py", _("""\
 The learn mode plugin has been disabled because it needs to be rewritten \
 to work with this version of Anki."""))
