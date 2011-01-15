@@ -259,7 +259,9 @@ order by n""", id=card.id)
         self.renderPreview()
 
     def chooseColour(self, button, type="field"):
-        new = QColorDialog.getColor(button.palette().window().color(), self)
+        new = QColorDialog.getColor(button.palette().window().color(), self,
+                                    _("Choose Color"),
+                                    QColorDialog.DontUseNativeDialog)
         if new.isValid():
             button.setPalette(QPalette(new))
             if type == "field":
