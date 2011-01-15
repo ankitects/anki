@@ -9,9 +9,11 @@ $ cd ankiqt
 $ ./tools/build_ui.sh
 
 The translations are stored in a bazaar repo for integration with launchpad's
-translation services. If you want to use a language other than English:
+translation services. If you want to use a language other than English, edit 
 
 $ cd ..
+$ mv libanki lib
+$ mv ankiqt qt
 $ bzr clone lp:anki
 $ cd anki
 $ ./update-mos.sh
