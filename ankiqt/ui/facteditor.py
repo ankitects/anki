@@ -121,7 +121,7 @@ class FactEditor(object):
         self.fieldsBox.addLayout(self.iconsBox2)
         # card layout
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
-        self.clayout = QPushButton("Card Layout")
+        self.clayout = QPushButton(_("Card Layout"))
         self.clayout.connect(self.clayout, SIGNAL("clicked()"), self.onCardLayout)
         self.clayout.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
         self.clayout.setFixedHeight(20)
