@@ -1782,7 +1782,8 @@ learnt today")
            self.mainWin.newCardScheduling.currentIndex())
         uf(self.deck, 'revCardOrder',
            self.mainWin.revCardOrder.currentIndex())
-        if (self.deck.getFailedCardPolicy() !=
+        pol = self.deck.getFailedCardPolicy()
+        if (pol != 5 and pol !=
             self.mainWin.failedCardsOption.currentIndex()):
             self.deck.setFailedCardPolicy(
                 self.mainWin.failedCardsOption.currentIndex())
