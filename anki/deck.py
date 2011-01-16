@@ -503,16 +503,19 @@ where type >= 0
 
     def _rebuildRevEarlyCount(self):
         # in the future it would be nice to skip the first x days of due cards
-        extraLim = ""
-        self.revCount = self.s.scalar("""
-select count() from cards where type = 1 and combinedDue > :now
-%s""" % extraLim, now=self.dueCutoff)
+        self.revCount = self.s.scalar(
+            self.cardLimit(
+            "revActive", "revInactive", """
+select count() from cards c where type = 1 and combinedDue > :now
+"""), now=self.dueCutoff)
 
     def _fillRevEarlyQueue(self):
         if self.revCount and not self.revQueue:
-            self.revQueue = self.s.all("""
-select id, factId from cards where type = 1 and combinedDue > :lim
-order by combinedDue limit %d""" % self.queueLimit, lim=self.dueCutoff)
+            self.revQueue = self.s.all(
+                self.cardLimit(
+                "revActive", "revInactive", """
+select id, factId from cards c where type = 1 and combinedDue > :lim
+order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.revQueue.reverse()
 
     # Learn more
