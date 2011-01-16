@@ -1913,8 +1913,11 @@ learnt today")
         self.deck.setUndoEnd(undo)
 
     def onUndo(self):
+        name = self.deck.undoName()
         self.deck.undo()
         self.reset()
+        if name == "Answer Card":
+            self.showToolTip(_("Card placed back in queue."))
 
     def onRedo(self):
         self.deck.redo()
