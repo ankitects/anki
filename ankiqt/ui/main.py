@@ -2694,7 +2694,10 @@ to work with this version of Anki."""))
         for p in plugins:
             path = os.path.join(dir, p[0])
             if os.path.exists(path):
-                os.rename(path, path.replace(".py", ".disabled"))
+                new = path.replace(".py", ".disabled")
+                if os.path.exists(new):
+                    os.unlink(new)
+                os.rename(path, new)
                 ui.utils.showInfo(p[1])
 
     def rebuildPluginsMenu(self):
