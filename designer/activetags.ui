@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>369</width>
-    <height>393</height>
+    <width>387</width>
+    <height>396</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
        <item>
         <widget class="QCheckBox" name="activeCheck">
          <property name="text">
-          <string>Show only cards with selected tags:</string>
+          <string>Show only cards with any of these tags:</string>
          </property>
         </widget>
        </item>
