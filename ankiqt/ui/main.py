@@ -2080,8 +2080,9 @@ Please give your deck a name:"""))
             d.s.statement("drop index %s" % i)
         # and q/a cache
         d.s.statement("update cards set question = '', answer = ''")
-        # media db
-        d.s.statement("update media set originalPath = description")
+        # media
+        d.s.statement("update media set description = ''")
+        d.s.statement("update deckVars set value = '' where key = 'mediaURL'")
         self.deck.updateProgress()
         d.s.statement("vacuum")
         self.deck.updateProgress()
