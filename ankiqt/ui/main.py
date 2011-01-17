@@ -2448,6 +2448,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         "Graphs",
         "Dstats",
         "Cstats",
+        "Cram",
         "StudyOptions",
         )
 
