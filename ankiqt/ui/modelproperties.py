@@ -63,6 +63,7 @@ class ModelProperties(QDialog):
                      self.cardLayout)
 
     def cardLayout(self):
+        self.m.currentCard = self.currentCard
         ui.clayout.CardLayout(self, None, self.m)
 
     def renameCard(self):

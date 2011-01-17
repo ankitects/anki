@@ -49,7 +49,7 @@ class CardLayout(QDialog):
             sys.platform.startswith("win32")):
             self.plastiqueStyle = QStyleFactory.create("plastique")
         if self.card:
-            # limited to an existing templates
+            # limited to an existing template
             self.cards = [self.deck.s.query(Card).get(id) for id in
                           self.deck.s.column0(
                 "select id from cards where factId = :fid "
@@ -87,6 +87,10 @@ class CardLayout(QDialog):
         self.setupCards()
         self.setupFields()
         restoreGeom(self, "CardLayout")
+        # hack to ensure we're focused on the active template in the model
+        # properties
+        if type == 2 and factOrModel.currentCard.ordinal != 0:
+            self.form.cardList.setCurrentIndex(factOrModel.currentCard.ordinal)
         self.exec_()
 
     # Cards & Preview
