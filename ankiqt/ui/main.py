@@ -367,6 +367,7 @@ Please do not file a bug report with Anki.<br>""")
                         not self.deck.sessionStartTime):
                         return self.moveToState("studyScreen")
                     if self.deck.sessionLimitReached():
+                        self.showToolTip(_("Session limit reached."))
                         self.moveToState("studyScreen")
                         # switch to timeboxing screen
                         self.mainWin.tabWidget.setCurrentIndex(2)
