@@ -2108,7 +2108,7 @@ it to your friends.
         if mdir:
             for f in os.listdir(mdir):
                 zip.write(os.path.join(mdir, f),
-                          str(os.path.join("shared.media/", f)))
+                          os.path.join("shared.media/", f))
             os.chdir(pwd)
             shutil.rmtree(mdir)
         os.chdir(pwd)
