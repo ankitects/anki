@@ -62,7 +62,8 @@ if sys.platform == "win32":
         # python2.7+
         si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
     # tmp dir for non-hashed media
-    tmpdir = tempfile.mkdtemp(prefix="anki")
+    tmpdir = unicode(
+        tempfile.mkdtemp(prefix="anki"), sys.getfilesystemencoding())
 else:
     si = None
 
@@ -207,7 +208,8 @@ def queueMplayer(path):
         time.sleep(0.1)
     if tmpdir and os.path.exists(path):
         # mplayer on windows doesn't like the encoding, so we create a
-        # temporary file instead
+        # temporary file instead. oddly, foreign characters in the dirname
+        # don't seem to matter.
         (fd, name) = tempfile.mkstemp(suffix=os.path.splitext(path)[1],
                                       dir=tmpdir)
         f = os.fdopen(fd, "wb")
@@ -215,6 +217,7 @@ def queueMplayer(path):
         f.close()
         # it wants unix paths, too!
         path = name.replace("\\", "/")
+        path = path.encode(sys.getfilesystemencoding())
     else:
         path = path.encode("utf-8")
     mplayerQueue.append(path)
