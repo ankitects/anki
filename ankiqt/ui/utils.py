@@ -215,10 +215,17 @@ def saveGeom(widget, key):
     key += "Geom"
     ankiqt.mw.config[key] = widget.saveGeometry()
 
-def restoreGeom(widget, key):
+def restoreGeom(widget, key, offset=None):
     key += "Geom"
     if ankiqt.mw.config.get(key):
         widget.restoreGeometry(ankiqt.mw.config[key])
+        if sys.platform.startswith("darwin") and offset:
+            from ankiqt.ui.main import QtConfig as q
+            minor = (q.qt_version & 0x00ff00) >> 8
+            if minor > 6:
+                # bug in osx toolkit
+                s = widget.size()
+                widget.resize(s.width(), s.height()+offset*2)
 
 def saveState(widget, key):
     key += "State"

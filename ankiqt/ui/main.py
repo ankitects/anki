@@ -22,6 +22,7 @@ from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels, failedCardOptionLabels
+from ankiqt.ui.utils import saveGeom, restoreGeom, saveState, restoreState
 import anki.lang
 import anki.deck
 import ankiqt
@@ -67,8 +68,8 @@ class AnkiQt(QMainWindow):
             self.setupProgressInfo()
             self.setupBackups()
             if self.config['mainWindowState']:
-                self.restoreGeometry(self.config['mainWindowGeom'])
-                self.restoreState(self.config['mainWindowState'])
+                restoreGeom(self, "mainWindow", 21)
+                restoreState(self, "mainWindow")
             else:
                 self.resize(500, 500)
             # load deck
