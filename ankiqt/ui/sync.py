@@ -118,6 +118,9 @@ sync was aborted. Please report this error.""")
             elif ret == -1:
                 # failed and already cleaned up
                 return
+            elif ret == -2:
+                # current deck set not to sync
+                continue
         self.setStatus(_("Sync Finished."), 0)
         time.sleep(1)
         self.emit(SIGNAL("syncFinished"))
@@ -132,7 +135,7 @@ sync was aborted. Please report this error.""")
                     "select syncName, modified, lastSync from decks").fetchone()
                 c.close()
                 if not syncName:
-                    return
+                    return -2
                 syncName = os.path.splitext(os.path.basename(deck))[0]
                 path = deck
             else:
