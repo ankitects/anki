@@ -297,7 +297,7 @@ order by n""", id=card.id)
                       c)
             + "</body></html>")
         clearAudioQueue()
-        if not self.playedAudio and self.mw.config['autoplaySounds']:
+        if not self.playedAudio:
             playFromText(c.question)
             playFromText(c.answer)
             self.playedAudio = True
