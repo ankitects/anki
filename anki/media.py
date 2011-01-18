@@ -167,8 +167,8 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         if not os.path.isfile(path):
             # ignore directories
             continue
-        file = norm(file)
-        if file not in normrefs:
+        nfile = norm(file)
+        if nfile not in normrefs:
             unused.append(file)
     # optionally delete
     if delete:
