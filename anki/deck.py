@@ -1823,9 +1823,9 @@ update facts set modified = :t where modelId = :mid"""
                      # new styles
                      "{{%s}}",
                      "{{text:%s}}",
-                     "{{# %s}}",
-                     "{{^ %s}}",
-                     "{{/ %s}}")
+                     "{{#%s}}",
+                     "{{^%s}}",
+                     "{{/%s}}")
             for t in types:
                 for fmt in ('qformat', 'aformat'):
                     setattr(cm, fmt, getattr(cm, fmt).replace(t%field.name,
