@@ -72,7 +72,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 64
+DECK_VERSION = 65
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -4399,6 +4399,12 @@ or editFontSize is null""")
             deck.version = 64
             deck.s.commit()
             # note: we keep the priority index for now
+        if deck.version < 65:
+            # we weren't correctly setting relativeDelay when answering cards
+            # in previous versions, so ensure everything is set correctly
+            deck.rebuildTypes()
+            deck.version = 65
+            deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record
         if not deck.getInt("pageSize") == 4096:

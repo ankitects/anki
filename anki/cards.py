@@ -285,7 +285,7 @@ spaceUntil = :spaceUntil,
 isDue = 0,
 type = :type,
 combinedDue = :combinedDue,
-relativeDelay = 0,
+relativeDelay = :relativeDelay,
 priority = :priority
 where id=:id""", self.__dict__)
 
