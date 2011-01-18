@@ -38,6 +38,9 @@ class AnkiQt(QMainWindow):
             self.reviewingStarted = False
             if sys.platform.startswith("darwin"):
                 qt_mac_set_menubar_icons(False)
+            elif sys.platform.startswith("win32"):
+                # make sure they're picked up on bundle
+                from ctypes import windll, wintypes
             ankiqt.mw = self
             self.app = app
             self.config = config
