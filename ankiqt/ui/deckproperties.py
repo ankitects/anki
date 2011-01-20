@@ -136,7 +136,7 @@ class DeckProperties(QDialog):
         self.d.deleteModel(model)
         self.updateModelsList()
         self.dialog.modelsList.setCurrentRow(row)
-        self.parent.reset()
+        ankiqt.mw.reset()
 
     def selectedModel(self):
         row = self.dialog.modelsList.currentRow()
