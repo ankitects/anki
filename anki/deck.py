@@ -936,13 +936,13 @@ and type between 1 and 2""",
     def nextDue(self, card, ease, oldState):
         "Return time when CARD will expire given EASE."
         if ease == 1:
-            if oldState == "mature":
-                # FIXME: magic value until we have old clients updated
-                if self.delay1 == 600:
-                    d = 0
-                else:
-                    d = self.delay1
-                due = d*86400
+            # 600 is a magic value which means no bonus, and is used to ease
+            # upgrades
+            if oldState == "mature" and self.delay1 and self.delay1 != 600:
+                # user wants a bonus of 1+ days. put the failed cards at the
+                # start of the future day, so that failures that day will come
+                # after the waiting cards
+                return self.failedCutoff + (self.delay1 - 1)*86400
             else:
                 due = 0
         else:
