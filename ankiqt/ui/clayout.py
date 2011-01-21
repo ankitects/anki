@@ -426,7 +426,10 @@ order by n""", id=card.id)
             field.features = u"rtl"
         else:
             field.features = u""
-        field.editFontFamily = unicode(self.form.preserveWhitespace.isChecked())
+        if self.form.preserveWhitespace.isChecked():
+            field.editFontFamily = u"preserve"
+        else:
+            field.editFontFamily = u""
         field.model.setModified()
         self.deck.flushMod()
         self.renderPreview()
