@@ -188,7 +188,7 @@ class View(object):
                 cor = ""
             if cor:
                 given = unicode(self.main.typeAnswerField.text())
-                res = self.correct(cor, given)
+                res = self.correct(given, cor)
                 a = res + "<br>" + a
         self.write(self.center('<span id=answer />'
                                + self.mungeQA(self.main.deck, a)))
