@@ -207,7 +207,9 @@ class SyncTools(object):
         cardIds = [x[0] for x in reply['added-cards']]
         self.deck.updateCardTags(cardIds)
         self.rebuildPriorities(cardIds)
-        assert self.missingFacts() == 0
+        if self.missingFacts() != 0:
+            raise Exception(
+                "Facts missing after sync. Please run Tools>Advanced>Check DB.")
 
     def missingFacts(self):
         return self.deck.s.scalar(
