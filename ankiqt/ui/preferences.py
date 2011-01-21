@@ -221,6 +221,7 @@ class Preferences(QDialog):
         self.dialog.stripHTML.setChecked(self.config['stripHTML'])
         self.dialog.autoplaySounds.setChecked(self.config['autoplaySounds'])
         self.dialog.deckBrowserLen.setValue(self.config['deckBrowserNameLength'])
+        self.dialog.optimizeSmall.setChecked(self.config['optimizeSmall'])
 
     def updateAdvanced(self):
         self.config['colourTimes'] = self.dialog.colourTimes.isChecked()
@@ -237,6 +238,7 @@ class Preferences(QDialog):
         self.config['stripHTML'] = self.dialog.stripHTML.isChecked()
         self.config['autoplaySounds'] = self.dialog.autoplaySounds.isChecked()
         self.config['loadLastDeck'] = self.dialog.openLastDeck.isChecked()
+        self.config['optimizeSmall'] = self.dialog.optimizeSmall.isChecked()
         if self.dialog.deckBrowserOrder.isChecked():
             self.config['deckBrowserOrder'] = 1
         else:

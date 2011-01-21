@@ -3262,6 +3262,14 @@ It can take a long time. Proceed?""")):
         # if they've just upgraded, set created time based on deck age
         if time.time() - self.config['created'] < 60 and self.deck:
             self.config['created'] = self.deck.created
+        # tweaks for small screens
+        if self.config['optimizeSmall']:
+            p = self.mainWin.deckBrowserOuterFrame.sizePolicy()
+            p.setHorizontalStretch(1)
+            self.mainWin.deckBrowserOuterFrame.setSizePolicy(p)
+            self.mainWin.decksLabel.hide()
+            self.mainWin.decksLine.hide()
+            self.mainWin.studyOptsLabel.hide()
 
     def setupBackups(self):
         # set backups

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>365</width>
-    <height>419</height>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -569,7 +569,7 @@
            </property>
           </widget>
          </item>
-         <item row="11" column="0">
+         <item row="12" column="0">
           <widget class="QCheckBox" name="addZeroSpace">
            <property name="text">
             <string>Add hidden char to text (fixes Thai on OSX)</string>
@@ -590,7 +590,7 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="0">
+         <item row="11" column="0">
           <widget class="QCheckBox" name="deleteMedia">
            <property name="text">
             <string>Delete original media on add</string>
@@ -608,6 +608,13 @@
           <widget class="QCheckBox" name="stripHTML">
            <property name="text">
             <string>Strip HTML when pasting text</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QCheckBox" name="optimizeSmall">
+           <property name="text">
+            <string>Optimize for small screens</string>
            </property>
           </widget>
          </item>
@@ -730,6 +737,7 @@
   <tabstop>showStudyOptions</tabstop>
   <tabstop>openLastDeck</tabstop>
   <tabstop>deckBrowserOrder</tabstop>
+  <tabstop>optimizeSmall</tabstop>
   <tabstop>deleteMedia</tabstop>
   <tabstop>addZeroSpace</tabstop>
   <tabstop>deckBrowserLen</tabstop>
