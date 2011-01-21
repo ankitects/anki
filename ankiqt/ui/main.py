@@ -924,15 +924,28 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         if not self.inMainWindow() and not path: return
         if not self.saveAndClose(hideWelcome=True): return
         register = not path
+        bad = ":/\\"
+        name = _("mydeck")
         if not path:
             if not prompt:
                 prompt = _("Please give your deck a name:")
-            name = ui.utils.getOnlyText(
-                prompt, default=_("mydeck"), title=_("New Deck"))
-            if not name:
-                return
-            if not name.endswith(".anki"):
-                name += ".anki"
+            while 1:
+                name = ui.utils.getOnlyText(
+                    prompt, default=name, title=_("New Deck"))
+                if not name:
+                    return
+                found = False
+                for c in bad:
+                    if c in name:
+                        ui.utils.showInfo(
+                            _("Sorry, '%s' can't be used in deck names.") % c)
+                        found = True
+                        break
+                if found:
+                    continue
+                if not name.endswith(".anki"):
+                    name += ".anki"
+                break
             path = os.path.join(self.documentDir, name)
             if os.path.exists(path):
                 if ui.utils.askUser(_("That deck already exists. Overwrite?"),
