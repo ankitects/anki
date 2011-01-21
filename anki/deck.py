@@ -4322,20 +4322,27 @@ this message. (ERR-0101)""") % {
             deck.s.statement("update fieldModels set editFontFamily = 1");
             deck.version = 54
             deck.s.commit()
-        if deck.version < 55:
-            # set a default font for unset fonts
-            deck.s.statement("""
-update fieldModels set quizFontFamily = 'Arial' where not quizFontFamily
-or quizFontFamily is null""")
-            deck.version = 55
-            deck.s.commit()
         if deck.version < 57:
             deck.version = 57
             deck.s.commit()
         if deck.version < 61:
+            # do our best to upgrade templates to the new style
             txt = '''\
-<span style="font-family: %s; font-size: %spx; color: %s;">%s</span>'''
+<span style="font-family: %s; font-size: %spx; color: %s; white-space: pre-wrap;">%s</span>'''
             for m in deck.models:
+                unstyled = []
+                for fm in m.fieldModels:
+                    # find which fields had explicit formatting
+                    if fm.quizFontFamily or fm.quizFontSize or fm.quizFontColour:
+                        pass
+                    else:
+                        unstyled.append(fm.name)
+                    # fill out missing info
+                    fm.quizFontFamily = fm.quizFontFamily or u"Arial"
+                    fm.quizFontSize = fm.quizFontSize or 20
+                    fm.quizFontColour = fm.quizFontColour or "#000000"
+                    fm.editFontSize = fm.editFontSize or 20
+                unstyled = set(unstyled)
                 for cm in m.cardModels:
                     # embed the old font information into card templates
                     cm.qformat = txt % (
@@ -4348,9 +4355,10 @@ or quizFontFamily is null""")
                         cm.answerFontSize,
                         cm.answerFontColour,
                         cm.aformat)
-                    # fix newlines
-                    cm.qformat = cm.qformat.replace("\n", "<br>\n")
-                    cm.aformat = cm.aformat.replace("\n", "<br>\n")
+                    # escape fields that had no previous styling
+                    for un in unstyled:
+                        cm.qformat = cm.qformat.replace("%("+un+")s", "{{{%s}}}"%un)
+                        cm.aformat = cm.aformat.replace("%("+un+")s", "{{{%s}}}"%un)
             # rebuild q/a for the above & because latex has changed
             for m in deck.models:
                 deck.updateCardsFromModel(m, dirty=False)
@@ -4368,16 +4376,6 @@ or quizFontFamily is null""")
             deck.updateDynamicIndices()
             deck.s.execute("vacuum")
             deck.version = 62
-            deck.s.commit()
-        if deck.version < 63:
-            # set a default font for unset font sizes
-            deck.s.statement("""
-update fieldModels set quizFontSize = 20 where quizFontSize = ''
-or quizFontSize is null""")
-            deck.s.statement("""
-update fieldModels set editFontSize = 20 where editFontSize = ''
-or editFontSize is null""")
-            deck.version = 63
             deck.s.commit()
         if deck.version < 64:
             # remove old static indices, as all clients should be libanki1.2+
