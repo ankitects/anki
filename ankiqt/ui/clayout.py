@@ -99,7 +99,7 @@ class CardLayout(QDialog):
     def setupCards(self):
         self.needFormatRebuild = False
         self.updatingCards = False
-        self.playedAudio = False
+        self.playedAudio = {}
         # replace with more appropriate size hints
         for e in ("cardQuestion", "cardAnswer"):
             w = getattr(self.form, e)
@@ -274,16 +274,7 @@ order by n""", id=card.id)
                 self.saveCard()
 
     def renderPreview(self):
-        if self.card:
-            c = self.card
-        else:
-            # we'll need to generate one
-            cards = self.deck.previewFact(self.fact)
-            if not cards:
-                ui.utils.showInfo(_("No cards to preview."),
-                                  parent=parent)
-                return
-            pass
+        c = self.card
         styles = (self.deck.rebuildCSS() +
                   ("\nhtml { background: %s }" % c.cardModel.lastFontColour))
         styles = runFilter("addStyles", styles, c)
@@ -297,10 +288,10 @@ order by n""", id=card.id)
                       c)
             + "</body></html>")
         clearAudioQueue()
-        if not self.playedAudio:
+        if c.id not in self.playedAudio:
             playFromText(c.question)
             playFromText(c.answer)
-            self.playedAudio = True
+            self.playedAudio[c.id] = True
 
     def reject(self):
         modified = False
