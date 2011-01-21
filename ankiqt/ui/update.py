@@ -23,6 +23,7 @@ class LatestVersionFinder(QThread):
              "pver": pver,
              "plat": plat,
              "id": self.config['id'],
+             "lm": self.config['lastMsg'],
              "conf": self.config['created']}
         self.stats = d
 
@@ -41,6 +42,8 @@ class LatestVersionFinder(QThread):
         except:
             # behind proxy, corrupt message, etc
             return
+        if resp['msg']:
+            self.emit(SIGNAL("newMsg"), resp)
         if resp['latestVersion'] > ankiqt.appVersion:
             self.emit(SIGNAL("newVerAvail"), resp)
         diff = resp['currentTime'] - time.time()
@@ -51,10 +54,7 @@ class LatestVersionFinder(QThread):
 def askAndUpdate(parent, version=None):
     version = version['latestVersion']
     baseStr = (
-        _('''<h1>Anki updated</h1>Anki %s has been released.<br>
-The release notes are
-<a href="http://ichi2.net/anki/download/index.html#changes">here</a>.
-<br><br>''') %
+        _('''<h1>Anki Updated</h1>Anki %s has been released.<br><br>''') %
         version)
     msg = QMessageBox(parent)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -68,3 +68,7 @@ The release notes are
         parent.config['suppressUpdate'] = version
     elif ret == QMessageBox.Yes:
         QDesktopServices.openUrl(QUrl(ankiqt.appWebsite))
+
+def showMessages(main, data):
+    ankiqt.ui.utils.showText(data['msg'], main, type="html")
+    main.config['lastMsg'] = data['msgId']

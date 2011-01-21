@@ -63,6 +63,7 @@ class Config(dict):
             'iconSize': 32,
             'id': genID(),
             'interfaceLang': "",
+            'lastMsg': -1,
             'loadLastDeck': False,
             'mainWindowGeom': None,
             'mainWindowState': None,

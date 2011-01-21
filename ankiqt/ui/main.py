@@ -2621,12 +2621,16 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     def setupAutoUpdate(self):
         self.autoUpdate = ui.update.LatestVersionFinder(self)
         self.connect(self.autoUpdate, SIGNAL("newVerAvail"), self.newVerAvail)
+        self.connect(self.autoUpdate, SIGNAL("newMsg"), self.newMsg)
         self.connect(self.autoUpdate, SIGNAL("clockIsOff"), self.clockIsOff)
         self.autoUpdate.start()
 
-    def newVerAvail(self, version):
-        if self.config['suppressUpdate'] < version['latestVersion']:
-            ui.update.askAndUpdate(self, version)
+    def newVerAvail(self, data):
+        if self.config['suppressUpdate'] < data['latestVersion']:
+            ui.update.askAndUpdate(self, data)
+
+    def newMsg(self, data):
+        ui.update.showMessages(self, data)
 
     def clockIsOff(self, diff):
         if diff < 0:
