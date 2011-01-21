@@ -2759,6 +2759,8 @@ to work with this version of Anki."""))
         if path is None:
             path = self.pluginsFolder()
         if sys.platform == "win32":
+            if isinstance(path, unicode):
+                path = path.encode(sys.getfilesystemencoding())
             anki.utils.call(["explorer", path], wait=False)
         else:
             QDesktopServices.openUrl(QUrl("file://" + path))
