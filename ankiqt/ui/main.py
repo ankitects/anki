@@ -2965,7 +2965,7 @@ to work with this version of Anki."""))
             # check if they were using plugin
             if not prev:
                 p = self.dropboxFolder()
-                p = p.replace("/Anki", "").replace("\\Anki", "")
+                p = os.path.join(p, "Public")
                 deck.mediaPrefix = p
                 migrateFrom = deck.mediaDir()
             if not migrateFrom:
