@@ -11,30 +11,15 @@ import simplejson, platform
 baseUrl = "http://anki.ichi2.net/update/"
 #baseUrl = "http://localhost:8001/update/"
 
-# when requesting latest version number, gather their version, deck size and
-# average retention ratio for future development
 class LatestVersionFinder(QThread):
 
     def __init__(self, main):
         QThread.__init__(self)
         self.main = main
         self.config = main.config
-        # calculate stats before we start a new thread
         plat=sys.platform
         pver=platform.platform()
-        if self.main.deck != None:
-            deckSize = self.main.deck.cardCount
-            stats = self.main.deck.getStats()
-            deckRecall = "%0.2f" % stats['gMatureYes%']
-            age = self.main.deck.created
-        else:
-            deckSize = "noDeck"
-            deckRecall = ""
-            age = ""
         d = {"ver": ankiqt.appVersion,
-             "size": deckSize,
-             "ret": deckRecall,
-             "age": age,
              "pver": pver,
              "plat": plat,
              "id": self.config['id'],
