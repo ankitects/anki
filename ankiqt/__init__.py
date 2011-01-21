@@ -7,13 +7,13 @@ from PyQt4.QtGui import *
 
 appName="Anki"
 appVersion="1.2.3"
-appWebsite="http://ichi2.net/anki/"
+appWebsite="http://ankisrs.net/"
 appWiki="http://ichi2.net/anki/wiki/"
-appHelpSite="http://ichi2.net/anki/wiki/AnkiWiki"
+appHelpSite="http://ankisrs.net/docs/"
 appIssueTracker="http://code.google.com/p/anki/issues/list"
 appForum="http://groups.google.com/group/ankisrs/topics"
-appReleaseNotes="http://ichi2.net/anki/changes.html"
-appDonate="http://ichi2.net/anki/donate.html"
+appReleaseNotes="http://ankisrs.net/changes.html"
+appDonate="http://ankisrs.net/support/"
 
 modDir=os.path.dirname(os.path.abspath(__file__))
 runningDir=os.path.split(modDir)[0]
