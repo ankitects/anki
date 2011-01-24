@@ -4299,7 +4299,7 @@ If you want to keep your changes to the online version, please use \
 File>Download>Personal Deck to download the online version.
 
 If you want to keep the version on your computer, please enable \
-syncing again via Settings>Deck Properties>Synchronsiation.
+syncing again via Settings>Deck Properties>Synchronisation.
 
 If you have syncing disabled in the preferences, you can ignore \
 this message. (ERR-0101)""") % {
