@@ -999,6 +999,7 @@ class FactEdit(QTextEdit):
     def __init__(self, parent, *args):
         QTextEdit.__init__(self, *args)
         self.parent = parent
+        self._tmpDir = None
         if sys.platform.startswith("win32"):
             self._ownLayout = None
 
@@ -1032,10 +1033,10 @@ class FactEdit(QTextEdit):
                     ext = txt.split(".")[-1].lower()
                     try:
                         if ext in pics:
-                            name = self._retrieveURL(txt, ext)
+                            name = self._retrieveURL(txt)
                             self.parent._addPicture(name, widget=self)
                         elif ext in audio:
-                            name = self._retrieveURL(txt, ext)
+                            name = self._retrieveURL(txt)
                             self.parent._addSound(name, widget=self)
                         else:
                             # not image or sound, treat as plain text
@@ -1064,10 +1065,10 @@ class FactEdit(QTextEdit):
                 ext = url.split(".")[-1].lower()
                 try:
                     if ext in pics:
-                        name = self._retrieveURL(url, ext)
+                        name = self._retrieveURL(url)
                         self.parent._addPicture(name, widget=self)
                     elif ext in audio:
-                        name = self._retrieveURL(url, ext)
+                        name = self._retrieveURL(url)
                         self.parent._addSound(name, widget=self)
                 except urllib2.URLError, e:
                     ui.utils.showWarning(errtxt % e)
@@ -1076,17 +1077,21 @@ class FactEdit(QTextEdit):
             self.insertHtml(self.simplifyHTML(unicode(source.html())))
             return
 
-    def _retrieveURL(self, url, ext):
+    def _retrieveURL(self, url):
         req = urllib2.Request(url, None, {
             'User-Agent': 'Mozilla/5.0 (compatible; Anki/%s)' %
             ankiqt.appVersion })
         filecontents = urllib2.urlopen(req).read()
-        (fd, name) = tempfile.mkstemp(prefix="paste", suffix=".%s" %
-                                      ext.encode("ascii"))
-        file = os.fdopen(fd, "wb")
+        path = os.path.join(self.tmpDir(), os.path.basename(url))
+        file = open(path, "wb")
         file.write(filecontents)
-        file.flush()
-        return unicode(name, sys.getfilesystemencoding())
+        file.close()
+        return path
+
+    def tmpDir(self):
+        if not self._tmpDir:
+            self._tmpDir = tempfile.mkdtemp(prefix="anki")
+        return self._tmpDir
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
