@@ -9,15 +9,25 @@ from ankiqt.ui.utils import saveGeom, restoreGeom
 
 class ActiveTagsChooser(QDialog):
 
-    def __init__(self, parent, active, inactive, title):
+    def __init__(self, parent, type):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.deck = self.parent.deck
-        self.active = active
-        self.inactive = inactive
         self.dialog = ankiqt.forms.activetags.Ui_Dialog()
         self.dialog.setupUi(self)
-        self.setWindowTitle(title)
+        if type == "new":
+            self.active = "newActive"
+            self.inactive = "newInactive"
+        else:
+            self.active = "revActive"
+            self.inactive = "revInactive"
+        if (self.deck.getVar("newActive") == self.deck.getVar("revActive") and
+            self.deck.getVar("newInactive") == self.deck.getVar("revInactive")):
+            self.dialog.bothButton.click()
+        elif type == "new":
+            self.dialog.newButton.click()
+        else:
+            self.dialog.revButton.click()
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.rebuildTagList()
@@ -98,15 +108,22 @@ class ActiveTagsChooser(QDialog):
             idx = self.dialog.inactiveList.indexFromItem(item)
             if self.dialog.inactiveList.selectionModel().isSelected(idx):
                 no.append(self.tags[c])
-
-        if self.dialog.activeCheck.isChecked():
-            self.deck.setVar(self.active, joinTags(yes))
-        else:
-            self.deck.setVar(self.active, "")
-        if self.dialog.inactiveCheck.isChecked():
-            self.deck.setVar(self.inactive, joinTags(no))
-        else:
-            self.deck.setVar(self.inactive, "")
+        types = []
+        if (self.dialog.newButton.isChecked() or
+            self.dialog.bothButton.isChecked()):
+            types.append(["newActive", "newInactive"])
+        if (self.dialog.revButton.isChecked() or
+            self.dialog.bothButton.isChecked()):
+            types.append(["revActive", "revInactive"])
+        for (active, inactive) in types:
+            if self.dialog.activeCheck.isChecked():
+                self.deck.setVar(active, joinTags(yes))
+            else:
+                self.deck.setVar(active, "")
+            if self.dialog.inactiveCheck.isChecked():
+                self.deck.setVar(inactive, joinTags(no))
+            else:
+                self.deck.setVar(inactive, "")
         self.parent.reset()
         saveGeom(self, "activeTags")
         QDialog.accept(self)
@@ -115,6 +132,6 @@ class ActiveTagsChooser(QDialog):
         QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
                                       "SelectiveStudy"))
 
-def show(parent, active, inactive, title):
-    at = ActiveTagsChooser(parent, active, inactive, title)
+def show(parent, type):
+    at = ActiveTagsChooser(parent, type)
     at.exec_()

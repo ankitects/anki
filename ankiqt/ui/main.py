@@ -1569,12 +1569,10 @@ not be touched.""") %
         self.mainWin.tabWidget.setCurrentIndex(self.config['studyOptionsScreen'])
 
     def onNewCategoriesClicked(self):
-        ui.activetags.show(self, "newActive", "newInactive",
-                           _("Limit New Cards"))
+        ui.activetags.show(self, "new")
 
     def onRevCategoriesClicked(self):
-        ui.activetags.show(self, "revActive", "revInactive",
-                           _("Limit Reviews"))
+        ui.activetags.show(self, "rev")
 
     def onFailedMaxChanged(self):
         try:
