@@ -13,7 +13,7 @@ from ankiqt import ui
 from anki.cards import cardsTable, Card
 from anki.facts import factsTable, fieldsTable, Fact
 from anki.utils import fmtTimeSpan, parseTags, findTag, addTags, deleteTags, \
-     stripHTML, ids2str
+     stripHTMLAlt, ids2str
 from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from ankiqt.ui.utils import saveHeader, restoreHeader, saveState, \
      restoreState, applyStyles
@@ -94,7 +94,7 @@ class DeckModel(QAbstractTableModel):
             s = s.replace("<br />", u" ")
             s = s.replace("\n", u" ")
             s = re.sub("\[sound:[^]]+\]", "", s)
-            s = stripHTML(s)
+            s = stripHTMLAlt(s)
             s = s.strip()
             return QVariant(s)
         else:
