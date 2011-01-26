@@ -664,7 +664,7 @@
          <item row="10" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>New card spacing</string>
+            <string>Sibling spacing</string>
            </property>
           </widget>
          </item>
