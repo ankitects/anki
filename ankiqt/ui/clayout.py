@@ -92,7 +92,9 @@ class CardLayout(QDialog):
         # hack to ensure we're focused on the active template in the model
         # properties
         if type == 2 and factOrModel.currentCard.ordinal != 0:
-            self.form.cardList.setCurrentIndex(factOrModel.currentCard.ordinal)
+            idx = factOrModel.currentCard.ordinal
+            self.form.cardList.setCurrentIndex(idx)
+            self.cardChanged(idx)
         self.exec_()
 
     # Cards & Preview
