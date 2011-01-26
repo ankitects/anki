@@ -3675,11 +3675,11 @@ class DeckStorage(object):
             # force a write lock
             deck.s.execute("update decks set modified = modified")
             needUnpack = False
-            if deck.utcOffset == -1:
+            if deck.utcOffset in (-1, -2):
+                # do the rest later
+                needUnpack = deck.utcOffset == -1
                 # make sure we do this before initVars
                 DeckStorage._setUTCOffset(deck)
-                # do the rest later
-                needUnpack = True
             if ver < 27:
                 initTagTables(deck.s)
             if create:
