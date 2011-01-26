@@ -3847,8 +3847,14 @@ create index if not exists ix_factsDeleted_factId on factsDeleted (factId)""")
         deck.s.statement("""
 create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
         # tags
-        deck.s.statement("""
-create unique index if not exists ix_tags_tag on tags (tag)""")
+        txt = "create unique index if not exists ix_tags_tag on tags (tag)"
+        try:
+            deck.s.statement(txt)
+        except:
+            deck.s.statement("""
+delete from tags where exists (select 1 from tags t2 where tags.tag = t2.tag
+and tags.rowid > t2.rowid)""")
+            deck.s.statement(txt)
         deck.s.statement("""
 create index if not exists ix_cardTags_tagCard on cardTags (tagId, cardId)""")
         deck.s.statement("""
