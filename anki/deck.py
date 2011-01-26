@@ -831,7 +831,11 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
 
     def _spaceCards(self, card):
         new = time.time() + self.newSpacing
-        # space cards
+        # space reviews too if integer minute
+        if self.newSpacing % 60 == 0:
+            lim = "between 1 and 2"
+        else:
+            lim = "= 2"
         self.s.statement("""
 update cards set
 combinedDue = (case
@@ -841,7 +845,7 @@ end),
 modified = :now, isDue = 0
 where id != :id and factId = :factId
 and combinedDue < :cut
-and type between 1 and 2""",
+and type %s""" % lim,
                          id=card.id, now=time.time(), factId=card.factId,
                          cut=self.dueCutoff, new=new)
         # update local cache of seen facts
