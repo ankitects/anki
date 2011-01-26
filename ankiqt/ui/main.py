@@ -1311,8 +1311,10 @@ your deck."""))
                 openButton = QPushButton(_("Open"))
                 if c < 9:
                     if sys.platform.startswith("darwin"):
-                        extra = _(" (Command+Option+%d)") % (c+1)
-                        openButton.setShortcut(_("Ctrl+Alt+%d" % (c+1)))
+                        extra = ""
+                        # appears to be broken on osx
+                        #extra = _(" (Command+Option+%d)") % (c+1)
+                        #openButton.setShortcut(_("Ctrl+Alt+%d" % (c+1)))
                     else:
                         extra = _(" (Alt+%d)") % (c+1)
                         openButton.setShortcut(_("Alt+%d" % (c+1)))
