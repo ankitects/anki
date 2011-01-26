@@ -287,7 +287,7 @@ class AnkiWebView(QWebView):
         if evt.matches(QKeySequence.Copy):
             self.triggerPageAction(QWebPage.Copy)
             evt.accept()
-        evt.ignore()
+        QWebView.keyPressEvent(self, evt)
 
     def contextMenuEvent(self, evt):
         QWebView.contextMenuEvent(self, evt)
