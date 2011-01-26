@@ -2065,39 +2065,32 @@ Please give your deck a name:"""))
             return
         self.deck.startProgress()
         self.deck.updateProgress()
-        d = DeckStorage.Deck(path)
+        d = DeckStorage.Deck(path, backup=False)
         # reset scheduling to defaults
         d.newCardsPerDay = 20
         d.delay0 = 600
-        d.delay1 = 600
+        d.delay1 = 0
         d.delay2 = 0
-        d.hardIntervalMin = 0.333
-        d.hardIntervalMax = 0.5
+        d.hardIntervalMin = 1.0
+        d.hardIntervalMax = 1.1
         d.midIntervalMin = 3.0
         d.midIntervalMax = 5.0
         d.easyIntervalMin = 7.0
         d.easyIntervalMax = 9.0
         d.syncName = None
-        d.suspended = u""
+        d.setVar("newActive", u"")
+        d.setVar("newInactive", u"")
+        d.setVar("revActive", u"")
+        d.setVar("revInactive", u"")
         self.deck.updateProgress()
         # unsuspend cards
-        d.unsuspendCards(d.s.column0("select id from cards where priority = -3"))
+        d.unsuspendCards(d.s.column0("select id from cards where type < 0"))
         self.deck.updateProgress()
-        d.updateAllPriorities()
-        d.utcOffset = -1
+        d.utcOffset = -2
         d.flushMod()
         d.save()
         self.deck.updateProgress()
-        # remove indices
-        indices = d.s.column0(
-            "select name from sqlite_master where type = 'index' "
-            "and sql != ''")
-        for i in indices:
-            d.s.statement("drop index %s" % i)
-        # and q/a cache
-        d.s.statement("update cards set question = '', answer = ''")
         # media
-        d.s.statement("update media set description = ''")
         d.s.statement("update deckVars set value = '' where key = 'mediaURL'")
         self.deck.updateProgress()
         d.s.statement("vacuum")
@@ -2110,6 +2103,7 @@ Please give your deck a name:"""))
         # zip it up
         zip = zipfile.ZipFile(zippath, "w", zipfile.ZIP_DEFLATED)
         zip.writestr("facts", str(nfacts))
+        zip.writestr("version", str(2))
         readmep = os.path.join(dir, "README.html")
         readme = open(readmep, "w")
         readme.write('''\
