@@ -10,6 +10,7 @@ from anki.utils import stripHTML
 from anki.hooks import runHook, runFilter
 from anki.media import stripMedia
 import types, time, re, os, urllib, sys, difflib
+import unicodedata as ucd
 from ankiqt import ui
 from ankiqt.ui.utils import mungeQA, getBase
 from anki.utils import fmtTimeSpan
@@ -141,13 +142,8 @@ class View(object):
             and self.main.config['autoplaySounds']):
             playFromText(q)
 
-    def correct(self, a, b):
-        if b == "":
-            return "";
-
-        ret = "";
-        s = difflib.SequenceMatcher(None, b, a)
-
+    def calculateOkBadStyle(self):
+        "Precalculates styles for correct and incorrect part of answer"
         sz = 20
         fn = u"Arial"
         for fm in self.main.currentCard.fact.model.fieldModels:
@@ -156,24 +152,61 @@ class View(object):
                 fn = fm.quizFontFamily or fn
                 break
         st = "background: %s; color: #000; font-size: %dpx; font-family: %s;"
-        ok = st % (passedCharColour, sz, fn)
-        bad = st % (failedCharColour, sz, fn)
+        self.styleOk  = st % (passedCharColour, sz, fn)
+        self.styleBad = st % (failedCharColour, sz, fn)
+
+    def ok(self, a):
+        "returns given sring in style correct (green)"
+        if len(a) == 0:
+            return ""
+        return "<span style='%s'>%s</span>" % (self.styleOk, a)
+
+    def bad(self, a):
+        "returns given sring in style incorrect (red)"
+        if len(a) == 0:
+            return ""
+        return "<span style='%s'>%s</span>" % (self.styleBad, a)
+
+    def head(self, a):
+        return a[:len(a) - 1]
+
+    def tail(self, a):
+        return a[len(a) - 1:]
+
+    def applyStyle(self, testChar, correct, wrong):
+        "Calculates answer fragment depending on testChar's unicode category"
+        ZERO_SIZE = 'Mn'
+        if ucd.category(testChar) == ZERO_SIZE:
+            return self.ok(self.head(correct)) + self.bad(self.tail(correct) + wrong)
+        return self.ok(correct) + self.bad(wrong)
+
+    def correct(self, a, b):
+        "Diff-corrects the typed-in answer."
+        if b == "":
+            return "";
+
+        self.calculateOkBadStyle()
+
+        ret = ""
+        lastEqual = ""
+        s = difflib.SequenceMatcher(None, b, a)
 
         for tag, i1, i2, j1, j2 in s.get_opcodes():
             if tag == "equal":
-                ret += ("<span style='%s'>%s</span>" % (ok, b[i1:i2]))
+                lastEqual = b[i1:i2]
             elif tag == "replace":
-                ret += ("<span style='%s'>%s</span>"
-                        % (bad, b[i1:i2] + (" " * ((j2 - j1) - (i2 - i1)))))
+                ret += self.applyStyle(b[i1], lastEqual, 
+                                 b[i1:i2] + ("-" * ((j2 - j1) - (i2 - i1))))
+                lastEqual = ""
             elif tag == "delete":
-                p = re.compile(r"^\s*$")
-                if p.match(b[i1:i2]):
-                    ret += ("<span style='%s'>%s</span>" % (ok, b[i1:i2]))
-                else:
-                    ret += ("<span style='%s'>%s</span>" % (bad, b[i1:i2]))
+                ret += self.applyStyle(b[i1], lastEqual, b[i1:i2])
+                lastEqual = ""
             elif tag == "insert":
-                ret += ("<span style='%s'>%s</span>" % (bad, " " * (j2 - j1)))
-        return ret
+                dashNum = (j2 - j1) if ucd.category(a[i1]) != 'Mn' else ((j2 - j1) - 1)
+                ret += self.applyStyle(a[i1], lastEqual, "-" * dashNum)
+                lastEqual = ""
+
+        return ret + self.ok(lastEqual)
 
     def drawAnswer(self):
         "Show the answer."
@@ -188,7 +221,8 @@ class View(object):
                 cor = ""
             if cor:
                 given = unicode(self.main.typeAnswerField.text())
-                res = self.correct(given, cor)
+                res = self.correct(ucd.normalize('NFC', cor), 
+                                   ucd.normalize('NFC', given))
                 a = res + "<br>" + a
         self.write(self.center('<span id=answer />'
                                + self.mungeQA(self.main.deck, a)))
