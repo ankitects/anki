@@ -138,7 +138,9 @@ def stripMedia(txt):
 
 def rebuildMediaDir(deck, delete=False, dirty=True):
     deck.startProgress(title=_("Check Media DB"))
-    mdir = deck.mediaDir(create=True)
+    mdir = deck.mediaDir()
+    if not mdir:
+        return (0, 0)
     # set all ref counts to 0
     deck.s.statement("update media set size = 0")
     # look through cards for media references
