@@ -12,6 +12,7 @@ import re, tempfile, os, sys, shutil, cgi, subprocess
 from anki.utils import genID, checksum, call
 from anki.hooks import addHook
 from htmlentitydefs import entitydefs
+from anki.lang import _
 
 latexDviPngCmd = ["dvipng", "-D", "200", "-T", "tight"]
 
