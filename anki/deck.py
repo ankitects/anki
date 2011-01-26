@@ -3680,6 +3680,7 @@ class DeckStorage(object):
                 needUnpack = deck.utcOffset == -1
                 # make sure we do this before initVars
                 DeckStorage._setUTCOffset(deck)
+                deck.created = time.time()
             if ver < 27:
                 initTagTables(deck.s)
             if create:
@@ -3723,7 +3724,6 @@ class DeckStorage(object):
             DeckStorage._addIndices(deck)
             for m in deck.models:
                 deck.updateCardsFromModel(m)
-            deck.created = time.time()
             deck.finishProgress()
         oldMod = deck.modified
         # fix a bug with current model being unset
