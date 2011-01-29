@@ -3741,8 +3741,7 @@ class DeckStorage(object):
 update cards set type = type - 3 where type between 0 and 2 and priority = -3""")
         # - new delay1 handling
         if deck.delay1 > 7:
-            # we treat 600==0 to avoid breaking older clients
-            deck.delay1 = 600
+            deck.delay1 = 0
         # unsuspend buried/rev early - can remove priorities in the future
         ids = deck.s.column0(
             "select id from cards where type > 2 or priority between -2 and -1")
