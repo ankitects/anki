@@ -180,6 +180,7 @@ class Deck(object):
 \\usepackage[utf8]{inputenc}
 \\usepackage{amssymb,amsmath}
 \\pagestyle{empty}
+\\setlength{\\parindent}{0in}
 \\begin{document}
 """)
             self.setVarDefault("latexPost", "\\end{document}")
