@@ -3163,16 +3163,12 @@ Return new path, relative to media dir."""
     # toggling does not bump deck mod time, since it may happen on upgrade,
     # and the variable is not synced
 
-    def enableSyncing(self, ls=True):
+    def enableSyncing(self):
         self.syncName = unicode(checksum(self.path.encode("utf-8")))
-        if ls:
-            self.lastSync = 0
         self.s.commit()
 
-    def disableSyncing(self, ls=True):
+    def disableSyncing(self):
         self.syncName = None
-        if ls:
-            self.lastSync = 0
         self.s.commit()
 
     def syncingEnabled(self):
@@ -3187,7 +3183,6 @@ has been disabled (ERR-0100).
 You can disable this check in Settings>Preferences>Network.""") % self.name())
             self.disableSyncing()
             self.syncName = None
-            self.lastSync = 0
 
     # DB maintenance
     ##########################################################################
@@ -4314,9 +4309,9 @@ syncing again via Settings>Deck Properties>Synchronisation.
 If you have syncing disabled in the preferences, you can ignore \
 this message. (ERR-0101)""") % {
                     'sname':sname, 'dname':dname})
-                deck.disableSyncing(ls=False)
+                deck.disableSyncing()
             elif sname:
-                deck.enableSyncing(ls=False)
+                deck.enableSyncing()
             deck.version = 52
             deck.s.commit()
         if deck.version < 53:
