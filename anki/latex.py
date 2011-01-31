@@ -93,6 +93,7 @@ def buildImg(deck, latex):
                 log = open(os.path.join(tmpdir, "latex_log.txt")).read()
                 msg += "<small><pre>" + cgi.escape(log) + "</pre></small>"
             except:
+                msg += _("Have you installed latex and dvipng?")
                 pass
             return msg
         if call(["latex", "-interaction=nonstopmode",
