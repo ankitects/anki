@@ -202,8 +202,8 @@ class View(object):
                 ret += self.applyStyle(b[i1], lastEqual, b[i1:i2])
                 lastEqual = ""
             elif tag == "insert":
-                dashNum = (j2 - j1) if ucd.category(a[i1]) != 'Mn' else ((j2 - j1) - 1)
-                ret += self.applyStyle(a[i1], lastEqual, "-" * dashNum)
+                dashNum = (j2 - j1) if ucd.category(a[j1]) != 'Mn' else ((j2 - j1) - 1)
+                ret += self.applyStyle(a[j1], lastEqual, "-" * dashNum)
                 lastEqual = ""
 
         return ret + self.ok(lastEqual)
@@ -221,8 +221,7 @@ class View(object):
                 cor = ""
             if cor:
                 given = unicode(self.main.typeAnswerField.text())
-                res = self.correct(ucd.normalize('NFC', cor), 
-                                   ucd.normalize('NFC', given))
+                res = self.correct(cor, given)
                 a = res + "<br>" + a
         self.write(self.center('<span id=answer />'
                                + self.mungeQA(self.main.deck, a)))
