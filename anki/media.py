@@ -69,7 +69,7 @@ This does not modify the media table."""
 
 def uniquePath(dir, base):
     # remove any dangerous characters
-    base = re.sub(r"[][<>:/\\]", "", base)
+    base = re.sub(r"[][<>:/\\&]", "", base)
     # find a unique name
     (root, ext) = os.path.splitext(base)
     def repl(match):
