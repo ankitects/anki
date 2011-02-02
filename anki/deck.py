@@ -164,7 +164,7 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'latexPost'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'revSpacing'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
@@ -184,6 +184,7 @@ class Deck(object):
 \\begin{document}
 """)
             self.setVarDefault("latexPost", "\\end{document}")
+            self.setVarDefault("revSpacing", 0.1)
         self.updateCutoff()
         self.setupStandardScheduler()
 
@@ -464,6 +465,7 @@ where type >= 0
         # spacing for delayed cards - not to be confused with newCardSpacing
         # above
         self.newSpacing = self.getFloat('newSpacing')
+        self.revSpacing = self.getFloat('revSpacing')
 
     def checkDailyStats(self):
         # check if the day has rolled over
@@ -832,23 +834,22 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
 
     def _spaceCards(self, card):
         new = time.time() + self.newSpacing
-        # space reviews too if integer minute
-        if self.newSpacing % 60 == 0:
-            lim = "between 1 and 2"
-        else:
-            lim = "= 2"
         self.s.statement("""
 update cards set
 combinedDue = (case
-when type = 1 then :cut
+when type = 1 then combinedDue + 86400 * (case
+  when interval*:rev < 1 then 0
+  else interval*:rev
+  end)
 when type = 2 then :new
+else combinedDue
 end),
 modified = :now, isDue = 0
 where id != :id and factId = :factId
 and combinedDue < :cut
-and type %s""" % lim,
+and type between 1 and 2""",
                          id=card.id, now=time.time(), factId=card.factId,
-                         cut=self.dueCutoff, new=new)
+                         cut=self.dueCutoff, new=new, rev=self.revSpacing)
         # update local cache of seen facts
         self.spacedFacts[card.factId] = new
 
