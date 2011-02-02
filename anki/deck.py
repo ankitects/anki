@@ -467,10 +467,11 @@ where type >= 0
         self.newSpacing = self.getFloat('newSpacing')
         self.revSpacing = self.getFloat('revSpacing')
 
-    def checkDailyStats(self):
+    def checkDay(self):
         # check if the day has rolled over
         if genToday(self) != self._dailyStats.day:
-            self._dailyStats = dailyStats(self)
+            self.updateCutoff()
+            self.reset()
 
     # Review early
     ##########################################################################
@@ -579,7 +580,7 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.failedCramQueue.insert(0, [card.id, card.factId])
 
     def _getCramCardId(self, check=True):
-        self.checkDailyStats()
+        self.checkDay()
         self.fillQueues()
         if self.failedCardMax and self.failedSoonCount >= self.failedCardMax:
             return self.failedQueue[-1][0]
@@ -662,7 +663,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
 
     def _getCardId(self, check=True):
         "Return the next due card id, or None."
-        self.checkDailyStats()
+        self.checkDay()
         self.fillQueues()
         self.updateNewCountToday()
         if self.failedQueue:
