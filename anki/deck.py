@@ -564,12 +564,14 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
 
     def _cramPreSave(self, card, ease):
         # prevent it from appearing in next queue fill
+        card.lastInterval = self.cramLastInterval
         card.type += 6
 
     def _spaceCramCards(self, card):
         self.spacedFacts[card.factId] = time.time() + self.newSpacing
 
     def _answerCramCard(self, card, ease):
+        self.cramLastInterval = card.lastInterval
         self._answerCard(card, ease)
         if ease == 1:
             self.failedCramQueue.insert(0, [card.id, card.factId])
@@ -775,9 +777,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         # update card details
         last = card.interval
         card.interval = self.nextInterval(card, ease)
-        if lastDelay >= 0:
-            # keep last interval if reviewing early
-            card.lastInterval = last
+        card.lastInterval = last
         if card.reps:
             # only update if card was not new
             card.lastDue = card.due
