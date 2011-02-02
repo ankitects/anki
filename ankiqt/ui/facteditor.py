@@ -1010,12 +1010,16 @@ class FactEdit(QTextEdit):
                 source.hasHtml())
 
     def insertFromMimeData(self, source):
+        if self._insertFromMimeData(source):
+            self.emit(SIGNAL("lostFocus"))
+
+    def _insertFromMimeData(self, source):
         pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
         audio =  ("wav", "mp3", "ogg", "flac")
         errtxt = _("An error occured while opening %s")
         if source.hasHtml() and "qrichtext" in unicode(source.html()):
             self.insertHtml(source.html())
-            return
+            return True
         if source.hasText() and (ankiqt.mw.config['stripHTML'] or
                                  not source.hasHtml()):
             txt = unicode(source.text())
@@ -1041,12 +1045,12 @@ class FactEdit(QTextEdit):
                         else:
                             # not image or sound, treat as plain text
                             self.insertPlainText(source.text())
+                        return True
                     except urllib2.URLError, e:
                         ui.utils.showWarning(errtxt % e)
-                    return
             else:
                 self.insertPlainText(source.text())
-                return
+                return True
         if source.hasImage():
             im = QImage(source.imageData())
             if im.hasAlphaChannel():
@@ -1058,7 +1062,7 @@ class FactEdit(QTextEdit):
                 uname = unicode(name, sys.getfilesystemencoding())
                 im.save(uname, None, 95)
             self.parent._addPicture(uname, widget=self)
-            return
+            return True
         if source.hasUrls():
             for url in source.urls():
                 url = unicode(url.toString())
@@ -1072,10 +1076,10 @@ class FactEdit(QTextEdit):
                         self.parent._addSound(name, widget=self)
                 except urllib2.URLError, e:
                     ui.utils.showWarning(errtxt % e)
-            return
+            return True
         if source.hasHtml():
             self.insertHtml(self.simplifyHTML(unicode(source.html())))
-            return
+            return True
 
     def _retrieveURL(self, url):
         req = urllib2.Request(url, None, {
