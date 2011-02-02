@@ -8,7 +8,7 @@ import anki, anki.utils
 from anki.sound import playFromText
 from anki.utils import stripHTML
 from anki.hooks import runHook, runFilter
-from anki.media import stripMedia
+from anki.media import stripMedia, escapeImages
 import types, time, re, os, urllib, sys, difflib
 import unicodedata as ucd
 from ankiqt import ui
@@ -107,7 +107,16 @@ class View(object):
         self.buffer = '''<html><head>%s</head><body>%s</body></html>''' % (
             getBase(self.main.deck, self.main.currentCard), self.buffer)
         #print self.buffer.encode("utf-8")
-        self.body.setHtml(self.buffer)
+        b = self.buffer
+        # Feeding webkit unicode can result in it not finding images, so on
+        # linux/osx we percent escape the image paths as utf8. On Windows the
+        # problem is more complicated - if we percent-escape as utf8 it fixes
+        # some images but breaks others. When filenames are normalized by
+        # dropbox they become unreadable if we escape them.
+        if not sys.platform.startswith("win32"):
+            # and self.main.config['mediaLocation'] == "dropbox"):
+            b = escapeImages(b)
+        self.body.setHtml(b)
 
     def write(self, text):
         if type(text) != types.UnicodeType:
