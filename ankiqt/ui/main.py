@@ -2096,7 +2096,7 @@ Please give your deck a name:"""))
         d.s.statement("vacuum")
         self.deck.updateProgress()
         nfacts = d.factCount
-        mdir = d.mediaDir()
+        mdir = self.deck.mediaDir()
         d.close()
         dir = os.path.dirname(path)
         zippath = os.path.join(dir, "shared-%d.zip" % time.time())
@@ -2123,7 +2123,6 @@ it to your friends.
                 zip.write(os.path.join(mdir, f),
                           os.path.join("shared.media/", f))
             os.chdir(pwd)
-            shutil.rmtree(mdir)
         os.chdir(pwd)
         self.deck.updateProgress()
         zip.close()
