@@ -8,11 +8,12 @@ Media support
 """
 __docformat__ = 'restructuredtext'
 
-import os, shutil, re, urllib2, time, tempfile, unicodedata
+import os, shutil, re, urllib2, time, tempfile, unicodedata, urllib
 from anki.db import *
 from anki.utils import checksum, genID
 from anki.lang import _
 
+# other code depends on this order, so don't reorder
 regexps = ("(?i)(\[sound:([^]]+)\])",
            "(?i)(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>)")
 
@@ -132,6 +133,13 @@ def stripMedia(txt):
     for reg in regexps:
         txt = re.sub(reg, "", txt)
     return txt
+
+def escapeImages(string):
+    def repl(match):
+        return match.group(1).replace(
+            match.group(2),
+            urllib.quote(match.group(2).encode("utf-8")))
+    return re.sub(regexps[1], repl, string)
 
 # Rebuilding DB
 ##########################################################################
