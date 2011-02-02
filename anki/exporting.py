@@ -87,7 +87,6 @@ class AnkiExporter(Exporter):
         self.newDeck = DeckStorage.Deck(path)
         client = SyncClient(self.deck)
         server = SyncServer(self.newDeck)
-        server._mediaSupported = self.includeMedia
         client.setServer(server)
         client.localTime = self.deck.modified
         client.remoteTime = 0
@@ -136,7 +135,8 @@ modified = :now
             self.newDeck.s.statement("""
 delete from stats""")
         # media
-        copyLocalMedia(client.deck, server.deck)
+        if self.includeMedia:
+            copyLocalMedia(client.deck, server.deck)
         # need to save manually
         self.newDeck.rebuildCounts()
         self.newDeck.updateAllPriorities()
