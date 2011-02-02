@@ -69,6 +69,7 @@ class DeckProperties(QDialog):
         self.dialog.leechFails.setValue(self.d.getInt("leechFails"))
         # spacing
         self.dialog.newSpacing.setText(unicode(self.d.getFloat("newSpacing")/60.0))
+        self.dialog.revSpacing.setText(unicode(self.d.getFloat("revSpacing")*100))
 
     def updateModelsList(self):
         idx = self.dialog.modelsList.currentRow()
@@ -216,6 +217,7 @@ class DeckProperties(QDialog):
             pass
         try:
             self.d.setVar("newSpacing", float(self.dialog.newSpacing.text()) * 60)
+            self.d.setVar("revSpacing", float(self.dialog.revSpacing.text()) / 100.0)
         except ValueError:
             pass
         # hour shift

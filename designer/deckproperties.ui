@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>373</width>
+    <width>383</width>
     <height>452</height>
    </rect>
   </property>
@@ -565,14 +565,14 @@
            </property>
           </widget>
          </item>
-         <item row="11" column="0" colspan="6">
+         <item row="12" column="0" colspan="6">
           <widget class="Line" name="line_3">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
-         <item row="12" column="0">
+         <item row="13" column="0">
           <widget class="QLabel" name="label_26">
            <property name="text">
             <string>Show failed cards early</string>
@@ -582,7 +582,7 @@
            </property>
           </widget>
          </item>
-         <item row="12" column="2">
+         <item row="13" column="2">
           <widget class="QCheckBox" name="collapse">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -595,14 +595,14 @@
            </property>
           </widget>
          </item>
-         <item row="14" column="0">
+         <item row="15" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
             <string>Per-day scheduling</string>
            </property>
           </widget>
          </item>
-         <item row="14" column="2">
+         <item row="15" column="2">
           <widget class="QCheckBox" name="perDay">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -664,7 +664,7 @@
          <item row="10" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>Sibling spacing</string>
+            <string>Sibling delay (new cards)</string>
            </property>
           </widget>
          </item>
@@ -691,14 +691,14 @@
            </property>
           </widget>
          </item>
-         <item row="13" column="0">
+         <item row="14" column="0">
           <widget class="QLabel" name="label_11">
            <property name="text">
             <string>Suspend leeches</string>
            </property>
           </widget>
          </item>
-         <item row="13" column="2">
+         <item row="14" column="2">
           <widget class="QCheckBox" name="suspendLeeches">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -735,6 +735,23 @@
           <widget class="QLabel" name="label_35">
            <property name="text">
             <string>failures</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Sibling delay (reviews)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="2">
+          <widget class="QLineEdit" name="revSpacing"/>
+         </item>
+         <item row="11" column="3" colspan="2">
+          <widget class="QLabel" name="label_28">
+           <property name="text">
+            <string>%</string>
            </property>
           </widget>
          </item>
@@ -795,6 +812,7 @@
   <tabstop>leechFails</tabstop>
   <tabstop>timeOffset</tabstop>
   <tabstop>newSpacing</tabstop>
+  <tabstop>revSpacing</tabstop>
   <tabstop>collapse</tabstop>
   <tabstop>suspendLeeches</tabstop>
   <tabstop>perDay</tabstop>
