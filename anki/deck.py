@@ -785,8 +785,8 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         card.isDue = 0
         card.lastFactor = card.factor
         card.spaceUntil = 0
-        if lastDelay >= 0:
-            # don't update factor if learning ahead
+        if not self.finishScheduler:
+            # don't update factor in custom schedulers
             self.updateFactor(card, ease)
         # spacing
         self.spaceCards(card)
