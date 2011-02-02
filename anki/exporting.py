@@ -136,6 +136,7 @@ modified = :now
 delete from stats""")
         # media
         if self.includeMedia:
+            server.deck.mediaPrefix = ""
             copyLocalMedia(client.deck, server.deck)
         # need to save manually
         self.newDeck.rebuildCounts()
