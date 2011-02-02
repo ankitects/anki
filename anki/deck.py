@@ -660,6 +660,8 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         id = self.getCardId()
         if id:
             return self.cardFromId(id, orm)
+        else:
+            self.stopSession()
 
     def _getCardId(self, check=True):
         "Return the next due card id, or None."
@@ -2901,6 +2903,9 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
         self.lastSessionStart = self.sessionStartTime
         self.sessionStartTime = time.time()
         self.sessionStartReps = self.getStats()['dTotal']
+
+    def stopSession(self):
+        self.sessionStartTime = 0
 
     def sessionLimitReached(self):
         if not self.sessionStartTime:
