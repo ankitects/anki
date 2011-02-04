@@ -845,7 +845,6 @@ when type = 1 then combinedDue + 86400 * (case
   else interval*:rev
   end)
 when type = 2 then :new
-else combinedDue
 end),
 modified = :now, isDue = 0
 where id != :id and factId = :factId
