@@ -66,7 +66,13 @@ Error was:<pre>%s</pre>""")
                 sock = urllib2.urlopen(
                     URL + "search?t=%d&c=1" % self.type)
                 data = sock.read()
-                data = gzip.GzipFile(fileobj=cStringIO.StringIO(data)).read()
+                try:
+                    data = gzip.GzipFile(fileobj=cStringIO.StringIO(data)).read()
+                except:
+                    # the server is sending gzipped data, but a transparent
+                    # proxy or antivirus software may be decompressing it
+                    # before we get it
+                    pass
                 self.allList = simplejson.loads(unicode(data))
             except:
                 showInfo(self.conErrMsg % cgi.escape(unicode(
