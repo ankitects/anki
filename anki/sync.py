@@ -542,8 +542,8 @@ from cards where id in %s""" % ids2str(ids)))
             return
         # FIXME: older clients won't send this, so this is temp compat code
         def getType(row):
-            if len(row) > 37:
-                return row[37]
+            if len(row) > 36:
+                return row[36]
             if row[15]:
                 return 1
             elif row[14]:
