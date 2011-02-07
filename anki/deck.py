@@ -395,17 +395,18 @@ New type: %s""" % (self.failedSoonCount, self.revCount, self.newCountToday,
 
     def rebuildTypes(self):
         "Rebuild the type cache. Only necessary on upgrade."
+        # set canonical type first
+        self.s.statement("""
+update cards set
+relativeDelay = (case
+when successive then 1 when reps then 0 else 2 end)
+""")
+        # then current type based on that
         self.s.statement("""
 update cards set
 type = (case
-when successive then 1 when reps then 0 else 2 end),
-relativeDelay = (case
-when successive then 1 when reps then 0 else 2 end)
-where type >= 0
+when type >= 0 then relativeDelay else relativeDelay - 3 end)
 """)
-        # old-style suspended cards
-        self.s.statement(
-            "update cards set type = type - 3 where priority = -3 and type >= 0")
 
     def _cardQueue(self, card):
         return self.cardType(card)
