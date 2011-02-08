@@ -947,7 +947,9 @@ and type between 1 and 2""",
         if ease == 1:
             # 600 is a magic value which means no bonus, and is used to ease
             # upgrades
-            if oldState == "mature" and self.delay1 and self.delay1 != 600:
+            cram = self.scheduler == "cram"
+            if (not cram and oldState == "mature"
+                and self.delay1 and self.delay1 != 600):
                 # user wants a bonus of 1+ days. put the failed cards at the
                 # start of the future day, so that failures that day will come
                 # after the waiting cards
