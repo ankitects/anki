@@ -895,8 +895,8 @@ and type between 1 and 2""",
     def _nextInterval(self, card, delay, ease):
         interval = card.interval
         factor = card.factor
-        # if shown early and not failed
-        if delay < 0 and card.successive:
+        # if shown early
+        if delay < 0:
             # FIXME: this should recreate lastInterval from interval /
             # lastFactor, or we lose delay information when reviewing early
             interval = max(card.lastInterval, card.interval + delay)
