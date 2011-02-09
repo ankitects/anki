@@ -2219,6 +2219,12 @@ DropBox. Click help to learn more, and OK to continue syncing."""),
             self.loadAfterSync = -1
             self.syncName = None
             self.syncDecks = self.decksToSync()
+            if not self.syncDecks:
+                if interactive:
+                    ui.utils.showInfo(_("""\
+Please open a deck and run File>Sync. After you do this once, the deck \
+will sync automatically from then on."""))
+                return
         else:
             # sync one deck
             # hide all deck-associated dialogs
