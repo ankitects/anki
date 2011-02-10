@@ -39,10 +39,6 @@ class DeckProperties(QDialog):
         else:
             self.dialog.doSync.setCheckState(Qt.Unchecked)
         self.dialog.mediaURL.setText(self.d.getVar("mediaURL") or "")
-        # priorities
-        self.dialog.highPriority.setText(self.d.highPriority)
-        self.dialog.medPriority.setText(self.d.medPriority)
-        self.dialog.lowPriority.setText(self.d.lowPriority)
         # latex
         self.dialog.latexHeader.setText(self.d.getVar("latexPre"))
         self.dialog.latexFooter.setText(self.d.getVar("latexPost"))
@@ -232,20 +228,8 @@ class DeckProperties(QDialog):
                          self.dialog.collapse.isChecked() and 1 or 0)
         if self.dialog.perDay.isChecked() != self.d.getBool("perDay"):
             self.d.setVar('perDay', self.dialog.perDay.isChecked())
-        self.updateField(self.d,
-                         "highPriority",
-                         unicode(self.dialog.highPriority.text()))
-        self.updateField(self.d,
-                         "medPriority",
-                         unicode(self.dialog.medPriority.text()))
-        self.updateField(self.d,
-                         "lowPriority",
-                         unicode(self.dialog.lowPriority.text()))
-        prioritiesChanged = was != self.d.modified
         # mark deck dirty and close
         if self.origMod != self.d.modified:
-            if prioritiesChanged:
-                self.d.updateAllPriorities()
             ankiqt.mw.deck.updateCutoff()
             ankiqt.mw.reset()
         self.d.setUndoEnd(n)

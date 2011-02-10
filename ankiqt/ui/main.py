@@ -307,11 +307,9 @@ Please do not file a bug report with Anki.<br>""")
         self.views = self.viewsBackup
         self.viewsBackup = None
 
-    def reset(self, count=True, priorities=False, runHooks=True):
+    def reset(self, runHooks=True):
         if self.deck:
             self.deck.refreshSession()
-            if priorities:
-                self.deck.updateAllPriorities()
             self.deck.reset()
             if runHooks:
                 runHook("guiReset")
@@ -518,7 +516,7 @@ Please do not file a bug report with Anki.<br>""")
                % stripHTML(stripSounds(self.currentCard.question)).\
                replace("\n", " ")[0:30])
         if isLeech and self.deck.s.scalar(
-            "select 1 from cards where id = :id and priority < 1", id=cardId):
+            "select 1 from cards where id = :id and type < 0", id=cardId):
             txt += _(" It has been suspended.")
         self.setNotice(txt)
 

@@ -33,7 +33,7 @@ CARD_MODIFIED = 7
 CARD_INTERVAL = 8
 CARD_EASE = 9
 CARD_NO = 10
-CARD_PRIORITY = 11
+CARD_TYPE = 11
 CARD_TAGS = 12
 CARD_FACTCREATED = 13
 CARD_FIRSTANSWERED = 14
@@ -191,7 +191,7 @@ where cards.factId = facts.id """
         try:
             self.cards[index.row()] = self.deck.s.first("""
 select id, question, answer, combinedDue, reps, factId, created, modified,
-interval, factor, noCount, priority, (select tags from facts where
+interval, factor, noCount, type, (select tags from facts where
 facts.id = cards.factId), (select created from facts where
 facts.id = cards.factId), firstAnswered from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
@@ -322,7 +322,7 @@ class StatusDelegate(QItemDelegate):
         if len(self.model.cards[index.row()]) == 1:
             self.model.updateCard(index)
         row = self.model.cards[index.row()]
-        if row[CARD_PRIORITY] == -3:
+        if row[CARD_TYPE] < 0:
             # custom render
             if index.row() % 2 == 0:
                 brush = QBrush(QColor(COLOUR_SUSPENDED1))
@@ -974,7 +974,6 @@ where id in %s""" % ids2str(sf))
             if c % 50 == 0:
                 self.deck.updateProgress()
         self.deck.flushMod()
-        self.deck.updatePriorities(ids)
         self.deck.finishProgress()
         self.parent.setProgressParent(None)
         self.deck.setUndoEnd(n)

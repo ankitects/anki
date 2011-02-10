@@ -30,69 +30,6 @@
        <string>Basic</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>&lt;b&gt;Priorities&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_21">
-           <property name="text">
-            <string>Very high priority</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="highPriority"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>High priority</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="medPriority"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_24">
-           <property name="text">
-            <string>Low priority</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="lowPriority"/>
-         </item>
-        </layout>
-       </item>
-       <item row="7" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
@@ -794,9 +731,6 @@
   <tabstop>modelsAdd</tabstop>
   <tabstop>modelsEdit</tabstop>
   <tabstop>modelsDelete</tabstop>
-  <tabstop>highPriority</tabstop>
-  <tabstop>medPriority</tabstop>
-  <tabstop>lowPriority</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>latexHeader</tabstop>
   <tabstop>latexFooter</tabstop>

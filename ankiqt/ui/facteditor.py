@@ -585,7 +585,6 @@ class FactEditor(object):
         if old != self.fact.tags:
             self.deck.s.flush()
             self.deck.updateFactTags([self.fact.id])
-            self.deck.updatePriorities([c.id for c in self.fact.cards])
             self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.flushMod()
             if self.resetOnEdit:

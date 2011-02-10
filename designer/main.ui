@@ -3366,7 +3366,7 @@
     <string>&amp;Deck Properties...</string>
    </property>
    <property name="statusTip">
-    <string>Customize syncing, scheduling, priorities and models</string>
+    <string>Customize models, syncing and scheduling</string>
    </property>
   </action>
   <action name="actionImport">
