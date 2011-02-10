@@ -3350,11 +3350,14 @@ select id from fields where factId not in (select id from facts)""")
             # fix any priorities
             self.updateProgress(_("Updating priorities..."))
             self.updateAllPriorities(dirty=False)
-            # make sure
+            # make sure ordinals are correct
             self.updateProgress(_("Updating ordinals..."))
             self.s.statement("""
 update fields set ordinal = (select ordinal from fieldModels
 where id = fieldModelId)""")
+            self.s.statement("""
+update cards set ordinal = (select ordinal from cardModels
+where cards.cardModelId = cardModels.id)""")
             # fix problems with stripping html
             self.updateProgress(_("Rebuilding QA cache..."))
             fields = self.s.all("select id, value from fields")
@@ -3367,15 +3370,11 @@ where id = fieldModelId)""")
             # regenerate question/answer cache
             for m in self.models:
                 self.updateCardsFromModel(m, dirty=False)
-            # force a full sync
-            self.s.flush()
-            self.s.statement("update cards set modified = :t", t=time.time())
-            self.s.statement("update facts set modified = :t", t=time.time())
-            self.s.statement("update models set modified = :t", t=time.time())
-            self.lastSync = 0
             # rebuild
             self.updateProgress(_("Rebuilding types..."))
             self.rebuildTypes()
+            # force a full sync
+            self.setSchemaModified()
         # update deck and save
         if not quick:
             self.flushMod()
