@@ -140,7 +140,6 @@ delete from stats""")
             copyLocalMedia(client.deck, server.deck)
         # need to save manually
         self.newDeck.rebuildCounts()
-        self.newDeck.updateAllPriorities()
         self.exportedCards = self.newDeck.cardCount
         self.newDeck.utcOffset = -1
         self.newDeck.s.commit()

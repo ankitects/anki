@@ -18,6 +18,8 @@ from anki.db import *
 # Tables
 ##########################################################################
 
+# priority is no longer used
+
 def initTagTables(s):
     try:
         s.statement("""

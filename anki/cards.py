@@ -29,12 +29,10 @@ cardsTable = Table(
     Column('modified', Float, nullable=False, default=time.time),
     Column('tags', UnicodeText, nullable=False, default=u""),
     Column('ordinal', Integer, nullable=False),
-    # cached - changed on fact update
+    # q/a cached - changed on fact update
     Column('question', UnicodeText, nullable=False, default=u""),
     Column('answer', UnicodeText, nullable=False, default=u""),
-    # default to 'normal' priority;
-    # this is indexed in deck.py as we need to create a reverse index
-    Column('priority', Integer, nullable=False, default=2),
+    Column('priority', Integer, nullable=False, default=2), # obsolete
     Column('interval', Float, nullable=False, default=0),
     Column('lastInterval', Float, nullable=False, default=0),
     Column('due', Float, nullable=False, default=time.time),

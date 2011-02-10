@@ -532,14 +532,14 @@ class DeckStats(object):
         return self.deck.s.scalar(
             "select sum(1/round(max(interval, 1)+0.5)) from cards "
             "where cards.reps > 0 "
-            "and priority > 0") or 0
+            "and type >= 0") or 0
 
     def getWorkloadPeriod(self, period):
         cutoff = time.time() + 86400 * period
         return (self.deck.s.scalar("""
 select count(id) from cards
 where combinedDue < :cutoff
-and priority > 0 and relativeDelay in (0,1)""", cutoff=cutoff) or 0) / float(period)
+and type >= 0 and relativeDelay in (0,1)""", cutoff=cutoff) or 0) / float(period)
 
     def getPastWorkloadPeriod(self, period):
         cutoff = time.time() - 86400 * period

@@ -167,8 +167,6 @@ class SyncTools(object):
         self.postSyncRefresh()
         cardIds = [x[0] for x in payload['added-cards']]
         self.deck.updateCardTags(cardIds)
-        # rebuild priorities on server
-        self.rebuildPriorities(cardIds, self.serverExcludedTags)
         return reply
 
     def applyPayloadReply(self, reply):
@@ -186,10 +184,8 @@ class SyncTools(object):
             if 'sources' in reply:
                 self.updateSources(reply['sources'])
         self.postSyncRefresh()
-        # rebuild priorities on client
         cardIds = [x[0] for x in reply['added-cards']]
         self.deck.updateCardTags(cardIds)
-        self.rebuildPriorities(cardIds)
         if self.missingFacts() != 0:
             raise Exception(
                 "Facts missing after sync. Please run Tools>Advanced>Check DB.")
@@ -198,10 +194,6 @@ class SyncTools(object):
         return self.deck.s.scalar(
             "select count() from cards where factId "+
                 "not in (select id from facts)");
-
-    def rebuildPriorities(self, cardIds, suspend=[]):
-        self.deck.updateAllPriorities(partial=True, dirty=False)
-        self.deck.updatePriorities(cardIds, suspend=suspend, dirty=False)
 
     def postSyncRefresh(self):
         "Flush changes to DB, and reload object associations."

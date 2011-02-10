@@ -34,22 +34,6 @@ import anki.latex # sets up hook
 import anki.models, anki.facts, anki.cards, anki.stats
 import anki.history, anki.media
 
-# the current code set type -= 3 for manually suspended cards, and += 3*n
-# for temporary suspends, (where n=1 for bury, n=2 for review/cram).
-# This way we don't need to recalculate priorities when enabling the cards
-# again, and paves the way for an arbitrary number of priorities in the
-# future. But until all clients are upgraded, we need to keep munging the
-# priorities to prevent older clients from getting confused
-# PRIORITY_REVEARLY = -1
-# PRIORITY_BURIED = -2
-# PRIORITY_SUSPENDED = -3
-
-# priorities
-PRIORITY_HIGH = 4
-PRIORITY_MED = 3
-PRIORITY_NORM = 2
-PRIORITY_LOW = 1
-PRIORITY_NONE = 0
 # rest
 MATURE_THRESHOLD = 21
 NEW_CARDS_DISTRIBUTE = 0
@@ -72,7 +56,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 65
+DECK_VERSION = 70
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -109,11 +93,11 @@ decksTable = Table(
     Column('delay2', Float, nullable=False, default=0.0),
     # collapsing future cards
     Column('collapseTime', Integer, nullable=False, default=1),
-    # priorities & postponing
+    # priorities & postponing - all obsolete
     Column('highPriority', UnicodeText, nullable=False, default=u"PriorityVeryHigh"),
     Column('medPriority', UnicodeText, nullable=False, default=u"PriorityHigh"),
     Column('lowPriority', UnicodeText, nullable=False, default=u"PriorityLow"),
-    Column('suspended', UnicodeText, nullable=False, default=u""), # obsolete
+    Column('suspended', UnicodeText, nullable=False, default=u""),
     # 0 is random, 1 is by input date
     Column('newCardOrder', Integer, nullable=False, default=1),
     # when to show new cards
@@ -384,15 +368,15 @@ New type: %s""" % (self.failedSoonCount, self.revCount, self.newCountToday,
                           card.reps, card.successive, oldSuc, `newType`))
 
     def revOrder(self):
-        return ("priority desc, interval desc",
-                "priority desc, interval",
-                "priority desc, combinedDue",
-                "priority desc, factId, ordinal")[self.revCardOrder]
+        return ("interval desc",
+                "interval",
+                "combinedDue",
+                "factId, ordinal")[self.revCardOrder]
 
     def newOrder(self):
-        return ("priority desc, due",
-                "priority desc, due",
-                "priority desc, due desc")[self.newCardOrder]
+        return ("due",
+                "due",
+                "due desc")[self.newCardOrder]
 
     def rebuildTypes(self):
         "Rebuild the type cache. Only necessary on upgrade."
@@ -492,14 +476,8 @@ when type >= 0 then relativeDelay else relativeDelay - 3 end)
 
     def resetAfterReviewEarly(self):
         "Put temporarily suspended cards back into play. Caller must .reset()"
-        # FIXME: can ignore priorities in the future
-        ids = self.s.column0(
-            "select id from cards where type between 6 and 8 or priority = -1")
-        if ids:
-            self.updatePriorities(ids)
-            self.s.statement(
-                "update cards set type = type - 6 where type between 6 and 8")
-            self.flushMod()
+        self.s.statement(
+            "update cards set type = type - 6 where type between 6 and 8")
 
     def _onReviewEarlyFinished(self):
         # clean up buried cards
@@ -715,12 +693,6 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             return False
         if self.newCardSpacing == NEW_CARDS_FIRST:
             return True
-        # force review if there are very high priority cards
-        if self.revQueue:
-            if self.s.scalar(
-                "select 1 from cards where id = :id and priority = 4",
-                id = self.revQueue[-1][0]):
-                return False
         if self.newCardModulus:
             return self._dailyStats.reps % self.newCardModulus == 0
         else:
@@ -1156,89 +1128,8 @@ limit 1""" % self.delay0))
     "spaceSusp": spaceSusp,
     }
 
-    # Priorities
-    ##########################################################################
-
-    def updateAllPriorities(self, partial=False, dirty=True):
-        "Update all card priorities if changed. Caller must .reset()"
-        new = self.updateTagPriorities()
-        if not partial:
-            new = self.s.all("select id, priority as pri from tags")
-        cids = self.s.column0(
-            "select distinct cardId from cardTags where tagId in %s" %
-                              ids2str([x['id'] for x in new]))
-        self.updatePriorities(cids, dirty=dirty)
-
-    def updateTagPriorities(self):
-        "Update priority setting on tags table."
-        # make sure all priority tags exist
-        for s in (self.lowPriority, self.medPriority,
-                  self.highPriority):
-            tagIds(self.s, parseTags(s))
-        tags = self.s.all("select tag, id, priority from tags")
-        tags = [(x[0].lower(), x[1], x[2]) for x in tags]
-        up = {}
-        for (type, pri) in ((self.lowPriority, 1),
-                            (self.medPriority, 3),
-                            (self.highPriority, 4)):
-            for tag in parseTags(type.lower()):
-                up[tag] = pri
-        new = []
-        for (tag, id, pri) in tags:
-            if tag in up and up[tag] != pri:
-                new.append({'id': id, 'pri': up[tag]})
-            elif tag not in up and pri != 2:
-                new.append({'id': id, 'pri': 2})
-        self.s.statements(
-           "update tags set priority = :pri where id = :id",
-           new)
-        return new
-
-    def updatePriorities(self, cardIds, suspend=[], dirty=True):
-        "Update priorities for cardIds. Caller must .reset()."
-        # any tags to suspend
-        if suspend:
-            ids = tagIds(self.s, suspend)
-            self.s.statement(
-                "update tags set priority = 0 where id in %s" %
-                ids2str(ids.values()))
-        if len(cardIds) > 1000:
-            limit = ""
-        else:
-            limit = "and cardTags.cardId in %s" % ids2str(cardIds)
-        cards = self.s.all("""
-select cardTags.cardId,
-case
-when max(tags.priority) > 2 then max(tags.priority)
-when min(tags.priority) = 1 then 1
-else 2 end
-from cardTags, tags
-where cardTags.tagId = tags.id
-%s
-group by cardTags.cardId""" % limit)
-        if dirty:
-            extra = ", modified = :m "
-        else:
-            extra = ""
-        for pri in range(5):
-            cs = [c[0] for c in cards if c[1] == pri]
-            if cs:
-                # catch review early & buried but not suspended
-                self.s.statement((
-                    "update cards set priority = :pri %s where id in %s "
-                    "and priority != :pri and priority >= -2") % (
-                    extra, ids2str(cs)), pri=pri, m=time.time())
-
-    def updatePriority(self, card):
-        "Update priority on a single card."
-        self.s.flush()
-        self.updatePriorities([card.id])
-
     # Suspending
     ##########################################################################
-
-    # when older clients are upgraded, we can remove the code which touches
-    # priorities & isDue
 
     def suspendCards(self, ids):
         "Suspend cards. Caller must .reset()"
@@ -1246,7 +1137,7 @@ group by cardTags.cardId""" % limit)
         self.s.statement("""
 update cards
 set type = relativeDelay - 3,
-priority = -3, modified = :t, isDue=0
+modified = :t
 where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
         self.flushMod()
         self.finishProgress()
@@ -1255,10 +1146,9 @@ where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
         "Unsuspend cards. Caller must .reset()"
         self.startProgress()
         self.s.statement("""
-update cards set type = relativeDelay, priority=0, modified=:t
-where type < 0 and id in %s""" %
+update cards set type = relativeDelay, modified=:t
+where type between -3 and -1 and id in %s""" %
             ids2str(ids), t=time.time())
-        self.updatePriorities(ids)
         self.flushMod()
         self.finishProgress()
 
@@ -1266,9 +1156,7 @@ where type < 0 and id in %s""" %
         "Bury all cards for fact until next session. Caller must .reset()"
         for card in fact.cards:
             if card.type in (0,1,2):
-                card.priority = -2
                 card.type += 3
-                card.isDue = 0
         self.flushMod()
 
     # Counts
@@ -1413,8 +1301,6 @@ combinedDue > :now and due < :now""", now=time.time())
         # update card q/a
         fact.setModified(True, self)
         self.updateFactTags([fact.id])
-        # this will call reset() which will update counts
-        self.updatePriorities([c.id for c in cards])
         # keep track of last used tags for convenience
         self.lastTags = fact.tags
         self.flushMod()
@@ -1457,7 +1343,7 @@ combinedDue > :now and due < :now""", now=time.time())
         return models
 
     def addCards(self, fact, cardModelIds):
-        "Caller must flush first, flushMod after, rebuild priorities."
+        "Caller must flush first and flushMod after."
         ids = []
         for cardModel in self.availableCardModels(fact, False):
             if cardModel.id not in cardModelIds:
@@ -1471,7 +1357,6 @@ where factId = :fid and cardModelId = :cmid""",
                         fact, cardModel,
                         fact.created+0.0001*cardModel.ordinal)
                     self.updateCardTags([card.id])
-                    self.updatePriority(card)
                     self.cardCount += 1
                     self.newCount += 1
                     ids.append(card.id)
@@ -1589,7 +1474,7 @@ where facts.id not in (select distinct factId from cards)""")
                 "select 1 from cardTags where tagId = :d limit 1", d=tag):
                 unused.append(tag)
         # delete unused
-        self.s.statement("delete from tags where id in %s and priority = 2" %
+        self.s.statement("delete from tags where id in %s" %
                          ids2str(unused))
         # remove any dangling facts
         self.deleteDanglingFacts()
@@ -1750,7 +1635,7 @@ modelId = :id
 where id in %s""" % fids, t=time.time(), id=newModel.id)
             self.finishProgress()
         # template remapping
-        self.startProgress(len(cardMap)+4)
+        self.startProgress(len(cardMap)+3)
         toChange = []
         self.updateProgress(_("Changing cards..."))
         for (old, new) in cardMap.items():
@@ -1781,9 +1666,6 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
             "select id from cards where factId in %s" %
             ids2str(factIds))
         self.updateCardTags(cardIds)
-        self.updateProgress()
-        self.updatePriorities(cardIds)
-        self.updateProgress()
         self.refreshSession()
         self.finishProgress()
 
@@ -2036,21 +1918,6 @@ where cardModelId in %s""" % strids, now=time.time())
     # Tags: querying
     ##########################################################################
 
-    def tagsList(self, where="", priority=", cards.priority", kwargs={}):
-        "Return a list of (cardId, allTags, priority)"
-        return self.s.all("""
-select cards.id, facts.tags || " " || models.tags || " " ||
-cardModels.name %s from cards, facts, models, cardModels where
-cards.factId == facts.id and facts.modelId == models.id
-and cards.cardModelId = cardModels.id %s""" % (priority, where),
-                          **kwargs)
-
-        return self.s.all("""
-select cards.id, facts.tags || " " || models.tags || " " ||
-cardModels.name %s from cards, facts, models, cardModels where
-cards.factId == facts.id and facts.modelId == models.id
-and cards.cardModelId = cardModels.id %s""" % (priority, where))
-
     def splitTagsList(self, where=""):
         return self.s.all("""
 select cards.id, facts.tags, models.tags, cardModels.name
@@ -2168,9 +2035,7 @@ facts.modelId = :id""", id=modelId))
 insert into cardTags
 (cardId, tagId, src) values
 (:cardId, :tagId, :src)""", d)
-        self.s.execute(
-            "delete from tags where priority = 2 and id not in "+
-            "(select distinct tagId from cardTags)")
+        self.deleteUnusedTags()
 
     def updateTagsForModel(self, model):
         cards = self.s.all("""
@@ -2205,14 +2070,15 @@ and src in (1, 2)""" % ids2str(cardIds))
 insert into cardTags
 (cardId, tagId, src) values
 (:cardId, :tagId, :src)""", d)
-        self.s.statement("""
-delete from tags where id not in (select distinct tagId from cardTags)
-and priority = 2
-""")
+        self.deleteUnusedTags()
 
     # Tags: adding/removing in bulk
     ##########################################################################
     # these could be optimized to use the tag cache in the future
+
+    def deleteUnusedTags(self):
+        self.s.statement("""
+delete from tags where id not in (select distinct tagId from cardTags)""")
 
     def addTags(self, ids, tags):
         "Add tags in bulk. Caller must .reset()"
@@ -2238,7 +2104,6 @@ where id = :id""", pending)
             ids2str(factIds))
         self.updateCardQACacheFromIds(factIds, type="facts")
         self.updateCardTags(cardIds)
-        self.updatePriorities(cardIds)
         self.flushMod()
         self.finishProgress()
         self.refreshSession()
@@ -2272,7 +2137,6 @@ where id = :id""", pending)
             ids2str(factIds))
         self.updateCardQACacheFromIds(factIds, type="facts")
         self.updateCardTags(cardIds)
-        self.updatePriorities(cardIds)
         self.flushMod()
         self.finishProgress()
         self.refreshSession()
@@ -2688,7 +2552,7 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                         self.dueCutoff, self.dueCutoff)
                 elif token == "suspended":
                     qquery += ("select id from cards where "
-                               "priority = -3")
+                               "type between -3 and -1")
                 elif token == "leech":
                     qquery += (
                         "select id from cards where noCount >= (select value "
@@ -3249,7 +3113,7 @@ where id = :id""", fid=f.id, cmid=m.cardModels[0].id, id=id)
         if quick:
             num = 4
         else:
-            num = 9
+            num = 8
         self.startProgress(num)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
@@ -3347,9 +3211,6 @@ select id from fields where factId not in (select id from facts)""")
             # fix tags
             self.updateProgress(_("Rebuilding tag cache..."))
             self.updateCardTags()
-            # fix any priorities
-            self.updateProgress(_("Updating priorities..."))
-            self.updateAllPriorities(dirty=False)
             # make sure ordinals are correct
             self.updateProgress(_("Updating ordinals..."))
             self.s.statement("""
@@ -3554,15 +3415,17 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def updateDynamicIndices(self):
         indices = {
             'intervalDesc':
-            '(type, priority desc, interval desc, factId, combinedDue)',
+            '(type, interval desc, factId, combinedDue)',
             'intervalAsc':
-            '(type, priority desc, interval, factId, combinedDue)',
+            '(type, interval, factId, combinedDue)',
             'randomOrder':
-            '(type, priority desc, factId, ordinal, combinedDue)',
+            '(type, factId, ordinal, combinedDue)',
+            # new cards are sorted by due, not combinedDue, so that even if
+            # they are spaced, they retain their original sort order
             'dueAsc':
-            '(type, priority desc, due, factId, combinedDue)',
+            '(type, due, factId, combinedDue)',
             'dueDesc':
-            '(type, priority desc, due desc, factId, combinedDue)',
+            '(type, due desc, factId, combinedDue)',
             }
         # determine required
         required = []
@@ -3581,7 +3444,7 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         # add/delete
         analyze = False
         for (k, v) in indices.items():
-            n = "ix_cards_%s2" % k
+            n = "ix_cards_%s" % k
             if k in required:
                 if not self.s.scalar(
                     "select 1 from sqlite_master where name = :n", n=n):
@@ -3590,8 +3453,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
                         (n, v))
                     analyze = True
             else:
-                # leave old indices for older clients
-                #self.s.statement("drop index if exists ix_cards_%s" % k)
                 self.s.statement("drop index if exists %s" % n)
         if analyze:
             self.s.statement("analyze")
@@ -3714,7 +3575,6 @@ class DeckStorage(object):
                 DeckStorage._addIndices(deck)
                 deck.s.statement("analyze")
                 deck._initVars()
-                deck.updateTagPriorities()
             else:
                 if backup:
                     DeckStorage.backup(deck, path)
@@ -3750,18 +3610,13 @@ class DeckStorage(object):
             deck.currentModel = deck.models[0]
         # ensure the necessary indices are available
         deck.updateDynamicIndices()
-        # FIXME: temporary code for upgrade
-        # - ensure cards suspended on older clients are recognized
-        deck.s.statement("""
-update cards set type = type - 3 where type between 0 and 2 and priority = -3""")
         # - new delay1 handling
         if deck.delay1 > 7:
             deck.delay1 = 0
-        # unsuspend buried/rev early - can remove priorities in the future
+        # unsuspend buried/rev early
         ids = deck.s.column0(
-            "select id from cards where type > 2 or priority between -2 and -1")
+            "select id from cards where type > 2")
         if ids:
-            deck.updatePriorities(ids)
             deck.s.statement(
                 "update cards set type = relativeDelay where type > 2")
             deck.s.commit()
@@ -4002,7 +3857,6 @@ order by priority desc, due desc""")
         if deck.version == 2:
             # compensate for bug in 0.9.7 by rebuilding isDue and priorities
             deck.s.statement("update cards set isDue = 0")
-            deck.updateAllPriorities(dirty=False)
             # compensate for bug in early 0.9.x where fieldId was not unique
             deck.s.statement("update fields set id = random()")
             deck.version = 3
@@ -4197,7 +4051,6 @@ where interval < 1""")
         if deck.version < 27:
             DeckStorage._addIndices(deck)
             deck.updateCardTags()
-            deck.updateAllPriorities(dirty=False)
             deck.version = 27
             deck.s.commit()
         if deck.version < 28:
@@ -4284,7 +4137,6 @@ nextFactor, reps, thinkingTime, yesCount, noCount from reviewHistory""")
                 deck.rebuildCounts()
             # suspended tag obsolete - don't do this yet
             deck.suspended = re.sub(u" ?Suspended ?", u"", deck.suspended)
-            deck.updateTagPriorities()
             deck.version = 39
             deck.s.commit()
         if deck.version < 40:
@@ -4406,10 +4258,6 @@ this message. (ERR-0101)""") % {
             for d in ("ix_cards_duePriority",
                       "ix_cards_priorityDue"):
                 deck.s.statement("drop index if exists %s" % d)
-            # remove old dynamic indices
-            for d in ("intervalDesc", "intervalAsc", "randomOrder",
-                      "dueAsc", "dueDesc"):
-                deck.s.statement("drop index if exists ix_cards_%s" % d)
             deck.s.execute("analyze")
             deck.version = 64
             deck.s.commit()
@@ -4419,6 +4267,16 @@ this message. (ERR-0101)""") % {
             # in previous versions, so ensure everything is set correctly
             deck.rebuildTypes()
             deck.version = 65
+            deck.s.commit()
+        # skip a few to allow for updates to stable tree
+        if deck.version < 70:
+            # update dynamic indices given we don't use priority anymore
+            for d in ("intervalDesc", "intervalAsc", "randomOrder",
+                      "dueAsc", "dueDesc"):
+                deck.s.statement("drop index if exists ix_cards_%s2" % d)
+                deck.s.statement("drop index if exists ix_cards_%s" % d)
+            deck.s.execute("analyze")
+            deck.version = 70
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record

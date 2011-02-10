@@ -55,7 +55,7 @@ class Importer(object):
         if self.updateKey is not None:
             return self.doUpdate()
         random = self.deck.newCardOrder == NEW_CARDS_RANDOM
-        num = 7
+        num = 6
         if random:
             num += 1
         self.deck.startProgress(num)
@@ -64,8 +64,6 @@ class Importer(object):
         if self.importCards(c):
             self.deck.updateProgress()
             self.deck.updateCardTags(self.cardIds)
-            self.deck.updateProgress()
-            self.deck.updatePriorities(self.cardIds)
             if random:
                 self.deck.updateProgress()
                 self.deck.randomizeNewCards(self.cardIds)
@@ -74,7 +72,7 @@ class Importer(object):
             self.deck.setModified()
 
     def doUpdate(self):
-        self.deck.startProgress(8)
+        self.deck.startProgress(7)
         # grab the data from the external file
         self.deck.updateProgress(_("Updating..."))
         cards = self.foreignCards()
@@ -144,8 +142,6 @@ update fields set value = :v where factId = :fid and fieldModelId = :fmid""",
             "select id from cards where factId in %s" %
             ids2str(fids))
         self.deck.updateCardTags(cids)
-        self.deck.updateProgress()
-        self.deck.updatePriorities(cids)
         self.deck.updateProgress()
         self.deck.updateCardsFromFactIds(fids)
         self.total = len(fids)
