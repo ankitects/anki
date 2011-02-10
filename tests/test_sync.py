@@ -133,7 +133,7 @@ def test_localsync_models():
     assert deck1.currentModel.cardModels[1].active == True
     deck2.currentModel.cardModels[1].active = False
     deck2.currentModel.setModified()
-    deck2.setModified()
+    deck2.flushMod()
     client.sync()
     assert deck1.currentModel.cardModels[1].active == False
     # remove a card model
@@ -144,25 +144,8 @@ def test_localsync_models():
     assert len(deck1.currentModel.cardModels) == 1
     client.sync()
     assert len(deck2.currentModel.cardModels) == 1
-    # add a field
-    c = deck1.getCard()
-    deck1.addFieldModel(c.fact.model, FieldModel(u"yo"))
-    deck1.s.refresh(c.fact)
-    assert len(c.fact.fields) == 3
-    assert c.fact['yo'] == u""
-    client.sync()
-    c2 = deck2.s.query(Card).get(c.id)
-    deck2.s.refresh(c2.fact)
-    assert c2.fact['yo'] == u""
-    # remove the field
-    assert "yo" in c2.fact.keys()
-    deck2.deleteFieldModel(c2.fact.model, c2.fact.model.fieldModels[2])
-    deck2.s.refresh(c2.fact)
-    assert "yo" not in c2.fact.keys()
-    client.sync()
-    deck1.s.refresh(c.fact)
-    assert "yo" not in c.fact.keys()
     # rename a field
+    c = deck1.getCard()
     assert u"Front" in c.fact.keys()
     deck1.renameFieldModel(deck1.currentModel,
                            deck1.currentModel.fieldModels[0],
@@ -256,28 +239,6 @@ def test_localsync_media():
     client.sync()
     assert deck1.s.scalar("select count(1) from media") == 3
     assert deck2.s.scalar("select count(1) from media") == 3
-
-# One way syncing
-##########################################################################
-
-@nose.with_setup(setup_local, teardown)
-def test_oneway_simple():
-    assert deck1.s.scalar("select count(1) from cards") == 2
-    assert deck2.s.scalar("select count(1) from cards") == 2
-    assert deck1.cardCount == 2
-    assert deck2.cardCount == 2
-    assert deck1.s.scalar("select id from tags where tag = 'foo'")
-    assert not deck1.s.scalar("select id from tags where tag = 'bar'")
-    server.deckName = "dummy"
-    client.syncOneWay(0)
-    assert deck1.s.scalar("select count(1) from cards") == 4
-    assert deck2.s.scalar("select count(1) from cards") == 2
-    assert deck1.cardCount == 4
-    assert deck2.cardCount == 2
-    assert deck1.s.scalar("select id from tags where tag = 'foo'")
-    assert deck1.s.scalar("select id from tags where tag = 'bar'")
-    # should be a noop
-    client.syncOneWay(0)
 
 # Remote tests
 ##########################################################################

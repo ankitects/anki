@@ -98,8 +98,11 @@ class SyncTools(object):
         "Sync two decks locally. Reimplement this for finer control."
         if not self.prepareSync(0):
             return
-        sums = self.summaries()
-        payload = self.genPayload(sums)
+        lsum = self.summary(self.deck.lastSync)
+        rsum = self.server.summary(self.deck.lastSync)
+        if not lsum or not rsum:
+            raise Exception("full sync required")
+        payload = self.genPayload((lsum, rsum))
         res = self.server.applyPayload(payload)
         self.applyPayloadReply(res)
         self.deck.reset()
@@ -111,14 +114,10 @@ class SyncTools(object):
         if self.localTime == self.remoteTime:
             return False
         l = self._lastSync(); r = self.server._lastSync()
-        # set lastSync to the lower of the two sides, and account for slow
-        # clocks & assume it took up to 10 seconds for the reply to arrive
-        self.deck.lastSync = min(l, r) - timediff - 10
+        # set lastSync to the lower of the two sides, account for slow clocks,
+        # and assume it took up to 10 seconds for the reply to arrive
+        self.deck.lastSync = max(0, min(l, r) - timediff - 10)
         return True
-
-    def summaries(self):
-        return (self.summary(self.deck.lastSync),
-                self.server.summary(self.deck.lastSync))
 
     def genPayload(self, summaries):
         (lsum, rsum) = summaries
@@ -219,10 +218,11 @@ class SyncTools(object):
 
     def summary(self, lastSync):
         "Generate a full summary of modtimes for two-way syncing."
-        # client may have selected an earlier sync time
+        # if client may have selected an earlier sync time
         self.deck.lastSync = lastSync
-        # ensure we're flushed first
-        self.deck.s.flush()
+        # return early if there's been a schema change
+        if self.deck.getFloat("schemaMod") > lastSync:
+            return None
         return {
             # cards
             "cards": self.realLists(self.deck.s.all(
