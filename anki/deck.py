@@ -3510,26 +3510,8 @@ class DeckStorage(object):
                 metadata.create_all(engine)
                 deck = DeckStorage._init(s)
             else:
+                # add any possibly new tables if we're upgrading
                 ver = s.scalar("select version from decks limit 1")
-                if ver < 19:
-                    for st in (
-                        "decks add column newCardsPerDay integer not null default 20",
-                        "decks add column sessionRepLimit integer not null default 100",
-                        "decks add column sessionTimeLimit integer not null default 1800",
-                        "decks add column utcOffset numeric(10, 2) not null default 0",
-                        "decks add column cardCount integer not null default 0",
-                        "decks add column factCount integer not null default 0",
-                        "decks add column failedNowCount integer not null default 0",
-                        "decks add column failedSoonCount integer not null default 0",
-                        "decks add column revCount integer not null default 0",
-                        "decks add column newCount integer not null default 0",
-                        "decks add column revCardOrder integer not null default 0",
-                        "cardModels add column allowEmptyAnswer boolean not null default 1",
-                        "cardModels add column typeAnswer text not null default ''"):
-                        try:
-                            s.execute("alter table " + st)
-                        except:
-                            pass
                 if ver < DECK_VERSION:
                     metadata.create_all(engine)
                 deck = s.query(Deck).get(1)
@@ -3568,7 +3550,7 @@ class DeckStorage(object):
                 deck.s.execute("pragma legacy_file_format = off")
                 deck.s.execute("pragma default_cache_size= 20000")
                 deck.s.execute("vacuum")
-                # add views/indices
+                # add tags and indices
                 initTagTables(deck.s)
                 DeckStorage._addIndices(deck)
                 deck.s.statement("analyze")
