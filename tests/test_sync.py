@@ -45,6 +45,9 @@ def setup_local(loadDecks=None):
         f['Front'] = u"baz"; f['Back'] = u"qux"; f.tags = u"bar"
         deck2.addFact(f)
         deck2.newCardOrder = 1
+    # normally such syncs would trigger a conflict, but we ignore it
+    deck1.setVar("schemaMod", 0)
+    deck2.setVar("schemaMod", 0)
     client = SyncClient(deck1)
     server = SyncServer(deck2)
     client.setServer(server)
@@ -120,12 +123,14 @@ def test_localsync_models():
     deck1.addModel(BasicModel())
     assert len(deck1.models) == 3
     assert len(deck2.models) == 2
+    deck1.setVar("schemaMod", 0)
     client.sync()
     assert len(deck2.models) == 3
     assert deck1.currentModel.id == deck2.currentModel.id
     # delete the recently added model
     deck2.deleteModel(deck2.currentModel)
     assert len(deck2.models) == 2
+    deck2.setVar("schemaMod", 0)
     client.sync()
     assert len(deck1.models) == 2
     assert deck1.currentModel.id == deck2.currentModel.id
@@ -142,6 +147,7 @@ def test_localsync_models():
     deck1.currentModel.setModified()
     deck1.setModified()
     assert len(deck1.currentModel.cardModels) == 1
+    deck1.setVar("schemaMod", 0)
     client.sync()
     assert len(deck2.currentModel.cardModels) == 1
     # rename a field
