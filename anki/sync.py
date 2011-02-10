@@ -8,17 +8,6 @@ Synchronisation
 
 Support for keeping two decks synchronized. Both local syncing and syncing
 over HTTP are supported.
-
-Server implements the following calls:
-
-getDecks(): return a list of deck names & modtimes
-summary(lastSync): a list of all objects changed after lastSync
-applyPayload(payload): apply any sent changes and return any changed remote
-                       objects
-finish(): save deck on server after payload applied and response received
-createDeck(name): create a deck on the server
-
-Full sync support is not documented yet.
 """
 __docformat__ = 'restructuredtext'
 
@@ -44,14 +33,9 @@ if simplejson.__version__ < "1.7.3":
 
 CHUNK_SIZE = 32768
 MIME_BOUNDARY = "Anki-sync-boundary"
-# live
-SYNC_URL = "http://ankiweb.net/sync/"
-SYNC_HOST = "ankiweb.net"; SYNC_PORT = 80
-# testing
-#SYNC_URL = "http://localhost:8001/sync/"
-#SYNC_HOST = "localhost"; SYNC_PORT = 8001
-
-
+SYNC_HOST = os.environ.get("SYNC_HOST") or "ankiweb.net"
+SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
+SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 KEYS = ("models", "facts", "cards", "media")
 
 ##########################################################################
