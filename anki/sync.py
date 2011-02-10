@@ -214,35 +214,6 @@ class SyncTools(object):
         # ensure global stats are available (queue may not be built)
         self.deck._globalStats = globalStats(self.deck)
 
-    def payloadChanges(self, payload):
-        h = {
-            'lf': len(payload['added-facts']['facts']),
-            'rf': len(payload['missing-facts']),
-            'lc': len(payload['added-cards']),
-            'rc': len(payload['missing-cards']),
-            'lm': len(payload['added-models']),
-            'rm': len(payload['missing-models']),
-            }
-        if self.localTime > self.remoteTime:
-            h['ls'] = _('all')
-            h['rs'] = 0
-        else:
-            h['ls'] = 0
-            h['rs'] = _('all')
-        return h
-
-    def payloadChangeReport(self, payload):
-        p = self.payloadChanges(payload)
-        return _("""\
-<table>
-<tr><td><b>Added/Changed&nbsp;&nbsp;&nbsp;</b></td>
-<td><b>Here&nbsp;&nbsp;&nbsp;</b></td><td><b>Server</b></td></tr>
-<tr><td>Cards</td><td>%(lc)d</td><td>%(rc)d</td></tr>
-<tr><td>Facts</td><td>%(lf)d</td><td>%(rf)d</td></tr>
-<tr><td>Models</td><td>%(lm)d</td><td>%(rm)d</td></tr>
-<tr><td>Stats</td><td>%(ls)s</td><td>%(rs)s</td></tr>
-</table>""") % p
-
     # Summaries
     ##########################################################################
 
