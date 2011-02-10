@@ -3757,11 +3757,6 @@ create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
             deck.updateFieldCache(deck.s.column0("select id from facts"))
             deck.version = 48
             deck.s.commit()
-        if deck.version < 50:
-            # more new type handling
-            deck.rebuildTypes()
-            deck.version = 50
-            deck.s.commit()
         if deck.version < 52:
             dname = deck.name()
             sname = deck.syncName
@@ -3797,9 +3792,6 @@ this message. (ERR-0101)""") % {
             # non-int value
             deck.s.statement("update fieldModels set editFontFamily = 1");
             deck.version = 54
-            deck.s.commit()
-        if deck.version < 57:
-            deck.version = 57
             deck.s.commit()
         if deck.version < 61:
             # do our best to upgrade templates to the new style
@@ -3844,13 +3836,8 @@ this message. (ERR-0101)""") % {
             deck.s.commit()
         if deck.version < 62:
             # updated indices
-            for d in ("intervalDesc", "intervalAsc", "randomOrder",
-                      "dueAsc", "dueDesc"):
-                deck.s.statement("drop index if exists ix_cards_%s2" % d)
             deck.s.statement("drop index if exists ix_cards_typeCombined")
             DeckStorage._addIndices(deck)
-            deck.updateDynamicIndices()
-            deck.s.execute("vacuum")
             deck.version = 62
             deck.s.commit()
         if deck.version < 64:
@@ -3858,7 +3845,6 @@ this message. (ERR-0101)""") % {
             for d in ("ix_cards_duePriority",
                       "ix_cards_priorityDue"):
                 deck.s.statement("drop index if exists %s" % d)
-            deck.s.execute("analyze")
             deck.version = 64
             deck.s.commit()
             # note: we keep the priority index for now
@@ -3875,11 +3861,13 @@ this message. (ERR-0101)""") % {
                       "dueAsc", "dueDesc"):
                 deck.s.statement("drop index if exists ix_cards_%s2" % d)
                 deck.s.statement("drop index if exists ix_cards_%s" % d)
+            deck.updateDynamicIndices()
             # remove old views
             for v in ("failedCards", "revCardsOld", "revCardsNew",
                       "revCardsDue", "revCardsRandom", "acqCardsRandom",
                       "acqCardsOld", "acqCardsNew"):
                 deck.s.statement("drop view if exists %s" % v)
+            deck.s.execute("vacuum")
             deck.s.execute("analyze")
             deck.version = 70
             deck.s.commit()
