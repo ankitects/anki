@@ -169,7 +169,7 @@ class ModelProperties(QDialog):
         else:
             aformat = ""
         cm = CardModel(name, qformat, aformat)
-        self.m.addCardModel(cm)
+        self.deck.addCardModel(m, cm)
         self.updateCards()
         self.dialog.cardList.setCurrentRow(len(self.m.cardModels)-1)
 
