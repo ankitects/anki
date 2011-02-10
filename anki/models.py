@@ -186,14 +186,14 @@ class Model(object):
         self.modified = time.time()
 
     def addFieldModel(self, field):
-        "Add a field model."
+        "Add a field model. Don't call this directly."
         self.fieldModels.append(field)
         s = object_session(self)
         if s:
             s.flush()
 
     def addCardModel(self, card):
-        "Add a card model."
+        "Add a card model. Don't call this directly."
         self.cardModels.append(card)
         s = object_session(self)
         if s:

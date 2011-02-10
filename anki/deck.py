@@ -164,7 +164,7 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.s.scalar("select 1 from deckVars where key = 'revSpacing'"):
+        if not self.s.scalar("select 1 from deckVars where key = 'schemaMod'"):
             self.setVarDefault("suspendLeeches", True)
             self.setVarDefault("leechFails", 16)
             self.setVarDefault("perDay", True)
@@ -185,6 +185,7 @@ class Deck(object):
 """)
             self.setVarDefault("latexPost", "\\end{document}")
             self.setVarDefault("revSpacing", 0.1)
+            self.setVarDefault("schemaMod", 0)
         self.updateCutoff()
         self.setupStandardScheduler()
 
@@ -1601,6 +1602,7 @@ where facts.id not in (select distinct factId from cards)""")
 
     def addModel(self, model):
         if model not in self.models:
+            self.setSchemaModified()
             self.models.append(model)
         self.currentModel = model
         self.flushMod()
@@ -1609,6 +1611,7 @@ where facts.id not in (select distinct factId from cards)""")
         "Delete MODEL, and all its cards/facts. Caller must .reset()."
         if self.s.scalar("select count(id) from models where id=:id",
                          id=model.id):
+            self.setSchemaModified()
             # delete facts/cards
             self.currentModel
             self.deleteCards(self.s.column0("""
@@ -1699,6 +1702,7 @@ select id from models""")
 
     def changeModel(self, factIds, newModel, fieldMap, cardMap):
         "Caller must .reset()"
+        self.setSchemaModified()
         self.s.flush()
         fids = ids2str(factIds)
         changed = False
@@ -1792,6 +1796,7 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
 
     def deleteFieldModel(self, model, field):
         self.startProgress()
+        self.setSchemaModified()
         self.s.statement("delete from fields where fieldModelId = :id",
                          id=field.id)
         self.s.statement("update facts set modified = :t where modelId = :id",
@@ -1814,6 +1819,7 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
 
     def addFieldModel(self, model, field):
         "Add FIELD to MODEL and update cards."
+        self.setSchemaModified()
         model.addFieldModel(field)
         # commit field to disk
         self.s.flush()
@@ -1857,6 +1863,7 @@ fieldModelId = :id and value != ""
     def rebuildFieldOrdinals(self, modelId, ids):
         """Update field ordinal for all fields given field model IDS.
 Caller must update model modtime."""
+        self.setSchemaModified()
         self.s.flush()
         strids = ids2str(ids)
         self.s.statement("""
@@ -1879,8 +1886,13 @@ where modelId = :id""", id=modelId)
 select count(id) from cards where
 cardModelId = :id""", id=cardModel.id)
 
+    def addCardModel(self, model, cardModel):
+        self.setSchemaModified()
+        model.addCardModel(cardModel)
+
     def deleteCardModel(self, model, cardModel):
         "Delete all cards that use CARDMODEL from the deck."
+        self.setSchemaModified()
         cards = self.s.column0("select id from cards where cardModelId = :id",
                                id=cardModel.id)
         self.deleteCards(cards)
@@ -2011,6 +2023,7 @@ order by fields.factId""" % ids2str([x[2] for x in ids])),
 
     def rebuildCardOrdinals(self, ids):
         "Update all card models in IDS. Caller must update model modtime."
+        self.setSchemaModified()
         self.s.flush()
         strids = ids2str(ids)
         self.s.statement("""
@@ -2018,13 +2031,6 @@ update cards set
 ordinal = (select ordinal from cardModels where id = cardModelId),
 modified = :now
 where cardModelId in %s""" % strids, now=time.time())
-        self.flushMod()
-
-    def changeCardModel(self, cardIds, newCardModelId):
-        self.s.statement("""
-update cards set cardModelId = :newId
-where id in %s""" % ids2str(cardIds), newId=newCardModelId)
-        self.updateCardQACacheFromIds(cardIds)
         self.flushMod()
 
     # Tags: querying
@@ -3117,6 +3123,9 @@ Return new path, relative to media dir."""
     def setModified(self, newTime=None):
         #import traceback; traceback.print_stack()
         self.modified = newTime or time.time()
+
+    def setSchemaModified(self):
+        self.setVar("schemaMod", time.time())
 
     def flushMod(self):
         "Mark modified and flush to DB."
