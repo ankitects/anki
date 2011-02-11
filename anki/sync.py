@@ -495,15 +495,6 @@ from cards where id in %s""" % ids2str(ids)))
     def updateCards(self, cards):
         if not cards:
             return
-        # FIXME: older clients won't send this, so this is temp compat code
-        def getType(row):
-            if len(row) > 36:
-                return row[36]
-            if row[15]:
-                return 1
-            elif row[14]:
-                return 0
-            return 2
         dlist = [{'id': c[0],
                   'factId': c[1],
                   'cardModelId': c[2],
@@ -540,7 +531,7 @@ from cards where id in %s""" % ids2str(ids)))
                   'spaceUntil': c[33],
                   'type': c[34],
                   'combinedDue': c[35],
-                  'rd': getType(c)
+                  'rd': c[36],
                   } for c in cards]
         self.deck.s.execute("""
 insert or replace into cards
