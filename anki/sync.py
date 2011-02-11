@@ -87,6 +87,7 @@ class SyncTools(object):
         self.diffs = {}
         self.serverExcludedTags = []
         self.timediff = 0
+        self.fullThreshold = 2000
 
     # Control
     ##########################################################################
@@ -99,7 +100,8 @@ class SyncTools(object):
         if not self.prepareSync(0):
             return
         lsum = self.summary(self.deck.lastSync)
-        rsum = self.server.summary(self.deck.lastSync)
+        if lsum:
+            rsum = self.server.summary(self.deck.lastSync)
         if not lsum or not rsum:
             raise Exception("full sync required")
         payload = self.genPayload((lsum, rsum))
@@ -210,41 +212,47 @@ class SyncTools(object):
 
     def summary(self, lastSync):
         "Generate a full summary of modtimes for two-way syncing."
-        # if client may have selected an earlier sync time
+        # client may have selected an earlier sync time
         self.deck.lastSync = lastSync
         # return early if there's been a schema change
         if self.deck.getFloat("schemaMod") > lastSync:
             return None
-        return {
+        d = {}
+        cats = [
             # cards
-            "cards": self.realLists(self.deck.s.all(
-            "select id, modified from cards where modified > :mod",
-            mod=lastSync)),
-            "delcards": self.realLists(self.deck.s.all(
-            "select cardId, deletedTime from cardsDeleted "
-            "where deletedTime > :mod", mod=lastSync)),
+            ("cards",
+             "select id, modified from cards where modified > :m"),
+            ("delcards",
+             "select cardId, deletedTime from cardsDeleted "
+             "where deletedTime > :m"),
             # facts
-            "facts": self.realLists(self.deck.s.all(
-            "select id, modified from facts where modified > :mod",
-            mod=lastSync)),
-            "delfacts": self.realLists(self.deck.s.all(
-            "select factId, deletedTime from factsDeleted "
-            "where deletedTime > :mod", mod=lastSync)),
+            ("facts",
+             "select id, modified from facts where modified > :m"),
+            ("delfacts",
+             "select factId, deletedTime from factsDeleted "
+             "where deletedTime > :m"),
             # models
-            "models": self.realLists(self.deck.s.all(
-            "select id, modified from models where modified > :mod",
-            mod=lastSync)),
-            "delmodels": self.realLists(self.deck.s.all(
-            "select modelId, deletedTime from modelsDeleted "
-            "where deletedTime > :mod", mod=lastSync)),
+            ("models",
+             "select id, modified from models where modified > :m"),
+            ("delmodels",
+             "select modelId, deletedTime from modelsDeleted "
+             "where deletedTime > :m"),
             # media
-            "media": self.realLists(self.deck.s.all(
-            "select id, created from media where created > :mod",
-            mod=lastSync)),
-            "delmedia":  self.realLists(self.deck.s.all(
-            "select mediaId, deletedTime from mediaDeleted "
-            "where deletedTime > :mod", mod=lastSync)),
-            }
+            ("media",
+             "select id, created from media where created > :m"),
+            ("delmedia",
+             "select mediaId, deletedTime from mediaDeleted "
+             "where deletedTime > :m")
+            ]
+        for (key, sql) in cats:
+            if self.fullThreshold:
+                sql += " limit %d" % self.fullThreshold
+            ret = self.deck.s.all(sql, m=lastSync)
+            if self.fullThreshold and self.fullThreshold == len(ret):
+                # theshold exceeded, abort early
+                return None
+            d[key] = self.realLists(ret)
+        return d
 
     # Diffing
     ##########################################################################
