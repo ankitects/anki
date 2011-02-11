@@ -3113,7 +3113,8 @@ where id = :id""", fid=f.id, cmid=m.cardModels[0].id, id=id)
         if quick:
             num = 4
         else:
-            num = 8
+            num = 9
+            oldSize = os.stat(self.path)[stat.ST_SIZE]
         self.startProgress(num)
         self.updateProgress(_("Checking integrity..."))
         if self.s.scalar("pragma integrity_check") != "ok":
@@ -3233,8 +3234,21 @@ where cards.cardModelId = cardModels.id)""")
             # rebuild
             self.updateProgress(_("Rebuilding types..."))
             self.rebuildTypes()
+            # since we can ensure the updated version will be propagated to
+            # all locations, we can forget old tombstones
+            for k in ("cards", "facts", "models", "media"):
+                self.s.statement("delete from %sDeleted" % k)
             # force a full sync
             self.setSchemaModified()
+            # and finally, optimize
+            self.updateProgress(_("Optimizing..."))
+            self.optimize()
+            newSize = os.stat(self.path)[stat.ST_SIZE]
+            save = (oldSize - newSize)/1024
+            txt = _("Database rebuilt and optimized.")
+            if save > 0:
+                txt += "\n" + _("Saved %dKB.") % save
+            problems.append(txt)
         # update deck and save
         if not quick:
             self.flushMod()
@@ -3251,12 +3265,9 @@ original layout of the facts has been lost."""))
         return "ok"
 
     def optimize(self):
-        oldSize = os.stat(self.path)[stat.ST_SIZE]
         self.s.commit()
         self.s.statement("vacuum")
         self.s.statement("analyze")
-        newSize = os.stat(self.path)[stat.ST_SIZE]
-        return oldSize - newSize
 
     # Undo/redo
     ##########################################################################
