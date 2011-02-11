@@ -7,7 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
 from PyQt4.QtWebKit import QWebPage
 import re, os, sys, tempfile, urllib2, ctypes
-from anki.utils import stripHTML, tidyHTML, canonifyTags
+from anki.utils import stripHTML, tidyHTML, canonifyTags, fieldChecksum
 from ankiqt.ui.sound import getAudio
 import anki.sound
 from ankiqt import ui
@@ -573,9 +573,12 @@ class FactEditor(object):
         if not field.fieldModel.unique:
             return True
         req = ("select value from fields "
-               "where fieldModelId = :fmid and value = :val and id != :id")
+               "where fieldModelId = :fmid and value = :val and id != :id "
+               "and chksum = :chk")
+        val = self.textForField(field)
         return not self.deck.s.scalar(
-            req, val=self.textForField(field), fmid=field.fieldModel.id, id=field.id)
+            req, val=val, fmid=field.fieldModel.id,
+            id=field.id, chk=fieldChecksum(val))
 
     def onTagChange(self):
         if not self.fact:
