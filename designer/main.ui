@@ -3081,7 +3081,6 @@
       <string>Ad&amp;vanced</string>
      </property>
      <addaction name="actionFullDatabaseCheck"/>
-     <addaction name="actionOptimizeDatabase"/>
      <addaction name="separator"/>
      <addaction name="actionCheckMediaDatabase"/>
      <addaction name="actionRecordNoiseProfile"/>
@@ -3502,18 +3501,6 @@
    </property>
    <property name="statusTip">
     <string>Save this deck, giving it a new name</string>
-   </property>
-  </action>
-  <action name="actionOptimizeDatabase">
-   <property name="icon">
-    <iconset resource="../icons.qrc">
-     <normaloff>:/icons/games-solve.png</normaloff>:/icons/games-solve.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Optimize Database</string>
-   </property>
-   <property name="statusTip">
-    <string>Remove unused space, making the database file smaller</string>
    </property>
   </action>
   <action name="actionCheckMediaDatabase">

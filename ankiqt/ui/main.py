@@ -2505,7 +2505,6 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionRedo, s, self.onRedo)
         self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
-        self.connect(m.actionOptimizeDatabase, s, self.onOptimizeDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
         self.connect(m.actionLocalizeMedia, s, self.onLocalizeMedia)
@@ -3069,30 +3068,21 @@ Any changes on the server since your last sync will be lost.<br>
 Proceed?""")):
             return
         ret = self.deck.fixIntegrity()
-        if ret == "ok":
-            ret = True
-            ui.utils.showInfo(_("No problems found."))
-        else:
-            ret = _("Problems found:\n%s") % ret
-            diag = QDialog(self)
-            diag.setWindowTitle("Anki")
-            layout = QVBoxLayout(diag)
-            diag.setLayout(layout)
-            text = QTextEdit()
-            text.setReadOnly(True)
-            text.setPlainText(ret)
-            layout.addWidget(text)
-            box = QDialogButtonBox(QDialogButtonBox.Close)
-            layout.addWidget(box)
-            self.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
-            diag.exec_()
-            ret = False
+        diag = QDialog(self)
+        diag.setWindowTitle("Anki")
+        layout = QVBoxLayout(diag)
+        diag.setLayout(layout)
+        text = QTextEdit()
+        text.setReadOnly(True)
+        text.setPlainText(ret)
+        layout.addWidget(text)
+        box = QDialogButtonBox(QDialogButtonBox.Close)
+        layout.addWidget(box)
+        self.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
+        diag.exec_()
+        ret = False
         self.reset()
         return ret
-
-    def onOptimizeDB(self):
-        size = self.deck.optimize()
-        ui.utils.showInfo(_("Database optimized.\nShrunk by %dKB") % (size/1024.0))
 
     def onCheckMediaDB(self):
         mb = QMessageBox(self)
