@@ -43,6 +43,7 @@ fieldModelsTable = Table(
     # reused as RTL marker
     Column('features', UnicodeText, nullable=False, default=u""),
     Column('required', Boolean, nullable=False, default=True),
+    # if code changes this, it should call deck.updateFieldChecksums()
     Column('unique', Boolean, nullable=False, default=True), # sqlite keyword
     Column('numeric', Boolean, nullable=False, default=False),
     # display

@@ -277,6 +277,12 @@ def deleteTags(tagstr, tags):
 def checksum(data):
     return md5(data).hexdigest()
 
+def fieldChecksum(data):
+    # 8 digit md5 hash of utf8 string, or empty string if empty value
+    if not data:
+        return ""
+    return checksum(data.encode("utf-8"))[:8]
+
 def call(argv, wait=True, **kwargs):
     try:
         o = subprocess.Popen(argv, **kwargs)

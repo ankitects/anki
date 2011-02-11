@@ -16,7 +16,7 @@ from anki.lang import _, ngettext
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
-     canonifyTags, joinTags, addTags, checksum
+     canonifyTags, joinTags, addTags, checksum, fieldChecksum
 from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel, formatQA
 from anki.stats import dailyStats, globalStats, genToday
@@ -56,7 +56,7 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 70
+DECK_VERSION = 71
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -392,6 +392,32 @@ update cards set
 type = (case
 when type >= 0 then relativeDelay else relativeDelay - 3 end)
 """)
+
+    def updateAllFieldChecksums(self):
+        # zero out
+        self.s.statement("update fields set chksum = ''")
+        # add back for unique fields
+        for m in self.models:
+            for fm in m.fieldModels:
+                self.updateFieldChecksums(fm.id)
+
+    def updateFieldChecksums(self, fmid):
+        self.s.flush()
+        self.setSchemaModified()
+        unique = self.s.scalar(
+            "select \"unique\" from fieldModels where id = :id", id=fmid)
+        if unique:
+            l = []
+            for (id, value) in self.s.all(
+                "select id, value from fields where fieldModelId = :id",
+                id=fmid):
+                l.append({'id':id, 'chk':fieldChecksum(value)})
+            self.s.statements(
+                "update fields set chksum = :chk where id = :id", l)
+        else:
+            self.s.statement(
+                "update fields set chksum = '' where fieldModelId=:id",
+                id=fmid)
 
     def _cardQueue(self, card):
         return self.cardType(card)
@@ -2697,10 +2723,15 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
                 for (id, fid, val) in rows
                 if val.find(src) != -1]
         # update
-        self.s.statements(
-        'update fields set value = :val where id = :id', modded)
-        self.updateCardQACacheFromIds([f['fid'] for f in modded],
+        if modded:
+            self.s.statements(
+                'update fields set value = :val where id = :id', modded)
+            self.updateCardQACacheFromIds([f['fid'] for f in modded],
                                           type="facts")
+            if field:
+                self.updateFieldChecksums(field)
+            else:
+                self.updateAllFieldChecksums()
         return len(set([f['fid'] for f in modded]))
 
     # Find duplicates
@@ -2989,7 +3020,8 @@ Return new path, relative to media dir."""
         self.modified = newTime or time.time()
 
     def setSchemaModified(self):
-        self.setVar("schemaMod", time.time())
+        # we might be called during an upgrade, so avoid bumping modtime
+        self.setVar("schemaMod", time.time(), mod=False)
 
     def flushMod(self):
         "Mark modified and flush to DB."
@@ -3113,10 +3145,10 @@ where id = :id""", fid=f.id, cmid=m.cardModels[0].id, id=id)
         if quick:
             num = 4
         else:
-            num = 9
+            num = 10
             oldSize = os.stat(self.path)[stat.ST_SIZE]
         self.startProgress(num)
-        self.updateProgress(_("Checking integrity..."))
+        self.updateProgress(_("Checking database..."))
         if self.s.scalar("pragma integrity_check") != "ok":
             self.finishProgress()
             return _("Database file is damaged.\n"
@@ -3125,7 +3157,7 @@ where id = :id""", fid=f.id, cmid=m.cardModels[0].id, id=id)
         self.updateProgress()
         DeckStorage._addIndices(self)
         # does the user have a model?
-        self.updateProgress(_("Checking schema..."))
+        self.updateProgress()
         if not self.s.scalar("select count(id) from models"):
             self.addModel(BasicModel())
             problems.append(_("Deck was missing a model"))
@@ -3209,10 +3241,10 @@ select id from fields where factId not in (select id from facts)""")
                 "update cardModels set allowEmptyAnswer = 1, typeAnswer = '' "
                 "where allowEmptyAnswer is null or typeAnswer is null")
             # fix tags
-            self.updateProgress(_("Rebuilding tag cache..."))
+            self.updateProgress()
             self.updateCardTags()
             # make sure ordinals are correct
-            self.updateProgress(_("Updating ordinals..."))
+            self.updateProgress()
             self.s.statement("""
 update fields set ordinal = (select ordinal from fieldModels
 where id = fieldModelId)""")
@@ -3220,7 +3252,7 @@ where id = fieldModelId)""")
 update cards set ordinal = (select ordinal from cardModels
 where cards.cardModelId = cardModels.id)""")
             # fix problems with stripping html
-            self.updateProgress(_("Rebuilding QA cache..."))
+            self.updateProgress()
             fields = self.s.all("select id, value from fields")
             newFields = []
             for (id, value) in fields:
@@ -3228,11 +3260,14 @@ where cards.cardModelId = cardModels.id)""")
             self.s.statements(
                 "update fields set value=:value where id=:id",
                 newFields)
+            # and field checksums
+            self.updateProgress()
+            self.updateAllFieldChecksums()
             # regenerate question/answer cache
             for m in self.models:
                 self.updateCardsFromModel(m, dirty=False)
             # rebuild
-            self.updateProgress(_("Rebuilding types..."))
+            self.updateProgress()
             self.rebuildTypes()
             # since we can ensure the updated version will be propagated to
             # all locations, we can forget old tombstones
@@ -3241,7 +3276,7 @@ where cards.cardModelId = cardModels.id)""")
             # force a full sync
             self.setSchemaModified()
             # and finally, optimize
-            self.updateProgress(_("Optimizing..."))
+            self.updateProgress()
             self.optimize()
             newSize = os.stat(self.path)[stat.ST_SIZE]
             save = (oldSize - newSize)/1024
@@ -3521,8 +3556,16 @@ class DeckStorage(object):
                 metadata.create_all(engine)
                 deck = DeckStorage._init(s)
             else:
-                # add any possibly new tables if we're upgrading
                 ver = s.scalar("select version from decks limit 1")
+                # add a checksum to fields
+                if ver < 71:
+                    try:
+                        s.execute(
+                            "alter table fields add column chksum text "+
+                            "not null default ''")
+                    except:
+                        pass
+                # add any possibly new tables if we're upgrading
                 if ver < DECK_VERSION:
                     metadata.create_all(engine)
                 deck = s.query(Deck).get(1)
@@ -3695,7 +3738,7 @@ create index if not exists ix_fields_factId on fields (factId)""")
         deck.s.statement("""
 create index if not exists ix_fields_fieldModelId on fields (fieldModelId)""")
         deck.s.statement("""
-create index if not exists ix_fields_value on fields (value)""")
+create index if not exists ix_fields_chksum on fields (chksum)""")
         # media
         deck.s.statement("""
 create unique index if not exists ix_media_filename on media (filename)""")
@@ -3860,9 +3903,17 @@ this message. (ERR-0101)""") % {
                       "revCardsDue", "revCardsRandom", "acqCardsRandom",
                       "acqCardsOld", "acqCardsNew"):
                 deck.s.statement("drop view if exists %s" % v)
+            deck.version = 70
+            deck.s.commit()
+        if deck.version < 71:
+            # remove the expensive value cache
+            deck.s.statement("drop index if exists ix_fields_value")
+            # add checksums and index
+            deck.updateAllFieldChecksums()
+            DeckStorage._addIndices(deck)
             deck.s.execute("vacuum")
             deck.s.execute("analyze")
-            deck.version = 70
+            deck.version = 71
             deck.s.commit()
         # executing a pragma here is very slow on large decks, so we store
         # our own record

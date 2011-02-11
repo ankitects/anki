@@ -129,6 +129,41 @@ def test_factAddDelete():
     # and the second should clear the fact
     deck.deleteCard(id2)
 
+def test_fieldChecksum():
+    deck = DeckStorage.Deck()
+    deck.addModel(BasicModel())
+    f = deck.newFact()
+    f['Front'] = u"new"; f['Back'] = u"new2"
+    deck.addFact(f)
+    (id, sum) = deck.s.first(
+        "select id, chksum from fields where value = 'new'")
+    assert sum == "22af645d"
+    # empty field should have no checksum
+    f['Front'] = u""
+    deck.s.flush()
+    assert deck.s.scalar(
+        "select chksum from fields where id = :id", id=id) == ""
+    # changing the value should change the checksum
+    f['Front'] = u"newx"
+    deck.s.flush()
+    assert deck.s.scalar(
+        "select chksum from fields where id = :id", id=id) == "4b0e5a4c"
+    # back should have no checksum, because it's not set to be unique
+    (id, sum) = deck.s.first(
+        "select id, chksum from fields where value = 'new2'")
+    assert sum == ""
+    # if we turn on unique, it should get a checksum
+    fm = f.model.fieldModels[1]
+    fm.unique = True
+    deck.updateFieldChecksums(fm.id)
+    assert deck.s.scalar(
+        "select chksum from fields where id = :id", id=id) == "82f2ec5f"
+    # and turning it off should zero the checksum again
+    fm.unique = False
+    deck.updateFieldChecksums(fm.id)
+    assert deck.s.scalar(
+        "select chksum from fields where id = :id", id=id) == ""
+
 def test_modelAddDelete():
     deck = DeckStorage.Deck()
     deck.addModel(BasicModel())

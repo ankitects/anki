@@ -12,7 +12,7 @@ import time
 from anki.db import *
 from anki.errors import *
 from anki.models import Model, FieldModel, fieldModelsTable
-from anki.utils import genID, stripHTMLMedia
+from anki.utils import genID, stripHTMLMedia, fieldChecksum
 from anki.hooks import runHook
 
 # Fields in a fact
@@ -25,7 +25,8 @@ fieldsTable = Table(
     Column('fieldModelId', Integer, ForeignKey("fieldModels.id"),
            nullable=False),
     Column('ordinal', Integer, nullable=False),
-    Column('value', UnicodeText, nullable=False))
+    Column('value', UnicodeText, nullable=False),
+    Column('chksum', String, nullable=False, default=""))
 
 class Field(object):
     "A field in a fact."
@@ -90,9 +91,14 @@ class Fact(object):
 
     def __setitem__(self, key, value):
         try:
-            [f for f in self.fields if f.name == key][0].value = value
+            item = [f for f in self.fields if f.name == key][0]
         except IndexError:
             raise KeyError
+        item.value = value
+        if item.fieldModel.unique:
+            item.chksum = fieldChecksum(value)
+        else:
+            item.chksum = ""
 
     def get(self, key, default):
         try:
@@ -121,10 +127,11 @@ class Fact(object):
         if not field.fieldModel.unique:
             return True
         req = ("select value from fields "
-               "where fieldModelId = :fmid and value = :val")
+               "where fieldModelId = :fmid and value = :val and chksum = :chk")
         if field.id:
             req += " and id != %s" % field.id
-        return not s.scalar(req, val=field.value, fmid=field.fieldModel.id)
+        return not s.scalar(req, val=field.value, fmid=field.fieldModel.id,
+                         chk=fieldChecksum(field.value))
 
     def focusLost(self, field):
         runHook('fact.focusLost', self, field)

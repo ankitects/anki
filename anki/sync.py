@@ -430,7 +430,7 @@ class SyncTools(object):
 select id, modelId, created, %s, tags, spaceUntil, lastCardId from facts
 where id in %s""" % (modified, factIds))),
             'fields': self.realLists(self.deck.s.all("""
-select id, factId, fieldModelId, ordinal, value from fields
+select id, factId, fieldModelId, ordinal, value, chksum from fields
 where factId in %s""" % factIds))
             }
 
@@ -455,12 +455,17 @@ insert or replace into facts
 values
 (:id, :modelId, :created, :modified, :tags, :spaceUntil, :lastCardId)""", dlist)
         # now fields
+        def chksum(f):
+            if len(f) > 5:
+                return f[5]
+            return self.deck.fieldChecksum(f[4])
         dlist = [{
             'id': f[0],
             'factId': f[1],
             'fieldModelId': f[2],
             'ordinal': f[3],
-            'value': f[4]
+            'value': f[4],
+            'chksum': f[5]
             } for f in fields]
         # delete local fields since ids may have changed
         self.deck.s.execute(
@@ -469,9 +474,9 @@ values
         # then update
         self.deck.s.execute("""
 insert into fields
-(id, factId, fieldModelId, ordinal, value)
+(id, factId, fieldModelId, ordinal, value, chksum)
 values
-(:id, :factId, :fieldModelId, :ordinal, :value)""", dlist)
+(:id, :factId, :fieldModelId, :ordinal, :value, :chksum)""", dlist)
         self.deck.s.statement(
             "delete from factsDeleted where factId in %s" %
             ids2str([f[0] for f in facts]))

@@ -17,7 +17,7 @@ import time
 from anki.cards import cardsTable
 from anki.facts import factsTable, fieldsTable
 from anki.lang import _
-from anki.utils import genID, canonifyTags
+from anki.utils import genID, canonifyTags, fieldChecksum
 from anki.utils import canonifyTags, ids2str
 from anki.errors import *
 from anki.deck import NEW_CARDS_RANDOM
@@ -122,11 +122,12 @@ and value != ''""",
                 continue
             data = [{'fid': fid,
                      'fmid': fm.id,
-                     'v': c.fields[index]}
+                     'v': c.fields[index],
+                     'chk': self.maybeChecksum(c.fields[index], fm.unique)}
                     for (fid, c) in upcards]
             self.deck.s.execute("""
-update fields set value = :v where factId = :fid and fieldModelId = :fmid""",
-                                data)
+update fields set value = :v, chksum = :chk where factId = :fid
+and fieldModelId = :fmid""", data)
         # update tags
         self.deck.updateProgress()
         if tagsIdx is not None:
@@ -144,13 +145,18 @@ update fields set value = :v where factId = :fid and fieldModelId = :fmid""",
         self.deck.updateCardTags(cids)
         self.deck.updateProgress()
         self.deck.updateCardsFromFactIds(fids)
-        self.total = len(fids)
+        self.total = len(cards)
         self.deck.setModified()
         self.deck.finishProgress()
 
     def fields(self):
         "The number of fields."
         return 0
+
+    def maybeChecksum(self, data, unique):
+        if not unique:
+            return ""
+        return fieldChecksum(data)
 
     def foreignCards(self):
         "Return a list of foreign cards for importing."
@@ -254,7 +260,11 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                      'ordinal': fm.ordinal,
                      'id': genID(),
                      'value': (index is not None and
-                               cards[m].fields[index] or u"")}
+                               cards[m].fields[index] or u""),
+                     'chksum': self.maybeChecksum(
+                index is not None and
+                cards[m].fields[index] or u"", fm.unique)
+                     }
                     for m in range(len(cards))]
             self.deck.s.execute(fieldsTable.insert(),
                                 data)
