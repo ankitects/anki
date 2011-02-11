@@ -28,7 +28,7 @@ from anki.hooks import runHook, hookEmpty
 from anki.template import render
 from anki.media import updateMediaCount, mediaFiles, \
      rebuildMediaDir
-from anki.upgrade import upgradeSchema, updateIndices, upgradeDeck
+from anki.upgrade import upgradeSchema, updateIndices, upgradeDeck, DECK_VERSION
 import anki.latex # sets up hook
 
 # ensure all the DB metadata in other files is loaded before proceeding
@@ -57,7 +57,6 @@ SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
-DECK_VERSION = 71
 
 deckVarsTable = Table(
     'deckVars', metadata,
@@ -127,7 +126,6 @@ class Deck(object):
 
     factorFour = 1.3
     initialFactor = 2.5
-    minimumAverage = 1.7
     maxScheduleTime = 36500
 
     def __init__(self, path=None):
@@ -3636,10 +3634,7 @@ class DeckStorage(object):
         # check if deck has been moved, and disable syncing
         deck.checkSyncHash()
         # determine starting factor for new cards
-        deck.averageFactor = (deck.s.scalar(
-            "select avg(factor) from cards where type = 1")
-                               or Deck.initialFactor)
-        deck.averageFactor = max(deck.averageFactor, Deck.minimumAverage)
+        deck.averageFactor = 2.5
         # rebuild queue
         deck.reset()
         # make sure we haven't accidentally bumped the modification time

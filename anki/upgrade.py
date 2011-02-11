@@ -2,6 +2,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+DECK_VERSION = 72
+
+from anki.lang import _
+from anki.media import rebuildMediaDir
+
 def upgradeSchema(s):
     "Alter tables prior to ORM initialization."
     ver = s.scalar("select version from decks limit 1")
@@ -37,10 +42,6 @@ create index if not exists ix_facts_modified on facts
     deck.s.statement("""
 create index if not exists ix_cards_priority on cards
 (priority)""")
-    # average factor
-    deck.s.statement("""
-create index if not exists ix_cards_factor on cards
-(type, factor)""")
     # card spacing
     deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
@@ -84,7 +85,6 @@ create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
 
 def upgradeDeck(deck):
     "Upgrade deck to the latest version."
-    from anki.deck import DECK_VERSION
     if deck.version < DECK_VERSION:
         prog = True
         deck.startProgress()
@@ -228,6 +228,11 @@ this message. (ERR-0101)""") % {
         deck.s.execute("vacuum")
         deck.s.execute("analyze")
         deck.version = 71
+        deck.s.commit()
+    if deck.version < 72:
+        # remove the expensive value cache
+        deck.s.statement("drop index if exists ix_cards_factor")
+        deck.version = 72
         deck.s.commit()
     # executing a pragma here is very slow on large decks, so we store
     # our own record
