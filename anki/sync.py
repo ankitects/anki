@@ -33,7 +33,7 @@ if simplejson.__version__ < "1.7.3":
 
 CHUNK_SIZE = 32768
 MIME_BOUNDARY = "Anki-sync-boundary"
-SYNC_HOST = os.environ.get("SYNC_HOST") or "ankiweb.net"
+SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
 SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 KEYS = ("models", "facts", "cards", "media")
