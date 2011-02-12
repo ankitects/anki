@@ -3625,12 +3625,9 @@ class DeckStorage(object):
         if deck.delay1 > 7:
             deck.delay1 = 0
         # unsuspend buried/rev early
-        ids = deck.s.column0(
-            "select id from cards where type > 2")
-        if ids:
-            deck.s.statement(
-                "update cards set type = relativeDelay where type > 2")
-            deck.s.commit()
+        deck.s.statement(
+            "update cards set type = relativeDelay where type > 2")
+        deck.s.commit()
         # check if deck has been moved, and disable syncing
         deck.checkSyncHash()
         # determine starting factor for new cards
