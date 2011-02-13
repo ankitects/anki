@@ -2,12 +2,6 @@
 # Author Chris Aakre <caaakre@gmail.com>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Importing WCU files
-====================
-"""
-__docformat__ = 'restructuredtext'
-
 import codecs
 from anki.importing import Importer, ForeignCard
 from anki.lang import _

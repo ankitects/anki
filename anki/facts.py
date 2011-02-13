@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Facts
-========
-"""
-__docformat__ = 'restructuredtext'
-
 import time
 from anki.db import *
 from anki.errors import *

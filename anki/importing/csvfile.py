@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Importing CSV/TSV files
-========================
-"""
-__docformat__ = 'restructuredtext'
-
 import codecs, csv, re
 from anki.importing import Importer, ForeignCard
 from anki.lang import _

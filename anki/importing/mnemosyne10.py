@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Importing Mnemosyne 1.0 decks
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 import sys, pickle, time, re
 from anki.importing import Importer, ForeignCard
 from anki.errors import *

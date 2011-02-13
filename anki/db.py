@@ -13,7 +13,6 @@ object_session() is a replacement for the standard object_session(), which
 provides the features of SessionHelper, and avoids taking out another
 transaction.
 """
-__docformat__ = 'restructuredtext'
 
 try:
     from pysqlite2 import dbapi2 as sqlite

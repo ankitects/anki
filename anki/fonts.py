@@ -2,11 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Fonts - mapping to/from platform-specific fonts
-==============================================================
-"""
-
 import sys
 
 # set this to 'all', to get all fonts in a list

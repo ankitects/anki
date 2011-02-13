@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Graphs of deck statistics
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 import os, sys, time
 import anki.stats
 from anki.lang import _

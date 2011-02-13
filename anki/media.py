@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Media support
-====================
-"""
-__docformat__ = 'restructuredtext'
-
 import os, shutil, re, urllib2, time, tempfile, unicodedata, urllib
 from anki.db import *
 from anki.utils import checksum, genID

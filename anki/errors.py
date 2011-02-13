@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Errors
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 class Error(Exception):
     def __init__(self, message="", **data):
         self.data = data

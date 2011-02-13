@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Exporting support
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 import itertools, time, re, os, HTMLParser
 from operator import itemgetter
 from anki import DeckStorage

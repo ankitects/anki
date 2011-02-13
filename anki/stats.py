@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Statistical tracking and reports
-=================================
-"""
-__docformat__ = 'restructuredtext'
-
 # we track statistics over the life of the deck, and per-day
 STATS_LIFE = 0
 STATS_DAY = 1

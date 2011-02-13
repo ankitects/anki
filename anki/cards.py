@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Cards
-====================
-"""
-__docformat__ = 'restructuredtext'
-
 import time, sys, math, random
 from anki.db import *
 from anki.models import CardModel, Model, FieldModel, formatQA

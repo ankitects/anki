@@ -11,8 +11,6 @@ may be extended by calling code if a file has more fields. To ignore a
 particular FieldModel, replace it with None. A special number 0 donates a tags
 field. The same field model should not occur more than once."""
 
-__docformat__ = 'restructuredtext'
-
 import time
 from anki.cards import cardsTable
 from anki.facts import factsTable, fieldsTable

@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Miscellaneous utilities
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 import re, os, random, time, types, math, htmlentitydefs, subprocess
 
 try:

@@ -2,17 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-History - keeping a record of all reviews
-==========================================
-
-If users run 'check db', duplicate records will be inserted into the DB - I
-really should have used the time stamp as the key. You can remove them by
-keeping the lowest id for any given timestamp.
-"""
-
-__docformat__ = 'restructuredtext'
-
 import time
 from anki.db import *
 

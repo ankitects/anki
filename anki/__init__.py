@@ -28,7 +28,7 @@ Edit the card:
 
     fields = card.fact.model.fieldModels
     for field in fields:
-        card.fact[field.name] = "newvalue"
+        card.fact[field.name] = 'newvalue'
     card.fact.setModified(textChanged=True, deck=deck)
     deck.setModified()
 
@@ -46,7 +46,6 @@ Save & close:
     deck.save()
     deck.close()
 """
-__docformat__ = 'restructuredtext'
 
 try:
     __import__('pkg_resources').declare_namespace(__name__)

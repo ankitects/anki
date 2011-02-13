@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Latex support
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 import re, tempfile, os, sys, shutil, cgi, subprocess
 from anki.utils import genID, checksum, call
 from anki.hooks import addHook

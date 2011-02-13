@@ -2,12 +2,6 @@
 # Copyright: petr.michalec@gmail.com
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Importing Supermemo XML decks
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 import sys
 
 from anki.importing import Importer, ForeignCard
@@ -24,16 +18,16 @@ import re, unicodedata, time
 from anki.deck import Deck
 
 class SmartDict(dict):
-    """ 
+    """
     See http://www.peterbe.com/plog/SmartDict
     Copyright 2005, Peter Bengtsson, peter@fry-it.com
 
-    A smart dict can be instanciated either from a pythonic dict 
-    or an instance object (eg. SQL recordsets) but it ensures that you can 
+    A smart dict can be instanciated either from a pythonic dict
+    or an instance object (eg. SQL recordsets) but it ensures that you can
     do all the convenient lookups such as x.first_name, x['first_name'] or
     x.get('first_name').
     """
-    
+
     def __init__(self, *a, **kw):
         if a:
             if type(a[0]) is DictType:
@@ -42,10 +36,10 @@ class SmartDict(dict):
                 kw.update(a[0].__dict__)
             elif hasattr(a[0], '__class__') and a[0].__class__.__name__=='SmartDict':
                 kw.update(a[0].__dict__)
-                
+
         dict.__init__(self, **kw)
         self.__dict__ = self
-        
+
 class SuperMemoElement(SmartDict):
   "SmartDict wrapper to store SM Element data"
 
@@ -72,14 +66,14 @@ class SuperMemoElement(SmartDict):
 class SupermemoXmlImporter(Importer):
     """
     Supermemo XML export's to Anki parser.
-    Goes through a SM collection and fetch all elements. 
+    Goes through a SM collection and fetch all elements.
 
     My SM collection was a big mess where topics and items were mixed.
     I was unable to parse my content in a regular way like for loop on
     minidom.getElementsByTagName() etc. My collection had also an
     limitation, topics were splited into branches with max 100 items
     on each. Learning themes were in deep structure. I wanted to have
-    full title on each element to be stored in tags. 
+    full title on each element to be stored in tags.
 
     Code should be upgrade to support importing of SM2006 exports.
     """
@@ -133,13 +127,13 @@ class SupermemoXmlImporter(Importer):
     def _decode_htmlescapes(self,s):
         """Unescape HTML code."""
         #In case of bad formated html you can import MinimalSoup etc.. see btflsoup source code
-        from BeautifulSoup import BeautifulStoneSoup as btflsoup    
+        from BeautifulSoup import BeautifulStoneSoup as btflsoup
 
         #my sm2004 also ecaped & char in escaped sequences.
-        s = re.sub(u'&amp;',u'&',s) 
+        s = re.sub(u'&amp;',u'&',s)
         #unescaped solitary chars < or > that were ok for minidom confuse btfl soup
-        s = re.sub(u'>',u'&gt;',s) 
-        s = re.sub(u'<',u'&lt;',s) 
+        s = re.sub(u'>',u'&gt;',s)
+        s = re.sub(u'<',u'&lt;',s)
 
         return unicode(btflsoup(s,convertEntities=btflsoup.HTML_ENTITIES ))
 
@@ -148,7 +142,7 @@ class SupermemoXmlImporter(Importer):
         """Note: This method is not used, BeautifulSoup does better job.
         """
 
-        if self._unescape_trtable == None: 
+        if self._unescape_trtable == None:
             self._unescape_trtable = (
               ('&euro;',u'€'), ('&#32;',u' '), ('&#33;',u'!'), ('&#34;',u'"'), ('&#35;',u'#'), ('&#36;',u'$'), ('&#37;',u'%'), ('&#38;',u'&'), ('&#39;',u"'"),
               ('&#40;',u'('), ('&#41;',u')'), ('&#42;',u'*'), ('&#43;',u'+'), ('&#44;',u','), ('&#45;',u'-'), ('&#46;',u'.'), ('&#47;',u'/'), ('&#48;',u'0'),
@@ -195,7 +189,7 @@ class SupermemoXmlImporter(Importer):
               ('&#362;',u'Ū'), ('&#363;',u'ū'), ('&#364;',u'Ŭ'), ('&#365;',u'ŭ'), ('&#366;',u'Ů'), ('&#367;',u'ů'), ('&#368;',u'Ű'), ('&#369;',u'ű'),
               ('&#370;',u'Ų'), ('&#371;',u'ų'), ('&#372;',u'Ŵ'), ('&#373;',u'ŵ'), ('&#374;',u'Ŷ'), ('&#375;',u'ŷ'), ('&#376;',u'Ÿ'), ('&#377;',u'Ź'),
               ('&#378;',u'ź'), ('&#379;',u'Ż'), ('&#380;',u'ż'), ('&#381;',u'Ž'), ('&#382;',u'ž'), ('&#383;',u'ſ'),
-          ) 
+          )
 
 
       #m = re.match()
@@ -213,7 +207,7 @@ class SupermemoXmlImporter(Importer):
         self.logger(u'Parsing started.')
         self.parse()
         self.logger(u'Parsing done.')
-        
+
         # Return imported cards
         return self.cards
 
@@ -236,8 +230,8 @@ class SupermemoXmlImporter(Importer):
         # pre-process scheduling data
         tLastrep = time.mktime(time.strptime(item.LastRepetition, '%d.%m.%Y'))
         tToday = time.time()
-        
-        # convert learning data 
+
+        # convert learning data
         if not self.META.resetLearningData:
             # migration of LearningData algorithm
             card.interval = item.Interval
@@ -270,7 +264,7 @@ class SupermemoXmlImporter(Importer):
         if tTaggTitle or self.META.tagAllTopics:
           # normalize - remove diacritic punctuation from unicode chars to ascii
           item.lTitle = [ self._unicode2ascii(topic) for topic in item.lTitle]
-          
+
           # Transfrom xyz / aaa / bbb / ccc on Title path to Tag  xyzAaaBbbCcc
           #  clean things like [999] or [111-2222] from title path, example: xyz / [1000-1200] zyx / xyz
           #  clean whitespaces
@@ -302,27 +296,27 @@ class SupermemoXmlImporter(Importer):
 
 
     # OPEN AND LOAD
-    def openAnything(self,source):   
+    def openAnything(self,source):
         "Open any source / actually only openig of files is used"
 
         if source == "-":
             return sys.stdin
 
         # try to open with urllib (if source is http, ftp, or file URL)
-        import urllib                         
-        try:                                  
-            return urllib.urlopen(source)   
-        except (IOError, OSError):            
-            pass                              
+        import urllib
+        try:
+            return urllib.urlopen(source)
+        except (IOError, OSError):
+            pass
 
         # try to open with native open function (if source is pathname)
-        try:                                  
-            return open(source)           
-        except (IOError, OSError):            
-            pass                              
+        try:
+            return open(source)
+        except (IOError, OSError):
+            pass
 
         # treat source as string
-        import StringIO                       
+        import StringIO
         return StringIO.StringIO(str(source))
 
     def loadSource(self, source):
@@ -336,7 +330,7 @@ class SupermemoXmlImporter(Importer):
 
 
     # PARSE
-    def parse(self, node=None):          
+    def parse(self, node=None):
         "Parse method - parses document elements"
 
         if node==None and self.xmldoc<>None:
@@ -349,12 +343,12 @@ class SupermemoXmlImporter(Importer):
         else:
           self.logger(u'No handler for method %s' % _method, level=3)
 
-    def parse_Document(self, node): 
+    def parse_Document(self, node):
         "Parse XML document"
 
         self.parse(node.documentElement)
 
-    def parse_Element(self, node): 
+    def parse_Element(self, node):
         "Parse XML element"
 
         _method = "do_%s" % node.tagName
@@ -365,7 +359,7 @@ class SupermemoXmlImporter(Importer):
           self.logger(u'No handler for method %s' % _method, level=3)
           #print traceback.print_exc()
 
-    def parse_Text(self, node):    
+    def parse_Text(self, node):
         "Parse text inside elements. Text is stored into local buffer."
 
         text = node.data
@@ -379,12 +373,12 @@ class SupermemoXmlImporter(Importer):
 
 
     # DO
-    def do_SuperMemoCollection(self, node): 
+    def do_SuperMemoCollection(self, node):
         "Process SM Collection"
 
         for child in node.childNodes: self.parse(child)
 
-    def do_SuperMemoElement(self, node): 
+    def do_SuperMemoElement(self, node):
         "Process SM Element (Type - Title,Topics)"
 
         self.logger('='*45, level=3)
@@ -407,7 +401,7 @@ class SupermemoXmlImporter(Importer):
         # if smel.Lapses != None and smel.Interval != None and smel.Question != None and smel.Answer != None:
         if smel.Title == None and smel.Question != None and smel.Answer != None:
           if smel.Answer.strip() !='' and smel.Question.strip() !='':
-            
+
             # migrate only memorized otherway skip/continue
             if self.META.onlyMemorizedItems and not(int(smel.Interval) > 0):
               self.logger(u'Element skiped  \t- not memorized ...', level=3)
@@ -425,7 +419,7 @@ class SupermemoXmlImporter(Importer):
 
 
         else:
-          # now we know that item was topic 
+          # now we know that item was topic
           # parseing of whole node is now finished
 
           # test if it's really topic
@@ -434,31 +428,31 @@ class SupermemoXmlImporter(Importer):
             t = self.cntMeta['title'].pop()
             self.logger(u'End of topic \t- %s' % (t), level=2)
 
-    def do_Content(self, node): 
+    def do_Content(self, node):
         "Process SM element Content"
 
         for child in node.childNodes:
           if hasattr(child,'tagName') and child.firstChild != None:
             self.cntElm[-1][child.tagName]=child.firstChild.data
 
-    def do_LearningData(self, node): 
+    def do_LearningData(self, node):
         "Process SM element LearningData"
-        
+
         for child in node.childNodes:
           if hasattr(child,'tagName') and child.firstChild != None:
             self.cntElm[-1][child.tagName]=child.firstChild.data
 
     # It's being processed in do_Content now
-    #def do_Question(self, node): 
+    #def do_Question(self, node):
     #    for child in node.childNodes: self.parse(child)
     #    self.cntElm[-1][node.tagName]=self.cntBuf.pop()
 
     # It's being processed in do_Content now
-    #def do_Answer(self, node): 
+    #def do_Answer(self, node):
     #    for child in node.childNodes: self.parse(child)
     #    self.cntElm[-1][node.tagName]=self.cntBuf.pop()
 
-    def do_Title(self, node): 
+    def do_Title(self, node):
         "Process SM element Title"
 
         t = self._decode_htmlescapes(node.firstChild.data)
@@ -468,7 +462,7 @@ class SupermemoXmlImporter(Importer):
         self.logger(u'Start of topic \t- ' + u" / ".join(self.cntMeta['title']), level=2)
 
 
-    def do_Type(self, node): 
+    def do_Type(self, node):
         "Process SM element Type"
 
         if len(self.cntBuf) >=1 :

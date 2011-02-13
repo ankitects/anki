@@ -2,15 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Synchronisation
-==============================
-
-Support for keeping two decks synchronized. Both local syncing and syncing
-over HTTP are supported.
-"""
-__docformat__ = 'restructuredtext'
-
 import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
 import os, base64, httplib, sys, tempfile, httplib, types
 from datetime import date

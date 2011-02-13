@@ -2,16 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Model - define the way in which facts are added and shown
-==========================================================
-
-- Field models
-- Card models
-- Models
-
-"""
-
 import time, re
 from sqlalchemy.ext.orderinglist import ordering_list
 from anki.db import *

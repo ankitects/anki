@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Sound support
-==============================
-"""
-__docformat__ = 'restructuredtext'
-
 import re, sys, threading, time, subprocess, os, signal, errno, atexit
 import tempfile, shutil
 from anki.hooks import addHook, runHook

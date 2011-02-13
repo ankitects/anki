@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-The Deck
-====================
-"""
-__docformat__ = 'restructuredtext'
-
 import tempfile, time, os, random, sys, re, stat, shutil
 import types, traceback, simplejson, datetime
 

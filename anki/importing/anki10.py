@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Importing Anki 0.9+ decks
-==========================
-"""
-__docformat__ = 'restructuredtext'
-
 from anki import DeckStorage
 from anki.importing import Importer
 from anki.sync import SyncClient, SyncServer, copyLocalMedia
