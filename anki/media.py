@@ -141,7 +141,7 @@ def escapeImages(string):
         if re.match("(https?|ftp)://", fname):
             return tag
         return tag.replace(
-            fname, taglib.quote(fname.encode("utf-8")))
+            fname, urllib.quote(fname.encode("utf-8")))
     return re.sub(regexps[1], repl, string)
 
 # Rebuilding DB
