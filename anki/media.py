@@ -136,9 +136,12 @@ def stripMedia(txt):
 
 def escapeImages(string):
     def repl(match):
-        return match.group(1).replace(
-            match.group(2),
-            urllib.quote(match.group(2).encode("utf-8")))
+        tag = match.group(1)
+        fname = match.group(2)
+        if re.match("(https?|ftp)://", fname):
+            return tag
+        return tag.replace(
+            fname, taglib.quote(fname.encode("utf-8")))
     return re.sub(regexps[1], repl, string)
 
 # Rebuilding DB
