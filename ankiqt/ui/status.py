@@ -68,7 +68,6 @@ class StatusView(object):
         else:
             shown = True
         self.progressBar.setShown(shown)
-        self.retentionBar.setShown(shown)
         self.etaText.setShown(shown)
         self.remText.setShown(shown)
         self.sep1.setShown(shown)
@@ -92,7 +91,7 @@ class StatusView(object):
     def showDeckStatus(self):
         if self.shown:
             return
-        progressBarSize = (50, 8)
+        progressBarSize = (50, 14)
         # small spacer
         self.initialSpace = QWidget()
         self.addWidget(self.initialSpace, 1)
@@ -110,27 +109,14 @@ class StatusView(object):
         # progress&retention
         self.sep2 = self.vertSep()
         self.addWidget(self.sep2, 0)
-        vbox = QVBoxLayout()
-        vbox.setSpacing(0)
-        vbox.setMargin(0)
         self.progressBar = QClickableProgress()
         self.progressBar.setFixedSize(*progressBarSize)
         self.progressBar.setMaximum(100)
         self.progressBar.setTextVisible(False)
-        vbox.addWidget(self.progressBar, 0)
-        self.retentionBar = QClickableProgress()
-        self.retentionBar.setFixedSize(*progressBarSize)
-        self.retentionBar.setMaximum(100)
-        self.retentionBar.setTextVisible(False)
-        vbox.addWidget(self.retentionBar, 0)
-        self.combinedBar = QWidget()
-        self.combinedBar.setLayout(vbox)
-        self.combinedBar.setFixedWidth(50)
         if QApplication.instance().style().objectName() != "plastique":
             self.plastiqueStyle = QStyleFactory.create("plastique")
             self.progressBar.setStyle(self.plastiqueStyle)
-            self.retentionBar.setStyle(self.plastiqueStyle)
-        self.addWidget(self.combinedBar, 0)
+        self.addWidget(self.progressBar, 0)
         # timer
         self.sep3 = self.vertSep()
         self.addWidget(self.sep3, 0)
@@ -157,7 +143,12 @@ class StatusView(object):
 
     def redraw(self):
         p = QPalette()
-        stats = self.main.deck.getStats()
+        stats = {
+            'failed': self.main.deck.failedSoonCount,
+            'new': self.main.deck.newCountToday,
+            'rev': self.main.deck.revCount,
+            'new2': self.main.deck.newCount
+        }
         remStr = _("Remaining: ")
         if self.state == "deckFinished":
             remStr += "<b>0</b>"
@@ -184,10 +175,8 @@ class StatusView(object):
                                "<u>%(new1)s</u>")
         stats['failed1'] = '<font color=#990000>%s</font>' % stats['failed']
         stats['rev1'] = '<font color=#000000>%s</font>' % stats['rev']
-        new = stats['new']
-        stats['new1'] = '<font color=#0000ff>%s</font>' % new
+        stats['new1'] = '<font color=#0000ff>%s</font>' % stats['new']
         self.remText.setText(remStr % stats)
-        stats['new2'] = self.main.deck.newCount
         self.remText.setToolTip("<h1>" +_(
             "Remaining cards") + "</h1><p/>" +
             ngettext("There is <b>%d</b> failed card due soon.", \
@@ -203,38 +192,18 @@ class StatusView(object):
             "There are <b>%d</b> new cards in total.",\
             stats['new2']) % stats['new2'])
         # eta
-        self.etaText.setText(_("ETA: <b>%(timeLeft)s</b>") % stats)
+        print "need eta"
+        self.etaText.setText(_("ETA: <b>%(timeLeft)s</b>")) # % stats)
         # retention & progress bars
         p.setColor(QPalette.Base, QColor("black"))
         p.setColor(QPalette.Button, QColor("black"))
-        self.setProgressColour(p, stats['gMatureYes%'])
-        self.retentionBar.setPalette(p)
-        self.retentionBar.setValue(stats['gMatureYes%'])
-        self.setProgressColour(p, stats['dYesTotal%'])
+        print "need yes total%"
+        self.setProgressColour(p, 50) #stats['dYesTotal%'])
         self.progressBar.setPalette(p)
-        self.progressBar.setValue(stats['dYesTotal%'])
+        self.progressBar.setValue(50)
         # tooltips
-        tip = "<h1>" + _("Performance") + "</h1>"
-        tip += _("Click the bars to learn more.")
-        tip += "<h2>" + _("Reviews today") + "</h2>"
-        tip += "<b>" + _("Correct today: ") + anki.utils.fmtPercentage(stats['dYesTotal%'], point=1)
-        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dYesTotal'], 'totalSum' : stats['dTotal'] } + ")</b><br>"
-        tip += _("Correct mature: ") + anki.utils.fmtPercentage(stats['dMatureYes%'], point=1)
-        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['dMatureYes'], 'totalSum' : stats['dMatureTotal'] } + ")</b><br>"
-        tip += _("Average time per answer: ") + anki.utils.fmtTimeSpan(stats['dAverageTime'], point=2) +"<br>"
-        tip += _("Total review time: ") + anki.utils.fmtTimeSpan(stats['dReviewTime'], point=2)
-        tip += "<h2>" + _("All Reviews") + "</h2>"
-        tip += "<b>" + _("Correct mature: ") + anki.utils.fmtPercentage(stats['gMatureYes%'], point=1)
-        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gMatureYes'], 'totalSum' : stats['gMatureTotal'] } + ")</b><br>"
-        tip += _("Average time per answer: ") + anki.utils.fmtTimeSpan(stats['gAverageTime'], point=2) +"<br>"
-        tip += _("Total review time: ") + anki.utils.fmtTimeSpan(stats['gReviewTime'], point=2) +"<br>"
-        tip += _("Correct young: ") + anki.utils.fmtPercentage(stats['gYoungYes%'], point=1)
-        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gYoungYes'], 'totalSum' : stats['gYoungTotal'] } + ")</b><br>"
-        tip += _("Correct first time: ") + anki.utils.fmtPercentage(stats['gNewYes%'], point=1)
-        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gNewYes'], 'totalSum' : stats['gNewTotal'] } + ")</b><br>"
-        tip += _("Total correct: ") + anki.utils.fmtPercentage(stats['gYesTotal%'], point=1)
-        tip += " (" + _("%(partOf)d of %(totalSum)d") % {'partOf' : stats['gYesTotal'], 'totalSum' : stats['gTotal'] } + ")</b><br>"
-        self.combinedBar.setToolTip(tip)
+        self.progressBar.setToolTip(
+            _("The percentage of correct answers this session."))
         if self.main.config['showTimer']:
             self.drawTimer()
             self.timer.setToolTip(_("""
