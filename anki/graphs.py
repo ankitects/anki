@@ -98,18 +98,7 @@ from cards c where relativeDelay = 1 and type >= 0 and interval > 21"""
             self.stats['months'] = months
             self.stats['lowestInDay'] = lowestInDay
 
-            dayReps = self.deck.s.all("""
-select day,
-       matureEase0+matureEase1+matureEase2+matureEase3+matureEase4 as matureReps,
-       reps-(newEase0+newEase1+newEase2+newEase3+newEase4) as combinedYoungReps,
-       reps as combinedNewReps
-from stats
-where type = 1""")
-
-            dayTimes = self.deck.s.all("""
-select day, reviewTime as reviewTime
-from stats
-where type = 1""")
+            dayReps = self.getDayReps()
 
             todaydt = self.deck._dailyStats.day
             for dest, source in [("dayRepsNew", "combinedNewReps"),
@@ -121,7 +110,18 @@ where type = 1""")
 
             self.stats['dayTimes'] = dict(
                 map(lambda dr: (-(todaydt -datetime.date(
-                *(int(x)for x in dr["day"].split("-")))).days, dr["reviewTime"]/60.0), dayTimes))
+                *(int(x)for x in dr["day"].split("-")))).days, dr["reviewTime"]/60.0), dayReps))
+
+    def getDayReps(self):
+        return self.deck.s.all("""
+select
+count() as combinedNewReps,
+date(time-:off, "unixepoch") as day,
+sum(case when lastInterval > 21 then 1 else 0 end) as matureReps,
+count() - sum(case when reps = 1 then 1 else 0 end) as combinedYoungReps,
+sum(thinkingTime) as reviewTime from reviewHistory
+group by day order by day
+""", off=self.deck.utcOffset)
 
     def nextDue(self, days=30):
         self.calcStats()
@@ -361,30 +361,28 @@ where type = 1""")
         offset = 0
         arrsize = 16
         arr = [0] * arrsize
-        n = 0
         colours = [easesNewC, easesYoungC, easesMatureC]
         bars = []
-        gs = anki.stats.globalStats(self.deck)
-        for type in types:
-            total = (getattr(gs, type + "Ease0") +
-                     getattr(gs, type + "Ease1") +
-                     getattr(gs, type + "Ease2") +
-                     getattr(gs, type + "Ease3") +
-                     getattr(gs, type + "Ease4"))
-            setattr(gs, type + "Ease1", getattr(gs, type + "Ease0") +
-                    getattr(gs, type + "Ease1"))
-            setattr(gs, type + "Ease0", -1)
+        eases = self.deck.s.all("""
+select (case when reps = 1 then 0 when lastInterval <= 21 then 1 else 2 end)
+as type, ease, count() from reviewHistory group by type, ease""")
+        d = {}
+        for (type, ease, count) in eases:
+            type = types[type]
+            if type not in d:
+                d[type] = {}
+            d[type][ease] = count
+        for n, type in enumerate(types):
+            total = float(sum(d[type].values()))
             for e in range(1, enum):
                 try:
-                    arr[e+offset] = (getattr(gs, type + "Ease%d" % e)
-                                     / float(total)) * 100 + 1
+                    arr[e+offset] = (d[type][e] / total) * 100 + 1
                 except ZeroDivisionError:
                     arr[e+offset] = 0
             bars.append(graph.bar(range(arrsize), arr, width=1.0,
                                   color=colours[n], align='center'))
             arr = [0] * arrsize
             offset += 5
-            n += 1
         x = ([""] + [str(n) for n in range(1, enum)]) * 3
         graph.legend([p[0] for p in bars], ("New",
                                             "Young",

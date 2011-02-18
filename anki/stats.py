@@ -488,7 +488,7 @@ class DeckStats(object):
         y = today + 86400*finish
         return self.deck.s.scalar("""
 select count(distinct(cast((time-:off)/86400 as integer))) from reviewHistory
-where time >= :x and time <= :y""",x=x,y=y, off=-self.deck.utcOffset)
+where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
 
     def getRepsDone(self, start, finish):
         now = datetime.datetime.today()
