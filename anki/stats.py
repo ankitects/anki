@@ -319,7 +319,7 @@ class DeckStats(object):
         newP = new / float(total) * 100
         youngP = young / float(total) * 100
         oldP = old / float(total) * 100
-        stats = d.getStats()
+        stats = {}
         (stats["new"], stats["newP"]) = (new, newP)
         (stats["old"], stats["oldP"]) = (old, oldP)
         (stats["young"], stats["youngP"]) = (young, youngP)
@@ -339,19 +339,21 @@ class DeckStats(object):
             html += "<br>"
         html += "<br>"
         html += "<b>" + _("Correct Answers") + "</b><br>"
-        html += _("Mature cards: <!--correct answers-->") + " <b>" + fmtPerc(stats['gMatureYes%']) + (
+        (mAll, mYes, mPerc) = self.getMatureCorrect()
+        (yAll, yYes, yPerc) = self.getYoungCorrect()
+        (nAll, nYes, nPerc) = self.getNewCorrect()
+        html += _("Mature cards: <!--correct answers-->") + " <b>" + fmtPerc(mPerc) + (
                 "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
-                'partOf' : stats['gMatureYes'],
-                'totalSum' : stats['gMatureTotal'] } + "<br>")
-        html += _("Young cards: <!--correct answers-->")  + " <b>" + fmtPerc(stats['gYoungYes%']) + (
+                'partOf' : mYes,
+                'totalSum' : mAll } + "<br>")
+        html += _("Young cards: <!--correct answers-->")  + " <b>" + fmtPerc(yPerc) + (
                 "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
-                'partOf' : stats['gYoungYes'],
-                'totalSum' : stats['gYoungTotal'] } + "<br>")
-        html += _("First-seen cards:") + " <b>" + fmtPerc(stats['gNewYes%']) + (
+                'partOf' : yYes,
+                'totalSum' : yAll } + "<br>")
+        html += _("First-seen cards:") + " <b>" + fmtPerc(nPerc) + (
                 "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
-                'partOf' : stats['gNewYes'],
-                'totalSum' : stats['gNewTotal'] } + "<br><br>")
-
+                'partOf' : nYes,
+                'totalSum' : nAll } + "<br><br>")
         # average pending time
         existing = d.cardCount - d.newCountToday
         def tr(a, b):
@@ -465,6 +467,20 @@ class DeckStats(object):
 
             html = runFilter("deckStats", html)
         return html
+
+    def getMatureCorrect(self, test=None):
+        if not test:
+            test = "lastInterval > 21"
+        head = "select count() from reviewHistory where %s"
+        all = self.deck.s.scalar(head % test)
+        yes = self.deck.s.scalar((head % test) + " and ease > 1")
+        return (all, yes, yes/float(all)*100)
+
+    def getYoungCorrect(self):
+        return self.getMatureCorrect("lastInterval <= 21 and reps != 1")
+
+    def getNewCorrect(self):
+        return self.getMatureCorrect("reps = 1")
 
     def getDaysReviewed(self, start, finish):
         today = self.deck.failedCutoff
