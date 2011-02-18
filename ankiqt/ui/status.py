@@ -137,7 +137,6 @@ class StatusView(object):
         self.timer = QClickableLabel()
         self.timer.setText("00:00")
         self.addWidget(self.timer)
-        self.redraw()
 
     def addWidget(self, w, stretch=0):
         self.statusbar.addWidget(w, stretch)
@@ -188,7 +187,6 @@ class StatusView(object):
         new = stats['new']
         stats['new1'] = '<font color=#0000ff>%s</font>' % new
         self.remText.setText(remStr % stats)
-        stats['spaced'] = self.main.deck.spacedCardCount()
         stats['new2'] = self.main.deck.newCount
         self.remText.setToolTip("<h1>" +_(
             "Remaining cards") + "</h1><p/>" +
@@ -203,10 +201,7 @@ class StatusView(object):
             stats['new']) % stats['new'] + "<br><br>" +
             ngettext("There is <b>%d</b> new card in total.", \
             "There are <b>%d</b> new cards in total.",\
-            stats['new2']) % stats['new2'] + "<br>" +
-            ngettext("There is <b>%d</b> delayed card.", \
-            "There are <b>%d</b> delayed cards.", \
-            stats['spaced']) % stats['spaced'])
+            stats['new2']) % stats['new2'])
         # eta
         self.etaText.setText(_("ETA: <b>%(timeLeft)s</b>") % stats)
         # retention & progress bars
