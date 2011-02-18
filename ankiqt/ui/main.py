@@ -397,7 +397,7 @@ Please do not file a bug report with Anki.<br>""")
             self.disableCardMenuItems()
             self.switchToCongratsScreen()
             self.mainWin.learnMoreButton.setEnabled(
-                not not self.deck.newCount)
+                not not self.deck.newAvail)
             self.startRefreshTimer()
             self.bodyView.setState(state)
             # focus finish button
@@ -547,7 +547,7 @@ counts are %d %d %d
 """ % (delay,
          self.deck.failedSoonCount,
          self.deck.revCount,
-         self.deck.newCountToday))
+         self.deck.newCount))
                 return
             t = QTimer(self)
             t.setSingleShot(True)
@@ -860,7 +860,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             for d in self.browserDecks:
                 if d['path'] == self.deck.path:
                     d['due'] = self.deck.failedSoonCount + self.deck.revCount
-                    d['new'] = self.deck.newCountToday
+                    d['new'] = self.deck.newCount
                     d['mod'] = self.deck.modified
                     d['time'] = self.deck._dailyStats.reviewTime
                     d['reps'] = self.deck._dailyStats.reps
@@ -1190,7 +1190,7 @@ your deck."""))
                     'path': d,
                     'name': deck.name(),
                     'due': deck.failedSoonCount + deck.revCount,
-                    'new': deck.newCountToday,
+                    'new': deck.newCount,
                     'mod': deck.modified,
                     'time': deck._dailyStats.reviewTime,
                     'reps': deck._dailyStats.reps,
@@ -1663,7 +1663,7 @@ not be touched.""") %
         # top label
         h = {}
         h['ret'] = cardColour % (self.deck.revCount+self.deck.failedSoonCount)
-        h['new'] = cardColour % self.deck.newCountToday
+        h['new'] = cardColour % self.deck.newCount
         h['newof'] = str(self.deck.newCountAll())
         # counts & time for today
         todayStart = self.deck.failedCutoff - 86400

@@ -145,9 +145,9 @@ class StatusView(object):
         p = QPalette()
         stats = {
             'failed': self.main.deck.failedSoonCount,
-            'new': self.main.deck.newCountToday,
+            'new': self.main.deck.newCount,
             'rev': self.main.deck.revCount,
-            'new2': self.main.deck.newCount
+            'new2': self.main.deck.newAvail
         }
         remStr = _("Remaining: ")
         if self.state == "deckFinished":
