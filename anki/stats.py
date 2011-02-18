@@ -467,13 +467,12 @@ class DeckStats(object):
         return html
 
     def getDaysReviewed(self, start, finish):
-        now = datetime.datetime.today()
-        x = now + datetime.timedelta(start)
-        y = now + datetime.timedelta(finish)
-        return self.deck.s.scalar(
-            "select count() from stats where "
-            "day >= :x and day <= :y and reps > 0",
-            x=x, y=y)
+        today = self.deck.failedCutoff
+        x = today + 86400*start
+        y = today + 86400*finish
+        return self.deck.s.scalar("""
+select count(distinct(cast((time-:off)/86400 as integer))) from reviewHistory
+where time >= :x and time <= :y""",x=x,y=y, off=-self.deck.utcOffset)
 
     def getRepsDone(self, start, finish):
         now = datetime.datetime.today()
