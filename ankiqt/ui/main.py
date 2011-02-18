@@ -1662,21 +1662,26 @@ not be touched.""") %
         cardColour = '<font color=#0000ff>%s</font>'
         # top label
         h = {}
-        s = self.deck.getStats()
-        h['ret'] = cardColour % (s['rev']+s['failed'])
-        h['new'] = cardColour % s['new']
+        h['ret'] = cardColour % (self.deck.revCount+self.deck.failedSoonCount)
+        h['new'] = cardColour % self.deck.newCountToday
         h['newof'] = str(self.deck.newCountAll())
-        dtoday = s['dTotal']
-        yesterday = self.deck._dailyStats.day - datetime.timedelta(1)
-        res = self.deck.s.first("""
-select reps, reviewTime from stats where type = 1 and
-day = :d""", d=yesterday)
-        if res:
-            (dyest, tyest) = res
-        else:
-            dyest = 0; tyest = 0
-        h['repsToday'] = sessionColour % dtoday
-        h['repsTodayChg'] = str(dyest)
+        # counts & time for today
+        todayStart = self.deck.failedCutoff - 86400
+        sql = "select count(), sum(thinkingTime) from reviewHistory"
+        (reps, time_) = self.deck.s.first(
+            sql + " where time > :start", start=todayStart)
+        h['timeToday'] = sessionColour % (
+            anki.utils.fmtTimeSpan(time_ or 0, short=True, point=1))
+        h['repsToday'] = sessionColour % reps
+        # and yesterday
+        yestStart = todayStart - 86400
+        (reps, time_) = self.deck.s.first(
+            sql + " where time > :start and time <= :end",
+            start=yestStart, end=todayStart)
+        h['timeTodayChg'] = str(
+            anki.utils.fmtTimeSpan(time_ or 0, short=True, point=1))
+        h['repsTodayChg'] = str(reps)
+        # session counts
         limit = self.deck.sessionTimeLimit
         start = self.deck.sessionStartTime or time.time() - limit
         start2 = self.deck.lastSessionStart or start - limit
@@ -1689,11 +1694,6 @@ day = :d""", d=yesterday)
             t=start2, t2=start)
         h['repsInSes'] = sessionColour % last10
         h['repsInSesChg'] = str(last20)
-        ttoday = s['dReviewTime']
-        h['timeToday'] = sessionColour % (
-            anki.utils.fmtTimeSpan(ttoday, short=True, point=1))
-        h['timeTodayChg'] = str(anki.utils.fmtTimeSpan(
-            tyest, short=True, point=1))
         h['cs_header'] = "<b>" + _("Cards/session:") + "</b>"
         h['cd_header'] = "<b>" + _("Cards/day:") + "</b>"
         h['td_header'] = "<b>" + _("Time/day:") + "</b>"
@@ -1719,13 +1719,13 @@ day = :d""", d=yesterday)
 <tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
-        if (not dyest and not dtoday) or not self.config['showStudyStats']:
-            self.haveYesterday = False
-            stats1 = ""
-        else:
-            self.haveYesterday = True
-            stats1 = (
-                "<td>%s</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>" % stats1)
+        # if (not dyest and not dtoday) or not self.config['showStudyStats']:
+        #     self.haveYesterday = False
+        #     stats1 = ""
+        # else:
+        #     self.haveYesterday = True
+        #     stats1 = (
+        #         "<td>%s</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>" % stats1)
         self.mainWin.optionsLabel.setText("""\
 <p><table><tr>
 %s
