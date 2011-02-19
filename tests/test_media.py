@@ -33,7 +33,7 @@ def test_copy():
     # new file
     assert m.copyToMedia(deck, path) == "foo.jpg"
     # dupe md5
-    deck.s.statement("""
+    deck.db.statement("""
 insert into media values (null, 'foo.jpg', 0, 0, :sum, '')""",
                      sum=checksum("hello"))
     path = os.path.join(dir, "bar.jpg")
@@ -53,54 +53,54 @@ def test_db():
     f['Back'] = u"back [sound:foo.jpg]"
     deck.addFact(f)
     # 1 entry in the media db, with two references, and missing file
-    assert deck.s.scalar("select count() from media") == 1
-    assert deck.s.scalar("select size from media") == 2
-    assert deck.s.scalar("select not originalPath from media")
+    assert deck.db.scalar("select count() from media") == 1
+    assert deck.db.scalar("select size from media") == 2
+    assert deck.db.scalar("select not originalPath from media")
     # copy to media folder & check db
     path = m.copyToMedia(deck, path)
     m.rebuildMediaDir(deck)
     # md5 should be set now
-    assert deck.s.scalar("select count() from media") == 1
-    assert deck.s.scalar("select size from media") == 2
-    assert deck.s.scalar("select originalPath from media")
+    assert deck.db.scalar("select count() from media") == 1
+    assert deck.db.scalar("select size from media") == 2
+    assert deck.db.scalar("select originalPath from media")
     # edit the fact to remove a reference
     f['Back'] = u""
     f.setModified(True, deck)
-    deck.s.flush()
-    assert deck.s.scalar("select count() from media") == 1
-    assert deck.s.scalar("select size from media") == 1
+    deck.db.flush()
+    assert deck.db.scalar("select count() from media") == 1
+    assert deck.db.scalar("select size from media") == 1
     # remove the front reference too
     f['Front'] = u""
     f.setModified(True, deck)
-    assert deck.s.scalar("select size from media") == 0
+    assert deck.db.scalar("select size from media") == 0
     # add the reference back
     f['Front'] = u"<img src='foo.jpg'>"
     f.setModified(True, deck)
-    assert deck.s.scalar("select size from media") == 1
+    assert deck.db.scalar("select size from media") == 1
     # detect file modifications
-    oldsum = deck.s.scalar("select originalPath from media")
+    oldsum = deck.db.scalar("select originalPath from media")
     open(path, "w").write("world")
     m.rebuildMediaDir(deck)
-    newsum = deck.s.scalar("select originalPath from media")
+    newsum = deck.db.scalar("select originalPath from media")
     assert newsum and newsum != oldsum
     # delete underlying file and check db
     os.unlink(path)
     m.rebuildMediaDir(deck)
     # md5 should be gone again
-    assert deck.s.scalar("select count() from media") == 1
-    assert deck.s.scalar("select not originalPath from media")
+    assert deck.db.scalar("select count() from media") == 1
+    assert deck.db.scalar("select not originalPath from media")
     # media db should pick up media defined via templates & bulk update
     f['Back'] = u"bar.jpg"
     f.setModified(True, deck)
-    deck.s.flush()
+    deck.db.flush()
     # modify template & regenerate
-    assert deck.s.scalar("select count() from media") == 1
-    assert deck.s.scalar("select sum(size) from media") == 1
+    assert deck.db.scalar("select count() from media") == 1
+    assert deck.db.scalar("select sum(size) from media") == 1
     deck.currentModel.cardModels[0].aformat=u'<img src="{{{Back}}}">'
     deck.updateCardsFromModel(deck.currentModel)
-    assert deck.s.scalar("select sum(size) from media") == 2
-    assert deck.s.scalar("select count() from media") == 2
+    assert deck.db.scalar("select sum(size) from media") == 2
+    assert deck.db.scalar("select count() from media") == 2
     deck.currentModel.cardModels[0].aformat=u'{{{Back}}}'
     deck.updateCardsFromModel(deck.currentModel)
-    assert deck.s.scalar("select count() from media") == 2
-    assert deck.s.scalar("select sum(size) from media") == 1
+    assert deck.db.scalar("select count() from media") == 2
+    assert deck.db.scalar("select sum(size) from media") == 1

@@ -103,7 +103,7 @@ def test_localsync_deck():
     c = deck1.getCard()
     deck1.answerCard(c, 4)
     client.sync()
-    assert deck2.s.scalar("select count(*) from revlog") == 1
+    assert deck2.db.scalar("select count(*) from revlog") == 1
     # make sure meta data is synced
     deck1.setVar("foo", 1)
     assert deck1.getInt("foo") == 1
@@ -164,15 +164,15 @@ def test_localsync_factsandcards():
     assert deck1.factCount == 2 and deck1.cardCount == 4
     assert deck2.factCount == 2 and deck2.cardCount == 4
     # ensure the fact was copied across
-    f1 = deck1.s.query(Fact).first()
-    f2 = deck1.s.query(Fact).get(f1.id)
+    f1 = deck1.db.query(Fact).first()
+    f2 = deck1.db.query(Fact).get(f1.id)
     f1['Front'] = u"myfront"
     f1.setModified()
     deck1.setModified()
     client.sync()
     deck1.rebuildCounts()
     deck2.rebuildCounts()
-    f2 = deck1.s.query(Fact).get(f1.id)
+    f2 = deck1.db.query(Fact).get(f1.id)
     assert f2['Front'] == u"myfront"
     c1 = deck1.getCard()
     c2 = deck2.getCard()
@@ -226,8 +226,8 @@ def test_localsync_media():
     assert len(os.listdir(deck2media)) == 1
     client.sync()
     # metadata should have been copied
-    assert deck1.s.scalar("select count(1) from media") == 3
-    assert deck2.s.scalar("select count(1) from media") == 3
+    assert deck1.db.scalar("select count(1) from media") == 3
+    assert deck2.db.scalar("select count(1) from media") == 3
     # copy local files
     copyLocalMedia(deck1, deck2)
     assert len(os.listdir(deck1media)) == 2
@@ -239,8 +239,8 @@ def test_localsync_media():
     os.unlink(os.path.join(deck1media, "22161b29b0c18e068038021f54eee1ee.png"))
     rebuildMediaDir(deck1)
     client.sync()
-    assert deck1.s.scalar("select count(1) from media") == 3
-    assert deck2.s.scalar("select count(1) from media") == 3
+    assert deck1.db.scalar("select count(1) from media") == 3
+    assert deck2.db.scalar("select count(1) from media") == 3
 
 # Remote tests
 ##########################################################################

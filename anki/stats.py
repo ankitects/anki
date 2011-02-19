@@ -239,8 +239,8 @@ class DeckStats(object):
         if not test:
             test = "lastInterval > 21"
         head = "select count() from revlog where %s"
-        all = self.deck.s.scalar(head % test)
-        yes = self.deck.s.scalar((head % test) + " and ease > 1")
+        all = self.deck.db.scalar(head % test)
+        yes = self.deck.db.scalar((head % test) + " and ease > 1")
         return (all, yes, yes/float(all)*100)
 
     def getYoungCorrect(self):
@@ -253,7 +253,7 @@ class DeckStats(object):
         today = self.deck.failedCutoff
         x = today + 86400*start
         y = today + 86400*finish
-        return self.deck.s.scalar("""
+        return self.deck.db.scalar("""
 select count(distinct(cast((time-:off)/86400 as integer))) from revlog
 where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
 
@@ -261,12 +261,12 @@ where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
         now = datetime.datetime.today()
         x = time.mktime((now + datetime.timedelta(start)).timetuple())
         y = time.mktime((now + datetime.timedelta(finish)).timetuple())
-        return self.deck.s.scalar(
+        return self.deck.db.scalar(
             "select count() from revlog where time >= :x and time <= :y",
             x=x, y=y)
 
     def getAverageInterval(self):
-        return self.deck.s.scalar(
+        return self.deck.db.scalar(
             "select sum(interval) / count(interval) from cards "
             "where cards.reps > 0") or 0
 
@@ -305,32 +305,32 @@ where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
         return (time.time() - self.deck.created) / 86400.0
 
     def getSumInverseRoundInterval(self):
-        return self.deck.s.scalar(
+        return self.deck.db.scalar(
             "select sum(1/round(max(interval, 1)+0.5)) from cards "
             "where cards.reps > 0 "
             "and type >= 0") or 0
 
     def getWorkloadPeriod(self, period):
         cutoff = time.time() + 86400 * period
-        return (self.deck.s.scalar("""
+        return (self.deck.db.scalar("""
 select count(id) from cards
 where combinedDue < :cutoff
 and type >= 0 and relativeDelay in (0,1)""", cutoff=cutoff) or 0) / float(period)
 
     def getPastWorkloadPeriod(self, period):
         cutoff = time.time() - 86400 * period
-        return (self.deck.s.scalar("""
+        return (self.deck.db.scalar("""
 select count(*) from revlog
 where time > :cutoff""", cutoff=cutoff) or 0) / float(period)
 
     def getNewPeriod(self, period):
         cutoff = time.time() - 86400 * period
-        return (self.deck.s.scalar("""
+        return (self.deck.db.scalar("""
 select count(id) from cards
 where created > :cutoff""", cutoff=cutoff) or 0)
 
     def getFirstPeriod(self, period):
         cutoff = time.time() - 86400 * period
-        return (self.deck.s.scalar("""
+        return (self.deck.db.scalar("""
 select count(*) from revlog
 where rep = 1 and time > :cutoff""", cutoff=cutoff) or 0)

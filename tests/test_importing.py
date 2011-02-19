@@ -23,7 +23,7 @@ def test_csv():
     # four problems - missing front, dupe front, wrong num of fields
     assert len(i.log) == 4
     assert i.total == 5
-    deck.s.close()
+    deck.close()
 
 def test_csv_tags():
     deck = DeckStorage.Deck()
@@ -31,10 +31,10 @@ def test_csv_tags():
     file = unicode(os.path.join(testDir, "importing/text-tags.txt"))
     i = csvfile.TextImporter(deck, file)
     i.doImport()
-    facts = deck.s.query(Fact).all()
+    facts = deck.db.query(Fact).all()
     assert len(facts) == 2
     assert facts[0].tags == "baz qux" or facts[1].tags == "baz qux"
-    deck.s.close()
+    deck.close()
 
 def test_mnemosyne10():
     deck = DeckStorage.Deck()
@@ -43,7 +43,7 @@ def test_mnemosyne10():
     i = mnemosyne10.Mnemosyne10Importer(deck, file)
     i.doImport()
     assert i.total == 5
-    deck.s.close()
+    deck.close()
 
 def test_supermemo_xml_01_unicode():
     deck = DeckStorage.Deck()
@@ -54,7 +54,7 @@ def test_supermemo_xml_01_unicode():
     i.doImport()
     # only returning top-level elements?
     assert i.total == 1
-    deck.s.close()
+    deck.close()
 
 def test_anki10():
     # though these are not modified, sqlite updates the mtime, so copy to tmp
@@ -69,7 +69,7 @@ def test_anki10():
     i = anki10.Anki10Importer(deck, file)
     i.doImport()
     assert i.total == 2
-    deck.s.rollback()
+    deck.db.rollback()
     deck.close()
     # import a deck into itself - 10-2 is the same as test10, but with one
     # card answered and another deleted. nothing should be synced to client
@@ -77,7 +77,7 @@ def test_anki10():
     i = anki10.Anki10Importer(deck, file2)
     i.doImport()
     assert i.total == 0
-    deck.s.rollback()
+    deck.db.rollback()
 
 def test_anki10_modtime():
     deck1 = DeckStorage.Deck()
@@ -101,9 +101,9 @@ def test_anki10_modtime():
     i.doImport()
     client.sync()
     assert i.total == 1
-    assert deck2.s.scalar("select count(*) from cards") == 2
-    assert deck2.s.scalar("select count(*) from facts") == 2
-    assert deck2.s.scalar("select count(*) from models") == 2
+    assert deck2.db.scalar("select count(*) from cards") == 2
+    assert deck2.db.scalar("select count(*) from facts") == 2
+    assert deck2.db.scalar("select count(*) from models") == 2
 
 def test_dingsbums():
     deck = DeckStorage.Deck()
@@ -113,7 +113,7 @@ def test_dingsbums():
     i = dingsbums.DingsBumsImporter(deck, file)
     i.doImport()
     assert 7 == i.total
-    deck.s.close()
+    deck.close()
 
 def test_updating():
     # get the standard csv deck first
@@ -129,11 +129,11 @@ def test_updating():
     i.updateKey = (0, deck.currentModel.fieldModels[0].id)
     i.multipleCardsAllowed = False
     i.doImport()
-    ans = deck.s.scalar(
+    ans = deck.db.scalar(
         u"select answer from cards where question like '%食べる%'")
     assert "to ate" in ans
     # try again with tags
     i.updateKey = (0, deck.currentModel.fieldModels[0].id)
     i.mapping[1] = 0
     i.doImport()
-    deck.s.close()
+    deck.close()

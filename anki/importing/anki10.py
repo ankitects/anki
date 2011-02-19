@@ -33,7 +33,7 @@ class Anki10Importer(Importer):
         src.s.execute("update models set modified = 1")
         src.s.execute("update cards set modified = 1")
         src.s.execute("update media set created = 1")
-        self.deck.s.flush()
+        self.deck.db.flush()
         # set up a custom change list and sync
         lsum = client.summary(0)
         self._clearDeleted(lsum)
@@ -57,13 +57,13 @@ class Anki10Importer(Importer):
         fids = [f[0] for f in res['added-facts']['facts']]
         self.deck.addTags(fids, self.tagsToAdd)
         # mark import material as newly added
-        self.deck.s.statement(
+        self.deck.db.statement(
             "update cards set modified = :t where id in %s" %
             ids2str([x[0] for x in res['added-cards']]), t=time.time())
-        self.deck.s.statement(
+        self.deck.db.statement(
             "update facts set modified = :t where id in %s" %
             ids2str([x[0] for x in res['added-facts']['facts']]), t=time.time())
-        self.deck.s.statement(
+        self.deck.db.statement(
             "update models set modified = :t where id in %s" %
             ids2str([x['id'] for x in res['added-models']]), t=time.time())
         # update total and refresh

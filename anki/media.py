@@ -50,7 +50,7 @@ If a file with the same md5sum exists in the DB, return that.
 If a file with the same name exists, return a unique name.
 This does not modify the media table."""
     # see if have duplicate contents
-    newpath = deck.s.scalar(
+    newpath = deck.db.scalar(
         "select filename from media where originalPath = :cs",
         cs=checksum(open(path, "rb").read()))
     # check if this filename already exists
@@ -85,9 +85,9 @@ def uniquePath(dir, base):
 
 def updateMediaCount(deck, file, count=1):
     mdir = deck.mediaDir()
-    if deck.s.scalar(
+    if deck.db.scalar(
         "select 1 from media where filename = :file", file=file):
-        deck.s.statement(
+        deck.db.statement(
             "update media set size = size + :c, created = :t where filename = :file",
             file=file, c=count, t=time.time())
     elif count > 0:
@@ -96,18 +96,18 @@ def updateMediaCount(deck, file, count=1):
                 checksum(open(os.path.join(mdir, file), "rb").read()))
         except:
             sum = u""
-        deck.s.statement("""
+        deck.db.statement("""
 insert into media (id, filename, size, created, originalPath, description)
 values (:id, :file, :c, :mod, :sum, '')""",
                          id=genID(), file=file, c=count, mod=time.time(),
                          sum=sum)
 
 def removeUnusedMedia(deck):
-    ids = deck.s.column0("select id from media where size = 0")
+    ids = deck.db.column0("select id from media where size = 0")
     for id in ids:
-        deck.s.statement("insert into mediaDeleted values (:id, :t)",
+        deck.db.statement("insert into mediaDeleted values (:id, :t)",
                          id=id, t=time.time())
-    deck.s.statement("delete from media where size = 0")
+    deck.db.statement("delete from media where size = 0")
 
 # String manipulation
 ##########################################################################
@@ -147,7 +147,7 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         return (0, 0)
     deck.startProgress(title=_("Check Media DB"))
     # set all ref counts to 0
-    deck.s.statement("update media set size = 0")
+    deck.db.statement("update media set size = 0")
     # look through cards for media references
     refs = {}
     normrefs = {}
@@ -155,7 +155,7 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         if isinstance(s, unicode):
             return unicodedata.normalize('NFD', s)
         return s
-    for (question, answer) in deck.s.all(
+    for (question, answer) in deck.db.all(
         "select question, answer from cards"):
         for txt in (question, answer):
             for f in mediaFiles(txt):
@@ -186,7 +186,7 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
     removeUnusedMedia(deck)
     # check md5s are up to date
     update = []
-    for (file, created, md5) in deck.s.all(
+    for (file, created, md5) in deck.db.all(
         "select filename, created, originalPath from media"):
         path = os.path.join(mdir, file)
         if not os.path.exists(path):
@@ -198,13 +198,13 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
             if md5 != sum:
                 update.append({'f':file, 'sum':sum, 'c':time.time()})
     if update:
-        deck.s.statements("""
+        deck.db.statements("""
 update media set originalPath = :sum, created = :c where filename = :f""",
                           update)
     # update deck and get return info
     if dirty:
         deck.flushMod()
-    nohave = deck.s.column0("select filename from media where originalPath = ''")
+    nohave = deck.db.column0("select filename from media where originalPath = ''")
     deck.finishProgress()
     return (nohave, unused)
 
@@ -219,7 +219,7 @@ def downloadMissing(deck):
     deck.startProgress()
     missing = 0
     grabbed = 0
-    for c, (f, sum) in enumerate(deck.s.all(
+    for c, (f, sum) in enumerate(deck.db.all(
         "select filename, originalPath from media")):
         path = os.path.join(mdir, f)
         if not os.path.exists(path):
@@ -247,7 +247,7 @@ def downloadRemote(deck):
     mdir = deck.mediaDir(create=True)
     refs = {}
     deck.startProgress()
-    for (question, answer) in deck.s.all(
+    for (question, answer) in deck.db.all(
         "select question, answer from cards"):
         for txt in (question, answer):
             for f in mediaFiles(txt, remote=True):
@@ -267,7 +267,7 @@ def downloadRemote(deck):
             failed.append(link)
         deck.updateProgress(label=_("Download %d...") % c)
     for (url, name) in passed:
-        deck.s.statement(
+        deck.db.statement(
             "update fields set value = replace(value, :url, :name)",
             url=url, name=name)
         deck.updateProgress(label=_("Updating references..."))

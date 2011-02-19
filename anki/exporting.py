@@ -49,10 +49,10 @@ class Exporter(object):
         if self.limitCardIds:
             return self.limitCardIds
         if not self.limitTags:
-            cards = self.deck.s.column0("select id from cards")
+            cards = self.deck.db.column0("select id from cards")
         else:
-            d = tagIds(self.deck.s, self.limitTags, create=False)
-            cards = self.deck.s.column0(
+            d = tagIds(self.deck.db, self.limitTags, create=False)
+            cards = self.deck.db.column0(
                 "select cardId from cardTags where tagid in %s" %
                 ids2str(d.values()))
         self.count = len(cards)
@@ -84,7 +84,7 @@ class AnkiExporter(Exporter):
         client.setServer(server)
         client.localTime = self.deck.modified
         client.remoteTime = 0
-        self.deck.s.flush()
+        self.deck.db.flush()
         # set up a custom change list and sync
         lsum = self.localSummary()
         rsum = server.summary(0)
@@ -94,9 +94,9 @@ class AnkiExporter(Exporter):
         res = server.applyPayload(payload)
         if not self.includeSchedulingInfo:
             self.deck.updateProgress()
-            self.newDeck.s.statement("""
+            self.newDeck.db.statement("""
 delete from revlog""")
-            self.newDeck.s.statement("""
+            self.newDeck.db.statement("""
 update cards set
 interval = 0,
 lastInterval = 0,
@@ -134,25 +134,25 @@ modified = :now
         self.newDeck.rebuildCounts()
         self.exportedCards = self.newDeck.cardCount
         self.newDeck.utcOffset = -1
-        self.newDeck.s.commit()
+        self.newDeck.db.commit()
         self.newDeck.close()
         self.deck.finishProgress()
 
     def localSummary(self):
         cardIds = self.cardIds()
         cStrIds = ids2str(cardIds)
-        cards = self.deck.s.all("""
+        cards = self.deck.db.all("""
 select id, modified from cards
 where id in %s""" % cStrIds)
-        facts = self.deck.s.all("""
+        facts = self.deck.db.all("""
 select facts.id, facts.modified from cards, facts where
 facts.id = cards.factId and
 cards.id in %s""" % cStrIds)
-        models = self.deck.s.all("""
+        models = self.deck.db.all("""
 select models.id, models.modified from models, facts where
 facts.modelId = models.id and
 facts.id in %s""" % ids2str([f[0] for f in facts]))
-        media = self.deck.s.all("""
+        media = self.deck.db.all("""
 select id, created from media""")
         return {
             # cards
@@ -183,13 +183,13 @@ class TextCardExporter(Exporter):
         strids = ids2str(ids)
         self.deck.startProgress((len(ids) + 1) / 50)
         self.deck.updateProgress(_("Exporting..."))
-        cards = self.deck.s.all("""
+        cards = self.deck.db.all("""
 select cards.question, cards.answer, cards.id from cards
 where cards.id in %s
 order by cards.created""" % strids)
         self.deck.updateProgress()
         if self.includeTags:
-            self.cardTags = dict(self.deck.s.all("""
+            self.cardTags = dict(self.deck.db.all("""
 select cards.id, facts.tags from cards, facts
 where cards.factId = facts.id
 and cards.id in %s
@@ -222,7 +222,7 @@ class TextFactExporter(Exporter):
         cardIds = self.cardIds()
         self.deck.startProgress()
         self.deck.updateProgress(_("Exporting..."))
-        facts = self.deck.s.all("""
+        facts = self.deck.db.all("""
 select factId, value, facts.created from facts, fields
 where
 facts.id in
@@ -233,7 +233,7 @@ order by factId, ordinal""" % ids2str(cardIds))
         txt = ""
         self.deck.updateProgress()
         if self.includeTags:
-            self.factTags = dict(self.deck.s.all(
+            self.factTags = dict(self.deck.db.all(
                 "select id, tags from facts where id in %s" %
                 ids2str([fact[0] for fact in facts])))
         groups = itertools.groupby(facts, itemgetter(0))

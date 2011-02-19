@@ -78,7 +78,7 @@ def test_saveAs():
     newDeck = deck.saveAs(path)
     assert newDeck.cardCount == 1
     # delete card
-    id = newDeck.s.scalar("select id from cards")
+    id = newDeck.db.scalar("select id from cards")
     newDeck.deleteCard(id)
     # save into new deck
     newDeck2 = newDeck.saveAs(path2)
@@ -93,7 +93,7 @@ def test_factAddDelete():
     deck = DeckStorage.Deck()
     deck.addModel(BasicModel())
     # set rollback point
-    deck.s.commit()
+    deck.db.commit()
     f = deck.newFact()
     # empty fields
     try:
@@ -135,33 +135,33 @@ def test_fieldChecksum():
     f = deck.newFact()
     f['Front'] = u"new"; f['Back'] = u"new2"
     deck.addFact(f)
-    (id, sum) = deck.s.first(
+    (id, sum) = deck.db.first(
         "select id, chksum from fields where value = 'new'")
     assert sum == "22af645d"
     # empty field should have no checksum
     f['Front'] = u""
-    deck.s.flush()
-    assert deck.s.scalar(
+    deck.db.flush()
+    assert deck.db.scalar(
         "select chksum from fields where id = :id", id=id) == ""
     # changing the value should change the checksum
     f['Front'] = u"newx"
-    deck.s.flush()
-    assert deck.s.scalar(
+    deck.db.flush()
+    assert deck.db.scalar(
         "select chksum from fields where id = :id", id=id) == "4b0e5a4c"
     # back should have no checksum, because it's not set to be unique
-    (id, sum) = deck.s.first(
+    (id, sum) = deck.db.first(
         "select id, chksum from fields where value = 'new2'")
     assert sum == ""
     # if we turn on unique, it should get a checksum
     fm = f.model.fieldModels[1]
     fm.unique = True
     deck.updateFieldChecksums(fm.id)
-    assert deck.s.scalar(
+    assert deck.db.scalar(
         "select chksum from fields where id = :id", id=id) == "82f2ec5f"
     # and turning it off should zero the checksum again
     fm.unique = False
     deck.updateFieldChecksums(fm.id)
-    assert deck.s.scalar(
+    assert deck.db.scalar(
         "select chksum from fields where id = :id", id=id) == ""
 
 def test_modelAddDelete():
@@ -176,7 +176,7 @@ def test_modelAddDelete():
     deck.deleteModel(deck.currentModel)
     deck.reset()
     assert deck.cardCount == 0
-    deck.s.refresh(deck)
+    deck.db.refresh(deck)
 
 def test_modelCopy():
     deck = DeckStorage.Deck()
@@ -263,7 +263,7 @@ def test_modelChange():
     assert deck.modelUseCount(m2) == 1
     assert deck.cardCount == 3
     assert deck.factCount == 2
-    (q, a) = deck.s.first("""
+    (q, a) = deck.db.first("""
 select question, answer from cards where factId = :id""",
                           id=f.id)
     assert stripHTML(q) == u"e"

@@ -23,56 +23,56 @@ def upgradeSchema(s):
 def updateIndices(deck):
     "Add indices to the DB."
     # counts, failed cards
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_cards_typeCombined on cards
 (type, combinedDue, factId)""")
     # scheduler-agnostic type
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_cards_relativeDelay on cards
 (relativeDelay)""")
     # index on modified, to speed up sync summaries
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_cards_modified on cards
 (modified)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_facts_modified on facts
 (modified)""")
     # card spacing
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
     # fields
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_fields_factId on fields (factId)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_fields_fieldModelId on fields (fieldModelId)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_fields_chksum on fields (chksum)""")
     # media
-    deck.s.statement("""
+    deck.db.statement("""
 create unique index if not exists ix_media_filename on media (filename)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_media_originalPath on media (originalPath)""")
     # deletion tracking
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_cardsDeleted_cardId on cardsDeleted (cardId)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_modelsDeleted_modelId on modelsDeleted (modelId)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_factsDeleted_factId on factsDeleted (factId)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
     # tags
     txt = "create unique index if not exists ix_tags_tag on tags (tag)"
     try:
-        deck.s.statement(txt)
+        deck.db.statement(txt)
     except:
-        deck.s.statement("""
+        deck.db.statement("""
 delete from tags where exists (select 1 from tags t2 where tags.tag = t2.tag
 and tags.rowid > t2.rowid)""")
-        deck.s.statement(txt)
-    deck.s.statement("""
+        deck.db.statement(txt)
+    deck.db.statement("""
 create index if not exists ix_cardTags_tagCard on cardTags (tagId, cardId)""")
-    deck.s.statement("""
+    deck.db.statement("""
 create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
 
 def upgradeDeck(deck):
@@ -92,13 +92,13 @@ def upgradeDeck(deck):
         raise Exception("oldDeckVersion")
     if deck.version < 44:
         # leaner indices
-        deck.s.statement("drop index if exists ix_cards_factId")
+        deck.db.statement("drop index if exists ix_cards_factId")
         deck.version = 44
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 48:
-        deck.updateFieldCache(deck.s.column0("select id from facts"))
+        deck.updateFieldCache(deck.db.column0("select id from facts"))
         deck.version = 48
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 52:
         dname = deck.name()
         sname = deck.syncName
@@ -121,20 +121,20 @@ this message. (ERR-0101)""") % {
         elif sname:
             deck.enableSyncing()
         deck.version = 52
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 53:
         if deck.getBool("perDay"):
             if deck.hardIntervalMin == 0.333:
                 deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
                 deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
         deck.version = 53
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 54:
         # broken versions of the DB orm die if this is a bool with a
         # non-int value
-        deck.s.statement("update fieldModels set editFontFamily = 1");
+        deck.db.statement("update fieldModels set editFontFamily = 1");
         deck.version = 54
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 61:
         # do our best to upgrade templates to the new style
         txt = '''\
@@ -175,87 +175,87 @@ this message. (ERR-0101)""") % {
         # rebuild the media db based on new format
         rebuildMediaDir(deck, dirty=False)
         deck.version = 61
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 62:
         # updated indices
-        deck.s.statement("drop index if exists ix_cards_typeCombined")
+        deck.db.statement("drop index if exists ix_cards_typeCombined")
         updateIndices(deck)
         deck.version = 62
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 64:
         # remove old static indices, as all clients should be libanki1.2+
         for d in ("ix_cards_duePriority",
                   "ix_cards_priorityDue"):
-            deck.s.statement("drop index if exists %s" % d)
+            deck.db.statement("drop index if exists %s" % d)
         deck.version = 64
-        deck.s.commit()
+        deck.db.commit()
         # note: we keep the priority index for now
     if deck.version < 65:
         # we weren't correctly setting relativeDelay when answering cards
         # in previous versions, so ensure everything is set correctly
         deck.rebuildTypes()
         deck.version = 65
-        deck.s.commit()
+        deck.db.commit()
     # skip a few to allow for updates to stable tree
     if deck.version < 70:
         # update dynamic indices given we don't use priority anymore
         for d in ("intervalDesc", "intervalAsc", "randomOrder",
                   "dueAsc", "dueDesc"):
-            deck.s.statement("drop index if exists ix_cards_%s2" % d)
-            deck.s.statement("drop index if exists ix_cards_%s" % d)
+            deck.db.statement("drop index if exists ix_cards_%s2" % d)
+            deck.db.statement("drop index if exists ix_cards_%s" % d)
         deck.updateDynamicIndices()
         # remove old views
         for v in ("failedCards", "revCardsOld", "revCardsNew",
                   "revCardsDue", "revCardsRandom", "acqCardsRandom",
                   "acqCardsOld", "acqCardsNew"):
-            deck.s.statement("drop view if exists %s" % v)
+            deck.db.statement("drop view if exists %s" % v)
         deck.version = 70
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 71:
         # remove the expensive value cache
-        deck.s.statement("drop index if exists ix_fields_value")
+        deck.db.statement("drop index if exists ix_fields_value")
         # add checksums and index
         deck.updateAllFieldChecksums()
         updateIndices(deck)
-        deck.s.execute("vacuum")
-        deck.s.execute("analyze")
+        deck.db.execute("vacuum")
+        deck.db.execute("analyze")
         deck.version = 71
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 72:
         # this was only used for calculating average factor
-        deck.s.statement("drop index if exists ix_cards_factor")
+        deck.db.statement("drop index if exists ix_cards_factor")
         deck.version = 72
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 73:
         # remove stats, as it's all in the revlog now
-        deck.s.statement("drop index if exists ix_stats_typeDay")
-        deck.s.statement("drop table if exists stats")
+        deck.db.statement("drop index if exists ix_stats_typeDay")
+        deck.db.statement("drop table if exists stats")
         deck.version = 73
-        deck.s.commit()
+        deck.db.commit()
     if deck.version < 74:
         # migrate revlog data to new table
-        deck.s.statement("""
+        deck.db.statement("""
 insert into revlog select
 time, cardId, ease, reps, lastInterval, nextInterval, nextFactor,
 min(thinkingTime, 60), 0 from reviewHistory""")
-        deck.s.statement("drop table reviewHistory")
+        deck.db.statement("drop table reviewHistory")
         # convert old ease0 into ease1
-        deck.s.statement("update revlog set ease = 1 where ease = 0")
+        deck.db.statement("update revlog set ease = 1 where ease = 0")
         # remove priority index
-        deck.s.statement("drop index if exists ix_cards_priority")
+        deck.db.statement("drop index if exists ix_cards_priority")
         deck.version = 74
-        deck.s.commit()
+        deck.db.commit()
 
 
     # executing a pragma here is very slow on large decks, so we store
     # our own record
     if not deck.getInt("pageSize") == 4096:
-        deck.s.commit()
-        deck.s.execute("pragma page_size = 4096")
-        deck.s.execute("pragma legacy_file_format = 0")
-        deck.s.execute("vacuum")
+        deck.db.commit()
+        deck.db.execute("pragma page_size = 4096")
+        deck.db.execute("pragma legacy_file_format = 0")
+        deck.db.execute("vacuum")
         deck.setVar("pageSize", 4096, mod=False)
-        deck.s.commit()
+        deck.db.commit()
     if prog:
         assert deck.modified == oldmod
         deck.finishProgress()

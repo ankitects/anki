@@ -75,8 +75,8 @@ from cards c where relativeDelay = 1 and type >= 0 and interval > 21"""
                                              young)
                 mature = self.deck._cardLimit("revActive", "revInactive",
                                              mature)
-            young = self.deck.s.all(young)
-            mature = self.deck.s.all(mature)
+            young = self.deck.db.all(young)
+            mature = self.deck.db.all(mature)
             for (src, dest) in [(young, daysYoung),
                                 (mature, daysMature)]:
                 for (interval, due) in src:
@@ -111,7 +111,7 @@ from cards c where relativeDelay = 1 and type >= 0 and interval > 21"""
                 *(int(x)for x in dr["day"].split("-")))).days, dr["reviewTime"]/60.0), dayReps))
 
     def getDayReps(self):
-        return self.deck.s.all("""
+        return self.deck.db.all("""
 select
 count() as combinedNewReps,
 date(time-:off, "unixepoch") as day,
@@ -238,7 +238,7 @@ group by day order by day
         days = {}
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         limit = self.endOfDay - (numdays) * 86400
-        res = self.deck.s.column0("select %s from cards where %s >= %f" %
+        res = self.deck.db.column0("select %s from cards where %s >= %f" %
                                   (attr, attr, limit))
         for r in res:
             d = int((r - self.endOfDay) / 86400.0)
@@ -361,7 +361,7 @@ group by day order by day
         arr = [0] * arrsize
         colours = [easesNewC, easesYoungC, easesMatureC]
         bars = []
-        eases = self.deck.s.all("""
+        eases = self.deck.db.all("""
 select (case when rep = 1 then 0 when lastInterval <= 21 then 1 else 2 end)
 as type, ease, count() from revlog group by type, ease""")
         d = {}

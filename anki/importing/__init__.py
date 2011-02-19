@@ -76,7 +76,7 @@ class Importer(object):
         cards = self.foreignCards()
         # grab data from db
         self.deck.updateProgress()
-        fields = self.deck.s.all("""
+        fields = self.deck.db.all("""
 select factId, value from fields where fieldModelId = :id
 and value != ''""",
                                id=self.updateKey[1])
@@ -123,7 +123,7 @@ and value != ''""",
                      'v': c.fields[index],
                      'chk': self.maybeChecksum(c.fields[index], fm.unique)}
                     for (fid, c) in upcards]
-            self.deck.s.execute("""
+            self.deck.db.execute("""
 update fields set value = :v, chksum = :chk where factId = :fid
 and fieldModelId = :fmid""", data)
         # update tags
@@ -132,12 +132,12 @@ and fieldModelId = :fmid""", data)
             data = [{'fid': fid,
                      't': c.fields[tagsIdx]}
                     for (fid, c) in upcards]
-            self.deck.s.execute(
+            self.deck.db.execute(
                 "update facts set tags = :t where id = :fid",
                 data)
         # rebuild caches
         self.deck.updateProgress()
-        cids = self.deck.s.column0(
+        cids = self.deck.db.column0(
             "select id from cards where factId in %s" %
             ids2str(fids))
         self.deck.updateCardTags(cids)
@@ -238,12 +238,12 @@ The current importer only supports a single active card template. Please disable
             d['created'] = tmp[0]
             factCreated[d['id']] = d['created']
             return d
-        self.deck.s.execute(factsTable.insert(),
+        self.deck.db.execute(factsTable.insert(),
             [fudgeCreated({'modelId': self.model.id,
               'tags': canonifyTags(self.tagsToAdd + " " + cards[n].tags),
               'id': factIds[n]}) for n in range(len(cards))])
         self.deck.factCount += len(factIds)
-        self.deck.s.execute("""
+        self.deck.db.execute("""
 delete from factsDeleted
 where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         # add all the fields
@@ -264,7 +264,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                 cards[m].fields[index] or u"", fm.unique)
                      }
                     for m in range(len(cards))]
-            self.deck.s.execute(fieldsTable.insert(),
+            self.deck.db.execute(fieldsTable.insert(),
                                 data)
         # and cards
         self.deck.updateProgress()
@@ -281,7 +281,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                     'question': u"",
                     'answer': u""
                     },cards[m]) for m in range(len(cards))]
-                self.deck.s.execute(cardsTable.insert(),
+                self.deck.db.execute(cardsTable.insert(),
                                     data)
         self.deck.updateProgress()
         self.deck.updateCardsFromFactIds(factIds)
@@ -334,7 +334,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
 
     def getUniqueCache(self, field):
         "Return a dict with all fields, to test for uniqueness."
-        return dict(self.deck.s.all(
+        return dict(self.deck.db.all(
             "select value, 1 from fields where fieldModelId = :fmid",
             fmid=field.id))
 

@@ -218,7 +218,7 @@ if __name__ == '__main__':
     i = DingsBumsImporter(mydeck, filename)
     i.doImport()
     assert 7 == i.total
-    mydeck.s.close()
+    mydeck.db.close()
 
     print "... Finished"
     sys.exit(1)
