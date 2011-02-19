@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-DECK_VERSION = 72
+DECK_VERSION = 73
 
 from anki.lang import _
 from anki.media import rebuildMediaDir
@@ -45,9 +45,6 @@ create index if not exists ix_cards_priority on cards
     # card spacing
     deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
-    # stats
-    deck.s.statement("""
-create index if not exists ix_stats_typeDay on stats (type, day)""")
     # fields
     deck.s.statement("""
 create index if not exists ix_fields_factId on fields (factId)""")
@@ -230,10 +227,18 @@ this message. (ERR-0101)""") % {
         deck.version = 71
         deck.s.commit()
     if deck.version < 72:
-        # remove the expensive value cache
+        # this was only used for calculating average factor
         deck.s.statement("drop index if exists ix_cards_factor")
         deck.version = 72
         deck.s.commit()
+    if deck.version < 73:
+        # remove stats, as it's all in the revlog now
+        deck.s.statement("drop index if exists ix_stats_typeDay")
+        deck.s.statement("drop table if exists stats")
+        deck.version = 73
+        deck.s.commit()
+
+
     # executing a pragma here is very slow on large decks, so we store
     # our own record
     if not deck.getInt("pageSize") == 4096:

@@ -2,11 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, sys, time
-import anki.stats
+import os, sys, time, datetime
 from anki.lang import _
-
-import datetime
 
 #colours for graphs
 dueYoungC = "#ffb380"
@@ -100,16 +97,17 @@ from cards c where relativeDelay = 1 and type >= 0 and interval > 21"""
 
             dayReps = self.getDayReps()
 
-            todaydt = self.deck._dailyStats.day
+            todaydt = datetime.datetime.utcfromtimestamp(
+                time.time() - self.deck.utcOffset).date()
             for dest, source in [("dayRepsNew", "combinedNewReps"),
                                  ("dayRepsYoung", "combinedYoungReps"),
                                  ("dayRepsMature", "matureReps")]:
                 self.stats[dest] = dict(
-                    map(lambda dr: (-(todaydt -datetime.date(
+                    map(lambda dr: (-(todaydt - datetime.date(
                     *(int(x)for x in dr["day"].split("-")))).days, dr[source]), dayReps))
 
             self.stats['dayTimes'] = dict(
-                map(lambda dr: (-(todaydt -datetime.date(
+                map(lambda dr: (-(todaydt - datetime.date(
                 *(int(x)for x in dr["day"].split("-")))).days, dr["reviewTime"]/60.0), dayReps))
 
     def getDayReps(self):

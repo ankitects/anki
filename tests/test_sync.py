@@ -9,7 +9,6 @@ from anki.db import *
 from anki.stdmodels import BasicModel
 from anki.sync import SyncClient, SyncServer, HttpSyncServer, HttpSyncServerProxy
 from anki.sync import copyLocalMedia
-from anki.stats import dailyStats, globalStats
 from anki.facts import Fact
 from anki.cards import Card
 from anki.models import FieldModel
@@ -104,8 +103,6 @@ def test_localsync_deck():
     c = deck1.getCard()
     deck1.answerCard(c, 4)
     client.sync()
-    assert dailyStats(deck2).reps == 1
-    assert globalStats(deck2).reps == 1
     assert deck2.s.scalar("select count(*) from reviewHistory") == 1
     # make sure meta data is synced
     deck1.setVar("foo", 1)

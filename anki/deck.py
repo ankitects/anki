@@ -13,7 +13,6 @@ from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
      canonifyTags, joinTags, addTags, checksum, fieldChecksum
 from anki.history import CardHistoryEntry
 from anki.models import Model, CardModel, formatQA
-from anki.stats import dailyStats, globalStats, genToday
 from anki.fonts import toPlatformFont
 from anki.tags import initTagTables, tagIds
 from operator import itemgetter
@@ -26,7 +25,7 @@ from anki.upgrade import upgradeSchema, updateIndices, upgradeDeck, DECK_VERSION
 import anki.latex # sets up hook
 
 # ensure all the DB metadata in other files is loaded before proceeding
-import anki.models, anki.facts, anki.cards, anki.stats
+import anki.models, anki.facts, anki.cards
 import anki.history, anki.media
 
 # rest
@@ -206,6 +205,13 @@ class Deck(object):
         # global counts
         self.cardCount = self.s.scalar("select count(*) from cards")
         self.factCount = self.s.scalar("select count(*) from facts")
+        # day counts
+        (self.repsToday, self.newSeenToday) = self.s.first("""
+select count(), sum(case when reps = 1 then 1 else 0 end) from reviewHistory
+where time > :t""", t=self.failedCutoff-86400)
+        self.newSeenToday = self.newSeenToday or 0
+        print "newSeenToday in answer(), reset called twice"
+        print "newSeenToday needs to account for drill mode too."
         # due counts
         self.rebuildFailedCount()
         self.rebuildRevCount()
@@ -251,7 +257,7 @@ class Deck(object):
             "and combinedDue < :lim"), lim=self.dueCutoff)
 
     def _rebuildNewCount(self):
-        self.newCount = self.s.scalar(
+        self.newAvail = self.s.scalar(
             self.cardLimit(
             "newActive", "newInactive",
             "select count(*) from cards c where type = 2 "
@@ -260,9 +266,9 @@ class Deck(object):
         self.spacedCards = []
 
     def _updateNewCountToday(self):
-        self.newCountToday = max(min(
-            self.newCount, self.newCardsPerDay -
-            self.newCardsDoneToday()), 0)
+        self.newCount = max(min(
+            self.newAvail, self.newCardsPerDay -
+            self.newSeenToday), 0)
 
     def _fillFailedQueue(self):
         if self.failedSoonCount and not self.failedQueue:
@@ -285,7 +291,7 @@ limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.revQueue.reverse()
 
     def _fillNewQueue(self):
-        if self.newCountToday and not self.newQueue and not self.spacedCards:
+        if self.newCount and not self.newQueue and not self.spacedCards:
             self.newQueue = self.s.all(
                 self.cardLimit(
                 "newActive", "newInactive", """
@@ -355,7 +361,7 @@ produce the problem.
 Counts %d %d %d
 Queue %d %d %d
 Card info: %d %d %d
-New type: %s""" % (self.failedSoonCount, self.revCount, self.newCountToday,
+New type: %s""" % (self.failedSoonCount, self.revCount, self.newCount,
                           len(self.failedQueue), len(self.revQueue),
                           len(self.newQueue),
                           card.reps, card.successive, oldSuc, `newType`))
@@ -443,9 +449,6 @@ when type >= 0 then relativeDelay else relativeDelay - 3 end)
             self.dueCutoff = time.time()
 
     def reset(self):
-        # setup global/daily stats
-        self._globalStats = globalStats(self)
-        self._dailyStats = dailyStats(self)
         # recheck counts
         self.rebuildCounts()
         # empty queues; will be refilled by getCard()
@@ -455,9 +458,9 @@ when type >= 0 then relativeDelay else relativeDelay - 3 end)
         self.spacedFacts = {}
         # determine new card distribution
         if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
-            if self.newCountToday:
+            if self.newCount:
                 self.newCardModulus = (
-                    (self.newCountToday + self.revCount) / self.newCountToday)
+                    (self.newCount + self.revCount) / self.newCount)
                 # if there are cards to review, ensure modulo >= 2
                 if self.revCount:
                     self.newCardModulus = max(2, self.newCardModulus)
@@ -474,7 +477,7 @@ when type >= 0 then relativeDelay else relativeDelay - 3 end)
 
     def checkDay(self):
         # check if the day has rolled over
-        if genToday(self) != self._dailyStats.day:
+        if time.time() > self.failedCutoff:
             self.updateCutoff()
             self.reset()
 
@@ -531,7 +534,7 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
         self.scheduler = "learnMore"
 
     def _rebuildLearnMoreCount(self):
-        self.newCount = self.s.scalar(
+        self.newAvail = self.s.scalar(
             self.cardLimit(
             "newActive", "newInactive",
             "select count(*) from cards c where type = 2 "
@@ -539,7 +542,7 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
         self.spacedCards = []
 
     def _updateLearnMoreCountToday(self):
-        self.newCountToday = self.newCount
+        self.newCount = self.newAvail
 
     # Cramming
     ##########################################################################
@@ -611,8 +614,8 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.failedCramQueue.pop()
 
     def _rebuildCramNewCount(self):
+        self.newAvail = 0
         self.newCount = 0
-        self.newCountToday = 0
 
     def _cramCardLimit(self, active, inactive, sql):
         # inactive is (currently) ignored
@@ -683,7 +686,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         if self.revNoSpaced():
             return self.revQueue[-1][0]
         # new cards left?
-        if self.newCountToday:
+        if self.newCount:
             id = self.getNewCard()
             if id:
                 return id
@@ -706,7 +709,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
 
     def _timeForNewCard(self):
         "True if it's time to display a new card when distributing."
-        if not self.newCountToday:
+        if not self.newCount:
             return False
         if self.newCardSpacing == NEW_CARDS_LAST:
             return False
@@ -797,7 +800,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         elif oldQueue == 1:
             self.revCount -= 1
         else:
-            self.newCount -= 1
+            self.newAvail -= 1
         # card stats
         anki.cards.Card.updateStats(card, ease, oldState)
         # update type & ensure past cutoff
@@ -811,9 +814,6 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         # save
         card.combinedDue = card.due
         card.toDB(self.s)
-        # global/daily stats
-        anki.stats.updateAllStats(self.s, self._globalStats, self._dailyStats,
-                                  card, ease, oldState)
         # review history
         entry = CardHistoryEntry(card, ease, lastDelay)
         entry.writeSQL(self.s)
@@ -1187,13 +1187,6 @@ where type between -3 and -1 and id in %s""" %
 select 1 from cards where combinedDue < :now
 and type between 0 and 1 limit 1""", now=self.dueCutoff)
 
-    def newCardsDoneToday(self):
-        return (self._dailyStats.newEase0 +
-                self._dailyStats.newEase1 +
-                self._dailyStats.newEase2 +
-                self._dailyStats.newEase3 +
-                self._dailyStats.newEase4)
-
     def spacedCardCount(self):
         "Number of spaced cards."
         return self.s.scalar("""
@@ -1251,22 +1244,9 @@ combinedDue > :now and due < :now""", now=time.time())
     # Stats
     ##########################################################################
 
-    def getStats(self, short=False):
-        "Return some commonly needed stats."
-        stats = anki.stats.getStats(self.s, self._globalStats, self._dailyStats)
-        # add scheduling related stats
-        stats['new'] = self.newCountToday
-        stats['failed'] = self.failedSoonCount
-        stats['rev'] = self.revCount
-        if stats['dAverageTime']:
-            stats['timeLeft'] = anki.utils.fmtTimeSpan(
-                self.getETA(stats), pad=0, point=1, short=short)
-        else:
-            stats['timeLeft'] = _("Unknown")
-        return stats
-
     def getETA(self, stats):
         # rev + new cards first, account for failures
+        import traceback; traceback.print_stack()
         count = stats['rev'] + stats['new']
         count *= 1 + stats['gYoungNo%'] / 100.0
         left = count * stats['dAverageTime']
@@ -1377,7 +1357,8 @@ where factId = :fid and cardModelId = :cmid""",
                         fact.created+0.0001*cardModel.ordinal)
                     self.updateCardTags([card.id])
                     self.cardCount += 1
-                    self.newCount += 1
+                    raise Exception("incorrect; not checking selective study")
+                    self.newAvail += 1
                     ids.append(card.id)
 
         if ids:
@@ -2794,18 +2775,21 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
         assert '\\' not in n
         return n
 
-    # Session handling
+    # Timeboxing
     ##########################################################################
 
-    def startSession(self):
+    def startTimebox(self):
         self.lastSessionStart = self.sessionStartTime
         self.sessionStartTime = time.time()
-        self.sessionStartReps = self.getStats()['dTotal']
+        self.sessionStartReps = self.repsToday
 
-    def stopSession(self):
+    def stopTimebox(self):
         self.sessionStartTime = 0
 
-    def sessionLimitReached(self):
+    def timeboxStarted(self):
+        return self.sessionStartTime
+
+    def timeboxReached(self):
         if not self.sessionStartTime:
             # not started
             return False
@@ -2813,7 +2797,7 @@ select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
             (self.sessionStartTime + self.sessionTimeLimit)):
             return True
         if (self.sessionRepLimit and self.sessionRepLimit <=
-            self.getStats()['dTotal'] - self.sessionStartReps):
+            self.repsToday - self.sessionStartReps):
             return True
         return False
 
@@ -3606,8 +3590,6 @@ class DeckStorage(object):
                 raise e
         if not rebuild:
             # minimal startup
-            deck._globalStats = globalStats(deck)
-            deck._dailyStats = dailyStats(deck)
             return deck
         oldMod = deck.modified
         # fix a bug with current model being unset

@@ -2,245 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-# we track statistics over the life of the deck, and per-day
-STATS_LIFE = 0
-STATS_DAY = 1
-
-import unicodedata, time, sys, os, datetime
+import time, sys, os, datetime
 import anki, anki.utils
-from datetime import date
 from anki.db import *
 from anki.lang import _, ngettext
 from anki.utils import canonifyTags, ids2str
 from anki.hooks import runFilter
-
-# Tracking stats on the DB
-##########################################################################
-
-statsTable = Table(
-    'stats', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('type', Integer, nullable=False),
-    Column('day', Date, nullable=False),
-    Column('reps', Integer, nullable=False, default=0),
-    Column('averageTime', Float, nullable=False, default=0),
-    Column('reviewTime', Float, nullable=False, default=0),
-    # next two columns no longer used
-    Column('distractedTime', Float, nullable=False, default=0),
-    Column('distractedReps', Integer, nullable=False, default=0),
-    Column('newEase0', Integer, nullable=False, default=0),
-    Column('newEase1', Integer, nullable=False, default=0),
-    Column('newEase2', Integer, nullable=False, default=0),
-    Column('newEase3', Integer, nullable=False, default=0),
-    Column('newEase4', Integer, nullable=False, default=0),
-    Column('youngEase0', Integer, nullable=False, default=0),
-    Column('youngEase1', Integer, nullable=False, default=0),
-    Column('youngEase2', Integer, nullable=False, default=0),
-    Column('youngEase3', Integer, nullable=False, default=0),
-    Column('youngEase4', Integer, nullable=False, default=0),
-    Column('matureEase0', Integer, nullable=False, default=0),
-    Column('matureEase1', Integer, nullable=False, default=0),
-    Column('matureEase2', Integer, nullable=False, default=0),
-    Column('matureEase3', Integer, nullable=False, default=0),
-    Column('matureEase4', Integer, nullable=False, default=0))
-
-class Stats(object):
-    def __init__(self):
-        self.day = None
-        self.reps = 0
-        self.averageTime = 0
-        self.reviewTime = 0
-        self.distractedTime = 0
-        self.distractedReps = 0
-        self.newEase0 = 0
-        self.newEase1 = 0
-        self.newEase2 = 0
-        self.newEase3 = 0
-        self.newEase4 = 0
-        self.youngEase0 = 0
-        self.youngEase1 = 0
-        self.youngEase2 = 0
-        self.youngEase3 = 0
-        self.youngEase4 = 0
-        self.matureEase0 = 0
-        self.matureEase1 = 0
-        self.matureEase2 = 0
-        self.matureEase3 = 0
-        self.matureEase4 = 0
-
-    def fromDB(self, s, id):
-        r = s.first("select * from stats where id = :id", id=id)
-        (self.id,
-         self.type,
-         self.day,
-         self.reps,
-         self.averageTime,
-         self.reviewTime,
-         self.distractedTime,
-         self.distractedReps,
-         self.newEase0,
-         self.newEase1,
-         self.newEase2,
-         self.newEase3,
-         self.newEase4,
-         self.youngEase0,
-         self.youngEase1,
-         self.youngEase2,
-         self.youngEase3,
-         self.youngEase4,
-         self.matureEase0,
-         self.matureEase1,
-         self.matureEase2,
-         self.matureEase3,
-         self.matureEase4) = r
-        self.day = datetime.date(*[int(i) for i in self.day.split("-")])
-
-    def create(self, s, type, day):
-        self.type = type
-        self.day = day
-        s.execute("""insert into stats
-(type, day, reps, averageTime, reviewTime, distractedTime, distractedReps,
-newEase0, newEase1, newEase2, newEase3, newEase4, youngEase0, youngEase1,
-youngEase2, youngEase3, youngEase4, matureEase0, matureEase1, matureEase2,
-matureEase3, matureEase4) values (:type, :day, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)""", self.__dict__)
-        self.id = s.scalar(
-            "select id from stats where type = :type and day = :day",
-            type=type, day=day)
-
-    def toDB(self, s):
-        assert self.id
-        s.execute("""update stats set
-type=:type,
-day=:day,
-reps=:reps,
-averageTime=:averageTime,
-reviewTime=:reviewTime,
-newEase0=:newEase0,
-newEase1=:newEase1,
-newEase2=:newEase2,
-newEase3=:newEase3,
-newEase4=:newEase4,
-youngEase0=:youngEase0,
-youngEase1=:youngEase1,
-youngEase2=:youngEase2,
-youngEase3=:youngEase3,
-youngEase4=:youngEase4,
-matureEase0=:matureEase0,
-matureEase1=:matureEase1,
-matureEase2=:matureEase2,
-matureEase3=:matureEase3,
-matureEase4=:matureEase4
-where id = :id""", self.__dict__)
-
-mapper(Stats, statsTable)
-
-def genToday(deck):
-    return datetime.datetime.utcfromtimestamp(
-        time.time() - deck.utcOffset).date()
-
-def updateAllStats(s, gs, ds, card, ease, oldState):
-    "Update global and daily statistics."
-    updateStats(s, gs, card, ease, oldState)
-    updateStats(s, ds, card, ease, oldState)
-
-def updateStats(s, stats, card, ease, oldState):
-    stats.reps += 1
-    delay = card.totalTime()
-    if delay >= 60:
-        stats.reviewTime += 60
-    else:
-        stats.reviewTime += delay
-        stats.averageTime = (
-            stats.reviewTime / float(stats.reps))
-    # update eases
-    attr = oldState + "Ease%d" % ease
-    setattr(stats, attr, getattr(stats, attr) + 1)
-    stats.toDB(s)
-
-def globalStats(deck):
-    s = deck.s
-    type = STATS_LIFE
-    today = genToday(deck)
-    id = s.scalar("select id from stats where type = :type",
-                  type=type)
-    stats = Stats()
-    if id:
-        stats.fromDB(s, id)
-        return stats
-    else:
-        stats.create(s, type, today)
-    stats.type = type
-    return stats
-
-def dailyStats(deck):
-    s = deck.s
-    type = STATS_DAY
-    today = genToday(deck)
-    id = s.scalar("select id from stats where type = :type and day = :day",
-                  type=type, day=today)
-    stats = Stats()
-    if id:
-        stats.fromDB(s, id)
-        return stats
-    else:
-        stats.create(s, type, today)
-    return stats
-
-def summarizeStats(stats, pre=""):
-    "Generate percentages and total counts for STATS. Optionally prefix."
-    cardTypes = ("new", "young", "mature")
-    h = {}
-    # total counts
-    ###############
-    for type in cardTypes:
-        # total yes/no for type, eg. gNewYes
-        h[pre + type.capitalize() + "No"] = (getattr(stats, type + "Ease0") +
-                                             getattr(stats, type + "Ease1"))
-        h[pre + type.capitalize() + "Yes"] = (getattr(stats, type + "Ease2") +
-                                              getattr(stats, type + "Ease3") +
-                                              getattr(stats, type + "Ease4"))
-        # total for type, eg. gNewTotal
-        h[pre + type.capitalize() + "Total"] = (
-            h[pre + type.capitalize() + "No"] +
-            h[pre + type.capitalize() + "Yes"])
-    # total yes/no, eg. gYesTotal
-    for answer in ("yes", "no"):
-        num = 0
-        for type in cardTypes:
-            num += h[pre + type.capitalize() + answer.capitalize()]
-        h[pre + answer.capitalize() + "Total"] = num
-    # total over all, eg. gTotal
-    num = 0
-    for type in cardTypes:
-        num += h[pre + type.capitalize() + "Total"]
-    h[pre + "Total"] = num
-    # percentages
-    ##############
-    for type in cardTypes:
-        # total yes/no % by type, eg. gNewYes%
-        for answer in ("yes", "no"):
-            setPercentage(h, pre + type.capitalize() + answer.capitalize(),
-                          pre + type.capitalize())
-    for answer in ("yes", "no"):
-        # total yes/no, eg. gYesTotal%
-        setPercentage(h, pre + answer.capitalize() + "Total", pre)
-    h[pre + 'AverageTime'] = stats.averageTime
-    h[pre + 'ReviewTime'] = stats.reviewTime
-    return h
-
-def setPercentage(h, a, b):
-    try:
-        h[a + "%"] = (h[a] / float(h[b + "Total"])) * 100
-    except ZeroDivisionError:
-        h[a + "%"] = 0
-
-def getStats(s, gs, ds):
-    "Return a handy dictionary exposing a number of internal stats."
-    h = {}
-    h.update(summarizeStats(gs, "g"))
-    h.update(summarizeStats(ds, "d"))
-    return h
 
 # Card stats
 ##########################################################################
@@ -295,7 +62,7 @@ class CardStats(object):
         s = anki.utils.fmtTimeSpan(time.time() - tm)
         return _("%s ago") % s
 
-# Deck stats (specific to the 'sched' scheduler)
+# Deck stats
 ##########################################################################
 
 class DeckStats(object):
@@ -355,7 +122,7 @@ class DeckStats(object):
                 'partOf' : nYes,
                 'totalSum' : nAll } + "<br><br>")
         # average pending time
-        existing = d.cardCount - d.newCountToday
+        existing = d.cardCount - d.newCount
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
         def repsPerDay(reps,days):

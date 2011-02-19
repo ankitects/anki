@@ -11,9 +11,7 @@ from anki.errors import *
 from anki.models import Model, FieldModel, CardModel
 from anki.facts import Fact, Field
 from anki.cards import Card
-from anki.stats import Stats, globalStats
 from anki.history import CardHistoryEntry
-from anki.stats import globalStats
 from anki.utils import ids2str, hexifyID, checksum
 from anki.media import mediaFiles
 from anki.lang import _
@@ -114,7 +112,6 @@ class SyncTools(object):
 
     def genPayload(self, summaries):
         (lsum, rsum) = summaries
-        self.preSyncRefresh()
         payload = {}
         # first, handle models, facts and cards
         for key in KEYS:
@@ -125,7 +122,6 @@ class SyncTools(object):
             self.deleteObjsFromKey(diff[3], key)
         # handle the remainder
         if self.localTime > self.remoteTime:
-            payload['stats'] = self.bundleStats()
             payload['history'] = self.bundleHistory()
             payload['sources'] = self.bundleSources()
             # finally, set new lastSync and bundle the deck info
@@ -134,7 +130,6 @@ class SyncTools(object):
 
     def applyPayload(self, payload):
         reply = {}
-        self.preSyncRefresh()
         # model, facts and cards
         for key in KEYS:
             k = 'added-' + key
@@ -146,14 +141,12 @@ class SyncTools(object):
                 self.deleteObjsFromKey(payload['deleted-' + key], key)
         # send back deck-related stuff if it wasn't sent to us
         if not 'deck' in payload:
-            reply['stats'] = self.bundleStats()
             reply['history'] = self.bundleHistory()
             reply['sources'] = self.bundleSources()
             # finally, set new lastSync and bundle the deck info
             reply['deck'] = self.bundleDeck()
         else:
             self.updateDeck(payload['deck'])
-            self.updateStats(payload['stats'])
             self.updateHistory(payload['history'])
             if 'sources' in payload:
                 self.updateSources(payload['sources'])
@@ -172,7 +165,6 @@ class SyncTools(object):
         # deck
         if 'deck' in reply:
             self.updateDeck(reply['deck'])
-            self.updateStats(reply['stats'])
             self.updateHistory(reply['history'])
             if 'sources' in reply:
                 self.updateSources(reply['sources'])
@@ -193,10 +185,6 @@ class SyncTools(object):
         self.deck.s.flush()
         self.deck.s.refresh(self.deck)
         self.deck.currentModel
-
-    def preSyncRefresh(self):
-        # ensure global stats are available (queue may not be built)
-        self.deck._globalStats = globalStats(self.deck)
 
     # Summaries
     ##########################################################################
@@ -553,7 +541,7 @@ values
     def deleteCards(self, ids):
         self.deck.deleteCards(ids)
 
-    # Deck/stats/history
+    # Deck/history
     ##########################################################################
 
     def bundleDeck(self):
@@ -594,42 +582,6 @@ insert or replace into deckVars
 (key, value) values (:k, :v)""", k=k, v=v)
             del deck['meta']
         self.applyDict(self.deck, deck)
-
-    def bundleStats(self):
-        def bundleStat(stat):
-            s = self.dictFromObj(stat)
-            s['day'] = s['day'].toordinal()
-            del s['id']
-            return s
-        lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))
-        ids = self.deck.s.column0(
-            "select id from stats where type = 1 and day >= :day", day=lastDay)
-        stat = Stats()
-        def statFromId(id):
-            stat.fromDB(self.deck.s, id)
-            return stat
-        stats = {
-            'global': bundleStat(self.deck._globalStats),
-            'daily': [bundleStat(statFromId(id)) for id in ids],
-            }
-        return stats
-
-    def updateStats(self, stats):
-        stats['global']['day'] = date.fromordinal(stats['global']['day'])
-        self.applyDict(self.deck._globalStats, stats['global'])
-        self.deck._globalStats.toDB(self.deck.s)
-        for record in stats['daily']:
-            record['day'] = date.fromordinal(record['day'])
-            stat = Stats()
-            id = self.deck.s.scalar("select id from stats where "
-                                    "type = :type and day = :day",
-                                    type=1, day=record['day'])
-            if id:
-                stat.fromDB(self.deck.s, id)
-            else:
-                stat.create(self.deck.s, 1, record['day'])
-            self.applyDict(stat, record)
-            stat.toDB(self.deck.s)
 
     def bundleHistory(self):
         return self.realLists(self.deck.s.all("""
@@ -886,10 +838,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             ls=self.deck.lastSync) > 1000:
             return True
         lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))
-        if self.deck.s.scalar(
-            "select count() from stats where day >= :day",
-            day=lastDay) > 100:
-            return True
         return False
 
     def prepareFullSync(self):
