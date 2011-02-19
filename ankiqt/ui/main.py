@@ -1666,7 +1666,7 @@ not be touched.""") %
         h['newof'] = str(self.deck.newCountAll())
         # counts & time for today
         todayStart = self.deck.failedCutoff - 86400
-        sql = "select count(), sum(thinkingTime) from reviewHistory"
+        sql = "select count(), sum(userTime) from revlog"
         (reps, time_) = self.deck.s.first(
             sql + " where time > :start", start=todayStart)
         h['timeToday'] = sessionColour % (
@@ -1685,10 +1685,10 @@ not be touched.""") %
         start = self.deck.sessionStartTime or time.time() - limit
         start2 = self.deck.lastSessionStart or start - limit
         last10 = self.deck.s.scalar(
-            "select count(*) from reviewHistory where time >= :t",
+            "select count(*) from revlog where time >= :t",
             t=start)
         last20 = self.deck.s.scalar(
-            "select count(*) from reviewHistory where "
+            "select count(*) from revlog where "
             "time >= :t and time < :t2",
             t=start2, t2=start)
         h['repsInSes'] = sessionColour % last10
