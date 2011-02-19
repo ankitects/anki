@@ -165,7 +165,7 @@ where cards.factId = facts.id """
             query += sort
         else:
             # field value
-            ret = self.deck.s.all(
+            ret = self.deck.db.all(
                 "select id, numeric from fieldModels where name = :name",
                 name=self.sortKey[1])
             fields = ",".join([str(x[0]) for x in ret])
@@ -182,14 +182,14 @@ where cards.factId = facts.id """
                      "and fields.factId = cards.factId" + ads +
                      " order by cards.ordinal, %s") % (fields, order)
         # run the query
-        self.cards = self.deck.s.all(query)
+        self.cards = self.deck.db.all(query)
         if self.deck.getInt('reverseOrder'):
             self.cards.reverse()
         self.reset()
 
     def updateCard(self, index):
         try:
-            self.cards[index.row()] = self.deck.s.first("""
+            self.cards[index.row()] = self.deck.db.first("""
 select id, question, answer, combinedDue, reps, factId, created, modified,
 interval, factor, noCount, type, (select tags from facts where
 facts.id = cards.factId), (select created from facts where
@@ -212,7 +212,7 @@ facts.id = cards.factId), firstAnswered from cards where id = :id""",
 
     def getCard(self, index):
         try:
-            return self.deck.s.query(Card).get(self.getCardID(index))
+            return self.deck.db.query(Card).get(self.getCardID(index))
         except IndexError:
             return None
 
@@ -368,7 +368,7 @@ class EditDeck(QMainWindow):
                                               self.config['iconSize']))
         self.dialog.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
         # flush all changes before we load
-        self.deck.s.flush()
+        self.deck.db.flush()
         self.model = DeckModel(self.parent, self.parent.deck)
         self.dialog.tableView.setSortingEnabled(False)
         self.dialog.tableView.setShowGrid(False)
@@ -457,7 +457,7 @@ class EditDeck(QMainWindow):
             ("models", "select tags from models", "contents.png"),
             ("cms", "select name from cardModels", "Anki_Card.png")):
             d = {}
-            tagss = self.deck.s.column0(sql)
+            tagss = self.deck.db.column0(sql)
             for tags in tagss:
                 for tag in parseTags(tags):
                     d[tag] = 1
@@ -553,20 +553,20 @@ class EditDeck(QMainWindow):
             "question", "answer", "created", "modified", "due", "interval",
             "reps", "factor", "noCount", "firstAnswered"):
             return
-        old = self.deck.s.scalar("select sql from sqlite_master where name = :k",
+        old = self.deck.db.scalar("select sql from sqlite_master where name = :k",
                                  k="ix_cards_sort")
         if old and key in old:
             return
         self.parent.setProgressParent(self)
         self.deck.startProgress(2)
         self.deck.updateProgress(_("Building Index..."))
-        self.deck.s.statement("drop index if exists ix_cards_sort")
+        self.deck.db.statement("drop index if exists ix_cards_sort")
         self.deck.updateProgress()
         if key in ("question", "answer"):
             key = key + " collate nocase"
-        self.deck.s.statement(
+        self.deck.db.statement(
             "create index ix_cards_sort on cards (%s)" % key)
-        self.deck.s.statement("analyze")
+        self.deck.db.statement("analyze")
         self.deck.finishProgress()
         self.parent.setProgressParent(None)
 
@@ -788,14 +788,14 @@ class EditDeck(QMainWindow):
                 self.dialog.tableView.selectionModel().selectedRows()]
 
     def selectedFacts(self):
-        return self.deck.s.column0("""
+        return self.deck.db.column0("""
 select distinct factId from cards
 where id in (%s)""" % ",".join([
             str(self.model.cards[idx.row()][0]) for idx in
             self.dialog.tableView.selectionModel().selectedRows()]))
 
     def selectedFactsAsCards(self):
-        return self.deck.s.column0(
+        return self.deck.db.column0(
             "select id from cards where factId in (%s)" %
             ",".join([str(s) for s in self.selectedFacts()]))
 
@@ -946,7 +946,7 @@ where id in (%s)""" % ",".join([
         sf = self.selectedFacts()
         if not sf:
             return
-        mods = self.deck.s.column0("""
+        mods = self.deck.db.column0("""
 select distinct modelId from facts
 where id in %s""" % ids2str(sf))
         if not len(mods) == 1:
@@ -955,7 +955,7 @@ where id in %s""" % ids2str(sf))
                 parent=self)
             return
         # get cards to enable
-        cms = [x.id for x in self.deck.s.query(Fact).get(sf[0]).\
+        cms = [x.id for x in self.deck.db.query(Fact).get(sf[0]).\
                model.cardModels]
         d = AddCardChooser(self, cms)
         if not d.exec_():
@@ -965,7 +965,7 @@ where id in %s""" % ids2str(sf))
         self.parent.setProgressParent(self)
         self.deck.startProgress()
         self.deck.setUndoStart(n)
-        facts = self.deck.s.query(Fact).filter(
+        facts = self.deck.db.query(Fact).filter(
             text("id in %s" % ids2str(sf))).order_by(Fact.created).all()
         self.deck.updateProgress(_("Generating Cards..."))
         ids = []
@@ -986,7 +986,7 @@ where id in %s""" % ids2str(sf))
 
     def onChangeModel(self):
         sf = self.selectedFacts()
-        mods = self.deck.s.column0("""
+        mods = self.deck.db.column0("""
 select distinct modelId from facts
 where id in %s""" % ids2str(sf))
         if not len(mods) == 1:
@@ -1088,7 +1088,7 @@ where id in %s""" % ids2str(sf))
         sf = self.selectedFacts()
         if not sf:
             return
-        mods = self.deck.s.column0("""
+        mods = self.deck.db.column0("""
 select distinct modelId from facts
 where id in %s""" % ids2str(sf))
         if not len(mods) == 1:
@@ -1151,12 +1151,12 @@ where id in %s""" % ids2str(sf))
         restoreGeom(win, "findDupes")
         fields = sorted(self.currentCard.fact.model.fieldModels, key=attrgetter("name"))
         # per-model data
-        data = self.deck.s.all("""
+        data = self.deck.db.all("""
 select fm.id, m.name || '>' || fm.name from fieldmodels fm, models m
 where fm.modelId = m.id""")
         data.sort(key=itemgetter(1))
         # all-model data
-        data2 = self.deck.s.all("""
+        data2 = self.deck.db.all("""
 select fm.id, fm.name from fieldmodels fm""")
         byName = {}
         for d in data2:
@@ -1291,7 +1291,7 @@ class AddCardChooser(QDialog):
         restoreGeom(self, "addCardModels")
 
     def displayCards(self):
-        self.cms = self.parent.deck.s.all("""
+        self.cms = self.parent.deck.db.all("""
 select id, name, active from cardModels
 where id in %s
 order by ordinal""" % ids2str(self.cms))

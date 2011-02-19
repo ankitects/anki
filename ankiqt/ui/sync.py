@@ -263,7 +263,7 @@ sync was aborted. Please report this error.""")
                     # server to save, then save local
                     client.server.finish()
                     self.deck.lastLoaded = self.deck.modified
-                    self.deck.s.commit()
+                    self.deck.db.commit()
                     self.setStatus(_("Sync complete."))
             else:
                 changes = False

@@ -71,7 +71,7 @@ class ModelProperties(QDialog):
         if txt[0]:
             self.currentCard.name = txt[0]
         self.needRebuild = True
-        self.deck.updateCardTags(self.deck.s.column0(
+        self.deck.updateCardTags(self.deck.db.column0(
             "select id from cards where cardModelId = :id",
             id=self.currentCard.id))
         self.updateCards()

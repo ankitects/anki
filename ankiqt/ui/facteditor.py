@@ -88,7 +88,7 @@ class FactEditor(object):
     def refresh(self):
         if self.fact:
             try:
-                self.deck.s.refresh(self.fact)
+                self.deck.db.refresh(self.fact)
             except InvalidRequestError:
                 # not attached to session yet, add cards dialog will handle
                 return
@@ -576,7 +576,7 @@ class FactEditor(object):
                "where fieldModelId = :fmid and value = :val and id != :id "
                "and chksum = :chk")
         val = self.textForField(field)
-        return not self.deck.s.scalar(
+        return not self.deck.db.scalar(
             req, val=val, fmid=field.fieldModel.id,
             id=field.id, chk=fieldChecksum(val))
 
@@ -586,7 +586,7 @@ class FactEditor(object):
         old = self.fact.tags
         self.fact.tags = canonifyTags(unicode(self.tags.text()))
         if old != self.fact.tags:
-            self.deck.s.flush()
+            self.deck.db.flush()
             self.deck.updateFactTags([self.fact.id])
             self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.flushMod()

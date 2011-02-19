@@ -224,7 +224,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.dialog.status.setText(txt)
         self.file = None
         self.maybePreview()
-        self.parent.deck.s.flush()
+        self.parent.deck.db.flush()
         self.parent.reset()
         self.modelChooser.deinit()
 

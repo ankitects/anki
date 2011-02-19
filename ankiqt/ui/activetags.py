@@ -52,7 +52,7 @@ class ActiveTagsChooser(QDialog):
             ("models", "select tags from models", "contents.png"),
             ("cms", "select name from cardModels", "Anki_Card.png")):
             d = {}
-            tagss = self.deck.s.column0(sql)
+            tagss = self.deck.db.column0(sql)
             for tags in tagss:
                 for tag in parseTags(tags):
                     d[tag] = 1

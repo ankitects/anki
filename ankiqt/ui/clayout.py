@@ -36,10 +36,10 @@ class CardLayout(QDialog):
         else:
             self.model = factOrModel
             # see if there's an available fact
-            id = self.deck.s.scalar(
+            id = self.deck.db.scalar(
                 "select id from facts where modelId = :id", id=self.model.id)
             if id:
-                self.fact = self.deck.s.query(Fact).get(id)
+                self.fact = self.deck.db.query(Fact).get(id)
             else:
                 # generate a dummy one
                 self.fact = self.deck.newFact(self.model)
@@ -51,8 +51,8 @@ class CardLayout(QDialog):
             self.plastiqueStyle = QStyleFactory.create("plastique")
         if self.card:
             # limited to an existing template
-            self.cards = [self.deck.s.query(Card).get(id) for id in
-                          self.deck.s.column0(
+            self.cards = [self.deck.db.query(Card).get(id) for id in
+                          self.deck.db.column0(
                 "select id from cards where factId = :fid "
                 "order by ordinal", fid=self.fact.id)]
             type = 0
@@ -210,7 +210,7 @@ class CardLayout(QDialog):
         self.form.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
         self.form.alignment.setCurrentIndex(card.questionAlign)
         self.form.typeAnswer.clear()
-        self.typeFieldNames = self.deck.s.column0("""
+        self.typeFieldNames = self.deck.db.column0("""
 select fieldModels.name as n from fieldModels, cardModels
 where cardModels.modelId = fieldModels.modelId
 and cardModels.id = :id
@@ -477,7 +477,7 @@ order by n""", id=card.id)
         f.name = _("Field %d") % (len(self.model.fieldModels) + 1)
         self.deck.addFieldModel(self.model, f)
         try:
-            self.deck.s.refresh(self.fact)
+            self.deck.db.refresh(self.fact)
         except:
             # not yet added
             self.updateFact()
@@ -488,7 +488,7 @@ order by n""", id=card.id)
 
     def updateFact(self):
         oldFact = self.fact
-        model = self.deck.s.query(Model).get(oldFact.model.id)
+        model = self.deck.db.query(Model).get(oldFact.model.id)
         fact = self.deck.newFact(model)
         for field in fact.fields:
             try:

@@ -392,7 +392,7 @@ Please do not file a bug report with Anki.<br>""")
             self.disableCardMenuItems()
         elif state == "deckFinished":
             self.currentCard = None
-            self.deck.s.flush()
+            self.deck.db.flush()
             self.hideButtons()
             self.disableCardMenuItems()
             self.switchToCongratsScreen()
@@ -417,7 +417,7 @@ Please do not file a bug report with Anki.<br>""")
             if self.lastState == "editCurrentFact":
                 return self.moveToState("saveEdit")
             self.mainWin.actionRepeatAudio.setEnabled(False)
-            self.deck.s.flush()
+            self.deck.db.flush()
             self.showEditor()
         elif state == "saveEdit":
             self.mainWin.actionRepeatAudio.setEnabled(True)
@@ -491,10 +491,10 @@ Please do not file a bug report with Anki.<br>""")
         if self.state != "showAnswer":
             return
         # force refresh of card then remove from session as we update in pure sql
-        self.deck.s.refresh(self.currentCard)
-        self.deck.s.refresh(self.currentCard.fact)
-        self.deck.s.refresh(self.currentCard.cardModel)
-        self.deck.s.expunge(self.currentCard)
+        self.deck.db.refresh(self.currentCard)
+        self.deck.db.refresh(self.currentCard.fact)
+        self.deck.db.refresh(self.currentCard.cardModel)
+        self.deck.db.expunge(self.currentCard)
         # answer
         self.deck.answerCard(self.currentCard, quality)
         self.lastQuality = quality
@@ -514,7 +514,7 @@ Please do not file a bug report with Anki.<br>""")
 <b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""")
                % stripHTML(stripSounds(self.currentCard.question)).\
                replace("\n", " ")[0:30])
-        if isLeech and self.deck.s.scalar(
+        if isLeech and self.deck.db.scalar(
             "select 1 from cards where id = :id and type < 0", id=cardId):
             txt += _(" It has been suspended.")
         self.setNotice(txt)
@@ -997,7 +997,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.onNew(path=path)
         # ensure all changes come to us
         self.deck.modified = 0
-        self.deck.s.commit()
+        self.deck.db.commit()
         self.deck.syncName = u"something"
         self.deck.lastLoaded = self.deck.modified
         if self.config['syncUsername'] and self.config['syncPassword']:
@@ -1667,14 +1667,14 @@ not be touched.""") %
         # counts & time for today
         todayStart = self.deck.failedCutoff - 86400
         sql = "select count(), sum(userTime) from revlog"
-        (reps, time_) = self.deck.s.first(
+        (reps, time_) = self.deck.db.first(
             sql + " where time > :start", start=todayStart)
         h['timeToday'] = sessionColour % (
             anki.utils.fmtTimeSpan(time_ or 0, short=True, point=1))
         h['repsToday'] = sessionColour % reps
         # and yesterday
         yestStart = todayStart - 86400
-        (reps, time_) = self.deck.s.first(
+        (reps, time_) = self.deck.db.first(
             sql + " where time > :start and time <= :end",
             start=yestStart, end=todayStart)
         h['timeTodayChg'] = str(
@@ -1684,10 +1684,10 @@ not be touched.""") %
         limit = self.deck.sessionTimeLimit
         start = self.deck.sessionStartTime or time.time() - limit
         start2 = self.deck.lastSessionStart or start - limit
-        last10 = self.deck.s.scalar(
+        last10 = self.deck.db.scalar(
             "select count(*) from revlog where time >= :t",
             t=start)
-        last20 = self.deck.s.scalar(
+        last20 = self.deck.db.scalar(
             "select count(*) from revlog where "
             "time >= :t and time < :t2",
             t=start2, t2=start)
@@ -2198,7 +2198,7 @@ it to your friends.
         if self.deck and not self.deck.syncName:
             if interactive:
                 if (not self.config['mediaLocation']
-                    and self.deck.s.scalar("select 1 from media limit 1")):
+                    and self.deck.db.scalar("select 1 from media limit 1")):
                     ui.utils.showInfo(_("""\
 Syncing sounds and images requires a free file synchronization service like \
 DropBox. Click help to learn more, and OK to continue syncing."""),
