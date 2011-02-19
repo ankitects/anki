@@ -715,7 +715,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         if self.newCardSpacing == NEW_CARDS_FIRST:
             return True
         if self.newCardModulus:
-            return self._dailyStats.reps % self.newCardModulus == 0
+            return self.repsToday % self.newCardModulus == 0
         else:
             return False
 

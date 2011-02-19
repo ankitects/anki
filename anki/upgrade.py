@@ -242,7 +242,7 @@ min(thinkingTime, 60), 0 from reviewHistory""")
         # convert old ease0 into ease1
         deck.s.statement("update revlog set ease = 1 where ease = 0")
         # remove priority index
-        deck.s.statement("drop index ix_cards_priority")
+        deck.s.statement("drop index if exists ix_cards_priority")
         deck.version = 74
         deck.s.commit()
 

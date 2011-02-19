@@ -600,7 +600,7 @@ select * from revlog where time > :ls""",
         if not dlist:
             return
         self.deck.s.statements("""
-insert or ignore into revlog
+insert or ignore into revlog values
 (:time, :cardId, :ease, :rep, :lastInterval, :interval, :factor,
  :userTime, :flags)""",
                                dlist)
