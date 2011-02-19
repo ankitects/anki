@@ -364,15 +364,15 @@ Please do not file a bug report with Anki.<br>""")
             else:
                 # timeboxing only supported using the standard scheduler
                 if not self.deck.finishScheduler:
-                    if (self.config['showStudyScreen'] and
-                        not self.deck.sessionStartTime):
-                        return self.moveToState("studyScreen")
-                    if self.deck.sessionLimitReached():
-                        self.showToolTip(_("Session limit reached."))
-                        self.moveToState("studyScreen")
-                        # switch to timeboxing screen
-                        self.mainWin.tabWidget.setCurrentIndex(2)
-                        return
+                    if self.config['showStudyScreen']:
+                        if not self.deck.timeboxStarted():
+                            return self.moveToState("studyScreen")
+                        elif self.deck.timeboxReached():
+                            self.showToolTip(_("Session limit reached."))
+                            self.moveToState("studyScreen")
+                            # switch to timeboxing screen
+                            self.mainWin.tabWidget.setCurrentIndex(2)
+                            return
                 if not self.currentCard:
                     self.currentCard = self.deck.getCard()
                 if self.currentCard:
@@ -502,8 +502,7 @@ Please do not file a bug report with Anki.<br>""")
         self.currentCard = None
         if self.config['saveAfterAnswer']:
             num = self.config['saveAfterAnswerNum']
-            stats = self.deck.getStats()
-            if stats['gTotal'] % num == 0:
+            if self.deck.repsToday % num == 0:
                 self.save()
         self.moveToState("getQuestion")
 
@@ -1657,7 +1656,7 @@ not be touched.""") %
         self.mainWin.buttonStack.hide()
         self.deck.reset()
         self.updateActives()
-        wasReached = self.deck.sessionLimitReached()
+        wasReached = self.deck.timeboxReached()
         sessionColour = '<font color=#0000ff>%s</font>'
         cardColour = '<font color=#0000ff>%s</font>'
         # top label
@@ -1802,7 +1801,7 @@ learnt today")
             self.deck.flushMod()
         self.deck.reset()
         if not self.deck.finishScheduler:
-            self.deck.startSession()
+            self.deck.startTimebox()
         self.config['studyOptionsScreen'] = self.mainWin.tabWidget.currentIndex()
         self.moveToState("getQuestion")
 
