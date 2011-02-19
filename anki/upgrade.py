@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-DECK_VERSION = 73
+DECK_VERSION = 74
 
 from anki.lang import _
 from anki.media import rebuildMediaDir
@@ -37,11 +37,6 @@ create index if not exists ix_cards_modified on cards
     deck.s.statement("""
 create index if not exists ix_facts_modified on facts
 (modified)""")
-    # priority - temporary index to make compat code faster. this can be
-    # removed when all clients are on 1.2, as can the ones below
-    deck.s.statement("""
-create index if not exists ix_cards_priority on cards
-(priority)""")
     # card spacing
     deck.s.statement("""
 create index if not exists ix_cards_factId on cards (factId)""")
@@ -236,6 +231,19 @@ this message. (ERR-0101)""") % {
         deck.s.statement("drop index if exists ix_stats_typeDay")
         deck.s.statement("drop table if exists stats")
         deck.version = 73
+        deck.s.commit()
+    if deck.version < 74:
+        # migrate revlog data to new table
+        deck.s.statement("""
+insert into revlog select
+time, cardId, ease, reps, lastInterval, nextInterval, nextFactor,
+min(thinkingTime, 60), 0 from reviewHistory""")
+        deck.s.statement("drop table reviewHistory")
+        # convert old ease0 into ease1
+        deck.s.statement("update revlog set ease = 1 where ease = 0")
+        # remove priority index
+        deck.s.statement("drop index ix_cards_priority")
+        deck.version = 74
         deck.s.commit()
 
 

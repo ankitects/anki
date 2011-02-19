@@ -103,7 +103,7 @@ def test_localsync_deck():
     c = deck1.getCard()
     deck1.answerCard(c, 4)
     client.sync()
-    assert deck2.s.scalar("select count(*) from reviewHistory") == 1
+    assert deck2.s.scalar("select count(*) from revlog") == 1
     # make sure meta data is synced
     deck1.setVar("foo", 1)
     assert deck1.getInt("foo") == 1

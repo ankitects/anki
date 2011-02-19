@@ -116,8 +116,8 @@ select
 count() as combinedNewReps,
 date(time-:off, "unixepoch") as day,
 sum(case when lastInterval > 21 then 1 else 0 end) as matureReps,
-count() - sum(case when reps = 1 then 1 else 0 end) as combinedYoungReps,
-sum(thinkingTime) as reviewTime from reviewHistory
+count() - sum(case when rep = 1 then 1 else 0 end) as combinedYoungReps,
+sum(userTime) as reviewTime from revlog
 group by day order by day
 """, off=self.deck.utcOffset)
 
@@ -362,8 +362,8 @@ group by day order by day
         colours = [easesNewC, easesYoungC, easesMatureC]
         bars = []
         eases = self.deck.s.all("""
-select (case when reps = 1 then 0 when lastInterval <= 21 then 1 else 2 end)
-as type, ease, count() from reviewHistory group by type, ease""")
+select (case when rep = 1 then 0 when lastInterval <= 21 then 1 else 2 end)
+as type, ease, count() from revlog group by type, ease""")
         d = {}
         for (type, ease, count) in eases:
             type = types[type]

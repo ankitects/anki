@@ -11,7 +11,6 @@ from anki.errors import *
 from anki.models import Model, FieldModel, CardModel
 from anki.facts import Fact, Field
 from anki.cards import Card
-from anki.history import CardHistoryEntry
 from anki.utils import ids2str, hexifyID, checksum
 from anki.media import mediaFiles
 from anki.lang import _
@@ -585,34 +584,26 @@ insert or replace into deckVars
 
     def bundleHistory(self):
         return self.realLists(self.deck.s.all("""
-select cardId, time, lastInterval, nextInterval, ease, delay,
-lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount
-from reviewHistory where time > :ls""",
+select * from revlog where time > :ls""",
             ls=self.deck.lastSync))
 
     def updateHistory(self, history):
-        dlist = [{'cardId': h[0],
-                  'time': h[1],
-                  'lastInterval': h[2],
-                  'nextInterval': h[3],
-                  'ease': h[4],
-                  'delay': h[5],
-                  'lastFactor': h[6],
-                  'nextFactor': h[7],
-                  'reps': h[8],
-                  'thinkingTime': h[9],
-                  'yesCount': h[10],
-                  'noCount': h[11]} for h in history]
+        dlist = [{'time': h[0],
+                  'cardId': h[1],
+                  'ease': h[2],
+                  'rep': h[3],
+                  'lastInterval': h[4],
+                  'interval': h[5],
+                  'factor': h[6],
+                  'userTime': h[7],
+                  'flags': h[8]} for h in history]
         if not dlist:
             return
         self.deck.s.statements("""
-insert or ignore into reviewHistory
-(cardId, time, lastInterval, nextInterval, ease, delay,
-lastFactor, nextFactor, reps, thinkingTime, yesCount, noCount)
-values
-(:cardId, :time, :lastInterval, :nextInterval, :ease, :delay,
-:lastFactor, :nextFactor, :reps, :thinkingTime, :yesCount, :noCount)""",
-                         dlist)
+insert or ignore into revlog
+(:time, :cardId, :ease, :rep, :lastInterval, :interval, :factor,
+ :userTime, :flags)""",
+                               dlist)
 
     def bundleSources(self):
         return self.realLists(self.deck.s.all("select * from sources"))
@@ -834,7 +825,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
                 if len(l) > 1000:
                     return True
         if self.deck.s.scalar(
-            "select count() from reviewHistory where time > :ls",
+            "select count() from revlog where time > :ls",
             ls=self.deck.lastSync) > 1000:
             return True
         lastDay = date.fromtimestamp(max(0, self.deck.lastSync - 60*60*24))

@@ -95,7 +95,7 @@ class AnkiExporter(Exporter):
         if not self.includeSchedulingInfo:
             self.deck.updateProgress()
             self.newDeck.s.statement("""
-delete from reviewHistory""")
+delete from revlog""")
             self.newDeck.s.statement("""
 update cards set
 interval = 0,

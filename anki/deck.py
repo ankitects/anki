@@ -11,7 +11,7 @@ from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
      canonifyTags, joinTags, addTags, checksum, fieldChecksum
-from anki.history import CardHistoryEntry
+from anki.revlog import logReview
 from anki.models import Model, CardModel, formatQA
 from anki.fonts import toPlatformFont
 from anki.tags import initTagTables, tagIds
@@ -25,8 +25,7 @@ from anki.upgrade import upgradeSchema, updateIndices, upgradeDeck, DECK_VERSION
 import anki.latex # sets up hook
 
 # ensure all the DB metadata in other files is loaded before proceeding
-import anki.models, anki.facts, anki.cards
-import anki.history, anki.media
+import anki.models, anki.facts, anki.cards, anki.media
 
 # rest
 MATURE_THRESHOLD = 21
@@ -207,7 +206,7 @@ class Deck(object):
         self.factCount = self.s.scalar("select count(*) from facts")
         # day counts
         (self.repsToday, self.newSeenToday) = self.s.first("""
-select count(), sum(case when reps = 1 then 1 else 0 end) from reviewHistory
+select count(), sum(case when rep = 1 then 1 else 0 end) from revlog
 where time > :t""", t=self.failedCutoff-86400)
         self.newSeenToday = self.newSeenToday or 0
         print "newSeenToday in answer(), reset called twice"
@@ -815,8 +814,8 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         card.combinedDue = card.due
         card.toDB(self.s)
         # review history
-        entry = CardHistoryEntry(card, ease, lastDelay)
-        entry.writeSQL(self.s)
+        print "make sure flags is set correctly when reviewing early"
+        logReview(self.s, card, ease, 0)
         self.modified = now
         # remove from queue
         self.requeueCard(card, oldSuc)

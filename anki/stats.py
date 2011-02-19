@@ -238,7 +238,7 @@ class DeckStats(object):
     def getMatureCorrect(self, test=None):
         if not test:
             test = "lastInterval > 21"
-        head = "select count() from reviewHistory where %s"
+        head = "select count() from revlog where %s"
         all = self.deck.s.scalar(head % test)
         yes = self.deck.s.scalar((head % test) + " and ease > 1")
         return (all, yes, yes/float(all)*100)
@@ -254,7 +254,7 @@ class DeckStats(object):
         x = today + 86400*start
         y = today + 86400*finish
         return self.deck.s.scalar("""
-select count(distinct(cast((time-:off)/86400 as integer))) from reviewHistory
+select count(distinct(cast((time-:off)/86400 as integer))) from revlog
 where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
 
     def getRepsDone(self, start, finish):
@@ -262,7 +262,7 @@ where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
         x = time.mktime((now + datetime.timedelta(start)).timetuple())
         y = time.mktime((now + datetime.timedelta(finish)).timetuple())
         return self.deck.s.scalar(
-            "select count() from reviewHistory where time >= :x and time <= :y",
+            "select count() from revlog where time >= :x and time <= :y",
             x=x, y=y)
 
     def getAverageInterval(self):
@@ -320,7 +320,7 @@ and type >= 0 and relativeDelay in (0,1)""", cutoff=cutoff) or 0) / float(period
     def getPastWorkloadPeriod(self, period):
         cutoff = time.time() - 86400 * period
         return (self.deck.s.scalar("""
-select count(*) from reviewHistory
+select count(*) from revlog
 where time > :cutoff""", cutoff=cutoff) or 0) / float(period)
 
     def getNewPeriod(self, period):
@@ -332,5 +332,5 @@ where created > :cutoff""", cutoff=cutoff) or 0)
     def getFirstPeriod(self, period):
         cutoff = time.time() - 86400 * period
         return (self.deck.s.scalar("""
-select count(*) from reviewHistory
-where reps = 1 and time > :cutoff""", cutoff=cutoff) or 0)
+select count(*) from revlog
+where rep = 1 and time > :cutoff""", cutoff=cutoff) or 0)
