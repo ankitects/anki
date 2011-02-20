@@ -979,10 +979,10 @@ and type between 1 and 2""",
         "Return an adjusted delay value for CARD based on EASE."
         if self.cardIsNew(card):
             return 0
-        if card.combinedDue <= time.time():
-            return (time.time() - card.due) / 86400.0
+        if card.combinedDue <= self.dueCutoff:
+            return (self.dueCutoff - card.due) / 86400.0
         else:
-            return (time.time() - card.combinedDue) / 86400.0
+            return (self.dueCutoff - card.combinedDue) / 86400.0
 
     def resetCards(self, ids):
         "Reset progress on cards in IDS."
