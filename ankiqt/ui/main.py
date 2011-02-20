@@ -933,6 +933,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 name = ui.utils.getOnlyText(
                     prompt, default=name, title=_("New Deck"))
                 if not name:
+                    self.moveToState("noDeck")
                     return
                 found = False
                 for c in bad:
@@ -952,6 +953,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                                     defaultno=True):
                     os.unlink(path)
                 else:
+                    self.moveToState("noDeck")
                     return
         self.deck = DeckStorage.Deck(path)
         self.deck.initUndo()
