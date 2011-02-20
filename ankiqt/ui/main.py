@@ -636,12 +636,6 @@ counts are %d %d %d
         self.typeAnswerField = QLineEditNoUndo(self)
         self.typeAnswerField.setObjectName("typeAnswerField")
         self.typeAnswerField.setFixedWidth(351)
-        f = QFont()
-        f.setPixelSize(self.config['typeAnswerFontSize'])
-        self.typeAnswerField.setFont(f)
-        # add some extra space as layout is wrong on osx
-        self.typeAnswerField.setFixedHeight(
-            self.typeAnswerField.sizeHint().height() + 10)
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
         vbox.setContentsMargins(0,0,0,0)

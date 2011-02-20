@@ -150,9 +150,10 @@ class View(object):
         if (self.state != self.oldState and not nosound
             and self.main.config['autoplaySounds']):
             playFromText(q)
+        if self.main.currentCard.cardModel.typeAnswer:
+            self.adjustInputFont()
 
-    def calculateOkBadStyle(self):
-        "Precalculates styles for correct and incorrect part of answer"
+    def getFont(self):
         sz = 20
         fn = u"Arial"
         for fm in self.main.currentCard.fact.model.fieldModels:
@@ -160,6 +161,22 @@ class View(object):
                 sz = fm.quizFontSize or sz
                 fn = fm.quizFontFamily or fn
                 break
+        return (fn, sz)
+
+    def adjustInputFont(self):
+        (fn, sz) = self.getFont()
+        f = QFont()
+        f.setFamily(fn)
+        f.setPixelSize(sz)
+        self.main.typeAnswerField.setFont(f)
+        # add some extra space as layout is wrong on osx
+        self.main.typeAnswerField.setFixedHeight(
+            self.main.typeAnswerField.sizeHint().height() + 10)
+
+
+    def calculateOkBadStyle(self):
+        "Precalculates styles for correct and incorrect part of answer"
+        (fn, sz) = self.getFont()
         st = "background: %s; color: #000; font-size: %dpx; font-family: %s;"
         self.styleOk  = st % (passedCharColour, sz, fn)
         self.styleBad = st % (failedCharColour, sz, fn)

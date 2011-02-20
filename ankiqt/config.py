@@ -112,7 +112,6 @@ class Config(dict):
             'syncOnProgramOpen': True,
             'syncPassword': "",
             'syncUsername': "",
-            'typeAnswerFontSize': 20,
             }
         # disable sync on deck load when upgrading
         if not self.has_key("syncOnProgramOpen"):
