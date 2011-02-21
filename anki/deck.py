@@ -971,10 +971,10 @@ and queue between 1 and 2""",
         "Return an adjusted delay value for CARD based on EASE."
         if self.cardIsNew(card):
             return 0
-        if card.due <= time.time():
-            return (time.time() - card.due) / 86400.0
+        if card.due <= self.dueCutoff:
+            return (self.dueCutoff - card.due) / 86400.0
         else:
-            return (time.time() - card.due) / 86400.0
+            return (self.dueCutoff - card.due) / 86400.0
 
     def resetCards(self, ids=None):
         "Reset progress on cards in IDS."
