@@ -114,10 +114,10 @@ from cards c where queue = 1 and interval > 21"""
         return self.deck.db.all("""
 select
 count() as combinedNewReps,
-date(time-:off, "unixepoch") as day,
+date(time/1000-:off, "unixepoch") as day,
 sum(case when lastInterval > 21 then 1 else 0 end) as matureReps,
 count() - sum(case when rep = 1 then 1 else 0 end) as combinedYoungReps,
-sum(userTime) as reviewTime from revlog
+sum(userTime/1000) as reviewTime from revlog
 group by day order by day
 """, off=self.deck.utcOffset)
 
@@ -244,7 +244,7 @@ group by day order by day
         else:
             # firstAnswered
             res = self.deck.db.column0(
-                "select time from revlog where rep = 1")
+                "select time/1000 from revlog where rep = 1")
         for r in res:
             d = int((r - self.endOfDay) / 86400.0)
             days[d] = days.get(d, 0) + 1

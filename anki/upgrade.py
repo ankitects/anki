@@ -146,9 +146,9 @@ def upgradeDeck(deck):
     if deck.version < 74:
         # migrate revlog data to new table
         deck.db.statement("""
-insert into revlog select
-time, cardId, ease, reps, lastInterval, nextInterval, nextFactor,
-min(thinkingTime, 60), 0 from reviewHistory""")
+insert or ignore into revlog select
+cast(time*1000 as int), cardId, ease, reps, lastInterval, nextInterval, nextFactor,
+cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
         deck.db.statement("drop table reviewHistory")
         # convert old ease0 into ease1
         deck.db.statement("update revlog set ease = 1 where ease = 0")

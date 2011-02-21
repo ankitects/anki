@@ -25,7 +25,7 @@ class CardStats(object):
         self.txt = "<table>"
         self.addLine(_("Added"), self.strTime(c.created))
         first = self.deck.db.scalar(
-            "select time from revlog where rep = 1 and cardId = :id", id=c.id)
+            "select time/1000 from revlog where rep = 1 and cardId = :id", id=c.id)
         if first:
             self.addLine(_("First Review"), self.strTime(first))
         self.addLine(_("Changed"), self.strTime(c.modified))
@@ -42,7 +42,7 @@ class CardStats(object):
             self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
                 c.reps-c.lapses, c.reps, c.successive))
         (cnt, total) = self.deck.db.first(
-            "select count(), sum(userTime) from revlog where cardId = :id", id=c.id)
+            "select count(), sum(userTime)/1000 from revlog where cardId = :id", id=c.id)
         if cnt:
             self.addLine(_("Average Time"), fmt(total / float(cnt), point=2))
             self.addLine(_("Total Time"), fmt(total, point=2))
@@ -250,15 +250,15 @@ class DeckStats(object):
         x = today + 86400*start
         y = today + 86400*finish
         return self.deck.db.scalar("""
-select count(distinct(cast((time-:off)/86400 as integer))) from revlog
-where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
+select count(distinct(cast((time/1000-:off)/86400 as integer))) from revlog
+where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.utcOffset)
 
     def getRepsDone(self, start, finish):
         now = datetime.datetime.today()
         x = time.mktime((now + datetime.timedelta(start)).timetuple())
         y = time.mktime((now + datetime.timedelta(finish)).timetuple())
         return self.deck.db.scalar(
-            "select count() from revlog where time >= :x and time <= :y",
+            "select count() from revlog where time >= :x*1000 and time <= :y*1000",
             x=x, y=y)
 
     def getAverageInterval(self):
@@ -317,7 +317,7 @@ and queue != -1 and type between 0 and 1""", cutoff=cutoff) or 0) / float(period
         cutoff = time.time() - 86400 * period
         return (self.deck.db.scalar("""
 select count(*) from revlog
-where time > :cutoff""", cutoff=cutoff) or 0) / float(period)
+where time > :cutoff*1000""", cutoff=cutoff) or 0) / float(period)
 
     def getNewPeriod(self, period):
         cutoff = time.time() - 86400 * period
@@ -329,4 +329,4 @@ where created > :cutoff""", cutoff=cutoff) or 0)
         cutoff = time.time() - 86400 * period
         return (self.deck.db.scalar("""
 select count(*) from revlog
-where rep = 1 and time > :cutoff""", cutoff=cutoff) or 0)
+where rep = 1 and time > :cutoff*1000""", cutoff=cutoff) or 0)
