@@ -65,11 +65,11 @@ class DeckGraphs(object):
             self.endOfDay = self.deck.failedCutoff
             t = time.time()
             young = """
-select interval, combinedDue from cards c
-where relativeDelay between 0 and 1 and type >= 0 and interval <= 21"""
+select interval, due from cards c
+where queue between 0 and 1 and interval <= 21"""
             mature = """
-select interval, combinedDue
-from cards c where relativeDelay = 1 and type >= 0 and interval > 21"""
+select interval, due
+from cards c where queue = 1 and interval > 21"""
             if self.selective:
                 young = self.deck._cardLimit("revActive", "revInactive",
                                              young)
@@ -238,8 +238,13 @@ group by day order by day
         days = {}
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         limit = self.endOfDay - (numdays) * 86400
-        res = self.deck.db.column0("select %s from cards where %s >= %f" %
-                                  (attr, attr, limit))
+        if attr == "created":
+            res = self.deck.db.column0("select %s from cards where %s >= %f" %
+                                       (attr, attr, limit))
+        else:
+            # firstAnswered
+            res = self.deck.db.column0(
+                "select time from revlog where rep = 1")
         for r in res:
             d = int((r - self.endOfDay) / 86400.0)
             days[d] = days.get(d, 0) + 1

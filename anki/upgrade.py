@@ -2,12 +2,13 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-DECK_VERSION = 74
+DECK_VERSION = 75
 
+from anki.db import *
 from anki.lang import _
 from anki.media import rebuildMediaDir
 
-def upgradeSchema(s):
+def upgradeSchema(engine, s):
     "Alter tables prior to ORM initialization."
     ver = s.scalar("select version from decks limit 1")
     # add a checksum to fields
@@ -18,19 +19,36 @@ def upgradeSchema(s):
                 "not null default ''")
         except:
             pass
+    if ver < 75:
+        # copy cards into new temporary table
+        sql = s.scalar(
+            "select sql from sqlite_master where name = 'cards'")
+        sql = sql.replace("TABLE cards", "temporary table cards2")
+        s.execute(sql)
+        s.execute("insert into cards2 select * from cards")
+        # drop the old cards table and create the new one
+        s.execute("drop table cards")
+        import cards
+        metadata.create_all(engine, tables=[cards.cardsTable])
+        # move data across and delete temp table
+        s.execute("""
+insert into cards select id, factId, cardModelId, created, modified,
+question, answer, 0, ordinal, 0, relativeDelay, type, lastInterval, interval,
+due, factor, reps, successive, noCount from cards2""")
+        s.execute("drop table cards2")
     return ver
 
 def updateIndices(deck):
     "Add indices to the DB."
-    # counts, failed cards
+    # due counts, failed card queue
     deck.db.statement("""
-create index if not exists ix_cards_typeCombined on cards
-(type, combinedDue, factId)""")
-    # scheduler-agnostic type
+create index if not exists ix_cards_queueDue on cards
+(queue, due, factId)""")
+    # counting cards of a given type
     deck.db.statement("""
-create index if not exists ix_cards_relativeDelay on cards
-(relativeDelay)""")
-    # index on modified, to speed up sync summaries
+create index if not exists ix_cards_type on cards
+(type)""")
+    # sync summaries
     deck.db.statement("""
 create index if not exists ix_cards_modified on cards
 (modified)""")
@@ -88,114 +106,8 @@ def upgradeDeck(deck):
         oldmod = deck.modified
     else:
         prog = False
-    if deck.version < 43:
-        raise Exception("oldDeckVersion")
-    if deck.version < 44:
-        # leaner indices
-        deck.db.statement("drop index if exists ix_cards_factId")
-        deck.version = 44
-        deck.db.commit()
-    if deck.version < 48:
-        deck.updateFieldCache(deck.db.column0("select id from facts"))
-        deck.version = 48
-        deck.db.commit()
-    if deck.version < 52:
-        dname = deck.name()
-        sname = deck.syncName
-        if sname and dname != sname:
-            deck.notify(_("""\
-When syncing, Anki now uses the same deck name on the server as the deck \
-name on your computer. Because you had '%(dname)s' set to sync to \
-'%(sname)s' on the server, syncing has been temporarily disabled.
-
-If you want to keep your changes to the online version, please use \
-File>Download>Personal Deck to download the online version.
-
-If you want to keep the version on your computer, please enable \
-syncing again via Settings>Deck Properties>Synchronisation.
-
-If you have syncing disabled in the preferences, you can ignore \
-this message. (ERR-0101)""") % {
-                    'sname':sname, 'dname':dname})
-            deck.disableSyncing()
-        elif sname:
-            deck.enableSyncing()
-        deck.version = 52
-        deck.db.commit()
-    if deck.version < 53:
-        if deck.getBool("perDay"):
-            if deck.hardIntervalMin == 0.333:
-                deck.hardIntervalMin = max(1.0, deck.hardIntervalMin)
-                deck.hardIntervalMax = max(1.1, deck.hardIntervalMax)
-        deck.version = 53
-        deck.db.commit()
-    if deck.version < 54:
-        # broken versions of the DB orm die if this is a bool with a
-        # non-int value
-        deck.db.statement("update fieldModels set editFontFamily = 1");
-        deck.version = 54
-        deck.db.commit()
-    if deck.version < 61:
-        # do our best to upgrade templates to the new style
-        txt = '''\
-<span style="font-family: %s; font-size: %spx; color: %s; white-space: pre-wrap;">%s</span>'''
-        for m in deck.models:
-            unstyled = []
-            for fm in m.fieldModels:
-                # find which fields had explicit formatting
-                if fm.quizFontFamily or fm.quizFontSize or fm.quizFontColour:
-                    pass
-                else:
-                    unstyled.append(fm.name)
-                # fill out missing info
-                fm.quizFontFamily = fm.quizFontFamily or u"Arial"
-                fm.quizFontSize = fm.quizFontSize or 20
-                fm.quizFontColour = fm.quizFontColour or "#000000"
-                fm.editFontSize = fm.editFontSize or 20
-            unstyled = set(unstyled)
-            for cm in m.cardModels:
-                # embed the old font information into card templates
-                cm.qformat = txt % (
-                    cm.questionFontFamily,
-                    cm.questionFontSize,
-                    cm.questionFontColour,
-                    cm.qformat)
-                cm.aformat = txt % (
-                    cm.answerFontFamily,
-                    cm.answerFontSize,
-                    cm.answerFontColour,
-                    cm.aformat)
-                # escape fields that had no previous styling
-                for un in unstyled:
-                    cm.qformat = cm.qformat.replace("%("+un+")s", "{{{%s}}}"%un)
-                    cm.aformat = cm.aformat.replace("%("+un+")s", "{{{%s}}}"%un)
-        # rebuild q/a for the above & because latex has changed
-        for m in deck.models:
-            deck.updateCardsFromModel(m, dirty=False)
-        # rebuild the media db based on new format
-        rebuildMediaDir(deck, dirty=False)
-        deck.version = 61
-        deck.db.commit()
-    if deck.version < 62:
-        # updated indices
-        deck.db.statement("drop index if exists ix_cards_typeCombined")
-        updateIndices(deck)
-        deck.version = 62
-        deck.db.commit()
-    if deck.version < 64:
-        # remove old static indices, as all clients should be libanki1.2+
-        for d in ("ix_cards_duePriority",
-                  "ix_cards_priorityDue"):
-            deck.db.statement("drop index if exists %s" % d)
-        deck.version = 64
-        deck.db.commit()
-        # note: we keep the priority index for now
     if deck.version < 65:
-        # we weren't correctly setting relativeDelay when answering cards
-        # in previous versions, so ensure everything is set correctly
-        deck.rebuildTypes()
-        deck.version = 65
-        deck.db.commit()
+        raise Exception("oldDeckVersion")
     # skip a few to allow for updates to stable tree
     if deck.version < 70:
         # update dynamic indices given we don't use priority anymore
@@ -228,7 +140,6 @@ this message. (ERR-0101)""") % {
         deck.db.commit()
     if deck.version < 73:
         # remove stats, as it's all in the revlog now
-        deck.db.statement("drop index if exists ix_stats_typeDay")
         deck.db.statement("drop table if exists stats")
         deck.version = 73
         deck.db.commit()
@@ -245,7 +156,15 @@ min(thinkingTime, 60), 0 from reviewHistory""")
         deck.db.statement("drop index if exists ix_cards_priority")
         deck.version = 74
         deck.db.commit()
-
+    if deck.version < 75:
+        # suspended cards don't use ranges anymore
+        deck.db.execute("update cards set queue=-1 where queue between -3 and -1")
+        deck.db.execute("update cards set queue=-2 where queue between 3 and 5")
+        deck.db.execute("update cards set queue=-3 where queue between 6 and 8")
+        # new indices for new cards table
+        updateIndices(deck)
+        deck.version = 75
+        deck.db.commit()
 
     # executing a pragma here is very slow on large decks, so we store
     # our own record

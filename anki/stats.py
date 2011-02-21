@@ -24,11 +24,13 @@ class CardStats(object):
         fmtFloat = anki.utils.fmtFloat
         self.txt = "<table>"
         self.addLine(_("Added"), self.strTime(c.created))
-        if c.firstAnswered:
-            self.addLine(_("First Review"), self.strTime(c.firstAnswered))
+        first = self.deck.db.scalar(
+            "select time from revlog where rep = 1 and cardId = :id", id=c.id)
+        if first:
+            self.addLine(_("First Review"), self.strTime(first))
         self.addLine(_("Changed"), self.strTime(c.modified))
         if c.reps:
-            next = time.time() - c.combinedDue
+            next = time.time() - c.due
             if next > 0:
                 next = _("%s ago") % fmt(next)
             else:
@@ -36,20 +38,14 @@ class CardStats(object):
             self.addLine(_("Due"), next)
         self.addLine(_("Interval"), fmt(c.interval * 86400))
         self.addLine(_("Ease"), fmtFloat(c.factor, point=2))
-        if c.lastDue:
-            last = _("%s ago") % fmt(time.time() - c.lastDue)
-            self.addLine(_("Last Due"), last)
-        if c.interval != c.lastInterval:
-            # don't show the last interval if it hasn't been updated yet
-            self.addLine(_("Last Interval"), fmt(c.lastInterval * 86400))
-        self.addLine(_("Last Ease"), fmtFloat(c.lastFactor, point=2))
         if c.reps:
             self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
-                c.yesCount, c.reps, c.successive))
-        avg = fmt(c.averageTime, point=2)
-        self.addLine(_("Average Time"),avg)
-        total = fmt(c.reviewTime, point=2)
-        self.addLine(_("Total Time"), total)
+                c.reps-c.lapses, c.reps, c.successive))
+        (cnt, total) = self.deck.db.first(
+            "select count(), sum(userTime) from revlog where cardId = :id", id=c.id)
+        if cnt:
+            self.addLine(_("Average Time"), fmt(total / float(cnt), point=2))
+            self.addLine(_("Total Time"), fmt(total, point=2))
         self.addLine(_("Model Tags"), c.fact.model.tags)
         self.addLine(_("Card Template") + "&nbsp;"*5, c.cardModel.name)
         self.txt += "</table>"
@@ -244,10 +240,10 @@ class DeckStats(object):
         return (all, yes, yes/float(all)*100)
 
     def getYoungCorrect(self):
-        return self.getMatureCorrect("lastInterval <= 21 and reps != 1")
+        return self.getMatureCorrect("lastInterval <= 21 and rep != 1")
 
     def getNewCorrect(self):
-        return self.getMatureCorrect("reps = 1")
+        return self.getMatureCorrect("rep = 1")
 
     def getDaysReviewed(self, start, finish):
         today = self.deck.failedCutoff
@@ -308,14 +304,14 @@ where time >= :x and time <= :y""",x=x,y=y, off=self.deck.utcOffset)
         return self.deck.db.scalar(
             "select sum(1/round(max(interval, 1)+0.5)) from cards "
             "where cards.reps > 0 "
-            "and type >= 0") or 0
+            "and queue != -1") or 0
 
     def getWorkloadPeriod(self, period):
         cutoff = time.time() + 86400 * period
         return (self.deck.db.scalar("""
 select count(id) from cards
-where combinedDue < :cutoff
-and type >= 0 and relativeDelay in (0,1)""", cutoff=cutoff) or 0) / float(period)
+where due < :cutoff
+and queue != -1 and type between 0 and 1""", cutoff=cutoff) or 0) / float(period)
 
     def getPastWorkloadPeriod(self, period):
         cutoff = time.time() - 86400 * period

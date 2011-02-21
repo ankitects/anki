@@ -28,5 +28,5 @@ insert into revlog values (
 :userTime, :flags)""",
                  created=time.time(), cardId=card.id, ease=ease, rep=card.reps,
                  lastInterval=card.lastInterval, interval=card.interval,
-                 factor=card.factor, userTime=card.thinkingTime(),
+                 factor=card.factor, userTime=card.userTime(),
                  flags=flags)

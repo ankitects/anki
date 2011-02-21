@@ -307,7 +307,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         else:
             t = 2
         data['type'] = t
-        data['relativeDelay'] = t
+        data['queue'] = t
         return data
 
     def stripInvalid(self, cards):

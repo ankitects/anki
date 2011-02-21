@@ -94,38 +94,7 @@ class AnkiExporter(Exporter):
         res = server.applyPayload(payload)
         if not self.includeSchedulingInfo:
             self.deck.updateProgress()
-            self.newDeck.db.statement("""
-delete from revlog""")
-            self.newDeck.db.statement("""
-update cards set
-interval = 0,
-lastInterval = 0,
-due = created,
-lastDue = 0,
-factor = 2.5,
-firstAnswered = 0,
-reps = 0,
-successive = 0,
-averageTime = 0,
-reviewTime = 0,
-youngEase0 = 0,
-youngEase1 = 0,
-youngEase2 = 0,
-youngEase3 = 0,
-youngEase4 = 0,
-matureEase0 = 0,
-matureEase1 = 0,
-matureEase2 = 0,
-matureEase3 = 0,
-matureEase4 = 0,
-yesCount = 0,
-noCount = 0,
-spaceUntil = 0,
-type = 2,
-relativeDelay = 2,
-combinedDue = created,
-modified = :now
-""", now=time.time())
+            self.newDeck.resetCards()
         # media
         if self.includeMedia:
             server.deck.mediaPrefix = ""

@@ -14,72 +14,50 @@ MAX_TIMER = 60
 # Cards
 ##########################################################################
 
+# Type: 0=lapsed, 1=due, 2=new, 3=drilled
+# Queue: under normal circumstances, same as type.
+#        -1=suspended, -2=user buried, -3=sched buried (rev early, etc)
+# Ordinal: card template # for fact
+# Position: sorting position, only for new cards
+# Flags: unused; reserved for future use
+
 cardsTable = Table(
     'cards', metadata,
     Column('id', Integer, primary_key=True),
     Column('factId', Integer, ForeignKey("facts.id"), nullable=False),
     Column('cardModelId', Integer, ForeignKey("cardModels.id"), nullable=False),
+    # general
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
-    Column('tags', UnicodeText, nullable=False, default=u""),
-    Column('ordinal', Integer, nullable=False),
-    # q/a cached - changed on fact update
     Column('question', UnicodeText, nullable=False, default=u""),
     Column('answer', UnicodeText, nullable=False, default=u""),
-    Column('priority', Integer, nullable=False, default=2), # obsolete
-    Column('interval', Float, nullable=False, default=0),
+    Column('flags', Integer, nullable=False, default=0),
+    # ordering
+    Column('ordinal', Integer, nullable=False),
+    Column('position', Integer, nullable=False),
+    # scheduling data
+    Column('type', Integer, nullable=False, default=2),
+    Column('queue', Integer, nullable=False, default=2),
     Column('lastInterval', Float, nullable=False, default=0),
-    Column('due', Float, nullable=False, default=time.time),
-    Column('lastDue', Float, nullable=False, default=0),
+    Column('interval', Float, nullable=False, default=0),
+    Column('due', Float, nullable=False),
     Column('factor', Float, nullable=False, default=2.5),
-    Column('lastFactor', Float, nullable=False, default=2.5),
-    Column('firstAnswered', Float, nullable=False, default=0),
-    # stats
+    # counters
     Column('reps', Integer, nullable=False, default=0),
     Column('successive', Integer, nullable=False, default=0),
-    Column('averageTime', Float, nullable=False, default=0),
-    Column('reviewTime', Float, nullable=False, default=0),
-    Column('youngEase0', Integer, nullable=False, default=0),
-    Column('youngEase1', Integer, nullable=False, default=0),
-    Column('youngEase2', Integer, nullable=False, default=0),
-    Column('youngEase3', Integer, nullable=False, default=0),
-    Column('youngEase4', Integer, nullable=False, default=0),
-    Column('matureEase0', Integer, nullable=False, default=0),
-    Column('matureEase1', Integer, nullable=False, default=0),
-    Column('matureEase2', Integer, nullable=False, default=0),
-    Column('matureEase3', Integer, nullable=False, default=0),
-    Column('matureEase4', Integer, nullable=False, default=0),
-    # this duplicates the above data, because there's no way to map imported
-    # data to the above
-    Column('yesCount', Integer, nullable=False, default=0),
-    Column('noCount', Integer, nullable=False, default=0),
-    # obsolete
-    Column('spaceUntil', Float, nullable=False, default=0),
-    # relativeDelay is reused as type without scheduling (ie, it remains 0-2
-    # even if card is suspended, etc)
-    Column('relativeDelay', Float, nullable=False, default=0),
-    Column('isDue', Boolean, nullable=False, default=0), # obsolete
-    Column('type', Integer, nullable=False, default=2),
-    Column('combinedDue', Integer, nullable=False, default=0))
+    Column('lapses', Integer, nullable=False, default=0))
 
 class Card(object):
-    "A card."
 
     def __init__(self, fact=None, cardModel=None, created=None):
-        self.tags = u""
         self.id = genID()
-        # new cards start as new & due
-        self.type = 2
-        self.relativeDelay = self.type
-        self.timerStarted = False
-        self.timerStopped = False
         self.modified = time.time()
         if created:
             self.created = created
             self.due = created
         else:
             self.due = self.modified
-        self.combinedDue = self.due
+        self.position = self.due
         if fact:
             self.fact = fact
         if cardModel:
@@ -87,13 +65,27 @@ class Card(object):
             # for non-orm use
             self.cardModelId = cardModel.id
             self.ordinal = cardModel.ordinal
+        # timer
+        self.timerStarted = None
+
+    def setModified(self):
+        self.modified = time.time()
+
+    def startTimer(self):
+        self.timerStarted = time.time()
+
+    def userTime(self):
+        return min(time.time() - self.timerStarted, MAX_TIMER)
+
+    # Questions and answers
+    ##########################################################################
 
     def rebuildQA(self, deck, media=True):
         # format qa
         d = {}
         for f in self.fact.model.fieldModels:
             d[f.name] = (f.id, self.fact[f.name])
-        qa = formatQA(None, self.fact.modelId, d, self.splitTags(),
+        qa = formatQA(None, self.fact.modelId, d, self._splitTags(),
                       self.cardModel, deck)
         # find old media references
         files = {}
@@ -119,25 +111,6 @@ class Card(object):
                 updateMediaCount(deck, f, cnt)
         self.setModified()
 
-    def setModified(self):
-        self.modified = time.time()
-
-    def startTimer(self):
-        self.timerStarted = time.time()
-
-    def stopTimer(self):
-        self.timerStopped = time.time()
-
-    def thinkingTime(self):
-        return (self.timerStopped or time.time()) - self.timerStarted
-
-    def totalTime(self):
-        return time.time() - self.timerStarted
-
-    def genFuzz(self):
-        "Generate a random offset to spread intervals."
-        self.fuzz = random.uniform(0.95, 1.05)
-
     def htmlQuestion(self, type="question", align=True):
         div = '''<div class="card%s" id="cm%s%s">%s</div>''' % (
             type[0], type[0], hexifyID(self.cardModelId),
@@ -158,52 +131,14 @@ class Card(object):
     def htmlAnswer(self, align=True):
         return self.htmlQuestion(type="answer", align=align)
 
-    def updateStats(self, ease, state):
-        self.reps += 1
-        if ease > 1:
-            self.successive += 1
-        else:
-            self.successive = 0
-        delay = min(self.totalTime(), MAX_TIMER)
-        self.reviewTime += delay
-        if self.averageTime:
-            self.averageTime = (self.averageTime + delay) / 2.0
-        else:
-            self.averageTime = delay
-        # we don't track first answer for cards
-        if state == "new":
-            state = "young"
-        # update ease and yes/no count
-        attr = state + "Ease%d" % ease
-        setattr(self, attr, getattr(self, attr) + 1)
-        if ease < 2:
-            self.noCount += 1
-        else:
-            self.yesCount += 1
-        if not self.firstAnswered:
-            self.firstAnswered = time.time()
-        self.setModified()
-
-    def splitTags(self):
+    def _splitTags(self):
         return (self.fact.tags, self.fact.model.tags, self.cardModel.name)
 
-    def allTags(self):
-        "Non-canonified string of all tags."
-        return (self.fact.tags + "," +
-                self.fact.model.tags)
-
-    def hasTag(self, tag):
-        return findTag(tag, parseTags(self.allTags()))
+    # Non-ORM
+    ##########################################################################
 
     def fromDB(self, s, id):
-        r = s.first("""select
-id, factId, cardModelId, created, modified, tags, ordinal, question, answer,
-priority, interval, lastInterval, due, lastDue, factor,
-lastFactor, firstAnswered, reps, successive, averageTime, reviewTime,
-youngEase0, youngEase1, youngEase2, youngEase3, youngEase4,
-matureEase0, matureEase1, matureEase2, matureEase3, matureEase4,
-yesCount, noCount, spaceUntil, isDue, type, combinedDue
-from cards where id = :id""", id=id)
+        r = s.first("""select * from cards where id = :id""", id=id)
         if not r:
             return
         (self.id,
@@ -211,74 +146,42 @@ from cards where id = :id""", id=id)
          self.cardModelId,
          self.created,
          self.modified,
-         self.tags,
-         self.ordinal,
          self.question,
          self.answer,
-         self.priority,
-         self.interval,
+         self.flags,
+         self.ordinal,
+         self.position,
+         self.type,
+         self.queue,
          self.lastInterval,
+         self.interval,
          self.due,
-         self.lastDue,
          self.factor,
-         self.lastFactor,
-         self.firstAnswered,
          self.reps,
          self.successive,
-         self.averageTime,
-         self.reviewTime,
-         self.youngEase0,
-         self.youngEase1,
-         self.youngEase2,
-         self.youngEase3,
-         self.youngEase4,
-         self.matureEase0,
-         self.matureEase1,
-         self.matureEase2,
-         self.matureEase3,
-         self.matureEase4,
-         self.yesCount,
-         self.noCount,
-         self.spaceUntil,
-         self.isDue,
-         self.type,
-         self.combinedDue) = r
+         self.lapses) = r
         return True
 
     def toDB(self, s):
-        "Write card to DB."
         s.execute("""update cards set
+factId=:factId,
+cardModelId=:cardModelId,
+created=:created,
 modified=:modified,
-tags=:tags,
-interval=:interval,
+question=:question,
+answer=:answer,
+flags=:flags,
+ordinal=:ordinal,
+position=:position,
+type=:type,
+queue=:queue,
 lastInterval=:lastInterval,
+interval=:interval,
 due=:due,
-lastDue=:lastDue,
 factor=:factor,
-lastFactor=:lastFactor,
-firstAnswered=:firstAnswered,
 reps=:reps,
 successive=:successive,
-averageTime=:averageTime,
-reviewTime=:reviewTime,
-youngEase0=:youngEase0,
-youngEase1=:youngEase1,
-youngEase2=:youngEase2,
-youngEase3=:youngEase3,
-youngEase4=:youngEase4,
-matureEase0=:matureEase0,
-matureEase1=:matureEase1,
-matureEase2=:matureEase2,
-matureEase3=:matureEase3,
-matureEase4=:matureEase4,
-yesCount=:yesCount,
-noCount=:noCount,
-spaceUntil = :spaceUntil,
-isDue = 0,
-type = :type,
-combinedDue = :combinedDue,
-relativeDelay = :relativeDelay,
-priority = :priority
+lapses=:lapses
 where id=:id""", self.__dict__)
 
 mapper(Card, cardsTable, properties={
@@ -291,7 +194,6 @@ mapper(Fact, factsTable, properties={
     'model': relation(Model),
     'fields': relation(Field, backref="fact", order_by=Field.ordinal),
     })
-
 
 # Card deletions
 ##########################################################################

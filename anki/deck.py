@@ -14,7 +14,7 @@ from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
 from anki.revlog import logReview
 from anki.models import Model, CardModel, formatQA
 from anki.fonts import toPlatformFont
-from anki.tags import initTagTables, tagIds
+from anki.tags import initTagTables, tagIds, tagId
 from operator import itemgetter
 from itertools import groupby
 from anki.hooks import runHook, hookEmpty
@@ -242,22 +242,22 @@ where time > :t""", t=self.failedCutoff-86400)
         self.failedSoonCount = self.db.scalar(
             self.cardLimit(
             "revActive", "revInactive",
-            "select count(*) from cards c where type = 0 "
-            "and combinedDue < :lim"), lim=self.failedCutoff)
+            "select count(*) from cards c where queue = 0 "
+            "and due < :lim"), lim=self.failedCutoff)
 
     def _rebuildRevCount(self):
         self.revCount = self.db.scalar(
             self.cardLimit(
             "revActive", "revInactive",
-            "select count(*) from cards c where type = 1 "
-            "and combinedDue < :lim"), lim=self.dueCutoff)
+            "select count(*) from cards c where queue = 1 "
+            "and due < :lim"), lim=self.dueCutoff)
 
     def _rebuildNewCount(self):
         self.newAvail = self.db.scalar(
             self.cardLimit(
             "newActive", "newInactive",
-            "select count(*) from cards c where type = 2 "
-            "and combinedDue < :lim"), lim=self.dueCutoff)
+            "select count(*) from cards c where queue = 2 "
+            "and due < :lim"), lim=self.dueCutoff)
         self.updateNewCountToday()
         self.spacedCards = []
 
@@ -271,8 +271,8 @@ where time > :t""", t=self.failedCutoff-86400)
             self.failedQueue = self.db.all(
                 self.cardLimit(
                 "revActive", "revInactive", """
-select c.id, factId, combinedDue from cards c where
-type = 0 and combinedDue < :lim order by combinedDue
+select c.id, factId, due from cards c where
+queue = 0 and due < :lim order by due
 limit %d""" % self.queueLimit), lim=self.failedCutoff)
             self.failedQueue.reverse()
 
@@ -282,7 +282,7 @@ limit %d""" % self.queueLimit), lim=self.failedCutoff)
                 self.cardLimit(
                 "revActive", "revInactive", """
 select c.id, factId from cards c where
-type = 1 and combinedDue < :lim order by %s
+queue = 1 and due < :lim order by %s
 limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.revQueue.reverse()
 
@@ -292,7 +292,7 @@ limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
                 self.cardLimit(
                 "newActive", "newInactive", """
 select c.id, factId from cards c where
-type = 2 and combinedDue < :lim order by %s
+queue = 2 and due < :lim order by %s
 limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
             self.newQueue.reverse()
 
@@ -365,7 +365,7 @@ New type: %s""" % (self.failedSoonCount, self.revCount, self.newCount,
     def revOrder(self):
         return ("interval desc",
                 "interval",
-                "combinedDue",
+                "due",
                 "factId, ordinal")[self.revCardOrder]
 
     def newOrder(self):
@@ -375,18 +375,15 @@ New type: %s""" % (self.failedSoonCount, self.revCount, self.newCount,
 
     def rebuildTypes(self):
         "Rebuild the type cache. Only necessary on upgrade."
-        # set canonical type first
+        # set type first
         self.db.statement("""
-update cards set
-relativeDelay = (case
+update cards set type = (case
 when successive then 1 when reps then 0 else 2 end)
 """)
-        # then current type based on that
+        # then queue
         self.db.statement("""
-update cards set
-type = (case
-when type >= 0 then relativeDelay else relativeDelay - 3 end)
-""")
+update cards set queue = type
+when queue != -1""")
 
     def updateAllFieldChecksums(self):
         # zero out
@@ -490,12 +487,12 @@ when type >= 0 then relativeDelay else relativeDelay - 3 end)
     def _reviewEarlyPreSave(self, card, ease):
         if ease > 1:
             # prevent it from appearing in next queue fill
-            card.type += 6
+            card.queue = -3
 
     def resetAfterReviewEarly(self):
         "Put temporarily suspended cards back into play. Caller must .reset()"
         self.db.statement(
-            "update cards set type = type - 6 where type between 6 and 8")
+            "update cards set queue = type where queue = -3")
 
     def _onReviewEarlyFinished(self):
         # clean up buried cards
@@ -508,7 +505,7 @@ when type >= 0 then relativeDelay else relativeDelay - 3 end)
         self.revCount = self.db.scalar(
             self.cardLimit(
             "revActive", "revInactive", """
-select count() from cards c where type = 1 and combinedDue > :now
+select count() from cards c where queue = 1 and due > :now
 """), now=self.dueCutoff)
 
     def _fillRevEarlyQueue(self):
@@ -516,8 +513,8 @@ select count() from cards c where type = 1 and combinedDue > :now
             self.revQueue = self.db.all(
                 self.cardLimit(
                 "revActive", "revInactive", """
-select id, factId from cards c where type = 1 and combinedDue > :lim
-order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
+select id, factId from cards c where queue = 1 and due > :lim
+order by due limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.revQueue.reverse()
 
     # Learn more
@@ -533,8 +530,8 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
         self.newAvail = self.db.scalar(
             self.cardLimit(
             "newActive", "newInactive",
-            "select count(*) from cards c where type = 2 "
-            "and combinedDue < :lim"), lim=self.dueCutoff)
+            "select count(*) from cards c where queue = 2 "
+            "and due < :lim"), lim=self.dueCutoff)
         self.spacedCards = []
 
     def _updateLearnMoreCountToday(self):
@@ -566,7 +563,7 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
     def _cramPreSave(self, card, ease):
         # prevent it from appearing in next queue fill
         card.lastInterval = self.cramLastInterval
-        card.type += 6
+        card.type = -3
 
     def _spaceCramCards(self, card):
         self.spacedFacts[card.factId] = time.time() + self.newSpacing
@@ -634,7 +631,7 @@ order by combinedDue limit %d""" % self.queueLimit), lim=self.dueCutoff)
             self.revQueue = self.db.all(self.cardLimit(
                 self.activeCramTags, "", """
 select id, factId from cards c
-where type between 0 and 2
+where queue between 0 and 2
 order by %s
 limit %s""" % (self.cramOrder, self.queueLimit)))
             self.revQueue.reverse()
@@ -642,7 +639,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
     def _rebuildCramCount(self):
         self.revCount = self.db.scalar(self.cardLimit(
             self.activeCramTags, "",
-            "select count(*) from cards c where type between 0 and 2"))
+            "select count(*) from cards c where queue between 0 and 2"))
 
     def _rebuildFailedCramCount(self):
         self.failedSoonCount = len(self.failedCramQueue)
@@ -754,7 +751,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             if not card.fromDB(self.db, id):
                 return
         card.deck = self
-        card.genFuzz()
+        #card.genFuzz()
         card.startTimer()
         return card
 
@@ -768,7 +765,7 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         # old state
         oldState = self.cardState(card)
         oldQueue = self.cardQueue(card)
-        lastDelaySecs = time.time() - card.combinedDue
+        lastDelaySecs = time.time() - card.due
         lastDelay = lastDelaySecs / 86400.0
         oldSuc = card.successive
         # update card details
@@ -779,8 +776,6 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             # only update if card was not new
             card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
-        card.isDue = 0
-        card.lastFactor = card.factor
         card.spaceUntil = 0
         if not self.finishScheduler:
             # don't update factor in custom schedulers
@@ -798,17 +793,17 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         else:
             self.newAvail -= 1
         # card stats
-        anki.cards.Card.updateStats(card, ease, oldState)
+        self.updateCardStats(card, ease, oldState)
         # update type & ensure past cutoff
         card.type = self.cardType(card)
-        card.relativeDelay = card.type
+        card.queue = card.type
         if ease != 1:
             card.due = max(card.due, self.dueCutoff+1)
         # allow custom schedulers to munge the card
         if self.answerPreSave:
             self.answerPreSave(card, ease)
         # save
-        card.combinedDue = card.due
+        card.due = card.due
         card.toDB(self.db)
         # review history
         print "make sure flags is set correctly when reviewing early"
@@ -824,28 +819,39 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
         runHook("cardAnswered", card.id, isLeech)
         self.setUndoEnd(undoName)
 
+    def updateCardStats(self, card, ease, state):
+        card.reps += 1
+        if ease == 1:
+            card.successive = 0
+            card.lapses += 1
+        else:
+            card.successive += 1
+        # if not card.firstAnswered:
+        #     card.firstAnswered = time.time()
+        card.setModified()
+
     def _spaceCards(self, card):
         new = time.time() + self.newSpacing
         self.db.statement("""
 update cards set
-combinedDue = (case
-when type = 1 then combinedDue + 86400 * (case
+due = (case
+when queue = 1 then due + 86400 * (case
   when interval*:rev < 1 then 0
   else interval*:rev
   end)
-when type = 2 then :new
+when queue = 2 then :new
 end),
-modified = :now, isDue = 0
+modified = :now
 where id != :id and factId = :factId
-and combinedDue < :cut
-and type between 1 and 2""",
+and due < :cut
+and queue between 1 and 2""",
                          id=card.id, now=time.time(), factId=card.factId,
                          cut=self.dueCutoff, new=new, rev=self.revSpacing)
         # update local cache of seen facts
         self.spacedFacts[card.factId] = new
 
     def isLeech(self, card):
-        no = card.noCount
+        no = card.lapses
         fmax = self.getInt('leechFails')
         if not fmax:
             return
@@ -885,8 +891,6 @@ and type between 1 and 2""",
         factor = card.factor
         # if cramming / reviewing early
         if delay < 0:
-            # FIXME: this should recreate lastInterval from interval /
-            # lastFactor, or we lose delay information when reviewing early
             interval = max(card.lastInterval, card.interval + delay)
             if interval < self.midIntervalMin:
                 interval = 0
@@ -950,7 +954,7 @@ and type between 1 and 2""",
 
     def updateFactor(self, card, ease):
         "Update CARD's factor based on EASE."
-        card.lastFactor = card.factor
+        print "update cardIsBeingLearnt()"
         if not card.reps:
             # card is new, inherit beginning factor
             card.factor = self.averageFactor
@@ -967,24 +971,26 @@ and type between 1 and 2""",
         "Return an adjusted delay value for CARD based on EASE."
         if self.cardIsNew(card):
             return 0
-        if card.reps and not card.successive:
-            return 0
-        if card.combinedDue <= self.dueCutoff:
-            return (self.dueCutoff - card.due) / 86400.0
+        if card.due <= time.time():
+            return (time.time() - card.due) / 86400.0
         else:
-            return (self.dueCutoff - card.combinedDue) / 86400.0
+            return (time.time() - card.due) / 86400.0
 
-    def resetCards(self, ids):
+    def resetCards(self, ids=None):
         "Reset progress on cards in IDS."
-        self.db.statement("""
-update cards set interval = :new, lastInterval = 0, lastDue = 0,
-factor = 2.5, reps = 0, successive = 0, averageTime = 0, reviewTime = 0,
-youngEase0 = 0, youngEase1 = 0, youngEase2 = 0, youngEase3 = 0,
-youngEase4 = 0, matureEase0 = 0, matureEase1 = 0, matureEase2 = 0,
-matureEase3 = 0,matureEase4 = 0, yesCount = 0, noCount = 0,
-spaceUntil = 0, type = 2, relativeDelay = 2,
-combinedDue = created, modified = :now, due = created, isDue = 0
-where id in %s""" % ids2str(ids), now=time.time(), new=0)
+        print "position in resetCards()"
+        sql = """
+update cards set modified=:now, position=0, type=2, queue=2, lastInterval=0,
+interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
+        sql2 = "delete from revlog"
+        if ids is None:
+            lim = ""
+        else:
+            sids = ids2str(ids)
+            sql += " where id in "+sids
+            sql2 += "  where cardId in "+sids
+        self.db.statement(sql, now=time.time())
+        self.db.statement(sql2)
         if self.newCardOrder == NEW_CARDS_RANDOM:
             # we need to re-randomize now
             self.randomizeNewCards(ids)
@@ -1004,19 +1010,17 @@ where id in %s""" % ids2str(ids), now=time.time(), new=0)
         self.db.statements("""
 update cards
 set due = :rand + ordinal,
-combinedDue = :rand + ordinal,
 modified = :now
 where factId = :fid
-and relativeDelay = 2""", data)
+and type = 2""", data)
 
     def orderNewCards(self):
         "Set 'due' to card creation time."
         self.db.statement("""
 update cards set
 due = created,
-combinedDue = created,
 modified = :now
-where relativeDelay = 2""", now=time.time())
+where type = 2""", now=time.time())
 
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
@@ -1034,14 +1038,12 @@ where relativeDelay = 2""", now=time.time())
 update cards set
 interval = :int,
 due = :due,
-combinedDue = :due,
 reps = 1,
 successive = 1,
 yesCount = 1,
 firstAnswered = :t,
+queue = 1,
 type = 1,
-relativeDelay = 1,
-isDue = 0
 where id = :id""", vals)
         self.flushMod()
 
@@ -1079,12 +1081,12 @@ This may be in the past if the deck is not finished.
 If the deck has no (enabled) cards, return None.
 Ignore new cards."""
         earliestRev = self.db.scalar(self.cardLimit("revActive", "revInactive", """
-select combinedDue from cards c where type = 1
-order by combinedDue
+select due from cards c where queue = 1
+order by due
 limit 1"""))
         earliestFail = self.db.scalar(self.cardLimit("revActive", "revInactive", """
-select combinedDue+%d from cards c where type = 0
-order by combinedDue
+select due+%d from cards c where queue = 0
+order by due
 limit 1""" % self.delay0))
         if earliestRev and earliestFail:
             return min(earliestRev, earliestFail)
@@ -1107,16 +1109,16 @@ limit 1""" % self.delay0))
         return self.db.scalar(
             self.cardLimit(
             "revActive", "revInactive",
-            "select count(*) from cards c where type between 0 and 1 "
-            "and combinedDue < :lim"), lim=time)
+            "select count(*) from cards c where queue between 0 and 1 "
+            "and due < :lim"), lim=time)
 
     def newCardsDueBy(self, time):
         "Number of new cards due at TIME."
         return self.db.scalar(
             self.cardLimit(
             "newActive", "newInactive",
-            "select count(*) from cards c where type = 2 "
-            "and combinedDue < :lim"), lim=time)
+            "select count(*) from cards c where queue = 2 "
+            "and due < :lim"), lim=time)
 
     def deckFinishedMsg(self):
         spaceSusp = ""
@@ -1151,9 +1153,8 @@ limit 1""" % self.delay0))
         self.startProgress()
         self.db.statement("""
 update cards
-set type = relativeDelay - 3,
-modified = :t
-where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
+set queue = -1, modified = :t
+where id in %s""" % ids2str(ids), t=time.time())
         self.flushMod()
         self.finishProgress()
 
@@ -1161,8 +1162,8 @@ where type >= 0 and id in %s""" % ids2str(ids), t=time.time())
         "Unsuspend cards. Caller must .reset()"
         self.startProgress()
         self.db.statement("""
-update cards set type = relativeDelay, modified=:t
-where type between -3 and -1 and id in %s""" %
+update cards set queue = type, modified=:t
+where queue = -1 and id in %s""" %
             ids2str(ids), t=time.time())
         self.flushMod()
         self.finishProgress()
@@ -1170,8 +1171,8 @@ where type between -3 and -1 and id in %s""" %
     def buryFact(self, fact):
         "Bury all cards for fact until next session. Caller must .reset()"
         for card in fact.cards:
-            if card.type in (0,1,2):
-                card.type += 3
+            if card.queue in (0,1,2):
+                card.queue = -2
         self.flushMod()
 
     # Counts
@@ -1180,14 +1181,16 @@ where type between -3 and -1 and id in %s""" %
     def hiddenCards(self):
         "Assumes queue finished. True if some due cards have not been shown."
         return self.db.scalar("""
-select 1 from cards where combinedDue < :now
-and type between 0 and 1 limit 1""", now=self.dueCutoff)
+select 1 from cards where due < :now
+and queue between 0 and 1 limit 1""", now=self.dueCutoff)
 
     def spacedCardCount(self):
         "Number of spaced cards."
+        print "spacedCardCount"
+        return 0
         return self.db.scalar("""
 select count(cards.id) from cards where
-combinedDue > :now and due < :now""", now=time.time())
+due > :now and due < :now""", now=time.time())
 
     def isEmpty(self):
         return not self.cardCount
@@ -1205,11 +1208,11 @@ combinedDue > :now and due < :now""", now=time.time())
     def newCountAll(self):
         "All new cards, including spaced."
         return self.db.scalar(
-            "select count(id) from cards where relativeDelay = 2")
+            "select count(id) from cards where type = 2")
 
     def seenCardCount(self):
         return self.db.scalar(
-            "select count(id) from cards where relativeDelay between 0 and 1")
+            "select count(id) from cards where type between 0 and 1")
 
     # Card predicates
     ##########################################################################
@@ -1224,10 +1227,6 @@ combinedDue > :now and due < :now""", now=time.time())
     def cardIsNew(self, card):
         "True if a card has never been seen before."
         return card.reps == 0
-
-    def cardIsBeingLearnt(self, card):
-        "True if card should use present intervals."
-        return card.lastInterval < 7
 
     def cardIsYoung(self, card):
         "True if card is not new and not mature."
@@ -1290,7 +1289,6 @@ combinedDue > :now and due < :now""", now=time.time())
             card = anki.cards.Card(fact, cardModel, created)
             if isRandom:
                 card.due = due
-                card.combinedDue = due
             self.flushMod()
             cards.append(card)
         # update card q/a
@@ -1981,6 +1979,13 @@ and cards.factId = facts.id""")
 select id, tags from facts
 where id in %s""" % ids2str(ids))
 
+    def cardHasTag(self, card, tag):
+        id = tagId(self.db, tag, create=False)
+        if id:
+            return self.db.scalar(
+                "select 1 from cardTags where cardId = :c and tagId = :t",
+                c=card.id, t=id)
+
     # Tags: caching
     ##########################################################################
 
@@ -2542,20 +2547,21 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                         n = 0
                     qquery += "select id from cards where type = %d" % n
                 elif token == "delayed":
+                    print "delayed"
                     qquery += ("select id from cards where "
-                               "due < %d and combinedDue > %d and "
+                               "due < %d and due > %d and "
                                "type in (0,1,2)") % (
                         self.dueCutoff, self.dueCutoff)
                 elif token == "suspended":
                     qquery += ("select id from cards where "
-                               "type between -3 and -1")
+                               "queue = -1")
                 elif token == "leech":
                     qquery += (
                         "select id from cards where noCount >= (select value "
                         "from deckvars where key = 'leechFails')")
                 else: # due
                     qquery += ("select id from cards where "
-                               "type in (0,1) and combinedDue < %d") % self.dueCutoff
+                               "queue between 0 and 1 and due < %d") % self.dueCutoff
             elif type == SEARCH_FID:
                 if fidquery:
                     if isNeg:
@@ -3436,17 +3442,15 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def updateDynamicIndices(self):
         indices = {
             'intervalDesc':
-            '(type, interval desc, factId, combinedDue)',
+            '(queue, interval desc, factId, due)',
             'intervalAsc':
-            '(type, interval, factId, combinedDue)',
+            '(queue, interval, factId, due)',
             'randomOrder':
-            '(type, factId, ordinal, combinedDue)',
-            # new cards are sorted by due, not combinedDue, so that even if
-            # they are spaced, they retain their original sort order
+            '(queue, factId, ordinal, due)',
             'dueAsc':
-            '(type, due, factId, combinedDue)',
+            '(queue, position, factId, due)',
             'dueDesc':
-            '(type, due desc, factId, combinedDue)',
+            '(queue, position desc, factId, due)',
             }
         # determine required
         required = []
@@ -3532,7 +3536,7 @@ class DeckStorage(object):
                 metadata.create_all(engine)
                 deck = DeckStorage._init(s)
             else:
-                ver = upgradeSchema(s)
+                ver = upgradeSchema(engine, s)
                 # add any possibly new tables if we're upgrading
                 if ver < DECK_VERSION:
                     metadata.create_all(engine)
@@ -3601,7 +3605,7 @@ class DeckStorage(object):
             deck.delay1 = 0
         # unsuspend buried/rev early
         deck.db.statement(
-            "update cards set type = relativeDelay where type > 2")
+            "update cards set queue = type where queue between -3 and -2")
         deck.db.commit()
         # check if deck has been moved, and disable syncing
         deck.checkSyncHash()
