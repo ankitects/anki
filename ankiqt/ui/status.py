@@ -239,7 +239,7 @@ You should aim to answer each question within<br>
                     return
                 if not self.main.config['showCardTimer']:
                     return
-                t = self.main.currentCard.thinkingTime()
+                t = self.main.currentCard.userTime()
                 self.setTimer('%02d:%02d' % (t/60, t%60))
                 return
         self.setTimer("00:00")

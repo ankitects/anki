@@ -1889,7 +1889,7 @@ learnt today")
     ##########################################################################
 
     def onMark(self, toggled):
-        if self.currentCard.hasTag("Marked"):
+        if self.deck.cardHasTag(self.currentCard, "Marked"):
             self.currentCard.fact.tags = canonifyTags(deleteTags(
                 "Marked", self.currentCard.fact.tags))
         else:
@@ -2558,7 +2558,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 
     def updateMarkAction(self):
         self.mainWin.actionMarkCard.blockSignals(True)
-        if self.currentCard.hasTag("Marked"):
+        if self.deck.cardHasTag(self.currentCard, "Marked"):
             self.mainWin.actionMarkCard.setChecked(True)
         else:
             self.mainWin.actionMarkCard.setChecked(False)

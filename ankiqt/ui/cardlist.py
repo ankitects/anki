@@ -22,6 +22,8 @@ from anki.db import *
 from anki.stats import CardStats
 from anki.hooks import runHook, addHook, removeHook
 
+# - first answered needs updating
+
 CARD_ID = 0
 CARD_QUESTION = 1
 CARD_ANSWER = 2
@@ -190,10 +192,10 @@ where cards.factId = facts.id """
     def updateCard(self, index):
         try:
             self.cards[index.row()] = self.deck.db.first("""
-select id, question, answer, combinedDue, reps, factId, created, modified,
-interval, factor, noCount, type, (select tags from facts where
+select id, question, answer, due, reps, factId, created, modified,
+interval, factor, lapses, type, (select tags from facts where
 facts.id = cards.factId), (select created from facts where
-facts.id = cards.factId), firstAnswered from cards where id = :id""",
+facts.id = cards.factId) from cards where id = :id""",
                                                         id=self.cards[index.row()][0])
             self.emit(SIGNAL("layoutChanged()"))
         except:
