@@ -3004,6 +3004,10 @@ Return new path, relative to media dir."""
     def setSchemaModified(self):
         # we might be called during an upgrade, so avoid bumping modtime
         self.setVar("schemaMod", time.time(), mod=False)
+        # since we guarantee a full sync to all clients, this is a good time
+        # to forget old gravestones
+        for k in ("cards", "facts", "models", "media"):
+            self.db.statement("delete from %sDeleted" % k)
 
     def flushMod(self):
         "Mark modified and flush to DB."
@@ -3251,10 +3255,6 @@ where cards.cardModelId = cardModels.id)""")
             # rebuild
             self.updateProgress()
             self.rebuildTypes()
-            # since we can ensure the updated version will be propagated to
-            # all locations, we can forget old tombstones
-            for k in ("cards", "facts", "models", "media"):
-                self.db.statement("delete from %sDeleted" % k)
             # force a full sync
             self.setSchemaModified()
             # and finally, optimize
