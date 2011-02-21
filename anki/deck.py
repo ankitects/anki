@@ -1933,13 +1933,13 @@ and cards.factId = facts.id""")
             tag = tag.replace("*", "%")
             if "%" in tag:
                 ids = self.db.column0(
-                    "select id from tags where tag like :tag", tag=tag)
+                    "select id from tags where name like :tag", tag=tag)
                 if search == "and" and not ids:
                     return []
                 tagIds.append(ids)
             else:
                 id = self.db.scalar(
-                    "select id from tags where tag = :tag", tag=tag)
+                    "select id from tags where name = :tag", tag=tag)
                 if search == "and" and not id:
                     return []
                 tagIds.append(id)
@@ -1962,7 +1962,7 @@ and cards.factId = facts.id""")
             return self.db.column0(q)
 
     def allTags(self):
-        return self.db.column0("select tag from tags order by tag")
+        return self.db.column0("select name from tags order by name")
 
     def allTags_(self, where=""):
         t = self.db.column0("select tags from facts %s" % where)
@@ -2034,7 +2034,7 @@ facts.modelId = :id""", id=modelId))
         if d:
             self.db.statements("""
 insert into cardTags
-(cardId, tagId, src) values
+(cardId, tagId, type) values
 (:cardId, :tagId, :src)""", d)
         self.deleteUnusedTags()
 
@@ -2527,7 +2527,7 @@ select cards.id from cards, facts where facts.tags = '' and cards.factId = facts
                 else:
                     token = token.replace("*", "%")
                     ids = self.db.column0("""
-select id from tags where tag like :tag escape '\\'""", tag=token)
+select id from tags where name like :tag escape '\\'""", tag=token)
                     tquery += """
 select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
             elif type == SEARCH_TYPE:
@@ -2574,7 +2574,7 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
             elif type == SEARCH_CARD:
                 token = token.replace("*", "%")
                 ids = self.db.column0("""
-select id from tags where tag like :tag escape '\\'""", tag=token)
+select id from tags where name like :tag escape '\\'""", tag=token)
                 if isNeg:
                     if cmquery['neg']:
                         cmquery['neg'] += " intersect "
@@ -3108,7 +3108,7 @@ where id in %s""" % ids2str(ids)):
             f['Answer'] = repl(a)
             try:
                 f.tags = self.db.scalar("""
-select group_concat(tag, " ") from tags t, cardTags ct
+select group_concat(name, " ") from tags t, cardTags ct
 where cardId = :cid and ct.tagId = t.id""", cid=id) or u""
             except:
                 raise Exception("Your sqlite is too old.")

@@ -7,6 +7,15 @@ DECK_VERSION = 75
 from anki.db import *
 from anki.lang import _
 from anki.media import rebuildMediaDir
+from anki.tags import initTagTables
+
+def moveTable(s, table):
+    sql = s.scalar(
+        "select sql from sqlite_master where name = '%s'" % table)
+    sql = sql.replace("TABLE "+table, "temporary table %s2" % table)
+    s.execute(sql)
+    s.execute("insert into %s2 select * from %s" % (table, table))
+    s.execute("drop table "+table)
 
 def upgradeSchema(engine, s):
     "Alter tables prior to ORM initialization."
@@ -20,22 +29,26 @@ def upgradeSchema(engine, s):
         except:
             pass
     if ver < 75:
-        # copy cards into new temporary table
-        sql = s.scalar(
-            "select sql from sqlite_master where name = 'cards'")
-        sql = sql.replace("TABLE cards", "temporary table cards2")
-        s.execute(sql)
-        s.execute("insert into cards2 select * from cards")
-        # drop the old cards table and create the new one
-        s.execute("drop table cards")
+        # migrate cards
+        moveTable(s, "cards")
         import cards
         metadata.create_all(engine, tables=[cards.cardsTable])
-        # move data across and delete temp table
+        # move data across
         s.execute("""
 insert into cards select id, factId, cardModelId, created, modified,
 question, answer, 0, ordinal, 0, relativeDelay, type, lastInterval, interval,
 due, factor, reps, successive, noCount from cards2""")
         s.execute("drop table cards2")
+        # migrate tags
+        moveTable(s, "tags")
+        moveTable(s, "cardTags")
+        initTagTables(s)
+        # move data across
+        s.execute("insert or ignore into tags select id, tag, 0 from tags2")
+        s.execute("""
+insert or ignore into cardTags select cardId, tagId, src from cardTags2""")
+        s.execute("drop table tags2")
+        s.execute("drop table cardTags2")
     return ver
 
 def updateIndices(deck):
@@ -80,16 +93,6 @@ create index if not exists ix_factsDeleted_factId on factsDeleted (factId)""")
     deck.db.statement("""
 create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
     # tags
-    txt = "create unique index if not exists ix_tags_tag on tags (tag)"
-    try:
-        deck.db.statement(txt)
-    except:
-        deck.db.statement("""
-delete from tags where exists (select 1 from tags t2 where tags.tag = t2.tag
-and tags.rowid > t2.rowid)""")
-        deck.db.statement(txt)
-    deck.db.statement("""
-create index if not exists ix_cardTags_tagCard on cardTags (tagId, cardId)""")
     deck.db.statement("""
 create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
 
