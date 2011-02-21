@@ -17,22 +17,10 @@ regexps = ("(?i)(\[sound:([^]]+)\])",
 mediaTable = Table(
     'media', metadata,
     Column('id', Integer, primary_key=True, nullable=False),
-    Column('filename', UnicodeText, nullable=False),
-    # reused as reference count
-    Column('size', Integer, nullable=False),
-    # treated as modification date, not creation date
-    Column('created', Float, nullable=False),
-    # reused as md5sum. empty string if file doesn't exist on disk
-    Column('originalPath', UnicodeText, nullable=False, default=u""),
-    # older versions stored original filename here, so we'll leave it for now
-    # in case we add a feature to rename media back to its original name. in
-    # the future we may want to zero this to save space
-    Column('description', UnicodeText, nullable=False, default=u""))
-
-class Media(object):
-    pass
-
-mapper(Media, mediaTable)
+    Column('filename', UnicodeText, nullable=False, unique=True),
+    Column('refcnt', Integer, nullable=False),
+    Column('modified', Float, nullable=False),
+    Column('chksum', UnicodeText, nullable=False, default=u""))
 
 mediaDeletedTable = Table(
     'mediaDeleted', metadata,
@@ -51,7 +39,7 @@ If a file with the same name exists, return a unique name.
 This does not modify the media table."""
     # see if have duplicate contents
     newpath = deck.db.scalar(
-        "select filename from media where originalPath = :cs",
+        "select filename from media where chksum = :cs",
         cs=checksum(open(path, "rb").read()))
     # check if this filename already exists
     if not newpath:
@@ -88,7 +76,7 @@ def updateMediaCount(deck, file, count=1):
     if deck.db.scalar(
         "select 1 from media where filename = :file", file=file):
         deck.db.statement(
-            "update media set size = size + :c, created = :t where filename = :file",
+            "update media set refcnt = refcnt + :c, modified = :t where filename = :file",
             file=file, c=count, t=time.time())
     elif count > 0:
         try:
@@ -97,17 +85,17 @@ def updateMediaCount(deck, file, count=1):
         except:
             sum = u""
         deck.db.statement("""
-insert into media (id, filename, size, created, originalPath, description)
-values (:id, :file, :c, :mod, :sum, '')""",
+insert into media (id, filename, refcnt, modified, chksum)
+values (:id, :file, :c, :mod, :sum)""",
                          id=genID(), file=file, c=count, mod=time.time(),
                          sum=sum)
 
 def removeUnusedMedia(deck):
-    ids = deck.db.column0("select id from media where size = 0")
+    ids = deck.db.column0("select id from media where refcnt = 0")
     for id in ids:
         deck.db.statement("insert into mediaDeleted values (:id, :t)",
                          id=id, t=time.time())
-    deck.db.statement("delete from media where size = 0")
+    deck.db.statement("delete from media where refcnt = 0")
 
 # String manipulation
 ##########################################################################
@@ -147,7 +135,7 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         return (0, 0)
     deck.startProgress(title=_("Check Media DB"))
     # set all ref counts to 0
-    deck.db.statement("update media set size = 0")
+    deck.db.statement("update media set refcnt = 0")
     # look through cards for media references
     refs = {}
     normrefs = {}
@@ -186,8 +174,8 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
     removeUnusedMedia(deck)
     # check md5s are up to date
     update = []
-    for (file, created, md5) in deck.db.all(
-        "select filename, created, originalPath from media"):
+    for (file, md5) in deck.db.all(
+        "select filename, chksum from media"):
         path = os.path.join(mdir, file)
         if not os.path.exists(path):
             if md5:
@@ -199,12 +187,12 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
                 update.append({'f':file, 'sum':sum, 'c':time.time()})
     if update:
         deck.db.statements("""
-update media set originalPath = :sum, created = :c where filename = :f""",
+update media set chksum = :sum, modified = :c where filename = :f""",
                           update)
     # update deck and get return info
     if dirty:
         deck.flushMod()
-    nohave = deck.db.column0("select filename from media where originalPath = ''")
+    nohave = deck.db.column0("select filename from media where chksum = ''")
     deck.finishProgress()
     return (nohave, unused)
 
@@ -220,7 +208,7 @@ def downloadMissing(deck):
     missing = 0
     grabbed = 0
     for c, (f, sum) in enumerate(deck.db.all(
-        "select filename, originalPath from media")):
+        "select filename, chksum from media")):
         path = os.path.join(mdir, f)
         if not os.path.exists(path):
             try:

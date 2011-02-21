@@ -122,7 +122,7 @@ select models.id, models.modified from models, facts where
 facts.modelId = models.id and
 facts.id in %s""" % ids2str([f[0] for f in facts]))
         media = self.deck.db.all("""
-select id, created from media""")
+select id, modified from media""")
         return {
             # cards
             "cards": cards,

@@ -29,35 +29,45 @@ def upgradeSchema(engine, s):
         except:
             pass
     if ver < 75:
-        # migrate cards
+        # cards
+        ###########
         moveTable(s, "cards")
         import cards
         metadata.create_all(engine, tables=[cards.cardsTable])
-        # move data across
         s.execute("""
 insert into cards select id, factId, cardModelId, created, modified,
 question, answer, 0, ordinal, 0, relativeDelay, type, lastInterval, interval,
 due, factor, reps, successive, noCount from cards2""")
         s.execute("drop table cards2")
-        # migrate tags
+        # tags
+        ###########
         moveTable(s, "tags")
         moveTable(s, "cardTags")
         initTagTables(s)
-        # move data across
         s.execute("insert or ignore into tags select id, tag, 0 from tags2")
         s.execute("""
 insert or ignore into cardTags select cardId, tagId, src from cardTags2""")
         s.execute("drop table tags2")
         s.execute("drop table cardTags2")
-        # migrate facts
+        # facts
+        ###########
         moveTable(s, "facts")
         import facts
         metadata.create_all(engine, tables=[facts.factsTable])
-        # move data across
         s.execute("""
 insert or ignore into facts select id, modelId, created, modified, tags,
 spaceUntil from facts2""")
         s.execute("drop table facts2")
+        # media
+        ###########
+        moveTable(s, "media")
+        import media
+        metadata.create_all(engine, tables=[media.mediaTable])
+        s.execute("""
+insert or ignore into media select id, filename, size, created,
+originalPath from media2""")
+        s.execute("drop table media2")
+
     return ver
 
 def updateIndices(deck):
@@ -84,14 +94,10 @@ create index if not exists ix_cards_factId on cards (factId)""")
     deck.db.statement("""
 create index if not exists ix_fields_factId on fields (factId)""")
     deck.db.statement("""
-create index if not exists ix_fields_fieldModelId on fields (fieldModelId)""")
-    deck.db.statement("""
 create index if not exists ix_fields_chksum on fields (chksum)""")
     # media
     deck.db.statement("""
-create unique index if not exists ix_media_filename on media (filename)""")
-    deck.db.statement("""
-create index if not exists ix_media_originalPath on media (originalPath)""")
+create index if not exists ix_media_chksum on media (chksum)""")
     # deletion tracking
     deck.db.statement("""
 create index if not exists ix_cardsDeleted_cardId on cardsDeleted (cardId)""")
@@ -173,6 +179,8 @@ cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
         deck.db.execute("update cards set queue=-1 where queue between -3 and -1")
         deck.db.execute("update cards set queue=-2 where queue between 3 and 5")
         deck.db.execute("update cards set queue=-3 where queue between 6 and 8")
+        # don't need an index on fieldModelId
+        deck.db.statement("drop index if exists ix_fields_fieldModelId")
         # new indices for new cards table
         updateIndices(deck)
         deck.version = 75
