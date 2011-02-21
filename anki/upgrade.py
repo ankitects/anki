@@ -49,6 +49,15 @@ due, factor, reps, successive, noCount from cards2""")
 insert or ignore into cardTags select cardId, tagId, src from cardTags2""")
         s.execute("drop table tags2")
         s.execute("drop table cardTags2")
+        # migrate facts
+        moveTable(s, "facts")
+        import facts
+        metadata.create_all(engine, tables=[facts.factsTable])
+        # move data across
+        s.execute("""
+insert or ignore into facts select id, modelId, created, modified, tags,
+spaceUntil from facts2""")
+        s.execute("drop table facts2")
     return ver
 
 def updateIndices(deck):

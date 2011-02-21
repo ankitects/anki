@@ -776,7 +776,6 @@ limit %s""" % (self.cramOrder, self.queueLimit)))
             # only update if card was not new
             card.lastDue = card.due
         card.due = self.nextDue(card, ease, oldState)
-        card.spaceUntil = 0
         if not self.finishScheduler:
             # don't update factor in custom schedulers
             self.updateFactor(card, ease)
@@ -1895,7 +1894,7 @@ order by fields.factId""" % ids2str([x[2] for x in ids])),
         for a in all:
             r.append({'id':a[0], 'v':stripHTMLMedia(a[1])})
         self.db.statements(
-            "update facts set spaceUntil=:v where id=:id", r)
+            "update facts set cache=:v where id=:id", r)
 
     def rebuildCardOrdinals(self, ids):
         "Update all card models in IDS. Caller must update model modtime."
@@ -2667,7 +2666,7 @@ select id from cards where answer like :_ff_%d escape '\\'""" % c
                     token = token.replace("*", "%")
                     args["_ff_%d" % c] = "%"+token+"%"
                     fquery += """
-select id from facts where spaceUntil like :_ff_%d escape '\\'""" % c
+select id from facts where cache like :_ff_%d escape '\\'""" % c
         return (tquery, fquery, qquery, fidquery, cmquery, sfquery,
                 qaquery, showdistinct, filters, args)
 

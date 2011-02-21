@@ -42,7 +42,9 @@ mapper(Field, fieldsTable, properties={
 
 # Facts: a set of fields and a model
 ##########################################################################
-# mapped in cards.py
+
+# Cache: a HTML-stripped amalgam of the field contents, so we can perform
+# searches of marked up text in a reasonable time.
 
 factsTable = Table(
     'facts', metadata,
@@ -51,11 +53,7 @@ factsTable = Table(
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('tags', UnicodeText, nullable=False, default=u""),
-    # spaceUntil is reused as a html-stripped cache of the fields
-    Column('spaceUntil', UnicodeText, nullable=False, default=u""),
-    # obsolete
-    Column('lastCardId', Integer, ForeignKey(
-    "cards.id", use_alter=True, name="lastCardIdfk")))
+    Column('cache', UnicodeText, nullable=False, default=u""))
 
 class Fact(object):
     "A single fact. Fields exposed as dict interface."
@@ -143,7 +141,7 @@ class Fact(object):
                     ankiqt.setModWarningShown = True
                 deck = ankiqt.mw.deck
             assert deck
-            self.spaceUntil = stripHTMLMedia(u" ".join(
+            self.cache = stripHTMLMedia(u" ".join(
                 self.values()))
             for card in self.cards:
                 card.rebuildQA(deck)
