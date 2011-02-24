@@ -979,6 +979,8 @@ and type between 1 and 2""",
         "Return an adjusted delay value for CARD based on EASE."
         if self.cardIsNew(card):
             return 0
+        if card.reps and not card.successive:
+            return 0
         if card.combinedDue <= self.dueCutoff:
             return (self.dueCutoff - card.due) / 86400.0
         else:
