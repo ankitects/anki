@@ -132,7 +132,7 @@ class Card(object):
         return self.htmlQuestion(type="answer", align=align)
 
     def _splitTags(self):
-        return (self.fact.tags, self.fact.model.tags, self.cardModel.name)
+        return (self.fact.tags, self.fact.model.name, self.cardModel.name)
 
     # Non-ORM
     ##########################################################################

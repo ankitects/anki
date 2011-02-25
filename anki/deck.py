@@ -55,80 +55,53 @@ deckVarsTable = Table(
     Column('key', UnicodeText, nullable=False, primary_key=True),
     Column('value', UnicodeText))
 
+# syncName: md5sum of current deck location, to detect if deck was moved or
+#           renamed. mobile clients can treat this as a simple boolean
+
+# utcOffset: store independent of tz?
+
 # parts of the code assume we only have one deck
-decksTable = Table(
-    'decks', metadata,
-    Column('id', Integer, primary_key=True),
+deckTable = Table(
+    'deck', metadata,
+    Column('id', Integer, nullable=False, primary_key=True),
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
-    Column('description', UnicodeText, nullable=False, default=u""),
+    Column('schemaMod', Float, nullable=False, default=0),
     Column('version', Integer, nullable=False, default=DECK_VERSION),
     Column('currentModelId', Integer, ForeignKey("models.id")),
-    # syncName stores an md5sum of the deck path when syncing is enabled. If
-    # it doesn't match the current deck path, the deck has been moved,
-    # and syncing is disabled on load.
-    Column('syncName', UnicodeText),
+    Column('syncName', UnicodeText, nullable=False, default=u""),
     Column('lastSync', Float, nullable=False, default=0),
     # scheduling
-    ##############
-    # initial intervals
-    Column('hardIntervalMin', Float, nullable=False, default=1.0),
-    Column('hardIntervalMax', Float, nullable=False, default=1.1),
-    Column('midIntervalMin', Float, nullable=False, default=3.0),
-    Column('midIntervalMax', Float, nullable=False, default=5.0),
-    Column('easyIntervalMin', Float, nullable=False, default=7.0),
-    Column('easyIntervalMax', Float, nullable=False, default=9.0),
-    # delays on failure
-    Column('delay0', Integer, nullable=False, default=600),
-    # days to delay mature fails
-    Column('delay1', Integer, nullable=False, default=0),
-    Column('delay2', Float, nullable=False, default=0.0),
-    # collapsing future cards
-    Column('collapseTime', Integer, nullable=False, default=1),
-    # priorities & postponing - all obsolete
-    Column('highPriority', UnicodeText, nullable=False, default=u"PriorityVeryHigh"),
-    Column('medPriority', UnicodeText, nullable=False, default=u"PriorityHigh"),
-    Column('lowPriority', UnicodeText, nullable=False, default=u"PriorityLow"),
-    Column('suspended', UnicodeText, nullable=False, default=u""),
-    # 0 is random, 1 is by input date
+    Column('utcOffset', Integer, nullable=False, default=-2),
     Column('newCardOrder', Integer, nullable=False, default=1),
-    # when to show new cards
     Column('newCardSpacing', Integer, nullable=False, default=NEW_CARDS_DISTRIBUTE),
-    # limit the number of failed cards in play
-    Column('failedCardMax', Integer, nullable=False, default=20),
-    # number of new cards to show per day
     Column('newCardsPerDay', Integer, nullable=False, default=20),
-    # currently unused
+    Column('revCardOrder', Integer, nullable=False, default=0),
+    Column('collapseTime', Integer, nullable=False, default=600),
+    # timeboxing
     Column('sessionRepLimit', Integer, nullable=False, default=0),
     Column('sessionTimeLimit', Integer, nullable=False, default=600),
-    # stats offset
-    Column('utcOffset', Float, nullable=False, default=-1),
-    # count cache
-    Column('cardCount', Integer, nullable=False, default=0),
-    Column('factCount', Integer, nullable=False, default=0),
-    Column('failedNowCount', Integer, nullable=False, default=0), # obsolete
-    Column('failedSoonCount', Integer, nullable=False, default=0),
-    Column('revCount', Integer, nullable=False, default=0),
-    Column('newCount', Integer, nullable=False, default=0),
-    # rev order
-    Column('revCardOrder', Integer, nullable=False, default=0))
+    # leeches
+    Column('suspendLeeches', Boolean, nullable=False, default=True),
+    Column('leechFails', Integer, nullable=False, default=16),
+    # selective study
+    Column('newActive', UnicodeText, nullable=False, default=u""),
+    Column('newInactive', UnicodeText, nullable=False, default=u""),
+    Column('revActive', UnicodeText, nullable=False, default=u""),
+    Column('revInactive', UnicodeText, nullable=False, default=u""),
+)
 
 class Deck(object):
     "Top-level object. Manages facts, cards and scheduling information."
 
     factorFour = 1.3
-    initialFactor = 2.5
-    maxScheduleTime = 36500
-
-    def __init__(self, path=None):
-        "Create a new deck."
-        # a limit of 1 deck in the table
-        self.id = 1
 
     def _initVars(self):
-        self.tmpMediaDir = None
+        if self.utcOffset == -2:
+            # shared deck; reset timezone and creation date
+            self.utcOffset = time.timezone + 60*60*4
+            self.created = time.time()
         self.mediaPrefix = ""
-        self.lastTags = u""
         self.lastLoaded = time.time()
         self.undoEnabled = False
         self.sessionStartReps = 0
@@ -136,15 +109,7 @@ class Deck(object):
         self.lastSessionStart = 0
         self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
-        if not self.db.scalar("select 1 from deckVars where key = 'schemaMod'"):
-            self.setVarDefault("suspendLeeches", True)
-            self.setVarDefault("leechFails", 16)
-            self.setVarDefault("perDay", True)
-            self.setVarDefault("newActive", "")
-            self.setVarDefault("revActive", "")
-            self.setVarDefault("newInactive", self.suspended)
-            self.setVarDefault("revInactive", self.suspended)
-            self.setVarDefault("newSpacing", 60)
+        if not self.db.scalar("select 1 from deckVars where key = 'latexPost'"):
             self.setVarDefault("mediaURL", "")
             self.setVarDefault("latexPre", """\
 \\documentclass[12pt]{article}
@@ -156,8 +121,6 @@ class Deck(object):
 \\begin{document}
 """)
             self.setVarDefault("latexPost", "\\end{document}")
-            self.setVarDefault("revSpacing", 0.1)
-            self.setVarDefault("schemaMod", 0)
         self.updateCutoff()
         self.setupStandardScheduler()
 
@@ -214,8 +177,8 @@ where time > :t""", t=self.failedCutoff-86400)
         self.rebuildNewCount()
 
     def _cardLimit(self, active, inactive, sql):
-        yes = parseTags(self.getVar(active))
-        no = parseTags(self.getVar(inactive))
+        yes = parseTags(getattr(self, active))
+        no = parseTags(getattr(self, inactive))
         if yes:
             yids = tagIds(self.db, yes).values()
             nids = tagIds(self.db, no).values()
@@ -465,8 +428,9 @@ when queue != -1""")
         self.rebuildCSS()
         # spacing for delayed cards - not to be confused with newCardSpacing
         # above
-        self.newSpacing = self.getFloat('newSpacing')
-        self.revSpacing = self.getFloat('revSpacing')
+        print "newSpacing/revSpacing"
+        self.newSpacing = 0
+        self.revSpacing = 0
 
     def checkDay(self):
         # check if the day has rolled over
@@ -924,8 +888,6 @@ and queue between 1 and 2""",
                 interval = (interval + delay) * factor * self.factorFour
             fuzz = random.uniform(0.95, 1.05)
             interval *= fuzz
-        if self.maxScheduleTime:
-            interval = min(interval, self.maxScheduleTime)
         return interval
 
     def nextIntervalStr(self, card, ease, short=False):
@@ -1293,8 +1255,6 @@ due > :now and due < :now""", now=time.time())
         # update card q/a
         fact.setModified(True, self)
         self.updateFactTags([fact.id])
-        # keep track of last used tags for convenience
-        self.lastTags = fact.tags
         self.flushMod()
         if reset:
             self.reset()
@@ -1478,10 +1438,19 @@ where facts.id not in (select distinct factId from cards)""")
     # Models
     ##########################################################################
 
+    def getCurrentModel(self):
+        return self.db.query(anki.models.Model).get(self.currentModelId)
+    def setCurrentModel(self, model):
+        self.currentModelId = model.id
+    currentModel = property(getCurrentModel, setCurrentModel)
+
+    def getModels(self):
+        return self.db.query(anki.models.Model).all()
+    models = property(getModels)
+
     def addModel(self, model):
-        if model not in self.models:
-            self.setSchemaModified()
-            self.models.append(model)
+        self.db.add(model)
+        self.setSchemaModified()
         self.currentModel = model
         self.flushMod()
 
@@ -1573,8 +1542,6 @@ select id from models""")
         for c in oldModel.cardModels:
             c = c.copy()
             m.addCardModel(c)
-        for attr in ("tags", "spacing", "initialSpacing"):
-            setattr(m, attr, getattr(oldModel, attr))
         self.addModel(m)
         return m
 
@@ -1913,7 +1880,7 @@ where cardModelId in %s""" % strids, now=time.time())
 
     def splitTagsList(self, where=""):
         return self.db.all("""
-select cards.id, facts.tags, models.tags, cardModels.name
+select cards.id, facts.tags, models.name, cardModels.name
 from cards, facts, models, cardModels where
 cards.factId == facts.id and facts.modelId == models.id
 and cards.cardModelId = cardModels.id
@@ -1965,7 +1932,7 @@ and cards.factId = facts.id""")
 
     def allTags_(self, where=""):
         t = self.db.column0("select tags from facts %s" % where)
-        t += self.db.column0("select tags from models")
+        t += self.db.column0("select name from models")
         t += self.db.column0("select name from cardModels")
         return sorted(list(set(parseTags(joinTags(t)))))
 
@@ -2749,6 +2716,15 @@ select id from facts where cache like :_ff_%d escape '\\'""" % c
         if self.progressHandlerEnabled:
             runHook("dbProgress")
 
+    def setupProgressHandler(self):
+        self.progressHandlerCalled = 0
+        self.progressHandlerEnabled = False
+        try:
+            self.engine.raw_connection().set_progress_handler(
+                deck.progressHandler, 100)
+        except:
+            pass
+
     def enableProgressHandler(self):
         self.progressHandlerEnabled = True
 
@@ -2901,27 +2877,21 @@ where key = :key""", key=key, value=value):
 
     def mediaDir(self, create=False):
         "Return the media directory if exists. None if couldn't create."
-        if self.path:
-            if self.mediaPrefix:
-                dir = os.path.join(
-                    self.mediaPrefix, os.path.basename(self.path))
-            else:
-                dir = self.path
-            dir = re.sub("(?i)\.(anki)$", ".media", dir)
-            if create == None:
-                # don't create, but return dir
-                return dir
-            if not os.path.exists(dir) and create:
-                try:
-                    os.makedirs(dir)
-                except OSError:
-                    # permission denied
-                    return None
+        if self.mediaPrefix:
+            dir = os.path.join(
+                self.mediaPrefix, os.path.basename(self.path))
         else:
-            # memory-backed; need temp store
-            if not self.tmpMediaDir and create:
-                self.tmpMediaDir = tempfile.mkdtemp(prefix="anki")
-            dir = self.tmpMediaDir
+            dir = self.path
+        dir = re.sub("(?i)\.(anki)$", ".media", dir)
+        if create == None:
+            # don't create, but return dir
+            return dir
+        if not os.path.exists(dir) and create:
+            try:
+                os.makedirs(dir)
+            except OSError:
+                # permission denied
+                return None
         if not dir or not os.path.exists(dir):
             return None
         # change to the current dir
@@ -2958,7 +2928,6 @@ Return new path, relative to media dir."""
     def close(self):
         if self.db:
             self.db.rollback()
-            self.db.clear()
             self.db.close()
             self.db = None
             self.s = None
@@ -2968,7 +2937,7 @@ Return new path, relative to media dir."""
     def rollback(self):
         "Roll back the current transaction and reset session state."
         self.db.rollback()
-        self.db.clear()
+        self.db.expunge_all()
         self.db.update(self)
         self.db.refresh(self)
 
@@ -2977,9 +2946,10 @@ Return new path, relative to media dir."""
         self.db.flush()
         self.db.expire_all()
 
-    def openSession(self):
+    def openSession(self, first=False):
         "Open a new session. Assumes old session is already closed."
-        self.db = SessionHelper(self.Session(), lock=self.needLock)
+        self.db = SessionHelper(self.Session())
+        self.s = self.db
         self.db.update(self)
         self.refreshSession()
 
@@ -3001,8 +2971,7 @@ Return new path, relative to media dir."""
         self.modified = newTime or time.time()
 
     def setSchemaModified(self):
-        # we might be called during an upgrade, so avoid bumping modtime
-        self.setVar("schemaMod", time.time(), mod=False)
+        self.schemaMod = time.time()
         # since we guarantee a full sync to all clients, this is a good time
         # to forget old gravestones
         for k in ("cards", "facts", "models", "media"):
@@ -3053,7 +3022,7 @@ Return new path, relative to media dir."""
         if oldMediaDir:
             newDeck.renameMediaDir(oldMediaDir)
         # forget sync name
-        newDeck.syncName = None
+        newDeck.syncName = u""
         newDeck.db.commit()
         # and return the new deck
         self.finishProgress()
@@ -3069,7 +3038,7 @@ Return new path, relative to media dir."""
         self.db.commit()
 
     def disableSyncing(self):
-        self.syncName = None
+        self.syncName = u""
         self.db.commit()
 
     def syncingEnabled(self):
@@ -3083,7 +3052,7 @@ has been disabled (ERR-0100).
 
 You can disable this check in Settings>Preferences>Network.""") % self.name())
             self.disableSyncing()
-            self.syncName = None
+            self.syncName = u""
 
     # DB maintenance
     ##########################################################################
@@ -3481,6 +3450,8 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         if analyze:
             self.db.statement("analyze")
 
+mapper(Deck, deckTable)
+
 # Shared decks
 ##########################################################################
 
@@ -3494,218 +3465,8 @@ sourcesTable = Table(
     # not currently exposed in the GUI
     Column('syncPeriod', Integer, nullable=False, default=0))
 
-# Maps
+# Labels
 ##########################################################################
-
-mapper(Deck, decksTable, properties={
-    'currentModel': relation(anki.models.Model, primaryjoin=
-                             decksTable.c.currentModelId ==
-                             anki.models.modelsTable.c.id),
-    'models': relation(anki.models.Model, post_update=True,
-                       primaryjoin=
-                       decksTable.c.id ==
-                       anki.models.modelsTable.c.deckId),
-    })
-
-# Deck storage
-##########################################################################
-
-numBackups = 30
-backupDir = os.path.expanduser("~/.anki/backups")
-
-class DeckStorage(object):
-
-    def Deck(path=None, backup=True, lock=True, pool=True, rebuild=True):
-        "Create a new deck or attach to an existing one."
-        create = True
-        if path is None:
-            sqlpath = None
-        else:
-            path = os.path.abspath(path)
-            # check if we need to init
-            if os.path.exists(path):
-                create = False
-            # sqlite needs utf8
-            sqlpath = path.encode("utf-8")
-        try:
-            (engine, session) = DeckStorage._attach(sqlpath, create, pool)
-            s = session()
-            if create:
-                ver = 999
-                metadata.create_all(engine)
-                deck = DeckStorage._init(s)
-            else:
-                ver = upgradeSchema(engine, s)
-                # add any possibly new tables if we're upgrading
-                if ver < DECK_VERSION:
-                    metadata.create_all(engine)
-                deck = s.query(Deck).get(1)
-                if not deck:
-                    raise DeckAccessError(_("Deck missing core table"),
-                                          type="nocore")
-            # attach db vars
-            deck.path = path
-            deck.engine = engine
-            deck.Session = session
-            deck.needLock = lock
-            deck.progressHandlerCalled = 0
-            deck.progressHandlerEnabled = False
-            if pool:
-                try:
-                    deck.engine.raw_connection().set_progress_handler(
-                        deck.progressHandler, 100)
-                except:
-                    print "please install pysqlite 2.4 for better progress dialogs"
-            deck.engine.execute("pragma locking_mode = exclusive")
-            # db is new style; s old style
-            deck.db = SessionHelper(s, lock=lock)
-            deck.s = deck.db
-            # force a write lock
-            deck.db.execute("update decks set modified = modified")
-            if deck.utcOffset == -2:
-                # make sure we do this before initVars
-                DeckStorage._setUTCOffset(deck)
-                deck.created = time.time()
-            if create:
-                # new-style file format
-                deck.db.commit()
-                deck.db.execute("pragma legacy_file_format = off")
-                deck.db.execute("pragma default_cache_size= 20000")
-                deck.db.execute("vacuum")
-                # add tags and indices
-                initTagTables(deck.db)
-                updateIndices(deck)
-                deck.db.statement("analyze")
-                deck._initVars()
-            else:
-                if backup:
-                    DeckStorage.backup(deck, path)
-                deck._initVars()
-                upgradeDeck(deck)
-        except OperationalError, e:
-            engine.dispose()
-            if (str(e.orig).startswith("database table is locked") or
-                str(e.orig).startswith("database is locked")):
-                raise DeckAccessError(_("File is in use by another process"),
-                                      type="inuse")
-            else:
-                raise e
-        if not rebuild:
-            # minimal startup
-            return deck
-        oldMod = deck.modified
-        # fix a bug with current model being unset
-        if not deck.currentModel and deck.models:
-            deck.currentModel = deck.models[0]
-        # ensure the necessary indices are available
-        deck.updateDynamicIndices()
-        # - new delay1 handling
-        if deck.delay1 > 7:
-            deck.delay1 = 0
-        # unsuspend buried/rev early
-        deck.db.statement(
-            "update cards set queue = type where queue between -3 and -2")
-        deck.db.commit()
-        # check if deck has been moved, and disable syncing
-        deck.checkSyncHash()
-        # determine starting factor for new cards
-        deck.averageFactor = 2.5
-        # rebuild queue
-        deck.reset()
-        # make sure we haven't accidentally bumped the modification time
-        assert deck.modified == oldMod
-        return deck
-    Deck = staticmethod(Deck)
-
-    def _attach(path, create, pool=True):
-        "Attach to a file, initializing DB"
-        if path is None:
-            path = "sqlite://"
-        else:
-            path = "sqlite:///" + path
-        if pool:
-            # open and lock connection for single use
-            engine = create_engine(path, connect_args={'timeout': 0},
-                                   strategy="threadlocal")
-        else:
-            # no pool & concurrent access w/ timeout
-            engine = create_engine(path,
-                                   poolclass=NullPool,
-                                   connect_args={'timeout': 60})
-        session = sessionmaker(bind=engine,
-                               autoflush=False,
-                               autocommit=True)
-        return (engine, session)
-    _attach = staticmethod(_attach)
-
-    def _init(s):
-        "Add a new deck to the database. Return saved deck."
-        deck = Deck()
-        if sqlalchemy.__version__.startswith("0.4."):
-            s.save(deck)
-        else:
-            s.add(deck)
-        s.flush()
-        return deck
-    _init = staticmethod(_init)
-
-    def _setUTCOffset(deck):
-        # 4am
-        deck.utcOffset = time.timezone + 60*60*4
-    _setUTCOffset = staticmethod(_setUTCOffset)
-
-    def backup(deck, path):
-        """Path must not be unicode."""
-        if not numBackups:
-            return
-        def escape(path):
-            path = os.path.abspath(path)
-            path = path.replace("\\", "!")
-            path = path.replace("/", "!")
-            path = path.replace(":", "")
-            return path
-        escp = escape(path)
-        # make sure backup dir exists
-        try:
-            os.makedirs(backupDir)
-        except (OSError, IOError):
-            pass
-        # find existing backups
-        gen = re.sub("\.anki$", ".backup-(\d+).anki", re.escape(escp))
-        backups = []
-        for file in os.listdir(backupDir):
-            m = re.match(gen, file)
-            if m:
-                backups.append((int(m.group(1)), file))
-        backups.sort()
-        # check if last backup is the same
-        if backups:
-            latest = os.path.join(backupDir, backups[-1][1])
-            if int(deck.modified) == int(
-                os.stat(latest)[stat.ST_MTIME]):
-                return
-        # check integrity
-        if not deck.db.scalar("pragma integrity_check") == "ok":
-            raise DeckAccessError(_("Deck is corrupt."), type="corrupt")
-        # get next num
-        if not backups:
-            n = 1
-        else:
-            n = backups[-1][0] + 1
-        # do backup
-        newpath = os.path.join(backupDir, os.path.basename(
-            re.sub("\.anki$", ".backup-%s.anki" % n, escp)))
-        shutil.copy2(path, newpath)
-        # set mtimes to be identical
-        if deck.modified:
-            os.utime(newpath, (deck.modified, deck.modified))
-        # remove if over
-        if len(backups) + 1 > numBackups:
-            delete = len(backups) + 1 - numBackups
-            delete = backups[:delete]
-            for file in delete:
-                os.unlink(os.path.join(backupDir, file[1]))
-    backup = staticmethod(backup)
 
 def newCardOrderLabels():
     return {
@@ -3721,6 +3482,7 @@ def newCardSchedulingLabels():
         2: _("Show new cards before reviews"),
         }
 
+# FIXME: order due is not very useful anymore
 def revCardOrderLabels():
     return {
         0: _("Review cards from largest interval"),
@@ -3738,3 +3500,104 @@ def failedCardOptionLabels():
         4: _("Show failed cards in 3 days"),
         5: _("Custom failed cards handling"),
         }
+
+# Deck storage
+##########################################################################
+
+class DeckStorage(object):
+
+    def _getDeck(path, create, pool):
+        engine = None
+        try:
+            (engine, session) = DeckStorage._attach(path, create, pool)
+            s = session()
+            if create:
+                metadata.create_all(engine)
+                initTagTables(engine)
+                deck = DeckStorage._init(s)
+                updateIndices(engine)
+                engine.execute("analyze")
+            else:
+                ver = upgradeSchema(engine, s)
+                # add any possibly new tables if we're upgrading
+                if ver < DECK_VERSION:
+                    metadata.create_all(engine)
+                deck = s.query(Deck).get(1)
+                if not deck:
+                    raise DeckAccessError(_("Deck missing core table"),
+                                          type="nocore")
+            # attach db vars
+            deck.path = path
+            deck.Session = session
+            deck.engine = engine
+            # db is new style; s old style
+            deck.db = SessionHelper(s)
+            deck.s = deck.db
+            deck._initVars()
+            if not create:
+                upgradeDeck(deck)
+            return deck
+        except OperationalError, e:
+            if engine:
+                engine.dispose()
+            if (str(e.orig).startswith("database table is locked") or
+                str(e.orig).startswith("database is locked")):
+                raise DeckAccessError(_("File is in use by another process"),
+                                      type="inuse")
+            else:
+                raise e
+
+    _getDeck = staticmethod(_getDeck)
+
+    def _attach(path, create, pool=True):
+        "Attach to a file, maybe initializing DB"
+        path = "sqlite:///" + path.encode("utf-8")
+        if pool:
+            # open and lock connection for single use
+            engine = create_engine(
+                path, connect_args={'timeout': 0}, strategy="threadlocal")
+        else:
+            # no pool & concurrent access w/ timeout
+            engine = create_engine(
+                path, poolclass=NullPool, connect_args={'timeout': 60})
+        session = sessionmaker(bind=engine, autoflush=False, autocommit=True)
+        if create:
+            engine.execute("pragma page_size = 4096")
+            engine.execute("pragma legacy_file_format = 0")
+            engine.execute("vacuum")
+        engine.execute("pragma cache_size = 20000")
+        return (engine, session)
+    _attach = staticmethod(_attach)
+
+    def _init(s):
+        "Add a new deck to the database. Return saved deck."
+        deck = Deck()
+        if sqlalchemy.__version__.startswith("0.4."):
+            s.save(deck)
+        else:
+            s.add(deck)
+        s.flush()
+        return deck
+    _init = staticmethod(_init)
+
+    def Deck(path, backup=True, pool=True, rebuild=True):
+        "Create a new deck or attach to an existing one. Path should be unicode."
+        path = os.path.abspath(path)
+        create = not os.path.exists(path)
+        deck = DeckStorage._getDeck(path, create, pool)
+        if not rebuild:
+            # minimal startup
+            return deck
+        oldMod = deck.modified
+        # unsuspend buried/rev early
+        deck.db.statement(
+            "update cards set queue = type where queue between -3 and -2")
+        deck.db.commit()
+        # check if deck has been moved, and disable syncing
+        deck.checkSyncHash()
+        # rebuild queue
+        deck.reset()
+        # make sure we haven't accidentally bumped the modification time
+        assert deck.modified == oldMod
+        return deck
+    Deck = staticmethod(Deck)

@@ -2,8 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-DECK_VERSION = 75
+DECK_VERSION = 100
 
+import time
 from anki.db import *
 from anki.lang import _
 from anki.media import rebuildMediaDir
@@ -19,16 +20,17 @@ def moveTable(s, table):
 
 def upgradeSchema(engine, s):
     "Alter tables prior to ORM initialization."
-    ver = s.scalar("select version from decks limit 1")
-    # add a checksum to fields
-    if ver < 71:
-        try:
-            s.execute(
-                "alter table fields add column chksum text "+
-                "not null default ''")
-        except:
-            pass
-    if ver < 75:
+    try:
+        ver = s.scalar("select version from deck limit 1")
+    except:
+        ver = s.scalar("select version from decks limit 1")
+    if ver < 65:
+        raise Exception("oldDeckVersion")
+    if ver < 99:
+        # fields
+        ###########
+        s.execute(
+            "alter table fields add column chksum text not null default ''")
         # cards
         ###########
         moveTable(s, "cards")
@@ -67,48 +69,70 @@ spaceUntil from facts2""")
 insert or ignore into media select id, filename, size, created,
 originalPath from media2""")
         s.execute("drop table media2")
+        # deck
+        ###########
+        import deck
+        metadata.create_all(engine, tables=[deck.deckTable])
+        s.execute("""
+insert into deck select id, created, modified, 0, 99, currentModelId,
+ifnull(syncName, ""), lastSync, utcOffset, newCardOrder,
+newCardSpacing, newCardsPerDay, revCardOrder, 600, sessionRepLimit,
+sessionTimeLimit, 1, 16, '', '', '', '' from decks
+                  """)
+        s.execute("drop table decks")
+        # models
+        ###########
+        moveTable(s, "models")
+        import models
+        metadata.create_all(engine, tables=[models.modelsTable])
+        s.execute("""
+insert or ignore into models select id, created, modified, name,
+'[0.5, 3, 10]', '[1, 7, 4]',
+'[0.5, 3, 10]', '[1, 7, 4]',
+0, 2.5 from models2""")
+        s.execute("drop table models2")
 
     return ver
 
-def updateIndices(deck):
+def updateIndices(db):
     "Add indices to the DB."
     # due counts, failed card queue
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_cards_queueDue on cards
 (queue, due, factId)""")
     # counting cards of a given type
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_cards_type on cards
 (type)""")
     # sync summaries
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_cards_modified on cards
 (modified)""")
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_facts_modified on facts
 (modified)""")
     # card spacing
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_cards_factId on cards (factId)""")
     # fields
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_fields_factId on fields (factId)""")
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_fields_chksum on fields (chksum)""")
     # media
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_media_chksum on media (chksum)""")
     # deletion tracking
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_cardsDeleted_cardId on cardsDeleted (cardId)""")
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_modelsDeleted_modelId on modelsDeleted (modelId)""")
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_factsDeleted_factId on factsDeleted (factId)""")
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
     # tags
-    deck.db.statement("""
+    db.execute("""
 create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
 
 def upgradeDeck(deck):
@@ -117,17 +141,10 @@ def upgradeDeck(deck):
         prog = True
         deck.startProgress()
         deck.updateProgress(_("Upgrading Deck..."))
-        if deck.utcOffset == -1:
-            # we're opening a shared deck with no indices - we'll need
-            # them if we want to rebuild the queue
-            updateIndices(deck)
         oldmod = deck.modified
     else:
         prog = False
-    if deck.version < 65:
-        raise Exception("oldDeckVersion")
-    # skip a few to allow for updates to stable tree
-    if deck.version < 70:
+    if deck.version < 100:
         # update dynamic indices given we don't use priority anymore
         for d in ("intervalDesc", "intervalAsc", "randomOrder",
                   "dueAsc", "dueDesc"):
@@ -139,29 +156,14 @@ def upgradeDeck(deck):
                   "revCardsDue", "revCardsRandom", "acqCardsRandom",
                   "acqCardsOld", "acqCardsNew"):
             deck.db.statement("drop view if exists %s" % v)
-        deck.version = 70
-        deck.db.commit()
-    if deck.version < 71:
         # remove the expensive value cache
         deck.db.statement("drop index if exists ix_fields_value")
         # add checksums and index
         deck.updateAllFieldChecksums()
-        updateIndices(deck)
-        deck.db.execute("vacuum")
-        deck.db.execute("analyze")
-        deck.version = 71
-        deck.db.commit()
-    if deck.version < 72:
         # this was only used for calculating average factor
         deck.db.statement("drop index if exists ix_cards_factor")
-        deck.version = 72
-        deck.db.commit()
-    if deck.version < 73:
         # remove stats, as it's all in the revlog now
         deck.db.statement("drop table if exists stats")
-        deck.version = 73
-        deck.db.commit()
-    if deck.version < 74:
         # migrate revlog data to new table
         deck.db.statement("""
 insert or ignore into revlog select
@@ -172,28 +174,20 @@ cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
         deck.db.statement("update revlog set ease = 1 where ease = 0")
         # remove priority index
         deck.db.statement("drop index if exists ix_cards_priority")
-        deck.version = 74
-        deck.db.commit()
-    if deck.version < 75:
         # suspended cards don't use ranges anymore
         deck.db.execute("update cards set queue=-1 where queue between -3 and -1")
         deck.db.execute("update cards set queue=-2 where queue between 3 and 5")
         deck.db.execute("update cards set queue=-3 where queue between 6 and 8")
         # don't need an index on fieldModelId
         deck.db.statement("drop index if exists ix_fields_fieldModelId")
-        # new indices for new cards table
-        updateIndices(deck)
-        deck.version = 75
-        deck.db.commit()
+        # update schema time
+        deck.db.statement("update deck set schemaMod = :t", t=time.time())
 
-    # executing a pragma here is very slow on large decks, so we store
-    # our own record
-    if not deck.getInt("pageSize") == 4096:
-        deck.db.commit()
-        deck.db.execute("pragma page_size = 4096")
-        deck.db.execute("pragma legacy_file_format = 0")
+        # finally, update indices & optimize
+        updateIndices(deck.db)
         deck.db.execute("vacuum")
-        deck.setVar("pageSize", 4096, mod=False)
+        deck.db.execute("analyze")
+        deck.version = 100
         deck.db.commit()
     if prog:
         assert deck.modified == oldmod

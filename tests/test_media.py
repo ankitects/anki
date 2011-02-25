@@ -6,6 +6,12 @@ from anki import DeckStorage
 from anki.stdmodels import BasicModel
 from anki.utils import checksum
 
+def getDeck():
+    import tempfile
+    (fd, nam) = tempfile.mkstemp(suffix=".anki")
+    os.unlink(nam)
+    return DeckStorage.Deck(nam)
+
 # uniqueness check
 def test_unique():
     dir = tempfile.mkdtemp(prefix="anki")
@@ -26,7 +32,7 @@ def test_unique():
 
 # copying files to media folder
 def test_copy():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
     open(path, "w").write("hello")
@@ -42,7 +48,7 @@ insert into media values (null, 'foo.jpg', 0, 0, :sum)""",
 
 # media db
 def test_db():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     deck.addModel(BasicModel())
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")

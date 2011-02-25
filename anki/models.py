@@ -153,19 +153,39 @@ def formatQA(cid, mid, fact, tags, cm, deck):
 # Model table
 ##########################################################################
 
+# ...Schedule: fail, pass1, pass2, etc in minutes
+# ...Intervals: graduation, first remove, later remove
+
+# maybe define a random cutoff at say +/-30% which controls exit interval
+# variation - 30% of 1 day is 0.7 or 1.3 so always 1 day; 30% of 4 days is
+# 2.8-5.2, so any time from 3-5 days is acceptable
+
+# collapse time should be bigger than default failSchedule
+
+# need to think about failed interval handling - if the final drill is
+# optional, what intervals should the default be? 3 days or more if cards are
+# over that interval range? and what about failed mature bonus?
+
 modelsTable = Table(
     'models', metadata,
     Column('id', Integer, primary_key=True),
-    Column('deckId', Integer, ForeignKey("decks.id", use_alter=True, name="deckIdfk")),
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
-    Column('tags', UnicodeText, nullable=False, default=u""),
     Column('name', UnicodeText, nullable=False),
-    Column('description', UnicodeText, nullable=False, default=u""), # obsolete
-    Column('features', UnicodeText, nullable=False, default=u""), # used as mediaURL
-    Column('spacing', Float, nullable=False, default=0.1), # obsolete
-    Column('initialSpacing', Float, nullable=False, default=60), # obsolete
-    Column('source', Integer, nullable=False, default=0))
+    # new cards
+    Column('newSched', UnicodeText, nullable=False, default=u"[0.5, 3, 10]"),
+    Column('newInts', UnicodeText, nullable=False, default=u"[1, 7, 4]"),
+    # failed cards
+    Column('failSched', UnicodeText, nullable=False, default=u"[0.5, 3, 10]"),
+    Column('failInts', UnicodeText, nullable=False, default=u"[1, 7, 4]"),
+    Column('failMult', Float, nullable=False, default=0),
+    # other scheduling
+    Column('initialFactor', Float, nullable=False, default=2.5),
+)
+
+
+
+
 
 class Model(object):
     "Defines the way a fact behaves, what fields it can contain, etc."

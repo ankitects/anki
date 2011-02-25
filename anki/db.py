@@ -54,7 +54,7 @@ metadata = MetaData()
 class SessionHelper(object):
     "Add some convenience routines to a session."
 
-    def __init__(self, session, lock=False, transaction=True):
+    def __init__(self, session, lock=True, transaction=True):
         self._session = session
         self._lock = lock
         self._transaction = transaction
@@ -71,7 +71,7 @@ class SessionHelper(object):
         else:
             self._session.add(obj)
 
-    def clear(self):
+    def expunge_all(self):
         # compat
         if sqlalchemy.__version__.startswith("0.4."):
             self._session.clear()
@@ -128,12 +128,13 @@ class SessionHelper(object):
 
     def _lockDB(self):
         "Take out a write lock."
-        self._session.execute(text("update decks set modified=modified"))
+        self._session.execute("pragma locking_mode = exclusive")
+        self._session.execute(text("update deck set modified=modified"))
 
 def object_session(*args):
     s = _object_session(*args)
     if s:
-        return SessionHelper(s, transaction=False)
+        return SessionHelper(s, lock=False, transaction=False)
     return None
 
 def sessionmaker(*args, **kwargs):

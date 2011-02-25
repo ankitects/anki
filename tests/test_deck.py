@@ -15,13 +15,13 @@ newModified = None
 
 testDir = os.path.dirname(__file__)
 
-## opening/closing
+def getDeck():
+    import tempfile
+    (fd, nam) = tempfile.mkstemp(suffix=".anki")
+    os.unlink(nam)
+    return DeckStorage.Deck(nam)
 
-def test_new():
-    deck = DeckStorage.Deck()
-    assert not deck.path
-    assert deck.engine
-    assert deck.modified
+## opening/closing
 
 def test_attachNew():
     global newPath, newModified
@@ -33,7 +33,6 @@ def test_attachNew():
     deck = DeckStorage.Deck(path)
     # for attachOld()
     newPath = deck.path
-    deck.setVar("pageSize", 4096)
     deck.save()
     newModified = deck.modified
     deck.close()
@@ -67,7 +66,7 @@ def test_saveAs():
     except OSError:
         pass
     # start with an in-memory deck
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     deck.addModel(BasicModel())
     # add a card
     f = deck.newFact()
@@ -90,7 +89,7 @@ def test_saveAs():
     newDeck.close()
 
 def test_factAddDelete():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     deck.addModel(BasicModel())
     # set rollback point
     deck.db.commit()
@@ -130,7 +129,7 @@ def test_factAddDelete():
     deck.deleteCard(id2)
 
 def test_fieldChecksum():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     deck.addModel(BasicModel())
     f = deck.newFact()
     f['Front'] = u"new"; f['Back'] = u"new2"
@@ -165,7 +164,7 @@ def test_fieldChecksum():
         "select chksum from fields where id = :id", id=id) == ""
 
 def test_modelAddDelete():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     deck.addModel(BasicModel())
     deck.addModel(BasicModel())
     f = deck.newFact()
@@ -179,7 +178,7 @@ def test_modelAddDelete():
     deck.db.refresh(deck)
 
 def test_modelCopy():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     m = BasicModel()
     assert len(m.fieldModels) == 2
     assert len(m.cardModels) == 2
@@ -199,7 +198,7 @@ def test_modelCopy():
     assert len(m2.cardModels) == 2
 
 def test_media():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     # create a media dir
     deck.mediaDir(create=True)
     # put a file into it
@@ -216,7 +215,7 @@ def test_media():
     assert os.path.exists("/tmp/saveAs2.media/%s" % sum)
 
 def test_modelChange():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     m = Model(u"Japanese")
     m1 = m
     f = FieldModel(u'Expression', True, True)
@@ -270,7 +269,7 @@ select question, answer from cards where factId = :id""",
     assert stripHTML(a) == u"r"
 
 def test_findCards():
-    deck = DeckStorage.Deck()
+    deck = getDeck()
     deck.addModel(BasicModel())
     f = deck.newFact()
     f['Front'] = u'dog'
