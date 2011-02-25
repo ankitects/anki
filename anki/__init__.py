@@ -8,7 +8,7 @@ Anki (libanki)
 
 Open a deck:
 
-    deck = anki.DeckStorage.Deck(path)
+    deck = anki.Deck(path)
 
 Get a card:
 
@@ -55,3 +55,6 @@ except ImportError:
 version = "1.2.8"
 
 from anki.deck import DeckStorage
+
+def Deck(*args, **kwargs):
+    return DeckStorage.Deck(*args, **kwargs)

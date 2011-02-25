@@ -4,7 +4,7 @@ import nose, os, re
 from tests.shared import assertException
 
 from anki.errors import *
-from anki import DeckStorage
+from anki import Deck
 from anki.db import *
 from anki.models import FieldModel, Model, CardModel
 from anki.stdmodels import BasicModel
@@ -19,7 +19,7 @@ def getDeck():
     import tempfile
     (fd, nam) = tempfile.mkstemp(suffix=".anki")
     os.unlink(nam)
-    return DeckStorage.Deck(nam)
+    return Deck(nam)
 
 ## opening/closing
 
@@ -30,7 +30,7 @@ def test_attachNew():
         os.unlink(path)
     except OSError:
         pass
-    deck = DeckStorage.Deck(path)
+    deck = Deck(path)
     # for attachOld()
     newPath = deck.path
     deck.save()
@@ -39,18 +39,18 @@ def test_attachNew():
     del deck
 
 def test_attachOld():
-    deck = DeckStorage.Deck(newPath, backup=False)
+    deck = Deck(newPath, backup=False)
     assert deck.modified == newModified
     deck.close()
 
 def test_attachReadOnly():
     # non-writeable dir
     assertException(Exception,
-                    lambda: DeckStorage.Deck("/attachroot"))
+                    lambda: Deck("/attachroot"))
     # reuse tmp file from before, test non-writeable file
     os.chmod(newPath, 0)
     assertException(Exception,
-                    lambda: DeckStorage.Deck(newPath))
+                    lambda: Deck(newPath))
     os.chmod(newPath, 0666)
     os.unlink(newPath)
 
@@ -84,7 +84,7 @@ def test_saveAs():
     # new deck should have zero cards
     assert newDeck2.cardCount == 0
     # but old deck should have reverted the unsaved changes
-    newDeck = DeckStorage.Deck(path)
+    newDeck = Deck(path)
     assert newDeck.cardCount == 1
     newDeck.close()
 

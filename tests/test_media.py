@@ -2,7 +2,7 @@
 
 import tempfile, os, time
 import anki.media as m
-from anki import DeckStorage
+from anki import Deck
 from anki.stdmodels import BasicModel
 from anki.utils import checksum
 
@@ -10,7 +10,7 @@ def getDeck():
     import tempfile
     (fd, nam) = tempfile.mkstemp(suffix=".anki")
     os.unlink(nam)
-    return DeckStorage.Deck(nam)
+    return Deck(nam)
 
 # uniqueness check
 def test_unique():

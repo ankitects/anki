@@ -4,7 +4,7 @@ import nose, os, shutil
 from tests.shared import assertException
 
 from anki.errors import *
-from anki import DeckStorage
+from anki import Deck
 from anki.importing import anki10, csvfile, mnemosyne10, supermemo_xml, dingsbums
 from anki.stdmodels import BasicModel
 from anki.facts import Fact
@@ -15,7 +15,7 @@ from anki.db import *
 testDir = os.path.dirname(__file__)
 
 def test_csv():
-    deck = DeckStorage.Deck()
+    deck = Deck()
     deck.addModel(BasicModel())
     file = unicode(os.path.join(testDir, "importing/text-2fields.txt"))
     i = csvfile.TextImporter(deck, file)
@@ -26,7 +26,7 @@ def test_csv():
     deck.close()
 
 def test_csv_tags():
-    deck = DeckStorage.Deck()
+    deck = Deck()
     deck.addModel(BasicModel())
     file = unicode(os.path.join(testDir, "importing/text-tags.txt"))
     i = csvfile.TextImporter(deck, file)
@@ -37,7 +37,7 @@ def test_csv_tags():
     deck.close()
 
 def test_mnemosyne10():
-    deck = DeckStorage.Deck()
+    deck = Deck()
     deck.addModel(BasicModel())
     file = unicode(os.path.join(testDir, "importing/test.mem"))
     i = mnemosyne10.Mnemosyne10Importer(deck, file)
@@ -46,7 +46,7 @@ def test_mnemosyne10():
     deck.close()
 
 def test_supermemo_xml_01_unicode():
-    deck = DeckStorage.Deck()
+    deck = Deck()
     deck.addModel(BasicModel())
     file = unicode(os.path.join(testDir, "importing/supermemo1.xml"))
     i = supermemo_xml.SupermemoXmlImporter(deck, file)
@@ -65,7 +65,7 @@ def test_anki10():
     file2_ = unicode(os.path.join(testDir, "importing/test10-2.anki"))
     file2 = "/tmp/test10-2.anki"
     shutil.copy(file2_, file2)
-    deck = DeckStorage.Deck()
+    deck = Deck()
     i = anki10.Anki10Importer(deck, file)
     i.doImport()
     assert i.total == 2
@@ -73,15 +73,15 @@ def test_anki10():
     deck.close()
     # import a deck into itself - 10-2 is the same as test10, but with one
     # card answered and another deleted. nothing should be synced to client
-    deck = DeckStorage.Deck(file, backup=False)
+    deck = Deck(file, backup=False)
     i = anki10.Anki10Importer(deck, file2)
     i.doImport()
     assert i.total == 0
     deck.db.rollback()
 
 def test_anki10_modtime():
-    deck1 = DeckStorage.Deck()
-    deck2 = DeckStorage.Deck()
+    deck1 = Deck()
+    deck2 = Deck()
     client = SyncClient(deck1)
     server = SyncServer(deck2)
     client.setServer(server)
@@ -106,7 +106,7 @@ def test_anki10_modtime():
     assert deck2.db.scalar("select count(*) from models") == 2
 
 def test_dingsbums():
-    deck = DeckStorage.Deck()
+    deck = Deck()
     deck.addModel(BasicModel())
     startNumberOfFacts = deck.factCount
     file = unicode(os.path.join(testDir, "importing/dingsbums.xml"))
@@ -117,7 +117,7 @@ def test_dingsbums():
 
 def test_updating():
     # get the standard csv deck first
-    deck = DeckStorage.Deck()
+    deck = Deck()
     deck.addModel(BasicModel())
     file = unicode(os.path.join(testDir, "importing/text-2fields.txt"))
     i = csvfile.TextImporter(deck, file)

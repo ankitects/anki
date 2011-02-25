@@ -4,7 +4,7 @@ import nose, os, tempfile, shutil, time
 from tests.shared import assertException
 
 from anki.errors import *
-from anki import DeckStorage
+from anki import Deck
 from anki.db import *
 from anki.stdmodels import BasicModel
 from anki.sync import SyncClient, SyncServer, HttpSyncServer, HttpSyncServerProxy
@@ -27,17 +27,17 @@ server=None
 def setup_local(loadDecks=None):
     global deck1, deck2, client, server
     if loadDecks:
-        deck1 = DeckStorage.Deck(loadDecks[0], backup=False)
-        deck2 = DeckStorage.Deck(loadDecks[1], backup=False)
+        deck1 = Deck(loadDecks[0], backup=False)
+        deck2 = Deck(loadDecks[1], backup=False)
     else:
-        deck1 = DeckStorage.Deck()
+        deck1 = Deck()
         deck1.addModel(BasicModel())
         deck1.currentModel.cardModels[1].active = True
         deck1.newCardOrder = 1
         f = deck1.newFact()
         f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = u"foo"
         deck1.addFact(f)
-        deck2 = DeckStorage.Deck()
+        deck2 = Deck()
         deck2.addModel(BasicModel())
         deck2.currentModel.cardModels[1].active = True
         f = deck2.newFact()
@@ -181,7 +181,7 @@ def test_localsync_factsandcards():
 @nose.with_setup(setup_local, teardown)
 def test_localsync_threeway():
     # deck1 (client) <-> deck2 (server) <-> deck3 (client)
-    deck3 = DeckStorage.Deck()
+    deck3 = Deck()
     client2 = SyncClient(deck3)
     server2 = SyncServer(deck2)
     client2.setServer(server2)
