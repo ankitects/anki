@@ -72,20 +72,20 @@ def test_saveAs():
     f = deck.newFact()
     f['Front'] = u"foo"; f['Back'] = u"bar"
     deck.addFact(f)
-    assert deck.cardCount == 1
+    assert deck.cardCount() == 1
     # save in new deck
     newDeck = deck.saveAs(path)
-    assert newDeck.cardCount == 1
+    assert newDeck.cardCount() == 1
     # delete card
     id = newDeck.db.scalar("select id from cards")
     newDeck.deleteCard(id)
     # save into new deck
     newDeck2 = newDeck.saveAs(path2)
     # new deck should have zero cards
-    assert newDeck2.cardCount == 0
+    assert newDeck2.cardCount() == 0
     # but old deck should have reverted the unsaved changes
     newDeck = Deck(path)
-    assert newDeck.cardCount == 1
+    assert newDeck.cardCount() == 1
     newDeck.close()
 
 def test_factAddDelete():
@@ -171,10 +171,10 @@ def test_modelAddDelete():
     f['Front'] = u'1'
     f['Back'] = u'2'
     deck.addFact(f)
-    assert deck.cardCount == 1
+    assert deck.cardCount() == 1
     deck.deleteModel(deck.currentModel)
     deck.reset()
-    assert deck.cardCount == 0
+    assert deck.cardCount() == 0
     deck.db.refresh(deck)
 
 def test_modelCopy():
@@ -249,8 +249,8 @@ def test_modelChange():
     # convert to basic
     assert deck.modelUseCount(m1) == 2
     assert deck.modelUseCount(m2) == 0
-    assert deck.cardCount == 4
-    assert deck.factCount == 2
+    assert deck.cardCount() == 4
+    assert deck.factCount() == 2
     fmap = {m1.fieldModels[0]: m2.fieldModels[0],
             m1.fieldModels[1]: None,
             m1.fieldModels[2]: m2.fieldModels[1]}
@@ -260,8 +260,8 @@ def test_modelChange():
     deck.reset()
     assert deck.modelUseCount(m1) == 1
     assert deck.modelUseCount(m2) == 1
-    assert deck.cardCount == 3
-    assert deck.factCount == 2
+    assert deck.cardCount() == 3
+    assert deck.factCount() == 2
     (q, a) = deck.db.first("""
 select question, answer from cards where factId = :id""",
                           id=f.id)

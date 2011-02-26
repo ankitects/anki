@@ -75,7 +75,7 @@ class DeckStats(object):
         d = self.deck
         html="<h1>" + _("Deck Statistics") + "</h1>"
         html += _("Deck created: <b>%s</b> ago<br>") % self.createdTimeStr()
-        total = d.cardCount
+        total = d.cardCount()
         new = d.newCountAll()
         young = d.youngCardCount()
         old = d.matureCardCount()
@@ -87,7 +87,7 @@ class DeckStats(object):
         (stats["old"], stats["oldP"]) = (old, oldP)
         (stats["young"], stats["youngP"]) = (young, youngP)
         html += _("Total number of cards:") + " <b>%d</b><br>" % total
-        html += _("Total number of facts:") + " <b>%d</b><br><br>" % d.factCount
+        html += _("Total number of facts:") + " <b>%d</b><br><br>" % d.factCount()
 
         html += "<b>" + _("Card Maturity") + "</b><br>"
         html += _("Mature cards: <!--card count-->") + " <b>%(old)d</b> (%(oldP)s)<br>" % {
@@ -118,7 +118,7 @@ class DeckStats(object):
                 'partOf' : nYes,
                 'totalSum' : nAll } + "<br><br>")
         # average pending time
-        existing = d.cardCount - d.newCount
+        existing = d.cardCount() - d.newCount
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
         def repsPerDay(reps,days):
@@ -292,7 +292,7 @@ where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.utcOffset)
 
     def newAverage(self):
         "Average number of new cards added each day."
-        return self.deck.cardCount / max(1, self.ageInDays())
+        return self.deck.cardCount() / max(1, self.ageInDays())
 
     def createdTimeStr(self):
         return anki.utils.fmtTimeSpan(time.time() - self.deck.created)

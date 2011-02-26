@@ -242,7 +242,6 @@ The current importer only supports a single active card template. Please disable
             [fudgeCreated({'modelId': self.model.id,
               'tags': canonifyTags(self.tagsToAdd + " " + cards[n].tags),
               'id': factIds[n]}) for n in range(len(cards))])
-        self.deck.factCount += len(factIds)
         self.deck.db.execute("""
 delete from factsDeleted
 where factId in (%s)""" % ",".join([str(s) for s in factIds]))
@@ -285,7 +284,6 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                                     data)
         self.deck.updateProgress()
         self.deck.updateCardsFromFactIds(factIds)
-        self.deck.cardCount += len(cards) * active
         self.total = len(factIds)
 
     def addMeta(self, data, card):

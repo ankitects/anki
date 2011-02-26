@@ -14,8 +14,16 @@ MAX_TIMER = 60
 # Cards
 ##########################################################################
 
-# Type: 0=lapsed, 1=due, 2=new, 3=drilled
-# Queue: under normal circumstances, same as type.
+# tasks:
+# - remove all failed cards from learning queue - set queue=1; type=1 and
+#   leave scheduling parameters alone (need separate due for learn queue and
+#   reviews)
+#
+# - cram cards. gather and introduce to queue=0. 
+# - remove all cram cards from learning queue. if type h
+
+# Type: 0=new+learning, 1=due, 2=new, 3=failed+learning, 4=cram+learning
+# Queue: 0=learning, 1=due, 2=new, 3=new today,
 #        -1=suspended, -2=user buried, -3=sched buried (rev early, etc)
 # Ordinal: card template # for fact
 # Position: sorting position, only for new cards

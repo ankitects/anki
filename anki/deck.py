@@ -22,6 +22,7 @@ from anki.template import render
 from anki.media import updateMediaCount, mediaFiles, \
      rebuildMediaDir
 from anki.upgrade import upgradeSchema, updateIndices, upgradeDeck, DECK_VERSION
+from anki.sched import Scheduler
 import anki.latex # sets up hook
 
 # ensure all the DB metadata in other files is loaded before proceeding
@@ -107,7 +108,6 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        self.queueLimit = 200
         # if most recent deck var not defined, make sure defaults are set
         if not self.db.scalar("select 1 from deckVars where key = 'latexPost'"):
             self.setVarDefault("mediaURL", "")
@@ -121,821 +121,28 @@ class Deck(object):
 \\begin{document}
 """)
             self.setVarDefault("latexPost", "\\end{document}")
-        self.updateCutoff()
-        self.setupStandardScheduler()
+        self.sched = Scheduler(self)
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
 
-    # Queue management
-    ##########################################################################
-
-    def setupStandardScheduler(self):
-        self.getCardId = self._getCardId
-        self.fillFailedQueue = self._fillFailedQueue
-        self.fillRevQueue = self._fillRevQueue
-        self.fillNewQueue = self._fillNewQueue
-        self.rebuildFailedCount = self._rebuildFailedCount
-        self.rebuildRevCount = self._rebuildRevCount
-        self.rebuildNewCount = self._rebuildNewCount
-        self.requeueCard = self._requeueCard
-        self.timeForNewCard = self._timeForNewCard
-        self.updateNewCountToday = self._updateNewCountToday
-        self.cardQueue = self._cardQueue
-        self.finishScheduler = None
-        self.answerCard = self._answerCard
-        self.cardLimit = self._cardLimit
-        self.answerPreSave = None
-        self.spaceCards = self._spaceCards
-        self.scheduler = "standard"
-        # restore any cards temporarily suspended by alternate schedulers
-        try:
-            self.resetAfterReviewEarly()
-        except OperationalError, e:
-            # will fail if deck hasn't been upgraded yet
-            pass
-
-    def fillQueues(self):
-        self.fillFailedQueue()
-        self.fillRevQueue()
-        self.fillNewQueue()
-
-    def rebuildCounts(self):
-        # global counts
-        self.cardCount = self.db.scalar("select count(*) from cards")
-        self.factCount = self.db.scalar("select count(*) from facts")
-        # day counts
-        (self.repsToday, self.newSeenToday) = self.db.first("""
-select count(), sum(case when rep = 1 then 1 else 0 end) from revlog
-where time > :t""", t=self.failedCutoff-86400)
-        self.newSeenToday = self.newSeenToday or 0
-        print "newSeenToday in answer(), reset called twice"
-        print "newSeenToday needs to account for drill mode too."
-        # due counts
-        self.rebuildFailedCount()
-        self.rebuildRevCount()
-        self.rebuildNewCount()
-
-    def _cardLimit(self, active, inactive, sql):
-        yes = parseTags(getattr(self, active))
-        no = parseTags(getattr(self, inactive))
-        if yes:
-            yids = tagIds(self.db, yes).values()
-            nids = tagIds(self.db, no).values()
-            return sql.replace(
-                "where",
-                "where +c.id in (select cardId from cardTags where "
-                "tagId in %s) and +c.id not in (select cardId from "
-                "cardTags where tagId in %s) and" % (
-                ids2str(yids),
-                ids2str(nids)))
-        elif no:
-            nids = tagIds(self.db, no).values()
-            return sql.replace(
-                "where",
-                "where +c.id not in (select cardId from cardTags where "
-                "tagId in %s) and" % ids2str(nids))
-        else:
-            return sql
-
-    def _rebuildFailedCount(self):
-        # This is a count of all failed cards within the current day cutoff.
-        # The cards may not be ready for review yet, but can still be
-        # displayed if failedCardsMax is reached.
-        self.failedSoonCount = self.db.scalar(
-            self.cardLimit(
-            "revActive", "revInactive",
-            "select count(*) from cards c where queue = 0 "
-            "and due < :lim"), lim=self.failedCutoff)
-
-    def _rebuildRevCount(self):
-        self.revCount = self.db.scalar(
-            self.cardLimit(
-            "revActive", "revInactive",
-            "select count(*) from cards c where queue = 1 "
-            "and due < :lim"), lim=self.dueCutoff)
-
-    def _rebuildNewCount(self):
-        self.newAvail = self.db.scalar(
-            self.cardLimit(
-            "newActive", "newInactive",
-            "select count(*) from cards c where queue = 2 "
-            "and due < :lim"), lim=self.dueCutoff)
-        self.updateNewCountToday()
-        self.spacedCards = []
-
-    def _updateNewCountToday(self):
-        self.newCount = max(min(
-            self.newAvail, self.newCardsPerDay -
-            self.newSeenToday), 0)
-
-    def _fillFailedQueue(self):
-        if self.failedSoonCount and not self.failedQueue:
-            self.failedQueue = self.db.all(
-                self.cardLimit(
-                "revActive", "revInactive", """
-select c.id, factId, due from cards c where
-queue = 0 and due < :lim order by due
-limit %d""" % self.queueLimit), lim=self.failedCutoff)
-            self.failedQueue.reverse()
-
-    def _fillRevQueue(self):
-        if self.revCount and not self.revQueue:
-            self.revQueue = self.db.all(
-                self.cardLimit(
-                "revActive", "revInactive", """
-select c.id, factId from cards c where
-queue = 1 and due < :lim order by %s
-limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dueCutoff)
-            self.revQueue.reverse()
-
-    def _fillNewQueue(self):
-        if self.newCount and not self.newQueue and not self.spacedCards:
-            self.newQueue = self.db.all(
-                self.cardLimit(
-                "newActive", "newInactive", """
-select c.id, factId from cards c where
-queue = 2 and due < :lim order by %s
-limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dueCutoff)
-            self.newQueue.reverse()
-
-    def queueNotEmpty(self, queue, fillFunc, new=False):
-        while True:
-            self.removeSpaced(queue, new)
-            if queue:
-                return True
-            fillFunc()
-            if not queue:
-                return False
-
-    def removeSpaced(self, queue, new=False):
-        popped = []
-        delay = None
-        while queue:
-            fid = queue[-1][1]
-            if fid in self.spacedFacts:
-                # still spaced
-                id = queue.pop()[0]
-                # assuming 10 cards/minute, track id if likely to expire
-                # before queue refilled
-                if new and self.newSpacing < self.queueLimit * 6:
-                    popped.append(id)
-                    delay = self.spacedFacts[fid]
-            else:
-                if popped:
-                    self.spacedCards.append((delay, popped))
-                return
-
-    def revNoSpaced(self):
-        return self.queueNotEmpty(self.revQueue, self.fillRevQueue)
-
-    def newNoSpaced(self):
-        return self.queueNotEmpty(self.newQueue, self.fillNewQueue, True)
-
-    def _requeueCard(self, card, oldSuc):
-        newType = None
-        try:
-            if card.reps == 1:
-                if self.newFromCache:
-                    # fetched from spaced cache
-                    newType = 2
-                    cards = self.spacedCards.pop(0)[1]
-                    # reschedule the siblings
-                    if len(cards) > 1:
-                        self.spacedCards.append(
-                            (time.time() + self.newSpacing, cards[1:]))
-                else:
-                    # fetched from normal queue
-                    newType = 1
-                    self.newQueue.pop()
-            elif oldSuc == 0:
-                self.failedQueue.pop()
-            else:
-                self.revQueue.pop()
-        except:
-            raise Exception("""\
-requeueCard() failed. Please report this along with the steps you take to
-produce the problem.
-
-Counts %d %d %d
-Queue %d %d %d
-Card info: %d %d %d
-New type: %s""" % (self.failedSoonCount, self.revCount, self.newCount,
-                          len(self.failedQueue), len(self.revQueue),
-                          len(self.newQueue),
-                          card.reps, card.successive, oldSuc, `newType`))
-
-    def revOrder(self):
-        return ("interval desc",
-                "interval",
-                "due",
-                "factId, ordinal")[self.revCardOrder]
-
-    def newOrder(self):
-        return ("due",
-                "due",
-                "due desc")[self.newCardOrder]
-
-    def rebuildTypes(self):
-        "Rebuild the type cache. Only necessary on upgrade."
-        # set type first
-        self.db.statement("""
-update cards set type = (case
-when successive then 1 when reps then 0 else 2 end)
-""")
-        # then queue
-        self.db.statement("""
-update cards set queue = type
-when queue != -1""")
-
-    def updateAllFieldChecksums(self):
-        # zero out
-        self.db.statement("update fields set chksum = ''")
-        # add back for unique fields
-        for m in self.models:
-            for fm in m.fieldModels:
-                self.updateFieldChecksums(fm.id)
-
-    def updateFieldChecksums(self, fmid):
-        self.db.flush()
-        self.setSchemaModified()
-        unique = self.db.scalar(
-            "select \"unique\" from fieldModels where id = :id", id=fmid)
-        if unique:
-            l = []
-            for (id, value) in self.db.all(
-                "select id, value from fields where fieldModelId = :id",
-                id=fmid):
-                l.append({'id':id, 'chk':fieldChecksum(value)})
-            self.db.statements(
-                "update fields set chksum = :chk where id = :id", l)
-        else:
-            self.db.statement(
-                "update fields set chksum = '' where fieldModelId=:id",
-                id=fmid)
-
-    def _cardQueue(self, card):
-        return self.cardType(card)
-
-    def cardType(self, card):
-        "Return the type of the current card (what queue it's in)"
-        if card.successive:
-            return 1
-        elif card.reps:
-            return 0
-        else:
-            return 2
-
-    def updateCutoff(self):
-        d = datetime.datetime.utcfromtimestamp(
-            time.time() - self.utcOffset) + datetime.timedelta(days=1)
-        d = datetime.datetime(d.year, d.month, d.day)
-        newday = self.utcOffset - time.timezone
-        d += datetime.timedelta(seconds=newday)
-        cutoff = time.mktime(d.timetuple())
-        # cutoff must not be in the past
-        while cutoff < time.time():
-            cutoff += 86400
-        # cutoff must not be more than 24 hours in the future
-        cutoff = min(time.time() + 86400, cutoff)
-        self.failedCutoff = cutoff
-        if self.getBool("perDay"):
-            self.dueCutoff = cutoff
-        else:
-            self.dueCutoff = time.time()
-
     def reset(self):
-        # recheck counts
-        self.rebuildCounts()
-        # empty queues; will be refilled by getCard()
-        self.failedQueue = []
-        self.revQueue = []
-        self.newQueue = []
-        self.spacedFacts = {}
-        # determine new card distribution
-        if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
-            if self.newCount:
-                self.newCardModulus = (
-                    (self.newCount + self.revCount) / self.newCount)
-                # if there are cards to review, ensure modulo >= 2
-                if self.revCount:
-                    self.newCardModulus = max(2, self.newCardModulus)
-            else:
-                self.newCardModulus = 0
-        else:
-            self.newCardModulus = 0
+        self.sched.reset()
         # recache css
         self.rebuildCSS()
-        # spacing for delayed cards - not to be confused with newCardSpacing
-        # above
-        print "newSpacing/revSpacing"
-        self.newSpacing = 0
-        self.revSpacing = 0
 
-    def checkDay(self):
-        # check if the day has rolled over
-        if time.time() > self.failedCutoff:
-            self.updateCutoff()
-            self.reset()
-
-    # Review early
-    ##########################################################################
-
-    def setupReviewEarlyScheduler(self):
-        self.fillRevQueue = self._fillRevEarlyQueue
-        self.rebuildRevCount = self._rebuildRevEarlyCount
-        self.finishScheduler = self._onReviewEarlyFinished
-        self.answerPreSave = self._reviewEarlyPreSave
-        self.scheduler = "reviewEarly"
-
-    def _reviewEarlyPreSave(self, card, ease):
-        if ease > 1:
-            # prevent it from appearing in next queue fill
-            card.queue = -3
-
-    def resetAfterReviewEarly(self):
-        "Put temporarily suspended cards back into play. Caller must .reset()"
-        self.db.statement(
-            "update cards set queue = type where queue = -3")
-
-    def _onReviewEarlyFinished(self):
-        # clean up buried cards
-        self.resetAfterReviewEarly()
-        # and go back to regular scheduler
-        self.setupStandardScheduler()
-
-    def _rebuildRevEarlyCount(self):
-        # in the future it would be nice to skip the first x days of due cards
-        self.revCount = self.db.scalar(
-            self.cardLimit(
-            "revActive", "revInactive", """
-select count() from cards c where queue = 1 and due > :now
-"""), now=self.dueCutoff)
-
-    def _fillRevEarlyQueue(self):
-        if self.revCount and not self.revQueue:
-            self.revQueue = self.db.all(
-                self.cardLimit(
-                "revActive", "revInactive", """
-select id, factId from cards c where queue = 1 and due > :lim
-order by due limit %d""" % self.queueLimit), lim=self.dueCutoff)
-            self.revQueue.reverse()
-
-    # Learn more
-    ##########################################################################
-
-    def setupLearnMoreScheduler(self):
-        self.rebuildNewCount = self._rebuildLearnMoreCount
-        self.updateNewCountToday = self._updateLearnMoreCountToday
-        self.finishScheduler = self.setupStandardScheduler
-        self.scheduler = "learnMore"
-
-    def _rebuildLearnMoreCount(self):
-        self.newAvail = self.db.scalar(
-            self.cardLimit(
-            "newActive", "newInactive",
-            "select count(*) from cards c where queue = 2 "
-            "and due < :lim"), lim=self.dueCutoff)
-        self.spacedCards = []
-
-    def _updateLearnMoreCountToday(self):
-        self.newCount = self.newAvail
-
-    # Cramming
-    ##########################################################################
-
-    def setupCramScheduler(self, active, order):
-        self.getCardId = self._getCramCardId
-        self.activeCramTags = active
-        self.cramOrder = order
-        self.rebuildNewCount = self._rebuildCramNewCount
-        self.rebuildRevCount = self._rebuildCramCount
-        self.rebuildFailedCount = self._rebuildFailedCramCount
-        self.fillRevQueue = self._fillCramQueue
-        self.fillFailedQueue = self._fillFailedCramQueue
-        self.finishScheduler = self.setupStandardScheduler
-        self.failedCramQueue = []
-        self.requeueCard = self._requeueCramCard
-        self.cardQueue = self._cramCardQueue
-        self.answerCard = self._answerCramCard
-        self.spaceCards = self._spaceCramCards
-        # reuse review early's code
-        self.answerPreSave = self._cramPreSave
-        self.cardLimit = self._cramCardLimit
-        self.scheduler = "cram"
-
-    def _cramPreSave(self, card, ease):
-        # prevent it from appearing in next queue fill
-        card.lastInterval = self.cramLastInterval
-        card.type = -3
-
-    def _spaceCramCards(self, card):
-        self.spacedFacts[card.factId] = time.time() + self.newSpacing
-
-    def _answerCramCard(self, card, ease):
-        self.cramLastInterval = card.lastInterval
-        self._answerCard(card, ease)
-        if ease == 1:
-            self.failedCramQueue.insert(0, [card.id, card.factId])
-
-    def _getCramCardId(self, check=True):
-        self.checkDay()
-        self.fillQueues()
-        if self.failedCardMax and self.failedSoonCount >= self.failedCardMax:
-            return self.failedQueue[-1][0]
-        # card due for review?
-        if self.revNoSpaced():
-            return self.revQueue[-1][0]
-        if self.failedQueue:
-            return self.failedQueue[-1][0]
-        if check:
-            # collapse spaced cards before reverting back to old scheduler
-            self.reset()
-            return self.getCardId(False)
-        # if we're in a custom scheduler, we may need to switch back
-        if self.finishScheduler:
-            self.finishScheduler()
-            self.reset()
-            return self.getCardId()
-
-    def _cramCardQueue(self, card):
-        if self.revQueue and self.revQueue[-1][0] == card.id:
-            return 1
-        else:
-            return 0
-
-    def _requeueCramCard(self, card, oldSuc):
-        if self.cardQueue(card) == 1:
-            self.revQueue.pop()
-        else:
-            self.failedCramQueue.pop()
-
-    def _rebuildCramNewCount(self):
-        self.newAvail = 0
-        self.newCount = 0
-
-    def _cramCardLimit(self, active, inactive, sql):
-        # inactive is (currently) ignored
-        if isinstance(active, list):
-            return sql.replace(
-                "where", "where +c.id in " + ids2str(active) + " and")
-        else:
-            yes = parseTags(active)
-            if yes:
-                yids = tagIds(self.db, yes).values()
-                return sql.replace(
-                    "where ",
-                    "where +c.id in (select cardId from cardTags where "
-                    "tagId in %s) and " % ids2str(yids))
-            else:
-                return sql
-
-    def _fillCramQueue(self):
-        if self.revCount and not self.revQueue:
-            self.revQueue = self.db.all(self.cardLimit(
-                self.activeCramTags, "", """
-select id, factId from cards c
-where queue between 0 and 2
-order by %s
-limit %s""" % (self.cramOrder, self.queueLimit)))
-            self.revQueue.reverse()
-
-    def _rebuildCramCount(self):
-        self.revCount = self.db.scalar(self.cardLimit(
-            self.activeCramTags, "",
-            "select count(*) from cards c where queue between 0 and 2"))
-
-    def _rebuildFailedCramCount(self):
-        self.failedSoonCount = len(self.failedCramQueue)
-
-    def _fillFailedCramQueue(self):
-        self.failedQueue = self.failedCramQueue
-
-    # Getting the next card
-    ##########################################################################
-
-    def getCard(self, orm=True):
-        "Return the next card object, or None."
-        id = self.getCardId()
-        if id:
-            return self.cardFromId(id, orm)
-        else:
-            self.stopSession()
-
-    def _getCardId(self, check=True):
-        "Return the next due card id, or None."
-        self.checkDay()
-        self.fillQueues()
-        self.updateNewCountToday()
-        if self.failedQueue:
-            # failed card due?
-            if self.delay0:
-                if self.failedQueue[-1][2] + self.delay0 < time.time():
-                    return self.failedQueue[-1][0]
-            # failed card queue too big?
-            if (self.failedCardMax and
-                self.failedSoonCount >= self.failedCardMax):
-                return self.failedQueue[-1][0]
-        # distribute new cards?
-        if self.newNoSpaced() and self.timeForNewCard():
-            return self.getNewCard()
-        # card due for review?
-        if self.revNoSpaced():
-            return self.revQueue[-1][0]
-        # new cards left?
-        if self.newCount:
-            id = self.getNewCard()
-            if id:
-                return id
-        if check:
-            # check for expired cards, or new day rollover
-            self.updateCutoff()
-            self.reset()
-            return self.getCardId(check=False)
-        # display failed cards early/last
-        if not check and self.showFailedLast() and self.failedQueue:
-            return self.failedQueue[-1][0]
-        # if we're in a custom scheduler, we may need to switch back
-        if self.finishScheduler:
-            self.finishScheduler()
-            self.reset()
-            return self.getCardId()
-
-    # Get card: helper functions
-    ##########################################################################
-
-    def _timeForNewCard(self):
-        "True if it's time to display a new card when distributing."
-        if not self.newCount:
-            return False
-        if self.newCardSpacing == NEW_CARDS_LAST:
-            return False
-        if self.newCardSpacing == NEW_CARDS_FIRST:
-            return True
-        if self.newCardModulus:
-            return self.repsToday % self.newCardModulus == 0
-        else:
-            return False
-
-    def getNewCard(self):
-        src = None
-        if (self.spacedCards and
-            self.spacedCards[0][0] < time.time()):
-            # spaced card has expired
-            src = 0
-        elif self.newQueue:
-            # card left in new queue
-            src = 1
-        elif self.spacedCards:
-            # card left in spaced queue
-            src = 0
-        else:
-            # only cards spaced to another day left
-            return
-        if src == 0:
-            cards = self.spacedCards[0][1]
-            self.newFromCache = True
-            return cards[0]
-        else:
-            self.newFromCache = False
-            return self.newQueue[-1][0]
-
-    def showFailedLast(self):
-        return self.collapseTime or not self.delay0
-
-    def cardFromId(self, id, orm=False):
-        "Given a card ID, return a card, and start the card timer."
-        if orm:
-            card = self.db.query(anki.cards.Card).get(id)
-            if not card:
-                return
-            card.timerStopped = False
-        else:
-            card = anki.cards.Card()
-            if not card.fromDB(self.db, id):
-                return
-        card.deck = self
-        #card.genFuzz()
-        card.startTimer()
-        return card
-
-    # Answering a card
-    ##########################################################################
-
-    def _answerCard(self, card, ease):
-        undoName = _("Answer Card")
-        self.setUndoStart(undoName)
-        now = time.time()
-        # old state
-        oldState = self.cardState(card)
-        oldQueue = self.cardQueue(card)
-        lastDelaySecs = time.time() - card.due
-        lastDelay = lastDelaySecs / 86400.0
-        oldSuc = card.successive
-        # update card details
-        last = card.interval
-        card.interval = self.nextInterval(card, ease)
-        card.lastInterval = last
-        if card.reps:
-            # only update if card was not new
-            card.lastDue = card.due
-        card.due = self.nextDue(card, ease, oldState)
-        if not self.finishScheduler:
-            # don't update factor in custom schedulers
-            self.updateFactor(card, ease)
-        # spacing
-        self.spaceCards(card)
-        # adjust counts for current card
-        if ease == 1:
-            if card.due < self.failedCutoff:
-                self.failedSoonCount += 1
-        if oldQueue == 0:
-            self.failedSoonCount -= 1
-        elif oldQueue == 1:
-            self.revCount -= 1
-        else:
-            self.newAvail -= 1
-        # card stats
-        self.updateCardStats(card, ease, oldState)
-        # update type & ensure past cutoff
-        card.type = self.cardType(card)
-        card.queue = card.type
-        if ease != 1:
-            card.due = max(card.due, self.dueCutoff+1)
-        # allow custom schedulers to munge the card
-        if self.answerPreSave:
-            self.answerPreSave(card, ease)
-        # save
-        card.due = card.due
-        card.toDB(self.db)
-        # review history
-        print "make sure flags is set correctly when reviewing early"
-        logReview(self.db, card, ease, 0)
-        self.modified = now
-        # remove from queue
-        self.requeueCard(card, oldSuc)
-        # leech handling - we need to do this after the queue, as it may cause
-        # a reset()
-        isLeech = self.isLeech(card)
-        if isLeech:
-            self.handleLeech(card)
-        runHook("cardAnswered", card.id, isLeech)
-        self.setUndoEnd(undoName)
-
-    def updateCardStats(self, card, ease, state):
-        card.reps += 1
-        if ease == 1:
-            card.successive = 0
-            card.lapses += 1
-        else:
-            card.successive += 1
-        # if not card.firstAnswered:
-        #     card.firstAnswered = time.time()
-        card.setModified()
-
-    def _spaceCards(self, card):
-        new = time.time() + self.newSpacing
-        self.db.statement("""
-update cards set
-due = (case
-when queue = 1 then due + 86400 * (case
-  when interval*:rev < 1 then 0
-  else interval*:rev
-  end)
-when queue = 2 then :new
-end),
-modified = :now
-where id != :id and factId = :factId
-and due < :cut
-and queue between 1 and 2""",
-                         id=card.id, now=time.time(), factId=card.factId,
-                         cut=self.dueCutoff, new=new, rev=self.revSpacing)
-        # update local cache of seen facts
-        self.spacedFacts[card.factId] = new
-
-    def isLeech(self, card):
-        no = card.lapses
-        fmax = self.getInt('leechFails')
-        if not fmax:
-            return
-        return (
-            # failed
-            not card.successive and
-            # greater than fail threshold
-            no >= fmax and
-            # at least threshold/2 reps since last time
-            (fmax - no) % (max(fmax/2, 1)) == 0)
-
-    def handleLeech(self, card):
-        self.refreshSession()
-        scard = self.cardFromId(card.id, True)
-        tags = scard.fact.tags
-        tags = addTags("Leech", tags)
-        scard.fact.tags = canonifyTags(tags)
-        scard.fact.setModified(textChanged=True, deck=self)
-        self.updateFactTags([scard.fact.id])
-        self.db.flush()
-        self.db.expunge(scard)
-        if self.getBool('suspendLeeches'):
-            self.suspendCards([card.id])
-        self.reset()
-        self.refreshSession()
-
-    # Interval management
-    ##########################################################################
-
-    def nextInterval(self, card, ease):
-        "Return the next interval for CARD given EASE."
-        delay = self._adjustedDelay(card, ease)
-        return self._nextInterval(card, delay, ease)
-
-    def _nextInterval(self, card, delay, ease):
-        interval = card.interval
-        factor = card.factor
-        # if cramming / reviewing early
-        if delay < 0:
-            interval = max(card.lastInterval, card.interval + delay)
-            if interval < self.midIntervalMin:
-                interval = 0
-            delay = 0
-        # if interval is less than mid interval, use presets
-        if ease == 1:
-            interval *= self.delay2
-            if interval < self.hardIntervalMin:
-                interval = 0
-        elif interval == 0:
-            if ease == 2:
-                interval = random.uniform(self.hardIntervalMin,
-                                          self.hardIntervalMax)
-            elif ease == 3:
-                interval = random.uniform(self.midIntervalMin,
-                                          self.midIntervalMax)
-            elif ease == 4:
-                interval = random.uniform(self.easyIntervalMin,
-                                          self.easyIntervalMax)
-        else:
-            # if not cramming, boost initial 2
-            if (interval < self.hardIntervalMax and
-                interval > 0.166):
-                mid = (self.midIntervalMin + self.midIntervalMax) / 2.0
-                interval = mid / factor
-            # multiply last interval by factor
-            if ease == 2:
-                interval = (interval + delay/4) * 1.2
-            elif ease == 3:
-                interval = (interval + delay/2) * factor
-            elif ease == 4:
-                interval = (interval + delay) * factor * self.factorFour
-            fuzz = random.uniform(0.95, 1.05)
-            interval *= fuzz
-        return interval
-
-    def nextIntervalStr(self, card, ease, short=False):
-        "Return the next interval for CARD given EASE as a string."
-        int = self.nextInterval(card, ease)
-        return anki.utils.fmtTimeSpan(int*86400, short=short)
-
-    def nextDue(self, card, ease, oldState):
-        "Return time when CARD will expire given EASE."
-        if ease == 1:
-            # 600 is a magic value which means no bonus, and is used to ease
-            # upgrades
-            cram = self.scheduler == "cram"
-            if (not cram and oldState == "mature"
-                and self.delay1 and self.delay1 != 600):
-                # user wants a bonus of 1+ days. put the failed cards at the
-                # start of the future day, so that failures that day will come
-                # after the waiting cards
-                return self.failedCutoff + (self.delay1 - 1)*86400
-            else:
-                due = 0
-        else:
-            due = card.interval * 86400.0
-        return due + time.time()
-
-    def updateFactor(self, card, ease):
-        "Update CARD's factor based on EASE."
-        print "update cardIsBeingLearnt()"
-        if not card.reps:
-            # card is new, inherit beginning factor
-            card.factor = self.averageFactor
-        if card.successive and not self.cardIsBeingLearnt(card):
-            if ease == 1:
-                card.factor -= 0.20
-            elif ease == 2:
-                card.factor -= 0.15
-        if ease == 4:
-            card.factor += 0.10
-        card.factor = max(1.3, card.factor)
-
-    def _adjustedDelay(self, card, ease):
-        "Return an adjusted delay value for CARD based on EASE."
-        if self.cardIsNew(card):
-            return 0
-        if card.due <= self.dueCutoff:
-            return (self.dueCutoff - card.due) / 86400.0
-        else:
-            return (self.dueCutoff - card.due) / 86400.0
+    def getCard(self):
+        return self.sched.getCard()
+        # if card:
+        #     return card
+        # if sched.name == "main":
+        #     self.stopSession()
+        # else:
+        #     # in a custom scheduler; return to normal
+        #     print "fixme: this should be done in gui code"
+        #     self.sched.cleanup()
+        #     self.sched = AnkiScheduler(self)
+        #     return self.getCard()
 
     def resetCards(self, ids=None):
         "Reset progress on cards in IDS."
@@ -1015,9 +222,9 @@ where id = :id""", vals)
         next = self.earliestTime()
         if next:
             # all new cards except suspended
-            newCount = self.newCardsDueBy(self.dueCutoff + 86400)
+            newCount = self.newCardsDueBy(self.dayCutoff + 86400)
             newCardsTomorrow = min(newCount, self.newCardsPerDay)
-            cards = self.cardsDueBy(self.dueCutoff + 86400)
+            cards = self.cardsDueBy(self.dayCutoff + 86400)
             msg = _('''\
 <style>b { color: #00f; }</style>
 At this time tomorrow:<br>
@@ -1029,7 +236,7 @@ At this time tomorrow:<br>
                 'wait': ngettext("There will be <b>%s review</b>.",
                           "There will be <b>%s reviews</b>.", cards) % cards,
                 }
-            if next > (self.dueCutoff+86400) and not newCardsTomorrow:
+            if next > (self.dayCutoff+86400) and not newCardsTomorrow:
                 msg = (_("The next review is in <b>%s</b>.") %
                        self.earliestTimeStr())
         else:
@@ -1143,7 +350,7 @@ where queue = -1 and id in %s""" %
         "Assumes queue finished. True if some due cards have not been shown."
         return self.db.scalar("""
 select 1 from cards where due < :now
-and queue between 0 and 1 limit 1""", now=self.dueCutoff)
+and queue between 0 and 1 limit 1""", now=self.dayCutoff)
 
     def spacedCardCount(self):
         "Number of spaced cards."
@@ -1218,6 +425,9 @@ due > :now and due < :now""", now=time.time())
     # Facts
     ##########################################################################
 
+    def factCount(self):
+        return self.db.scalar("select count() from facts")
+
     def newFact(self, model=None):
         "Return a new fact with the current model."
         if model is None:
@@ -1239,7 +449,6 @@ due > :now and due < :now""", now=time.time())
         cards = []
         self.db.save(fact)
         # update field cache
-        self.factCount += 1
         self.flushMod()
         isRandom = self.newCardOrder == NEW_CARDS_RANDOM
         if isRandom:
@@ -1309,7 +518,6 @@ where factId = :fid and cardModelId = :cmid""",
                         fact, cardModel,
                         fact.created+0.0001*cardModel.ordinal)
                     self.updateCardTags([card.id])
-                    self.cardCount += 1
                     raise Exception("incorrect; not checking selective study")
                     self.newAvail += 1
                     ids.append(card.id)
@@ -1393,6 +601,9 @@ where facts.id not in (select distinct factId from cards)""")
 
     # Cards
     ##########################################################################
+
+    def cardCount(self):
+        return self.db.scalar("select count() from cards")
 
     def deleteCard(self, id):
         "Delete a card given its id. Delete any unused facts. Don't flush."
@@ -1718,6 +929,32 @@ update facts
 set modified = strftime("%s", "now")
 where modelId = :id""", id=modelId)
         self.flushMod()
+
+    def updateAllFieldChecksums(self):
+        # zero out
+        self.db.statement("update fields set chksum = ''")
+        # add back for unique fields
+        for m in self.models:
+            for fm in m.fieldModels:
+                self.updateFieldChecksums(fm.id)
+
+    def updateFieldChecksums(self, fmid):
+        self.db.flush()
+        self.setSchemaModified()
+        unique = self.db.scalar(
+            "select \"unique\" from fieldModels where id = :id", id=fmid)
+        if unique:
+            l = []
+            for (id, value) in self.db.all(
+                "select id, value from fields where fieldModelId = :id",
+                id=fmid):
+                l.append({'id':id, 'chk':fieldChecksum(value)})
+            self.db.statements(
+                "update fields set chksum = :chk where id = :id", l)
+        else:
+            self.db.statement(
+                "update fields set chksum = '' where fieldModelId=:id",
+                id=fmid)
 
     # Card models
     ##########################################################################
@@ -2504,7 +1741,7 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                         qquery += " intersect "
                 elif isNeg:
                     qquery += "select id from cards except "
-                if token in ("rev", "new", "failed"):
+                if token in ("rev", "new", "lrn"):
                     if token == "rev":
                         n = 1
                     elif token == "new":
@@ -2517,7 +1754,7 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                     qquery += ("select id from cards where "
                                "due < %d and due > %d and "
                                "type in (0,1,2)") % (
-                        self.dueCutoff, self.dueCutoff)
+                        self.dayCutoff, self.dayCutoff)
                 elif token == "suspended":
                     qquery += ("select id from cards where "
                                "queue = -1")
@@ -2527,7 +1764,7 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                         "from deckvars where key = 'leechFails')")
                 else: # due
                     qquery += ("select id from cards where "
-                               "queue between 0 and 1 and due < %d") % self.dueCutoff
+                               "queue between 0 and 1 and due < %d") % self.dayCutoff
             elif type == SEARCH_FID:
                 if fidquery:
                     if isNeg:

@@ -89,11 +89,11 @@ def test_anki10_modtime():
     f = deck1.newFact()
     f['Front'] = u"foo"; f['Back'] = u"bar"
     deck1.addFact(f)
-    assert deck1.cardCount == 1
-    assert deck2.cardCount == 0
+    assert deck1.cardCount() == 1
+    assert deck2.cardCount() == 0
     client.sync()
-    assert deck1.cardCount == 1
-    assert deck2.cardCount == 1
+    assert deck1.cardCount() == 1
+    assert deck2.cardCount() == 1
     file_ = unicode(os.path.join(testDir, "importing/test10-3.anki"))
     file = "/tmp/test10-3.anki"
     shutil.copy(file_, file)
@@ -108,7 +108,7 @@ def test_anki10_modtime():
 def test_dingsbums():
     deck = Deck()
     deck.addModel(BasicModel())
-    startNumberOfFacts = deck.factCount
+    startNumberOfFacts = deck.factCount()
     file = unicode(os.path.join(testDir, "importing/dingsbums.xml"))
     i = dingsbums.DingsBumsImporter(deck, file)
     i.doImport()

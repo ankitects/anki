@@ -101,7 +101,8 @@ class AnkiExporter(Exporter):
             copyLocalMedia(client.deck, server.deck)
         # need to save manually
         self.newDeck.rebuildCounts()
-        self.exportedCards = self.newDeck.cardCount
+        # FIXME
+        #self.exportedCards = self.newDeck.cardCount
         self.newDeck.utcOffset = -1
         self.newDeck.db.commit()
         self.newDeck.close()

@@ -56,8 +56,8 @@ def teardown():
 
 @nose.with_setup(setup_local, teardown)
 def test_localsync_diffing():
-    assert deck1.cardCount == 2
-    assert deck2.cardCount == 2
+    assert deck1.cardCount() == 2
+    assert deck2.cardCount() == 2
     lsum = client.summary(deck1.lastSync)
     rsum = server.summary(deck1.lastSync)
     result = client.diffSummary(lsum, rsum, 'cards')
@@ -157,12 +157,12 @@ def test_localsync_models():
 
 @nose.with_setup(setup_local, teardown)
 def test_localsync_factsandcards():
-    assert deck1.factCount == 1 and deck1.cardCount == 2
-    assert deck2.factCount == 1 and deck2.cardCount == 2
+    assert deck1.factCount() == 1 and deck1.cardCount() == 2
+    assert deck2.factCount() == 1 and deck2.cardCount() == 2
     client.sync()
     deck1.reset(); deck2.reset()
-    assert deck1.factCount == 2 and deck1.cardCount == 4
-    assert deck2.factCount == 2 and deck2.cardCount == 4
+    assert deck1.factCount() == 2 and deck1.cardCount() == 4
+    assert deck2.factCount() == 2 and deck2.cardCount() == 4
     # ensure the fact was copied across
     f1 = deck1.db.query(Fact).first()
     f2 = deck1.db.query(Fact).get(f1.id)
@@ -193,20 +193,20 @@ def test_localsync_threeway():
     f = deck1.addFact(f)
     card = f.cards[0]
     client.sync()
-    assert deck1.cardCount == 6
-    assert deck2.cardCount == 6
+    assert deck1.cardCount() == 6
+    assert deck2.cardCount() == 6
     # check it propagates from server to deck3
     client2.sync()
-    assert deck3.cardCount == 6
+    assert deck3.cardCount() == 6
     # delete a card on deck1
     deck1.deleteCard(card.id)
     client.sync()
     deck1.reset(); deck2.reset()
-    assert deck1.cardCount == 5
-    assert deck2.cardCount == 5
+    assert deck1.cardCount() == 5
+    assert deck2.cardCount() == 5
     # make sure the delete is now propagated from the server to deck3
     client2.sync()
-    assert deck3.cardCount == 5
+    assert deck3.cardCount() == 5
 
 def test_localsync_media():
     tmpdir = "/tmp/media-tests"
