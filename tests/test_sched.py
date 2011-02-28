@@ -15,6 +15,26 @@ def test_basics():
     d = getEmptyDeck()
     assert not d.getCard()
 
+def test_new():
+    d = getEmptyDeck()
+    assert d.sched.newCount == 0
+    # add a fact
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"two"
+    f = d.addFact(f)
+    d.db.flush()
+    d.reset()
+    assert d.sched.newCount == 1
+    # fetch it
+    c = d.getCard()
+    assert c
+    assert c.queue == 2
+    assert c.type == 2
+    # if we answer it, it should become a learn card
+    d.answerCard(c, 1)
+    assert c.queue == 0
+    assert c.type == 2
+
 def test_learn():
     d = getEmptyDeck()
     # add a fact

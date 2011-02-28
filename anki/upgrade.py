@@ -99,13 +99,19 @@ ifnull(syncName, ""), lastSync, utcOffset, "", "", "" from decks""")
         lim[k] = s.execute("select value from deckVars where key=:k",
                            {'k':k}).scalar()
         s.execute("delete from deckVars where key=:k", {'k':k})
+    lim['newPerDay'] = s.execute(
+        "select newCardsPerDay from decks").scalar()
     # fetch remaining settings from decks table
     conf = deck.defaultConf.copy()
     data = {}
-    keys = ("newCardOrder", "newCardSpacing", "newCardsPerDay",
-            "revCardOrder", "sessionRepLimit", "sessionTimeLimit")
+    keys = ("newCardOrder", "newCardSpacing", "revCardOrder",
+            "sessionRepLimit", "sessionTimeLimit")
     for k in keys:
         conf[k] = s.execute("select %s from decks" % k).scalar()
+    # random and due options merged
+    conf['revCardOrder'] = min(2, conf['revCardOrder'])
+    # no reverse option anymore
+    conf['newCardOrder'] = min(1, conf['newCardOrder'])
     # add any deck vars and save
     dkeys = ("hexCache", "cssCache")
     for (k, v) in s.execute("select * from deckVars").fetchall():
@@ -123,14 +129,6 @@ ifnull(syncName, ""), lastSync, utcOffset, "", "", "" from decks""")
 
 def updateIndices(db):
     "Add indices to the DB."
-    # due counts, failed card queue
-    db.execute("""
-create index if not exists ix_cards_queueDue on cards
-(queue, due, factId)""")
-    # counting cards of a given type
-    db.execute("""
-create index if not exists ix_cards_type on cards
-(type)""")
     # sync summaries
     db.execute("""
 create index if not exists ix_cards_modified on cards
@@ -177,7 +175,6 @@ def upgradeDeck(deck):
                   "dueAsc", "dueDesc"):
             deck.db.statement("drop index if exists ix_cards_%s2" % d)
             deck.db.statement("drop index if exists ix_cards_%s" % d)
-        deck.updateDynamicIndices()
         # remove old views
         for v in ("failedCards", "revCardsOld", "revCardsNew",
                   "revCardsDue", "revCardsRandom", "acqCardsRandom",
@@ -209,9 +206,17 @@ cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
         deck.db.statement("drop index if exists ix_fields_fieldModelId")
         # update schema time
         deck.db.statement("update deck set schemaMod = :t", t=time.time())
+        # remove queueDue as it's become dynamic, and type index
+        deck.db.statement("drop index if exists ix_cards_queueDue")
+        deck.db.statement("drop index if exists ix_cards_type")
 
         # finally, update indices & optimize
         updateIndices(deck.db)
+        # setup limits & config for dynamicIndices()
+        deck.limits = simplejson.loads(deck._limits)
+        deck.config = simplejson.loads(deck._config)
+
+        deck.updateDynamicIndices()
         deck.db.execute("vacuum")
         deck.db.execute("analyze")
         deck.version = 100

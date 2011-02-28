@@ -18,7 +18,7 @@ from anki.lang import _
 from anki.utils import genID, canonifyTags, fieldChecksum
 from anki.utils import canonifyTags, ids2str
 from anki.errors import *
-from anki.deck import NEW_CARDS_RANDOM
+#from anki.deck import NEW_CARDS_RANDOM
 
 # Base importer
 ##########################################################################

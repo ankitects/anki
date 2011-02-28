@@ -3,12 +3,14 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import time, datetime, simplejson
+from operator import itemgetter
 from heapq import *
 from anki.db import *
 from anki.cards import Card
 from anki.utils import parseTags, ids2str
 from anki.tags import tagIds
 from anki.lang import _
+from anki.consts import *
 
 # the standard Anki scheduler
 class Scheduler(object):
@@ -45,7 +47,13 @@ class Scheduler(object):
         if card.queue == 0:
             self.answerLearnCard(card, ease)
         elif card.queue == 1:
+            self.revCount -= 1
             self.answerRevCard(card, ease)
+        elif card.queue == 2:
+            # put it in the learn queue
+            card.queue = 0
+            self.newCount -= 1
+            self.answerLearnCard(card, ease)
         else:
             raise Exception("Invalid queue")
         card.toDB(self.db)
@@ -79,6 +87,62 @@ class Scheduler(object):
             return id
         # collapse or finish
         return self.getLearnCard(collapse=True)
+
+    # New cards
+    ##########################################################################
+
+    # need to keep track of reps for timebox and new card introduction
+
+    def resetNew(self):
+        l = self.deck.limits
+        if l['newToday'][0] != self.today:
+            # it's a new day; reset counts
+            l['newToday'] = [self.today, 0]
+        lim = min(self.queueLimit, l['newPerDay'] - l['newToday'][1])
+        if lim <= 0:
+            self.newQueue = []
+            self.newCount = 0
+        else:
+            self.newQueue = self.db.all(
+                self.cardLimit(
+                    "newActive", "newInactive", """
+select id, %s from cards c where
+queue = 2 order by due limit %d""" % (self.newOrder(), lim)))
+            self.newQueue.sort(key=itemgetter(1), reverse=True)
+            self.newCount = len(self.newQueue)
+        self.updateNewCardRatio()
+
+    def getNewCard(self):
+        if self.newQueue:
+            return self.newQueue.pop()[0]
+
+    def newOrder(self):
+        return ("ordinal",
+                "factId",
+                "due",
+            )[self.deck.limits['newTodayOrder']]
+
+    def updateNewCardRatio(self):
+        if self.deck.config['newCardSpacing'] == NEW_CARDS_DISTRIBUTE:
+            if self.newCount:
+                self.newCardModulus = (
+                    (self.newCount + self.revCount) / self.newCount)
+                # if there are cards to review, ensure modulo >= 2
+                if self.revCount:
+                    self.newCardModulus = max(2, self.newCardModulus)
+                return
+        self.newCardModulus = 0
+
+    def timeForNewCard(self):
+        "True if it's time to display a new card when distributing."
+        if not self.newCount:
+            return False
+        if self.deck.config['newCardSpacing'] == NEW_CARDS_LAST:
+            return False
+        elif self.deck.config['newCardSpacing'] == NEW_CARDS_FIRST:
+            return True
+        elif self.newCardModulus:
+            return self.deck.reps and self.deck.reps % self.newCardModulus == 0
 
     # Learning queue
     ##########################################################################
@@ -407,86 +471,6 @@ and queue between 1 and 2""",
         self.reset()
         self.refreshSession()
 
-    # New cards
-    ##########################################################################
-
-#         # day counts
-#         (self.repsToday, self.newSeenToday) = self.db.first("""
-# select count(), sum(case when rep = 1 then 1 else 0 end) from revlog
-# where time > :t""", t=self.dayCutoff-86400)
-#         self.newSeenToday = self.newSeenToday or 0
-#         print "newSeenToday in answer(), reset called twice"
-#         print "newSeenToday needs to account for drill mode too."
-
-    # when do we do this?
-    #self.updateNewCountToday()
-
-    def resetNew(self):
-#        self.updateNewCardRatio()
-        pass
-
-    def rebuildNewCount(self):
-        self.newAvail = self.db.scalar(
-            self.cardLimit(
-            "newActive", "newInactive",
-            "select count(*) from cards c where queue = 2 "
-            "and due < :lim"), lim=self.dayCutoff)
-        self.updateNewCountToday()
-
-    def updateNewCountToday(self):
-        self.newCount = max(min(
-            self.newAvail, self.newCardsPerDay -
-            self.newSeenToday), 0)
-
-    def fillNewQueue(self):
-        if self.newCount and not self.newQueue:
-            self.newQueue = self.db.all(
-                self.cardLimit(
-                "newActive", "newInactive", """
-select c.id, factId from cards c where
-queue = 2 and due < :lim order by %s
-limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dayCutoff)
-            self.newQueue.reverse()
-
-    def updateNewCardRatio(self):
-        if self.newCardSpacing == NEW_CARDS_DISTRIBUTE:
-            if self.newCount:
-                self.newCardModulus = (
-                    (self.newCount + self.revCount) / self.newCount)
-                # if there are cards to review, ensure modulo >= 2
-                if self.revCount:
-                    self.newCardModulus = max(2, self.newCardModulus)
-            else:
-                self.newCardModulus = 0
-        else:
-            self.newCardModulus = 0
-
-    def timeForNewCard(self):
-        "True if it's time to display a new card when distributing."
-        # FIXME
-        return False
-
-        if not self.newCount:
-            return False
-        if self.newCardSpacing == NEW_CARDS_LAST:
-            return False
-        if self.newCardSpacing == NEW_CARDS_FIRST:
-            return True
-        if self.newCardModulus:
-            return self.repsToday % self.newCardModulus == 0
-        else:
-            return False
-
-    def getNewCard(self):
-        # FIXME
-        return None
-        #return self.newQueue[-1][0]
-
-    def newOrder(self):
-        return ("due",
-                "due",
-                "due desc")[self.newCardOrder]
-
     # Tools
     ##########################################################################
 
@@ -541,7 +525,7 @@ limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dayCutoff)
         # cutoff must not be more than 24 hours in the future
         cutoff = min(time.time() + 86400, cutoff)
         self.dayCutoff = cutoff
-        self.dayCount = int(cutoff/86400 - self.deck.created/86400)
+        self.today = int(cutoff/86400 - self.deck.created/86400)
 
     def checkDay(self):
         # check if the day has rolled over

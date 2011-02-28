@@ -7,7 +7,7 @@ from anki.importing import Importer
 from anki.sync import SyncClient, SyncServer, copyLocalMedia
 from anki.lang import _
 from anki.utils import ids2str
-from anki.deck import NEW_CARDS_RANDOM
+#from anki.deck import NEW_CARDS_RANDOM
 import time
 
 class Anki10Importer(Importer):

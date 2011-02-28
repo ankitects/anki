@@ -311,5 +311,6 @@ def test_findCards():
 def test_upgrade():
     src = os.path.expanduser("~/Scratch/upgrade.anki")
     (fd, dst) = tempfile.mkstemp(suffix=".anki")
+    print "upgrade to", dst
     shutil.copy(src, dst)
     deck = Deck(dst)

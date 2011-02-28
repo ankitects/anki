@@ -23,40 +23,24 @@ from anki.media import updateMediaCount, mediaFiles, \
      rebuildMediaDir
 from anki.upgrade import upgradeSchema, updateIndices, upgradeDeck, DECK_VERSION
 from anki.sched import Scheduler
+from anki.consts import *
 import anki.latex # sets up hook
 
 # ensure all the DB metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.media
 
-# rest
-MATURE_THRESHOLD = 21
-NEW_CARDS_DISTRIBUTE = 0
-NEW_CARDS_LAST = 1
-NEW_CARDS_FIRST = 2
-NEW_CARDS_RANDOM = 0
-NEW_CARDS_OLD_FIRST = 1
-NEW_CARDS_NEW_FIRST = 2
-REV_CARDS_OLD_FIRST = 0
-REV_CARDS_NEW_FIRST = 1
-REV_CARDS_DUE_FIRST = 2
-REV_CARDS_RANDOM = 3
-SEARCH_TAG = 0
-SEARCH_TYPE = 1
-SEARCH_PHRASE = 2
-SEARCH_FID = 3
-SEARCH_CARD = 4
-SEARCH_DISTINCT = 5
-SEARCH_FIELD = 6
-SEARCH_FIELD_EXISTS = 7
-SEARCH_QA = 8
-SEARCH_PHRASE_WB = 9
-
-# selective study
+# Selective study and new card limits. These vars are necessary to determine
+# counts even on a minimum deck load, and thus are separate from the rest of
+# the config.
 defaultLim = {
     'newActive': u"",
     'newInactive': u"",
     'revActive': u"",
     'revInactive': u"",
+    'newPerDay': 20,
+    # currentDay, count
+    'newToday': [0, 0],
+    'newTodayOrder': NEW_TODAY_ORDINAL,
 }
 
 # scheduling and other options
@@ -64,8 +48,7 @@ defaultConf = {
     'utcOffset': -2,
     'newCardOrder': 1,
     'newCardSpacing': NEW_CARDS_DISTRIBUTE,
-    'newCardsPerDay': 20,
-    'revCardOrder': 0,
+    'revCardOrder': REV_CARDS_OLD_FIRST,
     'collapseTime': 600,
     'sessionRepLimit': 0,
     'sessionTimeLimit': 600,
@@ -120,7 +103,10 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
+        # counter for reps since deck open
+        self.reps = 0
         self.sched = Scheduler(self)
+
 
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
@@ -161,7 +147,7 @@ interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
             sql2 += "  where cardId in "+sids
         self.db.statement(sql, now=time.time())
         self.db.statement(sql2)
-        if self.newCardOrder == NEW_CARDS_RANDOM:
+        if self.config['newCardOrder'] == NEW_CARDS_RANDOM:
             # we need to re-randomize now
             self.randomizeNewCards(ids)
         self.flushMod()
@@ -452,7 +438,7 @@ due > :now and due < :now""", now=time.time())
         self.db.save(fact)
         # update field cache
         self.flushMod()
-        isRandom = self.newCardOrder == NEW_CARDS_RANDOM
+        isRandom = self.config['newCardOrder'] == NEW_CARDS_RANDOM
         if isRandom:
             due = random.uniform(0, time.time())
         t = time.time()
@@ -2167,9 +2153,9 @@ Return new path, relative to media dir."""
 
     def flushConfig(self):
         print "make flushConfig() more intelligent"
-        deck._config = simplejson.dumps(deck.config)
-        deck._limits = simplejson.dumps(deck.limits)
-        deck._data = simplejson.dumps(deck.data)
+        self._config = unicode(simplejson.dumps(self.config))
+        self._limits = unicode(simplejson.dumps(self.limits))
+        self._data = unicode(simplejson.dumps(self.data))
 
     def close(self):
         if self.db:
@@ -2655,48 +2641,25 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     ##########################################################################
 
     def updateDynamicIndices(self):
-        print "fix dynamicIndices()"
-        return
-        indices = {
-            'intervalDesc':
-            '(queue, interval desc, factId, due)',
-            'intervalAsc':
-            '(queue, interval, factId, due)',
-            'randomOrder':
-            '(queue, factId, ordinal, due)',
-            'dueAsc':
-            '(queue, position, factId, due)',
-            'dueDesc':
-            '(queue, position desc, factId, due)',
-            }
-        # determine required
+        # determine required columns
         required = []
-        if self.revCardOrder == REV_CARDS_OLD_FIRST:
-            required.append("intervalDesc")
-        if self.revCardOrder == REV_CARDS_NEW_FIRST:
-            required.append("intervalAsc")
-        if self.revCardOrder == REV_CARDS_RANDOM:
-            required.append("randomOrder")
-        if (self.revCardOrder == REV_CARDS_DUE_FIRST or
-            self.newCardOrder == NEW_CARDS_OLD_FIRST or
-            self.newCardOrder == NEW_CARDS_RANDOM):
-            required.append("dueAsc")
-        if (self.newCardOrder == NEW_CARDS_NEW_FIRST):
-            required.append("dueDesc")
-        # add/delete
-        analyze = False
-        for (k, v) in indices.items():
-            n = "ix_cards_%s" % k
-            if k in required:
-                if not self.db.scalar(
-                    "select 1 from sqlite_master where name = :n", n=n):
-                    self.db.statement(
-                        "create index %s on cards %s" %
-                        (n, v))
-                    analyze = True
-            else:
-                self.db.statement("drop index if exists %s" % n)
-        if analyze:
+        if self.limits['newTodayOrder'] == NEW_TODAY_ORDINAL:
+            required.append("ordinal")
+        elif self.limits['newTodayOrder'] == NEW_TODAY_FACT:
+            required.append("factId")
+        if self.config['revCardOrder'] in (REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
+            required.append("interval")
+        cols = ["queue", "due"] + required
+        # update if changed
+        if self.db.scalar(
+            "select 1 from sqlite_master where name = 'ix_cards_multi'"):
+            rows = self.db.all("pragma index_info('ix_cards_multi')")
+        else:
+            rows = None
+        if not (rows and cols == [r[2] for r in rows]):
+            self.db.statement("drop index if exists ix_cards_multi")
+            self.db.statement("create index ix_cards_multi on cards (%s)" %
+                              ", ".join(cols))
             self.db.statement("analyze")
 
 mapper(Deck, deckTable, properties={
@@ -2723,9 +2686,8 @@ sourcesTable = Table(
 
 def newCardOrderLabels():
     return {
-        0: _("Show new cards in random order"),
-        1: _("Show new cards in order added"),
-        2: _("Show new cards in reverse order added"),
+        0: _("Add new cards in random order"),
+        1: _("Add new cards to end of queue"),
         }
 
 def newCardSchedulingLabels():
