@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import nose, os, re
-from tests.shared import assertException
+from tests.shared import assertException, getDeck
 
 from anki.errors import *
 from anki import Deck
@@ -14,12 +14,6 @@ newPath = None
 newModified = None
 
 testDir = os.path.dirname(__file__)
-
-def getDeck():
-    import tempfile
-    (fd, nam) = tempfile.mkstemp(suffix=".anki")
-    os.unlink(nam)
-    return Deck(nam)
 
 ## opening/closing
 

@@ -133,6 +133,9 @@ class Deck(object):
 
     def getCard(self):
         return self.sched.getCard()
+
+    def answerCard(self, card, ease):
+        self.sched.answerCard(card, ease)
         # if card:
         #     return card
         # if sched.name == "main":

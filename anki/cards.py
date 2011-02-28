@@ -14,46 +14,39 @@ MAX_TIMER = 60
 # Cards
 ##########################################################################
 
-# tasks:
-# - remove all failed cards from learning queue - set queue=1; type=1 and
-#   leave scheduling parameters alone (need separate due for learn queue and
-#   reviews)
-#
-# - cram cards. gather and introduce to queue=0. 
-# - remove all cram cards from learning queue. if type h
-
-# Type: 0=new+learning, 1=due, 2=new, 3=failed+learning, 4=cram+learning
-# Queue: 0=learning, 1=due, 2=new, 3=new today,
-#        -1=suspended, -2=user buried, -3=sched buried (rev early, etc)
+# Type: 0=learning, 1=due, 2=new
+# Queue: 0=learning, 1=due, 2=new
+#        -1=suspended, -2=user buried, -3=sched buried
 # Ordinal: card template # for fact
-# Position: sorting position, only for new cards
 # Flags: unused; reserved for future use
 
 cardsTable = Table(
     'cards', metadata,
     Column('id', Integer, primary_key=True),
     Column('factId', Integer, ForeignKey("facts.id"), nullable=False),
+    Column('modelId', Integer, ForeignKey("models.id"), nullable=False),
     Column('cardModelId', Integer, ForeignKey("cardModels.id"), nullable=False),
     # general
     Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('question', UnicodeText, nullable=False, default=u""),
     Column('answer', UnicodeText, nullable=False, default=u""),
-    Column('flags', Integer, nullable=False, default=0),
-    # ordering
     Column('ordinal', Integer, nullable=False),
-    Column('position', Integer, nullable=False),
-    # scheduling data
+    Column('flags', Integer, nullable=False, default=0),
+    # shared scheduling
     Column('type', Integer, nullable=False, default=2),
     Column('queue', Integer, nullable=False, default=2),
-    Column('lastInterval', Float, nullable=False, default=0),
-    Column('interval', Float, nullable=False, default=0),
     Column('due', Float, nullable=False),
+    # sm2
+    Column('interval', Float, nullable=False, default=0),
     Column('factor', Float, nullable=False, default=2.5),
-    # counters
     Column('reps', Integer, nullable=False, default=0),
-    Column('successive', Integer, nullable=False, default=0),
-    Column('lapses', Integer, nullable=False, default=0))
+    Column('streak', Integer, nullable=False, default=0),
+    Column('lapses', Integer, nullable=False, default=0),
+    # learn
+    Column('grade', Integer, nullable=False, default=0),
+    Column('cycles', Integer, nullable=False, default=0)
+)
 
 class Card(object):
 
@@ -68,6 +61,7 @@ class Card(object):
         self.position = self.due
         if fact:
             self.fact = fact
+            self.modelId = fact.modelId
         if cardModel:
             self.cardModel = cardModel
             # for non-orm use
@@ -151,45 +145,47 @@ class Card(object):
             return
         (self.id,
          self.factId,
+         self.modelId,
          self.cardModelId,
          self.created,
          self.modified,
          self.question,
          self.answer,
-         self.flags,
          self.ordinal,
-         self.position,
+         self.flags,
          self.type,
          self.queue,
-         self.lastInterval,
-         self.interval,
          self.due,
+         self.interval,
          self.factor,
          self.reps,
-         self.successive,
-         self.lapses) = r
+         self.streak,
+         self.lapses,
+         self.grade,
+         self.cycles) = r
         return True
 
     def toDB(self, s):
         s.execute("""update cards set
 factId=:factId,
+modelId=:modelId,
 cardModelId=:cardModelId,
 created=:created,
 modified=:modified,
 question=:question,
 answer=:answer,
-flags=:flags,
 ordinal=:ordinal,
-position=:position,
+flags=:flags,
 type=:type,
 queue=:queue,
-lastInterval=:lastInterval,
-interval=:interval,
 due=:due,
+interval=:interval,
 factor=:factor,
 reps=:reps,
-successive=:successive,
-lapses=:lapses
+streak=:streak,
+lapses=:lapses,
+grade=:grade,
+cycles=:cycles
 where id=:id""", self.__dict__)
 
 mapper(Card, cardsTable, properties={

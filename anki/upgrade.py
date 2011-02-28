@@ -37,9 +37,11 @@ def upgradeSchema(engine, s):
         import cards
         metadata.create_all(engine, tables=[cards.cardsTable])
         s.execute("""
-insert into cards select id, factId, cardModelId, created, modified,
-question, answer, 0, ordinal, 0, relativeDelay, type, lastInterval, interval,
-due, factor, reps, successive, noCount from cards2""")
+insert into cards select id, factId,
+(select modelId from facts where facts.id = cards.factId),
+cardModelId, created, modified,
+question, answer, ordinal, 0, relativeDelay, type, due, interval,
+factor, reps, successive, noCount, 0, 0 from cards2""")
         s.execute("drop table cards2")
         # tags
         ###########
