@@ -4,7 +4,7 @@
 
 DECK_VERSION = 100
 
-import time
+import time, simplejson
 from anki.db import *
 from anki.lang import _
 from anki.media import rebuildMediaDir
@@ -38,7 +38,7 @@ def upgradeSchema(engine, s):
         metadata.create_all(engine, tables=[cards.cardsTable])
         s.execute("""
 insert into cards select id, factId,
-(select modelId from facts where facts.id = cards.factId),
+(select modelId from facts where facts.id = cards2.factId),
 cardModelId, created, modified,
 question, answer, ordinal, 0, relativeDelay, type, due, interval,
 factor, reps, successive, noCount, 0, 0 from cards2""")
@@ -73,15 +73,7 @@ originalPath from media2""")
         s.execute("drop table media2")
         # deck
         ###########
-        import deck
-        metadata.create_all(engine, tables=[deck.deckTable])
-        s.execute("""
-insert into deck select id, created, modified, 0, 99, currentModelId,
-ifnull(syncName, ""), lastSync, utcOffset, newCardOrder,
-newCardSpacing, newCardsPerDay, revCardOrder, 600, sessionRepLimit,
-sessionTimeLimit, 1, 16, '', '', '', '' from decks
-                  """)
-        s.execute("drop table decks")
+        migrateDeck(s, engine)
         # models
         ###########
         moveTable(s, "models")
@@ -89,12 +81,45 @@ sessionTimeLimit, 1, 16, '', '', '', '' from decks
         metadata.create_all(engine, tables=[models.modelsTable])
         s.execute("""
 insert or ignore into models select id, created, modified, name,
-'[0.5, 3, 10]', '[1, 7, 4]',
-'[0.5, 3, 10]', '[1, 7, 4]',
-0, 2.5 from models2""")
+:c from models2""", {'c':simplejson.dumps(models.defaultConf)})
         s.execute("drop table models2")
 
     return ver
+
+def migrateDeck(s, engine):
+    import deck
+    metadata.create_all(engine, tables=[deck.deckTable])
+    s.execute("""
+insert into deck select id, created, modified, 0, 99,
+ifnull(syncName, ""), lastSync, utcOffset, "", "", "" from decks""")
+    # update selective study
+    lim = deck.defaultLim.copy()
+    keys = ("newActive", "newInactive", "revActive", "revInactive")
+    for k in keys:
+        lim[k] = s.execute("select value from deckVars where key=:k",
+                           {'k':k}).scalar()
+        s.execute("delete from deckVars where key=:k", {'k':k})
+    # fetch remaining settings from decks table
+    conf = deck.defaultConf.copy()
+    data = {}
+    keys = ("newCardOrder", "newCardSpacing", "newCardsPerDay",
+            "revCardOrder", "sessionRepLimit", "sessionTimeLimit")
+    for k in keys:
+        conf[k] = s.execute("select %s from decks" % k).scalar()
+    # add any deck vars and save
+    dkeys = ("hexCache", "cssCache")
+    for (k, v) in s.execute("select * from deckVars").fetchall():
+        if k in dkeys:
+            data[k] = v
+        else:
+            conf[k] = v
+    s.execute("update deck set limits = :l, config = :c, data = :d",
+              {'l':simplejson.dumps(lim),
+               'c':simplejson.dumps(conf),
+               'd':simplejson.dumps(data)})
+    # clean up
+    s.execute("drop table decks")
+    s.execute("drop table deckVars")
 
 def updateIndices(db):
     "Add indices to the DB."

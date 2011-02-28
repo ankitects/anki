@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import nose, os, re
+import nose, os, re, tempfile, shutil
 from tests.shared import assertException, getDeck
 
 from anki.errors import *
@@ -307,3 +307,9 @@ def test_findCards():
     c = deck.addFact(f)
     assert len(deck.findCards('tag:forward')) == 5
     assert len(deck.findCards('tag:reverse')) == 1
+
+def test_upgrade():
+    src = os.path.expanduser("~/Scratch/upgrade.anki")
+    (fd, dst) = tempfile.mkstemp(suffix=".anki")
+    shutil.copy(src, dst)
+    deck = Deck(dst)

@@ -51,17 +51,42 @@ SEARCH_FIELD_EXISTS = 7
 SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
 
-deckVarsTable = Table(
-    'deckVars', metadata,
-    Column('key', UnicodeText, nullable=False, primary_key=True),
-    Column('value', UnicodeText))
+# selective study
+defaultLim = {
+    'newActive': u"",
+    'newInactive': u"",
+    'revActive': u"",
+    'revInactive': u"",
+}
+
+# scheduling and other options
+defaultConf = {
+    'utcOffset': -2,
+    'newCardOrder': 1,
+    'newCardSpacing': NEW_CARDS_DISTRIBUTE,
+    'newCardsPerDay': 20,
+    'revCardOrder': 0,
+    'collapseTime': 600,
+    'sessionRepLimit': 0,
+    'sessionTimeLimit': 600,
+    'suspendLeeches': True,
+    'leechFails': 16,
+    'currentModelId': None,
+    'mediaURL': "",
+    'latexPre': """\
+\\documentclass[12pt]{article}
+\\special{papersize=3in,5in}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amssymb,amsmath}
+\\pagestyle{empty}
+\\setlength{\\parindent}{0in}
+\\begin{document}
+""",
+    'latexPost': "\\end{document}",
+}
 
 # syncName: md5sum of current deck location, to detect if deck was moved or
 #           renamed. mobile clients can treat this as a simple boolean
-
-# utcOffset: store independent of tz?
-
-# parts of the code assume we only have one deck
 deckTable = Table(
     'deck', metadata,
     Column('id', Integer, nullable=False, primary_key=True),
@@ -69,27 +94,14 @@ deckTable = Table(
     Column('modified', Float, nullable=False, default=time.time),
     Column('schemaMod', Float, nullable=False, default=0),
     Column('version', Integer, nullable=False, default=DECK_VERSION),
-    Column('currentModelId', Integer, ForeignKey("models.id")),
     Column('syncName', UnicodeText, nullable=False, default=u""),
-    Column('lastSync', Float, nullable=False, default=0),
-    # scheduling
+    Column('lastSync', Integer, nullable=False, default=0),
     Column('utcOffset', Integer, nullable=False, default=-2),
-    Column('newCardOrder', Integer, nullable=False, default=1),
-    Column('newCardSpacing', Integer, nullable=False, default=NEW_CARDS_DISTRIBUTE),
-    Column('newCardsPerDay', Integer, nullable=False, default=20),
-    Column('revCardOrder', Integer, nullable=False, default=0),
-    Column('collapseTime', Integer, nullable=False, default=600),
-    # timeboxing
-    Column('sessionRepLimit', Integer, nullable=False, default=0),
-    Column('sessionTimeLimit', Integer, nullable=False, default=600),
-    # leeches
-    Column('suspendLeeches', Boolean, nullable=False, default=True),
-    Column('leechFails', Integer, nullable=False, default=16),
-    # selective study
-    Column('newActive', UnicodeText, nullable=False, default=u""),
-    Column('newInactive', UnicodeText, nullable=False, default=u""),
-    Column('revActive', UnicodeText, nullable=False, default=u""),
-    Column('revInactive', UnicodeText, nullable=False, default=u""),
+    Column('limits', UnicodeText, nullable=False, default=unicode(
+        simplejson.dumps(defaultLim))),
+    Column('config', UnicodeText, nullable=False, default=unicode(
+        simplejson.dumps(defaultConf))),
+    Column('data', UnicodeText, nullable=False, default=u"{}")
 )
 
 class Deck(object):
@@ -108,19 +120,6 @@ class Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        # if most recent deck var not defined, make sure defaults are set
-        if not self.db.scalar("select 1 from deckVars where key = 'latexPost'"):
-            self.setVarDefault("mediaURL", "")
-            self.setVarDefault("latexPre", """\
-\\documentclass[12pt]{article}
-\\special{papersize=3in,5in}
-\\usepackage[utf8]{inputenc}
-\\usepackage{amssymb,amsmath}
-\\pagestyle{empty}
-\\setlength{\\parindent}{0in}
-\\begin{document}
-""")
-            self.setVarDefault("latexPost", "\\end{document}")
         self.sched = Scheduler(self)
 
     def modifiedSinceSave(self):
@@ -733,7 +732,7 @@ select id, null, null, null, questionAlign, 0, 0 from cardModels""")
         (hexifyID(row[0]), row[1]) for row in self.db.all("""
 select id, lastFontColour from cardModels""")])
         self.css = css
-        self.setVar("cssCache", css, mod=False)
+        self.data['cssCache'] = css
         self.addHexCache()
         return css
 
@@ -745,7 +744,7 @@ select id from models""")
         cache = {}
         for id in ids:
             cache[id] = hexifyID(id)
-        self.setVar("hexCache", simplejson.dumps(cache), mod=False)
+        self.data['hexCache'] = cache
 
     def copyModel(self, oldModel):
         "Add a new model to DB based on MODEL."
@@ -2163,7 +2162,14 @@ Return new path, relative to media dir."""
         if self.lastLoaded == self.modified:
             return
         self.lastLoaded = self.modified
+        self.flushConfig()
         self.db.commit()
+
+    def flushConfig(self):
+        print "make flushConfig() more intelligent"
+        deck._config = simplejson.dumps(deck.config)
+        deck._limits = simplejson.dumps(deck.limits)
+        deck._data = simplejson.dumps(deck.data)
 
     def close(self):
         if self.db:
@@ -2225,6 +2231,7 @@ Return new path, relative to media dir."""
     def saveAs(self, newPath):
         "Returns new deck. Old connection is closed without saving."
         oldMediaDir = self.mediaDir()
+        self.flushConfig()
         self.db.flush()
         # remove new deck if it exists
         try:
@@ -2648,6 +2655,8 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     ##########################################################################
 
     def updateDynamicIndices(self):
+        print "fix dynamicIndices()"
+        return
         indices = {
             'intervalDesc':
             '(queue, interval desc, factId, due)',
@@ -2690,7 +2699,11 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         if analyze:
             self.db.statement("analyze")
 
-mapper(Deck, deckTable)
+mapper(Deck, deckTable, properties={
+    '_limits': deckTable.c.limits,
+    '_config': deckTable.c.config,
+    '_data': deckTable.c.data,
+})
 
 # Shared decks
 ##########################################################################
@@ -2825,10 +2838,14 @@ class DeckStorage(object):
         path = os.path.abspath(path)
         create = not os.path.exists(path)
         deck = DeckStorage._getDeck(path, create, pool)
+        deck.limits = simplejson.loads(deck._limits)
         if not rebuild:
             # minimal startup
             return deck
         oldMod = deck.modified
+        # setup config
+        deck.config = simplejson.loads(deck._config)
+        deck.data = simplejson.loads(deck._data)
         # unsuspend buried/rev early
         deck.db.statement(
             "update cards set queue = type where queue between -3 and -2")

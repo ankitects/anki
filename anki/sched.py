@@ -6,7 +6,8 @@ import time, datetime, simplejson
 from heapq import *
 from anki.db import *
 from anki.cards import Card
-from anki.utils import parseTags
+from anki.utils import parseTags, ids2str
+from anki.tags import tagIds
 from anki.lang import _
 
 # the standard Anki scheduler
@@ -503,8 +504,8 @@ limit %d""" % (self.newOrder(), self.queueLimit)), lim=self.dayCutoff)
             "update cards set queue = type where queue = -3")
 
     def cardLimit(self, active, inactive, sql):
-        yes = parseTags(getattr(self.deck, active))
-        no = parseTags(getattr(self.deck, inactive))
+        yes = parseTags(self.deck.limits.get(active))
+        no = parseTags(self.deck.limits.get(inactive))
         if yes:
             yids = tagIds(self.db, yes).values()
             nids = tagIds(self.db, no).values()
