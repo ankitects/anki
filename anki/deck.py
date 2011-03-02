@@ -105,7 +105,6 @@ class Deck(object):
         self.reps = 0
         self.sched = Scheduler(self)
 
-
     def modifiedSinceSave(self):
         return self.modified > self.lastLoaded
 
@@ -2637,11 +2636,9 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         required = []
         if self.limits['newTodayOrder'] == NEW_TODAY_ORDINAL:
             required.append("ordinal")
-        elif self.limits['newTodayOrder'] == NEW_TODAY_FACT:
-            required.append("factId")
         if self.config['revCardOrder'] in (REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
             required.append("interval")
-        cols = ["queue", "due"] + required
+        cols = ["queue", "due", "groupId"] + required
         # update if changed
         if self.db.scalar(
             "select 1 from sqlite_master where name = 'ix_cards_multi'"):

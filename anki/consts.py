@@ -15,8 +15,7 @@ NEW_CARDS_DUE = 1
 
 # sort order for day's new cards
 NEW_TODAY_ORDINAL = 0
-NEW_TODAY_FACT = 1
-NEW_TODAY_DUE = 2
+NEW_TODAY_DUE = 1
 
 # review card sort order
 REV_CARDS_OLD_FIRST = 0

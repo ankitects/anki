@@ -21,12 +21,6 @@ class Scheduler(object):
         self.queueLimit = 200
         self.learnLimit = 1000
         self.updateCutoff()
-        # restore any cards temporarily suspended by alternate schedulers
-        try:
-            self.resetSchedBuried()
-        except OperationalError, e:
-            # will fail if deck hasn't been upgraded yet
-            print "resetSched() failed"
 
     def getCard(self, orm=True):
         "Pop the next card from the queue. None if finished."
@@ -39,9 +33,13 @@ class Scheduler(object):
 
     def reset(self):
         self.resetConfig()
+        t = time.time()
         self.resetLearn()
+        print "lrn %0.2fms" % ((time.time() - t)*1000); t = time.time()
         self.resetReview()
+        print "rev %0.2fms" % ((time.time() - t)*1000); t = time.time()
         self.resetNew()
+        print "new %0.2fms" % ((time.time() - t)*1000); t = time.time()
 
     def answerCard(self, card, ease):
         if card.queue == 0:
@@ -103,11 +101,10 @@ class Scheduler(object):
             self.newQueue = []
             self.newCount = 0
         else:
-            self.newQueue = self.db.all(
-                self.cardLimit(
-                    "newActive", "newInactive", """
-select id, %s from cards c where
-queue = 2 order by due limit %d""" % (self.newOrder(), lim)))
+            self.newQueue = self.db.all("""
+select id %s from cards where
+queue = 2 %s order by due limit %d""" % (self.newOrder(), self.groupLimit('new'),
+                                         lim))
             self.newQueue.sort(key=itemgetter(1), reverse=True)
             self.newCount = len(self.newQueue)
         self.updateNewCardRatio()
@@ -117,10 +114,7 @@ queue = 2 order by due limit %d""" % (self.newOrder(), lim)))
             return self.newQueue.pop()[0]
 
     def newOrder(self):
-        return ("ordinal",
-                "factId",
-                "due",
-            )[self.deck.limits['newTodayOrder']]
+        return (",ordinal", "")[self.deck.limits['newTodayOrder']]
 
     def updateNewCardRatio(self):
         if self.deck.config['newCardSpacing'] == NEW_CARDS_DISTRIBUTE:
@@ -215,12 +209,13 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
     ##########################################################################
 
     def resetReview(self):
-        self.revCount = self.db.scalar(
-            self.cardLimit(
-                "revActive", "revInactive",
-                "select count(*) from cards c where queue = 1 "
-                "and due < :lim"), lim=self.dayCutoff)
-        self.revQueue = []
+        self.revQueue = self.db.all("""
+select id from cards where
+queue = 1 %s and due < :lim order by %s limit %d""" % (
+    self.groupLimit("rev"), self.revOrder(), self.queueLimit),
+                                    lim=self.dayCutoff)
+        self.revQueue.reverse()
+        self.revCount = len(self.revQueue)
 
     def getReviewCard(self):
         if self.haveRevCards():
@@ -232,21 +227,13 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
                 self.fillRevQueue()
             return self.revQueue
 
-    def fillRevQueue(self):
-        self.revQueue = self.db.all(
-            self.cardLimit(
-                "revActive", "revInactive", """
-select c.id, factId from cards c where
-queue = 1 and due < :lim order by %s
-limit %d""" % (self.revOrder(), self.queueLimit)), lim=self.dayCutoff)
-        self.revQueue.reverse()
-
     # FIXME: current random order won't work with new spacing
+    # FIXME: limits for new, config for rev is strange atm
     def revOrder(self):
         return ("interval desc",
                 "interval",
                 "due",
-                "factId, ordinal")[self.revCardOrder]
+                "factId, ordinal")[self.deck.config['revCardOrder']]
 
     # FIXME: rewrite
     def showFailedLast(self):
@@ -491,6 +478,11 @@ and queue between 1 and 2""",
         "Put temporarily suspended cards back into play."
         self.db.statement(
             "update cards set queue = type where queue = -3")
+
+    def groupLimit(self, type):
+        #return " and groupId in (1)"
+        print "fixme: groupLimit()"
+        return ""
 
     def cardLimit(self, active, inactive, sql):
         yes = parseTags(self.deck.limits.get(active))
