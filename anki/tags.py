@@ -5,26 +5,6 @@
 from anki.db import *
 
 # Type: 0=fact, 1=model, 2=template
-# Priority: -100 to 100
-
-# older sqlalchemy versions didn't support collate for sqlite, so we do it
-# manually
-def initTagTables(s):
-    try:
-        s.execute("""
-create table tags (
-id integer not null,
-name text not null collate nocase unique,
-priority integer not null default 0,
-primary key(id))""")
-        s.execute("""
-create table cardTags (
-cardId integer not null,
-tagId integer not null,
-type integer not null,
-primary key(tagId, cardId))""")
-    except:
-        pass
 
 def tagId(s, tag, create=True):
     "Return ID for tag, creating if necessary."

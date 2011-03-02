@@ -22,12 +22,6 @@ mediaTable = Table(
     Column('modified', Float, nullable=False),
     Column('chksum', UnicodeText, nullable=False, default=u""))
 
-mediaDeletedTable = Table(
-    'mediaDeleted', metadata,
-    Column('mediaId', Integer, ForeignKey("cards.id"),
-           nullable=False),
-    Column('deletedTime', Float, nullable=False))
-
 # File handling
 ##########################################################################
 

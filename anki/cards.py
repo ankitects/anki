@@ -17,6 +17,7 @@ MAX_TIMER = 60
 # Type: 0=learning, 1=due, 2=new
 # Queue: 0=learning, 1=due, 2=new
 #        -1=suspended, -2=user buried, -3=sched buried
+# Group: scheduling group
 # Ordinal: card template # for fact
 # Flags: unused; reserved for future use
 
@@ -24,11 +25,10 @@ cardsTable = Table(
     'cards', metadata,
     Column('id', Integer, primary_key=True),
     Column('factId', Integer, ForeignKey("facts.id"), nullable=False),
-    Column('modelId', Integer, ForeignKey("models.id"), nullable=False),
+    Column('groupId', Integer, nullable=False, default=1),
     Column('cardModelId', Integer, ForeignKey("cardModels.id"), nullable=False),
-    # general
-    Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
+    # general
     Column('question', UnicodeText, nullable=False, default=u""),
     Column('answer', UnicodeText, nullable=False, default=u""),
     Column('ordinal', Integer, nullable=False),
@@ -50,15 +50,14 @@ cardsTable = Table(
 
 class Card(object):
 
-    def __init__(self, fact=None, cardModel=None, created=None):
+    # FIXME: this needs tidying up
+    def __init__(self, fact=None, cardModel=None, due=None):
         self.id = genID()
         self.modified = time.time()
-        if created:
-            self.created = created
-            self.due = created
+        if due:
+            self.due = due
         else:
             self.due = self.modified
-        self.position = self.due
         if fact:
             self.fact = fact
             self.modelId = fact.modelId
@@ -145,9 +144,8 @@ class Card(object):
             return
         (self.id,
          self.factId,
-         self.modelId,
+         self.groupId,
          self.cardModelId,
-         self.created,
          self.modified,
          self.question,
          self.answer,
@@ -166,15 +164,11 @@ class Card(object):
         return True
 
     def toDB(self, s):
+        # this shouldn't be used for schema changes
         s.execute("""update cards set
-factId=:factId,
-modelId=:modelId,
-cardModelId=:cardModelId,
-created=:created,
 modified=:modified,
 question=:question,
 answer=:answer,
-ordinal=:ordinal,
 flags=:flags,
 type=:type,
 queue=:queue,
@@ -198,12 +192,3 @@ mapper(Fact, factsTable, properties={
     'model': relation(Model),
     'fields': relation(Field, backref="fact", order_by=Field.ordinal),
     })
-
-# Card deletions
-##########################################################################
-
-cardsDeletedTable = Table(
-    'cardsDeleted', metadata,
-    Column('cardId', Integer, ForeignKey("cards.id"),
-           nullable=False),
-    Column('deletedTime', Float, nullable=False))

@@ -145,12 +145,3 @@ class Fact(object):
                 self.values()))
             for card in self.cards:
                 card.rebuildQA(deck)
-
-# Fact deletions
-##########################################################################
-
-factsDeletedTable = Table(
-    'factsDeleted', metadata,
-    Column('factId', Integer, ForeignKey("facts.id"),
-           nullable=False),
-    Column('deletedTime', Float, nullable=False))

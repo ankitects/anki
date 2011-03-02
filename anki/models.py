@@ -153,37 +153,13 @@ def formatQA(cid, mid, fact, tags, cm, deck):
 # Model table
 ##########################################################################
 
-# maybe define a random cutoff at say +/-30% which controls exit interval
-# variation - 30% of 1 day is 0.7 or 1.3 so always 1 day; 30% of 4 days is
-# 2.8-5.2, so any time from 3-5 days is acceptable
-
-# collapse time should be bigger than default failSchedule
-
-# need to think about failed interval handling - if the final drill is
-# optional, what intervals should the default be? 3 days or more if cards are
-# over that interval range? and what about failed mature bonus?
-
-defaultConf = {
-    'new': {
-        'delays': [0.5, 3, 10],
-        'ints': [1, 7, 4],
-    },
-    'lapse': {
-        'delays': [0.5, 3, 10],
-        'ints': [1, 7, 4],
-        'mult': 0
-    },
-    'initialFactor': 2.5,
-}
-
 modelsTable = Table(
     'models', metadata,
     Column('id', Integer, primary_key=True),
-    Column('created', Float, nullable=False, default=time.time),
     Column('modified', Float, nullable=False, default=time.time),
     Column('name', UnicodeText, nullable=False),
-    Column('config', UnicodeText, nullable=False,
-           default=unicode(simplejson.dumps(defaultConf))),
+    # currently unused
+    Column('config', UnicodeText, nullable=False, default=u"")
 )
 
 class Model(object):
@@ -219,12 +195,3 @@ mapper(Model, modelsTable, properties={
                            order_by=[cardModelsTable.c.ordinal],
                            cascade="all, delete-orphan"),
        })
-
-# Model deletions
-##########################################################################
-
-modelsDeletedTable = Table(
-    'modelsDeleted', metadata,
-    Column('modelId', Integer, ForeignKey("models.id"),
-           nullable=False),
-    Column('deletedTime', Float, nullable=False))

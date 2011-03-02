@@ -38,7 +38,7 @@ class Scheduler(object):
             return card
 
     def reset(self):
-        self.modelConfigs = {}
+        self.resetConfig()
         self.resetLearn()
         self.resetReview()
         self.resetNew()
@@ -474,13 +474,18 @@ and queue between 1 and 2""",
     # Tools
     ##########################################################################
 
+    def resetConfig(self):
+        "Update group config cache."
+        self.groupConfigs = dict(self.db.all("select id, confId from groups"))
+        self.configCache = {}
+
     def configForCard(self, card):
-        mid = card.modelId
-        if not mid in self.modelConfigs:
-            self.modelConfigs[mid] = simplejson.loads(
-                self.db.scalar("select config from models where id = :id",
-                               id=mid))
-        return self.modelConfigs[mid]
+        id = self.groupConfigs[card.groupId]
+        if id not in self.configCache:
+            self.configCache[id] = simplejson.loads(
+                self.db.scalar("select config from groupConfig where id = :id",
+                               id=id))
+        return self.configCache[id]
 
     def resetSchedBuried(self):
         "Put temporarily suspended cards back into play."

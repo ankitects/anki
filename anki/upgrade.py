@@ -8,7 +8,6 @@ import time, simplejson
 from anki.db import *
 from anki.lang import _
 from anki.media import rebuildMediaDir
-from anki.tags import initTagTables
 
 def moveTable(s, table):
     sql = s.scalar(
@@ -37,17 +36,16 @@ def upgradeSchema(engine, s):
         import cards
         metadata.create_all(engine, tables=[cards.cardsTable])
         s.execute("""
-insert into cards select id, factId,
-(select modelId from facts where facts.id = cards2.factId),
-cardModelId, created, modified,
-question, answer, ordinal, 0, relativeDelay, type, due, interval,
-factor, reps, successive, noCount, 0, 0 from cards2""")
+insert into cards select id, factId, 1, cardModelId, modified, question,
+answer, ordinal, 0, relativeDelay, type, due, interval, factor, reps,
+successive, noCount, 0, 0 from cards2""")
         s.execute("drop table cards2")
         # tags
         ###########
         moveTable(s, "tags")
         moveTable(s, "cardTags")
-        initTagTables(s)
+        import deck
+        deck.DeckStorage._addTables(engine)
         s.execute("insert or ignore into tags select id, tag, 0 from tags2")
         s.execute("""
 insert or ignore into cardTags select cardId, tagId, src from cardTags2""")
@@ -80,8 +78,7 @@ originalPath from media2""")
         import models
         metadata.create_all(engine, tables=[models.modelsTable])
         s.execute("""
-insert or ignore into models select id, created, modified, name,
-:c from models2""", {'c':simplejson.dumps(models.defaultConf)})
+insert or ignore into models select id, modified, name, "" from models2""")
         s.execute("drop table models2")
 
     return ver
@@ -149,13 +146,7 @@ create index if not exists ix_fields_chksum on fields (chksum)""")
 create index if not exists ix_media_chksum on media (chksum)""")
     # deletion tracking
     db.execute("""
-create index if not exists ix_cardsDeleted_cardId on cardsDeleted (cardId)""")
-    db.execute("""
-create index if not exists ix_modelsDeleted_modelId on modelsDeleted (modelId)""")
-    db.execute("""
-create index if not exists ix_factsDeleted_factId on factsDeleted (factId)""")
-    db.execute("""
-create index if not exists ix_mediaDeleted_factId on mediaDeleted (mediaId)""")
+create index if not exists ix_gravestones_delTime on gravestones (delTime)""")
     # tags
     db.execute("""
 create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
@@ -209,12 +200,17 @@ cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
         # remove queueDue as it's become dynamic, and type index
         deck.db.statement("drop index if exists ix_cards_queueDue")
         deck.db.statement("drop index if exists ix_cards_type")
-
+        # remove old deleted tables
+        for t in ("cards", "facts", "models", "media"):
+            deck.db.statement("drop table if exists %sDeleted" % t)
         # finally, update indices & optimize
         updateIndices(deck.db)
         # setup limits & config for dynamicIndices()
         deck.limits = simplejson.loads(deck._limits)
         deck.config = simplejson.loads(deck._config)
+        # add default config
+        import deck as deckMod
+        deckMod.DeckStorage._addConfig(deck.engine)
 
         deck.updateDynamicIndices()
         deck.db.execute("vacuum")

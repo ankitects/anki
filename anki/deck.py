@@ -14,7 +14,7 @@ from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
 from anki.revlog import logReview
 from anki.models import Model, CardModel, formatQA
 from anki.fonts import toPlatformFont
-from anki.tags import initTagTables, tagIds, tagId
+from anki.tags import tagIds, tagId
 from operator import itemgetter
 from itertools import groupby
 from anki.hooks import runHook, hookEmpty
@@ -27,7 +27,7 @@ from anki.consts import *
 import anki.latex # sets up hook
 
 # ensure all the DB metadata in other files is loaded before proceeding
-import anki.models, anki.facts, anki.cards, anki.media
+import anki.models, anki.facts, anki.cards, anki.media, anki.groups, anki.graves
 
 # Selective study and new card limits. These vars are necessary to determine
 # counts even on a minimum deck load, and thus are separate from the rest of
@@ -52,8 +52,6 @@ defaultConf = {
     'collapseTime': 600,
     'sessionRepLimit': 0,
     'sessionTimeLimit': 600,
-    'suspendLeeches': True,
-    'leechFails': 16,
     'currentModelId': None,
     'mediaURL': "",
     'latexPre': """\
@@ -550,8 +548,7 @@ where factId = :fid and cardModelId = :cmid""",
         strids = ids2str(ids)
         self.db.statement("delete from facts where id in %s" % strids)
         self.db.statement("delete from fields where factId in %s" % strids)
-        data = [{'id': id, 'time': now} for id in ids]
-        self.db.statements("insert into factsDeleted values (:id, :time)", data)
+        anki.graves.registerMany(self.db, anki.graves.FACT, ids)
         self.setModified()
 
     def deleteDanglingFacts(self):
@@ -611,8 +608,7 @@ where facts.id not in (select distinct factId from cards)""")
         # drop from cards
         self.db.statement("delete from cards where id in %s" % strids)
         # note deleted
-        data = [{'id': id, 'time': now} for id in ids]
-        self.db.statements("insert into cardsDeleted values (:id, :time)", data)
+        anki.graves.registerMany(self.db, anki.graves.CARD, ids)
         # gather affected tags
         tags = self.db.column0(
             "select tagId from cardTags where cardId in %s" %
@@ -670,8 +666,7 @@ facts.id = cards.factId""", id=model.id))
             self.db.flush()
             if self.currentModel == model:
                 self.currentModel = self.models[0]
-            self.db.statement("insert into modelsDeleted values (:id, :time)",
-                             id=model.id, time=time.time())
+            anki.graves.registerOne(self.db, anki.graves.MODEL, model.id)
             self.flushMod()
             self.refreshSession()
             self.setModified()
@@ -2204,10 +2199,7 @@ Return new path, relative to media dir."""
 
     def setSchemaModified(self):
         self.schemaMod = time.time()
-        # since we guarantee a full sync to all clients, this is a good time
-        # to forget old gravestones
-        for k in ("cards", "facts", "models", "media"):
-            self.db.statement("delete from %sDeleted" % k)
+        anki.graves.forgetAll(self.db)
 
     def flushMod(self):
         "Mark modified and flush to DB."
@@ -2727,8 +2719,9 @@ class DeckStorage(object):
             (engine, session) = DeckStorage._attach(path, create, pool)
             s = session()
             if create:
+                DeckStorage._addTables(engine)
                 metadata.create_all(engine)
-                initTagTables(engine)
+                DeckStorage._addConfig(engine)
                 deck = DeckStorage._init(s)
                 updateIndices(engine)
                 engine.execute("analyze")
@@ -2736,6 +2729,7 @@ class DeckStorage(object):
                 ver = upgradeSchema(engine, s)
                 # add any possibly new tables if we're upgrading
                 if ver < DECK_VERSION:
+                    DeckStorage._addTables(engine)
                     metadata.create_all(engine)
                 deck = s.query(Deck).get(1)
                 if not deck:
@@ -2761,7 +2755,6 @@ class DeckStorage(object):
                                       type="inuse")
             else:
                 raise e
-
     _getDeck = staticmethod(_getDeck)
 
     def _attach(path, create, pool=True):
@@ -2793,6 +2786,47 @@ class DeckStorage(object):
         s.flush()
         return deck
     _init = staticmethod(_init)
+
+    def _addConfig(s):
+        "Add a default group & config."
+        s.execute("""
+insert into groupConfig values (1, :t, :name, :conf)""",
+                  t=time.time(), name=_("Default Config"),
+                  conf=simplejson.dumps(anki.groups.defaultConf))
+        s.execute("""
+insert into groups values (1, :t, "Default", 1)""",
+                  t=time.time())
+    _addConfig = staticmethod(_addConfig)
+
+    def _addTables(s):
+        "Add tables with syntax that older sqlalchemy versions don't support."
+        sql = [
+            """
+create table tags (
+id integer not null,
+name text not null collate nocase unique,
+priority integer not null default 0,
+primary key(id))""",
+            """
+create table cardTags (
+cardId integer not null,
+tagId integer not null,
+type integer not null,
+primary key(tagId, cardId))""",
+            """
+create table groups (
+id integer primary key autoincrement,
+modified integer not null,
+name text not null collate nocase unique,
+confId integer not null)"""
+        ]
+        for table in sql:
+            try:
+                s.execute(table)
+            except:
+                pass
+
+    _addTables = staticmethod(_addTables)
 
     def Deck(path, backup=True, pool=True, minimal=False):
         "Create a new deck or attach to an existing one. Path should be unicode."
