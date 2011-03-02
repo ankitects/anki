@@ -2769,8 +2769,7 @@ class DeckStorage(object):
         path = "sqlite:///" + path.encode("utf-8")
         if pool:
             # open and lock connection for single use
-            engine = create_engine(
-                path, connect_args={'timeout': 0}, strategy="threadlocal")
+            engine = create_engine(path, connect_args={'timeout': 0})
         else:
             # no pool & concurrent access w/ timeout
             engine = create_engine(
@@ -2795,23 +2794,17 @@ class DeckStorage(object):
         return deck
     _init = staticmethod(_init)
 
-    def Deck(path, backup=True, pool=True, rebuild=True):
+    def Deck(path, backup=True, pool=True, minimal=False):
         "Create a new deck or attach to an existing one. Path should be unicode."
         path = os.path.abspath(path)
         create = not os.path.exists(path)
         deck = DeckStorage._getDeck(path, create, pool)
-        deck.limits = simplejson.loads(deck._limits)
-        if not rebuild:
-            # minimal startup
-            return deck
         oldMod = deck.modified
-        # setup config
+        deck.limits = simplejson.loads(deck._limits)
         deck.config = simplejson.loads(deck._config)
         deck.data = simplejson.loads(deck._data)
-        # unsuspend buried/rev early
-        deck.db.statement(
-            "update cards set queue = type where queue between -3 and -2")
-        deck.db.commit()
+        if minimal:
+            return deck
         # check if deck has been moved, and disable syncing
         deck.checkSyncHash()
         # rebuild queue
