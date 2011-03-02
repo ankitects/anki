@@ -90,13 +90,12 @@ def migrateDeck(s, engine):
 insert into deck select id, created, modified, 0, 99,
 ifnull(syncName, ""), lastSync, utcOffset, "", "", "" from decks""")
     # update selective study
-    lim = deck.defaultLim.copy()
+    qconf = deck.defaultQconf.copy()
+    # delete old selective study settings, which we can't auto-upgrade easily
     keys = ("newActive", "newInactive", "revActive", "revInactive")
     for k in keys:
-        lim[k] = s.execute("select value from deckVars where key=:k",
-                           {'k':k}).scalar()
         s.execute("delete from deckVars where key=:k", {'k':k})
-    lim['newPerDay'] = s.execute(
+    qconf['newPerDay'] = s.execute(
         "select newCardsPerDay from decks").scalar()
     # fetch remaining settings from decks table
     conf = deck.defaultConf.copy()
@@ -116,8 +115,8 @@ ifnull(syncName, ""), lastSync, utcOffset, "", "", "" from decks""")
             data[k] = v
         else:
             conf[k] = v
-    s.execute("update deck set limits = :l, config = :c, data = :d",
-              {'l':simplejson.dumps(lim),
+    s.execute("update deck set qconf = :l, config = :c, data = :d",
+              {'l':simplejson.dumps(qconf),
                'c':simplejson.dumps(conf),
                'd':simplejson.dumps(data)})
     # clean up
@@ -205,8 +204,8 @@ cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
             deck.db.statement("drop table if exists %sDeleted" % t)
         # finally, update indices & optimize
         updateIndices(deck.db)
-        # setup limits & config for dynamicIndices()
-        deck.limits = simplejson.loads(deck._limits)
+        # setup qconf & config for dynamicIndices()
+        deck.qconf = simplejson.loads(deck._qconf)
         deck.config = simplejson.loads(deck._config)
         # add default config
         import deck as deckMod

@@ -29,26 +29,23 @@ import anki.latex # sets up hook
 # ensure all the DB metadata in other files is loaded before proceeding
 import anki.models, anki.facts, anki.cards, anki.media, anki.groups, anki.graves
 
-# Selective study and new card limits. These vars are necessary to determine
-# counts even on a minimum deck load, and thus are separate from the rest of
-# the config.
-defaultLim = {
+# Settings related to queue building. These may be loaded without the rest of
+# the config to check due counts faster on mobile clients.
+defaultQconf = {
     'newActive': u"",
     'newInactive': u"",
     'revActive': u"",
     'revInactive': u"",
     'newPerDay': 20,
-    # currentDay, count
-    'newToday': [0, 0],
+    'newToday': [0, 0], # currentDay, count
     'newTodayOrder': NEW_TODAY_ORDINAL,
+    'newCardOrder': 1,
+    'newCardSpacing': NEW_CARDS_DISTRIBUTE,
+    'revCardOrder': REV_CARDS_OLD_FIRST,
 }
 
 # scheduling and other options
 defaultConf = {
-    'utcOffset': -2,
-    'newCardOrder': 1,
-    'newCardSpacing': NEW_CARDS_DISTRIBUTE,
-    'revCardOrder': REV_CARDS_OLD_FIRST,
     'collapseTime': 600,
     'sessionRepLimit': 0,
     'sessionTimeLimit': 600,
@@ -78,8 +75,8 @@ deckTable = Table(
     Column('syncName', UnicodeText, nullable=False, default=u""),
     Column('lastSync', Integer, nullable=False, default=0),
     Column('utcOffset', Integer, nullable=False, default=-2),
-    Column('limits', UnicodeText, nullable=False, default=unicode(
-        simplejson.dumps(defaultLim))),
+    Column('qconf', UnicodeText, nullable=False, default=unicode(
+        simplejson.dumps(defaultQconf))),
     Column('config', UnicodeText, nullable=False, default=unicode(
         simplejson.dumps(defaultConf))),
     Column('data', UnicodeText, nullable=False, default=u"{}")
@@ -144,7 +141,7 @@ interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
             sql2 += "  where cardId in "+sids
         self.db.statement(sql, now=time.time())
         self.db.statement(sql2)
-        if self.config['newCardOrder'] == NEW_CARDS_RANDOM:
+        if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
             # we need to re-randomize now
             self.randomizeNewCards(ids)
         self.flushMod()
@@ -435,7 +432,7 @@ due > :now and due < :now""", now=time.time())
         self.db.save(fact)
         # update field cache
         self.flushMod()
-        isRandom = self.config['newCardOrder'] == NEW_CARDS_RANDOM
+        isRandom = self.qconf['newCardOrder'] == NEW_CARDS_RANDOM
         if isRandom:
             due = random.uniform(0, time.time())
         t = time.time()
@@ -2148,7 +2145,7 @@ Return new path, relative to media dir."""
     def flushConfig(self):
         print "make flushConfig() more intelligent"
         self._config = unicode(simplejson.dumps(self.config))
-        self._limits = unicode(simplejson.dumps(self.limits))
+        self._qconf = unicode(simplejson.dumps(self.qconf))
         self._data = unicode(simplejson.dumps(self.data))
 
     def close(self):
@@ -2634,9 +2631,9 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def updateDynamicIndices(self):
         # determine required columns
         required = []
-        if self.limits['newTodayOrder'] == NEW_TODAY_ORDINAL:
+        if self.qconf['newTodayOrder'] == NEW_TODAY_ORDINAL:
             required.append("ordinal")
-        if self.config['revCardOrder'] in (REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
+        if self.qconf['revCardOrder'] in (REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
             required.append("interval")
         cols = ["queue", "due", "groupId"] + required
         # update if changed
@@ -2652,7 +2649,7 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
             self.db.statement("analyze")
 
 mapper(Deck, deckTable, properties={
-    '_limits': deckTable.c.limits,
+    '_qconf': deckTable.c.qconf,
     '_config': deckTable.c.config,
     '_data': deckTable.c.data,
 })
@@ -2831,7 +2828,7 @@ confId integer not null)"""
         create = not os.path.exists(path)
         deck = DeckStorage._getDeck(path, create, pool)
         oldMod = deck.modified
-        deck.limits = simplejson.loads(deck._limits)
+        deck.qconf = simplejson.loads(deck._qconf)
         deck.config = simplejson.loads(deck._config)
         deck.data = simplejson.loads(deck._data)
         if minimal:

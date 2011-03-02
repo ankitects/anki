@@ -92,7 +92,7 @@ class Scheduler(object):
     # need to keep track of reps for timebox and new card introduction
 
     def resetNew(self):
-        l = self.deck.limits
+        l = self.deck.qconf
         if l['newToday'][0] != self.today:
             # it's a new day; reset counts
             l['newToday'] = [self.today, 0]
@@ -114,10 +114,10 @@ queue = 2 %s order by due limit %d""" % (self.newOrder(), self.groupLimit('new')
             return self.newQueue.pop()[0]
 
     def newOrder(self):
-        return (",ordinal", "")[self.deck.limits['newTodayOrder']]
+        return (",ordinal", "")[self.deck.qconf['newTodayOrder']]
 
     def updateNewCardRatio(self):
-        if self.deck.config['newCardSpacing'] == NEW_CARDS_DISTRIBUTE:
+        if self.deck.qconf['newCardSpacing'] == NEW_CARDS_DISTRIBUTE:
             if self.newCount:
                 self.newCardModulus = (
                     (self.newCount + self.revCount) / self.newCount)
@@ -131,9 +131,9 @@ queue = 2 %s order by due limit %d""" % (self.newOrder(), self.groupLimit('new')
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
-        if self.deck.config['newCardSpacing'] == NEW_CARDS_LAST:
+        if self.deck.qconf['newCardSpacing'] == NEW_CARDS_LAST:
             return False
-        elif self.deck.config['newCardSpacing'] == NEW_CARDS_FIRST:
+        elif self.deck.qconf['newCardSpacing'] == NEW_CARDS_FIRST:
             return True
         elif self.newCardModulus:
             return self.deck.reps and self.deck.reps % self.newCardModulus == 0
@@ -227,13 +227,10 @@ queue = 1 %s and due < :lim order by %s limit %d""" % (
                 self.fillRevQueue()
             return self.revQueue
 
-    # FIXME: current random order won't work with new spacing
-    # FIXME: limits for new, config for rev is strange atm
     def revOrder(self):
         return ("interval desc",
                 "interval",
-                "due",
-                "factId, ordinal")[self.deck.config['revCardOrder']]
+                "due")[self.deck.qconf['revCardOrder']]
 
     # FIXME: rewrite
     def showFailedLast(self):
@@ -485,8 +482,8 @@ and queue between 1 and 2""",
         return ""
 
     def cardLimit(self, active, inactive, sql):
-        yes = parseTags(self.deck.limits.get(active))
-        no = parseTags(self.deck.limits.get(inactive))
+        yes = parseTags(self.deck.qconf.get(active))
+        no = parseTags(self.deck.qconf.get(inactive))
         if yes:
             yids = tagIds(self.db, yes).values()
             nids = tagIds(self.db, no).values()
