@@ -95,19 +95,22 @@ ifnull(syncName, ""), lastSync, utcOffset, "", "", "" from decks""")
     keys = ("newActive", "newInactive", "revActive", "revInactive")
     for k in keys:
         s.execute("delete from deckVars where key=:k", {'k':k})
+    # copy other settings
+    keys = ("newCardOrder", "newCardSpacing", "revCardOrder")
+    for k in keys:
+        qconf[k] = s.execute("select %s from decks" % k).scalar()
     qconf['newPerDay'] = s.execute(
         "select newCardsPerDay from decks").scalar()
     # fetch remaining settings from decks table
     conf = deck.defaultConf.copy()
     data = {}
-    keys = ("newCardOrder", "newCardSpacing", "revCardOrder",
-            "sessionRepLimit", "sessionTimeLimit")
+    keys = ("sessionRepLimit", "sessionTimeLimit")
     for k in keys:
         conf[k] = s.execute("select %s from decks" % k).scalar()
     # random and due options merged
-    conf['revCardOrder'] = min(2, conf['revCardOrder'])
+    qconf['revCardOrder'] = min(2, qconf['revCardOrder'])
     # no reverse option anymore
-    conf['newCardOrder'] = min(1, conf['newCardOrder'])
+    qconf['newCardOrder'] = min(1, qconf['newCardOrder'])
     # add any deck vars and save
     dkeys = ("hexCache", "cssCache")
     for (k, v) in s.execute("select * from deckVars").fetchall():

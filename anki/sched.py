@@ -477,31 +477,11 @@ and queue between 1 and 2""",
             "update cards set queue = type where queue = -3")
 
     def groupLimit(self, type):
-        #return " and groupId in (1)"
-        print "fixme: groupLimit()"
-        return ""
-
-    def cardLimit(self, active, inactive, sql):
-        yes = parseTags(self.deck.qconf.get(active))
-        no = parseTags(self.deck.qconf.get(inactive))
-        if yes:
-            yids = tagIds(self.db, yes).values()
-            nids = tagIds(self.db, no).values()
-            return sql.replace(
-                "where",
-                "where +c.id in (select cardId from cardTags where "
-                "tagId in %s) and +c.id not in (select cardId from "
-                "cardTags where tagId in %s) and" % (
-                ids2str(yids),
-                ids2str(nids)))
-        elif no:
-            nids = tagIds(self.db, no).values()
-            return sql.replace(
-                "where",
-                "where +c.id not in (select cardId from cardTags where "
-                "tagId in %s) and" % ids2str(nids))
-        else:
-            return sql
+        l = self.deck.qconf[type+"Groups"]
+        if not l:
+            # everything
+            return ""
+        return " and groupId in %s" % ids2str(l)
 
     # Daily cutoff
     ##########################################################################

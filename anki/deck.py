@@ -32,10 +32,8 @@ import anki.models, anki.facts, anki.cards, anki.media, anki.groups, anki.graves
 # Settings related to queue building. These may be loaded without the rest of
 # the config to check due counts faster on mobile clients.
 defaultQconf = {
-    'newActive': u"",
-    'newInactive': u"",
-    'revActive': u"",
-    'revInactive': u"",
+    'revGroups': [],
+    'newGroups': [],
     'newPerDay': 20,
     'newToday': [0, 0], # currentDay, count
     'newTodayOrder': NEW_TODAY_ORDINAL,
