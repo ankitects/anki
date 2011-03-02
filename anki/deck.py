@@ -39,7 +39,7 @@ defaultQconf = {
     'newTodayOrder': NEW_TODAY_ORDINAL,
     'newCardOrder': 1,
     'newCardSpacing': NEW_CARDS_DISTRIBUTE,
-    'revCardOrder': REV_CARDS_OLD_FIRST,
+    'revCardOrder': REV_CARDS_RANDOM,
 }
 
 # scheduling and other options

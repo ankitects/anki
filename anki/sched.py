@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, datetime, simplejson
+import time, datetime, simplejson, random
 from operator import itemgetter
 from heapq import *
 from anki.db import *
@@ -214,7 +214,10 @@ select id from cards where
 queue = 1 %s and due < :lim order by %s limit %d""" % (
     self.groupLimit("rev"), self.revOrder(), self.queueLimit),
                                     lim=self.dayCutoff)
-        self.revQueue.reverse()
+        if self.deck.qconf['revCardOrder'] == REV_CARDS_RANDOM:
+            random.shuffle(self.revQueue)
+        else:
+            self.revQueue.reverse()
         self.revCount = len(self.revQueue)
 
     def getReviewCard(self):
