@@ -23,6 +23,9 @@ if sys.version_info[1] < 5:
 # Time handling
 ##############################################################################
 
+def intTime():
+    return int(time.time())
+
 timeTable = {
     "years": lambda n: ngettext("%s year", "%s years", n),
     "months": lambda n: ngettext("%s month", "%s months", n),

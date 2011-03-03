@@ -18,9 +18,9 @@ revlogTable = Table(
     Column('cardId', Integer, nullable=False),
     Column('ease', Integer, nullable=False),
     Column('rep', Integer, nullable=False),
-    Column('lastInterval', Float, nullable=False),
-    Column('interval', Float, nullable=False),
-    Column('factor', Float, nullable=False),
+    Column('lastInterval', Integer, nullable=False),
+    Column('interval', Integer, nullable=False),
+    Column('factor', Integer, nullable=False),
     Column('userTime', Integer, nullable=False),
     Column('flags', Integer, nullable=False, default=0))
 

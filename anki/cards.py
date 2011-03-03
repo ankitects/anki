@@ -6,7 +6,7 @@ import time, sys, math, random
 from anki.db import *
 from anki.models import CardModel, Model, FieldModel, formatQA
 from anki.facts import Fact, factsTable, Field
-from anki.utils import parseTags, findTag, stripHTML, genID, hexifyID
+from anki.utils import parseTags, findTag, stripHTML, genID, hexifyID, intTime
 from anki.media import updateMediaCount, mediaFiles
 
 MAX_TIMER = 60
@@ -21,13 +21,18 @@ MAX_TIMER = 60
 # Ordinal: card template # for fact
 # Flags: unused; reserved for future use
 
+# Due is used differently for different queues.
+# - new queue: fact.pos
+# - rev queue: integer day
+# - lrn queue: integer timestamp
+
 cardsTable = Table(
     'cards', metadata,
     Column('id', Integer, primary_key=True),
     Column('factId', Integer, ForeignKey("facts.id"), nullable=False),
     Column('groupId', Integer, nullable=False, default=1),
     Column('cardModelId', Integer, ForeignKey("cardModels.id"), nullable=False),
-    Column('modified', Float, nullable=False, default=time.time),
+    Column('modified', Integer, nullable=False, default=intTime),
     # general
     Column('question', UnicodeText, nullable=False, default=u""),
     Column('answer', UnicodeText, nullable=False, default=u""),
@@ -36,10 +41,10 @@ cardsTable = Table(
     # shared scheduling
     Column('type', Integer, nullable=False, default=2),
     Column('queue', Integer, nullable=False, default=2),
-    Column('due', Float, nullable=False),
+    Column('due', Integer, nullable=False),
     # sm2
-    Column('interval', Float, nullable=False, default=0),
-    Column('factor', Float, nullable=False, default=2.5),
+    Column('interval', Integer, nullable=False, default=0),
+    Column('factor', Integer, nullable=False),
     Column('reps', Integer, nullable=False, default=0),
     Column('streak', Integer, nullable=False, default=0),
     Column('lapses', Integer, nullable=False, default=0),
@@ -50,27 +55,27 @@ cardsTable = Table(
 
 class Card(object):
 
-    # FIXME: this needs tidying up
-    def __init__(self, fact=None, cardModel=None, due=None):
-        self.id = genID()
-        self.modified = time.time()
-        if due:
-            self.due = due
-        else:
-            self.due = self.modified
+    # called one of three ways:
+    # - with no args, followed by .fromDB()
+    # - with all args, when adding cards to db
+    def __init__(self, fact=None, cardModel=None, group=None):
+        # timer
+        self.timerStarted = None
         if fact:
+            self.id = genID()
+            self.modified = intTime()
+            self.due = fact.pos
             self.fact = fact
             self.modelId = fact.modelId
-        if cardModel:
             self.cardModel = cardModel
+            self.groupId = group.id
+            self.factor = group.config['initialFactor']
             # for non-orm use
             self.cardModelId = cardModel.id
             self.ordinal = cardModel.ordinal
-        # timer
-        self.timerStarted = None
 
     def setModified(self):
-        self.modified = time.time()
+        self.modified = intTime()
 
     def startTimer(self):
         self.timerStarted = time.time()

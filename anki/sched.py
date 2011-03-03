@@ -22,7 +22,7 @@ class Scheduler(object):
         self.learnLimit = 1000
         self.updateCutoff()
 
-    def getCard(self, orm=True):
+    def getCard(self):
         "Pop the next card from the queue. None if finished."
         self.checkDay()
         id = self.getCardId()

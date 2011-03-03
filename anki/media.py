@@ -4,7 +4,7 @@
 
 import os, shutil, re, urllib2, time, tempfile, unicodedata, urllib
 from anki.db import *
-from anki.utils import checksum, genID
+from anki.utils import checksum, genID, intTime
 from anki.lang import _
 
 # other code depends on this order, so don't reorder
@@ -19,7 +19,7 @@ mediaTable = Table(
     Column('id', Integer, primary_key=True, nullable=False),
     Column('filename', UnicodeText, nullable=False, unique=True),
     Column('refcnt', Integer, nullable=False),
-    Column('modified', Float, nullable=False),
+    Column('modified', Integer, nullable=False),
     Column('chksum', UnicodeText, nullable=False, default=u""))
 
 # File handling
@@ -71,7 +71,7 @@ def updateMediaCount(deck, file, count=1):
         "select 1 from media where filename = :file", file=file):
         deck.db.statement(
             "update media set refcnt = refcnt + :c, modified = :t where filename = :file",
-            file=file, c=count, t=time.time())
+            file=file, c=count, t=intTime())
     elif count > 0:
         try:
             sum = unicode(
@@ -81,7 +81,7 @@ def updateMediaCount(deck, file, count=1):
         deck.db.statement("""
 insert into media (id, filename, refcnt, modified, chksum)
 values (:id, :file, :c, :mod, :sum)""",
-                         id=genID(), file=file, c=count, mod=time.time(),
+                         id=genID(), file=file, c=count, mod=intTime(),
                          sum=sum)
 
 def removeUnusedMedia(deck):
@@ -173,12 +173,12 @@ def rebuildMediaDir(deck, delete=False, dirty=True):
         path = os.path.join(mdir, file)
         if not os.path.exists(path):
             if md5:
-                update.append({'f':file, 'sum':u"", 'c':time.time()})
+                update.append({'f':file, 'sum':u"", 'c':intTime()})
         else:
             sum = unicode(
                 checksum(open(os.path.join(mdir, file), "rb").read()))
             if md5 != sum:
-                update.append({'f':file, 'sum':sum, 'c':time.time()})
+                update.append({'f':file, 'sum':sum, 'c':intTime()})
     if update:
         deck.db.statements("""
 update media set chksum = :sum, modified = :c where filename = :f""",

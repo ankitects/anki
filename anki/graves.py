@@ -8,6 +8,7 @@
 
 import time
 from anki.db import *
+from anki.utils import intTime
 
 FACT = 0
 CARD = 1
@@ -24,11 +25,11 @@ gravestonesTable = Table(
 
 def registerOne(db, type, id):
     db.statement("insert into gravestones values (:t, :id, :ty)",
-                 t=time.time(), id=id, ty=type)
+                 t=intTime(), id=id, ty=type)
 
 def registerMany(db, type, ids):
     db.statements("insert into gravestones values (:t, :id, :ty)",
-                 [{'t':time.time(), 'id':x, 'ty':type} for x in ids])
+                 [{'t':intTime(), 'id':x, 'ty':type} for x in ids])
 
 def forgetAll(db):
     db.statement("delete from gravestones")

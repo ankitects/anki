@@ -5,9 +5,9 @@
 import time, re, simplejson
 from sqlalchemy.ext.orderinglist import ordering_list
 from anki.db import *
-from anki.utils import genID, canonifyTags
+from anki.utils import genID, canonifyTags, intTime
 from anki.fonts import toPlatformFont
-from anki.utils import parseTags, hexifyID, checksum, stripHTML
+from anki.utils import parseTags, hexifyID, checksum, stripHTML, intTime
 from anki.lang import _
 from anki.hooks import runFilter
 from anki.template import render
@@ -156,7 +156,7 @@ def formatQA(cid, mid, fact, tags, cm, deck):
 modelsTable = Table(
     'models', metadata,
     Column('id', Integer, primary_key=True),
-    Column('modified', Float, nullable=False, default=time.time),
+    Column('modified', Integer, nullable=False, default=intTime),
     Column('name', UnicodeText, nullable=False),
     # currently unused
     Column('config', UnicodeText, nullable=False, default=u"")
@@ -169,7 +169,7 @@ class Model(object):
         self.id = genID()
 
     def setModified(self):
-        self.modified = time.time()
+        self.modified = intTime()
 
     def addFieldModel(self, field):
         "Add a field model. Don't call this directly."

@@ -3,12 +3,13 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import simplejson, time
+from anki.utils import intTime
 from anki.db import *
 
 groupsTable = Table(
     'groups', metadata,
     Column('id', Integer, primary_key=True),
-    Column('modified', Float, nullable=False, default=time.time),
+    Column('modified', Integer, nullable=False, default=intTime),
     Column('name', UnicodeText, nullable=False),
     Column('confId', Integer, nullable=False))
 
@@ -34,7 +35,7 @@ defaultConf = {
 groupConfigTable = Table(
     'groupConfig', metadata,
     Column('id', Integer, primary_key=True),
-    Column('modified', Float, nullable=False, default=time.time),
+    Column('modified', Integer, nullable=False, default=intTime),
     Column('name', UnicodeText, nullable=False),
     Column('config', UnicodeText, nullable=False,
            default=unicode(simplejson.dumps(defaultConf))))
@@ -45,9 +46,13 @@ class GroupConfig(object):
         self.id = genID()
         self.config = defaultConf
 
+    def load(self):
+        self.config = simplejson.loads(self._config)
+        return self
+
     def save(self):
         self._config = simplejson.dumps(self.config)
-        self.modified = time.time()
+        self.modified = intTime()
 
 mapper(GroupConfig, groupConfigTable, properties={
     '_config': groupConfigTable.c.config,

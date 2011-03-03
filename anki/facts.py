@@ -6,7 +6,7 @@ import time
 from anki.db import *
 from anki.errors import *
 from anki.models import Model, FieldModel, fieldModelsTable
-from anki.utils import genID, stripHTMLMedia, fieldChecksum
+from anki.utils import genID, stripHTMLMedia, fieldChecksum, intTime
 from anki.hooks import runHook
 
 # Fields in a fact
@@ -43,6 +43,8 @@ mapper(Field, fieldsTable, properties={
 # Facts: a set of fields and a model
 ##########################################################################
 
+# Pos: incrementing number defining add order. There may be duplicates if
+# content is added on two sync locations at once. Importing adds to end.
 # Cache: a HTML-stripped amalgam of the field contents, so we can perform
 # searches of marked up text in a reasonable time.
 
@@ -50,20 +52,21 @@ factsTable = Table(
     'facts', metadata,
     Column('id', Integer, primary_key=True),
     Column('modelId', Integer, ForeignKey("models.id"), nullable=False),
-    Column('created', Float, nullable=False, default=time.time),
-    Column('modified', Float, nullable=False, default=time.time),
+    Column('pos', Integer, nullable=False),
+    Column('modified', Integer, nullable=False, default=intTime),
     Column('tags', UnicodeText, nullable=False, default=u""),
     Column('cache', UnicodeText, nullable=False, default=u""))
 
 class Fact(object):
     "A single fact. Fields exposed as dict interface."
 
-    def __init__(self, model=None):
+    def __init__(self, model=None, pos=None):
         self.model = model
         self.id = genID()
         if model:
             for fm in model.fieldModels:
                 self.fields.append(Field(fm))
+            self.pos = pos
         self.new = True
 
     def isNew(self):
@@ -130,7 +133,7 @@ class Fact(object):
 
     def setModified(self, textChanged=False, deck=None, media=True):
         "Mark modified and update cards."
-        self.modified = time.time()
+        self.modified = intTime()
         if textChanged:
             if not deck:
                 # FIXME: compat code

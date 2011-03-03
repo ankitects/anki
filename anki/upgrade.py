@@ -8,6 +8,7 @@ import time, simplejson
 from anki.db import *
 from anki.lang import _
 from anki.media import rebuildMediaDir
+from anki.utils import intTime
 
 def moveTable(s, table):
     sql = s.scalar(
@@ -36,9 +37,9 @@ def upgradeSchema(engine, s):
         import cards
         metadata.create_all(engine, tables=[cards.cardsTable])
         s.execute("""
-insert into cards select id, factId, 1, cardModelId, modified, question,
-answer, ordinal, 0, relativeDelay, type, due, interval, factor, reps,
-successive, noCount, 0, 0 from cards2""")
+insert into cards select id, factId, 1, cardModelId, cast(modified as int),
+question, answer, ordinal, 0, relativeDelay, type, due, cast(interval as int),
+cast(factor*1000 as int), reps, successive, noCount, 0, 0 from cards2""")
         s.execute("drop table cards2")
         # tags
         ###########
@@ -53,12 +54,19 @@ insert or ignore into cardTags select cardId, tagId, src from cardTags2""")
         s.execute("drop table cardTags2")
         # facts
         ###########
-        moveTable(s, "facts")
+        s.execute("""
+create table facts2
+(id, modelId, modified, tags, cache)""")
+        # use the rowid to give them an integer order
+        s.execute("""
+insert into facts2 select id, modelId, modified, tags, spaceUntil from
+facts order by created""")
+        s.execute("drop table facts")
         import facts
         metadata.create_all(engine, tables=[facts.factsTable])
         s.execute("""
-insert or ignore into facts select id, modelId, created, modified, tags,
-spaceUntil from facts2""")
+insert or ignore into facts select id, modelId, rowid,
+cast(modified as int), tags, cache from facts2""")
         s.execute("drop table facts2")
         # media
         ###########
@@ -66,7 +74,7 @@ spaceUntil from facts2""")
         import media
         metadata.create_all(engine, tables=[media.mediaTable])
         s.execute("""
-insert or ignore into media select id, filename, size, created,
+insert or ignore into media select id, filename, size, cast(created as int),
 originalPath from media2""")
         s.execute("drop table media2")
         # deck
@@ -78,7 +86,7 @@ originalPath from media2""")
         import models
         metadata.create_all(engine, tables=[models.modelsTable])
         s.execute("""
-insert or ignore into models select id, modified, name, "" from models2""")
+insert or ignore into models select id, cast(modified as int), name, "" from models2""")
         s.execute("drop table models2")
 
     return ver
@@ -87,16 +95,17 @@ def migrateDeck(s, engine):
     import deck
     metadata.create_all(engine, tables=[deck.deckTable])
     s.execute("""
-insert into deck select id, created, modified, 0, 99,
-ifnull(syncName, ""), lastSync, utcOffset, "", "", "" from decks""")
+insert into deck select id, cast(created as int), cast(modified as int),
+0, 99, ifnull(syncName, ""), cast(lastSync as int),
+utcOffset, "", "", "" from decks""")
     # update selective study
     qconf = deck.defaultQconf.copy()
     # delete old selective study settings, which we can't auto-upgrade easily
     keys = ("newActive", "newInactive", "revActive", "revInactive")
     for k in keys:
         s.execute("delete from deckVars where key=:k", {'k':k})
-    # copy other settings
-    keys = ("newCardOrder", "newCardSpacing", "revCardOrder")
+    # copy other settings, ignoring deck order as there's a new default
+    keys = ("newCardOrder", "newCardSpacing")
     for k in keys:
         qconf[k] = s.execute("select %s from decks" % k).scalar()
     qconf['newPerDay'] = s.execute(
@@ -184,8 +193,10 @@ def upgradeDeck(deck):
         # migrate revlog data to new table
         deck.db.statement("""
 insert or ignore into revlog select
-cast(time*1000 as int), cardId, ease, reps, lastInterval, nextInterval, nextFactor,
-cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
+cast(time*1000 as int), cardId, ease, reps,
+cast(lastInterval as int), cast(nextInterval as int),
+cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
+0 from reviewHistory""")
         deck.db.statement("drop table reviewHistory")
         # convert old ease0 into ease1
         deck.db.statement("update revlog set ease = 1 where ease = 0")
@@ -198,7 +209,7 @@ cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
         # don't need an index on fieldModelId
         deck.db.statement("drop index if exists ix_fields_fieldModelId")
         # update schema time
-        deck.db.statement("update deck set schemaMod = :t", t=time.time())
+        deck.db.statement("update deck set schemaMod = :t", t=intTime())
         # remove queueDue as it's become dynamic, and type index
         deck.db.statement("drop index if exists ix_cards_queueDue")
         deck.db.statement("drop index if exists ix_cards_type")
@@ -207,9 +218,24 @@ cast(min(thinkingTime, 60)*1000 as int), 0 from reviewHistory""")
             deck.db.statement("drop table if exists %sDeleted" % t)
         # finally, update indices & optimize
         updateIndices(deck.db)
+        # rewrite due times for new cards
+        deck.db.statement("""
+update cards set due = (select pos from facts where factId = facts.id) where type=2""")
+        # convert due cards into day-based due
+        deck.db.statement("""
+update cards set due = cast(
+(case when due < :stamp then 0 else 1 end) +
+((due-:stamp)/86400) as int)+:today where type
+between 0 and 1""", stamp=deck.sched.dayCutoff, today=deck.sched.today)
+        print "today", deck.sched.today
+        print "cut", deck.sched.dayCutoff
         # setup qconf & config for dynamicIndices()
         deck.qconf = simplejson.loads(deck._qconf)
         deck.config = simplejson.loads(deck._config)
+        deck.data = simplejson.loads(deck._data)
+        # update factPos
+        deck.config['nextFactPos'] = deck.db.scalar("select max(pos) from facts")+1
+        deck.flushConfig()
         # add default config
         import deck as deckMod
         deckMod.DeckStorage._addConfig(deck.engine)

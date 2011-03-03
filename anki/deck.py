@@ -10,7 +10,7 @@ from anki.lang import _, ngettext
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
-     canonifyTags, joinTags, addTags, checksum, fieldChecksum
+     canonifyTags, joinTags, addTags, checksum, fieldChecksum, intTime
 from anki.revlog import logReview
 from anki.models import Model, CardModel, formatQA
 from anki.fonts import toPlatformFont
@@ -48,6 +48,8 @@ defaultConf = {
     'sessionRepLimit': 0,
     'sessionTimeLimit': 600,
     'currentModelId': None,
+    'currentGroupId': 1,
+    'nextFactPos': 1,
     'mediaURL': "",
     'latexPre': """\
 \\documentclass[12pt]{article}
@@ -66,9 +68,9 @@ defaultConf = {
 deckTable = Table(
     'deck', metadata,
     Column('id', Integer, nullable=False, primary_key=True),
-    Column('created', Float, nullable=False, default=time.time),
-    Column('modified', Float, nullable=False, default=time.time),
-    Column('schemaMod', Float, nullable=False, default=0),
+    Column('created', Integer, nullable=False, default=intTime),
+    Column('modified', Integer, nullable=False, default=intTime),
+    Column('schemaMod', Integer, nullable=False, default=intTime),
     Column('version', Integer, nullable=False, default=DECK_VERSION),
     Column('syncName', UnicodeText, nullable=False, default=u""),
     Column('lastSync', Integer, nullable=False, default=0),
@@ -412,7 +414,7 @@ due > :now and due < :now""", now=time.time())
         "Return a new fact with the current model."
         if model is None:
             model = self.currentModel
-        return anki.facts.Fact(model)
+        return anki.facts.Fact(model, self.getFactPos())
 
     def addFact(self, fact, reset=True):
         "Add a fact to the deck. Return list of new cards."
@@ -432,11 +434,10 @@ due > :now and due < :now""", now=time.time())
         self.flushMod()
         isRandom = self.qconf['newCardOrder'] == NEW_CARDS_RANDOM
         if isRandom:
-            due = random.uniform(0, time.time())
-        t = time.time()
+            due = random.randrange(0, 10000)
         for cardModel in cms:
-            created = fact.created + 0.00001*cardModel.ordinal
-            card = anki.cards.Card(fact, cardModel, created)
+            group = self.groupForTemplate(cardModel)
+            card = anki.cards.Card(fact, cardModel, group)
             if isRandom:
                 card.due = due
             self.flushMod()
@@ -448,6 +449,11 @@ due > :now and due < :now""", now=time.time())
         if reset:
             self.reset()
         return fact
+
+    def groupForTemplate(self, template):
+        print "add default group to template"
+        id = self.config['currentGroupId']
+        return self.db.query(anki.groups.GroupConfig).get(id).load()
 
     def availableCardModels(self, fact, checkActive=True):
         "List of active card models that aren't empty for FACT."
@@ -2132,12 +2138,13 @@ Return new path, relative to media dir."""
     # DB helpers
     ##########################################################################
 
-    def save(self):
+    def save(self, config=True):
         "Commit any pending changes to disk."
         if self.lastLoaded == self.modified:
             return
         self.lastLoaded = self.modified
-        self.flushConfig()
+        if config:
+            self.flushConfig()
         self.db.commit()
 
     def flushConfig(self):
@@ -2187,13 +2194,21 @@ Return new path, relative to media dir."""
             self.db = None
             self.s = None
 
-    def setModified(self, newTime=None):
+    def setModified(self):
         #import traceback; traceback.print_stack()
-        self.modified = newTime or time.time()
+        self.modified = intTime()
 
     def setSchemaModified(self):
-        self.schemaMod = time.time()
+        self.schemaMod = intTime()
         anki.graves.forgetAll(self.db)
+
+    def getFactPos(self):
+        "Return next fact position, incrementing it."
+        # note this is incremented even if facts are not added; gaps are not a bug
+        p = self.config['nextFactPos']
+        self.config['nextFactPos'] += 1
+        self.setModified()
+        return p
 
     def flushMod(self):
         "Mark modified and flush to DB."
@@ -2659,8 +2674,8 @@ sourcesTable = Table(
     'sources', metadata,
     Column('id', Integer, nullable=False, primary_key=True),
     Column('name', UnicodeText, nullable=False, default=""),
-    Column('created', Float, nullable=False, default=time.time),
-    Column('lastSync', Float, nullable=False, default=0),
+    Column('created', Integer, nullable=False, default=intTime),
+    Column('lastSync', Integer, nullable=False, default=0),
     # -1 = never check, 0 = always check, 1+ = number of seconds passed.
     # not currently exposed in the GUI
     Column('syncPeriod', Integer, nullable=False, default=0))
@@ -2783,11 +2798,11 @@ class DeckStorage(object):
         "Add a default group & config."
         s.execute("""
 insert into groupConfig values (1, :t, :name, :conf)""",
-                  t=time.time(), name=_("Default Config"),
+                  t=intTime(), name=_("Default Config"),
                   conf=simplejson.dumps(anki.groups.defaultConf))
         s.execute("""
 insert into groups values (1, :t, "Default", 1)""",
-                  t=time.time())
+                  t=intTime())
     _addConfig = staticmethod(_addConfig)
 
     def _addTables(s):
