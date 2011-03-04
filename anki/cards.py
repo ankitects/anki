@@ -138,7 +138,7 @@ class Card(object):
         return self.htmlQuestion(type="answer", align=align)
 
     def _splitTags(self):
-        return (self.fact.tags, self.fact.model.name, self.cardModel.name)
+        return (self.fact._tags, self.fact.model.name, self.cardModel.name)
 
     # Non-ORM
     ##########################################################################
@@ -191,9 +191,4 @@ mapper(Card, cardsTable, properties={
     'cardModel': relation(CardModel),
     'fact': relation(Fact, backref="cards", primaryjoin=
                      cardsTable.c.factId == factsTable.c.id),
-    })
-
-mapper(Fact, factsTable, properties={
-    'model': relation(Model),
-    'fields': relation(Field, backref="fact", order_by=Field.ordinal),
     })

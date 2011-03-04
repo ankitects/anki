@@ -34,7 +34,6 @@ def BasicModel():
     m.addCardModel(CardModel(u'Forward', u'%(Front)s', u'%(Back)s'))
     m.addCardModel(CardModel(u'Reverse', u'%(Back)s', u'%(Front)s',
                              active=False))
-    m.tags = u"Basic"
     return m
 
 models['Basic'] = BasicModel
@@ -47,5 +46,4 @@ def RecoveryModel():
     m.addFieldModel(FieldModel(u'Question', False, False))
     m.addFieldModel(FieldModel(u'Answer', False, False))
     m.addCardModel(CardModel(u'Single', u'{{{Question}}}', u'{{{Answer}}}'))
-    m.tags = u"Recovery"
     return m

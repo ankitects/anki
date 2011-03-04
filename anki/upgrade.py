@@ -44,14 +44,20 @@ cast(factor*1000 as int), reps, successive, noCount, 0, 0 from cards2""")
         # tags
         ###########
         moveTable(s, "tags")
-        moveTable(s, "cardTags")
         import deck
         deck.DeckStorage._addTables(engine)
-        s.execute("insert or ignore into tags select id, tag, 0 from tags2")
+        s.execute("insert or ignore into tags select id, :t, tag from tags2",
+                  {'t':intTime()})
+        # tags should have a leading and trailing space if not empty, and not
+        # use commas
         s.execute("""
-insert or ignore into cardTags select cardId, tagId, src from cardTags2""")
+update facts set tags = (case
+when trim(tags) == "" then ""
+else " " || replace(replace(trim(tags), ",", " "), "  ", " ") || " "
+end)
+""")
         s.execute("drop table tags2")
-        s.execute("drop table cardTags2")
+        s.execute("drop table cardTags")
         # facts
         ###########
         s.execute("""
@@ -158,9 +164,6 @@ create index if not exists ix_media_chksum on media (chksum)""")
     # deletion tracking
     db.execute("""
 create index if not exists ix_gravestones_delTime on gravestones (delTime)""")
-    # tags
-    db.execute("""
-create index if not exists ix_cardTags_cardId on cardTags (cardId)""")
 
 def upgradeDeck(deck):
     "Upgrade deck to the latest version."

@@ -8,7 +8,6 @@ from heapq import *
 from anki.db import *
 from anki.cards import Card
 from anki.utils import parseTags, ids2str
-from anki.tags import tagIds
 from anki.lang import _
 from anki.consts import *
 

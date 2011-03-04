@@ -268,12 +268,12 @@ def test_findCards():
     f = deck.newFact()
     f['Front'] = u'dog'
     f['Back'] = u'cat'
-    f.tags = u"monkey"
+    f.addTags(u"monkey")
     deck.addFact(f)
     f = deck.newFact()
     f['Front'] = u'goats are fun'
     f['Back'] = u'sheep'
-    f.tags = u"sheep goat horse"
+    f.addTags(u"sheep goat horse")
     deck.addFact(f)
     f = deck.newFact()
     f['Front'] = u'cat'
@@ -292,21 +292,13 @@ def test_findCards():
     assert len(deck.findCards("are goats")) == 1
     assert len(deck.findCards('"are goats"')) == 0
     assert len(deck.findCards('"goats are"')) == 1
-    # make sure card templates and models match too
-    assert len(deck.findCards('tag:basic')) == 3
-    assert len(deck.findCards('tag:forward')) == 3
-    deck.addModel(BasicModel())
-    f = deck.newFact()
-    f['Front'] = u'foo'
-    f['Back'] = u'bar'
-    deck.addFact(f)
-    deck.currentModel.cardModels[1].active = True
-    f = deck.newFact()
-    f['Front'] = u'baz'
-    f['Back'] = u'qux'
-    c = deck.addFact(f)
-    assert len(deck.findCards('tag:forward')) == 5
-    assert len(deck.findCards('tag:reverse')) == 1
+    deck.addTags(deck.db.column0("select id from cards"), "foo bar")
+    assert (len(deck.findCards("tag:foo")) ==
+            len(deck.findCards("tag:bar")) ==
+            3)
+    deck.deleteTags(deck.db.column0("select id from cards"), "foo")
+    assert len(deck.findCards("tag:foo")) == 0
+    assert len(deck.findCards("tag:bar")) == 3
 
 def test_upgrade():
     src = os.path.expanduser("~/Scratch/upgrade.anki")

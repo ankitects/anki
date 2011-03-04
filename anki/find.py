@@ -65,7 +65,7 @@ def findCardsWhere(deck, query):
     q = ""
     x = []
     if tquery:
-        x.append(" id in (%s)" % tquery)
+        x.append(" factId in (%s)" % tquery)
     if fquery:
         x.append(" factId in (%s)" % fquery)
     if qquery:
@@ -397,16 +397,19 @@ def _findCards(deck, query):
                 else:
                     tquery += " intersect "
             elif isNeg:
-                tquery += "select id from cards except "
+                tquery += "select id from facts except "
             if token == "none":
                 tquery += """
 select cards.id from cards, facts where facts.tags = '' and cards.factId = facts.id """
             else:
                 token = token.replace("*", "%")
-                ids = deck.db.column0("""
-select id from tags where name like :tag escape '\\'""", tag=token)
+                if not token.startswith("%"):
+                    token = "% " + token
+                if not token.endswith("%"):
+                    token += " %"
+                args["_tag_%d" % c] = token
                 tquery += """
-select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
+select id from facts where tags like :_tag_%d""" % c
         elif type == SEARCH_TYPE:
             if qquery:
                 if isNeg:
@@ -449,6 +452,7 @@ select cardId from cardTags where cardTags.tagId in %s""" % ids2str(ids)
                 fidquery += "select id from cards except "
             fidquery += "select id from cards where factId in (%s)" % token
         elif type == SEARCH_CARD:
+            print "search_card broken"
             token = token.replace("*", "%")
             ids = deck.db.column0("""
 select id from tags where name like :tag escape '\\'""", tag=token)

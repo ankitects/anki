@@ -10,11 +10,10 @@ from anki.lang import _, ngettext
 from anki.errors import DeckAccessError
 from anki.stdmodels import BasicModel
 from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
-     canonifyTags, joinTags, addTags, checksum, fieldChecksum, intTime
+     canonifyTags, joinTags, addTags, deleteTags, checksum, fieldChecksum, intTime
 from anki.revlog import logReview
 from anki.models import Model, CardModel, formatQA
 from anki.fonts import toPlatformFont
-from anki.tags import tagIds, tagId
 from operator import itemgetter
 from itertools import groupby
 from anki.hooks import runHook, hookEmpty
@@ -444,7 +443,7 @@ due > :now and due < :now""", now=time.time())
             cards.append(card)
         # update card q/a
         fact.setModified(True, self)
-        self.updateFactTags([fact.id])
+        self.registerTags(fact.tags())
         self.flushMod()
         if reset:
             self.reset()
@@ -476,7 +475,7 @@ due > :now and due < :now""", now=time.time())
                        empty["text:"+k] = u""
                        local["text:"+k] = local[k]
                    empty['tags'] = ""
-                   local['tags'] = fact.tags
+                   local['tags'] = fact._tags
                    try:
                        if (render(format, local) ==
                            render(format, empty)):
@@ -503,7 +502,6 @@ where factId = :fid and cardModelId = :cmid""",
                     card = anki.cards.Card(
                         fact, cardModel,
                         fact.created+0.0001*cardModel.ordinal)
-                    self.updateCardTags([card.id])
                     raise Exception("incorrect; not checking selective study")
                     self.newAvail += 1
                     ids.append(card.id)
@@ -581,7 +579,7 @@ where facts.id not in (select distinct factId from cards)""")
         fact = self.newFact(model)
         for field in fact.fields:
             fact[field.name] = oldFact[field.name]
-        fact.tags = oldFact.tags
+        fact._tags = oldFact._tags
         return fact
 
     # Cards
@@ -609,21 +607,6 @@ where facts.id not in (select distinct factId from cards)""")
         self.db.statement("delete from cards where id in %s" % strids)
         # note deleted
         anki.graves.registerMany(self.db, anki.graves.CARD, ids)
-        # gather affected tags
-        tags = self.db.column0(
-            "select tagId from cardTags where cardId in %s" %
-            strids)
-        # delete
-        self.db.statement("delete from cardTags where cardId in %s" % strids)
-        # find out if they're used by anything else
-        unused = []
-        for tag in tags:
-            if not self.db.scalar(
-                "select 1 from cardTags where tagId = :d limit 1", d=tag):
-                unused.append(tag)
-        # delete unused
-        self.db.statement("delete from tags where id in %s" %
-                         ids2str(unused))
         # remove any dangling facts
         self.deleteDanglingFacts()
         self.refreshSession()
@@ -819,7 +802,6 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ordinal)
         cardIds = self.db.column0(
             "select id from cards where factId in %s" %
             ids2str(factIds))
-        self.updateCardTags(cardIds)
         self.refreshSession()
         self.finishProgress()
 
@@ -1095,8 +1077,11 @@ modified = :now
 where cardModelId in %s""" % strids, now=time.time())
         self.flushMod()
 
-    # Tags: querying
+    # Tags
     ##########################################################################
+
+    def tagList(self):
+        return self.db.column0("select name from tags order by name")
 
     def splitTagsList(self, where=""):
         return self.db.all("""
@@ -1112,221 +1097,62 @@ select cards.id from cards, facts where
 facts.tags = ""
 and cards.factId = facts.id""")
 
-    def cardsWithTags(self, tagStr, search="and"):
-        tagIds = []
-        # get ids
-        for tag in tagStr.split(" "):
-            tag = tag.replace("*", "%")
-            if "%" in tag:
-                ids = self.db.column0(
-                    "select id from tags where name like :tag", tag=tag)
-                if search == "and" and not ids:
-                    return []
-                tagIds.append(ids)
-            else:
-                id = self.db.scalar(
-                    "select id from tags where name = :tag", tag=tag)
-                if search == "and" and not id:
-                    return []
-                tagIds.append(id)
-        # search for any
-        if search == "or":
-            return self.db.column0(
-                "select cardId from cardTags where tagId in %s" %
-                ids2str(tagIds))
-        else:
-            # search for all
-            l = []
-            for ids in tagIds:
-                if isinstance(ids, types.ListType):
-                    l.append("select cardId from cardTags where tagId in %s" %
-                             ids2str(ids))
-                else:
-                    l.append("select cardId from cardTags where tagId = %d" %
-                             ids)
-            q = " intersect ".join(l)
-            return self.db.column0(q)
-
-    def allTags(self):
-        return self.db.column0("select name from tags order by name")
-
-    def allTags_(self, where=""):
-        t = self.db.column0("select tags from facts %s" % where)
-        t += self.db.column0("select name from models")
-        t += self.db.column0("select name from cardModels")
-        return sorted(list(set(parseTags(joinTags(t)))))
-
-    def allUserTags(self):
-        return sorted(list(set(parseTags(joinTags(self.db.column0(
-            "select tags from facts"))))))
-
-    def factTags(self, ids):
-        return self.db.all("""
-select id, tags from facts
-where id in %s""" % ids2str(ids))
-
     def cardHasTag(self, card, tag):
-        id = tagId(self.db, tag, create=False)
-        if id:
-            return self.db.scalar(
-                "select 1 from cardTags where cardId = :c and tagId = :t",
-                c=card.id, t=id)
+        tags = self.db.scalar("select tags from fact where id = :fid",
+                              fid=card.factId)
+        return tag.lower() in parseTags(tags.lower())
 
-    # Tags: caching
-    ##########################################################################
-
-    def updateFactTags(self, factIds):
-        self.updateCardTags(self.db.column0(
-            "select id from cards where factId in %s" %
-            ids2str(factIds)))
-
-    def updateModelTags(self, modelId):
-        self.updateCardTags(self.db.column0("""
-select cards.id from cards, facts where
-cards.factId = facts.id and
-facts.modelId = :id""", id=modelId))
-
-    def updateCardTags(self, cardIds=None):
-        self.db.flush()
-        if cardIds is None:
-            self.db.statement("delete from cardTags")
-            self.db.statement("delete from tags")
-            tids = tagIds(self.db, self.allTags_())
-            rows = self.splitTagsList()
+    def updateFactTags(self, factIds=None):
+        "Add any missing tags to the tags list."
+        if factIds:
+            lim = " where id in " + ids2str(factIds)
         else:
-            self.db.statement("delete from cardTags where cardId in %s" %
-                             ids2str(cardIds))
-            fids = ids2str(self.db.column0(
-                "select factId from cards where id in %s" %
-                ids2str(cardIds)))
-            tids = tagIds(self.db, self.allTags_(
-                where="where id in %s" % fids))
-            rows = self.splitTagsList(
-                where="and facts.id in %s" % fids)
-        d = []
-        for (id, fact, model, templ) in rows:
-            for tag in parseTags(fact):
-                d.append({"cardId": id,
-                          "tagId": tids[tag.lower()],
-                          "src": 0})
-            for tag in parseTags(model):
-                d.append({"cardId": id,
-                          "tagId": tids[tag.lower()],
-                          "src": 1})
-            for tag in parseTags(templ):
-                d.append({"cardId": id,
-                          "tagId": tids[tag.lower()],
-                          "src": 2})
-        if d:
-            self.db.statements("""
-insert into cardTags
-(cardId, tagId, type) values
-(:cardId, :tagId, :src)""", d)
-        self.deleteUnusedTags()
+            lim = ""
+        self.registerTags(set(parseTags(
+            " ".join(self.db.column0("select distinct tags from facts"+lim)))))
 
-    def updateTagsForModel(self, model):
-        cards = self.db.all("""
-select cards.id, cards.cardModelId from cards, facts where
-facts.modelId = :m and cards.factId = facts.id""", m=model.id)
-        cardIds = [x[0] for x in cards]
-        factIds = self.db.column0("""
-select facts.id from facts where
-facts.modelId = :m""", m=model.id)
-        cmtags = " ".join([cm.name for cm in model.cardModels])
-        tids = tagIds(self.db, parseTags(model.tags) +
-                      parseTags(cmtags))
-        self.db.statement("""
-delete from cardTags where cardId in %s
-and src in (1, 2)""" % ids2str(cardIds))
-        d = []
-        for tag in parseTags(model.tags):
-            for id in cardIds:
-                d.append({"cardId": id,
-                          "tagId": tids[tag.lower()],
-                          "src": 1})
-        cmtags = {}
-        for cm in model.cardModels:
-            cmtags[cm.id] = parseTags(cm.name)
-        for c in cards:
-            for tag in cmtags[c[1]]:
-                d.append({"cardId": c[0],
-                          "tagId": tids[tag.lower()],
-                          "src": 2})
-        if d:
-            self.db.statements("""
-insert into cardTags
-(cardId, tagId, src) values
-(:cardId, :tagId, :src)""", d)
-        self.deleteUnusedTags()
-
-    # Tags: adding/removing in bulk
-    ##########################################################################
-    # these could be optimized to use the tag cache in the future
-
-    def deleteUnusedTags(self):
-        self.db.statement("""
-delete from tags where id not in (select distinct tagId from cardTags)""")
-
-    def addTags(self, ids, tags):
-        "Add tags in bulk. Caller must .reset()"
-        self.startProgress()
-        tlist = self.factTags(ids)
-        newTags = parseTags(tags)
-        now = time.time()
-        pending = []
-        for (id, tags) in tlist:
-            oldTags = parseTags(tags)
-            tmpTags = list(set(oldTags + newTags))
-            if tmpTags != oldTags:
-                pending.append(
-                    {'id': id, 'now': now, 'tags': " ".join(tmpTags)})
+    def registerTags(self, tags):
+        r = []
+        for t in tags:
+            r.append({'t': t})
         self.db.statements("""
-update facts set
-tags = :tags,
-modified = :now
-where id = :id""", pending)
-        factIds = [c['id'] for c in pending]
-        cardIds = self.db.column0(
-            "select id from cards where factId in %s" %
-            ids2str(factIds))
-        self.updateCardQACacheFromIds(factIds, type="facts")
-        self.updateCardTags(cardIds)
+insert or ignore into tags (modified, name) values (%d, :t)""" % intTime(),
+                            r)
+
+    def addTags(self, ids, tags, add=True):
+        "Add tags in bulk. TAGS is space-separated."
+        self.startProgress()
+        newTags = parseTags(tags)
+        # cache tag names
+        self.registerTags(newTags)
+        # find facts missing the tags
+        if add:
+            l = "tags not "
+            fn = addTags
+        else:
+            l = "tags "
+            fn = deleteTags
+        lim = " or ".join(
+            [l+"like :_%d" % c for c, t in enumerate(newTags)])
+        res = self.db.all(
+            "select id, tags from facts where " + lim,
+            **dict([("_%d" % x, '%% %s %%' % y) for x, y in enumerate(newTags)]))
+        # update tags
+        fids = []
+        def fix(row):
+            fids.append(row[0])
+            return {'id': row[0], 't': fn(tags, row[1])}
+        self.db.statements("""
+update facts set tags = :t, modified = %d
+where id = :id""" % intTime(), [fix(row) for row in res])
+        # update q/a cache
+        self.updateCardQACacheFromIds(fids, type="facts")
         self.flushMod()
         self.finishProgress()
         self.refreshSession()
 
     def deleteTags(self, ids, tags):
-        "Delete tags in bulk. Caller must .reset()"
-        self.startProgress()
-        tlist = self.factTags(ids)
-        newTags = parseTags(tags)
-        now = time.time()
-        pending = []
-        for (id, tags) in tlist:
-            oldTags = parseTags(tags)
-            tmpTags = oldTags[:]
-            for tag in newTags:
-                try:
-                    tmpTags.remove(tag)
-                except ValueError:
-                    pass
-            if tmpTags != oldTags:
-                pending.append(
-                    {'id': id, 'now': now, 'tags': " ".join(tmpTags)})
-        self.db.statements("""
-update facts set
-tags = :tags,
-modified = :now
-where id = :id""", pending)
-        factIds = [c['id'] for c in pending]
-        cardIds = self.db.column0(
-            "select id from cards where factId in %s" %
-            ids2str(factIds))
-        self.updateCardQACacheFromIds(factIds, type="facts")
-        self.updateCardTags(cardIds)
-        self.flushMod()
-        self.finishProgress()
-        self.refreshSession()
+        self.addTags(ids, tags, False)
 
     # Finding cards
     ##########################################################################
@@ -1742,6 +1568,8 @@ where id in %s""" % ids2str(ids)):
                 f.tags = self.db.scalar("""
 select group_concat(name, " ") from tags t, cardTags ct
 where cardId = :cid and ct.tagId = t.id""", cid=id) or u""
+                if f.tags:
+                    f.tags = " " + f.tags + " "
             except:
                 raise Exception("Your sqlite is too old.")
             cards = self.addFact(f)
@@ -1860,7 +1688,9 @@ select id from fields where factId not in (select id from facts)""")
                 "where allowEmptyAnswer is null or typeAnswer is null")
             # fix tags
             self.updateProgress()
-            self.updateCardTags()
+            self.db.statement("delete from tags")
+            self.updateFactTags()
+            print "should ensure tags having leading/trailing space"
             # make sure ordinals are correct
             self.updateProgress()
             self.db.statement("""
@@ -2241,15 +2071,9 @@ insert into groups values (1, :t, "Default", 1)""",
             """
 create table tags (
 id integer not null,
+modified integer not null,
 name text not null collate nocase unique,
-priority integer not null default 0,
 primary key(id))""",
-            """
-create table cardTags (
-cardId integer not null,
-tagId integer not null,
-type integer not null,
-primary key(tagId, cardId))""",
             """
 create table groups (
 id integer primary key autoincrement,

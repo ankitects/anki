@@ -233,11 +233,13 @@ to be integers."""
 
 def parseTags(tags):
     "Parse a string and return a list of tags."
-    tags = re.split(" |, ?", tags)
-    return [t.strip() for t in tags if t.strip()]
+    return [t for t in tags.split(" ") if t]
 
 def joinTags(tags):
-    return u" ".join(tags)
+    "Join tags into a single string, with leading and trailing spaces."
+    if not tags:
+        return u""
+    return u" %s " % u" ".join(tags)
 
 def canonifyTags(tags):
     "Strip leading/trailing/superfluous commas and duplicates."
@@ -246,26 +248,28 @@ def canonifyTags(tags):
 
 def findTag(tag, tags):
     "True if TAG is in TAGS. Ignore case."
-    if not isinstance(tags, types.ListType):
-        tags = parseTags(tags)
     return tag.lower() in [t.lower() for t in tags]
 
-def addTags(tagstr, tags):
+def addTags(addtags, tags):
     "Add tags if they don't exist."
     currentTags = parseTags(tags)
-    for tag in parseTags(tagstr):
+    for tag in parseTags(addtags):
         if not findTag(tag, currentTags):
             currentTags.append(tag)
     return joinTags(currentTags)
 
-def deleteTags(tagstr, tags):
+def deleteTags(deltags, tags):
     "Delete tags if they don't exists."
     currentTags = parseTags(tags)
-    for tag in parseTags(tagstr):
-        try:
-            currentTags.remove(tag)
-        except ValueError:
-            pass
+    for tag in parseTags(deltags):
+        # find tags, ignoring case
+        remove = []
+        for tx in currentTags:
+            if tag.lower() == tx.lower():
+                remove.append(tx)
+        # remove them
+        for r in remove:
+            currentTags.remove(r)
     return joinTags(currentTags)
 
 # Misc

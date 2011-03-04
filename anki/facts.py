@@ -6,7 +6,8 @@ import time
 from anki.db import *
 from anki.errors import *
 from anki.models import Model, FieldModel, fieldModelsTable
-from anki.utils import genID, stripHTMLMedia, fieldChecksum, intTime
+from anki.utils import genID, stripHTMLMedia, fieldChecksum, intTime, \
+    addTags, deleteTags, parseTags
 from anki.hooks import runHook
 
 # Fields in a fact
@@ -63,7 +64,9 @@ class Fact(object):
     def __init__(self, model=None, pos=None):
         self.model = model
         self.id = genID()
+        self._tags = u""
         if model:
+            # creating
             for fm in model.fieldModels:
                 self.fields.append(Field(fm))
             self.pos = pos
@@ -100,6 +103,15 @@ class Fact(object):
             return self[key]
         except (IndexError, KeyError):
             return default
+
+    def addTags(self, tags):
+        self._tags = addTags(tags, self._tags)
+
+    def deleteTags(self, tags):
+        self._tags = deleteTags(tags, self._tags)
+
+    def tags(self):
+        return parseTags(self._tags)
 
     def assertValid(self):
         "Raise an error if required fields are empty."
@@ -148,3 +160,9 @@ class Fact(object):
                 self.values()))
             for card in self.cards:
                 card.rebuildQA(deck)
+
+mapper(Fact, factsTable, properties={
+    'model': relation(Model),
+    'fields': relation(Field, backref="fact", order_by=Field.ordinal),
+    '_tags': factsTable.c.tags
+    })

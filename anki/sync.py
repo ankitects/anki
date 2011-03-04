@@ -26,6 +26,8 @@ SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 KEYS = ("models", "facts", "cards", "media")
 
+# - need to add tags table syncing
+
 ##########################################################################
 # Monkey-patch httplib to incrementally send instead of chewing up large
 # amounts of memory, and track progress.
