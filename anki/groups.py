@@ -21,13 +21,13 @@ defaultConf = {
     'new': {
         'delays': [0.5, 3, 10],
         'ints': [1, 7, 4],
+        'initialFactor': 2.5,
     },
     'lapse': {
         'delays': [0.5, 3, 10],
         'ints': [1, 7, 4],
         'mult': 0
     },
-    'initialFactor': 2.5,
     'suspendLeeches': True,
     'leechFails': 16,
 }

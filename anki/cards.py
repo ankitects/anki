@@ -69,7 +69,8 @@ class Card(object):
             self.modelId = fact.modelId
             self.cardModel = cardModel
             self.groupId = group.id
-            self.factor = group.config['initialFactor']
+            # placeholder; will get set properly when card graduates
+            self.factor = 2500
             # for non-orm use
             self.cardModelId = cardModel.id
             self.ordinal = cardModel.ordinal

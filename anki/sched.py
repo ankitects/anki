@@ -187,17 +187,18 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
         else:
             # normal remove
             int_ = conf['ints'][2]
-        self.rescheduleAsReview(card, int_)
+        self.rescheduleAsReview(card, conf, int_)
 
     def graduateLearnCard(self, card, conf):
         if card.type == 1:
             int_ = None
         else:
             int_ = conf['ints'][0]
-        self.rescheduleAsReview(card, int_)
+        self.rescheduleAsReview(card, conf, int_)
 
-    def rescheduleAsReview(self, card, int_):
+    def rescheduleAsReview(self, card, conf, int_):
         card.queue = 1
+        card.factor = conf['initialFactor']
         if int_:
             # new card
             card.type = 1
