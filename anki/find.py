@@ -22,6 +22,64 @@ SEARCH_PHRASE_WB = 9
 # Find
 ##########################################################################
 
+def findCards(deck, query):
+    (q, cmquery, showdistinct, filters, args) = findCardsWhere(deck, query)
+    (factIdList, cardIdList) = findCardsMatchingFilters(deck, filters)
+    query = "select id from cards"
+    hasWhere = False
+    if q:
+        query += " where " + q
+        hasWhere = True
+    if cmquery['pos'] or cmquery['neg']:
+        if hasWhere is False:
+            query += " where "
+            hasWhere = True
+        else: query += " and "
+        if cmquery['pos']:
+            query += (" factId in(select distinct factId from cards "+
+                      "where id in (" + cmquery['pos'] + ")) ")
+            query += " and id in(" + cmquery['pos'] + ") "
+        if cmquery['neg']:
+            query += (" factId not in(select distinct factId from "+
+                      "cards where id in (" + cmquery['neg'] + ")) ")
+    if factIdList is not None:
+        if hasWhere is False:
+            query += " where "
+            hasWhere = True
+        else: query += " and "
+        query += " factId IN %s" % ids2str(factIdList)
+    if cardIdList is not None:
+        if hasWhere is False:
+            query += " where "
+            hasWhere = True
+        else: query += " and "
+        query += " id IN %s" % ids2str(cardIdList)
+    if showdistinct:
+        query += " group by factId"
+    #print query, args
+    return deck.db.column0(query, **args)
+
+def findCardsWhere(deck, query):
+    (tquery, fquery, qquery, fidquery, cmquery, sfquery, qaquery,
+     showdistinct, filters, args) = _findCards(deck, query)
+    q = ""
+    x = []
+    if tquery:
+        x.append(" id in (%s)" % tquery)
+    if fquery:
+        x.append(" factId in (%s)" % fquery)
+    if qquery:
+        x.append(" id in (%s)" % qquery)
+    if fidquery:
+        x.append(" id in (%s)" % fidquery)
+    if sfquery:
+        x.append(" factId in (%s)" % sfquery)
+    if qaquery:
+        x.append(" id in (%s)" % qaquery)
+    if x:
+        q += " and ".join(x)
+    return q, cmquery, showdistinct, filters, args
+
 def allFMFields(deck, tolower=False):
     fields = []
     try:
@@ -166,64 +224,6 @@ def _parseQuery(deck, query):
             if intoken is False and doprocess is True:
                 res.append((token['value'], isNeg, type, token['filter']))
     return res
-
-def findCards(deck, query):
-    (q, cmquery, showdistinct, filters, args) = findCardsWhere(deck, query)
-    (factIdList, cardIdList) = findCardsMatchingFilters(deck, filters)
-    query = "select id from cards"
-    hasWhere = False
-    if q:
-        query += " where " + q
-        hasWhere = True
-    if cmquery['pos'] or cmquery['neg']:
-        if hasWhere is False:
-            query += " where "
-            hasWhere = True
-        else: query += " and "
-        if cmquery['pos']:
-            query += (" factId in(select distinct factId from cards "+
-                      "where id in (" + cmquery['pos'] + ")) ")
-            query += " and id in(" + cmquery['pos'] + ") "
-        if cmquery['neg']:
-            query += (" factId not in(select distinct factId from "+
-                      "cards where id in (" + cmquery['neg'] + ")) ")
-    if factIdList is not None:
-        if hasWhere is False:
-            query += " where "
-            hasWhere = True
-        else: query += " and "
-        query += " factId IN %s" % ids2str(factIdList)
-    if cardIdList is not None:
-        if hasWhere is False:
-            query += " where "
-            hasWhere = True
-        else: query += " and "
-        query += " id IN %s" % ids2str(cardIdList)
-    if showdistinct:
-        query += " group by factId"
-    #print query, args
-    return deck.db.column0(query, **args)
-
-def findCardsWhere(deck, query):
-    (tquery, fquery, qquery, fidquery, cmquery, sfquery, qaquery,
-     showdistinct, filters, args) = _findCards(deck, query)
-    q = ""
-    x = []
-    if tquery:
-        x.append(" id in (%s)" % tquery)
-    if fquery:
-        x.append(" factId in (%s)" % fquery)
-    if qquery:
-        x.append(" id in (%s)" % qquery)
-    if fidquery:
-        x.append(" id in (%s)" % fidquery)
-    if sfquery:
-        x.append(" factId in (%s)" % sfquery)
-    if qaquery:
-        x.append(" id in (%s)" % qaquery)
-    if x:
-        q += " and ".join(x)
-    return q, cmquery, showdistinct, filters, args
 
 def findCardsMatchingFilters(deck, filters):
     factFilters = []
@@ -603,3 +603,81 @@ def findDuplicates(deck, fmids):
         else:
             vals[val].append(fid)
     return [(k,v) for (k,v) in vals.items() if len(v) > 1]
+
+# Find & sort
+##########################################################################
+
+# copied from ankiqt and trivially changed; will not work at the moment
+
+# if idx == 0:
+#     self.sortKey = "question"
+# elif idx == 1:
+#     self.sortKey = "answer"
+# elif idx == 2:
+#     self.sortKey = "created"
+# elif idx == 3:
+#     self.sortKey = "modified"
+# elif idx == 4:
+#     self.sortKey = "combinedDue"
+# elif idx == 5:
+#     self.sortKey = "interval"
+# elif idx == 6:
+#     self.sortKey = "reps"
+# elif idx == 7:
+#     self.sortKey = "factor"
+# elif idx == 8:
+#     self.sortKey = "fact"
+# elif idx == 9:
+#     self.sortKey = "noCount"
+# elif idx == 10:
+#     self.sortKey = "firstAnswered"
+# else:
+#     self.sortKey = ("field", self.sortFields[idx-11])
+
+def findSorted(deck, query, sortKey):
+    # sorting
+    if not query.strip():
+        ads = ""
+    else:
+        ids = self.deck.findCards(query)
+        ads = "cards.id in %s" % ids2str(ids)
+    sort = ""
+    if isinstance(sortKey, types.StringType):
+        # card property
+        if sortKey == "fact":
+            sort = "order by facts.created, cards.created"
+        else:
+            sort = "order by cards." + sortKey
+        if sortKey in ("question", "answer"):
+            sort += " collate nocase"
+        if sortKey == "fact":
+            query = """
+select cards.id from cards, facts
+where cards.factId = facts.id """
+            if ads:
+                query += "and " + ads + " "
+        else:
+            query = "select id from cards "
+            if ads:
+                query += "where %s " % ads
+        query += sort
+    else:
+        # field value
+        ret = self.deck.db.all(
+            "select id, numeric from fieldModels where name = :name",
+            name=sortKey[1])
+        fields = ",".join([str(x[0]) for x in ret])
+        # if multiple models have the same field, use the first numeric bool
+        numeric = ret[0][1]
+        if numeric:
+            order = "cast(fields.value as real)"
+        else:
+            order = "fields.value collate nocase"
+        if ads:
+            ads = " and " + ads
+        query = ("select cards.id "
+                 "from fields, cards where fields.fieldModelId in (%s) "
+                 "and fields.factId = cards.factId" + ads +
+                 " order by cards.ordinal, %s") % (fields, order)
+    # run the query
+    self.cards = self.deck.db.all(query)
