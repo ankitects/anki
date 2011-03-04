@@ -873,7 +873,7 @@ values
 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0,
-0, "", "", 2.5, 0, 0, 2, :t, 0)""", dlist)
+0, "", "", 2.5, 0, 0, 2, :t, 2)""", dlist)
         # update q/as
         models = dict(self.deck.s.all("""
 select cards.id, models.id
