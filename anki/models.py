@@ -116,8 +116,8 @@ defaultFieldConf = {
     'required': False,
     'unique': False,
     'font': "Arial",
-    'editSize': 20,
     'quizSize': 20,
+    'editSize': 20,
     'quizColour': "#fff",
     'pre': True,
 }

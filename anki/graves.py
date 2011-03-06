@@ -17,12 +17,12 @@ GROUP = 4
 GROUPCONFIG = 5
 
 def registerOne(db, type, id):
-    db.execute("insert into gravestones values (:t, :id, :ty)",
+    db.execute("insert into graves values (:t, :id, :ty)",
                t=intTime(), id=id, ty=type)
 
 def registerMany(db, type, ids):
-    db.executemany("insert into gravestones values (:t, :id, :ty)",
+    db.executemany("insert into graves values (:t, :id, :ty)",
                    [{'t':intTime(), 'id':x, 'ty':type} for x in ids])
 
 def forgetAll(db):
-    db.execute("delete from gravestones")
+    db.execute("delete from graves")

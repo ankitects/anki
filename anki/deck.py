@@ -1584,7 +1584,7 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
             required.append("ord")
         if self.qconf['revCardOrder'] in (REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
             required.append("interval")
-        cols = ["queue", "due", "groupId"] + required
+        cols = ["queue", "due", "gid"] + required
         # update if changed
         if self.db.scalar(
             "select 1 from sqlite_master where name = 'ix_cards_multi'"):
