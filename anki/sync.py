@@ -6,13 +6,12 @@ import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
 import os, base64, httplib, sys, tempfile, httplib, types
 from datetime import date
 import anki, anki.deck, anki.cards
-from anki.db import sqlite
 from anki.errors import *
-from anki.models import Model, FieldModel, CardModel
-from anki.facts import Fact, Field
-from anki.cards import Card
+#from anki.models import Model, Field, Template
+#from anki.facts import Fact
+#from anki.cards import Card
 from anki.utils import ids2str, hexifyID, checksum
-from anki.media import mediaFiles
+#from anki.media import mediaFiles
 from anki.lang import _
 from hooks import runHook
 
@@ -334,7 +333,7 @@ class SyncTools(object):
             self.applyDict(local, model)
             self.mergeFieldModels(local, fms)
             self.mergeCardModels(local, cms)
-        self.deck.db.statement(
+        self.deck.db.execute(
             "delete from modelsDeleted where modelId in %s" %
             ids2str([m['id'] for m in models]))
 
@@ -457,7 +456,7 @@ insert into fields
 (id, factId, fieldModelId, ordinal, value, chksum)
 values
 (:id, :factId, :fieldModelId, :ordinal, :value, :chksum)""", dlist)
-        self.deck.db.statement(
+        self.deck.db.execute(
             "delete from factsDeleted where factId in %s" %
             ids2str([f[0] for f in facts]))
 
@@ -535,7 +534,7 @@ values
 :matureEase1, :matureEase2, :matureEase3, :matureEase4, :yesCount,
 :noCount, :question, :answer, :lastFactor, :spaceUntil,
 :type, :combinedDue, :rd, 0)""", dlist)
-        self.deck.db.statement(
+        self.deck.db.execute(
             "delete from cardsDeleted where cardId in %s" %
             ids2str([c[0] for c in cards]))
 
@@ -569,7 +568,7 @@ values
         if 'meta' in deck:
             meta = deck['meta']
             for (k,v) in meta:
-                self.deck.db.statement("""
+                self.deck.db.execute("""
 insert or replace into deckVars
 (key, value) values (:k, :v)""", k=k, v=v)
             del deck['meta']
@@ -592,7 +591,7 @@ select * from revlog where time > :ls""",
                   'flags': h[8]} for h in history]
         if not dlist:
             return
-        self.deck.db.statements("""
+        self.deck.db.execute("""
 insert or ignore into revlog values
 (:time, :cardId, :ease, :rep, :lastInterval, :interval, :factor,
  :userTime, :flags)""",
@@ -603,7 +602,7 @@ insert or ignore into revlog values
 
     def updateSources(self, sources):
         for s in sources:
-            self.deck.db.statement("""
+            self.deck.db.execute("""
 insert or replace into sources values
 (:id, :name, :created, :lastSync, :syncPeriod)""",
                                   id=s[0],
@@ -633,12 +632,12 @@ from media where id in %s""" % ids2str(ids))]
                 'description': m[5]})
         # apply metadata
         if meta:
-            self.deck.db.statements("""
+            self.deck.db.execute("""
 insert or replace into media (id, filename, size, created,
 originalPath, description)
 values (:id, :filename, :size, :created, :originalPath,
 :description)""", meta)
-        self.deck.db.statement(
+        self.deck.db.execute(
             "delete from mediaDeleted where mediaId in %s" %
             ids2str([m[0] for m in media]))
 
@@ -646,7 +645,7 @@ values (:id, :filename, :size, :created, :originalPath,
         sids = ids2str(ids)
         files = self.deck.db.column0(
             "select filename from media where id in %s" % sids)
-        self.deck.db.statement("""
+        self.deck.db.execute("""
 insert into mediaDeleted
 select id, :now from media
 where media.id in %s""" % sids, now=time.time())

@@ -2,48 +2,54 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Standard Models.
-==============================================================
-
-Plugins can add to the 'models' dict to provide more standard
-models.
-"""
-
-from anki.models import Model, CardModel, FieldModel
+from anki.models import Model, Template, Field
 from anki.lang import _
 
-models = {}
-
-def byName(name):
-    fn = models.get(name)
-    if fn:
-        return fn()
-    raise ValueError("No such model available!")
-
-def names():
-    return models.keys()
+models = []
 
 # Basic
 ##########################################################################
 
-def BasicModel():
-    m = Model(_('Basic'))
-    m.addFieldModel(FieldModel(u'Front', True, True))
-    m.addFieldModel(FieldModel(u'Back', False, False))
-    m.addCardModel(CardModel(u'Forward', u'%(Front)s', u'%(Back)s'))
-    m.addCardModel(CardModel(u'Reverse', u'%(Back)s', u'%(Front)s',
-                             active=False))
+def BasicModel(deck):
+    m = Model(deck)
+    m.name = _("Basic")
+    fm = Field(deck)
+    fm.name = _("Front")
+    fm.conf['required'] = True
+    fm.conf['unique'] = True
+    m.addField(fm)
+    fm = Field(deck)
+    fm.name = _("Back")
+    m.addField(fm)
+    t = Template(deck)
+    t.name = _("Forward")
+    t.qfmt = "{{" + _("Front") + "}}"
+    t.afmt = "{{" + _("Back") + "}}"
+    m.addTemplate(t)
+    t = Template(deck)
+    t.name = _("Reverse")
+    t.qfmt = "{{" + _("Back") + "}}"
+    t.afmt = "{{" + _("Front") + "}}"
+    t.active = False
+    m.addTemplate(t)
     return m
 
-models['Basic'] = BasicModel
+models.append(BasicModel)
 
 # Recovery
 ##########################################################################
 
 def RecoveryModel():
-    m = Model(_('Recovery'))
-    m.addFieldModel(FieldModel(u'Question', False, False))
-    m.addFieldModel(FieldModel(u'Answer', False, False))
-    m.addCardModel(CardModel(u'Single', u'{{{Question}}}', u'{{{Answer}}}'))
+    m.name = _("Recovery")
+    fm = Field(deck)
+    fm.name = _("Question")
+    m.addField(fm)
+    fm = Field(deck)
+    fm.name = _("Back")
+    m.addField(fm)
+    t = Template(deck)
+    t.name = _("Forward")
+    t.qfmt = "{{" + _("Question") + "}}"
+    t.afmt = "{{" + _("Back") + "}}"
+    m.addTemplate(t)
     return m

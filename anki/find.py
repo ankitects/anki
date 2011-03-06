@@ -24,7 +24,7 @@ SEARCH_PHRASE_WB = 9
 
 def findCards(deck, query):
     (q, cmquery, showdistinct, filters, args) = findCardsWhere(deck, query)
-    (factIdList, cardIdList) = findCardsMatchingFilters(deck, filters)
+    (fidList, cardIdList) = findCardsMatchingFilters(deck, filters)
     query = "select id from cards"
     hasWhere = False
     if q:
@@ -36,18 +36,18 @@ def findCards(deck, query):
             hasWhere = True
         else: query += " and "
         if cmquery['pos']:
-            query += (" factId in(select distinct factId from cards "+
+            query += (" fid in(select distinct fid from cards "+
                       "where id in (" + cmquery['pos'] + ")) ")
             query += " and id in(" + cmquery['pos'] + ") "
         if cmquery['neg']:
-            query += (" factId not in(select distinct factId from "+
+            query += (" fid not in(select distinct fid from "+
                       "cards where id in (" + cmquery['neg'] + ")) ")
-    if factIdList is not None:
+    if fidList is not None:
         if hasWhere is False:
             query += " where "
             hasWhere = True
         else: query += " and "
-        query += " factId IN %s" % ids2str(factIdList)
+        query += " fid IN %s" % ids2str(fidList)
     if cardIdList is not None:
         if hasWhere is False:
             query += " where "
@@ -55,9 +55,9 @@ def findCards(deck, query):
         else: query += " and "
         query += " id IN %s" % ids2str(cardIdList)
     if showdistinct:
-        query += " group by factId"
+        query += " group by fid"
     #print query, args
-    return deck.db.column0(query, **args)
+    return deck.db.list(query, **args)
 
 def findCardsWhere(deck, query):
     (tquery, fquery, qquery, fidquery, cmquery, sfquery, qaquery,
@@ -65,15 +65,15 @@ def findCardsWhere(deck, query):
     q = ""
     x = []
     if tquery:
-        x.append(" factId in (%s)" % tquery)
+        x.append(" fid in (%s)" % tquery)
     if fquery:
-        x.append(" factId in (%s)" % fquery)
+        x.append(" fid in (%s)" % fquery)
     if qquery:
         x.append(" id in (%s)" % qquery)
     if fidquery:
         x.append(" id in (%s)" % fidquery)
     if sfquery:
-        x.append(" factId in (%s)" % sfquery)
+        x.append(" fid in (%s)" % sfquery)
     if qaquery:
         x.append(" id in (%s)" % qaquery)
     if x:
@@ -83,7 +83,7 @@ def findCardsWhere(deck, query):
 def allFMFields(deck, tolower=False):
     fields = []
     try:
-        fields = deck.db.column0(
+        fields = deck.db.list(
             "select distinct name from fieldmodels order by name")
     except:
         fields = []
@@ -269,17 +269,17 @@ def findCardsMatchingFilters(deck, filters):
                 if fquery:
                     if filter['is_neg']: fquery += " except "
                     else: fquery += " intersect "
-                elif filter['is_neg']: fquery += "select id from fields except "
+                elif filter['is_neg']: fquery += "select id from fdata except "
 
                 value = filter['value'].replace("*", "%")
                 args["_ff_%d" % c] = "%"+value+"%"
 
                 fquery += (
-                    "select id from fields where value like "+
+                    "select id from fdata where value like "+
                     ":_ff_%d escape '\\'" % c)
 
             rows = deck.db.execute(
-                'select factId, value from fields where id in (' +
+                'select fid, value from fdata where id in (' +
                 fquery + ')', args)
             while (1):
                 row = rows.fetchone()
@@ -300,21 +300,21 @@ def findCardsMatchingFilters(deck, filters):
                     if sfquery:
                         if filter['is_neg']:  sfquery += " except "
                         else: sfquery += " intersect "
-                    elif filter['is_neg']: sfquery += "select id from fields except "
+                    elif filter['is_neg']: sfquery += "select id from fdata except "
                     field = field.replace("*", "%")
                     value = filter['value'].replace("*", "%")
                     args["_ff_%d" % c] = "%"+value+"%"
 
-                    ids = deck.db.column0(
+                    ids = deck.db.list(
                         "select id from fieldmodels where name like "+
                         ":field escape '\\'", field=field)
-                    sfquery += ("select id from fields where "+
-                                "fieldModelId in %s and value like "+
+                    sfquery += ("select id from fdata where "+
+                                "fmid in %s and value like "+
                                 ":_ff_%d escape '\\'") % (ids2str(ids), c)
 
             rows = deck.db.execute(
-                'select f.factId, f.value, fm.name from fields as f '+
-                'left join fieldmodels as fm ON (f.fieldModelId = '+
+                'select f.fid, f.value, fm.name from fdata as f '+
+                'left join fieldmodels as fm ON (f.fmid = '+
                 'fm.id) where f.id in (' + sfquery + ')', args)
             while (1):
                 row = rows.fetchone()
@@ -364,18 +364,18 @@ def findCardsMatchingFilters(deck, filters):
                             (filter['is_neg'] is True and res is None)):
                             cardFilterMatches.append(row[0])
 
-    factIds = None
+    fids = None
     if len(factFilters) > 0 or len(fieldFilters) > 0:
-        factIds = []
-        factIds.extend(factFilterMatches)
-        factIds.extend(fieldFilterMatches)
+        fids = []
+        fids.extend(factFilterMatches)
+        fids.extend(fieldFilterMatches)
 
     cardIds = None
     if len(cardFilters) > 0:
         cardIds = []
         cardIds.extend(cardFilterMatches)
 
-    return (factIds, cardIds)
+    return (fids, cardIds)
 
 def _findCards(deck, query):
     "Find facts matching QUERY."
@@ -400,7 +400,7 @@ def _findCards(deck, query):
                 tquery += "select id from facts except "
             if token == "none":
                 tquery += """
-select cards.id from cards, facts where facts.tags = '' and cards.factId = facts.id """
+select cards.id from cards, facts where facts.tags = '' and cards.fid = facts.id """
             else:
                 token = token.replace("*", "%")
                 if not token.startswith("%"):
@@ -450,11 +450,11 @@ select id from facts where tags like :_tag_%d""" % c
                     fidquery += " intersect "
             elif isNeg:
                 fidquery += "select id from cards except "
-            fidquery += "select id from cards where factId in (%s)" % token
+            fidquery += "select id from cards where fid in (%s)" % token
         elif type == SEARCH_CARD:
             print "search_card broken"
             token = token.replace("*", "%")
-            ids = deck.db.column0("""
+            ids = deck.db.list("""
 select id from tags where name like :tag escape '\\'""", tag=token)
             if isNeg:
                 if cmquery['neg']:
@@ -493,10 +493,10 @@ select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(
                     field = field.replace("*", "%")
                     value = value.replace("*", "%")
                     args["_ff_%d" % c] = "%"+value+"%"
-                    ids = deck.db.column0("""
+                    ids = deck.db.list("""
 select id from fieldmodels where name like :field escape '\\'""", field=field)
                     sfquery += """
-select factId from fields where fieldModelId in %s and
+select fid from fdata where fmid in %s and
 value like :_ff_%d escape '\\'""" % (ids2str(ids), c)
         elif type == SEARCH_QA:
             field = value = ''
@@ -555,17 +555,17 @@ select id from facts where cache like :_ff_%d escape '\\'""" % c
 # Find and replace
 ##########################################################################
 
-def findReplace(deck, factIds, src, dst, isRe=False, field=None):
+def findReplace(deck, fids, src, dst, isRe=False, field=None):
     "Find and replace fields in a fact."
     # find
-    s = "select id, factId, value from fields where factId in %s"
+    s = "select id, fid, value from fdata where fid in %s"
     if isRe:
         isRe = re.compile(src)
     else:
         s += " and value like :v"
     if field:
-        s += " and fieldModelId = :fmid"
-    rows = deck.db.all(s % ids2str(factIds),
+        s += " and fmid = :fmid"
+    rows = deck.db.all(s % ids2str(fids),
                       v="%"+src.replace("%", "%%")+"%",
                       fmid=field)
     modded = []
@@ -581,8 +581,8 @@ def findReplace(deck, factIds, src, dst, isRe=False, field=None):
             if val.find(src) != -1]
     # update
     if modded:
-        deck.db.statements(
-            'update fields set value = :val where id = :id', modded)
+        deck.db.executemany(
+            'update fdata set value = :val where id = :id', modded)
         deck.updateCardQACacheFromIds([f['fid'] for f in modded],
                                       type="facts")
         if field:
@@ -596,7 +596,7 @@ def findReplace(deck, factIds, src, dst, isRe=False, field=None):
 
 def findDuplicates(deck, fmids):
     data = deck.db.all(
-        "select factId, value from fields where fieldModelId in %s" %
+        "select fid, value from fdata where fmid in %s" %
         ids2str(fmids))
     vals = {}
     for (fid, val) in data:
@@ -657,7 +657,7 @@ def findSorted(deck, query, sortKey):
         if sortKey == "fact":
             query = """
 select cards.id from cards, facts
-where cards.factId = facts.id """
+where cards.fid = facts.id """
             if ads:
                 query += "and " + ads + " "
         else:
@@ -668,20 +668,20 @@ where cards.factId = facts.id """
     else:
         # field value
         ret = self.deck.db.all(
-            "select id, numeric from fieldModels where name = :name",
+            "select id, numeric from fields where name = :name",
             name=sortKey[1])
         fields = ",".join([str(x[0]) for x in ret])
         # if multiple models have the same field, use the first numeric bool
         numeric = ret[0][1]
         if numeric:
-            order = "cast(fields.value as real)"
+            order = "cast(fdata.value as real)"
         else:
-            order = "fields.value collate nocase"
+            order = "fdata.value collate nocase"
         if ads:
             ads = " and " + ads
         query = ("select cards.id "
-                 "from fields, cards where fields.fieldModelId in (%s) "
-                 "and fields.factId = cards.factId" + ads +
+                 "from fdata, cards where fdata.fmid in (%s) "
+                 "and fdata.fid = cards.fid" + ads +
                  " order by cards.ordinal, %s") % (fields, order)
     # run the query
     self.cards = self.deck.db.all(query)

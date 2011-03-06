@@ -12,8 +12,8 @@ particular FieldModel, replace it with None. A special number 0 donates a tags
 field. The same field model should not occur more than once."""
 
 import time
-from anki.cards import cardsTable
-from anki.facts import factsTable, fieldsTable
+#from anki.cards import cardsTable
+#from anki.facts import factsTable, fieldsTable
 from anki.lang import _
 from anki.utils import genID, canonifyTags, fieldChecksum
 from anki.utils import canonifyTags, ids2str
@@ -49,7 +49,7 @@ class Importer(object):
         self.tagsToAdd = u""
 
     def doImport(self):
-        "Import. Caller must .reset()"
+        "Import."
         if self.updateKey is not None:
             return self.doUpdate()
         random = self.deck.newCardOrder == NEW_CARDS_RANDOM

@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from anki import DeckStorage
+from anki import Deck
 from anki.importing import Importer
 from anki.sync import SyncClient, SyncServer, copyLocalMedia
 from anki.lang import _
@@ -57,13 +57,13 @@ class Anki10Importer(Importer):
         fids = [f[0] for f in res['added-facts']['facts']]
         self.deck.addTags(fids, self.tagsToAdd)
         # mark import material as newly added
-        self.deck.db.statement(
+        self.deck.db.execute(
             "update cards set modified = :t where id in %s" %
             ids2str([x[0] for x in res['added-cards']]), t=time.time())
-        self.deck.db.statement(
+        self.deck.db.execute(
             "update facts set modified = :t where id in %s" %
             ids2str([x[0] for x in res['added-facts']['facts']]), t=time.time())
-        self.deck.db.statement(
+        self.deck.db.execute(
             "update models set modified = :t where id in %s" %
             ids2str([x['id'] for x in res['added-models']]), t=time.time())
         # update total and refresh

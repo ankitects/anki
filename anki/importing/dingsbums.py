@@ -50,11 +50,9 @@ CHANGES MADE TO LIBANKI:
 """
 
 from anki.importing import Importer
-from anki import DeckStorage
+from anki import Deck
 from anki.facts import Fact
-from anki.models import FieldModel
-from anki.models import CardModel
-from anki.models import Model
+from anki.models import Field, Template, Model
 from anki.lang import _
 
 from xml.sax import make_parser

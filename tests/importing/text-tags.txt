@@ -1,2 +1,0 @@
-foo	bar	baz,qux
-foo2	bar2	baz2

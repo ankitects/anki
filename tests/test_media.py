@@ -1,55 +1,45 @@
 # coding: utf-8
 
 import tempfile, os, time
-import anki.media as m
 from anki import Deck
-from anki.stdmodels import BasicModel
 from anki.utils import checksum
-
-def getDeck():
-    import tempfile
-    (fd, nam) = tempfile.mkstemp(suffix=".anki")
-    os.unlink(nam)
-    return Deck(nam)
+from shared import getEmptyDeck, testDir
 
 # uniqueness check
 def test_unique():
+    d = getEmptyDeck()
     dir = tempfile.mkdtemp(prefix="anki")
     # new file
     n = "foo.jpg"
-    new = os.path.basename(m.uniquePath(dir, n))
+    new = os.path.basename(d.media.uniquePath(dir, n))
     assert new == n
     # duplicate file
     open(os.path.join(dir, n), "w").write("hello")
     n = "foo.jpg"
-    new = os.path.basename(m.uniquePath(dir, n))
+    new = os.path.basename(d.media.uniquePath(dir, n))
     assert new == "foo (1).jpg"
     # another duplicate
     open(os.path.join(dir, "foo (1).jpg"), "w").write("hello")
     n = "foo.jpg"
-    new = os.path.basename(m.uniquePath(dir, n))
+    new = os.path.basename(d.media.uniquePath(dir, n))
     assert new == "foo (2).jpg"
 
 # copying files to media folder
 def test_copy():
-    deck = getDeck()
+    d = getEmptyDeck()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
     open(path, "w").write("hello")
     # new file
-    assert m.copyToMedia(deck, path) == "foo.jpg"
+    assert d.media.addFile(path) == "foo.jpg"
     # dupe md5
-    deck.db.statement("""
-insert into media values (null, 'foo.jpg', 0, 0, :sum)""",
-                     sum=checksum("hello"))
     path = os.path.join(dir, "bar.jpg")
     open(path, "w").write("hello")
-    assert m.copyToMedia(deck, path) == "foo.jpg"
+    assert d.media.addFile(path) == "foo.jpg"
 
 # media db
 def test_db():
-    deck = getDeck()
-    deck.addModel(BasicModel())
+    deck = getEmptyDeck()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
     open(path, "w").write("hello")
@@ -58,55 +48,42 @@ def test_db():
     f['Front'] = u"<img src='foo.jpg'>"
     f['Back'] = u"back [sound:foo.jpg]"
     deck.addFact(f)
-    # 1 entry in the media db, with two references, and missing file
+    # 1 entry in the media db, and no checksum
     assert deck.db.scalar("select count() from media") == 1
-    assert deck.db.scalar("select refcnt from media") == 2
-    assert not deck.db.scalar("select group_concat(chksum, '') from media")
-    # copy to media folder & check db
-    path = m.copyToMedia(deck, path)
-    m.rebuildMediaDir(deck)
+    assert not deck.db.scalar("select group_concat(csum, '') from media")
+    # copy to media folder
+    path = deck.media.addFile(path)
     # md5 should be set now
     assert deck.db.scalar("select count() from media") == 1
-    assert deck.db.scalar("select refcnt from media") == 2
-    assert deck.db.scalar("select group_concat(chksum, '') from media")
-    # edit the fact to remove a reference
-    f['Back'] = u""
-    f.setModified(True, deck)
-    deck.db.flush()
-    assert deck.db.scalar("select count() from media") == 1
-    assert deck.db.scalar("select refcnt from media") == 1
-    # remove the front reference too
-    f['Front'] = u""
-    f.setModified(True, deck)
-    assert deck.db.scalar("select refcnt from media") == 0
-    # add the reference back
-    f['Front'] = u"<img src='foo.jpg'>"
-    f.setModified(True, deck)
-    assert deck.db.scalar("select refcnt from media") == 1
+    assert deck.db.scalar("select group_concat(csum, '') from media")
     # detect file modifications
-    oldsum = deck.db.scalar("select chksum from media")
+    oldsum = deck.db.scalar("select csum from media")
     open(path, "w").write("world")
-    m.rebuildMediaDir(deck)
-    newsum = deck.db.scalar("select chksum from media")
+    deck.media.rebuildMediaDir()
+    newsum = deck.db.scalar("select csum from media")
     assert newsum and newsum != oldsum
     # delete underlying file and check db
     os.unlink(path)
-    m.rebuildMediaDir(deck)
+    deck.media.rebuildMediaDir()
     # md5 should be gone again
     assert deck.db.scalar("select count() from media") == 1
-    assert deck.db.scalar("select not chksum from media")
+    assert deck.db.scalar("select not csum from media")
     # media db should pick up media defined via templates & bulk update
     f['Back'] = u"bar.jpg"
-    f.setModified(True, deck)
-    deck.db.flush()
+    f.flush()
     # modify template & regenerate
     assert deck.db.scalar("select count() from media") == 1
-    assert deck.db.scalar("select sum(refcnt) from media") == 1
-    deck.currentModel.cardModels[0].aformat=u'<img src="{{{Back}}}">'
-    deck.updateCardsFromModel(deck.currentModel)
-    assert deck.db.scalar("select sum(refcnt) from media") == 2
+    m = deck.currentModel()
+    m.templates[0].afmt=u'<img src="{{{Back}}}">'
+    m.flush()
+    m.updateCache()
     assert deck.db.scalar("select count() from media") == 2
-    deck.currentModel.cardModels[0].aformat=u'{{{Back}}}'
-    deck.updateCardsFromModel(deck.currentModel)
-    assert deck.db.scalar("select count() from media") == 2
-    assert deck.db.scalar("select sum(refcnt) from media") == 1
+
+def test_deckIntegration():
+    deck = getEmptyDeck()
+    # create a media dir
+    deck.media.mediaDir(create=True)
+    # put a file into it
+    file = unicode(os.path.join(testDir, "deck/fake.png"))
+    deck.media.addFile(file)
+    print "todo: check media copied on rename"

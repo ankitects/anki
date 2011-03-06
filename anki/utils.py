@@ -11,7 +11,6 @@ except ImportError:
     import md5
     md5 = md5.new
 
-from anki.db import *
 from anki.lang import _, ngettext
 import locale, sys
 
@@ -151,7 +150,7 @@ def tidyHTML(html):
                   "margin-right:\d+px;(?: -qt-block-indent:0; "
                   "text-indent:0px;)?", u"", html)
     html = re.sub(u"-qt-paragraph-type:empty;", u"", html)
-    # strip leading space in style statements, and remove if no contents
+    # strip leading space in style execute, and remove if no contents
     html = re.sub(u'style=" ', u'style="', html)
     html = re.sub(u' style=""', u"", html)
     # convert P tags into SPAN and/or BR
@@ -246,7 +245,7 @@ def canonifyTags(tags):
     tags = [t.lstrip(":") for t in set(parseTags(tags))]
     return joinTags(sorted(tags))
 
-def findTag(tag, tags):
+def hasTag(tag, tags):
     "True if TAG is in TAGS. Ignore case."
     return tag.lower() in [t.lower() for t in tags]
 
@@ -254,7 +253,7 @@ def addTags(addtags, tags):
     "Add tags if they don't exist."
     currentTags = parseTags(tags)
     for tag in parseTags(addtags):
-        if not findTag(tag, currentTags):
+        if not hasTag(tag, currentTags):
             currentTags.append(tag)
     return joinTags(currentTags)
 

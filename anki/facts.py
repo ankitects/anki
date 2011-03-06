@@ -3,166 +3,126 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import time
-from anki.db import *
-from anki.errors import *
-from anki.models import Model, FieldModel, fieldModelsTable
+from anki.errors import AnkiError
 from anki.utils import genID, stripHTMLMedia, fieldChecksum, intTime, \
     addTags, deleteTags, parseTags
-from anki.hooks import runHook
-
-# Fields in a fact
-##########################################################################
-
-fieldsTable = Table(
-    'fields', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('factId', Integer, ForeignKey("facts.id"), nullable=False),
-    Column('fieldModelId', Integer, ForeignKey("fieldModels.id"),
-           nullable=False),
-    Column('ordinal', Integer, nullable=False),
-    Column('value', UnicodeText, nullable=False),
-    Column('chksum', String, nullable=False, default=""))
-
-class Field(object):
-    "A field in a fact."
-
-    def __init__(self, fieldModel=None):
-        if fieldModel:
-            self.fieldModel = fieldModel
-            self.ordinal = fieldModel.ordinal
-        self.value = u""
-        self.id = genID()
-
-    def getName(self):
-        return self.fieldModel.name
-    name = property(getName)
-
-mapper(Field, fieldsTable, properties={
-    'fieldModel': relation(FieldModel)
-    })
-
-# Facts: a set of fields and a model
-##########################################################################
-
-# Pos: incrementing number defining add order. There may be duplicates if
-# content is added on two sync locations at once. Importing adds to end.
-# Cache: a HTML-stripped amalgam of the field contents, so we can perform
-# searches of marked up text in a reasonable time.
-
-factsTable = Table(
-    'facts', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('modelId', Integer, ForeignKey("models.id"), nullable=False),
-    Column('pos', Integer, nullable=False),
-    Column('modified', Integer, nullable=False, default=intTime),
-    Column('tags', UnicodeText, nullable=False, default=u""),
-    Column('cache', UnicodeText, nullable=False, default=u""))
 
 class Fact(object):
-    "A single fact. Fields exposed as dict interface."
 
-    def __init__(self, model=None, pos=None):
-        self.model = model
-        self.id = genID()
-        self._tags = u""
-        if model:
-            # creating
-            for fm in model.fieldModels:
-                self.fields.append(Field(fm))
-            self.pos = pos
-        self.new = True
+    def __init__(self, deck, model=None, id=None):
+        assert not (model and id)
+        self.deck = deck
+        if id:
+            self.id = id
+            self.load()
+        else:
+            self.id = genID()
+            self.model = model
+            self.mid = model.id
+            self.mod = intTime()
+            self.tags = ""
+            self.cache = ""
+            self._fields = [""] * len(self.model.fields)
+        self._fmap = self.model.fieldMap()
 
-    def isNew(self):
-        return getattr(self, 'new', False)
+    def load(self):
+        (self.mid,
+         self.mod,
+         self.pos,
+         self.tags) = self.deck.db.first("""
+select mid, mod, pos, tags from facts where id = ?""", self.id)
+        self._fields = self.deck.db.list("""
+select value from fdata where fid = ? order by ordinal""", self.id)
+        self.model = self.deck.getModel(self.mid)
+
+    def flush(self):
+        self.mod = intTime()
+        # facts table
+        self.cache = stripHTMLMedia(u" ".join(self._fields))
+        self.deck.db.execute("""
+insert or replace into facts values (?, ?, ?, ?, ?, ?)""",
+                             self.id, self.mid, self.mod,
+                             self.pos, self.tags, self.cache)
+        # fdata table
+        self.deck.db.execute("delete from fdata where fid = ?", self.id)
+        d = []
+        for (fmid, ord, conf) in self._fmap.values():
+            val = self._fields[ord]
+            d.append(dict(fid=self.id, fmid=fmid, ord=ord,
+                          val=val))
+        self.deck.db.executemany("""
+insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
+        # media and caches
+        self.deck.updateCache([self.id], "fact")
+
+    def cards(self):
+        return [self.deck.getCard(id) for id in self.deck.db.list(
+            "select id from cards where fid = ? order by ord", self.id)]
+
+    # Dict interface
+    ##################################################
 
     def keys(self):
-        return [field.name for field in self.fields]
+        return self._fmap.keys()
 
     def values(self):
-        return [field.value for field in self.fields]
+        return self._fields
 
-    def __getitem__(self, key):
+    def items(self):
+        return [(k, self._fields[v])
+                for (k, v) in self._fmap.items()]
+
+    def _fieldOrd(self, key):
         try:
-            return [f.value for f in self.fields if f.name == key][0]
-        except IndexError:
+            return self._fmap[key][1]
+        except:
             raise KeyError(key)
 
-    def __setitem__(self, key, value):
-        try:
-            item = [f for f in self.fields if f.name == key][0]
-        except IndexError:
-            raise KeyError
-        item.value = value
-        if item.fieldModel.unique:
-            item.chksum = fieldChecksum(value)
-        else:
-            item.chksum = ""
+    def __getitem__(self, key):
+        return self._fields[self._fieldOrd(key)]
 
-    def get(self, key, default):
-        try:
-            return self[key]
-        except (IndexError, KeyError):
-            return default
+    def __setitem__(self, key, value):
+        self._fields[self._fieldOrd(key)] = value
+
+    def fieldsWithIds(self):
+        return dict(
+            [(k, (v[0], self[k])) for (k,v) in self._fmap.items()])
+
+    # Tags
+    ##################################################
 
     def addTags(self, tags):
-        self._tags = addTags(tags, self._tags)
+        self.tags = addTags(tags, self.tags)
 
     def deleteTags(self, tags):
-        self._tags = deleteTags(tags, self._tags)
+        self.tags = deleteTags(tags, self.tags)
 
-    def tags(self):
-        return parseTags(self._tags)
+    # Unique/duplicate checks
+    ##################################################
 
-    def assertValid(self):
-        "Raise an error if required fields are empty."
-        for field in self.fields:
-            if not self.fieldValid(field):
-                raise FactInvalidError(type="fieldEmpty",
-                                       field=field.name)
-
-    def fieldValid(self, field):
-        return not (field.fieldModel.required and not field.value.strip())
-
-    def assertUnique(self, s):
-        "Raise an error if duplicate fields are found."
-        for field in self.fields:
-            if not self.fieldUnique(field, s):
-                raise FactInvalidError(type="fieldNotUnique",
-                                       field=field.name)
-
-    def fieldUnique(self, field, s):
-        if not field.fieldModel.unique:
+    def fieldUnique(self, name):
+        (fmid, ord, conf) = self._fmap[name]
+        if not conf['unique']:
             return True
-        req = ("select value from fields "
-               "where fieldModelId = :fmid and value = :val and chksum = :chk")
-        if field.id:
-            req += " and id != %s" % field.id
-        return not s.scalar(req, val=field.value, fmid=field.fieldModel.id,
-                         chk=fieldChecksum(field.value))
+        val = self[name]
+        csum = fieldChecksum(val)
+        return not self.deck.db.scalar(
+            "select 1 from fdata where csum = ? and fid != ? and val = ?",
+            csum, self.id, val)
 
-    def focusLost(self, field):
-        runHook('fact.focusLost', self, field)
+    def fieldComplete(self, name, text=None):
+        (fmid, ord, conf) = self._fmap[name]
+        if not conf['required']:
+            return True
+        return self[name]
 
-    def setModified(self, textChanged=False, deck=None, media=True):
-        "Mark modified and update cards."
-        self.modified = intTime()
-        if textChanged:
-            if not deck:
-                # FIXME: compat code
-                import ankiqt
-                if not getattr(ankiqt, 'setModWarningShown', None):
-                    import sys; sys.stderr.write(
-                        "plugin needs to pass deck to fact.setModified()")
-                    ankiqt.setModWarningShown = True
-                deck = ankiqt.mw.deck
-            assert deck
-            self.cache = stripHTMLMedia(u" ".join(
-                self.values()))
-            for card in self.cards:
-                card.rebuildQA(deck)
-
-mapper(Fact, factsTable, properties={
-    'model': relation(Model),
-    'fields': relation(Field, backref="fact", order_by=Field.ordinal),
-    '_tags': factsTable.c.tags
-    })
+    def problems(self):
+        d = []
+        for k in self._fmap.keys():
+            if not self.fieldUnique(k):
+                d.append("unique")
+            elif not self.fieldComplete(k):
+                d.append("required")
+            else:
+                d.append(None)
+        return d

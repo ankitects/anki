@@ -5,8 +5,7 @@
 import time, datetime, simplejson, random
 from operator import itemgetter
 from heapq import *
-from anki.db import *
-from anki.cards import Card
+#from anki.cards import Card
 from anki.utils import parseTags, ids2str
 from anki.lang import _
 from anki.consts import *
@@ -26,12 +25,10 @@ class Scheduler(object):
         self.checkDay()
         id = self.getCardId()
         if id:
-            card = Card()
-            assert card.fromDB(self.db, id)
-            return card
+            return self.deck.getCard(id)
 
     def reset(self):
-        self.resetConfig()
+        self.resetConf()
         t = time.time()
         self.resetLearn()
         print "lrn %0.2fms" % ((time.time() - t)*1000); t = time.time()
@@ -53,7 +50,7 @@ class Scheduler(object):
             self.answerLearnCard(card, ease)
         else:
             raise Exception("Invalid queue")
-        card.toDB(self.db)
+        card.flushSched()
 
     def counts(self):
         # FIXME: should learn count include new cards due today, or be separate?
@@ -113,7 +110,7 @@ queue = 2 %s order by due limit %d""" % (self.newOrder(), self.groupLimit('new')
             return self.newQueue.pop()[0]
 
     def newOrder(self):
-        return (",ordinal", "")[self.deck.qconf['newTodayOrder']]
+        return (",ord", "")[self.deck.qconf['newTodayOrder']]
 
     def updateNewCardRatio(self):
         if self.deck.qconf['newCardSpacing'] == NEW_CARDS_DISTRIBUTE:
@@ -172,7 +169,7 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
             card.due = time.time() + conf['delays'][card.grade]*60
 
     def learnConf(self, card):
-        conf = self.configForCard(card)
+        conf = self.confForCard(card)
         if card.type == 2:
             return conf['new']
         else:
@@ -287,7 +284,7 @@ queue = 1 %s and due < :lim order by %s limit %d""" % (
             self.answerPreSave(card, ease)
         # save
         card.due = card.due
-        card.toDB(self.db)
+        card.saveSched()
         # review history
         print "make sure flags is set correctly when reviewing early"
         logReview(self.db, card, ease, 0)
@@ -309,11 +306,10 @@ queue = 1 %s and due < :lim order by %s limit %d""" % (
             card.successive += 1
         # if not card.firstAnswered:
         #     card.firstAnswered = time.time()
-        card.setModified()
 
     def spaceCards(self, card):
         new = time.time() + self.newSpacing
-        self.db.statement("""
+        self.db.execute("""
 update cards set
 due = (case
 when queue = 1 then due + 86400 * (case
@@ -323,13 +319,13 @@ when queue = 1 then due + 86400 * (case
 when queue = 2 then :new
 end),
 modified = :now
-where id != :id and factId = :factId
+where id != :id and fid = :fid
 and due < :cut
 and queue between 1 and 2""",
-                         id=card.id, now=time.time(), factId=card.factId,
+                         id=card.id, now=time.time(), fid=card.fid,
                          cut=self.dayCutoff, new=new, rev=self.revSpacing)
         # update local cache of seen facts
-        self.spacedFacts[card.factId] = new
+        self.spacedFacts[card.fid] = new
 
     # Interval management
     ##########################################################################
@@ -444,39 +440,36 @@ and queue between 1 and 2""",
             (fmax - no) % (max(fmax/2, 1)) == 0)
 
     def handleLeech(self, card):
-        self.refreshSession()
         scard = self.cardFromId(card.id, True)
         tags = scard.fact.tags
         tags = addTags("Leech", tags)
         scard.fact.tags = canonifyTags(tags)
         scard.fact.setModified(textChanged=True, deck=self)
         self.updateFactTags([scard.fact.id])
-        self.db.flush()
         self.db.expunge(scard)
         if self.getBool('suspendLeeches'):
             self.suspendCards([card.id])
         self.reset()
-        self.refreshSession()
 
     # Tools
     ##########################################################################
 
-    def resetConfig(self):
-        "Update group config cache."
-        self.groupConfigs = dict(self.db.all("select id, confId from groups"))
-        self.configCache = {}
+    def resetConf(self):
+        "Update group conf cache."
+        self.groupConfs = dict(self.db.all("select id, gcid from groups"))
+        self.confCache = {}
 
-    def configForCard(self, card):
-        id = self.groupConfigs[card.groupId]
-        if id not in self.configCache:
-            self.configCache[id] = simplejson.loads(
-                self.db.scalar("select config from groupConfig where id = :id",
+    def confForCard(self, card):
+        id = self.groupConfs[card.gid]
+        if id not in self.confCache:
+            self.confCache[id] = simplejson.loads(
+                self.db.scalar("select conf from gconf where id = :id",
                                id=id))
-        return self.configCache[id]
+        return self.confCache[id]
 
     def resetSchedBuried(self):
         "Put temporarily suspended cards back into play."
-        self.db.statement(
+        self.db.execute(
             "update cards set queue = type where queue = -3")
 
     def groupLimit(self, type):
@@ -484,7 +477,7 @@ and queue between 1 and 2""",
         if not l:
             # everything
             return ""
-        return " and groupId in %s" % ids2str(l)
+        return " and gid in %s" % ids2str(l)
 
     # Daily cutoff
     ##########################################################################
@@ -538,7 +531,7 @@ select count() from cards c where queue = 1 and due > :now
             self.revQueue = self.db.all(
                 self.cardLimit(
                 "revActive", "revInactive", """
-select id, factId from cards c where queue = 1 and due > :lim
+select id, fid from cards c where queue = 1 and due > :lim
 order by due limit %d""" % self.queueLimit), lim=self.dayCutoff)
             self.revQueue.reverse()
 

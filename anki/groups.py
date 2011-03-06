@@ -4,14 +4,6 @@
 
 import simplejson, time
 from anki.utils import intTime
-from anki.db import *
-
-groupsTable = Table(
-    'groups', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('modified', Integer, nullable=False, default=intTime),
-    Column('name', UnicodeText, nullable=False),
-    Column('confId', Integer, nullable=False))
 
 # maybe define a random cutoff at say +/-30% which controls exit interval
 # variation - 30% of 1 day is 0.7 or 1.3 so always 1 day; 30% of 4 days is
@@ -32,14 +24,6 @@ defaultConf = {
     'leechFails': 16,
 }
 
-groupConfigTable = Table(
-    'groupConfig', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('modified', Integer, nullable=False, default=intTime),
-    Column('name', UnicodeText, nullable=False),
-    Column('config', UnicodeText, nullable=False,
-           default=unicode(simplejson.dumps(defaultConf))))
-
 class GroupConfig(object):
     def __init__(self, name):
         self.name = name
@@ -53,7 +37,3 @@ class GroupConfig(object):
     def save(self):
         self._config = simplejson.dumps(self.config)
         self.modified = intTime()
-
-mapper(GroupConfig, groupConfigTable, properties={
-    '_config': groupConfigTable.c.config,
-})

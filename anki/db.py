@@ -2,18 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-DB tools
-====================
-
-SessionHelper is a wrapper for the standard sqlalchemy session, which provides
-some convenience routines, and manages transactions itself.
-
-object_session() is a replacement for the standard object_session(), which
-provides the features of SessionHelper, and avoids taking out another
-transaction.
-"""
-
 try:
     from pysqlite2 import dbapi2 as sqlite
 except ImportError:
@@ -22,128 +10,63 @@ except ImportError:
     except:
         raise Exception("Please install pysqlite2 or python2.5")
 
-from sqlalchemy import (Table, Integer, Float, Column, MetaData,
-                        ForeignKey, Boolean, String, Date,
-                        UniqueConstraint, Index, PrimaryKeyConstraint)
-from sqlalchemy import create_engine
-from sqlalchemy.orm import mapper, sessionmaker as _sessionmaker, relation, backref, \
-     object_session as _object_session, class_mapper
-from sqlalchemy.sql import select, text, and_
-from sqlalchemy.exceptions import DBAPIError, OperationalError
-from sqlalchemy.pool import NullPool
-import sqlalchemy
-
-# some users are still on 0.4.x..
-import warnings
-warnings.filterwarnings('ignore', 'Use session.add()')
-warnings.filterwarnings('ignore', 'Use session.expunge_all()')
-
-# sqlalchemy didn't handle the move to unicodetext nicely
-try:
-    from sqlalchemy import UnicodeText
-except ImportError:
-    from sqlalchemy import Unicode
-    UnicodeText = Unicode
-
 from anki.hooks import runHook
+#FIXME: do we need the dbFinished hook?
 
-# shared metadata
-metadata = MetaData()
+class DB(object):
+    def __init__(self, path, level="EXCLUSIVE"):
+        self._db = sqlite.connect(
+            path, timeout=0, isolation_level=level)
+        self._path = path
+        self.echo = False
 
-# this class assumes the provided session is called with transactional=False
-class SessionHelper(object):
-    "Add some convenience routines to a session."
-
-    def __init__(self, session, lock=True, transaction=True):
-        self._session = session
-        self._lock = lock
-        self._transaction = transaction
-        if self._transaction:
-            self._session.begin()
-        if self._lock:
-            self._lockDB()
-        self._seen = True
-
-    def save(self, obj):
-        # compat
-        if sqlalchemy.__version__.startswith("0.4."):
-            self._session.save(obj)
+    def execute(self, sql, *a, **ka):
+        if self.echo:
+            print sql, a, ka
+        if ka:
+            # execute("...where id = :id", id=5)
+            res = self._db.execute(sql, ka)
         else:
-            self._session.add(obj)
-
-    def expunge_all(self):
-        # compat
-        if sqlalchemy.__version__.startswith("0.4."):
-            self._session.clear()
-        else:
-            self._session.expunge_all()
-
-    def update(self, obj):
-        # compat
-        if sqlalchemy.__version__.startswith("0.4."):
-            self._session.update(obj)
-        else:
-            self._session.add(obj)
-
-    def execute(self, *a, **ka):
-        x = self._session.execute(*a, **ka)
+            # execute("...where id = ?", 5)
+            res = self._db.execute(sql, a)
         runHook("dbFinished")
-        return x
+        return res
 
-    def __getattr__(self, k):
-        return getattr(self.__dict__['_session'], k)
-
-    def scalar(self, sql, **args):
-        return self.execute(text(sql), args).scalar()
-
-    def all(self, sql, **args):
-        return self.execute(text(sql), args).fetchall()
-
-    def first(self, sql, **args):
-        c = self.execute(text(sql), args)
-        r = c.fetchone()
-        c.close()
-        return r
-
-    def column0(self, sql, **args):
-        return [x[0] for x in self.execute(text(sql), args).fetchall()]
-
-    def statement(self, sql, **kwargs):
-        "Execute a statement without returning any results. Flush first."
-        return self.execute(text(sql), kwargs)
-
-    def statements(self, sql, data):
-        "Execute a statement across data. Flush first."
-        return self.execute(text(sql), data)
-
-    def __repr__(self):
-        return repr(self._session)
+    def executemany(self, sql, l):
+        if self.echo:
+            print sql, l
+        self._db.executemany(sql, l)
+        runHook("dbFinished")
 
     def commit(self):
-        self._session.commit()
-        if self._transaction:
-            self._session.begin()
-        if self._lock:
-            self._lockDB()
+        self._db.commit()
 
-    def _lockDB(self):
-        "Take out a write lock."
-        self._session.execute("pragma locking_mode = exclusive")
-        self._session.execute(text("update deck set modified=modified"))
+    def scalar(self, *a, **kw):
+        res = self.execute(*a, **kw).fetchone()
+        if res:
+            return res[0]
+        return None
 
-def object_session(*args):
-    s = _object_session(*args)
-    if s:
-        return SessionHelper(s, lock=False, transaction=False)
-    return None
+    def all(self, *a, **kw):
+        return self.execute(*a, **kw).fetchall()
 
-def sessionmaker(*args, **kwargs):
-    if sqlalchemy.__version__ < "0.5":
-        if 'autocommit' in kwargs:
-            kwargs['transactional'] = not kwargs['autocommit']
-            del kwargs['autocommit']
-    else:
-        if 'transactional' in kwargs:
-            kwargs['autocommit'] = not kwargs['transactional']
-            del kwargs['transactional']
-    return _sessionmaker(*args, **kwargs)
+    def first(self, *a, **kw):
+        c = self.execute(*a, **kw)
+        res = c.fetchone()
+        c.close()
+        return res
+
+    def list(self, *a, **kw):
+        return [x[0] for x in self.execute(*a, **kw)]
+
+    def executescript(self, sql):
+        if self.echo:
+            print sql
+        self._db.executescript(sql)
+        runHook("dbFinished")
+
+    def rollback(self):
+        self._db.rollback()
+
+    def close(self):
+        self._db.close()

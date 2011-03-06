@@ -15,7 +15,7 @@ import re, unicodedata, time
 #import chardet
 
 
-from anki.deck import Deck
+from anki import Deck
 
 class SmartDict(dict):
     """

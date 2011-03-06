@@ -3,58 +3,35 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 """\
-Anki (libanki)
-====================
-
 Open a deck:
 
     deck = anki.Deck(path)
 
-Get a card:
+Get a due card:
 
-    card = deck.getCard()
+    card = deck.sched.getCard()
     if not card:
         # deck is finished
 
 Show the card:
 
-    print card.question, card.answer
+    print card.q, card.a
 
 Answer the card:
 
-    deck.answerCard(card, ease)
+    deck.sched.answerCard(card, ease)
 
 Edit the card:
 
-    fields = card.fact.model.fieldModels
-    for field in fields:
-        card.fact[field.name] = 'newvalue'
-    card.fact.setModified(textChanged=True, deck=deck)
-    deck.setModified()
-
-Get all cards via ORM (slow):
-
-    from anki.cards import Card
-    cards = deck.s.query(Card).all()
-
-Get all q/a/ids via SQL (fast):
-
-    cards = deck.s.all("select id, question, answer from cards")
+    fact = card.fact()
+    for (name, value) in fact.items():
+        fact[name] = value + " new"
+    fact.flush()
 
 Save & close:
 
-    deck.save()
     deck.close()
 """
 
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-except ImportError:
-    pass
-
-version = "1.2.8"
-
-from anki.deck import DeckStorage
-
-def Deck(*args, **kwargs):
-    return DeckStorage.Deck(*args, **kwargs)
+version = "1.2.6"
+from anki.storage import Deck

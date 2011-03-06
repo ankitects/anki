@@ -239,11 +239,11 @@ group by day order by day
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         limit = self.endOfDay - (numdays) * 86400
         if attr == "created":
-            res = self.deck.db.column0("select %s from cards where %s >= %f" %
+            res = self.deck.db.list("select %s from cards where %s >= %f" %
                                        (attr, attr, limit))
         else:
             # firstAnswered
-            res = self.deck.db.column0(
+            res = self.deck.db.list(
                 "select time/1000 from revlog where rep = 1")
         for r in res:
             d = int((r - self.endOfDay) / 86400.0)
