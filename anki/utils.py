@@ -139,6 +139,16 @@ def stripHTMLMedia(s):
     s = re.sub("<img src=[\"']?([^\"'>]+)[\"']? ?/?>", " \\1 ", s)
     return stripHTML(s)
 
+def minimizeHTML(s):
+    "Correct Qt's verbose bold/underline/etc."
+    s = re.sub('<span style="font-weight:600;">(.*?)</span>', '<b>\\1</b>',
+               s)
+    s = re.sub('<span style="font-style:italic;">(.*?)</span>', '<i>\\1</i>',
+               s)
+    s = re.sub('<span style="text-decoration: underline;">(.*?)</span>',
+               '<u>\\1</u>', s)
+    return s
+
 def tidyHTML(html):
     "Remove cruft like body tags and return just the important part."
     # contents of body - no head or html tags
@@ -160,6 +170,7 @@ def tidyHTML(html):
     html = re.sub(u"^<table><tr><td style=\"border: none;\">(.*)<br></td></tr></table>$", u"\\1", html)
     # this is being added by qt's html editor, and leads to unwanted spaces
     html = re.sub(u"^<p dir='rtl'>(.*?)</p>$", u'\\1', html)
+    html = minimizeHTML(html)
     return html
 
 def entsToTxt(html):

@@ -420,6 +420,13 @@ def _postSchemaUpgrade(deck):
               "revCardsDue", "revCardsRandom", "acqCardsRandom",
               "acqCardsOld", "acqCardsNew"):
         deck.db.execute("drop view if exists %s" % v)
+    # minimize qt's bold/italics/underline cruft. we made need to use lxml to
+    # do this properly
+    from anki.utils import minimizeHTML
+    r = [(minimizeHTML(x[2]), x[0], x[1]) for x in deck.db.execute(
+        "select fid, fmid, val from fdata")]
+    deck.db.executemany("update fdata set val = ? where fid = ? and fmid = ?",
+                        r)
     # ensure all templates use the new style field format, and update cach
     for m in deck.allModels():
         for t in m.templates:
