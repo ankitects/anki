@@ -152,8 +152,6 @@ insert or replace into fields values (?, ?, ?, ?, ?, ?)""",
 # Template object
 ##########################################################################
 
-# FIXME: change typeAnswer to field id
-
 defaultTemplateConf = {
     'hideQ': False,
     'align': 0,

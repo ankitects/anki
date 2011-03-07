@@ -980,7 +980,8 @@ order by fdata.fid""" % ids2str(ids)), itemgetter(0)):
         "Add stripped HTML cache for searching."
         r = []
         from anki.utils import stripHTMLMedia
-        [r.append((" ".join([x[1] for x in map.values()]), id))
+        [r.append((stripHTMLMedia(
+            " ".join([x[1] for x in map.values()])), id))
          for (id, map) in facts.items()]
         self.db.executemany(
             "update facts set cache=? where id=?", r)

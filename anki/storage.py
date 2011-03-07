@@ -4,7 +4,7 @@
 
 CURRENT_VERSION = 100
 
-import os, time, simplejson
+import os, time, simplejson, re
 from anki.lang import _
 from anki.utils import intTime
 from anki.db import DB
@@ -45,7 +45,7 @@ def _createDB(db):
     db.execute("analyze")
     return CURRENT_VERSION
 
-def _addSchema(db, addObjs=True):
+def _addSchema(db, setDeckConf=True):
     db.executescript("""
 create table if not exists deck (
     id              integer primary key,
@@ -173,21 +173,20 @@ create table if not exists tags (
 insert or ignore into deck
 values(1,%(t)s,%(t)s,%(t)s,%(v)s,'',0,-2,'', '', '');
 """ % ({'t': intTime(), 'v':CURRENT_VERSION}))
-    # if not upgrading
-    if addObjs:
-        import anki.deck
-        import anki.groups
+    import anki.deck
+    import anki.groups
+    db.execute(
+        "insert or ignore into gconf values (1, ?, ?, ?)""",
+        intTime(), _("Default Config"),
+        simplejson.dumps(anki.groups.defaultConf))
+    db.execute(
+        "insert or ignore into groups values (1, ?, ?, 1)",
+        intTime(), _("Default Group"))
+    if setDeckConf:
         db.execute("update deck set qconf = ?, conf = ?, data = ?",
                    simplejson.dumps(anki.deck.defaultQconf),
                    simplejson.dumps(anki.deck.defaultConf),
                    "{}")
-        db.execute(
-            "insert or ignore into gconf values (1, ?, ?, ?)""",
-            intTime(), _("Default Config"),
-            simplejson.dumps(anki.groups.defaultConf))
-        db.execute(
-            "insert or ignore into groups values (1, ?, ?, 1)",
-            intTime(), _("Default Group"))
 
 def _updateIndices(db):
     "Add indices to the DB."
@@ -421,8 +420,12 @@ def _postSchemaUpgrade(deck):
               "revCardsDue", "revCardsRandom", "acqCardsRandom",
               "acqCardsOld", "acqCardsNew"):
         deck.db.execute("drop view if exists %s" % v)
-    # update caches
+    # ensure all templates use the new style field format, and update cach
     for m in deck.allModels():
+        for t in m.templates:
+            t.qfmt = re.sub("%\((.+?)\)s", "{{\\1}}", t.qfmt)
+            t.afmt = re.sub("%\((.+?)\)s", "{{\\1}}", t.afmt)
+        m.flush()
         m.updateCache()
     # remove stats, as it's all in the revlog now
     deck.db.execute("drop table if exists stats")
