@@ -412,9 +412,36 @@ allowEmptyAnswer, typeAnswer from cardModels"""):
     # clean up
     db.execute("drop table cardModels")
 
+def _rewriteIds(deck):
+    # rewrite model/template/field ids
+    models = deck.allModels()
+    deck.db.execute("delete from models")
+    deck.db.execute("delete from templates")
+    deck.db.execute("delete from fields")
+    for c, m in enumerate(models):
+        old = m.id
+        m.id = c+1
+        for t in m.templates:
+            t.mid = m.id
+            oldT = t.id
+            t.id = None
+            t._flush()
+            deck.db.execute(
+                "update cards set tid = ? where tid = ?", t.mid, oldT)
+        for f in m.fields:
+            f.mid = m.id
+            oldF = f.id
+            f.id = None
+            f._flush()
+            deck.db.execute(
+                "update fdata set fmid = ? where fmid = ?", f.id, oldF)
+        m.flush()
+        deck.db.execute("update facts set mid = ? where mid = ?", m.id, old)
+
 def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
+    _rewriteIds(deck)
     # remove old views
     for v in ("failedCards", "revCardsOld", "revCardsNew",
               "revCardsDue", "revCardsRandom", "acqCardsRandom",

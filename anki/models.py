@@ -31,7 +31,7 @@ class Model(object):
             self.id = id
             self.load()
         else:
-            self.id = genID()
+            self.id = None
             self.name = u""
             self.mod = intTime()
             self.conf = defaultConf.copy()
@@ -49,15 +49,22 @@ select mod, name, conf from models where id = ?""", self.id)
 
     def flush(self):
         self.mod = intTime()
-        self.deck.db.execute("""
+        ret = self.deck.db.execute("""
 insert or replace into models values (?, ?, ?, ?)""",
                              self.id, self.mod, self.name,
                              simplejson.dumps(self.conf))
+        self.id = ret.lastrowid
         [f._flush() for f in self.fields]
         [t._flush() for t in self.templates]
 
     def updateCache(self):
         self.deck.updateCache([self.id], "model")
+
+    def _getID(self):
+        if not self.id:
+            # flush so we can get our DB id
+            self.flush()
+        return self.id
 
     # Fields
     ##################################################
@@ -69,7 +76,7 @@ insert or replace into models values (?, ?, ?, ?)""",
 
     def addField(self, field):
         self.deck.modSchema()
-        field.mid = self.id
+        field.mid = self._getID()
         field.ord = len(self.fields)
         self.fields.append(field)
 
@@ -87,7 +94,7 @@ insert or replace into models values (?, ?, ?, ?)""",
 
     def addTemplate(self, template):
         self.deck.modSchema()
-        template.mid = self.id
+        template.mid = self._getID()
         template.ord = len(self.templates)
         self.templates.append(template)
 
@@ -129,7 +136,7 @@ class Field(object):
         if data:
             self.initFromData(data)
         else:
-            self.id = genID()
+            self.id = None
             self.numeric = 0
             self.conf = defaultFieldConf.copy()
 
@@ -143,11 +150,12 @@ class Field(object):
         self.conf = simplejson.loads(self.conf)
 
     def _flush(self):
-        self.deck.db.execute("""
+        ret = self.deck.db.execute("""
 insert or replace into fields values (?, ?, ?, ?, ?, ?)""",
                              self.id, self.mid, self.ord,
                              self.name, self.numeric,
                              simplejson.dumps(self.conf))
+        self.id = ret.lastrowid
 
 # Template object
 ##########################################################################
@@ -183,8 +191,9 @@ class Template(object):
         self.conf = simplejson.loads(self.conf)
 
     def _flush(self):
-        self.deck.db.execute("""
+        ret = self.deck.db.execute("""
 insert or replace into templates values (?, ?, ?, ?, ?, ?, ?, ?)""",
                              self.id, self.mid, self.ord, self.name,
                              self.active, self.qfmt, self.afmt,
                              simplejson.dumps(self.conf))
+        self.id = ret.lastrowid
