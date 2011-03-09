@@ -4,7 +4,7 @@
 
 import time
 from anki.errors import AnkiError
-from anki.utils import genID, stripHTMLMedia, fieldChecksum, intTime, \
+from anki.utils import stripHTMLMedia, fieldChecksum, intTime, \
     addTags, deleteTags, parseTags
 
 class Fact(object):
@@ -16,10 +16,11 @@ class Fact(object):
             self.id = id
             self.load()
         else:
-            self.id = genID()
+            self.id = None
             self.model = model
             self.mid = model.id
-            self.mod = intTime()
+            self.crt = intTime()
+            self.mod = self.crt
             self.tags = ""
             self.cache = ""
             self._fields = [""] * len(self.model.fields)
@@ -27,22 +28,24 @@ class Fact(object):
 
     def load(self):
         (self.mid,
-         self.mod,
-         self.pos,
-         self.tags) = self.deck.db.first("""
-select mid, mod, pos, tags from facts where id = ?""", self.id)
+         self.crt,
+         self.mod) = self.deck.db.first("""
+select mid, crt, mod from facts where id = ?""", self.id)
         self._fields = self.deck.db.list("""
-select value from fdata where fid = ? order by ordinal""", self.id)
+select val from fdata where fid = ? and fmid order by ord""", self.id)
+        self.tags = self.deck.db.scalar("""
+select val from fdata where fid = ? and ord = -1""", self.id)
         self.model = self.deck.getModel(self.mid)
 
-    def flush(self):
+    def flush(self, cache=True):
         self.mod = intTime()
         # facts table
         self.cache = stripHTMLMedia(u" ".join(self._fields))
-        self.deck.db.execute("""
-insert or replace into facts values (?, ?, ?, ?, ?, ?)""",
-                             self.id, self.mid, self.mod,
-                             self.pos, self.tags, self.cache)
+        res = self.deck.db.execute("""
+insert or replace into facts values (?, ?, ?, ?, ?)""",
+                             self.id, self.mid, self.crt,
+                             self.mod, self.cache)
+        self.id = res.lastrowid
         # fdata table
         self.deck.db.execute("delete from fdata where fid = ?", self.id)
         d = []
@@ -50,6 +53,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?)""",
             val = self._fields[ord]
             d.append(dict(fid=self.id, fmid=fmid, ord=ord,
                           val=val))
+        d.append(dict(fid=self.id, fmid=0, ord=-1, val=self.tags))
         self.deck.db.executemany("""
 insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
         # media and caches
@@ -106,9 +110,14 @@ insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
             return True
         val = self[name]
         csum = fieldChecksum(val)
+        print "in check, ", self.id
+        if self.id:
+            lim = "and fid != :fid"
+        else:
+            lim = ""
         return not self.deck.db.scalar(
-            "select 1 from fdata where csum = ? and fid != ? and val = ?",
-            csum, self.id, val)
+            "select 1 from fdata where csum = :c %s and val = :v" % lim,
+            c=csum, v=val, fid=self.id)
 
     def fieldComplete(self, name, text=None):
         (fmid, ord, conf) = self._fmap[name]

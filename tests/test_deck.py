@@ -58,7 +58,7 @@ def test_factAddDelete():
     assert n == 2
     # check q/a generation
     c0 = f.cards()[0]
-    assert re.sub("</?.+?>", "", c0.q) == u"one"
+    assert re.sub("</?.+?>", "", c0.q()) == u"one"
     # it should not be a duplicate
     for p in f.problems():
         assert not p

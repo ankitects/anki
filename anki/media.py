@@ -3,7 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import os, shutil, re, urllib2, time, tempfile, unicodedata, urllib
-from anki.utils import checksum, genID, intTime
+from anki.utils import checksum, intTime
 from anki.lang import _
 
 class MediaRegistry(object):
@@ -176,10 +176,14 @@ If a file with the same name exists, return a unique name."""
             if isinstance(s, unicode):
                 return unicodedata.normalize('NFD', s)
             return s
-        for (question, answer) in self.deck.db.all(
-            "select q, a from cards"):
-            for txt in (question, answer):
-                for f in self.mediaFiles(txt):
+        # generate q/a and look through all references
+        (cids, fids, meta) = self.deck._cacheMeta()
+        facts = self.deck._cacheFacts(fids)
+        pend = [self.deck.formatQA(cids[n], facts[fids[n]], meta[cids[n]])
+                for n in range(len(cids))]
+        for p in pend:
+            for type in ("q", "a"):
+                for f in self.mediaFiles(p[type]):
                     normrefs[norm(f)] = True
                     self.registerFile(f)
         # find unused media

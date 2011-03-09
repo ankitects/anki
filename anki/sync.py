@@ -10,7 +10,7 @@ from anki.errors import *
 #from anki.models import Model, Field, Template
 #from anki.facts import Fact
 #from anki.cards import Card
-from anki.utils import ids2str, hexifyID, checksum
+from anki.utils import ids2str, checksum
 #from anki.media import mediaFiles
 from anki.lang import _
 from hooks import runHook

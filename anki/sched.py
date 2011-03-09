@@ -495,7 +495,7 @@ and queue between 1 and 2""",
         # cutoff must not be more than 24 hours in the future
         cutoff = min(time.time() + 86400, cutoff)
         self.dayCutoff = cutoff
-        self.today = int(cutoff/86400 - self.deck.created/86400)
+        self.today = int(cutoff/86400 - self.deck.crt/86400)
 
     def checkDay(self):
         # check if the day has rolled over

@@ -90,8 +90,6 @@ def test_modelChange():
     assert deck.modelUseCount(m2) == 1
     assert deck.cardCount() == 3
     assert deck.factCount() == 2
-    (q, a) = deck.db.first("""
-select q, a from cards where fid = :id""",
-                          id=f.id)
-    assert stripHTML(q) == u"e"
-    assert stripHTML(a) == u"r"
+    c = deck.getCard(deck.db.scalar("select id from cards where fid = ?", f.id))
+    assert stripHTML(c.q()) == u"e"
+    assert stripHTML(c.a()) == u"r"

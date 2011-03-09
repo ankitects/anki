@@ -3,7 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import re, tempfile, os, sys, shutil, cgi, subprocess
-from anki.utils import genID, checksum, call
+from anki.utils import checksum, call
 from anki.hooks import addHook
 from htmlentitydefs import entitydefs
 from anki.lang import _

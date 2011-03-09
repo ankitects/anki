@@ -8,14 +8,9 @@ template or field, you should call model.flush(), rather than trying to save
 the subobject directly.
 """
 
-import time, re, simplejson, copy as copyMod
-from anki.utils import genID, canonifyTags, intTime
-from anki.fonts import toPlatformFont
-from anki.utils import parseTags, hexifyID, checksum, stripHTML, intTime
+import simplejson
+from anki.utils import intTime
 from anki.lang import _
-from anki.hooks import runFilter
-from anki.template import render
-from copy import copy
 
 # Models
 ##########################################################################
@@ -104,15 +99,23 @@ insert or replace into models values (?, ?, ?, ?)""",
     def copy(self):
         "Copy, flush and return."
         new = Model(self.deck, self.id)
-        new.id = genID()
+        new.id = None
         new.name += _(" copy")
-        for f in new.fields:
-            f.id = genID()
-            f.mid = new.id
-        for t in new.templates:
-            t.id = genID()
-            t.mid = new.id
+        # get new id
+        f = new.fields; new.fields = []
+        t = new.templates; new.templates = []
         new.flush()
+        # then put back
+        new.fields = f
+        new.templates = t
+        for f in new.fields:
+            f.id = None
+            f.mid = new.id
+            f._flush()
+        for t in new.templates:
+            t.id = None
+            t.mid = new.id
+            t._flush()
         return new
 
 # Field model object
@@ -175,7 +178,7 @@ class Template(object):
         if data:
             self.initFromData(data)
         else:
-            self.id = genID()
+            self.id = None
             self.active = True
             self.conf = defaultTemplateConf.copy()
 

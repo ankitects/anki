@@ -49,10 +49,10 @@ def _addSchema(db, setDeckConf=True):
     db.executescript("""
 create table if not exists deck (
     id              integer primary key,
-    created         integer not null,
+    crt             integer not null,
     mod             integer not null,
+    ver             integer not null,
     schema          integer not null,
-    version         integer not null,
     syncName        text not null,
     lastSync        integer not null,
     utcOffset       integer not null,
@@ -66,28 +66,27 @@ create table if not exists cards (
     fid             integer not null,
     tid             integer not null,
     gid             integer not null,
-    mod             integer not null,
-    q               text not null,
-    a               text not null,
     ord             integer not null,
+    crt             integer not null,
+    mod             integer not null,
     type            integer not null,
     queue           integer not null,
     due             integer not null,
-    interval        integer not null,
+    ivl             integer not null,
     factor          integer not null,
     reps            integer not null,
     streak          integer not null,
     lapses          integer not null,
     grade           integer not null,
-    cycles          integer not null
+    cycles          integer not null,
+    data            text not null
 );
 
 create table if not exists facts (
     id              integer primary key,
     mid             integer not null,
+    crt             integer not null,
     mod             integer not null,
-    pos             integer not null,
-    tags            text not null,
     cache           text not null
 );
 
@@ -112,7 +111,7 @@ create table if not exists templates (
     mid             integer not null,
     ord             integer not null,
     name            text not null,
-    active          integer not null,
+    actv            integer not null,
     qfmt            text not null,
     afmt            text not null,
     conf            text not null
@@ -126,12 +125,6 @@ create table if not exists fdata (
     csum            text not null
 );
 
-create table if not exists graves (
-    delTime         integer not null,
-    objectId        integer not null,
-    type            integer not null
-);
-
 create table if not exists gconf (
     id              integer primary key,
     mod             integer not null,
@@ -140,7 +133,7 @@ create table if not exists gconf (
 );
 
 create table if not exists groups (
-    id              integer primary key autoincrement,
+    id              integer primary key,
     mod             integer not null,
     name            text not null,
     gcid            integer not null
@@ -157,10 +150,10 @@ create table if not exists revlog (
     cid             integer not null,
     ease            integer not null,
     rep             integer not null,
+    int             integer not null,
     lastInt         integer not null,
-    interval        integer not null,
     factor          integer not null,
-    userTime        integer not null,
+    taken           integer not null,
     flags           integer not null
 );
 
@@ -175,6 +168,7 @@ values(1,%(t)s,%(t)s,%(t)s,%(v)s,'',0,-2,'', '', '');
 """ % ({'t': intTime(), 'v':CURRENT_VERSION}))
     import anki.deck
     import anki.groups
+    # create a default group/configuration, which should not be removed
     db.execute(
         "insert or ignore into gconf values (1, ?, ?, ?)""",
         intTime(), _("Default Config"),
@@ -194,15 +188,15 @@ def _updateIndices(db):
 -- sync summaries
 create index if not exists ix_cards_mod on cards (mod);
 create index if not exists ix_facts_mod on facts (mod);
--- card spacing
+-- card spacing, etc
 create index if not exists ix_cards_fid on cards (fid);
 -- fact data
 create index if not exists ix_fdata_fid on fdata (fid);
 create index if not exists ix_fdata_csum on fdata (csum);
+-- revlog by card
+create index if not exists ix_revlog_cid on revlog (cid);
 -- media
 create index if not exists ix_media_csum on media (csum);
--- deletion tracking
-create index if not exists ix_graves_delTime on graves (delTime);
 """)
 
 # 2.0 schema migration
@@ -210,19 +204,19 @@ create index if not exists ix_graves_delTime on graves (delTime);
 # we don't have access to the progress handler at this point, so the GUI code
 # will need to set up a progress handling window before opening a deck.
 
-def _moveTable(db, table):
+def _moveTable(db, table, insExtra=""):
     sql = db.scalar(
         "select sql from sqlite_master where name = '%s'" % table)
     sql = sql.replace("TABLE "+table, "temporary table %s2" % table)
     db.execute(sql)
-    db.execute("insert into %s2 select * from %s" % (table, table))
+    db.execute("insert into %s2 select * from %s%s" % (table, table, insExtra))
     db.execute("drop table "+table)
     _addSchema(db, False)
 
 def _upgradeSchema(db):
     "Alter tables prior to ORM initialization."
     try:
-        ver = db.scalar("select version from deck")
+        ver = db.scalar("select ver from deck")
     except:
         ver = db.scalar("select version from decks")
     # latest 1.2 is 65
@@ -233,11 +227,18 @@ def _upgradeSchema(db):
 
     # cards
     ###########
-    _moveTable(db, "cards")
+    # move into temp table
+    _moveTable(db, "cards", " order by created")
+    # use the new order to rewrite card ids
+    for (old, new) in db.all("select id, rowid from cards2"):
+        db.execute(
+            "update reviewHistory set cardId = ? where cardId = ?", new, old)
+    # move back, preserving new ids
     db.execute("""
-insert into cards select id, factId, cardModelId, 1, cast(modified as int),
-question, answer, ordinal, relativeDelay, type, due, cast(interval as int),
-cast(factor*1000 as int), reps, successive, noCount, 0, 0 from cards2""")
+insert into cards select rowid, factId, cardModelId, 1, ordinal,
+cast(created as int), cast(modified as int), relativeDelay, type, due,
+cast(interval as int), cast(factor*1000 as int), reps, successive, noCount,
+0, 0, "" from cards2 order by created""")
     db.execute("drop table cards2")
 
     # tags
@@ -245,6 +246,11 @@ cast(factor*1000 as int), reps, successive, noCount, 0, 0 from cards2""")
     _moveTable(db, "tags")
     db.execute("insert or ignore into tags select id, ?, tag from tags2",
                intTime())
+    db.execute("drop table tags2")
+    db.execute("drop table cardTags")
+
+    # facts
+    ###########
     # tags should have a leading and trailing space if not empty, and not
     # use commas
     db.execute("""
@@ -253,23 +259,26 @@ when trim(tags) == "" then ""
 else " " || replace(replace(trim(tags), ",", " "), "  ", " ") || " "
 end)
 """)
-    db.execute("drop table tags2")
-    db.execute("drop table cardTags")
-
-    # facts
-    ###########
+    # we store them as fields now
+    db.execute("insert into fields select null, id, 0, -1, tags from facts")
+    # put facts in a temporary table, sorted by created
     db.execute("""
 create table facts2
-(id, modelId, modified, tags, cache)""")
-    # use the rowid to give them an integer order
+(id, modelId, created, modified, cache)""")
     db.execute("""
-insert into facts2 select id, modelId, modified, tags, spaceUntil from
-facts order by created""")
+insert into facts2 select id, modelId, created, modified, spaceUntil
+from facts order by created""")
+    # use the new order to rewrite fact ids
+    for (old, new) in db.all("select id, rowid from facts2"):
+        db.execute("update fields set factId = ? where factId = ?",
+                        new, old)
+        db.execute("update cards set fid = ? where fid = ?", new, old)
+    # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
     db.execute("""
-insert or ignore into facts select id, modelId, rowid,
-cast(modified as int), tags, cache from facts2""")
+insert or ignore into facts select rowid, modelId,
+cast(created as int), cast(modified as int), cache from facts2""")
     db.execute("drop table facts2")
 
     # media
@@ -283,15 +292,15 @@ originalPath from media2""")
     # fields -> fdata
     ###########
     db.execute("""
-insert or ignore into fdata select factId, fieldModelId, ordinal, value, ''
-from fields""")
+insert into fdata select factId, fieldModelId, ordinal, value, ''
+from fields order by factId, ordinal""")
     db.execute("drop table fields")
 
     # models
     ###########
     _moveTable(db, "models")
     db.execute("""
-insert or ignore into models select id, cast(modified as int),
+insert into models select id, cast(modified as int),
 name, "{}" from models2""")
     db.execute("drop table models2")
 
@@ -349,7 +358,7 @@ utcOffset, "", "", "" from decks""", t=intTime())
     dkeys = ("hexCache", "cssCache")
     for (k, v) in db.execute("select * from deckVars").fetchall():
         if k in dkeys:
-            data[k] = v
+            pass
         else:
             conf[k] = v
     db.execute("update deck set qconf = :l, conf = :c, data = :d",
@@ -412,7 +421,7 @@ allowEmptyAnswer, typeAnswer from cardModels"""):
     # clean up
     db.execute("drop table cardModels")
 
-def _rewriteIds(deck):
+def _rewriteModelIds(deck):
     # rewrite model/template/field ids
     models = deck.allModels()
     deck.db.execute("delete from models")
@@ -441,7 +450,7 @@ def _rewriteIds(deck):
 def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
-    _rewriteIds(deck)
+    _rewriteModelIds(deck)
     # remove old views
     for v in ("failedCards", "revCardsOld", "revCardsNew",
               "revCardsDue", "revCardsRandom", "acqCardsRandom",
@@ -472,22 +481,23 @@ def _postSchemaUpgrade(deck):
         deck.db.execute("drop table if exists %sDeleted" % t)
     # rewrite due times for new cards
     deck.db.execute("""
-update cards set due = (select pos from facts where fid = facts.id) where type=2""")
+update cards set due = fid where type=2""")
     # convert due cards into day-based due
     deck.db.execute("""
 update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
 ((due-:stamp)/86400) as int)+:today where type
 between 0 and 1""", stamp=deck.sched.dayCutoff, today=deck.sched.today)
-    # update factPos
-    deck.conf['nextFactPos'] = deck.db.scalar("select max(pos) from facts")+1
+    # track ids
+    #deck.conf['nextFact'] = deck.db.scalar("select max(id) from facts")+1
+    #deck.conf['nextCard'] = deck.db.scalar("select max(id) from cards")+1
     deck.save()
 
     # optimize and finish
     deck.updateDynamicIndices()
     deck.db.execute("vacuum")
     deck.db.execute("analyze")
-    deck.db.execute("update deck set version = ?", CURRENT_VERSION)
+    deck.db.execute("update deck set ver = ?", CURRENT_VERSION)
     deck.save()
 
 # Post-init upgrade

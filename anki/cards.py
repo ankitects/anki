@@ -3,7 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import time
-from anki.utils import genID, intTime, hexifyID
+from anki.utils import intTime, hexifyID
 
 MAX_TIMER = 60
 
@@ -18,7 +18,7 @@ MAX_TIMER = 60
 # Flags: unused; reserved for future use
 
 # Due is used differently for different queues.
-# - new queue: fact.pos
+# - new queue: fact.id
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
@@ -26,46 +26,46 @@ class Card(object):
 
     def __init__(self, deck, id=None):
         self.deck = deck
+        self.timerStarted = None
+        self._qa = None
         if id:
             self.id = id
             self.load()
         else:
             # to flush, set fid, tid, due and ord
-            self.id = genID()
+            self.id = None
             self.gid = 1
-            self.q = ""
-            self.a = ""
-            self.flags = 0
+            self.crt = intTime()
             self.type = 2
             self.queue = 2
-            self.interval = 0
+            self.ivl = 0
             self.factor = 0
             self.reps = 0
             self.streak = 0
             self.lapses = 0
             self.grade = 0
             self.cycles = 0
-        self.timerStarted = None
+            self.data = ""
 
     def load(self):
         (self.id,
          self.fid,
          self.tid,
          self.gid,
-         self.mod,
-         self.q,
-         self.a,
          self.ord,
+         self.crt,
+         self.mod,
          self.type,
          self.queue,
          self.due,
-         self.interval,
+         self.ivl,
          self.factor,
          self.reps,
          self.streak,
          self.lapses,
          self.grade,
-         self.cycles) = self.deck.db.first(
+         self.cycles,
+         self.data) = self.deck.db.first(
              "select * from cards where id = ?", self.id)
 
     def flush(self):
@@ -78,38 +78,56 @@ insert or replace into cards values
             self.fid,
             self.tid,
             self.gid,
-            self.mod,
-            self.q,
-            self.a,
             self.ord,
+            self.crt,
+            self.mod,
             self.type,
             self.queue,
             self.due,
-            self.interval,
+            self.ivl,
             self.factor,
             self.reps,
             self.streak,
             self.lapses,
             self.grade,
-            self.cycles)
+            self.cycles,
+            self.data)
 
     def flushSched(self):
         self.mod = intTime()
         self.deck.db.execute(
             """update cards set
-mod=?, type=?, queue=?, due=?, interval=?, factor=?, reps=?,
+mod=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
 streak=?, lapses=?, grade=?, cycles=? where id = ?""",
-            self.mod, self.type, self.queue, self.due, self.interval,
+            self.mod, self.type, self.queue, self.due, self.ivl,
             self.factor, self.reps, self.streak, self.lapses,
             self.grade, self.cycles, self.id)
 
+    def q(self):
+        return self._getQA()['q']
+
+    def a(self):
+        return self._getQA()['a']
+
+    def _getQA(self, reload=False):
+        # this is a hack at the moment
+        if not self._qa or reload:
+            self._qa = self.deck.formatQA(
+                self.id,
+                self.deck._cacheFacts([self.fid])[self.fid],
+                self.deck._cacheMeta("and c.id = %d" % self.id)[2][self.id])
+        return self._qa
+
     def fact(self):
-        return self.deck.getFact(self.deck, self.fid)
+        return self.deck.getFact(self.fid)
+
+    def template(self):
+        return self.deck.getTemplate(self.tid)
 
     def startTimer(self):
         self.timerStarted = time.time()
 
-    def userTime(self):
+    def timeTaken(self):
         return min(time.time() - self.timerStarted, MAX_TIMER)
 
     # Questions and answers

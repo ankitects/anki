@@ -27,7 +27,7 @@ defaultConf = {
 class GroupConfig(object):
     def __init__(self, name):
         self.name = name
-        self.id = genID()
+        self.id = None
         self.config = defaultConf
 
     def load(self):

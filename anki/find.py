@@ -400,7 +400,8 @@ def _findCards(deck, query):
                 tquery += "select id from facts except "
             if token == "none":
                 tquery += """
-select cards.id from cards, facts where facts.tags = '' and cards.fid = facts.id """
+select id from cards where fid in (select fid from fdata where ord = -1 and
+val = ''"""
             else:
                 token = token.replace("*", "%")
                 if not token.startswith("%"):
@@ -409,7 +410,7 @@ select cards.id from cards, facts where facts.tags = '' and cards.fid = facts.id
                     token += " %"
                 args["_tag_%d" % c] = token
                 tquery += """
-select id from facts where tags like :_tag_%d""" % c
+select fid from fdata where ord = -1 and val like :_tag_%d""" % c
         elif type == SEARCH_TYPE:
             if qquery:
                 if isNeg:

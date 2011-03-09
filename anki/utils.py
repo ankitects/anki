@@ -197,28 +197,6 @@ def entsToTxt(html):
 # IDs
 ##############################################################################
 
-def genID(static=[]):
-    "Generate a random, unique 64bit ID."
-    # 23 bits of randomness, 41 bits of current time
-    # random rather than a counter to ensure efficient btree
-    t = long(time.time()*1000)
-    if not static:
-        static.extend([t, {}])
-    else:
-        if static[0] != t:
-            static[0] = t
-            static[1] = {}
-    while 1:
-        rand = random.getrandbits(23)
-        if rand not in static[1]:
-            static[1][rand] = True
-            break
-    x = rand << 41 | t
-    # turn into a signed long
-    if x >= 9223372036854775808L:
-        x -= 18446744073709551616L
-    return x
-
 def hexifyID(id):
     if id < 0:
         id += 18446744073709551616L
@@ -231,11 +209,7 @@ def dehexifyID(id):
     return id
 
 def ids2str(ids):
-    """Given a list of integers, return a string '(int1,int2,.)'
-
-The caller is responsible for ensuring only integers are provided.
-This is safe if you use sqlite primary key columns, which are guaranteed
-to be integers."""
+    """Given a list of integers, return a string '(int1,int2,...)'."""
     return "(%s)" % ",".join([str(i) for i in ids])
 
 # Tags

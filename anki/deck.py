@@ -8,7 +8,7 @@ from operator import itemgetter
 from itertools import groupby
 
 from anki.lang import _, ngettext
-from anki.utils import parseTags, tidyHTML, genID, ids2str, hexifyID, \
+from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
      canonifyTags, joinTags, addTags, deleteTags, checksum, fieldChecksum, \
      stripHTML, intTime
 
@@ -21,7 +21,7 @@ from anki.media import MediaRegistry
 from anki.consts import *
 import anki.latex # sets up hook
 
-import anki.cards, anki.facts, anki.models, anki.graves, anki.template
+import anki.cards, anki.facts, anki.models, anki.template
 
 # Settings related to queue building. These may be loaded without the rest of
 # the config to check due counts faster on mobile clients.
@@ -70,8 +70,7 @@ class _Deck(object):
         if self.utcOffset == -2:
             # shared deck; reset timezone and creation date
             self.utcOffset = time.timezone + 60*60*4
-            self.created = intTime()
-            self.mod = self.created
+            self.crt = intTime()
         self.undoEnabled = False
         self.sessionStartReps = 0
         self.sessionStartTime = 0
@@ -85,7 +84,7 @@ class _Deck(object):
     ##########################################################################
 
     def load(self):
-        (self.created,
+        (self.crt,
          self.mod,
          self.schema,
          self.syncName,
@@ -94,7 +93,7 @@ class _Deck(object):
          self.qconf,
          self.conf,
          self.data) = self.db.first("""
-select created, mod, schema, syncName, lastSync,
+select crt, mod, schema, syncName, lastSync,
 utcOffset, qconf, conf, data from deck""")
         self.qconf = simplejson.loads(self.qconf)
         self.conf = simplejson.loads(self.conf)
@@ -137,9 +136,14 @@ qconf=?, conf=?, data=?""",
         self.db.rollback()
 
     def modSchema(self):
+        if not self.schemaDirty():
+            # next sync will be full
+            self.emptyTrash()
         self.schema = intTime()
-        # next sync will be full, so we can forget old gravestones
-        anki.graves.forgetAll(self.db)
+
+    def schemaDirty(self):
+        "True if schema changed since last sync, or syncing off."
+        return self.schema > self.lastSync
 
     # unsorted
     ##########################################################################
@@ -151,6 +155,13 @@ qconf=?, conf=?, data=?""",
 
     def getCard(self, id):
         return anki.cards.Card(self, id)
+
+    def getFact(self, id):
+        return anki.facts.Fact(self, id=id)
+
+    def getTemplate(self, id):
+        return anki.models.Template(self, self.deck.db.first(
+            "select * from templates where id = ?", id))
 
         # if card:
         #     return card
@@ -448,7 +459,7 @@ due > :now and due < :now""", now=time.time())
     def addFact(self, fact):
         "Add a fact to the deck. Return number of new cards."
         # check we have card models available
-        cms = self.availableCardModels(fact)
+        cms = self.findTemplates(fact)
         if not cms:
             return None
         # set pos
@@ -458,6 +469,8 @@ due > :now and due < :now""", now=time.time())
         isRandom = self.qconf['newCardOrder'] == NEW_CARDS_RANDOM
         if isRandom:
             due = random.randrange(0, 10000)
+        # flush the fact so we get its id
+        fact.flush(cache=False)
         for template in cms:
             print "fixme:specify group on fact add"
             group = self.groupForTemplate(template)
@@ -482,8 +495,8 @@ due > :now and due < :now""", now=time.time())
         id = self.conf['currentGroupId']
         return self.db.query(anki.groups.GroupConf).get(id).load()
 
-    def availableCardModels(self, fact, checkActive=True):
-        "List of active card models that aren't empty for FACT."
+    def findTemplates(self, fact, checkActive=True):
+        "Return active, non-empty templates."
         ok = []
         for template in fact.model.templates:
             if template.active or not checkActive:
@@ -505,7 +518,7 @@ due > :now and due < :now""", now=time.time())
 
     def addCards(self, fact, tids):
         ids = []
-        for template in self.availableCardModels(fact, False):
+        for template in self.findTemplates(fact, False):
             if template.id not in tids:
                 continue
             if self.db.scalar("""
@@ -538,40 +551,26 @@ where fid = :fid and tid = :cmid""",
         return self.db.scalar("select count(id) from cards where fid = :id",
                              id=fid)
 
-    def deleteFact(self, fid):
-        "Delete a fact. Removes any associated cards. Don't flush."
-        # remove any remaining cards
-        self.db.execute("insert into cardsDeleted select id, :time "
-                         "from cards where fid = :fid",
-                         time=time.time(), fid=fid)
-        self.db.execute(
-            "delete from cards where fid = :id", id=fid)
-        # and then the fact
-        self.deleteFacts([fid])
-
-    def deleteFacts(self, ids):
-        "Bulk delete facts by ID; don't touch cards."
+    def _deleteFacts(self, ids):
+        "Bulk delete facts by ID. Don't call this directly."
         if not ids:
             return
-        now = time.time()
         strids = ids2str(ids)
         self.db.execute("delete from facts where id in %s" % strids)
         self.db.execute("delete from fdata where fid in %s" % strids)
-        anki.graves.registerMany(self.db, anki.graves.FACT, ids)
 
-    def deleteDanglingFacts(self):
-        "Delete any facts without cards. Return deleted ids."
+    def _deleteDanglingFacts(self):
+        "Delete any facts without cards. Don't call this directly."
         ids = self.db.list("""
-select facts.id from facts
-where facts.id not in (select distinct fid from cards)""")
-        self.deleteFacts(ids)
+select id from facts where id not in (select distinct fid from cards)""")
+        self._deleteFacts(ids)
         return ids
 
     def previewFact(self, oldFact, cms=None):
         "Duplicate fact and generate cards for preview. Don't add to deck."
         # check we have card models available
         if cms is None:
-            cms = self.availableCardModels(oldFact, checkActive=True)
+            cms = self.findTemplates(oldFact, checkActive=True)
         if not cms:
             return []
         fact = self.cloneFact(oldFact)
@@ -596,29 +595,41 @@ where facts.id not in (select distinct fid from cards)""")
     ##########################################################################
 
     def cardCount(self):
-        return self.db.scalar("select count() from cards")
+        all = self.db.scalar("select count() from cards")
+        trash = self.db.scalar("select count() from cards where queue = -4")
+        return all - trash
 
     def deleteCard(self, id):
-        "Delete a card given its id. Delete any unused facts. Don't flush."
+        "Delete a card given its id. Delete any unused facts."
         self.deleteCards([id])
 
     def deleteCards(self, ids):
         "Bulk delete cards by ID."
         if not ids:
             return
-        now = time.time()
-        strids = ids2str(ids)
+        sids = ids2str(ids)
         self.startProgress()
-        # grab fact ids
-        fids = self.db.list("select fid from cards where id in %s"
-                                 % strids)
-        # drop from cards
-        self.db.execute("delete from cards where id in %s" % strids)
-        # note deleted
-        anki.graves.registerMany(self.db, anki.graves.CARD, ids)
-        # remove any dangling facts
-        self.deleteDanglingFacts()
+        if self.schemaDirty():
+            # immediate delete?
+            self.db.execute("delete from cards where id in %s" % sids)
+            # remove any dangling facts
+            self._deleteDanglingFacts()
+        else:
+            # trash
+            sfids = ids2str(
+                self.db.list("select fid from cards where id in "+sids))
+            self.db.execute("delete from revlog where cid in "+sids)
+            self.db.execute("update cards set crt = 0 where id in "+sids)
+            self.db.execute("update facts set crt = 0 where id in "+sfids)
+            self.db.execute("delete from fdata where fid in "+sfids)
         self.finishProgress()
+
+    def emptyTrash(self):
+        self.db.executescript("""
+delete from facts where id in (select fid from cards where queue = -4);
+delete from fdata where fid in (select fid from cards where queue = -4);
+delete from revlog where cid in (select id from cards where queue = -4);
+delete from cards where queue = -4;""")
 
     # Models
     ##########################################################################
@@ -639,6 +650,7 @@ where facts.id not in (select distinct fid from cards)""")
 
     def deleteModel(self, mid):
         "Delete MODEL, and all its cards/facts."
+        # do a direct delete
         self.modSchema()
         # delete facts/cards
         self.deleteCards(self.db.list("""
@@ -648,7 +660,6 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         self.db.execute("delete from models where id = ?", mid)
         self.db.execute("delete from templates where mid = ?", mid)
         self.db.execute("delete from fields where mid = ?", mid)
-        anki.graves.registerOne(self.db, anki.graves.MODEL, mid)
         # GUI should ensure last model is not deleted
         if self.conf['currentModelId'] == mid:
             self.conf['currentModelId'] = self.db.scalar(
@@ -732,16 +743,15 @@ and fmid = :id""" % sfids, id=old.id)
             # new
             for field in newModel.fields:
                 if field not in seen:
-                    d = [{'id': genID(),
-                          'fid': f,
+                    d = [{'fid': f,
                           'fmid': field.id,
                           'ord': field.ord}
                          for f in fids]
                     self.db.executemany('''
 insert into fdata
-(id, fid, fmid, ord, value)
+(fid, fmid, ord, value)
 values
-(:id, :fid, :fmid, :ord, "")''', d)
+(:fid, :fmid, :ord, "")''', d)
             # fact modtime
             self.db.execute("""
 update facts set
@@ -895,7 +905,7 @@ where tid in %s""" % strids, now=time.time())
     ##########################################################################
 
     def updateCache(self, ids, type="card"):
-        "Update cache after cards, facts or models changed."
+        "Update cache after facts or models changed."
         # gather metadata
         if type == "card":
             where = "and c.id in " + ids2str(ids)
@@ -911,10 +921,6 @@ where tid in %s""" % strids, now=time.time())
         # generate q/a
         pend = [self.formatQA(cids[n], facts[fids[n]], meta[cids[n]])
                 for n in range(len(cids))]
-        # update q/a
-        self.db.executemany(
-            "update cards set q = :q, a = :a, mod = %d where id = :id" %
-            intTime(), pend)
         for p in pend:
             self.media.registerText(p['q'])
             self.media.registerText(p['a'])
@@ -927,17 +933,21 @@ where tid in %s""" % strids, now=time.time())
         "Returns hash of id, question, answer."
         d = {'id': cardId}
         fields = {}
+        tags = None
         for (k, v) in fact.items():
+            if k == None:
+                tags = v[1]
+                continue
             fields["text:"+k] = stripHTML(v[1])
             if v[1]:
                 fields[k] = '<span class="fm%s">%s</span>' % (
                     hexifyID(v[0]), v[1])
             else:
                 fields[k] = u""
-        fields['Tags'] = meta[3]
-        fields['Model'] = meta[4]
-        fields['Template'] = meta[5]
-        fields['Group'] = meta[6]
+        fields['Tags'] = tags
+        fields['Model'] = meta[3]
+        fields['Template'] = meta[4]
+        fields['Group'] = meta[5]
         # render q & a
         for (type, format) in (("q", meta[1]), ("a", meta[2])):
             if filters:
@@ -950,12 +960,12 @@ where tid in %s""" % strids, now=time.time())
 
     def _cacheMeta(self, where=""):
         "Return cids, fids, and cid -> data hash."
-        # data is [fid, qfmt, afmt, tags, model, template, group]
+        # data is [fid, qfmt, afmt, model, template, group]
         meta = {}
         cids = []
         fids = []
         for r in self.db.execute("""
-select c.id, f.id, t.qfmt, t.afmt, f.tags, m.name, t.name, g.name
+select c.id, f.id, t.qfmt, t.afmt, m.name, t.name, g.name
 from cards c, facts f, models m, templates t, groups g where
 c.fid == f.id and f.mid == m.id and
 c.tid = t.id and c.gid = g.id
@@ -970,9 +980,8 @@ c.tid = t.id and c.gid = g.id
         facts = {}
         for id, fields in groupby(self.db.all("""
 select fdata.fid, fields.name, fields.id, fdata.val
-from fdata, fields where fdata.fid in %s and
-fdata.fmid = fields.id
-order by fdata.fid""" % ids2str(ids)), itemgetter(0)):
+from fdata left outer join fields on fdata.fmid = fields.id
+where fdata.fid in %s order by fdata.fid""" % ids2str(ids)), itemgetter(0)):
             facts[id] = dict([(f[1], f[2:]) for f in fields])
         return facts
 
@@ -992,7 +1001,7 @@ order by fdata.fid""" % ids2str(ids)), itemgetter(0)):
         r = []
         for (fid, map) in facts.items():
             for (fmid, val) in map.values():
-                if fmid not in confs:
+                if fmid and fmid not in confs:
                     confs[fmid] = simplejson.loads(self.db.scalar(
                         "select conf from fields where id = ?",
                         fmid))
@@ -1046,15 +1055,15 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
         self.registerTags(newTags)
         # find facts missing the tags
         if add:
-            l = "tags not "
+            l = "val not "
             fn = addTags
         else:
-            l = "tags "
+            l = "val "
             fn = deleteTags
         lim = " or ".join(
             [l+"like :_%d" % c for c, t in enumerate(newTags)])
         res = self.db.all(
-            "select id, tags from facts where " + lim,
+            "select fid, val from fdata where ord = -1 and " + lim,
             **dict([("_%d" % x, '%% %s %%' % y) for x, y in enumerate(newTags)]))
         # update tags
         fids = []
@@ -1062,8 +1071,10 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
             fids.append(row[0])
             return {'id': row[0], 't': fn(tags, row[1])}
         self.db.executemany("""
-update facts set tags = :t, mod = %d
-where id = :id""" % intTime(), [fix(row) for row in res])
+update fdata set val = :t
+where fid = :id""", [fix(row) for row in res])
+        self.db.execute("update facts set mod = ? where id in " +
+                        ids2str(fids), intTime())
         # update q/a cache
         self.updateCache(fids, type="fact")
         self.finishProgress()
@@ -1234,41 +1245,6 @@ where id = :id""" % intTime(), [fix(row) for row in res])
 
     # DB maintenance
     ##########################################################################
-
-    def recoverCards(self, ids):
-        "Put cards with damaged facts into new facts."
-        # create a new model in case the user has mod a previous one
-        from anki.stdmodels import RecoveryModel
-        m = RecoveryModel()
-        last = self.currentModel
-        self.addModel(m)
-        def repl(s):
-            # strip field model text
-            return re.sub("<span class=\"fm.*?>(.*?)</span>", "\\1", s)
-        # add new facts, pointing old card at new fact
-        for (id, q, a) in self.db.all("""
-select id, question, answer from cards
-where id in %s""" % ids2str(ids)):
-            f = self.newFact()
-            f['Question'] = repl(q)
-            f['Answer'] = repl(a)
-            try:
-                f.tags = self.db.scalar("""
-select group_concat(name, " ") from tags t, cardTags ct
-where cardId = :cid and ct.tagId = t.id""", cid=id) or u""
-                if f.tags:
-                    f.tags = " " + f.tags + " "
-            except:
-                raise Exception("Your sqlite is too old.")
-            cards = self.addFact(f)
-            # delete the freshly created card and point old card to this fact
-            self.db.execute("delete from cards where id = :id",
-                             id=f.cards[0].id)
-            self.db.execute("""
-update cards set fid = :fid, tid = :cmid, ord = 0
-where id = :id""", fid=f.id, cmid=m.templates[0].id, id=id)
-        # restore old model
-        self.currentModel = last
 
     def fixIntegrity(self, quick=False):
         "Fix possible problems and rebuild caches."
