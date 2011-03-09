@@ -213,6 +213,22 @@ def _moveTable(db, table, insExtra=""):
     db.execute("drop table "+table)
     _addSchema(db, False)
 
+def _insertWithIdChange(db, map, idx, table, numVals):
+    "Fetching and re-inserting is a lot faster than row by row updates."
+    data = []
+    for row in db.all("select * from %s" % table):
+        row = list(row)
+        try:
+            row[idx] = map[row[idx]]
+            data.append(row)
+        except:
+            # referenced non-existant object
+            pass
+    db.execute("delete from %s" % table)
+    db.executemany(
+        "insert into %s values (?%s)" % (table, ",?"*(numVals-1)),
+        data)
+
 def _upgradeSchema(db):
     "Alter tables prior to ORM initialization."
     try:
@@ -230,9 +246,8 @@ def _upgradeSchema(db):
     # move into temp table
     _moveTable(db, "cards", " order by created")
     # use the new order to rewrite card ids
-    for (old, new) in db.all("select id, rowid from cards2"):
-        db.execute(
-            "update reviewHistory set cardId = ? where cardId = ?", new, old)
+    map = dict(db.all("select id, rowid from cards2"))
+    _insertWithIdChange(db, map, 0, "reviewHistory", 12)
     # move back, preserving new ids
     db.execute("""
 insert into cards select rowid, factId, cardModelId, 1, ordinal,
@@ -269,10 +284,9 @@ create table facts2
 insert into facts2 select id, modelId, created, modified, spaceUntil
 from facts order by created""")
     # use the new order to rewrite fact ids
-    for (old, new) in db.all("select id, rowid from facts2"):
-        db.execute("update fields set factId = ? where factId = ?",
-                        new, old)
-        db.execute("update cards set fid = ? where fid = ?", new, old)
+    map = dict(db.all("select id, rowid from facts2"))
+    _insertWithIdChange(db, map, 1, "fields", 5)
+    _insertWithIdChange(db, map, 1, "cards", 18)
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)

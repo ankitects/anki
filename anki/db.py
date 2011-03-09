@@ -2,6 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+import os
 try:
     from pysqlite2 import dbapi2 as sqlite
 except ImportError:
@@ -18,7 +19,7 @@ class DB(object):
         self._db = sqlite.connect(
             path, timeout=0, isolation_level=level)
         self._path = path
-        self.echo = False
+        self.echo = os.environ.get("DBECHO")
 
     def execute(self, sql, *a, **ka):
         if self.echo:
