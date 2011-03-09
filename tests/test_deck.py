@@ -64,7 +64,7 @@ def test_factAddDelete():
         assert not p
     # now let's make a duplicate and test uniqueness
     f2 = deck.newFact()
-    f2.model.fields[1].conf['required'] = True
+    f2.model.fields[1]['req'] = True
     f2['Front'] = u"one"; f2['Back'] = u""
     p = f2.problems()
     assert p[0] == "unique"

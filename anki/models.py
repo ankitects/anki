@@ -2,12 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""\
-Models load their templates and fields when they are loaded. If you update a
-template or field, you should call model.flush(), rather than trying to save
-the subobject directly.
-"""
-
 import simplejson
 from anki.utils import intTime
 from anki.lang import _
@@ -36,20 +30,21 @@ class Model(object):
     def load(self):
         (self.mod,
          self.name,
+         self.fields,
          self.conf) = self.deck.db.first("""
-select mod, name, conf from models where id = ?""", self.id)
+select mod, name, flds, conf from models where id = ?""", self.id)
+        self.fields = simplejson.loads(self.fields)
         self.conf = simplejson.loads(self.conf)
-        self.loadFields()
         self.loadTemplates()
 
     def flush(self):
         self.mod = intTime()
         ret = self.deck.db.execute("""
-insert or replace into models values (?, ?, ?, ?)""",
-                             self.id, self.mod, self.name,
-                             simplejson.dumps(self.conf))
+insert or replace into models values (?, ?, ?, ?, ?)""",
+                self.id, self.mod, self.name,
+                simplejson.dumps(self.fields),
+                simplejson.dumps(self.conf))
         self.id = ret.lastrowid
-        [f._flush() for f in self.fields]
         [t._flush() for t in self.templates]
 
     def updateCache(self):
@@ -64,20 +59,19 @@ insert or replace into models values (?, ?, ?, ?)""",
     # Fields
     ##################################################
 
-    def loadFields(self):
-        sql = "select * from fields where mid = ? order by ord"
-        self.fields = [Field(self.deck, data)
-                       for data in self.deck.db.all(sql, self.id)]
+    def newField(self):
+        return defaultFieldConf.copy()
 
     def addField(self, field):
         self.deck.modSchema()
-        field.mid = self._getID()
-        field.ord = len(self.fields)
         self.fields.append(field)
 
     def fieldMap(self):
-        "Mapping of field name -> (fmid, ord)."
-        return dict([(f.name, (f.id, f.ord, f.conf)) for f in self.fields])
+        "Mapping of field name -> (ord, conf)."
+        return dict([(f['name'], (c, f)) for c, f in enumerate(self.fields)])
+
+    def sortField(self):
+        return 0
 
     # Templates
     ##################################################
@@ -101,64 +95,32 @@ insert or replace into models values (?, ?, ?, ?)""",
         new = Model(self.deck, self.id)
         new.id = None
         new.name += _(" copy")
+        new.fields = [f.copy() for f in self.fields]
         # get new id
-        f = new.fields; new.fields = []
         t = new.templates; new.templates = []
         new.flush()
         # then put back
-        new.fields = f
         new.templates = t
-        for f in new.fields:
-            f.id = None
-            f.mid = new.id
-            f._flush()
         for t in new.templates:
             t.id = None
             t.mid = new.id
             t._flush()
         return new
 
-# Field model object
+# Field object
 ##########################################################################
 
 defaultFieldConf = {
-    'rtl': False, # features
-    'required': False,
-    'unique': False,
+    'name': "",
+    'rtl': False,
+    'req': False,
+    'uniq': False,
     'font': "Arial",
-    'quizSize': 20,
-    'editSize': 20,
-    'quizColour': "#fff",
+    'qsize': 20,
+    'esize': 20,
+    'qcol': "#fff",
     'pre': True,
 }
-
-class Field(object):
-
-    def __init__(self, deck, data=None):
-        self.deck = deck
-        if data:
-            self.initFromData(data)
-        else:
-            self.id = None
-            self.numeric = 0
-            self.conf = defaultFieldConf.copy()
-
-    def initFromData(self, data):
-        (self.id,
-         self.mid,
-         self.ord,
-         self.name,
-         self.numeric,
-         self.conf) = data
-        self.conf = simplejson.loads(self.conf)
-
-    def _flush(self):
-        ret = self.deck.db.execute("""
-insert or replace into fields values (?, ?, ?, ?, ?, ?)""",
-                             self.id, self.mid, self.ord,
-                             self.name, self.numeric,
-                             simplejson.dumps(self.conf))
-        self.id = ret.lastrowid
 
 # Template object
 ##########################################################################

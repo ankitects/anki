@@ -177,11 +177,7 @@ If a file with the same name exists, return a unique name."""
                 return unicodedata.normalize('NFD', s)
             return s
         # generate q/a and look through all references
-        (cids, fids, meta) = self.deck._cacheMeta()
-        facts = self.deck._cacheFacts(fids)
-        pend = [self.deck.formatQA(cids[n], facts[fids[n]], meta[cids[n]])
-                for n in range(len(cids))]
-        for p in pend:
+        for p in self.deck.updateCache(type="all"):
             for type in ("q", "a"):
                 for f in self.mediaFiles(p[type]):
                     normrefs[norm(f)] = True

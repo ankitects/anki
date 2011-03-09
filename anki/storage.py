@@ -87,22 +87,17 @@ create table if not exists facts (
     mid             integer not null,
     crt             integer not null,
     mod             integer not null,
-    cache           text not null
+    tags            text not null,
+    flds            text not null,
+    sfld            text not null,
+    data            text not null
 );
 
 create table if not exists models (
     id              integer primary key,
     mod             integer not null,
     name            text not null,
-    conf            text not null
-);
-
-create table if not exists fields (
-    id              integer primary key,
-    mid             integer not null,
-    ord             integer not null,
-    name            text not null,
-    numeric         integer not null,
+    flds            text not null,
     conf            text not null
 );
 
@@ -115,14 +110,6 @@ create table if not exists templates (
     qfmt            text not null,
     afmt            text not null,
     conf            text not null
-);
-
-create table if not exists fdata (
-    fid             integer not null,
-    fmid            integer not null,
-    ord             integer not null,
-    val             text not null,
-    csum            text not null
 );
 
 create table if not exists gconf (
@@ -190,9 +177,6 @@ create index if not exists ix_cards_mod on cards (mod);
 create index if not exists ix_facts_mod on facts (mod);
 -- card spacing, etc
 create index if not exists ix_cards_fid on cards (fid);
--- fact data
-create index if not exists ix_fdata_fid on fdata (fid);
-create index if not exists ix_fdata_csum on fdata (csum);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
 -- media
@@ -204,10 +188,16 @@ create index if not exists ix_media_csum on media (csum);
 # we don't have access to the progress handler at this point, so the GUI code
 # will need to set up a progress handling window before opening a deck.
 
-def _moveTable(db, table, insExtra=""):
+def _moveTable(db, table, cards=False):
+    if cards:
+        insExtra = " order by created"
+    else:
+        insExtra = ""
     sql = db.scalar(
         "select sql from sqlite_master where name = '%s'" % table)
     sql = sql.replace("TABLE "+table, "temporary table %s2" % table)
+    if cards:
+        sql = sql.replace("PRIMARY KEY (id),", "")
     db.execute(sql)
     db.execute("insert into %s2 select * from %s%s" % (table, table, insExtra))
     db.execute("drop table "+table)
@@ -244,7 +234,7 @@ def _upgradeSchema(db):
     # cards
     ###########
     # move into temp table
-    _moveTable(db, "cards", " order by created")
+    _moveTable(db, "cards", True)
     # use the new order to rewrite card ids
     map = dict(db.all("select id, rowid from cards2"))
     _insertWithIdChange(db, map, 0, "reviewHistory", 12)
@@ -274,26 +264,36 @@ when trim(tags) == "" then ""
 else " " || replace(replace(trim(tags), ",", " "), "  ", " ") || " "
 end)
 """)
-    # we store them as fields now
-    db.execute("insert into fields select null, id, 0, -1, tags from facts")
-    # put facts in a temporary table, sorted by created
-    db.execute("""
-create table facts2
-(id, modelId, created, modified, cache)""")
-    db.execute("""
-insert into facts2 select id, modelId, created, modified, spaceUntil
+    # pull facts into memory, so we can merge them with fields efficiently
+    facts = db.all("""
+select id, modelId, cast(created as int), cast(modified as int), tags
 from facts order by created""")
-    # use the new order to rewrite fact ids
-    map = dict(db.all("select id, rowid from facts2"))
-    _insertWithIdChange(db, map, 1, "fields", 5)
+    # build field hash
+    fields = {}
+    for (fid, ord, val) in db.execute(
+        "select factId, ordinal, value from fields order by factId, ordinal"):
+        if fid not in fields:
+            fields[fid] = []
+        fields[fid].append((ord, val))
+    # build insert data and transform ids, and minimize qt's
+    # bold/italics/underline cruft.
+    map = {}
+    data = []
+    from anki.utils import minimizeHTML
+    for c, row in enumerate(facts):
+        oldid = row[0]
+        map[oldid] = c+1
+        row = list(row)
+        row[0] = c+1
+        row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
+        data.append(row)
+    # use the new order to rewrite fact ids in cards table
     _insertWithIdChange(db, map, 1, "cards", 18)
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
-    db.execute("""
-insert or ignore into facts select rowid, modelId,
-cast(created as int), cast(modified as int), cache from facts2""")
-    db.execute("drop table facts2")
+    db.executemany("insert into facts values (?,?,?,?,?,?,'','')", data)
+    db.execute("drop table fields")
 
     # media
     ###########
@@ -303,19 +303,12 @@ insert or ignore into media select filename, cast(created as int),
 originalPath from media2""")
     db.execute("drop table media2")
 
-    # fields -> fdata
-    ###########
-    db.execute("""
-insert into fdata select factId, fieldModelId, ordinal, value, ''
-from fields order by factId, ordinal""")
-    db.execute("drop table fields")
-
     # models
     ###########
     _moveTable(db, "models")
     db.execute("""
 insert into models select id, cast(modified as int),
-name, "{}" from models2""")
+name, "{}", "{}" from models2""")
     db.execute("drop table models2")
 
     # reviewHistory -> revlog
@@ -333,8 +326,8 @@ cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
     # longer migrations
     ###########
     _migrateDeckTbl(db)
-    _migrateFieldsTbl(db)
-    _migrateTemplatesTbl(db)
+    mods = _migrateFieldsTbl(db)
+    _migrateTemplatesTbl(db, mods)
 
     _updateIndices(db)
     return ver
@@ -385,32 +378,36 @@ utcOffset, "", "", "" from decks""", t=intTime())
 
 def _migrateFieldsTbl(db):
     import anki.models
-    db.execute("""
-insert into fields select id, modelId, ordinal, name, numeric, ''
-from fieldModels""")
     dconf = anki.models.defaultFieldConf
+    mods = {}
     for row in db.all("""
-select id, features, required, "unique", quizFontFamily, quizFontSize,
-quizFontColour, editFontSize from fieldModels"""):
+select id, modelId, ordinal, name, features, required, "unique",
+quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels"""):
         conf = dconf.copy()
-        (conf['rtl'],
-         conf['required'],
-         conf['unique'],
+        if row[1] not in mods:
+            mods[row[1]] = []
+        (conf['name'],
+         conf['rtl'],
+         conf['req'],
+         conf['uniq'],
          conf['font'],
-         conf['quizSize'],
-         conf['quizColour'],
-         conf['editSize']) = row[1:]
+         conf['qsize'],
+         conf['qcol'],
+         conf['esize']) = row[3:]
         # setup bools
         conf['rtl'] = not not conf['rtl']
         conf['pre'] = True
-        # save
-        db.execute("update fields set conf = ? where id = ?",
-                   simplejson.dumps(conf), row[0])
+        # add to model list with ordinal for sorting
+        mods[row[1]].append((row[2], conf))
+    # now we've gathered all the info, save it into the models
+    for mid, fms in mods.items():
+        db.execute("update models set flds = ? where id = ?",
+                   simplejson.dumps([x[1] for x in sorted(fms)]), mid)
     # clean up
     db.execute("drop table fieldModels")
+    return mods
 
-def _migrateTemplatesTbl(db):
-    # do this after fieldModel migration
+def _migrateTemplatesTbl(db, mods):
     import anki.models
     db.execute("""
 insert into templates select id, modelId, ordinal, name, active, qformat,
@@ -425,10 +422,11 @@ allowEmptyAnswer, typeAnswer from cardModels"""):
          conf['bg'],
          conf['allowEmptyAns'],
          fname) = row[2:]
-        # convert the field name to an id
-        conf['typeAnswer'] = db.scalar(
-            "select id from fields where name = ? and mid = ?",
-            fname, row[1])
+        # convert the field name to an ordinal
+        for (ord, fm) in mods[row[1]]:
+            if fm['name'] == row[1]:
+                conf['typeAnswer'] = ord
+                break
         # save
         db.execute("update templates set conf = ? where id = ?",
                    simplejson.dumps(conf), row[0])
@@ -440,7 +438,6 @@ def _rewriteModelIds(deck):
     models = deck.allModels()
     deck.db.execute("delete from models")
     deck.db.execute("delete from templates")
-    deck.db.execute("delete from fields")
     for c, m in enumerate(models):
         old = m.id
         m.id = c+1
@@ -451,13 +448,6 @@ def _rewriteModelIds(deck):
             t._flush()
             deck.db.execute(
                 "update cards set tid = ? where tid = ?", t.mid, oldT)
-        for f in m.fields:
-            f.mid = m.id
-            oldF = f.id
-            f.id = None
-            f._flush()
-            deck.db.execute(
-                "update fdata set fmid = ? where fmid = ?", f.id, oldF)
         m.flush()
         deck.db.execute("update facts set mid = ? where mid = ?", m.id, old)
 
@@ -470,20 +460,12 @@ def _postSchemaUpgrade(deck):
               "revCardsDue", "revCardsRandom", "acqCardsRandom",
               "acqCardsOld", "acqCardsNew"):
         deck.db.execute("drop view if exists %s" % v)
-    # minimize qt's bold/italics/underline cruft. we made need to use lxml to
-    # do this properly
-    from anki.utils import minimizeHTML
-    r = [(minimizeHTML(x[2]), x[0], x[1]) for x in deck.db.execute(
-        "select fid, fmid, val from fdata")]
-    deck.db.executemany("update fdata set val = ? where fid = ? and fmid = ?",
-                        r)
-    # ensure all templates use the new style field format, and update cach
+    # ensure all templates use the new style field format
     for m in deck.allModels():
         for t in m.templates:
             t.qfmt = re.sub("%\((.+?)\)s", "{{\\1}}", t.qfmt)
             t.afmt = re.sub("%\((.+?)\)s", "{{\\1}}", t.afmt)
         m.flush()
-        m.updateCache()
     # remove stats, as it's all in the revlog now
     deck.db.execute("drop table if exists stats")
     # suspended cards don't use ranges anymore

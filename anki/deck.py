@@ -148,6 +148,11 @@ qconf=?, conf=?, data=?""",
     # unsorted
     ##########################################################################
 
+    def nextID(self, type):
+        id = self.conf.get(type, 1)
+        self.conf[type] = id+1
+        return id
+
     def reset(self):
         self.sched.reset()
         # recache css
@@ -500,14 +505,12 @@ due > :now and due < :now""", now=time.time())
         ok = []
         for template in fact.model.templates:
             if template.active or not checkActive:
-                # [cid, fid, qfmt, afmt, tags, model, template, group]
-                meta = [None, template.qfmt, template.afmt,
-                        "", "", "", ""]
-                fields = fact.fieldsWithIds()
-                now = self.formatQA(None, fields, meta, False)
-                for k in fields.keys():
-                    fields[k] = (fields[k][0], "")
-                empty = self.formatQA(None, fields, meta, False)
+                # [cid, fid, mid, tid, gid, tags, flds, data]
+                data = [1, 1, fact.model.id, template.id, 1,
+                        "", fact.joinedFields(), ""]
+                now = self.formatQA(fact.model, template, "", data)
+                data[6] = "\x1f".join([""]*len(fact._fields))
+                empty = self.formatQA(fact.model, template, "", data)
                 if now['q'] == empty['q']:
                     continue
                 if not template.conf['allowEmptyAns']:
@@ -557,7 +560,7 @@ where fid = :fid and tid = :cmid""",
             return
         strids = ids2str(ids)
         self.db.execute("delete from facts where id in %s" % strids)
-        self.db.execute("delete from fdata where fid in %s" % strids)
+        #self.db.execute("delete from fdata where fid in %s" % strids)
 
     def _deleteDanglingFacts(self):
         "Delete any facts without cards. Don't call this directly."
@@ -659,7 +662,6 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         # then the model
         self.db.execute("delete from models where id = ?", mid)
         self.db.execute("delete from templates where mid = ?", mid)
-        self.db.execute("delete from fields where mid = ?", mid)
         # GUI should ensure last model is not deleted
         if self.conf['currentModelId'] == mid:
             self.conf['currentModelId'] = self.db.scalar(
@@ -904,7 +906,7 @@ where tid in %s""" % strids, now=time.time())
     # Caches: q/a, facts.cache and fdata.csum
     ##########################################################################
 
-    def updateCache(self, ids, type="card"):
+    def updateCache(self, ids=None, type="card"):
         "Update cache after facts or models changed."
         # gather metadata
         if type == "card":
@@ -913,87 +915,62 @@ where tid in %s""" % strids, now=time.time())
             where = "and f.id in " + ids2str(ids)
         elif type == "model":
             where = "and m.id in " + ids2str(ids)
-        (cids, fids, meta) = self._cacheMeta(where)
-        if not cids:
-            return
-        # and fact info
-        facts = self._cacheFacts(fids)
-        # generate q/a
-        pend = [self.formatQA(cids[n], facts[fids[n]], meta[cids[n]])
-                for n in range(len(cids))]
-        for p in pend:
-            self.media.registerText(p['q'])
-            self.media.registerText(p['a'])
-        # fact value cache
-        self._updateFieldCache(facts)
-        # and checksum
-        self._updateFieldChecksums(facts)
+        elif type == "all":
+            where = ""
+        else:
+            raise Exception()
+        mods = {}
+        templs = {}
+        for m in self.allModels():
+            mods[m.id] = m
+            for t in m.templates:
+                templs[t.id] = t
+        groups = dict(self.db.all("select id, name from groups"))
+        return [self.formatQA(mods[row[2]], templs[row[3]], groups[row[4]], row)
+                for row in self._qaData(where)]
+        # # and checksum
+        # self._updateFieldChecksums(facts)
 
-    def formatQA(self, cardId, fact, meta, filters=True):
+    def formatQA(self, model, template, gname, data, filters=True):
         "Returns hash of id, question, answer."
-        d = {'id': cardId}
+        # data is [cid, fid, mid, tid, gid, tags, flds, data]
+        # unpack fields and create dict
+        flist = data[6].split("\x1f")
         fields = {}
-        tags = None
-        for (k, v) in fact.items():
-            if k == None:
-                tags = v[1]
-                continue
-            fields["text:"+k] = stripHTML(v[1])
-            if v[1]:
-                fields[k] = '<span class="fm%s">%s</span>' % (
-                    hexifyID(v[0]), v[1])
+        for (name, (idx, conf)) in model.fieldMap().items():
+            fields[name] = flist[idx]
+            fields["text:"+name] = stripHTML(fields[name])
+            if fields[name]:
+                fields["text:"+name] = stripHTML(fields[name])
+                fields[name] = '<span class="fm%s-%s">%s</span>' % (
+                    hexifyID(data[2]), hexifyID(idx), fields[name])
             else:
-                fields[k] = u""
-        fields['Tags'] = tags
-        fields['Model'] = meta[3]
-        fields['Template'] = meta[4]
-        fields['Group'] = meta[5]
+                fields["text:"+name] = ""
+                fields[name] = ""
+        fields['Tags'] = data[5]
+        fields['Model'] = model.name
+        fields['Template'] = template.name
+        fields['Group'] = gname
         # render q & a
-        for (type, format) in (("q", meta[1]), ("a", meta[2])):
-            if filters:
-                fields = runFilter("formatQA.pre", fields, meta, self)
+        d = dict(id=data[0])
+        for (type, format) in (("q", template.qfmt), ("a", template.afmt)):
+            # if filters:
+            #     fields = runFilter("formatQA.pre", fields, , self)
             html = anki.template.render(format, fields)
-            if filters:
-                d[type] = runFilter("formatQA.post", html, fields, meta, self)
+            # if filters:
+            #     d[type] = runFilter("formatQA.post", html, fields, meta, self)
+            self.media.registerText(html)
             d[type] = html
         return d
 
-    def _cacheMeta(self, where=""):
-        "Return cids, fids, and cid -> data hash."
-        # data is [fid, qfmt, afmt, model, template, group]
-        meta = {}
-        cids = []
-        fids = []
-        for r in self.db.execute("""
-select c.id, f.id, t.qfmt, t.afmt, m.name, t.name, g.name
-from cards c, facts f, models m, templates t, groups g where
-c.fid == f.id and f.mid == m.id and
+    def _qaData(self, where=""):
+        "Return [cid, fid, mid, tid, gid, tags, flds, data] db query"
+        return self.db.execute("""
+select c.id, f.id, m.id, t.id, g.id, f.tags, f.flds, f.data
+from cards c, facts f, models m, templates t, groups g
+where c.fid == f.id and f.mid == m.id and
 c.tid = t.id and c.gid = g.id
-%s""" % where):
-            meta[r[0]] = r[1:]
-            cids.append(r[0])
-            fids.append(r[1])
-        return (cids, fids, meta)
-
-    def _cacheFacts(self, ids):
-        "Return a hash of fid -> (name -> (id, val))."
-        facts = {}
-        for id, fields in groupby(self.db.all("""
-select fdata.fid, fields.name, fields.id, fdata.val
-from fdata left outer join fields on fdata.fmid = fields.id
-where fdata.fid in %s order by fdata.fid""" % ids2str(ids)), itemgetter(0)):
-            facts[id] = dict([(f[1], f[2:]) for f in fields])
-        return facts
-
-    def _updateFieldCache(self, facts):
-        "Add stripped HTML cache for searching."
-        r = []
-        from anki.utils import stripHTMLMedia
-        [r.append((stripHTMLMedia(
-            " ".join([x[1] for x in map.values()])), id))
-         for (id, map) in facts.items()]
-        self.db.executemany(
-            "update facts set cache=? where id=?", r)
+%s""" % where)
 
     def _updateFieldChecksums(self, facts):
         print "benchmark updatefieldchecksums"
@@ -1055,26 +1032,23 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
         self.registerTags(newTags)
         # find facts missing the tags
         if add:
-            l = "val not "
+            l = "tags not "
             fn = addTags
         else:
-            l = "val "
+            l = "tags "
             fn = deleteTags
         lim = " or ".join(
             [l+"like :_%d" % c for c, t in enumerate(newTags)])
         res = self.db.all(
-            "select fid, val from fdata where ord = -1 and " + lim,
+            "select id, tags from facts where " + lim,
             **dict([("_%d" % x, '%% %s %%' % y) for x, y in enumerate(newTags)]))
         # update tags
         fids = []
         def fix(row):
             fids.append(row[0])
-            return {'id': row[0], 't': fn(tags, row[1])}
+            return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime()}
         self.db.executemany("""
-update fdata set val = :t
-where fid = :id""", [fix(row) for row in res])
-        self.db.execute("update facts set mod = ? where id in " +
-                        ids2str(fids), intTime())
+update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res])
         # update q/a cache
         self.updateCache(fids, type="fact")
         self.finishProgress()

@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from anki.models import Model, Template, Field
+from anki.models import Model, Template
 from anki.lang import _
 
 models = []
@@ -13,13 +13,13 @@ models = []
 def BasicModel(deck):
     m = Model(deck)
     m.name = _("Basic")
-    fm = Field(deck)
-    fm.name = _("Front")
-    fm.conf['required'] = True
-    fm.conf['unique'] = True
+    fm = m.newField()
+    fm['name'] = _("Front")
+    fm['req'] = True
+    fm['uniq'] = True
     m.addField(fm)
-    fm = Field(deck)
-    fm.name = _("Back")
+    fm = m.newField()
+    fm['name'] = _("Back")
     m.addField(fm)
     t = Template(deck)
     t.name = _("Forward")

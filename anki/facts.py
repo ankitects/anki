@@ -24,40 +24,46 @@ class Fact(object):
             self.tags = ""
             self.cache = ""
             self._fields = [""] * len(self.model.fields)
+            self.data = ""
         self._fmap = self.model.fieldMap()
 
     def load(self):
         (self.mid,
          self.crt,
-         self.mod) = self.deck.db.first("""
-select mid, crt, mod from facts where id = ?""", self.id)
-        self._fields = self.deck.db.list("""
-select val from fdata where fid = ? and fmid order by ord""", self.id)
-        self.tags = self.deck.db.scalar("""
-select val from fdata where fid = ? and ord = -1""", self.id)
+         self.mod,
+         self.tags,
+         self._fields,
+         self.data) = self.deck.db.first("""
+select mid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
+        self._fields = self._field.split("\x1f")
         self.model = self.deck.getModel(self.mid)
 
     def flush(self, cache=True):
         self.mod = intTime()
         # facts table
-        self.cache = stripHTMLMedia(u" ".join(self._fields))
+        sfld = self._fields[self.model.sortField()]
         res = self.deck.db.execute("""
-insert or replace into facts values (?, ?, ?, ?, ?)""",
-                             self.id, self.mid, self.crt,
-                             self.mod, self.cache)
+insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
+                            self.id, self.mid, self.crt,
+                            self.mod, self.tags, self.joinedFields(),
+                            sfld, self.data)
         self.id = res.lastrowid
-        # fdata table
-        self.deck.db.execute("delete from fdata where fid = ?", self.id)
-        d = []
-        for (fmid, ord, conf) in self._fmap.values():
-            val = self._fields[ord]
-            d.append(dict(fid=self.id, fmid=fmid, ord=ord,
-                          val=val))
-        d.append(dict(fid=self.id, fmid=0, ord=-1, val=self.tags))
-        self.deck.db.executemany("""
-insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
-        # media and caches
-        self.deck.updateCache([self.id], "fact")
+
+    def joinedFields(self):
+        return "\x1f".join(self._fields)
+
+#         # fdata table
+#         self.deck.db.execute("delete from fdata where fid = ?", self.id)
+#         d = []
+#         for (fmid, ord, conf) in self._fmap.values():
+#             val = self._fields[ord]
+#             d.append(dict(fid=self.id, fmid=fmid, ord=ord,
+#                           val=val))
+#         d.append(dict(fid=self.id, fmid=0, ord=-1, val=self.tags))
+#         self.deck.db.executemany("""
+# insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
+#         # media and caches
+#         self.deck.updateCache([self.id], "fact")
 
     def cards(self):
         return [self.deck.getCard(id) for id in self.deck.db.list(
@@ -73,12 +79,12 @@ insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
         return self._fields
 
     def items(self):
-        return [(k, self._fields[v])
+        return [(k, self._fields[v[0]])
                 for (k, v) in self._fmap.items()]
 
     def _fieldOrd(self, key):
         try:
-            return self._fmap[key][1]
+            return self._fmap[key][0]
         except:
             raise KeyError(key)
 
@@ -87,10 +93,6 @@ insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
 
     def __setitem__(self, key, value):
         self._fields[self._fieldOrd(key)] = value
-
-    def fieldsWithIds(self):
-        return dict(
-            [(k, (v[0], self[k])) for (k,v) in self._fmap.items()])
 
     # Tags
     ##################################################
@@ -105,12 +107,11 @@ insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
     ##################################################
 
     def fieldUnique(self, name):
-        (fmid, ord, conf) = self._fmap[name]
-        if not conf['unique']:
+        (ord, conf) = self._fmap[name]
+        if not conf['uniq']:
             return True
         val = self[name]
         csum = fieldChecksum(val)
-        print "in check, ", self.id
         if self.id:
             lim = "and fid != :fid"
         else:
@@ -120,18 +121,18 @@ insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
             c=csum, v=val, fid=self.id)
 
     def fieldComplete(self, name, text=None):
-        (fmid, ord, conf) = self._fmap[name]
-        if not conf['required']:
+        (ord, conf) = self._fmap[name]
+        if not conf['req']:
             return True
         return self[name]
 
     def problems(self):
         d = []
-        for k in self._fmap.keys():
+        for (k, (ord, conf)) in self._fmap.items():
             if not self.fieldUnique(k):
-                d.append("unique")
+                d.append((ord, "unique"))
             elif not self.fieldComplete(k):
-                d.append("required")
+                d.append((ord, "required"))
             else:
-                d.append(None)
-        return d
+                d.append((ord, None))
+        return [x[1] for x in sorted(d)]
