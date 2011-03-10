@@ -155,8 +155,6 @@ qconf=?, conf=?, data=?""",
 
     def reset(self):
         self.sched.reset()
-        # recache css
-        self.rebuildCSS()
 
     def getCard(self, id):
         return anki.cards.Card(self, id)
@@ -676,54 +674,11 @@ select id from cards where fid in (select id from facts where mid = ?)""",
                              "where facts.mid = :id",
                              id=model.id)
 
-    def rebuildCSS(self):
-        print "fix rebuildCSS()"
-        return
-        # css for all fields
-        def _genCSS(prefix, row):
-            (id, fam, siz, col, align, rtl, pre) = row
-            t = ""
-            if fam: t += 'font-family:"%s";' % toPlatformFont(fam)
-            if siz: t += 'font-size:%dpx;' % siz
-            if col: t += 'color:%s;' % col
-            if rtl == "rtl":
-                t += "direction:rtl;unicode-bidi:embed;"
-            if pre:
-                t += "white-space:pre-wrap;"
-            if align != -1:
-                if align == 0: align = "center"
-                elif align == 1: align = "left"
-                else: align = "right"
-                t += 'text-align:%s;' % align
-            if t:
-                t = "%s%s {%s}\n" % (prefix, hexifyID(id), t)
-            return t
-        css = "".join([_genCSS(".fm", row) for row in self.db.all("""
-select id, quizFontFamily, quizFontSize, quizFontColour, -1,
-  features, editFontFamily from fields""")])
-        cardRows = self.db.all("""
-select id, null, null, null, questionAlign, 0, 0 from templates""")
-        css += "".join([_genCSS("#cmq", row) for row in cardRows])
-        css += "".join([_genCSS("#cma", row) for row in cardRows])
-        css += "".join([".cmb%s {background:%s;}\n" %
-        (hexifyID(row[0]), row[1]) for row in self.db.all("""
-select id, lastFontColour from templates""")])
-        self.css = css
-        self.data['cssCache'] = css
-        self.addHexCache()
-        return css
-
-    def addHexCache(self):
-        ids = self.db.list("""
-select id from fields union
-select id from templates union
-select id from models""")
-        cache = {}
-        for id in ids:
-            cache[id] = hexifyID(id)
-        self.data['hexCache'] = cache
+    # Model changing
+    ##########################################################################
 
     def changeModel(self, fids, newModel, fieldMap, cardMap):
+        raise Exception()
         self.modSchema()
         sfids = ids2str(fids)
         self.startProgress()

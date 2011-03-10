@@ -104,7 +104,8 @@ create table if not exists models (
     mod             integer not null,
     name            text not null,
     flds            text not null,
-    conf            text not null
+    conf            text not null,
+    css             text not null
 );
 
 create table if not exists templates (
@@ -317,7 +318,7 @@ originalPath from media2""")
     _moveTable(db, "models")
     db.execute("""
 insert into models select id, cast(modified as int),
-name, "{}", "{}" from models2""")
+name, "{}", "{}", "" from models2""")
     db.execute("drop table models2")
 
     # reviewHistory -> revlog
@@ -403,9 +404,10 @@ quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels"""):
          conf['qsize'],
          conf['qcol'],
          conf['esize']) = row[3:]
-        # setup bools
+        # ensure data is good
         conf['rtl'] = not not conf['rtl']
         conf['pre'] = True
+        conf['qcol'] = conf['qcol'] or "#fff"
         # add to model list with ordinal for sorting
         mods[row[1]].append((row[2], conf))
     # now we've gathered all the info, save it into the models

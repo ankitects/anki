@@ -3,7 +3,8 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import simplejson
-from anki.utils import intTime
+from anki.utils import intTime, hexifyID
+from anki.fonts import toPlatformFont
 from anki.lang import _
 
 # Models
@@ -24,6 +25,7 @@ class Model(object):
             self.name = u""
             self.mod = intTime()
             self.conf = defaultConf.copy()
+            self.css = ""
             self.fields = []
             self.templates = []
 
@@ -40,10 +42,11 @@ select mod, name, flds, conf from models where id = ?""", self.id)
     def flush(self):
         self.mod = intTime()
         ret = self.deck.db.execute("""
-insert or replace into models values (?, ?, ?, ?, ?)""",
+insert or replace into models values (?, ?, ?, ?, ?, ?)""",
                 self.id, self.mod, self.name,
                 simplejson.dumps(self.fields),
-                simplejson.dumps(self.conf))
+                simplejson.dumps(self.conf),
+                self.genCSS())
         self.id = ret.lastrowid
         [t._flush() for t in self.templates]
 
@@ -106,6 +109,35 @@ insert or replace into models values (?, ?, ?, ?, ?)""",
             t.mid = new.id
             t._flush()
         return new
+
+    # CSS generation
+    ##################################################
+
+    def genCSS(self):
+        # fields
+        css = "".join([self._fieldCSS(
+            ".fm%s.%s" % (hexifyID(self.id), hexifyID(c)),
+            (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
+            for c, f in enumerate(self.fields)])
+        # templates
+        for t in self.templates:
+            css += "#cm%s {text-align:%s;background:%s}\n" % (
+                hexifyID(t.id),
+                ("center", "left", "right")[t.conf['align']],
+                t.conf['bg'])
+        return css
+
+    def _fieldCSS(self, prefix, row):
+        (fam, siz, col, rtl, pre) = row
+        t = 'font-family:"%s";' % toPlatformFont(fam)
+        t += 'font-size:%dpx;' % siz
+        t += 'color:%s;' % col
+        if rtl:
+            t += "direction:rtl;unicode-bidi:embed;"
+        if pre:
+            t += "white-space:pre-wrap;"
+        t = "%s {%s}\n" % (prefix, t)
+        return t
 
 # Field object
 ##########################################################################
