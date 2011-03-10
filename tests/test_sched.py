@@ -3,7 +3,7 @@
 import time
 from tests.shared import assertException, getEmptyDeck
 from anki.stdmodels import BasicModel
-#from anki.db import *
+from anki.utils import stripHTML
 
 def test_basics():
     d = getEmptyDeck()
@@ -15,7 +15,7 @@ def test_new():
     # add a fact
     f = d.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
-    f = d.addFact(f)
+    d.addFact(f)
     d.reset()
     assert d.sched.newCount == 1
     # fetch it
@@ -27,6 +27,23 @@ def test_new():
     d.sched.answerCard(c, 1)
     assert c.queue == 0
     assert c.type == 2
+    # the default order should ensure siblings are not seen together, and
+    # should show all cards
+    m = d.currentModel()
+    m.templates[1].active = True
+    m.flush()
+    f = d.newFact()
+    f['Front'] = u"2"; f['Back'] = u"2"
+    d.addFact(f)
+    f = d.newFact()
+    f['Front'] = u"3"; f['Back'] = u"3"
+    d.addFact(f)
+    d.reset()
+    qs = ("2", "3", "2", "3")
+    for n in range(4):
+        c = d.sched.getCard()
+        assert(stripHTML(c.q()) == qs[n])
+        d.sched.answerCard(c, 2)
 
 def test_learn():
     d = getEmptyDeck()

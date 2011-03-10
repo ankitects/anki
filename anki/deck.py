@@ -76,6 +76,10 @@ class _Deck(object):
         self.sched = Scheduler(self)
         self.media = MediaRegistry(self)
 
+    def name(self):
+        n = os.path.splitext(os.path.basename(self.path))[0]
+        return n
+
     # DB-related
     ##########################################################################
 
@@ -164,6 +168,7 @@ qconf=?, conf=?, data=?""",
 
     def reset(self):
         self.sched.reset()
+
 
     # Times
     ##########################################################################
@@ -1051,17 +1056,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
     def disableProgressHandler(self):
         self.progressHandlerEnabled = False
 
-    # File-related
-    ##########################################################################
-
-    def name(self):
-        if not self.path:
-            return u"untitled"
-        n = os.path.splitext(os.path.basename(self.path))[0]
-        assert '/' not in n
-        assert '\\' not in n
-        return n
-
     # Timeboxing
     ##########################################################################
 
@@ -1087,48 +1081,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
             self.repsToday - self.sessionStartReps):
             return True
         return False
-
-    # Failed card handling
-    ##########################################################################
-
-    def setFailedCardPolicy(self, idx):
-        if idx == 5:
-            # custom
-            return
-        self.collapseTime = 0
-        self.failedCardMax = 0
-        if idx == 0:
-            d = 600
-            self.collapseTime = 1
-            self.failedCardMax = 20
-        elif idx == 1:
-            d = 0
-        elif idx == 2:
-            d = 600
-        elif idx == 3:
-            d = 28800
-        elif idx == 4:
-            d = 259200
-        self.delay0 = d
-        self.delay1 = 0
-
-    def getFailedCardPolicy(self):
-        if self.delay1:
-            return 5
-        d = self.delay0
-        if self.collapseTime == 1:
-            if d == 600 and self.failedCardMax == 20:
-                return 0
-            return 5
-        if d == 0 and self.failedCardMax == 0:
-            return 1
-        elif d == 600:
-            return 2
-        elif d == 28800:
-            return 3
-        elif d == 259200:
-            return 4
-        return 5
 
     # Syncing
     ##########################################################################
@@ -1478,16 +1430,3 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
             self.db.execute("create index ix_cards_multi on cards (%s)" %
                               ", ".join(cols))
             self.db.execute("analyze")
-
-# Shared decks
-##########################################################################
-
-# sourcesTable = Table(
-#     'sources', metadata,
-#     Column('id', Integer, nullable=False, primary_key=True),
-#     Column('name', UnicodeText, nullable=False, default=""),
-#     Column('created', Integer, nullable=False, default=intTime),
-#     Column('lastSync', Integer, nullable=False, default=0),
-#     # -1 = never check, 0 = always check, 1+ = number of seconds passed.
-#     # not currently exposed in the GUI
-#     Column('syncPeriod', Integer, nullable=False, default=0))

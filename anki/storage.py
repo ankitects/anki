@@ -16,6 +16,10 @@ def Deck(path, queue=True):
     "Open a new or existing deck. Path must be unicode."
     path = os.path.abspath(path)
     create = not os.path.exists(path)
+    if create:
+        base = os.path.basename(path)
+        for c in ("/", ":", "\\"):
+            assert c not in base
     # connect
     db = DB(path)
     if create:
