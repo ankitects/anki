@@ -182,8 +182,7 @@ values(1,%(t)s,%(t)s,%(t)s,%(v)s,'',0,-2,'', '', '');
 def _updateIndices(db):
     "Add indices to the DB."
     db.executescript("""
--- sync summaries
-create index if not exists ix_cards_mod on cards (mod);
+-- avoid loading entire facts table in for sync summary
 create index if not exists ix_facts_mod on facts (mod);
 -- card spacing, etc
 create index if not exists ix_cards_fid on cards (fid);
