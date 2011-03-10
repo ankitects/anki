@@ -187,6 +187,9 @@ create index if not exists ix_cards_fid on cards (fid);
 create index if not exists ix_revlog_cid on revlog (cid);
 -- media
 create index if not exists ix_media_csum on media (csum);
+-- unique checking
+create index if not exists ix_fsums_fid on fsums (fid);
+create index if not exists ix_fsums_csum on fsums (csum);
 """)
 
 # 2.0 schema migration
@@ -460,7 +463,10 @@ def _rewriteModelIds(deck):
 def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
+    # fix up model/template ids
     _rewriteModelIds(deck)
+    # update uniq cache
+    deck.updateFieldChecksums(deck.db.list("select id from facts"))
     # remove old views
     for v in ("failedCards", "revCardsOld", "revCardsNew",
               "revCardsDue", "revCardsRandom", "acqCardsRandom",

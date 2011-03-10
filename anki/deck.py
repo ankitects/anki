@@ -10,7 +10,7 @@ from itertools import groupby
 from anki.lang import _, ngettext
 from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
      canonifyTags, joinTags, addTags, deleteTags, checksum, fieldChecksum, \
-     stripHTML, intTime
+     stripHTML, intTime, splitFields
 
 from anki.fonts import toPlatformFont
 from anki.hooks import runHook, hookEmpty, runFilter
@@ -508,9 +508,9 @@ due > :now and due < :now""", now=time.time())
                 # [cid, fid, mid, tid, gid, tags, flds, data]
                 data = [1, 1, fact.model.id, template.id, 1,
                         "", fact.joinedFields(), ""]
-                now = self.formatQA(fact.model, template, "", data)
+                now = self._formatQA(fact.model, template, "", data)
                 data[6] = "\x1f".join([""]*len(fact._fields))
-                empty = self.formatQA(fact.model, template, "", data)
+                empty = self._formatQA(fact.model, template, "", data)
                 if now['q'] == empty['q']:
                     continue
                 if not template.conf['allowEmptyAns']:
@@ -929,12 +929,10 @@ where tid in %s""" % strids, now=time.time())
             for t in m.templates:
                 templs[t.id] = t
         groups = dict(self.db.all("select id, name from groups"))
-        return [self.formatQA(mods[row[2]], templs[row[3]], groups[row[4]], row)
+        return [self._formatQA(mods[row[2]], templs[row[3]], groups[row[4]], row)
                 for row in self._qaData(where)]
-        # # and checksum
-        # self._updateFieldChecksums(facts)
 
-    def formatQA(self, model, template, gname, data, filters=True):
+    def _formatQA(self, model, template, gname, data, filters=True):
         "Returns hash of id, question, answer."
         # data is [cid, fid, mid, tid, gid, tags, flds, data]
         # unpack fields and create dict
@@ -975,23 +973,24 @@ where c.fid == f.id and f.mid == m.id and
 c.tid = t.id and c.gid = g.id
 %s""" % where)
 
-    def _updateFieldChecksums(self, facts):
-        print "benchmark updatefieldchecksums"
-        confs = {}
+    # Field checksum bulk update
+    ##########################################################################
+
+    def updateFieldChecksums(self, fids):
+        "Update all field checksums, after find&replace, etc."
+        sfids = ids2str(fids)
+        mods = {}
+        for m in self.allModels():
+            mods[m.id] = m
         r = []
-        for (fid, map) in facts.items():
-            for (fmid, val) in map.values():
-                if fmid and fmid not in confs:
-                    confs[fmid] = simplejson.loads(self.db.scalar(
-                        "select conf from fields where id = ?",
-                        fmid))
-                    # if unique checking has been turned off, don't bother to
-                    # zero out old values
-                    if confs[fmid]['unique']:
-                        csum = fieldChecksum(val)
-                        r.append((csum, fid, fmid))
-        self.db.executemany(
-            "update fdata set csum=? where fid=? and fmid=?", r)
+        for row in self._qaData(where="and f.id in "+sfids):
+            fields = splitFields(row[6])
+            model = mods[row[2]]
+            for c, f in enumerate(model.fields):
+                if f['uniq'] and fields[c]:
+                    r.append((row[1], model.id, fieldChecksum(fields[c])))
+        self.db.execute("delete from fsums where fid in "+sfids)
+        self.db.executemany("insert into fsums values (?,?,?)", r)
 
     # Tags
     ##########################################################################

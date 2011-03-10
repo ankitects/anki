@@ -272,10 +272,8 @@ def checksum(data):
     return md5(data).hexdigest()
 
 def fieldChecksum(data):
-    # 8 digit md5 hash of utf8 string, or empty string if empty value
-    if not data:
-        return ""
-    return checksum(data.encode("utf-8"))[:8]
+    # 32 bit unsigned number from first 8 digits of md5 hash
+    return int(checksum(data.encode("utf-8"))[:8], 16)
 
 def call(argv, wait=True, **kwargs):
     try:

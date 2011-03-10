@@ -58,10 +58,10 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
         for (ord, conf) in self._fmap.values():
             if not conf['uniq']:
                 continue
-            val = fieldChecksum(self._fields[ord])
+            val = self._fields[ord]
             if not val:
                 continue
-            d.append((self.id, self.mid, val))
+            d.append((self.id, self.mid, fieldChecksum(val)))
         self.deck.db.executemany("insert into fsums values (?, ?, ?)", d)
 
     def cards(self):

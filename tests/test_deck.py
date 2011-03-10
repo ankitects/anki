@@ -88,7 +88,7 @@ def test_fieldChecksum():
     f['Front'] = u"new"; f['Back'] = u"new2"
     deck.addFact(f)
     assert deck.db.scalar(
-        "select csum from fsums") == "22af645d"
+        "select csum from fsums") == int("22af645d", 16)
     # empty field should have no checksum
     f['Front'] = u""
     f.flush()
@@ -98,7 +98,7 @@ def test_fieldChecksum():
     f['Front'] = u"newx"
     f.flush()
     assert deck.db.scalar(
-        "select csum from fsums") == "4b0e5a4c"
+        "select csum from fsums") == int("4b0e5a4c", 16)
     # turning off unique and modifying the fact should delete the sum
     f.model.fields[0]['uniq'] = False
     f.model.flush()
