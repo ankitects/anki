@@ -70,7 +70,6 @@ create table if not exists cards (
     fid             integer not null,
     tid             integer not null,
     gid             integer not null,
-    ord             integer not null,
     crt             integer not null,
     mod             integer not null,
     type            integer not null,
@@ -254,10 +253,10 @@ def _upgradeSchema(db):
     _insertWithIdChange(db, map, 0, "reviewHistory", 12)
     # move back, preserving new ids
     db.execute("""
-insert into cards select rowid, factId, cardModelId, 1, ordinal,
-cast(created as int), cast(modified as int), relativeDelay, type, due,
-cast(interval as int), cast(factor*1000 as int), reps, successive, noCount,
-0, 0, "" from cards2 order by created""")
+insert into cards select rowid, factId, cardModelId, 1, cast(created as int),
+cast(modified as int), relativeDelay, type, due, cast(interval as int),
+cast(factor*1000 as int), reps, successive, noCount, 0, 0, "" from cards2
+order by created""")
     db.execute("drop table cards2")
 
     # tags
@@ -302,7 +301,7 @@ from facts order by created""")
         row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
         data.append(row)
     # use the new order to rewrite fact ids in cards table
-    _insertWithIdChange(db, map, 1, "cards", 18)
+    _insertWithIdChange(db, map, 1, "cards", 17)
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)

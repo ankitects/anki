@@ -169,7 +169,6 @@ qconf=?, conf=?, data=?""",
     def reset(self):
         self.sched.reset()
 
-
     # Times
     ##########################################################################
 
@@ -384,7 +383,7 @@ due > :now and due < :now""", now=time.time())
         "Return a new fact with the current model."
         return anki.facts.Fact(self, self.currentModel())
 
-    def addFact(self, fact):
+    def addFact(self, fact, gid=1):
         "Add a fact to the deck. Return number of new cards."
         # check we have card models available
         cms = self.findTemplates(fact)
@@ -400,13 +399,11 @@ due > :now and due < :now""", now=time.time())
         # flush the fact so we get its id
         fact.flush()
         for template in cms:
-            print "fixme:specify group on fact add"
-            group = self.groupForTemplate(template)
             card = anki.cards.Card(self)
             card.fid = fact.id
             card.tid = template.id
             card.ord = template.ord
-            card.gid = 1 #group.id
+            card.gid = template.conf['gid'] or gid
             if isRandom:
                 card.due = due
             else:
@@ -417,11 +414,6 @@ due > :now and due < :now""", now=time.time())
         fact.flush()
         self.registerTags(fact.tags)
         return ncards
-
-    def groupForTemplate(self, template):
-        return 1
-        id = self.conf['currentGroupId']
-        return self.db.query(anki.groups.GroupConf).get(id).load()
 
     def findTemplates(self, fact, checkActive=True):
         "Return active, non-empty templates."

@@ -173,6 +173,7 @@ defaultTemplateConf = {
     'bg': "#000",
     'allowEmptyAns': None,
     'typeAnswer': None,
+    'gid': None
 }
 
 class Template(object):

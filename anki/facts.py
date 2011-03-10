@@ -67,7 +67,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
 
     def cards(self):
         return [self.deck.getCard(id) for id in self.deck.db.list(
-            "select id from cards where fid = ? order by ord", self.id)]
+            "select id from cards where fid = ? order by id", self.id)]
 
     # Dict interface
     ##################################################

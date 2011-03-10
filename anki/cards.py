@@ -13,12 +13,8 @@ MAX_TIMER = 60
 # Type: 0=learning, 1=due, 2=new
 # Queue: 0=learning, 1=due, 2=new
 #        -1=suspended, -2=user buried, -3=sched buried
-# Group: scheduling group
-# Ordinal: card template # for fact
-# Flags: unused; reserved for future use
-
 # Due is used differently for different queues.
-# - new queue: fact.id
+# - new queue: fact id
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
@@ -32,7 +28,7 @@ class Card(object):
             self.id = id
             self.load()
         else:
-            # to flush, set fid, tid, due and ord
+            # to flush, set fid, tid, and due
             self.id = None
             self.gid = 1
             self.crt = intTime()
@@ -52,7 +48,6 @@ class Card(object):
          self.fid,
          self.tid,
          self.gid,
-         self.ord,
          self.crt,
          self.mod,
          self.type,
@@ -73,12 +68,11 @@ class Card(object):
         self.deck.db.execute(
             """
 insert or replace into cards values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.fid,
             self.tid,
             self.gid,
-            self.ord,
             self.crt,
             self.mod,
             self.type,
