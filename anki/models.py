@@ -4,7 +4,6 @@
 
 import simplejson
 from anki.utils import intTime, hexifyID
-from anki.fonts import toPlatformFont
 from anki.lang import _
 
 # Models
@@ -114,6 +113,8 @@ insert or replace into models values (?, ?, ?, ?, ?, ?)""",
     ##################################################
 
     def genCSS(self):
+        if not self.id:
+            return ""
         # fields
         css = "".join([self._fieldCSS(
             ".fm%s.%s" % (hexifyID(self.id), hexifyID(c)),
@@ -121,15 +122,27 @@ insert or replace into models values (?, ?, ?, ?, ?, ?)""",
             for c, f in enumerate(self.fields)])
         # templates
         for t in self.templates:
+            if not t.id:
+                # not flushed yet, ignore for now
+                continue
             css += "#cm%s {text-align:%s;background:%s}\n" % (
                 hexifyID(t.id),
                 ("center", "left", "right")[t.conf['align']],
                 t.conf['bg'])
         return css
 
+    def _rewriteFont(self, font):
+        "Convert a platform font to a multiplatform list."
+        font = font.lower()
+        for family in self.deck.conf['fontFamilies']:
+            for font2 in family:
+                if font == font2.lower():
+                    return ",".join(family)
+        return font
+
     def _fieldCSS(self, prefix, row):
         (fam, siz, col, rtl, pre) = row
-        t = 'font-family:"%s";' % toPlatformFont(fam)
+        t = 'font-family:"%s";' % self._rewriteFont(fam)
         t += 'font-size:%dpx;' % siz
         t += 'color:%s;' % col
         if rtl:

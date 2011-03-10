@@ -12,7 +12,6 @@ from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
      canonifyTags, joinTags, addTags, deleteTags, checksum, fieldChecksum, \
      stripHTML, intTime, splitFields
 
-from anki.fonts import toPlatformFont
 from anki.hooks import runHook, hookEmpty, runFilter
 
 from anki.sched import Scheduler
@@ -55,6 +54,9 @@ defaultConf = {
 \\begin{document}
 """,
     'latexPost': "\\end{document}",
+    'fontFamilies': [
+        [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
+    ]
 }
 
 # this is initialized by storage.Deck
