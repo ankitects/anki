@@ -118,7 +118,8 @@ streak=?, lapses=?, grade=?, cycles=? where id = ?""",
         self.timerStarted = time.time()
 
     def timeTaken(self):
-        return min(time.time() - self.timerStarted, MAX_TIMER)
+        "Time taken to answer card, in integer MS."
+        return int(min(time.time() - self.timerStarted, MAX_TIMER)*1000)
 
     # Questions and answers
     ##########################################################################

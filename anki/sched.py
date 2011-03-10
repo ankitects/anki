@@ -25,7 +25,9 @@ class Scheduler(object):
         self.checkDay()
         id = self.getCardId()
         if id:
-            return self.deck.getCard(id)
+            c = self.deck.getCard(id)
+            c.startTimer()
+            return c
 
     def reset(self):
         self.resetConf()
@@ -167,8 +169,17 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
             card.grade = 0
         if card.grade >= len(conf['delays']):
             self.graduateLearnCard(card, conf)
+            return
         else:
-            card.due = time.time() + conf['delays'][card.grade]*60
+            card.due = time.time() + self.delayForGrade(conf, card.grade)
+        try:
+            self.logLearn(card, ease, conf)
+        except:
+            time.sleep(0.01)
+            self.logLearn(card, ease, conf)
+
+    def delayForGrade(self, conf, grade):
+        return conf['delays'][grade]*60
 
     def learnConf(self, card):
         conf = self.confForCard(card)
@@ -197,12 +208,23 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
 
     def rescheduleAsReview(self, card, conf, int_):
         card.queue = 1
-        card.factor = conf['initialFactor']
         if int_:
             # new card
             card.type = 1
             card.interval = int_
-            print "handle log, etc"
+            card.factor = conf['initialFactor']
+            print "logs for learning cards?"
+        else:
+            # failed card
+            pass
+
+    def logLearn(self, card, ease, conf):
+        self.deck.db.execute(
+            "insert into revlog values (?,?,?,?,?,?,?,?,?)",
+            int(time.time()*1000), card.id, ease, card.cycles,
+            self.delayForGrade(conf, card.grade),
+            self.delayForGrade(conf, max(0, card.grade-1)),
+            0, card.timeTaken(), 0)
 
     # Reviews
     ##########################################################################
@@ -230,8 +252,8 @@ queue = 1 %s and due < :lim order by %s limit %d""" % (
             return self.revQueue
 
     def revOrder(self):
-        return ("interval desc",
-                "interval",
+        return ("ivl desc",
+                "ivl",
                 "due")[self.deck.qconf['revCardOrder']]
 
     # FIXME: rewrite
@@ -253,8 +275,7 @@ queue = 1 %s and due < :lim order by %s limit %d""" % (
         oldSuc = card.successive
         # update card details
         last = card.interval
-        card.interval = self.nextInterval(card, ease)
-        card.lastInterval = last
+        card.ivl = self.nextInterval(card, ease)
         if card.reps:
             # only update if card was not new
             card.lastDue = card.due
@@ -328,6 +349,23 @@ and queue between 1 and 2""",
                          cut=self.dayCutoff, new=new, rev=self.revSpacing)
         # update local cache of seen facts
         self.spacedFacts[card.fid] = new
+
+# Flags: 0=standard review, 1=reschedule due to cram, drill, etc
+# Rep: Repetition number. The same number may appear twice if a card has been
+# manually rescheduled or answered on multiple sites before a sync.
+#
+# We store the times in integer milliseconds to avoid an extra index on the
+# primary key.
+
+    def logReview(db, card, ease, flags=0):
+        db.execute("""
+insert into revlog values (
+:created, :cardId, :ease, :rep, :lastInterval, :interval, :factor,
+:userTime, :flags)""",
+                 created=int(time.time()*1000), cardId=card.id, ease=ease, rep=card.reps,
+                 lastInterval=card.lastInterval, interval=card.interval,
+                 factor=card.factor, userTime=int(card.userTime()*1000),
+                 flags=flags)
 
     # Interval management
     ##########################################################################

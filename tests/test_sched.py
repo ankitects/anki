@@ -3,7 +3,7 @@
 import time
 from tests.shared import assertException, getEmptyDeck
 from anki.stdmodels import BasicModel
-from anki.utils import stripHTML
+from anki.utils import stripHTML, intTime
 
 def test_basics():
     d = getEmptyDeck()
@@ -24,9 +24,11 @@ def test_new():
     assert c.queue == 2
     assert c.type == 2
     # if we answer it, it should become a learn card
+    t = intTime()
     d.sched.answerCard(c, 1)
     assert c.queue == 0
     assert c.type == 2
+    assert c.due >= t
     # the default order should ensure siblings are not seen together, and
     # should show all cards
     m = d.currentModel()
@@ -73,6 +75,12 @@ def test_learn():
     # and it should be grade 1 now
     assert c.grade == 1
     assert c.cycles == 2
+    # check log is accurate
+    log = d.db.first("select * from revlog order by time desc")
+    assert log[2] == 2
+    assert log[3] == 2
+    assert log[4] == 180
+    assert log[5] == 30
     # pass again
     d.sched.answerCard(c, 2)
     # it should by due in 10 minutes

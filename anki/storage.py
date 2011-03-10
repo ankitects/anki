@@ -151,7 +151,7 @@ create table if not exists revlog (
     lastInt         integer not null,
     factor          integer not null,
     taken           integer not null,
-    flags           integer not null
+    type            integer not null
 );
 
 create table if not exists tags (
