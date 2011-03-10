@@ -391,7 +391,7 @@ due > :now and due < :now""", now=time.time())
         ncards = 0
         isRandom = self.qconf['newCardOrder'] == NEW_CARDS_RANDOM
         if isRandom:
-            due = random.randrange(0, 10000)
+            due = random.randrange(0, 1000000)
         # flush the fact so we get its id
         fact.flush()
         for template in cms:
@@ -1464,8 +1464,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def updateDynamicIndices(self):
         # determine required columns
         required = []
-        if self.qconf['newTodayOrder'] == NEW_TODAY_ORD:
-            required.append("ord")
         if self.qconf['revCardOrder'] in (REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
             required.append("interval")
         cols = ["queue", "due", "gid"] + required

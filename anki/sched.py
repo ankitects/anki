@@ -98,19 +98,21 @@ class Scheduler(object):
             self.newCount = 0
         else:
             self.newQueue = self.db.all("""
-select id %s from cards where
-queue = 2 %s order by due limit %d""" % (self.newOrder(), self.groupLimit('new'),
+select id, due from cards where
+queue = 2 %s order by due, id limit %d""" % (self.groupLimit('new'),
                                          lim))
-            self.newQueue.sort(key=itemgetter(1), reverse=True)
+            self.newQueue.reverse()
             self.newCount = len(self.newQueue)
         self.updateNewCardRatio()
 
     def getNewCard(self):
         if self.newQueue:
-            return self.newQueue.pop()[0]
-
-    def newOrder(self):
-        return (",ord", "")[self.deck.qconf['newTodayOrder']]
+            (id, due) = self.newQueue.pop()
+            # move any siblings to the end?
+            if self.deck.qconf['newTodayOrder'] == NEW_TODAY_ORD:
+                while self.newQueue and self.newQueue[-1][1] == due:
+                    self.newQueue.insert(0, self.newQueue.pop())
+            return id
 
     def updateNewCardRatio(self):
         if self.deck.qconf['newCardSpacing'] == NEW_CARDS_DISTRIBUTE:
