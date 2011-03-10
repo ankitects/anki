@@ -5,7 +5,7 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import stripHTMLMedia, fieldChecksum, intTime, \
-    addTags, deleteTags, joinFields, splitFields, ids2str
+    addTags, deleteTags, joinFields, splitFields, ids2str, parseTags
 
 class Fact(object):
 
@@ -48,6 +48,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
                             sfld, self.data)
         self.id = res.lastrowid
         self.updateFieldChecksums()
+        self.deck.registerTags(parseTags(self.tags))
 
     def joinedFields(self):
         return joinFields(self._fields)

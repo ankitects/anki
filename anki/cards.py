@@ -110,10 +110,8 @@ streak=?, lapses=?, grade=?, cycles=? where id = ?""",
         return self._getQA()['a']
 
     def _getQA(self, reload=False):
-        # this is a hack at the moment
         if not self._qa or reload:
-            self._qa = self.deck.updateCache(
-                [self.id], "card")[0]
+            self._qa = self.deck.renderQA([self.id], "card")[0]
         return self._qa
 
     def fact(self):

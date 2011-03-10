@@ -76,7 +76,7 @@ def test_db():
     m = deck.currentModel()
     m.templates[0].afmt=u'<img src="{{{Back}}}">'
     m.flush()
-    m.updateCache()
+    deck.renderQA(type="all")
     assert deck.db.scalar("select count() from media") == 2
 
 def test_deckIntegration():

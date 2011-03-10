@@ -2,24 +2,18 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import tempfile, time, os, random, sys, re, stat, shutil
-import types, traceback, simplejson, datetime
-from operator import itemgetter
-from itertools import groupby
+import time, os, random, re, stat, simplejson
 
 from anki.lang import _, ngettext
 from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
-     canonifyTags, joinTags, addTags, deleteTags, checksum, fieldChecksum, \
-     stripHTML, intTime, splitFields
-
-from anki.hooks import runHook, hookEmpty, runFilter
-
+     checksum, fieldChecksum, addTags, deleteTags, stripHTML, intTime, \
+     splitFields
+from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
 from anki.media import MediaRegistry
-
 from anki.consts import *
-import anki.latex # sets up hook
 
+import anki.latex # sets up hook
 import anki.cards, anki.facts, anki.models, anki.template
 
 # Settings related to queue building. These may be loaded without the rest of
@@ -147,16 +141,8 @@ qconf=?, conf=?, data=?""",
         "True if schema changed since last sync, or syncing off."
         return self.schema > self.lastSync
 
-    # unsorted
+    # Object creation helpers
     ##########################################################################
-
-    def nextID(self, type):
-        id = self.conf.get(type, 1)
-        self.conf[type] = id+1
-        return id
-
-    def reset(self):
-        self.sched.reset()
 
     def getCard(self, id):
         return anki.cards.Card(self, id)
@@ -168,84 +154,16 @@ qconf=?, conf=?, data=?""",
         return anki.models.Template(self, self.deck.db.first(
             "select * from templates where id = ?", id))
 
-        # if card:
-        #     return card
-        # if sched.name == "main":
-        #     self.stopSession()
-        # else:
-        #     # in a custom scheduler; return to normal
-        #     print "fixme: this should be done in gui code"
-        #     self.sched.cleanup()
-        #     self.sched = AnkiScheduler(self)
-        #     return self.getCard()
+    # unsorted
+    ##########################################################################
 
-    def resetCards(self, ids=None):
-        "Reset progress on cards in IDS."
-        print "position in resetCards()"
-        sql = """
-update cards set mod=:now, position=0, type=2, queue=2, lastInterval=0,
-interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
-        sql2 = "delete from revlog"
-        if ids is None:
-            lim = ""
-        else:
-            sids = ids2str(ids)
-            sql += " where id in "+sids
-            sql2 += "  where cardId in "+sids
-        self.db.execute(sql, now=time.time())
-        self.db.execute(sql2)
-        if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
-            # we need to re-randomize now
-            self.randomizeNewCards(ids)
+    def nextID(self, type):
+        id = self.conf.get(type, 1)
+        self.conf[type] = id+1
+        return id
 
-    def randomizeNewCards(self, cardIds=None):
-        "Randomize 'due' on all new cards."
-        now = time.time()
-        query = "select distinct fid from cards where reps = 0"
-        if cardIds:
-            query += " and id in %s" % ids2str(cardIds)
-        fids = self.db.list(query)
-        data = [{'fid': fid,
-                 'rand': random.uniform(0, now),
-                 'now': now} for fid in fids]
-        self.db.executemany("""
-update cards
-set due = :rand + ord,
-mod = :now
-where fid = :fid
-and type = 2""", data)
-
-    def orderNewCards(self):
-        "Set 'due' to card creation time."
-        self.db.execute("""
-update cards set
-due = created,
-mod = :now
-where type = 2""", now=time.time())
-
-    def rescheduleCards(self, ids, min, max):
-        "Reset cards and schedule with new interval in days (min, max)."
-        self.resetCards(ids)
-        vals = []
-        for id in ids:
-            r = random.uniform(min*86400, max*86400)
-            vals.append({
-                'id': id,
-                'due': r + time.time(),
-                'int': r / 86400.0,
-                't': time.time(),
-                })
-        self.db.executemany("""
-update cards set
-interval = :int,
-due = :due,
-reps = 1,
-successive = 1,
-yesCount = 1,
-firstAnswered = :t,
-queue = 1,
-type = 1,
-where id = :id""", vals)
+    def reset(self):
+        self.sched.reset()
 
     # Times
     ##########################################################################
@@ -508,9 +426,9 @@ due > :now and due < :now""", now=time.time())
                 # [cid, fid, mid, tid, gid, tags, flds, data]
                 data = [1, 1, fact.model.id, template.id, 1,
                         "", fact.joinedFields(), ""]
-                now = self._formatQA(fact.model, template, "", data)
+                now = self._renderQA(fact.model, template, "", data)
                 data[6] = "\x1f".join([""]*len(fact._fields))
-                empty = self._formatQA(fact.model, template, "", data)
+                empty = self._renderQA(fact.model, template, "", data)
                 if now['q'] == empty['q']:
                     continue
                 if not template.conf['allowEmptyAns']:
@@ -637,6 +555,74 @@ select id from facts where id not in (select distinct fid from cards)""")
 delete from facts where id in (select fid from cards where queue = -4);
 delete from cards where queue = -4;""")
 
+    def resetCards(self, ids=None):
+        "Reset progress on cards in IDS."
+        print "position in resetCards()"
+        sql = """
+update cards set mod=:now, position=0, type=2, queue=2, lastInterval=0,
+interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
+        sql2 = "delete from revlog"
+        if ids is None:
+            lim = ""
+        else:
+            sids = ids2str(ids)
+            sql += " where id in "+sids
+            sql2 += "  where cardId in "+sids
+        self.db.execute(sql, now=time.time())
+        self.db.execute(sql2)
+        if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+            # we need to re-randomize now
+            self.randomizeNewCards(ids)
+
+    def randomizeNewCards(self, cardIds=None):
+        "Randomize 'due' on all new cards."
+        now = time.time()
+        query = "select distinct fid from cards where reps = 0"
+        if cardIds:
+            query += " and id in %s" % ids2str(cardIds)
+        fids = self.db.list(query)
+        data = [{'fid': fid,
+                 'rand': random.uniform(0, now),
+                 'now': now} for fid in fids]
+        self.db.executemany("""
+update cards
+set due = :rand + ord,
+mod = :now
+where fid = :fid
+and type = 2""", data)
+
+    def orderNewCards(self):
+        "Set 'due' to card creation time."
+        self.db.execute("""
+update cards set
+due = created,
+mod = :now
+where type = 2""", now=time.time())
+
+    def rescheduleCards(self, ids, min, max):
+        "Reset cards and schedule with new interval in days (min, max)."
+        self.resetCards(ids)
+        vals = []
+        for id in ids:
+            r = random.uniform(min*86400, max*86400)
+            vals.append({
+                'id': id,
+                'due': r + time.time(),
+                'int': r / 86400.0,
+                't': time.time(),
+                })
+        self.db.executemany("""
+update cards set
+interval = :int,
+due = :due,
+reps = 1,
+successive = 1,
+yesCount = 1,
+firstAnswered = :t,
+queue = 1,
+type = 1,
+where id = :id""", vals)
+
     # Models
     ##########################################################################
 
@@ -743,7 +729,6 @@ update cards set
 tid = :new,
 ord = :ord
 where id in %s""" % ids2str(ids), new=new.id, ord=new.ord)
-        self.updateCache(fids, type="fact")
         cardIds = self.db.list(
             "select id from cards where fid in %s" %
             ids2str(fids))
@@ -863,11 +848,10 @@ ord = (select ord from templates where id = tid),
 mod = :now
 where tid in %s""" % strids, now=time.time())
 
-    # Caches: q/a, facts.cache and fdata.csum
+    # Q/A generation
     ##########################################################################
 
-    def updateCache(self, ids=None, type="card"):
-        "Update cache after facts or models changed."
+    def renderQA(self, ids=None, type="card"):
         # gather metadata
         if type == "card":
             where = "and c.id in " + ids2str(ids)
@@ -886,10 +870,10 @@ where tid in %s""" % strids, now=time.time())
             for t in m.templates:
                 templs[t.id] = t
         groups = dict(self.db.all("select id, name from groups"))
-        return [self._formatQA(mods[row[2]], templs[row[3]], groups[row[4]], row)
+        return [self._renderQA(mods[row[2]], templs[row[3]], groups[row[4]], row)
                 for row in self._qaData(where)]
 
-    def _formatQA(self, model, template, gname, data, filters=True):
+    def _renderQA(self, model, template, gname, data, filters=True):
         "Returns hash of id, question, answer."
         # data is [cid, fid, mid, tid, gid, tags, flds, data]
         # unpack fields and create dict
@@ -913,10 +897,10 @@ where tid in %s""" % strids, now=time.time())
         d = dict(id=data[0])
         for (type, format) in (("q", template.qfmt), ("a", template.afmt)):
             # if filters:
-            #     fields = runFilter("formatQA.pre", fields, , self)
+            #     fields = runFilter("renderQA.pre", fields, , self)
             html = anki.template.render(format, fields)
             # if filters:
-            #     d[type] = runFilter("formatQA.post", html, fields, meta, self)
+            #     d[type] = runFilter("renderQA.post", html, fields, meta, self)
             self.media.registerText(html)
             d[type] = html
         return d
@@ -1009,7 +993,7 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
         self.db.executemany("""
 update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res])
         # update q/a cache
-        self.updateCache(fids, type="fact")
+        self.registerTags(parseTags(tags))
         self.finishProgress()
 
     def deleteTags(self, ids, tags):
@@ -1066,16 +1050,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
 
     def disableProgressHandler(self):
         self.progressHandlerEnabled = False
-
-    # Notifications
-    ##########################################################################
-
-    def notify(self, msg):
-        "Send a notice to all listeners, or display on stdout."
-        if hookEmpty("notify"):
-            pass
-        else:
-            runHook("notify", msg)
 
     # File-related
     ##########################################################################

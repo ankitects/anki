@@ -177,7 +177,7 @@ If a file with the same name exists, return a unique name."""
                 return unicodedata.normalize('NFD', s)
             return s
         # generate q/a and look through all references
-        for p in self.deck.updateCache(type="all"):
+        for p in self.deck.renderQA(type="all"):
             for type in ("q", "a"):
                 for f in self.mediaFiles(p[type]):
                     normrefs[norm(f)] = True

@@ -45,9 +45,6 @@ def removeHook(hook, func):
     if func in hook:
         hook.remove(func)
 
-def hookEmpty(hook):
-    return not _hooks.get(hook)
-
 # Instrumenting
 ##############################################################################
 

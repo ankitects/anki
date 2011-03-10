@@ -31,11 +31,11 @@ class Scheduler(object):
         self.resetConf()
         t = time.time()
         self.resetLearn()
-        print "lrn %0.2fms" % ((time.time() - t)*1000); t = time.time()
+        #print "lrn %0.2fms" % ((time.time() - t)*1000); t = time.time()
         self.resetReview()
-        print "rev %0.2fms" % ((time.time() - t)*1000); t = time.time()
+        #print "rev %0.2fms" % ((time.time() - t)*1000); t = time.time()
         self.resetNew()
-        print "new %0.2fms" % ((time.time() - t)*1000); t = time.time()
+        #print "new %0.2fms" % ((time.time() - t)*1000); t = time.time()
 
     def answerCard(self, card, ease):
         if card.queue == 0:

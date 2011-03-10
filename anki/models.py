@@ -49,9 +49,6 @@ insert or replace into models values (?, ?, ?, ?, ?, ?)""",
         self.id = ret.lastrowid
         [t._flush() for t in self.templates]
 
-    def updateCache(self):
-        self.deck.updateCache([self.id], "model")
-
     def _getID(self):
         if not self.id:
             # flush so we can get our DB id
