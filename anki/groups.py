@@ -17,7 +17,6 @@ defaultConf = {
     },
     'lapse': {
         'delays': [0.5, 3, 10],
-        'ints': [1, 7, 4],
         'mult': 0
     },
     'suspendLeeches': True,

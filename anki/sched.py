@@ -161,10 +161,10 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
         conf = self.learnConf(card)
         leaving = False
         if ease == 3:
-            self.removeLearnCard(card, conf)
+            self.rescheduleAsReview(card, conf, True)
             leaving = True
         elif ease == 2 and card.grade+1 >= len(conf['delays']):
-            self.graduateLearnCard(card, conf)
+            self.rescheduleAsReview(card, conf, False)
             leaving = True
         else:
             card.cycles += 1
@@ -189,34 +189,27 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
         else:
             return conf['lapse']
 
-    def removeLearnCard(self, card, conf):
+    def rescheduleAsReview(self, card, conf, early):
+        card.queue = 1
+        card.type = 1
         if card.type == 1:
-            int_ = None
-        elif not card.cycles:
+            # failed, nothing else to do
+            pass
+        else:
+            self.rescheduleNew(card, conf, early)
+
+    def rescheduleNew(self, card, conf, early):
+        if not early:
+            # graduate
+            int_ = conf['ints'][0]
+        elif card.cycles:
+            # remove
+            int_ = conf['ints'][2]
+        else:
             # first time bonus
             int_ = conf['ints'][1]
-        else:
-            # normal remove
-            int_ = conf['ints'][2]
-        self.rescheduleAsReview(card, conf, int_)
-
-    def graduateLearnCard(self, card, conf):
-        if card.type == 1:
-            int_ = None
-        else:
-            int_ = conf['ints'][0]
-        self.rescheduleAsReview(card, conf, int_)
-
-    def rescheduleAsReview(self, card, conf, int_):
-        card.queue = 1
-        if int_:
-            # new card
-            card.type = 1
-            card.interval = int_
-            card.factor = conf['initialFactor']
-        else:
-            # failed card
-            pass
+        card.interval = int_
+        card.factor = conf['initialFactor']
 
     def logLearn(self, card, ease, conf, leaving):
         self.deck.db.execute(
