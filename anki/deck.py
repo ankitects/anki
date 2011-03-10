@@ -475,7 +475,7 @@ due > :now and due < :now""", now=time.time())
         if isRandom:
             due = random.randrange(0, 10000)
         # flush the fact so we get its id
-        fact.flush(cache=False)
+        fact.flush()
         for template in cms:
             print "fixme:specify group on fact add"
             group = self.groupForTemplate(template)
@@ -560,7 +560,7 @@ where fid = :fid and tid = :cmid""",
             return
         strids = ids2str(ids)
         self.db.execute("delete from facts where id in %s" % strids)
-        #self.db.execute("delete from fdata where fid in %s" % strids)
+        self.db.execute("delete from fsums where fid in %s" % strids)
 
     def _deleteDanglingFacts(self):
         "Delete any facts without cards. Don't call this directly."
@@ -621,17 +621,20 @@ select id from facts where id not in (select distinct fid from cards)""")
             # trash
             sfids = ids2str(
                 self.db.list("select fid from cards where id in "+sids))
+            # need to handle delete of fsums/revlog remotely after sync
+            self.db.execute(
+                "update cards set crt = 0, mod = ? where id in "+sids,
+                intTime())
+            self.db.execute(
+                "update facts set crt = 0, mod = ? where id in "+sfids,
+                intTime())
+            self.db.execute("delete from fsums where fid in "+sfids)
             self.db.execute("delete from revlog where cid in "+sids)
-            self.db.execute("update cards set crt = 0 where id in "+sids)
-            self.db.execute("update facts set crt = 0 where id in "+sfids)
-            self.db.execute("delete from fdata where fid in "+sfids)
         self.finishProgress()
 
     def emptyTrash(self):
         self.db.executescript("""
 delete from facts where id in (select fid from cards where queue = -4);
-delete from fdata where fid in (select fid from cards where queue = -4);
-delete from revlog where cid in (select id from cards where queue = -4);
 delete from cards where queue = -4;""")
 
     # Models

@@ -256,6 +256,15 @@ def deleteTags(deltags, tags):
             currentTags.remove(r)
     return joinTags(currentTags)
 
+# Fields
+##############################################################################
+
+def joinFields(list):
+    return "\x1f".join(list)
+
+def splitFields(string):
+    return string.split("\x1f")
+
 # Misc
 ##############################################################################
 

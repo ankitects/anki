@@ -88,34 +88,30 @@ def test_fieldChecksum():
     f['Front'] = u"new"; f['Back'] = u"new2"
     deck.addFact(f)
     assert deck.db.scalar(
-        "select csum from fdata where ord = 0") == "22af645d"
+        "select csum from fsums") == "22af645d"
     # empty field should have no checksum
     f['Front'] = u""
     f.flush()
     assert deck.db.scalar(
-        "select csum from fdata where ord = 0") == ""
+        "select count() from fsums") == 0
     # changing the val should change the checksum
     f['Front'] = u"newx"
     f.flush()
     assert deck.db.scalar(
-        "select csum from fdata where ord = 0") == "4b0e5a4c"
-    # back should have no checksum, because it's not set to be unique
-    assert deck.db.scalar(
-        "select csum from fdata where ord = 1") == ""
-    # if we turn on unique, it should get a checksum
-    f.model.fields[1].conf['unique'] = True
+        "select csum from fsums") == "4b0e5a4c"
+    # turning off unique and modifying the fact should delete the sum
+    f.model.fields[0]['uniq'] = False
     f.model.flush()
-    f.model.updateCache()
-    print deck.db.scalar(
-        "select csum from fdata where ord = 1")
+    f.flush()
     assert deck.db.scalar(
-        "select csum from fdata where ord = 1") == "82f2ec5f"
-    # turning it off doesn't currently zero the checksum for efficiency reasons
-    # f.model.fields[1].conf['unique'] = False
-    # f.model.flush()
-    # f.model.updateCache()
-    # assert deck.db.scalar(
-    #     "select csum from fdata where ord = 1") == ""
+        "select count() from fsums") == 0
+    # and turning on both should ensure two checksums generated
+    f.model.fields[0]['uniq'] = True
+    f.model.fields[1]['uniq'] = True
+    f.model.flush()
+    f.flush()
+    assert deck.db.scalar(
+        "select count() from fsums") == 2
 
 def test_upgrade():
     import tempfile, shutil

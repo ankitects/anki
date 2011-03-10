@@ -5,7 +5,7 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import stripHTMLMedia, fieldChecksum, intTime, \
-    addTags, deleteTags, parseTags
+    addTags, deleteTags, joinFields, splitFields, ids2str
 
 class Fact(object):
 
@@ -22,7 +22,6 @@ class Fact(object):
             self.crt = intTime()
             self.mod = self.crt
             self.tags = ""
-            self.cache = ""
             self._fields = [""] * len(self.model.fields)
             self.data = ""
         self._fmap = self.model.fieldMap()
@@ -38,7 +37,7 @@ select mid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         self._fields = self._field.split("\x1f")
         self.model = self.deck.getModel(self.mid)
 
-    def flush(self, cache=True):
+    def flush(self):
         self.mod = intTime()
         # facts table
         sfld = self._fields[self.model.sortField()]
@@ -48,22 +47,22 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.mod, self.tags, self.joinedFields(),
                             sfld, self.data)
         self.id = res.lastrowid
+        self.updateFieldChecksums()
 
     def joinedFields(self):
-        return "\x1f".join(self._fields)
+        return joinFields(self._fields)
 
-#         # fdata table
-#         self.deck.db.execute("delete from fdata where fid = ?", self.id)
-#         d = []
-#         for (fmid, ord, conf) in self._fmap.values():
-#             val = self._fields[ord]
-#             d.append(dict(fid=self.id, fmid=fmid, ord=ord,
-#                           val=val))
-#         d.append(dict(fid=self.id, fmid=0, ord=-1, val=self.tags))
-#         self.deck.db.executemany("""
-# insert into fdata values (:fid, :fmid, :ord, :val, '')""", d)
-#         # media and caches
-#         self.deck.updateCache([self.id], "fact")
+    def updateFieldChecksums(self):
+        self.deck.db.execute("delete from fsums where fid = ?", self.id)
+        d = []
+        for (ord, conf) in self._fmap.values():
+            if not conf['uniq']:
+                continue
+            val = fieldChecksum(self._fields[ord])
+            if not val:
+                continue
+            d.append((self.id, self.mid, val))
+        self.deck.db.executemany("insert into fsums values (?, ?, ?)", d)
 
     def cards(self):
         return [self.deck.getCard(id) for id in self.deck.db.list(
@@ -111,14 +110,26 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
         if not conf['uniq']:
             return True
         val = self[name]
+        if not val:
+            return True
         csum = fieldChecksum(val)
         if self.id:
             lim = "and fid != :fid"
         else:
             lim = ""
-        return not self.deck.db.scalar(
-            "select 1 from fdata where csum = :c %s and val = :v" % lim,
-            c=csum, v=val, fid=self.id)
+        fids = self.deck.db.list(
+            "select fid from fsums where csum = ? and fid != ? and mid = ?",
+            csum, self.id or 0, self.mid)
+        if not fids:
+            return True
+        # grab facts with the same checksums, and see if they're actually
+        # duplicates
+        for flds in self.deck.db.list("select flds from facts where id in "+
+                                      ids2str(fids)):
+            fields = splitFields(flds)
+            if fields[ord] == val:
+                return False
+        return True
 
     def fieldComplete(self, name, text=None):
         (ord, conf) = self._fmap[name]

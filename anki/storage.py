@@ -93,6 +93,12 @@ create table if not exists facts (
     data            text not null
 );
 
+create table if not exists fsums (
+    fid             integer not null,
+    mid             integer not null,
+    csum            integer not null
+);
+
 create table if not exists models (
     id              integer primary key,
     mod             integer not null,
