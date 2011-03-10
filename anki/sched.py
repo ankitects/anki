@@ -159,24 +159,25 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
     def answerLearnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
         conf = self.learnConf(card)
+        leaving = False
         if ease == 3:
             self.removeLearnCard(card, conf)
-            return
-        card.cycles += 1
-        if ease == 2:
-            card.grade += 1
-        else:
-            card.grade = 0
-        if card.grade >= len(conf['delays']):
+            leaving = True
+        elif ease == 2 and card.grade+1 >= len(conf['delays']):
             self.graduateLearnCard(card, conf)
-            return
+            leaving = True
         else:
+            card.cycles += 1
+            if ease == 2:
+                card.grade += 1
+            else:
+                card.grade = 0
             card.due = time.time() + self.delayForGrade(conf, card.grade)
         try:
-            self.logLearn(card, ease, conf)
+            self.logLearn(card, ease, conf, leaving)
         except:
             time.sleep(0.01)
-            self.logLearn(card, ease, conf)
+            self.logLearn(card, ease, conf, leaving)
 
     def delayForGrade(self, conf, grade):
         return conf['delays'][grade]*60
@@ -213,18 +214,17 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
             card.type = 1
             card.interval = int_
             card.factor = conf['initialFactor']
-            print "logs for learning cards?"
         else:
             # failed card
             pass
 
-    def logLearn(self, card, ease, conf):
+    def logLearn(self, card, ease, conf, leaving):
         self.deck.db.execute(
             "insert into revlog values (?,?,?,?,?,?,?,?,?)",
             int(time.time()*1000), card.id, ease, card.cycles,
             self.delayForGrade(conf, card.grade),
             self.delayForGrade(conf, max(0, card.grade-1)),
-            0, card.timeTaken(), 0)
+            leaving, card.timeTaken(), 0)
 
     # Reviews
     ##########################################################################
