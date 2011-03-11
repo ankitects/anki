@@ -32,7 +32,7 @@ def test_new():
     # the default order should ensure siblings are not seen together, and
     # should show all cards
     m = d.currentModel()
-    m.templates[1].active = True
+    m.templates[1]['actv'] = True
     m.flush()
     f = d.newFact()
     f['Front'] = u"2"; f['Back'] = u"2"

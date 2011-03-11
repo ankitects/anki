@@ -12,6 +12,31 @@ from anki.lang import _
 defaultConf = {
 }
 
+defaultField = {
+    'name': "",
+    'rtl': False,
+    'req': False,
+    'uniq': False,
+    'font': "Arial",
+    'qsize': 20,
+    'esize': 20,
+    'qcol': "#fff",
+    'pre': True,
+}
+
+defaultTemplate = {
+    'name': "",
+    'actv': True,
+    'qfmt': "",
+    'afmt': "",
+    'hideQ': False,
+    'align': 0,
+    'bg': "#000",
+    'emptyAns': None,
+    'typeAns': None,
+    'gid': None
+}
+
 class Model(object):
 
     def __init__(self, deck, id=None):
@@ -32,34 +57,29 @@ class Model(object):
         (self.mod,
          self.name,
          self.fields,
+         self.templates,
          self.conf) = self.deck.db.first("""
-select mod, name, flds, conf from models where id = ?""", self.id)
+select mod, name, flds, tmpls, conf from models where id = ?""", self.id)
         self.fields = simplejson.loads(self.fields)
+        self.templates = simplejson.loads(self.templates)
         self.conf = simplejson.loads(self.conf)
-        self.loadTemplates()
 
     def flush(self):
         self.mod = intTime()
         ret = self.deck.db.execute("""
-insert or replace into models values (?, ?, ?, ?, ?, ?)""",
+insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
                 self.id, self.mod, self.name,
                 simplejson.dumps(self.fields),
+                simplejson.dumps(self.templates),
                 simplejson.dumps(self.conf),
                 self.genCSS())
         self.id = ret.lastrowid
-        [t._flush() for t in self.templates]
-
-    def _getID(self):
-        if not self.id:
-            # flush so we can get our DB id
-            self.flush()
-        return self.id
 
     # Fields
     ##################################################
 
     def newField(self):
-        return defaultFieldConf.copy()
+        return defaultField.copy()
 
     def addField(self, field):
         self.deck.modSchema()
@@ -70,20 +90,17 @@ insert or replace into models values (?, ?, ?, ?, ?, ?)""",
         return dict([(f['name'], (c, f)) for c, f in enumerate(self.fields)])
 
     def sortField(self):
+        print "sortField() fixme"
         return 0
 
     # Templates
     ##################################################
 
-    def loadTemplates(self):
-        sql = "select * from templates where mid = ? order by ord"
-        self.templates = [Template(self.deck, data)
-                          for data in self.deck.db.all(sql, self.id)]
+    def newTemplate(self):
+        return defaultTemplate.copy()
 
     def addTemplate(self, template):
         self.deck.modSchema()
-        template.mid = self._getID()
-        template.ord = len(self.templates)
         self.templates.append(template)
 
     # Copying
@@ -95,15 +112,8 @@ insert or replace into models values (?, ?, ?, ?, ?, ?)""",
         new.id = None
         new.name += _(" copy")
         new.fields = [f.copy() for f in self.fields]
-        # get new id
-        t = new.templates; new.templates = []
+        new.templates = [t.copy() for t in self.templates]
         new.flush()
-        # then put back
-        new.templates = t
-        for t in new.templates:
-            t.id = None
-            t.mid = new.id
-            t._flush()
         return new
 
     # CSS generation
@@ -118,14 +128,10 @@ insert or replace into models values (?, ?, ?, ?, ?, ?)""",
             (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
             for c, f in enumerate(self.fields)])
         # templates
-        for t in self.templates:
-            if not t.id:
-                # not flushed yet, ignore for now
-                continue
-            css += "#cm%s {text-align:%s;background:%s}\n" % (
-                hexifyID(t.id),
-                ("center", "left", "right")[t.conf['align']],
-                t.conf['bg'])
+        css += "".join(["#cm%s-%s {text-align:%s;background:%s}\n" % (
+            hexifyID(self.id), hexifyID(c),
+            ("center", "left", "right")[t['align']], t['bg'])
+                for c, t in enumerate(self.templates)])
         return css
 
     def _rewriteFont(self, font):
@@ -148,60 +154,3 @@ insert or replace into models values (?, ?, ?, ?, ?, ?)""",
             t += "white-space:pre-wrap;"
         t = "%s {%s}\n" % (prefix, t)
         return t
-
-# Field object
-##########################################################################
-
-defaultFieldConf = {
-    'name': "",
-    'rtl': False,
-    'req': False,
-    'uniq': False,
-    'font': "Arial",
-    'qsize': 20,
-    'esize': 20,
-    'qcol': "#fff",
-    'pre': True,
-}
-
-# Template object
-##########################################################################
-
-defaultTemplateConf = {
-    'hideQ': False,
-    'align': 0,
-    'bg': "#000",
-    'allowEmptyAns': None,
-    'typeAnswer': None,
-    'gid': None
-}
-
-class Template(object):
-
-    def __init__(self, deck, data=None):
-        self.deck = deck
-        if data:
-            self.initFromData(data)
-        else:
-            self.id = None
-            self.active = True
-            self.conf = defaultTemplateConf.copy()
-
-    def initFromData(self, data):
-        (self.id,
-         self.mid,
-         self.ord,
-         self.name,
-         self.active,
-         self.qfmt,
-         self.afmt,
-         self.conf) = data
-        self.conf = simplejson.loads(self.conf)
-
-    def _flush(self):
-        ret = self.deck.db.execute("""
-insert or replace into templates values (?, ?, ?, ?, ?, ?, ?, ?)""",
-                             self.id, self.mid, self.ord, self.name,
-                             self.active, self.qfmt, self.afmt,
-                             simplejson.dumps(self.conf))
-        self.id = ret.lastrowid

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from tests.shared import getEmptyDeck
-from anki.models import Model, Template
+from anki.models import Model
 from anki.utils import stripHTML
 
 def test_modelDelete():
@@ -20,7 +20,6 @@ def test_modelCopy():
     m2 = m.copy()
     assert m2.name == "Basic copy"
     assert m2.id != m.id
-    assert m2.templates[0].id != m.templates[0].id
     assert len(m2.fields) == 2
     assert len(m.fields) == 2
     assert len(m2.fields) == len(m.fields)

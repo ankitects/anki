@@ -401,9 +401,8 @@ due > :now and due < :now""", now=time.time())
         for template in cms:
             card = anki.cards.Card(self)
             card.fid = fact.id
-            card.tid = template.id
-            card.ord = template.ord
-            card.gid = template.conf['gid'] or gid
+            card.ord = template['ord']
+            card.gid = template['gid'] or gid
             if isRandom:
                 card.due = due
             else:
@@ -418,19 +417,21 @@ due > :now and due < :now""", now=time.time())
     def findTemplates(self, fact, checkActive=True):
         "Return active, non-empty templates."
         ok = []
-        for template in fact.model.templates:
-            if template.active or not checkActive:
-                # [cid, fid, mid, tid, gid, tags, flds, data]
-                data = [1, 1, fact.model.id, template.id, 1,
+        for c, template in enumerate(fact.model.templates):
+            if template['actv'] or not checkActive:
+                # [cid, fid, mid, gid, ord, tags, flds, data]
+                data = [1, 1, fact.model.id, 1, c,
                         "", fact.joinedFields(), ""]
-                now = self._renderQA(fact.model, template, "", data)
+                now = self._renderQA(fact.model, "", data)
                 data[6] = "\x1f".join([""]*len(fact._fields))
-                empty = self._renderQA(fact.model, template, "", data)
+                empty = self._renderQA(fact.model, "", data)
                 if now['q'] == empty['q']:
                     continue
-                if not template.conf['allowEmptyAns']:
+                if not template['emptyAns']:
                     if now['a'] == empty['a']:
                         continue
+                # add ordinal
+                template['ord'] = c
                 ok.append(template)
         return ok
 
@@ -647,7 +648,6 @@ select id from cards where fid in (select id from facts where mid = ?)""",
                                       mid))
         # then the model
         self.db.execute("delete from models where id = ?", mid)
-        self.db.execute("delete from templates where mid = ?", mid)
         # GUI should ensure last model is not deleted
         if self.conf['currentModelId'] == mid:
             self.conf['currentModelId'] = self.db.scalar(
@@ -861,18 +861,15 @@ where tid in %s""" % strids, now=time.time())
         else:
             raise Exception()
         mods = {}
-        templs = {}
         for m in self.allModels():
             mods[m.id] = m
-            for t in m.templates:
-                templs[t.id] = t
         groups = dict(self.db.all("select id, name from groups"))
-        return [self._renderQA(mods[row[2]], templs[row[3]], groups[row[4]], row)
+        return [self._renderQA(mods[row[2]], groups[row[3]], row)
                 for row in self._qaData(where)]
 
-    def _renderQA(self, model, template, gname, data, filters=True):
+    def _renderQA(self, model, gname, data, filters=True):
         "Returns hash of id, question, answer."
-        # data is [cid, fid, mid, tid, gid, tags, flds, data]
+        # data is [cid, fid, mid, gid, ord, tags, flds, data]
         # unpack fields and create dict
         flist = data[6].split("\x1f")
         fields = {}
@@ -888,11 +885,12 @@ where tid in %s""" % strids, now=time.time())
                 fields[name] = ""
         fields['Tags'] = data[5]
         fields['Model'] = model.name
-        fields['Template'] = template.name
         fields['Group'] = gname
+        template = model.templates[data[4]]
+        fields['Template'] = template['name']
         # render q & a
         d = dict(id=data[0])
-        for (type, format) in (("q", template.qfmt), ("a", template.afmt)):
+        for (type, format) in (("q", template['qfmt']), ("a", template['afmt'])):
             # if filters:
             #     fields = runFilter("renderQA.pre", fields, , self)
             html = anki.template.render(format, fields)
@@ -903,12 +901,11 @@ where tid in %s""" % strids, now=time.time())
         return d
 
     def _qaData(self, where=""):
-        "Return [cid, fid, mid, tid, gid, tags, flds, data] db query"
+        "Return [cid, fid, mid, gid, ord, tags, flds, data] db query"
         return self.db.execute("""
-select c.id, f.id, m.id, t.id, g.id, f.tags, f.flds, f.data
-from cards c, facts f, models m, templates t, groups g
-where c.fid == f.id and f.mid == m.id and
-c.tid = t.id and c.gid = g.id
+select c.id, f.id, m.id, g.id, c.ord, f.tags, f.flds, f.data
+from cards c, facts f, models m, groups g
+where c.fid == f.id and f.mid == m.id and c.gid = g.id
 %s""" % where)
 
     # Field checksum bulk update

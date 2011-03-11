@@ -74,7 +74,7 @@ def test_db():
     # modify template & regenerate
     assert deck.db.scalar("select count() from media") == 1
     m = deck.currentModel()
-    m.templates[0].afmt=u'<img src="{{{Back}}}">'
+    m.templates[0]['afmt']=u'<img src="{{{Back}}}">'
     m.flush()
     deck.renderQA(type="all")
     assert deck.db.scalar("select count() from media") == 2

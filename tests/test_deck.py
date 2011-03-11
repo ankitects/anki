@@ -52,7 +52,7 @@ def test_factAddDelete():
     f = deck.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
     m = f.model
-    m.templates[1].active = True
+    m.templates[1]['actv'] = True
     m.flush()
     n = deck.addFact(f)
     assert n == 2

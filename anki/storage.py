@@ -68,8 +68,8 @@ create table if not exists deck (
 create table if not exists cards (
     id              integer primary key,
     fid             integer not null,
-    tid             integer not null,
     gid             integer not null,
+    ord             integer not null,
     crt             integer not null,
     mod             integer not null,
     type            integer not null,
@@ -107,19 +107,9 @@ create table if not exists models (
     mod             integer not null,
     name            text not null,
     flds            text not null,
+    tmpls           text not null,
     conf            text not null,
     css             text not null
-);
-
-create table if not exists templates (
-    id              integer primary key,
-    mid             integer not null,
-    ord             integer not null,
-    name            text not null,
-    actv            integer not null,
-    qfmt            text not null,
-    afmt            text not null,
-    conf            text not null
 );
 
 create table if not exists gconf (
@@ -320,7 +310,7 @@ originalPath from media2""")
     _moveTable(db, "models")
     db.execute("""
 insert into models select id, cast(modified as int),
-name, "{}", "{}", "" from models2""")
+name, "{}", "{}", "{}", "" from models2""")
     db.execute("drop table models2")
 
     # reviewHistory -> revlog
@@ -390,7 +380,7 @@ utcOffset, "", "", "" from decks""", t=intTime())
 
 def _migrateFieldsTbl(db):
     import anki.models
-    dconf = anki.models.defaultFieldConf
+    dconf = anki.models.defaultField
     mods = {}
     for row in db.all("""
 select id, modelId, ordinal, name, features, required, "unique",
@@ -420,47 +410,55 @@ quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels"""):
     db.execute("drop table fieldModels")
     return mods
 
-def _migrateTemplatesTbl(db, mods):
+def _migrateTemplatesTbl(db, fmods):
     import anki.models
-    db.execute("""
-insert into templates select id, modelId, ordinal, name, active, qformat,
-aformat, '' from cardModels""")
-    dconf = anki.models.defaultTemplateConf
+    dconf = anki.models.defaultTemplate
+    mods = {}
     for row in db.all("""
-select id, modelId, questionInAnswer, questionAlign, lastFontColour,
-allowEmptyAnswer, typeAnswer from cardModels"""):
+select modelId, ordinal, name, active, qformat, aformat, questionInAnswer,
+questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels"""):
         conf = dconf.copy()
-        (conf['hideQ'],
+        if row[1] not in mods:
+            mods[row[0]] = []
+        (conf['name'],
+         conf['actv'],
+         conf['qfmt'],
+         conf['afmt'],
+         conf['hideQ'],
          conf['align'],
          conf['bg'],
-         conf['allowEmptyAns'],
-         fname) = row[2:]
+         conf['emptyAns'],
+         conf['typeAns']) = row[2:]
         # convert the field name to an ordinal
-        for (ord, fm) in mods[row[1]]:
+        ordN = None
+        for (ord, fm) in fmods[row[0]]:
             if fm['name'] == row[1]:
-                conf['typeAnswer'] = ord
+                ordN = ord
                 break
-        # save
-        db.execute("update templates set conf = ? where id = ?",
-                   simplejson.dumps(conf), row[0])
+        if ordN is not None:
+            conf['typeAns'] = ordN
+        else:
+            conf['typeAns'] = None
+        # ensure the new style field format
+        conf['qfmt'] = re.sub("%\((.+?)\)s", "{{\\1}}", conf['qfmt'])
+        conf['afmt'] = re.sub("%\((.+?)\)s", "{{\\1}}", conf['afmt'])
+        # add to model list with ordinal for sorting
+        mods[row[0]].append((row[1], conf))
+    # now we've gathered all the info, save it into the models
+    for mid, tmpls in mods.items():
+        db.execute("update models set tmpls = ? where id = ?",
+                   simplejson.dumps([x[1] for x in sorted(tmpls)]), mid)
     # clean up
     db.execute("drop table cardModels")
+    return mods
 
 def _rewriteModelIds(deck):
     # rewrite model/template/field ids
     models = deck.allModels()
     deck.db.execute("delete from models")
-    deck.db.execute("delete from templates")
     for c, m in enumerate(models):
         old = m.id
         m.id = c+1
-        for t in m.templates:
-            t.mid = m.id
-            oldT = t.id
-            t.id = None
-            t._flush()
-            deck.db.execute(
-                "update cards set tid = ? where tid = ?", t.mid, oldT)
         m.flush()
         deck.db.execute("update facts set mid = ? where mid = ?", m.id, old)
 
@@ -476,12 +474,6 @@ def _postSchemaUpgrade(deck):
               "revCardsDue", "revCardsRandom", "acqCardsRandom",
               "acqCardsOld", "acqCardsNew"):
         deck.db.execute("drop view if exists %s" % v)
-    # ensure all templates use the new style field format
-    for m in deck.allModels():
-        for t in m.templates:
-            t.qfmt = re.sub("%\((.+?)\)s", "{{\\1}}", t.qfmt)
-            t.afmt = re.sub("%\((.+?)\)s", "{{\\1}}", t.afmt)
-        m.flush()
     # remove stats, as it's all in the revlog now
     deck.db.execute("drop table if exists stats")
     # suspended cards don't use ranges anymore

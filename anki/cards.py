@@ -28,7 +28,7 @@ class Card(object):
             self.id = id
             self.load()
         else:
-            # to flush, set fid, tid, and due
+            # to flush, set fid, ord, and due
             self.id = None
             self.gid = 1
             self.crt = intTime()
@@ -46,8 +46,8 @@ class Card(object):
     def load(self):
         (self.id,
          self.fid,
-         self.tid,
          self.gid,
+         self.ord,
          self.crt,
          self.mod,
          self.type,
@@ -71,8 +71,8 @@ insert or replace into cards values
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.fid,
-            self.tid,
             self.gid,
+            self.ord,
             self.crt,
             self.mod,
             self.type,
