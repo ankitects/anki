@@ -34,7 +34,7 @@ then
         pyuic=/opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4
         pyrcc=/opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/pyrcc4
     else
-        echo 'Unable to find pyuic4. Try `port install py-pyqt4`?'
+        echo 'Unable to find pyuic4. If you use macpors try `port install py-pyqt4`. If you use homebrew try `brew install pyqt`.'
         exit
     fi
 else
