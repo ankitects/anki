@@ -587,3 +587,207 @@ order by due limit %d""" % self.queueLimit), lim=self.dayCutoff)
 
     def _updateLearnMoreCountToday(self):
         self.newCount = self.newAvail
+
+    # Times
+    ##########################################################################
+
+    def nextDueMsg(self):
+        next = self.earliestTime()
+        if next:
+            # all new cards except suspended
+            newCount = self.newCardsDueBy(self.dayCutoff + 86400)
+            newCardsTomorrow = min(newCount, self.newCardsPerDay)
+            cards = self.cardsDueBy(self.dayCutoff + 86400)
+            msg = _('''\
+<style>b { color: #00f; }</style>
+At this time tomorrow:<br>
+%(wait)s<br>
+%(new)s''') % {
+                'new': ngettext("There will be <b>%d new</b> card.",
+                          "There will be <b>%d new</b> cards.",
+                          newCardsTomorrow) % newCardsTomorrow,
+                'wait': ngettext("There will be <b>%s review</b>.",
+                          "There will be <b>%s reviews</b>.", cards) % cards,
+                }
+            if next > (self.dayCutoff+86400) and not newCardsTomorrow:
+                msg = (_("The next review is in <b>%s</b>.") %
+                       self.earliestTimeStr())
+        else:
+            msg = _("No cards are due.")
+        return msg
+
+    def earliestTime(self):
+        """Return the time of the earliest card.
+This may be in the past if the deck is not finished.
+If the deck has no (enabled) cards, return None.
+Ignore new cards."""
+        earliestRev = self.db.scalar(self.cardLimit("revActive", "revInactive", """
+select due from cards c where queue = 1
+order by due
+limit 1"""))
+        earliestFail = self.db.scalar(self.cardLimit("revActive", "revInactive", """
+select due+%d from cards c where queue = 0
+order by due
+limit 1""" % self.delay0))
+        if earliestRev and earliestFail:
+            return min(earliestRev, earliestFail)
+        elif earliestRev:
+            return earliestRev
+        else:
+            return earliestFail
+
+    def earliestTimeStr(self, next=None):
+        """Return the relative time to the earliest card as a string."""
+        if next == None:
+            next = self.earliestTime()
+        if not next:
+            return _("unknown")
+        diff = next - time.time()
+        return anki.utils.fmtTimeSpan(diff)
+
+    def cardsDueBy(self, time):
+        "Number of cards due at TIME. Ignore new cards"
+        return self.db.scalar(
+            self.cardLimit(
+            "revActive", "revInactive",
+            "select count(*) from cards c where queue between 0 and 1 "
+            "and due < :lim"), lim=time)
+
+    def newCardsDueBy(self, time):
+        "Number of new cards due at TIME."
+        return self.db.scalar(
+            self.cardLimit(
+            "newActive", "newInactive",
+            "select count(*) from cards c where queue = 2 "
+            "and due < :lim"), lim=time)
+
+    def deckFinishedMsg(self):
+        spaceSusp = ""
+        c= self.spacedCardCount()
+        if c:
+            spaceSusp += ngettext(
+                'There is <b>%d delayed</b> card.',
+                'There are <b>%d delayed</b> cards.', c) % c
+        c2 = self.hiddenCards()
+        if c2:
+            if spaceSusp:
+                spaceSusp += "<br>"
+            spaceSusp += _(
+                "Some cards are inactive or suspended.")
+        if spaceSusp:
+            spaceSusp = "<br><br>" + spaceSusp
+        return _('''\
+<div style="white-space: normal;">
+<h1>Congratulations!</h1>You have finished for now.<br><br>
+%(next)s
+%(spaceSusp)s
+</div>''') % {
+    "next": self.nextDueMsg(),
+    "spaceSusp": spaceSusp,
+    }
+
+    # Suspending
+    ##########################################################################
+
+    def suspendCards(self, ids):
+        "Suspend cards."
+        self.startProgress()
+        self.db.execute("""
+update cards
+set queue = -1, mod = :t
+where id in %s""" % ids2str(ids), t=time.time())
+        self.finishProgress()
+
+    def unsuspendCards(self, ids):
+        "Unsuspend cards."
+        self.startProgress()
+        self.db.execute("""
+update cards set queue = type, mod=:t
+where queue = -1 and id in %s""" %
+            ids2str(ids), t=time.time())
+        self.finishProgress()
+
+    def buryFact(self, fact):
+        "Bury all cards for fact until next session."
+        for card in fact.cards:
+            if card.queue in (0,1,2):
+                card.queue = -2
+
+    # Counts
+    ##########################################################################
+
+    def hiddenCards(self):
+        "Assumes queue finished. True if some due cards have not been shown."
+        return self.db.scalar("""
+select 1 from cards where due < :now
+and queue between 0 and 1 limit 1""", now=self.dayCutoff)
+
+    def spacedCardCount(self):
+        "Number of spaced cards."
+        print "spacedCardCount"
+        return 0
+        return self.db.scalar("""
+select count(cards.id) from cards where
+due > :now and due < :now""", now=time.time())
+
+    def isEmpty(self):
+        return not self.cardCount
+
+    def matureCardCount(self):
+        return self.db.scalar(
+            "select count(id) from cards where interval >= :t ",
+            t=MATURE_THRESHOLD)
+
+    def youngCardCount(self):
+        return self.db.scalar(
+            "select count(id) from cards where interval < :t "
+            "and reps != 0", t=MATURE_THRESHOLD)
+
+    def newCountAll(self):
+        "All new cards, including spaced."
+        return self.db.scalar(
+            "select count(id) from cards where type = 2")
+
+    def seenCardCount(self):
+        return self.db.scalar(
+            "select count(id) from cards where type between 0 and 1")
+
+    # Card predicates
+    ##########################################################################
+
+    def cardState(self, card):
+        if self.cardIsNew(card):
+            return "new"
+        elif card.interval > MATURE_THRESHOLD:
+            return "mature"
+        return "young"
+
+    def cardIsNew(self, card):
+        "True if a card has never been seen before."
+        return card.reps == 0
+
+    def cardIsYoung(self, card):
+        "True if card is not new and not mature."
+        return (not self.cardIsNew(card) and
+                not self.cardIsMature(card))
+
+    def cardIsMature(self, card):
+        return card.interval >= MATURE_THRESHOLD
+
+    # Stats
+    ##########################################################################
+
+    def getETA(self, stats):
+        # rev + new cards first, account for failures
+        import traceback; traceback.print_stack()
+        count = stats['rev'] + stats['new']
+        count *= 1 + stats['gYoungNo%'] / 100.0
+        left = count * stats['dAverageTime']
+        # failed - higher time per card for higher amount of cards
+        failedBaseMulti = 1.5
+        failedMod = 0.07
+        failedBaseCount = 20
+        factor = (failedBaseMulti +
+                  (failedMod * (stats['failed'] - failedBaseCount)))
+        left += stats['failed'] * stats['dAverageTime'] * factor
+        return left
