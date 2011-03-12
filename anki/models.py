@@ -80,16 +80,6 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
     def fids(self):
         return self.deck.db.list("select id from facts where mid = ?", self.id)
 
-    # Templates
-    ##################################################
-
-    def newTemplate(self):
-        return defaultTemplate.copy()
-
-    def addTemplate(self, template):
-        self.deck.modSchema()
-        self.templates.append(template)
-
     # Copying
     ##################################################
 
@@ -142,7 +132,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         t = "%s {%s}\n" % (prefix, t)
         return t
 
-    # Field basics
+    # Fields
     ##################################################
 
     def fieldMap(self):
@@ -157,9 +147,6 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         self.conf['sortf'] = idx
         self.deck.updateFieldCache(self.fids(), csum=False)
 
-    # Adding/deleting/moving fields
-    ##################################################
-
     def newField(self):
         return defaultField.copy()
 
@@ -171,7 +158,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             return fields
         self._transformFields(add)
 
-    def deleteField(self, field):
+    def delField(self, field):
         idx = self.fields.index(field)
         self.fields.remove(field)
         self.flush()
@@ -222,3 +209,27 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             r.append((joinFields(fn(splitFields(flds))), id))
         self.deck.db.executemany("update facts set flds = ? where id = ?", r)
         self.deck.finishProgress()
+
+    # Templates
+    ##################################################
+
+    def newTemplate(self):
+        return defaultTemplate.copy()
+
+    def addTemplate(self, template):
+        self.deck.modSchema()
+        self.templates.append(template)
+
+    def delTemplate(self, template):
+        self.deck.modSchema()
+        ord = self.templates.index(template)
+        cids = self.deck.db.list("""
+select c.id from cards c, facts f where c.fid=f.id and mid = ? and ord = ?""",
+                                 self.id, ord)
+        self.deck.deleteCards(cids)
+        # shift ordinals
+        self.deck.db.execute("""
+update cards set ord = ord - 1 where fid in (select id from facts
+where mid = ?) and ord > ?""", self.id, ord)
+        self.templates.remove(template)
+        self.flush()

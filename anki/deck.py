@@ -762,38 +762,6 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ord)
             self.db.executemany("insert into fsums values (?,?,?)", r)
         self.db.executemany("update facts set sfld = ? where id = ?", r2)
 
-    # Card models
-    ##########################################################################
-
-    def templateUseCount(self, template):
-        "Return the number of cards using template."
-        return self.db.scalar("""
-select count(id) from cards where
-tid = :id""", id=template.id)
-
-    def addCardModel(self, model, template):
-        self.modSchema()
-        model.addCardModel(template)
-
-    def deleteCardModel(self, model, template):
-        "Delete all cards that use CARDMODEL from the deck."
-        self.modSchema()
-        cards = self.db.list("select id from cards where tid = :id",
-                               id=template.id)
-        self.deleteCards(cards)
-        model.templates.remove(template)
-        model.flush()
-
-    def rebuildCardOrds(self, ids):
-        "Update all card models in IDS. Caller must update model modtime."
-        self.modSchema()
-        strids = ids2str(ids)
-        self.db.execute("""
-update cards set
-ord = (select ord from templates where id = tid),
-mod = :now
-where tid in %s""" % strids, now=time.time())
-
     # Q/A generation
     ##########################################################################
 

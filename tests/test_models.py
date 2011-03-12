@@ -45,7 +45,7 @@ def test_fields():
     m.renameField(f, "bar")
     assert d.getFact(m.fids()[0])['bar'] == ''
     # delete back
-    m.deleteField(m.fields[1])
+    m.delField(m.fields[1])
     assert d.getFact(m.fids()[0])._fields == ["1", ""]
     # move 0 -> 1
     m.moveField(m.fields[0], 1)
@@ -70,6 +70,24 @@ def test_fields():
     # move 0 -> 1
     m.moveField(m.fields[0], 1)
     assert d.getFact(m.fids()[0])._fields == ["", "2", "1"]
+
+def test_templates():
+    d = getEmptyDeck()
+    m = d.currentModel()
+    m.templates[1]['actv'] = True
+    m.flush()
+    f = d.newFact()
+    f['Front'] = u'1'
+    f['Back'] = u'2'
+    d.addFact(f)
+    assert d.cardCount() == 2
+    # removing a template should delete its cards
+    m.delTemplate(m.templates[0])
+    assert d.cardCount() == 1
+    # and should have updated the other cards' ordinals
+    c = f.cards()[0]
+    assert c.ord == 0
+    stripHTML(c.q()) == "2"
 
 def test_modelChange():
     print "model change"
