@@ -307,10 +307,12 @@ originalPath from media2""")
 
     # models
     ###########
+    import anki.models
     _moveTable(db, "models")
     db.execute("""
 insert into models select id, cast(modified as int),
-name, "{}", "{}", "{}", "" from models2""")
+name, "{}", "{}", ?, "" from models2""", simplejson.dumps(
+    anki.models.defaultConf))
     db.execute("drop table models2")
 
     # reviewHistory -> revlog
@@ -454,9 +456,9 @@ questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels"""):
 
 def _rewriteModelIds(deck):
     # rewrite model/template/field ids
-    models = deck.allModels()
+    models = deck.models()
     deck.db.execute("delete from models")
-    for c, m in enumerate(models):
+    for c, m in enumerate(models.values()):
         old = m.id
         m.id = c+1
         m.flush()
@@ -468,7 +470,7 @@ def _postSchemaUpgrade(deck):
     # fix up model/template ids
     _rewriteModelIds(deck)
     # update uniq cache
-    deck.updateFieldChecksums(deck.db.list("select id from facts"))
+    deck.updateFieldCache(deck.db.list("select id from facts"))
     # remove old views
     for v in ("failedCards", "revCardsOld", "revCardsNew",
               "revCardsDue", "revCardsRandom", "acqCardsRandom",

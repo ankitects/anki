@@ -627,9 +627,13 @@ where id = :id""", vals)
     def currentModel(self):
         return self.getModel(self.conf['currentModelId'])
 
-    def allModels(self):
-        return [self.getModel(id) for id in self.db.list(
-            "select id from models")]
+    def models(self):
+        "Return a dict of mid -> model."
+        mods = {}
+        for m in [self.getModel(id) for id in self.db.list(
+            "select id from models")]:
+            mods[m.id] = m
+        return mods
 
     def getModel(self, mid):
         return anki.models.Model(self, mid)
@@ -860,9 +864,7 @@ where tid in %s""" % strids, now=time.time())
             where = ""
         else:
             raise Exception()
-        mods = {}
-        for m in self.allModels():
-            mods[m.id] = m
+        mods = self.models()
         groups = dict(self.db.all("select id, name from groups"))
         return [self._renderQA(mods[row[2]], groups[row[3]], row)
                 for row in self._qaData(where)]
@@ -908,24 +910,32 @@ from cards c, facts f, models m, groups g
 where c.fid == f.id and f.mid == m.id and c.gid = g.id
 %s""" % where)
 
-    # Field checksum bulk update
+    # Field checksums and sorting fields
     ##########################################################################
 
-    def updateFieldChecksums(self, fids):
-        "Update all field checksums, after find&replace, etc."
+    def _fieldData(self, sfids):
+        return self.db.execute(
+            "select id, mid, flds from facts where id in "+sfids)
+
+    def updateFieldCache(self, fids, csum=True):
+        "Update field checksums and sort cache, after find&replace, etc."
         sfids = ids2str(fids)
-        mods = {}
-        for m in self.allModels():
-            mods[m.id] = m
+        mods = self.models()
         r = []
-        for row in self._qaData(where="and f.id in "+sfids):
-            fields = splitFields(row[6])
-            model = mods[row[2]]
-            for c, f in enumerate(model.fields):
-                if f['uniq'] and fields[c]:
-                    r.append((row[1], model.id, fieldChecksum(fields[c])))
-        self.db.execute("delete from fsums where fid in "+sfids)
-        self.db.executemany("insert into fsums values (?,?,?)", r)
+        r2 = []
+        for (fid, mid, flds) in self._fieldData(sfids):
+            fields = splitFields(flds)
+            model = mods[mid]
+            if csum:
+                for c, f in enumerate(model.fields):
+                    if f['uniq'] and fields[c]:
+                        r.append((fid, mid, fieldChecksum(fields[c])))
+            r2.append((stripHTML(fields[model.sortIdx()])[
+                :SORT_FIELD_LEN], fid))
+        if csum:
+            self.db.execute("delete from fsums where fid in "+sfids)
+            self.db.executemany("insert into fsums values (?,?,?)", r)
+        self.db.executemany("update facts set sfld = ? where id = ?", r2)
 
     # Tags
     ##########################################################################

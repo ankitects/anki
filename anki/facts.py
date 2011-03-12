@@ -40,7 +40,7 @@ select mid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
     def flush(self):
         self.mod = intTime()
         # facts table
-        sfld = self._fields[self.model.sortField()]
+        sfld = self._fields[self.model.sortIdx()]
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.mid, self.crt,

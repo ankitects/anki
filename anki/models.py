@@ -10,6 +10,7 @@ from anki.lang import _
 ##########################################################################
 
 defaultConf = {
+    'sortf': 0,
 }
 
 defaultField = {
@@ -75,6 +76,9 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
                 self.genCSS())
         self.id = ret.lastrowid
 
+    def fids(self):
+        return self.deck.db.list("select id from facts where mid = ?", self.id)
+
     # Fields
     ##################################################
 
@@ -89,9 +93,13 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         "Mapping of field name -> (ord, conf)."
         return dict([(f['name'], (c, f)) for c, f in enumerate(self.fields)])
 
-    def sortField(self):
-        print "sortField() fixme"
-        return 0
+    def sortIdx(self):
+        return self.conf['sortf']
+
+    def setSortIdx(self, idx):
+        assert idx > 0 and idx < len(self.fields)
+        self.conf['sortf'] = idx
+        self.deck.updateFieldCache(self.fids(), csum=False)
 
     # Templates
     ##################################################

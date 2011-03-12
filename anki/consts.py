@@ -22,6 +22,9 @@ REV_CARDS_OLD_FIRST = 0
 REV_CARDS_NEW_FIRST = 1
 REV_CARDS_RANDOM = 2
 
+# maximum characters to store in sort cache
+SORT_FIELD_LEN = 20
+
 # Labels
 ##########################################################################
 
