@@ -233,3 +233,75 @@ update cards set ord = ord - 1 where fid in (select id from facts
 where mid = ?) and ord > ?""", self.id, ord)
         self.templates.remove(template)
         self.flush()
+
+    # Model changing
+    ##########################################################################
+
+    def changeModel(self, fids, newModel, fieldMap, cardMap):
+        raise Exception()
+        self.modSchema()
+        sfids = ids2str(fids)
+        self.startProgress()
+        # field remapping
+        if fieldMap:
+            seen = {}
+            for (old, new) in fieldMap.items():
+                seen[new] = 1
+                if new:
+                    # can rename
+                    self.db.execute("""
+update fdata set
+fmid = :new,
+ord = :ord
+where fmid = :old
+and fid in %s""" % sfids, new=new.id, ord=new.ord, old=old.id)
+                else:
+                    # no longer used
+                    self.db.execute("""
+delete from fdata where fid in %s
+and fmid = :id""" % sfids, id=old.id)
+            # new
+            for field in newModel.fields:
+                if field not in seen:
+                    d = [{'fid': f,
+                          'fmid': field.id,
+                          'ord': field.ord}
+                         for f in fids]
+                    self.db.executemany('''
+insert into fdata
+(fid, fmid, ord, value)
+values
+(:fid, :fmid, :ord, "")''', d)
+            # fact modtime
+            self.db.execute("""
+update facts set
+mod = :t,
+mid = :id
+where id in %s""" % sfids, t=time.time(), id=newModel.id)
+            self.finishProgress()
+        # template remapping
+        self.startProgress(len(cardMap)+3)
+        toChange = []
+        for (old, new) in cardMap.items():
+            if not new:
+                # delete
+                self.db.execute("""
+delete from cards
+where tid = :cid and
+fid in %s""" % sfids, cid=old.id)
+            elif old != new:
+                # gather ids so we can rename x->y and y->x
+                ids = self.db.list("""
+select id from cards where
+tid = :id and fid in %s""" % sfids, id=old.id)
+                toChange.append((new, ids))
+        for (new, ids) in toChange:
+            self.db.execute("""
+update cards set
+tid = :new,
+ord = :ord
+where id in %s""" % ids2str(ids), new=new.id, ord=new.ord)
+        cardIds = self.db.list(
+            "select id from cards where fid in %s" %
+            ids2str(fids))
+        self.finishProgress()
