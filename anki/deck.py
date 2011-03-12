@@ -854,10 +854,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         self.startProgress()
         self.updateProgress(_("Checking database..."))
         oldSize = os.stat(self.path)[stat.ST_SIZE]
-        if self.db.scalar("pragma integrity_check") != "ok":
-            self.finishProgress()
-            return _("Database file is damaged.\n"
-                     "Please restore from automatic backup (see FAQ).")
         self.modSchema()
         # tags
         self.db.execute("delete from tags")
