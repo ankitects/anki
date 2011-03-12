@@ -3,8 +3,8 @@ you need the binary pyuic4).
 
 To use the development version:
 
-$ git clone git://ichi2.net/libanki
-$ git clone git://ichi2.net/ankiqt
+$ git clone https://github.com/dae/libanki.git
+$ git clone https://github.com/dae/ankiqt.git
 $ cd ankiqt
 $ ./tools/build_ui.sh
 
