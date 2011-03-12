@@ -494,9 +494,9 @@ update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
 ((due-:stamp)/86400) as int)+:today where type
 between 0 and 1""", stamp=deck.sched.dayCutoff, today=deck.sched.today)
-    # track ids
-    #deck.conf['nextFact'] = deck.db.scalar("select max(id) from facts")+1
-    #deck.conf['nextCard'] = deck.db.scalar("select max(id) from cards")+1
+    # update insertion id
+    deck.conf['nextFid'] = deck.db.scalar("select max(id) from facts")+1
+    deck.conf['nextCid'] = deck.db.scalar("select max(id) from cards")+1
     deck.save()
 
     # optimize and finish

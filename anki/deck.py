@@ -36,7 +36,9 @@ defaultConf = {
     'sessionTimeLimit': 600,
     'currentModelId': None,
     'currentGroupId': 1,
-    'nextFactPos': 1,
+    'nextFid': 1,
+    'nextCid': 1,
+    'nextGid': 2,
     'mediaURL': "",
     'latexPre': """\
 \\documentclass[12pt]{article}
@@ -162,6 +164,7 @@ qconf=?, conf=?, data=?""",
     ##########################################################################
 
     def nextID(self, type):
+        type = "next"+type.capitalize()
         id = self.conf.get(type, 1)
         self.conf[type] = id+1
         return id
@@ -389,29 +392,29 @@ due > :now and due < :now""", now=time.time())
         cms = self.findTemplates(fact)
         if not cms:
             return None
-        # set pos
-        fact.pos = self.conf['nextFactPos']
-        self.conf['nextFactPos'] += 1
-        ncards = 0
+        # flush the fact
+        fact.id = self.nextID("fid")
+        fact.flush()
+        # notice any new tags
+        self.registerTags(fact.tags)
+        # if random mode, determine insertion point
         isRandom = self.qconf['newCardOrder'] == NEW_CARDS_RANDOM
         if isRandom:
             due = random.randrange(0, 1000000)
-        # flush the fact so we get its id
-        fact.flush()
+        # add cards
+        ncards = 0
         for template in cms:
             card = anki.cards.Card(self)
+            card.id = self.nextID("cid")
             card.fid = fact.id
             card.ord = template['ord']
             card.gid = template['gid'] or gid
             if isRandom:
                 card.due = due
             else:
-                card.due = fact.pos
+                card.due = fact.id
             card.flush()
             ncards += 1
-        # save fact last, which will update caches too
-        fact.flush()
-        self.registerTags(fact.tags)
         return ncards
 
     def findTemplates(self, fact, checkActive=True):
