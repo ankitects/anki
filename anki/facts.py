@@ -34,7 +34,7 @@ class Fact(object):
          self._fields,
          self.data) = self.deck.db.first("""
 select mid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
-        self._fields = self._field.split("\x1f")
+        self._fields = splitFields(self._fields)
         self.model = self.deck.getModel(self.mid)
 
     def flush(self):

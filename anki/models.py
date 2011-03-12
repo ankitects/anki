@@ -3,11 +3,12 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import simplejson
-from anki.utils import intTime, hexifyID
+from anki.utils import intTime, hexifyID, joinFields, splitFields
 from anki.lang import _
 
 # Models
 ##########################################################################
+# GUI code should ensure no two fields have the same name.
 
 defaultConf = {
     'sortf': 0,
@@ -79,28 +80,6 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
     def fids(self):
         return self.deck.db.list("select id from facts where mid = ?", self.id)
 
-    # Fields
-    ##################################################
-
-    def newField(self):
-        return defaultField.copy()
-
-    def addField(self, field):
-        self.deck.modSchema()
-        self.fields.append(field)
-
-    def fieldMap(self):
-        "Mapping of field name -> (ord, conf)."
-        return dict([(f['name'], (c, f)) for c, f in enumerate(self.fields)])
-
-    def sortIdx(self):
-        return self.conf['sortf']
-
-    def setSortIdx(self, idx):
-        assert idx > 0 and idx < len(self.fields)
-        self.conf['sortf'] = idx
-        self.deck.updateFieldCache(self.fids(), csum=False)
-
     # Templates
     ##################################################
 
@@ -162,3 +141,84 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             t += "white-space:pre-wrap;"
         t = "%s {%s}\n" % (prefix, t)
         return t
+
+    # Field basics
+    ##################################################
+
+    def fieldMap(self):
+        "Mapping of field name -> (ord, conf)."
+        return dict([(f['name'], (c, f)) for c, f in enumerate(self.fields)])
+
+    def sortIdx(self):
+        return self.conf['sortf']
+
+    def setSortIdx(self, idx):
+        assert idx > 0 and idx < len(self.fields)
+        self.conf['sortf'] = idx
+        self.deck.updateFieldCache(self.fids(), csum=False)
+
+    # Adding/deleting/moving fields
+    ##################################################
+
+    def newField(self):
+        return defaultField.copy()
+
+    def addField(self, field):
+        self.fields.append(field)
+        self.flush()
+        def add(fields):
+            fields.append("")
+            return fields
+        self._transformFields(add)
+
+    def deleteField(self, field):
+        idx = self.fields.index(field)
+        self.fields.remove(field)
+        self.flush()
+        def delete(fields):
+            del fields[idx]
+            return fields
+        self._transformFields(delete)
+        if idx == self.sortIdx():
+            # need to rebuild
+            self.deck.updateFieldCache(self.fids(), csum=False)
+        self.renameField(field, None)
+
+    def moveField(self, field, idx):
+        oldidx = self.fields.index(field)
+        if oldidx == idx:
+            return
+        self.fields.remove(field)
+        self.fields.insert(idx, field)
+        self.flush()
+        def move(fields, oldidx=oldidx):
+            val = fields[oldidx]
+            del fields[oldidx]
+            fields.insert(idx, val)
+            return fields
+        self._transformFields(move)
+
+    def renameField(self, field, newName):
+        self.deck.modSchema()
+        for t in self.templates:
+            types = ("{{%s}}", "{{text:%s}}", "{{#%s}}",
+                     "{{^%s}}", "{{/%s}}")
+            for type in types:
+                for fmt in ('qfmt', 'afmt'):
+                    if newName:
+                        repl = type%newName
+                    else:
+                        repl = ""
+                    t[fmt] = t[fmt].replace(type%field['name'], repl)
+        field['name'] = newName
+        self.flush()
+
+    def _transformFields(self, fn):
+        self.deck.startProgress()
+        self.deck.modSchema()
+        r = []
+        for (id, flds) in self.deck.db.execute(
+            "select id, flds from facts where mid = ?", self.id):
+            r.append((joinFields(fn(splitFields(flds))), id))
+        self.deck.db.executemany("update facts set flds = ? where id = ?", r)
+        self.deck.finishProgress()

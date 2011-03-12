@@ -735,87 +735,32 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ord)
             ids2str(fids))
         self.finishProgress()
 
-    # Fields
+    # Field checksums and sorting fields
     ##########################################################################
 
-    def allFields(self):
-        "Return a list of all possible fields across all models."
-        return self.db.list("select distinct name from fieldmodels")
+    def _fieldData(self, sfids):
+        return self.db.execute(
+            "select id, mid, flds from facts where id in "+sfids)
 
-    def deleteFieldModel(self, model, field):
-        self.startProgress()
-        self.modSchema()
-        self.db.execute("delete from fdata where fmid = :id",
-                         id=field.id)
-        self.db.execute("update facts set mod = :t where mid = :id",
-                         id=model.id, t=time.time())
-        model.fields.remove(field)
-        # update q/a formats
-        for cm in model.templates:
-            types = ("%%(%s)s" % field.name,
-                     "%%(text:%s)s" % field.name,
-                     # new style
-                     "<<%s>>" % field.name,
-                     "<<text:%s>>" % field.name)
-            for t in types:
-                for fmt in ('qfmt', 'afmt'):
-                    setattr(cm, fmt, getattr(cm, fmt).replace(t, ""))
-        self.updateCardsFromModel(model)
-        model.flush()
-        self.finishProgress()
-
-    def addFieldModel(self, model, field):
-        "Add FIELD to MODEL and update cards."
-        self.modSchema()
-        model.addFieldModel(field)
-        # flush field to disk
-        self.db.execute("""
-insert into fdata (fid, fmid, ord, value)
-select facts.id, :fmid, :ord, "" from facts
-where facts.mid = :mid""", fmid=field.id, mid=model.id, ord=field.ord)
-        # ensure facts are marked updated
-        self.db.execute("""
-update facts set mod = :t where mid = :mid"""
-                         , t=time.time(), mid=model.id)
-        model.flush()
-
-    def renameFieldModel(self, model, field, newName):
-        "Change FIELD's name in MODEL and update FIELD in all facts."
-        for cm in model.templates:
-            types = ("%%(%s)s",
-                     "%%(text:%s)s",
-                     # new styles
-                     "{{%s}}",
-                     "{{text:%s}}",
-                     "{{#%s}}",
-                     "{{^%s}}",
-                     "{{/%s}}")
-            for t in types:
-                for fmt in ('qfmt', 'afmt'):
-                    setattr(cm, fmt, getattr(cm, fmt).replace(t%field.name,
-                                                              t%newName))
-        field.name = newName
-        model.flush()
-
-    def fieldUseCount(self, field):
-        "Return the number of cards using field."
-        return self.db.scalar("""
-select count(id) from fdata where
-fmid = :id and val != ""
-""", id=field.id)
-
-    def rebuildFieldOrds(self, mid, ids):
-        self.modSchema()
-        strids = ids2str(ids)
-        self.db.execute("""
-update fdata
-set ord = (select ord from fields where id = fmid)
-where fdata.fmid in %s""" % strids)
-        # dirty associated facts
-        self.db.execute("""
-update facts
-set mod = strftime("%s", "now")
-where mid = :id""", id=mid)
+    def updateFieldCache(self, fids, csum=True):
+        "Update field checksums and sort cache, after find&replace, etc."
+        sfids = ids2str(fids)
+        mods = self.models()
+        r = []
+        r2 = []
+        for (fid, mid, flds) in self._fieldData(sfids):
+            fields = splitFields(flds)
+            model = mods[mid]
+            if csum:
+                for c, f in enumerate(model.fields):
+                    if f['uniq'] and fields[c]:
+                        r.append((fid, mid, fieldChecksum(fields[c])))
+            r2.append((stripHTML(fields[model.sortIdx()])[
+                :SORT_FIELD_LEN], fid))
+        if csum:
+            self.db.execute("delete from fsums where fid in "+sfids)
+            self.db.executemany("insert into fsums values (?,?,?)", r)
+        self.db.executemany("update facts set sfld = ? where id = ?", r2)
 
     # Card models
     ##########################################################################
@@ -909,33 +854,6 @@ select c.id, f.id, m.id, g.id, c.ord, f.tags, f.flds, f.data
 from cards c, facts f, models m, groups g
 where c.fid == f.id and f.mid == m.id and c.gid = g.id
 %s""" % where)
-
-    # Field checksums and sorting fields
-    ##########################################################################
-
-    def _fieldData(self, sfids):
-        return self.db.execute(
-            "select id, mid, flds from facts where id in "+sfids)
-
-    def updateFieldCache(self, fids, csum=True):
-        "Update field checksums and sort cache, after find&replace, etc."
-        sfids = ids2str(fids)
-        mods = self.models()
-        r = []
-        r2 = []
-        for (fid, mid, flds) in self._fieldData(sfids):
-            fields = splitFields(flds)
-            model = mods[mid]
-            if csum:
-                for c, f in enumerate(model.fields):
-                    if f['uniq'] and fields[c]:
-                        r.append((fid, mid, fieldChecksum(fields[c])))
-            r2.append((stripHTML(fields[model.sortIdx()])[
-                :SORT_FIELD_LEN], fid))
-        if csum:
-            self.db.execute("delete from fsums where fid in "+sfids)
-            self.db.executemany("insert into fsums values (?,?,?)", r)
-        self.db.executemany("update facts set sfld = ? where id = ?", r2)
 
     # Tags
     ##########################################################################

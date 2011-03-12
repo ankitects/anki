@@ -26,6 +26,51 @@ def test_modelCopy():
     assert len(m.templates) == 2
     assert len(m2.templates) == 2
 
+def test_fields():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u'1'
+    f['Back'] = u'2'
+    d.addFact(f)
+    m = d.currentModel()
+    # make sure renaming a field updates the templates
+    m.renameField(m.fields[0], "NewFront")
+    assert m.templates[0]['qfmt'] == "{{NewFront}}"
+    # add a field
+    f = m.newField()
+    f['name'] = "foo"
+    m.addField(f)
+    assert d.getFact(m.fids()[0])._fields == ["1", "2", ""]
+    # rename it
+    m.renameField(f, "bar")
+    assert d.getFact(m.fids()[0])['bar'] == ''
+    # delete back
+    m.deleteField(m.fields[1])
+    assert d.getFact(m.fids()[0])._fields == ["1", ""]
+    # move 0 -> 1
+    m.moveField(m.fields[0], 1)
+    assert d.getFact(m.fids()[0])._fields == ["", "1"]
+    # move 1 -> 0
+    m.moveField(m.fields[1], 0)
+    assert d.getFact(m.fids()[0])._fields == ["1", ""]
+    # add another and put in middle
+    f = m.newField()
+    f['name'] = "baz"
+    m.addField(f)
+    f = d.getFact(m.fids()[0])
+    f['baz'] = "2"
+    f.flush()
+    assert d.getFact(m.fids()[0])._fields == ["1", "", "2"]
+    # move 2 -> 1
+    m.moveField(m.fields[2], 1)
+    assert d.getFact(m.fids()[0])._fields == ["1", "2", ""]
+    # move 0 -> 2
+    m.moveField(m.fields[0], 2)
+    assert d.getFact(m.fids()[0])._fields == ["2", "", "1"]
+    # move 0 -> 1
+    m.moveField(m.fields[0], 1)
+    assert d.getFact(m.fids()[0])._fields == ["", "2", "1"]
+
 def test_modelChange():
     print "model change"
     return
