@@ -503,7 +503,7 @@ between 0 and 1""", stamp=deck.sched.dayCutoff, today=deck.sched.today)
     deck.save()
 
     # optimize and finish
-    deck.updateDynamicIndices()
+    deck.sched.updateDynamicIndices()
     deck.db.execute("vacuum")
     deck.db.execute("analyze")
     deck.db.execute("update deck set ver = ?", CURRENT_VERSION)

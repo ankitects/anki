@@ -120,3 +120,5 @@ def test_upgrade():
     print "upgrade to", dst
     shutil.copy(src, dst)
     deck = Deck(dst)
+    # now's a good time to test the integrity check too
+    deck.fixIntegrity()

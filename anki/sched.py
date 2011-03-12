@@ -791,3 +791,26 @@ due > :now and due < :now""", now=time.time())
                   (failedMod * (stats['failed'] - failedBaseCount)))
         left += stats['failed'] * stats['dAverageTime'] * factor
         return left
+
+
+    # Dynamic indices
+    ##########################################################################
+
+    def updateDynamicIndices(self):
+        # determine required columns
+        required = []
+        if self.deck.qconf['revCardOrder'] in (
+            REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
+            required.append("interval")
+        cols = ["queue", "due", "gid"] + required
+        # update if changed
+        if self.deck.db.scalar(
+            "select 1 from sqlite_master where name = 'ix_cards_multi'"):
+            rows = self.deck.db.all("pragma index_info('ix_cards_multi')")
+        else:
+            rows = None
+        if not (rows and cols == [r[2] for r in rows]):
+            self.db.execute("drop index if exists ix_cards_multi")
+            self.db.execute("create index ix_cards_multi on cards (%s)" %
+                              ", ".join(cols))
+            self.db.execute("analyze")

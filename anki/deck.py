@@ -160,6 +160,9 @@ qconf=?, conf=?, data=?""",
         return anki.models.Template(self, self.deck.db.first(
             "select * from templates where id = ?", id))
 
+    def getModel(self, mid):
+        return anki.models.Model(self, mid)
+
     # Utils
     ##########################################################################
 
@@ -417,9 +420,6 @@ where id = :id""", vals)
             "select id from models")]:
             mods[m.id] = m
         return mods
-
-    def getModel(self, mid):
-        return anki.models.Model(self, mid)
 
     def addModel(self, model):
         model.flush()
@@ -698,169 +698,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
             self.disableSyncing()
             return True
 
-    # DB maintenance
-    ##########################################################################
-
-    def fixIntegrity(self, quick=False):
-        "Fix possible problems and rebuild caches."
-        self.save()
-        self.resetUndo()
-        problems = []
-        recover = False
-        if quick:
-            num = 4
-        else:
-            num = 10
-            oldSize = os.stat(self.path)[stat.ST_SIZE]
-        self.startProgress(num)
-        self.updateProgress(_("Checking database..."))
-        if self.db.scalar("pragma integrity_check") != "ok":
-            self.finishProgress()
-            return _("Database file is damaged.\n"
-                     "Please restore from automatic backup (see FAQ).")
-        # ensure correct views and indexes are available
-        self.updateProgress()
-        updateIndices(self)
-        # does the user have a model?
-        self.updateProgress()
-        if not self.db.scalar("select count(id) from models"):
-            self.addModel(BasicModel())
-            problems.append(_("Deck was missing a model"))
-        # is currentModel pointing to a valid model?
-        if not self.db.all("""
-select decks.id from decks, models where
-decks.currentModelId = models.id"""):
-            self.currentModelId = self.models[0].id
-            problems.append(_("The current model didn't exist"))
-        # fdata missing a field model
-        ids = self.db.list("""
-select id from fdata where fmid not in (
-select distinct id from fields)""")
-        if ids:
-            self.db.execute("delete from fdata where id in %s" %
-                             ids2str(ids))
-            problems.append(ngettext("Deleted %d field with missing field model",
-                            "Deleted %d fdata with missing field model", len(ids)) %
-                            len(ids))
-        # facts missing a field?
-        ids = self.db.list("""
-select distinct facts.id from facts, fields where
-facts.mid = fields.mid and fields.id not in
-(select fmid from fdata where fid = facts.id)""")
-        if ids:
-            self.deleteFacts(ids)
-            problems.append(ngettext("Deleted %d fact with missing fields",
-                            "Deleted %d facts with missing fields", len(ids)) %
-                            len(ids))
-        # cards missing a fact?
-        ids = self.db.list("""
-select id from cards where fid not in (select id from facts)""")
-        if ids:
-            recover = True
-            self.recoverCards(ids)
-            problems.append(ngettext("Recovered %d card with missing fact",
-                            "Recovered %d cards with missing fact", len(ids)) %
-                            len(ids))
-        # cards missing a card model?
-        ids = self.db.list("""
-select id from cards where tid not in
-(select id from templates)""")
-        if ids:
-            recover = True
-            self.recoverCards(ids)
-            problems.append(ngettext("Recovered %d card with no card template",
-                            "Recovered %d cards with no card template", len(ids)) %
-                            len(ids))
-        # cards with a card model from the wrong model
-        ids = self.db.list("""
-select id from cards where tid not in (select cm.id from
-templates cm, facts f where cm.mid = f.mid and
-f.id = cards.fid)""")
-        if ids:
-            recover = True
-            self.recoverCards(ids)
-            problems.append(ngettext("Recovered %d card with wrong card template",
-                            "Recovered %d cards with wrong card template", len(ids)) %
-                            len(ids))
-        # facts missing a card?
-        ids = self.deleteDanglingFacts()
-        if ids:
-            problems.append(ngettext("Deleted %d fact with no cards",
-                            "Deleted %d facts with no cards", len(ids)) %
-                            len(ids))
-        # dangling fields?
-        ids = self.db.list("""
-select id from fdata where fid not in (select id from facts)""")
-        if ids:
-            self.db.execute(
-                "delete from fdata where id in %s" % ids2str(ids))
-            problems.append(ngettext("Deleted %d dangling field",
-                            "Deleted %d dangling fields", len(ids)) %
-                            len(ids))
-        if not quick:
-            self.updateProgress()
-            # these sometimes end up null on upgrade
-            self.db.execute("update models set source = 0 where source is null")
-            self.db.execute(
-                "update templates set allowEmptyAnswer = 1, typeAnswer = '' "
-                "where allowEmptyAnswer is null or typeAnswer is null")
-            # fix tags
-            self.updateProgress()
-            self.db.execute("delete from tags")
-            self.updateFactTags()
-            print "should ensure tags having leading/trailing space"
-            # make sure ords are correct
-            self.updateProgress()
-            self.db.execute("""
-update fdata set ord = (select ord from fields
-where id = fmid)""")
-            self.db.execute("""
-update cards set ord = (select ord from templates
-where cards.tid = templates.id)""")
-            # fix problems with stripping html
-            self.updateProgress()
-            fdata = self.db.all("select id, val from fdata")
-            newFdata = []
-            for (id, val) in fdata:
-                newFdata.append({'id': id, 'val': tidyHTML(val)})
-            self.db.executemany(
-                "update fdata set val=:val where id=:id",
-                newFdata)
-            # and field checksums
-            self.updateProgress()
-            self.updateAllFieldChecksums()
-            # regenerate question/answer cache
-            for m in self.models:
-                self.updateCardsFromModel(m, dirty=False)
-            # rebuild
-            self.updateProgress()
-            self.rebuildTypes()
-            # force a full sync
-            self.modSchema()
-            # and finally, optimize
-            self.updateProgress()
-            self.optimize()
-            newSize = os.stat(self.path)[stat.ST_SIZE]
-            save = (oldSize - newSize)/1024
-            txt = _("Database rebuilt and optimized.")
-            if save > 0:
-                txt += "\n" + _("Saved %dKB.") % save
-            problems.append(txt)
-        self.save()
-        self.finishProgress()
-        if problems:
-            if recover:
-                problems.append("\n" + _("""\
-Cards with corrupt or missing facts have been placed into new facts. \
-Your scheduling info and card content has been preserved, but the \
-original layout of the facts has been lost."""))
-            return "\n".join(problems)
-        return "ok"
-
-    def optimize(self):
-        self.db.execute("vacuum")
-        self.db.execute("analyze")
-
     # Undo/redo
     ##########################################################################
 
@@ -1006,23 +843,40 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         self._undoredo(self.redoStack, self.undoStack)
         runHook("postUndoRedo")
 
-    # Dynamic indices
+    # DB maintenance
     ##########################################################################
 
-    def updateDynamicIndices(self):
-        # determine required columns
-        required = []
-        if self.qconf['revCardOrder'] in (REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
-            required.append("interval")
-        cols = ["queue", "due", "gid"] + required
-        # update if changed
-        if self.db.scalar(
-            "select 1 from sqlite_master where name = 'ix_cards_multi'"):
-            rows = self.db.all("pragma index_info('ix_cards_multi')")
-        else:
-            rows = None
-        if not (rows and cols == [r[2] for r in rows]):
-            self.db.execute("drop index if exists ix_cards_multi")
-            self.db.execute("create index ix_cards_multi on cards (%s)" %
-                              ", ".join(cols))
-            self.db.execute("analyze")
+    def fixIntegrity(self):
+        "Fix possible problems and rebuild caches."
+        problems = []
+        self.save()
+        self.resetUndo()
+        self.startProgress()
+        self.updateProgress(_("Checking database..."))
+        oldSize = os.stat(self.path)[stat.ST_SIZE]
+        if self.db.scalar("pragma integrity_check") != "ok":
+            self.finishProgress()
+            return _("Database file is damaged.\n"
+                     "Please restore from automatic backup (see FAQ).")
+        self.modSchema()
+        # tags
+        self.db.execute("delete from tags")
+        self.updateFactTags()
+        # field cache
+        for m in self.models().values():
+            self.updateFieldCache(m.fids())
+        # and finally, optimize
+        self.optimize()
+        newSize = os.stat(self.path)[stat.ST_SIZE]
+        save = (oldSize - newSize)/1024
+        txt = _("Database rebuilt and optimized.")
+        if save > 0:
+            txt += "\n" + _("Saved %dKB.") % save
+        problems.append(txt)
+        self.save()
+        self.finishProgress()
+        return "\n".join(problems)
+
+    def optimize(self):
+        self.db.execute("vacuum")
+        self.db.execute("analyze")
