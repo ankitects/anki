@@ -16,6 +16,7 @@ defaultConf = {
 
 defaultField = {
     'name': "",
+    'ord': None,
     'rtl': False,
     'req': False,
     'uniq': False,
@@ -28,6 +29,7 @@ defaultField = {
 
 defaultTemplate = {
     'name': "",
+    'ord': None,
     'actv': True,
     'qfmt': "",
     'afmt': "",
@@ -101,14 +103,14 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             return ""
         # fields
         css = "".join([self._fieldCSS(
-            ".fm%s.%s" % (hexifyID(self.id), hexifyID(c)),
+            ".fm%s.%s" % (hexifyID(self.id), hexifyID(f['ord'])),
             (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
-            for c, f in enumerate(self.fields)])
+            for f in self.fields])
         # templates
         css += "".join(["#cm%s-%s {text-align:%s;background:%s}\n" % (
-            hexifyID(self.id), hexifyID(c),
+            hexifyID(self.id), hexifyID(t['ord']),
             ("center", "left", "right")[t['align']], t['bg'])
-                for c, t in enumerate(self.templates)])
+                for t in self.templates])
         return css
 
     def _rewriteFont(self, font):
@@ -136,8 +138,8 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
     ##################################################
 
     def fieldMap(self):
-        "Mapping of field name -> (ord, conf)."
-        return dict([(f['name'], (c, f)) for c, f in enumerate(self.fields)])
+        "Mapping of field name -> (ord, field)."
+        return dict([(f['name'], (f['ord'], f)) for f in self.fields])
 
     def sortIdx(self):
         return self.conf['sortf']
@@ -152,6 +154,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
 
     def addField(self, field):
         self.fields.append(field)
+        self._updateFieldOrds()
         self.flush()
         def add(fields):
             fields.append("")
@@ -161,7 +164,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
     def delField(self, field):
         idx = self.fields.index(field)
         self.fields.remove(field)
-        self.flush()
+        self._updateFieldOrds()
         def delete(fields):
             del fields[idx]
             return fields
@@ -169,6 +172,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         if idx == self.sortIdx():
             # need to rebuild
             self.deck.updateFieldCache(self.fids(), csum=False)
+        # flushes
         self.renameField(field, None)
 
     def moveField(self, field, idx):
@@ -177,6 +181,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             return
         self.fields.remove(field)
         self.fields.insert(idx, field)
+        self._updateFieldOrds()
         self.flush()
         def move(fields, oldidx=oldidx):
             val = fields[oldidx]
@@ -200,6 +205,10 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         field['name'] = newName
         self.flush()
 
+    def _updateFieldOrds(self):
+        for c, f in enumerate(self.fields):
+            f['ord'] = c
+
     def _transformFields(self, fn):
         self.deck.startProgress()
         self.deck.modSchema()
@@ -219,6 +228,8 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
     def addTemplate(self, template):
         self.deck.modSchema()
         self.templates.append(template)
+        self._updateTemplOrds()
+        self.flush()
 
     def delTemplate(self, template):
         self.deck.modSchema()
@@ -232,7 +243,12 @@ select c.id from cards c, facts f where c.fid=f.id and mid = ? and ord = ?""",
 update cards set ord = ord - 1 where fid in (select id from facts
 where mid = ?) and ord > ?""", self.id, ord)
         self.templates.remove(template)
+        self._updateTemplOrds()
         self.flush()
+
+    def _updateTemplOrds(self):
+        for c, t in enumerate(self.templates):
+            t['ord'] = c
 
     # Model changing
     ##########################################################################

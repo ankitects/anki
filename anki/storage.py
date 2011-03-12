@@ -454,11 +454,15 @@ questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels"""):
     db.execute("drop table cardModels")
     return mods
 
-def _rewriteModelIds(deck):
+def _fixupModels(deck):
     # rewrite model/template/field ids
     models = deck.models()
     deck.db.execute("delete from models")
     for c, m in enumerate(models.values()):
+        # update ordinals
+        m._updateFieldOrds()
+        m._updateTemplOrds()
+        # rewrite id
         old = m.id
         m.id = c+1
         m.flush()
@@ -467,8 +471,7 @@ def _rewriteModelIds(deck):
 def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
-    # fix up model/template ids
-    _rewriteModelIds(deck)
+    _fixupModels(deck)
     # update uniq cache
     deck.updateFieldCache(deck.db.list("select id from facts"))
     # remove old views

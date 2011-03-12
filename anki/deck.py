@@ -217,10 +217,10 @@ qconf=?, conf=?, data=?""",
     def findTemplates(self, fact, checkActive=True):
         "Return active, non-empty templates."
         ok = []
-        for c, template in enumerate(fact.model.templates):
+        for template in fact.model.templates:
             if template['actv'] or not checkActive:
                 # [cid, fid, mid, gid, ord, tags, flds, data]
-                data = [1, 1, fact.model.id, 1, c,
+                data = [1, 1, fact.model.id, 1, template['ord'],
                         "", fact.joinedFields(), ""]
                 now = self._renderQA(fact.model, "", data)
                 data[6] = "\x1f".join([""]*len(fact._fields))
@@ -230,21 +230,19 @@ qconf=?, conf=?, data=?""",
                 if not template['emptyAns']:
                     if now['a'] == empty['a']:
                         continue
-                # add ordinal
-                template['ord'] = c
                 ok.append(template)
         return ok
 
-    def addCards(self, fact, tids):
+    def genCards(self, fact, templates):
+        "Generate cards for templates if cards not empty."
+        # templates should have .ord set
         ids = []
         for template in self.findTemplates(fact, False):
-            if template.id not in tids:
+            if template not in templates:
                 continue
-            if self.db.scalar("""
-select count(id) from cards
-where fid = :fid and tid = :cmid""",
-                                 fid=fact.id, cmid=template.id) == 0:
-                    # enough for 10 card models assuming 0.00001 timer precision
+            if not self.db.scalar(
+                "select 1 from cards where fid = ? and ord = ?",
+                fact.id, template.ord):
                     card = anki.cards.Card(
                         fact, template,
                         fact.created+0.0001*template.ord)
@@ -256,19 +254,6 @@ where fid = :fid and tid = :cmid""",
             fact.setMod(textChanged=True, deck=self)
             self.setMod()
         return ids
-
-    def factIsInvalid(self, fact):
-        "True if existing fact is invalid. Returns the error."
-        try:
-            fact.assertValid()
-            fact.assertUnique(self.db)
-        except FactInvalidError, e:
-            return e
-
-    def factUseCount(self, fid):
-        "Return number of cards referencing a given fact id."
-        return self.db.scalar("select count(id) from cards where fid = :id",
-                             id=fid)
 
     def _deleteFacts(self, ids):
         "Bulk delete facts by ID. Don't call this directly."
@@ -478,9 +463,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             fields = splitFields(flds)
             model = mods[mid]
             if csum:
-                for c, f in enumerate(model.fields):
-                    if f['uniq'] and fields[c]:
-                        r.append((fid, mid, fieldChecksum(fields[c])))
+                for f in model.fields:
+                    if f['uniq'] and fields[f['ord']]:
+                        r.append((fid, mid, fieldChecksum(fields[f['ord']])))
             r2.append((stripHTML(fields[model.sortIdx()])[
                 :SORT_FIELD_LEN], fid))
         if csum:
