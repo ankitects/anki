@@ -71,3 +71,6 @@ class DB(object):
 
     def close(self):
         self._db.close()
+
+    def set_progress_handler(self, *args):
+        self._db.set_progress_handler(*args)

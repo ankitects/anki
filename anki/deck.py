@@ -535,12 +535,6 @@ where c.fid == f.id and f.mid == m.id and c.gid = g.id
     def tagList(self):
         return self.db.list("select name from tags order by name")
 
-    def cardsWithNoTags(self):
-        return self.db.list("""
-select cards.id from cards, facts where
-facts.tags = ""
-and cards.fid = facts.id""")
-
     def cardHasTag(self, card, tag):
         tags = self.db.scalar("select tags from fact where id = :fid",
                               fid=card.fid)
@@ -630,16 +624,14 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
             return
         self.progressHandlerCalled = time.time()
         if self.progressHandlerEnabled:
+            # things which hook on this should be very careful not to touch
+            # the db as they run
             runHook("dbProgress")
 
     def setupProgressHandler(self):
         self.progressHandlerCalled = 0
         self.progressHandlerEnabled = False
-        try:
-            self.engine.raw_connection().set_progress_handler(
-                deck.progressHandler, 100)
-        except:
-            pass
+        self.db.set_progress_handler(self.progressHandler, 100000)
 
     def enableProgressHandler(self):
         self.progressHandlerEnabled = True
