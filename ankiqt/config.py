@@ -6,8 +6,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import os, sys, cPickle, locale, types, shutil, time, re
-from anki.utils import genID
+import os, sys, cPickle, locale, types, shutil, time, re, random
 
 # compatability
 def unpickleWxFont(*args):
@@ -61,7 +60,7 @@ class Config(dict):
             'factEditorAdvanced': False,
             'forceLTR': False,
             'iconSize': 32,
-            'id': genID(),
+            'id': random.randrange(0, 2**63),
             'interfaceLang': "",
             'lastMsg': -1,
             'loadLastDeck': False,

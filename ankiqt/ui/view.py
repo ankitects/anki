@@ -8,7 +8,6 @@ import anki, anki.utils
 from anki.sound import playFromText
 from anki.utils import stripHTML
 from anki.hooks import runHook, runFilter
-from anki.media import stripMedia, escapeImages
 import types, time, re, os, urllib, sys, difflib
 import unicodedata as ucd
 from ankiqt import ui
@@ -113,9 +112,9 @@ class View(object):
         # problem is more complicated - if we percent-escape as utf8 it fixes
         # some images but breaks others. When filenames are normalized by
         # dropbox they become unreadable if we escape them.
-        if not sys.platform.startswith("win32"):
+        if not sys.platform.startswith("win32") and self.main.deck:
             # and self.main.config['mediaLocation'] == "dropbox"):
-            b = escapeImages(b)
+            b = self.main.deck.media.escapeImages(b)
         self.body.setHtml(b)
 
     def write(self, text):

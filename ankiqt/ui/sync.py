@@ -9,7 +9,7 @@ import anki
 from anki.sync import SyncClient, HttpSyncServerProxy, copyLocalMedia
 from anki.sync import SYNC_HOST, SYNC_PORT
 from anki.errors import *
-from anki import DeckStorage
+from anki import Deck
 from anki.db import sqlite
 import ankiqt.forms
 from anki.hooks import addHook, removeHook

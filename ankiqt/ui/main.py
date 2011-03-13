@@ -11,13 +11,11 @@ from PyQt4.QtGui import *
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import pyqtconfig
 QtConfig = pyqtconfig.Configuration()
-from anki import DeckStorage
+from anki import Deck
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
-from anki.utils import addTags, deleteTags, parseTags, canonifyTags, \
+from anki.utils import addTags, parseTags, canonifyTags, \
      stripHTML, checksum
-from anki.media import rebuildMediaDir, downloadMissing, downloadRemote
-from anki.db import OperationalError, SessionHelper, sqlite
 from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
@@ -2812,6 +2810,8 @@ to work with this version of Anki."""))
     ##########################################################################
 
     def setupFonts(self):
+        print "need setupFonts?"
+        return
         for (s, p) in anki.fonts.substitutions():
             QFont.insertSubstitution(s, p)
 
@@ -2859,15 +2859,6 @@ to work with this version of Anki."""))
         self.busyCursor = False
         self.updatingBusy = False
         self.mainThread = QThread.currentThread()
-        self.oldSessionHelperGetter = SessionHelper.__getattr__
-        SessionHelper.__getattr__ = wrap(SessionHelper.__getattr__,
-                                         self.checkProgressHandler,
-                                         pos="before")
-
-    def checkProgressHandler(self, ses, k):
-        "Catch attempts to access the DB from a progress handler."
-        if self.inDbHandler:
-            raise Exception("Accessed DB while in progress handler")
 
     def setProgressParent(self, parent):
         self.progressParent = parent

@@ -9,7 +9,6 @@ import ankiqt.forms
 import anki
 from anki.models import *
 from anki.facts import *
-from anki.fonts import toCanonicalFont
 from anki.cards import Card
 from anki.sound import playFromText, clearAudioQueue
 from ankiqt.ui.utils import saveGeom, restoreGeom, getBase, mungeQA, \

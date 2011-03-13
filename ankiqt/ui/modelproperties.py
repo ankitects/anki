@@ -6,7 +6,6 @@ from PyQt4.QtCore import *
 import sys, re
 import ankiqt.forms
 import anki
-from anki.models import FieldModel, CardModel
 from ankiqt import ui
 
 class ModelProperties(QDialog):
