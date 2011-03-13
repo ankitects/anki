@@ -112,7 +112,7 @@ streak=?, lapses=?, grade=?, cycles=? where id = ?""",
         return self.deck.getFact(self.fid)
 
     def template(self):
-        return self.deck.getTemplate(self.tid)
+        return self.deck.getTemplate(self.fact().mid, self.ord)
 
     def startTimer(self):
         self.timerStarted = time.time()

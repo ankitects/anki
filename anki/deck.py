@@ -156,9 +156,8 @@ qconf=?, conf=?, data=?""",
     def getFact(self, id):
         return anki.facts.Fact(self, id=id)
 
-    def getTemplate(self, id):
-        return anki.models.Template(self, self.deck.db.first(
-            "select * from templates where id = ?", id))
+    def getTemplate(self, mid, ord):
+        return self.getModel(mid).templates[ord]
 
     def getModel(self, mid):
         return anki.models.Model(self, mid)
@@ -198,27 +197,37 @@ qconf=?, conf=?, data=?""",
         # notice any new tags
         self.registerTags(fact.tags)
         # if random mode, determine insertion point
-        isRandom = self.qconf['newCardOrder'] == NEW_CARDS_RANDOM
-        if isRandom:
+        if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
             due = random.randrange(0, 1000000)
+        else:
+            due = fact.id
         # add cards
         ncards = 0
         for template in cms:
-            card = anki.cards.Card(self)
-            card.id = self.nextID("cid")
-            card.fid = fact.id
-            card.ord = template['ord']
-            card.gid = template['gid'] or gid
-            if isRandom:
-                card.due = due
-            else:
-                card.due = fact.id
-            card.flush()
+            self._newCard(fact, template, due, gid)
             ncards += 1
         return ncards
 
+    def _deleteFacts(self, ids):
+        "Bulk delete facts by ID. Don't call this directly."
+        if not ids:
+            return
+        strids = ids2str(ids)
+        self.db.execute("delete from facts where id in %s" % strids)
+        self.db.execute("delete from fsums where fid in %s" % strids)
+
+    def _deleteDanglingFacts(self):
+        "Delete any facts without cards. Don't call this directly."
+        ids = self.db.list("""
+select id from facts where id not in (select distinct fid from cards)""")
+        self._deleteFacts(ids)
+        return ids
+
+    # Card creation
+    ##########################################################################
+
     def findTemplates(self, fact, checkActive=True):
-        "Return active, non-empty templates."
+        "Return (active), non-empty templates."
         ok = []
         for template in fact.model.templates:
             if template['actv'] or not checkActive:
@@ -236,67 +245,57 @@ qconf=?, conf=?, data=?""",
                 ok.append(template)
         return ok
 
-    def genCards(self, fact, templates):
-        "Generate cards for templates if cards not empty."
-        # templates should have .ord set
-        ids = []
-        for template in self.findTemplates(fact, False):
+    def genCards(self, fact, templates, gid):
+        "Generate cards for templates if cards not empty. Return cards."
+        cards = []
+        # if random mode, determine insertion point
+        if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+            # if this fact has existing new cards, use their due time
+            due = self.db.scalar(
+                "select due from cards where fid = ? and queue = 2", fact.id)
+            due = due or random.randrange(1, 1000000)
+        else:
+            due = fact.id
+        for template in self.findTemplates(fact, checkActive=False):
             if template not in templates:
                 continue
+            # if it doesn't already exist
             if not self.db.scalar(
                 "select 1 from cards where fid = ? and ord = ?",
-                fact.id, template.ord):
-                    card = anki.cards.Card(
-                        fact, template,
-                        fact.created+0.0001*template.ord)
-                    raise Exception("incorrect; not checking selective study")
-                    self.newAvail += 1
-                    ids.append(card.id)
-
-        if ids:
-            fact.setMod(textChanged=True, deck=self)
-            self.setMod()
-        return ids
-
-    def _deleteFacts(self, ids):
-        "Bulk delete facts by ID. Don't call this directly."
-        if not ids:
-            return
-        strids = ids2str(ids)
-        self.db.execute("delete from facts where id in %s" % strids)
-        self.db.execute("delete from fsums where fid in %s" % strids)
-
-    def _deleteDanglingFacts(self):
-        "Delete any facts without cards. Don't call this directly."
-        ids = self.db.list("""
-select id from facts where id not in (select distinct fid from cards)""")
-        self._deleteFacts(ids)
-        return ids
-
-    def previewFact(self, oldFact, cms=None):
-        "Duplicate fact and generate cards for preview. Don't add to deck."
-        # check we have card models available
-        if cms is None:
-            cms = self.findTemplates(oldFact, checkActive=True)
-        if not cms:
-            return []
-        fact = self.cloneFact(oldFact)
-        # proceed
-        cards = []
-        for template in cms:
-            card = anki.cards.Card(fact, template)
-            cards.append(card)
-        fact.setMod(textChanged=True, deck=self, media=False)
+                fact.id, template['ord']):
+                # create
+                cards.append(self._newCard(fact, template, due, gid))
         return cards
 
-    def cloneFact(self, oldFact):
-        "Copy fact into new session."
-        model = self.db.query(Model).get(oldFact.model.id)
-        fact = self.newFact(model)
-        for field in fact.fdata:
-            fact[field.name] = oldFact[field.name]
-        fact._tags = oldFact._tags
-        return fact
+    # type 0 - when previewing in add dialog, only non-empty & active
+    # type 1 - when previewing edit, only existing
+    # type 2 - when previewing in models dialog, all
+    def previewCards(self, fact, type=0):
+        "Return uncommited cards for preview."
+        if type == 0:
+            cms = self.findTemplates(fact, checkActive=True)
+        elif type == 1:
+            cms = [c.template() for c in fact.cards()]
+        else:
+            cms = fact.model.templates
+        if not cms:
+            return []
+        cards = []
+        for template in cms:
+            cards.append(self._newCard(fact, template, 1, 1, flush=False))
+        return cards
+
+    def _newCard(self, fact, template, due, gid, flush=True):
+        "Create a new card."
+        card = anki.cards.Card(self)
+        card.id = self.nextID("cid")
+        card.fid = fact.id
+        card.ord = template['ord']
+        card.gid = template['gid'] or gid
+        card.due = due
+        if flush:
+            card.flush()
+        return card
 
     # Cards
     ##########################################################################
@@ -325,7 +324,7 @@ select id from facts where id not in (select distinct fid from cards)""")
                 self.db.list("select fid from cards where id in "+sids))
             # need to handle delete of fsums/revlog remotely after sync
             self.db.execute(
-                "update cards set crt = 0, mod = ? where id in "+sids,
+                "update cards set crt = 0, queue = -4, mod = ? where id in "+sids,
                 intTime())
             self.db.execute(
                 "update facts set crt = 0, mod = ? where id in "+sfids,
@@ -439,12 +438,6 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         if self.conf['currentModelId'] == mid:
             self.conf['currentModelId'] = self.db.scalar(
                 "select id from models limit 1")
-
-    def modelUseCount(self, model):
-        "Return number of facts using model."
-        return self.db.scalar("select count() from facts "
-                             "where facts.mid = :id",
-                             id=model.id)
 
     # Field checksums and sorting fields
     ##########################################################################

@@ -80,7 +80,12 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         self.id = ret.lastrowid
 
     def fids(self):
-        return self.deck.db.list("select id from facts where mid = ?", self.id)
+        return self.deck.db.list(
+            "select id from facts where mid = ?", self.id)
+
+    def useCount(self):
+        return self.deck.db.scalar(
+            "select count() from facts where mid = ?", self.id)
 
     # Copying
     ##################################################
