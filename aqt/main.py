@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, sys, re, types, gettext, stat, traceback, inspect, signal
-import shutil, time, glob, tempfile, datetime, zipfile, locale
+import os, sys, re, stat, traceback, signal
+import shutil, time, tempfile, zipfile
 from operator import itemgetter
 
 from PyQt4.QtCore import *
@@ -13,16 +13,10 @@ from PyQt4 import pyqtconfig
 QtConfig = pyqtconfig.Configuration()
 
 from anki import Deck
-from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
-from anki.utils import addTags, parseTags, canonifyTags, \
-     stripHTML, checksum
-from anki.stdmodels import BasicModel
-from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
-from anki.deck import newCardOrderLabels, newCardSchedulingLabels
-from anki.deck import revCardOrderLabels, failedCardOptionLabels
-import anki.lang
-import anki.deck
+from anki.utils import addTags, parseTags, canonifyTags, stripHTML, checksum
+from anki.hooks import runHook, addHook, removeHook
+import anki.consts
 
 import aqt, aqt.utils, aqt.view, aqt.help, aqt.status, aqt.facteditor
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
@@ -53,7 +47,6 @@ class AnkiQt(QMainWindow):
             self.setLang()
             self.setupStyle()
             self.setupFonts()
-            self.setupBackupDir()
             self.setupProxy()
             self.setupMainWindow()
             self.setupDeckBrowser()
@@ -708,10 +701,6 @@ counts are %d %d %d
     # Deck loading & saving: backend
     ##########################################################################
 
-    def setupBackupDir(self):
-        anki.deck.backupDir = os.path.join(
-            self.config.configPath, "backups")
-
     def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True):
         "Load a deck and update the user interface. Maybe sync."
         self.reviewingStarted = False
@@ -948,7 +937,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                     return
         self.deck = DeckStorage.Deck(path)
         self.deck.initUndo()
-        self.deck.addModel(BasicModel())
         self.deck.save()
         if register:
             self.updateRecentFiles(self.deck.path)
@@ -1534,11 +1522,11 @@ not be touched.""") %
     def setupStudyScreen(self):
         self.mainWin.buttonStack.hide()
         self.mainWin.newCardOrder.insertItems(
-            0, QStringList(newCardOrderLabels().values()))
+            0, QStringList(anki.consts.newCardOrderLabels().values()))
         self.mainWin.newCardScheduling.insertItems(
-            0, QStringList(newCardSchedulingLabels().values()))
+            0, QStringList(anki.consts.newCardSchedulingLabels().values()))
         self.mainWin.revCardOrder.insertItems(
-            0, QStringList(revCardOrderLabels().values()))
+            0, QStringList(anki.consts.revCardOrderLabels().values()))
         self.connect(self.mainWin.optionsHelpButton,
                      SIGNAL("clicked()"),
                      lambda: QDesktopServices.openUrl(QUrl(
@@ -1956,15 +1944,6 @@ learnt today")
     def onPrefs(self):
         aqt.preferences.Preferences(self, self.config)
 
-    def onReportBug(self):
-        QDesktopServices.openUrl(QUrl(aqt.appIssueTracker))
-
-    def onForum(self):
-        QDesktopServices.openUrl(QUrl(aqt.appForum))
-
-    def onReleaseNotes(self):
-        QDesktopServices.openUrl(QUrl(aqt.appReleaseNotes))
-
     def onAbout(self):
         aqt.about.show(self)
 
@@ -2143,6 +2122,8 @@ it to your friends.
 
     def setLang(self):
         "Set the user interface language."
+        import locale, gettext
+        import anki.lang
         try:
             locale.setlocale(locale.LC_ALL, '')
         except:
@@ -2177,8 +2158,9 @@ it to your friends.
     ##########################################################################
 
     def setupSync(self):
-        if not self.config['syncDisableWhenMoved']:
-            anki.deck.Deck.checkSyncHash = lambda self: True
+        print "setupSync()"
+        #if not self.config['syncDisableWhenMoved']:
+        #    anki.deck.Deck.checkSyncHash = lambda self: True
 
     def syncDeck(self, interactive=True, onlyMerge=False, reload=True):
         "Synchronise a deck with the server."
@@ -2492,8 +2474,6 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionGraphs, s, self.onShowGraph)
         self.connect(m.actionEditLayout, s, self.onCardLayout)
         self.connect(m.actionAbout, s, self.onAbout)
-        self.connect(m.actionReportbug, s, self.onReportBug)
-        self.connect(m.actionForum, s, self.onForum)
         self.connect(m.actionStarthere, s, self.onStartHere)
         self.connect(m.actionImport, s, self.onImport)
         self.connect(m.actionExport, s, self.onExport)
@@ -2511,7 +2491,6 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionOpenPluginFolder, s, self.onOpenPluginFolder)
         self.connect(m.actionEnableAllPlugins, s, self.onEnableAllPlugins)
         self.connect(m.actionDisableAllPlugins, s, self.onDisableAllPlugins)
-        self.connect(m.actionReleaseNotes, s, self.onReleaseNotes)
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionRecordNoiseProfile, s, self.onRecordNoiseProfile)
@@ -2802,9 +2781,10 @@ to work with this version of Anki."""))
         self.rebuildPluginsMenu()
 
     def registerPlugin(self, name, updateId):
-        src = os.path.basename(inspect.getfile(inspect.currentframe(1)))
-        self.registeredPlugins[src] = {'name': name,
-                                       'id': updateId}
+        return
+        # src = os.path.basename(inspect.getfile(inspect.currentframe(1)))
+        # self.registeredPlugins[src] = {'name': name,
+        #                                'id': updateId}
 
     def checkForUpdatedPlugins(self):
         pass
@@ -3255,4 +3235,5 @@ It can take a long time. Proceed?""")):
 
     def setupBackups(self):
         # set backups
-        anki.deck.numBackups = self.config['numBackups']
+        print "setupBackups()"
+        #anki.deck.numBackups = self.config['numBackups']

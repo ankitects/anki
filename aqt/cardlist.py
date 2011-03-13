@@ -9,12 +9,10 @@ from PyQt4.QtWebKit import QWebPage
 import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
-from aqt import ui
 from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
-     stripHTMLAlt, ids2str
-from aqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
-from aqt.ui.utils import saveHeader, restoreHeader, saveState, \
-     restoreState, applyStyles
+    stripHTMLAlt, ids2str
+from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
+    saveHeader, restoreHeader, saveState, restoreState, applyStyles
 from anki.errors import *
 from anki.db import *
 from anki.stats import CardStats

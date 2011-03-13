@@ -1,61 +1,57 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, sys, shutil
+import os, sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 appName="Anki"
 appVersion="1.99"
 appWebsite="http://ankisrs.net/"
-appWiki="http://ichi2.net/anki/wiki/"
+appWiki="http://ankisrs.net/wiki/"
 appHelpSite="http://ankisrs.net/docs/"
-appIssueTracker="http://code.google.com/p/anki/issues/list"
-appForum="http://groups.google.com/group/ankisrs/topics"
-appReleaseNotes="http://ankisrs.net/changes.html"
 appDonate="http://ankisrs.net/support/"
-mw = None # will be set in init
-
 modDir=os.path.dirname(os.path.abspath(__file__))
 runningDir=os.path.split(modDir)[0]
+mw = None # set on init
 # py2exe
 if hasattr(sys, "frozen"):
     sys.path.append(modDir)
     modDir = os.path.dirname(sys.argv[0])
 
-# Dialog manager
+# Dialog manager - manages modeless windows
 ##########################################################################
 
 class DialogManager(object):
 
     def __init__(self):
-        self.modelessDialogs = {}
+        from aqt import addcards, cardlist
+        self._dialogs = {
+            "AddCards": (addcards.AddCards, None),
+            "CardList": (cardlist.EditDeck, None),
+            "Graphs": (self.graphProxy, None)
+        }
 
-    def registerDialog(self, name, klass):
-        self.modelessDialogs[name] = (klass, None)
-
-    def open(self, name, obj):
-        self.modelessDialogs[name] = (
-            self.modelessDialogs[name][0], obj)
+    def open(self, name, *args):
+        (creator, instance) = self._dialogs[name]
+        if instance:
+            instance.activateWindow()
+            instance.raise_()
+            return instance
+        else:
+            instance = creator(*args)
+            self._dialogs[name][1] = instance
+            return instance
 
     def close(self, name):
-        self.modelessDialogs[name] = (
-            self.modelessDialogs[name][0], None)
-
-    def get(self, name, *args):
-        (klass, obj) = self.modelessDialogs[name]
-        if obj:
-            obj.activateWindow()
-            obj.raise_()
-            return obj
-        else:
-            return klass(*args)
+        self._dialogs[name] = (
+            self._dialogs[name][0], None)
 
     def closeAll(self):
-        for (n, (klass, obj)) in self.modelessDialogs.items():
-            if obj:
-                obj.forceClose = True
-                obj.close()
+        for (n, (creator, instance)) in self._dialogs.items():
+            if instance:
+                instance.forceClose = True
+                instance.close()
                 self.close(n)
 
     # since we load the graphs dynamically, we need a proxy for this
@@ -63,14 +59,9 @@ class DialogManager(object):
         import graphs
         return graphs.intervalGraph(*args)
 
-    def registerDialogs(self):
-        self.registerDialog("AddCards", addcards.AddCards)
-        self.registerDialog("CardList", cardlist.EditDeck)
-        self.registerDialog("Graphs", self.graphProxy)
-
 dialogs = DialogManager()
 
-# App initialisation
+# Splash screen
 ##########################################################################
 
 class SplashScreen(object):
@@ -110,6 +101,9 @@ color: #13486c;
         self.splash.finish(obj)
         self.finished = True
 
+# App initialisation
+##########################################################################
+
 class AnkiApp(QApplication):
 
     def event(self, evt):
@@ -120,19 +114,15 @@ class AnkiApp(QApplication):
         return QApplication.event(self, evt)
 
 def run():
-    import config
-
-    mustQuit = False
+    global mw
 
     # home on win32 is broken
+    mustQuit = False
     if sys.platform == "win32":
         # use appdata if available
         if 'APPDATA' in os.environ:
-            oldConf = os.path.expanduser("~/.anki/config.db")
-            oldPlugins = os.path.expanduser("~/.anki/plugins")
             os.environ['HOME'] = os.environ['APPDATA']
         else:
-            oldConf = None
             os.environ['HOME'] = "c:\\anki"
         # make and check accessible
         try:
@@ -142,55 +132,23 @@ def run():
         try:
             os.listdir(os.path.expanduser("~/.anki"))
         except:
-            oldConf = None
-            os.environ['HOME'] = "c:\\anki"
-        # check accessible again
-        try:
-            os.makedirs(os.path.expanduser("~/.anki"))
-        except:
-            pass
-        try:
-            os.listdir(os.path.expanduser("~/.anki"))
-        except:
             mustQuit = True
-        if (oldConf and os.path.exists(oldConf) and not os.path.exists(
-            oldConf.replace("config.db", "config.db.old"))):
-            try:
-                shutil.copy2(oldConf,
-                             os.path.expanduser("~/.anki/config.db"))
-                shutil.copytree(oldPlugins,
-                             os.path.expanduser("~/.anki/plugins"))
-            except:
-                pass
-            os.rename(oldConf, oldConf.replace("config.db",
-                                               "config.db.old"))
-    # setup paths for forms, icons
-    sys.path.append(modDir)
-    # jpeg module
+
+    # on osx we'll need to add the qt plugins to the search path
     rd = runningDir
     if sys.platform.startswith("darwin") and getattr(sys, 'frozen', None):
         rd = os.path.abspath(runningDir + "/../../..")
         QCoreApplication.setLibraryPaths(QStringList([rd]))
 
+    # create the app
     app = AnkiApp(sys.argv)
     QCoreApplication.setApplicationName("Anki")
-
     if mustQuit:
         QMessageBox.warning(
             None, "Anki", "Can't open APPDATA, nor c:\\anki.\n"
             "Please try removing foreign characters from your username.")
         sys.exit(1)
-
-    import forms
-
     splash = SplashScreen(3)
-
-    import anki
-    if anki.version != appVersion:
-        print "You have libanki %s, but this is ankiqt %s" % (
-            anki.version, appVersion)
-        print "\nPlease ensure versions match."
-        return
 
     # parse args
     import optparse
@@ -200,7 +158,7 @@ def run():
                       default=os.path.expanduser("~/.anki"))
     (opts, args) = parser.parse_args(sys.argv[1:])
 
-    # configuration
+    # setup config
     import aqt.config
     conf = aqt.config.Config(
         unicode(os.path.abspath(opts.config), sys.getfilesystemencoding()))
@@ -211,26 +169,16 @@ def run():
         translationPath = "/usr/share/qt4/translations/"
     if translationPath:
         long = conf['interfaceLang']
-        if long == "ja_JP":
-            # qt is inconsistent
-            long = long.lower()
         short = long.split('_')[0]
         qtTranslator = QTranslator()
         if qtTranslator.load("qt_" + long, translationPath) or \
                qtTranslator.load("qt_" + short, translationPath):
             app.installTranslator(qtTranslator)
 
-    if conf['alternativeTheme']:
-        app.setStyle("plastique")
-
     # load main window
-    import aqt.main
-    #ui.importAll()
-    #ui.dialogs.registerDialogs()
     splash.update()
-
+    import aqt.main
     mw = aqt.main.AnkiQt(app, conf, args, splash)
-
     app.exec_()
 
 if __name__ == "__main__":

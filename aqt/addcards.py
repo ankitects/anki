@@ -9,8 +9,7 @@ import anki
 from anki.facts import Fact
 from anki.errors import *
 from anki.utils import stripHTML, parseTags
-from aqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
-from aqt import ui
+from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
 
