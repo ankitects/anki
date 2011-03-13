@@ -14,6 +14,7 @@ appIssueTracker="http://code.google.com/p/anki/issues/list"
 appForum="http://groups.google.com/group/ankisrs/topics"
 appReleaseNotes="http://ankisrs.net/changes.html"
 appDonate="http://ankisrs.net/support/"
+mw = None # will be set in init
 
 modDir=os.path.dirname(os.path.abspath(__file__))
 runningDir=os.path.split(modDir)[0]
@@ -22,8 +23,52 @@ if hasattr(sys, "frozen"):
     sys.path.append(modDir)
     modDir = os.path.dirname(sys.argv[0])
 
-# we bundle icons_rc as part of the anki source
-sys.path.append(os.path.dirname(__file__))
+# Dialog manager
+##########################################################################
+
+class DialogManager(object):
+
+    def __init__(self):
+        self.modelessDialogs = {}
+
+    def registerDialog(self, name, klass):
+        self.modelessDialogs[name] = (klass, None)
+
+    def open(self, name, obj):
+        self.modelessDialogs[name] = (
+            self.modelessDialogs[name][0], obj)
+
+    def close(self, name):
+        self.modelessDialogs[name] = (
+            self.modelessDialogs[name][0], None)
+
+    def get(self, name, *args):
+        (klass, obj) = self.modelessDialogs[name]
+        if obj:
+            obj.activateWindow()
+            obj.raise_()
+            return obj
+        else:
+            return klass(*args)
+
+    def closeAll(self):
+        for (n, (klass, obj)) in self.modelessDialogs.items():
+            if obj:
+                obj.forceClose = True
+                obj.close()
+                self.close(n)
+
+    # since we load the graphs dynamically, we need a proxy for this
+    def graphProxy(self, *args):
+        import graphs
+        return graphs.intervalGraph(*args)
+
+    def registerDialogs(self):
+        self.registerDialog("AddCards", addcards.AddCards)
+        self.registerDialog("CardList", cardlist.EditDeck)
+        self.registerDialog("Graphs", self.graphProxy)
+
+dialogs = DialogManager()
 
 # App initialisation
 ##########################################################################
@@ -137,9 +182,8 @@ def run():
         sys.exit(1)
 
     import forms
-    import ui
 
-    ui.splash = SplashScreen(3)
+    splash = SplashScreen(3)
 
     import anki
     if anki.version != appVersion:
@@ -157,8 +201,8 @@ def run():
     (opts, args) = parser.parse_args(sys.argv[1:])
 
     # configuration
-    import ankiqt.config
-    conf = ankiqt.config.Config(
+    import aqt.config
+    conf = aqt.config.Config(
         unicode(os.path.abspath(opts.config), sys.getfilesystemencoding()))
 
     # qt translations
@@ -180,11 +224,12 @@ def run():
         app.setStyle("plastique")
 
     # load main window
-    ui.importAll()
-    ui.dialogs.registerDialogs()
-    ui.splash.update()
+    import aqt.main
+    #ui.importAll()
+    #ui.dialogs.registerDialogs()
+    splash.update()
 
-    mw = ui.main.AnkiQt(app, conf, args)
+    mw = aqt.main.AnkiQt(app, conf, args, splash)
 
     app.exec_()
 

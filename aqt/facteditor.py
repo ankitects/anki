@@ -8,11 +8,10 @@ from PyQt4.QtSvg import *
 from PyQt4.QtWebKit import QWebPage
 import re, os, sys, tempfile, urllib2, ctypes
 from anki.utils import stripHTML, tidyHTML, canonifyTags, fieldChecksum
-from ankiqt.ui.sound import getAudio
+from aqt.sound import getAudio
 import anki.sound
-from ankiqt import ui
-import ankiqt
-from ankiqt.ui.utils import mungeQA, saveGeom, restoreGeom
+import aqt
+from aqt.utils import mungeQA, saveGeom, restoreGeom
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from sqlalchemy.exceptions import InvalidRequestError
 
@@ -144,7 +143,8 @@ class FactEditor(object):
         self.tagsBox = QHBoxLayout()
         self.tagsLabel = QLabel(_("Tags"))
         self.tagsBox.addWidget(self.tagsLabel)
-        self.tags = ui.tagedit.TagEdit(self.parent)
+        import aqt.tagedit
+        self.tags = aqt.tagedit.TagEdit(self.parent)
         self.tags.connect(self.tags, SIGNAL("lostFocus"),
                           self.onTagChange)
         self.tagsBox.addWidget(self.tags)
@@ -337,7 +337,7 @@ class FactEditor(object):
         self.fieldsFrame = None
         self.widget.setLayout(self.fieldsBox)
         # show advanced buttons?
-        if not ankiqt.mw.config['factEditorAdvanced']:
+        if not aqt.mw.config['factEditorAdvanced']:
             self.onMore(False)
 
     def _makeGrid(self):
@@ -476,7 +476,7 @@ class FactEditor(object):
         return modified
 
     def onFocusLost(self, widget):
-        from ankiqt import mw
+        from aqt import mw
         if not self.fact:
             # editor or deck closed
             return
@@ -488,7 +488,7 @@ class FactEditor(object):
         self.fact.setModified(textChanged=True, deck=self.deck)
         self.loadFields(font=False)
         if modified and self.resetOnEdit:
-            ankiqt.mw.reset(runHooks=False)
+            aqt.mw.reset(runHooks=False)
 
     def onTextChanged(self):
         interval = 250
@@ -503,7 +503,7 @@ class FactEditor(object):
                                 self.onChangeTimer)
 
     def onChangeTimer(self):
-        from ankiqt import mw
+        from aqt import mw
         interval = 250
         if not self.fact:
             return
@@ -591,7 +591,7 @@ class FactEditor(object):
             self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.flushMod()
             if self.resetOnEdit:
-                ankiqt.mw.reset(runHooks=False)
+                aqt.mw.reset(runHooks=False)
         if self.onChange:
             self.onChange('tag')
 
@@ -665,7 +665,7 @@ class FactEditor(object):
                                            txtcol)
 
     def colourChanged(self):
-        recent = ankiqt.mw.config['recentColours']
+        recent = aqt.mw.config['recentColours']
         self._updateForegroundButton(recent[-1])
 
     def onForeground(self):
@@ -683,7 +683,7 @@ class FactEditor(object):
         self.colourChoose = QShortcut(QKeySequence("F6"), p)
         p.connect(self.colourChoose, SIGNAL("activated()"),
                   self.onChooseColourKey)
-        for n, c in enumerate(reversed(ankiqt.mw.config['recentColours'])):
+        for n, c in enumerate(reversed(aqt.mw.config['recentColours'])):
             col = QToolButton()
             col.setAutoRaise(True)
             col.setFixedWidth(64)
@@ -717,7 +717,7 @@ class FactEditor(object):
         p.show()
 
     def onRemoveColour(self, colour):
-        recent = ankiqt.mw.config['recentColours']
+        recent = aqt.mw.config['recentColours']
         recent.remove(colour)
         if not recent:
             recent.append("#000000")
@@ -739,7 +739,7 @@ class FactEditor(object):
             pass
 
     def onChooseColour(self, colour):
-        recent = ankiqt.mw.config['recentColours']
+        recent = aqt.mw.config['recentColours']
         recent.remove(colour)
         recent.append(colour)
         w = self.lastFocusedEdit
@@ -751,7 +751,7 @@ class FactEditor(object):
     def onNewColour(self):
         new = QColorDialog.getColor(Qt.white, self.parent)
         self.parent.raise_()
-        recent = ankiqt.mw.config['recentColours']
+        recent = aqt.mw.config['recentColours']
         if new.isValid():
             txtcol = unicode(new.name())
             if txtcol not in recent:
@@ -795,7 +795,7 @@ class FactEditor(object):
     def onMore(self, toggle=None):
         if toggle is None:
             toggle = not self.latex.isVisible()
-            ankiqt.mw.config['factEditorAdvanced'] = toggle
+            aqt.mw.config['factEditorAdvanced'] = toggle
         self.latex.setShown(toggle)
         self.latexEqn.setShown(toggle)
         self.latexMathEnv.setShown(toggle)
@@ -884,13 +884,13 @@ class FactEditor(object):
 
     def onHtmlEdit(self):
         def helpRequested():
-            QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+            QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                           "HtmlEditor"))
         w = self.focusedEdit()
         if w:
             self.saveFields()
             d = QDialog(self.parent)
-            form = ankiqt.forms.edithtml.Ui_Dialog()
+            form = aqt.forms.edithtml.Ui_Dialog()
             form.setupUi(d)
             d.connect(form.buttonBox, SIGNAL("helpRequested()"),
                      helpRequested)
@@ -972,7 +972,7 @@ class FactEditor(object):
         w.insertHtml('[sound:%s]' % path)
 
     def maybeDelete(self, new, old):
-        if not ankiqt.mw.config['deleteMedia']:
+        if not aqt.mw.config['deleteMedia']:
             return
         if new == os.path.basename(old):
             return
@@ -1022,7 +1022,7 @@ class FactEdit(QTextEdit):
         if source.hasHtml() and "qrichtext" in unicode(source.html()):
             self.insertHtml(source.html())
             return True
-        if source.hasText() and (ankiqt.mw.config['stripHTML'] or
+        if source.hasText() and (aqt.mw.config['stripHTML'] or
                                  not source.hasHtml()):
             txt = unicode(source.text())
             l = txt.lower()
@@ -1086,7 +1086,7 @@ class FactEdit(QTextEdit):
     def _retrieveURL(self, url):
         req = urllib2.Request(url, None, {
             'User-Agent': 'Mozilla/5.0 (compatible; Anki/%s)' %
-            ankiqt.appVersion })
+            aqt.appVersion })
         filecontents = urllib2.urlopen(req).read()
         path = os.path.join(self.tmpDir(), os.path.basename(url))
         file = open(path, "wb")
@@ -1101,7 +1101,7 @@ class FactEdit(QTextEdit):
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
-        if not ankiqt.mw.config['stripHTML']:
+        if not aqt.mw.config['stripHTML']:
             return html
         html = re.sub("\n", " ", html)
         html = re.sub("<br ?/?>", "\n", html)
@@ -1117,7 +1117,7 @@ class FactEdit(QTextEdit):
         self.parent.lastFocusedEdit = self
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
-        if ankiqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
+        if aqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
             self._ownLayout = GetKeyboardLayout(0)
             ActivateKeyboardLayout(self._programLayout, 0)
         self.emit(SIGNAL("lostFocus"))
@@ -1137,7 +1137,7 @@ class FactEdit(QTextEdit):
         QTextEdit.focusInEvent(self, evt)
         self.parent.formatChanged(None)
         self.parent.enableButtons()
-        if ankiqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
+        if aqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
             self._programLayout = GetKeyboardLayout(0)
             if self._ownLayout == None:
                 self._ownLayout = self._programLayout

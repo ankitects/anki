@@ -8,12 +8,12 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage
 import time, types, sys, re
 from operator import attrgetter, itemgetter
-import anki, anki.utils, ankiqt.forms
-from ankiqt import ui
+import anki, anki.utils, aqt.forms
+from aqt import ui
 from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
      stripHTMLAlt, ids2str
-from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
-from ankiqt.ui.utils import saveHeader, restoreHeader, saveState, \
+from aqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
+from aqt.ui.utils import saveHeader, restoreHeader, saveState, \
      restoreState, applyStyles
 from anki.errors import *
 from anki.db import *
@@ -356,7 +356,7 @@ class EditDeck(QMainWindow):
         self.origModTime = parent.deck.modified
         self.currentRow = None
         self.lastFilter = ""
-        self.dialog = ankiqt.forms.cardlist.Ui_MainWindow()
+        self.dialog = aqt.forms.cardlist.Ui_MainWindow()
         self.dialog.setupUi(self)
         self.setUnifiedTitleAndToolBarOnMac(True)
         restoreGeom(self, "editor", 38)
@@ -919,7 +919,7 @@ where id in (%s)""" % ",".join([
     def reschedule(self):
         n = _("Reschedule")
         d = QDialog(self)
-        frm = ankiqt.forms.reschedule.Ui_Dialog()
+        frm = aqt.forms.reschedule.Ui_Dialog()
         frm.setupUi(d)
         if not d.exec_():
             return
@@ -1066,7 +1066,7 @@ where id in %s""" % ids2str(sf))
 
     def onFont(self):
         d = QDialog(self)
-        frm = ankiqt.forms.editfont.Ui_Dialog()
+        frm = aqt.forms.editfont.Ui_Dialog()
         frm.setupUi(d)
         frm.fontCombo.setCurrentFont(QFont(
             self.parent.config['editFontFamily']))
@@ -1097,7 +1097,7 @@ where id in %s""" % ids2str(sf))
                 parent=self)
             return
         d = QDialog(self)
-        frm = ankiqt.forms.findreplace.Ui_Dialog()
+        frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
         fields = sorted(self.currentCard.fact.model.fieldModels, key=attrgetter("name"))
         frm.field.addItems(QStringList(
@@ -1139,14 +1139,14 @@ where id in %s""" % ids2str(sf))
                 }, parent=self)
 
     def onFindReplaceHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "Browser#FindReplace"))
     # Edit: finding dupes
     ######################################################################
 
     def onFindDupes(self):
         win = QDialog(self)
-        dialog = ankiqt.forms.finddupes.Ui_Dialog()
+        aqt = ankiqt.forms.finddupes.Ui_Dialog()
         dialog.setupUi(win)
         restoreGeom(win, "findDupes")
         fields = sorted(self.currentCard.fact.model.fieldModels, key=attrgetter("name"))
@@ -1272,7 +1272,7 @@ select fm.id, fm.name from fieldmodels fm""")
     ######################################################################
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Browser"))
+        QDesktopServices.openUrl(QUrl(aqt.appWiki + "Browser"))
 
 # Generate card dialog
 ######################################################################
@@ -1283,7 +1283,7 @@ class AddCardChooser(QDialog):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.cms = cms
-        self.dialog = ankiqt.forms.addcardmodels.Ui_Dialog()
+        self.dialog = aqt.forms.addcardmodels.Ui_Dialog()
         self.dialog.setupUi(self)
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
@@ -1317,7 +1317,7 @@ order by ordinal""" % ids2str(self.cms))
         QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "Browser#GenerateCards"))
 
 # Change model dialog
@@ -1331,7 +1331,7 @@ class ChangeModelDialog(QDialog):
         self.origModel = self.parent.deck.currentModel
         self.oldModel = oldModel
         self.oldTemplate = oldTemplate
-        self.form = ankiqt.forms.changemodel.Ui_Dialog()
+        self.form = aqt.forms.changemodel.Ui_Dialog()
         self.form.setupUi(self)
         # maps
         self.fieldMapWidget = None
@@ -1478,5 +1478,5 @@ Are you sure you want to continue?"""), parent=self):
         return QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "Browser#ChangeModel"))

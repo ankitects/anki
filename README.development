@@ -8,8 +8,10 @@ $ git clone https://github.com/dae/ankiqt.git
 $ cd ankiqt
 $ ./tools/build_ui.sh
 
+Make sure you rebuild the UI every time you update the sources.
+
 The translations are stored in a bazaar repo for integration with launchpad's
-translation services. If you want to use a language other than English, edit 
+translation services. If you want to use a language other than English:
 
 $ cd ..
 $ mv libanki lib

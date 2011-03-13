@@ -3,12 +3,12 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from PyQt4.QtGui import *
-import ankiqt.forms
-from ankiqt import appVersion
+import aqt.forms
+from aqt import appVersion
 
 def show(parent):
     dialog = QDialog(parent)
-    abt = ankiqt.forms.about.Ui_About()
+    abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
     abouttext = "<center><img src=':/icons/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \

@@ -4,13 +4,13 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys, re
-import ankiqt.forms
+import aqt.forms
 import anki
 from anki.facts import Fact
 from anki.errors import *
 from anki.utils import stripHTML, parseTags
-from ankiqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
-from ankiqt import ui
+from aqt.ui.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
+from aqt import ui
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
 
@@ -31,7 +31,7 @@ class AddCards(QDialog):
         self.parent = parent
         ui.utils.applyStyles(self)
         self.config = parent.config
-        self.dialog = ankiqt.forms.addcards.Ui_AddCards()
+        self.dialog = aqt.forms.addcards.Ui_AddCards()
         self.dialog.setupUi(self)
         self.setWindowTitle(_("Add Items - %s") % parent.deck.name())
         self.setupEditor()
@@ -63,7 +63,7 @@ class AddCards(QDialog):
         self.dialog.modelArea.setLayout(self.modelChooser)
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "AddItems"))
+        QDesktopServices.openUrl(QUrl(aqt.appWiki + "AddItems"))
 
     def addButtons(self):
         self.addButton = QPushButton(_("Add"))

@@ -3,9 +3,9 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import ankiqt
+import aqt
 from anki.utils import parseTags, joinTags, canonifyTags
-from ankiqt.ui.utils import saveGeom, restoreGeom
+from aqt.ui.utils import saveGeom, restoreGeom
 
 class ActiveTagsChooser(QDialog):
 
@@ -13,7 +13,7 @@ class ActiveTagsChooser(QDialog):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.deck = self.parent.deck
-        self.dialog = ankiqt.forms.activetags.Ui_Dialog()
+        self.dialog = aqt.forms.activetags.Ui_Dialog()
         self.dialog.setupUi(self)
         if type == "new":
             self.active = "newActive"
@@ -129,7 +129,7 @@ class ActiveTagsChooser(QDialog):
         QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "SelectiveStudy"))
 
 def show(parent, type):

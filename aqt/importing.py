@@ -6,17 +6,17 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki
 import anki.importing as importing
-from ankiqt.ui.utils import getOnlyText
+from aqt.ui.utils import getOnlyText
 from anki.errors import *
-import ankiqt.forms
-from ankiqt import ui
+import aqt.forms
+from aqt import ui
 
 class ChangeMap(QDialog):
     def __init__(self, parent, model, current):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.model = model
-        self.dialog = ankiqt.forms.changemap.Ui_ChangeMap()
+        self.dialog = aqt.forms.changemap.Ui_ChangeMap()
         self.dialog.setupUi(self)
         n = 0
         setCurrent = False
@@ -55,7 +55,7 @@ class UpdateMap(QDialog):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.fieldModels = fieldModels
-        self.dialog = ankiqt.forms.importup.Ui_Dialog()
+        self.dialog = aqt.forms.importup.Ui_Dialog()
         self.dialog.setupUi(self)
         self.connect(self.dialog.buttonBox.button(QDialogButtonBox.Help),
                      SIGNAL("clicked()"), self.helpRequested)
@@ -66,7 +66,7 @@ class UpdateMap(QDialog):
         self.exec_()
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "FileImport"))
+        QDesktopServices.openUrl(QUrl(aqt.appWiki + "FileImport"))
 
     def accept(self):
         self.updateKey = (
@@ -79,7 +79,7 @@ class ImportDialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
-        self.dialog = ankiqt.forms.importing.Ui_ImportDialog()
+        self.dialog = aqt.forms.importing.Ui_ImportDialog()
         self.dialog.setupUi(self)
         self.connect(self.dialog.buttonBox.button(QDialogButtonBox.Help),
                      SIGNAL("clicked()"), self.helpRequested)
@@ -312,4 +312,4 @@ you can enter it here. Use \\t to represent tab."""),
         QDialog.reject(self)
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "FileImport"))
+        QDesktopServices.openUrl(QUrl(aqt.appWiki + "FileImport"))

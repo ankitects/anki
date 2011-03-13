@@ -10,8 +10,7 @@ from anki.utils import stripHTML
 from anki.hooks import runHook, runFilter
 import types, time, re, os, urllib, sys, difflib
 import unicodedata as ucd
-from ankiqt import ui
-from ankiqt.ui.utils import mungeQA, getBase
+from aqt.utils import mungeQA, getBase
 from anki.utils import fmtTimeSpan
 from PyQt4.QtWebKit import QWebPage, QWebView
 

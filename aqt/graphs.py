@@ -5,9 +5,9 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys
 import anki, anki.graphs, anki.utils
-from ankiqt import ui
-from ankiqt.ui.utils import saveGeom, restoreGeom
-import ankiqt
+from aqt import ui
+from aqt.ui.utils import saveGeom, restoreGeom
+import aqt
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib import rc
@@ -277,7 +277,7 @@ class GraphWindow(object):
         m.exec_(self.showhide.mapToGlobal(QPoint(0,0)))
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + "Graphs"))
+        QDesktopServices.openUrl(QUrl(aqt.appWiki + "Graphs"))
 
     def onRefresh(self):
         self.deck.startProgress(len(self.widgets))

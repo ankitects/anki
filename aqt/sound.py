@@ -6,7 +6,7 @@ from PyQt4.QtCore import *
 
 import time
 from anki.sound import Recorder, play, generateNoiseProfile
-from ankiqt.ui.utils import saveGeom, restoreGeom
+from aqt.utils import saveGeom, restoreGeom
 
 def getAudio(parent, string="", encode=True):
     "Record and return filename"

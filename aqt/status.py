@@ -5,7 +5,6 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki
 import sys, time
-from ankiqt import ui
 from anki.hooks import addHook
 
 class QClickableLabel(QLabel):

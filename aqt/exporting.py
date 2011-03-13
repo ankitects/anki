@@ -3,10 +3,10 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import anki, ankiqt
+import anki, aqt
 from anki.exporting import exporters as exporters_
 from anki.utils import parseTags
-from ankiqt import ui
+from aqt import ui
 
 class PackagedAnkiExporter(object):
     def __init__(self, *args):
@@ -24,7 +24,7 @@ class ExportDialog(QDialog):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.deck = parent.deck
-        self.dialog = ankiqt.forms.exporting.Ui_ExportDialog()
+        self.dialog = aqt.forms.exporting.Ui_ExportDialog()
         self.dialog.setupUi(self)
         self.exporter = None
         self.setup()

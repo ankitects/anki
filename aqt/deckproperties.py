@@ -4,14 +4,14 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys, re, time
-import ankiqt.forms
+import aqt.forms
 import anki
-from ankiqt import ui
+from aqt import ui
 from anki.utils import parseTags
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels
 from anki.utils import hexifyID, dehexifyID
-import ankiqt
+import aqt
 
 class DeckProperties(QDialog):
 
@@ -21,7 +21,7 @@ class DeckProperties(QDialog):
         self.d = deck
         self.onFinish = onFinish
         self.origMod = self.d.modified
-        self.dialog = ankiqt.forms.deckproperties.Ui_DeckProperties()
+        self.dialog = aqt.forms.deckproperties.Ui_DeckProperties()
         self.dialog.setupUi(self)
         self.dialog.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.dialog.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
@@ -84,8 +84,8 @@ class DeckProperties(QDialog):
             self.dialog.modelsList.addItem(item)
             cm = self.d.currentModel
             try:
-                if ankiqt.mw.currentCard:
-                    cm = ankiqt.mw.currentCard.fact.model
+                if aqt.mw.currentCard:
+                    cm = aqt.mw.currentCard.fact.model
             except:
                 # model has been deleted
                 pass
@@ -133,7 +133,7 @@ class DeckProperties(QDialog):
         self.d.deleteModel(model)
         self.updateModelsList()
         self.dialog.modelsList.setCurrentRow(row)
-        ankiqt.mw.reset()
+        aqt.mw.reset()
 
     def selectedModel(self):
         row = self.dialog.modelsList.currentRow()
@@ -147,7 +147,7 @@ class DeckProperties(QDialog):
             self.d.setModified()
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "DeckProperties"))
 
     def reject(self):
@@ -230,12 +230,12 @@ class DeckProperties(QDialog):
             self.d.setVar('perDay', self.dialog.perDay.isChecked())
         # mark deck dirty and close
         if self.origMod != self.d.modified:
-            ankiqt.mw.deck.updateCutoff()
-            ankiqt.mw.reset()
+            aqt.mw.deck.updateCutoff()
+            aqt.mw.reset()
         self.d.setUndoEnd(n)
         self.d.finishProgress()
         if self.onFinish:
             self.onFinish()
         QDialog.reject(self)
         if needSync:
-            ankiqt.mw.syncDeck(interactive=-1)
+            aqt.mw.syncDeck(interactive=-1)

@@ -5,7 +5,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import urllib, urllib2, os, sys, time, httplib
 import anki, anki.utils, anki.lang, anki.stats
-import ankiqt
+import aqt
 import simplejson, platform
 
 baseUrl = "http://anki.ichi2.net/update/"
@@ -19,7 +19,7 @@ class LatestVersionFinder(QThread):
         self.config = main.config
         plat=sys.platform
         pver=platform.platform()
-        d = {"ver": ankiqt.appVersion,
+        d = {"ver": aqt.appVersion,
              "pver": pver,
              "plat": plat,
              "id": self.config['id'],
@@ -44,7 +44,7 @@ class LatestVersionFinder(QThread):
             return
         if resp['msg']:
             self.emit(SIGNAL("newMsg"), resp)
-        if resp['latestVersion'] > ankiqt.appVersion:
+        if resp['latestVersion'] > aqt.appVersion:
             self.emit(SIGNAL("newVerAvail"), resp)
         diff = resp['currentTime'] - time.time()
         # a fairly liberal time check - sync is more strict
@@ -67,8 +67,8 @@ def askAndUpdate(parent, version=None):
         # ignore this update
         parent.config['suppressUpdate'] = version
     elif ret == QMessageBox.Yes:
-        QDesktopServices.openUrl(QUrl(ankiqt.appWebsite))
+        QDesktopServices.openUrl(QUrl(aqt.appWebsite))
 
 def showMessages(main, data):
-    ankiqt.ui.utils.showText(data['msg'], main, type="html")
+    aqt.ui.utils.showText(data['msg'], main, type="html")
     main.config['lastMsg'] = data['msgId']

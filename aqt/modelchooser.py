@@ -7,8 +7,8 @@ from operator import attrgetter
 import anki, sys
 from anki import stdmodels
 from anki.models import *
-from ankiqt import ui
-import ankiqt.forms
+from aqt import ui
+import aqt.forms
 from anki.hooks import addHook, removeHook
 
 class ModelChooser(QHBoxLayout):
@@ -74,7 +74,7 @@ class ModelChooser(QHBoxLayout):
 
     def onModelEdited(self):
         # hack
-        from ankiqt import mw
+        from aqt import mw
         self.deck = mw.deck
         self.drawModels()
         self.changed(self.deck.currentModel)
@@ -169,7 +169,7 @@ class AddModel(QDialog):
         self.main = main
         self.model = None
         self.deck = deck
-        self.dialog = ankiqt.forms.addmodel.Ui_AddModel()
+        self.dialog = aqt.forms.addmodel.Ui_AddModel()
         self.dialog.setupUi(self)
         self.models = []
         names = stdmodels.models.keys()
@@ -205,5 +205,5 @@ class AddModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "AddModel"))

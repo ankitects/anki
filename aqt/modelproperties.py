@@ -4,9 +4,9 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys, re
-import ankiqt.forms
+import aqt.forms
 import anki
-from ankiqt import ui
+from aqt import ui
 
 class ModelProperties(QDialog):
 
@@ -20,7 +20,7 @@ class ModelProperties(QDialog):
         self.m = model
         self.needRebuild = False
         self.onFinish = onFinish
-        self.dialog = ankiqt.forms.modelproperties.Ui_ModelProperties()
+        self.dialog = aqt.forms.modelproperties.Ui_ModelProperties()
         self.dialog.setupUi(self)
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"),
                      self.helpRequested)
@@ -252,7 +252,7 @@ class ModelProperties(QDialog):
         self.ignoreCardUpdate = False
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "ModelProperties"))
 
     # Cleanup
@@ -282,7 +282,7 @@ class ModelProperties(QDialog):
             self.deck.updateCardsFromModel(self.m)
             reset = True
         if reset:
-            ankiqt.mw.reset()
+            aqt.mw.reset()
         if self.onFinish:
             self.onFinish()
         self.deck.setUndoEnd(self.undoName)

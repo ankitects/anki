@@ -1,1 +1,0 @@
-../icons_rc.py

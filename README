@@ -3,11 +3,11 @@ Anki
 
 Prerequisites for Linux/FreeBSD/etc:
 
-- a recent Python (2.4 should be fine)
-- python-qt/pyqt 4.4+
-- sqlalchemy 0.4.3+
-- simplejson 1.7.3+
-- pysqlite2 1.3+ or python2.5
+- Python 2.4+
+- Python-Qt/PyQt 4.4+
+- SimpleJSON 1.7.3+
+- PySQLite 1.3+ or Python2.5
+- Beautiful Soup
 
 For graph generation:
 
@@ -24,35 +24,11 @@ For audio recording support:
 - pyaudio
 - lame
 
-For importing SuperMemo XML and exporting text files:
-
-- python-beautifulsoup
-
 Running / Installation
 -------------------------------------
 
-To run from the directory you've untarred it to,
-
-$ ./anki
-
-If you want to install it system wide,
-
-$ (cd libanki && sudo python setup.py install)
-$ sudo python setup.py install
-$ anki
+<todo>
 
 For more information and the latest version, please see the website at:
 
-http://ichi2.net/anki/
-
-Notes
--------------------------------------
-
-There is a known issue with pysqlite 2.5.2-2.5.5 and older versions of
-sqlalchemy. Either downgrade pysqlite to 2.5.1, or upgrade sqlalchemy to
-0.5.3.
-
-If you are unable to find pyqt 4.4+ in your distro and you run Ubuntu, you can
-get it by adding the following to your /etc/sources.list:
-
-deb http://ppa.launchpad.net/kubuntu-members-kde4/ubuntu hardy main
+http://ankisrs.net/

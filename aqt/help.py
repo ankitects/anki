@@ -4,7 +4,7 @@
 import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import ankiqt.forms
+import aqt.forms
 from anki.hooks import runHook
 
 # Hideable help area widget

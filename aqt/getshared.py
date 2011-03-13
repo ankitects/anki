@@ -4,9 +4,9 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import ankiqt, simplejson, time, cStringIO, zipfile, tempfile, os, re, gzip
+import aqt, simplejson, time, cStringIO, zipfile, tempfile, os, re, gzip
 import traceback, urllib2, socket, cgi
-from ankiqt.ui.utils import saveGeom, restoreGeom, showInfo
+from aqt.ui.utils import saveGeom, restoreGeom, showInfo
 from anki.utils import fmtTimeSpan
 
 URL = "http://ankiweb.net/file/"
@@ -29,7 +29,7 @@ class GetShared(QDialog):
     def __init__(self, parent, type):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
-        self.form = ankiqt.forms.getshared.Ui_Dialog()
+        aqt.form = ankiqt.forms.getshared.Ui_Dialog()
         self.form.setupUi(self)
         self.ok = True
         self.conErrMsg = _("""\

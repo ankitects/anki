@@ -5,16 +5,16 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage, QWebView
 import sys, re
-import ankiqt.forms
+import aqt.forms
 import anki
 from anki.models import *
 from anki.facts import *
 from anki.cards import Card
 from anki.sound import playFromText, clearAudioQueue
-from ankiqt.ui.utils import saveGeom, restoreGeom, getBase, mungeQA, \
+from aqt.ui.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      saveSplitter, restoreSplitter
 from anki.hooks import runFilter
-from ankiqt import ui
+from aqt import ui
 
 class ResizingTextEdit(QTextEdit):
     def sizeHint(self):
@@ -25,7 +25,7 @@ class CardLayout(QDialog):
     def __init__(self, parent, factedit, factOrModel, card=None):
         self.parent = parent
         QDialog.__init__(self, parent, Qt.Window)
-        self.mw = ankiqt.mw
+        self.mw = aqt.mw
         self.deck = self.mw.deck
         self.factedit = factedit
         self.card = card
@@ -69,7 +69,7 @@ class CardLayout(QDialog):
                     "Please enter some text first."),
                                   parent=self.parent)
                 return
-        self.form = ankiqt.forms.clayout.Ui_Dialog()
+        self.form = aqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
         restoreSplitter(self.form.splitter, "clayout")
         if type == 0:
@@ -325,7 +325,7 @@ order by n""", id=card.id)
         QDialog.reject(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "CardLayout"))
 
     # Fields

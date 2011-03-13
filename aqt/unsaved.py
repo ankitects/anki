@@ -2,7 +2,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from PyQt4.QtGui import *
-import ankiqt.forms
+import aqt.forms
 
 save = QMessageBox.Save
 discard = QMessageBox.Discard

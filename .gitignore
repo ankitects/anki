@@ -2,8 +2,4 @@
 *.pyc
 *\#
 *~
-/icons_rc.py
-ankiqt/forms
-/docs/manual.html
-/docs/docbook-xsl.css
-/docs/manual.xml
+/aqt/forms

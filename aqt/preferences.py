@@ -7,8 +7,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import anki, anki.utils
 from anki.facts import Fact
-from ankiqt import ui
-import ankiqt.forms
+from aqt import ui
+import aqt.forms
 
 tabs = ("Display",
         "Network",
@@ -23,7 +23,7 @@ class Preferences(QDialog):
         self.parent = parent
         self.config = copy.copy(self.origConfig)
         self.origInterfaceLang = self.config['interfaceLang']
-        self.dialog = ankiqt.forms.preferences.Ui_Preferences()
+        self.dialog = aqt.forms.preferences.Ui_Preferences()
         self.dialog.setupUi(self)
         self.needDeckClose = False
         self.supportedLanguages = [
@@ -258,6 +258,6 @@ class Preferences(QDialog):
 
     def helpRequested(self):
         idx = self.dialog.tabWidget.currentIndex()
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki +
+        QDesktopServices.openUrl(QUrl(aqt.appWiki +
                                       "Preferences#" +
                                       tabs[idx]))

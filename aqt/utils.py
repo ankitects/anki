@@ -5,16 +5,15 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from anki.sound import playFromText, stripSounds
-from ankiqt import ui
 
 import re, os, sys, urllib, time
-import ankiqt
+import aqt
 
 def openLink(link):
     QDesktopServices.openUrl(QUrl(link))
 
 def openWikiLink(page):
-    openLink(ankiqt.appWiki + page)
+    openLink(aqt.appWiki + page)
 
 def showWarning(text, parent=None, help=""):
     "Show a small warning with an OK button."
@@ -27,7 +26,7 @@ def showCritical(text, parent=None, help=""):
 def showInfo(text, parent=None, help="", func=None):
     "Show a small info window with an OK button."
     if not parent:
-        parent = ankiqt.mw
+        parent = aqt.mw
     if not func:
         func = QMessageBox.information
     sb = QMessageBox.Ok
@@ -42,7 +41,7 @@ def showInfo(text, parent=None, help="", func=None):
 
 def showText(txt, parent=None, type="text"):
     if not parent:
-        parent = ankiqt.mw
+        parent = aqt.mw
     diag = QDialog(parent)
     diag.setWindowTitle("Anki")
     layout = QVBoxLayout(diag)
@@ -64,7 +63,7 @@ def showText(txt, parent=None, type="text"):
 def askUser(text, parent=None, help="", defaultno=False):
     "Show a yes/no question. Return true if yes."
     if not parent:
-        parent = ankiqt.mw
+        parent = aqt.mw
     sb = QMessageBox.Yes | QMessageBox.No
     if help:
         sb |= QMessageBox.Help
@@ -115,7 +114,7 @@ class ButtonedDialog(QMessageBox):
 
 def askUserDialog(text, buttons, parent=None, help=""):
     if not parent:
-        parent = ankiqt.mw
+        parent = aqt.mw
     diag = ButtonedDialog(text, buttons, parent, help)
     return diag
 
@@ -158,11 +157,11 @@ class GetTextDialog(QDialog):
         return QDialog.reject(self)
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appWiki + self.help))
+        QDesktopServices.openUrl(QUrl(aqt.appWiki + self.help))
 
 def getText(prompt, parent=None, help=None, edit=None, default=u"", title="Anki"):
     if not parent:
-        parent = ankiqt.mw
+        parent = aqt.mw
     d = GetTextDialog(parent, prompt, help=help, edit=edit,
                       default=default, title=title)
     ret = d.exec_()
@@ -176,7 +175,8 @@ def getOnlyText(*args, **kwargs):
         return u""
 
 def getTag(parent, deck, question, tags="user", **kwargs):
-    te = ui.tagedit.TagEdit(parent)
+    from aqt.tagedit import TagEdit
+    te = TagEdit(parent)
     te.setDeck(deck, tags)
     return getText(question, parent, edit=te, **kwargs)
 
@@ -184,17 +184,17 @@ def getFile(parent, title, dir, key):
     "Ask the user for a file. Use DIR as config variable."
     dirkey = dir+"Directory"
     file = unicode(QFileDialog.getOpenFileName(
-        parent, title, ankiqt.mw.config.get(dirkey, ""), key))
+        parent, title, aqt.mw.config.get(dirkey, ""), key))
     if file:
         dir = os.path.dirname(file)
-        ankiqt.mw.config[dirkey] = dir
+        aqt.mw.config[dirkey] = dir
     return file
 
 def getSaveFile(parent, title, dir, key, ext):
     "Ask the user for a file to save. Use DIR as config variable."
     dirkey = dir+"Directory"
     file = unicode(QFileDialog.getSaveFileName(
-        parent, title, ankiqt.mw.config.get(dirkey, ""), key,
+        parent, title, aqt.mw.config.get(dirkey, ""), key,
         None, QFileDialog.DontConfirmOverwrite))
     if file:
         # add extension
@@ -202,7 +202,7 @@ def getSaveFile(parent, title, dir, key, ext):
             file += ext
         # save new default
         dir = os.path.dirname(file)
-        ankiqt.mw.config[dirkey] = dir
+        aqt.mw.config[dirkey] = dir
         # check if it exists
         if os.path.exists(file):
             if not askUser(
@@ -213,14 +213,14 @@ def getSaveFile(parent, title, dir, key, ext):
 
 def saveGeom(widget, key):
     key += "Geom"
-    ankiqt.mw.config[key] = widget.saveGeometry()
+    aqt.mw.config[key] = widget.saveGeometry()
 
 def restoreGeom(widget, key, offset=None):
     key += "Geom"
-    if ankiqt.mw.config.get(key):
-        widget.restoreGeometry(ankiqt.mw.config[key])
+    if aqt.mw.config.get(key):
+        widget.restoreGeometry(aqt.mw.config[key])
         if sys.platform.startswith("darwin") and offset:
-            from ankiqt.ui.main import QtConfig as q
+            from aqt.main import QtConfig as q
             minor = (q.qt_version & 0x00ff00) >> 8
             if minor > 6:
                 # bug in osx toolkit
@@ -229,30 +229,30 @@ def restoreGeom(widget, key, offset=None):
 
 def saveState(widget, key):
     key += "State"
-    ankiqt.mw.config[key] = widget.saveState()
+    aqt.mw.config[key] = widget.saveState()
 
 def restoreState(widget, key):
     key += "State"
-    if ankiqt.mw.config.get(key):
-        widget.restoreState(ankiqt.mw.config[key])
+    if aqt.mw.config.get(key):
+        widget.restoreState(aqt.mw.config[key])
 
 def saveSplitter(widget, key):
     key += "Splitter"
-    ankiqt.mw.config[key] = widget.saveState()
+    aqt.mw.config[key] = widget.saveState()
 
 def restoreSplitter(widget, key):
     key += "Splitter"
-    if ankiqt.mw.config.get(key):
-        widget.restoreState(ankiqt.mw.config[key])
+    if aqt.mw.config.get(key):
+        widget.restoreState(aqt.mw.config[key])
 
 def saveHeader(widget, key):
     key += "Header"
-    ankiqt.mw.config[key] = widget.saveState()
+    aqt.mw.config[key] = widget.saveState()
 
 def restoreHeader(widget, key):
     key += "Header"
-    if ankiqt.mw.config.get(key):
-        widget.restoreState(ankiqt.mw.config[key])
+    if aqt.mw.config.get(key):
+        widget.restoreState(aqt.mw.config[key])
 
 def mungeQA(deck, txt):
     txt = stripSounds(txt)
@@ -262,7 +262,7 @@ def mungeQA(deck, txt):
 
 def applyStyles(widget):
     try:
-        styleFile = open(os.path.join(ankiqt.mw.config.configPath,
+        styleFile = open(os.path.join(aqt.mw.config.configPath,
                                       "style.css"))
         widget.setStyleSheet(styleFile.read())
     except (IOError, OSError):

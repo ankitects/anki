@@ -11,6 +11,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import pyqtconfig
 QtConfig = pyqtconfig.Configuration()
+
 from anki import Deck
 from anki.errors import *
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
@@ -20,16 +21,18 @@ from anki.stdmodels import BasicModel
 from anki.hooks import runHook, addHook, removeHook, _hooks, wrap
 from anki.deck import newCardOrderLabels, newCardSchedulingLabels
 from anki.deck import revCardOrderLabels, failedCardOptionLabels
-from ankiqt.ui.utils import saveGeom, restoreGeom, saveState, restoreState
 import anki.lang
 import anki.deck
-import ankiqt
-ui = ankiqt.ui
-config = ankiqt.config
+
+import aqt, aqt.utils, aqt.view, aqt.help, aqt.status, aqt.facteditor
+from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
+    saveState, restoreState
+config = aqt.config
 
 class AnkiQt(QMainWindow):
-    def __init__(self, app, config, args):
+    def __init__(self, app, config, args, splash):
         QMainWindow.__init__(self)
+        self.splash = splash
         try:
             self.errorOccurred = False
             self.inDbHandler = False
@@ -39,7 +42,7 @@ class AnkiQt(QMainWindow):
             elif sys.platform.startswith("win32"):
                 # make sure they're picked up on bundle
                 from ctypes import windll, wintypes
-            ankiqt.mw = self
+            aqt.mw = self
             self.app = app
             self.config = config
             self.deck = None
@@ -59,7 +62,7 @@ class AnkiQt(QMainWindow):
             self.setupTray()
             self.setupSync()
             self.connectMenuActions()
-            ui.splash.update()
+            splash.update()
             self.setupViews()
             self.setupEditor()
             self.setupStudyScreen()
@@ -74,7 +77,7 @@ class AnkiQt(QMainWindow):
             else:
                 self.resize(500, 500)
             # load deck
-            ui.splash.update()
+            splash.update()
             self.setupErrorHandler()
             self.setupMisc()
             # check if we've been updated
@@ -82,19 +85,19 @@ class AnkiQt(QMainWindow):
                 # could be new user, or upgrade from older version
                 # which didn't have version variable
                 self.appUpdated = "first"
-            elif self.config['version'] != ankiqt.appVersion:
+            elif self.config['version'] != aqt.appVersion:
                 self.appUpdated = self.config['version']
             else:
                 self.appUpdated = False
             if self.appUpdated:
-                self.config['version'] = ankiqt.appVersion
+                self.config['version'] = aqt.appVersion
             # plugins might be looking at this
             self.state = "noDeck"
             self.loadPlugins()
             self.setupAutoUpdate()
             self.rebuildPluginsMenu()
             # plugins loaded, now show interface
-            ui.splash.finish(self)
+            splash.finish(self)
             self.show()
             # program open sync
             if self.config['syncOnProgramOpen']:
@@ -114,15 +117,14 @@ class AnkiQt(QMainWindow):
             try:
                 runHook('init')
             except:
-                ui.utils.showWarning(
+                aqt.utils.showWarning(
                     _("Broken plugin:\n\n%s") %
                     unicode(traceback.format_exc(), "utf-8", "replace"))
             # activate & raise is useful when run from the command line on osx
             self.activateWindow()
             self.raise_()
         except:
-            ui.utils.showInfo("Error during startup:\n%s" %
-                              traceback.format_exc())
+            showInfo("Error during startup:\n%s" % traceback.format_exc())
             sys.exit(1)
 
     def onSigInt(self, signum, frame):
@@ -133,13 +135,13 @@ class AnkiQt(QMainWindow):
 
     def setupMainWindow(self):
         # main window
-        self.mainWin = ankiqt.forms.main.Ui_MainWindow()
+        self.mainWin = aqt.forms.main.Ui_MainWindow()
         self.mainWin.setupUi(self)
-        self.mainWin.mainText = ui.view.AnkiWebView(self.mainWin.mainTextFrame)
+        self.mainWin.mainText = aqt.view.AnkiWebView(self.mainWin.mainTextFrame)
         self.mainWin.mainText.setObjectName("mainText")
         self.mainWin.mainText.setFocusPolicy(Qt.ClickFocus)
         self.mainWin.mainStack.addWidget(self.mainWin.mainText)
-        self.help = ui.help.HelpArea(self.mainWin.helpFrame, self.config, self)
+        self.help = aqt.help.HelpArea(self.mainWin.helpFrame, self.config, self)
         self.connect(self.mainWin.mainText.pageAction(QWebPage.Reload),
                      SIGNAL("triggered()"),
                      self.onReload)
@@ -171,7 +173,7 @@ class AnkiQt(QMainWindow):
             # decks may be opened in a sync thread
             sys.stderr.write(msg + "\n")
         else:
-            ui.utils.showInfo(msg)
+            showInfo(msg)
 
     def setNotice(self, str=""):
         if str:
@@ -181,14 +183,15 @@ class AnkiQt(QMainWindow):
             self.mainWin.noticeFrame.setShown(False)
 
     def setupViews(self):
-        self.bodyView = ui.view.View(self, self.mainWin.mainText,
+        self.bodyView = aqt.view.View(self, self.mainWin.mainText,
                                      self.mainWin.mainTextFrame)
         self.addView(self.bodyView)
-        self.statusView = ui.status.StatusView(self)
+        self.statusView = aqt.status.StatusView(self)
         self.addView(self.statusView)
 
     def setupTray(self):
-	self.trayIcon = ui.tray.AnkiTrayIcon(self)
+        import aqt.tray
+	self.trayIcon = aqt.tray.AnkiTrayIcon(self)
 
     def setupErrorHandler(self):
         class ErrorPipe(object):
@@ -235,14 +238,13 @@ class AnkiQt(QMainWindow):
                 # hack for matplotlib errors on osx
                 return
             if "Audio player not found" in error:
-                ui.utils.showInfo(
-                    _("Couldn't play sound. Please install mplayer."))
+                showInfo(_("Couldn't play sound. Please install mplayer."))
                 return
             if "ERR-0100" in error:
-                ui.utils.showInfo(error)
+                showInfo(error)
                 return
             if "ERR-0101" in error:
-                ui.utils.showInfo(error)
+                showInfo(error)
                 return
             stdText = _("""\
 
@@ -280,7 +282,7 @@ Please do not file a bug report with Anki.<br>""")
             self.clearProgress()
 
     def closeAllDeckWindows(self):
-        ui.dialogs.closeAll()
+        aqt.dialogs.closeAll()
         self.help.hide()
 
     # State machine
@@ -728,11 +730,11 @@ counts are %d %d %d
         except Exception, e:
             if hasattr(e, 'data') and e.data.get('type') == 'inuse':
                 if interactive:
-                    ui.utils.showWarning(_("Deck is already open."))
+                    aqt.utils.showWarning(_("Deck is already open."))
                 else:
                     return
             else:
-                ui.utils.showCritical(_("""\
+                aqt.utils.showCritical(_("""\
 File is corrupt or not an Anki database. Click help for more info.\n
 Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("noDeck")
@@ -749,7 +751,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("initial")
         except:
             traceback.print_exc()
-            if ui.utils.askUser(_(
+            if aqt.utils.askUser(_(
                 "An error occurred while trying to build the queue.\n"
                 "Would you like to try check the deck for errors?\n"
                 "This may take some time.")):
@@ -758,7 +760,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 try:
                     self.reset()
                 except:
-                    ui.utils.showWarning(
+                    aqt.utils.showWarning(
                         _("Unable to recover. Deck load failed."))
                     self.deck = None
             else:
@@ -867,11 +869,11 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                      not self.config['syncOnLoad'])):
                     # backed in memory or autosave/sync off, must confirm
                     while 1:
-                        res = ui.unsaved.ask(parent)
-                        if res == ui.unsaved.save:
+                        res = aqt.unsaved.ask(parent)
+                        if res == aqt.unsaved.save:
                             if self.save(required=True):
                                 break
-                        elif res == ui.unsaved.cancel:
+                        elif res == aqt.unsaved.cancel:
                             self.hideWelcome = False
                             return False
                         else:
@@ -919,7 +921,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             if not prompt:
                 prompt = _("Please give your deck a name:")
             while 1:
-                name = ui.utils.getOnlyText(
+                name = aqt.utils.getOnlyText(
                     prompt, default=name, title=_("New Deck"))
                 if not name:
                     self.moveToState("noDeck")
@@ -927,7 +929,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 found = False
                 for c in bad:
                     if c in name:
-                        ui.utils.showInfo(
+                        showInfo(
                             _("Sorry, '%s' can't be used in deck names.") % c)
                         found = True
                         break
@@ -938,7 +940,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 break
             path = os.path.join(self.documentDir, name)
             if os.path.exists(path):
-                if ui.utils.askUser(_("That deck already exists. Overwrite?"),
+                if aqt.utils.askUser(_("That deck already exists. Overwrite?"),
                                     defaultno=True):
                     os.unlink(path)
                 else:
@@ -1007,12 +1009,12 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onGetSharedDeck(self):
         if not self.inMainWindow(): return
-        ui.getshared.GetShared(self, 0)
+        aqt.getshared.GetShared(self, 0)
         self.browserLastRefreshed = 0
 
     def onGetSharedPlugin(self):
         if not self.inMainWindow(): return
-        ui.getshared.GetShared(self, 1)
+        aqt.getshared.GetShared(self, 1)
 
     def onOpen(self):
         if not self.inMainWindow(): return
@@ -1026,7 +1028,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         ret = self.loadDeck(file, interactive=True)
         if not ret:
             if ret is None:
-                ui.utils.showWarning(_("Unable to load file."))
+                aqt.utils.showWarning(_("Unable to load file."))
             self.deck = None
             return False
         else:
@@ -1124,7 +1126,7 @@ your deck."""))
                 return self.onSave()
         if os.path.exists(file):
             # check for existence after extension
-            if not ui.utils.askUser(
+            if not aqt.utils.askUser(
                 "This file exists. Are you sure you want to overwrite it?"):
                 return
         self.closeAllDeckWindows()
@@ -1173,7 +1175,7 @@ your deck."""))
         self.startProgress(max=len(self.config['recentDeckPaths']),
                            immediate=True)
         for c, d in enumerate(self.config['recentDeckPaths']):
-            if ui.splash.finished:
+            if self.splash.finished:
                 self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
                     'x': c+1, 'y': len(self.config['recentDeckPaths'])})
             if not os.path.exists(d):
@@ -1206,7 +1208,7 @@ your deck."""))
         for d in toRemove:
             self.config['recentDeckPaths'].remove(d)
         self.config.save()
-        if ui.splash.finished:
+        if self.splash.finished:
             self.finishProgress()
         self.browserLastRefreshed = time.time()
         self.reorderBrowserDecks()
@@ -1398,7 +1400,7 @@ later by using File>Close.
         self.switchToDecksScreen()
 
     def onDeckBrowserForget(self, c):
-        if ui.utils.askUser(_("""\
+        if aqt.utils.askUser(_("""\
 Hide %s from the list? You can File>Open it again later.""") %
                             self.browserDecks[c]['name']):
             self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
@@ -1407,7 +1409,7 @@ Hide %s from the list? You can File>Open it again later.""") %
 
     def onDeckBrowserDelete(self, c):
         deck = self.browserDecks[c]['path']
-        if ui.utils.askUser(_("""\
+        if aqt.utils.askUser(_("""\
 Delete %s? If this deck is synchronized the online version will \
 not be touched.""") %
                             self.browserDecks[c]['name']):
@@ -1442,7 +1444,7 @@ not be touched.""") %
         try:
             self.config.save()
         except (IOError, OSError), e:
-            ui.utils.showWarning(_("Anki was unable to save your "
+            aqt.utils.showWarning(_("Anki was unable to save your "
                                    "configuration file:\n%s" % e))
 
     def closeEvent(self, event):
@@ -1503,7 +1505,7 @@ not be touched.""") %
     ##########################################################################
 
     def setupEditor(self):
-        self.editor = ui.facteditor.FactEditor(
+        self.editor = aqt.facteditor.FactEditor(
             self, self.mainWin.fieldsArea, self.deck)
         self.editor.clayout.setShortcut("")
         self.editor.onFactValid = self.onFactValid
@@ -1540,7 +1542,7 @@ not be touched.""") %
         self.connect(self.mainWin.optionsHelpButton,
                      SIGNAL("clicked()"),
                      lambda: QDesktopServices.openUrl(QUrl(
-            ankiqt.appWiki + "StudyOptions")))
+            aqt.appWiki + "StudyOptions")))
         self.connect(self.mainWin.minuteLimit,
                      SIGNAL("textChanged(QString)"), self.onMinuteLimitChanged)
         self.connect(self.mainWin.questionLimit,
@@ -1562,10 +1564,10 @@ not be touched.""") %
         self.mainWin.tabWidget.setCurrentIndex(self.config['studyOptionsScreen'])
 
     def onNewCategoriesClicked(self):
-        ui.activetags.show(self, "new")
+        aqt.activetags.show(self, "new")
 
     def onRevCategoriesClicked(self):
-        ui.activetags.show(self, "rev")
+        aqt.activetags.show(self, "rev")
 
     def onFailedMaxChanged(self):
         try:
@@ -1868,20 +1870,20 @@ learnt today")
         import anki.graphs
         if anki.graphs.graphsAvailable():
             try:
-                ui.dialogs.get("Graphs", self, self.deck)
+                aqt.dialogs.get("Graphs", self, self.deck)
             except (ImportError, ValueError):
                 traceback.print_exc()
                 if sys.platform.startswith("win32"):
-                    ui.utils.showInfo(
+                    showInfo(
                         _("To display graphs, Anki needs a .dll file which\n"
                           "you don't have. Please install:\n") +
                         "http://www.dll-files.com/dllindex/dll-files.shtml?msvcp71")
                 else:
-                    ui.utils.showInfo(_(
+                    showInfo(_(
                         "Your version of Matplotlib is broken.\n"
                         "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"))
         else:
-            ui.utils.showInfo(_("Please install python-matplotlib to access graphs."))
+            showInfo(_("Please install python-matplotlib to access graphs."))
 
     # Marking, suspending and undoing
     ##########################################################################
@@ -1936,38 +1938,38 @@ learnt today")
     ##########################################################################
 
     def onAddCard(self):
-        ui.dialogs.get("AddCards", self)
+        aqt.dialogs.get("AddCards", self)
 
     def onEditDeck(self):
-        ui.dialogs.get("CardList", self)
+        aqt.dialogs.get("CardList", self)
 
     def onEditCurrent(self):
         self.moveToState("editCurrentFact")
 
     def onCardLayout(self):
-        ui.clayout.CardLayout(self, 0, self.currentCard.fact,
+        aqt.clayout.CardLayout(self, 0, self.currentCard.fact,
                               card=self.currentCard)
 
     def onDeckProperties(self):
-        self.deckProperties = ui.deckproperties.DeckProperties(self, self.deck)
+        self.deckProperties = aqt.deckproperties.DeckProperties(self, self.deck)
 
     def onPrefs(self):
-        ui.preferences.Preferences(self, self.config)
+        aqt.preferences.Preferences(self, self.config)
 
     def onReportBug(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appIssueTracker))
+        QDesktopServices.openUrl(QUrl(aqt.appIssueTracker))
 
     def onForum(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appForum))
+        QDesktopServices.openUrl(QUrl(aqt.appForum))
 
     def onReleaseNotes(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appReleaseNotes))
+        QDesktopServices.openUrl(QUrl(aqt.appReleaseNotes))
 
     def onAbout(self):
-        ui.about.show(self)
+        aqt.about.show(self)
 
     def onDonate(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appDonate))
+        QDesktopServices.openUrl(QUrl(aqt.appDonate))
 
     # Importing & exporting
     ##########################################################################
@@ -1982,10 +1984,10 @@ Please give your deck a name:"""))
         if not self.deck:
             return
         if self.deck.path:
-            ui.importing.ImportDialog(self)
+            aqt.importing.ImportDialog(self)
 
     def onExport(self):
-        ui.exporting.ExportDialog(self)
+        aqt.exporting.ExportDialog(self)
 
     # Cramming & Sharing
     ##########################################################################
@@ -2005,9 +2007,9 @@ Please give your deck a name:"""))
         return (e, path)
 
     def onCram(self, cardIds=[]):
-        te = ui.tagedit.TagEdit(self)
+        te = aqt.tagedit.TagEdit(self)
         te.setDeck(self.deck, "all")
-        diag = ui.utils.GetTextDialog(
+        diag = aqt.utils.GetTextDialog(
             self, _("Tags to cram:"), help="CramMode", edit=te)
         l = diag.layout()
         g = QGroupBox(_("Review Mode"))
@@ -2045,14 +2047,14 @@ Please give your deck a name:"""))
                 self.deck.getCard() # so scheduler will reset if empty
                 self.moveToState("initial")
             if not self.deck.finishScheduler:
-                ui.utils.showInfo(_("No cards matched the provided tags."))
+                showInfo(_("No cards matched the provided tags."))
 
     def onShare(self, tags):
         pwd = os.getcwd()
         # open tmp deck
         (e, path) = self._copyToTmpDeck(name="shared.anki", tags=tags)
         if not e.exportedCards:
-            ui.utils.showInfo(_("No cards matched the provided tags."))
+            showInfo(_("No cards matched the provided tags."))
             return
         self.deck.startProgress()
         self.deck.updateProgress()
@@ -2145,8 +2147,8 @@ it to your friends.
             locale.setlocale(locale.LC_ALL, '')
         except:
             pass
-        languageDir=os.path.join(ankiqt.modDir, "locale")
-        self.languageTrans = gettext.translation('ankiqt', languageDir,
+        languageDir=os.path.join(aqt.modDir, "locale")
+        self.languageTrans = gettext.translation('aqt', languageDir,
                                             languages=[self.config["interfaceLang"]],
                                             fallback=True)
         self.installTranslation()
@@ -2197,7 +2199,7 @@ it to your friends.
             if interactive:
                 if (not self.config['mediaLocation']
                     and self.deck.db.scalar("select 1 from media limit 1")):
-                    ui.utils.showInfo(_("""\
+                    showInfo(_("""\
 Syncing sounds and images requires a free file synchronization service like \
 DropBox. Click help to learn more, and OK to continue syncing."""),
                                       help="SyncingMedia")
@@ -2212,7 +2214,7 @@ DropBox. Click help to learn more, and OK to continue syncing."""),
             self.syncDecks = self.decksToSync()
             if not self.syncDecks:
                 if interactive:
-                    ui.utils.showInfo(_("""\
+                    showInfo(_("""\
 Please open a deck and run File>Sync. After you do this once, the deck \
 will sync automatically from then on."""))
                 return
@@ -2235,7 +2237,7 @@ will sync automatically from then on."""))
         self.state = "nostate"
         import gc; gc.collect()
         self.mainWin.welcomeText.setText(u"")
-        self.syncThread = ui.sync.Sync(self, u, p, interactive, onlyMerge)
+        self.syncThread = aqt.sync.Sync(self, u, p, interactive, onlyMerge)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
         self.connect(self.syncThread, SIGNAL("moveToState"), self.moveToState)
@@ -2271,7 +2273,7 @@ will sync automatically from then on."""))
         return ok
 
     def onConflict(self, deckName):
-        diag = ui.utils.askUserDialog(_("""\
+        diag = aqt.utils.askUserDialog(_("""\
 <b>%s</b> has been changed on both
 the local and remote side. What do
 you want to do?""" % deckName),
@@ -2288,7 +2290,7 @@ you want to do?""" % deckName),
             self.syncThread.conflictResolution = "cancel"
 
     def onClobber(self, deckName):
-        diag = ui.utils.askUserDialog(_("""\
+        diag = aqt.utils.askUserDialog(_("""\
 You are about to upload <b>%s</b>
 to AnkiOnline. This will overwrite
 the online copy of this deck.
@@ -2351,13 +2353,13 @@ Are you sure?""" % deckName),
             self.syncFinished = True
 
     def selectSyncDeck(self, decks):
-        name = ui.sync.DeckChooser(self, decks).getName()
+        name = aqt.sync.DeckChooser(self, decks).getName()
         self.syncName = name
         if name:
             # name chosen
             p = os.path.join(self.documentDir, name + ".anki")
             if os.path.exists(p):
-                d = ui.utils.askUserDialog(_("""\
+                d = aqt.utils.askUserDialog(_("""\
 This deck already exists on your computer. Overwrite the local copy?"""),
                                          ["Overwrite", "Cancel"])
                 d.setDefault(1)
@@ -2383,7 +2385,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.mainWin.welcomeText.append("<font size=+2>" + text + "</font>")
 
     def syncClockOff(self, diff):
-        ui.utils.showWarning(
+        aqt.utils.showWarning(
             _("The time or date on your computer is not correct.\n") +
             ngettext("It is off by %d second.\n\n",
                 "It is off by %d seconds.\n\n", diff) % diff +
@@ -2393,11 +2395,11 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.onSyncFinished()
 
     def showSyncWarning(self, text):
-        ui.utils.showWarning(text, self)
+        aqt.utils.showWarning(text, self)
         self.setStatus("")
 
     def badUserPass(self):
-        ui.preferences.Preferences(self, self.config).dialog.tabWidget.\
+        aqt.preferences.Preferences(self, self.config).dialog.tabWidget.\
                                          setCurrentIndex(1)
 
     def openSyncProgress(self):
@@ -2422,7 +2424,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             self.syncProgressDialog.setLabelText("Downloading %s..." % fname)
 
     def bulkSyncFailed(self):
-        ui.utils.showWarning(_(
+        aqt.utils.showWarning(_(
             "Failed to upload media. Please run 'check media db'."), self)
 
     def fullSyncStarted(self, max):
@@ -2531,7 +2533,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 
     def updateTitleBar(self):
         "Display the current deck and card count in the titlebar."
-        title=ankiqt.appName
+        title=aqt.appName
         if self.deck != None:
             deckpath = self.deck.name()
             if self.deck.modifiedSinceSave():
@@ -2552,7 +2554,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.mainWin.statusbar.showMessage(text, timeout)
 
     def onStartHere(self):
-        QDesktopServices.openUrl(QUrl(ankiqt.appHelpSite))
+        QDesktopServices.openUrl(QUrl(aqt.appHelpSite))
 
     def updateMarkAction(self):
         self.mainWin.actionMarkCard.blockSignals(True)
@@ -2608,7 +2610,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     ##########################################################################
 
     def setupAutoUpdate(self):
-        self.autoUpdate = ui.update.LatestVersionFinder(self)
+        import aqt.update
+        self.autoUpdate = aqt.update.LatestVersionFinder(self)
         self.connect(self.autoUpdate, SIGNAL("newVerAvail"), self.newVerAvail)
         self.connect(self.autoUpdate, SIGNAL("newMsg"), self.newMsg)
         self.connect(self.autoUpdate, SIGNAL("clockIsOff"), self.clockIsOff)
@@ -2616,17 +2619,17 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 
     def newVerAvail(self, data):
         if self.config['suppressUpdate'] < data['latestVersion']:
-            ui.update.askAndUpdate(self, data)
+            aqt.update.askAndUpdate(self, data)
 
     def newMsg(self, data):
-        ui.update.showMessages(self, data)
+        aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff):
         if diff < 0:
             ret = _("late")
         else:
             ret = _("early")
-        ui.utils.showWarning(
+        aqt.utils.showWarning(
             _("The time or date on your computer is not correct.\n") +
             ngettext("It is %(sec)d second %(type)s.\n",
                 "It is %(sec)d seconds %(type)s.\n", abs(diff))
@@ -2714,7 +2717,7 @@ to work with this version of Anki."""))
                 if os.path.exists(new):
                     os.unlink(new)
                 os.rename(path, new)
-                ui.utils.showInfo(p[1])
+                showInfo(p[1])
 
     def rebuildPluginsMenu(self):
         if getattr(self, "pluginActions", None) is None:
@@ -2819,7 +2822,7 @@ to work with this version of Anki."""))
     ##########################################################################
 
     def setupStyle(self):
-        ui.utils.applyStyles(self)
+        aqt.utils.applyStyles(self)
 
     # Sounds
     ##########################################################################
@@ -2842,7 +2845,7 @@ to work with this version of Anki."""))
             playFromText(self.currentCard.answer)
 
     def onRecordNoiseProfile(self):
-        from ankiqt.ui.sound import recordNoiseProfile
+        from aqt.sound import recordNoiseProfile
         recordNoiseProfile(self)
 
     # Progress info
@@ -2869,7 +2872,7 @@ to work with this version of Anki."""))
         self.setBusy()
         if not self.progressWins:
             parent = self.progressParent or self.app.activeWindow() or self
-            p = ui.utils.ProgressWin(parent, max, min, title, immediate)
+            p = aqt.utils.ProgressWin(parent, max, min, title, immediate)
         else:
             p = None
         self.progressWins.append(p)
@@ -2995,7 +2998,7 @@ to work with this version of Anki."""))
 
     def dropboxFolder(self):
         try:
-            import ankiqt.ui.dropbox as db
+            import aqt.dropbox as db
             p = db.getPath()
         except:
             if sys.platform.startswith("win32"):
@@ -3013,14 +3016,14 @@ to work with this version of Anki."""))
             open(os.path.join(
                 deck.mediaPrefix, "right-click-me.txt"), "w").write("")
             # tell user what to do
-            ui.utils.showInfo(_("""\
+            showInfo(_("""\
 A file called right-click-me.txt has been placed in DropBox's public folder. \
 After clicking OK, this folder will appear. Please right click on the file (\
 command+click on a Mac), choose DropBox>Copy Public Link, and paste the \
 link into Anki."""))
             # open folder and text prompt
             self.onOpenPluginFolder(deck.mediaPrefix)
-            txt = ui.utils.getText(_("Paste path here:"), parent=self)
+            txt = aqt.utils.getText(_("Paste path here:"), parent=self)
             if txt[0]:
                 fail = False
                 if not txt[0].lower().startswith("http"):
@@ -3028,7 +3031,7 @@ link into Anki."""))
                 if not txt[0].lower().endswith("right-click-me.txt"):
                     fail = True
                 if fail:
-                    ui.utils.showInfo(_("""\
+                    showInfo(_("""\
 That doesn't appear to be a public link. You'll be asked again when the deck \
 is next loaded."""))
                 else:
@@ -3045,10 +3048,10 @@ is next loaded."""))
     def onCheckDB(self):
         "True if no problems"
         if self.errorOccurred:
-            ui.utils.showWarning(_(
+            aqt.utils.showWarning(_(
                 "Please restart Anki before checking the DB."))
             return
-        if not ui.utils.askUser(_("""\
+        if not aqt.utils.askUser(_("""\
 This operation will find and fix some common problems.<br>
 <br>
 On the next sync, all cards will be sent to the server.<br>
@@ -3119,12 +3122,12 @@ doubt."""))
             report += "\n" + "\n".join(unused)
         if not report:
             report = _("No unused or missing files found.")
-        ui.utils.showText(report, parent=self, type="text")
+        aqt.utils.showText(report, parent=self, type="text")
 
     def onDownloadMissingMedia(self):
         res = downloadMissing(self.deck)
         if res is None:
-            ui.utils.showInfo(_("No media URL defined for this deck."),
+            showInfo(_("No media URL defined for this deck."),
                               help="MediaSupport")
             return
         if res[0] == True:
@@ -3135,10 +3138,10 @@ doubt."""))
                 msg += "\n" + ngettext("%d missing.", "%d missing.", missing) % missing
         else:
             msg = _("Unable to download %s\nDownload aborted.") % res[1]
-        ui.utils.showInfo(msg)
+        showInfo(msg)
 
     def onLocalizeMedia(self):
-        if not ui.utils.askUser(_("""\
+        if not aqt.utils.askUser(_("""\
 This will look for remote images and sounds on your cards, download them to \
 your media folder, and convert the links to local ones. \
 It can take a long time. Proceed?""")):
@@ -3149,7 +3152,7 @@ It can take a long time. Proceed?""")):
             "%d successfully downloaded.", count) % count
         if len(res[1]):
             msg += "\n\n" + _("Couldn't find:") + "\n" + "\n".join(res[1])
-        ui.utils.showText(msg, parent=self, type="text")
+        aqt.utils.showText(msg, parent=self, type="text")
 
     def addHook(self, *args):
         addHook(*args)

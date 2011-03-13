@@ -4,14 +4,14 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import os, types, socket, time, traceback
-import ankiqt
+import aqt
 import anki
 from anki.sync import SyncClient, HttpSyncServerProxy, copyLocalMedia
 from anki.sync import SYNC_HOST, SYNC_PORT
 from anki.errors import *
 from anki import Deck
 from anki.db import sqlite
-import ankiqt.forms
+import aqt.forms
 from anki.hooks import addHook, removeHook
 
 # Synchronising a deck with a public server
@@ -100,7 +100,7 @@ sync was aborted. Please report this error.""")
         if not self.proxy:
             self.setStatus(_("Connecting..."), 0)
             proxy = HttpSyncServerProxy(self.user, self.pwd)
-            proxy.connect("ankiqt-" + ankiqt.appVersion)
+            proxy.connect("aqt-" + ankiqt.appVersion)
             self.proxy = proxy
             # check clock
             if proxy.timediff > 300:
@@ -297,7 +297,7 @@ class DeckChooser(QDialog):
         QDialog.__init__(self, parent, Qt.Window)
         self.parent = parent
         self.decks = decks
-        self.dialog = ankiqt.forms.syncdeck.Ui_DeckChooser()
+        self.dialog = aqt.forms.syncdeck.Ui_DeckChooser()
         self.dialog.setupUi(self)
         self.dialog.topLabel.setText(_("<h1>Download Personal Deck</h1>"))
         self.decks.sort()
