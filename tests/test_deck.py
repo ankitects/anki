@@ -51,7 +51,7 @@ def test_factAddDelete():
     # try with two cards
     f = deck.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
-    m = f.model
+    m = f.model()
     m.templates[1]['actv'] = True
     m.flush()
     n = deck.addFact(f)
@@ -64,7 +64,7 @@ def test_factAddDelete():
         assert not p
     # now let's make a duplicate and test uniqueness
     f2 = deck.newFact()
-    f2.model.fields[1]['req'] = True
+    f2.model().fields[1]['req'] = True
     f2['Front'] = u"one"; f2['Back'] = u""
     p = f2.problems()
     assert p[0] == "unique"
@@ -100,15 +100,16 @@ def test_fieldChecksum():
     assert deck.db.scalar(
         "select csum from fsums") == int("4b0e5a4c", 16)
     # turning off unique and modifying the fact should delete the sum
-    f.model.fields[0]['uniq'] = False
-    f.model.flush()
+    m = f.model()
+    m.fields[0]['uniq'] = False
+    m.flush()
     f.flush()
     assert deck.db.scalar(
         "select count() from fsums") == 0
     # and turning on both should ensure two checksums generated
-    f.model.fields[0]['uniq'] = True
-    f.model.fields[1]['uniq'] = True
-    f.model.flush()
+    m.fields[0]['uniq'] = True
+    m.fields[1]['uniq'] = True
+    m.flush()
     f.flush()
     assert deck.db.scalar(
         "select count() from fsums") == 2

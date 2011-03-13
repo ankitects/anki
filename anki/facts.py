@@ -17,14 +17,14 @@ class Fact(object):
             self.load()
         else:
             self.id = None
-            self.model = model
+            self._model = model
             self.mid = model.id
             self.crt = intTime()
             self.mod = self.crt
             self.tags = ""
-            self._fields = [""] * len(self.model.fields)
+            self._fields = [""] * len(self._model.fields)
             self.data = ""
-        self._fmap = self.model.fieldMap()
+        self._fmap = self._model.fieldMap()
 
     def load(self):
         (self.mid,
@@ -35,12 +35,12 @@ class Fact(object):
          self.data) = self.deck.db.first("""
 select mid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         self._fields = splitFields(self._fields)
-        self.model = self.deck.getModel(self.mid)
+        self._model = self.deck.getModel(self.mid)
 
     def flush(self):
         self.mod = intTime()
         # facts table
-        sfld = self._fields[self.model.sortIdx()]
+        sfld = self._fields[self._model.sortIdx()]
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.mid, self.crt,
@@ -70,7 +70,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
             "select id from cards where fid = ? order by id", self.id)]
 
     def model(self):
-        return self.deck.getModel(self.mid)
+        return self._model
 
     # Dict interface
     ##################################################

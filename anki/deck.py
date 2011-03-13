@@ -229,14 +229,15 @@ select id from facts where id not in (select distinct fid from cards)""")
     def findTemplates(self, fact, checkActive=True):
         "Return (active), non-empty templates."
         ok = []
-        for template in fact.model.templates:
+        model = fact.model()
+        for template in model.templates:
             if template['actv'] or not checkActive:
                 # [cid, fid, mid, gid, ord, tags, flds, data]
-                data = [1, 1, fact.model.id, 1, template['ord'],
+                data = [1, 1, model.id, 1, template['ord'],
                         "", fact.joinedFields(), ""]
-                now = self._renderQA(fact.model, "", data)
+                now = self._renderQA(model, "", data)
                 data[6] = "\x1f".join([""]*len(fact._fields))
-                empty = self._renderQA(fact.model, "", data)
+                empty = self._renderQA(model, "", data)
                 if now['q'] == empty['q']:
                     continue
                 if not template['emptyAns']:
@@ -277,7 +278,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         elif type == 1:
             cms = [c.template() for c in fact.cards()]
         else:
-            cms = fact.model.templates
+            cms = fact.model().templates
         if not cms:
             return []
         cards = []
