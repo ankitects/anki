@@ -242,7 +242,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         cids = self.deck.db.list("""
 select c.id from cards c, facts f where c.fid=f.id and mid = ? and ord = ?""",
                                  self.id, ord)
-        self.deck.deleteCards(cids)
+        self.deck.delCards(cids)
         # shift ordinals
         self.deck.db.execute("""
 update cards set ord = ord - 1 where fid in (select id from facts

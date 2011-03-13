@@ -5,7 +5,7 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import stripHTMLMedia, fieldChecksum, intTime, \
-    addTags, deleteTags, joinFields, splitFields, ids2str, parseTags
+    addTags, delTags, joinFields, splitFields, ids2str, parseTags
 
 class Fact(object):
 
@@ -103,8 +103,8 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
     def addTags(self, tags):
         self.tags = addTags(tags, self.tags)
 
-    def deleteTags(self, tags):
-        self.tags = deleteTags(tags, self.tags)
+    def delTags(self, tags):
+        self.tags = delTags(tags, self.tags)
 
     # Unique/duplicate checks
     ##################################################

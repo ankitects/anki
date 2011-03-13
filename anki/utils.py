@@ -242,7 +242,7 @@ def addTags(addtags, tags):
             currentTags.append(tag)
     return joinTags(currentTags)
 
-def deleteTags(deltags, tags):
+def delTags(deltags, tags):
     "Delete tags if they don't exists."
     currentTags = parseTags(tags)
     for tag in parseTags(deltags):

@@ -35,6 +35,6 @@ def test_findCards():
     assert (len(deck.findCards("tag:foo")) ==
             len(deck.findCards("tag:bar")) ==
             3)
-    deck.deleteTags(deck.db.list("select id from cards"), "foo")
+    deck.delTags(deck.db.list("select id from cards"), "foo")
     assert len(deck.findCards("tag:foo")) == 0
     assert len(deck.findCards("tag:bar")) == 3

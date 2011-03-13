@@ -74,11 +74,11 @@ def test_factAddDelete():
     id1 = cards[0].id; id2 = cards[1].id
     assert deck.cardCount() == 2
     assert deck.factCount() == 1
-    deck.deleteCard(id1)
+    deck.delCard(id1)
     assert deck.cardCount() == 1
     assert deck.factCount() == 1
     # and the second should clear the fact
-    deck.deleteCard(id2)
+    deck.delCard(id2)
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
 

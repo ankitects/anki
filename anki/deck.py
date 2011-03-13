@@ -6,7 +6,7 @@ import time, os, random, re, stat, simplejson
 
 from anki.lang import _, ngettext
 from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
-     checksum, fieldChecksum, addTags, deleteTags, stripHTML, intTime, \
+     checksum, fieldChecksum, addTags, delTags, stripHTML, intTime, \
      splitFields
 from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
@@ -208,7 +208,7 @@ qconf=?, conf=?, data=?""",
             ncards += 1
         return ncards
 
-    def _deleteFacts(self, ids):
+    def _delFacts(self, ids):
         "Bulk delete facts by ID. Don't call this directly."
         if not ids:
             return
@@ -216,11 +216,11 @@ qconf=?, conf=?, data=?""",
         self.db.execute("delete from facts where id in %s" % strids)
         self.db.execute("delete from fsums where fid in %s" % strids)
 
-    def _deleteDanglingFacts(self):
+    def _delDanglingFacts(self):
         "Delete any facts without cards. Don't call this directly."
         ids = self.db.list("""
 select id from facts where id not in (select distinct fid from cards)""")
-        self._deleteFacts(ids)
+        self._delFacts(ids)
         return ids
 
     # Card creation
@@ -304,11 +304,11 @@ select id from facts where id not in (select distinct fid from cards)""")
     def cardCount(self):
         return self.db.scalar("select count() from cards where crt != 0")
 
-    def deleteCard(self, id):
+    def delCard(self, id):
         "Delete a card given its id. Delete any unused facts."
-        self.deleteCards([id])
+        self.delCards([id])
 
-    def deleteCards(self, ids):
+    def delCards(self, ids):
         "Bulk delete cards by ID."
         if not ids:
             return
@@ -319,7 +319,7 @@ select id from facts where id not in (select distinct fid from cards)""")
             self.db.execute("delete from cards where id in %s" % sids)
             self.db.execute("delete from revlog where cid in %s" % sids)
             # remove any dangling facts
-            self._deleteDanglingFacts()
+            self._delDanglingFacts()
         else:
             # trash
             sfids = ids2str(
@@ -426,12 +426,12 @@ where id = :id""", vals)
         model.flush()
         self.conf['currentModelId'] = model.id
 
-    def deleteModel(self, mid):
+    def delModel(self, mid):
         "Delete MODEL, and all its cards/facts."
         # do a direct delete
         self.modSchema()
         # delete facts/cards
-        self.deleteCards(self.db.list("""
+        self.delCards(self.db.list("""
 select id from cards where fid in (select id from facts where mid = ?)""",
                                       mid))
         # then the model
@@ -569,7 +569,7 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
             fn = addTags
         else:
             l = "tags "
-            fn = deleteTags
+            fn = delTags
         lim = " or ".join(
             [l+"like :_%d" % c for c, t in enumerate(newTags)])
         res = self.db.all(
@@ -586,7 +586,7 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
         self.registerTags(parseTags(tags))
         self.finishProgress()
 
-    def deleteTags(self, ids, tags):
+    def delTags(self, ids, tags):
         self.addTags(ids, tags, False)
 
     # Finding cards

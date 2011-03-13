@@ -57,7 +57,7 @@ def test_delete():
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
     assert deck.db.scalar("select count() from revlog") == 1
-    deck.deleteCard(cid)
+    deck.delCard(cid)
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
     assert deck.db.scalar("select count() from facts") == 0
@@ -71,7 +71,7 @@ def test_delete():
     deck.lastSync = deck.schema + 1
     # cards/facts should go in the deletion log instead
     cid = f.cards()[0].id
-    deck.deleteCard(cid)
+    deck.delCard(cid)
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
     assert deck.db.scalar("select count() from facts") == 1
