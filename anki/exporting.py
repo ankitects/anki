@@ -4,12 +4,11 @@
 
 import itertools, time, re, os, HTMLParser
 from operator import itemgetter
-from anki import DeckStorage
+from anki import Deck
 from anki.cards import Card
 from anki.sync import SyncClient, SyncServer, copyLocalMedia
 from anki.lang import _
 from anki.utils import parseTags, stripHTML, ids2str
-from anki.tags import tagIds
 
 class Exporter(object):
     def __init__(self, deck):
