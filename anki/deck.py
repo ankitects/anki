@@ -317,6 +317,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         if self.schemaDirty():
             # immediate delete?
             self.db.execute("delete from cards where id in %s" % sids)
+            self.db.execute("delete from revlog where cid in %s" % sids)
             # remove any dangling facts
             self._deleteDanglingFacts()
         else:
