@@ -8,7 +8,6 @@ from anki.lang import _
 
 # Models
 ##########################################################################
-# GUI code should ensure no two fields have the same name.
 
 defaultConf = {
     'sortf': 0,

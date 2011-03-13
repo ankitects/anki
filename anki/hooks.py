@@ -6,7 +6,7 @@
 Hooks - hook management and tools for extending Anki
 ==============================================================================
 
-To find available hooks, grep for runHook in the source code.
+To find available hooks, grep for runHook and runFilter in the source code.
 
 Instrumenting allows you to modify functions that don't have hooks available.
 If you call wrap() with pos='around', the original function will not be called

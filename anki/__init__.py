@@ -15,11 +15,15 @@ Get a due card:
 
 Show the card:
 
-    print card.q, card.a
+    print card.q(), card.a()
 
 Answer the card:
 
     deck.sched.answerCard(card, ease)
+
+Refresh after a change:
+
+    deck.reset()
 
 Edit the card:
 
@@ -33,5 +37,5 @@ Save & close:
     deck.close()
 """
 
-version = "1.2.6"
+version = "1.99"
 from anki.storage import Deck
