@@ -173,7 +173,7 @@ class Preferences(QDialog):
                      self.onOpenBackup)
 
     def onOpenBackup(self):
-        path = os.path.join(self.config.configPath, "backups")
+        path = os.path.join(self.config.confDir, "backups")
         if sys.platform == "win32":
             anki.utils.call(["explorer", path.encode(
                 sys.getfilesystemencoding())],
@@ -213,8 +213,6 @@ class Preferences(QDialog):
         self.dialog.showTimer.setChecked(self.config['showTimer'])
         self.dialog.showDivider.setChecked(self.config['qaDivider'])
         self.dialog.splitQA.setChecked(self.config['splitQA'])
-        self.dialog.addZeroSpace.setChecked(self.config['addZeroSpace'])
-        self.dialog.alternativeTheme.setChecked(self.config['alternativeTheme'])
         self.dialog.showProgress.setChecked(self.config['showProgress'])
         self.dialog.openLastDeck.setChecked(self.config['loadLastDeck'])
         self.dialog.deckBrowserOrder.setChecked(self.config['deckBrowserOrder'])
@@ -232,10 +230,7 @@ class Preferences(QDialog):
         self.config['showStudyScreen'] = self.dialog.showStudyOptions.isChecked()
         self.config['qaDivider'] = self.dialog.showDivider.isChecked()
         self.config['splitQA'] = self.dialog.splitQA.isChecked()
-        self.config['addZeroSpace'] = self.dialog.addZeroSpace.isChecked()
-        self.config['alternativeTheme'] = self.dialog.alternativeTheme.isChecked()
         self.config['showProgress'] = self.dialog.showProgress.isChecked()
-        self.config['preventEditUntilAnswer'] = self.dialog.preventEdits.isChecked()
         self.config['stripHTML'] = self.dialog.stripHTML.isChecked()
         self.config['autoplaySounds'] = self.dialog.autoplaySounds.isChecked()
         self.config['loadLastDeck'] = self.dialog.openLastDeck.isChecked()

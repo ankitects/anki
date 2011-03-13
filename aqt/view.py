@@ -254,9 +254,6 @@ class View(object):
 
     def mungeQA(self, deck, txt):
         txt = mungeQA(deck, txt)
-        # hack to fix thai presentation issues
-        if self.main.config['addZeroSpace']:
-            txt = txt.replace("</span>", "&#8203;</span>")
         return txt
 
     def onLoadFinished(self, bool):

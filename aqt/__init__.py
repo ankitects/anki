@@ -123,7 +123,7 @@ def run():
         if 'APPDATA' in os.environ:
             os.environ['HOME'] = os.environ['APPDATA']
         else:
-            os.environ['HOME'] = "c:\\anki"
+            mustQuit = True
         # make and check accessible
         try:
             os.makedirs(os.path.expanduser("~/.anki"))

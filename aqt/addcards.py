@@ -22,10 +22,7 @@ class FocusButton(QPushButton):
 class AddCards(QDialog):
 
     def __init__(self, parent):
-        if parent.config['standaloneWindows']:
-            windParent = None
-        else:
-            windParent = parent
+        windParent = None
         QDialog.__init__(self, windParent, Qt.Window)
         self.parent = parent
         ui.utils.applyStyles(self)

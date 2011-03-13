@@ -262,7 +262,7 @@ def mungeQA(deck, txt):
 
 def applyStyles(widget):
     try:
-        styleFile = open(os.path.join(aqt.mw.config.configPath,
+        styleFile = open(os.path.join(aqt.mw.config.confDir,
                                       "style.css"))
         widget.setStyleSheet(styleFile.read())
     except (IOError, OSError):

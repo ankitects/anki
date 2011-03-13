@@ -342,10 +342,7 @@ class StatusDelegate(QItemDelegate):
 class EditDeck(QMainWindow):
 
     def __init__(self, parent):
-        if parent.config['standaloneWindows']:
-            windParent = None
-        else:
-            windParent = parent
+        windParent = None
         QMainWindow.__init__(self, windParent)
         applyStyles(self)
         self.parent = parent

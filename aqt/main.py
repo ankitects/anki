@@ -594,10 +594,7 @@ counts are %d %d %d
         self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("showAnswer"))
         if sys.platform.startswith("win32"):
-            if self.config['alternativeTheme']:
-                self.mainWin.showAnswerButton.setFixedWidth(370)
-            else:
-                self.mainWin.showAnswerButton.setFixedWidth(358)
+            self.mainWin.showAnswerButton.setFixedWidth(358)
         else:
             self.mainWin.showAnswerButton.setFixedWidth(351)
         self.mainWin.showAnswerButton.setFixedHeight(41)
@@ -1309,9 +1306,6 @@ your deck."""))
                     focusButton = openButton
                 # more
                 moreButton = QPushButton(_("More"))
-                if sys.platform.startswith("win32") and \
-                   self.config['alternativeTheme']:
-                        moreButton.setFixedHeight(24)
                 moreMenu = QMenu()
                 a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
                                        _("Hide From List"))
@@ -1549,7 +1543,7 @@ not be touched.""") %
                      SIGNAL("clicked()"), self.onNewCategoriesClicked)
         self.connect(self.mainWin.revCategories,
                      SIGNAL("clicked()"), self.onRevCategoriesClicked)
-        self.mainWin.tabWidget.setCurrentIndex(self.config['studyOptionsScreen'])
+        self.mainWin.tabWidget.setCurrentIndex(self.config['studyOptionsTab'])
 
     def onNewCategoriesClicked(self):
         aqt.activetags.show(self, "new")
@@ -1706,13 +1700,6 @@ not be touched.""") %
 <tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
-        # if (not dyest and not dtoday) or not self.config['showStudyStats']:
-        #     self.haveYesterday = False
-        #     stats1 = ""
-        # else:
-        #     self.haveYesterday = True
-        #     stats1 = (
-        #         "<td>%s</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>" % stats1)
         self.mainWin.optionsLabel.setText("""\
 <p><table><tr>
 %s
@@ -1790,7 +1777,7 @@ learnt today")
         self.deck.reset()
         if not self.deck.finishScheduler:
             self.deck.startTimebox()
-        self.config['studyOptionsScreen'] = self.mainWin.tabWidget.currentIndex()
+        self.config['studyOptionsTab'] = self.mainWin.tabWidget.currentIndex()
         self.moveToState("getQuestion")
 
     def onStudyOptions(self):
@@ -2137,8 +2124,7 @@ it to your friends.
             self.mainWin.retranslateUi(self)
         anki.lang.setLang(self.config["interfaceLang"], local=False)
         self.updateTitleBar()
-        if self.config['interfaceLang'] in ("he","ar","fa") and \
-               not self.config['forceLTR']:
+        if self.config['interfaceLang'] in ("he","ar","fa"):
             self.app.setLayoutDirection(Qt.RightToLeft)
         else:
             self.app.setLayoutDirection(Qt.LeftToRight)
@@ -2565,10 +2551,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 	self.mainWin.actionSuspendCard.setEnabled(True)
 	self.mainWin.actionDelete.setEnabled(True)
 	self.mainWin.actionBuryFact.setEnabled(True)
-        enableEdits = (not self.config['preventEditUntilAnswer'] or
-                       self.state != "getQuestion")
-        self.mainWin.actionEditCurrent.setEnabled(enableEdits)
-        self.mainWin.actionEditdeck.setEnabled(enableEdits)
+        self.mainWin.actionEditCurrent.setEnabled(True)
+        self.mainWin.actionEditdeck.setEnabled(True)
         runHook("enableCardMenuItems")
 
     def maybeEnableUndo(self):
@@ -2635,7 +2619,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     ##########################################################################
 
     def pluginsFolder(self):
-        dir = self.config.configPath
+        dir = self.config.confDir
         if sys.platform.startswith("win32"):
             dir = dir.encode(sys.getfilesystemencoding())
         return os.path.join(dir, "plugins")
@@ -2809,7 +2793,7 @@ to work with this version of Anki."""))
 
     def setupSound(self):
         anki.sound.noiseProfile = os.path.join(
-            self.config.configPath, "noise.profile").\
+            self.config.confDir, "noise.profile").\
             encode(sys.getfilesystemencoding())
         anki.sound.checkForNoiseProfile()
         if sys.platform.startswith("darwin"):

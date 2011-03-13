@@ -34,6 +34,7 @@ class StatusView(object):
         self.timer = None
         self.timerFlashStart = 0
         self.thinkingTimer = QTimer(parent)
+        print "show timer"
         self.thinkingTimer.start(1000)
         parent.connect(self.thinkingTimer, SIGNAL("timeout()"),
                        self.drawTimer)

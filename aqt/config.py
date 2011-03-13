@@ -3,132 +3,126 @@
 
 # User configuration handling
 ##########################################################################
+# The majority of the config is serialized into a string, both for easy access
+# and backwards compatibility. A separate table keeps track of seen decks, so
+# that multiple instances can update the recent decks list.
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-import os, sys, cPickle, locale, types, shutil, time, re, random
+import os, sys, time, random, cPickle
+from anki.db import DB
 
-# compatability
-def unpickleWxFont(*args):
-    pass
-def pickleWxFont(*args):
-    pass
+defaultConf = {
+    'confVer': 3,
+    # remove?
+    'colourTimes': True,
+    'deckBrowserNameLength': 30,
+    'deckBrowserOrder': 0,
+    'deckBrowserRefreshPeriod': 3600,
+    'factEditorAdvanced': False,
+    'showStudyScreen': True,
 
-class Config(dict):
+    'recentDeckPaths': [],
+    'interfaceLang': "en",
 
-    configDbName = "config.db"
+    'autoplaySounds': True,
+    'checkForUpdates': True,
+    'created': time.time(),
+    'deleteMedia': False,
+    'documentDir': u"",
+    'dropboxPublicFolder': u"",
+    'editFontFamily': 'Arial',
+    'editFontSize': 12,
+    'editLineSize': 20,
+    'editorReverseOrder': False,
+    'iconSize': 32,
+    'id': random.randrange(0, 2**63),
+    'lastMsg': -1,
+    'loadLastDeck': False,
+    'mainWindowGeom': None,
+    'mainWindowState': None,
+    'mediaLocation': "",
+    'numBackups': 30,
+    'optimizeSmall': False,
+    'preserveKeyboard': True,
+    'proxyHost': '',
+    'proxyPass': '',
+    'proxyPort': 8080,
+    'proxyUser': '',
+    'qaDivider': True,
+    'recentColours': ["#000000", "#0000ff"],
+    'repeatQuestionAudio': True,
+    'scrollToAnswer': True,
+    'showCardTimer': True,
+    'showProgress': True,
+    'showTimer': True,
+    'showToolbar': True,
+    'showTrayIcon': False,
+    'splitQA': True,
+    'stripHTML': True,
+    'studyOptionsTab': 0,
+    'suppressEstimates': False,
+    'suppressUpdate': False,
+    'syncDisableWhenMoved': True,
+    'syncOnLoad': False,
+    'syncOnProgramOpen': True,
+    'syncPassword': "",
+    'syncUsername': "",
+}
 
-    def __init__(self, configPath):
-        self.configPath = configPath
-        if sys.platform == "win32":
-            if self.configPath.startswith("~"):
-                # windows sucks
-                self.configPath = "c:\\anki"
-        elif sys.platform.startswith("darwin"):
-            if self.configPath == os.path.expanduser("~/.anki"):
-                oldDb = self.getDbPath()
-                self.configPath = os.path.expanduser(
+class Config(object):
+    configDbName = "ankiprefs.db"
+
+    def __init__(self, confDir):
+        self.confDir = confDir
+        self._conf = {}
+        if sys.platform.startswith("darwin") and (
+            self.confDir == os.path.expanduser("~/.anki")):
+            self.confDir = os.path.expanduser(
                     "~/Library/Application Support/Anki")
-                # upgrade?
-                if (not os.path.exists(self.configPath) and
-                    os.path.exists(oldDb)):
-                    self.makeAnkiDir()
-                    newDb = self.getDbPath()
-                    shutil.copy2(oldDb, newDb)
-        self.makeAnkiDir()
+        self._addAnkiDirs()
         self.load()
 
-    def defaults(self):
-        fields = {
-            'addZeroSpace': False,
-            'alternativeTheme': False,
-            'autoplaySounds': True,
-            'checkForUpdates': True,
-            'colourTimes': True,
-            'created': time.time(),
-            'deckBrowserNameLength': 30,
-            'deckBrowserOrder': 0,
-            'deckBrowserRefreshPeriod': 3600,
-            'deleteMedia': False,
-            'documentDir': u"",
-            'dropboxPublicFolder': u"",
-            'editFontFamily': 'Arial',
-            'editFontSize': 12,
-            'editLineSize': 20,
-            'editorReverseOrder': False,
-            'extraNewCards': 5,
-            'factEditorAdvanced': False,
-            'forceLTR': False,
-            'iconSize': 32,
-            'id': random.randrange(0, 2**63),
-            'interfaceLang': "",
-            'lastMsg': -1,
-            'loadLastDeck': False,
-            'mainWindowGeom': None,
-            'mainWindowState': None,
-            # one of empty, 'dropbox', or path used as prefix
-            'mediaLocation': "",
-            'mainWindowState': None,
-            'numBackups': 30,
-            'optimizeSmall': False,
-            'preserveKeyboard': True,
-            'preventEditUntilAnswer': False,
-            'proxyHost': '',
-            'proxyPass': '',
-            'proxyPort': 8080,
-            'proxyUser': '',
-            'qaDivider': True,
-            'randomizeOnCram': True,
-            'recentColours': ["#000000", "#0000ff"],
-            'recentDeckPaths': [],
-            'repeatQuestionAudio': True,
-            'saveAfterAdding': True,
-            'saveAfterAddingNum': 1,
-            'saveAfterAnswer': True,
-            'saveAfterAnswerNum': 10,
-            'saveOnClose': True,
-            'scrollToAnswer': True,
-            'showCardTimer': True,
-            'showFontPreview': False,
-            'showLastCardContent': False,
-            'showLastCardInterval': False,
-            'showProgress': True,
-            'showStudyScreen': True,
-            'showStudyStats': True,
-            'showTimer': True,
-            'showToolbar': True,
-            'showTrayIcon': False,
-            'sortIndex': 0,
-            'splitQA': True,
-            'standaloneWindows': True,
-            'stripHTML': True,
-            'studyOptionsScreen': 0,
-            'suppressEstimates': False,
-            'suppressUpdate': False,
-            'syncDisableWhenMoved': True,
-            'syncInMsgBox': False,
-            'syncOnLoad': False,
-            'syncOnProgramOpen': True,
-            'syncPassword': "",
-            'syncUsername': "",
-            }
-        # disable sync on deck load when upgrading
-        if not self.has_key("syncOnProgramOpen"):
-            self['syncOnLoad'] = False
-            self['syncOnClose'] = False
-        for (k,v) in fields.items():
-            if not self.has_key(k):
+    # dict interface
+    def get(self, *args):
+        return self._conf.get(*args)
+    def __getitem__(self, key):
+        return self._conf[key]
+    def __setitem__(self, key, val):
+        self._conf[key] = val
+    def __contains__(self, key):
+        return self._conf.__contains__(key)
+
+    # load/save
+    def load(self):
+        path = self._dbPath()
+        self.db = DB(path, level=None, text=str)
+        self.db.executescript("""
+create table if not exists recentDecks (path not null);
+create table if not exists config (conf text not null);
+insert or ignore into config values ('');""")
+        conf = self.db.scalar("select conf from config")
+        if conf:
+            self._conf.update(cPickle.loads(conf))
+        else:
+            self._conf.update(defaultConf)
+        self._addDefaults()
+
+    def save(self):
+        self.db.execute("update config set conf = ?",
+                        cPickle.dumps(self._conf))
+        self.db.commit()
+
+    def _addDefaults(self):
+        if self.get('confVer') >= defaultConf['confVer']:
+            return
+        for (k,v) in defaultConf.items():
+            if k not in self:
                 self[k] = v
-        if not self['interfaceLang']:
-            # guess interface and target languages
-            (lang, enc) = locale.getdefaultlocale()
-            self['interfaceLang'] = lang
 
-    def getDbPath(self):
-        return os.path.join(self.configPath, self.configDbName)
+    def _dbPath(self):
+        return os.path.join(self.confDir, self.configDbName)
 
-    def makeAnkiDir(self):
-        base = self.configPath
+    def _addAnkiDirs(self):
+        base = self.confDir
         for x in (base,
                   os.path.join(base, "plugins"),
                   os.path.join(base, "backups")):
@@ -137,41 +131,9 @@ class Config(dict):
             except:
                 pass
 
-    def save(self):
-        path = self.getDbPath()
-        # write to a temp file
-        from tempfile import mkstemp
-        (fd, tmpname) = mkstemp(dir=os.path.dirname(path))
-        tmpfile = os.fdopen(fd, 'w')
-        cPickle.dump(dict(self), tmpfile)
-        tmpfile.close()
-        # the write was successful, delete config file (if exists) and rename
-        if os.path.exists(path):
-            os.unlink(path)
-        os.rename(tmpname, path)
-
-    def fixLang(self, lang):
-        if lang and lang not in ("pt_BR", "zh_CN", "zh_TW"):
-            lang = re.sub("(.*)_.*", "\\1", lang)
-        if not lang:
-            lang = "en"
-        return lang
-
-    def load(self):
-        base = self.configPath
-        db = self.getDbPath()
-        # load config
-        try:
-            f = open(db)
-            self.update(cPickle.load(f))
-        except:
-            # config file was corrupted previously
+    def _importOldData(self):
+        # compatability
+        def unpickleWxFont(*args):
             pass
-        self.defaults()
-        # fix old recent deck path list
-        for n in range(len(self['recentDeckPaths'])):
-            s = self['recentDeckPaths'][n]
-            if not isinstance(s, types.UnicodeType):
-                self['recentDeckPaths'][n] = unicode(s, sys.getfilesystemencoding())
-        # fix locale settings
-        self["interfaceLang"] = self.fixLang(self["interfaceLang"])
+        def pickleWxFont(*args):
+            pass
