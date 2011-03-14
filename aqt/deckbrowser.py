@@ -24,9 +24,7 @@ _body = """
 %s
 </table>
 <br>
-<div id="today">
-</div>
-<a href="#" onClick="py.run('full');">show today's stats</a>
+%s
 </div>
 """
 
@@ -62,7 +60,7 @@ class DeckBrowser(object):
             buf = ""
             for c, deck in enumerate(self._decks):
                 buf += self._deckRow(c, deck)
-            self.web.stdHtml(_body%(_("Decks"), buf), _css)
+            self.web.stdHtml(_body%(_("Decks"), buf, self._summary()), _css)
         else:
             buf = ("""\
 <br>
@@ -177,7 +175,7 @@ later by using File>Close.
         # self.moreMenus.append(moreMenu)
         return ""
 
-    def onFull(self):
+    def _summary(self):
         # summarize
         reps = 0
         mins = 0
@@ -203,7 +201,7 @@ later by using File>Close.
         new = ngettext("<b>%d</b> new card", "<b>%d</b> new cards", newC) % newC
         line2 = _("Due: %(rev)s, %(new)s") % {
             'rev': rev, 'new': new}
-        return self.web.eval("$('#today').html('%s');" % (line1+"<br>"+line2))
+        return line1+'<br>'+line2
 
     def _checkDecks(self, forget=False):
         self._decks = []
