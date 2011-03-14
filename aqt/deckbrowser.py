@@ -19,7 +19,7 @@ hr { margin: 5 0 5 0; }
 a:hover { background-color: #aaa; }
 a { color: #000; text-decoration: none; }
 .num { text-align: right; padding: 0 5 0 5; }
-td.opts { text-align: right; }
+td.opts { text-align: right; white-space: nowrap; }
 a.opts { font-size: 80%; padding: 2; background-color: #ccc; border-radius: 2px; }
 """
 
@@ -236,7 +236,7 @@ later by using File>Close.
             try:
                 mod = os.stat(d)[stat.ST_MTIME]
                 t = time.time()
-                deck = Deck(d)
+                deck = Deck(d, lock=False)
                 counts = deck.sched.counts()
                 dtime = deck.sched.timeToday()
                 dreps = deck.sched.repsToday()
@@ -251,7 +251,7 @@ later by using File>Close.
                     'time': dtime,
                     'reps': dreps
                     })
-                deck.close()
+                deck.close(save=False)
                 # reset modification time for the sake of backup systems
                 try:
                     os.utime(d, (mod, mod))

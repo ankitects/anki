@@ -98,12 +98,14 @@ class Config(object):
         self.db.executescript("""
 create table if not exists decks (path text primary key);
 create table if not exists config (conf text not null);
-insert or ignore into config values ('');""")
+""")
         conf = self.db.scalar("select conf from config")
         if conf:
             self._conf.update(cPickle.loads(conf))
         else:
             self._conf.update(defaultConf)
+            # ensure there's something to update
+            self.db.execute("insert or ignore into config values ('')")
         self._addDefaults()
 
     def save(self):
