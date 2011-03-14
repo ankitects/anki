@@ -113,9 +113,14 @@ qconf=?, conf=?, data=?""",
             simplejson.dumps(self.conf), simplejson.dumps(self.data))
 
     def save(self):
-        "Flush, then commit DB."
+        "Flush, commit DB, and take out another write lock."
         self.flush()
         self.db.commit()
+        self.lock()
+
+    def lock(self):
+        self.db.execute("begin exclusive")
+        self.db.execute("update deck set mod=mod")
 
     def close(self, save=True):
         "Disconnect from DB."
@@ -135,6 +140,7 @@ qconf=?, conf=?, data=?""",
 
     def rollback(self):
         self.db.rollback()
+        self.lock()
 
     def modSchema(self):
         if not self.schemaDirty():

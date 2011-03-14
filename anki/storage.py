@@ -34,6 +34,7 @@ def Deck(path, queue=True):
     elif create:
         deck.addModel(BasicModel(deck))
         deck.save()
+    deck.lock()
     if not queue:
         return deck
     # rebuild queue
