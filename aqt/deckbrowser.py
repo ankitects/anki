@@ -2,18 +2,25 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, os, stat
+import time, os, stat, shutil
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki import Deck
 from anki.utils import fmtTimeSpan
 from anki.hooks import addHook
+import aqt
+#from aqt.utils import askUser
 
 _css = """
 body { background-color: #eee; }
 #outer { margin-top: 1em; }
 .sub { color: #555; }
 hr { margin: 5 0 5 0; }
+a:hover { background-color: #aaa; }
+a { color: #000; text-decoration: none; }
+.num { text-align: right; padding: 0 5 0 5; }
+td.opts { text-align: right; }
+a.opts { font-size: 80%; padding: 2; background-color: #ccc; border-radius: 2px; }
 """
 
 _body = """
@@ -25,6 +32,8 @@ _body = """
 </table>
 <br><br>
 %s
+<p>
+Click a deck to open it, or press the number/letter next to it.
 </div>
 """
 
@@ -37,18 +46,30 @@ class DeckBrowser(object):
         self._decks = []
         addHook("deckClosing", self.onClose)
 
-    def _bridge(self, str):
-        if str == "refresh":
-            pass
-        elif str == "full":
-            self.onFull()
+    def _linkHandler(self, url):
+        (cmd, arg) = url.split(":")
+        if cmd == "open":
+            deck = self._decks[int(arg)]['path']
+            self.mw.loadDeck(deck)
+        elif cmd == "opts":
+            self._optsForRow(int(arg))
 
-    def _link(self, url):
-        pass
+    def _keyHandler(self, evt):
+        txt = evt.text()
+        if ((txt >= "0" and txt <= "9") or
+            (txt >= "a" and txt <= "z")):
+            self._openAccel(txt)
+            evt.accept()
+        evt.ignore()
+
+    def _openAccel(self, txt):
+        for d in self._decks:
+            if d['accel'] == txt:
+                self.mw.loadDeck(d['path'])
 
     def show(self):
-        self.web.setBridge(self._bridge)
-        self.web.setLinkHandler(self._link)
+        self.web.setLinkHandler(self._linkHandler)
+        self.mw.setKeyHandler(self._keyHandler)
         if (time.time() - self._browserLastRefreshed >
             self.mw.config['deckBrowserRefreshPeriod']):
             t = time.time()
@@ -91,22 +112,18 @@ later by using File>Close.
 
     def _deckRow(self, c, max, deck):
         buf = "<tr>"
-        # name and status
         ok = deck['state'] == 'ok'
+        def accelName(deck):
+            if deck['accel']:
+                return "%s. " % deck['accel']
+            return ""
         if ok:
-            sub = _("%s ago") % fmtTimeSpan(
-                time.time() - deck['mod'])
-        elif deck['state'] == 'missing':
-            sub = _("(moved or removed)")
-        elif deck['state'] == 'corrupt':
-            sub = _("(corrupt)")
-        elif deck['state'] == 'in use':
-            sub = _("(already open)")
-        sub = "<font size=-1>%s</font>" % sub
-        buf += "<td><b>%s</b><br><span class=sub>%s</span></td>" % (deck['name'], sub)
-        if ok:
+            # name/link
+            buf += "<td>%s<b>%s</b></td>" % (
+            accelName(deck),
+            "<a href='open:%d'>%s</a>"%(c, deck['name']))
             # due
-            col = '<td><b><font color=#0000ff>%s</font></b></td>'
+            col = '<td class=num><b><font color=#0000ff>%s</font></b></td>'
             if deck['due'] > 0:
                 s = col % str(deck['due'])
             else:
@@ -117,46 +134,40 @@ later by using File>Close.
                 s = str(deck['new'])
             else:
                 s = ""
-            buf += "<td>%s</td>" % s
+            buf += "<td class=num>%s</td>" % s
         else:
-            buf += "<td></td><td></td>"
-        # open
-        # openButton = QPushButton(_("Open"))
-        # if c < 9:
-        #     if sys.platform.startswith("darwin"):
-        #         extra = ""
-        #         # appears to be broken on osx
-        #         #extra = _(" (Command+Option+%d)") % (c+1)
-        #         #openButton.setShortcut(_("Ctrl+Alt+%d" % (c+1)))
-        #     else:
-        #         extra = _(" (Alt+%d)") % (c+1)
-        #         openButton.setShortcut(_("Alt+%d" % (c+1)))
-        # else:
-        #     extra = ""
-        # openButton.setToolTip(_("Open this deck%s") % extra)
-        # self.connect(openButton, SIGNAL("clicked()"),
-        #              lambda d=deck['path']: self.loadDeck(d))
-        # layout.addWidget(openButton, c+1, 5)
-        # if c == 0:
-        #     focusButton = openButton
-        # more
-        # moreButton = QPushButton(_("More"))
-        # moreMenu = QMenu()
-        # a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
-        #                        _("Hide From List"))
-        # a.connect(a, SIGNAL("triggered()"),
-        #           lambda c=c: self.onDeckBrowserForget(c))
-        # a = moreMenu.addAction(QIcon(":/icons/editdelete.png"),
-        #                        _("Delete"))
-        # a.connect(a, SIGNAL("triggered()"),
-        #           lambda c=c: self.onDeckBrowserDelete(c))
-        # moreButton.setMenu(moreMenu)
-        # self.moreMenus.append(moreMenu)
-        # layout.addWidget(moreButton, c+1, 6)
+            # name/error
+            if deck['state'] == 'missing':
+                sub = _("(moved or removed)")
+            elif deck['state'] == 'corrupt':
+                sub = _("(corrupt)")
+            elif deck['state'] == 'in use':
+                sub = _("(already open)")
+            else:
+                sub = "unknown"
+            buf += "<td>%s<b>%s</b><br><span class=sub>%s</span></td>" % (
+                accelName(deck),
+                deck['name'],
+                sub)
+            # no counts
+            buf += "<td colspan=2></td>"
+        # options
+        buf += "<td class=opts><a class=opts href='opts:%d'>%s&#9660;</a></td>" % (
+            c, "Options")
         buf += "</tr>"
         if c != max:
-            buf += "<tr><td colspan=3><hr noshade></td></tr>"
+            buf += "<tr><td colspan=4><hr noshade></td></tr>"
         return buf
+
+    def _optsForRow(self, n):
+        m = QMenu(self.mw)
+        # hide
+        a = m.addAction(QIcon(":/icons/edit-undo.png"), _("Hide From List"))
+        a.connect(a, SIGNAL("activated()"), lambda n=n: self._hideRow(n))
+        # delete
+        a = m.addAction(QIcon(":/icons/editdelete.png"), _("Delete"))
+        a.connect(a, SIGNAL("activated()"), lambda n=n: self._deleteRow(n))
+        m.exec_(QCursor.pos())
 
     def _buttons(self):
         # refresh = QPushButton(_("Refresh"))
@@ -248,10 +259,9 @@ later by using File>Close.
                     # some misbehaving filesystems may fail here
                     pass
             except Exception, e:
-                if "File is in use" in unicode(e):
+                if "locked" in unicode(e):
                     state = "in use"
                 else:
-                    raise
                     state = "corrupt"
                 self._decks.append({'name': base, 'state':state})
         if forget:
@@ -263,53 +273,50 @@ later by using File>Close.
 
     def _reorderDecks(self):
         print "reorder decks"
-        return
-        if self.mw.config['deckBrowserOrder'] == 0:
-            self._decks.sort(key=itemgetter('mod'),
-                                   reverse=True)
-        else:
-            def custcmp(a, b):
-                x = cmp(not not b['due'], not not a['due'])
-                if x:
-                    return x
-                x = cmp(not not b['new'], not not a['new'])
-                if x:
-                    return x
-                return cmp(a['mod'], b['mod'])
-            self._decks.sort(cmp=custcmp)
+        # return
+        # if self.mw.config['deckBrowserOrder'] == 0:
+        #     self._decks.sort(key=itemgetter('mod'),
+        #                            reverse=True)
+        # else:
+        #     def custcmp(a, b):
+        #         x = cmp(not not b['due'], not not a['due'])
+        #         if x:
+        #             return x
+        #         x = cmp(not not b['new'], not not a['new'])
+        #         if x:
+        #             return x
+        #         return cmp(a['mod'], b['mod'])
+        #     self._decks.sort(cmp=custcmp)
+        # after the decks are sorted, assign shortcut keys to them
+        for c, d in enumerate(self._decks):
+            if c > 35:
+                d['accel'] = None
+            elif c < 9:
+                d['accel'] = str(c+1)
+            else:
+                d['accel'] = ord('a')+(c-10)
 
     def refresh(self):
         self._browserLastRefreshed = 0
         self.show()
 
-    def onDeckBrowserForget(self, c):
+    def _hideRow(self, c):
         if aqt.utils.askUser(_("""\
 Hide %s from the list? You can File>Open it again later.""") %
                             self._decks[c]['name']):
-            self.mw.config['recentDeckPaths'].remove(self._decks[c]['path'])
+            self.mw.config.delRecentDeck(self._decks[c]['path'])
             del self._decks[c]
-            self.doLater(100, self.showDeckBrowser)
+            self.refresh()
 
-    def onDeckBrowserDelete(self, c):
-        deck = self._decks[c]['path']
+    def _deleteRow(self, c):
         if aqt.utils.askUser(_("""\
 Delete %s? If this deck is synchronized the online version will \
-not be touched.""") %
-                            self._decks[c]['name']):
-            del self._decks[c]
+not be touched.""") % self._decks[c]['name']):
+            deck = self._decks[c]['path']
             os.unlink(deck)
             try:
                 shutil.rmtree(re.sub(".anki$", ".media", deck))
             except OSError:
                 pass
-            #self.config['recentDeckPaths'].remove(deck)
-            self.doLater(100, self.showDeckBrowser)
-
-    def onDeckBrowserForgetInaccessible(self):
-        self._checkDecks(forget=True)
-
-    def doLater(self, msecs, func):
-        timer = QTimer(self)
-        timer.setSingleShot(True)
-        timer.start(msecs)
-        self.connect(timer, SIGNAL("timeout()"), func)
+            self.mw.config.delRecentDeck(deck)
+            self.refresh()

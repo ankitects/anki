@@ -338,7 +338,7 @@ Please do not file a bug report with Anki.<br>""")
         self.form.setupUi(self)
         self.web = aqt.webview.AnkiWebView(self.form.centralwidget)
         self.web.setObjectName("mainText")
-        self.web.setFocusPolicy(Qt.ClickFocus)
+        self.web.setFocusPolicy(Qt.WheelFocus)
         self.mainLayout = QVBoxLayout()
         self.mainLayout.addWidget(self.web)
         self.mainLayout.setContentsMargins(0,0,0,0)
@@ -378,14 +378,17 @@ Please do not file a bug report with Anki.<br>""")
     def closeAllDeckWindows(self):
         aqt.dialogs.closeAll()
 
-
-
+    def setKeyHandler(self, fn):
+        self._keyHandler = fn
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
-        print "keypressevent"
-        evt.ignore()
-        return
+        if self._keyHandler:
+            self._keyHandler(evt)
+        else:
+            evt.ignore()
+
+    def reviewKeyHandler(self, evt):
         if evt.key() in (Qt.Key_Up,Qt.Key_Down,Qt.Key_Left,Qt.Key_Right,
                          Qt.Key_PageUp,Qt.Key_PageDown):
             mf = self.bodyView.body.page().currentFrame()

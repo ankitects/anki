@@ -94,7 +94,7 @@ class Config(object):
     # load/save
     def load(self):
         path = self._dbPath()
-        self.db = DB(path, level=None, text=str)
+        self.db = DB(path, text=str)
         self.db.executescript("""
 create table if not exists decks (path text primary key);
 create table if not exists config (conf text not null);
