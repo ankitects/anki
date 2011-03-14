@@ -334,8 +334,4 @@ class ProgressWin(object):
             self.app.processEvents()
 
     def finish(self):
-        if self.max:
-            self.diag.setValue(self.max)
-            self.app.processEvents()
-            time.sleep(0.1)
         self.diag.cancel()
