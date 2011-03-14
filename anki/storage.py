@@ -12,7 +12,7 @@ from anki.deck import _Deck
 from anki.stdmodels import BasicModel
 from anki.errors import AnkiError
 
-def Deck(path, queue=True):
+def Deck(path, queue=True, lock=True):
     "Open a new or existing deck. Path must be unicode."
     path = os.path.abspath(path)
     create = not os.path.exists(path)
@@ -34,7 +34,8 @@ def Deck(path, queue=True):
     elif create:
         deck.addModel(BasicModel(deck))
         deck.save()
-    deck.lock()
+    if lock:
+        deck.lock()
     if not queue:
         return deck
     # rebuild queue
