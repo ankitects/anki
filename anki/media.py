@@ -167,7 +167,6 @@ If a file with the same name exists, return a unique name."""
         mdir = self.mediaDir()
         if not mdir:
             return (0, 0)
-        self.deck.startProgress()
         # delete all media entries in database
         self.deck.db.execute("delete from media")
         # look through cards for media references
@@ -199,7 +198,6 @@ If a file with the same name exists, return a unique name."""
                 os.unlink(path)
         nohave = self.deck.db.list(
             "select file from media where csum = ''")
-        self.deck.finishProgress()
         return (nohave, unused)
 
     # Download missing
@@ -210,7 +208,6 @@ If a file with the same name exists, return a unique name."""
         if not urlbase:
             return None
         mdir = self.deck.mediaDir(create=True)
-        self.deck.startProgress()
         missing = 0
         grabbed = 0
         for c, (f, sum) in enumerate(self.deck.db.all(
@@ -225,13 +222,11 @@ If a file with the same name exists, return a unique name."""
                 except:
                     if sum:
                         # the file is supposed to exist
-                        self.deck.finishProgress()
                         return (False, rpath)
                     else:
                         # ignore and keep going
                         missing += 1
-            self.deck.updateProgress(label=_("File %d...") % (grabbed+missing))
-        self.deck.finishProgress()
+            #self.deck.updateProgress(label=_("File %d...") % (grabbed+missing))
         return (True, grabbed, missing)
 
     # Convert remote links to local ones
@@ -240,7 +235,6 @@ If a file with the same name exists, return a unique name."""
     def downloadRemote(self):
         mdir = self.deck.mediaDir(create=True)
         refs = {}
-        self.deck.startProgress()
         for (question, answer) in self.deck.db.all(
             "select question, answer from cards"):
             for txt in (question, answer):
@@ -259,15 +253,14 @@ If a file with the same name exists, return a unique name."""
                 passed.append([link, newpath])
             except:
                 failed.append(link)
-            self.deck.updateProgress(label=_("Download %d...") % c)
+            #self.deck.updateProgress(label=_("Download %d...") % c)
         for (url, name) in passed:
             self.deck.db.execute(
                 "update fields set value = replace(value, :url, :name)",
                 url=url, name=name)
-            self.deck.updateProgress(label=_("Updating references..."))
-        self.deck.updateProgress(label=_("Updating cards..."))
+            #self.deck.updateProgress(label=_("Updating references..."))
+        #self.deck.updateProgress(label=_("Updating cards..."))
         # rebuild entire q/a cache
         for m in self.deck.models:
             self.deck.updateCardsFromModel(m, dirty=True)
-        self.deck.finishProgress()
         return (passed, failed)

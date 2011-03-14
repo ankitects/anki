@@ -20,8 +20,6 @@ class Anki10Importer(Importer):
         num = 4
         if random:
             num += 1
-        self.deck.startProgress(num)
-        self.deck.updateProgress(_("Importing..."))
         src = DeckStorage.Deck(self.file, backup=False)
         client = SyncClient(self.deck)
         server = SyncServer(src)
@@ -47,13 +45,10 @@ class Anki10Importer(Importer):
         assert payload['deleted-facts'] == []
         assert payload['deleted-cards'] == []
         assert payload['deleted-models'] == []
-        self.deck.updateProgress()
         res = server.applyPayload(payload)
-        self.deck.updateProgress()
         client.applyPayloadReply(res)
         copyLocalMedia(server.deck, client.deck)
         # add tags
-        self.deck.updateProgress()
         fids = [f[0] for f in res['added-facts']['facts']]
         self.deck.addTags(fids, self.tagsToAdd)
         # mark import material as newly added
@@ -72,10 +67,8 @@ class Anki10Importer(Importer):
         src.engine.dispose()
         # randomize?
         if random:
-            self.deck.updateProgress()
             self.deck.randomizeNewCards([x[0] for x in res['added-cards']])
         self.deck.flushMod()
-        self.deck.finishProgress()
 
     def _clearDeleted(self, sum):
         sum['delcards'] = []

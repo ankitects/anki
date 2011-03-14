@@ -56,32 +56,23 @@ class Importer(object):
         num = 6
         if random:
             num += 1
-        self.deck.startProgress(num)
-        self.deck.updateProgress(_("Importing..."))
         c = self.foreignCards()
         if self.importCards(c):
-            self.deck.updateProgress()
             self.deck.updateCardTags(self.cardIds)
             if random:
-                self.deck.updateProgress()
                 self.deck.randomizeNewCards(self.cardIds)
-        self.deck.finishProgress()
         if c:
             self.deck.setModified()
 
     def doUpdate(self):
-        self.deck.startProgress(7)
         # grab the data from the external file
-        self.deck.updateProgress(_("Updating..."))
         cards = self.foreignCards()
         # grab data from db
-        self.deck.updateProgress()
         fields = self.deck.db.all("""
 select factId, value from fields where fieldModelId = :id
 and value != ''""",
                                id=self.updateKey[1])
         # hash it
-        self.deck.updateProgress()
         vhash = {}
         fids = []
         for (fid, val) in fields:
@@ -96,7 +87,6 @@ and value != ''""",
         except ValueError:
             pass
         # look for matches
-        self.deck.updateProgress()
         upcards = []
         newcards = []
         for c in cards:
@@ -127,7 +117,6 @@ and value != ''""",
 update fields set value = :v, chksum = :chk where factId = :fid
 and fieldModelId = :fmid""", data)
         # update tags
-        self.deck.updateProgress()
         if tagsIdx is not None:
             data = [{'fid': fid,
                      't': c.fields[tagsIdx]}
@@ -136,16 +125,13 @@ and fieldModelId = :fmid""", data)
                 "update facts set tags = :t where id = :fid",
                 data)
         # rebuild caches
-        self.deck.updateProgress()
         cids = self.deck.db.column0(
             "select id from cards where factId in %s" %
             ids2str(fids))
         self.deck.updateCardTags(cids)
-        self.deck.updateProgress()
         self.deck.updateCardsFromFactIds(fids)
         self.total = len(cards)
         self.deck.setModified()
-        self.deck.finishProgress()
 
     def fields(self):
         "The number of fields."
@@ -227,7 +213,6 @@ The current importer only supports a single active card template. Please disable
         except ValueError:
             pass
         # add facts
-        self.deck.updateProgress()
         factIds = [genID() for n in range(len(cards))]
         factCreated = {}
         def fudgeCreated(d, tmp=[]):
@@ -246,7 +231,6 @@ The current importer only supports a single active card template. Please disable
 delete from factsDeleted
 where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         # add all the fields
-        self.deck.updateProgress()
         for fm in self.model.fieldModels:
             try:
                 index = self.mapping.index(fm)
@@ -266,7 +250,6 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
             self.deck.db.execute(fieldsTable.insert(),
                                 data)
         # and cards
-        self.deck.updateProgress()
         active = 0
         for cm in self.model.cardModels:
             if cm.active:
@@ -282,7 +265,6 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                     },cards[m]) for m in range(len(cards))]
                 self.deck.db.execute(cardsTable.insert(),
                                     data)
-        self.deck.updateProgress()
         self.deck.updateCardsFromFactIds(factIds)
         self.total = len(factIds)
 

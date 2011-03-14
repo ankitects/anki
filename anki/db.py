@@ -12,7 +12,6 @@ except ImportError:
         raise Exception("Please install pysqlite2 or python2.5")
 
 from anki.hooks import runHook
-#FIXME: do we need the dbFinished hook?
 
 class DB(object):
     def __init__(self, path, level="EXCLUSIVE", text=None):
@@ -32,17 +31,23 @@ class DB(object):
         else:
             # execute("...where id = ?", 5)
             res = self._db.execute(sql, a)
-        runHook("dbFinished")
         return res
 
     def executemany(self, sql, l):
         if self.echo:
             print sql, l
         self._db.executemany(sql, l)
-        runHook("dbFinished")
 
     def commit(self):
         self._db.commit()
+
+    def executescript(self, sql):
+        if self.echo:
+            print sql
+        self._db.executescript(sql)
+
+    def rollback(self):
+        self._db.rollback()
 
     def scalar(self, *a, **kw):
         res = self.execute(*a, **kw).fetchone()
@@ -61,15 +66,6 @@ class DB(object):
 
     def list(self, *a, **kw):
         return [x[0] for x in self.execute(*a, **kw)]
-
-    def executescript(self, sql):
-        if self.echo:
-            print sql
-        self._db.executescript(sql)
-        runHook("dbFinished")
-
-    def rollback(self):
-        self._db.rollback()
 
     def close(self):
         self._db.close()

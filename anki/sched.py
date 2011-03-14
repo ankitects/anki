@@ -703,21 +703,17 @@ limit 1""" % self.delay0))
 
     def suspendCards(self, ids):
         "Suspend cards."
-        self.startProgress()
         self.db.execute("""
 update cards
 set queue = -1, mod = :t
 where id in %s""" % ids2str(ids), t=time.time())
-        self.finishProgress()
 
     def unsuspendCards(self, ids):
         "Unsuspend cards."
-        self.startProgress()
         self.db.execute("""
 update cards set queue = type, mod=:t
 where queue = -1 and id in %s""" %
             ids2str(ids), t=time.time())
-        self.finishProgress()
 
     def buryFact(self, fact):
         "Bury all cards for fact until next session."

@@ -313,7 +313,6 @@ select id from facts where id not in (select distinct fid from cards)""")
         if not ids:
             return
         sids = ids2str(ids)
-        self.startProgress()
         if self.schemaDirty():
             # immediate delete?
             self.db.execute("delete from cards where id in %s" % sids)
@@ -333,7 +332,6 @@ select id from facts where id not in (select distinct fid from cards)""")
                 intTime())
             self.db.execute("delete from fsums where fid in "+sfids)
             self.db.execute("delete from revlog where cid in "+sids)
-        self.finishProgress()
 
     def emptyTrash(self):
         self.db.executescript("""
@@ -559,7 +557,6 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
 
     def addTags(self, ids, tags, add=True):
         "Add tags in bulk. TAGS is space-separated."
-        self.startProgress()
         newTags = parseTags(tags)
         # cache tag names
         self.registerTags(newTags)
@@ -584,7 +581,6 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
 update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res])
         # update q/a cache
         self.registerTags(parseTags(tags))
-        self.finishProgress()
 
     def delTags(self, ids, tags):
         self.addTags(ids, tags, False)
@@ -603,41 +599,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
     def findDuplicates(self, fmids):
         import anki.find
         return anki.find.findDuplicates(self, fmids)
-
-    # Progress info
-    ##########################################################################
-
-    def startProgress(self, max=0, min=0, title=None):
-        self.enableProgressHandler()
-        runHook("startProgress", max, min, title)
-
-    def updateProgress(self, label=None, value=None):
-        runHook("updateProgress", label, value)
-
-    def finishProgress(self):
-        runHook("updateProgress")
-        runHook("finishProgress")
-        self.disableProgressHandler()
-
-    def progressHandler(self):
-        if (time.time() - self.progressHandlerCalled) < 0.2:
-            return
-        self.progressHandlerCalled = time.time()
-        if self.progressHandlerEnabled:
-            # things which hook on this should be very careful not to touch
-            # the db as they run
-            runHook("dbProgress")
-
-    def setupProgressHandler(self):
-        self.progressHandlerCalled = 0
-        self.progressHandlerEnabled = False
-        self.db.set_progress_handler(self.progressHandler, 100000)
-
-    def enableProgressHandler(self):
-        self.progressHandlerEnabled = True
-
-    def disableProgressHandler(self):
-        self.progressHandlerEnabled = False
 
     # Timeboxing
     ##########################################################################
@@ -806,19 +767,11 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
         sql = self.db.list("""
 select sql from undoLog where
 seq > :s and seq <= :e order by seq desc""", s=start, e=end)
-        mod = len(sql) / 35
-        if mod:
-            self.startProgress(36)
-            self.updateProgress(_("Processing..."))
         newstart = self._latestUndoRow()
         for c, s in enumerate(sql):
-            if mod and not c % mod:
-                self.updateProgress()
             self.engine.execute(s)
         newend = self._latestUndoRow()
         dst.append([u[0], newstart, newend])
-        if mod:
-            self.finishProgress()
 
     def undo(self):
         "Undo the last action(s)."
@@ -838,8 +791,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         problems = []
         self.save()
         self.resetUndo()
-        self.startProgress()
-        self.updateProgress(_("Checking database..."))
         oldSize = os.stat(self.path)[stat.ST_SIZE]
         self.modSchema()
         # tags
@@ -857,7 +808,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
             txt += "\n" + _("Saved %dKB.") % save
         problems.append(txt)
         self.save()
-        self.finishProgress()
         return "\n".join(problems)
 
     def optimize(self):

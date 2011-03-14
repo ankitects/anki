@@ -214,14 +214,12 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             f['ord'] = c
 
     def _transformFields(self, fn):
-        self.deck.startProgress()
         self.deck.modSchema()
         r = []
         for (id, flds) in self.deck.db.execute(
             "select id, flds from facts where mid = ?", self.id):
             r.append((joinFields(fn(splitFields(flds))), id))
         self.deck.db.executemany("update facts set flds = ? where id = ?", r)
-        self.deck.finishProgress()
 
     # Templates
     ##################################################
@@ -261,7 +259,6 @@ where mid = ?) and ord > ?""", self.id, ord)
         raise Exception()
         self.modSchema()
         sfids = ids2str(fids)
-        self.startProgress()
         # field remapping
         if fieldMap:
             seen = {}
@@ -298,9 +295,7 @@ update facts set
 mod = :t,
 mid = :id
 where id in %s""" % sfids, t=time.time(), id=newModel.id)
-            self.finishProgress()
         # template remapping
-        self.startProgress(len(cardMap)+3)
         toChange = []
         for (old, new) in cardMap.items():
             if not new:
@@ -324,4 +319,3 @@ where id in %s""" % ids2str(ids), new=new.id, ord=new.ord)
         cardIds = self.db.list(
             "select id from cards where fid in %s" %
             ids2str(fids))
-        self.finishProgress()

@@ -289,7 +289,7 @@ class SupermemoXmlImporter(Importer):
 
         dLevels={0:'',1:u'Info',2:u'Verbose',3:u'Debug'}
         if level<=self.META.loggerLevel:
-          self.deck.updateProgress(_(text))
+          #self.deck.updateProgress(_(text))
 
           if self.META.logToStdOutput:
             print self.__class__.__name__+ u" - " + dLevels[level].ljust(9) +u' -\t'+ _(text)

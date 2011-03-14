@@ -30,8 +30,6 @@ class Exporter(object):
         if removeFields:
             # beautifulsoup is slow
             self._escapeCount += 1
-            if self._escapeCount % 100 == 0:
-                self.deck.updateProgress()
             try:
                 s = BS(text)
                 all = s('span', {'class': re.compile("fm.*")})
@@ -70,8 +68,6 @@ class AnkiExporter(Exporter):
         n = 3
         if not self.includeSchedulingInfo:
             n += 1
-        self.deck.startProgress(n)
-        self.deck.updateProgress(_("Exporting..."))
         try:
             os.unlink(path)
         except (IOError, OSError):
@@ -86,12 +82,9 @@ class AnkiExporter(Exporter):
         # set up a custom change list and sync
         lsum = self.localSummary()
         rsum = server.summary(0)
-        self.deck.updateProgress()
         payload = client.genPayload((lsum, rsum))
-        self.deck.updateProgress()
         res = server.applyPayload(payload)
         if not self.includeSchedulingInfo:
-            self.deck.updateProgress()
             self.newDeck.resetCards()
         # media
         if self.includeMedia:
@@ -104,7 +97,6 @@ class AnkiExporter(Exporter):
         self.newDeck.utcOffset = -1
         self.newDeck.db.commit()
         self.newDeck.close()
-        self.deck.finishProgress()
 
     def localSummary(self):
         cardIds = self.cardIds()
@@ -149,13 +141,10 @@ class TextCardExporter(Exporter):
     def doExport(self, file):
         ids = self.cardIds()
         strids = ids2str(ids)
-        self.deck.startProgress((len(ids) + 1) / 50)
-        self.deck.updateProgress(_("Exporting..."))
         cards = self.deck.db.all("""
 select cards.question, cards.answer, cards.id from cards
 where cards.id in %s
 order by cards.created""" % strids)
-        self.deck.updateProgress()
         if self.includeTags:
             self.cardTags = dict(self.deck.db.all("""
 select cards.id, facts.tags from cards, facts
@@ -188,8 +177,6 @@ class TextFactExporter(Exporter):
 
     def doExport(self, file):
         cardIds = self.cardIds()
-        self.deck.startProgress()
-        self.deck.updateProgress(_("Exporting..."))
         facts = self.deck.db.all("""
 select factId, value, facts.created from facts, fields
 where
@@ -199,7 +186,6 @@ where cards.id in %s)
 and facts.id = fields.factId
 order by factId, ordinal""" % ids2str(cardIds))
         txt = ""
-        self.deck.updateProgress()
         if self.includeTags:
             self.factTags = dict(self.deck.db.all(
                 "select id, tags from facts where id in %s" %
@@ -210,7 +196,6 @@ order by factId, ordinal""" % ids2str(cardIds))
                    "\t".join([self.escapeText(x[1]) for x in group]) +
                    self.tags(group[0][0]))
                   for group in groups]
-        self.deck.updateProgress()
         groups.sort(key=itemgetter(0))
         out = [ret[1] for ret in groups]
         self.count = len(out)
