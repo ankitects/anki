@@ -3,6 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import time, os, stat, shutil
+from operator import itemgetter
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki import Deck
@@ -46,27 +47,6 @@ class DeckBrowser(object):
         self._decks = []
         addHook("deckClosing", self.onClose)
 
-    def _linkHandler(self, url):
-        (cmd, arg) = url.split(":")
-        if cmd == "open":
-            deck = self._decks[int(arg)]['path']
-            self.mw.loadDeck(deck)
-        elif cmd == "opts":
-            self._optsForRow(int(arg))
-
-    def _keyHandler(self, evt):
-        txt = evt.text()
-        if ((txt >= "0" and txt <= "9") or
-            (txt >= "a" and txt <= "z")):
-            self._openAccel(txt)
-            evt.accept()
-        evt.ignore()
-
-    def _openAccel(self, txt):
-        for d in self._decks:
-            if d['accel'] == txt:
-                self.mw.loadDeck(d['path'])
-
     def show(self):
         self.web.setLinkHandler(self._linkHandler)
         self.mw.setKeyHandler(self._keyHandler)
@@ -109,6 +89,33 @@ later by using File>Close.
                     d['mod'] = self.deck.modified
                     d['time'] = self.deck._dailyStats.reviewTime
                     d['reps'] = self.deck._dailyStats.reps
+
+    # Event handlers
+    ##########################################################################
+
+    def _linkHandler(self, url):
+        (cmd, arg) = url.split(":")
+        if cmd == "open":
+            deck = self._decks[int(arg)]['path']
+            self.mw.loadDeck(deck)
+        elif cmd == "opts":
+            self._optsForRow(int(arg))
+
+    def _keyHandler(self, evt):
+        txt = evt.text()
+        if ((txt >= "0" and txt <= "9") or
+            (txt >= "a" and txt <= "z")):
+            self._openAccel(txt)
+            evt.accept()
+        evt.ignore()
+
+    def _openAccel(self, txt):
+        for d in self._decks:
+            if d['accel'] == txt:
+                self.mw.loadDeck(d['path'])
+
+    # HTML generation
+    ##########################################################################
 
     def _deckRow(self, c, max, deck):
         buf = "<tr>"
@@ -159,36 +166,6 @@ later by using File>Close.
             buf += "<tr><td colspan=4><hr noshade></td></tr>"
         return buf
 
-    def _optsForRow(self, n):
-        m = QMenu(self.mw)
-        # hide
-        a = m.addAction(QIcon(":/icons/edit-undo.png"), _("Hide From List"))
-        a.connect(a, SIGNAL("activated()"), lambda n=n: self._hideRow(n))
-        # delete
-        a = m.addAction(QIcon(":/icons/editdelete.png"), _("Delete"))
-        a.connect(a, SIGNAL("activated()"), lambda n=n: self._deleteRow(n))
-        m.exec_(QCursor.pos())
-
-    def _buttons(self):
-        # refresh = QPushButton(_("Refresh"))
-        # refresh.setToolTip(_("Check due counts again (F5)"))
-        # refresh.setShortcut(_("F5"))
-        # self.connect(refresh, SIGNAL("clicked()"),
-        #              self.refresh)
-        # layout.addItem(QSpacerItem(1,20, QSizePolicy.Preferred,
-        #                            QSizePolicy.Preferred), c+2, 5)
-        # layout.addWidget(refresh, c+3, 5)
-        # more = QPushButton(_("More"))
-        # moreMenu = QMenu()
-        # a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
-        #                        _("Forget Inaccessible Decks"))
-        # a.connect(a, SIGNAL("triggered()"),
-        #           self.onDeckBrowserForgetInaccessible)
-        # more.setMenu(moreMenu)
-        # layout.addWidget(more, c+3, 6)
-        # self.moreMenus.append(moreMenu)
-        return ""
-
     def _summary(self):
         # summarize
         reps = 0
@@ -216,6 +193,47 @@ later by using File>Close.
         line2 = _("Due: %(rev)s, %(new)s") % {
             'rev': rev, 'new': new}
         return line1+'<br>'+line2
+
+    # Options
+    ##########################################################################
+
+    def _optsForRow(self, n):
+        m = QMenu(self.mw)
+        # hide
+        a = m.addAction(QIcon(":/icons/edit-undo.png"), _("Hide From List"))
+        a.connect(a, SIGNAL("activated()"), lambda n=n: self._hideRow(n))
+        # delete
+        a = m.addAction(QIcon(":/icons/editdelete.png"), _("Delete"))
+        a.connect(a, SIGNAL("activated()"), lambda n=n: self._deleteRow(n))
+        m.exec_(QCursor.pos())
+
+    def _buttons(self):
+        # refresh = QPushButton(_("Refresh"))
+        return ""
+
+    def _hideRow(self, c):
+        if aqt.utils.askUser(_("""\
+Hide %s from the list? You can File>Open it again later.""") %
+                            self._decks[c]['name']):
+            self.mw.config.delRecentDeck(self._decks[c]['path'])
+            del self._decks[c]
+            self.refresh()
+
+    def _deleteRow(self, c):
+        if aqt.utils.askUser(_("""\
+Delete %s? If this deck is synchronized the online version will \
+not be touched.""") % self._decks[c]['name']):
+            deck = self._decks[c]['path']
+            os.unlink(deck)
+            try:
+                shutil.rmtree(re.sub(".anki$", ".media", deck))
+            except OSError:
+                pass
+            self.mw.config.delRecentDeck(deck)
+            self.refresh()
+
+    # Data gathering
+    ##########################################################################
 
     def _checkDecks(self, forget=False):
         self._decks = []
@@ -272,21 +290,8 @@ later by using File>Close.
         self._reorderDecks()
 
     def _reorderDecks(self):
-        print "reorder decks"
-        # return
-        # if self.mw.config['deckBrowserOrder'] == 0:
-        #     self._decks.sort(key=itemgetter('mod'),
-        #                            reverse=True)
-        # else:
-        #     def custcmp(a, b):
-        #         x = cmp(not not b['due'], not not a['due'])
-        #         if x:
-        #             return x
-        #         x = cmp(not not b['new'], not not a['new'])
-        #         if x:
-        #             return x
-        #         return cmp(a['mod'], b['mod'])
-        #     self._decks.sort(cmp=custcmp)
+        # for now, sort by deck name
+        self._decks.sort(key=itemgetter('name'))
         # after the decks are sorted, assign shortcut keys to them
         for c, d in enumerate(self._decks):
             if c > 35:
@@ -299,24 +304,3 @@ later by using File>Close.
     def refresh(self):
         self._browserLastRefreshed = 0
         self.show()
-
-    def _hideRow(self, c):
-        if aqt.utils.askUser(_("""\
-Hide %s from the list? You can File>Open it again later.""") %
-                            self._decks[c]['name']):
-            self.mw.config.delRecentDeck(self._decks[c]['path'])
-            del self._decks[c]
-            self.refresh()
-
-    def _deleteRow(self, c):
-        if aqt.utils.askUser(_("""\
-Delete %s? If this deck is synchronized the online version will \
-not be touched.""") % self._decks[c]['name']):
-            deck = self._decks[c]['path']
-            os.unlink(deck)
-            try:
-                shutil.rmtree(re.sub(".anki$", ".media", deck))
-            except OSError:
-                pass
-            self.mw.config.delRecentDeck(deck)
-            self.refresh()
