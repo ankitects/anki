@@ -383,6 +383,9 @@ Please do not file a bug report with Anki.<br>""")
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
+        print "keypressevent"
+        evt.ignore()
+        return
         if evt.key() in (Qt.Key_Up,Qt.Key_Down,Qt.Key_Left,Qt.Key_Right,
                          Qt.Key_PageUp,Qt.Key_PageDown):
             mf = self.bodyView.body.page().currentFrame()

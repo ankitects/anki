@@ -10,20 +10,20 @@ from anki.utils import fmtTimeSpan
 from anki.hooks import addHook
 
 _css = """
-body { background-color: #ddd; }
-td { border-bottom: 1px solid #000;}
+body { background-color: #eee; }
 #outer { margin-top: 1em; }
 .sub { color: #555; }
+hr { margin: 5 0 5 0; }
 """
 
 _body = """
 <center>
 <div id="outer">
 <h1>%s</h1>
-<table cellspacing=0 width=90%%>
+<table cellspacing=0 cellpadding=0 width=90%%>
 %s
 </table>
-<br>
+<br><br>
 %s
 </div>
 """
@@ -58,8 +58,9 @@ class DeckBrowser(object):
             self._reorderDecks()
         if self._decks:
             buf = ""
+            max=len(self._decks)-1
             for c, deck in enumerate(self._decks):
-                buf += self._deckRow(c, deck)
+                buf += self._deckRow(c, max, deck)
             self.web.stdHtml(_body%(_("Decks"), buf, self._summary()), _css)
         else:
             buf = ("""\
@@ -88,7 +89,7 @@ later by using File>Close.
                     d['time'] = self.deck._dailyStats.reviewTime
                     d['reps'] = self.deck._dailyStats.reps
 
-    def _deckRow(self, c, deck):
+    def _deckRow(self, c, max, deck):
         buf = "<tr>"
         # name and status
         ok = deck['state'] == 'ok'
@@ -153,6 +154,8 @@ later by using File>Close.
         # self.moreMenus.append(moreMenu)
         # layout.addWidget(moreButton, c+1, 6)
         buf += "</tr>"
+        if c != max:
+            buf += "<tr><td colspan=3><hr noshade></td></tr>"
         return buf
 
     def _buttons(self):
