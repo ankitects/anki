@@ -9,15 +9,48 @@ from anki import Deck
 from anki.utils import fmtTimeSpan
 from anki.hooks import addHook
 
+_css = """
+body { background-color: #ddd; }
+td { border-bottom: 1px solid #000;}
+#outer { margin-top: 1em; }
+.sub { color: #555; }
+"""
+
+_body = """
+<center>
+<div id="outer">
+<h1>%s</h1>
+<table cellspacing=0 width=90%%>
+%s
+</table>
+<br>
+<div id="today">
+</div>
+<a href="#" onClick="py.run('full');">show today's stats</a>
+</div>
+"""
+
 class DeckBrowser(object):
 
     def __init__(self, mw):
         self.mw = mw
+        self.web = mw.web
         self._browserLastRefreshed = 0
         self._decks = []
         addHook("deckClosing", self.onClose)
 
+    def _bridge(self, str):
+        if str == "refresh":
+            pass
+        elif str == "full":
+            self.onFull()
+
+    def _link(self, url):
+        pass
+
     def show(self):
+        self.web.setBridge(self._bridge)
+        self.web.setLinkHandler(self._link)
         if (time.time() - self._browserLastRefreshed >
             self.mw.config['deckBrowserRefreshPeriod']):
             t = time.time()
@@ -26,14 +59,10 @@ class DeckBrowser(object):
         else:
             self._reorderDecks()
         if self._decks:
-            buf = self._header()
-            buf += "<center><h1>Decks</h1><table cellspacing=0 width=90%>"
-            t = time.time
+            buf = ""
             for c, deck in enumerate(self._decks):
                 buf += self._deckRow(c, deck)
-            buf += "</table>"
-            buf += self._buttons()
-            buf += self._summary()
+            self.web.stdHtml(_body%(_("Decks"), buf), _css)
         else:
             buf = ("""\
 <br>
@@ -44,7 +73,7 @@ later by using File>Close.
 <br>
 """)
         # FIXME: ensure deck open button is focused
-        self.mw.web.setHtml(buf)
+
 
     def onClose(self, deck):
         print "onClose"
@@ -61,12 +90,6 @@ later by using File>Close.
                     d['time'] = self.deck._dailyStats.reviewTime
                     d['reps'] = self.deck._dailyStats.reps
 
-    def _header(self):
-        return "<html><head><style>td { border-bottom: 1px solid #000; margin:0px; padding:0px;} </style></head><body>"
-
-    def _footer(self):
-        return "</body></html>"
-
     def _deckRow(self, c, deck):
         buf = "<tr>"
         # name and status
@@ -81,7 +104,7 @@ later by using File>Close.
         elif deck['state'] == 'in use':
             sub = _("(already open)")
         sub = "<font size=-1>%s</font>" % sub
-        buf += "<td>%s<br>%s</td>" % (deck['name'], sub)
+        buf += "<td><b>%s</b><br><span class=sub>%s</span></td>" % (deck['name'], sub)
         if ok:
             # due
             col = '<td><b><font color=#0000ff>%s</font></b></td>'
@@ -154,24 +177,24 @@ later by using File>Close.
         # self.moreMenus.append(moreMenu)
         return ""
 
-    def _summary(self):
-        return ""
+    def onFull(self):
         # summarize
         reps = 0
         mins = 0
         revC = 0
         newC = 0
         for d in self._decks:
-            reps += d['reps']
-            mins += d['time']
-            revC += d['due']
-            newC += d['new']
+            if d['state']=='ok':
+                reps += d['reps']
+                mins += d['time']
+                revC += d['due']
+                newC += d['new']
         line1 = ngettext(
             "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today.",
             "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today.",
             reps) % {
             'reps': reps,
-            'time': anki.utils.fmtTimeSpan(mins, point=2),
+            'time': fmtTimeSpan(mins, point=2),
             }
         rev = ngettext(
             "<b><font color=#0000ff>%d</font></b> review",
@@ -180,7 +203,7 @@ later by using File>Close.
         new = ngettext("<b>%d</b> new card", "<b>%d</b> new cards", newC) % newC
         line2 = _("Due: %(rev)s, %(new)s") % {
             'rev': rev, 'new': new}
-        return ""
+        return self.web.eval("$('#today').html('%s');" % (line1+"<br>"+line2))
 
     def _checkDecks(self, forget=False):
         self._decks = []
@@ -203,6 +226,8 @@ later by using File>Close.
                 t = time.time()
                 deck = Deck(d)
                 counts = deck.sched.counts()
+                dtime = deck.sched.timeToday()
+                dreps = deck.sched.repsToday()
                 self._decks.append({
                     'path': d,
                     'state': 'ok',
@@ -210,9 +235,9 @@ later by using File>Close.
                     'due': counts[0],
                     'new': counts[1],
                     'mod': deck.mod,
-                    # these multiple deck check time by a factor of 6
-                    'time': 0, #deck.sched.timeToday(),
-                    'reps': 0, #deck.sched.repsToday()
+                    # these multiply deck check time by a factor of 6
+                    'time': dtime,
+                    'reps': dreps
                     })
                 deck.close()
                 # reset modification time for the sake of backup systems

@@ -8,7 +8,6 @@ from operator import itemgetter
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from PyQt4.QtWebKit import QWebPage, QWebView
 from PyQt4 import pyqtconfig
 QtConfig = pyqtconfig.Configuration()
 
@@ -19,7 +18,7 @@ from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
 import aqt, aqt.utils, aqt.view, aqt.help, aqt.status, aqt.facteditor, \
-    aqt.progress
+    aqt.progress, aqt.webview
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState
 config = aqt.config
@@ -328,7 +327,7 @@ Please do not file a bug report with Anki.<br>""")
             diag.setMinimumHeight(400)
             diag.setMinimumWidth(500)
             diag.exec_()
-            self.clearProgress()
+            self.progress.clear()
 
     # Main window setup
     ##########################################################################
@@ -337,7 +336,7 @@ Please do not file a bug report with Anki.<br>""")
         # main window
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
-        self.web = AnkiWebView(self.form.centralwidget)
+        self.web = aqt.webview.AnkiWebView(self.form.centralwidget)
         self.web.setObjectName("mainText")
         self.web.setFocusPolicy(Qt.ClickFocus)
         self.mainLayout = QVBoxLayout()
@@ -345,9 +344,9 @@ Please do not file a bug report with Anki.<br>""")
         self.mainLayout.setContentsMargins(0,0,0,0)
         self.form.centralwidget.setLayout(self.mainLayout)
         #self.help = aqt.help.HelpArea(self.form.helpFrame, self.config, self)
-        self.connect(self.web.pageAction(QWebPage.Reload),
-                     SIGNAL("triggered()"),
-                     self.onReload)
+        #self.connect(self.web.pageAction(QWebPage.Reload),
+        #             SIGNAL("triggered()"),
+        #             self.onReload)
         # congrats
         # self.connect(self.mainWin.learnMoreButton,
         #              SIGNAL("clicked()"),
@@ -2710,34 +2709,3 @@ It can take a long time. Proceed?""")):
             self.form.decksLabel.hide()
             self.form.decksLine.hide()
             self.form.studyOptsLabel.hide()
-
-
-# Main web view
-##########################################################################
-
-class AnkiWebView(QWebView):
-    def __init__(self, *args):
-        QWebView.__init__(self, *args)
-        self.setObjectName("mainText")
-        self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        self.setLinkHandler()
-        self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
-    def keyPressEvent(self, evt):
-        if evt.matches(QKeySequence.Copy):
-            self.triggerPageAction(QWebPage.Copy)
-            evt.accept()
-        QWebView.keyPressEvent(self, evt)
-    def contextMenuEvent(self, evt):
-        QWebView.contextMenuEvent(self, evt)
-    def dropEvent(self, evt):
-        pass
-    def _linkHandler(self, url):
-        self.linkHandler(url)
-    def setLinkHandler(self, handler=None):
-        if handler:
-            self.linkHandler = handler
-        else:
-            self.linkHandler = self._openLinksExternally
-    def _openLinksExternally(self, url):
-        QDesktopServices.openUrl(QUrl(url))
-
