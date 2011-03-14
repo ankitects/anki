@@ -15,7 +15,7 @@ _css = """
 body { background-color: #eee; }
 #outer { margin-top: 1em; }
 .sub { color: #555; }
-hr { margin: 5 0 5 0; }
+hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
 a:hover { background-color: #aaa; }
 a { color: #000; text-decoration: none; }
 .num { text-align: right; padding: 0 5 0 5; }
