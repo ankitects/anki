@@ -12,7 +12,6 @@ import types, time, re, os, urllib, sys, difflib
 import unicodedata as ucd
 from aqt.utils import mungeQA, getBase
 from anki.utils import fmtTimeSpan
-from PyQt4.QtWebKit import QWebPage, QWebView
 
 failedCharColour = "#FF0000"
 passedCharColour = "#00FF00"
@@ -330,21 +329,3 @@ class View(object):
         "Tell the user the deck is finished."
         self.main.mainWin.congratsLabel.setText(
             self.main.deck.deckFinishedMsg())
-
-class AnkiWebView(QWebView):
-
-    def __init__(self, *args):
-        QWebView.__init__(self, *args)
-        self.setObjectName("mainText")
-
-    def keyPressEvent(self, evt):
-        if evt.matches(QKeySequence.Copy):
-            self.triggerPageAction(QWebPage.Copy)
-            evt.accept()
-        QWebView.keyPressEvent(self, evt)
-
-    def contextMenuEvent(self, evt):
-        QWebView.contextMenuEvent(self, evt)
-
-    def dropEvent(self, evt):
-        pass

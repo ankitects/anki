@@ -298,7 +298,7 @@ order by n""", id=card.id)
 
     def reject(self):
         modified = False
-        self.deck.startProgress()
+        self.mw.startProgress()
         self.deck.updateProgress(_("Applying changes..."))
         reset=True
         if self.needFormatRebuild:

@@ -8,7 +8,7 @@ from operator import itemgetter
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from PyQt4.QtWebKit import QWebPage
+from PyQt4.QtWebKit import QWebPage, QWebView
 from PyQt4 import pyqtconfig
 QtConfig = pyqtconfig.Configuration()
 
@@ -18,7 +18,8 @@ from anki.utils import addTags, parseTags, canonifyTags, stripHTML, checksum
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
-import aqt, aqt.utils, aqt.view, aqt.help, aqt.status, aqt.facteditor
+import aqt, aqt.utils, aqt.view, aqt.help, aqt.status, aqt.facteditor, \
+    aqt.progress
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState
 config = aqt.config
@@ -26,165 +27,221 @@ config = aqt.config
 class AnkiQt(QMainWindow):
     def __init__(self, app, config, args, splash):
         QMainWindow.__init__(self)
+        aqt.mw = self
         self.splash = splash
+        self.app = app
+        self.config = config
         try:
-            self.errorOccurred = False
-            self.inDbHandler = False
-            self.reviewingStarted = False
-            if sys.platform.startswith("darwin"):
-                qt_mac_set_menubar_icons(False)
-            elif sys.platform.startswith("win32"):
-                # make sure they're picked up on bundle
-                from ctypes import windll, wintypes
-            aqt.mw = self
-            self.app = app
-            self.config = config
-            self.deck = None
-            self.state = "initial"
-            self.hideWelcome = False
-            self.views = []
-            signal.signal(signal.SIGINT, self.onSigInt)
-            self.setLang()
-            self.setupStyle()
-            self.setupFonts()
-            self.setupProxy()
-            self.setupMainWindow()
-            self.setupDeckBrowser()
-            self.setupSystemHacks()
-            self.setupSound()
-            self.setupTray()
-            self.setupSync()
-            self.connectMenuActions()
+            # initialize everything
+            self.setup()
             splash.update()
-            self.setupViews()
-            self.setupEditor()
-            self.setupStudyScreen()
-            self.setupButtons()
-            self.setupAnchors()
-            self.setupToolbar()
-            self.setupProgressInfo()
-            self.setupBackups()
-            if self.config['mainWindowState']:
-                restoreGeom(self, "mainWindow", 21)
-                restoreState(self, "mainWindow")
-            else:
-                self.resize(500, 500)
-            # load deck
-            splash.update()
-            self.setupErrorHandler()
-            self.setupMisc()
-            # check if we've been updated
-            if "version" not in self.config:
-                # could be new user, or upgrade from older version
-                # which didn't have version variable
-                self.appUpdated = "first"
-            elif self.config['version'] != aqt.appVersion:
-                self.appUpdated = self.config['version']
-            else:
-                self.appUpdated = False
-            if self.appUpdated:
-                self.config['version'] = aqt.appVersion
-            # plugins might be looking at this
-            self.state = "noDeck"
+            # load plugins
             self.loadPlugins()
-            self.setupAutoUpdate()
-            self.rebuildPluginsMenu()
-            # plugins loaded, now show interface
+            splash.update()
+            # show main window
             splash.finish(self)
             self.show()
-            # program open sync
-            if self.config['syncOnProgramOpen']:
-                self.syncDeck(interactive=False)
-            if (args or self.config['loadLastDeck'] or
-                len(self.config['recentDeckPaths']) == 1):
-                # open the last deck
-                self.maybeLoadLastDeck(args)
-            if self.deck:
-                # deck open sync?
-                if self.config['syncOnLoad'] and self.deck.syncName:
-                    self.syncDeck(interactive=False)
-            elif not self.config['syncOnProgramOpen'] or not self.browserDecks:
-                # sync disabled or no user/pass, so draw deck browser manually
-                self.moveToState("noDeck")
-            # all setup is done, run after-init hook
-            try:
-                runHook('init')
-            except:
-                aqt.utils.showWarning(
-                    _("Broken plugin:\n\n%s") %
-                    unicode(traceback.format_exc(), "utf-8", "replace"))
-            # activate & raise is useful when run from the command line on osx
+            # raise window for osx
             self.activateWindow()
             self.raise_()
+            # sync on program open?
+            if self.config['syncOnProgramOpen']:
+                if self.syncDeck(interactive=False):
+                    return
+            # load a deck?
+            if (args or self.config['loadLastDeck'] or
+                len(self.config['recentDeckPaths']) == 1):
+                self.maybeLoadLastDeck(args)
+            else:
+                self.moveToState("noDeck")
         except:
             showInfo("Error during startup:\n%s" % traceback.format_exc())
             sys.exit(1)
 
+    def setup(self):
+        self.deck = None
+        self.state = None
+        self.setupLang()
+        self.setupMainWindow()
+        self.setupStyle()
+        self.setupProxy()
+        self.setupSound()
+        self.setupTray()
+        self.setupMenus()
+        self.setupToolbar()
+        self.setupProgress()
+        self.setupErrorHandler()
+        self.setupSystemSpecific()
+        self.setupSignals()
+        self.setupVersion()
+        self.setupMisc()
+        self.setupAutoUpdate()
+        # screens
+        self.setupDeckBrowser()
+        self.setupEditor()
+        self.setupStudyScreen()
+
+    # State machine
+    ##########################################################################
+
+    def moveToState(self, state, *args):
+        # eg noDeck -> noDeckState(oldState)
+        print "-> move from", self.state, "to", state
+        getattr(self, "_"+state+"State")(self.state, *args)
+        self.state = state
+
+    def _noDeckState(self, oldState):
+        "Run when a deck is closed, or we open with an empty deck."
+        # blank menus and load deck browser
+        self.deck = None
+        self.currentCard = None
+        self.lastCard = None
+        # perhaps we want a separate toolbar instead?
+        self.form.toolBar.hide()
+        self.disableDeckMenuItems()
+        self.closeAllDeckWindows()
+        self.deckBrowser.show()
+
+    def _deckLoadingState(self, oldState):
+        "Run once, when deck is loaded."
+        #self.editor.deck = self.deck
+        # on reset?
+        #self.updateTitleBar()
+        runHook("deckLoading", self.deck)
+        self.enableDeckMenuItems()
+        if self.config['showStudyScreen']:
+            self.moveToState("studyScreen")
+        else:
+            self.moveToState("getQuestion")
+
+    def _deckLoadedState(self, oldState):
+        self.currentCard = None
+        self.lastCard = None
+        # to make programming easy, reset to reviews is fastest
+        # but users expect edit windows to stay open. instead, we give each
+        # module some hooks to respond to:
+        # reset: called when we have modified the database and need to check
+        # if things are still valid. edit windows should pull their data from
+        # the database and close if the card/fact no longer exists. add window
+        # doesn't have to do anything. editor.. what to do about the editor?
+        # close: most windows will want to respond and close as there's no
+        # longer a deck. we probably want to make thing like the graphs not
+        # modal too.
+        # could reset() while in review, in study options, in empty, in deck
+        # finished, in editor, etc.
+
+
+    def _deckClosingState(self, oldState):
+        "Run once, before a deck is closed."
+        runHook("deckClosing", self.deck)
+
+    def _getQuestionState(self, oldState):
+        # stop anything playing
+        clearAudioQueue()
+        if self.deck.isEmpty():
+            return self.moveToState("deckEmpty")
+        else:
+            # timeboxing only supported using the standard scheduler
+            if not self.deck.finishScheduler:
+                if self.config['showStudyScreen']:
+                    if not self.deck.timeboxStarted():
+                        return self.moveToState("studyScreen")
+                    elif self.deck.timeboxReached():
+                        self.showToolTip(_("Session limit reached."))
+                        self.moveToState("studyScreen")
+                        # switch to timeboxing screen
+                        self.form.tabWidget.setCurrentIndex(2)
+                        return
+            if not self.currentCard:
+                self.currentCard = self.deck.getCard()
+            if self.currentCard:
+                if self.lastCard:
+                    if self.lastCard.id == self.currentCard.id:
+                        pass
+                        # if self.currentCard.combinedDue > time.time():
+                        #     # if the same card is being shown and it's not
+                        #     # due yet, give up
+                        #     return self.moveToState("deckFinished")
+                self.enableCardMenuItems()
+                return self.moveToState("showQuestion")
+            else:
+                return self.moveToState("deckFinished")
+
+    def _deckEmptyState(self, oldState):
+        self.switchToWelcomeScreen()
+        self.disableCardMenuItems()
+
+    def _deckFinishedState(self, oldState):
+        self.currentCard = None
+        self.deck.db.flush()
+        self.hideButtons()
+        self.disableCardMenuItems()
+        self.switchToCongratsScreen()
+        self.form.learnMoreButton.setEnabled(
+            not not self.deck.newAvail)
+        self.startRefreshTimer()
+        self.bodyView.setState(state)
+        # focus finish button
+        self.form.finishButton.setFocus()
+        runHook('deckFinished')
+
+    def _showQuestionState(self, oldState):
+        # ensure cwd set to media dir
+        self.deck.mediaDir()
+        self.showAnswerButton()
+        self.updateMarkAction()
+        runHook('showQuestion')
+
+    def _showAnswerState(self, oldState):
+        self.showEaseButtons()
+
+    def _editCurrentFactState(self, oldState):
+        if self.lastState == "editCurrentFact":
+            return self.moveToState("saveEdit")
+        self.form.actionRepeatAudio.setEnabled(False)
+        self.deck.db.flush()
+        self.showEditor()
+
+    def _saveEditState(self, oldState):
+        self.form.actionRepeatAudio.setEnabled(True)
+        self.editor.saveFieldsNow()
+        self.form.buttonStack.show()
+        return self.reset()
+
+    def _studyScreenState(self, oldState):
+        self.currentCard = None
+        # if self.deck.finishScheduler:
+        #     self.deck.finishScheduler()
+        self.disableCardMenuItems()
+        self.showStudyScreen()
+
+    def reset(self, runHooks=True):
+        # two kinds of resets: partial, which causes objects dealing with
+        # cards or facts to reload them and notice deletions, and full, which
+        # is called when models have changed, and reloads everything
+        if self.deck:
+            self.deck.reset()
+            if runHooks:
+                runHook("guiReset")
+            self.moveToState("initial")
+
+    # Signal handling
+    ##########################################################################
+
+    def setupSignals(self):
+        signal.signal(signal.SIGINT, self.onSigInt)
+
     def onSigInt(self, signum, frame):
         self.close()
 
-    def onReload(self):
-        self.moveToState("auto")
+    # Progress handling
+    ##########################################################################
 
-    def setupMainWindow(self):
-        # main window
-        self.mainWin = aqt.forms.main.Ui_MainWindow()
-        self.mainWin.setupUi(self)
-        self.mainWin.mainText = aqt.view.AnkiWebView(self.mainWin.mainTextFrame)
-        self.mainWin.mainText.setObjectName("mainText")
-        self.mainWin.mainText.setFocusPolicy(Qt.ClickFocus)
-        self.mainWin.mainStack.addWidget(self.mainWin.mainText)
-        self.help = aqt.help.HelpArea(self.mainWin.helpFrame, self.config, self)
-        self.connect(self.mainWin.mainText.pageAction(QWebPage.Reload),
-                     SIGNAL("triggered()"),
-                     self.onReload)
-        # congrats
-        self.connect(self.mainWin.learnMoreButton,
-                     SIGNAL("clicked()"),
-                     self.onLearnMore)
-        self.connect(self.mainWin.reviewEarlyButton,
-                     SIGNAL("clicked()"),
-                     self.onReviewEarly)
-        self.connect(self.mainWin.finishButton,
-                     SIGNAL("clicked()"),
-                     self.onClose)
-        # notices
-        self.mainWin.noticeFrame.setShown(False)
-        self.connect(self.mainWin.noticeButton, SIGNAL("clicked()"),
-                     lambda: self.mainWin.noticeFrame.setShown(False))
-        if sys.platform.startswith("win32"):
-            self.mainWin.noticeButton.setFixedWidth(24)
-        elif sys.platform.startswith("darwin"):
-            self.mainWin.noticeButton.setFixedWidth(20)
-            self.mainWin.noticeButton.setFixedHeight(20)
-        addHook("cardAnswered", self.onCardAnsweredHook)
-        addHook("undoEnd", self.maybeEnableUndo)
-        addHook("notify", self.onNotify)
+    def setupProgress(self):
+        self.progress = aqt.progress.ProgressManager(self)
 
-    def onNotify(self, msg):
-        if self.mainThread != QThread.currentThread():
-            # decks may be opened in a sync thread
-            sys.stderr.write(msg + "\n")
-        else:
-            showInfo(msg)
-
-    def setNotice(self, str=""):
-        if str:
-            self.mainWin.noticeLabel.setText(str)
-            self.mainWin.noticeFrame.setShown(True)
-        else:
-            self.mainWin.noticeFrame.setShown(False)
-
-    def setupViews(self):
-        self.bodyView = aqt.view.View(self, self.mainWin.mainText,
-                                     self.mainWin.mainTextFrame)
-        self.addView(self.bodyView)
-        self.statusView = aqt.status.StatusView(self)
-        self.addView(self.statusView)
-
-    def setupTray(self):
-        import aqt.tray
-	self.trayIcon = aqt.tray.AnkiTrayIcon(self)
+    # Error handling
+    ##########################################################################
 
     def setupErrorHandler(self):
         class ErrorPipe(object):
@@ -256,7 +313,6 @@ Please do not file a bug report with Anki.<br>""")
                 txt = pluginText
             else:
                 txt = stdText
-            self.errorOccurred = True
             # show dialog
             diag = QDialog(self.app.activeWindow())
             diag.setWindowTitle("Anki")
@@ -274,156 +330,57 @@ Please do not file a bug report with Anki.<br>""")
             diag.exec_()
             self.clearProgress()
 
-    def closeAllDeckWindows(self):
-        aqt.dialogs.closeAll()
-        self.help.hide()
-
-    # State machine
+    # Main window setup
     ##########################################################################
 
-    def addView(self, view):
-        self.views.append(view)
+    def setupMainWindow(self):
+        # main window
+        self.form = aqt.forms.main.Ui_MainWindow()
+        self.form.setupUi(self)
+        self.web = AnkiWebView(self.form.centralwidget)
+        self.web.setObjectName("mainText")
+        self.web.setFocusPolicy(Qt.ClickFocus)
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.addWidget(self.web)
+        self.mainLayout.setContentsMargins(0,0,0,0)
+        self.form.centralwidget.setLayout(self.mainLayout)
+        #self.help = aqt.help.HelpArea(self.form.helpFrame, self.config, self)
+        self.connect(self.web.pageAction(QWebPage.Reload),
+                     SIGNAL("triggered()"),
+                     self.onReload)
+        # congrats
+        # self.connect(self.mainWin.learnMoreButton,
+        #              SIGNAL("clicked()"),
+        #              self.onLearnMore)
+        # self.connect(self.mainWin.reviewEarlyButton,
+        #              SIGNAL("clicked()"),
+        #              self.onReviewEarly)
+        # self.connect(self.mainWin.finishButton,
+        #              SIGNAL("clicked()"),
+        #              self.onClose)
+        # notices
+        #self.form.noticeFrame.setShown(False)
+        # self.connect(self.form.noticeButton, SIGNAL("clicked()"),
+        #              lambda: self.form.noticeFrame.setShown(False))
+        # if sys.platform.startswith("win32"):
+        #     self.form.noticeButton.setFixedWidth(24)
+        # elif sys.platform.startswith("darwin"):
+        #     self.form.noticeButton.setFixedWidth(20)
+        #     self.form.noticeButton.setFixedHeight(20)
+        addHook("cardAnswered", self.onCardAnsweredHook)
+        addHook("undoEnd", self.maybeEnableUndo)
+        addHook("notify", self.onNotify)
+        if self.config['mainWindowState']:
+            restoreGeom(self, "mainWindow", 21)
+            restoreState(self, "mainWindow")
+        else:
+            self.resize(500, 500)
 
-    def updateViews(self, status):
-        if self.deck is None and status != "noDeck":
-            raise Exception("updateViews() called with no deck. status=%s" % status)
-        for view in self.views:
-            view.setState(status)
+    def closeAllDeckWindows(self):
+        aqt.dialogs.closeAll()
 
-    def pauseViews(self):
-        if getattr(self, 'viewsBackup', None):
-            return
-        self.viewsBackup = self.views
-        self.views = []
 
-    def restoreViews(self):
-        self.views = self.viewsBackup
-        self.viewsBackup = None
 
-    def reset(self, runHooks=True):
-        if self.deck:
-            self.deck.refreshSession()
-            self.deck.reset()
-            if runHooks:
-                runHook("guiReset")
-            self.moveToState("initial")
-
-    def moveToState(self, state):
-        t = time.time()
-        if state == "initial":
-            # reset current card and load again
-            self.currentCard = None
-            self.lastCard = None
-            self.editor.deck = self.deck
-            if self.deck:
-                self.enableDeckMenuItems()
-                self.updateViews(state)
-                if self.state == "studyScreen":
-                    return self.moveToState("studyScreen")
-                else:
-                    return self.moveToState("getQuestion")
-            else:
-                return self.moveToState("noDeck")
-        elif state == "auto":
-            self.currentCard = None
-            self.lastCard = None
-            if self.deck:
-                if self.state == "studyScreen":
-                    return self.moveToState("studyScreen")
-                else:
-                    return self.moveToState("getQuestion")
-            else:
-                return self.moveToState("noDeck")
-        # save the new & last state
-        self.lastState = getattr(self, "state", None)
-        self.state = state
-        self.updateTitleBar()
-        if 'state' != 'noDeck' and state != 'editCurrentFact':
-            self.switchToReviewScreen()
-        if state == "noDeck":
-            self.deck = None
-            self.help.hide()
-            self.currentCard = None
-            self.lastCard = None
-            self.disableDeckMenuItems()
-            # hide all deck-associated dialogs
-            self.closeAllDeckWindows()
-            self.showDeckBrowser()
-        elif state == "getQuestion":
-            # stop anything playing
-            clearAudioQueue()
-            if self.deck.isEmpty():
-                return self.moveToState("deckEmpty")
-            else:
-                # timeboxing only supported using the standard scheduler
-                if not self.deck.finishScheduler:
-                    if self.config['showStudyScreen']:
-                        if not self.deck.timeboxStarted():
-                            return self.moveToState("studyScreen")
-                        elif self.deck.timeboxReached():
-                            self.showToolTip(_("Session limit reached."))
-                            self.moveToState("studyScreen")
-                            # switch to timeboxing screen
-                            self.mainWin.tabWidget.setCurrentIndex(2)
-                            return
-                if not self.currentCard:
-                    self.currentCard = self.deck.getCard()
-                if self.currentCard:
-                    if self.lastCard:
-                        if self.lastCard.id == self.currentCard.id:
-                            pass
-                            # if self.currentCard.combinedDue > time.time():
-                            #     # if the same card is being shown and it's not
-                            #     # due yet, give up
-                            #     return self.moveToState("deckFinished")
-                    self.enableCardMenuItems()
-                    return self.moveToState("showQuestion")
-                else:
-                    return self.moveToState("deckFinished")
-        elif state == "deckEmpty":
-            self.switchToWelcomeScreen()
-            self.disableCardMenuItems()
-        elif state == "deckFinished":
-            self.currentCard = None
-            self.deck.db.flush()
-            self.hideButtons()
-            self.disableCardMenuItems()
-            self.switchToCongratsScreen()
-            self.mainWin.learnMoreButton.setEnabled(
-                not not self.deck.newAvail)
-            self.startRefreshTimer()
-            self.bodyView.setState(state)
-            # focus finish button
-            self.mainWin.finishButton.setFocus()
-            runHook('deckFinished')
-        elif state == "showQuestion":
-            self.reviewingStarted = True
-            # ensure cwd set to media dir
-            self.deck.mediaDir()
-            self.showAnswerButton()
-            self.updateMarkAction()
-            runHook('showQuestion')
-        elif state == "showAnswer":
-            self.showEaseButtons()
-            self.enableCardMenuItems()
-        elif state == "editCurrentFact":
-            if self.lastState == "editCurrentFact":
-                return self.moveToState("saveEdit")
-            self.mainWin.actionRepeatAudio.setEnabled(False)
-            self.deck.db.flush()
-            self.showEditor()
-        elif state == "saveEdit":
-            self.mainWin.actionRepeatAudio.setEnabled(True)
-            self.editor.saveFieldsNow()
-            self.mainWin.buttonStack.show()
-            return self.reset()
-        elif state == "studyScreen":
-            self.currentCard = None
-            if self.deck.finishScheduler:
-                self.deck.finishScheduler()
-            self.disableCardMenuItems()
-            self.showStudyScreen()
-        self.updateViews(state)
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
@@ -452,11 +409,11 @@ Please do not file a bug report with Anki.<br>""")
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
                 evt.accept()
-                return self.mainWin.showAnswerButton.click()
+                return self.form.showAnswerButton.click()
             elif evt.key() == Qt.Key_Space and not (
                 self.currentCard.cardModel.typeAnswer):
                 evt.accept()
-                return self.mainWin.showAnswerButton.click()
+                return self.form.showAnswerButton.click()
         elif self.state == "showAnswer":
             if evt.key() == Qt.Key_Space:
                 key = str(self.defaultEaseButton())
@@ -466,7 +423,7 @@ Please do not file a bug report with Anki.<br>""")
                 # user entered a quality setting
                 num=int(key)
                 evt.accept()
-                return getattr(self.mainWin, "easeButton%d" %
+                return getattr(self.form, "easeButton%d" %
                                num).animateClick()
         elif self.state == "studyScreen":
             if evt.key() in (Qt.Key_Enter,
@@ -562,45 +519,68 @@ counts are %d %d %d
     # Main stack
     ##########################################################################
 
-    def switchToBlankScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(0)
-        self.hideButtons()
+    # def switchToEditScreen(self):
+    #     self.form.mainStack.setCurrentIndex(0)
 
-    def switchToWelcomeScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(1)
-        self.hideButtons()
+    # def switchToMainScreen(self):
+    #     self.form.mainStack.setCurrentIndex(1)
 
-    def switchToEditScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(2)
 
-    def switchToStudyScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(3)
 
-    def switchToCongratsScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(4)
+    # misc
+    ##########################################################################
 
-    def switchToReviewScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(6)
+    def setupVersion(self):
+        # check if we've been updated
+        if "version" not in self.config:
+            # could be new user, or upgrade from older version
+            # which didn't have version variable
+            self.appUpdated = "first"
+        elif self.config['version'] != aqt.appVersion:
+            self.appUpdated = self.config['version']
+        else:
+            self.appUpdated = False
+        if self.appUpdated:
+            self.config['version'] = aqt.appVersion
 
-    def switchToDecksScreen(self):
-        self.mainWin.mainStack.setCurrentIndex(5)
-        self.hideButtons()
+    def onReload(self):
+        self.moveToState("auto")
+
+    def onNotify(self, msg):
+        if self.mainThread != QThread.currentThread():
+            # decks may be opened in a sync thread
+            sys.stderr.write(msg + "\n")
+        else:
+            showInfo(msg)
+
+    def setNotice(self, str=""):
+        if str:
+            self.form.noticeLabel.setText(str)
+            self.form.noticeFrame.setShown(True)
+        else:
+            self.form.noticeFrame.setShown(False)
+
+    def setupTray(self):
+        import aqt.tray
+	self.trayIcon = aqt.tray.AnkiTrayIcon(self)
 
     # Buttons
     ##########################################################################
 
     def setupButtons(self):
+        print "setupbuttons"
+        return
         # ask
-        self.connect(self.mainWin.showAnswerButton, SIGNAL("clicked()"),
+        self.connect(self.form.showAnswerButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("showAnswer"))
         if sys.platform.startswith("win32"):
-            self.mainWin.showAnswerButton.setFixedWidth(358)
+            self.form.showAnswerButton.setFixedWidth(358)
         else:
-            self.mainWin.showAnswerButton.setFixedWidth(351)
-        self.mainWin.showAnswerButton.setFixedHeight(41)
+            self.form.showAnswerButton.setFixedWidth(351)
+        self.form.showAnswerButton.setFixedHeight(41)
         # answer
         for i in range(1, 5):
-            b = getattr(self.mainWin, "easeButton%d" % i)
+            b = getattr(self.form, "easeButton%d" % i)
             b.setFixedWidth(85)
             self.connect(b, SIGNAL("clicked()"),
                 lambda i=i: self.cardAnswered(i))
@@ -616,7 +596,7 @@ counts are %d %d %d
             def keyPressEvent(self, evt):
                 if evt.matches(QKeySequence.Undo):
                     evt.accept()
-                    if self.parent.mainWin.actionUndo.isEnabled():
+                    if self.parent.form.actionUndo.isEnabled():
                         self.parent.onUndo()
                 else:
                     return QLineEdit.keyPressEvent(self, evt)
@@ -636,35 +616,35 @@ counts are %d %d %d
                      lambda: self.moveToState("showAnswer"))
         outer.addLayout(vbox)
         outer.addStretch(0)
-        self.mainWin.typeAnswerPage.setLayout(outer)
+        self.form.typeAnswerPage.setLayout(outer)
 
     def hideButtons(self):
-        self.mainWin.buttonStack.hide()
+        self.form.buttonStack.hide()
 
     def showAnswerButton(self):
         if self.currentCard.cardModel.typeAnswer:
-            self.mainWin.buttonStack.setCurrentIndex(2)
+            self.form.buttonStack.setCurrentIndex(2)
             self.typeAnswerField.setFocus()
             self.typeAnswerField.setText("")
         else:
-            self.mainWin.buttonStack.setCurrentIndex(0)
-            self.mainWin.showAnswerButton.setFocus()
-        self.mainWin.buttonStack.show()
+            self.form.buttonStack.setCurrentIndex(0)
+            self.form.showAnswerButton.setFocus()
+        self.form.buttonStack.show()
 
     def showEaseButtons(self):
         self.updateEaseButtons()
-        self.mainWin.buttonStack.setCurrentIndex(1)
-        self.mainWin.buttonStack.show()
-        self.mainWin.buttonStack.setLayoutDirection(Qt.LeftToRight)
+        self.form.buttonStack.setCurrentIndex(1)
+        self.form.buttonStack.show()
+        self.form.buttonStack.setLayoutDirection(Qt.LeftToRight)
         if self.learningButtons():
-            self.mainWin.easeButton2.setText(_("Good"))
-            self.mainWin.easeButton3.setText(_("Easy"))
-            self.mainWin.easeButton4.setText(_("Very Easy"))
+            self.form.easeButton2.setText(_("Good"))
+            self.form.easeButton3.setText(_("Easy"))
+            self.form.easeButton4.setText(_("Very Easy"))
         else:
-            self.mainWin.easeButton2.setText(_("Hard"))
-            self.mainWin.easeButton3.setText(_("Good"))
-            self.mainWin.easeButton4.setText(_("Easy"))
-        getattr(self.mainWin, "easeButton%d" % self.defaultEaseButton()).\
+            self.form.easeButton2.setText(_("Hard"))
+            self.form.easeButton3.setText(_("Good"))
+            self.form.easeButton4.setText(_("Easy"))
+        getattr(self.form, "easeButton%d" % self.defaultEaseButton()).\
                               setFocus()
 
     def learningButtons(self):
@@ -679,7 +659,7 @@ counts are %d %d %d
     def updateEaseButtons(self):
         nextInts = {}
         for i in range(1, 5):
-            l = getattr(self.mainWin, "easeLabel%d" % i)
+            l = getattr(self.form, "easeLabel%d" % i)
             if self.config['suppressEstimates']:
                 l.setText("")
             elif i == 1:
@@ -698,62 +678,27 @@ counts are %d %d %d
     # Deck loading & saving: backend
     ##########################################################################
 
-    def loadDeck(self, deckPath, sync=True, interactive=True, uprecent=True):
+    def loadDeck(self, deckPath, showErrors=True):
         "Load a deck and update the user interface. Maybe sync."
-        self.reviewingStarted = False
-        # return True on success
         try:
-            self.pauseViews()
-            if not self.saveAndClose(hideWelcome=True):
-                return 0
-        finally:
-            self.restoreViews()
-        if not os.path.exists(deckPath):
-            self.moveToState("noDeck")
-            return
-        try:
-            self.deck = DeckStorage.Deck(deckPath)
+            self.deck = Deck(deckPath, queue=False)
         except Exception, e:
+            if not showErrors:
+                return 0
+            # FIXME: this needs updating
             if hasattr(e, 'data') and e.data.get('type') == 'inuse':
-                if interactive:
-                    aqt.utils.showWarning(_("Deck is already open."))
-                else:
-                    return
+                aqt.utils.showWarning(_("Deck is already open."))
             else:
                 aqt.utils.showCritical(_("""\
 File is corrupt or not an Anki database. Click help for more info.\n
 Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("noDeck")
             return 0
-        if uprecent:
-            self.updateRecentFiles(self.deck.path)
-        if (sync and self.config['syncOnLoad']
-            and self.deck.syncName):
-            if self.syncDeck(interactive=False):
-                return True
+        self.config.addRecentDeck(self.deck.path)
         self.setupMedia(self.deck)
-        try:
-            self.deck.initUndo()
-            self.moveToState("initial")
-        except:
-            traceback.print_exc()
-            if aqt.utils.askUser(_(
-                "An error occurred while trying to build the queue.\n"
-                "Would you like to try check the deck for errors?\n"
-                "This may take some time.")):
-                self.onCheckDB()
-                # try again
-                try:
-                    self.reset()
-                except:
-                    aqt.utils.showWarning(
-                        _("Unable to recover. Deck load failed."))
-                    self.deck = None
-            else:
-                self.deck = None
-                return 0
-            self.moveToState("noDeck")
-        runHook("loadDeck")
+        self.deck.initUndo()
+        self.progress.setupDB()
+        self.moveToState("deckLoading")
         return True
 
     def maybeLoadLastDeck(self, args):
@@ -761,10 +706,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         # try a command line argument if available
         if args:
             f = unicode(args[0], sys.getfilesystemencoding())
-            return self.loadDeck(f, sync=False)
+            return self.loadDeck(f)
         # try recent deck paths
         for path in self.config['recentDeckPaths']:
-            r = self.loadDeck(path, interactive=False, sync=False)
+            r = self.loadDeck(path, showErrors=False)
             if r:
                 return r
 
@@ -795,7 +740,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.switchDecks = (
             [(os.path.basename(x).replace(".anki", ""), x)
              for x in self.config['recentDeckPaths']
-             if not self.deck or self.deck.path != x and
+             if not self.deck or self.mw.path != x and
              os.path.exists(x)])
         self.switchDecks.sort()
         combo.addItems(QStringList([x[0] for x in self.switchDecks]))
@@ -838,17 +783,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.closeAllDeckWindows()
         synced = False
         if self.deck is not None:
-            if self.deck.finishScheduler:
-                self.deck.finishScheduler()
-                self.deck.reset()
-            # update counts
-            for d in self.browserDecks:
-                if d['path'] == self.deck.path:
-                    d['due'] = self.deck.failedSoonCount + self.deck.revCount
-                    d['new'] = self.deck.newCount
-                    d['mod'] = self.deck.modified
-                    d['time'] = self.deck._dailyStats.reviewTime
-                    d['reps'] = self.deck._dailyStats.reps
             if self.deck.modifiedSinceSave():
                 if (self.deck.path is None or
                     (not self.config['saveOnClose'] and
@@ -1010,7 +944,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         file = unicode(file)
         if not file:
             return False
-        ret = self.loadDeck(file, interactive=True)
+        ret = self.loadDeck(file)
         if not ret:
             if ret is None:
                 aqt.utils.showWarning(_("Unable to load file."))
@@ -1086,11 +1020,9 @@ your deck."""))
         self.updateTitleBar()
         return True
 
-    def onSave(self):
-        self.save(required=True)
-
-    def onSaveAs(self):
+    def onRename(self):
         "Prompt for a file name, then save."
+        return
         title = _("Save Deck As")
         if self.deck.path:
             dir = os.path.dirname(self.deck.path)
@@ -1127,291 +1059,8 @@ your deck."""))
     ##########################################################################
 
     def setupDeckBrowser(self):
-        class PaddedScroll(QScrollArea):
-            def sizeHint(self):
-                hint = QScrollArea.sizeHint(self)
-                if sys.platform.startswith("darwin"):
-                    m = 500
-                else:
-                    m = 450
-                return QSize(max(hint.width(), m), hint.height())
-        self.decksScrollArea = PaddedScroll()
-        self.decksScrollArea.setFrameStyle(QFrame.NoFrame)
-        self.decksScrollArea.setWidgetResizable(True)
-        self.mainWin.verticalLayout_14.insertWidget(2, self.decksScrollArea)
-        self.decksFrame = QFrame()
-        self.connect(self.mainWin.downloadDeckButton,
-                     SIGNAL("clicked()"),
-                     self.onGetSharedDeck)
-        self.connect(self.mainWin.newDeckButton,
-                     SIGNAL("clicked()"),
-                     self.onNew)
-        self.connect(self.mainWin.importDeckButton,
-                     SIGNAL("clicked()"),
-                     self.onImport)
-        self.browserLastRefreshed = 0
-        self.browserDecks = []
-
-    def refreshBrowserDecks(self, forget=False):
-        self.browserDecks = []
-        if not self.config['recentDeckPaths']:
-            return
-        toRemove = []
-        self.startProgress(max=len(self.config['recentDeckPaths']),
-                           immediate=True)
-        for c, d in enumerate(self.config['recentDeckPaths']):
-            if self.splash.finished:
-                self.updateProgress(_("Checking deck %(x)d of %(y)d...") % {
-                    'x': c+1, 'y': len(self.config['recentDeckPaths'])})
-            if not os.path.exists(d):
-                if forget:
-                    toRemove.append(d)
-                continue
-            try:
-                mod = os.stat(d)[stat.ST_MTIME]
-                deck = DeckStorage.Deck(d, backup=False)
-                self.browserDecks.append({
-                    'path': d,
-                    'name': deck.name(),
-                    'due': deck.failedSoonCount + deck.revCount,
-                    'new': deck.newCount,
-                    'mod': deck.modified,
-                    'time': deck._dailyStats.reviewTime,
-                    'reps': deck._dailyStats.reps,
-                    })
-                deck.close()
-                try:
-                    os.utime(d, (mod, mod))
-                except:
-                    # some misbehaving filesystems may fail here
-                    pass
-            except Exception, e:
-                if "File is in use" in unicode(e):
-                    continue
-                else:
-                    toRemove.append(d)
-        for d in toRemove:
-            self.config['recentDeckPaths'].remove(d)
-        self.config.save()
-        if self.splash.finished:
-            self.finishProgress()
-        self.browserLastRefreshed = time.time()
-        self.reorderBrowserDecks()
-
-    def reorderBrowserDecks(self):
-        if self.config['deckBrowserOrder'] == 0:
-            self.browserDecks.sort(key=itemgetter('mod'),
-                                   reverse=True)
-        else:
-            def custcmp(a, b):
-                x = cmp(not not b['due'], not not a['due'])
-                if x:
-                    return x
-                x = cmp(not not b['new'], not not a['new'])
-                if x:
-                    return x
-                return cmp(a['mod'], b['mod'])
-            self.browserDecks.sort(cmp=custcmp)
-
-    def forceBrowserRefresh(self):
-        self.browserLastRefreshed = 0
-        self.showDeckBrowser()
-
-    def showDeckBrowser(self):
-        self.switchToBlankScreen()
-        import sip
-        focusButton = None
-        # remove all widgets from layout & layout itself
-        self.moreMenus = []
-        if self.decksFrame.layout():
-            while 1:
-                obj = self.decksFrame.layout().takeAt(0)
-                if not obj:
-                    break
-                if obj.widget():
-                    obj.widget().deleteLater()
-            self.app.processEvents(QEventLoop.DeferredDeletion)
-            sip.delete(self.decksFrame.layout())
-        # build new layout
-        layout = QGridLayout()
-        self.decksFrame.setLayout(layout)
-        if sys.platform.startswith("darwin"):
-            layout.setSpacing(6)
-        else:
-            layout.setSpacing(2)
-        if (time.time() - self.browserLastRefreshed >
-            self.config['deckBrowserRefreshPeriod']):
-            self.refreshBrowserDecks()
-        else:
-            self.reorderBrowserDecks()
-        if self.browserDecks:
-            layout.addWidget(QLabel(_("<b>Deck</b>")), 0, 0)
-            layout.setColumnStretch(0, 1)
-            l = QLabel(_("<b>Due<br>Today</b>"))
-            l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            layout.addWidget(l, 0, 1)
-            layout.setColumnMinimumWidth(2, 10)
-            l = QLabel(_("<b>New<br>Today</b>"))
-            l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            layout.addWidget(l, 0, 3)
-            layout.setColumnMinimumWidth(4, 10)
-            for c, deck in enumerate(self.browserDecks):
-                # name
-                n = deck['name']
-                lim = self.config['deckBrowserNameLength']
-                if len(n) > lim:
-                    n = n[:lim] + "..."
-                mod = _("%s ago") % anki.utils.fmtTimeSpan(
-                    time.time() - deck['mod'])
-                mod = "<font size=-1>%s</font>" % mod
-                l = QLabel("%d. <b>%s</b><br>&nbsp;&nbsp;&nbsp;&nbsp;%s" %
-                           (c+1, n, mod))
-                l.setWordWrap(True)
-                layout.addWidget(l, c+1, 0)
-                # due
-                col = '<b><font color=#0000ff>%s</font></b>'
-                if deck['due'] > 0:
-                    s = col % str(deck['due'])
-                else:
-                    s = ""
-                l = QLabel(s)
-                l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                layout.addWidget(l, c+1, 1)
-                # new
-                if deck['new']:
-                    s = str(deck['new'])
-                else:
-                    s = ""
-                l = QLabel(s)
-                l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                layout.addWidget(l, c+1, 3)
-                # open
-                openButton = QPushButton(_("Open"))
-                if c < 9:
-                    if sys.platform.startswith("darwin"):
-                        extra = ""
-                        # appears to be broken on osx
-                        #extra = _(" (Command+Option+%d)") % (c+1)
-                        #openButton.setShortcut(_("Ctrl+Alt+%d" % (c+1)))
-                    else:
-                        extra = _(" (Alt+%d)") % (c+1)
-                        openButton.setShortcut(_("Alt+%d" % (c+1)))
-                else:
-                    extra = ""
-                openButton.setToolTip(_("Open this deck%s") % extra)
-                self.connect(openButton, SIGNAL("clicked()"),
-                             lambda d=deck['path']: self.loadDeck(d))
-                layout.addWidget(openButton, c+1, 5)
-                if c == 0:
-                    focusButton = openButton
-                # more
-                moreButton = QPushButton(_("More"))
-                moreMenu = QMenu()
-                a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
-                                       _("Hide From List"))
-                a.connect(a, SIGNAL("triggered()"),
-                          lambda c=c: self.onDeckBrowserForget(c))
-                a = moreMenu.addAction(QIcon(":/icons/editdelete.png"),
-                                       _("Delete"))
-                a.connect(a, SIGNAL("triggered()"),
-                          lambda c=c: self.onDeckBrowserDelete(c))
-                moreButton.setMenu(moreMenu)
-                self.moreMenus.append(moreMenu)
-                layout.addWidget(moreButton, c+1, 6)
-            refresh = QPushButton(_("Refresh"))
-            refresh.setToolTip(_("Check due counts again (F5)"))
-            refresh.setShortcut(_("F5"))
-            self.connect(refresh, SIGNAL("clicked()"),
-                         self.forceBrowserRefresh)
-            layout.addItem(QSpacerItem(1,20, QSizePolicy.Preferred,
-                                       QSizePolicy.Preferred), c+2, 5)
-            layout.addWidget(refresh, c+3, 5)
-            more = QPushButton(_("More"))
-            moreMenu = QMenu()
-            a = moreMenu.addAction(QIcon(":/icons/edit-undo.png"),
-                                   _("Forget Inaccessible Decks"))
-            a.connect(a, SIGNAL("triggered()"),
-                      self.onDeckBrowserForgetInaccessible)
-            more.setMenu(moreMenu)
-            layout.addWidget(more, c+3, 6)
-            self.moreMenus.append(moreMenu)
-            # make sure top labels don't expand
-            layout.addItem(QSpacerItem(1,1, QSizePolicy.Expanding,
-                                       QSizePolicy.Expanding),
-                           c+4, 5)
-            # summarize
-            reps = 0
-            mins = 0
-            revC = 0
-            newC = 0
-            for d in self.browserDecks:
-                reps += d['reps']
-                mins += d['time']
-                revC += d['due']
-                newC += d['new']
-            line1 = ngettext(
-                "Studied <b>%(reps)d card</b> in <b>%(time)s</b> today.",
-                "Studied <b>%(reps)d cards</b> in <b>%(time)s</b> today.",
-                reps) % {
-                'reps': reps,
-                'time': anki.utils.fmtTimeSpan(mins, point=2),
-                }
-            rev = ngettext(
-                "<b><font color=#0000ff>%d</font></b> review",
-                "<b><font color=#0000ff>%d</font></b> reviews",
-                revC) % revC
-            new = ngettext("<b>%d</b> new card", "<b>%d</b> new cards", newC) % newC
-            line2 = _("Due: %(rev)s, %(new)s") % {
-                'rev': rev, 'new': new}
-            self.mainWin.deckBrowserSummary.setText(line1 + "<br>" + line2)
-        else:
-            l = QLabel(_("""\
-<br>
-<font size=+1>
-Welcome to Anki! Click <b>'Download'</b> to get started. You can return here
-later by using File>Close.
-</font>
-<br>
-"""))
-            l.setWordWrap(True)
-            layout.addWidget(l, 0, 0)
-        self.decksScrollArea.setWidget(self.decksFrame)
-        if focusButton:
-            focusButton.setFocus()
-        # do this last
-        self.switchToDecksScreen()
-
-    def onDeckBrowserForget(self, c):
-        if aqt.utils.askUser(_("""\
-Hide %s from the list? You can File>Open it again later.""") %
-                            self.browserDecks[c]['name']):
-            self.config['recentDeckPaths'].remove(self.browserDecks[c]['path'])
-            del self.browserDecks[c]
-            self.doLater(100, self.showDeckBrowser)
-
-    def onDeckBrowserDelete(self, c):
-        deck = self.browserDecks[c]['path']
-        if aqt.utils.askUser(_("""\
-Delete %s? If this deck is synchronized the online version will \
-not be touched.""") %
-                            self.browserDecks[c]['name']):
-            del self.browserDecks[c]
-            os.unlink(deck)
-            try:
-                shutil.rmtree(re.sub(".anki$", ".media", deck))
-            except OSError:
-                pass
-            self.config['recentDeckPaths'].remove(deck)
-            self.doLater(100, self.showDeckBrowser)
-
-    def onDeckBrowserForgetInaccessible(self):
-        self.refreshBrowserDecks(forget=True)
-
-    def doLater(self, msecs, func):
-        timer = QTimer(self)
-        timer.setSingleShot(True)
-        timer.start(msecs)
-        self.connect(timer, SIGNAL("timeout()"), func)
+        from aqt.deckbrowser import DeckBrowser
+        self.deckBrowser = DeckBrowser(self)
 
     # Opening and closing the app
     ##########################################################################
@@ -1419,7 +1068,6 @@ not be touched.""") %
     def prepareForExit(self):
         "Save config and window geometry."
         runHook("quit")
-        self.help.hide()
         self.config['mainWindowGeom'] = self.saveGeometry()
         self.config['mainWindowState'] = self.saveState()
         # save config
@@ -1444,106 +1092,70 @@ not be touched.""") %
             event.accept()
             self.app.quit()
 
-    # Anchor clicks
-    ##########################################################################
-
-    def onWelcomeAnchor(self, str):
-        if str == "back":
-            self.saveAndClose()
-        if str == "addfacts":
-            if self.deck:
-                self.onAddCard()
-
-    def setupAnchors(self):
-        # welcome
-        self.anchorPrefixes = {
-            'welcome': self.onWelcomeAnchor,
-            }
-        self.connect(self.mainWin.welcomeText,
-                     SIGNAL("anchorClicked(QUrl)"),
-                     self.anchorClicked)
-        # main
-        self.mainWin.mainText.page().setLinkDelegationPolicy(
-            QWebPage.DelegateAllLinks)
-        self.connect(self.mainWin.mainText,
-                     SIGNAL("linkClicked(QUrl)"),
-                     self.linkClicked)
-
-    def anchorClicked(self, url):
-        # prevent the link being handled
-        self.mainWin.welcomeText.setSource(QUrl(""))
-        addr = unicode(url.toString())
-        fields = addr.split(":")
-        if len(fields) > 1 and fields[0] in self.anchorPrefixes:
-            self.anchorPrefixes[fields[0]](*fields[1:])
-        else:
-            # open in browser
-            QDesktopServices.openUrl(QUrl(url))
-
-    def linkClicked(self, url):
-        QDesktopServices.openUrl(QUrl(url))
-
     # Edit current fact
     ##########################################################################
 
     def setupEditor(self):
+        print "setupeditor"
+        return
         self.editor = aqt.facteditor.FactEditor(
-            self, self.mainWin.fieldsArea, self.deck)
+            self, self.form.fieldsArea, self.deck)
         self.editor.clayout.setShortcut("")
         self.editor.onFactValid = self.onFactValid
         self.editor.onFactInvalid = self.onFactInvalid
         self.editor.resetOnEdit = False
         # editor
-        self.connect(self.mainWin.saveEditorButton, SIGNAL("clicked()"),
+        self.connect(self.form.saveEditorButton, SIGNAL("clicked()"),
                      lambda: self.moveToState("saveEdit"))
 
 
     def showEditor(self):
-        self.mainWin.buttonStack.hide()
+        self.form.buttonStack.hide()
         self.switchToEditScreen()
         self.editor.setFact(self.currentCard.fact)
         self.editor.card = self.currentCard
 
     def onFactValid(self, fact):
-        self.mainWin.saveEditorButton.setEnabled(True)
+        self.form.saveEditorButton.setEnabled(True)
 
     def onFactInvalid(self, fact):
-        self.mainWin.saveEditorButton.setEnabled(False)
+        self.form.saveEditorButton.setEnabled(False)
 
     # Study screen
     ##########################################################################
 
     def setupStudyScreen(self):
-        self.mainWin.buttonStack.hide()
-        self.mainWin.newCardOrder.insertItems(
+        return
+        self.form.buttonStack.hide()
+        self.form.newCardOrder.insertItems(
             0, QStringList(anki.consts.newCardOrderLabels().values()))
-        self.mainWin.newCardScheduling.insertItems(
+        self.form.newCardScheduling.insertItems(
             0, QStringList(anki.consts.newCardSchedulingLabels().values()))
-        self.mainWin.revCardOrder.insertItems(
+        self.form.revCardOrder.insertItems(
             0, QStringList(anki.consts.revCardOrderLabels().values()))
-        self.connect(self.mainWin.optionsHelpButton,
+        self.connect(self.form.optionsHelpButton,
                      SIGNAL("clicked()"),
                      lambda: QDesktopServices.openUrl(QUrl(
             aqt.appWiki + "StudyOptions")))
-        self.connect(self.mainWin.minuteLimit,
+        self.connect(self.form.minuteLimit,
                      SIGNAL("textChanged(QString)"), self.onMinuteLimitChanged)
-        self.connect(self.mainWin.questionLimit,
+        self.connect(self.form.questionLimit,
                      SIGNAL("textChanged(QString)"), self.onQuestionLimitChanged)
-        self.connect(self.mainWin.newPerDay,
+        self.connect(self.form.newPerDay,
                      SIGNAL("textChanged(QString)"), self.onNewLimitChanged)
-        self.connect(self.mainWin.startReviewingButton,
+        self.connect(self.form.startReviewingButton,
                      SIGNAL("clicked()"),
                      self.onStartReview)
-        self.connect(self.mainWin.newCardOrder,
+        self.connect(self.form.newCardOrder,
                      SIGNAL("activated(int)"), self.onNewCardOrderChanged)
-        self.connect(self.mainWin.failedCardMax,
+        self.connect(self.form.failedCardMax,
                      SIGNAL("editingFinished()"),
                      self.onFailedMaxChanged)
-        self.connect(self.mainWin.newCategories,
+        self.connect(self.form.newCategories,
                      SIGNAL("clicked()"), self.onNewCategoriesClicked)
-        self.connect(self.mainWin.revCategories,
+        self.connect(self.form.revCategories,
                      SIGNAL("clicked()"), self.onRevCategoriesClicked)
-        self.mainWin.tabWidget.setCurrentIndex(self.config['studyOptionsTab'])
+        self.form.tabWidget.setCurrentIndex(self.config['studyOptionsTab'])
 
     def onNewCategoriesClicked(self):
         aqt.activetags.show(self, "new")
@@ -1553,18 +1165,18 @@ not be touched.""") %
 
     def onFailedMaxChanged(self):
         try:
-            v = int(self.mainWin.failedCardMax.text())
+            v = int(self.form.failedCardMax.text())
             if v == 1 or v < 0:
                 v = 2
             self.deck.failedCardMax = v
         except ValueError:
             pass
-        self.mainWin.failedCardMax.setText(str(self.deck.failedCardMax))
+        self.form.failedCardMax.setText(str(self.deck.failedCardMax))
         self.deck.flushMod()
 
     def onMinuteLimitChanged(self, qstr):
         try:
-            val = float(self.mainWin.minuteLimit.text()) * 60
+            val = float(self.form.minuteLimit.text()) * 60
             if self.deck.sessionTimeLimit == val:
                 return
             self.deck.sessionTimeLimit = val
@@ -1575,7 +1187,7 @@ not be touched.""") %
 
     def onQuestionLimitChanged(self, qstr):
         try:
-            val = int(self.mainWin.questionLimit.text())
+            val = int(self.form.questionLimit.text())
             if self.deck.sessionRepLimit == val:
                 return
             self.deck.sessionRepLimit = val
@@ -1586,7 +1198,7 @@ not be touched.""") %
 
     def onNewLimitChanged(self, qstr):
         try:
-            val = int(self.mainWin.newPerDay.text())
+            val = int(self.form.newPerDay.text())
             if self.deck.newCardsPerDay == val:
                 return
             self.deck.newCardsPerDay = val
@@ -1605,8 +1217,8 @@ not be touched.""") %
         if ncOrd != 0:
             if self.deck.newCardOrder == 0:
                 # need to put back in order
-                self.deck.startProgress()
-                self.deck.updateProgress(_("Ordering..."))
+                self.mw.startProgress()
+                self.mw.updateProgress(_("Ordering..."))
                 self.deck.orderNewCards()
                 self.deck.finishProgress()
             uf(self.deck, 'newCardOrder', ncOrd)
@@ -1627,15 +1239,15 @@ not be touched.""") %
             new = labels[1]
         else:
             new = labels[0]
-        self.mainWin.newCategoryLabel.setText(new)
+        self.form.newCategoryLabel.setText(new)
         if self.deck.getVar("revActive") or self.deck.getVar("revInactive"):
             rev = labels[1]
         else:
             rev = labels[0]
-        self.mainWin.revCategoryLabel.setText(rev)
+        self.form.revCategoryLabel.setText(rev)
 
     def updateStudyStats(self):
-        self.mainWin.buttonStack.hide()
+        self.form.buttonStack.hide()
         self.deck.reset()
         self.updateActives()
         wasReached = self.deck.timeboxReached()
@@ -1700,7 +1312,7 @@ not be touched.""") %
 <tr><td>%(ntod_header)s</td><td align=right><b>%(new)s</b></td></tr>
 <tr><td>%(ntot_header)s</td><td align=right>%(newof)s</td></tr>
 </table>""") % h
-        self.mainWin.optionsLabel.setText("""\
+        self.form.optionsLabel.setText("""\
 <p><table><tr>
 %s
 </tr><tr>
@@ -1725,59 +1337,59 @@ learnt today")
 <dl><dt><b>%(ntod_header)s</b></dt><dd>%(ntod_tip)s</dd></dl>
 <dl><dt><b>%(ntot_header)s</b></dt><dd>%(ntot_tip)s<</dd></dl>""") % h
 
-        self.mainWin.optionsLabel.setToolTip(statToolTip)
+        self.form.optionsLabel.setToolTip(statToolTip)
 
     def showStudyScreen(self):
         # forget last card
         self.lastCard = None
         self.switchToStudyScreen()
         self.updateStudyStats()
-        self.mainWin.startReviewingButton.setFocus()
+        self.form.startReviewingButton.setFocus()
         self.setupStudyOptions()
-        self.mainWin.studyOptionsFrame.setMaximumWidth(500)
-        self.mainWin.studyOptionsFrame.show()
+        self.form.studyOptionsFrame.setMaximumWidth(500)
+        self.form.studyOptionsFrame.show()
 
     def setupStudyOptions(self):
-        self.mainWin.newPerDay.setText(str(self.deck.newCardsPerDay))
+        self.form.newPerDay.setText(str(self.deck.newCardsPerDay))
         lim = self.deck.sessionTimeLimit/60
         if int(lim) == lim:
             lim = int(lim)
-        self.mainWin.minuteLimit.setText(str(lim))
-        self.mainWin.questionLimit.setText(str(self.deck.sessionRepLimit))
-        self.mainWin.newCardOrder.setCurrentIndex(self.deck.newCardOrder)
-        self.mainWin.newCardScheduling.setCurrentIndex(self.deck.newCardSpacing)
-        self.mainWin.revCardOrder.setCurrentIndex(self.deck.revCardOrder)
-        self.mainWin.failedCardsOption.clear()
+        self.form.minuteLimit.setText(str(lim))
+        self.form.questionLimit.setText(str(self.deck.sessionRepLimit))
+        self.form.newCardOrder.setCurrentIndex(self.deck.newCardOrder)
+        self.form.newCardScheduling.setCurrentIndex(self.deck.newCardSpacing)
+        self.form.revCardOrder.setCurrentIndex(self.deck.revCardOrder)
+        self.form.failedCardsOption.clear()
         if self.deck.getFailedCardPolicy() == 5:
             labels = failedCardOptionLabels().values()
         else:
             labels = failedCardOptionLabels().values()[0:-1]
-        self.mainWin.failedCardsOption.insertItems(0, labels)
-        self.mainWin.failedCardsOption.setCurrentIndex(self.deck.getFailedCardPolicy())
-        self.mainWin.failedCardMax.setText(unicode(self.deck.failedCardMax))
+        self.form.failedCardsOption.insertItems(0, labels)
+        self.form.failedCardsOption.setCurrentIndex(self.deck.getFailedCardPolicy())
+        self.form.failedCardMax.setText(unicode(self.deck.failedCardMax))
 
     def onStartReview(self):
         def uf(obj, field, value):
             if getattr(obj, field) != value:
                 setattr(obj, field, value)
                 self.deck.flushMod()
-        self.mainWin.studyOptionsFrame.hide()
+        self.form.studyOptionsFrame.hide()
         # make sure the size is updated before button stack shown
         self.app.processEvents()
         uf(self.deck, 'newCardSpacing',
-           self.mainWin.newCardScheduling.currentIndex())
+           self.form.newCardScheduling.currentIndex())
         uf(self.deck, 'revCardOrder',
-           self.mainWin.revCardOrder.currentIndex())
+           self.form.revCardOrder.currentIndex())
         pol = self.deck.getFailedCardPolicy()
         if (pol != 5 and pol !=
-            self.mainWin.failedCardsOption.currentIndex()):
+            self.form.failedCardsOption.currentIndex()):
             self.deck.setFailedCardPolicy(
-                self.mainWin.failedCardsOption.currentIndex())
+                self.form.failedCardsOption.currentIndex())
             self.deck.flushMod()
         self.deck.reset()
         if not self.deck.finishScheduler:
             self.deck.startTimebox()
-        self.config['studyOptionsTab'] = self.mainWin.tabWidget.currentIndex()
+        self.config['studyOptionsTab'] = self.form.tabWidget.currentIndex()
         self.moveToState("getQuestion")
 
     def onStudyOptions(self):
@@ -1790,7 +1402,7 @@ learnt today")
     ##########################################################################
 
     def setupToolbar(self):
-        mw = self.mainWin
+        mw = self.form
         mw.toolBar.addAction(mw.actionAddcards)
         mw.toolBar.addAction(mw.actionEditCurrent)
         mw.toolBar.addAction(mw.actionEditLayout)
@@ -1810,7 +1422,7 @@ learnt today")
             mw.toolBar.hide()
 
     def onToolbarToggle(self):
-        tb = self.mainWin.toolBar
+        tb = self.form.toolBar
         self.config['showToolbar'] = tb.isVisible()
 
     # Tools - statistics
@@ -1845,7 +1457,7 @@ learnt today")
         import anki.graphs
         if anki.graphs.graphsAvailable():
             try:
-                aqt.dialogs.get("Graphs", self, self.deck)
+                aqt.dialogs.open("Graphs", self, self.deck)
             except (ImportError, ValueError):
                 traceback.print_exc()
                 if sys.platform.startswith("win32"):
@@ -1913,10 +1525,10 @@ learnt today")
     ##########################################################################
 
     def onAddCard(self):
-        aqt.dialogs.get("AddCards", self)
+        aqt.dialogs.open("AddCards", self)
 
     def onEditDeck(self):
-        aqt.dialogs.get("CardList", self)
+        aqt.dialogs.open("CardList", self)
 
     def onEditCurrent(self):
         self.moveToState("editCurrentFact")
@@ -2107,7 +1719,7 @@ it to your friends.
     # Language handling
     ##########################################################################
 
-    def setLang(self):
+    def setupLang(self):
         "Set the user interface language."
         import locale, gettext
         import anki.lang
@@ -2120,10 +1732,9 @@ it to your friends.
                                             languages=[self.config["interfaceLang"]],
                                             fallback=True)
         self.installTranslation()
-        if getattr(self, 'mainWin', None):
-            self.mainWin.retranslateUi(self)
+        if getattr(self, 'form', None):
+            self.form.retranslateUi(self)
         anki.lang.setLang(self.config["interfaceLang"], local=False)
-        self.updateTitleBar()
         if self.config['interfaceLang'] in ("he","ar","fa"):
             self.app.setLayoutDirection(Qt.RightToLeft)
         else:
@@ -2143,15 +1754,10 @@ it to your friends.
     # Syncing
     ##########################################################################
 
-    def setupSync(self):
-        print "setupSync()"
-        #if not self.config['syncDisableWhenMoved']:
-        #    anki.deck.Deck.checkSyncHash = lambda self: True
-
     def syncDeck(self, interactive=True, onlyMerge=False, reload=True):
         "Synchronise a deck with the server."
         if not self.inMainWindow() and interactive and interactive!=-1: return
-        self.setNotice()
+        #self.setNotice()
         # vet input
         if interactive:
             self.ensureSyncParams()
@@ -2204,7 +1810,7 @@ will sync automatically from then on."""))
         # garbage collected until the middle of the child thread
         self.state = "nostate"
         import gc; gc.collect()
-        self.mainWin.welcomeText.setText(u"")
+        self.form.welcomeText.setText(u"")
         self.syncThread = aqt.sync.Sync(self, u, p, interactive, onlyMerge)
         self.connect(self.syncThread, SIGNAL("setStatus"), self.setSyncStatus)
         self.connect(self.syncThread, SIGNAL("showWarning"), self.showSyncWarning)
@@ -2231,7 +1837,7 @@ will sync automatically from then on."""))
             self.app.processEvents()
             self.syncThread.wait(100)
         self.setEnabled(True)
-        return self.syncThread.ok
+        return True
 
     def decksToSync(self):
         ok = []
@@ -2274,7 +1880,7 @@ Are you sure?""" % deckName),
 
     def onSyncFinished(self):
         "Reopen after sync finished."
-        self.mainWin.buttonStack.show()
+        self.form.buttonStack.show()
         try:
             try:
                 if self.hideWelcome:
@@ -2310,7 +1916,7 @@ Are you sure?""" % deckName),
                             c.execute("update decks set syncName = ?", (name,))
                             c.commit()
                             c.close()
-                        self.loadDeck(self.deckPath, sync=False)
+                        self.loadDeck(self.deckPath)
                     else:
                         self.moveToState("noDeck")
             except:
@@ -2350,7 +1956,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.syncFinished = True
 
     def setSyncStatus(self, text, *args):
-        self.mainWin.welcomeText.append("<font size=+2>" + text + "</font>")
+        self.form.welcomeText.append("<font size=+2>" + text + "</font>")
 
     def syncClockOff(self, diff):
         aqt.utils.showWarning(
@@ -2415,8 +2021,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     ##########################################################################
 
     deckRelatedMenuItems = (
-        "Save",
-        "SaveAs",
+        "Rename",
         "Close",
         "Addcards",
         "Editdeck",
@@ -2436,8 +2041,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         "Tools",
         )
 
-    def connectMenuActions(self):
-        m = self.mainWin
+    def setupMenus(self):
+        m = self.form
         s = SIGNAL("triggered()")
         self.connect(m.actionNew, s, self.onNew)
         self.connect(m.actionOpenOnline, s, self.onOpenOnline)
@@ -2445,8 +2050,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
         self.connect(m.actionOpenRecent, s, self.onSwitchToDeck)
         self.connect(m.actionOpen, s, self.onOpen)
-        self.connect(m.actionSave, s, self.onSave)
-        self.connect(m.actionSaveAs, s, self.onSaveAs)
+        self.connect(m.actionRename, s, self.onRename)
         self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionSyncdeck, s, self.syncDeck)
@@ -2485,9 +2089,9 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
         for item in self.deckRelatedMenus:
-            getattr(self.mainWin, "menu" + item).setEnabled(enabled)
+            getattr(self.form, "menu" + item).setEnabled(enabled)
         for item in self.deckRelatedMenuItems:
-            getattr(self.mainWin, "action" + item).setEnabled(enabled)
+            getattr(self.form, "action" + item).setEnabled(enabled)
         if not enabled:
             self.disableCardMenuItems()
         runHook("enableDeckMenuItems", enabled)
@@ -2516,28 +2120,28 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.setWindowTitle(title)
 
     def setStatus(self, text, timeout=3000):
-        self.mainWin.statusbar.showMessage(text, timeout)
+        self.form.statusbar.showMessage(text, timeout)
 
     def onStartHere(self):
         QDesktopServices.openUrl(QUrl(aqt.appHelpSite))
 
     def updateMarkAction(self):
-        self.mainWin.actionMarkCard.blockSignals(True)
+        self.form.actionMarkCard.blockSignals(True)
         if self.deck.cardHasTag(self.currentCard, "Marked"):
-            self.mainWin.actionMarkCard.setChecked(True)
+            self.form.actionMarkCard.setChecked(True)
         else:
-            self.mainWin.actionMarkCard.setChecked(False)
-        self.mainWin.actionMarkCard.blockSignals(False)
+            self.form.actionMarkCard.setChecked(False)
+        self.form.actionMarkCard.blockSignals(False)
 
     def disableCardMenuItems(self):
         self.maybeEnableUndo()
-        self.mainWin.actionEditCurrent.setEnabled(False)
-        self.mainWin.actionEditLayout.setEnabled(False)
-	self.mainWin.actionMarkCard.setEnabled(False)
-	self.mainWin.actionSuspendCard.setEnabled(False)
-	self.mainWin.actionDelete.setEnabled(False)
-	self.mainWin.actionBuryFact.setEnabled(False)
-        self.mainWin.actionRepeatAudio.setEnabled(False)
+        self.form.actionEditCurrent.setEnabled(False)
+        self.form.actionEditLayout.setEnabled(False)
+	self.form.actionMarkCard.setEnabled(False)
+	self.form.actionSuspendCard.setEnabled(False)
+	self.form.actionDelete.setEnabled(False)
+	self.form.actionBuryFact.setEnabled(False)
+        self.form.actionRepeatAudio.setEnabled(False)
         runHook("disableCardMenuItems")
 
     def enableCardMenuItems(self):
@@ -2545,29 +2149,29 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         snd = (hasSound(self.currentCard.question) or
                (hasSound(self.currentCard.answer) and
                 self.state != "getQuestion"))
-	self.mainWin.actionEditLayout.setEnabled(True)
-        self.mainWin.actionRepeatAudio.setEnabled(snd)
-	self.mainWin.actionMarkCard.setEnabled(True)
-	self.mainWin.actionSuspendCard.setEnabled(True)
-	self.mainWin.actionDelete.setEnabled(True)
-	self.mainWin.actionBuryFact.setEnabled(True)
-        self.mainWin.actionEditCurrent.setEnabled(True)
-        self.mainWin.actionEditdeck.setEnabled(True)
+	self.form.actionEditLayout.setEnabled(True)
+        self.form.actionRepeatAudio.setEnabled(snd)
+	self.form.actionMarkCard.setEnabled(True)
+	self.form.actionSuspendCard.setEnabled(True)
+	self.form.actionDelete.setEnabled(True)
+	self.form.actionBuryFact.setEnabled(True)
+        self.form.actionEditCurrent.setEnabled(True)
+        self.form.actionEditdeck.setEnabled(True)
         runHook("enableCardMenuItems")
 
     def maybeEnableUndo(self):
         if self.deck and self.deck.undoAvailable():
-            self.mainWin.actionUndo.setText(_("Undo %s") %
+            self.form.actionUndo.setText(_("Undo %s") %
                                             self.deck.undoName())
-            self.mainWin.actionUndo.setEnabled(True)
+            self.form.actionUndo.setEnabled(True)
         else:
-            self.mainWin.actionUndo.setEnabled(False)
+            self.form.actionUndo.setEnabled(False)
         if self.deck and self.deck.redoAvailable():
-            self.mainWin.actionRedo.setText(_("Redo %s") %
+            self.form.actionRedo.setText(_("Redo %s") %
                                             self.deck.redoName())
-            self.mainWin.actionRedo.setEnabled(True)
+            self.form.actionRedo.setEnabled(True)
         else:
-            self.mainWin.actionRedo.setEnabled(False)
+            self.form.actionRedo.setEnabled(False)
 
     # Auto update
     ##########################################################################
@@ -2600,21 +2204,6 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             _(" Please ensure it is set correctly and then restart Anki.")
          )
 
-    def updateStarted(self):
-        self.updateProgressDialog = QProgressDialog(_(
-            "Updating Anki...\n - you can keep studying"
-            "\n - please don't close this"), "", 0, 0, self)
-        self.updateProgressDialog.setMinimum(0)
-        self.updateProgressDialog.setMaximum(100)
-        self.updateProgressDialog.setCancelButton(None)
-        self.updateProgressDialog.setMinimumDuration(0)
-
-    def updateDownloading(self, perc):
-        self.updateProgressDialog.setValue(perc)
-
-    def updateFinished(self):
-        self.updateProgressDialog.cancel()
-
     # Plugins
     ##########################################################################
 
@@ -2642,6 +2231,14 @@ This deck already exists on your computer. Overwrite the local copy?"""),
                 traceback.print_exc()
         self.checkForUpdatedPlugins()
         self.disableCardMenuItems()
+        self.rebuildPluginsMenu()
+        # run the obsolete init hook
+        try:
+            runHook('init')
+        except:
+            aqt.utils.showWarning(
+                _("Broken plugin:\n\n%s") %
+                unicode(traceback.format_exc(), "utf-8", "replace"))
 
     def clearPluginCache(self):
         "Clear .pyc files which may cause crashes if Python version updated."
@@ -2686,7 +2283,7 @@ to work with this version of Anki."""))
         if getattr(self, "pluginActions", None) is None:
             self.pluginActions = []
         for action in self.pluginActions:
-            self.mainWin.menuStartup.removeAction(action)
+            self.form.menuStartup.removeAction(action)
         all = self.allPlugins()
         all.sort()
         for fname in all:
@@ -2699,7 +2296,7 @@ to work with this version of Anki."""))
             a.setChecked(enabled)
             self.connect(a, SIGNAL("triggered()"),
                          lambda fname=fname: self.togglePlugin(fname))
-            self.mainWin.menuStartup.addAction(a)
+            self.form.menuStartup.addAction(a)
             self.pluginActions.append(a)
 
     def enabledPlugins(self):
@@ -2773,15 +2370,6 @@ to work with this version of Anki."""))
     def checkForUpdatedPlugins(self):
         pass
 
-    # Font localisation
-    ##########################################################################
-
-    def setupFonts(self):
-        print "need setupFonts?"
-        return
-        for (s, p) in anki.fonts.substitutions():
-            QFont.insertSubstitution(s, p)
-
     # Custom styles
     ##########################################################################
 
@@ -2797,7 +2385,7 @@ to work with this version of Anki."""))
             encode(sys.getfilesystemencoding())
         anki.sound.checkForNoiseProfile()
         if sys.platform.startswith("darwin"):
-            self.mainWin.actionRecordNoiseProfile.setEnabled(False)
+            self.form.actionRecordNoiseProfile.setEnabled(False)
 
     def onRepeatAudio(self):
         clearAudioQueue()
@@ -2812,96 +2400,12 @@ to work with this version of Anki."""))
         from aqt.sound import recordNoiseProfile
         recordNoiseProfile(self)
 
-    # Progress info
-    ##########################################################################
-
-    def setupProgressInfo(self):
-        addHook("startProgress", self.startProgress)
-        addHook("updateProgress", self.updateProgress)
-        addHook("finishProgress", self.finishProgress)
-        addHook("dbProgress", self.onDbProgress)
-        addHook("dbFinished", self.onDbFinished)
-        self.progressParent = None
-        self.progressWins = []
-        self.busyCursor = False
-        self.updatingBusy = False
-        self.mainThread = QThread.currentThread()
-
-    def setProgressParent(self, parent):
-        self.progressParent = parent
-
-    def startProgress(self, max=0, min=0, title=None, immediate=False):
-        if self.mainThread != QThread.currentThread():
-            return
-        self.setBusy()
-        if not self.progressWins:
-            parent = self.progressParent or self.app.activeWindow() or self
-            p = aqt.utils.ProgressWin(parent, max, min, title, immediate)
-        else:
-            p = None
-        self.progressWins.append(p)
-
-    def updateProgress(self, label=None, value=None, process=True):
-        if self.mainThread != QThread.currentThread():
-            return
-        if len(self.progressWins) == 1:
-            self.progressWins[0].update(label, value, process)
-        else:
-            # just redraw
-            if process:
-                self.app.processEvents()
-
-    def finishProgress(self):
-        if self.mainThread != QThread.currentThread():
-            return
-        if self.progressWins:
-            p = self.progressWins.pop()
-            if p:
-                p.finish()
-        if not self.progressWins:
-            self.unsetBusy()
-
-    def clearProgress(self):
-        # recover on error
-        self.progressWins = []
-        self.finishProgress()
-
-    def onDbProgress(self):
-        if self.mainThread != QThread.currentThread():
-            return
-        self.setBusy()
-        self.inDbHandler = True
-        if self.progressWins:
-            self.progressWins[0].maybeShow()
-        self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
-        self.inDbHandler = False
-
-    def onDbFinished(self):
-        if self.mainThread != QThread.currentThread():
-            return
-        if not self.progressWins:
-            self.unsetBusy()
-
-    def setBusy(self):
-        if not self.busyCursor and not self.updatingBusy:
-            self.busyCursor = True
-            self.app.setOverrideCursor(QCursor(Qt.WaitCursor))
-            self.updatingBusy = True
-            self.setEnabled(False)
-            self.updatingBusy = False
-
-    def unsetBusy(self):
-        if self.busyCursor and not self.updatingBusy:
-            self.app.restoreOverrideCursor()
-            self.busyCursor = None
-            self.updatingBusy = True
-            self.setEnabled(True)
-            self.updatingBusy = False
-
     # Media locations
     ##########################################################################
 
     def setupMedia(self, deck):
+        print "setup media"
+        return
         prefix = self.config['mediaLocation']
         prev = deck.getVar("mediaLocation") or ""
         # set the media prefix
@@ -3011,10 +2515,6 @@ is next loaded."""))
 
     def onCheckDB(self):
         "True if no problems"
-        if self.errorOccurred:
-            aqt.utils.showWarning(_(
-                "Please restart Anki before checking the DB."))
-            return
         if not aqt.utils.askUser(_("""\
 This operation will find and fix some common problems.<br>
 <br>
@@ -3121,27 +2621,25 @@ It can take a long time. Proceed?""")):
     def addHook(self, *args):
         addHook(*args)
 
-    # System specific misc
+    # System specific code
     ##########################################################################
 
-    def setupSystemHacks(self):
+    def setupSystemSpecific(self):
         self.setupDocumentDir()
-        self.changeLayoutSpacing()
         addHook("macLoadEvent", self.onMacLoad)
         if sys.platform.startswith("darwin"):
+            qt_mac_set_menubar_icons(False)
             self.setUnifiedTitleAndToolBarOnMac(True)
-            self.mainWin.actionMarkCard.setShortcut(_("Alt+m"))
-            self.mainWin.verticalLayout_14.setContentsMargins(2,2,2,2)
+            self.form.actionMarkCard.setShortcut(_("Alt+m"))
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+m", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
                          self.onMacMinimize)
             self.hideAccelerators()
             self.hideStatusTips()
-        if sys.platform.startswith("win32"):
-            self.mainWin.deckBrowserOuterFrame.setFrameStyle(QFrame.Panel)
-            self.mainWin.frame_2.setFrameStyle(QFrame.Panel)
-            self.mainWin.studyOptionsFrame.setFrameStyle(QFrame.Panel)
+        elif sys.platform.startswith("win32"):
+            # make sure ctypes is bundled
+            from ctypes import windll, wintypes
 
     def hideAccelerators(self):
         for action in self.findChildren(QAction):
@@ -3180,10 +2678,6 @@ It can take a long time. Proceed?""")):
         except (OSError, IOError):
             pass
 
-    def changeLayoutSpacing(self):
-        if sys.platform.startswith("darwin"):
-            self.mainWin.studyOptionsReviewBar.setContentsMargins(0, 20, 0, 0)
-
     # Proxy support
     ##########################################################################
 
@@ -3210,14 +2704,40 @@ It can take a long time. Proceed?""")):
             self.config['created'] = self.deck.created
         # tweaks for small screens
         if self.config['optimizeSmall']:
-            p = self.mainWin.deckBrowserOuterFrame.sizePolicy()
+            p = self.form.deckBrowserOuterFrame.sizePolicy()
             p.setHorizontalStretch(1)
-            self.mainWin.deckBrowserOuterFrame.setSizePolicy(p)
-            self.mainWin.decksLabel.hide()
-            self.mainWin.decksLine.hide()
-            self.mainWin.studyOptsLabel.hide()
+            self.form.deckBrowserOuterFrame.setSizePolicy(p)
+            self.form.decksLabel.hide()
+            self.form.decksLine.hide()
+            self.form.studyOptsLabel.hide()
 
-    def setupBackups(self):
-        # set backups
-        print "setupBackups()"
-        #anki.deck.numBackups = self.config['numBackups']
+
+# Main web view
+##########################################################################
+
+class AnkiWebView(QWebView):
+    def __init__(self, *args):
+        QWebView.__init__(self, *args)
+        self.setObjectName("mainText")
+        self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        self.setLinkHandler()
+        self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
+    def keyPressEvent(self, evt):
+        if evt.matches(QKeySequence.Copy):
+            self.triggerPageAction(QWebPage.Copy)
+            evt.accept()
+        QWebView.keyPressEvent(self, evt)
+    def contextMenuEvent(self, evt):
+        QWebView.contextMenuEvent(self, evt)
+    def dropEvent(self, evt):
+        pass
+    def _linkHandler(self, url):
+        self.linkHandler(url)
+    def setLinkHandler(self, handler=None):
+        if handler:
+            self.linkHandler = handler
+        else:
+            self.linkHandler = self._openLinksExternally
+    def _openLinksExternally(self, url):
+        QDesktopServices.openUrl(QUrl(url))
+

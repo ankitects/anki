@@ -261,7 +261,7 @@ class ModelProperties(QDialog):
     def reject(self):
         "Save user settings on close."
         # update properties
-        self.deck.startProgress()
+        self.mw.startProgress()
         mname = unicode(self.dialog.name.text())
         if not mname:
             mname = _("Model")

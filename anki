@@ -13,15 +13,14 @@ if __name__ == "__main__":
         runningDir=os.path.dirname(sys.argv[0])
         modDir=runningDir
 
-    # set up paths for local development
     sys.path.insert(0, os.path.join(modDir, "libanki"))
     sys.path.insert(0, os.path.join(os.path.join(modDir, ".."), "libanki"))
 
-    import ankiqt
+    import aqt
 
     try:
-        import ankiqt.forms
+        import aqt.forms
     except ImportError:
         raise Exception("You need to run tools/build_ui.sh in order for anki to work.")
 
-    ankiqt.run()
+    aqt.run()

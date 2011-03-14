@@ -94,7 +94,7 @@ class AddCards(QDialog):
                      self.onLink)
 
     def onLink(self, url):
-        browser = ui.dialogs.get("CardList", self.parent)
+        browser = ui.dialogs.open("CardList", self.parent)
         browser.dialog.filterEdit.setText("fid:" + url.toString())
         browser.updateSearch()
         browser.onFact()

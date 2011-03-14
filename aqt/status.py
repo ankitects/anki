@@ -26,6 +26,7 @@ class StatusView(object):
     warnTime = 10
 
     def __init__(self, parent):
+        return
         self.main = parent
         self.statusbar = parent.mainWin.statusbar
         self.shown = []

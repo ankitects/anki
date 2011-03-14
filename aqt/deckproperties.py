@@ -152,7 +152,7 @@ class DeckProperties(QDialog):
 
     def reject(self):
         n = _("Deck Properties")
-        self.d.startProgress()
+        self.mw.startProgress()
         self.d.setUndoStart(n)
         needSync = False
         # syncing

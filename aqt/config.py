@@ -14,8 +14,8 @@ defaultConf = {
     'confVer': 3,
     # remove?
     'colourTimes': True,
-    'deckBrowserNameLength': 30,
     'deckBrowserOrder': 0,
+    # too long?
     'deckBrowserRefreshPeriod': 3600,
     'factEditorAdvanced': False,
     'showStudyScreen': True,
@@ -96,7 +96,7 @@ class Config(object):
         path = self._dbPath()
         self.db = DB(path, level=None, text=str)
         self.db.executescript("""
-create table if not exists recentDecks (path not null);
+create table if not exists decks (path text primary key);
 create table if not exists config (conf text not null);
 insert or ignore into config values ('');""")
         conf = self.db.scalar("select conf from config")
@@ -111,6 +111,24 @@ insert or ignore into config values ('');""")
                         cPickle.dumps(self._conf))
         self.db.commit()
 
+    # recent deck support
+    def recentDecks(self):
+        "Return a list of paths to remembered decks."
+        # have to convert to unicode manually because of the text factory
+        return [unicode(d[0]) for d in
+                self.db.execute("select path from decks")]
+
+    def addRecentDeck(self, path):
+        "Add PATH to the list of recent decks if not already. Must be unicode."
+        self.db.execute("insert or ignore into decks values (?)",
+                        path.encode("utf-8"))
+
+    def delRecentDeck(self, path):
+        "Remove PATH from the list if it exists. Must be unicode."
+        self.db.execute("delete from decks where path = ?",
+                        path.encode("utf-8"))
+
+    # helpers
     def _addDefaults(self):
         if self.get('confVer') >= defaultConf['confVer']:
             return

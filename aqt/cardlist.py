@@ -1038,10 +1038,13 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def setupHooks(self):
+        print "setupHooks()"
+        return
         addHook("postUndoRedo", self.postUndoRedo)
         addHook("currentCardDeleted", self.updateSearch)
 
     def teardownHooks(self):
+        return
         removeHook("postUndoRedo", self.postUndoRedo)
         removeHook("currentCardDeleted", self.updateSearch)
 

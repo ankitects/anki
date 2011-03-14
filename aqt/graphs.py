@@ -250,7 +250,7 @@ class GraphWindow(object):
         self.hbox.addWidget(buttonBox)
 
     def showHideAll(self):
-        self.deck.startProgress(len(self.widgets))
+        self.mw.startProgress(len(self.widgets))
         for w in self.widgets:
             self.deck.updateProgress(_("Processing..."))
             w.showHide()
@@ -280,7 +280,7 @@ class GraphWindow(object):
         QDesktopServices.openUrl(QUrl(aqt.appWiki + "Graphs"))
 
     def onRefresh(self):
-        self.deck.startProgress(len(self.widgets))
+        self.mw.startProgress(len(self.widgets))
         self.dg.stats = None
         for w in self.widgets:
             self.deck.updateProgress(_("Processing..."))
