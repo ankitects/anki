@@ -62,7 +62,7 @@ class Scheduler(object):
         "Time spent learning today, in seconds."
         return self.deck.db.scalar(
             "select sum(taken) from revlog where time > ?",
-            self.dayCutoff-86400)
+            self.dayCutoff-86400) or 0
 
     def repsToday(self):
         "Number of cards answered today."
