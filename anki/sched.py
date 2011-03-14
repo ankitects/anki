@@ -58,6 +58,18 @@ class Scheduler(object):
         # FIXME: should learn count include new cards due today, or be separate?
         return (self.learnCount, self.revCount)
 
+    def timeToday(self):
+        "Time spent learning today, in seconds."
+        return self.deck.db.scalar(
+            "select sum(taken) from revlog where time > ?",
+            self.dayCutoff-86400)
+
+    def repsToday(self):
+        "Number of cards answered today."
+        return self.deck.db.scalar(
+            "select count() from revlog where time > ?",
+            self.dayCutoff-86400)
+
     def cardQueue(self, card):
         return card.queue
 
