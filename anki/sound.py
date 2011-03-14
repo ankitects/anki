@@ -216,7 +216,6 @@ def queueMplayer(path):
         path = path.encode("utf-8")
     mplayerQueue.append(path)
     mplayerEvt.set()
-    runHook("soundQueued")
 
 def clearMplayerQueue():
     global mplayerClear

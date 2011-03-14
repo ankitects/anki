@@ -126,7 +126,6 @@ qconf=?, conf=?, data=?""",
                 self.rollback()
             self.db.close()
             self.db = None
-        runHook("deckClosed", self)
 
     def reopen(self):
         "Reconnect to DB (after changing threads, etc). Doesn't reload."
@@ -776,12 +775,10 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
     def undo(self):
         "Undo the last action(s)."
         self._undoredo(self.undoStack, self.redoStack)
-        runHook("postUndoRedo")
 
     def redo(self):
         "Redo the last action(s)."
         self._undoredo(self.redoStack, self.undoStack)
-        runHook("postUndoRedo")
 
     # DB maintenance
     ##########################################################################
