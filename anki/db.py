@@ -15,9 +15,11 @@ from anki.hooks import runHook
 #FIXME: do we need the dbFinished hook?
 
 class DB(object):
-    def __init__(self, path, level="EXCLUSIVE"):
+    def __init__(self, path, level="EXCLUSIVE", text=None):
         self._db = sqlite.connect(
             path, timeout=0, isolation_level=level)
+        if text:
+            self._db.text_factory = text
         self._path = path
         self.echo = os.environ.get("DBECHO")
 

@@ -101,7 +101,7 @@ class Scheduler(object):
         else:
             self.newQueue = self.db.all("""
 select id, due from cards where
-queue = 2 %s order by due, id limit %d""" % (self.groupLimit('new'),
+queue = 2 %s order by due limit %d""" % (self.groupLimit('new'),
                                          lim))
             self.newQueue.reverse()
             self.newCount = len(self.newQueue)

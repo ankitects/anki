@@ -233,7 +233,7 @@ def ensureMplayerThreads():
         mplayerReader.daemon = True
         mplayerReader.start()
 
-def stopMplayer():
+def stopMplayer(*args):
     if not mplayerManager:
         return
     mplayerManager.kill()
