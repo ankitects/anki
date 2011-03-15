@@ -71,9 +71,6 @@ class ProgressManager(object):
         self._levels += 1
         if self._levels > 1:
             return
-        # disable UI
-        self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
-        self.mw.setEnabled(False)
         # setup window
         parent = parent or self.app.activeWindow() or self.mw
         label = label or _("Processing...")
@@ -96,6 +93,7 @@ class ProgressManager(object):
         self._max = max
         self._firstTime = time.time()
         self._lastTime = time.time()
+        self._disabled = False
 
     def update(self, label=None, value=None, process=True):
         #print self._min, self._counter, self._max, label, time.time() - self._lastTime
@@ -113,8 +111,7 @@ class ProgressManager(object):
         self._levels -= 1
         if self._levels == 0:
             self._win.cancel()
-            self.app.restoreOverrideCursor()
-            self.mw.setEnabled(True)
+            self._enableUI()
 
     def clear(self):
         "Restore the interface after an error."
@@ -123,7 +120,22 @@ class ProgressManager(object):
             self.finishProgress()
 
     def _maybeShow(self):
-        if not self._shown and (time.time() - self._firstTime) > 2:
-            print "show2"
+        delta = time.time() - self._firstTime
+        # if more than 500ms have passed, disable the UI so the user doesn't
+        # try to click again. We don't do it immediately to avoid flicker.
+        if not self._disabled and delta > 0.5:
+            self._disableUI()
+        # if more than 2 seconds have passed, show a progress dialog
+        if not self._shown and delta > 2:
             self._shown = True
             self._win.show()
+
+    def _disableUI(self):
+        self._disabled = True
+        self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
+        self.mw.setEnabled(False)
+
+    def _enableUI(self):
+        self._disabled = False
+        self.app.restoreOverrideCursor()
+        self.mw.setEnabled(True)

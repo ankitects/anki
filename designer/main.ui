@@ -664,16 +664,30 @@
    </property>
   </action>
   <action name="actionOpenOnline">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
+   </property>
    <property name="text">
     <string>Personal Deck...</string>
+   </property>
+   <property name="iconText">
+    <string>AnkiWeb</string>
    </property>
    <property name="statusTip">
     <string>Download a deck that you synced from another computer</string>
    </property>
   </action>
   <action name="actionDownloadSharedDeck">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
+   </property>
    <property name="text">
     <string>Shared Deck...</string>
+   </property>
+   <property name="iconText">
+    <string>Download</string>
    </property>
    <property name="statusTip">
     <string>Download a deck that people have shared publicly</string>
@@ -747,6 +761,15 @@
   <action name="actionLocalizeMedia">
    <property name="text">
     <string>Localize Media</string>
+   </property>
+  </action>
+  <action name="actionRefreshDeckBrowser">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/edit-redo.png</normaloff>:/icons/edit-redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Refresh</string>
    </property>
   </action>
  </widget>

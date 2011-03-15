@@ -68,6 +68,8 @@ class AnkiWebView(QWebView):
         self.setHtml("""
 <html><head><style>%s</style><script src="qrc:/jquery.min.js"></script></head>
 <body>%s</body></html>""" % (css, body), loadCB)
+        # ensure we're focused
+        self.setFocus()
     def setBridge(self, bridge):
         self._bridge.setBridge(bridge)
     def eval(self, js):

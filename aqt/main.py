@@ -95,8 +95,6 @@ class AnkiQt(QMainWindow):
         self.deck = None
         self.currentCard = None
         self.lastCard = None
-        # perhaps we want a separate toolbar instead?
-        self.form.toolBar.hide()
         self.disableDeckMenuItems()
         self.closeAllDeckWindows()
         self.deckBrowser.show()
@@ -1406,8 +1404,7 @@ learnt today")
     # Toolbar
     ##########################################################################
 
-    def setupToolbar(self):
-        mw = self.form
+    def setupReviewToolbar(self):
         mw.toolBar.addAction(mw.actionAddcards)
         mw.toolBar.addAction(mw.actionEditCurrent)
         mw.toolBar.addAction(mw.actionEditLayout)
@@ -1417,8 +1414,12 @@ learnt today")
         mw.toolBar.addAction(mw.actionMarkCard)
         mw.toolBar.addAction(mw.actionRepeatAudio)
         mw.toolBar.addAction(mw.actionClose)
-        mw.toolBar.setIconSize(QSize(self.config['iconSize'],
-                                     self.config['iconSize']))
+
+    def setupToolbar(self):
+        mw = self.form
+        mw.toolBar.setIconSize(QSize(24, 24))
+        #mw.toolBar.setIconSize(QSize(self.config['iconSize'],
+        #                             self.config['iconSize']))
         toggle = mw.toolBar.toggleViewAction()
         toggle.setText(_("Toggle Toolbar"))
         self.connect(toggle, SIGNAL("triggered()"),

@@ -27,14 +27,11 @@ a.opts { font-size: 80%; padding: 2; background-color: #ccc; border-radius: 2px;
 _body = """
 <center>
 <div id="outer">
-<h1>%s</h1>
+<h1>%(title)s</h1>
 <table cellspacing=0 cellpadding=0 width=90%%>
-%s
+%(rows)s
 </table>
-<br><br>
-%s
-<p>
-Click a deck to open it, or press the number/letter next to it.
+%(extra)s
 </div>
 """
 
@@ -45,11 +42,16 @@ class DeckBrowser(object):
         self.web = mw.web
         self._browserLastRefreshed = 0
         self._decks = []
+        mw.connect(mw.form.actionRefreshDeckBrowser, SIGNAL("activated()"),
+                   self.refresh)
         addHook("deckClosing", self.onClose)
 
-    def show(self):
-        self.web.setLinkHandler(self._linkHandler)
-        self.mw.setKeyHandler(self._keyHandler)
+    def show(self, _init=True):
+        if _init:
+            self.web.setLinkHandler(self._linkHandler)
+            self.mw.setKeyHandler(self._keyHandler)
+            self._setupToolbar()
+        # refresh or reorder
         if (time.time() - self._browserLastRefreshed >
             self.mw.config['deckBrowserRefreshPeriod']):
             t = time.time()
@@ -57,23 +59,8 @@ class DeckBrowser(object):
             print "check decks", time.time() - t
         else:
             self._reorderDecks()
-        if self._decks:
-            buf = ""
-            max=len(self._decks)-1
-            for c, deck in enumerate(self._decks):
-                buf += self._deckRow(c, max, deck)
-            self.web.stdHtml(_body%(_("Decks"), buf, self._summary()), _css)
-        else:
-            buf = ("""\
-<br>
-<font size=+1>
-Welcome to Anki! Click <b>'Download'</b> to get started. You can return here
-later by using File>Close.
-</font>
-<br>
-""")
-        # FIXME: ensure deck open button is focused
-
+        # show
+        self._renderPage()
 
     def onClose(self, deck):
         print "onClose"
@@ -89,6 +76,24 @@ later by using File>Close.
                     d['mod'] = self.deck.modified
                     d['time'] = self.deck._dailyStats.reviewTime
                     d['reps'] = self.deck._dailyStats.reps
+
+    # Toolbar
+    ##########################################################################
+
+    def _setupToolbar(self):
+        frm = self.mw.form
+        tb = frm.toolBar
+        tb.clear()
+        tb.addAction(frm.actionDownloadSharedDeck)
+        tb.addAction(frm.actionNew)
+        tb.addAction(frm.actionOpen)
+        tb.addAction(frm.actionImport)
+        tb.addAction(frm.actionOpenOnline)
+        tb.addAction(frm.actionRefreshDeckBrowser)
+        tb.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        # reshow so osx recalculates sizes
+        tb.hide()
+        tb.show()
 
     # Event handlers
     ##########################################################################
@@ -116,6 +121,27 @@ later by using File>Close.
 
     # HTML generation
     ##########################################################################
+
+    def _renderPage(self):
+        if self._decks:
+            buf = ""
+            max=len(self._decks)-1
+            for c, deck in enumerate(self._decks):
+                buf += self._deckRow(c, max, deck)
+            self.web.stdHtml(_body%dict(
+                title=_("Decks"),
+                rows=buf,
+                extra="<p>%s<p>%s" % (
+                    self._summary(),
+                    _("Click a deck to open, or type a number."))),
+                             _css)
+        else:
+            self.web.stdHtml(_body%dict(
+                title=_("Welcome!"),
+                rows="<tr><td align=center>%s</td></tr>"%_(
+                    "Click <b>Download</b> to get started."),
+                extra=""),
+                             _css)
 
     def _deckRow(self, c, max, deck):
         buf = "<tr>"
@@ -206,10 +232,6 @@ later by using File>Close.
         a = m.addAction(QIcon(":/icons/editdelete.png"), _("Delete"))
         a.connect(a, SIGNAL("activated()"), lambda n=n: self._deleteRow(n))
         m.exec_(QCursor.pos())
-
-    def _buttons(self):
-        # refresh = QPushButton(_("Refresh"))
-        return ""
 
     def _hideRow(self, c):
         if aqt.utils.askUser(_("""\
@@ -303,4 +325,4 @@ not be touched.""") % self._decks[c]['name']):
 
     def refresh(self):
         self._browserLastRefreshed = 0
-        self.show()
+        self.show(_init=False)
