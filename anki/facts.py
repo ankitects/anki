@@ -18,6 +18,7 @@ class Fact(object):
         else:
             self.id = None
             self._model = model
+            self.gid = 1
             self.mid = model.id
             self.crt = intTime()
             self.mod = self.crt
@@ -28,12 +29,13 @@ class Fact(object):
 
     def load(self):
         (self.mid,
+         self.gid,
          self.crt,
          self.mod,
          self.tags,
          self._fields,
          self.data) = self.deck.db.first("""
-select mid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
+select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         self._fields = splitFields(self._fields)
         self._model = self.deck.getModel(self.mid)
 
@@ -42,8 +44,8 @@ select mid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         # facts table
         sfld = self._fields[self._model.sortIdx()]
         res = self.deck.db.execute("""
-insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
-                            self.id, self.mid, self.crt,
+insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                            self.id, self.mid, self.gid, self.crt,
                             self.mod, self.tags, self.joinedFields(),
                             sfld, self.data)
         self.id = res.lastrowid

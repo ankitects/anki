@@ -90,6 +90,7 @@ create table if not exists cards (
 create table if not exists facts (
     id              integer primary key,
     mid             integer not null,
+    gid             integer not null,
     crt             integer not null,
     mod             integer not null,
     tags            text not null,
@@ -270,7 +271,7 @@ end)
 """)
     # pull facts into memory, so we can merge them with fields efficiently
     facts = db.all("""
-select id, modelId, cast(created as int), cast(modified as int), tags
+select id, modelId, 1, cast(created as int), cast(modified as int), tags
 from facts order by created""")
     # build field hash
     fields = {}
@@ -296,7 +297,7 @@ from facts order by created""")
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
-    db.executemany("insert into facts values (?,?,?,?,?,?,'','')", data)
+    db.executemany("insert into facts values (?,?,?,?,?,?,?,'','')", data)
     db.execute("drop table fields")
 
     # media

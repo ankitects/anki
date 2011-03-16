@@ -193,7 +193,7 @@ qconf=?, conf=?, data=?""",
         "Return a new fact with the current model."
         return anki.facts.Fact(self, self.currentModel())
 
-    def addFact(self, fact, gid=1):
+    def addFact(self, fact):
         "Add a fact to the deck. Return number of new cards."
         # check we have card models available
         cms = self.findTemplates(fact)
@@ -212,7 +212,7 @@ qconf=?, conf=?, data=?""",
         # add cards
         ncards = 0
         for template in cms:
-            self._newCard(fact, template, due, gid)
+            self._newCard(fact, template, due)
             ncards += 1
         return ncards
 
@@ -254,7 +254,7 @@ select id from facts where id not in (select distinct fid from cards)""")
                 ok.append(template)
         return ok
 
-    def genCards(self, fact, templates, gid):
+    def genCards(self, fact, templates):
         "Generate cards for templates if cards not empty. Return cards."
         cards = []
         # if random mode, determine insertion point
@@ -273,7 +273,7 @@ select id from facts where id not in (select distinct fid from cards)""")
                 "select 1 from cards where fid = ? and ord = ?",
                 fact.id, template['ord']):
                 # create
-                cards.append(self._newCard(fact, template, due, gid))
+                cards.append(self._newCard(fact, template, due))
         return cards
 
     # type 0 - when previewing in add dialog, only non-empty & active
@@ -291,16 +291,16 @@ select id from facts where id not in (select distinct fid from cards)""")
             return []
         cards = []
         for template in cms:
-            cards.append(self._newCard(fact, template, 1, 1, flush=False))
+            cards.append(self._newCard(fact, template, 1, flush=False))
         return cards
 
-    def _newCard(self, fact, template, due, gid, flush=True):
+    def _newCard(self, fact, template, due, flush=True):
         "Create a new card."
         card = anki.cards.Card(self)
         card.id = self.nextID("cid")
         card.fid = fact.id
         card.ord = template['ord']
-        card.gid = template['gid'] or gid
+        card.gid = template['gid'] or fact.gid
         card.due = due
         if flush:
             card.flush()
