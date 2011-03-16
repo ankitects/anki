@@ -115,18 +115,18 @@ create table if not exists models (
     css             text not null
 );
 
-create table if not exists gconf (
-    id              integer primary key,
-    mod             integer not null,
-    name            text not null,
-    conf            text not null
-);
-
 create table if not exists groups (
     id              integer primary key,
     mod             integer not null,
     name            text not null,
     gcid            integer not null
+);
+
+create table if not exists gconf (
+    id              integer primary key,
+    mod             integer not null,
+    name            text not null,
+    conf            text not null
 );
 
 create table if not exists media (

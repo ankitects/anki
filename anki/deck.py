@@ -593,6 +593,37 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
     def delTags(self, ids, tags):
         self.addTags(ids, tags, False)
 
+    # Groups
+    ##########################################################################
+
+    def groups(self):
+        "A list of all group names."
+        return self.db.list("select name from groups")
+
+    def groupId(self, name):
+        "Return the id for NAME, creating if necessary."
+        id = self.db.scalar("select id from groups where name = ?", name)
+        if not id:
+            id = self.db.execute("insert into groups values (?,?,?,?)",
+                                 self.nextID("gid"), intTime(), name,
+                                 1).lastrowid
+        return id
+
+    def delGroup(self, gid):
+        self.db.scalar("delete from groups where id = ?", gid)
+
+    def groupConf(self, gid):
+        return simplejson.loads(
+            self.db.scalar("""
+select conf from gconf where id = (select gcid from groups where id = ?)""",
+                           gid))
+
+    def activeGroups(self, type):
+        return self.qconf[type+"Groups"]
+
+    def setActiveGroups(self, type, list):
+        self.qconf[type+"Groups"] = list
+
     # Finding cards
     ##########################################################################
 

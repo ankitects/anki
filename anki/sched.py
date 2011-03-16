@@ -55,8 +55,7 @@ class Scheduler(object):
         card.flushSched()
 
     def counts(self):
-        # FIXME: should learn count include new cards due today, or be separate?
-        return (self.learnCount, self.revCount)
+        return (self.learnCount, self.revCount, self.newCount)
 
     def timeToday(self):
         "Time spent learning today, in seconds."
@@ -507,9 +506,7 @@ insert into revlog values (
     def confForCard(self, card):
         id = self.groupConfs[card.gid]
         if id not in self.confCache:
-            self.confCache[id] = simplejson.loads(
-                self.db.scalar("select conf from gconf where id = :id",
-                               id=id))
+            self.confCache[id] = self.deck.groupConf(id)
         return self.confCache[id]
 
     def resetSchedBuried(self):
@@ -518,7 +515,7 @@ insert into revlog values (
             "update cards set queue = type where queue = -3")
 
     def groupLimit(self, type):
-        l = self.deck.qconf[type+"Groups"]
+        l = self.deck.activeGroups(type)
         if not l:
             # everything
             return ""
