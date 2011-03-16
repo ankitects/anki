@@ -204,8 +204,8 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
         card.queue = 1
         card.type = 1
         if card.type == 1:
-            # failed, nothing else to do
-            pass
+            # failed; put back entry due
+            card.due = card.edue
         else:
             self.rescheduleNew(card, conf, early)
 
@@ -229,6 +229,14 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
             self.delayForGrade(conf, card.grade),
             self.delayForGrade(conf, max(0, card.grade-1)),
             leaving, card.timeTaken(), 0)
+
+    def removeFailed(self):
+        "Remove failed cards from the learning queue."
+        self.deck.db.execute("""
+update cards set
+due = edue, queue = 1
+where queue = 0 and type = 1
+""")
 
     # Reviews
     ##########################################################################

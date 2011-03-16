@@ -84,6 +84,7 @@ create table if not exists cards (
     lapses          integer not null,
     grade           integer not null,
     cycles          integer not null,
+    edue            integer not null,
     data            text not null
 );
 
@@ -247,7 +248,7 @@ def _upgradeSchema(db):
     db.execute("""
 insert into cards select rowid, factId, cardModelId, 1, cast(created as int),
 cast(modified as int), relativeDelay, type, due, cast(interval as int),
-cast(factor*1000 as int), reps, successive, noCount, 0, 0, "" from cards2
+cast(factor*1000 as int), reps, successive, noCount, 0, 0, 0, "" from cards2
 order by created""")
     db.execute("drop table cards2")
 
@@ -293,7 +294,7 @@ from facts order by created""")
         row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
         data.append(row)
     # use the new order to rewrite fact ids in cards table
-    _insertWithIdChange(db, map, 1, "cards", 17)
+    _insertWithIdChange(db, map, 1, "cards", 18)
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
@@ -494,12 +495,15 @@ def _postSchemaUpgrade(deck):
     # rewrite due times for new cards
     deck.db.execute("""
 update cards set due = fid where type=2""")
-    # convert due cards into day-based due
+    # and failed cards
+    deck.db.execute("update cards set edue = ? where type = 0",
+                    deck.sched.today+1)
+    # and due cards
     deck.db.execute("""
 update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
-((due-:stamp)/86400) as int)+:today where type
-between 0 and 1""", stamp=deck.sched.dayCutoff, today=deck.sched.today)
+((due-:stamp)/86400) as int)+:today where type = 1
+""", stamp=deck.sched.dayCutoff, today=deck.sched.today)
     # update insertion id
     deck.conf['nextFid'] = deck.db.scalar("select max(id) from facts")+1
     deck.conf['nextCid'] = deck.db.scalar("select max(id) from cards")+1

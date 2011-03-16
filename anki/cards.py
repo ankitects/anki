@@ -14,7 +14,7 @@ MAX_TIMER = 60
 # Queue: 0=learning, 1=due, 2=new
 #        -1=suspended, -2=user buried, -3=sched buried
 # Due is used differently for different queues.
-# - new queue: fact id
+# - new queue: fact id or random int
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
@@ -41,6 +41,7 @@ class Card(object):
             self.lapses = 0
             self.grade = 0
             self.cycles = 0
+            self.edue = 0
             self.data = ""
 
     def load(self):
@@ -60,6 +61,7 @@ class Card(object):
          self.lapses,
          self.grade,
          self.cycles,
+         self.edue,
          self.data) = self.deck.db.first(
              "select * from cards where id = ?", self.id)
 
@@ -68,7 +70,7 @@ class Card(object):
         self.deck.db.execute(
             """
 insert or replace into cards values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.fid,
             self.gid,
@@ -85,6 +87,7 @@ insert or replace into cards values
             self.lapses,
             self.grade,
             self.cycles,
+            self.edue,
             self.data)
 
     def flushSched(self):
@@ -92,10 +95,10 @@ insert or replace into cards values
         self.deck.db.execute(
             """update cards set
 mod=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
-streak=?, lapses=?, grade=?, cycles=? where id = ?""",
+streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
             self.mod, self.type, self.queue, self.due, self.ivl,
             self.factor, self.reps, self.streak, self.lapses,
-            self.grade, self.cycles, self.id)
+            self.grade, self.cycles, self.edue, self.id)
 
     def q(self):
         return self._getQA()['q']
