@@ -201,13 +201,13 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
             return conf['lapse']
 
     def rescheduleAsReview(self, card, conf, early):
-        card.queue = 1
-        card.type = 1
         if card.type == 1:
             # failed; put back entry due
             card.due = card.edue
         else:
             self.rescheduleNew(card, conf, early)
+        card.queue = 1
+        card.type = 1
 
     def rescheduleNew(self, card, conf, early):
         if not early:
@@ -219,7 +219,8 @@ limit %d""" % self.learnLimit, lim=self.dayCutoff)
         else:
             # first time bonus
             int_ = conf['ints'][1]
-        card.interval = int_
+        card.ivl = int_
+        card.due = self.today+int_
         card.factor = conf['initialFactor']
 
     def logLearn(self, card, ease, conf, leaving):
@@ -245,7 +246,7 @@ where queue = 0 and type = 1
         self.revQueue = self.db.all("""
 select id from cards where
 queue = 1 %s and due < :lim order by %s limit %d""" % (
-    self.groupLimit("rev"), self.revOrder(), self.queueLimit),
+            self.groupLimit("rev"), self.revOrder(), self.queueLimit),
                                     lim=self.dayCutoff)
         if self.deck.qconf['revCardOrder'] == REV_CARDS_RANDOM:
             random.shuffle(self.revQueue)

@@ -94,6 +94,39 @@ def test_learn():
     d.sched.answerCard(c, 2)
     assert c.queue == 1
     assert c.type == 1
-    print "test intervals, check early removal, etc"
-
-
+    # should be due tomorrow, with an interval of 1
+    assert c.due == d.sched.today+1
+    assert c.ivl == 1
+    # let's try early removal bonus
+    c.type = 2
+    c.queue = 0
+    c.cycles = 0
+    d.sched.answerCard(c, 3)
+    assert c.type == 1
+    assert c.ivl == 7
+    # or normal removal
+    c.type = 2
+    c.queue = 0
+    c.cycles = 1
+    d.sched.answerCard(c, 3)
+    assert c.type == 1
+    assert c.ivl == 4
+    # revlog should have been updated each time
+    d.db.scalar("select count() from revlog where type = 0") == 6
+    # now failed card handling
+    c.type = 1
+    c.queue = 0
+    c.edue = 123
+    d.sched.answerCard(c, 3)
+    assert c.due == 123
+    assert c.type == 1
+    assert c.queue == 1
+    # we should be able to remove manually, too
+    c.type = 1
+    c.queue = 0
+    c.edue = 321
+    c.flush()
+    d.sched.removeFailed()
+    c.load()
+    assert c.queue == 1
+    assert c.due == 321
