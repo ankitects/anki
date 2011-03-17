@@ -245,7 +245,7 @@ def _upgradeSchema(db):
     cardmap = dict(db.all("select id, rowid from cards2"))
     # move back, preserving new ids
     db.execute("""
-insert into cards select rowid, factId, cardModelId, 1, cast(created as int),
+insert into cards select rowid, factId, 1, ordinal, cast(created as int),
 cast(modified as int), relativeDelay, type, due, cast(interval as int),
 cast(factor*1000 as int), reps, successive, noCount, 0, 0, 0, "" from cards2
 order by created""")
