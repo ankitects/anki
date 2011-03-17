@@ -5,7 +5,6 @@
 import time, sys, os, datetime
 import anki, anki.utils
 from anki.lang import _, ngettext
-from anki.utils import canonifyTags, ids2str
 from anki.hooks import runFilter
 
 # Card stats

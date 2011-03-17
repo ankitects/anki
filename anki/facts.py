@@ -5,7 +5,7 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import stripHTMLMedia, fieldChecksum, intTime, \
-    joinFields, splitFields, ids2str, parseTags, joinTags, hasTag
+    joinFields, splitFields, ids2str, parseTags, canonifyTags, hasTag
 
 class Fact(object):
 
@@ -44,7 +44,7 @@ select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         self.mod = intTime()
         # facts table
         sfld = self._fields[self._model.sortIdx()]
-        tags = joinTags(self.tags)
+        tags = canonifyTags(self.tags)
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.mid, self.gid, self.crt,

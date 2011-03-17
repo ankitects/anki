@@ -130,3 +130,72 @@ def test_learn():
     c.load()
     assert c.queue == 1
     assert c.due == 321
+
+def test_reviews():
+    d = getEmptyDeck()
+    # add a fact
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"two"
+    d.addFact(f)
+    # set the card up as a review card, due yesterday
+    c = f.cards()[0]
+    c.type = 1
+    c.queue = 1
+    c.due = d.sched.today - 8
+    c.factor = 2500
+    c.reps = 3
+    c.streak = 2
+    c.lapses = 1
+    c.ivl = 100
+    c.startTimer()
+    c.flush()
+    # save it for later use as well
+    import copy
+    cardcopy = copy.copy(c)
+    # failing it should put it in the learn queue with the default options
+    ##################################################
+    d.sched.answerCard(c, 1)
+    assert c.queue == 0
+    # it should be due tomorrow, with an interval of 1
+    assert c.due == d.sched.today + 1
+    assert c.ivl == 1
+    # factor should have been decremented
+    assert c.factor == 2300
+    # check counters
+    assert c.streak == 0
+    assert c.lapses == 2
+    assert c.reps == 4
+    # try again with an ease of 2 instead
+    ##################################################
+    c = copy.copy(cardcopy)
+    c.flush()
+    d.sched.answerCard(c, 2)
+    # the new interval should be (100 + 8/4) * 1.2 = 122
+    assert c.ivl == 122
+    assert c.due == d.sched.today + 122
+    # factor should have been decremented
+    assert c.factor == 2350
+    # check counters
+    assert c.streak == 3
+    assert c.lapses == 1
+    assert c.reps == 4
+    # ease 3
+    ##################################################
+    c = copy.copy(cardcopy)
+    c.flush()
+    d.sched.answerCard(c, 3)
+    # the new interval should be (100 + 8/2) * 2.5 = 260
+    assert c.ivl == 260
+    assert c.due == d.sched.today + 260
+    # factor should have been left alone
+    assert c.factor == 2500
+    # ease 4
+    ##################################################
+    c = copy.copy(cardcopy)
+    c.flush()
+    d.sched.answerCard(c, 4)
+    # the new interval should be (100 + 8) * 2.5 * 1.3 = 351
+    assert c.ivl == 351
+    assert c.due == d.sched.today + 351
+    # factor should have been increased
+    assert c.factor == 2650

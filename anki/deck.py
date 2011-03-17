@@ -58,9 +58,6 @@ defaultConf = {
 # this is initialized by storage.Deck
 class _Deck(object):
 
-    # fixme: make configurable?
-    factorFour = 1.3
-
     def __init__(self, db):
         self.db = db
         self.path = db._path

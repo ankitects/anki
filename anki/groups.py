@@ -17,10 +17,17 @@ defaultConf = {
     },
     'lapse': {
         'delays': [0.5, 3, 10],
-        'mult': 0
+        'mult': 0,
+        'relearn': True,
+        'leechFails': 16,
+        # one of [suspend], [tagonly]
+        'leechAction': ["suspend"],
     },
-    'suspendLeeches': True,
-    'leechFails': 16,
+    'rev': {
+        'ease4': 1.3,
+        'fuzz': 0.05,
+        'minSpace': 1,
+    }
 }
 
 class GroupConfig(object):
