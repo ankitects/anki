@@ -119,10 +119,6 @@ qconf=?, conf=?, data=?""",
         self.lock()
 
     def lock(self):
-        # we don't know if pysqlite has taken out a transaction from under us,
-        # so make sure we're committed
-        self.db.commit()
-        self.db.execute("begin exclusive")
         self.db.execute("update deck set mod=mod")
 
     def close(self, save=True):
@@ -737,6 +733,7 @@ insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
                 sql += ",' || quote(old.%s) ||'" % c
             sql += ")'); end"
             self.db.execute(sql)
+        self.lock()
 
     def undoName(self):
         for n in reversed(self.undoStack):
@@ -848,7 +845,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         return "\n".join(problems)
 
     def optimize(self):
-        self.db.commit()
         self.db.execute("vacuum")
         self.db.execute("analyze")
         self.lock()

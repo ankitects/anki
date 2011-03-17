@@ -242,8 +242,7 @@ def _upgradeSchema(db):
     # move into temp table
     _moveTable(db, "cards", True)
     # use the new order to rewrite card ids
-    map = dict(db.all("select id, rowid from cards2"))
-    _insertWithIdChange(db, map, 0, "reviewHistory", 12)
+    cardmap = dict(db.all("select id, rowid from cards2"))
     # move back, preserving new ids
     db.execute("""
 insert into cards select rowid, factId, cardModelId, 1, cast(created as int),
@@ -321,15 +320,27 @@ name, "{}", "{}", ?, "" from models2""", simplejson.dumps(
 
     # reviewHistory -> revlog
     ###########
-    db.execute("""
-insert or ignore into revlog select
+    # fetch the data so we can rewrite ids quickly
+    r = []
+    for row in db.execute("""
+select
 cast(time*1000 as int), cardId, ease, reps,
 cast(lastInterval as int), cast(nextInterval as int),
 cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
-0 from reviewHistory""")
+0 from reviewHistory"""):
+        row = list(row)
+        # new card ids
+        try:
+            row[1] = cardmap[row[1]]
+        except:
+            # id doesn't exist
+            continue
+        # no ease 0 anymore
+        row[2] = row[2] or 1
+        r.append(row)
+    db.executemany(
+        "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)", r)
     db.execute("drop table reviewHistory")
-    # convert old ease0 into ease1
-    db.execute("update revlog set ease = 1 where ease = 0")
 
     # longer migrations
     ###########

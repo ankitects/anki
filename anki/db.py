@@ -15,7 +15,7 @@ from anki.hooks import runHook
 
 class DB(object):
     def __init__(self, path, text=None):
-        self._db = sqlite.connect(path, timeout=0, isolation_level=None)
+        self._db = sqlite.connect(path, timeout=0)
         if text:
             self._db.text_factory = text
         self._path = path
@@ -23,7 +23,7 @@ class DB(object):
 
     def execute(self, sql, *a, **ka):
         if self.echo:
-            print sql, a, ka
+            print sql #, a, ka
         if ka:
             # execute("...where id = :id", id=5)
             res = self._db.execute(sql, ka)
@@ -34,7 +34,7 @@ class DB(object):
 
     def executemany(self, sql, l):
         if self.echo:
-            print sql, l
+            print sql #, l
         self._db.executemany(sql, l)
 
     def commit(self):
