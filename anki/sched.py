@@ -9,6 +9,7 @@ from heapq import *
 from anki.utils import parseTags, ids2str, intTime
 from anki.lang import _
 from anki.consts import *
+from anki.hooks import runHook
 
 # the standard Anki scheduler
 class Scheduler(object):
@@ -276,7 +277,7 @@ queue = 1 %s and due <= :lim limit %d)""" % (
         self.revQueue = self.db.all("""
 select id from cards where
 queue = 1 %s and due <= :lim order by %s limit %d""" % (
-            self._groupLimit("rev"), self.revOrder(), self.queueLimit),
+            self._groupLimit("rev"), self._revOrder(), self.queueLimit),
                                     lim=self.today)
         if self.deck.qconf['revCardOrder'] == REV_CARDS_RANDOM:
             random.shuffle(self.revQueue)
@@ -293,14 +294,10 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
                 self._resetReview()
             return self.revQueue
 
-    def revOrder(self):
+    def _revOrder(self):
         return ("ivl desc",
                 "ivl",
                 "due")[self.deck.qconf['revCardOrder']]
-
-    # FIXME: rewrite
-    def showFailedLast(self):
-        return self.collapseTime or not self.delay0
 
     # Answering a review card
     ##########################################################################
@@ -424,7 +421,8 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
             f.flush()
             # handle
             if conf['leechAction'][0] == "suspend":
-                self.deck.suspendCard(card)
+                self.suspendCards([card.id])
+                card.queue = -1
             # notify UI
             runHook("leech", card)
 

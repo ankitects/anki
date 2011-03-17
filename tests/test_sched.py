@@ -4,6 +4,7 @@ import time
 from tests.shared import assertException, getEmptyDeck
 from anki.stdmodels import BasicModel
 from anki.utils import stripHTML, intTime
+from anki.hooks import addHook
 
 def test_basics():
     d = getEmptyDeck()
@@ -199,3 +200,18 @@ def test_reviews():
     assert c.due == d.sched.today + 351
     # factor should have been increased
     assert c.factor == 2650
+    # leech handling
+    ##################################################
+    c = copy.copy(cardcopy)
+    c.lapses = 15
+    c.flush()
+    # steup hook
+    hooked = []
+    def onLeech(card):
+        hooked.append(1)
+    addHook("leech", onLeech)
+    d.sched.answerCard(c, 1)
+    assert hooked
+    assert c.queue == -1
+    c.load()
+    assert c.queue == -1
