@@ -6,7 +6,7 @@ import time, datetime, simplejson, random
 from operator import itemgetter
 from heapq import *
 #from anki.cards import Card
-from anki.utils import parseTags, ids2str
+from anki.utils import parseTags, ids2str, intTime
 from anki.lang import _
 from anki.consts import *
 
@@ -100,22 +100,27 @@ class Scheduler(object):
 
     # need to keep track of reps for timebox and new card introduction
 
-    def resetNew(self):
+    def resetNewCount(self):
         l = self.deck.qconf
         if l['newToday'][0] != self.today:
             # it's a new day; reset counts
             l['newToday'] = [self.today, 0]
-        lim = min(self.queueLimit, l['newPerDay'] - l['newToday'][1])
+        lim = l['newPerDay'] - l['newToday'][1]
         if lim <= 0:
-            self.newQueue = []
             self.newCount = 0
         else:
-            self.newQueue = self.db.all("""
+            self.newCount = self.db.scalar("""
+select count() from cards where
+queue = 2 %s""" % self.groupLimit('new'))
+
+    def resetNew(self):
+        self.resetNewCount()
+        lim = min(self.queueLimit, self.newCount)
+        self.newQueue = self.db.all("""
 select id, due from cards where
 queue = 2 %s order by due limit %d""" % (self.groupLimit('new'),
                                          lim))
-            self.newQueue.reverse()
-            self.newCount = len(self.newQueue)
+        self.newQueue.reverse()
         self.updateNewCardRatio()
 
     def getNewCard(self):
@@ -152,12 +157,17 @@ queue = 2 %s order by due limit %d""" % (self.groupLimit('new'),
     # Learning queue
     ##########################################################################
 
+    def resetLearnCount(self):
+        self.learnCount = self.db.scalar(
+            "select count() from cards where queue = 0 and due < ?",
+            intTime() + self.deck.qconf['collapseTime'])
+
     def resetLearn(self):
+        self.resetLearnCount()
         self.learnQueue = self.db.all("""
 select due, id from cards where
 queue = 0 and due < :lim order by due
 limit %d""" % self.learnLimit, lim=self.dayCutoff)
-        self.learnCount = len(self.learnQueue)
 
     def getLearnCard(self, collapse=False):
         if self.learnQueue:
@@ -242,17 +252,23 @@ where queue = 0 and type = 1
     # Reviews
     ##########################################################################
 
+    def resetReviewCount(self):
+        self.revCount = self.db.scalar("""
+select count() from cards where
+queue = 1 %s and due <= :lim""" % self.groupLimit("rev"),
+                                       lim=self.today)
+
     def resetReview(self):
+        self.resetReviewCount()
         self.revQueue = self.db.all("""
 select id from cards where
-queue = 1 %s and due < :lim order by %s limit %d""" % (
+queue = 1 %s and due <= :lim order by %s limit %d""" % (
             self.groupLimit("rev"), self.revOrder(), self.queueLimit),
-                                    lim=self.dayCutoff)
+                                    lim=self.today)
         if self.deck.qconf['revCardOrder'] == REV_CARDS_RANDOM:
             random.shuffle(self.revQueue)
         else:
             self.revQueue.reverse()
-        self.revCount = len(self.revQueue)
 
     def getReviewCard(self):
         if self.haveRevCards():

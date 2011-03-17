@@ -27,11 +27,11 @@ defaultQconf = {
     'newCardOrder': 1,
     'newCardSpacing': NEW_CARDS_DISTRIBUTE,
     'revCardOrder': REV_CARDS_RANDOM,
+    'collapseTime': 600,
 }
 
 # scheduling and other options
 defaultConf = {
-    'collapseTime': 600,
     'sessionRepLimit': 0,
     'sessionTimeLimit': 600,
     'currentModelId': None,
