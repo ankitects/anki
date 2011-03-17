@@ -35,7 +35,7 @@ defaultTemplate = {
     'hideQ': False,
     'align': 0,
     'bg': "#000",
-    'emptyAns': None,
+    'emptyAns': True,
     'typeAns': None,
     'gid': None
 }

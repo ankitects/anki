@@ -7,12 +7,12 @@ def test_findCards():
     f = deck.newFact()
     f['Front'] = u'dog'
     f['Back'] = u'cat'
-    f.addTags(u"monkey")
+    f.tags.append(u"monkey")
     deck.addFact(f)
     f = deck.newFact()
     f['Front'] = u'goats are fun'
     f['Back'] = u'sheep'
-    f.addTags(u"sheep goat horse")
+    f.tags.append(u"sheep goat horse")
     deck.addFact(f)
     f = deck.newFact()
     f['Front'] = u'cat'

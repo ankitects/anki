@@ -620,6 +620,41 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
     def setActiveGroups(self, type, list):
         self.qconf[type+"Groups"] = list
 
+    def setGroup(self, cids, gid):
+        self.db.execute(
+            "update cards set gid = ? where id in "+ids2str(cids), gid)
+
+    # Tag-based selective study
+    ##########################################################################
+
+    def selTagFids(self, yes, no):
+        l = []
+        # find facts that match yes
+        lim = ""
+        args = []
+        query = "select id from facts"
+        if not yes and not no:
+            pass
+        else:
+            if yes:
+                lim += " or ".join(["tags like ?" for t in yes])
+                args += ['%% %s %%' % t for t in yes]
+            if no:
+                lim2 = " and ".join(["tags not like ?" for t in no])
+                if lim:
+                    lim = "(%s) and %s" % (lim, lim2)
+                else:
+                    lim = lim2
+                args += ['%% %s %%' % t for t in no]
+            query += " where " + lim
+        return self.db.list(query, *args)
+
+    def setGroupForTags(self, yes, no, gid):
+        fids = self.selTagFids(yes, no)
+        self.db.execute(
+            "update cards set gid = ? where fid in "+ids2str(fids),
+            gid)
+
     # Finding cards
     ##########################################################################
 

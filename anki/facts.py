@@ -5,7 +5,7 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import stripHTMLMedia, fieldChecksum, intTime, \
-    addTags, delTags, joinFields, splitFields, ids2str, parseTags
+    joinFields, splitFields, ids2str, parseTags, joinTags, hasTag
 
 class Fact(object):
 
@@ -22,7 +22,7 @@ class Fact(object):
             self.mid = model.id
             self.crt = intTime()
             self.mod = self.crt
-            self.tags = ""
+            self.tags = []
             self._fields = [""] * len(self._model.fields)
             self.data = ""
         self._fmap = self._model.fieldMap()
@@ -37,20 +37,22 @@ class Fact(object):
          self.data) = self.deck.db.first("""
 select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         self._fields = splitFields(self._fields)
+        self.tags = parseTags(self.tags)
         self._model = self.deck.getModel(self.mid)
 
     def flush(self):
         self.mod = intTime()
         # facts table
         sfld = self._fields[self._model.sortIdx()]
+        tags = joinTags(self.tags)
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.mid, self.gid, self.crt,
-                            self.mod, self.tags, self.joinedFields(),
+                            self.mod, tags, self.joinedFields(),
                             sfld, self.data)
         self.id = res.lastrowid
         self.updateFieldChecksums()
-        self.deck.registerTags(parseTags(self.tags))
+        self.deck.registerTags(self.tags)
 
     def joinedFields(self):
         return joinFields(self._fields)
@@ -102,11 +104,8 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     # Tags
     ##################################################
 
-    def addTags(self, tags):
-        self.tags = addTags(tags, self.tags)
-
-    def delTags(self, tags):
-        self.tags = delTags(tags, self.tags)
+    def hasTag(self, tag):
+        return hasTag(tag, self.tags)
 
     # Unique/duplicate checks
     ##################################################

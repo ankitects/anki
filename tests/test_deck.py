@@ -148,3 +148,27 @@ def test_groups():
     # set new cards to only 'another group'
     deck.setActiveGroups('new', [3])
     assert deck.activeGroups('new') == [3]
+
+def test_selective():
+    deck = getEmptyDeck()
+    f = deck.newFact()
+    f['Front'] = u"1"; f.tags = ["one", "three"]
+    deck.addFact(f)
+    f = deck.newFact()
+    f['Front'] = u"2"; f.tags = ["two", "three", "four"]
+    deck.addFact(f)
+    f = deck.newFact()
+    f['Front'] = u"3"; f.tags = ["one", "two", "three", "four"]
+    deck.addFact(f)
+    assert len(deck.selTagFids(["one"], [])) == 2
+    assert len(deck.selTagFids(["three"], [])) == 3
+    assert len(deck.selTagFids([], ["three"])) == 0
+    assert len(deck.selTagFids(["one"], ["three"])) == 0
+    assert len(deck.selTagFids(["one"], ["two"])) == 1
+    assert len(deck.selTagFids(["two", "three"], [])) == 3
+    assert len(deck.selTagFids(["two", "three"], ["one"])) == 1
+    assert len(deck.selTagFids(["one", "three"], ["two", "four"])) == 1
+    deck.setGroupForTags(["three"], [], 3)
+    assert deck.db.scalar("select count() from cards where gid = 3") == 3
+    deck.setGroupForTags(["one"], [], 2)
+    assert deck.db.scalar("select count() from cards where gid = 2") == 2
