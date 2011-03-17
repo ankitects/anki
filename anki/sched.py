@@ -7,7 +7,7 @@ from operator import itemgetter
 from heapq import *
 #from anki.cards import Card
 from anki.utils import parseTags, ids2str, intTime
-from anki.lang import _
+from anki.lang import _, ngettext
 from anki.consts import *
 from anki.hooks import runHook
 
@@ -57,18 +57,6 @@ class Scheduler(object):
     def counts(self):
         "Does not include fetched but unanswered."
         return (self.learnCount, self.revCount, self.newCount)
-
-    def timeToday(self):
-        "Time spent learning today, in seconds."
-        return self.deck.db.scalar(
-            "select sum(taken/1000.0) from revlog where time > ?*1000",
-            self.dayCutoff-86400) or 0
-
-    def repsToday(self):
-        "Number of cards answered today."
-        return self.deck.db.scalar(
-            "select count() from revlog where time > ?*1000",
-            self.dayCutoff-86400)
 
     def cardQueue(self, card):
         return card.queue
@@ -476,206 +464,96 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
             self.updateCutoff()
             self.reset()
 
-    # Times
+    # Deck finished state
     ##########################################################################
 
-    def nextDueMsg(self):
-        next = self.earliestTime()
-        if next:
-            # all new cards except suspended
-            newCount = self.newCardsDueBy(self.dayCutoff + 86400)
-            newCardsTomorrow = min(newCount, self.newCardsPerDay)
-            cards = self.cardsDueBy(self.dayCutoff + 86400)
-            msg = _('''\
-<style>b { color: #00f; }</style>
-At this time tomorrow:<br>
-%(wait)s<br>
-%(new)s''') % {
-                'new': ngettext("There will be <b>%d new</b> card.",
-                          "There will be <b>%d new</b> cards.",
-                          newCardsTomorrow) % newCardsTomorrow,
-                'wait': ngettext("There will be <b>%s review</b>.",
-                          "There will be <b>%s reviews</b>.", cards) % cards,
-                }
-            if next > (self.dayCutoff+86400) and not newCardsTomorrow:
-                msg = (_("The next review is in <b>%s</b>.") %
-                       self.earliestTimeStr())
+    def finishedMsg(self):
+        return (
+            "<h1>"+_("Congratulations!")+"</h1>"+
+            self._finishedSubtitle()+
+            "<br><br>"+
+            self._nextDueMsg())
+
+    def _finishedSubtitle(self):
+        if self.deck.activeGroups("rev") or self.deck.activeGroups("new"):
+            return _("You have finished the selected groups for now.")
         else:
-            msg = _("No cards are due.")
-        return msg
+            return _("You have finished the deck for now.")
 
-    def earliestTime(self):
-        """Return the time of the earliest card.
-This may be in the past if the deck is not finished.
-If the deck has no (enabled) cards, return None.
-Ignore new cards."""
-        earliestRev = self.db.scalar(self.cardLimit("revActive", "revInactive", """
-select due from cards c where queue = 1
-order by due
-limit 1"""))
-        earliestFail = self.db.scalar(self.cardLimit("revActive", "revInactive", """
-select due+%d from cards c where queue = 0
-order by due
-limit 1""" % self.delay0))
-        if earliestRev and earliestFail:
-            return min(earliestRev, earliestFail)
-        elif earliestRev:
-            return earliestRev
+    def _nextDueMsg(self):
+        line = []
+        rev = self.revTomorrow() + self.lrnTomorrow()
+        if rev:
+            line.append(
+                ngettext("There will be <b>%s review</b>.",
+                         "There will be <b>%s reviews</b>.", rev) % rev)
+        new = self.newTomorrow()
+        if new:
+            line.append(
+                ngettext("There will be <b>%d new</b> card.",
+                         "There will be <b>%d new</b> cards.", new) % new)
+        if line:
+            line.insert(0, _("At this time tomorrow:"))
+            buf = "<br>".join(line)
         else:
-            return earliestFail
+            buf = _("No cards are due tomorrow.")
+        buf = '<style>b { color: #00f; }</style>' + buf
+        return buf
 
-    def earliestTimeStr(self, next=None):
-        """Return the relative time to the earliest card as a string."""
-        if next == None:
-            next = self.earliestTime()
-        if not next:
-            return _("unknown")
-        diff = next - time.time()
-        return anki.utils.fmtTimeSpan(diff)
-
-    def cardsDueBy(self, time):
-        "Number of cards due at TIME. Ignore new cards"
+    def lrnTomorrow(self):
+        "Number of cards in the learning queue due tomorrow."
         return self.db.scalar(
-            self.cardLimit(
-            "revActive", "revInactive",
-            "select count(*) from cards c where queue between 0 and 1 "
-            "and due < :lim"), lim=time)
+            "select count() from cards where queue = 0 and due < ?",
+            self.dayCutoff+86400)
 
-    def newCardsDueBy(self, time):
-        "Number of new cards due at TIME."
+    def revTomorrow(self):
+        "Number of reviews due tomorrow."
         return self.db.scalar(
-            self.cardLimit(
-            "newActive", "newInactive",
-            "select count(*) from cards c where queue = 2 "
-            "and due < :lim"), lim=time)
+            "select count() from cards where queue = 1 and due = ?"+
+            self._groupLimit("rev"),
+            self.today+1)
 
-    def deckFinishedMsg(self):
-        spaceSusp = ""
-        c= self.spacedCardCount()
-        if c:
-            spaceSusp += ngettext(
-                'There is <b>%d delayed</b> card.',
-                'There are <b>%d delayed</b> cards.', c) % c
-        c2 = self.hiddenCards()
-        if c2:
-            if spaceSusp:
-                spaceSusp += "<br>"
-            spaceSusp += _(
-                "Some cards are inactive or suspended.")
-        if spaceSusp:
-            spaceSusp = "<br><br>" + spaceSusp
-        return _('''\
-<div style="white-space: normal;">
-<h1>Congratulations!</h1>You have finished for now.<br><br>
-%(next)s
-%(spaceSusp)s
-</div>''') % {
-    "next": self.nextDueMsg(),
-    "spaceSusp": spaceSusp,
-    }
+    def newTomorrow(self):
+        "Number of new cards tomorrow."
+        lim = self.deck.qconf['newPerDay']
+        return self.db.scalar(
+            "select count() from (select id from cards where "
+            "queue = 2 limit %d)" % lim)
 
     # Suspending
     ##########################################################################
 
     def suspendCards(self, ids):
         "Suspend cards."
-        self.db.execute("""
-update cards
-set queue = -1, mod = :t
-where id in %s""" % ids2str(ids), t=time.time())
+        self.db.execute(
+            "update cards set queue = -1, mod = ? where id in "+
+            ids2str(ids), intTime())
 
     def unsuspendCards(self, ids):
         "Unsuspend cards."
-        self.db.execute("""
-update cards set queue = type, mod=:t
-where queue = -1 and id in %s""" %
-            ids2str(ids), t=time.time())
+        self.db.execute(
+            "update cards set queue = type, mod = ? "
+            "where queue = -1 and id in "+ ids2str(ids),
+            intTime())
 
-    def buryFact(self, fact):
+    def buryFact(self, fid):
         "Bury all cards for fact until next session."
-        for card in fact.cards:
-            if card.queue in (0,1,2):
-                card.queue = -2
+        self.db.execute("update cards set queue = -2 where fid = ?", fid)
 
     # Counts
     ##########################################################################
 
-    def hiddenCards(self):
-        "Assumes queue finished. True if some due cards have not been shown."
-        return self.db.scalar("""
-select 1 from cards where due < :now
-and queue between 0 and 1 limit 1""", now=self.dayCutoff)
+    def timeToday(self):
+        "Time spent learning today, in seconds."
+        return self.deck.db.scalar(
+            "select sum(taken/1000.0) from revlog where time > ?*1000",
+            self.dayCutoff-86400) or 0
 
-    def spacedCardCount(self):
-        "Number of spaced cards."
-        print "spacedCardCount"
-        return 0
-        return self.db.scalar("""
-select count(cards.id) from cards where
-due > :now and due < :now""", now=time.time())
-
-    def isEmpty(self):
-        return not self.cardCount
-
-    def matureCardCount(self):
-        return self.db.scalar(
-            "select count(id) from cards where interval >= :t ",
-            t=MATURE_THRESHOLD)
-
-    def youngCardCount(self):
-        return self.db.scalar(
-            "select count(id) from cards where interval < :t "
-            "and reps != 0", t=MATURE_THRESHOLD)
-
-    def newCountAll(self):
-        "All new cards, including spaced."
-        return self.db.scalar(
-            "select count(id) from cards where type = 2")
-
-    def seenCardCount(self):
-        return self.db.scalar(
-            "select count(id) from cards where type between 0 and 1")
-
-    # Card predicates
-    ##########################################################################
-
-    def cardState(self, card):
-        if self.cardIsNew(card):
-            return "new"
-        elif card.interval > MATURE_THRESHOLD:
-            return "mature"
-        return "young"
-
-    def cardIsNew(self, card):
-        "True if a card has never been seen before."
-        return card.reps == 0
-
-    def cardIsYoung(self, card):
-        "True if card is not new and not mature."
-        return (not self.cardIsNew(card) and
-                not self.cardIsMature(card))
-
-    def cardIsMature(self, card):
-        return card.interval >= MATURE_THRESHOLD
-
-    # Stats
-    ##########################################################################
-
-    def getETA(self, stats):
-        # rev + new cards first, account for failures
-        import traceback; traceback.print_stack()
-        count = stats['rev'] + stats['new']
-        count *= 1 + stats['gYoungNo%'] / 100.0
-        left = count * stats['dAverageTime']
-        # failed - higher time per card for higher amount of cards
-        failedBaseMulti = 1.5
-        failedMod = 0.07
-        failedBaseCount = 20
-        factor = (failedBaseMulti +
-                  (failedMod * (stats['failed'] - failedBaseCount)))
-        left += stats['failed'] * stats['dAverageTime'] * factor
-        return left
-
+    def repsToday(self):
+        "Number of cards answered today."
+        return self.deck.db.scalar(
+            "select count() from revlog where time > ?*1000",
+            self.dayCutoff-86400)
 
     # Dynamic indices
     ##########################################################################

@@ -215,3 +215,19 @@ def test_reviews():
     assert c.queue == -1
     c.load()
     assert c.queue == -1
+
+def test_finished():
+    d = getEmptyDeck()
+    # nothing due
+    assert "No cards are due" in d.sched.finishedMsg()
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"two"
+    d.addFact(f)
+    # have a new card
+    assert "1 new" in d.sched.finishedMsg()
+    # turn it into a review
+    c = f.cards()[0]
+    c.startTimer()
+    d.sched.answerCard(c, 3)
+    # nothing should be due tomorrow, as it's due in a week
+    assert "No cards are due" in d.sched.finishedMsg()

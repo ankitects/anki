@@ -64,6 +64,21 @@ class DeckStats(object):
     def __init__(self, deck):
         self.deck = deck
 
+    def matureCardCount(self):
+        return self.deck.db.scalar(
+            "select count(id) from cards where interval >= :t ",
+            t=MATURE_THRESHOLD)
+
+    def youngCardCount(self):
+        return self.deck.db.scalar(
+            "select count(id) from cards where interval < :t "
+            "and reps != 0", t=MATURE_THRESHOLD)
+
+    def newCountAll(self):
+        "All new cards, including spaced."
+        return self.deck.db.scalar(
+            "select count(id) from cards where type = 2")
+
     def report(self):
         "Return an HTML string with a report."
         fmtPerc = anki.utils.fmtPercentage
