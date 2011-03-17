@@ -269,3 +269,34 @@ def test_nextIvl():
     # (* 100 2.5 1.3 86400)28080000.0
     assert ni(c, 4) == 28080000
     print d.sched.nextIvlStr(c, 4) == "10.8 months"
+
+def test_misc():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"two"
+    d.addFact(f)
+    c = f.cards()[0]
+    # suspending
+    d.reset()
+    assert d.sched.getCard()
+    d.sched.suspendCards([c.id])
+    d.reset()
+    assert not d.sched.getCard()
+    # unsuspending
+    d.sched.unsuspendCards([c.id])
+    d.reset()
+    assert d.sched.getCard()
+    # burying
+    d.sched.buryFact(c.fid)
+    d.reset()
+    assert not d.sched.getCard()
+    d.sched.onClose()
+    d.reset()
+    assert d.sched.getCard()
+    # counts
+    assert d.sched.timeToday() == 0
+    assert d.sched.repsToday() == 0
+    c.timerStarted = time.time() - 10
+    d.sched.answerCard(c, 2)
+    assert d.sched.timeToday() > 0
+    assert d.sched.repsToday() == 1

@@ -61,6 +61,16 @@ class Scheduler(object):
     def cardQueue(self, card):
         return card.queue
 
+    def onClose(self):
+        "Unbury and remove temporary suspends on close."
+        self.db.execute(
+            "update cards set queue = type where queue between -3 and -2")
+
+    def _resetSchedBuried(self):
+        "Put temporarily suspended cards back into play."
+        self.db.execute(
+            "update cards set queue = type where queue = -3")
+
     # Getting the next card
     ##########################################################################
 
@@ -427,11 +437,6 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         if id not in self.confCache:
             self.confCache[id] = self.deck.groupConf(id)
         return self.confCache[id]
-
-    def _resetSchedBuried(self):
-        "Put temporarily suspended cards back into play."
-        self.db.execute(
-            "update cards set queue = type where queue = -3")
 
     def _groupLimit(self, type):
         l = self.deck.activeGroups(type)

@@ -120,6 +120,7 @@ qconf=?, conf=?, data=?""",
 
     def close(self, save=True):
         "Disconnect from DB."
+        self.sched.onClose()
         if self.db:
             if save:
                 self.save()
