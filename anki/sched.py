@@ -6,7 +6,7 @@ import time, datetime, simplejson, random
 from operator import itemgetter
 from heapq import *
 #from anki.cards import Card
-from anki.utils import parseTags, ids2str, intTime
+from anki.utils import parseTags, ids2str, intTime, fmtTimeSpan
 from anki.lang import _, ngettext
 from anki.consts import *
 from anki.hooks import runHook
@@ -211,18 +211,20 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
         card.queue = 1
         card.type = 1
 
-    def _rescheduleNew(self, card, conf, early):
+    def _graduatingIvl(self, card, conf, early):
         if not early:
             # graduate
-            int_ = conf['ints'][0]
+            return conf['ints'][0]
         elif card.cycles:
             # remove
-            int_ = conf['ints'][2]
+            return conf['ints'][2]
         else:
             # first time bonus
-            int_ = conf['ints'][1]
-        card.ivl = int_
-        card.due = self.today+int_
+            return conf['ints'][1]
+
+    def _rescheduleNew(self, card, conf, early):
+        card.ivl = self._graduatingIvl(card, conf, early)
+        card.due = self.today+card.ivl
         card.factor = conf['initialFactor']
 
     def _logLearn(self, card, ease, conf, leaving):
@@ -304,7 +306,7 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         card.streak = 0
         card.lapses += 1
         card.lastIvl = card.ivl
-        card.ivl = int(card.ivl*conf['mult']) + 1
+        card.ivl = self._nextLapseIvl(card, conf)
         card.factor = max(1300, card.factor-200)
         card.due = card.edue = self.today + card.ivl
         # put back in the learn queue?
@@ -314,11 +316,14 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         # leech?
         self._checkLeech(card, conf)
 
+    def _nextLapseIvl(self, card, conf):
+        return int(card.ivl*conf['mult']) + 1
+
     def _rescheduleReview(self, card, ease):
         card.streak += 1
         # update interval
         card.lastIvl = card.ivl
-        self._updateInterval(card, ease)
+        self._updateRevIvl(card, ease)
         # then the rest
         card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
         card.due = self.today + card.ivl
@@ -342,7 +347,7 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
     # Interval management
     ##########################################################################
 
-    def nextInterval(self, card, ease):
+    def _nextRevIvl(self, card, ease):
         "Ideal next interval for CARD, given EASE."
         delay = self._daysLate(card)
         conf = self._cardConf(card)
@@ -356,18 +361,13 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         # must be at least one day greater than previous interval
         return max(card.ivl+1, int(interval))
 
-    def nextIntervalStr(self, card, ease, short=False):
-        "Return the next interval for CARD given EASE as a string."
-        int = self.nextInterval(card, ease)
-        return anki.utils.fmtTimeSpan(int*86400, short=short)
-
     def _daysLate(self, card):
         "Number of days later than scheduled."
         return max(0, self.today - card.due)
 
-    def _updateInterval(self, card, ease):
+    def _updateRevIvl(self, card, ease):
         "Update CARD's interval, trying to avoid siblings."
-        idealIvl = self.nextInterval(card, ease)
+        idealIvl = self._nextRevIvl(card, ease)
         idealDue = self.today + idealIvl
         conf = self._cardConf(card)['rev']
         # find sibling positions
@@ -519,6 +519,45 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         return self.db.scalar(
             "select count() from (select id from cards where "
             "queue = 2 limit %d)" % lim)
+
+    # Next time reports
+    ##########################################################################
+
+    def nextIvlStr(self, card, ease, short=False):
+        "Return the next interval for CARD as a string."
+        return fmtTimeSpan(
+            self.nextIvl(card, ease), short=short)
+
+    def nextIvl(self, card, ease):
+        "Return the next interval for CARD, in seconds."
+        if card.queue in (0,2):
+            # in learning
+            return self._nextLrnIvl(card, ease)
+        elif ease == 1:
+            # lapsed
+            conf = self._cardConf(card)['lapse']
+            return self._nextLapseIvl(card, conf)*86400
+        else:
+            # review
+            return self._nextRevIvl(card, ease)*86400
+
+    # this isn't easily extracted from the learn code
+    def _nextLrnIvl(self, card, ease):
+        conf = self._learnConf(card)
+        if ease == 1:
+            # grade 0
+            return self._delayForGrade(conf, 0)
+        elif ease == 3:
+            # early removal
+            return self._graduatingIvl(card, conf, True) * 86400
+        else:
+            grade = card.grade + 1
+            if grade >= len(conf['delays']):
+                # graduate
+                return self._graduatingIvl(card, conf, False) * 86400
+            else:
+                # next level
+                return self._delayForGrade(conf, grade)
 
     # Suspending
     ##########################################################################

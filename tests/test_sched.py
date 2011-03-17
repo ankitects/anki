@@ -231,3 +231,41 @@ def test_finished():
     d.sched.answerCard(c, 3)
     # nothing should be due tomorrow, as it's due in a week
     assert "No cards are due" in d.sched.finishedMsg()
+
+def test_nextIvl():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"two"
+    d.addFact(f)
+    c = f.cards()[0]
+    # cards in learning
+    ##################################################
+    ni = d.sched.nextIvl
+    assert ni(c, 1) == 30
+    assert ni(c, 2) == 180
+    # immediate removal is 7 days
+    assert ni(c, 3) == 7*86400
+    c.cycles = 1
+    c.grade = 1
+    assert ni(c, 1) == 30
+    assert ni(c, 2) == 600
+    # no first time bonus
+    assert ni(c, 3) == 4*86400
+    c.grade = 2
+    # normal graduation is tomorrow
+    assert ni(c, 2) == 1*86400
+    assert ni(c, 3) == 4*86400
+    # review cards
+    ##################################################
+    c.queue = 1
+    c.ivl = 100
+    c.factor = 2500
+    # failing it puts it at tomorrow
+    assert ni(c, 1) == 1*86400
+    # (* 100 1.2 86400)10368000.0
+    assert ni(c, 2) == 10368000
+    # (* 100 2.5 86400)21600000.0
+    assert ni(c, 3) == 21600000
+    # (* 100 2.5 1.3 86400)28080000.0
+    assert ni(c, 4) == 28080000
+    print d.sched.nextIvlStr(c, 4) == "10.8 months"
