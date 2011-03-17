@@ -476,58 +476,6 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
             self.updateCutoff()
             self.reset()
 
-    # Review early
-    ##########################################################################
-
-    def setupReviewEarlyScheduler(self):
-        self.fillRevQueue = self._fillRevEarlyQueue
-        self.rebuildRevCount = self._rebuildRevEarlyCount
-        self.finishScheduler = self.setupStandardScheduler
-        self.answerPreSave = self._reviewEarlyPreSave
-        self.scheduler = "reviewEarly"
-
-    def _reviewEarlyPreSave(self, card, ease):
-        if ease > 1:
-            # prevent it from appearing in next queue fill
-            card.queue = -3
-
-    def _rebuildRevEarlyCount(self):
-        # in the future it would be nice to skip the first x days of due cards
-        self.revCount = self.db.scalar(
-            self.cardLimit(
-            "revActive", "revInactive", """
-select count() from cards c where queue = 1 and due > :now
-"""), now=self.dayCutoff)
-
-    def _fillRevEarlyQueue(self):
-        if self.revCount and not self.revQueue:
-            self.revQueue = self.db.all(
-                self.cardLimit(
-                "revActive", "revInactive", """
-select id, fid from cards c where queue = 1 and due > :lim
-order by due limit %d""" % self.queueLimit), lim=self.dayCutoff)
-            self.revQueue.reverse()
-
-    # Learn more
-    ##########################################################################
-
-    def setupLearnMoreScheduler(self):
-        self.rebuildNewCount = self._rebuildLearnMoreCount
-        self.updateNewCountToday = self._updateLearnMoreCountToday
-        self.finishScheduler = self.setupStandardScheduler
-        self.scheduler = "learnMore"
-
-    def _rebuildLearnMoreCount(self):
-        self.newAvail = self.db.scalar(
-            self.cardLimit(
-            "newActive", "newInactive",
-            "select count(*) from cards c where queue = 2 "
-            "and due < :lim"), lim=self.dayCutoff)
-        self.spacedCards = []
-
-    def _updateLearnMoreCountToday(self):
-        self.newCount = self.newAvail
-
     # Times
     ##########################################################################
 
