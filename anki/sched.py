@@ -17,7 +17,7 @@ class Scheduler(object):
         self.db = deck.db
         self.name = "main"
         self.queueLimit = 200
-        self.learnLimit = 1000
+        self.reportLimit = 1000
         self.updateCutoff()
 
     def getCard(self):
@@ -105,13 +105,13 @@ class Scheduler(object):
         if l['newToday'][0] != self.today:
             # it's a new day; reset counts
             l['newToday'] = [self.today, 0]
-        lim = l['newPerDay'] - l['newToday'][1]
+        lim = min(self.reportLimit, l['newPerDay'] - l['newToday'][1])
         if lim <= 0:
             self.newCount = 0
         else:
             self.newCount = self.db.scalar("""
-select count() from cards where
-queue = 2 %s""" % self.groupLimit('new'))
+select count() from (select id from cards where
+queue = 2 %s limit %d)""" % (self.groupLimit('new'), lim))
 
     def resetNew(self):
         self.resetNewCount()
@@ -167,7 +167,7 @@ queue = 2 %s order by due limit %d""" % (self.groupLimit('new'),
         self.learnQueue = self.db.all("""
 select due, id from cards where
 queue = 0 and due < :lim order by due
-limit %d""" % self.learnLimit, lim=self.dayCutoff)
+limit %d""" % self.reportLimit, lim=self.dayCutoff)
 
     def getLearnCard(self, collapse=False):
         if self.learnQueue:
@@ -254,8 +254,9 @@ where queue = 0 and type = 1
 
     def resetReviewCount(self):
         self.revCount = self.db.scalar("""
-select count() from cards where
-queue = 1 %s and due <= :lim""" % self.groupLimit("rev"),
+select count() from (select id from cards where
+queue = 1 %s and due <= :lim limit %d)""" % (
+            self.groupLimit("rev"), self.reportLimit),
                                        lim=self.today)
 
     def resetReview(self):
