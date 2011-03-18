@@ -42,13 +42,12 @@ class Scheduler(object):
 
     def answerCard(self, card, ease):
         if card.queue == 0:
-            self._answerLearnCard(card, ease)
-        elif card.queue == 1:
-            self._answerRevCard(card, ease)
-        elif card.queue == 2:
             # put it in the learn queue
-            card.queue = 0
+            card.queue = 1
+        if card.queue == 1:
             self._answerLearnCard(card, ease)
+        elif card.queue == 2:
+            self._answerRevCard(card, ease)
         else:
             raise Exception("Invalid queue")
         card.mod = intTime()
@@ -56,7 +55,7 @@ class Scheduler(object):
 
     def counts(self):
         "Does not include fetched but unanswered."
-        return (self.learnCount, self.revCount, self.newCount)
+        return (self.newCount, self.learnCount, self.revCount)
 
     def cardQueue(self, card):
         return card.queue
@@ -110,14 +109,14 @@ class Scheduler(object):
         else:
             self.newCount = self.db.scalar("""
 select count() from (select id from cards where
-queue = 2 %s limit %d)""" % (self._groupLimit('new'), lim))
+queue = 0 %s limit %d)""" % (self._groupLimit('new'), lim))
 
     def _resetNew(self):
         self._resetNewCount()
         lim = min(self.queueLimit, self.newCount)
         self.newQueue = self.db.all("""
 select id, due from cards where
-queue = 2 %s order by due limit %d""" % (self._groupLimit('new'),
+queue = 0 %s order by due limit %d""" % (self._groupLimit('new'),
                                          lim))
         self.newQueue.reverse()
         self._updateNewCardRatio()
@@ -159,14 +158,14 @@ queue = 2 %s order by due limit %d""" % (self._groupLimit('new'),
 
     def _resetLearnCount(self):
         self.learnCount = self.db.scalar(
-            "select count() from cards where queue = 0 and due < ?",
+            "select count() from cards where queue = 1 and due < ?",
             intTime() + self.deck.qconf['collapseTime'])
 
     def _resetLearn(self):
         self._resetLearnCount()
         self.learnQueue = self.db.all("""
 select due, id from cards where
-queue = 0 and due < :lim order by due
+queue = 1 and due < :lim order by due
 limit %d""" % self.reportLimit, lim=self.dayCutoff)
 
     def _getLearnCard(self, collapse=False):
@@ -208,18 +207,18 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
     def _learnConf(self, card):
         conf = self._cardConf(card)
         if card.type == 2:
-            return conf['new']
-        else:
             return conf['lapse']
+        else:
+            return conf['new']
 
     def _rescheduleAsReview(self, card, conf, early):
-        if card.type == 1:
+        if card.type == 2:
             # failed; put back entry due
             card.due = card.edue
         else:
             self._rescheduleNew(card, conf, early)
-        card.queue = 1
-        card.type = 1
+        card.queue = 2
+        card.type = 2
 
     def _graduatingIvl(self, card, conf, early):
         if not early:
@@ -258,8 +257,8 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
         "Remove failed cards from the learning queue."
         self.deck.db.execute("""
 update cards set
-due = edue, queue = 1
-where queue = 0 and type = 1
+due = edue, queue = 2
+where queue = 1 and type = 2
 """)
 
     # Reviews
@@ -268,7 +267,7 @@ where queue = 0 and type = 1
     def _resetReviewCount(self):
         self.revCount = self.db.scalar("""
 select count() from (select id from cards where
-queue = 1 %s and due <= :lim limit %d)""" % (
+queue = 2 %s and due <= :lim limit %d)""" % (
             self._groupLimit("rev"), self.reportLimit),
                                        lim=self.today)
 
@@ -276,7 +275,7 @@ queue = 1 %s and due <= :lim limit %d)""" % (
         self._resetReviewCount()
         self.revQueue = self.db.list("""
 select id from cards where
-queue = 1 %s and due <= :lim order by %s limit %d""" % (
+queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self._groupLimit("rev"), self._revOrder(), self.queueLimit),
                                     lim=self.today)
         if self.deck.qconf['revCardOrder'] == REV_CARDS_RANDOM:
@@ -321,7 +320,7 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         card.due = card.edue = self.today + card.ivl
         # put back in the learn queue?
         if conf['relearn']:
-            card.queue = 0
+            card.queue = 1
             self.learnCount += 1
         # leech?
         self._checkLeech(card, conf)
@@ -382,7 +381,7 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         conf = self._cardConf(card)['rev']
         # find sibling positions
         dues = self.db.list(
-            "select due from cards where fid = ? and queue = 1"
+            "select due from cards where fid = ? and queue = 2"
             " and id != ?", card.fid, card.id)
         if not dues or idealDue not in dues:
             card.ivl = idealIvl
@@ -508,13 +507,13 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
     def lrnTomorrow(self):
         "Number of cards in the learning queue due tomorrow."
         return self.db.scalar(
-            "select count() from cards where queue = 0 and due < ?",
+            "select count() from cards where queue = 1 and due < ?",
             self.dayCutoff+86400)
 
     def revTomorrow(self):
         "Number of reviews due tomorrow."
         return self.db.scalar(
-            "select count() from cards where queue = 1 and due = ?"+
+            "select count() from cards where queue = 2 and due = ?"+
             self._groupLimit("rev"),
             self.today+1)
 
@@ -523,7 +522,7 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
         lim = self.deck.qconf['newPerDay']
         return self.db.scalar(
             "select count() from (select id from cards where "
-            "queue = 2 limit %d)" % lim)
+            "queue = 0 limit %d)" % lim)
 
     # Next time reports
     ##########################################################################
@@ -535,7 +534,7 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
-        if card.queue in (0,2):
+        if card.queue in (0,1):
             # in learning
             return self._nextLrnIvl(card, ease)
         elif ease == 1:

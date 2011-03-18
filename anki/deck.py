@@ -256,7 +256,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
             # if this fact has existing new cards, use their due time
             due = self.db.scalar(
-                "select due from cards where fid = ? and queue = 2", fact.id)
+                "select due from cards where fid = ? and queue = 0", fact.id)
             due = due or random.randrange(1, 1000000)
         else:
             due = fact.id

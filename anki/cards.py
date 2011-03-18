@@ -10,9 +10,9 @@ MAX_TIMER = 60
 # Cards
 ##########################################################################
 
-# Type: 0=learning, 1=due, 2=new
-# Queue: 0=learning, 1=due, 2=new
-#        -1=suspended, -2=user buried, -3=sched buried
+# Type: 0=new, 1=learning, 2=due
+# Queue: same as above, and:
+#        -1=suspended, -2=user buried, -3=sched buried, -4=deleted
 # Due is used differently for different queues.
 # - new queue: fact id or random int
 # - rev queue: integer day
@@ -32,8 +32,8 @@ class Card(object):
             self.id = None
             self.gid = 1
             self.crt = intTime()
-            self.type = 2
-            self.queue = 2
+            self.type = 0
+            self.queue = 0
             self.ivl = 0
             self.factor = 0
             self.reps = 0

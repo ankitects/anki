@@ -22,13 +22,13 @@ def test_new():
     # fetch it
     c = d.sched.getCard()
     assert c
-    assert c.queue == 2
-    assert c.type == 2
+    assert c.queue == 0
+    assert c.type == 0
     # if we answer it, it should become a learn card
     t = intTime()
     d.sched.answerCard(c, 1)
-    assert c.queue == 0
-    assert c.type == 2
+    assert c.queue == 1
+    assert c.type == 0
     assert c.due >= t
     # the default order should ensure siblings are not seen together, and
     # should show all cards
@@ -55,7 +55,7 @@ def test_learn():
     f['Front'] = u"one"; f['Back'] = u"two"
     f = d.addFact(f)
     # set as a learn card and rebuild queues
-    d.db.execute("update cards set queue=0, type=2")
+    d.db.execute("update cards set queue=0, type=0")
     d.reset()
     # sched.getCard should return it, since it's due in the past
     c = d.sched.getCard()
@@ -90,46 +90,47 @@ def test_learn():
     assert c.grade == 2
     assert c.cycles == 3
     # the next pass should graduate the card
-    assert c.queue == 0
-    assert c.type == 2
-    d.sched.answerCard(c, 2)
     assert c.queue == 1
-    assert c.type == 1
+    assert c.type == 0
+    d.sched.answerCard(c, 2)
+    assert c.queue == 2
+    assert c.type == 2
     # should be due tomorrow, with an interval of 1
     assert c.due == d.sched.today+1
     assert c.ivl == 1
     # let's try early removal bonus
-    c.type = 2
-    c.queue = 0
+    c.type = 0
+    c.queue = 1
     c.cycles = 0
     d.sched.answerCard(c, 3)
-    assert c.type == 1
+    assert c.type == 2
     assert c.ivl == 7
     # or normal removal
-    c.type = 2
-    c.queue = 0
+    c.type = 0
+    c.queue = 1
     c.cycles = 1
     d.sched.answerCard(c, 3)
-    assert c.type == 1
+    assert c.type == 2
+    assert c.queue == 2
     assert c.ivl == 4
     # revlog should have been updated each time
     d.db.scalar("select count() from revlog where type = 0") == 6
     # now failed card handling
-    c.type = 1
-    c.queue = 0
+    c.type = 2
+    c.queue = 1
     c.edue = 123
     d.sched.answerCard(c, 3)
     assert c.due == 123
-    assert c.type == 1
-    assert c.queue == 1
+    assert c.type == 2
+    assert c.queue == 2
     # we should be able to remove manually, too
-    c.type = 1
-    c.queue = 0
+    c.type = 2
+    c.queue = 1
     c.edue = 321
     c.flush()
     d.sched.removeFailed()
     c.load()
-    assert c.queue == 1
+    assert c.queue == 2
     assert c.due == 321
 
 def test_reviews():
@@ -140,8 +141,8 @@ def test_reviews():
     d.addFact(f)
     # set the card up as a review card, due yesterday
     c = f.cards()[0]
-    c.type = 1
-    c.queue = 1
+    c.type = 2
+    c.queue = 2
     c.due = d.sched.today - 8
     c.factor = 2500
     c.reps = 3
@@ -156,7 +157,7 @@ def test_reviews():
     # failing it should put it in the learn queue with the default options
     ##################################################
     d.sched.answerCard(c, 1)
-    assert c.queue == 0
+    assert c.queue == 1
     # it should be due tomorrow, with an interval of 1
     assert c.due == d.sched.today + 1
     assert c.ivl == 1
@@ -171,6 +172,7 @@ def test_reviews():
     c = copy.copy(cardcopy)
     c.flush()
     d.sched.answerCard(c, 2)
+    assert c.queue == 2
     # the new interval should be (100 + 8/4) * 1.2 = 122
     assert c.ivl == 122
     assert c.due == d.sched.today + 122
@@ -257,7 +259,7 @@ def test_nextIvl():
     assert ni(c, 3) == 4*86400
     # review cards
     ##################################################
-    c.queue = 1
+    c.queue = 2
     c.ivl = 100
     c.factor = 2500
     # failing it puts it at tomorrow
