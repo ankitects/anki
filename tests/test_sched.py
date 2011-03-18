@@ -300,3 +300,15 @@ def test_misc():
     d.sched.answerCard(c, 2)
     assert d.sched.timeToday() > 0
     assert d.sched.repsToday() == 1
+
+def test_cram():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    f = d.newFact()
+    f['Front'] = u"two"
+    d.addFact(f)
+    d.cramGroups(1)
+
+

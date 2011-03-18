@@ -14,7 +14,7 @@ from anki.media import MediaRegistry
 from anki.consts import *
 
 import anki.latex # sets up hook
-import anki.cards, anki.facts, anki.models, anki.template
+import anki.cards, anki.facts, anki.models, anki.template, anki.cram
 
 # Settings related to queue building. These may be loaded without the rest of
 # the config to check due counts faster on mobile clients.
@@ -72,7 +72,8 @@ class _Deck(object):
         self.lastSessionStart = 0
         # counter for reps since deck open
         self.reps = 0
-        self.sched = Scheduler(self)
+        self._stdSched = Scheduler(self)
+        self.sched = self._stdSched
         self.media = MediaRegistry(self)
 
     def name(self):
@@ -713,6 +714,18 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
         if self.syncName and self.syncName != self.genSyncName():
             self.disableSyncing()
             return True
+
+    # Schedulers and cramming
+    ##########################################################################
+
+    def stdSched(self):
+        if self.sched.name != "std":
+            self.sched.onClose()
+        self.sched = self._stdSched
+
+    def cramGroups(self, gids, order="mod"):
+        self.stdSched()
+        self.sched = anki.cram.CramScheduler(self, gids, order)
 
     # Undo/redo
     ##########################################################################

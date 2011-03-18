@@ -13,10 +13,10 @@ from anki.hooks import runHook
 
 # the standard Anki scheduler
 class Scheduler(object):
+    name = "std"
     def __init__(self, deck):
         self.deck = deck
         self.db = deck.db
-        self.name = "main"
         self.queueLimit = 200
         self.reportLimit = 1000
         self._updateCutoff()
@@ -274,7 +274,7 @@ queue = 1 %s and due <= :lim limit %d)""" % (
 
     def _resetReview(self):
         self._resetReviewCount()
-        self.revQueue = self.db.all("""
+        self.revQueue = self.db.list("""
 select id from cards where
 queue = 1 %s and due <= :lim order by %s limit %d""" % (
             self._groupLimit("rev"), self._revOrder(), self.queueLimit),
