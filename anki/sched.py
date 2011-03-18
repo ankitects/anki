@@ -620,3 +620,71 @@ queue = 1 %s and due <= :lim order by %s limit %d""" % (
             self.db.execute("create index ix_cards_multi on cards (%s)" %
                               ", ".join(cols))
             self.db.execute("analyze")
+
+#     def resetCards(self, ids=None):
+#         "Reset progress on cards in IDS."
+#         print "position in resetCards()"
+#         sql = """
+# update cards set mod=:now, position=0, type=2, queue=2, lastInterval=0,
+# interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
+#         sql2 = "delete from revlog"
+#         if ids is None:
+#             lim = ""
+#         else:
+#             sids = ids2str(ids)
+#             sql += " where id in "+sids
+#             sql2 += "  where cardId in "+sids
+#         self.db.execute(sql, now=time.time())
+#         self.db.execute(sql2)
+#         if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+#             # we need to re-randomize now
+#             self.randomizeNewCards(ids)
+
+#     def randomizeNewCards(self, cardIds=None):
+#         "Randomize 'due' on all new cards."
+#         now = time.time()
+#         query = "select distinct fid from cards where reps = 0"
+#         if cardIds:
+#             query += " and id in %s" % ids2str(cardIds)
+#         fids = self.db.list(query)
+#         data = [{'fid': fid,
+#                  'rand': random.uniform(0, now),
+#                  'now': now} for fid in fids]
+#         self.db.executemany("""
+# update cards
+# set due = :rand + ord,
+# mod = :now
+# where fid = :fid
+# and type = 2""", data)
+
+#     def orderNewCards(self):
+#         "Set 'due' to card creation time."
+#         self.db.execute("""
+# update cards set
+# due = created,
+# mod = :now
+# where type = 2""", now=time.time())
+
+#     def rescheduleCards(self, ids, min, max):
+#         "Reset cards and schedule with new interval in days (min, max)."
+#         self.resetCards(ids)
+#         vals = []
+#         for id in ids:
+#             r = random.uniform(min*86400, max*86400)
+#             vals.append({
+#                 'id': id,
+#                 'due': r + time.time(),
+#                 'int': r / 86400.0,
+#                 't': time.time(),
+#                 })
+#         self.db.executemany("""
+# update cards set
+# interval = :int,
+# due = :due,
+# reps = 1,
+# successive = 1,
+# yesCount = 1,
+# firstAnswered = :t,
+# queue = 1,
+# type = 1,
+# where id = :id""", vals)
