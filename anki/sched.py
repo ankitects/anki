@@ -33,9 +33,9 @@ class Scheduler(object):
     def reset(self):
         self._resetConf()
         t = time.time()
-        self._resetLearn()
+        self._resetLrn()
         #print "lrn %0.2fms" % ((time.time() - t)*1000); t = time.time()
-        self._resetReview()
+        self._resetRev()
         #print "rev %0.2fms" % ((time.time() - t)*1000); t = time.time()
         self._resetNew()
         #print "new %0.2fms" % ((time.time() - t)*1000); t = time.time()
@@ -45,7 +45,7 @@ class Scheduler(object):
             # put it in the learn queue
             card.queue = 1
         if card.queue == 1:
-            self._answerLearnCard(card, ease)
+            self._answerLrnCard(card, ease)
         elif card.queue == 2:
             self._answerRevCard(card, ease)
         else:
@@ -55,7 +55,7 @@ class Scheduler(object):
 
     def counts(self):
         "Does not include fetched but unanswered."
-        return (self.newCount, self.learnCount, self.revCount)
+        return (self.newCount, self.lrnCount, self.revCount)
 
     def cardQueue(self, card):
         return card.queue
@@ -76,14 +76,14 @@ class Scheduler(object):
     def _getCardId(self):
         "Return the next due card id, or None."
         # learning card due?
-        id = self._getLearnCard()
+        id = self._getLrnCard()
         if id:
             return id
         # new first, or time for one?
         if self._timeForNewCard():
             return self._getNewCard()
         # card due for review?
-        id = self._getReviewCard()
+        id = self._getRevCard()
         if id:
             return id
         # new cards left?
@@ -91,7 +91,7 @@ class Scheduler(object):
         if id:
             return id
         # collapse or finish
-        return self._getLearnCard(collapse=True)
+        return self._getLrnCard(collapse=True)
 
     # New cards
     ##########################################################################
@@ -156,37 +156,37 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit('new'),
     # Learning queue
     ##########################################################################
 
-    def _resetLearnCount(self):
-        self.learnCount = self.db.scalar(
+    def _resetLrnCount(self):
+        self.lrnCount = self.db.scalar(
             "select count() from cards where queue = 1 and due < ?",
             intTime() + self.deck.qconf['collapseTime'])
 
-    def _resetLearn(self):
-        self._resetLearnCount()
-        self.learnQueue = self.db.all("""
+    def _resetLrn(self):
+        self._resetLrnCount()
+        self.lrnQueue = self.db.all("""
 select due, id from cards where
 queue = 1 and due < :lim order by due
 limit %d""" % self.reportLimit, lim=self.dayCutoff)
 
-    def _getLearnCard(self, collapse=False):
-        if self.learnQueue:
+    def _getLrnCard(self, collapse=False):
+        if self.lrnQueue:
             cutoff = time.time()
             if collapse:
                 cutoff -= self.deck.collapseTime
-            if self.learnQueue[0][0] < cutoff:
-                id = heappop(self.learnQueue)[1]
-                self.learnCount -= 1
+            if self.lrnQueue[0][0] < cutoff:
+                id = heappop(self.lrnQueue)[1]
+                self.lrnCount -= 1
                 return id
 
-    def _answerLearnCard(self, card, ease):
+    def _answerLrnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
-        conf = self._learnConf(card)
+        conf = self._lrnConf(card)
         leaving = False
         if ease == 3:
-            self._rescheduleAsReview(card, conf, True)
+            self._rescheduleAsRev(card, conf, True)
             leaving = True
         elif ease == 2 and card.grade+1 >= len(conf['delays']):
-            self._rescheduleAsReview(card, conf, False)
+            self._rescheduleAsRev(card, conf, False)
             leaving = True
         else:
             card.cycles += 1
@@ -196,22 +196,22 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
                 card.grade = 0
             card.due = time.time() + self._delayForGrade(conf, card.grade)
         try:
-            self._logLearn(card, ease, conf, leaving)
+            self._logLrn(card, ease, conf, leaving)
         except:
             time.sleep(0.01)
-            self._logLearn(card, ease, conf, leaving)
+            self._logLrn(card, ease, conf, leaving)
 
     def _delayForGrade(self, conf, grade):
         return conf['delays'][grade]*60
 
-    def _learnConf(self, card):
+    def _lrnConf(self, card):
         conf = self._cardConf(card)
         if card.type == 2:
             return conf['lapse']
         else:
             return conf['new']
 
-    def _rescheduleAsReview(self, card, conf, early):
+    def _rescheduleAsRev(self, card, conf, early):
         if card.type == 2:
             # failed; put back entry due
             card.due = card.edue
@@ -236,7 +236,7 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
         card.due = self.today+card.ivl
         card.factor = conf['initialFactor']
 
-    def _logLearn(self, card, ease, conf, leaving):
+    def _logLrn(self, card, ease, conf, leaving):
         for i in range(2):
             try:
                 self.deck.db.execute(
@@ -264,15 +264,15 @@ where queue = 1 and type = 2
     # Reviews
     ##########################################################################
 
-    def _resetReviewCount(self):
+    def _resetRevCount(self):
         self.revCount = self.db.scalar("""
 select count() from (select id from cards where
 queue = 2 %s and due <= :lim limit %d)""" % (
             self._groupLimit("rev"), self.reportLimit),
                                        lim=self.today)
 
-    def _resetReview(self):
-        self._resetReviewCount()
+    def _resetRev(self):
+        self._resetRevCount()
         self.revQueue = self.db.list("""
 select id from cards where
 queue = 2 %s and due <= :lim order by %s limit %d""" % (
@@ -283,14 +283,14 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         else:
             self.revQueue.reverse()
 
-    def _getReviewCard(self):
+    def _getRevCard(self):
         if self._haveRevCards():
             return self.revQueue.pop()
 
     def _haveRevCards(self):
         if self.revCount:
             if not self.revQueue:
-                self._resetReview()
+                self._resetRev()
             return self.revQueue
 
     def _revOrder(self):
@@ -307,8 +307,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         if ease == 1:
             self._rescheduleLapse(card)
         else:
-            self._rescheduleReview(card, ease)
-        self._logReview(card, ease)
+            self._rescheduleRev(card, ease)
+        self._logRev(card, ease)
 
     def _rescheduleLapse(self, card):
         conf = self._cardConf(card)['lapse']
@@ -321,14 +321,14 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         # put back in the learn queue?
         if conf['relearn']:
             card.queue = 1
-            self.learnCount += 1
+            self.lrnCount += 1
         # leech?
         self._checkLeech(card, conf)
 
     def _nextLapseIvl(self, card, conf):
         return int(card.ivl*conf['mult']) + 1
 
-    def _rescheduleReview(self, card, ease):
+    def _rescheduleRev(self, card, ease):
         card.streak += 1
         # update interval
         card.lastIvl = card.ivl
@@ -337,7 +337,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
         card.due = self.today + card.ivl
 
-    def _logReview(self, card, ease):
+    def _logRev(self, card, ease):
         for i in range(2):
             try:
                 self.deck.db.execute(
@@ -547,7 +547,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     # this isn't easily extracted from the learn code
     def _nextLrnIvl(self, card, ease):
-        conf = self._learnConf(card)
+        conf = self._lrnConf(card)
         if ease == 1:
             # grade 0
             return self._delayForGrade(conf, 0)
