@@ -121,6 +121,8 @@ def test_upgrade():
     print "upgrade to", dst
     shutil.copy(src, dst)
     deck = Deck(dst)
+    # 3 new, 2 failed, 1 due
+    assert deck.sched.counts() == (3,2,1)
     # now's a good time to test the integrity check too
     deck.fixIntegrity()
 

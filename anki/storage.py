@@ -243,10 +243,20 @@ def _upgradeSchema(db):
     _moveTable(db, "cards", True)
     # use the new order to rewrite card ids
     cardmap = dict(db.all("select id, rowid from cards2"))
-    # move back, preserving new ids
+    # move back, preserving new ids, and rewriting types
     db.execute("""
 insert into cards select rowid, factId, 1, ordinal, cast(created as int),
-cast(modified as int), relativeDelay, type, due, cast(interval as int),
+cast(modified as int),
+(case relativeDelay
+when 0 then 1
+when 1 then 2
+when 2 then 0 end),
+(case type
+when 0 then 1
+when 1 then 2
+when 2 then 0
+else type end),
+due, cast(interval as int),
 cast(factor*1000 as int), reps, successive, noCount, 0, 0, 0, "" from cards2
 order by created""")
     db.execute("drop table cards2")
@@ -505,15 +515,15 @@ def _postSchemaUpgrade(deck):
         deck.db.execute("drop table if exists %sDeleted" % t)
     # rewrite due times for new cards
     deck.db.execute("""
-update cards set due = fid where type=2""")
+update cards set due = fid where type=0""")
     # and failed cards
-    deck.db.execute("update cards set edue = ? where type = 0",
+    deck.db.execute("update cards set edue = ? where type = 1",
                     deck.sched.today+1)
     # and due cards
     deck.db.execute("""
 update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
-((due-:stamp)/86400) as int)+:today where type = 1
+((due-:stamp)/86400) as int)+:today where type = 2
 """, stamp=deck.sched.dayCutoff, today=deck.sched.today)
     # update insertion id
     deck.conf['nextFid'] = deck.db.scalar("select max(id) from facts")+1

@@ -441,7 +441,7 @@ select id from facts where tags like :_tag_%d""" % c
                     "from deckvars where key = 'leechFails')")
             else: # due
                 qquery += ("select id from cards where "
-                           "queue between 0 and 1 and due < %d") % deck.dayCutoff
+                           "queue = 2 and due <= %d") % deck.sched.today
         elif type == SEARCH_FID:
             if fidquery:
                 if isNeg:
