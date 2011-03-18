@@ -23,11 +23,15 @@ defaultConf = {
         # one of [suspend], [tagonly]
         'leechAction': ["suspend"],
     },
+    'cram': {
+        'delays': [0.5, 3, 10],
+        'resched': True,
+    },
     'rev': {
         'ease4': 1.3,
         'fuzz': 0.05,
         'minSpace': 1,
-    }
+    },
 }
 
 class GroupConfig(object):

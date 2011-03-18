@@ -57,7 +57,7 @@ class Scheduler(object):
         "Does not include fetched but unanswered."
         return (self.newCount, self.lrnCount, self.revCount)
 
-    def cardQueue(self, card):
+    def countIdx(self, card):
         return card.queue
 
     def onClose(self):

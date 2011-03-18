@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import time
+import time, copy
 from tests.shared import assertException, getEmptyDeck
 from anki.stdmodels import BasicModel
 from anki.utils import stripHTML, intTime
@@ -152,7 +152,6 @@ def test_reviews():
     c.startTimer()
     c.flush()
     # save it for later use as well
-    import copy
     cardcopy = copy.copy(c)
     # failing it should put it in the learn queue with the default options
     ##################################################
@@ -270,7 +269,7 @@ def test_nextIvl():
     assert ni(c, 3) == 21600000
     # (* 100 2.5 1.3 86400)28080000.0
     assert ni(c, 4) == 28080000
-    print d.sched.nextIvlStr(c, 4) == "10.8 months"
+    assert d.sched.nextIvlStr(c, 4) == "10.8 months"
 
 def test_misc():
     d = getEmptyDeck()
@@ -308,9 +307,32 @@ def test_cram():
     f = d.newFact()
     f['Front'] = u"one"
     d.addFact(f)
-    f = d.newFact()
-    f['Front'] = u"two"
-    d.addFact(f)
-    d.cramGroups(1)
-
-
+    c = f.cards()[0]
+    c.ivl = 100
+    c.type = c.queue = 2
+    c.due = d.sched.today + 50
+    c.mod = 1
+    c.flush()
+    d.cramGroups([1])
+    assert d.sched.counts() == (1, 0, 0)
+    c = d.sched.getCard()
+    assert d.sched.counts() == (0, 0, 0)
+    # check that estimates work
+    assert d.sched.nextIvl(c, 1) == 30
+    assert d.sched.nextIvl(c, 2) == 180
+    print "fixme"
+    print d.sched.nextIvl(c, 3) == 86400*100
+    # answer it
+    d.sched.answerCard(c, 2)
+    delta = c.due - time.time()
+    assert delta > 175 and delta <= 180
+    # another two answers should reschedule it
+    assert c.queue == 1
+    d.sched.answerCard(c, 2)
+    d.sched.answerCard(c, 2)
+    assert c.queue == -3
+    print "fixme"
+    assert c.ivl == 100
+    # and if the queue is reset, it shouldn't appear in the new queue again
+    d.reset()
+    assert d.sched.counts() == (0, 0, 0)

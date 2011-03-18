@@ -2,8 +2,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from anki.utils import ids2str
+from anki.utils import ids2str, intTime
 from anki.sched import Scheduler
+
+# The order arg should be the opposite of what you want. So if you want
+# modified ascending, pass in 'mod desc'.
 
 class CramScheduler(Scheduler):
     name = "cram"
@@ -14,11 +17,80 @@ class CramScheduler(Scheduler):
         self.order = order
         self.reset()
 
+    def counts(self):
+        return (self.newCount, self.lrnCount, 0)
+
     def reset(self):
-        pass
+        self._resetConf()
+        self._resetLrn()
+        self._resetNew()
+        self._resetRev()
 
-    def getCard(self):
-        pass
+    def answerCard(self, card, ease):
+        if card.queue == 2:
+            card.queue = 1
+            card.edue = card.due
+        if card.queue == 1:
+            self._answerLrnCard(card, ease)
+        else:
+            raise Exception("Invalid queue")
+        card.mod = intTime()
+        card.flushSched()
 
-    def answerCard(self):
-        pass
+    def countIdx(self, card):
+        if card.queue == 2:
+            return 0
+        else:
+            return 1
+
+    # Fetching
+    ##########################################################################
+
+    def _resetNew(self):
+        self.newQueue = self.db.list("""
+select id from cards where queue = 2
+and gid in %s order by %s limit %d""" % (ids2str(self.gids),
+                                         self.order,
+                                         self.reportLimit))
+        self.newCount = len(self.newQueue)
+
+    def _resetRev(self):
+        self.revQueue = []
+        self.revCount = 0
+
+    def _timeForNewCard(self):
+        return True
+
+    def _getNewCard(self):
+        if self.newQueue:
+            id = self.newQueue.pop()
+            self.newCount -= 1
+            return id
+
+    # Answering
+    ##########################################################################
+
+    def _rescheduleAsRev(self, card, conf, early):
+        Scheduler._rescheduleAsRev(self, card, conf, early)
+        card.ivl = self._graduatingIvl(card, conf, early)
+        card.due = self.today + card.ivl
+        # temporarily suspend it
+        card.queue = -3
+
+    def _graduatingIvl(self, card, conf, early):
+        if conf['resched']:
+            print "fixme"
+            return card.ivl
+        else:
+            return card.ivl
+
+    def _lrnConf(self, card):
+        return self._cardConf(card)['cram']
+
+    # Next time reports
+    ##########################################################################
+
+    def nextIvl(self, card, ease):
+        "Return the next interval for CARD, in seconds."
+        return self._nextLrnIvl(card, ease)
+

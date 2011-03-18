@@ -655,7 +655,7 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
             self.sched.onClose()
         self.sched = self._stdSched
 
-    def cramGroups(self, gids, order="mod"):
+    def cramGroups(self, gids, order="mod desc"):
         self.stdSched()
         self.sched = anki.cram.CramScheduler(self, gids, order)
 
