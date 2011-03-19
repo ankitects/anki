@@ -310,19 +310,29 @@ def test_cram():
     c = f.cards()[0]
     c.ivl = 100
     c.type = c.queue = 2
-    c.due = d.sched.today + 50
+    # due in 25 days, so it's been waiting 75 days
+    c.due = d.sched.today + 25
     c.mod = 1
+    c.startTimer()
     c.flush()
+    cardcopy = copy.copy(c)
     d.cramGroups([1])
+    # first, test with initial intervals preserved
+    conf = d.sched._lrnConf(c)
+    conf['reset'] = False
+    conf['resched'] = False
     assert d.sched.counts() == (1, 0, 0)
     c = d.sched.getCard()
     assert d.sched.counts() == (0, 0, 0)
     # check that estimates work
     assert d.sched.nextIvl(c, 1) == 30
     assert d.sched.nextIvl(c, 2) == 180
-    print "fixme"
-    print d.sched.nextIvl(c, 3) == 86400*100
-    # answer it
+    assert d.sched.nextIvl(c, 3) == 86400*100
+    # failing it should not reset ivl
+    assert c.ivl == 100
+    d.sched.answerCard(c, 1)
+    assert c.ivl == 100
+    # reset ivl for exit test, and pass card
     d.sched.answerCard(c, 2)
     delta = c.due - time.time()
     assert delta > 175 and delta <= 180
@@ -331,8 +341,34 @@ def test_cram():
     d.sched.answerCard(c, 2)
     d.sched.answerCard(c, 2)
     assert c.queue == -3
-    print "fixme"
     assert c.ivl == 100
     # and if the queue is reset, it shouldn't appear in the new queue again
     d.reset()
     assert d.sched.counts() == (0, 0, 0)
+    # now try again with ivl rescheduling
+    c = copy.copy(cardcopy)
+    c.flush()
+    d.cramGroups([1])
+    conf = d.sched._lrnConf(c)
+    conf['reset'] = False
+    conf['resched'] = True
+    # failures shouldn't matter
+    d.sched.answerCard(c, 1)
+    # graduating the card will keep the same interval, but shift the card
+    # forward the number of days it had been waiting (75)
+    assert d.sched.nextIvl(c, 3) == 75*86400
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 100
+    assert c.due == d.sched.today + 75
+    # try with ivl reset
+    c = copy.copy(cardcopy)
+    c.flush()
+    d.cramGroups([1])
+    conf = d.sched._lrnConf(c)
+    conf['reset'] = True
+    conf['resched'] = True
+    d.sched.answerCard(c, 1)
+    assert d.sched.nextIvl(c, 3) == 1*86400
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 1
+    assert c.due == d.sched.today + 1

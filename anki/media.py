@@ -160,6 +160,7 @@ If the same name exists, compare checksums."""
     ##########################################################################
 
     def downloadMissing(self):
+        raise Exception()
         urlbase = self.deck.getVar("mediaURL")
         if not urlbase:
             return None
@@ -189,6 +190,7 @@ If the same name exists, compare checksums."""
     ##########################################################################
 
     def downloadRemote(self):
+        raise Exception()
         mdir = self.deck.dir(create=True)
         refs = {}
         for (question, answer) in self.deck.db.all(

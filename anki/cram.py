@@ -34,6 +34,13 @@ class CramScheduler(Scheduler):
             self._answerLrnCard(card, ease)
         else:
             raise Exception("Invalid queue")
+        if ease == 1:
+            conf = self._lrnConf(card)
+            if conf['reset']:
+                # reset interval
+                card.ivl = max(1, int(card.ivl * conf['mult']))
+                # mark card as due today so that it doesn't get rescheduled
+                card.due = card.edue = self.today
         card.mod = intTime()
         card.flushSched()
 
@@ -47,9 +54,11 @@ class CramScheduler(Scheduler):
     ##########################################################################
 
     def _resetNew(self):
+        "All review cards that are not due yet."
         self.newQueue = self.db.list("""
-select id from cards where queue = 2
-and gid in %s order by %s limit %d""" % (ids2str(self.gids),
+select id from cards where queue = 2 and due > %d
+and gid in %s order by %s limit %d""" % (self.today,
+                                         ids2str(self.gids),
                                          self.order,
                                          self.reportLimit))
         self.newCount = len(self.newQueue)
@@ -72,15 +81,15 @@ and gid in %s order by %s limit %d""" % (ids2str(self.gids),
 
     def _rescheduleAsRev(self, card, conf, early):
         Scheduler._rescheduleAsRev(self, card, conf, early)
-        card.ivl = self._graduatingIvl(card, conf, early)
-        card.due = self.today + card.ivl
+        ivl = self._graduatingIvl(card, conf, early)
+        card.due = self.today + ivl
         # temporarily suspend it
         card.queue = -3
 
     def _graduatingIvl(self, card, conf, early):
         if conf['resched']:
-            print "fixme"
-            return card.ivl
+            # shift card by the time it was delayed
+            return card.ivl - card.edue - self.today
         else:
             return card.ivl
 

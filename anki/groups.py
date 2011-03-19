@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import simplejson, time
+import simplejson
 from anki.utils import intTime
 
 # maybe define a random cutoff at say +/-30% which controls exit interval
@@ -26,6 +26,8 @@ defaultConf = {
     'cram': {
         'delays': [0.5, 3, 10],
         'resched': True,
+        'reset': True,
+        'mult': 0,
     },
     'rev': {
         'ease4': 1.3,
