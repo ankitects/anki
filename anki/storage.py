@@ -4,7 +4,7 @@
 
 CURRENT_VERSION = 100
 
-import os, time, simplejson, re
+import os, time, simplejson, re, datetime
 from anki.lang import _
 from anki.utils import intTime
 from anki.db import DB
@@ -57,11 +57,10 @@ create table if not exists deck (
     id              integer primary key,
     crt             integer not null,
     mod             integer not null,
+    scm             integer not null,
     ver             integer not null,
-    schema          integer not null,
     syncName        text not null,
     lastSync        integer not null,
-    utcOffset       integer not null,
     qconf           text not null,
     conf            text not null,
     data            text not null
@@ -149,8 +148,8 @@ create table if not exists tags (
 );
 
 insert or ignore into deck
-values(1,%(t)s,%(t)s,%(t)s,%(v)s,'',0,-2,'', '', '');
-""" % ({'t': intTime(), 'v':CURRENT_VERSION}))
+values(1,0,0,0,%(v)s,'',0,'', '', '');
+""" % ({'v':CURRENT_VERSION}))
     import anki.deck
     import anki.groups
     # create a default group/configuration, which should not be removed
@@ -355,7 +354,7 @@ def _migrateDeckTbl(db):
     db.execute("""
 insert or replace into deck select id, cast(created as int), :t,
 :t, 99, ifnull(syncName, ""), cast(lastSync as int),
-utcOffset, "", "", "" from decks""", t=intTime())
+"", "", "" from decks""", t=intTime())
     # update selective study
     qconf = anki.deck.defaultQconf.copy()
     # delete old selective study settings, which we can't auto-upgrade easily
@@ -484,7 +483,15 @@ def _fixupModels(deck):
 def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
+    # adjust models
     _fixupModels(deck)
+    # fix creation time
+    d = datetime.datetime.today()
+    d -= datetime.timedelta(hours=4)
+    d = datetime.datetime(d.year, d.month, d.day)
+    d += datetime.timedelta(hours=4)
+    d -= datetime.timedelta(days=1+int((time.time()-deck.crt)/86400))
+    deck.crt = int(time.mktime(d.timetuple()))
     # update uniq cache
     deck.updateFieldCache(deck.db.list("select id from facts"))
     # remove old views

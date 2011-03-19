@@ -94,7 +94,7 @@ class AnkiExporter(Exporter):
         self.newDeck.rebuildCounts()
         # FIXME
         #self.exportedCards = self.newDeck.cardCount
-        self.newDeck.utcOffset = -1
+        self.newDeck.crt = 0
         self.newDeck.db.commit()
         self.newDeck.close()
 

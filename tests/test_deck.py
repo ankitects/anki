@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import os, re
+import os, re, datetime
 from tests.shared import assertException, getEmptyDeck, testDir
 
 from anki import Deck
@@ -121,6 +121,9 @@ def test_upgrade():
     print "upgrade to", dst
     shutil.copy(src, dst)
     deck = Deck(dst)
+    # creation time should have been adjusted
+    d = datetime.datetime.fromtimestamp(deck.crt)
+    assert d.hour == 4 and d.minute == 0
     # 3 new, 2 failed, 1 due
     assert deck.sched.counts() == (3,2,1)
     # now's a good time to test the integrity check too

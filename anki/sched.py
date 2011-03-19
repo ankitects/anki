@@ -448,19 +448,10 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     ##########################################################################
 
     def _updateCutoff(self):
-        d = datetime.datetime.utcfromtimestamp(
-            time.time() - self.deck.utcOffset) + datetime.timedelta(days=1)
-        d = datetime.datetime(d.year, d.month, d.day)
-        newday = self.deck.utcOffset - time.timezone
-        d += datetime.timedelta(seconds=newday)
-        cutoff = time.mktime(d.timetuple())
-        # cutoff must not be in the past
-        while cutoff < time.time():
-            cutoff += 86400
-        # cutoff must not be more than 24 hours in the future
-        cutoff = min(time.time() + 86400, cutoff)
-        self.dayCutoff = cutoff
-        self.today = int(cutoff/86400 - self.deck.crt/86400)
+        # days since deck created
+        self.today = int((time.time() - self.deck.crt) / 86400)
+        # end of day cutoff
+        self.dayCutoff = self.deck.crt + (self.today+1)*86400
 
     def _checkDay(self):
         # check if the day has rolled over

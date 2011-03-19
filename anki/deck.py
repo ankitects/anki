@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, os, random, re, stat, simplejson
+import time, os, random, re, stat, simplejson, datetime
 
 from anki.lang import _, ngettext
 from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
@@ -62,10 +62,12 @@ class _Deck(object):
         self.db = db
         self.path = db._path
         self.load()
-        if self.utcOffset == -2:
-            # shared deck; reset timezone and creation date
-            self.utcOffset = time.timezone + 60*60*4
-            self.crt = intTime()
+        if not self.crt:
+            d = datetime.datetime.today()
+            d -= datetime.timedelta(hours=4)
+            d = datetime.datetime(d.year, d.month, d.day)
+            d += datetime.timedelta(hours=4)
+            self.crt = int(time.mktime(d.timetuple()))
         self.undoEnabled = False
         self.sessionStartReps = 0
         self.sessionStartTime = 0
@@ -86,15 +88,14 @@ class _Deck(object):
     def load(self):
         (self.crt,
          self.mod,
-         self.schema,
+         self.scm,
          self.syncName,
          self.lastSync,
-         self.utcOffset,
          self.qconf,
          self.conf,
          self.data) = self.db.first("""
-select crt, mod, schema, syncName, lastSync,
-utcOffset, qconf, conf, data from deck""")
+select crt, mod, scm, syncName, lastSync,
+qconf, conf, data from deck""")
         self.qconf = simplejson.loads(self.qconf)
         self.conf = simplejson.loads(self.conf)
         self.data = simplejson.loads(self.data)
@@ -104,10 +105,10 @@ utcOffset, qconf, conf, data from deck""")
         self.mod = intTime()
         self.db.execute(
             """update deck set
-mod=?, schema=?, syncName=?, lastSync=?, utcOffset=?,
+mod=?, scm=?, syncName=?, lastSync=?,
 qconf=?, conf=?, data=?""",
-            self.mod, self.schema, self.syncName, self.lastSync,
-            self.utcOffset, simplejson.dumps(self.qconf),
+            self.mod, self.scm, self.syncName, self.lastSync,
+            simplejson.dumps(self.qconf),
             simplejson.dumps(self.conf), simplejson.dumps(self.data))
 
     def save(self):
@@ -144,11 +145,11 @@ qconf=?, conf=?, data=?""",
         if not self.schemaDirty():
             # next sync will be full
             self.emptyTrash()
-        self.schema = intTime()
+        self.scm = intTime()
 
     def schemaDirty(self):
         "True if schema changed since last sync, or syncing off."
-        return self.schema > self.lastSync
+        return self.scm > self.lastSync
 
     # Object creation helpers
     ##########################################################################

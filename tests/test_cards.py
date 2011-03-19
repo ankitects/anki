@@ -68,7 +68,7 @@ def test_delete():
     deck.addFact(f)
     assert deck.cardCount() == 1
     # mark the schema as clean
-    deck.lastSync = deck.schema + 1
+    deck.lastSync = deck.scm + 1
     # cards/facts should go in the deletion log instead
     cid = f.cards()[0].id
     deck.delCard(cid)
