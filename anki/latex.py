@@ -69,7 +69,7 @@ def buildImg(deck, latex):
     texfile.write(latex)
     texfile.close()
     # make sure we have a valid mediaDir
-    mdir = deck.mediaDir(create=True)
+    mdir = deck.media.dir(create=True)
     oldcwd = os.getcwd()
     if sys.platform == "win32":
         si = subprocess.STARTUPINFO()

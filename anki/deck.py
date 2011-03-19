@@ -450,7 +450,6 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             html = anki.template.render(format, fields)
             # if filters:
             #     d[type] = runFilter("renderQA.post", html, fields, meta, self)
-            self.media.registerText(html)
             d[type] = html
         return d
 

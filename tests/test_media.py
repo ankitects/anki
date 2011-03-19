@@ -5,85 +5,57 @@ from anki import Deck
 from anki.utils import checksum
 from shared import getEmptyDeck, testDir
 
-# uniqueness check
-def test_unique():
-    d = getEmptyDeck()
-    dir = tempfile.mkdtemp(prefix="anki")
-    # new file
-    n = "foo.jpg"
-    new = os.path.basename(d.media.uniquePath(dir, n))
-    assert new == n
-    # duplicate file
-    open(os.path.join(dir, n), "w").write("hello")
-    n = "foo.jpg"
-    new = os.path.basename(d.media.uniquePath(dir, n))
-    assert new == "foo (1).jpg"
-    # another duplicate
-    open(os.path.join(dir, "foo (1).jpg"), "w").write("hello")
-    n = "foo.jpg"
-    new = os.path.basename(d.media.uniquePath(dir, n))
-    assert new == "foo (2).jpg"
-
 # copying files to media folder
-def test_copy():
+def test_add():
     d = getEmptyDeck()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
     open(path, "w").write("hello")
-    # new file
+    # new file, should preserve name
     assert d.media.addFile(path) == "foo.jpg"
-    # dupe md5
-    path = os.path.join(dir, "bar.jpg")
-    open(path, "w").write("hello")
+    # adding the same file again should not create a duplicate
     assert d.media.addFile(path) == "foo.jpg"
-
-# media db
-def test_db():
-    deck = getEmptyDeck()
-    dir = tempfile.mkdtemp(prefix="anki")
-    path = os.path.join(dir, "foo.jpg")
-    open(path, "w").write("hello")
-    # add a new fact that references it twice
-    f = deck.newFact()
-    f['Front'] = u"<img src='foo.jpg'>"
-    f['Back'] = u"back [sound:foo.jpg]"
-    deck.addFact(f)
-    # 1 entry in the media db, and no checksum
-    assert deck.db.scalar("select count() from media") == 1
-    assert not deck.db.scalar("select group_concat(csum, '') from media")
-    # copy to media folder
-    path = deck.media.addFile(path)
-    # md5 should be set now
-    assert deck.db.scalar("select count() from media") == 1
-    assert deck.db.scalar("select group_concat(csum, '') from media")
-    # detect file modifications
-    oldsum = deck.db.scalar("select csum from media")
+    # but if it has a different md5, it should
     open(path, "w").write("world")
-    deck.media.rebuildMediaDir()
-    newsum = deck.db.scalar("select csum from media")
-    assert newsum and newsum != oldsum
-    # delete underlying file and check db
-    os.unlink(path)
-    deck.media.rebuildMediaDir()
-    # md5 should be gone again
-    assert deck.db.scalar("select count() from media") == 1
-    assert deck.db.scalar("select not csum from media")
-    # media db should pick up media defined via templates & bulk update
-    f['Back'] = u"bar.jpg"
-    f.flush()
-    # modify template & regenerate
-    assert deck.db.scalar("select count() from media") == 1
-    m = deck.currentModel()
-    m.templates[0]['afmt']=u'<img src="{{{Back}}}">'
-    m.flush()
-    deck.renderQA(type="all")
-    assert deck.db.scalar("select count() from media") == 2
+    assert d.media.addFile(path) == "foo (1).jpg"
+
+def test_strings():
+    d = getEmptyDeck()
+    mf = d.media.mediaFiles
+    assert mf("aoeu") == []
+    assert mf("aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
+    assert mf("aoeu<img src=foo bar.jpg>ao") == ["foo bar.jpg"]
+    assert mf("aoeu<img src=\"foo.jpg\">ao") == ["foo.jpg"]
+    assert mf("aoeu<img src=\"foo.jpg\"><img class=yo src=fo>ao") == [
+            "foo.jpg", "fo"]
+    assert mf("aou[sound:foo.mp3]aou") == ["foo.mp3"]
+    sp = d.media.stripMedia
+    assert sp("aoeu") == "aoeu"
+    assert sp("aoeu[sound:foo.mp3]aoeu") == "aoeuaoeu"
+    assert sp("a<img src=yo>oeu") == "aoeu"
+    es = d.media.escapeImages
+    assert es("aoeu") == "aoeu"
+    assert es("<img src='http://foo.com'>") == "<img src='http://foo.com'>"
+    assert es('<img src="foo bar.jpg">') == '<img src="foo%20bar.jpg">'
 
 def test_deckIntegration():
-    deck = getEmptyDeck()
+    d = getEmptyDeck()
     # create a media dir
-    deck.media.mediaDir(create=True)
+    d.media.dir(create=True)
     # put a file into it
-    file = unicode(os.path.join(testDir, "deck/fake.png"))
-    deck.media.addFile(file)
-    print "todo: check media copied on rename"
+    file = unicode(os.path.join(testDir, "support/fake.png"))
+    d.media.addFile(file)
+    # add a fact which references it
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"<img src='fake.png'>"
+    d.addFact(f)
+    # and one which references a non-existent file
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"<img src='fake2.png'>"
+    d.addFact(f)
+    # and add another file which isn't used
+    open(os.path.join(d.media.dir(), "foo.jpg"), "wb").write("test")
+    # check media
+    ret = d.media.check()
+    assert ret[0] == ["fake2.png"]
+    assert ret[1] == ["foo.jpg"]

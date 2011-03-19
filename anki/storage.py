@@ -130,12 +130,6 @@ create table if not exists gconf (
     conf            text not null
 );
 
-create table if not exists media (
-    file            text primary key,
-    mod             integer not null,
-    csum            text not null
-);
-
 create table if not exists revlog (
     time            integer primary key,
     cid             integer not null,
@@ -182,9 +176,7 @@ create index if not exists ix_facts_mod on facts (mod);
 create index if not exists ix_cards_fid on cards (fid);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
--- media
-create index if not exists ix_media_csum on media (csum);
--- unique checking
+-- field uniqueness check
 create index if not exists ix_fsums_fid on fsums (fid);
 create index if not exists ix_fsums_csum on fsums (csum);
 """)
@@ -312,11 +304,7 @@ from facts order by created""")
 
     # media
     ###########
-    _moveTable(db, "media")
-    db.execute("""
-insert or ignore into media select filename, cast(created as int),
-originalPath from media2""")
-    db.execute("drop table media2")
+    db.execute("drop table media")
 
     # models
     ###########
