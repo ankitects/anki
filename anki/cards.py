@@ -123,26 +123,3 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
         return int(min(time.time() - self.timerStarted, MAX_TIMER)*1000)
-
-    # Questions and answers
-    ##########################################################################
-
-    def htmlQuestion(self, type="question", align=True):
-        div = '''<div class="card%s" id="cm%s%s">%s</div>''' % (
-            type[0], type[0], hexifyID(self.tid),
-            getattr(self, type))
-        # add outer div & alignment (with tables due to qt's html handling)
-        if not align:
-            return div
-        attr = type + 'Align'
-        if getattr(self.cardModel, attr) == 0:
-            align = "center"
-        elif getattr(self.cardModel, attr) == 1:
-            align = "left"
-        else:
-            align = "right"
-        return (("<center><table width=95%%><tr><td align=%s>" % align) +
-                div + "</td></tr></table></center>")
-
-    def htmlAnswer(self, align=True):
-        return self.htmlQuestion(type="answer", align=align)
