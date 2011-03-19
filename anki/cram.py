@@ -5,16 +5,17 @@
 from anki.utils import ids2str, intTime
 from anki.sched import Scheduler
 
-# The order arg should be the opposite of what you want. So if you want
-# modified ascending, pass in 'mod desc'.
-
 class CramScheduler(Scheduler):
     name = "cram"
 
-    def __init__(self, deck, gids, order):
+    def __init__(self, deck, gids, order, min=0, max=None):
         Scheduler.__init__(self, deck)
         self.gids = gids
+        # should be the opposite order of what you want
         self.order = order
+        # days to limit cram to, where tomorrow=0. Max is inclusive.
+        self.min = min
+        self.max = max
         self.reset()
 
     def counts(self):
@@ -55,9 +56,15 @@ class CramScheduler(Scheduler):
 
     def _resetNew(self):
         "All review cards that are not due yet."
+        if self.max is not None:
+            maxlim = "and due <= %d" % (self.today+1+self.max)
+        else:
+            maxlim = ""
         self.newQueue = self.db.list("""
-select id from cards where queue = 2 and due > %d
-and gid in %s order by %s limit %d""" % (self.today,
+select id from cards where queue = 2 and due >= %d
+%s
+and gid in %s order by %s limit %d""" % (self.today+1+self.min,
+                                         maxlim,
                                          ids2str(self.gids),
                                          self.order,
                                          self.reportLimit))
@@ -102,4 +109,3 @@ and gid in %s order by %s limit %d""" % (self.today,
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
         return self._nextLrnIvl(card, ease)
-
