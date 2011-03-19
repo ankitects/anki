@@ -22,6 +22,7 @@ class CramScheduler(Scheduler):
         return (self.newCount, self.lrnCount, 0)
 
     def reset(self):
+        self._updateCutoff()
         self._resetConf()
         self._resetLrn()
         self._resetNew()

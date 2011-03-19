@@ -486,12 +486,14 @@ def _postSchemaUpgrade(deck):
     # adjust models
     _fixupModels(deck)
     # fix creation time
+    deck.sched._updateCutoff()
     d = datetime.datetime.today()
     d -= datetime.timedelta(hours=4)
     d = datetime.datetime(d.year, d.month, d.day)
     d += datetime.timedelta(hours=4)
     d -= datetime.timedelta(days=1+int((time.time()-deck.crt)/86400))
     deck.crt = int(time.mktime(d.timetuple()))
+    deck.sched._updateCutoff()
     # update uniq cache
     deck.updateFieldCache(deck.db.list("select id from facts"))
     # remove old views

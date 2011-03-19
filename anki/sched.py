@@ -19,7 +19,6 @@ class Scheduler(object):
         self.db = deck.db
         self.queueLimit = 200
         self.reportLimit = 1000
-        self._updateCutoff()
 
     def getCard(self):
         "Pop the next card from the queue. None if finished."
@@ -31,6 +30,7 @@ class Scheduler(object):
             return c
 
     def reset(self):
+        self._updateCutoff()
         self._resetConf()
         t = time.time()
         self._resetLrn()

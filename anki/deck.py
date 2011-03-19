@@ -105,9 +105,9 @@ qconf, conf, data from deck""")
         self.mod = intTime()
         self.db.execute(
             """update deck set
-mod=?, scm=?, syncName=?, lastSync=?,
+crt=?, mod=?, scm=?, syncName=?, lastSync=?,
 qconf=?, conf=?, data=?""",
-            self.mod, self.scm, self.syncName, self.lastSync,
+            self.crt, self.mod, self.scm, self.syncName, self.lastSync,
             simplejson.dumps(self.qconf),
             simplejson.dumps(self.conf), simplejson.dumps(self.data))
 
