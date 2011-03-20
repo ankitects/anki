@@ -5,8 +5,6 @@
 import time
 from anki.utils import intTime, hexifyID
 
-MAX_TIMER = 60
-
 # Cards
 ##########################################################################
 
@@ -122,4 +120,4 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
 
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
-        return int(min(time.time() - self.timerStarted, MAX_TIMER)*1000)
+        return int(time.time() - self.timerStarted)*1000

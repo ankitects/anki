@@ -195,11 +195,7 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
             else:
                 card.grade = 0
             card.due = time.time() + self._delayForGrade(conf, card.grade)
-        try:
-            self._logLrn(card, ease, conf, leaving)
-        except:
-            time.sleep(0.01)
-            self._logLrn(card, ease, conf, leaving)
+        self._logLrn(card, ease, conf, leaving)
 
     def _delayForGrade(self, conf, grade):
         return conf['delays'][grade]*60
@@ -237,21 +233,23 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
         card.factor = conf['initialFactor']
 
     def _logLrn(self, card, ease, conf, leaving):
-        for i in range(2):
-            try:
-                self.deck.db.execute(
-                    "insert into revlog values (?,?,?,?,?,?,?,?,?)",
-                    int(time.time()*1000), card.id, ease, card.cycles,
-                    self._delayForGrade(conf, card.grade),
-                    self._delayForGrade(conf, max(0, card.grade-1)),
-                    leaving, card.timeTaken(), 0)
-                return
-            except:
-                if i == 0:
-                    # last answer was less than 1ms ago; retry
-                    time.sleep(0.01)
-                else:
-                    raise
+        # limit time taken to global setting
+        taken = min(card.timeTaken(), self._cardConf(card)['maxTaken']*1000)
+        def log():
+            self.deck.db.execute(
+                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
+                int(time.time()*1000), card.id, ease, card.cycles,
+                # interval
+                self._delayForGrade(conf, card.grade),
+                # last interval
+                self._delayForGrade(conf, max(0, card.grade-1)),
+                leaving, taken, 0)
+        try:
+            log()
+        except:
+            # duplicate pk; retry in 10ms
+            time.sleep(0.01)
+            log()
 
     def removeFailed(self):
         "Remove failed cards from the learning queue."
@@ -338,20 +336,19 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         card.due = self.today + card.ivl
 
     def _logRev(self, card, ease):
-        for i in range(2):
-            try:
-                self.deck.db.execute(
-                    "insert into revlog values (?,?,?,?,?,?,?,?,?)",
-                    int(time.time()*1000), card.id, ease, card.reps,
-                    card.ivl, card.lastIvl, card.factor, card.timeTaken(),
-                    1)
-                return
-            except:
-                if i == 0:
-                    # last answer was less than 1ms ago; retry
-                    time.sleep(0.01)
-                else:
-                    raise
+        taken = min(card.timeTaken(), self._cardConf(card)['maxTaken']*1000)
+        def log():
+            self.deck.db.execute(
+                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
+                int(time.time()*1000), card.id, ease, card.reps,
+                card.ivl, card.lastIvl, card.factor, taken,
+                1)
+        try:
+            log()
+        except:
+            # duplicate pk; retry in 10ms
+            time.sleep(0.01)
+            log()
 
     # Interval management
     ##########################################################################

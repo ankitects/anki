@@ -34,6 +34,7 @@ defaultConf = {
         'fuzz': 0.05,
         'minSpace': 1,
     },
+    'maxTaken': 60,
 }
 
 class GroupConfig(object):
