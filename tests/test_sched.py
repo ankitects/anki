@@ -409,3 +409,90 @@ def test_cramLimits():
     assert d.sched.counts()[0] == 1
     d.cramGroups([1], min=0, max=1)
     assert d.sched.counts()[0] == 2
+
+def test_adjIvl():
+    d = getEmptyDeck()
+    # add two more templates and set second active
+    m = d.currentModel()
+    m.templates[1]['actv'] = True
+    t = m.newTemplate()
+    t['name'] = "f2"
+    t['qfmt'] = "{{Front}}"
+    t['afmt'] = "{{Back}}"
+    m.addTemplate(t)
+    t = m.newTemplate()
+    t['name'] = "f3"
+    t['qfmt'] = "{{Front}}"
+    t['afmt'] = "{{Back}}"
+    m.addTemplate(t)
+    m.flush()
+    # create a new fact; it should have 4 cards
+    f = d.newFact()
+    f['Front'] = "1"; f['Back'] = "1"
+    d.addFact(f)
+    assert d.cardCount() == 4
+    d.reset()
+    # immediately remove first; it should get ideal ivl
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 7
+    # with the default settings, second card should be -1
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 6
+    # and third +1
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 8
+    # fourth exceeds default settings, so gets ideal again
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 7
+    # try again with another fact
+    f = d.newFact()
+    f['Front'] = "2"; f['Back'] = "2"
+    d.addFact(f)
+    d.reset()
+    # set a minSpacing of 0
+    conf = d.sched._cardConf(c)
+    conf['rev']['minSpace'] = 0
+    # first card gets ideal
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 7
+    # and second too, because it's below the threshold
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 7
+    # if we increase the ivl minSpace isn't needed
+    conf['new']['ints'][1] = 20
+    # ideal..
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 20
+    # adjusted
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert c.ivl == 19
+
+def test_ordcycle():
+    d = getEmptyDeck()
+    # add two more templates and set second active
+    m = d.currentModel()
+    m.templates[1]['actv'] = True
+    t = m.newTemplate()
+    t['name'] = "f2"
+    t['qfmt'] = "{{Front}}"
+    t['afmt'] = "{{Back}}"
+    m.addTemplate(t)
+    m.flush()
+    # create a new fact; it should have 4 cards
+    f = d.newFact()
+    f['Front'] = "1"; f['Back'] = "1"
+    d.addFact(f)
+    assert d.cardCount() == 3
+    d.reset()
+    # ordinals should arrive in order
+    assert d.sched.getCard().ord == 0
+    assert d.sched.getCard().ord == 1
+    assert d.sched.getCard().ord == 2

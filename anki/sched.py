@@ -126,8 +126,13 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit('new'),
             (id, due) = self.newQueue.pop()
             # move any siblings to the end?
             if self.deck.qconf['newTodayOrder'] == NEW_TODAY_ORD:
+                n = len(self.newQueue)
                 while self.newQueue and self.newQueue[-1][1] == due:
                     self.newQueue.insert(0, self.newQueue.pop())
+                    n -= 1
+                    if not n:
+                        # we only have one fact in the queue; stop rotating
+                        break
             self.newCount -= 1
             return id
 
@@ -219,13 +224,14 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
     def _graduatingIvl(self, card, conf, early):
         if not early:
             # graduate
-            return conf['ints'][0]
+            ideal =  conf['ints'][0]
         elif card.cycles:
             # remove
-            return conf['ints'][2]
+            ideal = conf['ints'][2]
         else:
             # first time bonus
-            return conf['ints'][1]
+            ideal = conf['ints'][1]
+        return self._adjRevIvl(card, ideal)
 
     def _rescheduleNew(self, card, conf, early):
         card.ivl = self._graduatingIvl(card, conf, early)
@@ -374,6 +380,10 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def _updateRevIvl(self, card, ease):
         "Update CARD's interval, trying to avoid siblings."
         idealIvl = self._nextRevIvl(card, ease)
+        card.ivl = self._adjRevIvl(card, idealIvl)
+
+    def _adjRevIvl(self, card, idealIvl):
+        "Given IDEALIVL, return an IVL away from siblings."
         idealDue = self.today + idealIvl
         conf = self._cardConf(card)['rev']
         # find sibling positions
@@ -381,12 +391,12 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             "select due from cards where fid = ? and queue = 2"
             " and id != ?", card.fid, card.id)
         if not dues or idealDue not in dues:
-            card.ivl = idealIvl
+            return idealIvl
         else:
             leeway = max(conf['minSpace'], int(idealIvl * conf['fuzz']))
+            fudge = 0
             # do we have any room to adjust the interval?
             if leeway:
-                fudge = 0
                 # loop through possible due dates for an empty one
                 for diff in range(1, leeway+1):
                     # ensure we're due at least tomorrow
@@ -396,7 +406,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
                     elif (idealDue + diff) not in dues:
                         fudge = diff
                         break
-            card.ivl = idealIvl + fudge
+            return idealIvl + fudge
 
     # Leeches
     ##########################################################################
