@@ -10,7 +10,6 @@ from anki import Deck
 from anki.utils import fmtTimeSpan
 from anki.hooks import addHook
 import aqt
-#from aqt.utils import askUser
 
 _css = """
 body { background-color: #eee; }
@@ -36,6 +35,7 @@ _body = """
 """
 
 class DeckBrowser(object):
+    "Display a list of remembered decks."
 
     def __init__(self, mw):
         self.mw = mw
@@ -81,19 +81,14 @@ class DeckBrowser(object):
     ##########################################################################
 
     def _setupToolbar(self):
-        frm = self.mw.form
-        tb = frm.toolBar
-        tb.clear()
+        self.mw.form.toolBar.hide()
+        return
         tb.addAction(frm.actionDownloadSharedDeck)
         tb.addAction(frm.actionNew)
         tb.addAction(frm.actionOpen)
         tb.addAction(frm.actionImport)
         tb.addAction(frm.actionOpenOnline)
         tb.addAction(frm.actionRefreshDeckBrowser)
-        tb.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        # reshow so osx recalculates sizes
-        tb.hide()
-        tb.show()
 
     # Event handlers
     ##########################################################################
@@ -101,8 +96,8 @@ class DeckBrowser(object):
     def _linkHandler(self, url):
         (cmd, arg) = url.split(":")
         if cmd == "open":
-            deck = self._decks[int(arg)]['path']
-            self.mw.loadDeck(deck)
+            deck = self._decks[int(arg)]
+            self._loadDeck(deck)
         elif cmd == "opts":
             self._optsForRow(int(arg))
 
@@ -117,7 +112,11 @@ class DeckBrowser(object):
     def _openAccel(self, txt):
         for d in self._decks:
             if d['accel'] == txt:
-                self.mw.loadDeck(d['path'])
+                self._loadDeck(d)
+
+    def _loadDeck(self, rec):
+        if 'path' in rec:
+            self.mw.loadDeck(rec['path'])
 
     # HTML generation
     ##########################################################################
@@ -133,7 +132,7 @@ class DeckBrowser(object):
                 rows=buf,
                 extra="<p>%s<p>%s" % (
                     self._summary(),
-                    _("Click a deck to open, or type a number."))),
+                    _("Click a deck to open it, or type a number."))),
                              _css)
         else:
             self.web.stdHtml(_body%dict(
