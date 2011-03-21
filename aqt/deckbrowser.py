@@ -17,12 +17,13 @@ body { background-color: #eee; }
 .sub { color: #555; }
 hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
 a:hover { background-color: #aaa; }
-a.deck { color: #000; text-decoration: none; }
+a.deck { color: #000; text-decoration: none; font-size: 100%; }
 .num { text-align: right; padding: 0 5 0 5; }
+a.opts { font-size: 80%; padding: 3; background-color: #ccc;
+border-radius: 2px; color: #000; }
 td.opts { text-align: right; white-space: nowrap; }
-a.opts { font-size: 80%; padding: 2; background-color: #ccc; border-radius: 2px; }
 td.menu { text-align: center; }
-a.tb { font-size: 80%; text-decoration: none; }
+a { font-size: 80%; text-decoration: none; }
 h1 { margin-bottom: 0.2em; }
 """
 
@@ -310,8 +311,8 @@ not be touched.""") % self._decks[c]['name']):
                     'path': d,
                     'state': 'ok',
                     'name': deck.name(),
-                    'due': counts[0],
-                    'new': counts[1],
+                    'due': counts[1]+counts[2],
+                    'new': counts[0],
                     'mod': deck.mod,
                     # these multiply deck check time by a factor of 6
                     'time': dtime,
