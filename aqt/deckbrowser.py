@@ -17,16 +17,21 @@ body { background-color: #eee; }
 .sub { color: #555; }
 hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
 a:hover { background-color: #aaa; }
-a { color: #000; text-decoration: none; }
+a.deck { color: #000; text-decoration: none; }
 .num { text-align: right; padding: 0 5 0 5; }
 td.opts { text-align: right; white-space: nowrap; }
 a.opts { font-size: 80%; padding: 2; background-color: #ccc; border-radius: 2px; }
+td.menu { text-align: center; }
+a.tb { font-size: 80%; text-decoration: none; }
+h1 { margin-bottom: 0.2em; }
 """
 
 _body = """
 <center>
 <div id="outer">
 <h1>%(title)s</h1>
+%(tb)s
+<p>
 <table cellspacing=0 cellpadding=0 width=90%%>
 %(rows)s
 </table>
@@ -42,8 +47,6 @@ class DeckBrowser(object):
         self.web = mw.web
         self._browserLastRefreshed = 0
         self._decks = []
-        mw.connect(mw.form.actionRefreshDeckBrowser, SIGNAL("activated()"),
-                   self.refresh)
         addHook("deckClosing", self.onClose)
 
     def show(self, _init=True):
@@ -80,26 +83,48 @@ class DeckBrowser(object):
     # Toolbar
     ##########################################################################
 
+    # we don't use the top toolbar
     def _setupToolbar(self):
         self.mw.form.toolBar.hide()
-        return
-        tb.addAction(frm.actionDownloadSharedDeck)
-        tb.addAction(frm.actionNew)
-        tb.addAction(frm.actionOpen)
-        tb.addAction(frm.actionImport)
-        tb.addAction(frm.actionOpenOnline)
-        tb.addAction(frm.actionRefreshDeckBrowser)
+
+    # instead we have a html one under the deck list
+    def _toolbar(self):
+        items = [
+            ("download", _("Download Shared")),
+            ("new", _("Create")),
+            ("import", _("Import")),
+            ("opensel", _("Open")),
+            ("synced", _("Synced")),
+            ("refresh", _("Refresh")),
+        ]
+        h = " | ".join(["<a class=tb href=%s>%s</a>" % row for row in items])
+        return h
 
     # Event handlers
     ##########################################################################
 
     def _linkHandler(self, url):
-        (cmd, arg) = url.split(":")
+        if ":" in url:
+            (cmd, arg) = url.split(":")
+        else:
+            cmd = url
         if cmd == "open":
             deck = self._decks[int(arg)]
             self._loadDeck(deck)
         elif cmd == "opts":
             self._optsForRow(int(arg))
+        elif cmd == "download":
+            self.mw.onGetSharedDeck()
+        elif cmd == "new":
+            self.mw.onNew()
+        elif cmd == "import":
+            self.mw.onImport()
+        elif cmd == "opensel":
+            self.mw.onOpen()
+        elif cmd == "synced":
+            self.mw.onOpenOnline()
+        elif cmd == "refresh":
+            self.refresh()
 
     def _keyHandler(self, evt):
         txt = evt.text()
@@ -130,6 +155,7 @@ class DeckBrowser(object):
             self.web.stdHtml(_body%dict(
                 title=_("Decks"),
                 rows=buf,
+                tb=self._toolbar(),
                 extra="<p>%s<p>%s" % (
                     self._summary(),
                     _("Click a deck to open it, or type a number."))),
@@ -139,7 +165,8 @@ class DeckBrowser(object):
                 title=_("Welcome!"),
                 rows="<tr><td align=center>%s</td></tr>"%_(
                     "Click <b>Download</b> to get started."),
-                extra=""),
+                extra="",
+                tb=self._toolbar()),
                              _css)
 
     def _deckRow(self, c, max, deck):
@@ -153,7 +180,7 @@ class DeckBrowser(object):
             # name/link
             buf += "<td>%s<b>%s</b></td>" % (
             accelName(deck),
-            "<a href='open:%d'>%s</a>"%(c, deck['name']))
+            "<a class=deck href='open:%d'>%s</a>"%(c, deck['name']))
             # due
             col = '<td class=num><b><font color=#0000ff>%s</font></b></td>'
             if deck['due'] > 0:
