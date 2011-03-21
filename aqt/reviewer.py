@@ -51,7 +51,7 @@ $(function () {
     $.plot($("#placeholder"), [
     { data: d, bars: { show: true, barWidth: 0.8 } }
     ], {
-    xaxis: { ticks: [[0.5, "Today"]] }
+    xaxis: { ticks: [[0.4, "Today"]] }
     });
 });
 </script>
