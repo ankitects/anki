@@ -2,10 +2,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, os, stat, shutil, difflib
+import time, os, stat, shutil, difflib, simplejson
 import unicodedata as ucd
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from anki.consts import NEW_CARDS_RANDOM
 from anki.utils import fmtTimeSpan, stripHTML
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText
@@ -30,11 +31,118 @@ class Reviewer(object):
         self._setupToolbar()
         self._reset()
 
+    # Overview state
+    ##########################################################################
+
+    _overviewBody = """
+<center>
+<h1>%(title)s</h1>
+%(table)s
+<hr>
+<div id="placeholder" style="width:350px; height:100px;"></div>
+<span class=sub>%(fcsub)s</span>
+<hr>
+%(opts)s
+</center>
+
+<script id="source" language="javascript" type="text/javascript">
+$(function () {
+    var d = %(fcdata)s;
+    $.plot($("#placeholder"), [
+    { data: d, bars: { show: true, barWidth: 0.8 } }
+    ], {
+    xaxis: { ticks: [[0.5, "Today"]] }
+    });
+});
+</script>
+"""
+
+    _overviewCSS = """
+.due { text-align: right; color: green; }
+.new { text-align: right; color: blue; }
+.sub { font-size: 80%; color: #555; }
+"""
+
+    def _overview(self):
+        css = self.mw._sharedCSS + self._overviewCSS
+        self.web.stdHtml(self._overviewBody % dict(
+            title=_("Overview"),
+            table=self._overviewTable(),
+            fcsub=_("Due over next two weeks"),
+            fcdata=self._ovForecast(),
+            opts=self._ovOpts(),
+            ), css)
+
+    def _overviewTable(self):
+        counts = self._ovCounts()
+        def but(link, name):
+            return '<a class=but href="%s">%s</a>' % (link, name)
+        buf = "<table cellspacing=0 cellpadding=3 width=400>"
+        buf += "<tr><th></th><th align=right>%s</th>" % _("Due")
+        buf += "<th align=right>%s</th><th></th></tr>" % _("New")
+        line = "<tr><td><b>%s</b></td><td class=due>%s</td>"
+        line += "<td class=new>%s</td><td align=right>%s</td></tr>"
+        buf += line % (
+            "<a href=chgrp>%s</a>" % _("Selected Groups"),
+            counts[0], counts[1],
+            but("studysel", _("Study")) +
+            but("cramsel", _("Cram")))
+        buf += line % (
+            _("Whole Deck"),
+            counts[2], counts[3],
+            but("studyall", _("Study")) +
+            but("cramall", _("Cram")))
+        buf += "</table>"
+        return buf
+
+    def _ovCounts(self):
+        oldNew = self.mw.deck.qconf['newGroups']
+        oldRev = self.mw.deck.qconf['revGroups']
+        if not oldNew and not oldRev:
+            # everything is enabled, no extra work to work to do
+            self.mw.deck.reset()
+            allcnt = self.mw.deck.sched.counts()
+        else:
+            # need to reset to find all cards
+            self.mw.deck.qconf['newGroups'] = []
+            self.mw.deck.qconf['revGroups'] = []
+            self.mw.deck.reset()
+            allcnt = self.mw.deck.sched.counts()
+            self.mw.deck.qconf['newGroups'] = oldNew
+            self.mw.deck.qconf['revGroups'] = oldRev
+            self.mw.deck.reset()
+        selcnt = self.mw.deck.sched.counts()
+        return [
+            selcnt[1] + selcnt[2],
+            selcnt[0],
+            allcnt[1] + allcnt[2],
+            allcnt[0],
+        ]
+
+    def _ovForecast(self):
+        return simplejson.dumps(tuple(
+            enumerate(self.mw.deck.sched.dueForecast(14))))
+
+    def _ovOpts(self):
+        if self.mw.deck.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+            ord = _("random")
+        else:
+            ord = _("order added")
+        buf = """
+<table width=400>
+<tr><td><b>%s</b></td><td align=center>%s</td><td align=right rowspan=2>%s</td></tr>
+<tr><td><b>%s</b></td><td align=center>%s</td></tr>
+</table>""" % (
+    _("New cards per day"), self.mw.deck.qconf['newPerDay'],
+    '<a href=opts class=but>%s</a>' % _("Study Options"),
+    _("New card order"), ord)
+        return buf
+
     # State control
     ##########################################################################
 
     def _reset(self):
-        self.web.stdHtml("")
+        self._overview()
 
     def setState(self, state):
         "Change to STATE, and update the display."

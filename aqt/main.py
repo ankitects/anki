@@ -81,6 +81,17 @@ class AnkiQt(QMainWindow):
         self.setupEditor()
         self.setupStudyScreen()
 
+    _sharedCSS = """
+body { background-color: #eee; margin-top: 1em; }
+a:hover { background-color: #aaa; }
+a.but { font-size: 80%; padding: 3; background-color: #ccc;
+        border-radius: 2px; color: #000; margin: 0 5 0 5; text-decoration:
+        none; display: inline-block; }
+h1 { margin-bottom: 0.2em; }
+hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
+"""
+#a { text-decoration: none; }
+
     # State machine
     ##########################################################################
 

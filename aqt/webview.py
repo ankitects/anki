@@ -66,7 +66,10 @@ class AnkiWebView(QWebView):
         QWebView.setHtml(self, html)
     def stdHtml(self, body, css="", loadCB=None):
         self.setHtml("""
-<html><head><style>%s</style><script src="qrc:/jquery.min.js"></script></head>
+<html><head><style>%s</style>
+<script src="qrc:/jquery.min.js"></script>
+<script src="qrc:/jquery.flot.min.js"></script>
+</head>
 <body>%s</body></html>""" % (css, body), loadCB)
         # ensure we're focused
         self.setFocus()

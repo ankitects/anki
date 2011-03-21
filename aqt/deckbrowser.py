@@ -11,35 +11,6 @@ from anki.utils import fmtTimeSpan
 from anki.hooks import addHook
 import aqt
 
-_css = """
-body { background-color: #eee; }
-#outer { margin-top: 1em; }
-.sub { color: #555; }
-hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
-a:hover { background-color: #aaa; }
-a.deck { color: #000; text-decoration: none; font-size: 100%; }
-.num { text-align: right; padding: 0 5 0 5; }
-a.opts { font-size: 80%; padding: 3; background-color: #ccc;
-border-radius: 2px; color: #000; }
-td.opts { text-align: right; white-space: nowrap; }
-td.menu { text-align: center; }
-a { font-size: 80%; text-decoration: none; }
-h1 { margin-bottom: 0.2em; }
-"""
-
-_body = """
-<center>
-<div id="outer">
-<h1>%(title)s</h1>
-%(tb)s
-<p>
-<table cellspacing=0 cellpadding=0 width=90%%>
-%(rows)s
-</table>
-%(extra)s
-</div>
-"""
-
 class DeckBrowser(object):
     "Display a list of remembered decks."
 
@@ -147,28 +118,50 @@ class DeckBrowser(object):
     # HTML generation
     ##########################################################################
 
+    _css = """
+.sub { color: #555; }
+a.deck { color: #000; text-decoration: none; font-size: 100%; }
+.num { text-align: right; padding: 0 5 0 5; }
+td.opts { text-align: right; white-space: nowrap; }
+td.menu { text-align: center; }
+a { font-size: 80%; }
+"""
+
+    _body = """
+<center>
+<h1>%(title)s</h1>
+%(tb)s
+<p>
+<table cellspacing=0 cellpadding=0 width=90%%>
+%(rows)s
+</table>
+%(extra)s
+</center>
+"""
+
     def _renderPage(self):
         if self._decks:
             buf = ""
+            css = self.mw._sharedCSS + self._css
             max=len(self._decks)-1
             for c, deck in enumerate(self._decks):
                 buf += self._deckRow(c, max, deck)
-            self.web.stdHtml(_body%dict(
+            self.web.stdHtml(self._body%dict(
                 title=_("Decks"),
                 rows=buf,
                 tb=self._toolbar(),
                 extra="<p>%s<p>%s" % (
                     self._summary(),
                     _("Click a deck to open it, or type a number."))),
-                             _css)
+                             css)
         else:
-            self.web.stdHtml(_body%dict(
+            self.web.stdHtml(self._body%dict(
                 title=_("Welcome!"),
                 rows="<tr><td align=center>%s</td></tr>"%_(
                     "Click <b>Download</b> to get started."),
                 extra="",
                 tb=self._toolbar()),
-                             _css)
+                             css)
 
     def _deckRow(self, c, max, deck):
         buf = "<tr>"
@@ -212,7 +205,7 @@ class DeckBrowser(object):
             # no counts
             buf += "<td colspan=2></td>"
         # options
-        buf += "<td class=opts><a class=opts href='opts:%d'>%s&#9660;</a></td>" % (
+        buf += "<td class=opts><a class=but href='opts:%d'>%s&#9660;</a></td>" % (
             c, "Options")
         buf += "</tr>"
         if c != max:
