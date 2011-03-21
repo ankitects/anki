@@ -41,18 +41,23 @@ class Reviewer(object):
 <hr>
 <div id="placeholder" style="width:350px; height:100px;"></div>
 <span class=sub>%(fcsub)s</span>
-<hr>
+<hr class=sub>
 %(opts)s
 </center>
 
 <script id="source" language="javascript" type="text/javascript">
 $(function () {
     var d = %(fcdata)s;
+    if (d) {
     $.plot($("#placeholder"), [
     { data: d, bars: { show: true, barWidth: 0.8 } }
     ], {
     xaxis: { ticks: [[0.4, "Today"]] }
     });
+    } else {
+    $("#placeholder").hide();
+    $(".sub").hide();
+    }
 });
 </script>
 """
@@ -120,8 +125,10 @@ $(function () {
         ]
 
     def _ovForecast(self):
-        return simplejson.dumps(tuple(
-            enumerate(self.mw.deck.sched.dueForecast(14))))
+        fc = self.mw.deck.sched.dueForecast(14)
+        if not sum(fc):
+            return "''"
+        return simplejson.dumps(tuple(enumerate(fc)))
 
     def _ovOpts(self):
         if self.mw.deck.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
