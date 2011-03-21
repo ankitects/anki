@@ -21,7 +21,6 @@ import anki.cards, anki.facts, anki.models, anki.template, anki.cram
 defaultQconf = {
     'revGroups': [],
     'newGroups': [],
-    'groupsOn': True,
     'newPerDay': 20,
     'newToday': [0, 0], # currentDay, count
     'newTodayOrder': NEW_TODAY_ORD,
@@ -557,8 +556,6 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
                            gid))
 
     def activeGroups(self, type):
-        if not self.qconf['groupsOn']:
-            return []
         return self.qconf[type+"Groups"]
 
     def setActiveGroups(self, type, list):

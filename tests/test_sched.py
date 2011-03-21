@@ -496,3 +496,39 @@ def test_ordcycle():
     assert d.sched.getCard().ord == 0
     assert d.sched.getCard().ord == 1
     assert d.sched.getCard().ord == 2
+
+def test_counts():
+    d = getEmptyDeck()
+    # add a second group
+    assert d.groupId("new group") == 2
+    # for each card type
+    for type in range(3):
+        # and each of the groups
+        for gid in (1,2):
+            # create a new fact
+            f = d.newFact()
+            f['Front'] = u"one"
+            d.addFact(f)
+            c = f.cards()[0]
+            # set type/gid
+            c.type = type
+            c.queue = type
+            c.gid = gid
+            c.due = 0
+            c.flush()
+    d.reset()
+    # with the default settings, there's no count limit
+    assert d.sched.counts() == (2,2,2)
+    # check limit to one group
+    d.qconf['revGroups'] = [1]
+    d.qconf['newGroups'] = [1]
+    d.reset()
+    assert d.sched.counts() == (1,2,1)
+    # we can disable the groups without forgetting them
+    d.sched.useGroups = False
+    d.reset()
+    assert d.sched.counts() == (2,2,2)
+    # we don't need to build the queue to get the counts
+    assert d.sched.allCounts() == (2,2,2)
+    assert d.sched.selCounts() == (1,2,1)
+    assert d.sched.allCounts() == (2,2,2)

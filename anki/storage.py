@@ -457,9 +457,16 @@ questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels"""):
             conf['typeAns'] = ordN
         else:
             conf['typeAns'] = None
-        # ensure the new style field format
-        conf['qfmt'] = re.sub("%\((.+?)\)s", "{{\\1}}", conf['qfmt'])
-        conf['afmt'] = re.sub("%\((.+?)\)s", "{{\\1}}", conf['afmt'])
+        for type in ("qfmt", "afmt"):
+            # ensure the new style field format
+            conf[type] = re.sub("%\((.+?)\)s", "{{\\1}}", conf[type])
+            # some special names have changed
+            conf[type] = re.sub(
+                "(?i){{tags}}", "{{Tags}}", conf[type])
+            conf[type] = re.sub(
+                "(?i){{cardModel}}", "{{Template}}", conf[type])
+            conf[type] = re.sub(
+                "(?i){{modelTags}}", "{{Model}}", conf[type])
         # add to model list with ordinal for sorting
         mods[row[0]].append((row[1], conf))
     # now we've gathered all the info, save it into the models

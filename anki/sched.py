@@ -19,6 +19,8 @@ class Scheduler(object):
         self.db = deck.db
         self.queueLimit = 200
         self.reportLimit = 1000
+        self.useGroups = True
+        self._updateCutoff()
 
     def getCard(self):
         "Pop the next card from the queue. None if finished."
@@ -30,15 +32,11 @@ class Scheduler(object):
             return c
 
     def reset(self):
-        self._updateCutoff()
         self._resetConf()
-        t = time.time()
+        self._resetCounts()
         self._resetLrn()
-        #print "lrn %0.2fms" % ((time.time() - t)*1000); t = time.time()
         self._resetRev()
-        #print "rev %0.2fms" % ((time.time() - t)*1000); t = time.time()
         self._resetNew()
-        #print "new %0.2fms" % ((time.time() - t)*1000); t = time.time()
 
     def answerCard(self, card, ease):
         if card.queue == 0:
@@ -75,6 +73,27 @@ order by due""" % self._groupLimit("rev"),
         "Unbury and remove temporary suspends on close."
         self.db.execute(
             "update cards set queue = type where queue between -3 and -2")
+
+    # Counts
+    ##########################################################################
+
+    def selCounts(self):
+        "Return counts for selected groups, without building queue."
+        self.useGroups = True
+        self._resetCounts()
+        return self.counts()
+
+    def allCounts(self):
+        "Return counts for all groups, without building queue."
+        self.useGroups = False
+        self._resetCounts()
+        return self.counts()
+
+    def _resetCounts(self):
+        self._updateCutoff()
+        self._resetLrnCount()
+        self._resetRevCount()
+        self._resetNewCount()
 
     # Getting the next card
     ##########################################################################
@@ -118,7 +137,6 @@ select count() from (select id from cards where
 queue = 0 %s limit %d)""" % (self._groupLimit('new'), lim))
 
     def _resetNew(self):
-        self._resetNewCount()
         lim = min(self.queueLimit, self.newCount)
         self.newQueue = self.db.all("""
 select id, due from cards where
@@ -173,7 +191,6 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit('new'),
             intTime() + self.deck.qconf['collapseTime'])
 
     def _resetLrn(self):
-        self._resetLrnCount()
         self.lrnQueue = self.db.all("""
 select due, id from cards where
 queue = 1 and due < :lim order by due
@@ -282,7 +299,6 @@ queue = 2 %s and due <= :lim limit %d)""" % (
                                        lim=self.today)
 
     def _resetRev(self):
-        self._resetRevCount()
         self.revQueue = self.db.list("""
 select id from cards where
 queue = 2 %s and due <= :lim order by %s limit %d""" % (
@@ -451,6 +467,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         return self.confCache[id]
 
     def _groupLimit(self, type):
+        if not self.useGroups:
+            return ""
         l = self.deck.activeGroups(type)
         if not l:
             # everything
