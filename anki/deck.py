@@ -77,6 +77,8 @@ class _Deck(object):
         self._stdSched = Scheduler(self)
         self.sched = self._stdSched
         self.media = MediaRegistry(self)
+        # check for improper shutdown
+        self.cleanup()
 
     def name(self):
         n = os.path.splitext(os.path.basename(self.path))[0]
@@ -89,12 +91,13 @@ class _Deck(object):
         (self.crt,
          self.mod,
          self.scm,
+         self.dty,
          self.syncName,
          self.lastSync,
          self.qconf,
          self.conf,
          self.data) = self.db.first("""
-select crt, mod, scm, syncName, lastSync,
+select crt, mod, scm, dty, syncName, lastSync,
 qconf, conf, data from deck""")
         self.qconf = simplejson.loads(self.qconf)
         self.conf = simplejson.loads(self.conf)
@@ -105,9 +108,10 @@ qconf, conf, data from deck""")
         self.mod = intTime()
         self.db.execute(
             """update deck set
-crt=?, mod=?, scm=?, syncName=?, lastSync=?,
+crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?,
 qconf=?, conf=?, data=?""",
-            self.crt, self.mod, self.scm, self.syncName, self.lastSync,
+            self.crt, self.mod, self.scm, self.dty,
+            self.syncName, self.lastSync,
             simplejson.dumps(self.qconf),
             simplejson.dumps(self.conf), simplejson.dumps(self.data))
 
@@ -122,7 +126,7 @@ qconf=?, conf=?, data=?""",
 
     def close(self, save=True):
         "Disconnect from DB."
-        self.sched.onClose()
+        self.cleanup()
         if self.db:
             if save:
                 self.save()
@@ -142,14 +146,22 @@ qconf=?, conf=?, data=?""",
         self.lock()
 
     def modSchema(self):
-        if not self.schemaDirty():
+        if not self.schemaChanged():
             # next sync will be full
             self.emptyTrash()
         self.scm = intTime()
 
-    def schemaDirty(self):
+    def schemaChanged(self):
         "True if schema changed since last sync, or syncing off."
         return self.scm > self.lastSync
+
+    def setDirty(self):
+        self.dty = True
+
+    def cleanup(self):
+        if self.dty:
+            self.sched.onClose()
+            self.dty = False
 
     # Object creation helpers
     ##########################################################################
@@ -317,7 +329,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         if not ids:
             return
         sids = ids2str(ids)
-        if self.schemaDirty():
+        if self.schemaChanged():
             # immediate delete?
             self.db.execute("delete from cards where id in %s" % sids)
             self.db.execute("delete from revlog where cid in %s" % sids)

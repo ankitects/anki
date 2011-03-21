@@ -92,6 +92,7 @@ and gid in %s order by %s limit %d""" % (self.today+1+self.min,
         ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today + ivl
         # temporarily suspend it
+        self.deck.setDirty()
         card.queue = -3
 
     def _graduatingIvl(self, card, conf, early):

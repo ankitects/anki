@@ -62,6 +62,7 @@ create table if not exists deck (
     mod             integer not null,
     scm             integer not null,
     ver             integer not null,
+    dty             integer not null,
     syncName        text not null,
     lastSync        integer not null,
     qconf           text not null,
@@ -151,7 +152,7 @@ create table if not exists tags (
 );
 
 insert or ignore into deck
-values(1,0,0,0,%(v)s,'',0,'', '', '');
+values(1,0,0,0,%(v)s,0,'',0,'', '', '');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
     import anki.groups
@@ -356,7 +357,7 @@ def _migrateDeckTbl(db):
     db.execute("delete from deck")
     db.execute("""
 insert or replace into deck select id, cast(created as int), :t,
-:t, 99, ifnull(syncName, ""), cast(lastSync as int),
+:t, 99, 0, ifnull(syncName, ""), cast(lastSync as int),
 "", "", "" from decks""", t=intTime())
     # update selective study
     qconf = anki.deck.defaultQconf.copy()

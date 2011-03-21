@@ -53,7 +53,7 @@ def test_delete():
     deck.addFact(f)
     cid = f.cards()[0].id
     # when the schema is dirty, deletion should be immediate
-    assert deck.schemaDirty() == True
+    assert deck.schemaChanged() == True
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
     assert deck.db.scalar("select count() from revlog") == 1

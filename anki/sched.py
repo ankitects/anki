@@ -76,11 +76,6 @@ order by due""" % self._groupLimit("rev"),
         self.db.execute(
             "update cards set queue = type where queue between -3 and -2")
 
-    def _resetSchedBuried(self):
-        "Put temporarily suspended cards back into play."
-        self.db.execute(
-            "update cards set queue = type where queue = -3")
-
     # Getting the next card
     ##########################################################################
 
@@ -590,6 +585,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def buryFact(self, fid):
         "Bury all cards for fact until next session."
+        self.deck.setDirty()
         self.db.execute("update cards set queue = -2 where fid = ?", fid)
 
     # Counts
