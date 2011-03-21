@@ -130,6 +130,8 @@ If the same name exists, compare checksums."""
         # loop through directory and find unused & missing media
         unused = []
         for file in os.listdir(mdir):
+            if file.startswith("latex-"):
+                continue
             path = os.path.join(mdir, file)
             if not os.path.isfile(path):
                 # ignore directories

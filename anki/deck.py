@@ -422,7 +422,7 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         return [self._renderQA(mods[row[2]], groups[row[3]], row)
                 for row in self._qaData(where)]
 
-    def _renderQA(self, model, gname, data, filters=True):
+    def _renderQA(self, model, gname, data):
         "Returns hash of id, question, answer."
         # data is [cid, fid, mid, gid, ord, tags, flds, data]
         # unpack fields and create dict
@@ -446,12 +446,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         # render q & a
         d = dict(id=data[0])
         for (type, format) in (("q", template['qfmt']), ("a", template['afmt'])):
-            # if filters:
-            #     fields = runFilter("renderQA.pre", fields, , self)
+            fields = runFilter("mungeFields", fields, model, gname, data, self)
             html = anki.template.render(format, fields)
-            # if filters:
-            #     d[type] = runFilter("renderQA.post", html, fields, meta, self)
-            d[type] = html
+            d[type] = runFilter("mungeQA", html, fields, model, gname, data, self)
         return d
 
     def _qaData(self, where=""):

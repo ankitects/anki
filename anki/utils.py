@@ -276,11 +276,23 @@ def fieldChecksum(data):
     return int(checksum(data.encode("utf-8"))[:8], 16)
 
 def call(argv, wait=True, **kwargs):
+    "Execute a command. If WAIT, return exit code."
+    # ensure we don't open a separate window for forking process on windows
+    if sys.platform == "win32":
+        si = subprocess.STARTUPINFO()
+        try:
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        except:
+            si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
+    else:
+        si = None
+    # run
     try:
-        o = subprocess.Popen(argv, **kwargs)
+        o = subprocess.Popen(argv, startupinfo=si, **kwargs)
     except OSError:
         # command not found
         return -1
+    # wait for command to finish
     if wait:
         while 1:
             try:
