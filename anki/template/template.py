@@ -1,6 +1,10 @@
 import re
 import cgi
 import collections
+from anki.utils import stripHTML
+
+clozeReg = r"\{\{c%s::(.*?)(::(.*?))?\}\}"
+
 
 modifiers = {}
 def modifier(symbol):
@@ -79,7 +83,19 @@ class Template(object):
             section, section_name, inner = match.group(0, 1, 2)
             section_name = section_name.strip()
 
-            it = get_or_attr(context, section_name, None)
+            # check for cloze
+            m = re.match("c[qa]:(\d+):(.+)", section_name)
+            if m:
+                # get full field text
+                txt = get_or_attr(context, m.group(2), None)
+                m = re.search(clozeReg%m.group(1), txt)
+                if m:
+                    it = m.group(1)
+                else:
+                    it = None
+            else:
+                it = get_or_attr(context, section_name, None)
+
             replacer = ''
             # if it and isinstance(it, collections.Callable):
             #     replacer = it(inner)
@@ -135,18 +151,39 @@ class Template(object):
     @modifier(None)
     def render_unescaped(self, tag_name=None, context=None):
         """Render a tag without escaping it."""
-        return unicode(get_or_attr(context, tag_name, '{unknown field %s}' % tag_name))
+        if tag_name.startswith("text:"):
+            tag = tag_name[5:]
+            txt = get_or_attr(context, tag)
+            if txt:
+                return stripHTML(txt)
+            return ""
+        elif tag_name.startswith("cq:") or tag_name.startswith("ca:"):
+            m = re.match("c(.):(\d+):(.+)", tag_name)
+            (type, ord, tag) = (m.group(1), m.group(2), m.group(3))
+            txt = get_or_attr(context, tag)
+            if txt:
+                return self.clozeText(txt, ord, type)
+            return ""
+        return get_or_attr(context, tag_name, '{unknown field %s}' % tag_name)
 
-    # @modifier('>')
-    # def render_partial(self, tag_name=None, context=None):
-    #     """Renders a partial within the current context."""
-    #     # Import view here to avoid import loop
-    #     from pystache.view import View
-
-    #     view = View(context=context)
-    #     view.template_name = tag_name
-
-    #     return view.render()
+    # fixme: need a way to conditionally add these, so that including extra
+    # fields in the question fmt doesn't make empty clozes
+    def clozeText(self, txt, ord, type):
+        reg = clozeReg
+        m = re.search(reg%ord, txt)
+        if not m:
+            # cloze doesn't exist; return empty
+            return ""
+        # replace chosen cloze with type
+        if type == "q":
+            if m.group(2):
+                txt = re.sub(reg%ord, "<b>...(\\3)</b>", txt)
+            else:
+                txt = re.sub(reg%ord, "<b>...</b>", txt)
+        else:
+            txt = re.sub(reg%ord, "<b>\\1</b>", txt)
+        # and display other clozes normally
+        return re.sub(reg%".*?", "\\1", txt)
 
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None):

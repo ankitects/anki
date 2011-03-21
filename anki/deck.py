@@ -194,7 +194,7 @@ qconf=?, conf=?, data=?""",
         # check we have card models available
         cms = self.findTemplates(fact)
         if not cms:
-            return None
+            return 0
         # flush the fact
         fact.id = self.nextID("fid")
         fact.flush()
@@ -430,13 +430,10 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         fields = {}
         for (name, (idx, conf)) in model.fieldMap().items():
             fields[name] = flist[idx]
-            fields["text:"+name] = stripHTML(fields[name])
             if fields[name]:
-                fields["text:"+name] = stripHTML(fields[name])
                 fields[name] = '<span class="fm%s-%s">%s</span>' % (
                     hexifyID(data[2]), hexifyID(idx), fields[name])
             else:
-                fields["text:"+name] = ""
                 fields[name] = ""
         fields['Tags'] = data[5]
         fields['Model'] = model.name
@@ -446,6 +443,10 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         # render q & a
         d = dict(id=data[0])
         for (type, format) in (("q", template['qfmt']), ("a", template['afmt'])):
+            if type == "q":
+                format = format.replace("cloze:", "cq:")
+            else:
+                format = format.replace("cloze:", "ca:")
             fields = runFilter("mungeFields", fields, model, gname, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter("mungeQA", html, fields, model, gname, data, self)

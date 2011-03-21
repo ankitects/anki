@@ -57,6 +57,17 @@ class Scheduler(object):
         "Does not include fetched but unanswered."
         return (self.newCount, self.lrnCount, self.revCount)
 
+    def dueForecast(self, days=7):
+        "Return counts over next DAYS. Includes today."
+        return self.db.list("""
+select count() from cards
+where queue = 2 %s
+and due between ? and ?
+group by due
+order by due""" % self._groupLimit("rev"),
+                            self.today,
+                            self.today+days-1)
+
     def countIdx(self, card):
         return card.queue
 

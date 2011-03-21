@@ -9,7 +9,7 @@ from anki.lang import _
 from anki.utils import intTime
 from anki.db import DB
 from anki.deck import _Deck
-from anki.stdmodels import BasicModel
+from anki.stdmodels import BasicModel, ClozeModel
 from anki.errors import AnkiError
 
 def Deck(path, queue=True, lock=True):
@@ -33,6 +33,9 @@ def Deck(path, queue=True, lock=True):
         _upgradeDeck(deck, ver)
     elif create:
         deck.addModel(BasicModel(deck))
+        deck.addModel(ClozeModel(deck))
+        # default to basic
+        deck.conf['currentModelId'] = 1
         deck.save()
     if lock:
         deck.lock()

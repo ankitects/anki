@@ -89,6 +89,55 @@ def test_templates():
     assert c.ord == 0
     stripHTML(c.q()) == "2"
 
+def test_text():
+    d = getEmptyDeck()
+    m = d.currentModel()
+    m.templates[0]['qfmt'] = "{{text:Front}}"
+    m.flush()
+    f = d.newFact()
+    f['Front'] = u'hello<b>world'
+    d.addFact(f)
+    assert f.cards()[0].q() == "helloworld"
+
+def test_cloze():
+    d = getEmptyDeck()
+    d.conf['currentModelId'] = 2
+    f = d.newFact()
+    assert f.model().name == "Cloze"
+    # a cloze model with no clozes is empty
+    f['Text'] = u'nothing'
+    assert d.addFact(f) == 0
+    # try with one cloze
+    f['Text'] = "hello {{c1::world}}"
+    assert d.addFact(f) == 1
+    assert "hello <b>...</b>" in f.cards()[0].q()
+    assert "hello <b>world</b>" in f.cards()[0].a()
+    # and with a comment
+    f = d.newFact()
+    f['Text'] = "hello {{c1::world::typical}}"
+    assert d.addFact(f) == 1
+    assert "<b>...(typical)</b>" in f.cards()[0].q()
+    assert "<b>world</b>" in f.cards()[0].a()
+    # and with 2 clozes
+    f = d.newFact()
+    f['Text'] = "hello {{c1::world}} {{c2::bar}}"
+    assert d.addFact(f) == 2
+    (c1, c2) = f.cards()
+    assert "<b>...</b> bar" in c1.q()
+    assert "<b>world</b> bar" in c1.a()
+    assert "world <b>...</b>" in c2.q()
+    assert "world <b>bar</b>" in c2.a()
+    # clozes should be supported in sections too
+    m = d.currentModel()
+    m.templates[0]['qfmt'] = "{{#cloze:1:Text}}{{Notes}}{{/cloze:1:Text}}"
+    m.flush()
+    f = d.newFact()
+    f['Text'] = "hello"
+    f['Notes'] = "world"
+    assert d.addFact(f) == 0
+    f['Text'] = "hello {{c1::foo}}"
+    assert d.addFact(f) == 1
+
 def test_modelChange():
     print "model change"
     return
