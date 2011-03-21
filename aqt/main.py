@@ -77,6 +77,7 @@ class AnkiQt(QMainWindow):
         self.setupAutoUpdate()
         # screens
         self.setupDeckBrowser()
+        self.setupReviewer()
         self.setupEditor()
         self.setupStudyScreen()
 
@@ -98,18 +99,18 @@ class AnkiQt(QMainWindow):
         self.disableDeckMenuItems()
         self.closeAllDeckWindows()
         self.deckBrowser.show()
+        self.updateTitleBar()
 
     def _deckLoadingState(self, oldState):
         "Run once, when deck is loaded."
         #self.editor.deck = self.deck
         # on reset?
-        #self.updateTitleBar()
         runHook("deckLoading", self.deck)
         self.enableDeckMenuItems()
-        if self.config['showStudyScreen']:
+        if False: #self.config['showStudyScreen']:
             self.moveToState("studyScreen")
         else:
-            self.moveToState("getQuestion")
+            self.moveToState("review")
 
     def _deckLoadedState(self, oldState):
         self.currentCard = None
@@ -127,70 +128,12 @@ class AnkiQt(QMainWindow):
         # could reset() while in review, in study options, in empty, in deck
         # finished, in editor, etc.
 
-
     def _deckClosingState(self, oldState):
         "Run once, before a deck is closed."
         runHook("deckClosing", self.deck)
 
-    def _getQuestionState(self, oldState):
-        # stop anything playing
-        clearAudioQueue()
-        if self.deck.isEmpty():
-            return self.moveToState("deckEmpty")
-        else:
-            # timeboxing only supported using the standard scheduler
-            if not self.deck.finishScheduler:
-                if self.config['showStudyScreen']:
-                    if not self.deck.timeboxStarted():
-                        return self.moveToState("studyScreen")
-                    elif self.deck.timeboxReached():
-                        self.showToolTip(_("Session limit reached."))
-                        self.moveToState("studyScreen")
-                        # switch to timeboxing screen
-                        self.form.tabWidget.setCurrentIndex(2)
-                        return
-            if not self.currentCard:
-                self.currentCard = self.deck.getCard()
-            if self.currentCard:
-                if self.lastCard:
-                    if self.lastCard.id == self.currentCard.id:
-                        pass
-                        # if self.currentCard.combinedDue > time.time():
-                        #     # if the same card is being shown and it's not
-                        #     # due yet, give up
-                        #     return self.moveToState("deckFinished")
-                self.enableCardMenuItems()
-                return self.moveToState("showQuestion")
-            else:
-                return self.moveToState("deckFinished")
-
-    def _deckEmptyState(self, oldState):
-        self.switchToWelcomeScreen()
-        self.disableCardMenuItems()
-
-    def _deckFinishedState(self, oldState):
-        self.currentCard = None
-        self.deck.db.flush()
-        self.hideButtons()
-        self.disableCardMenuItems()
-        self.switchToCongratsScreen()
-        self.form.learnMoreButton.setEnabled(
-            not not self.deck.newAvail)
-        self.startRefreshTimer()
-        self.bodyView.setState(state)
-        # focus finish button
-        self.form.finishButton.setFocus()
-        runHook('deckFinished')
-
-    def _showQuestionState(self, oldState):
-        # ensure cwd set to media dir
-        self.deck.mediaDir()
-        self.showAnswerButton()
-        self.updateMarkAction()
-        runHook('showQuestion')
-
-    def _showAnswerState(self, oldState):
-        self.showEaseButtons()
+    def _reviewState(self, oldState):
+        self.reviewer.show()
 
     def _editCurrentFactState(self, oldState):
         if self.lastState == "editCurrentFact":
@@ -786,41 +729,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.closeAllDeckWindows()
         synced = False
         if self.deck is not None:
-            if self.deck.modifiedSinceSave():
-                if (self.deck.path is None or
-                    (not self.config['saveOnClose'] and
-                     not self.config['syncOnLoad'])):
-                    # backed in memory or autosave/sync off, must confirm
-                    while 1:
-                        res = aqt.unsaved.ask(parent)
-                        if res == aqt.unsaved.save:
-                            if self.save(required=True):
-                                break
-                        elif res == aqt.unsaved.cancel:
-                            self.hideWelcome = False
-                            return False
-                        else:
-                            break
-            # auto sync (saving automatically)
-            if self.config['syncOnLoad'] and self.deck.syncName:
-                # force save, the user may not have set passwd/etc
-                self.deck.save()
-                if self.syncDeck(False, reload=False):
-                    synced = True
-                    while self.deckPath:
-                        self.app.processEvents()
-                        time.sleep(0.1)
-                    self.hideWelcome = False
-                    return True
-            # auto save
-            if self.config['saveOnClose'] or self.config['syncOnLoad']:
-                if self.deck:
-                    self.save()
-            # close if the deck wasn't already closed by a failed sync
-            if self.deck:
-                self.deck.rollback()
-                self.deck.close()
-                self.deck = None
+            # save and close
+            self.deck.close()
+            self.deck = None
         if not hideWelcome and not synced:
             self.moveToState("noDeck")
         self.hideWelcome = False
@@ -1064,6 +975,13 @@ your deck."""))
     def setupDeckBrowser(self):
         from aqt.deckbrowser import DeckBrowser
         self.deckBrowser = DeckBrowser(self)
+
+    # Reviewer
+    ##########################################################################
+
+    def setupReviewer(self):
+        from aqt.reviewer import Reviewer
+        self.reviewer = Reviewer(self)
 
     # Opening and closing the app
     ##########################################################################
@@ -1404,28 +1322,24 @@ learnt today")
     # Toolbar
     ##########################################################################
 
-    def setupReviewToolbar(self):
-        mw.toolBar.addAction(mw.actionAddcards)
-        mw.toolBar.addAction(mw.actionEditCurrent)
-        mw.toolBar.addAction(mw.actionEditLayout)
-        mw.toolBar.addAction(mw.actionEditdeck)
-        mw.toolBar.addAction(mw.actionStudyOptions)
-        mw.toolBar.addAction(mw.actionGraphs)
-        mw.toolBar.addAction(mw.actionMarkCard)
-        mw.toolBar.addAction(mw.actionRepeatAudio)
-        mw.toolBar.addAction(mw.actionClose)
-
     def setupToolbar(self):
-        mw = self.form
-        mw.toolBar.setIconSize(QSize(24, 24))
-        #mw.toolBar.setIconSize(QSize(self.config['iconSize'],
-        #                             self.config['iconSize']))
-        toggle = mw.toolBar.toggleViewAction()
+        frm = self.form
+        tb = frm.toolBar
+        tb.addAction(frm.actionAddcards)
+        tb.addAction(frm.actionEditCurrent)
+        tb.addAction(frm.actionEditLayout)
+        tb.addAction(frm.actionEditdeck)
+        tb.addAction(frm.actionStudyOptions)
+        tb.addAction(frm.actionGraphs)
+        tb.addAction(frm.actionMarkCard)
+        tb.addAction(frm.actionRepeatAudio)
+        tb.addAction(frm.actionClose)
+        tb.setIconSize(QSize(self.config['iconSize'],
+                             self.config['iconSize']))
+        toggle = tb.toggleViewAction()
         toggle.setText(_("Toggle Toolbar"))
         self.connect(toggle, SIGNAL("triggered()"),
                      self.onToolbarToggle)
-        if not self.config['showToolbar']:
-            mw.toolBar.hide()
 
     def onToolbarToggle(self):
         tb = self.form.toolBar
@@ -2109,10 +2023,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
     def updateTitleBar(self):
         "Display the current deck and card count in the titlebar."
         title=aqt.appName
-        if self.deck != None:
+        if self.deck:
             deckpath = self.deck.name()
-            if self.deck.modifiedSinceSave():
-                deckpath += "*"
             if not self.config['showProgress']:
                 title = deckpath + " - " + title
             else:
@@ -2123,6 +2035,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
                     "cards": self.deck.cardCount,
                     "due": self.deck.failedSoonCount + self.deck.revCount
                     }
+        else:
+            title += " - " + _("Decks")
         self.setWindowTitle(title)
 
     def setStatus(self, text, timeout=3000):

@@ -2,36 +2,39 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-import anki, anki.utils
-from anki.sound import playFromText
-from anki.utils import stripHTML
-from anki.hooks import runHook, runFilter
-import types, time, re, os, urllib, sys, difflib
+import time, os, stat, shutil, difflib
 import unicodedata as ucd
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from anki.utils import fmtTimeSpan, stripHTML
+from anki.hooks import addHook, runHook, runFilter
+from anki.sound import playFromText
 from aqt.utils import mungeQA, getBase
-from anki.utils import fmtTimeSpan
+import aqt
 
 failedCharColour = "#FF0000"
 passedCharColour = "#00FF00"
 futureWarningColour = "#FF0000"
 
-# Views - define the way a user is prompted for questions, etc
-##########################################################################
+class Reviewer(object):
+    "Manage reviews.  Maintains a separate state."
 
-class View(object):
-    "Handle the main window update as we transition through various states."
+    def __init__(self, mw):
+        self.mw = mw
+        self.web = mw.web
+        self._state = None
+        # self.main.connect(self.body, SIGNAL("loadFinished(bool)"),
+        #                   self.onLoadFinished)
 
-    def __init__(self, parent, body, frame=None):
-        self.main = parent
-        self.body = body
-        self.frame = frame
-        self.main.connect(self.body, SIGNAL("loadFinished(bool)"),
-                          self.onLoadFinished)
+    def show(self):
+        self._setupToolbar()
+        self._reset()
 
     # State control
     ##########################################################################
+
+    def _reset(self):
+        self.web.stdHtml("")
 
     def setState(self, state):
         "Change to STATE, and update the display."
@@ -92,6 +95,71 @@ class View(object):
     def setBackground(self):
         col = self.main.currentCard.cardModel.lastFontColour
         self.write("<style>html { background: %s;}</style>" % col)
+
+
+
+    def _getQuestionState(self, oldState):
+        # stop anything playing
+        clearAudioQueue()
+        if self.deck.isEmpty():
+            return self.moveToState("deckEmpty")
+        else:
+            # timeboxing only supported using the standard scheduler
+            if not self.deck.finishScheduler:
+                if self.config['showStudyScreen']:
+                    if not self.deck.timeboxStarted():
+                        return self.moveToState("studyScreen")
+                    elif self.deck.timeboxReached():
+                        self.showToolTip(_("Session limit reached."))
+                        self.moveToState("studyScreen")
+                        # switch to timeboxing screen
+                        self.form.tabWidget.setCurrentIndex(2)
+                        return
+            if not self.currentCard:
+                self.currentCard = self.deck.getCard()
+            if self.currentCard:
+                if self.lastCard:
+                    if self.lastCard.id == self.currentCard.id:
+                        pass
+                        # if self.currentCard.combinedDue > time.time():
+                        #     # if the same card is being shown and it's not
+                        #     # due yet, give up
+                        #     return self.moveToState("deckFinished")
+                self.enableCardMenuItems()
+                return self.moveToState("showQuestion")
+            else:
+                return self.moveToState("deckFinished")
+
+    def _deckEmptyState(self, oldState):
+        self.switchToWelcomeScreen()
+        self.disableCardMenuItems()
+
+    def _deckFinishedState(self, oldState):
+        self.currentCard = None
+        self.deck.db.flush()
+        self.hideButtons()
+        self.disableCardMenuItems()
+        self.switchToCongratsScreen()
+        self.form.learnMoreButton.setEnabled(
+            not not self.deck.newAvail)
+        self.startRefreshTimer()
+        self.bodyView.setState(state)
+        # focus finish button
+        self.form.finishButton.setFocus()
+        runHook('deckFinished')
+
+    def _showQuestionState(self, oldState):
+        # ensure cwd set to media dir
+        self.deck.mediaDir()
+        self.showAnswerButton()
+        self.updateMarkAction()
+        runHook('showQuestion')
+
+    def _showAnswerState(self, oldState):
+        self.showEaseButtons()
+
+
+
 
     # Font properties & output
     ##########################################################################
@@ -218,7 +286,7 @@ class View(object):
             if tag == "equal":
                 lastEqual = b[i1:i2]
             elif tag == "replace":
-                ret += self.applyStyle(b[i1], lastEqual, 
+                ret += self.applyStyle(b[i1], lastEqual,
                                  b[i1:i2] + ("-" * ((j2 - j1) - (i2 - i1))))
                 lastEqual = ""
             elif tag == "delete":
@@ -292,40 +360,15 @@ class View(object):
     # Welcome/empty/finished deck messages
     ##########################################################################
 
-    def drawWelcomeMessage(self):
-        self.main.mainWin.welcomeText.setText("""\
-<h1>%(welcome)s</h1>
-<p>
-<table>
-
-<tr>
-<td width=50>
-<a href="welcome:addfacts"><img src=":/icons/list-add.png"></a>
-</td>
-<td valign=middle><h1><a href="welcome:addfacts">%(add)s</a></h1>
-%(start)s</td>
-</tr>
-
-</table>
-
-<br>
-<table>
-
-<tr>
-<td width=50>
-<a href="welcome:back"><img src=":/icons/go-previous.png"></a>
-</td>
-<td valign=middle><h2><a href="welcome:back">%(back)s</a></h2></td>
-</tr>
-
-</table>""" % \
-	{"welcome":_("Welcome to Anki!"),
-         "add":_("Add Material"),
-         "start":_("Start adding your own material."),
-         "back":_("Back to Deck Browser"),
-         })
-
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."
         self.main.mainWin.congratsLabel.setText(
             self.main.deck.deckFinishedMsg())
+
+    # Toolbar
+    ##########################################################################
+
+    def _setupToolbar(self):
+        if not self.mw.config['showToolbar']:
+            return
+        self.mw.form.toolBar.show()

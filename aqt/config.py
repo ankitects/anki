@@ -14,7 +14,6 @@ defaultConf = {
     'confVer': 3,
     # remove?
     'colourTimes': True,
-    'deckBrowserOrder': 0,
     # too long?
     'deckBrowserRefreshPeriod': 3600,
     'factEditorAdvanced': False,
