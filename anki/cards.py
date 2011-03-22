@@ -99,11 +99,11 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
             self.factor, self.reps, self.streak, self.lapses,
             self.grade, self.cycles, self.edue, self.id)
 
-    def q(self):
-        return self._withClass(self._getQA()['q'])
+    def q(self, classes="q"):
+        return self._withClass(self._getQA()['q'], classes)
 
-    def a(self):
-        return self._withClass(self._getQA()['a'])
+    def a(self, classes="a"):
+        return self._withClass(self._getQA()['a'], classes)
 
     def _getQA(self, reload=False):
         if not self._qa or reload:
@@ -115,8 +115,8 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
             self._qa = self.deck._renderQA(self.model(), gname, data)
         return self._qa
 
-    def _withClass(self, txt):
-        return '<div class="%s">%s</div>' % (self.cssClass(), txt)
+    def _withClass(self, txt, extra):
+        return '<div class="%s %s">%s</div>' % (self.cssClass(), extra, txt)
 
     def _reviewData(self, reload=False):
         "Fetch the model and fact."

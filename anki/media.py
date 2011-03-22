@@ -2,7 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, shutil, re, urllib2, time, tempfile, unicodedata, urllib
+import os, shutil, re, urllib, urllib2, time, tempfile, unicodedata, \
+    urllib, sys
 from anki.utils import checksum, intTime
 from anki.lang import _
 
@@ -102,6 +103,13 @@ If the same name exists, compare checksums."""
         return txt
 
     def escapeImages(self, string):
+        # Feeding webkit unicode can result in it not finding images, so on
+        # linux/osx we percent escape the image paths as utf8. On Windows the
+        # problem is more complicated - if we percent-escape as utf8 it fixes
+        # some images but breaks others. When filenames are normalized by
+        # dropbox they become unreadable if we escape them.
+        if sys.platform.startswith("win32"):
+            return string
         def repl(match):
             tag = match.group(1)
             fname = match.group(2)
