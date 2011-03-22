@@ -6,16 +6,11 @@ import time, os, stat, shutil, difflib, simplejson
 import unicodedata as ucd
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from anki.consts import NEW_CARDS_RANDOM
 from anki.utils import fmtTimeSpan, stripHTML
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText
 from aqt.utils import mungeQA, getBase
 import aqt
-
-failedCharColour = "#FF0000"
-passedCharColour = "#00FF00"
-futureWarningColour = "#FF0000"
 
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."
@@ -28,7 +23,6 @@ class Reviewer(object):
         #                   self.onLoadFinished)
 
     def show(self):
-        self._setupToolbar()
         self._reset()
 
     # State control
@@ -191,6 +185,10 @@ class Reviewer(object):
 
     # Question and answer
     ##########################################################################
+
+    failedCharColour = "#FF0000"
+    passedCharColour = "#00FF00"
+    futureWarningColour = "#FF0000"
 
     def center(self, str, height=40):
         if not self.main.config['splitQA']:
@@ -365,11 +363,3 @@ class Reviewer(object):
         "Tell the user the deck is finished."
         self.main.mainWin.congratsLabel.setText(
             self.main.deck.deckFinishedMsg())
-
-    # Toolbar
-    ##########################################################################
-
-    def _setupToolbar(self):
-        if not self.mw.config['showToolbar']:
-            return
-        self.mw.form.toolBar.show()

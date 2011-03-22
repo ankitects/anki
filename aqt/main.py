@@ -151,23 +151,28 @@ class AnkiQt(QMainWindow):
     ##########################################################################
 
     sharedCSS = """
-body { background-color: #eee; margin-top: 1em; }
+body {
+background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
+margin: 1em; }
 a:hover { background-color: #aaa; }
-a.but { font-size: 80%; padding: 3; background-color: #ccc;
+.but { font-size: 80%; padding: 3; background-color: #bbb;
         border-radius: 2px; color: #000; margin: 0 5 0 5; text-decoration:
         none; display: inline-block; }
-a.but:focus { background-color: #aaa; }
+.but:focus, .but:hover { background-color: #aaa; }
+.gbut { background-color: #7c7; }
+.gbut:hover, .gbut:focus  { background-color: #5a5; }
 h1 { margin-bottom: 0.2em; }
-hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
+hr { margin:5 0 5 0; border:0; height:1px; background-color:#ccc; }
 """
 
-    def button(self, link, name, key=None):
+    def button(self, link, name, key=None, class_=""):
+        class_ = "but "+ class_
         if key:
              key = _("Shortcut key: %s") % key
         else:
             key = ""
-        return '<a class=but title="%s" href="%s">%s</a>' % (
-            key, link, name)
+        return '<a class="%s" title="%s" href="%s">%s</a>' % (
+            class_, key, link, name)
 
     # Signal handling
     ##########################################################################

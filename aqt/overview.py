@@ -57,22 +57,29 @@ class Overview(object):
         css = self.mw.sharedCSS + self._overviewCSS
         fc = self._ovForecast()
         tbl = self._overviewTable()
+        but = self.mw.button
+        buts = (but("list", _("Deck List"), "d") +
+                but("refr", _("Refresh"), "r") +
+                but("opts", _("Study Options"), "o"))
         self.web.stdHtml(self._overviewBody % dict(
             title=_("Overview"),
             table=tbl,
-            fcsub=_("Due over next two weeks"),
+            fcsub=_("Reviews over next two weeks"),
             fcdata=fc,
+            buts=buts,
             opts=self._ovOpts(),
             ), css)
 
     _overviewBody = """
 <center>
 <h1>%(title)s</h1>
+%(buts)s
+<p>
 %(table)s
-<hr>
+<p>
 <div id="placeholder" style="width:350px; height:100px;"></div>
 <span class=sub>%(fcsub)s</span>
-<hr class=sub>
+<p>
 %(opts)s
 </center>
 
@@ -81,7 +88,7 @@ $(function () {
     var d = %(fcdata)s;
     if (d) {
     $.plot($("#placeholder"), [
-    { data: d, bars: { show: true, barWidth: 0.8 } }
+    { data: d, bars: { show: true, barWidth: 0.8 }, color: "#0c0" }
     ], {
     xaxis: { ticks: [[0.4, "Today"]] }
     });
@@ -94,8 +101,8 @@ $(function () {
 """
 
     _overviewCSS = """
-.due { text-align: right; color: green; }
-.new { text-align: right; color: blue; }
+.due { text-align: right; }
+.new { text-align: right; }
 .sub { font-size: 80%; color: #555; }
 """
 
@@ -110,32 +117,30 @@ $(function () {
         buf += line % (
             "<a href=chgrp>%s</a>" % _("Selected Groups"),
             counts[0], counts[1],
-            but("studysel", _("Study"), "1") +
+            but("studysel", _("Study"), "1", "gbut") +
             but("cramsel", _("Cram"), "3"))
         buf += line % (
             _("Whole Deck"),
             counts[2], counts[3],
-            but("studyall", _("Study"), "2") +
+            but("studyall", _("Study"), "2", "gbut") +
             but("cramall", _("Cram"), "4"))
         buf += "</table>"
         return buf
 
     def _ovOpts(self):
-        if self.mw.deck.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
-            ord = _("random")
-        else:
-            ord = _("order added")
-        but = self.mw.button
-        buf = """
-<table width=400>
-<tr><td><b>%s</b></td><td align=center>%s</td><td align=right rowspan=1>%s</td></tr>
-<tr><td><b>%s</b></td><td align=center>%s</td><td align=right rowspan=1>%s</td></tr>
-</table>""" % (
-    _("New cards per day"), self.mw.deck.qconf['newPerDay'],
-    but("opts", _("Study Options"), "o"),
-    _("New card order"), ord,
-    but("list", "&#x25C0;"+_("Deck List"), "d"))
-        return buf
+        return ""
+#         if self.mw.deck.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+#             ord = _("random")
+#         else:
+#             ord = _("order added")
+#         buf = """
+# <table width=400>
+# <tr><td><b>%s</b></td><td align=center>%s</td></tr>
+# <tr><td><b>%s</b></td><td align=center>%s</td></tr>
+# </table>""" % (
+#     _("New cards per day"), self.mw.deck.qconf['newPerDay'],
+#     _("New card order"), ord)
+#         return buf
 
     # Data
     ##########################################################################

@@ -62,14 +62,14 @@ class DeckBrowser(object):
     # instead we have a html one under the deck list
     def _toolbar(self):
         items = [
-            ("download", _("Download Shared")),
+            ("download", _("Download")),
             ("new", _("Create")),
-            ("import", _("Import")),
+#            ("import", _("Import")),
             ("opensel", _("Open")),
-            ("synced", _("Synced")),
+#            ("synced", _("Synced")),
             ("refresh", _("Refresh")),
         ]
-        h = " | ".join(["<a class=tb href=%s>%s</a>" % row for row in items])
+        h = "".join(["<a class=but href=%s>%s</a>" % row for row in items])
         return h
 
     # Event handlers
@@ -125,6 +125,7 @@ a.deck { color: #000; text-decoration: none; font-size: 100%; }
 td.opts { text-align: right; white-space: nowrap; }
 td.menu { text-align: center; }
 a { font-size: 80%; }
+.extra { font-size: 90%; }
 """
 
     _body = """
@@ -132,10 +133,12 @@ a { font-size: 80%; }
 <h1>%(title)s</h1>
 %(tb)s
 <p>
-<table cellspacing=0 cellpadding=0 width=90%%>
+<table cellspacing=0 cellpadding=3 width=100%%>
 %(rows)s
 </table>
+<div class="extra">
 %(extra)s
+</div>
 </center>
 """
 
@@ -144,6 +147,8 @@ a { font-size: 80%; }
             buf = ""
             css = self.mw.sharedCSS + self._css
             max=len(self._decks)-1
+            buf += "<tr><th></th><th align=right>%s</th>" % _("Due")
+            buf += "<th align=right>%s</th><th></th></tr>" % _("New")
             for c, deck in enumerate(self._decks):
                 buf += self._deckRow(c, max, deck)
             self.web.stdHtml(self._body%dict(
@@ -208,8 +213,8 @@ a { font-size: 80%; }
         buf += "<td class=opts><a class=but href='opts:%d'>%s&#9660;</a></td>" % (
             c, "Options")
         buf += "</tr>"
-        if c != max:
-            buf += "<tr><td colspan=4><hr noshade></td></tr>"
+        # if c != max:
+        #     buf += "<tr><td colspan=4><hr noshade></td></tr>"
         return buf
 
     def _summary(self):
