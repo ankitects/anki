@@ -56,9 +56,51 @@ class Reviewer(object):
                 self.state != "getQuestion"))
         self.form.actionRepeatAudio.setEnabled(snd)
 
+    # HTML helpers
+    ##########################################################################
+
+    _css = """
+a.ansbut {
+  display: block; position: fixed;
+  bottom: 5px; width: 250px; left: 50%; margin-left: -125px;
+  height: 40px; background-color: #ccc;
+  border-radius: 5px;
+  text-align: center;
+  color: #000; text-decoration: none;
+  -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+  border: 1px solid #aaa;
+
+}
+a.ansbut:focus {
+border: 1px solid #333; border-radius: 5px;
+}
+div.ansbut {
+  position: relative; top: 25%;
+}
+div#filler {
+  height: 20px;
+}
+"""
+
+    def _renderQA(self, card, text):
+        # we want to include enough space at the bottom to allow for the
+        # answer buttons
+        buf = "<div id=filler></div>"
+        self.web.stdHtml(text+buf, self._styles(), bodyClass=card.bgClass())
+
+    def _styles(self):
+        css = self.mw.sharedCSS
+        css += self.card.model().css
+        css += self._css
+        css = runFilter("addStyles", css)
+        return css
 
     # Showing the question
     ##########################################################################
+
+    _qHtml = """
+%(q)s
+%(but)s"""
 
     def _showQuestion(self):
         # fixme: timeboxing
@@ -70,22 +112,22 @@ class Reviewer(object):
         if (#self.state != self.oldState and not nosound
             self.mw.config['autoplaySounds']):
             playFromText(q)
-        q = mungeQA(q)
-        self.handleTypeAnsQ()
-        self._renderQA(c, q)
+        # render
+        buf = self._qHtml % dict(
+            q=mungeQA(q),
+            but=self._questionButtons())
+        self._renderQA(c, buf)
 
-    def _renderQA(self, card, text):
-        self.web.stdHtml(text, card.model().css, bodyClass=card.bgClass())
+    # Question buttons
+    ##########################################################################
 
-    def addStyles(self):
-        # card styles
-        s = "<style>\n"
-        if self.main.deck:
-            s += self.main.deck.css
-        s = runFilter("addStyles", s, self.card)
-        s += "</style>"
-        return s
-
+    def _questionButtons(self):
+        buf = self.typeAnsInput()
+        # make sure to focus
+        buf += """
+<a href=ans class=ansbut><div class=ansbut>%s</div></a>
+""" % _("Show Answer")
+        return buf
 
     # Q/A support
     ##########################################################################
@@ -138,6 +180,54 @@ class Reviewer(object):
                 mf = self.body.page().mainFrame()
                 mf.evaluateJavaScript("location.hash = 'answer'")
 
+    # Answer buttons
+    ##########################################################################
+
+    def _answerButtons(self):
+        # attach to mw.cardAnswered()
+        self.updateEaseButtons()
+        self.form.buttonStack.setCurrentIndex(1)
+        self.form.buttonStack.show()
+        self.form.buttonStack.setLayoutDirection(Qt.LeftToRight)
+        if self.learningButtons():
+            self.form.easeButton2.setText(_("Good"))
+            self.form.easeButton3.setText(_("Easy"))
+            self.form.easeButton4.setText(_("Very Easy"))
+        else:
+            self.form.easeButton2.setText(_("Hard"))
+            self.form.easeButton3.setText(_("Good"))
+            self.form.easeButton4.setText(_("Easy"))
+        getattr(self.form, "easeButton%d" % self.defaultEaseButton()).\
+                              setFocus()
+
+    def learningButtons(self):
+        return not self.currentCard.successive
+
+    def defaultEaseButton(self):
+        if not self.currentCard.successive:
+            return 2
+        else:
+            return 3
+
+    def updateEaseButtons(self):
+        nextInts = {}
+        for i in range(1, 5):
+            l = getattr(self.form, "easeLabel%d" % i)
+            if self.config['suppressEstimates']:
+                l.setText("")
+            elif i == 1:
+                txt = _("Soon")
+                if self.config['colourTimes']:
+                    txt = '<span style="color: #700"><b>%s</b></span>' % txt
+                l.setText(txt)
+            else:
+                txt = self.deck.nextIntervalStr(
+                    self.currentCard, i)
+                txt = "<b>" + txt + "</b>"
+                if i == self.defaultEaseButton() and self.config['colourTimes']:
+                    txt = '<span style="color: #070">' + txt + '</span>'
+                l.setText(txt)
+
     # Font properties & output
     ##########################################################################
 
@@ -180,8 +270,21 @@ class Reviewer(object):
     passedCharColour = "#00FF00"
     futureWarningColour = "#FF0000"
 
-    def handleTypeAnsQ(self):
-        return
+        # fixme: type answer undo area shouldn't trigger global shortcut
+        # class QLineEditNoUndo(QLineEdit):
+        #     def __init__(self, parent):
+        #         self.parent = parent
+        #         QLineEdit.__init__(self, parent)
+        #     def keyPressEvent(self, evt):
+        #         if evt.matches(QKeySequence.Undo):
+        #             evt.accept()
+        #             if self.parent.form.actionUndo.isEnabled():
+        #                 self.parent.onUndo()
+        #         else:
+        #             return QLineEdit.keyPressEvent(self, evt)
+
+    def typeAnsInput(self):
+        return ""
         if self.card.cardModel.typeAnswer:
             self.adjustInputFont()
 

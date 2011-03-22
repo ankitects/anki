@@ -155,9 +155,12 @@ body {
 background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
 margin: 1em; }
 a:hover { background-color: #aaa; }
-.but { font-size: 80%; padding: 3; background-color: #bbb;
-        border-radius: 2px; color: #000; margin: 0 5 0 5; text-decoration:
-        none; display: inline-block; }
+.but { font-size: 80%; padding: 3; background-color: #ccc;
+        border-radius: 5px; color: #000; margin: 0 5 0 5; text-decoration:
+        none; display: inline-block;
+-webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+border: 1px solid #aaa;
+}
 .but:focus, .but:hover { background-color: #aaa; }
 .gbut { background-color: #7c7; }
 .gbut:hover, .gbut:focus  { background-color: #5a5; }
@@ -518,117 +521,6 @@ counts are %d %d %d
     def setupTray(self):
         import aqt.tray
 	self.trayIcon = aqt.tray.AnkiTrayIcon(self)
-
-    # Buttons
-    ##########################################################################
-
-    def setupButtons(self):
-        print "setupbuttons"
-        return
-        # ask
-        self.connect(self.form.showAnswerButton, SIGNAL("clicked()"),
-                     lambda: self.moveToState("showAnswer"))
-        if sys.platform.startswith("win32"):
-            self.form.showAnswerButton.setFixedWidth(358)
-        else:
-            self.form.showAnswerButton.setFixedWidth(351)
-        self.form.showAnswerButton.setFixedHeight(41)
-        # answer
-        for i in range(1, 5):
-            b = getattr(self.form, "easeButton%d" % i)
-            b.setFixedWidth(85)
-            self.connect(b, SIGNAL("clicked()"),
-                lambda i=i: self.cardAnswered(i))
-        # type answer
-        outer = QHBoxLayout()
-        outer.setSpacing(0)
-        outer.setContentsMargins(0,0,0,0)
-        outer.addStretch(0)
-        class QLineEditNoUndo(QLineEdit):
-            def __init__(self, parent):
-                self.parent = parent
-                QLineEdit.__init__(self, parent)
-            def keyPressEvent(self, evt):
-                if evt.matches(QKeySequence.Undo):
-                    evt.accept()
-                    if self.parent.form.actionUndo.isEnabled():
-                        self.parent.onUndo()
-                else:
-                    return QLineEdit.keyPressEvent(self, evt)
-        self.typeAnswerField = QLineEditNoUndo(self)
-        self.typeAnswerField.setObjectName("typeAnswerField")
-        self.typeAnswerField.setFixedWidth(351)
-        vbox = QVBoxLayout()
-        vbox.setSpacing(0)
-        vbox.setContentsMargins(0,0,0,0)
-        vbox.addWidget(self.typeAnswerField)
-        self.typeAnswerShowButton = QPushButton(_("Show Answer"))
-        hbox = QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
-        hbox.addWidget(self.typeAnswerShowButton)
-        vbox.addLayout(hbox)
-        self.connect(self.typeAnswerShowButton, SIGNAL("clicked()"),
-                     lambda: self.moveToState("showAnswer"))
-        outer.addLayout(vbox)
-        outer.addStretch(0)
-        self.form.typeAnswerPage.setLayout(outer)
-
-    def hideButtons(self):
-        self.form.buttonStack.hide()
-
-    def showAnswerButton(self):
-        if self.currentCard.cardModel.typeAnswer:
-            self.form.buttonStack.setCurrentIndex(2)
-            self.typeAnswerField.setFocus()
-            self.typeAnswerField.setText("")
-        else:
-            self.form.buttonStack.setCurrentIndex(0)
-            self.form.showAnswerButton.setFocus()
-        self.form.buttonStack.show()
-
-    def showEaseButtons(self):
-        self.updateEaseButtons()
-        self.form.buttonStack.setCurrentIndex(1)
-        self.form.buttonStack.show()
-        self.form.buttonStack.setLayoutDirection(Qt.LeftToRight)
-        if self.learningButtons():
-            self.form.easeButton2.setText(_("Good"))
-            self.form.easeButton3.setText(_("Easy"))
-            self.form.easeButton4.setText(_("Very Easy"))
-        else:
-            self.form.easeButton2.setText(_("Hard"))
-            self.form.easeButton3.setText(_("Good"))
-            self.form.easeButton4.setText(_("Easy"))
-        getattr(self.form, "easeButton%d" % self.defaultEaseButton()).\
-                              setFocus()
-
-    def learningButtons(self):
-        return not self.currentCard.successive
-
-    def defaultEaseButton(self):
-        if not self.currentCard.successive:
-            return 2
-        else:
-            return 3
-
-    def updateEaseButtons(self):
-        nextInts = {}
-        for i in range(1, 5):
-            l = getattr(self.form, "easeLabel%d" % i)
-            if self.config['suppressEstimates']:
-                l.setText("")
-            elif i == 1:
-                txt = _("Soon")
-                if self.config['colourTimes']:
-                    txt = '<span style="color: #700"><b>%s</b></span>' % txt
-                l.setText(txt)
-            else:
-                txt = self.deck.nextIntervalStr(
-                    self.currentCard, i)
-                txt = "<b>" + txt + "</b>"
-                if i == self.defaultEaseButton() and self.config['colourTimes']:
-                    txt = '<span style="color: #070">' + txt + '</span>'
-                l.setText(txt)
 
     # Deck loading & saving: backend
     ##########################################################################
