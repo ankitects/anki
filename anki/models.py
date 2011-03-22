@@ -107,7 +107,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             return ""
         # fields
         css = "".join([self._fieldCSS(
-            ".fm%s.%s" % (hexifyID(self.id), hexifyID(f['ord'])),
+            ".fm%s-%s" % (hexifyID(self.id), hexifyID(f['ord'])),
             (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
             for f in self.fields])
         # templates

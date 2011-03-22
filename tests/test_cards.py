@@ -85,3 +85,15 @@ def test_delete():
     assert deck.factCount() == 0
     assert deck.db.scalar("select count() from facts") == 0
     assert deck.db.scalar("select count() from cards") == 0
+
+def test_misc():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u'1'
+    f['Back'] = u'2'
+    d.addFact(f)
+    c = f.cards()[0]
+    assert c.bgClass() == "cm1-0"
+    assert c.fact().id == 1
+    assert c.model().id == 1
+    assert c.template()['ord'] == 0

@@ -132,6 +132,10 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
     def template(self):
         return self._reviewData()[1].templates[self.ord]
 
+    def bgClass(self):
+        return "cm%s-%s" % (hexifyID(self.model().id),
+                            hexifyID(self.template()['ord']))
+
     def startTimer(self):
         self.timerStarted = time.time()
 
