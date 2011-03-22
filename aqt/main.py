@@ -157,11 +157,20 @@ body {
 background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
 margin: 2em; }
 a:hover { background-color: #aaa; }
-.but { font-size: 80%; padding: 3; background-color: #ccc;
-        border-radius: 5px; color: #000; margin: 0 5 0 5; text-decoration:
-        none; display: inline-block;
--webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-border: 1px solid #aaa;
+.but {
+    -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    background-color: #ccc;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    color: #000;
+    display: inline-block;
+    font-size: 80%;
+    margin: 0 5 0 5;
+    padding: 3;
+    text-decoration: none;
+    text-align: center;
 }
 .but:focus, .but:hover { background-color: #aaa; }
 .gbut { background-color: #7c7; }

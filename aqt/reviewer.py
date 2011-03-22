@@ -62,15 +62,13 @@ class Reviewer(object):
 
     _css = """
 a.ansbut {
-  display: block; position: fixed;
-  bottom: 1em; width: 250px; left: 50%; margin-left: -125px;
-  height: 40px; background-color: #ccc;
-  border-radius: 5px;
-  text-align: center;
-  color: #000; text-decoration: none;
-  -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-  border: 1px solid #aaa;
-
+    bottom: 1em;
+    height: 40px;
+    left: 50%;
+    margin-left: -125px;
+    position: fixed;
+    width: 250px;
+    font-size: 100%;
 }
 a.ansbut:focus {
 background: #c7c7c7;
@@ -78,16 +76,15 @@ background: #c7c7c7;
 div.ansbut {
   position: relative; top: 25%;
 }
-div#filler {
-  height: 20px;
-}
-"""
 
-    def _renderQA(self, card, text):
-        # we want to include enough space at the bottom to allow for the
-        # answer buttons
-        buf = "<div id=filler></div>"
-        self.web.stdHtml(text+buf, self._styles(), bodyClass=card.cssClass())
+div#filler {
+  height: 30px;
+}
+
+.q { margin-bottom: 1em; }
+.a { margin-top: 1em; }
+.inv { visibility: hidden; }
+"""
 
     def _styles(self):
         css = self.mw.sharedCSS
@@ -99,9 +96,27 @@ div#filler {
     # Showing the question
     ##########################################################################
 
-    _qHtml = """
+    _revHtml = """
+<table width=100%% height=100%%><tr valign=middle><td>
 %(q)s
-%(but)s"""
+<hr class=inv>
+<span id="answer" />
+%(a)s
+</td></tr></table>
+
+%(but)s
+
+<script>
+function showans () {
+    $(".inv").removeClass('inv');
+    location.hash = "answer";
+};
+
+$(document).ready(function () {
+$(".ansbut").focus();
+});
+</script>
+"""
 
     def _showQuestion(self):
         # fixme: timeboxing
@@ -110,14 +125,18 @@ div#filler {
         c = self.card
         # original question with sounds
         q = c.q()
+        a = c.a("a inv")
         if (#self.state != self.oldState and not nosound
             self.mw.config['autoplaySounds']):
             playFromText(q)
         # render
-        buf = self._qHtml % dict(
+        buf = self._revHtml % dict(
             q=mungeQA(q),
+            a=mungeQA(a) + '<div id=filler></div>',
             but=self._questionButtons())
-        self._renderQA(c, buf)
+
+        self.web.stdHtml(buf, self._styles(), bodyClass=c.cssClass())
+
         runHook('showQuestion')
 
     # Question buttons
@@ -127,7 +146,9 @@ div#filler {
         buf = self.typeAnsInput()
         # make sure to focus
         buf += """
-<a href=ans class=ansbut><div class=ansbut>%s</div></a>
+<a id=ansbut class="but ansbut" href=ans onclick="showans();">
+<div class=ansbut>%s</div>
+</a>
 """ % _("Show Answer")
         return buf
 
@@ -135,16 +156,10 @@ div#filler {
     ##########################################################################
 
     def _showAnswer(self):
-        c = self.card
-        # original question with sounds
-        q = c.a()
+        a = c.a()
         if self.mw.config['autoplaySounds']:
             playFromText(a)
         # render
-        buf = self._qHtml % dict(
-            q=mungeQA(a),
-            but=self._answerButtons())
-        self._renderQA(c, buf)
         runHook('showQuestion')
 
         # buf = self.typeAnsResult()
