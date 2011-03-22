@@ -97,7 +97,7 @@ def test_text():
     f = d.newFact()
     f['Front'] = u'hello<b>world'
     d.addFact(f)
-    assert f.cards()[0].q() == "helloworld"
+    assert "helloworld" in f.cards()[0].q()
 
 def test_cloze():
     d = getEmptyDeck()

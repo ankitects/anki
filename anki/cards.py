@@ -100,10 +100,10 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
             self.grade, self.cycles, self.edue, self.id)
 
     def q(self):
-        return self._getQA()['q']
+        return self._withClass(self._getQA()['q'])
 
     def a(self):
-        return self._getQA()['a']
+        return self._withClass(self._getQA()['a'])
 
     def _getQA(self, reload=False):
         if not self._qa or reload:
@@ -114,6 +114,9 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
                     f.joinedFields()]
             self._qa = self.deck._renderQA(self.model(), gname, data)
         return self._qa
+
+    def _withClass(self, txt):
+        return '<div class="%s">%s</div>' % (self.cssClass(), txt)
 
     def _reviewData(self, reload=False):
         "Fetch the model and fact."
@@ -132,7 +135,7 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
     def template(self):
         return self._reviewData()[1].templates[self.ord]
 
-    def bgClass(self):
+    def cssClass(self):
         return "cm%s-%s" % (hexifyID(self.model().id),
                             hexifyID(self.template()['ord']))
 

@@ -112,7 +112,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
             (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
             for f in self.fields])
         # templates
-        css += "".join(["#cm%s-%s {text-align:%s;background:%s}\n" % (
+        css += "".join([".cm%s-%s {text-align:%s;background:%s}\n" % (
             hexifyID(self.id), hexifyID(t['ord']),
             ("center", "left", "right")[t['align']], t['bg'])
                 for t in self.templates])

@@ -93,7 +93,7 @@ def test_misc():
     f['Back'] = u'2'
     d.addFact(f)
     c = f.cards()[0]
-    assert c.bgClass() == "cm1-0"
+    assert c.cssClass() == "cm1-0"
     assert c.fact().id == 1
     assert c.model().id == 1
     assert c.template()['ord'] == 0
