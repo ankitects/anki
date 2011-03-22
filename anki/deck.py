@@ -466,7 +466,8 @@ select id from cards where fid in (select id from facts where mid = ?)""",
                 format = format.replace("cloze:", "ca:")
             fields = runFilter("mungeFields", fields, model, gname, data, self)
             html = anki.template.render(format, fields)
-            d[type] = runFilter("mungeQA", html, fields, model, gname, data, self)
+            d[type] = runFilter(
+                "mungeQA", html, type, fields, model, gname, data, self)
         return d
 
     def _qaData(self, where=""):

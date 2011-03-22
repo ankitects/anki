@@ -61,8 +61,9 @@ class Model(object):
          self.name,
          self.fields,
          self.templates,
-         self.conf) = self.deck.db.first("""
-select mod, name, flds, tmpls, conf from models where id = ?""", self.id)
+         self.conf,
+         self.css) = self.deck.db.first("""
+select mod, name, flds, tmpls, conf, css from models where id = ?""", self.id)
         self.fields = simplejson.loads(self.fields)
         self.templates = simplejson.loads(self.templates)
         self.conf = simplejson.loads(self.conf)
