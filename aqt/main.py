@@ -102,8 +102,10 @@ class AnkiQt(QMainWindow):
 
     def _deckLoadingState(self, oldState):
         "Run once, when deck is loaded."
-        runHook("deckLoading", self.deck)
         self.enableDeckMenuItems()
+        # ensure cwd is set if media dir exists
+        self.deck.media.dir()
+        runHook("deckLoading", self.deck)
         self.moveToState("overview")
 
     def _deckClosingState(self, oldState):
@@ -153,7 +155,7 @@ class AnkiQt(QMainWindow):
     sharedCSS = """
 body {
 background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
-margin: 1em; }
+margin: 2em; }
 a:hover { background-color: #aaa; }
 .but { font-size: 80%; padding: 3; background-color: #ccc;
         border-radius: 5px; color: #000; margin: 0 5 0 5; text-decoration:

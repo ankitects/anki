@@ -116,7 +116,7 @@ $(function () {
         buf += "<tr><th></th><th align=right>%s</th>" % _("Due")
         buf += "<th align=right>%s</th><th></th></tr>" % _("New")
         line = "<tr><td><b>%s</b></td><td class=due>%s</td>"
-        line += "<td class=new>%s</td><td align=right>%s</td></tr>"
+        line += "<td class=new>%s</td><td>%s</td></tr>"
         buf += line % (
             "<a href=chgrp>%s</a>" % _("Selected Groups"),
             counts[0], counts[1],

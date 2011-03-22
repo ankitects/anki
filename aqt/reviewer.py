@@ -40,6 +40,7 @@ class Reviewer(object):
         if c:
             self.mw.enableCardMenuItems()
             self._maybeEnableSound()
+            #self.updateMarkAction()
             self._showQuestion()
         else:
             self.mw.disableCardMenuItems()
@@ -62,7 +63,7 @@ class Reviewer(object):
     _css = """
 a.ansbut {
   display: block; position: fixed;
-  bottom: 5px; width: 250px; left: 50%; margin-left: -125px;
+  bottom: 1em; width: 250px; left: 50%; margin-left: -125px;
   height: 40px; background-color: #ccc;
   border-radius: 5px;
   text-align: center;
@@ -72,7 +73,7 @@ a.ansbut {
 
 }
 a.ansbut:focus {
-border: 1px solid #333; border-radius: 5px;
+background: #c7c7c7;
 }
 div.ansbut {
   position: relative; top: 25%;
@@ -86,7 +87,7 @@ div#filler {
         # we want to include enough space at the bottom to allow for the
         # answer buttons
         buf = "<div id=filler></div>"
-        self.web.stdHtml(text+buf, self._styles(), bodyClass=card.bgClass())
+        self.web.stdHtml(text+buf, self._styles(), bodyClass=card.cssClass())
 
     def _styles(self):
         css = self.mw.sharedCSS
@@ -117,6 +118,7 @@ div#filler {
             q=mungeQA(q),
             but=self._questionButtons())
         self._renderQA(c, buf)
+        runHook('showQuestion')
 
     # Question buttons
     ##########################################################################
@@ -129,50 +131,25 @@ div#filler {
 """ % _("Show Answer")
         return buf
 
-    # Q/A support
-    ##########################################################################
-
-    def _showQuestionState(self, oldState):
-        # ensure cwd set to media dir
-        self.deck.mediaDir()
-        self.showAnswerButton()
-        self.updateMarkAction()
-        runHook('showQuestion')
-
     # Showing the answer
     ##########################################################################
 
-        # elif self.state == "showAnswer":
-        #     self.setBackground()
-        #     if not self.card.cardModel.questionInAnswer:
-        #         self.drawQuestion(nosound=True)
-        #     if self.drawRule:
-        #         self.write("<hr>")
-        #     self.drawAnswer()
-
-
-    def _showAnswerState(self, oldState):
-        self.showEaseButtons()
-
-    def drawAnswer(self):
-        "Show the answer."
-        a = self.card.htmlAnswer()
-        a = runFilter("drawAnswer", a, self.card)
-        if self.card.cardModel.typeAnswer:
-            try:
-                cor = stripMedia(stripHTML(self.card.fact[
-                    self.card.cardModel.typeAnswer]))
-            except KeyError:
-                self.card.cardModel.typeAnswer = ""
-                cor = ""
-            if cor:
-                given = unicode(self.main.typeAnswerField.text())
-                res = self.correct(cor, given)
-                a = res + "<br>" + a
-        self.write(self.center('<span id=answer />'
-                               + mungeQA(a)))
-        if self.state != self.oldState and self.main.config['autoplaySounds']:
+    def _showAnswer(self):
+        c = self.card
+        # original question with sounds
+        q = c.a()
+        if self.mw.config['autoplaySounds']:
             playFromText(a)
+        # render
+        buf = self._qHtml % dict(
+            q=mungeQA(a),
+            but=self._answerButtons())
+        self._renderQA(c, buf)
+        runHook('showQuestion')
+
+        # buf = self.typeAnsResult()
+        # self.write(self.center('<span id=answer />'
+        #                        + mungeQA(a)))
 
     def onLoadFinished(self, bool):
         if self.state == "showAnswer":
@@ -269,6 +246,18 @@ div#filler {
     failedCharColour = "#FF0000"
     passedCharColour = "#00FF00"
     futureWarningColour = "#FF0000"
+
+        # if self.card.cardModel.typeAnswer:
+        #     try:
+        #         cor = stripMedia(stripHTML(self.card.fact[
+        #             self.card.cardModel.typeAnswer]))
+        #     except KeyError:
+        #         self.card.cardModel.typeAnswer = ""
+        #         cor = ""
+        #     if cor:
+        #         given = unicode(self.main.typeAnswerField.text())
+        #         res = self.correct(cor, given)
+        #         a = res + "<br>" + a
 
         # fixme: type answer undo area shouldn't trigger global shortcut
         # class QLineEditNoUndo(QLineEdit):
