@@ -401,11 +401,12 @@ def _migrateFieldsTbl(db):
     dconf = anki.models.defaultField
     mods = {}
     for row in db.all("""
-select id, modelId, ordinal, name, features, required, "unique",
-quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels"""):
+select modelId, name, features, required, "unique",
+quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels
+order by modelId, ordinal"""):
         conf = dconf.copy()
-        if row[1] not in mods:
-            mods[row[1]] = []
+        if row[0] not in mods:
+            mods[row[0]] = []
         (conf['name'],
          conf['rtl'],
          conf['req'],
@@ -413,17 +414,16 @@ quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels"""):
          conf['font'],
          conf['qsize'],
          conf['qcol'],
-         conf['esize']) = row[3:]
+         conf['esize']) = row[1:]
         # ensure data is good
         conf['rtl'] = not not conf['rtl']
         conf['pre'] = True
         conf['qcol'] = conf['qcol'] or "#fff"
-        # add to model list with ordinal for sorting
-        mods[row[1]].append((row[2], conf))
+        mods[row[0]].append(conf)
     # now we've gathered all the info, save it into the models
     for mid, fms in mods.items():
         db.execute("update models set flds = ? where id = ?",
-                   simplejson.dumps([x[1] for x in sorted(fms)]), mid)
+                   simplejson.dumps(fms), mid)
     # clean up
     db.execute("drop table fieldModels")
     return mods
@@ -433,10 +433,11 @@ def _migrateTemplatesTbl(db, fmods):
     dconf = anki.models.defaultTemplate
     mods = {}
     for row in db.all("""
-select modelId, ordinal, name, active, qformat, aformat, questionInAnswer,
-questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels"""):
+select modelId, name, active, qformat, aformat, questionInAnswer,
+questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels
+order by modelId, ordinal"""):
         conf = dconf.copy()
-        if row[1] not in mods:
+        if row[0] not in mods:
             mods[row[0]] = []
         (conf['name'],
          conf['actv'],
@@ -446,10 +447,10 @@ questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels"""):
          conf['align'],
          conf['bg'],
          conf['emptyAns'],
-         conf['typeAns']) = row[2:]
+         conf['typeAns']) = row[1:]
         # convert the field name to an ordinal
         ordN = None
-        for (ord, fm) in fmods[row[0]]:
+        for (ord, fm) in enumerate(fmods[row[0]]):
             if fm['name'] == row[1]:
                 ordN = ord
                 break
@@ -467,12 +468,11 @@ questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels"""):
                 "(?i){{cardModel}}", "{{Template}}", conf[type])
             conf[type] = re.sub(
                 "(?i){{modelTags}}", "{{Model}}", conf[type])
-        # add to model list with ordinal for sorting
-        mods[row[0]].append((row[1], conf))
+        mods[row[0]].append(conf)
     # now we've gathered all the info, save it into the models
     for mid, tmpls in mods.items():
         db.execute("update models set tmpls = ? where id = ?",
-                   simplejson.dumps([x[1] for x in sorted(tmpls)]), mid)
+                   simplejson.dumps(tmpls), mid)
     # clean up
     db.execute("drop table cardModels")
     return mods
