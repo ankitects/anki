@@ -46,7 +46,6 @@ defaultConf = {
     'proxyPass': '',
     'proxyPort': 8080,
     'proxyUser': '',
-    'qaDivider': True,
     'recentColours': ["#000000", "#0000ff"],
     'repeatQuestionAudio': True,
     'scrollToAnswer': True,

@@ -2073,11 +2073,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
 
     def enableCardMenuItems(self):
         self.maybeEnableUndo()
-        snd = (hasSound(self.currentCard.question) or
-               (hasSound(self.currentCard.answer) and
-                self.state != "getQuestion"))
 	self.form.actionEditLayout.setEnabled(True)
-        self.form.actionRepeatAudio.setEnabled(snd)
 	self.form.actionMarkCard.setEnabled(True)
 	self.form.actionSuspendCard.setEnabled(True)
 	self.form.actionDelete.setEnabled(True)

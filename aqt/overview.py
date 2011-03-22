@@ -43,8 +43,11 @@ class Overview(object):
         evt.accept()
 
     def _linkHandler(self, url):
+        print "link", url
         if url == "studysel":
-            pass
+            self.mw.deck.sched.useGroups = True
+            self.mw.deck.reset()
+            self.mw.moveToState("review")
         elif url == "opts":
             pass
         elif url == "list":

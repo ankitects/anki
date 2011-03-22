@@ -254,10 +254,10 @@ def restoreHeader(widget, key):
     if aqt.mw.config.get(key):
         widget.restoreState(aqt.mw.config[key])
 
-def mungeQA(deck, txt):
+def mungeQA(txt):
     txt = stripSounds(txt)
     # osx webkit doesn't understand font weight 600
-    txt = re.sub("font-weight:.+?;", "font-weight: bold;", txt)
+    #txt = re.sub("font-weight:.+?;", "font-weight: bold;", txt)
     return txt
 
 def applyStyles(widget):

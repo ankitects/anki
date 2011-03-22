@@ -8,7 +8,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki.utils import fmtTimeSpan, stripHTML
 from anki.hooks import addHook, runHook, runFilter
-from anki.sound import playFromText
+from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import mungeQA, getBase
 import aqt
 
@@ -18,130 +18,77 @@ class Reviewer(object):
     def __init__(self, mw):
         self.mw = mw
         self.web = mw.web
-        self._state = None
+        self.card = None
+        self.cardQueue = []
         # self.main.connect(self.body, SIGNAL("loadFinished(bool)"),
         #                   self.onLoadFinished)
 
     def show(self):
-        self._reset()
+        self._getCard()
 
-    # State control
+    # Fetching a card
     ##########################################################################
 
-    def _reset(self):
-        pass
+    def _getCard(self):
+        if self.cardQueue:
+            # a card has been retrieved from undo
+            c = self.cardQueue.pop()
+        else:
+            c = self.mw.deck.sched.getCard()
+        self.card = c
+        clearAudioQueue()
+        if c:
+            self.mw.enableCardMenuItems()
+            self._maybeEnableSound()
+            self._showQuestion()
+        else:
+            self.mw.disableCardMenuItems()
+            if self.mw.deck.cardCount():
+                self._showCongrats()
+            else:
+                self._showEmpty()
 
-    def setState(self, state):
-        "Change to STATE, and update the display."
-        self.oldState = getattr(self, 'state', None)
-        self.state = state
-        if self.state == "initial":
-            return
-        elif self.state == "deckBrowser":
-            self.clearWindow()
-            self.drawWelcomeMessage()
-            self.flush()
-            return
-        self.redisplay()
+    def _maybeEnableSound(self):
+        print "enable sound fixme"
+        return
+        snd = (hasSound(self.reviewer.card.q()) or
+               (hasSound(self.reviewer.card.a()) and
+                self.state != "getQuestion"))
+        self.form.actionRepeatAudio.setEnabled(snd)
 
-    def redisplay(self):
-        "Idempotently display the current state (prompt for question, etc)"
-        if self.state == "deckBrowser" or self.state == "studyScreen":
-            return
-        self.buffer = ""
-        self.haveTop = self.needFutureWarning()
-        self.drawRule = (self.main.config['qaDivider'] and
-                         self.main.currentCard and
-                         not self.main.currentCard.cardModel.questionInAnswer)
-        if not self.main.deck.isEmpty():
-            if self.haveTop:
-                self.drawTopSection()
-        if self.state == "showQuestion":
-            self.setBackground()
-            self.drawQuestion()
-            if self.drawRule:
-                self.write("<hr>")
-        elif self.state == "showAnswer":
-            self.setBackground()
-            if not self.main.currentCard.cardModel.questionInAnswer:
-                self.drawQuestion(nosound=True)
-            if self.drawRule:
-                self.write("<hr>")
-            self.drawAnswer()
-        elif self.state == "deckEmpty":
-            self.drawWelcomeMessage()
-        elif self.state == "deckFinished":
-            self.drawDeckFinishedMessage()
-        self.flush()
+
+    # Showing the question
+    ##########################################################################
+
+    def _showQuestion(self):
+        # fixme: timeboxing
+        # fixme: q/a separation
+        # fixme: prevent audio from repeating
+        c = self.card
+        # original question with sounds
+        q = c.q()
+        if (#self.state != self.oldState and not nosound
+            self.mw.config['autoplaySounds']):
+            playFromText(q)
+        q = mungeQA(q)
+        self.handleTypeAnsQ()
+        self._renderQA(c, q)
+
+    def _renderQA(self, card, text):
+        self.web.stdHtml(text, card.model().css, bodyClass=card.bgClass())
 
     def addStyles(self):
         # card styles
         s = "<style>\n"
         if self.main.deck:
             s += self.main.deck.css
-        s = runFilter("addStyles", s, self.main.currentCard)
+        s = runFilter("addStyles", s, self.card)
         s += "</style>"
         return s
 
-    def clearWindow(self):
-        self.body.setHtml("")
-        self.buffer = ""
 
-    def setBackground(self):
-        col = self.main.currentCard.cardModel.lastFontColour
-        self.write("<style>html { background: %s;}</style>" % col)
-
-
-
-    def _getQuestionState(self, oldState):
-        # stop anything playing
-        clearAudioQueue()
-        if self.deck.isEmpty():
-            return self.moveToState("deckEmpty")
-        else:
-            # timeboxing only supported using the standard scheduler
-            if not self.deck.finishScheduler:
-                if self.config['showStudyScreen']:
-                    if not self.deck.timeboxStarted():
-                        return self.moveToState("studyScreen")
-                    elif self.deck.timeboxReached():
-                        self.showToolTip(_("Session limit reached."))
-                        self.moveToState("studyScreen")
-                        # switch to timeboxing screen
-                        self.form.tabWidget.setCurrentIndex(2)
-                        return
-            if not self.currentCard:
-                self.currentCard = self.deck.getCard()
-            if self.currentCard:
-                if self.lastCard:
-                    if self.lastCard.id == self.currentCard.id:
-                        pass
-                        # if self.currentCard.combinedDue > time.time():
-                        #     # if the same card is being shown and it's not
-                        #     # due yet, give up
-                        #     return self.moveToState("deckFinished")
-                self.enableCardMenuItems()
-                return self.moveToState("showQuestion")
-            else:
-                return self.moveToState("deckFinished")
-
-    def _deckEmptyState(self, oldState):
-        self.switchToWelcomeScreen()
-        self.disableCardMenuItems()
-
-    def _deckFinishedState(self, oldState):
-        self.currentCard = None
-        self.deck.db.flush()
-        self.hideButtons()
-        self.disableCardMenuItems()
-        self.switchToCongratsScreen()
-        self.form.learnMoreButton.setEnabled(
-            not not self.deck.newAvail)
-        self.startRefreshTimer()
-        self.bodyView.setState(state)
-        # focus finish button
-        self.form.finishButton.setFocus()
-        runHook('deckFinished')
+    # Q/A support
+    ##########################################################################
 
     def _showQuestionState(self, oldState):
         # ensure cwd set to media dir
@@ -150,11 +97,46 @@ class Reviewer(object):
         self.updateMarkAction()
         runHook('showQuestion')
 
+    # Showing the answer
+    ##########################################################################
+
+        # elif self.state == "showAnswer":
+        #     self.setBackground()
+        #     if not self.card.cardModel.questionInAnswer:
+        #         self.drawQuestion(nosound=True)
+        #     if self.drawRule:
+        #         self.write("<hr>")
+        #     self.drawAnswer()
+
+
     def _showAnswerState(self, oldState):
         self.showEaseButtons()
 
+    def drawAnswer(self):
+        "Show the answer."
+        a = self.card.htmlAnswer()
+        a = runFilter("drawAnswer", a, self.card)
+        if self.card.cardModel.typeAnswer:
+            try:
+                cor = stripMedia(stripHTML(self.card.fact[
+                    self.card.cardModel.typeAnswer]))
+            except KeyError:
+                self.card.cardModel.typeAnswer = ""
+                cor = ""
+            if cor:
+                given = unicode(self.main.typeAnswerField.text())
+                res = self.correct(cor, given)
+                a = res + "<br>" + a
+        self.write(self.center('<span id=answer />'
+                               + mungeQA(a)))
+        if self.state != self.oldState and self.main.config['autoplaySounds']:
+            playFromText(a)
 
-
+    def onLoadFinished(self, bool):
+        if self.state == "showAnswer":
+            if self.main.config['scrollToAnswer']:
+                mf = self.body.page().mainFrame()
+                mf.evaluateJavaScript("location.hash = 'answer'")
 
     # Font properties & output
     ##########################################################################
@@ -165,7 +147,7 @@ class Reviewer(object):
         # hook for user css
         runHook("preFlushHook")
         self.buffer = '''<html><head>%s</head><body>%s</body></html>''' % (
-            getBase(self.main.deck, self.main.currentCard), self.buffer)
+            getBase(self.main.deck, self.card), self.buffer)
         #print self.buffer.encode("utf-8")
         b = self.buffer
         # Feeding webkit unicode can result in it not finding images, so on
@@ -183,13 +165,6 @@ class Reviewer(object):
             text = unicode(text, "utf-8")
         self.buffer += text
 
-    # Question and answer
-    ##########################################################################
-
-    failedCharColour = "#FF0000"
-    passedCharColour = "#00FF00"
-    futureWarningColour = "#FF0000"
-
     def center(self, str, height=40):
         if not self.main.config['splitQA']:
             return "<center>" + str + "</center>"
@@ -198,30 +173,23 @@ class Reviewer(object):
 <div style="display: table-cell; vertical-align: middle;">\
 <div style="">%s</div></div></div></center>''' % (height, str)
 
-    def drawQuestion(self, nosound=False):
-        "Show the question."
-        if not self.main.config['splitQA']:
-            self.write("<br>")
-        q = self.main.currentCard.htmlQuestion()
-        if self.haveTop:
-            height = 35
-        elif self.main.currentCard.cardModel.questionInAnswer:
-            height = 40
-        else:
-            height = 45
-        q = runFilter("drawQuestion", q, self.main.currentCard)
-        self.write(self.center(self.mungeQA(self.main.deck, q), height))
-        if (self.state != self.oldState and not nosound
-            and self.main.config['autoplaySounds']):
-            playFromText(q)
-        if self.main.currentCard.cardModel.typeAnswer:
+    # Type in the answer
+    ##########################################################################
+
+    failedCharColour = "#FF0000"
+    passedCharColour = "#00FF00"
+    futureWarningColour = "#FF0000"
+
+    def handleTypeAnsQ(self):
+        return
+        if self.card.cardModel.typeAnswer:
             self.adjustInputFont()
 
     def getFont(self):
         sz = 20
         fn = u"Arial"
-        for fm in self.main.currentCard.fact.model.fieldModels:
-            if fm.name == self.main.currentCard.cardModel.typeAnswer:
+        for fm in self.card.fact.model.fieldModels:
+            if fm.name == self.card.cardModel.typeAnswer:
                 sz = fm.quizFontSize or sz
                 fn = fm.quizFontFamily or fn
                 break
@@ -236,7 +204,6 @@ class Reviewer(object):
         # add some extra space as layout is wrong on osx
         self.main.typeAnswerField.setFixedHeight(
             self.main.typeAnswerField.sizeHint().height() + 10)
-
 
     def calculateOkBadStyle(self):
         "Precalculates styles for correct and incorrect part of answer"
@@ -274,13 +241,10 @@ class Reviewer(object):
         "Diff-corrects the typed-in answer."
         if b == "":
             return "";
-
         self.calculateOkBadStyle()
-
         ret = ""
         lastEqual = ""
         s = difflib.SequenceMatcher(None, b, a)
-
         for tag, i1, i2, j1, j2 in s.get_opcodes():
             if tag == "equal":
                 lastEqual = b[i1:i2]
@@ -295,71 +259,33 @@ class Reviewer(object):
                 dashNum = (j2 - j1) if ucd.category(a[j1]) != 'Mn' else ((j2 - j1) - 1)
                 ret += self.applyStyle(a[j1], lastEqual, "-" * dashNum)
                 lastEqual = ""
-
         return ret + self.ok(lastEqual)
 
-    def drawAnswer(self):
-        "Show the answer."
-        a = self.main.currentCard.htmlAnswer()
-        a = runFilter("drawAnswer", a, self.main.currentCard)
-        if self.main.currentCard.cardModel.typeAnswer:
-            try:
-                cor = stripMedia(stripHTML(self.main.currentCard.fact[
-                    self.main.currentCard.cardModel.typeAnswer]))
-            except KeyError:
-                self.main.currentCard.cardModel.typeAnswer = ""
-                cor = ""
-            if cor:
-                given = unicode(self.main.typeAnswerField.text())
-                res = self.correct(cor, given)
-                a = res + "<br>" + a
-        self.write(self.center('<span id=answer />'
-                               + self.mungeQA(self.main.deck, a)))
-        if self.state != self.oldState and self.main.config['autoplaySounds']:
-            playFromText(a)
-
-    def mungeQA(self, deck, txt):
-        txt = mungeQA(deck, txt)
-        return txt
-
-    def onLoadFinished(self, bool):
-        if self.state == "showAnswer":
-            if self.main.config['scrollToAnswer']:
-                mf = self.body.page().mainFrame()
-                mf.evaluateJavaScript("location.hash = 'answer'")
-
-    # Top section
+    # Deck finished case
     ##########################################################################
 
-    def drawTopSection(self):
-        "Show previous card, next scheduled time, and stats."
-        self.buffer += "<center>"
-        self.drawFutureWarning()
-        self.buffer += "</center>"
-
-    def needFutureWarning(self):
-        if not self.main.currentCard:
-            return
-        if self.main.currentCard.due <= self.main.deck.dueCutoff:
-            return
-        if self.main.currentCard.due - time.time() <= self.main.deck.delay0:
-            return
-        if self.main.deck.scheduler == "cram":
-            return
-        return True
-
-    def drawFutureWarning(self):
-        if not self.needFutureWarning():
-            return
-        self.write("<span style='color: %s'>" % futureWarningColour +
-                   _("This card was due in %s.") % fmtTimeSpan(
-            self.main.currentCard.due - time.time(), after=True) +
-                   "</span>")
-
-    # Welcome/empty/finished deck messages
-    ##########################################################################
+    def _showCongrats(self):
+        self.card = None
+        self.deck.db.flush()
+        self.hideButtons()
+        self.disableCardMenuItems()
+        self.switchToCongratsScreen()
+        self.form.learnMoreButton.setEnabled(
+            not not self.deck.newAvail)
+        self.startRefreshTimer()
+        self.bodyView.setState(state)
+        # focus finish button
+        self.form.finishButton.setFocus()
+        runHook('deckFinished')
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."
         self.main.mainWin.congratsLabel.setText(
             self.main.deck.deckFinishedMsg())
+
+    # Deck empty case
+    ##########################################################################
+
+    def _showEmpty(self):
+        self.switchToWelcomeScreen()
+        self.disableCardMenuItems()
