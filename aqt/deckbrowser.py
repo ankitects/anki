@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, os, stat, shutil
+import time, os, stat, shutil, re
 from operator import itemgetter
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -112,7 +112,7 @@ class DeckBrowser(object):
                 self._loadDeck(d)
 
     def _loadDeck(self, rec):
-        if 'path' in rec:
+        if rec['state'] == 'ok':
             self.mw.loadDeck(rec['path'])
 
     # HTML generation
@@ -254,18 +254,22 @@ a { font-size: 80%; }
         m.exec_(QCursor.pos())
 
     def _hideRow(self, c):
-        if aqt.utils.askUser(_("""\
+        d = self._decks[c]
+        if d['state'] == "missing" or aqt.utils.askUser(_("""\
 Hide %s from the list? You can File>Open it again later.""") %
-                            self._decks[c]['name']):
-            self.mw.config.delRecentDeck(self._decks[c]['path'])
+                            d['name']):
+            self.mw.config.delRecentDeck(d['path'])
             del self._decks[c]
             self.refresh()
 
     def _deleteRow(self, c):
+        d = self._decks[c]
+        if d['state'] == 'missing':
+            return self._hideRow(c)
         if aqt.utils.askUser(_("""\
 Delete %s? If this deck is synchronized the online version will \
-not be touched.""") % self._decks[c]['name']):
-            deck = self._decks[c]['path']
+not be touched.""") % d['name']):
+            deck = d['path']
             os.unlink(deck)
             try:
                 shutil.rmtree(re.sub(".anki$", ".media", deck))
@@ -277,12 +281,11 @@ not be touched.""") % self._decks[c]['name']):
     # Data gathering
     ##########################################################################
 
-    def _checkDecks(self, forget=False):
+    def _checkDecks(self):
         self._decks = []
         decks = self.mw.config.recentDecks()
         if not decks:
             return
-        missingDecks = []
         tx = time.time()
         self.mw.progress.start(max=len(decks))
         for c, d in enumerate(decks):
@@ -290,14 +293,13 @@ not be touched.""") % self._decks[c]['name']):
                 'x': c+1, 'y': len(decks)})
             base = os.path.basename(d)
             if not os.path.exists(d):
-                missingDecks.append(d)
-                self._decks.append({'name': base, 'state': 'missing'})
+                self._decks.append({'name': base, 'state': 'missing', 'path':d})
                 continue
             try:
                 mod = os.stat(d)[stat.ST_MTIME]
                 t = time.time()
-                deck = Deck(d, lock=False)
-                counts = deck.sched.counts()
+                deck = Deck(d, queue=False, lock=False)
+                counts = deck.sched.selCounts()
                 dtime = deck.sched.timeToday()
                 dreps = deck.sched.repsToday()
                 self._decks.append({
@@ -323,10 +325,7 @@ not be touched.""") % self._decks[c]['name']):
                     state = "in use"
                 else:
                     state = "corrupt"
-                self._decks.append({'name': base, 'state':state})
-        if forget:
-            for d in missingDecks:
-                self.mw.config.delRecentDeck(d)
+                self._decks.append({'name': base, 'state':state, 'path':d})
         self.mw.progress.finish()
         self._browserLastRefreshed = time.time()
         self._reorderDecks()

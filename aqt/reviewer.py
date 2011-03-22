@@ -70,11 +70,13 @@ $(function () {
 
     def _overview(self):
         css = self.mw._sharedCSS + self._overviewCSS
+        fc = self._ovForecast()
+        tbl = self._overviewTable()
         self.web.stdHtml(self._overviewBody % dict(
             title=_("Overview"),
-            table=self._overviewTable(),
+            table=tbl,
             fcsub=_("Due over next two weeks"),
-            fcdata=self._ovForecast(),
+            fcdata=fc,
             opts=self._ovOpts(),
             ), css)
 
@@ -103,20 +105,9 @@ $(function () {
     def _ovCounts(self):
         oldNew = self.mw.deck.qconf['newGroups']
         oldRev = self.mw.deck.qconf['revGroups']
-        if not oldNew and not oldRev:
-            # everything is enabled, no extra work to work to do
-            self.mw.deck.reset()
-            allcnt = self.mw.deck.sched.counts()
-        else:
-            # need to reset to find all cards
-            self.mw.deck.qconf['newGroups'] = []
-            self.mw.deck.qconf['revGroups'] = []
-            self.mw.deck.reset()
-            allcnt = self.mw.deck.sched.counts()
-            self.mw.deck.qconf['newGroups'] = oldNew
-            self.mw.deck.qconf['revGroups'] = oldRev
-            self.mw.deck.reset()
-        selcnt = self.mw.deck.sched.counts()
+        # we have the limited count already
+        selcnt = self.mw.deck.sched.selCounts()
+        allcnt = self.mw.deck.sched.allCounts()
         return [
             selcnt[1] + selcnt[2],
             selcnt[0],
