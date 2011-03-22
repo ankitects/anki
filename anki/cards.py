@@ -111,7 +111,7 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
                 "select name from groups where id = ?", self.gid)
             f = self.fact(); m = self.model()
             data = [self.id, f.id, m.id, self.gid, self.ord, f.stringTags(),
-                    f.joinedFields(), ""]
+                    f.joinedFields()]
             self._qa = self.deck._renderQA(self.model(), gname, data)
         return self._qa
 

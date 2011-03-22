@@ -252,9 +252,9 @@ select id from facts where id not in (select distinct fid from cards)""")
         model = fact.model()
         for template in model.templates:
             if template['actv'] or not checkActive:
-                # [cid, fid, mid, gid, ord, tags, flds, data]
+                # [cid, fid, mid, gid, ord, tags, flds]
                 data = [1, 1, model.id, 1, template['ord'],
-                        "", fact.joinedFields(), ""]
+                        "", fact.joinedFields()]
                 now = self._renderQA(model, "", data)
                 data[6] = "\x1f".join([""]*len(fact._fields))
                 empty = self._renderQA(model, "", data)
@@ -441,9 +441,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
     # fixme: don't need gid or data
     def _renderQA(self, model, gname, data):
         "Returns hash of id, question, answer."
-        # data is [cid, fid, mid, gid, ord, tags, flds, data]
+        # data is [cid, fid, mid, gid, ord, tags, flds]
         # unpack fields and create dict
-        flist = data[6].split("\x1f")
+        flist = splitFields(data[6])
         fields = {}
         for (name, (idx, conf)) in model.fieldMap().items():
             fields[name] = flist[idx]
@@ -470,11 +470,11 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         return d
 
     def _qaData(self, where=""):
-        "Return [cid, fid, mid, gid, ord, tags, flds, data] db query"
+        "Return [cid, fid, mid, gid, ord, tags, flds] db query"
         return self.db.execute("""
-select c.id, f.id, m.id, g.id, c.ord, f.tags, f.flds, f.data
-from cards c, facts f, models m, groups g
-where c.fid == f.id and f.mid == m.id and c.gid = g.id
+select c.id, f.id, f.mid, c.gid, c.ord, f.tags, f.flds
+from cards c, facts f
+where c.fid == f.id
 %s""" % where)
 
     # Tags
