@@ -31,7 +31,7 @@ class StatusView(object):
         self.statusbar = parent.mainWin.statusbar
         self.shown = []
         self.hideBorders()
-        self.setState("noDeck")
+        self.setState("deckBrowser")
         self.timer = None
         self.timerFlashStart = 0
         self.thinkingTimer = QTimer(parent)
@@ -53,7 +53,7 @@ class StatusView(object):
         self.state = state
         if self.state == "initial":
             self.showDeckStatus()
-        elif self.state == "noDeck":
+        elif self.state == "deckBrowser":
             self.hideDeckStatus()
         elif self.state in ("showQuestion",
                             "deckFinished",

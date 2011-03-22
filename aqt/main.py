@@ -52,7 +52,7 @@ class AnkiQt(QMainWindow):
                 len(self.config['recentDeckPaths']) == 1):
                 self.maybeLoadLastDeck(args)
             else:
-                self.moveToState("noDeck")
+                self.moveToState("deckBrowser")
         except:
             showInfo("Error during startup:\n%s" % traceback.format_exc())
             sys.exit(1)
@@ -77,33 +77,21 @@ class AnkiQt(QMainWindow):
         self.setupAutoUpdate()
         # screens
         self.setupDeckBrowser()
+        self.setupOverview()
         self.setupReviewer()
         self.setupEditor()
         self.setupStudyScreen()
-
-    _sharedCSS = """
-body { background-color: #eee; margin-top: 1em; }
-a:hover { background-color: #aaa; }
-a.but { font-size: 80%; padding: 3; background-color: #ccc;
-        border-radius: 2px; color: #000; margin: 0 5 0 5; text-decoration:
-        none; display: inline-block; }
-h1 { margin-bottom: 0.2em; }
-hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
-"""
-#a { text-decoration: none; }
 
     # State machine
     ##########################################################################
 
     def moveToState(self, state, *args):
-        # eg noDeck -> noDeckState(oldState)
         print "-> move from", self.state, "to", state
-        getattr(self, "_"+state+"State")(self.state, *args)
         self.state = state
+        getattr(self, "_"+state+"State")(self.state, *args)
 
-    def _noDeckState(self, oldState):
-        "Run when a deck is closed, or we open with an empty deck."
-        # blank menus and load deck browser
+    def _deckBrowserState(self, oldState):
+        # shouldn't call this directly; call close
         self.deck = None
         self.currentCard = None
         self.lastCard = None
@@ -114,34 +102,16 @@ hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
 
     def _deckLoadingState(self, oldState):
         "Run once, when deck is loaded."
-        #self.editor.deck = self.deck
-        # on reset?
         runHook("deckLoading", self.deck)
         self.enableDeckMenuItems()
-        if False: #self.config['showStudyScreen']:
-            self.moveToState("studyScreen")
-        else:
-            self.moveToState("review")
-
-    def _deckLoadedState(self, oldState):
-        self.currentCard = None
-        self.lastCard = None
-        # to make programming easy, reset to reviews is fastest
-        # but users expect edit windows to stay open. instead, we give each
-        # module some hooks to respond to:
-        # reset: called when we have modified the database and need to check
-        # if things are still valid. edit windows should pull their data from
-        # the database and close if the card/fact no longer exists. add window
-        # doesn't have to do anything. editor.. what to do about the editor?
-        # close: most windows will want to respond and close as there's no
-        # longer a deck. we probably want to make thing like the graphs not
-        # modal too.
-        # could reset() while in review, in study options, in empty, in deck
-        # finished, in editor, etc.
+        self.moveToState("overview")
 
     def _deckClosingState(self, oldState):
         "Run once, before a deck is closed."
         runHook("deckClosing", self.deck)
+
+    def _overviewState(self, oldState):
+        self.overview.show()
 
     def _reviewState(self, oldState):
         self.reviewer.show()
@@ -175,6 +145,29 @@ hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
             if runHooks:
                 runHook("guiReset")
             self.moveToState("initial")
+
+
+    # HTML helpers
+    ##########################################################################
+
+    sharedCSS = """
+body { background-color: #eee; margin-top: 1em; }
+a:hover { background-color: #aaa; }
+a.but { font-size: 80%; padding: 3; background-color: #ccc;
+        border-radius: 2px; color: #000; margin: 0 5 0 5; text-decoration:
+        none; display: inline-block; }
+a.but:focus { background-color: #aaa; }
+h1 { margin-bottom: 0.2em; }
+hr { margin:5 0 5 0; border:0; height:1px; background-color:#ddd; }
+"""
+
+    def button(self, link, name, key=None):
+        if key:
+             key = _("Shortcut key: %s") % key
+        else:
+            key = ""
+        return '<a class=but title="%s" href="%s">%s</a>' % (
+            key, link, name)
 
     # Signal handling
     ##########################################################################
@@ -649,7 +642,7 @@ counts are %d %d %d
                 aqt.utils.showCritical(_("""\
 File is corrupt or not an Anki database. Click help for more info.\n
 Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
-            self.moveToState("noDeck")
+            self.moveToState("deckBrowser")
             return 0
         self.config.addRecentDeck(self.deck.path)
         self.setupMedia(self.deck)
@@ -724,13 +717,12 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onClose(self):
-        # allow focusOut to save
         if self.inMainWindow() or not self.app.activeWindow():
-            self.saveAndClose()
+            self.close()
         else:
             self.app.activeWindow().close()
 
-    def saveAndClose(self, hideWelcome=False, parent=None):
+    def close(self, hideWelcome=False, parent=None):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         # allow any focusOut()s to run first
         self.setFocus()
@@ -744,7 +736,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.deck.close()
             self.deck = None
         if not hideWelcome and not synced:
-            self.moveToState("noDeck")
+            self.moveToState("deckBrowser")
         self.hideWelcome = False
         return True
 
@@ -758,7 +750,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onNew(self, path=None, prompt=None):
         if not self.inMainWindow() and not path: return
-        if not self.saveAndClose(hideWelcome=True): return
+        self.close()
         register = not path
         bad = ":/\\"
         name = _("mydeck")
@@ -769,7 +761,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 name = aqt.utils.getOnlyText(
                     prompt, default=name, title=_("New Deck"))
                 if not name:
-                    self.moveToState("noDeck")
+                    self.moveToState("deckBrowser")
                     return
                 found = False
                 for c in bad:
@@ -789,7 +781,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                                     defaultno=True):
                     os.unlink(path)
                 else:
-                    self.moveToState("noDeck")
+                    self.moveToState("deckBrowser")
                     return
         self.deck = DeckStorage.Deck(path)
         self.deck.initUndo()
@@ -834,7 +826,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onOpenOnline(self):
         if not self.inMainWindow(): return
         self.ensureSyncParams()
-        if not self.saveAndClose(hideWelcome=True): return
+        self.close()
         # we need a disk-backed file for syncing
         dir = unicode(tempfile.mkdtemp(prefix="anki"), sys.getfilesystemencoding())
         path = os.path.join(dir, u"untitled.anki")
@@ -980,15 +972,16 @@ your deck."""))
         self.moveToState("initial")
         return file
 
-    # Deck browser
+    # Components
     ##########################################################################
 
     def setupDeckBrowser(self):
         from aqt.deckbrowser import DeckBrowser
         self.deckBrowser = DeckBrowser(self)
 
-    # Reviewer
-    ##########################################################################
+    def setupOverview(self):
+        from aqt.overview import Overview
+        self.overview = Overview(self)
 
     def setupReviewer(self):
         from aqt.reviewer import Reviewer
@@ -1014,15 +1007,13 @@ your deck."""))
         if self.state == "editCurrentFact":
             event.ignore()
             return self.moveToState("saveEdit")
-        if not self.saveAndClose(hideWelcome=True):
-            event.ignore()
-        else:
-            if self.config['syncOnProgramOpen']:
-                self.hideWelcome = True
-                self.syncDeck(interactive=False)
-            self.prepareForExit()
-            event.accept()
-            self.app.quit()
+        self.close()
+        if self.config['syncOnProgramOpen']:
+            self.hideWelcome = True
+            self.syncDeck(interactive=False)
+        self.prepareForExit()
+        event.accept()
+        self.app.quit()
 
     # Edit current fact
     ##########################################################################
@@ -1822,7 +1813,7 @@ Are you sure?""" % deckName),
                     if self.loadAfterSync == -1:
                         # after sync all, so refresh browser list
                         self.browserLastRefreshed = 0
-                        self.moveToState("noDeck")
+                        self.moveToState("deckBrowser")
                     elif self.loadAfterSync and self.deckPath:
                         if self.loadAfterSync == 2:
                             name = re.sub("[<>]", "", self.syncName)
@@ -1849,9 +1840,9 @@ Are you sure?""" % deckName),
                             c.close()
                         self.loadDeck(self.deckPath)
                     else:
-                        self.moveToState("noDeck")
+                        self.moveToState("deckBrowser")
             except:
-                self.moveToState("noDeck")
+                self.moveToState("deckBrowser")
                 raise
         finally:
             self.deckPath = None
@@ -1883,7 +1874,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         "Unload a new deck if an initial sync failed."
         self.deck = None
         self.deckPath = None
-        self.moveToState("noDeck")
+        self.moveToState("deckBrowser")
         self.syncFinished = True
 
     def setSyncStatus(self, text, *args):

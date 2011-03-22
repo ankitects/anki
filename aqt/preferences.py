@@ -83,7 +83,7 @@ class Preferences(QDialog):
         self.origConfig.save()
         self.parent.setLang()
         if self.needDeckClose:
-            self.parent.saveAndClose(parent=self)
+            self.parent.close(parent=self)
         else:
             self.parent.reset()
         self.done(0)

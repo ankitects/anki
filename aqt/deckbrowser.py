@@ -142,7 +142,7 @@ a { font-size: 80%; }
     def _renderPage(self):
         if self._decks:
             buf = ""
-            css = self.mw._sharedCSS + self._css
+            css = self.mw.sharedCSS + self._css
             max=len(self._decks)-1
             for c, deck in enumerate(self._decks):
                 buf += self._deckRow(c, max, deck)
