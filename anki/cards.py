@@ -22,6 +22,7 @@ class Card(object):
         self.deck = deck
         self.timerStarted = None
         self._qa = None
+        self._rd = None
         if id:
             self.id = id
             self.load()
@@ -106,14 +107,30 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
 
     def _getQA(self, reload=False):
         if not self._qa or reload:
-            self._qa = self.deck.renderQA([self.id], "card")[0]
+            gname = self.deck.db.scalar(
+                "select name from groups where id = ?", self.gid)
+            f = self.fact(); m = self.model()
+            data = [self.id, f.id, m.id, self.gid, self.ord, f.stringTags(),
+                    f.joinedFields(), ""]
+            self._qa = self.deck._renderQA(self.model(), gname, data)
         return self._qa
 
+    def _reviewData(self, reload=False):
+        "Fetch the model and fact."
+        if not self._rd or reload:
+            f = self.deck.getFact(self.fid)
+            m = self.deck.getModel(f.mid)
+            self._rd = [f, m]
+        return self._rd
+
     def fact(self):
-        return self.deck.getFact(self.fid)
+        return self._reviewData()[0]
+
+    def model(self, reload=False):
+        return self._reviewData()[1]
 
     def template(self):
-        return self.deck.getTemplate(self.fact().mid, self.ord)
+        return self._reviewData()[1].templates[self.ord]
 
     def startTimer(self):
         self.timerStarted = time.time()

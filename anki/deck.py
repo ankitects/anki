@@ -68,6 +68,7 @@ class _Deck(object):
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
+        self.modelCache = {}
         self.undoEnabled = False
         self.sessionStartReps = 0
         self.sessionStartTime = 0
@@ -172,11 +173,13 @@ qconf=?, conf=?, data=?""",
     def getFact(self, id):
         return anki.facts.Fact(self, id=id)
 
-    def getTemplate(self, mid, ord):
-        return self.getModel(mid).templates[ord]
-
     def getModel(self, mid):
-        return anki.models.Model(self, mid)
+        "Memoizes; call .reset() to reset cache."
+        if mid in self.modelCache:
+            return self.modelCache[mid]
+        m = anki.models.Model(self, mid)
+        self.modelCache[mid] = m
+        return m
 
     # Utils
     ##########################################################################
@@ -189,6 +192,7 @@ qconf=?, conf=?, data=?""",
 
     def reset(self):
         "Rebuild the queue and reload data after DB modified."
+        self.modelCache = {}
         self.sched.reset()
 
     # Facts
@@ -434,6 +438,7 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         return [self._renderQA(mods[row[2]], groups[row[3]], row)
                 for row in self._qaData(where)]
 
+    # fixme: don't need gid or data
     def _renderQA(self, model, gname, data):
         "Returns hash of id, question, answer."
         # data is [cid, fid, mid, gid, ord, tags, flds, data]

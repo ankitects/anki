@@ -44,7 +44,7 @@ select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         self.mod = intTime()
         # facts table
         sfld = self._fields[self._model.sortIdx()]
-        tags = canonifyTags(self.tags)
+        tags = self.stringTags()
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.mid, self.gid, self.crt,
@@ -106,6 +106,9 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
 
     def hasTag(self, tag):
         return hasTag(tag, self.tags)
+
+    def stringTags(self):
+        return canonifyTags(self.tags)
 
     # Unique/duplicate checks
     ##################################################
