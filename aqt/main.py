@@ -339,16 +339,6 @@ Please do not file a bug report with Anki.<br>""")
     def closeAllDeckWindows(self):
         aqt.dialogs.closeAll()
 
-    def setKeyHandler(self, fn):
-        self._keyHandler = fn
-
-    def keyPressEvent(self, evt):
-        "Show answer on RET or register answer."
-        if self._keyHandler:
-            self._keyHandler(evt)
-        else:
-            evt.ignore()
-
     # to port
         # elif self.state == "studyScreen":
         #     if evt.key() in (Qt.Key_Enter,

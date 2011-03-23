@@ -24,7 +24,7 @@ class DeckBrowser(object):
     def show(self, _init=True):
         if _init:
             self.web.setLinkHandler(self._linkHandler)
-            self.mw.setKeyHandler(self._keyHandler)
+            self.web.setKeyHandler(self._keyHandler)
             self._setupToolbar()
         # refresh or reorder
         if (time.time() - self._browserLastRefreshed >
@@ -103,8 +103,7 @@ class DeckBrowser(object):
         if ((txt >= "0" and txt <= "9") or
             (txt >= "a" and txt <= "z")):
             self._openAccel(txt)
-            evt.accept()
-        evt.ignore()
+            return True
 
     def _openAccel(self, txt):
         for d in self._decks:

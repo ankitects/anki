@@ -16,7 +16,7 @@ class Overview(object):
 
     def show(self):
         self._setupToolbar()
-        self.mw.setKeyHandler(self._keyHandler)
+        self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
         self._renderPage()
 
@@ -38,9 +38,8 @@ class Overview(object):
         elif txt == "d":
             self._linkHandler("list")
         else:
-            evt.ignore()
             return
-        evt.accept()
+        return True
 
     def _linkHandler(self, url):
         print "link", url

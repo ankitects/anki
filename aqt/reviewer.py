@@ -12,8 +12,6 @@ from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import mungeQA, getBase
 import aqt
 
-# fixme: space is scrolling instead of showing the current answer
-
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."
 
@@ -26,7 +24,7 @@ class Reviewer(object):
         self._setupStatus()
 
     def show(self):
-        self.mw.setKeyHandler(self._keyHandler)
+        self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
         self._getCard()
 
@@ -199,29 +197,27 @@ $(".ansbut").focus();
             show = False
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
-                evt.accept()
                 show = True
             elif evt.key() == Qt.Key_Space and not self.typeAns():
-                evt.accept()
                 show = True
             if show:
                 self._showAnswer()
-                return self.web.eval("showans();")
+                self.web.eval("showans();")
+                return True
         elif self.state == "answer":
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return,
                              Qt.Key_Space):
                 self._answerCard(self._defaultEase())
-                evt.accept()
-                return
+                return True
             else:
                 key = unicode(evt.text())
                 if key and key >= "1" and key <= "4":
                     key=int(key)
                     if self.card.queue == 2 or key < 4:
-                        evt.accept()
-                        return self._answerCard(key)
-        evt.ignore()
+                        self._answerCard(key)
+                        return True
+
 
     def _linkHandler(self, url):
         print "link", url

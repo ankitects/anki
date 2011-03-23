@@ -44,12 +44,17 @@ class AnkiWebView(QWebView):
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
         self.setLinkHandler()
+        self.setKeyHandler()
         self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
         self.connect(self, SIGNAL("loadFinished(bool)"), self._loadFinished)
     def keyPressEvent(self, evt):
         if evt.matches(QKeySequence.Copy):
             self.triggerPageAction(QWebPage.Copy)
             evt.accept()
+        if self._keyHandler:
+            if self._keyHandler(evt):
+                evt.accept()
+                return
         QWebView.keyPressEvent(self, evt)
     def contextMenuEvent(self, evt):
         QWebView.contextMenuEvent(self, evt)
@@ -60,6 +65,9 @@ class AnkiWebView(QWebView):
             self.linkHandler = handler
         else:
             self.linkHandler = self._openLinksExternally
+    def setKeyHandler(self, handler=None):
+        # handler should return true if event should be swallowed
+        self._keyHandler = handler
     def setHtml(self, html, loadCB=None):
         if loadCB:
             self._loadFinishedCB = loadCB
