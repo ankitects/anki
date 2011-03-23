@@ -92,9 +92,6 @@ class AnkiQt(QMainWindow):
 
     def _deckBrowserState(self, oldState):
         # shouldn't call this directly; call close
-        self.deck = None
-        self.currentCard = None
-        self.lastCard = None
         self.disableDeckMenuItems()
         self.closeAllDeckWindows()
         self.deckBrowser.show()
@@ -569,23 +566,17 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         else:
             self.app.activeWindow().close()
 
-    def close(self, hideWelcome=False, parent=None):
+    def close(self, showBrowser=True):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
+        if not self.deck:
+            return
         # allow any focusOut()s to run first
         self.setFocus()
-        if not parent:
-            parent = self
-        self.hideWelcome = hideWelcome
         self.closeAllDeckWindows()
-        synced = False
-        if self.deck is not None:
-            # save and close
-            self.deck.close()
-            self.deck = None
-        if not hideWelcome and not synced:
+        self.deck.close()
+        self.deck = None
+        if showBrowser:
             self.moveToState("deckBrowser")
-        self.hideWelcome = False
-        return True
 
     def inMainWindow(self):
         if not self.app.activeWindow():
@@ -854,9 +845,9 @@ your deck."""))
         if self.state == "editCurrentFact":
             event.ignore()
             return self.moveToState("saveEdit")
-        self.close()
+        self.close(showBrowser=False)
         if self.config['syncOnProgramOpen']:
-            self.hideWelcome = True
+            self.showBrowser = False
             self.syncDeck(interactive=False)
         self.prepareForExit()
         event.accept()
@@ -1652,7 +1643,7 @@ Are you sure?""" % deckName),
         self.form.buttonStack.show()
         try:
             try:
-                if self.hideWelcome:
+                if not self.showBrowser:
                     # no deck load & no deck browser, as we're about to quit or do
                     # something manually
                     pass
