@@ -364,26 +364,6 @@ Please do not file a bug report with Anki.<br>""")
         #         return self.moveToState("saveEdit")
         # evt.ignore()
 
-    def cardAnswered(self, quality):
-        "Reschedule current card and move back to getQuestion state."
-        if self.state != "showAnswer":
-            return
-        # force refresh of card then remove from session as we update in pure sql
-        self.deck.db.refresh(self.currentCard)
-        self.deck.db.refresh(self.currentCard.fact)
-        self.deck.db.refresh(self.currentCard.cardModel)
-        self.deck.db.expunge(self.currentCard)
-        # answer
-        self.deck.answerCard(self.currentCard, quality)
-        self.lastQuality = quality
-        self.lastCard = self.currentCard
-        self.currentCard = None
-        if self.config['saveAfterAnswer']:
-            num = self.config['saveAfterAnswerNum']
-            if self.deck.repsToday % num == 0:
-                self.save()
-        self.moveToState("getQuestion")
-
     def onCardAnsweredHook(self, cardId, isLeech):
         if not isLeech:
             self.setNotice()

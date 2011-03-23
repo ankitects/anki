@@ -59,64 +59,6 @@ class Reviewer(object):
                 self.state != "getQuestion"))
         self.form.actionRepeatAudio.setEnabled(snd)
 
-    # HTML helpers
-    ##########################################################################
-
-    _css = """
-a.ansbut {
-    bottom: 1em;
-    height: 40px;
-    left: 50%;
-    margin-left: -125px;
-    position: fixed;
-    width: 250px;
-    font-size: 100%;
-}
-a.ansbut:focus {
-background: #c7c7c7;
-}
-div.ansbut {
-  position: relative; top: 25%;
-}
-
-#easebuts {
-  bottom: 1em;
-  height: 55px;
-  left: 50%;
-  margin-left: -200px;
-  position: fixed;
-  width: 400px;
-  font-size: 100%;
-  visibility: hidden;
-}
-
-.easebut {
-  width: 60px;
-  font-size: 100%;
-}
-
-.time {
-  background: #eee;
-  padding: 5px;
-  border-radius: 10px;
-}
-
-div#filler {
-  height: 30px;
-}
-
-.q { margin-bottom: 1em; }
-.a { margin-top: 1em; }
-.inv { visibility: hidden; }
-"""
-
-    def _styles(self):
-        css = self.mw.sharedCSS
-        css += self.card.model().css
-        css += self._css
-        css = runFilter("addStyles", css)
-        return css
-
     # Showing the question (and preparing answer)
     ##########################################################################
 
@@ -193,20 +135,29 @@ $(".ansbut").focus();
         buf += self._answerButtons()
         return buf
 
+    def _defaultEase(self):
+        if self.card.queue == 2:
+            return 3
+        else:
+            return 2
+
     def _answerButtons(self):
         if self.card.queue == 2:
             labels = (_("Again"), _("Hard"), _("Good"), _("Easy"))
-            green = 2
         else:
             labels = (_("Again"), _("Good"), _("Easy"))
-            green = 1
         times = []
         buttons = []
+        default = self._defaultEase()
         def but(label, i):
+            if i == default:
+                extra=" id=defease"
+            else:
+                extra = ""
             return '''
-<a class="but easebut" href=ease%d>%s</a>''' % (i, label)
+<a %s class="but easebut" href=ease%d>%s</a>''' % (extra, i, label)
         for i in range(0, len(labels)):
-            times.append(self._buttonTime(i, green))
+            times.append(self._buttonTime(i, default-1))
             buttons.append(but(labels[i], i+1))
         buf = ("<table><tr><td align=center>" +
                "</td><td align=center>".join(times) + "</td></tr>")
@@ -226,52 +177,111 @@ $(".ansbut").focus();
         txt = '<span class=time>%s</span>' % txt
         return txt
 
+    # Answering a card
+    ############################################################
+
+    def _answerCard(self, ease):
+        "Reschedule card and show next."
+        self.mw.deck.sched.answerCard(self.card, ease)
+        print "fixme: save"
+        self._getCard()
+
     # Handlers
     ############################################################
 
     def _keyHandler(self, evt):
         if self.state == "question":
+            show = False
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
                 evt.accept()
-                return self.web.eval("showans();")
+                show = True
             elif evt.key() == Qt.Key_Space and not self.typeAns():
                 evt.accept()
+                show = True
+            if show:
+                self._showAnswer()
                 return self.web.eval("showans();")
         elif self.state == "answer":
-            # if evt.key() == Qt.Key_Space:
-            #     key = str(self.defaultEaseButton())
-            # else:
-            #     key = unicode(evt.text())
-            # if key and key >= "1" and key <= "4":
-            #     # user entered a quality setting
-            #     num=int(key)
-            #     evt.accept()
-            #     return getattr(self.form, "easeButton%d" %
-            #                    num).animateClick()
-            pass
+            if evt.key() in (Qt.Key_Enter,
+                             Qt.Key_Return,
+                             Qt.Key_Space):
+                self._answerCard(self._defaultEase())
+                evt.accept()
+                return
+            else:
+                key = unicode(evt.text())
+                if key and key >= "1" and key <= "4":
+                    key=int(key)
+                    if self.card.queue == 2 or key < 4:
+                        evt.accept()
+                        return self._answerCard(key)
         evt.ignore()
 
     def _linkHandler(self, url):
         print "link", url
         if url == "ans":
             self._showAnswer()
+        elif url.startswith("ease"):
+            self._answerCard(int(url[4:]))
 
-    # Font properties & output
+    # CSS
     ##########################################################################
 
-    def write(self, text):
-        if type(text) != types.UnicodeType:
-            text = unicode(text, "utf-8")
-        self.buffer += text
+    _css = """
+a.ansbut {
+    bottom: 1em;
+    height: 40px;
+    left: 50%;
+    margin-left: -125px;
+    position: fixed;
+    width: 250px;
+    font-size: 100%;
+}
+a.ansbut:focus {
+background: #c7c7c7;
+}
+div.ansbut {
+  position: relative; top: 25%;
+}
 
-    def center(self, str, height=40):
-        if not self.main.config['splitQA']:
-            return "<center>" + str + "</center>"
-        return '''\
-<center><div style="display: table; height: %s%%; width:100%%; overflow: hidden;">\
-<div style="display: table-cell; vertical-align: middle;">\
-<div style="">%s</div></div></div></center>''' % (height, str)
+#easebuts {
+  bottom: 1em;
+  height: 55px;
+  left: 50%;
+  margin-left: -200px;
+  position: fixed;
+  width: 400px;
+  font-size: 100%;
+  visibility: hidden;
+}
+
+.easebut {
+  width: 60px;
+  font-size: 100%;
+}
+
+.time {
+  background: #eee;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+div#filler {
+  height: 30px;
+}
+
+.q { margin-bottom: 1em; }
+.a { margin-top: 1em; }
+.inv { visibility: hidden; }
+"""
+
+    def _styles(self):
+        css = self.mw.sharedCSS
+        css += self.card.model().css
+        css += self._css
+        css = runFilter("addStyles", css)
+        return css
 
     # Type in the answer
     ##########################################################################
