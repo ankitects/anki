@@ -83,11 +83,11 @@ div.ansbut {
   bottom: 1em;
   height: 55px;
   left: 50%;
-  margin-left: -125px;
+  margin-left: -200px;
   position: fixed;
-  width: 250px;
+  width: 400px;
   font-size: 100%;
-  display: none;
+  visibility: hidden;
 }
 
 .easebut {
@@ -133,7 +133,7 @@ function showans () {
     $(".inv").removeClass('inv');
     location.hash = "answer";
     $(".ansbut").hide();
-    $("#easebuts").show();
+    $("#easebuts").css('visibility', 'visible');
 };
 $(document).ready(function () {
 $(".ansbut").focus();
@@ -210,8 +210,9 @@ $(".ansbut").focus();
             buttons.append(but(labels[i], i+1))
         buf = ("<table><tr><td align=center>" +
                "</td><td align=center>".join(times) + "</td></tr>")
-        buf += "<tr><td>" + "</td><td>".join(buttons) + "</td></tr></table>"
-        return "<div id=easebuts>" + buf + "</div>"
+        buf += ("<tr><td>" +
+                "</td><td>".join(buttons) + "</td></tr></table>")
+        return "<div id=easebuts><center>" + buf + "</center></div>"
         return buf
 
     def _buttonTime(self, i, green):
