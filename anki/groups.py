@@ -5,10 +5,6 @@
 import simplejson
 from anki.utils import intTime
 
-# maybe define a random cutoff at say +/-30% which controls exit interval
-# variation - 30% of 1 day is 0.7 or 1.3 so always 1 day; 30% of 4 days is
-# 2.8-5.2, so any time from 3-5 days is acceptable
-
 defaultConf = {
     'new': {
         'delays': [0.5, 3, 10],

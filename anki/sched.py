@@ -354,11 +354,14 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         card.lastIvl = card.ivl
         card.ivl = self._nextLapseIvl(card, conf)
         card.factor = max(1300, card.factor-200)
-        card.due = card.edue = self.today + card.ivl
+        card.due = self.today + card.ivl
         # put back in the learn queue?
         if conf['relearn']:
+            card.edue = card.due
+            card.due = int(self._delayForGrade(conf, 0) + time.time())
             card.queue = 1
             self.lrnCount += 1
+            heappush(self.lrnQueue, (card.due, card.id))
         # leech?
         self._checkLeech(card, conf)
 

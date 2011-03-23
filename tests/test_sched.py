@@ -158,8 +158,11 @@ def test_reviews():
     d.sched.answerCard(c, 1)
     assert c.queue == 1
     # it should be due tomorrow, with an interval of 1
-    assert c.due == d.sched.today + 1
+    assert c.edue == d.sched.today + 1
     assert c.ivl == 1
+    # but because it's in the learn queue, its current due time should be in
+    # the future
+    assert c.due >= time.time()
     # factor should have been decremented
     assert c.factor == 2300
     # check counters
@@ -364,7 +367,6 @@ def test_cram():
     d.sched.answerCard(c, 1)
     # graduating the card will keep the same interval, but shift the card
     # forward the number of days it had been waiting (75)
-    print d.sched.nextIvl(c, 3)
     assert d.sched.nextIvl(c, 3) == 75*86400
     d.sched.answerCard(c, 3)
     assert c.ivl == 100
@@ -541,3 +543,29 @@ def test_counts():
     assert d.sched.allCounts() == (2,2,2)
     assert d.sched.selCounts() == (1,2,1)
     assert d.sched.allCounts() == (2,2,2)
+
+def test_timing():
+    d = getEmptyDeck()
+    # add a few review cards, due today
+    for i in range(5):
+        f = d.newFact()
+        f['Front'] = "num"+str(i)
+        d.addFact(f)
+        c = f.cards()[0]
+        c.type = 2
+        c.queue = 2
+        c.due = 0
+        c.flush()
+    # fail the first one
+    d.reset()
+    c = d.sched.getCard()
+    # set a a fail delay of 1 second so we don't have to wait
+    d.sched._cardConf(c)['lapse']['delays'][0] = 1/60.0
+    d.sched.answerCard(c, 1)
+    # the next card should be another review
+    c = d.sched.getCard()
+    assert c.queue == 2
+    # but if we wait for a second, the failed card should come back
+    time.sleep(1)
+    c = d.sched.getCard()
+    assert c.queue == 1
