@@ -352,58 +352,17 @@ Please do not file a bug report with Anki.<br>""")
         else:
             evt.ignore()
 
-    def reviewKeyHandler(self, evt):
-        if evt.key() in (Qt.Key_Up,Qt.Key_Down,Qt.Key_Left,Qt.Key_Right,
-                         Qt.Key_PageUp,Qt.Key_PageDown):
-            mf = self.bodyView.body.page().currentFrame()
-            if evt.key() == Qt.Key_Up:
-                mf.evaluateJavaScript("window.scrollBy(0,-20)")
-            elif evt.key() == Qt.Key_Down:
-                mf.evaluateJavaScript("window.scrollBy(0,20)")
-            elif evt.key() == Qt.Key_Left:
-                mf.evaluateJavaScript("window.scrollBy(-20,0)")
-            elif evt.key() == Qt.Key_Right:
-                mf.evaluateJavaScript("window.scrollBy(20,0)")
-            elif evt.key() == Qt.Key_PageUp:
-                mf.evaluateJavaScript("window.scrollBy(0,-%d)" %
-                                      int(0.9*self.bodyView.body.size().
-                                          height()))
-            elif evt.key() == Qt.Key_PageDown:
-                mf.evaluateJavaScript("window.scrollBy(0,%d)" %
-                                      int(0.9*self.bodyView.body.size().
-                                          height()))
-            evt.accept()
-            return
-        if self.state == "showQuestion":
-            if evt.key() in (Qt.Key_Enter,
-                             Qt.Key_Return):
-                evt.accept()
-                return self.form.showAnswerButton.click()
-            elif evt.key() == Qt.Key_Space and not (
-                self.currentCard.cardModel.typeAnswer):
-                evt.accept()
-                return self.form.showAnswerButton.click()
-        elif self.state == "showAnswer":
-            if evt.key() == Qt.Key_Space:
-                key = str(self.defaultEaseButton())
-            else:
-                key = unicode(evt.text())
-            if key and key >= "1" and key <= "4":
-                # user entered a quality setting
-                num=int(key)
-                evt.accept()
-                return getattr(self.form, "easeButton%d" %
-                               num).animateClick()
-        elif self.state == "studyScreen":
-            if evt.key() in (Qt.Key_Enter,
-                             Qt.Key_Return):
-                evt.accept()
-                return self.onStartReview()
-        elif self.state == "editCurrentFact":
-            if evt.key() == Qt.Key_Escape:
-                evt.accept()
-                return self.moveToState("saveEdit")
-        evt.ignore()
+    # to port
+        # elif self.state == "studyScreen":
+        #     if evt.key() in (Qt.Key_Enter,
+        #                      Qt.Key_Return):
+        #         evt.accept()
+        #         return self.onStartReview()
+        # elif self.state == "editCurrentFact":
+        #     if evt.key() == Qt.Key_Escape:
+        #         evt.accept()
+        #         return self.moveToState("saveEdit")
+        # evt.ignore()
 
     def cardAnswered(self, quality):
         "Reschedule current card and move back to getQuestion state."

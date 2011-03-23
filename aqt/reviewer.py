@@ -20,10 +20,11 @@ class Reviewer(object):
         self.web = mw.web
         self.card = None
         self.cardQueue = []
-        # self.main.connect(self.body, SIGNAL("loadFinished(bool)"),
-        #                   self.onLoadFinished)
+        self.state = None
 
     def show(self):
+        self.mw.setKeyHandler(self._keyHandler)
+        self.web.setLinkHandler(self._linkHandler)
         self._getCard()
 
     # Fetching a card
@@ -41,6 +42,7 @@ class Reviewer(object):
             self.mw.enableCardMenuItems()
             self._maybeEnableSound()
             #self.updateMarkAction()
+            self.state = "question"
             self._showQuestion()
         else:
             self.mw.disableCardMenuItems()
@@ -77,6 +79,28 @@ div.ansbut {
   position: relative; top: 25%;
 }
 
+#easebuts {
+  bottom: 1em;
+  height: 55px;
+  left: 50%;
+  margin-left: -125px;
+  position: fixed;
+  width: 250px;
+  font-size: 100%;
+  display: none;
+}
+
+.easebut {
+  width: 60px;
+  font-size: 100%;
+}
+
+.time {
+  background: #eee;
+  padding: 5px;
+  border-radius: 10px;
+}
+
 div#filler {
   height: 30px;
 }
@@ -93,7 +117,7 @@ div#filler {
         css = runFilter("addStyles", css)
         return css
 
-    # Showing the question
+    # Showing the question (and preparing answer)
     ##########################################################################
 
     _revHtml = """
@@ -103,15 +127,14 @@ div#filler {
 <span id="answer" />
 %(a)s
 </td></tr></table>
-
-%(but)s
-
+%(buts)s
 <script>
 function showans () {
     $(".inv").removeClass('inv');
     location.hash = "answer";
+    $(".ansbut").hide();
+    $("#easebuts").show();
 };
-
 $(document).ready(function () {
 $(".ansbut").focus();
 });
@@ -119,9 +142,11 @@ $(".ansbut").focus();
 """
 
     def _showQuestion(self):
+        self.state = "question"
         # fixme: timeboxing
         # fixme: q/a separation
         # fixme: prevent audio from repeating
+        # fixme: include placeholder for type answer result
         c = self.card
         # original question with sounds
         q = c.q()
@@ -130,117 +155,109 @@ $(".ansbut").focus();
             self.mw.config['autoplaySounds']):
             playFromText(q)
         # render
+
+        # buf = self.typeAnsResult()
         buf = self._revHtml % dict(
             q=mungeQA(q),
             a=mungeQA(a) + '<div id=filler></div>',
-            but=self._questionButtons())
-
+            buts=self._reviewButtons())
+        buf = self.mw.deck.media.escapeImages(buf)
         self.web.stdHtml(buf, self._styles(), bodyClass=c.cssClass())
-
         runHook('showQuestion')
-
-    # Question buttons
-    ##########################################################################
-
-    def _questionButtons(self):
-        buf = self.typeAnsInput()
-        # make sure to focus
-        buf += """
-<a id=ansbut class="but ansbut" href=ans onclick="showans();">
-<div class=ansbut>%s</div>
-</a>
-""" % _("Show Answer")
-        return buf
 
     # Showing the answer
     ##########################################################################
 
     def _showAnswer(self):
+        self.state = "answer"
+        c = self.card
         a = c.a()
         if self.mw.config['autoplaySounds']:
             playFromText(a)
         # render
         runHook('showQuestion')
 
-        # buf = self.typeAnsResult()
-        # self.write(self.center('<span id=answer />'
-        #                        + mungeQA(a)))
-
-    def onLoadFinished(self, bool):
-        if self.state == "showAnswer":
-            if self.main.config['scrollToAnswer']:
-                mf = self.body.page().mainFrame()
-                mf.evaluateJavaScript("location.hash = 'answer'")
-
-    # Answer buttons
+    # Review buttons
     ##########################################################################
 
+    def _reviewButtons(self):
+        # type answer area
+        buf = self.typeAnsInput()
+        # show answer button
+        buf += """
+<a id=ansbut class="but ansbut" href=ans onclick="showans();">
+<div class=ansbut>%s</div>
+</a>
+""" % _("Show Answer")
+        # ease buttons
+        buf += self._answerButtons()
+        return buf
+
     def _answerButtons(self):
-        # attach to mw.cardAnswered()
-        self.updateEaseButtons()
-        self.form.buttonStack.setCurrentIndex(1)
-        self.form.buttonStack.show()
-        self.form.buttonStack.setLayoutDirection(Qt.LeftToRight)
-        if self.learningButtons():
-            self.form.easeButton2.setText(_("Good"))
-            self.form.easeButton3.setText(_("Easy"))
-            self.form.easeButton4.setText(_("Very Easy"))
+        if self.card.queue == 2:
+            labels = (_("Again"), _("Hard"), _("Good"), _("Easy"))
+            green = 2
         else:
-            self.form.easeButton2.setText(_("Hard"))
-            self.form.easeButton3.setText(_("Good"))
-            self.form.easeButton4.setText(_("Easy"))
-        getattr(self.form, "easeButton%d" % self.defaultEaseButton()).\
-                              setFocus()
+            labels = (_("Again"), _("Good"), _("Easy"))
+            green = 1
+        times = []
+        buttons = []
+        def but(label, i):
+            return '''
+<a class="but easebut" href=ease%d>%s</a>''' % (i, label)
+        for i in range(0, len(labels)):
+            times.append(self._buttonTime(i, green))
+            buttons.append(but(labels[i], i+1))
+        buf = ("<table><tr><td align=center>" +
+               "</td><td align=center>".join(times) + "</td></tr>")
+        buf += "<tr><td>" + "</td><td>".join(buttons) + "</td></tr></table>"
+        return "<div id=easebuts>" + buf + "</div>"
+        return buf
 
-    def learningButtons(self):
-        return not self.currentCard.successive
+    def _buttonTime(self, i, green):
+        if self.mw.config['suppressEstimates']:
+            return ""
+        txt = self.mw.deck.sched.nextIvlStr(self.card, i+1, True)
+        if i == 0:
+            txt = '<span style="color: #700">%s</span>' % txt
+        elif i == green:
+            txt = '<span style="color: #070">%s</span>' % txt
+        txt = '<span class=time>%s</span>' % txt
+        return txt
 
-    def defaultEaseButton(self):
-        if not self.currentCard.successive:
-            return 2
-        else:
-            return 3
+    # Handlers
+    ############################################################
 
-    def updateEaseButtons(self):
-        nextInts = {}
-        for i in range(1, 5):
-            l = getattr(self.form, "easeLabel%d" % i)
-            if self.config['suppressEstimates']:
-                l.setText("")
-            elif i == 1:
-                txt = _("Soon")
-                if self.config['colourTimes']:
-                    txt = '<span style="color: #700"><b>%s</b></span>' % txt
-                l.setText(txt)
-            else:
-                txt = self.deck.nextIntervalStr(
-                    self.currentCard, i)
-                txt = "<b>" + txt + "</b>"
-                if i == self.defaultEaseButton() and self.config['colourTimes']:
-                    txt = '<span style="color: #070">' + txt + '</span>'
-                l.setText(txt)
+    def _keyHandler(self, evt):
+        if self.state == "question":
+            if evt.key() in (Qt.Key_Enter,
+                             Qt.Key_Return):
+                evt.accept()
+                return self.web.eval("showans();")
+            elif evt.key() == Qt.Key_Space and not self.typeAns():
+                evt.accept()
+                return self.web.eval("showans();")
+        elif self.state == "answer":
+            # if evt.key() == Qt.Key_Space:
+            #     key = str(self.defaultEaseButton())
+            # else:
+            #     key = unicode(evt.text())
+            # if key and key >= "1" and key <= "4":
+            #     # user entered a quality setting
+            #     num=int(key)
+            #     evt.accept()
+            #     return getattr(self.form, "easeButton%d" %
+            #                    num).animateClick()
+            pass
+        evt.ignore()
+
+    def _linkHandler(self, url):
+        print "link", url
+        if url == "ans":
+            self._showAnswer()
 
     # Font properties & output
     ##########################################################################
-
-    def flush(self):
-        "Write the current HTML buffer to the screen."
-        self.buffer = self.addStyles() + self.buffer
-        # hook for user css
-        runHook("preFlushHook")
-        self.buffer = '''<html><head>%s</head><body>%s</body></html>''' % (
-            getBase(self.main.deck, self.card), self.buffer)
-        #print self.buffer.encode("utf-8")
-        b = self.buffer
-        # Feeding webkit unicode can result in it not finding images, so on
-        # linux/osx we percent escape the image paths as utf8. On Windows the
-        # problem is more complicated - if we percent-escape as utf8 it fixes
-        # some images but breaks others. When filenames are normalized by
-        # dropbox they become unreadable if we escape them.
-        if not sys.platform.startswith("win32") and self.main.deck:
-            # and self.main.config['mediaLocation'] == "dropbox"):
-            b = self.main.deck.media.escapeImages(b)
-        self.body.setHtml(b)
 
     def write(self, text):
         if type(text) != types.UnicodeType:
@@ -286,6 +303,10 @@ $(".ansbut").focus();
         #                 self.parent.onUndo()
         #         else:
         #             return QLineEdit.keyPressEvent(self, evt)
+
+    def typeAns(self):
+        "True if current card has answer typing enabled."
+        return self.card.template()['typeAns']
 
     def typeAnsInput(self):
         return ""
@@ -372,6 +393,7 @@ $(".ansbut").focus();
     ##########################################################################
 
     def _showCongrats(self):
+        self.state = "congrats"
         self.card = None
         self.deck.db.flush()
         self.hideButtons()
@@ -394,5 +416,6 @@ $(".ansbut").focus();
     ##########################################################################
 
     def _showEmpty(self):
+        self.state = "empty"
         self.switchToWelcomeScreen()
         self.disableCardMenuItems()
