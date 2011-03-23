@@ -245,6 +245,9 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
         card.type = 2
 
     def _graduatingIvl(self, card, conf, early):
+        if card.type == 2:
+            # lapsed card being relearnt
+            return card.ivl
         if not early:
             # graduate
             ideal =  conf['ints'][0]
@@ -557,7 +560,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
         if card.queue in (0,1):
-            # in learning
             return self._nextLrnIvl(card, ease)
         elif ease == 1:
             # lapsed

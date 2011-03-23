@@ -256,6 +256,14 @@ def test_nextIvl():
     # normal graduation is tomorrow
     assert ni(c, 2) == 1*86400
     assert ni(c, 3) == 4*86400
+    # lapsed cards
+    ##################################################
+    c.type = 2
+    c.ivl = 100
+    c.factor = 2500
+    assert ni(c, 1) == 30
+    assert ni(c, 2) == 100*86400
+    assert ni(c, 3) == 100*86400
     # review cards
     ##################################################
     c.queue = 2
@@ -356,6 +364,7 @@ def test_cram():
     d.sched.answerCard(c, 1)
     # graduating the card will keep the same interval, but shift the card
     # forward the number of days it had been waiting (75)
+    print d.sched.nextIvl(c, 3)
     assert d.sched.nextIvl(c, 3) == 75*86400
     d.sched.answerCard(c, 3)
     assert c.ivl == 100
