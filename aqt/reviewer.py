@@ -12,6 +12,8 @@ from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import mungeQA, getBase
 import aqt
 
+# fixme: space is scrolling instead of showing the current answer
+
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."
 
@@ -21,6 +23,7 @@ class Reviewer(object):
         self.card = None
         self.cardQueue = []
         self.state = None
+        self._setupStatus()
 
     def show(self):
         self.mw.setKeyHandler(self._keyHandler)
@@ -40,11 +43,13 @@ class Reviewer(object):
         clearAudioQueue()
         if c:
             self.mw.enableCardMenuItems()
+            self._showStatus()
             self._maybeEnableSound()
             #self.updateMarkAction()
             self.state = "question"
             self._showQuestion()
         else:
+            self._hideStatus()
             self.mw.disableCardMenuItems()
             if self.mw.deck.cardCount():
                 self._showCongrats()
@@ -430,3 +435,87 @@ div#filler {
         self.state = "empty"
         self.switchToWelcomeScreen()
         self.disableCardMenuItems()
+
+    # Status bar
+    ##########################################################################
+
+    def _setupStatus(self):
+        self._statusWidgets = []
+        sb = self.mw.form.statusbar
+        def addWgt(w, stretch=0):
+            w.setShown(False)
+            sb.addWidget(w, stretch)
+            self._statusWidgets.append(w)
+        def vertSep():
+            spacer = QFrame()
+            spacer.setFrameStyle(QFrame.VLine)
+            spacer.setFrameShadow(QFrame.Plain)
+            spacer.setStyleSheet("* { color: #888; }")
+            return spacer
+        # left spacer
+        space = QWidget()
+        addWgt(space, 1)
+        # remaining
+        self.remText = QLabel()
+        addWgt(self.remText, 0)
+        # progress
+        addWgt(vertSep())
+        class QClickableProgress(QProgressBar):
+            url = "http://ichi2.net/anki/wiki/ProgressBars"
+            def mouseReleaseEvent(self, evt):
+                QDesktopServices.openUrl(QUrl(self.url))
+        progressBarSize = (50, 14)
+        self.progressBar = QClickableProgress()
+        self.progressBar.setFixedSize(*progressBarSize)
+        self.progressBar.setMaximum(100)
+        self.progressBar.setTextVisible(False)
+        if QApplication.instance().style().objectName() != "plastique":
+            self.plastiqueStyle = QStyleFactory.create("plastique")
+            self.progressBar.setStyle(self.plastiqueStyle)
+        addWgt(self.progressBar, 0)
+
+    def _showStatus(self):
+        self._showStatusWidgets(True)
+        self._updateRemaining()
+        self._updateProgress()
+
+    def _hideStatus(self):
+        self._showStatusWidgets(False)
+
+    def _showStatusWidgets(self, shown=True):
+        for w in self._statusWidgets:
+            w.setShown(shown)
+        self.mw.form.statusbar.hideOrShow()
+
+    # fixme: only show progress for reviews, and only when revs due?
+    # fixme: learn cards are appearing too soon
+    # fixme: learn cards not appearing after 30 secs
+    def _updateRemaining(self):
+        counts = list(self.mw.deck.sched.counts())
+        idx = self.mw.deck.sched.countIdx(self.card)
+        counts[idx] = "<u>%s</u>" % (counts[idx]+1)
+        buf = _("N:<b>%s</b> L:<b>%s</b> R:<b>%s</b>") % tuple(counts)
+        space = "&nbsp;" * 2
+        ctxt = '<font color="#000099">%s</font>' % counts[0]
+        ctxt += space + '<font color="#990000">%s</font>' % counts[1]
+        ctxt += space + '<font color="#007700">%s</font>' % counts[2]
+        buf = _("Remaining: %s") % ctxt
+        self.remText.setText(buf)
+
+    def _updateProgress(self):
+        p = QPalette()
+        p.setColor(QPalette.Base, QColor("black"))
+        p.setColor(QPalette.Button, QColor("black"))
+        perc = 50
+        if perc == 0:
+            p.setColor(QPalette.Highlight, QColor("black"))
+        elif perc < 50:
+            p.setColor(QPalette.Highlight, QColor("#ee0000"))
+        elif perc < 65:
+            p.setColor(QPalette.Highlight, QColor("#ee7700"))
+        elif perc < 75:
+            p.setColor(QPalette.Highlight, QColor("#eeee00"))
+        else:
+            p.setColor(QPalette.Highlight, QColor("#00ee00"))
+        self.progressBar.setPalette(p)
+        self.progressBar.setValue(perc)
