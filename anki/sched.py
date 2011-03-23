@@ -39,6 +39,7 @@ class Scheduler(object):
         self._resetNew()
 
     def answerCard(self, card, ease):
+        assert ease >= 1 and ease <= 4
         if card.queue == 0:
             # put it in the learn queue
             card.queue = 1
@@ -57,14 +58,21 @@ class Scheduler(object):
 
     def dueForecast(self, days=7):
         "Return counts over next DAYS. Includes today."
-        return self.db.list("""
-select count() from cards
+        daysd = dict(self.db.all("""
+select due, count() from cards
 where queue = 2 %s
 and due between ? and ?
 group by due
 order by due""" % self._groupLimit("rev"),
                             self.today,
-                            self.today+days-1)
+                            self.today+days-1))
+        for d in range(days):
+            d = self.today+d
+            if d not in daysd:
+                daysd[d] = 0
+        # return in sorted order
+        ret = [x[1] for x in sorted(daysd.items())]
+        return ret
 
     def countIdx(self, card):
         return card.queue
