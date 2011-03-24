@@ -418,7 +418,7 @@ order by modelId, ordinal"""):
         # ensure data is good
         conf['rtl'] = not not conf['rtl']
         conf['pre'] = True
-        conf['qcol'] = conf['qcol'] or "#fff"
+        conf['qcol'] = conf['qcol'] or "#000"
         mods[row[0]].append(conf)
     # now we've gathered all the info, save it into the models
     for mid, fms in mods.items():
