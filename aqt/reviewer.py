@@ -244,8 +244,8 @@ $(".ansbut").focus();
                         self._answerCard(key)
                         return True
 
-
     def _linkHandler(self, url):
+        print url
         if url == "ans":
             self._showAnswer()
         elif url.startswith("ease"):
@@ -254,6 +254,8 @@ $(".ansbut").focus();
             self.mw.onAddCard()
         elif url == "dlist":
             self.mw.close()
+        elif url == "ov":
+            self.mw.moveToState("overview")
 
     # CSS
     ##########################################################################
@@ -439,22 +441,22 @@ div#filler {
     def _showCongrats(self):
         self.state = "congrats"
         self.card = None
-        self.deck.db.flush()
-        self.hideButtons()
-        self.disableCardMenuItems()
-        self.switchToCongratsScreen()
-        self.form.learnMoreButton.setEnabled(
-            not not self.deck.newAvail)
-        self.startRefreshTimer()
-        self.bodyView.setState(state)
-        # focus finish button
-        self.form.finishButton.setFocus()
+        self.mw.deck.save()
+        buf = """
+<center>
+%s
+<p>
+<a class=but id=ov href=ov>%s</a>
+<a class=but href=dlist>%s</a>
+<script>$("#ov").focus();</script>
+</center>""" % (self.mw.deck.sched.finishedMsg(),
+                _("Overview"),
+                _("Deck List"))
+        self.web.stdHtml(buf, css=self.mw.sharedCSS)
         runHook('deckFinished')
 
     def drawDeckFinishedMessage(self):
         "Tell the user the deck is finished."
-        self.main.mainWin.congratsLabel.setText(
-            self.main.deck.deckFinishedMsg())
 
     # Deck empty case
     ##########################################################################

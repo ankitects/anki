@@ -16,8 +16,14 @@ class Bridge(QObject):
     @pyqtSlot(str, result=str)
     def run(self, str):
         return unicode(self._bridge(unicode(str)))
+    @pyqtSlot(str)
+    def link(self, str):
+        print "link", str
+        self._linkHandler(unicode(str))
     def setBridge(self, func):
         self._bridge = func
+    def setLinkHandler(self, func):
+        self._linkHandler = func
 
 # Page for debug messages
 ##########################################################################
@@ -42,7 +48,6 @@ class AnkiWebView(QWebView):
         self._loadFinishedCB = None
         self.setPage(self._page)
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
         self.setLinkHandler()
         self.setKeyHandler()
         self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
@@ -65,6 +70,7 @@ class AnkiWebView(QWebView):
             self.linkHandler = handler
         else:
             self.linkHandler = self._openLinksExternally
+        self._bridge.setLinkHandler(self.linkHandler)
     def setKeyHandler(self, handler=None):
         # handler should return true if event should be swallowed
         self._keyHandler = handler
@@ -72,11 +78,19 @@ class AnkiWebView(QWebView):
         if loadCB:
             self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
+        self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
     def stdHtml(self, body, css="", bodyClass="", loadCB=None):
         self.setHtml("""
 <html><head><style>%s</style>
 <script src="qrc:/jquery.min.js"></script>
 <script src="qrc:/jquery.flot.min.js"></script>
+<script>
+$(document).keydown(function(e) {
+    if(e.which==32 && document.activeElement.nodeName == "A") {
+        py.link(document.activeElement.href);
+    }
+});
+</script>
 </head>
 <body class="%s">%s</body></html>""" % (css, bodyClass, body), loadCB)
         # ensure we're focused
