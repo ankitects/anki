@@ -383,6 +383,9 @@ def test_cram():
     d.sched.answerCard(c, 3)
     assert c.ivl == 1
     assert c.due == d.sched.today + 1
+    # users should be able to cram entire deck too
+    d.cramGroups([])
+    assert d.sched.counts()[0] > 0
 
 def test_cramLimits():
     d = getEmptyDeck()

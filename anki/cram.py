@@ -62,14 +62,18 @@ class CramScheduler(Scheduler):
             maxlim = "and due <= %d" % (self.today+1+self.max)
         else:
             maxlim = ""
+        if self.gids:
+            extra = "and gid in "+ids2str(self.gids)
+        else:
+            extra = ""
         self.newQueue = self.db.list("""
 select id from cards where queue = 2 and due >= %d
 %s
-and gid in %s order by %s limit %d""" % (self.today+1+self.min,
-                                         maxlim,
-                                         ids2str(self.gids),
-                                         self.order,
-                                         self.reportLimit))
+%s order by %s limit %d""" % (self.today+1+self.min,
+                              maxlim,
+                              extra,
+                              self.order,
+                              self.reportLimit))
         self.newCount = len(self.newQueue)
 
     def _resetRev(self):
