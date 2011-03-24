@@ -144,7 +144,8 @@ class AnkiQt(QMainWindow):
 body {
 /*background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));*/
 background: #eee;
-margin: 2em; }
+margin: 2em;
+}
 a:hover { background-color: #aaa; }
 .but {
     -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
@@ -1193,7 +1194,7 @@ learnt today")
         self.cardStats.show()
 
     def onDeckStats(self):
-        aqt.stats.DeckStats(self)
+        aqt.stats.deckStats(self)
 
     # Graphs
     ##########################################################################
