@@ -545,15 +545,19 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onClose(self):
-        if self.inMainWindow() or not self.app.activeWindow():
+        aw = self.app.activeWindow()
+        if not aw or aw == self:
             self.close()
         else:
-            self.app.activeWindow().close()
+            aw.close()
 
     def close(self, showBrowser=True):
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         if not self.deck:
             return
+        # if we were cramming, restore the standard scheduler
+        if self.deck.stdSched():
+            self.deck.reset()
         runHook("deckClosing")
         print "focusOut() should be handled with deckClosing now"
         self.closeAllDeckWindows()
@@ -562,16 +566,14 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         if showBrowser:
             self.moveToState("deckBrowser")
 
-    def inMainWindow(self):
+    def raiseMain(self):
         if not self.app.activeWindow():
             # make sure window is shown
             self.setWindowState(self.windowState() & ~Qt.WindowMinimized)
         return True
-        # FIXME: no longer necessary?
-        return self.app.activeWindow() == self
 
     def onNew(self, path=None, prompt=None):
-        if not self.inMainWindow() and not path: return
+        self.raiseMain()
         self.close()
         register = not path
         bad = ":/\\"
@@ -605,13 +607,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 else:
                     self.moveToState("deckBrowser")
                     return
-        self.deck = DeckStorage.Deck(path)
-        self.deck.initUndo()
-        self.deck.save()
+        self.loadDeck(path)
         if register:
             self.updateRecentFiles(self.deck.path)
-        self.browserLastRefreshed = 0
-        self.moveToState("initial")
 
     def ensureSyncParams(self):
         if not self.config['syncUsername'] or not self.config['syncPassword']:
@@ -646,7 +644,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.config['syncPassword'] = unicode(passwd.text())
 
     def onOpenOnline(self):
-        if not self.inMainWindow(): return
+        self.raiseMain()
         self.ensureSyncParams()
         self.close()
         # we need a disk-backed file for syncing
@@ -666,16 +664,16 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.moveToState("initial")
 
     def onGetSharedDeck(self):
-        if not self.inMainWindow(): return
+        self.raiseMain()
         aqt.getshared.GetShared(self, 0)
         self.browserLastRefreshed = 0
 
     def onGetSharedPlugin(self):
-        if not self.inMainWindow(): return
+        self.raiseMain()
         aqt.getshared.GetShared(self, 1)
 
     def onOpen(self):
-        if not self.inMainWindow(): return
+        self.raiseMain()
         key = _("Deck files (*.anki)")
         defaultDir = self.getDefaultDir()
         file = QFileDialog.getOpenFileName(self, _("Open deck"),
@@ -1504,7 +1502,7 @@ it to your friends.
 
     def syncDeck(self, interactive=True, onlyMerge=False, reload=True):
         "Synchronise a deck with the server."
-        if not self.inMainWindow() and interactive and interactive!=-1: return
+        self.raiseMain()
         #self.setNotice()
         # vet input
         if interactive:

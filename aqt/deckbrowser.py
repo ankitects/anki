@@ -38,19 +38,24 @@ class DeckBrowser(object):
         self._renderPage()
 
     def _onClose(self):
-        print "onClose"
-        return
-        if deck.finishScheduler:
-            self.deck.finishScheduler()
-            self.deck.reset()
-            # update counts
-            for d in self.browserDecks:
-                if d['path'] == self.deck.path:
-                    d['due'] = self.deck.failedSoonCount + self.deck.revCount
-                    d['new'] = self.deck.newCount
-                    d['mod'] = self.deck.modified
-                    d['time'] = self.deck._dailyStats.reviewTime
-                    d['reps'] = self.deck._dailyStats.reps
+        # update counts
+        deck = self.mw.deck
+        def add(d):
+            counts = deck.sched.counts()
+            d['due'] = counts[1]+counts[2]
+            d['new'] = counts[0]
+            d['mod'] = deck.mod
+            d['time'] = deck.sched.timeToday()
+            d['reps'] = deck.sched.repsToday()
+            d['name'] = deck.name()
+        for d in self._decks:
+            if d['path'] == deck.path:
+                add(d)
+                return
+        # not found; add new
+        d = {'path': deck.path, 'state': 'ok'}
+        add(d)
+        self._decks.append(d)
 
     # Toolbar
     ##########################################################################

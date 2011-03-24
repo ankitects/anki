@@ -128,7 +128,6 @@ $(".ansbut").focus();
     def _showQuestion(self):
         self.state = "question"
         # fixme: timeboxing
-        # fixme: q/a separation
         # fixme: prevent audio from repeating
         # fixme: include placeholder for type answer result
         c = self.card
@@ -161,21 +160,8 @@ $(".ansbut").focus();
         # render
         runHook('showAnswer')
 
-    # Review buttons
+    # Ease buttons
     ##########################################################################
-
-    def _reviewButtons(self):
-        # type answer area
-        buf = self.typeAnsInput()
-        # show answer button
-        buf += """
-<a id=ansbut class="but ansbut" href=ans onclick="showans();">
-<div class=ansbut>%s</div>
-</a>
-""" % _("Show Answer")
-        # ease buttons
-        buf += self._answerButtons()
-        return buf
 
     def _defaultEase(self):
         if self.mw.deck.sched.answerButtons(self.card) == 4:
