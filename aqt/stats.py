@@ -45,11 +45,11 @@ class CardStats(object):
         r = self.mw.reviewer
         d = self.mw.deck
         if r.card:
-            txt += _("<h1>Current card</h1>")
+            txt += _("<h1>Current</h1>")
             txt += d.cardStats(r.card)
         lc = r.lastCard()
         if lc:
-            txt += _("<h1>Last card</h1>")
+            txt += _("<h1>Last</h1>")
             txt += d.cardStats(lc)
         if not txt:
             txt = _("No current card or last card.")
@@ -81,8 +81,9 @@ class PrintableReport(QDialog):
         self.css = css
         self.web.stdHtml(self.report, css=css)
         box = QDialogButtonBox(QDialogButtonBox.Close)
-        b = box.addButton(_("Open In Browser"), QDialogButtonBox.AcceptRole)
-        box.button(QDialogButtonBox.Close).setDefault(True)
+        b = box.addButton(_("Open In Browser"), QDialogButtonBox.ActionRole)
+        b.connect(b, SIGNAL("clicked()"), self.browser)
+        b.setAutoDefault(False)
         l.addWidget(box)
         self.connect(box, SIGNAL("accepted()"), self.browser)
         self.connect(box, SIGNAL("rejected()"), self, SLOT("reject()"))
