@@ -391,6 +391,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             self.conf['currentModelId'] = self.db.scalar(
                 "select id from models limit 1")
 
+    def allCSS(self):
+        return "\n".join(self.db.list("select css from models"))
+
     # Field checksums and sorting fields
     ##########################################################################
 
