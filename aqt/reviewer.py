@@ -78,8 +78,8 @@ class Reviewer(object):
 <div id=a></div>
 <div id=filler></div>
 </td></tr></table>
-<a id=ansbut class="but ansbut" href=ans onclick="showans();">
-<div class=ansbut>%(showans)s</div>
+<a id=ansbut class="ansbut ansbutbig" href=ans onclick="showans();">
+<div class=ansbuttxt>%(showans)s</div>
 </a>
 <div id=easebuts>
 </div>
@@ -110,6 +110,7 @@ function showans () {
         location.hash = "a";
     }
     $("#ansbut").hide();
+    $("#defease").focus();
 };
 $(document).ready(function () {
 $(".ansbut").focus();
@@ -183,14 +184,13 @@ $(".ansbut").focus();
             else:
                 extra = ""
             return '''
-<a %s class="but easebut" href=ease%d>%s</a>''' % (extra, i, label)
+<a %s class="ansbut easebut" href=ease%d>%s</a>''' % (extra, i, label)
         for i in range(0, len(labels)):
-            times.append(self._buttonTime(i, default-1))
-            buttons.append(but(labels[i], i+1))
-        buf = ("<table><tr><td align=center>" +
-               "</td><td align=center>".join(times) + "</td></tr>")
-        buf += ("<tr><td>" +
-                "</td><td>".join(buttons) + "</td></tr></table>")
+            l = labels[i]
+            l += "<br><small>%s</small>" % self._buttonTime(i, default-1)
+            buttons.append(but(l, i+1))
+        buf = ("<table><tr><td>" +
+               "</td><td>".join(buttons) + "</td></tr></table>")
         return "<center>" + buf + "</center>"
         return buf
 
@@ -202,7 +202,6 @@ $(".ansbut").focus();
             txt = '<span style="color: #700">%s</span>' % txt
         elif i == green:
             txt = '<span style="color: #070">%s</span>' % txt
-        txt = '<span class=time>%s</span>' % txt
         return txt
 
     # Answering a card
@@ -261,19 +260,34 @@ $(".ansbut").focus();
     ##########################################################################
 
     _css = """
-a.ansbut {
+.ansbut {
+    -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    background-color: #ddd;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    color: #000;
+    display: inline-block;
+    font-size: 80%;
+    margin: 0 5 0 5;
+    padding: 3;
+    text-decoration: none;
+    text-align: center;
+}
+.but:focus, .but:hover { background-color: #aaa; }
+.ansbutbig {
     bottom: 1em;
     height: 40px;
     left: 50%;
-    margin-left: -125px;
+    margin-left: -125px !important;
     position: fixed;
     width: 250px;
     font-size: 100%;
 }
-a.ansbut:focus {
-background: #c7c7c7;
+.ansbut:focus {
 }
-div.ansbut {
+div.ansbuttxt {
   position: relative; top: 25%;
 }
 
@@ -283,7 +297,7 @@ margin: 0px;
 
 #easebuts {
   bottom: 1em;
-  height: 55px;
+  height: 47px;
   left: 50%;
   margin-left: -200px;
   position: fixed;
@@ -446,12 +460,12 @@ div#filler {
 <center>
 %s
 <p>
-<a class=but id=ov href=ov>%s</a>
-<a class=but href=dlist>%s</a>
+%s %s
 <script>$("#ov").focus();</script>
 </center>""" % (self.mw.deck.sched.finishedMsg(),
-                _("Overview"),
-                _("Deck List"))
+                self.mw.button(key="o", name=_("Overview"), link="ov", id='ov'),
+                self.mw.button(key="o", name=_("Deck List"), link="dlist"))
+
         self.web.stdHtml(buf, css=self.mw.sharedCSS)
         runHook('deckFinished')
 

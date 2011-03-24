@@ -142,41 +142,25 @@ class AnkiQt(QMainWindow):
 
     sharedCSS = """
 body {
-/*background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));*/
-background: #eee;
+background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
+/*background: #eee;*/
 margin: 2em;
 }
 a:hover { background-color: #aaa; }
-.but {
-    -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-    -webkit-user-drag: none;
-    -webkit-user-select: none;
-    background-color: #ccc;
-    border-radius: 5px;
-    border: 1px solid #aaa;
-    color: #000;
-    display: inline-block;
-    font-size: 80%;
-    margin: 0 5 0 5;
-    padding: 3;
-    text-decoration: none;
-    text-align: center;
-}
-.but:focus, .but:hover { background-color: #aaa; }
-.gbut { background-color: #7c7; }
-.gbut:hover, .gbut:focus  { background-color: #5a5; }
 h1 { margin-bottom: 0.2em; }
 hr { margin:5 0 5 0; border:0; height:1px; background-color:#ccc; }
 """
 
-    def button(self, link, name, key=None, class_=""):
+    def button(self, link, name, key=None, class_="", id=""):
         class_ = "but "+ class_
         if key:
-             key = _("Shortcut key: %s") % key
+            key = _("Shortcut key: %s") % key
         else:
             key = ""
-        return '<a class="%s" title="%s" href="%s">%s</a>' % (
-            class_, key, link, name)
+        return '''
+<button id="%s" class="%s" onclick="py.link('%s');return false;"
+title="%s">%s</button>''' % (
+            id, class_, link, key, name)
 
     # Signal handling
     ##########################################################################

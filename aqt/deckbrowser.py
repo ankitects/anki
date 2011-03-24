@@ -74,7 +74,8 @@ class DeckBrowser(object):
 #            ("synced", _("Synced")),
             ("refresh", _("Refresh")),
         ]
-        h = "".join(["<a class=but href=%s>%s</a>" % row for row in items])
+        h = "".join([self.mw.button(
+            link=row[0], name=row[1]) for row in items])
         return h
 
     # Event handlers
@@ -214,11 +215,9 @@ a { font-size: 80%; }
             # no counts
             buf += "<td colspan=2></td>"
         # options
-        buf += "<td class=opts><a class=but href='opts:%d'>%s&#9660;</a></td>" % (
-            c, "Options")
+        buf += "<td class=opts>%s</td>" % (
+            self.mw.button(link="opts:%d"%c, name=_("Options")+'&#9660'))
         buf += "</tr>"
-        # if c != max:
-        #     buf += "<tr><td colspan=4><hr noshade></td></tr>"
         return buf
 
     def _summary(self):

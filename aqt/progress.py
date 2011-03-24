@@ -117,7 +117,7 @@ class ProgressManager(object):
         "Restore the interface after an error."
         if self._levels:
             self._levels = 1
-            self.finishProgress()
+            self.finish()
 
     def _maybeShow(self):
         delta = time.time() - self._firstTime

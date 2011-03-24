@@ -84,13 +84,6 @@ class AnkiWebView(QWebView):
 <html><head><style>%s</style>
 <script src="qrc:/jquery.min.js"></script>
 <script src="qrc:/jquery.flot.min.js"></script>
-<script>
-$(document).keydown(function(e) {
-    if(e.which==32 && document.activeElement.nodeName == "A") {
-        py.link(document.activeElement.href);
-    }
-});
-</script>
 </head>
 <body class="%s">%s</body></html>""" % (css, bodyClass, body), loadCB)
         # ensure we're focused

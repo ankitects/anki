@@ -31,7 +31,7 @@ class Overview(object):
 
     def _keyHandler(self, evt):
         txt = evt.text()
-        if evt.key() == Qt.Key_Space:
+        if txt == "s":
             self._linkHandler("study")
         elif txt == "c":
             self._linkHandler("cram")
@@ -88,7 +88,8 @@ class Overview(object):
 %(opts)s
 </center>
 
-<script id="source" language="javascript" type="text/javascript">
+<script>
+$("#study").focus();
 $(function () {
     var d = %(fcdata)s;
     if (d) {
@@ -122,7 +123,7 @@ $(function () {
         buf += line % (
             "<a href=chgrp>%s</a>" % _("Selected Groups"),
             counts[0], counts[1],
-            but("study", _("Study"), _("space"), "gbut") +
+            but("study", _("Study"), _("s"), "gbut", id="study") +
             but("cram", _("Cram"), "c"))
         buf += line % (
             _("Whole Deck"),
