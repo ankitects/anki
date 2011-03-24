@@ -85,6 +85,7 @@ class Reviewer(object):
 </div>
 <script>
 function updateQA (qa) {
+    location.hash = "";
     $("#q").html(qa[0]);
     $("#a").html(qa[1]);
     $("#easebuts").html(qa[2]).addClass("inv");
