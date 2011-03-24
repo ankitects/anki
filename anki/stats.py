@@ -39,7 +39,7 @@ class CardStats(object):
                 next = _("in %s") % fmt(abs(next))
             self.addLine(_("Due"), next)
         self.addLine(_("Interval"), fmt(c.ivl * 86400))
-        self.addLine(_("Ease"), fmtFloat(c.factor, point=2))
+        self.addLine(_("Ease"), fmtFloat(c.factor/1000.0, point=2))
         if c.reps:
             self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
                 c.reps-c.lapses, c.reps, c.streak))
