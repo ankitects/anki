@@ -20,7 +20,7 @@ import anki.consts
 import aqt, aqt.facteditor, aqt.progress, aqt.webview, aqt.stats
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
-    askUserDialog, applyStyles, getText, showText
+    askUserDialog, applyStyles, getText, showText, showCritical
 
 config = aqt.config
 

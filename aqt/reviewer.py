@@ -27,7 +27,7 @@ class Reviewer(object):
     def show(self):
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
-        self._initWeb()
+        self._getCard()
 
     def lastCard(self):
         if self._answeredIds:
@@ -51,7 +51,7 @@ class Reviewer(object):
             self._maybeEnableSound()
             #self.updateMarkAction()
             self.state = "question"
-            self._showQuestion()
+            self._initWeb()
         else:
             self._hideStatus()
             self.mw.disableCardMenuItems()
@@ -120,7 +120,7 @@ $(".ansbut").focus();
     def _initWeb(self):
         self.web.stdHtml(self._revHtml % dict(
             showans=_("Show Answer")), self._styles(),
-            loadCB=lambda x: self._getCard())
+            loadCB=lambda x: self._showQuestion())
 
     # Showing the question (and preparing answer)
     ##########################################################################
@@ -250,6 +250,10 @@ $(".ansbut").focus();
             self._showAnswer()
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
+        elif url == "add":
+            self.mw.onAddCard()
+        elif url == "dlist":
+            self.mw.close()
 
     # CSS
     ##########################################################################
@@ -457,8 +461,33 @@ div#filler {
 
     def _showEmpty(self):
         self.state = "empty"
-        self.switchToWelcomeScreen()
-        self.disableCardMenuItems()
+        buf = """
+<h1>%(welcome)s</h1>
+<p>
+<table>
+<tr>
+<td width=40>
+<a href="add"><img src="qrc:/icons/list-add.png"></a>
+</td>
+<td valign=middle><b><a href="add">%(add)s</a></b>
+<br>%(start)s</td>
+</tr>
+</table>
+<br>
+<table>
+<tr>
+<td width=40>
+<a href="welcome:back"><img src="qrc:/icons/go-previous.png"></a>
+</td>
+<td valign=middle><b><a href="dlist">%(back)s</a></b></td>
+</tr>
+</table>""" % \
+        {"welcome":_("Welcome to Anki!"),
+         "add":_("Add Cards"),
+         "start":_("Start adding your own material."),
+         "back":_("Deck List"),
+         }
+        self.web.stdHtml(buf, css=self.mw.sharedCSS)
 
     # Status bar
     ##########################################################################
