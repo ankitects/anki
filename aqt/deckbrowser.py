@@ -19,7 +19,7 @@ class DeckBrowser(object):
         self.web = mw.web
         self._browserLastRefreshed = 0
         self._decks = []
-        addHook("deckClosing", self.onClose)
+        addHook("deckClosing", self._onClose)
 
     def show(self, _init=True):
         if _init:
@@ -37,7 +37,7 @@ class DeckBrowser(object):
         # show
         self._renderPage()
 
-    def onClose(self, deck):
+    def _onClose(self):
         print "onClose"
         return
         if deck.finishScheduler:

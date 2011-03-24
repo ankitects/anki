@@ -17,7 +17,7 @@ from anki.utils import addTags, parseTags, canonifyTags, stripHTML, checksum
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
-import aqt, aqt.dockable, aqt.facteditor, aqt.progress, aqt.webview
+import aqt, aqt.facteditor, aqt.progress, aqt.webview, aqt.stats
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText
@@ -76,6 +76,7 @@ class AnkiQt(QMainWindow):
         self.setupVersion()
         self.setupMisc()
         self.setupAutoUpdate()
+        self.setupCardStats()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -105,10 +106,6 @@ class AnkiQt(QMainWindow):
         self.deck.media.dir()
         runHook("deckLoading", self.deck)
         self.moveToState("overview")
-
-    def _deckClosingState(self, oldState):
-        "Run once, before a deck is closed."
-        runHook("deckClosing", self.deck)
 
     def _overviewState(self, oldState):
         self.overview.show()
@@ -331,7 +328,8 @@ Please do not file a bug report with Anki.<br>""")
             self.resize(500, 500)
 
     def closeAllDeckWindows(self):
-        aqt.dialogs.closeAll()
+        print "closealldeckwindows()"
+        #aqt.dialogs.closeAll()
 
     # to port
         # elif self.state == "studyScreen":
@@ -554,8 +552,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         "(Auto)save and close. Prompt if necessary. True if okay to proceed."
         if not self.deck:
             return
-        # allow any focusOut()s to run first
-        self.setFocus()
+        runHook("deckClosing")
+        print "focusOut() should be handled with deckClosing now"
         self.closeAllDeckWindows()
         self.deck.close()
         self.deck = None
@@ -1169,33 +1167,35 @@ learnt today")
         tb = self.form.toolBar
         self.config['showToolbar'] = tb.isVisible()
 
-    # Tools - statistics
+    # Dockable widgets
     ##########################################################################
 
-    def onDeckStats(self):
-        txt = anki.stats.DeckStats(self.deck).report()
-        self.help.showText(txt)
+    def addDockable(self, title, w):
+        dock = QDockWidget(title, self)
+        dock.setObjectName(title)
+        dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        dock.setFeatures(QDockWidget.DockWidgetClosable)
+        dock.setWidget(w)
+        self.addDockWidget(Qt.RightDockWidgetArea, dock)
+        return dock
+
+    def rmDockable(self, dock):
+        self.removeDockWidget(dock)
+
+    # Card & deck stats
+    ##########################################################################
+
+    def setupCardStats(self):
+        self.cardStats = aqt.stats.CardStats(self)
 
     def onCardStats(self):
-        addHook("showQuestion", self.onCardStats)
-        addHook("deckFinished", self.onCardStats)
-        txt = ""
-        if self.reviewer.card:
-            txt += _("<h1>Current card</h1>")
-            txt += self.deck.cardStats(self.reviewer.card)
-        lc = self.reviewer.lastCard()
-        if lc:
-            txt += _("<h1>Last card</h1>")
-            txt += self.deck.cardStats(lc)
-        if not txt:
-            txt = _("No current card or last card.")
-        print txt
-        #self.help.showText(txt, py={'hide': self.removeCardStatsHook})
+        self.cardStats.show()
 
-    def removeCardStatsHook(self):
-        "Remove the update hook if the help menu was changed."
-        removeHook("showQuestion", self.onCardStats)
-        removeHook("deckFinished", self.onCardStats)
+    def onDeckStats(self):
+        aqt.stats.DeckStats(self)
+
+    # Graphs
+    ##########################################################################
 
     def onShowGraph(self):
         self.setStatus(_("Loading graphs (may take time)..."))
