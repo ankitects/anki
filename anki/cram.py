@@ -33,6 +33,8 @@ class CramScheduler(Scheduler):
         if card.queue == 2:
             card.queue = 1
             card.edue = card.due
+            if ease < 3:
+                self.lrnCount += 1
         if card.queue == 1:
             self._answerLrnCard(card, ease)
         else:

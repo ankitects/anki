@@ -343,6 +343,8 @@ def test_cram():
     assert c.ivl == 100
     d.sched.answerCard(c, 1)
     assert c.ivl == 100
+    # and should have incremented lrn count
+    assert d.sched.counts()[1] == 1
     # reset ivl for exit test, and pass card
     d.sched.answerCard(c, 2)
     delta = c.due - time.time()
@@ -353,6 +355,7 @@ def test_cram():
     d.sched.answerCard(c, 2)
     assert c.queue == -3
     assert c.ivl == 100
+    assert c.due == d.sched.today + c.ivl
     # and if the queue is reset, it shouldn't appear in the new queue again
     d.reset()
     assert d.sched.counts() == (0, 0, 0)
