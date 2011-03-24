@@ -77,6 +77,12 @@ order by due""" % self._groupLimit("rev"),
     def countIdx(self, card):
         return card.queue
 
+    def answerButtons(self, card):
+        if card.queue == 2:
+            return 4
+        else:
+            return 3
+
     def onClose(self):
         "Unbury and remove temporary suspends on close."
         self.db.execute(

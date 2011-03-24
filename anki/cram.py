@@ -53,6 +53,9 @@ class CramScheduler(Scheduler):
         else:
             return 1
 
+    def answerButtons(self, card):
+        return 3
+
     # Fetching
     ##########################################################################
 

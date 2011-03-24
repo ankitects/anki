@@ -45,7 +45,7 @@ afterTimeTable = {
 
 shortTimeTable = {
     "years": _("%sy"),
-    "months": _("%sm"),
+    "months": _("%smo"),
     "days": _("%sd"),
     "hours": _("%sh"),
     "minutes": _("%sm"),
