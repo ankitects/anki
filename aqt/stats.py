@@ -23,7 +23,7 @@ class CardStats(object):
         if not self.shown:
             self.web = AnkiWebView(self.mw)
             self.web.setMaximumWidth(400)
-            self.shown = self.mw.addDockable(_("Card Statistics"), self.web)
+            self.shown = self.mw.addDockable(_("Card Info"), self.web)
             self.shown.connect(self.shown, SIGNAL("visibilityChanged(bool)"),
                                self._visChange)
         self._update()
@@ -53,7 +53,6 @@ class CardStats(object):
             txt += d.cardStats(lc)
         if not txt:
             txt = _("No current card or last card.")
-        print txt
         self.web.setHtml("""
 <html><head>
 <style>table { font-size: 12px; } h1 { font-size: 14px; }</style>
