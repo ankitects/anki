@@ -484,13 +484,10 @@ div#filler {
         self.mw.form.statusbar.hideOrShow()
 
     # fixme: only show progress for reviews, and only when revs due?
-    # fixme: learn cards are appearing too soon
-    # fixme: learn cards not appearing after 30 secs
     def _updateRemaining(self):
         counts = list(self.mw.deck.sched.counts())
         idx = self.mw.deck.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx]+1)
-        buf = _("N:<b>%s</b> L:<b>%s</b> R:<b>%s</b>") % tuple(counts)
         space = "&nbsp;" * 2
         ctxt = '<font color="#000099">%s</font>' % counts[0]
         ctxt += space + '<font color="#990000">%s</font>' % counts[1]

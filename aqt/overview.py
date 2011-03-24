@@ -25,7 +25,9 @@ class Overview(object):
 
     def _keyHandler(self, evt):
         txt = evt.text()
-        if txt == "1":
+        if txt == "1" or evt.key() in (Qt.Key_Enter,
+                                       Qt.Key_Return,
+                                       Qt.Key_Space):
             self._linkHandler("studysel")
         elif txt == "2":
             self._linkHandler("studyall")
@@ -119,7 +121,7 @@ $(function () {
         buf += line % (
             "<a href=chgrp>%s</a>" % _("Selected Groups"),
             counts[0], counts[1],
-            but("studysel", _("Study"), "1", "gbut") +
+            but("studysel", _("Study"), _("1, enter, space"), "gbut") +
             but("cramsel", _("Cram"), "3"))
         buf += line % (
             _("Whole Deck"),
