@@ -30,7 +30,7 @@ class ProgressManager(object):
     def _dbProgress(self):
         "Called from SQLite."
         # do nothing if we don't have a progress window
-        if not self._progressWin:
+        if not self._win:
             return
         # make sure we're not executing too frequently
         if (time.time() - self.lastDbProgress) < 0.2:
