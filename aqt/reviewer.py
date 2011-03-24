@@ -27,7 +27,7 @@ class Reviewer(object):
     def show(self):
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
-        self._getCard()
+        self._initWeb()
 
     def lastCard(self):
         if self._answeredIds:
@@ -68,29 +68,47 @@ class Reviewer(object):
                 self.state != "getQuestion"))
         self.form.actionRepeatAudio.setEnabled(snd)
 
-    # Showing the question (and preparing answer)
+    # Initializing the webview
     ##########################################################################
 
     _revHtml = """
 <table width=100%% height=100%%><tr valign=middle><td>
-%(q)s
+<div id=q></div>
 <hr class=inv>
-<span id="answer" />
-%(a)s
+<div id=a></div>
+<div id=filler></div>
 </td></tr></table>
-%(buts)s
+<a id=ansbut class="but ansbut" href=ans onclick="showans();">
+<div class=ansbut>%(showans)s</div>
+</a>
+<div id=easebuts>
+</div>
 <script>
+function updateQA (qa) {
+    $("#q").html(qa[0]);
+    $("#a").html(qa[1]);
+    $("#easebuts").html(qa[2]).addClass("inv");
+    $("#ansbut").show();
+    $("body").removeClass().addClass(qa[3]);
+};
 function showans () {
     $(".inv").removeClass('inv');
-    location.hash = "answer";
-    $(".ansbut").hide();
-    $("#easebuts").css('visibility', 'visible');
+    $("#ansbut").hide();
+    location.hash = "a";
 };
 $(document).ready(function () {
 $(".ansbut").focus();
 });
 </script>
 """
+
+    def _initWeb(self):
+        self.web.stdHtml(self._revHtml % dict(
+            showans=_("Show Answer")), self._styles(),
+            loadCB=lambda x: self._getCard())
+
+    # Showing the question (and preparing answer)
+    ##########################################################################
 
     def _showQuestion(self):
         self.state = "question"
@@ -108,12 +126,11 @@ $(".ansbut").focus();
         # render
 
         # buf = self.typeAnsResult()
-        buf = self._revHtml % dict(
-            q=mungeQA(q),
-            a=mungeQA(a) + '<div id=filler></div>',
-            buts=self._reviewButtons())
-        buf = self.mw.deck.media.escapeImages(buf)
-        self.web.stdHtml(buf, self._styles(), bodyClass=c.cssClass())
+        esc = self.mw.deck.media.escapeImages
+        q=esc(mungeQA(q))
+        a=esc(mungeQA(a))
+        self.web.eval("updateQA(%s);" % simplejson.dumps(
+            [q, a, self._answerButtons(), c.cssClass()]))
         runHook('showQuestion')
 
     # Showing the answer
@@ -172,7 +189,7 @@ $(".ansbut").focus();
                "</td><td align=center>".join(times) + "</td></tr>")
         buf += ("<tr><td>" +
                 "</td><td>".join(buttons) + "</td></tr></table>")
-        return "<div id=easebuts><center>" + buf + "</center></div>"
+        return "<center>" + buf + "</center>"
         return buf
 
     def _buttonTime(self, i, green):
@@ -227,7 +244,6 @@ $(".ansbut").focus();
 
 
     def _linkHandler(self, url):
-        print "link", url
         if url == "ans":
             self._showAnswer()
         elif url.startswith("ease"):
@@ -253,6 +269,10 @@ div.ansbut {
   position: relative; top: 25%;
 }
 
+div#q, div#a {
+margin: 0px;
+}
+
 #easebuts {
   bottom: 1em;
   height: 55px;
@@ -261,7 +281,6 @@ div.ansbut {
   position: fixed;
   width: 400px;
   font-size: 100%;
-  visibility: hidden;
 }
 
 .easebut {
@@ -286,7 +305,7 @@ div#filler {
 
     def _styles(self):
         css = self.mw.sharedCSS
-        css += self.card.model().css
+        css += self.mw.deck.allCSS()
         css += self._css
         css = runFilter("addStyles", css)
         return css

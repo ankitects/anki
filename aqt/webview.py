@@ -94,3 +94,4 @@ class AnkiWebView(QWebView):
     def _loadFinished(self):
         if self._loadFinishedCB:
             self._loadFinishedCB(self)
+            self._loadFinishedCB = None
