@@ -17,10 +17,11 @@ from anki.utils import addTags, parseTags, canonifyTags, stripHTML, checksum
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
-import aqt, aqt.utils, aqt.view, aqt.help, aqt.status, aqt.facteditor, \
-    aqt.progress, aqt.webview
+import aqt, aqt.dockable, aqt.facteditor, aqt.progress, aqt.webview
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
-    saveState, restoreState
+    saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
+    askUserDialog, applyStyles, getText, showText
+
 config = aqt.config
 
 class AnkiQt(QMainWindow):
@@ -464,9 +465,9 @@ counts are %d %d %d
                 return 0
             # FIXME: this needs updating
             if hasattr(e, 'data') and e.data.get('type') == 'inuse':
-                aqt.utils.showWarning(_("Deck is already open."))
+                showWarning(_("Deck is already open."))
             else:
-                aqt.utils.showCritical(_("""\
+                showCritical(_("""\
 File is corrupt or not an Anki database. Click help for more info.\n
 Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("deckBrowser")
@@ -579,7 +580,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             if not prompt:
                 prompt = _("Please give your deck a name:")
             while 1:
-                name = aqt.utils.getOnlyText(
+                name = getOnlyText(
                     prompt, default=name, title=_("New Deck"))
                 if not name:
                     self.moveToState("deckBrowser")
@@ -598,7 +599,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 break
             path = os.path.join(self.documentDir, name)
             if os.path.exists(path):
-                if aqt.utils.askUser(_("That deck already exists. Overwrite?"),
+                if askUser(_("That deck already exists. Overwrite?"),
                                     defaultno=True):
                     os.unlink(path)
                 else:
@@ -685,7 +686,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         ret = self.loadDeck(file)
         if not ret:
             if ret is None:
-                aqt.utils.showWarning(_("Unable to load file."))
+                showWarning(_("Unable to load file."))
             self.deck = None
             return False
         else:
@@ -781,7 +782,7 @@ your deck."""))
                 return self.onSave()
         if os.path.exists(file):
             # check for existence after extension
-            if not aqt.utils.askUser(
+            if not askUser(
                 "This file exists. Are you sure you want to overwrite it?"):
                 return
         self.closeAllDeckWindows()
@@ -820,7 +821,7 @@ your deck."""))
         try:
             self.config.save()
         except (IOError, OSError), e:
-            aqt.utils.showWarning(_("Anki was unable to save your "
+            showWarning(_("Anki was unable to save your "
                                    "configuration file:\n%s" % e))
 
     def closeEvent(self, event):
@@ -1179,15 +1180,17 @@ learnt today")
         addHook("showQuestion", self.onCardStats)
         addHook("deckFinished", self.onCardStats)
         txt = ""
-        if self.currentCard:
+        if self.reviewer.card:
             txt += _("<h1>Current card</h1>")
-            txt += anki.stats.CardStats(self.deck, self.currentCard).report()
-        if self.lastCard and self.lastCard != self.currentCard:
+            txt += self.deck.cardStats(self.reviewer.card)
+        lc = self.reviewer.lastCard()
+        if lc:
             txt += _("<h1>Last card</h1>")
-            txt += anki.stats.CardStats(self.deck, self.lastCard).report()
+            txt += self.deck.cardStats(lc)
         if not txt:
             txt = _("No current card or last card.")
-        self.help.showText(txt, py={'hide': self.removeCardStatsHook})
+        print txt
+        #self.help.showText(txt, py={'hide': self.removeCardStatsHook})
 
     def removeCardStatsHook(self):
         "Remove the update hook if the help menu was changed."
@@ -1330,7 +1333,7 @@ Please give your deck a name:"""))
     def onCram(self, cardIds=[]):
         te = aqt.tagedit.TagEdit(self)
         te.setDeck(self.deck, "all")
-        diag = aqt.utils.GetTextDialog(
+        diag = GetTextDialog(
             self, _("Tags to cram:"), help="CramMode", edit=te)
         l = diag.layout()
         g = QGroupBox(_("Review Mode"))
@@ -1590,7 +1593,7 @@ will sync automatically from then on."""))
         return ok
 
     def onConflict(self, deckName):
-        diag = aqt.utils.askUserDialog(_("""\
+        diag = askUserDialog(_("""\
 <b>%s</b> has been changed on both
 the local and remote side. What do
 you want to do?""" % deckName),
@@ -1607,7 +1610,7 @@ you want to do?""" % deckName),
             self.syncThread.conflictResolution = "cancel"
 
     def onClobber(self, deckName):
-        diag = aqt.utils.askUserDialog(_("""\
+        diag = askUserDialog(_("""\
 You are about to upload <b>%s</b>
 to AnkiOnline. This will overwrite
 the online copy of this deck.
@@ -1676,7 +1679,7 @@ Are you sure?""" % deckName),
             # name chosen
             p = os.path.join(self.documentDir, name + ".anki")
             if os.path.exists(p):
-                d = aqt.utils.askUserDialog(_("""\
+                d = askUserDialog(_("""\
 This deck already exists on your computer. Overwrite the local copy?"""),
                                          ["Overwrite", "Cancel"])
                 d.setDefault(1)
@@ -1702,7 +1705,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.form.welcomeText.append("<font size=+2>" + text + "</font>")
 
     def syncClockOff(self, diff):
-        aqt.utils.showWarning(
+        showWarning(
             _("The time or date on your computer is not correct.\n") +
             ngettext("It is off by %d second.\n\n",
                 "It is off by %d seconds.\n\n", diff) % diff +
@@ -1712,7 +1715,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.onSyncFinished()
 
     def showSyncWarning(self, text):
-        aqt.utils.showWarning(text, self)
+        showWarning(text, self)
         self.setStatus("")
 
     def badUserPass(self):
@@ -1741,7 +1744,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             self.syncProgressDialog.setLabelText("Downloading %s..." % fname)
 
     def bulkSyncFailed(self):
-        aqt.utils.showWarning(_(
+        showWarning(_(
             "Failed to upload media. Please run 'check media db'."), self)
 
     def fullSyncStarted(self, max):
@@ -1935,7 +1938,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             ret = _("late")
         else:
             ret = _("early")
-        aqt.utils.showWarning(
+        showWarning(
             _("The time or date on your computer is not correct.\n") +
             ngettext("It is %(sec)d second %(type)s.\n",
                 "It is %(sec)d seconds %(type)s.\n", abs(diff))
@@ -1975,7 +1978,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         try:
             runHook('init')
         except:
-            aqt.utils.showWarning(
+            showWarning(
                 _("Broken plugin:\n\n%s") %
                 unicode(traceback.format_exc(), "utf-8", "replace"))
 
@@ -2113,7 +2116,7 @@ to work with this version of Anki."""))
     ##########################################################################
 
     def setupStyle(self):
-        aqt.utils.applyStyles(self)
+        applyStyles(self)
 
     # Sounds
     ##########################################################################
@@ -2230,7 +2233,7 @@ command+click on a Mac), choose DropBox>Copy Public Link, and paste the \
 link into Anki."""))
             # open folder and text prompt
             self.onOpenPluginFolder(deck.mediaPrefix)
-            txt = aqt.utils.getText(_("Paste path here:"), parent=self)
+            txt = getText(_("Paste path here:"), parent=self)
             if txt[0]:
                 fail = False
                 if not txt[0].lower().startswith("http"):
@@ -2254,14 +2257,14 @@ is next loaded."""))
 
     def onCheckDB(self):
         "True if no problems"
-        if not aqt.utils.askUser(_("""\
+        if not askUser(_("""\
 This operation will find and fix some common problems.<br><br>
 On the next sync, all cards will be sent to the server. \
 Any changes on the server since your last sync will be lost.<br><br>
 <b>This operation is not undoable.</b> Proceed?""")):
             return
         ret = self.deck.fixIntegrity()
-        aqt.utils.showText(ret)
+        showText(ret)
         self.reset()
         return ret
 
@@ -2310,7 +2313,7 @@ doubt."""))
             report += "\n" + "\n".join(unused)
         if not report:
             report = _("No unused or missing files found.")
-        aqt.utils.showText(report, parent=self, type="text")
+        showText(report, parent=self, type="text")
 
     def onDownloadMissingMedia(self):
         res = downloadMissing(self.deck)
@@ -2329,7 +2332,7 @@ doubt."""))
         showInfo(msg)
 
     def onLocalizeMedia(self):
-        if not aqt.utils.askUser(_("""\
+        if not askUser(_("""\
 This will look for remote images and sounds on your cards, download them to \
 your media folder, and convert the links to local ones. \
 It can take a long time. Proceed?""")):

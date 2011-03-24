@@ -20,6 +20,7 @@ class Reviewer(object):
         self.web = mw.web
         self.card = None
         self.cardQueue = []
+        self._answeredIds = []
         self.state = None
         self._setupStatus()
 
@@ -27,6 +28,11 @@ class Reviewer(object):
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
         self._getCard()
+
+    def lastCard(self):
+        if self._answeredIds:
+            if not self.card or self._answeredIds[-1] != self.card.id:
+                return self.mw.deck.getCard(self._answeredIds[-1])
 
     # Fetching a card
     ##########################################################################
@@ -186,6 +192,7 @@ $(".ansbut").focus();
     def _answerCard(self, ease):
         "Reschedule card and show next."
         self.mw.deck.sched.answerCard(self.card, ease)
+        self._answeredIds.append(self.card.id)
         print "fixme: save"
         self._getCard()
 
