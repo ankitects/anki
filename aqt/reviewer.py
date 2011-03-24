@@ -86,6 +86,7 @@ class Reviewer(object):
 <script>
 var hideq;
 var ans;
+var typeans;
 function updateQA (qa) {
     hideq = qa[4];
     location.hash = "";
@@ -100,8 +101,15 @@ function updateQA (qa) {
     $("#easebuts").html(qa[2]).addClass("inv");
     $("#ansbut").show();
     $("body").removeClass().addClass(qa[3]);
+    typeans = document.getElementById("typeans");
+    if (typeans) {
+        typeans.focus();
+    }
 };
 function showans () {
+    if (typeans) {
+        py.link("typeans:"+typeans.value);
+    }
     $(".inv").removeClass('inv');
     if (hideq) {
         $("#q").html(ans);
@@ -112,6 +120,9 @@ function showans () {
     $("#ansbut").hide();
     $("#defease").focus();
 };
+function proctypeans (res) {
+    $("#typeans").replaceWith(res);
+}
 $(document).ready(function () {
 $(".ansbut").focus();
 });
@@ -142,7 +153,7 @@ $(".ansbut").focus();
 
         # buf = self.typeAnsResult()
         esc = self.mw.deck.media.escapeImages
-        q=esc(mungeQA(q))
+        q=esc(mungeQA(q)) + self.typeAnsInput()
         a=esc(mungeQA(a))
         self.web.eval("updateQA(%s);" % simplejson.dumps(
             [q, a, self._answerButtons(), c.cssClass(),
@@ -223,7 +234,7 @@ $(".ansbut").focus();
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return):
                 show = True
-            elif evt.key() == Qt.Key_Space and not self.typeAns():
+            elif evt.key() == Qt.Key_Space and self.typeAns() is None:
                 show = True
             if show:
                 self._showAnswer()
@@ -244,7 +255,6 @@ $(".ansbut").focus();
                         return True
 
     def _linkHandler(self, url):
-        print url
         if url == "ans":
             self._showAnswer()
         elif url.startswith("ease"):
@@ -255,6 +265,9 @@ $(".ansbut").focus();
             self.mw.close()
         elif url == "ov":
             self.mw.moveToState("overview")
+        elif url.startswith("typeans:"):
+            (cmd, arg) = url.split(":")
+            self.processTypedAns(arg)
 
     # CSS
     ##########################################################################
@@ -286,6 +299,7 @@ $(".ansbut").focus();
     font-size: 100%;
 }
 .ansbut:focus {
+font-weight: bold;
 }
 div.ansbuttxt {
   position: relative; top: 25%;
@@ -337,68 +351,44 @@ div#filler {
 
     failedCharColour = "#FF0000"
     passedCharColour = "#00FF00"
-    futureWarningColour = "#FF0000"
-
-        # if self.card.cardModel.typeAnswer:
-        #     try:
-        #         cor = stripMedia(stripHTML(self.card.fact[
-        #             self.card.cardModel.typeAnswer]))
-        #     except KeyError:
-        #         self.card.cardModel.typeAnswer = ""
-        #         cor = ""
-        #     if cor:
-        #         given = unicode(self.main.typeAnswerField.text())
-        #         res = self.correct(cor, given)
-        #         a = res + "<br>" + a
-
-        # fixme: type answer undo area shouldn't trigger global shortcut
-        # class QLineEditNoUndo(QLineEdit):
-        #     def __init__(self, parent):
-        #         self.parent = parent
-        #         QLineEdit.__init__(self, parent)
-        #     def keyPressEvent(self, evt):
-        #         if evt.matches(QKeySequence.Undo):
-        #             evt.accept()
-        #             if self.parent.form.actionUndo.isEnabled():
-        #                 self.parent.onUndo()
-        #         else:
-        #             return QLineEdit.keyPressEvent(self, evt)
 
     def typeAns(self):
-        "True if current card has answer typing enabled."
+        "None if answer typing disabled."
         return self.card.template()['typeAns']
 
     def typeAnsInput(self):
-        return ""
-        if self.card.cardModel.typeAnswer:
-            self.adjustInputFont()
+        if self.typeAns() is None:
+            return ""
+        return """
+<center>
+<input type=text id=typeans style="font-family: '%s'; font-size: %s;">
+</center>
+""" % (
+    self.getFont())
+
+    def processTypedAns(self, given):
+        ord = self.typeAns()
+        try:
+            cor = self.mw.deck.media.strip(
+                stripHTML(self.card.fact()._fields[ord]))
+        except IndexError:
+            self.card.template()['typeAns'] = None
+            self.card.model().flush()
+            cor = ""
+        if cor:
+            res = self.correct(cor, given)
+            self.web.eval("proctypeans(%s);" % simplejson.dumps(res))
 
     def getFont(self):
-        sz = 20
-        fn = u"Arial"
-        for fm in self.card.fact.model.fieldModels:
-            if fm.name == self.card.cardModel.typeAnswer:
-                sz = fm.quizFontSize or sz
-                fn = fm.quizFontFamily or fn
-                break
-        return (fn, sz)
-
-    def adjustInputFont(self):
-        (fn, sz) = self.getFont()
-        f = QFont()
-        f.setFamily(fn)
-        f.setPixelSize(sz)
-        self.main.typeAnswerField.setFont(f)
-        # add some extra space as layout is wrong on osx
-        self.main.typeAnswerField.setFixedHeight(
-            self.main.typeAnswerField.sizeHint().height() + 10)
+        f = self.card.model().fields[self.typeAns()]
+        return (f['font'], f['qsize'])
 
     def calculateOkBadStyle(self):
         "Precalculates styles for correct and incorrect part of answer"
         (fn, sz) = self.getFont()
         st = "background: %s; color: #000; font-size: %dpx; font-family: %s;"
-        self.styleOk  = st % (passedCharColour, sz, fn)
-        self.styleBad = st % (failedCharColour, sz, fn)
+        self.styleOk  = st % (self.passedCharColour, sz, fn)
+        self.styleBad = st % (self.failedCharColour, sz, fn)
 
     def ok(self, a):
         "returns given sring in style correct (green)"
@@ -412,17 +402,15 @@ div#filler {
             return ""
         return "<span style='%s'>%s</span>" % (self.styleBad, a)
 
-    def head(self, a):
-        return a[:len(a) - 1]
-
-    def tail(self, a):
-        return a[len(a) - 1:]
-
     def applyStyle(self, testChar, correct, wrong):
         "Calculates answer fragment depending on testChar's unicode category"
         ZERO_SIZE = 'Mn'
+        def head(a):
+            return a[:len(a) - 1]
+        def tail(a):
+            return a[len(a) - 1:]
         if ucd.category(testChar) == ZERO_SIZE:
-            return self.ok(self.head(correct)) + self.bad(self.tail(correct) + wrong)
+            return self.ok(head(correct)) + self.bad(tail(correct) + wrong)
         return self.ok(correct) + self.bad(wrong)
 
     def correct(self, a, b):
