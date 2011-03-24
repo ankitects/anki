@@ -74,7 +74,7 @@ class Reviewer(object):
     _revHtml = """
 <table width=100%% height=100%%><tr valign=middle><td>
 <div id=q></div>
-<hr class=inv>
+<hr class=inv id=midhr>
 <div id=a></div>
 <div id=filler></div>
 </td></tr></table>
@@ -84,18 +84,32 @@ class Reviewer(object):
 <div id=easebuts>
 </div>
 <script>
+var hideq;
+var ans;
 function updateQA (qa) {
+    hideq = qa[4];
     location.hash = "";
     $("#q").html(qa[0]);
-    $("#a").html(qa[1]);
+    if (hideq) {
+        ans = qa[1];
+        $("#a").html("");
+    } else {
+        $("#a").html(qa[1]).addClass("inv");
+    }
+    $("#midhr").addClass("inv");
     $("#easebuts").html(qa[2]).addClass("inv");
     $("#ansbut").show();
     $("body").removeClass().addClass(qa[3]);
 };
 function showans () {
     $(".inv").removeClass('inv');
+    if (hideq) {
+        $("#q").html(ans);
+        $("#midhr").addClass("inv");
+    } else {
+        location.hash = "a";
+    }
     $("#ansbut").hide();
-    location.hash = "a";
 };
 $(document).ready(function () {
 $(".ansbut").focus();
@@ -120,7 +134,7 @@ $(".ansbut").focus();
         c = self.card
         # original question with sounds
         q = c.q()
-        a = c.a("a inv")
+        a = c.a()
         if (#self.state != self.oldState and not nosound
             self.mw.config['autoplaySounds']):
             playFromText(q)
@@ -131,7 +145,8 @@ $(".ansbut").focus();
         q=esc(mungeQA(q))
         a=esc(mungeQA(a))
         self.web.eval("updateQA(%s);" % simplejson.dumps(
-            [q, a, self._answerButtons(), c.cssClass()]))
+            [q, a, self._answerButtons(), c.cssClass(),
+             c.template()['hideQ']]))
         runHook('showQuestion')
 
     # Showing the answer
