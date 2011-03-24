@@ -418,7 +418,10 @@ order by modelId, ordinal"""):
         # ensure data is good
         conf['rtl'] = not not conf['rtl']
         conf['pre'] = True
+        conf['font'] = conf['font'] or "Arial"
         conf['qcol'] = conf['qcol'] or "#000"
+        conf['qsize'] = conf['qsize'] or 20
+        conf['esize'] = conf['esize'] or 20
         mods[row[0]].append(conf)
     # now we've gathered all the info, save it into the models
     for mid, fms in mods.items():
