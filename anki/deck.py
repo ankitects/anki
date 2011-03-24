@@ -617,6 +617,17 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
         import anki.find
         return anki.find.findDuplicates(self, fmids)
 
+    # Stats
+    ##########################################################################
+
+    def cardStats(self, card):
+        from anki.stats import CardStats
+        return CardStats(self, card).report()
+
+    def deckStats(self):
+        from anki.stats import DeckStats
+        return DeckStats(self).report()
+
     # Timeboxing
     ##########################################################################
 

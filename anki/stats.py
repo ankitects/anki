@@ -4,6 +4,7 @@
 
 import time, sys, os, datetime
 import anki, anki.utils
+from anki.consts import *
 from anki.lang import _, ngettext
 from anki.hooks import runFilter
 
@@ -21,12 +22,12 @@ class CardStats(object):
         fmt = anki.utils.fmtTimeSpan
         fmtFloat = anki.utils.fmtFloat
         self.txt = "<table>"
-        self.addLine(_("Added"), self.strTime(c.created))
+        self.addLine(_("Added"), self.strTime(c.crt))
         first = self.deck.db.scalar(
-            "select time/1000 from revlog where rep = 1 and cardId = :id", id=c.id)
+            "select time/1000 from revlog where rep = 1 and cid = :id", id=c.id)
         if first:
             self.addLine(_("First Review"), self.strTime(first))
-        self.addLine(_("Changed"), self.strTime(c.modified))
+        self.addLine(_("Changed"), self.strTime(c.mod))
         if c.reps:
             next = time.time() - c.due
             if next > 0:
@@ -34,18 +35,18 @@ class CardStats(object):
             else:
                 next = _("in %s") % fmt(abs(next))
             self.addLine(_("Due"), next)
-        self.addLine(_("Interval"), fmt(c.interval * 86400))
+        self.addLine(_("Interval"), fmt(c.ivl * 86400))
         self.addLine(_("Ease"), fmtFloat(c.factor, point=2))
         if c.reps:
             self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
-                c.reps-c.lapses, c.reps, c.successive))
+                c.reps-c.lapses, c.reps, c.streak))
         (cnt, total) = self.deck.db.first(
-            "select count(), sum(userTime)/1000 from revlog where cardId = :id", id=c.id)
+            "select count(), sum(taken)/1000 from revlog where cid = :id", id=c.id)
         if cnt:
             self.addLine(_("Average Time"), fmt(total / float(cnt), point=2))
             self.addLine(_("Total Time"), fmt(total, point=2))
-        self.addLine(_("Model Tags"), c.fact.model.tags)
-        self.addLine(_("Card Template") + "&nbsp;"*5, c.cardModel.name)
+        self.addLine(_("Model"), c.model().name)
+        self.addLine(_("Template") + "&nbsp;"*5, c.template()['name'])
         self.txt += "</table>"
         return self.txt
 
@@ -66,32 +67,32 @@ class DeckStats(object):
 
     def matureCardCount(self):
         return self.deck.db.scalar(
-            "select count(id) from cards where interval >= :t ",
+            "select count(id) from cards where ivl >= :t ",
             t=MATURE_THRESHOLD)
 
     def youngCardCount(self):
         return self.deck.db.scalar(
-            "select count(id) from cards where interval < :t "
+            "select count(id) from cards where ivl < :t "
             "and reps != 0", t=MATURE_THRESHOLD)
 
     def newCountAll(self):
         "All new cards, including spaced."
         return self.deck.db.scalar(
-            "select count(id) from cards where type = 2")
+            "select count(id) from cards where type = 0")
 
     def report(self):
         "Return an HTML string with a report."
         fmtPerc = anki.utils.fmtPercentage
         fmtFloat = anki.utils.fmtFloat
-        if self.deck.isEmpty():
+        if not self.deck.cardCount():
             return _("Please add some cards first.") + "<p/>"
         d = self.deck
         html="<h1>" + _("Deck Statistics") + "</h1>"
-        html += _("Deck created: <b>%s</b> ago<br>") % self.createdTimeStr()
+        html += _("Deck created: <b>%s</b> ago<br>") % self.crtTimeStr()
         total = d.cardCount()
-        new = d.newCountAll()
-        young = d.youngCardCount()
-        old = d.matureCardCount()
+        new = self.newCountAll()
+        young = self.youngCardCount()
+        old = self.matureCardCount()
         newP = new / float(total) * 100
         youngP = young / float(total) * 100
         oldP = old / float(total) * 100
@@ -109,7 +110,7 @@ class DeckStats(object):
                 'young': stats['young'], 'youngP' : fmtPerc(stats['youngP'])}
         html += _("Unseen cards:") + " <b>%(new)d</b> (%(newP)s)<br>" % {
                 'new': stats['new'], 'newP' : fmtPerc(stats['newP'])}
-        avgInt = self.getAverageInterval()
+        avgInt = self.getAverageIvl()
         if avgInt:
             html += _("Average interval: ") + ("<b>%s</b> ") % fmtFloat(avgInt) + _("days")
             html += "<br>"
@@ -131,7 +132,7 @@ class DeckStats(object):
                 'partOf' : nYes,
                 'totalSum' : nAll } + "<br><br>")
         # average pending time
-        existing = d.cardCount() - d.newCount
+        existing = d.cardCount() - self.newCountAll()
         def tr(a, b):
             return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
         def repsPerDay(reps,days):
@@ -170,7 +171,7 @@ class DeckStats(object):
             else:
                 html += "<table width=200>"
             html += tr(_("Deck life"), ("<b>%s</b> ") % (
-                fmtFloat(self.getSumInverseRoundInterval())) + _("cards/day"))
+                fmtFloat(self.getSumInverseRoundIvl())) + _("cards/day"))
             html += tr(_("In next week"), ("<b>%s</b> ") % (
                 fmtFloat(self.getWorkloadPeriod(7))) + _("cards/day"))
             html += tr(_("In next month"), ("<b>%s</b> ") % (
@@ -234,37 +235,39 @@ class DeckStats(object):
             html += "</table>"
 
             html += "<br><br><b>" + _("Card Ease") + "</b><br>"
-            html += _("Lowest factor: %.2f") % d.s.scalar(
-                "select min(factor) from cards") + "<br>"
-            html += _("Average factor: %.2f") % d.s.scalar(
-                "select avg(factor) from cards") + "<br>"
-            html += _("Highest factor: %.2f") % d.s.scalar(
-                "select max(factor) from cards") + "<br>"
+            html += _("Lowest factor: %.2f") % d.db.scalar(
+                "select min(factor)/1000.0 from cards") + "<br>"
+            html += _("Average factor: %.2f") % d.db.scalar(
+                "select avg(factor)/1000.0 from cards") + "<br>"
+            html += _("Highest factor: %.2f") % d.db.scalar(
+                "select max(factor)/1000.0 from cards") + "<br>"
 
             html = runFilter("deckStats", html)
         return html
 
     def getMatureCorrect(self, test=None):
         if not test:
-            test = "lastInterval > 21"
+            test = "lastIvl > 21"
         head = "select count() from revlog where %s"
         all = self.deck.db.scalar(head % test)
         yes = self.deck.db.scalar((head % test) + " and ease > 1")
+        if not all:
+            return (0, 0, 0)
         return (all, yes, yes/float(all)*100)
 
     def getYoungCorrect(self):
-        return self.getMatureCorrect("lastInterval <= 21 and rep != 1")
+        return self.getMatureCorrect("lastIvl <= 21 and rep != 1")
 
     def getNewCorrect(self):
         return self.getMatureCorrect("rep = 1")
 
     def getDaysReviewed(self, start, finish):
-        today = self.deck.failedCutoff
+        today = self.deck.sched.dayCutoff
         x = today + 86400*start
         y = today + 86400*finish
         return self.deck.db.scalar("""
 select count(distinct(cast((time/1000-:off)/86400 as integer))) from revlog
-where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.utcOffset)
+where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.crt)
 
     def getRepsDone(self, start, finish):
         now = datetime.datetime.today()
@@ -274,13 +277,13 @@ where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.utcOffset)
             "select count() from revlog where time >= :x*1000 and time <= :y*1000",
             x=x, y=y)
 
-    def getAverageInterval(self):
+    def getAverageIvl(self):
         return self.deck.db.scalar(
-            "select sum(interval) / count(interval) from cards "
+            "select sum(ivl) / count(ivl) from cards "
             "where cards.reps > 0") or 0
 
-    def intervalReport(self, intervals, labels, total):
-        boxes = self.splitIntoIntervals(intervals)
+    def ivlReport(self, ivls, labels, total):
+        boxes = self.splitIntoIvls(ivls)
         keys = boxes.keys()
         keys.sort()
         html = ""
@@ -292,13 +295,13 @@ where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.utcOffset)
                 fmtPerc(boxes[key] / float(total) * 100))
         return html
 
-    def splitIntoIntervals(self, intervals):
+    def splitIntoIvls(self, ivls):
         boxes = {}
         n = 0
-        for i in range(len(intervals) - 1):
-            (min, max) = (intervals[i], intervals[i+1])
+        for i in range(len(ivls) - 1):
+            (min, max) = (ivls[i], ivls[i+1])
             for c in self.deck:
-                if c.interval > min and c.interval <=  max:
+                if c.ivl > min and c.ivl <=  max:
                     boxes[n] = boxes.get(n, 0) + 1
             n += 1
         return boxes
@@ -307,15 +310,15 @@ where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.utcOffset)
         "Average number of new cards added each day."
         return self.deck.cardCount() / max(1, self.ageInDays())
 
-    def createdTimeStr(self):
-        return anki.utils.fmtTimeSpan(time.time() - self.deck.created)
+    def crtTimeStr(self):
+        return anki.utils.fmtTimeSpan(time.time() - self.deck.crt)
 
     def ageInDays(self):
-        return (time.time() - self.deck.created) / 86400.0
+        return (time.time() - self.deck.crt) / 86400.0
 
-    def getSumInverseRoundInterval(self):
+    def getSumInverseRoundIvl(self):
         return self.deck.db.scalar(
-            "select sum(1/round(max(interval, 1)+0.5)) from cards "
+            "select sum(1/round(max(ivl, 1)+0.5)) from cards "
             "where cards.reps > 0 "
             "and queue != -1") or 0
 
@@ -336,7 +339,7 @@ where time > :cutoff*1000""", cutoff=cutoff) or 0) / float(period)
         cutoff = time.time() - 86400 * period
         return (self.deck.db.scalar("""
 select count(id) from cards
-where created > :cutoff""", cutoff=cutoff) or 0)
+where crt > :cutoff""", cutoff=cutoff) or 0)
 
     def getFirstPeriod(self, period):
         cutoff = time.time() - 86400 * period

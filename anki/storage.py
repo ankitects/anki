@@ -138,8 +138,8 @@ create table if not exists revlog (
     cid             integer not null,
     ease            integer not null,
     rep             integer not null,
-    int             integer not null,
-    lastInt         integer not null,
+    ivl             integer not null,
+    lastIvl         integer not null,
     factor          integer not null,
     taken           integer not null,
     type            integer not null
