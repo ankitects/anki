@@ -135,16 +135,9 @@ class AnkiQt(QMainWindow):
         self.disableCardMenuItems()
         self.showStudyScreen()
 
-    def reset(self, runHooks=True):
-        # two kinds of resets: partial, which causes objects dealing with
-        # cards or facts to reload them and notice deletions, and full, which
-        # is called when models have changed, and reloads everything
-        if self.deck:
-            self.deck.reset()
-            if runHooks:
-                runHook("guiReset")
-            self.moveToState("initial")
-
+    def reset(self):
+        self.deck.reset()
+        runHook("reset")
 
     # HTML helpers
     ##########################################################################
@@ -2262,28 +2255,13 @@ is next loaded."""))
     def onCheckDB(self):
         "True if no problems"
         if not aqt.utils.askUser(_("""\
-This operation will find and fix some common problems.<br>
-<br>
-On the next sync, all cards will be sent to the server.<br>
-Any changes on the server since your last sync will be lost.<br>
-<br>
-<b>This operation is not undoable.</b><br>
-Proceed?""")):
+This operation will find and fix some common problems.<br><br>
+On the next sync, all cards will be sent to the server. \
+Any changes on the server since your last sync will be lost.<br><br>
+<b>This operation is not undoable.</b> Proceed?""")):
             return
         ret = self.deck.fixIntegrity()
-        diag = QDialog(self)
-        diag.setWindowTitle("Anki")
-        layout = QVBoxLayout(diag)
-        diag.setLayout(layout)
-        text = QTextEdit()
-        text.setReadOnly(True)
-        text.setPlainText(ret)
-        layout.addWidget(text)
-        box = QDialogButtonBox(QDialogButtonBox.Close)
-        layout.addWidget(box)
-        self.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
-        diag.exec_()
-        ret = False
+        aqt.utils.showText(ret)
         self.reset()
         return ret
 

@@ -6,6 +6,7 @@ import simplejson
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki.consts import NEW_CARDS_RANDOM
+from anki.hooks import addHook
 
 class Overview(object):
     "Deck overview."
@@ -13,11 +14,16 @@ class Overview(object):
     def __init__(self, mw):
         self.mw = mw
         self.web = mw.web
+        addHook("reset", self.refresh)
 
     def show(self):
         self._setupToolbar()
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
+        self.refresh()
+
+    def refresh(self):
+        print "refreshing"
         self._renderPage()
 
     # Handlers
@@ -25,34 +31,34 @@ class Overview(object):
 
     def _keyHandler(self, evt):
         txt = evt.text()
-        if txt == "1" or evt.key() in (Qt.Key_Enter,
-                                       Qt.Key_Return,
-                                       Qt.Key_Space):
-            self._linkHandler("studysel")
-        elif txt == "2":
-            self._linkHandler("studyall")
-        elif txt == "3":
-            self._linkHandler("cramsel")
-        elif txt == "4":
-            self._linkHandler("cramall")
+        if evt.key() == Qt.Key_Space:
+            self._linkHandler("study")
+        elif txt == "c":
+            self._linkHandler("cram")
         elif txt == "o":
             self._linkHandler("opts")
         elif txt == "d":
             self._linkHandler("list")
+        elif txt == "g":
+            self._linkHandler("chgrp")
         else:
             return
         return True
 
     def _linkHandler(self, url):
         print "link", url
-        if url == "studysel":
-            self.mw.deck.sched.useGroups = True
+        if url == "study":
             self.mw.deck.reset()
             self.mw.moveToState("review")
+        elif url == "cram":
+            self.mw.deck.cramGroups(self.mw.deck.qconf['revGroups'])
+            self.mw.moveToState("review")
         elif url == "opts":
-            pass
+            print "study options"
         elif url == "list":
             self.mw.close()
+        elif url == "chgrp":
+            print "change groups"
 
     # HTML
     ############################################################
@@ -62,22 +68,17 @@ class Overview(object):
         fc = self._ovForecast()
         tbl = self._overviewTable()
         but = self.mw.button
-        buts = (but("list", _("Deck List"), "d") +
-                but("refr", _("Refresh"), "r") +
-                but("opts", _("Study Options"), "o"))
         self.web.stdHtml(self._overviewBody % dict(
             title=_("Overview"),
             table=tbl,
             fcsub=_("Reviews over next two weeks"),
             fcdata=fc,
-            buts=buts,
             opts=self._ovOpts(),
             ), css)
 
     _overviewBody = """
 <center>
 <h1>%(title)s</h1>
-%(buts)s
 <p>
 %(table)s
 <p>
@@ -121,13 +122,12 @@ $(function () {
         buf += line % (
             "<a href=chgrp>%s</a>" % _("Selected Groups"),
             counts[0], counts[1],
-            but("studysel", _("Study"), _("1, enter, space"), "gbut") +
-            but("cramsel", _("Cram"), "3"))
+            but("study", _("Study"), _("space"), "gbut") +
+            but("cram", _("Cram"), "c"))
         buf += line % (
             _("Whole Deck"),
             counts[2], counts[3],
-            but("studyall", _("Study"), "2", "gbut") +
-            but("cramall", _("Cram"), "4"))
+            but("opts", _("Study Options"), "o"))
         buf += "</table>"
         return buf
 

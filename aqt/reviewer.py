@@ -139,13 +139,13 @@ $(".ansbut").focus();
         return buf
 
     def _defaultEase(self):
-        if self.card.queue == 2:
+        if self.mw.deck.sched.answerButtons(self.card) == 4:
             return 3
         else:
             return 2
 
     def _answerButtons(self):
-        if self.card.queue == 2:
+        if self.mw.deck.sched.answerButtons(self.card) == 4:
             labels = (_("Again"), _("Hard"), _("Good"), _("Easy"))
         else:
             labels = (_("Again"), _("Good"), _("Easy"))
