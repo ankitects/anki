@@ -681,9 +681,11 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
     ##########################################################################
 
     def stdSched(self):
+        "True if scheduler changed."
         if self.sched.name != "std":
-            self.sched.onClose()
-        self.sched = self._stdSched
+            self.cleanup()
+            self.sched = self._stdSched
+            return True
 
     def cramGroups(self, gids, order="mod desc", min=0, max=None):
         self.stdSched()
