@@ -126,7 +126,7 @@ $(".ansbut").focus();
         if self.mw.config['autoplaySounds']:
             playFromText(a)
         # render
-        runHook('showQuestion')
+        runHook('showAnswer')
 
     # Review buttons
     ##########################################################################
