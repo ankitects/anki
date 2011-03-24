@@ -454,7 +454,7 @@ order by modelId, ordinal"""):
         # convert the field name to an ordinal
         ordN = None
         for (ord, fm) in enumerate(fmods[row[0]]):
-            if fm['name'] == row[1]:
+            if fm['name'] == conf['typeAns']:
                 ordN = ord
                 break
         if ordN is not None:
