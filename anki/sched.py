@@ -214,7 +214,7 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
         if self.lrnQueue:
             cutoff = time.time()
             if collapse:
-                cutoff -= self.deck.collapseTime
+                cutoff += self.deck.qconf['collapseTime']
             if self.lrnQueue[0][0] < cutoff:
                 id = heappop(self.lrnQueue)[1]
                 self.lrnCount -= 1
@@ -237,6 +237,7 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
             else:
                 card.grade = 0
             card.due = time.time() + self._delayForGrade(conf, card.grade)
+            heappush(self.lrnQueue, (card.due, card.id))
         self._logLrn(card, ease, conf, leaving)
 
     def _delayForGrade(self, conf, grade):

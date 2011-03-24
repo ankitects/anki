@@ -575,3 +575,17 @@ def test_timing():
     time.sleep(1)
     c = d.sched.getCard()
     assert c.queue == 1
+
+def test_collapse():
+    d = getEmptyDeck()
+    # add a fact
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    d.reset()
+    # test collapsing
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert not d.sched.getCard()
