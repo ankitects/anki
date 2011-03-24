@@ -21,7 +21,7 @@ class CardStats(object):
         c = self.card
         fmt = anki.utils.fmtTimeSpan
         fmtFloat = anki.utils.fmtFloat
-        self.txt = "<table>"
+        self.txt = "<table width=100%%>"
         self.addLine(_("Added"), self.strTime(c.crt))
         first = self.deck.db.scalar(
             "select time/1000 from revlog where rep = 1 and cid = :id", id=c.id)
@@ -29,7 +29,10 @@ class CardStats(object):
             self.addLine(_("First Review"), self.strTime(first))
         self.addLine(_("Changed"), self.strTime(c.mod))
         if c.reps:
-            next = time.time() - c.due
+            if c.queue == 2:
+                next = (self.deck.sched.today - c.due)*86400
+            else:
+                next = time.time() - c.due
             if next > 0:
                 next = _("%s ago") % fmt(next)
             else:
@@ -80,6 +83,10 @@ class DeckStats(object):
         return self.deck.db.scalar(
             "select count(id) from cards where type = 0")
 
+    def info(self, txt):
+        return """
+<div class=info>%s</div>""" % txt
+
     def report(self):
         "Return an HTML string with a report."
         fmtPerc = anki.utils.fmtPercentage
@@ -87,7 +94,9 @@ class DeckStats(object):
         if not self.deck.cardCount():
             return _("Please add some cards first.") + "<p/>"
         d = self.deck
-        html="<h1>" + _("Deck Statistics") + "</h1>"
+        # General
+        ##################################################
+        html = "<h1>"+_("General")+"</h1>"
         html += _("Deck created: <b>%s</b> ago<br>") % self.crtTimeStr()
         total = d.cardCount()
         new = self.newCountAll()
@@ -101,9 +110,13 @@ class DeckStats(object):
         (stats["old"], stats["oldP"]) = (old, oldP)
         (stats["young"], stats["youngP"]) = (young, youngP)
         html += _("Total number of cards:") + " <b>%d</b><br>" % total
-        html += _("Total number of facts:") + " <b>%d</b><br><br>" % d.factCount()
-
-        html += "<b>" + _("Card Maturity") + "</b><br>"
+        html += _("Total number of facts:") + " <b>%d</b>" % d.factCount()
+        # Maturity
+        ##################################################
+        html += "<h1>" + _("Card Maturity") + "</h1>"
+        html += self.info(_("""\
+Mature cards are cards that have an interval over 21 days.<br>
+A card's interval is the time before it will be shown again."""))
         html += _("Mature cards: <!--card count-->") + " <b>%(old)d</b> (%(oldP)s)<br>" % {
                 'old': stats['old'], 'oldP' : fmtPerc(stats['oldP'])}
         html += _("Young cards: <!--card count-->") + " <b>%(young)d</b> (%(youngP)s)<br>" % {
@@ -113,9 +126,9 @@ class DeckStats(object):
         avgInt = self.getAverageIvl()
         if avgInt:
             html += _("Average interval: ") + ("<b>%s</b> ") % fmtFloat(avgInt) + _("days")
-            html += "<br>"
-        html += "<br>"
-        html += "<b>" + _("Correct Answers") + "</b><br>"
+        # Correct
+        ##################################################
+        html += "<h1>" + _("Correct Answers") + "</h1>"
         (mAll, mYes, mPerc) = self.getMatureCorrect()
         (yAll, yYes, yPerc) = self.getYoungCorrect()
         (nAll, nYes, nPerc) = self.getNewCorrect()
@@ -139,12 +152,14 @@ class DeckStats(object):
             retval =  ("<b>%d</b> " % reps)  + ngettext("rep", "reps", reps)
             retval += ("/<b>%d</b> " % days) + ngettext("day", "days", days)
             return retval
+        # Recent work
+        ##################################################
         if existing and avgInt:
-            html += "<b>" + _("Recent Work") + "</b>"
-            if sys.platform.startswith("darwin"):
-                html += "<table width=250>"
-            else:
-                html += "<table width=200>"
+            html += "<h1>" + _("Recent Work") + "</h1>"
+            html += self.info(_("""\
+The number of cards you have answered recently. Each time you answer a card,
+it counts as a repetition - or <i>rep</i>."""))
+            html += "<table>"
             html += tr(_("In last week"), repsPerDay(
                 self.getRepsDone(-7, 0),
                 self.getDaysReviewed(-7, 0)))
@@ -164,12 +179,12 @@ class DeckStats(object):
                 self.getRepsDone(-13000, 0),
                 self.getDaysReviewed(-13000, 0)))
             html += "</table>"
-
-            html += "<br><br><b>" + _("Average Daily Reviews") + "</b>"
-            if sys.platform.startswith("darwin"):
-                html += "<table width=250>"
-            else:
-                html += "<table width=200>"
+            # Average daily
+            ##################################################
+            html += "<h1>" + _("Average Daily Reviews") + "</h1>"
+            html += self.info(_("""\
+The number of cards answered in a period, divided by the days in that period."""))
+            html += "<table>"
             html += tr(_("Deck life"), ("<b>%s</b> ") % (
                 fmtFloat(self.getSumInverseRoundIvl())) + _("cards/day"))
             html += tr(_("In next week"), ("<b>%s</b> ") % (
@@ -187,12 +202,12 @@ class DeckStats(object):
             html += tr(_("In last year"), ("<b>%s</b> ") % (
                 fmtFloat(self.getPastWorkloadPeriod(365))) + _("cards/day"))
             html += "</table>"
-
-            html += "<br><br><b>" + _("Average Added") + "</b>"
-            if sys.platform.startswith("darwin"):
-                html += "<table width=250>"
-            else:
-                html += "<table width=200>"
+            # Average added
+            ##################################################
+            html += "<h1>" + _("Average Added") + "</h1>"
+            html += self.info(_("""\
+The number of cards added in a period, divided by the days in that period."""))
+            html += "<table>"
             html += tr(_("Deck life"), _("<b>%(a)s</b>/day, <b>%(b)s</b>/mon") % {
                 'a': fmtFloat(self.newAverage()), 'b': fmtFloat(self.newAverage()*30)})
             np = self.getNewPeriod(7)
@@ -211,12 +226,13 @@ class DeckStats(object):
             html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(365))}))
             html += "</table>"
-
-            html += "<br><br><b>" + _("Average New Seen") + "</b>"
-            if sys.platform.startswith("darwin"):
-                html += "<table width=250>"
-            else:
-                html += "<table width=200>"
+            # Average first seen
+            ##################################################
+            html += "<h1>" + _("Average First Seen") + "</h1>"
+            html += self.info(_("""\
+The number of cards seen for the first time in a period, divided by the days
+in that period."""))
+            html += "<table>"
             np = self.getFirstPeriod(7)
             html += tr(_("In last week"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(7))}))
@@ -233,8 +249,13 @@ class DeckStats(object):
             html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
                 {'a': np, 'b': fmtFloat(np / float(365))}))
             html += "</table>"
-
-            html += "<br><br><b>" + _("Card Ease") + "</b><br>"
+            # Card ease
+            ##################################################
+            html += "<h1>" + _("Card Ease") + "</h1>"
+            html += self.info(_("""\
+A card's factor is the amount its interval will increase when you answer 'good'.
+A card with an interval of 10 days and a factor of 2.5 will get a next
+interval of 25 days."""))
             html += _("Lowest factor: %.2f") % d.db.scalar(
                 "select min(factor)/1000.0 from cards") + "<br>"
             html += _("Average factor: %.2f") % d.db.scalar(
@@ -242,6 +263,7 @@ class DeckStats(object):
             html += _("Highest factor: %.2f") % d.db.scalar(
                 "select max(factor)/1000.0 from cards") + "<br>"
 
+            html += "<div style='clear:both;'></div>"
             html = runFilter("deckStats", html)
         return html
 
