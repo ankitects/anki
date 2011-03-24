@@ -142,7 +142,8 @@ class AnkiQt(QMainWindow):
 
     sharedCSS = """
 body {
-background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
+/*background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));*/
+background: #eee;
 margin: 2em; }
 a:hover { background-color: #aaa; }
 .but {

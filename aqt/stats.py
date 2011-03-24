@@ -65,13 +65,21 @@ class DeckStats(QDialog):
     def __init__(self, mw):
         self.mw = mw
         QDialog.__init__(self, mw)
+        self.setWindowTitle(_("Deck Statistics"))
         self.setModal(True)
         self.mw.progress.start()
         self.web = AnkiWebView(self)
         stats = self.mw.deck.deckStats()
         l = QVBoxLayout(self)
+        l.setContentsMargins(0,0,0,0)
         l.addWidget(self.web)
         self.setLayout(l)
-        self.web.setHtml(stats)
+        self.web.stdHtml(stats, css=self.mw.sharedCSS+"""
+body { margin: 2em; }
+h1 { font-size: 18px; border-bottom: 1px solid #000; margin-top: 1em;
+     clear: both; }
+.info {float:right; padding: 10px; max-width: 300px; border-radius: 5px;
+  background: #ddd; font-size: 14px; }
+""")
         self.mw.progress.finish()
         self.exec_()
