@@ -94,7 +94,5 @@
     <file>icons/text_under.png</file>
     <file>icons/view-pim-news.png</file>
     <file>icons/view_text.png</file>
-    <file>jquery.min.js</file>
-    <file>jquery.flot.min.js</file>
   </qresource>
 </RCC>

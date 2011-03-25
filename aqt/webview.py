@@ -7,6 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import QWebPage, QWebView
 from PyQt4 import pyqtconfig
+import anki.js
 QtConfig = pyqtconfig.Configuration()
 
 # Bridge for Qt<->JS
@@ -82,10 +83,10 @@ class AnkiWebView(QWebView):
     def stdHtml(self, body, css="", bodyClass="", loadCB=None):
         self.setHtml("""
 <html><head><style>%s</style>
-<script src="qrc:/jquery.min.js"></script>
-<script src="qrc:/jquery.flot.min.js"></script>
+<script>%s</script>
 </head>
-<body class="%s">%s</body></html>""" % (css, bodyClass, body), loadCB)
+<body class="%s">%s</body></html>""" % (
+    css, anki.js.all, bodyClass, body), loadCB)
         # ensure we're focused
         self.setFocus()
     def setBridge(self, bridge):
