@@ -72,19 +72,6 @@ class Graphs(object):
         graph.set_ylabel("Minutes")
         return fig
 
-    def ivlPeriod(self, days=30):
-        self._calcStats()
-        fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
-        ints = self.stats['days']
-        self._addMissing(ints, 0, days)
-        ivls = self._unzip(ints.items(), limit=days)
-        graph = fig.add_subplot(111)
-        self._varGraph(graph, days, intervC, *ivls)
-        graph.set_xlim(xmin=0, xmax=days+1)
-        graph.set_xlabel("Card Interval")
-        graph.set_ylabel("Number of Cards")
-        return fig
-
     def addedRecently(self, numdays=30, attr='crt'):
         self._calcStats()
         days = {}
@@ -167,6 +154,7 @@ as type, ease, count() from revlog group by type, ease""")
             return
         self._stats = {}
         self._stats['due'] = self._dueCards()
+        self._stats['ivls'] = self._ivls()
         return
 
         days = {}
@@ -219,17 +207,13 @@ from cards where queue = 1 and ivl > 21"""
                     *(int(x)for x in dr[1].split("-")))).days, dr[4]/60.0), dayReps))
 
     def _dueCards(self, days=7):
-        if self.selective:
-            extra = self.deck.sched._groupLimit("rev")
-        else:
-            extra = ""
         return self.deck.db.all("""
 select due-:today,
 count(), -- all
 sum(case when ivl >= 21 then 1 else 0 end) -- mature
 from cards
 where queue = 2 and due < (:today+:days) %s
-group by due order by due""" % extra,
+group by due order by due""" % self._limit(),
                                 today=self.deck.sched.today, days=days)
 
     def _graph(self, id, data, conf={}, width=600, height=200):
@@ -274,9 +258,31 @@ $(function () {
         for day in d:
             tot += day[1]+day[2]
             days.append((day[0], tot))
-        txt = self._graph(id="due", data=[
+        txt = self._graph(id="cum", data=[
             dict(data=days, lines=dict(show=True, fill=True),
              color=dueCumulC, label=_("Cards")),
+            ])
+        self.save(txt)
+
+    def _limit(self):
+        if self.selective:
+            return self.deck.sched._groupLimit("rev")
+        else:
+            return ""
+
+    def _ivls(self):
+        return self.deck.db.all("""
+select ivl / 7, count() from cards
+where queue = 2 %s
+group by ivl / 7
+order by ivl / 7""" % self._limit())
+
+    def ivlGraph(self):
+        self._calcStats()
+        ivls = self._stats['ivls']
+        txt = self._graph(id="ivl", data=[
+            dict(data=ivls, bars=dict(show=True, barWidth=0.8),
+             color=intervC)
             ])
         self.save(txt)
 

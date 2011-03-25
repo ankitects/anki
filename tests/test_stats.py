@@ -27,7 +27,7 @@ def test_graphs():
     d = Deck(os.path.expanduser("~/test.anki"))
     g = d.graphs()
     g._calcStats()
-    g.cumDueGraph()
+    g.ivlGraph()
     return
     g.nextDue()
     g.workDone()
