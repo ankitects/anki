@@ -26,8 +26,10 @@ def test_graphs():
     from anki import Deck
     d = Deck(os.path.expanduser("~/test.anki"))
     g = d.graphs()
-    g._calcStats()
-    g.ivlGraph()
+    assert g.dueGraph()
+    assert g.cumDueGraph()
+    assert g.ivlGraph()
+    assert g.easeGraph()
     return
     g.nextDue()
     g.workDone()
