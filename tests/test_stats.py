@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import time, copy
+import time, copy, os
 from tests.shared import assertException, getEmptyDeck
 from anki.stdmodels import BasicModel
 from anki.utils import stripHTML, intTime
@@ -23,14 +23,12 @@ def test_stats():
     assert d.deckStats()
 
 def test_graphs():
-    d = getEmptyDeck()
-    f = d.newFact()
-    f['Front'] = "foo"
-    d.addFact(f)
-    d.reset()
-    d.sched.answerCard(d.sched.getCard(), 1)
-    c = f.cards()[0]
+    from anki import Deck
+    d = Deck(os.path.expanduser("~/test.anki"))
     g = d.graphs()
+    g._calcStats()
+    g.cumDueGraph()
+    return
     g.nextDue()
     g.workDone()
     g.timeSpent()

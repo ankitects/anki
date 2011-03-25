@@ -2,88 +2,30 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os, sys, time, datetime
+import os, sys, time, datetime, simplejson
 from anki.lang import _
 
 #colours for graphs
 dueYoungC = "#ffb380"
 dueMatureC = "#ff5555"
 dueCumulC = "#ff8080"
-
 reviewNewC = "#80ccff"
 reviewYoungC = "#3377ff"
 reviewMatureC = "#0000ff"
 reviewTimeC = "#0fcaff"
-
 easesNewC = "#80b3ff"
 easesYoungC = "#5555ff"
 easesMatureC = "#0f5aff"
-
 addedC = "#b3ff80"
 firstC = "#b380ff"
 intervC = "#80e5ff"
 
-# support frozen distribs
-if sys.platform.startswith("darwin"):
-    try:
-        del os.environ['MATPLOTLIBDATA']
-    except:
-        pass
-
-try:
-    from matplotlib.figure import Figure
-except UnicodeEncodeError:
-    # haven't tracked down the cause of this yet, but reloading fixes it
-    try:
-        from matplotlib.figure import Figure
-    except ImportError:
-        pass
-except ImportError:
-    pass
-
-def graphsAvailable():
-    return 'matplotlib' in sys.modules
-
 class Graphs(object):
 
-    def __init__(self, deck, width=8, height=3, dpi=75, selective=True):
+    def __init__(self, deck, selective=True):
         self.deck = deck
-        self.stats = None
-        self.width = width
-        self.height = height
-        self.dpi = dpi
+        self._stats = None
         self.selective = selective
-
-    def nextDue(self, days=30):
-        self._calcStats()
-        fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
-        graph = fig.add_subplot(111)
-        dayslists = [self.stats['next'], self.stats['daysByType']['mature']]
-
-        for dayslist in dayslists:
-            self._addMissing(dayslist, self.stats['lowestInDay'], days)
-
-        argl = []
-
-        for dayslist in dayslists:
-            dl = [x for x in dayslist.items() if x[0] <= days]
-            argl.extend(list(self._unzip(dl)))
-
-        self._varGraph(graph, days, [dueYoungC, dueMatureC], *argl)
-
-        cheat = fig.add_subplot(111)
-        b1 = cheat.bar(0, 0, color = dueYoungC)
-        b2 = cheat.bar(1, 0, color = dueMatureC)
-
-        cheat.legend([b1, b2], [
-            "Young",
-            "Mature"], loc='upper right')
-
-        graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days+1)
-        graph.set_xlabel("Day (0 = today)")
-        graph.set_ylabel("Cards Due")
-
-        return fig
 
     def workDone(self, days=30):
         self._calcStats()
@@ -128,29 +70,6 @@ class Graphs(object):
         graph.set_ylim(ymax=max(a for a in times[1]) + 0.1)
         graph.set_xlabel("Day (0 = today)")
         graph.set_ylabel("Minutes")
-        return fig
-
-    def cumulativeDue(self, days=30):
-        self._calcStats()
-        fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
-        graph = fig.add_subplot(111)
-        self._addMissing(self.stats['next'], 0, days-1)
-        dl = [x for x in self.stats['next'].items() if x[0] <= days]
-        (x, y) = self._unzip(dl)
-        count=0
-        y = list(y)
-        for i in range(len(x)):
-            count = count + y[i]
-            if i == 0:
-                continue
-            y[i] = count
-            if x[i] > days:
-                break
-        self._filledGraph(graph, days, dueCumulC, 1, x, y)
-        graph.set_xlim(xmin=self.stats['lowestInDay'], xmax=days-1)
-        graph.set_ylim(ymax=graph.get_ylim()[1]+10)
-        graph.set_xlabel("Day (0 = today)")
-        graph.set_ylabel("Cards Due")
         return fig
 
     def ivlPeriod(self, days=30):
@@ -243,60 +162,123 @@ as type, ease, count() from revlog group by type, ease""")
         graph.grid(True)
         return fig
 
-    def _calcStats (self):
-        if not self.stats:
-            days = {}
-            daysYoung = {}
-            daysMature =  {}
-            months = {}
-            next = {}
-            lowestInDay = 0
-            self.endOfDay = self.deck.sched.dayCutoff
-            t = time.time()
-            young = """
+    def _calcStats(self):
+        if self._stats:
+            return
+        self._stats = {}
+        self._stats['due'] = self._dueCards()
+        return
+
+        days = {}
+        daysYoung = {}
+        daysMature =  {}
+        months = {}
+        next = {}
+        lowestInDay = 0
+        self.endOfDay = self.deck.sched.dayCutoff
+        t = time.time()
+        young = """
 select ivl, due from cards
 where queue between 0 and 1 and ivl <= 21"""
-            mature = """
+        mature = """
 select ivl, due
 from cards where queue = 1 and ivl > 21"""
-            if self.selective:
-                young += self.deck.sched._groupLimit("rev")
-                mature += self.deck.sched._groupLimit("rev")
-            young = self.deck.db.all(young)
-            mature = self.deck.db.all(mature)
-            for (src, dest) in [(young, daysYoung),
-                                (mature, daysMature)]:
-                for (ivl, due) in src:
-                    day=int(round(ivl))
-                    days[day] = days.get(day, 0) + 1
-                    indays = int(((due - self.endOfDay) / 86400.0) + 1)
-                    next[indays] = next.get(indays, 0) + 1 # type-agnostic stats
-                    dest[indays] = dest.get(indays, 0) + 1 # type-specific stats
-                    if indays < lowestInDay:
-                        lowestInDay = indays
-            self.stats = {}
-            self.stats['next'] = next
-            self.stats['days'] = days
-            self.stats['daysByType'] = {'young': daysYoung,
-                                        'mature': daysMature}
-            self.stats['months'] = months
-            self.stats['lowestInDay'] = lowestInDay
-
-            dayReps = self._getDayReps()
-
-            # fixme: change 0 to correct offset
-            todaydt = datetime.datetime.utcfromtimestamp(
-                time.time() - 0).date()
-            for dest, source in [("dayRepsNew", 0),
-                                 ("dayRepsYoung", 3),
-                                 ("dayRepsMature", 2)]:
-                self.stats[dest] = dict(
-                    map(lambda dr: (-(todaydt - datetime.date(
+        if self.selective:
+            young += self.deck.sched._groupLimit("rev")
+            mature += self.deck.sched._groupLimit("rev")
+        young = self.deck.db.all(young)
+        mature = self.deck.db.all(mature)
+        for (src, dest) in [(young, daysYoung),
+                            (mature, daysMature)]:
+            for (ivl, due) in src:
+                day=int(round(ivl))
+                days[day] = days.get(day, 0) + 1
+                indays = int(((due - self.endOfDay) / 86400.0) + 1)
+                next[indays] = next.get(indays, 0) + 1 # type-agnostic stats
+                dest[indays] = dest.get(indays, 0) + 1 # type-specific stats
+                if indays < lowestInDay:
+                    lowestInDay = indays
+        self.stats['next'] = next
+        self.stats['days'] = days
+        self.stats['daysByType'] = {'young': daysYoung,
+                                    'mature': daysMature}
+        self.stats['months'] = months
+        self.stats['lowestInDay'] = lowestInDay
+        dayReps = self._getDayReps()
+         # fixme: change 0 to correct offset
+        todaydt = datetime.datetime.utcfromtimestamp(
+            time.time() - 0).date()
+        for dest, source in [("dayRepsNew", 0),
+                             ("dayRepsYoung", 3),
+                             ("dayRepsMature", 2)]:
+            self.stats[dest] = dict(
+                map(lambda dr: (-(todaydt - datetime.date(
                     *(int(x)for x in dr[1].split("-")))).days, dr[source]), dayReps))
-
             self.stats['dayTimes'] = dict(
                 map(lambda dr: (-(todaydt - datetime.date(
-                *(int(x)for x in dr[1].split("-")))).days, dr[4]/60.0), dayReps))
+                    *(int(x)for x in dr[1].split("-")))).days, dr[4]/60.0), dayReps))
+
+    def _dueCards(self, days=7):
+        if self.selective:
+            extra = self.deck.sched._groupLimit("rev")
+        else:
+            extra = ""
+        return self.deck.db.all("""
+select due-:today,
+count(), -- all
+sum(case when ivl >= 21 then 1 else 0 end) -- mature
+from cards
+where queue = 2 and due < (:today+:days) %s
+group by due order by due""" % extra,
+                                today=self.deck.sched.today, days=days)
+
+    def _graph(self, id, data, conf={}, width=600, height=200):
+        return (
+"""<div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div>
+<script>
+$(function () {
+    $.plot($("#%(id)s"), %(data)s, %(conf)s);
+});
+</script>""" % dict(
+    id=id, w=width, h=height,
+    data=simplejson.dumps(data),
+    conf=simplejson.dumps(conf)))
+
+    def dueGraph(self):
+        d = self._dueCards()
+        yng = []
+        mtr = []
+        for day in d:
+            yng.append((day[0], day[1]))
+            mtr.append((day[0], day[2]))
+        txt = self._graph(id="due", data=[
+            dict(data=yng, bars=dict(show=True, barWidth=0.8),
+             color=dueYoungC, label=_("Young")),
+            dict(data=mtr, bars=dict(show=True, barWidth=0.8),
+             color=dueMatureC, label=_("Mature"))
+            ])
+        self.save(txt)
+
+    def save(self, txt):
+        open(os.path.expanduser("~/test.html"), "w").write("""
+<html><head>
+<script src="jquery.min.js"></script>
+<script src="jquery.flot.min.js"></script>
+</head><body>%s</body></html>"""%txt)
+
+    def cumDueGraph(self):
+        self._calcStats()
+        d = self._stats['due']
+        tot = 0
+        days = []
+        for day in d:
+            tot += day[1]+day[2]
+            days.append((day[0], tot))
+        txt = self._graph(id="due", data=[
+            dict(data=days, lines=dict(show=True, fill=True),
+             color=dueCumulC, label=_("Cards")),
+            ])
+        self.save(txt)
 
     def _getDayReps(self):
         return self.deck.db.all("""
@@ -323,81 +305,3 @@ group by day order by day
                 tuples = tuples[:limit+1]
         new = zip(*tuples)
         return new
-
-    def _varGraph(self, graph, days, colours=["b"], *args):
-        if len(args[0]) < 120:
-            return self._barGraph(graph, days, colours, *args)
-        else:
-            return self._filledGraph(graph, days, colours, *args)
-
-    def _filledGraph(self, graph, days, colours=["b"], *args):
-        self._filledGraph1(graph, days, colours, 0, *args)
-
-    def _filledGraph1(self, graph, days, colours, lw, *args):
-        if isinstance(colours, str):
-            colours = [colours]
-        print args, colours
-        for triplet in [(args[n], args[n + 1], colours[n / 2]) for n in range(0, len(args), 2)]:
-            x = list(triplet[0])
-            y = list(triplet[1])
-            c = triplet[2]
-            lowest = 99999
-            highest = -lowest
-            for i in range(len(x)):
-                if x[i] < lowest:
-                    lowest = x[i]
-                if x[i] > highest:
-                    highest = x[i]
-            # ensure the filled area reaches the bottom
-            x.insert(0, lowest - 1)
-            y.insert(0, 0)
-            x.append(highest + 1)
-            y.append(0)
-            # plot
-            graph.fill(x, y, c, lw=lw)
-        graph.grid(True)
-        graph.set_ylim(ymin=0, ymax=max(2, graph.get_ylim()[1]))
-
-    def _barGraph(self, graph, days, colours, *args):
-        if isinstance(colours, str):
-            colours = [colours]
-        lim = None
-        for triplet in [(args[n], args[n + 1], colours[n / 2]) for n in range(0, len(args), 2)]:
-            x = list(triplet[0])
-            y = list(triplet[1])
-            c = triplet[2]
-            lw = 0
-            if lim is None:
-                lim = (x[0], x[-1])
-                length = (lim[1] - lim[0])
-                if len(args) > 4:
-                    if length <= 30:
-                        lw = 1
-                else:
-                    if length <= 90:
-                        lw = 1
-            lowest = 99999
-            highest = -lowest
-            for i in range(len(x)):
-                if x[i] < lowest:
-                    lowest = x[i]
-                if x[i] > highest:
-                    highest = x[i]
-            graph.bar(x, y, color=c, width=1, linewidth=lw)
-        graph.grid(True)
-        graph.set_ylim(ymin=0, ymax=max(2, graph.get_ylim()[1]))
-        import numpy as np
-        if length > 10:
-            step = length / 10.0
-            # python's range() won't accept float step args, so we do it manually
-            if lim[0] < 0:
-                ticks = [int(lim[1] - step * x) for x in range(10)]
-            else:
-                ticks = [int(lim[0] + step * x) for x in range(10)]
-        else:
-            ticks = list(xrange(lim[0], lim[1]+1))
-        graph.set_xticks(np.array(ticks) + 0.5)
-        graph.set_xticklabels([str(int(x)) for x in ticks])
-        for tick in graph.xaxis.get_major_ticks():
-            tick.tick1On = False
-            tick.tick2On = False
