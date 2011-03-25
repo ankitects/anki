@@ -326,7 +326,7 @@ name, "{}", "{}", ?, "" from models2""", simplejson.dumps(
     for row in db.execute("""
 select
 cast(time*1000 as int), cardId, ease, reps,
-cast(lastInterval as int), cast(nextInterval as int),
+cast(nextInterval as int), cast(lastInterval as int),
 cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
 1 from reviewHistory"""):
         row = list(row)
