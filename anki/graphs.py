@@ -12,7 +12,8 @@ dueCumulC = "#ff8080"
 reviewNewC = "#80ccff"
 reviewYoungC = "#3377ff"
 reviewMatureC = "#0000ff"
-reviewTimeC = "#0fcaff"
+lrnTimeC = "#0fcaff"
+revTimeC = "#ffcaff"
 easesNewC = "#80b3ff"
 easesYoungC = "#5555ff"
 easesMatureC = "#0f5aff"
@@ -73,32 +74,52 @@ group by due order by due""" % self._limit(),
     # Reps and time spent
     ######################################################################
 
-    def _done(self):
-        return
-        dayReps = self._getDayReps()
-         # fixme: change 0 to correct offset
-        todaydt = datetime.datetime.utcfromtimestamp(
-            time.time() - 0).date()
-        for dest, source in [("dayRepsNew", 0),
-                             ("dayRepsYoung", 3),
-                             ("dayRepsMature", 2)]:
-            self.stats[dest] = dict(
-                map(lambda dr: (-(todaydt - datetime.date(
-                    *(int(x)for x in dr[1].split("-")))).days, dr[source]), dayReps))
-            self.stats['dayTimes'] = dict(
-                map(lambda dr: (-(todaydt - datetime.date(
-                    *(int(x)for x in dr[1].split("-")))).days, dr[4]/60.0), dayReps))
+    def repsGraph(self):
+        self._calcStats()
+        lrn = []
+        yng = []
+        mtr = []
+        for row in self._stats['done']:
+            lrn.append((row[0], row[1]))
+            yng.append((row[0], row[2]))
+            mtr.append((row[0], row[3]))
+        txt = self._graph(id="due", data=[
+            dict(data=lrn, bars=dict(show=True, barWidth=0.8, align="center"),
+             color=reviewNewC, label=_("Learning")),
+            dict(data=yng, bars=dict(show=True, barWidth=0.8, align="center"),
+             color=reviewYoungC, label=_("Young")),
+            dict(data=mtr, bars=dict(show=True, barWidth=0.8, align="center"),
+             color=reviewMatureC, label=_("Mature")),
+            ])
+        return txt
 
-    def _getDayReps(self):
+    def timeGraph(self):
+        self._calcStats()
+        lrn = []
+        rev = []
+        for row in self._stats['done']:
+            lrn.append((row[0], row[4]))
+            rev.append((row[0], row[5]))
+        txt = self._graph(id="due", data=[
+            dict(data=lrn, bars=dict(show=True, barWidth=0.8, align="center"),
+             color=lrnTimeC, label=_("Learning")),
+            dict(data=rev, bars=dict(show=True, barWidth=0.8, align="center"),
+             color=revTimeC, label=_("Reviews")),
+            ])
+        self.save(txt)
+        return txt
+
+    def _done(self):
+        # without selective for now
         return self.deck.db.all("""
 select
-count() as combinedNewReps,
-date(time/1000-:off, "unixepoch") as day,
-sum(case when lastIvl > 21 then 1 else 0 end) as matureReps,
-count() - sum(case when rep = 1 then 1 else 0 end) as combinedYoungReps,
-sum(taken/1000) as reviewTime from revlog
-group by day order by day
-""", off=0)
+cast((time/1000 - :cut) / 86400.0 as int)+1 as day,
+sum(case when type = 0 then 1 else 0 end), -- lrn count
+sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
+sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
+sum(case when type = 0 then taken/1000 else 0 end)/3600.0, -- lrn time
+sum(case when type = 1 then taken/1000 else 0 end)/3600.0 -- rev time
+from revlog group by day order by day""", cut=self.deck.sched.dayCutoff)
 
     # Intervals
     ######################################################################

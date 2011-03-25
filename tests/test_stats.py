@@ -30,11 +30,9 @@ def test_graphs():
     assert g.cumDueGraph()
     assert g.ivlGraph()
     assert g.easeGraph()
+    assert g.repsGraph()
+    assert g.timeGraph()
     return
-    g.nextDue()
     g.workDone()
     g.timeSpent()
-    g.cumulativeDue()
-    g.ivlPeriod()
     g.addedRecently()
-    g.easeBars()
