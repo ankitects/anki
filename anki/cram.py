@@ -5,6 +5,8 @@
 from anki.utils import ids2str, intTime
 from anki.sched import Scheduler
 
+# fixme: set log type for cram
+
 class CramScheduler(Scheduler):
     name = "cram"
 

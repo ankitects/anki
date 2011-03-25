@@ -223,6 +223,10 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
     def _answerLrnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
         conf = self._lrnConf(card)
+        if card.type == 2:
+            type = 2
+        else:
+            type = 0
         leaving = False
         if ease == 3:
             self._rescheduleAsRev(card, conf, True)
@@ -238,7 +242,7 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
                 card.grade = 0
             card.due = time.time() + self._delayForGrade(conf, card.grade)
             heappush(self.lrnQueue, (card.due, card.id))
-        self._logLrn(card, ease, conf, leaving)
+        self._logLrn(card, ease, conf, leaving, type)
 
     def _delayForGrade(self, conf, grade):
         return conf['delays'][grade]*60
@@ -279,7 +283,7 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
         card.due = self.today+card.ivl
         card.factor = conf['initialFactor']
 
-    def _logLrn(self, card, ease, conf, leaving):
+    def _logLrn(self, card, ease, conf, leaving, type):
         # limit time taken to global setting
         taken = min(card.timeTaken(), self._cardConf(card)['maxTaken']*1000)
         def log():
@@ -290,7 +294,7 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
                 self._delayForGrade(conf, card.grade),
                 # last interval
                 self._delayForGrade(conf, max(0, card.grade-1)),
-                leaving, taken, 0)
+                leaving, taken, type)
         try:
             log()
         except:
