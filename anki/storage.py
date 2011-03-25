@@ -328,7 +328,7 @@ select
 cast(time*1000 as int), cardId, ease, reps,
 cast(lastInterval as int), cast(nextInterval as int),
 cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
-0 from reviewHistory"""):
+1 from reviewHistory"""):
         row = list(row)
         # new card ids
         try:
