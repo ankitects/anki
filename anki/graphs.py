@@ -4,6 +4,7 @@
 
 import os, sys, time, datetime, simplejson
 from anki.lang import _
+import anki.js
 
 #colours for graphs
 dueYoungC = "#ffb380"
@@ -27,6 +28,15 @@ class Graphs(object):
         self.deck = deck
         self._stats = None
         self.selective = selective
+
+    def report(self):
+        txt = (self.dueGraph() +
+               self.repsGraph() +
+               self.timeGraph() +
+               self.cumDueGraph() +
+               self.ivlGraph() +
+               self.easeGraph())
+        return "<script>%s</script>%s" % (anki.js.all, txt)
 
     # Due and cumulative due
     ######################################################################
@@ -83,7 +93,7 @@ group by due order by due""" % self._limit(),
             lrn.append((row[0], row[1]))
             yng.append((row[0], row[2]))
             mtr.append((row[0], row[3]))
-        txt = self._graph(id="due", data=[
+        txt = self._graph(id="reps", data=[
             dict(data=lrn, bars=dict(show=True, barWidth=0.8, align="center"),
              color=reviewNewC, label=_("Learning")),
             dict(data=yng, bars=dict(show=True, barWidth=0.8, align="center"),
@@ -100,13 +110,12 @@ group by due order by due""" % self._limit(),
         for row in self._stats['done']:
             lrn.append((row[0], row[4]))
             rev.append((row[0], row[5]))
-        txt = self._graph(id="due", data=[
+        txt = self._graph(id="time", data=[
             dict(data=lrn, bars=dict(show=True, barWidth=0.8, align="center"),
              color=lrnTimeC, label=_("Learning")),
             dict(data=rev, bars=dict(show=True, barWidth=0.8, align="center"),
              color=revTimeC, label=_("Reviews")),
             ])
-        self.save(txt)
         return txt
 
     def _done(self):
@@ -211,13 +220,6 @@ $(function () {
             return self.deck.sched._groupLimit("rev")
         else:
             return ""
-
-    def save(self, txt):
-        open(os.path.expanduser("~/test.html"), "w").write("""
-<html><head>
-<script src="jquery.min.js"></script>
-<script src="jquery.flot.min.js"></script>
-</head><body>%s</body></html>"""%txt)
 
     def _addMissing(self, dic, min, max):
         for i in range(min, max+1):

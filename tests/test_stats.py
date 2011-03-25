@@ -22,17 +22,14 @@ def test_stats():
     # deck stats
     assert d.deckStats()
 
+def test_graphs_empty():
+    d = getEmptyDeck()
+    assert d.graphs().report()
+
 def test_graphs():
     from anki import Deck
     d = Deck(os.path.expanduser("~/test.anki"))
     g = d.graphs()
-    assert g.dueGraph()
-    assert g.cumDueGraph()
-    assert g.ivlGraph()
-    assert g.easeGraph()
-    assert g.repsGraph()
-    assert g.timeGraph()
+    rep = g.report()
+    open(os.path.expanduser("~/test.html"), "w").write(rep)
     return
-    g.workDone()
-    g.timeSpent()
-    g.addedRecently()
