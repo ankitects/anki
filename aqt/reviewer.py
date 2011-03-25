@@ -272,6 +272,8 @@ $(".ansbut").focus();
         elif url.startswith("typeans:"):
             (cmd, arg) = url.split(":")
             self.processTypedAns(arg)
+        else:
+            QDesktopServices.openUrl(QUrl(url))
 
     # CSS
     ##########################################################################
