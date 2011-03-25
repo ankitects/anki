@@ -123,6 +123,11 @@ function showans () {
 function proctypeans (res) {
     $("#typeans").replaceWith(res);
 }
+function space() {
+    if (/^ease/.test(document.activeElement.href)) {
+        py.link(document.activeElement.href);
+    }
+}
 $(document).ready(function () {
 $(".ansbut").focus();
 });
@@ -244,8 +249,7 @@ $(".ansbut").focus();
             if evt.key() in (Qt.Key_Enter,
                              Qt.Key_Return,
                              Qt.Key_Space):
-                self._answerCard(self._defaultEase())
-                return True
+                self.web.eval("space();")
             else:
                 key = unicode(evt.text())
                 if key and key >= "1" and key <= "4":
