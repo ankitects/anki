@@ -631,6 +631,10 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
         from anki.stats import DeckStats
         return DeckStats(self).report()
 
+    def graphs(self):
+        from anki.graphs import Graphs
+        return Graphs(self)
+
     # Timeboxing
     ##########################################################################
 

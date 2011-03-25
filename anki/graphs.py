@@ -44,7 +44,7 @@ except ImportError:
 def graphsAvailable():
     return 'matplotlib' in sys.modules
 
-class DeckGraphs(object):
+class Graphs(object):
 
     def __init__(self, deck, width=8, height=3, dpi=75, selective=True):
         self.deck = deck
@@ -54,89 +54,22 @@ class DeckGraphs(object):
         self.dpi = dpi
         self.selective = selective
 
-    def calcStats (self):
-        if not self.stats:
-            days = {}
-            daysYoung = {}
-            daysMature =  {}
-            months = {}
-            next = {}
-            lowestInDay = 0
-            self.endOfDay = self.deck.failedCutoff
-            t = time.time()
-            young = """
-select interval, due from cards c
-where queue between 0 and 1 and interval <= 21"""
-            mature = """
-select interval, due
-from cards c where queue = 1 and interval > 21"""
-            if self.selective:
-                young = self.deck._cardLimit("revActive", "revInactive",
-                                             young)
-                mature = self.deck._cardLimit("revActive", "revInactive",
-                                             mature)
-            young = self.deck.db.all(young)
-            mature = self.deck.db.all(mature)
-            for (src, dest) in [(young, daysYoung),
-                                (mature, daysMature)]:
-                for (interval, due) in src:
-                    day=int(round(interval))
-                    days[day] = days.get(day, 0) + 1
-                    indays = int(((due - self.endOfDay) / 86400.0) + 1)
-                    next[indays] = next.get(indays, 0) + 1 # type-agnostic stats
-                    dest[indays] = dest.get(indays, 0) + 1 # type-specific stats
-                    if indays < lowestInDay:
-                        lowestInDay = indays
-            self.stats = {}
-            self.stats['next'] = next
-            self.stats['days'] = days
-            self.stats['daysByType'] = {'young': daysYoung,
-                                        'mature': daysMature}
-            self.stats['months'] = months
-            self.stats['lowestInDay'] = lowestInDay
-
-            dayReps = self.getDayReps()
-
-            todaydt = datetime.datetime.utcfromtimestamp(
-                time.time() - self.deck.utcOffset).date()
-            for dest, source in [("dayRepsNew", "combinedNewReps"),
-                                 ("dayRepsYoung", "combinedYoungReps"),
-                                 ("dayRepsMature", "matureReps")]:
-                self.stats[dest] = dict(
-                    map(lambda dr: (-(todaydt - datetime.date(
-                    *(int(x)for x in dr["day"].split("-")))).days, dr[source]), dayReps))
-
-            self.stats['dayTimes'] = dict(
-                map(lambda dr: (-(todaydt - datetime.date(
-                *(int(x)for x in dr["day"].split("-")))).days, dr["reviewTime"]/60.0), dayReps))
-
-    def getDayReps(self):
-        return self.deck.db.all("""
-select
-count() as combinedNewReps,
-date(time/1000-:off, "unixepoch") as day,
-sum(case when lastInterval > 21 then 1 else 0 end) as matureReps,
-count() - sum(case when rep = 1 then 1 else 0 end) as combinedYoungReps,
-sum(userTime/1000) as reviewTime from revlog
-group by day order by day
-""", off=self.deck.utcOffset)
-
     def nextDue(self, days=30):
-        self.calcStats()
+        self._calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
         dayslists = [self.stats['next'], self.stats['daysByType']['mature']]
 
         for dayslist in dayslists:
-            self.addMissing(dayslist, self.stats['lowestInDay'], days)
+            self._addMissing(dayslist, self.stats['lowestInDay'], days)
 
         argl = []
 
         for dayslist in dayslists:
             dl = [x for x in dayslist.items() if x[0] <= days]
-            argl.extend(list(self.unzip(dl)))
+            argl.extend(list(self._unzip(dl)))
 
-        self.varGraph(graph, days, [dueYoungC, dueMatureC], *argl)
+        self._varGraph(graph, days, [dueYoungC, dueMatureC], *argl)
 
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(0, 0, color = dueYoungC)
@@ -153,17 +86,17 @@ group by day order by day
         return fig
 
     def workDone(self, days=30):
-        self.calcStats()
+        self._calcStats()
 
         for type in ["dayRepsNew", "dayRepsYoung", "dayRepsMature"]:
-            self.addMissing(self.stats[type], -days, 0)
+            self._addMissing(self.stats[type], -days, 0)
 
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
 
-        args = sum((self.unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"][::-1]), [])
+        args = sum((self._unzip(self.stats[type].items(), limit=days, reverseLimit=True) for type in ["dayRepsMature", "dayRepsYoung", "dayRepsNew"][::-1]), [])
 
-        self.varGraph(graph, days, [reviewNewC, reviewYoungC, reviewMatureC], *args)
+        self._varGraph(graph, days, [reviewNewC, reviewYoungC, reviewMatureC], *args)
 
         cheat = fig.add_subplot(111)
         b1 = cheat.bar(-3, 0, color = reviewNewC)
@@ -183,14 +116,14 @@ group by day order by day
         return fig
 
     def timeSpent(self, days=30):
-        self.calcStats()
+        self._calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         times = self.stats['dayTimes']
-        self.addMissing(times, -days+1, 0)
-        times = self.unzip([(day,y) for (day,y) in times.items()
+        self._addMissing(times, -days+1, 0)
+        times = self._unzip([(day,y) for (day,y) in times.items()
                             if day + days >= 0])
         graph = fig.add_subplot(111)
-        self.varGraph(graph, days, reviewTimeC, *times)
+        self._varGraph(graph, days, reviewTimeC, *times)
         graph.set_xlim(xmin=-days+1, xmax=1)
         graph.set_ylim(ymax=max(a for a in times[1]) + 0.1)
         graph.set_xlabel("Day (0 = today)")
@@ -198,12 +131,12 @@ group by day order by day
         return fig
 
     def cumulativeDue(self, days=30):
-        self.calcStats()
+        self._calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         graph = fig.add_subplot(111)
-        self.addMissing(self.stats['next'], 0, days-1)
+        self._addMissing(self.stats['next'], 0, days-1)
         dl = [x for x in self.stats['next'].items() if x[0] <= days]
-        (x, y) = self.unzip(dl)
+        (x, y) = self._unzip(dl)
         count=0
         y = list(y)
         for i in range(len(x)):
@@ -220,21 +153,21 @@ group by day order by day
         graph.set_ylabel("Cards Due")
         return fig
 
-    def intervalPeriod(self, days=30):
-        self.calcStats()
+    def ivlPeriod(self, days=30):
+        self._calcStats()
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         ints = self.stats['days']
-        self.addMissing(ints, 0, days)
-        intervals = self.unzip(ints.items(), limit=days)
+        self._addMissing(ints, 0, days)
+        ivls = self._unzip(ints.items(), limit=days)
         graph = fig.add_subplot(111)
-        self.varGraph(graph, days, intervC, *intervals)
+        self._varGraph(graph, days, intervC, *ivls)
         graph.set_xlim(xmin=0, xmax=days+1)
         graph.set_xlabel("Card Interval")
         graph.set_ylabel("Number of Cards")
         return fig
 
-    def addedRecently(self, numdays=30, attr='created'):
-        self.calcStats()
+    def addedRecently(self, numdays=30, attr='crt'):
+        self._calcStats()
         days = {}
         fig = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         limit = self.endOfDay - (numdays) * 86400
@@ -248,14 +181,14 @@ group by day order by day
         for r in res:
             d = int((r - self.endOfDay) / 86400.0)
             days[d] = days.get(d, 0) + 1
-        self.addMissing(days, -numdays+1, 0)
+        self._addMissing(days, -numdays+1, 0)
         graph = fig.add_subplot(111)
-        intervals = self.unzip(days.items())
+        ivls = self._unzip(days.items())
         if attr == 'created':
             colour = addedC
         else:
             colour = firstC
-        self.varGraph(graph, numdays, colour, *intervals)
+        self._varGraph(graph, numdays, colour, *ivls)
         graph.set_xlim(xmin=-numdays+1, xmax=1)
         graph.set_xlabel("Day (0 = today)")
         if attr == 'created':
@@ -264,12 +197,124 @@ group by day order by day
             graph.set_ylabel("Cards First Answered")
         return fig
 
-    def addMissing(self, dic, min, max):
+    def easeBars(self):
+        fig = Figure(figsize=(3, 3), dpi=self.dpi)
+        graph = fig.add_subplot(111)
+        types = ("new", "young", "mature")
+        enum = 5
+        offset = 0
+        arrsize = 16
+        arr = [0] * arrsize
+        colours = [easesNewC, easesYoungC, easesMatureC]
+        bars = []
+        eases = self.deck.db.all("""
+select (case when rep = 1 then 0 when lastIvl <= 21 then 1 else 2 end)
+as type, ease, count() from revlog group by type, ease""")
+        if not eases:
+            return None
+        d = {}
+        for (type, ease, count) in eases:
+            type = types[type]
+            if type not in d:
+                d[type] = {}
+            d[type][ease] = count
+        for n, type in enumerate(types):
+            total = float(sum(d[type].values()))
+            for e in range(1, enum):
+                try:
+                    arr[e+offset] = (d[type][e] / total) * 100 + 1
+                except ZeroDivisionError:
+                    arr[e+offset] = 0
+            bars.append(graph.bar(range(arrsize), arr, width=1.0,
+                                  color=colours[n], align='center'))
+            arr = [0] * arrsize
+            offset += 5
+        x = ([""] + [str(n) for n in range(1, enum)]) * 3
+        graph.legend([p[0] for p in bars], ("New",
+                                            "Young",
+                                            "Mature"),
+                     'upper left')
+        graph.set_ylim(ymax=100)
+        graph.set_xlim(xmax=15)
+        graph.set_xticks(range(arrsize))
+        graph.set_xticklabels(x)
+        graph.set_ylabel("% of Answers")
+        graph.set_xlabel("Answer Buttons")
+        graph.grid(True)
+        return fig
+
+    def _calcStats (self):
+        if not self.stats:
+            days = {}
+            daysYoung = {}
+            daysMature =  {}
+            months = {}
+            next = {}
+            lowestInDay = 0
+            self.endOfDay = self.deck.sched.dayCutoff
+            t = time.time()
+            young = """
+select ivl, due from cards
+where queue between 0 and 1 and ivl <= 21"""
+            mature = """
+select ivl, due
+from cards where queue = 1 and ivl > 21"""
+            if self.selective:
+                young += self.deck.sched._groupLimit("rev")
+                mature += self.deck.sched._groupLimit("rev")
+            young = self.deck.db.all(young)
+            mature = self.deck.db.all(mature)
+            for (src, dest) in [(young, daysYoung),
+                                (mature, daysMature)]:
+                for (ivl, due) in src:
+                    day=int(round(ivl))
+                    days[day] = days.get(day, 0) + 1
+                    indays = int(((due - self.endOfDay) / 86400.0) + 1)
+                    next[indays] = next.get(indays, 0) + 1 # type-agnostic stats
+                    dest[indays] = dest.get(indays, 0) + 1 # type-specific stats
+                    if indays < lowestInDay:
+                        lowestInDay = indays
+            self.stats = {}
+            self.stats['next'] = next
+            self.stats['days'] = days
+            self.stats['daysByType'] = {'young': daysYoung,
+                                        'mature': daysMature}
+            self.stats['months'] = months
+            self.stats['lowestInDay'] = lowestInDay
+
+            dayReps = self._getDayReps()
+
+            # fixme: change 0 to correct offset
+            todaydt = datetime.datetime.utcfromtimestamp(
+                time.time() - 0).date()
+            for dest, source in [("dayRepsNew", 0),
+                                 ("dayRepsYoung", 3),
+                                 ("dayRepsMature", 2)]:
+                self.stats[dest] = dict(
+                    map(lambda dr: (-(todaydt - datetime.date(
+                    *(int(x)for x in dr[1].split("-")))).days, dr[source]), dayReps))
+
+            self.stats['dayTimes'] = dict(
+                map(lambda dr: (-(todaydt - datetime.date(
+                *(int(x)for x in dr[1].split("-")))).days, dr[4]/60.0), dayReps))
+
+    def _getDayReps(self):
+        return self.deck.db.all("""
+select
+count() as combinedNewReps,
+date(time/1000-:off, "unixepoch") as day,
+sum(case when lastIvl > 21 then 1 else 0 end) as matureReps,
+count() - sum(case when rep = 1 then 1 else 0 end) as combinedYoungReps,
+sum(taken/1000) as reviewTime from revlog
+group by day order by day
+""", off=0)
+
+    def _addMissing(self, dic, min, max):
         for i in range(min, max+1):
             if not i in dic:
                 dic[i] = 0
 
-    def unzip(self, tuples, fillFix=True, limit=None, reverseLimit=False):
+    def _unzip(self, tuples, fillFix=True, limit=None, reverseLimit=False):
         tuples.sort(cmp=lambda x,y: cmp(x[0], y[0]))
         if limit:
             if reverseLimit:
@@ -279,18 +324,19 @@ group by day order by day
         new = zip(*tuples)
         return new
 
-    def varGraph(self, graph, days, colours=["b"], *args):
+    def _varGraph(self, graph, days, colours=["b"], *args):
         if len(args[0]) < 120:
-            return self.barGraph(graph, days, colours, *args)
+            return self._barGraph(graph, days, colours, *args)
         else:
-            return self.filledGraph(graph, days, colours, *args)
+            return self._filledGraph(graph, days, colours, *args)
 
-    def filledGraph(self, graph, days, colours=["b"], *args):
-        self._filledGraph(graph, days, colours, 0, *args)
+    def _filledGraph(self, graph, days, colours=["b"], *args):
+        self._filledGraph1(graph, days, colours, 0, *args)
 
-    def _filledGraph(self, graph, days, colours, lw, *args):
+    def _filledGraph1(self, graph, days, colours, lw, *args):
         if isinstance(colours, str):
             colours = [colours]
+        print args, colours
         for triplet in [(args[n], args[n + 1], colours[n / 2]) for n in range(0, len(args), 2)]:
             x = list(triplet[0])
             y = list(triplet[1])
@@ -312,7 +358,7 @@ group by day order by day
         graph.grid(True)
         graph.set_ylim(ymin=0, ymax=max(2, graph.get_ylim()[1]))
 
-    def barGraph(self, graph, days, colours, *args):
+    def _barGraph(self, graph, days, colours, *args):
         if isinstance(colours, str):
             colours = [colours]
         lim = None
@@ -355,47 +401,3 @@ group by day order by day
         for tick in graph.xaxis.get_major_ticks():
             tick.tick1On = False
             tick.tick2On = False
-
-    def easeBars(self):
-        fig = Figure(figsize=(3, 3), dpi=self.dpi)
-        graph = fig.add_subplot(111)
-        types = ("new", "young", "mature")
-        enum = 5
-        offset = 0
-        arrsize = 16
-        arr = [0] * arrsize
-        colours = [easesNewC, easesYoungC, easesMatureC]
-        bars = []
-        eases = self.deck.db.all("""
-select (case when rep = 1 then 0 when lastInterval <= 21 then 1 else 2 end)
-as type, ease, count() from revlog group by type, ease""")
-        d = {}
-        for (type, ease, count) in eases:
-            type = types[type]
-            if type not in d:
-                d[type] = {}
-            d[type][ease] = count
-        for n, type in enumerate(types):
-            total = float(sum(d[type].values()))
-            for e in range(1, enum):
-                try:
-                    arr[e+offset] = (d[type][e] / total) * 100 + 1
-                except ZeroDivisionError:
-                    arr[e+offset] = 0
-            bars.append(graph.bar(range(arrsize), arr, width=1.0,
-                                  color=colours[n], align='center'))
-            arr = [0] * arrsize
-            offset += 5
-        x = ([""] + [str(n) for n in range(1, enum)]) * 3
-        graph.legend([p[0] for p in bars], ("New",
-                                            "Young",
-                                            "Mature"),
-                     'upper left')
-        graph.set_ylim(ymax=100)
-        graph.set_xlim(xmax=15)
-        graph.set_xticks(range(arrsize))
-        graph.set_xticklabels(x)
-        graph.set_ylabel("% of Answers")
-        graph.set_xlabel("Answer Buttons")
-        graph.grid(True)
-        return fig

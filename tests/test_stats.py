@@ -21,3 +21,20 @@ def test_stats():
     assert d.cardStats(c)
     # deck stats
     assert d.deckStats()
+
+def test_graphs():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = "foo"
+    d.addFact(f)
+    d.reset()
+    d.sched.answerCard(d.sched.getCard(), 1)
+    c = f.cards()[0]
+    g = d.graphs()
+    g.nextDue()
+    g.workDone()
+    g.timeSpent()
+    g.cumulativeDue()
+    g.ivlPeriod()
+    g.addedRecently()
+    g.easeBars()
