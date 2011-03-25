@@ -58,16 +58,17 @@ class CardStats(object):
 <style>table { font-size: 12px; } h1 { font-size: 14px; }</style>
 </head><body><center>%s</center></body></html>"""%txt)
 
-# Deck stats
+# Modal dialog that supports dumping to browser (for printing, etc)
 ######################################################################
 
 class PrintableReport(QDialog):
 
-    def __init__(self, mw, type, title, func, css):
+    def __init__(self, mw, type, title, func, css, extra):
         self.mw = mw
         QDialog.__init__(self, mw)
         restoreGeom(self, type)
         self.type = type
+        self.extra = extra
         self.setWindowTitle(title)
         self.setModal(True)
         self.mw.progress.start()
@@ -99,9 +100,12 @@ class PrintableReport(QDialog):
         tmpdir = tempfile.mkdtemp(prefix="anki")
         path = os.path.join(tmpdir, "report.html")
         open(path, "w").write("""
-<html><head><style>%s</style></head><body>%s</body></html>""" % (
-    self.css, self.report))
+<html><head><style>%s</style>%s</head><body>%s</body></html>""" % (
+    self.css, self.extra, self.report))
         QDesktopServices.openUrl(QUrl("file://" + path))
+
+# Deck stats
+######################################################################
 
 def deckStats(mw):
     css=mw.sharedCSS+"""
@@ -117,3 +121,29 @@ h1 { font-size: 18px; border-bottom: 1px solid #000; margin-top: 1em;
         _("Deck Statistics"),
         mw.deck.deckStats,
         css)
+
+# Graphs
+######################################################################
+
+def graphs(mw):
+    css=mw.sharedCSS+"""
+body { margin: 2em; font-family: arial; background: #eee; }
+h1 { font-size: 18px; border-bottom: 1px solid #000; margin-top: 1em;
+     clear: both; margin-bottom: 0.5em; }
+.info {float:right; padding: 10px; max-width: 300px; border-radius: 5px;
+  background: #ddd; font-size: 14px; }
+"""
+    buf = "<script>"
+    for n in ("jquery", "jquery.flot"):
+        f = QFile(":/%s.min.js" % n)
+        f.open(QIODevice.ReadOnly)
+        buf += f.readAll()
+        f.close()
+    buf += "</script>"
+    return PrintableReport(
+        mw,
+        "graphs",
+        _("Graphs"),
+        lambda: mw.deck.graphs().report(),
+        css,
+        buf)

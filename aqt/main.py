@@ -1166,7 +1166,7 @@ learnt today")
     def rmDockable(self, dock):
         self.removeDockWidget(dock)
 
-    # Card & deck stats
+    # Stats and graphs
     ##########################################################################
 
     def setupCardStats(self):
@@ -1178,29 +1178,8 @@ learnt today")
     def onDeckStats(self):
         aqt.stats.deckStats(self)
 
-    # Graphs
-    ##########################################################################
-
-    def onShowGraph(self):
-        self.setStatus(_("Loading graphs (may take time)..."))
-        self.app.processEvents()
-        import anki.graphs
-        if anki.graphs.graphsAvailable():
-            try:
-                aqt.dialogs.open("Graphs", self, self.deck)
-            except (ImportError, ValueError):
-                traceback.print_exc()
-                if sys.platform.startswith("win32"):
-                    showInfo(
-                        _("To display graphs, Anki needs a .dll file which\n"
-                          "you don't have. Please install:\n") +
-                        "http://www.dll-files.com/dllindex/dll-files.shtml?msvcp71")
-                else:
-                    showInfo(_(
-                        "Your version of Matplotlib is broken.\n"
-                        "Please see http://ichi2.net/anki/wiki/MatplotlibBroken"))
-        else:
-            showInfo(_("Please install python-matplotlib to access graphs."))
+    def onGraphs(self):
+        aqt.stats.graphs(self)
 
     # Marking, suspending and undoing
     ##########################################################################
@@ -1791,7 +1770,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.connect(m.actionPreferences, s, self.onPrefs)
         self.connect(m.actionDstats, s, self.onDeckStats)
         self.connect(m.actionCstats, s, self.onCardStats)
-        self.connect(m.actionGraphs, s, self.onShowGraph)
+        self.connect(m.actionGraphs, s, self.onGraphs)
         self.connect(m.actionEditLayout, s, self.onCardLayout)
         self.connect(m.actionAbout, s, self.onAbout)
         self.connect(m.actionStarthere, s, self.onStartHere)
