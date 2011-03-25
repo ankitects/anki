@@ -97,7 +97,7 @@ If the same name exists, compare checksums."""
                     l.append(fname)
         return l
 
-    def stripMedia(self, txt):
+    def strip(self, txt):
         for reg in self.regexps:
             txt = re.sub(reg, "", txt)
         return txt

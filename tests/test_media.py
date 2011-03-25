@@ -29,7 +29,7 @@ def test_strings():
     assert mf("aoeu<img src=\"foo.jpg\"><img class=yo src=fo>ao") == [
             "foo.jpg", "fo"]
     assert mf("aou[sound:foo.mp3]aou") == ["foo.mp3"]
-    sp = d.media.stripMedia
+    sp = d.media.strip
     assert sp("aoeu") == "aoeu"
     assert sp("aoeu[sound:foo.mp3]aoeu") == "aoeuaoeu"
     assert sp("a<img src=yo>oeu") == "aoeu"
