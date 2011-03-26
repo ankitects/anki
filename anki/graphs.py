@@ -234,7 +234,7 @@ select count() from cards where queue = 2 %s""" % self._limit()))
             dict(data=d['lrn'], color=easesNewC, label=_("Learning")),
             dict(data=d['yng'], color=easesYoungC, label=_("Young")),
             dict(data=d['mtr'], color=easesMatureC, label=_("Mature")),
-            ], conf=dict(
+            ], type="barsLine", conf=dict(
             xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
         return txt
@@ -264,6 +264,9 @@ order by thetype, ease""")
         if type == "bars":
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
+        elif type == "barsLine":
+            conf['series']['bars'] = dict(
+                show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=3)
         elif type == "fill":
             conf['series']['lines'] = dict(show=True, fill=True)
         return (
