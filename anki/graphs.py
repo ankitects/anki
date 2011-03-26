@@ -6,21 +6,15 @@ import os, sys, time, datetime, simplejson
 from anki.lang import _
 import anki.js
 
-#colours for graphs
-dueYoungC = "#ffb380"
-dueMatureC = "#ff5555"
-dueCumulC = "#ff8080"
-reviewNewC = "#80ccff"
-reviewYoungC = "#3377ff"
-reviewMatureC = "#0000ff"
-lrnTimeC = "#0fcaff"
-revTimeC = "#ffcaff"
+colYoung = "#7c7"
+colMature = "#070"
+colLearn = "#007"
+colRelearn = "#700"
+colCram = "#ff0"
+colIvl = "#077"
 easesNewC = "#80b3ff"
 easesYoungC = "#5555ff"
 easesMatureC = "#0f5aff"
-addedC = "#b3ff80"
-firstC = "#b380ff"
-intervC = "#80e5ff"
 
 class Graphs(object):
 
@@ -31,12 +25,12 @@ class Graphs(object):
 
     def report(self):
         txt = (self.dueGraph() +
+               self.cumDueGraph() +
                self.repsGraph() +
                self.timeGraph() +
-               self.cumDueGraph() +
                self.ivlGraph() +
                self.easeGraph())
-        return "<script>%s</script>%s" % (anki.js.all, txt)
+        return "<script>%s</script><center>%s</center>" % (anki.js.all, txt)
 
     # Due and cumulative due
     ######################################################################
@@ -49,22 +43,27 @@ class Graphs(object):
         for day in d:
             yng.append((day[0], day[1]))
             mtr.append((day[0], day[2]))
-        txt = self._graph(id="due", data=[
-            dict(data=yng, color=dueYoungC, label=_("Young")),
-            dict(data=mtr, color=dueMatureC, label=_("Mature"))
+        txt = self._graph(id="due", title=_("Due Forecast"), data=[
+            dict(data=mtr, color=colMature, label=_("Mature")),
+            dict(data=yng, color=colYoung, label=_("Young"))
             ])
         return txt
 
     def cumDueGraph(self):
         self._calcStats()
         d = self._stats['due']
-        tot = 0
-        days = []
+        toty = 0
+        totm = 0
+        ydays = []
+        mdays = []
         for day in d:
-            tot += day[1]+day[2]
-            days.append((day[0], tot))
-        txt = self._graph(id="cum", data=[
-            dict(data=days, color=dueCumulC, label=_("Cards")),
+            toty += day[1]
+            totm += day[2]
+            ydays.append((day[0], toty))
+            mdays.append((day[0], totm))
+        txt = self._graph(id="cum", title=_("Cumulative Due"), data=[
+            dict(data=mdays, color=colMature, label=_("Mature")),
+            dict(data=ydays, color=colYoung, label=_("Young")),
             ], type="fill")
         return txt
 
@@ -94,12 +93,12 @@ group by due order by due""" % self._limit(),
             mtr.append((row[0], row[3]))
             lapse.append((row[0], row[4]))
             cram.append((row[0], row[5]))
-        txt = self._graph(id="reps", data=[
-            dict(data=lrn, color=reviewNewC, label=_("Learning")),
-            dict(data=lapse, color=reviewMatureC, label=_("Relearning")),
-            dict(data=yng, color=reviewYoungC, label=_("Young")),
-            dict(data=mtr, color=reviewMatureC, label=_("Mature")),
-            dict(data=cram, color=reviewMatureC, label=_("Cramming")),
+        txt = self._graph(id="reps", title=_("Repetitions"), data=[
+            dict(data=mtr, color=colMature, label=_("Mature")),
+            dict(data=yng, color=colYoung, label=_("Young")),
+            dict(data=lapse, color=colRelearn, label=_("Relearning")),
+            dict(data=lrn, color=colLearn, label=_("Learning")),
+            dict(data=cram, color=colCram, label=_("Cramming")),
             ])
         return txt
 
@@ -116,12 +115,12 @@ group by due order by due""" % self._limit(),
             mtr.append((row[0], row[8]))
             lapse.append((row[0], row[9]))
             cram.append((row[0], row[10]))
-        txt = self._graph(id="time", data=[
-            dict(data=lrn, color=lrnTimeC, label=_("Learning")),
-            dict(data=lapse, color=revTimeC, label=_("Relearning")),
-            dict(data=yng, color=revTimeC, label=_("Young")),
-            dict(data=mtr, color=revTimeC, label=_("Mature")),
-            dict(data=cram, color=revTimeC, label=_("Cramming")),
+        txt = self._graph(id="time", title=_("Time Spent"), data=[
+            dict(data=mtr, color=colMature, label=_("Mature")),
+            dict(data=yng, color=colYoung, label=_("Young")),
+            dict(data=lapse, color=colRelearn, label=_("Relearning")),
+            dict(data=lrn, color=colLearn, label=_("Learning")),
+            dict(data=cram, color=colCram, label=_("Cramming")),
             ])
         return txt
 
@@ -148,16 +147,16 @@ from revlog group by day order by day""", cut=self.deck.sched.dayCutoff)
 
     def _ivls(self):
         return self.deck.db.all("""
-select ivl / 7, count() from cards
+select ivl / 7 as grp, count() from cards
 where queue = 2 %s
-group by ivl / 7
-order by ivl / 7""" % self._limit())
+group by grp
+order by grp""" % self._limit())
 
     def ivlGraph(self):
         self._calcStats()
         ivls = self._stats['ivls']
-        txt = self._graph(id="ivl", data=[
-            dict(data=ivls, color=intervC)
+        txt = self._graph(id="ivl", title=_("Intervals"), data=[
+            dict(data=ivls, color=colIvl)
             ])
         return txt
 
@@ -192,7 +191,7 @@ order by thetype, ease""")
         ticks = [[1,1],[2,2],[3,3],
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
-        txt = self._graph(id="ease", data=[
+        txt = self._graph(id="ease", title=_("Eases"), data=[
             dict(data=d['lrn'], color=easesNewC, label=_("Learning")),
             dict(data=d['yng'], color=easesYoungC, label=_("Young")),
             dict(data=d['mtr'], color=easesMatureC, label=_("Mature")),
@@ -212,25 +211,27 @@ order by thetype, ease""")
         self._stats['done'] = self._done()
         self._stats['eases'] = self._eases()
 
-    def _graph(self, id, data, conf={}, width=600, height=200, type="bars"):
-        conf['legend']= {'container': "#%sLegend" % id}
+    def _graph(self, id, title, data, conf={}, width=600, height=200, type="bars"):
+        # display settings
+        conf['legend'] = {'container': "#%sLegend" % id}
+        conf['series'] = dict(stack=True)
         if type == "bars":
-            conf['series'] = dict(
-                bars=dict(show=True, barWidth=0.8, align="center"))
+            conf['series']['bars'] = dict(
+                show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
         elif type == "fill":
-            conf['series'] = dict(
-                lines=dict(show=True, fill=True))
+            conf['series']['lines'] = dict(show=True, fill=True)
         return (
 """
-<table>
+<h1>%(title)s</h1>
+<table width=%(tw)s>
 <tr><td><div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div></td>
-<td valign=top><br><div id=%(id)sLegend></div></td></tr></table>
+<td width=100 valign=top><br><div id=%(id)sLegend></div></td></tr></table>
 <script>
 $(function () {
     $.plot($("#%(id)s"), %(data)s, %(conf)s);
 });
 </script>""" % dict(
-    id=id, w=width, h=height,
+    id=id, title=title, w=width, h=height, tw=width+100,
     data=simplejson.dumps(data),
     conf=simplejson.dumps(conf)))
 
