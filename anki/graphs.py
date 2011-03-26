@@ -13,6 +13,7 @@ colLearn = "#00F"
 colRelearn = "#c00"
 colCram = "#ff0"
 colIvl = "#077"
+colTime = "#770"
 easesNewC = "#80b3ff"
 easesYoungC = "#5555ff"
 easesMatureC = "#0f5aff"
@@ -83,56 +84,64 @@ group by day order by day""" % (self._limit(), lim),
 
     def repsGraph(self, days, reptitle, timetitle, chunk=1):
         d = self._done(days, chunk)
-        # reps
-        lrn = []
-        yng = []
-        mtr = []
-        lapse = []
-        cram = []
-        tot = 0
-        totd = []
-        for row in d:
-            lrn.append((row[0], row[1]))
-            yng.append((row[0], row[2]))
-            mtr.append((row[0], row[3]))
-            lapse.append((row[0], row[4]))
-            cram.append((row[0], row[5]))
-            tot += row[1]+row[2]+row[3]+row[4]+row[5]
-            totd.append((row[0], tot))
         conf = dict(
             xaxis=dict(tickDecimals=0),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
             conf['xaxis']['min'] = -days
-        def plot(title):
-            return self._graph("g%d"%hash(title), title=title, data=[
-            dict(data=mtr, color=colMature, label=_("Mature")),
-            dict(data=yng, color=colYoung, label=_("Young")),
-            dict(data=lapse, color=colRelearn, label=_("Relearning")),
-            dict(data=lrn, color=colLearn, label=_("Learning")),
-            dict(data=cram, color=colCram, label=_("Cramming")),
-            dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
-             bars={'show': False}, lines=dict(show=True), stack=False)
-            ], conf=conf)
-        txt = plot(reptitle)
+        def plot(title, data):
+            return self._graph("g%d"%hash(title), title=title,
+                               data=data, conf=conf)
+        # reps
+        (repdata, repsum) = self._splitRepData(d, (
+            (3, colMature, _("Mature")),
+            (2, colYoung, _("Young")),
+            (4, colRelearn, _("Relearn")),
+            (1, colLearn, _("Learn")),
+            (5, colCram, _("Cram"))))
+        txt = plot(reptitle, repdata)
         # time
-        lrn = []
-        yng = []
-        mtr = []
-        lapse = []
-        cram = []
+        (timdata, timsum) = self._splitRepData(d, (
+            (8, colMature, _("Mature")),
+            (7, colYoung, _("Young")),
+            (9, colRelearn, _("Relearn")),
+            (6, colLearn, _("Learn")),
+            (10, colCram, _("Cram"))))
+        txt += plot(timetitle, timdata)
+        # work out average time
+        avgdata = [
+            (period, reps and (timsum[c][1]*3600 / reps) or 0)
+            for c, (period, reps) in enumerate(repsum)
+        ]
+        del conf['yaxes']
+        txt += self._graph("gr%d"%hash(reptitle), title="avg"+reptitle,
+                    data=[dict(
+                        data=avgdata, color=colTime, label=_("Avg Time"))],
+                    conf=conf)
+        return txt
+
+    def _splitRepData(self, data, spec):
+        sep = {}
         tot = 0
         totd = []
-        for row in d:
-            lrn.append((row[0], row[6]))
-            yng.append((row[0], row[7]))
-            mtr.append((row[0], row[8]))
-            lapse.append((row[0], row[9]))
-            cram.append((row[0], row[10]))
-            tot += row[6]+row[7]+row[8]+row[9]+row[10]
+        sum = []
+        for row in data:
+            rowtot = 0
+            for (n, col, lab) in spec:
+                if n not in sep:
+                    sep[n] = []
+                sep[n].append((row[0], row[n]))
+                tot += row[n]
+                rowtot += row[n]
             totd.append((row[0], tot))
-        txt += plot(timetitle)
-        return txt
+            sum.append((row[0], rowtot))
+        ret = []
+        for (n, col, lab) in spec:
+            ret.append(dict(data=sep[n], color=col, label=lab))
+        ret.append(dict(
+            data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+            bars={'show': False}, lines=dict(show=True), stack=False))
+        return (ret, sum)
 
     def _done(self, num=7, chunk=1):
         # without selective for now
