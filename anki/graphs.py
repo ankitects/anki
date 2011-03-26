@@ -177,8 +177,7 @@ group by grp
 order by grp""" % self._limit())
 
     def ivlGraph(self):
-        self._calcStats()
-        ivls = self._stats['ivls']
+        ivls = self._ivls()
         txt = self._graph(id="ivl", title=_("Intervals"), data=[
             dict(data=ivls, color=colIvl)
             ])
@@ -187,25 +186,13 @@ order by grp""" % self._limit())
     # Eases
     ######################################################################
 
-    def _eases(self):
-        # ignores selective, at least for now
-        return self.deck.db.all("""
-select (case
-when type in (0,2) then 0
-when lastIvl < 21 then 1
-else 2 end) as thetype,
-ease, count() from revlog
-group by thetype, ease
-order by thetype, ease""")
-
     def easeGraph(self):
-        self._calcStats()
         # 3 + 4 + 4 + spaces on sides and middle = 15
         # yng starts at 1+3+1 = 5
         # mtr starts at 5+4+1 = 10
         d = {'lrn':[], 'yng':[], 'mtr':[]}
         types = ("lrn", "yng", "mtr")
-        for (type, ease, cnt) in self._stats['eases']:
+        for (type, ease, cnt) in self._eases():
             if type == 1:
                 ease += 5
             elif type == 2:
@@ -223,16 +210,19 @@ order by thetype, ease""")
             xaxis=dict(ticks=ticks, min=0, max=15)))
         return txt
 
+    def _eases(self):
+        # ignores selective, at least for now
+        return self.deck.db.all("""
+select (case
+when type in (0,2) then 0
+when lastIvl < 21 then 1
+else 2 end) as thetype,
+ease, count() from revlog
+group by thetype, ease
+order by thetype, ease""")
+
     # Tools
     ######################################################################
-
-    def _calcStats(self):
-        if self._stats:
-            return
-        self._stats = {}
-        self._stats['ivls'] = self._ivls()
-        self._stats['done'] = self._done()
-        self._stats['eases'] = self._eases()
 
     def _graph(self, id, title, data, conf={}, width=600, height=200, type="bars"):
         # display settings
