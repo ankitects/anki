@@ -341,6 +341,9 @@ cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
         if row[3] == 1:
             # initial rep; set type=lrn
             row[8] = 0
+        elif row[2] == 1 and row[5] >= 3:
+            # lapsed card
+            row[8] = 1
         elif row[4] < 3:
             # low interval; set type=relrn
             row[8] = 2
