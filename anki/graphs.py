@@ -9,8 +9,8 @@ import anki.js
 colYoung = "#7c7"
 colMature = "#070"
 colCum = "rgba(0,0,0,0.9)"
-colLearn = "#007"
-colRelearn = "#700"
+colLearn = "#00F"
+colRelearn = "#c00"
 colCram = "#ff0"
 colIvl = "#077"
 easesNewC = "#80b3ff"
@@ -28,10 +28,11 @@ class Graphs(object):
         txt = (self.dueGraph(0, 30, _("Due/Day")) +
                self.dueGraph(0, 52, _("Due/Week"), chunk=7) +
                self.dueGraph(0, None, _("Due/Month"), chunk=30) +
-               self.repsGraph(30, _("Reviewed/Day")) +
-               self.repsGraph(52, _("Reviewed/Week"), chunk=7) +
-               self.repsGraph(None, _("Reviewed/Month"), chunk=30) +
-               self.timeGraph() +
+               self.repsGraph(30, _("Reviewed/Day"), _("Time/Day")) +
+               self.repsGraph(52, _("Reviewed/Week"), _("Time/Week"),
+                              chunk=7) +
+               self.repsGraph(None, _("Reviewed/Month"), _("Time/Month"),
+                              chunk=30) +
                self.ivlGraph() +
                self.easeGraph())
         return "<script>%s</script><center>%s</center>" % (anki.js.all, txt)
@@ -80,8 +81,9 @@ group by day order by day""" % (self._limit(), lim),
     # Reps and time spent
     ######################################################################
 
-    def repsGraph(self, days, title, chunk=1):
+    def repsGraph(self, days, reptitle, timetitle, chunk=1):
         d = self._done(days, chunk)
+        # reps
         lrn = []
         yng = []
         mtr = []
@@ -102,7 +104,8 @@ group by day order by day""" % (self._limit(), lim),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
             conf['xaxis']['min'] = -days
-        txt = self._graph(id=hash(title), title=title, data=[
+        def plot(title):
+            return self._graph("g%d"%hash(title), title=title, data=[
             dict(data=mtr, color=colMature, label=_("Mature")),
             dict(data=yng, color=colYoung, label=_("Young")),
             dict(data=lapse, color=colRelearn, label=_("Relearning")),
@@ -111,28 +114,24 @@ group by day order by day""" % (self._limit(), lim),
             dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=conf)
-        return txt
-
-    def timeGraph(self):
-        self._calcStats()
+        txt = plot(reptitle)
+        # time
         lrn = []
         yng = []
         mtr = []
         lapse = []
         cram = []
-        for row in self._stats['done']:
+        tot = 0
+        totd = []
+        for row in d:
             lrn.append((row[0], row[6]))
             yng.append((row[0], row[7]))
             mtr.append((row[0], row[8]))
             lapse.append((row[0], row[9]))
             cram.append((row[0], row[10]))
-        txt = self._graph(id="time", title=_("Time Spent"), data=[
-            dict(data=mtr, color=colMature, label=_("Mature")),
-            dict(data=yng, color=colYoung, label=_("Young")),
-            dict(data=lapse, color=colRelearn, label=_("Relearning")),
-            dict(data=lrn, color=colLearn, label=_("Learning")),
-            dict(data=cram, color=colCram, label=_("Cramming")),
-            ])
+            tot += row[6]+row[7]+row[8]+row[9]+row[10]
+            totd.append((row[0], tot))
+        txt += plot(timetitle)
         return txt
 
     def _done(self, num=7, chunk=1):
