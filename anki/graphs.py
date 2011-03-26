@@ -24,31 +24,30 @@ class Graphs(object):
         self.deck = deck
         self._stats = None
         self.selective = selective
+        self.type = 0
 
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
-        txt = self.dueGraph(type)
-        txt += self.repsGraph(type)
-        txt += self.ivlGraph(type)
+        self.type = type
+        txt = self.dueGraph()
+        txt += self.repsGraph()
+        txt += self.ivlGraph()
         # other graphs
         txt += self.easeGraph()
-        return "<script>%s</script><center>%s</center>" % (anki.js.all, txt)
+        return "<script>%s\n</script><center>%s</center>" % (anki.js.all, txt)
 
     # Due and cumulative due
     ######################################################################
 
-    def dueGraph(self, type):
-        if type == 0:
-            start = 0; end = 30; chunk = 1
-        elif type == 1:
+    def dueGraph(self):
+        if self.type == 0:
+            start = 0; end = 30; chunk = 1;
+        elif self.type == 1:
             start = 0; end = 52; chunk = 7
-        elif type == 2:
+        elif self.type == 2:
             start = 0; end = None; chunk = 30
-        return self._dueGraph(self._due(start, end, chunk), _("Forecast"))
-
-    def _dueGraph(self, data, title):
-        d = data
+        d = self._due(start, end, chunk)
         yng = []
         mtr = []
         tot = 0
@@ -58,12 +57,12 @@ class Graphs(object):
             mtr.append((day[0], day[2]))
             tot += day[1]+day[2]
             totd.append((day[0], tot))
-        txt = self._graph(id="due", title=title, data=[
+        txt = self._graph(id="due", title=_("Forecast"), data=[
             dict(data=mtr, color=colMature, label=_("Mature")),
             dict(data=yng, color=colYoung, label=_("Young")),
             dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
-            ], conf=dict(
+            ], info=_("The number of reviews due in the future."), conf=dict(
                 xaxis=dict(tickDecimals=0),
                 yaxes=[dict(), dict(position="right")]))
         return txt
@@ -75,7 +74,7 @@ class Graphs(object):
         if end is not None:
             lim += " and day < %d" % end
         return self.deck.db.all("""
-select (due-:today+1)/:chunk as day,
+select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
@@ -88,10 +87,10 @@ group by day order by day""" % (self._limit(), lim),
     # Reps and time spent
     ######################################################################
 
-    def repsGraph(self, type):
-        if type == 0:
+    def repsGraph(self):
+        if self.type == 0:
             days = 30; chunk = 1
-        elif type == 1:
+        elif self.type == 1:
             days = 52; chunk = 7
         else:
             days = None; chunk = 30
@@ -107,9 +106,9 @@ group by day order by day""" % (self._limit(), lim),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
             conf['xaxis']['min'] = -days
-        def plot(id, title, data, ylabel):
+        def plot(id, title, data, ylabel, info):
             return self._graph(id, title=title,
-                               data=data, conf=conf, ylabel=ylabel)
+                               data=data, conf=conf, ylabel=ylabel, info=info)
         # reps
         (repdata, repsum) = self._splitRepData(d, (
             (3, colMature, _("Mature")),
@@ -117,7 +116,10 @@ group by day order by day""" % (self._limit(), lim),
             (4, colRelearn, _("Relearn")),
             (1, colLearn, _("Learn")),
             (5, colCram, _("Cram"))))
-        txt = plot("reps", reptitle, repdata, ylabel=_("Answers"))
+        txt = plot("reps", reptitle, repdata, ylabel=_("Answers"),
+               info=_("""\
+The number of cards you have answered. Answering the same card twice \
+counts as two answers."""))
         # time
         (timdata, timsum) = self._splitRepData(d, (
             (8, colMature, _("Mature")),
@@ -125,7 +127,8 @@ group by day order by day""" % (self._limit(), lim),
             (9, colRelearn, _("Relearn")),
             (6, colLearn, _("Learn")),
             (10, colCram, _("Cram"))))
-        txt += plot("time", timetitle, timdata, ylabel=_("Hours"))
+        txt += plot("time", timetitle, timdata, ylabel=_("Hours"), info=_("""\
+Time spent answering cards."""))
         return txt
 
     def _splitRepData(self, data, spec):
@@ -179,11 +182,11 @@ group by day order by day""" % lim,
     # Intervals
     ######################################################################
 
-    def ivlGraph(self, type):
-        (ivls, all) = self._ivls(type)
+    def ivlGraph(self):
+        (ivls, all) = self._ivls()
         tot = 0
         totd = []
-        if not all:
+        if not ivls or not all:
             return ""
         for (grp, cnt) in ivls:
             tot += cnt
@@ -193,13 +196,16 @@ group by day order by day""" % lim,
             dict(data=totd, color=colCum, label=_("% Total"), yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
-                yaxes=[dict(), dict(position="right", max=105)]))
+                yaxes=[dict(), dict(position="right", max=105)]),
+            info=_("""\
+Intervals in the review queue. New cards and cards in (re)learning \
+are not included."""))
         return txt
 
-    def _ivls(self, type):
-        if type == 0:
+    def _ivls(self):
+        if self.type == 0:
             chunk = 1; lim = " and grp <= 30"
-        elif type == 1:
+        elif self.type == 1:
             chunk = 7; lim = " and grp <= 52"
         else:
             chunk = 30; lim = ""
@@ -230,11 +236,12 @@ select count() from cards where queue = 2 %s""" % self._limit()))
         ticks = [[1,1],[2,2],[3,3],
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
-        txt = self._graph(id="ease", title=_("Eases"), data=[
-            dict(data=d['lrn'], color=easesNewC, label=_("Learning")),
-            dict(data=d['yng'], color=easesYoungC, label=_("Young")),
-            dict(data=d['mtr'], color=easesMatureC, label=_("Mature")),
-            ], type="barsLine", conf=dict(
+        txt = self._graph(id="ease", title=_("Answer Buttons"), data=[
+            dict(data=d['lrn'], color=colLearn, label=_("Learning")),
+            dict(data=d['yng'], color=colYoung, label=_("Young")),
+            dict(data=d['mtr'], color=colMature, label=_("Mature")),
+            ], type="barsLine", info=_("""\
+The number of times you have pressed each answer button."""), conf=dict(
             xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
         return txt
@@ -254,13 +261,17 @@ order by thetype, ease""")
     ######################################################################
 
     def _graph(self, id, title, data, conf={}, width=600, height=200,
-               type="bars", ylabel=_("Cards")):
+               type="bars", ylabel=_("Cards"), timeTicks=True, info=""):
         # display settings
         conf['legend'] = {'container': "#%sLegend" % id}
         conf['series'] = dict(stack=True)
         if not 'yaxis' in conf:
             conf['yaxis'] = {}
         conf['yaxis']['labelWidth'] = 40
+        if 'xaxis' not in conf:
+            conf['xaxis'] = {}
+        if timeTicks:
+            conf['timeTicks'] = (_("d"), _("w"), _("m"))[self.type]
         if type == "bars":
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
@@ -276,16 +287,27 @@ order by thetype, ease""")
 <tr>
 <td><div style="width: 10px; -webkit-transform: rotate(-90deg);
 -moz-transform: rotate(-90deg);">%(ylab)s</div></td>
+
 <td><div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div></td>
-<td width=100 valign=top><br><div id=%(id)sLegend></div></td></tr></table>
+
+<td width=100 valign=top><br>
+<div id=%(id)sLegend></div>
+<br><small>%(info)s</small>
+</td></tr></table>
 <script>
 $(function () {
-    $.plot($("#%(id)s"), %(data)s, %(conf)s);
+    var conf = %(conf)s;
+    if (conf.timeTicks) {
+        conf.xaxis.tickFormatter = function (val, axis) {
+            return val.toFixed(0)+conf.timeTicks;
+        }
+    }
+    $.plot($("#%(id)s"), %(data)s, conf);
 });
 </script>""" % dict(
     id=id, title=title, w=width, h=height, tw=width+100, ylab=ylabel,
-    data=simplejson.dumps(data),
-    conf=simplejson.dumps(conf)))
+    info=info,
+    data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
 
     def _limit(self):
         if self.selective:
