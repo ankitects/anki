@@ -25,13 +25,13 @@ class Graphs(object):
         self._stats = None
         self.selective = selective
 
-    def report(self, type=0):
+    def report(self, type=2):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
         txt = self.dueGraph(type)
         txt += self.repsGraph(type)
+        txt += self.ivlGraph(type)
         # other graphs
-        txt += self.ivlGraph()
         txt += self.easeGraph()
         return "<script>%s</script><center>%s</center>" % (anki.js.all, txt)
 
@@ -179,19 +179,25 @@ group by day order by day""" % lim,
     # Intervals
     ######################################################################
 
-    def ivlGraph(self):
-        ivls = self._ivls()
+    def ivlGraph(self, type):
+        ivls = self._ivls(type)
         txt = self._graph(id="ivl", title=_("Intervals"), data=[
-            dict(data=ivls, color=colIvl)
+            dict(data=ivls, color=colIvl, label=_("All Types"))
             ])
         return txt
 
-    def _ivls(self):
+    def _ivls(self, type):
+        if type == 0:
+            chunk = 1; lim = " and grp <= 30"
+        elif type == 1:
+            chunk = 7; lim = " and grp <= 52"
+        else:
+            chunk = 30; lim = ""
         return self.deck.db.all("""
-select ivl / 7 as grp, count() from cards
-where queue = 2 %s
+select ivl / :chunk as grp, count() from cards
+where queue = 2 %s %s
 group by grp
-order by grp""" % self._limit())
+order by grp""" % (self._limit(), lim), chunk=chunk)
 
 
     # Eases
