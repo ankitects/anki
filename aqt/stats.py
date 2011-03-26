@@ -72,22 +72,23 @@ class PrintableReport(QDialog):
         self.setModal(True)
         self.mw.progress.start()
         self.web = AnkiWebView(self)
-        stats = func()
         l = QVBoxLayout(self)
         l.setContentsMargins(0,0,0,0)
         l.addWidget(self.web)
         self.setLayout(l)
-        self.report = func()
         self.css = css
-        self.web.stdHtml(self.report, css=css)
-        box = QDialogButtonBox(QDialogButtonBox.Close)
-        b = box.addButton(_("Open In Browser"), QDialogButtonBox.ActionRole)
+        if func:
+            self.report = func()
+            self.web.stdHtml(self.report, css=css)
+        self.box = QDialogButtonBox(QDialogButtonBox.Close)
+        b = self.box.addButton(_("Open In Browser"), QDialogButtonBox.ActionRole)
         b.connect(b, SIGNAL("clicked()"), self.browser)
         b.setAutoDefault(False)
-        l.addWidget(box)
-        self.connect(box, SIGNAL("accepted()"), self.browser)
-        self.connect(box, SIGNAL("rejected()"), self, SLOT("reject()"))
+        l.addWidget(self.box)
+        self.connect(self.box, SIGNAL("rejected()"), self, SLOT("reject()"))
         self.mw.progress.finish()
+
+    def run(self):
         self.exec_()
 
     def reject(self):
@@ -119,10 +120,46 @@ h1 { font-size: 18px; border-bottom: 1px solid #000; margin-top: 1em;
         "deckstats",
         _("Deck Statistics"),
         mw.deck.deckStats,
-        css)
+        css).run()
 
 # Graphs
 ######################################################################
+
+class Graphs(PrintableReport):
+
+    def __init__(self, *args):
+        self.period = 0
+        self.periods = [
+            _("Period: 1 month"),
+            _("Period: 1 year"),
+            _("Period: deck life")]
+        PrintableReport.__init__(self, *args)
+        b = self.box.addButton("", QDialogButtonBox.ActionRole)
+        b.connect(b, SIGNAL("clicked()"), self.changePeriod)
+        self.periodBut = b
+        self.updatePeriodBut()
+        self.refresh()
+
+    def changePeriod(self):
+        m = QMenu(self)
+        for c, p in enumerate(self.periods):
+            a = m.addAction(p)
+            a.connect(a, SIGNAL("activated()"), lambda n=c: self._changePeriod(n))
+        m.exec_(QCursor.pos())
+
+    def _changePeriod(self, n):
+        self.period = n
+        self.updatePeriodBut()
+        self.refresh()
+
+    def refresh(self):
+        self.mw.progress.start(immediate=True)
+        self.report = self.mw.deck.graphs().report(type=self.period)
+        self.web.stdHtml(self.report, css=self.css)
+        self.mw.progress.finish()
+
+    def updatePeriodBut(self):
+        self.periodBut.setText(self.periods[self.period])
 
 def graphs(mw):
     css=mw.sharedCSS+"""
@@ -132,9 +169,9 @@ h1 { font-size: 18px; border-bottom: 1px solid #000; margin-top: 1em;
 .info {float:right; padding: 10px; max-width: 300px; border-radius: 5px;
   background: #ddd; font-size: 14px; }
 """
-    return PrintableReport(
+    return Graphs(
         mw,
         "graphs",
         _("Graphs"),
-        lambda: mw.deck.graphs().report(),
-        css)
+        None,
+        css).run()
