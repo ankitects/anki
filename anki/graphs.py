@@ -27,20 +27,9 @@ class Graphs(object):
 
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
-        fc = _("Forecast")
-        rc = _("Review Count")
-        rt = _("Review Time")
-        txt = ""
         # period-dependent graphs
-        if type == 0:
-            txt += self.dueGraph(0, 30, fc)
-            txt += self.repsGraph(30, rc, rt)
-        elif type == 1:
-            txt += self.dueGraph(0, 52, fc, chunk=7)
-            txt += self.repsGraph(52, rc, rt, chunk=7)
-        else:
-            txt += self.dueGraph(0, None, fc, chunk=30)
-            txt += self.repsGraph(None, rc, rt, chunk=30)
+        txt = self.dueGraph(type)
+        txt += self.repsGraph(type)
         # other graphs
         txt += self.ivlGraph()
         txt += self.easeGraph()
@@ -49,8 +38,17 @@ class Graphs(object):
     # Due and cumulative due
     ######################################################################
 
-    def dueGraph(self, start, end, title, chunk=1):
-        d = self._due(start, end, chunk)
+    def dueGraph(self, type):
+        if type == 0:
+            start = 0; end = 30; chunk = 1
+        elif type == 1:
+            start = 0; end = 52; chunk = 7
+        elif type == 2:
+            start = 0; end = None; chunk = 30
+        return self._dueGraph(self._due(start, end, chunk), _("Forecast"))
+
+    def _dueGraph(self, data, title):
+        d = data
         yng = []
         mtr = []
         tot = 0
@@ -90,8 +88,20 @@ group by day order by day""" % (self._limit(), lim),
     # Reps and time spent
     ######################################################################
 
-    def repsGraph(self, days, reptitle, timetitle, chunk=1):
-        d = self._done(days, chunk)
+    def repsGraph(self, type):
+        if type == 0:
+            days = 30; chunk = 1
+        elif type == 1:
+            days = 52; chunk = 7
+        else:
+            days = None; chunk = 30
+        return self._repsGraph(self._done(days, chunk),
+                               days,
+                               _("Review Count"),
+                               _("Review Time"))
+
+    def _repsGraph(self, data, days, reptitle, timetitle):
+        d = data
         conf = dict(
             xaxis=dict(tickDecimals=0),
             yaxes=[dict(), dict(position="right")])
@@ -169,6 +179,13 @@ group by day order by day""" % lim,
     # Intervals
     ######################################################################
 
+    def ivlGraph(self):
+        ivls = self._ivls()
+        txt = self._graph(id="ivl", title=_("Intervals"), data=[
+            dict(data=ivls, color=colIvl)
+            ])
+        return txt
+
     def _ivls(self):
         return self.deck.db.all("""
 select ivl / 7 as grp, count() from cards
@@ -176,12 +193,6 @@ where queue = 2 %s
 group by grp
 order by grp""" % self._limit())
 
-    def ivlGraph(self):
-        ivls = self._ivls()
-        txt = self._graph(id="ivl", title=_("Intervals"), data=[
-            dict(data=ivls, color=colIvl)
-            ])
-        return txt
 
     # Eases
     ######################################################################
