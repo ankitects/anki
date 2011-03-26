@@ -100,6 +100,8 @@ group by day order by day""" % (self._limit(), lim),
                                _("Review Time"))
 
     def _repsGraph(self, data, days, reptitle, timetitle):
+        if not data:
+            return ""
         d = data
         conf = dict(
             xaxis=dict(tickDecimals=0),
