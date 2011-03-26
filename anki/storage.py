@@ -338,6 +338,12 @@ cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
             continue
         # no ease 0 anymore
         row[2] = row[2] or 1
+        if row[3] == 1:
+            # initial rep; set type=lrn
+            row[8] = 0
+        elif row[4] < 3:
+            # low interval; set type=relrn
+            row[8] = 2
         r.append(row)
     db.executemany(
         "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)", r)
