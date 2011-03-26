@@ -25,17 +25,25 @@ class Graphs(object):
         self._stats = None
         self.selective = selective
 
-    def report(self):
-        txt = (self.dueGraph(0, 30, _("Due/Day")) +
-               self.dueGraph(0, 52, _("Due/Week"), chunk=7) +
-               self.dueGraph(0, None, _("Due/Month"), chunk=30) +
-               self.repsGraph(30, _("Reviewed/Day"), _("Time/Day")) +
-               self.repsGraph(52, _("Reviewed/Week"), _("Time/Week"),
-                              chunk=7) +
-               self.repsGraph(None, _("Reviewed/Month"), _("Time/Month"),
-                              chunk=30) +
-               self.ivlGraph() +
-               self.easeGraph())
+    def report(self, type=0):
+        # 0=days, 1=weeks, 2=months
+        fc = _("Forecast")
+        rc = _("Review Count")
+        rt = _("Review Time")
+        txt = ""
+        # period-dependent graphs
+        if type == 0:
+            txt += self.dueGraph(0, 30, fc)
+            txt += self.repsGraph(30, rc, rt)
+        elif type == 1:
+            txt += self.dueGraph(0, 52, fc, chunk=7)
+            txt += self.repsGraph(52, rc, rt, chunk=7)
+        else:
+            txt += self.dueGraph(0, None, fc, chunk=30)
+            txt += self.repsGraph(None, rc, rt, chunk=30)
+        # other graphs
+        txt += self.ivlGraph()
+        txt += self.easeGraph()
         return "<script>%s</script><center>%s</center>" % (anki.js.all, txt)
 
     # Due and cumulative due
