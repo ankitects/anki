@@ -84,7 +84,6 @@ class ProgressManager(object):
         self._win.setMinimumDuration(100000)
         if immediate:
             self._shown = True
-            print "show"
             self._win.show()
         else:
             self._shown = False
@@ -120,6 +119,8 @@ class ProgressManager(object):
             self.finish()
 
     def _maybeShow(self):
+        if not self._levels:
+            return
         delta = time.time() - self._firstTime
         # if more than 500ms have passed, disable the UI so the user doesn't
         # try to click again. We don't do it immediately to avoid flicker.
