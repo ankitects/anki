@@ -75,7 +75,6 @@ class PrintableReport(QDialog):
         l = QVBoxLayout(self)
         l.setContentsMargins(0,0,0,0)
         l.addWidget(self.web)
-        self.setLayout(l)
         self.css = css
         if func:
             self.report = func()
@@ -84,7 +83,11 @@ class PrintableReport(QDialog):
         b = self.box.addButton(_("Open In Browser"), QDialogButtonBox.ActionRole)
         b.connect(b, SIGNAL("clicked()"), self.browser)
         b.setAutoDefault(False)
-        l.addWidget(self.box)
+        self.layout = QHBoxLayout()
+        self.layout.setContentsMargins(0,0,0,0)
+        self.layout.addWidget(self.box)
+        l.addLayout(self.layout)
+        self.setLayout(l)
         self.connect(self.box, SIGNAL("rejected()"), self, SLOT("reject()"))
         self.mw.progress.finish()
 
@@ -130,26 +133,28 @@ class Graphs(PrintableReport):
     def __init__(self, *args):
         self.period = 0
         self.periods = [
-            _("Period: 1 month"),
-            _("Period: 1 year"),
-            _("Period: deck life")]
+            _("1 month"),
+            _("1 year"),
+            _("deck life")]
         PrintableReport.__init__(self, *args)
-        b = self.box.addButton("", QDialogButtonBox.ActionRole)
-        b.connect(b, SIGNAL("clicked()"), self.changePeriod)
-        self.periodBut = b
-        self.updatePeriodBut()
+        grp = QGroupBox(_("Period"))
+        l = QHBoxLayout()
+        l.setContentsMargins(6,6,6,6)
+        chk = False
+        for c, p in enumerate(self.periods):
+            b = QRadioButton(p)
+            if not chk:
+                b.setChecked(True)
+                chk = True
+            b.connect(b, SIGNAL("clicked()"), lambda n=c: self.changePeriod(n))
+            l.addWidget(b)
+        grp.setLayout(l)
+        self.layout.insertWidget(0, grp)
+        self.layout.insertStretch(0, 10)
         self.refresh()
 
-    def changePeriod(self):
-        m = QMenu(self)
-        for c, p in enumerate(self.periods):
-            a = m.addAction(p)
-            a.connect(a, SIGNAL("activated()"), lambda n=c: self._changePeriod(n))
-        m.exec_(QCursor.pos())
-
-    def _changePeriod(self, n):
+    def changePeriod(self, n):
         self.period = n
-        self.updatePeriodBut()
         self.refresh()
 
     def refresh(self):
@@ -157,9 +162,6 @@ class Graphs(PrintableReport):
         self.report = self.mw.deck.graphs().report(type=self.period)
         self.web.stdHtml(self.report, css=self.css)
         self.mw.progress.finish()
-
-    def updatePeriodBut(self):
-        self.periodBut.setText(self.periods[self.period])
 
 def graphs(mw):
     css=mw.sharedCSS+"""
