@@ -8,6 +8,7 @@ import anki.js
 
 colYoung = "#7c7"
 colMature = "#070"
+colCum = "rgba(0,0,0,0.9)"
 colLearn = "#007"
 colRelearn = "#700"
 colCram = "#ff0"
@@ -25,7 +26,6 @@ class Graphs(object):
 
     def report(self):
         txt = (self.dueGraph() +
-               self.cumDueGraph() +
                self.repsGraph() +
                self.timeGraph() +
                self.ivlGraph() +
@@ -40,31 +40,20 @@ class Graphs(object):
         d = self._stats['due']
         yng = []
         mtr = []
+        tot = 0
+        totd = []
         for day in d:
             yng.append((day[0], day[1]))
             mtr.append((day[0], day[2]))
+            tot += day[1]+day[2]
+            totd.append((day[0], tot))
         txt = self._graph(id="due", title=_("Due Forecast"), data=[
             dict(data=mtr, color=colMature, label=_("Mature")),
-            dict(data=yng, color=colYoung, label=_("Young"))
-            ])
-        return txt
-
-    def cumDueGraph(self):
-        self._calcStats()
-        d = self._stats['due']
-        toty = 0
-        totm = 0
-        ydays = []
-        mdays = []
-        for day in d:
-            toty += day[1]
-            totm += day[2]
-            ydays.append((day[0], toty))
-            mdays.append((day[0], totm))
-        txt = self._graph(id="cum", title=_("Cumulative Due"), data=[
-            dict(data=mdays, color=colMature, label=_("Mature")),
-            dict(data=ydays, color=colYoung, label=_("Young")),
-            ], type="fill")
+            dict(data=yng, color=colYoung, label=_("Young")),
+            dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+             bars={'show': False}, lines=dict(show=True))
+            ], conf=dict(
+                yaxes=[{}, {'position': 'right'}]))
         return txt
 
     def _due(self, days=7):
