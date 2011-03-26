@@ -108,16 +108,6 @@ group by day order by day""" % (self._limit(), lim),
             (6, colLearn, _("Learn")),
             (10, colCram, _("Cram"))))
         txt += plot(timetitle, timdata)
-        # work out average time
-        avgdata = [
-            (period, reps and (timsum[c][1]*3600 / reps) or 0)
-            for c, (period, reps) in enumerate(repsum)
-        ]
-        del conf['yaxes']
-        txt += self._graph("gr%d"%hash(reptitle), title="avg"+reptitle,
-                    data=[dict(
-                        data=avgdata, color=colTime, label=_("Avg Time"))],
-                    conf=conf)
         return txt
 
     def _splitRepData(self, data, spec):
