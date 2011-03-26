@@ -28,7 +28,9 @@ class Graphs(object):
         txt = (self.dueGraph(0, 30, _("Due/Day")) +
                self.dueGraph(0, 52, _("Due/Week"), chunk=7) +
                self.dueGraph(0, None, _("Due/Month"), chunk=30) +
-               self.repsGraph() +
+               self.repsGraph(30, _("Reviewed/Day")) +
+               self.repsGraph(52, _("Reviewed/Week"), chunk=7) +
+               self.repsGraph(None, _("Reviewed/Month"), chunk=30) +
                self.timeGraph() +
                self.ivlGraph() +
                self.easeGraph())
@@ -52,9 +54,9 @@ class Graphs(object):
             dict(data=mtr, color=colMature, label=_("Mature")),
             dict(data=yng, color=colYoung, label=_("Young")),
             dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
-             bars={'show': False}, lines=dict(show=True))
+             bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
-                #xaxis=dict(tickDecimals=0),
+                xaxis=dict(tickDecimals=0),
                 yaxes=[dict(), dict(position="right")]))
         return txt
 
@@ -78,26 +80,37 @@ group by day order by day""" % (self._limit(), lim),
     # Reps and time spent
     ######################################################################
 
-    def repsGraph(self):
-        self._calcStats()
+    def repsGraph(self, days, title, chunk=1):
+        d = self._done(days, chunk)
         lrn = []
         yng = []
         mtr = []
         lapse = []
         cram = []
-        for row in self._stats['done']:
+        tot = 0
+        totd = []
+        for row in d:
             lrn.append((row[0], row[1]))
             yng.append((row[0], row[2]))
             mtr.append((row[0], row[3]))
             lapse.append((row[0], row[4]))
             cram.append((row[0], row[5]))
-        txt = self._graph(id="reps", title=_("Repetitions"), data=[
+            tot += row[1]+row[2]+row[3]+row[4]+row[5]
+            totd.append((row[0], tot))
+        conf = dict(
+            xaxis=dict(tickDecimals=0),
+            yaxes=[dict(), dict(position="right")])
+        if days is not None:
+            conf['xaxis']['min'] = -days
+        txt = self._graph(id=hash(title), title=title, data=[
             dict(data=mtr, color=colMature, label=_("Mature")),
             dict(data=yng, color=colYoung, label=_("Young")),
             dict(data=lapse, color=colRelearn, label=_("Relearning")),
             dict(data=lrn, color=colLearn, label=_("Learning")),
             dict(data=cram, color=colCram, label=_("Cramming")),
-            ])
+            dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+             bars={'show': False}, lines=dict(show=True), stack=False)
+            ], conf=conf)
         return txt
 
     def timeGraph(self):
@@ -122,11 +135,15 @@ group by day order by day""" % (self._limit(), lim),
             ])
         return txt
 
-    def _done(self):
+    def _done(self, num=7, chunk=1):
         # without selective for now
+        lim = ""
+        if num is not None:
+            lim += "where time > %d" % (
+                (self.deck.sched.dayCutoff-(num*chunk*86400))*1000)
         return self.deck.db.all("""
 select
-cast((time/1000 - :cut) / 86400.0 as int)+1 as day,
+(cast((time/1000 - :cut) / 86400.0 as int)+1)/:chunk as day,
 sum(case when type = 0 then 1 else 0 end), -- lrn count
 sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
@@ -138,7 +155,10 @@ sum(case when type = 1 and lastIvl < 21 then taken/1000 else 0 end)/3600.0,
 sum(case when type = 1 and lastIvl >= 21 then taken/1000 else 0 end)/3600.0,
 sum(case when type = 2 then taken/1000 else 0 end)/3600.0, -- lapse time
 sum(case when type = 3 then taken/1000 else 0 end)/3600.0 -- cram time
-from revlog group by day order by day""", cut=self.deck.sched.dayCutoff)
+from revlog %s
+group by day order by day""" % lim,
+                            cut=self.deck.sched.dayCutoff,
+                            chunk=chunk)
 
     # Intervals
     ######################################################################
@@ -221,7 +241,9 @@ order by thetype, ease""")
 """
 <h1>%(title)s</h1>
 <table width=%(tw)s>
-<tr><td><div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div></td>
+<tr>
+<td><div style="-webkit-transform: rotate(-90deg);-moz-transform: rotate(-90deg);">Cards</div></td>
+<td><div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div></td>
 <td width=100 valign=top><br><div id=%(id)sLegend></div></td></tr></table>
 <script>
 $(function () {
@@ -237,8 +259,3 @@ $(function () {
             return self.deck.sched._groupLimit("rev")
         else:
             return ""
-
-    def _addMissing(self, dic, min, max):
-        for i in range(min, max+1):
-            if not i in dic:
-                dic[i] = 0
