@@ -69,9 +69,9 @@ class Graphs(object):
 
     def _due(self, days=7):
         return self.deck.db.all("""
-select due-:today,
-count(), -- all
-sum(case when ivl >= 21 then 1 else 0 end) -- mature
+select due-:today as day,
+sum(case when ivl < 21 then 1 else 0 end), -- yng
+sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
 where queue = 2 and due < (:today+:days) %s
 group by due order by due""" % self._limit(),
