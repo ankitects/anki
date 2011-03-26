@@ -33,7 +33,7 @@ class ProgressManager(object):
         if not self._win:
             return
         # make sure we're not executing too frequently
-        if (time.time() - self.lastDbProgress) < 0.2:
+        if (time.time() - self.lastDbProgress) < 0.01:
             return
         self.lastDbProgress = time.time()
         # and we're in the main thread
@@ -79,6 +79,7 @@ class ProgressManager(object):
         self._win.setCancelButton(None)
         self._win.setAutoClose(False)
         self._win.setAutoReset(False)
+        self._win.setWindowModality(Qt.ApplicationModal)
         # we need to manually manage minimum time to show, as qt gets confused
         # by the db handler
         self._win.setMinimumDuration(100000)
@@ -94,9 +95,10 @@ class ProgressManager(object):
         self._lastTime = time.time()
         self._disabled = False
 
-    def update(self, label=None, value=None, process=True):
+    def update(self, label=None, value=None, process=True, maybeShow=True):
         #print self._min, self._counter, self._max, label, time.time() - self._lastTime
-        self._maybeShow()
+        if maybeShow:
+            self._maybeShow()
         self._lastTime = time.time()
         if label:
             self._win.setLabelText(label)
@@ -104,13 +106,13 @@ class ProgressManager(object):
             self._counter = value or (self._counter+1)
             self._win.setValue(self._counter)
         if process:
-            self.app.processEvents()
+            self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
 
     def finish(self):
         self._levels -= 1
         if self._levels == 0:
             self._win.cancel()
-            self._enableUI()
+            self._unsetBusy()
 
     def clear(self):
         "Restore the interface after an error."
@@ -121,22 +123,19 @@ class ProgressManager(object):
     def _maybeShow(self):
         if not self._levels:
             return
+        if self._shown:
+            self.update(maybeShow=False)
+            return
         delta = time.time() - self._firstTime
-        # if more than 500ms have passed, disable the UI so the user doesn't
-        # try to click again. We don't do it immediately to avoid flicker.
-        if not self._disabled and delta > 0.5:
-            self._disableUI()
-        # if more than 2 seconds have passed, show a progress dialog
-        if not self._shown and delta > 2:
+        if delta > 0.5:
             self._shown = True
             self._win.show()
+            self._setBusy()
 
-    def _disableUI(self):
+    def _setBusy(self):
         self._disabled = True
         self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
-        self.mw.setEnabled(False)
 
-    def _enableUI(self):
+    def _unsetBusy(self):
         self._disabled = False
         self.app.restoreOverrideCursor()
-        self.mw.setEnabled(True)
