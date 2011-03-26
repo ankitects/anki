@@ -50,10 +50,8 @@ class Graphs(object):
             yng.append((day[0], day[1]))
             mtr.append((day[0], day[2]))
         txt = self._graph(id="due", data=[
-            dict(data=yng, bars=dict(show=True, barWidth=0.8),
-             color=dueYoungC, label=_("Young")),
-            dict(data=mtr, bars=dict(show=True, barWidth=0.8),
-             color=dueMatureC, label=_("Mature"))
+            dict(data=yng, color=dueYoungC, label=_("Young")),
+            dict(data=mtr, color=dueMatureC, label=_("Mature"))
             ])
         return txt
 
@@ -66,9 +64,8 @@ class Graphs(object):
             tot += day[1]+day[2]
             days.append((day[0], tot))
         txt = self._graph(id="cum", data=[
-            dict(data=days, lines=dict(show=True, fill=True),
-             color=dueCumulC, label=_("Cards")),
-            ])
+            dict(data=days, color=dueCumulC, label=_("Cards")),
+            ], type="fill")
         return txt
 
     def _due(self, days=7):
@@ -89,32 +86,42 @@ group by due order by due""" % self._limit(),
         lrn = []
         yng = []
         mtr = []
+        lapse = []
+        cram = []
         for row in self._stats['done']:
             lrn.append((row[0], row[1]))
             yng.append((row[0], row[2]))
             mtr.append((row[0], row[3]))
+            lapse.append((row[0], row[4]))
+            cram.append((row[0], row[5]))
         txt = self._graph(id="reps", data=[
-            dict(data=lrn, bars=dict(show=True, barWidth=0.8, align="center"),
-             color=reviewNewC, label=_("Learning")),
-            dict(data=yng, bars=dict(show=True, barWidth=0.8, align="center"),
-             color=reviewYoungC, label=_("Young")),
-            dict(data=mtr, bars=dict(show=True, barWidth=0.8, align="center"),
-             color=reviewMatureC, label=_("Mature")),
+            dict(data=lrn, color=reviewNewC, label=_("Learning")),
+            dict(data=lapse, color=reviewMatureC, label=_("Relearning")),
+            dict(data=yng, color=reviewYoungC, label=_("Young")),
+            dict(data=mtr, color=reviewMatureC, label=_("Mature")),
+            dict(data=cram, color=reviewMatureC, label=_("Cramming")),
             ])
         return txt
 
     def timeGraph(self):
         self._calcStats()
         lrn = []
-        rev = []
+        yng = []
+        mtr = []
+        lapse = []
+        cram = []
         for row in self._stats['done']:
-            lrn.append((row[0], row[4]))
-            rev.append((row[0], row[5]))
+            lrn.append((row[0], row[6]))
+            yng.append((row[0], row[7]))
+            mtr.append((row[0], row[8]))
+            lapse.append((row[0], row[9]))
+            cram.append((row[0], row[10]))
         txt = self._graph(id="time", data=[
-            dict(data=lrn, bars=dict(show=True, barWidth=0.8, align="center"),
-             color=lrnTimeC, label=_("Learning")),
-            dict(data=rev, bars=dict(show=True, barWidth=0.8, align="center"),
-             color=revTimeC, label=_("Reviews")),
+            dict(data=lrn, color=lrnTimeC, label=_("Learning")),
+            dict(data=lapse, color=revTimeC, label=_("Relearning")),
+            dict(data=yng, color=revTimeC, label=_("Young")),
+            dict(data=mtr, color=revTimeC, label=_("Mature")),
+            dict(data=cram, color=revTimeC, label=_("Cramming")),
             ])
         return txt
 
@@ -126,8 +133,14 @@ cast((time/1000 - :cut) / 86400.0 as int)+1 as day,
 sum(case when type = 0 then 1 else 0 end), -- lrn count
 sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
+sum(case when type = 2 then 1 else 0 end), -- lapse count
+sum(case when type = 3 then 1 else 0 end), -- cram count
 sum(case when type = 0 then taken/1000 else 0 end)/3600.0, -- lrn time
-sum(case when type = 1 then taken/1000 else 0 end)/3600.0 -- rev time
+-- yng + mtr time
+sum(case when type = 1 and lastIvl < 21 then taken/1000 else 0 end)/3600.0,
+sum(case when type = 1 and lastIvl >= 21 then taken/1000 else 0 end)/3600.0,
+sum(case when type = 2 then taken/1000 else 0 end)/3600.0, -- lapse time
+sum(case when type = 3 then taken/1000 else 0 end)/3600.0 -- cram time
 from revlog group by day order by day""", cut=self.deck.sched.dayCutoff)
 
     # Intervals
@@ -144,8 +157,7 @@ order by ivl / 7""" % self._limit())
         self._calcStats()
         ivls = self._stats['ivls']
         txt = self._graph(id="ivl", data=[
-            dict(data=ivls, bars=dict(show=True, barWidth=0.8),
-             color=intervC)
+            dict(data=ivls, color=intervC)
             ])
         return txt
 
@@ -156,8 +168,8 @@ order by ivl / 7""" % self._limit())
         # ignores selective, at least for now
         return self.deck.db.all("""
 select (case
-when type = 0 then 0
-when lastIvl <= 21 then 1
+when type in (0,2) then 0
+when lastIvl < 21 then 1
 else 2 end) as thetype,
 ease, count() from revlog
 group by thetype, ease
@@ -181,12 +193,9 @@ order by thetype, ease""")
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
         txt = self._graph(id="ease", data=[
-            dict(data=d['lrn'], bars=dict(show=True, barWidth=0.8, align="center"),
-             color=easesNewC, label=_("Learning")),
-            dict(data=d['yng'], bars=dict(show=True, barWidth=0.8, align="center"),
-             color=easesYoungC, label=_("Young")),
-            dict(data=d['mtr'], bars=dict(show=True, barWidth=0.8, align="center"),
-             color=easesMatureC, label=_("Mature")),
+            dict(data=d['lrn'], color=easesNewC, label=_("Learning")),
+            dict(data=d['yng'], color=easesYoungC, label=_("Young")),
+            dict(data=d['mtr'], color=easesMatureC, label=_("Mature")),
             ], conf=dict(
             xaxis=dict(ticks=ticks, min=0, max=15)))
         return txt
@@ -203,9 +212,19 @@ order by thetype, ease""")
         self._stats['done'] = self._done()
         self._stats['eases'] = self._eases()
 
-    def _graph(self, id, data, conf={}, width=600, height=200):
+    def _graph(self, id, data, conf={}, width=600, height=200, type="bars"):
+        conf['legend']= {'container': "#%sLegend" % id}
+        if type == "bars":
+            conf['series'] = dict(
+                bars=dict(show=True, barWidth=0.8, align="center"))
+        elif type == "fill":
+            conf['series'] = dict(
+                lines=dict(show=True, fill=True))
         return (
-"""<div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div>
+"""
+<table>
+<tr><td><div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div></td>
+<td valign=top><br><div id=%(id)sLegend></div></td></tr></table>
 <script>
 $(function () {
     $.plot($("#%(id)s"), %(data)s, %(conf)s);
