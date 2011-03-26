@@ -25,7 +25,9 @@ class Graphs(object):
         self.selective = selective
 
     def report(self):
-        txt = (self.dueGraph() +
+        txt = (self.dueGraph(0, 30, _("Due/Day")) +
+               self.dueGraph(0, 52, _("Due/Week"), chunk=7) +
+               self.dueGraph(0, None, _("Due/Month"), chunk=30) +
                self.repsGraph() +
                self.timeGraph() +
                self.ivlGraph() +
@@ -35,9 +37,8 @@ class Graphs(object):
     # Due and cumulative due
     ######################################################################
 
-    def dueGraph(self):
-        self._calcStats()
-        d = self._stats['due']
+    def dueGraph(self, start, end, title, chunk=1):
+        d = self._due(start, end, chunk)
         yng = []
         mtr = []
         tot = 0
@@ -47,24 +48,32 @@ class Graphs(object):
             mtr.append((day[0], day[2]))
             tot += day[1]+day[2]
             totd.append((day[0], tot))
-        txt = self._graph(id="due", title=_("Due Forecast"), data=[
+        txt = self._graph(id=hash(title), title=title, data=[
             dict(data=mtr, color=colMature, label=_("Mature")),
             dict(data=yng, color=colYoung, label=_("Young")),
             dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
              bars={'show': False}, lines=dict(show=True))
             ], conf=dict(
-                yaxes=[{}, {'position': 'right'}]))
+                #xaxis=dict(tickDecimals=0),
+                yaxes=[dict(), dict(position="right")]))
         return txt
 
-    def _due(self, days=7):
+    def _due(self, start=None, end=None, chunk=1):
+        lim = ""
+        if start is not None:
+            lim += " and due-:today >= %d" % start
+        if end is not None:
+            lim += " and day < %d" % end
         return self.deck.db.all("""
-select due-:today as day,
+select (due-:today+1)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where queue = 2 and due < (:today+:days) %s
-group by due order by due""" % self._limit(),
-                                today=self.deck.sched.today, days=days)
+where queue = 2 %s
+%s
+group by day order by day""" % (self._limit(), lim),
+                            today=self.deck.sched.today,
+                            chunk=chunk)
 
     # Reps and time spent
     ######################################################################
@@ -195,7 +204,6 @@ order by thetype, ease""")
         if self._stats:
             return
         self._stats = {}
-        self._stats['due'] = self._due()
         self._stats['ivls'] = self._ivls()
         self._stats['done'] = self._done()
         self._stats['eases'] = self._eases()
