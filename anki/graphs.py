@@ -25,7 +25,7 @@ class Graphs(object):
         self._stats = None
         self.selective = selective
 
-    def report(self, type=2):
+    def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
         txt = self.dueGraph(type)
@@ -58,7 +58,7 @@ class Graphs(object):
             mtr.append((day[0], day[2]))
             tot += day[1]+day[2]
             totd.append((day[0], tot))
-        txt = self._graph(id=hash(title), title=title, data=[
+        txt = self._graph(id="due", title=title, data=[
             dict(data=mtr, color=colMature, label=_("Mature")),
             dict(data=yng, color=colYoung, label=_("Young")),
             dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
@@ -107,9 +107,9 @@ group by day order by day""" % (self._limit(), lim),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
             conf['xaxis']['min'] = -days
-        def plot(title, data):
-            return self._graph("g%d"%hash(title), title=title,
-                               data=data, conf=conf)
+        def plot(id, title, data, ylabel):
+            return self._graph(id, title=title,
+                               data=data, conf=conf, ylabel=ylabel)
         # reps
         (repdata, repsum) = self._splitRepData(d, (
             (3, colMature, _("Mature")),
@@ -117,7 +117,7 @@ group by day order by day""" % (self._limit(), lim),
             (4, colRelearn, _("Relearn")),
             (1, colLearn, _("Learn")),
             (5, colCram, _("Cram"))))
-        txt = plot(reptitle, repdata)
+        txt = plot("reps", reptitle, repdata, ylabel=_("Answers"))
         # time
         (timdata, timsum) = self._splitRepData(d, (
             (8, colMature, _("Mature")),
@@ -125,7 +125,7 @@ group by day order by day""" % (self._limit(), lim),
             (9, colRelearn, _("Relearn")),
             (6, colLearn, _("Learn")),
             (10, colCram, _("Cram"))))
-        txt += plot(timetitle, timdata)
+        txt += plot("time", timetitle, timdata, ylabel=_("Hours"))
         return txt
 
     def _splitRepData(self, data, spec):
@@ -180,10 +180,20 @@ group by day order by day""" % lim,
     ######################################################################
 
     def ivlGraph(self, type):
-        ivls = self._ivls(type)
+        (ivls, all) = self._ivls(type)
+        tot = 0
+        totd = []
+        if not all:
+            return ""
+        for (grp, cnt) in ivls:
+            tot += cnt
+            totd.append((grp, tot/float(all)*100))
         txt = self._graph(id="ivl", title=_("Intervals"), data=[
-            dict(data=ivls, color=colIvl, label=_("All Types"))
-            ])
+            dict(data=ivls, color=colIvl, label=_("All Types")),
+            dict(data=totd, color=colCum, label=_("% Total"), yaxis=2,
+             bars={'show': False}, lines=dict(show=True), stack=False)
+            ], conf=dict(
+                yaxes=[dict(), dict(position="right", max=105)]))
         return txt
 
     def _ivls(self, type):
@@ -193,12 +203,13 @@ group by day order by day""" % lim,
             chunk = 7; lim = " and grp <= 52"
         else:
             chunk = 30; lim = ""
-        return self.deck.db.all("""
+        return (self.deck.db.all("""
 select ivl / :chunk as grp, count() from cards
 where queue = 2 %s %s
 group by grp
-order by grp""" % (self._limit(), lim), chunk=chunk)
-
+order by grp""" % (self._limit(), lim), chunk=chunk),
+                self.deck.db.scalar("""
+select count() from cards where queue = 2 %s""" % self._limit()))
 
     # Eases
     ######################################################################
@@ -224,7 +235,8 @@ order by grp""" % (self._limit(), lim), chunk=chunk)
             dict(data=d['yng'], color=easesYoungC, label=_("Young")),
             dict(data=d['mtr'], color=easesMatureC, label=_("Mature")),
             ], conf=dict(
-            xaxis=dict(ticks=ticks, min=0, max=15)))
+            xaxis=dict(ticks=ticks, min=0, max=15)),
+            ylabel=_("Answers"))
         return txt
 
     def _eases(self):
@@ -241,10 +253,14 @@ order by thetype, ease""")
     # Tools
     ######################################################################
 
-    def _graph(self, id, title, data, conf={}, width=600, height=200, type="bars"):
+    def _graph(self, id, title, data, conf={}, width=600, height=200,
+               type="bars", ylabel=_("Cards")):
         # display settings
         conf['legend'] = {'container': "#%sLegend" % id}
         conf['series'] = dict(stack=True)
+        if not 'yaxis' in conf:
+            conf['yaxis'] = {}
+        conf['yaxis']['labelWidth'] = 40
         if type == "bars":
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
@@ -253,9 +269,10 @@ order by thetype, ease""")
         return (
 """
 <h1>%(title)s</h1>
-<table width=%(tw)s>
+<table cellpadding=0 cellspacing=10>
 <tr>
-<td><div style="-webkit-transform: rotate(-90deg);-moz-transform: rotate(-90deg);">Cards</div></td>
+<td><div style="width: 10px; -webkit-transform: rotate(-90deg);
+-moz-transform: rotate(-90deg);">%(ylab)s</div></td>
 <td><div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div></td>
 <td width=100 valign=top><br><div id=%(id)sLegend></div></td></tr></table>
 <script>
@@ -263,7 +280,7 @@ $(function () {
     $.plot($("#%(id)s"), %(data)s, %(conf)s);
 });
 </script>""" % dict(
-    id=id, title=title, w=width, h=height, tw=width+100,
+    id=id, title=title, w=width, h=height, tw=width+100, ylab=ylabel,
     data=simplejson.dumps(data),
     conf=simplejson.dumps(conf)))
 
