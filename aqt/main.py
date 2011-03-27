@@ -67,7 +67,6 @@ class AnkiQt(QMainWindow):
         self.setupStyle()
         self.setupProxy()
         self.setupSound()
-        self.setupTray()
         self.setupMenus()
         self.setupToolbar()
         self.setupProgress()
@@ -359,10 +358,6 @@ counts are %d %d %d
             self.form.noticeFrame.setShown(True)
         else:
             self.form.noticeFrame.setShown(False)
-
-    def setupTray(self):
-        import aqt.tray
-	self.trayIcon = aqt.tray.AnkiTrayIcon(self)
 
     # Deck loading & saving: backend
     ##########################################################################

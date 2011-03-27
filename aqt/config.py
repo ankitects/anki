@@ -52,7 +52,6 @@ defaultConf = {
     'showProgress': True,
     'showTimer': True,
     'showToolbar': True,
-    'showTrayIcon': False,
     'splitQA': True,
     'stripHTML': True,
     'studyOptionsTab': 0,
