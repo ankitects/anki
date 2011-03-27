@@ -3,11 +3,10 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-
-from anki.sound import playFromText, stripSounds
-
 import re, os, sys, urllib, time
 import aqt
+from anki.sound import playFromText, stripSounds
+from anki.utils import call
 
 def openLink(link):
     QDesktopServices.openUrl(QUrl(link))
@@ -285,3 +284,11 @@ def getBase(deck, card):
         return '<base href="%s">' % base
     else:
         return ""
+
+def openFolder(path):
+    if sys.platform == "win32":
+        if isinstance(path, unicode):
+            path = path.encode(sys.getfilesystemencoding())
+        call(["explorer", path], wait=False)
+    else:
+        QDesktopServices.openUrl(QUrl("file://" + path))
