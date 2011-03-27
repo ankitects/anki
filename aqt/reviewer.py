@@ -23,6 +23,7 @@ class Reviewer(object):
         self._answeredIds = []
         self.state = None
         self._setupStatus()
+        addHook("leech", self.onLeech)
 
     def show(self):
         self.web.setKeyHandler(self._keyHandler)
@@ -579,3 +580,19 @@ div#filler {
             p.setColor(QPalette.Highlight, QColor("#00ee00"))
         self.progressBar.setPalette(p)
         self.progressBar.setValue(perc)
+
+    # Leeches
+    ##########################################################################
+
+    # fixme: update; clear on card transition
+    def onLeech(self, card):
+        print "leech"
+        return
+        txt = (_("""\
+<b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""")
+               % stripHTML(stripSounds(self.currentCard.question)).\
+               replace("\n", " ")[0:30])
+        if isLeech and self.deck.db.scalar(
+            "select 1 from cards where id = :id and type < 0", id=cardId):
+            txt += _(" It has been suspended.")
+        self.setNotice(txt)
