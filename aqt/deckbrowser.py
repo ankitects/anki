@@ -148,9 +148,9 @@ a { font-size: 80%; }
 """
 
     def _renderPage(self):
+        css = self.mw.sharedCSS + self._css
         if self._decks:
             buf = ""
-            css = self.mw.sharedCSS + self._css
             max=len(self._decks)-1
             buf += "<tr><th></th><th align=right>%s</th>" % _("Due")
             buf += "<th align=right>%s</th><th></th></tr>" % _("New")

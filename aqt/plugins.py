@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import sys, os, re
+import sys, os, re, traceback
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from aqt.utils import showInfo, showWarning, openFolder
