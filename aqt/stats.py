@@ -143,7 +143,7 @@ class Graphs(PrintableReport):
             _("1 year"),
             _("deck life")]
         PrintableReport.__init__(self, *args)
-        grp = QGroupBox(_("Period"))
+        grp = QGroupBox()
         l = QHBoxLayout()
         l.setContentsMargins(6,6,6,6)
         chk = False
