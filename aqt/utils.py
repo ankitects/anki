@@ -41,7 +41,7 @@ def showInfo(text, parent=None, help="", func=None):
 
 def showText(txt, parent=None, type="text"):
     if not parent:
-        parent = aqt.mw
+        parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
     diag.setWindowTitle("Anki")
     layout = QVBoxLayout(diag)

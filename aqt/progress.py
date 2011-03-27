@@ -16,7 +16,6 @@ class ProgressManager(object):
         self.app = QApplication.instance()
         self._win = None
         self._levels = 0
-        self._mainThread = QThread.currentThread()
 
     # SQLite progress handler
     ##########################################################################
@@ -37,7 +36,7 @@ class ProgressManager(object):
             return
         self.lastDbProgress = time.time()
         # and we're in the main thread
-        if self._mainThread != QThread.currentThread():
+        if not self.mw.inMainThread():
             return
         # ensure timers don't fire
         self.inDB = True

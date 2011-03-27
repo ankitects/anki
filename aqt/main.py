@@ -61,6 +61,7 @@ class AnkiQt(QMainWindow):
     def setup(self):
         self.deck = None
         self.state = None
+        self.setupThreads()
         self.setupLang()
         self.setupMainWindow()
         self.setupStyle()
@@ -181,91 +182,8 @@ title="%s">%s</button>''' % (
     ##########################################################################
 
     def setupErrorHandler(self):
-        class ErrorPipe(object):
-            def __init__(self, parent):
-                self.parent = parent
-                self.timer = None
-                self.pool = ""
-                self.poolUpdated = 0
-
-            def write(self, data):
-                try:
-                    print data.encode("utf-8"),
-                except:
-                    print data
-                self.pool += data
-                self.poolUpdated = time.time()
-
-            def haveError(self):
-                if self.pool:
-                    if (time.time() - self.poolUpdated) > 1:
-                        return True
-
-            def getError(self):
-                p = self.pool
-                self.pool = ""
-                try:
-                    return unicode(p, 'utf8', 'replace')
-                except TypeError:
-                    # already unicode
-                    return p
-
-        self.errorPipe = ErrorPipe(self)
-        sys.stderr = self.errorPipe
-        self.errorTimer = QTimer(self)
-        self.errorTimer.start(1000)
-        self.connect(self.errorTimer,
-                            SIGNAL("timeout()"),
-                            self.onErrorTimer)
-
-    def onErrorTimer(self):
-        if self.errorPipe.haveError():
-            error = self.errorPipe.getError()
-            if "font_manager.py" in error:
-                # hack for matplotlib errors on osx
-                return
-            if "Audio player not found" in error:
-                showInfo(_("Couldn't play sound. Please install mplayer."))
-                return
-            if "ERR-0100" in error:
-                showInfo(error)
-                return
-            if "ERR-0101" in error:
-                showInfo(error)
-                return
-            stdText = _("""\
-
-An error occurred. It may have been caused by a harmless bug, <br>
-or your deck may have a problem.
-<p>To confirm it's not a problem with your deck, please <b>restart<br>
-Anki</b> and run <b>Tools > Advanced > Check Database</b>.
-
-<p>If that doesn't fix the problem, please copy the following<br>
-into a bug report:<br>
-""")
-            pluginText = _("""\
-An error occurred in a plugin. Please contact the plugin author.<br>
-Please do not file a bug report with Anki.<br>""")
-            if "plugin" in error:
-                txt = pluginText
-            else:
-                txt = stdText
-            # show dialog
-            diag = QDialog(self.app.activeWindow())
-            diag.setWindowTitle("Anki")
-            layout = QVBoxLayout(diag)
-            diag.setLayout(layout)
-            text = QTextEdit()
-            text.setReadOnly(True)
-            text.setHtml(txt + "<div style='white-space: pre-wrap'>" + error + "</div>")
-            layout.addWidget(text)
-            box = QDialogButtonBox(QDialogButtonBox.Close)
-            layout.addWidget(box)
-            self.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
-            diag.setMinimumHeight(400)
-            diag.setMinimumWidth(500)
-            diag.exec_()
-            self.progress.clear()
+        import aqt.errors
+        self.errorHandler = aqt.errors.ErrorHandler(self)
 
     # Main window setup
     ##########################################################################
@@ -416,11 +334,17 @@ counts are %d %d %d
         if self.appUpdated:
             self.config['version'] = aqt.appVersion
 
+    def setupThreads(self):
+        self._mainThread = QThread.currentThread()
+
+    def inMainThread(self):
+        return self._mainThread == QThread.currentThread()
+
     def onReload(self):
         self.moveToState("auto")
 
     def onNotify(self, msg):
-        if self.mainThread != QThread.currentThread():
+        if not self.inMainThread():
             # decks may be opened in a sync thread
             sys.stderr.write(msg + "\n")
         else:
