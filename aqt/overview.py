@@ -94,9 +94,11 @@ $(function () {
     var d = %(fcdata)s;
     if (d) {
     $.plot($("#placeholder"), [
-    { data: d, bars: { show: true, barWidth: 0.8 }, color: "#0c0" }
+    { data: d[0], bars: { show: true, barWidth: 0.8, align:"center" }, color: "#0c0"},
+    { data: d[1], color: "#000", lines: { show: true }, yaxis: 2 }
     ], {
-    xaxis: { ticks: [[0.4, "Today"]] }
+    xaxis: { ticks: [[0, "Today"], [6, "7 days"], [13, "14 days"]] },
+    yaxes: [{}, {position: "right"}]
     });
     } else {
     $("#placeholder").hide();
@@ -167,7 +169,14 @@ $(function () {
         fc = self.mw.deck.sched.dueForecast(14)
         if not sum(fc):
             return "''"
-        return simplejson.dumps(tuple(enumerate(fc)))
+        tot = 0
+        repd = []
+        totd = []
+        for (c, cnt) in enumerate(fc):
+            tot += cnt
+            repd.append((c, cnt))
+            totd.append((c, tot))
+        return simplejson.dumps([repd, totd])
 
     # Toolbar
     ##########################################################################
