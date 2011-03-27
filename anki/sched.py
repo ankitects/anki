@@ -175,7 +175,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit('new'),
             return id
 
     def _updateNewCardRatio(self):
-        if self.deck.qconf['newCardSpacing'] == NEW_CARDS_DISTRIBUTE:
+        if self.deck.qconf['newSpread'] == NEW_CARDS_DISTRIBUTE:
             if self.newCount:
                 self.newCardModulus = (
                     (self.newCount + self.revCount) / self.newCount)
@@ -189,9 +189,9 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit('new'),
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
-        if self.deck.qconf['newCardSpacing'] == NEW_CARDS_LAST:
+        if self.deck.qconf['newSpread'] == NEW_CARDS_LAST:
             return False
-        elif self.deck.qconf['newCardSpacing'] == NEW_CARDS_FIRST:
+        elif self.deck.qconf['newSpread'] == NEW_CARDS_FIRST:
             return True
         elif self.newCardModulus:
             return self.deck.reps and self.deck.reps % self.newCardModulus == 0
@@ -326,7 +326,7 @@ select id from cards where
 queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self._groupLimit("rev"), self._revOrder(), self.queueLimit),
                                     lim=self.today)
-        if self.deck.qconf['revCardOrder'] == REV_CARDS_RANDOM:
+        if self.deck.qconf['revOrder'] == REV_CARDS_RANDOM:
             random.shuffle(self.revQueue)
         else:
             self.revQueue.reverse()
@@ -344,7 +344,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def _revOrder(self):
         return ("ivl desc",
                 "ivl",
-                "due")[self.deck.qconf['revCardOrder']]
+                "due")[self.deck.qconf['revOrder']]
 
     # Answering a review card
     ##########################################################################
@@ -651,7 +651,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def updateDynamicIndices(self):
         # determine required columns
         required = []
-        if self.deck.qconf['revCardOrder'] in (
+        if self.deck.qconf['revOrder'] in (
             REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
             required.append("interval")
         cols = ["queue", "due", "gid"] + required
@@ -682,7 +682,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 #             sql2 += "  where cardId in "+sids
 #         self.db.execute(sql, now=time.time())
 #         self.db.execute(sql2)
-#         if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+#         if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
 #             # we need to re-randomize now
 #             self.randomizeNewCards(ids)
 

@@ -24,9 +24,9 @@ defaultQconf = {
     'newPerDay': 20,
     'newToday': [0, 0], # currentDay, count
     'newTodayOrder': NEW_TODAY_ORD,
-    'newCardOrder': 1,
-    'newCardSpacing': NEW_CARDS_DISTRIBUTE,
-    'revCardOrder': REV_CARDS_RANDOM,
+    'newOrder': 1,
+    'newSpread': NEW_CARDS_DISTRIBUTE,
+    'revOrder': REV_CARDS_RANDOM,
     'collapseTime': 600,
 }
 
@@ -217,7 +217,7 @@ qconf=?, conf=?, data=?""",
         # notice any new tags
         self.registerTags(fact.tags)
         # if random mode, determine insertion point
-        if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+        if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
             due = random.randrange(0, 1000000)
         else:
             due = fact.id
@@ -270,7 +270,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         "Generate cards for templates if cards not empty. Return cards."
         cards = []
         # if random mode, determine insertion point
-        if self.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
+        if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
             # if this fact has existing new cards, use their due time
             due = self.db.scalar(
                 "select due from cards where fid = ? and queue = 0", fact.id)

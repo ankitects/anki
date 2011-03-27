@@ -375,6 +375,10 @@ insert or replace into deck select id, cast(created as int), :t,
     for k in keys:
         db.execute("delete from deckVars where key=:k", k=k)
     # copy other settings, ignoring deck order as there's a new default
+    qconf['newSpread'] = db.scalar(
+        "select newCardSpacing from decks")
+    qconf['newOrder'] = db.scalar(
+        "select newCardOrder from decks")
     keys = ("newCardOrder", "newCardSpacing")
     for k in keys:
         qconf[k] = db.scalar("select %s from decks" % k)
@@ -387,9 +391,9 @@ insert or replace into deck select id, cast(created as int), :t,
     for k in keys:
         conf[k] = db.scalar("select %s from decks" % k)
     # random and due options merged
-    qconf['revCardOrder'] = min(2, qconf['revCardOrder'])
+    qconf['revOrder'] = 2
     # no reverse option anymore
-    qconf['newCardOrder'] = min(1, qconf['newCardOrder'])
+    qconf['newOrder'] = min(1, qconf['newOrder'])
     # add any deck vars and save
     dkeys = ("hexCache", "cssCache")
     for (k, v) in db.execute("select * from deckVars").fetchall():
