@@ -75,7 +75,6 @@ class AnkiQt(QMainWindow):
         self.setupSystemSpecific()
         self.setupSignals()
         self.setupVersion()
-        self.setupMisc()
         self.setupAutoUpdate()
         self.setupCardStats()
         # screens
@@ -2143,19 +2142,3 @@ It can take a long time. Proceed?""")):
             proxy_handler = urllib2.ProxyHandler()
             opener = urllib2.build_opener(proxy_handler)
             urllib2.install_opener(opener)
-
-    # Misc
-    ##########################################################################
-
-    def setupMisc(self):
-        # if they've just upgraded, set created time based on deck age
-        if time.time() - self.config['created'] < 60 and self.deck:
-            self.config['created'] = self.deck.created
-        # tweaks for small screens
-        if self.config['optimizeSmall']:
-            p = self.form.deckBrowserOuterFrame.sizePolicy()
-            p.setHorizontalStretch(1)
-            self.form.deckBrowserOuterFrame.setSizePolicy(p)
-            self.form.decksLabel.hide()
-            self.form.decksLine.hide()
-            self.form.studyOptsLabel.hide()

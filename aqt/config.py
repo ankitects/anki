@@ -40,7 +40,6 @@ defaultConf = {
     'mainWindowState': None,
     'mediaLocation': "",
     'numBackups': 30,
-    'optimizeSmall': False,
     'preserveKeyboard': True,
     'proxyHost': '',
     'proxyPass': '',
