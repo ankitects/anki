@@ -17,7 +17,7 @@ from anki.utils import addTags, parseTags, canonifyTags, stripHTML, checksum
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
-import aqt, aqt.facteditor, aqt.progress, aqt.webview, aqt.stats
+import aqt, aqt.facteditor, aqt.progress, aqt.webview, aqt.stats, aqt.studyopts
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical
@@ -647,6 +647,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def setupCardStats(self):
         self.cardStats = aqt.stats.CardStats(self)
 
+    def onStudyOptions(self):
+        aqt.studyopts.StudyOptions(self)
+
     def onCardStats(self):
         self.cardStats.show()
 
@@ -783,7 +786,7 @@ Please give your deck a name:"""))
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
         self.connect(m.actionLocalizeMedia, s, self.onLocalizeMedia)
-        #self.connect(m.actionStudyOptions, s, self.onStudyOptions)
+        self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionBuryFact, s, self.onBuryFact)
 

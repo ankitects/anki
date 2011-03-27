@@ -17,14 +17,14 @@ pyrcc=`which pyrcc4`
 if [ $? != 0 ]; then
   if [ xDarwin = x$(uname) ]
   then
-      if [ -e /Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4 ]
+      if [ -e /Library/Frameworks/Python.framework/Versions/2.7/bin/pyuic4 ]
       then
-        pyuic=/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4
-        pyrcc=/Library/Frameworks/Python.framework/Versions/2.5/bin/pyrcc4
-      elif [ -e /opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4 ]
+        pyuic=/Library/Frameworks/Python.framework/Versions/2.7/bin/pyuic4
+        pyrcc=/Library/Frameworks/Python.framework/Versions/2.7/bin/pyrcc4
+      elif [ -e /opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/pyuic4 ]
       then
-        pyuic=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyuic4
-        pyrcc=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/pyrcc4
+        pyuic=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/pyuic4
+        pyrcc=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/pyrcc4
       elif [ -e /System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 ]
       then
         pyuic=/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4

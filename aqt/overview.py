@@ -54,7 +54,7 @@ class Overview(object):
             self.mw.deck.cramGroups(self.mw.deck.qconf['revGroups'])
             self.mw.moveToState("review")
         elif url == "opts":
-            print "study options"
+            self.mw.onStudyOptions()
         elif url == "list":
             self.mw.close()
         elif url == "chgrp":
