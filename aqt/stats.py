@@ -80,7 +80,7 @@ class PrintableReport(QDialog):
             self.report = func()
             self.web.stdHtml(self.report, css=css)
         self.box = QDialogButtonBox(QDialogButtonBox.Close)
-        b = self.box.addButton(_("Open In Browser"), QDialogButtonBox.ActionRole)
+        b = self.box.addButton(_("Save Image"), QDialogButtonBox.ActionRole)
         b.connect(b, SIGNAL("clicked()"), self.browser)
         b.setAutoDefault(False)
         self.layout = QHBoxLayout()
@@ -101,10 +101,16 @@ class PrintableReport(QDialog):
     def browser(self):
         # dump to a temporary file
         tmpdir = tempfile.mkdtemp(prefix="anki")
-        path = os.path.join(tmpdir, "report.html")
-        open(path, "w").write("""
-<html><head><style>%s</style></head><body>%s</body></html>""" % (
-    self.css, self.report))
+        path = os.path.join(tmpdir, "report.png")
+        p = self.web.page()
+        oldsize = p.viewportSize()
+        p.setViewportSize(p.mainFrame().contentsSize())
+        image = QImage(p.viewportSize(), QImage.Format_ARGB32)
+        painter = QPainter(image)
+        p.mainFrame().render(painter)
+        painter.end()
+        image.save(path, "png")
+        p.setViewportSize(oldsize)
         QDesktopServices.openUrl(QUrl("file://" + path))
 
 # Deck stats
