@@ -23,7 +23,7 @@ class ErrorHandler(QObject):
         if not isinstance(data, unicode):
             data = unicode(data, "utf8", "replace")
         # dump to stdout
-        print data.encode("utf-8")
+        sys.stdout.write(data.encode("utf-8"))
         # save in buffer
         self.pool += data
         # and update timer
