@@ -446,9 +446,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def setStatus(self, text, timeout=3000):
         self.form.statusbar.showMessage(text, timeout)
 
-    def onStartHere(self):
-        QDesktopServices.openUrl(QUrl(aqt.appHelpSite))
-
     def setupStyle(self):
         applyStyles(self)
 
@@ -743,7 +740,6 @@ Please give your deck a name:"""))
         "Graphs",
         "Dstats",
         "Cstats",
-        "Cram",
         "StudyOptions",
         )
 
@@ -775,7 +771,6 @@ Please give your deck a name:"""))
         self.connect(m.actionGraphs, s, self.onGraphs)
         self.connect(m.actionEditLayout, s, self.onCardLayout)
         self.connect(m.actionAbout, s, self.onAbout)
-        self.connect(m.actionStarthere, s, self.onStartHere)
         self.connect(m.actionImport, s, self.onImport)
         self.connect(m.actionExport, s, self.onExport)
         self.connect(m.actionMarkCard, SIGNAL("toggled(bool)"), self.onMark)
@@ -788,7 +783,6 @@ Please give your deck a name:"""))
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
         self.connect(m.actionLocalizeMedia, s, self.onLocalizeMedia)
-        #self.connect(m.actionCram, s, self.onCram)
         #self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionBuryFact, s, self.onBuryFact)

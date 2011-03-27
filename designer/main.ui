@@ -47,7 +47,6 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="actionStarthere"/>
     <addaction name="separator"/>
     <addaction name="actionDonate"/>
     <addaction name="actionAbout"/>
@@ -111,7 +110,6 @@
      <addaction name="actionFullDatabaseCheck"/>
      <addaction name="separator"/>
      <addaction name="actionCheckMediaDatabase"/>
-     <addaction name="actionRecordNoiseProfile"/>
      <addaction name="actionDownloadMissingMedia"/>
      <addaction name="actionLocalizeMedia"/>
      <addaction name="separator"/>
@@ -124,7 +122,6 @@
     <addaction name="separator"/>
     <addaction name="menuAdvanced"/>
     <addaction name="separator"/>
-    <addaction name="actionCram"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_Settings">
@@ -336,30 +333,6 @@
     <string>Show some textual statistics about your deck</string>
    </property>
   </action>
-  <action name="actionStarthere">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/help.png</normaloff>:/icons/help.png</iconset>
-   </property>
-   <property name="text">
-    <string>Documentation</string>
-   </property>
-   <property name="shortcut">
-    <string>F1</string>
-   </property>
-  </action>
-  <action name="actionReportbug">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/kbugbuster.png</normaloff>:/icons/kbugbuster.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Report Bug...</string>
-   </property>
-   <property name="whatsThis">
-    <string>Open the bug tracker</string>
-   </property>
-  </action>
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -432,18 +405,6 @@
     <string>Save cards in a new deck or text file for sharing with others</string>
    </property>
   </action>
-  <action name="actionDisplayProperties">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/preferences-desktop-font.png</normaloff>:/icons/preferences-desktop-font.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Fonts and Colours...</string>
-   </property>
-   <property name="statusTip">
-    <string>Customize fonts, colours and alignment</string>
-   </property>
-  </action>
   <action name="actionMarkCard">
    <property name="checkable">
     <bool>true</bool>
@@ -510,15 +471,6 @@
     <string>Ctrl+Z</string>
    </property>
   </action>
-  <action name="actionForum">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/view-pim-news.png</normaloff>:/icons/view-pim-news.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Forum...</string>
-   </property>
-  </action>
   <action name="actionRename">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -543,27 +495,6 @@
     <string>Check the files in the media directory</string>
    </property>
   </action>
-  <action name="actionCram">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/view-pim-calendar.png</normaloff>:/icons/view-pim-calendar.png</iconset>
-   </property>
-   <property name="text">
-    <string>C&amp;ram...</string>
-   </property>
-   <property name="statusTip">
-    <string>Do an extra review of specified cards before a test</string>
-   </property>
-  </action>
-  <action name="actionReleaseNotes">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/kblogger.png</normaloff>:/icons/kblogger.png</iconset>
-   </property>
-   <property name="text">
-    <string>Release Notes...</string>
-   </property>
-  </action>
   <action name="actionOpenPluginFolder">
    <property name="text">
     <string>&amp;Open Plugin Folder...</string>
@@ -577,18 +508,6 @@
   <action name="actionDisableAllPlugins">
    <property name="text">
     <string>&amp;Disable All Plugins</string>
-   </property>
-  </action>
-  <action name="actionActiveTags">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/anki-tag.png</normaloff>:/icons/anki-tag.png</iconset>
-   </property>
-   <property name="text">
-    <string>Inactive &amp;Tags...</string>
-   </property>
-   <property name="statusTip">
-    <string>Choose the categories to show during review</string>
    </property>
   </action>
   <action name="actionEditCurrent">
@@ -649,18 +568,6 @@
    </property>
    <property name="text">
     <string>&amp;Donate...</string>
-   </property>
-  </action>
-  <action name="actionRecordNoiseProfile">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/media-record.png</normaloff>:/icons/media-record.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Record Noise Profile...</string>
-   </property>
-   <property name="statusTip">
-    <string>Record 10 seconds of silence so that the record function can cancel noise</string>
    </property>
   </action>
   <action name="actionOpenOnline">
@@ -761,15 +668,6 @@
   <action name="actionLocalizeMedia">
    <property name="text">
     <string>Localize Media</string>
-   </property>
-  </action>
-  <action name="actionRefreshDeckBrowser">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-redo.png</normaloff>:/icons/edit-redo.png</iconset>
-   </property>
-   <property name="text">
-    <string>Refresh</string>
    </property>
   </action>
  </widget>
