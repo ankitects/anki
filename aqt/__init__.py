@@ -29,7 +29,6 @@ class DialogManager(object):
         self._dialogs = {
             "AddCards": (addcards.AddCards, None),
             "CardList": (cardlist.EditDeck, None),
-            "Graphs": (self.graphProxy, None)
         }
 
     def open(self, name, *args):
@@ -53,11 +52,6 @@ class DialogManager(object):
                 instance.forceClose = True
                 instance.close()
                 self.close(n)
-
-    # since we load the graphs dynamically, we need a proxy for this
-    def graphProxy(self, *args):
-        import graphs
-        return graphs.intervalGraph(*args)
 
 dialogs = DialogManager()
 
