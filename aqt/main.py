@@ -243,7 +243,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             return 0
         self.config.addRecentDeck(self.deck.path)
         self.setupMedia(self.deck)
-        self.deck.initUndo()
         self.progress.setupDB()
         self.moveToState("deckLoading")
         return True
@@ -481,7 +480,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 return
         self.closeAllDeckWindows()
         self.deck = self.deck.saveAs(file)
-        self.deck.initUndo()
         self.updateTitleBar()
         self.updateRecentFiles(self.deck.path)
         self.browserLastRefreshed = 0
@@ -604,33 +602,20 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.reset()
         self.deck.setUndoEnd(undo)
 
-    # Undo/redo
+    # Undo
     ##########################################################################
 
     def onUndo(self):
-        name = self.deck.undoName()
         self.deck.undo()
-        self.reset()
-        if name == "Answer Card":
-            self.setStatus(_("Card placed back in queue."))
-
-    def onRedo(self):
-        self.deck.redo()
         self.reset()
 
     def maybeEnableUndo(self):
-        if self.deck and self.deck.undoAvailable():
+        if self.deck and self.deck.undoName():
             self.form.actionUndo.setText(_("Undo %s") %
                                             self.deck.undoName())
             self.form.actionUndo.setEnabled(True)
         else:
             self.form.actionUndo.setEnabled(False)
-        if self.deck and self.deck.redoAvailable():
-            self.form.actionRedo.setText(_("Redo %s") %
-                                            self.deck.redoName())
-            self.form.actionRedo.setEnabled(True)
-        else:
-            self.form.actionRedo.setEnabled(False)
 
     # Other menu operations
     ##########################################################################
@@ -741,18 +726,12 @@ Please give your deck a name:"""))
         "Editdeck",
         "DeckProperties",
         "Undo",
-        "Redo",
         "Export",
         "Graphs",
         "Dstats",
         "Cstats",
         "StudyOptions",
         "Overview",
-        )
-
-    deckRelatedMenus = (
-        "Edit",
-        "Tools",
         )
 
     def setupMenus(self):
@@ -785,7 +764,6 @@ Please give your deck a name:"""))
         self.connect(m.actionDelete, s, self.onDelete)
         self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
-        self.connect(m.actionRedo, s, self.onRedo)
         self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
@@ -797,12 +775,12 @@ Please give your deck a name:"""))
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
-        for item in self.deckRelatedMenus:
-            getattr(self.form, "menu" + item).setEnabled(enabled)
         for item in self.deckRelatedMenuItems:
             getattr(self.form, "action" + item).setEnabled(enabled)
+        self.form.menuAdvanced.setEnabled(enabled)
         if not enabled:
             self.disableCardMenuItems()
+        self.maybeEnableUndo()
         runHook("enableDeckMenuItems", enabled)
 
     def disableDeckMenuItems(self):

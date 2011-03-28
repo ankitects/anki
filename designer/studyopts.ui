@@ -145,14 +145,14 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
        </property>
       </widget>
      </item>

@@ -56,7 +56,6 @@
      <string>&amp;Edit</string>
     </property>
     <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionAddcards"/>
     <addaction name="actionEditCurrent"/>
@@ -524,15 +523,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-redo.png</normaloff>:/icons/edit-redo.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Redo</string>
    </property>
   </action>
   <action name="actionDelete">
