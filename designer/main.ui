@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>412</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -149,6 +149,7 @@
      <addaction name="menuStartup"/>
      <addaction name="separator"/>
     </widget>
+    <addaction name="actionOverview"/>
     <addaction name="actionStudyOptions"/>
     <addaction name="actionDeckProperties"/>
     <addaction name="separator"/>
@@ -550,10 +551,6 @@
    </property>
   </action>
   <action name="actionStudyOptions">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/chronometer.png</normaloff>:/icons/chronometer.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Study Options...</string>
    </property>
@@ -668,6 +665,18 @@
   <action name="actionLocalizeMedia">
    <property name="text">
     <string>Localize Media</string>
+   </property>
+  </action>
+  <action name="actionOverview">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/chronometer.png</normaloff>:/icons/chronometer.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Overview...</string>
+   </property>
+   <property name="shortcut">
+    <string>O</string>
    </property>
   </action>
  </widget>

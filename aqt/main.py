@@ -527,7 +527,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         tb.addAction(frm.actionEditCurrent)
         tb.addAction(frm.actionEditLayout)
         tb.addAction(frm.actionEditdeck)
-        tb.addAction(frm.actionStudyOptions)
+        tb.addAction(frm.actionOverview)
         tb.addAction(frm.actionGraphs)
         tb.addAction(frm.actionMarkCard)
         tb.addAction(frm.actionRepeatAudio)
@@ -650,6 +650,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onStudyOptions(self):
         aqt.studyopts.StudyOptions(self)
 
+    def onOverview(self):
+        self.moveToState("overview")
+
     def onCardStats(self):
         self.cardStats.show()
 
@@ -744,6 +747,7 @@ Please give your deck a name:"""))
         "Dstats",
         "Cstats",
         "StudyOptions",
+        "Overview",
         )
 
     deckRelatedMenus = (
@@ -787,6 +791,7 @@ Please give your deck a name:"""))
         self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
         self.connect(m.actionLocalizeMedia, s, self.onLocalizeMedia)
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
+        self.connect(m.actionOverview, s, self.onOverview)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionBuryFact, s, self.onBuryFact)
 
