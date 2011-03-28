@@ -39,10 +39,12 @@ class Scheduler(object):
         self._resetNew()
 
     def answerCard(self, card, ease):
+        self.deck.markReview(card)
         assert ease >= 1 and ease <= 4
         if card.queue == 0:
             # put it in the learn queue
             card.queue = 1
+            self.lrnCount += 1
         if card.queue == 1:
             self._answerLrnCard(card, ease)
         elif card.queue == 2:

@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, os, random, re, stat, simplejson, datetime
+import time, os, random, re, stat, simplejson, datetime, copy
 
 from anki.lang import _, ngettext
 from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
@@ -28,12 +28,12 @@ defaultQconf = {
     'newSpread': NEW_CARDS_DISTRIBUTE,
     'revOrder': REV_CARDS_RANDOM,
     'collapseTime': 600,
+    'repLim': 0,
+    'timeLim': 600,
 }
 
 # scheduling and other options
 defaultConf = {
-    'sessionRepLimit': 0,
-    'sessionTimeLimit': 600,
     'currentModelId': None,
     'currentGroupId': 1,
     'nextFid': 1,
@@ -61,6 +61,8 @@ class _Deck(object):
     def __init__(self, db):
         self.db = db
         self.path = db._path
+        self._lastSave = time.time()
+        self.clearUndo()
         self.load()
         if not self.crt:
             d = datetime.datetime.today()
@@ -116,11 +118,18 @@ qconf=?, conf=?, data=?""",
             simplejson.dumps(self.qconf),
             simplejson.dumps(self.conf), simplejson.dumps(self.data))
 
-    def save(self):
+    def save(self, name=None):
         "Flush, commit DB, and take out another write lock."
         self.flush()
         self.db.commit()
         self.lock()
+        self._markOp(name)
+        self._lastSave = time.time()
+
+    def autosave(self):
+        "Save if 5 minutes has passed since last save."
+        if time.time() - self._lastSave > 300:
+            self.save()
 
     def lock(self):
         self.db.execute("update deck set mod=mod")
@@ -144,6 +153,7 @@ qconf=?, conf=?, data=?""",
 
     def rollback(self):
         self.db.rollback()
+        self.load()
         self.lock()
 
     def modSchema(self):
@@ -695,141 +705,59 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
         self.stdSched()
         self.sched = anki.cram.CramScheduler(self, gids, order, min, max)
 
-    # Undo/redo
+    # Undo
     ##########################################################################
 
-    def initUndo(self):
-        # note this code ignores 'unique', as it's an sqlite reserved word
-        self.undoStack = []
-        self.redoStack = []
-        self.undoEnabled = True
-        self.db.execute(
-            "create temporary table undoLog (seq integer primary key not null, sql text)")
-        tables = self.db.list(
-            "select name from sqlite_master where type = 'table'")
-        for table in tables:
-            if table in ("undoLog", "sqlite_stat1"):
-                continue
-            columns = [r[1] for r in
-                       self.db.all("pragma table_info(%s)" % table)]
-            # insert
-            self.db.execute("""
-create temp trigger _undo_%(t)s_it
-after insert on %(t)s begin
-insert into undoLog values
-(null, 'delete from %(t)s where rowid = ' || new.rowid); end""" % {'t': table})
-            # update
-            sql = """
-create temp trigger _undo_%(t)s_ut
-after update on %(t)s begin
-insert into undoLog values (null, 'update %(t)s """ % {'t': table}
-            sep = "set "
-            for c in columns:
-                if c == "unique":
-                    continue
-                sql += "%(s)s%(c)s=' || quote(old.%(c)s) || '" % {
-                    's': sep, 'c': c}
-                sep = ","
-            sql += " where rowid = ' || old.rowid); end"
-            self.db.execute(sql)
-            # delete
-            sql = """
-create temp trigger _undo_%(t)s_dt
-before delete on %(t)s begin
-insert into undoLog values (null, 'insert into %(t)s (rowid""" % {'t': table}
-            for c in columns:
-                sql += ",\"%s\"" % c
-            sql += ") values (' || old.rowid ||'"
-            for c in columns:
-                if c == "unique":
-                    sql += ",1"
-                    continue
-                sql += ",' || quote(old.%s) ||'" % c
-            sql += ")'); end"
-            self.db.execute(sql)
-        self.lock()
+    def clearUndo(self):
+        # [type, undoName, data]
+        # type 1 = review; type 2 = checkpoint
+        self._undo = None
 
     def undoName(self):
-        for n in reversed(self.undoStack):
-            if n:
-                return n[0]
-
-    def redoName(self):
-        return self.redoStack[-1][0]
-
-    def undoAvailable(self):
-        if not self.undoEnabled:
-            return
-        for r in reversed(self.undoStack):
-            if r:
-                return True
-
-    def redoAvailable(self):
-        return self.undoEnabled and self.redoStack
-
-    def resetUndo(self):
-        try:
-            self.db.execute("delete from undoLog")
-        except:
-            pass
-        self.undoStack = []
-        self.redoStack = []
-
-    def setUndoBarrier(self):
-        if not self.undoStack or self.undoStack[-1] is not None:
-            self.undoStack.append(None)
-
-    def setUndoStart(self, name, merge=False):
-        if not self.undoEnabled:
-            return
-        if merge and self.undoStack:
-            if self.undoStack[-1] and self.undoStack[-1][0] == name:
-                # merge with last entry?
-                return
-        start = self._latestUndoRow()
-        self.undoStack.append([name, start, None])
-
-    def setUndoEnd(self, name):
-        if not self.undoEnabled:
-            return
-        end = self._latestUndoRow()
-        while self.undoStack[-1] is None:
-            # strip off barrier
-            self.undoStack.pop()
-        self.undoStack[-1][2] = end
-        if self.undoStack[-1][1] == self.undoStack[-1][2]:
-            self.undoStack.pop()
-        else:
-            self.redoStack = []
-        runHook("undoEnd")
-
-    def _latestUndoRow(self):
-        return self.db.scalar("select max(rowid) from undoLog") or 0
-
-    def _undoredo(self, src, dst):
-        while 1:
-            u = src.pop()
-            if u:
-                break
-        (start, end) = (u[1], u[2])
-        if end is None:
-            end = self._latestUndoRow()
-        sql = self.db.list("""
-select sql from undoLog where
-seq > :s and seq <= :e order by seq desc""", s=start, e=end)
-        newstart = self._latestUndoRow()
-        for c, s in enumerate(sql):
-            self.engine.execute(s)
-        newend = self._latestUndoRow()
-        dst.append([u[0], newstart, newend])
+        "Undo menu item name, or None if undo unavailable."
+        if not self._undo:
+            return None
+        return self._undo[1]
 
     def undo(self):
-        "Undo the last action(s)."
-        self._undoredo(self.undoStack, self.redoStack)
+        if self._undo[0] == 1:
+            self._undoReview()
+        else:
+            self._undoOp()
 
-    def redo(self):
-        "Redo the last action(s)."
-        self._undoredo(self.redoStack, self.undoStack)
+    def markReview(self, card):
+        old = []
+        if self._undo:
+            if self._undo[0] == 1:
+                old = self._undo[2]
+            self.clearUndo()
+        self._undo = [1, _("Review"), old + [copy.copy(card)]]
+
+    def _undoReview(self):
+        data = self._undo[2]
+        c = data.pop()
+        if not data:
+            self.clearUndo()
+        # write old data
+        c.flush()
+        # and delete revlog entry
+        last = self.db.scalar(
+            "select time from revlog where cid = ? "
+            "order by time desc limit 1", c.id)
+        self.db.execute("delete from revlog where time = ?", last)
+
+    def _markOp(self, name):
+        "Call via .save()"
+        if name:
+            self._undo = [2, name]
+        else:
+            # saving disables old checkpoint, but not review undo
+            if self._undo and self._undo[0] == 2:
+                self.clearUndo()
+
+    def _undoOp(self):
+        self.rollback()
+        self.clearUndo()
 
     # DB maintenance
     ##########################################################################
@@ -838,7 +766,6 @@ seq > :s and seq <= :e order by seq desc""", s=start, e=end)
         "Fix possible problems and rebuild caches."
         problems = []
         self.save()
-        self.resetUndo()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
         self.modSchema()
         # tags
