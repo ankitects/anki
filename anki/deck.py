@@ -2,7 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, os, random, re, stat, simplejson, datetime, copy
+import time, os, random, re, stat, simplejson, datetime, copy, itertools
+import operator
 
 from anki.lang import _, ngettext
 from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
@@ -554,15 +555,34 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
 
     def groups(self):
         "A list of all group names."
-        return self.db.list("select name from groups")
+        return self.db.list("select name from groups order by name")
+
+    def groupsTree(self):
+        return self._groupChildren(self.groups())
+
+    def _groupChildren(self, grps):
+        tree = []
+        for (head, tail) in itertools.groupby([x.split("::", 1) for x in grps],
+                                              key=operator.itemgetter(0)):
+            tail = list(tail)
+            l = [c[1] for c in tail if len(c) > 1]
+            children = self._groupChildren(l)
+            tree.append((head, children))
+        return tuple(tree)
+        for g in grps:
+            names = g.split("::")
+            if g == last:
+                top[-1][1].append(g)
+            pass
 
     def groupId(self, name):
         "Return the id for NAME, creating if necessary."
         id = self.db.scalar("select id from groups where name = ?", name)
         if not id:
-            id = self.db.execute("insert into groups values (?,?,?,?)",
-                                 self.nextID("gid"), intTime(), name,
-                                 1).lastrowid
+            id = self.db.execute(
+                "insert into groups values (?,?,?,?, ?)",
+                self.nextID("gid"), intTime(), name, 1,
+                simplejson.dumps(anki.groups.defaultData)).lastrowid
         return id
 
     def delGroup(self, gid):

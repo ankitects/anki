@@ -33,16 +33,7 @@ defaultConf = {
     'maxTaken': 60,
 }
 
-class GroupConfig(object):
-    def __init__(self, name):
-        self.name = name
-        self.id = None
-        self.config = defaultConf
-
-    def load(self):
-        self.config = simplejson.loads(self._config)
-        return self
-
-    def save(self):
-        self._config = simplejson.dumps(self.config)
-        self.modified = intTime()
+defaultData = {
+    'activeTags': None,
+    'inactiveTags': None,
+}

@@ -123,7 +123,8 @@ create table if not exists groups (
     id              integer primary key,
     mod             integer not null,
     name            text not null,
-    gcid            integer not null
+    gcid            integer not null,
+    data            text not null
 );
 
 create table if not exists gconf (
@@ -162,8 +163,9 @@ values(1,0,0,0,%(v)s,0,'',0,'', '', '');
         intTime(), _("Default Config"),
         simplejson.dumps(anki.groups.defaultConf))
     db.execute(
-        "insert or ignore into groups values (1, ?, ?, 1)",
-        intTime(), _("Default Group"))
+        "insert or ignore into groups values (1, ?, ?, 1, ?)",
+        intTime(), _("Default Group"), simplejson.dumps(
+            anki.groups.defaultData))
     if setDeckConf:
         db.execute("update deck set qconf = ?, conf = ?, data = ?",
                    simplejson.dumps(anki.deck.defaultQconf),
