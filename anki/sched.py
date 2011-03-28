@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, datetime, simplejson, random
+import time, datetime, simplejson, random, itertools
 from operator import itemgetter
 from heapq import *
 #from anki.cards import Card
@@ -132,6 +132,39 @@ group by gid""", self.today):
         return [[name]+gids[gid] for (gid, name) in
                 self.deck.db.execute(
                     "select id, name from groups order by name")]
+
+    def groupCountTree(self):
+        return self._groupChildren(self.groupCounts())
+
+    def _groupChildren(self, grps):
+        tree = []
+        # split strings
+        for g in grps:
+            g[0] = g[0].split("::", 1)
+        # group and recurse
+        def key(grp):
+            return grp[0][0]
+        for (head, tail) in itertools.groupby(grps, key=key):
+            tail = list(tail)
+            rev = 0
+            new = 0
+            children = []
+            for c in tail:
+                if len(c[0]) == 1:
+                    # current node
+                    rev += c[1]
+                    new += c[2]
+                else:
+                    # set new string to tail
+                    c[0] = c[0][1]
+                    children.append(c)
+            children = self._groupChildren(children)
+            # tally up children counts
+            for ch in children:
+                rev += ch[1]
+                new += ch[2]
+            tree.append((head, rev, new, children))
+        return tuple(tree)
 
     # Getting the next card
     ##########################################################################

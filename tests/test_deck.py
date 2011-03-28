@@ -177,12 +177,3 @@ def test_selective():
     assert deck.db.scalar("select count() from cards where gid = 3") == 3
     deck.setGroupForTags(["one"], [], 2)
     assert deck.db.scalar("select count() from cards where gid = 2") == 2
-
-def test_groups():
-    d = getEmptyDeck()
-    tree = d._groupChildren(
-        ["a", "b", "c::1", "c::2", "d", "d::1", "d::1::2::3"])
-    assert tree[0] == ("a", tuple())
-    assert tree[1] == ("b", tuple())
-    assert tree[2] == ("c", (("1", tuple()), ("2", tuple())))
-    assert tree[3] == ('d', (('1', (('2', (('3', ()),)),)),))

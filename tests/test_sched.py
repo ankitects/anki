@@ -592,14 +592,16 @@ def test_collapse():
 
 def test_groupCounts():
     d = getEmptyDeck()
-    # add two facts
+    # add a fact with default group
     f = d.newFact()
     f['Front'] = u"one"
     d.addFact(f)
+    # and one that's a child
     f = d.newFact()
     f['Front'] = u"two"
+    f.gid = d.groupId("Default Group::1")
     d.addFact(f)
-    # make one a review card
+    # make it a review card
     c = f.cards()[0]
     c.queue = 2
     c.due = 0
@@ -607,11 +609,32 @@ def test_groupCounts():
     # add one more with a new group
     f = d.newFact()
     f['Front'] = u"two"
-    f.gid = d.groupId("new")
+    f.gid = d.groupId("foo::bar")
+    d.addFact(f)
+    # and one that's a sibling
+    f = d.newFact()
+    f['Front'] = u"three"
+    f.gid = d.groupId("foo::baz")
     d.addFact(f)
     d.reset()
-    assert d.sched.counts() == (2, 0, 1)
-    assert len(d.groups()) == 2
+    assert d.sched.counts() == (3, 0, 1)
+    assert len(d.groups()) == 4
     cnts = d.sched.groupCounts()
-    assert cnts[0] == ["Default Group", 1, 1]
-    assert cnts[1] == ["new", 0, 1]
+    assert cnts[0] == ["Default Group", 0, 1]
+    assert cnts[1] == ["Default Group::1", 1, 0]
+    assert cnts[2] == ["foo::bar", 0, 1]
+    assert cnts[3] == ["foo::baz", 0, 1]
+    tree = d.sched.groupCountTree()
+    assert tree[0][0] == "Default Group"
+    # sum of child and parent
+    assert tree[0][1] == 1
+    assert tree[0][2] == 1
+    # child count is just review
+    assert tree[0][3][0][0] == "1"
+    assert tree[0][3][0][1] == 1
+    assert tree[0][3][0][2] == 0
+    # event if parent group didn't exist, it should have been created with a
+    # counts summary.
+    assert tree[1][0] == "foo"
+    assert tree[1][1] == 0
+    assert tree[1][2] == 2
