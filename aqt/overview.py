@@ -35,8 +35,6 @@ class Overview(object):
             self._linkHandler("study")
         elif txt == "c":
             self._linkHandler("cram")
-        elif txt == "o":
-            self._linkHandler("opts")
         elif txt == "d":
             self._linkHandler("list")
         elif txt == "g":
@@ -128,7 +126,7 @@ $(function () {
         buf += line % (
             _("Whole Deck"),
             counts[2], counts[3],
-            but("opts", _("Study Options"), "o"))
+            but("opts", _("Study Options")))
         buf += "</table>"
         return buf
 

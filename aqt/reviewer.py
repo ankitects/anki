@@ -242,6 +242,8 @@ $(".ansbut").focus();
                 show = True
             elif evt.key() == Qt.Key_Space and self.typeAns() is None:
                 show = True
+            elif evt.key() == Qt.Key_Escape:
+                self.web.eval("$('#typeans').blur();")
             if show:
                 self._showAnswer()
                 self.web.eval("showans();")
