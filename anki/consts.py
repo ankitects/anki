@@ -30,34 +30,22 @@ SORT_FIELD_LEN = 20
 
 def newCardOrderLabels():
     return {
-        0: _("Add new cards in random order"),
-        1: _("Add new cards to end of queue"),
+        0: _("Show new cards in random order"),
+        1: _("Show new cards in order added")
         }
 
 def newCardSchedulingLabels():
     return {
-        0: _("Spread new cards out through reviews"),
-        1: _("Show new cards after all other cards"),
+        0: _("Mix new cards and reviews"),
+        1: _("Show new cards after reviews"),
         2: _("Show new cards before reviews"),
         }
 
-# FIXME: order due is not very useful anymore
 def revCardOrderLabels():
     return {
         0: _("Review cards from largest interval"),
         1: _("Review cards from smallest interval"),
         2: _("Review cards in order due"),
-        3: _("Review cards in random order"),
-        }
-
-def failedCardOptionLabels():
-    return {
-        0: _("Show failed cards soon"),
-        1: _("Show failed cards at end"),
-        2: _("Show failed cards in 10 minutes"),
-        3: _("Show failed cards in 8 hours"),
-        4: _("Show failed cards in 3 days"),
-        5: _("Custom failed cards handling"),
         }
 
 def alignmentLabels():
