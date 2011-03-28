@@ -36,6 +36,7 @@ class Preferences(QDialog):
             (u"Esperanto", "eo"),
             (u"Français", "fr"),
             (u"Italiano", "it"),
+            (u"Latviešu Valoda", "lv"),
             (u"Magyar", "hu"),
             (u"Nederlands","nl"),
             (u"Norsk","nb"),
