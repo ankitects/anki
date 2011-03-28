@@ -56,7 +56,7 @@ class Overview(object):
         elif url == "list":
             self.mw.close()
         elif url == "chgrp":
-            print "change groups"
+            self.changeGroups()
 
     # HTML
     ############################################################
@@ -174,3 +174,10 @@ $(function () {
         if not self.mw.config['showToolbar']:
             return
         self.mw.form.toolBar.show()
+
+    # Group changing
+    ##########################################################################
+
+    def changeGroups(self):
+        from aqt.groupsel import GroupSel
+        g = GroupSel(self.mw)
