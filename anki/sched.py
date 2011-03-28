@@ -117,18 +117,12 @@ order by due""" % self._groupLimit("rev"),
     def groupCounts(self):
         "Returns [groupname, cards, due, new]"
         gids = {}
-        for (gid, cnt) in self.deck.db.execute("""
-select gid, count() from cards
-where queue = 2 and due <= ?
-group by gid""", self.today):
-            gids[gid] = [cnt, 0]
-        # fixme: might want to add due in to use idx
-        for (gid, cnt) in self.deck.db.execute(
-            "select gid, count() from cards where queue = 0 group by gid"):
-            if gid not in gids:
-                gids[gid] = [0, cnt]
-            else:
-                gids[gid][1] = cnt
+        for (gid, all, rev, new) in self.deck.db.execute("""
+select gid, count(),
+sum(case when queue = 2 and due <= ? then 1 else 0 end),
+sum(case when queue = 0 then 1 else 0 end)
+from cards group by gid""", self.today):
+            gids[gid] = [all, rev, new]
         return [[name]+gids[gid] for (gid, name) in
                 self.deck.db.execute(
                     "select id, name from groups order by name")]
@@ -146,14 +140,16 @@ group by gid""", self.today):
             return grp[0][0]
         for (head, tail) in itertools.groupby(grps, key=key):
             tail = list(tail)
+            all = 0
             rev = 0
             new = 0
             children = []
             for c in tail:
                 if len(c[0]) == 1:
                     # current node
-                    rev += c[1]
-                    new += c[2]
+                    all += c[1]
+                    rev += c[2]
+                    new += c[3]
                 else:
                     # set new string to tail
                     c[0] = c[0][1]
@@ -161,9 +157,10 @@ group by gid""", self.today):
             children = self._groupChildren(children)
             # tally up children counts
             for ch in children:
-                rev += ch[1]
-                new += ch[2]
-            tree.append((head, rev, new, children))
+                all += ch[1]
+                rev += ch[2]
+                new += ch[3]
+            tree.append((head, all, rev, new, children))
         return tuple(tree)
 
     # Getting the next card
