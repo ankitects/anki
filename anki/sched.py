@@ -111,6 +111,28 @@ order by due""" % self._groupLimit("rev"),
         self._resetRevCount()
         self._resetNewCount()
 
+    # Group counts
+    ##########################################################################
+
+    def groupCounts(self):
+        "Returns [groupname, cards, due, new]"
+        gids = {}
+        for (gid, cnt) in self.deck.db.execute("""
+select gid, count() from cards
+where queue = 2 and due <= ?
+group by gid""", self.today):
+            gids[gid] = [cnt, 0]
+        # fixme: might want to add due in to use idx
+        for (gid, cnt) in self.deck.db.execute(
+            "select gid, count() from cards where queue = 0 group by gid"):
+            if gid not in gids:
+                gids[gid] = [0, cnt]
+            else:
+                gids[gid][1] = cnt
+        return [[name]+gids[gid] for (gid, name) in
+                self.deck.db.execute(
+                    "select id, name from groups order by name")]
+
     # Getting the next card
     ##########################################################################
 

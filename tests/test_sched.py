@@ -589,3 +589,29 @@ def test_collapse():
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
     assert not d.sched.getCard()
+
+def test_groupCounts():
+    d = getEmptyDeck()
+    # add two facts
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    f = d.newFact()
+    f['Front'] = u"two"
+    d.addFact(f)
+    # make one a review card
+    c = f.cards()[0]
+    c.queue = 2
+    c.due = 0
+    c.flush()
+    # add one more with a new group
+    f = d.newFact()
+    f['Front'] = u"two"
+    f.gid = d.groupId("new")
+    d.addFact(f)
+    d.reset()
+    assert d.sched.counts() == (2, 0, 1)
+    assert len(d.groups()) == 2
+    cnts = d.sched.groupCounts()
+    assert cnts[0] == ["Default Group", 1, 1]
+    assert cnts[1] == ["new", 0, 1]
