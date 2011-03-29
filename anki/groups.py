@@ -14,16 +14,18 @@ defaultConf = {
     'lapse': {
         'delays': [0.5, 3, 10],
         'mult': 0,
+        'minInt': 1,
         'relearn': True,
         'leechFails': 16,
-        # one of [suspend], [tagonly]
-        'leechAction': ["suspend"],
+        # [type, data], where type 0=suspend, 1=tagonly
+        'leechAction': [0],
     },
     'cram': {
         'delays': [0.5, 3, 10],
         'resched': True,
         'reset': True,
         'mult': 0,
+        'minInt': 1,
     },
     'rev': {
         'ease4': 1.3,

@@ -532,7 +532,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             f.tags.append("leech")
             f.flush()
             # handle
-            if conf['leechAction'][0] == "suspend":
+            if conf['leechAction'][0] == 0:
                 self.suspendCards([card.id])
                 card.queue = -1
             # notify UI
