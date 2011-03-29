@@ -53,9 +53,6 @@ class GroupManager(QDialog):
             b = box.addButton(name, type)
             b.connect(b, SIGNAL("clicked()"), func)
             return b
-        # exits
-        b = button(_("&Study"), self.onStudy, QDialogButtonBox.AcceptRole)
-        button(_("&Cram"), self.onCram, QDialogButtonBox.AcceptRole)
         # selection
         button(_("Select &All"), self.onSelectAll).setShortcut("a")
         button(_("Select &None"), self.onSelectNone).setShortcut("n")
@@ -65,14 +62,6 @@ class GroupManager(QDialog):
         self.connect(box,
                      SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("GroupManager"))
-
-    def onStudy(self):
-        self.mw.deck.reset()
-        self.mw.moveToState("review")
-
-    def onCram(self):
-        self.mw.deck.cramGroups(self.mw.deck.qconf['groups'])
-        self.mw.moveToState("review")
 
     def onSelectAll(self):
         for i in self.items:
@@ -151,7 +140,10 @@ class GroupManager(QDialog):
         if len(gids) == self.gidCount:
             # all enabled is same as empty
             gids = []
-        self.mw.deck.qconf['groups'] = gids
+        if gids != self.mw.deck.qconf['groups']:
+            self.mw.deck.qconf['groups'] = gids
+            self.mw.deck.reset()
+            self.mw.moveToState("review")
         QDialog.accept(self)
 
     def _makeItems(self, grps):

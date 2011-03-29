@@ -37,8 +37,6 @@ class Overview(object):
             self._linkHandler("cram")
         elif txt == "d":
             self._linkHandler("list")
-        elif txt == "g":
-            self._linkHandler("chgrp")
         else:
             return
         return True
@@ -49,14 +47,14 @@ class Overview(object):
             self.mw.deck.reset()
             self.mw.moveToState("review")
         elif url == "cram":
-            self.mw.deck.cramGroups(self.mw.deck.qconf['groups'])
+            self.mw.deck.cramGroups()
             self.mw.moveToState("review")
         elif url == "opts":
             self.mw.onStudyOptions()
         elif url == "list":
             self.mw.close()
         elif url == "chgrp":
-            self.changeGroups()
+            self.mw.onGroups()
 
     # HTML
     ############################################################
@@ -172,10 +170,3 @@ $(function () {
         if not self.mw.config['showToolbar']:
             return
         self.mw.form.toolBar.show()
-
-    # Group changing
-    ##########################################################################
-
-    def changeGroups(self):
-        from aqt.groupman import GroupManager
-        g = GroupManager(self.mw)

@@ -642,6 +642,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onOverview(self):
         self.moveToState("overview")
 
+    def onGroups(self):
+        from aqt.groupman import GroupManager
+        g = GroupManager(self)
+
     def onCardStats(self):
         self.cardStats.show()
 
@@ -774,6 +778,7 @@ Please give your deck a name:"""))
         self.connect(m.actionLocalizeMedia, s, self.onLocalizeMedia)
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionOverview, s, self.onOverview)
+        self.connect(m.actionGroups, s, self.onGroups)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionBuryFact, s, self.onBuryFact)
 

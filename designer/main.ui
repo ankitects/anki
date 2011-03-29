@@ -121,7 +121,6 @@
     <addaction name="separator"/>
     <addaction name="menuAdvanced"/>
     <addaction name="separator"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_Settings">
     <property name="title">
@@ -149,6 +148,7 @@
      <addaction name="separator"/>
     </widget>
     <addaction name="actionOverview"/>
+    <addaction name="actionGroups"/>
     <addaction name="actionStudyOptions"/>
     <addaction name="actionDeckProperties"/>
     <addaction name="separator"/>
@@ -270,7 +270,7 @@
     <string>Synchronize with Anki Online</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+Y</string>
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionAddcards">
@@ -285,7 +285,7 @@
     <string/>
    </property>
    <property name="shortcut">
-    <string>Ctrl+D</string>
+    <string>A</string>
    </property>
   </action>
   <action name="actionEditdeck">
@@ -300,7 +300,7 @@
     <string/>
    </property>
    <property name="shortcut">
-    <string>Ctrl+F</string>
+    <string>B</string>
    </property>
   </action>
   <action name="actionPreferences">
@@ -329,8 +329,8 @@
    <property name="text">
     <string>&amp;Deck Statistics</string>
    </property>
-   <property name="statusTip">
-    <string>Show some textual statistics about your deck</string>
+   <property name="shortcut">
+    <string>Shift+D</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -356,6 +356,9 @@
    <property name="statusTip">
     <string>Show statistics about the current card and last card</string>
    </property>
+   <property name="shortcut">
+    <string>Shift+C</string>
+   </property>
   </action>
   <action name="actionDeckProperties">
    <property name="icon">
@@ -380,6 +383,9 @@
    <property name="statusTip">
     <string>Import cards into the current deck</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
   </action>
   <action name="actionGraphs">
    <property name="icon">
@@ -392,6 +398,9 @@
    <property name="statusTip">
     <string/>
    </property>
+   <property name="shortcut">
+    <string>Shift+G</string>
+   </property>
   </action>
   <action name="actionExport">
    <property name="icon">
@@ -403,6 +412,9 @@
    </property>
    <property name="statusTip">
     <string>Save cards in a new deck or text file for sharing with others</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionMarkCard">
@@ -522,7 +534,7 @@
     <string/>
    </property>
    <property name="shortcut">
-    <string>Ctrl+E</string>
+    <string>E</string>
    </property>
   </action>
   <action name="actionDelete">
@@ -649,7 +661,7 @@
     <string>Card Layout...</string>
    </property>
    <property name="shortcut">
-    <string>F2</string>
+    <string>L</string>
    </property>
   </action>
   <action name="actionLocalizeMedia">
@@ -667,6 +679,14 @@
    </property>
    <property name="shortcut">
     <string>O</string>
+   </property>
+  </action>
+  <action name="actionGroups">
+   <property name="text">
+    <string>Groups...</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
    </property>
   </action>
  </widget>
