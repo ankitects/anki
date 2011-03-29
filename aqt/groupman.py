@@ -5,7 +5,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import aqt
-from aqt.utils import showInfo
+from aqt.utils import showInfo, getOnlyText
 
 COLNAME = 0
 COLCHECK = 1
@@ -24,24 +24,28 @@ class GroupManager(QDialog):
         self.addButtons()
         self.exec_()
 
-    def loadTable(self):
-        # load the data into the tree
+    def reload(self):
         self.mw.progress.start()
         grps = self.mw.deck.sched.groupCountTree()
         self.mw.progress.finish()
         self.groupMap = {}
+        self.fullNames = {}
         items = self._makeItems(grps)
+        self.form.tree.clear()
         self.form.tree.addTopLevelItems(items)
-        # default to check column
-        self.form.tree.setCurrentItem(items[0], 1)
         self.items = items
+        self.form.tree.expandAll()
+
+    def loadTable(self):
+        self.reload()
+        # default to check column
+        self.form.tree.setCurrentItem(self.items[0], 1)
         # config tree
         h = self.form.tree.header()
         h.setResizeMode(QHeaderView.ResizeToContents)
         h.setResizeMode(0, QHeaderView.Stretch)
         h.setMovable(False)
         self.form.tree.setIndentation(15)
-        self.form.tree.expandAll()
 
     def addButtons(self):
         box = self.form.buttonBox
@@ -55,6 +59,7 @@ class GroupManager(QDialog):
         # selection
         button(_("Select &All"), self.onSelectAll)
         button(_("Select &None"), self.onSelectNone)
+        button(_("&Rename..."), self.onRename)
         button(_("&Config..."), self.onEdit)
         self.connect(box,
                      SIGNAL("helpRequested()"),
@@ -76,6 +81,32 @@ class GroupManager(QDialog):
     def onSelectNone(self):
         for i in self.items:
             i.setCheckState(COLCHECK, Qt.Unchecked)
+
+    def onRename(self):
+        item = self.form.tree.currentItem()
+        old = unicode(item.text(0))
+        oldfull = self.fullNames[old]
+        gid = self.groupMap[old]
+        # if not gid:
+        #     showInfo(_("Selected item is not a group."))
+        #     return
+        txt = getOnlyText(_("Rename to:"), self, default=oldfull)
+        if txt and not txt.startswith("::") and not txt.endswith("::"):
+            self._rename(oldfull, txt, gid, item)
+
+    def _rename(self, old, txt, gid, item):
+        def updateChild(item):
+            cold = unicode(item.text(0))
+            gid = self.groupMap[cold]
+            cnew = self.fullNames[cold].replace(old, txt)
+            if gid:
+                self.mw.deck.db.execute(
+                    "update groups set name = ? where id = ?",
+                    cnew, gid)
+            for i in range(item.childCount()):
+                updateChild(item.child(i))
+        updateChild(item)
+        self.reload()
 
     def onEdit(self):
         gids = []
@@ -118,7 +149,7 @@ class GroupManager(QDialog):
             for gid in self.mw.deck.qconf['groups']:
                 on[gid] = True
         grey = QBrush(QColor(GREY))
-        def makeItems(grp):
+        def makeItems(grp, head=""):
             branch = QTreeWidgetItem()
             branch.setFlags(
                 Qt.ItemIsUserCheckable|Qt.ItemIsEnabled|Qt.ItemIsSelectable|
@@ -135,11 +166,12 @@ class GroupManager(QDialog):
             branch.setText(COLDUE, str(grp[3]))
             branch.setText(COLNEW, str(grp[4]))
             self.groupMap[grp[0]] = grp[1]
+            self.fullNames[grp[0]] = head+grp[0]
             if grp[1]:
                 self.gidCount += 1
             if grp[5]:
                 for c in grp[5]:
-                    branch.addChild(makeItems(c))
+                    branch.addChild(makeItems(c, head+grp[0]+"::"))
             return branch
         top = [makeItems(g) for g in grps]
         return top
