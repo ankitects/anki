@@ -14,7 +14,7 @@ def show(parent):
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")
     abouttext += '<p>' + _("Version %s") % appVersion + '<br>'
-    abouttext += _("<a href='http://ichi2.net/anki/'>Visit website</a>") + \
+    abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + \
 "</span>"
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
  testing and design from:<p>%(cont)s") %  {'cont': u"""

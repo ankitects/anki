@@ -129,8 +129,7 @@ class ActiveTagsChooser(QDialog):
         QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "SelectiveStudy"))
+        aqt.openHelp("SelectiveStudy")
 
 def show(parent, type):
     at = ActiveTagsChooser(parent, type)

@@ -8,8 +8,7 @@ from PyQt4.QtGui import *
 appName="Anki"
 appVersion="1.99"
 appWebsite="http://ankisrs.net/"
-appWiki="http://ankisrs.net/wiki/"
-appHelpSite="http://ankisrs.net/docs/"
+appHelpSite="http://ankisrs.net/docs/dev/"
 appDonate="http://ankisrs.net/support/"
 modDir=os.path.dirname(os.path.abspath(__file__))
 runningDir=os.path.split(modDir)[0]
@@ -18,6 +17,14 @@ mw = None # set on init
 if hasattr(sys, "frozen"):
     sys.path.append(modDir)
     modDir = os.path.dirname(sys.argv[0])
+
+def openHelp(name):
+    if "#" in name:
+        name = name.split("#")
+        name = name[0] + ".html#" + name[1]
+    else:
+        name = name + ".html"
+    QDesktopServices.openUrl(QUrl(appHelpSite + name))
 
 # Dialog manager - manages modeless windows
 ##########################################################################

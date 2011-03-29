@@ -288,7 +288,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             vbox = QVBoxLayout()
             l = QLabel(_(
                 '<h1>Online Account</h1>'
-                'To use your free <a href="http://anki.ichi2.net/">online account</a>,<br>'
+                'To use your free <a href="http://ankiweb.net/">online account</a>,<br>'
                 "please enter your details below.<br><br>"
                 "You can change your details later with<br>"
                 "Settings->Preferences->Sync<br>"))

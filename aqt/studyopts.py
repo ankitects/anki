@@ -16,8 +16,7 @@ class StudyOptions(QDialog):
         self.load()
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: QDesktopServices.openUrl(QUrl(
-                         aqt.appWiki + "StudyOptions")))
+                     lambda: aqt.openHelp("StudyOptions"))
         self.exec_()
 
     def setup(self):

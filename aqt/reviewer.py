@@ -527,9 +527,8 @@ div#filler {
         # progress
         addWgt(vertSep())
         class QClickableProgress(QProgressBar):
-            url = "http://ichi2.net/anki/wiki/ProgressBars"
             def mouseReleaseEvent(self, evt):
-                QDesktopServices.openUrl(QUrl(self.url))
+                aqt.openHelp("ProgressBars")
         progressBarSize = (50, 14)
         self.progressBar = QClickableProgress()
         self.progressBar.setFixedSize(*progressBarSize)
@@ -590,10 +589,9 @@ div#filler {
     def onLeech(self, card):
         print "leech"
         return
+        link = aqt.appHelpSite + "Leeches.html"
         txt = (_("""\
-<b>%s</b>... is a <a href="http://ichi2.net/anki/wiki/Leeches">leech</a>.""")
-               % stripHTML(stripSounds(self.currentCard.question)).\
-               replace("\n", " ")[0:30])
+Card was a <a href="%s">leech</a>.""") % link)
         if isLeech and self.deck.db.scalar(
             "select 1 from cards where id = :id and type < 0", id=cardId):
             txt += _(" It has been suspended.")

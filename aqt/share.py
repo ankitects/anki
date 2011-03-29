@@ -69,8 +69,8 @@
 This is an exported packaged deck created by Anki.<p>
 
 To share this deck with other people, upload it to
-<a href="http://anki.ichi2.net/file/upload">
-http://anki.ichi2.net/file/upload</a>, or email
+<a href="http://ankiweb.net/file/upload">
+http://ankiweb.net/file/upload</a>, or email
 it to your friends.
 </body></html>''')
         readme.close()

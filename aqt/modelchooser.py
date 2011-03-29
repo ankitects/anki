@@ -205,5 +205,4 @@ class AddModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "AddModel"))
+        aqt.openHelp("AddModel")

@@ -325,8 +325,7 @@ order by n""", id=card.id)
         QDialog.reject(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "CardLayout"))
+        aqt.openHelp("CardLayout")
 
     # Fields
     ##########################################################################

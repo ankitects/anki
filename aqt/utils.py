@@ -11,9 +11,6 @@ from anki.utils import call
 def openLink(link):
     QDesktopServices.openUrl(QUrl(link))
 
-def openWikiLink(page):
-    openLink(aqt.appWiki + page)
-
 def showWarning(text, parent=None, help=""):
     "Show a small warning with an OK button."
     return showInfo(text, parent, help, QMessageBox.warning)
@@ -34,7 +31,7 @@ def showInfo(text, parent=None, help="", func=None):
     while 1:
         ret = func(parent, "Anki", text, sb)
         if ret == QMessageBox.Help:
-            openWikiLink(help)
+            aqt.openHelp(help)
         else:
             break
 
@@ -74,7 +71,7 @@ def askUser(text, parent=None, help="", defaultno=False):
         r = QMessageBox.question(parent, "Anki", text, sb,
                                  default)
         if r == QMessageBox.Help:
-            openWikiLink(help)
+            aqt.openHelp(help)
         else:
             break
     return r == QMessageBox.Yes
@@ -105,7 +102,7 @@ class ButtonedDialog(QMessageBox):
         but = self.clickedButton().text()
         if but == "Help":
             # FIXME stop dialog closing?
-            openWikiLink(self.help)
+            aqt.openHelp(self.help)
         return self.clickedButton().text()
 
     def setDefault(self, idx):
@@ -156,7 +153,7 @@ class GetTextDialog(QDialog):
         return QDialog.reject(self)
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki + self.help))
+        aqt.openHelp(self.help)
 
 def getText(prompt, parent=None, help=None, edit=None, default=u"", title="Anki"):
     if not parent:

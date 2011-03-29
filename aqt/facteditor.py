@@ -884,8 +884,7 @@ class FactEditor(object):
 
     def onHtmlEdit(self):
         def helpRequested():
-            QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                          "HtmlEditor"))
+            aqt.openHelp("HtmlEditor")
         w = self.focusedEdit()
         if w:
             self.saveFields()

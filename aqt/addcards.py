@@ -59,7 +59,7 @@ class AddCards(QDialog):
         self.dialog.modelArea.setLayout(self.modelChooser)
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki + "AddItems"))
+        aqt.openHelp("AddItems")
 
     def addButtons(self):
         self.addButton = QPushButton(_("Add"))

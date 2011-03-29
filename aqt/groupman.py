@@ -63,8 +63,7 @@ class GroupManager(QDialog):
         b = button(_("&Options..."), self.onEdit).setShortcut("o")
         self.connect(box,
                      SIGNAL("helpRequested()"),
-                     lambda: QDesktopServices.openUrl(QUrl(
-                         aqt.appWiki + "GroupManager")))
+                     lambda: aqt.openHelp("GroupManager"))
 
     def onStudy(self):
         self.mw.deck.reset()

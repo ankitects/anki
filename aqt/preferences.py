@@ -248,7 +248,4 @@ class Preferences(QDialog):
         return self.codeToIndex("en")
 
     def helpRequested(self):
-        idx = self.dialog.tabWidget.currentIndex()
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "Preferences#" +
-                                      tabs[idx]))
+        aqt.openHelp("Preferences")

@@ -1137,8 +1137,8 @@ where id in %s""" % ids2str(sf))
                 }, parent=self)
 
     def onFindReplaceHelp(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "Browser#FindReplace"))
+        aqt.openHelp("Browser#FindReplace")
+
     # Edit: finding dupes
     ######################################################################
 
@@ -1270,7 +1270,7 @@ select fm.id, fm.name from fieldmodels fm""")
     ######################################################################
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki + "Browser"))
+        aqt.openHelp("Browser")
 
 # Generate card dialog
 ######################################################################
@@ -1315,8 +1315,7 @@ order by ordinal""" % ids2str(self.cms))
         QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "Browser#GenerateCards"))
+        aqt.openHelp("Browser#GenerateCards")
 
 # Change model dialog
 ######################################################################
@@ -1476,5 +1475,4 @@ Are you sure you want to continue?"""), parent=self):
         return QDialog.accept(self)
 
     def onHelp(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "Browser#ChangeModel"))
+        aqt.openHelp("Browser#ChangeModel")

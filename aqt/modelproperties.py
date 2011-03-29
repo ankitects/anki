@@ -252,8 +252,7 @@ class ModelProperties(QDialog):
         self.ignoreCardUpdate = False
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "ModelProperties"))
+        aqt.openHelp("ModelProperties")
 
     # Cleanup
     ##########################################################################

@@ -123,9 +123,6 @@ to work with this version of Anki."""))
             path = self.pluginsFolder()
         openFolder(path)
 
-    def onGetPlugins(self):
-        QDesktopServices.openUrl(QUrl("http://ichi2.net/anki/wiki/Plugins"))
-
     def enablePlugin(self, p):
         pd = self.pluginsFolder()
         old = os.path.join(pd, p)

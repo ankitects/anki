@@ -24,8 +24,7 @@ class GroupConf(QDialog):
         self.setup()
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: QDesktopServices.openUrl(QUrl(
-            aqt.appWiki + "GroupOptions")))
+                     lambda: aqt.openHelp("GroupOptions"))
         self.connect(self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults),
                      SIGNAL("clicked()"),
                      self.onRestore)

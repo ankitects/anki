@@ -8,7 +8,7 @@ import anki, anki.utils, anki.lang, anki.stats
 import aqt
 import simplejson, platform
 
-baseUrl = "http://anki.ichi2.net/update/"
+baseUrl = "http://ankiweb.net/update/"
 #baseUrl = "http://localhost:8001/update/"
 
 class LatestVersionFinder(QThread):

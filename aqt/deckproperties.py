@@ -147,8 +147,7 @@ class DeckProperties(QDialog):
             self.d.setModified()
 
     def helpRequested(self):
-        QDesktopServices.openUrl(QUrl(aqt.appWiki +
-                                      "DeckProperties"))
+        aqt.openHelp("DeckProperties")
 
     def reject(self):
         n = _("Deck Properties")
