@@ -55,8 +55,7 @@ class GroupSel(QDialog):
         # selection
         button(_("Select &All"), self.onSelectAll)
         button(_("Select &None"), self.onSelectNone)
-        # edit can only be active if current item has a gid
-        self.editButton = button(_("&Edit..."), self.onEdit)
+        button(_("&Config..."), self.onEdit)
         self.connect(box,
                      SIGNAL("helpRequested()"),
                      lambda: QDesktopServices.openUrl(QUrl(
@@ -85,8 +84,8 @@ class GroupSel(QDialog):
             if gid:
                 gids.append(gid)
         if gids:
-            from aqt.groupconf import GroupConf
-            GroupConf(self.mw, gids)
+            from aqt.groupconfsel import GroupConfSelector
+            GroupConfSelector(self.mw, gids)
         else:
             showInfo(_("None of the selected items are a group."))
 
