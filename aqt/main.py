@@ -1005,7 +1005,9 @@ On the next sync, all cards will be sent to the server. \
 Any changes on the server since your last sync will be lost.<br><br>
 <b>This operation is not undoable.</b> Proceed?""")):
             return
+        self.progress.start(immediate=True)
         ret = self.deck.fixIntegrity()
+        self.progress.finish()
         showText(ret)
         self.reset()
         return ret
@@ -1015,8 +1017,7 @@ Any changes on the server since your last sync will be lost.<br><br>
         mb.setWindowTitle(_("Anki"))
         mb.setIcon(QMessageBox.Warning)
         mb.setText(_("""\
-This operation looks through the content of your cards for media, and \
-registers it so that it can be used with the online and mobile clients.
+This operation finds media that is missing or unused.
 
 If you choose Scan+Delete, any media in your media folder that is not \
 used by cards will be deleted. Please note that media is only \
@@ -1037,7 +1038,9 @@ doubt."""))
             delete = True
         else:
             return
-        (nohave, unused) = rebuildMediaDir(self.deck, delete=delete)
+        self.progress.start(immediate=True)
+        (nohave, unused) = self.deck.media.check(delete)
+        self.progress.finish()
         # generate report
         report = ""
         if nohave:
