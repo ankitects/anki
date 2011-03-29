@@ -144,9 +144,6 @@ def test_groups():
     deck.delGroup(2)
     assert len(deck.groups()) == 1
     assert deck.groupId("another group") == 3
-    # the newly created group should have a default schedule
-    conf = deck.groupConf(3)
-    assert conf == deck.groupConf(1)
     # by default, everything should be shown
     assert not deck.qconf['groups']
 

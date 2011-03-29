@@ -568,12 +568,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
     def delGroup(self, gid):
         self.db.scalar("delete from groups where id = ?", gid)
 
-    def groupConf(self, gid):
-        return simplejson.loads(
-            self.db.scalar("""
-select conf from gconf where id = (select gcid from groups where id = ?)""",
-                           gid))
-
     def setGroup(self, cids, gid):
         self.db.execute(
             "update cards set gid = ? where id in "+ids2str(cids), gid)
@@ -584,6 +578,11 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
     def groupConfs(self):
         "Return [name, id]."
         return self.db.all("select name, id from gconf order by name")
+
+    def groupConf(self, gcid):
+        return simplejson.loads(
+            self.db.scalar(
+                "select conf from gconf where id = ?", gcid))
 
     # Tag-based selective study
     ##########################################################################
