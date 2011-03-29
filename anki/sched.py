@@ -123,7 +123,7 @@ sum(case when queue = 2 and due <= ? then 1 else 0 end),
 sum(case when queue = 0 then 1 else 0 end)
 from cards group by gid""", self.today):
             gids[gid] = [all, rev, new]
-        return [[name]+gids[gid] for (gid, name) in
+        return [[name, gid]+gids[gid] for (gid, name) in
                 self.deck.db.execute(
                     "select id, name from groups order by name")]
 
@@ -140,6 +140,7 @@ from cards group by gid""", self.today):
             return grp[0][0]
         for (head, tail) in itertools.groupby(grps, key=key):
             tail = list(tail)
+            gid = None
             all = 0
             rev = 0
             new = 0
@@ -147,9 +148,10 @@ from cards group by gid""", self.today):
             for c in tail:
                 if len(c[0]) == 1:
                     # current node
-                    all += c[1]
-                    rev += c[2]
-                    new += c[3]
+                    gid = c[1]
+                    all += c[2]
+                    rev += c[3]
+                    new += c[4]
                 else:
                     # set new string to tail
                     c[0] = c[0][1]
@@ -157,10 +159,10 @@ from cards group by gid""", self.today):
             children = self._groupChildren(children)
             # tally up children counts
             for ch in children:
-                all += ch[1]
-                rev += ch[2]
-                new += ch[3]
-            tree.append((head, all, rev, new, children))
+                all += ch[2]
+                rev += ch[3]
+                new += ch[4]
+            tree.append((head, gid, all, rev, new, children))
         return tuple(tree)
 
     # Getting the next card
