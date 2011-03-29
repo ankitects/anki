@@ -65,7 +65,8 @@ def test_learn():
     # fail it
     d.sched.answerCard(c, 1)
     # it should by due in 30 seconds
-    assert round(c.due - time.time()) == 30
+    t = round(c.due - time.time())
+    assert t >= 30 and t <= 40
     # and have 1 cycle, but still a zero grade
     assert c.grade == 0
     assert c.cycles == 1

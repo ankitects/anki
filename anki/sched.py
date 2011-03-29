@@ -294,7 +294,11 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
                 card.grade += 1
             else:
                 card.grade = 0
-            card.due = time.time() + self._delayForGrade(conf, card.grade)
+            delay = self._delayForGrade(conf, card.grade)
+            if card.due < time.time():
+                # not collapsed; add some randomness
+                delay *= random.uniform(1, 1.25)
+            card.due = time.time() + delay
             heappush(self.lrnQueue, (card.due, card.id))
         self._logLrn(card, ease, conf, leaving, type)
 
