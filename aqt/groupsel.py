@@ -27,7 +27,7 @@ class GroupSel(QDialog):
         self.mw.progress.start()
         grps = self.mw.deck.sched.groupCountTree()
         self.mw.progress.finish()
-        self._groupMap = {}
+        self.groupMap = {}
         items = self._makeItems(grps)
         self.form.tree.addTopLevelItems(items)
         # default to check column
@@ -43,9 +43,13 @@ class GroupSel(QDialog):
 
     def addButtons(self):
         box = self.form.buttonBox
-        def button(name, func):
-            b = box.addButton(name, QDialogButtonBox.ActionRole)
+        def button(name, func, type=QDialogButtonBox.ActionRole):
+            b = box.addButton(name, type)
             b.connect(b, SIGNAL("clicked()"), func)
+        # exits
+        button(_("&Study"), self.onStudy, QDialogButtonBox.AcceptRole)
+        button(_("&Cram"), self.onCram, QDialogButtonBox.AcceptRole)
+        # actions
         button(_("Select &All"), self.onSelectAll)
         button(_("Select &None"), self.onSelectNone)
         button(_("&Edit..."), self.onEdit)
@@ -53,6 +57,12 @@ class GroupSel(QDialog):
                      SIGNAL("helpRequested()"),
                      lambda: QDesktopServices.openUrl(QUrl(
                          aqt.appWiki + "GroupSelection")))
+
+    def onStudy(self):
+        print "study"
+
+    def onCram(self):
+        print "cram"
 
     def onSelectAll(self):
         for i in self.items:
@@ -64,10 +74,31 @@ class GroupSel(QDialog):
 
     def onEdit(self):
         item = self.form.tree.currentItem()
-        gid = self._groupMap[unicode(item.text(0))]
-        print "edit", gid
+        gid = self.groupMap[unicode(item.text(0))]
+
+    def reject(self):
+        self.accept()
+
+    def accept(self):
+        gids = []
+        def findEnabled(item):
+            if item.checkState(1) == Qt.Checked:
+                gid = self.groupMap[unicode(item.text(0))]
+                if gid:
+                    gids.append(gid)
+            for i in range(item.childCount()):
+                findEnabled(item.child(i))
+        for item in self.items:
+            findEnabled(item)
+        if len(gids) == self.gidCount:
+            # all enabled is same as empty
+            gids = []
+        self.mw.deck.qconf['groups'] = gids
+        QDialog.accept(self)
 
     def _makeItems(self, grps):
+        self.gidCount = 0
+        on = {}
         if not self.mw.deck.qconf['groups']:
             on = None
         else:
@@ -78,7 +109,8 @@ class GroupSel(QDialog):
             branch.setFlags(
                 Qt.ItemIsUserCheckable|Qt.ItemIsEnabled|Qt.ItemIsSelectable|
                 Qt.ItemIsTristate)
-            if not on or on[gid]:
+            gid = grp[1]
+            if not on or gid in on:
                 branch.setCheckState(1, Qt.Checked)
             else:
                 branch.setCheckState(1, Qt.Unchecked)
@@ -86,7 +118,9 @@ class GroupSel(QDialog):
             branch.setText(COLCOUNT, str(grp[2]))
             branch.setText(COLDUE, str(grp[3]))
             branch.setText(COLNEW, str(grp[4]))
-            self._groupMap[grp[0]] = grp[1]
+            self.groupMap[grp[0]] = grp[1]
+            if grp[1]:
+                self.gidCount += 1
             if grp[5]:
                 for c in grp[5]:
                     branch.addChild(makeItems(c))
