@@ -14,7 +14,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -87,9 +87,6 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QDoubleSpinBox" name="lrnFactor"/>
-         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
@@ -99,6 +96,26 @@
          </item>
          <item row="0" column="1" colspan="2">
           <widget class="QLineEdit" name="lrnSteps"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="lrnFactor">
+           <property name="minimum">
+            <number>130</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="label_27">
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -137,17 +154,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Interval multiplier</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QDoubleSpinBox" name="lapMult">
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
+            <string>New interval</string>
            </property>
           </widget>
          </item>
@@ -243,6 +250,23 @@
            </item>
           </layout>
          </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_28">
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="lapMult">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -275,7 +299,14 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="revSpace"/>
+          <widget class="QSpinBox" name="revSpace">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label_18">
@@ -314,19 +345,25 @@
          <item row="2" column="2">
           <widget class="QLabel" name="label_21">
            <property name="text">
-            <string>x</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="easyBonus">
-           <property name="minimum">
-            <number>1</number>
+            <string>%</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
           <widget class="QSpinBox" name="revMinSpace"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="easyBonus">
+           <property name="minimum">
+            <number>100</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -365,17 +402,7 @@
          <item row="3" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
-            <string>Lapse interval multiplier</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QDoubleSpinBox" name="cramMult">
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
+            <string>New interval</string>
            </property>
           </widget>
          </item>
@@ -388,6 +415,9 @@
          </item>
          <item row="4" column="1">
           <widget class="QSpinBox" name="cramMinInt">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimum">
             <number>1</number>
            </property>
@@ -407,18 +437,38 @@
            </property>
           </widget>
          </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="cramMult">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
          <item row="3" column="2">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+          <widget class="QLabel" name="label_30">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
+           <property name="text">
+            <string>%</string>
            </property>
-          </spacer>
+          </widget>
          </item>
         </layout>
        </item>
@@ -452,7 +502,17 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="maxTaken"/>
+          <widget class="QSpinBox" name="maxTaken">
+           <property name="minimum">
+            <number>30</number>
+           </property>
+           <property name="maximum">
+            <number>3600</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+          </widget>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label_26">
@@ -525,8 +585,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>254</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -541,12 +601,44 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>322</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cramReset</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cramMult</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cramReset</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cramMinInt</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>

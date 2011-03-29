@@ -54,13 +54,13 @@ class GroupManager(QDialog):
             b.connect(b, SIGNAL("clicked()"), func)
             return b
         # exits
-        button(_("&Study"), self.onStudy, QDialogButtonBox.AcceptRole)
+        b = button(_("&Study"), self.onStudy, QDialogButtonBox.AcceptRole)
         button(_("&Cram"), self.onCram, QDialogButtonBox.AcceptRole)
         # selection
-        button(_("Select &All"), self.onSelectAll)
-        button(_("Select &None"), self.onSelectNone)
-        button(_("&Rename..."), self.onRename)
-        button(_("&Config..."), self.onEdit)
+        button(_("Select &All"), self.onSelectAll).setShortcut("a")
+        button(_("Select &None"), self.onSelectNone).setShortcut("n")
+        button(_("&Rename..."), self.onRename).setShortcut("r")
+        b = button(_("&Options..."), self.onEdit).setShortcut("o")
         self.connect(box,
                      SIGNAL("helpRequested()"),
                      lambda: QDesktopServices.openUrl(QUrl(
@@ -115,8 +115,8 @@ class GroupManager(QDialog):
             if gid:
                 gids.append(gid)
         if gids:
-            from aqt.groupconfsel import GroupConfSelector
-            GroupConfSelector(self.mw, gids)
+            from aqt.groupconf import GroupConfSelector
+            GroupConfSelector(self.mw, gids, self)
         else:
             showInfo(_("None of the selected items are a group."))
 
