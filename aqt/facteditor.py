@@ -15,6 +15,8 @@ from aqt.utils import mungeQA, saveGeom, restoreGeom
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from sqlalchemy.exceptions import InvalidRequestError
 
+# fixme: use shortcut() for mac shortcuts
+
 clozeColour = "#0000ff"
 
 if sys.platform.startswith("win32"):

@@ -4,15 +4,10 @@ Anki
 Prerequisites for Linux/FreeBSD/etc:
 
 - Python 2.4+
-- Python-Qt/PyQt 4.4+
+- Python-Qt/PyQt 4.5+
 - SimpleJSON 1.7.3+
 - PySQLite 1.3+ or Python2.5
 - Beautiful Soup
-
-For graph generation:
-
-- python-numpy (numpy)
-- python-matplotlib (matplotlib)
 
 For audio playing support:
 

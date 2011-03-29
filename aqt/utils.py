@@ -289,3 +289,8 @@ def openFolder(path):
         call(["explorer", path], wait=False)
     else:
         QDesktopServices.openUrl(QUrl("file://" + path))
+
+def shortcut(key):
+    if sys.platform == "darwin":
+        return re.sub("(?i)ctrl", "Command", key)
+    return key
