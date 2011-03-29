@@ -617,6 +617,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         else:
             self.form.actionUndo.setEnabled(False)
 
+    def checkpoint(self, name):
+        self.deck.save(name)
+        self.maybeEnableUndo()
+
     # Other menu operations
     ##########################################################################
 

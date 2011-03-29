@@ -35,11 +35,11 @@ class GroupManager(QDialog):
         self.form.tree.addTopLevelItems(items)
         self.items = items
         self.form.tree.expandAll()
+        # default to check column
+        self.form.tree.setCurrentItem(self.items[0], 1)
 
     def loadTable(self):
         self.reload()
-        # default to check column
-        self.form.tree.setCurrentItem(self.items[0], 1)
         # config tree
         h = self.form.tree.header()
         h.setResizeMode(QHeaderView.ResizeToContents)
@@ -59,8 +59,9 @@ class GroupManager(QDialog):
         # selection
         button(_("Select &All"), self.onSelectAll).setShortcut("a")
         button(_("Select &None"), self.onSelectNone).setShortcut("n")
-        button(_("&Rename..."), self.onRename).setShortcut("r")
         b = button(_("&Options..."), self.onEdit).setShortcut("o")
+        button(_("&Rename..."), self.onRename).setShortcut("r")
+        button(_("&Delete"), self.onDelete)
         self.connect(box,
                      SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("GroupManager"))
@@ -81,14 +82,28 @@ class GroupManager(QDialog):
         for i in self.items:
             i.setCheckState(COLCHECK, Qt.Unchecked)
 
+    def onDelete(self):
+        item = self.form.tree.currentItem()
+        old = unicode(item.text(0))
+        gid = self.groupMap[old]
+        if not gid:
+            showInfo(_("Selected item is not a group."))
+            return
+        elif gid == 1:
+            showInfo(_("The default group can't be deleted."))
+            return
+        self.mw.checkpoint(_("Delete Group"))
+        self.mw.deck.db.execute(
+            "update cards set gid = 1 where gid = ?", gid)
+        self.mw.deck.db.execute(
+            "delete from groups where id = ?", gid)
+        self.reload()
+
     def onRename(self):
         item = self.form.tree.currentItem()
         old = unicode(item.text(0))
         oldfull = self.fullNames[old]
         gid = self.groupMap[old]
-        # if not gid:
-        #     showInfo(_("Selected item is not a group."))
-        #     return
         txt = getOnlyText(_("Rename to:"), self, default=oldfull)
         if txt and not txt.startswith("::") and not txt.endswith("::"):
             self._rename(oldfull, txt, gid, item)

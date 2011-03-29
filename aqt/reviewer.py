@@ -452,7 +452,6 @@ div#filler {
     def _showCongrats(self):
         self.state = "congrats"
         self.card = None
-        self.mw.deck.save()
         buf = """
 <center>
 %s

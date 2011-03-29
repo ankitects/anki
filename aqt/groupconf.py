@@ -130,7 +130,7 @@ class GroupConf(QDialog):
         c = self.conf
         c['maxTaken'] = f.maxTaken.value()
         # update db
-        self.mw.deck.save(_("Group Options"))
+        self.mw.checkpoint(_("Group Options"))
         self.mw.deck.db.execute(
             "update gconf set conf = ? where id = ?",
             simplejson.dumps(self.conf), self.gcid)
@@ -197,7 +197,7 @@ class GroupConfSelector(QDialog):
         if gcid == 1:
             showInfo(_("The default configuration can't be removed."), self)
         else:
-            self.mw.deck.save(_("Delete Group Config"))
+            self.mw.checkpoint(_("Delete Group Config"))
             self.mw.deck.db.execute(
                 "update groups set gcid = 1 where gcid = ?", gcid)
             self.mw.deck.db.execute(
