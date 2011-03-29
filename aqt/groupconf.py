@@ -88,6 +88,8 @@ class GroupConf(QDialog):
             try:
                 i = float(i)
                 assert i > 0
+                if i == int(i):
+                    i = int(i)
                 ret.append(i)
             except:
                 # invalid, don't update
