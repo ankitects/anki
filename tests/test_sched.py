@@ -538,8 +538,7 @@ def test_counts():
     # with the default settings, there's no count limit
     assert d.sched.counts() == (2,2,2)
     # check limit to one group
-    d.qconf['revGroups'] = [1]
-    d.qconf['newGroups'] = [1]
+    d.qconf['groups'] = [1]
     d.reset()
     assert d.sched.counts() == (1,2,1)
     # we can disable the groups without forgetting them

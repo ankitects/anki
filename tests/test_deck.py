@@ -148,11 +148,7 @@ def test_groups():
     conf = deck.groupConf(3)
     assert conf == deck.groupConf(1)
     # by default, everything should be shown
-    assert not deck.activeGroups('rev')
-    assert not deck.activeGroups('new')
-    # set new cards to only 'another group'
-    deck.setActiveGroups('new', [3])
-    assert deck.activeGroups('new') == [3]
+    assert not deck.qconf['groups']
 
 def test_selective():
     deck = getEmptyDeck()

@@ -18,8 +18,7 @@ import anki.cards, anki.facts, anki.models, anki.template, anki.cram
 # Settings related to queue building. These may be loaded without the rest of
 # the config to check due counts faster on mobile clients.
 defaultQconf = {
-    'revGroups': [],
-    'newGroups': [],
+    'groups': [],
     'newPerDay': 20,
     'newToday': [0, 0], # currentDay, count
     'newTodayOrder': NEW_TODAY_ORD,
@@ -573,12 +572,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
             self.db.scalar("""
 select conf from gconf where id = (select gcid from groups where id = ?)""",
                            gid))
-
-    def activeGroups(self, type):
-        return self.qconf[type+"Groups"]
-
-    def setActiveGroups(self, type, list):
-        self.qconf[type+"Groups"] = list
 
     def setGroup(self, cids, gid):
         self.db.execute(

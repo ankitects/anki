@@ -65,7 +65,7 @@ select due, count() from cards
 where queue = 2 %s
 and due between ? and ?
 group by due
-order by due""" % self._groupLimit("rev"),
+order by due""" % self._groupLimit(),
                             self.today,
                             self.today+days-1))
         for d in range(days):
@@ -204,13 +204,13 @@ from cards group by gid""", self.today):
         else:
             self.newCount = self.db.scalar("""
 select count() from (select id from cards where
-queue = 0 %s limit %d)""" % (self._groupLimit('new'), lim))
+queue = 0 %s limit %d)""" % (self._groupLimit(), lim))
 
     def _resetNew(self):
         lim = min(self.queueLimit, self.newCount)
         self.newQueue = self.db.all("""
 select id, due from cards where
-queue = 0 %s order by due limit %d""" % (self._groupLimit('new'),
+queue = 0 %s order by due limit %d""" % (self._groupLimit(),
                                          lim))
         self.newQueue.reverse()
         self._updateNewCardRatio()
@@ -377,14 +377,14 @@ where queue = 1 and type = 2
         self.revCount = self.db.scalar("""
 select count() from (select id from cards where
 queue = 2 %s and due <= :lim limit %d)""" % (
-            self._groupLimit("rev"), self.reportLimit),
+            self._groupLimit(), self.reportLimit),
                                        lim=self.today)
 
     def _resetRev(self):
         self.revQueue = self.db.list("""
 select id from cards where
 queue = 2 %s and due <= :lim order by %s limit %d""" % (
-            self._groupLimit("rev"), self._revOrder(), self.queueLimit),
+            self._groupLimit(), self._revOrder(), self.queueLimit),
                                     lim=self.today)
         if self.deck.qconf['revOrder'] == REV_CARDS_RANDOM:
             random.shuffle(self.revQueue)
@@ -551,10 +551,10 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self.confCache[id] = self.deck.groupConf(id)
         return self.confCache[id]
 
-    def _groupLimit(self, type):
+    def _groupLimit(self):
         if not self.useGroups:
             return ""
-        l = self.deck.activeGroups(type)
+        l = self.deck.qconf['groups']
         if not l:
             # everything
             return ""
@@ -586,7 +586,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self._nextDueMsg())
 
     def _finishedSubtitle(self):
-        if self.deck.activeGroups("rev") or self.deck.activeGroups("new"):
+        if self.deck.qconf['groups']:
             return _("You have finished the selected groups for now.")
         else:
             return _("You have finished the deck for now.")
@@ -621,7 +621,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         "Number of reviews due tomorrow."
         return self.db.scalar(
             "select count() from cards where queue = 2 and due = ?"+
-            self._groupLimit("rev"),
+            self._groupLimit(),
             self.today+1)
 
     def newTomorrow(self):
@@ -629,7 +629,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         lim = self.deck.qconf['newPerDay']
         return self.db.scalar(
             "select count() from (select id from cards where "
-            "queue = 0 limit %d)" % lim)
+            "queue = 0 %s limit %d)" % (self._groupLimit(), lim))
 
     # Next time reports
     ##########################################################################

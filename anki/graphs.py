@@ -313,6 +313,6 @@ $(function () {
 
     def _limit(self):
         if self.selective:
-            return self.deck.sched._groupLimit("rev")
+            return self.deck.sched._groupLimit()
         else:
             return ""
