@@ -49,7 +49,7 @@ class Overview(object):
             self.mw.deck.reset()
             self.mw.moveToState("review")
         elif url == "cram":
-            self.mw.deck.cramGroups(self.mw.deck.qconf['revGroups'])
+            self.mw.deck.cramGroups(self.mw.deck.qconf['groups'])
             self.mw.moveToState("review")
         elif url == "opts":
             self.mw.onStudyOptions()
@@ -149,8 +149,6 @@ $(function () {
     ##########################################################################
 
     def _ovCounts(self):
-        oldNew = self.mw.deck.qconf['newGroups']
-        oldRev = self.mw.deck.qconf['revGroups']
         # we have the limited count already
         selcnt = self.mw.deck.sched.selCounts()
         allcnt = self.mw.deck.sched.allCounts()

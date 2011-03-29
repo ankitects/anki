@@ -59,10 +59,12 @@ class GroupSel(QDialog):
                          aqt.appWiki + "GroupSelection")))
 
     def onStudy(self):
-        print "study"
+        self.mw.deck.reset()
+        self.mw.moveToState("review")
 
     def onCram(self):
-        print "cram"
+        self.mw.deck.cramGroups(self.mw.deck.qconf['groups'])
+        self.mw.moveToState("review")
 
     def onSelectAll(self):
         for i in self.items:
