@@ -53,7 +53,16 @@ class AnkiWebView(QWebView):
         self.setKeyHandler()
         self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
         self.connect(self, SIGNAL("loadFinished(bool)"), self._loadFinished)
+        self._curKey = None
+    def keyPressEvent(self, evt):
+        self._curKey = True
+        return QWebView.keyPressEvent(self, evt)
     def keyReleaseEvent(self, evt):
+        if not self._curKey:
+            # event didn't start with us
+            evt.ignore()
+            return
+        self._curKey = None
         if evt.matches(QKeySequence.Copy):
             self.triggerPageAction(QWebPage.Copy)
             evt.accept()
