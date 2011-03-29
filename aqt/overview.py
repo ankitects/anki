@@ -177,5 +177,5 @@ $(function () {
     ##########################################################################
 
     def changeGroups(self):
-        from aqt.groupsel import GroupSel
-        g = GroupSel(self.mw)
+        from aqt.groupman import GroupManager
+        g = GroupManager(self.mw)

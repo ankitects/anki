@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select Groups</string>
+   <string>Groups</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>

@@ -14,11 +14,11 @@ COLDUE = 3
 COLNEW = 4
 GREY = "#777"
 
-class GroupSel(QDialog):
+class GroupManager(QDialog):
     def __init__(self, mw):
         QDialog.__init__(self, mw)
         self.mw = mw
-        self.form = aqt.forms.groupsel.Ui_Dialog()
+        self.form = aqt.forms.groupman.Ui_Dialog()
         self.form.setupUi(self)
         self.loadTable()
         self.addButtons()
@@ -59,7 +59,7 @@ class GroupSel(QDialog):
         self.connect(box,
                      SIGNAL("helpRequested()"),
                      lambda: QDesktopServices.openUrl(QUrl(
-                         aqt.appWiki + "GroupSelection")))
+                         aqt.appWiki + "GroupManager")))
 
     def onStudy(self):
         self.mw.deck.reset()
