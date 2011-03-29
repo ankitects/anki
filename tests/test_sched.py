@@ -541,10 +541,6 @@ def test_counts():
     d.qconf['groups'] = [1]
     d.reset()
     assert d.sched.counts() == (1,2,1)
-    # we can disable the groups without forgetting them
-    d.sched.useGroups = False
-    d.reset()
-    assert d.sched.counts() == (2,2,2)
     # we don't need to build the queue to get the counts
     assert d.sched.allCounts() == (2,2,2)
     assert d.sched.selCounts() == (1,2,1)

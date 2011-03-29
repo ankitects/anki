@@ -19,7 +19,6 @@ class Scheduler(object):
         self.db = deck.db
         self.queueLimit = 200
         self.reportLimit = 1000
-        self.useGroups = True
         self._updateCutoff()
 
     def getCard(self):
@@ -95,14 +94,16 @@ order by due""" % self._groupLimit(),
 
     def selCounts(self):
         "Return counts for selected groups, without building queue."
-        self.useGroups = True
         self._resetCounts()
         return self.counts()
 
     def allCounts(self):
         "Return counts for all groups, without building queue."
-        self.useGroups = False
-        self._resetCounts()
+        conf = self.deck.qconf['groups']
+        if conf:
+            self.deck.qconf['groups'] = []
+            self._resetCounts()
+            self.deck.qconf['groups'] = conf
         return self.counts()
 
     def _resetCounts(self):
@@ -552,8 +553,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         return self.confCache[id]
 
     def _groupLimit(self):
-        if not self.useGroups:
-            return ""
         l = self.deck.qconf['groups']
         if not l:
             # everything
