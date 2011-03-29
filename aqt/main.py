@@ -662,7 +662,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                               card=self.currentCard)
 
     def onDeckProperties(self):
-        self.deckProperties = aqt.deckproperties.DeckProperties(self, self.deck)
+        import aqt.deckopts
+        aqt.deckopts.DeckOptions(self)
 
     def onPrefs(self):
         import aqt.preferences

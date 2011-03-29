@@ -366,7 +366,7 @@
      <normaloff>:/icons/contents.png</normaloff>:/icons/contents.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Deck Properties...</string>
+    <string>&amp;Deck Options...</string>
    </property>
    <property name="statusTip">
     <string>Customize models, syncing and scheduling</string>

@@ -15,7 +15,6 @@ class Preferences(QDialog):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.config = mw.config
-        self.origInterfaceLang = self.config['interfaceLang']
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
         self.needDeckClose = False
@@ -23,15 +22,15 @@ class Preferences(QDialog):
                      lambda: aqt.openHelp("Preferences"))
         self.setupLang()
         self.setupNetwork()
-        self.setupSave()
-        self.setupAdvanced()
+        self.setupBackup()
+        self.setupOptions()
         self.setupMedia()
         self.show()
 
     def accept(self):
         self.updateNetwork()
-        self.updateSave()
-        self.updateAdvanced()
+        self.updateBackup()
+        self.updateOptions()
         self.updateMedia()
         self.config.save()
         self.mw.setupLang()
@@ -111,7 +110,7 @@ class Preferences(QDialog):
         self.config['proxyUser'] = unicode(self.form.proxyUser.text())
         self.config['proxyPass'] = unicode(self.form.proxyPass.text())
 
-    def setupSave(self):
+    def setupBackup(self):
         self.form.numBackups.setValue(self.config['numBackups'])
         self.connect(self.form.openBackupFolder,
                      SIGNAL("linkActivated(QString)"),
@@ -137,10 +136,10 @@ class Preferences(QDialog):
         self.config['mediaLocation'] = p
         self.needDeckClose = True
 
-    def updateSave(self):
+    def updateBackup(self):
         self.config['numBackups'] = self.form.numBackups.value()
 
-    def setupAdvanced(self):
+    def setupOptions(self):
         self.form.showEstimates.setChecked(not self.config['suppressEstimates'])
         self.form.centerQA.setChecked(self.config['centerQA'])
         self.form.showProgress.setChecked(self.config['showProgress'])
@@ -149,7 +148,7 @@ class Preferences(QDialog):
         self.form.stripHTML.setChecked(self.config['stripHTML'])
         self.form.autoplaySounds.setChecked(self.config['autoplaySounds'])
 
-    def updateAdvanced(self):
+    def updateOptions(self):
         self.config['suppressEstimates'] = not self.form.showEstimates.isChecked()
         self.config['centerQA'] = self.form.centerQA.isChecked()
         self.config['showProgress'] = self.form.showProgress.isChecked()

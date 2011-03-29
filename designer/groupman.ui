@@ -38,7 +38,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Settings</string>
+       <string>Options</string>
       </property>
      </column>
      <column>
@@ -96,7 +96,7 @@
      <item row="0" column="2">
       <widget class="QPushButton" name="opts">
        <property name="text">
-        <string>&amp;Settings...</string>
+        <string>&amp;Options...</string>
        </property>
       </widget>
      </item>
