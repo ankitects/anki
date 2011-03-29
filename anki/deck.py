@@ -37,6 +37,7 @@ defaultConf = {
     'nextFid': 1,
     'nextCid': 1,
     'nextGid': 2,
+    'nextGcid': 2,
     'mediaURL': "",
     'latexPre': """\
 \\documentclass[12pt]{article}
@@ -576,6 +577,13 @@ select conf from gconf where id = (select gcid from groups where id = ?)""",
     def setGroup(self, cids, gid):
         self.db.execute(
             "update cards set gid = ? where id in "+ids2str(cids), gid)
+
+    # Group configuration
+    ##########################################################################
+
+    def groupConfs(self):
+        "Return [name, id]."
+        return self.db.all("select name, id from gconf order by name")
 
     # Tag-based selective study
     ##########################################################################
