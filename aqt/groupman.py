@@ -8,10 +8,11 @@ import aqt
 from aqt.utils import showInfo, getOnlyText
 
 COLNAME = 0
-COLCHECK = 1
-COLCOUNT = 2
-COLDUE = 3
-COLNEW = 4
+COLOPTS = 1
+COLCHECK = 2
+COLCOUNT = 3
+COLDUE = 4
+COLNEW = 5
 GREY = "#777"
 
 class GroupManager(QDialog):
@@ -36,7 +37,7 @@ class GroupManager(QDialog):
         self.items = items
         self.form.tree.expandAll()
         # default to check column
-        self.form.tree.setCurrentItem(self.items[0], 1)
+        self.form.tree.setCurrentItem(self.items[0], COLCHECK)
 
     def loadTable(self):
         self.reload()
@@ -48,7 +49,7 @@ class GroupManager(QDialog):
         self.form.tree.setIndentation(15)
 
     def addButtons(self):
-        box = self.form.buttonBox
+        box = self.form.buttonBox2
         def button(name, func, type=QDialogButtonBox.ActionRole):
             b = box.addButton(name, type)
             b.connect(b, SIGNAL("clicked()"), func)
@@ -59,7 +60,7 @@ class GroupManager(QDialog):
         b = button(_("&Options..."), self.onEdit).setShortcut("o")
         button(_("&Rename..."), self.onRename).setShortcut("r")
         button(_("&Delete"), self.onDelete)
-        self.connect(box,
+        self.connect(self.form.buttonBox1,
                      SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("GroupManager"))
 
@@ -118,8 +119,11 @@ class GroupManager(QDialog):
             if gid:
                 gids.append(gid)
         if gids:
+            # this gets set on reload; do it in the background so it doesn't flicker
+            self.form.tree.setCurrentItem(self.items[0], COLCHECK)
             from aqt.groupconf import GroupConfSelector
             GroupConfSelector(self.mw, gids, self)
+            self.reload()
         else:
             showInfo(_("None of the selected items are a group."))
 
@@ -154,6 +158,8 @@ class GroupManager(QDialog):
         else:
             for gid in self.mw.deck.qconf['groups']:
                 on[gid] = True
+        self.confMap = dict(self.mw.deck.db.all(
+            "select g.id, gc.name from groups g, gconf gc where g.gcid=gc.id"))
         grey = QBrush(QColor(GREY))
         def makeItems(grp, head=""):
             branch = QTreeWidgetItem()
@@ -162,12 +168,14 @@ class GroupManager(QDialog):
                 Qt.ItemIsTristate)
             gid = grp[1]
             if not gid:
-                branch.setForeground(0, grey)
+                branch.setForeground(COLNAME, grey)
             if not on or gid in on:
-                branch.setCheckState(1, Qt.Checked)
+                branch.setCheckState(COLCHECK, Qt.Checked)
             else:
-                branch.setCheckState(1, Qt.Unchecked)
+                branch.setCheckState(COLCHECK, Qt.Unchecked)
             branch.setText(COLNAME, grp[0])
+            if gid:
+                branch.setText(COLOPTS, self.confMap[gid])
             branch.setText(COLCOUNT, str(grp[2]))
             branch.setText(COLDUE, str(grp[3]))
             branch.setText(COLNEW, str(grp[4]))

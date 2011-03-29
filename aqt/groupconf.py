@@ -5,6 +5,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import aqt, simplejson
+from anki.utils import ids2str
 from aqt.utils import showInfo, showWarning
 
 # Configuration editing
@@ -147,21 +148,33 @@ class GroupConfSelector(QDialog):
         self.form.setupUi(self)
         self.connect(self.form.list, SIGNAL("itemChanged(QListWidgetItem*)"),
                      self.onRename)
+        self.defaultId = self.mw.deck.db.scalar(
+            "select gcid from groups where id = ?", self.gids[0])
         self.reload()
         self.addButtons()
         self.exec_()
 
+    def accept(self):
+        # save
+        self.mw.deck.db.execute(
+            "update groups set gcid = ? where id in "+ids2str(self.gids),
+            self.gcid())
+        QDialog.accept(self)
+
+    def reject(self):
+        self.accept()
+
     def reload(self):
         self.confs = self.mw.deck.groupConfs()
         self.form.list.clear()
-        item1 = None
+        deflt = None
         for c in self.confs:
             item = QListWidgetItem(c[0])
             item.setFlags(item.flags() | Qt.ItemIsEditable)
             self.form.list.addItem(item)
-            if not item1:
-                item1 = item
-        self.form.list.setCurrentItem(item1)
+            if c[1] == self.defaultId:
+                deflt = item
+        self.form.list.setCurrentItem(deflt)
 
     def addButtons(self):
         box = self.form.buttonBox
