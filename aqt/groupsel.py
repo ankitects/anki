@@ -5,6 +5,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import aqt
+from aqt.utils import showInfo
 
 COLNAME = 0
 COLCHECK = 1
@@ -56,19 +57,10 @@ class GroupSel(QDialog):
         button(_("Select &None"), self.onSelectNone)
         # edit can only be active if current item has a gid
         self.editButton = button(_("&Edit..."), self.onEdit)
-        self.connect(self.form.tree, SIGNAL(
-            "currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)"),
-            self.onChange)
         self.connect(box,
                      SIGNAL("helpRequested()"),
                      lambda: QDesktopServices.openUrl(QUrl(
                          aqt.appWiki + "GroupSelection")))
-
-    def onChange(self, new, old):
-        if self.groupMap[unicode(new.text(0))]:
-            self.editButton.setEnabled(True)
-        else:
-            self.editButton.setEnabled(False)
 
     def onStudy(self):
         self.mw.deck.reset()
@@ -87,10 +79,16 @@ class GroupSel(QDialog):
             i.setCheckState(COLCHECK, Qt.Unchecked)
 
     def onEdit(self):
-        item = self.form.tree.currentItem()
-        gid = self.groupMap[unicode(item.text(0))]
-        from aqt.groupconf import GroupConf
-        GroupConf(self.mw, gid)
+        gids = []
+        for item in self.form.tree.selectedItems():
+            gid = self.groupMap[unicode(item.text(0))]
+            if gid:
+                gids.append(gid)
+        if gids:
+            from aqt.groupconf import GroupConf
+            GroupConf(self.mw, gids)
+        else:
+            showInfo(_("None of the selected items are a group."))
 
     def reject(self):
         self.accept()
