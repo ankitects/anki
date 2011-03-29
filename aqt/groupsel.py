@@ -11,6 +11,7 @@ COLCHECK = 1
 COLCOUNT = 2
 COLDUE = 3
 COLNEW = 4
+GREY = "#777"
 
 class GroupSel(QDialog):
     def __init__(self, mw):
@@ -46,17 +47,28 @@ class GroupSel(QDialog):
         def button(name, func, type=QDialogButtonBox.ActionRole):
             b = box.addButton(name, type)
             b.connect(b, SIGNAL("clicked()"), func)
+            return b
         # exits
         button(_("&Study"), self.onStudy, QDialogButtonBox.AcceptRole)
         button(_("&Cram"), self.onCram, QDialogButtonBox.AcceptRole)
-        # actions
+        # selection
         button(_("Select &All"), self.onSelectAll)
         button(_("Select &None"), self.onSelectNone)
-        button(_("&Edit..."), self.onEdit)
+        # edit can only be active if current item has a gid
+        self.editButton = button(_("&Edit..."), self.onEdit)
+        self.connect(self.form.tree, SIGNAL(
+            "currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)"),
+            self.onChange)
         self.connect(box,
                      SIGNAL("helpRequested()"),
                      lambda: QDesktopServices.openUrl(QUrl(
                          aqt.appWiki + "GroupSelection")))
+
+    def onChange(self, new, old):
+        if self.groupMap[unicode(new.text(0))]:
+            self.editButton.setEnabled(True)
+        else:
+            self.editButton.setEnabled(False)
 
     def onStudy(self):
         self.mw.deck.reset()
@@ -77,6 +89,8 @@ class GroupSel(QDialog):
     def onEdit(self):
         item = self.form.tree.currentItem()
         gid = self.groupMap[unicode(item.text(0))]
+        from aqt.groupconf import GroupConf
+        GroupConf(self.mw, gid)
 
     def reject(self):
         self.accept()
@@ -106,12 +120,15 @@ class GroupSel(QDialog):
         else:
             for gid in self.mw.deck.qconf['groups']:
                 on[gid] = True
+        grey = QBrush(QColor(GREY))
         def makeItems(grp):
             branch = QTreeWidgetItem()
             branch.setFlags(
                 Qt.ItemIsUserCheckable|Qt.ItemIsEnabled|Qt.ItemIsSelectable|
                 Qt.ItemIsTristate)
             gid = grp[1]
+            if not gid:
+                branch.setForeground(0, grey)
             if not on or gid in on:
                 branch.setCheckState(1, Qt.Checked)
             else:
