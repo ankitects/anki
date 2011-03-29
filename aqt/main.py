@@ -17,7 +17,7 @@ from anki.utils import addTags, parseTags, canonifyTags, stripHTML, checksum
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
-import aqt, aqt.facteditor, aqt.progress, aqt.webview, aqt.stats, aqt.studyopts
+import aqt, aqt.progress, aqt.webview
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical
@@ -634,9 +634,11 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.moveToState("editCurrentFact")
 
     def setupCardStats(self):
+        import aqt.stats
         self.cardStats = aqt.stats.CardStats(self)
 
     def onStudyOptions(self):
+        import aqt.studyopts
         aqt.studyopts.StudyOptions(self)
 
     def onOverview(self):
@@ -663,7 +665,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.deckProperties = aqt.deckproperties.DeckProperties(self, self.deck)
 
     def onPrefs(self):
-        aqt.preferences.Preferences(self, self.config)
+        import aqt.preferences
+        aqt.preferences.Preferences(self)
 
     def onAbout(self):
         aqt.about.show(self)
