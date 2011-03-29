@@ -88,14 +88,14 @@ class Overview(object):
 $("#study").focus();
 $(function () {
     var d = %(fcdata)s;
-    if (d) {
+    if (typeof(d) !== "string") {
     $.plot($("#placeholder"), [
     { data: d, bars: { show: true, barWidth: 0.8 }, color: "#0c0" }
     ], {
     xaxis: { ticks: [[0.4, "Today"]] }
     });
     } else {
-    $("#placeholder").hide();
+    $("#placeholder").text(d);
     $(".sub").hide();
     }
 });
@@ -160,7 +160,7 @@ $(function () {
     def _ovForecast(self):
         fc = self.mw.deck.sched.dueForecast(14)
         if not sum(fc):
-            return "''"
+            return "'%s'" % _('No cards due in next two weeks')
         return simplejson.dumps(tuple(enumerate(fc)))
 
     # Toolbar
