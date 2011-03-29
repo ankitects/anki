@@ -681,7 +681,7 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
         self.syncName = u""
 
     def syncingEnabled(self):
-        return self.syncName
+        return not not self.syncName
 
     def genSyncName(self):
         return unicode(checksum(self.path.encode("utf-8")))

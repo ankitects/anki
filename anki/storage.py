@@ -160,7 +160,7 @@ values(1,0,0,0,%(v)s,0,'',0,'', '', '');
     # create a default group/configuration, which should not be removed
     db.execute(
         "insert or ignore into gconf values (1, ?, ?, ?)""",
-        intTime(), _("Default Settings"),
+        intTime(), _("Default Options"),
         simplejson.dumps(anki.groups.defaultConf))
     db.execute(
         "insert or ignore into groups values (1, ?, ?, 1, ?)",
