@@ -19,6 +19,9 @@
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
      </property>
+     <attribute name="headerStretchLastSection">
+      <bool>false</bool>
+     </attribute>
      <column>
       <property name="text">
        <string>Group</string>
@@ -41,7 +44,7 @@
      </column>
      <column>
       <property name="text">
-       <string/>
+       <string>Actions</string>
       </property>
      </column>
     </widget>
