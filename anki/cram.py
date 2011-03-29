@@ -10,9 +10,8 @@ from anki.sched import Scheduler
 class CramScheduler(Scheduler):
     name = "cram"
 
-    def __init__(self, deck, gids, order, min=0, max=None):
+    def __init__(self, deck, order, min=0, max=None):
         Scheduler.__init__(self, deck)
-        self.gids = gids
         # should be the opposite order of what you want
         self.order = order
         # days to limit cram to, where tomorrow=0. Max is inclusive.
@@ -69,16 +68,12 @@ class CramScheduler(Scheduler):
             maxlim = "and due <= %d" % (self.today+1+self.max)
         else:
             maxlim = ""
-        if self.gids:
-            extra = "and gid in "+ids2str(self.gids)
-        else:
-            extra = ""
         self.newQueue = self.db.list("""
 select id from cards where queue = 2 and due >= %d
 %s
 %s order by %s limit %d""" % (self.today+1+self.min,
                               maxlim,
-                              extra,
+                              self._groupLimit(),
                               self.order,
                               self.reportLimit))
         self.newCount = len(self.newQueue)

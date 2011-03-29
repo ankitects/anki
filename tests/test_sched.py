@@ -328,7 +328,8 @@ def test_cram():
     c.startTimer()
     c.flush()
     cardcopy = copy.copy(c)
-    d.cramGroups([1])
+    d.qconf['groups'] = [1]
+    d.cramGroups()
     # first, test with initial intervals preserved
     conf = d.sched._lrnConf(c)
     conf['reset'] = False
@@ -363,7 +364,7 @@ def test_cram():
     # now try again with ivl rescheduling
     c = copy.copy(cardcopy)
     c.flush()
-    d.cramGroups([1])
+    d.cramGroups()
     conf = d.sched._lrnConf(c)
     conf['reset'] = False
     conf['resched'] = True
@@ -378,7 +379,7 @@ def test_cram():
     # try with ivl reset
     c = copy.copy(cardcopy)
     c.flush()
-    d.cramGroups([1])
+    d.cramGroups()
     conf = d.sched._lrnConf(c)
     conf['reset'] = True
     conf['resched'] = True
@@ -388,7 +389,8 @@ def test_cram():
     assert c.ivl == 1
     assert c.due == d.sched.today + 1
     # users should be able to cram entire deck too
-    d.cramGroups([])
+    d.qconf['groups'] = []
+    d.cramGroups()
     assert d.sched.counts()[0] > 0
 
 def test_cramLimits():
@@ -403,29 +405,30 @@ def test_cramLimits():
         c.due = d.sched.today + 1 + i
         c.flush()
     # the default cram should return all three
-    d.cramGroups([1])
+    d.qconf['groups'] = [1]
+    d.cramGroups()
     assert d.sched.counts()[0] == 3
     # if we start from the day after tomorrow, it should be 2
-    d.cramGroups([1], min=1)
+    d.cramGroups(min=1)
     assert d.sched.counts()[0] == 2
     # or after 2 days
-    d.cramGroups([1], min=2)
+    d.cramGroups(min=2)
     assert d.sched.counts()[0] == 1
     # we may get nothing
-    d.cramGroups([1], min=3)
+    d.cramGroups(min=3)
     assert d.sched.counts()[0] == 0
     # tomorrow(0) + dayAfter(1) = 2
-    d.cramGroups([1], max=1)
+    d.cramGroups(max=1)
     assert d.sched.counts()[0] == 2
     # if max is tomorrow, we get only one
-    d.cramGroups([1], max=0)
+    d.cramGroups(max=0)
     assert d.sched.counts()[0] == 1
     # both should work
-    d.cramGroups([1], min=0, max=0)
+    d.cramGroups(min=0, max=0)
     assert d.sched.counts()[0] == 1
-    d.cramGroups([1], min=1, max=1)
+    d.cramGroups(min=1, max=1)
     assert d.sched.counts()[0] == 1
-    d.cramGroups([1], min=0, max=1)
+    d.cramGroups(min=0, max=1)
     assert d.sched.counts()[0] == 2
 
 def test_adjIvl():
