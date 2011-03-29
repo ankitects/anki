@@ -16,8 +16,8 @@
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QTreeWidget" name="tree">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::MultiSelection</enum>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
      </property>
      <attribute name="headerStretchLastSection">
       <bool>false</bool>
@@ -25,6 +25,11 @@
      <column>
       <property name="text">
        <string>Group</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>On</string>
       </property>
      </column>
      <column>
@@ -42,11 +47,6 @@
        <string>New</string>
       </property>
      </column>
-     <column>
-      <property name="text">
-       <string>Actions</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
@@ -55,7 +55,7 @@
       <enum>Qt::Vertical</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
