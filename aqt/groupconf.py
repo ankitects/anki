@@ -5,7 +5,10 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import aqt, simplejson
-from aqt.utils import showInfo
+from aqt.utils import showInfo, showWarning
+
+# Configuration editing
+##########################################################################
 
 class GroupConf(QDialog):
     def __init__(self, mw, gcid, parent=None):
@@ -18,59 +21,120 @@ class GroupConf(QDialog):
             "select name, conf from gconf where id = ?", self.gcid)
         self.conf = simplejson.loads(self.conf)
         self.setWindowTitle(self.name)
-        self.setupNew()
-        self.setupLapse()
-        self.setupRev()
-        self.setupCram()
-        self.setupGeneral()
+        self.setup()
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
                      lambda: QDesktopServices.openUrl(QUrl(
             aqt.appWiki + "GroupOptions")))
+        self.connect(self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults),
+                     SIGNAL("clicked()"),
+                     self.onRestore)
         self.exec_()
+
+    def accept(self):
+        self.save()
+        QDialog.accept(self)
+
+    # Loading
+    ##################################################
 
     def listToUser(self, l):
         return " ".join([str(x) for x in l])
 
-    def setupNew(self):
+    def setup(self):
+        # new
         c = self.conf['new']
         f = self.form
         f.lrnSteps.setText(self.listToUser(c['delays']))
         f.lrnGradInt.setValue(c['ints'][0])
         f.lrnEasyInt.setValue(c['ints'][2])
         f.lrnFirstInt.setValue(c['ints'][1])
-        f.lrnFactor.setValue(c['initialFactor'])
-
-    def setupLapse(self):
+        f.lrnFactor.setValue(c['initialFactor']*100)
+        # lapse
         c = self.conf['lapse']
-        f = self.form
         f.lapSteps.setText(self.listToUser(c['delays']))
-        f.lapMult.setValue(c['mult'])
+        f.lapMult.setValue(c['mult']*100)
         f.lapMinInt.setValue(c['minInt'])
         f.leechThreshold.setValue(c['leechFails'])
         f.leechAction.setCurrentIndex(c['leechAction'][0])
         f.lapRelearn.setChecked(c['relearn'])
-
-    def setupRev(self):
+        # rev
         c = self.conf['rev']
-        f = self.form
         f.revSpace.setValue(c['fuzz']*100)
         f.revMinSpace.setValue(c['minSpace'])
         f.easyBonus.setValue(c['ease4']*100)
-
-    def setupCram(self):
+        # cram
         c = self.conf['cram']
-        f = self.form
         f.cramSteps.setText(self.listToUser(c['delays']))
         f.cramBoost.setChecked(c['resched'])
         f.cramReset.setChecked(c['reset'])
-        f.cramMult.setValue(c['mult'])
+        f.cramMult.setValue(c['mult']*100)
         f.cramMinInt.setValue(c['minInt'])
-
-    def setupGeneral(self):
+        # general
         c = self.conf
-        f = self.form
         f.maxTaken.setValue(c['maxTaken'])
+
+    def onRestore(self):
+        from anki.groups import defaultConf
+        self.conf = defaultConf.copy()
+        self.setup()
+
+    # Saving
+    ##################################################
+
+    def updateList(self, conf, key, w):
+        items = unicode(w.text()).split(" ")
+        ret = []
+        for i in items:
+            try:
+                float(i)
+                assert i > 0
+                ret.append(i)
+            except:
+                # invalid, don't update
+                showWarning(_("Steps must be numbers."))
+                return
+        conf[key] = ret
+
+    def save(self):
+        # new
+        c = self.conf['new']
+        f = self.form
+        self.updateList(c, 'delays', f.lrnSteps)
+        c['ints'][0] = f.lrnGradInt.value()
+        c['ints'][2] = f.lrnEasyInt.value()
+        c['ints'][1] = f.lrnFirstInt.value()
+        c['initialFactor'] = f.lrnFactor.value()/100.0
+        # lapse
+        c = self.conf['lapse']
+        self.updateList(c, 'delays', f.lapSteps)
+        c['mult'] = f.lapMult.value()/100.0
+        c['minInt'] = f.lapMinInt.value()
+        c['leechFails'] = f.leechThreshold.value()
+        c['leechAction'][0] = f.leechAction.currentIndex()
+        c['relearn'] = f.lapRelearn.isChecked()
+        # rev
+        c = self.conf['rev']
+        c['fuzz'] = f.revSpace.value()/100.0
+        c['minSpace'] = f.revMinSpace.value()
+        c['ease4'] = f.easyBonus.value()/100.0
+        # cram
+        c = self.conf['cram']
+        self.updateList(c, 'delays', f.cramSteps)
+        c['resched'] = f.cramBoost.isChecked()
+        c['reset'] = f.cramReset.isChecked()
+        c['mult'] = f.cramMult.value()/100.0
+        c['minInt'] = f.cramMinInt.value()
+        # general
+        c = self.conf
+        c['maxTaken'] = f.maxTaken.value()
+        # update db
+        self.mw.deck.db.execute(
+            "update gconf set conf = ? where id = ?",
+            simplejson.dumps(self.conf), self.gcid)
+
+# Managing configurations
+##########################################################################
 
 class GroupConfSelector(QDialog):
     def __init__(self, mw, gids, parent=None):
