@@ -43,24 +43,29 @@ class GroupManager(QDialog):
         self.reload()
         # config tree
         h = self.form.tree.header()
-        h.setResizeMode(QHeaderView.ResizeToContents)
-        h.setResizeMode(0, QHeaderView.Stretch)
+        #h.setResizeMode(QHeaderView.ResizeToContents)
+        h.setResizeMode(COLNAME, QHeaderView.Stretch)
+        h.setResizeMode(COLOPTS, QHeaderView.ResizeToContents)
+        h.setResizeMode(COLCHECK, QHeaderView.ResizeToContents)
+        h.resizeSection(COLCOUNT, 70)
+        h.resizeSection(COLDUE, 70)
+        h.resizeSection(COLNEW, 70)
         h.setMovable(False)
         self.form.tree.setIndentation(15)
 
     def addButtons(self):
-        box = self.form.buttonBox2
-        def button(name, func, type=QDialogButtonBox.ActionRole):
-            b = box.addButton(name, type)
-            b.connect(b, SIGNAL("clicked()"), func)
-            return b
+        box = self.form.buttonBox
+        def button(w, func):
+            w.connect(w, SIGNAL("clicked()"), func)
+            return w
+        f = self.form
         # selection
-        button(_("Select &All"), self.onSelectAll).setShortcut("a")
-        button(_("Select &None"), self.onSelectNone).setShortcut("n")
-        b = button(_("&Options..."), self.onEdit).setShortcut("o")
-        button(_("&Rename..."), self.onRename).setShortcut("r")
-        button(_("&Delete"), self.onDelete)
-        self.connect(self.form.buttonBox1,
+        button(f.selAll, self.onSelectAll).setShortcut("a")
+        button(f.selNone, self.onSelectNone).setShortcut("n")
+        button(f.opts, self.onEdit).setShortcut("o")
+        button(f.rename, self.onRename).setShortcut("r")
+        button(f.delete_2, self.onDelete)
+        self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("GroupManager"))
 
@@ -179,6 +184,8 @@ class GroupManager(QDialog):
             branch.setText(COLCOUNT, str(grp[2]))
             branch.setText(COLDUE, str(grp[3]))
             branch.setText(COLNEW, str(grp[4]))
+            for i in (COLCOUNT, COLDUE, COLNEW):
+                branch.setTextAlignment(i, Qt.AlignRight)
             self.groupMap[grp[0]] = grp[1]
             self.fullNames[grp[0]] = head+grp[0]
             if grp[1]:
