@@ -87,7 +87,7 @@ class GroupConf(QDialog):
         ret = []
         for i in items:
             try:
-                float(i)
+                i = float(i)
                 assert i > 0
                 ret.append(i)
             except:
@@ -129,6 +129,7 @@ class GroupConf(QDialog):
         c = self.conf
         c['maxTaken'] = f.maxTaken.value()
         # update db
+        self.mw.deck.save(_("Group Options"))
         self.mw.deck.db.execute(
             "update gconf set conf = ? where id = ?",
             simplejson.dumps(self.conf), self.gcid)
