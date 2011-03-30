@@ -81,8 +81,11 @@ table * { font-size: 14px; }
         txt = self._title(
             _("Forecast"),
             _("The number of reviews due in the future."))
+        xaxis = dict(tickDecimals=0, min=0)
+        if end is not None:
+            xaxis['max'] = end
         txt += self._graph(id="due", data=data, conf=dict(
-                xaxis=dict(tickDecimals=0),
+                xaxis=xaxis,
                 yaxes=[dict(), dict(tickDecimals=0, position="right")]))
         txt += self._dueInfo(tot, len(totd))
         return txt
