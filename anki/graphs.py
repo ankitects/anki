@@ -129,7 +129,11 @@ counts as two answers."""))
             (9, colRelearn, _("Relearn")),
             (6, colLearn, _("Learn")),
             (10, colCram, _("Cram"))))
-        txt += plot("time", timetitle, timdata, ylabel=_("Hours"), info=_("""\
+        if self.type == 0:
+            t = _("Minutes")
+        else:
+            t = _("Hours")
+        txt += plot("time", timetitle, timdata, ylabel=t, info=_("""\
 Time spent answering cards."""))
         return txt
 
@@ -162,6 +166,10 @@ Time spent answering cards."""))
         if num is not None:
             lim += "where time > %d" % (
                 (self.deck.sched.dayCutoff-(num*chunk*86400))*1000)
+        if self.type == 0:
+            tf = 60.0 # minutes
+        else:
+            tf = 3600.0 # hours
         return self.deck.db.all("""
 select
 (cast((time/1000 - :cut) / 86400.0 as int)+1)/:chunk as day,
@@ -170,15 +178,16 @@ sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = 2 then 1 else 0 end), -- lapse count
 sum(case when type = 3 then 1 else 0 end), -- cram count
-sum(case when type = 0 then taken/1000 else 0 end)/3600.0, -- lrn time
+sum(case when type = 0 then taken/1000 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
-sum(case when type = 1 and lastIvl < 21 then taken/1000 else 0 end)/3600.0,
-sum(case when type = 1 and lastIvl >= 21 then taken/1000 else 0 end)/3600.0,
-sum(case when type = 2 then taken/1000 else 0 end)/3600.0, -- lapse time
-sum(case when type = 3 then taken/1000 else 0 end)/3600.0 -- cram time
+sum(case when type = 1 and lastIvl < 21 then taken/1000 else 0 end)/:tf,
+sum(case when type = 1 and lastIvl >= 21 then taken/1000 else 0 end)/:tf,
+sum(case when type = 2 then taken/1000 else 0 end)/:tf, -- lapse time
+sum(case when type = 3 then taken/1000 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day""" % lim,
                             cut=self.deck.sched.dayCutoff,
+                            tf=tf,
                             chunk=chunk)
 
     # Intervals
