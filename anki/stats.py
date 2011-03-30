@@ -2,8 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import time, sys, os, datetime
-import anki, anki.utils
+import time, sys, os, datetime, simplejson
+import anki.js
+from anki.utils import fmtTimeSpan, fmtFloat, ids2str
 from anki.consts import *
 from anki.lang import _, ngettext
 from anki.hooks import runFilter
@@ -19,8 +20,7 @@ class CardStats(object):
 
     def report(self):
         c = self.card
-        fmt = anki.utils.fmtTimeSpan
-        fmtFloat = anki.utils.fmtFloat
+        fmt = fmtTimeSpan
         self.txt = "<table width=100%%>"
         self.addLine(_("Added"), self.strTime(c.crt))
         first = self.deck.db.scalar(
@@ -62,11 +62,6 @@ class CardStats(object):
 
 # Deck stats
 ##########################################################################
-
-import os, sys, time, datetime, simplejson
-from anki.utils import fmtTimeSpan, ids2str
-from anki.lang import _
-import anki.js
 
 colYoung = "#7c7"
 colMature = "#070"
