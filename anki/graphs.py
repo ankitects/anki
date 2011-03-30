@@ -57,14 +57,18 @@ class Graphs(object):
             mtr.append((day[0], day[2]))
             tot += day[1]+day[2]
             totd.append((day[0], tot))
-        txt = self._graph(id="due", title=_("Forecast"), data=[
+        data = [
             dict(data=mtr, color=colMature, label=_("Mature")),
             dict(data=yng, color=colYoung, label=_("Young")),
-            dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
-             bars={'show': False}, lines=dict(show=True), stack=False)
-            ], info=_("The number of reviews due in the future."), conf=dict(
+        ]
+        if len(totd) > 1:
+            data.append(
+                dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+                     bars={'show': False}, lines=dict(show=True), stack=False))
+        txt = self._graph(id="due", title=_("Forecast"), data=data,
+            info=_("The number of reviews due in the future."), conf=dict(
                 xaxis=dict(tickDecimals=0),
-                yaxes=[dict(), dict(position="right")]))
+                yaxes=[dict(), dict(tickDecimals=0, position="right")]))
         return txt
 
     def _due(self, start=None, end=None, chunk=1):
@@ -155,9 +159,10 @@ Time spent answering cards."""))
         ret = []
         for (n, col, lab) in spec:
             ret.append(dict(data=sep[n], color=col, label=lab))
-        ret.append(dict(
-            data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
-            bars={'show': False}, lines=dict(show=True), stack=False))
+        if len(totd) > 1:
+            ret.append(dict(
+                data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+                bars={'show': False}, lines=dict(show=True), stack=False))
         return (ret, sum)
 
     def _done(self, num=7, chunk=1):
