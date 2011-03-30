@@ -644,9 +644,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onOverview(self):
         self.moveToState("overview")
 
-    def onGroups(self):
+    def onGroups(self, parent=None):
         from aqt.groupman import GroupManager
-        g = GroupManager(self)
+        g = GroupManager(self, parent)
 
     def onCardStats(self):
         self.cardStats.show()

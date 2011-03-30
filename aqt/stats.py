@@ -82,6 +82,7 @@ class DeckStats(QDialog):
         c = self.connect
         s = SIGNAL("clicked()")
         c(f.groups, s, lambda: self.changeSel(True))
+        f.groups.setShortcut("g")
         c(f.all, s, lambda: self.changeSel(False))
         c(f.month, s, lambda: self.changePeriod(0))
         c(f.year, s, lambda: self.changePeriod(1))
@@ -115,6 +116,8 @@ class DeckStats(QDialog):
 
     def changeSel(self, sel):
         self.sel = sel
+        if sel:
+            self.mw.onGroups(self)
         self.refresh()
 
     def loadFin(self, b):

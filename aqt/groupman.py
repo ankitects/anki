@@ -16,8 +16,8 @@ COLNEW = 5
 GREY = "#777"
 
 class GroupManager(QDialog):
-    def __init__(self, mw):
-        QDialog.__init__(self, mw)
+    def __init__(self, mw, parent=None):
+        QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.form = aqt.forms.groupman.Ui_Dialog()
         self.form.setupUi(self)
