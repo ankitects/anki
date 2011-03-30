@@ -148,7 +148,7 @@ class GroupManager(QDialog):
     def accept(self):
         gids = []
         def findEnabled(item):
-            if item.checkState(1) == Qt.Checked:
+            if item.checkState(COLCHECK) == Qt.Checked:
                 gid = self.groupMap[unicode(item.text(0))]
                 if gid:
                     gids.append(gid)
@@ -162,7 +162,6 @@ class GroupManager(QDialog):
         if gids != self.mw.deck.qconf['groups']:
             self.mw.deck.qconf['groups'] = gids
             self.mw.deck.reset()
-            self.mw.moveToState("review")
         QDialog.accept(self)
 
     def _makeItems(self, grps):
