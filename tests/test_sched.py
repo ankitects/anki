@@ -598,7 +598,7 @@ def test_groupCounts():
     # and one that's a child
     f = d.newFact()
     f['Front'] = u"two"
-    f.gid = d.groupId("Default Group::1")
+    f.gid = d.groupId("Default::1")
     d.addFact(f)
     # make it a review card
     c = f.cards()[0]
@@ -619,12 +619,12 @@ def test_groupCounts():
     assert d.sched.counts() == (3, 0, 1)
     assert len(d.groups()) == 4
     cnts = d.sched.groupCounts()
-    assert cnts[0] == ["Default Group", 1, 1, 0, 1]
-    assert cnts[1] == ["Default Group::1", 2, 1, 1, 0]
+    assert cnts[0] == ["Default", 1, 1, 0, 1]
+    assert cnts[1] == ["Default::1", 2, 1, 1, 0]
     assert cnts[2] == ["foo::bar", 3, 1, 0, 1]
     assert cnts[3] == ["foo::baz", 4, 1, 0, 1]
     tree = d.sched.groupCountTree()
-    assert tree[0][0] == "Default Group"
+    assert tree[0][0] == "Default"
     # sum of child and parent
     assert tree[0][1] == 1
     assert tree[0][2] == 2

@@ -98,12 +98,15 @@ table * { font-size: 14px; }
         else:
             days = num*30
         vals = []
-        vals.append(_("%d/day") % (tot/days))
-        if self.type > 0:
-            vals.append(_("%d/week") % (tot/(days/7)))
-        if self.type > 1:
-            vals.append(_("%d/month") % (tot/(days/30)))
-        txt = _("Average reviews: <b>%s</b>") % ", ".join(vals)
+        try:
+            vals.append(_("%d/day") % (tot/days))
+            if self.type > 0:
+                vals.append(_("%d/week") % (tot/(days/7)))
+            if self.type > 1:
+                vals.append(_("%d/month") % (tot/(days/30)))
+            txt = _("Average reviews: <b>%s</b>") % ", ".join(vals)
+        except ZeroDivisionError:
+            return ""
         return txt
 
     def _due(self, start=None, end=None, chunk=1):
@@ -367,9 +370,10 @@ where 1 """ + self._limit())
         self._line(i, _("Total Cards"), c)
         self._line(i, _("Total Facts"), f)
         (low, avg, high) = self._factors()
-        self._line(i, _("Lowest ease factor"), "%d%%" % low)
-        self._line(i, _("Average ease factor"), "%d%%" % avg)
-        self._line(i, _("Highest ease factor"), "%d%%" % high)
+        if low:
+            self._line(i, _("Lowest ease factor"), "%d%%" % low)
+            self._line(i, _("Average ease factor"), "%d%%" % avg)
+            self._line(i, _("Highest ease factor"), "%d%%" % high)
         min = self.deck.db.scalar(
             "select min(crt) from cards where 1 " + self._limit())
         if min:
