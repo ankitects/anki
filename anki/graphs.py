@@ -46,7 +46,7 @@ class Graphs(object):
 h1 { margin-bottom: 0; margin-top: 1em; }
 body { font-size: 14px; }
 table * { font-size: 14px; }
-.pielabel { text-align:center; padding:2px; color:black; }
+.pielabel { text-align:center; padding:2px; color:white; }
 </style>
 """
 
@@ -405,8 +405,7 @@ sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
 sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue=0 then 1 else 0 end), -- new
 sum(case when queue=-1 then 1 else 0 end) -- susp
-%s
-from cards""" % self._limit())
+from cards where 1 %s""" % self._limit())
 
     # Tools
     ######################################################################
@@ -443,11 +442,11 @@ from cards""" % self._limit())
             ylabel = ""
             conf['series']['pie'] = dict(
                 show=True,
-                radius=0.8,
-                stroke=dict(color="#000", width=3),
+                radius=1,
+                stroke=dict(color="#fff", width=5),
                 label=dict(
                     show=True,
-                    radius=1,
+                    radius=0.7,
                     threshold=0.01))
 
             #conf['legend'] = dict(show=False)
@@ -471,7 +470,7 @@ $(function () {
     }
     if (conf.series.pie) {
         conf.series.pie.label.formatter = function(label, series){
-            return '<div class=pielabel>'+'<small>'+label+'</small><br>'+Math.round(series.percent)+'%%</div>';
+            return '<div class=pielabel>'+Math.round(series.percent)+'%%</div>';
         };
     }
     $.plot($("#%(id)s"), %(data)s, conf);
