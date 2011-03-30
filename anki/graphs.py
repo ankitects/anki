@@ -16,6 +16,7 @@ colCram = "#ff0"
 colIvl = "#077"
 colTime = "#770"
 colUnseen = "#000"
+colSusp = "#ff0"
 
 class Graphs(object):
 
@@ -31,13 +32,23 @@ class Graphs(object):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
         self.type = type
-        txt = self.dueGraph()
+        txt = self.css
+        txt += self.dueGraph()
         txt += self.repsGraph()
         txt += self.ivlGraph()
         # other graphs
         txt += self.easeGraph()
         txt += self.cardGraph()
         return "<script>%s\n</script><center>%s</center>" % (anki.js.all, txt)
+
+    css = """
+<style>
+h1 { margin-bottom: 0; }
+body { font-size: 14px; }
+table * { font-size: 14px; }
+.pielabel { text-align:center; padding:2px; color:black; }
+</style>
+"""
 
     # Due and cumulative due
     ######################################################################
@@ -314,7 +325,8 @@ order by thetype, ease""")
         for c, (t, col) in enumerate((
             (_("Mature"), colMature),
             (_("Young+Learn"), colYoung),
-            (_("Unseen"), colUnseen))):
+            (_("Unseen"), colUnseen),
+            (_("Suspended"), colSusp))):
             d.append(dict(data=div[c], label=t, color=col))
         # text data
         i = []
@@ -354,7 +366,8 @@ from cards where queue = 2 %s""" % self._limit())
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
 sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
-sum(case when queue=0 then 1 else 0 end) -- new
+sum(case when queue=0 then 1 else 0 end), -- new
+sum(case when queue=-1 then 1 else 0 end) -- susp
 %s
 from cards""" % self._limit())
 
@@ -364,7 +377,10 @@ from cards""" % self._limit())
     def _graph(self, id, data, conf={},
                type="bars", ylabel=_("Cards"), timeTicks=True):
         # display settings
-        conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':10}
+        if type == "pie":
+            conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':2}
+        else:
+            conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':10}
         conf['series'] = dict(stack=True)
         if not 'yaxis' in conf:
             conf['yaxis'] = {}
@@ -385,20 +401,19 @@ from cards""" % self._limit())
         elif type == "fill":
             conf['series']['lines'] = dict(show=True, fill=True)
         elif type == "pie":
-            width /= 2
+            width /= 2.3
             height *= 1.5
             ylabel = ""
             conf['series']['pie'] = dict(
                 show=True,
-                radius=1,
+                radius=0.8,
                 stroke=dict(color="#000", width=3),
                 label=dict(
                     show=True,
-                    radius=1, #3/4.0,
-                    background=dict(
-                        opacity=1,
-                        color='#000')))
-            conf['legend'] = dict(show=False)
+                    radius=1,
+                    threshold=0.01))
+
+            #conf['legend'] = dict(show=False)
         return (
 """
 <table cellpadding=0 cellspacing=10>
@@ -419,7 +434,7 @@ $(function () {
     }
     if (conf.series.pie) {
         conf.series.pie.label.formatter = function(label, series){
-            return '<div style="font-size:10pt; text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%%</div>';
+            return '<div class=pielabel>'+'<small>'+label+'</small><br>'+Math.round(series.percent)+'%%</div>';
         };
     }
     $.plot($("#%(id)s"), %(data)s, conf);
@@ -436,4 +451,4 @@ $(function () {
             return ""
 
     def _title(self, title, subtitle=""):
-        return '<h1 style="margin-bottom: 0; margin-top: 1em;">%s</h1>%s' % (title, subtitle)
+        return '<h1>%s</h1>%s' % (title, subtitle)
