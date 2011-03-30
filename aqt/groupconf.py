@@ -49,7 +49,7 @@ class GroupConf(QDialog):
         f.lrnGradInt.setValue(c['ints'][0])
         f.lrnEasyInt.setValue(c['ints'][2])
         f.lrnFirstInt.setValue(c['ints'][1])
-        f.lrnFactor.setValue(c['initialFactor']*100)
+        f.lrnFactor.setValue(c['initialFactor']/10.0)
         # lapse
         c = self.conf['lapse']
         f.lapSteps.setText(self.listToUser(c['delays']))
@@ -106,7 +106,7 @@ class GroupConf(QDialog):
         c['ints'][0] = f.lrnGradInt.value()
         c['ints'][2] = f.lrnEasyInt.value()
         c['ints'][1] = f.lrnFirstInt.value()
-        c['initialFactor'] = f.lrnFactor.value()/100.0
+        c['initialFactor'] = f.lrnFactor.value()*10
         # lapse
         c = self.conf['lapse']
         self.updateList(c, 'delays', f.lapSteps)
