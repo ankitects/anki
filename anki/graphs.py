@@ -88,15 +88,19 @@ table * { font-size: 14px; }
         return txt
 
     def _dueInfo(self, tot, num):
-        avg = tot/float(num)
-        txt = _("Average reviews: %s")
         if self.type == 0:
-            txt = txt % _("%d/day") % avg
+            days = num
         elif self.type == 1:
-            txt = txt % _("%d/week") % avg
+            days = num*7
         else:
-            txt =txt % _("%d/month") % avg
-
+            days = num*30
+        vals = []
+        vals.append(_("%d/day") % (tot/days))
+        if self.type > 0:
+            vals.append(_("%d/week") % (tot/(days/7)))
+        if self.type > 1:
+            vals.append(_("%d/month") % (tot/(days/30)))
+        txt = _("Average reviews: <b>%s</b>") % ", ".join(vals)
         return txt
 
     def _due(self, start=None, end=None, chunk=1):
