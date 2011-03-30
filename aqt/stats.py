@@ -8,6 +8,7 @@ import os, tempfile
 from aqt.webview import AnkiWebView
 from aqt.utils import saveGeom, restoreGeom
 from anki.hooks import addHook
+import aqt
 
 # Card stats
 ######################################################################
@@ -58,51 +59,44 @@ class CardStats(object):
 <style>table { font-size: 12px; } h1 { font-size: 14px; }</style>
 </head><body><center>%s</center></body></html>"""%txt)
 
-# Modal dialog that supports dumping to browser (for printing, etc)
+# Deck Stats
 ######################################################################
 
-class PrintableReport(QDialog):
+class DeckStats(QDialog):
 
-    def __init__(self, mw, type, title, func, css):
-        self.mw = mw
+    def __init__(self, mw):
         QDialog.__init__(self, mw)
-        restoreGeom(self, type)
-        self.type = type
-        self.setWindowTitle(title)
-        self.setModal(True)
-        self.mw.progress.start()
-        self.web = AnkiWebView(self)
-        l = QVBoxLayout(self)
-        l.setContentsMargins(0,0,0,0)
-        l.addWidget(self.web)
-        self.css = css
-        if func:
-            self.report = func()
-            self.web.stdHtml(self.report, css=css)
-        self.box = QDialogButtonBox(QDialogButtonBox.Close)
-        b = self.box.addButton(_("Save Image"), QDialogButtonBox.ActionRole)
+        self.mw = mw
+        self.name = "deckStats"
+        self.period = 0
+        self.sel = True
+        self.form = aqt.forms.stats.Ui_Dialog()
+        f = self.form
+        f.setupUi(self)
+        restoreGeom(self, self.name)
+        b = f.buttonBox.addButton(_("Save Image"),
+                                          QDialogButtonBox.ActionRole)
         b.connect(b, SIGNAL("clicked()"), self.browser)
         b.setAutoDefault(False)
-        self.layout = QHBoxLayout()
-        self.layout.setContentsMargins(0,0,0,0)
-        self.layout.addWidget(self.box)
-        l.addLayout(self.layout)
-        self.setLayout(l)
-        self.connect(self.box, SIGNAL("rejected()"), self, SLOT("reject()"))
-        self.mw.progress.finish()
-
-    def run(self):
+        c = self.connect
+        s = SIGNAL("clicked()")
+        c(f.groups, s, lambda: self.changeSel(True))
+        c(f.all, s, lambda: self.changeSel(False))
+        c(f.month, s, lambda: self.changePeriod(0))
+        c(f.year, s, lambda: self.changePeriod(1))
+        c(f.life, s, lambda: self.changePeriod(2))
+        self.refresh()
         self.exec_()
 
     def reject(self):
-        saveGeom(self, self.type)
+        saveGeom(self, self.name)
         QDialog.reject(self)
 
     def browser(self):
         # dump to a temporary file
         tmpdir = tempfile.mkdtemp(prefix="anki")
         path = os.path.join(tmpdir, "report.png")
-        p = self.web.page()
+        p = self.form.web.page()
         oldsize = p.viewportSize()
         p.setViewportSize(p.mainFrame().contentsSize())
         image = QImage(p.viewportSize(), QImage.Format_ARGB32)
@@ -113,73 +107,17 @@ class PrintableReport(QDialog):
         p.setViewportSize(oldsize)
         QDesktopServices.openUrl(QUrl("file://" + path))
 
-# Deck stats
-######################################################################
-
-def deckStats(mw):
-    css=mw.sharedCSS+"""
-body { margin: 2em; font-family: arial; }
-h1 { font-size: 18px; border-bottom: 1px solid #000; margin-top: 1em;
-     clear: both; margin-bottom: 0.5em; }
-.info {float:right; padding: 10px; max-width: 300px; border-radius: 5px;
-  background: #ddd; font-size: 14px; }
-"""
-    return PrintableReport(
-        mw,
-        "deckstats",
-        _("Deck Statistics"),
-        mw.deck.deckStats,
-        css).run()
-
-# Graphs
-######################################################################
-
-class Graphs(PrintableReport):
-
-    def __init__(self, *args):
-        self.period = 0
-        self.periods = [
-            _("1 month"),
-            _("1 year"),
-            _("deck life")]
-        PrintableReport.__init__(self, *args)
-        grp = QGroupBox()
-        l = QHBoxLayout()
-        l.setContentsMargins(6,6,6,6)
-        chk = False
-        for c, p in enumerate(self.periods):
-            b = QRadioButton(p)
-            if not chk:
-                b.setChecked(True)
-                chk = True
-            b.connect(b, SIGNAL("clicked()"), lambda n=c: self.changePeriod(n))
-            l.addWidget(b)
-        grp.setLayout(l)
-        self.layout.insertWidget(0, grp)
-        self.layout.insertStretch(0, 10)
-        self.refresh()
-
     def changePeriod(self, n):
         self.period = n
         self.refresh()
 
+    def changeSel(self, sel):
+        self.sel = sel
+        self.refresh()
+
     def refresh(self):
         self.mw.progress.start(immediate=True)
-        self.report = self.mw.deck.graphs().report(type=self.period)
-        self.web.stdHtml(self.report, css=self.css)
+        self.report = self.mw.deck.graphs().report(
+            type=self.period, selective=self.sel)
+        self.form.web.setHtml(self.report)
         self.mw.progress.finish()
-
-def graphs(mw):
-    css=mw.sharedCSS+"""
-body { margin: 2em; font-family: arial; background: #eee; }
-h1 { font-size: 18px; border-bottom: 1px solid #000; margin-top: 1em;
-     clear: both; margin-bottom: 0.5em; }
-.info {float:right; padding: 10px; max-width: 300px; border-radius: 5px;
-  background: #ddd; font-size: 14px; }
-"""
-    return Graphs(
-        mw,
-        "graphs",
-        _("Graphs"),
-        None,
-        css).run()

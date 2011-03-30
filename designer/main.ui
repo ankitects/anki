@@ -113,8 +113,7 @@
      <addaction name="actionLocalizeMedia"/>
      <addaction name="separator"/>
     </widget>
-    <addaction name="actionGraphs"/>
-    <addaction name="actionDstats"/>
+    <addaction name="actionStats"/>
     <addaction name="actionCstats"/>
     <addaction name="separator"/>
     <addaction name="actionRepeatAudio"/>
@@ -321,18 +320,6 @@
     <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
-  <action name="actionDstats">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/spreadsheet.png</normaloff>:/icons/spreadsheet.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Deck Statistics</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+D</string>
-   </property>
-  </action>
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -351,7 +338,7 @@
      <normaloff>:/icons/package_games_card.png</normaloff>:/icons/package_games_card.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Card Statistics</string>
+    <string>&amp;Card Info</string>
    </property>
    <property name="statusTip">
     <string>Show statistics about the current card and last card</string>
@@ -387,19 +374,19 @@
     <string>Ctrl+I</string>
    </property>
   </action>
-  <action name="actionGraphs">
+  <action name="actionStats">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/view-statistics.png</normaloff>:/icons/view-statistics.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Graphs...</string>
+    <string>&amp;Statistics...</string>
    </property>
    <property name="statusTip">
     <string/>
    </property>
    <property name="shortcut">
-    <string>Shift+G</string>
+    <string>Shift+S</string>
    </property>
   </action>
   <action name="actionExport">

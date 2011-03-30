@@ -526,7 +526,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         tb.addAction(frm.actionEditLayout)
         tb.addAction(frm.actionEditdeck)
         tb.addAction(frm.actionOverview)
-        tb.addAction(frm.actionGraphs)
+        tb.addAction(frm.actionStats)
         tb.addAction(frm.actionMarkCard)
         tb.addAction(frm.actionRepeatAudio)
         tb.addAction(frm.actionClose)
@@ -651,11 +651,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onCardStats(self):
         self.cardStats.show()
 
-    def onDeckStats(self):
-        aqt.stats.deckStats(self)
-
-    def onGraphs(self):
-        aqt.stats.graphs(self)
+    def onStats(self):
+        aqt.stats.DeckStats(self)
 
     def onCardLayout(self):
         aqt.clayout.CardLayout(self, 0, self.currentCard.fact,
@@ -740,8 +737,7 @@ Please choose a new deck name:"""))
         "DeckProperties",
         "Undo",
         "Export",
-        "Graphs",
-        "Dstats",
+        "Stats",
         "Cstats",
         "StudyOptions",
         "Overview",
@@ -765,9 +761,8 @@ Please choose a new deck name:"""))
         self.connect(m.actionEditdeck, s, self.onEditDeck)
         self.connect(m.actionEditCurrent, s, self.onEditCurrent)
         self.connect(m.actionPreferences, s, self.onPrefs)
-        self.connect(m.actionDstats, s, self.onDeckStats)
+        self.connect(m.actionStats, s, self.onStats)
         self.connect(m.actionCstats, s, self.onCardStats)
-        self.connect(m.actionGraphs, s, self.onGraphs)
         self.connect(m.actionEditLayout, s, self.onCardLayout)
         self.connect(m.actionAbout, s, self.onAbout)
         self.connect(m.actionImport, s, self.onImport)
