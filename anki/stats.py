@@ -63,308 +63,505 @@ class CardStats(object):
 # Deck stats
 ##########################################################################
 
+import os, sys, time, datetime, simplejson
+from anki.utils import fmtTimeSpan, ids2str
+from anki.lang import _
+import anki.js
+
+colYoung = "#7c7"
+colMature = "#070"
+colCum = "rgba(0,0,0,0.9)"
+colLearn = "#00F"
+colRelearn = "#c00"
+colCram = "#ff0"
+colIvl = "#077"
+colTime = "#770"
+colUnseen = "#000"
+colSusp = "#ff0"
+
 class DeckStats(object):
 
     def __init__(self, deck):
         self.deck = deck
+        self._stats = None
+        self.type = 0
+        self.width = 600
+        self.height = 200
 
-    def matureCardCount(self):
-        return self.deck.db.scalar(
-            "select count(id) from cards where ivl >= :t ",
-            t=MATURE_THRESHOLD)
+    def report(self, type=0, selective=True):
+        # 0=days, 1=weeks, 2=months
+        # period-dependent graphs
+        self.type = type
+        self.selective = selective
+        txt = self.css
+        txt += self.dueGraph()
+        txt += self.repsGraph()
+        txt += self.ivlGraph()
+        # other graphs
+        txt += self.easeGraph()
+        txt += self.cardGraph()
+        return "<script>%s\n</script><center>%s</center>" % (anki.js.all, txt)
 
-    def youngCardCount(self):
-        return self.deck.db.scalar(
-            "select count(id) from cards where ivl < :t "
-            "and reps != 0", t=MATURE_THRESHOLD)
+    css = """
+<style>
+h1 { margin-bottom: 0; margin-top: 1em; }
+body { font-size: 14px; }
+table * { font-size: 14px; }
+.pielabel { text-align:center; padding:0px; color:white; }
+</style>
+"""
 
-    def newCountAll(self):
-        "All new cards, including spaced."
-        return self.deck.db.scalar(
-            "select count(id) from cards where type = 0")
+    # Due and cumulative due
+    ######################################################################
 
-    def info(self, txt):
-        return """
-<div class=info>%s</div>""" % txt
+    def dueGraph(self):
+        if self.type == 0:
+            start = 0; end = 30; chunk = 1;
+        elif self.type == 1:
+            start = 0; end = 52; chunk = 7
+        elif self.type == 2:
+            start = 0; end = None; chunk = 30
+        d = self._due(start, end, chunk)
+        yng = []
+        mtr = []
+        tot = 0
+        totd = []
+        for day in d:
+            yng.append((day[0], day[1]))
+            mtr.append((day[0], day[2]))
+            tot += day[1]+day[2]
+            totd.append((day[0], tot))
+        data = [
+            dict(data=mtr, color=colMature, label=_("Mature")),
+            dict(data=yng, color=colYoung, label=_("Young")),
+        ]
+        if len(totd) > 1:
+            data.append(
+                dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+                     bars={'show': False}, lines=dict(show=True), stack=False))
+        txt = self._title(
+            _("Forecast"),
+            _("The number of reviews due in the future."))
+        xaxis = dict(tickDecimals=0, min=0)
+        if end is not None:
+            xaxis['max'] = end
+        txt += self._graph(id="due", data=data, conf=dict(
+                xaxis=xaxis,
+                yaxes=[dict(), dict(tickDecimals=0, position="right")]))
+        txt += self._dueInfo(tot, len(totd))
+        return txt
 
-    def report(self):
-        "Return an HTML string with a report."
-        fmtPerc = anki.utils.fmtPercentage
-        fmtFloat = anki.utils.fmtFloat
-        if not self.deck.cardCount():
-            return _("Please add some cards first.") + "<p/>"
-        d = self.deck
-        # General
-        ##################################################
-        html = "<h1>"+_("General")+"</h1>"
-        html += _("Deck created: <b>%s</b> ago<br>") % self.crtTimeStr()
-        total = d.cardCount()
-        new = self.newCountAll()
-        young = self.youngCardCount()
-        old = self.matureCardCount()
-        newP = new / float(total) * 100
-        youngP = young / float(total) * 100
-        oldP = old / float(total) * 100
-        stats = {}
-        (stats["new"], stats["newP"]) = (new, newP)
-        (stats["old"], stats["oldP"]) = (old, oldP)
-        (stats["young"], stats["youngP"]) = (young, youngP)
-        html += _("Total number of cards:") + " <b>%d</b><br>" % total
-        html += _("Total number of facts:") + " <b>%d</b>" % d.factCount()
-        # Maturity
-        ##################################################
-        html += "<h1>" + _("Card Maturity") + "</h1>"
-        html += self.info(_("""\
-Mature cards are cards that have an interval over 21 days.<br>
-A card's interval is the time before it will be shown again."""))
-        html += _("Mature cards: <!--card count-->") + " <b>%(old)d</b> (%(oldP)s)<br>" % {
-                'old': stats['old'], 'oldP' : fmtPerc(stats['oldP'])}
-        html += _("Young cards: <!--card count-->") + " <b>%(young)d</b> (%(youngP)s)<br>" % {
-                'young': stats['young'], 'youngP' : fmtPerc(stats['youngP'])}
-        html += _("Unseen cards:") + " <b>%(new)d</b> (%(newP)s)<br>" % {
-                'new': stats['new'], 'newP' : fmtPerc(stats['newP'])}
-        avgInt = self.getAverageIvl()
-        if avgInt:
-            html += _("Average interval: ") + ("<b>%s</b> ") % fmtFloat(avgInt) + _("days")
-        # Correct
-        ##################################################
-        html += "<h1>" + _("Correct Answers") + "</h1>"
-        (mAll, mYes, mPerc) = self.getMatureCorrect()
-        (yAll, yYes, yPerc) = self.getYoungCorrect()
-        (nAll, nYes, nPerc) = self.getNewCorrect()
-        html += _("Mature cards: <!--correct answers-->") + " <b>" + fmtPerc(mPerc) + (
-                "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
-                'partOf' : mYes,
-                'totalSum' : mAll } + "<br>")
-        html += _("Young cards: <!--correct answers-->")  + " <b>" + fmtPerc(yPerc) + (
-                "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
-                'partOf' : yYes,
-                'totalSum' : yAll } + "<br>")
-        html += _("First-seen cards:") + " <b>" + fmtPerc(nPerc) + (
-                "</b> " + _("(%(partOf)d of %(totalSum)d)") % {
-                'partOf' : nYes,
-                'totalSum' : nAll } + "<br><br>")
-        # average pending time
-        existing = d.cardCount() - self.newCountAll()
-        def tr(a, b):
-            return "<tr><td>%s</td><td align=right>%s</td></tr>" % (a, b)
-        def repsPerDay(reps,days):
-            retval =  ("<b>%d</b> " % reps)  + ngettext("rep", "reps", reps)
-            retval += ("/<b>%d</b> " % days) + ngettext("day", "days", days)
-            return retval
-        # Recent work
-        ##################################################
-        if existing and avgInt:
-            html += "<h1>" + _("Recent Work") + "</h1>"
-            html += self.info(_("""\
-The number of cards you have answered recently. Each time you answer a card,
-it counts as a repetition - or <i>rep</i>."""))
-            html += "<table>"
-            html += tr(_("In last week"), repsPerDay(
-                self.getRepsDone(-7, 0),
-                self.getDaysReviewed(-7, 0)))
-            html += tr(_("In last month"), repsPerDay(
-                self.getRepsDone(-30, 0),
-                self.getDaysReviewed(-30, 0)))
-            html += tr(_("In last 3 months"), repsPerDay(
-                self.getRepsDone(-92, 0),
-                self.getDaysReviewed(-92, 0)))
-            html += tr(_("In last 6 months"), repsPerDay(
-                self.getRepsDone(-182, 0),
-                self.getDaysReviewed(-182, 0)))
-            html += tr(_("In last year"), repsPerDay(
-                self.getRepsDone(-365, 0),
-                self.getDaysReviewed(-365, 0)))
-            html += tr(_("Deck life"), repsPerDay(
-                self.getRepsDone(-13000, 0),
-                self.getDaysReviewed(-13000, 0)))
-            html += "</table>"
-            # Average daily
-            ##################################################
-            html += "<h1>" + _("Average Daily Reviews") + "</h1>"
-            html += self.info(_("""\
-The number of cards answered in a period, divided by the days in that period."""))
-            html += "<table>"
-            html += tr(_("Deck life"), ("<b>%s</b> ") % (
-                fmtFloat(self.getSumInverseRoundIvl())) + _("cards/day"))
-            html += tr(_("In next week"), ("<b>%s</b> ") % (
-                fmtFloat(self.getWorkloadPeriod(7))) + _("cards/day"))
-            html += tr(_("In next month"), ("<b>%s</b> ") % (
-                fmtFloat(self.getWorkloadPeriod(30))) + _("cards/day"))
-            html += tr(_("In last week"), ("<b>%s</b> ") % (
-                fmtFloat(self.getPastWorkloadPeriod(7))) + _("cards/day"))
-            html += tr(_("In last month"), ("<b>%s</b> ") % (
-                fmtFloat(self.getPastWorkloadPeriod(30))) + _("cards/day"))
-            html += tr(_("In last 3 months"), ("<b>%s</b> ") % (
-                fmtFloat(self.getPastWorkloadPeriod(92))) + _("cards/day"))
-            html += tr(_("In last 6 months"), ("<b>%s</b> ") % (
-                fmtFloat(self.getPastWorkloadPeriod(182))) + _("cards/day"))
-            html += tr(_("In last year"), ("<b>%s</b> ") % (
-                fmtFloat(self.getPastWorkloadPeriod(365))) + _("cards/day"))
-            html += "</table>"
-            # Average added
-            ##################################################
-            html += "<h1>" + _("Average Added") + "</h1>"
-            html += self.info(_("""\
-The number of cards added in a period, divided by the days in that period."""))
-            html += "<table>"
-            html += tr(_("Deck life"), _("<b>%(a)s</b>/day, <b>%(b)s</b>/mon") % {
-                'a': fmtFloat(self.newAverage()), 'b': fmtFloat(self.newAverage()*30)})
-            np = self.getNewPeriod(7)
-            html += tr(_("In last week"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(7))}))
-            np = self.getNewPeriod(30)
-            html += tr(_("In last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
-            np = self.getNewPeriod(92)
-            html += tr(_("In last 3 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(92))}))
-            np = self.getNewPeriod(182)
-            html += tr(_("In last 6 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(182))}))
-            np = self.getNewPeriod(365)
-            html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(365))}))
-            html += "</table>"
-            # Average first seen
-            ##################################################
-            html += "<h1>" + _("Average First Seen") + "</h1>"
-            html += self.info(_("""\
-The number of cards seen for the first time in a period, divided by the days
-in that period."""))
-            html += "<table>"
-            np = self.getFirstPeriod(7)
-            html += tr(_("In last week"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(7))}))
-            np = self.getFirstPeriod(30)
-            html += tr(_("In last month"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(30))}))
-            np = self.getFirstPeriod(92)
-            html += tr(_("In last 3 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(92))}))
-            np = self.getFirstPeriod(182)
-            html += tr(_("In last 6 months"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(182))}))
-            np = self.getFirstPeriod(365)
-            html += tr(_("In last year"), _("<b>%(a)d</b> (<b>%(b)s</b>/day)") % (
-                {'a': np, 'b': fmtFloat(np / float(365))}))
-            html += "</table>"
-            # Card ease
-            ##################################################
-            html += "<h1>" + _("Card Ease") + "</h1>"
-            html += self.info(_("""\
-A card's factor is the amount its interval will increase when you answer 'good'.
-A card with an interval of 10 days and a factor of 2.5 will get a next
-interval of 25 days."""))
-            html += _("Lowest factor: %.2f") % d.db.scalar(
-                "select min(factor)/1000.0 from cards") + "<br>"
-            html += _("Average factor: %.2f") % d.db.scalar(
-                "select avg(factor)/1000.0 from cards") + "<br>"
-            html += _("Highest factor: %.2f") % d.db.scalar(
-                "select max(factor)/1000.0 from cards") + "<br>"
+    def _dueInfo(self, tot, num):
+        if self.type == 0:
+            days = num
+        elif self.type == 1:
+            days = num*7
+        else:
+            days = num*30
+        vals = []
+        try:
+            vals.append(_("%d/day") % (tot/days))
+            if self.type > 0:
+                vals.append(_("%d/week") % (tot/(days/7)))
+            if self.type > 1:
+                vals.append(_("%d/month") % (tot/(days/30)))
+            txt = _("Average reviews: <b>%s</b>") % ", ".join(vals)
+        except ZeroDivisionError:
+            return ""
+        return txt
 
-            html += "<div style='clear:both;'></div>"
-            html = runFilter("deckStats", html)
-        return html
+    def _due(self, start=None, end=None, chunk=1):
+        lim = ""
+        if start is not None:
+            lim += " and due-:today >= %d" % start
+        if end is not None:
+            lim += " and day < %d" % end
+        return self.deck.db.all("""
+select (due-:today)/:chunk as day,
+sum(case when ivl < 21 then 1 else 0 end), -- yng
+sum(case when ivl >= 21 then 1 else 0 end) -- mtr
+from cards
+where queue = 2 %s
+%s
+group by day order by day""" % (self._limit(), lim),
+                            today=self.deck.sched.today,
+                            chunk=chunk)
 
-    def getMatureCorrect(self, test=None):
-        if not test:
-            test = "lastIvl > 21"
-        head = "select count() from revlog where %s"
-        all = self.deck.db.scalar(head % test)
-        yes = self.deck.db.scalar((head % test) + " and ease > 1")
-        if not all:
-            return (0, 0, 0)
-        return (all, yes, yes/float(all)*100)
+    # Reps and time spent
+    ######################################################################
 
-    def getYoungCorrect(self):
-        return self.getMatureCorrect("lastIvl <= 21 and rep != 1")
+    def repsGraph(self):
+        if self.type == 0:
+            days = 30; chunk = 1
+        elif self.type == 1:
+            days = 52; chunk = 7
+        else:
+            days = None; chunk = 30
+        return self._repsGraph(self._done(days, chunk),
+                               days,
+                               _("Review Count"),
+                               _("Review Time"))
 
-    def getNewCorrect(self):
-        return self.getMatureCorrect("rep = 1")
+    def _repsGraph(self, data, days, reptitle, timetitle):
+        if not data:
+            return ""
+        d = data
+        conf = dict(
+            xaxis=dict(tickDecimals=0),
+            yaxes=[dict(), dict(position="right")])
+        if days is not None:
+            conf['xaxis']['min'] = -days
+        def plot(id, data, ylabel):
+            return self._graph(
+                id, data=data, conf=conf, ylabel=ylabel)
+        # reps
+        (repdata, repsum) = self._splitRepData(d, (
+            (3, colMature, _("Mature")),
+            (2, colYoung, _("Young")),
+            (4, colRelearn, _("Relearn")),
+            (1, colLearn, _("Learn")),
+            (5, colCram, _("Cram"))))
+        txt = self._title(
+            reptitle, _("The number of questions you have answered."))
+        txt += plot("reps", repdata, ylabel=_("Answers"))
+        # time
+        (timdata, timsum) = self._splitRepData(d, (
+            (8, colMature, _("Mature")),
+            (7, colYoung, _("Young")),
+            (9, colRelearn, _("Relearn")),
+            (6, colLearn, _("Learn")),
+            (10, colCram, _("Cram"))))
+        if self.type == 0:
+            t = _("Minutes")
+        else:
+            t = _("Hours")
+        txt += self._title(timetitle, _("The time taken to answer the questions."))
+        txt += plot("time", timdata, ylabel=t)
+        return txt
 
-    def getDaysReviewed(self, start, finish):
-        today = self.deck.sched.dayCutoff
-        x = today + 86400*start
-        y = today + 86400*finish
-        return self.deck.db.scalar("""
-select count(distinct(cast((time/1000-:off)/86400 as integer))) from revlog
-where time >= :x*1000 and time <= :y*1000""",x=x,y=y, off=self.deck.crt)
+    def _ansInfo(self, data):
+        return ""
 
-    def getRepsDone(self, start, finish):
-        now = datetime.datetime.today()
-        x = time.mktime((now + datetime.timedelta(start)).timetuple())
-        y = time.mktime((now + datetime.timedelta(finish)).timetuple())
-        return self.deck.db.scalar(
-            "select count() from revlog where time >= :x*1000 and time <= :y*1000",
-            x=x, y=y)
+    def _splitRepData(self, data, spec):
+        sep = {}
+        tot = 0
+        totd = []
+        sum = []
+        for row in data:
+            rowtot = 0
+            for (n, col, lab) in spec:
+                if n not in sep:
+                    sep[n] = []
+                sep[n].append((row[0], row[n]))
+                tot += row[n]
+                rowtot += row[n]
+            totd.append((row[0], tot))
+            sum.append((row[0], rowtot))
+        ret = []
+        for (n, col, lab) in spec:
+            ret.append(dict(data=sep[n], color=col, label=lab))
+        if len(totd) > 1:
+            ret.append(dict(
+                data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+                bars={'show': False}, lines=dict(show=True), stack=False))
+        return (ret, sum)
 
-    def getAverageIvl(self):
-        return self.deck.db.scalar(
-            "select sum(ivl) / count(ivl) from cards "
-            "where cards.reps > 0") or 0
+    def _done(self, num=7, chunk=1):
+        lims = []
+        if num is not None:
+            lims.append("time > %d" % (
+                (self.deck.sched.dayCutoff-(num*chunk*86400))*1000))
+        lim = self._revlogLimit()
+        if lim:
+            lims.append(lim)
+        if lims:
+            lim = "where " + " and ".join(lims)
+        else:
+            lim = ""
+        if self.type == 0:
+            tf = 60.0 # minutes
+        else:
+            tf = 3600.0 # hours
+        return self.deck.db.all("""
+select
+(cast((time/1000 - :cut) / 86400.0 as int)+1)/:chunk as day,
+sum(case when type = 0 then 1 else 0 end), -- lrn count
+sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
+sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
+sum(case when type = 2 then 1 else 0 end), -- lapse count
+sum(case when type = 3 then 1 else 0 end), -- cram count
+sum(case when type = 0 then taken/1000 else 0 end)/:tf, -- lrn time
+-- yng + mtr time
+sum(case when type = 1 and lastIvl < 21 then taken/1000 else 0 end)/:tf,
+sum(case when type = 1 and lastIvl >= 21 then taken/1000 else 0 end)/:tf,
+sum(case when type = 2 then taken/1000 else 0 end)/:tf, -- lapse time
+sum(case when type = 3 then taken/1000 else 0 end)/:tf -- cram time
+from revlog %s
+group by day order by day""" % lim,
+                            cut=self.deck.sched.dayCutoff,
+                            tf=tf,
+                            chunk=chunk)
 
-    def ivlReport(self, ivls, labels, total):
-        boxes = self.splitIntoIvls(ivls)
-        keys = boxes.keys()
-        keys.sort()
-        html = ""
-        for key in keys:
-            html += ("<tr><td align=right>%s</td><td align=right>" +
-                     "%d</td><td align=right>%s</td></tr>") % (
-                labels[key],
-                boxes[key],
-                fmtPerc(boxes[key] / float(total) * 100))
-        return html
+    # Intervals
+    ######################################################################
 
-    def splitIntoIvls(self, ivls):
-        boxes = {}
-        n = 0
-        for i in range(len(ivls) - 1):
-            (min, max) = (ivls[i], ivls[i+1])
-            for c in self.deck:
-                if c.ivl > min and c.ivl <=  max:
-                    boxes[n] = boxes.get(n, 0) + 1
-            n += 1
-        return boxes
+    def ivlGraph(self):
+        (ivls, all, avg, max) = self._ivls()
+        tot = 0
+        totd = []
+        if not ivls or not all:
+            return ""
+        for (grp, cnt) in ivls:
+            tot += cnt
+            totd.append((grp, tot/float(all)*100))
+        txt = self._title(_("Intervals"),
+                          _("Delays until reviews are shown again."))
+        txt += self._graph(id="ivl", data=[
+            dict(data=ivls, color=colIvl, label=_("All Types")),
+            dict(data=totd, color=colCum, label=_("% Total"), yaxis=2,
+             bars={'show': False}, lines=dict(show=True), stack=False)
+            ], conf=dict(
+                yaxes=[dict(), dict(position="right", max=105)]))
+        txt += _("Average interval: <b>%s</b>") % fmtTimeSpan(avg*86400)
+        txt += "<br>" + _("Longest interval: <b>%s</b>") % fmtTimeSpan(max*86400)
+        return txt
 
-    def newAverage(self):
-        "Average number of new cards added each day."
-        return self.deck.cardCount() / max(1, self.ageInDays())
+    def _ivls(self):
+        if self.type == 0:
+            chunk = 1; lim = " and grp <= 30"
+        elif self.type == 1:
+            chunk = 7; lim = " and grp <= 52"
+        else:
+            chunk = 30; lim = ""
+        data = [self.deck.db.all("""
+select ivl / :chunk as grp, count() from cards
+where queue = 2 %s %s
+group by grp
+order by grp""" % (self._limit(), lim), chunk=chunk)]
+        return data + list(self.deck.db.first("""
+select count(), avg(ivl), max(ivl) from cards where queue = 2 %s""" %
+                                         self._limit()))
 
-    def crtTimeStr(self):
-        return anki.utils.fmtTimeSpan(time.time() - self.deck.crt)
+    # Eases
+    ######################################################################
 
-    def ageInDays(self):
-        return (time.time() - self.deck.crt) / 86400.0
+    def easeGraph(self):
+        # 3 + 4 + 4 + spaces on sides and middle = 15
+        # yng starts at 1+3+1 = 5
+        # mtr starts at 5+4+1 = 10
+        d = {'lrn':[], 'yng':[], 'mtr':[]}
+        types = ("lrn", "yng", "mtr")
+        eases = self._eases()
+        for (type, ease, cnt) in eases:
+            if type == 1:
+                ease += 5
+            elif type == 2:
+                ease += 10
+            n = types[type]
+            d[n].append((ease, cnt))
+        ticks = [[1,1],[2,2],[3,3],
+                 [6,1],[7,2],[8,3],[9,4],
+                 [11, 1],[12,2],[13,3],[14,4]]
+        txt = self._title(_("Answer Buttons"),
+                          _("The number of times you have pressed each button."))
+        txt += self._graph(id="ease", data=[
+            dict(data=d['lrn'], color=colLearn, label=_("Learning")),
+            dict(data=d['yng'], color=colYoung, label=_("Young")),
+            dict(data=d['mtr'], color=colMature, label=_("Mature")),
+            ], type="barsLine", conf=dict(
+                xaxis=dict(ticks=ticks, min=0, max=15)),
+            ylabel=_("Answers"))
+        txt += self._easeInfo(eases)
+        return txt
 
-    def getSumInverseRoundIvl(self):
-        return self.deck.db.scalar(
-            "select sum(1/round(max(ivl, 1)+0.5)) from cards "
-            "where cards.reps > 0 "
-            "and queue != -1") or 0
+    def _easeInfo(self, eases):
+        types = {0: [0, 0], 1: [0, 0], 2: [0,0]}
+        for (type, ease, cnt) in eases:
+            if ease == 1:
+                types[type][0] += cnt
+            else:
+                types[type][1] += cnt
+        i = []
+        for type in range(3):
+            (bad, good) = types[type]
+            tot = bad + good
+            try:
+                pct = good / float(tot) * 100
+            except:
+                pct = 0
+            i.append(_(
+                "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)") % dict(
+                pct=pct, good=good, tot=tot))
+        return ("""
+<center><table width=%dpx><tr><td width=50></td><td align=center>""" % self.width +
+                "</td><td align=center>".join(i) +
+                "</td></tr></table></center>")
 
-    def getWorkloadPeriod(self, period):
-        cutoff = time.time() + 86400 * period
-        return (self.deck.db.scalar("""
-select count(id) from cards
-where due < :cutoff
-and queue != -1 and type between 0 and 1""", cutoff=cutoff) or 0) / float(period)
+    def _eases(self):
+        lim = self._revlogLimit()
+        if lim:
+            lim = "where " + lim
+        return self.deck.db.all("""
+select (case
+when type in (0,2) then 0
+when lastIvl < 21 then 1
+else 2 end) as thetype,
+ease, count() from revlog %s
+group by thetype, ease
+order by thetype, ease""" % lim)
 
-    def getPastWorkloadPeriod(self, period):
-        cutoff = time.time() - 86400 * period
-        return (self.deck.db.scalar("""
-select count(*) from revlog
-where time > :cutoff*1000""", cutoff=cutoff) or 0) / float(period)
+    # Cards
+    ######################################################################
 
-    def getNewPeriod(self, period):
-        cutoff = time.time() - 86400 * period
-        return (self.deck.db.scalar("""
-select count(id) from cards
-where crt > :cutoff""", cutoff=cutoff) or 0)
+    def cardGraph(self):
+        # graph data
+        div = self._cards()
+        d = []
+        for c, (t, col) in enumerate((
+            (_("Mature"), colMature),
+            (_("Young+Learn"), colYoung),
+            (_("Unseen"), colUnseen),
+            (_("Suspended"), colSusp))):
+            d.append(dict(data=div[c], label=t, color=col))
+        # text data
+        i = []
+        (c, f) = self.deck.db.first("""
+select count(id), count(distinct fid) from cards
+where 1 """ + self._limit())
+        self._line(i, _("Total Cards"), c)
+        self._line(i, _("Total Facts"), f)
+        (low, avg, high) = self._factors()
+        if low:
+            self._line(i, _("Lowest ease factor"), "%d%%" % low)
+            self._line(i, _("Average ease factor"), "%d%%" % avg)
+            self._line(i, _("Highest ease factor"), "%d%%" % high)
+        min = self.deck.db.scalar(
+            "select min(crt) from cards where 1 " + self._limit())
+        if min:
+            self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
+            time.time() - min))
+        info = "<table width=100%>" + "".join(i) + "</table><p>"
+        info += _('''\
+A card's <i>ease factor</i> is the size of the next interval \
+when you answer "good" on a review.''')
+        txt = self._title(_("Cards Types"),
+                          _("The division of cards in your deck."))
+        txt += "<table width=%d><tr><td>%s</td><td>%s</td></table>" % (
+            self.width,
+            self._graph(id="cards", data=d, type="pie"),
+            info)
+        return txt
 
-    def getFirstPeriod(self, period):
-        cutoff = time.time() - 86400 * period
-        return (self.deck.db.scalar("""
-select count(*) from revlog
-where rep = 1 and time > :cutoff*1000""", cutoff=cutoff) or 0)
+    def _line(self, i, a, b):
+        i.append(("<tr><td>%s:</td><td>%s</td></tr>") % (a,b))
+
+    def _factors(self):
+        return self.deck.db.first("""
+select
+min(factor) / 10.0,
+avg(factor) / 10.0,
+max(factor) / 10.0
+from cards where queue = 2 %s""" % self._limit())
+
+    def _cards(self):
+        return self.deck.db.first("""
+select
+sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
+sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue=0 then 1 else 0 end), -- new
+sum(case when queue=-1 then 1 else 0 end) -- susp
+from cards where 1 %s""" % self._limit())
+
+    # Tools
+    ######################################################################
+
+    def _graph(self, id, data, conf={},
+               type="bars", ylabel=_("Cards"), timeTicks=True):
+        # display settings
+        if type == "pie":
+            conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':2}
+        else:
+            conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':10}
+        conf['series'] = dict(stack=True)
+        if not 'yaxis' in conf:
+            conf['yaxis'] = {}
+        conf['yaxis']['labelWidth'] = 40
+        if 'xaxis' not in conf:
+            conf['xaxis'] = {}
+        if timeTicks:
+            conf['timeTicks'] = (_("d"), _("w"), _("m"))[self.type]
+        # types
+        width = self.width
+        height = self.height
+        if type == "bars":
+            conf['series']['bars'] = dict(
+                show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
+        elif type == "barsLine":
+            conf['series']['bars'] = dict(
+                show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=3)
+        elif type == "fill":
+            conf['series']['lines'] = dict(show=True, fill=True)
+        elif type == "pie":
+            width /= 2.3
+            height *= 1.5
+            ylabel = ""
+            conf['series']['pie'] = dict(
+                show=True,
+                radius=1,
+                stroke=dict(color="#fff", width=5),
+                label=dict(
+                    show=True,
+                    radius=0.8,
+                    threshold=0.01,
+                    background=dict(
+                        opacity=0.5,
+                        color="#000"
+                    )))
+
+            #conf['legend'] = dict(show=False)
+        return (
+"""
+<table cellpadding=0 cellspacing=10>
+<tr>
+<td><div style="width: 10px; -webkit-transform: rotate(-90deg);
+-moz-transform: rotate(-90deg);">%(ylab)s</div></td>
+<td>
+<center><div id=%(id)sLegend></div></center>
+<div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div>
+</td></tr></table>
+<script>
+$(function () {
+    var conf = %(conf)s;
+    if (conf.timeTicks) {
+        conf.xaxis.tickFormatter = function (val, axis) {
+            return val.toFixed(0)+conf.timeTicks;
+        }
+    }
+    if (conf.series.pie) {
+        conf.series.pie.label.formatter = function(label, series){
+            return '<div class=pielabel>'+Math.round(series.percent)+'%%</div>';
+        };
+    }
+    $.plot($("#%(id)s"), %(data)s, conf);
+});
+</script>""" % dict(
+    id=id, w=width, h=height,
+    ylab=ylabel,
+    data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
+
+    def _limit(self):
+        if self.selective:
+            return self.deck.sched._groupLimit()
+        else:
+            return ""
+
+    def _revlogLimit(self):
+        lim = self.deck.qconf['groups']
+        if self.selective and lim:
+            return ("cid in (select id from cards where gid in %s)" %
+                    ids2str(lim))
+        else:
+            return ""
+
+    def _title(self, title, subtitle=""):
+        return '<h1>%s</h1>%s' % (title, subtitle)

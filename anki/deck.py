@@ -637,13 +637,9 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
         from anki.stats import CardStats
         return CardStats(self, card).report()
 
-    def deckStats(self):
+    def stats(self):
         from anki.stats import DeckStats
-        return DeckStats(self).report()
-
-    def graphs(self):
-        from anki.graphs import Graphs
-        return Graphs(self)
+        return DeckStats(self)
 
     # Timeboxing
     ##########################################################################

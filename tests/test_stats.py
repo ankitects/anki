@@ -19,17 +19,15 @@ def test_stats():
     d.sched.answerCard(c, 3)
     d.sched.answerCard(c, 2)
     assert d.cardStats(c)
-    # deck stats
-    assert d.deckStats()
 
 def test_graphs_empty():
     d = getEmptyDeck()
-    assert d.graphs().report()
+    assert d.stats().report()
 
 def test_graphs():
     from anki import Deck
     d = Deck(os.path.expanduser("~/test.anki"))
-    g = d.graphs()
+    g = d.stats()
     rep = g.report()
     open(os.path.expanduser("~/test.html"), "w").write(rep)
     return
