@@ -71,6 +71,7 @@ class DeckStats(QDialog):
         self.period = 0
         self.sel = True
         self.form = aqt.forms.stats.Ui_Dialog()
+        self.oldPos = None
         f = self.form
         f.setupUi(self)
         restoreGeom(self, self.name)
@@ -85,6 +86,7 @@ class DeckStats(QDialog):
         c(f.month, s, lambda: self.changePeriod(0))
         c(f.year, s, lambda: self.changePeriod(1))
         c(f.life, s, lambda: self.changePeriod(2))
+        c(f.web, SIGNAL("loadFinished(bool)"), self.loadFin)
         self.refresh()
         self.exec_()
 
@@ -115,9 +117,14 @@ class DeckStats(QDialog):
         self.sel = sel
         self.refresh()
 
+    def loadFin(self, b):
+        self.form.web.page().mainFrame().setScrollPosition(self.oldPos)
+
     def refresh(self):
         self.mw.progress.start(immediate=True)
+        self.oldPos = self.form.web.page().mainFrame().scrollPosition()
         self.report = self.mw.deck.graphs().report(
             type=self.period, selective=self.sel)
         self.form.web.setHtml(self.report)
+
         self.mw.progress.finish()
