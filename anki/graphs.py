@@ -46,7 +46,7 @@ class Graphs(object):
 h1 { margin-bottom: 0; margin-top: 1em; }
 body { font-size: 14px; }
 table * { font-size: 14px; }
-.pielabel { text-align:center; padding:2px; color:white; }
+.pielabel { text-align:center; padding:0px; color:white; }
 </style>
 """
 
@@ -446,8 +446,12 @@ from cards where 1 %s""" % self._limit())
                 stroke=dict(color="#fff", width=5),
                 label=dict(
                     show=True,
-                    radius=0.7,
-                    threshold=0.01))
+                    radius=0.8,
+                    threshold=0.01,
+                    background=dict(
+                        opacity=0.5,
+                        color="#000"
+                    )))
 
             #conf['legend'] = dict(show=False)
         return (
