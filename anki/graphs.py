@@ -3,7 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import os, sys, time, datetime, simplejson
-from anki.utils import fmtTimeSpan
+from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _
 import anki.js
 
@@ -200,11 +200,17 @@ group by day order by day""" % (self._limit(), lim),
         return (ret, sum)
 
     def _done(self, num=7, chunk=1):
-        # without selective for now
-        lim = ""
+        lims = []
         if num is not None:
-            lim += "where time > %d" % (
-                (self.deck.sched.dayCutoff-(num*chunk*86400))*1000)
+            lims.append("time > %d" % (
+                (self.deck.sched.dayCutoff-(num*chunk*86400))*1000))
+        lim = self._revlogLimit()
+        if lim:
+            lims.append(lim)
+        if lims:
+            lim = "where " + " and ".join(lims)
+        else:
+            lim = ""
         if self.type == 0:
             tf = 60.0 # minutes
         else:
@@ -312,7 +318,10 @@ select count(), avg(ivl), max(ivl) from cards where queue = 2 %s""" %
         for type in range(3):
             (bad, good) = types[type]
             tot = bad + good
-            pct = good / float(tot) * 100
+            try:
+                pct = good / float(tot) * 100
+            except:
+                pct = 0
             i.append(_(
                 "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)") % dict(
                 pct=pct, good=good, tot=tot))
@@ -322,15 +331,17 @@ select count(), avg(ivl), max(ivl) from cards where queue = 2 %s""" %
                 "</td></tr></table></center>")
 
     def _eases(self):
-        # ignores selective, at least for now
+        lim = self._revlogLimit()
+        if lim:
+            lim = "where " + lim
         return self.deck.db.all("""
 select (case
 when type in (0,2) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-ease, count() from revlog
+ease, count() from revlog %s
 group by thetype, ease
-order by thetype, ease""")
+order by thetype, ease""" % lim)
 
     # Cards
     ######################################################################
@@ -353,8 +364,11 @@ order by thetype, ease""")
         self._line(i, _("Lowest ease factor"), "%d%%" % low)
         self._line(i, _("Average ease factor"), "%d%%" % avg)
         self._line(i, _("Highest ease factor"), "%d%%" % high)
-        self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
-            time.time() - self.deck.crt))
+        min = self.deck.db.scalar(
+            "select min(crt) from cards where 1 " + self._limit())
+        if min:
+            self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
+            time.time() - min))
         info = "<table width=100%>" + "".join(i) + "</table><p>"
         info += _('''\
 A card's <i>ease factor</i> is the size of the next interval \
@@ -464,6 +478,14 @@ $(function () {
     def _limit(self):
         if self.selective:
             return self.deck.sched._groupLimit()
+        else:
+            return ""
+
+    def _revlogLimit(self):
+        lim = self.deck.qconf['groups']
+        if self.selective and lim:
+            return ("cid in (select id from cards where gid in %s)" %
+                    ids2str(lim))
         else:
             return ""
 
