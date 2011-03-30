@@ -682,9 +682,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         if self.deck is None:
             self.onNew(prompt=_("""\
 Importing copies cards to the current deck,
-so we need to create a new deck first.
+and since you have no deck open, we need to
+create a new deck first.
 
-Please give your deck a name:"""))
+Please choose a new deck name:"""))
         if not self.deck:
             return
         if self.deck.path:
