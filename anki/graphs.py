@@ -20,18 +20,18 @@ colSusp = "#ff0"
 
 class Graphs(object):
 
-    def __init__(self, deck, selective=True):
+    def __init__(self, deck):
         self.deck = deck
         self._stats = None
-        self.selective = selective
         self.type = 0
         self.width = 600
         self.height = 200
 
-    def report(self, type=0):
+    def report(self, type=0, selective=True):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
         self.type = type
+        self.selective = selective
         txt = self.css
         txt += self.dueGraph()
         txt += self.repsGraph()
