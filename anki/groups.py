@@ -9,7 +9,7 @@ defaultConf = {
     'new': {
         'delays': [0.5, 3, 10],
         'ints': [1, 7, 4],
-        'initialFactor': 2.5,
+        'initialFactor': 2500,
     },
     'lapse': {
         'delays': [0.5, 3, 10],

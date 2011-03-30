@@ -14,9 +14,7 @@ colRelearn = "#c00"
 colCram = "#ff0"
 colIvl = "#077"
 colTime = "#770"
-easesNewC = "#80b3ff"
-easesYoungC = "#5555ff"
-easesMatureC = "#0f5aff"
+colUnseen = "#000"
 
 class Graphs(object):
 
@@ -35,6 +33,7 @@ class Graphs(object):
         txt += self.ivlGraph()
         # other graphs
         txt += self.easeGraph()
+        txt += self.cardGraph()
         return "<script>%s\n</script><center>%s</center>" % (anki.js.all, txt)
 
     # Due and cumulative due
@@ -199,7 +198,7 @@ group by day order by day""" % lim,
     ######################################################################
 
     def ivlGraph(self):
-        (ivls, all) = self._ivls()
+        (ivls, all, avg) = self._ivls()
         tot = 0
         totd = []
         if not ivls or not all:
@@ -215,7 +214,7 @@ group by day order by day""" % lim,
                 yaxes=[dict(), dict(position="right", max=105)]),
             info=_("""\
 Intervals in the review queue. New cards and cards in (re)learning \
-are not included."""))
+are not included.""") + "<p>" + (_("Average interval: %d") % avg))
         return txt
 
     def _ivls(self):
@@ -231,7 +230,56 @@ where queue = 2 %s %s
 group by grp
 order by grp""" % (self._limit(), lim), chunk=chunk),
                 self.deck.db.scalar("""
-select count() from cards where queue = 2 %s""" % self._limit()))
+select count() from cards where queue = 2 %s""" % self._limit()),
+                self.deck.db.scalar("""
+select avg(ivl) from cards where queue = 2 %s""" % self._limit()))
+
+    # Intervals
+    ######################################################################
+
+    def cardGraph(self):
+        # graph data
+        div = self._cards()
+        d = []
+        for c, (t, col) in enumerate((
+            (_("Mature"), colMature),
+            (_("Young+Learn"), colYoung),
+            (_("Unseen"), colUnseen))):
+            d.append(dict(data=div[c], label=t, color=col))
+        # text data
+        info = []
+        def line(a, b):
+            info.append("<tr><td>%s:</td><td><b>%s</b></td></tr>" % (a,b))
+        line(_("Total Cards"), self.deck.cardCount())
+        line(_("Total Facts"), self.deck.factCount())
+        (low, avg, high) = self._factors()
+        line(_("Lowest ease factor"), "%d%%" % low)
+        line(_("Average ease factor"), "%d%%" % avg)
+        line(_("Highest ease factor"), "%d%%" % high)
+        info = "<table width=80%>" + "".join(info) + "</table><p>"
+        info += _('''\
+A card's <i>ease factor</i> is the size of the next interval \
+when you answer "good"''')
+        txt = self._graph(id="cards", title=_("Cards"), data=d,
+            info=info, type="pie")
+        return txt
+
+    def _factors(self):
+        return self.deck.db.first("""
+select
+min(factor) / 10.0,
+avg(factor) / 10.0,
+max(factor) / 10.0
+from cards where queue = 2 %s""" % self._limit())
+
+    def _cards(self):
+        return self.deck.db.first("""
+select
+sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
+sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue=0 then 1 else 0 end) -- new
+%s
+from cards""" % self._limit())
 
     # Eases
     ######################################################################
@@ -288,6 +336,7 @@ order by thetype, ease""")
             conf['xaxis'] = {}
         if timeTicks:
             conf['timeTicks'] = (_("d"), _("w"), _("m"))[self.type]
+        # types
         if type == "bars":
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
@@ -296,6 +345,21 @@ order by thetype, ease""")
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=3)
         elif type == "fill":
             conf['series']['lines'] = dict(show=True, fill=True)
+        elif type == "pie":
+            width /= 2
+            height *= 1.5
+            ylabel = ""
+            conf['series']['pie'] = dict(
+                show=True,
+                radius=1,
+                stroke=dict(color="#000", width=3),
+                label=dict(
+                    show=True,
+                    radius=1, #3/4.0,
+                    background=dict(
+                        opacity=1,
+                        color='#000')))
+            conf['legend'] = dict(show=False)
         return (
 """
 <h1>%(title)s</h1>
@@ -306,7 +370,7 @@ order by thetype, ease""")
 
 <td><div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div></td>
 
-<td width=100 valign=top><br>
+<td width=%(infoW)s valign=top><br>
 <div id=%(id)sLegend></div>
 <br><small>%(info)s</small>
 </td></tr></table>
@@ -318,11 +382,16 @@ $(function () {
             return val.toFixed(0)+conf.timeTicks;
         }
     }
+    if (conf.series.pie) {
+        conf.series.pie.label.formatter = function(label, series){
+            return '<div style="font-size:10pt; text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%%</div>';
+        };
+    }
     $.plot($("#%(id)s"), %(data)s, conf);
 });
 </script>""" % dict(
     id=id, title=title, w=width, h=height, tw=width+100, ylab=ylabel,
-    info=info,
+    info=info, infoW=(type=="pie" and 300 or 100),
     data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
 
     def _limit(self):
