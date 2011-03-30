@@ -43,7 +43,6 @@ class GroupManager(QDialog):
         self.reload()
         # config tree
         h = self.form.tree.header()
-        #h.setResizeMode(QHeaderView.ResizeToContents)
         h.setResizeMode(COLNAME, QHeaderView.Stretch)
         h.setResizeMode(COLOPTS, QHeaderView.ResizeToContents)
         h.setResizeMode(COLCHECK, QHeaderView.ResizeToContents)
@@ -52,6 +51,17 @@ class GroupManager(QDialog):
         h.resizeSection(COLNEW, 70)
         h.setMovable(False)
         self.form.tree.setIndentation(15)
+        self.connect(self.form.tree,
+                     SIGNAL("itemDoubleClicked(QTreeWidgetItem*, int)"),
+                     self.onDoubleClick)
+
+    def onDoubleClick(self, item, col):
+        if not item:
+            return
+        if col == COLNAME:
+            self.onRename()
+        if col == COLOPTS:
+            self.onEdit()
 
     def addButtons(self):
         box = self.form.buttonBox
