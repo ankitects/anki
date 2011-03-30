@@ -43,7 +43,7 @@ class Graphs(object):
 
     css = """
 <style>
-h1 { margin-bottom: 0; }
+h1 { margin-bottom: 0; margin-top: 1em; }
 body { font-size: 14px; }
 table * { font-size: 14px; }
 .pielabel { text-align:center; padding:2px; color:black; }
@@ -84,6 +84,19 @@ table * { font-size: 14px; }
         txt += self._graph(id="due", data=data, conf=dict(
                 xaxis=dict(tickDecimals=0),
                 yaxes=[dict(), dict(tickDecimals=0, position="right")]))
+        txt += self._dueInfo(tot, len(totd))
+        return txt
+
+    def _dueInfo(self, tot, num):
+        avg = tot/float(num)
+        txt = _("Average reviews: %s")
+        if self.type == 0:
+            txt = txt % _("%d/day") % avg
+        elif self.type == 1:
+            txt = txt % _("%d/week") % avg
+        else:
+            txt =txt % _("%d/month") % avg
+
         return txt
 
     def _due(self, start=None, end=None, chunk=1):
