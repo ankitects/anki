@@ -67,8 +67,10 @@ class Graphs(object):
             data.append(
                 dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
                      bars={'show': False}, lines=dict(show=True), stack=False))
-        txt = self._graph(id="due", title=_("Forecast"), data=data,
-            info=_("The number of reviews due in the future."), conf=dict(
+        txt = self._title(
+            _("Forecast"),
+            _("The number of reviews due in the future."))
+        txt += self._graph(id="due", data=data, conf=dict(
                 xaxis=dict(tickDecimals=0),
                 yaxes=[dict(), dict(tickDecimals=0, position="right")]))
         return txt
@@ -114,9 +116,9 @@ group by day order by day""" % (self._limit(), lim),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
             conf['xaxis']['min'] = -days
-        def plot(id, title, data, ylabel, info):
-            return self._graph(id, title=title,
-                               data=data, conf=conf, ylabel=ylabel, info=info)
+        def plot(id, data, ylabel):
+            return self._graph(
+                id, data=data, conf=conf, ylabel=ylabel)
         # reps
         (repdata, repsum) = self._splitRepData(d, (
             (3, colMature, _("Mature")),
@@ -124,8 +126,9 @@ group by day order by day""" % (self._limit(), lim),
             (4, colRelearn, _("Relearn")),
             (1, colLearn, _("Learn")),
             (5, colCram, _("Cram"))))
-        txt = plot("reps", reptitle, repdata, ylabel=_("Answers"),
-               info=_("The number of questions you have answered."))
+        txt = self._title(
+            reptitle, _("The number of questions you have answered."))
+        txt += plot("reps", repdata, ylabel=_("Answers"))
         # time
         (timdata, timsum) = self._splitRepData(d, (
             (8, colMature, _("Mature")),
@@ -137,8 +140,8 @@ group by day order by day""" % (self._limit(), lim),
             t = _("Minutes")
         else:
             t = _("Hours")
-        txt += plot("time", timetitle, timdata, ylabel=t, info=_(
-                      "The time taken to answer the questions."))
+        txt += self._title(timetitle, _("The time taken to answer the questions."))
+        txt += plot("time", timdata, ylabel=t)
         return txt
 
     def _ansInfo(self, data):
@@ -210,13 +213,14 @@ group by day order by day""" % lim,
         for (grp, cnt) in ivls:
             tot += cnt
             totd.append((grp, tot/float(all)*100))
-        txt = self._graph(id="ivl", title=_("Intervals"), data=[
+        txt = self._title(_("Intervals"),
+                          _("Delays until reviews are shown again."))
+        txt += self._graph(id="ivl", data=[
             dict(data=ivls, color=colIvl, label=_("All Types")),
             dict(data=totd, color=colCum, label=_("% Total"), yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
-                yaxes=[dict(), dict(position="right", max=105)]),
-            info=_("Delays until reviews are shown again."))
+                yaxes=[dict(), dict(position="right", max=105)]))
         txt += _("Average interval: <b>%s</b>") % fmtTimeSpan(avg*86400)
         txt += "<br>" + _("Longest interval: <b>%s</b>") % fmtTimeSpan(max*86400)
         return txt
@@ -236,57 +240,6 @@ order by grp""" % (self._limit(), lim), chunk=chunk)]
         return data + list(self.deck.db.first("""
 select count(), avg(ivl), max(ivl) from cards where queue = 2 %s""" %
                                          self._limit()))
-
-    # Intervals
-    ######################################################################
-
-    def cardGraph(self):
-        # graph data
-        div = self._cards()
-        d = []
-        for c, (t, col) in enumerate((
-            (_("Mature"), colMature),
-            (_("Young+Learn"), colYoung),
-            (_("Unseen"), colUnseen))):
-            d.append(dict(data=div[c], label=t, color=col))
-        # text data
-        i = []
-        self._line(i, _("Total Cards"), self.deck.cardCount())
-        self._line(i, _("Total Facts"), self.deck.factCount())
-        (low, avg, high) = self._factors()
-        self._line(i, _("Lowest ease factor"), "%d%%" % low)
-        self._line(i, _("Average ease factor"), "%d%%" % avg)
-        self._line(i, _("Highest ease factor"), "%d%%" % high)
-        info = "<table width=80%>" + "".join(i) + "</table><p>"
-        info += _('''\
-A card's <i>ease factor</i> is the size of the next interval \
-when you answer "good" on a review.''')
-        txt = "<h1>%s</h1><table width=%d><tr><td>%s</td><td>%s</td></table>" % (
-            _("Cards"),
-            self.width,
-            self._graph(id="cards", data=d, title="", type="pie"),
-            info)
-        return txt
-
-    def _line(self, i, a, b):
-        i.append(("<tr><td>%s:</td><td>%s</td></tr>") % (a,b))
-
-    def _factors(self):
-        return self.deck.db.first("""
-select
-min(factor) / 10.0,
-avg(factor) / 10.0,
-max(factor) / 10.0
-from cards where queue = 2 %s""" % self._limit())
-
-    def _cards(self):
-        return self.deck.db.first("""
-select
-sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
-sum(case when queue=0 then 1 else 0 end) -- new
-%s
-from cards""" % self._limit())
 
     # Eases
     ######################################################################
@@ -308,13 +261,14 @@ from cards""" % self._limit())
         ticks = [[1,1],[2,2],[3,3],
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
-        txt = self._graph(id="ease", title=_("Answer Buttons"), data=[
+        txt = self._title(_("Answer Buttons"),
+                          _("The number of times you have pressed each button."))
+        txt += self._graph(id="ease", data=[
             dict(data=d['lrn'], color=colLearn, label=_("Learning")),
             dict(data=d['yng'], color=colYoung, label=_("Young")),
             dict(data=d['mtr'], color=colMature, label=_("Mature")),
-            ], type="barsLine", info=_(
-                      "The number of times you have pressed each button."),
-            conf=dict(xaxis=dict(ticks=ticks, min=0, max=15)),
+            ], type="barsLine", conf=dict(
+                xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
         txt += self._easeInfo(eases)
         return txt
@@ -350,11 +304,63 @@ ease, count() from revlog
 group by thetype, ease
 order by thetype, ease""")
 
+    # Cards
+    ######################################################################
+
+    def cardGraph(self):
+        # graph data
+        div = self._cards()
+        d = []
+        for c, (t, col) in enumerate((
+            (_("Mature"), colMature),
+            (_("Young+Learn"), colYoung),
+            (_("Unseen"), colUnseen))):
+            d.append(dict(data=div[c], label=t, color=col))
+        # text data
+        i = []
+        self._line(i, _("Total Cards"), self.deck.cardCount())
+        self._line(i, _("Total Facts"), self.deck.factCount())
+        (low, avg, high) = self._factors()
+        self._line(i, _("Lowest ease factor"), "%d%%" % low)
+        self._line(i, _("Average ease factor"), "%d%%" % avg)
+        self._line(i, _("Highest ease factor"), "%d%%" % high)
+        info = "<table width=80%>" + "".join(i) + "</table><p>"
+        info += _('''\
+A card's <i>ease factor</i> is the size of the next interval \
+when you answer "good" on a review.''')
+        txt = self._title(_("Cards Types"),
+                          _("The division of cards in your deck."))
+        txt += "<table width=%d><tr><td>%s</td><td>%s</td></table>" % (
+            self.width,
+            self._graph(id="cards", data=d, type="pie"),
+            info)
+        return txt
+
+    def _line(self, i, a, b):
+        i.append(("<tr><td>%s:</td><td>%s</td></tr>") % (a,b))
+
+    def _factors(self):
+        return self.deck.db.first("""
+select
+min(factor) / 10.0,
+avg(factor) / 10.0,
+max(factor) / 10.0
+from cards where queue = 2 %s""" % self._limit())
+
+    def _cards(self):
+        return self.deck.db.first("""
+select
+sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
+sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue=0 then 1 else 0 end) -- new
+%s
+from cards""" % self._limit())
+
     # Tools
     ######################################################################
 
-    def _graph(self, id, title, data, conf={},
-               type="bars", ylabel=_("Cards"), timeTicks=True, info=""):
+    def _graph(self, id, data, conf={},
+               type="bars", ylabel=_("Cards"), timeTicks=True):
         # display settings
         conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':10}
         conf['series'] = dict(stack=True)
@@ -393,17 +399,13 @@ order by thetype, ease""")
             conf['legend'] = dict(show=False)
         return (
 """
-<h1 style="margin-bottom: 0">%(title)s</h1>
-%(info)s
 <table cellpadding=0 cellspacing=10>
 <tr>
 <td><div style="width: 10px; -webkit-transform: rotate(-90deg);
 -moz-transform: rotate(-90deg);">%(ylab)s</div></td>
 <td>
 <center><div id=%(id)sLegend></div></center>
-<div style="alight: right;">
 <div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div>
-</div>
 </td></tr></table>
 <script>
 $(function () {
@@ -421,8 +423,8 @@ $(function () {
     $.plot($("#%(id)s"), %(data)s, conf);
 });
 </script>""" % dict(
-    id=id, title=title, w=width, h=height,
-    ylab=ylabel, info=info, infoW=(type=="pie" and 300 or 200),
+    id=id, w=width, h=height,
+    ylab=ylabel,
     data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
 
     def _limit(self):
@@ -430,3 +432,6 @@ $(function () {
             return self.deck.sched._groupLimit()
         else:
             return ""
+
+    def _title(self, title, subtitle=""):
+        return '<h1 style="margin-bottom: 0; margin-top: 1em;">%s</h1>%s' % (title, subtitle)
