@@ -324,7 +324,9 @@ order by thetype, ease""")
         self._line(i, _("Lowest ease factor"), "%d%%" % low)
         self._line(i, _("Average ease factor"), "%d%%" % avg)
         self._line(i, _("Highest ease factor"), "%d%%" % high)
-        info = "<table width=80%>" + "".join(i) + "</table><p>"
+        self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
+            time.time() - self.deck.crt))
+        info = "<table width=100%>" + "".join(i) + "</table><p>"
         info += _('''\
 A card's <i>ease factor</i> is the size of the next interval \
 when you answer "good" on a review.''')
