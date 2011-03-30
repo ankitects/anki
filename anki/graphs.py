@@ -358,8 +358,11 @@ order by thetype, ease""" % lim)
             d.append(dict(data=div[c], label=t, color=col))
         # text data
         i = []
-        self._line(i, _("Total Cards"), self.deck.cardCount())
-        self._line(i, _("Total Facts"), self.deck.factCount())
+        (c, f) = self.deck.db.first("""
+select count(id), count(distinct fid) from cards
+where 1 """ + self._limit())
+        self._line(i, _("Total Cards"), c)
+        self._line(i, _("Total Facts"), f)
         (low, avg, high) = self._factors()
         self._line(i, _("Lowest ease factor"), "%d%%" % low)
         self._line(i, _("Average ease factor"), "%d%%" % avg)
