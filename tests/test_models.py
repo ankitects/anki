@@ -81,6 +81,15 @@ def test_templates():
     f['Back'] = u'2'
     d.addFact(f)
     assert d.cardCount() == 2
+    (c, c2) = f.cards()
+    # first card should have first ord
+    assert c.ord == 0
+    assert c2.ord == 1
+    # switch templates
+    m.moveTemplate(c.template(), 1)
+    c.load(); c2.load()
+    assert c.ord == 1
+    assert c2.ord == 0
     # removing a template should delete its cards
     m.delTemplate(m.templates[0])
     assert d.cardCount() == 1

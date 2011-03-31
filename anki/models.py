@@ -254,6 +254,24 @@ where mid = ?) and ord > ?""", self.id, ord)
         for c, t in enumerate(self.templates):
             t['ord'] = c
 
+    def moveTemplate(self, template, idx):
+        oldidx = self.templates.index(template)
+        if oldidx == idx:
+            return
+        oldidxs = dict([(id(t), t['ord']) for t in self.templates])
+        self.templates.remove(template)
+        self.templates.insert(idx, template)
+        self._updateTemplOrds()
+        # generate change map
+        map = []
+        for t in self.templates:
+            map.append("when ord = %d then %d" % (oldidxs[id(t)], t['ord']))
+        # apply
+        self.flush()
+        self.deck.db.execute("""
+update cards set ord = (case %s end) where fid in (
+select id from facts where mid = ?)""" % " ".join(map), self.id)
+
     # Model changing
     ##########################################################################
 
