@@ -148,6 +148,7 @@
     </widget>
     <addaction name="actionOverview"/>
     <addaction name="actionGroups"/>
+    <addaction name="actionModels"/>
     <addaction name="actionStudyOptions"/>
     <addaction name="actionDeckProperties"/>
     <addaction name="separator"/>
@@ -674,6 +675,14 @@
    </property>
    <property name="shortcut">
     <string>G</string>
+   </property>
+  </action>
+  <action name="actionModels">
+   <property name="text">
+    <string>Models...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
    </property>
   </action>
  </widget>

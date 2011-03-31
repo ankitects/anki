@@ -15,11 +15,11 @@ COLDUE = 4
 COLNEW = 5
 GREY = "#777"
 
-class GroupManager(QDialog):
+class Groups(QDialog):
     def __init__(self, mw, parent=None):
         QDialog.__init__(self, parent or mw)
         self.mw = mw
-        self.form = aqt.forms.groupman.Ui_Dialog()
+        self.form = aqt.forms.groups.Ui_Dialog()
         self.form.setupUi(self)
         self.loadTable()
         self.addButtons()
@@ -77,7 +77,7 @@ class GroupManager(QDialog):
         button(f.delete_2, self.onDelete)
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: aqt.openHelp("GroupManager"))
+                     lambda: aqt.openHelp("Groups"))
 
     def onSelectAll(self):
         for i in self.items:

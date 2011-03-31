@@ -39,6 +39,8 @@ class CardLayout(QDialog):
                      self.onHelp)
         self.setupCards()
         self.setupFields()
+        self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         restoreSplitter(self.form.splitter, "clayout")
         restoreGeom(self, "CardLayout")
         self.reload()
@@ -62,12 +64,12 @@ class CardLayout(QDialog):
         self.updatingCards = False
         self.playedAudio = {}
         f = self.form
-        if type == 0:
-            f.templateType.setText(
-                _("Templates used by fact:"))
-        elif type == 1:
+        if self.type == 0:
             f.templateType.setText(
                 _("Templates that will be created:"))
+        elif self.type == 1:
+            f.templateType.setText(
+                _("Templates used by fact:"))
         else:
             f.templateType.setText(
                 _("All templates:"))

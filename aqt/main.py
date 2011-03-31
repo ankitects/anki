@@ -645,8 +645,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.moveToState("overview")
 
     def onGroups(self, parent=None):
-        from aqt.groupman import GroupManager
-        g = GroupManager(self, parent)
+        from aqt.groups import Groups
+        g = Groups(self, parent)
 
     def onCardStats(self):
         self.cardStats.show()
@@ -659,9 +659,13 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         CardLayout(self, self.reviewer.card.fact(), type=1,
                    ord=self.reviewer.card.ord)
 
-    def onDeckProperties(self):
+    def onDeckOpts(self):
         import aqt.deckopts
         aqt.deckopts.DeckOptions(self)
+
+    def onModels(self):
+        import aqt.models
+        aqt.models.Models(self)
 
     def onPrefs(self):
         import aqt.preferences
@@ -757,7 +761,8 @@ Please choose a new deck name:"""))
         self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         #self.connect(m.actionSyncdeck, s, self.syncDeck)
-        self.connect(m.actionDeckProperties, s, self.onDeckProperties)
+        self.connect(m.actionDeckProperties, s, self.onDeckOpts)
+        self.connect(m.actionModels, s, self.onModels)
         self.connect(m.actionAddcards, s, self.onAddCard)
         self.connect(m.actionEditdeck, s, self.onEditDeck)
         self.connect(m.actionEditCurrent, s, self.onEditCurrent)
