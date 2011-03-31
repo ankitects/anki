@@ -4,17 +4,15 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage, QWebView
-import sys, re
-import aqt.forms
-import anki
-from anki.models import *
-from anki.facts import *
-from anki.cards import Card
+import re
+from anki.consts import *
+#from anki.models import *
+#from anki.facts import *
+import aqt
 from anki.sound import playFromText, clearAudioQueue
-from aqt.ui.utils import saveGeom, restoreGeom, getBase, mungeQA, \
-     saveSplitter, restoreSplitter
+from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
+     saveSplitter, restoreSplitter, showInfo, isMac, isWin
 from anki.hooks import runFilter
-from aqt import ui
 
 class ResizingTextEdit(QTextEdit):
     def sizeHint(self):
@@ -22,137 +20,102 @@ class ResizingTextEdit(QTextEdit):
 
 class CardLayout(QDialog):
 
-    def __init__(self, parent, factedit, factOrModel, card=None):
-        self.parent = parent
-        QDialog.__init__(self, parent, Qt.Window)
+    # type is previewCards() type
+    def __init__(self, mw, fact, type=0, ord=0, parent=None):
+        QDialog.__init__(self, parent or mw, Qt.Window)
         self.mw = aqt.mw
+        self.fact = fact
+        self.type = type
+        self.ord = ord
         self.deck = self.mw.deck
-        self.factedit = factedit
-        self.card = card
-        if factedit is not None:
-            self.fact = factOrModel
-            self.model = self.fact.model
-        else:
-            self.model = factOrModel
-            # see if there's an available fact
-            id = self.deck.db.scalar(
-                "select id from facts where modelId = :id", id=self.model.id)
-            if id:
-                self.fact = self.deck.db.query(Fact).get(id)
-            else:
-                # generate a dummy one
-                self.fact = self.deck.newFact(self.model)
-                for f in self.fact.keys():
-                    self.fact[f] = f
-        self.plastiqueStyle = None
-        if (sys.platform.startswith("darwin") or
-            sys.platform.startswith("win32")):
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-        if self.card:
-            # limited to an existing template
-            self.cards = [self.deck.db.query(Card).get(id) for id in
-                          self.deck.db.column0(
-                "select id from cards where factId = :fid "
-                "order by ordinal", fid=self.fact.id)]
-            type = 0
-        else:
-            if factedit:
-                # active & possible
-                self.cards = self.deck.previewFact(self.fact)
-                type = 1
-            else:
-                # all
-                self.cards = self.deck.previewFact(self.fact, cms=self.model.cardModels)
-                type = 2
-            if not self.cards:
-                ui.utils.showInfo(_(
-                    "Please enter some text first."),
-                                  parent=self.parent)
-                return
+        self.model = fact.model()
         self.form = aqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
-        restoreSplitter(self.form.splitter, "clayout")
-        if type == 0:
-            self.form.templateType.setText(
-                _("Templates used by fact:"))
-        elif type == 1:
-            self.form.templateType.setText(
-                _("Templates that will be created:"))
-        else:
-            self.form.templateType.setText(
-                _("All templates:"))
-        # FIXME: add this
+        self.plastiqueStyle = None
+        if isMac or isWin:
+            self.plastiqueStyle = QStyleFactory.create("plastique")
+        # FIXME: add editing
         self.form.editTemplates.hide()
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.setupCards()
         self.setupFields()
+        restoreSplitter(self.form.splitter, "clayout")
         restoreGeom(self, "CardLayout")
-        # hack to ensure we're focused on the active template in the model
-        # properties
-        if type == 2 and factOrModel.currentCard.ordinal != 0:
-            idx = factOrModel.currentCard.ordinal
-            self.form.cardList.setCurrentIndex(idx)
-            self.cardChanged(idx)
+        self.reload()
+        if not self.cards:
+            showInfo(_("Please enter some text first."),
+                     parent=parent or mw)
+            return
         self.exec_()
+
+    def reload(self):
+        self.cards = self.deck.previewCards(self.fact, self.type)
+        self.fillCardList()
+        self.fillFieldList()
+        self.fieldChanged(0)
+        self.readField()
 
     # Cards & Preview
     ##########################################################################
 
     def setupCards(self):
-        self.needFormatRebuild = False
         self.updatingCards = False
         self.playedAudio = {}
+        f = self.form
+        if type == 0:
+            f.templateType.setText(
+                _("Templates used by fact:"))
+        elif type == 1:
+            f.templateType.setText(
+                _("Templates that will be created:"))
+        else:
+            f.templateType.setText(
+                _("All templates:"))
         # replace with more appropriate size hints
         for e in ("cardQuestion", "cardAnswer"):
-            w = getattr(self.form, e)
-            idx = self.form.templateLayout.indexOf(w)
-            r = self.form.templateLayout.getItemPosition(idx)
-            self.form.templateLayout.removeWidget(w)
+            w = getattr(f, e)
+            idx = f.templateLayout.indexOf(w)
+            r = f.templateLayout.getItemPosition(idx)
+            f.templateLayout.removeWidget(w)
             w.hide()
             w.deleteLater()
             w = ResizingTextEdit(self)
-            setattr(self.form, e, w)
-            self.form.templateLayout.addWidget(w, r[0], r[1])
-        self.connect(self.form.cardList, SIGNAL("activated(int)"),
+            setattr(f, e, w)
+            f.templateLayout.addWidget(w, r[0], r[1])
+        self.connect(f.cardList, SIGNAL("activated(int)"),
                      self.cardChanged)
-        # self.connect(self.form.editTemplates, SIGNAL("clicked())"),
+        # self.connect(f.editTemplates, SIGNAL("clicked())"),
         #              self.onEdit)
-        self.connect(self.form.cardQuestion, SIGNAL("textChanged()"),
-                     lambda: self.formatChanged("question"))
-        self.connect(self.form.cardAnswer, SIGNAL("textChanged()"),
-                     lambda: self.formatChanged("answer"))
-        self.connect(self.form.alignment,
-                     SIGNAL("activated(int)"),
-                     self.saveCard)
-        self.connect(self.form.background,
-                     SIGNAL("clicked()"),
-                     lambda w=self.form.background:\
+        c = self.connect
+        c(f.cardQuestion, SIGNAL("textChanged()"), self.formatChanged)
+        c(f.cardAnswer, SIGNAL("textChanged()"), self.formatChanged)
+        c(f.alignment, SIGNAL("activated(int)"), self.saveCard)
+        c(f.background, SIGNAL("clicked()"),
+                     lambda w=f.background:\
                      self.chooseColour(w, "card"))
-        self.connect(self.form.questionInAnswer,
-                     SIGNAL("clicked()"), self.saveCard)
-        self.connect(self.form.allowEmptyAnswer,
-                     SIGNAL("clicked()"), self.saveCard)
-        self.connect(self.form.typeAnswer, SIGNAL("activated(int)"),
-                     self.saveCard)
-        self.connect(self.form.flipButton, SIGNAL("clicked()"),
-                     self.onFlip)
+        c(f.questionInAnswer, SIGNAL("clicked()"), self.saveCard)
+        c(f.allowEmptyAnswer, SIGNAL("clicked()"), self.saveCard)
+        c(f.typeAnswer, SIGNAL("activated(int)"), self.saveCard)
+        c(f.flipButton, SIGNAL("clicked()"), self.onFlip)
         def linkClicked(url):
             QDesktopServices.openUrl(QUrl(url))
-        self.form.preview.page().setLinkDelegationPolicy(
+        f.preview.page().setLinkDelegationPolicy(
             QWebPage.DelegateExternalLinks)
-        self.connect(self.form.preview,
+        self.connect(f.preview,
                      SIGNAL("linkClicked(QUrl)"),
                      linkClicked)
         if self.plastiqueStyle:
-            self.form.background.setStyle(self.plastiqueStyle)
-        self.form.alignment.clear()
-        self.form.alignment.addItems(
+            f.background.setStyle(self.plastiqueStyle)
+        f.alignment.addItems(
                 QStringList(alignmentLabels().values()))
-        self.fillCardList()
+        self.typeFieldNames = self.model.fieldMap()
+        s = [_("Don't ask me to type in the answer")]
+        s += [_("Compare with field '%s'") % fi
+              for fi in self.typeFieldNames.keys()]
+        f.typeAnswer.insertItems(0, QStringList(s))
 
     def formatToScreen(self, fmt):
-        fmt = re.sub("%\((.+?)\)s", "{{\\1}}", fmt)
         fmt = fmt.replace("}}<br>", "}}\n")
         return fmt
 
@@ -165,31 +128,13 @@ class CardLayout(QDialog):
     #         self, self.deck, self.model, self.mw,
     #         onFinish=self.updateModelsList)
 
-    def formatChanged(self, type):
+    def formatChanged(self):
         if self.updatingCards:
             return
-        if type == "question":
-            text = unicode(self.form.cardQuestion.toPlainText())
-            text = self.screenToFormat(text)
-            #self.realCardModel(self.card).qformat = text
-            self.card.cardModel.qformat = text
-        else:
-            text = unicode(self.form.cardAnswer.toPlainText())
-            text = self.screenToFormat(text)
-            self.card.cardModel.aformat = text
-        self.fact.model.setModified()
-        self.deck.flushMod()
-        d = {}
-        for f in self.fact.model.fieldModels:
-            d[f.name] = (f.id, self.fact[f.name])
-        for card in self.cards:
-            qa = formatQA(None, self.fact.modelId, d, card.splitTags(),
-                          card.cardModel, self.deck)
-            card.question = qa['question']
-            card.answer = qa['answer']
-            card.setModified()
-        self.deck.setModified()
-        self.needFormatRebuild = True
+        text = unicode(self.form.cardQuestion.toPlainText())
+        self.card.template()['qfmt'] = self.screenToFormat(text)
+        text = unicode(self.form.cardAnswer.toPlainText())
+        self.card.template()['afmt'] = self.screenToFormat(text)
         self.renderPreview()
 
     def onFlip(self):
@@ -199,29 +144,19 @@ class CardLayout(QDialog):
         self.form.cardQuestion.setPlainText(a)
 
     def readCard(self):
-        card = self.card.cardModel
-        self.form.background.setPalette(QPalette(QColor(
-            getattr(card, "lastFontColour"))))
         self.updatingCards = True
-        self.form.cardQuestion.setPlainText(self.formatToScreen(card.qformat))
-        self.form.cardAnswer.setPlainText(self.formatToScreen(card.aformat))
-        self.form.questionInAnswer.setChecked(card.questionInAnswer)
-        self.form.allowEmptyAnswer.setChecked(card.allowEmptyAnswer)
-        self.form.alignment.setCurrentIndex(card.questionAlign)
-        self.form.typeAnswer.clear()
-        self.typeFieldNames = self.deck.db.column0("""
-select fieldModels.name as n from fieldModels, cardModels
-where cardModels.modelId = fieldModels.modelId
-and cardModels.id = :id
-order by n""", id=card.id)
-        s = [_("Don't ask me to type in the answer")]
-        s += [_("Compare with field '%s'") % f for f in self.typeFieldNames]
-        self.form.typeAnswer.insertItems(0, QStringList(s))
-        try:
-            idx = self.typeFieldNames.index(card.typeAnswer)
-        except ValueError:
-            idx = -1
-        self.form.typeAnswer.setCurrentIndex(idx + 1)
+        t = self.card.template()
+        f = self.form
+        f.background.setPalette(QPalette(QColor(t['bg'])))
+        f.cardQuestion.setPlainText(self.formatToScreen(t['qfmt']))
+        f.cardAnswer.setPlainText(self.formatToScreen(t['afmt']))
+        f.questionInAnswer.setChecked(t['hideQ'])
+        f.allowEmptyAnswer.setChecked(t['emptyAns'])
+        f.alignment.setCurrentIndex(t['align'])
+        if t['typeAns'] is None:
+            f.typeAnswer.setCurrentIndex(0)
+        else:
+            f.typeAnswer.setCurrentIndex(t['typeAns'] + 1)
         self.updatingCards = False
 
     def fillCardList(self):
@@ -229,16 +164,15 @@ order by n""", id=card.id)
         cards = []
         idx = 0
         for n, c in enumerate(self.cards):
-            if c == self.card:
-                cards.append(_("%s (current)") % c.cardModel.name)
+            if c.ord == self.ord:
+                cards.append(_("%s (current)") % c.template()['name'])
                 idx = n
             else:
-                cards.append(c.cardModel.name)
+                cards.append(c.template()['name'])
         self.form.cardList.addItems(
             QStringList(cards))
         self.form.editTemplates.setEnabled(False)
-        if idx != 0:
-            self.form.cardList.setCurrentIndex(idx)
+        self.form.cardList.setCurrentIndex(idx)
         self.cardChanged(idx)
         self.form.cardList.setFocus()
 
@@ -278,34 +212,28 @@ order by n""", id=card.id)
 
     def renderPreview(self):
         c = self.card
-        styles = (self.deck.rebuildCSS() +
-                  ("\nhtml { background: %s }" % c.cardModel.lastFontColour))
-        styles = runFilter("addStyles", styles, c)
+        styles = self.model.genCSS()
         self.form.preview.setHtml(
             ('<html><head>%s</head><body>' % getBase(self.deck, c)) +
             "<style>" + styles + "</style>" +
-            runFilter("drawQuestion", mungeQA(self.deck, c.htmlQuestion()),
-                      c) +
+            mungeQA(c.q(reload=True)) +
             "<hr>" +
-            runFilter("drawAnswer", mungeQA(self.deck, c.htmlAnswer()),
-                      c)
+            mungeQA(c.a())
             + "</body></html>")
         clearAudioQueue()
         if c.id not in self.playedAudio:
-            playFromText(c.question)
-            playFromText(c.answer)
+            playFromText(c.q())
+            playFromText(c.a())
             self.playedAudio[c.id] = True
 
     def reject(self):
+        return
+        self.fact.model.setModified()
+
         modified = False
         self.mw.startProgress()
         self.deck.updateProgress(_("Applying changes..."))
         reset=True
-        if self.needFormatRebuild:
-            # need to generate q/a templates
-            self.deck.updateCardsFromModel(self.fact.model)
-            self.deck.finishProgress()
-            modified = True
         if len(self.fieldOrdinalUpdatedIds) > 0:
             self.deck.rebuildFieldOrdinals(self.model.id, self.fieldOrdinalUpdatedIds)
             modified = True
@@ -334,9 +262,6 @@ order by n""", id=card.id)
         self.fieldOrdinalUpdatedIds = []
         self.updatingFields = False
         self.needFieldRebuild = False
-        self.fillFieldList()
-        self.fieldChanged(0)
-        self.readField()
         self.connect(self.form.fieldList, SIGNAL("currentRowChanged(int)"),
                      self.fieldChanged)
         self.connect(self.form.fieldAdd, SIGNAL("clicked()"),
@@ -377,28 +302,23 @@ order by n""", id=card.id)
     def fieldChanged(self, idx):
         if self.updatingFields:
             return
-        self.field = self.model.fieldModels[idx]
+        self.field = self.model.fields[idx]
         self.readField()
         self.enableFieldMoveButtons()
 
     def readField(self):
-        field = self.field
+        fld = self.field
+        f = self.form
         self.updatingFields = True
-        self.form.fieldName.setText(field.name)
-        self.form.fieldUnique.setChecked(field.unique)
-        self.form.fieldRequired.setChecked(field.required)
-        self.form.numeric.setChecked(field.numeric)
-        if not field.quizFontFamily:
-            # backwards compat
-            field.quizFontFamily = u"Arial"
-        self.form.fontFamily.setCurrentFont(QFont(
-            field.quizFontFamily))
-        self.form.fontSize.setValue(field.quizFontSize or 20)
-        self.form.fontSizeEdit.setValue(field.editFontSize or 20)
-        self.form.fontColour.setPalette(QPalette(QColor(
-                        field.quizFontColour or "#000000")))
-        self.form.rtl.setChecked(not not field.features)
-        self.form.preserveWhitespace.setChecked(not not field.editFontFamily)
+        f.fieldName.setText(fld['name'])
+        f.fieldUnique.setChecked(fld['uniq'])
+        f.fieldRequired.setChecked(fld['req'])
+        f.fontFamily.setCurrentFont(QFont(fld['font']))
+        f.fontSize.setValue(fld['qsize'])
+        f.fontSizeEdit.setValue(fld['esize'])
+        f.fontColour.setPalette(QPalette(QColor(fld['qcol'])))
+        f.rtl.setChecked(fld['rtl'])
+        f.preserveWhitespace.setChecked(fld['pre'])
         self.updatingFields = False
 
     def saveField(self, *args):
@@ -445,8 +365,8 @@ order by n""", id=card.id)
             oldRow = 0
         self.form.fieldList.clear()
         n = 1
-        for field in self.model.fieldModels:
-            label = field.name
+        for field in self.model.fields:
+            label = field['name']
             item = QListWidgetItem(label)
             self.form.fieldList.addItem(item)
             n += 1

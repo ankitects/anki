@@ -9,6 +9,7 @@ from aqt.utils import showText
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
+    ivl = 100
 
     def __init__(self, mw):
         QObject.__init__(self, mw)
@@ -35,11 +36,10 @@ class ErrorHandler(QObject):
         self.emit(SIGNAL("errorTimer"))
 
     def _setTimer(self):
-        ivl = 200
         if not self.timer:
             self.timer = QTimer(self.mw)
             self.mw.connect(self.timer, SIGNAL("timeout()"), self.onTimeout)
-        self.timer.setInterval(200)
+        self.timer.setInterval(self.ivl)
         self.timer.setSingleShot(True)
         self.timer.start()
 

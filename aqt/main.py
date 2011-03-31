@@ -655,8 +655,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         aqt.stats.DeckStats(self)
 
     def onCardLayout(self):
-        aqt.clayout.CardLayout(self, 0, self.currentCard.fact,
-                              card=self.currentCard)
+        from aqt.clayout import CardLayout
+        CardLayout(self, self.reviewer.card.fact(), type=1,
+                   ord=self.reviewer.card.ord)
 
     def onDeckProperties(self):
         import aqt.deckopts

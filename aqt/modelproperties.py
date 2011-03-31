@@ -62,6 +62,18 @@ class ModelProperties(QDialog):
                      self.cardLayout)
 
     def cardLayout(self):
+            # # see if there's an available fact
+            # id = self.deck.db.scalar(
+            #     "select id from facts where modelId = :id", id=self.model.id)
+            # if id:
+            #     self.fact = self.deck.db.query(Fact).get(id)
+            # else:
+            #     # generate a dummy one
+            #     self.fact = self.deck.newFact(self.model)
+            #     for f in self.fact.keys():
+            #         self.fact[f] = f
+
+
         self.m.currentCard = self.currentCard
         ui.clayout.CardLayout(self, None, self.m)
 

@@ -352,7 +352,6 @@ div#filler {
         css = self.mw.sharedCSS
         css += self.mw.deck.allCSS()
         css += self._css
-        css = runFilter("addStyles", css)
         return css
 
     # Type in the answer

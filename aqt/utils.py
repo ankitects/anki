@@ -267,15 +267,17 @@ def applyStyles(widget):
 def getBase(deck, card):
     base = None
     if deck and card:
-        if deck.getBool("remoteImages") and card.fact.model.features:
-            base = card.fact.model.features
-        elif deck.mediaDir():
-            if sys.platform.startswith("win32"):
+        print "fixme: remote images"
+        mdir = deck.media.dir()
+        if False: # deck.getBool("remoteImages") and card.fact.model.features:
+            pass #base = card.fact.model.features
+        elif mdir:
+            if isWin:
                 prefix = u"file:///"
             else:
                 prefix = u"file://"
             base = prefix + unicode(
-                urllib.quote(deck.mediaDir().encode("utf-8")),
+                urllib.quote(mdir.encode("utf-8")),
                 "utf-8") + "/"
     if base:
         return '<base href="%s">' % base
@@ -294,3 +296,6 @@ def shortcut(key):
     if sys.platform == "darwin":
         return re.sub("(?i)ctrl", "Command", key)
     return key
+
+isMac = sys.platform.startswith("darwin")
+isWin = sys.platform.startswith("win32")
