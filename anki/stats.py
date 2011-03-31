@@ -147,10 +147,11 @@ table * { font-size: 14px; }
         return txt
 
     def _dueInfo(self, tot, num):
-        txt = _("Total: <b>%s reviews</b>") % tot
-        txt += "<br>" + _("Average: <b>%s</b>") % self._avgDay(
-            tot, num, _("reviews"))
-        return txt
+        i = []
+        self._line(i, _("Total"), _("%d reviews") % tot)
+        self._line(i, _("Average"), self._avgDay(
+            tot, num, _("reviews")))
+        return self._lineTbl(i)
 
     def _due(self, start=None, end=None, chunk=1):
         lim = ""
@@ -234,22 +235,25 @@ group by day order by day""" % (self._limit(), lim),
         period = self._periodDays()
         if not period:
             period = first
-        txt = _("Days studied: <b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
-            x=studied, y=period, pct=studied/float(period)*100)
+        i = []
+        self._line(i, _("Days studied"),
+                   _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
+                       x=studied, y=period, pct=studied/float(period)*100),
+                   bold=False)
         if convHours:
             tunit = _("hours")
         else:
             tunit = unit
-        txt += "<br>"+_("Total: <b>%(tot)s %(unit)s</b>") % dict(
-            unit=tunit, tot=int(tot))
+        self._line(i, _("Total"), _("%(tot)s %(unit)s") % dict(
+            unit=tunit, tot=int(tot)))
         if convHours:
             # convert to minutes
             tot *= 60
-        txt += "<br>"+_("Average over studied: <b>%s</b>") % self._avgDay(
-            tot, studied, unit)
-        txt += "<br>"+_("If you studied every day: <b>%s</b>") % self._avgDay(
-            tot, period, unit)
-        return txt
+        self._line(i, _("Average over studied"), self._avgDay(
+            tot, studied, unit))
+        self._line(i, _("If you studied every day"), self._avgDay(
+            tot, period, unit))
+        return self._lineTbl(i)
 
     def _splitRepData(self, data, spec):
         sep = {}
@@ -356,9 +360,10 @@ group by day order by day)""" % lim,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
                 yaxes=[dict(), dict(position="right", max=105)]))
-        txt += _("Average interval: <b>%s</b>") % fmtTimeSpan(avg*86400)
-        txt += "<br>" + _("Longest interval: <b>%s</b>") % fmtTimeSpan(max*86400)
-        return txt
+        i = []
+        self._line(i, _("Average interval"), fmtTimeSpan(avg*86400))
+        self._line(i, _("Longest interval"), fmtTimeSpan(max*86400))
+        return txt + self._lineTbl(i)
 
     def _ivls(self):
         if self.type == 0:
@@ -486,8 +491,14 @@ when you answer "good" on a review.''')
             info)
         return txt
 
-    def _line(self, i, a, b):
-        i.append(("<tr><td>%s:</td><td>%s</td></tr>") % (a,b))
+    def _line(self, i, a, b, bold=True):
+        if bold:
+            i.append(("<tr><td width=150 align=right>%s:</td><td><b>%s</b></td></tr>") % (a,b))
+        else:
+            i.append(("<tr><td width=150 align=right>%s:</td><td>%s</td></tr>") % (a,b))
+
+    def _lineTbl(self, i):
+        return "<table width=300>" + "".join(i) + "</table>"
 
     def _factors(self):
         return self.deck.db.first("""
