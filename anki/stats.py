@@ -317,11 +317,7 @@ group by day order by day""" % lim,
 
     def _daysStudied(self):
         lims = []
-        num = None
-        if self.type == 0:
-            num = 30
-        elif self.type == 1:
-            num = 7*52
+        num = self._periodDays()
         if num:
             lims.append(
                 "time > %d" %
@@ -359,6 +355,7 @@ group by day order by day)""" % lim,
             dict(data=totd, color=colCum, label=_("% Total"), yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
+                xaxis=dict(min=-0.5, max=ivls[-1][0]+0.5),
                 yaxes=[dict(), dict(position="right", max=105)]))
         i = []
         self._line(i, _("Average interval"), fmtTimeSpan(avg*86400))
