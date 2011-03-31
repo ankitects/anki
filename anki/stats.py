@@ -143,11 +143,12 @@ table * { font-size: 14px; }
         txt += self._graph(id="due", data=data, conf=dict(
                 xaxis=xaxis,
                 yaxes=[dict(), dict(tickDecimals=0, position="right")]))
-        txt += self._dueInfo(tot, len(totd))
+        txt += self._dueInfo(tot, len(totd)*chunk)
         return txt
 
     def _dueInfo(self, tot, num):
-        txt = _("Average: <b>%s</b>") % self._dayWeekMonth(
+        txt = _("Total: <b>%s reviews</b>") % tot
+        txt += "<br>" + _("Average: <b>%s</b>") % self._avgDay(
             tot, num, _("reviews"))
         return txt
 
@@ -233,7 +234,6 @@ group by day order by day""" % (self._limit(), lim),
         period = self._periodDays()
         if not period:
             period = first
-        print period, first
         txt = _("Days studied: <b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
             x=studied, y=period, pct=studied/float(period)*100)
         if convHours:
@@ -245,9 +245,9 @@ group by day order by day""" % (self._limit(), lim),
         if convHours:
             # convert to minutes
             tot *= 60
-        txt += "<br>"+_("Average over studied: <b>%s</b>") % self._dayWeekMonth(
+        txt += "<br>"+_("Average over studied: <b>%s</b>") % self._avgDay(
             tot, studied, unit)
-        txt += "<br>"+_("If you studied every day: <b>%s</b>") % self._dayWeekMonth(
+        txt += "<br>"+_("If you studied every day: <b>%s</b>") % self._avgDay(
             tot, period, unit)
         return txt
 
@@ -608,7 +608,7 @@ $(function () {
         else:
             return None
 
-    def _dayWeekMonth(self, tot, num, unit):
+    def _avgDay(self, tot, num, unit):
         vals = []
         try:
             vals.append(_("%d %s/day") % (tot/float(num), unit))
