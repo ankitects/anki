@@ -59,7 +59,7 @@ def showText(txt, parent=None, type="text"):
 def askUser(text, parent=None, help="", defaultno=False):
     "Show a yes/no question. Return true if yes."
     if not parent:
-        parent = aqt.mw
+        parent = aqt.mw.app.activeWindow()
     sb = QMessageBox.Yes | QMessageBox.No
     if help:
         sb |= QMessageBox.Help
