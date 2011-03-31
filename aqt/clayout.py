@@ -9,7 +9,7 @@ from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
-     saveSplitter, restoreSplitter, showInfo, isMac, isWin
+     saveSplitter, restoreSplitter, showInfo, isMac, isWin, askUser
 from anki.hooks import runFilter
 
 class ResizingTextEdit(QTextEdit):
@@ -22,6 +22,7 @@ class CardLayout(QDialog):
     def __init__(self, mw, fact, type=0, ord=0, parent=None):
         QDialog.__init__(self, parent or mw, Qt.Window)
         self.mw = aqt.mw
+        self.parent = parent or mw
         self.fact = fact
         self.type = type
         self.ord = ord
@@ -43,7 +44,7 @@ class CardLayout(QDialog):
         self.reload()
         if not self.cards:
             showInfo(_("Please enter some text first."),
-                     parent=parent or mw)
+                     parent=self.parent)
             return
         self.exec_()
 
@@ -51,7 +52,7 @@ class CardLayout(QDialog):
         self.cards = self.deck.previewCards(self.fact, self.type)
         self.fillCardList()
         self.fillFieldList()
-        self.fieldChanged(0)
+        self.fieldChanged()
         self.readField()
 
     # Cards & Preview
@@ -293,8 +294,6 @@ class CardLayout(QDialog):
                      self.saveField)
         self.connect(self.form.fieldRequired, SIGNAL("stateChanged(int)"),
                      self.saveField)
-        self.connect(self.form.numeric, SIGNAL("stateChanged(int)"),
-                     self.saveField)
         w = self.form.fontColour
         if self.plastiqueStyle:
             w.setStyle(self.plastiqueStyle)
@@ -304,10 +303,11 @@ class CardLayout(QDialog):
                      SIGNAL("stateChanged(int)"),
                      self.saveField)
 
-    def fieldChanged(self, idx):
-        if self.updatingFields:
-            return
-        self.field = self.model.fields[idx]
+    def fieldChanged(self):
+        row = self.form.fieldList.currentRow()
+        if row == -1:
+            row = 0
+        self.field = self.model.fields[row]
         self.readField()
         self.enableFieldMoveButtons()
 
@@ -387,53 +387,33 @@ class CardLayout(QDialog):
             self.form.fieldDown.setEnabled(True)
 
     def addField(self):
-        f = FieldModel(required=False, unique=False)
-        f.name = _("Field %d") % (len(self.model.fieldModels) + 1)
-        self.deck.addFieldModel(self.model, f)
-        try:
-            self.deck.db.refresh(self.fact)
-        except:
-            # not yet added
-            self.updateFact()
-        self.fillFieldList()
-        self.form.fieldList.setCurrentRow(len(self.model.fieldModels)-1)
+        f = self.model.newField()
+        l = len(self.model.fields)
+        f['name'] = _("Field %d") % l
+        self.mw.progress.start()
+        self.model.addField(f)
+        self.mw.progress.finish()
+        self.reload()
+        self.form.fieldList.setCurrentRow(l)
         self.form.fieldName.setFocus()
         self.form.fieldName.selectAll()
-
-    def updateFact(self):
-        oldFact = self.fact
-        model = self.deck.db.query(Model).get(oldFact.model.id)
-        fact = self.deck.newFact(model)
-        for field in fact.fields:
-            try:
-                fact[field.name] = oldFact[field.name]
-            except KeyError:
-                fact[field.name] = u""
-        fact.tags = oldFact.tags
-        self.fact = fact
 
     def deleteField(self):
         row = self.form.fieldList.currentRow()
         if row == -1:
             return
-        if len(self.model.fieldModels) < 2:
-            ui.utils.showInfo(
+        if len(self.model.fields) < 2:
+            showInfo(
                 _("Please add a new field first."),
                 parent=self)
             return
-        field = self.model.fieldModels[row]
-        count = self.deck.fieldModelUseCount(field)
-        if count:
-            if not ui.utils.askUser(
-                _("This field is used by %d cards. If you delete it,\n"
-                  "all information in this field will be lost.\n"
-                  "\nReally delete this field?") % count,
-                parent=self):
-                return
-        self.deck.deleteFieldModel(self.model, field)
-        self.fillFieldList()
+        if askUser(_("Delete this field and its data from all facts?"),
+               self.parent):
+            self.mw.progress.start()
+            self.model.delField(self.field)
+            self.mw.progress.finish()
         # need to update q/a format
-        self.readCard()
+        self.reload()
 
     def moveFieldUp(self):
         row = self.form.fieldList.currentRow()
@@ -441,28 +421,20 @@ class CardLayout(QDialog):
             return
         if row == 0:
             return
-        field = self.model.fieldModels[row]
-        tField = self.model.fieldModels[row - 1]
-        self.model.fieldModels.remove(field)
-        self.model.fieldModels.insert(row - 1, field)
-        if field.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(field.id)
-        if tField.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(tField.id)
-        self.fillFieldList(row - 1)
+        self.mw.progress.start()
+        self.model.moveField(self.field, row-1)
+        self.mw.progress.finish()
+        self.form.fieldList.setCurrentRow(row-1)
+        self.reload()
 
     def moveFieldDown(self):
         row = self.form.fieldList.currentRow()
         if row == -1:
             return
-        if row == len(self.model.fieldModels) - 1:
+        if row == len(self.model.fields) - 1:
             return
-        field = self.model.fieldModels[row]
-        tField = self.model.fieldModels[row + 1]
-        self.model.fieldModels.remove(field)
-        self.model.fieldModels.insert(row + 1, field)
-        if field.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(field.id)
-        if tField.id not in self.fieldOrdinalUpdatedIds:
-            self.fieldOrdinalUpdatedIds.append(tField.id)
-        self.fillFieldList(row + 1)
+        self.mw.progress.start()
+        self.model.moveField(self.field, row+1)
+        self.mw.progress.finish()
+        self.form.fieldList.setCurrentRow(row+1)
+        self.reload()
