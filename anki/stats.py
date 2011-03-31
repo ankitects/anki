@@ -111,7 +111,7 @@ table * { font-size: 14px; }
 
     def dueGraph(self):
         if self.type == 0:
-            start = 0; end = 30; chunk = 1;
+            start = 0; end = 31; chunk = 1;
         elif self.type == 1:
             start = 0; end = 52; chunk = 7
         elif self.type == 2:
@@ -139,7 +139,7 @@ table * { font-size: 14px; }
             _("The number of reviews due in the future."))
         xaxis = dict(tickDecimals=0, min=-0.5)
         if end is not None:
-            xaxis['max'] = end+0.5
+            xaxis['max'] = end-0.5
         txt += self._graph(id="due", data=data, conf=dict(
                 xaxis=xaxis,
                 yaxes=[dict(), dict(tickDecimals=0, position="right")]))
@@ -467,8 +467,8 @@ order by thetype, ease""" % lim)
         (c, f) = self.deck.db.first("""
 select count(id), count(distinct fid) from cards
 where 1 """ + self._limit())
-        self._line(i, _("Total Cards"), c)
-        self._line(i, _("Total Facts"), f)
+        self._line(i, _("Total cards"), c)
+        self._line(i, _("Total facts"), f)
         (low, avg, high) = self._factors()
         if low:
             self._line(i, _("Lowest ease factor"), "%d%%" % low)
@@ -493,12 +493,12 @@ when you answer "good" on a review.''')
 
     def _line(self, i, a, b, bold=True):
         if bold:
-            i.append(("<tr><td width=150 align=right>%s:</td><td><b>%s</b></td></tr>") % (a,b))
+            i.append(("<tr><td width=200 align=right>%s:</td><td><b>%s</b></td></tr>") % (a,b))
         else:
-            i.append(("<tr><td width=150 align=right>%s:</td><td>%s</td></tr>") % (a,b))
+            i.append(("<tr><td width=200 align=right>%s:</td><td>%s</td></tr>") % (a,b))
 
     def _lineTbl(self, i):
-        return "<table width=300>" + "".join(i) + "</table>"
+        return "<table width=400>" + "".join(i) + "</table>"
 
     def _factors(self):
         return self.deck.db.first("""
