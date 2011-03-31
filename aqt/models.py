@@ -12,7 +12,7 @@ class Models(QDialog):
         self.parent = parent or mw
         QDialog.__init__(self, self.parent, Qt.Window)
         self.deck = mw.deck
-        self.deck.save(_("Models"))
+        self.mw.checkpoint(_("Models"))
         #self.m = model
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
@@ -188,7 +188,6 @@ class Models(QDialog):
     # need to flush model on change or reject
 
     def reject(self):
-        #self.saveCurrentCard()
         self.saveModel()
         self.mw.reset()
         QDialog.reject(self)
