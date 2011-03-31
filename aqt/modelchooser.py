@@ -160,29 +160,27 @@ class ModelChooser(QHBoxLayout):
 
 class AddModel(QDialog):
 
-    def __init__(self, parent, main, deck):
-        QDialog.__init__(self, parent, Qt.Window)
-        self.parent = parent
-        if not main:
-            main = parent
-        self.main = main
+    def __init__(self, mw, parent=None):
+        self.parent = parent or mw
+        self.mw = mw
+        self.deck = mw.deck
+        QDialog.__init__(self, self.parent, Qt.Window)
         self.model = None
-        self.deck = deck
-        self.dialog = aqt.forms.addmodel.Ui_AddModel()
+        self.dialog = aqt.forms.addmodel.Ui_Dialog()
         self.dialog.setupUi(self)
+        # standard models
         self.models = []
-        names = stdmodels.models.keys()
-        names.sort()
-        for name in names:
-            m = stdmodels.byName(name)
-            item = QListWidgetItem(_("Add: %s") % m.name)
+        for (name, func) in stdmodels.models:
+            item = QListWidgetItem(_("Add: %s") % name)
             self.dialog.models.addItem(item)
-            self.models.append((True, m))
-        # add local decks
-        models = sorted(deck.models, key=attrgetter("name"))
-        for m in models:
+            self.models.append((True, func))
+        # add copies
+        mids = self.deck.db.list("select id from models order by name")
+        for m in [self.deck.getModel(mid, False) for mid in mids]:
+            m.id = None
             item = QListWidgetItem(_("Copy: %s") % m.name)
             self.dialog.models.addItem(item)
+            m.name = _("%s copy") % m.name
             self.models.append((False, m))
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
@@ -191,16 +189,22 @@ class AddModel(QDialog):
         # help
         self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.onHelp)
 
-    def getModel(self):
+    def get(self):
         self.exec_()
         return self.model
 
+    def reject(self):
+        self.accept()
+
     def accept(self):
-        (isStd, self.model) = self.models[
-            self.dialog.models.currentRow()]
-        if not isStd:
-            # not a standard model, so duplicate
-            self.model = self.deck.copyModel(self.model)
+        (isStd, model) = self.models[self.dialog.models.currentRow()]
+        if isStd:
+            # create
+            self.model = model(self.deck)
+        else:
+            # add copy to deck
+            self.mw.deck.addModel(model)
+            self.model = model
         QDialog.accept(self)
 
     def onHelp(self):

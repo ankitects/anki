@@ -54,7 +54,7 @@ class Models(QDialog):
         self.model = self.models[idx]
 
     def onAdd(self):
-        m = aqt.modelchooser.AddModel(self, self.parent, self.d).getModel()
+        m = aqt.modelchooser.AddModel(self.mw, self).get()
         if m:
             self.deck.addModel(m)
             self.updateModelsList()
