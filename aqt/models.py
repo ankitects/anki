@@ -37,17 +37,19 @@ class Models(QDialog):
         self.form.modelsList.setCurrentRow(0)
 
     def updateModelsList(self):
+        row = self.form.modelsList.currentRow()
+        if row == -1:
+            row = 0
         mids = self.deck.db.list("select id from models order by name")
         self.models = [self.deck.getModel(mid) for mid in mids]
         self.form.modelsList.clear()
         for m in self.models:
-            item = QListWidgetItem(m.name)
+            item = QListWidgetItem(_("%(name)s [%(facts)d facts]") % dict(
+                name=m.name, facts=m.useCount()))
             self.form.modelsList.addItem(item)
-            # if foo:
-            #self.form.modelsList.setCurrentItem(item)
+        self.form.modelsList.setCurrentRow(row)
 
     def modelChanged(self):
-        print "changed"
         if self.model:
             self.saveModel()
         idx = self.form.modelsList.currentRow()
