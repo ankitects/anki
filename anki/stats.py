@@ -137,9 +137,9 @@ table * { font-size: 14px; }
         txt = self._title(
             _("Forecast"),
             _("The number of reviews due in the future."))
-        xaxis = dict(tickDecimals=0, min=0)
+        xaxis = dict(tickDecimals=0, min=-0.5)
         if end is not None:
-            xaxis['max'] = end
+            xaxis['max'] = end+0.5
         txt += self._graph(id="due", data=data, conf=dict(
                 xaxis=xaxis,
                 yaxes=[dict(), dict(tickDecimals=0, position="right")]))
@@ -147,22 +147,8 @@ table * { font-size: 14px; }
         return txt
 
     def _dueInfo(self, tot, num):
-        if self.type == 0:
-            days = num
-        elif self.type == 1:
-            days = num*7
-        else:
-            days = num*30
-        vals = []
-        try:
-            vals.append(_("%d/day") % (tot/days))
-            if self.type > 0:
-                vals.append(_("%d/week") % (tot/(days/7)))
-            if self.type > 1:
-                vals.append(_("%d/month") % (tot/(days/30)))
-            txt = _("Average reviews: <b>%s</b>") % ", ".join(vals)
-        except ZeroDivisionError:
-            return ""
+        txt = _("Average: <b>%s</b>") % self._dayWeekMonth(
+            tot, num, _("reviews"))
         return txt
 
     def _due(self, start=None, end=None, chunk=1):
@@ -202,10 +188,10 @@ group by day order by day""" % (self._limit(), lim),
             return ""
         d = data
         conf = dict(
-            xaxis=dict(tickDecimals=0),
+            xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
-            conf['xaxis']['min'] = -days
+            conf['xaxis']['min'] = -days-0.5
         def plot(id, data, ylabel):
             return self._graph(
                 id, data=data, conf=conf, ylabel=ylabel)
@@ -219,6 +205,9 @@ group by day order by day""" % (self._limit(), lim),
         txt = self._title(
             reptitle, _("The number of questions you have answered."))
         txt += plot("reps", repdata, ylabel=_("Answers"))
+        (daysStud, fstDay) = self._daysStudied()
+        txt += self._ansInfo(repsum, daysStud, fstDay, _("reviews"))
+
         # time
         (timdata, timsum) = self._splitRepData(d, (
             (8, colMature, _("Mature")),
@@ -228,14 +217,39 @@ group by day order by day""" % (self._limit(), lim),
             (10, colCram, _("Cram"))))
         if self.type == 0:
             t = _("Minutes")
+            convHours = False
         else:
             t = _("Hours")
+            convHours = True
         txt += self._title(timetitle, _("The time taken to answer the questions."))
         txt += plot("time", timdata, ylabel=t)
+        txt += self._ansInfo(timsum, daysStud, fstDay, _("minutes"), convHours)
         return txt
 
-    def _ansInfo(self, data):
-        return ""
+    def _ansInfo(self, totd, studied, first, unit, convHours=False):
+        if not totd:
+            return
+        tot = totd[-1][1]
+        period = self._periodDays()
+        if not period:
+            period = first
+        print period, first
+        txt = _("Days studied: <b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
+            x=studied, y=period, pct=studied/float(period)*100)
+        if convHours:
+            tunit = _("hours")
+        else:
+            tunit = unit
+        txt += "<br>"+_("Total: <b>%(tot)s %(unit)s</b>") % dict(
+            unit=tunit, tot=int(tot))
+        if convHours:
+            # convert to minutes
+            tot *= 60
+        txt += "<br>"+_("Average over studied: <b>%s</b>") % self._dayWeekMonth(
+            tot, studied, unit)
+        txt += "<br>"+_("If you studied every day: <b>%s</b>") % self._dayWeekMonth(
+            tot, period, unit)
+        return txt
 
     def _splitRepData(self, data, spec):
         sep = {}
@@ -259,7 +273,7 @@ group by day order by day""" % (self._limit(), lim),
             ret.append(dict(
                 data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
                 bars={'show': False}, lines=dict(show=True), stack=False))
-        return (ret, sum)
+        return (ret, totd)
 
     def _done(self, num=7, chunk=1):
         lims = []
@@ -279,7 +293,7 @@ group by day order by day""" % (self._limit(), lim),
             tf = 3600.0 # hours
         return self.deck.db.all("""
 select
-(cast((time/1000 - :cut) / 86400.0 as int)+1)/:chunk as day,
+(cast((time/1000 - :cut) / 86400.0 as int))/:chunk as day,
 sum(case when type = 0 then 1 else 0 end), -- lrn count
 sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
@@ -296,6 +310,31 @@ group by day order by day""" % lim,
                             cut=self.deck.sched.dayCutoff,
                             tf=tf,
                             chunk=chunk)
+
+    def _daysStudied(self):
+        lims = []
+        num = None
+        if self.type == 0:
+            num = 30
+        elif self.type == 1:
+            num = 7*52
+        if num:
+            lims.append(
+                "time > %d" %
+                ((self.deck.sched.dayCutoff-(num*86400))*1000))
+        rlim = self._revlogLimit()
+        if rlim:
+            lims.append(rlim)
+        if lims:
+            lim = "where " + " and ".join(lims)
+        else:
+            lim = ""
+        return self.deck.db.first("""
+select count(), abs(min(day)) from (select
+(cast((time/1000 - :cut) / 86400.0 as int)+1) as day
+from revlog %s
+group by day order by day)""" % lim,
+                                   cut=self.deck.sched.dayCutoff)
 
     # Intervals
     ######################################################################
@@ -560,3 +599,19 @@ $(function () {
 
     def _title(self, title, subtitle=""):
         return '<h1>%s</h1>%s' % (title, subtitle)
+
+    def _periodDays(self):
+        if self.type == 0:
+            return 30
+        elif self.type == 1:
+            return 365
+        else:
+            return None
+
+    def _dayWeekMonth(self, tot, num, unit):
+        vals = []
+        try:
+            vals.append(_("%d %s/day") % (tot/float(num), unit))
+            return ", ".join(vals)
+        except ZeroDivisionError:
+            return ""

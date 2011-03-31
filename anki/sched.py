@@ -447,6 +447,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         self._updateRevIvl(card, ease)
         # then the rest
         card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
+        print "fixme: ensure ivl is 1+ current"
         card.due = self.today + card.ivl
 
     def _logRev(self, card, ease):
