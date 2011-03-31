@@ -99,8 +99,8 @@ streak=?, lapses=?, grade=?, cycles=?, edue=? where id = ?""",
             self.factor, self.reps, self.streak, self.lapses,
             self.grade, self.cycles, self.edue, self.id)
 
-    def q(self, classes="q"):
-        return self._withClass(self._getQA()['q'], classes)
+    def q(self, classes="q", reload=False):
+        return self._withClass(self._getQA(reload)['q'], classes)
 
     def a(self, classes="a"):
         return self._withClass(self._getQA()['a'], classes)

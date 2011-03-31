@@ -70,13 +70,14 @@ select mod, name, flds, tmpls, conf, css from models where id = ?""", self.id)
 
     def flush(self):
         self.mod = intTime()
+        self.css = self.genCSS()
         ret = self.deck.db.execute("""
 insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
                 self.id, self.mod, self.name,
                 simplejson.dumps(self.fields),
                 simplejson.dumps(self.templates),
                 simplejson.dumps(self.conf),
-                self.genCSS())
+                self.css)
         self.id = ret.lastrowid
 
     def fids(self):
