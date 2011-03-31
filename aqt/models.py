@@ -166,8 +166,6 @@ class Models(QDialog):
 
     def moveCardUp(self):
         row = self.form.cardList.currentRow()
-        if row == -1:
-            return
         if row == 0:
             return
         self.mw.progress.start()
@@ -177,10 +175,9 @@ class Models(QDialog):
 
     def moveCardDown(self):
         row = self.form.cardList.currentRow()
-        if row == -1:
+        if row == len(self.model.templates) - 1:
             return
-        if row == len(self.model.cardModels) - 1:
-            return
+        self.mw.progress.start()
         self.model.moveTemplate(self.template, row+1)
         self.mw.progress.finish()
         self.updateCards()
