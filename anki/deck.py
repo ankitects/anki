@@ -182,12 +182,13 @@ qconf=?, conf=?, data=?""",
     def getFact(self, id):
         return anki.facts.Fact(self, id=id)
 
-    def getModel(self, mid):
+    def getModel(self, mid, cache=True):
         "Memoizes; call .reset() to reset cache."
-        if mid in self.modelCache:
+        if cache and mid in self.modelCache:
             return self.modelCache[mid]
         m = anki.models.Model(self, mid)
-        self.modelCache[mid] = m
+        if cache:
+            self.modelCache[mid] = m
         return m
 
     # Utils

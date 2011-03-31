@@ -34,7 +34,7 @@ def BasicModel(deck):
     m.addTemplate(t)
     return m
 
-models.append(BasicModel)
+models.append((_("Basic"), BasicModel))
 
 # Cloze
 ##########################################################################
@@ -61,4 +61,4 @@ def ClozeModel(deck):
         m.addTemplate(t)
     return m
 
-models.append(ClozeModel)
+models.append((_("Cloze"), ClozeModel))
