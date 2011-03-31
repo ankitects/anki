@@ -6,8 +6,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebPage, QWebView
 import re
 from anki.consts import *
-#from anki.models import *
-#from anki.facts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
@@ -232,6 +230,9 @@ class CardLayout(QDialog):
         return ""
 
     def reject(self):
+        self.model.flush()
+        saveGeom(self, "CardLayout")
+        saveSplitter(self.form.splitter, "clayout")
         return QDialog.reject(self)
 
         self.fact.model.setModified()
@@ -254,8 +255,6 @@ class CardLayout(QDialog):
         if reset:
             self.mw.reset()
         self.deck.finishProgress()
-        saveGeom(self, "CardLayout")
-        saveSplitter(self.form.splitter, "clayout")
         QDialog.reject(self)
 
     def onHelp(self):
@@ -332,38 +331,29 @@ class CardLayout(QDialog):
         if self.updatingFields:
             return
         self.updatingFields = True
-        field = self.field
-        name = unicode(self.form.fieldName.text()) or _("Field")
-        if field.name != name:
-            oldVal = self.fact[field.name]
-            self.deck.renameFieldModel(self.model, field, name)
-            # the card models will have been updated
-            self.readCard()
-            # for add card case
-            self.updateFact()
-            self.fact[name] = oldVal
-        field.unique = self.form.fieldUnique.isChecked()
-        field.required = self.form.fieldRequired.isChecked()
-        field.numeric = self.form.numeric.isChecked()
-        field.quizFontFamily = toCanonicalFont(unicode(
-            self.form.fontFamily.currentFont().family()))
-        field.quizFontSize = int(self.form.fontSize.value())
-        field.editFontSize = int(self.form.fontSizeEdit.value())
-        field.quizFontColour = str(
+        fld = self.field
+        # get name; we'll handle it last
+        name = unicode(self.form.fieldName.text())
+        if not name:
+            return
+        fld['uniq'] = self.form.fieldUnique.isChecked()
+        fld['req'] = self.form.fieldRequired.isChecked()
+        fld['font'] = unicode(
+            self.form.fontFamily.currentFont().family())
+        fld['qsize'] = self.form.fontSize.value()
+        fld['esize'] = self.form.fontSizeEdit.value()
+        fld['qcol'] = str(
             self.form.fontColour.palette().window().color().name())
-        if self.form.rtl.isChecked():
-            field.features = u"rtl"
-        else:
-            field.features = u""
-        if self.form.preserveWhitespace.isChecked():
-            field.editFontFamily = u"preserve"
-        else:
-            field.editFontFamily = u""
-        field.model.setModified()
-        self.deck.flushMod()
+        fld['rtl'] = self.form.rtl.isChecked()
+        fld['pre'] = self.form.preserveWhitespace.isChecked()
+        self.updatingFields = False
+        if fld['name'] != name:
+            self.model.renameField(fld, name)
+            # as the field name has changed, we have to regenerate cards
+            self.cards = self.deck.previewCards(self.fact, self.type)
+            self.cardChanged(0)
         self.renderPreview()
         self.fillFieldList()
-        self.updatingFields = False
 
     def fillFieldList(self, row = None):
         oldRow = self.form.fieldList.currentRow()
