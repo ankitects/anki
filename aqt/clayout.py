@@ -184,19 +184,17 @@ class CardLayout(QDialog):
     def saveCard(self):
         if self.updatingCards:
             return
-        card = self.card.cardModel
-        card.questionAlign = self.form.alignment.currentIndex()
-        card.lastFontColour = unicode(
+        t = self.card.template()
+        t['align'] = self.form.alignment.currentIndex()
+        t['bg'] = unicode(
             self.form.background.palette().window().color().name())
-        card.questionInAnswer = self.form.questionInAnswer.isChecked()
-        card.allowEmptyAnswer = self.form.allowEmptyAnswer.isChecked()
+        t['hideQ'] = self.form.questionInAnswer.isChecked()
+        t['emptyAns'] = self.form.allowEmptyAnswer.isChecked()
         idx = self.form.typeAnswer.currentIndex()
         if not idx:
-            card.typeAnswer = u""
+            t['typeAns'] = None
         else:
-            card.typeAnswer = self.typeFieldNames[idx-1]
-        card.model.setModified()
-        self.deck.flushMod()
+            t['typeAns'] = idx-1
         self.renderPreview()
 
     def chooseColour(self, button, type="field"):
@@ -214,9 +212,11 @@ class CardLayout(QDialog):
         c = self.card
         styles = self.model.genCSS()
         self.form.preview.setHtml(
-            ('<html><head>%s</head><body>' % getBase(self.deck, c)) +
+            ('<html><head>%s</head><body class="%s">' %
+             (getBase(self.deck, c), c.cssClass())) +
             "<style>" + styles + "</style>" +
             mungeQA(c.q(reload=True)) +
+            self.maybeTextInput() +
             "<hr>" +
             mungeQA(c.a())
             + "</body></html>")
@@ -226,8 +226,14 @@ class CardLayout(QDialog):
             playFromText(c.a())
             self.playedAudio[c.id] = True
 
+    def maybeTextInput(self):
+        if self.card.template()['typeAns'] is not None:
+            return "<center><input type=text></center>"
+        return ""
+
     def reject(self):
-        return
+        return QDialog.reject(self)
+
         self.fact.model.setModified()
 
         modified = False
