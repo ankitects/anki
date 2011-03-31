@@ -12,6 +12,7 @@ from anki.utils import stripHTML, parseTags
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
+import aqt.facteditor, aqt.modelchooser
 
 class FocusButton(QPushButton):
     def focusInEvent(self, evt):
@@ -25,7 +26,6 @@ class AddCards(QDialog):
         windParent = None
         QDialog.__init__(self, windParent, Qt.Window)
         self.parent = parent
-        ui.utils.applyStyles(self)
         self.config = parent.config
         self.dialog = aqt.forms.addcards.Ui_AddCards()
         self.dialog.setupUi(self)
@@ -42,17 +42,17 @@ class AddCards(QDialog):
         self.dialog.splitter.setChildrenCollapsible(False)
         self.show()
         addHook('guiReset', self.modelChanged)
-        ui.dialogs.open("AddCards", self)
 
     def setupEditor(self):
-        self.editor = ui.facteditor.FactEditor(self,
+        self.editor = aqt.facteditor.FactEditor(self,
                                                self.dialog.fieldsArea,
                                                self.parent.deck)
         self.editor.addMode = True
         self.editor.resetOnEdit = False
 
     def addChooser(self):
-        self.modelChooser = ui.modelchooser.ModelChooser(self,
+        return
+        self.modelChooser = aqt.modelchooser.ModelChooser(self,
                                                          self.parent,
                                                          self.parent.deck,
                                                          self.modelChanged)
@@ -100,6 +100,7 @@ class AddCards(QDialog):
         browser.onFact()
 
     def modelChanged(self, model=None):
+        return
         oldFact = self.editor.fact
         # create a new fact
         fact = self.parent.deck.newFact()
@@ -114,7 +115,7 @@ class AddCards(QDialog):
                 n += 1
             fact.tags = oldFact.tags
         else:
-            fact.tags = self.parent.deck.lastTags
+            fact.tags = "last" #self.parent.deck.lastTags
         # set the new fact
         self.editor.setFact(fact, check=True, forceRedraw=True)
         self.setTabOrder(self.editor.tags, self.addButton)

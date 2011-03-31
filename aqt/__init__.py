@@ -34,8 +34,8 @@ class DialogManager(object):
     def __init__(self):
         from aqt import addcards, cardlist
         self._dialogs = {
-            "AddCards": (addcards.AddCards, None),
-            "CardList": (cardlist.EditDeck, None),
+            "AddCards": [addcards.AddCards, None],
+            "CardList": [cardlist.EditDeck, None],
         }
 
     def open(self, name, *args):

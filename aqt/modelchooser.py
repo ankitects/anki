@@ -7,7 +7,6 @@ from operator import attrgetter
 import anki, sys
 from anki import stdmodels
 from anki.models import *
-from aqt import ui
 import aqt.forms
 from anki.hooks import addHook, removeHook
 
@@ -70,7 +69,7 @@ class ModelChooser(QHBoxLayout):
 
     def onEdit(self):
         ui.deckproperties.DeckProperties(self.parent, self.deck,
-                                           onFinish=self.onModelEdited)
+                                         onFinish=self.onModelEdited)
 
     def onModelEdited(self):
         # hack
@@ -93,10 +92,10 @@ class ModelChooser(QHBoxLayout):
 
     def drawModels(self):
         self.models.clear()
-        self._models = sorted(self.deck.models, key=attrgetter("name"))
+        self._models = sorted(self.deck.models().values(), key=attrgetter("name"))
         self.models.addItems(QStringList(
             [m.name for m in self._models]))
-        idx = self._models.index(self.deck.currentModel)
+        idx = self._models.index(self.deck.currentModel())
         self.models.setCurrentIndex(idx)
 
     def drawCardModels(self):

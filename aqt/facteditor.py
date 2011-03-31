@@ -41,7 +41,7 @@ class FactEditor(object):
         self.fact = None
         self.fontChanged = False
         self.addMode = False
-        self.setupFields()
+        #self.setupFields()
         self.onChange = None
         self.onFactValid = None
         self.onFactInvalid = None
@@ -62,6 +62,7 @@ class FactEditor(object):
     def setFact(self, fact, noFocus=False, check=False, scroll=False,
                 forceRedraw=False):
         "Make FACT the current fact."
+        return 
         self.fact = fact
         self.factState = None
         if self.changeTimer:
@@ -419,9 +420,10 @@ class FactEditor(object):
         self.parent.setTabOrder(last, self.tags)
 
     def needToRedraw(self):
+        return True
         if self.fact is None:
             return True
-        if len(self.fact.fields) != len(self.fields):
+        if len(self.fact._fields) != len(self.fields):
             return True
         for field in self.fact.fields:
             if field.name not in self.fields:
