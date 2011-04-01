@@ -4,20 +4,16 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtSvg import *
-from PyQt4.QtWebKit import QWebPage
+from PyQt4.QtSvg import * # fixme: obsolete?
 import re, os, sys, tempfile, urllib2, ctypes
-from anki.utils import stripHTML, tidyHTML, canonifyTags, fieldChecksum
-from aqt.sound import getAudio
-import anki.sound
-import aqt
-from aqt.utils import mungeQA, saveGeom, restoreGeom
+from anki.utils import stripHTML
+from anki.sound import play
 from anki.hooks import addHook, removeHook, runHook, runFilter
-from sqlalchemy.exceptions import InvalidRequestError
+from aqt.sound import getAudio
+from aqt.webview import AnkiWebView
+from aqt.utils import shortcut
 
 # fixme: use shortcut() for mac shortcuts
-
-clozeColour = "#0000ff"
 
 if sys.platform.startswith("win32"):
     ActivateKeyboardLayout = ctypes.windll.user32.ActivateKeyboardLayout
@@ -27,37 +23,172 @@ if sys.platform.startswith("win32"):
     GetKeyboardLayout.restype = ctypes.c_void_p
     GetKeyboardLayout.argtypes = [ctypes.c_uint]
 
-class FactEditor(object):
-    """An editor for new/existing facts.
-
-    The fact is updated as it is edited.
-    Extra widgets can be added to 'fieldsGrid' to represent card-specific
-    information, etc."""
-
-    def __init__(self, parent, widget, deck=None):
+class Editor(object):
+    def __init__(self, mw, widget):
         self.widget = widget
-        self.parent = parent
-        self.deck = deck
+        self.mw = mw
         self.fact = None
-        self.fontChanged = False
-        self.addMode = False
-        #self.setupFields()
         self.onChange = None
-        self.onFactValid = None
-        self.onFactInvalid = None
-        self.lastFocusedEdit = None
+        # to be handled js side
+        #self.lastFocusedEdit = None
         self.changeTimer = None
-        self.lastCloze = None
-        self.resetOnEdit = True
-        self.card=None
+        # current card, for card layout
+        self.card = None
         addHook("deckClosed", self.deckClosedHook)
         addHook("guiReset", self.refresh)
         addHook("colourChanged", self.colourChanged)
+        self.setupOuter()
+        self.setupButtons()
+        self.setupWeb()
+        self.setupTags()
 
     def close(self):
         removeHook("deckClosed", self.deckClosedHook)
         removeHook("guiReset", self.refresh)
         removeHook("colourChanged", self.colourChanged)
+
+    # Initial setup
+    ############################################################
+
+    def setupOuter(self):
+        l = QVBoxLayout()#self.widget)
+        l.setMargin(0)
+        l.setSpacing(3)
+        self.widget.setLayout(l)
+        self.outerLayout = l
+
+    def _addButton(self, name, func, key=None, tip=None, size=True, text="",
+                   check=False):
+        b = QPushButton(text)
+        if check:
+            b.connect(b, SIGNAL("toggled(bool)"), func)
+        else:
+            b.connect(b, SIGNAL("clicked()"), func)
+        if size:
+            b.setFixedHeight(20)
+            b.setFixedWidth(20)
+        b.setStyle(self.plastiqueStyle)
+        b.setFocusPolicy(Qt.NoFocus)
+        if not text:
+            b.setIcon(QIcon(":/icons/%s.png" % name))
+        if key:
+            b.setShortcut(key)
+        if tip:
+            b.setToolTip(tip)
+        if check:
+            b.setCheckable(True)
+
+        self.iconsBox.addWidget(b)
+        self._buttons[name] = b
+        return b
+
+    def setupButtons(self):
+        self._buttons = {}
+        # button styles for mac
+        self.plastiqueStyle = QStyleFactory.create("plastique")
+        self.widget.setStyle(self.plastiqueStyle)
+        # icons
+        self.iconsBox = QHBoxLayout()
+        self.iconsBox.setMargin(0)
+        self.iconsBox.setSpacing(0)
+        self.outerLayout.addLayout(self.iconsBox)
+        # align to right
+        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
+        b = self._addButton
+        b("layout", self.onCardLayout, "Ctrl+l",
+          shortcut(_("Layout (Ctrl+l)")), size=False, text=_("Layout..."))
+        b("text_bold", self.toggleBold, "Ctrl+b", _("Bold text (Ctrl+b)"),
+          check=True)
+        b("text_italic", self.toggleItalic, "Ctrl+i", _("Italic text (Ctrl+i)"),
+          check=True)
+        b("text_under", self.toggleUnderline, "Ctrl+i",
+          _("Underline text (Ctrl+i)"), check=True)
+        #self.setupForegroundButton()
+        but = b("cloze", self.onCloze, "F9", _("Cloze (F9)"), text="[...]")
+        but.setFixedWidth(24)
+        # fixme: better image names
+        but = b("colors", self.onAddPicture, "F3", _("Add picture (F3)"))
+        but = b("text-speak", self.onAddSound, "F3", _("Add audio/video (F4)"))
+        but = b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
+        but = b("tex", self.latexMenu, "Ctrl+t", _("LaTeX (Ctrl+t)"))
+        # insertLatex, insertLatexEqn, insertLatexMathEnv
+        but = b("text-xml", self.onHtmlEdit, "Ctrl+x", _("Source (Ctrl+x)"))
+
+    def setupForegroundButton(self):
+        # foreground color
+        self.foreground = QPushButton()
+        self.foreground.connect(self.foreground, SIGNAL("clicked()"), self.onForeground)
+        self.foreground.setToolTip(
+            _("Set colour (F7; repeat to choose next; F6 to use)"))
+        self.foreground.setShortcut(_("F7"))
+        self.foreground.setFocusPolicy(Qt.NoFocus)
+        self.foreground.setEnabled(False)
+        self.foreground.setFixedWidth(20)
+        self.foreground.setFixedHeight(20)
+        self.foregroundFrame = QFrame()
+        self.foregroundFrame.setAutoFillBackground(True)
+        self.colourChanged()
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.foregroundFrame)
+        hbox.setMargin(5)
+        self.foreground.setLayout(hbox)
+        self.iconsBox.addWidget(self.foreground)
+        self.foreground.setStyle(self.plastiqueStyle)
+        self.iconsBox.addItem(QSpacerItem(5,1, QSizePolicy.Fixed))
+
+    def setupWeb(self):
+        self.web = AnkiWebView(self.widget)
+        self.outerLayout.addWidget(self.web)
+        # pick up the window colour
+        p = self.web.palette()
+        p.setBrush(QPalette.Base, Qt.transparent)
+        self.web.page().setPalette(p)
+        self.web.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        self.web.setHtml("""
+<html><head><style></style></head>
+<body>
+<table>
+<tr>
+<td valign=center>Expression</td>
+<td width=100%><div contentEditable=true style="border: 1px solid #aaa; padding: 5px; background:#fff; color:#000;">this is some field
+text</div></td>
+</tr>
+
+<tr>
+<td valign=center>Meaning</td>
+<td width=100%><div contentEditable=true style="border: 1px solid #aaa; padding: 5px; background:#fff; color:#000;">this is some field
+text</div></td>
+</tr>
+
+<tr>
+<td valign=center>Reading</td>
+<td width=100%><div contentEditable=true style="border: 1px solid #aaa; padding: 5px; background:#fff; color:#000;">this is some field
+text</div></td>
+</tr>
+
+</table>
+</body></html>""")
+
+    def setupTags(self):
+        # # scrollarea
+        # self.fieldsScroll = QScrollArea()
+        # self.fieldsScroll.setWidgetResizable(True)
+        # self.fieldsScroll.setLineWidth(0)
+        # self.fieldsScroll.setFrameStyle(0)
+        # self.fieldsScroll.setFocusPolicy(Qt.NoFocus)
+        # self.fieldsBox.addWidget(self.fieldsScroll)
+        # # tags
+        # self.tagsBox = QHBoxLayout()
+        # self.tagsLabel = QLabel(_("Tags"))
+        # self.tagsBox.addWidget(self.tagsLabel)
+        # import aqt.tagedit
+        # self.tags = aqt.tagedit.TagEdit(self.parent)
+        # self.tags.connect(self.tags, SIGNAL("lostFocus"),
+        #                   self.onTagChange)
+        # self.tagsBox.addWidget(self.tags)
+        # self.fieldsBox.addLayout(self.tagsBox)
+
+        pass
 
     def setFact(self, fact, noFocus=False, check=False, scroll=False,
                 forceRedraw=False):
@@ -82,7 +213,6 @@ class FactEditor(object):
         if not noFocus:
             # update focus to first field
             self.fields[self.fact.fields[0].name][1].setFocus()
-        self.fontChanged = False
         self.deck.setUndoBarrier()
         if self.deck.mediaDir(create=False):
             self.initMedia()
@@ -105,243 +235,6 @@ class FactEditor(object):
 
     def deckClosedHook(self):
         self.fact = None
-
-    def setupFields(self):
-        # init for later
-        self.fields = {}
-        # button styles for mac
-        self.plastiqueStyle = QStyleFactory.create("plastique")
-        self.widget.setStyle(self.plastiqueStyle)
-        # top level vbox
-        self.fieldsBox = QVBoxLayout(self.widget)
-        self.fieldsBox.setMargin(0)
-        self.fieldsBox.setSpacing(3)
-        # icons
-        self.iconsBox = QHBoxLayout()
-        self.iconsBox2 = QHBoxLayout()
-        self.fieldsBox.addLayout(self.iconsBox)
-        self.fieldsBox.addLayout(self.iconsBox2)
-        # card layout
-        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
-        self.clayout = QPushButton(_("Card Layout"))
-        self.clayout.connect(self.clayout, SIGNAL("clicked()"), self.onCardLayout)
-        self.clayout.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
-        self.clayout.setFixedHeight(20)
-        # self.clayout.setFixedWidth(48)
-        self.clayout.setIcon(QIcon(":/icons/layout.png"))
-        #self.clayout.setIconSize(QSize(32,32))
-        self.clayout.setToolTip(_("Edit how cards are displayed (F2)"))
-        self.clayout.setShortcut(_("F2"))
-        self.clayout.setFocusPolicy(Qt.NoFocus)
-        self.iconsBox.addWidget(self.clayout)
-        self.clayout.setStyle(self.plastiqueStyle)
-        # scrollarea
-        self.fieldsScroll = QScrollArea()
-        self.fieldsScroll.setWidgetResizable(True)
-        self.fieldsScroll.setLineWidth(0)
-        self.fieldsScroll.setFrameStyle(0)
-        self.fieldsScroll.setFocusPolicy(Qt.NoFocus)
-        self.fieldsBox.addWidget(self.fieldsScroll)
-        # tags
-        self.tagsBox = QHBoxLayout()
-        self.tagsLabel = QLabel(_("Tags"))
-        self.tagsBox.addWidget(self.tagsLabel)
-        import aqt.tagedit
-        self.tags = aqt.tagedit.TagEdit(self.parent)
-        self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.onTagChange)
-        self.tagsBox.addWidget(self.tags)
-        self.fieldsBox.addLayout(self.tagsBox)
-        # icons
-        self.iconsBox.setMargin(0)
-        self.iconsBox2.setMargin(0)
-        # bold
-        spc = QSpacerItem(5,5)
-        self.iconsBox.addItem(spc)
-        self.bold = QPushButton()
-        self.bold.setFixedHeight(20)
-        self.bold.setFixedWidth(20)
-        self.bold.setCheckable(True)
-        self.bold.connect(self.bold, SIGNAL("toggled(bool)"), self.toggleBold)
-        self.bold.setIcon(QIcon(":/icons/text_bold.png"))
-        self.bold.setToolTip(_("Bold text (Ctrl+b)"))
-        self.bold.setShortcut(_("Ctrl+b"))
-        self.bold.setFocusPolicy(Qt.NoFocus)
-        self.bold.setEnabled(False)
-        self.iconsBox.addWidget(self.bold)
-        self.bold.setStyle(self.plastiqueStyle)
-        # italic
-        self.italic = QPushButton(self.widget)
-        self.italic.setFixedHeight(20)
-        self.italic.setFixedWidth(20)
-        self.italic.setCheckable(True)
-        self.italic.connect(self.italic, SIGNAL("toggled(bool)"), self.toggleItalic)
-        self.italic.setIcon(QIcon(":/icons/text_italic.png"))
-        self.italic.setToolTip(_("Italic text (Ctrl+i)"))
-        self.italic.setShortcut(_("Ctrl+i"))
-        self.italic.setFocusPolicy(Qt.NoFocus)
-        self.italic.setEnabled(False)
-        self.iconsBox.addWidget(self.italic)
-        self.italic.setStyle(self.plastiqueStyle)
-        # underline
-        self.underline = QPushButton(self.widget)
-        self.underline.setFixedHeight(20)
-        self.underline.setFixedWidth(20)
-        self.underline.setCheckable(True)
-        self.underline.connect(self.underline, SIGNAL("toggled(bool)"), self.toggleUnderline)
-        self.underline.setIcon(QIcon(":/icons/text_under.png"))
-        self.underline.setToolTip(_("Underline text (Ctrl+u)"))
-        self.underline.setShortcut(_("Ctrl+u"))
-        self.underline.setFocusPolicy(Qt.NoFocus)
-        self.underline.setEnabled(False)
-        self.iconsBox.addWidget(self.underline)
-        self.underline.setStyle(self.plastiqueStyle)
-        # foreground color
-        self.foreground = QPushButton()
-        self.foreground.connect(self.foreground, SIGNAL("clicked()"), self.onForeground)
-        self.foreground.setToolTip(
-            _("Set colour (F7; repeat to choose next; F6 to use)"))
-        self.foreground.setShortcut(_("F7"))
-        self.foreground.setFocusPolicy(Qt.NoFocus)
-        self.foreground.setEnabled(False)
-        self.foreground.setFixedWidth(20)
-        self.foreground.setFixedHeight(20)
-        self.foregroundFrame = QFrame()
-        self.foregroundFrame.setAutoFillBackground(True)
-        self.colourChanged()
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.foregroundFrame)
-        hbox.setMargin(5)
-        self.foreground.setLayout(hbox)
-        self.iconsBox.addWidget(self.foreground)
-        self.foreground.setStyle(self.plastiqueStyle)
-        self.iconsBox.addItem(QSpacerItem(5,1, QSizePolicy.Fixed))
-        # cloze
-        self.cloze = QPushButton(self.widget)
-        self.cloze.setFixedHeight(20)
-        self.clozeSC = QShortcut(QKeySequence(_("F9")), self.widget)
-        self.cloze.connect(self.cloze, SIGNAL("clicked()"),
-                                  self.onCloze)
-        self.cloze.connect(self.clozeSC, SIGNAL("activated()"),
-                                  self.onCloze)
-        self.cloze.setToolTip(_("Cloze (F9)"))
-        self.cloze.setFixedWidth(24)
-        self.cloze.setText("[...]")
-        self.cloze.setFocusPolicy(Qt.NoFocus)
-        self.cloze.setEnabled(False)
-        self.iconsBox.addWidget(self.cloze)
-        self.cloze.setStyle(self.plastiqueStyle)
-        # pictures
-        self.addPicture = QPushButton(self.widget)
-        self.addPicture.setFixedHeight(20)
-        self.addPicture.setFixedWidth(20)
-        self.addPicture.connect(self.addPicture, SIGNAL("clicked()"), self.onAddPicture)
-        self.addPicture.setFocusPolicy(Qt.NoFocus)
-        self.addPicture.setShortcut(_("F3"))
-        self.addPicture.setIcon(QIcon(":/icons/colors.png"))
-        self.addPicture.setEnabled(False)
-        self.addPicture.setToolTip(_("Add a picture (F3)"))
-        self.iconsBox.addWidget(self.addPicture)
-        self.addPicture.setStyle(self.plastiqueStyle)
-        # sounds
-        self.addSound = QPushButton(self.widget)
-        self.addSound.setFixedHeight(20)
-        self.addSound.setFixedWidth(20)
-        self.addSound.connect(self.addSound, SIGNAL("clicked()"), self.onAddSound)
-        self.addSound.setFocusPolicy(Qt.NoFocus)
-        self.addSound.setShortcut(_("F4"))
-        self.addSound.setEnabled(False)
-        self.addSound.setIcon(QIcon(":/icons/text-speak.png"))
-        self.addSound.setToolTip(_("Add audio/video (F4)"))
-        self.iconsBox.addWidget(self.addSound)
-        self.addSound.setStyle(self.plastiqueStyle)
-        # sounds
-        self.recSound = QPushButton(self.widget)
-        self.recSound.setFixedHeight(20)
-        self.recSound.setFixedWidth(20)
-        self.recSound.connect(self.recSound, SIGNAL("clicked()"), self.onRecSound)
-        self.recSound.setFocusPolicy(Qt.NoFocus)
-        self.recSound.setShortcut(_("F5"))
-        self.recSound.setEnabled(False)
-        self.recSound.setIcon(QIcon(":/icons/media-record.png"))
-        self.recSound.setToolTip(_("Record audio (F5)"))
-        self.iconsBox.addWidget(self.recSound)
-        self.recSound.setStyle(self.plastiqueStyle)
-        # more
-        self.more = QPushButton(self.widget)
-        self.more.setFixedHeight(20)
-        self.more.setFixedWidth(20)
-        self.more.connect(self.more, SIGNAL("clicked()"),
-                                  self.onMore)
-        self.more.setToolTip(_("Show advanced options"))
-        self.more.setText(">>")
-        self.more.setFocusPolicy(Qt.NoFocus)
-        self.iconsBox.addWidget(self.more)
-        self.more.setStyle(self.plastiqueStyle)
-        # latex
-        spc = QSpacerItem(5,5, QSizePolicy.Expanding)
-        self.iconsBox2.addItem(spc)
-        self.latex = QPushButton(self.widget)
-        self.latex.setFixedHeight(20)
-        self.latex.setFixedWidth(20)
-        self.latex.setToolTip(_("Latex (Ctrl+l then l)"))
-        self.latexSC = QShortcut(QKeySequence(_("Ctrl+l, l")), self.widget)
-        self.latex.connect(self.latex, SIGNAL("clicked()"), self.insertLatex)
-        self.latex.connect(self.latexSC, SIGNAL("activated()"), self.insertLatex)
-        self.latex.setIcon(QIcon(":/icons/tex.png"))
-        self.latex.setFocusPolicy(Qt.NoFocus)
-        self.latex.setEnabled(False)
-        self.iconsBox2.addWidget(self.latex)
-        self.latex.setStyle(self.plastiqueStyle)
-        # latex eqn
-        self.latexEqn = QPushButton(self.widget)
-        self.latexEqn.setFixedHeight(20)
-        self.latexEqn.setFixedWidth(20)
-        self.latexEqn.setToolTip(_("Latex equation (Ctrl+l then e)"))
-        self.latexEqnSC = QShortcut(QKeySequence(_("Ctrl+l, e")), self.widget)
-        self.latexEqn.connect(self.latexEqn, SIGNAL("clicked()"), self.insertLatexEqn)
-        self.latexEqn.connect(self.latexEqnSC, SIGNAL("activated()"), self.insertLatexEqn)
-        self.latexEqn.setIcon(QIcon(":/icons/math_sqrt.png"))
-        self.latexEqn.setFocusPolicy(Qt.NoFocus)
-        self.latexEqn.setEnabled(False)
-        self.iconsBox2.addWidget(self.latexEqn)
-        self.latexEqn.setStyle(self.plastiqueStyle)
-        # latex math env
-        self.latexMathEnv = QPushButton(self.widget)
-        self.latexMathEnv.setFixedHeight(20)
-        self.latexMathEnv.setFixedWidth(20)
-        self.latexMathEnv.setToolTip(_("Latex math environment (Ctrl+l then m)"))
-        self.latexMathEnvSC = QShortcut(QKeySequence(_("Ctrl+l, m")), self.widget)
-        self.latexMathEnv.connect(self.latexMathEnv, SIGNAL("clicked()"),
-                                  self.insertLatexMathEnv)
-        self.latexMathEnv.connect(self.latexMathEnvSC, SIGNAL("activated()"),
-                                  self.insertLatexMathEnv)
-        self.latexMathEnv.setIcon(QIcon(":/icons/math_matrix.png"))
-        self.latexMathEnv.setFocusPolicy(Qt.NoFocus)
-        self.latexMathEnv.setEnabled(False)
-        self.iconsBox2.addWidget(self.latexMathEnv)
-        self.latexMathEnv.setStyle(self.plastiqueStyle)
-        # html
-        self.htmlEdit = QPushButton(self.widget)
-        self.htmlEdit.setFixedHeight(20)
-        self.htmlEdit.setFixedWidth(20)
-        self.htmlEdit.setToolTip(_("HTML Editor (Ctrl+F9)"))
-        self.htmlEditSC = QShortcut(QKeySequence(_("Ctrl+F9")), self.widget)
-        self.htmlEdit.connect(self.htmlEdit, SIGNAL("clicked()"),
-                              self.onHtmlEdit)
-        self.htmlEdit.connect(self.htmlEditSC, SIGNAL("activated()"),
-                                self.onHtmlEdit)
-        self.htmlEdit.setIcon(QIcon(":/icons/text-xml.png"))
-        self.htmlEdit.setFocusPolicy(Qt.NoFocus)
-        self.htmlEdit.setEnabled(False)
-        self.iconsBox2.addWidget(self.htmlEdit)
-        self.htmlEdit.setStyle(self.plastiqueStyle)
-        #
-        self.fieldsFrame = None
-        self.widget.setLayout(self.fieldsBox)
-        # show advanced buttons?
-        if not aqt.mw.config['factEditorAdvanced']:
-            self.onMore(False)
 
     def _makeGrid(self):
         "Rebuild the grid to avoid trigging QT bugs."
@@ -367,7 +260,6 @@ class FactEditor(object):
             w.setLayoutDirection(Qt.RightToLeft)
         else:
             w.setLayoutDirection(Qt.LeftToRight)
-        runHook("makeField", w, field)
         self.fieldsGrid.addWidget(w, n, 1)
         self.fields[field.name] = (field, w)
         self.widgets[w] = field
@@ -428,7 +320,7 @@ class FactEditor(object):
         for field in self.fact.fields:
             if field.name not in self.fields:
                 return True
-        return self.fontChanged
+        return False
 
     def loadFields(self, check=True, font=True):
         "Update field text (if changed) and font/colours."
@@ -438,7 +330,7 @@ class FactEditor(object):
             self.fields[field.name] = (field, w)
             self.widgets[w] = field
             new = self.fact[field.name]
-            old = tidyHTML(unicode(w.toHtml()))
+            #old = tidyHTML(unicode(w.toHtml()))
             # only update if something has changed
             if new != old:
                 cur = w.textCursor()
@@ -468,7 +360,7 @@ class FactEditor(object):
         n = _("Edit")
         self.deck.setUndoStart(n, merge=True)
         for (w, f) in self.widgets.items():
-            v = tidyHTML(unicode(w.toHtml()))
+            #v = tidyHTML(unicode(w.toHtml()))
             if self.fact[f.name] != v:
                 self.fact[f.name] = v
                 modified = True
@@ -491,7 +383,7 @@ class FactEditor(object):
         self.fact.focusLost(field)
         self.fact.setModified(textChanged=True, deck=self.deck)
         self.loadFields(font=False)
-        if modified and self.resetOnEdit:
+        if modified:
             aqt.mw.reset(runHooks=False)
 
     def onTextChanged(self):
@@ -555,18 +447,14 @@ class FactEditor(object):
         # call relevant hooks
         invalid = len(empty+dupe)
         if self.factState != "valid" and not invalid:
-            if self.onFactValid:
-                self.onFactValid(self.fact)
             self.factState = "valid"
         elif self.factState != "invalid" and invalid:
-            if self.onFactInvalid:
-                self.onFactInvalid(self.fact)
             self.factState = "invalid"
 
     def textForField(self, field):
         "Current edited value for field."
         w = self.fields[field.name][1]
-        v = tidyHTML(unicode(w.toHtml()))
+        #v = tidyHTML(unicode(w.toHtml()))
         return v
 
     def fieldValid(self, field):
@@ -594,8 +482,7 @@ class FactEditor(object):
             self.deck.updateFactTags([self.fact.id])
             self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.flushMod()
-            if self.resetOnEdit:
-                aqt.mw.reset(runHooks=False)
+            aqt.mw.reset(runHooks=False)
         if self.onChange:
             self.onChange('tag')
 
@@ -648,19 +535,16 @@ class FactEditor(object):
     def toggleBold(self, bool):
         w = self.focusedEdit()
         if w:
-            self.fontChanged = True
             w.setFontWeight(bool and QFont.Bold or QFont.Normal)
 
     def toggleItalic(self, bool):
         w = self.focusedEdit()
         if w:
-            self.fontChanged = True
             w.setFontItalic(bool)
 
     def toggleUnderline(self, bool):
         w = self.focusedEdit()
         if w:
-            self.fontChanged = True
             w.setFontUnderline(bool)
 
     def _updateForegroundButton(self, txtcol):
@@ -748,7 +632,6 @@ class FactEditor(object):
         recent.append(colour)
         w = self.lastFocusedEdit
         w.setTextColor(QColor(colour))
-        self.fontChanged = True
         self.colourDiag.close()
         runHook("colourChanged")
 
@@ -762,6 +645,9 @@ class FactEditor(object):
                 recent.append(txtcol)
             runHook("colourChanged")
             self.onChooseColour(txtcol)
+
+    def latexMenu(self):
+        pass
 
     def insertLatex(self):
         w = self.focusedEdit()
@@ -906,7 +792,7 @@ class FactEditor(object):
 
     def fieldsAreBlank(self):
         for (field, widget) in self.fields.values():
-            value = tidyHTML(unicode(widget.toHtml()))
+            #value = tidyHTML(unicode(widget.toHtml()))
             if value:
                 return False
         return True
@@ -1104,6 +990,7 @@ class FactEdit(QTextEdit):
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
+        # fixme
         if not aqt.mw.config['stripHTML']:
             return html
         html = re.sub("\n", " ", html)

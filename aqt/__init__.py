@@ -50,8 +50,7 @@ class DialogManager(object):
             return instance
 
     def close(self, name):
-        self._dialogs[name] = (
-            self._dialogs[name][0], None)
+        self._dialogs[name] = [self._dialogs[name][0], None]
 
     def closeAll(self):
         for (n, (creator, instance)) in self._dialogs.items():

@@ -9,10 +9,10 @@ import anki
 from anki.facts import Fact
 from anki.errors import *
 from anki.utils import stripHTML, parseTags
-from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter
+from aqt.utils import saveGeom, restoreGeom
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
-import aqt.facteditor, aqt.modelchooser
+import aqt.editor, aqt.modelchooser
 
 class FocusButton(QPushButton):
     def focusInEvent(self, evt):
@@ -22,39 +22,31 @@ class FocusButton(QPushButton):
 
 class AddCards(QDialog):
 
-    def __init__(self, parent):
+    def __init__(self, mw):
         windParent = None
         QDialog.__init__(self, windParent, Qt.Window)
-        self.parent = parent
-        self.config = parent.config
-        self.dialog = aqt.forms.addcards.Ui_AddCards()
+        self.mw = mw
+        self.dialog = aqt.forms.addcards.Ui_Dialog()
         self.dialog.setupUi(self)
-        self.setWindowTitle(_("Add Items - %s") % parent.deck.name())
+        self.setWindowTitle(_("Add"))
         self.setupEditor()
         self.addChooser()
         self.addButtons()
-        self.setupStatus()
         self.modelChanged()
         self.addedItems = 0
         self.forceClose = False
         restoreGeom(self, "add")
-        restoreSplitter(self.dialog.splitter, "add")
-        self.dialog.splitter.setChildrenCollapsible(False)
         self.show()
         addHook('guiReset', self.modelChanged)
 
     def setupEditor(self):
-        self.editor = aqt.facteditor.FactEditor(self,
-                                               self.dialog.fieldsArea,
-                                               self.parent.deck)
-        self.editor.addMode = True
-        self.editor.resetOnEdit = False
+        self.editor = aqt.editor.Editor(self.mw, self.dialog.fieldsArea)
 
     def addChooser(self):
         return
         self.modelChooser = aqt.modelchooser.ModelChooser(self,
-                                                         self.parent,
-                                                         self.parent.deck,
+                                                         self.mw,
+                                                         self.mw.deck,
                                                          self.modelChanged)
         self.dialog.modelArea.setLayout(self.modelChooser)
 
@@ -83,18 +75,8 @@ class AddCards(QDialog):
                                         QDialogButtonBox.HelpRole)
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
 
-    def setupStatus(self):
-        "Make the status background the same colour as the frame."
-        if not sys.platform.startswith("darwin"):
-            p = self.dialog.status.palette()
-            c = unicode(p.color(QPalette.Window).name())
-            self.dialog.status.setStyleSheet(
-                "* { background: %s; }" % c)
-        self.connect(self.dialog.status, SIGNAL("anchorClicked(QUrl)"),
-                     self.onLink)
-
     def onLink(self, url):
-        browser = ui.dialogs.open("CardList", self.parent)
+        browser = ui.dialogs.open("CardList", self.mw)
         browser.dialog.filterEdit.setText("fid:" + url.toString())
         browser.updateSearch()
         browser.onFact()
@@ -103,7 +85,7 @@ class AddCards(QDialog):
         return
         oldFact = self.editor.fact
         # create a new fact
-        fact = self.parent.deck.newFact()
+        fact = self.mw.deck.newFact()
         # copy fields from old fact
         if oldFact:
             n = 0
@@ -115,7 +97,7 @@ class AddCards(QDialog):
                 n += 1
             fact.tags = oldFact.tags
         else:
-            fact.tags = "last" #self.parent.deck.lastTags
+            fact.tags = "last" #self.mw.deck.lastTags
         # set the new fact
         self.editor.setFact(fact, check=True, forceRedraw=True)
         self.setTabOrder(self.editor.tags, self.addButton)
@@ -134,7 +116,7 @@ class AddCards(QDialog):
 
     def addFact(self, fact):
         try:
-            fact = self.parent.deck.addFact(fact, False)
+            fact = self.mw.deck.addFact(fact, False)
         except FactInvalidError:
             ui.utils.showInfo(_(
                 "Some fields are missing or not unique."),
@@ -151,15 +133,15 @@ question or answer on all cards."""), parent=self)
         return fact
 
     def initializeNewFact(self, old_fact):
-        f = self.parent.deck.newFact()
-        f.tags = self.parent.deck.lastTags
+        f = self.mw.deck.newFact()
+        f.tags = self.mw.deck.lastTags
         return f
 
     def clearOldFact(self, old_fact):
         f = self.initializeNewFact(old_fact)
         self.editor.setFact(f, check=True, scroll=True)
         # let completer know our extra tags
-        self.editor.tags.addTags(parseTags(self.parent.deck.lastTags))
+        self.editor.tags.addTags(parseTags(self.mw.deck.lastTags))
         return f
 
     def addCards(self):
@@ -167,7 +149,7 @@ question or answer on all cards."""), parent=self)
         self.editor.saveFieldsNow()
         fact = self.editor.fact
         n = _("Add")
-        self.parent.deck.setUndoStart(n)
+        self.mw.deck.setUndoStart(n)
 
         fact = self.addFact(fact)
         if not fact:
@@ -176,15 +158,14 @@ question or answer on all cards."""), parent=self)
         # stop anything playing
         clearAudioQueue()
 
-        self.parent.deck.setUndoEnd(n)
-        self.parent.deck.rebuildCounts()
-        self.parent.updateTitleBar()
-        self.parent.statusView.redraw()
+        self.mw.deck.setUndoEnd(n)
+        self.mw.deck.rebuildCounts()
+        self.mw.updateTitleBar()
 
         # start a new fact
         self.clearOldFact(fact)
 
-        self.maybeSave()
+        self.mw.autosave()
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
@@ -201,11 +182,17 @@ question or answer on all cards."""), parent=self)
             evt.ignore()
 
     def reject(self):
+        # remove dupe
+        aqt.dialogs.close("AddCards")
+        QDialog.reject(self)
+
+
         if self.onClose():
             self.modelChooser.deinit()
             QDialog.reject(self)
 
     def onClose(self):
+        return
         removeHook('guiReset', self.modelChanged)
         # stop anything playing
         clearAudioQueue()
@@ -215,19 +202,10 @@ question or answer on all cards."""), parent=self)
             self.modelChooser.deinit()
             self.editor.close()
             ui.dialogs.close("AddCards")
-            self.parent.deck.db.flush()
-            self.parent.deck.rebuildCSS()
-            self.parent.reset()
+            self.mw.deck.db.flush()
+            self.mw.deck.rebuildCSS()
+            self.mw.reset()
             saveGeom(self, "add")
-            saveSplitter(self.dialog.splitter, "add")
             return True
         else:
             return False
-
-    def maybeSave(self):
-        "Increment added count and maybe save deck."
-        self.addedItems += 1
-        if not self.parent.config['saveAfterAdding']:
-            return
-        if (self.addedItems % self.parent.config['saveAfterAddingNum']) == 0:
-            self.parent.save()

@@ -45,8 +45,7 @@ class CardLayout(QDialog):
         restoreGeom(self, "CardLayout")
         self.reload()
         if not self.cards:
-            showInfo(_("Please enter some text first."),
-                     parent=self.parent)
+            showInfo(_("Please enter some text first."))
             return
         self.exec_()
 
@@ -411,12 +410,9 @@ class CardLayout(QDialog):
         if row == -1:
             return
         if len(self.model.fields) < 2:
-            showInfo(
-                _("Please add a new field first."),
-                parent=self)
+            showInfo(_("Please add a new field first."))
             return
-        if askUser(_("Delete this field and its data from all facts?"),
-               self.parent):
+        if askUser(_("Delete this field and its data from all facts?")):
             self.mw.progress.start()
             self.model.delField(self.field)
             self.mw.progress.finish()

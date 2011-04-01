@@ -29,8 +29,6 @@ class EditCurrent(object):
         self.editor = aqt.facteditor.FactEditor(
             self, self.form.fieldsArea, self.deck)
         self.editor.clayout.setShortcut("")
-        self.editor.onFactValid = self.onFactValid
-        self.editor.onFactInvalid = self.onFactInvalid
         self.editor.resetOnEdit = False
         # editor
         self.connect(self.form.saveEditorButton, SIGNAL("clicked()"),
@@ -41,9 +39,3 @@ class EditCurrent(object):
         self.switchToEditScreen()
         self.editor.setFact(self.currentCard.fact)
         self.editor.card = self.currentCard
-
-    def onFactValid(self, fact):
-        self.form.saveEditorButton.setEnabled(True)
-
-    def onFactInvalid(self, fact):
-        self.form.saveEditorButton.setEnabled(False)
