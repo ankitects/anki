@@ -9,8 +9,9 @@ from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
-     saveSplitter, restoreSplitter, showInfo, isMac, isWin, askUser
-from anki.hooks import runFilter
+     saveSplitter, restoreSplitter, showInfo, isMac, isWin, askUser, \
+     getText
+import aqt.templates
 
 class ResizingTextEdit(QTextEdit):
     def sizeHint(self):
@@ -30,11 +31,10 @@ class CardLayout(QDialog):
         self.model = fact.model()
         self.form = aqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowTitle(_("%s Layout") % self.model.name)
         self.plastiqueStyle = None
         if isMac or isWin:
             self.plastiqueStyle = QStyleFactory.create("plastique")
-        # FIXME: add editing
-        self.form.editTemplates.hide()
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.setupCards()
@@ -52,6 +52,12 @@ class CardLayout(QDialog):
 
     def reload(self):
         self.cards = self.deck.previewCards(self.fact, self.type)
+        if not self.cards:
+            self.accept()
+            showInfo(_(
+                "The current fact was deleted."))
+            self
+            return
         self.fillCardList()
         self.fillFieldList()
         self.fieldChanged()
@@ -84,11 +90,9 @@ class CardLayout(QDialog):
             w = ResizingTextEdit(self)
             setattr(f, e, w)
             f.templateLayout.addWidget(w, r[0], r[1])
-        self.connect(f.cardList, SIGNAL("activated(int)"),
-                     self.cardChanged)
-        # self.connect(f.editTemplates, SIGNAL("clicked())"),
-        #              self.onEdit)
         c = self.connect
+        c(f.cardList, SIGNAL("activated(int)"), self.cardChanged)
+        c(f.editTemplates, SIGNAL("clicked()"), self.onEdit)
         c(f.cardQuestion, SIGNAL("textChanged()"), self.formatChanged)
         c(f.cardAnswer, SIGNAL("textChanged()"), self.formatChanged)
         c(f.alignment, SIGNAL("activated(int)"), self.saveCard)
@@ -124,10 +128,9 @@ class CardLayout(QDialog):
         fmt = fmt.replace("}}\n", "}}<br>")
         return fmt
 
-    # def onEdit(self):
-    #     ui.modelproperties.ModelProperties(
-    #         self, self.deck, self.model, self.mw,
-    #         onFinish=self.updateModelsList)
+    def onEdit(self):
+        aqt.templates.Templates(self.mw, self.model, self)
+        self.reload()
 
     def formatChanged(self):
         if self.updatingCards:
@@ -172,7 +175,6 @@ class CardLayout(QDialog):
                 cards.append(c.template()['name'])
         self.form.cardList.addItems(
             QStringList(cards))
-        self.form.editTemplates.setEnabled(False)
         self.form.cardList.setCurrentIndex(idx)
         self.cardChanged(idx)
         self.form.cardList.setFocus()
@@ -232,10 +234,14 @@ class CardLayout(QDialog):
             return "<center><input type=text></center>"
         return ""
 
+    def accept(self):
+        self.reject()
+
     def reject(self):
         self.model.flush()
         saveGeom(self, "CardLayout")
         saveSplitter(self.form.splitter, "clayout")
+        self.mw.reset()
         return QDialog.reject(self)
 
         self.fact.model.setModified()

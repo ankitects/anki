@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>472</width>
-    <height>531</height>
+    <width>759</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Card Layout</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
@@ -37,11 +37,14 @@
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
-           <string>Card Templates</string>
+           <string>Appearance</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <layout class="QGridLayout" name="templateLayout">
+             <property name="verticalSpacing">
+              <number>6</number>
+             </property>
              <item row="3" column="1">
               <widget class="QTextEdit" name="cardQuestion">
                <property name="sizePolicy">
@@ -88,27 +91,6 @@
                 <bool>false</bool>
                </property>
               </widget>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <widget class="QComboBox" name="cardList">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="editTemplates">
-                 <property name="text">
-                  <string>&amp;Edit</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
              </item>
              <item row="3" column="0" rowspan="2">
               <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -190,6 +172,30 @@
                 <string/>
                </property>
               </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <item>
+                <widget class="QComboBox" name="cardList">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="editTemplates">
+                 <property name="text">
+                  <string>&amp;Manage...</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+M</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>

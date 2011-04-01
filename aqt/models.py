@@ -3,7 +3,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from aqt.utils import showInfo, askUser
+from aqt.utils import showInfo, askUser, getText
 import aqt.modelchooser, aqt.clayout
 
 class Models(QDialog):
@@ -13,13 +13,11 @@ class Models(QDialog):
         QDialog.__init__(self, self.parent, Qt.Window)
         self.deck = mw.deck
         self.mw.checkpoint(_("Models"))
-        #self.m = model
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     lambda: openHelp("Models"))
+                     lambda: aqt.openHelp("Models"))
         self.setupModels()
-        self.setupCards()
         self.exec_()
 
     # Models
@@ -27,14 +25,29 @@ class Models(QDialog):
 
     def setupModels(self):
         self.model = None
-        c = self.connect; f = self.form; s = SIGNAL("clicked()")
-        c(f.modelsAdd, s, self.onAdd)
-        c(f.modelsLayout, s, self.onLayout)
-        c(f.modelsDelete, s, self.onDelete)
-        self.connect(self.form.modelsList, SIGNAL("currentRowChanged(int)"),
-                     self.modelChanged)
+        c = self.connect; f = self.form; box = f.buttonBox
+        s = SIGNAL("clicked()")
+        t = QDialogButtonBox.ActionRole
+        b = box.addButton(_("Layout..."), t)
+        c(b, s, self.onLayout)
+        b.setDefault(True)
+        b = box.addButton(_("Add"), t)
+        c(b, s, self.onAdd)
+        b = box.addButton(_("Rename"), t)
+        c(b, s, self.onRename)
+        b = box.addButton(_("Delete"), t)
+        c(b, s, self.onDelete)
+        c(f.modelsList, SIGNAL("currentRowChanged(int)"), self.modelChanged)
+        c(f.modelsList, SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+          self.onRename)
         self.updateModelsList()
-        self.form.modelsList.setCurrentRow(0)
+        f.modelsList.setCurrentRow(0)
+
+    def onRename(self):
+        txt = getText(_("New name?"), default=self.model.name)
+        if txt[0]:
+            self.model.name = txt[0]
+        self.updateModelsList()
 
     def updateModelsList(self):
         row = self.form.modelsList.currentRow()
@@ -54,7 +67,6 @@ class Models(QDialog):
             self.saveModel()
         idx = self.form.modelsList.currentRow()
         self.model = self.models[idx]
-        self.updateCards()
 
     def onAdd(self):
         m = aqt.modelchooser.AddModel(self.mw, self).get()
@@ -97,90 +109,6 @@ class Models(QDialog):
 
     def saveModel(self):
         self.model.flush()
-
-    # Cards
-    ##########################################################################
-
-    def setupCards(self):
-        f = self.form; c = self.connect; s = SIGNAL("clicked()")
-        c(f.cardList, SIGNAL("currentRowChanged(int)"),
-                     self.cardRowChanged)
-        c(f.cardList, SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
-                     self.renameCard)
-        c(f.cardAdd, s, self.addCard)
-        c(f.cardDelete, s, self.deleteCard)
-        c(f.cardUp, s, self.moveCardUp)
-        c(f.cardDown, s, self.moveCardDown)
-        self.updateCards()
-
-    def renameCard(self, item):
-        txt = ui.utils.getText(_("New name?"), parent=self)
-        if txt[0]:
-            self.template['name'] = txt[0]
-
-    def updateCards(self, row = None):
-        row = self.form.cardList.currentRow() or 0
-        if row == -1:
-            row = 0
-        self.form.cardList.clear()
-        for card in self.model.templates:
-            item = QListWidgetItem(card['name'])
-            self.form.cardList.addItem(item)
-        count = self.form.cardList.count()
-        self.form.cardList.setCurrentRow(row)
-
-    def cardRowChanged(self):
-        self.template = self.model.templates[self.form.cardList.currentRow()]
-        self.enableCardMoveButtons()
-
-    def enableCardMoveButtons(self):
-        f = self.form
-        row = f.cardList.currentRow()
-        f.cardUp.setEnabled(row >= 1)
-        f.cardDown.setEnabled(row < (f.cardList.count() - 1))
-
-    def addCard(self):
-        cards = len(self.model.templates)
-        t = self.model.newTemplate()
-        t['name'] = _("Template %d") % (cards+1)
-        fields = self.model.fields
-        t['qfmt'] = "{{%s}}" % fields[0]['name']
-        if len(fields) > 1:
-            t['afmt'] = "{{%s}}" % fields[1]['name']
-        else:
-            t['afmt'] = ""
-        self.model.addTemplate(t)
-        self.updateCards()
-
-    def deleteCard(self):
-        if len (self.model.templates) < 2:
-            ui.utils.showWarning(
-                _("Please add a new template first."),
-                parent=self)
-            return
-        if not askUser(
-            _("Delete this template and all cards that use it?")):
-            return
-        self.model.delTemplate(self.template)
-        self.updateCards()
-
-    def moveCardUp(self):
-        row = self.form.cardList.currentRow()
-        if row == 0:
-            return
-        self.mw.progress.start()
-        self.model.moveTemplate(self.template, row-1)
-        self.mw.progress.finish()
-        self.updateCards()
-
-    def moveCardDown(self):
-        row = self.form.cardList.currentRow()
-        if row == len(self.model.templates) - 1:
-            return
-        self.mw.progress.start()
-        self.model.moveTemplate(self.template, row+1)
-        self.mw.progress.finish()
-        self.updateCards()
 
     # Cleanup
     ##########################################################################

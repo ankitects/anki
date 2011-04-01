@@ -677,6 +677,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onDonate(self):
         QDesktopServices.openUrl(QUrl(aqt.appDonate))
 
+    def onDocumentation(self):
+        QDesktopServices.openUrl(QUrl(aqt.appHelpSite))
+
     # Importing & exporting
     ##########################################################################
 
@@ -785,6 +788,7 @@ Please choose a new deck name:"""))
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionOverview, s, self.onOverview)
         self.connect(m.actionGroups, s, self.onGroups)
+        self.connect(m.actionDocumentation, s, self.onDocumentation)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionBuryFact, s, self.onBuryFact)
 

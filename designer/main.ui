@@ -47,6 +47,7 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionDocumentation"/>
     <addaction name="separator"/>
     <addaction name="actionDonate"/>
     <addaction name="actionAbout"/>
@@ -59,7 +60,6 @@
     <addaction name="separator"/>
     <addaction name="actionAddcards"/>
     <addaction name="actionEditCurrent"/>
-    <addaction name="actionEditLayout"/>
     <addaction name="actionEditdeck"/>
     <addaction name="separator"/>
     <addaction name="actionMarkCard"/>
@@ -147,8 +147,10 @@
      <addaction name="separator"/>
     </widget>
     <addaction name="actionOverview"/>
+    <addaction name="actionEditLayout"/>
     <addaction name="actionGroups"/>
     <addaction name="actionModels"/>
+    <addaction name="separator"/>
     <addaction name="actionStudyOptions"/>
     <addaction name="actionDeckProperties"/>
     <addaction name="separator"/>
@@ -279,7 +281,7 @@
      <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Add Items...</string>
+    <string>&amp;Add...</string>
    </property>
    <property name="statusTip">
     <string/>
@@ -294,7 +296,7 @@
      <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
    </property>
    <property name="text">
-    <string>Brows&amp;e Items...</string>
+    <string>&amp;Browse...</string>
    </property>
    <property name="statusTip">
     <string/>
@@ -516,7 +518,7 @@
      <normaloff>:/icons/edit-rename.png</normaloff>:/icons/edit-rename.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Current Fact...</string>
+    <string>&amp;Edit Current...</string>
    </property>
    <property name="statusTip">
     <string/>
@@ -646,7 +648,7 @@
      <normaloff>:/icons/layout.png</normaloff>:/icons/layout.png</iconset>
    </property>
    <property name="text">
-    <string>Card Layout...</string>
+    <string>Layout...</string>
    </property>
    <property name="shortcut">
     <string>L</string>
@@ -683,6 +685,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation...</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
    </property>
   </action>
  </widget>
