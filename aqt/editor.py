@@ -5,13 +5,46 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import * # fixme: obsolete?
-import re, os, sys, tempfile, urllib2, ctypes
+import re, os, sys, tempfile, urllib2, ctypes, simplejson
 from anki.utils import stripHTML
 from anki.sound import play
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut
+import anki.js
+
+# fixme: add code to escape from text field
+
+_html = """
+<html><head><style>
+.field {
+  border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
+}
+.fname { font-size: 14px; vertical-align: middle; padding-right: 5px; }
+</style><script>
+%s
+String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/\{\d+\}/g, function(m){
+            return args[m.match(/\d+/)]; });
+};
+
+function setFields(fields) {
+    var txt = "";
+    for (var i=0; i<fields.length; i++) {
+        var n = fields[i][0];
+        var f = fields[i][1];
+        txt += "<tr><td class=fname>{0}</td><td width=100%%>".format(n);
+        txt += "<div class=field contentEditable=true>{0}</div>".format(f);
+        txt += "</td></tr>";
+    }
+    $("#fields").html("<table cellpadding=3>"+txt+"</table>");
+};
+</script></head><body>
+<div id="fields"></div>
+</body></html>
+"""
 
 # fixme: use shortcut() for mac shortcuts
 
@@ -144,30 +177,12 @@ class Editor(object):
         p.setBrush(QPalette.Base, Qt.transparent)
         self.web.page().setPalette(p)
         self.web.setAttribute(Qt.WA_OpaquePaintEvent, False)
-        self.web.setHtml("""
-<html><head><style></style></head>
-<body>
-<table>
-<tr>
-<td valign=center>Expression</td>
-<td width=100%><div contentEditable=true style="border: 1px solid #aaa; padding: 5px; background:#fff; color:#000;">this is some field
-text</div></td>
-</tr>
+        self.web.setHtml(_html % anki.js.all, loadCB=self._loadFinished)
 
-<tr>
-<td valign=center>Meaning</td>
-<td width=100%><div contentEditable=true style="border: 1px solid #aaa; padding: 5px; background:#fff; color:#000;">this is some field
-text</div></td>
-</tr>
+    def _loadFinished(self, w):
+        self.web.eval("setFields(%s);" % simplejson.dumps(
+            [["Expression", "foo"], ["Reading", "Bar"]]))
 
-<tr>
-<td valign=center>Reading</td>
-<td width=100%><div contentEditable=true style="border: 1px solid #aaa; padding: 5px; background:#fff; color:#000;">this is some field
-text</div></td>
-</tr>
-
-</table>
-</body></html>""")
 
     def setupTags(self):
         # # scrollarea
