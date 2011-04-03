@@ -51,6 +51,8 @@ function sendState() {
         'bold': document.queryCommandState("bold"),
         'italic': document.queryCommandState("italic"),
         'under': document.queryCommandState("underline"),
+        'super': document.queryCommandState("superscript"),
+        'sub': document.queryCommandState("subscript"),
         'col': document.queryCommandValue("forecolor")
     };
     py.run("state:" + JSON.stringify(r));
@@ -205,6 +207,10 @@ class Editor(object):
           check=True)
         b("text_under", self.toggleUnderline, "Ctrl+u",
           _("Underline text (Ctrl+u)"), check=True)
+        b("text_super", self.toggleSuper, "Ctrl+=",
+          _("Superscript (Ctrl+=)"), check=True)
+        b("text_sub", self.toggleSub, "Ctrl+Shift+=",
+          _("Subscript (Ctrl+Shift+=)"), check=True)
         #self.setupForegroundButton()
         but = b("cloze", self.onCloze, "F9", _("Cloze (F9)"), text="[...]")
         but.setFixedWidth(24)
@@ -266,6 +272,8 @@ class Editor(object):
             self._buttons['text_bold'].setChecked(r['bold'])
             self._buttons['text_italic'].setChecked(r['italic'])
             self._buttons['text_under'].setChecked(r['under'])
+            self._buttons['text_super'].setChecked(r['super'])
+            self._buttons['text_sub'].setChecked(r['sub'])
 
     def _loadFinished(self, w):
         self._loaded = True
@@ -559,6 +567,12 @@ class Editor(object):
 
     def toggleUnderline(self, bool):
         self.web.eval("setFormat('underline');")
+
+    def toggleSuper(self, bool):
+        self.web.eval("setFormat('superscript');")
+
+    def toggleSub(self, bool):
+        self.web.eval("setFormat('subscript');")
 
     def _updateForegroundButton(self, txtcol):
         self.foregroundFrame.setPalette(QPalette(QColor(txtcol)))
