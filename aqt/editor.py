@@ -11,7 +11,7 @@ from anki.sound import play
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
-from aqt.utils import shortcut
+from aqt.utils import shortcut, showInfo
 import anki.js
 
 # fixme: add code to escape from text field
@@ -95,7 +95,16 @@ function onBlur() {
 function saveField(type) {
     // type is either 'focus' or 'key'
     py.run(type + ":" + currentField.id.substring(1) + ":" + currentField.innerHTML);
-}
+};
+
+function cloze() {
+    var s = window.getSelection()
+    var r = s.getRangeAt(0).cloneContents();
+    var c = document.createElement('div');
+    c.appendChild(r);
+    var txt = c.innerHTML;
+    py.run("cloze:" + currentField.id.substring(1) + ":" + txt);
+};
 
 function setFields(fields) {
     var txt = "";
@@ -264,6 +273,33 @@ class Editor(object):
             self._buttons['text_under'].setChecked(r['under'])
             self._buttons['text_super'].setChecked(r['super'])
             self._buttons['text_sub'].setChecked(r['sub'])
+        elif str.startswith("cloze"):
+            (cmd, num, txt) = str.split(":", 2)
+            if not txt:
+                showInfo(_("Please select some text first."),
+                     help="ClozeDeletion")
+                return
+            # check that the model is set up for cloze deletion
+            ok = False
+            for t in self.fact.model().templates:
+                if "cloze" in t['qfmt'] or "cloze" in t['afmt']:
+                    ok = True
+                    break
+            if not ok:
+                showInfo(_("Please add a cloze deletion model."),
+                     help="ClozeDeletion")
+                return
+            num = int(num)
+            f = self.fact._fields[num]
+            # find the highest existing cloze
+            m = re.findall("\{\{c(\d+)::", f)
+            if m:
+                next = sorted([int(x) for x in m])[-1] + 1
+            else:
+                next = 1
+            self.fact._fields[num] = f.replace(
+                txt, "{{c%d::%s}}" % (next, txt))
+            self.loadFact()
 
     def _loadFinished(self, w):
         self._loaded = True
@@ -717,82 +753,9 @@ class Editor(object):
             type = 0; ord = 0
         CardLayout(self.mw, self.fact, type=type, ord=ord, parent=self.widget)
 
-    # FIXME: in some future version, we should use a different delimiter, as
-    # [sound] et al conflicts
     def onCloze(self):
-        src = self.focusedEdit()
-        if not src:
-            return
-        re1 = "\[(?:<.+?>)?.+?(:(.+?))?\](?:</.+?>)?"
-        re2 = "\[(?:<.+?>)?(.+?)(:.+?)?\](?:</.+?>)?"
-        # add brackets because selected?
-        cursor = src.textCursor()
-        oldSrc = None
-        if cursor.hasSelection():
-            oldSrc = src.toHtml()
-            s = cursor.selectionStart()
-            e = cursor.selectionEnd()
-            cursor.setPosition(e)
-            cursor.insertText("]]")
-            cursor.setPosition(s)
-            cursor.insertText("[[")
-            re1 = "\[" + re1 + "\]"
-            re2 = "\[" + re2 + "\]"
-        dst = None
-        for field in self.fact.fields:
-            w = self.fields[field.name][1]
-            if w.hasFocus():
-                dst = False
-                continue
-            if dst is False:
-                dst = w
-                break
-        if not dst:
-            dst = self.fields[self.fact.fields[0].name][1]
-            if dst == w:
-                return
-        # check if there's alredy something there
-        if not oldSrc:
-            oldSrc = src.toHtml()
-        oldDst = dst.toHtml()
-        if unicode(dst.toPlainText()):
-            if (self.lastCloze and
-                self.lastCloze[1] == oldSrc and
-                self.lastCloze[2] == oldDst):
-                src.setHtml(self.lastCloze[0])
-                dst.setHtml("")
-                self.lastCloze = None
-                self.saveFields()
-                return
-            else:
-                ui.utils.showInfo(
-                    _("Next field must be blank."),
-                    help="ClozeDeletion",
-                    parent=self.widget)
-                return
-        # check if there's anything to change
-        if not re.search("\[.+?\]", unicode(src.toPlainText())):
-            ui.utils.showInfo(
-                _("You didn't specify anything to occlude."),
-                help="ClozeDeletion",
-                parent=self.widget)
-            return
-        # create
-        s = unicode(src.toHtml())
-        def repl(match):
-            exp = ""
-            if match.group(2):
-                exp = match.group(2)
-            return '<font color="%s"><b>[...%s]</b></font>' % (
-                clozeColour, exp)
-        new = re.sub(re1, repl, s)
-        old = re.sub(re2, '<font color="%s"><b>\\1</b></font>'
-                     % clozeColour, s)
-        src.setHtml(new)
-        dst.setHtml(old)
-        self.lastCloze = (oldSrc, unicode(src.toHtml()),
-                          unicode(dst.toHtml()))
-        self.saveFields()
+        self.removeFormat()
+        self.web.eval("cloze();")
 
     def onHtmlEdit(self):
         def helpRequested():

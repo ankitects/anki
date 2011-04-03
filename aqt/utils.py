@@ -22,7 +22,7 @@ def showCritical(text, parent=None, help=""):
 def showInfo(text, parent=None, help="", func=None):
     "Show a small info window with an OK button."
     if not parent:
-        parent = aqt.mw
+        parent = aqt.mw.app.activeWindow() or aqt.mw
     if not func:
         func = QMessageBox.information
     sb = QMessageBox.Ok
