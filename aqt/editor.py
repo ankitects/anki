@@ -34,8 +34,8 @@ String.prototype.format = function() {
 var currentField = null;
 var changeTimer = null;
 
-function keyUp() {
-    // esc clears focus
+function onKey() {
+    // esc clears focus, allowing dialog to close
     if (window.event.which == 27) {
         currentField.blur();
         return;
@@ -103,7 +103,7 @@ function setFields(fields) {
         var n = fields[i][0];
         var f = fields[i][1];
         txt += "<tr><td class=fname>{0}</td><td width=100%%>".format(n);
-        txt += "<div id=f{0} onkeyup='keyUp();' onmouseup='keyUp();'".format(i);
+        txt += "<div id=f{0} onkeydown='onKey();' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "contentEditable=true>{0}</div>".format(f);
         txt += "</td></tr>";
@@ -211,7 +211,10 @@ class Editor(object):
           _("Superscript (Ctrl+=)"), check=True)
         b("text_sub", self.toggleSub, "Ctrl+Shift+=",
           _("Subscript (Ctrl+Shift+=)"), check=True)
-        #self.setupForegroundButton()
+        b("text_remove", self.removeFormat, "Ctrl+r",
+          _("Subscript (Ctrl+r)"))
+        but = b("foreground", self.onForeground, "F7", text=" ")
+        self.setupForegroundButton(but)
         but = b("cloze", self.onCloze, "F9", _("Cloze (F9)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
@@ -222,27 +225,14 @@ class Editor(object):
         # insertLatex, insertLatexEqn, insertLatexMathEnv
         but = b("text-xml", self.onHtmlEdit, "Ctrl+x", _("Source (Ctrl+x)"))
 
-    def setupForegroundButton(self):
-        # foreground color
-        self.foreground = QPushButton()
-        self.foreground.connect(self.foreground, SIGNAL("clicked()"), self.onForeground)
-        self.foreground.setToolTip(
-            _("Set colour (F7; repeat to choose next; F6 to use)"))
-        self.foreground.setShortcut(_("F7"))
-        self.foreground.setFocusPolicy(Qt.NoFocus)
-        self.foreground.setEnabled(False)
-        self.foreground.setFixedWidth(20)
-        self.foreground.setFixedHeight(20)
+    def setupForegroundButton(self, but):
         self.foregroundFrame = QFrame()
         self.foregroundFrame.setAutoFillBackground(True)
         self.colourChanged()
         hbox = QHBoxLayout()
         hbox.addWidget(self.foregroundFrame)
         hbox.setMargin(5)
-        self.foreground.setLayout(hbox)
-        self.iconsBox.addWidget(self.foreground)
-        self.foreground.setStyle(self.plastiqueStyle)
-        self.iconsBox.addItem(QSpacerItem(5,1, QSizePolicy.Fixed))
+        but.setLayout(hbox)
 
     def setupWeb(self):
         self.web = AnkiWebView(self.widget)
@@ -417,7 +407,7 @@ class Editor(object):
         self.fact.setModified(textChanged=True, deck=self.deck)
         self.loadFields(font=False)
         if modified:
-            aqt.mw.reset(runHooks=False)
+            self.mw.reset(runHooks=False)
 
     def onTextChanged(self):
         interval = 250
@@ -509,7 +499,7 @@ class Editor(object):
             self.deck.updateFactTags([self.fact.id])
             self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.flushMod()
-            aqt.mw.reset(runHooks=False)
+            self.mw.reset(runHooks=False)
         if self.onChange:
             self.onChange('tag')
 
@@ -574,19 +564,21 @@ class Editor(object):
     def toggleSub(self, bool):
         self.web.eval("setFormat('subscript');")
 
+    def removeFormat(self):
+        self.web.eval("setFormat('removeFormat');")
+
     def _updateForegroundButton(self, txtcol):
         self.foregroundFrame.setPalette(QPalette(QColor(txtcol)))
         self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
                                            txtcol)
 
     def colourChanged(self):
-        recent = aqt.mw.config['recentColours']
+        recent = self.mw.config['recentColours']
         self._updateForegroundButton(recent[-1])
 
     def onForeground(self):
-        self.lastFocusedEdit = self.focusedEdit()
-        p = ColourPopup(self.parent)
-        p.move(self.foreground.mapToGlobal(QPoint(0,0)))
+        p = ColourPopup(self.widget)
+        p.move(self.foregroundFrame.mapToGlobal(QPoint(0,0)))
         g = QGridLayout(p)
         g.setMargin(4)
         g.setSpacing(0)
@@ -598,7 +590,7 @@ class Editor(object):
         self.colourChoose = QShortcut(QKeySequence("F6"), p)
         p.connect(self.colourChoose, SIGNAL("activated()"),
                   self.onChooseColourKey)
-        for n, c in enumerate(reversed(aqt.mw.config['recentColours'])):
+        for n, c in enumerate(reversed(self.mw.config['recentColours'])):
             col = QToolButton()
             col.setAutoRaise(True)
             col.setFixedWidth(64)
@@ -632,7 +624,7 @@ class Editor(object):
         p.show()
 
     def onRemoveColour(self, colour):
-        recent = aqt.mw.config['recentColours']
+        recent = self.mw.config['recentColours']
         recent.remove(colour)
         if not recent:
             recent.append("#000000")
@@ -654,18 +646,17 @@ class Editor(object):
             pass
 
     def onChooseColour(self, colour):
-        recent = aqt.mw.config['recentColours']
+        recent = self.mw.config['recentColours']
         recent.remove(colour)
         recent.append(colour)
-        w = self.lastFocusedEdit
-        w.setTextColor(QColor(colour))
+        self.web.eval("setFormat('forecolor', '%s')" % colour)
         self.colourDiag.close()
         runHook("colourChanged")
 
     def onNewColour(self):
-        new = QColorDialog.getColor(Qt.white, self.parent)
-        self.parent.raise_()
-        recent = aqt.mw.config['recentColours']
+        new = QColorDialog.getColor(Qt.white, self.widget)
+        self.widget.raise_()
+        recent = self.mw.config['recentColours']
         if new.isValid():
             txtcol = unicode(new.name())
             if txtcol not in recent:
@@ -712,7 +703,7 @@ class Editor(object):
     def onMore(self, toggle=None):
         if toggle is None:
             toggle = not self.latex.isVisible()
-            aqt.mw.config['factEditorAdvanced'] = toggle
+            self.mw.config['factEditorAdvanced'] = toggle
         self.latex.setShown(toggle)
         self.latexEqn.setShown(toggle)
         self.latexMathEnv.setShown(toggle)
@@ -777,14 +768,14 @@ class Editor(object):
                 ui.utils.showInfo(
                     _("Next field must be blank."),
                     help="ClozeDeletion",
-                    parent=self.parent)
+                    parent=self.widget)
                 return
         # check if there's anything to change
         if not re.search("\[.+?\]", unicode(src.toPlainText())):
             ui.utils.showInfo(
                 _("You didn't specify anything to occlude."),
                 help="ClozeDeletion",
-                parent=self.parent)
+                parent=self.widget)
             return
         # create
         s = unicode(src.toHtml())
@@ -809,7 +800,7 @@ class Editor(object):
         w = self.focusedEdit()
         if w:
             self.saveFields()
-            d = QDialog(self.parent)
+            d = QDialog(self.widget)
             form = aqt.forms.edithtml.Ui_Dialog()
             form.setupUi(d)
             d.connect(form.buttonBox, SIGNAL("helpRequested()"),
@@ -833,7 +824,7 @@ class Editor(object):
         w = self.focusedEdit()
         key = (_("Images") +
                " (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)")
-        file = ui.utils.getFile(self.parent, _("Add an image"), "picture", key)
+        file = ui.utils.getFile(self.widget, _("Add an image"), "picture", key)
         if not file:
             return
         if file.lower().endswith(".svg"):
@@ -864,7 +855,7 @@ class Editor(object):
             return self.deck.addMedia(file)
         except (IOError, OSError), e:
             ui.utils.showWarning(_("Unable to add media: %s") % unicode(e),
-                                 parent=self.parent)
+                                 parent=self.widget)
 
     def onAddSound(self):
         # get this before we open the dialog
@@ -872,7 +863,7 @@ class Editor(object):
         key = (_("Sounds/Videos") +
                " (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
                "*.mkv *.ogx *.ogv *.oga *.flv *.swf *.flac)")
-        file = ui.utils.getFile(self.parent, _("Add audio"), "audio", key)
+        file = ui.utils.getFile(self.widget, _("Add audio"), "audio", key)
         if not file:
             return
         self._addSound(file, widget=w)
@@ -892,7 +883,7 @@ class Editor(object):
         w.insertHtml('[sound:%s]' % path)
 
     def maybeDelete(self, new, old):
-        if not aqt.mw.config['deleteMedia']:
+        if not self.mw.config['deleteMedia']:
             return
         if new == os.path.basename(old):
             return
@@ -905,12 +896,12 @@ class Editor(object):
         self.initMedia()
         w = self.focusedEdit()
         try:
-            file = getAudio(self.parent)
+            file = getAudio(self.widget)
         except:
             if sys.platform.startswith("darwin"):
                 ui.utils.showInfo(_('''\
 Please install <a href="http://www.thalictrum.com/software/lame-3.97.dmg.gz">lame</a>
-to enable recording.'''), parent=self.parent)
+to enable recording.'''), parent=self.widget)
                 return
             raise
         if file:
@@ -942,7 +933,7 @@ class FactEdit(QTextEdit):
         if source.hasHtml() and "qrichtext" in unicode(source.html()):
             self.insertHtml(source.html())
             return True
-        if source.hasText() and (aqt.mw.config['stripHTML'] or
+        if source.hasText() and (self.mw.config['stripHTML'] or
                                  not source.hasHtml()):
             txt = unicode(source.text())
             l = txt.lower()
@@ -1022,7 +1013,7 @@ class FactEdit(QTextEdit):
     def simplifyHTML(self, html):
         "Remove all style information and P tags."
         # fixme
-        if not aqt.mw.config['stripHTML']:
+        if not self.mw.config['stripHTML']:
             return html
         html = re.sub("\n", " ", html)
         html = re.sub("<br ?/?>", "\n", html)
@@ -1038,7 +1029,7 @@ class FactEdit(QTextEdit):
         self.parent.lastFocusedEdit = self
         self.parent.resetFormatButtons()
         self.parent.disableButtons()
-        if aqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
+        if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
             self._ownLayout = GetKeyboardLayout(0)
             ActivateKeyboardLayout(self._programLayout, 0)
         self.emit(SIGNAL("lostFocus"))
@@ -1058,7 +1049,7 @@ class FactEdit(QTextEdit):
         QTextEdit.focusInEvent(self, evt)
         self.parent.formatChanged(None)
         self.parent.enableButtons()
-        if aqt.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
+        if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
             self._programLayout = GetKeyboardLayout(0)
             if self._ownLayout == None:
                 self._ownLayout = self._programLayout

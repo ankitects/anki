@@ -94,5 +94,8 @@
     <file>icons/text_under.png</file>
     <file>icons/view-pim-news.png</file>
     <file>icons/view_text.png</file>
+    <file>icons/text_sub.png</file>
+    <file>icons/text_super.png</file>
+    <file>icons/text_remove.png</file>
   </qresource>
 </RCC>
