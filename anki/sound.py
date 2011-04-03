@@ -109,12 +109,13 @@ def generateNoiseProfile():
 ##########################################################################
 
 if sys.platform.startswith("win32"):
-    mplayerCmd = ["mplayer.exe", "-ao", "win32", "-really-quiet"]
+    mplayerCmd = ["mplayer.exe", "-ao", "win32"]
     dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.environ['PATH'] += ";" + dir
     os.environ['PATH'] += ";" + dir + "\\..\\win\\top" # for testing
 else:
-    mplayerCmd = ["mplayer", "-really-quiet"]
+    mplayerCmd = ["mplayer"]
+mplayerCmd += ["-really-quiet", "-noautosub"]
 
 # Mplayer in slave mode
 ##########################################################################
