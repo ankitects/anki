@@ -86,8 +86,8 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         return self._fields
 
     def items(self):
-        return [(k, self._fields[v[0]])
-                for (k, v) in self._fmap.items()]
+        return [(f['name'], self._fields[ord])
+                for ord, f in sorted(self._fmap.values())]
 
     def _fieldOrd(self, key):
         try:
