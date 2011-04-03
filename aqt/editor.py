@@ -705,8 +705,12 @@ class Editor(object):
         self.htmlEdit.setShown(toggle)
 
     def onCardLayout(self):
-        self.saveFields()
-        ui.clayout.CardLayout(self.parent, self, self.fact, self.card)
+        from aqt.clayout import CardLayout
+        if self.card:
+            type = 1; ord = self.card.ord
+        else:
+            type = 0; ord = 0
+        CardLayout(self.mw, self.fact, type=type, ord=ord, parent=self.widget)
 
     # FIXME: in some future version, we should use a different delimiter, as
     # [sound] et al conflicts
