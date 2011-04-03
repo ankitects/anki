@@ -41,6 +41,9 @@ class AddCards(QDialog):
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(self.mw, self.dialog.fieldsArea)
+        # get a fact for testing
+        fact = self.mw.deck.getFact(3951)
+        self.editor.setFact(fact)
 
     def addChooser(self):
         return

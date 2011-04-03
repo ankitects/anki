@@ -127,7 +127,7 @@
     </property>
     <widget class="QMenu" name="menuPlugins">
      <property name="title">
-      <string>P&amp;lugins</string>
+      <string>&amp;Add-ons</string>
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
@@ -499,17 +499,17 @@
   </action>
   <action name="actionOpenPluginFolder">
    <property name="text">
-    <string>&amp;Open Plugin Folder...</string>
+    <string>&amp;Open Add-ons Folder...</string>
    </property>
   </action>
   <action name="actionEnableAllPlugins">
    <property name="text">
-    <string>&amp;Enable All Plugins</string>
+    <string>&amp;Enable All</string>
    </property>
   </action>
   <action name="actionDisableAllPlugins">
    <property name="text">
-    <string>&amp;Disable All Plugins</string>
+    <string>&amp;Disable All</string>
    </property>
   </action>
   <action name="actionEditCurrent">
@@ -648,7 +648,7 @@
      <normaloff>:/icons/layout.png</normaloff>:/icons/layout.png</iconset>
    </property>
    <property name="text">
-    <string>Layout...</string>
+    <string>&amp;Layout...</string>
    </property>
    <property name="shortcut">
     <string>L</string>

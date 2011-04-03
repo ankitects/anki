@@ -62,6 +62,7 @@ class ProgressManager(object):
             t.setSingleShot(True)
         t.connect(t, SIGNAL("timeout()"), handler)
         t.start(ms)
+        return t
 
     # Creating progress dialogs
     ##########################################################################

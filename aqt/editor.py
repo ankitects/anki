@@ -30,16 +30,67 @@ String.prototype.format = function() {
             return args[m.match(/\d+/)]; });
 };
 
+var currentField = null;
+var changeTimer = null;
+
+function keyUp() {
+    // esc clears focus
+    if (window.event.which == 27) {
+        currentField.blur();
+        return;
+    }
+    clearChangeTimer();
+    changeTimer = setTimeout(function () { saveField("key"); }, 700);
+};
+
+function clearChangeTimer() {
+    if (changeTimer) {
+        clearTimeout(changeTimer);
+        changeTimer = null;
+    }
+};
+
+function onFocus(elem) {
+    currentField = elem;
+    setTimeout(foo, 1);
+}
+
+function foo() {
+    var s = document.getSelection();
+    if (s.rangeCount) {
+        var r = s.getRangeAt(0);
+        r.collapse();
+        s.removeAllRanges();
+        s.addRange(r);
+    }
+};
+
+function onBlur() {
+    if (currentField) {
+        saveField("focus");
+    }
+    clearChangeTimer();
+    currentField = null;
+};
+
+function saveField(type) {
+    // type is either 'focus' or 'key'
+    py.run(type + ":" + currentField.id.substring(1) + ":" + currentField.innerHTML);
+}
+
 function setFields(fields) {
     var txt = "";
     for (var i=0; i<fields.length; i++) {
         var n = fields[i][0];
         var f = fields[i][1];
         txt += "<tr><td class=fname>{0}</td><td width=100%%>".format(n);
-        txt += "<div class=field contentEditable=true>{0}</div>".format(f);
+        txt += "<div id=f{0} onkeyup='keyUp();'".format(i);
+        txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
+        txt += "contentEditable=true>{0}</div>".format(f);
         txt += "</td></tr>";
     }
     $("#fields").html("<table cellpadding=3>"+txt+"</table>");
+    $("#f0").focus();
 };
 </script></head><body>
 <div id="fields"></div>
@@ -62,6 +113,7 @@ class Editor(object):
         self.mw = mw
         self.fact = None
         self.onChange = None
+        self._loaded = False
         # to be handled js side
         #self.lastFocusedEdit = None
         self.changeTimer = None
@@ -171,20 +223,33 @@ class Editor(object):
 
     def setupWeb(self):
         self.web = AnkiWebView(self.widget)
+        self.web.setBridge(self.bridge)
         self.outerLayout.addWidget(self.web)
         # pick up the window colour
         p = self.web.palette()
         p.setBrush(QPalette.Base, Qt.transparent)
         self.web.page().setPalette(p)
         self.web.setAttribute(Qt.WA_OpaquePaintEvent, False)
-        self.web.setHtml(_html % anki.js.all, loadCB=self._loadFinished)
+        self.web.setHtml(_html % anki.js.all,
+                         loadCB=self._loadFinished)
+
+    def bridge(self, str):
+        print str
+        (type, num, txt) = str.split(":", 2)
+        self.fact._fields[int(num)] = txt
+        if type == "focus":
+            runHook("editor.focusLost", self.fact)
+        else:
+            runHook("editor.keyPressed", self.fact)
+        self.fact.flush()
 
     def _loadFinished(self, w):
-        self.web.eval("setFields(%s);" % simplejson.dumps(
-            [["Expression", "foo"], ["Reading", "Bar"]]))
-
+        self._loaded = True
+        if self.fact:
+            self.loadFact()
 
     def setupTags(self):
+        return
         # # scrollarea
         # self.fieldsScroll = QScrollArea()
         # self.fieldsScroll.setWidgetResizable(True)
@@ -203,81 +268,52 @@ class Editor(object):
         # self.tagsBox.addWidget(self.tags)
         # self.fieldsBox.addLayout(self.tagsBox)
 
+        # update available tags
+        self.tags.setDeck(self.deck)
+        tagsw = self.tagsLabel.sizeHint().width()
+        self.tagsLabel.setFixedWidth(max(tagsw,
+                                         max(*([
+            l.width() for l in self.labels] + [0])))
+                                     + extra)
         pass
 
-    def setFact(self, fact, noFocus=False, check=False, scroll=False,
-                forceRedraw=False):
+
+    def setFact(self, fact):
         "Make FACT the current fact."
-        return 
         self.fact = fact
-        self.factState = None
         if self.changeTimer:
             self.changeTimer.stop()
             self.changeTimer = None
-        if self.needToRedraw() or forceRedraw:
-            if self.fact:
-                self.drawFields(noFocus, check)
-            else:
-                self.widget.hide()
-                return
+        if self.fact:
+            self.loadFact()
         else:
-            self.loadFields(check)
+            self.widget.hide()
+
+    def loadFact(self):
+        if not self._loaded:
+            # will be loaded when page is ready
+            return
+        # fixme: focus on first widget
+        self.web.eval("setFields(%s);" % simplejson.dumps(self.fact.items()))
         self.widget.show()
-        if scroll:
-            self.fieldsScroll.ensureVisible(0, 0)
-        if not noFocus:
-            # update focus to first field
-            self.fields[self.fact.fields[0].name][1].setFocus()
-        self.deck.setUndoBarrier()
-        if self.deck.mediaDir(create=False):
-            self.initMedia()
 
     def refresh(self):
         if self.fact:
-            try:
-                self.deck.db.refresh(self.fact)
-            except InvalidRequestError:
-                # not attached to session yet, add cards dialog will handle
-                return
-            self.setFact(self.fact, check=True, forceRedraw=True)
-
-    def focusFirst(self):
-        if self.focusTarget:
-            self.focusTarget.setFocus()
+            self.fact.load()
+            # fixme: what if fact is deleted?
+            self.setFact(self.fact)
 
     def initMedia(self):
         os.chdir(self.deck.mediaDir(create=True))
 
     def deckClosedHook(self):
-        self.fact = None
+        self.setFact(None)
 
-    def _makeGrid(self):
-        "Rebuild the grid to avoid trigging QT bugs."
-        self.fieldsFrame = QWidget()
-        self.fieldsGrid = QGridLayout(self.fieldsFrame)
-        self.fieldsFrame.setLayout(self.fieldsGrid)
-        self.fieldsGrid.setMargin(0)
-        self.fieldsGrid.setSpacing(5)
+        # if field.fieldModel.features:
+        #     w.setLayoutDirection(Qt.RightToLeft)
+        # else:
+        #     w.setLayoutDirection(Qt.LeftToRight)
 
-    def drawField(self, field, n):
-        # label
-        l = QLabel(field.name)
-        self.labels.append(l)
-        self.fieldsGrid.addWidget(l, n, 0)
-        # edit widget
-        w = FactEdit(self)
-        w.setTabChangesFocus(True)
-        w.setAcceptRichText(True)
-        w.setMinimumSize(20, 60)
-        w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        w.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        if field.fieldModel.features:
-            w.setLayoutDirection(Qt.RightToLeft)
-        else:
-            w.setLayoutDirection(Qt.LeftToRight)
-        self.fieldsGrid.addWidget(w, n, 1)
-        self.fields[field.name] = (field, w)
-        self.widgets[w] = field
         # catch changes
         w.connect(w, SIGNAL("lostFocus"),
                     lambda w=w: self.onFocusLost(w))
@@ -286,56 +322,6 @@ class Editor(object):
         w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
                     lambda w=w: self.formatChanged(w))
         return w
-
-    def drawFields(self, noFocus=False, check=False):
-        self.parent.setUpdatesEnabled(False)
-        self._makeGrid()
-        # add entries for each field
-        fields = self.fact.fields
-        self.fields = {}
-        self.widgets = {}
-        self.labels = []
-        n = 0
-        first = True
-        last = None
-
-        for field in fields:
-            w = self.drawField(field, n)
-            last = w
-            if first:
-                self.focusTarget = w
-                first = False
-            n += 1
-
-        # update available tags
-        self.tags.setDeck(self.deck)
-        # update fields
-        self.loadFields(check)
-        self.parent.setUpdatesEnabled(True)
-        self.fieldsScroll.setWidget(self.fieldsFrame)
-        if sys.platform.startswith("darwin"):
-            extra = 5
-        elif sys.platform.startswith("win32"):
-            extra = 3
-        else:
-            extra = 2
-        tagsw = self.tagsLabel.sizeHint().width()
-        self.tagsLabel.setFixedWidth(max(tagsw,
-                                         max(*([
-            l.width() for l in self.labels] + [0])))
-                                     + extra)
-        self.parent.setTabOrder(last, self.tags)
-
-    def needToRedraw(self):
-        return True
-        if self.fact is None:
-            return True
-        if len(self.fact._fields) != len(self.fields):
-            return True
-        for field in self.fact.fields:
-            if field.name not in self.fields:
-                return True
-        return False
 
     def loadFields(self, check=True, font=True):
         "Update field text (if changed) and font/colours."
@@ -459,12 +445,6 @@ class Editor(object):
             else:
                 p.setColor(QPalette.Base, QColor("#ffffff"))
                 self.fields[field.name][1].setPalette(p)
-        # call relevant hooks
-        invalid = len(empty+dupe)
-        if self.factState != "valid" and not invalid:
-            self.factState = "valid"
-        elif self.factState != "invalid" and invalid:
-            self.factState = "invalid"
 
     def textForField(self, field):
         "Current edited value for field."
