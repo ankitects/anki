@@ -24,6 +24,7 @@ _html = """
 .fname { font-size: 14px; vertical-align: middle; padding-right: 5px; }
 </style><script>
 %s
+
 String.prototype.format = function() {
     var args = arguments;
     return this.replace(/\{\d+\}/g, function(m){
@@ -40,7 +41,23 @@ function keyUp() {
         return;
     }
     clearChangeTimer();
-    changeTimer = setTimeout(function () { saveField("key"); }, 700);
+    changeTimer = setTimeout(function () {
+        sendState();
+        saveField("key"); }, 200);
+};
+
+function sendState() {
+    var r = {
+        'bold': document.queryCommandState("bold"),
+        'italic': document.queryCommandState("italic"),
+        'under': document.queryCommandState("underline"),
+        'col': document.queryCommandValue("forecolor")
+    };
+    py.run("state:" + JSON.stringify(r));
+};
+
+function setFormat(cmd, arg) {
+    document.execCommand(cmd, false, arg);
 };
 
 function clearChangeTimer() {
@@ -84,7 +101,7 @@ function setFields(fields) {
         var n = fields[i][0];
         var f = fields[i][1];
         txt += "<tr><td class=fname>{0}</td><td width=100%%>".format(n);
-        txt += "<div id=f{0} onkeyup='keyUp();'".format(i);
+        txt += "<div id=f{0} onkeyup='keyUp();' onmouseup='keyUp();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "contentEditable=true>{0}</div>".format(f);
         txt += "</td></tr>";
@@ -146,7 +163,7 @@ class Editor(object):
                    check=False):
         b = QPushButton(text)
         if check:
-            b.connect(b, SIGNAL("toggled(bool)"), func)
+            b.connect(b, SIGNAL("clicked(bool)"), func)
         else:
             b.connect(b, SIGNAL("clicked()"), func)
         if size:
@@ -186,8 +203,8 @@ class Editor(object):
           check=True)
         b("text_italic", self.toggleItalic, "Ctrl+i", _("Italic text (Ctrl+i)"),
           check=True)
-        b("text_under", self.toggleUnderline, "Ctrl+i",
-          _("Underline text (Ctrl+i)"), check=True)
+        b("text_under", self.toggleUnderline, "Ctrl+u",
+          _("Underline text (Ctrl+u)"), check=True)
         #self.setupForegroundButton()
         but = b("cloze", self.onCloze, "F9", _("Cloze (F9)"), text="[...]")
         but.setFixedWidth(24)
@@ -235,13 +252,20 @@ class Editor(object):
 
     def bridge(self, str):
         print str
-        (type, num, txt) = str.split(":", 2)
-        self.fact._fields[int(num)] = txt
-        if type == "focus":
-            runHook("editor.focusLost", self.fact)
-        else:
-            runHook("editor.keyPressed", self.fact)
-        self.fact.flush()
+        if str.startswith("focus") or str.startswith("key"):
+            (type, num, txt) = str.split(":", 2)
+            self.fact._fields[int(num)] = txt
+            if type == "focus":
+                runHook("editor.focusLost", self.fact)
+            else:
+                runHook("editor.keyPressed", self.fact)
+            self.fact.flush()
+        elif str.startswith("state"):
+            (cmd, txt) = str.split(":", 1)
+            r = simplejson.loads(txt)
+            self._buttons['text_bold'].setChecked(r['bold'])
+            self._buttons['text_italic'].setChecked(r['italic'])
+            self._buttons['text_under'].setChecked(r['under'])
 
     def _loadFinished(self, w):
         self._loaded = True
@@ -528,19 +552,13 @@ class Editor(object):
         return None
 
     def toggleBold(self, bool):
-        w = self.focusedEdit()
-        if w:
-            w.setFontWeight(bool and QFont.Bold or QFont.Normal)
+        self.web.eval("setFormat('bold');")
 
     def toggleItalic(self, bool):
-        w = self.focusedEdit()
-        if w:
-            w.setFontItalic(bool)
+        self.web.eval("setFormat('italic');")
 
     def toggleUnderline(self, bool):
-        w = self.focusedEdit()
-        if w:
-            w.setFontUnderline(bool)
+        self.web.eval("setFormat('underline');")
 
     def _updateForegroundButton(self, txtcol):
         self.foregroundFrame.setPalette(QPalette(QColor(txtcol)))
