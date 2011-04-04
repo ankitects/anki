@@ -264,25 +264,17 @@ def applyStyles(widget):
     except (IOError, OSError):
         pass
 
-def getBase(deck, card):
+def getBase(deck):
     base = None
-    if deck and card:
-        print "fixme: remote images"
-        mdir = deck.media.dir()
-        if False: # deck.getBool("remoteImages") and card.fact.model.features:
-            pass #base = card.fact.model.features
-        elif mdir:
-            if isWin:
-                prefix = u"file:///"
-            else:
-                prefix = u"file://"
-            base = prefix + unicode(
-                urllib.quote(mdir.encode("utf-8")),
-                "utf-8") + "/"
-    if base:
-        return '<base href="%s">' % base
+    mdir = deck.media.dir(create=None)
+    if isWin:
+        prefix = u"file:///"
     else:
-        return ""
+        prefix = u"file://"
+    base = prefix + unicode(
+        urllib.quote(mdir.encode("utf-8")),
+        "utf-8") + "/"
+    return '<base href="%s">' % base
 
 def openFolder(path):
     if sys.platform == "win32":

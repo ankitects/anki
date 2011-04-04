@@ -215,7 +215,7 @@ class CardLayout(QDialog):
         styles = self.model.genCSS()
         self.form.preview.setHtml(
             ('<html><head>%s</head><body class="%s">' %
-             (getBase(self.deck, c), c.cssClass())) +
+             (getBase(self.deck), c.cssClass())) +
             "<style>" + styles + "</style>" +
             mungeQA(c.q(reload=True)) +
             self.maybeTextInput() +

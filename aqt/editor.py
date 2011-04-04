@@ -5,19 +5,18 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import * # fixme: obsolete?
+from PyQt4.QtWebKit import QWebView
 import re, os, sys, tempfile, urllib2, ctypes, simplejson
 from anki.utils import stripHTML
 from anki.sound import play
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
-from aqt.utils import shortcut, showInfo
+from aqt.utils import shortcut, showInfo, showWarning, getBase
 import anki.js
 
-# fixme: add code to escape from text field
-
 _html = """
-<html><head><style>
+<html><head>%s<style>
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
@@ -185,7 +184,7 @@ class Editor(object):
         self.outerLayout = l
 
     def setupWeb(self):
-        self.web = AnkiWebView(self.widget)
+        self.web = EditorWebView(self.widget, self)
         self.web.allowDrops = True
         self.web.setBridge(self.bridge)
         self.outerLayout.addWidget(self.web)
@@ -194,8 +193,6 @@ class Editor(object):
         p.setBrush(QPalette.Base, Qt.transparent)
         self.web.page().setPalette(p)
         self.web.setAttribute(Qt.WA_OpaquePaintEvent, False)
-        self.web.setHtml(_html % anki.js.all,
-                         loadCB=self._loadFinished)
 
     # Top buttons
     ######################################################################
@@ -361,7 +358,8 @@ class Editor(object):
             self.changeTimer.stop()
             self.changeTimer = None
         if self.fact:
-            self.loadFact()
+            self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all),
+                             loadCB=self._loadFinished)
             self.updateTags()
         else:
             self.widget.hide()
@@ -769,36 +767,60 @@ to enable recording.'''), parent=self.widget)
             cur.setPosition(pos+4)
             w.setTextCursor(cur)
 
+# Pasting, drag & drop, and keyboard layouts
+######################################################################
 
-class FactEdit(QTextEdit):
+class EditorWebView(AnkiWebView):
 
-    def __init__(self, parent, *args):
-        QTextEdit.__init__(self, *args)
-        self.parent = parent
-        self._tmpDir = None
-        if sys.platform.startswith("win32"):
-            self._ownLayout = None
+    pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
+    audio =  ("wav", "mp3", "ogg", "flac")
 
-    def canInsertFromMimeData(self, source):
-        return (source.hasUrls() or
-                source.hasText() or
-                source.hasImage() or
-                source.hasHtml())
+    def __init__(self, parent, editor):
+        AnkiWebView.__init__(self, parent)
+        self.editor = editor
+        self.__tmpDir = None
+        self.errtxt = _("An error occured while opening %s")
+        # if sys.platform.startswith("win32"):
+        #     self._ownLayout = None
 
-    def insertFromMimeData(self, source):
-        if self._insertFromMimeData(source):
-            self.emit(SIGNAL("lostFocus"))
+    # after the drop/copy, make sure data updated?
 
-    def _insertFromMimeData(self, source):
-        pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
-        audio =  ("wav", "mp3", "ogg", "flac")
-        errtxt = _("An error occured while opening %s")
-        if source.hasHtml() and "qrichtext" in unicode(source.html()):
-            self.insertHtml(source.html())
-            return True
-        if source.hasText() and (self.mw.config['stripHTML'] or
-                                 not source.hasHtml()):
-            txt = unicode(source.text())
+    def keyPressEvent(self, evt):
+        self._curKey = True
+        return QWebView.keyPressEvent(self, evt)
+
+    def contextMenuEvent(self, evt):
+        QWebView.contextMenuEvent(self, evt)
+
+    def dropEvent(self, evt):
+        oldmime = evt.mimeData()
+        # coming from us?
+        if evt.source() == self:
+            # if they're copying just an image, we need to turn it into html
+            # again
+            txt = ""
+            if not oldmime.hasHtml() and oldmime.hasUrls():
+                # qt gives it to us twice
+                txt += '<img src="%s">' % os.path.basename(
+                    unicode(oldmime.urls()[0].toString()))
+                mime = QMimeData()
+                mime.setHtml(txt)
+        else:
+            mime = self._processMime(oldmime)
+        # create a new event with the new mime data
+        new = QDropEvent(evt.pos(), evt.possibleActions(), mime,
+                         evt.mouseButtons(), evt.keyboardModifiers())
+        evt.accept()
+        QWebView.dropEvent(self, new)
+
+    def _processMime(self, mime):
+        print "html=%s image=%s urls=%s txt=%s" % (
+            mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
+        if mime.hasUrls():
+            return self._processUrls(mime)
+        if mime.hasText() and (self.mw.config['stripHTML'] or
+                                 not mime.hasHtml()):
+            txt = unicode(mime.text())
             l = txt.lower()
             if l.startswith("http://") or l.startswith("file://"):
                 hadN = False
@@ -808,7 +830,7 @@ class FactEdit(QTextEdit):
                 if "\r" in txt:
                     txt = txt.split("\r")[0]
                     hadN = True
-                if not source.hasImage() or hadN:
+                if not mime.hasImage() or hadN:
                     # firefox on linux just gives us a url
                     ext = txt.split(".")[-1].lower()
                     try:
@@ -820,15 +842,15 @@ class FactEdit(QTextEdit):
                             self.parent._addSound(name, widget=self)
                         else:
                             # not image or sound, treat as plain text
-                            self.insertPlainText(source.text())
+                            self.insertPlainText(mime.text())
                         return True
                     except urllib2.URLError, e:
                         ui.utils.showWarning(errtxt % e)
             else:
-                self.insertPlainText(source.text())
+                self.insertPlainText(mime.text())
                 return True
-        if source.hasImage():
-            im = QImage(source.imageData())
+        if mime.hasImage():
+            im = QImage(mime.imageData())
             if im.hasAlphaChannel():
                 (fd, name) = tempfile.mkstemp(prefix="paste", suffix=".png")
                 uname = unicode(name, sys.getfilesystemencoding())
@@ -839,39 +861,49 @@ class FactEdit(QTextEdit):
                 im.save(uname, None, 95)
             self.parent._addPicture(uname, widget=self)
             return True
-        if source.hasUrls():
-            for url in source.urls():
-                url = unicode(url.toString())
-                ext = url.split(".")[-1].lower()
-                try:
-                    if ext in pics:
-                        name = self._retrieveURL(url)
-                        self.parent._addPicture(name, widget=self)
-                    elif ext in audio:
-                        name = self._retrieveURL(url)
-                        self.parent._addSound(name, widget=self)
-                except urllib2.URLError, e:
-                    ui.utils.showWarning(errtxt % e)
-            return True
-        if source.hasHtml():
-            self.insertHtml(self.simplifyHTML(unicode(source.html())))
+        if mime.hasHtml():
+            self.insertHtml(self.simplifyHTML(unicode(mime.html())))
             return True
 
+    def _processUrls(self, mime):
+        links = []
+        for url in mime.urls():
+            url = unicode(url.toString())
+            link = self._retrieveURL(url)
+            if link:
+                links.append(link)
+        mime = QMimeData()
+        mime.setHtml("".join(links))
+        return mime
+
     def _retrieveURL(self, url):
-        req = urllib2.Request(url, None, {
-            'User-Agent': 'Mozilla/5.0 (compatible; Anki/%s)' %
-            aqt.appVersion })
-        filecontents = urllib2.urlopen(req).read()
-        path = os.path.join(self.tmpDir(), os.path.basename(url))
+        # fetch it into a temporary folder
+        try:
+            req = urllib2.Request(url, None, {
+                'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
+            filecontents = urllib2.urlopen(req).read()
+        except urllib2.URLError, e:
+            showWarning(self.errtxt % e)
+            return
+        path = os.path.join(self._tmpDir(), os.path.basename(url))
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
-        return path
+        # copy to media folder
+        name = self.editor.mw.deck.media.addFile(path)
+        print "name was", name
+        # return a local html link
+        ext = name.split(".")[-1].lower()
+        if ext in self.pics:
+            return '<img src="%s">' % name
+        else:
+            # FIXME: should also autoplay audio
+            return '[sound:%s]' % name
 
-    def tmpDir(self):
-        if not self._tmpDir:
-            self._tmpDir = tempfile.mkdtemp(prefix="anki")
-        return self._tmpDir
+    def _tmpDir(self):
+        if not self.__tmpDir:
+            self.__tmpDir = tempfile.mkdtemp(prefix="anki")
+        return self.__tmpDir
 
     def simplifyHTML(self, html):
         "Remove all style information and P tags."

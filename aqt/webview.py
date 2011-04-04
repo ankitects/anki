@@ -56,9 +56,6 @@ class AnkiWebView(QWebView):
         self._curKey = None
         self.allowDrops = False
     def keyPressEvent(self, evt):
-        if evt.matches(QKeySequence.Copy):
-            self.triggerPageAction(QWebPage.Copy)
-            evt.accept()
         self._curKey = True
         return QWebView.keyPressEvent(self, evt)
     def keyReleaseEvent(self, evt):
@@ -75,8 +72,7 @@ class AnkiWebView(QWebView):
     def contextMenuEvent(self, evt):
         QWebView.contextMenuEvent(self, evt)
     def dropEvent(self, evt):
-        if self.allowDrops:
-            QWebView.dropEvent(self, evt)
+        pass
     def setLinkHandler(self, handler=None):
         if handler:
             self.linkHandler = handler
