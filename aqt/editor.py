@@ -787,9 +787,13 @@ class EditorWebView(AnkiWebView):
 
     def keyPressEvent(self, evt):
         self._curKey = True
+        if evt.matches(QKeySequence.Paste):
+            self.onPaste()
         return QWebView.keyPressEvent(self, evt)
 
     def contextMenuEvent(self, evt):
+        # adjust in case the user is going to paste
+        self.onPaste()
         QWebView.contextMenuEvent(self, evt)
 
     def dropEvent(self, evt):
@@ -812,6 +816,12 @@ class EditorWebView(AnkiWebView):
                          evt.mouseButtons(), evt.keyboardModifiers())
         evt.accept()
         QWebView.dropEvent(self, new)
+
+    def onPaste(self):
+        clip = self.editor.mw.app.clipboard()
+        mime = clip.mimeData()
+        mime = self._processMime(mime)
+        clip.setMimeData(mime)
 
     def _processMime(self, mime):
         print "html=%s image=%s urls=%s txt=%s" % (
