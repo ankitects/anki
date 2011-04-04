@@ -21,6 +21,7 @@ _html = """
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
 .fname { font-size: 14px; vertical-align: middle; padding-right: 5px; }
+img { max-width: 150; max-height: 150; }
 </style><script>
 %s
 
@@ -826,6 +827,9 @@ class EditorWebView(AnkiWebView):
     def _processMime(self, mime):
         print "html=%s image=%s urls=%s txt=%s" % (
             mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
+        print "html", mime.html()
+        print "urls", mime.urls()
+        print "text", mime.text()
         if mime.hasUrls():
             return self._processUrls(mime)
         if mime.hasText() and (self.mw.config['stripHTML'] or
