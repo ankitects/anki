@@ -556,6 +556,9 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
         "A list of all group names."
         return self.db.list("select name from groups order by name")
 
+    def groupName(self, id):
+        return self.db.scalar("select name from groups where id = ?", id)
+
     def groupId(self, name):
         "Return the id for NAME, creating if necessary."
         id = self.db.scalar("select id from groups where name = ?", name)
