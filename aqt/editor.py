@@ -120,6 +120,20 @@ function setFields(fields) {
     $("#fields").html("<table cellpadding=3>"+txt+"</table>");
     $("#f0").focus();
 };
+
+$(function () {
+    // ignore drops outside the editable area
+    document.body.ondragover = function () {
+        e = window.event.srcElement;
+        do {
+            if (e.contentEditable == "true") {
+                return;
+            }
+            e = window.parentNode;
+        } while (e);
+        window.event.preventDefault();
+    }
+});
 </script></head><body>
 <div id="fields"></div>
 </body></html>
@@ -170,6 +184,22 @@ class Editor(object):
         self.widget.setLayout(l)
         self.outerLayout = l
 
+    def setupWeb(self):
+        self.web = AnkiWebView(self.widget)
+        self.web.allowDrops = True
+        self.web.setBridge(self.bridge)
+        self.outerLayout.addWidget(self.web)
+        # pick up the window colour
+        p = self.web.palette()
+        p.setBrush(QPalette.Base, Qt.transparent)
+        self.web.page().setPalette(p)
+        self.web.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        self.web.setHtml(_html % anki.js.all,
+                         loadCB=self._loadFinished)
+
+    # Top buttons
+    ######################################################################
+
     def _addButton(self, name, func, key=None, tip=None, size=True, text="",
                    check=False):
         b = QPushButton(text)
@@ -190,7 +220,6 @@ class Editor(object):
             b.setToolTip(tip)
         if check:
             b.setCheckable(True)
-
         self.iconsBox.addWidget(b)
         self._buttons[name] = b
         return b
@@ -243,17 +272,33 @@ class Editor(object):
         hbox.setMargin(5)
         but.setLayout(hbox)
 
-    def setupWeb(self):
-        self.web = AnkiWebView(self.widget)
-        self.web.setBridge(self.bridge)
-        self.outerLayout.addWidget(self.web)
-        # pick up the window colour
-        p = self.web.palette()
-        p.setBrush(QPalette.Base, Qt.transparent)
-        self.web.page().setPalette(p)
-        self.web.setAttribute(Qt.WA_OpaquePaintEvent, False)
-        self.web.setHtml(_html % anki.js.all,
-                         loadCB=self._loadFinished)
+    def enableButtons(self, val=True):
+        self.bold.setEnabled(val)
+        self.italic.setEnabled(val)
+        self.underline.setEnabled(val)
+        self.foreground.setEnabled(val)
+        self.addPicture.setEnabled(val)
+        self.addSound.setEnabled(val)
+        self.latex.setEnabled(val)
+        self.latexEqn.setEnabled(val)
+        self.latexMathEnv.setEnabled(val)
+        self.cloze.setEnabled(val)
+        self.htmlEdit.setEnabled(val)
+        self.recSound.setEnabled(val)
+
+    def disableButtons(self):
+        self.enableButtons(False)
+
+    def onCardLayout(self):
+        from aqt.clayout import CardLayout
+        if self.card:
+            type = 1; ord = self.card.ord
+        else:
+            type = 0; ord = 0
+        CardLayout(self.mw, self.fact, type=type, ord=ord, parent=self.widget)
+
+    # JS->Python bridge
+    ######################################################################
 
     def bridge(self, str):
         print str
@@ -301,40 +346,13 @@ class Editor(object):
                 txt, "{{c%d::%s}}" % (next, txt))
             self.loadFact()
 
+    # Setting/unsetting the current fact
+    ######################################################################
+
     def _loadFinished(self, w):
         self._loaded = True
         if self.fact:
             self.loadFact()
-
-    def setupTags(self):
-        return
-        # # scrollarea
-        # self.fieldsScroll = QScrollArea()
-        # self.fieldsScroll.setWidgetResizable(True)
-        # self.fieldsScroll.setLineWidth(0)
-        # self.fieldsScroll.setFrameStyle(0)
-        # self.fieldsScroll.setFocusPolicy(Qt.NoFocus)
-        # self.fieldsBox.addWidget(self.fieldsScroll)
-        # # tags
-        # self.tagsBox = QHBoxLayout()
-        # self.tagsLabel = QLabel(_("Tags"))
-        # self.tagsBox.addWidget(self.tagsLabel)
-        # import aqt.tagedit
-        # self.tags = aqt.tagedit.TagEdit(self.parent)
-        # self.tags.connect(self.tags, SIGNAL("lostFocus"),
-        #                   self.onTagChange)
-        # self.tagsBox.addWidget(self.tags)
-        # self.fieldsBox.addLayout(self.tagsBox)
-
-        # update available tags
-        self.tags.setDeck(self.deck)
-        tagsw = self.tagsLabel.sizeHint().width()
-        self.tagsLabel.setFixedWidth(max(tagsw,
-                                         max(*([
-            l.width() for l in self.labels] + [0])))
-                                     + extra)
-        pass
-
 
     def setFact(self, fact):
         "Make FACT the current fact."
@@ -344,6 +362,7 @@ class Editor(object):
             self.changeTimer = None
         if self.fact:
             self.loadFact()
+            self.updateTags()
         else:
             self.widget.hide()
 
@@ -360,9 +379,6 @@ class Editor(object):
             self.fact.load()
             # fixme: what if fact is deleted?
             self.setFact(self.fact)
-
-    def initMedia(self):
-        os.chdir(self.deck.mediaDir(create=True))
 
     def deckClosedHook(self):
         self.setFact(None)
@@ -381,92 +397,8 @@ class Editor(object):
                     lambda w=w: self.formatChanged(w))
         return w
 
-    def loadFields(self, check=True, font=True):
-        "Update field text (if changed) and font/colours."
-        # text
-        for field in self.fact.fields:
-            w = self.fields[field.name][1]
-            self.fields[field.name] = (field, w)
-            self.widgets[w] = field
-            new = self.fact[field.name]
-            #old = tidyHTML(unicode(w.toHtml()))
-            # only update if something has changed
-            if new != old:
-                cur = w.textCursor()
-                w.setHtml('<meta name="qrichtext" content="1"/>' + new)
-                w.setTextCursor(cur)
-            if font:
-                # apply fonts
-                font = QFont()
-                # family
-                family = field.fieldModel.quizFontFamily
-                if family:
-                    font.setFamily(family)
-                # size
-                size = field.fieldModel.editFontSize
-                if size:
-                    font.setPixelSize(size)
-                w.setFont(font)
-        self.tags.blockSignals(True)
-        self.tags.setText(self.fact.tags)
-        self.tags.blockSignals(False)
         if check:
             self.checkValid()
-
-    def saveFields(self):
-        "Save field text into fact."
-        modified = False
-        n = _("Edit")
-        self.deck.setUndoStart(n, merge=True)
-        for (w, f) in self.widgets.items():
-            #v = tidyHTML(unicode(w.toHtml()))
-            if self.fact[f.name] != v:
-                self.fact[f.name] = v
-                modified = True
-        if modified:
-            self.fact.setModified(textChanged=True, deck=self.deck)
-            if not self.fact.isNew():
-                self.deck.setModified()
-        self.deck.setUndoEnd(n)
-        return modified
-
-    def onFocusLost(self, widget):
-        from aqt import mw
-        if not self.fact:
-            # editor or deck closed
-            return
-        if mw.inDbHandler:
-            return
-        modified = self.saveFields()
-        field = self.widgets[widget]
-        self.fact.focusLost(field)
-        self.fact.setModified(textChanged=True, deck=self.deck)
-        self.loadFields(font=False)
-        if modified:
-            self.mw.reset(runHooks=False)
-
-    def onTextChanged(self):
-        interval = 250
-        if self.changeTimer:
-            self.changeTimer.setInterval(interval)
-        else:
-            self.changeTimer = QTimer(self.parent)
-            self.changeTimer.setSingleShot(True)
-            self.changeTimer.start(interval)
-            self.parent.connect(self.changeTimer,
-                                SIGNAL("timeout()"),
-                                self.onChangeTimer)
-
-    def onChangeTimer(self):
-        from aqt import mw
-        interval = 250
-        if not self.fact:
-            return
-        if mw.inDbHandler:
-            self.changeTimer.start(interval)
-            return
-        self.checkValid()
-        self.changeTimer = None
 
     def saveFieldsNow(self):
         "Must call this before adding cards, closing dialog, etc."
@@ -504,26 +436,59 @@ class Editor(object):
                 p.setColor(QPalette.Base, QColor("#ffffff"))
                 self.fields[field.name][1].setPalette(p)
 
-    def textForField(self, field):
-        "Current edited value for field."
-        w = self.fields[field.name][1]
-        #v = tidyHTML(unicode(w.toHtml()))
-        return v
+    def onHtmlEdit(self):
+        def helpRequested():
+            aqt.openHelp("HtmlEditor")
+        w = self.focusedEdit()
+        if w:
+            self.saveFields()
+            d = QDialog(self.widget)
+            form = aqt.forms.edithtml.Ui_Dialog()
+            form.setupUi(d)
+            d.connect(form.buttonBox, SIGNAL("helpRequested()"),
+                     helpRequested)
+            form.textEdit.setPlainText(self.widgets[w].value)
+            form.textEdit.moveCursor(QTextCursor.End)
+            d.exec_()
+            w.setHtml(unicode(form.textEdit.toPlainText()).\
+                      replace("\n", ""))
+            self.saveFields()
 
-    def fieldValid(self, field):
-        return not (field.fieldModel.required and
-                    not self.textForField(field).strip())
+    # Tag and group handling
+    ######################################################################
 
-    def fieldUnique(self, field):
-        if not field.fieldModel.unique:
-            return True
-        req = ("select value from fields "
-               "where fieldModelId = :fmid and value = :val and id != :id "
-               "and chksum = :chk")
-        val = self.textForField(field)
-        return not self.deck.db.scalar(
-            req, val=val, fmid=field.fieldModel.id,
-            id=field.id, chk=fieldChecksum(val))
+    def setupTags(self):
+        import aqt.tagedit
+        g = QGroupBox(self.widget)
+        tb = QGridLayout()
+        tb.setSpacing(12)
+        tb.setMargin(6)
+        # group
+        l = QLabel(_("Group"))
+        tb.addWidget(l, 0, 0)
+        self.group = aqt.tagedit.TagEdit(self.widget, type=1)
+        self.group.connect(self.group, SIGNAL("lostFocus"),
+                          self.onGroupChange)
+        tb.addWidget(self.group, 0, 1)
+        # tags
+        l = QLabel(_("Tags"))
+        tb.addWidget(l, 1, 0)
+        self.tags = aqt.tagedit.TagEdit(self.widget)
+        self.tags.connect(self.tags, SIGNAL("lostFocus"),
+                          self.onTagChange)
+        tb.addWidget(self.tags, 1, 1)
+        g.setLayout(tb)
+        self.outerLayout.addWidget(g)
+
+    def updateTags(self):
+        if self.tags.deck != self.mw.deck:
+            self.tags.setDeck(self.mw.deck)
+            self.group.setDeck(self.mw.deck)
+            self.group.setText(self.mw.deck.groupName(
+                self.fact.model().conf['gid']))
+
+    def onGroupChange(self):
+        pass
 
     def onTagChange(self):
         if not self.fact:
@@ -539,51 +504,8 @@ class Editor(object):
         if self.onChange:
             self.onChange('tag')
 
-    def focusField(self, fieldName):
-        self.fields[fieldName][1].setFocus()
-
-    def formatChanged(self, fmt):
-        w = self.focusedEdit()
-        if not w:
-            return
-        else:
-            l = self.bold, self.italic, self.underline
-            for b in l:
-                b.blockSignals(True)
-            self.bold.setChecked(w.fontWeight() == QFont.Bold)
-            self.italic.setChecked(w.fontItalic())
-            self.underline.setChecked(w.fontUnderline())
-            for b in l:
-                b.blockSignals(False)
-
-    def resetFormatButtons(self):
-        for b in self.bold, self.italic, self.underline:
-            b.blockSignals(True)
-            b.setChecked(False)
-            b.blockSignals(False)
-
-    def enableButtons(self, val=True):
-        self.bold.setEnabled(val)
-        self.italic.setEnabled(val)
-        self.underline.setEnabled(val)
-        self.foreground.setEnabled(val)
-        self.addPicture.setEnabled(val)
-        self.addSound.setEnabled(val)
-        self.latex.setEnabled(val)
-        self.latexEqn.setEnabled(val)
-        self.latexMathEnv.setEnabled(val)
-        self.cloze.setEnabled(val)
-        self.htmlEdit.setEnabled(val)
-        self.recSound.setEnabled(val)
-
-    def disableButtons(self):
-        self.enableButtons(False)
-
-    def focusedEdit(self):
-        for (name, (field, w)) in self.fields.items():
-            if w.hasFocus():
-                return w
-        return None
+    # Format buttons
+    ######################################################################
 
     def toggleBold(self, bool):
         self.web.eval("setFormat('bold');")
@@ -603,6 +525,13 @@ class Editor(object):
     def removeFormat(self):
         self.web.eval("setFormat('removeFormat');")
 
+    def onCloze(self):
+        self.removeFormat()
+        self.web.eval("cloze();")
+
+    # Foreground colour
+    ######################################################################
+
     def _updateForegroundButton(self, txtcol):
         self.foregroundFrame.setPalette(QPalette(QColor(txtcol)))
         self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
@@ -613,6 +542,13 @@ class Editor(object):
         self._updateForegroundButton(recent[-1])
 
     def onForeground(self):
+        class ColourPopup(QDialog):
+            def __init__(self, parent):
+                QDialog.__init__(self, parent, Qt.FramelessWindowHint)
+            def event(self, evt):
+                if evt.type() == QEvent.WindowDeactivate:
+                    self.close()
+                return QDialog.event(self, evt)
         p = ColourPopup(self.widget)
         p.move(self.foregroundFrame.mapToGlobal(QPoint(0,0)))
         g = QGridLayout(p)
@@ -700,87 +636,11 @@ class Editor(object):
             runHook("colourChanged")
             self.onChooseColour(txtcol)
 
-    def latexMenu(self):
-        pass
+    # Audio/video/images
+    ######################################################################
 
-    def insertLatex(self):
-        w = self.focusedEdit()
-        if w:
-            selected = w.textCursor().selectedText()
-            self.deck.mediaDir(create=True)
-            cur = w.textCursor()
-            pos = cur.position()
-            w.insertHtml("[latex]%s[/latex]" % selected)
-            cur.setPosition(pos+7)
-            w.setTextCursor(cur)
-
-    def insertLatexEqn(self):
-        w = self.focusedEdit()
-        if w:
-            selected = w.textCursor().selectedText()
-            self.deck.mediaDir(create=True)
-            cur = w.textCursor()
-            pos = cur.position()
-            w.insertHtml("[$]%s[/$]" % selected)
-            cur.setPosition(pos+3)
-            w.setTextCursor(cur)
-
-    def insertLatexMathEnv(self):
-        w = self.focusedEdit()
-        if w:
-            selected = w.textCursor().selectedText()
-            self.deck.mediaDir(create=True)
-            cur = w.textCursor()
-            pos = cur.position()
-            w.insertHtml("[$$]%s[/$$]" % selected)
-            cur.setPosition(pos+4)
-            w.setTextCursor(cur)
-
-    def onMore(self, toggle=None):
-        if toggle is None:
-            toggle = not self.latex.isVisible()
-            self.mw.config['factEditorAdvanced'] = toggle
-        self.latex.setShown(toggle)
-        self.latexEqn.setShown(toggle)
-        self.latexMathEnv.setShown(toggle)
-        self.htmlEdit.setShown(toggle)
-
-    def onCardLayout(self):
-        from aqt.clayout import CardLayout
-        if self.card:
-            type = 1; ord = self.card.ord
-        else:
-            type = 0; ord = 0
-        CardLayout(self.mw, self.fact, type=type, ord=ord, parent=self.widget)
-
-    def onCloze(self):
-        self.removeFormat()
-        self.web.eval("cloze();")
-
-    def onHtmlEdit(self):
-        def helpRequested():
-            aqt.openHelp("HtmlEditor")
-        w = self.focusedEdit()
-        if w:
-            self.saveFields()
-            d = QDialog(self.widget)
-            form = aqt.forms.edithtml.Ui_Dialog()
-            form.setupUi(d)
-            d.connect(form.buttonBox, SIGNAL("helpRequested()"),
-                     helpRequested)
-            form.textEdit.setPlainText(self.widgets[w].value)
-            form.textEdit.moveCursor(QTextCursor.End)
-            d.exec_()
-            w.setHtml(unicode(form.textEdit.toPlainText()).\
-                      replace("\n", ""))
-            self.saveFields()
-
-    def fieldsAreBlank(self):
-        for (field, widget) in self.fields.values():
-            #value = tidyHTML(unicode(widget.toHtml()))
-            if value:
-                return False
-        return True
+    def initMedia(self):
+        os.chdir(self.deck.mediaDir(create=True))
 
     def onAddPicture(self):
         # get this before we open the dialog
@@ -869,6 +729,46 @@ to enable recording.'''), parent=self.widget)
             raise
         if file:
             self._addSound(file, w, copy=False)
+
+    # LaTeX
+    ######################################################################
+
+    def latexMenu(self):
+        pass
+
+    def insertLatex(self):
+        w = self.focusedEdit()
+        if w:
+            selected = w.textCursor().selectedText()
+            self.deck.mediaDir(create=True)
+            cur = w.textCursor()
+            pos = cur.position()
+            w.insertHtml("[latex]%s[/latex]" % selected)
+            cur.setPosition(pos+7)
+            w.setTextCursor(cur)
+
+    def insertLatexEqn(self):
+        w = self.focusedEdit()
+        if w:
+            selected = w.textCursor().selectedText()
+            self.deck.mediaDir(create=True)
+            cur = w.textCursor()
+            pos = cur.position()
+            w.insertHtml("[$]%s[/$]" % selected)
+            cur.setPosition(pos+3)
+            w.setTextCursor(cur)
+
+    def insertLatexMathEnv(self):
+        w = self.focusedEdit()
+        if w:
+            selected = w.textCursor().selectedText()
+            self.deck.mediaDir(create=True)
+            cur = w.textCursor()
+            pos = cur.position()
+            w.insertHtml("[$$]%s[/$$]" % selected)
+            cur.setPosition(pos+4)
+            w.setTextCursor(cur)
+
 
 class FactEdit(QTextEdit):
 
@@ -978,52 +878,18 @@ class FactEdit(QTextEdit):
         # fixme
         if not self.mw.config['stripHTML']:
             return html
-        html = re.sub("\n", " ", html)
-        html = re.sub("<br ?/?>", "\n", html)
-        html = re.sub("<p ?/?>", "\n\n", html)
-        html = re.sub('<style type="text/css">.*?</style>', "", html)
         html = stripHTML(html)
-        html = html.replace("\n", "<br>")
-        html = html.strip()
         return html
 
-    def focusOutEvent(self, evt):
-        QTextEdit.focusOutEvent(self, evt)
-        self.parent.lastFocusedEdit = self
-        self.parent.resetFormatButtons()
-        self.parent.disableButtons()
-        if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
-            self._ownLayout = GetKeyboardLayout(0)
-            ActivateKeyboardLayout(self._programLayout, 0)
-        self.emit(SIGNAL("lostFocus"))
+    # def focusOutEvent(self, evt):
+    #     if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
+    #         self._ownLayout = GetKeyboardLayout(0)
+    #         ActivateKeyboardLayout(self._programLayout, 0)
+    #     self.emit(SIGNAL("lostFocus"))
 
-    def focusInEvent(self, evt):
-        if (self.parent.lastFocusedEdit and
-            self.parent.lastFocusedEdit is not self):
-            # remove selection from previous widget
-            try:
-                cur = self.parent.lastFocusedEdit.textCursor()
-                cur.clearSelection()
-                self.parent.lastFocusedEdit.setTextCursor(cur)
-            except RuntimeError:
-                # old widget was deleted
-                pass
-            self.lastFocusedEdit = None
-        QTextEdit.focusInEvent(self, evt)
-        self.parent.formatChanged(None)
-        self.parent.enableButtons()
-        if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
-            self._programLayout = GetKeyboardLayout(0)
-            if self._ownLayout == None:
-                self._ownLayout = self._programLayout
-            ActivateKeyboardLayout(self._ownLayout, 0)
-
-class ColourPopup(QDialog):
-
-    def __init__(self, parent):
-        QDialog.__init__(self, parent, Qt.FramelessWindowHint)
-
-    def event(self, evt):
-        if evt.type() == QEvent.WindowDeactivate:
-            self.close()
-        return QDialog.event(self, evt)
+    # def focusInEvent(self, evt):
+    #     if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
+    #         self._programLayout = GetKeyboardLayout(0)
+    #         if self._ownLayout == None:
+    #             self._ownLayout = self._programLayout
+    #         ActivateKeyboardLayout(self._ownLayout, 0)

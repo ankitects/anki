@@ -54,6 +54,7 @@ class AnkiWebView(QWebView):
         self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
         self.connect(self, SIGNAL("loadFinished(bool)"), self._loadFinished)
         self._curKey = None
+        self.allowDrops = False
     def keyPressEvent(self, evt):
         if evt.matches(QKeySequence.Copy):
             self.triggerPageAction(QWebPage.Copy)
@@ -73,8 +74,9 @@ class AnkiWebView(QWebView):
         QWebView.keyPressEvent(self, evt)
     def contextMenuEvent(self, evt):
         QWebView.contextMenuEvent(self, evt)
-    # def dropEvent(self, evt):
-    #     pass
+    def dropEvent(self, evt):
+        if self.allowDrops:
+            QWebView.dropEvent(self, evt)
     def setLinkHandler(self, handler=None):
         if handler:
             self.linkHandler = handler

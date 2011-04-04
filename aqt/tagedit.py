@@ -8,21 +8,28 @@ import re, sys
 
 class TagEdit(QLineEdit):
 
-    def __init__(self, parent, *args):
-        QLineEdit.__init__(self, parent, *args)
+    # 0 = tags, 1 = groups
+    def __init__(self, parent, type=0):
+        QLineEdit.__init__(self, parent)
+        self.deck = None
         self.model = QStringListModel()
-        self.completer = TagCompleter(self.model, parent, self)
+        self.type = type
+        if type == 0:
+            self.completer = TagCompleter(self.model, parent, self)
+        else:
+            self.completer = QCompleter(self.model, parent)
         self.completer.setCompletionMode(QCompleter.PopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompleter(self.completer)
 
-    def setDeck(self, deck, tags="user"):
+    def setDeck(self, deck):
         "Set the current deck, updating list of available tags."
         self.deck = deck
-        tags = self.deck.allTags()
-        tags.sort(key=lambda x: x.lower())
-        self.model.setStringList(
-            QStringList(tags))
+        if self.type == 0:
+            l = self.deck.tagList()
+        else:
+            l = self.deck.groups()
+        self.model.setStringList(QStringList(l))
 
     def addTags(self, tags):
         l = list(set([unicode(x) for x in list(self.model.stringList())] +
