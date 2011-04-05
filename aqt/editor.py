@@ -60,8 +60,11 @@ function sendState() {
     py.run("state:" + JSON.stringify(r));
 };
 
-function setFormat(cmd, arg) {
+function setFormat(cmd, arg, nosave) {
     document.execCommand(cmd, false, arg);
+    if (!nosave) {
+        saveField('key');
+    }
 };
 
 function clearChangeTimer() {
@@ -101,13 +104,16 @@ function saveField(type) {
     py.run(type + ":" + currentField.id.substring(1) + ":" + currentField.innerHTML);
 };
 
-function cloze() {
-    var s = window.getSelection()
-    var r = s.getRangeAt(0).cloneContents();
-    var c = document.createElement('div');
-    c.appendChild(r);
-    var txt = c.innerHTML;
-    py.run("cloze:" + currentField.id.substring(1) + ":" + txt);
+function wrap(front, back) {
+    setFormat('removeFormat', null, true);
+    var s = window.getSelection();
+    var r = s.getRangeAt(0);
+    var content = r.extractContents();
+    var span = document.createElement("span")
+    span.appendChild(content);
+    s.removeAllRanges();
+    s.addRange(r);
+    setFormat('inserthtml', front + span.innerHTML + back);
 };
 
 function setFields(fields) {
@@ -217,7 +223,7 @@ class Editor(object):
         if not text:
             b.setIcon(QIcon(":/icons/%s.png" % name))
         if key:
-            b.setShortcut(key)
+            b.setShortcut(QKeySequence(key))
         if tip:
             b.setToolTip(tip)
         if check:
@@ -258,20 +264,14 @@ class Editor(object):
         but = b("cloze", self.onCloze, "F9", _("Cloze (F9)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
-        but = b("text-speak", self.onAddMedia, "F3", _("Add audio/video (F4)"))
-        but = b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
-        but = b("tex", self.latexMenu, "Ctrl+t", _("LaTeX (Ctrl+t)"))
-        # insertLatex, insertLatexEqn, insertLatexMathEnv
+        b("text-speak", self.onAddMedia, "F3", _("Add audio/video (F4)"))
+        b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
+        b("tex", self.insertLatex, "Ctrl+t, t", _("LaTeX (Ctrl+t then t)"))
+        b("math_sqrt", self.insertLatexEqn, "Ctrl+t, e",
+                _("LaTeX equation (Ctrl+t then e)"))
+        b("math_matrix", self.insertLatexMathEnv, "Ctrl+t, m",
+                _("LaTeX math environment (Ctrl+t then m)"))
         but = b("text-xml", self.onHtmlEdit, "Ctrl+x", _("Source (Ctrl+x)"))
-
-    def setupForegroundButton(self, but):
-        self.foregroundFrame = QFrame()
-        self.foregroundFrame.setAutoFillBackground(True)
-        self.colourChanged()
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.foregroundFrame)
-        hbox.setMargin(5)
-        but.setLayout(hbox)
 
     def enableButtons(self, val=True):
         for b in self._buttons.values():
@@ -515,9 +515,15 @@ class Editor(object):
         self.web.eval("setFormat('underline');")
 
     def toggleSuper(self, bool):
+        if self._buttons['text_sub'].isChecked():
+            self._buttons['text_sub'].setChecked(False)
+            self.toggleSub(None)
         self.web.eval("setFormat('superscript');")
 
     def toggleSub(self, bool):
+        # if self._buttons['text_super'].isChecked():
+        #     self._buttons['text_super'].setChecked(False)
+        #     self.toggleSuper(None)
         self.web.eval("setFormat('subscript');")
 
     def removeFormat(self):
@@ -529,6 +535,15 @@ class Editor(object):
 
     # Foreground colour
     ######################################################################
+
+    def setupForegroundButton(self, but):
+        self.foregroundFrame = QFrame()
+        self.foregroundFrame.setAutoFillBackground(True)
+        self.colourChanged()
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.foregroundFrame)
+        hbox.setMargin(5)
+        but.setLayout(hbox)
 
     def _updateForegroundButton(self, txtcol):
         self.foregroundFrame.setPalette(QPalette(QColor(txtcol)))
@@ -683,49 +698,22 @@ class Editor(object):
     # LaTeX
     ######################################################################
 
-    def latexMenu(self):
-        pass
-
     def insertLatex(self):
-        w = self.focusedEdit()
-        if w:
-            selected = w.textCursor().selectedText()
-            self.deck.mediaDir(create=True)
-            cur = w.textCursor()
-            pos = cur.position()
-            w.insertHtml("[latex]%s[/latex]" % selected)
-            cur.setPosition(pos+7)
-            w.setTextCursor(cur)
+        self.mw.deck.media.dir(create=True)
+        self.web.eval("wrap('[latex]', '[/latex]');")
 
     def insertLatexEqn(self):
-        w = self.focusedEdit()
-        if w:
-            selected = w.textCursor().selectedText()
-            self.deck.mediaDir(create=True)
-            cur = w.textCursor()
-            pos = cur.position()
-            w.insertHtml("[$]%s[/$]" % selected)
-            cur.setPosition(pos+3)
-            w.setTextCursor(cur)
+        self.mw.deck.media.dir(create=True)
+        self.web.eval("wrap('[$]', '[/$]');")
 
     def insertLatexMathEnv(self):
-        w = self.focusedEdit()
-        if w:
-            selected = w.textCursor().selectedText()
-            self.deck.mediaDir(create=True)
-            cur = w.textCursor()
-            pos = cur.position()
-            w.insertHtml("[$$]%s[/$$]" % selected)
-            cur.setPosition(pos+4)
-            w.setTextCursor(cur)
+        self.mw.deck.media.dir(create=True)
+        self.web.eval("wrap('[$$]', '[/$$]');")
 
 # Pasting, drag & drop, and keyboard layouts
 ######################################################################
 
 class EditorWebView(AnkiWebView):
-
-
-
 
     def __init__(self, parent, editor):
         AnkiWebView.__init__(self, parent)
@@ -735,8 +723,6 @@ class EditorWebView(AnkiWebView):
         self.strip = self.editor.mw.config['stripHTML']
         # if sys.platform.startswith("win32"):
         #     self._ownLayout = None
-
-    # after the drop/copy, make sure data updated?
 
     def keyPressEvent(self, evt):
         self._curKey = True
