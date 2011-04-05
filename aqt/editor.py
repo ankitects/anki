@@ -4,7 +4,6 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtSvg import * # fixme: obsolete?
 from PyQt4.QtWebKit import QWebView
 import re, os, sys, tempfile, urllib2, ctypes, simplejson
 from anki.utils import stripHTML
@@ -12,8 +11,11 @@ from anki.sound import play
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
-from aqt.utils import shortcut, showInfo, showWarning, getBase
+from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile
 import anki.js
+
+pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
+audio =  ("wav", "mp3", "ogg", "flac")
 
 _html = """
 <html><head>%s<style>
@@ -72,6 +74,7 @@ function clearChangeTimer() {
 function onFocus(elem) {
     currentField = elem;
     setTimeout(foo, 1);
+    py.run("onfocus");
 }
 
 function foo() {
@@ -90,6 +93,7 @@ function onBlur() {
     }
     clearChangeTimer();
     currentField = null;
+    py.run("onblur");
 };
 
 function saveField(type) {
@@ -254,8 +258,7 @@ class Editor(object):
         but = b("cloze", self.onCloze, "F9", _("Cloze (F9)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
-        but = b("colors", self.onAddPicture, "F3", _("Add picture (F3)"))
-        but = b("text-speak", self.onAddSound, "F3", _("Add audio/video (F4)"))
+        but = b("text-speak", self.onAddMedia, "F3", _("Add audio/video (F4)"))
         but = b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
         but = b("tex", self.latexMenu, "Ctrl+t", _("LaTeX (Ctrl+t)"))
         # insertLatex, insertLatexEqn, insertLatexMathEnv
@@ -271,18 +274,8 @@ class Editor(object):
         but.setLayout(hbox)
 
     def enableButtons(self, val=True):
-        self.bold.setEnabled(val)
-        self.italic.setEnabled(val)
-        self.underline.setEnabled(val)
-        self.foreground.setEnabled(val)
-        self.addPicture.setEnabled(val)
-        self.addSound.setEnabled(val)
-        self.latex.setEnabled(val)
-        self.latexEqn.setEnabled(val)
-        self.latexMathEnv.setEnabled(val)
-        self.cloze.setEnabled(val)
-        self.htmlEdit.setEnabled(val)
-        self.recSound.setEnabled(val)
+        for b in self._buttons.values():
+            b.setEnabled(val)
 
     def disableButtons(self):
         self.enableButtons(False)
@@ -299,7 +292,11 @@ class Editor(object):
     ######################################################################
 
     def bridge(self, str):
-        if str.startswith("focus") or str.startswith("key"):
+        if str.startswith("onblur"):
+            self.disableButtons()
+        elif str.startswith("onfocus"):
+            self.enableButtons()
+        elif str.startswith("focus") or str.startswith("key"):
             print str
             (type, num, txt) = str.split(":", 2)
             self.fact._fields[int(num)] = txt
@@ -640,81 +637,35 @@ class Editor(object):
     # Audio/video/images
     ######################################################################
 
-    def initMedia(self):
-        os.chdir(self.deck.mediaDir(create=True))
-
-    def onAddPicture(self):
-        # get this before we open the dialog
-        w = self.focusedEdit()
-        key = (_("Images") +
-               " (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg)")
-        file = ui.utils.getFile(self.widget, _("Add an image"), "picture", key)
-        if not file:
-            return
-        if file.lower().endswith(".svg"):
-            # convert to a png
-            s = QSvgRenderer(file)
-            i = QImage(s.defaultSize(), QImage.Format_ARGB32_Premultiplied)
-            p = QPainter()
-            p.begin(i)
-            s.render(p)
-            p.end()
-            (fd, name) = tempfile.mkstemp(prefix="anki", suffix=".png")
-            file = unicode(name, sys.getfilesystemencoding())
-            i.save(file)
-        self._addPicture(file, widget=w)
-
-    def _addPicture(self, file, widget=None):
-        self.initMedia()
-        if widget:
-            w = widget
-        else:
-            w = self.focusedEdit()
-        path = self._addMedia(file)
-        self.maybeDelete(path, file)
-        w.insertHtml('<img src="%s">' % path)
-
-    def _addMedia(self, file):
-        try:
-            return self.deck.addMedia(file)
-        except (IOError, OSError), e:
-            ui.utils.showWarning(_("Unable to add media: %s") % unicode(e),
-                                 parent=self.widget)
-
-    def onAddSound(self):
-        # get this before we open the dialog
-        w = self.focusedEdit()
-        key = (_("Sounds/Videos") +
-               " (*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
+    def onAddMedia(self):
+        key = (_("Media") +
+               " (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg "+
+               "*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
                "*.mkv *.ogx *.ogv *.oga *.flv *.swf *.flac)")
-        file = ui.utils.getFile(self.widget, _("Add audio"), "audio", key)
+        file = getFile(self.widget, _("Add Media"), "media", key)
         if not file:
             return
-        self._addSound(file, widget=w)
+        html = self._addMedia(file)
+        self.web.eval("setFormat('inserthtml', %s);" % simplejson.dumps(html))
 
-    def _addSound(self, file, widget=None, copy=True):
-        self.initMedia()
-        if widget:
-            w = widget
+    def _addMedia(self, path, canDelete=False):
+        "Add to media folder and return basename."
+        # copy to media folder
+        name = self.mw.deck.media.addFile(path)
+        # remove original?
+        if canDelete and self.mw.config['deleteMedia']:
+            if os.path.abspath(name) != os.path.abspath(path):
+                try:
+                    os.unlink(old)
+                except:
+                    pass
+        # return a local html link
+        ext = name.split(".")[-1].lower()
+        if ext in pics:
+            return '<img src="%s">' % name
         else:
-            w = self.focusedEdit()
-        if copy:
-            path = self._addMedia(file)
-            self.maybeDelete(path, file)
-        else:
-            path = file
-        anki.sound.play(path)
-        w.insertHtml('[sound:%s]' % path)
-
-    def maybeDelete(self, new, old):
-        if not self.mw.config['deleteMedia']:
-            return
-        if new == os.path.basename(old):
-            return
-        try:
-            os.unlink(old)
-        except:
-            pass
+            anki.sound.play(name)
+            return '[sound:%s]' % name
 
     def onRecSound(self):
         self.initMedia()
@@ -775,8 +726,8 @@ to enable recording.'''), parent=self.widget)
 
 class EditorWebView(AnkiWebView):
 
-    pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
-    audio =  ("wav", "mp3", "ogg", "flac")
+
+
 
     def __init__(self, parent, editor):
         AnkiWebView.__init__(self, parent)
@@ -890,13 +841,13 @@ class EditorWebView(AnkiWebView):
         else:
             im.save(uname, None, 95)
         mime = QMimeData()
-        mime.setHtml(self._addMedia(uname))
+        mime.setHtml(self.editor._addMedia(uname))
         return mime
 
     def _retrieveURL(self, url):
         # is it media?
         ext = name.split(".")[-1].lower()
-        if ext not in self.pics and ext not in self.audio:
+        if ext not in pics and ext not in audio:
             return
         # fetch it into a temporary folder
         try:
@@ -910,19 +861,8 @@ class EditorWebView(AnkiWebView):
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
-        return self._addMedia(path)
+        return self.editor._addMedia(path)
 
-    def _addMedia(self, path):
-        # copy to media folder
-        name = self.editor.mw.deck.media.addFile(path)
-        print "name was", name
-        # return a local html link
-        ext = name.split(".")[-1].lower()
-        if ext in self.pics:
-            return '<img src="%s">' % name
-        else:
-            # FIXME: should also autoplay audio
-            return '[sound:%s]' % name
 
     def _tmpDir(self):
         if not self.__tmpDir:
