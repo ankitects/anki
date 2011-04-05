@@ -155,16 +155,6 @@ $(function () {
 </body></html>
 """
 
-# fixme: use shortcut() for mac shortcuts
-
-if sys.platform.startswith("win32"):
-    ActivateKeyboardLayout = ctypes.windll.user32.ActivateKeyboardLayout
-    ActivateKeyboardLayout.restype = ctypes.c_void_p
-    ActivateKeyboardLayout.argtypes = [ctypes.c_void_p, ctypes.c_uint]
-    GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
-    GetKeyboardLayout.restype = ctypes.c_void_p
-    GetKeyboardLayout.argtypes = [ctypes.c_uint]
-
 class Editor(object):
     def __init__(self, mw, widget):
         self.widget = widget
@@ -228,7 +218,7 @@ class Editor(object):
         if key:
             b.setShortcut(QKeySequence(key))
         if tip:
-            b.setToolTip(tip)
+            b.setToolTip(shortcut(tip))
         if check:
             b.setCheckable(True)
         self.iconsBox.addWidget(b)
@@ -838,11 +828,18 @@ class EditorWebView(AnkiWebView):
         file.close()
         return self.editor._addMedia(path)
 
-
     def _tmpDir(self):
         if not self.__tmpDir:
             self.__tmpDir = tempfile.mkdtemp(prefix="anki")
         return self.__tmpDir
+
+# if sys.platform.startswith("win32"):
+#     ActivateKeyboardLayout = ctypes.windll.user32.ActivateKeyboardLayout
+#     ActivateKeyboardLayout.restype = ctypes.c_void_p
+#     ActivateKeyboardLayout.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+#     GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
+#     GetKeyboardLayout.restype = ctypes.c_void_p
+#     GetKeyboardLayout.argtypes = [ctypes.c_uint]
 
     # def focusOutEvent(self, evt):
     #     if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
