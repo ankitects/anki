@@ -12,6 +12,7 @@ from anki.hooks import addHook, removeHook, runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile
+import aqt
 import anki.js
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
@@ -103,6 +104,7 @@ function onBlur() {
 function saveField(type) {
     // type is either 'blur' or 'key'
     py.run(type + ":" + currentField.innerHTML);
+    clearChangeTimer();
 };
 
 function wrap(front, back) {
@@ -117,7 +119,7 @@ function wrap(front, back) {
     setFormat('inserthtml', front + span.innerHTML + back);
 };
 
-function setFields(fields) {
+function setFields(fields, focusTo) {
     var txt = "";
     for (var i=0; i<fields.length; i++) {
         var n = fields[i][0];
@@ -129,7 +131,10 @@ function setFields(fields) {
         txt += "</td></tr>";
     }
     $("#fields").html("<table cellpadding=3>"+txt+"</table>");
-    $("#f0").focus();
+    if (!focusTo) {
+        focusTo = 0;
+    }
+    $("#f"+focusTo).focus();
 };
 
 $(function () {
@@ -165,11 +170,8 @@ class Editor(object):
         self.widget = widget
         self.mw = mw
         self.fact = None
-        self.onChange = None
         self._loaded = False
-        # to be handled js side
-        #self.lastFocusedEdit = None
-        self.changeTimer = None
+        self._keepButtons = False
         # current card, for card layout
         self.card = None
         addHook("deckClosed", self.deckClosedHook)
@@ -266,14 +268,15 @@ class Editor(object):
                 _("Cloze (Ctrl+Shift+c)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
-        b("text-speak", self.onAddMedia, "F3", _("Add audio/video (F4)"))
+        b("text-speak", self.onAddMedia, "F3", _("Add pictures/audio/video (F3)"))
         b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
         b("tex", self.insertLatex, "Ctrl+t, t", _("LaTeX (Ctrl+t then t)"))
         b("math_sqrt", self.insertLatexEqn, "Ctrl+t, e",
                 _("LaTeX equation (Ctrl+t then e)"))
         b("math_matrix", self.insertLatexMathEnv, "Ctrl+t, m",
                 _("LaTeX math environment (Ctrl+t then m)"))
-        but = b("text-xml", self.onHtmlEdit, "Ctrl+x", _("Source (Ctrl+x)"))
+        but = b("text-xml", self.onHtmlEdit, "Ctrl+Shift+x",
+                _("Source (Ctrl+Shift+x)"))
 
     def enableButtons(self, val=True):
         for b in self._buttons.values():
@@ -296,11 +299,12 @@ class Editor(object):
     def bridge(self, str):
         # focus lost or key/button pressed?
         if str.startswith("blur") or str.startswith("key"):
-            print "save fact"
             (type, txt) = str.split(":", 1)
             self.fact._fields[self.currentField] = txt
+            print "save fact", txt
             if type == "blur":
-                self.disableButtons()
+                if not self._keepButtons:
+                    self.disableButtons()
                 runHook("editor.focusLost", self.fact)
             else:
                 runHook("editor.keyPressed", self.fact)
@@ -333,9 +337,7 @@ class Editor(object):
     def setFact(self, fact):
         "Make FACT the current fact."
         self.fact = fact
-        if self.changeTimer:
-            self.changeTimer.stop()
-            self.changeTimer = None
+        # change timer
         if self.fact:
             self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all),
                              loadCB=self._loadFinished)
@@ -343,12 +345,13 @@ class Editor(object):
         else:
             self.widget.hide()
 
-    def loadFact(self):
+    def loadFact(self, field=0):
         if not self._loaded:
             # will be loaded when page is ready
             return
         # fixme: focus on first widget
-        self.web.eval("setFields(%s);" % simplejson.dumps(self.fact.items()))
+        self.web.eval("setFields(%s, %d);" % (
+            simplejson.dumps(self.fact.items()), field))
         self.widget.show()
 
     def refresh(self):
@@ -381,21 +384,16 @@ class Editor(object):
         "Must call this before adding cards, closing dialog, etc."
         if not self.fact:
             return
-        # disable timer
-        if self.changeTimer:
-            self.changeTimer.stop()
-            self.changeTimer = None
-            if self.onChange:
-                self.onChange('field')
-        # save fields and run features
-        w = self.focusedEdit()
-        if w:
-            self.onFocusLost(w)
+        self._keepButtons = True
+        self.web.eval("saveField('blur');")
+        self._keepButtons = False
         self.onTagChange()
+        self.onGroupChange()
         # ensure valid
         self.checkValid()
 
     def checkValid(self):
+        return
         empty = []
         dupe = []
         for field in self.fact.fields:
@@ -413,23 +411,22 @@ class Editor(object):
                 p.setColor(QPalette.Base, QColor("#ffffff"))
                 self.fields[field.name][1].setPalette(p)
 
+    # HTML editing
+    ######################################################################
+
     def onHtmlEdit(self):
-        def helpRequested():
-            aqt.openHelp("HtmlEditor")
-        w = self.focusedEdit()
-        if w:
-            self.saveFields()
-            d = QDialog(self.widget)
-            form = aqt.forms.edithtml.Ui_Dialog()
-            form.setupUi(d)
-            d.connect(form.buttonBox, SIGNAL("helpRequested()"),
-                     helpRequested)
-            form.textEdit.setPlainText(self.widgets[w].value)
-            form.textEdit.moveCursor(QTextCursor.End)
-            d.exec_()
-            w.setHtml(unicode(form.textEdit.toPlainText()).\
-                      replace("\n", ""))
-            self.saveFields()
+        self.saveFieldsNow()
+        d = QDialog(self.widget)
+        form = aqt.forms.edithtml.Ui_Dialog()
+        form.setupUi(d)
+        d.connect(form.buttonBox, SIGNAL("helpRequested()"),
+                 lambda: aqt.openHelp("HtmlEditor"))
+        form.textEdit.setPlainText(self.fact._fields[self.currentField])
+        form.textEdit.moveCursor(QTextCursor.End)
+        d.exec_()
+        self.fact._fields[self.currentField] = unicode(
+            form.textEdit.toPlainText())
+        self.loadFact(self.currentField)
 
     # Tag and group handling
     ######################################################################
@@ -468,6 +465,7 @@ class Editor(object):
         pass
 
     def onTagChange(self):
+        return
         if not self.fact:
             return
         old = self.fact.tags
@@ -478,8 +476,6 @@ class Editor(object):
             self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.flushMod()
             self.mw.reset(runHooks=False)
-        if self.onChange:
-            self.onChange('tag')
 
     # Format buttons
     ######################################################################
