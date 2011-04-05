@@ -21,8 +21,6 @@ def hasSound(text):
 
 ##########################################################################
 
-# the amount of noise to cancel
-NOISE_AMOUNT = "0.1"
 # the amount of amplification
 NORM_AMOUNT = "-3"
 # the amount of bass
@@ -30,19 +28,15 @@ BASS_AMOUNT = "+0"
 # the amount to fade at end
 FADE_AMOUNT = "0.25"
 
-noiseProfile = ""
-
 processingSrc = "rec.wav"
 processingDst = "rec.mp3"
 processingChain = []
-recFiles = ["rec2.wav", "rec3.wav"]
+recFiles = ["rec2.wav"]
 
-cmd = ["sox", processingSrc, "rec2.wav"]
 processingChain = [
-    None, # placeholder
-    ["sox", "rec2.wav", "rec3.wav", "norm", NORM_AMOUNT,
+    ["sox", "rec.wav", "rec2.wav", "norm", NORM_AMOUNT,
      "bass", BASS_AMOUNT, "fade", FADE_AMOUNT],
-    ["lame", "rec3.wav", processingDst, "--noreplaygain", "--quiet"],
+    ["lame", "rec2.wav", processingDst, "--noreplaygain", "--quiet"],
     ]
 
 tmpdir = None
@@ -75,35 +69,6 @@ def retryWait(proc):
             return proc.wait()
         except OSError:
             continue
-
-# Noise profiles
-##########################################################################
-
-def checkForNoiseProfile():
-    global processingChain
-    if sys.platform.startswith("darwin"):
-        # not currently supported
-        processingChain = [
-            ["lame", "rec.wav", "rec.mp3", "--noreplaygain", "--quiet"]]
-    else:
-        cmd = ["sox", processingSrc, "rec2.wav"]
-        if os.path.exists(noiseProfile):
-            cmd = cmd + ["noisered", noiseProfile, NOISE_AMOUNT]
-        processingChain[0] = cmd
-
-def generateNoiseProfile():
-    try:
-        os.unlink(noiseProfile)
-    except OSError:
-        pass
-    retryWait(subprocess.Popen(
-        ["sox", processingSrc, recFiles[0], "trim", "1.5", "1.5"],
-        startupinfo=si))
-    retryWait(subprocess.Popen(["sox", recFiles[0], recFiles[1],
-                                "noiseprof", noiseProfile],
-                               startupinfo=si))
-    processingChain[0] = ["sox", processingSrc, "rec2.wav",
-                          "noisered", noiseProfile, NOISE_AMOUNT]
 
 # Mplayer settings
 ##########################################################################
