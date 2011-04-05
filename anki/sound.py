@@ -21,22 +21,13 @@ def hasSound(text):
 
 ##########################################################################
 
-# the amount of amplification
-NORM_AMOUNT = "-3"
-# the amount of bass
-BASS_AMOUNT = "+0"
-# the amount to fade at end
-FADE_AMOUNT = "0.25"
-
 processingSrc = "rec.wav"
 processingDst = "rec.mp3"
 processingChain = []
-recFiles = ["rec2.wav"]
+recFiles = []
 
 processingChain = [
-    ["sox", "rec.wav", "rec2.wav", "norm", NORM_AMOUNT,
-     "bass", BASS_AMOUNT, "fade", FADE_AMOUNT],
-    ["lame", "rec2.wav", processingDst, "--noreplaygain", "--quiet"],
+    ["lame", "rec.wav", processingDst, "--noreplaygain", "--quiet"],
     ]
 
 tmpdir = None
@@ -232,15 +223,14 @@ class _Recorder(object):
             #print c
             if not self.encode and c[0] == 'lame':
                 continue
-            ret = retryWait(subprocess.Popen(c, startupinfo=si))
+            try:
+                ret = retryWait(subprocess.Popen(c, startupinfo=si))
+            except:
+                ret = True
             if ret:
-                raise Exception(_("""
-Error processing audio.
-
-If you're on Linux and don't have sox 14.1+, you
-need to disable normalization. See the wiki.
-
-Command was:\n""") + u" ".join(c))
+                raise Exception(_(
+                    "Error running %s") %
+                                u" ".join(c))
 
 class PyAudioThreadedRecorder(threading.Thread):
 
