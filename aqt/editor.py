@@ -5,7 +5,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebView
-import re, os, sys, tempfile, urllib2, ctypes, simplejson
+import re, os, sys, tempfile, urllib2, ctypes, simplejson, traceback
 from anki.utils import stripHTML
 from anki.sound import play
 from anki.hooks import addHook, removeHook, runHook, runFilter
@@ -645,7 +645,10 @@ class Editor(object):
         file = getFile(self.widget, _("Add Media"), "media", key)
         if not file:
             return
-        html = self._addMedia(file)
+        self.addMedia(file, canDelete=True)
+
+    def addMedia(self, path, canDelete=False):
+        html = self._addMedia(path, canDelete)
         self.web.eval("setFormat('inserthtml', %s);" % simplejson.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
@@ -668,19 +671,14 @@ class Editor(object):
             return '[sound:%s]' % name
 
     def onRecSound(self):
-        self.initMedia()
-        w = self.focusedEdit()
         try:
             file = getAudio(self.widget)
-        except:
-            if sys.platform.startswith("darwin"):
-                ui.utils.showInfo(_('''\
-Please install <a href="http://www.thalictrum.com/software/lame-3.97.dmg.gz">lame</a>
-to enable recording.'''), parent=self.widget)
-                return
-            raise
-        if file:
-            self._addSound(file, w, copy=False)
+        except Exception, e:
+            showWarning(_(
+                "Couldn't record audio. Have you installed lame and sox?") +
+                        "\n\n" + unicode(e))
+            return
+        self.addMedia(file)
 
     # LaTeX
     ######################################################################
