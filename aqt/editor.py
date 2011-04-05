@@ -76,11 +76,12 @@ function clearChangeTimer() {
 
 function onFocus(elem) {
     currentField = elem;
-    setTimeout(foo, 1);
-    py.run("onfocus");
+    setTimeout(unfocusHack, 1);
+    py.run("focus:" + currentField.id.substring(1));
 }
 
-function foo() {
+// tabbing into a new field highlights everything, which we don't want
+function unfocusHack() {
     var s = document.getSelection();
     if (s.rangeCount) {
         var r = s.getRangeAt(0);
@@ -92,16 +93,15 @@ function foo() {
 
 function onBlur() {
     if (currentField) {
-        saveField("focus");
+        saveField("blur");
     }
     clearChangeTimer();
     currentField = null;
-    py.run("onblur");
 };
 
 function saveField(type) {
-    // type is either 'focus' or 'key'
-    py.run(type + ":" + currentField.id.substring(1) + ":" + currentField.innerHTML);
+    // type is either 'blur' or 'key'
+    py.run(type + ":" + currentField.innerHTML);
 };
 
 function wrap(front, back) {
@@ -292,19 +292,23 @@ class Editor(object):
     ######################################################################
 
     def bridge(self, str):
-        if str.startswith("onblur"):
-            self.disableButtons()
-        elif str.startswith("onfocus"):
-            self.enableButtons()
-        elif str.startswith("focus") or str.startswith("key"):
-            print str
-            (type, num, txt) = str.split(":", 2)
-            self.fact._fields[int(num)] = txt
-            if type == "focus":
+        # focus lost or key/button pressed?
+        if str.startswith("blur") or str.startswith("key"):
+            print "save fact"
+            (type, txt) = str.split(":", 1)
+            self.fact._fields[self.currentField] = txt
+            if type == "blur":
+                self.disableButtons()
                 runHook("editor.focusLost", self.fact)
             else:
                 runHook("editor.keyPressed", self.fact)
             self.fact.flush()
+        # focused into field?
+        elif str.startswith("focus"):
+            (type, num) = str.split(":", 1)
+            self.enableButtons()
+            self.currentField = int(num)
+        # state buttons changed?
         elif str.startswith("state"):
             (cmd, txt) = str.split(":", 1)
             r = simplejson.loads(txt)
@@ -313,33 +317,6 @@ class Editor(object):
             self._buttons['text_under'].setChecked(r['under'])
             self._buttons['text_super'].setChecked(r['super'])
             self._buttons['text_sub'].setChecked(r['sub'])
-        elif str.startswith("cloze"):
-            (cmd, num, txt) = str.split(":", 2)
-            if not txt:
-                showInfo(_("Please select some text first."),
-                     help="ClozeDeletion")
-                return
-            # check that the model is set up for cloze deletion
-            ok = False
-            for t in self.fact.model().templates:
-                if "cloze" in t['qfmt'] or "cloze" in t['afmt']:
-                    ok = True
-                    break
-            if not ok:
-                showInfo(_("Please add a cloze deletion model."),
-                     help="ClozeDeletion")
-                return
-            num = int(num)
-            f = self.fact._fields[num]
-            # find the highest existing cloze
-            m = re.findall("\{\{c(\d+)::", f)
-            if m:
-                next = sorted([int(x) for x in m])[-1] + 1
-            else:
-                next = 1
-            self.fact._fields[num] = f.replace(
-                txt, "{{c%d::%s}}" % (next, txt))
-            self.loadFact()
         else:
             print str
 
@@ -530,8 +507,24 @@ class Editor(object):
         self.web.eval("setFormat('removeFormat');")
 
     def onCloze(self):
-        self.removeFormat()
-        self.web.eval("cloze();")
+        # check that the model is set up for cloze deletion
+        ok = False
+        for t in self.fact.model().templates:
+            if "cloze" in t['qfmt'] or "cloze" in t['afmt']:
+                ok = True
+                break
+        if not ok:
+            showInfo(_("Please add a cloze deletion model."),
+                 help="ClozeDeletion")
+            return
+        f = self.fact._fields[self.currentField]
+        # find the highest existing cloze
+        m = re.findall("\{\{c(\d+)::", f)
+        if m:
+            next = sorted([int(x) for x in m])[-1] + 1
+        else:
+            next = 1
+        self.web.eval("wrap('{{c%d::', '}}');" % next)
 
     # Foreground colour
     ######################################################################
