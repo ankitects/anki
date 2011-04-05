@@ -96,7 +96,8 @@ function onBlur() {
         saveField("blur");
     }
     clearChangeTimer();
-    currentField = null;
+    // if we lose focus, assume the last field is still targeted
+    //currentField = null;
 };
 
 function saveField(type) {
@@ -261,7 +262,8 @@ class Editor(object):
           _("Subscript (Ctrl+r)"))
         but = b("foreground", self.onForeground, "F7", text=" ")
         self.setupForegroundButton(but)
-        but = b("cloze", self.onCloze, "F9", _("Cloze (F9)"), text="[...]")
+        but = b("cloze", self.onCloze, "Ctrl+Shift+c",
+                _("Cloze (Ctrl+Shift+c)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
         b("text-speak", self.onAddMedia, "F3", _("Add audio/video (F4)"))
