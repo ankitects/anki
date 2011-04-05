@@ -781,6 +781,7 @@ class EditorWebView(AnkiWebView):
         self.editor = editor
         self.__tmpDir = None
         self.errtxt = _("An error occured while opening %s")
+        self.strip = self.editor.mw.config['stripHTML']
         # if sys.platform.startswith("win32"):
         #     self._ownLayout = None
 
@@ -832,52 +833,12 @@ class EditorWebView(AnkiWebView):
         print "text", mime.text()
         if mime.hasUrls():
             return self._processUrls(mime)
-        if mime.hasText() and (self.mw.config['stripHTML'] or
-                                 not mime.hasHtml()):
-            txt = unicode(mime.text())
-            l = txt.lower()
-            if l.startswith("http://") or l.startswith("file://"):
-                hadN = False
-                if "\n" in txt:
-                    txt = txt.split("\n")[0]
-                    hadN = True
-                if "\r" in txt:
-                    txt = txt.split("\r")[0]
-                    hadN = True
-                if not mime.hasImage() or hadN:
-                    # firefox on linux just gives us a url
-                    ext = txt.split(".")[-1].lower()
-                    try:
-                        if ext in pics:
-                            name = self._retrieveURL(txt)
-                            self.parent._addPicture(name, widget=self)
-                        elif ext in audio:
-                            name = self._retrieveURL(txt)
-                            self.parent._addSound(name, widget=self)
-                        else:
-                            # not image or sound, treat as plain text
-                            self.insertPlainText(mime.text())
-                        return True
-                    except urllib2.URLError, e:
-                        ui.utils.showWarning(errtxt % e)
-            else:
-                self.insertPlainText(mime.text())
-                return True
-        if mime.hasImage():
-            im = QImage(mime.imageData())
-            if im.hasAlphaChannel():
-                (fd, name) = tempfile.mkstemp(prefix="paste", suffix=".png")
-                uname = unicode(name, sys.getfilesystemencoding())
-                im.save(uname)
-            else:
-                (fd, name) = tempfile.mkstemp(prefix="paste", suffix=".jpg")
-                uname = unicode(name, sys.getfilesystemencoding())
-                im.save(uname, None, 95)
-            self.parent._addPicture(uname, widget=self)
-            return True
+        if mime.hasText() and (self.strip or not mime.hasHtml()):
+            return self._processText(mime)
         if mime.hasHtml():
-            self.insertHtml(self.simplifyHTML(unicode(mime.html())))
-            return True
+            return self._processHtml(mime)
+        if mime.hasImage():
+            return self._processImage(mime)
 
     def _processUrls(self, mime):
         links = []
@@ -888,6 +849,53 @@ class EditorWebView(AnkiWebView):
                 links.append(link)
         mime = QMimeData()
         mime.setHtml("".join(links))
+        return mime
+
+    def _processText(self, mime):
+        txt = unicode(mime.text())
+        l = txt.lower()
+        if l.startswith("http://") or l.startswith("file://"):
+            hadN = False
+            if "\n" in txt:
+                txt = txt.split("\n")[0]
+                hadN = True
+            if "\r" in txt:
+                txt = txt.split("\r")[0]
+                hadN = True
+            if not mime.hasImage() or hadN:
+                # firefox on linux just gives us a url
+                ext = txt.split(".")[-1].lower()
+                try:
+                    if ext in pics:
+                        name = self._retrieveURL(txt)
+                        self.parent._addPicture(name, widget=self)
+                    elif ext in audio:
+                        name = self._retrieveURL(txt)
+                        self.parent._addSound(name, widget=self)
+                    else:
+                        # not image or sound, treat as plain text
+                        self.insertPlainText(mime.text())
+                    return True
+                except urllib2.URLError, e:
+                    ui.utils.showWarning(errtxt % e)
+        else:
+            self.insertPlainText(mime.text())
+            return True
+
+    def _processHtml(self, mime):
+        self.insertHtml(self.simplifyHTML(unicode(mime.html())))
+        return True
+
+    def _processImage(self, mime):
+        im = QImage(mime.imageData())
+        name = os.path.join(self._tmpDir(), "paste-%d.png" % im.cacheKey())
+        uname = unicode(name, sys.getfilesystemencoding())
+        if im.hasAlphaChannel():
+            im.save(uname)
+        else:
+            im.save(uname, None, 95)
+        mime = QMimeData()
+        mime.setHtml(self._addMedia(uname))
         return mime
 
     def _retrieveURL(self, url):
@@ -903,6 +911,9 @@ class EditorWebView(AnkiWebView):
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
+        self._addMedia(path)
+
+    def _addMedia(self, path):
         # copy to media folder
         name = self.editor.mw.deck.media.addFile(path)
         print "name was", name
