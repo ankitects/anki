@@ -6,7 +6,6 @@ import codecs, csv, re
 from anki.importing import Importer, ForeignCard
 from anki.lang import _
 from anki.errors import *
-from anki.utils import tidyHTML
 
 class TextImporter(Importer):
 

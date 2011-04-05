@@ -20,8 +20,11 @@ class MediaRegistry(object):
         self._updateDir()
 
     def dir(self, create=False):
+        "Call with create=None to retrieve dir without creating."
         if self._dir:
             return self._dir
+        elif create == None:
+            return self._updateDir(create)
         elif create:
             self._updateDir(True)
         return self._dir

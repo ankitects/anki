@@ -4,7 +4,7 @@
 
 import time, os, random, re, stat, simplejson, datetime, copy
 from anki.lang import _, ngettext
-from anki.utils import parseTags, tidyHTML, ids2str, hexifyID, \
+from anki.utils import parseTags, ids2str, hexifyID, \
      checksum, fieldChecksum, addTags, delTags, stripHTML, intTime, \
      splitFields
 from anki.hooks import runHook, runFilter
