@@ -69,7 +69,7 @@ OPTIONS = {
     "includes": ["sip", "cgi", "encodings", "encodings.utf_8",
                  "encodings.shift_jis", "_multibytecodec",
                  "PyQt4.QtNetwork", "platform"],
-    'packages': ["sqlalchemy", "pysqlite2", "simplejson"],
+    'packages': ["pysqlite2", "simplejson"],
     'excludes': ['_gtkagg', '_tkagg', "_wxagg",
                  "wx", "_wx",
                  "Tkconstants", "Tkinter", "tcl", "pygame"],
