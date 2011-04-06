@@ -6,7 +6,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebView
 import re, os, sys, tempfile, urllib2, ctypes, simplejson, traceback
-from anki.utils import stripHTML
+from anki.utils import stripHTML, parseTags
 from anki.sound import play
 from anki.hooks import addHook, removeHook, runHook, runFilter
 from aqt.sound import getAudio
@@ -184,7 +184,7 @@ class Editor(object):
         self.setupOuter()
         self.setupButtons()
         self.setupWeb()
-        self.setupTags()
+        self.setupTagsAndGroup()
         self.setupKeyboard()
 
     def close(self):
@@ -352,7 +352,7 @@ class Editor(object):
         if self.fact:
             self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all),
                              loadCB=self._loadFinished)
-            self.updateTags()
+            self.updateTagsAndGroup()
             self.updateKeyboard()
         else:
             self.widget.hide()
@@ -375,15 +375,14 @@ class Editor(object):
     def deckClosedHook(self):
         self.setFact(None)
 
-    def saveFieldsNow(self):
+    def saveNow(self):
         "Must call this before adding cards, closing dialog, etc."
         if not self.fact:
             return
         self._keepButtons = True
         self.web.eval("saveField('blur');")
         self._keepButtons = False
-        self.onTagChange()
-        self.onGroupChange()
+        self.saveTagsAndGroup()
 
     def checkValid(self):
         cols = []
@@ -400,7 +399,7 @@ class Editor(object):
     ######################################################################
 
     def onHtmlEdit(self):
-        self.saveFieldsNow()
+        self.saveNow()
         d = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
@@ -416,7 +415,7 @@ class Editor(object):
     # Tag and group handling
     ######################################################################
 
-    def setupTags(self):
+    def setupTagsAndGroup(self):
         import aqt.tagedit
         g = QGroupBox(self.widget)
         tb = QGridLayout()
@@ -427,40 +426,34 @@ class Editor(object):
         tb.addWidget(l, 0, 0)
         self.group = aqt.tagedit.TagEdit(self.widget, type=1)
         self.group.connect(self.group, SIGNAL("lostFocus"),
-                          self.onGroupChange)
+                          self.saveTagsAndGroup)
         tb.addWidget(self.group, 0, 1)
         # tags
         l = QLabel(_("Tags"))
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.onTagChange)
+                          self.saveTagsAndGroup)
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
 
-    def updateTags(self):
+    def updateTagsAndGroup(self):
         if self.tags.deck != self.mw.deck:
             self.tags.setDeck(self.mw.deck)
+            self.tags.setText(self.fact.stringTags().strip())
             self.group.setDeck(self.mw.deck)
-            self.group.setText(self.mw.deck.groupName(
-                self.fact.model().conf['gid']))
+            if getattr(self.fact, 'gid', None):
+                gid = self.fact.gid
+            else:
+                gid = self.fact.model().conf['gid']
+            self.group.setText(self.mw.deck.groupName(gid))
 
-    def onGroupChange(self):
-        pass
-
-    def onTagChange(self):
-        return
-        if not self.fact:
-            return
-        old = self.fact.tags
-        self.fact.tags = canonifyTags(unicode(self.tags.text()))
-        if old != self.fact.tags:
-            self.deck.db.flush()
-            self.deck.updateFactTags([self.fact.id])
-            self.fact.setModified(textChanged=True, deck=self.deck)
-            self.deck.flushMod()
-            self.mw.reset(runHooks=False)
+    def saveTagsAndGroup(self):
+        self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
+        self.fact.tags = parseTags(unicode(self.tags.text()))
+        print "update tags to ", self.fact.tags
+        self.fact.flush()
 
     # Format buttons
     ######################################################################

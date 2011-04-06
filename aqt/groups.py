@@ -98,10 +98,7 @@ class Groups(QDialog):
             showInfo(_("The default group can't be deleted."))
             return
         self.mw.checkpoint(_("Delete Group"))
-        self.mw.deck.db.execute(
-            "update cards set gid = 1 where gid = ?", gid)
-        self.mw.deck.db.execute(
-            "delete from groups where id = ?", gid)
+        self.mw.deck.delGroup(gid)
         self.reload()
 
     def onRename(self):
