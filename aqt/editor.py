@@ -15,6 +15,14 @@ from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile
 import aqt
 import anki.js
 
+# todo:
+# - tags/groups
+        # if field.fieldModel.features:
+        #     w.setLayoutDirection(Qt.RightToLeft)
+        # else:
+        #     w.setLayoutDirection(Qt.LeftToRight)
+
+
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
 audio =  ("wav", "mp3", "ogg", "flac")
 
@@ -46,7 +54,7 @@ function onKey() {
     clearChangeTimer();
     changeTimer = setTimeout(function () {
         sendState();
-        saveField("key"); }, 200);
+        saveField("key"); }, 600);
 };
 
 function sendState() {
@@ -136,6 +144,12 @@ function setFields(fields, focusTo) {
     }
     $("#f"+focusTo).focus();
 };
+
+function setBackgrounds(cols) {
+    for (var i=0; i<cols.length; i++) {
+        $("#f"+i).css("background", cols[i]);
+    }
+}
 
 $(function () {
     // ignore drops outside the editable area
@@ -290,7 +304,7 @@ class Editor(object):
         # focus lost or key/button pressed?
         if str.startswith("blur") or str.startswith("key"):
             (type, txt) = str.split(":", 1)
-            self.fact._fields[self.currentField] = txt
+            self.fact._fields[self.currentField] = self.mungeHTML(txt)
             print "save fact", txt
             if type == "blur":
                 if not self._keepButtons:
@@ -299,6 +313,7 @@ class Editor(object):
             else:
                 runHook("editor.keyPressed", self.fact)
             self.fact.flush()
+            self.checkValid()
         # focused into field?
         elif str.startswith("focus"):
             (type, num) = str.split(":", 1)
@@ -315,6 +330,11 @@ class Editor(object):
             self._buttons['text_sub'].setChecked(r['sub'])
         else:
             print str
+
+    def mungeHTML(self, txt):
+        if txt == "<br>":
+            txt = ""
+        return txt
 
     # Setting/unsetting the current fact
     ######################################################################
@@ -339,9 +359,9 @@ class Editor(object):
         if not self._loaded:
             # will be loaded when page is ready
             return
-        # fixme: focus on first widget
         self.web.eval("setFields(%s, %d);" % (
             simplejson.dumps(self.fact.items()), field))
+        self.checkValid()
         self.widget.show()
 
     def refresh(self):
@@ -353,23 +373,6 @@ class Editor(object):
     def deckClosedHook(self):
         self.setFact(None)
 
-        # if field.fieldModel.features:
-        #     w.setLayoutDirection(Qt.RightToLeft)
-        # else:
-        #     w.setLayoutDirection(Qt.LeftToRight)
-
-        # catch changes
-        w.connect(w, SIGNAL("lostFocus"),
-                    lambda w=w: self.onFocusLost(w))
-        w.connect(w, SIGNAL("textChanged()"),
-                    self.onTextChanged)
-        w.connect(w, SIGNAL("currentCharFormatChanged(QTextCharFormat)"),
-                    lambda w=w: self.formatChanged(w))
-        return w
-
-        if check:
-            self.checkValid()
-
     def saveFieldsNow(self):
         "Must call this before adding cards, closing dialog, etc."
         if not self.fact:
@@ -379,27 +382,17 @@ class Editor(object):
         self._keepButtons = False
         self.onTagChange()
         self.onGroupChange()
-        # ensure valid
-        self.checkValid()
 
     def checkValid(self):
-        return
-        empty = []
-        dupe = []
-        for field in self.fact.fields:
-            p = QPalette()
-            p.setColor(QPalette.Text, QColor("#000000"))
-            if not self.fieldValid(field):
-                empty.append(field)
-                p.setColor(QPalette.Base, QColor("#ffffcc"))
-                self.fields[field.name][1].setPalette(p)
-            elif not self.fieldUnique(field):
-                dupe.append(field)
-                p.setColor(QPalette.Base, QColor("#ffcccc"))
-                self.fields[field.name][1].setPalette(p)
+        cols = []
+        for p in self.fact.problems():
+            if not p:
+                cols.append("#fff")
+            elif p == "unique":
+                cols.append("#fcc")
             else:
-                p.setColor(QPalette.Base, QColor("#ffffff"))
-                self.fields[field.name][1].setPalette(p)
+                cols.append("#ffc")
+        self.web.eval("setBackgrounds(%s);" % simplejson.dumps(cols))
 
     # HTML editing
     ######################################################################
@@ -480,15 +473,9 @@ class Editor(object):
         self.web.eval("setFormat('underline');")
 
     def toggleSuper(self, bool):
-        if self._buttons['text_sub'].isChecked():
-            self._buttons['text_sub'].setChecked(False)
-            self.toggleSub(None)
         self.web.eval("setFormat('superscript');")
 
     def toggleSub(self, bool):
-        # if self._buttons['text_super'].isChecked():
-        #     self._buttons['text_super'].setChecked(False)
-        #     self.toggleSuper(None)
         self.web.eval("setFormat('subscript');")
 
     def removeFormat(self):
