@@ -185,6 +185,7 @@ class Editor(object):
         self.setupButtons()
         self.setupWeb()
         self.setupTags()
+        self.setupKeyboard()
 
     def close(self):
         removeHook("deckClosed", self.deckClosedHook)
@@ -352,6 +353,7 @@ class Editor(object):
             self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all),
                              loadCB=self._loadFinished)
             self.updateTags()
+            self.updateKeyboard()
         else:
             self.widget.hide()
 
@@ -586,10 +588,7 @@ class Editor(object):
         runHook("colourChanged")
 
     def onNextColour(self):
-        try:
-            self.colourDiag.focusWidget().nextInFocusChain().setFocus()
-        except:
-            ui.utils.showInfo("Your Qt version is too old to support this.")
+        self.colourDiag.focusWidget().nextInFocusChain().setFocus()
 
     def onChooseColourKey(self):
         try:
@@ -677,6 +676,36 @@ class Editor(object):
     def insertLatexMathEnv(self):
         self.mw.deck.media.dir(create=True)
         self.web.eval("wrap('[$$]', '[/$$]');")
+
+    # Keyboard layout
+    ######################################################################
+
+    def setupKeyboard(self):
+        if sys.platform.startswith("win32") and self.mw.config['preserveKeyboard']:
+            a = ctypes.windll.user32.ActivateKeyboardLayout
+            a.restype = ctypes.c_void_p
+            a.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+            g = ctypes.windll.user32.GetKeyboardLayout
+            g.restype = ctypes.c_void_p
+            g.argtypes = [ctypes.c_uint]
+        else:
+            a = g = None
+        self.activateKeyboard = a
+        self.getKeyboard = g
+
+    def updateKeyboard(self):
+        self.keyboardLayouts = {}
+
+    def saveKeyboard(self):
+        if not self.getKeyboard:
+            return
+        self.keyboardLayouts[self.currentField] = self.getKeyboard(0)
+
+    def restoreKeyboard(self):
+        if not self.getKeyboard:
+            return
+        if self.currentField in self.keyboardLayouts:
+            self.activateKeyboard(self.keyboardLayouts[self.currentField], 0)
 
 # Pasting, drag & drop, and keyboard layouts
 ######################################################################
@@ -819,24 +848,3 @@ class EditorWebView(AnkiWebView):
         if not self.__tmpDir:
             self.__tmpDir = tempfile.mkdtemp(prefix="anki")
         return self.__tmpDir
-
-# if sys.platform.startswith("win32"):
-#     ActivateKeyboardLayout = ctypes.windll.user32.ActivateKeyboardLayout
-#     ActivateKeyboardLayout.restype = ctypes.c_void_p
-#     ActivateKeyboardLayout.argtypes = [ctypes.c_void_p, ctypes.c_uint]
-#     GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
-#     GetKeyboardLayout.restype = ctypes.c_void_p
-#     GetKeyboardLayout.argtypes = [ctypes.c_uint]
-
-    # def focusOutEvent(self, evt):
-    #     if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
-    #         self._ownLayout = GetKeyboardLayout(0)
-    #         ActivateKeyboardLayout(self._programLayout, 0)
-    #     self.emit(SIGNAL("lostFocus"))
-
-    # def focusInEvent(self, evt):
-    #     if self.mw.config['preserveKeyboard'] and sys.platform.startswith("win32"):
-    #         self._programLayout = GetKeyboardLayout(0)
-    #         if self._ownLayout == None:
-    #             self._ownLayout = self._programLayout
-    #         ActivateKeyboardLayout(self._ownLayout, 0)
