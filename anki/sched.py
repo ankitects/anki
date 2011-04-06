@@ -124,7 +124,7 @@ sum(case when queue = 2 and due <= ? then 1 else 0 end),
 sum(case when queue = 0 then 1 else 0 end)
 from cards group by gid""", self.today):
             gids[gid] = [all, rev, new]
-        return [[name, gid]+gids[gid] for (gid, name) in
+        return [[name, gid]+gids.get(gid, [0, 0, 0]) for (gid, name) in
                 self.deck.db.execute(
                     "select id, name from groups order by name")]
 

@@ -13,7 +13,8 @@ from anki.media import MediaRegistry
 from anki.consts import *
 
 import anki.latex # sets up hook
-import anki.cards, anki.facts, anki.models, anki.template, anki.cram
+import anki.cards, anki.facts, anki.models, anki.template, anki.cram, \
+    anki.groups
 
 # Settings related to queue building. These may be loaded without the rest of
 # the config to check due counts faster on mobile clients.

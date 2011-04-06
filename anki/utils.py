@@ -202,7 +202,7 @@ def joinTags(tags):
     return u" %s " % u" ".join(tags)
 
 def canonifyTags(tags):
-    "Strip leading/trailing/superfluous commas and duplicates."
+    "Strip leading/trailing/superfluous spaces and duplicates."
     tags = [t.lstrip(":") for t in set(tags)]
     return joinTags(sorted(tags))
 
