@@ -29,8 +29,8 @@ class AddCards(QDialog):
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(_("Add"))
-        self.setupEditor()
         self.setupChooser()
+        self.setupEditor()
         self.setupButtons()
         self.onReset()
         self.addedItems = 0
@@ -42,14 +42,10 @@ class AddCards(QDialog):
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
-        # get a fact for testing
-        #fact = self.mw.deck.getFact(3951)
-        #self.editor.setFact(fact)
 
     def setupChooser(self):
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.mw, self.form.modelArea)
-        # modelChanged func
 
     def helpRequested(self):
         aqt.openHelp("AddItems")
@@ -104,12 +100,9 @@ class AddCards(QDialog):
                 except IndexError:
                     break
         self.editor.setFact(fact)
-        #self.setTabOrder(self.editor.tags, self.addButton)
-        #self.setTabOrder(self.addButton, self.closeButton)
-        #self.setTabOrder(self.closeButton, self.helpButton)
 
     def removeTempFact(self, fact):
-        if not fact:
+        if not fact or not fact.id:
             return
         # we don't have to worry about cards; just the fact
         self.mw.deck._delFacts([fact.id])

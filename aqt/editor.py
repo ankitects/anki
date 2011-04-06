@@ -15,6 +15,9 @@ from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile
 import aqt
 import anki.js
 
+# fixme: when tab order returns to the webview, the previously focused field
+# is focused, which is not good when the user is tabbing through the dialog
+
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
 audio =  ("wav", "mp3", "ogg", "flac")
 
@@ -174,6 +177,7 @@ class Editor(object):
         self.widget = widget
         self.mw = mw
         self.fact = None
+        self.stealFocus = True
         self._loaded = False
         self._keepButtons = False
         # current card, for card layout
@@ -296,6 +300,9 @@ class Editor(object):
     ######################################################################
 
     def bridge(self, str):
+        if not self.fact or not runHook:
+            # shutdown
+            return
         # focus lost or key/button pressed?
         if str.startswith("blur") or str.startswith("key"):
             (type, txt) = str.split(":", 1)
@@ -361,6 +368,8 @@ class Editor(object):
             simplejson.dumps(self.fonts())))
         self.checkValid()
         self.widget.show()
+        if self.stealFocus:
+            self.web.setFocus()
 
     def fonts(self):
         return [(f['font'], f['esize'])

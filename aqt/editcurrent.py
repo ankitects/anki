@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+        # get a fact for testing
+        #fact = self.mw.deck.getFact(3951)
+        #self.editor.setFact(fact)
+
 class EditCurrent(object):
 
     def __init__(self, mw):
