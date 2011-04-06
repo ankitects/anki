@@ -16,7 +16,6 @@ import aqt
 import anki.js
 
 # todo:
-# - tags/groups
         # if field.fieldModel.features:
         #     w.setLayoutDirection(Qt.RightToLeft)
         # else:
@@ -148,6 +147,13 @@ function setFields(fields, focusTo) {
 function setBackgrounds(cols) {
     for (var i=0; i<cols.length; i++) {
         $("#f"+i).css("background", cols[i]);
+    }
+}
+
+function setFonts(fonts) {
+    for (var i=0; i<fonts.length; i++) {
+        $("#f"+i).css("font-family", fonts[i][0]);
+        $("#f"+i).css("font-size", fonts[i][1]);
     }
 }
 
@@ -292,11 +298,13 @@ class Editor(object):
 
     def onCardLayout(self):
         from aqt.clayout import CardLayout
+        self.saveNow()
         if self.card:
             type = 1; ord = self.card.ord
         else:
             type = 0; ord = 0
         CardLayout(self.mw, self.fact, type=type, ord=ord, parent=self.widget)
+        self.loadFact()
 
     # JS->Python bridge
     ######################################################################
@@ -363,8 +371,14 @@ class Editor(object):
             return
         self.web.eval("setFields(%s, %d);" % (
             simplejson.dumps(self.fact.items()), field))
+        self.web.eval("setFonts(%s);" % (
+            simplejson.dumps(self.fonts())))
         self.checkValid()
         self.widget.show()
+
+    def fonts(self):
+        return [(f['font'], f['esize'])
+                for f in self.fact.model().fields]
 
     def refresh(self):
         if self.fact:
@@ -711,8 +725,6 @@ class EditorWebView(AnkiWebView):
         self.__tmpDir = None
         self.errtxt = _("An error occured while opening %s")
         self.strip = self.editor.mw.config['stripHTML']
-        # if sys.platform.startswith("win32"):
-        #     self._ownLayout = None
 
     def keyPressEvent(self, evt):
         self._curKey = True
