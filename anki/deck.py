@@ -571,7 +571,9 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
         return id
 
     def delGroup(self, gid):
-        self.db.scalar("delete from groups where id = ?", gid)
+        self.db.execute("update cards set gid = 1 where gid = ?", gid)
+        self.db.execute("update facts set gid = 1 where gid = ?", gid)
+        self.db.execute("delete from groups where id = ?", gid)
 
     def setGroup(self, cids, gid):
         self.db.execute(
