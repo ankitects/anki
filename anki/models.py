@@ -8,6 +8,7 @@ from anki.lang import _
 
 # Models
 ##########################################################################
+# gid may point to non-existent group
 
 defaultConf = {
     'sortf': 0,

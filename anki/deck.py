@@ -160,6 +160,7 @@ qconf=?, conf=?, data=?""",
         if not self.schemaChanged():
             # next sync will be full
             self.emptyTrash()
+            runHook("modSchema")
         self.scm = intTime()
 
     def schemaChanged(self):
@@ -323,7 +324,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         card.id = self.nextID("cid")
         card.fid = fact.id
         card.ord = template['ord']
-        card.gid = template['gid'] or fact.gid
+        card.gid = self.defaultGroup(template['gid'] or fact.gid)
         card.due = due
         if flush:
             card.flush()
@@ -570,7 +571,13 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
                 simplejson.dumps(anki.groups.defaultData)).lastrowid
         return id
 
+    def defaultGroup(self, id):
+        if id == 1:
+            return 1
+        return self.db.scalar("select id from groups where id = ?", id) or 1
+
     def delGroup(self, gid):
+        self.modSchema()
         self.db.execute("update cards set gid = 1 where gid = ?", gid)
         self.db.execute("update facts set gid = 1 where gid = ?", gid)
         self.db.execute("delete from groups where id = ?", gid)

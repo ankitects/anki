@@ -18,7 +18,7 @@ class Fact(object):
         else:
             self.id = None
             self._model = model
-            self.gid = 1
+            self.gid = deck.defaultGroup(model.conf['gid'])
             self.mid = model.id
             self.crt = intTime()
             self.mod = self.crt
