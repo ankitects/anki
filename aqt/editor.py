@@ -15,13 +15,6 @@ from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile
 import aqt
 import anki.js
 
-# todo:
-        # if field.fieldModel.features:
-        #     w.setLayoutDirection(Qt.RightToLeft)
-        # else:
-        #     w.setLayoutDirection(Qt.LeftToRight)
-
-
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
 audio =  ("wav", "mp3", "ogg", "flac")
 
@@ -175,6 +168,7 @@ $(function () {
 </body></html>
 """
 
+# caller is responsible for resetting fact on reset
 class Editor(object):
     def __init__(self, mw, widget):
         self.widget = widget
@@ -184,19 +178,11 @@ class Editor(object):
         self._keepButtons = False
         # current card, for card layout
         self.card = None
-        addHook("deckClosed", self.deckClosedHook)
-        addHook("guiReset", self.refresh)
-        addHook("colourChanged", self.colourChanged)
         self.setupOuter()
         self.setupButtons()
         self.setupWeb()
         self.setupTagsAndGroup()
         self.setupKeyboard()
-
-    def close(self):
-        removeHook("deckClosed", self.deckClosedHook)
-        removeHook("guiReset", self.refresh)
-        removeHook("colourChanged", self.colourChanged)
 
     # Initial setup
     ############################################################
@@ -380,15 +366,6 @@ class Editor(object):
         return [(f['font'], f['esize'])
                 for f in self.fact.model().fields]
 
-    def refresh(self):
-        if self.fact:
-            self.fact.load()
-            # fixme: what if fact is deleted?
-            self.setFact(self.fact)
-
-    def deckClosedHook(self):
-        self.setFact(None)
-
     def saveNow(self):
         "Must call this before adding cards, closing dialog, etc."
         if not self.fact:
@@ -408,6 +385,14 @@ class Editor(object):
             else:
                 cols.append("#ffc")
         self.web.eval("setBackgrounds(%s);" % simplejson.dumps(cols))
+
+    def fieldsAreBlank(self):
+        if not self.fact:
+            return True
+        for f in self.fact._fields:
+            if f:
+                return False
+        return True
 
     # HTML editing
     ######################################################################
@@ -592,7 +577,7 @@ class Editor(object):
             recent.append("#000000")
         self.colourDiag.close()
         self.onForeground()
-        runHook("colourChanged")
+        self.colourChanged()
 
     def onNextColour(self):
         self.colourDiag.focusWidget().nextInFocusChain().setFocus()
@@ -610,7 +595,7 @@ class Editor(object):
         recent.append(colour)
         self.web.eval("setFormat('forecolor', '%s')" % colour)
         self.colourDiag.close()
-        runHook("colourChanged")
+        self.colourChanged()
 
     def onNewColour(self):
         new = QColorDialog.getColor(Qt.white, self.widget)
@@ -620,7 +605,7 @@ class Editor(object):
             txtcol = unicode(new.name())
             if txtcol not in recent:
                 recent.append(txtcol)
-            runHook("colourChanged")
+            self.colourChanged()
             self.onChooseColour(txtcol)
 
     # Audio/video/images

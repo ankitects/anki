@@ -4,38 +4,42 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from operator import attrgetter
-import anki, sys
 from anki import stdmodels
-from anki.models import *
-import aqt.forms
+from anki.lang import ngettext
 from anki.hooks import addHook, removeHook
+from aqt.utils import isMac
 
 class ModelChooser(QHBoxLayout):
 
-    def __init__(self, parent, main, deck, onChangeFunc=None, cards=True, label=True):
+    def __init__(self, mw, widget, cards=True, label=True):
         QHBoxLayout.__init__(self)
-        self.parent = parent
-        self.main = main
-        self.deck = deck
-        self.onChangeFunc = onChangeFunc
+        self.widget = widget
+        self.mw = mw
+        self.deck = mw.deck
+        self.handleCards = cards
+        self.label = label
+        self._ignoreReset = False
         self.setMargin(0)
         self.setSpacing(4)
-        self.shortcuts = []
-        if label:
+        self.setupModels()
+        self.setupTemplates()
+        addHook('reset', self.onReset)
+        self.widget.setLayout(self)
+
+    def setupModels(self):
+        if self.label:
             self.modelLabel = QLabel(_("<b>Model</b>:"))
             self.addWidget(self.modelLabel)
+        # models dropdown
         self.models = QComboBox()
-        s = QShortcut(QKeySequence(_("Shift+Alt+m")), self.parent)
+        s = QShortcut(QKeySequence(_("Shift+Alt+m")), self.widget)
         s.connect(s, SIGNAL("activated()"),
                   lambda: self.models.showPopup())
-        self.drawModels()
-        sizePolicy = QSizePolicy(
-            QSizePolicy.Policy(7),
-            QSizePolicy.Policy(0))
-        self.models.setSizePolicy(sizePolicy)
         self.addWidget(self.models)
+        self.connect(self.models, SIGNAL("activated(int)"), self.onModelChange)
+        # edit button
         self.edit = QPushButton()
-        if not sys.platform.startswith("darwin"):
+        if not isMac:
             self.edit.setFixedWidth(32)
         self.edit.setIcon(QIcon(":/icons/configure.png"))
         self.edit.setShortcut(_("Shift+Alt+e"))
@@ -43,120 +47,105 @@ class ModelChooser(QHBoxLayout):
         self.edit.setAutoDefault(False)
         self.addWidget(self.edit)
         self.connect(self.edit, SIGNAL("clicked()"), self.onEdit)
-        self.connect(self.models, SIGNAL("activated(int)"), self.onChange)
-        self.handleCards = False
-        if cards:
-            self.handleCards = True
-            label = QLabel(_("<b>Cards</b>:"))
-            self.addWidget(label)
+        # layout
+        sizePolicy = QSizePolicy(
+            QSizePolicy.Policy(7),
+            QSizePolicy.Policy(0))
+        self.models.setSizePolicy(sizePolicy)
+        self.updateModels()
+
+    def setupTemplates(self):
+        self.cardShortcuts = []
+        if self.handleCards:
             self.cards = QPushButton()
             self.cards.setAutoDefault(False)
             self.connect(self.cards, SIGNAL("clicked()"), self.onCardChange)
             self.addWidget(self.cards)
-            self.drawCardModels()
-        addHook('guiReset', self.onModelEdited)
+            self.updateTemplates()
 
-    def deinit(self):
-        removeHook('guiReset', self.onModelEdited)
+    def cleanup(self):
+        removeHook('reset', self.onReset)
+
+    def onReset(self):
+        if not self._ignoreReset:
+            self.updateModels()
+            self.updateTemplates()
 
     def show(self):
-        for i in range(self.count()):
-            self.itemAt(i).widget().show()
+        self.widget.show()
 
     def hide(self):
-        for i in range(self.count()):
-            self.itemAt(i).widget().hide()
+        self.widget.hide()
 
     def onEdit(self):
-        ui.deckproperties.DeckProperties(self.parent, self.deck,
-                                         onFinish=self.onModelEdited)
+        import aqt.models
+        aqt.models.Models(self.mw, self.widget)
 
-    def onModelEdited(self):
-        # hack
-        from aqt import mw
-        self.deck = mw.deck
-        self.drawModels()
-        self.changed(self.deck.currentModel)
-
-    def onChange(self, idx):
+    def onModelChange(self, idx):
         model = self._models[idx]
-        self.deck.currentModel = model
-        self.changed(self.deck.currentModel)
-        self.deck.setModified()
+        self.deck.conf['currentModelId'] = model.id
+        self.updateTemplates()
+        self._ignoreReset = True
+        self.mw.reset()
+        self._ignoreReset = False
 
-    def changed(self, model):
-        self.deck.addModel(model)
-        if self.onChangeFunc:
-            self.onChangeFunc(model)
-        self.drawCardModels()
-
-    def drawModels(self):
+    def updateModels(self):
         self.models.clear()
-        self._models = sorted(self.deck.models().values(), key=attrgetter("name"))
+        self._models = sorted(self.deck.models().values(),
+                              key=attrgetter("name"))
         self.models.addItems(QStringList(
             [m.name for m in self._models]))
-        idx = self._models.index(self.deck.currentModel())
-        self.models.setCurrentIndex(idx)
+        for c, m in enumerate(self._models):
+            if m.id == self.deck.conf['currentModelId']:
+                self.models.setCurrentIndex(c)
+                break
 
-    def drawCardModels(self):
+    def updateTemplates(self):
         if not self.handleCards:
             return
         # remove any shortcuts
-        for s in self.shortcuts:
+        for s in self.cardShortcuts:
             s.setEnabled(False)
-        self.shortcuts = []
-        m = self.deck.currentModel
-        txt = ", ".join([c.name for c in m.cardModels if c.active])
-        if len(txt) > 30:
-            txt = txt[0:30] + "..."
+        self.cardShortcuts = []
+        m = self.deck.currentModel()
+        ts = m.templates
+        active = [t['name'] for t in ts if t['actv']]
+        txt = ngettext("%d card", "%d cards", len(active)) % len(active)
         self.cards.setText(txt)
         n = 1
-        for c in m.cardModels:
-            s = QShortcut(QKeySequence("Ctrl+%d" % n), self.parent)
-            self.parent.connect(s, SIGNAL("activated()"),
-                                lambda c=c: self.toggleCard(c))
-            self.shortcuts.append(s)
+        for t in ts:
+            s = QShortcut(QKeySequence("Ctrl+%d" % n), self.widget)
+            self.widget.connect(s, SIGNAL("activated()"),
+                                lambda t=t: self.toggleTemplate(t))
+            self.cardShortcuts.append(s)
             n += 1
 
     def onCardChange(self):
-        m = QMenu(self.parent)
-        m.setTitle("menu")
-        model = self.deck.currentModel
-        for card in model.cardModels:
-            action = QAction(self.parent)
+        m = QMenu(self.widget)
+        model = self.deck.currentModel()
+        for template in model.templates:
+            action = QAction(self.widget)
             action.setCheckable(True)
-            if card.active:
+            if template['actv']:
                 action.setChecked(True)
-            action.setText(card.name)
-            self.connect(action, SIGNAL("toggled(bool)"),
-                         lambda b, a=action, c=card: \
-                         self.cardChangeTriggered(b,a,c))
+            action.setText(template['name'])
+            self.connect(action, SIGNAL("activated()"),
+                         lambda t=template: \
+                         self.toggleTemplate(t))
             m.addAction(action)
         m.exec_(self.cards.mapToGlobal(QPoint(0,0)))
 
-    def cardChangeTriggered(self, bool, action, card):
-        if bool:
-            card.active = True
-        elif self.canDisableModel():
-            card.active = False
-        self.drawCardModels()
+    def canDisableTemplate(self):
+        return len([t for t in self.deck.currentModel().templates
+                    if t['actv']]) > 1
 
-    def canDisableModel(self):
-        active = 0
-        model = self.deck.currentModel
-        for c in model.cardModels:
-            if c.active:
-                active += 1
-        if active > 1:
-            return True
-        return False
-
-    def toggleCard(self, card):
-        if not card.active:
-            card.active = True
-        elif self.canDisableModel():
-            card.active = False
-        self.drawCardModels()
+    def toggleTemplate(self, card):
+        if not card['actv']:
+            card['actv'] = True
+        elif self.canDisableTemplate():
+            card['actv'] = False
+        self.deck.currentModel().flush()
+        self.updateTemplates()
 
 class AddModel(QDialog):
 

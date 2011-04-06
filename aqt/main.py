@@ -113,7 +113,12 @@ class AnkiQt(QMainWindow):
     def _editCurrentState(self, oldState):
         pass
 
-    def reset(self):
+    def factChanged(self, fid):
+        "Called when a card or fact is edited (but not deleted)."
+        runHook("factChanged", fid)
+
+    def reset(self, type="all", *args):
+        "Called for non-trivial edits. Rebuilds queue."
         self.deck.reset()
         runHook("reset")
 

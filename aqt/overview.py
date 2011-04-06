@@ -23,7 +23,6 @@ class Overview(object):
         self.refresh()
 
     def refresh(self):
-        print "refreshing"
         self._renderPage()
 
     # Handlers

@@ -13,6 +13,8 @@ from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      getText
 import aqt.templates
 
+# fixme: replace font substitutions with native comma list
+
 class ResizingTextEdit(QTextEdit):
     def sizeHint(self):
         return QSize(200, 800)

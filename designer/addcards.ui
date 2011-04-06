@@ -45,7 +45,14 @@
       <number>4</number>
      </property>
      <item row="0" column="0">
-      <widget class="QWidget" name="modelArea" native="true"/>
+      <widget class="QWidget" name="modelArea" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>10</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="Line" name="line">
