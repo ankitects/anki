@@ -45,24 +45,24 @@ class CardLayout(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         restoreSplitter(self.form.splitter, "clayout")
         restoreGeom(self, "CardLayout")
-        self.reload()
-        if not self.cards:
-            showInfo(_("Please enter some text first."))
+        if not self.reload(first=True):
             return
         self.exec_()
 
-    def reload(self):
+    def reload(self, first=False):
         self.cards = self.deck.previewCards(self.fact, self.type)
         if not self.cards:
             self.accept()
-            showInfo(_(
-                "The current fact was deleted."))
-            self
+            if first:
+                showInfo(_("Please enter some text first."))
+            else:
+                showInfo(_("The current fact was deleted."))
             return
         self.fillCardList()
         self.fillFieldList()
         self.fieldChanged()
         self.readField()
+        return True
 
     # Cards & Preview
     ##########################################################################
