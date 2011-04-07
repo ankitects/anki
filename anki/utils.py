@@ -129,11 +129,6 @@ def stripHTML(s):
     s = entsToTxt(s)
     return s
 
-def stripHTMLAlt(s):
-    "Strip HTML, preserving img alt text."
-    s = re.sub("<img [^>]*alt=[\"']?([^\"'>]+)[\"']?[^>]*>", "\\1", s)
-    return stripHTML(s)
-
 def stripHTMLMedia(s):
     "Strip HTML but keep media filenames"
     s = re.sub("<img src=[\"']?([^\"'>]+)[\"']? ?/?>", " \\1 ", s)
