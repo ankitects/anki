@@ -1,6 +1,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # -*- coding: utf-8 -*-
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     def onCram(self, cardIds=[]):
         te = aqt.tagedit.TagEdit(self)

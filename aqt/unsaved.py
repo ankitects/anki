@@ -1,5 +1,5 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from PyQt4.QtGui import *
 import aqt.forms
