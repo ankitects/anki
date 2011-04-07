@@ -125,64 +125,9 @@ class DeckModel(QAbstractTableModel):
     ######################################################################
 
     def showMatching(self, force=True):
-        if not self.sortKey:
-            self.cards = []
-            return
-        # sorting
-        if not self.searchStr:
-            ads = ""
-            self.lastSearch = ""
-        else:
-            if (self.searchStr.strip() == self.lastSearch.strip()
-                and not force):
-                # just whitespace
-                return
-            QApplication.instance().processEvents()
-            self.lastSearch = self.searchStr
-            ids = self.deck.findCards(self.searchStr)
-            ads = "cards.id in %s" % ids2str(ids)
-        sort = ""
-        if isinstance(self.sortKey, types.StringType):
-            # card property
-            if self.sortKey == "fact":
-                sort = "order by facts.created, cards.created"
-            else:
-                sort = "order by cards." + self.sortKey
-            if self.sortKey in ("question", "answer"):
-                sort += " collate nocase"
-            if self.sortKey == "fact":
-                query = """
-select cards.id from cards, facts
-where cards.factId = facts.id """
-                if ads:
-                    query += "and " + ads + " "
-            else:
-                query = "select id from cards "
-                if ads:
-                    query += "where %s " % ads
-            query += sort
-        else:
-            # field value
-            ret = self.deck.db.all(
-                "select id, numeric from fieldModels where name = :name",
-                name=self.sortKey[1])
-            fields = ",".join([str(x[0]) for x in ret])
-            # if multiple models have the same field, use the first numeric bool
-            numeric = ret[0][1]
-            if numeric:
-                order = "cast(fields.value as real)"
-            else:
-                order = "fields.value collate nocase"
-            if ads:
-                ads = " and " + ads
-            query = ("select cards.id "
-                     "from fields, cards where fields.fieldModelId in (%s) "
-                     "and fields.factId = cards.factId" + ads +
-                     " order by cards.ordinal, %s") % (fields, order)
-        # run the query
-        self.cards = self.deck.db.all(query)
-        if self.deck.getInt('reverseOrder'):
-            self.cards.reverse()
+        return
+        # if self.deck.getInt('reverseOrder'):
+        #     self.cards.reverse()
         self.reset()
 
     def updateCard(self, index):
@@ -339,19 +284,16 @@ class StatusDelegate(QItemDelegate):
             painter.restore()
         return QItemDelegate.paint(self, painter, option, index)
 
-class EditDeck(QMainWindow):
+class Browser(QMainWindow):
 
-    def __init__(self, parent):
-        windParent = None
-        QMainWindow.__init__(self, windParent)
+    def __init__(self, mw):
+        QMainWindow.__init__(self, None)
         applyStyles(self)
-        self.parent = parent
-        self.deck = self.parent.deck
-        self.config = parent.config
-        self.origModTime = parent.deck.modified
+        self.mw = mw
+        self.deck = self.mw.deck
         self.currentRow = None
         self.lastFilter = ""
-        self.dialog = aqt.forms.cardlist.Ui_MainWindow()
+        self.dialog = aqt.forms.browser.Ui_Dialog()
         self.dialog.setupUi(self)
         self.setUnifiedTitleAndToolBarOnMac(True)
         restoreGeom(self, "editor", 38)
@@ -359,12 +301,11 @@ class EditDeck(QMainWindow):
         restoreSplitter(self.dialog.splitter, "editor")
         self.dialog.splitter.setChildrenCollapsible(False)
         # toolbar
-        self.dialog.toolBar.setIconSize(QSize(self.config['iconSize'],
-                                              self.config['iconSize']))
+        self.dialog.toolBar.setIconSize(QSize(self.mw.config['iconSize'],
+                                              self.mw.config['iconSize']))
         self.dialog.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
         # flush all changes before we load
-        self.deck.db.flush()
-        self.model = DeckModel(self.parent, self.parent.deck)
+        self.model = DeckModel(self.mw, self.mw.deck)
         self.dialog.tableView.setSortingEnabled(False)
         self.dialog.tableView.setShowGrid(False)
         self.dialog.tableView.setModel(self.model)
@@ -383,12 +324,11 @@ class EditDeck(QMainWindow):
         self.setupEditor()
         self.setupCardInfo()
         self.dialog.filterEdit.setFocus()
-        ui.dialogs.open("CardList", self)
         self.drawTags()
         self.updateFilterLabel()
         self.show()
-        if self.parent.currentCard:
-            self.currentCard = self.parent.currentCard
+        # if self.parent.currentCard:
+        #     self.currentCard = self.parent.currentCard
         self.updateSearch()
 
     def findCardInDeckModel(self):
@@ -399,10 +339,10 @@ class EditDeck(QMainWindow):
 
     def updateFont(self):
         self.dialog.tableView.setFont(QFont(
-            self.config['editFontFamily'],
-            self.config['editFontSize']))
+            self.mw.config['editFontFamily'],
+            self.mw.config['editFontSize']))
         self.dialog.tableView.verticalHeader().setDefaultSectionSize(
-            self.parent.config['editLineSize'])
+            self.mw.config['editLineSize'])
         self.model.reset()
 
     def setupFilter(self):
@@ -419,7 +359,7 @@ class EditDeck(QMainWindow):
 
     def setupSort(self):
         self.dialog.sortBox.setMaxVisibleItems(30)
-        self.sortIndex = self.deck.getInt("sortIndex") or 0
+        self.sortIndex = int(self.deck.conf.get("sortIdx", "0"))
         self.drawSort()
         self.connect(self.dialog.sortBox, SIGNAL("activated(int)"),
                      self.sortChanged)
@@ -428,6 +368,7 @@ class EditDeck(QMainWindow):
                      self.reverseOrder)
 
     def drawTags(self):
+        return
         self.dialog.tagList.setMaxVisibleItems(30)
         self.dialog.tagList.view().setMinimumWidth(200)
         self.dialog.tagList.setFixedWidth(170)
@@ -493,8 +434,6 @@ class EditDeck(QMainWindow):
             _("Lapses"),
             _("First Review"),
             ]
-        self.sortFields = sorted(self.deck.allFields())
-        self.sortList.extend([_("'%s'") % f for f in self.sortFields])
         self.dialog.sortBox.clear()
         self.dialog.sortBox.addItems(QStringList(self.sortList))
         if self.sortIndex >= len(self.sortList):
@@ -502,7 +441,7 @@ class EditDeck(QMainWindow):
         self.dialog.sortBox.setCurrentIndex(self.sortIndex)
 
     def updateSortOrder(self):
-        if self.deck.getInt("reverseOrder"):
+        if int(self.deck.conf.get("revOrder", "0")):
             self.dialog.sortOrder.setIcon(QIcon(":/icons/view-sort-descending.png"))
         else:
             self.dialog.sortOrder.setIcon(QIcon(":/icons/view-sort-ascending.png"))
@@ -532,9 +471,9 @@ class EditDeck(QMainWindow):
             self.sortKey = "firstAnswered"
         else:
             self.sortKey = ("field", self.sortFields[idx-11])
-        self.rebuildSortIndex(self.sortKey)
+        #self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
-        self.deck.setVar('sortIndex', idx)
+        self.deck.conf['sortIdx'] = idx
         self.model.sortKey = self.sortKey
         self.model.updateHeader()
         if refresh:
@@ -552,7 +491,6 @@ class EditDeck(QMainWindow):
                                  k="ix_cards_sort")
         if old and key in old:
             return
-        self.parent.setProgressParent(self)
         self.deck.startProgress(2)
         self.deck.updateProgress(_("Building Index..."))
         self.deck.db.statement("drop index if exists ix_cards_sort")
@@ -563,7 +501,6 @@ class EditDeck(QMainWindow):
             "create index ix_cards_sort on cards (%s)" % key)
         self.deck.db.statement("analyze")
         self.deck.finishProgress()
-        self.parent.setProgressParent(None)
 
     def tagChanged(self, idx):
         if idx == 0:
@@ -591,23 +528,17 @@ class EditDeck(QMainWindow):
                               "of %(tot)d cards shown; %(sel)s)", self.deck.cardCount) %
                             {
             "cur": len(self.model.cards),
-            "tot": self.deck.cardCount,
+            "tot": self.deck.cardCount(),
             "sel": ngettext("%d selected", "%d selected", selected) % selected
             } + " - " + self.deck.name())
 
     def onEvent(self, type='field'):
-        if self.deck.undoAvailable():
+        if self.deck.undoName():
             self.dialog.actionUndo.setText(_("Undo %s") %
                                            self.deck.undoName())
             self.dialog.actionUndo.setEnabled(True)
         else:
             self.dialog.actionUndo.setEnabled(False)
-        if self.deck.redoAvailable():
-            self.dialog.actionRedo.setText(_("Redo %s") %
-                                            self.deck.redoName())
-            self.dialog.actionRedo.setEnabled(True)
-        else:
-            self.dialog.actionRedo.setEnabled(False)
         if type=="all":
             self.updateAfterCardChange()
         else:
@@ -638,8 +569,9 @@ class EditDeck(QMainWindow):
         self.updateSearch()
 
     def updateSearch(self, force=True):
-        if self.parent.inDbHandler:
-            return
+        # fixme:
+        # if self.mw.inDbHandler:
+        #     return
         self.model.searchStr = unicode(self.dialog.filterEdit.text())
         self.model.showMatching(force)
         self.updateFilterLabel()
@@ -685,7 +617,7 @@ class EditDeck(QMainWindow):
 
     def setupMenus(self):
         # actions
-        self.connect(self.dialog.actionAddItems, SIGNAL("triggered()"), self.parent.onAddCard)
+        self.connect(self.dialog.actionAddItems, SIGNAL("triggered()"), self.mw.onAddCard)
         self.connect(self.dialog.actionDelete, SIGNAL("triggered()"), self.deleteCards)
         self.connect(self.dialog.actionAddTag, SIGNAL("triggered()"), self.addTags)
         self.connect(self.dialog.actionDeleteTag, SIGNAL("triggered()"), self.deleteTags)
@@ -719,14 +651,13 @@ class EditDeck(QMainWindow):
 
     def onClose(self):
         saveSplitter(self.dialog.splitter, "editor")
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         self.editor.setFact(None)
-        self.editor.close()
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.dialog.tableView.horizontalHeader(), "editor")
         self.hide()
-        ui.dialogs.close("CardList")
+        aqt.dialogs.close("Browser")
         self.teardownHooks()
         return True
 
@@ -745,10 +676,10 @@ class EditDeck(QMainWindow):
     ######################################################################
 
     def setupEditor(self):
-        self.editor = ui.facteditor.FactEditor(self,
-                                               self.dialog.fieldsArea,
-                                               self.deck)
-        self.editor.onChange = self.onEvent
+        self.editor = aqt.editor.Editor(self.mw,
+                                        self.dialog.fieldsArea)
+        # fixme:
+        #self.editor.onChange = self.onEvent
         self.connect(self.dialog.tableView.selectionModel(),
                      SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
                      self.rowChanged)
@@ -800,7 +731,7 @@ where id in (%s)""" % ",".join([
         self.rowChanged(self.currentRow, None)
         self.model.refresh()
         self.drawTags()
-        self.parent.reset()
+        self.mw.reset()
 
     # Menu options
     ######################################################################
@@ -835,11 +766,9 @@ where id in (%s)""" % ",".join([
         if label is None:
             label = _("Add Tags")
         if r:
-            self.parent.setProgressParent(self)
             self.deck.setUndoStart(label)
             self.deck.addTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(label)
-            self.parent.setProgressParent(None)
         self.updateAfterCardChange()
 
     def deleteTags(self, tags=None, label=None):
@@ -852,11 +781,9 @@ where id in (%s)""" % ",".join([
         if label is None:
             label = _("Delete Tags")
         if r:
-            self.parent.setProgressParent(self)
             self.deck.setUndoStart(label)
             self.deck.deleteTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(label)
-            self.parent.setProgressParent(None)
         self.updateAfterCardChange()
 
     def updateToggles(self):
@@ -876,23 +803,19 @@ where id in (%s)""" % ",".join([
 
     def _onSuspend(self):
         n = _("Suspend")
-        self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
         self.deck.suspendCards(self.selectedCards())
-        self.parent.reset()
+        self.mw.reset()
         self.deck.setUndoEnd(n)
-        self.parent.setProgressParent(None)
         self.model.refresh()
         self.updateAfterCardChange()
 
     def _onUnsuspend(self):
         n = _("Unsuspend")
-        self.parent.setProgressParent(self)
         self.deck.setUndoStart(n)
         self.deck.unsuspendCards(self.selectedCards())
-        self.parent.reset()
+        self.mw.reset()
         self.deck.setUndoEnd(n)
-        self.parent.setProgressParent(None)
         self.model.refresh()
         self.updateAfterCardChange()
 
@@ -957,7 +880,6 @@ where id in %s""" % ids2str(sf))
             return
         # for each fact id, generate
         n = _("Generate Cards")
-        self.parent.setProgressParent(self)
         self.deck.startProgress()
         self.deck.setUndoStart(n)
         facts = self.deck.db.query(Fact).filter(
@@ -970,14 +892,13 @@ where id in %s""" % ids2str(sf))
                 self.deck.updateProgress()
         self.deck.flushMod()
         self.deck.finishProgress()
-        self.parent.setProgressParent(None)
         self.deck.setUndoEnd(n)
         self.updateSearch()
         self.updateAfterCardChange()
 
     def cram(self):
         self.close()
-        self.parent.onCram(self.selectedCards())
+        self.mw.onCram(self.selectedCards())
 
     def onChangeModel(self):
         sf = self.selectedFacts()
@@ -994,11 +915,9 @@ where id in %s""" % ids2str(sf))
         d.exec_()
         if d.ret:
             n = _("Change Model")
-            self.parent.setProgressParent(self)
             self.deck.setUndoStart(n)
             self.deck.changeModel(sf, *d.ret)
             self.deck.setUndoEnd(n)
-            self.parent.setProgressParent(None)
             self.updateSearch()
             self.updateAfterCardChange()
 
@@ -1067,15 +986,15 @@ where id in %s""" % ids2str(sf))
         frm = aqt.forms.editfont.Ui_Dialog()
         frm.setupUi(d)
         frm.fontCombo.setCurrentFont(QFont(
-            self.parent.config['editFontFamily']))
-        frm.fontSize.setValue(self.parent.config['editFontSize'])
-        frm.lineSize.setValue(self.parent.config['editLineSize'])
+            self.mw.config['editFontFamily']))
+        frm.fontSize.setValue(self.mw.config['editFontSize'])
+        frm.lineSize.setValue(self.mw.config['editLineSize'])
         if d.exec_():
-            self.parent.config['editFontFamily'] = (
+            self.mw.config['editFontFamily'] = (
                 unicode(frm.fontCombo.currentFont().family()))
-            self.parent.config['editFontSize'] = (
+            self.mw.config['editFontSize'] = (
                 int(frm.fontSize.value()))
-            self.parent.config['editLineSize'] = (
+            self.mw.config['editLineSize'] = (
                 int(frm.lineSize.value()))
             self.updateFont()
 
@@ -1105,7 +1024,6 @@ where id in %s""" % ids2str(sf))
         if not d.exec_():
             return
         n = _("Find and Replace")
-        self.parent.setProgressParent(self)
         self.deck.startProgress(2)
         self.deck.updateProgress(_("Replacing..."))
         self.deck.setUndoStart(n)
@@ -1126,8 +1044,7 @@ where id in %s""" % ids2str(sf))
                               parent=self)
         self.deck.setUndoEnd(n)
         self.deck.finishProgress()
-        self.parent.setProgressParent(None)
-        self.parent.reset()
+        self.mw.reset()
         self.updateSearch()
         self.updateAfterCardChange()
         if changed is not None:

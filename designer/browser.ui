@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>Dialog</class>
+ <widget class="QMainWindow" name="Dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,10 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Browse Items</string>
+   <string>Browser</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="icons.qrc">
     <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -97,7 +97,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="icons.qrc">
           <normaloff>:/icons/view-sort-ascending.png</normaloff>:/icons/view-sort-ascending.png</iconset>
         </property>
         <property name="flat">
@@ -223,7 +223,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -231,7 +231,6 @@
      <string>&amp;Edit</string>
     </property>
     <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectFacts"/>
@@ -317,7 +316,7 @@
   </widget>
   <action name="actionDelete">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
    </property>
    <property name="text">
@@ -329,7 +328,7 @@
   </action>
   <action name="actionAddTag">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
    </property>
    <property name="text">
@@ -338,7 +337,7 @@
   </action>
   <action name="actionDeleteTag">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
    </property>
    <property name="text">
@@ -347,7 +346,7 @@
   </action>
   <action name="actionAddCards">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
    </property>
    <property name="text">
@@ -356,7 +355,7 @@
   </action>
   <action name="actionReschedule">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
    </property>
    <property name="text">
@@ -370,7 +369,7 @@
   </action>
   <action name="actionUndo">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
    </property>
    <property name="text">
@@ -379,7 +378,7 @@
   </action>
   <action name="actionRedo">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/edit-redo.png</normaloff>:/icons/edit-redo.png</iconset>
    </property>
    <property name="text">
@@ -393,7 +392,7 @@
   </action>
   <action name="actionFind">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/document-preview.png</normaloff>:/icons/document-preview.png</iconset>
    </property>
    <property name="text">
@@ -405,7 +404,7 @@
   </action>
   <action name="actionFact">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
    </property>
    <property name="text">
@@ -417,7 +416,7 @@
   </action>
   <action name="actionNextCard">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/go-next.png</normaloff>:/icons/go-next.png</iconset>
    </property>
    <property name="text">
@@ -429,7 +428,7 @@
   </action>
   <action name="actionPreviousCard">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/go-previous.png</normaloff>:/icons/go-previous.png</iconset>
    </property>
    <property name="text">
@@ -441,7 +440,7 @@
   </action>
   <action name="actionFirstCard">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/go-first.png</normaloff>:/icons/go-first.png</iconset>
    </property>
    <property name="text">
@@ -453,7 +452,7 @@
   </action>
   <action name="actionLastCard">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/go-last.png</normaloff>:/icons/go-last.png</iconset>
    </property>
    <property name="text">
@@ -465,7 +464,7 @@
   </action>
   <action name="actionGuide">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/help.png</normaloff>:/icons/help.png</iconset>
    </property>
    <property name="text">
@@ -477,7 +476,7 @@
   </action>
   <action name="actionChangeModel">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/system-software-update.png</normaloff>:/icons/system-software-update.png</iconset>
    </property>
    <property name="text">
@@ -496,7 +495,7 @@
   </action>
   <action name="actionCram">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/view-pim-calendar.png</normaloff>:/icons/view-pim-calendar.png</iconset>
    </property>
    <property name="text">
@@ -510,7 +509,7 @@
   </action>
   <action name="actionSuspend">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
    </property>
    <property name="text">
@@ -519,7 +518,7 @@
   </action>
   <action name="actionUnsuspend">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/media-playback-start2.png</normaloff>:/icons/media-playback-start2.png</iconset>
    </property>
    <property name="text">
@@ -528,7 +527,7 @@
   </action>
   <action name="actionTags">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/anki-tag.png</normaloff>:/icons/anki-tag.png</iconset>
    </property>
    <property name="text">
@@ -540,7 +539,7 @@
   </action>
   <action name="actionSort">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/view-sort-ascending.png</normaloff>:/icons/view-sort-ascending.png</iconset>
    </property>
    <property name="text">
@@ -552,7 +551,7 @@
   </action>
   <action name="actionAddItems">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
    </property>
    <property name="text">
@@ -567,7 +566,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
    </property>
    <property name="text">
@@ -579,7 +578,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/rating.png</normaloff>:/icons/rating.png</iconset>
    </property>
    <property name="text">
@@ -588,7 +587,7 @@
   </action>
   <action name="actionCardList">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/generate_07.png</normaloff>:/icons/generate_07.png</iconset>
    </property>
    <property name="text">
@@ -605,7 +604,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections>
   <connection>

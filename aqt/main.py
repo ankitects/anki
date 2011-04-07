@@ -633,7 +633,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         aqt.dialogs.open("AddCards", self)
 
     def onEditDeck(self):
-        aqt.dialogs.open("CardList", self)
+        aqt.dialogs.open("Browser", self)
 
     def onEditCurrent(self):
         self.moveToState("editCurrentFact")

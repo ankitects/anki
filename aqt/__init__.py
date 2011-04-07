@@ -32,10 +32,10 @@ def openHelp(name):
 class DialogManager(object):
 
     def __init__(self):
-        from aqt import addcards, cardlist
+        from aqt import addcards, browser
         self._dialogs = {
             "AddCards": [addcards.AddCards, None],
-            "CardList": [cardlist.EditDeck, None],
+            "Browser": [browser.Browser, None],
         }
 
     def open(self, name, *args):

@@ -8,7 +8,7 @@ from PyQt4.QtWebKit import QWebView
 import re, os, sys, tempfile, urllib2, ctypes, simplejson, traceback
 from anki.utils import stripHTML, parseTags
 from anki.sound import play
-from anki.hooks import addHook, removeHook, runHook, runFilter
+from anki.hooks import runHook
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile
@@ -17,6 +17,7 @@ import anki.js
 
 # fixme: when tab order returns to the webview, the previously focused field
 # is focused, which is not good when the user is tabbing through the dialog
+# fixme: set rtl in div css
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
 audio =  ("wav", "mp3", "ogg", "flac")

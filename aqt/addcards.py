@@ -16,12 +16,6 @@ from anki.hooks import addHook, removeHook
 from anki.utils import stripHTMLMedia
 import aqt.editor, aqt.modelchooser
 
-# todo:
-        # if field.fieldModel.features:
-        #     w.setLayoutDirection(Qt.RightToLeft)
-        # else:
-        #     w.setLayoutDirection(Qt.LeftToRight)
-
 class AddCards(QDialog):
 
     def __init__(self, mw):
