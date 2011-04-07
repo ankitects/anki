@@ -1,4 +1,5 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
+# -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from PyQt4.QtGui import *
@@ -77,7 +78,7 @@ class AddCards(QDialog):
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
         # history
         b = self.form.buttonBox.addButton(
-            _("History"), QDialogButtonBox.ActionRole)
+            _("History")+ u'▼', QDialogButtonBox.ActionRole)
         self.connect(b, SIGNAL("clicked()"), self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
