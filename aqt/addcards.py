@@ -12,6 +12,7 @@ from anki.utils import stripHTML, parseTags
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
+from anki.utils import stripHTMLMedia
 import aqt.editor, aqt.modelchooser
 
 # todo:
@@ -33,7 +34,7 @@ class AddCards(QDialog):
         self.setupEditor()
         self.setupButtons()
         self.onReset()
-        self.addedItems = 0
+        self.history = []
         self.forceClose = False
         restoreGeom(self, "add")
         addHook('reset', self.onReset)
@@ -51,6 +52,7 @@ class AddCards(QDialog):
         aqt.openHelp("AddItems")
 
     def setupButtons(self):
+        # add
         self.addButton = QPushButton(_("Add"))
         self.form.buttonBox.addButton(self.addButton,
                                         QDialogButtonBox.ActionRole)
@@ -62,21 +64,23 @@ class AddCards(QDialog):
         s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
         s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
+        # close
         self.closeButton = QPushButton(_("Close"))
         self.closeButton.setAutoDefault(False)
         self.form.buttonBox.addButton(self.closeButton,
                                         QDialogButtonBox.RejectRole)
+        # help
         self.helpButton = QPushButton(_("Help"))
         self.helpButton.setAutoDefault(False)
         self.form.buttonBox.addButton(self.helpButton,
                                         QDialogButtonBox.HelpRole)
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
-
-    def onLink(self, url):
-        browser = ui.dialogs.open("CardList", self.mw)
-        browser.dialog.filterEdit.setText("fid:" + url.toString())
-        browser.updateSearch()
-        browser.onFact()
+        # history
+        b = self.form.buttonBox.addButton(
+            _("History"), QDialogButtonBox.ActionRole)
+        self.connect(b, SIGNAL("clicked()"), self.onHistory)
+        b.setEnabled(False)
+        self.historyButton = b
 
     # FIXME: need to make sure to clean up fact on exit
     def setupNewFact(self, set=True):
@@ -107,16 +111,26 @@ class AddCards(QDialog):
         # we don't have to worry about cards; just the fact
         self.mw.deck._delFacts([fact.id])
 
-    def reportAddedFact(self, fact):
-        return
-        self.form.status.append(
-            _("Added %(num)d card(s) for <a href=\"%(id)d\">"
-              "%(str)s</a>.") % {
-            "num": len(fact.cards),
-            "id": fact.id,
-            # we're guaranteed that all fields will exist now
-            "str": stripHTML(fact[fact.fields[0].name]),
-            })
+    def addHistory(self, fact):
+        txt = stripHTMLMedia(",".join(fact._fields))[:30]
+        self.history.append((fact.id, txt))
+        self.history = self.history[-15:]
+        self.historyButton.setEnabled(True)
+
+    def onHistory(self):
+        m = QMenu(self)
+        for fid, txt in self.history:
+            a = m.addAction(_("Edit %s" % txt))
+            a.connect(a, SIGNAL("activated()"),
+                      lambda fid=fid: self.editHistory(fid))
+        m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
+
+    def editHistory(self, fid):
+        print "edit", fid
+        # browser = ui.dialogs.open("CardList", self.mw)
+        # browser.dialog.filterEdit.setText("fid:" + url.toString())
+        # browser.updateSearch()
+        # browser.onFact()
 
     def addFact(self, fact):
         if any(fact.problems()):
@@ -130,7 +144,7 @@ class AddCards(QDialog):
 The input you have provided would make an empty
 question or answer on all cards."""), help="AddItems")
             return
-        self.reportAddedFact(fact)
+        self.addHistory(fact)
         # FIXME: return to overview on add?
         return fact
 

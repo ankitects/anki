@@ -10,7 +10,7 @@ import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
-    stripHTMLAlt, ids2str
+    ids2str
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles
 from anki.errors import *
