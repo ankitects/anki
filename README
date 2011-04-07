@@ -15,7 +15,6 @@ For audio playing support:
 
 For audio recording support:
 
-- sox 14.1+
 - pyaudio
 - lame
 
