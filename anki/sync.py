@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright: Damien Elmes <anki@ichi2.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
 import os, base64, httplib, sys, tempfile, httplib, types
