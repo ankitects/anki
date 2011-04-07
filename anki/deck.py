@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright: Damien Elmes <anki@ichi2.net>
-# License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time, os, random, re, stat, simplejson, datetime, copy
 from anki.lang import _, ngettext
