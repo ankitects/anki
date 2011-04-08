@@ -19,6 +19,8 @@ import anki.js
 # is focused, which is not good when the user is tabbing through the dialog
 # fixme: set rtl in div css
 
+# fixme: commit from tag/group area causes error
+
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
 audio =  ("wav", "mp3", "ogg", "flac")
 

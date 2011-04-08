@@ -3,10 +3,9 @@ Anki
 
 Prerequisites for Linux/FreeBSD/etc:
 
-- Python 2.4+
-- Python-Qt/PyQt 4.5+
+- Python 2.5+
+- Python-Qt/PyQt 4.6+
 - SimpleJSON 1.7.3+
-- PySQLite 1.3+ or Python2.5
 - Beautiful Soup
 
 For audio playing support:
