@@ -24,7 +24,7 @@ SEARCH_PHRASE_WB = 9
 
 def findCards(deck, query):
     (q, cmquery, showdistinct, filters, args) = findCardsWhere(deck, query)
-    (fidList, cardIdList) = findCardsMatchingFilters(deck, filters)
+    fidList = findCardsMatchingFilters(deck, filters)
     query = "select id from cards"
     hasWhere = False
     if q:
@@ -48,12 +48,6 @@ def findCards(deck, query):
             hasWhere = True
         else: query += " and "
         query += " fid IN %s" % ids2str(fidList)
-    if cardIdList is not None:
-        if hasWhere is False:
-            query += " where "
-            hasWhere = True
-        else: query += " and "
-        query += " id IN %s" % ids2str(cardIdList)
     if showdistinct:
         query += " group by fid"
     #print query, args
@@ -228,11 +222,9 @@ def _parseQuery(deck, query):
 def findCardsMatchingFilters(deck, filters):
     factFilters = []
     fieldFilters = {}
-    cardFilters = {}
 
     factFilterMatches = []
     fieldFilterMatches = []
-    cardFilterMatches = []
 
     if (len(filters) > 0):
         for filter in filters:
@@ -249,15 +241,6 @@ def findCardsMatchingFilters(deck, filters):
                 regexp = re.compile(
                     r'\b' + re.escape(filter['value']) + r'\b', flags=re.I)
                 fieldFilters[fieldName].append(
-                    {'value': filter['value'], 'regexp': regexp,
-                     'is_neg': filter['is_neg']})
-            if filter['scope'] == 'card':
-                fieldName = filter['field'].lower()
-                if (fieldName in cardFilters) is False:
-                    cardFilters[fieldName] = []
-                regexp = re.compile(r'\b' + re.escape(filter['value']) +
-                                    r'\b', flags=re.I)
-                cardFilters[fieldName].append(
                     {'value': filter['value'], 'regexp': regexp,
                      'is_neg': filter['is_neg']})
 
@@ -328,54 +311,13 @@ def findCardsMatchingFilters(deck, filters):
                             (filter['is_neg'] is True and res is None)):
                             fieldFilterMatches.append(row[0])
 
-
-        if len(cardFilters) > 0:
-            qaquery = ''
-            args = {}
-            for field, filters in cardFilters.iteritems():
-                for filter in filters:
-                    c = len(args)
-                    if qaquery:
-                        if filter['is_neg']: qaquery += " except "
-                        else: qaquery += " intersect "
-                    elif filter['is_neg']: qaquery += "select id from cards except "
-                    value = value.replace("*", "%")
-                    args["_ff_%d" % c] = "%"+value+"%"
-
-                    if field == 'question':
-                        qaquery += "select id from cards where question "
-                        qaquery += "like :_ff_%d escape '\\'" % c
-                    else:
-                        qaquery += "select id from cards where answer "
-                        qaquery += "like :_ff_%d escape '\\'" % c
-
-            rows = deck.db.execute(
-                'select id, question, answer from cards where id IN (' +
-                qaquery + ')', args)
-            while (1):
-                row = rows.fetchone()
-                if row is None: break
-                doesMatch = False
-                if field in cardFilters:
-                    rowValue = row[1] if field == 'question' else row[2]
-                    for filter in cardFilters[field]:
-                        res = filter['regexp'].search(rowValue)
-                        if ((filter['is_neg'] is False and res) or
-                            (filter['is_neg'] is True and res is None)):
-                            cardFilterMatches.append(row[0])
-
     fids = None
     if len(factFilters) > 0 or len(fieldFilters) > 0:
         fids = []
         fids.extend(factFilterMatches)
         fids.extend(fieldFilterMatches)
 
-    cardIds = None
-    if len(cardFilters) > 0:
-        cardIds = []
-        cardIds.extend(cardFilterMatches)
-
-    return (fids, cardIds)
+    return fids
 
 def _findCards(deck, query):
     "Find facts matching QUERY."
