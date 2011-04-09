@@ -10,7 +10,7 @@ import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
-    ids2str
+    ids2str, stripHTMLMedia
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles
 from anki.errors import *
@@ -19,22 +19,6 @@ from anki.stats import CardStats
 from anki.hooks import runHook, addHook, removeHook
 
 # - first answered needs updating
-
-CARD_ID = 0
-CARD_QUESTION = 1
-CARD_ANSWER = 2
-CARD_DUE = 3
-CARD_REPS = 4
-CARD_FACTID = 5
-CARD_CREATED = 6
-CARD_MODIFIED = 7
-CARD_INTERVAL = 8
-CARD_EASE = 9
-CARD_NO = 10
-CARD_TYPE = 11
-CARD_TAGS = 12
-CARD_FACTCREATED = 13
-CARD_FIRSTANSWERED = 14
 
 COLOUR_SUSPENDED1 = "#ffffcc"
 COLOUR_SUSPENDED2 = "#ffffaa"
@@ -48,10 +32,10 @@ COLOUR_MARKED2 = "#aaaaff"
 
 class DeckModel(QAbstractTableModel):
 
-    def __init__(self, parent, deck):
+    def __init__(self, parent):
         QAbstractTableModel.__init__(self)
         self.parent = parent
-        self.deck = deck
+        self.deck = parent.deck
         self.filterTag = None
         self.sortKey = None
         # column title, display accessor, sort attr
@@ -62,7 +46,7 @@ class DeckModel(QAbstractTableModel):
         self.searchStr = ""
         self.lastSearch = ""
         self.cards = []
-        self.deleted = {}
+        self.cardObjs = {}
 
     # Model interface
     ######################################################################
@@ -78,21 +62,19 @@ class DeckModel(QAbstractTableModel):
             return QVariant()
         if role == Qt.FontRole:
             f = QFont()
-            f.setPixelSize(self.parent.config['editFontSize'])
+            f.setPixelSize(self.parent.mw.config['editFontSize'])
             return QVariant(f)
         if role == Qt.TextAlignmentRole and index.column() == 2:
             return QVariant(Qt.AlignHCenter)
         elif role == Qt.DisplayRole or role == Qt.EditRole:
-            if len(self.cards[index.row()]) == 1:
-                # not cached yet
-                self.updateCard(index)
+            c = self.getCard(index)
             s = self.columns[index.column()][1](index)
             s = self.limitContent(s)
             s = s.replace("<br>", u" ")
             s = s.replace("<br />", u" ")
             s = s.replace("\n", u" ")
             s = re.sub("\[sound:[^]]+\]", "", s)
-            s = stripHTMLAlt(s)
+            s = stripHTMLMedia(s)
             s = s.strip()
             return QVariant(s)
         else:
@@ -125,56 +107,37 @@ class DeckModel(QAbstractTableModel):
     ######################################################################
 
     def showMatching(self, force=True):
-        return
+        self.cards = self.deck.findCards(self.searchStr.strip(), "factFld")
         # if self.deck.getInt('reverseOrder'):
         #     self.cards.reverse()
         self.reset()
 
-    def updateCard(self, index):
-        try:
-            self.cards[index.row()] = self.deck.db.first("""
-select id, question, answer, due, reps, factId, created, modified,
-interval, factor, lapses, type, (select tags from facts where
-facts.id = cards.factId), (select created from facts where
-facts.id = cards.factId) from cards where id = :id""",
-                                                        id=self.cards[index.row()][0])
-            self.emit(SIGNAL("layoutChanged()"))
-        except:
-            # called after search changed
-            pass
-
     def refresh(self):
-        self.cards = [[x[0]] for x in self.cards]
+        self.cardObjs = {}
         self.emit(SIGNAL("layoutChanged()"))
 
     # Tools
     ######################################################################
 
-    def getCardID(self, index):
-        return self.cards[index.row()][0]
-
     def getCard(self, index):
-        try:
-            return self.deck.db.query(Card).get(self.getCardID(index))
-        except IndexError:
-            return None
-
-    def cardIndex(self, card):
-        "Return the index of CARD, if currently displayed."
-        return self.cards.index(card)
+        id = self.cards[index.row()]
+        if not id in self.cardObjs:
+            self.cardObjs[id] = self.deck.getCard(id)
+        return self.cardObjs[id]
 
     def currentQuestion(self, index):
-        return self.cards[index.row()][CARD_QUESTION]
+        return self.getCard(index).q()
 
     def currentAnswer(self, index):
-        return self.cards[index.row()][CARD_ANSWER]
+        return self.getCard(index).a()
 
     def nextDue(self, index):
-        d = self.cards[index.row()][CARD_DUE]
-        reps = self.cards[index.row()][CARD_REPS]
+        c = self.getCard(index)
+        d = c.due
+        reps = c.reps
         secs = d - time.time()
         if secs <= 0:
-            if not reps and self.deck.newCardOrder == 0:
+            if not reps:
                 return _("(new card)")
             else:
                 return _("%s ago") % fmtTimeSpan(abs(secs), pad=0)
@@ -262,10 +225,8 @@ class StatusDelegate(QItemDelegate):
         self.model = model
 
     def paint(self, painter, option, index):
-        if len(self.model.cards[index.row()]) == 1:
-            self.model.updateCard(index)
-        row = self.model.cards[index.row()]
-        if row[CARD_TYPE] < 0:
+        c = self.model.getCard(index)
+        if c.queue < 0:
             # custom render
             if index.row() % 2 == 0:
                 brush = QBrush(QColor(COLOUR_SUSPENDED1))
@@ -274,7 +235,7 @@ class StatusDelegate(QItemDelegate):
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
-        elif "Marked" in row[CARD_TAGS]:
+        elif c.fact().hasTag("Marked"):
             if index.row() % 2 == 0:
                 brush = QBrush(QColor(COLOUR_MARKED1))
             else:
@@ -305,7 +266,7 @@ class Browser(QMainWindow):
                                               self.mw.config['iconSize']))
         self.dialog.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
         # flush all changes before we load
-        self.model = DeckModel(self.mw, self.mw.deck)
+        self.model = DeckModel(self)
         self.dialog.tableView.setSortingEnabled(False)
         self.dialog.tableView.setShowGrid(False)
         self.dialog.tableView.setModel(self.model)
@@ -543,8 +504,8 @@ class Browser(QMainWindow):
             self.updateAfterCardChange()
         else:
             # update list
-            if self.currentRow and self.model.cards:
-                self.model.updateCard(self.currentRow)
+            # if self.currentRow and self.model.cards:
+            #     self.model.updateCard(self.currentRow)
             if type == "tag":
                 self.drawTags()
 
@@ -690,8 +651,8 @@ class Browser(QMainWindow):
         if not self.currentCard:
             self.editor.setFact(None, True)
             return
-        fact = self.currentCard.fact
-        self.editor.setFact(fact, True)
+        fact = self.currentCard.fact()
+        self.editor.setFact(fact)
         self.editor.card = self.currentCard
         self.showCardInfo(self.currentCard)
         self.onEvent()
@@ -820,7 +781,7 @@ where id in (%s)""" % ",".join([
         self.updateAfterCardChange()
 
     def isMarked(self):
-        return self.currentCard and "Marked" in self.currentCard.fact.tags
+        return self.currentCard and self.currentCard.fact().hasTag("Marked")
 
     def onMark(self, mark):
         if mark:
