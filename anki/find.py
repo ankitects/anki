@@ -47,11 +47,11 @@ class Finder(object):
             return "select id from cards where " + lim
         elif type.startswith("fact"):
             if type == "factCrt":
-                sort = "f.crt"
+                sort = "f.crt, c.ord"
             elif type == "factMod":
-                sort = "f.mod"
+                sort = "f.mod, c.ord"
             elif type == "factFld":
-                sort = "f.sfld collate nocase"
+                sort = "f.sfld collate nocase, c.ord"
             else:
                 raise Exception()
             return """
