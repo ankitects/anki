@@ -2,9 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# A lot of findCards() and related functions was contributed by
-# Marcus.
-
 import re
 from anki.utils import ids2str
 
@@ -16,451 +13,360 @@ SEARCH_CARD = 4
 SEARCH_DISTINCT = 5
 SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
-SEARCH_PHRASE_WB = 9
 
 # Find
 ##########################################################################
 
-def findCards(deck, query):
-    (q, cmquery, showdistinct, filters, args) = findCardsWhere(deck, query)
-    fidList = findCardsMatchingFilters(deck, filters)
-    query = "select id from cards"
-    hasWhere = False
-    if q:
-        query += " where " + q
-        hasWhere = True
-    if cmquery['pos'] or cmquery['neg']:
-        if hasWhere is False:
-            query += " where "
-            hasWhere = True
-        else: query += " and "
-        if cmquery['pos']:
-            query += (" fid in(select distinct fid from cards "+
-                      "where id in (" + cmquery['pos'] + ")) ")
-            query += " and id in(" + cmquery['pos'] + ") "
-        if cmquery['neg']:
-            query += (" fid not in(select distinct fid from "+
-                      "cards where id in (" + cmquery['neg'] + ")) ")
-    if fidList is not None:
-        if hasWhere is False:
-            query += " where "
-            hasWhere = True
-        else: query += " and "
-        query += " fid IN %s" % ids2str(fidList)
-    if showdistinct:
-        query += " group by fid"
-    #print query, args
-    return deck.db.list(query, **args)
+class Finder(object):
 
-def findCardsWhere(deck, query):
-    (tagQuery, fquery, cardStateQuery, fidquery, cmquery, sfquery, qaquery,
-     showdistinct, filters, args) = _findCards(deck, query)
-    q = ""
-    x = []
-    if tagQuery:
-        x.append(" fid in (%s)" % tagQuery)
-    if fquery:
-        x.append(" fid in (%s)" % fquery)
-    if cardStateQuery:
-        x.append(" id in (%s)" % cardStateQuery)
-    if fidquery:
-        x.append(" id in (%s)" % fidquery)
-    if sfquery:
-        x.append(" fid in (%s)" % sfquery)
-    if qaquery:
-        x.append(" id in (%s)" % qaquery)
-    if x:
-        q += " and ".join(x)
-    return q, cmquery, showdistinct, filters, args
+    def __init__(self, deck):
+        self.deck = deck
 
-def allFMFields(deck, tolower=False):
-    fields = []
-    try:
-        fields = deck.db.list(
-            "select distinct name from fieldmodels order by name")
-    except:
-        fields = []
-    if tolower is True:
-        for i, v in enumerate(fields):
-            fields[i] = v.lower()
-    return fields
+    def findCards(self, query):
+        self.query = query
+        (q, args) = self.findCardsWhere()
+        #fidList = findCardsMatchingFilters(self.deck, filters)
+        query = "select id from cards where " + q
+        # if cmquery['pos'] or cmquery['neg']:
+        #     if hasWhere is False:
+        #         query += " where "
+        #         hasWhere = True
+        #     else: query += " and "
+        #     if cmquery['pos']:
+        #         query += (" fid in(select distinct fid from cards "+
+        #                   "where id in (" + cmquery['pos'] + ")) ")
+        #         query += " and id in(" + cmquery['pos'] + ") "
+        #     if cmquery['neg']:
+        #         query += (" fid not in(select distinct fid from "+
+        #                   "cards where id in (" + cmquery['neg'] + ")) ")
+        # if fidList is not None:
+        #     if hasWhere is False:
+        #         query += " where "
+        #         hasWhere = True
+        #     else: query += " and "
+        #     query += " fid IN %s" % ids2str(fidList)
+        # if showdistinct:
+        #     query += " group by fid"
+        print query, args
+        return self.deck.db.list(query, **args)
 
-def _parseQuery(deck, query):
-    tokens = []
-    res = []
-
-    allowedfields = allFMFields(deck, True)
-    def addSearchFieldToken(field, value, isNeg, filter):
-        if field.lower() in allowedfields:
-            res.append((field + ':' + value, isNeg, SEARCH_FIELD, filter))
-        else:
-            for p in phraselog:
-                res.append((p['value'], p['is_neg'], p['type'], p['filter']))
-    # break query into words or phraselog
-    # an extra space is added so the loop never ends in the middle
-    # completing a token
-    for match in re.findall(
-        r'(-)?\'(([^\'\\]|\\.)*)\'|(-)?"(([^"\\]|\\.)*)"|(-)?([^ ]+)|([ ]+)',
-        query + ' '):
-        type = ' '
-        if match[1]: type = "'"
-        elif match[4]: type = '"'
-
-        value = (match[1] or match[4] or match[7])
-        isNeg = (match[0] == '-' or match[3] == '-' or match[6] == '-')
-
-        tokens.append({'type': type, 'value': value, 'is_neg': isNeg,
-                       'filter': ('wb' if type == "'" else 'none')})
-    intoken = isNeg = False
-    field = '' #name of the field for field related commands
-    phraselog = [] #log of phrases in case potential command is not a commad
-    for c, token in enumerate(tokens):
-        doprocess = True # only look for commands when this is true
-        #prevent cases such as "field" : value as being processed as a command
-        if len(token['value']) == 0:
-            if intoken is True and type == SEARCH_FIELD and field:
-            #case: fieldname: any thing here check for existance of fieldname
-                addSearchFieldToken(field, '*', isNeg, 'none')
-                phraselog = [] # reset phrases since command is completed
-            intoken = doprocess = False
-        if intoken is True:
-            if type == SEARCH_FIELD_EXISTS:
-            #case: field:"value"
-                res.append((token['value'], isNeg, type, 'none'))
-                intoken = doprocess = False
-            elif type == SEARCH_FIELD and field:
-            #case: fieldname:"value"
-                addSearchFieldToken(
-                    field, token['value'], isNeg, token['filter'])
-                intoken = doprocess = False
-
-            elif type == SEARCH_FIELD and not field:
-            #case: "fieldname":"name" or "field" anything
-                if token['value'].startswith(":") and len(phraselog) == 1:
-                    #we now know a colon is next, so mark it as field
-                    # and keep looking for the value
-                    field = phraselog[0]['value']
-                    parts = token['value'].split(':', 1)
-                    phraselog.append(
-                        {'value': token['value'], 'is_neg': False,
-                         'type': SEARCH_PHRASE, 'filter': token['filter']})
-                    if parts[1]:
-                        #value is included with the :, so wrap it up
-                        addSearchFieldToken(field, parts[1], isNeg, 'none')
-                        intoken = doprocess = False
-                    doprocess = False
+    def _findLimits(self):
+        "Generate a list of fact/card limits for the query."
+        self.lims = {
+            'fact': [],
+            'card': [],
+            'args': {}
+        }
+        for c, (token, isNeg, type) in enumerate(self._parseQuery()):
+            if type == SEARCH_TAG:
+                self._findTag(token, isNeg, c)
+            elif type == SEARCH_TYPE:
+                self._findCardState(token, isNeg, c)
+            elif type == SEARCH_FID:
+                if fidquery:
+                    if isNeg:
+                        fidquery += " except "
+                    else:
+                        fidquery += " intersect "
+                elif isNeg:
+                    fidquery += "select id from cards except "
+                fidquery += "select id from cards where fid in (%s)" % token
+            elif type == SEARCH_CARD:
+                print "search_card broken"
+                token = token.replace("*", "%")
+                ids = deck.db.list("""
+    select id from tags where name like :tag escape '\\'""", tag=token)
+                if isNeg:
+                    if cmquery['neg']:
+                        cmquery['neg'] += " intersect "
+                    cmquery['neg'] += """
+    select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
                 else:
-                #case: "fieldname"string/"fieldname"tag:name
-                    intoken = False
-            if intoken is False and doprocess is False:
-            #command has been fully processed
-                phraselog = [] # reset phraselog, since we used it for a command
-        if intoken is False:
-            #include any non-command related phrases in the query
-            for p in phraselog: res.append(
-                (p['value'], p['is_neg'], p['type'], p['filter']))
-            phraselog = []
-        if intoken is False and doprocess is True:
-            field = ''
-            isNeg = token['is_neg']
-            if token['value'].startswith("tag:"):
-                token['value'] = token['value'][4:]
-                type = SEARCH_TAG
-            elif token['value'].startswith("is:"):
-                token['value'] = token['value'][3:].lower()
-                type = SEARCH_TYPE
-            elif token['value'].startswith("fid:") and len(token['value']) > 4:
-                dec = token['value'][4:]
-                try:
-                    int(dec)
+                    if cmquery['pos']:
+                        cmquery['pos'] += " intersect "
+                    cmquery['pos'] += """
+    select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
+            elif type == SEARCH_FIELD or type == SEARCH_FIELD_EXISTS:
+                field = value = ''
+                if type == SEARCH_FIELD:
+                    parts = token.split(':', 1);
+                    if len(parts) == 2:
+                        field = parts[0]
+                        value = parts[1]
+                elif type == SEARCH_FIELD_EXISTS:
+                    field = token
+                    value = '*'
+                if type == SEARCH_FIELD:
+                    if field and value:
+                        filters.append(
+                            {'scope': 'field',
+                             'field': field, 'value': value, 'is_neg': isNeg})
+                else:
+                    if field and value:
+                        if sfquery:
+                            if isNeg:
+                                sfquery += " except "
+                            else:
+                                sfquery += " intersect "
+                        elif isNeg:
+                            sfquery += "select id from facts except "
+                        field = field.replace("*", "%")
+                        value = value.replace("*", "%")
+                        data['args']["_ff_%d" % c] = "%"+value+"%"
+                        ids = deck.db.list("""
+    select id from fieldmodels where name like :field escape '\\'""", field=field)
+                        sfquery += """
+    select fid from fdata where fmid in %s and
+    value like :_ff_%d escape '\\'""" % (ids2str(ids), c)
+            elif type == SEARCH_DISTINCT:
+                if isNeg is False:
+                    showdistinct = True if token == "one" else False
+                else:
+                    showdistinct = False if token == "one" else True
+            else:
+                self._findText(token, isNeg, c)
+
+    def _findTag(self, val, neg, c):
+        if val == "none":
+            self.lims['fact'].append("select id from facts where tags = ''")
+            return
+        extra = "not" if neg else ""
+        val = val.replace("*", "%")
+        if not val.startswith("%"):
+            val = "% " + val
+        if not val.endswith("%"):
+            val += " %"
+        self.lims['args']["_tag_%d" % c] = val
+        self.lims['fact'].append(
+            "tags %s like :_tag_%d""" % (extra, c))
+
+    def _findCardState(self, val, neg):
+        if val in ("rev", "new", "lrn"):
+            if val == "rev":
+                n = 2
+            elif val == "new":
+                n = 0
+            else:
+                n = 1
+            self.lims['card'].append("type = %d" % n)
+        elif val == "suspended":
+            self.lims['card'].append("queue = -1")
+        elif val == "due":
+            self.lims['card'].append("(queue = 2 and due <= %d)" % deck.sched.today)
+
+    def _findText(self, val, neg, c):
+        val = val.replace("*", "%")
+        extra = "not" if neg else ""
+        self.lims['args']["_text_%d"%c] = "%"+val+"%"
+        self.lims['fact'].append("flds %s like :_text_%d escape '\\'" % (
+            extra, c))
+
+    def findCardsWhere(self):
+        self._findLimits()
+        x = []
+        if self.lims['fact']:
+            x.append("fid in (select id from facts where %s)" % " and ".join(
+                self.lims['fact']))
+        if self.lims['card']:
+            x.extend(self.lims['card'])
+        q = " and ".join(x)
+        return q, self.lims['args']
+
+    def _fieldNames(self):
+        fields = set()
+        for m in self.deck.models().values():
+            fields.update([f['name'].lower() for f in m.fields])
+        return list(fields)
+
+    # Most of this function was written by Marcus
+    def _parseQuery(self):
+        tokens = []
+        res = []
+
+        allowedfields = self._fieldNames()
+        def addSearchFieldToken(field, value, isNeg):
+            if field.lower() in allowedfields:
+                res.append((field + ':' + value, isNeg, SEARCH_FIELD))
+            else:
+                for p in phraselog:
+                    res.append((p['value'], p['is_neg'], p['type']))
+        # break query into words or phraselog
+        # an extra space is added so the loop never ends in the middle
+        # completing a token
+        for match in re.findall(
+            r'(-)?\'(([^\'\\]|\\.)*)\'|(-)?"(([^"\\]|\\.)*)"|(-)?([^ ]+)|([ ]+)',
+            self.query + ' '):
+            value = (match[1] or match[4] or match[7])
+            isNeg = (match[0] == '-' or match[3] == '-' or match[6] == '-')
+            tokens.append({'value': value, 'is_neg': isNeg})
+        intoken = isNeg = False
+        field = '' #name of the field for field related commands
+        phraselog = [] #log of phrases in case potential command is not a commad
+        for c, token in enumerate(tokens):
+            doprocess = True # only look for commands when this is true
+            #prevent cases such as "field" : value as being processed as a command
+            if len(token['value']) == 0:
+                if intoken is True and type == SEARCH_FIELD and field:
+                #case: fieldname: any thing here check for existance of fieldname
+                    addSearchFieldToken(field, '*', isNeg)
+                    phraselog = [] # reset phrases since command is completed
+                intoken = doprocess = False
+            if intoken is True:
+                if type == SEARCH_FIELD_EXISTS:
+                #case: field:"value"
+                    res.append((token['value'], isNeg, type, 'none'))
+                    intoken = doprocess = False
+                elif type == SEARCH_FIELD and field:
+                #case: fieldname:"value"
+                    addSearchFieldToken(field, token['value'], isNeg)
+                    intoken = doprocess = False
+
+                elif type == SEARCH_FIELD and not field:
+                #case: "fieldname":"name" or "field" anything
+                    if token['value'].startswith(":") and len(phraselog) == 1:
+                        #we now know a colon is next, so mark it as field
+                        # and keep looking for the value
+                        field = phraselog[0]['value']
+                        parts = token['value'].split(':', 1)
+                        phraselog.append(
+                            {'value': token['value'], 'is_neg': False,
+                             'type': SEARCH_PHRASE})
+                        if parts[1]:
+                            #value is included with the :, so wrap it up
+                            addSearchFieldToken(field, parts[1], isNeg, 'none')
+                            intoken = doprocess = False
+                        doprocess = False
+                    else:
+                    #case: "fieldname"string/"fieldname"tag:name
+                        intoken = False
+                if intoken is False and doprocess is False:
+                #command has been fully processed
+                    phraselog = [] # reset phraselog, since we used it for a command
+            if intoken is False:
+                #include any non-command related phrases in the query
+                for p in phraselog: res.append(
+                    (p['value'], p['is_neg'], p['type']))
+                phraselog = []
+            if intoken is False and doprocess is True:
+                field = ''
+                isNeg = token['is_neg']
+                if token['value'].startswith("tag:"):
                     token['value'] = token['value'][4:]
-                except:
+                    type = SEARCH_TAG
+                elif token['value'].startswith("is:"):
+                    token['value'] = token['value'][3:].lower()
+                    type = SEARCH_TYPE
+                elif token['value'].startswith("fid:") and len(token['value']) > 4:
+                    dec = token['value'][4:]
                     try:
-                        for d in dec.split(","):
-                            int(d)
+                        int(dec)
                         token['value'] = token['value'][4:]
                     except:
-                        token['value'] = "0"
-                type = SEARCH_FID
-            elif token['value'].startswith("card:"):
-                token['value'] = token['value'][5:]
-                type = SEARCH_CARD
-            elif token['value'].startswith("show:"):
-                token['value'] = token['value'][5:].lower()
-                type = SEARCH_DISTINCT
-            elif token['value'].startswith("field:"):
-                type = SEARCH_FIELD_EXISTS
-                parts = token['value'][6:].split(':', 1)
-                field = parts[0]
-                if len(parts) == 1 and parts[0]:
-                    token['value'] = parts[0]
-                elif len(parts) == 1 and not parts[0]:
+                        try:
+                            for d in dec.split(","):
+                                int(d)
+                            token['value'] = token['value'][4:]
+                        except:
+                            token['value'] = "0"
+                    type = SEARCH_FID
+                elif token['value'].startswith("card:"):
+                    token['value'] = token['value'][5:]
+                    type = SEARCH_CARD
+                elif token['value'].startswith("show:"):
+                    token['value'] = token['value'][5:].lower()
+                    type = SEARCH_DISTINCT
+                elif token['value'].startswith("field:"):
+                    type = SEARCH_FIELD_EXISTS
+                    parts = token['value'][6:].split(':', 1)
+                    field = parts[0]
+                    if len(parts) == 1 and parts[0]:
+                        token['value'] = parts[0]
+                    elif len(parts) == 1 and not parts[0]:
+                        intoken = True
+                else:
+                    type = SEARCH_FIELD
                     intoken = True
-            else:
-                type = SEARCH_FIELD
-                intoken = True
-                parts = token['value'].split(':', 1)
+                    parts = token['value'].split(':', 1)
 
-                phraselog.append(
-                    {'value': token['value'], 'is_neg': isNeg,
-                     'type': SEARCH_PHRASE, 'filter': token['filter']})
-                if len(parts) == 2 and parts[0]:
-                    field = parts[0]
-                    if parts[1]:
-                        #simple fieldname:value case - no need to look for more data
-                        addSearchFieldToken(field, parts[1], isNeg, 'none')
-                        intoken = doprocess = False
+                    phraselog.append(
+                        {'value': token['value'], 'is_neg': isNeg,
+                         'type': SEARCH_PHRASE})
+                    if len(parts) == 2 and parts[0]:
+                        field = parts[0]
+                        if parts[1]:
+                            #simple fieldname:value case - no need to look for more data
+                            addSearchFieldToken(field, parts[1], isNeg)
+                            intoken = doprocess = False
 
-                if intoken is False: phraselog = []
-            if intoken is False and doprocess is True:
-                res.append((token['value'], isNeg, type, token['filter']))
-    return res
+                    if intoken is False: phraselog = []
+                if intoken is False and doprocess is True:
+                    res.append((token['value'], isNeg, type))
+        return res
 
-def findCardsMatchingFilters(deck, filters):
-    factFilters = []
-    fieldFilters = {}
+    def findCardsMatchingFilters(deck, filters):
+        factFilters = []
+        fieldFilters = {}
 
-    factFilterMatches = []
-    fieldFilterMatches = []
+        factFilterMatches = []
+        fieldFilterMatches = []
 
-    if (len(filters) > 0):
-        for filter in filters:
-            if filter['scope'] == 'fact':
-                regexp = re.compile(
-                    r'\b' + re.escape(filter['value']) + r'\b', flags=re.I)
-                factFilters.append(
-                    {'value': filter['value'], 'regexp': regexp,
-                     'is_neg': filter['is_neg']})
-            if filter['scope'] == 'field':
-                fieldName = filter['field'].lower()
-                if (fieldName in fieldFilters) is False:
-                    fieldFilters[fieldName] = []
-                regexp = re.compile(
-                    r'\b' + re.escape(filter['value']) + r'\b', flags=re.I)
-                fieldFilters[fieldName].append(
-                    {'value': filter['value'], 'regexp': regexp,
-                     'is_neg': filter['is_neg']})
+        if filters:
+            for filter in filters:
+                if filter['scope'] == 'field':
+                    fieldName = filter['field'].lower()
+                    if (fieldName in fieldFilters) is False:
+                        fieldFilters[fieldName] = []
+                    regexp = re.compile(
+                        r'\b' + re.escape(filter['value']) + r'\b', flags=re.I)
+                    fieldFilters[fieldName].append(
+                        {'value': filter['value'], 'regexp': regexp,
+                         'is_neg': filter['is_neg']})
 
-        if len(factFilters) > 0:
-            fquery = ''
-            args = {}
-            for filter in factFilters:
-                c = len(args)
-                if fquery:
-                    if filter['is_neg']: fquery += " except "
-                    else: fquery += " intersect "
-                elif filter['is_neg']: fquery += "select id from fdata except "
+            if len(fieldFilters) > 0:
+                raise Exception("nyi")
+                sfquery = ''
+                args = {}
+                for field, filters in fieldFilters.iteritems():
+                    for filter in filters:
+                        c = len(args)
+                        if sfquery:
+                            if filter['is_neg']:  sfquery += " except "
+                            else: sfquery += " intersect "
+                        elif filter['is_neg']: sfquery += "select id from fdata except "
+                        field = field.replace("*", "%")
+                        value = filter['value'].replace("*", "%")
+                        args["_ff_%d" % c] = "%"+value+"%"
 
-                value = filter['value'].replace("*", "%")
-                args["_ff_%d" % c] = "%"+value+"%"
+                        ids = deck.db.list(
+                            "select id from fieldmodels where name like "+
+                            ":field escape '\\'", field=field)
+                        sfquery += ("select id from fdata where "+
+                                    "fmid in %s and value like "+
+                                    ":_ff_%d escape '\\'") % (ids2str(ids), c)
 
-                fquery += (
-                    "select id from fdata where value like "+
-                    ":_ff_%d escape '\\'" % c)
+                rows = deck.db.execute(
+                    'select f.fid, f.value, fm.name from fdata as f '+
+                    'left join fieldmodels as fm ON (f.fmid = '+
+                    'fm.id) where f.id in (' + sfquery + ')', args)
+                while (1):
+                    row = rows.fetchone()
+                    if row is None: break
+                    field = row[2].lower()
+                    doesMatch = False
+                    if field in fieldFilters:
+                        for filter in fieldFilters[field]:
+                            res = filter['regexp'].search(row[1])
+                            if ((filter['is_neg'] is False and res) or
+                                (filter['is_neg'] is True and res is None)):
+                                fieldFilterMatches.append(row[0])
 
-            rows = deck.db.execute(
-                'select fid, value from fdata where id in (' +
-                fquery + ')', args)
-            while (1):
-                row = rows.fetchone()
-                if row is None: break
-                doesMatch = False
-                for filter in factFilters:
-                    res = filter['regexp'].search(row[1])
-                    if ((filter['is_neg'] is False and res) or
-                        (filter['is_neg'] is True and res is None)):
-                        factFilterMatches.append(row[0])
+        fids = None
+        if len(factFilters) > 0 or len(fieldFilters) > 0:
+            fids = []
+            fids.extend(factFilterMatches)
+            fids.extend(fieldFilterMatches)
 
-        if len(fieldFilters) > 0:
-            sfquery = ''
-            args = {}
-            for field, filters in fieldFilters.iteritems():
-                for filter in filters:
-                    c = len(args)
-                    if sfquery:
-                        if filter['is_neg']:  sfquery += " except "
-                        else: sfquery += " intersect "
-                    elif filter['is_neg']: sfquery += "select id from fdata except "
-                    field = field.replace("*", "%")
-                    value = filter['value'].replace("*", "%")
-                    args["_ff_%d" % c] = "%"+value+"%"
-
-                    ids = deck.db.list(
-                        "select id from fieldmodels where name like "+
-                        ":field escape '\\'", field=field)
-                    sfquery += ("select id from fdata where "+
-                                "fmid in %s and value like "+
-                                ":_ff_%d escape '\\'") % (ids2str(ids), c)
-
-            rows = deck.db.execute(
-                'select f.fid, f.value, fm.name from fdata as f '+
-                'left join fieldmodels as fm ON (f.fmid = '+
-                'fm.id) where f.id in (' + sfquery + ')', args)
-            while (1):
-                row = rows.fetchone()
-                if row is None: break
-                field = row[2].lower()
-                doesMatch = False
-                if field in fieldFilters:
-                    for filter in fieldFilters[field]:
-                        res = filter['regexp'].search(row[1])
-                        if ((filter['is_neg'] is False and res) or
-                            (filter['is_neg'] is True and res is None)):
-                            fieldFilterMatches.append(row[0])
-
-    fids = None
-    if len(factFilters) > 0 or len(fieldFilters) > 0:
-        fids = []
-        fids.extend(factFilterMatches)
-        fids.extend(fieldFilterMatches)
-
-    return fids
-
-def _findCards(deck, query):
-    "Find facts matching QUERY."
-    tagQuery = ""
-    fquery = ""
-    cardStateQuery = ""
-    fidquery = ""
-    cmquery = { 'pos': '', 'neg': '' }
-    sfquery = qaquery = ""
-    showdistinct = False
-    filters = []
-    args = {}
-    for c, (token, isNeg, type, filter) in enumerate(_parseQuery(deck, query)):
-        if type == SEARCH_TAG:
-            # a tag
-            if tagQuery:
-                if isNeg:
-                    tagQuery += " except "
-                else:
-                    tagQuery += " intersect "
-            elif isNeg:
-                tagQuery += "select id from facts except "
-            if token == "none":
-                tagQuery += """
-select id from cards where fid in (select id from facts where tags = '')"""
-            else:
-                token = token.replace("*", "%")
-                if not token.startswith("%"):
-                    token = "% " + token
-                if not token.endswith("%"):
-                    token += " %"
-                args["_tag_%d" % c] = token
-                tagQuery += """
-select id from facts where tags like :_tag_%d""" % c
-        elif type == SEARCH_TYPE:
-            if cardStateQuery:
-                if isNeg:
-                    cardStateQuery += " except "
-                else:
-                    cardStateQuery += " intersect "
-            elif isNeg:
-                cardStateQuery += "select id from cards except "
-            if token in ("rev", "new", "lrn"):
-                if token == "rev":
-                    n = 1
-                elif token == "new":
-                    n = 2
-                else:
-                    n = 0
-                cardStateQuery += "select id from cards where type = %d" % n
-            elif token == "delayed":
-                print "delayed"
-                cardStateQuery += ("select id from cards where "
-                           "due < %d and due > %d and "
-                           "type in (0,1,2)") % (
-                    deck.dayCutoff, deck.dayCutoff)
-            elif token == "suspended":
-                cardStateQuery += ("select id from cards where "
-                           "queue = -1")
-            elif token == "leech":
-                cardStateQuery += (
-                    "select id from cards where noCount >= (select value "
-                    "from deckvars where key = 'leechFails')")
-            else: # due
-                cardStateQuery += ("select id from cards where "
-                           "queue = 2 and due <= %d") % deck.sched.today
-        elif type == SEARCH_FID:
-            if fidquery:
-                if isNeg:
-                    fidquery += " except "
-                else:
-                    fidquery += " intersect "
-            elif isNeg:
-                fidquery += "select id from cards except "
-            fidquery += "select id from cards where fid in (%s)" % token
-        elif type == SEARCH_CARD:
-            print "search_card broken"
-            token = token.replace("*", "%")
-            ids = deck.db.list("""
-select id from tags where name like :tag escape '\\'""", tag=token)
-            if isNeg:
-                if cmquery['neg']:
-                    cmquery['neg'] += " intersect "
-                cmquery['neg'] += """
-select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
-            else:
-                if cmquery['pos']:
-                    cmquery['pos'] += " intersect "
-                cmquery['pos'] += """
-select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
-        elif type == SEARCH_FIELD or type == SEARCH_FIELD_EXISTS:
-            field = value = ''
-            if type == SEARCH_FIELD:
-                parts = token.split(':', 1);
-                if len(parts) == 2:
-                    field = parts[0]
-                    value = parts[1]
-            elif type == SEARCH_FIELD_EXISTS:
-                field = token
-                value = '*'
-            if (type == SEARCH_FIELD and filter != 'none'):
-                if field and value:
-                    filters.append(
-                        {'scope': 'field', 'type': filter,
-                         'field': field, 'value': value, 'is_neg': isNeg})
-            else:
-                if field and value:
-                    if sfquery:
-                        if isNeg:
-                            sfquery += " except "
-                        else:
-                            sfquery += " intersect "
-                    elif isNeg:
-                        sfquery += "select id from facts except "
-                    field = field.replace("*", "%")
-                    value = value.replace("*", "%")
-                    args["_ff_%d" % c] = "%"+value+"%"
-                    ids = deck.db.list("""
-select id from fieldmodels where name like :field escape '\\'""", field=field)
-                    sfquery += """
-select fid from fdata where fmid in %s and
-value like :_ff_%d escape '\\'""" % (ids2str(ids), c)
-        elif type == SEARCH_DISTINCT:
-            if isNeg is False:
-                showdistinct = True if token == "one" else False
-            else:
-                showdistinct = False if token == "one" else True
-        else:
-            if (filter != 'none'):
-                filters.append(
-                    {'scope': 'fact', 'type': filter,
-                     'value': token, 'is_neg': isNeg})
-            else:
-                if fquery:
-                    if isNeg:
-                        fquery += " except "
-                    else:
-                        fquery += " intersect "
-                elif isNeg:
-                    fquery += "select id from facts except "
-                token = token.replace("*", "%")
-                args["_ff_%d" % c] = "%"+token+"%"
-                fquery += """
-select id from facts where flds like :_ff_%d escape '\\'""" % c
-    return (tagQuery, fquery, cardStateQuery, fidquery, cmquery, sfquery,
-            qaquery, showdistinct, filters, args)
+        return fids
 
 # Find and replace
 ##########################################################################

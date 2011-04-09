@@ -634,7 +634,7 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
 
     def findCards(self, query):
         import anki.find
-        return anki.find.findCards(self, query)
+        return anki.find.Finder(self).findCards(query)
 
     def findReplace(self, *args, **kwargs):
         import anki.find
