@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
-from anki.utils import ids2str
+from anki.utils import ids2str, splitFields
 
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
@@ -11,7 +11,6 @@ SEARCH_PHRASE = 2
 SEARCH_FID = 3
 SEARCH_TEMPLATE = 4
 SEARCH_FIELD = 5
-SEARCH_FIELD_EXISTS = 7
 
 # Find
 ##########################################################################
@@ -24,16 +23,9 @@ class Finder(object):
     def findCards(self, query):
         self.query = query
         (q, args) = self.findCardsWhere()
-        #fidList = findCardsMatchingFilters(self.deck, filters)
         query = "select id from cards"
         if q:
             query += " where " + q
-        # if fidList is not None:
-        #     if hasWhere is False:
-        #         query += " where "
-        #         hasWhere = True
-        #     else: query += " and "
-        #     query += " fid IN %s" % ids2str(fidList)
         print query, args
         return self.deck.db.list(query, **args)
 
@@ -42,7 +34,8 @@ class Finder(object):
         self.lims = {
             'fact': [],
             'card': [],
-            'args': {}
+            'args': {},
+            'valid': True
         }
         for c, (token, isNeg, type) in enumerate(self._parseQuery()):
             if type == SEARCH_TAG:
@@ -53,38 +46,8 @@ class Finder(object):
                 self._findFids(token)
             elif type == SEARCH_TEMPLATE:
                 self._findTemplate(token, isNeg)
-            elif type == SEARCH_FIELD or type == SEARCH_FIELD_EXISTS:
-                field = value = ''
-                if type == SEARCH_FIELD:
-                    parts = token.split(':', 1);
-                    if len(parts) == 2:
-                        field = parts[0]
-                        value = parts[1]
-                elif type == SEARCH_FIELD_EXISTS:
-                    field = token
-                    value = '*'
-                if type == SEARCH_FIELD:
-                    if field and value:
-                        filters.append(
-                            {'scope': 'field',
-                             'field': field, 'value': value, 'is_neg': isNeg})
-                else:
-                    if field and value:
-                        if sfquery:
-                            if isNeg:
-                                sfquery += " except "
-                            else:
-                                sfquery += " intersect "
-                        elif isNeg:
-                            sfquery += "select id from facts except "
-                        field = field.replace("*", "%")
-                        value = value.replace("*", "%")
-                        data['args']["_ff_%d" % c] = "%"+value+"%"
-                        ids = deck.db.list("""
-    select id from fieldmodels where name like :field escape '\\'""", field=field)
-                        sfquery += """
-    select fid from fdata where fmid in %s and
-    value like :_ff_%d escape '\\'""" % (ids2str(ids), c)
+            elif type == SEARCH_FIELD:
+                self._findField(token, isNeg)
             else:
                 self._findText(token, isNeg, c)
 
@@ -147,12 +110,42 @@ class Finder(object):
                         "(fid in (select id from facts where mid = %d) "
                         "and ord %s %d)") % (m.id, comp, t['ord']))
                     found = True
-        if not found:
-            # no such templates exist; artificially limit query
-            self.lims['card'].append("ord = -1")
+        self.lims['valid'] = found
+
+    def _findField(self, token, isNeg):
+        field = value = ''
+        parts = token.split(':', 1);
+        field = parts[0].lower()
+        value = "%" + parts[1].replace("*", "%") + "%"
+        # find models that have that field
+        mods = {}
+        for m in self.deck.models().values():
+            for f in m.fields:
+                if f['name'].lower() == field:
+                    mods[m.id] = (m, f['ord'])
+        if not mods:
+            # nothing has that field
+            self.lims['valid'] = False
+            return
+        # gather fids
+        regex = value.replace("%", ".*")
+        fids = []
+        for (id,mid,flds) in self.deck.db.execute("""
+select id, mid, flds from facts
+where mid in %s and flds like ? escape '\\'""" % (
+                         ids2str(mods.keys())),
+                         value):
+            flds = splitFields(flds)
+            ord = mods[mid][1]
+            if re.search(regex, flds[ord]):
+                fids.append(id)
+        extra = "not" if isNeg else ""
+        self.lims['fact'].append("id %s in %s" % (extra, ids2str(fids)))
 
     def findCardsWhere(self):
         self._findLimits()
+        if not self.lims['valid']:
+            return "0", {}
         x = []
         if self.lims['fact']:
             x.append("fid in (select id from facts where %s)" % " and ".join(
@@ -172,7 +165,6 @@ class Finder(object):
     def _parseQuery(self):
         tokens = []
         res = []
-
         allowedfields = self._fieldNames()
         def addSearchFieldToken(field, value, isNeg):
             if field.lower() in allowedfields:
@@ -197,22 +189,17 @@ class Finder(object):
             #prevent cases such as "field" : value as being processed as a command
             if len(token['value']) == 0:
                 if intoken is True and type == SEARCH_FIELD and field:
-                #case: fieldname: any thing here check for existance of fieldname
+                    #case: fieldname: any thing here check for existance of fieldname
                     addSearchFieldToken(field, '*', isNeg)
                     phraselog = [] # reset phrases since command is completed
                 intoken = doprocess = False
             if intoken is True:
-                if type == SEARCH_FIELD_EXISTS:
-                #case: field:"value"
-                    res.append((token['value'], isNeg, type, 'none'))
-                    intoken = doprocess = False
-                elif type == SEARCH_FIELD and field:
-                #case: fieldname:"value"
+                if type == SEARCH_FIELD and field:
+                    #case: fieldname:"value"
                     addSearchFieldToken(field, token['value'], isNeg)
                     intoken = doprocess = False
-
                 elif type == SEARCH_FIELD and not field:
-                #case: "fieldname":"name" or "field" anything
+                    #case: "fieldname":"name" or "field" anything
                     if token['value'].startswith(":") and len(phraselog) == 1:
                         #we now know a colon is next, so mark it as field
                         # and keep looking for the value
@@ -227,10 +214,10 @@ class Finder(object):
                             intoken = doprocess = False
                         doprocess = False
                     else:
-                    #case: "fieldname"string/"fieldname"tag:name
+                        #case: "fieldname"string/"fieldname"tag:name
                         intoken = False
                 if intoken is False and doprocess is False:
-                #command has been fully processed
+                    #command has been fully processed
                     phraselog = [] # reset phraselog, since we used it for a command
             if intoken is False:
                 #include any non-command related phrases in the query
@@ -262,98 +249,24 @@ class Finder(object):
                 elif token['value'].startswith("card:"):
                     token['value'] = token['value'][5:]
                     type = SEARCH_TEMPLATE
-                elif token['value'].startswith("field:"):
-                    type = SEARCH_FIELD_EXISTS
-                    parts = token['value'][6:].split(':', 1)
-                    field = parts[0]
-                    if len(parts) == 1 and parts[0]:
-                        token['value'] = parts[0]
-                    elif len(parts) == 1 and not parts[0]:
-                        intoken = True
                 else:
                     type = SEARCH_FIELD
                     intoken = True
                     parts = token['value'].split(':', 1)
-
                     phraselog.append(
                         {'value': token['value'], 'is_neg': isNeg,
                          'type': SEARCH_PHRASE})
                     if len(parts) == 2 and parts[0]:
                         field = parts[0]
                         if parts[1]:
-                            #simple fieldname:value case - no need to look for more data
+                            #simple fieldname:value case -
+                            #no need to look for more data
                             addSearchFieldToken(field, parts[1], isNeg)
                             intoken = doprocess = False
-
                     if intoken is False: phraselog = []
                 if intoken is False and doprocess is True:
                     res.append((token['value'], isNeg, type))
         return res
-
-    def findCardsMatchingFilters(deck, filters):
-        factFilters = []
-        fieldFilters = {}
-
-        factFilterMatches = []
-        fieldFilterMatches = []
-
-        if filters:
-            for filter in filters:
-                if filter['scope'] == 'field':
-                    fieldName = filter['field'].lower()
-                    if (fieldName in fieldFilters) is False:
-                        fieldFilters[fieldName] = []
-                    regexp = re.compile(
-                        r'\b' + re.escape(filter['value']) + r'\b', flags=re.I)
-                    fieldFilters[fieldName].append(
-                        {'value': filter['value'], 'regexp': regexp,
-                         'is_neg': filter['is_neg']})
-
-            if len(fieldFilters) > 0:
-                raise Exception("nyi")
-                sfquery = ''
-                args = {}
-                for field, filters in fieldFilters.iteritems():
-                    for filter in filters:
-                        c = len(args)
-                        if sfquery:
-                            if filter['is_neg']:  sfquery += " except "
-                            else: sfquery += " intersect "
-                        elif filter['is_neg']: sfquery += "select id from fdata except "
-                        field = field.replace("*", "%")
-                        value = filter['value'].replace("*", "%")
-                        args["_ff_%d" % c] = "%"+value+"%"
-
-                        ids = deck.db.list(
-                            "select id from fieldmodels where name like "+
-                            ":field escape '\\'", field=field)
-                        sfquery += ("select id from fdata where "+
-                                    "fmid in %s and value like "+
-                                    ":_ff_%d escape '\\'") % (ids2str(ids), c)
-
-                rows = deck.db.execute(
-                    'select f.fid, f.value, fm.name from fdata as f '+
-                    'left join fieldmodels as fm ON (f.fmid = '+
-                    'fm.id) where f.id in (' + sfquery + ')', args)
-                while (1):
-                    row = rows.fetchone()
-                    if row is None: break
-                    field = row[2].lower()
-                    doesMatch = False
-                    if field in fieldFilters:
-                        for filter in fieldFilters[field]:
-                            res = filter['regexp'].search(row[1])
-                            if ((filter['is_neg'] is False and res) or
-                                (filter['is_neg'] is True and res is None)):
-                                fieldFilterMatches.append(row[0])
-
-        fids = None
-        if len(factFilters) > 0 or len(fieldFilters) > 0:
-            fids = []
-            fids.extend(factFilterMatches)
-            fids.extend(fieldFilterMatches)
-
-        return fids
 
 # Find and replace
 ##########################################################################

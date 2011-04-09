@@ -68,3 +68,10 @@ def test_findCards():
     assert len(deck.findCards("card:reverse")) == 1
     assert len(deck.findCards("card:1")) == 4
     assert len(deck.findCards("card:2")) == 1
+    # fields
+    assert len(deck.findCards("front:dog")) == 1
+    assert len(deck.findCards("-front:dog")) == 4
+    assert len(deck.findCards("front:sheep")) == 0
+    assert len(deck.findCards("back:sheep")) == 2
+    assert len(deck.findCards("-back:sheep")) == 3
+    assert len(deck.findCards("front:")) == 5
