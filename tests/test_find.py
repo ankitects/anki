@@ -18,6 +18,7 @@ def test_findCards():
     f['Front'] = u'cat'
     f['Back'] = u'sheep'
     deck.addFact(f)
+    catCard = f.cards()[0]
     f = deck.newFact()
     f['Front'] = u'template test'
     f['Back'] = u'foo bar'
@@ -56,6 +57,8 @@ def test_findCards():
     c.flush()
     assert deck.findCards("is:due") == [c.id]
     c.queue = -1
+    # ensure this card gets a later mod time
+    import time; time.sleep(1)
     c.flush()
     assert deck.findCards("is:suspended") == [c.id]
     # fids
@@ -75,3 +78,9 @@ def test_findCards():
     assert len(deck.findCards("back:sheep")) == 2
     assert len(deck.findCards("-back:sheep")) == 3
     assert len(deck.findCards("front:")) == 5
+    # ordering
+    assert deck.findCards("front:", sort="factCrt")[-1] == c.id
+    assert deck.findCards("", sort="factCrt")[-1] == c.id
+    assert deck.findCards("", sort="factFld")[0] == catCard.id
+    assert deck.findCards("", sort="factFld")[-1] == c.id
+    assert deck.findCards("", sort="cardMod")[-1] == c.id

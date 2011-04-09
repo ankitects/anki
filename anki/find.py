@@ -20,14 +20,60 @@ class Finder(object):
     def __init__(self, deck):
         self.deck = deck
 
-    def findCards(self, query):
+    def findCards(self, query, sort=None):
+        "Return a list of card ids for QUERY."
         self.query = query
-        (q, args) = self.findCardsWhere()
-        query = "select id from cards"
-        if q:
-            query += " where " + q
-        print query, args
+        self._findLimits()
+        if not self.lims['valid']:
+            return []
+        (q, args) = self._whereClause()
+        query = self._orderedSelect(sort, q)
         return self.deck.db.list(query, **args)
+
+    def _whereClause(self):
+        x = []
+        if self.lims['fact']:
+            x.append("fid in (select id from facts where %s)" % " and ".join(
+                self.lims['fact']))
+        if self.lims['card']:
+            x.extend(self.lims['card'])
+        q = " and ".join(x)
+        if not q:
+            q = "1"
+        return q, self.lims['args']
+
+    def _orderedSelect(self, type, lim):
+        if not type:
+            return "select id from cards where " + lim
+        elif type.startswith("fact"):
+            if type == "factCrt":
+                sort = "f.crt"
+            elif type == "factMod":
+                sort = "f.mod"
+            elif type == "factFld":
+                sort = "f.sfld collate nocase"
+            else:
+                raise Exception()
+            return """
+select c.id from cards c, facts f where %s and c.id=f.id
+order by %s""" % (lim, sort)
+        elif type.startswith("card"):
+            if type == "cardMod":
+                sort = "c.mod"
+            elif type == "cardReps":
+                sort = "c.reps"
+            elif type == "cardDue":
+                sort = "c.due"
+            elif type == "cardEase":
+                sort = "c.ease"
+            elif type == "cardLapses":
+                sort = "c.lapses"
+            else:
+                raise Exception()
+            return "select c.id from cards c where %s order by %s" % (
+                lim, sort)
+        else:
+            raise Exception()
 
     def _findLimits(self):
         "Generate a list of fact/card limits for the query."
@@ -141,19 +187,6 @@ where mid in %s and flds like ? escape '\\'""" % (
                 fids.append(id)
         extra = "not" if isNeg else ""
         self.lims['fact'].append("id %s in %s" % (extra, ids2str(fids)))
-
-    def findCardsWhere(self):
-        self._findLimits()
-        if not self.lims['valid']:
-            return "0", {}
-        x = []
-        if self.lims['fact']:
-            x.append("fid in (select id from facts where %s)" % " and ".join(
-                self.lims['fact']))
-        if self.lims['card']:
-            x.extend(self.lims['card'])
-        q = " and ".join(x)
-        return q, self.lims['args']
 
     def _fieldNames(self):
         fields = set()
@@ -323,81 +356,3 @@ def findDuplicates(deck, fmids):
         else:
             vals[val].append(fid)
     return [(k,v) for (k,v) in vals.items() if len(v) > 1]
-
-# Find & sort
-##########################################################################
-
-# copied from ankiqt and trivially changed; will not work at the moment
-
-# if idx == 0:
-#     self.sortKey = "question"
-# elif idx == 1:
-#     self.sortKey = "answer"
-# elif idx == 2:
-#     self.sortKey = "created"
-# elif idx == 3:
-#     self.sortKey = "modified"
-# elif idx == 4:
-#     self.sortKey = "combinedDue"
-# elif idx == 5:
-#     self.sortKey = "interval"
-# elif idx == 6:
-#     self.sortKey = "reps"
-# elif idx == 7:
-#     self.sortKey = "factor"
-# elif idx == 8:
-#     self.sortKey = "fact"
-# elif idx == 9:
-#     self.sortKey = "noCount"
-# elif idx == 10:
-#     self.sortKey = "firstAnswered"
-# else:
-#     self.sortKey = ("field", self.sortFields[idx-11])
-
-def findSorted(deck, query, sortKey):
-    # sorting
-    if not query.strip():
-        ads = ""
-    else:
-        ids = self.deck.findCards(query)
-        ads = "cards.id in %s" % ids2str(ids)
-    sort = ""
-    if isinstance(sortKey, types.StringType):
-        # card property
-        if sortKey == "fact":
-            sort = "order by facts.created, cards.created"
-        else:
-            sort = "order by cards." + sortKey
-        if sortKey in ("question", "answer"):
-            sort += " collate nocase"
-        if sortKey == "fact":
-            query = """
-select cards.id from cards, facts
-where cards.fid = facts.id """
-            if ads:
-                query += "and " + ads + " "
-        else:
-            query = "select id from cards "
-            if ads:
-                query += "where %s " % ads
-        query += sort
-    else:
-        # field value
-        ret = self.deck.db.all(
-            "select id, numeric from fields where name = :name",
-            name=sortKey[1])
-        fields = ",".join([str(x[0]) for x in ret])
-        # if multiple models have the same field, use the first numeric bool
-        numeric = ret[0][1]
-        if numeric:
-            order = "cast(fdata.value as real)"
-        else:
-            order = "fdata.value collate nocase"
-        if ads:
-            ads = " and " + ads
-        query = ("select cards.id "
-                 "from fdata, cards where fdata.fmid in (%s) "
-                 "and fdata.fid = cards.fid" + ads +
-                 " order by cards.ordinal, %s") % (fields, order)
-    # run the query
-    self.cards = self.deck.db.all(query)
