@@ -10,8 +10,7 @@ SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
 SEARCH_TEMPLATE = 4
-SEARCH_DISTINCT = 5
-SEARCH_FIELD = 6
+SEARCH_FIELD = 5
 SEARCH_FIELD_EXISTS = 7
 
 # Find
@@ -29,26 +28,12 @@ class Finder(object):
         query = "select id from cards"
         if q:
             query += " where " + q
-        # if cmquery['pos'] or cmquery['neg']:
-        #     if hasWhere is False:
-        #         query += " where "
-        #         hasWhere = True
-        #     else: query += " and "
-        #     if cmquery['pos']:
-        #         query += (" fid in(select distinct fid from cards "+
-        #                   "where id in (" + cmquery['pos'] + ")) ")
-        #         query += " and id in(" + cmquery['pos'] + ") "
-        #     if cmquery['neg']:
-        #         query += (" fid not in(select distinct fid from "+
-        #                   "cards where id in (" + cmquery['neg'] + ")) ")
         # if fidList is not None:
         #     if hasWhere is False:
         #         query += " where "
         #         hasWhere = True
         #     else: query += " and "
         #     query += " fid IN %s" % ids2str(fidList)
-        # if showdistinct:
-        #     query += " group by fid"
         print query, args
         return self.deck.db.list(query, **args)
 
@@ -100,11 +85,6 @@ class Finder(object):
                         sfquery += """
     select fid from fdata where fmid in %s and
     value like :_ff_%d escape '\\'""" % (ids2str(ids), c)
-            elif type == SEARCH_DISTINCT:
-                if isNeg is False:
-                    showdistinct = True if token == "one" else False
-                else:
-                    showdistinct = False if token == "one" else True
             else:
                 self._findText(token, isNeg, c)
 
@@ -151,9 +131,18 @@ class Finder(object):
         lims = []
         comp = "!=" if isNeg else "="
         found = False
+        try:
+            num = int(val) - 1
+        except:
+            num = None
         for m in self.deck.models().values():
             for t in m.templates:
-                if t['name'].lower() == val.lower():
+                # ordinal number?
+                if num is not None and t['ord'] == num:
+                    self.lims['card'].append("ord %s %d" % (comp, num))
+                    found = True
+                # template name?
+                elif t['name'].lower() == val.lower():
                     self.lims['card'].append((
                         "(fid in (select id from facts where mid = %d) "
                         "and ord %s %d)") % (m.id, comp, t['ord']))
@@ -273,9 +262,6 @@ class Finder(object):
                 elif token['value'].startswith("card:"):
                     token['value'] = token['value'][5:]
                     type = SEARCH_TEMPLATE
-                elif token['value'].startswith("show:"):
-                    token['value'] = token['value'][5:].lower()
-                    type = SEARCH_DISTINCT
                 elif token['value'].startswith("field:"):
                     type = SEARCH_FIELD_EXISTS
                     parts = token['value'][6:].split(':', 1)
