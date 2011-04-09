@@ -16,7 +16,6 @@ SEARCH_CARD = 4
 SEARCH_DISTINCT = 5
 SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
-SEARCH_QA = 8
 SEARCH_PHRASE_WB = 9
 
 # Find
@@ -54,16 +53,16 @@ def findCards(deck, query):
     return deck.db.list(query, **args)
 
 def findCardsWhere(deck, query):
-    (tquery, fquery, qquery, fidquery, cmquery, sfquery, qaquery,
+    (tagQuery, fquery, cardStateQuery, fidquery, cmquery, sfquery, qaquery,
      showdistinct, filters, args) = _findCards(deck, query)
     q = ""
     x = []
-    if tquery:
-        x.append(" fid in (%s)" % tquery)
+    if tagQuery:
+        x.append(" fid in (%s)" % tagQuery)
     if fquery:
         x.append(" fid in (%s)" % fquery)
-    if qquery:
-        x.append(" id in (%s)" % qquery)
+    if cardStateQuery:
+        x.append(" id in (%s)" % cardStateQuery)
     if fidquery:
         x.append(" id in (%s)" % fidquery)
     if sfquery:
@@ -94,8 +93,6 @@ def _parseQuery(deck, query):
     def addSearchFieldToken(field, value, isNeg, filter):
         if field.lower() in allowedfields:
             res.append((field + ':' + value, isNeg, SEARCH_FIELD, filter))
-        elif field in ['question', 'answer']:
-            res.append((field + ':' + value, isNeg, SEARCH_QA, filter))
         else:
             for p in phraselog:
                 res.append((p['value'], p['is_neg'], p['type'], p['filter']))
@@ -321,9 +318,9 @@ def findCardsMatchingFilters(deck, filters):
 
 def _findCards(deck, query):
     "Find facts matching QUERY."
-    tquery = ""
+    tagQuery = ""
     fquery = ""
-    qquery = ""
+    cardStateQuery = ""
     fidquery = ""
     cmquery = { 'pos': '', 'neg': '' }
     sfquery = qaquery = ""
@@ -333,15 +330,15 @@ def _findCards(deck, query):
     for c, (token, isNeg, type, filter) in enumerate(_parseQuery(deck, query)):
         if type == SEARCH_TAG:
             # a tag
-            if tquery:
+            if tagQuery:
                 if isNeg:
-                    tquery += " except "
+                    tagQuery += " except "
                 else:
-                    tquery += " intersect "
+                    tagQuery += " intersect "
             elif isNeg:
-                tquery += "select id from facts except "
+                tagQuery += "select id from facts except "
             if token == "none":
-                tquery += """
+                tagQuery += """
 select id from cards where fid in (select id from facts where tags = '')"""
             else:
                 token = token.replace("*", "%")
@@ -350,16 +347,16 @@ select id from cards where fid in (select id from facts where tags = '')"""
                 if not token.endswith("%"):
                     token += " %"
                 args["_tag_%d" % c] = token
-                tquery += """
+                tagQuery += """
 select id from facts where tags like :_tag_%d""" % c
         elif type == SEARCH_TYPE:
-            if qquery:
+            if cardStateQuery:
                 if isNeg:
-                    qquery += " except "
+                    cardStateQuery += " except "
                 else:
-                    qquery += " intersect "
+                    cardStateQuery += " intersect "
             elif isNeg:
-                qquery += "select id from cards except "
+                cardStateQuery += "select id from cards except "
             if token in ("rev", "new", "lrn"):
                 if token == "rev":
                     n = 1
@@ -367,22 +364,22 @@ select id from facts where tags like :_tag_%d""" % c
                     n = 2
                 else:
                     n = 0
-                qquery += "select id from cards where type = %d" % n
+                cardStateQuery += "select id from cards where type = %d" % n
             elif token == "delayed":
                 print "delayed"
-                qquery += ("select id from cards where "
+                cardStateQuery += ("select id from cards where "
                            "due < %d and due > %d and "
                            "type in (0,1,2)") % (
                     deck.dayCutoff, deck.dayCutoff)
             elif token == "suspended":
-                qquery += ("select id from cards where "
+                cardStateQuery += ("select id from cards where "
                            "queue = -1")
             elif token == "leech":
-                qquery += (
+                cardStateQuery += (
                     "select id from cards where noCount >= (select value "
                     "from deckvars where key = 'leechFails')")
             else: # due
-                qquery += ("select id from cards where "
+                cardStateQuery += ("select id from cards where "
                            "queue = 2 and due <= %d") % deck.sched.today
         elif type == SEARCH_FID:
             if fidquery:
@@ -440,35 +437,6 @@ select id from fieldmodels where name like :field escape '\\'""", field=field)
                     sfquery += """
 select fid from fdata where fmid in %s and
 value like :_ff_%d escape '\\'""" % (ids2str(ids), c)
-        elif type == SEARCH_QA:
-            field = value = ''
-            parts = token.split(':', 1);
-            if len(parts) == 2:
-                field = parts[0]
-                value = parts[1]
-            if (filter != 'none'):
-                if field and value:
-                    filters.append(
-                        {'scope': 'card', 'type': filter, 'field': field,
-                         'value': value, 'is_neg': isNeg})
-            else:
-                if field and value:
-                    if qaquery:
-                        if isNeg:
-                            qaquery += " except "
-                        else:
-                            qaquery += " intersect "
-                    elif isNeg:
-                        qaquery += "select id from cards except "
-                    value = value.replace("*", "%")
-                    args["_ff_%d" % c] = "%"+value+"%"
-
-                    if field == 'question':
-                        qaquery += """
-select id from cards where question like :_ff_%d escape '\\'""" % c
-                    else:
-                        qaquery += """
-select id from cards where answer like :_ff_%d escape '\\'""" % c
         elif type == SEARCH_DISTINCT:
             if isNeg is False:
                 showdistinct = True if token == "one" else False
@@ -491,7 +459,7 @@ select id from cards where answer like :_ff_%d escape '\\'""" % c
                 args["_ff_%d" % c] = "%"+token+"%"
                 fquery += """
 select id from facts where flds like :_ff_%d escape '\\'""" % c
-    return (tquery, fquery, qquery, fidquery, cmquery, sfquery,
+    return (tagQuery, fquery, cardStateQuery, fidquery, cmquery, sfquery,
             qaquery, showdistinct, filters, args)
 
 # Find and replace
