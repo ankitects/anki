@@ -9,7 +9,7 @@ SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
 SEARCH_FID = 3
-SEARCH_CARD = 4
+SEARCH_TEMPLATE = 4
 SEARCH_DISTINCT = 5
 SEARCH_FIELD = 6
 SEARCH_FIELD_EXISTS = 7
@@ -26,7 +26,9 @@ class Finder(object):
         self.query = query
         (q, args) = self.findCardsWhere()
         #fidList = findCardsMatchingFilters(self.deck, filters)
-        query = "select id from cards where " + q
+        query = "select id from cards"
+        if q:
+            query += " where " + q
         # if cmquery['pos'] or cmquery['neg']:
         #     if hasWhere is False:
         #         query += " where "
@@ -61,31 +63,11 @@ class Finder(object):
             if type == SEARCH_TAG:
                 self._findTag(token, isNeg, c)
             elif type == SEARCH_TYPE:
-                self._findCardState(token, isNeg, c)
+                self._findCardState(token, isNeg)
             elif type == SEARCH_FID:
-                if fidquery:
-                    if isNeg:
-                        fidquery += " except "
-                    else:
-                        fidquery += " intersect "
-                elif isNeg:
-                    fidquery += "select id from cards except "
-                fidquery += "select id from cards where fid in (%s)" % token
-            elif type == SEARCH_CARD:
-                print "search_card broken"
-                token = token.replace("*", "%")
-                ids = deck.db.list("""
-    select id from tags where name like :tag escape '\\'""", tag=token)
-                if isNeg:
-                    if cmquery['neg']:
-                        cmquery['neg'] += " intersect "
-                    cmquery['neg'] += """
-    select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
-                else:
-                    if cmquery['pos']:
-                        cmquery['pos'] += " intersect "
-                    cmquery['pos'] += """
-    select cardId from cardTags where src = 2 and cardTags.tagId in %s""" % ids2str(ids)
+                self._findFids(token)
+            elif type == SEARCH_TEMPLATE:
+                self._findTemplate(token, isNeg)
             elif type == SEARCH_FIELD or type == SEARCH_FIELD_EXISTS:
                 field = value = ''
                 if type == SEARCH_FIELD:
@@ -152,7 +134,8 @@ class Finder(object):
         elif val == "suspended":
             self.lims['card'].append("queue = -1")
         elif val == "due":
-            self.lims['card'].append("(queue = 2 and due <= %d)" % deck.sched.today)
+            self.lims['card'].append("(queue = 2 and due <= %d)" %
+                                     self.deck.sched.today)
 
     def _findText(self, val, neg, c):
         val = val.replace("*", "%")
@@ -160,6 +143,24 @@ class Finder(object):
         self.lims['args']["_text_%d"%c] = "%"+val+"%"
         self.lims['fact'].append("flds %s like :_text_%d escape '\\'" % (
             extra, c))
+
+    def _findFids(self, val):
+        self.lims['fact'].append("id in (%s)" % val)
+
+    def _findTemplate(self, val, isNeg):
+        lims = []
+        comp = "!=" if isNeg else "="
+        found = False
+        for m in self.deck.models().values():
+            for t in m.templates:
+                if t['name'].lower() == val.lower():
+                    self.lims['card'].append((
+                        "(fid in (select id from facts where mid = %d) "
+                        "and ord %s %d)") % (m.id, comp, t['ord']))
+                    found = True
+        if not found:
+            # no such templates exist; artificially limit query
+            self.lims['card'].append("ord = -1")
 
     def findCardsWhere(self):
         self._findLimits()
@@ -271,7 +272,7 @@ class Finder(object):
                     type = SEARCH_FID
                 elif token['value'].startswith("card:"):
                     token['value'] = token['value'][5:]
-                    type = SEARCH_CARD
+                    type = SEARCH_TEMPLATE
                 elif token['value'].startswith("show:"):
                     token['value'] = token['value'][5:].lower()
                     type = SEARCH_DISTINCT
