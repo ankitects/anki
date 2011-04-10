@@ -105,7 +105,11 @@ class DeckModel(QAbstractTableModel):
     ######################################################################
 
     def showMatching(self, force=True):
+        self.parent.mw.progress.start()
+        t = time.time()
         self.cards = self.deck.findCards(self.searchStr.strip(), "factFld")
+        print "fetch cards in %dms" % ((time.time() - t)*1000)
+        self.parent.mw.progress.finish()
         # if self.deck.getInt('reverseOrder'):
         #     self.cards.reverse()
         self.reset()
@@ -143,6 +147,7 @@ class DeckModel(QAbstractTableModel):
             return _("in %s") % fmtTimeSpan(diff, pad=0)
 
     def thirdColumn(self, index):
+        self.sortKey = "aoeu"
         if self.sortKey == "created":
             return self.createdColumn(index)
         elif self.sortKey == "modified":
@@ -286,6 +291,9 @@ class Browser(QMainWindow):
         self.drawTags()
         self.updateFilterLabel()
         self.show()
+        self.form.searchEdit.setText("is:recent")
+        self.form.searchEdit.selectAll()
+        self.updateSearch()
         # if self.parent.card:
         #     self.card = self.parent.card
         #self.updateSearch()
@@ -589,6 +597,7 @@ class Browser(QMainWindow):
             self.editor.setFact(None)
 
     def focusCard(self):
+        print "focus"
         if self.card:
             try:
                 self.card.id
@@ -737,6 +746,7 @@ class Browser(QMainWindow):
     def setupEditor(self):
         self.editor = aqt.editor.Editor(self.mw,
                                         self.form.fieldsArea)
+        self.editor.stealFocus = False
         # fixme:
         #self.editor.onChange = self.onEvent
         self.connect(self.form.tableView.selectionModel(),
