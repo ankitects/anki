@@ -303,6 +303,7 @@ class Editor(object):
     ######################################################################
 
     def bridge(self, str):
+        print "bridge", str
         if not self.fact or not runHook:
             # shutdown
             return
@@ -310,7 +311,6 @@ class Editor(object):
         if str.startswith("blur") or str.startswith("key"):
             (type, txt) = str.split(":", 1)
             self.fact._fields[self.currentField] = self.mungeHTML(txt)
-            print "save fact", txt
             if type == "blur":
                 if not self._keepButtons:
                     self.disableButtons()
@@ -463,7 +463,6 @@ class Editor(object):
     def saveTagsAndGroup(self):
         self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
         self.fact.tags = parseTags(unicode(self.tags.text()))
-        print "update tags to ", self.fact.tags
         self.fact.flush()
 
     # Format buttons

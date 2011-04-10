@@ -86,7 +86,6 @@ class AnkiWebView(QWebView):
         if loadCB:
             self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
-        self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
     def stdHtml(self, body, css="", bodyClass="", loadCB=None):
         self.setHtml("""
 <html><head><style>%s</style>
@@ -107,6 +106,7 @@ class AnkiWebView(QWebView):
     def _linkHandler(self, url):
         self.linkHandler(unicode(url.toString()))
     def _loadFinished(self):
+        self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
         if self._loadFinishedCB:
             self._loadFinishedCB(self)
             self._loadFinishedCB = None
