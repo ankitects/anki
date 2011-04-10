@@ -637,7 +637,10 @@ class Browser(QMainWindow):
     def setupTree(self):
         self.form.tree.addTopLevelItem(self._modelTree())
         self.form.tree.addTopLevelItem(self._groupTree())
+        self.form.tree.addTopLevelItem(self._systemTagTree())
+        self.form.tree.addTopLevelItem(self._userTagTree())
         self.form.tree.expandToDepth(0)
+        self.form.tree.setIndentation(15)
 
     def _modelTree(self):
         root = QTreeWidgetItem([_("Models")])
@@ -661,7 +664,33 @@ class Browser(QMainWindow):
                 item = QTreeWidgetItem([g[0]])
                 item.setIcon(0, QIcon(":/icons/stock_group.png"))
                 root.addChild(item)
+                fillGroups(item, g[5])
         fillGroups(root, grps)
+        return root
+
+    def _systemTagTree(self):
+        root = QTreeWidgetItem([_("System Tags")])
+        root.setIcon(0, QIcon(":/icons/anki-tag.png"))
+        tags = ((_("New"), "anki-tag.png", "is:new"),
+                (_("Learning"), "anki-tag.png", "is:lrn"),
+                (_("Review"), "anki-tag.png", "is:lrn"),
+                (_("Due"), "anki-tag.png", "is:due"),
+                (_("Marked"), "anki-tag.png", "tag:marked"),
+                (_("Suspended"), "anki-tag.png", "is:suspended"),
+                (_("Leech"), "anki-tag.png", "tag:leech"))
+        for name, icon, cmd in tags:
+            item = QTreeWidgetItem([name])
+            item.setIcon(0, QIcon(":/icons/" + icon))
+            root.addChild(item)
+        return root
+
+    def _userTagTree(self):
+        root = QTreeWidgetItem([_("User Tags")])
+        root.setIcon(0, QIcon(":/icons/anki-tag.png"))
+        for t in self.deck.tagList():
+            item = QTreeWidgetItem([t])
+            item.setIcon(0, QIcon(":/icons/anki-tag.png"))
+            root.addChild(item)
         return root
 
     # Editor
