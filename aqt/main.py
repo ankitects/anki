@@ -598,7 +598,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.deck.deleteCard(self.currentCard.id)
         self.reset()
         self.deck.setUndoEnd(undo)
-        runHook("currentCardDeleted")
 
     def onBuryFact(self):
         undo = _("Bury")
@@ -625,6 +624,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def checkpoint(self, name):
         self.deck.save(name)
         self.maybeEnableUndo()
+        runHook("checkpoint")
 
     # Other menu operations
     ##########################################################################

@@ -97,5 +97,8 @@
     <file>icons/text_sub.png</file>
     <file>icons/text_super.png</file>
     <file>icons/text_remove.png</file>
+    <file>icons/product_design.png</file>
+    <file>icons/stock_new_template.png</file>
+    <file>icons/stock_group.png</file>
   </qresource>
 </RCC>
