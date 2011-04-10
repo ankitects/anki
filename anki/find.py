@@ -11,6 +11,8 @@ SEARCH_PHRASE = 2
 SEARCH_FID = 3
 SEARCH_TEMPLATE = 4
 SEARCH_FIELD = 5
+SEARCH_MODEL = 6
+SEARCH_GROUP = 7
 
 # Find
 ##########################################################################
@@ -94,6 +96,10 @@ order by %s""" % (lim, sort)
                 self._findTemplate(token, isNeg)
             elif type == SEARCH_FIELD:
                 self._findField(token, isNeg)
+            elif type == SEARCH_MODEL:
+                self._findModel(token, isNeg, c)
+            elif type == SEARCH_GROUP:
+                self._findGroup(token, isNeg, c)
             else:
                 self._findText(token, isNeg, c)
 
@@ -135,6 +141,20 @@ order by %s""" % (lim, sort)
 
     def _findFids(self, val):
         self.lims['fact'].append("id in (%s)" % val)
+
+    def _findModel(self, val, isNeg, c):
+        extra = "not" if isNeg else ""
+        self.lims['fact'].append(
+            "mid %s in (select id from models where name like :_mod_%d)" % (
+                extra, c))
+        self.lims['args']['_mod_%d'%c] = val
+
+    def _findGroup(self, val, isNeg, c):
+        extra = "not" if isNeg else ""
+        self.lims['card'].append(
+            "gid %s in (select id from groups where name like :_grp_%d)" % (
+                extra, c))
+        self.lims['args']['_grp_%d'%c] = val
 
     def _findTemplate(self, val, isNeg):
         lims = []
@@ -266,6 +286,12 @@ where mid in %s and flds like ? escape '\\'""" % (
                 elif token['value'].startswith("is:"):
                     token['value'] = token['value'][3:].lower()
                     type = SEARCH_TYPE
+                elif token['value'].startswith("model:"):
+                    token['value'] = token['value'][6:].lower()
+                    type = SEARCH_MODEL
+                elif token['value'].startswith("group:"):
+                    token['value'] = token['value'][6:].lower()
+                    type = SEARCH_GROUP
                 elif token['value'].startswith("fid:") and len(token['value']) > 4:
                     dec = token['value'][4:]
                     try:

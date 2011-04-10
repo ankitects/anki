@@ -84,3 +84,11 @@ def test_findCards():
     assert deck.findCards("", sort="factFld")[0] == catCard.id
     assert deck.findCards("", sort="factFld")[-1] == c.id
     assert deck.findCards("", sort="cardMod")[-1] == c.id
+    # model
+    assert len(deck.findCards("model:basic")) == 5
+    assert len(deck.findCards("-model:basic")) == 0
+    assert len(deck.findCards("-model:foo")) == 5
+    # group
+    assert len(deck.findCards("group:default")) == 5
+    assert len(deck.findCards("-group:default")) == 0
+    assert len(deck.findCards("-group:foo")) == 5
