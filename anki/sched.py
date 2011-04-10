@@ -131,6 +131,12 @@ from cards group by gid""", self.today):
     def groupCountTree(self):
         return self._groupChildren(self.groupCounts())
 
+    def groupTree(self):
+        "Like the count tree without the counts. Faster."
+        return self._groupChildren([[name, gid, 0, 0, 0] for (gid, name) in
+                self.deck.db.execute(
+                    "select id, name from groups order by name")])
+
     def _groupChildren(self, grps):
         tree = []
         # split strings
