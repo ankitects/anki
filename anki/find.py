@@ -46,7 +46,7 @@ class Finder(object):
 
     def _orderedSelect(self, type, lim):
         if not type:
-            return "select id from cards where " + lim
+            return "select id from cards c where " + lim
         elif type.startswith("fact"):
             if type == "factCrt":
                 sort = "f.crt, c.ord"
@@ -131,6 +131,9 @@ order by %s""" % (lim, sort)
         elif val == "due":
             self.lims['card'].append("(queue = 2 and due <= %d)" %
                                      self.deck.sched.today)
+        elif val == "recent":
+            self.lims['card'].append(
+                "c.id in (select id from cards order by mod desc limit 100)")
 
     def _findText(self, val, neg, c):
         val = val.replace("*", "%")
@@ -152,7 +155,7 @@ order by %s""" % (lim, sort)
     def _findGroup(self, val, isNeg, c):
         extra = "not" if isNeg else ""
         self.lims['card'].append(
-            "gid %s in (select id from groups where name like :_grp_%d)" % (
+            "c.gid %s in (select id from groups where name like :_grp_%d)" % (
                 extra, c))
         self.lims['args']['_grp_%d'%c] = val
 
