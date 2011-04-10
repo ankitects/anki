@@ -133,16 +133,16 @@ class DeckModel(QAbstractTableModel):
 
     def nextDue(self, index):
         c = self.getCard(index)
-        d = c.due
-        reps = c.reps
-        secs = d - time.time()
-        if secs <= 0:
-            if not reps:
-                return _("(new card)")
-            else:
-                return _("%s ago") % fmtTimeSpan(abs(secs), pad=0)
+        if c.type == 0:
+            return _("(new card)")
+        elif c.type == 1:
+            diff = c.due - time.time()
+        elif c.type == 2:
+            diff = (c.due - self.deck.sched.today)*86400
+        if diff <= 0:
+            return _("%s ago") % fmtTimeSpan(abs(diff), pad=0)
         else:
-            return _("in %s") % fmtTimeSpan(secs, pad=0)
+            return _("in %s") % fmtTimeSpan(diff, pad=0)
 
     def thirdColumn(self, index):
         if self.sortKey == "created":
@@ -706,7 +706,7 @@ where id in (%s)""" % ",".join([
             # card has been deleted
             return
         # ensure the change timer doesn't fire after deletion but before reset
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         self.editor.fact = None
         self.dialog.tableView.setFocus()
         self.deck.setUndoStart(n)
@@ -719,7 +719,7 @@ where id in (%s)""" % ",".join([
 
     def addTags(self, tags=None, label=None):
         # focus lost hook may not have chance to fire
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         if tags is None:
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
         else:
@@ -734,7 +734,7 @@ where id in (%s)""" % ",".join([
 
     def deleteTags(self, tags=None, label=None):
         # focus lost hook may not have chance to fire
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         if tags is None:
             (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
         else:
@@ -756,7 +756,7 @@ where id in (%s)""" % ",".join([
 
     def onSuspend(self, sus):
         # focus lost hook may not have chance to fire
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         if sus:
             self._onSuspend()
         else:
@@ -1099,21 +1099,21 @@ select fm.id, fm.name from fieldmodels fm""")
     def onFirstCard(self):
         if not self.model.cards:
             return
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         self.dialog.tableView.selectionModel().clear()
         self.dialog.tableView.selectRow(0)
 
     def onLastCard(self):
         if not self.model.cards:
             return
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         self.dialog.tableView.selectionModel().clear()
         self.dialog.tableView.selectRow(len(self.model.cards) - 1)
 
     def onPreviousCard(self):
         if not self.model.cards:
             return
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         row = self.dialog.tableView.currentIndex().row()
         row = max(0, row - 1)
         self.dialog.tableView.selectionModel().clear()
@@ -1122,7 +1122,7 @@ select fm.id, fm.name from fieldmodels fm""")
     def onNextCard(self):
         if not self.model.cards:
             return
-        self.editor.saveFieldsNow()
+        self.editor.saveNow()
         row = self.dialog.tableView.currentIndex().row()
         row = min(len(self.model.cards) - 1, row + 1)
         self.dialog.tableView.selectionModel().clear()
