@@ -164,6 +164,7 @@ order by %s""" % (lim, sort)
             num = int(val) - 1
         except:
             num = None
+        lims = []
         for m in self.deck.models().values():
             for t in m.templates:
                 # ordinal number?
@@ -172,10 +173,12 @@ order by %s""" % (lim, sort)
                     found = True
                 # template name?
                 elif t['name'].lower() == val.lower():
-                    self.lims['card'].append((
+                    lims.append((
                         "(fid in (select id from facts where mid = %d) "
                         "and ord %s %d)") % (m.id, comp, t['ord']))
                     found = True
+        if lims:
+            self.lims['card'].append("(" + " or ".join(lims) + ")")
         self.lims['valid'] = found
 
     def _findField(self, token, isNeg):
