@@ -124,6 +124,7 @@ order by %s""" % (lim, sort)
             "tags %s like :_tag_%d""" % (extra, c))
 
     def _findCardState(self, val, neg):
+        cond = None
         if val in ("rev", "new", "lrn"):
             if val == "rev":
                 n = 2
@@ -131,15 +132,16 @@ order by %s""" % (lim, sort)
                 n = 0
             else:
                 n = 1
-            self.lims['card'].append("type = %d" % n)
+            cond = "type = %d" % n
         elif val == "suspended":
-            self.lims['card'].append("queue = -1")
+            cond = "queue = -1"
         elif val == "due":
-            self.lims['card'].append("(queue = 2 and due <= %d)" %
-                                     self.deck.sched.today)
+            cond = "(queue = 2 and due <= %d)" % self.deck.sched.today
         elif val == "recent":
-            self.lims['card'].append(
-                "c.id in (select id from cards order by mod desc limit 100)")
+            cond = "c.id in (select id from cards order by mod desc limit 100)"
+        if neg:
+            cond = "not (%s)" % cond
+        self.lims['card'].append(cond)
 
     def _findText(self, val, neg, c):
         val = val.replace("*", "%")

@@ -58,6 +58,7 @@ def test_findCards():
     c.due = 0; c.queue = 2
     c.flush()
     assert deck.findCards("is:due") == [c.id]
+    assert len(deck.findCards("-is:due")) == 4
     c.queue = -1
     # ensure this card gets a later mod time
     import time; time.sleep(1)
