@@ -30,7 +30,6 @@ class Finder(object):
             return []
         (q, args) = self._whereClause()
         query = self._orderedSelect(q)
-        print query, args
         res = self.deck.db.list(query, **args)
         if self.deck.conf['sortBackwards']:
             res.reverse()
@@ -72,7 +71,7 @@ order by %s""" % (lim, sort)
             elif type == "cardDue":
                 sort = "c.due"
             elif type == "cardEase":
-                sort = "c.ease"
+                sort = "c.factor"
             elif type == "cardLapses":
                 sort = "c.lapses"
             else:
