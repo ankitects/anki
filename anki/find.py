@@ -22,14 +22,15 @@ class Finder(object):
     def __init__(self, deck):
         self.deck = deck
 
-    def findCards(self, query, sort=None):
+    def findCards(self, query):
         "Return a list of card ids for QUERY."
         self.query = query
         self._findLimits()
         if not self.lims['valid']:
             return []
         (q, args) = self._whereClause()
-        query = self._orderedSelect(sort, q)
+        query = self._orderedSelect(q)
+        print query, args
         res = self.deck.db.list(query, **args)
         if self.deck.conf['sortBackwards']:
             res.reverse()
@@ -47,7 +48,8 @@ class Finder(object):
             q = "1"
         return q, self.lims['args']
 
-    def _orderedSelect(self, type, lim):
+    def _orderedSelect(self, lim):
+        type = self.deck.conf['sortType']
         if not type:
             return "select id from cards c where " + lim
         elif type.startswith("fact"):
@@ -60,7 +62,7 @@ class Finder(object):
             else:
                 raise Exception()
             return """
-select c.id from cards c, facts f where %s and c.id=f.id
+select c.id from cards c, facts f where %s and c.fid=f.id
 order by %s""" % (lim, sort)
         elif type.startswith("card"):
             if type == "cardMod":

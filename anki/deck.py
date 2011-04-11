@@ -53,6 +53,7 @@ defaultConf = {
     'fontFamilies': [
         [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
     ],
+    'sortType': "factFld",
     'sortBackwards': False,
 }
 
@@ -633,9 +634,9 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query, sort=None):
+    def findCards(self, query):
         import anki.find
-        return anki.find.Finder(self).findCards(query, sort)
+        return anki.find.Finder(self).findCards(query)
 
     def findReplace(self, *args, **kwargs):
         import anki.find

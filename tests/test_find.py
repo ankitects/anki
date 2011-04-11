@@ -9,6 +9,7 @@ def test_findCards():
     f['Back'] = u'cat'
     f.tags.append(u"monkey")
     deck.addFact(f)
+    firstCardId = f.cards()[0].id
     f = deck.newFact()
     f['Front'] = u'goats are fun'
     f['Back'] = u'sheep'
@@ -24,6 +25,7 @@ def test_findCards():
     f['Back'] = u'foo bar'
     f.model().templates[1]['actv'] = True
     deck.addFact(f)
+    latestCardIds = [c.id for c in f.cards()]
     # tag searches
     assert not deck.findCards("tag:donkey")
     assert len(deck.findCards("tag:sheep")) == 1
@@ -79,14 +81,17 @@ def test_findCards():
     assert len(deck.findCards("-back:sheep")) == 3
     assert len(deck.findCards("front:")) == 5
     # ordering
-    assert deck.findCards("front:", sort="factCrt")[-1] == c.id
-    assert deck.findCards("", sort="factCrt")[-1] == c.id
-    assert deck.findCards("", sort="factFld")[0] == catCard.id
-    assert deck.findCards("", sort="factFld")[-1] == c.id
-    assert deck.findCards("", sort="cardMod")[-1] == c.id
-    assert not deck.findCards("", sort="cardMod")[0] == c.id
+    deck.conf['sortType'] = "factCrt"
+    assert deck.findCards("front:")[-1] in latestCardIds
+    assert deck.findCards("")[-1] in latestCardIds
+    deck.conf['sortType'] = "factFld"
+    assert deck.findCards("")[0] == catCard.id
+    assert deck.findCards("")[-1] in latestCardIds
+    deck.conf['sortType'] = "cardMod"
+    assert deck.findCards("")[-1] in latestCardIds
+    assert deck.findCards("")[0] == firstCardId
     deck.conf['sortBackwards'] = True
-    assert deck.findCards("", sort="cardMod")[0] == c.id
+    assert deck.findCards("")[0] in latestCardIds
     # model
     assert len(deck.findCards("model:basic")) == 5
     assert len(deck.findCards("-model:basic")) == 0
