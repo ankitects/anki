@@ -153,9 +153,11 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         return self.conf['sortf']
 
     def setSortIdx(self, idx):
-        assert idx > 0 and idx < len(self.fields)
+        assert idx >= 0 and idx < len(self.fields)
         self.conf['sortf'] = idx
+        self.deck.modSchema()
         self.deck.updateFieldCache(self.fids(), csum=False)
+        self.flush()
 
     def newField(self):
         return defaultField.copy()
