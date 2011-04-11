@@ -74,6 +74,8 @@ order by %s""" % (lim, sort)
                 sort = "c.factor"
             elif type == "cardLapses":
                 sort = "c.lapses"
+            elif type == "cardIvl":
+                sort = "c.ivl"
             else:
                 raise Exception()
             return "select c.id from cards c where %s order by %s" % (
