@@ -79,9 +79,6 @@
             <property name="text">
              <string/>
             </property>
-            <property name="placeholderText">
-             <string>Type here to search</string>
-            </property>
            </widget>
           </item>
           <item row="0" column="1">

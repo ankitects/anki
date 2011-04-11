@@ -18,6 +18,8 @@ from anki.db import *
 from anki.stats import CardStats
 from anki.hooks import runHook, addHook, removeHook
 
+# fixme: notice added tags?
+
 COLOUR_SUSPENDED1 = "#ffffcc"
 COLOUR_SUSPENDED2 = "#ffffaa"
 COLOUR_INACTIVE1 = "#ffcccc"
@@ -288,60 +290,30 @@ class Browser(QMainWindow):
         self.updateSortOrder()
         self.updateFont()
         self.form.searchEdit.setFocus()
-        self.drawTags()
         self.updateFilterLabel()
         self.show()
         self.form.searchEdit.setText("is:recent")
         self.form.searchEdit.selectAll()
-        self.updateSearch()
+        self.onSearch()
         # if self.parent.card:
         #     self.card = self.parent.card
         #self.updateSearch()
-
-    def setupTable(self):
-        self.model = DeckModel(self)
-        self.form.tableView.setSortingEnabled(False)
-        self.form.tableView.setShowGrid(False)
-        self.form.tableView.setModel(self.model)
-        self.form.tableView.selectionModel()
-        self.connect(self.form.tableView.selectionModel(),
-                     SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
-                     self.updateFilterLabel)
-        self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
 
     def setupToolbar(self):
         self.form.toolBar.setIconSize(QSize(self.mw.config['iconSize'],
                                               self.mw.config['iconSize']))
         self.form.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
 
-    def setupSearch(self):
-        self.filterTimer = None
-        self.connect(self.form.searchButton,
-                     SIGNAL("clicked()"),
-                     self.updateSearch)
-        self.connect(self.form.searchEdit,
-                     SIGNAL("returnPressed()"),
-                     self.updateSearch)
-        self.setTabOrder(self.form.searchEdit, self.form.tableView)
-
-    def setupSort(self):
-        self.form.sortBox.setMaxVisibleItems(30)
-        self.sortIndex = int(self.deck.conf.get("sortIdx", "0"))
-        self.drawSort()
-        self.connect(self.form.sortBox, SIGNAL("activated(int)"),
-                     self.sortChanged)
-        self.sortChanged(self.sortIndex, refresh=False)
-        self.connect(self.form.sortOrder, SIGNAL("clicked()"),
-                     self.reverseOrder)
-
     def setupHeaders(self):
+        vh = self.form.tableView.verticalHeader()
+        hh = self.form.tableView.horizontalHeader()
         if not sys.platform.startswith("win32"):
-            self.form.tableView.verticalHeader().hide()
-            self.form.tableView.horizontalHeader().show()
-        restoreHeader(self.form.tableView.horizontalHeader(), "editor")
+            vh.hide()
+            hh.show()
+        restoreHeader(hh, "editor")
         for i in range(2):
-            self.form.tableView.horizontalHeader().setResizeMode(i, QHeaderView.Stretch)
-        self.form.tableView.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
+            hh.setResizeMode(i, QHeaderView.Stretch)
+        hh.setResizeMode(2, QHeaderView.Interactive)
 
     def setupMenus(self):
         # actions
@@ -377,12 +349,6 @@ class Browser(QMainWindow):
         c(f.actionGuide, s, self.onHelp)
         runHook('browser.setupMenus', self)
 
-    def cardRow(self):
-        try:
-            return self.model.cards.index(self.card.id)
-        except:
-            return -1
-
     def updateFont(self):
         self.form.tableView.setFont(QFont(
             self.mw.config['editFontFamily'],
@@ -391,61 +357,138 @@ class Browser(QMainWindow):
             self.mw.config['editLineSize'])
         self.model.reset()
 
-    def drawTags(self):
-        return
-        self.form.tagList.setMaxVisibleItems(30)
-        self.form.tagList.view().setMinimumWidth(200)
-        self.form.tagList.setFixedWidth(170)
-        self.form.tagList.clear()
-        alltags = [None, "Marked", None, None, "Leech", None, None]
-        # system tags
-        self.form.tagList.addItem(_("Show All Cards"))
-        self.form.tagList.addItem(QIcon(":/icons/rating.png"),
-                                    _('Marked'))
-        self.form.tagList.addItem(QIcon(":/icons/media-playback-pause.png"),
-                                    _('Suspended'))
-        self.form.tagList.addItem(QIcon(":/icons/chronometer.png"),
-                                    _('Due'))
-        self.form.tagList.addItem(QIcon(":/icons/emblem-important.png"),
-                                    _('Leech'))
-        self.form.tagList.addItem(QIcon(":/icons/editclear.png"),
-                                    _('No fact tags'))
-        self.form.tagList.insertSeparator(
-            self.form.tagList.count())
-        # model and card templates
-        tplates = set()
-        for m in self.deck.models().values():
-            tplates.update([t['name'] for t in m.templates])
-        for (type, sql, icon) in (
-            ("models", "select name from models", "contents.png"),
-            ("cms", list(tplates), "Anki_Card.png")):
-            d = {}
-            tagss = self.deck.db.column0(sql)
-            for tags in tagss:
-                for tag in parseTags(tags):
-                    d[tag] = 1
-            sortedtags = sorted(d.keys())
-            alltags.extend(sortedtags)
-            icon = QIcon(":/icons/" + icon)
-            for t in sortedtags:
-                self.form.tagList.addItem(icon, t.replace("_", " "))
-            if sortedtags:
-                self.form.tagList.insertSeparator(
-                    self.form.tagList.count())
-                alltags.append(None)
-        # fact tags
-        alluser = sorted(self.deck.allTags())
-        for tag in alltags:
+    def closeEvent(self, evt):
+        saveSplitter(self.form.splitter, "editor1")
+        saveSplitter(self.form.splitter_2, "editor2")
+        saveSplitter(self.form.splitter_3, "editor3")
+        self.editor.saveNow()
+        self.editor.setFact(None)
+        saveGeom(self, "editor")
+        saveState(self, "editor")
+        saveHeader(self.form.tableView.horizontalHeader(), "editor")
+        self.hide()
+        aqt.dialogs.close("Browser")
+        self.teardownHooks()
+        evt.accept()
+
+    def keyPressEvent(self, evt):
+        "Show answer on RET or register answer."
+        if evt.key() in (Qt.Key_Escape,):
+            self.close()
+
+    # Searching
+    ######################################################################
+
+    def setupSearch(self):
+        self.filterTimer = None
+        self.connect(self.form.searchButton,
+                     SIGNAL("clicked()"),
+                     self.onSearch)
+        self.connect(self.form.searchEdit,
+                     SIGNAL("returnPressed()"),
+                     self.onSearch)
+        self.setTabOrder(self.form.searchEdit, self.form.tableView)
+
+    def reverseOrder(self):
+        self.deck.setVar("reverseOrder", not self.deck.getInt("reverseOrder"))
+        self.model.cards.reverse()
+        self.model.reset()
+        self.focusCard()
+        self.updateSortOrder()
+
+    def onSearch(self, force=True):
+        # fixme:
+        # if self.mw.inDbHandler:
+        #     return
+        self.model.searchStr = unicode(self.form.searchEdit.text())
+        self.model.showMatching(force)
+        self.updateFilterLabel()
+        self.filterTimer = None
+        if self.model.cards:
+            self.form.cardInfoGroup.show()
+            self.form.fieldsArea.show()
+        else:
+            self.form.cardInfoGroup.hide()
+            self.form.fieldsArea.hide()
+        if not self.focusCard():
+            if self.model.cards:
+                self.form.tableView.selectRow(0)
+        if not self.model.cards:
+            self.editor.setFact(None)
+
+    def updateFilterLabel(self):
+        selected = len(self.form.tableView.selectionModel().selectedRows())
+        self.setWindowTitle(ngettext("Browser (%(cur)d "
+                              "of %(tot)d card shown; %(sel)s)", "Browser (%(cur)d "
+                              "of %(tot)d cards shown; %(sel)s)", self.deck.cardCount) %
+                            {
+            "cur": len(self.model.cards),
+            "tot": self.deck.cardCount(),
+            "sel": ngettext("%d selected", "%d selected", selected) % selected
+            } + " - " + self.deck.name())
+
+    # Table view
+    ######################################################################
+
+    def setupTable(self):
+        self.model = DeckModel(self)
+        self.form.tableView.setSortingEnabled(False)
+        self.form.tableView.setShowGrid(False)
+        self.form.tableView.setModel(self.model)
+        self.form.tableView.selectionModel()
+        self.connect(self.form.tableView.selectionModel(),
+                     SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
+                     self.updateFilterLabel)
+        self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
+
+    def rowChanged(self, current, previous):
+        self.currentRow = current
+        self.card = self.model.getCard(current)
+        if not self.card:
+            self.editor.setFact(None, True)
+            return
+        fact = self.card.fact()
+        self.editor.setFact(fact)
+        self.editor.card = self.card
+        self.showCardInfo(self.card)
+        self.updateToggles()
+
+    def cardRow(self):
+        try:
+            return self.model.cards.index(self.card.id)
+        except:
+            return -1
+
+    def focusCard(self):
+        print "focus"
+        if self.card:
             try:
-                alluser.remove(tag)
+                self.card.id
             except:
-                pass
-        icon = QIcon(":/icons/Anki_Fact.png")
-        for t in alluser:
-            t = t.replace("_", " ")
-            self.form.tagList.addItem(icon, t)
-        alltags.extend(alluser)
-        self.alltags = alltags
+                return False
+            row = self.cardRow()
+            if row >= 0:
+                sm = self.form.tableView.selectionModel()
+                sm.clear()
+                self.form.tableView.selectRow(row)
+                self.form.tableView.scrollTo(
+                              self.model.index(row,0),
+                              self.form.tableView.PositionAtCenter)
+                return True
+        return False
+
+    # Sorting
+    ######################################################################
+
+    def setupSort(self):
+        self.form.sortBox.setMaxVisibleItems(30)
+        self.sortIndex = int(self.deck.conf.get("sortIdx", "0"))
+        self.drawSort()
+        self.connect(self.form.sortBox, SIGNAL("activated(int)"),
+                     self.sortChanged)
+        self.sortChanged(self.sortIndex, refresh=False)
+        self.connect(self.form.sortOrder, SIGNAL("clicked()"),
+                     self.reverseOrder)
 
     def drawSort(self):
         self.sortList = [
@@ -506,139 +549,7 @@ class Browser(QMainWindow):
         if refresh:
             self.model.showMatching()
             self.updateFilterLabel()
-            self.onEvent()
             self.focusCard()
-
-    def rebuildSortIndex(self, key):
-        if key not in (
-            "question", "answer", "created", "modified", "due", "interval",
-            "reps", "factor", "noCount", "firstAnswered"):
-            return
-        old = self.deck.db.scalar("select sql from sqlite_master where name = :k",
-                                 k="ix_cards_sort")
-        if old and key in old:
-            return
-        self.deck.startProgress(2)
-        self.deck.updateProgress(_("Building Index..."))
-        self.deck.db.statement("drop index if exists ix_cards_sort")
-        self.deck.updateProgress()
-        if key in ("question", "answer"):
-            key = key + " collate nocase"
-        self.deck.db.statement(
-            "create index ix_cards_sort on cards (%s)" % key)
-        self.deck.db.statement("analyze")
-        self.deck.finishProgress()
-
-    def tagChanged(self, idx):
-        if idx == 0:
-            filter = ""
-        elif idx == 1:
-            filter = "tag:marked"
-        elif idx == 2:
-            filter = "is:suspended"
-        elif idx == 3:
-            filter = "is:due"
-        elif idx == 4:
-            filter = "tag:leech"
-        elif idx == 5:
-            filter = "tag:none"
-        else:
-            filter = "tag:" + self.alltags[idx]
-        self.lastFilter = filter
-        self.form.searchEdit.setText(filter)
-        self.updateSearch()
-
-    def updateFilterLabel(self):
-        selected = len(self.form.tableView.selectionModel().selectedRows())
-        self.setWindowTitle(ngettext("Browser (%(cur)d "
-                              "of %(tot)d card shown; %(sel)s)", "Browser (%(cur)d "
-                              "of %(tot)d cards shown; %(sel)s)", self.deck.cardCount) %
-                            {
-            "cur": len(self.model.cards),
-            "tot": self.deck.cardCount(),
-            "sel": ngettext("%d selected", "%d selected", selected) % selected
-            } + " - " + self.deck.name())
-
-    def onEvent(self, type='field'):
-        if self.deck.undoName():
-            self.form.actionUndo.setText(_("Undo %s") %
-                                           self.deck.undoName())
-            self.form.actionUndo.setEnabled(True)
-        else:
-            self.form.actionUndo.setEnabled(False)
-        if type=="all":
-            self.updateAfterCardChange()
-        else:
-            # update list
-            # if self.currentRow and self.model.cards:
-            #     self.model.updateCard(self.currentRow)
-            if type == "tag":
-                self.drawTags()
-
-    def updateSearch(self, force=True):
-        # fixme:
-        # if self.mw.inDbHandler:
-        #     return
-        self.model.searchStr = unicode(self.form.searchEdit.text())
-        self.model.showMatching(force)
-        self.updateFilterLabel()
-        self.onEvent()
-        self.filterTimer = None
-        if self.model.cards:
-            self.form.cardInfoGroup.show()
-            self.form.fieldsArea.show()
-        else:
-            self.form.cardInfoGroup.hide()
-            self.form.fieldsArea.hide()
-        if not self.focusCard():
-            if self.model.cards:
-                self.form.tableView.selectRow(0)
-        if not self.model.cards:
-            self.editor.setFact(None)
-
-    def focusCard(self):
-        print "focus"
-        if self.card:
-            try:
-                self.card.id
-            except:
-                return False
-            row = self.cardRow()
-            if row >= 0:
-                sm = self.form.tableView.selectionModel()
-                sm.clear()
-                self.form.tableView.selectRow(row)
-                self.form.tableView.scrollTo(
-                              self.model.index(row,0),
-                              self.form.tableView.PositionAtCenter)
-                return True
-        return False
-
-    def onClose(self):
-        saveSplitter(self.form.splitter, "editor1")
-        saveSplitter(self.form.splitter_2, "editor2")
-        saveSplitter(self.form.splitter_3, "editor3")
-        self.editor.saveNow()
-        self.editor.setFact(None)
-        saveGeom(self, "editor")
-        saveState(self, "editor")
-        saveHeader(self.form.tableView.horizontalHeader(), "editor")
-        self.hide()
-        aqt.dialogs.close("Browser")
-        self.teardownHooks()
-        return True
-
-    def closeEvent(self, evt):
-        if self.onClose():
-            evt.accept()
-        else:
-            evt.ignore()
-
-    def keyPressEvent(self, evt):
-        "Show answer on RET or register answer."
-        if evt.key() in (Qt.Key_Escape,):
-            self.close()
-
 
     # Filter tree
     ######################################################################
@@ -680,7 +591,7 @@ class Browser(QMainWindow):
                     txt = ""
             txt = " ".join(items)
         self.form.searchEdit.setText(txt)
-        self.updateSearch()
+        self.onSearch()
 
     def _modelTree(self):
         root = QTreeWidgetItem([_("Models")])
@@ -747,24 +658,12 @@ class Browser(QMainWindow):
         self.editor = aqt.editor.Editor(self.mw,
                                         self.form.fieldsArea)
         self.editor.stealFocus = False
-        # fixme:
-        #self.editor.onChange = self.onEvent
         self.connect(self.form.tableView.selectionModel(),
                      SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
                      self.rowChanged)
 
-    def rowChanged(self, current, previous):
-        self.currentRow = current
-        self.card = self.model.getCard(current)
-        if not self.card:
-            self.editor.setFact(None, True)
-            return
-        fact = self.card.fact()
-        self.editor.setFact(fact)
-        self.editor.card = self.card
-        self.showCardInfo(self.card)
-        self.onEvent()
-        self.updateToggles()
+    # Card info
+    ######################################################################
 
     def setupCardInfo(self):
         self.card = None
@@ -799,7 +698,6 @@ where id in (%s)""" % ",".join([
         self.currentRow = self.form.tableView.currentIndex()
         self.rowChanged(self.currentRow, None)
         self.model.refresh()
-        self.drawTags()
         self.mw.reset()
 
     # Menu options
@@ -822,7 +720,7 @@ where id in (%s)""" % ",".join([
         self.deck.setUndoEnd(n)
         new = min(max(0, new), len(self.model.cards) - 1)
         self.form.tableView.selectRow(new)
-        self.updateSearch()
+        self.onSearch()
         self.updateAfterCardChange()
 
     def addTags(self, tags=None, label=None):
@@ -962,7 +860,7 @@ where id in %s""" % ids2str(sf))
         self.deck.flushMod()
         self.deck.finishProgress()
         self.deck.setUndoEnd(n)
-        self.updateSearch()
+        self.onSearch()
         self.updateAfterCardChange()
 
     def cram(self):
@@ -987,7 +885,7 @@ where id in %s""" % ids2str(sf))
             self.deck.setUndoStart(n)
             self.deck.changeModel(sf, *d.ret)
             self.deck.setUndoEnd(n)
-            self.updateSearch()
+            self.onSearch()
             self.updateAfterCardChange()
 
     # Edit: selection
@@ -1014,13 +912,6 @@ where id in %s""" % ids2str(sf))
         items = sm.selection()
         self.form.tableView.selectAll()
         sm.select(items, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
-
-    def reverseOrder(self):
-        self.deck.setVar("reverseOrder", not self.deck.getInt("reverseOrder"))
-        self.model.cards.reverse()
-        self.model.reset()
-        self.focusCard()
-        self.updateSortOrder()
 
     # Edit: undo
     ######################################################################
@@ -1105,7 +996,7 @@ where id in %s""" % ids2str(sf))
         self.deck.setUndoEnd(n)
         self.deck.finishProgress()
         self.mw.reset()
-        self.updateSearch()
+        self.onSearch()
         self.updateAfterCardChange()
         if changed is not None:
             ui.utils.showInfo(ngettext("%(a)d of %(b)d fact updated", "%(a)d of %(b)d facts updated", len(sf)) % {
@@ -1189,7 +1080,7 @@ select fm.id, fm.name from fieldmodels fm""")
 
     def dupeLinkClicked(self, link):
         self.form.searchEdit.setText(str(link.toString()))
-        self.updateSearch()
+        self.onSearch()
         self.onFact()
 
     # Jumping
