@@ -31,6 +31,7 @@ _html = """
 }
 .fname { font-size: 14px; vertical-align: middle; padding-right: 5px; }
 img { max-width: 150; max-height: 150; }
+body { margin: 5px; }
 </style><script>
 %s
 
@@ -429,6 +430,7 @@ class Editor(object):
     def setupTagsAndGroup(self):
         import aqt.tagedit
         g = QGroupBox(self.widget)
+        g.setFlat(True)
         tb = QGridLayout()
         tb.setSpacing(12)
         tb.setMargin(6)
@@ -441,11 +443,11 @@ class Editor(object):
         tb.addWidget(self.group, 0, 1)
         # tags
         l = QLabel(_("Tags"))
-        tb.addWidget(l, 1, 0)
+        tb.addWidget(l, 0, 2)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.connect(self.tags, SIGNAL("lostFocus"),
                           self.saveTagsAndGroup)
-        tb.addWidget(self.tags, 1, 1)
+        tb.addWidget(self.tags, 0, 3)
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
 

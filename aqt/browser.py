@@ -352,10 +352,10 @@ class Browser(QMainWindow):
         self.updateFilterLabel()
         self.filterTimer = None
         if self.model.cards:
-            #self.form.cardInfoGroup.show()
+            self.form.cardLabel.show()
             self.form.fieldsArea.show()
         else:
-            #self.form.cardInfoGroup.hide()
+            self.form.cardLabel.hide()
             self.form.fieldsArea.hide()
         if not self.focusCard():
             if self.model.cards:
