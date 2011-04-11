@@ -30,7 +30,10 @@ class Finder(object):
             return []
         (q, args) = self._whereClause()
         query = self._orderedSelect(sort, q)
-        return self.deck.db.list(query, **args)
+        res = self.deck.db.list(query, **args)
+        if self.deck.conf['sortBackwards']:
+            res.reverse()
+        return res
 
     def _whereClause(self):
         x = []

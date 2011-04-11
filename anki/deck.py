@@ -31,7 +31,7 @@ defaultQconf = {
     'timeLim': 600,
 }
 
-# scheduling and other options
+# other options
 defaultConf = {
     'currentModelId': None,
     'currentGroupId': 1,
@@ -52,7 +52,8 @@ defaultConf = {
     'latexPost': "\\end{document}",
     'fontFamilies': [
         [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
-    ]
+    ],
+    'sortBackwards': False,
 }
 
 # this is initialized by storage.Deck

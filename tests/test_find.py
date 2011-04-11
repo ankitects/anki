@@ -84,6 +84,9 @@ def test_findCards():
     assert deck.findCards("", sort="factFld")[0] == catCard.id
     assert deck.findCards("", sort="factFld")[-1] == c.id
     assert deck.findCards("", sort="cardMod")[-1] == c.id
+    assert not deck.findCards("", sort="cardMod")[0] == c.id
+    deck.conf['sortBackwards'] = True
+    assert deck.findCards("", sort="cardMod")[0] == c.id
     # model
     assert len(deck.findCards("model:basic")) == 5
     assert len(deck.findCards("-model:basic")) == 0
