@@ -31,21 +31,20 @@ COLOUR_MARKED2 = "#aaaaff"
 
 class DeckModel(QAbstractTableModel):
 
-    def __init__(self, parent):
+    def __init__(self, browser):
         QAbstractTableModel.__init__(self)
-        self.parent = parent
-        self.deck = parent.deck
-        self.filterTag = None
+        self.browser = browser
+        self.deck = browser.deck
         self.sortKey = None
-        # column title, display accessor, sort attr
-        self.columns = [(_("Question"), self.currentQuestion),
-                        (_("Answer"), self.currentAnswer),
-                        [_("Due"), self.thirdColumn],
-                        ]
-        self.searchStr = ""
-        self.lastSearch = ""
+        self.columns = ["question", "answer", "sortField", "cardDue", "cardEase"]
         self.cards = []
         self.cardObjs = {}
+
+    def getCard(self, index):
+        id = self.cards[index.row()]
+        if not id in self.cardObjs:
+            self.cardObjs[id] = self.deck.getCard(id)
+        return self.cardObjs[id]
 
     # Model interface
     ######################################################################
@@ -54,43 +53,40 @@ class DeckModel(QAbstractTableModel):
         return len(self.cards)
 
     def columnCount(self, index):
-        return 3
+        return len(self.columns)
 
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
         if role == Qt.FontRole:
             f = QFont()
-            f.setPixelSize(self.parent.mw.config['editFontSize'])
+            f.setPixelSize(self.browser.mw.config['editFontSize'])
             return QVariant(f)
-        if role == Qt.TextAlignmentRole and index.column() == 2:
-            return QVariant(Qt.AlignHCenter)
+        if role == Qt.TextAlignmentRole:
+            align = Qt.AlignVCenter
+            if index.column() > 1:
+                align |= Qt.AlignHCenter
+            return QVariant(align)
         elif role == Qt.DisplayRole or role == Qt.EditRole:
-            c = self.getCard(index)
-            s = self.columns[index.column()][1](index)
-            s = self.limitContent(s)
-            s = s.replace("<br>", u" ")
-            s = s.replace("<br />", u" ")
-            s = s.replace("\n", u" ")
-            s = re.sub("\[sound:[^]]+\]", "", s)
-            s = stripHTMLMedia(s)
-            s = s.strip()
-            return QVariant(s)
+            return QVariant(self.columnData(index))
         else:
             return QVariant()
-
-    def limitContent(self, txt):
-        if "<c>" in txt:
-            matches = re.findall("(?s)<c>(.*?)</c>", txt)
-            return " ".join(matches)
-        else:
-            return txt
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Vertical:
             return QVariant()
         elif role == Qt.DisplayRole:
-            return QVariant(self.columns[section][0])
+            type = self.columnType(section)
+            if type == "question":
+                txt = _("Question")
+            elif type == "answer":
+                txt = _("Answer")
+            else:
+                for stype, name in self.browser.sortTypes:
+                    if type == stype:
+                        txt = name
+                        break
+            return QVariant(txt)
         elif role == Qt.FontRole:
             f = QFont()
             f.setPixelSize(10)
@@ -106,128 +102,91 @@ class DeckModel(QAbstractTableModel):
     ######################################################################
 
     def showMatching(self, force=True):
-        self.parent.mw.progress.start()
+        self.browser.mw.progress.start()
         t = time.time()
         self.cards = self.deck.findCards(self.searchStr.strip())
         print "fetch cards in %dms" % ((time.time() - t)*1000)
-        self.parent.mw.progress.finish()
-        # if self.deck.getInt('reverseOrder'):
-        #     self.cards.reverse()
+        self.browser.mw.progress.finish()
         self.reset()
 
     def refresh(self):
         self.cardObjs = {}
         self.emit(SIGNAL("layoutChanged()"))
 
-    # Tools
+    # Column data
     ######################################################################
 
-    def getCard(self, index):
-        id = self.cards[index.row()]
-        if not id in self.cardObjs:
-            self.cardObjs[id] = self.deck.getCard(id)
-        return self.cardObjs[id]
+    def columnType(self, column):
+        type = self.columns[column]
+        if type == "sortField":
+            type = self.deck.conf['sortType']
+            if type == "factFld":
+                type = "cardDue"
+        return type
 
-    def currentQuestion(self, index):
-        return self.getCard(index).q()
-
-    def currentAnswer(self, index):
-        return self.getCard(index).a()
-
-    def nextDue(self, index):
+    def columnData(self, index):
+        row = index.row()
+        col = index.column()
+        type = self.columnType(col)
         c = self.getCard(index)
+        if type == "question":
+            return self.formatQA(c.q())
+        elif type == "answer":
+            return self.formatQA(c.a())
+        elif type == "factFld" or type == "cardDue":
+            return self.nextDue(c, index)
+        elif type == "factCrt":
+            return time.strftime("%Y-%m-%d", time.localtime(c.fact().crt))
+        elif type == "factMod":
+            return time.strftime("%Y-%m-%d", time.localtime(c.fact().mod))
+        elif type == "cardMod":
+            return time.strftime("%Y-%m-%d", time.localtime(c.mod))
+        elif type == "cardReps":
+            return str(c.reps)
+        elif type == "cardLapses":
+            return str(c.lapses)
+        elif type == "cardIvl":
+            return fmtTimeSpan(c.ivl*86400)
+        elif type == "cardEase":
+            return "%d%%" % (c.factor/10)
+
+    # def intervalColumn(self, index):
+    #     return fmtTimeSpan(
+    #         self.cards[index.row()][CARD_INTERVAL]*86400)
+
+    # def limitContent(self, txt):
+    #     if "<c>" in txt:
+    #         matches = re.findall("(?s)<c>(.*?)</c>", txt)
+    #         return " ".join(matches)
+    #     else:
+    #         return txt
+
+    def formatQA(self, txt):
+        #s = self.limitContent(s)
+        s = txt.replace("<br>", u" ")
+        s = s.replace("<br />", u" ")
+        s = s.replace("\n", u" ")
+        s = re.sub("\[sound:[^]]+\]", "", s)
+        s = stripHTMLMedia(s)
+        s = s.strip()
+        return s
+
+    def nextDue(self, c, index):
         if c.type == 0:
             return _("(new card)")
         elif c.type == 1:
-            diff = c.due - time.time()
+            date = c.due
         elif c.type == 2:
-            diff = (c.due - self.deck.sched.today)*86400
-        if diff <= 0:
-            return _("%s ago") % fmtTimeSpan(abs(diff), pad=0)
-        else:
-            return _("in %s") % fmtTimeSpan(diff, pad=0)
-
-    def thirdColumn(self, index):
-        self.sortKey = "aoeu"
-        if self.sortKey == "created":
-            return self.createdColumn(index)
-        elif self.sortKey == "modified":
-            return self.modifiedColumn(index)
-        elif self.sortKey == "interval":
-            return self.intervalColumn(index)
-        elif self.sortKey == "reps":
-            return self.repsColumn(index)
-        elif self.sortKey == "factor":
-            return self.easeColumn(index)
-        elif self.sortKey == "noCount":
-            return self.noColumn(index)
-        elif self.sortKey == "fact":
-            return self.factCreatedColumn(index)
-        elif self.sortKey == "firstAnswered":
-            return self.firstAnsweredColumn(index)
-        else:
-            return self.nextDue(index)
-
-    def onSortChanged(self):
-        if self.sortKey == "created":
-            k = _("Created")
-        elif self.sortKey == "modified":
-            k = _("Modified")
-        elif self.sortKey == "interval":
-            k = _("Interval")
-        elif self.sortKey == "reps":
-            k = _("Reps")
-        elif self.sortKey == "factor":
-            k = _("Ease")
-        elif self.sortKey == "noCount":
-            k = _("Lapses")
-        elif self.sortKey == "firstAnswered":
-            k = _("First Answered")
-        elif self.sortKey == "fact":
-            k = _("Fact Created")
-        else:
-            k = _("Due")
-        self.columns[-1][0] = k
-
-    def createdColumn(self, index):
-        return time.strftime("%Y-%m-%d", time.localtime(
-            self.cards[index.row()][CARD_CREATED]))
-
-    def factCreatedColumn(self, index):
-        return time.strftime("%Y-%m-%d", time.localtime(
-            self.cards[index.row()][CARD_FACTCREATED]))
-
-    def modifiedColumn(self, index):
-        return time.strftime("%Y-%m-%d", time.localtime(
-            self.cards[index.row()][CARD_MODIFIED]))
-
-    def intervalColumn(self, index):
-        return fmtTimeSpan(
-            self.cards[index.row()][CARD_INTERVAL]*86400)
-
-    def repsColumn(self, index):
-        return str(self.cards[index.row()][CARD_REPS])
-
-    def easeColumn(self, index):
-        return "%0.2f" % self.cards[index.row()][CARD_EASE]
-
-    def noColumn(self, index):
-        return "%d" % self.cards[index.row()][CARD_NO]
-
-    def firstAnsweredColumn(self, index):
-        firstAnswered = self.cards[index.row()][CARD_FIRSTANSWERED]
-        if firstAnswered == 0:
-            return _("(new card)")
-        else:
-            return time.strftime("%Y-%m-%d", time.localtime(firstAnswered))
+            date = time.time() + ((c.due - self.deck.sched.today)*86400)
+        return time.strftime("%Y-%m-%d", time.localtime(date))
 
 # Line painter
 ######################################################################
 
 class StatusDelegate(QItemDelegate):
 
-    def __init__(self, parent, model):
-        QItemDelegate.__init__(self, parent)
+    def __init__(self, browser, model):
+        QItemDelegate.__init__(self, browser)
         self.model = model
 
     def paint(self, painter, option, index):
@@ -276,11 +235,11 @@ class Browser(QMainWindow):
         self.form.splitter.setChildrenCollapsible(False)
         self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter_3.setChildrenCollapsible(False)
+        self.setupSort()
         self.setupToolbar()
         self.setupTable()
         self.setupMenus()
         self.setupSearch()
-        self.setupSort()
         self.setupTree()
         self.setupHeaders()
         self.setupHooks()
@@ -474,16 +433,20 @@ class Browser(QMainWindow):
 
     def setupSort(self):
         self.sortTypes = [
-            "factFld",
-            "factCrt",
-            "factMod",
-            "cardMod",
-            "cardDue",
-            "cardEase",
-            "cardReps",
-            "cardLapses",
+            ('factFld', _("Fields")),
+            ('factCrt', _("Creation date")),
+            ('factMod', _("Edit date")),
+            ('cardMod', _("Review date")),
+            ('cardDue', _("Due date")),
+            ('cardIvl', _("Card interval")),
+            ('cardEase', _("Ease factor")),
+            ('cardReps', _("Review count")),
+            ('cardLapses', _("Lapse count")),
         ]
-        idx = self.sortTypes.index(self.deck.conf['sortType'])
+        for c, (type, name) in enumerate(self.sortTypes):
+            self.form.sortBox.addItem(name)
+            if type == self.deck.conf['sortType']:
+                idx = c
         self.form.sortBox.setCurrentIndex(idx)
         self.connect(self.form.sortBox, SIGNAL("activated(int)"),
                      self.sortChanged)
@@ -505,11 +468,10 @@ class Browser(QMainWindow):
             self.form.sortOrder.setIcon(QIcon(":/icons/view-sort-ascending.png"))
 
     def sortChanged(self, idx, refresh=True):
-        self.sortIndex = idx
-        self.deck.conf['sortType'] = self.sortTypes[idx]
-        self.model.onSortChanged()
+        self.deck.conf['sortType'] = self.sortTypes[idx][0]
         if refresh:
             self.model.showMatching()
+            # fixme: we do this in various locations
             self.updateFilterLabel()
             self.focusCard()
 
