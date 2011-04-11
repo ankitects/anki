@@ -262,17 +262,6 @@ class Browser(QMainWindow):
                                               self.mw.config['iconSize']))
         self.form.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
 
-    def setupHeaders(self):
-        vh = self.form.tableView.verticalHeader()
-        hh = self.form.tableView.horizontalHeader()
-        if not sys.platform.startswith("win32"):
-            vh.hide()
-            hh.show()
-        restoreHeader(hh, "editor")
-        for i in range(2):
-            hh.setResizeMode(i, QHeaderView.Stretch)
-        hh.setResizeMode(2, QHeaderView.Interactive)
-
     def setupMenus(self):
         # actions
         c = self.connect; f = self.form; s = SIGNAL("triggered()")
@@ -427,6 +416,44 @@ class Browser(QMainWindow):
                               self.form.tableView.PositionAtCenter)
                 return True
         return False
+
+    # Headers
+    ######################################################################
+
+    def setupHeaders(self):
+        vh = self.form.tableView.verticalHeader()
+        hh = self.form.tableView.horizontalHeader()
+        if not sys.platform.startswith("win32"):
+            vh.hide()
+            hh.show()
+        restoreHeader(hh, "editor")
+        for i in range(2):
+            hh.setResizeMode(i, QHeaderView.Stretch)
+        hh.setResizeMode(2, QHeaderView.Interactive)
+        hh.setContextMenuPolicy(Qt.CustomContextMenu)
+        hh.connect(hh, SIGNAL("customContextMenuRequested(QPoint)"),
+                   self.onHeaderContext)
+
+    def onHeaderContext(self, pos):
+        gpos = self.form.tableView.mapToGlobal(pos)
+        m = QMenu()
+        for type, name in [("question", _("Question")),
+                           ("answer", _("Answer")),
+                           ("sortField", _("Current Sort Field"))
+                       ] + self.sortTypes:
+            a = m.addAction(name)
+            a.setCheckable(True)
+            a.setChecked(type in self.model.columns)
+            a.connect(a, SIGNAL("toggled(bool)"),
+                      lambda b, t=type: self.toggleField(t))
+        m.exec_(gpos)
+
+    def toggleField(self, type):
+        if type in self.model.columns:
+            self.model.columns.remove(type)
+        else:
+            self.model.columns.append(type)
+        self.model.reset()
 
     # Sorting
     ######################################################################
