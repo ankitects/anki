@@ -11,6 +11,7 @@ from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
 from anki.media import MediaRegistry
 from anki.consts import *
+from anki.errors import AnkiError
 
 import anki.latex # sets up hook
 import anki.cards, anki.facts, anki.models, anki.template, anki.cram, \
@@ -158,16 +159,18 @@ qconf=?, conf=?, data=?""",
         self.load()
         self.lock()
 
-    def modSchema(self):
+    def modSchema(self, check=True):
+        "Mark schema modified. Call this first so user can abort if necessary."
         if not self.schemaChanged():
+            if check and not runFilter("modSchema", True):
+                raise AnkiError("abortSchemaMod")
             # next sync will be full
             self.emptyTrash()
-            runHook("modSchema")
         self.scm = intTime()
 
     def schemaChanged(self):
         "True if schema changed since last sync, or syncing off."
-        return self.scm > self.lastSync
+        return not self.syncingEnabled() or self.scm > self.lastSync
 
     def setDirty(self):
         self.dty = True
@@ -776,10 +779,10 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
 
     def fixIntegrity(self):
         "Fix possible problems and rebuild caches."
+        self.modSchema(check=False)
         problems = []
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
-        self.modSchema()
         # tags
         self.db.execute("delete from tags")
         self.updateFactTags()
