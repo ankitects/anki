@@ -164,7 +164,7 @@ title="%s">%s</button>''' % (
         self.form.centralwidget.setLayout(self.mainLayout)
         addHook("undoEnd", self.maybeEnableUndo)
         if self.config['mainWindowState']:
-            restoreGeom(self, "mainWindow", 21)
+            restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         else:
             self.resize(500, 400)

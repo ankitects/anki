@@ -36,7 +36,8 @@ class DeckModel(QAbstractTableModel):
         self.browser = browser
         self.deck = browser.deck
         self.sortKey = None
-        self.columns = ["question", "answer", "sortField", "cardDue", "cardEase"]
+        self.activeCols = self.deck.conf.get(
+            "activeCols", ["factFld", "answer", "cardDue", "cardEase"])
         self.cards = []
         self.cardObjs = {}
 
@@ -53,7 +54,7 @@ class DeckModel(QAbstractTableModel):
         return len(self.cards)
 
     def columnCount(self, index):
-        return len(self.columns)
+        return len(self.activeCols)
 
     def data(self, index, role):
         if not index.isValid():
@@ -77,15 +78,10 @@ class DeckModel(QAbstractTableModel):
             return QVariant()
         elif role == Qt.DisplayRole:
             type = self.columnType(section)
-            if type == "question":
-                txt = _("Question")
-            elif type == "answer":
-                txt = _("Answer")
-            else:
-                for stype, name in self.browser.sortTypes:
-                    if type == stype:
-                        txt = name
-                        break
+            for stype, name in self.browser.columns:
+                if type == stype:
+                    txt = name
+                    break
             return QVariant(txt)
         elif role == Qt.FontRole:
             f = QFont()
@@ -117,11 +113,7 @@ class DeckModel(QAbstractTableModel):
     ######################################################################
 
     def columnType(self, column):
-        type = self.columns[column]
-        if type == "sortField":
-            type = self.deck.conf['sortType']
-            if type == "factFld":
-                type = "cardDue"
+        type = self.activeCols[column]
         return type
 
     def columnData(self, index):
@@ -133,7 +125,10 @@ class DeckModel(QAbstractTableModel):
             return self.formatQA(c.q())
         elif type == "answer":
             return self.formatQA(c.a())
-        elif type == "factFld" or type == "cardDue":
+        elif type == "factFld":
+            f = c.fact()
+            return self.formatQA(f._fields[f.model().sortIdx()])
+        elif type == "cardDue":
             return self.nextDue(c, index)
         elif type == "factCrt":
             return time.strftime("%Y-%m-%d", time.localtime(c.fact().crt))
@@ -233,7 +228,7 @@ class Browser(QMainWindow):
         restoreSplitter(self.form.splitter_3, "editor3")
         self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter_3.setChildrenCollapsible(False)
-        self.setupSort()
+        self.setupColumns()
         self.setupToolbar()
         self.setupTable()
         self.setupMenus()
@@ -243,7 +238,6 @@ class Browser(QMainWindow):
         self.setupHooks()
         self.setupEditor()
         self.setupCardInfo()
-        self.updateSortIcon()
         self.updateFont()
         self.form.searchEdit.setFocus()
         self.updateFilterLabel()
@@ -310,6 +304,7 @@ class Browser(QMainWindow):
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
+        self.deck.conf['activeCols'] = self.model.activeCols
         self.hide()
         aqt.dialogs.close("Browser")
         self.teardownHooks()
@@ -319,6 +314,21 @@ class Browser(QMainWindow):
         "Show answer on RET or register answer."
         if evt.key() in (Qt.Key_Escape,):
             self.close()
+
+    def setupColumns(self):
+        self.columns = [
+            ('question', _("Question")),
+            ('answer', _("Answer")),
+            ('factFld', _("Sort Field")),
+            ('factCrt', _("Creation date")),
+            ('factMod', _("Edit date")),
+            ('cardMod', _("Review date")),
+            ('cardDue', _("Due date")),
+            ('cardIvl', _("Card interval")),
+            ('cardEase', _("Ease factor")),
+            ('cardReps', _("Review count")),
+            ('cardLapses', _("Lapse count")),
+        ]
 
     # Searching
     ######################################################################
@@ -369,7 +379,7 @@ class Browser(QMainWindow):
 
     def setupTable(self):
         self.model = DeckModel(self)
-        self.form.tableView.setSortingEnabled(False)
+        self.form.tableView.setSortingEnabled(True)
         self.form.tableView.setShowGrid(False)
         self.form.tableView.setModel(self.model)
         self.form.tableView.selectionModel()
@@ -397,7 +407,6 @@ class Browser(QMainWindow):
             return -1
 
     def focusCard(self):
-        print "focus"
         if self.card:
             try:
                 self.card.id
@@ -414,7 +423,7 @@ class Browser(QMainWindow):
                 return True
         return False
 
-    # Headers
+    # Headers & sorting
     ######################################################################
 
     def setupHeaders(self):
@@ -424,80 +433,76 @@ class Browser(QMainWindow):
             vh.hide()
             hh.show()
         restoreHeader(hh, "editor")
-        for i in range(2):
-            hh.setResizeMode(i, QHeaderView.Stretch)
-        hh.setResizeMode(2, QHeaderView.Interactive)
+        hh.setHighlightSections(False)
+        hh.setMinimumSectionSize(50)
+        self.setColumnSizes()
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
         hh.connect(hh, SIGNAL("customContextMenuRequested(QPoint)"),
                    self.onHeaderContext)
+        hh.connect(hh, SIGNAL("sortIndicatorChanged(int, Qt::SortOrder)"),
+                   self.onSortChanged)
+        self.setSortIndicator()
+
+    def onSortChanged(self, idx, ord):
+        type = self.model.activeCols[idx]
+        if type in ("question", "answer"):
+            type = "factFld"
+        if self.deck.conf['sortType'] != type:
+            self.deck.conf['sortType'] = type
+            # default to descending for non-text fields
+            if type not in ("question", "answer", "factFld"):
+                ord = not ord
+            self.deck.conf['sortBackwards'] = ord
+            self.model.showMatching()
+            # fixme: we do this in various locations
+            self.updateFilterLabel()
+            self.focusCard()
+        else:
+            self.deck.conf['sortBackwards'] = ord
+            self.model.cards.reverse()
+        self.setSortIndicator()
+        self.model.reset()
+
+    def setSortIndicator(self):
+        hh = self.form.tableView.horizontalHeader()
+        type = self.deck.conf['sortType']
+        if type not in self.model.activeCols:
+            hh.setSortIndicatorShown(False)
+            return
+        idx = self.model.activeCols.index(type)
+        if self.deck.conf['sortBackwards']:
+            ord = Qt.DescendingOrder
+        else:
+            ord = Qt.AscendingOrder
+        hh.setSortIndicator(idx, ord)
+        hh.setSortIndicatorShown(True)
 
     def onHeaderContext(self, pos):
         gpos = self.form.tableView.mapToGlobal(pos)
         m = QMenu()
-        for type, name in [("question", _("Question")),
-                           ("answer", _("Answer")),
-                           ("sortField", _("Current Sort Field"))
-                       ] + self.sortTypes:
+        for type, name in self.columns:
             a = m.addAction(name)
             a.setCheckable(True)
-            a.setChecked(type in self.model.columns)
+            a.setChecked(type in self.model.activeCols)
             a.connect(a, SIGNAL("toggled(bool)"),
                       lambda b, t=type: self.toggleField(t))
         m.exec_(gpos)
 
     def toggleField(self, type):
-        if type in self.model.columns:
-            self.model.columns.remove(type)
+        if type in self.model.activeCols:
+            self.model.activeCols.remove(type)
         else:
-            self.model.columns.append(type)
+            self.model.activeCols.append(type)
+        self.setColumnSizes()
         self.model.reset()
 
-    # Sorting
-    ######################################################################
-
-    def setupSort(self):
-        self.sortTypes = [
-            ('factFld', _("Fields")),
-            ('factCrt', _("Creation date")),
-            ('factMod', _("Edit date")),
-            ('cardMod', _("Review date")),
-            ('cardDue', _("Due date")),
-            ('cardIvl', _("Card interval")),
-            ('cardEase', _("Ease factor")),
-            ('cardReps', _("Review count")),
-            ('cardLapses', _("Lapse count")),
-        ]
-        for c, (type, name) in enumerate(self.sortTypes):
-            self.form.sortBox.addItem(name)
-            if type == self.deck.conf['sortType']:
-                idx = c
-        self.form.sortBox.setCurrentIndex(idx)
-        self.connect(self.form.sortBox, SIGNAL("activated(int)"),
-                     self.sortChanged)
-        self.sortChanged(idx, refresh=False)
-        self.connect(self.form.sortOrder, SIGNAL("clicked()"),
-                     self.toggleSortOrder)
-
-    def toggleSortOrder(self):
-        self.deck.conf['sortBackwards'] = not self.deck.conf['sortBackwards']
-        self.model.cards.reverse()
-        self.model.reset()
-        self.focusCard()
-        self.updateSortIcon()
-
-    def updateSortIcon(self):
-        if self.deck.conf['sortBackwards']:
-            self.form.sortOrder.setIcon(QIcon(":/icons/view-sort-descending.png"))
-        else:
-            self.form.sortOrder.setIcon(QIcon(":/icons/view-sort-ascending.png"))
-
-    def sortChanged(self, idx, refresh=True):
-        self.deck.conf['sortType'] = self.sortTypes[idx][0]
-        if refresh:
-            self.model.showMatching()
-            # fixme: we do this in various locations
-            self.updateFilterLabel()
-            self.focusCard()
+    def setColumnSizes(self):
+        hh = self.form.tableView.horizontalHeader()
+        for c, i in enumerate(self.model.activeCols):
+            if i in ("question", "answer", "factFld"):
+                hh.setResizeMode(c, QHeaderView.Stretch)
+            else:
+                hh.setResizeMode(c, QHeaderView.Interactive)
 
     # Filter tree
     ######################################################################

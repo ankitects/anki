@@ -234,13 +234,13 @@ def restoreGeom(widget, key, offset=None):
     key += "Geom"
     if aqt.mw.config.get(key):
         widget.restoreGeometry(aqt.mw.config[key])
-        # if sys.platform.startswith("darwin") and offset:
-        #     from aqt.main import QtConfig as q
-        #     minor = (q.qt_version & 0x00ff00) >> 8
-        #     if minor > 6:
-        #         # bug in osx toolkit
-        #         s = widget.size()
-        #         widget.resize(s.width(), s.height()+offset*2)
+        if sys.platform.startswith("darwin") and offset:
+            from aqt.main import QtConfig as q
+            minor = (q.qt_version & 0x00ff00) >> 8
+            if minor > 6:
+                # bug in osx toolkit
+                s = widget.size()
+                widget.resize(s.width(), s.height()+offset*2)
 
 def saveState(widget, key):
     key += "State"
