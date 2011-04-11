@@ -15,7 +15,6 @@ from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles
 from anki.errors import *
 from anki.db import *
-from anki.stats import CardStats
 from anki.hooks import runHook, addHook, removeHook
 
 # fixme: notice added tags?
@@ -109,7 +108,7 @@ class DeckModel(QAbstractTableModel):
     def showMatching(self, force=True):
         self.parent.mw.progress.start()
         t = time.time()
-        self.cards = self.deck.findCards(self.searchStr.strip(), "factFld")
+        self.cards = self.deck.findCards(self.searchStr.strip())
         print "fetch cards in %dms" % ((time.time() - t)*1000)
         self.parent.mw.progress.finish()
         # if self.deck.getInt('reverseOrder'):
@@ -169,7 +168,7 @@ class DeckModel(QAbstractTableModel):
         else:
             return self.nextDue(index)
 
-    def updateHeader(self):
+    def onSortChanged(self):
         if self.sortKey == "created":
             k = _("Created")
         elif self.sortKey == "modified":
@@ -287,7 +286,7 @@ class Browser(QMainWindow):
         self.setupHooks()
         self.setupEditor()
         self.setupCardInfo()
-        self.updateSortOrder()
+        self.updateSortIcon()
         self.updateFont()
         self.form.searchEdit.setFocus()
         self.updateFilterLabel()
@@ -389,13 +388,6 @@ class Browser(QMainWindow):
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
 
-    def reverseOrder(self):
-        self.deck.setVar("reverseOrder", not self.deck.getInt("reverseOrder"))
-        self.model.cards.reverse()
-        self.model.reset()
-        self.focusCard()
-        self.updateSortOrder()
-
     def onSearch(self, force=True):
         # fixme:
         # if self.mw.inDbHandler:
@@ -481,71 +473,41 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSort(self):
-        self.form.sortBox.setMaxVisibleItems(30)
-        self.sortIndex = int(self.deck.conf.get("sortIdx", "0"))
-        self.drawSort()
+        self.sortTypes = [
+            "factFld",
+            "factCrt",
+            "factMod",
+            "cardMod",
+            "cardDue",
+            "cardEase",
+            "cardReps",
+            "cardLapses",
+        ]
+        idx = self.sortTypes.index(self.deck.conf['sortType'])
+        self.form.sortBox.setCurrentIndex(idx)
         self.connect(self.form.sortBox, SIGNAL("activated(int)"),
                      self.sortChanged)
-        self.sortChanged(self.sortIndex, refresh=False)
+        self.sortChanged(idx, refresh=False)
         self.connect(self.form.sortOrder, SIGNAL("clicked()"),
-                     self.reverseOrder)
+                     self.toggleSortOrder)
 
-    def drawSort(self):
-        self.sortList = [
-            _("Question"),
-            _("Answer"),
-            _("Created"),
-            _("Modified"),
-            _("Due"),
-            _("Interval"),
-            _("Reps"),
-            _("Ease"),
-            _("Fact Created"),
-            _("Lapses"),
-            _("First Review"),
-            ]
-        self.form.sortBox.clear()
-        self.form.sortBox.addItems(QStringList(self.sortList))
-        if self.sortIndex >= len(self.sortList):
-            self.sortIndex = 0
-        self.form.sortBox.setCurrentIndex(self.sortIndex)
+    def toggleSortOrder(self):
+        self.deck.conf['sortBackwards'] = not self.deck.conf['sortBackwards']
+        self.model.cards.reverse()
+        self.model.reset()
+        self.focusCard()
+        self.updateSortIcon()
 
-    def updateSortOrder(self):
-        if int(self.deck.conf.get("revOrder", "0")):
+    def updateSortIcon(self):
+        if self.deck.conf['sortBackwards']:
             self.form.sortOrder.setIcon(QIcon(":/icons/view-sort-descending.png"))
         else:
             self.form.sortOrder.setIcon(QIcon(":/icons/view-sort-ascending.png"))
 
     def sortChanged(self, idx, refresh=True):
-        if idx == 0:
-            self.sortKey = "question"
-        elif idx == 1:
-            self.sortKey = "answer"
-        elif idx == 2:
-            self.sortKey = "created"
-        elif idx == 3:
-            self.sortKey = "modified"
-        elif idx == 4:
-            self.sortKey = "combinedDue"
-        elif idx == 5:
-            self.sortKey = "interval"
-        elif idx == 6:
-            self.sortKey = "reps"
-        elif idx == 7:
-            self.sortKey = "factor"
-        elif idx == 8:
-            self.sortKey = "fact"
-        elif idx == 9:
-            self.sortKey = "noCount"
-        elif idx == 10:
-            self.sortKey = "firstAnswered"
-        else:
-            self.sortKey = ("field", self.sortFields[idx-11])
-        #self.rebuildSortIndex(self.sortKey)
         self.sortIndex = idx
-        self.deck.conf['sortIdx'] = idx
-        self.model.sortKey = self.sortKey
-        self.model.updateHeader()
+        self.deck.conf['sortType'] = self.sortTypes[idx]
+        self.model.onSortChanged()
         if refresh:
             self.model.showMatching()
             self.updateFilterLabel()
@@ -666,13 +628,37 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupCardInfo(self):
+        from anki.stats import CardStats
         self.card = None
         self.cardStats = CardStats(self.deck, None)
+        self.connect(self.form.cardLabel,
+                     SIGNAL("linkActivated(const QString&)"),
+                     self.onChangeSortField)
 
     def showCardInfo(self, card):
         self.cardStats.card = self.card
-        self.form.cardLabel.setText(
-            self.cardStats.report())
+        rep = self.cardStats.report()
+        rep = "<style>table * { font-size: 12px; }</style>" + rep
+        m = self.card.model()
+        sortf = m.fields[m.sortIdx()]['name']
+        rep = rep.replace(
+            "</table>",
+            "<tr><td><b>%s</b></td><td>%s</td></tr></table>" % (
+                _("Sort Field"),
+                "<a href=foo>%s</a>" % sortf))
+        self.form.cardLabel.setText(rep)
+
+    def onChangeSortField(self):
+        from aqt.utils import chooseList
+        m = self.card.model()
+        fields = [f['name'] for f in m.fields]
+        idx = chooseList(_("Choose field to sort this model by:"),
+                         fields, m.sortIdx())
+        if idx != m.sortIdx():
+            self.mw.progress.start()
+            m.setSortIdx(idx)
+            self.mw.progress.finish()
+            self.onSearch()
 
     # Menu helpers
     ######################################################################

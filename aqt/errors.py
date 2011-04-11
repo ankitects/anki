@@ -57,6 +57,9 @@ into a bug report:<br>
         pluginText = _("""\
 An error occurred in a plugin. Please contact the plugin author.<br>
 Please do not file a bug report with Anki.<br>""")
+        self.mw.progress.clear()
+        if "abortSchemaMod" in error:
+            return
         if "plugin" in error:
             txt = pluginText
         else:
@@ -64,4 +67,3 @@ Please do not file a bug report with Anki.<br>""")
         # show dialog
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
         showText(txt, type="html")
-        self.mw.progress.clear()

@@ -75,6 +75,7 @@ class AnkiQt(QMainWindow):
         self.setupVersion()
         self.setupAutoUpdate()
         self.setupCardStats()
+        self.setupSchema()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -894,6 +895,17 @@ Please choose a new deck name:"""))
             playFromText(self.currentCard.question)
         if self.state != "showQuestion":
             playFromText(self.currentCard.answer)
+
+    # Schema modifications
+    ##########################################################################
+
+    def setupSchema(self):
+        addHook("modSchema", self.onSchemaMod)
+
+    def onSchemaMod(self, arg):
+        return askUser(_("""\
+This operation can't be merged when syncing, so the next \
+sync will overwrite any remote changes. Continue?"""))
 
     # Media locations
     ##########################################################################

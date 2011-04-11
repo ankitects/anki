@@ -119,7 +119,48 @@
            </widget>
           </item>
           <item row="0" column="4">
-           <widget class="QComboBox" name="sortBox"/>
+           <widget class="QComboBox" name="sortBox">
+            <item>
+             <property name="text">
+              <string>Fields</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Creation date</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Edit date</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Review date</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Due date</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Ease factor</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Review count</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Lapse count</string>
+             </property>
+            </item>
+           </widget>
           </item>
          </layout>
         </item>
@@ -217,6 +258,9 @@
                </property>
                <property name="alignment">
                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
                </property>
               </widget>
              </item>

@@ -170,6 +170,25 @@ def getOnlyText(*args, **kwargs):
     else:
         return u""
 
+# fixme: these utilities could be combined into a single base class
+def chooseList(prompt, choices, startrow=0, parent=None):
+    if not parent:
+        parent = aqt.mw.app.activeWindow()
+    d = QDialog(parent)
+    l = QVBoxLayout()
+    d.setLayout(l)
+    t = QLabel(prompt)
+    l.addWidget(t)
+    c = QListWidget()
+    c.addItems(QStringList(choices))
+    c.setCurrentRow(startrow)
+    l.addWidget(c)
+    bb = QDialogButtonBox(QDialogButtonBox.Ok)
+    bb.connect(bb, SIGNAL("accepted()"), d, SLOT("accept()"))
+    l.addWidget(bb)
+    d.exec_()
+    return c.currentRow()
+
 def getTag(parent, deck, question, tags="user", **kwargs):
     from aqt.tagedit import TagEdit
     te = TagEdit(parent)
