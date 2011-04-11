@@ -513,9 +513,9 @@ class Browser(QMainWindow):
             self.onclick = onclick
 
     def setupTree(self):
+        self._systemTagTree(self.form.tree.invisibleRootItem())
         self.form.tree.addTopLevelItem(self._modelTree())
         self.form.tree.addTopLevelItem(self._groupTree())
-        self.form.tree.addTopLevelItem(self._systemTagTree())
         self.form.tree.addTopLevelItem(self._userTagTree())
         self.form.tree.expandToDepth(0)
         self.form.tree.setIndentation(15)
@@ -577,16 +577,16 @@ class Browser(QMainWindow):
         fillGroups(root, grps)
         return root
 
-    def _systemTagTree(self):
-        root = QTreeWidgetItem([_("System Tags")])
-        root.setIcon(0, QIcon(":/icons/anki-tag.png"))
-        tags = ((_("New"), "anki-tag.png", "is:new"),
-                (_("Learning"), "anki-tag.png", "is:lrn"),
-                (_("Review"), "anki-tag.png", "is:rev"),
-                (_("Due"), "anki-tag.png", "is:due"),
-                (_("Marked"), "anki-tag.png", "tag:marked"),
-                (_("Suspended"), "anki-tag.png", "is:suspended"),
-                (_("Leech"), "anki-tag.png", "tag:leech"))
+    def _systemTagTree(self, root):
+        tags = (
+            (_("All cards"), "stock_new_template", ""),
+            (_("Never seen"), "stock_new_template_blue.png", "is:new"),
+            (_("In learning"), "stock_new_template_red.png", "is:lrn"),
+            (_("In review"), "stock_new_template_green.png", "is:rev"),
+            (_("Due reviews"), "stock_new_template_green.png", "is:due"),
+            (_("Marked"), "rating.png", "tag:marked"),
+            (_("Suspended"), "media-playback-pause.png", "is:suspended"),
+            (_("Leech"), "emblem-important.png", "tag:leech"))
         for name, icon, cmd in tags:
             item = self.CallbackItem(
                 name, lambda c=cmd: self.setFilter(c))
@@ -595,7 +595,7 @@ class Browser(QMainWindow):
         return root
 
     def _userTagTree(self):
-        root = QTreeWidgetItem([_("User Tags")])
+        root = QTreeWidgetItem([_("Tags")])
         root.setIcon(0, QIcon(":/icons/anki-tag.png"))
         for t in self.deck.tagList():
             item = self.CallbackItem(

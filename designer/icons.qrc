@@ -99,6 +99,9 @@
     <file>icons/text_remove.png</file>
     <file>icons/product_design.png</file>
     <file>icons/stock_new_template.png</file>
+    <file>icons/stock_new_template_blue.png</file>
+    <file>icons/stock_new_template_green.png</file>
+    <file>icons/stock_new_template_red.png</file>
     <file>icons/stock_group.png</file>
   </qresource>
 </RCC>
