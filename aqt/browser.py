@@ -513,15 +513,20 @@ class Browser(QMainWindow):
             self.onclick = onclick
 
     def setupTree(self):
-        self._systemTagTree(self.form.tree.invisibleRootItem())
-        self.form.tree.addTopLevelItem(self._modelTree())
-        self.form.tree.addTopLevelItem(self._groupTree())
-        self.form.tree.addTopLevelItem(self._userTagTree())
-        self.form.tree.expandToDepth(0)
-        self.form.tree.setIndentation(15)
         self.connect(
             self.form.tree, SIGNAL("itemClicked(QTreeWidgetItem*,int)"),
             self.onTreeClick)
+        self.buildTree()
+
+    def buildTree(self):
+        self.form.tree.clear()
+        root = self.form.tree.invisibleRootItem()
+        self._systemTagTree(root)
+        self._modelTree(root)
+        self._groupTree(root)
+        self._userTagTree(root)
+        self.form.tree.expandToDepth(0)
+        self.form.tree.setIndentation(15)
 
     def onTreeClick(self, item, col):
         if getattr(item, 'onclick', None):
@@ -546,9 +551,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.setText(txt)
         self.onSearch()
 
-    def _modelTree(self):
-        root = QTreeWidgetItem([_("Models")])
-        root.setIcon(0, QIcon(":/icons/product_design.png"))
+    def _modelTree(self, root):
         for m in sorted(self.deck.models().values(), key=attrgetter("name")):
             mitem = self.CallbackItem(
                 m.name, lambda m=m: self.setFilter("model", m.name))
@@ -560,11 +563,8 @@ class Browser(QMainWindow):
                     "model", m.name, "card", t['name']))
                 titem.setIcon(0, QIcon(":/icons/stock_new_template.png"))
                 mitem.addChild(titem)
-        return root
 
-    def _groupTree(self):
-        root = QTreeWidgetItem([_("Groups")])
-        root.setIcon(0, QIcon(":/icons/stock_group.png"))
+    def _groupTree(self, root):
         grps = self.deck.sched.groupTree()
         def fillGroups(root, grps, head=""):
             for g in grps:
@@ -575,7 +575,6 @@ class Browser(QMainWindow):
                 root.addChild(item)
                 fillGroups(item, g[5], g[0]+"::")
         fillGroups(root, grps)
-        return root
 
     def _systemTagTree(self, root):
         tags = (
@@ -592,17 +591,17 @@ class Browser(QMainWindow):
                 name, lambda c=cmd: self.setFilter(c))
             item.setIcon(0, QIcon(":/icons/" + icon))
             root.addChild(item)
+        item = self.CallbackItem(_("Refresh list"), self.buildTree)
+        item.setIcon(0, QIcon(":/icons/multisynk.png"))
+        root.addChild(item)
         return root
 
-    def _userTagTree(self):
-        root = QTreeWidgetItem([_("Tags")])
-        root.setIcon(0, QIcon(":/icons/anki-tag.png"))
+    def _userTagTree(self, root):
         for t in self.deck.tagList():
             item = self.CallbackItem(
                 t, lambda t=t: self.setFilter("tag", t))
             item.setIcon(0, QIcon(":/icons/anki-tag.png"))
             root.addChild(item)
-        return root
 
     # Editor
     ######################################################################
