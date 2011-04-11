@@ -229,10 +229,8 @@ class Browser(QMainWindow):
         self.setUnifiedTitleAndToolBarOnMac(True)
         restoreGeom(self, "editor", 38)
         restoreState(self, "editor")
-        restoreSplitter(self.form.splitter, "editor1")
         restoreSplitter(self.form.splitter_2, "editor2")
         restoreSplitter(self.form.splitter_3, "editor3")
-        self.form.splitter.setChildrenCollapsible(False)
         self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter_3.setChildrenCollapsible(False)
         self.setupSort()
@@ -305,7 +303,6 @@ class Browser(QMainWindow):
         self.model.reset()
 
     def closeEvent(self, evt):
-        saveSplitter(self.form.splitter, "editor1")
         saveSplitter(self.form.splitter_2, "editor2")
         saveSplitter(self.form.splitter_3, "editor3")
         self.editor.saveNow()
@@ -345,10 +342,10 @@ class Browser(QMainWindow):
         self.updateFilterLabel()
         self.filterTimer = None
         if self.model.cards:
-            self.form.cardInfoGroup.show()
+            #self.form.cardInfoGroup.show()
             self.form.fieldsArea.show()
         else:
-            self.form.cardInfoGroup.hide()
+            #self.form.cardInfoGroup.hide()
             self.form.fieldsArea.hide()
         if not self.focusCard():
             if self.model.cards:
