@@ -74,6 +74,7 @@ class AnkiQt(QMainWindow):
         self.setupSignals()
         self.setupVersion()
         self.setupAutoUpdate()
+        self.setupUpgrade()
         self.setupCardStats()
         self.setupSchema()
         # screens
@@ -228,11 +229,23 @@ title="%s">%s</button>''' % (
         from aqt.editcurrent import EditCurrent
         self.editor = EditCurrent(self)
 
+    # Upgrading from previous versions
+    ##########################################################################
+
+    def setupUpgrade(self):
+        addHook("1.x upgrade", self.onUpgrade)
+
+    def onUpgrade(self, db):
+        self.upgrading = True
+        self.progress.setupDB(db)
+        self.progress.start(label=_("Upgrading..."))
+
     # Deck loading
     ##########################################################################
 
     def loadDeck(self, deckPath, showErrors=True):
         "Load a deck and update the user interface."
+        self.upgrading = False
         try:
             self.deck = Deck(deckPath, queue=False)
         except Exception, e:
@@ -247,9 +260,13 @@ File is corrupt or not an Anki database. Click help for more info.\n
 Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("deckBrowser")
             return 0
+        finally:
+            # we may have a progress window open if we were upgrading
+            self.progress.finish()
         self.config.addRecentDeck(self.deck.path)
         self.setupMedia(self.deck)
-        self.progress.setupDB()
+        if not self.upgrading:
+            self.progress.setupDB(self.deck.db)
         self.moveToState("deckLoading")
         return True
 

@@ -17,8 +17,6 @@ from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, removeHook
 
-# fixme: notice added tags?
-
 COLOUR_SUSPENDED1 = "#ffffcc"
 COLOUR_SUSPENDED2 = "#ffffaa"
 COLOUR_INACTIVE1 = "#ffcccc"

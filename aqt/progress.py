@@ -20,11 +20,11 @@ class ProgressManager(object):
     # SQLite progress handler
     ##########################################################################
 
-    def setupDB(self):
+    def setupDB(self, db):
         "Install a handler in the current deck."
         self.lastDbProgress = 0
         self.inDB = False
-        self.mw.deck.db.set_progress_handler(self._dbProgress, 100000)
+        db.set_progress_handler(self._dbProgress, 100000)
 
     def _dbProgress(self):
         "Called from SQLite."
