@@ -34,7 +34,7 @@ defaultQconf = {
 
 # other options
 defaultConf = {
-    'currentModelId': None,
+    'currentModelId': 1,
     'currentGroupId': 1,
     'nextFid': 1,
     'nextCid': 1,
