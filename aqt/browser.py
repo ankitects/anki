@@ -12,7 +12,8 @@ import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
     ids2str, stripHTMLMedia
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
-    saveHeader, restoreHeader, saveState, restoreState, applyStyles
+    saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
+    showInfo
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, removeHook
@@ -317,7 +318,7 @@ class Browser(QMainWindow):
         c(f.actionDeleteTag, s, self.deleteTags)
         c(f.actionReschedule, s, self.reschedule)
         c(f.actionCram, s, self.cram)
-        c(f.actionAddCards, s, self.addCards)
+        c(f.actionAddCards, s, self.genCards)
         c(f.actionChangeModel, s, self.onChangeModel)
         c(f.actionToggleSuspend, SIGNAL("triggered(bool)"), self.onSuspend)
         c(f.actionToggleMark, SIGNAL("triggered(bool)"), self.onMark)
@@ -689,12 +690,21 @@ where id in %s""" % ids2str(
             "select id from cards where fid in (%s)" %
             ",".join([str(s) for s in self.selectedFacts()]))
 
+
+
+    # do we need this?
     def updateAfterCardChange(self):
         "Refresh info like stats on current card, and rebuild mw queue."
         self.currentRow = self.form.tableView.currentIndex()
         self.rowChanged(self.currentRow, None)
         self.model.reset()
         self.mw.reset()
+
+    # Card generation
+    ######################################################################
+
+    def genCards(self):
+        GenCards(self)
 
     # Menu options
     ######################################################################
@@ -827,42 +837,6 @@ where id in %s""" % ids2str(
         finally:
             self.deck.reset()
             self.deck.setUndoEnd(n)
-        self.updateAfterCardChange()
-
-    def addCards(self):
-        sf = self.selectedFacts()
-        if not sf:
-            return
-        mods = self.deck.db.column0("""
-select distinct modelId from facts
-where id in %s""" % ids2str(sf))
-        if not len(mods) == 1:
-            ui.utils.showInfo(
-                _("Can only operate on one model at a time."),
-                parent=self)
-            return
-        # get cards to enable
-        cms = [x.id for x in self.deck.db.query(Fact).get(sf[0]).\
-               model.cardModels]
-        d = AddCardChooser(self, cms)
-        if not d.exec_():
-            return
-        # for each fact id, generate
-        n = _("Generate Cards")
-        self.deck.startProgress()
-        self.deck.setUndoStart(n)
-        facts = self.deck.db.query(Fact).filter(
-            text("id in %s" % ids2str(sf))).order_by(Fact.created).all()
-        self.deck.updateProgress(_("Generating Cards..."))
-        ids = []
-        for c, fact in enumerate(facts):
-            ids.extend(self.deck.addCards(fact, d.selectedCms))
-            if c % 50 == 0:
-                self.deck.updateProgress()
-        self.deck.flushMod()
-        self.deck.finishProgress()
-        self.deck.setUndoEnd(n)
-        self.onSearch()
         self.updateAfterCardChange()
 
     def cram(self):
@@ -1140,47 +1114,71 @@ select fm.id, fm.name from fieldmodels fm""")
     def onHelp(self):
         aqt.openHelp("Browser")
 
-# Generate card dialog
+# Generate cards
 ######################################################################
 
-class AddCardChooser(QDialog):
+class GenCards(QDialog):
 
-    def __init__(self, parent, cms):
-        QDialog.__init__(self, parent, Qt.Window)
-        self.parent = parent
-        self.cms = cms
+    def __init__(self, browser):
+        self.browser = browser
+        if not self.canShow():
+            return
+        QDialog.__init__(self, browser)
         self.form = aqt.forms.addcardmodels.Ui_Dialog()
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
-        self.displayCards()
         restoreGeom(self, "addCardModels")
+        self.getSelection()
 
-    def displayCards(self):
-        self.cms = self.parent.deck.db.all("""
-select id, name, active from cardModels
-where id in %s
-order by ordinal""" % ids2str(self.cms))
+    def canShow(self):
+        b = self.browser
+        self.fids = b.selectedFacts()
+        if not self.fids:
+            return
+        mods = b.deck.db.scalar("""
+select count(distinct mid) from facts
+where id in %s""" % ids2str(self.fids))
+        if mods > 1:
+            showInfo(_("Please select cards from only one model."))
+            return
+        return True
+
+    def getSelection(self):
+        # get cards to enable
+        f = self.browser.deck.getFact(self.fids[0])
+        self.model = f.model()
         self.items = []
-        for cm in self.cms:
-            item = QListWidgetItem(cm[1], self.form.list)
+        for t in self.model.templates:
+            item = QListWidgetItem(t['name'], self.form.list)
             self.form.list.addItem(item)
             self.items.append(item)
             idx = self.form.list.indexFromItem(item)
-            if cm[2]:
+            if t['actv']:
                 mode = QItemSelectionModel.Select
             else:
                 mode = QItemSelectionModel.Deselect
             self.form.list.selectionModel().select(idx, mode)
+        self.show()
 
     def accept(self):
-        self.selectedCms = []
+        tplates = []
         for i, item in enumerate(self.items):
             idx = self.form.list.indexFromItem(item)
             if self.form.list.selectionModel().isSelected(idx):
-                self.selectedCms.append(self.cms[i][0])
+                tplates.append(self.model.templates[i])
+        self.genCards(tplates)
         saveGeom(self, "addCardModels")
         QDialog.accept(self)
+
+    def genCards(self, tplates):
+        mw = self.browser.mw
+        mw.checkpoint(_("Generate Cards"))
+        mw.progress.start()
+        for fid in self.fids:
+            f = mw.deck.getFact(fid)
+            mw.deck.genCards(f, tplates)
+        self.browser.onSearch()
 
     def onHelp(self):
         aqt.openHelp("Browser#GenerateCards")
