@@ -37,7 +37,7 @@ class DeckModel(QAbstractTableModel):
         self.deck = browser.deck
         self.sortKey = None
         self.activeCols = self.deck.conf.get(
-            "activeCols", ["factFld", "answer", "cardDue", "cardEase"])
+            "activeCols", ["factFld", "template", "cardDue", "cardEase"])
         self.cards = []
         self.cardObjs = {}
 
@@ -97,18 +97,67 @@ class DeckModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
-    def showMatching(self, force=True):
-        self.browser.mw.progress.start()
+    def search(self, txt):
+        self.beginReset()
         t = time.time()
-        self.cards = self.deck.findCards(self.searchStr.strip())
+        self.cards = self.deck.findCards(txt)
         print "fetch cards in %dms" % ((time.time() - t)*1000)
-        self.browser.mw.progress.finish()
-        self.reset()
+        self.endReset()
 
-    # fixme: merge into reset(), fix titlebar flicker
-    def refresh(self):
+    def beginReset(self):
+        self.browser.mw.progress.start()
+        self.saveSelection()
+        self.beginResetModel()
         self.cardObjs = {}
-        self.emit(SIGNAL("layoutChanged()"))
+
+    def endReset(self):
+        t = time.time()
+        self.endResetModel()
+        print "end", time.time() - t; t = time.time()
+        self.restoreSelection()
+        print "sel", time.time() - t; t = time.time()
+        self.browser.mw.progress.finish()
+
+    def reverse(self):
+        self.beginReset()
+        self.cards.reverse()
+        self.endReset()
+
+    def saveSelection(self):
+        self.selectedCards = dict(
+            [(id, True) for id in self.browser.selectedCards()])
+        self.focusedCard = getattr(self.browser, 'card', None)
+
+    def restoreSelection(self):
+        if not self.cards:
+            return
+        sm = self.browser.form.tableView.selectionModel()
+        sm.clear()
+        # restore selection
+        items = QItemSelection()
+        focused = None
+        first = None
+        for row, id in enumerate(self.cards):
+            if id in self.selectedCards:
+                idx = self.index(row, 0)
+                items.select(idx, idx)
+                if not first:
+                    first = idx
+                # note idx of focused card
+                if self.focusedCard and self.focusedCard.id == id:
+                    focused = idx
+                    # avoid further comparisons
+                    self.focusedCard = None
+        # and focus previously focused or first in selection
+        focus = focused or first
+        tv = self.browser.form.tableView
+        if focus:
+            tv.selectRow(focus.row())
+            tv.scrollTo(focus, tv.PositionAtCenter)
+            sm.select(items, QItemSelectionModel.SelectCurrent |
+                      QItemSelectionModel.Rows)
+        else:
+            tv.selectRow(0)
 
     # Column data
     ######################################################################
@@ -243,7 +292,6 @@ class Browser(QMainWindow):
         self.setupCardInfo()
         self.updateFont()
         self.form.searchEdit.setFocus()
-        self.updateFilterLabel()
         self.show()
         self.form.searchEdit.setText("is:recent")
         self.form.searchEdit.selectAll()
@@ -297,7 +345,6 @@ class Browser(QMainWindow):
             self.mw.config['editFontSize']))
         self.form.tableView.verticalHeader().setDefaultSectionSize(
             self.mw.config['editLineSize'])
-        self.model.reset()
 
     def closeEvent(self, evt):
         saveSplitter(self.form.splitter_2, "editor2")
@@ -347,27 +394,17 @@ class Browser(QMainWindow):
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
 
-    def onSearch(self, force=True):
-        # fixme:
-        # if self.mw.inDbHandler:
-        #     return
-        self.model.searchStr = unicode(self.form.searchEdit.text())
-        self.model.showMatching(force)
-        self.updateFilterLabel()
-        self.filterTimer = None
-        if self.model.cards:
-            self.form.cardLabel.show()
-            self.form.fieldsArea.show()
-        else:
-            self.form.cardLabel.hide()
-            self.form.fieldsArea.hide()
-        if not self.focusCard():
-            if self.model.cards:
-                self.form.tableView.selectRow(0)
-        if not self.model.cards:
+    def onSearch(self):
+        txt = unicode(self.form.searchEdit.text()).strip()
+        self.model.search(txt)
+        self.updateTitle()
+        show = not not self.model.cards
+        self.form.cardLabel.setShown(show)
+        self.form.fieldsArea.setShown(show)
+        if not show:
             self.editor.setFact(None)
 
-    def updateFilterLabel(self):
+    def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
         self.setWindowTitle(ngettext("Browser (%(cur)d "
                               "of %(tot)d card shown; %(sel)s)", "Browser (%(cur)d "
@@ -389,7 +426,7 @@ class Browser(QMainWindow):
         self.form.tableView.selectionModel()
         self.connect(self.form.tableView.selectionModel(),
                      SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
-                     self.updateFilterLabel)
+                     self.updateTitle)
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
 
     def rowChanged(self, current, previous):
@@ -410,23 +447,6 @@ class Browser(QMainWindow):
         except:
             return -1
 
-    def focusCard(self):
-        if self.card:
-            try:
-                self.card.id
-            except:
-                return False
-            row = self.cardRow()
-            if row >= 0:
-                sm = self.form.tableView.selectionModel()
-                sm.clear()
-                self.form.tableView.selectRow(row)
-                self.form.tableView.scrollTo(
-                              self.model.index(row,0),
-                              self.form.tableView.PositionAtCenter)
-                return True
-        return False
-
     # Headers & sorting
     ######################################################################
 
@@ -444,9 +464,9 @@ class Browser(QMainWindow):
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
         hh.connect(hh, SIGNAL("customContextMenuRequested(QPoint)"),
                    self.onHeaderContext)
+        self.setSortIndicator()
         hh.connect(hh, SIGNAL("sortIndicatorChanged(int, Qt::SortOrder)"),
                    self.onSortChanged)
-        self.setSortIndicator()
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
@@ -458,16 +478,12 @@ class Browser(QMainWindow):
             if type not in ("question", "answer", "factFld"):
                 ord = not ord
             self.deck.conf['sortBackwards'] = ord
-            self.model.showMatching()
-            # fixme: we do this in various locations
-            self.updateFilterLabel()
-            self.focusCard()
+            self.onSearch()
         else:
             if self.deck.conf['sortBackwards'] != ord:
                 self.deck.conf['sortBackwards'] = ord
-                self.model.cards.reverse()
+                self.model.reverse()
         self.setSortIndicator()
-        self.model.reset()
 
     def setSortIndicator(self):
         hh = self.form.tableView.horizontalHeader()
@@ -480,7 +496,9 @@ class Browser(QMainWindow):
             ord = Qt.DescendingOrder
         else:
             ord = Qt.AscendingOrder
+        hh.blockSignals(True)
         hh.setSortIndicator(idx, ord)
+        hh.blockSignals(False)
         hh.setSortIndicatorShown(True)
 
     def onHeaderContext(self, pos):
@@ -509,7 +527,6 @@ class Browser(QMainWindow):
                 hh.setResizeMode(c, QHeaderView.Stretch)
             else:
                 hh.setResizeMode(c, QHeaderView.Interactive)
-        self.model.reset()
 
     # Filter tree
     ######################################################################
@@ -661,7 +678,7 @@ class Browser(QMainWindow):
     ######################################################################
 
     def selectedCards(self):
-        return [self.model.cards[idx.row()][0] for idx in
+        return [self.model.cards[idx.row()] for idx in
                 self.form.tableView.selectionModel().selectedRows()]
 
     def selectedFacts(self):
@@ -680,7 +697,7 @@ where id in (%s)""" % ",".join([
         "Refresh info like stats on current card, and rebuild mw queue."
         self.currentRow = self.form.tableView.currentIndex()
         self.rowChanged(self.currentRow, None)
-        self.model.refresh()
+        self.model.reset()
         self.mw.reset()
 
     # Menu options
@@ -757,7 +774,7 @@ where id in (%s)""" % ",".join([
         self.deck.suspendCards(self.selectedCards())
         self.mw.reset()
         self.deck.setUndoEnd(n)
-        self.model.refresh()
+        self.model.reset()
         self.updateAfterCardChange()
 
     def _onUnsuspend(self):
@@ -766,7 +783,7 @@ where id in (%s)""" % ",".join([
         self.deck.unsuspendCards(self.selectedCards())
         self.mw.reset()
         self.deck.setUndoEnd(n)
-        self.model.refresh()
+        self.model.reset()
         self.updateAfterCardChange()
 
     def isMarked(self):
@@ -887,7 +904,7 @@ where id in %s""" % ids2str(sf))
                 self.deck.updateProgress()
         sm.blockSignals(False)
         self.deck.finishProgress()
-        self.updateFilterLabel()
+        self.updateTitle()
         self.updateAfterCardChange()
 
     def invertSelection(self):
