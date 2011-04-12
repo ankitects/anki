@@ -76,6 +76,12 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     def model(self):
         return self._model
 
+    def updateCardGids(self):
+        for c in self.cards():
+            if c.gid != self.gid and not c.template()['gid']:
+                c.gid = self.gid
+                c.flush()
+
     # Dict interface
     ##################################################
 
