@@ -129,6 +129,8 @@ class DeckModel(QAbstractTableModel):
         elif type == "factFld":
             f = c.fact()
             return self.formatQA(f._fields[f.model().sortIdx()])
+        elif type == "template":
+            return c.template()['name']
         elif type == "cardDue":
             return self.nextDue(c, index)
         elif type == "factCrt":
@@ -320,6 +322,7 @@ class Browser(QMainWindow):
         self.columns = [
             ('question', _("Question")),
             ('answer', _("Answer")),
+            ('template', _("Card")),
             ('factFld', _("Sort Field")),
             ('factCrt', _("Created")),
             ('factMod', _("Edited")),
@@ -447,7 +450,7 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        if type in ("question", "answer"):
+        if type in ("question", "answer", "template"):
             type = "factFld"
         if self.deck.conf['sortType'] != type:
             self.deck.conf['sortType'] = type
@@ -460,8 +463,9 @@ class Browser(QMainWindow):
             self.updateFilterLabel()
             self.focusCard()
         else:
-            self.deck.conf['sortBackwards'] = ord
-            self.model.cards.reverse()
+            if self.deck.conf['sortBackwards'] != ord:
+                self.deck.conf['sortBackwards'] = ord
+                self.model.cards.reverse()
         self.setSortIndicator()
         self.model.reset()
 
@@ -505,6 +509,7 @@ class Browser(QMainWindow):
                 hh.setResizeMode(c, QHeaderView.Stretch)
             else:
                 hh.setResizeMode(c, QHeaderView.Interactive)
+        self.model.reset()
 
     # Filter tree
     ######################################################################
