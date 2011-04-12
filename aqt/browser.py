@@ -124,8 +124,8 @@ class DeckModel(QAbstractTableModel):
         self.endReset()
 
     def saveSelection(self):
-        self.selectedCards = dict(
-            [(id, True) for id in self.browser.selectedCards()])
+        cards = self.browser.selectedCards()
+        self.selectedCards = dict([(id, True) for id in cards])
         self.focusedCard = getattr(self.browser, 'card', None)
 
     def restoreSelection(self):
@@ -137,8 +137,10 @@ class DeckModel(QAbstractTableModel):
         items = QItemSelection()
         focused = None
         first = None
+        count = 0
         for row, id in enumerate(self.cards):
             if id in self.selectedCards:
+                count += 1
                 idx = self.index(row, 0)
                 items.select(idx, idx)
                 if not first:
@@ -154,8 +156,10 @@ class DeckModel(QAbstractTableModel):
         if focus:
             tv.selectRow(focus.row())
             tv.scrollTo(focus, tv.PositionAtCenter)
-            sm.select(items, QItemSelectionModel.SelectCurrent |
-                      QItemSelectionModel.Rows)
+            if count < 500:
+                # discard large selections; they're too slow
+                sm.select(items, QItemSelectionModel.SelectCurrent |
+                          QItemSelectionModel.Rows)
         else:
             tv.selectRow(0)
 
