@@ -399,10 +399,6 @@ class Browser(QMainWindow):
         txt = unicode(self.form.searchEdit.text()).strip()
         self.model.search(txt)
         show = not not self.model.cards
-        self.form.cardLabel.setShown(show)
-        self.form.fieldsArea.setShown(show)
-        if not show:
-            self.editor.setFact(None)
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
@@ -414,6 +410,7 @@ class Browser(QMainWindow):
             "tot": self.deck.cardCount(),
             "sel": ngettext("%d selected", "%d selected", selected) % selected
             } + " - " + self.deck.name())
+        return selected
 
     # Table view & editor
     ######################################################################
@@ -424,36 +421,30 @@ class Browser(QMainWindow):
         self.form.tableView.setShowGrid(False)
         self.form.tableView.setModel(self.model)
         self.form.tableView.selectionModel()
-        self.connect(self.form.tableView.selectionModel(),
-                     SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
-                     self.updateTitle)
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.connect(self.form.tableView.selectionModel(),
-                     SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
-                     self.rowChanged)
+                     SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
+                     self.onRowChanged)
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(self.mw,
                                         self.form.fieldsArea)
         self.editor.stealFocus = False
 
-    def rowChanged(self, current, previous):
-        self.currentRow = current
-        self.card = self.model.getCard(current)
-        if not self.card:
-            self.editor.setFact(None, True)
-            return
-        fact = self.card.fact()
-        self.editor.setFact(fact)
-        self.editor.card = self.card
-        self.showCardInfo(self.card)
+    def onRowChanged(self, current, previous):
+        "Update current fact and hide/show editor."
+        show = self.model.cards and self.updateTitle() == 1
+        self.form.splitter_2.widget(1).setShown(show)
+        if not show:
+            self.editor.setFact(None)
+        else:
+            self.card = self.model.getCard(
+                self.form.tableView.selectionModel().currentIndex())
+            self.editor.setFact(self.card.fact())
+            self.editor.card = self.card
+            self.showCardInfo(self.card)
         self.updateToggles()
 
-    def cardRow(self):
-        try:
-            return self.model.cards.index(self.card.id)
-        except:
-            return -1
 
     # Headers & sorting
     ######################################################################
@@ -700,6 +691,12 @@ where id in %s""" % ids2str(
 
     # Menu options
     ######################################################################
+
+    def cardRow(self):
+        try:
+            return self.model.cards.index(self.card.id)
+        except:
+            return -1
 
     def deleteCards(self):
         cards = self.selectedCards()
