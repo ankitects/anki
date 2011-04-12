@@ -291,6 +291,7 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.setupCardInfo()
         self.updateFont()
+        self.onCheckpoint()
         self.form.searchEdit.setFocus()
         self.show()
         self.form.searchEdit.setText("is:recent")
@@ -397,7 +398,6 @@ class Browser(QMainWindow):
     def onSearch(self):
         txt = unicode(self.form.searchEdit.text()).strip()
         self.model.search(txt)
-        self.updateTitle()
         show = not not self.model.cards
         self.form.cardLabel.setShown(show)
         self.form.fieldsArea.setShown(show)
@@ -407,15 +407,15 @@ class Browser(QMainWindow):
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
         self.setWindowTitle(ngettext("Browser (%(cur)d "
-                              "of %(tot)d card shown; %(sel)s)", "Browser (%(cur)d "
-                              "of %(tot)d cards shown; %(sel)s)", self.deck.cardCount) %
-                            {
+                              "card shown; %(sel)s)", "Browser (%(cur)d "
+                              "cards shown; %(sel)s)",
+                                     self.deck.cardCount) % {
             "cur": len(self.model.cards),
             "tot": self.deck.cardCount(),
             "sel": ngettext("%d selected", "%d selected", selected) % selected
             } + " - " + self.deck.name())
 
-    # Table view
+    # Table view & editor
     ######################################################################
 
     def setupTable(self):
@@ -428,6 +428,14 @@ class Browser(QMainWindow):
                      SIGNAL("selectionChanged(QItemSelection,QItemSelection)"),
                      self.updateTitle)
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
+        self.connect(self.form.tableView.selectionModel(),
+                     SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
+                     self.rowChanged)
+
+    def setupEditor(self):
+        self.editor = aqt.editor.Editor(self.mw,
+                                        self.form.fieldsArea)
+        self.editor.stealFocus = False
 
     def rowChanged(self, current, previous):
         self.currentRow = current
@@ -628,17 +636,6 @@ class Browser(QMainWindow):
             item.setIcon(0, QIcon(":/icons/anki-tag.png"))
             root.addChild(item)
 
-    # Editor
-    ######################################################################
-
-    def setupEditor(self):
-        self.editor = aqt.editor.Editor(self.mw,
-                                        self.form.fieldsArea)
-        self.editor.stealFocus = False
-        self.connect(self.form.tableView.selectionModel(),
-                     SIGNAL("currentRowChanged(QModelIndex, QModelIndex)"),
-                     self.rowChanged)
-
     # Card info
     ######################################################################
 
@@ -683,15 +680,15 @@ class Browser(QMainWindow):
                 self.form.tableView.selectionModel().selectedRows()]
 
     def selectedFacts(self):
-        return self.deck.db.column0("""
-select distinct factId from cards
-where id in (%s)""" % ",".join([
-            str(self.model.cards[idx.row()][0]) for idx in
-            self.form.tableView.selectionModel().selectedRows()]))
+        return self.deck.db.list("""
+select distinct fid from cards
+where id in %s""" % ids2str(
+    [self.model.cards[idx.row()] for idx in
+    self.form.tableView.selectionModel().selectedRows()]))
 
     def selectedFactsAsCards(self):
-        return self.deck.db.column0(
-            "select id from cards where factId in (%s)" %
+        return self.deck.db.list(
+            "select id from cards where fid in (%s)" %
             ",".join([str(s) for s in self.selectedFacts()]))
 
     def updateAfterCardChange(self):
@@ -893,20 +890,16 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def selectFacts(self):
-        self.deck.startProgress()
+        self.mw.progress.start()
         sm = self.form.tableView.selectionModel()
-        sm.blockSignals(True)
+        items = QItemSelection()
         cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
         for i, card in enumerate(self.model.cards):
-            if card[0] in cardIds:
-                sm.select(self.model.index(i, 0),
-                          QItemSelectionModel.Select | QItemSelectionModel.Rows)
-            if i % 100 == 0:
-                self.deck.updateProgress()
-        sm.blockSignals(False)
-        self.deck.finishProgress()
-        self.updateTitle()
-        self.updateAfterCardChange()
+            if card in cardIds:
+                idx = self.model.index(i, 0)
+                items.select(idx, idx)
+        sm.select(items, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
+        self.mw.progress.finish()
 
     def invertSelection(self):
         sm = self.form.tableView.selectionModel()
