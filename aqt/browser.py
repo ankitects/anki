@@ -513,12 +513,13 @@ class Browser(QMainWindow):
         m.exec_(gpos)
 
     def toggleField(self, type):
+        self.model.beginReset()
         if type in self.model.activeCols:
             self.model.activeCols.remove(type)
         else:
             self.model.activeCols.append(type)
         self.setColumnSizes()
-        self.model.reset()
+        self.model.endReset()
 
     def setColumnSizes(self):
         hh = self.form.tableView.horizontalHeader()
