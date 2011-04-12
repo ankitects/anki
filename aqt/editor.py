@@ -469,6 +469,7 @@ class Editor(object):
 
     def saveTagsAndGroup(self):
         self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
+        self.fact.updateCardGids()
         self.fact.tags = parseTags(unicode(self.tags.text()))
         self.fact.flush()
 
