@@ -459,13 +459,13 @@ class Editor(object):
     def updateTagsAndGroup(self):
         if self.tags.deck != self.mw.deck:
             self.tags.setDeck(self.mw.deck)
-            self.tags.setText(self.fact.stringTags().strip())
             self.group.setDeck(self.mw.deck)
-            if getattr(self.fact, 'gid', None):
-                gid = self.fact.gid
-            else:
-                gid = self.fact.model().conf['gid']
-            self.group.setText(self.mw.deck.groupName(gid))
+        self.tags.setText(self.fact.stringTags().strip())
+        if getattr(self.fact, 'gid', None):
+            gid = self.fact.gid
+        else:
+            gid = self.fact.model().conf['gid']
+        self.group.setText(self.mw.deck.groupName(gid))
 
     def saveTagsAndGroup(self):
         self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
