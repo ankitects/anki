@@ -96,14 +96,20 @@ class DeckModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
-    def search(self, txt):
-        self.beginReset()
+    def search(self, txt, reset=True):
+        if reset:
+            self.beginReset()
         t = time.time()
+        # the db progress handler may cause a refresh, so we need to zero out
+        # old data first
+        self.cards = []
         self.cards = self.deck.findCards(txt)
         print "fetch cards in %dms" % ((time.time() - t)*1000)
-        self.endReset()
+        if reset:
+            self.endReset()
 
     def beginReset(self):
+        self.browser.editor.saveNow()
         self.browser.mw.progress.start()
         self.saveSelection()
         self.beginResetModel()
@@ -125,7 +131,10 @@ class DeckModel(QAbstractTableModel):
     def saveSelection(self):
         cards = self.browser.selectedCards()
         self.selectedCards = dict([(id, True) for id in cards])
-        self.focusedCard = getattr(self.browser, 'card', None)
+        if getattr(self.browser, 'card', None):
+            self.focusedCard = self.browser.card.id
+        else:
+            self.focusedCard = None
 
     def restoreSelection(self):
         if not self.cards:
@@ -145,7 +154,7 @@ class DeckModel(QAbstractTableModel):
                 if not first:
                     first = idx
                 # note idx of focused card
-                if self.focusedCard and self.focusedCard.id == id:
+                if self.focusedCard:
                     focused = idx
                     # avoid further comparisons
                     self.focusedCard = None
@@ -198,6 +207,8 @@ class DeckModel(QAbstractTableModel):
         elif type == "cardIvl":
             return fmtTimeSpan(c.ivl*86400)
         elif type == "cardEase":
+            if c.type == 0:
+                return _("(new)")
             return "%d%%" % (c.factor/10)
 
     # def intervalColumn(self, index):
@@ -223,7 +234,7 @@ class DeckModel(QAbstractTableModel):
 
     def nextDue(self, c, index):
         if c.type == 0:
-            return _("(new card)")
+            return _("(new)")
         elif c.type == 1:
             date = c.due
         elif c.type == 2:
@@ -402,9 +413,9 @@ class Browser(QMainWindow):
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
 
-    def onSearch(self):
+    def onSearch(self, reset=True):
         txt = unicode(self.form.searchEdit.text()).strip()
-        self.model.search(txt)
+        self.model.search(txt, reset)
         if not self.model.cards:
             # no row change will fire
             self.onRowChanged(None, None)
@@ -690,15 +701,11 @@ where id in %s""" % ids2str(
             "select id from cards where fid in (%s)" %
             ",".join([str(s) for s in self.selectedFacts()]))
 
-
-
-    # do we need this?
-    def updateAfterCardChange(self):
-        "Refresh info like stats on current card, and rebuild mw queue."
-        self.currentRow = self.form.tableView.currentIndex()
-        self.rowChanged(self.currentRow, None)
-        self.model.reset()
-        self.mw.reset()
+    def resetDeck(self):
+        "Signal the queue needs rebuilding."
+        # for operations that change models we'll need to reset immediately,
+        # but otherwise we can put it off until the user starts studying again
+        print "fixme: resetDeck()"
 
     # Card generation
     ######################################################################
@@ -709,31 +716,17 @@ where id in %s""" % ids2str(
     # Menu options
     ######################################################################
 
-    def cardRow(self):
-        try:
-            return self.model.cards.index(self.card.id)
-        except:
-            return -1
-
     def deleteCards(self):
-        cards = self.selectedCards()
-        n = _("Delete Cards")
-        try:
-            new = self.cardRow() + 1
-        except:
-            # card has been deleted
-            return
-        # ensure the change timer doesn't fire after deletion but before reset
-        self.editor.saveNow()
-        self.editor.fact = None
-        self.form.tableView.setFocus()
-        self.deck.setUndoStart(n)
-        self.deck.deleteCards(cards)
-        self.deck.setUndoEnd(n)
-        new = min(max(0, new), len(self.model.cards) - 1)
-        self.form.tableView.selectRow(new)
-        self.onSearch()
-        self.updateAfterCardChange()
+        self.mw.checkpoint(_("Delete Cards"))
+        self.model.beginReset()
+        oldRow = self.form.tableView.selectionModel().currentIndex().row()
+        self.deck.delCards(self.selectedCards())
+        self.onSearch(reset=False)
+        if len(self.model.cards):
+            new = min(oldRow, len(self.model.cards) - 1)
+            self.model.focusedCard = self.model.cards[new]
+        self.model.endReset()
+        self.resetDeck()
 
     def addTags(self, tags=None, label=None):
         # focus lost hook may not have chance to fire
@@ -748,7 +741,7 @@ where id in %s""" % ids2str(
             self.deck.setUndoStart(label)
             self.deck.addTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(label)
-        self.updateAfterCardChange()
+        self.onSearch()
 
     def deleteTags(self, tags=None, label=None):
         # focus lost hook may not have chance to fire
@@ -763,7 +756,7 @@ where id in %s""" % ids2str(
             self.deck.setUndoStart(label)
             self.deck.deleteTags(self.selectedFacts(), tags)
             self.deck.setUndoEnd(label)
-        self.updateAfterCardChange()
+        self.onSearch()
 
     def updateToggles(self):
         self.form.actionToggleSuspend.setChecked(self.isSuspended())
@@ -787,7 +780,7 @@ where id in %s""" % ids2str(
         self.mw.reset()
         self.deck.setUndoEnd(n)
         self.model.reset()
-        self.updateAfterCardChange()
+        self.resetDeck()
 
     def _onUnsuspend(self):
         n = _("Unsuspend")
@@ -796,7 +789,7 @@ where id in %s""" % ids2str(
         self.mw.reset()
         self.deck.setUndoEnd(n)
         self.model.reset()
-        self.updateAfterCardChange()
+        self.resetDeck()
 
     def isMarked(self):
         return self.card and self.card.fact().hasTag("Marked")
@@ -837,7 +830,7 @@ where id in %s""" % ids2str(
         finally:
             self.deck.reset()
             self.deck.setUndoEnd(n)
-        self.updateAfterCardChange()
+        self.resetDeck()
 
     def cram(self):
         self.close()
@@ -862,7 +855,7 @@ where id in %s""" % ids2str(sf))
             self.deck.changeModel(sf, *d.ret)
             self.deck.setUndoEnd(n)
             self.onSearch()
-            self.updateAfterCardChange()
+            self.resetDeck()
 
     # Edit: selection
     ######################################################################
@@ -969,7 +962,6 @@ where id in %s""" % ids2str(sf))
         self.deck.finishProgress()
         self.mw.reset()
         self.onSearch()
-        self.updateAfterCardChange()
         if changed is not None:
             ui.utils.showInfo(ngettext("%(a)d of %(b)d fact updated", "%(a)d of %(b)d facts updated", len(sf)) % {
                 'a': changed,
@@ -1175,9 +1167,12 @@ where id in %s""" % ids2str(self.fids))
         mw = self.browser.mw
         mw.checkpoint(_("Generate Cards"))
         mw.progress.start()
-        for fid in self.fids:
+        for c, fid in enumerate(self.fids):
             f = mw.deck.getFact(fid)
             mw.deck.genCards(f, tplates)
+            if c % 100 == 0:
+                mw.progress.update()
+        mw.progress.finish()
         self.browser.onSearch()
 
     def onHelp(self):
