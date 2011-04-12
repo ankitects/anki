@@ -110,7 +110,8 @@ class ProgressManager(object):
 
     def finish(self):
         self._levels -= 1
-        if self._levels == 0:
+        self._levels = max(0, self._levels)
+        if self._levels == 0 and self._win:
             self._win.cancel()
             self._unsetBusy()
 
