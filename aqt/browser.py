@@ -414,6 +414,7 @@ class Browser(QMainWindow):
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
 
     def onSearch(self, reset=True):
+        "Careful: if reset is true, the current fact is saved."
         txt = unicode(self.form.searchEdit.text()).strip()
         self.model.search(txt, reset)
         if not self.model.cards:
@@ -707,13 +708,17 @@ where id in %s""" % ids2str(
         # but otherwise we can put it off until the user starts studying again
         print "fixme: resetDeck()"
 
-    # Card generation
+    # Misc menu options
     ######################################################################
 
     def genCards(self):
         GenCards(self)
 
-    # Menu options
+    def cram(self):
+        self.close()
+        self.mw.onCram(self.selectedCards())
+
+    # Card deletion
     ######################################################################
 
     def deleteCards(self):
@@ -728,35 +733,37 @@ where id in %s""" % ids2str(
         self.model.endReset()
         self.resetDeck()
 
-    def addTags(self, tags=None, label=None):
-        # focus lost hook may not have chance to fire
-        self.editor.saveNow()
+    # Tags
+    ######################################################################
+
+    def addTags(self, tags=None, label=None, prompt=None, func=None):
+        if prompt is None:
+            prompt = _("Enter tags to add:")
         if tags is None:
-            (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to add:"))
+            (tags, r) = getTag(self, self.deck, prompt)
         else:
             r = True
+        if not r:
+            return
         if label is None:
             label = _("Add Tags")
-        if r:
-            self.deck.setUndoStart(label)
-            self.deck.addTags(self.selectedFacts(), tags)
-            self.deck.setUndoEnd(label)
-        self.onSearch()
+        if func is None:
+            func = self.deck.addTags
+        self.model.beginReset()
+        self.mw.checkpoint(label)
+        func(self.selectedFacts(), tags)
+        self.onSearch(reset=False)
+        self.resetDeck()
+        self.model.endReset()
 
     def deleteTags(self, tags=None, label=None):
-        # focus lost hook may not have chance to fire
-        self.editor.saveNow()
-        if tags is None:
-            (tags, r) = ui.utils.getTag(self, self.deck, _("Enter tags to delete:"))
-        else:
-            r = True
         if label is None:
             label = _("Delete Tags")
-        if r:
-            self.deck.setUndoStart(label)
-            self.deck.deleteTags(self.selectedFacts(), tags)
-            self.deck.setUndoEnd(label)
-        self.onSearch()
+        self.addTags(tags, label, _("Enter tags to delete:"),
+                     func=self.deck.delTags)
+
+    # Suspending and marking
+    ######################################################################
 
     def updateToggles(self):
         self.form.actionToggleSuspend.setChecked(self.isSuspended())
@@ -806,6 +813,9 @@ where id in %s""" % ids2str(
     def _onUnmark(self):
         self.deleteTags(tags="Marked", label=_("Toggle Mark"))
 
+    # Rescheduling
+    ######################################################################
+
     def reschedule(self):
         n = _("Reschedule")
         d = QDialog(self)
@@ -832,9 +842,8 @@ where id in %s""" % ids2str(
             self.deck.setUndoEnd(n)
         self.resetDeck()
 
-    def cram(self):
-        self.close()
-        self.mw.onCram(self.selectedCards())
+    # Model changing
+    ######################################################################
 
     def onChangeModel(self):
         sf = self.selectedFacts()

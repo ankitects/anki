@@ -352,8 +352,6 @@ class Editor(object):
 
     def setFact(self, fact):
         "Make FACT the current fact."
-        if self.fact and fact and self.fact.id == fact.id:
-            return
         self.fact = fact
         # change timer
         if self.fact:
