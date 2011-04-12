@@ -192,7 +192,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
 def getTag(parent, deck, question, tags="user", **kwargs):
     from aqt.tagedit import TagEdit
     te = TagEdit(parent)
-    te.setDeck(deck, tags)
+    te.setDeck(deck)
     return getText(question, parent, edit=te, **kwargs)
 
 def getFile(parent, title, dir, key):
