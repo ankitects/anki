@@ -321,14 +321,14 @@ class Browser(QMainWindow):
             ('question', _("Question")),
             ('answer', _("Answer")),
             ('factFld', _("Sort Field")),
-            ('factCrt', _("Creation date")),
-            ('factMod', _("Edit date")),
-            ('cardMod', _("Review date")),
-            ('cardDue', _("Due date")),
-            ('cardIvl', _("Card interval")),
-            ('cardEase', _("Ease factor")),
-            ('cardReps', _("Review count")),
-            ('cardLapses', _("Lapse count")),
+            ('factCrt', _("Created")),
+            ('factMod', _("Edited")),
+            ('cardMod', _("Reviewed")),
+            ('cardDue', _("Due")),
+            ('cardIvl', _("Interval")),
+            ('cardEase', _("Ease")),
+            ('cardReps', _("Reviews")),
+            ('cardLapses', _("Lapses")),
         ]
 
     # Searching
