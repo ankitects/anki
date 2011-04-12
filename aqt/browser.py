@@ -25,6 +25,8 @@ COLOUR_INACTIVE2 = "#ffaaaa"
 COLOUR_MARKED1 = "#ccccff"
 COLOUR_MARKED2 = "#aaaaff"
 
+# fixme: need to refresh after undo
+
 # Data model
 ##########################################################################
 
@@ -107,6 +109,10 @@ class DeckModel(QAbstractTableModel):
         print "fetch cards in %dms" % ((time.time() - t)*1000)
         if reset:
             self.endReset()
+
+    def reset(self):
+        self.beginReset()
+        self.endReset()
 
     def beginReset(self):
         self.browser.editor.saveNow()
@@ -745,12 +751,13 @@ where id in %s""" % ids2str(
             r = True
         if not r:
             return
-        if label is None:
-            label = _("Add Tags")
         if func is None:
             func = self.deck.addTags
         self.model.beginReset()
-        self.mw.checkpoint(label)
+        if label is None:
+            label = _("Add Tags")
+        if label:
+            self.mw.checkpoint(label)
         func(self.selectedFacts(), tags)
         self.onSearch(reset=False)
         self.resetDeck()
@@ -770,31 +777,16 @@ where id in %s""" % ids2str(
         self.form.actionToggleMark.setChecked(self.isMarked())
 
     def isSuspended(self):
-        return self.card and self.card.type < 0
+        return self.card and self.card.queue == -1
 
     def onSuspend(self, sus):
         # focus lost hook may not have chance to fire
         self.editor.saveNow()
+        c = self.selectedCards()
         if sus:
-            self._onSuspend()
+            self.deck.sched.suspendCards(c)
         else:
-            self._onUnsuspend()
-
-    def _onSuspend(self):
-        n = _("Suspend")
-        self.deck.setUndoStart(n)
-        self.deck.suspendCards(self.selectedCards())
-        self.mw.reset()
-        self.deck.setUndoEnd(n)
-        self.model.reset()
-        self.resetDeck()
-
-    def _onUnsuspend(self):
-        n = _("Unsuspend")
-        self.deck.setUndoStart(n)
-        self.deck.unsuspendCards(self.selectedCards())
-        self.mw.reset()
-        self.deck.setUndoEnd(n)
+            self.deck.sched.unsuspendCards(c)
         self.model.reset()
         self.resetDeck()
 
@@ -803,15 +795,9 @@ where id in %s""" % ids2str(
 
     def onMark(self, mark):
         if mark:
-            self._onMark()
+            self.addTags(tags="Marked", label=False)
         else:
-            self._onUnmark()
-
-    def _onMark(self):
-        self.addTags(tags="Marked", label=_("Toggle Mark"))
-
-    def _onUnmark(self):
-        self.deleteTags(tags="Marked", label=_("Toggle Mark"))
+            self.deleteTags(tags="Marked", label=False)
 
     # Rescheduling
     ######################################################################
