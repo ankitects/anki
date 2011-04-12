@@ -105,6 +105,7 @@ class DeckModel(QAbstractTableModel):
         self.browser.mw.progress.finish()
         self.reset()
 
+    # fixme: merge into reset(), fix titlebar flicker
     def refresh(self):
         self.cardObjs = {}
         self.emit(SIGNAL("layoutChanged()"))
@@ -435,6 +436,7 @@ class Browser(QMainWindow):
         restoreHeader(hh, "editor")
         hh.setHighlightSections(False)
         hh.setMinimumSectionSize(50)
+        hh.setMovable(True)
         self.setColumnSizes()
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
         hh.connect(hh, SIGNAL("customContextMenuRequested(QPoint)"),
