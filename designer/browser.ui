@@ -230,7 +230,6 @@
     </property>
     <addaction name="actionFind"/>
     <addaction name="actionTags"/>
-    <addaction name="actionSort"/>
     <addaction name="actionFact"/>
     <addaction name="actionCardList"/>
     <addaction name="separator"/>

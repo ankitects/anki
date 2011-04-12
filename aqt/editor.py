@@ -377,6 +377,9 @@ class Editor(object):
         if self.stealFocus:
             self.web.setFocus()
 
+    def focus(self):
+        self.web.setFocus()
+
     def fonts(self):
         return [(f['font'], f['esize'])
                 for f in self.fact.model().fields]

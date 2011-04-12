@@ -363,8 +363,12 @@ class Browser(QMainWindow):
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
-        if evt.key() in (Qt.Key_Escape,):
+        if evt.key() == Qt.Key_Escape:
             self.close()
+        elif self.mw.app.focusWidget() == self.form.tree:
+            if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
+                item = self.form.tree.currentItem()
+                self.onTreeClick(item, 0)
 
     def setupColumns(self):
         self.columns = [
@@ -398,7 +402,9 @@ class Browser(QMainWindow):
     def onSearch(self):
         txt = unicode(self.form.searchEdit.text()).strip()
         self.model.search(txt)
-        show = not not self.model.cards
+        if not self.model.cards:
+            # no row change will fire
+            self.onRowChanged(None, None)
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
@@ -434,7 +440,7 @@ class Browser(QMainWindow):
     def onRowChanged(self, current, previous):
         "Update current fact and hide/show editor."
         show = self.model.cards and self.updateTitle() == 1
-        self.form.splitter_2.widget(1).setShown(show)
+        self.form.splitter_2.widget(1).setShown(not not show)
         if not show:
             self.editor.setFact(None)
         else:
@@ -444,7 +450,6 @@ class Browser(QMainWindow):
             self.editor.card = self.card
             self.showCardInfo(self.card)
         self.updateToggles()
-
 
     # Headers & sorting
     ######################################################################
@@ -603,13 +608,13 @@ class Browser(QMainWindow):
     def _systemTagTree(self, root):
         tags = (
             (_("All cards"), "stock_new_template", ""),
+            (_("Marked"), "rating.png", "tag:marked"),
+            (_("Suspended"), "media-playback-pause.png", "is:suspended"),
+            (_("Leech"), "emblem-important.png", "tag:leech"),
             (_("Never seen"), "stock_new_template_blue.png", "is:new"),
             (_("In learning"), "stock_new_template_red.png", "is:lrn"),
             (_("In review"), "stock_new_template_green.png", "is:rev"),
-            (_("Due reviews"), "stock_new_template_green.png", "is:due"),
-            (_("Marked"), "rating.png", "tag:marked"),
-            (_("Suspended"), "media-playback-pause.png", "is:suspended"),
-            (_("Leech"), "emblem-important.png", "tag:leech"))
+            (_("Due reviews"), "stock_new_template_green.png", "is:due"))
         for name, icon, cmd in tags:
             item = self.CallbackItem(
                 name, lambda c=cmd: self.setFilter(c))
@@ -1099,6 +1104,7 @@ select fm.id, fm.name from fieldmodels fm""")
         row = max(0, row - 1)
         self.form.tableView.selectionModel().clear()
         self.form.tableView.selectRow(row)
+        self.onFact()
 
     def onNextCard(self):
         if not self.model.cards:
@@ -1108,16 +1114,17 @@ select fm.id, fm.name from fieldmodels fm""")
         row = min(len(self.model.cards) - 1, row + 1)
         self.form.tableView.selectionModel().clear()
         self.form.tableView.selectRow(row)
+        self.onFact()
 
     def onFind(self):
         self.form.searchEdit.setFocus()
         self.form.searchEdit.selectAll()
 
     def onFact(self):
-        self.editor.focusFirst()
+        self.editor.focus()
 
     def onTags(self):
-        self.form.tagList.setFocus()
+        self.form.tree.setFocus()
 
     def onSort(self):
         self.form.sortBox.setFocus()
