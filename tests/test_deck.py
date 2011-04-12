@@ -170,3 +170,17 @@ def test_selective():
     assert deck.db.scalar("select count() from cards where gid = 3") == 3
     deck.setGroupForTags(["one"], [], 2)
     assert deck.db.scalar("select count() from cards where gid = 2") == 2
+
+def test_addDelTags():
+    deck = getEmptyDeck()
+    f = deck.newFact()
+    f['Front'] = u"1"
+    deck.addFact(f)
+    f2 = deck.newFact()
+    f2['Front'] = u"2"
+    deck.addFact(f2)
+    # adding for a given id
+    deck.addTags([f.id], "foo")
+    f.load(); f2.load()
+    assert "foo" in f.tags
+    assert "foo" not in f2.tags

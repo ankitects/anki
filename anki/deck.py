@@ -541,7 +541,8 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
         lim = " or ".join(
             [l+"like :_%d" % c for c, t in enumerate(newTags)])
         res = self.db.all(
-            "select id, tags from facts where " + lim,
+            "select id, tags from facts where id in %s and %s" % (
+                ids2str(ids), lim),
             **dict([("_%d" % x, '%% %s %%' % y) for x, y in enumerate(newTags)]))
         # update tags
         fids = []
