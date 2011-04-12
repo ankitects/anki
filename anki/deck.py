@@ -529,6 +529,8 @@ insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
     def addTags(self, ids, tags, add=True):
         "Add tags in bulk. TAGS is space-separated."
         newTags = parseTags(tags)
+        if not newTags:
+            return
         # cache tag names
         self.registerTags(newTags)
         # find facts missing the tags
