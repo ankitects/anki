@@ -11,6 +11,7 @@ from anki.db import DB
 from anki.deck import _Deck
 from anki.stdmodels import BasicModel, ClozeModel
 from anki.errors import AnkiError
+from anki.hooks import runHook
 
 def Deck(path, queue=True, lock=True):
     "Open a new or existing deck. Path must be unicode."
@@ -233,6 +234,7 @@ def _upgradeSchema(db):
         raise AnkiError("oldDeckVersion")
     if ver > 99:
         return ver
+    runHook("1.x upgrade", db)
 
     # cards
     ###########
