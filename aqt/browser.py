@@ -116,6 +116,7 @@ class DeckModel(QAbstractTableModel):
 
     def beginReset(self):
         self.browser.editor.saveNow()
+        self.browser.editor.setFact(None, hide=False)
         self.browser.mw.progress.start()
         self.saveSelection()
         self.beginResetModel()
@@ -740,6 +741,7 @@ where id in %s""" % ids2str(sf))
             ChangeModel(self, fids)
 
     def cram(self):
+        return showInfo("not yet implemented")
         self.close()
         self.mw.onCram(self.selectedCards())
 
@@ -822,6 +824,7 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def reschedule(self):
+        return showInfo("not yet implemented")
         n = _("Reschedule")
         d = QDialog(self)
         frm = aqt.forms.reschedule.Ui_Dialog()
@@ -911,52 +914,46 @@ where id in %s""" % ids2str(sf))
         sf = self.selectedFacts()
         if not sf:
             return
-        mods = self.deck.db.column0("""
-select distinct modelId from facts
-where id in %s""" % ids2str(sf))
-        if not len(mods) == 1:
-            ui.utils.showInfo(
-                _("Can only operate on one model at a time."),
-                parent=self)
-            return
+        import anki.find
+        fields = sorted(anki.find.fieldNames(self.deck, downcase=False))
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
-        fields = sorted(self.card.fact.model.fieldModels, key=attrgetter("name"))
-        frm.field.addItems(QStringList(
-            [_("All Fields")] + [f.name for f in fields]))
+        frm.field.addItems(QStringList([_("All Fields")] + fields))
         self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
                      self.onFindReplaceHelp)
         if not d.exec_():
             return
-        n = _("Find and Replace")
-        self.deck.startProgress(2)
-        self.deck.updateProgress(_("Replacing..."))
-        self.deck.setUndoStart(n)
-        self.deck.updateProgress()
-        changed = None
+        if frm.field.currentIndex() == 0:
+            field = None
+        else:
+            field = fields[frm.field.currentIndex()-1]
+        self.mw.checkpoint(_("Find and Replace"))
+        self.mw.progress.start()
+        self.model.beginReset()
         try:
-            if frm.field.currentIndex() == 0:
-                field = None
-            else:
-                field = fields[frm.field.currentIndex()-1].id
             changed = self.deck.findReplace(sf,
                                             unicode(frm.find.text()),
                                             unicode(frm.replace.text()),
                                             frm.re.isChecked(),
-                                            field)
+                                            field,
+                                            frm.ignoreCase.isChecked())
         except sre_constants.error:
             ui.utils.showInfo(_("Invalid regular expression."),
                               parent=self)
-        self.deck.setUndoEnd(n)
-        self.deck.finishProgress()
-        self.mw.reset()
-        self.onSearch()
-        if changed is not None:
-            ui.utils.showInfo(ngettext("%(a)d of %(b)d fact updated", "%(a)d of %(b)d facts updated", len(sf)) % {
+            return
+        else:
+            self.onSearch()
+            self.resetDeck()
+        finally:
+            self.model.endReset()
+            self.mw.progress.finish()
+        showInfo(ngettext(
+            "%(a)d of %(b)d fact updated",
+            "%(a)d of %(b)d facts updated", len(sf)) % {
                 'a': changed,
                 'b': len(sf),
-                }, parent=self)
+            })
 
     def onFindReplaceHelp(self):
         aqt.openHelp("Browser#FindReplace")

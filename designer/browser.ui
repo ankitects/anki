@@ -457,6 +457,9 @@
    <property name="text">
     <string>Find and Re&amp;place...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+F</string>
+   </property>
   </action>
   <action name="actionCram">
    <property name="icon">

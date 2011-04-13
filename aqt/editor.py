@@ -350,7 +350,7 @@ class Editor(object):
         if self.fact:
             self.loadFact()
 
-    def setFact(self, fact):
+    def setFact(self, fact, hide=True):
         "Make FACT the current fact."
         self.fact = fact
         # change timer
@@ -359,7 +359,7 @@ class Editor(object):
                              loadCB=self._loadFinished)
             self.updateTagsAndGroup()
             self.updateKeyboard()
-        else:
+        elif hide:
             self.widget.hide()
 
     def loadFact(self, field=0):
