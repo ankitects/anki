@@ -148,69 +148,66 @@ def test_cloze():
     assert d.addFact(f) == 1
 
 def test_modelChange():
-    print "model change"
-    return
     deck = getEmptyDeck()
-    m2 = deck.currentModel()
-    # taken from jp support plugin
-    m1 = Model(deck)
-    m1.name = "Japanese"
-    # field 1
-    fm = m1.newField()
-    fm['name'] = "Expression"
-    fm['req'] = True
-    fm['uniq'] = True
-    m1.addField(fm)
-    # field2
-    fm = m1.newField()
-    fm['name'] = "Meaning"
-    m1.addField(fm)
-    # field3
-    fm = m1.newField()
-    fm['name'] = "Reading"
-    m1.addField(fm)
-    # template1
-    t = Template(deck)
-    t.name = "Recognition"
-    t.qfmt = "{{Expression}}"
-    t.afmt = "{{Reading}}<br>{{Meaning}}"
-    m1.addTemplate(t)
-    # template2
-    t = Template(deck)
-    t.name = "Recall"
-    t.qfmt = "{{Meaning}}"
-    t.afmt = "{{Expression}}<br>{{Reading}}"
-    #t.active = False
-    m1.addTemplate(t)
-    deck.addModel(m1)
-
-    # add some facts
+    basic = deck.getModel(1)
+    cloze = deck.getModel(2)
+    # enable second template and add a fact
+    basic.templates[1]['actv'] = True
+    basic.flush()
     f = deck.newFact()
-    f['Expression'] = u'e'
-    f['Meaning'] = u'm'
-    f['Reading'] = u'r'
+    f['Front'] = u'f'
+    f['Back'] = u'b'
     deck.addFact(f)
-    f2 = deck.newFact()
-    f2['Expression'] = u'e2'
-    f2['Meaning'] = u'm2'
-    f2['Reading'] = u'r2'
-    deck.addFact(f2)
-
-    # convert to basic
-    assert deck.modelUseCount(m1) == 2
-    assert deck.modelUseCount(m2) == 0
-    assert deck.cardCount() == 4
-    assert deck.factCount() == 2
-    fmap = {m1.fields[0]: m2.fields[0],
-            m1.fields[1]: None,
-            m1.fields[2]: m2.fields[1]}
-    cmap = {m1.templates[0]: m2.templates[0],
-            m1.templates[1]: None}
-    deck.changeModel([f.id], m2, fmap, cmap)
-    assert deck.modelUseCount(m1) == 1
-    assert deck.modelUseCount(m2) == 1
-    assert deck.cardCount() == 3
-    assert deck.factCount() == 2
-    c = deck.getCard(deck.db.scalar("select id from cards where fid = ?", f.id))
-    assert stripHTML(c.q()) == u"e"
-    assert stripHTML(c.a()) == u"r"
+    # switch fields
+    map = {0: 1, 1: 0}
+    basic.changeModel([f.id], basic, map, None)
+    f.load()
+    assert f['Front'] == 'b'
+    assert f['Back'] == 'f'
+    # switch cards
+    c0 = f.cards()[0]
+    c1 = f.cards()[1]
+    assert stripHTML(c0.q()) == "b"
+    assert stripHTML(c1.q()) == "f"
+    assert c0.ord == 0
+    assert c1.ord == 1
+    basic.changeModel([f.id], basic, None, map)
+    f.load(); c0.load(); c1.load()
+    assert stripHTML(c0.q()) == "f"
+    assert stripHTML(c1.q()) == "b"
+    assert c0.ord == 1
+    assert c1.ord == 0
+    # .cards() returns cards in order
+    assert f.cards()[0].id == c1.id
+    # delete first card
+    map = {0: None, 1: 1}
+    basic.changeModel([f.id], basic, None, map)
+    f.load()
+    c0.load()
+    try:
+        c1.load()
+        assert 0
+    except TypeError:
+        pass
+    assert len(f.cards()) == 1
+    # an unmapped field becomes blank
+    assert f['Front'] == 'b'
+    assert f['Back'] == 'f'
+    basic.changeModel([f.id], basic, map, None)
+    f.load()
+    assert f['Front'] == ''
+    assert f['Back'] == 'f'
+    # another fact to try model conversion
+    f = deck.newFact()
+    f['Front'] = u'f2'
+    f['Back'] = u'b2'
+    deck.addFact(f)
+    assert basic.useCount() == 2
+    assert cloze.useCount() == 0
+    map = {0: 0, 1: 1}
+    basic.changeModel([f.id], cloze, map, map)
+    f.load()
+    assert f['Text'] == "f2"
+    assert f['Notes'] == "b2"
+    assert len(f.cards()) == 2
+    assert "b2" in f.cards()[0].a()

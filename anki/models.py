@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import simplejson
-from anki.utils import intTime, hexifyID, joinFields, splitFields
+from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str
 from anki.lang import _
 
 # Models
@@ -278,68 +278,45 @@ select id from facts where mid = ?)""" % " ".join(map), self.id)
 
     # Model changing
     ##########################################################################
+    # - maps are ord->ord, and there should not be duplicate targets
+    # - newModel should be self if model is not changing
+    # - interface should ensure there's at least one remaining card
 
-    def changeModel(self, fids, newModel, fieldMap, cardMap):
-        raise Exception()
-        self.modSchema()
-        sfids = ids2str(fids)
-        # field remapping
-        if fieldMap:
-            seen = {}
-            for (old, new) in fieldMap.items():
-                seen[new] = 1
-                if new:
-                    # can rename
-                    self.db.execute("""
-update fdata set
-fmid = :new,
-ord = :ord
-where fmid = :old
-and fid in %s""" % sfids, new=new.id, ord=new.ord, old=old.id)
-                else:
-                    # no longer used
-                    self.db.execute("""
-delete from fdata where fid in %s
-and fmid = :id""" % sfids, id=old.id)
-            # new
-            for field in newModel.fields:
-                if field not in seen:
-                    d = [{'fid': f,
-                          'fmid': field.id,
-                          'ord': field.ord}
-                         for f in fids]
-                    self.db.executemany('''
-insert into fdata
-(fid, fmid, ord, value)
-values
-(:fid, :fmid, :ord, "")''', d)
-            # fact modtime
-            self.db.execute("""
-update facts set
-mod = :t,
-mid = :id
-where id in %s""" % sfids, t=time.time(), id=newModel.id)
-        # template remapping
-        toChange = []
-        for (old, new) in cardMap.items():
-            if not new:
-                # delete
-                self.db.execute("""
-delete from cards
-where tid = :cid and
-fid in %s""" % sfids, cid=old.id)
-            elif old != new:
-                # gather ids so we can rename x->y and y->x
-                ids = self.db.list("""
-select id from cards where
-tid = :id and fid in %s""" % sfids, id=old.id)
-                toChange.append((new, ids))
-        for (new, ids) in toChange:
-            self.db.execute("""
-update cards set
-tid = :new,
-ord = :ord
-where id in %s""" % ids2str(ids), new=new.id, ord=new.ord)
-        cardIds = self.db.list(
-            "select id from cards where fid in %s" %
-            ids2str(fids))
+    def changeModel(self, fids, newModel, fmap, cmap):
+        self.deck.modSchema()
+        assert newModel.id == self.id or (fmap and cmap)
+        if fmap:
+            self._changeFacts(fids, newModel, fmap)
+        if cmap:
+            self._changeCards(fids, newModel, cmap)
+
+    def _changeFacts(self, fids, newModel, map):
+        d = []
+        nfields = len(newModel.fields)
+        for (fid, flds) in self.deck.db.execute(
+            "select id, flds from facts where id in "+ids2str(fids)):
+            newflds = {}
+            flds = splitFields(flds)
+            for old, new in map.items():
+                newflds[new] = flds[old]
+            flds = []
+            for c in range(nfields):
+                flds.append(newflds.get(c, ""))
+            flds = joinFields(flds)
+            d.append(dict(fid=fid, flds=flds, mid=newModel.id))
+        self.deck.db.executemany(
+            "update facts set flds=:flds, mid=:mid where id = :fid", d)
+        self.deck.updateFieldCache(fids)
+
+    def _changeCards(self, fids, newModel, map):
+        d = []
+        deleted = []
+        for (cid, ord) in self.deck.db.execute(
+            "select id, ord from cards where fid in "+ids2str(fids)):
+            if map[ord] is not None:
+                d.append(dict(cid=cid, new=map[ord]))
+            else:
+                deleted.append(cid)
+        self.deck.db.executemany(
+            "update cards set ord=:new where id=:cid", d)
+        self.deck.delCards(deleted)
