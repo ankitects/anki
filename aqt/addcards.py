@@ -121,11 +121,9 @@ class AddCards(QDialog):
         m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 
     def editHistory(self, fid):
-        print "edit", fid
-        # browser = ui.dialogs.open("CardList", self.mw)
-        # browser.dialog.filterEdit.setText("fid:" + url.toString())
-        # browser.updateSearch()
-        # browser.onFact()
+        browser = aqt.dialogs.open("Browser", self.mw)
+        browser.form.searchEdit.setText("fid:%d" % fid)
+        browser.onSearch()
 
     def addFact(self, fact):
         if any(fact.problems()):

@@ -727,6 +727,9 @@ where id in %s""" % ids2str(sf))
         # but otherwise we can put it off until the user starts studying again
         print "fixme: resetDeck()"
 
+    def onHelp(self):
+        aqt.openHelp("Browser")
+
     # Misc menu options
     ######################################################################
 
@@ -962,6 +965,7 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def onFindDupes(self):
+        return showInfo("not yet implemented")
         win = QDialog(self)
         aqt = ankiqt.forms.finddupes.Ui_Dialog()
         dialog.setupUi(win)
@@ -1086,12 +1090,6 @@ select fm.id, fm.name from fieldmodels fm""")
 
     def onCardList(self):
         self.form.tableView.setFocus()
-
-    # Help
-    ######################################################################
-
-    def onHelp(self):
-        aqt.openHelp("Browser")
 
 # Generate cards
 ######################################################################
