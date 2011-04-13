@@ -25,7 +25,7 @@ class Fact(object):
             self.tags = []
             self.fields = [""] * len(self._model.fields)
             self.data = ""
-        self._fmap = self._model.fieldMap()
+            self._fmap = self._model.fieldMap()
 
     def load(self):
         (self.mid,
@@ -39,6 +39,7 @@ select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = parseTags(self.tags)
         self._model = self.deck.getModel(self.mid)
+        self._fmap = self._model.fieldMap()
 
     def flush(self):
         self.mod = intTime()
@@ -71,7 +72,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
 
     def cards(self):
         return [self.deck.getCard(id) for id in self.deck.db.list(
-            "select id from cards where fid = ? order by id", self.id)]
+            "select id from cards where fid = ? order by ord", self.id)]
 
     def model(self):
         return self._model
