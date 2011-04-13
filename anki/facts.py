@@ -4,7 +4,7 @@
 
 import time
 from anki.errors import AnkiError
-from anki.utils import stripHTMLMedia, fieldChecksum, intTime, \
+from anki.utils import fieldChecksum, intTime, \
     joinFields, splitFields, ids2str, parseTags, canonifyTags, hasTag
 
 class Fact(object):

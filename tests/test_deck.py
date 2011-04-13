@@ -184,3 +184,8 @@ def test_addDelTags():
     f.load(); f2.load()
     assert "foo" in f.tags
     assert "foo" not in f2.tags
+    # should be canonified
+    deck.addTags([f.id], "foo aaa")
+    f.load()
+    assert f.tags[0] == "aaa"
+    assert len(f.tags) == 2

@@ -211,7 +211,7 @@ def addTags(addtags, tags):
     for tag in parseTags(addtags):
         if not hasTag(tag, currentTags):
             currentTags.append(tag)
-    return joinTags(currentTags)
+    return canonifyTags(currentTags)
 
 def delTags(deltags, tags):
     "Delete tags if they don't exists."
@@ -225,7 +225,7 @@ def delTags(deltags, tags):
         # remove them
         for r in remove:
             currentTags.remove(r)
-    return joinTags(currentTags)
+    return canonifyTags(currentTags)
 
 # Fields
 ##############################################################################
