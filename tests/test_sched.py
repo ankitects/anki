@@ -549,6 +549,28 @@ def test_counts():
     assert d.sched.selCounts() == (1,2,1)
     assert d.sched.allCounts() == (2,2,2)
 
+def test_counts2():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u"one"; f['Back'] = u"two"
+    d.addFact(f)
+    d.reset()
+    assert d.sched.counts() == (1, 0, 0)
+    c = d.sched.getCard()
+    # counter's been decremented but idx indicates 1
+    assert d.sched.counts() == (0, 0, 0)
+    assert d.sched.countIdx(c) == 0
+    # answer to move to learn queue
+    d.sched.answerCard(c, 1)
+    assert d.sched.counts() == (0, 1, 0)
+    # fetching again will decrement the count
+    c = d.sched.getCard()
+    assert d.sched.counts() == (0, 0, 0)
+    assert d.sched.countIdx(c) == 1
+    # answering should add it back again
+    d.sched.answerCard(c, 1)
+    assert d.sched.counts() == (0, 1, 0)
+
 def test_timing():
     d = getEmptyDeck()
     # add a few review cards, due today

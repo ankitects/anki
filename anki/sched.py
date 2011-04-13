@@ -43,7 +43,6 @@ class Scheduler(object):
         if card.queue == 0:
             # put it in the learn queue
             card.queue = 1
-            self.lrnCount += 1
         if card.queue == 1:
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
@@ -309,6 +308,9 @@ limit %d""" % self.reportLimit, lim=self.dayCutoff)
                 delay *= random.uniform(1, 1.25)
             card.due = time.time() + delay
             heappush(self.lrnQueue, (card.due, card.id))
+            # if it's due within the cutoff, increment count
+            if delay <= self.deck.qconf['collapseTime']:
+                self.lrnCount += 1
         self._logLrn(card, ease, conf, leaving, type)
 
     def _delayForGrade(self, conf, grade):
