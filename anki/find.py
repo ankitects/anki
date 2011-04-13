@@ -14,6 +14,21 @@ SEARCH_FIELD = 5
 SEARCH_MODEL = 6
 SEARCH_GROUP = 7
 
+# Tools
+##########################################################################
+
+def fieldNames(deck, downcase=True):
+    fields = set()
+    names = []
+    for m in deck.models().values():
+        for f in m.fields:
+            if f['name'].lower() not in fields:
+                names.append(f['name'])
+                fields.add(f['name'].lower())
+    if downcase:
+        return list(fields)
+    return names
+
 # Find
 ##########################################################################
 
@@ -222,17 +237,11 @@ where mid in %s and flds like ? escape '\\'""" % (
         extra = "not" if isNeg else ""
         self.lims['fact'].append("id %s in %s" % (extra, ids2str(fids)))
 
-    def _fieldNames(self):
-        fields = set()
-        for m in self.deck.models().values():
-            fields.update([f['name'].lower() for f in m.fields])
-        return list(fields)
-
     # Most of this function was written by Marcus
     def _parseQuery(self):
         tokens = []
         res = []
-        allowedfields = self._fieldNames()
+        allowedfields = fieldNames(self.deck)
         def addSearchFieldToken(field, value, isNeg):
             if field.lower() in allowedfields:
                 res.append((field + ':' + value, isNeg, SEARCH_FIELD))
