@@ -91,7 +91,8 @@ $(function () {
     $.plot($("#placeholder"), [
     { data: d, bars: { show: true, barWidth: 0.8 }, color: "#0c0" }
     ], {
-    xaxis: { ticks: [[0.4, "Today"]] }
+    xaxis: { ticks: [[0.4, "Today"]] },
+    yaxis: { tickDecimals: 0 }
     });
     } else {
     $("#placeholder").text(d);
