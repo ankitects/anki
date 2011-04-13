@@ -2,8 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-MATURE_THRESHOLD = 21
-
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
 NEW_CARDS_LAST = 1
@@ -21,9 +19,6 @@ NEW_TODAY_DUE = 1
 REV_CARDS_OLD_FIRST = 0
 REV_CARDS_NEW_FIRST = 1
 REV_CARDS_RANDOM = 2
-
-# maximum characters to store in sort cache
-SORT_FIELD_LEN = 20
 
 # Labels
 ##########################################################################

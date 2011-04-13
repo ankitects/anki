@@ -280,7 +280,6 @@ select id from facts where mid = ?)""" % " ".join(map), self.id)
     ##########################################################################
     # - maps are ord->ord, and there should not be duplicate targets
     # - newModel should be self if model is not changing
-    # - interface should ensure there's at least one remaining card
 
     def changeModel(self, fids, newModel, fmap, cmap):
         self.deck.modSchema()

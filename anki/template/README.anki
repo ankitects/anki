@@ -4,3 +4,5 @@ Behaviour is a little different from standard Mustache:
 - {{text}} returns text verbatim with no HTML escaping
 - {{{text}}} strips an outer span tag
 - partial rendering is disabled for security reasons
+- certain keywords like 'cloze' are treated specially
+

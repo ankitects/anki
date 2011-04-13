@@ -431,8 +431,7 @@ select id from cards where fid in (select id from facts where mid = ?)""",
                 for f in model.fields:
                     if f['uniq'] and fields[f['ord']]:
                         r.append((fid, mid, fieldChecksum(fields[f['ord']])))
-            r2.append((stripHTML(fields[model.sortIdx()])[
-                :SORT_FIELD_LEN], fid))
+            r2.append((stripHTML(fields[model.sortIdx()]), fid))
         if csum:
             self.db.execute("delete from fsums where fid in "+sfids)
             self.db.executemany("insert into fsums values (?,?,?)", r)
