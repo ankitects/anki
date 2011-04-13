@@ -63,6 +63,8 @@ class Card(object):
          self.edue,
          self.data) = self.deck.db.first(
              "select * from cards where id = ?", self.id)
+        self._qa = None
+        self._rd = None
 
     def flush(self):
         self.mod = intTime()
