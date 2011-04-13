@@ -23,7 +23,7 @@ class Fact(object):
             self.crt = intTime()
             self.mod = self.crt
             self.tags = []
-            self._fields = [""] * len(self._model.fields)
+            self.fields = [""] * len(self._model.fields)
             self.data = ""
         self._fmap = self._model.fieldMap()
 
@@ -33,17 +33,17 @@ class Fact(object):
          self.crt,
          self.mod,
          self.tags,
-         self._fields,
+         self.fields,
          self.data) = self.deck.db.first("""
 select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
-        self._fields = splitFields(self._fields)
+        self.fields = splitFields(self.fields)
         self.tags = parseTags(self.tags)
         self._model = self.deck.getModel(self.mid)
 
     def flush(self):
         self.mod = intTime()
         # facts table
-        sfld = self._fields[self._model.sortIdx()]
+        sfld = self.fields[self._model.sortIdx()]
         tags = self.stringTags()
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -55,7 +55,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         self.deck.registerTags(self.tags)
 
     def joinedFields(self):
-        return joinFields(self._fields)
+        return joinFields(self.fields)
 
     def updateFieldChecksums(self):
         self.deck.db.execute("delete from fsums where fid = ?", self.id)
@@ -63,7 +63,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         for (ord, conf) in self._fmap.values():
             if not conf['uniq']:
                 continue
-            val = self._fields[ord]
+            val = self.fields[ord]
             if not val:
                 continue
             d.append((self.id, self.mid, fieldChecksum(val)))
@@ -89,10 +89,10 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         return self._fmap.keys()
 
     def values(self):
-        return self._fields
+        return self.fields
 
     def items(self):
-        return [(f['name'], self._fields[ord])
+        return [(f['name'], self.fields[ord])
                 for ord, f in sorted(self._fmap.values())]
 
     def _fieldOrd(self, key):
@@ -102,10 +102,10 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             raise KeyError(key)
 
     def __getitem__(self, key):
-        return self._fields[self._fieldOrd(key)]
+        return self.fields[self._fieldOrd(key)]
 
     def __setitem__(self, key, value):
-        self._fields[self._fieldOrd(key)] = value
+        self.fields[self._fieldOrd(key)] = value
 
     # Tags
     ##################################################

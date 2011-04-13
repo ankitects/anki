@@ -273,7 +273,7 @@ select id from facts where id not in (select distinct fid from cards)""")
                 data = [1, 1, model.id, 1, template['ord'],
                         "", fact.joinedFields()]
                 now = self._renderQA(model, "", data)
-                data[6] = "\x1f".join([""]*len(fact._fields))
+                data[6] = "\x1f".join([""]*len(fact.fields))
                 empty = self._renderQA(model, "", data)
                 if now['q'] == empty['q']:
                     continue

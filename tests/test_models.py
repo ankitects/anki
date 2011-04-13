@@ -40,19 +40,19 @@ def test_fields():
     f = m.newField()
     f['name'] = "foo"
     m.addField(f)
-    assert d.getFact(m.fids()[0])._fields == ["1", "2", ""]
+    assert d.getFact(m.fids()[0]).fields == ["1", "2", ""]
     # rename it
     m.renameField(f, "bar")
     assert d.getFact(m.fids()[0])['bar'] == ''
     # delete back
     m.delField(m.fields[1])
-    assert d.getFact(m.fids()[0])._fields == ["1", ""]
+    assert d.getFact(m.fids()[0]).fields == ["1", ""]
     # move 0 -> 1
     m.moveField(m.fields[0], 1)
-    assert d.getFact(m.fids()[0])._fields == ["", "1"]
+    assert d.getFact(m.fids()[0]).fields == ["", "1"]
     # move 1 -> 0
     m.moveField(m.fields[1], 0)
-    assert d.getFact(m.fids()[0])._fields == ["1", ""]
+    assert d.getFact(m.fids()[0]).fields == ["1", ""]
     # add another and put in middle
     f = m.newField()
     f['name'] = "baz"
@@ -60,16 +60,16 @@ def test_fields():
     f = d.getFact(m.fids()[0])
     f['baz'] = "2"
     f.flush()
-    assert d.getFact(m.fids()[0])._fields == ["1", "", "2"]
+    assert d.getFact(m.fids()[0]).fields == ["1", "", "2"]
     # move 2 -> 1
     m.moveField(m.fields[2], 1)
-    assert d.getFact(m.fids()[0])._fields == ["1", "2", ""]
+    assert d.getFact(m.fids()[0]).fields == ["1", "2", ""]
     # move 0 -> 2
     m.moveField(m.fields[0], 2)
-    assert d.getFact(m.fids()[0])._fields == ["2", "", "1"]
+    assert d.getFact(m.fids()[0]).fields == ["2", "", "1"]
     # move 0 -> 1
     m.moveField(m.fields[0], 1)
-    assert d.getFact(m.fids()[0])._fields == ["", "2", "1"]
+    assert d.getFact(m.fids()[0]).fields == ["", "2", "1"]
 
 def test_templates():
     d = getEmptyDeck()
