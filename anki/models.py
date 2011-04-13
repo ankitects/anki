@@ -110,15 +110,15 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
         if not self.id:
             return ""
         # fields
-        css = "".join([self._fieldCSS(
+        css = "".join(self._fieldCSS(
             ".fm%s-%s" % (hexifyID(self.id), hexifyID(f['ord'])),
             (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
-            for f in self.fields])
+            for f in self.fields)
         # templates
-        css += "".join([".cm%s-%s {text-align:%s;background:%s}\n" % (
+        css += "".join(".cm%s-%s {text-align:%s;background:%s}\n" % (
             hexifyID(self.id), hexifyID(t['ord']),
             ("center", "left", "right")[t['align']], t['bg'])
-                for t in self.templates])
+                for t in self.templates)
         return css
 
     def _rewriteFont(self, font):
@@ -147,7 +147,7 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
 
     def fieldMap(self):
         "Mapping of field name -> (ord, field)."
-        return dict([(f['name'], (f['ord'], f)) for f in self.fields])
+        return dict((f['name'], (f['ord'], f)) for f in self.fields)
 
     def sortIdx(self):
         return self.conf['sortf']
@@ -262,7 +262,7 @@ where mid = ?) and ord > ?""", self.id, ord)
         oldidx = self.templates.index(template)
         if oldidx == idx:
             return
-        oldidxs = dict([(id(t), t['ord']) for t in self.templates])
+        oldidxs = dict((id(t), t['ord']) for t in self.templates)
         self.templates.remove(template)
         self.templates.insert(idx, template)
         self._updateTemplOrds()
