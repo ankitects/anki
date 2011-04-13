@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
-from anki.utils import ids2str, splitFields
+from anki.utils import ids2str, splitFields, joinFields
 
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
@@ -344,41 +344,43 @@ where mid in %s and flds like ? escape '\\'""" % (
 # Find and replace
 ##########################################################################
 
-def findReplace(deck, fids, src, dst, isRe=False, field=None):
+def findReplace(deck, fids, src, dst, regex=False, field=None):
     "Find and replace fields in a fact."
-    # find
-    s = "select id, fid, value from fdata where fid in %s"
-    if isRe:
-        isRe = re.compile(src)
-    else:
-        s += " and value like :v"
+    mmap = {}
     if field:
-        s += " and fmid = :fmid"
-    rows = deck.db.all(s % ids2str(fids),
-                      v="%"+src.replace("%", "%%")+"%",
-                      fmid=field)
-    modded = []
-    if isRe:
-        modded = [
-            {'id': id, 'fid': fid, 'val': re.sub(isRe, dst, val)}
-            for (id, fid, val) in rows
-            if isRe.search(val)]
-    else:
-        modded = [
-            {'id': id, 'fid': fid, 'val': val.replace(src, dst)}
-            for (id, fid, val) in rows
-            if val.find(src) != -1]
-    # update
-    if modded:
-        deck.db.executemany(
-            'update fdata set value = :val where id = :id', modded)
-        deck.updateCardQACacheFromIds([f['fid'] for f in modded],
-                                      type="facts")
+        for m in deck.models().values():
+            for f in m.fields:
+                if f['name'] == field:
+                    mmap[m.id] = f['ord']
+        if not mmap:
+            return 0
+    # find and gather replacements
+    if not regex:
+        src = re.escape(src)
+    regex = re.compile("(?i)"+src)
+    def repl(str):
+        return re.sub(regex, dst, str)
+    d = []
+    for fid, mid, flds in deck.db.execute(
+        "select id, mid, flds from facts where id in "+ids2str(fids)):
+        origFlds = flds
+        # does it match?
+        sflds = splitFields(flds)
         if field:
-            deck.updateFieldChecksums(field)
+            ord = mmap[mid]
+            sflds[ord] = repl(sflds[ord])
         else:
-            deck.updateAllFieldChecksums()
-    return len(set([f['fid'] for f in modded]))
+            for c in range(len(sflds)):
+                sflds[c] = repl(sflds[c])
+        flds = joinFields(sflds)
+        if flds != origFlds:
+            d.append(dict(fid=fid, flds=flds))
+    if not d:
+        return 0
+    # replace
+    deck.db.executemany("update facts set flds = :flds where id=:fid", d)
+    deck.updateFieldCache(fids)
+    return len(d)
 
 # Find duplicates
 ##########################################################################

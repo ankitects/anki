@@ -101,3 +101,30 @@ def test_findCards():
     assert len(deck.findCards("group:default")) == 5
     assert len(deck.findCards("-group:default")) == 0
     assert len(deck.findCards("-group:foo")) == 5
+
+def test_findReplace():
+    deck = getEmptyDeck()
+    f = deck.newFact()
+    f['Front'] = u'foo'
+    f['Back'] = u'bar'
+    deck.addFact(f)
+    f2 = deck.newFact()
+    f2['Front'] = u'baz'
+    f2['Back'] = u'foo'
+    deck.addFact(f2)
+    fids = [f.id, f2.id]
+    # should do nothing
+    assert deck.findReplace(fids, "abc", "123") == 0
+    # global replace
+    assert deck.findReplace(fids, "foo", "qux") == 2
+    f.load(); assert f['Front'] == "qux"
+    f2.load(); assert f2['Back'] == "qux"
+    # single field replace
+    assert deck.findReplace(fids, "qux", "foo", field="Front") == 1
+    f.load(); assert f['Front'] == "foo"
+    f2.load(); assert f2['Back'] == "qux"
+    # regex replace
+    assert deck.findReplace(fids, "B.r", "reg") == 0
+    f.load(); assert f['Back'] != "reg"
+    assert deck.findReplace(fids, "B.r", "reg", regex=True) == 1
+    f.load(); assert f['Back'] == "reg"

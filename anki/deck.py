@@ -15,7 +15,7 @@ from anki.errors import AnkiError
 
 import anki.latex # sets up hook
 import anki.cards, anki.facts, anki.models, anki.template, anki.cram, \
-    anki.groups
+    anki.groups, anki.find
 
 # Settings related to queue building. These may be loaded without the rest of
 # the config to check due counts faster on mobile clients.
@@ -641,15 +641,12 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
     ##########################################################################
 
     def findCards(self, query):
-        import anki.find
         return anki.find.Finder(self).findCards(query)
 
-    def findReplace(self, *args, **kwargs):
-        import anki.find
-        return anki.find.findReplace(self, *args, **kwargs)
+    def findReplace(self, fids, src, dst, regex=None, field=None):
+        return anki.find.findReplace(self, fids, src, dst, regex, field)
 
     def findDuplicates(self, fmids):
-        import anki.find
         return anki.find.findDuplicates(self, fmids)
 
     # Stats
