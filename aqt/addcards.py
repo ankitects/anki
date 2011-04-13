@@ -93,9 +93,9 @@ class AddCards(QDialog):
         # copy fields from old fact
         if oldFact:
             self.removeTempFact(oldFact)
-            for n in range(len(fact._fields)):
+            for n in range(len(fact.fields)):
                 try:
-                    fact._fields[n] = oldFact._fields[n]
+                    fact.fields[n] = oldFact.fields[n]
                 except IndexError:
                     break
         self.editor.setFact(fact)
@@ -107,7 +107,7 @@ class AddCards(QDialog):
         self.mw.deck._delFacts([fact.id])
 
     def addHistory(self, fact):
-        txt = stripHTMLMedia(",".join(fact._fields))[:30]
+        txt = stripHTMLMedia(",".join(fact.fields))[:30]
         self.history.append((fact.id, txt))
         self.history = self.history[-15:]
         self.historyButton.setEnabled(True)

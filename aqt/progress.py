@@ -6,6 +6,10 @@ import time
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
+# fixme: if mw->subwindow opens a progress dialog with mw as the parent, mw
+# gets raised on finish on compiz. perhaps we should be using the progress
+# dialog as the parent?
+
 # Progress info
 ##########################################################################
 

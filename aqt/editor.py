@@ -311,7 +311,7 @@ class Editor(object):
         # focus lost or key/button pressed?
         if str.startswith("blur") or str.startswith("key"):
             (type, txt) = str.split(":", 1)
-            self.fact._fields[self.currentField] = self.mungeHTML(txt)
+            self.fact.fields[self.currentField] = self.mungeHTML(txt)
             if type == "blur":
                 if not self._keepButtons:
                     self.disableButtons()
@@ -405,7 +405,7 @@ class Editor(object):
     def fieldsAreBlank(self):
         if not self.fact:
             return True
-        for f in self.fact._fields:
+        for f in self.fact.fields:
             if f:
                 return False
         return True
@@ -420,10 +420,10 @@ class Editor(object):
         form.setupUi(d)
         d.connect(form.buttonBox, SIGNAL("helpRequested()"),
                  lambda: aqt.openHelp("HtmlEditor"))
-        form.textEdit.setPlainText(self.fact._fields[self.currentField])
+        form.textEdit.setPlainText(self.fact.fields[self.currentField])
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
-        self.fact._fields[self.currentField] = unicode(
+        self.fact.fields[self.currentField] = unicode(
             form.textEdit.toPlainText())
         self.loadFact(self.currentField)
 
@@ -503,7 +503,7 @@ class Editor(object):
             showInfo(_("Please add a cloze deletion model."),
                  help="ClozeDeletion")
             return
-        f = self.fact._fields[self.currentField]
+        f = self.fact.fields[self.currentField]
         # find the highest existing cloze
         m = re.findall("\{\{c(\d+)::", f)
         if m:

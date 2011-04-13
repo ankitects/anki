@@ -195,7 +195,7 @@ class DeckModel(QAbstractTableModel):
             return self.formatQA(c.a())
         elif type == "factFld":
             f = c.fact()
-            return self.formatQA(f._fields[f.model().sortIdx()])
+            return self.formatQA(f.fields[f.model().sortIdx()])
         elif type == "template":
             return c.template()['name']
         elif type == "cardDue":

@@ -238,7 +238,7 @@ title="%s">%s</button>''' % (
     def onUpgrade(self, db):
         self.upgrading = True
         self.progress.setupDB(db)
-        self.progress.start(label=_("Upgrading..."))
+        self.progress.start(label=_("Upgrading. Please be patient..."))
 
     # Deck loading
     ##########################################################################

@@ -378,7 +378,7 @@ div#filler {
         ord = self.typeAns()
         try:
             cor = self.mw.deck.media.strip(
-                stripHTML(self.card.fact()._fields[ord]))
+                stripHTML(self.card.fact().fields[ord]))
         except IndexError:
             self.card.template()['typeAns'] = None
             self.card.model().flush()
