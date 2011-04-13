@@ -444,6 +444,9 @@
    <property name="text">
     <string>Change &amp;Model...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+M</string>
+   </property>
   </action>
   <action name="actionSelectFacts">
    <property name="text">

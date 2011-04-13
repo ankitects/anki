@@ -13,7 +13,7 @@ from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
     ids2str, stripHTMLMedia
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo
+    showInfo, askUser
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, removeHook
@@ -708,6 +708,18 @@ where id in %s""" % ids2str(
             "select id from cards where fid in (%s)" %
             ",".join([str(s) for s in self.selectedFacts()]))
 
+    def oneModelFacts(self):
+        sf = self.selectedFacts()
+        if not sf:
+            return
+        mods = self.deck.db.scalar("""
+select count(distinct mid) from facts
+where id in %s""" % ids2str(sf))
+        if mods > 1:
+            showInfo(_("Please select cards from only one model."))
+            return
+        return sf
+
     def resetDeck(self):
         "Signal the queue needs rebuilding."
         # for operations that change models we'll need to reset immediately,
@@ -718,7 +730,14 @@ where id in %s""" % ids2str(
     ######################################################################
 
     def genCards(self):
-        GenCards(self)
+        fids = self.oneModelFacts()
+        if fids:
+            GenCards(self, fids)
+
+    def onChangeModel(self):
+        fids = self.oneModelFacts()
+        if fids:
+            ChangeModel(self, fids)
 
     def cram(self):
         self.close()
@@ -827,30 +846,6 @@ where id in %s""" % ids2str(
             self.deck.reset()
             self.deck.setUndoEnd(n)
         self.resetDeck()
-
-    # Model changing
-    ######################################################################
-
-    def onChangeModel(self):
-        sf = self.selectedFacts()
-        mods = self.deck.db.column0("""
-select distinct modelId from facts
-where id in %s""" % ids2str(sf))
-        if not len(mods) == 1:
-            ui.utils.showInfo(
-                _("Can only change one model at a time."),
-                parent=self)
-            return
-        d = ChangeModelDialog(self, self.card.fact.model,
-                              self.card.cardModel)
-        d.exec_()
-        if d.ret:
-            n = _("Change Model")
-            self.deck.setUndoStart(n)
-            self.deck.changeModel(sf, *d.ret)
-            self.deck.setUndoEnd(n)
-            self.onSearch()
-            self.resetDeck()
 
     # Edit: selection
     ######################################################################
@@ -1106,30 +1101,16 @@ select fm.id, fm.name from fieldmodels fm""")
 
 class GenCards(QDialog):
 
-    def __init__(self, browser):
-        self.browser = browser
-        if not self.canShow():
-            return
+    def __init__(self, browser, fids):
         QDialog.__init__(self, browser)
+        self.browser = browser
+        self.fids = fids
         self.form = aqt.forms.addcardmodels.Ui_Dialog()
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         restoreGeom(self, "addCardModels")
         self.getSelection()
-
-    def canShow(self):
-        b = self.browser
-        self.fids = b.selectedFacts()
-        if not self.fids:
-            return
-        mods = b.deck.db.scalar("""
-select count(distinct mid) from facts
-where id in %s""" % ids2str(self.fids))
-        if mods > 1:
-            showInfo(_("Please select cards from only one model."))
-            return
-        return True
 
     def getSelection(self):
         # get cards to enable
@@ -1146,7 +1127,7 @@ where id in %s""" % ids2str(self.fids))
             else:
                 mode = QItemSelectionModel.Deselect
             self.form.list.selectionModel().select(idx, mode)
-        self.show()
+        self.exec_()
 
     def accept(self):
         tplates = []
@@ -1176,54 +1157,57 @@ where id in %s""" % ids2str(self.fids))
 # Change model dialog
 ######################################################################
 
-class ChangeModelDialog(QDialog):
+class ChangeModel(QDialog):
 
-    def __init__(self, parent, oldModel, oldTemplate):
-        QDialog.__init__(self, parent, Qt.Window)
-        self.parent = parent
-        self.origModel = self.parent.deck.currentModel
-        self.oldModel = oldModel
-        self.oldTemplate = oldTemplate
+    def __init__(self, browser, fids):
+        QDialog.__init__(self, browser)
+        self.browser = browser
+        self.fids = fids
+        self.oldModel = browser.card.fact().model()
         self.form = aqt.forms.changemodel.Ui_Dialog()
         self.form.setupUi(self)
+        self.setup()
+        restoreGeom(self, "changeModel")
+        addHook("reset", self.onReset)
+        self.exec_()
+
+    def setup(self):
         # maps
-        self.fieldMapWidget = None
-        self.fieldMapLayout = QHBoxLayout()
-        self.form.fieldMap.setLayout(self.fieldMapLayout)
-        self.templateMapWidget = None
-        self.templateMapLayout = QHBoxLayout()
-        self.form.templateMap.setLayout(self.templateMapLayout)
+        self.flayout = QHBoxLayout()
+        self.flayout.setMargin(0)
+        self.fwidg = None
+        self.form.fieldMap.setLayout(self.flayout)
+        self.tlayout = QHBoxLayout()
+        self.tlayout.setMargin(0)
+        self.twidg = None
+        self.form.templateMap.setLayout(self.tlayout)
         # model chooser
-        self.parent.deck.currentModel = oldModel
+        import aqt.modelchooser
+        self.oldCurrentModel = self.browser.deck.conf['currentModelId']
+        self.browser.deck.conf['currentModelId'] = self.oldModel.id
         self.form.oldModelLabel.setText(self.oldModel.name)
-        self.modelChooser = ui.modelchooser.ModelChooser(self,
-                                                         self.parent,
-                                                         self.parent.deck,
-                                                         self.modelChanged,
-                                                         cards=False,
-                                                         label=False)
-        self.form.modelChooserWidget.setLayout(self.modelChooser)
+        self.modelChooser = aqt.modelchooser.ModelChooser(
+            self.browser.mw, self.form.modelChooserWidget, cards=False, label=False)
         self.modelChooser.models.setFocus()
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
-        restoreGeom(self, "changeModel")
         self.modelChanged(self.oldModel)
-        self.ret = None
         self.pauseUpdate = False
+
+    def onReset(self):
+        self.modelChanged(self.browser.deck.currentModel())
 
     def modelChanged(self, model):
         self.targetModel = model
-        # just changing template?
-        self.form.fieldMap.setEnabled(self.targetModel != self.oldModel)
         self.rebuildTemplateMap()
         self.rebuildFieldMap()
 
     def rebuildTemplateMap(self, key=None, attr=None):
         if not key:
-            key = "template"
-            attr = "cardModels"
-        map = getattr(self, key + "MapWidget")
-        lay = getattr(self, key + "MapLayout")
+            key = "t"
+            attr = "templates"
+        map = getattr(self, key + "widg")
+        lay = getattr(self, key + "layout")
         src = getattr(self.oldModel, attr)
         dst = getattr(self.targetModel, attr)
         if map:
@@ -1233,11 +1217,11 @@ class ChangeModelDialog(QDialog):
         map = QWidget()
         l = QGridLayout()
         combos = []
-        targets = [x.name for x in dst] + [_("Nothing")]
+        targets = [x['name'] for x in dst] + [_("Nothing")]
         qtargets = QStringList(targets)
         indices = {}
         for i, x in enumerate(src):
-            l.addWidget(QLabel(_("Change %s to:") % x.name), i, 0)
+            l.addWidget(QLabel(_("Change %s to:") % x['name']), i, 0)
             cb = QComboBox()
             cb.addItems(qtargets)
             idx = min(i, len(targets)-1)
@@ -1249,20 +1233,20 @@ class ChangeModelDialog(QDialog):
             l.addWidget(cb, i, 1)
         map.setLayout(l)
         lay.addWidget(map)
-        setattr(self, key + "MapWidget", map)
-        setattr(self, key + "MapLayout", lay)
-        setattr(self, key + "Combos", combos)
-        setattr(self, key + "Indices", indices)
+        setattr(self, key + "widg", map)
+        setattr(self, key + "layout", lay)
+        setattr(self, key + "combos", combos)
+        setattr(self, key + "indices", indices)
 
     def rebuildFieldMap(self):
-        return self.rebuildTemplateMap(key="field", attr="fieldModels")
+        return self.rebuildTemplateMap(key="f", attr="fields")
 
     def onComboChanged(self, i, cb, key):
-        indices = getattr(self, key + "Indices")
+        indices = getattr(self, key + "indices")
         if self.pauseUpdate:
             indices[cb] = i
             return
-        combos = getattr(self, key + "Combos")
+        combos = getattr(self, key + "combos")
         if i == cb.count() - 1:
             # set to 'nothing'
             return
@@ -1279,55 +1263,56 @@ class ChangeModelDialog(QDialog):
 
     def getTemplateMap(self, old=None, combos=None, new=None):
         if not old:
-            old = self.oldModel.cardModels
-            combos = self.templateCombos
-            new = self.targetModel.cardModels
+            old = self.oldModel.templates
+            combos = self.tcombos
+            new = self.targetModel.templates
         map = {}
         for i, f in enumerate(old):
             idx = combos[i].currentIndex()
             if idx == len(new):
                 # ignore
-                map[f] = None
+                map[f['ord']] = None
             else:
                 f2 = new[idx]
-                if f2 in map.values():
-                    return None
-                map[f] = f2
+                map[f['ord']] = f2['ord']
         return map
 
     def getFieldMap(self):
         return self.getTemplateMap(
-            old=self.oldModel.fieldModels,
-            combos=self.fieldCombos,
-            new=self.targetModel.fieldModels)
+            old=self.oldModel.fields,
+            combos=self.fcombos,
+            new=self.targetModel.fields)
+
+    def cleanup(self):
+        removeHook("reset", self.onReset)
+        self.oldCurrentModel = self.browser.deck.conf['currentModelId']
+        self.modelChooser.cleanup()
+        saveGeom(self, "changeModel")
 
     def reject(self):
-        self.parent.deck.currentModel = self.origModel
-        self.modelChooser.deinit()
+        self.cleanup()
         return QDialog.reject(self)
 
     def accept(self):
-        saveGeom(self, "changeModel")
-        self.parent.deck.currentModel = self.origModel
         # check maps
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
-        if not cmap or (self.targetModel != self.oldModel and
-                        not fmap):
-            ui.utils.showInfo(
-                _("Targets must be unique."), parent=self)
-            return
-        if [c for c in cmap.values() if not c]:
-            if not ui.utils.askUser(_("""\
-Any cards with templates mapped to nothing will be deleted.
-If a fact has no remaining cards, it will be lost.
-Are you sure you want to continue?"""), parent=self):
+        if any(True for c in cmap.values() if c is None):
+            if not askUser(_("""\
+Any cards with templates mapped to nothing will be deleted. \
+If a fact has no remaining cards, it will be lost. \
+Are you sure you want to continue?""")):
                 return
-        self.modelChooser.deinit()
-        if self.targetModel == self.oldModel:
-            self.ret = (self.targetModel, None, cmap)
-            return QDialog.accept(self)
-        self.ret = (self.targetModel, fmap, cmap)
+        self.browser.mw.checkpoint(_("Change Model"))
+        b = self.browser
+        b.mw.progress.start()
+        b.model.beginReset()
+        self.oldModel.changeModel(self.fids, self.targetModel, fmap, cmap)
+        b.onSearch(reset=False)
+        b.model.endReset()
+        b.mw.progress.finish()
+        b.resetDeck()
+        self.cleanup()
         return QDialog.accept(self)
 
     def onHelp(self):
