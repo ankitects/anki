@@ -643,8 +643,8 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
     def findCards(self, query):
         return anki.find.Finder(self).findCards(query)
 
-    def findReplace(self, fids, src, dst, regex=None, field=None):
-        return anki.find.findReplace(self, fids, src, dst, regex, field)
+    def findReplace(self, fids, src, dst, regex=None, field=None, fold=True):
+        return anki.find.findReplace(self, fids, src, dst, regex, field, fold)
 
     def findDuplicates(self, fmids):
         return anki.find.findDuplicates(self, fmids)

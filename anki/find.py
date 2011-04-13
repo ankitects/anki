@@ -353,7 +353,7 @@ where mid in %s and flds like ? escape '\\'""" % (
 # Find and replace
 ##########################################################################
 
-def findReplace(deck, fids, src, dst, regex=False, field=None):
+def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
     "Find and replace fields in a fact."
     mmap = {}
     if field:
@@ -366,7 +366,9 @@ def findReplace(deck, fids, src, dst, regex=False, field=None):
     # find and gather replacements
     if not regex:
         src = re.escape(src)
-    regex = re.compile("(?i)"+src)
+    if fold:
+        src = "(?i)"+src
+    regex = re.compile(src)
     def repl(str):
         return re.sub(regex, dst, str)
     d = []
