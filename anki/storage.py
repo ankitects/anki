@@ -189,8 +189,6 @@ create index if not exists ix_fsums_csum on fsums (csum);
 
 # 2.0 schema migration
 ######################################################################
-# we don't have access to the progress handler at this point, so the GUI code
-# will need to set up a progress handling window before opening a deck.
 
 def _moveTable(db, table, cards=False):
     if cards:
