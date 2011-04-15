@@ -150,6 +150,7 @@ question or answer on all cards."""), help="AddItems")
         # stop anything playing
         clearAudioQueue()
         self.setupNewFact()
+        self.mw.requireReset()
         self.mw.deck.autosave()
 
     def keyPressEvent(self, evt):
@@ -167,6 +168,7 @@ question or answer on all cards."""), help="AddItems")
         self.removeTempFact(self.editor.fact)
         self.editor.setFact(None)
         self.modelChooser.cleanup()
+        self.mw.maybeReset()
         removeHook('reset', self.onReset)
         saveGeom(self, "add")
         aqt.dialogs.close("AddCards")

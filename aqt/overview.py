@@ -25,7 +25,7 @@ class Overview(object):
     def refresh(self):
         self._renderPage()
 
-    # Handlers
+        # Handlers
     ############################################################
 
     def _keyHandler(self, evt):

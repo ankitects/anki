@@ -218,10 +218,6 @@ class DeckModel(QAbstractTableModel):
                 return _("(new)")
             return "%d%%" % (c.factor/10)
 
-    # def intervalColumn(self, index):
-    #     return fmtTimeSpan(
-    #         self.cards[index.row()][CARD_INTERVAL]*86400)
-
     # def limitContent(self, txt):
     #     if "<c>" in txt:
     #         matches = re.findall("(?s)<c>(.*?)</c>", txt)
@@ -318,9 +314,6 @@ class Browser(QMainWindow):
         self.form.searchEdit.setText("is:recent")
         self.form.searchEdit.selectAll()
         self.onSearch()
-        # if self.parent.card:
-        #     self.card = self.parent.card
-        #self.updateSearch()
 
     def setupToolbar(self):
         self.form.toolBar.setIconSize(QSize(self.mw.config['iconSize'],
@@ -380,6 +373,7 @@ class Browser(QMainWindow):
         self.hide()
         aqt.dialogs.close("Browser")
         self.teardownHooks()
+        self.mw.maybeReset()
         evt.accept()
 
     def keyPressEvent(self, evt):
@@ -721,12 +715,6 @@ where id in %s""" % ids2str(sf))
             return
         return sf
 
-    def resetDeck(self):
-        "Signal the queue needs rebuilding."
-        # for operations that change models we'll need to reset immediately,
-        # but otherwise we can put it off until the user starts studying again
-        print "fixme: resetDeck()"
-
     def onHelp(self):
         aqt.openHelp("Browser")
 
@@ -761,7 +749,7 @@ where id in %s""" % ids2str(sf))
             new = min(oldRow, len(self.model.cards) - 1)
             self.model.focusedCard = self.model.cards[new]
         self.model.endReset()
-        self.resetDeck()
+        self.mw.requireReset()
 
     # Tags
     ######################################################################
@@ -784,7 +772,7 @@ where id in %s""" % ids2str(sf))
             self.mw.checkpoint(label)
         func(self.selectedFacts(), tags)
         self.onSearch(reset=False)
-        self.resetDeck()
+        self.mw.requireReset()
         self.model.endReset()
 
     def deleteTags(self, tags=None, label=None):
@@ -812,7 +800,7 @@ where id in %s""" % ids2str(sf))
         else:
             self.deck.sched.unsuspendCards(c)
         self.model.reset()
-        self.resetDeck()
+        self.mw.requireReset()
 
     def isMarked(self):
         return self.card and self.card.fact().hasTag("Marked")
@@ -851,7 +839,7 @@ where id in %s""" % ids2str(sf))
         finally:
             self.deck.reset()
             self.deck.setUndoEnd(n)
-        self.resetDeck()
+        self.mw.requireReset()
 
     # Edit: selection
     ######################################################################
@@ -947,7 +935,7 @@ where id in %s""" % ids2str(sf))
             return
         else:
             self.onSearch()
-            self.resetDeck()
+            self.mw.requireReset()
         finally:
             self.model.endReset()
             self.mw.progress.finish()
@@ -1144,6 +1132,7 @@ class GenCards(QDialog):
             if c % 100 == 0:
                 mw.progress.update()
         mw.progress.finish()
+        mw.requireReset()
         self.browser.onSearch()
 
     def onHelp(self):
@@ -1306,7 +1295,7 @@ Are you sure you want to continue?""")):
         b.onSearch(reset=False)
         b.model.endReset()
         b.mw.progress.finish()
-        b.resetDeck()
+        b.requireReset()
         self.cleanup()
         return QDialog.accept(self)
 

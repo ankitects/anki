@@ -88,8 +88,9 @@ class AnkiQt(QMainWindow):
 
     def moveToState(self, state, *args):
         print "-> move from", self.state, "to", state
+        oldState = self.state
         self.state = state
-        getattr(self, "_"+state+"State")(self.state, *args)
+        getattr(self, "_"+state+"State")(oldState, *args)
 
     def _deckBrowserState(self, oldState):
         # shouldn't call this directly; call close
@@ -119,10 +120,38 @@ class AnkiQt(QMainWindow):
         "Called when a card or fact is edited (but not deleted)."
         runHook("factChanged", fid)
 
+    # Resetting state
+    ##########################################################################
+
     def reset(self, type="all", *args):
-        "Called for non-trivial edits. Rebuilds queue."
+        "Called for non-trivial edits. Rebuilds queue and updates UI."
         self.deck.reset()
         runHook("reset")
+
+    def requireReset(self):
+        "Signal queue needs to be rebuilt when edits are finished or by user."
+        if self.state in ("overview", "review"):
+            self.moveToState("resetRequired")
+        elif self.state == "editCurrent":
+            # reload current card
+            pass
+
+    def maybeReset(self):
+        if self.state == "resetRequired":
+            self.reset()
+            self.moveToState(self.returnState)
+
+    def _resetRequiredState(self, oldState):
+        self.returnState = oldState
+        self.web.setKeyHandler(None)
+        self.web.setLinkHandler(lambda url: self.maybeReset())
+        self.web.stdHtml("""
+<center><div style="height: 100%%">
+<div style="position:relative; vertical-align: middle;">
+%s<br>
+%s</div></div></center>
+""" % (_("Close the editing window to resume."),
+       self.button("refresh", _("Return"))), css=self.sharedCSS)
 
     # HTML helpers
     ##########################################################################
