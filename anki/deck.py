@@ -503,11 +503,6 @@ where c.fid == f.id
     def tagList(self):
         return self.db.list("select name from tags order by name")
 
-    def cardHasTag(self, card, tag):
-        tags = self.db.scalar("select tags from fact where id = :fid",
-                              fid=card.fid)
-        return tag.lower() in parseTags(tags.lower())
-
     def updateFactTags(self, fids=None):
         "Add any missing tags to the tags list."
         if fids:
