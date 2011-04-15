@@ -24,7 +24,7 @@ defaultField = {
     'font': "Arial",
     'qsize': 20,
     'esize': 20,
-    'qcol': "#fff",
+    'qcol': "#000",
     'pre': True,
 }
 
@@ -36,7 +36,7 @@ defaultTemplate = {
     'afmt': "",
     'hideQ': False,
     'align': 0,
-    'bg': "#000",
+    'bg': "#fff",
     'emptyAns': True,
     'typeAns': None,
     'gid': None
