@@ -14,7 +14,6 @@ class EditCurrent(QDialog):
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle(_("Edit Current"))
         self.setMinimumHeight(400)
         self.setMinimumWidth(500)
@@ -27,12 +26,13 @@ class EditCurrent(QDialog):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
         self.editor.setFact(self.mw.reviewer.card.fact())
         restoreGeom(self, "editcurrent")
-        self.show()
+        self.mw.requireReset()
+        self.open()
 
     def onSave(self):
         self.editor.saveNow()
         self.editor.setFact(None)
         self.mw.reviewer.card.load()
-        self.mw.reviewer.showQuestion()
+        self.mw.reviewer.show(keep=True)
         saveGeom(self, "editcurrent")
         self.close()

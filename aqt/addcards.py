@@ -23,7 +23,6 @@ class AddCards(QDialog):
         self.mw = mw
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
-        #self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle(_("Add"))
         self.setMinimumHeight(400)
         self.setMinimumWidth(500)
@@ -35,6 +34,7 @@ class AddCards(QDialog):
         self.forceClose = False
         #restoreGeom(self, "add")
         addHook('reset', self.onReset)
+        self.mw.requireReset()
         self.open()
         self.setupNewFact()
 
@@ -155,7 +155,6 @@ question or answer on all cards."""), help="AddItems")
         # stop anything playing
         clearAudioQueue()
         self.setupNewFact()
-        self.mw.requireReset()
         self.mw.deck.autosave()
 
     def keyPressEvent(self, evt):

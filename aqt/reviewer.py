@@ -25,10 +25,13 @@ class Reviewer(object):
         self._setupStatus()
         addHook("leech", self.onLeech)
 
-    def show(self):
+    def show(self, keep=False):
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
-        self.nextCard()
+        if keep:
+            self._initWeb()
+        else:
+            self.nextCard()
 
     def lastCard(self):
         if self._answeredIds:
@@ -138,12 +141,12 @@ $(".ansbut").focus();
     def _initWeb(self):
         self.web.stdHtml(self._revHtml % dict(
             showans=_("Show Answer")), self._styles(),
-            loadCB=lambda x: self.showQuestion())
+            loadCB=lambda x: self._showQuestion())
 
     # Showing the question (and preparing answer)
     ##########################################################################
 
-    def showQuestion(self):
+    def _showQuestion(self):
         # fixme: timeboxing
         # fixme: timer
         self.state = "question"
