@@ -160,6 +160,7 @@ def getText(prompt, parent=None, help=None, edit=None, default=u"", title="Anki"
         parent = aqt.mw.app.activeWindow() or aqt.mw.app.mw
     d = GetTextDialog(parent, prompt, help=help, edit=edit,
                       default=default, title=title)
+    d.setWindowModality(Qt.WindowModal)
     ret = d.exec_()
     return (unicode(d.l.text()), ret)
 
