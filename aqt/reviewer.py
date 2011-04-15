@@ -28,7 +28,7 @@ class Reviewer(object):
     def show(self):
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
-        self._getCard()
+        self.nextCard()
 
     def lastCard(self):
         if self._answeredIds:
@@ -38,7 +38,7 @@ class Reviewer(object):
     # Fetching a card
     ##########################################################################
 
-    def _getCard(self):
+    def nextCard(self):
         if self.cardQueue:
             # a card has been retrieved from undo
             c = self.cardQueue.pop()
@@ -144,20 +144,15 @@ $(".ansbut").focus();
     ##########################################################################
 
     def _showQuestion(self):
-        self.state = "question"
         # fixme: timeboxing
-        # fixme: prevent audio from repeating
-        # fixme: include placeholder for type answer result
+        # fixme: timer
+        self.state = "question"
         c = self.card
-        # original question with sounds
         q = c.q()
         a = c.a()
-        if (#self.state != self.oldState and not nosound
-            self.mw.config['autoplaySounds']):
+        if self.mw.config['autoplaySounds']:
             playFromText(q)
         # render
-
-        # buf = self.typeAnsResult()
         esc = self.mw.deck.media.escapeImages
         q=esc(mungeQA(q)) + self.typeAnsInput()
         a=esc(mungeQA(a))
@@ -229,7 +224,7 @@ $(".ansbut").focus();
         self.mw.deck.sched.answerCard(self.card, ease)
         self._answeredIds.append(self.card.id)
         print "fixme: save"
-        self._getCard()
+        self.nextCard()
 
     # Handlers
     ############################################################

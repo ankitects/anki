@@ -610,48 +610,36 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     # Marking, suspending and deleting
     ##########################################################################
+    # These are only available while reviewing
 
-    def updateMarkAction(self):
+    def updateMarkAction(self, ):
         self.form.actionMarkCard.blockSignals(True)
-        if self.deck.cardHasTag(self.currentCard, "Marked"):
-            self.form.actionMarkCard.setChecked(True)
-        else:
-            self.form.actionMarkCard.setChecked(False)
+        self.form.actionMarkCard.setChecked(
+            self.reviewer.card.fact().hasTag("marked"))
         self.form.actionMarkCard.blockSignals(False)
 
     def onMark(self, toggled):
-        if self.deck.cardHasTag(self.currentCard, "Marked"):
-            self.currentCard.fact.tags = canonifyTags(deleteTags(
-                "Marked", self.currentCard.fact.tags))
+        f = self.reviewer.card.fact()
+        if f.hasTag("marked"):
+            f.delTag("marked")
         else:
-            self.currentCard.fact.tags = canonifyTags(addTags(
-                "Marked", self.currentCard.fact.tags))
-        self.currentCard.fact.setModified(textChanged=True, deck=self.deck)
-        self.deck.updateFactTags([self.currentCard.fact.id])
-        self.deck.setModified()
+            f.addTag("marked")
+        f.flush()
 
     def onSuspend(self):
-        undo = _("Suspend")
-        self.deck.setUndoStart(undo)
-        self.deck.suspendCards([self.currentCard.id])
-        self.reset()
-        self.deck.setUndoEnd(undo)
+        self.checkpoint(_("Suspend"))
+        self.deck.sched.suspendCards([self.reviewer.card.id])
+        self.reviewer.nextCard()
 
     def onDelete(self):
-        undo = _("Delete")
-        if self.state == "editCurrent":
-            self.moveToState("saveEdit")
-        self.deck.setUndoStart(undo)
-        self.deck.deleteCard(self.currentCard.id)
-        self.reset()
-        self.deck.setUndoEnd(undo)
+        self.checkpoint(_("Delete"))
+        self.deck.delCards([self.reviewer.card.id])
+        self.reviewer.nextCard()
 
     def onBuryFact(self):
-        undo = _("Bury")
-        self.deck.setUndoStart(undo)
-        self.deck.buryFact(self.currentCard.fact)
-        self.reset()
-        self.deck.setUndoEnd(undo)
+        self.checkpoint(_("Bury"))
+        self.deck.sched.buryFact(self.reviewer.card.fid)
+        self.reviewer.nextCard()
 
     # Undo
     ##########################################################################
@@ -897,6 +885,7 @@ Please choose a new deck name:"""))
 	self.form.actionBuryFact.setEnabled(True)
         self.form.actionEditCurrent.setEnabled(True)
         self.form.actionEditdeck.setEnabled(True)
+        self.updateMarkAction()
         runHook("enableCardMenuItems")
 
     # Auto update
