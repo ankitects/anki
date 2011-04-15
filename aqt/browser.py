@@ -916,6 +916,7 @@ where id in %s""" % ids2str(sf))
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
+        d.setWindowModality(Qt.WindowModal)
         frm.field.addItems(QStringList([_("All Fields")] + fields))
         self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
                      self.onFindReplaceHelp)
