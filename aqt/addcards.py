@@ -35,8 +35,8 @@ class AddCards(QDialog):
         self.forceClose = False
         #restoreGeom(self, "add")
         addHook('reset', self.onReset)
-        self.setupNewFact()
         self.open()
+        self.setupNewFact()
 
     def focusOutEvent(self, evt):
         print "focus lost"
