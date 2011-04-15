@@ -153,7 +153,7 @@ class AnkiQt(QMainWindow):
 %s<br>
 %s</div></div></center>
 """ % (_("Close the editing window to resume."),
-       self.button("refresh", _("Return"))), css=self.sharedCSS)
+       self.button("refresh", _("Resume Now"))), css=self.sharedCSS)
 
     # HTML helpers
     ##########################################################################

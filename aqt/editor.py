@@ -312,6 +312,7 @@ class Editor(object):
         if str.startswith("blur") or str.startswith("key"):
             (type, txt) = str.split(":", 1)
             self.fact.fields[self.currentField] = self.mungeHTML(txt)
+            self.mw.requireReset()
             if type == "blur":
                 if not self._keepButtons:
                     self.disableButtons()

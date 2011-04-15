@@ -169,12 +169,12 @@ question or answer on all cards."""), help="AddItems")
     def reject(self):
         if not self.canClose():
             return
+        removeHook('reset', self.onReset)
         clearAudioQueue()
         self.removeTempFact(self.editor.fact)
         self.editor.setFact(None)
         self.modelChooser.cleanup()
         self.mw.maybeReset()
-        removeHook('reset', self.onReset)
         saveGeom(self, "add")
         aqt.dialogs.close("AddCards")
         QDialog.reject(self)
