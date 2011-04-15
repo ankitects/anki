@@ -500,7 +500,7 @@ class Browser(QMainWindow):
         type = self.model.activeCols[idx]
         noSort = ("question", "answer", "template", "group")
         if type in noSort:
-            showInfo(_("Please choose a different column to sort on."))
+            showInfo(_("Please choose a different column to sort by."))
             type = self.deck.conf['sortType']
         if self.deck.conf['sortType'] != type:
             self.deck.conf['sortType'] = type

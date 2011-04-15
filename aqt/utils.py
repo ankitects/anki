@@ -182,6 +182,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     if not parent:
         parent = aqt.mw.app.activeWindow()
     d = QDialog(parent)
+    d.setWindowModality(Qt.WindowModal)
     l = QVBoxLayout()
     d.setLayout(l)
     t = QLabel(prompt)
