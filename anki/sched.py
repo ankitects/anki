@@ -537,7 +537,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             (card.lapses-lf) % (max(lf/2, 1)) == 0):
             # add a leech tag
             f = card.fact()
-            f.tags.append("leech")
+            f.addTag("leech")
             f.flush()
             # handle
             if conf['leechAction'][0] == 0:

@@ -117,6 +117,18 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     def stringTags(self):
         return canonifyTags(self.tags)
 
+    def delTag(self, tag):
+        rem = []
+        for t in self.tags:
+            if t.lower() == tag.lower():
+                rem.append(t)
+        for r in rem:
+            self.tags.remove(r)
+
+    def addTag(self, tag):
+        # duplicates will be stripped on save
+        self.tags.append(tag)
+
     # Unique/duplicate checks
     ##################################################
 
