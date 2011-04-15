@@ -89,18 +89,27 @@ class Groups(QDialog):
             i.setCheckState(COLCHECK, Qt.Unchecked)
 
     def onDelete(self):
-        item = self.form.tree.currentItem()
-        old = unicode(item.text(0))
-        gid = self.groupMap[old]
-        if not gid:
-            showInfo(_("Selected item is not a group."))
-            return
-        elif gid == 1:
-            showInfo(_("The default group can't be deleted."))
-            return
+        err = []
+        gids = []
+        for item in self.form.tree.selectedItems():
+            old = unicode(item.text(0))
+            gid = self.groupMap[old]
+            gids.append(gid)
         self.mw.checkpoint(_("Delete Group"))
-        self.mw.deck.delGroup(gid)
-        self.reload()
+        for gid in gids:
+            if not gid:
+                e = _("One or more selected items weren't a group.")
+                if e not in err:
+                    err.append(e)
+                continue
+            elif gid == 1:
+                err.append(
+                    _("The default group can't be deleted."))
+                continue
+            self.mw.deck.delGroup(gid)
+            self.reload()
+        if err:
+            showInfo("\n".join(err))
 
     def onRename(self):
         item = self.form.tree.currentItem()
