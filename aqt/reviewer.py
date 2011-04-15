@@ -22,16 +22,18 @@ class Reviewer(object):
         self.cardQueue = []
         self._answeredIds = []
         self.state = None
+        self.keep = False
         self._setupStatus()
         addHook("leech", self.onLeech)
 
-    def show(self, keep=False):
+    def show(self):
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
-        if keep:
+        if self.keep:
             self._initWeb()
         else:
             self.nextCard()
+        self.keep = False
 
     def lastCard(self):
         if self._answeredIds:

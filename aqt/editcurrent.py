@@ -28,11 +28,15 @@ class EditCurrent(QDialog):
         restoreGeom(self, "editcurrent")
         self.mw.requireReset()
         self.open()
+        # reset focus after open
+        self.editor.web.setFocus()
 
     def onSave(self):
         self.editor.saveNow()
         self.editor.setFact(None)
-        self.mw.reviewer.card.load()
-        self.mw.reviewer.show(keep=True)
+        r = self.mw.reviewer
+        r.card.load()
+        r.keep = True
+        self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
         self.close()
