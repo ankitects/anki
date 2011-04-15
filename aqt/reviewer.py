@@ -232,10 +232,7 @@ $(".ansbut").focus();
     def _keyHandler(self, evt):
         if self.state == "question":
             show = False
-            if evt.key() in (Qt.Key_Enter,
-                             Qt.Key_Return):
-                show = True
-            elif evt.key() == Qt.Key_Space and self.typeAns() is None:
+            if evt.key() == Qt.Key_Space and self.typeAns() is None:
                 show = True
             elif evt.key() == Qt.Key_Escape:
                 self.web.eval("$('#typeans').blur();")
@@ -244,9 +241,7 @@ $(".ansbut").focus();
                 self.web.eval("showans();")
                 return True
         elif self.state == "answer":
-            if evt.key() in (Qt.Key_Enter,
-                             Qt.Key_Return,
-                             Qt.Key_Space):
+            if evt.key() == Qt.Key_Space:
                 self.web.eval("space();")
             else:
                 key = unicode(evt.text())
