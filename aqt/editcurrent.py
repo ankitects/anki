@@ -26,7 +26,7 @@ class EditCurrent(QDialog):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
         self.editor.setFact(self.mw.reviewer.card.fact())
         restoreGeom(self, "editcurrent")
-        self.mw.requireReset()
+        self.mw.requireReset(modal=True)
         self.open()
         # reset focus after open
         self.editor.web.setFocus()

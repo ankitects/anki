@@ -130,8 +130,9 @@ class AnkiQt(QMainWindow):
         self.deck.reset()
         runHook("reset")
 
-    def requireReset(self):
+    def requireReset(self, modal=False):
         "Signal queue needs to be rebuilt when edits are finished or by user."
+        self.resetModal = modal
         if self.state in ("overview", "review"):
             self.moveToState("resetRequired")
         elif self.state == "editCurrent":
@@ -145,15 +146,19 @@ class AnkiQt(QMainWindow):
 
     def _resetRequiredState(self, oldState):
         self.returnState = oldState
+        if self.resetModal:
+            # we don't have to change the webview, as we have a covering window
+            return
         self.web.setKeyHandler(None)
         self.web.setLinkHandler(lambda url: self.maybeReset())
+        i = _("Close the editing window to resume.")
+        b = self.button("refresh", _("Resume Now"))
         self.web.stdHtml("""
 <center><div style="height: 100%%">
 <div style="position:relative; vertical-align: middle;">
 %s<br>
 %s</div></div></center>
-""" % (_("Close the editing window to resume."),
-       self.button("refresh", _("Resume Now"))), css=self.sharedCSS)
+""" % (i, b), css=self.sharedCSS)
 
     # HTML helpers
     ##########################################################################

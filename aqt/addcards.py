@@ -32,9 +32,9 @@ class AddCards(QDialog):
         self.onReset()
         self.history = []
         self.forceClose = False
-        #restoreGeom(self, "add")
+        restoreGeom(self, "add")
         addHook('reset', self.onReset)
-        self.mw.requireReset()
+        self.mw.requireReset(modal=True)
         self.open()
         self.setupNewFact()
 
