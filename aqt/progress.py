@@ -18,6 +18,7 @@ class ProgressManager(object):
     def __init__(self, mw):
         self.mw = mw
         self.app = QApplication.instance()
+        self.inDB = False
         self._win = None
         self._levels = 0
 

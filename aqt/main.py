@@ -51,7 +51,10 @@ class AnkiQt(QMainWindow):
             # load a deck?
             if (args or self.config['loadLastDeck'] or
                 len(self.config['recentDeckPaths']) == 1):
-                self.maybeLoadLastDeck(args)
+                # delay load so deck errors don't cause program to close
+                self.progress.timer(10, lambda a=args: \
+                                    self.maybeLoadLastDeck(a),
+                                    False)
             else:
                 self.moveToState("deckBrowser")
         except:

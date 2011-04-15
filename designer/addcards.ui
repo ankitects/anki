@@ -22,7 +22,7 @@
     <number>3</number>
    </property>
    <property name="margin">
-    <number>0</number>
+    <number>12</number>
    </property>
    <item>
     <layout class="QGridLayout">
