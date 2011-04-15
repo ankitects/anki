@@ -217,6 +217,8 @@ class DeckModel(QAbstractTableModel):
             if c.type == 0:
                 return _("(new)")
             return "%d%%" % (c.factor/10)
+        elif type == "group":
+            return self.browser.mw.deck.groupName(c.gid)
 
     # def limitContent(self, txt):
     #     if "<c>" in txt:
@@ -325,6 +327,7 @@ class Browser(QMainWindow):
         c = self.connect; f = self.form; s = SIGNAL("triggered()")
         c(f.actionAddItems, s, self.mw.onAddCard)
         c(f.actionDelete, s, self.deleteCards)
+        c(f.actionChangeGroup, s, self.changeGroup)
         c(f.actionAddTag, s, self.addTags)
         c(f.actionDeleteTag, s, self.deleteTags)
         c(f.actionReschedule, s, self.reschedule)
@@ -390,6 +393,7 @@ class Browser(QMainWindow):
             ('question', _("Question")),
             ('answer', _("Answer")),
             ('template', _("Card")),
+            ('group', _("Group")),
             ('factFld', _("Sort Field")),
             ('factCrt', _("Created")),
             ('factMod', _("Edited")),
@@ -494,12 +498,14 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        if type in ("question", "answer", "template"):
-            type = "factFld"
+        noSort = ("question", "answer", "template", "group")
+        if type in noSort:
+            showInfo(_("Please choose a different column to sort on."))
+            type = self.deck.conf['sortType']
         if self.deck.conf['sortType'] != type:
             self.deck.conf['sortType'] = type
             # default to descending for non-text fields
-            if type not in ("question", "answer", "factFld"):
+            if type == "factFld":
                 ord = not ord
             self.deck.conf['sortBackwards'] = ord
             self.onSearch()
@@ -754,6 +760,12 @@ where id in %s""" % ids2str(sf))
             self.model.focusedCard = self.model.cards[new]
         self.model.endReset()
         self.mw.requireReset()
+
+    # Group change
+    ######################################################################
+
+    def changeGroup(self):
+        pass
 
     # Tags
     ######################################################################
