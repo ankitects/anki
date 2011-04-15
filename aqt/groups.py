@@ -159,7 +159,7 @@ class Groups(QDialog):
             gids = []
         if gids != self.mw.deck.qconf['groups']:
             self.mw.deck.qconf['groups'] = gids
-            self.mw.deck.reset()
+            self.mw.reset()
         QDialog.accept(self)
 
     def _makeItems(self, grps):
