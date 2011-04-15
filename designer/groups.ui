@@ -123,6 +123,7 @@
   <tabstop>selNone</tabstop>
   <tabstop>rename</tabstop>
   <tabstop>delete_2</tabstop>
+  <tabstop>opts</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -140,6 +141,22 @@
     <hint type="destinationlabel">
      <x>524</x>
      <y>338</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>483</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>291</y>
     </hint>
    </hints>
   </connection>
