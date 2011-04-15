@@ -1094,8 +1094,9 @@ class GenCards(QDialog):
         QDialog.__init__(self, browser)
         self.browser = browser
         self.fids = fids
-        self.form = aqt.forms.addcardmodels.Ui_Dialog()
+        self.form = aqt.forms.gencards.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         restoreGeom(self, "addCardModels")
@@ -1156,6 +1157,7 @@ class ChangeModel(QDialog):
         self.oldModel = browser.card.fact().model()
         self.form = aqt.forms.changemodel.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
         self.setup()
         restoreGeom(self, "changeModel")
         addHook("reset", self.onReset)
@@ -1301,7 +1303,7 @@ Are you sure you want to continue?""")):
         b.onSearch(reset=False)
         b.model.endReset()
         b.mw.progress.finish()
-        b.requireReset()
+        b.mw.requireReset()
         self.cleanup()
         return QDialog.accept(self)
 
