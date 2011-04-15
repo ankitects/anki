@@ -17,7 +17,6 @@ class Models(QDialog):
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("Models"))
-        maybeHideClose(self.form.buttonBox)
         self.setupModels()
         self.exec_()
 

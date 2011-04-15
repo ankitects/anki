@@ -434,6 +434,10 @@ class Browser(QMainWindow):
             } + " - " + self.deck.name())
         return selected
 
+    def onReset(self):
+        self.editor.setFact(None)
+        self.onSearch()
+
     # Table view & editor
     ######################################################################
 
@@ -867,8 +871,10 @@ where id in %s""" % ids2str(sf))
 
     def setupHooks(self):
         addHook("checkpoint", self.onCheckpoint)
+        addHook("reset", self.onReset)
 
     def teardownHooks(self):
+        removeHook("reset", self.onReset)
         removeHook("checkpoint", self.onCheckpoint)
 
     def onCheckpoint(self):
