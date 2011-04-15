@@ -19,21 +19,27 @@ def showCritical(text, parent=None, help=""):
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, QMessageBox.critical)
 
-def showInfo(text, parent=None, help="", func=None):
+def showInfo(text, parent=None, help="", type="info"):
     "Show a small info window with an OK button."
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
-    if not func:
-        func = QMessageBox.information
-    sb = QMessageBox.Ok
+    if type == "warning":
+        icon = QMessageBox.Warning
+    elif type == "critical":
+        icon = QMessageBox.Critical
+    else:
+        icon = QMessageBox.Information
+    mb = QMessageBox(parent)
+    mb.setText(text)
+    mb.setIcon(icon)
+    mb.setWindowModality(Qt.WindowModal)
+    b = mb.addButton(QMessageBox.Ok)
+    b.setDefault(True)
     if help:
-        sb |= QMessageBox.Help
-    while 1:
-        ret = func(parent, "Anki", text, sb)
-        if ret == QMessageBox.Help:
-            aqt.openHelp(help)
-        else:
-            break
+        b = mb.addButton(QMessageBox.Help)
+        b.connect(b, SIGNAL("clicked()"), lambda: aqt.openHelp(help))
+        b.setAutoDefault(False)
+    return mb.exec_()
 
 def showText(txt, parent=None, type="text"):
     if not parent:

@@ -151,7 +151,7 @@ class AnkiQt(QMainWindow):
             return
         self.web.setKeyHandler(None)
         self.web.setLinkHandler(lambda url: self.maybeReset())
-        i = _("Close the editing window to resume.")
+        i = _("Close the browser to resume.")
         b = self.button("refresh", _("Resume Now"))
         self.web.stdHtml("""
 <center><div style="height: 100%%">
