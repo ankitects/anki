@@ -396,7 +396,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self._groupLimit(), self._revOrder(), self.queueLimit),
                                     lim=self.today)
         if self.deck.qconf['revOrder'] == REV_CARDS_RANDOM:
-            random.shuffle(self.revQueue)
+            r = random.Random()
+            r.seed(self.today)
+            r.shuffle(self.revQueue)
         else:
             self.revQueue.reverse()
 
