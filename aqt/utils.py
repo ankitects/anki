@@ -157,7 +157,7 @@ class GetTextDialog(QDialog):
 
 def getText(prompt, parent=None, help=None, edit=None, default=u"", title="Anki"):
     if not parent:
-        parent = aqt.mw
+        parent = aqt.mw.app.activeWindow() or aqt.mw.app.mw
     d = GetTextDialog(parent, prompt, help=help, edit=edit,
                       default=default, title=title)
     ret = d.exec_()

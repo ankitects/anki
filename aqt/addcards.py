@@ -20,10 +20,11 @@ class AddCards(QDialog):
 
     def __init__(self, mw):
         windParent = None
-        QDialog.__init__(self, windParent, Qt.Window)
+        QDialog.__init__(self, mw)
         self.mw = mw
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle(_("Add"))
         self.setupChooser()
         self.setupEditor()
