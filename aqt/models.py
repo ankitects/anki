@@ -3,7 +3,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from aqt.utils import showInfo, askUser, getText
+from aqt.utils import showInfo, askUser, getText, maybeHideClose
 import aqt.modelchooser, aqt.clayout
 
 class Models(QDialog):
@@ -17,6 +17,7 @@ class Models(QDialog):
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("Models"))
+        maybeHideClose(self.form.buttonBox)
         self.setupModels()
         self.exec_()
 

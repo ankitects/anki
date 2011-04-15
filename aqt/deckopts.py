@@ -5,6 +5,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys, re
 import aqt
+from aqt.utils import maybeHideClose
 
 class DeckOptions(QDialog):
 
@@ -22,6 +23,7 @@ class DeckOptions(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.helpRequested)
+        maybeHideClose(self.form.buttonBox)
         # syncing
         self.form.doSync.setChecked(self.d.syncingEnabled())
         self.form.mediaURL.setText(self.d.conf['mediaURL'])

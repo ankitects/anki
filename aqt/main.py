@@ -81,7 +81,6 @@ class AnkiQt(QMainWindow):
         self.setupDeckBrowser()
         self.setupOverview()
         self.setupReviewer()
-        self.setupEditor()
 
     # State machine
     ##########################################################################
@@ -253,10 +252,6 @@ title="%s">%s</button>''' % (
     def setupReviewer(self):
         from aqt.reviewer import Reviewer
         self.reviewer = Reviewer(self)
-
-    def setupEditor(self):
-        from aqt.editcurrent import EditCurrent
-        self.editor = EditCurrent(self)
 
     # Upgrading from previous versions
     ##########################################################################
@@ -671,7 +666,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         aqt.dialogs.open("Browser", self)
 
     def onEditCurrent(self):
-        self.moveToState("editCurrentFact")
+        from aqt.editcurrent import EditCurrent
+        EditCurrent(self)
 
     def setupCardStats(self):
         import aqt.stats

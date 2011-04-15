@@ -6,7 +6,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import os, tempfile
 from aqt.webview import AnkiWebView
-from aqt.utils import saveGeom, restoreGeom
+from aqt.utils import saveGeom, restoreGeom, maybeHideClose
 from anki.hooks import addHook
 import aqt
 
@@ -88,6 +88,7 @@ class DeckStats(QDialog):
         c(f.year, s, lambda: self.changePeriod(1))
         c(f.life, s, lambda: self.changePeriod(2))
         c(f.web, SIGNAL("loadFinished(bool)"), self.loadFin)
+        maybeHideClose(self.form.buttonBox)
         self.refresh()
         self.exec_()
 

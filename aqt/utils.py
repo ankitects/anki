@@ -308,5 +308,11 @@ def shortcut(key):
         return re.sub("(?i)ctrl", "Command", key)
     return key
 
+def maybeHideClose(bbox):
+    if isMac:
+        b = bbox.button(QDialogButtonBox.Close)
+        if b:
+            bbox.removeButton(b)
+
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")

@@ -138,12 +138,12 @@ $(".ansbut").focus();
     def _initWeb(self):
         self.web.stdHtml(self._revHtml % dict(
             showans=_("Show Answer")), self._styles(),
-            loadCB=lambda x: self._showQuestion())
+            loadCB=lambda x: self.showQuestion())
 
     # Showing the question (and preparing answer)
     ##########################################################################
 
-    def _showQuestion(self):
+    def showQuestion(self):
         # fixme: timeboxing
         # fixme: timer
         self.state = "question"

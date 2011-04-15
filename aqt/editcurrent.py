@@ -2,44 +2,37 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-        # get a fact for testing
-        #fact = self.mw.deck.getFact(3951)
-        #self.editor.setFact(fact)
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+import aqt.editor
+from aqt.utils import saveGeom, restoreGeom
 
-class EditCurrent(object):
+class EditCurrent(QDialog):
 
     def __init__(self, mw):
+        QDialog.__init__(self, mw)
         self.mw = mw
+        self.form = aqt.forms.editcurrent.Ui_Dialog()
+        self.form.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle(_("Edit Current"))
+        self.setMinimumHeight(400)
+        self.setMinimumWidth(500)
+        self.connect(self.form.buttonBox.button(QDialogButtonBox.Save),
+                     SIGNAL("clicked()"),
+                     self.onSave)
+        self.connect(self,
+                     SIGNAL("rejected()"),
+                     self.onSave)
+        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
+        self.editor.setFact(self.mw.reviewer.card.fact())
+        restoreGeom(self, "editcurrent")
+        self.show()
 
-    def _editCurrentState(self, oldState):
-        if self.lastState == "editCurrentFact":
-            return self.moveToState("saveEdit")
-        self.form.actionRepeatAudio.setEnabled(False)
-        self.deck.db.flush()
-        self.showEditor()
-
-    def _saveEditState(self, oldState):
-        self.form.actionRepeatAudio.setEnabled(True)
-        self.editor.saveFieldsNow()
-        self.form.buttonStack.show()
-        return self.reset()
-
-    # Edit current fact
-    ##########################################################################
-
-    def setupEditor(self):
-        print "setupeditor"
-        return
-        self.editor = aqt.facteditor.FactEditor(
-            self, self.form.fieldsArea, self.deck)
-        self.editor.clayout.setShortcut("")
-        self.editor.resetOnEdit = False
-        # editor
-        self.connect(self.form.saveEditorButton, SIGNAL("clicked()"),
-                     lambda: self.moveToState("saveEdit"))
-
-    def showEditor(self):
-        self.form.buttonStack.hide()
-        self.switchToEditScreen()
-        self.editor.setFact(self.currentCard.fact)
-        self.editor.card = self.currentCard
+    def onSave(self):
+        self.editor.saveNow()
+        self.editor.setFact(None)
+        self.mw.reviewer.card.load()
+        self.mw.reviewer.showQuestion()
+        saveGeom(self, "editcurrent")
+        self.close()

@@ -4,6 +4,7 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from aqt.utils import maybeHideClose
 import datetime, time, aqt
 
 class StudyOptions(QDialog):
@@ -14,9 +15,6 @@ class StudyOptions(QDialog):
         self.form.setupUi(self)
         self.setup()
         self.load()
-        self.connect(self.form.buttonBox,
-                     SIGNAL("helpRequested()"),
-                     lambda: aqt.openHelp("StudyOptions"))
         self.exec_()
 
     def setup(self):
@@ -27,6 +25,10 @@ class StudyOptions(QDialog):
             0, QStringList(c.newCardSchedulingLabels().values()))
         self.form.revOrder.insertItems(
             0, QStringList(c.revCardOrderLabels().values()))
+        self.connect(self.form.buttonBox,
+                     SIGNAL("helpRequested()"),
+                     lambda: aqt.openHelp("StudyOptions"))
+        maybeHideClose(self.form.buttonBox)
 
     def load(self):
         f = self.form

@@ -96,20 +96,20 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="opts">
-       <property name="text">
-        <string>&amp;Options...</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3" rowspan="2">
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="opts">
+       <property name="text">
+        <string>&amp;Options...</string>
        </property>
       </widget>
      </item>
@@ -123,7 +123,6 @@
   <tabstop>selNone</tabstop>
   <tabstop>rename</tabstop>
   <tabstop>delete_2</tabstop>
-  <tabstop>opts</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

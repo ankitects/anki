@@ -19,23 +19,27 @@ import aqt.editor, aqt.modelchooser
 class AddCards(QDialog):
 
     def __init__(self, mw):
-        windParent = None
         QDialog.__init__(self, mw)
         self.mw = mw
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowModality(Qt.WindowModal)
+        #self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle(_("Add"))
+        self.setMinimumHeight(400)
+        self.setMinimumWidth(500)
         self.setupChooser()
         self.setupEditor()
         self.setupButtons()
         self.onReset()
         self.history = []
         self.forceClose = False
-        restoreGeom(self, "add")
+        #restoreGeom(self, "add")
         addHook('reset', self.onReset)
         self.setupNewFact()
-        self.show()
+        self.open()
+
+    def focusOutEvent(self, evt):
+        print "focus lost"
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
