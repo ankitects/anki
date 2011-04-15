@@ -422,7 +422,7 @@
     <string/>
    </property>
    <property name="shortcut">
-    <string>Ctrl+M</string>
+    <string>M</string>
    </property>
   </action>
   <action name="actionSuspendCard">
@@ -609,7 +609,7 @@
     <string>Suspend the current fact until the deck is closed and opened again</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+B</string>
+    <string>Shift+B</string>
    </property>
   </action>
   <action name="actionFullDatabaseCheck">
@@ -684,7 +684,7 @@
     <string>Models...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+M</string>
+    <string>Ctrl+Shift+M</string>
    </property>
   </action>
   <action name="actionDocumentation">

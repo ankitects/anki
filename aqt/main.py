@@ -1161,7 +1161,6 @@ It can take a long time. Proceed?""")):
         if sys.platform.startswith("darwin"):
             qt_mac_set_menubar_icons(False)
             self.setUnifiedTitleAndToolBarOnMac(True)
-            self.form.actionMarkCard.setShortcut(_("Alt+m"))
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+m", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
