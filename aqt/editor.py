@@ -84,19 +84,20 @@ function clearChangeTimer() {
 
 function onFocus(elem) {
     currentField = elem;
-    setTimeout(unfocusHack, 1);
+    // prevent webkit from highlighting the whole field
+    $(elem).css("-webkit-user-select", "none");
+    setTimeout(function () { unfocusHack() }, 1);
     py.run("focus:" + currentField.id.substring(1));
 }
 
-// tabbing into a new field highlights everything, which we don't want
+// restore cursor
 function unfocusHack() {
+    $(currentField).css("-webkit-user-select", "text");
+    var r = document.createRange()
+    r.selectNodeContents(currentField);
+    r.collapse();
     var s = document.getSelection();
-    if (s.rangeCount) {
-        var r = s.getRangeAt(0);
-        r.collapse();
-        s.removeAllRanges();
-        s.addRange(r);
-    }
+    s.addRange(r);
 };
 
 function onBlur() {
