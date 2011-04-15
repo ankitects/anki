@@ -34,6 +34,7 @@ class AddCards(QDialog):
         self.forceClose = False
         restoreGeom(self, "add")
         addHook('reset', self.onReset)
+        addHook('currentModelChanged', self.onReset)
         self.mw.requireReset(modal=True)
         self.open()
         self.setupNewFact()
@@ -169,6 +170,7 @@ question or answer on all cards."""), help="AddItems")
         if not self.canClose():
             return
         removeHook('reset', self.onReset)
+        removeHook('currentModelChanged', self.onReset)
         clearAudioQueue()
         self.removeTempFact(self.editor.fact)
         self.editor.setFact(None)

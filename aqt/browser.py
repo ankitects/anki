@@ -1162,6 +1162,7 @@ class ChangeModel(QDialog):
         self.setup()
         restoreGeom(self, "changeModel")
         addHook("reset", self.onReset)
+        addHook("currentModelChanged", self.onReset)
         self.exec_()
 
     def setup(self):
@@ -1278,6 +1279,7 @@ class ChangeModel(QDialog):
 
     def cleanup(self):
         removeHook("reset", self.onReset)
+        removeHook("currentModelChanged", self.onReset)
         self.oldCurrentModel = self.browser.deck.conf['currentModelId']
         self.modelChooser.cleanup()
         saveGeom(self, "changeModel")

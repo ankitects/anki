@@ -6,7 +6,7 @@ from PyQt4.QtCore import *
 from operator import attrgetter
 from anki import stdmodels
 from anki.lang import ngettext
-from anki.hooks import addHook, removeHook
+from anki.hooks import addHook, removeHook, runHook
 from aqt.utils import isMac
 
 class ModelChooser(QHBoxLayout):
@@ -86,7 +86,7 @@ class ModelChooser(QHBoxLayout):
         self.deck.conf['currentModelId'] = model.id
         self.updateTemplates()
         self._ignoreReset = True
-        self.mw.reset()
+        runHook("currentModelChanged")
         self._ignoreReset = False
 
     def updateModels(self):
