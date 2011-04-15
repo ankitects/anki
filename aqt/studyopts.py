@@ -4,7 +4,6 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from aqt.utils import maybeHideClose
 import datetime, time, aqt
 
 class StudyOptions(QDialog):
@@ -13,6 +12,7 @@ class StudyOptions(QDialog):
         self.mw = mw
         self.form = aqt.forms.studyopts.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
         self.setup()
         self.load()
         self.exec_()
@@ -28,7 +28,6 @@ class StudyOptions(QDialog):
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("StudyOptions"))
-        maybeHideClose(self.form.buttonBox)
 
     def load(self):
         f = self.form

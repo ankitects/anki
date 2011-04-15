@@ -5,7 +5,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import aqt
-from aqt.utils import showInfo, getOnlyText, maybeHideClose
+from aqt.utils import showInfo, getOnlyText
 
 COLNAME = 0
 COLOPTS = 1
@@ -21,6 +21,7 @@ class Groups(QDialog):
         self.mw = mw
         self.form = aqt.forms.groups.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
         self.loadTable()
         self.addButtons()
         self.exec_()
@@ -78,7 +79,6 @@ class Groups(QDialog):
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("Groups"))
-        maybeHideClose(box)
 
     def onSelectAll(self):
         for i in self.items:
