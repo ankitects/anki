@@ -468,6 +468,8 @@ class Editor(object):
         self.group.setText(self.mw.deck.groupName(gid))
 
     def saveTagsAndGroup(self):
+        if not self.fact:
+            return
         self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
         self.fact.updateCardGids()
         self.fact.tags = parseTags(unicode(self.tags.text()))
