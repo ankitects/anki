@@ -427,6 +427,9 @@
    <property name="text">
     <string>Select &amp;Facts</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
+   </property>
   </action>
   <action name="actionFindReplace">
    <property name="text">
