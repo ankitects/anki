@@ -7,6 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki.consts import NEW_CARDS_RANDOM
 from anki.hooks import addHook
+from aqt.utils import limitedCount
 
 class Overview(object):
     "Deck overview."
@@ -68,7 +69,6 @@ class Overview(object):
             table=tbl,
             fcsub=_("Reviews over next two weeks"),
             fcdata=fc,
-            opts=self._ovOpts(),
             ), css)
 
     _overviewBody = """
@@ -80,7 +80,6 @@ class Overview(object):
 <div id="placeholder" style="width:350px; height:100px;"></div>
 <span class=sub>%(fcsub)s</span>
 <p>
-%(opts)s
 </center>
 
 <script>
@@ -130,18 +129,6 @@ $(function () {
 
     def _ovOpts(self):
         return ""
-#         if self.mw.deck.qconf['newCardOrder'] == NEW_CARDS_RANDOM:
-#             ord = _("random")
-#         else:
-#             ord = _("order added")
-#         buf = """
-# <table width=400>
-# <tr><td><b>%s</b></td><td align=center>%s</td></tr>
-# <tr><td><b>%s</b></td><td align=center>%s</td></tr>
-# </table>""" % (
-#     _("New cards per day"), self.mw.deck.qconf['newPerDay'],
-#     _("New card order"), ord)
-#         return buf
 
     # Data
     ##########################################################################
@@ -151,9 +138,9 @@ $(function () {
         selcnt = self.mw.deck.sched.selCounts()
         allcnt = self.mw.deck.sched.allCounts()
         return [
-            selcnt[1] + selcnt[2],
+            limitedCount(selcnt[1] + selcnt[2]),
             selcnt[0],
-            allcnt[1] + allcnt[2],
+            limitedCount(allcnt[1] + allcnt[2]),
             allcnt[0],
         ]
 

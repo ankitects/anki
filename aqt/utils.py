@@ -340,5 +340,10 @@ def maybeHideClose(bbox):
         if b:
             bbox.removeButton(b)
 
+def limitedCount(count):
+    if count >= 1000:
+        return "1000+"
+    return str(count)
+
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
