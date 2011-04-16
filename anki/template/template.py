@@ -177,15 +177,15 @@ class Template(object):
         # replace chosen cloze with type
         if type == "q":
             if m.group(2):
-                txt = re.sub(reg%ord, "<b>...(\\3)</b>", txt)
+                txt = re.sub(reg%ord, "<span class=cloze>...(\\3)</span>", txt)
             else:
-                txt = re.sub(reg%ord, "<b>...</b>", txt)
+                txt = re.sub(reg%ord, "<span class=cloze>...</span>", txt)
         elif type == "actx":
-            txt = re.sub(reg%ord, "<b>\\1</b>", txt)
+            txt = re.sub(reg%ord, "<span class=cloze>\\1</span>", txt)
         else:
             # just the answers
             ans = re.findall(reg%ord, txt)
-            ans = ["<b>"+a[0]+"</b>" for a in ans]
+            ans = ["<span class=cloze>"+a[0]+"</span>" for a in ans]
             return ", ".join(ans)
         # and display other clozes normally
         return re.sub(reg%".*?", "\\1", txt)

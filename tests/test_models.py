@@ -119,35 +119,36 @@ def test_cloze():
     # try with one cloze
     f['Text'] = "hello {{c1::world}}"
     assert d.addFact(f) == 1
-    assert "hello <b>...</b>" in f.cards()[0].q()
+    assert "hello <span class=cloze>...</span>" in f.cards()[0].q()
     # the default is no context
-    assert "<b>world</b>" in f.cards()[0].a()
-    assert "hello <b>world</b>" not in f.cards()[0].a()
+    assert "<span class=cloze>world</span>" in f.cards()[0].a()
+    assert "hello <span class=cloze>world</span>" not in f.cards()[0].a()
     # check context works too
     f.model().conf['clozectx'] = True
-    assert "hello <b>world</b>" in f.cards()[0].a()
+    assert "hello <span class=cloze>world</span>" in f.cards()[0].a()
     # and with a comment
     f = d.newFact()
     f['Text'] = "hello {{c1::world::typical}}"
     assert d.addFact(f) == 1
-    assert "<b>...(typical)</b>" in f.cards()[0].q()
-    assert "<b>world</b>" in f.cards()[0].a()
+    assert "<span class=cloze>...(typical)</span>" in f.cards()[0].q()
+    assert "<span class=cloze>world</span>" in f.cards()[0].a()
     # and with 2 clozes
     f = d.newFact()
     f['Text'] = "hello {{c1::world}} {{c2::bar}}"
     assert d.addFact(f) == 2
     (c1, c2) = f.cards()
-    assert "<b>...</b> bar" in c1.q()
-    assert "<b>world</b> bar" in c1.a()
-    assert "world <b>...</b>" in c2.q()
-    assert "world <b>bar</b>" in c2.a()
+    assert "<span class=cloze>...</span> bar" in c1.q()
+    assert "<span class=cloze>world</span> bar" in c1.a()
+    assert "world <span class=cloze>...</span>" in c2.q()
+    assert "world <span class=cloze>bar</span>" in c2.a()
     # if there are multiple answers for a single cloze, they are given in a
     # list
     f.model().conf['clozectx'] = False
     f = d.newFact()
     f['Text'] = "a {{c1::b}} {{c1::c}}"
     assert d.addFact(f) == 1
-    assert "<b>b</b>, <b>c</b>" in f.cards()[0].a()
+    assert "<span class=cloze>b</span>, <span class=cloze>c</span>" in (
+        f.cards()[0].a())
     # clozes should be supported in sections too
     m = d.currentModel()
     m.templates[0]['qfmt'] = "{{#cloze:1:Text}}{{Notes}}{{/cloze:1:Text}}"
