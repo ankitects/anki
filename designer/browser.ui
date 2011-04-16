@@ -202,7 +202,7 @@
     <addaction name="actionFindReplace"/>
     <addaction name="actionFindDuplicates"/>
     <addaction name="separator"/>
-    <addaction name="actionFont"/>
+    <addaction name="actionOptions"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -448,9 +448,9 @@
     <string>&amp;Cram...</string>
    </property>
   </action>
-  <action name="actionFont">
+  <action name="actionOptions">
    <property name="text">
-    <string>Font...</string>
+    <string>Browser Options...</string>
    </property>
   </action>
   <action name="actionSuspend">

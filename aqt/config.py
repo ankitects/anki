@@ -20,8 +20,8 @@ defaultConf = {
     'factEditorAdvanced': False,
     'showStudyScreen': True,
 
-    'recentDeckPaths': [],
     'interfaceLang': "en",
+    'fullSearch': False,
 
     'autoplaySounds': True,
     'checkForUpdates': True,

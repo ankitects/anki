@@ -346,7 +346,7 @@ class Browser(QMainWindow):
         c(f.actionToggleSuspend, SIGNAL("triggered(bool)"), self.onSuspend)
         c(f.actionToggleMark, SIGNAL("triggered(bool)"), self.onMark)
         # edit
-        c(f.actionFont, s, self.onFont)
+        c(f.actionOptions, s, self.onOptions)
         c(f.actionUndo, s, self.mw.onUndo)
         c(f.actionInvertSelection, s, self.invertSelection)
         c(f.actionSelectFacts, s, self.selectFacts)
@@ -907,17 +907,18 @@ where id in %s""" % ids2str(sf))
         else:
             self.form.actionUndo.setEnabled(False)
 
-    # Edit: font
+    # Options
     ######################################################################
 
-    def onFont(self):
+    def onOptions(self):
         d = QDialog(self)
-        frm = aqt.forms.editfont.Ui_Dialog()
+        frm = aqt.forms.browseropts.Ui_Dialog()
         frm.setupUi(d)
         frm.fontCombo.setCurrentFont(QFont(
             self.mw.config['editFontFamily']))
         frm.fontSize.setValue(self.mw.config['editFontSize'])
         frm.lineSize.setValue(self.mw.config['editLineSize'])
+        frm.fullSearch.setChecked(self.mw.config['fullSearch'])
         if d.exec_():
             self.mw.config['editFontFamily'] = (
                 unicode(frm.fontCombo.currentFont().family()))
@@ -925,6 +926,7 @@ where id in %s""" % ids2str(sf))
                 int(frm.fontSize.value()))
             self.mw.config['editLineSize'] = (
                 int(frm.lineSize.value()))
+            self.mw.config['fullSearch'] = frm.fullSearch.isChecked()
             self.updateFont()
 
     # Edit: replacing
