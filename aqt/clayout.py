@@ -277,36 +277,33 @@ class CardLayout(QDialog):
         self.fieldOrdinalUpdatedIds = []
         self.updatingFields = False
         self.needFieldRebuild = False
-        self.connect(self.form.fieldList, SIGNAL("currentRowChanged(int)"),
+        c = self.connect; f = self.form
+        sc = SIGNAL("stateChanged(int)")
+        cl = SIGNAL("clicked()")
+        c(f.fieldAdd, cl, self.addField)
+        c(f.fieldDelete, cl, self.deleteField)
+        c(f.fieldUp, cl, self.moveFieldUp)
+        c(f.fieldDown, cl, self.moveFieldDown)
+        c(f.preserveWhitespace, sc, self.saveField)
+        c(f.fieldUnique, sc, self.saveField)
+        c(f.fieldRequired, sc, self.saveField)
+        c(f.sticky, sc, self.saveField)
+        c(f.fieldList, SIGNAL("currentRowChanged(int)"),
                      self.fieldChanged)
-        self.connect(self.form.fieldAdd, SIGNAL("clicked()"),
-                     self.addField)
-        self.connect(self.form.fieldDelete, SIGNAL("clicked()"),
-                     self.deleteField)
-        self.connect(self.form.fieldUp, SIGNAL("clicked()"),
-                     self.moveFieldUp)
-        self.connect(self.form.fieldDown, SIGNAL("clicked()"),
-                     self.moveFieldDown)
-        self.connect(self.form.fieldName, SIGNAL("lostFocus()"),
+        c(f.fieldName, SIGNAL("lostFocus()"),
                      self.saveField)
-        self.connect(self.form.fontFamily, SIGNAL("currentFontChanged(QFont)"),
+        c(f.fontFamily, SIGNAL("currentFontChanged(QFont)"),
                      self.saveField)
-        self.connect(self.form.fontSize, SIGNAL("valueChanged(int)"),
+        c(f.fontSize, SIGNAL("valueChanged(int)"),
                      self.saveField)
-        self.connect(self.form.fontSizeEdit, SIGNAL("valueChanged(int)"),
-                     self.saveField)
-        self.connect(self.form.preserveWhitespace, SIGNAL("stateChanged(int)"),
-                     self.saveField)
-        self.connect(self.form.fieldUnique, SIGNAL("stateChanged(int)"),
-                     self.saveField)
-        self.connect(self.form.fieldRequired, SIGNAL("stateChanged(int)"),
+        c(f.fontSizeEdit, SIGNAL("valueChanged(int)"),
                      self.saveField)
         w = self.form.fontColour
         if self.plastiqueStyle:
             w.setStyle(self.plastiqueStyle)
-        self.connect(w, SIGNAL("clicked()"),
+        c(w, SIGNAL("clicked()"),
                      lambda w=w: self.chooseColour(w))
-        self.connect(self.form.rtl,
+        c(self.form.rtl,
                      SIGNAL("stateChanged(int)"),
                      self.saveField)
 
@@ -331,6 +328,7 @@ class CardLayout(QDialog):
         f.fontColour.setPalette(QPalette(QColor(fld['qcol'])))
         f.rtl.setChecked(fld['rtl'])
         f.preserveWhitespace.setChecked(fld['pre'])
+        f.sticky.setChecked(fld['sticky'])
         self.updatingFields = False
 
     def saveField(self, *args):
@@ -353,6 +351,7 @@ class CardLayout(QDialog):
             self.form.fontColour.palette().window().color().name())
         fld['rtl'] = self.form.rtl.isChecked()
         fld['pre'] = self.form.preserveWhitespace.isChecked()
+        fld['sticky'] = self.form.sticky.isChecked()
         self.updatingFields = False
         if fld['name'] != name:
             self.model.renameField(fld, name)

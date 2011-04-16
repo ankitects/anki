@@ -61,12 +61,6 @@ class AddCards(QDialog):
         self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         self.addButton.setToolTip(shortcut(_("Add (shortcut: ctrl+enter)")))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
-        # add+keep
-        self.addKeepButton = bb.addButton(_("Add&&Keep"), ar)
-        self.addKeepButton.setShortcut(_("Ctrl+Shift+Return"))
-        self.addKeepButton.setToolTip(shortcut(
-            _("Add and keep entered text (shortcut: ctrl+shift+enter)")))
-        self.connect(self.addKeepButton, SIGNAL("clicked()"), self.addKeep)
         # close
         self.closeButton = QPushButton(_("Close"))
         self.closeButton.setAutoDefault(False)
@@ -98,13 +92,17 @@ class AddCards(QDialog):
     def onReset(self, model=None, keep=False):
         oldFact = self.editor.fact
         fact = self.setupNewFact(set=False)
+        flds = fact.model().fields
         # copy fields from old fact
         if oldFact:
             if not keep:
                 self.removeTempFact(oldFact)
             for n in range(len(fact.fields)):
                 try:
-                    fact.fields[n] = oldFact.fields[n]
+                    if not keep or flds[n]['sticky']:
+                        fact.fields[n] = oldFact.fields[n]
+                    else:
+                        fact.fields[n] = ""
                 except IndexError:
                     break
         self.editor.setFact(fact)
@@ -150,10 +148,7 @@ question or answer on all cards."""), help="AddItems")
         # FIXME: return to overview on add?
         return fact
 
-    def addKeep(self):
-        self.addCards(keep=True)
-
-    def addCards(self, keep=False):
+    def addCards(self):
         self.editor.saveNow()
         fact = self.editor.fact
         fact = self.addFact(fact)
@@ -162,10 +157,7 @@ question or answer on all cards."""), help="AddItems")
         tooltip("Added", period=500)
         # stop anything playing
         clearAudioQueue()
-        if keep:
-            self.onReset(keep=True)
-        else:
-            self.setupNewFact()
+        self.onReset(keep=True)
         self.mw.deck.autosave()
 
     def keyPressEvent(self, evt):
