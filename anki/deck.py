@@ -482,7 +482,11 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             if type == "q":
                 format = format.replace("cloze:", "cq:")
             else:
-                format = format.replace("cloze:", "ca:")
+                if model.conf['clozectx']:
+                    name = "cactx:"
+                else:
+                    name = "ca:"
+                format = format.replace("cloze:", name)
             fields = runFilter("mungeFields", fields, model, gname, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter(

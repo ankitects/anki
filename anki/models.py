@@ -13,6 +13,7 @@ from anki.lang import _
 defaultConf = {
     'sortf': 0,
     'gid': 1,
+    'clozectx': False,
 }
 
 defaultField = {
@@ -40,7 +41,7 @@ defaultTemplate = {
     'bg': "#fff",
     'emptyAns': True,
     'typeAns': None,
-    'gid': None
+    'gid': None,
 }
 
 class Model(object):

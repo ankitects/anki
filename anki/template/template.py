@@ -130,7 +130,7 @@ class Template(object):
                 func = modifiers[tag_type]
                 replacement = func(self, tag_name, context)
                 template = template.replace(tag, replacement)
-            except:
+            except SyntaxError:
                 return u"{{invalid template}}"
 
         return template
@@ -157,8 +157,10 @@ class Template(object):
             if txt:
                 return stripHTML(txt)
             return ""
-        elif tag_name.startswith("cq:") or tag_name.startswith("ca:"):
-            m = re.match("c(.):(\d+):(.+)", tag_name)
+        elif (tag_name.startswith("cq:") or
+              tag_name.startswith("ca:") or
+              tag_name.startswith("cactx:")):
+            m = re.match("c(.+):(\d+):(.+)", tag_name)
             (type, ord, tag) = (m.group(1), m.group(2), m.group(3))
             txt = get_or_attr(context, tag)
             if txt:
@@ -166,8 +168,6 @@ class Template(object):
             return ""
         return get_or_attr(context, tag_name, '{unknown field %s}' % tag_name)
 
-    # fixme: need a way to conditionally add these, so that including extra
-    # fields in the question fmt doesn't make empty clozes
     def clozeText(self, txt, ord, type):
         reg = clozeReg
         m = re.search(reg%ord, txt)
@@ -180,8 +180,13 @@ class Template(object):
                 txt = re.sub(reg%ord, "<b>...(\\3)</b>", txt)
             else:
                 txt = re.sub(reg%ord, "<b>...</b>", txt)
-        else:
+        elif type == "actx":
             txt = re.sub(reg%ord, "<b>\\1</b>", txt)
+        else:
+            # just the answers
+            ans = re.findall(reg%ord, txt)
+            ans = ["<b>"+a[0]+"</b>" for a in ans]
+            return ", ".join(ans)
         # and display other clozes normally
         return re.sub(reg%".*?", "\\1", txt)
 

@@ -120,6 +120,11 @@ def test_cloze():
     f['Text'] = "hello {{c1::world}}"
     assert d.addFact(f) == 1
     assert "hello <b>...</b>" in f.cards()[0].q()
+    # the default is no context
+    assert "<b>world</b>" in f.cards()[0].a()
+    assert "hello <b>world</b>" not in f.cards()[0].a()
+    # check context works too
+    f.model().conf['clozectx'] = True
     assert "hello <b>world</b>" in f.cards()[0].a()
     # and with a comment
     f = d.newFact()
@@ -136,6 +141,13 @@ def test_cloze():
     assert "<b>world</b> bar" in c1.a()
     assert "world <b>...</b>" in c2.q()
     assert "world <b>bar</b>" in c2.a()
+    # if there are multiple answers for a single cloze, they are given in a
+    # list
+    f.model().conf['clozectx'] = False
+    f = d.newFact()
+    f['Text'] = "a {{c1::b}} {{c1::c}}"
+    assert d.addFact(f) == 1
+    assert "<b>b</b>, <b>c</b>" in f.cards()[0].a()
     # clozes should be supported in sections too
     m = d.currentModel()
     m.templates[0]['qfmt'] = "{{#cloze:1:Text}}{{Notes}}{{/cloze:1:Text}}"
