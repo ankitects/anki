@@ -344,3 +344,46 @@ def limitedCount(count):
     if count >= 1000:
         return "1000+"
     return str(count)
+
+# Tooltips
+######################################################################
+
+_tooltipTimer = None
+_tooltipLabel = None
+
+def tooltip(msg, period=3000):
+    global _tooltipTimer, _tooltipLabel
+    class CustomLabel(QLabel):
+        def mousePressEvent(self, evt):
+            evt.accept()
+            self.hide()
+    closeTooltip()
+    aw = aqt.mw.app.activeWindow()
+    lab = CustomLabel("""\
+<table cellpadding=10>
+<tr>
+<td><img src=":/icons/help-hint.png"></td>
+<td>%s</td>
+</tr>
+</table>""" % msg, aw)
+    lab.setFrameStyle(QFrame.Panel)
+    lab.setLineWidth(2)
+    lab.setWindowFlags(Qt.ToolTip)
+    p = QPalette()
+    p.setColor(QPalette.Window, QColor("#feffc4"))
+    lab.setPalette(p)
+    lab.move(
+        aw.mapToGlobal(QPoint(0, -100 + aw.height())))
+    lab.show()
+    _tooltipTimer = aqt.mw.progress.timer(
+        period, closeTooltip, False)
+    _tooltipLabel = lab
+
+def closeTooltip():
+    global _tooltipLabel, _tooltipTimer
+    if _tooltipLabel:
+        _tooltipLabel.deleteLater()
+        _tooltipLabel = None
+    if _tooltipTimer:
+        _tooltipTimer.stop()
+        _tooltipTimer = None
