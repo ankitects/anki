@@ -158,6 +158,14 @@ function setFonts(fonts) {
     }
 }
 
+function showDupes() {
+    $("#dupes").show();
+}
+
+function hideDupes() {
+    $("#dupes").hide();
+}
+
 $(function () {
     // ignore drops outside the editable area
     document.body.ondragover = function () {
@@ -173,6 +181,7 @@ $(function () {
 });
 </script></head><body>
 <div id="fields"></div>
+<div id="dupes"><a href="#" onclick="py.run('dupes');return false;">%s</a></div>
 </body></html>
 """
 
@@ -336,6 +345,8 @@ class Editor(object):
             self._buttons['text_under'].setChecked(r['under'])
             self._buttons['text_super'].setChecked(r['super'])
             self._buttons['text_sub'].setChecked(r['sub'])
+        elif str.startswith("dupes"):
+            self.showDupes()
         else:
             print str
 
@@ -357,7 +368,8 @@ class Editor(object):
         self.fact = fact
         # change timer
         if self.fact:
-            self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all),
+            self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all,
+                                  _("Show Duplicates")),
                              loadCB=self._loadFinished)
             self.updateTagsAndGroup()
             self.updateKeyboard()
@@ -395,14 +407,27 @@ class Editor(object):
 
     def checkValid(self):
         cols = []
-        for p in self.fact.problems():
+        self.dupe = None
+        for c, p in enumerate(self.fact.problems()):
             if not p:
                 cols.append("#fff")
             elif p == "unique":
                 cols.append("#fcc")
+                self.dupe = c
             else:
                 cols.append("#ffc")
         self.web.eval("setBackgrounds(%s);" % simplejson.dumps(cols))
+        if self.dupe is not None:
+            self.web.eval("showDupes();")
+        else:
+            self.web.eval("hideDupes();")
+
+    def showDupes(self):
+        contents = self.fact.fields[self.dupe]
+        browser = aqt.dialogs.open("Browser", self.mw)
+        browser.form.searchEdit.setText(
+            "'model:%s' '%s'" % (self.fact.model().name, contents))
+        browser.onSearch()
 
     def fieldsAreBlank(self):
         if not self.fact:
