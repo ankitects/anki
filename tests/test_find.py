@@ -101,6 +101,15 @@ def test_findCards():
     assert len(deck.findCards("group:default")) == 5
     assert len(deck.findCards("-group:default")) == 0
     assert len(deck.findCards("-group:foo")) == 5
+    # full search
+    f = deck.newFact()
+    f['Front'] = u'hello<b>world</b>'
+    f['Back'] = u''
+    deck.addFact(f)
+    assert len(deck.findCards("helloworld")) == 0
+    assert len(deck.findCards("helloworld", full=True)) == 1
+    assert len(deck.findCards("front:helloworld")) == 0
+    assert len(deck.findCards("front:helloworld", full=True)) == 1
 
 def test_findReplace():
     deck = getEmptyDeck()

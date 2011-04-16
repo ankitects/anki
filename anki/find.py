@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
-from anki.utils import ids2str, splitFields, joinFields
+from anki.utils import ids2str, splitFields, joinFields, stripHTML
 
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
@@ -37,9 +37,10 @@ class Finder(object):
     def __init__(self, deck):
         self.deck = deck
 
-    def findCards(self, query):
+    def findCards(self, query, full=False):
         "Return a list of card ids for QUERY."
         self.query = query
+        self.full = full
         self._findLimits()
         if not self.lims['valid']:
             return []
@@ -161,9 +162,19 @@ order by %s""" % (lim, sort)
     def _findText(self, val, neg, c):
         val = val.replace("*", "%")
         extra = "not" if neg else ""
-        self.lims['args']["_text_%d"%c] = "%"+val+"%"
-        self.lims['fact'].append("flds %s like :_text_%d escape '\\'" % (
-            extra, c))
+        if not self.full:
+            self.lims['args']["_text_%d"%c] = "%"+val+"%"
+            self.lims['fact'].append("flds %s like :_text_%d escape '\\'" % (
+                extra, c))
+        else:
+            # in the future we may want to apply this at the end to speed up
+            # the case where there are other limits
+            fids = []
+            for fid, flds in self.deck.db.execute(
+                "select id, flds from facts"):
+                if val in stripHTML(flds):
+                    fids.append(fid)
+            self.lims['fact'].append("id in " + ids2str(fids))
 
     def _findFids(self, val):
         self.lims['fact'].append("id in (%s)" % val)
@@ -229,10 +240,13 @@ order by %s""" % (lim, sort)
 select id, mid, flds from facts
 where mid in %s and flds like ? escape '\\'""" % (
                          ids2str(mods.keys())),
-                         value):
+                         "%" if self.full else value):
             flds = splitFields(flds)
             ord = mods[mid][1]
-            if re.search(regex, flds[ord]):
+            str = flds[ord]
+            if self.full:
+                str = stripHTML(str)
+            if re.search(regex, str):
                 fids.append(id)
         extra = "not" if isNeg else ""
         self.lims['fact'].append("id %s in %s" % (extra, ids2str(fids)))
