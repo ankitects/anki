@@ -9,6 +9,7 @@
 
 import os, sys, time, random, cPickle
 from anki.db import DB
+from anki.utils import isMac
 
 defaultConf = {
     'confVer': 3,
@@ -70,7 +71,7 @@ class Config(object):
     def __init__(self, confDir):
         self.confDir = confDir
         self._conf = {}
-        if sys.platform.startswith("darwin") and (
+        if isMac and (
             self.confDir == os.path.expanduser("~/.anki")):
             self.confDir = os.path.expanduser(
                     "~/Library/Application Support/Anki")

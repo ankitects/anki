@@ -5,7 +5,7 @@
 import sys, os, re, traceback
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from aqt.utils import showInfo, showWarning, openFolder
+from aqt.utils import showInfo, showWarning, openFolder, isWin
 from anki.hooks import runHook
 
 class PluginManager(object):
@@ -16,7 +16,7 @@ class PluginManager(object):
         self.mw.connect(f.actionOpenPluginFolder, s, self.onOpenPluginFolder)
         self.mw.connect(f.actionEnableAllPlugins, s, self.onEnableAllPlugins)
         self.mw.connect(f.actionDisableAllPlugins, s, self.onDisableAllPlugins)
-        if sys.platform.startswith("win32"):
+        if isWin:
             self.clearPluginCache()
         self.disableObsoletePlugins()
         plugdir = self.pluginsFolder()
@@ -43,7 +43,7 @@ class PluginManager(object):
 
     def pluginsFolder(self):
         dir = self.mw.config.confDir
-        if sys.platform.startswith("win32"):
+        if isWin:
             dir = dir.encode(sys.getfilesystemencoding())
         return os.path.join(dir, "plugins")
 

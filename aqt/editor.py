@@ -6,7 +6,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebView
 import re, os, sys, tempfile, urllib2, ctypes, simplejson, traceback
-from anki.utils import stripHTML, parseTags
+from anki.utils import stripHTML, parseTags, isWin
 from anki.sound import play
 from anki.hooks import runHook
 from aqt.sound import getAudio
@@ -693,7 +693,7 @@ class Editor(object):
     ######################################################################
 
     def setupKeyboard(self):
-        if sys.platform.startswith("win32") and self.mw.config['preserveKeyboard']:
+        if isWin and self.mw.config['preserveKeyboard']:
             a = ctypes.windll.user32.ActivateKeyboardLayout
             a.restype = ctypes.c_void_p
             a.argtypes = [ctypes.c_void_p, ctypes.c_uint]

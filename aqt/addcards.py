@@ -13,7 +13,7 @@ from anki.utils import stripHTML, parseTags
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
-from anki.utils import stripHTMLMedia
+from anki.utils import stripHTMLMedia, isMac
 import aqt.editor, aqt.modelchooser
 
 class AddCards(QDialog):
@@ -58,7 +58,7 @@ class AddCards(QDialog):
         self.form.buttonBox.addButton(self.addButton,
                                         QDialogButtonBox.ActionRole)
         self.addButton.setShortcut(_("Ctrl+Return"))
-        if sys.platform.startswith("darwin"):
+        if isMac:
             self.addButton.setToolTip(_("Add (shortcut: command+return)"))
         else:
             self.addButton.setToolTip(_("Add (shortcut: ctrl+return)"))

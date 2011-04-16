@@ -9,8 +9,8 @@ from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
-     saveSplitter, restoreSplitter, showInfo, isMac, isWin, askUser, \
-     getText
+     saveSplitter, restoreSplitter, showInfo, askUser, getText
+from anki.utils import isMac, isWin
 import aqt.templates
 
 # fixme: replace font substitutions with native comma list

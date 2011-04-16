@@ -6,7 +6,7 @@ from PyQt4.QtCore import *
 import re, os, sys, urllib, time
 import aqt
 from anki.sound import playFromText, stripSounds
-from anki.utils import call
+from anki.utils import call, isWin, isMac
 
 def openLink(link):
     QDesktopServices.openUrl(QUrl(link))
@@ -260,7 +260,7 @@ def restoreGeom(widget, key, offset=None):
     key += "Geom"
     if aqt.mw.config.get(key):
         widget.restoreGeometry(aqt.mw.config[key])
-        if sys.platform.startswith("darwin") and offset:
+        if isMac and offset:
             from aqt.main import QtConfig as q
             minor = (q.qt_version & 0x00ff00) >> 8
             if minor > 6:
@@ -322,7 +322,7 @@ def getBase(deck):
     return '<base href="%s">' % base
 
 def openFolder(path):
-    if sys.platform == "win32":
+    if isWin:
         if isinstance(path, unicode):
             path = path.encode(sys.getfilesystemencoding())
         call(["explorer", path], wait=False)
@@ -330,7 +330,7 @@ def openFolder(path):
         QDesktopServices.openUrl(QUrl("file://" + path))
 
 def shortcut(key):
-    if sys.platform == "darwin":
+    if Mac:
         return re.sub("(?i)ctrl", "Command", key)
     return key
 
@@ -344,6 +344,3 @@ def limitedCount(count):
     if count >= 1000:
         return "1000+"
     return str(count)
-
-isMac = sys.platform.startswith("darwin")
-isWin = sys.platform.startswith("win32")

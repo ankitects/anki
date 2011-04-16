@@ -115,10 +115,11 @@ class AnkiApp(QApplication):
 
 def run():
     global mw
+    from anki.utils import isWin, isMac
 
     # home on win32 is broken
     mustQuit = False
-    if sys.platform == "win32":
+    if isWin:
         # use appdata if available
         if 'APPDATA' in os.environ:
             os.environ['HOME'] = os.environ['APPDATA']
@@ -136,7 +137,7 @@ def run():
 
     # on osx we'll need to add the qt plugins to the search path
     rd = runningDir
-    if sys.platform.startswith("darwin") and getattr(sys, 'frozen', None):
+    if isMac and getattr(sys, 'frozen', None):
         rd = os.path.abspath(runningDir + "/../../..")
         QCoreApplication.setLibraryPaths(QStringList([rd]))
 
@@ -165,7 +166,7 @@ def run():
 
     # qt translations
     translationPath = ''
-    if 'linux' in sys.platform or 'unix' in sys.platform:
+    if not isWin and not isMac:
         translationPath = "/usr/share/qt4/translations/"
     if translationPath:
         long = conf['interfaceLang']

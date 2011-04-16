@@ -10,7 +10,7 @@ import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
-    ids2str, stripHTMLMedia
+    ids2str, stripHTMLMedia, isWin
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser
@@ -481,7 +481,7 @@ class Browser(QMainWindow):
     def setupHeaders(self):
         vh = self.form.tableView.verticalHeader()
         hh = self.form.tableView.horizontalHeader()
-        if not sys.platform.startswith("win32"):
+        if not isWin:
             vh.hide()
             hh.show()
         restoreHeader(hh, "editor")

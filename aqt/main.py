@@ -13,7 +13,8 @@ QtConfig = pyqtconfig.Configuration()
 
 from anki import Deck
 from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
-from anki.utils import addTags, parseTags, canonifyTags, stripHTML, checksum
+from anki.utils import addTags, parseTags, canonifyTags, stripHTML, \
+    checksum, isWin, isMac
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
@@ -1011,7 +1012,7 @@ sync will overwrite any remote changes. Continue?"""))
             import aqt.dropbox as db
             p = db.getPath()
         except:
-            if sys.platform.startswith("win32"):
+            if isWin:
                 s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
                 s.beginGroup("CurrentVersion/Explorer/Shell Folders")
                 p = os.path.join(unicode(s.value("Personal").toString()),
@@ -1154,7 +1155,7 @@ It can take a long time. Proceed?""")):
     def setupSystemSpecific(self):
         self.setupDocumentDir()
         addHook("macLoadEvent", self.onMacLoad)
-        if sys.platform.startswith("darwin"):
+        if isMac:
             qt_mac_set_menubar_icons(False)
             self.setUnifiedTitleAndToolBarOnMac(True)
             # mac users expect a minimize option
@@ -1163,7 +1164,7 @@ It can take a long time. Proceed?""")):
                          self.onMacMinimize)
             self.hideAccelerators()
             self.hideStatusTips()
-        elif sys.platform.startswith("win32"):
+        elif isWin:
             # make sure ctypes is bundled
             from ctypes import windll, wintypes
 
@@ -1187,7 +1188,7 @@ It can take a long time. Proceed?""")):
     def setupDocumentDir(self):
         if self.config['documentDir']:
             return
-        if sys.platform.startswith("win32"):
+        if isWin:
             s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
             s.beginGroup("CurrentVersion/Explorer/Shell Folders")
             d = unicode(s.value("Personal").toString())
@@ -1195,7 +1196,7 @@ It can take a long time. Proceed?""")):
                 d = os.path.join(d, "Anki")
             else:
                 d = os.path.expanduser("~/.anki/decks")
-        elif sys.platform.startswith("darwin"):
+        elif isMac:
             d = os.path.expanduser("~/Documents/Anki")
         else:
             d = os.path.expanduser("~/.anki/decks")
