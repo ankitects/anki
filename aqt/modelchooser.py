@@ -8,6 +8,7 @@ from anki import stdmodels
 from anki.lang import ngettext
 from anki.hooks import addHook, removeHook, runHook
 from aqt.utils import isMac
+import aqt
 
 class ModelChooser(QHBoxLayout):
 
