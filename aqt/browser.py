@@ -344,8 +344,6 @@ class Browser(QMainWindow):
         c(f.actionFindReplace, s, self.onFindReplace)
         c(f.actionFindDuplicates, s, self.onFindDupes)
         # jumps
-        c(f.actionFirstCard, s, self.onFirstCard)
-        c(f.actionLastCard, s, self.onLastCard)
         c(f.actionPreviousCard, s, self.onPreviousCard)
         c(f.actionNextCard, s, self.onNextCard)
         c(f.actionFind, s, self.onFind)
@@ -1048,39 +1046,20 @@ select fm.id, fm.name from fieldmodels fm""")
     # Jumping
     ######################################################################
 
-    def onFirstCard(self):
+    def _moveCur(self, dir):
         if not self.model.cards:
             return
         self.editor.saveNow()
-        self.form.tableView.selectionModel().clear()
-        self.form.tableView.selectRow(0)
-
-    def onLastCard(self):
-        if not self.model.cards:
-            return
-        self.editor.saveNow()
-        self.form.tableView.selectionModel().clear()
-        self.form.tableView.selectRow(len(self.model.cards) - 1)
+        tv = self.form.tableView
+        idx = tv.moveCursor(dir, Qt.NoModifier)
+        tv.selectionModel().clear()
+        tv.setCurrentIndex(idx)
 
     def onPreviousCard(self):
-        if not self.model.cards:
-            return
-        self.editor.saveNow()
-        row = self.form.tableView.currentIndex().row()
-        row = max(0, row - 1)
-        self.form.tableView.selectionModel().clear()
-        self.form.tableView.selectRow(row)
-        self.onFact()
+        self._moveCur(QAbstractItemView.MoveUp)
 
     def onNextCard(self):
-        if not self.model.cards:
-            return
-        self.editor.saveNow()
-        row = self.form.tableView.currentIndex().row()
-        row = min(len(self.model.cards) - 1, row + 1)
-        self.form.tableView.selectionModel().clear()
-        self.form.tableView.selectRow(row)
-        self.onFact()
+        self._moveCur(QAbstractItemView.MoveDown)
 
     def onFind(self):
         self.form.searchEdit.setFocus()

@@ -233,10 +233,8 @@
     <addaction name="actionFact"/>
     <addaction name="actionCardList"/>
     <addaction name="separator"/>
-    <addaction name="actionFirstCard"/>
     <addaction name="actionPreviousCard"/>
     <addaction name="actionNextCard"/>
-    <addaction name="actionLastCard"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -399,30 +397,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
-   </property>
-  </action>
-  <action name="actionFirstCard">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/go-first.png</normaloff>:/icons/go-first.png</iconset>
-   </property>
-   <property name="text">
-    <string>F&amp;irst Card</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Home</string>
-   </property>
-  </action>
-  <action name="actionLastCard">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/go-last.png</normaloff>:/icons/go-last.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Last Card</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+End</string>
    </property>
   </action>
   <action name="actionGuide">
