@@ -218,8 +218,7 @@ title="%s">%s</button>''' % (
             self.resize(500, 400)
 
     def closeAllDeckWindows(self):
-        print "closealldeckwindows()"
-        #aqt.dialogs.closeAll()
+        aqt.dialogs.closeAll()
 
     # Components
     ##########################################################################
