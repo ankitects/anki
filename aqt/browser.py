@@ -871,16 +871,13 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def selectFacts(self):
-        self.mw.progress.start()
-        sm = self.form.tableView.selectionModel()
-        items = QItemSelection()
-        cardIds = dict([(x, 1) for x in self.selectedFactsAsCards()])
-        for i, card in enumerate(self.model.cards):
-            if card in cardIds:
-                idx = self.model.index(i, 0)
-                items.select(idx, idx)
-        sm.select(items, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
-        self.mw.progress.finish()
+        fids = self.selectedFacts()
+        self.form.searchEdit.setText("fid:"+",".join([str(x) for x in fids]))
+        # clear the selection so we don't waste energy preserving it
+        tv = self.form.tableView
+        tv.selectionModel().clear()
+        self.onSearch()
+        tv.selectAll()
 
     def invertSelection(self):
         sm = self.form.tableView.selectionModel()
