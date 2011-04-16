@@ -92,7 +92,10 @@ class AnkiQt(QMainWindow):
 
     def moveToState(self, state, *args):
         print "-> move from", self.state, "to", state
-        oldState = self.state
+        oldState = self.state or "dummy"
+        cleanup = getattr(self, "_"+oldState+"Cleanup", None)
+        if cleanup:
+            cleanup(state)
         self.state = state
         getattr(self, "_"+state+"State")(oldState, *args)
 
@@ -116,6 +119,10 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState):
         self.reviewer.show()
+
+    def _reviewCleanup(self, newState):
+        if newState != "resetRequired":
+            self.reviewer.cleanup()
 
     def _editCurrentState(self, oldState):
         pass

@@ -40,6 +40,10 @@ class Reviewer(object):
             if not self.card or self._answeredIds[-1] != self.card.id:
                 return self.mw.deck.getCard(self._answeredIds[-1])
 
+    def cleanup(self):
+        self._hideStatus()
+        self.mw.disableCardMenuItems()
+
     # Fetching a card
     ##########################################################################
 
