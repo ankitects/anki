@@ -186,7 +186,9 @@ class Template(object):
             # just the answers
             ans = re.findall(reg%ord, txt)
             ans = ["<span class=cloze>"+a[0]+"</span>" for a in ans]
-            return ", ".join(ans)
+            ans = ", ".join(ans)
+            # but we want to preserve the outer field styling
+            return re.sub("(^<span.+?>)(.*)</span>", "\\1"+ans+"</span>", txt)
         # and display other clozes normally
         return re.sub(reg%".*?", "\\1", txt)
 
