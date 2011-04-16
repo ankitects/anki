@@ -20,7 +20,7 @@ import anki.consts
 import aqt, aqt.progress, aqt.webview
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
-    askUserDialog, applyStyles, getText, showText, showCritical
+    askUserDialog, applyStyles, getText, showText, showCritical, getFile
 
 config = aqt.config
 
@@ -307,23 +307,20 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onOpen(self):
         self.raiseMain()
-        key = _("Deck files (*.anki)")
-        defaultDir = self.getDefaultDir()
-        file = QFileDialog.getOpenFileName(self, _("Open deck"),
-                                           defaultDir, key)
-        file = unicode(file)
-        if not file:
-            return False
-        ret = self.loadDeck(file)
-        if not ret:
-            if ret is None:
-                showWarning(_("Unable to load file."))
-            self.deck = None
-            return False
+        filter = _("Deck files (*.anki)")
+        if self.deck:
+            dir = os.path.dirname(self.deck.path)
         else:
-            self.updateRecentFiles(file)
-            self.browserLastRefreshed = 0
-            return True
+            dir = self.config['documentDir']
+        def accept(file):
+            ret = self.loadDeck(file)
+            if not ret:
+                showWarning(_("Unable to load file."))
+                self.deck = None
+            else:
+                self.updateRecentFiles(file)
+                self.browserLastRefreshed = 0
+        getFile(self, _("Open deck"), accept, filter, dir)
 
     def maybeLoadLastDeck(self, args):
         "Open the last deck if possible."
@@ -337,17 +334,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             r = self.loadDeck(path, showErrors=False)
             if r:
                 return r
-
-    def getDefaultDir(self, save=False):
-        "Try and get default dir from most recently opened file."
-        defaultDir = ""
-        if self.config['recentDeckPaths']:
-            latest = self.config['recentDeckPaths'][0]
-            defaultDir = os.path.dirname(latest)
-        else:
-            defaultDir = unicode(os.path.expanduser("~/"),
-                                 sys.getfilesystemencoding())
-        return defaultDir
 
     def updateRecentFiles(self, path):
         "Add the current deck to the list of recent files."

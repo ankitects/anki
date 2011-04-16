@@ -13,11 +13,11 @@ def openLink(link):
 
 def showWarning(text, parent=None, help=""):
     "Show a small warning with an OK button."
-    return showInfo(text, parent, help, QMessageBox.warning)
+    return showInfo(text, parent, help, "warning")
 
 def showCritical(text, parent=None, help=""):
     "Show a small critical error with an OK button."
-    return showInfo(text, parent, help, QMessageBox.critical)
+    return showInfo(text, parent, help, "critical")
 
 def showInfo(text, parent=None, help="", type="info"):
     "Show a small info window with an OK button."
@@ -203,15 +203,33 @@ def getTag(parent, deck, question, tags="user", **kwargs):
     te.setDeck(deck)
     return getText(question, parent, edit=te, **kwargs)
 
-def getFile(parent, title, dir, key):
-    "Ask the user for a file. Use DIR as config variable."
-    dirkey = dir+"Directory"
-    file = unicode(QFileDialog.getOpenFileName(
-        parent, title, aqt.mw.config.get(dirkey, ""), key))
-    if file:
-        dir = os.path.dirname(file)
-        aqt.mw.config[dirkey] = dir
-    return file
+# File handling
+######################################################################
+
+def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
+    "Ask the user for a file."
+    assert not dir or not key
+    if not dir:
+        dirkey = key+"Directory"
+        dir = aqt.mw.config.get(dirkey, "")
+    else:
+        dirkey = None
+    d = QFileDialog(parent)
+    d.setWindowModality(Qt.WindowModal)
+    d.setFileMode(QFileDialog.ExistingFile)
+    d.setDirectory(dir)
+    d.setWindowTitle(title)
+    d.setNameFilter(filter)
+    d.show()
+    def accept():
+        # work around an osx crash
+        aqt.mw.app.processEvents()
+        file = unicode(list(d.selectedFiles())[0])
+        if dirkey:
+            dir = os.path.dirname(file)
+            aqt.mw.config[dirkey] = dir
+        cb(file)
+    d.connect(d, SIGNAL("accepted()"), accept)
 
 def getSaveFile(parent, title, dir, key, ext):
     "Ask the user for a file to save. Use DIR as config variable."

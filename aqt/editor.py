@@ -637,10 +637,9 @@ class Editor(object):
                " (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg "+
                "*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
                "*.mkv *.ogx *.ogv *.oga *.flv *.swf *.flac)")
-        file = getFile(self.widget, _("Add Media"), "media", key)
-        if not file:
-            return
-        self.addMedia(file, canDelete=True)
+        def accept(file):
+            self.addMedia(file, canDelete=True)
+        file = getFile(self.widget, _("Add Media"), accept, key, key="media")
 
     def addMedia(self, path, canDelete=False):
         html = self._addMedia(path, canDelete)
