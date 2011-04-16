@@ -215,6 +215,7 @@ class CardLayout(QDialog):
     def renderPreview(self):
         c = self.card
         styles = self.model.genCSS()
+        styles += "\n.cloze { font-weight: bold; color: blue; }"
         self.form.preview.setHtml(
             ('<html><head>%s</head><body class="%s">' %
              (getBase(self.deck), c.cssClass())) +

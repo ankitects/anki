@@ -354,6 +354,8 @@ div#filler {
 .q { margin-bottom: 1em; }
 .a { margin-top: 1em; }
 .inv { visibility: hidden; }
+
+.cloze { font-weight: bold; color: blue; }
 """
 
     def _styles(self):
