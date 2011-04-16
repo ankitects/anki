@@ -175,7 +175,8 @@ class Preferences(QDialog):
         d.setFileMode(QFileDialog.Directory)
         d.setOption(QFileDialog.ShowDirsOnly, True)
         d.setDirectory(self.config['documentDir'])
-        if d.exec_():
+        d.show()
+        def accept():
             dir = unicode(list(d.selectedFiles())[0])
             # make sure we can write into it
             try:
@@ -183,5 +184,7 @@ class Preferences(QDialog):
                 open(f, "w").write("test")
                 os.unlink(f)
             except (OSError, IOError):
+                showWarning(_("Can't write to folder."))
                 return
             self.config['documentDir'] = dir
+        d.connect(d, SIGNAL("accepted()"), accept)
