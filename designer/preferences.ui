@@ -451,6 +451,13 @@
            </property>
           </widget>
          </item>
+         <item row="3" column="0">
+          <widget class="QCheckBox" name="showToolbar">
+           <property name="text">
+            <string>Show toolbar</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -523,6 +530,7 @@
   <tabstop>stripHTML</tabstop>
   <tabstop>openLastDeck</tabstop>
   <tabstop>deleteMedia</tabstop>
+  <tabstop>showToolbar</tabstop>
   <tabstop>documentFolder</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

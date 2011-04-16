@@ -586,6 +586,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         toggle.setText(_("Toggle Toolbar"))
         self.connect(toggle, SIGNAL("triggered()"),
                      self.onToolbarToggle)
+        if not self.config['showToolbar']:
+            tb.hide()
 
     def onToolbarToggle(self):
         tb = self.form.toolBar
@@ -1155,7 +1157,7 @@ It can take a long time. Proceed?""")):
         addHook("macLoadEvent", self.onMacLoad)
         if isMac:
             qt_mac_set_menubar_icons(False)
-            self.setUnifiedTitleAndToolBarOnMac(True)
+            self.setUnifiedTitleAndToolBarOnMac(self.config['showToolbar'])
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+m", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),

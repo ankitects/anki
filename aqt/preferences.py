@@ -147,6 +147,7 @@ class Preferences(QDialog):
         self.form.deleteMedia.setChecked(self.config['deleteMedia'])
         self.form.stripHTML.setChecked(self.config['stripHTML'])
         self.form.autoplaySounds.setChecked(self.config['autoplaySounds'])
+        self.form.showToolbar.setChecked(self.config['showToolbar'])
         self.connect(self.form.documentFolder,
                      SIGNAL("clicked()"),
                      self.onChangeFolder)
@@ -159,6 +160,7 @@ class Preferences(QDialog):
         self.config['autoplaySounds'] = self.form.autoplaySounds.isChecked()
         self.config['loadLastDeck'] = self.form.openLastDeck.isChecked()
         self.config['deleteMedia'] = self.form.deleteMedia.isChecked()
+        self.config['showToolbar'] = self.form.showToolbar.isChecked()
 
     def codeToIndex(self, code):
         n = 0
