@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
-import os, base64, httplib, sys, tempfile, httplib, types
+import os, base64, httplib, sys, httplib, types
 from datetime import date
 import anki, anki.deck, anki.cards
 from anki.errors import *
@@ -851,8 +851,8 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
         try:
             # write into a temporary file, since POST needs content-length
             src = open(path, "rb")
-            (fd, name) = tempfile.mkstemp(prefix="anki")
-            tmp = open(name, "w+b")
+            name = namedtmp("fullsync.anki")
+            tmp = open(name, "wb")
             # post vars
             for (key, value) in fields.items():
                 tmp.write('--' + MIME_BOUNDARY + "\r\n")
@@ -900,8 +900,6 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             finally:
                 sendProgressHook = None
                 tmp.close()
-                os.close(fd)
-                os.unlink(name)
         finally:
             runHook("fullSyncFinished")
 
@@ -910,8 +908,7 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
             runHook("fullSyncStarted", 0)
             fields = urllib.urlencode(fields)
             src = urllib.urlopen(SYNC_URL + "fulldown", fields)
-            (fd, tmpname) = tempfile.mkstemp(dir=os.path.dirname(path),
-                                             prefix="fullsync")
+            tmpname = namedtmp("fullsync.anki")
             tmp = open(tmpname, "wb")
             decomp = zlib.decompressobj()
             cnt = 0

@@ -2,7 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re, os, random, time, types, math, htmlentitydefs, subprocess
+import re, os, random, time, types, math, htmlentitydefs, subprocess, \
+    tempfile, shutil
 
 try:
     import hashlib
@@ -231,7 +232,7 @@ def joinFields(list):
 def splitFields(string):
     return string.split("\x1f")
 
-# Misc
+# Checksums
 ##############################################################################
 
 def checksum(data):
@@ -241,10 +242,46 @@ def fieldChecksum(data):
     # 32 bit unsigned number from first 8 digits of md5 hash
     return int(checksum(data.encode("utf-8"))[:8], 16)
 
+# Temp files
+##############################################################################
+
+_tmpdir = None
+
+def tmpdir():
+    "A reusable temp folder which we clean out on each program invocation."
+    global _tmpdir
+    if not _tmpdir:
+        def cleanup():
+            shutil.rmtree(_tmpdir)
+        import atexit
+        atexit.register(cleanup)
+        _tmpdir = os.path.join(tempfile.gettempdir(), "anki_temp")
+        try:
+            shutil.rmtree(_tmpdir)
+        except (IOError, OSError):
+            pass
+        os.mkdir(_tmpdir)
+    return _tmpdir
+
+def tmpfile(prefix=None, suffix=None):
+    return tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
+
+def namedtmp(name):
+    "Return tmpdir+name. Deletes any existing file."
+    path = os.path.join(tmpdir(), name)
+    try:
+        os.unlink(path)
+    except (OSError, IOError):
+        pass
+    return path
+
+# Cmd invocation
+##############################################################################
+
 def call(argv, wait=True, **kwargs):
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
-    if sys.platform == "win32":
+    if isWin:
         si = subprocess.STARTUPINFO()
         try:
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -270,3 +307,9 @@ def call(argv, wait=True, **kwargs):
     else:
         ret = 0
     return ret
+
+# OS helpers
+##############################################################################
+
+isMac = sys.platform.startswith("darwin")
+isWin = sys.platform.startswith("win32")

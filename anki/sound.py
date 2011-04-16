@@ -3,8 +3,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, sys, threading, time, subprocess, os, signal, errno, atexit
-import tempfile, shutil
+import shutil
 from anki.hooks import addHook, runHook
+from anki.utils import namedtmp, tmpdir, isWin, isMac
 
 # Shared utils
 ##########################################################################
@@ -30,23 +31,18 @@ processingChain = [
     ["lame", "rec.wav", processingDst, "--noreplaygain", "--quiet"],
     ]
 
-tmpdir = None
-
 # don't show box on windows
-if sys.platform == "win32":
+if isWin:
     si = subprocess.STARTUPINFO()
     try:
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     except:
         # python2.7+
         si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
-    # tmp dir for non-hashed media
-    tmpdir = unicode(
-        tempfile.mkdtemp(prefix="anki"), sys.getfilesystemencoding())
 else:
     si = None
 
-if sys.platform.startswith("darwin"):
+if isMac:
     # make sure lame, which is installed in /usr/local/bin, is in the path
     os.environ['PATH'] += ":" + "/usr/local/bin"
     dir = os.path.dirname(os.path.abspath(__file__))
@@ -64,7 +60,7 @@ def retryWait(proc):
 # Mplayer settings
 ##########################################################################
 
-if sys.platform.startswith("win32"):
+if isWin:
     mplayerCmd = ["mplayer.exe", "-ao", "win32"]
     dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.environ['PATH'] += ";" + dir
@@ -157,13 +153,13 @@ def queueMplayer(path):
     ensureMplayerThreads()
     while mplayerEvt.isSet():
         time.sleep(0.1)
-    if tmpdir and os.path.exists(path):
+    if isWin and os.path.exists(path):
         # mplayer on windows doesn't like the encoding, so we create a
         # temporary file instead. oddly, foreign characters in the dirname
         # don't seem to matter.
-        (fd, name) = tempfile.mkstemp(suffix=os.path.splitext(path)[1],
-                                      dir=tmpdir)
-        f = os.fdopen(fd, "wb")
+        dir = tmpdir().encode(sys.getfilesystemencoding())
+        name = os.path.join(dir, "audio"+os.path.splitext(path)[1])
+        f = open(name, "wb")
         f.write(open(path, "rb").read())
         f.close()
         # it wants unix paths, too!
@@ -194,12 +190,7 @@ def stopMplayer(*args):
         return
     mplayerManager.kill()
 
-def onExit():
-    if tmpdir:
-        shutil.rmtree(tmpdir)
-
 addHook("deckClosed", stopMplayer)
-atexit.register(onExit)
 
 # PyAudio recording
 ##########################################################################

@@ -2,9 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, shutil, re, urllib, urllib2, time, tempfile, unicodedata, \
+import os, shutil, re, urllib, urllib2, time, unicodedata, \
     urllib, sys
-from anki.utils import checksum, intTime
+from anki.utils import checksum, intTime, namedtmp, isWin
 from anki.lang import _
 
 class MediaRegistry(object):
@@ -111,7 +111,7 @@ If the same name exists, compare checksums."""
         # problem is more complicated - if we percent-escape as utf8 it fixes
         # some images but breaks others. When filenames are normalized by
         # dropbox they become unreadable if we escape them.
-        if sys.platform.startswith("win32"):
+        if isWin:
             return string
         def repl(match):
             tag = match.group(1)
@@ -212,12 +212,11 @@ If the same name exists, compare checksums."""
                 for f in mediaFiles(txt, remote=True):
                     refs[f] = True
 
-        tmpdir = tempfile.mkdtemp(prefix="anki")
         failed = []
         passed = []
         for c, link in enumerate(refs.keys()):
             try:
-                path = os.path.join(tmpdir, os.path.basename(link))
+                path = namedtmp(os.path.basename(link))
                 url = urllib2.urlopen(link)
                 open(path, "wb").write(url.read())
                 newpath = copyToMedia(self.deck, path)

@@ -2,8 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re, tempfile, os, sys, shutil, cgi, subprocess
-from anki.utils import checksum, call
+import re, os, sys, shutil, cgi, subprocess
+from anki.utils import checksum, call, namedtmp, tmpdir, isMac
 from anki.hooks import addHook
 from htmlentitydefs import entitydefs
 from anki.lang import _
@@ -17,10 +17,8 @@ regexps = {
     "math": re.compile(r"\[\$\$\](.+?)\[/\$\$\]", re.DOTALL | re.IGNORECASE),
     }
 
-tmpdir = tempfile.mkdtemp(prefix="anki")
-
 # add standard tex install location to osx
-if sys.platform == "darwin":
+if isMac:
     os.environ['PATH'] += ":/usr/texbin"
 
 def stripLatex(text):
@@ -76,17 +74,17 @@ def _buildImg(deck, latex, fname):
              latex + "\n" +
              deck.conf["latexPost"])
     # write into a temp file
-    log = open(os.path.join(tmpdir, "latex_log.txt"), "w+")
-    texpath = os.path.join(tmpdir, "tmp.tex")
-    texfile = file(texpath, "w")
+    log = open(namedtmp("latex_log.txt"), "w")
+    texfile = file(namedtmp("tmp.tex"), "w")
     texfile.write(latex)
     texfile.close()
     # make sure we have a valid mediaDir
     mdir = deck.media.dir(create=True)
     oldcwd = os.getcwd()
+    png = namedtmp("tmp.png")
     try:
         # generate dvi
-        os.chdir(tmpdir)
+        os.chdir(tmpdir())
         if call(latexCmd + ["tmp.tex"], stdout=log, stderr=log):
             return _errMsg("latex")
         # and png
@@ -94,7 +92,7 @@ def _buildImg(deck, latex, fname):
                 stdout=log, stderr=log):
             return _errMsg("dvipng")
         # add to media
-        shutil.copy2(os.path.join(tmpdir, "tmp.png"),
+        shutil.copy2(png,
                      os.path.join(mdir, fname))
         return
     finally:
@@ -103,7 +101,7 @@ def _buildImg(deck, latex, fname):
 def _errMsg(type):
     msg = (_("Error executing %s.") % type) + "<br>"
     try:
-        log = open(os.path.join(tmpdir, "latex_log.txt")).read()
+        log = open(namedtmp("latex_log.txt")).read()
         if not log:
             raise Exception()
         msg += "<small><pre>" + cgi.escape(log) + "</pre></small>"
