@@ -6,10 +6,7 @@ import os
 try:
     from pysqlite2 import dbapi2 as sqlite
 except ImportError:
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        raise Exception("Please install pysqlite2 or python2.5")
+    from sqlite3 import dbapi2 as sqlite
 
 from anki.hooks import runHook
 

@@ -37,5 +37,13 @@ Save & close:
     deck.close()
 """
 
+import sys
+if sys.version_info[0] > 2:
+    raise Exception("Anki should be run with python2.x.")
+elif sys.version_info[1] < 5:
+    raise Exception("Anki requires Python 2.5+")
+if sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
+    raise Exception("Anki requires a UTF-8 locale.")
+
 version = "1.99"
 from anki.storage import Deck
