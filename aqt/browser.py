@@ -13,7 +13,7 @@ from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
     ids2str, stripHTMLMedia, isWin
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser
+    showInfo, askUser, tooltip
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, removeHook
@@ -114,7 +114,7 @@ class DeckModel(QAbstractTableModel):
         # the db progress handler may cause a refresh, so we need to zero out
         # old data first
         self.cards = []
-        self.cards = self.deck.findCards(txt)
+        self.cards = self.deck.findCards(txt, self.browser.mw.config['fullSearch'])
         print "fetch cards in %dms" % ((time.time() - t)*1000)
         if reset:
             self.endReset()
@@ -432,6 +432,13 @@ class Browser(QMainWindow):
         if not self.model.cards:
             # no row change will fire
             self.onRowChanged(None, None)
+            txt = _("No matches found.")
+            if not self.mw.config['fullSearch']:
+                txt += "<p>" + _(
+                _("If your cards have formatting, you may want <br>"
+                  "to enable 'search within formatting' in the<br>"
+                  "browser options."))
+            tooltip(txt)
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
