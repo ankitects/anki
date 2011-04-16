@@ -288,14 +288,12 @@ class CardLayout(QDialog):
         self.connect(self.form.fieldDown, SIGNAL("clicked()"),
                      self.moveFieldDown)
         self.connect(self.form.fieldName, SIGNAL("lostFocus()"),
-                     self.fillFieldList)
+                     self.saveField)
         self.connect(self.form.fontFamily, SIGNAL("currentFontChanged(QFont)"),
                      self.saveField)
         self.connect(self.form.fontSize, SIGNAL("valueChanged(int)"),
                      self.saveField)
         self.connect(self.form.fontSizeEdit, SIGNAL("valueChanged(int)"),
-                     self.saveField)
-        self.connect(self.form.fieldName, SIGNAL("textEdited(QString)"),
                      self.saveField)
         self.connect(self.form.preserveWhitespace, SIGNAL("stateChanged(int)"),
                      self.saveField)
