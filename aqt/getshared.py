@@ -4,7 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import aqt, simplejson, time, cStringIO, zipfile, tempfile, os, re, gzip
+import aqt, simplejson, time, cStringIO, zipfile, os, re, gzip
 import traceback, urllib2, socket, cgi
 from aqt.ui.utils import saveGeom, restoreGeom, showInfo
 from anki.utils import fmtTimeSpan
@@ -176,6 +176,7 @@ Error was:<pre>%s</pre>""")
         if self.type == 0:
             if not self.parent.saveAndClose(hideWelcome=True, parent=self):
                 return QDialog.accept(self)
+        # fixme: use namedtmp
         (fd, tmpname) = tempfile.mkstemp(prefix="anki")
         tmpfile = os.fdopen(fd, "w+b")
         cnt = 0

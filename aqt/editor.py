@@ -5,8 +5,8 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import QWebView
-import re, os, sys, tempfile, urllib2, ctypes, simplejson, traceback
-from anki.utils import stripHTML, parseTags, isWin
+import re, os, sys, urllib2, ctypes, simplejson, traceback
+from anki.utils import stripHTML, parseTags, isWin, namedtmp
 from anki.sound import play
 from anki.hooks import runHook
 from aqt.sound import getAudio
@@ -727,7 +727,6 @@ class EditorWebView(AnkiWebView):
     def __init__(self, parent, editor):
         AnkiWebView.__init__(self, parent)
         self.editor = editor
-        self.__tmpDir = None
         self.errtxt = _("An error occured while opening %s")
         self.strip = self.editor.mw.config['stripHTML']
 
@@ -825,7 +824,7 @@ class EditorWebView(AnkiWebView):
 
     def _processImage(self, mime):
         im = QImage(mime.imageData())
-        name = os.path.join(self._tmpDir(), "paste-%d.png" % im.cacheKey())
+        name = namedtmp("paste-%d.png" % im.cacheKey())
         uname = unicode(name, sys.getfilesystemencoding())
         if im.hasAlphaChannel():
             im.save(uname)
@@ -848,13 +847,8 @@ class EditorWebView(AnkiWebView):
         except urllib2.URLError, e:
             showWarning(self.errtxt % e)
             return
-        path = os.path.join(self._tmpDir(), os.path.basename(url))
+        path = namedtmp(os.path.basename(url))
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
         return self.editor._addMedia(path)
-
-    def _tmpDir(self):
-        if not self.__tmpDir:
-            self.__tmpDir = tempfile.mkdtemp(prefix="anki")
-        return self.__tmpDir

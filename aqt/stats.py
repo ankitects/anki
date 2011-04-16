@@ -4,9 +4,10 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import os, tempfile
+import os
 from aqt.webview import AnkiWebView
 from aqt.utils import saveGeom, restoreGeom, maybeHideClose
+from anki.utils import namedtmp
 from anki.hooks import addHook
 import aqt
 
@@ -98,8 +99,7 @@ class DeckStats(QDialog):
 
     def browser(self):
         # dump to a temporary file
-        tmpdir = tempfile.mkdtemp(prefix="anki")
-        path = os.path.join(tmpdir, "report.png")
+        path = namedtmp("report.png")
         p = self.form.web.page()
         oldsize = p.viewportSize()
         p.setViewportSize(p.mainFrame().contentsSize())

@@ -1,6 +1,7 @@
 # to be moved into libanki
 
     def _copyToTmpDeck(self, name="cram.anki", tags="", ids=[]):
+        # fixme: use namedtmp
         ndir = tempfile.mkdtemp(prefix="anki")
         path = os.path.join(ndir, name)
         from anki.exporting import AnkiExporter

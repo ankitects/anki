@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, sys, re, stat, traceback, signal
-import shutil, time, tempfile, zipfile
+import shutil, time, zipfile
 from operator import itemgetter
 
 from PyQt4.QtCore import *
@@ -461,8 +461,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.ensureSyncParams()
         self.close()
         # we need a disk-backed file for syncing
-        dir = unicode(tempfile.mkdtemp(prefix="anki"), sys.getfilesystemencoding())
-        path = os.path.join(dir, u"untitled.anki")
+        path = namedtmp(u"untitled.anki")
         self.onNew(path=path)
         # ensure all changes come to us
         self.deck.modified = 0

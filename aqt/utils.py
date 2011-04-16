@@ -330,7 +330,7 @@ def openFolder(path):
         QDesktopServices.openUrl(QUrl("file://" + path))
 
 def shortcut(key):
-    if Mac:
+    if isMac:
         return re.sub("(?i)ctrl", "Command", key)
     return key
 
