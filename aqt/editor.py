@@ -314,13 +314,13 @@ class Editor(object):
             (type, txt) = str.split(":", 1)
             self.fact.fields[self.currentField] = self.mungeHTML(txt)
             self.mw.requireReset()
+            self.fact.flush()
             if type == "blur":
                 if not self._keepButtons:
                     self.disableButtons()
-                runHook("editor.focusLost", self.fact)
+                runHook("editFocusLost", self.fact)
             else:
-                runHook("editor.keyPressed", self.fact)
-            self.fact.flush()
+                runHook("editTimer", self.fact)
             self.checkValid()
         # focused into field?
         elif str.startswith("focus"):
@@ -474,6 +474,7 @@ class Editor(object):
         self.fact.updateCardGids()
         self.fact.tags = parseTags(unicode(self.tags.text()))
         self.fact.flush()
+        runHook("tagsAndGroupUpdated", self.fact)
 
     # Format buttons
     ######################################################################

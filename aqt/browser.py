@@ -48,6 +48,15 @@ class DeckModel(QAbstractTableModel):
             self.cardObjs[id] = self.deck.getCard(id)
         return self.cardObjs[id]
 
+    def refreshFact(self, fact):
+        refresh = False
+        for c in fact.cards():
+            if c.id in self.cardObjs:
+                del self.cardObjs[c.id]
+                refresh = True
+        if refresh:
+            self.emit(SIGNAL("layoutChanged()"))
+
     # Model interface
     ######################################################################
 
@@ -473,6 +482,9 @@ class Browser(QMainWindow):
             self.showCardInfo(self.card)
         self.updateToggles()
 
+    def refreshCurrentCard(self, fact):
+        self.model.refreshFact(fact)
+
     # Headers & sorting
     ######################################################################
 
@@ -882,10 +894,14 @@ where id in %s""" % ids2str(sf))
     def setupHooks(self):
         addHook("checkpoint", self.onCheckpoint)
         addHook("reset", self.onReset)
+        addHook("editTimer", self.refreshCurrentCard)
+        addHook("editFocusLost", self.refreshCurrentCard)
 
     def teardownHooks(self):
         removeHook("reset", self.onReset)
         removeHook("checkpoint", self.onCheckpoint)
+        removeHook("editTimer", self.refreshCurrentCard)
+        removeHook("editFocusLost", self.refreshCurrentCard)
 
     def onCheckpoint(self):
         if self.mw.form.actionUndo.isEnabled():
