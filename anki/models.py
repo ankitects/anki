@@ -26,6 +26,7 @@ defaultField = {
     'esize': 20,
     'qcol': "#000",
     'pre': True,
+    'sticky': False,
 }
 
 defaultTemplate = {
