@@ -404,6 +404,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def _getRevCard(self):
         if self._haveRevCards():
+            self.revCount -= 1
             return self.revQueue.pop()
 
     def _haveRevCards(self):
@@ -421,7 +422,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     ##########################################################################
 
     def _answerRevCard(self, card, ease):
-        self.revCount -= 1
         card.reps += 1
         if ease == 1:
             self._rescheduleLapse(card)
