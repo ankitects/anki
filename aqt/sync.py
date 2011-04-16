@@ -160,7 +160,7 @@ Are you sure?""" % deckName),
                     elif self.loadAfterSync and self.deckPath:
                         if self.loadAfterSync == 2:
                             name = re.sub("[<>]", "", self.syncName)
-                            p = os.path.join(self.documentDir, name + ".anki")
+                            p = os.path.join(self.config['documentDir'], name + ".anki")
                             shutil.copy2(self.deckPath, p)
                             self.deckPath = p
                             # since we've moved the deck, we have to set sync path
@@ -196,7 +196,7 @@ Are you sure?""" % deckName),
         self.syncName = name
         if name:
             # name chosen
-            p = os.path.join(self.documentDir, name + ".anki")
+            p = os.path.join(self.config['documentDir'], name + ".anki")
             if os.path.exists(p):
                 d = askUserDialog(_("""\
 This deck already exists on your computer. Overwrite the local copy?"""),

@@ -222,7 +222,7 @@ Error was:<pre>%s</pre>""")
         tit = tit[0:40]
         if self.type == 0:
             # deck
-            dd = self.parent.documentDir
+            dd = self.parent.config['documentDir']
             p = os.path.join(dd, tit + ".anki")
             if os.path.exists(p):
                 tit += "%d" % time.time()

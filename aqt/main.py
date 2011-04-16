@@ -24,6 +24,8 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
 
 config = aqt.config
 
+## fixme: open plugin folder broken on win32?
+
 class AnkiQt(QMainWindow):
     def __init__(self, app, config, args, splash):
         QMainWindow.__init__(self)
@@ -419,7 +421,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 if not name.endswith(".anki"):
                     name += ".anki"
                 break
-            path = os.path.join(self.documentDir, name)
+            path = os.path.join(self.config['documentDir'], name)
             if os.path.exists(path):
                 if askUser(_("That deck already exists. Overwrite?"),
                                     defaultno=True):
@@ -515,7 +517,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         if self.deck.path:
             dir = os.path.dirname(self.deck.path)
         else:
-            dir = self.documentDir
+            dir = self.config['documentDir']
         file = QFileDialog.getSaveFileName(self, title,
                                            dir,
                                            _("Deck files (*.anki)"),
@@ -1191,23 +1193,25 @@ It can take a long time. Proceed?""")):
 
     def setupDocumentDir(self):
         if self.config['documentDir']:
-            self.documentDir = self.config['documentDir']
-        elif sys.platform.startswith("win32"):
+            return
+        if sys.platform.startswith("win32"):
             s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
             s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-            self.documentDir = unicode(s.value("Personal").toString())
-            if os.path.exists(self.documentDir):
-                self.documentDir = os.path.join(self.documentDir, "Anki")
+            d = unicode(s.value("Personal").toString())
+            if os.path.exists(d):
+                d = os.path.join(d, "Anki")
             else:
-                self.documentDir = os.path.expanduser("~/.anki/decks")
+                d = os.path.expanduser("~/.anki/decks")
         elif sys.platform.startswith("darwin"):
-            self.documentDir = os.path.expanduser("~/Documents/Anki")
+            d = os.path.expanduser("~/Documents/Anki")
         else:
-            self.documentDir = os.path.expanduser("~/.anki/decks")
+            d = os.path.expanduser("~/.anki/decks")
         try:
-            os.mkdir(self.documentDir)
+            os.mkdir(d)
         except (OSError, IOError):
+            # already exists
             pass
+        self.config['documentDir'] = d
 
     # Proxy support
     ##########################################################################

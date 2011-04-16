@@ -6,7 +6,7 @@ import os
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from anki.lang import langs
-from aqt.utils import openFolder
+from aqt.utils import openFolder, showWarning
 import aqt
 
 class Preferences(QDialog):
@@ -147,6 +147,9 @@ class Preferences(QDialog):
         self.form.deleteMedia.setChecked(self.config['deleteMedia'])
         self.form.stripHTML.setChecked(self.config['stripHTML'])
         self.form.autoplaySounds.setChecked(self.config['autoplaySounds'])
+        self.connect(self.form.documentFolder,
+                     SIGNAL("clicked()"),
+                     self.onChangeFolder)
 
     def updateOptions(self):
         self.config['suppressEstimates'] = not self.form.showEstimates.isChecked()
@@ -165,3 +168,20 @@ class Preferences(QDialog):
             n += 1
         # default to english
         return self.codeToIndex("en")
+
+    def onChangeFolder(self):
+        d = QFileDialog(self)
+        d.setWindowModality(Qt.WindowModal)
+        d.setFileMode(QFileDialog.Directory)
+        d.setOption(QFileDialog.ShowDirsOnly, True)
+        d.setDirectory(self.config['documentDir'])
+        if d.exec_():
+            dir = unicode(list(d.selectedFiles())[0])
+            # make sure we can write into it
+            try:
+                f = os.path.join(dir, "test.txt")
+                open(f, "w").write("test")
+                os.unlink(f)
+            except (OSError, IOError):
+                return
+            self.config['documentDir'] = dir
