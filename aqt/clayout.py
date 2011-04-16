@@ -104,6 +104,7 @@ class CardLayout(QDialog):
         c(f.allowEmptyAnswer, SIGNAL("clicked()"), self.saveCard)
         c(f.typeAnswer, SIGNAL("activated(int)"), self.saveCard)
         c(f.flipButton, SIGNAL("clicked()"), self.onFlip)
+        c(f.clozectx, SIGNAL("clicked()"), self.saveCard)
         def linkClicked(url):
             QDesktopServices.openUrl(QUrl(url))
         f.preview.page().setLinkDelegationPolicy(
@@ -162,6 +163,8 @@ class CardLayout(QDialog):
             f.typeAnswer.setCurrentIndex(0)
         else:
             f.typeAnswer.setCurrentIndex(t['typeAns'] + 1)
+        # model-level, but there's nowhere else to put this
+        f.clozectx.setChecked(self.model.conf['clozectx'])
         self.updatingCards = False
 
     def fillCardList(self):
@@ -199,6 +202,7 @@ class CardLayout(QDialog):
             t['typeAns'] = None
         else:
             t['typeAns'] = idx-1
+        self.model.conf['clozectx'] = self.form.clozectx.isChecked()
         self.renderPreview()
 
     def chooseColour(self, button, type="field"):

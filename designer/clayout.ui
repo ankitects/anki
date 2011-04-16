@@ -217,6 +217,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="clozectx">
+             <property name="text">
+              <string>Include context in cloze answers</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -559,6 +566,7 @@
   <tabstop>typeAnswer</tabstop>
   <tabstop>questionInAnswer</tabstop>
   <tabstop>allowEmptyAnswer</tabstop>
+  <tabstop>clozectx</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>fieldList</tabstop>
   <tabstop>fieldAdd</tabstop>
