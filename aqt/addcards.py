@@ -10,7 +10,8 @@ import anki
 from anki.facts import Fact
 from anki.errors import *
 from anki.utils import stripHTML, parseTags
-from aqt.utils import saveGeom, restoreGeom, showWarning, askUser
+from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
+    tooltip
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
 from anki.utils import stripHTMLMedia, isMac
@@ -53,32 +54,33 @@ class AddCards(QDialog):
         aqt.openHelp("AddItems")
 
     def setupButtons(self):
+        bb = self.form.buttonBox
+        ar = QDialogButtonBox.ActionRole
         # add
-        self.addButton = QPushButton(_("Add"))
-        self.form.buttonBox.addButton(self.addButton,
-                                        QDialogButtonBox.ActionRole)
-        self.addButton.setShortcut(_("Ctrl+Return"))
-        if isMac:
-            self.addButton.setToolTip(_("Add (shortcut: command+return)"))
-        else:
-            self.addButton.setToolTip(_("Add (shortcut: ctrl+return)"))
-        s = QShortcut(QKeySequence(_("Ctrl+Enter")), self)
-        s.connect(s, SIGNAL("activated()"), self.addButton, SLOT("click()"))
+        self.addButton = bb.addButton(_("Add"), ar)
+        self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
+        self.addButton.setToolTip(shortcut(_("Add (shortcut: ctrl+enter)")))
         self.connect(self.addButton, SIGNAL("clicked()"), self.addCards)
+        # add+keep
+        self.addKeepButton = bb.addButton(_("Add&&Keep"), ar)
+        self.addKeepButton.setShortcut(_("Ctrl+Shift+Return"))
+        self.addKeepButton.setToolTip(shortcut(
+            _("Add and keep entered text (shortcut: ctrl+shift+enter)")))
+        self.connect(self.addKeepButton, SIGNAL("clicked()"), self.addKeep)
         # close
         self.closeButton = QPushButton(_("Close"))
         self.closeButton.setAutoDefault(False)
-        self.form.buttonBox.addButton(self.closeButton,
+        bb.addButton(self.closeButton,
                                         QDialogButtonBox.RejectRole)
         # help
         self.helpButton = QPushButton(_("Help"))
         self.helpButton.setAutoDefault(False)
-        self.form.buttonBox.addButton(self.helpButton,
+        bb.addButton(self.helpButton,
                                         QDialogButtonBox.HelpRole)
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
         # history
-        b = self.form.buttonBox.addButton(
-            _("History")+ u'▼', QDialogButtonBox.ActionRole)
+        b = bb.addButton(
+            _("History")+ u'▼', ar)
         self.connect(b, SIGNAL("clicked()"), self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
@@ -93,12 +95,13 @@ class AddCards(QDialog):
             self.editor.setFact(f)
         return f
 
-    def onReset(self, model=None):
+    def onReset(self, model=None, keep=False):
         oldFact = self.editor.fact
         fact = self.setupNewFact(set=False)
         # copy fields from old fact
         if oldFact:
-            self.removeTempFact(oldFact)
+            if not keep:
+                self.removeTempFact(oldFact)
             for n in range(len(fact.fields)):
                 try:
                     fact.fields[n] = oldFact.fields[n]
@@ -147,15 +150,22 @@ question or answer on all cards."""), help="AddItems")
         # FIXME: return to overview on add?
         return fact
 
-    def addCards(self):
+    def addKeep(self):
+        self.addCards(keep=True)
+
+    def addCards(self, keep=False):
         self.editor.saveNow()
         fact = self.editor.fact
         fact = self.addFact(fact)
         if not fact:
             return
+        tooltip("Added", period=500)
         # stop anything playing
         clearAudioQueue()
-        self.setupNewFact()
+        if keep:
+            self.onReset(keep=True)
+        else:
+            self.setupNewFact()
         self.mw.deck.autosave()
 
     def keyPressEvent(self, evt):
