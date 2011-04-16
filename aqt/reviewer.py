@@ -88,16 +88,17 @@ class Reviewer(object):
 <div id=a></div>
 <div id=filler></div>
 </td></tr></table>
-<a id=ansbut class="ansbut ansbutbig" href=ans onclick="showans();">
+<a id=ansbut class="ansbut ansbutbig" href=ans onclick="_showans();">
 <div class=ansbuttxt>%(showans)s</div>
 </a>
 <div id=easebuts>
 </div>
 <script>
+var ankiPlatform = "desktop";
 var hideq;
 var ans;
 var typeans;
-function updateQA (qa) {
+function _updateQA (qa) {
     hideq = qa[4];
     location.hash = "";
     $("#q").html(qa[0]);
@@ -115,8 +116,12 @@ function updateQA (qa) {
     if (typeans) {
         typeans.focus();
     }
+    // user hook
+    if (typeof(onQuestion) === "function") {
+        onQuestion();
+    }
 };
-function showans () {
+function _showans () {
     if (typeans) {
         py.link("typeans:"+typeans.value);
     }
@@ -129,11 +134,15 @@ function showans () {
     }
     $("#ansbut").hide();
     $("#defease").focus();
+    // user hook
+    if (typeof(onAnswer) === "function") {
+        onAnswer();
+    }
 };
-function proctypeans (res) {
+function _processTyped (res) {
     $("#typeans").replaceWith(res);
 }
-function space() {
+function _onSpace() {
     if (/^ease/.test(document.activeElement.href)) {
         py.link(document.activeElement.href);
     }
@@ -165,7 +174,7 @@ $(".ansbut").focus();
         esc = self.mw.deck.media.escapeImages
         q=esc(mungeQA(q)) + self.typeAnsInput()
         a=esc(mungeQA(a))
-        self.web.eval("updateQA(%s);" % simplejson.dumps(
+        self.web.eval("_updateQA(%s);" % simplejson.dumps(
             [q, a, self._answerButtons(), c.cssClass(),
              c.template()['hideQ']]))
         runHook('showQuestion')
@@ -247,11 +256,11 @@ $(".ansbut").focus();
                 self.web.eval("$('#typeans').blur();")
             if show:
                 self._showAnswer()
-                self.web.eval("showans();")
+                self.web.eval("_showans();")
                 return True
         elif self.state == "answer":
             if evt.key() == Qt.Key_Space:
-                self.web.eval("space();")
+                self.web.eval("_onSpace();")
             else:
                 key = unicode(evt.text())
                 if key and key >= "1" and key <= "4":
@@ -384,7 +393,7 @@ div#filler {
             cor = ""
         if cor:
             res = self.correct(cor, given)
-            self.web.eval("proctypeans(%s);" % simplejson.dumps(res))
+            self.web.eval("_processTyped(%s);" % simplejson.dumps(res))
 
     def getFont(self):
         f = self.card.model().fields[self.typeAns()]
