@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, os, sys, shutil, cgi, subprocess
-from anki.utils import checksum, call, namedtmp, tmpdir, isMac
+from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from htmlentitydefs import entitydefs
 from anki.lang import _
@@ -65,6 +65,7 @@ def _latexFromHtml(deck, latex):
         if match.group(1) in entitydefs:
             latex = latex.replace(match.group(), entitydefs[match.group(1)])
     latex = re.sub("<br( /)?>", "\n", latex)
+    latex = stripHTML(latex)
     latex = latex.encode("utf-8")
     return latex
 
