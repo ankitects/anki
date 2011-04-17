@@ -27,7 +27,6 @@ config = aqt.config
 
 ## fixme: open plugin folder broken on win32?
 
-## fixme: new deck, cloze & cardlayout, gets stuck in resetRequired state
 ## models remembering the previous group
 
 class AnkiQt(QMainWindow):
@@ -159,7 +158,8 @@ class AnkiQt(QMainWindow):
             self.reset()
 
     def _resetRequiredState(self, oldState):
-        self.returnState = oldState
+        if oldState != "resetRequired":
+            self.returnState = oldState
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
