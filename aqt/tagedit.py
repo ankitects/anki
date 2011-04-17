@@ -18,7 +18,7 @@ class TagEdit(QLineEdit):
             self.completer = TagCompleter(self.model, parent, self)
         else:
             self.completer = QCompleter(self.model, parent)
-        self.completer.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompleter(self.completer)
 
