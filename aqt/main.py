@@ -340,7 +340,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             if os.path.exists(f):
                 return self.loadDeck(f)
         # try recent deck paths
-        for path in self.config['recentDeckPaths']:
+        for path in self.config.recentDecks():
             r = self.loadDeck(path, showErrors=False)
             if r:
                 return r
@@ -363,8 +363,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         combo = QComboBox()
         self.switchDecks = (
             [(os.path.basename(x).replace(".anki", ""), x)
-             for x in self.config['recentDeckPaths']
-             if not self.deck or self.mw.path != x and
+             for x in self.config.recentDecks()
+             if not self.deck or self.deck.path != x and
              os.path.exists(x)])
         self.switchDecks.sort()
         combo.addItems(QStringList([x[0] for x in self.switchDecks]))
@@ -459,6 +459,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onOpenOnline(self):
+        return showInfo("not yet implemented")
         self.raiseMain()
         self.ensureSyncParams()
         self.close()
@@ -478,11 +479,13 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.moveToState("initial")
 
     def onGetSharedDeck(self):
+        return showInfo("not yet implemented")
         self.raiseMain()
         aqt.getshared.GetShared(self, 0)
         self.browserLastRefreshed = 0
 
     def onGetSharedPlugin(self):
+        return showInfo("not yet implemented")
         self.raiseMain()
         aqt.getshared.GetShared(self, 1)
 
@@ -728,6 +731,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onImport(self):
+        return showInfo("not yet implemented")
         if self.deck is None:
             self.onNew(prompt=_("""\
 Importing copies cards to the current deck,
@@ -741,6 +745,7 @@ Please choose a new deck name:"""))
             aqt.importing.ImportDialog(self)
 
     def onExport(self):
+        return showInfo("not yet implemented")
         aqt.exporting.ExportDialog(self)
 
     # Language handling
