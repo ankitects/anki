@@ -83,7 +83,7 @@ class Reviewer(object):
     ##########################################################################
 
     _revHtml = """
-<table width=100%% height=100%%><tr valign=middle><td>
+<table width=100%% height=100%%><tr valign=%(align)s><td>
 <div id=q></div>
 <hr class=inv id=midhr>
 <div id=a></div>
@@ -156,6 +156,7 @@ $(".ansbut").focus();
 
     def _initWeb(self):
         self.web.stdHtml(self._revHtml % dict(
+            align="middle" if self.mw.config['centerQA'] else "top",
             showans=_("Show Answer")), self._styles(),
             loadCB=lambda x: self._showQuestion())
 
