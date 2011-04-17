@@ -50,6 +50,8 @@ class CardStats(object):
             self.addLine(_("Total Time"), fmt(total, point=2))
         self.addLine(_("Model"), c.model().name)
         self.addLine(_("Template") + "&nbsp;"*5, c.template()['name'])
+        self.addLine(_("Card Group"), self.deck.groupName(c.gid))
+        self.addLine(_("Fact Group"), self.deck.groupName(c.fact().gid))
         self.txt += "</table>"
         return self.txt
 
