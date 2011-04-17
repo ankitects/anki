@@ -815,18 +815,20 @@ where id in %s""" % ids2str(sf))
         frm.groupBox.layout().insertWidget(0, te)
         te.setDeck(self.deck)
         d.connect(d, SIGNAL("accepted()"), lambda: self.onSetGroup(frm, te))
+        self.setTabOrder(frm.setCur, te)
+        self.setTabOrder(te, frm.setInitial)
         d.show()
         te.setFocus()
 
     def onSetGroup(self, frm, te):
         self.model.beginReset()
         self.mw.checkpoint(_("Set Group"))
-        if frm.selGroup.isChecked():
+        if frm.setCur.isChecked():
             gid = self.deck.groupId(unicode(te.text()))
             self.deck.db.execute(
                 "update cards set gid = ? where id in " + ids2str(
                     self.selectedCards()), gid)
-            if frm.moveFacts.isChecked():
+            if frm.setInitial.isChecked():
                 self.deck.db.execute(
                     "update facts set gid = ? where id in " + ids2str(
                         self.selectedFacts()), gid)

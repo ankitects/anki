@@ -15,9 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QRadioButton" name="selGroup">
+    <widget class="QRadioButton" name="setCur">
      <property name="text">
-      <string>Move cards to chosen group:</string>
+      <string>Set current group to:</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -31,9 +31,9 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QCheckBox" name="moveFacts">
+       <widget class="QCheckBox" name="setInitial">
         <property name="text">
-         <string>Move facts too</string>
+         <string>Set initial group too</string>
         </property>
        </widget>
       </item>
@@ -41,9 +41,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="factGroup">
+    <widget class="QRadioButton" name="reset">
      <property name="text">
-      <string>Move cards to their fact's group</string>
+      <string>Reset to initial group</string>
      </property>
     </widget>
    </item>
@@ -59,6 +59,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>setCur</tabstop>
+  <tabstop>setInitial</tabstop>
+  <tabstop>reset</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -94,7 +100,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>selGroup</sender>
+   <sender>setCur</sender>
    <signal>toggled(bool)</signal>
    <receiver>groupBox</receiver>
    <slot>setEnabled(bool)</slot>
