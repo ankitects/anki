@@ -187,12 +187,12 @@ $(function () {
 
 # caller is responsible for resetting fact on reset
 class Editor(object):
-    def __init__(self, mw, widget, editableGroup=False):
+    def __init__(self, mw, widget, addMode=False):
         self.widget = widget
         self.mw = mw
         self.fact = None
         self.stealFocus = True
-        self.editableGroup = editableGroup
+        self.addMode = addMode
         self._loaded = False
         self._keepButtons = False
         # current card, for card layout
@@ -466,7 +466,7 @@ class Editor(object):
         tb.setSpacing(12)
         tb.setMargin(6)
         # group
-        if self.editableGroup:
+        if self.addMode:
             l = QLabel(_("Group"))
         else:
             l = QLabel(_("Fact Group"))
@@ -501,6 +501,12 @@ class Editor(object):
             return
         self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
         self.fact.tags = parseTags(unicode(self.tags.text()))
+        if self.addMode:
+            # save group and tags to model
+            m = self.fact.model()
+            m.conf['gid'] = self.fact.gid
+            m.conf['tags'] = self.fact.tags
+            m.flush()
         self.fact.flush()
         runHook("tagsAndGroupUpdated", self.fact)
 

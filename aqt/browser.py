@@ -191,7 +191,12 @@ class DeckModel(QAbstractTableModel):
     ######################################################################
 
     def columnType(self, column):
-        type = self.activeCols[column]
+        try:
+            type = self.activeCols[column]
+        except:
+            # debugging
+            print column, self.activeCols
+            return "factFld"
         return type
 
     def columnData(self, index):

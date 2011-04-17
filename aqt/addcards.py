@@ -40,9 +40,6 @@ class AddCards(QDialog):
         self.open()
         self.setupNewFact()
 
-    def focusOutEvent(self, evt):
-        print "focus lost"
-
     def setupEditor(self):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, True)
 
@@ -82,9 +79,7 @@ class AddCards(QDialog):
     # FIXME: need to make sure to clean up fact on exit
     def setupNewFact(self, set=True):
         f = self.mw.deck.newFact()
-        if self.editor.fact:
-            # keep tags?
-            f.tags = self.editor.fact.tags
+        f.tags = f.model().conf['tags']
         if set:
             self.editor.setFact(f)
         return f
