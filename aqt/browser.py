@@ -635,6 +635,10 @@ class Browser(QMainWindow):
                     items.append(txt)
                     txt = ""
             txt = " ".join(items)
+        if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
+            cur = unicode(self.form.searchEdit.text())
+            if cur:
+                txt = cur + " " + txt
         self.form.searchEdit.setText(txt)
         self.onSearch()
 
