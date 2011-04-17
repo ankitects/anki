@@ -205,9 +205,9 @@ class DeckModel(QAbstractTableModel):
         type = self.columnType(col)
         c = self.getCard(index)
         if type == "question":
-            return self.formatQA(c.q())
+            return self.question()
         elif type == "answer":
-            return self.formatQA(c.a())
+            return self.answer()
         elif type == "factFld":
             f = c.fact()
             return self.formatQA(f.fields[f.model().sortIdx()])
@@ -236,15 +236,13 @@ class DeckModel(QAbstractTableModel):
         elif type == "factGroup":
             return self.browser.mw.deck.groupName(c.fact().gid)
 
-    # def limitContent(self, txt):
-    #     if "<c>" in txt:
-    #         matches = re.findall("(?s)<c>(.*?)</c>", txt)
-    #         return " ".join(matches)
-    #     else:
-    #         return txt
+    def question(self):
+        return self.formatQA(c.a())
+
+    def answer(self):
+        return self.formatQA(c.a())
 
     def formatQA(self, txt):
-        #s = self.limitContent(s)
         s = txt.replace("<br>", u" ")
         s = s.replace("<br />", u" ")
         s = s.replace("\n", u" ")
@@ -255,7 +253,7 @@ class DeckModel(QAbstractTableModel):
 
     def nextDue(self, c, index):
         if c.type == 0:
-            return _("(new)")
+            return str(c.due) #_("(new)")
         elif c.type == 1:
             date = c.due
         elif c.type == 2:
