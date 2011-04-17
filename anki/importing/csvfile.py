@@ -67,7 +67,8 @@ class TextImporter(Importer):
         self.dialect = None
         self.fileobj = open(self.file, "rbU")
         self.data = self.fileobj.read()
-        self.data = self.data.lstrip(codecs.BOM_UTF8)
+        if self.data.startswith(codecs.BOM_UTF8):
+            self.data = self.data[len(codecs.BOM_UTF8):]
         def sub(s):
             return re.sub(
                 "^\#.*", "", re.sub(
