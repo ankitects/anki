@@ -70,6 +70,7 @@ colLearn = "#00F"
 colRelearn = "#c00"
 colCram = "#ff0"
 colIvl = "#077"
+colHour = "#777"
 colTime = "#770"
 colUnseen = "#000"
 colSusp = "#ff0"
@@ -93,6 +94,7 @@ class DeckStats(object):
         txt += self.repsGraph()
         txt += self.ivlGraph()
         # other graphs
+        txt += self.hourGraph()
         txt += self.easeGraph()
         txt += self.cardGraph()
         return "<script>%s\n</script><center>%s</center>" % (anki.js.all, txt)
@@ -445,6 +447,57 @@ else 2 end) as thetype,
 ease, count() from revlog %s
 group by thetype, ease
 order by thetype, ease""" % lim)
+
+    # Hourly retention
+    ######################################################################
+
+    def hourGraph(self):
+        data = self._hourRet()
+        if not data:
+            return ""
+        shifted = []
+        trend = []
+        for d in data:
+            hour = (d[0] - 4) % 24
+            pct = d[1]
+            shifted.append((hour, pct))
+        shifted.sort()
+        for d in shifted:
+            hour = d[0]
+            pct = d[1]
+            if not trend:
+                trend.append((hour, pct))
+            else:
+                prev = trend[-1][1]
+                diff = pct-prev
+                diff /= 3.0
+                diff = round(diff, 1)
+                trend.append((hour, prev+diff))
+        txt = self._title(_("Retention by hour"),
+                          _("Percentage of failures in each hour of the day."))
+        txt += self._graph(id="hour", data=[
+            dict(data=shifted, color=colHour, label=_("% Failed")),
+            dict(data=trend, color=colCum, label=_("Trend"),
+             bars={'show': False}, lines=dict(show=True), stack=False)
+        ], conf=dict(
+            xaxis=dict(ticks=[[0, _("4AM")], [6, _("10AM")],
+                           [12, _("4PM")], [18, _("10PM")], [23, _("3AM")]])),
+                           ylabel=_("Failure%"))
+        return txt
+
+    def _hourRet(self):
+        lim = self._revlogLimit()
+        if lim:
+            lim = " and " + lim
+        sd = datetime.datetime.fromtimestamp(self.deck.crt)
+        return self.deck.db.all("""
+select
+23 - ((cast((:cut - time/1000) / 3600.0 as int)) %% 24) as hour,
+sum(case when ease = 1 then 1 else 0 end) /
+cast(count() as float) * 100
+from revlog where type = 1 %s
+group by hour order by hour""" % lim,
+                            cut=self.deck.sched.dayCutoff-(sd.hour*3600))
 
     # Cards
     ######################################################################
