@@ -660,6 +660,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onUndo(self):
         self.deck.undo()
         self.reset()
+        self.maybeEnableUndo()
 
     def maybeEnableUndo(self):
         if self.deck and self.deck.undoName():
