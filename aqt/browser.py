@@ -226,8 +226,10 @@ class DeckModel(QAbstractTableModel):
             if c.type == 0:
                 return _("(new)")
             return "%d%%" % (c.factor/10)
-        elif type == "group":
+        elif type == "cardGroup":
             return self.browser.mw.deck.groupName(c.gid)
+        elif type == "factGroup":
+            return self.browser.mw.deck.groupName(c.fact().gid)
 
     # def limitContent(self, txt):
     #     if "<c>" in txt:
@@ -336,7 +338,7 @@ class Browser(QMainWindow):
         c = self.connect; f = self.form; s = SIGNAL("triggered()")
         c(f.actionAddItems, s, self.mw.onAddCard)
         c(f.actionDelete, s, self.deleteCards)
-        c(f.actionChangeGroup, s, self.changeGroup)
+        c(f.actionSetGroup, s, self.setGroup)
         c(f.actionAddTag, s, self.addTags)
         c(f.actionDeleteTag, s, self.deleteTags)
         c(f.actionReschedule, s, self.reschedule)
@@ -400,7 +402,8 @@ class Browser(QMainWindow):
             ('question', _("Question")),
             ('answer', _("Answer")),
             ('template', _("Card")),
-            ('group', _("Group")),
+            ('cardGroup', _("Card Group")),
+            ('factGroup', _("Fact Group")),
             ('factFld', _("Sort Field")),
             ('factCrt', _("Created")),
             ('factMod', _("Edited")),
@@ -454,12 +457,11 @@ class Browser(QMainWindow):
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
-        self.setWindowTitle(ngettext("Browser (%(cur)d "
-                              "card shown; %(sel)s)", "Browser (%(cur)d "
-                              "cards shown; %(sel)s)",
-                                     self.deck.cardCount) % {
-            "cur": len(self.model.cards),
-            "tot": self.deck.cardCount(),
+        cur = len(self.model.cards)
+        self.setWindowTitle(ngettext("Browser (%(cur)d card shown; %(sel)s)",
+                                     "Browser (%(cur)d cards shown; %(sel)s)",
+                                 cur) % {
+            "cur": cur,
             "sel": ngettext("%d selected", "%d selected", selected) % selected
             } + " - " + self.deck.name())
         return selected
@@ -527,9 +529,10 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "group")
+        noSort = ("question", "answer", "template", "cardGroup", "factGroup")
         if type in noSort:
-            showInfo(_("Please choose a different column to sort by."))
+            showInfo(_("Sorting on this column is not supported. Please "
+                       "choose another."))
             type = self.deck.conf['sortType']
         if self.deck.conf['sortType'] != type:
             self.deck.conf['sortType'] = type
@@ -793,37 +796,39 @@ where id in %s""" % ids2str(sf))
     # Group change
     ######################################################################
 
-    def changeGroup(self):
+    def setGroup(self):
         d = QDialog(self)
         d.setWindowModality(Qt.WindowModal)
-        l = QVBoxLayout()
-        d.setLayout(l)
-        lab = QLabel(_("Put cards in group:"))
-        l.addWidget(lab)
+        frm = aqt.forms.setgroup.Ui_Dialog()
+        frm.setupUi(d)
         from aqt.tagedit import TagEdit
         te = TagEdit(d, type=1)
-        l.addWidget(te)
+        frm.groupBox.layout().insertWidget(0, te)
         te.setDeck(self.deck)
-        cf = QCheckBox(_("Change facts too"))
-        l.addWidget(cf)
-        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        bb.connect(bb, SIGNAL("accepted()"), d, SLOT("accept()"))
-        bb.connect(bb, SIGNAL("rejected()"), d, SLOT("reject()"))
-        l.addWidget(bb)
-        if d.exec_():
+        d.connect(d, SIGNAL("accepted()"), lambda: self.onSetGroup(frm, te))
+        d.show()
+        te.setFocus()
+
+    def onSetGroup(self, frm, te):
+        self.model.beginReset()
+        self.mw.checkpoint(_("Set Group"))
+        if frm.selGroup.isChecked():
             gid = self.deck.groupId(unicode(te.text()))
-            self.model.beginReset()
-            self.mw.checkpoint(_("Set Group"))
             self.deck.db.execute(
                 "update cards set gid = ? where id in " + ids2str(
                     self.selectedCards()), gid)
-            if cf.isChecked():
+            if frm.moveFacts.isChecked():
                 self.deck.db.execute(
                     "update facts set gid = ? where id in " + ids2str(
                         self.selectedFacts()), gid)
-            self.onSearch(reset=False)
-            self.mw.requireReset()
-            self.model.endReset()
+        else:
+            print "updating cards"
+            self.deck.db.execute("""
+update cards set gid = (select gid from facts where id = cards.fid)
+where id in %s""" % ids2str(self.selectedCards()))
+        self.onSearch(reset=False)
+        self.mw.requireReset()
+        self.model.endReset()
 
     # Tags
     ######################################################################

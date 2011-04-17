@@ -211,7 +211,7 @@
     <addaction name="actionAddItems"/>
     <addaction name="actionAddCards"/>
     <addaction name="separator"/>
-    <addaction name="actionChangeGroup"/>
+    <addaction name="actionSetGroup"/>
     <addaction name="actionAddTag"/>
     <addaction name="actionDeleteTag"/>
     <addaction name="separator"/>
@@ -267,7 +267,7 @@
    <addaction name="actionAddItems"/>
    <addaction name="actionAddCards"/>
    <addaction name="separator"/>
-   <addaction name="actionChangeGroup"/>
+   <addaction name="actionSetGroup"/>
    <addaction name="actionAddTag"/>
    <addaction name="actionDeleteTag"/>
    <addaction name="separator"/>
@@ -549,13 +549,13 @@
     <string>Find &amp;Duplicates...</string>
    </property>
   </action>
-  <action name="actionChangeGroup">
+  <action name="actionSetGroup">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/stock_group.png</normaloff>:/icons/stock_group.png</iconset>
    </property>
    <property name="text">
-    <string>Change Group</string>
+    <string>Set Group</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>

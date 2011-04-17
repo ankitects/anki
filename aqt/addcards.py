@@ -44,7 +44,7 @@ class AddCards(QDialog):
         print "focus lost"
 
     def setupEditor(self):
-        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
+        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, True)
 
     def setupChooser(self):
         self.modelChooser = aqt.modelchooser.ModelChooser(

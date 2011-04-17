@@ -187,11 +187,12 @@ $(function () {
 
 # caller is responsible for resetting fact on reset
 class Editor(object):
-    def __init__(self, mw, widget):
+    def __init__(self, mw, widget, editableGroup=False):
         self.widget = widget
         self.mw = mw
         self.fact = None
         self.stealFocus = True
+        self.editableGroup = editableGroup
         self._loaded = False
         self._keepButtons = False
         # current card, for card layout
@@ -465,7 +466,10 @@ class Editor(object):
         tb.setSpacing(12)
         tb.setMargin(6)
         # group
-        l = QLabel(_("Group"))
+        if self.editableGroup:
+            l = QLabel(_("Group"))
+        else:
+            l = QLabel(_("Fact Group"))
         tb.addWidget(l, 0, 0)
         self.group = aqt.tagedit.TagEdit(self.widget, type=1)
         self.group.connect(self.group, SIGNAL("lostFocus"),
@@ -496,7 +500,6 @@ class Editor(object):
         if not self.fact:
             return
         self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
-        self.fact.updateCardGids()
         self.fact.tags = parseTags(unicode(self.tags.text()))
         self.fact.flush()
         runHook("tagsAndGroupUpdated", self.fact)
