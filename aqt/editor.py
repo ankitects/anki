@@ -466,14 +466,16 @@ class Editor(object):
         tb.setSpacing(12)
         tb.setMargin(6)
         # group
-        if self.addMode:
-            l = QLabel(_("Group"))
-        else:
-            l = QLabel(_("Fact Group"))
+        l = QLabel(_("Group"))
         tb.addWidget(l, 0, 0)
-        self.group = aqt.tagedit.TagEdit(self.widget, type=1)
-        self.group.connect(self.group, SIGNAL("lostFocus"),
-                          self.saveTagsAndGroup)
+        if not self.addMode:
+            self.group = QPushButton()
+            self.group.connect(self.group, SIGNAL("clicked()"),
+                               self.changeGroup)
+        else:
+            self.group = aqt.tagedit.TagEdit(self.widget, type=1)
+            self.group.connect(self.group, SIGNAL("lostFocus"),
+                               self.saveTagsAndGroup)
         tb.addWidget(self.group, 0, 1)
         # tags
         l = QLabel(_("Tags"))
@@ -488,7 +490,8 @@ class Editor(object):
     def updateTagsAndGroup(self):
         if self.tags.deck != self.mw.deck:
             self.tags.setDeck(self.mw.deck)
-            self.group.setDeck(self.mw.deck)
+            if self.addMode:
+                self.group.setDeck(self.mw.deck)
         self.tags.setText(self.fact.stringTags().strip())
         if getattr(self.fact, 'gid', None):
             gid = self.fact.gid
@@ -499,16 +502,24 @@ class Editor(object):
     def saveTagsAndGroup(self):
         if not self.fact:
             return
-        self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
         self.fact.tags = parseTags(unicode(self.tags.text()))
         if self.addMode:
             # save group and tags to model
+            self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
             m = self.fact.model()
             m.conf['gid'] = self.fact.gid
             m.conf['tags'] = self.fact.tags
             m.flush()
         self.fact.flush()
         runHook("tagsAndGroupUpdated", self.fact)
+
+    def changeGroup(self):
+        id = self.fact.id
+        runHook("closeEditCurrent")
+        browser = aqt.dialogs.open("Browser", self.mw)
+        browser.form.searchEdit.setText("fid:%d" % id)
+        browser.onSearch()
+        browser.setGroup()
 
     # Format buttons
     ######################################################################

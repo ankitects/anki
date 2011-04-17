@@ -6,6 +6,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import aqt.editor
 from aqt.utils import saveGeom, restoreGeom
+from anki.hooks import addHook, removeHook
 
 class EditCurrent(QDialog):
 
@@ -26,12 +27,14 @@ class EditCurrent(QDialog):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
         self.editor.setFact(self.mw.reviewer.card.fact())
         restoreGeom(self, "editcurrent")
+        addHook("closeEditCurrent", self.onSave)
         self.mw.requireReset(modal=True)
         self.open()
         # reset focus after open
         self.editor.web.setFocus()
 
     def onSave(self):
+        removeHook("closeEditCurrent", self.onSave)
         self.editor.saveNow()
         self.editor.setFact(None)
         r = self.mw.reviewer
