@@ -719,6 +719,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         aqt.preferences.Preferences(self)
 
     def onAbout(self):
+        import aqt.about
         aqt.about.show(self)
 
     def onDonate(self):

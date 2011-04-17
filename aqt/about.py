@@ -38,6 +38,6 @@ please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \
 suggestions, bug reports and donations.")
     abt.label.setText(abouttext)
-    dialog.show()
     dialog.adjustSize()
+    dialog.show()
     dialog.exec_()
