@@ -8,7 +8,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki.utils import fmtTimeSpan, stripHTML
 from anki.hooks import addHook, runHook, runFilter
-from anki.sound import playFromText, clearAudioQueue
+from anki.sound import playFromText, clearAudioQueue, hasSound
 from aqt.utils import mungeQA, getBase
 import aqt
 
@@ -71,13 +71,20 @@ class Reviewer(object):
             else:
                 self._showEmpty()
 
+    # Audio
+    ##########################################################################
+
     def _maybeEnableSound(self):
-        print "enable sound fixme"
-        return
-        snd = (hasSound(self.reviewer.card.q()) or
-               (hasSound(self.reviewer.card.a()) and
-                self.state != "getQuestion"))
-        self.form.actionRepeatAudio.setEnabled(snd)
+        self.mw.form.actionRepeatAudio.setEnabled(
+            hasSound(self.card.q() + self.card.a()))
+
+    def replayAudio(self):
+        clearAudioQueue()
+        c = self.card
+        if not c.template()['hideQ'] or self.state == "question":
+            playFromText(c.q())
+        if self.state == "answer":
+            playFromText(c.a())
 
     # Initializing the webview
     ##########################################################################

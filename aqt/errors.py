@@ -52,8 +52,7 @@ or your deck may have a problem.
 <p>To confirm it's not a problem with your deck, please run
 <b>Tools > Advanced > Check Database</b>.
 <p>If that doesn't fix the problem, please copy the following<br>
-into a bug report:<br>
-""")
+into a bug report:""")
         pluginText = _("""\
 An error occurred in a plugin. Please contact the plugin author.<br>
 Please do not file a bug report with Anki.<br>""")

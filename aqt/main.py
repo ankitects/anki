@@ -12,7 +12,7 @@ from PyQt4 import pyqtconfig
 QtConfig = pyqtconfig.Configuration()
 
 from anki import Deck
-from anki.sound import hasSound, playFromText, clearAudioQueue, stripSounds
+from anki.sound import playFromText, clearAudioQueue, stripSounds
 from anki.utils import addTags, parseTags, canonifyTags, stripHTML, \
     checksum, isWin, isMac
 from anki.hooks import runHook, addHook, removeHook
@@ -940,13 +940,7 @@ Please choose a new deck name:"""))
     ##########################################################################
 
     def onRepeatAudio(self):
-        clearAudioQueue()
-        if (not self.currentCard.cardModel.questionInAnswer
-            or self.state == "showQuestion") and \
-            self.config['repeatQuestionAudio']:
-            playFromText(self.currentCard.question)
-        if self.state != "showQuestion":
-            playFromText(self.currentCard.answer)
+        self.reviewer.replayAudio()
 
     # Schema modifications
     ##########################################################################
