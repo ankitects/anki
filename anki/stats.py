@@ -457,9 +457,12 @@ order by thetype, ease""" % lim)
             return ""
         shifted = []
         trend = []
+        peak = 0
         for d in data:
             hour = (d[0] - 4) % 24
             pct = d[1]
+            if pct > peak:
+                peak = pct
             shifted.append((hour, pct))
         shifted.sort()
         for d in shifted:
@@ -473,16 +476,17 @@ order by thetype, ease""" % lim)
                 diff /= 3.0
                 diff = round(diff, 1)
                 trend.append((hour, prev+diff))
-        txt = self._title(_("Retention by hour"),
-                          _("Percentage of failures in each hour of the day."))
+        txt = self._title(_("Hourly Retention"),
+                          _("Review success rate for each hour of the day."))
         txt += self._graph(id="hour", data=[
             dict(data=shifted, color=colHour, label=_("% Failed")),
             dict(data=trend, color=colCum, label=_("Trend"),
              bars={'show': False}, lines=dict(show=True), stack=False)
         ], conf=dict(
             xaxis=dict(ticks=[[0, _("4AM")], [6, _("10AM")],
-                           [12, _("4PM")], [18, _("10PM")], [23, _("3AM")]])),
-                           ylabel=_("Failure%"))
+                           [12, _("4PM")], [18, _("10PM")], [23, _("3AM")]]),
+            yaxis=dict(max=peak)),
+        ylabel=_("% Correct"))
         return txt
 
     def _hourRet(self):
@@ -493,10 +497,11 @@ order by thetype, ease""" % lim)
         return self.deck.db.all("""
 select
 23 - ((cast((:cut - time/1000) / 3600.0 as int)) %% 24) as hour,
-sum(case when ease = 1 then 1 else 0 end) /
-cast(count() as float) * 100
+sum(case when ease = 1 then 0 else 1 end) /
+cast(count() as float) * 100,
+count()
 from revlog where type = 1 %s
-group by hour order by hour""" % lim,
+group by hour having count() > 30 order by hour""" % lim,
                             cut=self.deck.sched.dayCutoff-(sd.hour*3600))
 
     # Cards
