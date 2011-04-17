@@ -530,7 +530,7 @@ class Editor(object):
                 ok = True
                 break
         if not ok:
-            showInfo(_("Please add a cloze deletion model."),
+            showInfo(_("Please use a cloze deletion model."),
                  help="ClozeDeletion")
             return
         f = self.fact.fields[self.currentField]
