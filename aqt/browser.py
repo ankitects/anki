@@ -1185,15 +1185,20 @@ class GenCards(QDialog):
 
     def accept(self):
         tplates = []
+        unused = []
         for i, item in enumerate(self.items):
             idx = self.form.list.indexFromItem(item)
             if self.form.list.selectionModel().isSelected(idx):
                 tplates.append(self.model.templates[i])
-        self.genCards(tplates)
+            else:
+                unused.append(self.model.templates[i]['ord'])
+        if not self.form.deleteUnsel.isChecked():
+            unused = None
+        self.genCards(tplates, unused)
         saveGeom(self, "addCardModels")
         QDialog.accept(self)
 
-    def genCards(self, tplates):
+    def genCards(self, tplates, unused):
         mw = self.browser.mw
         mw.checkpoint(_("Generate Cards"))
         mw.progress.start()
@@ -1202,6 +1207,11 @@ class GenCards(QDialog):
             mw.deck.genCards(f, tplates)
             if c % 100 == 0:
                 mw.progress.update()
+        if unused:
+            cids = mw.deck.db.list("""
+select id from cards where fid in %s and ord in %s""" % (
+                    ids2str(self.fids), ids2str(unused)))
+            mw.deck.delCards(cids)
         mw.progress.finish()
         mw.requireReset()
         self.browser.onSearch()
