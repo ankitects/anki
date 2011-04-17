@@ -24,6 +24,7 @@ defaultConf = {
     'fullSearch': False,
 
     'autoplaySounds': True,
+    'searchHistory': [],
     'checkForUpdates': True,
     'created': time.time(),
     'deleteMedia': False,

@@ -424,10 +424,22 @@ class Browser(QMainWindow):
                      SIGNAL("returnPressed()"),
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
+        self.compModel = QStringListModel()
+        self.compModel.setStringList(QStringList(self.mw.config['searchHistory']))
+        self.searchComp = QCompleter(self.compModel, self.form.searchEdit)
+        self.searchComp.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+        self.searchComp.setCaseSensitivity(Qt.CaseInsensitive)
+        self.form.searchEdit.setCompleter(self.searchComp)
 
     def onSearch(self, reset=True):
         "Careful: if reset is true, the current fact is saved."
         txt = unicode(self.form.searchEdit.text()).strip()
+        sh = self.mw.config['searchHistory']
+        if txt not in sh:
+            sh.insert(0, txt)
+            sh = sh[:30]
+            self.compModel.setStringList(QStringList(sh))
+            self.mw.config['searchHistory'] = sh
         self.model.search(txt, reset)
         if not self.model.cards:
             # no row change will fire
