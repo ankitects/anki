@@ -27,6 +27,9 @@ config = aqt.config
 
 ## fixme: open plugin folder broken on win32?
 
+## fixme: new deck, cloze & cardlayout, gets stuck in resetRequired state
+## models remembering the previous group
+
 class AnkiQt(QMainWindow):
     def __init__(self, app, config, args, splash):
         QMainWindow.__init__(self)

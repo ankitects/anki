@@ -37,6 +37,8 @@ class EditCurrent(QDialog):
         r = self.mw.reviewer
         r.card.load()
         r.keep = True
+        # we don't need to reset the deck, but there may be new groups
+        self.mw.deck.sched._resetConf()
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
         self.close()
