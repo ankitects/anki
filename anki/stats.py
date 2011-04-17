@@ -259,27 +259,33 @@ group by day order by day""" % (self._limit(), lim),
 
     def _splitRepData(self, data, spec):
         sep = {}
-        tot = 0
-        totd = []
+        totcnt = {}
+        totd = {}
+        alltot = []
+        allcnt = 0
+        for (n, col, lab) in spec:
+            totcnt[n] = 0
+            totd[n] = []
         sum = []
         for row in data:
-            rowtot = 0
             for (n, col, lab) in spec:
                 if n not in sep:
                     sep[n] = []
                 sep[n].append((row[0], row[n]))
-                tot += row[n]
-                rowtot += row[n]
-            totd.append((row[0], tot))
-            sum.append((row[0], rowtot))
+                totcnt[n] += row[n]
+                allcnt += row[n]
+                totd[n].append((row[0], totcnt[n]))
+            alltot.append((row[0], allcnt))
         ret = []
         for (n, col, lab) in spec:
-            ret.append(dict(data=sep[n], color=col, label=lab))
-        if len(totd) > 1:
-            ret.append(dict(
-                data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
-                bars={'show': False}, lines=dict(show=True), stack=False))
-        return (ret, totd)
+            if len(totd[n]) > 1 and totcnt[n]:
+                # bars
+                ret.append(dict(data=sep[n], color=col, label=lab))
+                # lines
+                ret.append(dict(
+                    data=totd[n], color=col, label=None, yaxis=2,
+                bars={'show': False}, lines=dict(show=True), stack=-n))
+        return (ret, alltot)
 
     def _done(self, num=7, chunk=1):
         lims = []
@@ -486,7 +492,7 @@ order by thetype, ease""" % lim)
             xaxis=dict(ticks=[[0, _("4AM")], [6, _("10AM")],
                            [12, _("4PM")], [18, _("10PM")], [23, _("3AM")]]),
             yaxis=dict(max=peak)),
-        ylabel=_("% Correct"))
+        ylabel=_("%Correct"))
         return txt
 
     def _hourRet(self):
