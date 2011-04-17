@@ -285,7 +285,7 @@
     <string>Delete</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Del</string>
+    <string>Ctrl+Shift+Backspace</string>
    </property>
   </action>
   <action name="actionAddTag">
