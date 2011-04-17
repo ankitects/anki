@@ -20,6 +20,7 @@ class CardStats(object):
         self.shown = False
         addHook("showQuestion", self._update)
         addHook("deckClosing", self.hide)
+        addHook("reviewCleanup", self.hide)
 
     def show(self):
         if not self.shown:

@@ -489,6 +489,12 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.raiseMain()
         aqt.getshared.GetShared(self, 1)
 
+    # Syncing
+    ##########################################################################
+
+    def onSync(self):
+        return showInfo("not yet implemented")
+
     # Tools
     ##########################################################################
 
@@ -509,6 +515,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onRename(self):
         "Rename deck."
+        return showInfo("now yet implemented")
         print "rename"
         return
         title = _("Rename Deck")
@@ -813,7 +820,7 @@ Please choose a new deck name:"""))
         self.connect(m.actionRename, s, self.onRename)
         self.connect(m.actionClose, s, self.onClose)
         self.connect(m.actionExit, s, self, SLOT("close()"))
-        #self.connect(m.actionSyncdeck, s, self.syncDeck)
+        self.connect(m.actionSyncdeck, s, self.onSync)
         self.connect(m.actionDeckProperties, s, self.onDeckOpts)
         self.connect(m.actionModels, s, self.onModels)
         self.connect(m.actionAddcards, s, self.onAddCard)

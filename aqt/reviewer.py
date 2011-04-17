@@ -43,6 +43,7 @@ class Reviewer(object):
     def cleanup(self):
         self._hideStatus()
         self.mw.disableCardMenuItems()
+        runHook("reviewCleanup")
 
     # Fetching a card
     ##########################################################################
