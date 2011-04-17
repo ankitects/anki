@@ -211,6 +211,7 @@
     <addaction name="actionAddItems"/>
     <addaction name="actionAddCards"/>
     <addaction name="separator"/>
+    <addaction name="actionChangeGroup"/>
     <addaction name="actionAddTag"/>
     <addaction name="actionDeleteTag"/>
     <addaction name="separator"/>
@@ -555,6 +556,9 @@
    </property>
    <property name="text">
     <string>Change Group</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
    </property>
   </action>
  </widget>

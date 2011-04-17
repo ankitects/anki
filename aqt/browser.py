@@ -794,7 +794,36 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def changeGroup(self):
-        pass
+        d = QDialog(self)
+        d.setWindowModality(Qt.WindowModal)
+        l = QVBoxLayout()
+        d.setLayout(l)
+        lab = QLabel(_("Put cards in group:"))
+        l.addWidget(lab)
+        from aqt.tagedit import TagEdit
+        te = TagEdit(d, type=1)
+        l.addWidget(te)
+        te.setDeck(self.deck)
+        cf = QCheckBox(_("Change facts too"))
+        l.addWidget(cf)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.connect(bb, SIGNAL("accepted()"), d, SLOT("accept()"))
+        bb.connect(bb, SIGNAL("rejected()"), d, SLOT("reject()"))
+        l.addWidget(bb)
+        if d.exec_():
+            gid = self.deck.groupId(unicode(te.text()))
+            self.model.beginReset()
+            self.mw.checkpoint(_("Set Group"))
+            self.deck.db.execute(
+                "update cards set gid = ? where id in " + ids2str(
+                    self.selectedCards()), gid)
+            if cf.isChecked():
+                self.deck.db.execute(
+                    "update facts set gid = ? where id in " + ids2str(
+                        self.selectedFacts()), gid)
+            self.onSearch(reset=False)
+            self.mw.requireReset()
+            self.model.endReset()
 
     # Tags
     ######################################################################
