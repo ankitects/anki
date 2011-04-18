@@ -315,7 +315,6 @@ class Editor(object):
     ######################################################################
 
     def bridge(self, str):
-        print "bridge", str
         if not self.fact or not runHook:
             # shutdown
             return
@@ -817,11 +816,11 @@ class EditorWebView(AnkiWebView):
         clip.setMimeData(mime)
 
     def _processMime(self, mime):
-        print "html=%s image=%s urls=%s txt=%s" % (
-            mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
-        print "html", mime.html()
-        print "urls", mime.urls()
-        print "text", mime.text()
+        # print "html=%s image=%s urls=%s txt=%s" % (
+        #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
+        # print "html", mime.html()
+        # print "urls", mime.urls()
+        # print "text", mime.text()
         if mime.hasUrls():
             return self._processUrls(mime)
         elif mime.hasImage():

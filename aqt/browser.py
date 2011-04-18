@@ -134,9 +134,7 @@ class DeckModel(QAbstractTableModel):
     def endReset(self):
         t = time.time()
         self.endResetModel()
-        print "end", time.time() - t; t = time.time()
         self.restoreSelection()
-        print "sel", time.time() - t; t = time.time()
         self.browser.mw.progress.finish()
 
     def reverse(self):
