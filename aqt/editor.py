@@ -519,7 +519,7 @@ class Editor(object):
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.setText("fid:%d" % id)
         browser.onSearch()
-        browser.setGroup()
+        browser.setGroup(True)
 
     # Format buttons
     ######################################################################

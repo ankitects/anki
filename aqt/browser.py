@@ -803,7 +803,7 @@ where id in %s""" % ids2str(sf))
     # Group change
     ######################################################################
 
-    def setGroup(self):
+    def setGroup(self, initial=False):
         d = QDialog(self)
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.setgroup.Ui_Dialog()
@@ -815,6 +815,8 @@ where id in %s""" % ids2str(sf))
         d.connect(d, SIGNAL("accepted()"), lambda: self.onSetGroup(frm, te))
         self.setTabOrder(frm.setCur, te)
         self.setTabOrder(te, frm.setInitial)
+        if initial:
+            frm.setInitial.setChecked(True)
         d.show()
         te.setFocus()
 
