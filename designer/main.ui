@@ -672,6 +672,10 @@
    </property>
   </action>
   <action name="actionGroups">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/stock_group.png</normaloff>:/icons/stock_group.png</iconset>
+   </property>
    <property name="text">
     <string>Groups...</string>
    </property>
