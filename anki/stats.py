@@ -20,7 +20,7 @@ class CardStats(object):
 
     def report(self):
         c = self.card
-        fmt = fmtTimeSpan
+        fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%%>"
         self.addLine(_("Added"), self.strTime(c.crt))
         first = self.deck.db.scalar(
@@ -30,16 +30,13 @@ class CardStats(object):
         self.addLine(_("Changed"), self.strTime(c.mod))
         if c.reps:
             if c.queue == 2:
-                next = (self.deck.sched.today - c.due)*86400
+                next = time.time()+((self.deck.sched.today - c.due)*86400)
             else:
-                next = time.time() - c.due
-            if next > 0:
-                next = _("%s ago") % fmt(next)
-            else:
-                next = _("in %s") % fmt(abs(next))
+                next = c.due
+            next = self.strTime(next)
             self.addLine(_("Due"), next)
         self.addLine(_("Interval"), fmt(c.ivl * 86400))
-        self.addLine(_("Ease"), fmtFloat(c.factor/1000.0, point=2))
+        self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
         if c.reps:
             self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
                 c.reps-c.lapses, c.reps, c.streak))
@@ -60,6 +57,7 @@ class CardStats(object):
         self.txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
 
     def strTime(self, tm):
+        return time.strftime("%Y-%m-%d", time.localtime(tm))
         s = anki.utils.fmtTimeSpan(time.time() - tm)
         return _("%s ago") % s
 
