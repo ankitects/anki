@@ -59,10 +59,12 @@ class Groups(QDialog):
     def onDoubleClick(self, item, col):
         if not item:
             return
-        if col == COLNAME:
-            self.onRename()
         if col == COLOPTS:
             self.onEdit()
+        else:
+            self.onSelectNone()
+            item.setCheckState(COLCHECK, Qt.Checked)
+            self.accept()
 
     def addButtons(self):
         box = self.form.buttonBox
