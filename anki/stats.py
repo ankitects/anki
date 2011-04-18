@@ -24,9 +24,12 @@ class CardStats(object):
         self.txt = "<table width=100%%>"
         self.addLine(_("Added"), self.strTime(c.crt))
         first = self.deck.db.scalar(
-            "select time/1000 from revlog where rep = 1 and cid = :id", id=c.id)
+            "select min(time) from revlog where cid = ?", c.id)
+        last = self.deck.db.scalar(
+            "select max(time) from revlog where cid = ?", c.id)
         if first:
-            self.addLine(_("First Review"), self.strTime(first))
+            self.addLine(_("First Review"), self.strTime(first/1000))
+            self.addLine(_("Latest Review"), self.strTime(last/1000))
         if c.reps:
             if c.queue == 2:
                 next = time.time()+((self.deck.sched.today - c.due)*86400)
