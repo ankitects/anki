@@ -27,7 +27,6 @@ class CardStats(object):
             "select time/1000 from revlog where rep = 1 and cid = :id", id=c.id)
         if first:
             self.addLine(_("First Review"), self.strTime(first))
-        self.addLine(_("Changed"), self.strTime(c.mod))
         if c.reps:
             if c.queue == 2:
                 next = time.time()+((self.deck.sched.today - c.due)*86400)
