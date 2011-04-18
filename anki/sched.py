@@ -16,7 +16,6 @@ class Scheduler(object):
     name = "std"
     def __init__(self, deck):
         self.deck = deck
-        self.db = deck.db
         self.queueLimit = 200
         self.reportLimit = 1000
         self._updateCutoff()
@@ -58,7 +57,7 @@ class Scheduler(object):
 
     def dueForecast(self, days=7):
         "Return counts over next DAYS. Includes today."
-        daysd = dict(self.db.all("""
+        daysd = dict(self.deck.db.all("""
 select due, count() from cards
 where queue = 2 %s
 and due between ? and ?
@@ -85,7 +84,7 @@ order by due""" % self._groupLimit(),
 
     def onClose(self):
         "Unbury and remove temporary suspends on close."
-        self.db.execute(
+        self.deck.db.execute(
             "update cards set queue = type where queue between -3 and -2")
 
     # Counts
@@ -208,13 +207,13 @@ from cards group by gid""", self.today):
         if lim <= 0:
             self.newCount = 0
         else:
-            self.newCount = self.db.scalar("""
+            self.newCount = self.deck.db.scalar("""
 select count() from (select id from cards where
 queue = 0 %s limit %d)""" % (self._groupLimit(), lim))
 
     def _resetNew(self):
         lim = min(self.queueLimit, self.newCount)
-        self.newQueue = self.db.all("""
+        self.newQueue = self.deck.db.all("""
 select id, due from cards where
 queue = 0 %s order by due limit %d""" % (self._groupLimit(),
                                          lim))
@@ -262,14 +261,14 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
     ##########################################################################
 
     def _resetLrnCount(self):
-        self.lrnCount = self.db.scalar("""
+        self.lrnCount = self.deck.db.scalar("""
 select count() from (select id from cards where
 queue = 1 %s and due < ? limit %d)""" % (
             self._groupLimit(), self.reportLimit),
             intTime() + self.deck.qconf['collapseTime'])
 
     def _resetLrn(self):
-        self.lrnQueue = self.db.all("""
+        self.lrnQueue = self.deck.db.all("""
 select due, id from cards where
 queue = 1 %s and due < :lim order by due
 limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
@@ -385,14 +384,14 @@ where queue = 1 and type = 2
     ##########################################################################
 
     def _resetRevCount(self):
-        self.revCount = self.db.scalar("""
+        self.revCount = self.deck.db.scalar("""
 select count() from (select id from cards where
 queue = 2 %s and due <= :lim limit %d)""" % (
             self._groupLimit(), self.reportLimit),
                                        lim=self.today)
 
     def _resetRev(self):
-        self.revQueue = self.db.list("""
+        self.revQueue = self.deck.db.list("""
 select id from cards where
 queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self._groupLimit(), self._revOrder(), self.queueLimit),
@@ -507,7 +506,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         idealDue = self.today + idealIvl
         conf = self._cardConf(card)['rev']
         # find sibling positions
-        dues = self.db.list(
+        dues = self.deck.db.list(
             "select due from cards where fid = ? and queue = 2"
             " and id != ?", card.fid, card.id)
         if not dues or idealDue not in dues:
@@ -559,7 +558,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def _resetConf(self):
         "Update group conf cache."
-        self.groupConfs = dict(self.db.all("select id, gcid from groups"))
+        self.groupConfs = dict(self.deck.db.all("select id, gcid from groups"))
         self.confCache = {}
 
     def _cardConf(self, card):
@@ -628,13 +627,13 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def lrnTomorrow(self):
         "Number of cards in the learning queue due tomorrow."
-        return self.db.scalar(
+        return self.deck.db.scalar(
             "select count() from cards where queue = 1 and due < ?",
             self.dayCutoff+86400)
 
     def revTomorrow(self):
         "Number of reviews due tomorrow."
-        return self.db.scalar(
+        return self.deck.db.scalar(
             "select count() from cards where queue = 2 and due = ?"+
             self._groupLimit(),
             self.today+1)
@@ -642,7 +641,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def newTomorrow(self):
         "Number of new cards tomorrow."
         lim = self.deck.qconf['newPerDay']
-        return self.db.scalar(
+        return self.deck.db.scalar(
             "select count() from (select id from cards where "
             "queue = 0 %s limit %d)" % (self._groupLimit(), lim))
 
@@ -689,13 +688,13 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def suspendCards(self, ids):
         "Suspend cards."
-        self.db.execute(
+        self.deck.db.execute(
             "update cards set queue = -1, mod = ? where id in "+
             ids2str(ids), intTime())
 
     def unsuspendCards(self, ids):
         "Unsuspend cards."
-        self.db.execute(
+        self.deck.db.execute(
             "update cards set queue = type, mod = ? "
             "where queue = -1 and id in "+ ids2str(ids),
             intTime())
@@ -703,7 +702,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def buryFact(self, fid):
         "Bury all cards for fact until next session."
         self.deck.setDirty()
-        self.db.execute("update cards set queue = -2 where fid = ?", fid)
+        self.deck.db.execute("update cards set queue = -2 where fid = ?", fid)
 
     # Counts
     ##########################################################################
@@ -737,75 +736,82 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         else:
             rows = None
         if not (rows and cols == [r[2] for r in rows]):
-            self.db.execute("drop index if exists ix_cards_multi")
-            self.db.execute("create index ix_cards_multi on cards (%s)" %
+            self.deck.db.execute("drop index if exists ix_cards_multi")
+            self.deck.db.execute("create index ix_cards_multi on cards (%s)" %
                               ", ".join(cols))
-            self.db.execute("analyze")
+            self.deck.db.execute("analyze")
 
-#     def resetCards(self, ids=None):
-#         "Reset progress on cards in IDS."
-#         print "position in resetCards()"
-#         sql = """
-# update cards set mod=:now, position=0, type=2, queue=2, lastInterval=0,
-# interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
-#         sql2 = "delete from revlog"
-#         if ids is None:
-#             lim = ""
-#         else:
-#             sids = ids2str(ids)
-#             sql += " where id in "+sids
-#             sql2 += "  where cardId in "+sids
-#         self.db.execute(sql, now=time.time())
-#         self.db.execute(sql2)
-#         if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
-#             # we need to re-randomize now
-#             self.randomizeNewCards(ids)
+    # Resetting
+    ##########################################################################
 
-#     def randomizeNewCards(self, cardIds=None):
-#         "Randomize 'due' on all new cards."
-#         now = time.time()
-#         query = "select distinct fid from cards where reps = 0"
-#         if cardIds:
-#             query += " and id in %s" % ids2str(cardIds)
-#         fids = self.db.list(query)
-#         data = [{'fid': fid,
-#                  'rand': random.uniform(0, now),
-#                  'now': now} for fid in fids]
-#         self.db.executemany("""
-# update cards
-# set due = :rand + ord,
-# mod = :now
-# where fid = :fid
-# and type = 2""", data)
+    # - should remove all scheduling history so we don't show more new ca
+    def resetCards(self, ids=None):
+        "Reset progress on cards in IDS."
+        print "position in resetCards()"
+        sql = """
+update cards set mod=:now, position=0, type=2, queue=2, lastInterval=0,
+interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
+        sql2 = "delete from revlog"
+        if ids is None:
+            lim = ""
+        else:
+            sids = ids2str(ids)
+            sql += " where id in "+sids
+            sql2 += "  where cardId in "+sids
+        self.deck.db.execute(sql, now=time.time())
+        self.deck.db.execute(sql2)
+        if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
+            # we need to re-randomize now
+            self.randomizeNewCards(ids)
 
-#     def orderNewCards(self):
-#         "Set 'due' to card creation time."
-#         self.db.execute("""
-# update cards set
-# due = created,
-# mod = :now
-# where type = 2""", now=time.time())
+    def rescheduleCards(self, ids, min, max):
+        "Reset cards and schedule with new interval in days (min, max)."
+        self.resetCards(ids)
+        vals = []
+        for id in ids:
+            r = random.uniform(min*86400, max*86400)
+            vals.append({
+                'id': id,
+                'due': r + time.time(),
+                'int': r / 86400.0,
+                't': time.time(),
+                })
+        self.deck.db.executemany("""
+update cards set
+interval = :int,
+due = :due,
+reps = 1,
+successive = 1,
+yesCount = 1,
+firstAnswered = :t,
+queue = 1,
+type = 1,
+where id = :id""", vals)
 
-#     def rescheduleCards(self, ids, min, max):
-#         "Reset cards and schedule with new interval in days (min, max)."
-#         self.resetCards(ids)
-#         vals = []
-#         for id in ids:
-#             r = random.uniform(min*86400, max*86400)
-#             vals.append({
-#                 'id': id,
-#                 'due': r + time.time(),
-#                 'int': r / 86400.0,
-#                 't': time.time(),
-#                 })
-#         self.db.executemany("""
-# update cards set
-# interval = :int,
-# due = :due,
-# reps = 1,
-# successive = 1,
-# yesCount = 1,
-# firstAnswered = :t,
-# queue = 1,
-# type = 1,
-# where id = :id""", vals)
+    # Reordering
+    ##########################################################################
+
+    def randomizeNewCards(self, cardIds=None):
+        "Randomize 'due' on all new cards."
+        now = time.time()
+        query = "select distinct fid from cards where reps = 0"
+        if cardIds:
+            query += " and id in %s" % ids2str(cardIds)
+        fids = self.deck.db.list(query)
+        data = [{'fid': fid,
+                 'rand': random.uniform(0, now),
+                 'now': now} for fid in fids]
+        self.deck.db.executemany("""
+update cards
+set due = :rand + ord,
+mod = :now
+where fid = :fid
+and type = 2""", data)
+
+    def orderNewCards(self):
+        "Set 'due' to card creation time."
+        self.deck.db.execute("""
+update cards set
+due = created,
+mod = :now
+where type = 2""", now=time.time())
