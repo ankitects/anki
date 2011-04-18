@@ -250,7 +250,7 @@ $(".ansbut").focus();
         "Reschedule card and show next."
         self.mw.deck.sched.answerCard(self.card, ease)
         self._answeredIds.append(self.card.id)
-        print "fixme: save"
+        self.mw.autosave()
         self.nextCard()
 
     # Handlers

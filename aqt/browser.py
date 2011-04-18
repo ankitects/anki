@@ -324,7 +324,7 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.setupCardInfo()
         self.updateFont()
-        self.onCheckpoint()
+        self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
         self.show()
         self.form.searchEdit.setText("is:recent")
@@ -956,23 +956,21 @@ where id in %s""" % ids2str(self.selectedCards()))
     ######################################################################
 
     def setupHooks(self):
-        addHook("checkpoint", self.onCheckpoint)
+        addHook("undoState", self.onUndoState)
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
         addHook("editFocusLost", self.refreshCurrentCard)
 
     def teardownHooks(self):
         removeHook("reset", self.onReset)
-        removeHook("checkpoint", self.onCheckpoint)
         removeHook("editTimer", self.refreshCurrentCard)
         removeHook("editFocusLost", self.refreshCurrentCard)
+        removeHook("undoState", self.onUndoState)
 
-    def onCheckpoint(self):
-        if self.mw.form.actionUndo.isEnabled():
-            self.form.actionUndo.setEnabled(True)
+    def onUndoState(self, on):
+        self.form.actionUndo.setEnabled(on)
+        if on:
             self.form.actionUndo.setText(self.mw.form.actionUndo.text())
-        else:
-            self.form.actionUndo.setEnabled(False)
 
     # Options
     ######################################################################

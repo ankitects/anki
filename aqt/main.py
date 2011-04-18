@@ -145,6 +145,7 @@ class AnkiQt(QMainWindow):
 
     def requireReset(self, modal=False):
         "Signal queue needs to be rebuilt when edits are finished or by user."
+        self.autosave()
         self.resetModal = modal
         if self.state in ("overview", "review"):
             self.moveToState("resetRequired")
@@ -153,6 +154,7 @@ class AnkiQt(QMainWindow):
             pass
 
     def maybeReset(self):
+        self.autosave()
         if self.state == "resetRequired":
             self.state = self.returnState
             self.reset()
@@ -654,7 +656,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.deck.sched.buryFact(self.reviewer.card.fid)
         self.reviewer.nextCard()
 
-    # Undo
+    # Undo & autosave
     ##########################################################################
 
     def onUndo(self):
@@ -667,13 +669,18 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.form.actionUndo.setText(_("Undo %s") %
                                             self.deck.undoName())
             self.form.actionUndo.setEnabled(True)
+            runHook("undoState", True)
         else:
             self.form.actionUndo.setEnabled(False)
+            runHook("undoState", False)
 
     def checkpoint(self, name):
         self.deck.save(name)
         self.maybeEnableUndo()
-        runHook("checkpoint")
+
+    def autosave(self):
+        self.deck.autosave()
+        self.maybeEnableUndo()
 
     # Other menu operations
     ##########################################################################
