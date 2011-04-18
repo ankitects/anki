@@ -49,14 +49,15 @@ class CardStats(object):
             self.addLine(_("Average Time"), fmt(total / float(cnt), point=2))
             self.addLine(_("Total Time"), fmt(total, point=2))
         self.addLine(_("Model"), c.model().name)
-        self.addLine(_("Template") + "&nbsp;"*5, c.template()['name'])
+        self.addLine(_("Template"), c.template()['name'])
         self.addLine(_("Current Group"), self.deck.groupName(c.gid))
         self.addLine(_("Initial Group"), self.deck.groupName(c.fact().gid))
         self.txt += "</table>"
         return self.txt
 
     def addLine(self, k, v):
-        self.txt += "<tr><td><b>%s<b></td><td>%s</td></tr>" % (k, v)
+        self.txt += "<tr><td align=right style='padding-right: 3px;'>"
+        self.txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
 
     def strTime(self, tm):
         s = anki.utils.fmtTimeSpan(time.time() - tm)
