@@ -584,6 +584,8 @@ class Browser(QMainWindow):
         else:
             self.model.activeCols.append(type)
         self.setColumnSizes()
+        # sorted field may have been hidden
+        self.setSortIndicator()
         self.model.endReset()
 
     def setColumnSizes(self):
@@ -716,7 +718,8 @@ class Browser(QMainWindow):
         sortf = m.fields[m.sortIdx()]['name']
         rep = rep.replace(
             "</table>",
-            "<tr><td><b>%s</b></td><td>%s</td></tr></table>" % (
+            ("<tr><td align=right style='padding-right:3px;'><b>%s</b></td>"
+             "<td>%s</td></tr></table>") % (
                 _("Sort Field"),
                 "<a href=foo>%s</a>" % sortf))
         self.form.cardLabel.setText(rep)
@@ -897,9 +900,9 @@ where id in %s""" % ids2str(self.selectedCards()))
 
     def onMark(self, mark):
         if mark:
-            self.addTags(tags="Marked", label=False)
+            self.addTags(tags="marked", label=False)
         else:
-            self.deleteTags(tags="Marked", label=False)
+            self.deleteTags(tags="marked", label=False)
 
     # Rescheduling
     ######################################################################
