@@ -13,6 +13,7 @@ from anki.lang import _
 defaultConf = {
     'sortf': 0,
     'gid': 1,
+    'tags': [],
     'clozectx': False,
 }
 
