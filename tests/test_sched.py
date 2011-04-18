@@ -543,10 +543,10 @@ def test_counts():
     # check limit to one group
     d.qconf['groups'] = [1]
     d.reset()
-    assert d.sched.counts() == (1,2,1)
+    assert d.sched.counts() == (1,1,1)
     # we don't need to build the queue to get the counts
     assert d.sched.allCounts() == (2,2,2)
-    assert d.sched.selCounts() == (1,2,1)
+    assert d.sched.selCounts() == (1,1,1)
     assert d.sched.allCounts() == (2,2,2)
 
 def test_counts2():

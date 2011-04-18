@@ -262,15 +262,17 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
     ##########################################################################
 
     def _resetLrnCount(self):
-        self.lrnCount = self.db.scalar(
-            "select count() from cards where queue = 1 and due < ?",
+        self.lrnCount = self.db.scalar("""
+select count() from (select id from cards where
+queue = 1 %s and due < ? limit %d)""" % (
+            self._groupLimit(), self.reportLimit),
             intTime() + self.deck.qconf['collapseTime'])
 
     def _resetLrn(self):
         self.lrnQueue = self.db.all("""
 select due, id from cards where
-queue = 1 and due < :lim order by due
-limit %d""" % self.reportLimit, lim=self.dayCutoff)
+queue = 1 %s and due < :lim order by due
+limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
 
     def _getLrnCard(self, collapse=False):
         if self.lrnQueue:
