@@ -466,7 +466,7 @@ class Editor(object):
         tb.setSpacing(12)
         tb.setMargin(6)
         # group
-        l = QLabel(_("Group"))
+        l = QLabel(_("Initial Group"))
         tb.addWidget(l, 0, 0)
         if not self.addMode:
             self.group = QPushButton()
