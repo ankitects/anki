@@ -22,20 +22,20 @@ class CardStats(object):
         c = self.card
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%%>"
-        self.addLine(_("Added"), self.strTime(c.crt))
+        self.addLine(_("Added"), self.date(c.crt))
         first = self.deck.db.scalar(
             "select min(time) from revlog where cid = ?", c.id)
         last = self.deck.db.scalar(
             "select max(time) from revlog where cid = ?", c.id)
         if first:
-            self.addLine(_("First Review"), self.strTime(first/1000))
-            self.addLine(_("Latest Review"), self.strTime(last/1000))
+            self.addLine(_("First Review"), self.date(first/1000))
+            self.addLine(_("Latest Review"), self.date(last/1000))
         if c.reps:
             if c.queue == 2:
                 next = time.time()+((self.deck.sched.today - c.due)*86400)
             else:
                 next = c.due
-            next = self.strTime(next)
+            next = self.date(next)
             self.addLine(_("Due"), next)
         self.addLine(_("Interval"), fmt(c.ivl * 86400))
         self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
@@ -45,8 +45,8 @@ class CardStats(object):
         (cnt, total) = self.deck.db.first(
             "select count(), sum(taken)/1000 from revlog where cid = :id", id=c.id)
         if cnt:
-            self.addLine(_("Average Time"), fmt(total / float(cnt), point=2))
-            self.addLine(_("Total Time"), fmt(total, point=2))
+            self.addLine(_("Average Time"), self.time(total / float(cnt)))
+            self.addLine(_("Total Time"), self.time(total))
         self.addLine(_("Model"), c.model().name)
         self.addLine(_("Template"), c.template()['name'])
         self.addLine(_("Current Group"), self.deck.groupName(c.gid))
@@ -58,10 +58,17 @@ class CardStats(object):
         self.txt += "<tr><td align=right style='padding-right: 3px;'>"
         self.txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
 
-    def strTime(self, tm):
+    def date(self, tm):
         return time.strftime("%Y-%m-%d", time.localtime(tm))
         s = anki.utils.fmtTimeSpan(time.time() - tm)
         return _("%s ago") % s
+
+    def time(self, tm):
+        str = ""
+        if tm >= 60:
+            str = fmtTimeSpan((tm/60)*60, short=True, point=-1, unit=1)
+        str += fmtTimeSpan(tm%60, short=True)
+        return str
 
 # Deck stats
 ##########################################################################

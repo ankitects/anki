@@ -53,9 +53,9 @@ shortTimeTable = {
     "seconds": _("%ss"),
     }
 
-def fmtTimeSpan(time, pad=0, point=0, short=False, after=False):
+def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
     "Return a string representing a time span (eg '2 days')."
-    (type, point) = optimalPeriod(time, point)
+    (type, point) = optimalPeriod(time, point, unit)
     time = convertSecondsTo(time, type)
     if not point:
         time = math.floor(time)
@@ -69,17 +69,17 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False):
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
     return locale.format_string("%" + (fmt % timestr), time)
 
-def optimalPeriod(time, point):
-    if abs(time) < 60:
+def optimalPeriod(time, point, unit):
+    if abs(time) < 60 or unit < 1:
         type = "seconds"
         point -= 1
-    elif abs(time) < 3599:
+    elif abs(time) < 3599 or unit < 2:
         type = "minutes"
-    elif abs(time) < 60 * 60 * 24:
+    elif abs(time) < 60 * 60 * 24 or unit < 3:
         type = "hours"
-    elif abs(time) < 60 * 60 * 24 * 30:
+    elif abs(time) < 60 * 60 * 24 * 30 or unit < 4:
         type = "days"
-    elif abs(time) < 60 * 60 * 24 * 365:
+    elif abs(time) < 60 * 60 * 24 * 365 or unit < 5:
         type = "months"
         point += 1
     else:
