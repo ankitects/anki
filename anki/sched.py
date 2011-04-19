@@ -226,6 +226,10 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
         self._updateNewCardRatio()
 
     def _getNewCard(self):
+        # We rely on sqlite to return the cards in id order. This may not
+        # correspond to the 'ord' order. The alternative would be to do
+        # something like due = fid*100+ord, but then we have no efficient way
+        # of spacing siblings as we'd need to fetch the fid as well.
         if self.newQueue:
             (id, due) = self.newQueue.pop()
             # move any siblings to the end?
@@ -549,7 +553,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
                 self.suspendCards([card.id])
                 card.queue = -1
             elif a == 2:
-                self.resetCards([card.id])
+                self.forgetCards([card.id])
                 card.due = 1000000
             # notify UI
             runHook("leech", card)
@@ -745,6 +749,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     # Resetting
     ##########################################################################
 
+    # fixme: order
+
     def forgetCards(self, ids):
         "Put cards back in the new queue."
         sql = """
@@ -780,18 +786,17 @@ queue = 1,
 type = 1,
 where id = :id""", vals)
 
-    # Reordering
+    # Random<->ordered new cards
     ##########################################################################
 
     def randomizeCards(self, cardIds=None):
-        "Randomize 'due' on all new cards."
         now = intTime()
         query = "select distinct fid from cards where type = 0"
         if cardIds:
             query += " and id in %s" % ids2str(cardIds)
         fids = self.deck.db.list(query)
         data = [{'fid': fid,
-                 'rand': random.randrange(0, 1000000),
+                 'rand': random.randrange(1, 1000000),
                  'now': now} for fid in fids]
         self.deck.db.executemany("""
 update cards
@@ -801,7 +806,6 @@ where fid = :fid
 and type = 0""", data)
 
     def orderCards(self):
-        "Set 'due' to card creation time."
         self.deck.db.execute("""
 update cards set
 due = fid,

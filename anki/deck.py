@@ -233,7 +233,7 @@ qconf=?, conf=?, data=?""",
         fact.flush()
         # randomize?
         if self.randomNew():
-            due = random.randrange(0, 1000000)
+            due = random.randrange(1, 1000000)
         else:
             due = fact.id
         # add cards
