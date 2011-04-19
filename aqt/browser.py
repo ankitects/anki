@@ -757,7 +757,10 @@ class Browser(QMainWindow):
         bb.connect(bb, SIGNAL("rejected()"), d, SLOT("reject()"))
         d.setLayout(l)
         d.setWindowModality(Qt.WindowModal)
+        d.resize(500, 400)
+        restoreGeom(d, "revlog")
         d.exec_()
+        saveGeom(d, "revlog")
 
     def _revlogData(self):
         s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
@@ -784,9 +787,13 @@ class Browser(QMainWindow):
                 tstr = fmt % ("#000", tstr)
             if ease == 1:
                 ease = fmt % (st.colRelearn, ease)
+            if ivl >= 0:
+                ivl = fmtTimeSpan(ivl*86400, short=True)
+            else:
+                ivl = self.cardStats.time(-ivl)
             s += ("<td align=right>%s</td>" * 5) % (
                 tstr,
-                ease, _("%dd") % ivl if ivl >= 0 else self.cardStats.time(-ivl),
+                ease, ivl,
                 "%d%%" % (factor/10) if factor else "",
                 self.cardStats.time(taken)) + "</tr>"
         s += "</table>"
