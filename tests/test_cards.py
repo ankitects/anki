@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from anki.db import DB
 from anki.consts import *
 from tests.shared import getEmptyDeck
 

@@ -48,6 +48,29 @@ def test_new():
         assert(stripHTML(c.q()) == qs[n])
         d.sched.answerCard(c, 2)
 
+def test_newOrder():
+    d = getEmptyDeck()
+    m = d.currentModel()
+    for i in range(50):
+        t = m.newTemplate()
+        t['name'] = str(i)
+        t['qfmt'] = "{{Front}}"
+        t['afmt'] = "{{Back}}"
+        t['actv'] = i > 25
+        m.addTemplate(t)
+    m.flush()
+    f = d.newFact()
+    f['Front'] = u'1'
+    f['Back'] = u'2'
+    # add first half
+    d.addFact(f)
+    # generate second half
+    d.db.execute("update cards set gid = random()")
+    d.qconf['newPerDay'] = 100
+    d.reset()
+    # cards should be sorted by id
+    assert d.sched.newQueue == list(reversed(sorted(d.sched.newQueue)))
+
 def test_learn():
     d = getEmptyDeck()
     # add a fact
