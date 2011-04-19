@@ -143,4 +143,4 @@ lapses=?, grade=?, cycles=?, edue=? where id = ?""",
 
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
-        return int(time.time() - self.timerStarted)*1000
+        return int((time.time() - self.timerStarted)*1000)

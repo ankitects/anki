@@ -13,6 +13,10 @@ from anki.hooks import runHook
 
 # fixme: on upgrade cards are ordered but order defaults to random
 
+# revlog:
+# types: 0=lrn, 1=rev, 2=relrn, 3=cram, 4=resched
+# positive intervals are in days (rev), negative intervals in seconds (lrn)
+
 # the standard Anki scheduler
 class Scheduler(object):
     name = "std"
@@ -359,15 +363,14 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
     def _logLrn(self, card, ease, conf, leaving, type):
         # limit time taken to global setting
         taken = min(card.timeTaken(), self._cardConf(card)['maxTaken']*1000)
+        lastIvl = -(self._delayForGrade(conf, max(0, card.grade-1)))
+        ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.grade))
         def log():
             self.deck.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
                 int(time.time()*1000), card.id, ease, card.cycles,
-                # interval
-                self._delayForGrade(conf, card.grade),
-                # last interval
-                self._delayForGrade(conf, max(0, card.grade-1)),
-                leaving, taken, type)
+                ivl, lastIvl,
+                card.factor, taken, type)
         try:
             log()
         except:

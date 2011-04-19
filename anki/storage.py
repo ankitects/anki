@@ -329,7 +329,7 @@ select
 cast(time*1000 as int), cardId, ease, reps,
 cast(nextInterval as int), cast(lastInterval as int),
 cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
-1 from reviewHistory"""):
+yesCount from reviewHistory"""):
         row = list(row)
         # new card ids
         try:
@@ -339,15 +339,25 @@ cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
             continue
         # no ease 0 anymore
         row[2] = row[2] or 1
-        if row[3] == 1:
-            # initial rep; set type=lrn
-            row[8] = 0
-        elif row[2] == 1 and row[5] >= 3:
-            # lapsed card
+        # determine type, overwriting yesCount
+        reps = row[3]
+        newInt = row[4]
+        oldInt = row[5]
+        yesCnt = row[8]
+        # yesCnt included the current answer
+        if row[2] > 1:
+            yesCnt -= 1
+        if oldInt < 1:
+            # new or failed
+            if yesCnt:
+                # type=relrn
+                row[8] = 2
+            else:
+                # type=lrn
+                row[8] = 0
+        else:
+            # type=rev
             row[8] = 1
-        elif row[4] < 3:
-            # low interval; set type=relrn
-            row[8] = 2
         r.append(row)
     db.executemany(
         "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)", r)

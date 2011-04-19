@@ -64,14 +64,13 @@ class CardStats(object):
 
     def date(self, tm):
         return time.strftime("%Y-%m-%d", time.localtime(tm))
-        s = anki.utils.fmtTimeSpan(time.time() - tm)
-        return _("%s ago") % s
 
     def time(self, tm):
         str = ""
         if tm >= 60:
             str = fmtTimeSpan((tm/60)*60, short=True, point=-1, unit=1)
-        str += fmtTimeSpan(tm%60, short=True)
+        if tm%60 != 0 or not str:
+            str += fmtTimeSpan(tm%60, point=2 if not str else -1, short=True)
         return str
 
 # Deck stats
