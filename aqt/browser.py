@@ -787,7 +787,9 @@ class Browser(QMainWindow):
                 tstr = fmt % ("#000", tstr)
             if ease == 1:
                 ease = fmt % (st.colRelearn, ease)
-            if ivl >= 0:
+            if ivl == 0:
+                ivl = _("0d")
+            elif ivl > 0:
                 ivl = fmtTimeSpan(ivl*86400, short=True)
             else:
                 ivl = self.cardStats.time(-ivl)
