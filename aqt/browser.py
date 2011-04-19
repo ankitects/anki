@@ -224,6 +224,8 @@ class DeckModel(QAbstractTableModel):
         elif type == "cardLapses":
             return str(c.lapses)
         elif type == "cardIvl":
+            if c.type == 0:
+                return _("(new)")
             return fmtTimeSpan(c.ivl*86400)
         elif type == "cardEase":
             if c.type == 0:
