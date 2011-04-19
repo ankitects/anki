@@ -55,8 +55,12 @@ class CardStats(object):
         return self.txt
 
     def addLine(self, k, v):
-        self.txt += "<tr><td align=right style='padding-right: 3px;'>"
-        self.txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
+        self.txt += self.makeLine(k, v)
+
+    def makeLine(self, k, v):
+        txt = "<tr><td align=right style='padding-right: 3px;'>"
+        txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
+        return txt
 
     def date(self, tm):
         return time.strftime("%Y-%m-%d", time.localtime(tm))
