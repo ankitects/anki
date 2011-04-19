@@ -17,6 +17,7 @@ from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, removeHook
+from aqt.webview import AnkiWebView
 
 COLOUR_SUSPENDED1 = "#ffffcc"
 COLOUR_SUSPENDED2 = "#ffffaa"
@@ -708,21 +709,28 @@ class Browser(QMainWindow):
         self.cardStats = CardStats(self.deck, None)
         self.connect(self.form.cardLabel,
                      SIGNAL("linkActivated(const QString&)"),
-                     self.onChangeSortField)
+                     self.onCardLink)
 
     def showCardInfo(self, card):
         self.cardStats.card = self.card
         rep = self.cardStats.report()
         rep = "<style>table * { font-size: 12px; }</style>" + rep
         m = self.card.model()
+        # add sort field
         sortf = m.fields[m.sortIdx()]['name']
-        rep = rep.replace(
-            "</table>",
-            ("<tr><td align=right style='padding-right:3px;'><b>%s</b></td>"
-             "<td>%s</td></tr></table>") % (
-                _("Sort Field"),
-                "<a href=foo>%s</a>" % sortf))
+        extra = self.cardStats.makeLine(
+            _("Sort Field"), "<a href=sort>%s</a>" % sortf)
+        # and revlog
+        extra += self.cardStats.makeLine(
+            _("Reviews"), "<a href=revlog>%d</a>" % self.card.reps)
+        rep = rep.replace("</table>", extra)
         self.form.cardLabel.setText(rep)
+
+    def onCardLink(self, url):
+        if url == "sort":
+            self.onChangeSortField()
+        else:
+            self.onRevlog()
 
     def onChangeSortField(self):
         from aqt.utils import chooseList
@@ -735,6 +743,54 @@ class Browser(QMainWindow):
             m.setSortIdx(idx)
             self.mw.progress.finish()
             self.onSearch()
+
+    def onRevlog(self):
+        data = self._revlogData()
+        d = QDialog(self)
+        l = QVBoxLayout()
+        l.setMargin(0)
+        w = AnkiWebView(self.mw)
+        l.addWidget(w)
+        w.stdHtml(data)
+        bb = QDialogButtonBox(QDialogButtonBox.Close)
+        l.addWidget(bb)
+        bb.connect(bb, SIGNAL("rejected()"), d, SLOT("reject()"))
+        d.setLayout(l)
+        d.setWindowModality(Qt.WindowModal)
+        d.exec_()
+
+    def _revlogData(self):
+        s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
+        s += ("<th align=right>%s</th>" * 5) % (
+            _("Type"), _("Ease"), _("Interval"), _("Factor"), _("Time"))
+        for (date, ease, ivl, factor, taken, type) in self.mw.deck.db.execute(
+            "select time/1000, ease, ivl, factor, taken/1000.0, type "
+            "from revlog where cid = ?", self.card.id):
+            s += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
+                                                   time.localtime(date))
+            tstr = [_("Learn"), _("Review"), _("Relearn"), _("Cram"),
+                    _("Resched")][type]
+            import anki.stats as st
+            fmt = "<span style='color:%s'>%s</span>"
+            if type == 0:
+                tstr = fmt % (st.colLearn, tstr)
+            elif type == 1:
+                tstr = fmt % (st.colMature, tstr)
+            elif type == 2:
+                tstr = fmt % (st.colRelearn, tstr)
+            elif type == 3:
+                tstr = fmt % (st.colCram, tstr)
+            else:
+                tstr = fmt % ("#000", tstr)
+            if ease == 1:
+                ease = fmt % (st.colRelearn, ease)
+            s += ("<td align=right>%s</td>" * 5) % (
+                tstr,
+                ease, _("%dd") % ivl if ivl >= 0 else self.cardStats.time(-ivl),
+                "%d%%" % (factor/10) if factor else "",
+                self.cardStats.time(taken)) + "</tr>"
+        s += "</table>"
+        return s
 
     # Menu helpers
     ######################################################################
@@ -836,7 +892,6 @@ where id in %s""" % ids2str(sf))
                     "update facts set gid = ? where id in " + ids2str(
                         self.selectedFacts()), gid)
         else:
-            print "updating cards"
             self.deck.db.execute("""
 update cards set gid = (select gid from facts where id = cards.fid)
 where id in %s""" % ids2str(self.selectedCards()))
