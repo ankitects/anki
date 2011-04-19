@@ -30,23 +30,23 @@ class CardStats(object):
         if first:
             self.addLine(_("First Review"), self.date(first/1000))
             self.addLine(_("Latest Review"), self.date(last/1000))
-        if c.reps:
+        if c.queue in (1,2):
             if c.queue == 2:
                 next = time.time()+((self.deck.sched.today - c.due)*86400)
             else:
                 next = c.due
             next = self.date(next)
             self.addLine(_("Due"), next)
-        self.addLine(_("Interval"), fmt(c.ivl * 86400))
-        self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
-        # if c.reps:
-        #     self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
-        #         c.reps-c.lapses, c.reps, c.streak))
-        (cnt, total) = self.deck.db.first(
-            "select count(), sum(taken)/1000 from revlog where cid = :id", id=c.id)
-        if cnt:
-            self.addLine(_("Average Time"), self.time(total / float(cnt)))
-            self.addLine(_("Total Time"), self.time(total))
+            self.addLine(_("Interval"), fmt(c.ivl * 86400))
+            self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
+            (cnt, total) = self.deck.db.first(
+                "select count(), sum(taken)/1000 from revlog where cid = :id",
+                id=c.id)
+            if cnt:
+                self.addLine(_("Average Time"), self.time(total / float(cnt)))
+                self.addLine(_("Total Time"), self.time(total))
+        elif c.queue == 0:
+            self.addLine(_("Position"), c.due)
         self.addLine(_("Model"), c.model().name)
         self.addLine(_("Template"), c.template()['name'])
         self.addLine(_("Current Group"), self.deck.groupName(c.gid))
