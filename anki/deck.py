@@ -231,9 +231,7 @@ qconf=?, conf=?, data=?""",
         # flush the fact
         fact.id = self.nextID("fid")
         fact.flush()
-        # notice any new tags
-        self.registerTags(fact.tags)
-        # if random mode, determine insertion point
+        # randomize?
         if self.randomNew():
             due = random.randrange(0, 1000000)
         else:

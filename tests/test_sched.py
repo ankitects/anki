@@ -663,3 +663,30 @@ def test_groupCounts():
     assert tree[1][2] == 2
     assert tree[1][3] == 0
     assert tree[1][4] == 2
+
+def test_reorder():
+    d = getEmptyDeck()
+    # add a fact with default group
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    assert f.cards()[0].due == f.id
+    d.sched.randomizeCards()
+    assert f.cards()[0].due != f.id
+    d.sched.orderCards()
+    assert f.cards()[0].due == f.id
+
+def test_forget():
+    d = getEmptyDeck()
+    # add a fact with default group
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    c = f.cards()[0]
+    c.queue = 2; c.type = 2; c.ivl = 100; c.due = 0
+    c.flush()
+    d.reset()
+    assert d.sched.counts() == (0, 0, 1)
+    d.sched.forgetCards([c.id])
+    d.reset()
+    assert d.sched.counts() == (1, 0, 0)

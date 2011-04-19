@@ -14,7 +14,7 @@ from anki.hooks import runHook
 # fixme: on upgrade cards are ordered but order defaults to random
 
 # revlog:
-# types: 0=lrn, 1=rev, 2=relrn, 3=cram, 4=resched
+# types: 0=lrn, 1=rev, 2=relrn, 3=cram
 # positive intervals are in days (rev), negative intervals in seconds (lrn)
 
 # the standard Anki scheduler
@@ -382,9 +382,9 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         "Remove failed cards from the learning queue."
         self.deck.db.execute("""
 update cards set
-due = edue, queue = 2
+due = edue, queue = 2, mod = %d
 where queue = 1 and type = 2
-""")
+""" % intTime())
 
     # Reviews
     ##########################################################################
@@ -747,21 +747,13 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     # Resetting
     ##########################################################################
 
-    # - should remove all scheduling history so we don't show more new ca
-    def resetCards(self, ids=None):
-        "Reset progress on cards in IDS."
+    def forgetCards(self, ids):
+        "Put cards back in the new queue."
         sql = """
-update cards set mod=%d, due=fid, type=0, queue=0, ivl=0, factor=0, reps=0,
-lapses=0, grade=0, cycles=0, edue=0, data=''"""
-        sql2 = "delete from revlog"
-        if ids is None:
-            lim = ""
-        else:
-            sids = ids2str(ids)
-            sql += " where id in "+sids
-            sql2 += "  where cardId in "+sids
-        self.deck.db.execute(sql, now=time.time())
-        self.deck.db.execute(sql2)
+update cards set mod=%d, due=fid, type=0, queue=0, ivl=0, data=''""" % intTime()
+        sids = ids2str(ids)
+        sql += " where id in "+sids
+        self.deck.db.execute(sql)
         if self.deck.randomNew():
             # we need to re-randomize now
             self.randomizeNewCards(ids)
@@ -793,27 +785,27 @@ where id = :id""", vals)
     # Reordering
     ##########################################################################
 
-    def randomizeNewCards(self, cardIds=None):
+    def randomizeCards(self, cardIds=None):
         "Randomize 'due' on all new cards."
-        now = time.time()
-        query = "select distinct fid from cards where reps = 0"
+        now = intTime()
+        query = "select distinct fid from cards where type = 0"
         if cardIds:
             query += " and id in %s" % ids2str(cardIds)
         fids = self.deck.db.list(query)
         data = [{'fid': fid,
-                 'rand': random.uniform(0, now),
+                 'rand': random.randrange(0, 1000000),
                  'now': now} for fid in fids]
         self.deck.db.executemany("""
 update cards
 set due = :rand + ord,
 mod = :now
 where fid = :fid
-and type = 2""", data)
+and type = 0""", data)
 
-    def orderNewCards(self):
+    def orderCards(self):
         "Set 'due' to card creation time."
         self.deck.db.execute("""
 update cards set
-due = created,
+due = fid,
 mod = :now
-where type = 2""", now=time.time())
+where type = 0""", now=time.time())
