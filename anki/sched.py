@@ -11,8 +11,6 @@ from anki.lang import _, ngettext
 from anki.consts import *
 from anki.hooks import runHook
 
-# fixme: on upgrade cards are ordered but order defaults to random
-
 # revlog:
 # types: 0=lrn, 1=rev, 2=relrn, 3=cram
 # positive intervals are in days (rev), negative intervals in seconds (lrn)

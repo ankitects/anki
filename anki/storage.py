@@ -390,9 +390,6 @@ insert or replace into deck select id, cast(created as int), :t,
         "select newCardSpacing from decks")
     qconf['newOrder'] = db.scalar(
         "select newCardOrder from decks")
-    keys = ("newCardOrder", "newCardSpacing")
-    for k in keys:
-        qconf[k] = db.scalar("select %s from decks" % k)
     qconf['newPerDay'] = db.scalar(
         "select newCardsPerDay from decks")
     # fetch remaining settings from decks table
@@ -560,6 +557,9 @@ update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
 ((due-:stamp)/86400) as int)+:today where type = 2
 """, stamp=deck.sched.dayCutoff, today=deck.sched.today)
+    # possibly re-randomize
+    if deck.randomNew():
+        deck.sched.randomizeCards()
     # update insertion id
     deck.conf['nextFid'] = deck.db.scalar("select max(id) from facts")+1
     deck.conf['nextCid'] = deck.db.scalar("select max(id) from cards")+1
