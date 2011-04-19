@@ -84,7 +84,6 @@ create table if not exists cards (
     ivl             integer not null,
     factor          integer not null,
     reps            integer not null,
-    streak          integer not null,
     lapses          integer not null,
     grade           integer not null,
     cycles          integer not null,
@@ -254,7 +253,7 @@ when 1 then 2
 when 2 then 0
 else type end),
 due, cast(interval as int),
-cast(factor*1000 as int), reps, successive, noCount, 0, 0, 0, "" from cards2
+cast(factor*1000 as int), reps, noCount, 0, 0, 0, "" from cards2
 order by created""")
     db.execute("drop table cards2")
 
@@ -300,7 +299,7 @@ from facts order by created""")
         row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
         data.append(row)
     # use the new order to rewrite fact ids in cards table
-    _insertWithIdChange(db, map, 1, "cards", 18)
+    _insertWithIdChange(db, map, 1, "cards", 17)
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)

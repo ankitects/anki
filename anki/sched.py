@@ -11,6 +11,8 @@ from anki.lang import _, ngettext
 from anki.consts import *
 from anki.hooks import runHook
 
+# fixme: on upgrade cards are ordered but order defaults to random
+
 # the standard Anki scheduler
 class Scheduler(object):
     name = "std"
@@ -37,8 +39,9 @@ class Scheduler(object):
         self._resetNew()
 
     def answerCard(self, card, ease):
-        self.deck.markReview(card)
         assert ease >= 1 and ease <= 4
+        self.deck.markReview(card)
+        card.reps += 1
         if card.queue == 0:
             # put it in the learn queue
             card.queue = 1
@@ -196,7 +199,7 @@ from cards group by gid""", self.today):
     # New cards
     ##########################################################################
 
-    # need to keep track of reps for timebox and new card introduction
+    # FIXME: need to keep track of reps for timebox and new card introduction
 
     def _resetNewCount(self):
         l = self.deck.qconf
@@ -423,7 +426,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     ##########################################################################
 
     def _answerRevCard(self, card, ease):
-        card.reps += 1
         if ease == 1:
             self._rescheduleLapse(card)
         else:
@@ -432,7 +434,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def _rescheduleLapse(self, card):
         conf = self._cardConf(card)['lapse']
-        card.streak = 0
         card.lapses += 1
         card.lastIvl = card.ivl
         card.ivl = self._nextLapseIvl(card, conf)
@@ -452,7 +453,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         return int(card.ivl*conf['mult']) + 1
 
     def _rescheduleRev(self, card, ease):
-        card.streak += 1
         # update interval
         card.lastIvl = card.ivl
         self._updateRevIvl(card, ease)
@@ -747,10 +747,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     # - should remove all scheduling history so we don't show more new ca
     def resetCards(self, ids=None):
         "Reset progress on cards in IDS."
-        print "position in resetCards()"
         sql = """
-update cards set mod=:now, position=0, type=2, queue=2, lastInterval=0,
-interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
+update cards set mod=%d, due=fid, type=0, queue=0, ivl=0, factor=0, reps=0,
+lapses=0, grade=0, cycles=0, edue=0, data=''"""
         sql2 = "delete from revlog"
         if ids is None:
             lim = ""
@@ -760,7 +759,7 @@ interval=0, due=created, factor=2.5, reps=0, successive=0, lapses=0, flags=0"""
             sql2 += "  where cardId in "+sids
         self.deck.db.execute(sql, now=time.time())
         self.deck.db.execute(sql2)
-        if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
+        if self.deck.randomNew():
             # we need to re-randomize now
             self.randomizeNewCards(ids)
 

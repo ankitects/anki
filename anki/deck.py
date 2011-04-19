@@ -234,7 +234,7 @@ qconf=?, conf=?, data=?""",
         # notice any new tags
         self.registerTags(fact.tags)
         # if random mode, determine insertion point
-        if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
+        if self.randomNew():
             due = random.randrange(0, 1000000)
         else:
             due = fact.id
@@ -287,7 +287,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         "Generate cards for templates if cards not empty. Return cards."
         cards = []
         # if random mode, determine insertion point
-        if self.qconf['newOrder'] == NEW_CARDS_RANDOM:
+        if self.randomNew():
             # if this fact has existing new cards, use their due time
             due = self.db.scalar(
                 "select due from cards where fid = ? and queue = 0", fact.id)
@@ -334,6 +334,9 @@ select id from facts where id not in (select distinct fid from cards)""")
         if flush:
             card.flush()
         return card
+
+    def randomNew(self):
+        return self.qconf['newOrder'] == NEW_CARDS_RANDOM
 
     # Cards
     ##########################################################################

@@ -167,7 +167,6 @@ def test_reviews():
     # factor should have been decremented
     assert c.factor == 2300
     # check counters
-    assert c.streak == 0
     assert c.lapses == 2
     assert c.reps == 4
     # try again with an ease of 2 instead
@@ -182,7 +181,6 @@ def test_reviews():
     # factor should have been decremented
     assert c.factor == 2350
     # check counters
-    assert c.streak == 3
     assert c.lapses == 1
     assert c.reps == 4
     # ease 3

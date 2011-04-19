@@ -39,9 +39,9 @@ class CardStats(object):
             self.addLine(_("Due"), next)
         self.addLine(_("Interval"), fmt(c.ivl * 86400))
         self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
-        if c.reps:
-            self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
-                c.reps-c.lapses, c.reps, c.streak))
+        # if c.reps:
+        #     self.addLine(_("Reviews"), "%d/%d (s=%d)" % (
+        #         c.reps-c.lapses, c.reps, c.streak))
         (cnt, total) = self.deck.db.first(
             "select count(), sum(taken)/1000 from revlog where cid = :id", id=c.id)
         if cnt:
