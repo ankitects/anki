@@ -4,7 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtWebKit import QWebView
+from PyQt4.QtWebKit import QWebView, QWebPage
 import re, os, sys, urllib2, ctypes, simplejson, traceback
 from anki.utils import stripHTML, parseTags, isWin, namedtmp
 from anki.sound import play
@@ -777,14 +777,22 @@ class EditorWebView(AnkiWebView):
 
     def keyPressEvent(self, evt):
         self._curKey = True
-        if evt.matches(QKeySequence.Paste):
-            self.onPaste()
-        return QWebView.keyPressEvent(self, evt)
+        self.origClip = None
+        shiftPaste = (evt.modifiers() == (Qt.ShiftModifier | Qt.ControlModifier)
+                      and evt.key() == Qt.Key_V)
+        if evt.matches(QKeySequence.Paste) or shiftPaste:
+            self.prepareClip(shiftPaste)
+        if shiftPaste:
+            self.triggerPageAction(QWebPage.Paste)
+        QWebView.keyPressEvent(self, evt)
+        if self.origClip:
+            self.restoreClip()
 
     def contextMenuEvent(self, evt):
         # adjust in case the user is going to paste
-        self.onPaste()
+        self.prepareClip()
         QWebView.contextMenuEvent(self, evt)
+        self.restoreClip()
 
     def dropEvent(self, evt):
         oldmime = evt.mimeData()
@@ -809,11 +817,38 @@ class EditorWebView(AnkiWebView):
         evt.accept()
         QWebView.dropEvent(self, new)
 
-    def onPaste(self):
+    def prepareClip(self, keep=False):
         clip = self.editor.mw.app.clipboard()
         mime = clip.mimeData()
-        mime = self._processMime(mime)
+        self.saveClip()
+        if keep:
+            new = QMimeData()
+            if mime.hasHtml():
+                new.setHtml(mime.html())
+            else:
+                new.setText(mime.text())
+            mime = new
+        else:
+            mime = self._processMime(mime)
         clip.setMimeData(mime)
+
+    def restoreClip(self):
+        clip = self.editor.mw.app.clipboard()
+        clip.setMimeData(self.origClip)
+
+    def saveClip(self):
+        # we don't own the clipboard object, so we need to copy it
+        mime = self.editor.mw.app.clipboard().mimeData()
+        n = QMimeData()
+        if mime.hasText():
+            n.setText(mime.text())
+        if mime.hasHtml():
+            n.setHtml(mime.html())
+        if mime.hasUrls():
+            n.setUrls(mime.urls())
+        if mime.hasImage():
+            n.setImageData(mime.imageData())
+        self.origClip = n
 
     def _processMime(self, mime):
         # print "html=%s image=%s urls=%s txt=%s" % (
