@@ -788,8 +788,8 @@ class EditorWebView(AnkiWebView):
 
     def dropEvent(self, evt):
         oldmime = evt.mimeData()
-        # coming from us?
-        if evt.source() == self:
+        # coming from this program?
+        if evt.source():
             # if they're copying just an image, we need to turn it into html
             # again
             txt = ""
@@ -800,7 +800,7 @@ class EditorWebView(AnkiWebView):
                     unicode(oldmime.urls()[0].toString()))
                 mime.setHtml(txt)
             else:
-                mime.setText(oldmime.text())
+                mime.setHtml(oldmime.html())
         else:
             mime = self._processMime(oldmime)
         # create a new event with the new mime data
