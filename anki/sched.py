@@ -809,8 +809,9 @@ where id = :id""", vals)
                 "select min(due) from cards where due >= ? and type = 0 "
                 "and id not in %s" % scids,
                 start)
-            shiftby = high - low + 1
-            self.deck.db.execute("""
+            if low is not None:
+                shiftby = high - low + 1
+                self.deck.db.execute("""
 update cards set mod=?, due=due+? where id not in %s
 and due >= ?""" % scids, now, shiftby, low)
         # reorder cards
