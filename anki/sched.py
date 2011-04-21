@@ -747,38 +747,26 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     ##########################################################################
 
     def forgetCards(self, ids):
-        "Put cards back in the new queue."
-        sql = """
-update cards set type=0, queue=0, ivl=0, data=''"""
-        sids = ids2str(ids)
-        sql += " where id in "+sids
-        self.deck.db.execute(sql)
+        "Put cards at the end of the new queue."
+        self.deck.db.execute(
+            "update cards set type=0, queue=0, ivl=0 where id in "+ids2str(ids))
         pmax = self.deck.db.scalar("select max(due) from cards where type=0")
         self.sortCards(ids, start=pmax+1, shuffle=self.deck.randomNew())
 
-    def rescheduleCards(self, ids, min, max):
-        "Reset cards and schedule with new interval in days (min, max)."
-        self.resetCards(ids)
-        vals = []
+    def reschedCards(self, ids, min, max):
+        "Put cards in review queue with a new interval in days (min, max)."
+        self.deck.db.execute(
+            "update cards set type=2, queue=2 where id in "+ids2str(ids))
+
+        d = []
+        t = self.today
+        mod = intTime()
         for id in ids:
-            r = random.uniform(min*86400, max*86400)
-            vals.append({
-                'id': id,
-                'due': r + time.time(),
-                'int': r / 86400.0,
-                't': time.time(),
-                })
-        self.deck.db.executemany("""
-update cards set
-interval = :int,
-due = :due,
-reps = 1,
-successive = 1,
-yesCount = 1,
-firstAnswered = :t,
-queue = 1,
-type = 1,
-where id = :id""", vals)
+            r = random.randint(min, max)
+            d.append(dict(id=id, due=r+t, ivl=r, mod=mod))
+        self.deck.db.executemany(
+            "update cards set type=2,queue=2,ivl=:ivl,due=:due where id=:id",
+            d)
 
     # Repositioning new cards
     ##########################################################################

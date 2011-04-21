@@ -726,7 +726,6 @@ def test_reorder():
 
 def test_forget():
     d = getEmptyDeck()
-    # add a fact with default group
     f = d.newFact()
     f['Front'] = u"one"
     d.addFact(f)
@@ -738,3 +737,19 @@ def test_forget():
     d.sched.forgetCards([c.id])
     d.reset()
     assert d.sched.counts() == (1, 0, 0)
+
+def test_resched():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    c = f.cards()[0]
+    d.sched.reschedCards([c.id], 0, 0)
+    c.load()
+    assert c.due == d.sched.today
+    assert c.ivl == 0
+    assert c.queue == c.type == 2
+    d.sched.reschedCards([c.id], 1, 1)
+    c.load()
+    assert c.due == d.sched.today+1
+    assert c.ivl == +1
