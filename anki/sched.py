@@ -22,6 +22,7 @@ class Scheduler(object):
         self.deck = deck
         self.queueLimit = 200
         self.reportLimit = 1000
+        self.reps = 0
         self._updateCutoff()
 
     def getCard(self):
@@ -43,6 +44,7 @@ class Scheduler(object):
     def answerCard(self, card, ease):
         assert ease >= 1 and ease <= 4
         self.deck.markReview(card)
+        self.reps += 1
         card.reps += 1
         if card.queue == 0:
             # put it in the learn queue
@@ -264,7 +266,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
         elif self.deck.qconf['newSpread'] == NEW_CARDS_FIRST:
             return True
         elif self.newCardModulus:
-            return self.deck.reps and self.deck.reps % self.newCardModulus == 0
+            return self.reps and self.reps % self.newCardModulus == 0
 
     # Learning queue
     ##########################################################################

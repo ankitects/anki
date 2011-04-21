@@ -78,8 +78,6 @@ class _Deck(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        # counter for reps since deck open
-        self.reps = 0
         self._stdSched = Scheduler(self)
         self.sched = self._stdSched
         self.media = MediaRegistry(self)
