@@ -155,6 +155,11 @@ function _onSpace() {
         py.link(document.activeElement.href);
     }
 }
+function _typeAnsPress() {
+    if (window.event.keyCode === 13) {
+        _showans();
+    }
+}
 $(document).ready(function () {
 $(".ansbut").focus();
 });
@@ -388,7 +393,8 @@ div#filler {
             return ""
         return """
 <center>
-<input type=text id=typeans style="font-family: '%s'; font-size: %s;">
+<input type=text id=typeans onkeypress="_typeAnsPress();"
+   style="font-family: '%s'; font-size: %s;">
 </center>
 """ % (
     self.getFont())
