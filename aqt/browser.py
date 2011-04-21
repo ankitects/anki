@@ -253,12 +253,14 @@ class DeckModel(QAbstractTableModel):
         return s
 
     def nextDue(self, c, index):
-        if c.type == 0:
-            return str(c.due) #_("(new)")
-        elif c.type == 1:
+        if c.queue == 0:
+            return str(c.due)
+        elif c.queue == 1:
             date = c.due
-        elif c.type == 2:
+        elif c.queue == 2:
             date = time.time() + ((c.due - self.deck.sched.today)*86400)
+        else:
+            return _("(susp.)")
         return time.strftime("%Y-%m-%d", time.localtime(date))
 
 # Line painter
@@ -949,7 +951,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         self.form.actionToggleMark.setChecked(self.isMarked())
 
     def isSuspended(self):
-        return self.card and self.card.queue == -1
+        return not not (self.card and self.card.queue == -1)
 
     def onSuspend(self, sus):
         # focus lost hook may not have chance to fire
@@ -963,7 +965,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         self.mw.requireReset()
 
     def isMarked(self):
-        return self.card and self.card.fact().hasTag("Marked")
+        return not not (self.card and self.card.fact().hasTag("Marked"))
 
     def onMark(self, mark):
         if mark:
