@@ -10,7 +10,7 @@ import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
-    ids2str, stripHTMLMedia, isWin
+    ids2str, stripHTMLMedia, isWin, intTime
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip
@@ -345,6 +345,7 @@ class Browser(QMainWindow):
         c(f.actionSetGroup, s, self.setGroup)
         c(f.actionAddTag, s, self.addTags)
         c(f.actionDeleteTag, s, self.deleteTags)
+        c(f.actionReposition, s, self.reposition)
         c(f.actionReschedule, s, self.reschedule)
         c(f.actionCram, s, self.cram)
         c(f.actionAddCards, s, self.genCards)
@@ -676,13 +677,13 @@ class Browser(QMainWindow):
     def _systemTagTree(self, root):
         tags = (
             (_("All cards"), "stock_new_template", ""),
+            (_("New"), "stock_new_template_blue.png", "is:new"),
+            (_("Learning"), "stock_new_template_red.png", "is:lrn"),
+            (_("Review"), "stock_new_template_green.png", "is:rev"),
             (_("Marked"), "rating.png", "tag:marked"),
             (_("Suspended"), "media-playback-pause.png", "is:suspended"),
             (_("Leech"), "emblem-important.png", "tag:leech"),
-            (_("Never seen"), "stock_new_template_blue.png", "is:new"),
-            (_("In learning"), "stock_new_template_red.png", "is:lrn"),
-            (_("In review"), "stock_new_template_green.png", "is:rev"),
-            (_("Due reviews"), "stock_new_template_green.png", "is:due"))
+            (_("Due"), "stock_new_template_green.png", "is:due"))
         for name, icon, cmd in tags:
             item = self.CallbackItem(
                 name, lambda c=cmd: self.setFilter(c))
@@ -721,8 +722,9 @@ class Browser(QMainWindow):
         extra = self.cardStats.makeLine(
             _("Sort Field"), "<a href=sort>%s</a>" % sortf)
         # and revlog
-        extra += self.cardStats.makeLine(
-            _("Reviews"), "<a href=revlog>%d</a>" % self.card.reps)
+        if self.card.reps:
+            extra += self.cardStats.makeLine(
+                _("Reviews"), "<a href=revlog>%d</a>" % self.card.reps)
         rep = rep.replace("</table>", extra)
         self.form.cardLabel.setText(rep)
 
@@ -891,19 +893,20 @@ where id in %s""" % ids2str(sf))
     def onSetGroup(self, frm, te):
         self.model.beginReset()
         self.mw.checkpoint(_("Set Group"))
+        mod = intTime()
         if frm.setCur.isChecked():
             gid = self.deck.groupId(unicode(te.text()))
             self.deck.db.execute(
-                "update cards set gid = ? where id in " + ids2str(
-                    self.selectedCards()), gid)
+                "update cards set mod=?, gid=? where id in " + ids2str(
+                    self.selectedCards()), mod, gid)
             if frm.setInitial.isChecked():
                 self.deck.db.execute(
-                    "update facts set gid = ? where id in " + ids2str(
-                        self.selectedFacts()), gid)
+                    "update facts set mod=?, gid=? where id in " + ids2str(
+                        self.selectedFacts()), mod, gid)
         else:
             self.deck.db.execute("""
-update cards set gid = (select gid from facts where id = cards.fid)
-where id in %s""" % ids2str(self.selectedCards()))
+update cards set mod=?, gid=(select gid from facts where id = cards.fid)
+where id in %s""" % ids2str(self.selectedCards()), mod)
         self.onSearch(reset=False)
         self.mw.requireReset()
         self.model.endReset()
@@ -967,6 +970,35 @@ where id in %s""" % ids2str(self.selectedCards()))
             self.addTags(tags="marked", label=False)
         else:
             self.deleteTags(tags="marked", label=False)
+
+    # Repositioning
+    ######################################################################
+
+    def reposition(self):
+        cids = self.selectedCards()
+        cids = self.deck.db.list(
+            "select id from cards where type = 0 and id in " + ids2str(cids))
+        if not cids:
+            return showInfo(_("Only new cards can be repositioned."))
+        d = QDialog(self)
+        d.setWindowModality(Qt.WindowModal)
+        frm = aqt.forms.reposition.Ui_Dialog()
+        frm.setupUi(d)
+        (pmin, pmax) = self.deck.db.first(
+            "select min(due), max(due) from cards where type=0")
+        txt = _("Queue top: %d") % pmin
+        txt += "\n" + _("Queue bottom: %d") % pmax
+        frm.label.setText(txt)
+        if not d.exec_():
+            return
+        self.model.beginReset()
+        self.mw.checkpoint(_("Reposition"))
+        self.deck.sched.sortCards(
+            cids, start=frm.start.value(), step=frm.step.value(),
+            shuffle=frm.randomize.isChecked(), shift=frm.shift.isChecked())
+        self.onSearch(reset=False)
+        self.mw.requireReset()
+        self.model.endReset()
 
     # Rescheduling
     ######################################################################
