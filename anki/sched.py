@@ -369,8 +369,8 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.grade))
         def log():
             self.deck.db.execute(
-                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
-                int(time.time()*1000), card.id, ease, card.cycles,
+                "insert into revlog values (?,?,?,?,?,?,?,?)",
+                int(time.time()*1000), card.id, ease,
                 ivl, lastIvl,
                 card.factor, taken, type)
         try:
@@ -469,8 +469,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         taken = min(card.timeTaken(), self._cardConf(card)['maxTaken']*1000)
         def log():
             self.deck.db.execute(
-                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
-                int(time.time()*1000), card.id, ease, card.reps,
+                "insert into revlog values (?,?,?,?,?,?,?,?)",
+                int(time.time()*1000), card.id, ease,
                 card.ivl, card.lastIvl, card.factor, taken,
                 1)
         try:

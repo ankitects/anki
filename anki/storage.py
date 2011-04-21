@@ -138,7 +138,6 @@ create table if not exists revlog (
     time            integer primary key,
     cid             integer not null,
     ease            integer not null,
-    rep             integer not null,
     ivl             integer not null,
     lastIvl         integer not null,
     factor          integer not null,
@@ -326,7 +325,7 @@ name, "{}", "{}", ?, "" from models2""", simplejson.dumps(
     r = []
     for row in db.execute("""
 select
-cast(time*1000 as int), cardId, ease, reps,
+cast(time*1000 as int), cardId, ease,
 cast(nextInterval as int), cast(lastInterval as int),
 cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
 yesCount from reviewHistory"""):
@@ -340,10 +339,9 @@ yesCount from reviewHistory"""):
         # no ease 0 anymore
         row[2] = row[2] or 1
         # determine type, overwriting yesCount
-        reps = row[3]
-        newInt = row[4]
-        oldInt = row[5]
-        yesCnt = row[8]
+        newInt = row[3]
+        oldInt = row[4]
+        yesCnt = row[7]
         # yesCnt included the current answer
         if row[2] > 1:
             yesCnt -= 1
@@ -351,16 +349,16 @@ yesCount from reviewHistory"""):
             # new or failed
             if yesCnt:
                 # type=relrn
-                row[8] = 2
+                row[7] = 2
             else:
                 # type=lrn
-                row[8] = 0
+                row[7] = 0
         else:
             # type=rev
-            row[8] = 1
+            row[7] = 1
         r.append(row)
     db.executemany(
-        "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)", r)
+        "insert or ignore into revlog values (?,?,?,?,?,?,?,?)", r)
     db.execute("drop table reviewHistory")
 
     # longer migrations
