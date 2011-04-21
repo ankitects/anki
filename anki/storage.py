@@ -252,7 +252,7 @@ when 0 then 1
 when 1 then 2
 when 2 then 0
 else type end),
-due, cast(interval as int),
+cast(due as int), cast(interval as int),
 cast(factor*1000 as int), reps, noCount, 0, 0, 0, "" from cards2
 order by created""")
     db.execute("drop table cards2")
