@@ -494,8 +494,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             interval = (card.ivl + delay/2) * fct
         elif ease == 4:
             interval = (card.ivl + delay) * fct * conf['rev']['ease4']
-        # must be at least one day greater than previous interval
-        return max(card.ivl+1, int(interval))
+        # must be at least one day greater than previous interval; two if easy
+        return max(card.ivl + (2 if ease==4 else 1), int(interval))
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
