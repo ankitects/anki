@@ -195,33 +195,23 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
+    <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectFacts"/>
     <addaction name="actionInvertSelection"/>
     <addaction name="separator"/>
-    <addaction name="actionFindReplace"/>
-    <addaction name="actionFindDuplicates"/>
-    <addaction name="separator"/>
     <addaction name="actionOptions"/>
    </widget>
-   <widget class="QMenu" name="menuActions">
+   <widget class="QMenu" name="menuCards">
     <property name="title">
-     <string>&amp;Actions</string>
+     <string>Cards</string>
     </property>
-    <addaction name="actionAddItems"/>
-    <addaction name="actionAddCards"/>
-    <addaction name="separator"/>
     <addaction name="actionSetGroup"/>
-    <addaction name="actionAddTag"/>
-    <addaction name="actionDeleteTag"/>
+    <addaction name="separator"/>
+    <addaction name="actionReposition"/>
+    <addaction name="actionReschedule"/>
     <addaction name="separator"/>
     <addaction name="actionToggleSuspend"/>
-    <addaction name="actionToggleMark"/>
-    <addaction name="separator"/>
-    <addaction name="actionChangeModel"/>
-    <addaction name="separator"/>
-    <addaction name="actionCram"/>
-    <addaction name="actionReschedule"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
    </widget>
@@ -243,7 +233,26 @@
     </property>
     <addaction name="actionGuide"/>
    </widget>
-   <addaction name="menuActions"/>
+   <widget class="QMenu" name="menuFacts">
+    <property name="title">
+     <string>Facts</string>
+    </property>
+    <addaction name="actionAddItems"/>
+    <addaction name="actionAddCards"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggleMark"/>
+    <addaction name="actionAddTag"/>
+    <addaction name="actionDeleteTag"/>
+    <addaction name="separator"/>
+    <addaction name="actionFindReplace"/>
+    <addaction name="actionFindDuplicates"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeModel"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeleteFacts"/>
+   </widget>
+   <addaction name="menuCards"/>
+   <addaction name="menuFacts"/>
    <addaction name="menuEdit"/>
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
@@ -502,7 +511,7 @@
      <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
    </property>
    <property name="text">
-    <string>Add &amp;Items</string>
+    <string>Add...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
@@ -555,10 +564,28 @@
      <normaloff>:/icons/stock_group.png</normaloff>:/icons/stock_group.png</iconset>
    </property>
    <property name="text">
-    <string>Set Group</string>
+    <string>Set Group...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionReposition">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/view-sort-ascending.png</normaloff>:/icons/view-sort-ascending.png</iconset>
+   </property>
+   <property name="text">
+    <string>Reposition...</string>
+   </property>
+  </action>
+  <action name="actionDeleteFacts">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
    </property>
   </action>
  </widget>
