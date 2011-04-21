@@ -233,7 +233,7 @@ qconf=?, conf=?, data=?""",
         fact.flush()
         # randomize?
         if self.randomNew():
-            due = random.randrange(1, 1000000)
+            due = random.randrange(1, fact.id)
         else:
             due = fact.id
         # add cards
@@ -289,7 +289,7 @@ select id from facts where id not in (select distinct fid from cards)""")
             # if this fact has existing new cards, use their due time
             due = self.db.scalar(
                 "select due from cards where fid = ? and queue = 0", fact.id)
-            due = due or random.randrange(1, 1000000)
+            due = due or random.randrange(1, self.conf['nextFid'])
         else:
             due = fact.id
         for template in self.findTemplates(fact, checkActive=False):
