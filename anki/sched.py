@@ -753,17 +753,14 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         pmax = self.deck.db.scalar("select max(due) from cards where type=0")
         self.sortCards(ids, start=pmax+1, shuffle=self.deck.randomNew())
 
-    def reschedCards(self, ids, min, max):
+    def reschedCards(self, ids, imin, imax):
         "Put cards in review queue with a new interval in days (min, max)."
-        self.deck.db.execute(
-            "update cards set type=2, queue=2 where id in "+ids2str(ids))
-
         d = []
         t = self.today
         mod = intTime()
         for id in ids:
-            r = random.randint(min, max)
-            d.append(dict(id=id, due=r+t, ivl=r, mod=mod))
+            r = random.randint(imin, imax)
+            d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod))
         self.deck.db.executemany(
             "update cards set type=2,queue=2,ivl=:ivl,due=:due where id=:id",
             d)
