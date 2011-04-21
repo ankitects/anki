@@ -124,7 +124,12 @@ function wrap(front, back) {
     span.appendChild(content);
     s.removeAllRanges();
     s.addRange(r);
-    setFormat('inserthtml', front + span.innerHTML + back);
+    var new_ = front + span.innerHTML + back;
+    var f = currentField.innerHTML;
+    if (f.length && f[f.length-1] === " ") {
+        new_ = " " + new_;
+    }
+    setFormat('inserthtml', new_);
 };
 
 function setFields(fields, focusTo) {
