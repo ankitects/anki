@@ -43,6 +43,9 @@ class StudyOptions(QDialog):
         f.dayOffset.setValue(self.startDate.hour)
         f.lrnCutoff.setValue(qc['collapseTime']/60.0)
 
+    def reject(self):
+        self.accept()
+
     def accept(self):
         f = self.form
         d = self.mw.deck
@@ -69,7 +72,7 @@ class StudyOptions(QDialog):
             return
         self.mw.progress.start()
         if new == 1:
-            self.deck.orderNewCards()
+            self.mw.deck.sched.orderCards()
         else:
-            self.deck.randomizeNewCards()
+            self.mw.deck.sched.randomizeCards()
         self.mw.progress.finish()

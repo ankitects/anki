@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>255</width>
-    <height>158</height>
+    <width>325</width>
+    <height>144</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QRadioButton" name="asNew">
      <property name="text">
-      <string>Reschedule as new cards</string>
+      <string>Place at end of new card queue</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -25,9 +25,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="inRange">
+    <widget class="QRadioButton" name="asRev">
      <property name="text">
-      <string>Reschedule with initial interval in range:</string>
+      <string>Place in review queue with interval between:</string>
      </property>
     </widget>
    </item>
@@ -38,39 +38,48 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="leftMargin">
-       <number>30</number>
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
       </property>
       <item>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Min</string>
+           <string>~</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QSpinBox" name="min">
+          <property name="maximum">
+           <number>9999</number>
           </property>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>days</string>
+         <widget class="QSpinBox" name="max">
+          <property name="maximum">
+           <number>9999</number>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Max</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
+        <item row="0" column="3">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>days</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
+        <item row="0" column="4">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -83,24 +92,23 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="1">
-         <widget class="QDoubleSpinBox" name="rangeMin">
-          <property name="maximum">
-           <double>99999.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QDoubleSpinBox" name="rangeMax">
-          <property name="maximum">
-           <double>99999.000000000000000</double>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -116,7 +124,9 @@
  </widget>
  <tabstops>
   <tabstop>asNew</tabstop>
-  <tabstop>inRange</tabstop>
+  <tabstop>asRev</tabstop>
+  <tabstop>min</tabstop>
+  <tabstop>max</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -154,7 +164,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>inRange</sender>
+   <sender>asRev</sender>
    <signal>toggled(bool)</signal>
    <receiver>rangebox</receiver>
    <slot>setEnabled(bool)</slot>

@@ -1004,31 +1004,22 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
     ######################################################################
 
     def reschedule(self):
-        return showInfo("not yet implemented")
-        n = _("Reschedule")
         d = QDialog(self)
+        d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reschedule.Ui_Dialog()
         frm.setupUi(d)
         if not d.exec_():
             return
-        self.deck.setUndoStart(n)
-        try:
-            if frm.asNew.isChecked():
-                self.deck.resetCards(self.selectedCards())
-            else:
-                try:
-                    min = float(frm.rangeMin.value())
-                    max = float(frm.rangeMax.value())
-                except ValueError:
-                    ui.utils.showInfo(
-                        _("Please enter a valid range."),
-                        parent=self)
-                    return
-                self.deck.rescheduleCards(self.selectedCards(), min, max)
-        finally:
-            self.deck.reset()
-            self.deck.setUndoEnd(n)
+        self.model.beginReset()
+        self.mw.checkpoint(_("Reschedule"))
+        if frm.asNew.isChecked():
+            self.deck.sched.forgetCards(self.selectedCards())
+        else:
+            self.deck.sched.reschedCards(
+                self.selectedCards(), frm.min.value(), frm.max.value())
+        self.onSearch(reset=False)
         self.mw.requireReset()
+        self.model.endReset()
 
     # Edit: selection
     ######################################################################
