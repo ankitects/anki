@@ -318,7 +318,7 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
             if card.due < time.time():
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
-            card.due = time.time() + delay
+            card.due = int(time.time() + delay)
             heappush(self.lrnQueue, (card.due, card.id))
             # if it's due within the cutoff, increment count
             if delay <= self.deck.qconf['collapseTime']:
