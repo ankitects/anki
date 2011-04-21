@@ -693,10 +693,10 @@ def test_reorder():
     f = d.newFact()
     f['Front'] = u"one"
     d.addFact(f)
-    f = d.newFact()
-    f['Front'] = u"two"
-    d.addFact(f)
-    assert f.cards()[0].due == f.id
+    f2 = d.newFact()
+    f2['Front'] = u"two"
+    d.addFact(f2)
+    assert f2.cards()[0].due == f2.id
     found=False
     # 50/50 chance of being reordered
     for i in range(20):
@@ -707,6 +707,23 @@ def test_reorder():
     assert found
     d.sched.orderCards()
     assert f.cards()[0].due == f.id
+    # shifting
+    f3 = d.newFact()
+    f3['Front'] = u"three"
+    d.addFact(f3)
+    f4 = d.newFact()
+    f4['Front'] = u"four"
+    d.addFact(f4)
+    assert f.cards()[0].due == 1
+    assert f2.cards()[0].due == 2
+    assert f3.cards()[0].due == 3
+    assert f4.cards()[0].due == 4
+    d.sched.sortCards([
+        f3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
+    assert f.cards()[0].due == 3
+    assert f2.cards()[0].due == 4
+    assert f3.cards()[0].due == 1
+    assert f4.cards()[0].due == 2
 
 def test_forget():
     d = getEmptyDeck()

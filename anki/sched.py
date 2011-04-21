@@ -790,7 +790,7 @@ where id = :id""", vals)
     # Random<->ordered new cards
     ##########################################################################
 
-    def sortCards(self, cids, start=1, step=1, shuffle=False):
+    def sortCards(self, cids, start=1, step=1, shuffle=False, shift=False):
         scids = ids2str(cids)
         now = intTime()
         fids = self.deck.db.list(
@@ -802,6 +802,17 @@ where id = :id""", vals)
             random.shuffle(fids)
         for c, fid in enumerate(fids):
             due[fid] = start+c*step
+        high = start+c*step
+        # shift?
+        if shift:
+            low = self.deck.db.scalar(
+                "select min(due) from cards where due >= ? and type = 0 "
+                "and id not in %s" % scids,
+                start)
+            shiftby = high - low + 1
+            self.deck.db.execute("""
+update cards set mod=?, due=due+? where id not in %s
+and due >= ?""" % scids, now, shiftby, low)
         # reorder cards
         d = []
         for id, fid in self.deck.db.execute(
