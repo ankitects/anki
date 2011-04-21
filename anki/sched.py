@@ -662,6 +662,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         elif ease == 1:
             # lapsed
             conf = self._cardConf(card)['lapse']
+            if conf['relearn']:
+                return conf['delays'][0]*60
             return self._nextLapseIvl(card, conf)*86400
         else:
             # review
