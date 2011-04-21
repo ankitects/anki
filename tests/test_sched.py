@@ -693,9 +693,18 @@ def test_reorder():
     f = d.newFact()
     f['Front'] = u"one"
     d.addFact(f)
+    f = d.newFact()
+    f['Front'] = u"two"
+    d.addFact(f)
     assert f.cards()[0].due == f.id
-    d.sched.randomizeCards()
-    assert f.cards()[0].due != f.id
+    found=False
+    # 50/50 chance of being reordered
+    for i in range(20):
+        d.sched.randomizeCards()
+        if f.cards()[0].due != f.id:
+            found=True
+            break
+    assert found
     d.sched.orderCards()
     assert f.cards()[0].due == f.id
 

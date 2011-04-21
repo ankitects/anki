@@ -749,18 +749,19 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     # Resetting
     ##########################################################################
 
-    # fixme: order
-
     def forgetCards(self, ids):
         "Put cards back in the new queue."
         sql = """
-update cards set mod=%d, due=fid, type=0, queue=0, ivl=0, data=''""" % intTime()
+update cards set type=0, queue=0, ivl=0, data=''"""
         sids = ids2str(ids)
         sql += " where id in "+sids
         self.deck.db.execute(sql)
         if self.deck.randomNew():
             # we need to re-randomize now
             self.randomizeNewCards(ids)
+        else:
+            # order by fact id and shift to end of queue, and set mod
+            pass
 
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
@@ -789,25 +790,28 @@ where id = :id""", vals)
     # Random<->ordered new cards
     ##########################################################################
 
-    def randomizeCards(self, cardIds=None):
+    def sortCards(self, cids, start=1, step=1, shuffle=False):
+        scids = ids2str(cids)
         now = intTime()
-        query = "select distinct fid from cards where type = 0"
-        if cardIds:
-            query += " and id in %s" % ids2str(cardIds)
-        fids = self.deck.db.list(query)
-        data = [{'fid': fid,
-                 'rand': random.randrange(1, 1000000),
-                 'now': now} for fid in fids]
-        self.deck.db.executemany("""
-update cards
-set due = :rand + ord,
-mod = :now
-where fid = :fid
-and type = 0""", data)
+        fids = self.deck.db.list(
+            ("select distinct fid from cards where type = 0 and id in %s "
+             "order by fid") % scids)
+        # determine fid ordering
+        due = {}
+        if shuffle:
+            random.shuffle(fids)
+        for c, fid in enumerate(fids):
+            due[fid] = start+c*step
+        # reorder cards
+        d = []
+        for id, fid in self.deck.db.execute(
+            "select id, fid from cards where type = 0 and id in "+scids):
+            d.append(dict(now=now, due=due[fid], cid=id))
+        self.deck.db.executemany(
+            "update cards set due = :due, mod = :now where id = :cid""", d)
+
+    def randomizeCards(self):
+        self.sortCards(self.deck.db.list("select id from cards"), shuffle=True)
 
     def orderCards(self):
-        self.deck.db.execute("""
-update cards set
-due = fid,
-mod = :now
-where type = 0""", now=time.time())
+        self.sortCards(self.deck.db.list("select id from cards"))
