@@ -28,7 +28,7 @@ def test_new():
     t = intTime()
     d.sched.answerCard(c, 1)
     assert c.queue == 1
-    assert c.type == 0
+    assert c.type == 1
     assert c.due >= t
     # the default order should ensure siblings are not seen together, and
     # should show all cards
@@ -96,7 +96,7 @@ def test_learn():
     # pass it once
     d.sched.answerCard(c, 2)
     # it should by due in 3 minutes
-    assert round(c.due - time.time()) == 180
+    assert round(c.due - time.time()) in (179, 180)
     # and it should be grade 1 now
     assert c.grade == 1
     assert c.cycles == 2
@@ -108,13 +108,13 @@ def test_learn():
     # pass again
     d.sched.answerCard(c, 2)
     # it should by due in 10 minutes
-    assert round(c.due - time.time()) == 600
+    assert round(c.due - time.time()) in (599, 600)
     # and it should be grade 1 now
     assert c.grade == 2
     assert c.cycles == 3
     # the next pass should graduate the card
     assert c.queue == 1
-    assert c.type == 0
+    assert c.type == 1
     d.sched.answerCard(c, 2)
     assert c.queue == 2
     assert c.type == 2
@@ -309,19 +309,9 @@ def test_nextIvl():
 def test_misc():
     d = getEmptyDeck()
     f = d.newFact()
-    f['Front'] = u"one"; f['Back'] = u"two"
+    f['Front'] = u"one"
     d.addFact(f)
     c = f.cards()[0]
-    # suspending
-    d.reset()
-    assert d.sched.getCard()
-    d.sched.suspendCards([c.id])
-    d.reset()
-    assert not d.sched.getCard()
-    # unsuspending
-    d.sched.unsuspendCards([c.id])
-    d.reset()
-    assert d.sched.getCard()
     # burying
     d.sched.buryFact(c.fid)
     d.reset()
@@ -336,6 +326,37 @@ def test_misc():
     d.sched.answerCard(c, 2)
     assert d.sched.timeToday() > 0
     assert d.sched.repsToday() == 1
+
+def test_suspend():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    c = f.cards()[0]
+    # suspending
+    d.reset()
+    assert d.sched.getCard()
+    d.sched.suspendCards([c.id])
+    d.reset()
+    assert not d.sched.getCard()
+    # unsuspending
+    d.sched.unsuspendCards([c.id])
+    d.reset()
+    assert d.sched.getCard()
+    # should cope with rev cards being relearnt
+    c.due = 0; c.ivl = 100; c.type = 2; c.queue = 2; c.flush()
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    assert c.due >= time.time()
+    assert c.queue == 1
+    assert c.type == 2
+    d.sched.suspendCards([c.id])
+    d.sched.unsuspendCards([c.id])
+    c.load()
+    assert c.queue == 2
+    assert c.type == 2
+    assert c.due == 1
 
 def test_cram():
     d = getEmptyDeck()

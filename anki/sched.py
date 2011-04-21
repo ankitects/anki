@@ -49,6 +49,7 @@ class Scheduler(object):
         if card.queue == 0:
             # put it in the learn queue
             card.queue = 1
+            card.type = 1
         if card.queue == 1:
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
@@ -382,13 +383,17 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
             time.sleep(0.01)
             log()
 
-    def removeFailed(self):
+    def removeFailed(self, ids=None):
         "Remove failed cards from the learning queue."
+        extra = ""
+        if ids:
+            extra = " and id in "+ids2str(ids)
         self.deck.db.execute("""
 update cards set
 due = edue, queue = 2, mod = %d
 where queue = 1 and type = 2
-""" % intTime())
+%s
+""" % (intTime(), extra))
 
     # Reviews
     ##########################################################################
@@ -694,6 +699,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def suspendCards(self, ids):
         "Suspend cards."
+        self.removeFailed(ids)
         self.deck.db.execute(
             "update cards set queue = -1, mod = ? where id in "+
             ids2str(ids), intTime())
@@ -708,6 +714,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def buryFact(self, fid):
         "Bury all cards for fact until next session."
         self.deck.setDirty()
+        self.removeFailed(
+            self.deck.db.list("select id from cards where fid = ?", fid))
         self.deck.db.execute("update cards set queue = -2 where fid = ?", fid)
 
     # Counts
