@@ -293,7 +293,10 @@ def test_nextIvl():
     c.queue = 2
     c.ivl = 100
     c.factor = 2500
-    # failing it puts it at tomorrow
+    # failing it should put it at 30s
+    assert ni(c, 1) == 30
+    # or 1 day if relearn is false
+    d.sched._cardConf(c)['lapse']['relearn']=False
     assert ni(c, 1) == 1*86400
     # (* 100 1.2 86400)10368000.0
     assert ni(c, 2) == 10368000
@@ -747,7 +750,7 @@ def test_resched():
     d.sched.reschedCards([c.id], 0, 0)
     c.load()
     assert c.due == d.sched.today
-    assert c.ivl == 0
+    assert c.ivl == 1
     assert c.queue == c.type == 2
     d.sched.reschedCards([c.id], 1, 1)
     c.load()
