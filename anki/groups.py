@@ -17,7 +17,7 @@ defaultConf = {
         'minInt': 1,
         'relearn': True,
         'leechFails': 16,
-        # [type, data], where type 0=suspend, 1=tagonly, 2=forget
+        # [type, data], where type 0=suspend, 1=tagonly
         'leechAction': [0],
     },
     'cram': {

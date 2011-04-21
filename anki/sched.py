@@ -552,9 +552,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             if a == 0:
                 self.suspendCards([card.id])
                 card.queue = -1
-            elif a == 2:
-                self.forgetCards([card.id])
-                card.due = 1000000
             # notify UI
             runHook("leech", card)
 
@@ -756,12 +753,8 @@ update cards set type=0, queue=0, ivl=0, data=''"""
         sids = ids2str(ids)
         sql += " where id in "+sids
         self.deck.db.execute(sql)
-        if self.deck.randomNew():
-            # we need to re-randomize now
-            self.randomizeNewCards(ids)
-        else:
-            # order by fact id and shift to end of queue, and set mod
-            pass
+        pmax = self.deck.db.scalar("select max(due) from cards where type=0")
+        self.sortCards(ids, start=pmax+1, shuffle=self.deck.randomNew())
 
     def rescheduleCards(self, ids, min, max):
         "Reset cards and schedule with new interval in days (min, max)."
@@ -787,7 +780,7 @@ queue = 1,
 type = 1,
 where id = :id""", vals)
 
-    # Random<->ordered new cards
+    # Repositioning new cards
     ##########################################################################
 
     def sortCards(self, cids, start=1, step=1, shuffle=False, shift=False):
