@@ -3,9 +3,9 @@
 
 # User configuration handling
 ##########################################################################
-# The majority of the config is serialized into a string, both for easy access
-# and backwards compatibility. A separate table keeps track of seen decks, so
-# that multiple instances can update the recent decks list.
+# The majority of the config is serialized into a string, so we can access it
+# easily and pickle objects like window state. A separate table keeps track of
+# seen decks, so that multiple instances can update the recent decks list.
 
 import os, sys, time, random, cPickle
 from anki.db import DB
@@ -13,19 +13,11 @@ from anki.utils import isMac
 
 defaultConf = {
     'confVer': 3,
-    # remove?
-    'colourTimes': True,
-    # too long?
-    'deckBrowserRefreshPeriod': 3600,
-    'factEditorAdvanced': False,
-    'showStudyScreen': True,
-
     'interfaceLang': "en",
     'fullSearch': False,
-
     'autoplaySounds': True,
     'searchHistory': [],
-    'checkForUpdates': True,
+    'checkForUpdates': True,  # ui?
     'created': time.time(),
     'deleteMedia': False,
     'documentDir': u"",
@@ -33,7 +25,6 @@ defaultConf = {
     'editFontFamily': 'Arial',
     'editFontSize': 12,
     'editLineSize': 20,
-    'editorReverseOrder': False,
     'iconSize': 32,
     'id': random.randrange(0, 2**63),
     'lastMsg': -1,
@@ -48,19 +39,13 @@ defaultConf = {
     'proxyPort': 8080,
     'proxyUser': '',
     'recentColours': ["#000000", "#0000ff"],
-    'repeatQuestionAudio': True,
-    'scrollToAnswer': True,
-    'showCardTimer': True,
     'showProgress': True,
-    'showTimer': True,
     'showToolbar': True,
     'centerQA': True,
     'stripHTML': True,
-    'studyOptionsTab': 0,
     'suppressEstimates': False,
     'suppressUpdate': False,
     'syncDisableWhenMoved': True,
-    'syncOnLoad': False,
     'syncOnProgramOpen': True,
     'syncPassword': "",
     'syncUsername': "",
@@ -148,10 +133,3 @@ create table if not exists config (conf text not null);
                 os.mkdir(x)
             except:
                 pass
-
-    def _importOldData(self):
-        # compatability
-        def unpickleWxFont(*args):
-            pass
-        def pickleWxFont(*args):
-            pass

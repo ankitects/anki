@@ -27,13 +27,7 @@ class DeckBrowser(object):
             self.web.setKeyHandler(self._keyHandler)
             self._setupToolbar()
         # refresh or reorder
-        if (time.time() - self._browserLastRefreshed >
-            self.mw.config['deckBrowserRefreshPeriod']):
-            t = time.time()
-            self._checkDecks()
-            print "check decks", time.time() - t
-        else:
-            self._reorderDecks()
+        self._checkDecks()
         # show
         self._renderPage()
 

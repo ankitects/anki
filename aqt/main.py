@@ -53,15 +53,11 @@ class AnkiQt(QMainWindow):
             # if self.config['syncOnProgramOpen']:
             #     if self.syncDeck(interactive=False):
             #         return
-            # load a deck?
-            if (args or self.config['loadLastDeck'] or
-                len(self.config['recentDeckPaths']) == 1):
-                # delay load so deck errors don't cause program to close
-                self.progress.timer(10, lambda a=args: \
-                                    self.maybeLoadLastDeck(a),
-                                    False)
-            else:
-                self.moveToState("deckBrowser")
+
+            # delay load so deck errors don't cause program to close
+            self.progress.timer(10, lambda a=args: \
+                                self.maybeLoadLastDeck(a),
+                                False)
         except:
             showInfo("Error during startup:\n%s" % traceback.format_exc())
             sys.exit(1)
@@ -343,6 +339,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             r = self.loadDeck(path, showErrors=False)
             if r:
                 return r
+        self.moveToState("deckBrowser")
 
     # Open recent
     ##########################################################################
