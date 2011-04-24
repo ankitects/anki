@@ -95,6 +95,25 @@ order by due""" % self._groupLimit(),
         self.deck.db.execute(
             "update cards set queue = type where queue between -3 and -2")
 
+    def etaStr(self):
+        eta = self.eta()
+        if not eta:
+            return ""
+        return fmtTimeSpan(eta)
+
+    def eta(self):
+        "A very rough estimate of time to review."
+        (cnt, sum) = self.deck.db.first("""
+select count(), sum(taken) from (select * from revlog
+order by time desc limit 100)""")
+        if not cnt:
+            return 0
+        avg = sum / float(cnt)
+        c = self.counts()
+        # Here we just assume new/lrn will require 3x the number of reviews. A
+        # more complex solution can be added in the future.
+        return (avg*c[0]*3 + avg*c[1]*3 + avg*c[2]) / 1000.0
+
     # Counts
     ##########################################################################
 
