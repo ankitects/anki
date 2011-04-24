@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, random, re, stat, simplejson, datetime, copy
+import time, os, random, re, stat, simplejson, datetime, copy, shutil
 from anki.lang import _, ngettext
 from anki.utils import parseTags, ids2str, hexifyID, \
      checksum, fieldChecksum, addTags, delTags, stripHTML, intTime, \
@@ -177,6 +177,19 @@ qconf=?, conf=?, data=?""",
         if self.dty:
             self.sched.onClose()
             self.dty = False
+
+    def rename(self, path):
+        # close our DB connection
+        self.close()
+        # move to new path
+        shutil.copy2(self.path, path)
+        os.unlink(self.path)
+        # record old dir
+        olddir = self.media.dir()
+        # reconnect & move media
+        self.path = path
+        self.reopen()
+        self.media.move(olddir)
 
     # Object creation helpers
     ##########################################################################

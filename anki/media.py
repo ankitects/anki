@@ -3,19 +3,20 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, shutil, re, urllib, urllib2, time, unicodedata, \
-    urllib, sys
+    urllib, sys, shutil
 from anki.utils import checksum, intTime, namedtmp, isWin
 from anki.lang import _
 
 class MediaRegistry(object):
 
+    # can be altered at the class level for dropbox, etc
+    mediaPrefix = ""
     # other code depends on this order, so don't reorder
     regexps = ("(?i)(\[sound:([^]]+)\])",
                "(?i)(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>)")
 
     def __init__(self, deck):
         self.deck = deck
-        self.mediaPrefix = ""
         self._dir = None
         self._updateDir()
 
@@ -47,6 +48,14 @@ class MediaRegistry(object):
         # change to the current dir
         os.chdir(dir)
         self._dir = dir
+
+    def move(self, old):
+        if not old:
+            return
+        self._dir = None
+        new = self.dir(create=None)
+        shutil.copytree(old, new)
+        shutil.rmtree(old)
 
     # Adding media
     ##########################################################################

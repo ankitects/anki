@@ -59,3 +59,12 @@ def test_deckIntegration():
     ret = d.media.check()
     assert ret[0] == ["fake2.png"]
     assert ret[1] == ["foo.jpg"]
+
+def test_rename():
+    d = getEmptyDeck()
+    # put a file into it
+    file = unicode(os.path.join(testDir, "support/fake.png"))
+    d.media.addFile(file)
+    new = d.path.replace(".anki", "2.anki")
+    d.rename(new)
+
