@@ -480,12 +480,10 @@ div#filler {
 <center>
 %s
 <p>
-%s %s
+%s
 <script>$("#ov").focus();</script>
 </center>""" % (self.mw.deck.sched.finishedMsg(),
-                self.mw.button(key="o", name=_("Overview"), link="ov", id='ov'),
-                self.mw.button(key="o", name=_("Deck List"), link="dlist"))
-
+                self.mw.button(key="o", name=_("Overview"), link="ov", id='ov'))
         self.web.stdHtml(buf, css=self.mw.sharedCSS)
         runHook('deckFinished')
 
