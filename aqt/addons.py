@@ -8,7 +8,7 @@ from PyQt4.QtGui import *
 from aqt.utils import showInfo, showWarning, openFolder, isWin
 from anki.hooks import runHook
 
-class PluginManager(object):
+class AddonManager(object):
 
     def __init__(self, mw):
         self.mw = mw
@@ -45,7 +45,7 @@ class PluginManager(object):
         dir = self.mw.config.confDir
         if isWin:
             dir = dir.encode(sys.getfilesystemencoding())
-        return os.path.join(dir, "plugins")
+        return os.path.join(dir, "addons")
 
     def clearPluginCache(self):
         "Clear .pyc files which may cause crashes if Python version updated."

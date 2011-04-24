@@ -41,7 +41,7 @@ class AnkiQt(QMainWindow):
             self.setup()
             splash.update()
             # load plugins
-            self.setupPlugins()
+            self.setupAddons()
             splash.update()
             # show main window
             splash.finish(self)
@@ -254,9 +254,9 @@ title="%s">%s</button>''' % (
         if self.appUpdated:
             self.config['version'] = aqt.appVersion
 
-    def setupPlugins(self):
-        import aqt.plugins
-        self.pluginManager = aqt.plugins.PluginManager(self)
+    def setupAddons(self):
+        import aqt.addons
+        self.addonManager = aqt.addons.AddonManager(self)
 
     def setupThreads(self):
         self._mainThread = QThread.currentThread()

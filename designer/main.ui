@@ -71,23 +71,11 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="menuDownload">
-     <property name="title">
-      <string>&amp;Download</string>
-     </property>
-     <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
-     </property>
-     <addaction name="actionOpenOnline"/>
-     <addaction name="separator"/>
-     <addaction name="actionDownloadSharedDeck"/>
-     <addaction name="actionDownloadSharedPlugin"/>
-    </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionOpenRecent"/>
-    <addaction name="menuDownload"/>
+    <addaction name="actionOpenOnline"/>
+    <addaction name="actionDownloadSharedDeck"/>
     <addaction name="actionImport"/>
     <addaction name="separator"/>
     <addaction name="actionRename"/>
@@ -141,6 +129,7 @@
       <addaction name="actionDisableAllPlugins"/>
       <addaction name="separator"/>
      </widget>
+     <addaction name="actionDownloadSharedPlugin"/>
      <addaction name="actionOpenPluginFolder"/>
      <addaction name="separator"/>
      <addaction name="menuStartup"/>
@@ -565,7 +554,7 @@
      <normaloff>:/icons/document-open-remote.png</normaloff>:/icons/document-open-remote.png</iconset>
    </property>
    <property name="text">
-    <string>Personal Deck...</string>
+    <string>Open Synced...</string>
    </property>
    <property name="iconText">
     <string>AnkiWeb</string>
@@ -580,7 +569,7 @@
      <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
    </property>
    <property name="text">
-    <string>Shared Deck...</string>
+    <string>Open Shared...</string>
    </property>
    <property name="iconText">
     <string>Download</string>
@@ -591,7 +580,7 @@
   </action>
   <action name="actionDownloadSharedPlugin">
    <property name="text">
-    <string>Shared Plugin...</string>
+    <string>Download Shared...</string>
    </property>
    <property name="statusTip">
     <string>Download a plugin to add new features or change Anki's behaviour</string>

@@ -142,7 +142,7 @@ create table if not exists config (conf text not null);
     def _addAnkiDirs(self):
         base = self.confDir
         for x in (base,
-                  os.path.join(base, "plugins"),
+                  os.path.join(base, "addons"),
                   os.path.join(base, "backups")):
             try:
                 os.mkdir(x)
