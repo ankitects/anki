@@ -559,7 +559,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             f.addTag("leech")
             f.flush()
             # handle
-            a = conf['leechAction'][0]
+            a = conf['leechAction']
             if a == 0:
                 self.suspendCards([card.id])
                 card.queue = -1

@@ -7,21 +7,21 @@ from anki.utils import intTime
 
 defaultConf = {
     'new': {
-        'delays': [0.5, 3, 10],
+        'delays': [1, 10],
         'ints': [1, 7, 4],
         'initialFactor': 2500,
     },
     'lapse': {
-        'delays': [0.5, 3, 10],
+        'delays': [1, 10],
         'mult': 0,
         'minInt': 1,
         'relearn': True,
         'leechFails': 16,
-        # [type, data], where type 0=suspend, 1=tagonly
-        'leechAction': [0],
+        # type 0=suspend, 1=tagonly
+        'leechAction': 0,
     },
     'cram': {
-        'delays': [0.5, 3, 10],
+        'delays': [1, 5, 10],
         'resched': True,
         'reset': True,
         'mult': 0,

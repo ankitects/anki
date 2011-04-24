@@ -27,7 +27,7 @@ defaultQconf = {
     'newOrder': 1,
     'newSpread': NEW_CARDS_DISTRIBUTE,
     'revOrder': REV_CARDS_RANDOM,
-    'collapseTime': 600,
+    'collapseTime': 1200,
     'repLim': 0,
     'timeLim': 600,
 }

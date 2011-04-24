@@ -79,8 +79,7 @@ def test_newBoxes():
     d.reset()
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
-    d.sched.answerCard(c, 2)
-    assert c.grade == 2
+    assert c.grade == 1
     d.sched._cardConf(c)['new']['delays'] = [0.5]
     # should handle gracefully
     d.sched.answerCard(c, 2)
@@ -97,6 +96,7 @@ def test_learn():
     # sched.getCard should return it, since it's due in the past
     c = d.sched.getCard()
     assert c
+    d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
     # it should have no cycles and a grade of 0
     assert c.grade == c.cycles == 0
     # fail it
@@ -277,6 +277,8 @@ def test_nextIvl():
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addFact(f)
     c = f.cards()[0]
+    d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
+    d.sched._cardConf(c)['lapse']['delays'] = [0.5, 3, 10]
     # cards in learning
     ##################################################
     ni = d.sched.nextIvl
@@ -394,6 +396,7 @@ def test_cram():
     conf['resched'] = False
     assert d.sched.counts() == (1, 0, 0)
     c = d.sched.getCard()
+    d.sched._cardConf(c)['cram']['delays'] = [0.5, 3, 10]
     assert d.sched.counts() == (0, 0, 0)
     # check that estimates work
     assert d.sched.nextIvl(c, 1) == 30
