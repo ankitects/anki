@@ -85,6 +85,7 @@ class AnkiQt(QMainWindow):
         self.setupUpgrade()
         self.setupCardStats()
         self.setupSchema()
+        self.updateTitleBar()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -107,7 +108,6 @@ class AnkiQt(QMainWindow):
         self.disableDeckMenuItems()
         self.closeAllDeckWindows()
         self.deckBrowser.show()
-        self.updateTitleBar()
 
     def _deckLoadingState(self, oldState):
         "Run once, when deck is loaded."
@@ -329,9 +329,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             if not ret:
                 showWarning(_("Unable to load file."))
                 self.deck = None
-            else:
-                self.updateRecentFiles(file)
-                self.browserLastRefreshed = 0
         getFile(self, _("Open deck"), accept, filter, dir)
 
     def maybeLoadLastDeck(self, args):
@@ -346,14 +343,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             r = self.loadDeck(path, showErrors=False)
             if r:
                 return r
-
-    def updateRecentFiles(self, path):
-        "Add the current deck to the list of recent files."
-        path = os.path.normpath(path)
-        if path in self.config['recentDeckPaths']:
-            self.config['recentDeckPaths'].remove(path)
-        self.config['recentDeckPaths'].insert(0, path)
-        self.config.save()
 
     # Open recent
     ##########################################################################
@@ -429,7 +418,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                     return
         self.loadDeck(path)
         if register:
-            self.updateRecentFiles(self.deck.path)
+            self.config.addRecentDeck(self.deck.path)
 
     # Closing
     ##########################################################################
@@ -517,39 +506,28 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onRename(self):
         "Rename deck."
-        return showInfo("now yet implemented")
-        print "rename"
-        return
-        title = _("Rename Deck")
-        if self.deck.path:
-            dir = os.path.dirname(self.deck.path)
-        else:
-            dir = self.config['documentDir']
-        file = QFileDialog.getSaveFileName(self, title,
+        dir = os.path.dirname(self.deck.path)
+        path = QFileDialog.getSaveFileName(self, _("Rename Deck"),
                                            dir,
                                            _("Deck files (*.anki)"),
                                            None,
                                            QFileDialog.DontConfirmOverwrite)
-        file = unicode(file)
-        if not file:
+        path = unicode(path)
+        if not path:
             return
-        if not file.lower().endswith(".anki"):
-            file += ".anki"
-        if self.deck.path:
-            if os.path.abspath(file) == os.path.abspath(self.deck.path):
-                return self.onSave()
-        if os.path.exists(file):
-            # check for existence after extension
+        if not path.lower().endswith(".anki"):
+            path += ".anki"
+        if os.path.abspath(path) == os.path.abspath(self.deck.path):
+            return
+        if os.path.exists(path):
             if not askUser(
-                "This file exists. Are you sure you want to overwrite it?"):
+                "Selected file exists. Overwrite it?"):
                 return
-        self.closeAllDeckWindows()
-        self.deck = self.deck.saveAs(file)
-        self.updateTitleBar()
-        self.updateRecentFiles(self.deck.path)
-        self.browserLastRefreshed = 0
-        self.moveToState("initial")
-        return file
+        old = self.deck.path
+        self.deck.rename(path)
+        self.config.addRecentDeck(path)
+        self.config.delRecentDeck(old)
+        return path
 
     # App exit
     ##########################################################################
@@ -814,6 +792,8 @@ Please choose a new deck name:"""))
         "Cstats",
         "StudyOptions",
         "Overview",
+        "Groups",
+        "Models",
         )
 
     def setupMenus(self):
@@ -872,23 +852,7 @@ Please choose a new deck name:"""))
         self.enableDeckMenuItems(enabled=False)
 
     def updateTitleBar(self):
-        "Display the current deck and card count in the titlebar."
-        title=aqt.appName
-        if self.deck:
-            deckpath = self.deck.name()
-            if not self.config['showProgress']:
-                title = deckpath + " - " + title
-            else:
-                title = _("%(path)s (%(due)d of %(cards)d due)"
-                          " - %(title)s") % {
-                    "path": deckpath,
-                    "title": title,
-                    "cards": self.deck.cardCount,
-                    "due": self.deck.failedSoonCount + self.deck.revCount
-                    }
-        else:
-            title += " - " + _("Decks")
-        self.setWindowTitle(title)
+        self.setWindowTitle(aqt.appName)
 
     def disableCardMenuItems(self):
         self.maybeEnableUndo()
