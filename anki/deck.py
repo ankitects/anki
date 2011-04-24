@@ -41,16 +41,6 @@ defaultConf = {
     'nextGid': 2,
     'nextGcid': 2,
     'mediaURL': "",
-    'latexPre': """\
-\\documentclass[12pt]{article}
-\\special{papersize=3in,5in}
-\\usepackage[utf8]{inputenc}
-\\usepackage{amssymb,amsmath}
-\\pagestyle{empty}
-\\setlength{\\parindent}{0in}
-\\begin{document}
-""",
-    'latexPost': "\\end{document}",
     'fontFamilies': [
         [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
     ],

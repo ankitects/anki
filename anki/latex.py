@@ -33,17 +33,17 @@ def stripLatex(text):
 def mungeQA(html, type, fields, model, gname, data, deck):
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(html):
-        html = html.replace(match.group(), _imgLink(deck, match.group(1)))
+        html = html.replace(match.group(), _imgLink(deck, match.group(1), model))
     for match in regexps['expression'].finditer(html):
         html = html.replace(match.group(), _imgLink(
-            deck, "$" + match.group(1) + "$"))
+            deck, "$" + match.group(1) + "$", model))
     for match in regexps['math'].finditer(html):
         html = html.replace(match.group(), _imgLink(
             deck,
-            "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}"))
+            "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}", model))
     return html
 
-def _imgLink(deck, latex):
+def _imgLink(deck, latex, model):
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(deck, latex)
     fname = "latex-%s.png" % checksum(txt)
@@ -53,7 +53,7 @@ def _imgLink(deck, latex):
     elif not build:
         return "[latex]"+latex+"[/latex]"
     else:
-        err = _buildImg(deck, txt, fname)
+        err = _buildImg(deck, txt, fname, model)
         if err:
             return err
         else:
@@ -69,11 +69,11 @@ def _latexFromHtml(deck, latex):
     latex = latex.encode("utf-8")
     return latex
 
-def _buildImg(deck, latex, fname):
+def _buildImg(deck, latex, fname, model):
     # add header/footer
-    latex = (deck.conf["latexPre"] + "\n" +
+    latex = (model.conf["latexPre"] + "\n" +
              latex + "\n" +
-             deck.conf["latexPost"])
+             model.conf["latexPost"])
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
     texfile = file(namedtmp("tmp.tex"), "w")

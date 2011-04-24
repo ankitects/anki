@@ -15,6 +15,16 @@ defaultConf = {
     'gid': 1,
     'tags': [],
     'clozectx': False,
+    'latexPre': """\
+\\documentclass[12pt]{article}
+\\special{papersize=3in,5in}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amssymb,amsmath}
+\\pagestyle{empty}
+\\setlength{\\parindent}{0in}
+\\begin{document}
+""",
+    'latexPost': "\\end{document}",
 }
 
 defaultField = {
