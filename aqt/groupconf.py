@@ -56,7 +56,7 @@ class GroupConf(QDialog):
         f.lapMult.setValue(c['mult']*100)
         f.lapMinInt.setValue(c['minInt'])
         f.leechThreshold.setValue(c['leechFails'])
-        f.leechAction.setCurrentIndex(c['leechAction'][0])
+        f.leechAction.setCurrentIndex(c['leechAction'])
         f.lapRelearn.setChecked(c['relearn'])
         # rev
         c = self.conf['rev']
@@ -113,7 +113,7 @@ class GroupConf(QDialog):
         c['mult'] = f.lapMult.value()/100.0
         c['minInt'] = f.lapMinInt.value()
         c['leechFails'] = f.leechThreshold.value()
-        c['leechAction'][0] = f.leechAction.currentIndex()
+        c['leechAction'] = f.leechAction.currentIndex()
         c['relearn'] = f.lapRelearn.isChecked()
         # rev
         c = self.conf['rev']
