@@ -35,8 +35,6 @@ class Overview(object):
             self._linkHandler("study")
         elif txt == "c":
             self._linkHandler("cram")
-        elif txt == "d":
-            self._linkHandler("list")
         else:
             return
         return True
@@ -51,8 +49,6 @@ class Overview(object):
             self.mw.moveToState("review")
         elif url == "opts":
             self.mw.onStudyOptions()
-        elif url == "list":
-            self.mw.close()
         elif url == "chgrp":
             self.mw.onGroups()
 
