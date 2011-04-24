@@ -111,6 +111,7 @@ create table if not exists fsums (
 
 create table if not exists models (
     id              integer primary key,
+    crt             integer not null,
     mod             integer not null,
     name            text not null,
     flds            text not null,
@@ -314,7 +315,7 @@ from facts order by created""")
     import anki.models
     _moveTable(db, "models")
     db.execute("""
-insert into models select id, cast(modified as int),
+insert into models select id, cast(created as int), cast(modified as int),
 name, "{}", "{}", ?, "" from models2""", simplejson.dumps(
     anki.models.defaultConf))
     db.execute("drop table models2")
