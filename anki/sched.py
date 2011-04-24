@@ -327,7 +327,11 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         self._logLrn(card, ease, conf, leaving, type)
 
     def _delayForGrade(self, conf, grade):
-        return conf['delays'][grade]*60
+        try:
+            delay = conf['delays'][grade]
+        except IndexError:
+            delay = conf['delays'][-1]
+        return delay*60
 
     def _lrnConf(self, card):
         conf = self._cardConf(card)

@@ -71,6 +71,20 @@ def test_newOrder():
     # cards should be sorted by id
     assert d.sched.newQueue == list(reversed(sorted(d.sched.newQueue)))
 
+def test_newBoxes():
+    d = getEmptyDeck()
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 2)
+    d.sched.answerCard(c, 2)
+    assert c.grade == 2
+    d.sched._cardConf(c)['new']['delays'] = [0.5]
+    # should handle gracefully
+    d.sched.answerCard(c, 2)
+
 def test_learn():
     d = getEmptyDeck()
     # add a fact
