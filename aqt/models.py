@@ -37,11 +37,14 @@ class Models(QDialog):
         c(b, s, self.onRename)
         b = box.addButton(_("Delete"), t)
         c(b, s, self.onDelete)
+        b = box.addButton(_("Advanced..."), t)
+        c(b, s, self.onAdvanced)
         c(f.modelsList, SIGNAL("currentRowChanged(int)"), self.modelChanged)
         c(f.modelsList, SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
           self.onRename)
         self.updateModelsList()
         f.modelsList.setCurrentRow(0)
+        maybeHideClose(box)
 
     def onRename(self):
         txt = getText(_("New name?"), default=self.model.name)
@@ -106,6 +109,16 @@ class Models(QDialog):
         self.deck.delModel(self.model.id)
         self.model = None
         self.updateModelsList()
+
+    def onAdvanced(self):
+        d = QDialog(self)
+        frm = aqt.forms.modelopts.Ui_Dialog()
+        frm.setupUi(d)
+        frm.latexHeader.setText(self.model.conf['latexPre'])
+        frm.latexFooter.setText(self.model.conf['latexPost'])
+        d.exec_()
+        self.model.conf['latexPre'] = unicode(frm.latexHeader.toPlainText())
+        self.model.conf['latexPost'] = unicode(frm.latexFooter.toPlainText())
 
     def saveModel(self):
         self.model.flush()

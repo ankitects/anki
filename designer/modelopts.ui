@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Deck Options</string>
+   <string>Model Options</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -22,63 +22,38 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Basic</string>
+       <string>LaTeX</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_6">
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="doSync">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Synchronize this deck with AnkiWeb</string>
+          <string>Header</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="whatsThis">
-          <string>label</string>
-         </property>
-         <property name="text">
-          <string>&lt;b&gt;Synchronization&lt;/b&gt;</string>
-         </property>
-         <property name="scaledContents">
-          <bool>false</bool>
-         </property>
-         <property name="wordWrap">
+       <item>
+        <widget class="QTextEdit" name="latexHeader">
+         <property name="tabChangesFocus">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <layout class="QGridLayout" name="gridLayout_3">
-         <property name="spacing">
-          <number>4</number>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Footer</string>
          </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Media URL</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="mediaURL"/>
-         </item>
-        </layout>
+        </widget>
        </item>
-       <item row="3" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+       <item>
+        <widget class="QTextEdit" name="latexFooter">
+         <property name="tabChangesFocus">
+          <bool>true</bool>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -98,9 +73,9 @@
  </widget>
  <tabstops>
   <tabstop>qtabwidget</tabstop>
-  <tabstop>doSync</tabstop>
-  <tabstop>mediaURL</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>latexHeader</tabstop>
+  <tabstop>latexFooter</tabstop>
  </tabstops>
  <resources/>
  <connections>

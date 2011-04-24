@@ -27,9 +27,6 @@ class DeckOptions(QDialog):
         # syncing
         self.form.doSync.setChecked(self.d.syncingEnabled())
         self.form.mediaURL.setText(self.d.conf['mediaURL'])
-        # latex
-        self.form.latexHeader.setText(self.d.conf['latexPre'])
-        self.form.latexFooter.setText(self.d.conf['latexPost'])
 
     def helpRequested(self):
         aqt.openHelp("DeckOptions")
@@ -51,9 +48,6 @@ class DeckOptions(QDialog):
             if not url.endswith("/"):
                 url += "/"
         self.d.conf['mediaURL'] = url
-        # latex
-        self.d.conf['latexPre'] = unicode(self.form.latexHeader.toPlainText())
-        self.d.conf['latexPost'] = unicode(self.form.latexFooter.toPlainText())
         QDialog.reject(self)
         if needSync:
             aqt.mw.syncDeck(interactive=-1)
