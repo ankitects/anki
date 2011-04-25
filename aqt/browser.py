@@ -3,9 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sre_constants
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from PyQt4.QtWebKit import QWebPage
+from aqt.qt import *
 import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
@@ -69,37 +67,37 @@ class DeckModel(QAbstractTableModel):
 
     def data(self, index, role):
         if not index.isValid():
-            return QVariant()
+            return
         if role == Qt.FontRole:
             f = QFont()
             f.setPixelSize(self.browser.mw.config['editFontSize'])
-            return QVariant(f)
+            return f
         if role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
             if index.column() > 1:
                 align |= Qt.AlignHCenter
-            return QVariant(align)
+            return align
         elif role == Qt.DisplayRole or role == Qt.EditRole:
-            return QVariant(self.columnData(index))
+            return self.columnData(index)
         else:
-            return QVariant()
+            return
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Vertical:
-            return QVariant()
+            return
         elif role == Qt.DisplayRole:
             type = self.columnType(section)
             for stype, name in self.browser.columns:
                 if type == stype:
                     txt = name
                     break
-            return QVariant(txt)
+            return txt
         elif role == Qt.FontRole:
             f = QFont()
             f.setPixelSize(10)
-            return QVariant(f)
+            return f
         else:
-            return QVariant()
+            return
 
     def flags(self, index):
         return Qt.ItemFlag(Qt.ItemIsEnabled |
@@ -435,7 +433,7 @@ class Browser(QMainWindow):
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
         self.compModel = QStringListModel()
-        self.compModel.setStringList(QStringList(self.mw.config['searchHistory']))
+        self.compModel.setStringList(self.mw.config['searchHistory'])
         self.searchComp = QCompleter(self.compModel, self.form.searchEdit)
         self.searchComp.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
         self.searchComp.setCaseSensitivity(Qt.CaseInsensitive)
@@ -448,7 +446,7 @@ class Browser(QMainWindow):
         if txt not in sh:
             sh.insert(0, txt)
             sh = sh[:30]
-            self.compModel.setStringList(QStringList(sh))
+            self.compModel.setStringList(sh)
             self.mw.config['searchHistory'] = sh
         self.model.search(txt, reset)
         if not self.model.cards:
@@ -1096,7 +1094,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
         d.setWindowModality(Qt.WindowModal)
-        frm.field.addItems(QStringList([_("All Fields")] + fields))
+        frm.field.addItems([_("All Fields")] + fields)
         self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
                      self.onFindReplaceHelp)
         if not d.exec_():
@@ -1162,7 +1160,7 @@ select fm.id, fm.name from fieldmodels fm""")
         names = byName.keys()
         names.sort()
         alldata = [(byName[n], n) for n in names] + data
-        dialog.searchArea.addItems(QStringList([d[1] for d in alldata]))
+        dialog.searchArea.addItems([d[1] for d in alldata])
         # links
         dialog.webView.page().setLinkDelegationPolicy(
             QWebPage.DelegateAllLinks)
@@ -1382,12 +1380,11 @@ class ChangeModel(QDialog):
         l = QGridLayout()
         combos = []
         targets = [x['name'] for x in dst] + [_("Nothing")]
-        qtargets = QStringList(targets)
         indices = {}
         for i, x in enumerate(src):
             l.addWidget(QLabel(_("Change %s to:") % x['name']), i, 0)
             cb = QComboBox()
-            cb.addItems(qtargets)
+            cb.addItems(targets)
             idx = min(i, len(targets)-1)
             cb.setCurrentIndex(idx)
             indices[cb] = idx

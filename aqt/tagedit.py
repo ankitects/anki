@@ -1,8 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 from anki.utils import parseTags, canonifyTags, joinTags
 import re, sys
 
@@ -29,13 +28,13 @@ class TagEdit(QLineEdit):
             l = self.deck.tagList()
         else:
             l = self.deck.groups()
-        self.model.setStringList(QStringList(l))
+        self.model.setStringList(l)
 
     def addTags(self, tags):
         l = list(set([unicode(x) for x in list(self.model.stringList())] +
                  tags))
         l.sort(key=lambda x: x.lower())
-        self.model.setStringList(QStringList(l))
+        self.model.setStringList(l)
 
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
@@ -56,7 +55,7 @@ class TagCompleter(QCompleter):
         self.tags.append(u"")
         p = self.edit.cursorPosition()
         self.cursor = str.count(" ", 0, p)
-        return QStringList(self.tags[self.cursor])
+        return self.tags[self.cursor]
 
     def pathFromIndex(self, idx):
         if self.cursor is None:

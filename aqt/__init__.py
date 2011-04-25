@@ -2,8 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from aqt.qt import *
 
 appName="Anki"
 appVersion="1.99"

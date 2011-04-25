@@ -3,8 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys, os, re, traceback
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from aqt.qt import *
 from aqt.utils import showInfo, showWarning, openFolder, isWin
 from anki.hooks import runHook
 

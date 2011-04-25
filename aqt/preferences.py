@@ -3,8 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 from anki.lang import langs
 from aqt.utils import openFolder, showWarning
 import aqt
@@ -60,12 +59,11 @@ class Preferences(QDialog):
         self.form.retranslateUi(self)
 
     def setupMedia(self):
-        self.form.mediaChoice.addItems(
-            QStringList([
+        self.form.mediaChoice.addItems([
             _("Keep media next to deck"),
             _("Keep media in DropBox"),
             _("Keep media in custom folder"),
-            ]))
+            ])
         if not self.config['mediaLocation']:
             idx = 0
         elif self.config['mediaLocation'] == "dropbox":

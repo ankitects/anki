@@ -4,8 +4,7 @@
 
 import time, os, stat, shutil, re
 from operator import itemgetter
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from aqt.qt import *
 from anki import Deck
 from anki.utils import fmtTimeSpan
 from anki.hooks import addHook

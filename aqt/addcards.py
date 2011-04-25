@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 import sys, re
 import aqt.forms
 import anki

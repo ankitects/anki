@@ -6,9 +6,7 @@ import os, sys, re, stat, traceback, signal
 import shutil, time, zipfile
 from operator import itemgetter
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4 import pyqtconfig
+from aqt.qt import *
 QtConfig = pyqtconfig.Configuration()
 
 from anki import Deck
@@ -355,7 +353,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
              if not self.deck or self.deck.path != x and
              os.path.exists(x)])
         self.switchDecks.sort()
-        combo.addItems(QStringList([x[0] for x in self.switchDecks]))
+        combo.addItems([x[0] for x in self.switchDecks])
         self.connect(combo, SIGNAL("activated(int)"),
                      self.onSwitchActivated)
         vbox.addWidget(combo)

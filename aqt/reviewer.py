@@ -4,8 +4,7 @@
 
 import time, os, stat, shutil, difflib, simplejson
 import unicodedata as ucd
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, hasSound

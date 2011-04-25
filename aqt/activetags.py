@@ -1,8 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 import aqt
 from anki.utils import parseTags, joinTags, canonifyTags
 from aqt.ui.utils import saveGeom, restoreGeom

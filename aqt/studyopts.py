@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from aqt.qt import *
 import datetime, time, aqt
 
 class StudyOptions(QDialog):
@@ -20,11 +19,11 @@ class StudyOptions(QDialog):
     def setup(self):
         import anki.consts as c
         self.form.newOrder.insertItems(
-            0, QStringList(c.newCardOrderLabels().values()))
+            0, c.newCardOrderLabels().values())
         self.form.newSpread.insertItems(
-            0, QStringList(c.newCardSchedulingLabels().values()))
+            0, c.newCardSchedulingLabels().values())
         self.form.revOrder.insertItems(
-            0, QStringList(c.revCardOrderLabels().values()))
+            0, c.revCardOrderLabels().values())
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
                      lambda: aqt.openHelp("StudyOptions"))

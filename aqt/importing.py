@@ -2,8 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, copy, time, sys, re, traceback
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 import anki
 import anki.importing as importing
 from aqt.ui.utils import getOnlyText

@@ -1,8 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 from operator import attrgetter
 from anki import stdmodels
 from anki.lang import ngettext
@@ -94,8 +93,7 @@ class ModelChooser(QHBoxLayout):
         self.models.clear()
         self._models = sorted(self.deck.models().values(),
                               key=attrgetter("name"))
-        self.models.addItems(QStringList(
-            [m.name for m in self._models]))
+        self.models.addItems([m.name for m in self._models])
         for c, m in enumerate(self._models):
             if m.id == self.deck.conf['currentModelId']:
                 self.models.setCurrentIndex(c)

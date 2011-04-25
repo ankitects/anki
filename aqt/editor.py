@@ -2,9 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from PyQt4.QtWebKit import QWebView, QWebPage
+from aqt.qt import *
 import re, os, sys, urllib2, ctypes, simplejson, traceback
 from anki.utils import stripHTML, parseTags, isWin, namedtmp
 from anki.sound import play

@@ -1,9 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from PyQt4.QtWebKit import QWebPage, QWebView
+from aqt.qt import *
 import re
 from anki.consts import *
 import aqt
@@ -114,13 +112,12 @@ class CardLayout(QDialog):
                      linkClicked)
         if self.plastiqueStyle:
             f.background.setStyle(self.plastiqueStyle)
-        f.alignment.addItems(
-                QStringList(alignmentLabels().values()))
+        f.alignment.addItems(alignmentLabels().values())
         self.typeFieldNames = self.model.fieldMap()
         s = [_("Don't ask me to type in the answer")]
         s += [_("Compare with field '%s'") % fi
               for fi in self.typeFieldNames.keys()]
-        f.typeAnswer.insertItems(0, QStringList(s))
+        f.typeAnswer.insertItems(0, s)
 
     def formatToScreen(self, fmt):
         fmt = fmt.replace("}}<br>", "}}\n")
@@ -177,8 +174,7 @@ class CardLayout(QDialog):
                 idx = n
             else:
                 cards.append(c.template()['name'])
-        self.form.cardList.addItems(
-            QStringList(cards))
+        self.form.cardList.addItems(cards)
         self.form.cardList.setCurrentIndex(idx)
         self.cardChanged(idx)
         self.form.cardList.setFocus()

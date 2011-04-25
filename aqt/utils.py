@@ -1,8 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 import re, os, sys, urllib, time
 import aqt
 from anki.sound import playFromText, stripSounds
@@ -188,7 +187,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     t = QLabel(prompt)
     l.addWidget(t)
     c = QListWidget()
-    c.addItems(QStringList(choices))
+    c.addItems(choices)
     c.setCurrentRow(startrow)
     l.addWidget(c)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)

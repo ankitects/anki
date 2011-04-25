@@ -1,8 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import *
 import anki, aqt
 from anki.exporting import exporters as exporters_
 from anki.utils import parseTags
@@ -31,8 +30,7 @@ class ExportDialog(QDialog):
         self.exec_()
 
     def setup(self):
-        self.dialog.format.insertItems(
-            0, QStringList(list(zip(*exporters())[0])))
+        self.dialog.format.insertItems(0, list(zip(*exporters())[0]))
         self.connect(self.dialog.format, SIGNAL("activated(int)"),
                      self.exporterChanged)
         self.exporterChanged(0)
