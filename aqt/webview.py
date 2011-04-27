@@ -101,7 +101,7 @@ class AnkiWebView(QWebView):
     def _jsErr(self, msg, line, srcID):
         sys.stderr.write(_("JS error on line %d: %s") % (line, msg+"\n"))
     def _linkHandler(self, url):
-        self.linkHandler(unicode(url.toString()))
+        self.linkHandler(url.toString())
     def _loadFinished(self):
         self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
         if self._loadFinishedCB:

@@ -992,8 +992,7 @@ sync will overwrite any remote changes. Continue?"""))
             if isWin:
                 s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
                 s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-                p = os.path.join(unicode(s.value("Personal").toString()),
-                                 "My Dropbox")
+                p = os.path.join(s.value("Personal"), "My Dropbox")
             else:
                 p = os.path.expanduser("~/Dropbox")
         return p
@@ -1168,7 +1167,7 @@ It can take a long time. Proceed?""")):
         if isWin:
             s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
             s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-            d = unicode(s.value("Personal").toString())
+            d = s.value("Personal")
             if os.path.exists(d):
                 d = os.path.join(d, "Anki")
             else:

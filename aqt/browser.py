@@ -1206,7 +1206,7 @@ select fm.id, fm.name from fieldmodels fm""")
         self.deck.finishProgress()
 
     def dupeLinkClicked(self, link):
-        self.form.searchEdit.setText(str(link.toString()))
+        self.form.searchEdit.setText(link.toString())
         self.onSearch()
         self.onFact()
 

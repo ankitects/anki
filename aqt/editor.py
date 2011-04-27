@@ -808,7 +808,7 @@ class EditorWebView(AnkiWebView):
             if not oldmime.hasHtml() and oldmime.hasUrls():
                 # qt gives it to us twice
                 txt += '<img src="%s">' % os.path.basename(
-                    unicode(oldmime.urls()[0].toString()))
+                    oldmime.urls()[0].toString())
                 mime.setHtml(txt)
             else:
                 mime.setHtml(oldmime.html())
@@ -874,7 +874,7 @@ class EditorWebView(AnkiWebView):
     def _processUrls(self, mime):
         links = []
         for url in mime.urls():
-            url = unicode(url.toString())
+            url = url.toString()
             link = self._retrieveURL(url)
             if link:
                 links.append(link)
