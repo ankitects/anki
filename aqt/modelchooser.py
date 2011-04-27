@@ -128,7 +128,7 @@ class ModelChooser(QHBoxLayout):
             if template['actv']:
                 action.setChecked(True)
             action.setText(template['name'])
-            self.connect(action, SIGNAL("activated()"),
+            self.connect(action, SIGNAL("triggered()"),
                          lambda t=template: \
                          self.toggleTemplate(t))
             m.addAction(action)

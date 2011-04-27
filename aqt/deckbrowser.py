@@ -248,10 +248,10 @@ a { font-size: 80%; }
         m = QMenu(self.mw)
         # hide
         a = m.addAction(QIcon(":/icons/edit-undo.png"), _("Hide From List"))
-        a.connect(a, SIGNAL("activated()"), lambda n=n: self._hideRow(n))
+        a.connect(a, SIGNAL("triggered()"), lambda n=n: self._hideRow(n))
         # delete
         a = m.addAction(QIcon(":/icons/editdelete.png"), _("Delete"))
-        a.connect(a, SIGNAL("activated()"), lambda n=n: self._deleteRow(n))
+        a.connect(a, SIGNAL("triggered()"), lambda n=n: self._deleteRow(n))
         m.exec_(QCursor.pos())
 
     def _hideRow(self, c):
