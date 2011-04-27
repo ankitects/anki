@@ -6,7 +6,7 @@ import simplejson
 from aqt.qt import *
 from anki.consts import NEW_CARDS_RANDOM
 from anki.hooks import addHook
-from aqt.utils import limitedCount
+from aqt.utils import limitedCount, showInfo
 
 class Overview(object):
     "Deck overview."
@@ -44,8 +44,9 @@ class Overview(object):
             self.mw.deck.reset()
             self.mw.moveToState("review")
         elif url == "cram":
-            self.mw.deck.cramGroups()
-            self.mw.moveToState("review")
+            return showInfo("not yet implemented")
+            #self.mw.deck.cramGroups()
+            #self.mw.moveToState("review")
         elif url == "opts":
             self.mw.onStudyOptions()
         elif url == "chgrp":

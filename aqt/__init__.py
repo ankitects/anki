@@ -138,7 +138,7 @@ def run():
     rd = runningDir
     if isMac and getattr(sys, 'frozen', None):
         rd = os.path.abspath(runningDir + "/../../..")
-        QCoreApplication.setLibraryPaths(QStringList([rd]))
+        QCoreApplication.setLibraryPaths([rd])
 
     # create the app
     app = AnkiApp(sys.argv)
