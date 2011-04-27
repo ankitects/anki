@@ -5,7 +5,7 @@
 from aqt.qt import *
 import os
 from aqt.webview import AnkiWebView
-from aqt.utils import saveGeom, restoreGeom, maybeHideClose
+from aqt.utils import saveGeom, restoreGeom, maybeHideClose, openFolder
 from anki.utils import namedtmp
 from anki.hooks import addHook
 import aqt
@@ -109,7 +109,7 @@ class DeckStats(QDialog):
         painter.end()
         image.save(path, "png")
         p.setViewportSize(oldsize)
-        QDesktopServices.openUrl(QUrl("file://" + path))
+        openFolder(path)
 
     def changePeriod(self, n):
         self.period = n
