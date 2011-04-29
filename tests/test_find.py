@@ -110,6 +110,8 @@ def test_findCards():
     assert len(deck.findCards("helloworld", full=True)) == 1
     assert len(deck.findCards("front:helloworld")) == 0
     assert len(deck.findCards("front:helloworld", full=True)) == 1
+    # searching for an invalid special tag should not error
+    assert len(deck.findCards("is:invalid")) == 0
 
 def test_findReplace():
     deck = getEmptyDeck()

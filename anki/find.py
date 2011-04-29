@@ -157,7 +157,10 @@ order by %s""" % (lim, sort)
             cond = "c.id in (select id from cards order by mod desc limit 100)"
         if neg:
             cond = "not (%s)" % cond
-        self.lims['card'].append(cond)
+        if cond:
+            self.lims['card'].append(cond)
+        else:
+            self.lims['valid'] = False
 
     def _findText(self, val, neg, c):
         val = val.replace("*", "%")
