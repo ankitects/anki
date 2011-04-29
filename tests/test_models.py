@@ -119,7 +119,7 @@ def test_cloze():
     # try with one cloze
     f['Text'] = "hello {{c1::world}}"
     assert d.addFact(f) == 1
-    assert "hello <span class=cloze>...</span>" in f.cards()[0].q()
+    assert "hello <span class=cloze>[...]</span>" in f.cards()[0].q()
     # the default is no context
     assert "<span class=cloze>world</span>" in f.cards()[0].a()
     assert "hello <span class=cloze>world</span>" not in f.cards()[0].a()
@@ -130,16 +130,16 @@ def test_cloze():
     f = d.newFact()
     f['Text'] = "hello {{c1::world::typical}}"
     assert d.addFact(f) == 1
-    assert "<span class=cloze>...(typical)</span>" in f.cards()[0].q()
+    assert "<span class=cloze>[...(typical)]</span>" in f.cards()[0].q()
     assert "<span class=cloze>world</span>" in f.cards()[0].a()
     # and with 2 clozes
     f = d.newFact()
     f['Text'] = "hello {{c1::world}} {{c2::bar}}"
     assert d.addFact(f) == 2
     (c1, c2) = f.cards()
-    assert "<span class=cloze>...</span> bar" in c1.q()
+    assert "<span class=cloze>[...]</span> bar" in c1.q()
     assert "<span class=cloze>world</span> bar" in c1.a()
-    assert "world <span class=cloze>...</span>" in c2.q()
+    assert "world <span class=cloze>[...]</span>" in c2.q()
     assert "world <span class=cloze>bar</span>" in c2.a()
     # if there are multiple answers for a single cloze, they are given in a
     # list
