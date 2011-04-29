@@ -249,7 +249,7 @@ group by day order by day""" % (self._limit(), lim),
         tot = totd[-1][1]
         period = self._periodDays()
         if not period:
-            period = first
+            period = self.deck.sched.today - first + 1
         i = []
         self._line(i, _("Days studied"),
                    _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
