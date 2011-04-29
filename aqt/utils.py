@@ -381,7 +381,11 @@ def tooltip(msg, period=3000):
 def closeTooltip():
     global _tooltipLabel, _tooltipTimer
     if _tooltipLabel:
-        _tooltipLabel.deleteLater()
+        try:
+            _tooltipLabel.deleteLater()
+        except:
+            # already deleted as parent window closed
+            pass
         _tooltipLabel = None
     if _tooltipTimer:
         _tooltipTimer.stop()
