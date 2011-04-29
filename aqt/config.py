@@ -100,7 +100,7 @@ create table if not exists config (conf text not null);
     def recentDecks(self):
         "Return a list of paths to remembered decks."
         # have to convert to unicode manually because of the text factory
-        return [unicode(d[0]) for d in
+        return [unicode(d[0], 'utf8') for d in
                 self.db.execute("select path from decks")]
 
     def addRecentDeck(self, path):
