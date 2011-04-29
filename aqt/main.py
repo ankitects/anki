@@ -505,8 +505,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         path = QFileDialog.getSaveFileName(self, _("Rename Deck"),
                                            dir,
                                            _("Deck files (*.anki)"),
-                                           None,
-                                           QFileDialog.DontConfirmOverwrite)
+                                           options=QFileDialog.DontConfirmOverwrite)
         path = unicode(path)
         if not path:
             return
