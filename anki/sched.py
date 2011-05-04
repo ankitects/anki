@@ -810,6 +810,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         fids = self.deck.db.list(
             ("select distinct fid from cards where type = 0 and id in %s "
              "order by fid") % scids)
+        if not fids:
+            # no new cards
+            return
         # determine fid ordering
         due = {}
         if shuffle:
