@@ -97,9 +97,9 @@ qconf, conf, data from deck""")
         self.conf = simplejson.loads(self.conf)
         self.data = simplejson.loads(self.data)
 
-    def flush(self):
+    def flush(self, mod=None):
         "Flush state to DB, updating mod time."
-        self.mod = intTime()
+        self.mod = intTime() if mod is None else mod
         self.db.execute(
             """update deck set
 crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?,
@@ -109,9 +109,9 @@ qconf=?, conf=?, data=?""",
             simplejson.dumps(self.qconf),
             simplejson.dumps(self.conf), simplejson.dumps(self.data))
 
-    def save(self, name=None):
+    def save(self, name=None, mod=None):
         "Flush, commit DB, and take out another write lock."
-        self.flush()
+        self.flush(mod=mod)
         self.db.commit()
         self.lock()
         self._markOp(name)
