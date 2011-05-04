@@ -50,6 +50,7 @@ class Scheduler(object):
             # put it in the learn queue
             card.queue = 1
             card.type = 1
+            self.deck.qconf['newToday'][1] += 1
         if card.queue == 1:
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
