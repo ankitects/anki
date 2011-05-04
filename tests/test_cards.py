@@ -53,12 +53,10 @@ def test_delete():
     f['Back'] = u'2'
     deck.addFact(f)
     cid = f.cards()[0].id
-    # when the schema is dirty, deletion should be immediate
-    assert deck.schemaChanged() == True
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
     assert deck.db.scalar("select count() from revlog") == 1
-    deck.delCard(cid)
+    deck.delCards([cid])
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
     assert deck.db.scalar("select count() from facts") == 0
@@ -68,26 +66,10 @@ def test_delete():
     # add the fact back
     deck.addFact(f)
     assert deck.cardCount() == 1
-    # mark the schema as clean
-    deck.lastSync = deck.scm + 1
-    # and deck as syncable
-    deck.syncName = "abc"
-    # cards/facts should go in the deletion log instead
     cid = f.cards()[0].id
-    deck.delCard(cid)
+    deck.delCards([cid])
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
-    assert deck.db.scalar("select count() from facts") == 1
-    assert deck.db.scalar("select count() from cards") == 1
-    assert deck.db.scalar("select 1 from cards where crt = 0") == 1
-    assert deck.db.scalar("select 1 from facts where crt = 0") == 1
-    assert deck.db.scalar("select queue from cards") == -4
-    # modifying the schema should empty the trash
-    deck.modSchema()
-    assert deck.cardCount() == 0
-    assert deck.factCount() == 0
-    assert deck.db.scalar("select count() from facts") == 0
-    assert deck.db.scalar("select count() from cards") == 0
 
 def test_misc():
     d = getEmptyDeck()

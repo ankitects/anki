@@ -135,6 +135,12 @@ create table if not exists gconf (
     conf            text not null
 );
 
+create table if not exists graves (
+    time            integer not null,
+    oid             integer not null,
+    type            integer not null
+);
+
 create table if not exists revlog (
     time            integer primary key,
     cid             integer not null,

@@ -152,8 +152,6 @@ qconf=?, conf=?, data=?""",
         if not self.schemaChanged():
             if check and not runFilter("modSchema", True):
                 raise AnkiError("abortSchemaMod")
-            # next sync will be full
-            self.emptyTrash()
         self.scm = intTime()
 
     def schemaChanged(self):
@@ -213,11 +211,18 @@ qconf=?, conf=?, data=?""",
         self.modelCache = {}
         self.sched.reset()
 
+    # Deletion logging
+    ##########################################################################
+
+    def _logDels(self, ids, type):
+        self.db.executemany("insert into graves values (%d, ?, %d)" % (
+            intTime(), type), ([x] for x in ids))
+
     # Facts
     ##########################################################################
 
     def factCount(self):
-        return self.db.scalar("select count() from facts where crt != 0")
+        return self.db.scalar("select count() from facts")
 
     def newFact(self):
         "Return a new fact with the current model."
@@ -251,13 +256,7 @@ qconf=?, conf=?, data=?""",
         strids = ids2str(ids)
         self.db.execute("delete from facts where id in %s" % strids)
         self.db.execute("delete from fsums where fid in %s" % strids)
-
-    def _delDanglingFacts(self):
-        "Delete any facts without cards. Don't call this directly."
-        ids = self.db.list("""
-select id from facts where id not in (select distinct fid from cards)""")
-        self._delFacts(ids)
-        return ids
+        self._logDels(ids, DEL_FACT)
 
     # Card creation
     ##########################################################################
@@ -341,41 +340,23 @@ select id from facts where id not in (select distinct fid from cards)""")
     ##########################################################################
 
     def cardCount(self):
-        return self.db.scalar("select count() from cards where crt != 0")
-
-    def delCard(self, id):
-        "Delete a card given its id. Delete any unused facts."
-        self.delCards([id])
+        return self.db.scalar("select count() from cards")
 
     def delCards(self, ids):
         "Bulk delete cards by ID."
         if not ids:
             return
         sids = ids2str(ids)
-        if self.schemaChanged():
-            # immediate delete?
-            self.db.execute("delete from cards where id in %s" % sids)
-            self.db.execute("delete from revlog where cid in %s" % sids)
-            # remove any dangling facts
-            self._delDanglingFacts()
-        else:
-            # trash
-            sfids = ids2str(
-                self.db.list("select fid from cards where id in "+sids))
-            # need to handle delete of fsums/revlog remotely after sync
-            self.db.execute(
-                "update cards set crt = 0, queue = -4, mod = ? where id in "+sids,
-                intTime())
-            self.db.execute(
-                "update facts set crt = 0, mod = ? where id in "+sfids,
-                intTime())
-            self.db.execute("delete from fsums where fid in "+sfids)
-            self.db.execute("delete from revlog where cid in "+sids)
-
-    def emptyTrash(self):
-        self.db.executescript("""
-delete from facts where id in (select fid from cards where queue = -4);
-delete from cards where queue = -4;""")
+        fids = self.db.list("select fid from cards where id in "+sids)
+        # remove cards
+        self.db.execute("delete from cards where id in "+sids)
+        self.db.execute("delete from revlog where cid in "+sids)
+        self._logDels(ids, DEL_CARD)
+        # then facts
+        fids = self.db.list("""
+select id from facts where id in %s and id not in (select fid from cards)""" %
+                     ids2str(fids))
+        self._delFacts(fids)
 
     # Models
     ##########################################################################
@@ -783,6 +764,10 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
         problems = []
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
+        # delete any facts with missing cards
+        ids = self.db.list("""
+select id from facts where id not in (select distinct fid from cards)""")
+        self._delFacts(ids)
         # tags
         self.db.execute("delete from tags")
         self.updateFactTags()
