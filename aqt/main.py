@@ -133,9 +133,10 @@ class AnkiQt(QMainWindow):
 
     def reset(self, type="all", *args):
         "Called for non-trivial edits. Rebuilds queue and updates UI."
-        self.deck.reset()
-        runHook("reset")
-        self.moveToState(self.state)
+        if self.deck:
+            self.deck.reset()
+            runHook("reset")
+            self.moveToState(self.state)
 
     def requireReset(self, modal=False):
         "Signal queue needs to be rebuilt when edits are finished or by user."
