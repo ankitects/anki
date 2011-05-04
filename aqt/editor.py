@@ -919,7 +919,7 @@ class EditorWebView(AnkiWebView):
 
     def _retrieveURL(self, url):
         # is it media?
-        ext = name.split(".")[-1].lower()
+        ext = url.split(".")[-1].lower()
         if ext not in pics and ext not in audio:
             return
         # fetch it into a temporary folder
