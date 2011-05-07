@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import time
 from anki.db import DB
 from anki.consts import *
 from tests.shared import getEmptyDeck
@@ -63,13 +64,18 @@ def test_delete():
     assert deck.db.scalar("select count() from cards") == 0
     assert deck.db.scalar("select count() from fsums") == 0
     assert deck.db.scalar("select count() from revlog") == 0
+    assert deck.db.scalar("select count() from graves") == 0
     # add the fact back
     deck.addFact(f)
     assert deck.cardCount() == 1
     cid = f.cards()[0].id
+    # delete again, this time with syncing enabled
+    deck.syncName = "abc"
+    deck.lastSync = time.time()
     deck.delCards([cid])
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
+    assert deck.db.scalar("select count() from graves") != 0
 
 def test_misc():
     d = getEmptyDeck()

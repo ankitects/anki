@@ -215,6 +215,15 @@ qconf=?, conf=?, data=?""",
     ##########################################################################
 
     def _logDels(self, ids, type):
+        if not self.syncingEnabled():
+            # no deletion log required if deck not syncable
+            return
+        # limit ids to those created prior to last sync
+        tbl = "cards" if type == DEL_CARD else "facts"
+        ids = self.db.list(
+            "select id from %s where crt < ? and id in %s" % (
+                tbl, ids2str(ids)), self.lastSync)
+        # log
         self.db.executemany("insert into graves values (%d, ?, %d)" % (
             intTime(), type), ([x] for x in ids))
 
@@ -254,9 +263,9 @@ qconf=?, conf=?, data=?""",
         if not ids:
             return
         strids = ids2str(ids)
+        self._logDels(ids, DEL_FACT)
         self.db.execute("delete from facts where id in %s" % strids)
         self.db.execute("delete from fsums where fid in %s" % strids)
-        self._logDels(ids, DEL_FACT)
 
     # Card creation
     ##########################################################################
@@ -349,9 +358,9 @@ qconf=?, conf=?, data=?""",
         sids = ids2str(ids)
         fids = self.db.list("select fid from cards where id in "+sids)
         # remove cards
+        self._logDels(ids, DEL_CARD)
         self.db.execute("delete from cards where id in "+sids)
         self.db.execute("delete from revlog where cid in "+sids)
-        self._logDels(ids, DEL_CARD)
         # then facts
         fids = self.db.list("""
 select id from facts where id in %s and id not in (select fid from cards)""" %
