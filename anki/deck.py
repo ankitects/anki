@@ -258,11 +258,17 @@ qconf=?, conf=?, data=?""",
             ncards += 1
         return ncards
 
+    def delFacts(self, ids):
+        self.delCards(self.db.list("select id from cards where fid in "+
+                                   ids2str(ids)))
+
     def _delFacts(self, ids):
         "Bulk delete facts by ID. Don't call this directly."
         if not ids:
             return
         strids = ids2str(ids)
+        # we need to log these independently of cards, as one side may have
+        # more card templates
         self._logDels(ids, DEL_FACT)
         self.db.execute("delete from facts where id in %s" % strids)
         self.db.execute("delete from fsums where fid in %s" % strids)
@@ -382,12 +388,12 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
         return mods
 
     def addModel(self, model):
+        self.modSchema()
         model.flush()
         self.conf['currentModelId'] = model.id
 
     def delModel(self, mid):
         "Delete MODEL, and all its cards/facts."
-        # do a direct delete
         self.modSchema()
         # delete facts/cards
         self.delCards(self.db.list("""
