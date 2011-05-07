@@ -11,9 +11,13 @@ from anki.errors import *
 #from anki.facts import Fact
 #from anki.cards import Card
 from anki.utils import ids2str, checksum
+from anki.consts import *
 #from anki.media import mediaFiles
 from anki.lang import _
 from hooks import runHook
+
+
+# - need to add tags table syncing
 
 if simplejson.__version__ < "1.7.3":
     raise Exception("SimpleJSON must be 1.7.3 or later.")
@@ -25,58 +29,15 @@ SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 KEYS = ("models", "facts", "cards", "media")
 
-# - need to add tags table syncing
-
-##########################################################################
-# Monkey-patch httplib to incrementally send instead of chewing up large
-# amounts of memory, and track progress.
-
-sendProgressHook = None
-
-def incrementalSend(self, strOrFile):
-    if self.sock is None:
-        if self.auto_open:
-            self.connect()
-        else:
-            raise NotConnected()
-    if self.debuglevel > 0:
-        print "send:", repr(str)
-    try:
-        if (isinstance(strOrFile, str) or
-            isinstance(strOrFile, unicode)):
-            self.sock.sendall(strOrFile)
-        else:
-            cnt = 0
-            t = time.time()
-            while 1:
-                if sendProgressHook and time.time() - t > 1:
-                    sendProgressHook(cnt)
-                    t = time.time()
-                data = strOrFile.read(CHUNK_SIZE)
-                cnt += len(data)
-                if not data:
-                    break
-                self.sock.sendall(data)
-    except socket.error, v:
-        if v[0] == 32:      # Broken pipe
-            self.close()
-        raise
-
-httplib.HTTPConnection.send = incrementalSend
-
-def fullSyncProgressHook(cnt):
-    runHook("fullSyncProgress", "fromLocal", cnt)
-
 ##########################################################################
 
-class SyncTools(object):
+class Syncer(object):
 
     def __init__(self, deck=None):
         self.deck = deck
         self.diffs = {}
-        self.serverExcludedTags = []
         self.timediff = 0
-        self.fullThreshold = 2000
+        self.fullThreshold = 5000
 
     # Control
     ##########################################################################
@@ -186,362 +147,200 @@ class SyncTools(object):
         self.deck.db.refresh(self.deck)
         self.deck.currentModel
 
-    # Summaries
+    # Changes
     ##########################################################################
 
-    def summary(self, lastSync):
-        "Generate a full summary of modtimes for two-way syncing."
-        # client may have selected an earlier sync time
+    def deletions(self, lastSync):
+        sql = "select oid from graves where time > ? and type = ?"
+        return [self.deck.db.list(sql, lastSync, DEL_FACT),
+                self.deck.db.list(sql, lastSync, DEL_CARD)]
+
+    def delete(self, deletions):
+        self.deck.delFacts(deletions[0])
+        self.deck.delCards(deletions[1])
+
+    def changes(self, lastSync, deletions=None):
+        # set deck sync time
         self.deck.lastSync = lastSync
         # return early if there's been a schema change
-        if self.deck.getFloat("schemaMod") > lastSync:
+        if self.deck.schemaChanged():
             return None
+        # things to delete?
+        if deletions:
+            self.delete(deletions)
         d = {}
         cats = [
             # cards
             ("cards",
-             "select id, modified from cards where modified > :m"),
-            ("delcards",
-             "select cardId, deletedTime from cardsDeleted "
-             "where deletedTime > :m"),
+             "select * from cards where mod > ?"),
             # facts
             ("facts",
-             "select id, modified from facts where modified > :m"),
-            ("delfacts",
-             "select factId, deletedTime from factsDeleted "
-             "where deletedTime > :m"),
-            # models
-            ("models",
-             "select id, modified from models where modified > :m"),
-            ("delmodels",
-             "select modelId, deletedTime from modelsDeleted "
-             "where deletedTime > :m"),
-            # media
-            ("media",
-             "select id, created from media where created > :m"),
-            ("delmedia",
-             "select mediaId, deletedTime from mediaDeleted "
-             "where deletedTime > :m")
-            ]
+             "select * from facts where mod > ?"),
+            # the rest
+            ("models", "select * from models where mod > ?"),
+            ("revlog", "select * from revlog where time > ?*1000"),
+            ("tags", "select * from tags where mod > ?"),
+            ("gconf", "select * from gconf where mod > ?"),
+            ("groups", "select * from groups where mod > ?"),
+        ]
         for (key, sql) in cats:
             if self.fullThreshold:
                 sql += " limit %d" % self.fullThreshold
-            ret = self.deck.db.all(sql, m=lastSync)
+            ret = self.deck.db.all(sql, lastSync)
             if self.fullThreshold and self.fullThreshold == len(ret):
                 # theshold exceeded, abort early
                 return None
-            d[key] = self.realLists(ret)
+            d[key] = ret
+        d['deck'] = self.deck.db.first("select * from deck")
+        if deletions:
+            # add our deletions
+            d['deletions'] = self.deletions(lastSync)
         return d
+
+    # ID rewriting
+    ##########################################################################
+
+    def rewriteIds(self, remote):
+        "Rewrite local IDs so they don't conflict with server version."
+        conf = simplejson.loads(remote['deck'][9])
+        # cards
+        id = self.deck.db.scalar(
+            "select min(id) from cards where crt > ?", self.deck.lastSync)
+        if id < conf['nextCid']:
+            diff = conf['nextCid'] - id
+            ids = self.deck.db.list(
+                "select id from cards where crt > ?", self.deck.lastSync)
+            sids = ids2str(ids)
+            self.deck.db.execute(
+                "update revlog set cid = cid + ? where cid in "+sids,
+                diff)
+            self.deck.db.execute(
+                "update cards set id = id + ? where id in "+sids,
+                diff)
+        # facts
+        id = self.deck.db.scalar(
+            "select min(id) from facts where crt > ?", self.deck.lastSync)
+        if id < conf['nextFid']:
+            diff = conf['nextFid'] - id
+            ids = self.deck.db.list(
+                "select id from facts where crt > ?", self.deck.lastSync)
+            sids = ids2str(ids)
+            self.deck.db.execute(
+                "update fsums set fid = fid + ? where fid in "+sids,
+                diff)
+            self.deck.db.execute(
+                "update facts set id = id + ? where id in "+sids,
+                diff)
 
     # Diffing
     ##########################################################################
 
-    def diffSummary(self, localSummary, remoteSummary, key):
-        # list of ids on both ends
-        lexists = localSummary[key]
-        ldeleted = localSummary["del"+key]
-        rexists = remoteSummary[key]
-        rdeleted = remoteSummary["del"+key]
-        ldeletedIds = dict(ldeleted)
-        rdeletedIds = dict(rdeleted)
-        # to store the results
-        locallyEdited = []
-        locallyDeleted = []
-        remotelyEdited = []
-        remotelyDeleted = []
-        # build a hash of all ids, with value (localMod, remoteMod).
-        # deleted/nonexisting cards are marked with a modtime of None.
+    def diff(self, local, remote, key, modidx):
         ids = {}
-        for (id, mod) in rexists:
-            ids[id] = [None, mod]
-        for (id, mod) in rdeleted:
-            ids[id] = [None, None]
-        for (id, mod) in lexists:
-            if id in ids:
-                ids[id][0] = mod
+        for type, data, key in [[0, local, key],
+                                [1, remote, key]]:
+            for rec in data[key]:
+                id = rec[0]
+                mod = rec[modidx]
+                if id not in ids or ids[id][1] < mod:
+                    ids[id] = [type, mod, rec]
+        lchanges = []
+        rchanges = []
+        for type, mod, key in ids.values():
+            if type == 0:
+                lchanges.append(key)
             else:
-                ids[id] = [mod, None]
-        for (id, mod) in ldeleted:
-            if id in ids:
-                ids[id][0] = None
-            else:
-                ids[id] = [None, None]
-        # loop through the hash, determining differences
-        for (id, (localMod, remoteMod)) in ids.items():
-            if localMod and remoteMod:
-                # changed/existing on both sides
-                if localMod < remoteMod:
-                    remotelyEdited.append(id)
-                elif localMod > remoteMod:
-                    locallyEdited.append(id)
-            elif localMod and not remoteMod:
-                # if it's missing on server or newer here, sync
-                if (id not in rdeletedIds or
-                    rdeletedIds[id] < localMod):
-                    locallyEdited.append(id)
-                else:
-                    remotelyDeleted.append(id)
-            elif remoteMod and not localMod:
-                # if it's missing locally or newer there, sync
-                if (id not in ldeletedIds or
-                    ldeletedIds[id] < remoteMod):
-                    remotelyEdited.append(id)
-                else:
-                    locallyDeleted.append(id)
-            else:
-                if id in ldeletedIds and id not in rdeletedIds:
-                   locallyDeleted.append(id)
-                elif id in rdeletedIds and id not in ldeletedIds:
-                   remotelyDeleted.append(id)
-        return (locallyEdited, locallyDeleted,
-                remotelyEdited, remotelyDeleted)
-
-    # Models
-    ##########################################################################
-
-    def getModels(self, ids, updateModified=False):
-        return [self.bundleModel(id, updateModified) for id in ids]
-
-    def bundleModel(self, id, updateModified):
-        "Return a model representation suitable for transport."
-        mod = self.deck.db.query(Model).get(id)
-        # force load of lazy attributes
-        mod.fieldModels; mod.cardModels
-        m = self.dictFromObj(mod)
-        m['fieldModels'] = [self.bundleFieldModel(fm) for fm in m['fieldModels']]
-        m['cardModels'] = [self.bundleCardModel(fm) for fm in m['cardModels']]
-        if updateModified:
-            m['modified'] = time.time()
-        return m
-
-    def bundleFieldModel(self, fm):
-        d = self.dictFromObj(fm)
-        if 'model' in d: del d['model']
-        return d
-
-    def bundleCardModel(self, cm):
-        d = self.dictFromObj(cm)
-        if 'model' in d: del d['model']
-        return d
-
-    def updateModels(self, models):
-        for model in models:
-            local = self.getModel(model['id'])
-            # avoid overwriting any existing card/field models
-            fms = model['fieldModels']; del model['fieldModels']
-            cms = model['cardModels']; del model['cardModels']
-            self.applyDict(local, model)
-            self.mergeFieldModels(local, fms)
-            self.mergeCardModels(local, cms)
-        self.deck.db.execute(
-            "delete from modelsDeleted where modelId in %s" %
-            ids2str([m['id'] for m in models]))
-
-    def getModel(self, id, create=True):
-        "Return a local model with same ID, or create."
-        id = int(id)
-        for l in self.deck.models:
-            if l.id == id:
-                return l
-        if not create:
-            return
-        m = Model()
-        self.deck.models.append(m)
-        return m
-
-    def mergeFieldModels(self, model, fms):
-        ids = []
-        for fm in fms:
-            local = self.getFieldModel(model, fm)
-            self.applyDict(local, fm)
-            ids.append(fm['id'])
-        for fm in model.fieldModels:
-            if fm.id not in ids:
-                self.deck.deleteFieldModel(model, fm)
-
-    def getFieldModel(self, model, remote):
-        id = int(remote['id'])
-        for fm in model.fieldModels:
-            if fm.id == id:
-                return fm
-        fm = FieldModel()
-        model.addFieldModel(fm)
-        return fm
-
-    def mergeCardModels(self, model, cms):
-        ids = []
-        for cm in cms:
-            local = self.getCardModel(model, cm)
-            if not 'allowEmptyAnswer' in cm or cm['allowEmptyAnswer'] is None:
-                cm['allowEmptyAnswer'] = True
-            self.applyDict(local, cm)
-            ids.append(cm['id'])
-        for cm in model.cardModels:
-            if cm.id not in ids:
-                self.deck.deleteCardModel(model, cm)
-
-    def getCardModel(self, model, remote):
-        id = int(remote['id'])
-        for cm in model.cardModels:
-            if cm.id == id:
-                return cm
-        cm = CardModel()
-        model.addCardModel(cm)
-        return cm
-
-    def deleteModels(self, ids):
-        for id in ids:
-            model = self.getModel(id, create=False)
-            if model:
-                self.deck.deleteModel(model)
+                rchanges.append(key)
+        return lchanges, rchanges
 
     # Facts
     ##########################################################################
 
-    def getFacts(self, ids, updateModified=False):
-        if updateModified:
-            modified = time.time()
-        else:
-            modified = "modified"
-        factIds = ids2str(ids)
-        return {
-            'facts': self.realLists(self.deck.db.all("""
-select id, modelId, created, %s, tags, spaceUntil, lastCardId from facts
-where id in %s""" % (modified, factIds))),
-            'fields': self.realLists(self.deck.db.all("""
-select id, factId, fieldModelId, ordinal, value, chksum from fields
-where factId in %s""" % factIds))
-            }
+    def diffFacts(self, local, remote):
+        return self.diff(local, remote, 'facts', 4)
 
-    def updateFacts(self, factsdict):
-        facts = factsdict['facts']
-        fields = factsdict['fields']
+    def updateFacts(self, facts):
         if not facts:
             return
-        # update facts first
-        dlist = [{
-            'id': f[0],
-            'modelId': f[1],
-            'created': f[2],
-            'modified': f[3],
-            'tags': f[4],
-            'spaceUntil': f[5] or "",
-            'lastCardId': f[6]
-            } for f in facts]
-        self.deck.db.execute("""
-insert or replace into facts
-(id, modelId, created, modified, tags, spaceUntil, lastCardId)
-values
-(:id, :modelId, :created, :modified, :tags, :spaceUntil, :lastCardId)""", dlist)
-        # now fields
-        def chksum(f):
-            if len(f) > 5:
-                return f[5]
-            return self.deck.fieldChecksum(f[4])
-        dlist = [{
-            'id': f[0],
-            'factId': f[1],
-            'fieldModelId': f[2],
-            'ordinal': f[3],
-            'value': f[4],
-            'chksum': f[5]
-            } for f in fields]
-        # delete local fields since ids may have changed
-        self.deck.db.execute(
-            "delete from fields where factId in %s" %
-            ids2str([f[0] for f in facts]))
-        # then update
-        self.deck.db.execute("""
-insert into fields
-(id, factId, fieldModelId, ordinal, value, chksum)
-values
-(:id, :factId, :fieldModelId, :ordinal, :value, :chksum)""", dlist)
-        self.deck.db.execute(
-            "delete from factsDeleted where factId in %s" %
-            ids2str([f[0] for f in facts]))
-
-    def deleteFacts(self, ids):
-        self.deck.deleteFacts(ids)
+        self.deck.db.executemany(
+            "insert or replace into facts values (?,?,?,?,?,?,?,?,?)", facts)
+        # FIXME: this could be made faster
+        self.deck.updateFieldCache(f[0] for f in facts)
 
     # Cards
     ##########################################################################
 
-    def getCards(self, ids):
-        return self.realLists(self.deck.db.all("""
-select id, factId, cardModelId, created, modified, tags, ordinal,
-priority, interval, lastInterval, due, lastDue, factor,
-firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
-youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
-matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, type, combinedDue, relativeDelay
-from cards where id in %s""" % ids2str(ids)))
+    def diffCards(self, local, remote):
+        return self.diff(local, remote, 'cards', 5)
 
     def updateCards(self, cards):
         if not cards:
             return
-        dlist = [{'id': c[0],
-                  'factId': c[1],
-                  'cardModelId': c[2],
-                  'created': c[3],
-                  'modified': c[4],
-                  'tags': c[5],
-                  'ordinal': c[6],
-                  'priority': c[7],
-                  'interval': c[8],
-                  'lastInterval': c[9],
-                  'due': c[10],
-                  'lastDue': c[11],
-                  'factor': c[12],
-                  'firstAnswered': c[13],
-                  'reps': c[14],
-                  'successive': c[15],
-                  'averageTime': c[16],
-                  'reviewTime': c[17],
-                  'youngEase0': c[18],
-                  'youngEase1': c[19],
-                  'youngEase2': c[20],
-                  'youngEase3': c[21],
-                  'youngEase4': c[22],
-                  'matureEase0': c[23],
-                  'matureEase1': c[24],
-                  'matureEase2': c[25],
-                  'matureEase3': c[26],
-                  'matureEase4': c[27],
-                  'yesCount': c[28],
-                  'noCount': c[29],
-                  'question': c[30],
-                  'answer': c[31],
-                  'lastFactor': c[32],
-                  'spaceUntil': c[33],
-                  'type': c[34],
-                  'combinedDue': c[35],
-                  'rd': c[36],
-                  } for c in cards]
-        self.deck.db.execute("""
-insert or replace into cards
-(id, factId, cardModelId, created, modified, tags, ordinal,
-priority, interval, lastInterval, due, lastDue, factor,
-firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
-youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
-matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, type, combinedDue,
-relativeDelay, isDue)
-values
-(:id, :factId, :cardModelId, :created, :modified, :tags, :ordinal,
-:priority, :interval, :lastInterval, :due, :lastDue, :factor,
-:firstAnswered, :reps, :successive, :averageTime, :reviewTime, :youngEase0,
-:youngEase1, :youngEase2, :youngEase3, :youngEase4, :matureEase0,
-:matureEase1, :matureEase2, :matureEase3, :matureEase4, :yesCount,
-:noCount, :question, :answer, :lastFactor, :spaceUntil,
-:type, :combinedDue, :rd, 0)""", dlist)
-        self.deck.db.execute(
-            "delete from cardsDeleted where cardId in %s" %
-            ids2str([c[0] for c in cards]))
+        self.deck.db.executemany(
+            "insert or replace into cards values "
+            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            cards)
 
-    def deleteCards(self, ids):
-        self.deck.deleteCards(ids)
+    # Models
+    ##########################################################################
 
-    # Deck/history
+    def diffModels(self, local, remote):
+        return self.diff(local, remote, 'models', 2)
+
+    def updateModels(self, models):
+        if not models:
+            return
+        self.deck.db.executemany(
+            "insert or replace into models values (?,?,?,?,?,?,?,?)",
+            models)
+
+    # Groups
+    ##########################################################################
+
+    def diffGroups(self, local, remote):
+        return self.diff(local, remote, 'groups', 1)
+
+    def updateGroups(self, groups):
+        if not groups:
+            return
+        self.deck.db.executemany(
+            "insert or replace into groups values (?,?,?,?,?)",
+            groups)
+
+    # Gconf
+    ##########################################################################
+
+    def diffGconf(self, local, remote):
+        return self.diff(local, remote, 'gconf', 1)
+
+    def updateGconf(self, gconf):
+        if not gconf:
+            return
+        self.deck.db.executemany(
+            "insert or replace into gconf values (?,?,?,?,?)",
+            gconf)
+
+    # Revlog
+    ##########################################################################
+
+    def updateRevlog(self, revlog):
+        if not revlog:
+            return
+        self.deck.db.executemany(
+            "insert or replace into revlog values (?,?,?,?,?,?,?,?)",
+            revlog)
+
+    # Tags
+    ##########################################################################
+
+    def updateTags(self, tags):
+        if not tags:
+            return
+        self.deck.db.executemany(
+            "insert or replace into tags values (?,?,?)",
+            tags)
+
+    # Deck
     ##########################################################################
 
     def bundleDeck(self):
@@ -561,7 +360,7 @@ values
         for k in keys:
             if isinstance(d[k], types.MethodType):
                 del d[k]
-        d['meta'] = self.realLists(self.deck.db.all("select * from deckVars"))
+        d['meta'] = self.deck.db.all("select * from deckVars")
         return d
 
     def updateDeck(self, deck):
@@ -574,198 +373,6 @@ insert or replace into deckVars
             del deck['meta']
         self.applyDict(self.deck, deck)
 
-    def bundleHistory(self):
-        return self.realLists(self.deck.db.all("""
-select * from revlog where time > :ls""",
-            ls=self.deck.lastSync))
-
-    def updateHistory(self, history):
-        dlist = [{'time': h[0],
-                  'cardId': h[1],
-                  'ease': h[2],
-                  'rep': h[3],
-                  'lastInterval': h[4],
-                  'interval': h[5],
-                  'factor': h[6],
-                  'userTime': h[7],
-                  'flags': h[8]} for h in history]
-        if not dlist:
-            return
-        self.deck.db.execute("""
-insert or ignore into revlog values
-(:time, :cardId, :ease, :rep, :lastInterval, :interval, :factor,
- :userTime, :flags)""",
-                               dlist)
-
-    def bundleSources(self):
-        return self.realLists(self.deck.db.all("select * from sources"))
-
-    def updateSources(self, sources):
-        for s in sources:
-            self.deck.db.execute("""
-insert or replace into sources values
-(:id, :name, :created, :lastSync, :syncPeriod)""",
-                                  id=s[0],
-                                  name=s[1],
-                                  created=s[2],
-                                  lastSync=s[3],
-                                  syncPeriod=s[4])
-
-    # Media metadata
-    ##########################################################################
-
-    def getMedia(self, ids):
-        return [tuple(row) for row in self.deck.db.all("""
-select id, filename, size, created, originalPath, description
-from media where id in %s""" % ids2str(ids))]
-
-    def updateMedia(self, media):
-        meta = []
-        for m in media:
-            # build meta
-            meta.append({
-                'id': m[0],
-                'filename': m[1],
-                'size': m[2],
-                'created': m[3],
-                'originalPath': m[4],
-                'description': m[5]})
-        # apply metadata
-        if meta:
-            self.deck.db.execute("""
-insert or replace into media (id, filename, size, created,
-originalPath, description)
-values (:id, :filename, :size, :created, :originalPath,
-:description)""", meta)
-        self.deck.db.execute(
-            "delete from mediaDeleted where mediaId in %s" %
-            ids2str([m[0] for m in media]))
-
-    def deleteMedia(self, ids):
-        sids = ids2str(ids)
-        files = self.deck.db.column0(
-            "select filename from media where id in %s" % sids)
-        self.deck.db.execute("""
-insert into mediaDeleted
-select id, :now from media
-where media.id in %s""" % sids, now=time.time())
-        self.deck.db.execute(
-            "delete from media where id in %s" % sids)
-
-    # One-way syncing (sharing)
-    ##########################################################################
-
-    def syncOneWay(self, lastSync):
-        "Sync two decks one way."
-        payload = self.server.genOneWayPayload(lastSync)
-        self.applyOneWayPayload(payload)
-        self.deck.reset()
-
-    def syncOneWayDeckName(self):
-        return (self.deck.s.scalar("select name from sources where id = :id",
-                                   id=self.server.deckName) or
-                hexifyID(int(self.server.deckName)))
-
-    def prepareOneWaySync(self):
-        "Sync setup. True if sync needed. Not used for local sync."
-        srcID = self.server.deckName
-        (lastSync, syncPeriod) = self.deck.s.first(
-            "select lastSync, syncPeriod from sources where id = :id", id=srcID)
-        if self.server.modified() <= lastSync:
-            return
-        self.deck.lastSync = lastSync
-        return True
-
-    def genOneWayPayload(self, lastSync):
-        "Bundle all added or changed objects since the last sync."
-        p = {}
-        # facts
-        factIds = self.deck.s.column0(
-            "select id from facts where modified > :l", l=lastSync)
-        p['facts'] = self.getFacts(factIds, updateModified=True)
-        # models
-        modelIds = self.deck.s.column0(
-            "select id from models where modified > :l", l=lastSync)
-        p['models'] = self.getModels(modelIds, updateModified=True)
-        # media
-        mediaIds = self.deck.s.column0(
-            "select id from media where created > :l", l=lastSync)
-        p['media'] = self.getMedia(mediaIds)
-        # cards
-        cardIds = self.deck.s.column0(
-            "select id from cards where modified > :l", l=lastSync)
-        p['cards'] = self.realLists(self.getOneWayCards(cardIds))
-        return p
-
-    def applyOneWayPayload(self, payload):
-        keys = [k for k in KEYS if k != "cards"]
-        # model, facts, media
-        for key in keys:
-            self.updateObjsFromKey(payload[key], key)
-        # models need their source tagged
-        for m in payload["models"]:
-            self.deck.s.statement("update models set source = :s "
-                                  "where id = :id",
-                                  s=self.server.deckName,
-                                  id=m['id'])
-        # cards last, handled differently
-        t = time.time()
-        try:
-            self.updateOneWayCards(payload['cards'])
-        except KeyError:
-            sys.stderr.write("Subscribed to a broken deck. "
-                             "Try removing your deck subscriptions.")
-            t = 0
-        # update sync time
-        self.deck.s.statement(
-            "update sources set lastSync = :t where id = :id",
-            id=self.server.deckName, t=t)
-        self.deck.modified = time.time()
-
-    def getOneWayCards(self, ids):
-        "The minimum information necessary to generate one way cards."
-        return self.deck.s.all(
-            "select id, factId, cardModelId, ordinal, created from cards "
-            "where id in %s" % ids2str(ids))
-
-    def updateOneWayCards(self, cards):
-        if not cards:
-            return
-        t = time.time()
-        dlist = [{'id': c[0], 'factId': c[1], 'cardModelId': c[2],
-                  'ordinal': c[3], 'created': c[4], 't': t} for c in cards]
-        # add any missing cards
-        self.deck.s.statements("""
-insert or ignore into cards
-(id, factId, cardModelId, created, modified, tags, ordinal,
-priority, interval, lastInterval, due, lastDue, factor,
-firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
-youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
-matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
-question, answer, lastFactor, spaceUntil, isDue, type, combinedDue,
-relativeDelay)
-values
-(:id, :factId, :cardModelId, :created, :t, "", :ordinal,
-1, 0, 0, :created, 0, 2.5,
-0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0,
-0, 0, 0, 0, 0,
-0, "", "", 2.5, 0, 0, 2, :t, 2)""", dlist)
-        # update q/as
-        models = dict(self.deck.s.all("""
-select cards.id, models.id
-from cards, facts, models
-where cards.factId = facts.id
-and facts.modelId = models.id
-and cards.id in %s""" % ids2str([c[0] for c in cards])))
-        self.deck.s.flush()
-        self.deck.updateCardQACache(
-            [(c[0], c[2], c[1], models[c[0]]) for c in cards])
-        # rebuild priorities on client
-        cardIds = [c[0] for c in cards]
-        self.deck.updateCardTags(cardIds)
-        self.rebuildPriorities(cardIds)
-
     # Tools
     ##########################################################################
 
@@ -776,35 +383,10 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
         return self.deck.lastSync
 
     def unstuff(self, data):
-        "Uncompress and convert to unicode."
         return simplejson.loads(unicode(zlib.decompress(data), "utf8"))
 
     def stuff(self, data):
-        "Convert into UTF-8 and compress."
         return zlib.compress(simplejson.dumps(data))
-
-    def dictFromObj(self, obj):
-        "Return a dict representing OBJ without any hidden db fields."
-        return dict([(k,v) for (k,v) in obj.__dict__.items()
-                     if not k.startswith("_")])
-
-    def applyDict(self, obj, dict):
-        "Apply each element in DICT to OBJ in a way the ORM notices."
-        for (k,v) in dict.items():
-            setattr(obj, k, v)
-
-    def realLists(self, result):
-        "Convert an SQLAlchemy response into a list of real lists."
-        return [list(x) for x in result]
-
-    def getObjsFromKey(self, ids, key):
-        return getattr(self, "get" + key.capitalize())(ids)
-
-    def deleteObjsFromKey(self, ids, key):
-        return getattr(self, "delete" + key.capitalize())(ids)
-
-    def updateObjsFromKey(self, ids, key):
-        return getattr(self, "update" + key.capitalize())(ids)
 
     # Full sync
     ##########################################################################
@@ -935,17 +517,127 @@ and cards.id in %s""" % ids2str([c[0] for c in cards])))
         finally:
             runHook("fullSyncFinished")
 
+#     # One-way syncing (sharing)
+#     ##########################################################################
+
+#     def syncOneWay(self, lastSync):
+#         "Sync two decks one way."
+#         payload = self.server.genOneWayPayload(lastSync)
+#         self.applyOneWayPayload(payload)
+#         self.deck.reset()
+
+#     def syncOneWayDeckName(self):
+#         return (self.deck.s.scalar("select name from sources where id = :id",
+#                                    id=self.server.deckName) or
+#                 hexifyID(int(self.server.deckName)))
+
+#     def prepareOneWaySync(self):
+#         "Sync setup. True if sync needed. Not used for local sync."
+#         srcID = self.server.deckName
+#         (lastSync, syncPeriod) = self.deck.s.first(
+#             "select lastSync, syncPeriod from sources where id = :id", id=srcID)
+#         if self.server.modified() <= lastSync:
+#             return
+#         self.deck.lastSync = lastSync
+#         return True
+
+#     def genOneWayPayload(self, lastSync):
+#         "Bundle all added or changed objects since the last sync."
+#         p = {}
+#         # facts
+#         factIds = self.deck.s.column0(
+#             "select id from facts where modified > :l", l=lastSync)
+#         p['facts'] = self.getFacts(factIds, updateModified=True)
+#         # models
+#         modelIds = self.deck.s.column0(
+#             "select id from models where modified > :l", l=lastSync)
+#         p['models'] = self.getModels(modelIds, updateModified=True)
+#         # media
+#         mediaIds = self.deck.s.column0(
+#             "select id from media where created > :l", l=lastSync)
+#         p['media'] = self.getMedia(mediaIds)
+#         # cards
+#         cardIds = self.deck.s.column0(
+#             "select id from cards where modified > :l", l=lastSync)
+#         p['cards'] = self.getOneWayCards(cardIds)
+#         return p
+
+#     def applyOneWayPayload(self, payload):
+#         keys = [k for k in KEYS if k != "cards"]
+#         # model, facts, media
+#         for key in keys:
+#             self.updateObjsFromKey(payload[key], key)
+#         # models need their source tagged
+#         for m in payload["models"]:
+#             self.deck.s.statement("update models set source = :s "
+#                                   "where id = :id",
+#                                   s=self.server.deckName,
+#                                   id=m['id'])
+#         # cards last, handled differently
+#         t = time.time()
+#         try:
+#             self.updateOneWayCards(payload['cards'])
+#         except KeyError:
+#             sys.stderr.write("Subscribed to a broken deck. "
+#                              "Try removing your deck subscriptions.")
+#             t = 0
+#         # update sync time
+#         self.deck.s.statement(
+#             "update sources set lastSync = :t where id = :id",
+#             id=self.server.deckName, t=t)
+#         self.deck.modified = time.time()
+
+#     def getOneWayCards(self, ids):
+#         "The minimum information necessary to generate one way cards."
+#         return self.deck.s.all(
+#             "select id, factId, cardModelId, ordinal, created from cards "
+#             "where id in %s" % ids2str(ids))
+
+#     def updateOneWayCards(self, cards):
+#         if not cards:
+#             return
+#         t = time.time()
+#         dlist = [{'id': c[0], 'factId': c[1], 'cardModelId': c[2],
+#                   'ordinal': c[3], 'created': c[4], 't': t} for c in cards]
+#         # add any missing cards
+#         self.deck.s.statements("""
+# insert or ignore into cards
+# (id, factId, cardModelId, created, modified, tags, ordinal,
+# priority, interval, lastInterval, due, lastDue, factor,
+# firstAnswered, reps, successive, averageTime, reviewTime, youngEase0,
+# youngEase1, youngEase2, youngEase3, youngEase4, matureEase0,
+# matureEase1, matureEase2, matureEase3, matureEase4, yesCount, noCount,
+# question, answer, lastFactor, spaceUntil, isDue, type, combinedDue,
+# relativeDelay)
+# values
+# (:id, :factId, :cardModelId, :created, :t, "", :ordinal,
+# 1, 0, 0, :created, 0, 2.5,
+# 0, 0, 0, 0, 0, 0,
+# 0, 0, 0, 0, 0,
+# 0, 0, 0, 0, 0,
+# 0, "", "", 2.5, 0, 0, 2, :t, 2)""", dlist)
+#         # update q/as
+#         models = dict(self.deck.s.all("""
+# select cards.id, models.id
+# from cards, facts, models
+# where cards.factId = facts.id
+# and facts.modelId = models.id
+# and cards.id in %s""" % ids2str([c[0] for c in cards])))
+#         self.deck.s.flush()
+#         self.deck.updateCardQACache(
+#             [(c[0], c[2], c[1], models[c[0]]) for c in cards])
+#         # rebuild priorities on client
+#         cardIds = [c[0] for c in cards]
+#         self.deck.updateCardTags(cardIds)
+#         self.rebuildPriorities(cardIds)
+
 # Local syncing
 ##########################################################################
 
+class SyncServer(Syncer):
+    pass
 
-class SyncServer(SyncTools):
-
-    def __init__(self, deck=None):
-        SyncTools.__init__(self, deck)
-
-class SyncClient(SyncTools):
-
+class SyncClient(Syncer):
     pass
 
 # HTTP proxy: act as a server and direct requests to the real server
@@ -1103,3 +795,43 @@ or %(c)s like '%%[sound:%%'""" % {'c': col})
                 shutil.copy2(srcfile, dstfile)
             except IOError, OSError:
                 pass
+
+##########################################################################
+# Monkey-patch httplib to incrementally send instead of chewing up large
+# amounts of memory, and track progress.
+
+sendProgressHook = None
+
+def incrementalSend(self, strOrFile):
+    if self.sock is None:
+        if self.auto_open:
+            self.connect()
+        else:
+            raise NotConnected()
+    if self.debuglevel > 0:
+        print "send:", repr(str)
+    try:
+        if (isinstance(strOrFile, str) or
+            isinstance(strOrFile, unicode)):
+            self.sock.sendall(strOrFile)
+        else:
+            cnt = 0
+            t = time.time()
+            while 1:
+                if sendProgressHook and time.time() - t > 1:
+                    sendProgressHook(cnt)
+                    t = time.time()
+                data = strOrFile.read(CHUNK_SIZE)
+                cnt += len(data)
+                if not data:
+                    break
+                self.sock.sendall(data)
+    except socket.error, v:
+        if v[0] == 32:      # Broken pipe
+            self.close()
+        raise
+
+httplib.HTTPConnection.send = incrementalSend
+
+def fullSyncProgressHook(cnt):
+    runHook("fullSyncProgress", "fromLocal", cnt)
