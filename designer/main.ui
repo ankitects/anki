@@ -219,7 +219,7 @@
      <normaloff>:/icons/view_text.png</normaloff>:/icons/view_text.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Close</string>
+    <string>&amp;Close Deck</string>
    </property>
    <property name="statusTip">
     <string/>
