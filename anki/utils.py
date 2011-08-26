@@ -180,6 +180,15 @@ def ids2str(ids):
     """Given a list of integers, return a string '(int1,int2,...)'."""
     return "(%s)" % ",".join(str(i) for i in ids)
 
+def timestampID(db, table):
+    "Return a non-conflicting timestamp for table."
+    # be careful not to create multiple objects without flushing them, or they
+    # may share an ID.
+    t = intTime(1000)
+    while db.scalar("select id from %s where id = ?" % table, t):
+        t += 1
+    return t
+
 # Tags
 ##############################################################################
 

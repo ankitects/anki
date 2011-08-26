@@ -3,7 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import simplejson
-from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str
+from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
+    timestampID
 from anki.lang import _
 
 # Models
@@ -63,7 +64,7 @@ class Model(object):
             self.id = id
             self.load()
         else:
-            self.id = intTime(1000)
+            self.id = timestampID(deck.db, "models")
             self.name = u""
             self.conf = defaultConf.copy()
             self.css = ""

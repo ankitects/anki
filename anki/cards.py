@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-from anki.utils import intTime, hexifyID
+from anki.utils import intTime, hexifyID, timestampID
 
 # Cards
 ##########################################################################
@@ -28,7 +28,7 @@ class Card(object):
             self.load()
         else:
             # to flush, set fid, ord, and due
-            self.id = intTime(1000)
+            self.id = timestampID(deck.db, "cards")
             self.gid = 1
             self.crt = intTime()
             self.type = 0

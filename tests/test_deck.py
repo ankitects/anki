@@ -2,6 +2,7 @@
 
 import os, re, datetime
 from tests.shared import assertException, getEmptyDeck, testDir
+from anki.stdmodels import BasicModel
 
 from anki import Deck
 
@@ -189,3 +190,11 @@ def test_addDelTags():
     f.load()
     assert f.tags[0] == "aaa"
     assert len(f.tags) == 2
+
+def test_timestamps():
+    deck = getEmptyDeck()
+    assert len(deck.models()) == 2
+    for i in range(100):
+        deck.addModel(BasicModel(deck))
+    assert len(deck.models()) == 102
+    

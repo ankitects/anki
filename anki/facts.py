@@ -6,7 +6,7 @@ import time
 from anki.errors import AnkiError
 from anki.utils import fieldChecksum, intTime, \
     joinFields, splitFields, ids2str, parseTags, canonifyTags, hasTag, \
-    stripHTML
+    stripHTML, timestampID
 
 class Fact(object):
 
@@ -17,7 +17,7 @@ class Fact(object):
             self.id = id
             self.load()
         else:
-            self.id = intTime(1000)
+            self.id = timestampID(deck.db, "facts")
             self._model = model
             self.gid = deck.defaultGroup(model.conf['gid'])
             self.mid = model.id
