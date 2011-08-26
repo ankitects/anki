@@ -252,13 +252,17 @@ from facts order by created""")
     # bold/italics/underline cruft.
     map = {}
     data = []
-    factmap = {}
+    factidmap = {}
+    times = {}
     from anki.utils import minimizeHTML
     for c, row in enumerate(facts):
         oldid = row[0]
         row = list(row)
         # get rid of old created column and update id
-        factmap[row[0]] = row[3]
+        while row[3] in times:
+            row[3] += 1
+        times[row[3]] = True
+        factidmap[row[0]] = row[3]
         row[0] = row[3]
         del row[3]
         map[oldid] = row[0]
@@ -276,7 +280,7 @@ from facts order by created""")
     # it's not unique and update the fact id
     times = {}
     rows = []
-    cardmap = {}
+    cardidmap = {}
     for row in db.execute("""
 select id, cast(created*1000 as int), factId, ordinal,
 cast(modified as int),
@@ -298,9 +302,9 @@ order by created"""):
             row[1] += 1
         times[row[1]] = True
         # rewrite fact id
-        row[2] = factmap[row[2]]
+        row[2] = factidmap[row[2]]
         # note id change and save all but old id
-        cardmap[row[0]] = row[1]
+        cardidmap[row[0]] = row[1]
         rows.append(row[1:])
     # drop old table and rewrite
     db.execute("drop table cards")
@@ -336,7 +340,7 @@ yesCount from reviewHistory"""):
         row = list(row)
         # new card ids
         try:
-            row[1] = cardmap[row[1]]
+            row[1] = cardidmap[row[1]]
         except:
             # id doesn't exist
             continue
