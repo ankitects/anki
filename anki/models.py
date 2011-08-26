@@ -18,7 +18,7 @@ defaultConf = {
     'latexPre': """\
 \\documentclass[12pt]{article}
 \\special{papersize=3in,5in}
-\\usepackage[utf8]{inputenc}
+\\usepackage[utf8x]{inputenc}
 \\usepackage{amssymb,amsmath}
 \\pagestyle{empty}
 \\setlength{\\parindent}{0in}
