@@ -215,9 +215,6 @@ qconf=?, conf=?, data=?""",
     ##########################################################################
 
     def _logDels(self, ids, type):
-        if not self.syncingEnabled():
-            # no deletion log required if deck not syncable
-            return
         # limit ids to those created prior to last sync
         tbl = "cards" if type == DEL_CARD else "facts"
         ids = self.db.list(
