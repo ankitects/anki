@@ -33,10 +33,9 @@ def Deck(path, queue=True, lock=True):
     if ver < CURRENT_VERSION:
         _upgradeDeck(deck, ver)
     elif create:
-        deck.addModel(BasicModel(deck))
+        # add in reverse order so basic is default
         deck.addModel(ClozeModel(deck))
-        # default to basic
-        deck.conf['currentModelId'] = 1
+        deck.addModel(BasicModel(deck))
         deck.save()
     if lock:
         deck.lock()
@@ -111,7 +110,6 @@ create table if not exists fsums (
 
 create table if not exists models (
     id              integer primary key,
-    crt             integer not null,
     mod             integer not null,
     name            text not null,
     flds            text not null,
@@ -321,7 +319,7 @@ from facts order by created""")
     import anki.models
     _moveTable(db, "models")
     db.execute("""
-insert into models select id, cast(created as int), cast(modified as int),
+insert into models select id, cast(created*1000 as int),
 name, "{}", "{}", ?, "" from models2""", simplejson.dumps(
     anki.models.defaultConf))
     db.execute("drop table models2")
@@ -514,9 +512,10 @@ def _fixupModels(deck):
         # update ordinals
         m._updateFieldOrds()
         m._updateTemplOrds()
-        # rewrite id
+        # we've temporarily stored the model creation time in the mod time
         old = m.id
-        m.id = c+1
+        m.id = m.mod
+        m.mod = intTime()
         m.flush()
         deck.db.execute("update facts set mid = ? where mid = ?", m.id, old)
 

@@ -66,7 +66,7 @@ def teardown():
     pass
 
 @nose.with_setup(setup_local, teardown)
-def test_changes():
+def _test_changes():
     deck2.scm = 0
     dels = client.deletions(deck1.lastSync)
     rem = server.changes(deck1.lastSync, dels)

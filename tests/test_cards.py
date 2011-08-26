@@ -3,6 +3,7 @@
 import time
 from anki.db import DB
 from anki.consts import *
+from anki.utils import hexifyID
 from tests.shared import getEmptyDeck
 
 def test_genCards():
@@ -84,7 +85,7 @@ def test_misc():
     f['Back'] = u'2'
     d.addFact(f)
     c = f.cards()[0]
-    assert c.cssClass() == "cm1-0"
+    id = d.conf['currentModelId']
+    assert c.cssClass() == "cm%s-0" % hexifyID(id)
     assert c.fact().id == 1
-    assert c.model().id == 1
     assert c.template()['ord'] == 0

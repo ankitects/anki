@@ -63,24 +63,22 @@ class Model(object):
             self.id = id
             self.load()
         else:
-            self.id = None
+            self.id = intTime(1000)
             self.name = u""
-            self.crt = intTime()
-            self.mod = self.crt
+            self.mod = intTime()
             self.conf = defaultConf.copy()
             self.css = ""
             self.fields = []
             self.templates = []
 
     def load(self):
-        (self.crt,
-         self.mod,
+        (self.mod,
          self.name,
          self.fields,
          self.templates,
          self.conf,
          self.css) = self.deck.db.first("""
-select crt, mod, name, flds, tmpls, conf, css from models where id = ?""", self.id)
+select mod, name, flds, tmpls, conf, css from models where id = ?""", self.id)
         self.fields = simplejson.loads(self.fields)
         self.templates = simplejson.loads(self.templates)
         self.conf = simplejson.loads(self.conf)
@@ -89,8 +87,8 @@ select crt, mod, name, flds, tmpls, conf, css from models where id = ?""", self.
         self.mod = intTime()
         self.css = self.genCSS()
         ret = self.deck.db.execute("""
-insert or replace into models values (?, ?, ?, ?, ?, ?, ?, ?)""",
-                self.id, self.crt, self.mod, self.name,
+insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
+                self.id, self.mod, self.name,
                 simplejson.dumps(self.fields),
                 simplejson.dumps(self.templates),
                 simplejson.dumps(self.conf),

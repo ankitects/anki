@@ -406,6 +406,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
     def allCSS(self):
         return "\n".join(self.db.list("select css from models"))
 
+    def modelId(self, name):
+        return self.db.scalar("select id from models where name = ?", name)
+
     # Field checksums and sorting fields
     ##########################################################################
 

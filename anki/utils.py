@@ -23,8 +23,9 @@ if sys.version_info[1] < 5:
 # Time handling
 ##############################################################################
 
-def intTime():
-    return int(time.time())
+def intTime(scale=1):
+    "The time in integer seconds. Pass scale=1000 to get milliseconds."
+    return int(time.time()*scale)
 
 timeTable = {
     "years": lambda n: ngettext("%s year", "%s years", n),

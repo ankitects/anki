@@ -110,7 +110,7 @@ def test_text():
 
 def test_cloze():
     d = getEmptyDeck()
-    d.conf['currentModelId'] = 2
+    d.conf['currentModelId'] = d.modelId("Cloze")
     f = d.newFact()
     assert f.model().name == "Cloze"
     # a cloze model with no clozes is empty
@@ -162,8 +162,8 @@ def test_cloze():
 
 def test_modelChange():
     deck = getEmptyDeck()
-    basic = deck.getModel(1)
-    cloze = deck.getModel(2)
+    basic = deck.getModel(deck.modelId("Basic"))
+    cloze = deck.getModel(deck.modelId("Cloze"))
     # enable second template and add a fact
     basic.templates[1]['actv'] = True
     basic.flush()
