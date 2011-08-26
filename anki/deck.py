@@ -24,7 +24,7 @@ defaultQconf = {
     'newPerDay': 20,
     'newToday': [0, 0], # currentDay, count
     'newTodayOrder': NEW_TODAY_ORD,
-    'newOrder': 1,
+    'newOrder': NEW_CARDS_DUE,
     'newSpread': NEW_CARDS_DISTRIBUTE,
     'revOrder': REV_CARDS_RANDOM,
     'collapseTime': 1200,
@@ -36,8 +36,7 @@ defaultQconf = {
 defaultConf = {
     'currentModelId': 1,
     'currentGroupId': 1,
-    'nextFid': 1,
-    'nextCid': 1,
+    'nextPos': 1,
     'nextGid': 2,
     'nextGcid': 2,
     'mediaURL': "",
@@ -200,10 +199,11 @@ qconf=?, conf=?, data=?""",
     # Utils
     ##########################################################################
 
-    def nextID(self, type):
+    def nextID(self, type, inc=True):
         type = "next"+type.capitalize()
         id = self.conf.get(type, 1)
-        self.conf[type] = id+1
+        if inc:
+            self.conf[type] = id+1
         return id
 
     def reset(self):
@@ -231,24 +231,25 @@ qconf=?, conf=?, data=?""",
 
     def addFact(self, fact):
         "Add a fact to the deck. Return number of new cards."
-        # check we have card models available
+        # check we have card models available, then save
         cms = self.findTemplates(fact)
         if not cms:
             return 0
-        # flush the fact
-        fact.id = self.nextID("fid")
         fact.flush()
         # randomize?
         if self.randomNew():
-            due = random.randrange(1, fact.id)
+            due = self._randPos()
         else:
-            due = fact.id
+            due = self.nextID("pos")
         # add cards
         ncards = 0
         for template in cms:
             self._newCard(fact, template, due)
             ncards += 1
         return ncards
+
+    def _randPos(self):
+        return random.randrange(1, self.nextID("pos", inc=False))
 
     def delFacts(self, ids):
         self.delCards(self.db.list("select id from cards where fid in "+
@@ -296,7 +297,7 @@ qconf=?, conf=?, data=?""",
             # if this fact has existing new cards, use their due time
             due = self.db.scalar(
                 "select due from cards where fid = ? and queue = 0", fact.id)
-            due = due or random.randrange(1, self.conf['nextFid'])
+            due = due or self._randPos()
         else:
             due = fact.id
         for template in self.findTemplates(fact, checkActive=False):
@@ -331,7 +332,6 @@ qconf=?, conf=?, data=?""",
     def _newCard(self, fact, template, due, flush=True):
         "Create a new card."
         card = anki.cards.Card(self)
-        card.id = self.nextID("cid")
         card.fid = fact.id
         card.ord = template['ord']
         card.gid = self.defaultGroup(template['gid'] or fact.gid)

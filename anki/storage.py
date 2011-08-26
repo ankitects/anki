@@ -572,8 +572,7 @@ update cards set due = cast(
     if deck.randomNew():
         deck.sched.randomizeCards()
     # update insertion id
-    deck.conf['nextFid'] = deck.db.scalar("select max(id) from facts")+1
-    deck.conf['nextCid'] = deck.db.scalar("select max(id) from cards")+1
+    deck.conf['nextPos'] = deck.db.scalar("select max(id) from facts")+1
     deck.save()
 
     # optimize and finish

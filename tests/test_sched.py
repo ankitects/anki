@@ -103,7 +103,7 @@ def test_learn():
     d.sched.answerCard(c, 1)
     # it should by due in 30 seconds
     t = round(c.due - time.time())
-    assert t >= 30 and t <= 40
+    assert t >= 25 and t <= 40
     # and have 1 cycle, but still a zero grade
     assert c.grade == 0
     assert c.cycles == 1
@@ -736,7 +736,7 @@ def test_reorder():
     f2 = d.newFact()
     f2['Front'] = u"two"
     d.addFact(f2)
-    assert f2.cards()[0].due == f2.id
+    assert f2.cards()[0].due == 2
     found=False
     # 50/50 chance of being reordered
     for i in range(20):
@@ -746,7 +746,7 @@ def test_reorder():
             break
     assert found
     d.sched.orderCards()
-    assert f.cards()[0].due == f.id
+    assert f.cards()[0].due == 1
     # shifting
     f3 = d.newFact()
     f3['Front'] = u"three"

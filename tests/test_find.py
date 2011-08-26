@@ -8,6 +8,7 @@ def test_findCards():
     f['Front'] = u'dog'
     f['Back'] = u'cat'
     f.tags.append(u"monkey")
+    f1id = f.id
     deck.addFact(f)
     firstCardId = f.cards()[0].id
     f = deck.newFact()
@@ -15,6 +16,7 @@ def test_findCards():
     f['Back'] = u'sheep'
     f.tags.append(u"sheep goat horse")
     deck.addFact(f)
+    f2id = f.id
     f = deck.newFact()
     f['Front'] = u'cat'
     f['Back'] = u'sheep'
@@ -34,11 +36,11 @@ def test_findCards():
     assert len(deck.findCards("tag:monkey")) == 1
     assert len(deck.findCards("tag:sheep -tag:monkey")) == 1
     assert len(deck.findCards("-tag:sheep")) == 4
-    deck.addTags(deck.db.list("select id from cards"), "foo bar")
+    deck.addTags(deck.db.list("select id from facts"), "foo bar")
     assert (len(deck.findCards("tag:foo")) ==
             len(deck.findCards("tag:bar")) ==
             5)
-    deck.delTags(deck.db.list("select id from cards"), "foo")
+    deck.delTags(deck.db.list("select id from facts"), "foo")
     assert len(deck.findCards("tag:foo")) == 0
     assert len(deck.findCards("tag:bar")) == 5
     # text searches
@@ -67,7 +69,7 @@ def test_findCards():
     # fids
     assert deck.findCards("fid:54321") == []
     assert len(deck.findCards("fid:%d"%f.id)) == 2
-    assert len(deck.findCards("fid:3,2")) == 2
+    assert len(deck.findCards("fid:%d,%d" % (f1id, f2id))) == 2
     # templates
     assert len(deck.findCards("card:foo")) == 0
     assert len(deck.findCards("card:forward")) == 4
