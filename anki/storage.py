@@ -75,7 +75,6 @@ create table if not exists cards (
     fid             integer not null,
     gid             integer not null,
     ord             integer not null,
-    crt             integer not null,
     mod             integer not null,
     type            integer not null,
     queue           integer not null,
@@ -207,22 +206,6 @@ def _moveTable(db, table, cards=False):
     db.execute("drop table "+table)
     _addSchema(db, False)
 
-def _insertWithIdChange(db, map, idx, table, numVals):
-    "Fetching and re-inserting is a lot faster than row by row updates."
-    data = []
-    for row in db.all("select * from %s" % table):
-        row = list(row)
-        try:
-            row[idx] = map[row[idx]]
-            data.append(row)
-        except:
-            # referenced non-existant object
-            pass
-    db.execute("delete from %s" % table)
-    db.executemany(
-        "insert into %s values (?%s)" % (table, ",?"*(numVals-1)),
-        data)
-
 def _upgradeSchema(db):
     "Alter tables prior to ORM initialization."
     try:
@@ -235,30 +218,6 @@ def _upgradeSchema(db):
     if ver > 99:
         return ver
     runHook("1.x upgrade", db)
-
-    # cards
-    ###########
-    # move into temp table
-    _moveTable(db, "cards", True)
-    # use the new order to rewrite card ids
-    cardmap = dict(db.all("select id, rowid from cards2"))
-    # move back, preserving new ids, and rewriting types
-    db.execute("""
-insert into cards select rowid, factId, 1, ordinal, cast(created as int),
-cast(modified as int),
-(case relativeDelay
-when 0 then 1
-when 1 then 2
-when 2 then 0 end),
-(case type
-when 0 then 1
-when 1 then 2
-when 2 then 0
-else type end),
-cast(due as int), cast(interval as int),
-cast(factor*1000 as int), reps, noCount, 0, 0, 0, "" from cards2
-order by created""")
-    db.execute("drop table cards2")
 
     # tags
     ###########
@@ -293,23 +252,62 @@ from facts order by created""")
     # bold/italics/underline cruft.
     map = {}
     data = []
+    factmap = {}
     from anki.utils import minimizeHTML
     for c, row in enumerate(facts):
         oldid = row[0]
         row = list(row)
         # get rid of old created column and update id
+        factmap[row[0]] = row[3]
         row[0] = row[3]
         del row[3]
         map[oldid] = row[0]
         row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
         data.append(row)
-    # use the new order to rewrite fact ids in cards table
-    _insertWithIdChange(db, map, 1, "cards", 17)
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
     db.executemany("insert into facts values (?,?,?,?,?,?,'','')", data)
     db.execute("drop table fields")
+
+    # cards
+    ###########
+    # we need to pull this into memory, to rewrite the creation time if
+    # it's not unique and update the fact id
+    times = {}
+    rows = []
+    cardmap = {}
+    for row in db.execute("""
+select id, cast(created*1000 as int), factId, ordinal,
+cast(modified as int),
+(case relativeDelay
+when 0 then 1
+when 1 then 2
+when 2 then 0 end),
+(case type
+when 0 then 1
+when 1 then 2
+when 2 then 0
+else type end),
+cast(due as int), cast(interval as int),
+cast(factor*1000 as int), reps, noCount from cards
+order by created"""):
+        # find an unused time
+        row = list(row)
+        while row[1] in times:
+            row[1] += 1
+        times[row[1]] = True
+        # rewrite fact id
+        row[2] = factmap[row[2]]
+        # note id change and save all but old id
+        cardmap[row[0]] = row[1]
+        rows.append(row[1:])
+    # drop old table and rewrite
+    db.execute("drop table cards")
+    _addSchema(db, False)
+    db.executemany("""
+insert into cards values (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, "")""",
+                   rows)
 
     # media
     ###########

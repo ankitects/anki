@@ -28,7 +28,7 @@ class Card(object):
             self.load()
         else:
             # to flush, set fid, ord, and due
-            self.id = None
+            self.id = intTime(1000)
             self.gid = 1
             self.crt = intTime()
             self.type = 0
@@ -47,7 +47,6 @@ class Card(object):
          self.fid,
          self.gid,
          self.ord,
-         self.crt,
          self.mod,
          self.type,
          self.queue,
@@ -69,12 +68,11 @@ class Card(object):
         self.deck.db.execute(
             """
 insert or replace into cards values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.fid,
             self.gid,
             self.ord,
-            self.crt,
             self.mod,
             self.type,
             self.queue,

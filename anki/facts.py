@@ -21,7 +21,6 @@ class Fact(object):
             self._model = model
             self.gid = deck.defaultGroup(model.conf['gid'])
             self.mid = model.id
-            self.mod = intTime()
             self.tags = []
             self.fields = [""] * len(self._model.fields)
             self.data = ""

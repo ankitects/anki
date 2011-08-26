@@ -22,7 +22,7 @@ class CardStats(object):
         c = self.card
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%%>"
-        self.addLine(_("Added"), self.date(c.crt))
+        self.addLine(_("Added"), self.date(c.id/1000))
         first = self.deck.db.scalar(
             "select min(time) from revlog where cid = ?", c.id)
         last = self.deck.db.scalar(
@@ -549,10 +549,10 @@ where 1 """ + self._limit())
             self._line(i, _("Average ease factor"), "%d%%" % avg)
             self._line(i, _("Highest ease factor"), "%d%%" % high)
         min = self.deck.db.scalar(
-            "select min(crt) from cards where 1 " + self._limit())
+            "select min(id) from cards where 1 " + self._limit())
         if min:
             self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
-            time.time() - min))
+            time.time() - (min/1000)))
         info = "<table width=100%>" + "".join(i) + "</table><p>"
         info += _('''\
 A card's <i>ease factor</i> is the size of the next interval \

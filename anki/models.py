@@ -65,7 +65,6 @@ class Model(object):
         else:
             self.id = intTime(1000)
             self.name = u""
-            self.mod = intTime()
             self.conf = defaultConf.copy()
             self.css = ""
             self.fields = []
