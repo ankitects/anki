@@ -5,7 +5,8 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import fieldChecksum, intTime, \
-    joinFields, splitFields, ids2str, parseTags, canonifyTags, hasTag
+    joinFields, splitFields, ids2str, parseTags, canonifyTags, hasTag, \
+    stripHTML
 
 class Fact(object):
 
@@ -43,8 +44,7 @@ select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
 
     def flush(self):
         self.mod = intTime()
-        # facts table
-        sfld = self.fields[self._model.sortIdx()]
+        sfld = stripHTML(self.fields[self._model.sortIdx()])
         tags = self.stringTags()
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
