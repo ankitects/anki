@@ -69,7 +69,7 @@ class Finder(object):
             return "select id from cards c where " + lim
         elif type.startswith("fact"):
             if type == "factCrt":
-                sort = "f.crt, c.ord"
+                sort = "f.id, c.ord"
             elif type == "factMod":
                 sort = "f.mod, c.ord"
             elif type == "factFld":

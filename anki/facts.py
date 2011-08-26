@@ -17,12 +17,11 @@ class Fact(object):
             self.id = id
             self.load()
         else:
-            self.id = None
+            self.id = intTime(1000)
             self._model = model
             self.gid = deck.defaultGroup(model.conf['gid'])
             self.mid = model.id
-            self.crt = intTime()
-            self.mod = self.crt
+            self.mod = intTime()
             self.tags = []
             self.fields = [""] * len(self._model.fields)
             self.data = ""
@@ -31,12 +30,11 @@ class Fact(object):
     def load(self):
         (self.mid,
          self.gid,
-         self.crt,
          self.mod,
          self.tags,
          self.fields,
          self.data) = self.deck.db.first("""
-select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
+select mid, gid, mod, tags, flds, data from facts where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = parseTags(self.tags)
         self._model = self.deck.getModel(self.mid)
@@ -47,8 +45,8 @@ select mid, gid, crt, mod, tags, flds, data from facts where id = ?""", self.id)
         sfld = stripHTML(self.fields[self._model.sortIdx()])
         tags = self.stringTags()
         res = self.deck.db.execute("""
-insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                            self.id, self.mid, self.gid, self.crt,
+insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
+                            self.id, self.mid, self.gid,
                             self.mod, tags, self.joinedFields(),
                             sfld, self.data)
         self.id = res.lastrowid

@@ -215,12 +215,7 @@ qconf=?, conf=?, data=?""",
     ##########################################################################
 
     def _logDels(self, ids, type):
-        # limit ids to those created prior to last sync
         tbl = "cards" if type == DEL_CARD else "facts"
-        ids = self.db.list(
-            "select id from %s where crt < ? and id in %s" % (
-                tbl, ids2str(ids)), self.lastSync)
-        # log
         self.db.executemany("insert into graves values (%d, ?, %d)" % (
             intTime(), type), ([x] for x in ids))
 

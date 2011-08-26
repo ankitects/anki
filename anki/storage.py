@@ -94,7 +94,6 @@ create table if not exists facts (
     id              integer primary key,
     mid             integer not null,
     gid             integer not null,
-    crt             integer not null,
     mod             integer not null,
     tags            text not null,
     flds            text not null,
@@ -281,7 +280,7 @@ end)
 """)
     # pull facts into memory, so we can merge them with fields efficiently
     facts = db.all("""
-select id, modelId, 1, cast(created as int), cast(modified as int), tags
+select id, modelId, 1, cast(created*1000 as int), cast(modified as int), tags
 from facts order by created""")
     # build field hash
     fields = {}
@@ -297,9 +296,11 @@ from facts order by created""")
     from anki.utils import minimizeHTML
     for c, row in enumerate(facts):
         oldid = row[0]
-        map[oldid] = c+1
         row = list(row)
-        row[0] = c+1
+        # get rid of old created column and update id
+        row[0] = row[3]
+        del row[3]
+        map[oldid] = row[0]
         row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
         data.append(row)
     # use the new order to rewrite fact ids in cards table
@@ -307,7 +308,7 @@ from facts order by created""")
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
-    db.executemany("insert into facts values (?,?,?,?,?,?,?,'','')", data)
+    db.executemany("insert into facts values (?,?,?,?,?,?,'','')", data)
     db.execute("drop table fields")
 
     # media
