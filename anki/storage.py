@@ -511,12 +511,16 @@ def _fixupModels(deck):
     # rewrite model/template/field ids
     models = deck.models()
     deck.db.execute("delete from models")
+    times = {}
     for c, m in enumerate(models.values()):
         # update ordinals
         m._updateFieldOrds()
         m._updateTemplOrds()
         # we've temporarily stored the model creation time in the mod time
         old = m.id
+        while m.mod in times:
+            m.mod += 1
+        times[m.mod] = True
         m.id = m.mod
         m.mod = intTime()
         m.flush()
