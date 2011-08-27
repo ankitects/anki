@@ -19,7 +19,7 @@ class Fact(object):
         else:
             self.id = timestampID(deck.db, "facts")
             self._model = model
-            self.gid = deck.defaultGroup(model.conf['gid'])
+            self.gid = model.conf['gid']
             self.mid = model.id
             self.tags = []
             self.fields = [""] * len(self._model.fields)

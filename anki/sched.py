@@ -35,7 +35,6 @@ class Scheduler(object):
             return c
 
     def reset(self):
-        self._resetConf()
         self._resetCounts()
         self._resetLrn()
         self._resetRev()
@@ -151,18 +150,23 @@ sum(case when queue = 2 and due <= ? then 1 else 0 end),
 sum(case when queue = 0 then 1 else 0 end)
 from cards group by gid""", self.today):
             gids[gid] = [all, rev, new]
-        return [[name, gid]+gids.get(gid, [0, 0, 0]) for (gid, name) in
-                self.deck.db.execute(
-                    "select id, name from groups order by name")]
+        return [[grp['name'], int(gid)]+gids.get(int(gid), [0, 0, 0])
+                for (gid, grp) in self._orderedGroups()]
+
+    def _orderedGroups(self):
+        grps = self.deck.groups.items()
+        def key(grp):
+            return grp[1]['name']
+        grps.sort(key=key)
+        return grps
 
     def groupCountTree(self):
         return self._groupChildren(self.groupCounts())
 
     def groupTree(self):
         "Like the count tree without the counts. Faster."
-        return self._groupChildren([[name, gid, 0, 0, 0] for (gid, name) in
-                self.deck.db.execute(
-                    "select id, name from groups order by name")])
+        return self._groupChildren([[grp['name'], int(gid), 0, 0, 0]
+                                    for (gid, grp) in self._orderedGroups()])
 
     def _groupChildren(self, grps):
         tree = []
@@ -590,16 +594,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     # Tools
     ##########################################################################
 
-    def _resetConf(self):
-        "Update group conf cache."
-        self.groupConfs = dict(self.deck.db.all("select id, gcid from groups"))
-        self.confCache = {}
-
     def _cardConf(self, card):
-        id = self.groupConfs[card.gid]
-        if id not in self.confCache:
-            self.confCache[id] = self.deck.groupConf(id)
-        return self.confCache[id]
+        return self.deck.groupConf(card.gid)
 
     def _groupLimit(self):
         l = self.deck.qconf['groups']

@@ -133,18 +133,15 @@ def test_upgrade():
 def test_groups():
     deck = getEmptyDeck()
     # we start with a standard group
-    assert len(deck.groups()) == 1
+    assert len(deck.groups) == 1
     # it should have an id of 1
-    assert deck.groupId(deck.groups()[0]) == 1
+    assert deck.groups['1']
     # create a new group
-    assert deck.groupId("new group") == 2
-    assert len(deck.groups()) == 2
+    ts = deck.groupID("new group")
+    assert ts
+    assert len(deck.groups) == 2
     # should get the same id
-    assert deck.groupId("new group") == 2
-    # deleting a group should not recycle ids
-    deck.delGroup(2)
-    assert len(deck.groups()) == 1
-    assert deck.groupId("another group") == 3
+    assert deck.groupID("new group") == ts
     # by default, everything should be shown
     assert not deck.qconf['groups']
 

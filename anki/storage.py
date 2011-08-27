@@ -67,6 +67,8 @@ create table if not exists deck (
     lastSync        integer not null,
     qconf           text not null,
     conf            text not null,
+    groups          text not null,
+    gconf           text not null,
     data            text not null
 );
 
@@ -116,21 +118,6 @@ create table if not exists models (
     css             text not null
 );
 
-create table if not exists groups (
-    id              integer primary key,
-    mod             integer not null,
-    name            text not null,
-    gcid            integer not null,
-    data            text not null
-);
-
-create table if not exists gconf (
-    id              integer primary key,
-    mod             integer not null,
-    name            text not null,
-    conf            text not null
-);
-
 create table if not exists graves (
     time            integer not null,
     oid             integer not null,
@@ -155,23 +142,18 @@ create table if not exists tags (
 );
 
 insert or ignore into deck
-values(1,0,0,0,%(v)s,0,'',0,'', '', '');
+values(1,0,0,0,%(v)s,0,'',0,'','','','','');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
     import anki.groups
-    # create a default group/configuration, which should not be removed
-    db.execute(
-        "insert or ignore into gconf values (1, ?, ?, ?)""",
-        intTime(), _("Default"),
-        simplejson.dumps(anki.groups.defaultConf))
-    db.execute(
-        "insert or ignore into groups values (1, ?, ?, 1, ?)",
-        intTime(), _("Default"), simplejson.dumps(
-            anki.groups.defaultData))
     if setDeckConf:
-        db.execute("update deck set qconf = ?, conf = ?, data = ?",
+        db.execute("""
+update deck set qconf = ?, conf = ?, groups = ?, gconf = ?, data = ?""",
                    simplejson.dumps(anki.deck.defaultQconf),
                    simplejson.dumps(anki.deck.defaultConf),
+                   simplejson.dumps({'1': {'name': _("Default"), 'conf': 1,
+                                       'mod': intTime()}}),
+                   simplejson.dumps({'1': anki.groups.defaultConf}),
                    "{}")
 
 def _updateIndices(db):
@@ -384,7 +366,7 @@ def _migrateDeckTbl(db):
     db.execute("""
 insert or replace into deck select id, cast(created as int), :t,
 :t, 99, 0, ifnull(syncName, ""), cast(lastSync as int),
-"", "", "" from decks""", t=intTime())
+"", "", "", "", "" from decks""", t=intTime())
     # update selective study
     qconf = anki.deck.defaultQconf.copy()
     # delete old selective study settings, which we can't auto-upgrade easily
@@ -415,10 +397,13 @@ insert or replace into deck select id, cast(created as int), :t,
             pass
         else:
             conf[k] = v
-    db.execute("update deck set qconf = :l, conf = :c, data = :d",
+    import anki.groups
+    db.execute("update deck set qconf = :l,conf = :c,data = :d,groups=:g,gconf=:gc",
                l=simplejson.dumps(qconf),
                c=simplejson.dumps(conf),
-               d=simplejson.dumps(data))
+               d=simplejson.dumps(data),
+               g=simplejson.dumps({'1': {'name': _("Default"), 'conf': 1}}),
+               gc=simplejson.dumps({'1': anki.groups.defaultConf}))
     # clean up
     db.execute("drop table decks")
     db.execute("drop table deckVars")

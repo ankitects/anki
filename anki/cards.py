@@ -104,12 +104,10 @@ lapses=?, grade=?, cycles=?, edue=? where id = ?""",
 
     def _getQA(self, reload=False):
         if not self._qa or reload:
-            gname = self.deck.db.scalar(
-                "select name from groups where id = ?", self.gid)
             f = self.fact(); m = self.model()
             data = [self.id, f.id, m.id, self.gid, self.ord, f.stringTags(),
                     f.joinedFields()]
-            self._qa = self.deck._renderQA(self.model(), gname, data)
+            self._qa = self.deck._renderQA(self.model(), data)
         return self._qa
 
     def _withClass(self, txt, extra):

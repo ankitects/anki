@@ -30,7 +30,7 @@ def stripLatex(text):
         text = text.replace(match.group(), "")
     return text
 
-def mungeQA(html, type, fields, model, gname, data, deck):
+def mungeQA(html, type, fields, model, data, deck):
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(html):
         html = html.replace(match.group(), _imgLink(deck, match.group(1), model))

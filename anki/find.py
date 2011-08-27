@@ -121,7 +121,7 @@ order by %s""" % (lim, sort)
             elif type == SEARCH_MODEL:
                 self._findModel(token, isNeg, c)
             elif type == SEARCH_GROUP:
-                self._findGroup(token, isNeg, c)
+                self._findGroup(token, isNeg)
             else:
                 self._findText(token, isNeg, c)
 
@@ -189,12 +189,10 @@ order by %s""" % (lim, sort)
                 extra, c))
         self.lims['args']['_mod_%d'%c] = val
 
-    def _findGroup(self, val, isNeg, c):
-        extra = "not" if isNeg else ""
-        self.lims['card'].append(
-            "c.gid %s in (select id from groups where name like :_grp_%d)" % (
-                extra, c))
-        self.lims['args']['_grp_%d'%c] = val
+    def _findGroup(self, val, isNeg):
+        extra = "!" if isNeg else ""
+        id = self.deck.groupID(val, create=False) or 0
+        self.lims['card'].append("c.gid %s= %d" % (extra, id))
 
     def _findTemplate(self, val, isNeg):
         lims = []

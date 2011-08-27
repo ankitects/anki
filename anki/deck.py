@@ -34,11 +34,7 @@ defaultQconf = {
 
 # other options
 defaultConf = {
-    'currentModelId': 1,
-    'currentGroupId': 1,
     'nextPos': 1,
-    'nextGid': 2,
-    'nextGcid': 2,
     'mediaURL': "",
     'fontFamilies': [
         [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
@@ -89,11 +85,15 @@ class _Deck(object):
          self.lastSync,
          self.qconf,
          self.conf,
+         self.groups,
+         self.gconf,
          self.data) = self.db.first("""
 select crt, mod, scm, dty, syncName, lastSync,
-qconf, conf, data from deck""")
+qconf, conf, groups, gconf, data from deck""")
         self.qconf = simplejson.loads(self.qconf)
         self.conf = simplejson.loads(self.conf)
+        self.groups = simplejson.loads(self.groups)
+        self.gconf = simplejson.loads(self.gconf)
         self.data = simplejson.loads(self.data)
 
     def flush(self, mod=None):
@@ -278,9 +278,9 @@ qconf=?, conf=?, data=?""",
                 # [cid, fid, mid, gid, ord, tags, flds]
                 data = [1, 1, model.id, 1, template['ord'],
                         "", fact.joinedFields()]
-                now = self._renderQA(model, "", data)
+                now = self._renderQA(model, data)
                 data[6] = "\x1f".join([""]*len(fact.fields))
-                empty = self._renderQA(model, "", data)
+                empty = self._renderQA(model, data)
                 if now['q'] == empty['q']:
                     continue
                 if not template['emptyAns']:
@@ -334,7 +334,7 @@ qconf=?, conf=?, data=?""",
         card = anki.cards.Card(self)
         card.fid = fact.id
         card.ord = template['ord']
-        card.gid = self.defaultGroup(template['gid'] or fact.gid)
+        card.gid = template['gid'] or fact.gid
         card.due = due
         if flush:
             card.flush()
@@ -446,12 +446,10 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         else:
             raise Exception()
         mods = self.models()
-        groups = dict(self.db.all("select id, name from groups"))
-        return [self._renderQA(mods[row[2]], groups[row[3]], row)
+        return [self._renderQA(mods[row[2]], row)
                 for row in self._qaData(where)]
 
-    # fixme: don't need gid or data
-    def _renderQA(self, model, gname, data):
+    def _renderQA(self, model, data):
         "Returns hash of id, question, answer."
         # data is [cid, fid, mid, gid, ord, tags, flds]
         # unpack fields and create dict
@@ -466,7 +464,7 @@ select id from cards where fid in (select id from facts where mid = ?)""",
                 fields[name] = ""
         fields['Tags'] = data[5]
         fields['Model'] = model.name
-        fields['Group'] = gname
+        fields['Group'] = self.groupName(data[3])
         template = model.templates[data[4]]
         fields['Template'] = template['name']
         # render q & a
@@ -480,10 +478,10 @@ select id from cards where fid in (select id from facts where mid = ?)""",
                 else:
                     name = "ca:"
                 format = format.replace("cloze:", name)
-            fields = runFilter("mungeFields", fields, model, gname, data, self)
+            fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter(
-                "mungeQA", html, type, fields, model, gname, data, self)
+                "mungeQA", html, type, fields, model, data, self)
         return d
 
     def _qaData(self, where=""):
@@ -552,50 +550,40 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
 
     # Groups
     ##########################################################################
+    # the id keys are strings because that's the way they're stored in json,
+    # but the anki code passes around integers
 
-    def groups(self):
-        "A list of all group names."
-        return self.db.list("select name from groups order by name")
+    def groupID(self, name, create=True):
+        "Add a group with NAME. Reuse group if already exists. Return id."
+        for id, g in self.groups.items():
+            if g['name'].lower() == name.lower():
+                return int(id)
+        if not create:
+            return None
+        g = dict(name=name, conf=1, mod=intTime())
+        while 1:
+            id = intTime(1000)
+            if str(id) in self.groups:
+                continue
+            self.groups[str(id)] = g
+            return id
 
-    def groupName(self, id):
-        return self.db.scalar("select name from groups where id = ?", id)
+    def groupName(self, gid):
+        return self.groups[str(gid)]['name']
 
-    def groupId(self, name):
-        "Return the id for NAME, creating if necessary."
-        id = self.db.scalar("select id from groups where name = ?", name)
-        if not id:
-            id = self.db.execute(
-                "insert into groups values (?,?,?,?, ?)",
-                self.nextID("gid"), intTime(), name, 1,
-                simplejson.dumps(anki.groups.defaultData)).lastrowid
-        return id
-
-    def defaultGroup(self, id):
-        if id == 1:
-            return 1
-        return self.db.scalar("select id from groups where id = ?", id) or 1
+    def groupConf(self, gid):
+        return self.gconf[str(self.groups[str(gid)]['conf'])]
 
     def delGroup(self, gid):
         self.modSchema()
         self.db.execute("update cards set gid = 1 where gid = ?", gid)
         self.db.execute("update facts set gid = 1 where gid = ?", gid)
         self.db.execute("delete from groups where id = ?", gid)
+        print "fixme: loop through models and update stale gid references"
 
     def setGroup(self, cids, gid):
         self.db.execute(
             "update cards set gid = ? where id in "+ids2str(cids), gid)
-
-    # Group configuration
-    ##########################################################################
-
-    def groupConfs(self):
-        "Return [name, id]."
-        return self.db.all("select name, id from gconf order by name")
-
-    def groupConf(self, gcid):
-        return simplejson.loads(
-            self.db.scalar(
-                "select conf from gconf where id = ?", gcid))
 
     # Tag-based selective study
     ##########################################################################

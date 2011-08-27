@@ -582,7 +582,7 @@ def test_ordcycle():
 def test_counts():
     d = getEmptyDeck()
     # add a second group
-    assert d.groupId("new group") == 2
+    assert d.groupID("new group")
     # for each card type
     for type in range(3):
         # and each of the groups
@@ -681,7 +681,7 @@ def test_groupCounts():
     # and one that's a child
     f = d.newFact()
     f['Front'] = u"two"
-    f.gid = d.groupId("Default::1")
+    default1 = f.gid = d.groupID("Default::1")
     d.addFact(f)
     # make it a review card
     c = f.cards()[0]
@@ -691,21 +691,21 @@ def test_groupCounts():
     # add one more with a new group
     f = d.newFact()
     f['Front'] = u"two"
-    f.gid = d.groupId("foo::bar")
+    foobar = f.gid = d.groupID("foo::bar")
     d.addFact(f)
     # and one that's a sibling
     f = d.newFact()
     f['Front'] = u"three"
-    f.gid = d.groupId("foo::baz")
+    foobaz = f.gid = d.groupID("foo::baz")
     d.addFact(f)
     d.reset()
     assert d.sched.counts() == (3, 0, 1)
-    assert len(d.groups()) == 4
+    assert len(d.groups) == 4
     cnts = d.sched.groupCounts()
     assert cnts[0] == ["Default", 1, 1, 0, 1]
-    assert cnts[1] == ["Default::1", 2, 1, 1, 0]
-    assert cnts[2] == ["foo::bar", 3, 1, 0, 1]
-    assert cnts[3] == ["foo::baz", 4, 1, 0, 1]
+    assert cnts[1] == ["Default::1", default1, 1, 1, 0]
+    assert cnts[2] == ["foo::bar", foobar, 1, 0, 1]
+    assert cnts[3] == ["foo::baz", foobaz, 1, 0, 1]
     tree = d.sched.groupCountTree()
     assert tree[0][0] == "Default"
     # sum of child and parent
@@ -715,7 +715,7 @@ def test_groupCounts():
     assert tree[0][4] == 1
     # child count is just review
     assert tree[0][5][0][0] == "1"
-    assert tree[0][5][0][1] == 2
+    assert tree[0][5][0][1] == default1
     assert tree[0][5][0][2] == 1
     assert tree[0][5][0][3] == 1
     assert tree[0][5][0][4] == 0
