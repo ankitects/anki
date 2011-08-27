@@ -49,8 +49,8 @@ class CardStats(object):
             self.addLine(_("Position"), c.due)
         self.addLine(_("Model"), c.model()['name'])
         self.addLine(_("Template"), c.template()['name'])
-        self.addLine(_("Current Group"), self.deck.groupName(c.gid))
-        self.addLine(_("Initial Group"), self.deck.groupName(c.fact().gid))
+        self.addLine(_("Current Group"), self.deck.groups.name(c.gid))
+        self.addLine(_("Home Group"), self.deck.groups.name(c.fact().gid))
         self.txt += "</table>"
         return self.txt
 

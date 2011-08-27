@@ -154,7 +154,7 @@ from cards group by gid""", self.today):
                 for (gid, grp) in self._orderedGroups()]
 
     def _orderedGroups(self):
-        grps = self.deck.groups.items()
+        grps = self.deck.groups.groups.items()
         def key(grp):
             return grp[1]['name']
         grps.sort(key=key)
@@ -595,7 +595,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     ##########################################################################
 
     def _cardConf(self, card):
-        return self.deck.groupConf(card.gid)
+        return self.deck.groups.conf(card.gid)
 
     def _groupLimit(self):
         l = self.deck.qconf['groups']

@@ -133,15 +133,15 @@ def test_upgrade():
 def test_groups():
     deck = getEmptyDeck()
     # we start with a standard group
-    assert len(deck.groups) == 1
+    assert len(deck.groups.groups) == 1
     # it should have an id of 1
-    assert deck.groups['1']
+    assert deck.groups.name(1)
     # create a new group
-    ts = deck.groupID("new group")
-    assert ts
-    assert len(deck.groups) == 2
+    g = deck.groups.id("new group")
+    assert g
+    assert len(deck.groups.groups) == 2
     # should get the same id
-    assert deck.groupID("new group") == ts
+    assert deck.groups.id("new group") == g
     # by default, everything should be shown
     assert not deck.qconf['groups']
 

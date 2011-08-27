@@ -581,7 +581,7 @@ def test_ordcycle():
 def test_counts():
     d = getEmptyDeck()
     # add a second group
-    assert d.groupID("new group")
+    assert d.groups.id("new group")
     # for each card type
     for type in range(3):
         # and each of the groups
@@ -680,7 +680,7 @@ def test_groupCounts():
     # and one that's a child
     f = d.newFact()
     f['Front'] = u"two"
-    default1 = f.gid = d.groupID("Default::1")
+    default1 = f.gid = d.groups.id("Default::1")
     d.addFact(f)
     # make it a review card
     c = f.cards()[0]
@@ -690,16 +690,16 @@ def test_groupCounts():
     # add one more with a new group
     f = d.newFact()
     f['Front'] = u"two"
-    foobar = f.gid = d.groupID("foo::bar")
+    foobar = f.gid = d.groups.id("foo::bar")
     d.addFact(f)
     # and one that's a sibling
     f = d.newFact()
     f['Front'] = u"three"
-    foobaz = f.gid = d.groupID("foo::baz")
+    foobaz = f.gid = d.groups.id("foo::baz")
     d.addFact(f)
     d.reset()
     assert d.sched.counts() == (3, 0, 1)
-    assert len(d.groups) == 4
+    assert len(d.groups.groups) == 4
     cnts = d.sched.groupCounts()
     assert cnts[0] == ["Default", 1, 1, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 1, 0]

@@ -192,8 +192,8 @@ order by %s""" % (lim, sort)
 
     def _findGroup(self, val, isNeg):
         extra = "!" if isNeg else ""
-        id = self.deck.groupID(val, create=False) or 0
-        self.lims['card'].append("c.gid %s= %d" % (extra, id))
+        id = self.deck.groups.id(val, create=False) or 0
+        self.lims['card'].append("c.gid %s= %s" % (extra, id))
 
     def _findTemplate(self, val, isNeg):
         lims = []

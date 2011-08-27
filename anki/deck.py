@@ -11,12 +11,12 @@ from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
 from anki.models import ModelRegistry
 from anki.media import MediaRegistry
+from anki.groups import GroupRegistry
 from anki.consts import *
 from anki.errors import AnkiError
 
 import anki.latex # sets up hook
-import anki.cards, anki.facts, anki.template, anki.cram, \
-    anki.groups, anki.find
+import anki.cards, anki.facts, anki.template, anki.cram, anki.find
 
 # Settings related to queue building. These may be loaded without the rest of
 # the config to check due counts faster on mobile clients.
@@ -54,6 +54,7 @@ class _Deck(object):
         self.clearUndo()
         self.media = MediaRegistry(self)
         self.models = ModelRegistry(self)
+        self.groups = GroupRegistry(self)
         self.load()
         if not self.crt:
             d = datetime.datetime.today()
@@ -88,15 +89,14 @@ class _Deck(object):
          self.qconf,
          self.conf,
          models,
-         self.groups,
-         self.gconf) = self.db.first("""
+         groups,
+         gconf) = self.db.first("""
 select crt, mod, scm, dty, syncName, lastSync,
 qconf, conf, models, groups, gconf from deck""")
         self.qconf = simplejson.loads(self.qconf)
         self.conf = simplejson.loads(self.conf)
-        self.groups = simplejson.loads(self.groups)
-        self.gconf = simplejson.loads(self.gconf)
         self.models.load(models)
+        self.groups.load(groups, gconf)
 
     def flush(self, mod=None):
         "Flush state to DB, updating mod time."
@@ -104,14 +104,13 @@ qconf, conf, models, groups, gconf from deck""")
         self.db.execute(
             """update deck set
 crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?,
-qconf=?, conf=?, groups=?, gconf=?""",
+qconf=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self.syncName, self.lastSync,
             simplejson.dumps(self.qconf),
-            simplejson.dumps(self.conf),
-            simplejson.dumps(self.groups),
-            simplejson.dumps(self.gconf))
+            simplejson.dumps(self.conf))
         self.models.flush()
+        self.groups.flush()
 
     def save(self, name=None, mod=None):
         "Flush, commit DB, and take out another write lock."
@@ -420,7 +419,7 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
                 fields[name] = ""
         fields['Tags'] = data[5]
         fields['Model'] = model['name']
-        fields['Group'] = self.groupName(data[3])
+        fields['Group'] = self.groups.name(data[3])
         template = model['tmpls'][data[4]]
         fields['Template'] = template['name']
         # render q & a
@@ -503,43 +502,6 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
 
     def delTags(self, ids, tags):
         self.addTags(ids, tags, False)
-
-    # Groups
-    ##########################################################################
-    # the id keys are strings because that's the way they're stored in json,
-    # but the anki code passes around integers
-
-    def groupID(self, name, create=True):
-        "Add a group with NAME. Reuse group if already exists. Return id."
-        for id, g in self.groups.items():
-            if g['name'].lower() == name.lower():
-                return int(id)
-        if not create:
-            return None
-        g = dict(name=name, conf=1, mod=intTime())
-        while 1:
-            id = intTime(1000)
-            if str(id) in self.groups:
-                continue
-            self.groups[str(id)] = g
-            return id
-
-    def groupName(self, gid):
-        return self.groups[str(gid)]['name']
-
-    def groupConf(self, gid):
-        return self.gconf[str(self.groups[str(gid)]['conf'])]
-
-    def delGroup(self, gid):
-        self.modSchema()
-        self.db.execute("update cards set gid = 1 where gid = ?", gid)
-        self.db.execute("update facts set gid = 1 where gid = ?", gid)
-        self.db.execute("delete from groups where id = ?", gid)
-        print "fixme: loop through models and update stale gid references"
-
-    def setGroup(self, cids, gid):
-        self.db.execute(
-            "update cards set gid = ? where id in "+ids2str(cids), gid)
 
     # Tag-based selective study
     ##########################################################################
