@@ -2,7 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.models import Model
 from anki.lang import _
 
 models = []
@@ -10,55 +9,50 @@ models = []
 # Basic
 ##########################################################################
 
-def BasicModel(deck):
-    m = Model(deck)
-    m.name = _("Basic")
-    fm = m.newField()
-    fm['name'] = _("Front")
+def addBasicModel(deck):
+    mm = deck.models
+    m = mm.new(_("Basic"))
+    fm = mm.newField(_("Front"))
     fm['req'] = True
     fm['uniq'] = True
-    m.addField(fm)
-    fm = m.newField()
-    fm['name'] = _("Back")
-    m.addField(fm)
-    t = m.newTemplate()
-    t['name'] = _("Forward")
+    mm.addField(m, fm)
+    fm = mm.newField(_("Back"))
+    mm.addField(m, fm)
+    t = mm.newTemplate(_("Forward"))
     t['qfmt'] = "{{" + _("Front") + "}}"
     t['afmt'] = "{{" + _("Back") + "}}"
-    m.addTemplate(t)
-    t = m.newTemplate()
-    t['name'] = _("Reverse")
+    mm.addTemplate(m, t)
+    t = mm.newTemplate(_("Reverse"))
     t['qfmt'] = "{{" + _("Back") + "}}"
     t['afmt'] = "{{" + _("Front") + "}}"
     t['actv'] = False
-    m.addTemplate(t)
+    mm.addTemplate(m, t)
+    mm.save(m)
     return m
 
-models.append((_("Basic"), BasicModel))
+models.append((_("Basic"), addBasicModel))
 
 # Cloze
 ##########################################################################
 
-def ClozeModel(deck):
-    m = Model(deck)
-    m.name = _("Cloze")
-    fm = m.newField()
-    fm['name'] = _("Text")
+def addClozeModel(deck):
+    mm = deck.models
+    m = mm.new(_("Cloze"))
+    fm = mm.newField(_("Text"))
     fm['req'] = True
     fm['uniq'] = True
-    m.addField(fm)
-    fm = m.newField()
-    fm['name'] = _("Notes")
-    m.addField(fm)
+    mm.addField(m, fm)
+    fm = mm.newField(_("Notes"))
+    mm.addField(m, fm)
     for i in range(8):
         n = i+1
-        t = m.newTemplate()
-        t['name'] = _("Cloze") + " %d" % n
+        t = mm.newTemplate(_("Cloze") + " %d" % n)
         t['qfmt'] = ("{{#cloze:%d:Text}}<br>{{cloze:%d:%s}}<br>"+
                      "{{/cloze:%d:Text}}") % (n, n, _("Text"), n)
         t['afmt'] = ("{{cloze:%d:" + _("Text") + "}}") % n
         t['afmt'] += "<br>{{" + _("Notes") + "}}"
-        m.addTemplate(t)
+        mm.addTemplate(m, t)
+    mm.save(m)
     return m
 
-models.append((_("Cloze"), ClozeModel))
+models.append((_("Cloze"), addClozeModel))

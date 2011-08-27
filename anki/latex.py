@@ -71,9 +71,9 @@ def _latexFromHtml(deck, latex):
 
 def _buildImg(deck, latex, fname, model):
     # add header/footer
-    latex = (model.conf["latexPre"] + "\n" +
+    latex = (model["latexPre"] + "\n" +
              latex + "\n" +
-             model.conf["latexPost"])
+             model["latexPost"])
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
     texfile = file(namedtmp("tmp.tex"), "w")

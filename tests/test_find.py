@@ -25,7 +25,7 @@ def test_findCards():
     f = deck.newFact()
     f['Front'] = u'template test'
     f['Back'] = u'foo bar'
-    f.model().templates[1]['actv'] = True
+    f.model()['tmpls'][1]['actv'] = True
     deck.addFact(f)
     latestCardIds = [c.id for c in f.cards()]
     # tag searches

@@ -105,9 +105,9 @@ lapses=?, grade=?, cycles=?, edue=? where id = ?""",
     def _getQA(self, reload=False):
         if not self._qa or reload:
             f = self.fact(); m = self.model()
-            data = [self.id, f.id, m.id, self.gid, self.ord, f.stringTags(),
+            data = [self.id, f.id, m['id'], self.gid, self.ord, f.stringTags(),
                     f.joinedFields()]
-            self._qa = self.deck._renderQA(self.model(), data)
+            self._qa = self.deck._renderQA(data)
         return self._qa
 
     def _withClass(self, txt, extra):
@@ -117,7 +117,7 @@ lapses=?, grade=?, cycles=?, edue=? where id = ?""",
         "Fetch the model and fact."
         if not self._rd or reload:
             f = self.deck.getFact(self.fid)
-            m = self.deck.getModel(f.mid)
+            m = self.deck.models.get(f.mid)
             self._rd = [f, m]
         return self._rd
 
@@ -128,10 +128,10 @@ lapses=?, grade=?, cycles=?, edue=? where id = ?""",
         return self._reviewData()[1]
 
     def template(self):
-        return self._reviewData()[1].templates[self.ord]
+        return self._reviewData()[1]['tmpls'][self.ord]
 
     def cssClass(self):
-        return "cm%s-%s" % (hexifyID(self.model().id),
+        return "cm%s-%s" % (hexifyID(self.model()['id']),
                             hexifyID(self.template()['ord']))
 
     def startTimer(self):

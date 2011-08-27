@@ -2,8 +2,6 @@
 
 import time
 from tests.shared import assertException, getEmptyDeck
-from anki.stdmodels import BasicModel
-
 def test_op():
     d = getEmptyDeck()
     # should have no undo by default

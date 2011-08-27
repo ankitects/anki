@@ -171,7 +171,7 @@ def entsToTxt(html):
 ##############################################################################
 
 def hexifyID(id):
-    return "%x" % id
+    return "%x" % int(id)
 
 def dehexifyID(id):
     return int(id, 16)

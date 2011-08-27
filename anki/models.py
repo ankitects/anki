@@ -2,19 +2,19 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import simplejson
+import simplejson, copy
 from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
     timestampID
 from anki.lang import _
 
 # Models
 ##########################################################################
-# gid may point to non-existent group
 
-defaultConf = {
+# careful not to add any lists/dicts/etc here, as they aren't deep copied
+defaultModel = {
+    'css': "",
     'sortf': 0,
     'gid': 1,
-    'tags': [],
     'clozectx': False,
     'latexPre': """\
 \\documentclass[12pt]{article}
@@ -56,82 +56,132 @@ defaultTemplate = {
     'gid': None,
 }
 
-class Model(object):
+class ModelRegistry(object):
 
-    def __init__(self, deck, id=None):
+    # Saving/loading registry
+    #############################################################
+
+    def __init__(self, deck):
         self.deck = deck
-        if id:
-            self.id = id
-            self.load()
-        else:
-            self.id = timestampID(deck.db, "models")
-            self.name = u""
-            self.conf = defaultConf.copy()
-            self.css = ""
-            self.fields = []
-            self.templates = []
 
-    def load(self):
-        (self.mod,
-         self.name,
-         self.fields,
-         self.templates,
-         self.conf,
-         self.css) = self.deck.db.first("""
-select mod, name, flds, tmpls, conf, css from models where id = ?""", self.id)
-        self.fields = simplejson.loads(self.fields)
-        self.templates = simplejson.loads(self.templates)
-        self.conf = simplejson.loads(self.conf)
+    def load(self, json):
+        "Load registry from JSON."
+        self.changed = False
+        self.models = simplejson.loads(json)
+
+    def save(self, m=None):
+        "Mark M modified if provided, and schedule registry flush."
+        if m:
+            m['mod'] = intTime()
+            m['css'] = self._css(m)
+        self.changed = True
 
     def flush(self):
-        self.mod = intTime()
-        self.css = self.genCSS()
-        ret = self.deck.db.execute("""
-insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
-                self.id, self.mod, self.name,
-                simplejson.dumps(self.fields),
-                simplejson.dumps(self.templates),
-                simplejson.dumps(self.conf),
-                self.css)
-        self.id = ret.lastrowid
+        "Flush the registry if any models were changed."
+        if self.changed:
+            self.deck.db.execute("update deck set models = ?",
+                                 simplejson.dumps(self.models))
 
-    def fids(self):
+    # Retrieving and creating models
+    #############################################################
+
+    def current(self):
+        "Get current model."
+        return self.get(self.deck.conf['currentModelId'])
+
+    def get(self, id):
+        "Get model with ID."
+        return self.models[str(id)]
+
+    def all(self):
+        "Get all models."
+        return self.models.values()
+
+    def byName(self, name):
+        "Get model with NAME."
+        for m in self.models.values():
+            if m['name'].lower() == name.lower():
+                return m
+
+    def new(self, name):
+        "Create a new model, save it in the registry, and return it."
+        # caller should call save() after modifying
+        m = defaultModel.copy()
+        m['name'] = name
+        m['mod'] = intTime()
+        m['flds'] = []
+        m['tmpls'] = []
+        m['tags'] = []
+        return self._add(m)
+
+    def del_(self, m):
+        "Delete model, and all its cards/facts."
+        self.deck.modSchema()
+        # delete facts/cards
+        self.deck.delCards(self.deck.db.list("""
+select id from cards where fid in (select id from facts where mid = ?)""",
+                                      m['id']))
+        # then the model
+        del self.models[m['id']]
+        self.save()
+        # GUI should ensure last model is not deleted
+        if self.deck.conf['currentModelId'] == m['id']:
+            self.deck.conf['currentModelId'] = int(self.models.keys()[0])
+
+    def _add(self, m):
+        self._setID(m)
+        self.models[m['id']] = m
+        self.save(m)
+        self.deck.conf['currentModelId'] = m['id']
+        return m
+
+    def _setID(self, m):
+        while 1:
+            id = str(intTime(1000))
+            if id not in self.models:
+                break
+        m['id'] = id
+
+    # Tools
+    ##################################################
+
+    def fids(self, m):
+        "Fact ids for M."
         return self.deck.db.list(
-            "select id from facts where mid = ?", self.id)
+            "select id from facts where mid = ?", m['id'])
 
-    def useCount(self):
+    def useCount(self, m):
+        "Number of fact using M."
         return self.deck.db.scalar(
-            "select count() from facts where mid = ?", self.id)
+            "select count() from facts where mid = ?", m['id'])
+
+    def css(self):
+        "CSS for all models."
+        return "\n".join([m['css'] for m in self.all()])
 
     # Copying
     ##################################################
 
-    def copy(self):
-        "Copy, flush and return."
-        new = Model(self.deck, self.id)
-        new.id = None
-        new.name += _(" copy")
-        new.fields = [f.copy() for f in self.fields]
-        new.templates = [t.copy() for t in self.templates]
-        new.flush()
-        return new
+    def copy(self, m):
+        "Copy, save and return."
+        m2 = copy.deepcopy(m)
+        m2['name'] = _("%s copy") % m2['name']
+        return self._add(m2)
 
     # CSS generation
     ##################################################
 
-    def genCSS(self):
-        if not self.id:
-            return ""
+    def _css(self, m):
         # fields
         css = "".join(self._fieldCSS(
-            ".fm%s-%s" % (hexifyID(self.id), hexifyID(f['ord'])),
+            ".fm%s-%s" % (hexifyID(m['id']), hexifyID(f['ord'])),
             (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
-            for f in self.fields)
+            for f in m['flds'])
         # templates
         css += "".join(".cm%s-%s {text-align:%s;background:%s}\n" % (
-            hexifyID(self.id), hexifyID(t['ord']),
+            hexifyID(m['id']), hexifyID(t['ord']),
             ("center", "left", "right")[t['align']], t['bg'])
-                for t in self.templates)
+                for t in m['tmpls'])
         return css
 
     def _rewriteFont(self, font):
@@ -158,64 +208,66 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
     # Fields
     ##################################################
 
-    def fieldMap(self):
+    def newField(self, name):
+        f = defaultField.copy()
+        f['name'] = name
+        return f
+
+    def fieldMap(self, m):
         "Mapping of field name -> (ord, field)."
-        return dict((f['name'], (f['ord'], f)) for f in self.fields)
+        return dict((f['name'], (f['ord'], f)) for f in m['flds'])
 
-    def sortIdx(self):
-        return self.conf['sortf']
+    def sortIdx(self, m):
+        return m['sortf']
 
-    def setSortIdx(self, idx):
-        assert idx >= 0 and idx < len(self.fields)
+    def setSortIdx(self, m, idx):
+        assert idx >= 0 and idx < len(m['flds'])
         self.deck.modSchema()
-        self.conf['sortf'] = idx
-        self.deck.updateFieldCache(self.fids(), csum=False)
-        self.flush()
+        m['sortf'] = idx
+        self.deck.updateFieldCache(self.fids(m), csum=False)
+        self.save(m)
 
-    def newField(self):
-        return defaultField.copy()
-
-    def addField(self, field):
-        self.fields.append(field)
-        self._updateFieldOrds()
-        self.flush()
+    def addField(self, m, field):
+        m['flds'].append(field)
+        self._updateFieldOrds(m)
+        self.save(m)
         def add(fields):
             fields.append("")
             return fields
-        self._transformFields(add)
+        self._transformFields(m, add)
 
-    def delField(self, field):
-        idx = self.fields.index(field)
-        self.fields.remove(field)
-        self._updateFieldOrds()
+    def delField(self, m, field):
+        idx = m['flds'].index(field)
+        m['flds'].remove(field)
+        self._updateFieldOrds(m)
         def delete(fields):
             del fields[idx]
             return fields
-        self._transformFields(delete)
-        if idx == self.sortIdx():
+        self._transformFields(m, delete)
+        if idx == self.sortIdx(m):
             # need to rebuild
-            self.deck.updateFieldCache(self.fids(), csum=False)
-        # flushes
-        self.renameField(field, None)
+            self.deck.updateFieldCache(self.fids(m), csum=False)
+        # saves
+        self.renameField(m, field, None)
 
-    def moveField(self, field, idx):
-        oldidx = self.fields.index(field)
+    def moveField(self, m, field, idx):
+        oldidx = m['flds'].index(field)
         if oldidx == idx:
             return
-        self.fields.remove(field)
-        self.fields.insert(idx, field)
-        self._updateFieldOrds()
-        self.flush()
+        m['flds'].remove(field)
+        m['flds'].insert(idx, field)
+        self._updateFieldOrds(m)
+        self.save(m)
         def move(fields, oldidx=oldidx):
             val = fields[oldidx]
             del fields[oldidx]
             fields.insert(idx, val)
             return fields
-        self._transformFields(move)
+        self._transformFields(m, move)
 
-    def renameField(self, field, newName):
+    def renameField(self, m, field, newName):
         self.deck.modSchema()
-        for t in self.templates:
+        for t in m['tmpls']:
             types = ("{{%s}}", "{{text:%s}}", "{{#%s}}",
                      "{{^%s}}", "{{/%s}}")
             for type in types:
@@ -226,77 +278,79 @@ insert or replace into models values (?, ?, ?, ?, ?, ?, ?)""",
                         repl = ""
                     t[fmt] = t[fmt].replace(type%field['name'], repl)
         field['name'] = newName
-        self.flush()
+        self.save(m)
 
-    def _updateFieldOrds(self):
-        for c, f in enumerate(self.fields):
+    def _updateFieldOrds(self, m):
+        for c, f in enumerate(m['flds']):
             f['ord'] = c
 
-    def _transformFields(self, fn):
+    def _transformFields(self, m, fn):
         self.deck.modSchema()
         r = []
         for (id, flds) in self.deck.db.execute(
-            "select id, flds from facts where mid = ?", self.id):
+            "select id, flds from facts where mid = ?", m['id']):
             r.append((joinFields(fn(splitFields(flds))), id))
         self.deck.db.executemany("update facts set flds = ? where id = ?", r)
 
     # Templates
     ##################################################
 
-    def newTemplate(self):
-        return defaultTemplate.copy()
+    def newTemplate(self, name):
+        t = defaultTemplate.copy()
+        t['name'] = name
+        return t
 
-    def addTemplate(self, template):
+    def addTemplate(self, m, template):
         self.deck.modSchema()
-        self.templates.append(template)
-        self._updateTemplOrds()
-        self.flush()
+        m['tmpls'].append(template)
+        self._updateTemplOrds(m)
+        self.save(m)
 
-    def delTemplate(self, template):
+    def delTemplate(self, m, template):
         self.deck.modSchema()
-        ord = self.templates.index(template)
+        ord = m['tmpls'].index(template)
         cids = self.deck.db.list("""
 select c.id from cards c, facts f where c.fid=f.id and mid = ? and ord = ?""",
-                                 self.id, ord)
+                                 m['id'], ord)
         self.deck.delCards(cids)
         # shift ordinals
         self.deck.db.execute("""
 update cards set ord = ord - 1 where fid in (select id from facts
-where mid = ?) and ord > ?""", self.id, ord)
-        self.templates.remove(template)
-        self._updateTemplOrds()
-        self.flush()
+where mid = ?) and ord > ?""", m['id'], ord)
+        m['tmpls'].remove(template)
+        self._updateTemplOrds(m)
+        self.save(m)
 
-    def _updateTemplOrds(self):
-        for c, t in enumerate(self.templates):
+    def _updateTemplOrds(self, m):
+        for c, t in enumerate(m['tmpls']):
             t['ord'] = c
 
-    def moveTemplate(self, template, idx):
-        oldidx = self.templates.index(template)
+    def moveTemplate(self, m, template, idx):
+        oldidx = m['tmpls'].index(template)
         if oldidx == idx:
             return
-        oldidxs = dict((id(t), t['ord']) for t in self.templates)
-        self.templates.remove(template)
-        self.templates.insert(idx, template)
-        self._updateTemplOrds()
+        oldidxs = dict((id(t), t['ord']) for t in m['tmpls'])
+        m['tmpls'].remove(template)
+        m['tmpls'].insert(idx, template)
+        self._updateTemplOrds(m)
         # generate change map
         map = []
-        for t in self.templates:
+        for t in m['tmpls']:
             map.append("when ord = %d then %d" % (oldidxs[id(t)], t['ord']))
         # apply
-        self.flush()
+        self.save(m)
         self.deck.db.execute("""
 update cards set ord = (case %s end) where fid in (
-select id from facts where mid = ?)""" % " ".join(map), self.id)
+select id from facts where mid = ?)""" % " ".join(map), m['id'])
 
     # Model changing
     ##########################################################################
     # - maps are ord->ord, and there should not be duplicate targets
     # - newModel should be self if model is not changing
 
-    def changeModel(self, fids, newModel, fmap, cmap):
+    def change(self, m, fids, newModel, fmap, cmap):
         self.deck.modSchema()
-        assert newModel.id == self.id or (fmap and cmap)
+        assert newModel['id'] == m['id'] or (fmap and cmap)
         if fmap:
             self._changeFacts(fids, newModel, fmap)
         if cmap:
@@ -304,7 +358,7 @@ select id from facts where mid = ?)""" % " ".join(map), self.id)
 
     def _changeFacts(self, fids, newModel, map):
         d = []
-        nfields = len(newModel.fields)
+        nfields = len(newModel['flds'])
         for (fid, flds) in self.deck.db.execute(
             "select id, flds from facts where id in "+ids2str(fids)):
             newflds = {}
@@ -315,7 +369,7 @@ select id from facts where mid = ?)""" % " ".join(map), self.id)
             for c in range(nfields):
                 flds.append(newflds.get(c, ""))
             flds = joinFields(flds)
-            d.append(dict(fid=fid, flds=flds, mid=newModel.id))
+            d.append(dict(fid=fid, flds=flds, mid=newModel['id']))
         self.deck.db.executemany(
             "update facts set flds=:flds, mid=:mid where id = :fid", d)
         self.deck.updateFieldCache(fids)

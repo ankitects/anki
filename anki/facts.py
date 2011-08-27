@@ -19,12 +19,12 @@ class Fact(object):
         else:
             self.id = timestampID(deck.db, "facts")
             self._model = model
-            self.gid = model.conf['gid']
-            self.mid = model.id
+            self.gid = model['gid']
+            self.mid = model['id']
             self.tags = []
-            self.fields = [""] * len(self._model.fields)
+            self.fields = [""] * len(self._model['flds'])
             self.data = ""
-            self._fmap = self._model.fieldMap()
+            self._fmap = self.deck.models.fieldMap(self._model)
 
     def load(self):
         (self.mid,
@@ -36,12 +36,12 @@ class Fact(object):
 select mid, gid, mod, tags, flds, data from facts where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = parseTags(self.tags)
-        self._model = self.deck.getModel(self.mid)
-        self._fmap = self._model.fieldMap()
+        self._model = self.deck.models.get(self.mid)
+        self._fmap = self.deck.models.fieldMap(self._model)
 
     def flush(self):
         self.mod = intTime()
-        sfld = stripHTML(self.fields[self._model.sortIdx()])
+        sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
         tags = self.stringTags()
         res = self.deck.db.execute("""
 insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",

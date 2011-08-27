@@ -12,7 +12,7 @@ def test_genCards():
     f['Front'] = u'1'
     f['Back'] = u'2'
     deck.addFact(f)
-    cards = deck.genCards(f, f.model().templates)
+    cards = deck.genCards(f, f.model()['tmpls'])
     assert len(cards) == 1
     assert cards[0].ord == 1
     assert deck.cardCount() == 2
@@ -23,7 +23,7 @@ def test_genCards():
     f['Front'] = u'1'
     f['Back'] = u'2'
     deck.addFact(f)
-    cards = deck.genCards(f, f.model().templates)
+    cards = deck.genCards(f, f.model()['tmpls'])
     assert deck.cardCount() == 4
     c = deck.db.list("select due from cards where fid = ?", f.id)
     assert c[0] == c[1]

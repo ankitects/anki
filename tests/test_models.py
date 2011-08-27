@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from tests.shared import getEmptyDeck
-from anki.models import Model
 from anki.utils import stripHTML
 
 def test_modelDelete():
@@ -11,20 +10,20 @@ def test_modelDelete():
     f['Back'] = u'2'
     deck.addFact(f)
     assert deck.cardCount() == 1
-    deck.delModel(deck.conf['currentModelId'])
+    deck.models.del_(deck.models.get(deck.conf['currentModelId']))
     assert deck.cardCount() == 0
 
 def test_modelCopy():
     deck = getEmptyDeck()
-    m = deck.currentModel()
-    m2 = m.copy()
-    assert m2.name == "Basic copy"
-    assert m2.id != m.id
-    assert len(m2.fields) == 2
-    assert len(m.fields) == 2
-    assert len(m2.fields) == len(m.fields)
-    assert len(m.templates) == 2
-    assert len(m2.templates) == 2
+    m = deck.models.current()
+    m2 = deck.models.copy(m)
+    assert m2['name'] == "Basic copy"
+    assert m2['id'] != m['id']
+    assert len(m2['flds']) == 2
+    assert len(m['flds']) == 2
+    assert len(m2['flds']) == len(m['flds'])
+    assert len(m['tmpls']) == 2
+    assert len(m2['tmpls']) == 2
 
 def test_fields():
     d = getEmptyDeck()
@@ -32,50 +31,50 @@ def test_fields():
     f['Front'] = u'1'
     f['Back'] = u'2'
     d.addFact(f)
-    m = d.currentModel()
+    m = d.models.current()
     # make sure renaming a field updates the templates
-    m.renameField(m.fields[0], "NewFront")
-    assert m.templates[0]['qfmt'] == "{{NewFront}}"
+    d.models.renameField(m, m['flds'][0], "NewFront")
+    assert m['tmpls'][0]['qfmt'] == "{{NewFront}}"
     # add a field
-    f = m.newField()
+    f = d.models.newField(m)
     f['name'] = "foo"
-    m.addField(f)
-    assert d.getFact(m.fids()[0]).fields == ["1", "2", ""]
+    d.models.addField(m, f)
+    assert d.getFact(d.models.fids(m)[0]).fields == ["1", "2", ""]
     # rename it
-    m.renameField(f, "bar")
-    assert d.getFact(m.fids()[0])['bar'] == ''
+    d.models.renameField(m, f, "bar")
+    assert d.getFact(d.models.fids(m)[0])['bar'] == ''
     # delete back
-    m.delField(m.fields[1])
-    assert d.getFact(m.fids()[0]).fields == ["1", ""]
+    d.models.delField(m, m['flds'][1])
+    assert d.getFact(d.models.fids(m)[0]).fields == ["1", ""]
     # move 0 -> 1
-    m.moveField(m.fields[0], 1)
-    assert d.getFact(m.fids()[0]).fields == ["", "1"]
+    d.models.moveField(m, m['flds'][0], 1)
+    assert d.getFact(d.models.fids(m)[0]).fields == ["", "1"]
     # move 1 -> 0
-    m.moveField(m.fields[1], 0)
-    assert d.getFact(m.fids()[0]).fields == ["1", ""]
+    d.models.moveField(m, m['flds'][1], 0)
+    assert d.getFact(d.models.fids(m)[0]).fields == ["1", ""]
     # add another and put in middle
-    f = m.newField()
+    f = d.models.newField(m)
     f['name'] = "baz"
-    m.addField(f)
-    f = d.getFact(m.fids()[0])
+    d.models.addField(m, f)
+    f = d.getFact(d.models.fids(m)[0])
     f['baz'] = "2"
     f.flush()
-    assert d.getFact(m.fids()[0]).fields == ["1", "", "2"]
+    assert d.getFact(d.models.fids(m)[0]).fields == ["1", "", "2"]
     # move 2 -> 1
-    m.moveField(m.fields[2], 1)
-    assert d.getFact(m.fids()[0]).fields == ["1", "2", ""]
+    d.models.moveField(m, m['flds'][2], 1)
+    assert d.getFact(d.models.fids(m)[0]).fields == ["1", "2", ""]
     # move 0 -> 2
-    m.moveField(m.fields[0], 2)
-    assert d.getFact(m.fids()[0]).fields == ["2", "", "1"]
+    d.models.moveField(m, m['flds'][0], 2)
+    assert d.getFact(d.models.fids(m)[0]).fields == ["2", "", "1"]
     # move 0 -> 1
-    m.moveField(m.fields[0], 1)
-    assert d.getFact(m.fids()[0]).fields == ["", "2", "1"]
+    d.models.moveField(m, m['flds'][0], 1)
+    assert d.getFact(d.models.fids(m)[0]).fields == ["", "2", "1"]
 
 def test_templates():
     d = getEmptyDeck()
-    m = d.currentModel()
-    m.templates[1]['actv'] = True
-    m.flush()
+    m = d.models.current()
+    m['tmpls'][1]['actv'] = True
+    d.models.save(m)
     f = d.newFact()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -86,12 +85,12 @@ def test_templates():
     assert c.ord == 0
     assert c2.ord == 1
     # switch templates
-    m.moveTemplate(c.template(), 1)
+    d.models.moveTemplate(m, c.template(), 1)
     c.load(); c2.load()
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    m.delTemplate(m.templates[0])
+    d.models.delTemplate(m, m['tmpls'][0])
     assert d.cardCount() == 1
     # and should have updated the other cards' ordinals
     c = f.cards()[0]
@@ -100,9 +99,9 @@ def test_templates():
 
 def test_text():
     d = getEmptyDeck()
-    m = d.currentModel()
-    m.templates[0]['qfmt'] = "{{text:Front}}"
-    m.flush()
+    m = d.models.current()
+    m['tmpls'][0]['qfmt'] = "{{text:Front}}"
+    d.models.save(m)
     f = d.newFact()
     f['Front'] = u'hello<b>world'
     d.addFact(f)
@@ -110,9 +109,9 @@ def test_text():
 
 def test_cloze():
     d = getEmptyDeck()
-    d.conf['currentModelId'] = d.modelId("Cloze")
+    d.conf['currentModelId'] = d.models.byName("Cloze")['id']
     f = d.newFact()
-    assert f.model().name == "Cloze"
+    assert f.model()['name'] == "Cloze"
     # a cloze model with no clozes is empty
     f['Text'] = u'nothing'
     assert d.addFact(f) == 0
@@ -124,7 +123,7 @@ def test_cloze():
     assert "<span class=cloze>world</span>" in f.cards()[0].a()
     assert "hello <span class=cloze>world</span>" not in f.cards()[0].a()
     # check context works too
-    f.model().conf['clozectx'] = True
+    f.model()['clozectx'] = True
     assert "hello <span class=cloze>world</span>" in f.cards()[0].a()
     # and with a comment
     f = d.newFact()
@@ -143,16 +142,16 @@ def test_cloze():
     assert "world <span class=cloze>bar</span>" in c2.a()
     # if there are multiple answers for a single cloze, they are given in a
     # list
-    f.model().conf['clozectx'] = False
+    f.model()['clozectx'] = False
     f = d.newFact()
     f['Text'] = "a {{c1::b}} {{c1::c}}"
     assert d.addFact(f) == 1
     assert "<span class=cloze>b</span>, <span class=cloze>c</span>" in (
         f.cards()[0].a())
     # clozes should be supported in sections too
-    m = d.currentModel()
-    m.templates[0]['qfmt'] = "{{#cloze:1:Text}}{{Notes}}{{/cloze:1:Text}}"
-    m.flush()
+    m = d.models.current()
+    m['tmpls'][0]['qfmt'] = "{{#cloze:1:Text}}{{Notes}}{{/cloze:1:Text}}"
+    d.models.save(m)
     f = d.newFact()
     f['Text'] = "hello"
     f['Notes'] = "world"
@@ -162,18 +161,18 @@ def test_cloze():
 
 def test_modelChange():
     deck = getEmptyDeck()
-    basic = deck.getModel(deck.modelId("Basic"))
-    cloze = deck.getModel(deck.modelId("Cloze"))
+    basic = deck.models.byName("Basic")
+    cloze = deck.models.byName("Cloze")
     # enable second template and add a fact
-    basic.templates[1]['actv'] = True
-    basic.flush()
+    basic['tmpls'][1]['actv'] = True
+    deck.models.save(basic)
     f = deck.newFact()
     f['Front'] = u'f'
     f['Back'] = u'b'
     deck.addFact(f)
     # switch fields
     map = {0: 1, 1: 0}
-    basic.changeModel([f.id], basic, map, None)
+    deck.models.change(basic, [f.id], basic, map, None)
     f.load()
     assert f['Front'] == 'b'
     assert f['Back'] == 'f'
@@ -184,7 +183,7 @@ def test_modelChange():
     assert stripHTML(c1.q()) == "f"
     assert c0.ord == 0
     assert c1.ord == 1
-    basic.changeModel([f.id], basic, None, map)
+    deck.models.change(basic, [f.id], basic, None, map)
     f.load(); c0.load(); c1.load()
     assert stripHTML(c0.q()) == "f"
     assert stripHTML(c1.q()) == "b"
@@ -194,7 +193,7 @@ def test_modelChange():
     assert f.cards()[0].id == c1.id
     # delete first card
     map = {0: None, 1: 1}
-    basic.changeModel([f.id], basic, None, map)
+    deck.models.change(basic, [f.id], basic, None, map)
     f.load()
     c0.load()
     try:
@@ -206,7 +205,7 @@ def test_modelChange():
     # an unmapped field becomes blank
     assert f['Front'] == 'b'
     assert f['Back'] == 'f'
-    basic.changeModel([f.id], basic, map, None)
+    deck.models.change(basic, [f.id], basic, map, None)
     f.load()
     assert f['Front'] == ''
     assert f['Back'] == 'f'
@@ -215,12 +214,21 @@ def test_modelChange():
     f['Front'] = u'f2'
     f['Back'] = u'b2'
     deck.addFact(f)
-    assert basic.useCount() == 2
-    assert cloze.useCount() == 0
+    assert deck.models.useCount(basic) == 2
+    assert deck.models.useCount(cloze) == 0
     map = {0: 0, 1: 1}
-    basic.changeModel([f.id], cloze, map, map)
+    deck.models.change(basic, [f.id], cloze, map, map)
     f.load()
     assert f['Text'] == "f2"
     assert f['Notes'] == "b2"
     assert len(f.cards()) == 2
     assert "b2" in f.cards()[0].a()
+
+def test_css():
+    deck = getEmptyDeck()
+    basic = deck.models.byName("Basic")
+    assert "arial" in basic['css']
+    assert "helvetica" not in basic['css']
+    basic['flds'][0]['font'] = "helvetica"
+    deck.models.save(basic)
+    assert "helvetica" in basic['css']

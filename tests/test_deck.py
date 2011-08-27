@@ -2,7 +2,7 @@
 
 import os, re, datetime
 from tests.shared import assertException, getEmptyDeck, testDir
-from anki.stdmodels import BasicModel
+from anki.stdmodels import addBasicModel
 
 from anki import Deck
 
@@ -53,8 +53,8 @@ def test_factAddDelete():
     f = deck.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
     m = f.model()
-    m.templates[1]['actv'] = True
-    m.flush()
+    m['tmpls'][1]['actv'] = True
+    deck.models.save(m)
     n = deck.addFact(f)
     assert n == 2
     # check q/a generation
@@ -65,7 +65,7 @@ def test_factAddDelete():
         assert not p
     # now let's make a duplicate and test uniqueness
     f2 = deck.newFact()
-    f2.model().fields[1]['req'] = True
+    f2.model()['flds'][1]['req'] = True
     f2['Front'] = u"one"; f2['Back'] = u""
     p = f2.problems()
     assert p[0] == "unique"
@@ -102,15 +102,15 @@ def test_fieldChecksum():
         "select csum from fsums") == int("4b0e5a4c", 16)
     # turning off unique and modifying the fact should delete the sum
     m = f.model()
-    m.fields[0]['uniq'] = False
-    m.flush()
+    m['flds'][0]['uniq'] = False
+    deck.models.save(m)
     f.flush()
     assert deck.db.scalar(
         "select count() from fsums") == 0
     # and turning on both should ensure two checksums generated
-    m.fields[0]['uniq'] = True
-    m.fields[1]['uniq'] = True
-    m.flush()
+    m['flds'][0]['uniq'] = True
+    m['flds'][1]['uniq'] = True
+    deck.models.save(m)
     f.flush()
     assert deck.db.scalar(
         "select count() from fsums") == 2
@@ -190,8 +190,8 @@ def test_addDelTags():
 
 def test_timestamps():
     deck = getEmptyDeck()
-    assert len(deck.models()) == 2
+    assert len(deck.models.models) == 2
     for i in range(100):
-        deck.addModel(BasicModel(deck))
-    assert len(deck.models()) == 102
-    
+        addBasicModel(deck)
+    assert len(deck.models.models) == 102
+

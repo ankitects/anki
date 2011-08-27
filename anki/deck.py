@@ -9,12 +9,13 @@ from anki.utils import parseTags, ids2str, hexifyID, \
      splitFields
 from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
+from anki.models import ModelRegistry
 from anki.media import MediaRegistry
 from anki.consts import *
 from anki.errors import AnkiError
 
 import anki.latex # sets up hook
-import anki.cards, anki.facts, anki.models, anki.template, anki.cram, \
+import anki.cards, anki.facts, anki.template, anki.cram, \
     anki.groups, anki.find
 
 # Settings related to queue building. These may be loaded without the rest of
@@ -51,6 +52,8 @@ class _Deck(object):
         self.path = db._path
         self._lastSave = time.time()
         self.clearUndo()
+        self.media = MediaRegistry(self)
+        self.models = ModelRegistry(self)
         self.load()
         if not self.crt:
             d = datetime.datetime.today()
@@ -65,7 +68,6 @@ class _Deck(object):
         self.lastSessionStart = 0
         self._stdSched = Scheduler(self)
         self.sched = self._stdSched
-        self.media = MediaRegistry(self)
         # check for improper shutdown
         self.cleanup()
 
@@ -85,16 +87,16 @@ class _Deck(object):
          self.lastSync,
          self.qconf,
          self.conf,
+         models,
          self.groups,
-         self.gconf,
-         self.data) = self.db.first("""
+         self.gconf) = self.db.first("""
 select crt, mod, scm, dty, syncName, lastSync,
-qconf, conf, groups, gconf, data from deck""")
+qconf, conf, models, groups, gconf from deck""")
         self.qconf = simplejson.loads(self.qconf)
         self.conf = simplejson.loads(self.conf)
         self.groups = simplejson.loads(self.groups)
         self.gconf = simplejson.loads(self.gconf)
-        self.data = simplejson.loads(self.data)
+        self.models.load(models)
 
     def flush(self, mod=None):
         "Flush state to DB, updating mod time."
@@ -102,11 +104,14 @@ qconf, conf, groups, gconf, data from deck""")
         self.db.execute(
             """update deck set
 crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?,
-qconf=?, conf=?, data=?""",
+qconf=?, conf=?, groups=?, gconf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self.syncName, self.lastSync,
             simplejson.dumps(self.qconf),
-            simplejson.dumps(self.conf), simplejson.dumps(self.data))
+            simplejson.dumps(self.conf),
+            simplejson.dumps(self.groups),
+            simplejson.dumps(self.gconf))
+        self.models.flush()
 
     def save(self, name=None, mod=None):
         "Flush, commit DB, and take out another write lock."
@@ -187,15 +192,6 @@ qconf=?, conf=?, data=?""",
     def getFact(self, id):
         return anki.facts.Fact(self, id=id)
 
-    def getModel(self, mid, cache=True):
-        "Memoizes; call .reset() to reset cache."
-        if cache and mid in self.modelCache:
-            return self.modelCache[mid]
-        m = anki.models.Model(self, mid)
-        if cache:
-            self.modelCache[mid] = m
-        return m
-
     # Utils
     ##########################################################################
 
@@ -227,7 +223,7 @@ qconf=?, conf=?, data=?""",
 
     def newFact(self):
         "Return a new fact with the current model."
-        return anki.facts.Fact(self, self.currentModel())
+        return anki.facts.Fact(self, self.models.current())
 
     def addFact(self, fact):
         "Add a fact to the deck. Return number of new cards."
@@ -273,14 +269,14 @@ qconf=?, conf=?, data=?""",
         "Return (active), non-empty templates."
         ok = []
         model = fact.model()
-        for template in model.templates:
+        for template in model['tmpls']:
             if template['actv'] or not checkActive:
                 # [cid, fid, mid, gid, ord, tags, flds]
-                data = [1, 1, model.id, 1, template['ord'],
+                data = [1, 1, model['id'], 1, template['ord'],
                         "", fact.joinedFields()]
-                now = self._renderQA(model, data)
+                now = self._renderQA(data)
                 data[6] = "\x1f".join([""]*len(fact.fields))
-                empty = self._renderQA(model, data)
+                empty = self._renderQA(data)
                 if now['q'] == empty['q']:
                     continue
                 if not template['emptyAns']:
@@ -321,7 +317,7 @@ qconf=?, conf=?, data=?""",
         elif type == 1:
             cms = [c.template() for c in fact.cards()]
         else:
-            cms = fact.model().templates
+            cms = fact.model()['tmpls']
         if not cms:
             return []
         cards = []
@@ -365,45 +361,6 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
                      ids2str(fids))
         self._delFacts(fids)
 
-    # Models
-    ##########################################################################
-
-    def currentModel(self):
-        return self.getModel(self.conf['currentModelId'])
-
-    def models(self):
-        "Return a dict of mid -> model."
-        mods = {}
-        for m in [self.getModel(id) for id in self.db.list(
-            "select id from models")]:
-            mods[m.id] = m
-        return mods
-
-    def addModel(self, model):
-        self.modSchema()
-        model.flush()
-        self.conf['currentModelId'] = model.id
-
-    def delModel(self, mid):
-        "Delete MODEL, and all its cards/facts."
-        self.modSchema()
-        # delete facts/cards
-        self.delCards(self.db.list("""
-select id from cards where fid in (select id from facts where mid = ?)""",
-                                      mid))
-        # then the model
-        self.db.execute("delete from models where id = ?", mid)
-        # GUI should ensure last model is not deleted
-        if self.conf['currentModelId'] == mid:
-            self.conf['currentModelId'] = self.db.scalar(
-                "select id from models limit 1")
-
-    def allCSS(self):
-        return "\n".join(self.db.list("select css from models"))
-
-    def modelId(self, name):
-        return self.db.scalar("select id from models where name = ?", name)
-
     # Field checksums and sorting fields
     ##########################################################################
 
@@ -414,17 +371,16 @@ select id from cards where fid in (select id from facts where mid = ?)""",
     def updateFieldCache(self, fids, csum=True):
         "Update field checksums and sort cache, after find&replace, etc."
         sfids = ids2str(fids)
-        mods = self.models()
         r = []
         r2 = []
         for (fid, mid, flds) in self._fieldData(sfids):
             fields = splitFields(flds)
-            model = mods[mid]
+            model = self.models.get(mid)
             if csum:
-                for f in model.fields:
+                for f in model['flds']:
                     if f['uniq'] and fields[f['ord']]:
                         r.append((fid, mid, fieldChecksum(fields[f['ord']])))
-            r2.append((stripHTML(fields[model.sortIdx()]), fid))
+            r2.append((stripHTML(fields[self.models.sortIdx(model)]), fid))
         if csum:
             self.db.execute("delete from fsums where fid in "+sfids)
             self.db.executemany("insert into fsums values (?,?,?)", r)
@@ -445,17 +401,17 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             where = ""
         else:
             raise Exception()
-        mods = self.models()
-        return [self._renderQA(mods[row[2]], row)
+        return [self._renderQA(row)
                 for row in self._qaData(where)]
 
-    def _renderQA(self, model, data):
+    def _renderQA(self, data):
         "Returns hash of id, question, answer."
         # data is [cid, fid, mid, gid, ord, tags, flds]
         # unpack fields and create dict
         flist = splitFields(data[6])
         fields = {}
-        for (name, (idx, conf)) in model.fieldMap().items():
+        model = self.models.get(data[2])
+        for (name, (idx, conf)) in self.models.fieldMap(model).items():
             fields[name] = flist[idx]
             if fields[name]:
                 fields[name] = '<span class="fm%s-%s">%s</span>' % (
@@ -463,9 +419,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             else:
                 fields[name] = ""
         fields['Tags'] = data[5]
-        fields['Model'] = model.name
+        fields['Model'] = model['name']
         fields['Group'] = self.groupName(data[3])
-        template = model.templates[data[4]]
+        template = model['tmpls'][data[4]]
         fields['Template'] = template['name']
         # render q & a
         d = dict(id=data[0])
@@ -473,7 +429,7 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             if type == "q":
                 format = format.replace("cloze:", "cq:")
             else:
-                if model.conf['clozectx']:
+                if model['clozectx']:
                     name = "cactx:"
                 else:
                     name = "ca:"
@@ -770,8 +726,8 @@ select id from facts where id not in (select distinct fid from cards)""")
         self.db.execute("delete from tags")
         self.updateFactTags()
         # field cache
-        for m in self.models().values():
-            self.updateFieldCache(m.fids())
+        for m in self.models.all():
+            self.updateFieldCache(self.models.fids(m['id']))
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]

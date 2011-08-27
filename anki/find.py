@@ -20,8 +20,8 @@ SEARCH_GROUP = 7
 def fieldNames(deck, downcase=True):
     fields = set()
     names = []
-    for m in deck.models().values():
-        for f in m.fields:
+    for m in deck.models.all():
+        for f in m['flds']:
             if f['name'].lower() not in fields:
                 names.append(f['name'])
                 fields.add(f['name'].lower())
@@ -119,7 +119,7 @@ order by %s""" % (lim, sort)
             elif type == SEARCH_FIELD:
                 self._findField(token, isNeg)
             elif type == SEARCH_MODEL:
-                self._findModel(token, isNeg, c)
+                self._findModel(token, isNeg)
             elif type == SEARCH_GROUP:
                 self._findGroup(token, isNeg)
             else:
@@ -182,12 +182,13 @@ order by %s""" % (lim, sort)
     def _findFids(self, val):
         self.lims['fact'].append("id in (%s)" % val)
 
-    def _findModel(self, val, isNeg, c):
+    def _findModel(self, val, isNeg):
         extra = "not" if isNeg else ""
-        self.lims['fact'].append(
-            "mid %s in (select id from models where name like :_mod_%d)" % (
-                extra, c))
-        self.lims['args']['_mod_%d'%c] = val
+        ids = []
+        for m in self.deck.models.all():
+            if m['name'].lower() == val:
+                ids.append(m['id'])
+        self.lims['fact'].append("mid %s in %s" % (extra, ids2str(ids)))
 
     def _findGroup(self, val, isNeg):
         extra = "!" if isNeg else ""
@@ -203,8 +204,8 @@ order by %s""" % (lim, sort)
         except:
             num = None
         lims = []
-        for m in self.deck.models().values():
-            for t in m.templates:
+        for m in self.deck.models.all():
+            for t in m['tmpls']:
                 # ordinal number?
                 if num is not None and t['ord'] == num:
                     self.lims['card'].append("ord %s %d" % (comp, num))
@@ -212,8 +213,8 @@ order by %s""" % (lim, sort)
                 # template name?
                 elif t['name'].lower() == val.lower():
                     lims.append((
-                        "(fid in (select id from facts where mid = %d) "
-                        "and ord %s %d)") % (m.id, comp, t['ord']))
+                        "(fid in (select id from facts where mid = %s) "
+                        "and ord %s %d)") % (m['id'], comp, t['ord']))
                     found = True
         if lims:
             self.lims['card'].append("(" + " or ".join(lims) + ")")
@@ -226,10 +227,10 @@ order by %s""" % (lim, sort)
         value = "%" + parts[1].replace("*", "%") + "%"
         # find models that have that field
         mods = {}
-        for m in self.deck.models().values():
-            for f in m.fields:
+        for m in self.deck.models.all():
+            for f in m['flds']:
                 if f['name'].lower() == field:
-                    mods[m.id] = (m, f['ord'])
+                    mods[m['id']] = (m, f['ord'])
         if not mods:
             # nothing has that field
             self.lims['valid'] = False
@@ -243,11 +244,11 @@ where mid in %s and flds like ? escape '\\'""" % (
                          ids2str(mods.keys())),
                          "%" if self.full else value):
             flds = splitFields(flds)
-            ord = mods[mid][1]
-            str = flds[ord]
+            ord = mods[str(mid)][1]
+            strg = flds[ord]
             if self.full:
-                str = stripHTML(str)
-            if re.search(regex, str):
+                strg = stripHTML(strg)
+            if re.search(regex, strg):
                 fids.append(id)
         extra = "not" if isNeg else ""
         self.lims['fact'].append("id %s in %s" % (extra, ids2str(fids)))
@@ -372,10 +373,10 @@ def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
     "Find and replace fields in a fact."
     mmap = {}
     if field:
-        for m in deck.models().values():
-            for f in m.fields:
+        for m in deck.models.all():
+            for f in m['flds']:
                 if f['name'] == field:
-                    mmap[m.id] = f['ord']
+                    mmap[m['id']] = f['ord']
         if not mmap:
             return 0
     # find and gather replacements
@@ -393,7 +394,7 @@ def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
         # does it match?
         sflds = splitFields(flds)
         if field:
-            ord = mmap[mid]
+            ord = mmap[str(mid)]
             sflds[ord] = repl(sflds[ord])
         else:
             for c in range(len(sflds)):

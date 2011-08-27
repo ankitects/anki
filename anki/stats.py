@@ -47,7 +47,7 @@ class CardStats(object):
                 self.addLine(_("Total Time"), self.time(total))
         elif c.queue == 0:
             self.addLine(_("Position"), c.due)
-        self.addLine(_("Model"), c.model().name)
+        self.addLine(_("Model"), c.model()['name'])
         self.addLine(_("Template"), c.template()['name'])
         self.addLine(_("Current Group"), self.deck.groupName(c.gid))
         self.addLine(_("Initial Group"), self.deck.groupName(c.fact().gid))

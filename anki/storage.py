@@ -9,7 +9,7 @@ from anki.lang import _
 from anki.utils import intTime
 from anki.db import DB
 from anki.deck import _Deck
-from anki.stdmodels import BasicModel, ClozeModel
+from anki.stdmodels import addBasicModel, addClozeModel
 from anki.errors import AnkiError
 from anki.hooks import runHook
 
@@ -34,8 +34,8 @@ def Deck(path, queue=True, lock=True):
         _upgradeDeck(deck, ver)
     elif create:
         # add in reverse order so basic is default
-        deck.addModel(ClozeModel(deck))
-        deck.addModel(BasicModel(deck))
+        addClozeModel(deck)
+        addBasicModel(deck)
         deck.save()
     if lock:
         deck.lock()
@@ -67,9 +67,9 @@ create table if not exists deck (
     lastSync        integer not null,
     qconf           text not null,
     conf            text not null,
+    models          text not null,
     groups          text not null,
-    gconf           text not null,
-    data            text not null
+    gconf           text not null
 );
 
 create table if not exists cards (
@@ -108,16 +108,6 @@ create table if not exists fsums (
     csum            integer not null
 );
 
-create table if not exists models (
-    id              integer primary key,
-    mod             integer not null,
-    name            text not null,
-    flds            text not null,
-    tmpls           text not null,
-    conf            text not null,
-    css             text not null
-);
-
 create table if not exists graves (
     time            integer not null,
     oid             integer not null,
@@ -148,13 +138,14 @@ values(1,0,0,0,%(v)s,0,'',0,'','','','','');
     import anki.groups
     if setDeckConf:
         db.execute("""
-update deck set qconf = ?, conf = ?, groups = ?, gconf = ?, data = ?""",
+update deck set qconf = ?, conf = ?, models = ?, groups = ?, gconf = ?""",
                    simplejson.dumps(anki.deck.defaultQconf),
                    simplejson.dumps(anki.deck.defaultConf),
+                   "{}",
                    simplejson.dumps({'1': {'name': _("Default"), 'conf': 1,
                                        'mod': intTime()}}),
-                   simplejson.dumps({'1': anki.groups.defaultConf}),
-                   "{}")
+                   simplejson.dumps({'1': anki.groups.defaultConf}))
+
 
 def _updateIndices(db):
     "Add indices to the DB."
@@ -494,7 +485,7 @@ order by modelId, ordinal"""):
 
 def _fixupModels(deck):
     # rewrite model/template/field ids
-    models = deck.models()
+    models = deck.models.all()
     deck.db.execute("delete from models")
     times = {}
     for c, m in enumerate(models.values()):

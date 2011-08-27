@@ -2,7 +2,6 @@
 
 import time, copy
 from tests.shared import assertException, getEmptyDeck
-from anki.stdmodels import BasicModel
 from anki.utils import stripHTML, intTime
 from anki.hooks import addHook
 
@@ -32,9 +31,9 @@ def test_new():
     assert c.due >= t
     # the default order should ensure siblings are not seen together, and
     # should show all cards
-    m = d.currentModel()
-    m.templates[1]['actv'] = True
-    m.flush()
+    m = d.models.current()
+    m['tmpls'][1]['actv'] = True
+    d.models.save(m)
     f = d.newFact()
     f['Front'] = u"2"; f['Back'] = u"2"
     d.addFact(f)
@@ -50,15 +49,15 @@ def test_new():
 
 def test_newOrder():
     d = getEmptyDeck()
-    m = d.currentModel()
+    m = d.models.current()
     for i in range(50):
-        t = m.newTemplate()
+        t = d.models.newTemplate(m)
         t['name'] = str(i)
         t['qfmt'] = "{{Front}}"
         t['afmt'] = "{{Back}}"
         t['actv'] = i > 25
-        m.addTemplate(t)
-    m.flush()
+        d.models.addTemplate(m, t)
+    d.models.save(m)
     f = d.newFact()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -495,19 +494,19 @@ def test_cramLimits():
 def test_adjIvl():
     d = getEmptyDeck()
     # add two more templates and set second active
-    m = d.currentModel()
-    m.templates[1]['actv'] = True
-    t = m.newTemplate()
+    m = d.models.current()
+    m['tmpls'][1]['actv'] = True
+    t = d.models.newTemplate(m)
     t['name'] = "f2"
     t['qfmt'] = "{{Front}}"
     t['afmt'] = "{{Back}}"
-    m.addTemplate(t)
-    t = m.newTemplate()
+    d.models.addTemplate(m, t)
+    t = d.models.newTemplate(m)
     t['name'] = "f3"
     t['qfmt'] = "{{Front}}"
     t['afmt'] = "{{Back}}"
-    m.addTemplate(t)
-    m.flush()
+    d.models.addTemplate(m, t)
+    d.models.save(m)
     # create a new fact; it should have 4 cards
     f = d.newFact()
     f['Front'] = "1"; f['Back'] = "1"
@@ -560,14 +559,14 @@ def test_adjIvl():
 def test_ordcycle():
     d = getEmptyDeck()
     # add two more templates and set second active
-    m = d.currentModel()
-    m.templates[1]['actv'] = True
-    t = m.newTemplate()
+    m = d.models.current()
+    m['tmpls'][1]['actv'] = True
+    t = d.models.newTemplate(m)
     t['name'] = "f2"
     t['qfmt'] = "{{Front}}"
     t['afmt'] = "{{Back}}"
-    m.addTemplate(t)
-    m.flush()
+    d.models.addTemplate(m, t)
+    d.models.save(m)
     # create a new fact; it should have 4 cards
     f = d.newFact()
     f['Front'] = "1"; f['Back'] = "1"

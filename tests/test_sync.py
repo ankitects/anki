@@ -6,7 +6,6 @@ from tests.shared import assertException
 from anki.errors import *
 from anki import Deck
 from anki.utils import intTime
-from anki.stdmodels import BasicModel
 from anki.sync import SyncClient, SyncServer, HttpSyncServer, HttpSyncServerProxy
 from anki.sync import copyLocalMedia
 from anki.facts import Fact

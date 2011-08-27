@@ -2,7 +2,6 @@
 
 import os
 from tests.shared import assertException, getEmptyDeck
-from anki.stdmodels import BasicModel
 from anki.utils import stripHTML, intTime
 from anki.hooks import addHook
 
