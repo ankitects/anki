@@ -689,7 +689,7 @@ select id from facts where id not in (select distinct fid from cards)""")
         self.updateFactTags()
         # field cache
         for m in self.models.all():
-            self.updateFieldCache(self.models.fids(m['id']))
+            self.updateFieldCache(self.models.fids(m))
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]

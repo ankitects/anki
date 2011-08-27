@@ -286,20 +286,6 @@ order by created"""):
 insert into cards values (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, "")""",
                    rows)
 
-    # media
-    ###########
-    db.execute("drop table media")
-
-    # models
-    ###########
-    import anki.models
-    _moveTable(db, "models")
-    db.execute("""
-insert into models select id, cast(created*1000 as int),
-name, "{}", "{}", ?, "" from models2""", simplejson.dumps(
-    anki.models.defaultConf))
-    db.execute("drop table models2")
-
     # reviewHistory -> revlog
     ###########
     # fetch the data so we can rewrite ids quickly
@@ -342,12 +328,11 @@ yesCount from reviewHistory"""):
         "insert or ignore into revlog values (?,?,?,?,?,?,?,?)", r)
     db.execute("drop table reviewHistory")
 
-    # longer migrations
+    # the rest
     ###########
+    db.execute("drop table media")
     _migrateDeckTbl(db)
-    mods = _migrateFieldsTbl(db)
-    _migrateTemplatesTbl(db, mods)
-
+    _migrateModels(db)
     _updateIndices(db)
     return ver
 
@@ -389,27 +374,51 @@ insert or replace into deck select id, cast(created as int), :t,
         else:
             conf[k] = v
     import anki.groups
-    db.execute("update deck set qconf = :l,conf = :c,data = :d,groups=:g,gconf=:gc",
+    db.execute("update deck set qconf = :l,conf = :c,groups=:g,gconf=:gc",
                l=simplejson.dumps(qconf),
                c=simplejson.dumps(conf),
-               d=simplejson.dumps(data),
                g=simplejson.dumps({'1': {'name': _("Default"), 'conf': 1}}),
                gc=simplejson.dumps({'1': anki.groups.defaultConf}))
     # clean up
     db.execute("drop table decks")
     db.execute("drop table deckVars")
 
-def _migrateFieldsTbl(db):
+def _migrateModels(db):
+    import anki.models
+    times = {}
+    mods = {}
+    for row in db.all(
+        "select id, name from models"):
+        while 1:
+            t = intTime(1000)
+            if t not in times:
+                times[t] = True
+                break
+        m = anki.models.defaultModel.copy()
+        m['id'] = t
+        m['name'] = row[1]
+        m['mod'] = intTime()
+        m['tags'] = []
+        m['flds'] = _fieldsForModel(db, row[0])
+        m['tmpls'] = _templatesForModel(db, row[0], m['flds'])
+        mods[m['id']] = m
+        db.execute("update facts set mid = ? where mid = ?", t, row[0])
+    # save and clean up
+    db.execute("update deck set models = ?", simplejson.dumps(mods))
+    db.execute("drop table fieldModels")
+    db.execute("drop table cardModels")
+    db.execute("drop table models")
+
+def _fieldsForModel(db, mid):
     import anki.models
     dconf = anki.models.defaultField
-    mods = {}
-    for row in db.all("""
-select modelId, name, features, required, "unique",
+    flds = []
+    for c, row in enumerate(db.all("""
+select name, features, required, "unique",
 quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels
-order by modelId, ordinal"""):
+where modelId = ?
+order by ordinal""", mid)):
         conf = dconf.copy()
-        if row[0] not in mods:
-            mods[row[0]] = []
         (conf['name'],
          conf['rtl'],
          conf['req'],
@@ -417,7 +426,8 @@ order by modelId, ordinal"""):
          conf['font'],
          conf['qsize'],
          conf['qcol'],
-         conf['esize']) = row[1:]
+         conf['esize']) = row
+        conf['ord'] = c
         # ensure data is good
         conf['rtl'] = not not conf['rtl']
         conf['pre'] = True
@@ -425,26 +435,19 @@ order by modelId, ordinal"""):
         conf['qcol'] = conf['qcol'] or "#000"
         conf['qsize'] = conf['qsize'] or 20
         conf['esize'] = conf['esize'] or 20
-        mods[row[0]].append(conf)
-    # now we've gathered all the info, save it into the models
-    for mid, fms in mods.items():
-        db.execute("update models set flds = ? where id = ?",
-                   simplejson.dumps(fms), mid)
-    # clean up
-    db.execute("drop table fieldModels")
-    return mods
+        flds.append(conf)
+    return flds
 
-def _migrateTemplatesTbl(db, fmods):
+def _templatesForModel(db, mid, flds):
     import anki.models
     dconf = anki.models.defaultTemplate
-    mods = {}
-    for row in db.all("""
-select modelId, name, active, qformat, aformat, questionInAnswer,
+    tmpls = []
+    for c, row in enumerate(db.all("""
+select name, active, qformat, aformat, questionInAnswer,
 questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels
-order by modelId, ordinal"""):
+where modelId = ?
+order by ordinal""", mid)):
         conf = dconf.copy()
-        if row[0] not in mods:
-            mods[row[0]] = []
         (conf['name'],
          conf['actv'],
          conf['qfmt'],
@@ -453,10 +456,11 @@ order by modelId, ordinal"""):
          conf['align'],
          conf['bg'],
          conf['emptyAns'],
-         conf['typeAns']) = row[1:]
+         conf['typeAns']) = row
+        conf['ord'] = c
         # convert the field name to an ordinal
         ordN = None
-        for (ord, fm) in enumerate(fmods[row[0]]):
+        for (ord, fm) in enumerate(flds):
             if fm['name'] == conf['typeAns']:
                 ordN = ord
                 break
@@ -474,39 +478,12 @@ order by modelId, ordinal"""):
                 "(?i){{cardModel}}", "{{Template}}", conf[type])
             conf[type] = re.sub(
                 "(?i){{modelTags}}", "{{Model}}", conf[type])
-        mods[row[0]].append(conf)
-    # now we've gathered all the info, save it into the models
-    for mid, tmpls in mods.items():
-        db.execute("update models set tmpls = ? where id = ?",
-                   simplejson.dumps(tmpls), mid)
-    # clean up
-    db.execute("drop table cardModels")
-    return mods
-
-def _fixupModels(deck):
-    # rewrite model/template/field ids
-    models = deck.models.all()
-    deck.db.execute("delete from models")
-    times = {}
-    for c, m in enumerate(models.values()):
-        # update ordinals
-        m._updateFieldOrds()
-        m._updateTemplOrds()
-        # we've temporarily stored the model creation time in the mod time
-        old = m.id
-        while m.mod in times:
-            m.mod += 1
-        times[m.mod] = True
-        m.id = m.mod
-        m.mod = intTime()
-        m.flush()
-        deck.db.execute("update facts set mid = ? where mid = ?", m.id, old)
+        tmpls.append(conf)
+    return tmpls
 
 def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
-    # adjust models
-    _fixupModels(deck)
     # fix creation time
     deck.sched._updateCutoff()
     d = datetime.datetime.today()
