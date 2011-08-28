@@ -477,6 +477,11 @@ order by ordinal""", mid)):
 def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
+    # make sure we have a current model id
+    deck.conf['currentModelId'] = deck.models.models.keys()[0]
+    # regenerate css
+    for m in deck.models.all():
+        deck.models.save(m)
     # fix creation time
     deck.sched._updateCutoff()
     d = datetime.datetime.today()
