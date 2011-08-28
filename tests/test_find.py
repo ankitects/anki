@@ -36,11 +36,11 @@ def test_findCards():
     assert len(deck.findCards("tag:monkey")) == 1
     assert len(deck.findCards("tag:sheep -tag:monkey")) == 1
     assert len(deck.findCards("-tag:sheep")) == 4
-    deck.addTags(deck.db.list("select id from facts"), "foo bar")
+    deck.tags.bulkAdd(deck.db.list("select id from facts"), "foo bar")
     assert (len(deck.findCards("tag:foo")) ==
             len(deck.findCards("tag:bar")) ==
             5)
-    deck.delTags(deck.db.list("select id from facts"), "foo")
+    deck.tags.bulkRem(deck.db.list("select id from facts"), "foo")
     assert len(deck.findCards("tag:foo")) == 0
     assert len(deck.findCards("tag:bar")) == 5
     # text searches

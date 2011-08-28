@@ -50,7 +50,7 @@ class Anki10Importer(Importer):
         copyLocalMedia(server.deck, client.deck)
         # add tags
         fids = [f[0] for f in res['added-facts']['facts']]
-        self.deck.addTags(fids, self.tagsToAdd)
+        self.deck.tags.add(fids, self.tagsToAdd)
         # mark import material as newly added
         self.deck.db.execute(
             "update cards set modified = :t where id in %s" %

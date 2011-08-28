@@ -189,50 +189,6 @@ def timestampID(db, table):
         t += 1
     return t
 
-# Tags
-##############################################################################
-
-def parseTags(tags):
-    "Parse a string and return a list of tags."
-    return [t for t in tags.split(" ") if t]
-
-def joinTags(tags):
-    "Join tags into a single string, with leading and trailing spaces."
-    if not tags:
-        return u""
-    return u" %s " % u" ".join(tags)
-
-def canonifyTags(tags):
-    "Strip leading/trailing/superfluous spaces and duplicates."
-    tags = [t.lstrip(":") for t in set(tags)]
-    return joinTags(sorted(tags))
-
-def hasTag(tag, tags):
-    "True if TAG is in TAGS. Ignore case."
-    return tag.lower() in [t.lower() for t in tags]
-
-def addTags(addtags, tags):
-    "Add tags if they don't exist."
-    currentTags = parseTags(tags)
-    for tag in parseTags(addtags):
-        if not hasTag(tag, currentTags):
-            currentTags.append(tag)
-    return canonifyTags(currentTags)
-
-def delTags(deltags, tags):
-    "Delete tags if they don't exists."
-    currentTags = parseTags(tags)
-    for tag in parseTags(deltags):
-        # find tags, ignoring case
-        remove = []
-        for tx in currentTags:
-            if tag.lower() == tx.lower():
-                remove.append(tx)
-        # remove them
-        for r in remove:
-            currentTags.remove(r)
-    return canonifyTags(currentTags)
-
 # Fields
 ##############################################################################
 

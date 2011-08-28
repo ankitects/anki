@@ -15,8 +15,7 @@ import time
 #from anki.cards import cardsTable
 #from anki.facts import factsTable, fieldsTable
 from anki.lang import _
-from anki.utils import canonifyTags, fieldChecksum
-from anki.utils import canonifyTags, ids2str
+from anki.utils import fieldChecksum, ids2str
 from anki.errors import *
 #from anki.deck import NEW_CARDS_RANDOM
 

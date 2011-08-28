@@ -156,17 +156,17 @@ def test_selective():
     f = deck.newFact()
     f['Front'] = u"3"; f.tags = ["one", "two", "three", "four"]
     deck.addFact(f)
-    assert len(deck.selTagFids(["one"], [])) == 2
-    assert len(deck.selTagFids(["three"], [])) == 3
-    assert len(deck.selTagFids([], ["three"])) == 0
-    assert len(deck.selTagFids(["one"], ["three"])) == 0
-    assert len(deck.selTagFids(["one"], ["two"])) == 1
-    assert len(deck.selTagFids(["two", "three"], [])) == 3
-    assert len(deck.selTagFids(["two", "three"], ["one"])) == 1
-    assert len(deck.selTagFids(["one", "three"], ["two", "four"])) == 1
-    deck.setGroupForTags(["three"], [], 3)
+    assert len(deck.tags.selTagFids(["one"], [])) == 2
+    assert len(deck.tags.selTagFids(["three"], [])) == 3
+    assert len(deck.tags.selTagFids([], ["three"])) == 0
+    assert len(deck.tags.selTagFids(["one"], ["three"])) == 0
+    assert len(deck.tags.selTagFids(["one"], ["two"])) == 1
+    assert len(deck.tags.selTagFids(["two", "three"], [])) == 3
+    assert len(deck.tags.selTagFids(["two", "three"], ["one"])) == 1
+    assert len(deck.tags.selTagFids(["one", "three"], ["two", "four"])) == 1
+    deck.tags.setGroupForTags(["three"], [], 3)
     assert deck.db.scalar("select count() from cards where gid = 3") == 3
-    deck.setGroupForTags(["one"], [], 2)
+    deck.tags.setGroupForTags(["one"], [], 2)
     assert deck.db.scalar("select count() from cards where gid = 2") == 2
 
 def test_addDelTags():
@@ -178,12 +178,12 @@ def test_addDelTags():
     f2['Front'] = u"2"
     deck.addFact(f2)
     # adding for a given id
-    deck.addTags([f.id], "foo")
+    deck.tags.bulkAdd([f.id], "foo")
     f.load(); f2.load()
     assert "foo" in f.tags
     assert "foo" not in f2.tags
     # should be canonified
-    deck.addTags([f.id], "foo aaa")
+    deck.tags.bulkAdd([f.id], "foo aaa")
     f.load()
     assert f.tags[0] == "aaa"
     assert len(f.tags) == 2

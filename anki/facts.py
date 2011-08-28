@@ -5,8 +5,7 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import fieldChecksum, intTime, \
-    joinFields, splitFields, ids2str, parseTags, canonifyTags, hasTag, \
-    stripHTML, timestampID
+    joinFields, splitFields, ids2str, stripHTML, timestampID
 
 class Fact(object):
 
@@ -35,7 +34,7 @@ class Fact(object):
          self.data) = self.deck.db.first("""
 select mid, gid, mod, tags, flds, data from facts where id = ?""", self.id)
         self.fields = splitFields(self.fields)
-        self.tags = parseTags(self.tags)
+        self.tags = self.deck.tags.split(self.tags)
         self._model = self.deck.models.get(self.mid)
         self._fmap = self.deck.models.fieldMap(self._model)
 
@@ -50,7 +49,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
                             sfld, self.data)
         self.id = res.lastrowid
         self.updateFieldChecksums()
-        self.deck.registerTags(self.tags)
+        self.deck.tags.register(self.tags)
 
     def joinedFields(self):
         return joinFields(self.fields)
@@ -109,10 +108,10 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
     ##################################################
 
     def hasTag(self, tag):
-        return hasTag(tag, self.tags)
+        return self.deck.tags.inStr(tag, self.tags)
 
     def stringTags(self):
-        return canonifyTags(self.tags)
+        return self.deck.tags.canonify(self.tags)
 
     def delTag(self, tag):
         rem = []

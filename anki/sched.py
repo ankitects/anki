@@ -6,7 +6,7 @@ import time, datetime, simplejson, random, itertools
 from operator import itemgetter
 from heapq import *
 #from anki.cards import Card
-from anki.utils import parseTags, ids2str, intTime, fmtTimeSpan
+from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _, ngettext
 from anki.consts import *
 from anki.hooks import runHook

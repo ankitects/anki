@@ -7,7 +7,7 @@ import os, shutil, re, urllib, urllib2, time, unicodedata, \
 from anki.utils import checksum, intTime, namedtmp, isWin
 from anki.lang import _
 
-class MediaRegistry(object):
+class MediaManager(object):
 
     # can be altered at the class level for dropbox, etc
     mediaPrefix = ""

@@ -40,7 +40,7 @@ defaultData = {
     'inactiveTags': None,
 }
 
-class GroupRegistry(object):
+class GroupManager(object):
 
     # Registry save/load
     #############################################################

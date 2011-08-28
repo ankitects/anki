@@ -4,14 +4,14 @@
 
 import time, os, random, re, stat, simplejson, datetime, copy, shutil
 from anki.lang import _, ngettext
-from anki.utils import parseTags, ids2str, hexifyID, \
-     checksum, fieldChecksum, addTags, delTags, stripHTML, intTime, \
-     splitFields
+from anki.utils import ids2str, hexifyID, checksum, fieldChecksum, stripHTML, \
+    intTime, splitFields
 from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
-from anki.models import ModelRegistry
-from anki.media import MediaRegistry
-from anki.groups import GroupRegistry
+from anki.models import ModelManager
+from anki.media import MediaManager
+from anki.groups import GroupManager
+from anki.tags import TagManager
 from anki.consts import *
 from anki.errors import AnkiError
 
@@ -52,9 +52,10 @@ class _Deck(object):
         self.path = db._path
         self._lastSave = time.time()
         self.clearUndo()
-        self.media = MediaRegistry(self)
-        self.models = ModelRegistry(self)
-        self.groups = GroupRegistry(self)
+        self.media = MediaManager(self)
+        self.models = ModelManager(self)
+        self.groups = GroupManager(self)
+        self.tags = TagManager(self)
         self.load()
         if not self.crt:
             d = datetime.datetime.today()
@@ -90,13 +91,15 @@ class _Deck(object):
          self.conf,
          models,
          groups,
-         gconf) = self.db.first("""
+         gconf,
+         tags) = self.db.first("""
 select crt, mod, scm, dty, syncName, lastSync,
-qconf, conf, models, groups, gconf from deck""")
+qconf, conf, models, groups, gconf, tags from deck""")
         self.qconf = simplejson.loads(self.qconf)
         self.conf = simplejson.loads(self.conf)
         self.models.load(models)
         self.groups.load(groups, gconf)
+        self.tags.load(tags)
 
     def flush(self, mod=None):
         "Flush state to DB, updating mod time."
@@ -111,6 +114,7 @@ qconf=?, conf=?""",
             simplejson.dumps(self.conf))
         self.models.flush()
         self.groups.flush()
+        self.tags.flush()
 
     def save(self, name=None, mod=None):
         "Flush, commit DB, and take out another write lock."
@@ -447,93 +451,6 @@ from cards c, facts f
 where c.fid == f.id
 %s""" % where)
 
-    # Tags
-    ##########################################################################
-
-    def tagList(self):
-        return self.db.list("select name from tags order by name")
-
-    def updateFactTags(self, fids=None):
-        "Add any missing tags to the tags list."
-        if fids:
-            lim = " where id in " + ids2str(fids)
-        else:
-            lim = ""
-        self.registerTags(set(parseTags(
-            " ".join(self.db.list("select distinct tags from facts"+lim)))))
-
-    def registerTags(self, tags):
-        r = []
-        for t in tags:
-            r.append({'t': t})
-        self.db.executemany("""
-insert or ignore into tags (mod, name) values (%d, :t)""" % intTime(),
-                            r)
-
-    def addTags(self, ids, tags, add=True):
-        "Add tags in bulk. TAGS is space-separated."
-        newTags = parseTags(tags)
-        if not newTags:
-            return
-        # cache tag names
-        self.registerTags(newTags)
-        # find facts missing the tags
-        if add:
-            l = "tags not "
-            fn = addTags
-        else:
-            l = "tags "
-            fn = delTags
-        lim = " or ".join(
-            [l+"like :_%d" % c for c, t in enumerate(newTags)])
-        res = self.db.all(
-            "select id, tags from facts where id in %s and %s" % (
-                ids2str(ids), lim),
-            **dict([("_%d" % x, '%% %s %%' % y) for x, y in enumerate(newTags)]))
-        # update tags
-        fids = []
-        def fix(row):
-            fids.append(row[0])
-            return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime()}
-        self.db.executemany("""
-update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res])
-        # update q/a cache
-        self.registerTags(parseTags(tags))
-
-    def delTags(self, ids, tags):
-        self.addTags(ids, tags, False)
-
-    # Tag-based selective study
-    ##########################################################################
-
-    def selTagFids(self, yes, no):
-        l = []
-        # find facts that match yes
-        lim = ""
-        args = []
-        query = "select id from facts"
-        if not yes and not no:
-            pass
-        else:
-            if yes:
-                lim += " or ".join(["tags like ?" for t in yes])
-                args += ['%% %s %%' % t for t in yes]
-            if no:
-                lim2 = " and ".join(["tags not like ?" for t in no])
-                if lim:
-                    lim = "(%s) and %s" % (lim, lim2)
-                else:
-                    lim = lim2
-                args += ['%% %s %%' % t for t in no]
-            query += " where " + lim
-        return self.db.list(query, *args)
-
-    def setGroupForTags(self, yes, no, gid):
-        fids = self.selTagFids(yes, no)
-        self.db.execute(
-            "update cards set gid = ? where fid in "+ids2str(fids),
-            gid)
-
     # Finding cards
     ##########################################################################
 
@@ -685,8 +602,7 @@ update facts set tags = :t, mod = :n where id = :id""", [fix(row) for row in res
 select id from facts where id not in (select distinct fid from cards)""")
         self._delFacts(ids)
         # tags
-        self.db.execute("delete from tags")
-        self.updateFactTags()
+        self.tags.registerFacts()
         # field cache
         for m in self.models.all():
             self.updateFieldCache(self.models.fids(m))

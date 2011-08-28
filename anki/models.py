@@ -56,7 +56,7 @@ defaultTemplate = {
     'gid': None,
 }
 
-class ModelRegistry(object):
+class ModelManager(object):
 
     # Saving/loading registry
     #############################################################

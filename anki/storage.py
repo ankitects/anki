@@ -69,7 +69,8 @@ create table if not exists deck (
     conf            text not null,
     models          text not null,
     groups          text not null,
-    gconf           text not null
+    gconf           text not null,
+    tags            text not null
 );
 
 create table if not exists cards (
@@ -125,27 +126,19 @@ create table if not exists revlog (
     type            integer not null
 );
 
-create table if not exists tags (
-    id              integer primary key,
-    mod             integer not null,
-    name            text not null collate nocase unique
-);
-
 insert or ignore into deck
-values(1,0,0,0,%(v)s,0,'',0,'','','','','');
+values(1,0,0,0,%(v)s,0,'',0,'','','{}','','','{}');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
     import anki.groups
     if setDeckConf:
         db.execute("""
-update deck set qconf = ?, conf = ?, models = ?, groups = ?, gconf = ?""",
+update deck set qconf = ?, conf = ?, groups = ?, gconf = ?""",
                    simplejson.dumps(anki.deck.defaultQconf),
                    simplejson.dumps(anki.deck.defaultConf),
-                   "{}",
                    simplejson.dumps({'1': {'name': _("Default"), 'conf': 1,
                                        'mod': intTime()}}),
                    simplejson.dumps({'1': anki.groups.defaultConf}))
-
 
 def _updateIndices(db):
     "Add indices to the DB."
@@ -191,14 +184,6 @@ def _upgradeSchema(db):
     if ver > 99:
         return ver
     runHook("1.x upgrade", db)
-
-    # tags
-    ###########
-    _moveTable(db, "tags")
-    db.execute("insert or ignore into tags select id, ?, tag from tags2",
-               intTime())
-    db.execute("drop table tags2")
-    db.execute("drop table cardTags")
 
     # facts
     ###########
@@ -328,10 +313,22 @@ yesCount from reviewHistory"""):
         "insert or ignore into revlog values (?,?,?,?,?,?,?,?)", r)
     db.execute("drop table reviewHistory")
 
+    # deck
+    ###########
+    _migrateDeckTbl(db)
+
+    # tags
+    ###########
+    tags = {}
+    for t in db.list("select tag from tags"):
+        tags[t] = intTime()
+    db.execute("update deck set tags = ?", simplejson.dumps(tags))
+    db.execute("drop table tags")
+    db.execute("drop table cardTags")
+
     # the rest
     ###########
     db.execute("drop table media")
-    _migrateDeckTbl(db)
     _migrateModels(db)
     _updateIndices(db)
     return ver
@@ -342,7 +339,7 @@ def _migrateDeckTbl(db):
     db.execute("""
 insert or replace into deck select id, cast(created as int), :t,
 :t, 99, 0, ifnull(syncName, ""), cast(lastSync as int),
-"", "", "", "", "" from decks""", t=intTime())
+"", "", "", "", "", "" from decks""", t=intTime())
     # update selective study
     qconf = anki.deck.defaultQconf.copy()
     # delete old selective study settings, which we can't auto-upgrade easily
