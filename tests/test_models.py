@@ -10,7 +10,7 @@ def test_modelDelete():
     f['Back'] = u'2'
     deck.addFact(f)
     assert deck.cardCount() == 1
-    deck.models.del_(deck.models.get(deck.conf['currentModelId']))
+    deck.models.rem(deck.models.get(deck.conf['currentModelId']))
     assert deck.cardCount() == 0
 
 def test_modelCopy():

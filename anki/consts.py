@@ -20,9 +20,9 @@ REV_CARDS_OLD_FIRST = 0
 REV_CARDS_NEW_FIRST = 1
 REV_CARDS_RANDOM = 2
 
-# deletion types
-DEL_CARD = 0
-DEL_FACT = 1
+# removal types
+REM_CARD = 0
+REM_FACT = 1
 
 # Labels
 ##########################################################################

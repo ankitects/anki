@@ -213,8 +213,8 @@ qconf=?, conf=?""",
     # Deletion logging
     ##########################################################################
 
-    def _logDels(self, ids, type):
-        tbl = "cards" if type == DEL_CARD else "facts"
+    def _logRem(self, ids, type):
+        tbl = "cards" if type == REM_CARD else "facts"
         self.db.executemany("insert into graves values (%d, ?, %d)" % (
             intTime(), type), ([x] for x in ids))
 
@@ -250,18 +250,18 @@ qconf=?, conf=?""",
     def _randPos(self):
         return random.randrange(1, self.nextID("pos", inc=False))
 
-    def delFacts(self, ids):
-        self.delCards(self.db.list("select id from cards where fid in "+
+    def remFacts(self, ids):
+        self.remCards(self.db.list("select id from cards where fid in "+
                                    ids2str(ids)))
 
-    def _delFacts(self, ids):
+    def _remFacts(self, ids):
         "Bulk delete facts by ID. Don't call this directly."
         if not ids:
             return
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
-        self._logDels(ids, DEL_FACT)
+        self._logRem(ids, REM_FACT)
         self.db.execute("delete from facts where id in %s" % strids)
         self.db.execute("delete from fsums where fid in %s" % strids)
 
@@ -348,21 +348,21 @@ qconf=?, conf=?""",
     def cardCount(self):
         return self.db.scalar("select count() from cards")
 
-    def delCards(self, ids):
+    def remCards(self, ids):
         "Bulk delete cards by ID."
         if not ids:
             return
         sids = ids2str(ids)
         fids = self.db.list("select fid from cards where id in "+sids)
         # remove cards
-        self._logDels(ids, DEL_CARD)
+        self._logRem(ids, REM_CARD)
         self.db.execute("delete from cards where id in "+sids)
         self.db.execute("delete from revlog where cid in "+sids)
         # then facts
         fids = self.db.list("""
 select id from facts where id in %s and id not in (select fid from cards)""" %
                      ids2str(fids))
-        self._delFacts(fids)
+        self._remFacts(fids)
 
     # Field checksums and sorting fields
     ##########################################################################
@@ -600,7 +600,7 @@ where c.fid == f.id
         # delete any facts with missing cards
         ids = self.db.list("""
 select id from facts where id not in (select distinct fid from cards)""")
-        self._delFacts(ids)
+        self._remFacts(ids)
         # tags
         self.tags.registerFacts()
         # field cache

@@ -82,7 +82,7 @@ class GroupManager(object):
             self.save(g)
             return int(id)
 
-    def del_(self, gid):
+    def rem(self, gid):
         self.deck.modSchema()
         self.deck.db.execute("update cards set gid = 1 where gid = ?", gid)
         self.deck.db.execute("update facts set gid = 1 where gid = ?", gid)

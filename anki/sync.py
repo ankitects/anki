@@ -152,8 +152,8 @@ class Syncer(object):
 
     def deletions(self, lastSync):
         sql = "select oid from graves where time > ? and type = ?"
-        return [self.deck.db.list(sql, lastSync, DEL_FACT),
-                self.deck.db.list(sql, lastSync, DEL_CARD)]
+        return [self.deck.db.list(sql, lastSync, REM_FACT),
+                self.deck.db.list(sql, lastSync, REM_CARD)]
 
     def delete(self, deletions):
         self.deck.delFacts(deletions[0])

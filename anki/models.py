@@ -114,11 +114,11 @@ class ModelManager(object):
         m['tags'] = []
         return self._add(m)
 
-    def del_(self, m):
+    def rem(self, m):
         "Delete model, and all its cards/facts."
         self.deck.modSchema()
         # delete facts/cards
-        self.deck.delCards(self.deck.db.list("""
+        self.deck.remCards(self.deck.db.list("""
 select id from cards where fid in (select id from facts where mid = ?)""",
                                       m['id']))
         # then the model
@@ -312,7 +312,7 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         cids = self.deck.db.list("""
 select c.id from cards c, facts f where c.fid=f.id and mid = ? and ord = ?""",
                                  m['id'], ord)
-        self.deck.delCards(cids)
+        self.deck.remCards(cids)
         # shift ordinals
         self.deck.db.execute("""
 update cards set ord = ord - 1 where fid in (select id from facts
@@ -385,4 +385,4 @@ select id from facts where mid = ?)""" % " ".join(map), m['id'])
                 deleted.append(cid)
         self.deck.db.executemany(
             "update cards set ord=:new where id=:cid", d)
-        self.deck.delCards(deleted)
+        self.deck.remCards(deleted)

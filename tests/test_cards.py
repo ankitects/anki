@@ -58,7 +58,7 @@ def test_delete():
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
     assert deck.db.scalar("select count() from revlog") == 1
-    deck.delCards([cid])
+    deck.remCards([cid])
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
     assert deck.db.scalar("select count() from facts") == 0
