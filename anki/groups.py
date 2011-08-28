@@ -89,6 +89,10 @@ class GroupManager(object):
         self.deck.db.execute("delete from groups where id = ?", gid)
         print "fixme: loop through models and update stale gid references"
 
+    def all(self):
+        "An unsorted list of all group names."
+        return [x['name'] for x in self.groups.values()]
+
     # Utils
     #############################################################
 
