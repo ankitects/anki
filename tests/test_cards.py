@@ -18,7 +18,7 @@ def test_genCards():
     assert deck.cardCount() == 2
     assert cards[0].due == f.id
     # should work on random mode too
-    deck.qconf['newOrder'] = NEW_CARDS_RANDOM
+    deck.conf['newOrder'] = NEW_CARDS_RANDOM
     f = deck.newFact()
     f['Front'] = u'1'
     f['Back'] = u'2'

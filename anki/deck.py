@@ -18,9 +18,8 @@ from anki.errors import AnkiError
 import anki.latex # sets up hook
 import anki.cards, anki.facts, anki.template, anki.cram, anki.find
 
-# Settings related to queue building. These may be loaded without the rest of
-# the config to check due counts faster on mobile clients.
-defaultQconf = {
+defaultConf = {
+    # scheduling options
     'groups': [],
     'newPerDay': 20,
     'newToday': [0, 0], # currentDay, count
@@ -31,10 +30,7 @@ defaultQconf = {
     'collapseTime': 1200,
     'repLim': 0,
     'timeLim': 600,
-}
-
-# other options
-defaultConf = {
+    # other config
     'nextPos': 1,
     'mediaURL': "",
     'fontFamilies': [
@@ -86,15 +82,13 @@ class _Deck(object):
          self.dty,
          self.syncName,
          self.lastSync,
-         self.qconf,
          self.conf,
          models,
          groups,
          gconf,
          tags) = self.db.first("""
 select crt, mod, scm, dty, syncName, lastSync,
-qconf, conf, models, groups, gconf, tags from deck""")
-        self.qconf = simplejson.loads(self.qconf)
+conf, models, groups, gconf, tags from deck""")
         self.conf = simplejson.loads(self.conf)
         self.models.load(models)
         self.groups.load(groups, gconf)
@@ -105,11 +99,9 @@ qconf, conf, models, groups, gconf, tags from deck""")
         self.mod = intTime() if mod is None else mod
         self.db.execute(
             """update deck set
-crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?,
-qconf=?, conf=?""",
+crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self.syncName, self.lastSync,
-            simplejson.dumps(self.qconf),
             simplejson.dumps(self.conf))
         self.models.flush()
         self.groups.flush()
@@ -165,9 +157,11 @@ qconf=?, conf=?""",
         return not self.syncingEnabled() or self.scm > self.lastSync
 
     def setDirty(self):
+        "Signal there are temp. suspended cards that need cleaning up on close."
         self.dty = True
 
     def cleanup(self):
+        "Unsuspend any temporarily suspended cards."
         if self.dty:
             self.sched.onClose()
             self.dty = False
@@ -338,7 +332,7 @@ qconf=?, conf=?""",
         return card
 
     def randomNew(self):
-        return self.qconf['newOrder'] == NEW_CARDS_RANDOM
+        return self.conf['newOrder'] == NEW_CARDS_RANDOM
 
     # Cards
     ##########################################################################

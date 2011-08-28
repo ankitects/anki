@@ -143,7 +143,7 @@ def test_groups():
     # should get the same id
     assert deck.groups.id("new group") == g
     # by default, everything should be shown
-    assert not deck.qconf['groups']
+    assert not deck.conf['groups']
 
 def test_selective():
     deck = getEmptyDeck()

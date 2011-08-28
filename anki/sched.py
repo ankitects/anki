@@ -49,7 +49,7 @@ class Scheduler(object):
             # put it in the learn queue
             card.queue = 1
             card.type = 1
-            self.deck.qconf['newToday'][1] += 1
+            self.deck.conf['newToday'][1] += 1
         if card.queue == 1:
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
@@ -125,11 +125,11 @@ order by time desc limit 10)""")
 
     def allCounts(self):
         "Return counts for all groups, without building queue."
-        conf = self.deck.qconf['groups']
+        conf = self.deck.conf['groups']
         if conf:
-            self.deck.qconf['groups'] = []
+            self.deck.conf['groups'] = []
             self._resetCounts()
-            self.deck.qconf['groups'] = conf
+            self.deck.conf['groups'] = conf
         return self.counts()
 
     def _resetCounts(self):
@@ -232,7 +232,7 @@ from cards group by gid""", self.today):
     # FIXME: need to keep track of reps for timebox and new card introduction
 
     def _resetNewCount(self):
-        l = self.deck.qconf
+        l = self.deck.conf
         if l['newToday'][0] != self.today:
             # it's a new day; reset counts
             l['newToday'] = [self.today, 0]
@@ -261,7 +261,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
         if self.newQueue:
             (id, due) = self.newQueue.pop()
             # move any siblings to the end?
-            if self.deck.qconf['newTodayOrder'] == NEW_TODAY_ORD:
+            if self.deck.conf['newTodayOrder'] == NEW_TODAY_ORD:
                 n = len(self.newQueue)
                 while self.newQueue and self.newQueue[-1][1] == due:
                     self.newQueue.insert(0, self.newQueue.pop())
@@ -273,7 +273,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
             return id
 
     def _updateNewCardRatio(self):
-        if self.deck.qconf['newSpread'] == NEW_CARDS_DISTRIBUTE:
+        if self.deck.conf['newSpread'] == NEW_CARDS_DISTRIBUTE:
             if self.newCount:
                 self.newCardModulus = (
                     (self.newCount + self.revCount) / self.newCount)
@@ -287,9 +287,9 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
-        if self.deck.qconf['newSpread'] == NEW_CARDS_LAST:
+        if self.deck.conf['newSpread'] == NEW_CARDS_LAST:
             return False
-        elif self.deck.qconf['newSpread'] == NEW_CARDS_FIRST:
+        elif self.deck.conf['newSpread'] == NEW_CARDS_FIRST:
             return True
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
@@ -302,7 +302,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
 select count() from (select id from cards where
 queue = 1 %s and due < ? limit %d)""" % (
             self._groupLimit(), self.reportLimit),
-            intTime() + self.deck.qconf['collapseTime'])
+            intTime() + self.deck.conf['collapseTime'])
 
     def _resetLrn(self):
         self.lrnQueue = self.deck.db.all("""
@@ -314,7 +314,7 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         if self.lrnQueue:
             cutoff = time.time()
             if collapse:
-                cutoff += self.deck.qconf['collapseTime']
+                cutoff += self.deck.conf['collapseTime']
             if self.lrnQueue[0][0] < cutoff:
                 id = heappop(self.lrnQueue)[1]
                 self.lrnCount -= 1
@@ -347,7 +347,7 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
             card.due = int(time.time() + delay)
             heappush(self.lrnQueue, (card.due, card.id))
             # if it's due within the cutoff, increment count
-            if delay <= self.deck.qconf['collapseTime']:
+            if delay <= self.deck.conf['collapseTime']:
                 self.lrnCount += 1
         self._logLrn(card, ease, conf, leaving, type)
 
@@ -440,7 +440,7 @@ select id from cards where
 queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self._groupLimit(), self._revOrder(), self.queueLimit),
                                     lim=self.today)
-        if self.deck.qconf['revOrder'] == REV_CARDS_RANDOM:
+        if self.deck.conf['revOrder'] == REV_CARDS_RANDOM:
             r = random.Random()
             r.seed(self.today)
             r.shuffle(self.revQueue)
@@ -461,7 +461,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def _revOrder(self):
         return ("ivl desc",
                 "ivl",
-                "due")[self.deck.qconf['revOrder']]
+                "due")[self.deck.conf['revOrder']]
 
     # Answering a review card
     ##########################################################################
@@ -598,7 +598,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         return self.deck.groups.conf(card.gid)
 
     def _groupLimit(self):
-        l = self.deck.qconf['groups']
+        l = self.deck.conf['groups']
         if not l:
             # everything
             return ""
@@ -630,7 +630,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self._nextDueMsg())
 
     def _finishedSubtitle(self):
-        if self.deck.qconf['groups']:
+        if self.deck.conf['groups']:
             return _("You have finished the selected groups for now.")
         else:
             return _("You have finished the deck for now.")
@@ -670,7 +670,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def newTomorrow(self):
         "Number of new cards tomorrow."
-        lim = self.deck.qconf['newPerDay']
+        lim = self.deck.conf['newPerDay']
         return self.deck.db.scalar(
             "select count() from (select id from cards where "
             "queue = 0 %s limit %d)" % (self._groupLimit(), lim))
@@ -760,7 +760,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def updateDynamicIndices(self):
         # determine required columns
         required = []
-        if self.deck.qconf['revOrder'] in (
+        if self.deck.conf['revOrder'] in (
             REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
             required.append("interval")
         cols = ["queue", "due", "gid"] + required

@@ -65,7 +65,7 @@ def test_newOrder():
     d.addFact(f)
     # generate second half
     d.db.execute("update cards set gid = random()")
-    d.qconf['newPerDay'] = 100
+    d.conf['newPerDay'] = 100
     d.reset()
     # cards should be sorted by id
     assert d.sched.newQueue == list(reversed(sorted(d.sched.newQueue)))
@@ -387,7 +387,7 @@ def test_cram():
     c.startTimer()
     c.flush()
     cardcopy = copy.copy(c)
-    d.qconf['groups'] = [1]
+    d.conf['groups'] = [1]
     d.cramGroups()
     # first, test with initial intervals preserved
     conf = d.sched._lrnConf(c)
@@ -449,7 +449,7 @@ def test_cram():
     assert c.ivl == 1
     assert c.due == d.sched.today + 1
     # users should be able to cram entire deck too
-    d.qconf['groups'] = []
+    d.conf['groups'] = []
     d.cramGroups()
     assert d.sched.counts()[0] > 0
 
@@ -465,7 +465,7 @@ def test_cramLimits():
         c.due = d.sched.today + 1 + i
         c.flush()
     # the default cram should return all three
-    d.qconf['groups'] = [1]
+    d.conf['groups'] = [1]
     d.cramGroups()
     assert d.sched.counts()[0] == 3
     # if we start from the day after tomorrow, it should be 2
@@ -601,7 +601,7 @@ def test_counts():
     # with the default settings, there's no count limit
     assert d.sched.counts() == (2,2,2)
     # check limit to one group
-    d.qconf['groups'] = [1]
+    d.conf['groups'] = [1]
     d.reset()
     assert d.sched.counts() == (1,1,1)
     # we don't need to build the queue to get the counts

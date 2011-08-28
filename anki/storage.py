@@ -65,7 +65,6 @@ create table if not exists deck (
     dty             integer not null,
     syncName        text not null,
     lastSync        integer not null,
-    qconf           text not null,
     conf            text not null,
     models          text not null,
     groups          text not null,
@@ -127,14 +126,13 @@ create table if not exists revlog (
 );
 
 insert or ignore into deck
-values(1,0,0,0,%(v)s,0,'',0,'','','{}','','','{}');
+values(1,0,0,0,%(v)s,0,'',0,'','{}','','','{}');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
     import anki.groups
     if setDeckConf:
         db.execute("""
-update deck set qconf = ?, conf = ?, groups = ?, gconf = ?""",
-                   simplejson.dumps(anki.deck.defaultQconf),
+update deck set conf = ?, groups = ?, gconf = ?""",
                    simplejson.dumps(anki.deck.defaultConf),
                    simplejson.dumps({'1': {'name': _("Default"), 'conf': 1,
                                        'mod': intTime()}}),
@@ -339,30 +337,29 @@ def _migrateDeckTbl(db):
     db.execute("""
 insert or replace into deck select id, cast(created as int), :t,
 :t, 99, 0, ifnull(syncName, ""), cast(lastSync as int),
-"", "", "", "", "", "" from decks""", t=intTime())
+"", "", "", "", "" from decks""", t=intTime())
     # update selective study
-    qconf = anki.deck.defaultQconf.copy()
+    conf = anki.deck.defaultConf.copy()
     # delete old selective study settings, which we can't auto-upgrade easily
     keys = ("newActive", "newInactive", "revActive", "revInactive")
     for k in keys:
         db.execute("delete from deckVars where key=:k", k=k)
     # copy other settings, ignoring deck order as there's a new default
-    qconf['newSpread'] = db.scalar(
+    conf['newSpread'] = db.scalar(
         "select newCardSpacing from decks")
-    qconf['newOrder'] = db.scalar(
+    conf['newOrder'] = db.scalar(
         "select newCardOrder from decks")
-    qconf['newPerDay'] = db.scalar(
+    conf['newPerDay'] = db.scalar(
         "select newCardsPerDay from decks")
     # fetch remaining settings from decks table
-    conf = anki.deck.defaultConf.copy()
     data = {}
     keys = ("sessionRepLimit", "sessionTimeLimit")
     for k in keys:
         conf[k] = db.scalar("select %s from decks" % k)
     # random and due options merged
-    qconf['revOrder'] = 2
+    conf['revOrder'] = 2
     # no reverse option anymore
-    qconf['newOrder'] = min(1, qconf['newOrder'])
+    conf['newOrder'] = min(1, conf['newOrder'])
     # add any deck vars and save
     dkeys = ("hexCache", "cssCache")
     for (k, v) in db.execute("select * from deckVars").fetchall():
@@ -371,8 +368,7 @@ insert or replace into deck select id, cast(created as int), :t,
         else:
             conf[k] = v
     import anki.groups
-    db.execute("update deck set qconf = :l,conf = :c,groups=:g,gconf=:gc",
-               l=simplejson.dumps(qconf),
+    db.execute("update deck set conf=:c,groups=:g,gconf=:gc",
                c=simplejson.dumps(conf),
                g=simplejson.dumps({'1': {'name': _("Default"), 'conf': 1}}),
                gc=simplejson.dumps({'1': anki.groups.defaultConf}))
