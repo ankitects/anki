@@ -155,10 +155,6 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         return self.deck.db.scalar(
             "select count() from facts where mid = ?", m['id'])
 
-    def css(self):
-        "CSS for all models."
-        return "\n".join([m['css'] for m in self.all()])
-
     # Copying
     ##################################################
 
@@ -170,6 +166,10 @@ select id from cards where fid in (select id from facts where mid = ?)""",
 
     # CSS generation
     ##################################################
+
+    def css(self):
+        "CSS for all models."
+        return "\n".join([m['css'] for m in self.all()])
 
     def _css(self, m):
         # fields

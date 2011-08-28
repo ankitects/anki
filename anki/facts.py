@@ -108,7 +108,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
     ##################################################
 
     def hasTag(self, tag):
-        return self.deck.tags.inStr(tag, self.tags)
+        return self.deck.tags.inList(tag, self.tags)
 
     def stringTags(self):
         return self.deck.tags.canonify(self.tags)
