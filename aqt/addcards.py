@@ -8,7 +8,7 @@ import aqt.forms
 import anki
 from anki.facts import Fact
 from anki.errors import *
-from anki.utils import stripHTML, parseTags
+from anki.utils import stripHTML
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip
 from anki.sound import clearAudioQueue
@@ -78,7 +78,7 @@ class AddCards(QDialog):
     # FIXME: need to make sure to clean up fact on exit
     def setupNewFact(self, set=True):
         f = self.mw.deck.newFact()
-        f.tags = f.model().conf['tags']
+        f.tags = f.model()['tags']
         if set:
             self.editor.setFact(f)
         return f
@@ -86,7 +86,7 @@ class AddCards(QDialog):
     def onReset(self, model=None, keep=False):
         oldFact = self.editor.fact
         fact = self.setupNewFact(set=False)
-        flds = fact.model().fields
+        flds = fact.model()['flds']
         # copy fields from old fact
         if oldFact:
             if not keep:
@@ -105,7 +105,7 @@ class AddCards(QDialog):
         if not fact or not fact.id:
             return
         # we don't have to worry about cards; just the fact
-        self.mw.deck._delFacts([fact.id])
+        self.mw.deck._remFacts([fact.id])
 
     def addHistory(self, fact):
         txt = stripHTMLMedia(",".join(fact.fields))[:30]

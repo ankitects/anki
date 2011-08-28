@@ -7,8 +7,7 @@ from aqt.qt import *
 import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
-from anki.utils import fmtTimeSpan, parseTags, hasTag, addTags, delTags, \
-    ids2str, stripHTMLMedia, isWin, intTime
+from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip
@@ -207,13 +206,13 @@ class DeckModel(QAbstractTableModel):
             return self.answer()
         elif type == "factFld":
             f = c.fact()
-            return self.formatQA(f.fields[f.model().sortIdx()])
+            return self.formatQA(f.fields[self.deck.models.sortIdx(f.model())])
         elif type == "template":
             return c.template()['name']
         elif type == "cardDue":
             return self.nextDue(c, index)
         elif type == "factCrt":
-            return time.strftime("%Y-%m-%d", time.localtime(c.fact().crt))
+            return time.strftime("%Y-%m-%d", time.localtime(c.fact().id/1000))
         elif type == "factMod":
             return time.strftime("%Y-%m-%d", time.localtime(c.fact().mod))
         elif type == "cardMod":
@@ -231,9 +230,9 @@ class DeckModel(QAbstractTableModel):
                 return _("(new)")
             return "%d%%" % (c.factor/10)
         elif type == "cardGroup":
-            return self.browser.mw.deck.groupName(c.gid)
+            return self.browser.mw.deck.groups.name(c.gid)
         elif type == "factGroup":
-            return self.browser.mw.deck.groupName(c.fact().gid)
+            return self.browser.mw.deck.groups.name(c.fact().gid)
 
     def question(self):
         return self.formatQA(c.a())
@@ -650,15 +649,15 @@ class Browser(QMainWindow):
         self.onSearch()
 
     def _modelTree(self, root):
-        for m in sorted(self.deck.models().values(), key=attrgetter("name")):
+        for m in sorted(self.deck.models.all(), key=itemgetter("name")):
             mitem = self.CallbackItem(
-                m.name, lambda m=m: self.setFilter("model", m.name))
+                m['name'], lambda m=m: self.setFilter("model", m['name']))
             mitem.setIcon(0, QIcon(":/icons/product_design.png"))
             root.addChild(mitem)
-            for t in m.templates:
+            for t in m['tmpls']:
                 titem = self.CallbackItem(
                 t['name'], lambda m=m, t=t: self.setFilter(
-                    "model", m.name, "card", t['name']))
+                    "model", m['name'], "card", t['name']))
                 titem.setIcon(0, QIcon(":/icons/stock_new_template.png"))
                 mitem.addChild(titem)
 
@@ -695,7 +694,7 @@ class Browser(QMainWindow):
         return root
 
     def _userTagTree(self, root):
-        for t in self.deck.tagList():
+        for t in sorted(self.deck.tags.all()):
             item = self.CallbackItem(
                 t, lambda t=t: self.setFilter("tag", t))
             item.setIcon(0, QIcon(":/icons/anki-tag.png"))
@@ -718,7 +717,7 @@ class Browser(QMainWindow):
         rep = "<style>table * { font-size: 12px; }</style>" + rep
         m = self.card.model()
         # add sort field
-        sortf = m.fields[m.sortIdx()]['name']
+        sortf = m['flds'][self.mw.deck.models.sortIdx(m)]['name']
         extra = self.cardStats.makeLine(
             _("Sort Field"), "<a href=sort>%s</a>" % sortf)
         # and revlog
@@ -895,7 +894,7 @@ where id in %s""" % ids2str(sf))
         self.mw.checkpoint(_("Set Group"))
         mod = intTime()
         if frm.setCur.isChecked():
-            gid = self.deck.groupId(unicode(te.text()))
+            gid = self.deck.groups.id(unicode(te.text()))
             self.deck.db.execute(
                 "update cards set mod=?, gid=? where id in " + ids2str(
                     self.selectedCards()), mod, gid)
@@ -924,7 +923,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         if not r:
             return
         if func is None:
-            func = self.deck.addTags
+            func = self.deck.tags.bulkAdd
         self.model.beginReset()
         if label is None:
             label = _("Add Tags")
@@ -939,7 +938,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         if label is None:
             label = _("Delete Tags")
         self.addTags(tags, label, _("Enter tags to delete:"),
-                     func=self.deck.delTags)
+                     func=self.deck.tags.bulkRem)
 
     # Suspending and marking
     ######################################################################

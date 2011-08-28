@@ -28,10 +28,11 @@ class CardLayout(QDialog):
         self.type = type
         self.ord = ord
         self.deck = self.mw.deck
+        self.mm = self.mw.deck.models
         self.model = fact.model()
         self.form = aqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(_("%s Layout") % self.model.name)
+        self.setWindowTitle(_("%s Layout") % self.model['name'])
         self.plastiqueStyle = None
         if isMac or isWin:
             self.plastiqueStyle = QStyleFactory.create("plastique")
@@ -113,7 +114,7 @@ class CardLayout(QDialog):
         if self.plastiqueStyle:
             f.background.setStyle(self.plastiqueStyle)
         f.alignment.addItems(alignmentLabels().values())
-        self.typeFieldNames = self.model.fieldMap()
+        self.typeFieldNames = self.mm.fieldMap(self.model)
         s = [_("Don't ask me to type in the answer")]
         s += [_("Compare with field '%s'") % fi
               for fi in self.typeFieldNames.keys()]
@@ -161,7 +162,7 @@ class CardLayout(QDialog):
         else:
             f.typeAnswer.setCurrentIndex(t['typeAns'] + 1)
         # model-level, but there's nowhere else to put this
-        f.clozectx.setChecked(self.model.conf['clozectx'])
+        f.clozectx.setChecked(self.model['clozectx'])
         self.updatingCards = False
 
     def fillCardList(self):
@@ -198,7 +199,7 @@ class CardLayout(QDialog):
             t['typeAns'] = None
         else:
             t['typeAns'] = idx-1
-        self.model.conf['clozectx'] = self.form.clozectx.isChecked()
+        self.model['clozectx'] = self.form.clozectx.isChecked()
         self.renderPreview()
 
     def chooseColour(self, button, type="field"):
@@ -214,7 +215,7 @@ class CardLayout(QDialog):
 
     def renderPreview(self):
         c = self.card
-        styles = self.model.genCSS()
+        styles = self.model['css']
         styles += "\n.cloze { font-weight: bold; color: blue; }"
         self.form.preview.setHtml(
             ('<html><head>%s</head><body class="%s">' %
@@ -240,13 +241,12 @@ class CardLayout(QDialog):
         self.reject()
 
     def reject(self):
-        self.model.flush()
+        self.mm.save(self.model)
         saveGeom(self, "CardLayout")
         saveSplitter(self.form.splitter, "clayout")
         self.mw.reset()
         return QDialog.reject(self)
 
-        self.fact.model.setModified()
 
         modified = False
         self.mw.startProgress()
@@ -312,7 +312,7 @@ class CardLayout(QDialog):
         row = self.form.fieldList.currentRow()
         if row == -1:
             row = 0
-        self.field = self.model.fields[row]
+        self.field = self.model['flds'][row]
         self.readField()
         self.enableFieldMoveButtons()
 
@@ -355,7 +355,7 @@ class CardLayout(QDialog):
         fld['sticky'] = self.form.sticky.isChecked()
         self.updatingFields = False
         if fld['name'] != name:
-            self.model.renameField(fld, name)
+            self.mm.renameField(self.model, fld, name)
             # as the field name has changed, we have to regenerate cards
             self.cards = self.deck.previewCards(self.fact, self.type)
             self.cardChanged(0)
@@ -368,7 +368,7 @@ class CardLayout(QDialog):
             oldRow = 0
         self.form.fieldList.clear()
         n = 1
-        for field in self.model.fields:
+        for field in self.model['flds']:
             label = field['name']
             item = QListWidgetItem(label)
             self.form.fieldList.addItem(item)
@@ -394,11 +394,11 @@ class CardLayout(QDialog):
             self.form.fieldDown.setEnabled(True)
 
     def addField(self):
-        f = self.model.newField()
-        l = len(self.model.fields)
+        f = self.mm.newField(self.model)
+        l = len(self.model['flds'])
         f['name'] = _("Field %d") % l
         self.mw.progress.start()
-        self.model.addField(f)
+        self.mm.addField(self.model, f)
         self.mw.progress.finish()
         self.reload()
         self.form.fieldList.setCurrentRow(l)

@@ -167,21 +167,19 @@ class Groups(QDialog):
         if len(gids) == self.gidCount:
             # all enabled is same as empty
             gids = []
-        if gids != self.mw.deck.qconf['groups']:
-            self.mw.deck.qconf['groups'] = gids
+        if gids != self.mw.deck.conf['groups']:
+            self.mw.deck.conf['groups'] = gids
             self.mw.reset()
         QDialog.accept(self)
 
     def _makeItems(self, grps):
         self.gidCount = 0
         on = {}
-        if not self.mw.deck.qconf['groups']:
+        if not self.mw.deck.conf['groups']:
             on = None
         else:
-            for gid in self.mw.deck.qconf['groups']:
+            for gid in self.mw.deck.conf['groups']:
                 on[gid] = True
-        self.confMap = dict(self.mw.deck.db.all(
-            "select g.id, gc.name from groups g, gconf gc where g.gcid=gc.id"))
         grey = QBrush(QColor(GREY))
         def makeItems(grp, head=""):
             branch = QTreeWidgetItem()
@@ -197,7 +195,7 @@ class Groups(QDialog):
                 branch.setCheckState(COLCHECK, Qt.Unchecked)
             branch.setText(COLNAME, grp[0])
             if gid:
-                branch.setText(COLOPTS, self.confMap[gid])
+                branch.setText(COLOPTS, self.mw.deck.groups.name(gid))
             branch.setText(COLCOUNT, str(grp[2]))
             branch.setText(COLDUE, str(grp[3]))
             branch.setText(COLNEW, str(grp[4]))

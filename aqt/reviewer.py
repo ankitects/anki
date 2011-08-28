@@ -373,7 +373,7 @@ div#filler {
 
     def _styles(self):
         css = self.mw.sharedCSS
-        css += self.mw.deck.allCSS()
+        css += self.mw.deck.models.css()
         css += self._css
         return css
 

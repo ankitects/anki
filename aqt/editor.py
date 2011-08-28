@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import re, os, sys, urllib2, ctypes, simplejson, traceback
-from anki.utils import stripHTML, parseTags, isWin, namedtmp
+from anki.utils import stripHTML, isWin, namedtmp
 from anki.sound import play
 from anki.hooks import runHook
 from aqt.sound import getAudio
@@ -397,7 +397,7 @@ class Editor(object):
 
     def fonts(self):
         return [(f['font'], f['esize'])
-                for f in self.fact.model().fields]
+                for f in self.fact.model()['flds']]
 
     def saveNow(self):
         "Must call this before adding cards, closing dialog, etc."
@@ -499,19 +499,19 @@ class Editor(object):
             gid = self.fact.gid
         else:
             gid = self.fact.model().conf['gid']
-        self.group.setText(self.mw.deck.groupName(gid))
+        self.group.setText(self.mw.deck.groups.name(gid))
 
     def saveTagsAndGroup(self):
         if not self.fact:
             return
-        self.fact.tags = parseTags(unicode(self.tags.text()))
+        self.fact.tags = self.mw.deck.tags.split(unicode(self.tags.text()))
         if self.addMode:
             # save group and tags to model
-            self.fact.gid = self.mw.deck.groupId(unicode(self.group.text()))
+            self.fact.gid = self.mw.deck.groups.id(unicode(self.group.text()))
             m = self.fact.model()
-            m.conf['gid'] = self.fact.gid
-            m.conf['tags'] = self.fact.tags
-            m.flush()
+            m['gid'] = self.fact.gid
+            m['tags'] = self.fact.tags
+            self.mw.deck.models.save(m)
         self.fact.flush()
         runHook("tagsAndGroupUpdated", self.fact)
 

@@ -11,8 +11,7 @@ QtConfig = pyqtconfig.Configuration()
 
 from anki import Deck
 from anki.sound import playFromText, clearAudioQueue, stripSounds
-from anki.utils import addTags, parseTags, canonifyTags, stripHTML, \
-    checksum, isWin, isMac
+from anki.utils import stripHTML, checksum, isWin, isMac
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 

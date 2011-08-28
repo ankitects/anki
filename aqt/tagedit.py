@@ -2,7 +2,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from anki.utils import parseTags, canonifyTags, joinTags
 import re, sys
 
 class TagEdit(QLineEdit):
@@ -25,9 +24,9 @@ class TagEdit(QLineEdit):
         "Set the current deck, updating list of available tags."
         self.deck = deck
         if self.type == 0:
-            l = self.deck.tagList()
+            l = sorted(self.deck.tags.all())
         else:
-            l = self.deck.groups()
+            l = self.deck.groups.all()
         self.model.setStringList(l)
 
     def addTags(self, tags):
@@ -51,7 +50,7 @@ class TagCompleter(QCompleter):
     def splitPath(self, str):
         str = unicode(str).strip()
         str = re.sub("  +", " ", str)
-        self.tags = parseTags(str)
+        self.tags = self.parent.deck.tags.split(str)
         self.tags.append(u"")
         p = self.edit.cursorPosition()
         self.cursor = str.count(" ", 0, p)

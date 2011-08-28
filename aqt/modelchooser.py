@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from operator import attrgetter
+from operator import itemgetter
 from anki import stdmodels
 from anki.lang import ngettext
 from anki.hooks import addHook, removeHook, runHook
@@ -91,11 +91,11 @@ class ModelChooser(QHBoxLayout):
 
     def updateModels(self):
         self.models.clear()
-        self._models = sorted(self.deck.models().values(),
-                              key=attrgetter("name"))
-        self.models.addItems([m.name for m in self._models])
+        self._models = sorted(self.deck.models.all(),
+                              key=itemgetter("name"))
+        self.models.addItems([m['name'] for m in self._models])
         for c, m in enumerate(self._models):
-            if m.id == self.deck.conf['currentModelId']:
+            if m['id'] == str(self.deck.conf['currentModelId']):
                 self.models.setCurrentIndex(c)
                 break
 
@@ -106,8 +106,8 @@ class ModelChooser(QHBoxLayout):
         for s in self.cardShortcuts:
             s.setEnabled(False)
         self.cardShortcuts = []
-        m = self.deck.currentModel()
-        ts = m.templates
+        m = self.deck.models.current()
+        ts = m['tmpls']
         active = [t['name'] for t in ts if t['actv']]
         txt = ngettext("%d card", "%d cards", len(active)) % len(active)
         self.cards.setText(txt)
@@ -121,7 +121,7 @@ class ModelChooser(QHBoxLayout):
 
     def onCardChange(self):
         m = QMenu(self.widget)
-        model = self.deck.currentModel()
+        model = self.deck.models.current()
         for template in model.templates:
             action = QAction(self.widget)
             action.setCheckable(True)
@@ -135,7 +135,7 @@ class ModelChooser(QHBoxLayout):
         m.exec_(self.cards.mapToGlobal(QPoint(0,0)))
 
     def canDisableTemplate(self):
-        return len([t for t in self.deck.currentModel().templates
+        return len([t for t in self.deck.models.current()['tmpls']
                     if t['actv']]) > 1
 
     def toggleTemplate(self, card):
@@ -143,7 +143,7 @@ class ModelChooser(QHBoxLayout):
             card['actv'] = True
         elif self.canDisableTemplate():
             card['actv'] = False
-        self.deck.currentModel().flush()
+        self.deck.models.current().flush()
         self.updateTemplates()
 
 class AddModel(QDialog):
@@ -166,9 +166,9 @@ class AddModel(QDialog):
         mids = self.deck.db.list("select id from models order by name")
         for m in [self.deck.getModel(mid, False) for mid in mids]:
             m.id = None
-            item = QListWidgetItem(_("Copy: %s") % m.name)
+            item = QListWidgetItem(_("Copy: %s") % m['name'])
             self.dialog.models.addItem(item)
-            m.name = _("%s copy") % m.name
+            m['name'] = _("%s copy") % m['name']
             self.models.append((False, m))
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key

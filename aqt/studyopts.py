@@ -31,7 +31,7 @@ class StudyOptions(QDialog):
     def load(self):
         f = self.form
         d = self.mw.deck
-        qc = d.qconf
+        qc = d.conf
         f.newPerDay.setValue(qc['newPerDay'])
         f.newOrder.setCurrentIndex(qc['newOrder'])
         f.newSpread.setCurrentIndex(qc['newSpread'])
@@ -48,7 +48,7 @@ class StudyOptions(QDialog):
     def accept(self):
         f = self.form
         d = self.mw.deck
-        qc = d.qconf
+        qc = d.conf
         old = qc['newOrder']
         qc['newOrder'] = f.newOrder.currentIndex()
         self.updateNewOrder(old, qc['newOrder'])
