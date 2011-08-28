@@ -63,7 +63,6 @@ class _Deck(object):
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
-        self.modelCache = {}
         self.undoEnabled = False
         self.sessionStartReps = 0
         self.sessionStartTime = 0
@@ -207,7 +206,6 @@ qconf=?, conf=?""",
 
     def reset(self):
         "Rebuild the queue and reload data after DB modified."
-        self.modelCache = {}
         self.sched.reset()
 
     # Deletion logging
