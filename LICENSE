@@ -8,7 +8,9 @@ official Anki, you must license your code under the BSD three-clause (no
 advertising) license, or a similarly permissive license, so that the code can
 be used in both licenses.
 
-The translations are under BSD copyright, as mandated by Launchpad.
+The translations are under BSD copyright, as mandated by Launchpad. The icons
+are a mix of GPL or more liberate licenses; most were taken from standard
+icons installed on a Linux system.
 
 Please see the LICENESE file in the libanki package for additional license
 information.
