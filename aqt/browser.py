@@ -670,7 +670,7 @@ class Browser(QMainWindow):
                     "group", head+g[0]))
                 item.setIcon(0, QIcon(":/icons/stock_group.png"))
                 root.addChild(item)
-                fillGroups(item, g[5], g[0]+"::")
+                fillGroups(item, g[4], g[0]+"::")
         fillGroups(root, grps)
 
     def _systemTagTree(self, root):

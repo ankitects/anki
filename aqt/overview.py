@@ -60,14 +60,10 @@ class Overview(object):
         fc = self._ovForecast()
         tbl = self._overviewTable()
         but = self.mw.button
-        eta = self.mw.deck.sched.etaStr()
-        if eta:
-            eta = _("Estimated study time: %s") % eta
         self.web.stdHtml(self._overviewBody % dict(
             title=_("Overview"),
             table=tbl,
             fcsub=_("Reviews over next two weeks"),
-            eta=eta,
             fcdata=fc,
             ), css)
 
@@ -77,7 +73,6 @@ class Overview(object):
 <p>
 %(table)s
 <p>
-%(eta)s<br>
 <div id="placeholder" style="width:350px; height:100px;"></div>
 <span class=sub>%(fcsub)s</span>
 <p>
@@ -136,8 +131,8 @@ $(function () {
 
     def _ovCounts(self):
         # we have the limited count already
-        selcnt = self.mw.deck.sched.selCounts()
-        allcnt = self.mw.deck.sched.allCounts()
+        selcnt = [0,0,0] #self.mw.deck.sched.selCounts()
+        allcnt = [0,0,0] #self.mw.deck.sched.allCounts()
         return [
             limitedCount(selcnt[1] + selcnt[2]),
             selcnt[0],

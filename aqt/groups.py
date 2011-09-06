@@ -167,18 +167,19 @@ class Groups(QDialog):
         if len(gids) == self.gidCount:
             # all enabled is same as empty
             gids = []
-        if gids != self.mw.deck.conf['groups']:
-            self.mw.deck.conf['groups'] = gids
-            self.mw.reset()
+        # if gids != self.mw.deck.conf['groups']:
+        #     self.mw.deck.conf['groups'] = gids
+        #     self.mw.reset()
         QDialog.accept(self)
 
     def _makeItems(self, grps):
         self.gidCount = 0
         on = {}
-        if not self.mw.deck.conf['groups']:
+        a = self.mw.deck.groups.active()
+        if not a:
             on = None
         else:
-            for gid in self.mw.deck.conf['groups']:
+            for gid in a:
                 on[gid] = True
         grey = QBrush(QColor(GREY))
         def makeItems(grp, head=""):
@@ -196,17 +197,17 @@ class Groups(QDialog):
             branch.setText(COLNAME, grp[0])
             if gid:
                 branch.setText(COLOPTS, self.mw.deck.groups.name(gid))
-            branch.setText(COLCOUNT, str(grp[2]))
-            branch.setText(COLDUE, str(grp[3]))
-            branch.setText(COLNEW, str(grp[4]))
+            branch.setText(COLCOUNT, "")
+            branch.setText(COLDUE, str(grp[2]))
+            branch.setText(COLNEW, str(grp[3]))
             for i in (COLCOUNT, COLDUE, COLNEW):
                 branch.setTextAlignment(i, Qt.AlignRight)
             self.groupMap[grp[0]] = grp[1]
             self.fullNames[grp[0]] = head+grp[0]
             if grp[1]:
                 self.gidCount += 1
-            if grp[5]:
-                for c in grp[5]:
+            if grp[4]:
+                for c in grp[4]:
                     branch.addChild(makeItems(c, head+grp[0]+"::"))
             return branch
         top = [makeItems(g) for g in grps]
