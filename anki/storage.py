@@ -327,6 +327,7 @@ yesCount from reviewHistory"""):
     # the rest
     ###########
     db.execute("drop table media")
+    db.execute("drop table sources")
     _migrateModels(db)
     _updateIndices(db)
     return ver
