@@ -94,8 +94,9 @@ class GroupManager(object):
             # if it's a top level group, it gets the top level config
             g = defaultTopConf.copy()
         else:
-            # not top level. calling code should ensure parents already exist?
+            # not top level; ensure all parents exist
             g = {}
+            self._ensureParents(name)
         g['name'] = name
         g['conf'] = 1
         while 1:
@@ -121,6 +122,16 @@ class GroupManager(object):
     def all(self):
         "A list of all groups."
         return self.groups.values()
+
+    def _ensureParents(self, name):
+        path = name.split("::")
+        s = ""
+        for p in path[:-1]:
+            if not s:
+                s += p
+            else:
+                s += "::" + p
+            self.id(s)
 
     # Group utils
     #############################################################
@@ -164,8 +175,7 @@ class GroupManager(object):
             return
         # save the top level group
         name = self.groups[str(gid)]['name']
-        path = name.split("::")
-        self.deck.conf['topGroup'] = self.id(path[0])
+        self.deck.conf['topGroup'] = self.topFor(name)
         # current group
         self.deck.conf['curGroup'] = gid
         # and active groups (current + all children)
@@ -174,3 +184,8 @@ class GroupManager(object):
             if g['name'].startswith(name + "::"):
                 actv.append(g['id'])
         self.deck.conf['activeGroups'] = actv
+
+    def topFor(self, name):
+        "The top level gid for NAME."
+        path = name.split("::")
+        return self.id(path[0])

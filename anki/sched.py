@@ -108,15 +108,28 @@ order by due""" % self._groupLimit(),
     ##########################################################################
 
     def groupCounts(self):
-        "Returns [groupname, cards, due, new]"
+        "Returns [groupname, hasDue, hasNew]"
+        # find groups with 1 or more due cards
         gids = {}
-        for (gid, all, rev, new) in self.deck.db.execute("""
-select gid, count(),
-sum(case when queue = 2 and due <= ? then 1 else 0 end),
-sum(case when queue = 0 then 1 else 0 end)
-from cards group by gid""", self.today):
-            gids[gid] = [all, rev, new]
-        return [[grp['name'], int(gid)]+gids.get(int(gid), [0, 0, 0])
+        for g in self.deck.groups.all():
+            hasDue = self.deck.db.scalar("""
+select 1 from cards where gid = ? and
+((queue = 2 and due <= ?) or (queue = 1 and due < ?)) limit 1""",
+                                         g['id'], self.today, intTime())
+            top = self.deck.groups.get(
+                self.deck.groups.topFor(g['name']))
+            if top['newToday'][0] != self.today:
+                # it's a new day; reset counts
+                top['newToday'] = [self.today, 0]
+            hasNew = max(0, top['newPerDay'] - top['newToday'][1])
+            if hasNew:
+                # if the limit hasn't run out, check to see if there are
+                # actually cards
+                hasNew = self.deck.db.scalar(
+                    "select 1 from cards where queue = 0 and gid = ? limit 1",
+                    g['id'])
+            gids[g['id']] = [hasDue or 0, hasNew or 0]
+        return [[grp['name'], int(gid)]+gids.get(int(gid))
                 for (gid, grp) in self._orderedGroups()]
 
     def _orderedGroups(self):
@@ -145,7 +158,6 @@ from cards group by gid""", self.today):
         for (head, tail) in itertools.groupby(grps, key=key):
             tail = list(tail)
             gid = None
-            all = 0
             rev = 0
             new = 0
             children = []
@@ -153,9 +165,8 @@ from cards group by gid""", self.today):
                 if len(c[0]) == 1:
                     # current node
                     gid = c[1]
-                    all += c[2]
-                    rev += c[3]
-                    new += c[4]
+                    rev += c[2]
+                    new += c[3]
                 else:
                     # set new string to tail
                     c[0] = c[0][1]
@@ -163,10 +174,9 @@ from cards group by gid""", self.today):
             children = self._groupChildren(children)
             # tally up children counts
             for ch in children:
-                all += ch[2]
-                rev += ch[3]
-                new += ch[4]
-            tree.append((head, gid, all, rev, new, children))
+                rev += ch[2]
+                new += ch[3]
+            tree.append((head, gid, rev, new, children))
         return tuple(tree)
 
     # Getting the next card

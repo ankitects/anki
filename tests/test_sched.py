@@ -695,32 +695,24 @@ def test_groupCounts():
     d.addFact(f)
     d.reset()
     assert d.sched.counts() == (3, 0, 1)
-    assert len(d.groups.groups) == 4
+    assert len(d.groups.groups) == 5
     cnts = d.sched.groupCounts()
-    assert cnts[0] == ["Default", 1, 1, 0, 1]
-    assert cnts[1] == ["Default::1", default1, 1, 1, 0]
-    assert cnts[2] == ["foo::bar", foobar, 1, 0, 1]
-    assert cnts[3] == ["foo::baz", foobaz, 1, 0, 1]
+    assert cnts[0] == ["Default", 1, 0, 1]
+    assert cnts[1] == ["Default::1", default1, 1, 0]
+    assert cnts[2] == ["foo", d.groups.id("foo"), 0, 0]
+    assert cnts[3] == ["foo::bar", foobar, 0, 1]
+    assert cnts[4] == ["foo::baz", foobaz, 0, 1]
     tree = d.sched.groupCountTree()
     assert tree[0][0] == "Default"
     # sum of child and parent
     assert tree[0][1] == 1
-    assert tree[0][2] == 2
+    assert tree[0][2] == 1
     assert tree[0][3] == 1
-    assert tree[0][4] == 1
     # child count is just review
-    assert tree[0][5][0][0] == "1"
-    assert tree[0][5][0][1] == default1
-    assert tree[0][5][0][2] == 1
-    assert tree[0][5][0][3] == 1
-    assert tree[0][5][0][4] == 0
-    # event if parent group didn't exist, it should have been created with a
-    # counts summary, with an empty gid
-    assert tree[1][0] == "foo"
-    assert tree[1][1] == None
-    assert tree[1][2] == 2
-    assert tree[1][3] == 0
-    assert tree[1][4] == 2
+    assert tree[0][4][0][0] == "1"
+    assert tree[0][4][0][1] == default1
+    assert tree[0][4][0][2] == 1
+    assert tree[0][4][0][3] == 0
 
 def test_reorder():
     d = getEmptyDeck()
