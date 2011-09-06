@@ -24,9 +24,9 @@ class CardStats(object):
         self.txt = "<table width=100%%>"
         self.addLine(_("Added"), self.date(c.id/1000))
         first = self.deck.db.scalar(
-            "select min(time) from revlog where cid = ?", c.id)
+            "select min(id) from revlog where cid = ?", c.id)
         last = self.deck.db.scalar(
-            "select max(time) from revlog where cid = ?", c.id)
+            "select max(id) from revlog where cid = ?", c.id)
         if first:
             self.addLine(_("First Review"), self.date(first/1000))
             self.addLine(_("Latest Review"), self.date(last/1000))
@@ -40,7 +40,7 @@ class CardStats(object):
             self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
             (cnt, total) = self.deck.db.first(
-                "select count(), sum(taken)/1000 from revlog where cid = :id",
+                "select count(), sum(time)/1000 from revlog where cid = :id",
                 id=c.id)
             if cnt:
                 self.addLine(_("Average Time"), self.time(total / float(cnt)))
@@ -303,7 +303,7 @@ group by day order by day""" % (self._limit(), lim),
     def _done(self, num=7, chunk=1):
         lims = []
         if num is not None:
-            lims.append("time > %d" % (
+            lims.append("id > %d" % (
                 (self.deck.sched.dayCutoff-(num*chunk*86400))*1000))
         lim = self._revlogLimit()
         if lim:
@@ -318,18 +318,18 @@ group by day order by day""" % (self._limit(), lim),
             tf = 3600.0 # hours
         return self.deck.db.all("""
 select
-(cast((time/1000 - :cut) / 86400.0 as int))/:chunk as day,
+(cast((id/1000 - :cut) / 86400.0 as int))/:chunk as day,
 sum(case when type = 0 then 1 else 0 end), -- lrn count
 sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = 2 then 1 else 0 end), -- lapse count
 sum(case when type = 3 then 1 else 0 end), -- cram count
-sum(case when type = 0 then taken/1000 else 0 end)/:tf, -- lrn time
+sum(case when type = 0 then time/1000 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
-sum(case when type = 1 and lastIvl < 21 then taken/1000 else 0 end)/:tf,
-sum(case when type = 1 and lastIvl >= 21 then taken/1000 else 0 end)/:tf,
-sum(case when type = 2 then taken/1000 else 0 end)/:tf, -- lapse time
-sum(case when type = 3 then taken/1000 else 0 end)/:tf -- cram time
+sum(case when type = 1 and lastIvl < 21 then time/1000 else 0 end)/:tf,
+sum(case when type = 1 and lastIvl >= 21 then time/1000 else 0 end)/:tf,
+sum(case when type = 2 then time/1000 else 0 end)/:tf, -- lapse time
+sum(case when type = 3 then time/1000 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day""" % lim,
                             cut=self.deck.sched.dayCutoff,
@@ -341,7 +341,7 @@ group by day order by day""" % lim,
         num = self._periodDays()
         if num:
             lims.append(
-                "time > %d" %
+                "id > %d" %
                 ((self.deck.sched.dayCutoff-(num*86400))*1000))
         rlim = self._revlogLimit()
         if rlim:
@@ -352,7 +352,7 @@ group by day order by day""" % lim,
             lim = ""
         return self.deck.db.first("""
 select count(), abs(min(day)) from (select
-(cast((time/1000 - :cut) / 86400.0 as int)+1) as day
+(cast((id/1000 - :cut) / 86400.0 as int)+1) as day
 from revlog %s
 group by day order by day)""" % lim,
                                    cut=self.deck.sched.dayCutoff)
@@ -515,7 +515,7 @@ order by thetype, ease""" % lim)
         sd = datetime.datetime.fromtimestamp(self.deck.crt)
         return self.deck.db.all("""
 select
-23 - ((cast((:cut - time/1000) / 3600.0 as int)) %% 24) as hour,
+23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
 sum(case when ease = 1 then 0 else 1 end) /
 cast(count() as float) * 100,
 count()

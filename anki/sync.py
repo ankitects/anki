@@ -178,7 +178,7 @@ class Syncer(object):
              "select * from facts where mod > ?"),
             # the rest
             ("models", "select * from models where mod > ?"),
-            ("revlog", "select * from revlog where time > ?*1000"),
+            ("revlog", "select * from revlog where id > ?*1000"),
             ("tags", "select * from tags where mod > ?"),
             ("gconf", "select * from gconf where mod > ?"),
             ("groups", "select * from groups where mod > ?"),

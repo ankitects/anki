@@ -563,9 +563,9 @@ where c.fid == f.id
         c.flush()
         # and delete revlog entry
         last = self.db.scalar(
-            "select time from revlog where cid = ? "
-            "order by time desc limit 1", c.id)
-        self.db.execute("delete from revlog where time = ?", last)
+            "select id from revlog where cid = ? "
+            "order by id desc limit 1", c.id)
+        self.db.execute("delete from revlog where id = ?", last)
 
     def _markOp(self, name):
         "Call via .save()"

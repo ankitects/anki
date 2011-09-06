@@ -95,26 +95,6 @@ order by due""" % self._groupLimit(),
         self.deck.db.execute(
             "update cards set queue = type where queue between -3 and -2")
 
-    def etaStr(self):
-        eta = self.eta()
-        if not eta:
-            return ""
-        return fmtTimeSpan(eta)
-
-    def eta(self):
-        "A very rough estimate of time to review."
-        (cnt, sum) = self.deck.db.first("""
-select count(), sum(taken) from (select * from revlog
-order by time desc limit 10)""")
-        if not cnt:
-            return 0
-        avg = sum / float(cnt)
-        c = self.counts()
-        # Here we just assume new/lrn will require 3x the number of reviews.
-        # To improve on this we'll need to make grade count down so we can get
-        # a decent picture of required steps.
-        return (avg*c[0]*3 + avg*c[1]*3 + avg*c[2]) / 1000.0
-
     # Counts
     ##########################################################################
 
@@ -745,13 +725,13 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def timeToday(self):
         "Time spent learning today, in seconds."
         return self.deck.db.scalar(
-            "select sum(taken/1000.0) from revlog where time > ?*1000",
+            "select sum(time/1000.0) from revlog where id > ?*1000",
             self.dayCutoff-86400) or 0
 
     def repsToday(self):
         "Number of cards answered today."
         return self.deck.db.scalar(
-            "select count() from revlog where time > ?*1000",
+            "select count() from revlog where id > ?*1000",
             self.dayCutoff-86400)
 
     # Dynamic indices

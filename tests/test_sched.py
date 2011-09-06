@@ -114,7 +114,7 @@ def test_learn():
     assert c.grade == 1
     assert c.cycles == 2
     # check log is accurate
-    log = d.db.first("select * from revlog order by time desc")
+    log = d.db.first("select * from revlog order by id desc")
     assert log[2] == 2
     assert log[3] == -180
     assert log[4] == -30
@@ -793,15 +793,3 @@ def test_resched():
     c.load()
     assert c.due == d.sched.today+1
     assert c.ivl == +1
-
-def test_eta():
-    d = getEmptyDeck()
-    f = d.newFact()
-    f['Front'] = u"one"
-    d.addFact(f)
-    d.reset()
-    c = d.sched.getCard()
-    time.sleep(0.1)
-    d.sched.answerCard(c, 1)
-    time.sleep(0.1)
-    d.sched.answerCard(c, 1)

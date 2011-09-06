@@ -109,19 +109,19 @@ create table if not exists fsums (
 );
 
 create table if not exists graves (
-    time            integer not null,
+    id              integer not null,
     oid             integer not null,
     type            integer not null
 );
 
 create table if not exists revlog (
-    time            integer primary key,
+    id              integer primary key,
     cid             integer not null,
     ease            integer not null,
     ivl             integer not null,
     lastIvl         integer not null,
     factor          integer not null,
-    taken           integer not null,
+    time            integer not null,
     type            integer not null
 );
 
