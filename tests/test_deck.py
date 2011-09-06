@@ -137,13 +137,30 @@ def test_groups():
     # it should have an id of 1
     assert deck.groups.name(1)
     # create a new group
-    g = deck.groups.id("new group")
-    assert g
+    parentId = deck.groups.id("new group")
+    assert parentId
     assert len(deck.groups.groups) == 2
     # should get the same id
-    assert deck.groups.id("new group") == g
+    assert deck.groups.id("new group") == parentId
     # by default, everything should be shown
-    assert not deck.conf['groups']
+    assert not deck.groups.selected()
+    assert not deck.groups.active()
+    # and the default group is used
+    assert deck.groups.top()['id'] == 1
+    # we can select the default explicitly
+    deck.groups.select(1)
+    assert deck.groups.selected() == 1
+    assert deck.groups.active() == [1]
+    assert deck.groups.top()['id'] == 1
+    # let's create a child and select that
+    childId = deck.groups.id("new group::child")
+    deck.groups.select(childId)
+    assert deck.groups.selected() == childId
+    assert deck.groups.active() == [childId]
+    assert deck.groups.top()['id'] == parentId
+    # if we select the parent, the child gets included
+    deck.groups.select(parentId)
+    assert sorted(deck.groups.active()) == [parentId,  childId]
 
 def test_selective():
     deck = getEmptyDeck()

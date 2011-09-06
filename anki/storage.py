@@ -131,11 +131,15 @@ values(1,0,0,0,%(v)s,0,'',0,'','{}','','','{}');
     import anki.deck
     import anki.groups
     if setDeckConf:
+        g = anki.groups.defaultTopConf.copy()
+        g['id'] = 1
+        g['name'] = _("Default")
+        g['conf'] = 1
+        g['mod'] = intTime()
         db.execute("""
 update deck set conf = ?, groups = ?, gconf = ?""",
                    simplejson.dumps(anki.deck.defaultConf),
-                   simplejson.dumps({'1': {'name': _("Default"), 'conf': 1,
-                                       'mod': intTime()}}),
+                   simplejson.dumps({'1': g}),
                    simplejson.dumps({'1': anki.groups.defaultConf}))
 
 def _updateIndices(db):
@@ -339,28 +343,29 @@ def _migrateDeckTbl(db):
 insert or replace into deck select id, cast(created as int), :t,
 :t, 99, 0, ifnull(syncName, ""), cast(lastSync as int),
 "", "", "", "", "" from decks""", t=intTime())
-    # update selective study
+    # prepare a group to store the old deck options
+    import anki.groups
+    g = anki.groups.defaultTopConf.copy()
+    g['id'] = 1
+    g['name'] = _("Default")
+    g['conf'] = 1
+    g['mod'] = intTime()
+    # and deck conf
     conf = anki.deck.defaultConf.copy()
     # delete old selective study settings, which we can't auto-upgrade easily
     keys = ("newActive", "newInactive", "revActive", "revInactive")
     for k in keys:
         db.execute("delete from deckVars where key=:k", k=k)
     # copy other settings, ignoring deck order as there's a new default
-    conf['newSpread'] = db.scalar(
-        "select newCardSpacing from decks")
-    conf['newOrder'] = db.scalar(
-        "select newCardOrder from decks")
-    conf['newPerDay'] = db.scalar(
-        "select newCardsPerDay from decks")
-    # fetch remaining settings from decks table
-    data = {}
-    keys = ("sessionRepLimit", "sessionTimeLimit")
-    for k in keys:
-        conf[k] = db.scalar("select %s from decks" % k)
-    # random and due options merged
-    conf['revOrder'] = 2
+    g['newSpread'] = db.scalar("select newCardSpacing from decks")
+    g['newPerDay'] = db.scalar("select newCardsPerDay from decks")
+    g['repLim'] = db.scalar("select sessionRepLimit from decks")
+    g['timeLim'] = db.scalar("select sessionTimeLimit from decks")
+
+    # this needs to be placed in the model later on
+    conf['oldNewOrder'] = db.scalar("select newCardOrder from decks")
     # no reverse option anymore
-    conf['newOrder'] = min(1, conf['newOrder'])
+    conf['oldNewOrder'] = min(1, conf['oldNewOrder'])
     # add any deck vars and save
     dkeys = ("hexCache", "cssCache")
     for (k, v) in db.execute("select * from deckVars").fetchall():
@@ -368,10 +373,9 @@ insert or replace into deck select id, cast(created as int), :t,
             pass
         else:
             conf[k] = v
-    import anki.groups
     db.execute("update deck set conf=:c,groups=:g,gconf=:gc",
                c=simplejson.dumps(conf),
-               g=simplejson.dumps({'1': {'name': _("Default"), 'conf': 1}}),
+               g=simplejson.dumps({'1': g}),
                gc=simplejson.dumps({'1': anki.groups.defaultConf}))
     # clean up
     db.execute("drop table decks")
@@ -479,10 +483,12 @@ def _postSchemaUpgrade(deck):
     "Handle the rest of the upgrade to 2.0."
     import anki.deck
     # make sure we have a current model id
-    deck.conf['currentModelId'] = deck.models.models.keys()[0]
-    # regenerate css
+    deck.models.setCurrent(deck.models.models.values()[0])
+    # regenerate css, and set new card order
     for m in deck.models.all():
+        m['newOrder'] = deck.conf['oldNewOrder']
         deck.models.save(m)
+    del deck.conf['oldNewOrder']
     # fix creation time
     deck.sched._updateCutoff()
     d = datetime.datetime.today()
@@ -521,7 +527,7 @@ update cards set due = cast(
 ((due-:stamp)/86400) as int)+:today where type = 2
 """, stamp=deck.sched.dayCutoff, today=deck.sched.today)
     # possibly re-randomize
-    if deck.randomNew():
+    if deck.models.randomNew():
         deck.sched.randomizeCards()
     # update insertion id
     deck.conf['nextPos'] = deck.db.scalar("select max(id) from facts")+1

@@ -10,7 +10,7 @@ def test_modelDelete():
     f['Back'] = u'2'
     deck.addFact(f)
     assert deck.cardCount() == 1
-    deck.models.rem(deck.models.get(deck.conf['currentModelId']))
+    deck.models.rem(deck.models.current())
     assert deck.cardCount() == 0
 
 def test_modelCopy():
@@ -109,7 +109,7 @@ def test_text():
 
 def test_cloze():
     d = getEmptyDeck()
-    d.conf['currentModelId'] = d.models.byName("Cloze")['id']
+    d.models.setCurrent(d.models.byName("Cloze"))
     f = d.newFact()
     assert f.model()['name'] == "Cloze"
     # a cloze model with no clozes is empty

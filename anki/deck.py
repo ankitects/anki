@@ -20,19 +20,12 @@ import anki.cards, anki.facts, anki.template, anki.cram, anki.find
 
 defaultConf = {
     # scheduling options
-    'groups': [],
-    'newPerDay': 20,
-    'newToday': [0, 0], # currentDay, count
-    'newTodayOrder': NEW_TODAY_ORD,
-    'newOrder': NEW_CARDS_DUE,
-    'newSpread': NEW_CARDS_DISTRIBUTE,
+    'activeGroups': [],
+    'topGroup': 1,
+    'curGroup': None,
     'revOrder': REV_CARDS_RANDOM,
-    'collapseTime': 1200,
-    'repLim': 0,
-    'timeLim': 600,
     # other config
     'nextPos': 1,
-    'mediaURL': "",
     'fontFamilies': [
         [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
     ],
@@ -228,7 +221,7 @@ crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?, conf=?""",
             return 0
         fact.flush()
         # randomize?
-        if self.randomNew():
+        if self.models.randomNew():
             due = self._randPos()
         else:
             due = self.nextID("pos")
@@ -284,7 +277,7 @@ crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?, conf=?""",
         "Generate cards for templates if cards not empty. Return cards."
         cards = []
         # if random mode, determine insertion point
-        if self.randomNew():
+        if self.models.randomNew():
             # if this fact has existing new cards, use their due time
             due = self.db.scalar(
                 "select due from cards where fid = ? and queue = 0", fact.id)
@@ -330,9 +323,6 @@ crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?, conf=?""",
         if flush:
             card.flush()
         return card
-
-    def randomNew(self):
-        return self.conf['newOrder'] == NEW_CARDS_RANDOM
 
     # Cards
     ##########################################################################

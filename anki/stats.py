@@ -675,7 +675,7 @@ $(function () {
             return ""
 
     def _revlogLimit(self):
-        lim = self.deck.conf['groups']
+        lim = self.deck.groups.active()
         if self.selective and lim:
             return ("cid in (select id from cards where gid in %s)" %
                     ids2str(lim))

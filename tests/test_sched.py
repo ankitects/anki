@@ -581,11 +581,11 @@ def test_ordcycle():
 def test_counts():
     d = getEmptyDeck()
     # add a second group
-    assert d.groups.id("new group")
+    grp = d.groups.id("new group")
     # for each card type
     for type in range(3):
         # and each of the groups
-        for gid in (1,2):
+        for gid in (1,grp):
             # create a new fact
             f = d.newFact()
             f['Front'] = u"one"
@@ -601,13 +601,9 @@ def test_counts():
     # with the default settings, there's no count limit
     assert d.sched.counts() == (2,2,2)
     # check limit to one group
-    d.conf['groups'] = [1]
+    d.groups.select(1)
     d.reset()
     assert d.sched.counts() == (1,1,1)
-    # we don't need to build the queue to get the counts
-    assert d.sched.allCounts() == (2,2,2)
-    assert d.sched.selCounts() == (1,1,1)
-    assert d.sched.allCounts() == (2,2,2)
 
 def test_counts2():
     d = getEmptyDeck()

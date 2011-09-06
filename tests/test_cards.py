@@ -18,7 +18,7 @@ def test_genCards():
     assert deck.cardCount() == 2
     assert cards[0].due == f.id
     # should work on random mode too
-    deck.conf['newOrder'] = NEW_CARDS_RANDOM
+    deck.models.current()['newOrder'] = NEW_CARDS_RANDOM
     f = deck.newFact()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -74,6 +74,6 @@ def test_misc():
     f['Back'] = u'2'
     d.addFact(f)
     c = f.cards()[0]
-    id = d.conf['currentModelId']
+    id = d.models.current()['id']
     assert c.cssClass() == "cm%s-0" % hexifyID(id)
     assert c.template()['ord'] == 0

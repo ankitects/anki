@@ -4,7 +4,27 @@
 
 import simplejson
 from anki.utils import intTime
+from anki.consts import *
 
+# fixmes:
+# - make sure lists like new[delays] are  not being shared by multiple groups
+# - make sure all children have parents (create as necessary)
+# - when renaming a group, top level properties should be added or removed as
+#   appropriate
+
+# configuration only available to top level groups
+defaultTopConf = {
+    'newPerDay': 20,
+    'newToday': [0, 0], # currentDay, count
+    'newTodayOrder': NEW_TODAY_ORD,
+    'newSpread': NEW_CARDS_DISTRIBUTE,
+    'collapseTime': 1200,
+    'repLim': 0,
+    'timeLim': 600,
+    'curModel': None,
+}
+
+# configuration available to all groups
 defaultConf = {
     'new': {
         'delays': [1, 10],
@@ -33,11 +53,7 @@ defaultConf = {
         'minSpace': 1,
     },
     'maxTaken': 60,
-}
-
-defaultData = {
-    'activeTags': None,
-    'inactiveTags': None,
+    'mod': 0,
 }
 
 class GroupManager(object):
@@ -54,6 +70,7 @@ class GroupManager(object):
         self.changed = False
 
     def save(self, g):
+        "Can be called with either a group or a group configuration."
         g['mod'] = intTime()
         self.changed = True
 
@@ -73,12 +90,20 @@ class GroupManager(object):
                 return int(id)
         if not create:
             return None
-        g = dict(name=name, conf=1, mod=intTime())
+        if "::" not in name:
+            # if it's a top level group, it gets the top level config
+            g = defaultTopConf.copy()
+        else:
+            # not top level. calling code should ensure parents already exist?
+            g = {}
+        g['name'] = name
+        g['conf'] = 1
         while 1:
-            id = str(intTime(1000))
-            if id in self.groups:
+            id = intTime(1000)
+            if str(id) in self.groups:
                 continue
-            self.groups[id] = g
+            g['id'] = id
+            self.groups[str(id)] = g
             self.save(g)
             return int(id)
 
@@ -89,11 +114,15 @@ class GroupManager(object):
         self.deck.db.execute("delete from groups where id = ?", gid)
         print "fixme: loop through models and update stale gid references"
 
-    def all(self):
+    def allNames(self):
         "An unsorted list of all group names."
         return [x['name'] for x in self.groups.values()]
 
-    # Utils
+    def all(self):
+        "A list of all groups."
+        return self.groups.values()
+
+    # Group utils
     #############################################################
 
     def name(self, gid):
@@ -102,6 +131,46 @@ class GroupManager(object):
     def conf(self, gid):
         return self.gconf[str(self.groups[str(gid)]['conf'])]
 
+    def get(self, gid):
+        return self.groups[str(gid)]
+
     def setGroup(self, cids, gid):
         self.db.execute(
             "update cards set gid = ? where id in "+ids2str(cids), gid)
+
+    # Group selection
+    #############################################################
+
+    def top(self):
+        "The current top level group as an object, and marks as modified."
+        g = self.get(self.deck.conf['topGroup'])
+        self.save(g)
+        return g
+
+    def active(self):
+        "The currrently active gids."
+        return self.deck.conf['activeGroups']
+
+    def selected(self):
+        "The currently selected gid, or None if whole collection."
+        return self.deck.conf['curGroup']
+
+    def select(self, gid):
+        "Select a new group. If gid is None, select whole collection."
+        if not gid:
+            self.deck.conf['topGroup'] = 1
+            self.deck.conf['curGroup'] = None
+            self.deck.conf['activeGroups'] = []
+            return
+        # save the top level group
+        name = self.groups[str(gid)]['name']
+        path = name.split("::")
+        self.deck.conf['topGroup'] = self.id(path[0])
+        # current group
+        self.deck.conf['curGroup'] = gid
+        # and active groups (current + all children)
+        actv = [gid]
+        for g in self.all():
+            if g['name'].startswith(name + "::"):
+                actv.append(g['id'])
+        self.deck.conf['activeGroups'] = actv

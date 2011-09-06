@@ -6,6 +6,7 @@ import simplejson, copy
 from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
     timestampID
 from anki.lang import _
+from anki.consts import *
 
 # Models
 ##########################################################################
@@ -16,6 +17,7 @@ defaultModel = {
     'sortf': 0,
     'gid': 1,
     'clozectx': False,
+    'newOrder': NEW_CARDS_DUE,
     'latexPre': """\
 \\documentclass[12pt]{article}
 \\special{papersize=3in,5in}
@@ -87,7 +89,13 @@ class ModelManager(object):
 
     def current(self):
         "Get current model."
-        return self.get(self.deck.conf['currentModelId'])
+        try:
+            return self.get(self.deck.groups.top()['curModel'])
+        except:
+            return self.models.values()[0]
+
+    def setCurrent(self, m):
+        self.deck.groups.top()['curModel'] = m['id']
 
     def get(self, id):
         "Get model with ID."
@@ -117,6 +125,7 @@ class ModelManager(object):
     def rem(self, m):
         "Delete model, and all its cards/facts."
         self.deck.modSchema()
+        current = self.current()['id'] == m['id']
         # delete facts/cards
         self.deck.remCards(self.deck.db.list("""
 select id from cards where fid in (select id from facts where mid = ?)""",
@@ -125,14 +134,14 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         del self.models[m['id']]
         self.save()
         # GUI should ensure last model is not deleted
-        if self.deck.conf['currentModelId'] == m['id']:
-            self.deck.conf['currentModelId'] = int(self.models.keys()[0])
+        if current:
+            self.setCurrent(self.models.values()[0])
 
     def _add(self, m):
         self._setID(m)
         self.models[m['id']] = m
         self.save(m)
-        self.deck.conf['currentModelId'] = m['id']
+        self.setCurrent(m)
         return m
 
     def _setID(self, m):
@@ -154,6 +163,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         "Number of fact using M."
         return self.deck.db.scalar(
             "select count() from facts where mid = ?", m['id'])
+
+    def randomNew(self):
+        return self.current()['newOrder'] == NEW_CARDS_RANDOM
 
     # Copying
     ##################################################

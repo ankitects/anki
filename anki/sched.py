@@ -49,7 +49,7 @@ class Scheduler(object):
             # put it in the learn queue
             card.queue = 1
             card.type = 1
-            self.deck.conf['newToday'][1] += 1
+            self.deck.groups.top()['newToday'][1] += 1
         if card.queue == 1:
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
@@ -97,20 +97,6 @@ order by due""" % self._groupLimit(),
 
     # Counts
     ##########################################################################
-
-    def selCounts(self):
-        "Return counts for selected groups, without building queue."
-        self._resetCounts()
-        return self.counts()
-
-    def allCounts(self):
-        "Return counts for all groups, without building queue."
-        conf = self.deck.conf['groups']
-        if conf:
-            self.deck.conf['groups'] = []
-            self._resetCounts()
-            self.deck.conf['groups'] = conf
-        return self.counts()
 
     def _resetCounts(self):
         self._updateCutoff()
@@ -212,7 +198,7 @@ from cards group by gid""", self.today):
     # FIXME: need to keep track of reps for timebox and new card introduction
 
     def _resetNewCount(self):
-        l = self.deck.conf
+        l = self.deck.groups.top()
         if l['newToday'][0] != self.today:
             # it's a new day; reset counts
             l['newToday'] = [self.today, 0]
@@ -241,7 +227,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
         if self.newQueue:
             (id, due) = self.newQueue.pop()
             # move any siblings to the end?
-            if self.deck.conf['newTodayOrder'] == NEW_TODAY_ORD:
+            if self.deck.groups.top()['newTodayOrder'] == NEW_TODAY_ORD:
                 n = len(self.newQueue)
                 while self.newQueue and self.newQueue[-1][1] == due:
                     self.newQueue.insert(0, self.newQueue.pop())
@@ -253,7 +239,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
             return id
 
     def _updateNewCardRatio(self):
-        if self.deck.conf['newSpread'] == NEW_CARDS_DISTRIBUTE:
+        if self.deck.groups.top()['newSpread'] == NEW_CARDS_DISTRIBUTE:
             if self.newCount:
                 self.newCardModulus = (
                     (self.newCount + self.revCount) / self.newCount)
@@ -267,9 +253,9 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
-        if self.deck.conf['newSpread'] == NEW_CARDS_LAST:
+        if self.deck.groups.top()['newSpread'] == NEW_CARDS_LAST:
             return False
-        elif self.deck.conf['newSpread'] == NEW_CARDS_FIRST:
+        elif self.deck.groups.top()['newSpread'] == NEW_CARDS_FIRST:
             return True
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
@@ -282,7 +268,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
 select count() from (select id from cards where
 queue = 1 %s and due < ? limit %d)""" % (
             self._groupLimit(), self.reportLimit),
-            intTime() + self.deck.conf['collapseTime'])
+            intTime() + self.deck.groups.top()['collapseTime'])
 
     def _resetLrn(self):
         self.lrnQueue = self.deck.db.all("""
@@ -294,7 +280,7 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         if self.lrnQueue:
             cutoff = time.time()
             if collapse:
-                cutoff += self.deck.conf['collapseTime']
+                cutoff += self.deck.groups.top()['collapseTime']
             if self.lrnQueue[0][0] < cutoff:
                 id = heappop(self.lrnQueue)[1]
                 self.lrnCount -= 1
@@ -327,7 +313,7 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
             card.due = int(time.time() + delay)
             heappush(self.lrnQueue, (card.due, card.id))
             # if it's due within the cutoff, increment count
-            if delay <= self.deck.conf['collapseTime']:
+            if delay <= self.deck.groups.top()['collapseTime']:
                 self.lrnCount += 1
         self._logLrn(card, ease, conf, leaving, type)
 
@@ -578,7 +564,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         return self.deck.groups.conf(card.gid)
 
     def _groupLimit(self):
-        l = self.deck.conf['groups']
+        l = self.deck.groups.active()
         if not l:
             # everything
             return ""
@@ -605,15 +591,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def finishedMsg(self):
         return (
             "<h1>"+_("Congratulations!")+"</h1>"+
-            self._finishedSubtitle()+
+            _("You have finished the selected groups for now.") +
             "<br><br>"+
             self._nextDueMsg())
-
-    def _finishedSubtitle(self):
-        if self.deck.conf['groups']:
-            return _("You have finished the selected groups for now.")
-        else:
-            return _("You have finished the deck for now.")
 
     def _nextDueMsg(self):
         line = []
@@ -650,7 +630,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def newTomorrow(self):
         "Number of new cards tomorrow."
-        lim = self.deck.conf['newPerDay']
+        lim = self.deck.groups.top()['newPerDay']
         return self.deck.db.scalar(
             "select count() from (select id from cards where "
             "queue = 0 %s limit %d)" % (self._groupLimit(), lim))
@@ -764,7 +744,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         self.deck.db.execute(
             "update cards set type=0, queue=0, ivl=0 where id in "+ids2str(ids))
         pmax = self.deck.db.scalar("select max(due) from cards where type=0")
-        self.sortCards(ids, start=pmax+1, shuffle=self.deck.randomNew())
+        self.sortCards(ids, start=pmax+1, shuffle=self.deck.models.randomNew())
 
     def reschedCards(self, ids, imin, imax):
         "Put cards in review queue with a new interval in days (min, max)."
@@ -816,6 +796,8 @@ and due >= ?""" % scids, now, shiftby, low)
         self.deck.db.executemany(
             "update cards set due = :due, mod = :now where id = :cid""", d)
 
+    # fixme: because it's a model property now, these should be done on a
+    # per-model basis
     def randomizeCards(self):
         self.sortCards(self.deck.db.list("select id from cards"), shuffle=True)
 

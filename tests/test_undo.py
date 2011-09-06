@@ -7,9 +7,8 @@ def test_op():
     # should have no undo by default
     assert not d.undoName()
     # let's adjust a study option
-    assert d.conf['repLim'] == 0
     d.save("studyopts")
-    d.conf['repLim'] = 10
+    d.conf['revOrder'] = 5
     # it should be listed as undoable
     assert d.undoName() == "studyopts"
     # with about 5 minutes until it's clobbered
@@ -17,7 +16,7 @@ def test_op():
     # undoing should restore the old value
     d.undo()
     assert not d.undoName()
-    assert d.conf['repLim'] == 0
+    assert d.conf['revOrder'] != 5
     # an (auto)save will clear the undo
     d.save("foo")
     assert d.undoName() == "foo"
