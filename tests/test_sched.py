@@ -242,7 +242,7 @@ def test_reviews():
     # leech handling
     ##################################################
     c = copy.copy(cardcopy)
-    c.lapses = 15
+    c.lapses = 7
     c.flush()
     # steup hook
     hooked = []

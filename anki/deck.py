@@ -74,14 +74,13 @@ class _Deck(object):
          self.mod,
          self.scm,
          self.dty,
-         self.syncName,
          self.lastSync,
          self.conf,
          models,
          groups,
          gconf,
          tags) = self.db.first("""
-select crt, mod, scm, dty, syncName, lastSync,
+select crt, mod, scm, dty, lastSync,
 conf, models, groups, gconf, tags from deck""")
         self.conf = simplejson.loads(self.conf)
         self.models.load(models)
@@ -93,10 +92,9 @@ conf, models, groups, gconf, tags from deck""")
         self.mod = intTime() if mod is None else mod
         self.db.execute(
             """update deck set
-crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?, conf=?""",
+crt=?, mod=?, scm=?, dty=?, lastSync=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
-            self.syncName, self.lastSync,
-            simplejson.dumps(self.conf))
+            self.lastSync, simplejson.dumps(self.conf))
         self.models.flush()
         self.groups.flush()
         self.tags.flush()
@@ -147,8 +145,8 @@ crt=?, mod=?, scm=?, dty=?, syncName=?, lastSync=?, conf=?""",
         self.scm = intTime()
 
     def schemaChanged(self):
-        "True if schema changed since last sync, or syncing off."
-        return not self.syncingEnabled() or self.scm > self.lastSync
+        "True if schema changed since last sync."
+        return self.scm > self.lastSync
 
     def setDirty(self):
         "Signal there are temp. suspended cards that need cleaning up on close."
@@ -482,26 +480,6 @@ where c.fid == f.id
             self.repsToday - self.sessionStartReps):
             return True
         return False
-
-    # Syncing
-    ##########################################################################
-
-    def enableSyncing(self):
-        self.syncName = self.getSyncName()
-
-    def disableSyncing(self):
-        self.syncName = u""
-
-    def syncingEnabled(self):
-        return not not self.syncName
-
-    def genSyncName(self):
-        return unicode(checksum(self.path.encode("utf-8")))
-
-    def syncHashBad(self):
-        if self.syncName and self.syncName != self.genSyncName():
-            self.disableSyncing()
-            return True
 
     # Schedulers and cramming
     ##########################################################################
