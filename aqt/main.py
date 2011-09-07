@@ -917,7 +917,8 @@ Please choose a new deck name:"""))
     def onSchemaMod(self, arg):
         return askUser(_("""\
 This operation can't be merged when syncing, so the next \
-sync will overwrite any remote changes. Continue?"""))
+sync will overwrite any changes made on other devices that \
+haven't been synced here yet. Continue?"""))
 
     # Media locations
     ##########################################################################
