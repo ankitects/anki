@@ -227,8 +227,6 @@ select 1 from cards where gid = ? and
     # New cards
     ##########################################################################
 
-    # FIXME: need to keep track of reps for timebox and new card introduction
-
     def _resetNewCount(self):
         self._updateStatsDay("new")
         l = self.deck.groups.top()
