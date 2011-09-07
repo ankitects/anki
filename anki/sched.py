@@ -45,17 +45,22 @@ class Scheduler(object):
         self.deck.markReview(card)
         self.reps += 1
         card.reps += 1
-        if card.queue == 0:
+        wasNew = card.queue == 0
+        if wasNew:
             # put it in the learn queue
             card.queue = 1
             card.type = 1
-            self.deck.groups.top()['newToday'][1] += 1
+            self._updateStats('new')
         if card.queue == 1:
             self._answerLrnCard(card, ease)
+            if not wasNew:
+                self._updateStats('lrn')
         elif card.queue == 2:
             self._answerRevCard(card, ease)
+            self._updateStats('rev')
         else:
             raise Exception("Invalid queue")
+        self._updateStats('time', card.timeTaken())
         card.mod = intTime()
         card.flushSched()
 
@@ -103,6 +108,16 @@ order by due""" % self._groupLimit(),
         self._resetLrnCount()
         self._resetRevCount()
         self._resetNewCount()
+        self._updateStatsDay("time")
+
+    def _updateStatsDay(self, type):
+        l = self.deck.groups.top()
+        if l[type+'Today'][0] != self.today:
+            # it's a new day; reset counts
+            l[type+'Today'] = [self.today, 0]
+
+    def _updateStats(self, type, cnt=1):
+        self.deck.groups.top()[type+'Today'][1] += cnt
 
     # Group counts
     ##########################################################################
@@ -208,10 +223,8 @@ select 1 from cards where gid = ? and
     # FIXME: need to keep track of reps for timebox and new card introduction
 
     def _resetNewCount(self):
+        self._updateStatsDay("new")
         l = self.deck.groups.top()
-        if l['newToday'][0] != self.today:
-            # it's a new day; reset counts
-            l['newToday'] = [self.today, 0]
         lim = min(self.reportLimit, l['newPerDay'] - l['newToday'][1])
         if lim <= 0:
             self.newCount = 0
@@ -274,6 +287,7 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
     ##########################################################################
 
     def _resetLrnCount(self):
+        self._updateStatsDay("lrn")
         self.lrnCount = self.deck.db.scalar("""
 select count() from (select id from cards where
 queue = 1 %s and due < ? limit %d)""" % (
@@ -371,8 +385,6 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         card.factor = conf['initialFactor']
 
     def _logLrn(self, card, ease, conf, leaving, type):
-        # limit time taken to global setting
-        taken = min(card.timeTaken(), self._cardConf(card)['maxTaken']*1000)
         lastIvl = -(self._delayForGrade(conf, max(0, card.grade-1)))
         ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.grade))
         def log():
@@ -380,7 +392,7 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
                 "insert into revlog values (?,?,?,?,?,?,?,?)",
                 int(time.time()*1000), card.id, ease,
                 ivl, lastIvl,
-                card.factor, taken, type)
+                card.factor, card.timeTaken(), type)
         try:
             log()
         except:
@@ -404,6 +416,7 @@ where queue = 1 and type = 2
     ##########################################################################
 
     def _resetRevCount(self):
+        self._updateStatsDay("rev")
         self.revCount = self.deck.db.scalar("""
 select count() from (select id from cards where
 queue = 2 %s and due <= :lim limit %d)""" % (
@@ -478,12 +491,11 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         card.due = self.today + card.ivl
 
     def _logRev(self, card, ease):
-        taken = min(card.timeTaken(), self._cardConf(card)['maxTaken']*1000)
         def log():
             self.deck.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?)",
                 int(time.time()*1000), card.id, ease,
-                card.ivl, card.lastIvl, card.factor, taken,
+                card.ivl, card.lastIvl, card.factor, card.timeTaken(),
                 1)
         try:
             log()

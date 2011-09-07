@@ -127,6 +127,9 @@ lapses=?, grade=?, cycles=?, edue=? where id = ?""",
     def model(self, reload=False):
         return self._reviewData()[1]
 
+    def groupConf(self):
+        return self.deck.groups.conf(self.gid)
+
     def template(self):
         return self._reviewData()[1]['tmpls'][self.ord]
 
@@ -139,4 +142,5 @@ lapses=?, grade=?, cycles=?, edue=? where id = ?""",
 
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
-        return int((time.time() - self.timerStarted)*1000)
+        total = int((time.time() - self.timerStarted)*1000)
+        return min(total, self.groupConf()['maxTaken']*1000)

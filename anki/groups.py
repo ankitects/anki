@@ -16,6 +16,9 @@ from anki.consts import *
 defaultTopConf = {
     'newPerDay': 20,
     'newToday': [0, 0], # currentDay, count
+    'revToday': [0, 0],
+    'lrnToday': [0, 0],
+    'timeToday': [0, 0], # currentDay, time in ms
     'newTodayOrder': NEW_TODAY_ORD,
     'newSpread': NEW_CARDS_DISTRIBUTE,
     'collapseTime': 1200,
