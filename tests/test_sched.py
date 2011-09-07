@@ -4,6 +4,7 @@ import time, copy
 from tests.shared import assertException, getEmptyDeck
 from anki.utils import stripHTML, intTime
 from anki.hooks import addHook
+from anki.consts import *
 
 def test_basics():
     d = getEmptyDeck()
@@ -578,8 +579,47 @@ def test_ordcycle():
     assert d.sched.getCard().ord == 1
     assert d.sched.getCard().ord == 2
 
-def test_counts():
+def test_counts_up():
     d = getEmptyDeck()
+    # for each card type
+    for type in range(3):
+        # create a new fact
+        f = d.newFact()
+        f['Front'] = u"one"
+        d.addFact(f)
+        c = f.cards()[0]
+        # set type/gid
+        c.type = type
+        c.queue = type
+        c.due = 0
+        c.flush()
+    d.reset()
+    # all zeros first
+    assert d.sched.counts() == (0,0,0)
+    # answer the first card, which is a lrn one
+    c = d.sched.getCard()
+    assert c.queue == 1
+    d.sched.answerCard(c, 4)
+    assert d.sched.counts() == (0,1,0)
+    # and the next, which is a rev card
+    c = d.sched.getCard()
+    assert c.queue == 2
+    d.sched.answerCard(c, 4)
+    assert d.sched.counts() == (0,1,1)
+    # and the last, which is a new one
+    c = d.sched.getCard()
+    assert c.queue == 0
+    d.sched.answerCard(c, 4)
+    assert d.sched.counts() == (1,1,1)
+    # total should match
+    assert d.sched.repsToday() == 3
+    # the time should have been updated as well, but it gets rounded to zero
+    # in the test so we need to grab it manually
+    assert d.groups.top()['timeToday'][1]
+
+def test_counts_down():
+    d = getEmptyDeck()
+    d.conf['counts'] = COUNT_REMAINING
     # add a second group
     grp = d.groups.id("new group")
     # for each card type
@@ -605,8 +645,9 @@ def test_counts():
     d.reset()
     assert d.sched.counts() == (1,1,1)
 
-def test_counts2():
+def test_counts_idx():
     d = getEmptyDeck()
+    d.conf['counts'] = COUNT_REMAINING
     f = d.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addFact(f)
@@ -669,6 +710,7 @@ def test_collapse():
 
 def test_groupCounts():
     d = getEmptyDeck()
+    d.conf['counts'] = COUNT_REMAINING
     # add a fact with default group
     f = d.newFact()
     f['Front'] = u"one"
@@ -754,6 +796,7 @@ def test_reorder():
 
 def test_forget():
     d = getEmptyDeck()
+    d.conf['counts'] = COUNT_REMAINING
     f = d.newFact()
     f['Front'] = u"one"
     d.addFact(f)

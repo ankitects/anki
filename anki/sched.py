@@ -66,7 +66,14 @@ class Scheduler(object):
 
     def counts(self):
         "Does not include fetched but unanswered."
-        return (self.newCount, self.lrnCount, self.revCount)
+        if self.deck.conf['counts'] == COUNT_REMAINING:
+            return (self.newCount, self.lrnCount, self.revCount)
+        else:
+            return self.answeredCounts()
+
+    def answeredCounts(self):
+        t = self.deck.groups.top()
+        return (t['newToday'][1], t['lrnToday'][1], t['revToday'][1])
 
     def dueForecast(self, days=7):
         "Return counts over next DAYS. Includes today."
@@ -726,15 +733,12 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
 
     def timeToday(self):
         "Time spent learning today, in seconds."
-        return self.deck.db.scalar(
-            "select sum(time/1000.0) from revlog where id > ?*1000",
-            self.dayCutoff-86400) or 0
+        t = self.deck.groups.top()
+        return t['timeToday'][1] / 1000
 
     def repsToday(self):
         "Number of cards answered today."
-        return self.deck.db.scalar(
-            "select count() from revlog where id > ?*1000",
-            self.dayCutoff-86400)
+        return sum(self.answeredCounts())
 
     # Dynamic indices
     ##########################################################################

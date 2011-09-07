@@ -2,6 +2,8 @@
 
 import time
 from tests.shared import assertException, getEmptyDeck
+from anki.consts import *
+
 def test_op():
     d = getEmptyDeck()
     # should have no undo by default
@@ -35,6 +37,7 @@ def test_op():
 
 def test_review():
     d = getEmptyDeck()
+    d.conf['counts'] = COUNT_REMAINING
     f = d.newFact()
     f['Front'] = u"one"
     d.addFact(f)

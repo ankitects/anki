@@ -24,6 +24,10 @@ REV_CARDS_RANDOM = 2
 REM_CARD = 0
 REM_FACT = 1
 
+# count display
+COUNT_ANSWERED = 0
+COUNT_REMAINING = 1
+
 # Labels
 ##########################################################################
 
