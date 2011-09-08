@@ -57,6 +57,9 @@ class TagManager(object):
         self.register(set(self.split(
             " ".join(self.deck.db.list("select distinct tags from facts"+lim)))))
 
+    def allSince(self, mod):
+        return [k for k,v in self.tags.items() if v > mod]
+
     # Bulk addition/removal from facts
     #############################################################
 

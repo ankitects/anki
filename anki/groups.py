@@ -72,9 +72,10 @@ class GroupManager(object):
         self.gconf = simplejson.loads(gconf)
         self.changed = False
 
-    def save(self, g):
+    def save(self, g=None):
         "Can be called with either a group or a group configuration."
-        g['mod'] = intTime()
+        if g:
+            g['mod'] = intTime()
         self.changed = True
 
     def flush(self):
@@ -126,6 +127,10 @@ class GroupManager(object):
         "A list of all groups."
         return self.groups.values()
 
+    def allConf(self):
+        "A list of all group config."
+        return self.gconf.values()
+
     def _ensureParents(self, name):
         path = name.split("::")
         s = ""
@@ -146,11 +151,23 @@ class GroupManager(object):
         return self.gconf[str(self.groups[str(gid)]['conf'])]
 
     def get(self, gid):
-        return self.groups[str(gid)]
+        id = str(gid)
+        if id in self.groups:
+            return self.groups[id]
 
     def setGroup(self, cids, gid):
         self.db.execute(
             "update cards set gid = ? where id in "+ids2str(cids), gid)
+
+    def update(self, g):
+        "Add or update an existing group. Used for syncing and merging."
+        self.groups[str(g['id'])] = g
+        # mark registry changed, but don't bump mod time
+        self.save()
+
+    def updateConf(self, g):
+        self.gconf[str(g['id'])] = g
+        self.save()
 
     # Group selection
     #############################################################

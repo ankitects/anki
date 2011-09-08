@@ -38,8 +38,8 @@ select mid, gid, mod, tags, flds, data from facts where id = ?""", self.id)
         self._model = self.deck.models.get(self.mid)
         self._fmap = self.deck.models.fieldMap(self._model)
 
-    def flush(self):
-        self.mod = intTime()
+    def flush(self, mod=None):
+        self.mod = mod if mod else intTime()
         sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
         tags = self.stringTags()
         res = self.deck.db.execute("""

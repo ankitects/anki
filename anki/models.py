@@ -98,8 +98,10 @@ class ModelManager(object):
         self.deck.groups.top()['curModel'] = m['id']
 
     def get(self, id):
-        "Get model with ID."
-        return self.models[str(id)]
+        "Get model with ID, or None."
+        id = str(id)
+        if id in self.models:
+            return self.models[id]
 
     def all(self):
         "Get all models."
@@ -139,10 +141,15 @@ select id from cards where fid in (select id from facts where mid = ?)""",
 
     def _add(self, m):
         self._setID(m)
-        self.models[m['id']] = m
-        self.save(m)
+        self.update(m)
         self.setCurrent(m)
         return m
+
+    def update(self, m):
+        "Add or update an existing model. Used for syncing and merging."
+        self.models[str(m['id'])] = m
+        # mark registry changed, but don't bump mod time
+        self.save()
 
     def _setID(self, m):
         while 1:
