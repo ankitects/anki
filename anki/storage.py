@@ -135,11 +135,13 @@ values(1,0,0,0,%(v)s,0,0,'','{}','','','{}');
         g['name'] = _("Default")
         g['conf'] = 1
         g['mod'] = intTime()
+        gc = anki.groups.defaultConf.copy()
+        gc['id'] = 1
         db.execute("""
 update deck set conf = ?, groups = ?, gconf = ?""",
                    simplejson.dumps(anki.deck.defaultConf),
                    simplejson.dumps({'1': g}),
-                   simplejson.dumps({'1': anki.groups.defaultConf}))
+                   simplejson.dumps({'1': gc}))
 
 def _updateIndices(db):
     "Add indices to the DB."

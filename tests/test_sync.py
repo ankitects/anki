@@ -151,6 +151,48 @@ def test_cards():
     assert client.sync() == "success"
     assert not deck2.db.scalar("select 1 from cards where id = ?", card.id)
 
+@nose.with_setup(setup_modified)
+def test_tags():
+    test_sync()
+    assert deck1.tags.all() == deck2.tags.all()
+    deck1.tags.register(["abc"])
+    deck2.tags.register(["xyz"])
+    assert deck1.tags.all() != deck2.tags.all()
+    deck1.save(mod=intTime()+1)
+    deck2.save(mod=intTime()+2)
+    assert client.sync() == "success"
+    assert deck1.tags.all() == deck2.tags.all()
+
+@nose.with_setup(setup_modified)
+def test_groups():
+    test_sync()
+    assert len(deck1.groups.all()) == 1
+    assert len(deck1.groups.all()) == len(deck2.groups.all())
+    deck1.groups.id("new")
+    assert len(deck1.groups.all()) != len(deck2.groups.all())
+    time.sleep(0.1)
+    deck2.groups.id("new2")
+    deck1.save(mod=intTime()+1)
+    deck2.save(mod=intTime()+2)
+    assert client.sync() == "success"
+    assert deck1.tags.all() == deck2.tags.all()
+    assert len(deck1.groups.all()) == len(deck2.groups.all())
+    assert len(deck1.groups.all()) == 3
+    assert deck1.groups.conf(1)['maxTaken'] == 60
+    deck2.groups.conf(1)['maxTaken'] = 30
+    deck2.groups.save(deck2.groups.conf(1))
+    deck2.save(mod=intTime()+2)
+    assert client.sync() == "success"
+    assert deck1.groups.conf(1)['maxTaken'] == 30
+
+@nose.with_setup(setup_modified)
+def test_conf():
+    test_sync()
+    assert deck2.conf['topGroup'] == 1
+    deck1.conf['topGroup'] = 2
+    deck1.save(mod=intTime()+2)
+    assert client.sync() == "success"
+    assert deck2.conf['topGroup'] == 2
 
 def _test_speed():
     t = time.time()

@@ -126,6 +126,8 @@ class Syncer(object):
         self.mergeFacts(lchg['facts'], rchg['facts'])
         self.mergeCards(lchg['cards'], rchg['cards'])
         self.mergeTags(rchg['tags'])
+        if 'conf' in rchg:
+            self.mergeConf(rchg['conf'])
 
     def finish(self, mod=None):
         # fixme: dynamic index?
@@ -258,7 +260,8 @@ class Syncer(object):
     def getConf(self):
         return self.deck.conf
 
-    # fixme: merging conf
+    def mergeConf(self, conf):
+        self.deck.conf = conf
 
     # Merging
     ##########################################################################
