@@ -22,22 +22,19 @@ SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 KEYS = ("models", "facts", "cards", "media")
 
-# fixme:
+# todo:
 # - ensure all urllib references are converted to urllib2 for proxies
-
-# - revlog merged by inserting or ignoring. schema mod for when inserted into
-#   the past; not an issues with subscriptions as they do not share revlog
-# - facts can use mergeChanges(); facts recreate fsums
-# - graves get copied by way of the local deletes
-# - models could use similar merge, but they have no graves. removing causes
-#   schema mod.
-# - tags: add only if missing. only way to update cache is db check, which
-#   causes schema mod
-# - cards: reps on one side, changing group on another will cause reps to be
-#   lost. priority reps over mod time?
-
 # - ability to cancel
+# - need to make sure syncing doesn't bump the deck modified time if nothing was
+#    changed, since by default closing the deck bumps the mod time
+# - syncing with #/&/etc in password
+# - timeout on all requests (issue 2625)
+# - ditch user/pass in favour of session key?
 
+# full sync:
+# - compress and divide into pieces
+# - zlib? zip? content-encoding? if latter, need to account for bad proxies
+#   that decompress.
 
 ##########################################################################
 
