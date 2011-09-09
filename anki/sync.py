@@ -130,7 +130,6 @@ class Syncer(object):
             self.mergeConf(rchg['conf'])
 
     def finish(self, mod=None):
-        # fixme: dynamic index?
         if not mod:
             # server side; we decide new mod time
             mod = intTime()

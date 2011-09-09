@@ -744,7 +744,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     # Dynamic indices
     ##########################################################################
 
+    # fixme: warn user that the default is faster
     def updateDynamicIndices(self):
+        "Call this after revOrder is changed. Bumps schema."
         # determine required columns
         required = []
         if self.deck.conf['revOrder'] in (
@@ -762,6 +764,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             self.deck.db.execute("create index ix_cards_multi on cards (%s)" %
                               ", ".join(cols))
             self.deck.db.execute("analyze")
+            self.deck.modSchema()
 
     # Resetting
     ##########################################################################
