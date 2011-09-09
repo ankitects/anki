@@ -184,7 +184,7 @@ class Syncer(object):
 
     def getRevlog(self):
         r = self.deck.db.all("select * from revlog where id > ? limit ?",
-                             self.ls, self.MAX_REVLOG)
+                             self.ls*1000, self.MAX_REVLOG)
         if len(r) == self.MAX_REVLOG:
             raise SyncTooLarge
         return r
@@ -198,7 +198,7 @@ class Syncer(object):
     ##########################################################################
 
     def getFacts(self):
-        f = self.deck.db.all("select * from facts where id > ? limit ?",
+        f = self.deck.db.all("select * from facts where mod > ? limit ?",
                              self.ls, self.MAX_FACTS)
         if len(f) == self.MAX_FACTS:
             raise SyncTooLarge
@@ -225,7 +225,7 @@ class Syncer(object):
     ##########################################################################
 
     def getCards(self):
-        c = self.deck.db.all("select * from cards where id > ? limit ?",
+        c = self.deck.db.all("select * from cards where mod > ? limit ?",
                              self.ls, self.MAX_CARDS)
         if len(c) == self.MAX_CARDS:
             raise SyncTooLarge

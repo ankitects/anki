@@ -11,8 +11,6 @@ from anki.facts import Fact
 from anki.cards import Card
 from tests.shared import getEmptyDeck
 
-#import psyco; psyco.profile()
-
 # Local tests
 ##########################################################################
 
@@ -24,8 +22,8 @@ server=None
 def setup_basic(loadDecks=None):
     global deck1, deck2, client, server
     if loadDecks:
-        deck1 = Deck(loadDecks[0], backup=False)
-        deck2 = Deck(loadDecks[1], backup=False)
+        deck1 = Deck(loadDecks[0])
+        deck2 = Deck(loadDecks[1])
     else:
         deck1 = getEmptyDeck()
         # add a fact to deck 1
@@ -126,3 +124,18 @@ def test_facts():
     assert client.sync() == "success"
     assert not deck1.db.scalar("select 1 from facts where id = ?", fid)
     assert not deck2.db.scalar("select 1 from facts where id = ?", fid)
+
+def _test_speed():
+    t = time.time()
+    setup_basic([os.path.expanduser("~/rapid.anki"),
+                 os.path.expanduser("~/rapid2.anki")])
+    print "load %d" % ((time.time() - t)*1000); t = time.time()
+    deck2.save(mod=intTime()+1)
+    # 3000 revlog entries: ~128ms
+    # 3000 cards: ~200ms
+    # 3000 facts: ~500ms
+    assert client.sync() != "fullSync"
+    print "sync %d" % ((time.time() - t)*1000); t = time.time()
+
+
+
