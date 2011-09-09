@@ -67,9 +67,12 @@ class Scheduler(object):
     def counts(self):
         "Does not include fetched but unanswered."
         if self.deck.conf['counts'] == COUNT_REMAINING:
-            return (self.newCount, self.lrnCount, self.revCount)
+            return self.dueCounts()
         else:
             return self.answeredCounts()
+
+    def dueCounts(self):
+        return (self.newCount, self.lrnCount, self.revCount)
 
     def answeredCounts(self):
         t = self.deck.groups.top()
