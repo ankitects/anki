@@ -45,6 +45,10 @@ def setup_basic(loadDecks=None):
         deck1.save(); deck2.save()
     server = LocalServer(deck2)
     client = Syncer(deck1, server)
+    # for testing, don't add the 10 minute padding
+    def _lastSync(lsyn, rsyn):
+        return min(lsyn, rsyn)
+    client._lastSync = _lastSync
 
 def setup_modified():
     setup_basic()
@@ -77,6 +81,7 @@ def test_sync():
     # last sync times and mod times should agree
     assert deck1.mod == deck2.mod
     assert deck1.lastSync == deck2.lastSync
+    assert deck1.mod == deck1.lastSync
     assert deck1.lastSync != origLs
     # because everything was created separately it will be merged in. in
     # actual use we use a full sync to ensure initial a common starting point.
@@ -119,7 +124,9 @@ def test_facts():
     assert client.sync() == "success"
     assert deck2.getFact(fid)['Front'] == "abc"
     # deletions too
+    assert deck1.db.scalar("select 1 from facts where id = ?", fid)
     deck1.remFacts([fid])
+    deck1.lastSync = deck2.lastSync = intTime() - 1
     deck1.save(mod=intTime()+1)
     assert client.sync() == "success"
     assert not deck1.db.scalar("select 1 from facts where id = ?", fid)

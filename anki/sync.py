@@ -68,7 +68,7 @@ class Syncer(object):
         elif lscm != rscm:
             return "fullSync"
         # find last sync time minus 10 mins for clock drift
-        self.ls = min(lsyn, rsyn) - 600
+        self.ls = self._lastSync(lsyn, rsyn)
         self.lnewer = self.lmod > self.rmod
         # get local changes and switch to full sync if there were too many
         self.status("getLocal")
@@ -88,6 +88,9 @@ class Syncer(object):
         mod = self.server.finish()
         self.finish(mod)
         return "success"
+
+    def _lastSync(self, lsyn, rsyn):
+        return min(lsyn, rsyn) - 600
 
     def times(self):
         return (self.deck.mod, self.deck.scm, self.deck.lastSync)
