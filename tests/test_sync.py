@@ -47,7 +47,7 @@ def setup_basic(loadDecks=None):
     client = Syncer(deck1, server)
     # for testing, don't add the 10 minute padding
     def _lastSync(lsyn, rsyn):
-        return min(lsyn, rsyn)
+        return min(lsyn, rsyn) - 1
     client._lastSync = _lastSync
 
 def setup_modified():
@@ -126,11 +126,31 @@ def test_facts():
     # deletions too
     assert deck1.db.scalar("select 1 from facts where id = ?", fid)
     deck1.remFacts([fid])
-    deck1.lastSync = deck2.lastSync = intTime() - 1
     deck1.save(mod=intTime()+1)
     assert client.sync() == "success"
     assert not deck1.db.scalar("select 1 from facts where id = ?", fid)
     assert not deck2.db.scalar("select 1 from facts where id = ?", fid)
+
+@nose.with_setup(setup_modified)
+def test_cards():
+    test_sync()
+    fid = deck1.db.scalar("select id from facts")
+    fact = deck1.getFact(fid)
+    card = fact.cards()[0]
+    # answer the card locally
+    card.startTimer()
+    deck1.sched.answerCard(card, 4)
+    assert card.reps == 2
+    deck1.save(mod=intTime()+1)
+    assert deck2.getCard(card.id).reps == 1
+    assert client.sync() == "success"
+    assert deck2.getCard(card.id).reps == 2
+    deck1.remCards([card.id])
+    deck1.save(mod=intTime()+1)
+    assert deck2.db.scalar("select 1 from cards where id = ?", card.id)
+    assert client.sync() == "success"
+    assert not deck2.db.scalar("select 1 from cards where id = ?", card.id)
+
 
 def _test_speed():
     t = time.time()
