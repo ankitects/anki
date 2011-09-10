@@ -9,8 +9,6 @@ from anki.lang import _
 
 class MediaManager(object):
 
-    # can be altered at the class level for dropbox, etc
-    mediaPrefix = ""
     # other code depends on this order, so don't reorder
     regexps = ("(?i)(\[sound:([^]]+)\])",
                "(?i)(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>)")
@@ -18,44 +16,14 @@ class MediaManager(object):
     def __init__(self, deck):
         self.deck = deck
         self._dir = None
-        self._updateDir()
 
-    def dir(self, create=False):
-        "Call with create=None to retrieve dir without creating."
-        if self._dir:
-            return self._dir
-        elif create == None:
-            return self._updateDir(create)
-        elif create:
-            self._updateDir(True)
+    def dir(self):
+        if not self._dir:
+            self._dir = re.sub("(?i)\.(anki)$", ".media", self.deck.path)
+            if not os.path.exists(self._dir):
+                os.makedirs(self._dir)
+            os.chdir(self._dir)
         return self._dir
-
-    def _updateDir(self, create=False):
-        if self.mediaPrefix:
-            dir = os.path.join(
-                self.mediaPrefix, os.path.basename(self.deck.path))
-        else:
-            dir = self.deck.path
-        dir = re.sub("(?i)\.(anki)$", ".media", dir)
-        if create == None:
-            # don't create, but return dir
-            return dir
-        if not os.path.exists(dir):
-            if not create:
-                return
-            # will raise error if we can't create
-            os.makedirs(dir)
-        # change to the current dir
-        os.chdir(dir)
-        self._dir = dir
-
-    def move(self, old):
-        if not old:
-            return
-        self._dir = None
-        new = self.dir(create=None)
-        shutil.copytree(old, new)
-        shutil.rmtree(old)
 
     # Adding media
     ##########################################################################
@@ -63,7 +31,7 @@ class MediaManager(object):
     def addFile(self, opath):
         """Copy PATH to MEDIADIR, and return new filename.
 If the same name exists, compare checksums."""
-        mdir = self.dir(create=True)
+        mdir = self.dir()
         # remove any dangerous characters
         base = re.sub(r"[][<>:/\\&]", "", os.path.basename(opath))
         dst = os.path.join(mdir, base)
@@ -177,69 +145,3 @@ If the same name exists, compare checksums."""
                 for f in self.mediaFiles(p[type]):
                     files.add(f)
         return files
-
-    # Download missing
-    ##########################################################################
-
-    def downloadMissing(self):
-        raise Exception()
-        urlbase = self.deck.getVar("mediaURL")
-        if not urlbase:
-            return None
-        mdir = self.deck.dir(create=True)
-        missing = 0
-        grabbed = 0
-        for c, (f, sum) in enumerate(self.deck.db.all(
-            "select file, csum from media")):
-            path = os.path.join(mdir, f)
-            if not os.path.exists(path):
-                try:
-                    rpath = urlbase + f
-                    url = urllib2.urlopen(rpath)
-                    open(f, "wb").write(url.read())
-                    grabbed += 1
-                except:
-                    if sum:
-                        # the file is supposed to exist
-                        return (False, rpath)
-                    else:
-                        # ignore and keep going
-                        missing += 1
-            #self.deck.updateProgress(label=_("File %d...") % (grabbed+missing))
-        return (True, grabbed, missing)
-
-    # Convert remote links to local ones
-    ##########################################################################
-
-    def downloadRemote(self):
-        raise Exception()
-        mdir = self.deck.dir(create=True)
-        refs = {}
-        for (question, answer) in self.deck.db.all(
-            "select question, answer from cards"):
-            for txt in (question, answer):
-                for f in mediaFiles(txt, remote=True):
-                    refs[f] = True
-
-        failed = []
-        passed = []
-        for c, link in enumerate(refs.keys()):
-            try:
-                path = namedtmp(os.path.basename(link))
-                url = urllib2.urlopen(link)
-                open(path, "wb").write(url.read())
-                newpath = copyToMedia(self.deck, path)
-                passed.append([link, newpath])
-            except:
-                failed.append(link)
-            #self.deck.updateProgress(label=_("Download %d...") % c)
-        for (url, name) in passed:
-            self.deck.db.execute(
-                "update fields set value = replace(value, :url, :name)",
-                url=url, name=name)
-            #self.deck.updateProgress(label=_("Updating references..."))
-        #self.deck.updateProgress(label=_("Updating cards..."))
-        # rebuild entire q/a cache
-        for m in self.deck.models:
-            self.deck.updateCardsFromModel(m, dirty=True)
-        return (passed, failed)

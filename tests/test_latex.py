@@ -7,8 +7,6 @@ from anki.hooks import addHook
 
 def test_latex():
     d = getEmptyDeck()
-    # no media directory to start
-    assert not d.media.dir()
     # change latex cmd to simulate broken build
     import anki.latex
     anki.latex.latexCmd[0] = "nolatex"
@@ -16,8 +14,6 @@ def test_latex():
     f = d.newFact()
     f['Front'] = u"[latex]hello[/latex]"
     d.addFact(f)
-    # adding will have created the media
-    assert d.media.dir()
     # but since latex couldn't run, it will be empty
     assert len(os.listdir(d.media.dir())) == 0
     # check the error message

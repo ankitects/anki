@@ -79,8 +79,7 @@ def _buildImg(deck, latex, fname, model):
     texfile = file(namedtmp("tmp.tex"), "w")
     texfile.write(latex)
     texfile.close()
-    # make sure we have a valid mediaDir
-    mdir = deck.media.dir(create=True)
+    mdir = deck.media.dir()
     oldcwd = os.getcwd()
     png = namedtmp("tmp.png")
     try:
