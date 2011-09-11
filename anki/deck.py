@@ -125,12 +125,14 @@ crt=?, mod=?, scm=?, dty=?, lastSync=?, conf=?""",
                 self.rollback()
             self.db.close()
             self.db = None
+            self.media.close()
 
     def reopen(self):
         "Reconnect to DB (after changing threads, etc). Doesn't reload."
         import anki.db
         if not self.db:
             self.db = anki.db.DB(self.path)
+            self.media.connect()
 
     def rollback(self):
         self.db.rollback()

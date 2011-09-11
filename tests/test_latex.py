@@ -14,8 +14,8 @@ def test_latex():
     f = d.newFact()
     f['Front'] = u"[latex]hello[/latex]"
     d.addFact(f)
-    # but since latex couldn't run, it will only have the media.db
-    assert len(os.listdir(d.media.dir())) == 1
+    # but since latex couldn't run, there's nothing there
+    assert len(os.listdir(d.media.dir())) == 0
     # check the error message
     msg = f.cards()[0].q()
     assert "executing latex" in msg

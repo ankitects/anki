@@ -22,11 +22,18 @@ class MediaManager(object):
             os.makedirs(self._dir)
         os.chdir(self._dir)
         # change database
-        path = os.path.join(self.dir(), "media.db")
+        self.connect()
+
+    def connect(self):
+        path = self.dir()+"db"
         create = not os.path.exists(path)
         self.db = DB(path)
         if create:
             self._initDB()
+
+    def close(self):
+        self.db.close()
+        self.db = None
 
     def dir(self):
         return self._dir
@@ -124,7 +131,7 @@ If the same name exists, compare checksums."""
         # loop through directory and find unused & missing media
         unused = []
         for file in os.listdir(mdir):
-            if file.startswith("latex-") or file.startswith("media.db"):
+            if file.startswith("latex-"):
                 continue
             path = os.path.join(mdir, file)
             if not os.path.isfile(path):
@@ -159,8 +166,8 @@ If the same name exists, compare checksums."""
         # in the log, a mod time of zero indicates a delete
         self.db.executescript("""
 create table media (fname text primary key, csum text, mod int);
-create table meta (dirMod int);
-insert into meta values (0);
+create table meta (dirMod int, inSync int);
+insert into meta values (0, 0);
 create table log (id int, fname text, mod int);
 create index ix_log_id on log (id);
 """)
@@ -209,8 +216,8 @@ create index ix_log_id on log (id);
         changed = []
         # loop through on-disk files
         for f in os.listdir(self.dir()):
-            # ignore our db and folders
-            if f.startswith("media.db") or os.path.isdir(f):
+            # ignore folders
+            if os.path.isdir(f):
                 continue
             # newly added?
             if f not in self.cache:
@@ -255,3 +262,5 @@ create index ix_log_id on log (id);
             self.db.executemany("delete from media where fname = ?",
                                 mediaRem)
         self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
+        self.db.commit()
+
