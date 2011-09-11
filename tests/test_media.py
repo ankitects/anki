@@ -59,3 +59,40 @@ def test_deckIntegration():
     ret = d.media.check()
     assert ret[0] == ["fake2.png"]
     assert ret[1] == ["foo.jpg"]
+
+def test_changes():
+    d = getEmptyDeck()
+    assert d.media.changed()
+    add, rem = d.media.changesSince(0)
+    assert not add; assert not rem
+    assert not d.media.changed()
+    # add a file
+    dir = tempfile.mkdtemp(prefix="anki")
+    path = os.path.join(dir, "foo.jpg")
+    open(path, "w").write("hello")
+    time.sleep(1)
+    path = d.media.addFile(path)
+    # should have been logged
+    add, rem = d.media.changesSince(0)
+    assert add; assert not rem
+    mod = add[0][1]
+    # if we modify it, the cache won't notice
+    time.sleep(1)
+    open(path, "w").write("world")
+    add, rem = d.media.changesSince(0)
+    assert len(add) == 1
+    # but if we add another file, it will
+    time.sleep(1)
+    open(path+"2", "w").write("yo")
+    add, rem = d.media.changesSince(0)
+    assert len(add) == 2
+    assert len(rem) == 1
+    assert add[0][1] != mod
+    assert add[0][0] == "foo.jpg"
+    # deletions should get noticed too
+    time.sleep(1)
+    os.unlink(path+"2")
+    add, rem = d.media.changesSince(0)
+    assert len(add) == 2
+    assert len(rem) == 2
+

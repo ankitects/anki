@@ -4,14 +4,7 @@
 
 import re, os, random, time, types, math, htmlentitydefs, subprocess, \
     tempfile, shutil
-
-try:
-    import hashlib
-    md5 = hashlib.md5
-except ImportError:
-    import md5
-    md5 = md5.new
-
+from hashlib import md5, sha1
 from anki.lang import _, ngettext
 import locale, sys
 
@@ -203,6 +196,9 @@ def splitFields(string):
 
 def checksum(data):
     return md5(data).hexdigest()
+
+def sha1sum(data):
+    return sha1(data).hexdigest()
 
 def fieldChecksum(data):
     # 32 bit unsigned number from first 8 digits of md5 hash
