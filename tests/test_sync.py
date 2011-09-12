@@ -32,7 +32,7 @@ def setup_basic(loadDecks=None):
         deck1.addFact(f)
         # answer it
         deck1.reset(); deck1.sched.answerCard(deck1.sched.getCard(), 4)
-        # repeat for deck2; sleep a tick so we have different ids
+        # repeat for deck2
         deck2 = getEmptyDeck()
         f = deck2.newFact()
         f['Front'] = u"bar"; f['Back'] = u"bar"; f.tags = [u"bar"]
@@ -193,6 +193,42 @@ def test_conf():
     deck1.save(mod=intTime()+2)
     assert client.sync() == "success"
     assert deck2.conf['topGroup'] == 2
+
+@nose.with_setup(setup_modified)
+def test_threeway():
+    test_sync()
+    deck1.close()
+    d3path = deck1.path.replace(".anki", "2.anki")
+    shutil.copy2(deck1.path, d3path)
+    deck1.reopen()
+    deck3 = Deck(d3path)
+    client2 = Syncer(deck3, server)
+    # for testing, don't add the 10 minute padding
+    def _lastSync(lsyn, rsyn):
+        return min(lsyn, rsyn) - 1
+    client2._lastSync = _lastSync
+    assert client2.sync() == "noChanges"
+    # client 1 adds a card at time 1
+    time.sleep(1)
+    f = deck1.newFact()
+    f['Front'] = u"1";
+    deck1.addFact(f)
+    deck1.save()
+    # at time 2, client 2 syncs to server
+    time.sleep(1)
+    deck3.save()
+    assert client2.sync() == "success"
+    # it now has a last sync time greater than when the card was added at time
+    # 1
+    assert deck3.lastSync > f.mod
+    # at time 3, client 1 syncs, adding the older fact
+    time.sleep(1)
+    assert client.sync() == "success"
+    assert deck1.factCount() == deck2.factCount()
+    # syncing client2 should pick it up
+    assert client2.sync() == "success"
+    print deck1.factCount(), deck2.factCount(), deck3.factCount()
+    assert deck1.factCount() == deck2.factCount() == deck3.factCount()
 
 def _test_speed():
     t = time.time()
