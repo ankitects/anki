@@ -41,14 +41,15 @@ def setup_basic(loadDecks=None):
         # start with same schema and sync time
         deck1.scm = deck2.scm = 0
         # and same mod time, so sync does nothing
-        deck1.save(); deck2.save()
+        t = intTime(1000)
+        deck1.save(mod=t); deck2.save(mod=t)
     server = LocalServer(deck2)
     client = Syncer(deck1, server)
 
 def setup_modified():
     setup_basic()
     # mark deck1 as changed
-    deck1.save(mod=intTime()+1)
+    deck1.save()
 
 @nose.with_setup(setup_basic)
 def test_nochange():
@@ -85,7 +86,7 @@ def test_sync():
     assert client.sync() == "noChanges"
     # if we bump mod time, everything is copied across again because of the
     # 600 second sync leeway. but the decks should remain the same.
-    deck1.save(mod=intTime()+2)
+    deck1.save()
     assert client.sync() == "success"
     check(2)
 
@@ -97,14 +98,14 @@ def test_models():
     cm['name'] = "new"
     time.sleep(1)
     deck1.models.save(cm)
-    deck1.save(mod=intTime()+1)
+    deck1.save()
     assert deck2.models.get(cm['id'])['name'] == "Basic"
     assert client.sync() == "success"
     assert deck2.models.get(cm['id'])['name'] == "new"
     # deleting triggers a full sync
     deck1.scm = deck2.scm = 0
     deck1.models.rem(cm)
-    deck1.save(mod=intTime()+1)
+    deck1.save()
     assert client.sync() == "fullSync"
 
 @nose.with_setup(setup_modified)
@@ -115,14 +116,14 @@ def test_facts():
     fact = deck1.getFact(fid)
     assert fact['Front'] != "abc"
     fact['Front'] = "abc"
-    fact.flush(mod=intTime()+1)
-    deck1.save(mod=intTime()+1)
+    fact.flush()
+    deck1.save()
     assert client.sync() == "success"
     assert deck2.getFact(fid)['Front'] == "abc"
     # deletions too
     assert deck1.db.scalar("select 1 from facts where id = ?", fid)
     deck1.remFacts([fid])
-    deck1.save(mod=intTime()+1)
+    deck1.save()
     assert client.sync() == "success"
     assert not deck1.db.scalar("select 1 from facts where id = ?", fid)
     assert not deck2.db.scalar("select 1 from facts where id = ?", fid)
@@ -137,12 +138,12 @@ def test_cards():
     card.startTimer()
     deck1.sched.answerCard(card, 4)
     assert card.reps == 2
-    deck1.save(mod=intTime()+1)
+    deck1.save()
     assert deck2.getCard(card.id).reps == 1
     assert client.sync() == "success"
     assert deck2.getCard(card.id).reps == 2
     deck1.remCards([card.id])
-    deck1.save(mod=intTime()+1)
+    deck1.save()
     assert deck2.db.scalar("select 1 from cards where id = ?", card.id)
     assert client.sync() == "success"
     assert not deck2.db.scalar("select 1 from cards where id = ?", card.id)
@@ -154,8 +155,8 @@ def test_tags():
     deck1.tags.register(["abc"])
     deck2.tags.register(["xyz"])
     assert deck1.tags.all() != deck2.tags.all()
-    deck1.save(mod=intTime()+1)
-    deck2.save(mod=intTime()+2)
+    deck1.save()
+    deck2.save()
     assert client.sync() == "success"
     assert deck1.tags.all() == deck2.tags.all()
 
@@ -168,8 +169,8 @@ def test_groups():
     assert len(deck1.groups.all()) != len(deck2.groups.all())
     time.sleep(0.1)
     deck2.groups.id("new2")
-    deck1.save(mod=intTime()+1)
-    deck2.save(mod=intTime()+2)
+    deck1.save()
+    deck2.save()
     assert client.sync() == "success"
     assert deck1.tags.all() == deck2.tags.all()
     assert len(deck1.groups.all()) == len(deck2.groups.all())
@@ -177,7 +178,7 @@ def test_groups():
     assert deck1.groups.conf(1)['maxTaken'] == 60
     deck2.groups.conf(1)['maxTaken'] = 30
     deck2.groups.save(deck2.groups.conf(1))
-    deck2.save(mod=intTime()+2)
+    deck2.save()
     assert client.sync() == "success"
     assert deck1.groups.conf(1)['maxTaken'] == 30
 
@@ -186,14 +187,14 @@ def test_conf():
     test_sync()
     assert deck2.conf['topGroup'] == 1
     deck1.conf['topGroup'] = 2
-    deck1.save(mod=intTime()+2)
+    deck1.save()
     assert client.sync() == "success"
     assert deck2.conf['topGroup'] == 2
 
 @nose.with_setup(setup_modified)
 def test_threeway():
     test_sync()
-    deck1.close()
+    deck1.close(save=False)
     d3path = deck1.path.replace(".anki", "2.anki")
     shutil.copy2(deck1.path, d3path)
     deck1.reopen()
@@ -223,7 +224,7 @@ def _test_speed():
     setup_basic([os.path.expanduser("~/rapid.anki"),
                  os.path.expanduser("~/rapid2.anki")])
     print "load %d" % ((time.time() - t)*1000); t = time.time()
-    deck2.save(mod=intTime()+1)
+    deck2.save()
     # 3000 revlog entries: ~128ms
     # 3000 cards: ~200ms
     # 3000 facts: ~500ms

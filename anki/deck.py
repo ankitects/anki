@@ -90,7 +90,7 @@ conf, models, groups, gconf, tags from deck""")
 
     def flush(self, mod=None):
         "Flush state to DB, updating mod time."
-        self.mod = intTime() if mod is None else mod
+        self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
             """update deck set
 crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",

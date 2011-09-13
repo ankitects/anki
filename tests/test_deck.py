@@ -20,9 +20,8 @@ def test_create():
     deck = Deck(path)
     # for open()
     newPath = deck.path
-    deck.save()
-    newMod = deck.mod
     deck.close()
+    newMod = deck.mod
     del deck
 
 def test_open():
