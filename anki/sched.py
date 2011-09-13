@@ -62,6 +62,7 @@ class Scheduler(object):
             raise Exception("Invalid queue")
         self._updateStats('time', card.timeTaken())
         card.mod = intTime()
+        card.usn = self.deck.usn()
         card.flushSched()
 
     def counts(self):
@@ -397,10 +398,9 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.grade))
         def log():
             self.deck.db.execute(
-                "insert into revlog values (?,?,?,?,?,?,?,?)",
-                int(time.time()*1000), card.id, ease,
-                ivl, lastIvl,
-                card.factor, card.timeTaken(), type)
+                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
+                int(time.time()*1000), card.id, self.deck.usn(), ease,
+                ivl, lastIvl, card.factor, card.timeTaken(), type)
         try:
             log()
         except:
@@ -415,10 +415,10 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
             extra = " and id in "+ids2str(ids)
         self.deck.db.execute("""
 update cards set
-due = edue, queue = 2, mod = %d
+due = edue, queue = 2, mod = %d, usn = %d
 where queue = 1 and type = 2
 %s
-""" % (intTime(), extra))
+""" % (intTime(), self.deck.usn(), extra))
 
     # Reviews
     ##########################################################################
@@ -501,8 +501,8 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def _logRev(self, card, ease):
         def log():
             self.deck.db.execute(
-                "insert into revlog values (?,?,?,?,?,?,?,?)",
-                int(time.time()*1000), card.id, ease,
+                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
+                int(time.time()*1000), card.id, self.deck.usn(), ease,
                 card.ivl, card.lastIvl, card.factor, card.timeTaken(),
                 1)
         try:
@@ -712,15 +712,15 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         "Suspend cards."
         self.removeFailed(ids)
         self.deck.db.execute(
-            "update cards set queue = -1, mod = ? where id in "+
-            ids2str(ids), intTime())
+            "update cards set queue=-1,mod=?,usn=? where id in "+
+            ids2str(ids), intTime(), self.deck.usn())
 
     def unsuspendCards(self, ids):
         "Unsuspend cards."
         self.deck.db.execute(
-            "update cards set queue = type, mod = ? "
+            "update cards set queue=type,mod=?,usn=? "
             "where queue = -1 and id in "+ ids2str(ids),
-            intTime())
+            intTime(), self.deck.usn())
 
     def buryFact(self, fid):
         "Bury all cards for fact until next session."
@@ -772,8 +772,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def forgetCards(self, ids):
         "Put cards at the end of the new queue."
         self.deck.db.execute(
-            "update cards set type=0, queue=0, ivl=0 where id in "+ids2str(ids))
+            "update cards set type=0,queue=0,ivl=0 where id in "+ids2str(ids))
         pmax = self.deck.db.scalar("select max(due) from cards where type=0")
+        # takes care of mod + usn
         self.sortCards(ids, start=pmax+1, shuffle=self.deck.models.randomNew())
 
     def reschedCards(self, ids, imin, imax):
@@ -816,15 +817,15 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             if low is not None:
                 shiftby = high - low + 1
                 self.deck.db.execute("""
-update cards set mod=?, due=due+? where id not in %s
-and due >= ?""" % scids, now, shiftby, low)
+update cards set mod=?, usn=?, due=due+? where id not in %s
+and due >= ?""" % scids, now, self.deck.usn(), shiftby, low)
         # reorder cards
         d = []
         for id, fid in self.deck.db.execute(
             "select id, fid from cards where type = 0 and id in "+scids):
-            d.append(dict(now=now, due=due[fid], cid=id))
+            d.append(dict(now=now, due=due[fid], usn=self.deck.usn(), cid=id))
         self.deck.db.executemany(
-            "update cards set due = :due, mod = :now where id = :cid""", d)
+            "update cards set due=:due,mod=:now,usn=:usn where id = :cid""", d)
 
     # fixme: because it's a model property now, these should be done on a
     # per-model basis

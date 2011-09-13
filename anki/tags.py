@@ -39,7 +39,7 @@ class TagManager(object):
         # versions of the same tag if they ignore the qt autocomplete.
         for t in tags:
             if t not in self.tags:
-                self.tags[t] = intTime()
+                self.tags[t] = self.deck.usn()
                 self.changed = True
 
     def all(self):
@@ -57,8 +57,8 @@ class TagManager(object):
         self.register(set(self.split(
             " ".join(self.deck.db.list("select distinct tags from facts"+lim)))))
 
-    def allSince(self, mod):
-        return [k for k,v in self.tags.items() if v > mod]
+    def allSinceUSN(self, usn):
+        return [k for k,v in self.tags.items() if v >= usn]
 
     # Bulk addition/removal from facts
     #############################################################
@@ -88,9 +88,10 @@ class TagManager(object):
         fids = []
         def fix(row):
             fids.append(row[0])
-            return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime()}
+            return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime(),
+                'u':self.deck.usn()}
         self.deck.db.executemany(
-            "update facts set tags = :t, mod = :n where id = :id",
+            "update facts set tags=:t,mod=:n,usn=:u where id = :id",
             [fix(row) for row in res])
 
     def bulkRem(self, ids, tags):
@@ -171,5 +172,5 @@ class TagManager(object):
     def setGroupForTags(self, yes, no, gid):
         fids = self.selTagFids(yes, no)
         self.deck.db.execute(
-            "update cards set gid = ? where fid in "+ids2str(fids),
-            gid)
+            "update cards set gid=?,mod=?,usn=? where fid in "+ids2str(fids),
+            gid, intTime(), self.deck.usn())

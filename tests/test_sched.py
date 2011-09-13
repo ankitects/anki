@@ -116,9 +116,9 @@ def test_learn():
     assert c.cycles == 2
     # check log is accurate
     log = d.db.first("select * from revlog order by id desc")
-    assert log[2] == 2
-    assert log[3] == -180
-    assert log[4] == -30
+    assert log[3] == 2
+    assert log[4] == -180
+    assert log[5] == -30
     # pass again
     d.sched.answerCard(c, 2)
     # it should by due in 10 minutes

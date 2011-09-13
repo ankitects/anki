@@ -39,16 +39,11 @@ def setup_basic(loadDecks=None):
         deck2.addFact(f)
         deck2.reset(); deck2.sched.answerCard(deck2.sched.getCard(), 4)
         # start with same schema and sync time
-        deck1.lastSync = deck2.lastSync = intTime() - 1
         deck1.scm = deck2.scm = 0
         # and same mod time, so sync does nothing
         deck1.save(); deck2.save()
     server = LocalServer(deck2)
     client = Syncer(deck1, server)
-    # for testing, don't add the 10 minute padding
-    def _lastSync(lsyn, rsyn):
-        return min(lsyn, rsyn) - 1
-    client._lastSync = _lastSync
 
 def setup_modified():
     setup_basic()
@@ -76,13 +71,13 @@ def test_sync():
             assert len(d.groups.gconf) == 1
             assert len(d.tags.all()) == num
     check(1)
-    origLs = deck1.lastSync
+    origUsn = deck1.usn()
     assert client.sync() == "success"
     # last sync times and mod times should agree
     assert deck1.mod == deck2.mod
-    assert deck1.lastSync == deck2.lastSync
-    assert deck1.mod == deck1.lastSync
-    assert deck1.lastSync != origLs
+    assert deck1.usn() == deck2.usn()
+    assert deck1.mod == deck1.ls
+    assert deck1.usn() != origUsn
     # because everything was created separately it will be merged in. in
     # actual use we use a full sync to ensure initial a common starting point.
     check(2)
@@ -100,7 +95,8 @@ def test_models():
     # update model one
     cm = deck1.models.current()
     cm['name'] = "new"
-    cm['mod'] = intTime() + 1
+    time.sleep(1)
+    deck1.models.save(cm)
     deck1.save(mod=intTime()+1)
     assert deck2.models.get(cm['id'])['name'] == "Basic"
     assert client.sync() == "success"
@@ -203,10 +199,6 @@ def test_threeway():
     deck1.reopen()
     deck3 = Deck(d3path)
     client2 = Syncer(deck3, server)
-    # for testing, don't add the 10 minute padding
-    def _lastSync(lsyn, rsyn):
-        return min(lsyn, rsyn) - 1
-    client2._lastSync = _lastSync
     assert client2.sync() == "noChanges"
     # client 1 adds a card at time 1
     time.sleep(1)
@@ -218,16 +210,12 @@ def test_threeway():
     time.sleep(1)
     deck3.save()
     assert client2.sync() == "success"
-    # it now has a last sync time greater than when the card was added at time
-    # 1
-    assert deck3.lastSync > f.mod
     # at time 3, client 1 syncs, adding the older fact
     time.sleep(1)
     assert client.sync() == "success"
     assert deck1.factCount() == deck2.factCount()
     # syncing client2 should pick it up
     assert client2.sync() == "success"
-    print deck1.factCount(), deck2.factCount(), deck3.factCount()
     assert deck1.factCount() == deck2.factCount() == deck3.factCount()
 
 def _test_speed():

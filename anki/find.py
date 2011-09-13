@@ -3,7 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
-from anki.utils import ids2str, splitFields, joinFields, stripHTML
+from anki.utils import ids2str, splitFields, joinFields, stripHTML, intTime
+
 
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
@@ -401,11 +402,11 @@ def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
                 sflds[c] = repl(sflds[c])
         flds = joinFields(sflds)
         if flds != origFlds:
-            d.append(dict(fid=fid, flds=flds))
+            d.append(dict(fid=fid,flds=flds,u=deck.usn(),m=intTime()))
     if not d:
         return 0
     # replace
-    deck.db.executemany("update facts set flds = :flds where id=:fid", d)
+    deck.db.executemany("update facts set flds=:flds,mod=:m,usn=:u where id=:fid", d)
     deck.updateFieldCache(fids)
     return len(d)
 

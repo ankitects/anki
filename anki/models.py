@@ -28,6 +28,8 @@ defaultModel = {
 \\begin{document}
 """,
     'latexPost': "\\end{document}",
+    'mod': 0,
+    'usn': 0,
 }
 
 defaultField = {
@@ -75,6 +77,7 @@ class ModelManager(object):
         "Mark M modified if provided, and schedule registry flush."
         if m:
             m['mod'] = intTime()
+            m['usn'] = self.deck.usn()
             m['css'] = self._css(m)
         self.changed = True
 
@@ -308,8 +311,10 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         r = []
         for (id, flds) in self.deck.db.execute(
             "select id, flds from facts where mid = ?", m['id']):
-            r.append((joinFields(fn(splitFields(flds))), id))
-        self.deck.db.executemany("update facts set flds = ? where id = ?", r)
+            r.append((joinFields(fn(splitFields(flds))),
+                      intTime(), self.deck.usn(), id))
+        self.deck.db.executemany(
+            "update facts set flds=?,mod=?,usn=? where id = ?", r)
 
     # Templates
     ##################################################
@@ -334,8 +339,9 @@ select c.id from cards c, facts f where c.fid=f.id and mid = ? and ord = ?""",
         self.deck.remCards(cids)
         # shift ordinals
         self.deck.db.execute("""
-update cards set ord = ord - 1 where fid in (select id from facts
-where mid = ?) and ord > ?""", m['id'], ord)
+update cards set ord = ord - 1, usn = ?, mod = ?
+ where fid in (select id from facts where mid = ?) and ord > ?""",
+                             self.deck.usn(), intTime(), m['id'], ord)
         m['tmpls'].remove(template)
         self._updateTemplOrds(m)
         self.save(m)
@@ -359,8 +365,9 @@ where mid = ?) and ord > ?""", m['id'], ord)
         # apply
         self.save(m)
         self.deck.db.execute("""
-update cards set ord = (case %s end) where fid in (
-select id from facts where mid = ?)""" % " ".join(map), m['id'])
+update cards set ord = (case %s end),usn=?,mod=? where fid in (
+select id from facts where mid = ?)""" % " ".join(map),
+                             self.deck.usn(), intTime(), m['id'])
 
     # Model changing
     ##########################################################################
@@ -388,9 +395,10 @@ select id from facts where mid = ?)""" % " ".join(map), m['id'])
             for c in range(nfields):
                 flds.append(newflds.get(c, ""))
             flds = joinFields(flds)
-            d.append(dict(fid=fid, flds=flds, mid=newModel['id']))
+            d.append(dict(fid=fid, flds=flds, mid=newModel['id'],
+                      m=intTime(),u=self.deck.usn()))
         self.deck.db.executemany(
-            "update facts set flds=:flds, mid=:mid where id = :fid", d)
+            "update facts set flds=:flds,mid=:mid,mod=:m,usn=:u where id = :fid", d)
         self.deck.updateFieldCache(fids)
 
     def _changeCards(self, fids, newModel, map):
@@ -399,9 +407,11 @@ select id from facts where mid = ?)""" % " ".join(map), m['id'])
         for (cid, ord) in self.deck.db.execute(
             "select id, ord from cards where fid in "+ids2str(fids)):
             if map[ord] is not None:
-                d.append(dict(cid=cid, new=map[ord]))
+                d.append(dict(
+                    cid=cid,new=map[ord],u=self.deck.usn(),m=intTime()))
             else:
                 deleted.append(cid)
         self.deck.db.executemany(
-            "update cards set ord=:new where id=:cid", d)
+            "update cards set ord=:new,usn=:u,mod=:m where id=:cid",
+            d)
         self.deck.remCards(deleted)

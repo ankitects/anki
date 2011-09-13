@@ -63,7 +63,8 @@ create table if not exists deck (
     scm             integer not null,
     ver             integer not null,
     dty             integer not null,
-    lastSync        integer not null,
+    usn             integer not null,
+    ls              integer not null,
     conf            text not null,
     models          text not null,
     groups          text not null,
@@ -71,12 +72,30 @@ create table if not exists deck (
     tags            text not null
 );
 
+create table if not exists facts (
+    id              integer primary key,
+    mid             integer not null,
+    gid             integer not null,
+    mod             integer not null,
+    usn             integer not null,
+    tags            text not null,
+    flds            text not null,
+    sfld            integer not null,
+    data            text not null
+);
+
+create table if not exists fsums (
+    fid             integer not null,
+    mid             integer not null,
+    csum            integer not null
+);
 create table if not exists cards (
     id              integer primary key,
     fid             integer not null,
     gid             integer not null,
     ord             integer not null,
     mod             integer not null,
+    usn             integer not null,
     type            integer not null,
     queue           integer not null,
     due             integer not null,
@@ -90,32 +109,10 @@ create table if not exists cards (
     data            text not null
 );
 
-create table if not exists facts (
-    id              integer primary key,
-    mid             integer not null,
-    gid             integer not null,
-    mod             integer not null,
-    tags            text not null,
-    flds            text not null,
-    sfld            integer not null,
-    data            text not null
-);
-
-create table if not exists fsums (
-    fid             integer not null,
-    mid             integer not null,
-    csum            integer not null
-);
-
-create table if not exists graves (
-    id              integer not null,
-    oid             integer not null,
-    type            integer not null
-);
-
 create table if not exists revlog (
     id              integer primary key,
     cid             integer not null,
+    usn             integer not null,
     ease            integer not null,
     ivl             integer not null,
     lastIvl         integer not null,
@@ -124,8 +121,14 @@ create table if not exists revlog (
     type            integer not null
 );
 
+create table if not exists graves (
+    usn             integer not null,
+    oid             integer not null,
+    type            integer not null
+);
+
 insert or ignore into deck
-values(1,0,0,0,%(v)s,0,0,'','{}','','','{}');
+values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
     import anki.groups
@@ -147,11 +150,13 @@ def _updateIndices(db):
     "Add indices to the DB."
     db.executescript("""
 -- avoid loading entire facts table in for sync summary
-create index if not exists ix_facts_mod on facts (mod);
+create index if not exists ix_facts_usn on facts (usn);
 -- card spacing, etc
 create index if not exists ix_cards_fid on cards (fid);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
+-- revlog syncing
+create index if not exists ix_revlog_usn on revlog (usn);
 -- field uniqueness check
 create index if not exists ix_fsums_fid on fsums (fid);
 create index if not exists ix_fsums_csum on fsums (csum);
@@ -200,7 +205,7 @@ end)
 """)
     # pull facts into memory, so we can merge them with fields efficiently
     facts = db.all("""
-select id, modelId, 1, cast(created*1000 as int), cast(modified as int), tags
+select id, modelId, 1, cast(created*1000 as int), cast(modified as int), 0, tags
 from facts order by created""")
     # build field hash
     fields = {}
@@ -232,7 +237,7 @@ from facts order by created""")
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
-    db.executemany("insert into facts values (?,?,?,?,?,?,'','')", data)
+    db.executemany("insert into facts values (?,?,?,?,?,?,?,'','')", data)
     db.execute("drop table fields")
 
     # cards
@@ -244,7 +249,7 @@ from facts order by created""")
     cardidmap = {}
     for row in db.execute("""
 select id, cast(created*1000 as int), factId, ordinal,
-cast(modified as int),
+cast(modified as int), 0,
 (case relativeDelay
 when 0 then 1
 when 1 then 2
@@ -271,7 +276,7 @@ order by created"""):
     db.execute("drop table cards")
     _addSchema(db, False)
     db.executemany("""
-insert into cards values (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, "")""",
+insert into cards values (?,?,1,?,?,?,?,?,?,?,?,?,?,0,0,0,"")""",
                    rows)
 
     # reviewHistory -> revlog
@@ -280,7 +285,7 @@ insert into cards values (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, "")""",
     r = []
     for row in db.execute("""
 select
-cast(time*1000 as int), cardId, ease,
+cast(time*1000 as int), cardId, 0, ease,
 cast(nextInterval as int), cast(lastInterval as int),
 cast(nextFactor*1000 as int), cast(min(thinkingTime, 60)*1000 as int),
 yesCount from reviewHistory"""):
@@ -313,7 +318,7 @@ yesCount from reviewHistory"""):
             row[7] = 1
         r.append(row)
     db.executemany(
-        "insert or ignore into revlog values (?,?,?,?,?,?,?,?)", r)
+        "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)", r)
     db.execute("drop table reviewHistory")
 
     # deck
@@ -342,7 +347,7 @@ def _migrateDeckTbl(db):
     db.execute("delete from deck")
     db.execute("""
 insert or replace into deck select id, cast(created as int), :t,
-:t, 99, 0, cast(lastSync as int),
+:t, 99, 0, 0, cast(lastSync as int),
 "", "", "", "", "" from decks""", t=intTime())
     # prepare a group to store the old deck options
     import anki.groups

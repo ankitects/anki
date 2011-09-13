@@ -57,6 +57,7 @@ defaultConf = {
     },
     'maxTaken': 60,
     'mod': 0,
+    'usn': 0,
 }
 
 class GroupManager(object):
@@ -76,6 +77,7 @@ class GroupManager(object):
         "Can be called with either a group or a group configuration."
         if g:
             g['mod'] = intTime()
+            g['usn'] = self.deck.usn()
         self.changed = True
 
     def flush(self):
@@ -114,8 +116,12 @@ class GroupManager(object):
 
     def rem(self, gid):
         self.deck.modSchema()
-        self.deck.db.execute("update cards set gid = 1 where gid = ?", gid)
-        self.deck.db.execute("update facts set gid = 1 where gid = ?", gid)
+        self.deck.db.execute(
+            "update cards set gid=1,usn=?,mod=? where gid = ?",
+            gid, self.deck.usn(), intTime())
+        self.deck.db.execute(
+            "update facts set gid=1,usn=?,mod=? where gid = ?",
+            gid, self.deck.usn(), intTime())
         self.deck.db.execute("delete from groups where id = ?", gid)
         print "fixme: loop through models and update stale gid references"
 
@@ -157,7 +163,8 @@ class GroupManager(object):
 
     def setGroup(self, cids, gid):
         self.db.execute(
-            "update cards set gid = ? where id in "+ids2str(cids), gid)
+            "update cards set gid=?,usn=?,mod=? where id in "+
+            ids2str(cids), gid, self.deck.usn(), intTime())
 
     def update(self, g):
         "Add or update an existing group. Used for syncing and merging."

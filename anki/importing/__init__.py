@@ -19,9 +19,6 @@ from anki.utils import fieldChecksum, ids2str
 from anki.errors import *
 #from anki.deck import NEW_CARDS_RANDOM
 
-# FIXME: when importing an anki file, if any revlog entries are less than the
-# last sync time, we need to bump the deck schema
-
 # Base importer
 ##########################################################################
 

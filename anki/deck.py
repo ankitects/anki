@@ -74,13 +74,14 @@ class _Deck(object):
          self.mod,
          self.scm,
          self.dty,
-         self.lastSync,
+         self._usn,
+         self.ls,
          self.conf,
          models,
          groups,
          gconf,
          tags) = self.db.first("""
-select crt, mod, scm, dty, lastSync,
+select crt, mod, scm, dty, usn, ls,
 conf, models, groups, gconf, tags from deck""")
         self.conf = simplejson.loads(self.conf)
         self.models.load(models)
@@ -92,9 +93,9 @@ conf, models, groups, gconf, tags from deck""")
         self.mod = intTime() if mod is None else mod
         self.db.execute(
             """update deck set
-crt=?, mod=?, scm=?, dty=?, lastSync=?, conf=?""",
+crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
-            self.lastSync, simplejson.dumps(self.conf))
+            self._usn, self.ls, simplejson.dumps(self.conf))
         self.models.flush()
         self.groups.flush()
         self.tags.flush()
@@ -148,7 +149,7 @@ crt=?, mod=?, scm=?, dty=?, lastSync=?, conf=?""",
 
     def schemaChanged(self):
         "True if schema changed since last sync."
-        return self.scm > self.lastSync
+        return self.scm > self.ls
 
     def setDirty(self):
         "Signal there are temp. suspended cards that need cleaning up on close."
@@ -161,6 +162,7 @@ crt=?, mod=?, scm=?, dty=?, lastSync=?, conf=?""",
             self.dty = False
 
     def rename(self, path):
+        raise "nyi"
         # close our DB connection
         self.close()
         # move to new path
@@ -172,6 +174,9 @@ crt=?, mod=?, scm=?, dty=?, lastSync=?, conf=?""",
         self.path = path
         self.reopen()
         self.media.move(olddir)
+
+    def usn(self):
+        return self._usn
 
     # Object creation helpers
     ##########################################################################
@@ -370,6 +375,7 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
         if csum:
             self.db.execute("delete from fsums where fid in "+sfids)
             self.db.executemany("insert into fsums values (?,?,?)", r)
+        # rely on calling code to bump usn+mod
         self.db.executemany("update facts set sfld = ? where id = ?", r2)
 
     # Q/A generation

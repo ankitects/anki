@@ -48,6 +48,7 @@ class Card(object):
          self.gid,
          self.ord,
          self.mod,
+         self.usn,
          self.type,
          self.queue,
          self.due,
@@ -65,15 +66,17 @@ class Card(object):
 
     def flush(self):
         self.mod = intTime()
+        self.usn = self.deck.usn()
         self.deck.db.execute(
             """
 insert or replace into cards values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.fid,
             self.gid,
             self.ord,
             self.mod,
+            self.usn,
             self.type,
             self.queue,
             self.due,
@@ -88,11 +91,12 @@ insert or replace into cards values
 
     def flushSched(self):
         self.mod = intTime()
+        self.usn = self.deck.usn()
         self.deck.db.execute(
             """update cards set
-mod=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
+mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
 lapses=?, grade=?, cycles=?, edue=? where id = ?""",
-            self.mod, self.type, self.queue, self.due, self.ivl,
+            self.mod, self.usn, self.type, self.queue, self.due, self.ivl,
             self.factor, self.reps, self.lapses,
             self.grade, self.cycles, self.edue, self.id)
 

@@ -58,14 +58,12 @@ class Syncer(object):
     def sync(self):
         "Returns 'noChanges', 'fullSync', or 'success'."
         # get local and remote modified, schema and sync times
-        self.lmod, lscm, lsyn = self.times()
-        self.rmod, rscm, rsyn = self.server.times()
+        self.lmod, lscm, lsyn, self.minUsn = self.times()
+        self.rmod, rscm, rsyn, self.maxUsn = self.server.times()
         if self.lmod == self.rmod:
             return "noChanges"
         elif lscm != rscm:
             return "fullSync"
-        # find last sync time minus 10 mins for clock drift
-        self.ls = self._lastSync(lsyn, rsyn)
         self.lnewer = self.lmod > self.rmod
         # get local changes and switch to full sync if there were too many
         self.status("getLocal")
@@ -74,7 +72,8 @@ class Syncer(object):
             return "fullSync"
         # send them to the server, and get the server's changes
         self.status("getServer")
-        rchg = self.server.changes(ls=self.ls, lnewer=self.lnewer, changes=lchg)
+        rchg = self.server.changes(minUsn=self.minUsn, lnewer=self.lnewer,
+                                   changes=lchg)
         if rchg == "fullSync":
             return "fullSync"
         # otherwise, merge
@@ -86,16 +85,14 @@ class Syncer(object):
         self.finish(mod)
         return "success"
 
-    def _lastSync(self, lsyn, rsyn):
-        return min(lsyn, rsyn) - 600
-
     def times(self):
-        return (self.deck.mod, self.deck.scm, self.deck.lastSync)
+        return (self.deck.mod, self.deck.scm, self.deck.ls, self.deck._usn)
 
-    def changes(self, ls=None, lnewer=None, changes=None):
-        if ls:
+    def changes(self, minUsn=None, lnewer=None, changes=None):
+        if minUsn is not None:
             # we're the server; save info
-            self.ls = ls
+            self.maxUsn = self.deck._usn
+            self.minUsn = minUsn
             self.lnewer = not lnewer
             self.rchg = changes
         try:
@@ -110,7 +107,7 @@ class Syncer(object):
         # collection-level configuration from last modified side
         if self.lnewer:
             d['conf'] = self.getConf()
-        if ls:
+        if minUsn is not None:
             # we're the server, we can merge our side before returning
             self.merge(d, self.rchg)
         return d
@@ -130,7 +127,8 @@ class Syncer(object):
         if not mod:
             # server side; we decide new mod time
             mod = intTime()
-        self.deck.lastSync = mod
+        self.deck.ls = mod
+        self.deck._usn = self.maxUsn + 1
         self.deck.save(mod=mod)
         return mod
 
@@ -138,7 +136,7 @@ class Syncer(object):
     ##########################################################################
 
     def getModels(self):
-        return [m for m in self.deck.models.all() if m['mod'] > self.ls]
+        return [m for m in self.deck.models.all() if m['usn'] >= self.minUsn]
 
     def mergeModels(self, rchg):
         # deletes result in schema mod, so we only have to worry about
@@ -154,8 +152,8 @@ class Syncer(object):
 
     def getGroups(self):
         return [
-            [g for g in self.deck.groups.all() if g['mod'] > self.ls],
-            [g for g in self.deck.groups.allConf() if g['mod'] > self.ls]
+            [g for g in self.deck.groups.all() if g['usn'] >= self.minUsn],
+            [g for g in self.deck.groups.allConf() if g['usn'] >= self.minUsn]
             ]
 
     def mergeGroups(self, rchg):
@@ -175,7 +173,7 @@ class Syncer(object):
     ##########################################################################
 
     def getTags(self):
-        return self.deck.tags.allSince(self.ls)
+        return self.deck.tags.allSinceUSN(self.minUsn)
 
     def mergeTags(self, tags):
         self.deck.tags.register(tags)
@@ -184,38 +182,40 @@ class Syncer(object):
     ##########################################################################
 
     def getRevlog(self):
-        r = self.deck.db.all("select * from revlog where id > ? limit ?",
-                             self.ls*1000, self.MAX_REVLOG)
+        r = self.deck.db.all("select * from revlog where usn >= ? limit ?",
+                             self.minUsn, self.MAX_REVLOG)
         if len(r) == self.MAX_REVLOG:
             raise SyncTooLarge
         return r
 
     def mergeRevlog(self, logs):
+        for l in logs:
+            l[2] = self.maxUsn
         self.deck.db.executemany(
-            "insert or ignore into revlog values (?,?,?,?,?,?,?,?)",
+            "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)",
             logs)
 
     # Facts
     ##########################################################################
 
     def getFacts(self):
-        f = self.deck.db.all("select * from facts where mod > ? limit ?",
-                             self.ls, self.MAX_FACTS)
+        f = self.deck.db.all("select * from facts where usn >= ? limit ?",
+                             self.minUsn, self.MAX_FACTS)
         if len(f) == self.MAX_FACTS:
             raise SyncTooLarge
         return [
             f,
             self.deck.db.list(
-                "select oid from graves where id > ? and type = ?",
-                self.ls, REM_FACT)
+                "select oid from graves where usn >= ? and type = ?",
+                self.minUsn, REM_FACT)
             ]
 
     def mergeFacts(self, lchg, rchg):
         (toAdd, toRem) = self.findChanges(
-            lchg[0], lchg[1], rchg[0], rchg[1], 3)
+            lchg[0], lchg[1], rchg[0], rchg[1], 3, 4)
         # add missing
         self.deck.db.executemany(
-            "insert or replace into facts values (?,?,?,?,?,?,?,?)",
+            "insert or replace into facts values (?,?,?,?,?,?,?,?,?)",
             toAdd)
         # update fsums table - fixme: in future could skip sort cache
         self.deck.updateFieldCache([f[0] for f in toAdd])
@@ -226,26 +226,26 @@ class Syncer(object):
     ##########################################################################
 
     def getCards(self):
-        c = self.deck.db.all("select * from cards where mod > ? limit ?",
-                             self.ls, self.MAX_CARDS)
+        c = self.deck.db.all("select * from cards where usn >= ? limit ?",
+                             self.minUsn, self.MAX_CARDS)
         if len(c) == self.MAX_CARDS:
             raise SyncTooLarge
         return [
             c,
             self.deck.db.list(
-                "select oid from graves where id > ? and type = ?",
-                self.ls, REM_CARD)
+                "select oid from graves where usn >= ? and type = ?",
+                self.minUsn, REM_CARD)
             ]
 
     def mergeCards(self, lchg, rchg):
         # cards with higher reps preserved, so that gid changes don't clobber
         # older reviews
         (toAdd, toRem) = self.findChanges(
-            lchg[0], lchg[1], rchg[0], rchg[1], 10)
+            lchg[0], lchg[1], rchg[0], rchg[1], 11, 5)
         # add missing
         self.deck.db.executemany(
             "insert or replace into cards values "
-            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             toAdd)
         # remove remotely deleted
         self.deck.remCards(toRem)
@@ -262,7 +262,7 @@ class Syncer(object):
     # Merging
     ##########################################################################
 
-    def findChanges(self, localAdds, localRems, remoteAdds, remoteRems, key):
+    def findChanges(self, localAdds, localRems, remoteAdds, remoteRems, key, usn):
         local = {}
         toAdd = []
         toRem = []
@@ -280,6 +280,7 @@ class Syncer(object):
                     # added on both sides
                     if r[key] > l[key]:
                         # remote newer; update
+                        r[usn] = self.maxUsn
                         toAdd.append(r)
                     else:
                         # local newer; remote will update
@@ -289,15 +290,16 @@ class Syncer(object):
                     pass
             else:
                 # changed on server only
+                r[usn] = self.maxUsn
                 toAdd.append(r)
         return toAdd, remoteRems
 
 class LocalServer(Syncer):
     # serialize/deserialize payload, so we don't end up sharing objects
     # between decks in testing
-    def changes(self, ls, lnewer, changes):
+    def changes(self, minUsn, lnewer, changes):
         l = simplejson.loads; d = simplejson.dumps
-        return l(d(Syncer.changes(self, ls, lnewer, l(d(changes)))))
+        return l(d(Syncer.changes(self, minUsn, lnewer, l(d(changes)))))
 
 # not yet ported
 class RemoteServer(Syncer):

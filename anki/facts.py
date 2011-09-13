@@ -29,10 +29,11 @@ class Fact(object):
         (self.mid,
          self.gid,
          self.mod,
+         self.usn,
          self.tags,
          self.fields,
          self.data) = self.deck.db.first("""
-select mid, gid, mod, tags, flds, data from facts where id = ?""", self.id)
+select mid, gid, mod, usn, tags, flds, data from facts where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = self.deck.tags.split(self.tags)
         self._model = self.deck.models.get(self.mid)
@@ -40,13 +41,14 @@ select mid, gid, mod, tags, flds, data from facts where id = ?""", self.id)
 
     def flush(self, mod=None):
         self.mod = mod if mod else intTime()
+        self.usn = self.deck.usn()
         sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
         tags = self.stringTags()
         res = self.deck.db.execute("""
-insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?)""",
+insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.mid, self.gid,
-                            self.mod, tags, self.joinedFields(),
-                            sfld, self.data)
+                            self.mod, self.usn, tags,
+                            self.joinedFields(), sfld, self.data)
         self.id = res.lastrowid
         self.updateFieldChecksums()
         self.deck.tags.register(self.tags)
