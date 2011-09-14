@@ -755,6 +755,10 @@ def test_groupCounts():
     assert tree[0][4][0][1] == default1
     assert tree[0][4][0][2] == 1
     assert tree[0][4][0][3] == 0
+    # code should not fail if a card has an invalid group
+    c.gid = 12345; c.flush()
+    d.sched.groupCounts()
+    d.sched.groupCountTree()
 
 def test_reorder():
     d = getEmptyDeck()
