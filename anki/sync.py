@@ -159,7 +159,7 @@ class Syncer(object):
     def mergeGroups(self, rchg):
         # like models we rely on schema mod for deletes
         for r in rchg[0]:
-            l = self.deck.groups.get(r['id'])
+            l = self.deck.groups.get(r['id'], False)
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
                 self.deck.groups.update(r)

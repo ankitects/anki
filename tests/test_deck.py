@@ -131,38 +131,6 @@ def test_upgrade():
     # now's a good time to test the integrity check too
     deck.fixIntegrity()
 
-def test_groups():
-    deck = getEmptyDeck()
-    # we start with a standard group
-    assert len(deck.groups.groups) == 1
-    # it should have an id of 1
-    assert deck.groups.name(1)
-    # create a new group
-    parentId = deck.groups.id("new group")
-    assert parentId
-    assert len(deck.groups.groups) == 2
-    # should get the same id
-    assert deck.groups.id("new group") == parentId
-    # by default, everything should be shown
-    assert not deck.groups.selected()
-    assert not deck.groups.active()
-    # and the default group is used
-    assert deck.groups.top()['id'] == 1
-    # we can select the default explicitly
-    deck.groups.select(1)
-    assert deck.groups.selected() == 1
-    assert deck.groups.active() == [1]
-    assert deck.groups.top()['id'] == 1
-    # let's create a child and select that
-    childId = deck.groups.id("new group::child")
-    deck.groups.select(childId)
-    assert deck.groups.selected() == childId
-    assert deck.groups.active() == [childId]
-    assert deck.groups.top()['id'] == parentId
-    # if we select the parent, the child gets included
-    deck.groups.select(parentId)
-    assert sorted(deck.groups.active()) == [parentId,  childId]
-
 def test_selective():
     deck = getEmptyDeck()
     f = deck.newFact()

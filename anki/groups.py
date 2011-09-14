@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import simplejson
-from anki.utils import intTime
+from anki.utils import intTime, ids2str
 from anki.consts import *
 
 # fixmes:
@@ -11,6 +11,13 @@ from anki.consts import *
 # - make sure all children have parents (create as necessary)
 # - when renaming a group, top level properties should be added or removed as
 #   appropriate
+
+# notes:
+# - it's difficult to enforce valid gids for models/facts/cards, as we
+#   may update the gid locally only to have it overwritten by a more recent
+#   change from somewhere else. to avoid this, we allow invalid gid
+#   references, and treat any invalid gids as the default group.
+# - deletions of group config force a full sync
 
 # configuration only available to top level groups
 defaultTopConf = {
@@ -114,16 +121,17 @@ class GroupManager(object):
             self.save(g)
             return int(id)
 
-    def rem(self, gid):
-        self.deck.modSchema()
-        self.deck.db.execute(
-            "update cards set gid=1,usn=?,mod=? where gid = ?",
-            gid, self.deck.usn(), intTime())
-        self.deck.db.execute(
-            "update facts set gid=1,usn=?,mod=? where gid = ?",
-            gid, self.deck.usn(), intTime())
-        self.deck.db.execute("delete from groups where id = ?", gid)
-        print "fixme: loop through models and update stale gid references"
+    def rem(self, gid, cardsToo=False):
+        "Remove the group. If cardsToo, delete any cards inside."
+        assert gid != 1
+        if not str(gid) in self.groups:
+            return
+        # delete cards too?
+        if cardsToo:
+            self.deck.remCards(self.cids(gid))
+        # delete the group and add a grave
+        del self.groups[str(gid)]
+        self.deck._logRem([gid], REM_GROUP)
 
     def allNames(self):
         "An unsorted list of all group names."
@@ -151,18 +159,20 @@ class GroupManager(object):
     #############################################################
 
     def name(self, gid):
-        return self.groups[str(gid)]['name']
+        return self.get(gid)['name']
 
     def conf(self, gid):
         return self.gconf[str(self.groups[str(gid)]['conf'])]
 
-    def get(self, gid):
+    def get(self, gid, default=True):
         id = str(gid)
         if id in self.groups:
             return self.groups[id]
+        elif default:
+            return self.groups['1']
 
     def setGroup(self, cids, gid):
-        self.db.execute(
+        self.deck.db.execute(
             "update cards set gid=?,usn=?,mod=? where id in "+
             ids2str(cids), gid, self.deck.usn(), intTime())
 
@@ -175,6 +185,15 @@ class GroupManager(object):
     def updateConf(self, g):
         self.gconf[str(g['id'])] = g
         self.save()
+
+    def sendHome(self, cids):
+        self.deck.db.execute("""
+update cards set gid=(select gid from facts f where f.id=fid),
+usn=?,mod=? where id in %s""" % ids2str(cids),
+                             self.deck.usn(), intTime(), gid)
+
+    def cids(self, gid):
+        return self.deck.db.list("select id from cards where gid=?", gid)
 
     # Group selection
     #############################################################

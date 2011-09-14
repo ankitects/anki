@@ -23,6 +23,7 @@ REV_CARDS_RANDOM = 2
 # removal types
 REM_CARD = 0
 REM_FACT = 1
+REM_GROUP = 2
 
 # count display
 COUNT_ANSWERED = 0

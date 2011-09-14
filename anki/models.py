@@ -11,7 +11,8 @@ from anki.consts import *
 # Models
 ##########################################################################
 
-# careful not to add any lists/dicts/etc here, as they aren't deep copied
+# - careful not to add any lists/dicts/etc here, as they aren't deep copied
+
 defaultModel = {
     'css': "",
     'sortf': 0,
