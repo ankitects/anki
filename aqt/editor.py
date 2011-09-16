@@ -726,15 +726,12 @@ class Editor(object):
     ######################################################################
 
     def insertLatex(self):
-        self.mw.deck.media.dir(create=True)
         self.web.eval("wrap('[latex]', '[/latex]');")
 
     def insertLatexEqn(self):
-        self.mw.deck.media.dir(create=True)
         self.web.eval("wrap('[$]', '[/$]');")
 
     def insertLatexMathEnv(self):
-        self.mw.deck.media.dir(create=True)
         self.web.eval("wrap('[$$]', '[/$$]');")
 
     # Keyboard layout

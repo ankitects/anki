@@ -310,7 +310,7 @@ def applyStyles(widget):
 
 def getBase(deck):
     base = None
-    mdir = deck.media.dir(create=None)
+    mdir = deck.media.dir()
     if isWin:
         prefix = u"file:///"
     else:
