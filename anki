@@ -14,6 +14,9 @@ if __name__ == "__main__":
     import aqt
     try:
         import aqt.forms
-    except ImportError:
-        raise Exception("Please read README.development.")
+    except ImportError, e:
+        if "aqt.forms" in str(e):
+            raise Exception("Please read README.development.")
+        else:
+            raise
     aqt.run()
