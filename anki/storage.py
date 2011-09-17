@@ -74,6 +74,7 @@ create table if not exists deck (
 
 create table if not exists facts (
     id              integer primary key,
+    guid            integer not null,
     mid             integer not null,
     gid             integer not null,
     mod             integer not null,
@@ -81,6 +82,7 @@ create table if not exists facts (
     tags            text not null,
     flds            text not null,
     sfld            integer not null,
+    flags           integer not null,
     data            text not null
 );
 
@@ -205,7 +207,7 @@ end)
 """)
     # pull facts into memory, so we can merge them with fields efficiently
     facts = db.all("""
-select id, modelId, 1, cast(created*1000 as int), cast(modified as int), 0, tags
+select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int), 0, tags
 from facts order by created""")
     # build field hash
     fields = {}
@@ -225,19 +227,19 @@ from facts order by created""")
         oldid = row[0]
         row = list(row)
         # get rid of old created column and update id
-        while row[3] in times:
-            row[3] += 1
-        times[row[3]] = True
-        factidmap[row[0]] = row[3]
-        row[0] = row[3]
-        del row[3]
+        while row[4] in times:
+            row[4] += 1
+        times[row[4]] = True
+        factidmap[row[0]] = row[4]
+        row[0] = row[4]
+        del row[4]
         map[oldid] = row[0]
         row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
         data.append(row)
     # and put the facts into the new table
     db.execute("drop table facts")
     _addSchema(db, False)
-    db.executemany("insert into facts values (?,?,?,?,?,?,?,'','')", data)
+    db.executemany("insert into facts values (?,?,?,?,?,?,?,?,'',0,'')", data)
     db.execute("drop table fields")
 
     # cards

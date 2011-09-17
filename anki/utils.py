@@ -182,6 +182,9 @@ def timestampID(db, table):
         t += 1
     return t
 
+def guid64():
+    return random.randint(-sys.maxint-1, sys.maxint)
+
 # Fields
 ##############################################################################
 

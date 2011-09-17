@@ -5,7 +5,7 @@
 import time
 from anki.errors import AnkiError
 from anki.utils import fieldChecksum, intTime, \
-    joinFields, splitFields, ids2str, stripHTML, timestampID
+    joinFields, splitFields, ids2str, stripHTML, timestampID, guid64
 
 class Fact(object):
 
@@ -17,23 +17,28 @@ class Fact(object):
             self.load()
         else:
             self.id = timestampID(deck.db, "facts")
+            self.guid = guid64()
             self._model = model
             self.gid = model['gid']
             self.mid = model['id']
             self.tags = []
             self.fields = [""] * len(self._model['flds'])
+            self.flags = 0
             self.data = ""
             self._fmap = self.deck.models.fieldMap(self._model)
 
     def load(self):
-        (self.mid,
+        (self.guid,
+         self.mid,
          self.gid,
          self.mod,
          self.usn,
          self.tags,
          self.fields,
+         self.flags,
          self.data) = self.deck.db.first("""
-select mid, gid, mod, usn, tags, flds, data from facts where id = ?""", self.id)
+select guid, mid, gid, mod, usn, tags, flds, flags, data
+from facts where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = self.deck.tags.split(self.tags)
         self._model = self.deck.models.get(self.mid)
@@ -45,10 +50,10 @@ select mid, gid, mod, usn, tags, flds, data from facts where id = ?""", self.id)
         sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
         tags = self.stringTags()
         res = self.deck.db.execute("""
-insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                            self.id, self.mid, self.gid,
+insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                            self.id, self.guid, self.mid, self.gid,
                             self.mod, self.usn, tags,
-                            self.joinedFields(), sfld, self.data)
+                            self.joinedFields(), sfld, self.flags, self.data)
         self.id = res.lastrowid
         self.updateFieldChecksums()
         self.deck.tags.register(self.tags)
