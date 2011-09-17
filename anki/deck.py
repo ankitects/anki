@@ -24,7 +24,7 @@ defaultConf = {
     'topGroup': 1,
     'curGroup': None,
     'revOrder': REV_CARDS_RANDOM,
-    'counts': COUNT_ANSWERED,
+    'counts': COUNT_REMAINING,
     # other config
     'nextPos': 1,
     'fontFamilies': [
