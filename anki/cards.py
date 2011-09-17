@@ -40,6 +40,7 @@ class Card(object):
             self.grade = 0
             self.cycles = 0
             self.edue = 0
+            self.flags = 0
             self.data = ""
 
     def load(self):
@@ -59,6 +60,7 @@ class Card(object):
          self.grade,
          self.cycles,
          self.edue,
+         self.flags,
          self.data) = self.deck.db.first(
              "select * from cards where id = ?", self.id)
         self._qa = None
@@ -70,7 +72,7 @@ class Card(object):
         self.deck.db.execute(
             """
 insert or replace into cards values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.fid,
             self.gid,
@@ -87,6 +89,7 @@ insert or replace into cards values
             self.grade,
             self.cycles,
             self.edue,
+            self.flags,
             self.data)
 
     def flushSched(self):

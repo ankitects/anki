@@ -212,10 +212,10 @@ class Syncer(object):
 
     def mergeFacts(self, lchg, rchg):
         (toAdd, toRem) = self.findChanges(
-            lchg[0], lchg[1], rchg[0], rchg[1], 3, 4)
+            lchg[0], lchg[1], rchg[0], rchg[1], 4, 5)
         # add missing
         self.deck.db.executemany(
-            "insert or replace into facts values (?,?,?,?,?,?,?,?,?)",
+            "insert or replace into facts values (?,?,?,?,?,?,?,?,?,?,?)",
             toAdd)
         # update fsums table - fixme: in future could skip sort cache
         self.deck.updateFieldCache([f[0] for f in toAdd])
@@ -245,7 +245,7 @@ class Syncer(object):
         # add missing
         self.deck.db.executemany(
             "insert or replace into cards values "
-            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             toAdd)
         # remove remotely deleted
         self.deck.remCards(toRem)
