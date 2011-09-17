@@ -45,7 +45,7 @@ class Scheduler(object):
         self.deck.markReview(card)
         self.reps += 1
         card.reps += 1
-        wasNew = card.queue == 0
+        wasNew = (card.queue == 0) and card.type != 2
         if wasNew:
             # put it in the learn queue
             card.queue = 1
@@ -483,9 +483,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             card.due = int(self._delayForGrade(conf, 0) + time.time())
             card.queue = 1
             self.lrnCount += 1
-            heappush(self.lrnQueue, (card.due, card.id))
         # leech?
-        self._checkLeech(card, conf)
+        if not self._checkLeech(card, conf) and conf['relearn']:
+            heappush(self.lrnQueue, (card.due, card.id))
 
     def _nextLapseIvl(self, card, conf):
         return int(card.ivl*conf['mult']) + 1
@@ -586,6 +586,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
                 card.queue = -1
             # notify UI
             runHook("leech", card)
+            return True
 
     # Tools
     ##########################################################################

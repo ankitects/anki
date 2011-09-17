@@ -192,6 +192,8 @@ def test_reviews():
     cardcopy = copy.copy(c)
     # failing it should put it in the learn queue with the default options
     ##################################################
+    # different delay to new
+    d.sched._cardConf(c)['lapse']['delays'] = [2, 20]
     d.sched.answerCard(c, 1)
     assert c.queue == 1
     # it should be due tomorrow, with an interval of 1
@@ -200,11 +202,16 @@ def test_reviews():
     # but because it's in the learn queue, its current due time should be in
     # the future
     assert c.due >= time.time()
+    assert (c.due - time.time()) > 119
     # factor should have been decremented
     assert c.factor == 2300
     # check counters
     assert c.lapses == 2
     assert c.reps == 4
+    # check ests.
+    ni = d.sched.nextIvl
+    assert ni(c, 1) == 120
+    assert ni(c, 2) == 20*60
     # try again with an ease of 2 instead
     ##################################################
     c = copy.copy(cardcopy)
@@ -581,6 +588,7 @@ def test_ordcycle():
 
 def test_counts_up():
     d = getEmptyDeck()
+    d.conf['counts'] = COUNT_ANSWERED
     # for each card type
     for type in range(3):
         # create a new fact
