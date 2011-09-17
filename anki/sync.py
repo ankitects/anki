@@ -197,6 +197,8 @@ class Syncer(object):
 
     # Facts
     ##########################################################################
+    # we don't actually need to send sflds across as it's recalculated on
+    # merge;  may want to change this before final release
 
     def getFacts(self):
         f = self.deck.db.all("select * from facts where usn >= ? limit ?",

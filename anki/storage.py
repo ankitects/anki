@@ -27,7 +27,7 @@ def Deck(path, queue=True, lock=True):
         ver = _createDB(db)
     else:
         ver = _upgradeSchema(db)
-    db.execute("pragma cache_size = 20000")
+    db.execute("pragma cache_size = 10000")
     # add db to deck and do any remaining upgrades
     deck = _Deck(db)
     if ver < CURRENT_VERSION:
