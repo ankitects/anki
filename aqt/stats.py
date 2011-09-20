@@ -128,7 +128,7 @@ class DeckStats(QDialog):
         self.mw.progress.start(immediate=True)
         self.oldPos = self.form.web.page().mainFrame().scrollPosition()
         self.report = self.mw.deck.stats().report(
-            type=self.period, selective=self.sel)
+            type=self.period)
         self.form.web.setHtml(self.report)
 
         self.mw.progress.finish()

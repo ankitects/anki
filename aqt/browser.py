@@ -861,7 +861,7 @@ where id in %s""" % ids2str(sf))
         self.mw.checkpoint(_("Delete Cards"))
         self.model.beginReset()
         oldRow = self.form.tableView.selectionModel().currentIndex().row()
-        self.deck.delCards(self.selectedCards())
+        self.deck.remCards(self.selectedCards())
         self.onSearch(reset=False)
         if len(self.model.cards):
             new = min(oldRow, len(self.model.cards) - 1)
@@ -1305,7 +1305,7 @@ class GenCards(QDialog):
             cids = mw.deck.db.list("""
 select id from cards where fid in %s and ord in %s""" % (
                     ids2str(self.fids), ids2str(unused)))
-            mw.deck.delCards(cids)
+            mw.deck.remCards(cids)
         mw.progress.finish()
         mw.requireReset()
         self.browser.onSearch()

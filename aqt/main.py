@@ -620,7 +620,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onDelete(self):
         self.checkpoint(_("Delete"))
-        self.deck.delCards([self.reviewer.card.id])
+        self.deck.remCards([self.reviewer.card.id])
         self.reviewer.nextCard()
 
     def onBuryFact(self):
