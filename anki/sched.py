@@ -73,7 +73,7 @@ class Scheduler(object):
         "Return counts over next DAYS. Includes today."
         daysd = dict(self.deck.db.all("""
 select due, count() from cards
-where queue = 2 %s
+where gid in %s and queue = 2
 and due between ? and ?
 group by due
 order by due""" % self._groupLimit(),
@@ -230,13 +230,13 @@ select 1 from cards where gid = ? and
         else:
             self.newCount = self.deck.db.scalar("""
 select count() from (select id from cards where
-queue = 0 %s limit %d)""" % (self._groupLimit(), lim))
+gid in %s and queue = 0 limit %d)""" % (self._groupLimit(), lim))
 
     def _resetNew(self):
         lim = min(self.queueLimit, self.newCount)
         self.newQueue = self.deck.db.all("""
 select id, due from cards where
-queue = 0 %s order by due limit %d""" % (self._groupLimit(),
+gid in %s and queue = 0 limit %d""" % (self._groupLimit(),
                                          lim))
         self.newQueue.reverse()
         self._updateNewCardRatio()
@@ -289,14 +289,14 @@ queue = 0 %s order by due limit %d""" % (self._groupLimit(),
         self._updateStatsDay("lrn")
         self.lrnCount = self.deck.db.scalar("""
 select count() from (select id from cards where
-queue = 1 %s and due < ? limit %d)""" % (
+gid in %s and queue = 1 and due < ? limit %d)""" % (
             self._groupLimit(), self.reportLimit),
             intTime() + self.deck.groups.top()['collapseTime'])
 
     def _resetLrn(self):
         self.lrnQueue = self.deck.db.all("""
 select due, id from cards where
-queue = 1 %s and due < :lim order by due
+gid in %s and queue = 1 and due < :lim
 limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
 
     def _getLrnCard(self, collapse=False):
@@ -417,22 +417,19 @@ where queue = 1 and type = 2
         self._updateStatsDay("rev")
         self.revCount = self.deck.db.scalar("""
 select count() from (select id from cards where
-queue = 2 %s and due <= :lim limit %d)""" % (
+gid in %s and queue = 2 and due <= :lim limit %d)""" % (
             self._groupLimit(), self.reportLimit),
                                        lim=self.today)
 
     def _resetRev(self):
         self.revQueue = self.deck.db.list("""
 select id from cards where
-queue = 2 %s and due <= :lim order by %s limit %d""" % (
+gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
             self._groupLimit(), self._revOrder(), self.queueLimit),
-                                    lim=self.today)
-        if self.deck.conf['revOrder'] == REV_CARDS_RANDOM:
-            r = random.Random()
-            r.seed(self.today)
-            r.shuffle(self.revQueue)
-        else:
-            self.revQueue.reverse()
+                                          lim=self.today)
+        r = random.Random()
+        r.seed(self.today)
+        r.shuffle(self.revQueue)
 
     def _getRevCard(self):
         if self._haveRevCards():
@@ -446,9 +443,9 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
             return self.revQueue
 
     def _revOrder(self):
-        return ("ivl desc",
-                "ivl",
-                "due")[self.deck.conf['revOrder']]
+        if self.deck.conf['revOrder']:
+            return "order by %s" % ("ivl desc", "ivl")[self.deck.conf['revOrder']-1]
+        return ""
 
     # Answering a review card
     ##########################################################################
@@ -585,11 +582,7 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
         return self.deck.groups.conf(card.gid)
 
     def _groupLimit(self):
-        l = self.deck.groups.active()
-        if not l:
-            # everything
-            return ""
-        return " and gid in %s" % ids2str(l)
+        return ids2str(self.deck.groups.active())
 
     # Daily cutoff
     ##########################################################################
@@ -645,16 +638,15 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def revTomorrow(self):
         "Number of reviews due tomorrow."
         return self.deck.db.scalar(
-            "select count() from cards where queue = 2 and due = ?"+
-            self._groupLimit(),
-            self.today+1)
+            "select count() from cards where gid in %s and queue = 2 and due = ?"%
+            self._groupLimit(), self.today+1)
 
     def newTomorrow(self):
         "Number of new cards tomorrow."
         lim = self.deck.groups.top()['newPerDay']
         return self.deck.db.scalar(
             "select count() from (select id from cards where "
-            "queue = 0 %s limit %d)" % (self._groupLimit(), lim))
+            "gid in %s and queue = 0 limit %d)" % (self._groupLimit(), lim))
 
     # Next time reports
     ##########################################################################
@@ -731,31 +723,6 @@ queue = 2 %s and due <= :lim order by %s limit %d""" % (
     def repsToday(self):
         "Number of cards answered today."
         return sum(self.counts())
-
-    # Dynamic indices
-    ##########################################################################
-
-    # fixme: warn user that the default is faster
-    def updateDynamicIndices(self):
-        "Call this after revOrder is changed. Bumps schema."
-        # determine required columns
-        required = []
-        if self.deck.conf['revOrder'] in (
-            REV_CARDS_OLD_FIRST, REV_CARDS_NEW_FIRST):
-            required.append("interval")
-        cols = ["queue", "due", "gid"] + required
-        # update if changed
-        if self.deck.db.scalar(
-            "select 1 from sqlite_master where name = 'ix_cards_multi'"):
-            rows = self.deck.db.all("pragma index_info('ix_cards_multi')")
-        else:
-            rows = None
-        if not (rows and cols == [r[2] for r in rows]):
-            self.deck.db.execute("drop index if exists ix_cards_multi")
-            self.deck.db.execute("create index ix_cards_multi on cards (%s)" %
-                              ", ".join(cols))
-            self.deck.db.execute("analyze")
-            self.deck.modSchema()
 
     # Resetting
     ##########################################################################

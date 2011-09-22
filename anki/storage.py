@@ -27,6 +27,7 @@ def Deck(path, queue=True, lock=True):
         ver = _createDB(db)
     else:
         ver = _upgradeSchema(db)
+    db.execute("pragma temp_store = memory")
     db.execute("pragma cache_size = 10000")
     # add db to deck and do any remaining upgrades
     deck = _Deck(db)
@@ -156,6 +157,8 @@ def _updateIndices(db):
 create index if not exists ix_facts_usn on facts (usn);
 -- card spacing, etc
 create index if not exists ix_cards_fid on cards (fid);
+-- scheduling and group limiting
+create index if not exists ix_cards_sched on cards (gid, queue, due);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
 -- revlog syncing
@@ -543,7 +546,6 @@ update cards set due = cast(
     deck.save()
 
     # optimize and finish
-    deck.sched.updateDynamicIndices()
     deck.db.commit()
     deck.db.execute("vacuum")
     deck.db.execute("analyze")

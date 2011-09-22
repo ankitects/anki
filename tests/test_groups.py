@@ -14,25 +14,26 @@ def test_basic():
     assert len(deck.groups.groups) == 2
     # should get the same id
     assert deck.groups.id("new group") == parentId
-    # by default, everything should be shown
-    assert not deck.groups.selected()
-    assert not deck.groups.active()
-    # and the default group is used
-    assert deck.groups.top()['id'] == 1
-    # we can select the default explicitly
-    deck.groups.select(1)
+    # we start with the default group selected
     assert deck.groups.selected() == 1
     assert deck.groups.active() == [1]
     assert deck.groups.top()['id'] == 1
-    # let's create a child and select that
+    # we can select a different group
+    deck.groups.select(parentId)
+    assert deck.groups.selected() == parentId
+    assert deck.groups.active() == [parentId]
+    assert deck.groups.top()['id'] == parentId
+    # let's create a child
     childId = deck.groups.id("new group::child")
+    # it should have been added to the active list
+    assert deck.groups.selected() == parentId
+    assert deck.groups.active() == [parentId, childId]
+    assert deck.groups.top()['id'] == parentId
+    # we can select the child individually too
     deck.groups.select(childId)
     assert deck.groups.selected() == childId
     assert deck.groups.active() == [childId]
     assert deck.groups.top()['id'] == parentId
-    # if we select the parent, the child gets included
-    deck.groups.select(parentId)
-    assert sorted(deck.groups.active()) == [parentId,  childId]
 
 def test_remove():
     deck = getEmptyDeck()

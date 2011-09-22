@@ -97,11 +97,10 @@ class DeckStats(object):
         self.width = 600
         self.height = 200
 
-    def report(self, type=0, selective=True):
+    def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
         self.type = type
-        self.selective = selective
         txt = self.css
         txt += self.dueGraph()
         txt += self.repsGraph()
@@ -179,7 +178,7 @@ select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where queue = 2 %s
+where gid in %s and queue = 2
 %s
 group by day order by day""" % (self._limit(), lim),
                             today=self.deck.sched.today,
@@ -392,11 +391,11 @@ group by day order by day)""" % lim,
             chunk = 30; lim = ""
         data = [self.deck.db.all("""
 select ivl / :chunk as grp, count() from cards
-where queue = 2 %s %s
+where gid in %s and queue = 2 %s
 group by grp
 order by grp""" % (self._limit(), lim), chunk=chunk)]
         return data + list(self.deck.db.first("""
-select count(), avg(ivl), max(ivl) from cards where queue = 2 %s""" %
+select count(), avg(ivl), max(ivl) from cards where gid in %s and queue = 2""" %
                                          self._limit()))
 
     # Eases
@@ -540,7 +539,7 @@ group by hour having count() > 30 order by hour""" % lim,
         i = []
         (c, f) = self.deck.db.first("""
 select count(id), count(distinct fid) from cards
-where 1 """ + self._limit())
+where gid in %s """ % self._limit())
         self._line(i, _("Total cards"), c)
         self._line(i, _("Total facts"), f)
         (low, avg, high) = self._factors()
@@ -549,7 +548,7 @@ where 1 """ + self._limit())
             self._line(i, _("Average ease factor"), "%d%%" % avg)
             self._line(i, _("Highest ease factor"), "%d%%" % high)
         min = self.deck.db.scalar(
-            "select min(id) from cards where 1 " + self._limit())
+            "select min(id) from cards where gid in %s " % self._limit())
         if min:
             self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
             time.time() - (min/1000)))
@@ -580,7 +579,7 @@ select
 min(factor) / 10.0,
 avg(factor) / 10.0,
 max(factor) / 10.0
-from cards where queue = 2 %s""" % self._limit())
+from cards where gid in %s and queue = 2""" % self._limit())
 
     def _cards(self):
         return self.deck.db.first("""
@@ -589,7 +588,7 @@ sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
 sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue=0 then 1 else 0 end), -- new
 sum(case when queue=-1 then 1 else 0 end) -- susp
-from cards where 1 %s""" % self._limit())
+from cards where gid in %s""" % self._limit())
 
     # Tools
     ######################################################################
@@ -669,18 +668,11 @@ $(function () {
     data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
 
     def _limit(self):
-        if self.selective:
-            return self.deck.sched._groupLimit()
-        else:
-            return ""
+        return self.deck.sched._groupLimit()
 
     def _revlogLimit(self):
-        lim = self.deck.groups.active()
-        if self.selective and lim:
-            return ("cid in (select id from cards where gid in %s)" %
-                    ids2str(lim))
-        else:
-            return ""
+        return ("cid in (select id from cards where gid in %s)" %
+                ids2str(self.deck.groups.active()))
 
     def _title(self, title, subtitle=""):
         return '<h1>%s</h1>%s' % (title, subtitle)

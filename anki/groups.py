@@ -114,12 +114,13 @@ class GroupManager(object):
         g['conf'] = 1
         while 1:
             id = intTime(1000)
-            if str(id) in self.groups:
-                continue
-            g['id'] = id
-            self.groups[str(id)] = g
-            self.save(g)
-            return int(id)
+            if str(id) not in self.groups:
+                break
+        g['id'] = id
+        self.groups[str(id)] = g
+        self.save(g)
+        self.maybeAddToActive(g)
+        return int(id)
 
     def rem(self, gid, cardsToo=False):
         "Remove the group. If cardsToo, delete any cards inside."
@@ -179,8 +180,13 @@ class GroupManager(object):
     def update(self, g):
         "Add or update an existing group. Used for syncing and merging."
         self.groups[str(g['id'])] = g
+        self.maybeAddToActive(g)
         # mark registry changed, but don't bump mod time
         self.save()
+
+    def maybeAddToActive(self, g):
+        # since order is important, we can't just append to the end
+        self.select(self.selected())
 
     def updateConf(self, g):
         self.gconf[str(g['id'])] = g
@@ -209,16 +215,11 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         return self.deck.conf['activeGroups']
 
     def selected(self):
-        "The currently selected gid, or None if whole collection."
+        "The currently selected gid."
         return self.deck.conf['curGroup']
 
     def select(self, gid):
-        "Select a new group. If gid is None, select whole collection."
-        if not gid:
-            self.deck.conf['topGroup'] = 1
-            self.deck.conf['curGroup'] = None
-            self.deck.conf['activeGroups'] = []
-            return
+        "Select a new branch."
         # save the top level group
         name = self.groups[str(gid)]['name']
         self.deck.conf['topGroup'] = self.topFor(name)
@@ -235,3 +236,9 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         "The top level gid for NAME."
         path = name.split("::")
         return self.id(path[0])
+
+    def underSelected(self, name):
+        "True if name is under the selected group."
+        # if nothing is selected, always true
+        s = self.selected()
+        return name.startswith(self.get(s)['name'])

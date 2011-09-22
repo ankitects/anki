@@ -20,9 +20,9 @@ import anki.cards, anki.facts, anki.template, anki.cram, anki.find
 
 defaultConf = {
     # scheduling options
-    'activeGroups': [],
+    'activeGroups': [1],
     'topGroup': 1,
-    'curGroup': None,
+    'curGroup': 1,
     'revOrder': REV_CARDS_RANDOM,
     # other config
     'nextPos': 1,

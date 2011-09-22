@@ -589,7 +589,7 @@ def test_ordcycle():
 def test_counts_down():
     d = getEmptyDeck()
     # add a second group
-    grp = d.groups.id("new group")
+    grp = d.groups.id("Default::new group")
     # for each card type
     for type in range(3):
         # and each of the groups
@@ -609,7 +609,7 @@ def test_counts_down():
     # with the default settings, there's no count limit
     assert d.sched.counts() == (2,2,2)
     # check limit to one group
-    d.groups.select(1)
+    d.groups.select(grp)
     d.reset()
     assert d.sched.counts() == (1,1,1)
 
@@ -702,7 +702,6 @@ def test_groupCounts():
     foobaz = f.gid = d.groups.id("foo::baz")
     d.addFact(f)
     d.reset()
-    assert d.sched.counts() == (3, 0, 1)
     assert len(d.groups.groups) == 5
     cnts = d.sched.groupCounts()
     assert cnts[0] == ["Default", 1, 0, 1]
