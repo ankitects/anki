@@ -135,18 +135,26 @@ insert or ignore into deck
 values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
-    import anki.groups
     if setDeckConf:
-        g = anki.groups.defaultTopConf.copy()
-        g['id'] = 1
-        g['name'] = _("Default")
-        g['conf'] = 1
-        g['mod'] = intTime()
-        gc = anki.groups.defaultConf.copy()
-        gc['id'] = 1
-        db.execute("""
+        _addDeckVars(db, *_getDeckVars(db))
+
+def _getDeckVars(db):
+    import anki.groups
+    g = anki.groups.defaultGroup.copy()
+    for k,v in anki.groups.defaultTopConf.items():
+        g[k] = v
+    g['id'] = 1
+    g['name'] = _("Default")
+    g['conf'] = 1
+    g['mod'] = intTime()
+    gc = anki.groups.defaultConf.copy()
+    gc['id'] = 1
+    return g, gc, anki.deck.defaultConf.copy()
+
+def _addDeckVars(db, g, gc, c):
+    db.execute("""
 update deck set conf = ?, groups = ?, gconf = ?""",
-                   simplejson.dumps(anki.deck.defaultConf),
+                   simplejson.dumps(c),
                    simplejson.dumps({'1': g}),
                    simplejson.dumps({'1': gc}))
 
@@ -356,14 +364,7 @@ insert or replace into deck select id, cast(created as int), :t,
 :t, 99, 0, 0, cast(lastSync as int),
 "", "", "", "", "" from decks""", t=intTime())
     # prepare a group to store the old deck options
-    import anki.groups
-    g = anki.groups.defaultTopConf.copy()
-    g['id'] = 1
-    g['name'] = _("Default")
-    g['conf'] = 1
-    g['mod'] = intTime()
-    # and deck conf
-    conf = anki.deck.defaultConf.copy()
+    g, gc, conf = _getDeckVars(db)
     # delete old selective study settings, which we can't auto-upgrade easily
     keys = ("newActive", "newInactive", "revActive", "revInactive")
     for k in keys:
@@ -373,7 +374,6 @@ insert or replace into deck select id, cast(created as int), :t,
     g['newPerDay'] = db.scalar("select newCardsPerDay from decks")
     g['repLim'] = db.scalar("select sessionRepLimit from decks")
     g['timeLim'] = db.scalar("select sessionTimeLimit from decks")
-
     # this needs to be placed in the model later on
     conf['oldNewOrder'] = db.scalar("select newCardOrder from decks")
     # no reverse option anymore
@@ -385,10 +385,7 @@ insert or replace into deck select id, cast(created as int), :t,
             pass
         else:
             conf[k] = v
-    db.execute("update deck set conf=:c,groups=:g,gconf=:gc",
-               c=simplejson.dumps(conf),
-               g=simplejson.dumps({'1': g}),
-               gc=simplejson.dumps({'1': anki.groups.defaultConf}))
+    _addDeckVars(db, g, gc, conf)
     # clean up
     db.execute("drop table decks")
     db.execute("drop table deckVars")

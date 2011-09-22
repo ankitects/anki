@@ -20,8 +20,9 @@ class Scheduler(object):
     name = "std"
     def __init__(self, deck):
         self.deck = deck
-        self.queueLimit = 200
+        self.queueLimit = 50
         self.reportLimit = 1000
+        # fixme: replace reps with group based counts
         self.reps = 0
         self._updateCutoff()
 
@@ -35,7 +36,7 @@ class Scheduler(object):
             return c
 
     def reset(self):
-        self._resetCounts()
+        self._updateCutoff()
         self._resetLrn()
         self._resetRev()
         self._resetNew()
@@ -50,20 +51,23 @@ class Scheduler(object):
             # put it in the learn queue
             card.queue = 1
             card.type = 1
-            self._updateStats('new')
+            self._updateStats(card, 'new')
         if card.queue == 1:
             self._answerLrnCard(card, ease)
             if not wasNew:
-                self._updateStats('lrn')
+                self._updateStats(card, 'lrn')
         elif card.queue == 2:
             self._answerRevCard(card, ease)
-            self._updateStats('rev')
+            self._updateStats(card, 'rev')
         else:
             raise Exception("Invalid queue")
-        self._updateStats('time', card.timeTaken())
+        self._updateStats(card, 'time', card.timeTaken())
         card.mod = intTime()
         card.usn = self.deck.usn()
         card.flushSched()
+        # if nothing more to study, rebuild queue
+        if self.counts() == (0,0,0):
+            self.reset()
 
     def counts(self):
         "Does not include fetched but unanswered."
@@ -101,24 +105,19 @@ order by due""" % self._groupLimit(),
         self.deck.db.execute(
             "update cards set queue = type where queue between -3 and -2")
 
-    # Counts
+    # Rev/lrn/time daily stats
     ##########################################################################
 
-    def _resetCounts(self):
-        self._updateCutoff()
-        self._resetLrnCount()
-        self._resetRevCount()
-        self._resetNewCount()
-        self._updateStatsDay("time")
-
-    def _updateStatsDay(self, type):
-        l = self.deck.groups.top()
-        if l[type+'Today'][0] != self.today:
-            # it's a new day; reset counts
-            l[type+'Today'] = [self.today, 0]
-
-    def _updateStats(self, type, cnt=1):
-        self.deck.groups.top()[type+'Today'][1] += cnt
+    def _updateStats(self, card, type, cnt=1):
+        key = type+"Today"
+        for g in ([self.deck.groups.get(card.gid)] +
+                  self.deck.groups.parents(card.gid)):
+            # ensure we're on the correct day
+            if g[key][0] != self.today:
+                g[key] = [self.today, 0]
+            # add
+            g[key][1] += cnt
+            self.deck.groups.save(g)
 
     # Group counts
     ##########################################################################
@@ -128,22 +127,8 @@ order by due""" % self._groupLimit(),
         # find groups with 1 or more due cards
         gids = {}
         for g in self.deck.groups.all():
-            hasDue = self.deck.db.scalar("""
-select 1 from cards where gid = ? and
-((queue = 2 and due <= ?) or (queue = 1 and due < ?)) limit 1""",
-                                         g['id'], self.today, intTime())
-            top = self.deck.groups.get(
-                self.deck.groups.topFor(g['name']))
-            if top['newToday'][0] != self.today:
-                # it's a new day; reset counts
-                top['newToday'] = [self.today, 0]
-            hasNew = max(0, top['newPerDay'] - top['newToday'][1])
-            if hasNew:
-                # if the limit hasn't run out, check to see if there are
-                # actually cards
-                hasNew = self.deck.db.scalar(
-                    "select 1 from cards where queue = 0 and gid = ? limit 1",
-                    g['id'])
+            hasDue = self._groupHasLrn(g['id']) or self._groupHasRev(g['id'])
+            hasNew = self._groupHasNew(g['id'])
             gids[g['id']] = [hasDue or 0, hasNew or 0]
         return [[grp['name'], int(gid)]+gids.get(int(gid))
                 for (gid, grp) in self._orderedGroups()]
@@ -222,43 +207,74 @@ select 1 from cards where gid = ? and
     ##########################################################################
 
     def _resetNewCount(self):
-        self._updateStatsDay("new")
-        l = self.deck.groups.top()
-        lim = min(self.reportLimit, l['newPerDay'] - l['newToday'][1])
-        if lim <= 0:
-            self.newCount = 0
-        else:
-            self.newCount = self.deck.db.scalar("""
-select count() from (select id from cards where
-gid in %s and queue = 0 limit %d)""" % (self._groupLimit(), lim))
+        self.newCount = 0
+        pcounts = {}
+        # for each of the active groups
+        for gid in self.deck.groups.active():
+            # get the individual group's limit
+            lim = self._groupNewLimitSingle(self.deck.groups.get(gid))
+            if not lim:
+                continue
+            # check the parents
+            parents = self.deck.groups.parents(gid)
+            for p in parents:
+                # add if missing
+                if p['id'] not in pcounts:
+                    pcounts[p['id']] = self._groupNewLimitSingle(p)
+                # take minimum of child and parent
+                lim = min(pcounts[p['id']], lim)
+            # see how many cards we actually have
+            cnt = self.deck.db.scalar("""
+select count() from (select 1 from cards where
+gid = ? and queue = 0 limit ?)""", gid, lim)
+            # if non-zero, decrement from parent counts
+            for p in parents:
+                pcounts[p['id']] -= cnt
+            # we may also be a parent
+            pcounts[gid] = lim - cnt
+            # and add to running total
+            self.newCount += cnt
 
     def _resetNew(self):
-        lim = min(self.queueLimit, self.newCount)
-        self.newQueue = self.deck.db.all("""
-select id, due from cards where
-gid in %s and queue = 0 limit %d""" % (self._groupLimit(),
-                                         lim))
-        self.newQueue.reverse()
+        self._resetNewCount()
+        self.newGids = self.deck.groups.active()
+        self._newQueue = []
         self._updateNewCardRatio()
 
+    def _fillNew(self):
+        if self._newQueue:
+            return True
+        if not self.newCount:
+            return False
+        while self.newGids:
+            gid = self.newGids[0]
+            lim = min(self.queueLimit, self._groupNewLimit(gid))
+            if lim:
+                # fill the queue with the current gid
+                self._newQueue = self.deck.db.all("""
+select id, due from cards where gid = ? and queue = 0 limit ?""", gid, lim)
+                if self._newQueue:
+                    self._newQueue.reverse()
+                    return True
+            # nothing left in the group; move to next
+            self.newGids.pop(0)
+
     def _getNewCard(self):
-        # We rely on sqlite to return the cards in id order. This may not
-        # correspond to the 'ord' order. The alternative would be to do
-        # something like due = fid*100+ord, but then we have no efficient way
-        # of spacing siblings as we'd need to fetch the fid as well.
-        if self.newQueue:
-            (id, due) = self.newQueue.pop()
-            # move any siblings to the end?
-            if self.deck.groups.top()['newTodayOrder'] == NEW_TODAY_ORD:
-                n = len(self.newQueue)
-                while self.newQueue and self.newQueue[-1][1] == due:
-                    self.newQueue.insert(0, self.newQueue.pop())
-                    n -= 1
-                    if not n:
-                        # we only have one fact in the queue; stop rotating
-                        break
-            self.newCount -= 1
-            return id
+        if not self._fillNew():
+            return
+        (id, due) = self._newQueue.pop()
+        # move any siblings to the end?
+        conf = self.deck.groups.conf(self.newGids[0])
+        if conf['new']['order'] == NEW_TODAY_ORD:
+            n = len(self._newQueue)
+            while self._newQueue and self._newQueue[-1][1] == due:
+                self._newQueue.insert(0, self._newQueue.pop())
+                n -= 1
+                if not n:
+                    # we only have one fact in the queue; stop rotating
+                    break
+        self.newCount -= 1
+        return id
 
     def _updateNewCardRatio(self):
         if self.deck.groups.top()['newSpread'] == NEW_CARDS_DISTRIBUTE:
@@ -282,30 +298,65 @@ gid in %s and queue = 0 limit %d""" % (self._groupLimit(),
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
 
+    def _groupHasNew(self, gid):
+        if not self._groupNewLimit(gid):
+            return False
+        return self.deck.db.scalar(
+            "select 1 from cards where gid = ? and queue = 0 limit 1", gid)
+
+    def _groupNewLimit(self, gid):
+        sel = self.deck.groups.get(gid)
+        lim = -1
+        # for the group and each of its parents
+        for g in [sel] + self.deck.groups.parents(gid):
+            rem = self._groupNewLimitSingle(g)
+            if lim == -1:
+                lim = rem
+            else:
+                lim = min(rem, lim)
+        return lim
+
+    def _groupNewLimitSingle(self, g):
+        # update day if necessary
+        if g['newToday'][0] != self.today:
+            g['newToday'] = [self.today, 0]
+        c = self.deck.groups.conf(g['id'])
+        return max(0, c['new']['perDay'] - g['newToday'][1])
+
     # Learning queue
     ##########################################################################
 
     def _resetLrnCount(self):
-        self._updateStatsDay("lrn")
         self.lrnCount = self.deck.db.scalar("""
-select count() from (select id from cards where
+select count() from (select 1 from cards where
 gid in %s and queue = 1 and due < ? limit %d)""" % (
             self._groupLimit(), self.reportLimit),
             intTime() + self.deck.groups.top()['collapseTime'])
 
     def _resetLrn(self):
-        self.lrnQueue = self.deck.db.all("""
+        self._resetLrnCount()
+        self._lrnQueue = []
+
+    def _fillLrn(self):
+        if not self.lrnCount:
+            return False
+        if self._lrnQueue:
+            return True
+        self._lrnQueue = self.deck.db.all("""
 select due, id from cards where
 gid in %s and queue = 1 and due < :lim
 limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
+        # as it arrives sorted by gid first, we need to sort it
+        self._lrnQueue.sort()
+        return self._lrnQueue
 
     def _getLrnCard(self, collapse=False):
-        if self.lrnQueue:
+        if self._fillLrn():
             cutoff = time.time()
             if collapse:
                 cutoff += self.deck.groups.top()['collapseTime']
-            if self.lrnQueue[0][0] < cutoff:
-                id = heappop(self.lrnQueue)[1]
+            if self._lrnQueue[0][0] < cutoff:
+                id = heappop(self._lrnQueue)[1]
                 self.lrnCount -= 1
                 return id
 
@@ -334,7 +385,7 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
             card.due = int(time.time() + delay)
-            heappush(self.lrnQueue, (card.due, card.id))
+            heappush(self._lrnQueue, (card.due, card.id))
             # if it's due within the cutoff, increment count
             if delay <= self.deck.groups.top()['collapseTime']:
                 self.lrnCount += 1
@@ -410,11 +461,22 @@ where queue = 1 and type = 2
 %s
 """ % (intTime(), self.deck.usn(), extra))
 
+    def _groupHasLrn(self, gid):
+        return self.deck.db.scalar(
+            "select 1 from cards where gid = ? and queue = 1 "
+            "and due < ? limit 1",
+            gid, intTime() + self.deck.groups.top()['collapseTime'])
+
     # Reviews
     ##########################################################################
 
+    def _groupHasRev(self, gid):
+        return self.deck.db.scalar(
+            "select 1 from cards where gid = ? and queue = 2 "
+            "and due <= ? limit 1",
+            gid, self.today)
+
     def _resetRevCount(self):
-        self._updateStatsDay("rev")
         self.revCount = self.deck.db.scalar("""
 select count() from (select id from cards where
 gid in %s and queue = 2 and due <= :lim limit %d)""" % (
@@ -422,25 +484,29 @@ gid in %s and queue = 2 and due <= :lim limit %d)""" % (
                                        lim=self.today)
 
     def _resetRev(self):
-        self.revQueue = self.deck.db.list("""
+        self._resetRevCount()
+        self._revQueue = []
+
+    def _fillRev(self):
+        if not self.revCount:
+            return False
+        if self._revQueue:
+            return True
+        self._revQueue = self.deck.db.list("""
 select id from cards where
 gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
             self._groupLimit(), self._revOrder(), self.queueLimit),
                                           lim=self.today)
-        r = random.Random()
-        r.seed(self.today)
-        r.shuffle(self.revQueue)
+        if not self.deck.conf['revOrder']:
+            r = random.Random()
+            r.seed(self.today)
+            r.shuffle(self._revQueue)
+        return True
 
     def _getRevCard(self):
-        if self._haveRevCards():
+        if self._fillRev():
             self.revCount -= 1
-            return self.revQueue.pop()
-
-    def _haveRevCards(self):
-        if self.revCount:
-            if not self.revQueue:
-                self._resetRev()
-            return self.revQueue
+            return self._revQueue.pop()
 
     def _revOrder(self):
         if self.deck.conf['revOrder']:
@@ -472,7 +538,7 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
             self.lrnCount += 1
         # leech?
         if not self._checkLeech(card, conf) and conf['relearn']:
-            heappush(self.lrnQueue, (card.due, card.id))
+            heappush(self._lrnQueue, (card.due, card.id))
 
     def _nextLapseIvl(self, card, conf):
         return int(card.ivl*conf['mult']) + 1
@@ -643,6 +709,8 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
 
     def newTomorrow(self):
         "Number of new cards tomorrow."
+        print "fixme: rethink newTomorrow() etc"
+        return 1
         lim = self.deck.groups.top()['newPerDay']
         return self.deck.db.scalar(
             "select count() from (select id from cards where "

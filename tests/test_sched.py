@@ -48,6 +48,36 @@ def test_new():
         assert(stripHTML(c.q()) == qs[n])
         d.sched.answerCard(c, 2)
 
+def test_newLimits():
+    d = getEmptyDeck()
+    # add some facts
+    g2 = d.groups.id("Default::foo")
+    for i in range(30):
+        f = d.newFact()
+        f['Front'] = str(i)
+        if i > 4:
+            f.gid = g2
+        d.addFact(f)
+    # give the child group a different configuration
+    c2 = d.groups.confId("new conf")
+    d.groups.setConf(d.groups.get(g2), c2)
+    d.reset()
+    # both confs have defaulted to a limit of 20
+    assert d.sched.newCount == 20
+    # first card we get comes from parent
+    c = d.sched.getCard()
+    assert c.gid == 1
+    # limit the parent to 10 cards, meaning we get 10 in total
+    conf1 = d.groups.conf(1)
+    conf1['new']['perDay'] = 10
+    d.reset()
+    assert d.sched.newCount == 10
+    # if we limit child to 4, we should get 9
+    conf2 = d.groups.conf(g2)
+    conf2['new']['perDay'] = 4
+    d.reset()
+    assert d.sched.newCount == 9
+
 def test_newOrder():
     d = getEmptyDeck()
     m = d.models.current()
@@ -69,7 +99,7 @@ def test_newOrder():
     d.conf['newPerDay'] = 100
     d.reset()
     # cards should be sorted by id
-    assert d.sched.newQueue == list(reversed(sorted(d.sched.newQueue)))
+    assert d.sched._newQueue == list(reversed(sorted(d.sched._newQueue)))
 
 def test_newBoxes():
     d = getEmptyDeck()
@@ -724,6 +754,30 @@ def test_groupCounts():
     c.gid = 12345; c.flush()
     d.sched.groupCounts()
     d.sched.groupCountTree()
+
+def test_groupFlow():
+    d = getEmptyDeck()
+    # add a fact with default group
+    f = d.newFact()
+    f['Front'] = u"one"
+    d.addFact(f)
+    # and one that's a child
+    f = d.newFact()
+    f['Front'] = u"two"
+    default1 = f.gid = d.groups.id("Default::2")
+    d.addFact(f)
+    # and another that's higher up
+    f = d.newFact()
+    f['Front'] = u"three"
+    default1 = f.gid = d.groups.id("Default::1")
+    d.addFact(f)
+    # should get top level one first, then ::1, then ::2
+    d.reset()
+    assert d.sched.counts() == (3,0,0)
+    for i in "one", "three", "two":
+        c = d.sched.getCard()
+        assert c.fact()['Front'] == i
+        d.sched.answerCard(c, 2)
 
 def test_reorder():
     d = getEmptyDeck()

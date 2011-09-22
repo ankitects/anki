@@ -2,9 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import simplejson
+import simplejson, copy
 from anki.utils import intTime, ids2str
 from anki.consts import *
+from anki.lang import _
 
 # fixmes:
 # - make sure lists like new[delays] are  not being shared by multiple groups
@@ -19,14 +20,19 @@ from anki.consts import *
 #   references, and treat any invalid gids as the default group.
 # - deletions of group config force a full sync
 
-# configuration only available to top level groups
-defaultTopConf = {
-    'newPerDay': 20,
+# these are a cache of the current day's reviews. they may be wrong after a
+# sync merge if someone reviewed from two locations
+defaultGroup = {
     'newToday': [0, 0], # currentDay, count
     'revToday': [0, 0],
     'lrnToday': [0, 0],
-    'timeToday': [0, 0], # currentDay, time in ms
-    'newTodayOrder': NEW_TODAY_ORD,
+    'timeToday': [0, 0], # time in ms
+    'conf': 1,
+}
+
+# configuration only available to top level groups
+defaultTopConf = {
+    'revLim': 100,
     'newSpread': NEW_CARDS_DISTRIBUTE,
     'collapseTime': 1200,
     'repLim': 0,
@@ -40,6 +46,8 @@ defaultConf = {
         'delays': [1, 10],
         'ints': [1, 7, 4],
         'initialFactor': 2500,
+        'order': NEW_TODAY_ORD,
+        'perDay': 20,
     },
     'lapse': {
         'delays': [1, 10],
@@ -110,8 +118,9 @@ class GroupManager(object):
             # not top level; ensure all parents exist
             g = {}
             self._ensureParents(name)
+        for (k,v) in defaultGroup.items():
+            g[k] = v
         g['name'] = name
-        g['conf'] = 1
         while 1:
             id = intTime(1000)
             if str(id) not in self.groups:
@@ -119,7 +128,7 @@ class GroupManager(object):
         g['id'] = id
         self.groups[str(id)] = g
         self.save(g)
-        self.maybeAddToActive(g)
+        self.maybeAddToActive()
         return int(id)
 
     def rem(self, gid, cardsToo=False):
@@ -142,9 +151,19 @@ class GroupManager(object):
         "A list of all groups."
         return self.groups.values()
 
-    def allConf(self):
-        "A list of all group config."
-        return self.gconf.values()
+    def get(self, gid, default=True):
+        id = str(gid)
+        if id in self.groups:
+            return self.groups[id]
+        elif default:
+            return self.groups['1']
+
+    def update(self, g):
+        "Add or update an existing group. Used for syncing and merging."
+        self.groups[str(g['id'])] = g
+        self.maybeAddToActive()
+        # mark registry changed, but don't bump mod time
+        self.save()
 
     def _ensureParents(self, name):
         path = name.split("::")
@@ -156,41 +175,60 @@ class GroupManager(object):
                 s += "::" + p
             self.id(s)
 
+    # Group configurations
+    #############################################################
+
+    def allConf(self):
+        "A list of all group config."
+        return self.gconf.values()
+
+    def conf(self, gid):
+        return self.gconf[str(self.groups[str(gid)]['conf'])]
+
+    def updateConf(self, g):
+        self.gconf[str(g['id'])] = g
+        self.save()
+
+    def confId(self, name):
+        "Create a new configuration and return id."
+        c = copy.deepcopy(defaultConf)
+        while 1:
+            id = intTime(1000)
+            if str(id) not in self.gconf:
+                break
+        c['id'] = id
+        self.gconf[str(id)] = c
+        self.save(c)
+        return id
+
+    def remConf(self, id):
+        "Remove a configuration and update all groups using it."
+        self.deck.modSchema()
+        del self.gconf[str(id)]
+        for g in self.all():
+            if g['conf'] == id:
+                g['conf'] = 1
+                self.save(g)
+
+    def setConf(self, grp, id):
+        grp['conf'] = id
+        self.save(grp)
+
     # Group utils
     #############################################################
 
     def name(self, gid):
         return self.get(gid)['name']
 
-    def conf(self, gid):
-        return self.gconf[str(self.groups[str(gid)]['conf'])]
-
-    def get(self, gid, default=True):
-        id = str(gid)
-        if id in self.groups:
-            return self.groups[id]
-        elif default:
-            return self.groups['1']
-
     def setGroup(self, cids, gid):
         self.deck.db.execute(
             "update cards set gid=?,usn=?,mod=? where id in "+
             ids2str(cids), gid, self.deck.usn(), intTime())
 
-    def update(self, g):
-        "Add or update an existing group. Used for syncing and merging."
-        self.groups[str(g['id'])] = g
-        self.maybeAddToActive(g)
-        # mark registry changed, but don't bump mod time
-        self.save()
 
-    def maybeAddToActive(self, g):
+    def maybeAddToActive(self):
         # since order is important, we can't just append to the end
         self.select(self.selected())
-
-    def updateConf(self, g):
-        self.gconf[str(g['id'])] = g
-        self.save()
 
     def sendHome(self, cids):
         self.deck.db.execute("""
@@ -205,9 +243,8 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
     #############################################################
 
     def top(self):
-        "The current top level group as an object, and marks as modified."
+        "The current top level group as an object."
         g = self.get(self.deck.conf['topGroup'])
-        self.save(g)
         return g
 
     def active(self):
@@ -222,23 +259,23 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         "Select a new branch."
         # save the top level group
         name = self.groups[str(gid)]['name']
-        self.deck.conf['topGroup'] = self.topFor(name)
+        self.deck.conf['topGroup'] = self._topFor(name)
         # current group
         self.deck.conf['curGroup'] = gid
         # and active groups (current + all children)
-        actv = [gid]
+        actv = []
         for g in self.all():
             if g['name'].startswith(name + "::"):
-                actv.append(g['id'])
-        self.deck.conf['activeGroups'] = actv
+                actv.append((g['name'], g['id']))
+        actv.sort()
+        self.deck.conf['activeGroups'] = [gid] + [a[1] for a in actv]
 
-    def topFor(self, name):
+    def parents(self, gid):
+        "All parents of gid."
+        path = self.get(gid)['name'].split("::")
+        return [self.get(x) for x in path[:-1]]
+
+    def _topFor(self, name):
         "The top level gid for NAME."
         path = name.split("::")
         return self.id(path[0])
-
-    def underSelected(self, name):
-        "True if name is under the selected group."
-        # if nothing is selected, always true
-        s = self.selected()
-        return name.startswith(self.get(s)['name'])

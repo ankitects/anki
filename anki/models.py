@@ -99,7 +99,9 @@ class ModelManager(object):
             return self.models.values()[0]
 
     def setCurrent(self, m):
-        self.deck.groups.top()['curModel'] = m['id']
+        t = self.deck.groups.top()
+        t['curModel'] = m['id']
+        self.deck.groups.save(t)
 
     def get(self, id):
         "Get model with ID, or None."
