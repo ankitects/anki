@@ -299,23 +299,27 @@ def test_nextIvl():
     f = d.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addFact(f)
-    c = f.cards()[0]
+    d.reset()
+    c = d.sched.getCard()
     d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
     d.sched._cardConf(c)['lapse']['delays'] = [0.5, 3, 10]
-    # cards in learning
+    # new cards
     ##################################################
-    c.left = 3
     ni = d.sched.nextIvl
     assert ni(c, 1) == 30
     assert ni(c, 2) == 180
-    # removal is 4 days
     assert ni(c, 3) == 4*86400
-    c.left -= 1
+    d.sched.answerCard(c, 1)
+    # cards in learning
+    ##################################################
+    assert ni(c, 1) == 30
+    assert ni(c, 2) == 180
+    assert ni(c, 3) == 4*86400
+    d.sched.answerCard(c, 2)
     assert ni(c, 1) == 30
     assert ni(c, 2) == 600
-    # no first time bonus
     assert ni(c, 3) == 4*86400
-    c.left = 1
+    d.sched.answerCard(c, 2)
     # normal graduation is tomorrow
     assert ni(c, 2) == 1*86400
     assert ni(c, 3) == 4*86400

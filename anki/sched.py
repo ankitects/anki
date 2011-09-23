@@ -754,7 +754,10 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
             # early removal
             return self._graduatingIvl(card, conf, True) * 86400
         else:
-            left = card.left - 1
+            if card.queue == 0:
+                left = self._startingLeft(card) - 1
+            else:
+                left = card.left - 1
             if left <= 0:
                 # graduate
                 return self._graduatingIvl(card, conf, False) * 86400
