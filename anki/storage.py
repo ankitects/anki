@@ -203,6 +203,10 @@ def _upgradeSchema(db):
     if ver < 65:
         raise AnkiError("oldDeckVersion")
     if ver > 99:
+        # anki 2.0
+        if ver > CURRENT_VERSION:
+            # refuse to load decks created with a future version
+            raise AnkiError("newDeckVersion")
         return ver
     runHook("1.x upgrade", db)
 
