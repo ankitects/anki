@@ -574,7 +574,7 @@ div#filler {
 
     # fixme: only show progress for reviews, and only when revs due?
     def _updateRemaining(self):
-        counts = list(self.mw.deck.sched.counts())
+        counts = list(self.mw.deck.sched.repCounts())
         idx = self.mw.deck.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx]+1)
         space = "&nbsp;" * 2
