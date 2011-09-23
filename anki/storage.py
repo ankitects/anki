@@ -526,8 +526,9 @@ def _postSchemaUpgrade(deck):
     deck.db.execute("""
 update cards set due = fid where type=0""")
     # and failed cards
-    deck.db.execute("update cards set edue = ? where type = 1",
-                    deck.sched.today+1)
+    left = len(deck.groups.conf(1)['new']['delays'])
+    deck.db.execute("update cards set edue = ?, left=? where type = 1",
+                    deck.sched.today+1, left)
     # and due cards
     deck.db.execute("""
 update cards set due = cast(
