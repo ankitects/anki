@@ -51,6 +51,7 @@ class Scheduler(object):
             # put it in the learn queue
             card.queue = 1
             card.type = 1
+            card.left = self._startingLeft(card)
             self._updateStats(card, 'new')
         if card.queue == 1:
             self._answerLrnCard(card, ease)
@@ -208,6 +209,7 @@ order by due""" % self._groupLimit(),
 
     def _resetNewCount(self):
         self.newCount = 0
+        self.newRepCount = 0
         pcounts = {}
         # for each of the active groups
         for gid in self.deck.groups.active():
@@ -234,6 +236,8 @@ gid = ? and queue = 0 limit ?)""", gid, lim)
             pcounts[gid] = lim - cnt
             # and add to running total
             self.newCount += cnt
+            conf = self.deck.groups.conf(gid)
+            self.newRepCount += cnt * len(conf['new']['delays'])
 
     def _resetNew(self):
         self._resetNewCount()
@@ -327,11 +331,12 @@ select id, due from cards where gid = ? and queue = 0 limit ?""", gid, lim)
     ##########################################################################
 
     def _resetLrnCount(self):
-        self.lrnCount = self.deck.db.scalar("""
-select count() from (select 1 from cards where
+        (self.lrnCount, self.lrnRepCount) = self.deck.db.first("""
+select count(), sum(left) from (select left from cards where
 gid in %s and queue = 1 and due < ? limit %d)""" % (
             self._groupLimit(), self.reportLimit),
             intTime() + self.deck.groups.top()['collapseTime'])
+        self.lrnRepCount = self.lrnRepCount or 0
 
     def _resetLrn(self):
         self._resetLrnCount()
@@ -368,19 +373,19 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         else:
             type = 0
         leaving = False
+        lastLeft = card.left
         if ease == 3:
             self._rescheduleAsRev(card, conf, True)
             leaving = True
-        elif ease == 2 and card.grade+1 >= len(conf['delays']):
+        elif ease == 2 and card.left-1 <= 0:
             self._rescheduleAsRev(card, conf, False)
             leaving = True
         else:
-            card.cycles += 1
             if ease == 2:
-                card.grade += 1
+                card.left -= 1
             else:
-                card.grade = 0
-            delay = self._delayForGrade(conf, card.grade)
+                card.left = self._startingLeft(card)
+            delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
@@ -389,13 +394,13 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
             # if it's due within the cutoff, increment count
             if delay <= self.deck.groups.top()['collapseTime']:
                 self.lrnCount += 1
-        self._logLrn(card, ease, conf, leaving, type)
+        self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
-    def _delayForGrade(self, conf, grade):
+    def _delayForGrade(self, conf, left):
         try:
-            delay = conf['delays'][grade]
+            delay = conf['delays'][-left]
         except IndexError:
-            delay = conf['delays'][-1]
+            delay = conf['delays'][0]
         return delay*60
 
     def _lrnConf(self, card):
@@ -414,6 +419,9 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         card.queue = 2
         card.type = 2
 
+    def _startingLeft(self, card):
+        return len(self._cardConf(card)['new']['delays'])
+
     def _graduatingIvl(self, card, conf, early):
         if card.type == 2:
             # lapsed card being relearnt
@@ -421,11 +429,8 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         if not early:
             # graduate
             ideal =  conf['ints'][0]
-        elif card.cycles:
-            # remove
-            ideal = conf['ints'][2]
         else:
-            # first time bonus
+            # early remove
             ideal = conf['ints'][1]
         return self._adjRevIvl(card, ideal)
 
@@ -434,9 +439,9 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         card.due = self.today+card.ivl
         card.factor = conf['initialFactor']
 
-    def _logLrn(self, card, ease, conf, leaving, type):
-        lastIvl = -(self._delayForGrade(conf, max(0, card.grade-1)))
-        ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.grade))
+    def _logLrn(self, card, ease, conf, leaving, type, lastLeft):
+        lastIvl = -(self._delayForGrade(conf, lastLeft))
+        ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.left))
         def log():
             self.deck.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
@@ -534,6 +539,7 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
         if conf['relearn']:
             card.edue = card.due
             card.due = int(self._delayForGrade(conf, 0) + time.time())
+            card.left = len(conf['delays'])
             card.queue = 1
             self.lrnCount += 1
         # leech?
@@ -742,19 +748,18 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
     def _nextLrnIvl(self, card, ease):
         conf = self._lrnConf(card)
         if ease == 1:
-            # grade 0
-            return self._delayForGrade(conf, 0)
+            # fail
+            return self._delayForGrade(conf, len(conf['delays']))
         elif ease == 3:
             # early removal
             return self._graduatingIvl(card, conf, True) * 86400
         else:
-            grade = card.grade + 1
-            if grade >= len(conf['delays']):
+            left = card.left - 1
+            if left <= 0:
                 # graduate
                 return self._graduatingIvl(card, conf, False) * 86400
             else:
-                # next level
-                return self._delayForGrade(conf, grade)
+                return self._delayForGrade(conf, left)
 
     # Suspending
     ##########################################################################

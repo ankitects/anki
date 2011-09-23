@@ -106,8 +106,7 @@ create table if not exists cards (
     factor          integer not null,
     reps            integer not null,
     lapses          integer not null,
-    grade           integer not null,
-    cycles          integer not null,
+    left            integer not null,
     edue            integer not null,
     flags           integer not null,
     data            text not null
@@ -290,7 +289,7 @@ order by created"""):
     db.execute("drop table cards")
     _addSchema(db, False)
     db.executemany("""
-insert into cards values (?,?,1,?,?,?,?,?,?,?,?,?,?,0,0,0,0,"")""",
+insert into cards values (?,?,1,?,?,?,?,?,?,?,?,?,?,0,0,0,"")""",
                    rows)
 
     # reviewHistory -> revlog

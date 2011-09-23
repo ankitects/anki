@@ -108,10 +108,10 @@ def test_newBoxes():
     d.addFact(f)
     d.reset()
     c = d.sched.getCard()
+    d.sched._cardConf(c)['new']['delays'] = [1,2,3,4,5]
     d.sched.answerCard(c, 2)
-    assert c.grade == 1
-    d.sched._cardConf(c)['new']['delays'] = [0.5]
     # should handle gracefully
+    d.sched._cardConf(c)['new']['delays'] = [1]
     d.sched.answerCard(c, 2)
 
 def test_learn():
@@ -127,23 +127,18 @@ def test_learn():
     c = d.sched.getCard()
     assert c
     d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
-    # it should have no cycles and a grade of 0
-    assert c.grade == c.cycles == 0
     # fail it
     d.sched.answerCard(c, 1)
+    # it should have three reps left to graduation
+    assert c.left == 3
     # it should by due in 30 seconds
     t = round(c.due - time.time())
     assert t >= 25 and t <= 40
-    # and have 1 cycle, but still a zero grade
-    assert c.grade == 0
-    assert c.cycles == 1
     # pass it once
     d.sched.answerCard(c, 2)
     # it should by due in 3 minutes
     assert round(c.due - time.time()) in (179, 180)
-    # and it should be grade 1 now
-    assert c.grade == 1
-    assert c.cycles == 2
+    assert c.left == 2
     # check log is accurate
     log = d.db.first("select * from revlog order by id desc")
     assert log[3] == 2
@@ -153,9 +148,7 @@ def test_learn():
     d.sched.answerCard(c, 2)
     # it should by due in 10 minutes
     assert round(c.due - time.time()) in (599, 600)
-    # and it should be grade 1 now
-    assert c.grade == 2
-    assert c.cycles == 3
+    assert c.left == 1
     # the next pass should graduate the card
     assert c.queue == 1
     assert c.type == 1
@@ -165,13 +158,6 @@ def test_learn():
     # should be due tomorrow, with an interval of 1
     assert c.due == d.sched.today+1
     assert c.ivl == 1
-    # let's try early removal bonus
-    c.type = 0
-    c.queue = 1
-    c.cycles = 0
-    d.sched.answerCard(c, 3)
-    assert c.type == 2
-    assert c.ivl == 7
     # or normal removal
     c.type = 0
     c.queue = 1
@@ -318,18 +304,18 @@ def test_nextIvl():
     d.sched._cardConf(c)['lapse']['delays'] = [0.5, 3, 10]
     # cards in learning
     ##################################################
+    c.left = 3
     ni = d.sched.nextIvl
     assert ni(c, 1) == 30
     assert ni(c, 2) == 180
-    # immediate removal is 7 days
-    assert ni(c, 3) == 7*86400
-    c.cycles = 1
-    c.grade = 1
+    # removal is 4 days
+    assert ni(c, 3) == 4*86400
+    c.left -= 1
     assert ni(c, 1) == 30
     assert ni(c, 2) == 600
     # no first time bonus
     assert ni(c, 3) == 4*86400
-    c.grade = 2
+    c.left = 1
     # normal graduation is tomorrow
     assert ni(c, 2) == 1*86400
     assert ni(c, 3) == 4*86400
@@ -412,6 +398,8 @@ def test_suspend():
     assert c.due == 1
 
 def test_cram():
+    print "disabled for now"
+    return
     d = getEmptyDeck()
     f = d.newFact()
     f['Front'] = u"one"
@@ -554,19 +542,19 @@ def test_adjIvl():
     # immediately remove first; it should get ideal ivl
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
-    assert c.ivl == 7
+    assert c.ivl == 4
     # with the default settings, second card should be -1
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
-    assert c.ivl == 6
+    assert c.ivl == 3
     # and third +1
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
-    assert c.ivl == 8
+    assert c.ivl == 5
     # fourth exceeds default settings, so gets ideal again
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
-    assert c.ivl == 7
+    assert c.ivl == 4
     # try again with another fact
     f = d.newFact()
     f['Front'] = "2"; f['Back'] = "2"
@@ -578,11 +566,11 @@ def test_adjIvl():
     # first card gets ideal
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
-    assert c.ivl == 7
+    assert c.ivl == 4
     # and second too, because it's below the threshold
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
-    assert c.ivl == 7
+    assert c.ivl == 4
     # if we increase the ivl minSpace isn't needed
     conf['new']['ints'][1] = 20
     # ideal..

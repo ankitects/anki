@@ -44,7 +44,7 @@ defaultTopConf = {
 defaultConf = {
     'new': {
         'delays': [1, 10],
-        'ints': [1, 7, 4],
+        'ints': [1, 4],
         'initialFactor': 2500,
         'order': NEW_TODAY_ORD,
         'perDay': 20,
