@@ -127,7 +127,7 @@ def test_upgrade():
     assert d.hour == 4 and d.minute == 0
     # 3 new, 2 failed, 1 due
     deck.conf['counts'] = COUNT_REMAINING
-    assert deck.sched.counts() == (3,2,1)
+    assert deck.sched.cardCounts() == (3,2,1)
     # now's a good time to test the integrity check too
     deck.fixIntegrity()
 

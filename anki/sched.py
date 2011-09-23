@@ -52,6 +52,7 @@ class Scheduler(object):
             card.queue = 1
             card.type = 1
             card.left = self._startingLeft(card)
+            self.lrnRepCount += card.left
             self._updateStats(card, 'new')
         if card.queue == 1:
             self._answerLrnCard(card, ease)
@@ -66,12 +67,11 @@ class Scheduler(object):
         card.mod = intTime()
         card.usn = self.deck.usn()
         card.flushSched()
-        # if nothing more to study, rebuild queue
-        if self.counts() == (0,0,0):
-            self.reset()
 
-    def counts(self):
-        "Does not include fetched but unanswered."
+    def repCounts(self):
+        return (self.newCount, self.lrnRepCount, self.revCount)
+
+    def cardCounts(self):
         return (self.newCount, self.lrnCount, self.revCount)
 
     def dueForecast(self, days=7):
@@ -209,7 +209,6 @@ order by due""" % self._groupLimit(),
 
     def _resetNewCount(self):
         self.newCount = 0
-        self.newRepCount = 0
         pcounts = {}
         # for each of the active groups
         for gid in self.deck.groups.active():
@@ -236,8 +235,6 @@ gid = ? and queue = 0 limit ?)""", gid, lim)
             pcounts[gid] = lim - cnt
             # and add to running total
             self.newCount += cnt
-            conf = self.deck.groups.conf(gid)
-            self.newRepCount += cnt * len(conf['new']['delays'])
 
     def _resetNew(self):
         self._resetNewCount()
@@ -335,7 +332,7 @@ select id, due from cards where gid = ? and queue = 0 limit ?""", gid, lim)
 select count(), sum(left) from (select left from cards where
 gid in %s and queue = 1 and due < ? limit %d)""" % (
             self._groupLimit(), self.reportLimit),
-            intTime() + self.deck.groups.top()['collapseTime'])
+            self.dayCutoff)
         self.lrnRepCount = self.lrnRepCount or 0
 
     def _resetLrn(self):
@@ -376,24 +373,26 @@ limit %d""" % (self._groupLimit(), self.reportLimit), lim=self.dayCutoff)
         lastLeft = card.left
         if ease == 3:
             self._rescheduleAsRev(card, conf, True)
+            self.lrnRepCount -= lastLeft
             leaving = True
         elif ease == 2 and card.left-1 <= 0:
             self._rescheduleAsRev(card, conf, False)
+            self.lrnRepCount -= 1
             leaving = True
         else:
             if ease == 2:
                 card.left -= 1
+                self.lrnRepCount -= 1
             else:
                 card.left = self._startingLeft(card)
+                self.lrnRepCount += card.left - lastLeft
             delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
             card.due = int(time.time() + delay)
             heappush(self._lrnQueue, (card.due, card.id))
-            # if it's due within the cutoff, increment count
-            if delay <= self.deck.groups.top()['collapseTime']:
-                self.lrnCount += 1
+            self.lrnCount += 1
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _delayForGrade(self, conf, left):
@@ -542,6 +541,7 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
             card.left = len(conf['delays'])
             card.queue = 1
             self.lrnCount += 1
+            self.lrnRepCount += card.left
         # leech?
         if not self._checkLeech(card, conf) and conf['relearn']:
             heappush(self._lrnQueue, (card.due, card.id))
@@ -784,18 +784,6 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
         self.removeFailed(
             self.deck.db.list("select id from cards where fid = ?", fid))
         self.deck.db.execute("update cards set queue = -2 where fid = ?", fid)
-
-    # Counts
-    ##########################################################################
-
-    def timeToday(self):
-        "Time spent learning today, in seconds."
-        t = self.deck.groups.top()
-        return t['timeToday'][1] / 1000
-
-    def repsToday(self):
-        "Number of cards answered today."
-        return sum(self.counts())
 
     # Resetting
     ##########################################################################

@@ -44,18 +44,18 @@ def test_review():
     d.reset()
     assert not d.undoName()
     # answer
-    assert d.sched.counts() == (1, 0, 0)
+    assert d.sched.cardCounts() == (1, 0, 0)
     c = d.sched.getCard()
     assert c.queue == 0
     d.sched.answerCard(c, 2)
     assert c.left == 1
-    assert d.sched.counts() == (0, 1, 0)
+    assert d.sched.cardCounts() == (0, 1, 0)
     assert c.queue == 1
     # undo
     assert d.undoName()
     d.undo()
     d.reset()
-    assert d.sched.counts() == (1, 0, 0)
+    assert d.sched.cardCounts() == (1, 0, 0)
     c.load()
     assert c.queue == 0
     assert c.left != 1
@@ -64,18 +64,18 @@ def test_review():
     f['Front'] = u"two"
     d.addFact(f)
     d.reset()
-    assert d.sched.counts() == (2, 0, 0)
+    assert d.sched.cardCounts() == (2, 0, 0)
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.cardCounts() == (0, 2, 0)
     d.undo()
     d.reset()
-    assert d.sched.counts() == (1, 1, 0)
+    assert d.sched.cardCounts() == (1, 1, 0)
     d.undo()
     d.reset()
-    assert d.sched.counts() == (2, 0, 0)
+    assert d.sched.cardCounts() == (2, 0, 0)
     # performing a normal op will clear the review queue
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
