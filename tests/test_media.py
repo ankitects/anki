@@ -62,10 +62,9 @@ def test_deckIntegration():
 
 def test_changes():
     d = getEmptyDeck()
-    assert d.media.changed()
-    add, rem = d.media.changesSince(0)
-    assert not add; assert not rem
-    assert not d.media.changed()
+    assert d.media._changed()
+    assert not list(d.media.added())
+    assert not list(d.media.removed())
     # add a file
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
@@ -73,26 +72,24 @@ def test_changes():
     time.sleep(1)
     path = d.media.addFile(path)
     # should have been logged
-    add, rem = d.media.changesSince(0)
-    assert add; assert not rem
-    mod = add[0][1]
+    assert list(d.media.added())
+    assert not list(d.media.removed())
     # if we modify it, the cache won't notice
     time.sleep(1)
     open(path, "w").write("world")
-    add, rem = d.media.changesSince(0)
-    assert len(add) == 1
+    assert len(list(d.media.added())) == 1
+    assert not list(d.media.removed())
     # but if we add another file, it will
     time.sleep(1)
     open(path+"2", "w").write("yo")
-    add, rem = d.media.changesSince(0)
-    assert len(add) == 2
-    assert len(rem) == 1
-    assert add[0][1] != mod
-    assert add[0][0] == "foo.jpg"
+    assert len(list(d.media.added())) == 2
+    assert not list(d.media.removed())
     # deletions should get noticed too
     time.sleep(1)
     os.unlink(path+"2")
-    add, rem = d.media.changesSince(0)
-    assert len(add) == 2
-    assert len(rem) == 2
-
+    assert len(list(d.media.added())) == 1
+    assert len(list(d.media.removed())) == 1
+    # after a sync completes, it clears the log
+    d.media.clearLog()
+    assert len(list(d.media.added())) == 0
+    assert len(list(d.media.removed())) == 0

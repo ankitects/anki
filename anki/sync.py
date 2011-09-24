@@ -20,7 +20,6 @@ MIME_BOUNDARY = "Anki-sync-boundary"
 SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
 SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
-KEYS = ("models", "facts", "cards", "media")
 
 # todo:
 # - ensure all urllib references are converted to urllib2 for proxies

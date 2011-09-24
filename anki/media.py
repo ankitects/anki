@@ -7,6 +7,7 @@ import os, shutil, re, urllib, urllib2, time, unicodedata, \
 from anki.utils import checksum, intTime, namedtmp, isWin
 from anki.lang import _
 from anki.db import DB
+from anki.consts import *
 
 class MediaManager(object):
 
@@ -25,7 +26,7 @@ class MediaManager(object):
         self.connect()
 
     def connect(self):
-        path = self.dir()+"db"
+        path = self.dir()+".db"
         create = not os.path.exists(path)
         self.db = DB(path)
         if create:
@@ -159,17 +160,29 @@ If the same name exists, compare checksums."""
                     files.add(f)
         return files
 
-    # Tracking changes
+    # Tracking changes (public)
+    ##########################################################################
+
+    def added(self):
+        self.findChanges()
+        return self.db.execute("select * from log where type = ?", MEDIA_ADD)
+
+    def removed(self):
+        self.findChanges()
+        return self.db.execute("select * from log where type = ?", MEDIA_REM)
+
+    def clearLog(self):
+        self.db.execute("delete from log")
+
+    # Tracking changes (private)
     ##########################################################################
 
     def _initDB(self):
         # in the log, a mod time of zero indicates a delete
         self.db.executescript("""
 create table media (fname text primary key, csum text, mod int);
-create table meta (dirMod int, inSync int);
-insert into meta values (0, 0);
-create table log (id int, fname text, mod int);
-create index ix_log_id on log (id);
+create table meta (dirMod int); insert into meta values (0);
+create table log (fname text primary key, type int);
 """)
 
     def _mtime(self, path):
@@ -178,7 +191,7 @@ create index ix_log_id on log (id);
     def _checksum(self, path):
         return checksum(open(path, "rb").read())
 
-    def changed(self):
+    def _changed(self):
         "Return dir mtime if it has changed since the last findChanges()"
         # doesn't track edits, but user can add or remove a file to update
         mod = self.db.scalar("select dirMod from meta")
@@ -189,22 +202,31 @@ create index ix_log_id on log (id);
 
     def findChanges(self):
         "Scan the media folder if it's changed, and note any changes."
-        if self.changed():
+        if self._changed():
             self._logChanges()
 
-    def changesSince(self, mod):
-        "Return a list of added and removed files since MOD time."
-        self.findChanges()
-        added = {}
-        removed = {}
-        # loop through and collect changes, removing duplicates
-        for fname, mod in self.db.all(
-            "select fname, mod from log where id > ?", mod):
-            if mod:
-                added[fname] = mod
-            else:
-                removed[fname] = mod
-        return added.items(), removed.keys()
+    def _logChanges(self):
+        (added, removed) = self._changes()
+        log = []
+        media = []
+        mediaRem = []
+        for f in added:
+            mt = self._mtime(f)
+            media.append((f, self._checksum(f), mt))
+            log.append((f, MEDIA_ADD))
+        for f in removed:
+            mediaRem.append((f,))
+            log.append((f, MEDIA_REM))
+        # update media db
+        self.db.executemany("insert or replace into media values (?,?,?)",
+                            media)
+        if mediaRem:
+            self.db.executemany("delete from media where fname = ?",
+                                mediaRem)
+        self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
+        # and logs
+        self.db.executemany("insert or replace into log values (?,?)", log)
+        self.db.commit()
 
     def _changes(self):
         self.cache = {}
@@ -213,7 +235,6 @@ create index ix_log_id on log (id);
             self.cache[name] = [csum, mod, False]
         added = []
         removed = []
-        changed = []
         # loop through on-disk files
         for f in os.listdir(self.dir()):
             # ignore folders
@@ -227,40 +248,11 @@ create index ix_log_id on log (id);
                 if self._mtime(f) != self.cache[f][1]:
                     # and has different checksum?
                     if self._checksum(f) != self.cache[f][0]:
-                        changed.append(f)
+                        added.append(f)
                 # mark as used
                 self.cache[f][2] = True
         # look for any entries in the cache that no longer exist on disk
         for (k, v) in self.cache.items():
             if not v[2]:
                 removed.append(k)
-        return added, changed, removed
-
-    def _logChanges(self):
-        (added, changed, removed) = self._changes()
-        log = []
-        media = []
-        mediaRem = []
-        t = intTime()
-        for f in added:
-            mt = self._mtime(f)
-            media.append((f, self._checksum(f), mt))
-            log.append((t, f, mt))
-        for f in changed:
-            mt = self._mtime(f)
-            media.append((f, self._checksum(f), mt))
-            log.append((t, f, 0))
-            log.append((t, f, mt))
-        for f in removed:
-            mediaRem.append((f,))
-            log.append((t, f, 0))
-        # update db
-        self.db.executemany("insert or replace into media values (?,?,?)",
-                            media)
-        self.db.executemany("insert into log values (?,?,?)", log)
-        if mediaRem:
-            self.db.executemany("delete from media where fname = ?",
-                                mediaRem)
-        self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
-        self.db.commit()
-
+        return added, removed

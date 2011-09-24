@@ -29,6 +29,10 @@ REM_GROUP = 2
 COUNT_ANSWERED = 0
 COUNT_REMAINING = 1
 
+# media log
+MEDIA_ADD = 0
+MEDIA_REM = 1
+
 # Labels
 ##########################################################################
 
