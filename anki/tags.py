@@ -33,13 +33,13 @@ class TagManager(object):
     # Registering and fetching tags
     #############################################################
 
-    def register(self, tags):
+    def register(self, tags, usn=None):
         "Given a list of tags, add any missing ones to tag registry."
         # case is stored as received, so user can create different case
         # versions of the same tag if they ignore the qt autocomplete.
         for t in tags:
             if t not in self.tags:
-                self.tags[t] = self.deck.usn()
+                self.tags[t] = self.deck.usn() if usn is None else usn
                 self.changed = True
 
     def all(self):
@@ -57,8 +57,11 @@ class TagManager(object):
         self.register(set(self.split(
             " ".join(self.deck.db.list("select distinct tags from facts"+lim)))))
 
-    def allSinceUSN(self, usn):
-        return [k for k,v in self.tags.items() if v >= usn]
+    def allItems(self):
+        return self.tags.items()
+
+    def save(self):
+        self.changed = True
 
     # Bulk addition/removal from facts
     #############################################################

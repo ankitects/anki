@@ -13,7 +13,7 @@ from anki.stdmodels import addBasicModel, addClozeModel
 from anki.errors import AnkiError
 from anki.hooks import runHook
 
-def Deck(path, queue=True, lock=True):
+def Deck(path, queue=True, lock=True, server=False):
     "Open a new or existing deck. Path must be unicode."
     path = os.path.abspath(path)
     create = not os.path.exists(path)
@@ -30,7 +30,7 @@ def Deck(path, queue=True, lock=True):
     db.execute("pragma temp_store = memory")
     db.execute("pragma cache_size = 10000")
     # add db to deck and do any remaining upgrades
-    deck = _Deck(db)
+    deck = _Deck(db, server)
     if ver < CURRENT_VERSION:
         _upgradeDeck(deck, ver)
     elif create:
@@ -131,7 +131,7 @@ create table if not exists graves (
 );
 
 insert or ignore into deck
-values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
+values(1,0,0,0,%(v)s,0,1,0,'','{}','','','{}');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
     if setDeckConf:
@@ -160,16 +160,16 @@ update deck set conf = ?, groups = ?, gconf = ?""",
 def _updateIndices(db):
     "Add indices to the DB."
     db.executescript("""
--- avoid loading entire facts table in for sync summary
+-- syncing
 create index if not exists ix_facts_usn on facts (usn);
+create index if not exists ix_cards_usn on cards (usn);
+create index if not exists ix_revlog_usn on revlog (usn);
 -- card spacing, etc
 create index if not exists ix_cards_fid on cards (fid);
 -- scheduling and group limiting
 create index if not exists ix_cards_sched on cards (gid, queue, due);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
--- revlog syncing
-create index if not exists ix_revlog_usn on revlog (usn);
 -- field uniqueness check
 create index if not exists ix_fsums_fid on fsums (fid);
 create index if not exists ix_fsums_csum on fsums (csum);

@@ -9,9 +9,9 @@ def assertException(exception, func):
         found = True
     assert found
 
-def getEmptyDeck():
+def getEmptyDeck(**kwargs):
     (fd, nam) = tempfile.mkstemp(suffix=".anki")
     os.unlink(nam)
-    return Deck(nam)
+    return Deck(nam, **kwargs)
 
 testDir = os.path.dirname(__file__)

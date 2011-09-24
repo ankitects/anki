@@ -57,71 +57,108 @@ class Syncer(object):
 
     def sync(self):
         "Returns 'noChanges', 'fullSync', or 'success'."
-        # get local and remote modified, schema and sync times
-        self.lmod, lscm, lsyn, self.minUsn = self.times()
-        self.rmod, rscm, rsyn, self.maxUsn = self.server.times()
+        # step 1: login & metadata
+        self.rmod, rscm, self.maxUsn = self.server.times()
+        self.lmod, lscm, self.minUsn = self.times()
         if self.lmod == self.rmod:
             return "noChanges"
         elif lscm != rscm:
             return "fullSync"
         self.lnewer = self.lmod > self.rmod
-        # get local changes and switch to full sync if there were too many
-        self.status("getLocal")
+        # step 2: deletions and small objects
         lchg = self.changes()
-        if lchg == "fullSync":
-            return "fullSync"
-        # send them to the server, and get the server's changes
-        self.status("getServer")
-        rchg = self.server.changes(minUsn=self.minUsn, lnewer=self.lnewer,
-                                   changes=lchg)
-        if rchg == "fullSync":
-            return "fullSync"
-        # otherwise, merge
-        self.status("merge")
-        self.merge(lchg, rchg)
-        # then tell server to save, and save local
-        self.status("finish")
+        rchg = self.server.applyChanges(
+            minUsn=self.minUsn, lnewer=self.lnewer, changes=lchg)
+        self.mergeChanges(lchg, rchg)
+        # step 3: stream large tables from server
+        while 1:
+            chunk = self.server.chunk()
+            self.applyChunk(chunk)
+            if chunk['done']:
+                break
+        # step 4: stream to server
+        while 1:
+            chunk = self.chunk()
+            self.server.applyChunk(chunk)
+            if chunk['done']:
+                break
+        # step 5: sanity check during beta testing
+        c = self.sanityCheck()
+        s = self.server.sanityCheck()
+        assert c == s
+        # finalize
         mod = self.server.finish()
         self.finish(mod)
         return "success"
 
     def times(self):
-        return (self.deck.mod, self.deck.scm, self.deck.ls, self.deck._usn)
+        return (self.deck.mod, self.deck.scm, self.deck._usn)
 
-    def changes(self, minUsn=None, lnewer=None, changes=None):
-        if minUsn is not None:
-            # we're the server; save info
-            self.maxUsn = self.deck._usn
-            self.minUsn = minUsn
-            self.lnewer = not lnewer
-            self.rchg = changes
-        try:
-            d = dict(revlog=self.getRevlog(),
-                     facts=self.getFacts(),
-                     cards=self.getCards(),
-                     models=self.getModels(),
-                     groups=self.getGroups(),
-                     tags=self.getTags())
-        except SyncTooLarge:
-            return "fullSync"
-        # collection-level configuration from last modified side
+    def changes(self):
+        "Bundle up deletions and small objects, and apply if server."
+        d = dict(models=self.getModels(),
+                 groups=self.getGroups(),
+                 tags=self.getTags(),
+                 graves=self.getGraves())
         if self.lnewer:
             d['conf'] = self.getConf()
-        if minUsn is not None:
-            # we're the server, we can merge our side before returning
-            self.merge(d, self.rchg)
         return d
 
-    def merge(self, lchg, rchg):
-        # order is important here
+    def applyChanges(self, minUsn, lnewer, changes):
+        # we're the server; save info
+        self.maxUsn = self.deck._usn
+        self.minUsn = minUsn
+        self.lnewer = not lnewer
+        self.rchg = changes
+        lchg = self.changes()
+        # merge our side before returning
+        self.mergeChanges(lchg, self.rchg)
+        return lchg
+
+    def mergeChanges(self, lchg, rchg):
+        # first, handle the deletions
+        self.mergeGraves(rchg['graves'])
+        # then the other objects
         self.mergeModels(rchg['models'])
         self.mergeGroups(rchg['groups'])
-        self.mergeRevlog(rchg['revlog'])
-        self.mergeFacts(lchg['facts'], rchg['facts'])
-        self.mergeCards(lchg['cards'], rchg['cards'])
         self.mergeTags(rchg['tags'])
         if 'conf' in rchg:
             self.mergeConf(rchg['conf'])
+        self.prepareToChunk()
+
+    def sanityCheck(self):
+        # some basic checks to ensure the sync went ok. this is slow, so will
+        # be removed before official release
+        assert not self.deck.db.scalar("""
+select count() from cards where fid not in (select id from facts)""")
+        assert not self.deck.db.scalar("""
+select count() from facts where id not in (select distinct fid from cards)""")
+        for t in "cards", "facts", "revlog", "graves":
+            assert not self.deck.db.scalar(
+                "select count() from %s where usn = -1" % t)
+        for g in self.deck.groups.all():
+            assert g['usn'] != -1
+        for t, usn in self.deck.tags.allItems():
+            assert usn != -1
+        for m in self.deck.models.all():
+            assert m['usn'] != -1
+        return [
+            self.deck.db.scalar("select count() from cards"),
+            self.deck.db.scalar("select count() from facts"),
+            self.deck.db.scalar("select count() from revlog"),
+            self.deck.db.scalar("select count() from fsums"),
+            self.deck.db.scalar("select count() from graves"),
+            len(self.deck.models.all()),
+            len(self.deck.tags.all()),
+            len(self.deck.groups.all()),
+            len(self.deck.groups.allConf()),
+        ]
+
+    def usnLim(self):
+        if self.deck.server:
+            return "usn >= %d" % self.minUsn
+        else:
+            return "usn = -1"
 
     def finish(self, mod=None):
         if not mod:
@@ -132,15 +169,108 @@ class Syncer(object):
         self.deck.save(mod=mod)
         return mod
 
+    # Chunked syncing
+    ##########################################################################
+
+    def prepareToChunk(self):
+        self.tablesLeft = ["revlog", "cards", "facts"]
+        self.cursor = None
+
+    def cursorForTable(self, table):
+        lim = self.usnLim()
+        x = self.deck.db.execute
+        d = (self.maxUsn, lim)
+        if table == "revlog":
+            return x("""
+select id, cid, %d, ease, ivl, lastIvl, factor, time, type
+from revlog where %s""" % d)
+        elif table == "cards":
+            return x("""
+select id, fid, gid, ord, mod, %d, type, queue, due, ivl, factor, reps,
+lapses, left, edue, flags, data from cards where %s""" % d)
+        else:
+            return x("""
+select id, guid, mid, gid, mod, %d, tags, flds, '', flags, data
+from facts where %s""" % d)
+
+    def chunk(self):
+        buf = dict(done=False)
+        # gather up to 5000 records
+        lim = 5000
+        while self.tablesLeft and lim:
+            curTable = self.tablesLeft[0]
+            if not self.cursor:
+                self.cursor = self.cursorForTable(curTable)
+            rows = self.cursor.fetchmany(lim)
+            if len(rows) != lim:
+                # table is empty
+                self.tablesLeft.pop(0)
+                self.cursor = None
+                # if we're the client, mark the objects as having been sent
+                if not self.deck.server:
+                    self.deck.db.execute(
+                        "update %s set usn=? where usn=-1"%curTable,
+                        self.maxUsn)
+            buf[curTable] = rows
+            lim -= len(buf)
+        if not self.tablesLeft:
+            buf['done'] = True
+        return buf
+
+    def applyChunk(self, chunk):
+        if "revlog" in chunk:
+            self.mergeRevlog(chunk['revlog'])
+        if "cards" in chunk:
+            self.mergeCards(chunk['cards'])
+        if "facts" in chunk:
+            self.mergeFacts(chunk['facts'])
+
+    # Deletions
+    ##########################################################################
+
+    def getGraves(self):
+        cards = []
+        facts = []
+        groups = []
+        if self.deck.server:
+            curs = self.deck.db.execute(
+                "select oid, type from graves where usn >= ?", self.minUsn)
+        else:
+            curs = self.deck.db.execute(
+                "select oid, type from graves where usn = -1")
+        for oid, type in curs:
+            if type == REM_CARD:
+                cards.append(oid)
+            elif type == REM_FACT:
+                facts.append(oid)
+            else:
+                groups.append(oid)
+        if not self.deck.server:
+            self.deck.db.execute("update graves set usn=? where usn=-1",
+                                 self.maxUsn)
+        return dict(cards=cards, facts=facts, groups=groups)
+
+    def mergeGraves(self, graves):
+        # facts first, so we don't end up with duplicate graves
+        self.deck._remFacts(graves['facts'])
+        self.deck.remCards(graves['cards'])
+        for oid in graves['groups']:
+            self.deck.groups.rem(oid)
+
     # Models
     ##########################################################################
 
     def getModels(self):
-        return [m for m in self.deck.models.all() if m['usn'] >= self.minUsn]
+        if self.deck.server:
+            return [m for m in self.deck.models.all() if m['usn'] >= self.minUsn]
+        else:
+            mods = [m for m in self.deck.models.all() if m['usn'] == -1]
+            for m in mods:
+                m['usn'] = self.maxUsn
+            self.deck.models.save()
+            return mods
 
     def mergeModels(self, rchg):
-        # deletes result in schema mod, so we only have to worry about
-        # added or changed
         for r in rchg:
             l = self.deck.models.get(r['id'])
             # if missing locally or server is newer, update
@@ -151,13 +281,22 @@ class Syncer(object):
     ##########################################################################
 
     def getGroups(self):
-        return [
-            [g for g in self.deck.groups.all() if g['usn'] >= self.minUsn],
-            [g for g in self.deck.groups.allConf() if g['usn'] >= self.minUsn]
+        if self.deck.server:
+            return [
+                [g for g in self.deck.groups.all() if g['usn'] >= self.minUsn],
+                [g for g in self.deck.groups.allConf() if g['usn'] >= self.minUsn]
             ]
+        else:
+            groups = [g for g in self.deck.groups.all() if g['usn'] == -1]
+            for g in groups:
+                g['usn'] = self.maxUsn
+            gconf = [g for g in self.deck.groups.allConf() if g['usn'] == -1]
+            for g in gconf:
+                g['usn'] = self.maxUsn
+            self.deck.groups.save()
+            return [groups, gconf]
 
     def mergeGroups(self, rchg):
-        # like models we rely on schema mod for deletes
         for r in rchg[0]:
             l = self.deck.groups.get(r['id'], False)
             # if missing locally or server is newer, update
@@ -173,84 +312,54 @@ class Syncer(object):
     ##########################################################################
 
     def getTags(self):
-        return self.deck.tags.allSinceUSN(self.minUsn)
+        if self.deck.server:
+            return [t for t, usn in self.deck.tags.allItems()
+                    if usn >= self.minUsn]
+        else:
+            tags = []
+            for t, usn in self.deck.tags.allItems():
+                if usn == -1:
+                    self.deck.tags.tags[t] = self.maxUsn
+                    tags.append(t)
+            self.deck.tags.save()
+            return tags
 
     def mergeTags(self, tags):
-        self.deck.tags.register(tags)
+        self.deck.tags.register(tags, usn=self.maxUsn)
 
-    # Revlog
+    # Cards/facts/revlog
     ##########################################################################
 
-    def getRevlog(self):
-        r = self.deck.db.all("select * from revlog where usn >= ? limit ?",
-                             self.minUsn, self.MAX_REVLOG)
-        if len(r) == self.MAX_REVLOG:
-            raise SyncTooLarge
-        return r
-
     def mergeRevlog(self, logs):
-        for l in logs:
-            l[2] = self.maxUsn
         self.deck.db.executemany(
             "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)",
             logs)
 
-    # Facts
-    ##########################################################################
-    # we don't actually need to send sflds across as it's recalculated on
-    # merge;  may want to change this before final release
+    def newerRows(self, data, table, modIdx):
+        ids = (r[0] for r in data)
+        lmods = {}
+        for id, mod in self.deck.db.execute(
+            "select id, mod from %s where id in %s and %s" % (
+                table, ids2str(ids), self.usnLim())):
+            lmods[id] = mod
+        update = []
+        for r in data:
+            if r[0] not in lmods or lmods[r[0]] < r[modIdx]:
+                update.append(r)
+        return update
 
-    def getFacts(self):
-        f = self.deck.db.all("select * from facts where usn >= ? limit ?",
-                             self.minUsn, self.MAX_FACTS)
-        if len(f) == self.MAX_FACTS:
-            raise SyncTooLarge
-        return [
-            f,
-            self.deck.db.list(
-                "select oid from graves where usn >= ? and type = ?",
-                self.minUsn, REM_FACT)
-            ]
-
-    def mergeFacts(self, lchg, rchg):
-        (toAdd, toRem) = self.findChanges(
-            lchg[0], lchg[1], rchg[0], rchg[1], 4, 5)
-        # add missing
-        self.deck.db.executemany(
-            "insert or replace into facts values (?,?,?,?,?,?,?,?,?,?,?)",
-            toAdd)
-        # update fsums table - fixme: in future could skip sort cache
-        self.deck.updateFieldCache([f[0] for f in toAdd])
-        # remove remotely deleted
-        self.deck._remFacts(toRem)
-
-    # Cards
-    ##########################################################################
-
-    def getCards(self):
-        c = self.deck.db.all("select * from cards where usn >= ? limit ?",
-                             self.minUsn, self.MAX_CARDS)
-        if len(c) == self.MAX_CARDS:
-            raise SyncTooLarge
-        return [
-            c,
-            self.deck.db.list(
-                "select oid from graves where usn >= ? and type = ?",
-                self.minUsn, REM_CARD)
-            ]
-
-    def mergeCards(self, lchg, rchg):
-        # cards with higher reps preserved, so that gid changes don't clobber
-        # older reviews
-        (toAdd, toRem) = self.findChanges(
-            lchg[0], lchg[1], rchg[0], rchg[1], 11, 5)
-        # add missing
+    def mergeCards(self, cards):
         self.deck.db.executemany(
             "insert or replace into cards values "
             "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            toAdd)
-        # remove remotely deleted
-        self.deck.remCards(toRem)
+            self.newerRows(cards, "cards", 4))
+
+    def mergeFacts(self, facts):
+        rows = self.newerRows(facts, "facts", 4)
+        self.deck.db.executemany(
+            "insert or replace into facts values (?,?,?,?,?,?,?,?,?,?,?)",
+            rows)
+        self.deck.updateFieldCache([f[0] for f in rows])
 
     # Deck config
     ##########################################################################
@@ -261,47 +370,12 @@ class Syncer(object):
     def mergeConf(self, conf):
         self.deck.conf = conf
 
-    # Merging
-    ##########################################################################
-
-    def findChanges(self, localAdds, localRems, remoteAdds, remoteRems, key, usn):
-        local = {}
-        toAdd = []
-        toRem = []
-        # cache local side
-        for l in localAdds:
-            local[l[0]] = (True, l)
-        for l in localRems:
-            local[l] = (False, l)
-        # check remote adds
-        for r in remoteAdds:
-            if r[0] in local:
-                # added remotely; changed locally
-                (lAdded, l) = local[r[0]]
-                if lAdded:
-                    # added on both sides
-                    if r[key] > l[key]:
-                        # remote newer; update
-                        r[usn] = self.maxUsn
-                        toAdd.append(r)
-                    else:
-                        # local newer; remote will update
-                        pass
-                else:
-                    # local deleted; remote will delete
-                    pass
-            else:
-                # changed on server only
-                r[usn] = self.maxUsn
-                toAdd.append(r)
-        return toAdd, remoteRems
-
 class LocalServer(Syncer):
     # serialize/deserialize payload, so we don't end up sharing objects
     # between decks in testing
-    def changes(self, minUsn, lnewer, changes):
+    def applyChanges(self, minUsn, lnewer, changes):
         l = simplejson.loads; d = simplejson.dumps
-        return l(d(Syncer.changes(self, minUsn, lnewer, l(d(changes)))))
+        return l(d(Syncer.applyChanges(self, minUsn, lnewer, l(d(changes)))))
 
 # not yet ported
 class RemoteServer(Syncer):

@@ -11,7 +11,3 @@ class AnkiError(Exception):
         if self.data:
             m += ": %s" % repr(self.data)
         return m
-
-class SyncTooLarge(Exception):
-    pass
-

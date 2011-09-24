@@ -21,28 +21,24 @@ server=None
 
 def setup_basic(loadDecks=None):
     global deck1, deck2, client, server
-    if loadDecks:
-        deck1 = Deck(loadDecks[0])
-        deck2 = Deck(loadDecks[1])
-    else:
-        deck1 = getEmptyDeck()
-        # add a fact to deck 1
-        f = deck1.newFact()
-        f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = [u"foo"]
-        deck1.addFact(f)
-        # answer it
-        deck1.reset(); deck1.sched.answerCard(deck1.sched.getCard(), 4)
-        # repeat for deck2
-        deck2 = getEmptyDeck()
-        f = deck2.newFact()
-        f['Front'] = u"bar"; f['Back'] = u"bar"; f.tags = [u"bar"]
-        deck2.addFact(f)
-        deck2.reset(); deck2.sched.answerCard(deck2.sched.getCard(), 4)
-        # start with same schema and sync time
-        deck1.scm = deck2.scm = 0
-        # and same mod time, so sync does nothing
-        t = intTime(1000)
-        deck1.save(mod=t); deck2.save(mod=t)
+    deck1 = getEmptyDeck()
+    # add a fact to deck 1
+    f = deck1.newFact()
+    f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = [u"foo"]
+    deck1.addFact(f)
+    # answer it
+    deck1.reset(); deck1.sched.answerCard(deck1.sched.getCard(), 4)
+    # repeat for deck2
+    deck2 = getEmptyDeck(server=True)
+    f = deck2.newFact()
+    f['Front'] = u"bar"; f['Back'] = u"bar"; f.tags = [u"bar"]
+    deck2.addFact(f)
+    deck2.reset(); deck2.sched.answerCard(deck2.sched.getCard(), 4)
+    # start with same schema and sync time
+    deck1.scm = deck2.scm = 0
+    # and same mod time, so sync does nothing
+    t = intTime(1000)
+    deck1.save(mod=t); deck2.save(mod=t)
     server = LocalServer(deck2)
     client = Syncer(deck1, server)
 
@@ -76,9 +72,9 @@ def test_sync():
     assert client.sync() == "success"
     # last sync times and mod times should agree
     assert deck1.mod == deck2.mod
-    assert deck1.usn() == deck2.usn()
+    assert deck1._usn == deck2._usn
     assert deck1.mod == deck1.ls
-    assert deck1.usn() != origUsn
+    assert deck1._usn != origUsn
     # because everything was created separately it will be merged in. in
     # actual use we use a full sync to ensure initial a common starting point.
     check(2)
@@ -142,6 +138,20 @@ def test_cards():
     assert deck2.getCard(card.id).reps == 1
     assert client.sync() == "success"
     assert deck2.getCard(card.id).reps == 2
+    # if it's modified on both sides , later mod time should win
+    for test in ((deck1, deck2), (deck2, deck1)):
+        time.sleep(1)
+        c = test[0].getCard(card.id)
+        c.reps = 5; c.flush()
+        test[0].save()
+        time.sleep(1)
+        c = test[1].getCard(card.id)
+        c.reps = 3; c.flush()
+        test[1].save()
+        assert client.sync() == "success"
+        assert test[1].getCard(card.id).reps == 3
+        assert test[0].getCard(card.id).reps == 3
+    # removals should work too
     deck1.remCards([card.id])
     deck1.save()
     assert deck2.db.scalar("select 1 from cards where id = ?", card.id)

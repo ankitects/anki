@@ -36,9 +36,10 @@ defaultConf = {
 # this is initialized by storage.Deck
 class _Deck(object):
 
-    def __init__(self, db):
+    def __init__(self, db, server=False):
         self.db = db
         self.path = db._path
+        self.server = server
         self._lastSave = time.time()
         self.clearUndo()
         self.media = MediaManager(self)
@@ -175,7 +176,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.media.move(olddir)
 
     def usn(self):
-        return self._usn
+        return self._usn if self.server else -1
 
     # Object creation helpers
     ##########################################################################
@@ -204,9 +205,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     ##########################################################################
 
     def _logRem(self, ids, type):
-        tbl = "cards" if type == REM_CARD else "facts"
         self.db.executemany("insert into graves values (%d, ?, %d)" % (
-            intTime(), type), ([x] for x in ids))
+            self.usn(), type), ([x] for x in ids))
 
     # Facts
     ##########################################################################
