@@ -19,7 +19,7 @@ deck2=None
 client=None
 server=None
 
-def setup_basic(loadDecks=None):
+def setup_basic():
     global deck1, deck2, client, server
     deck1 = getEmptyDeck()
     # add a fact to deck 1
@@ -231,14 +231,21 @@ def test_threeway():
 
 def _test_speed():
     t = time.time()
-    setup_basic([os.path.expanduser("~/rapid.anki"),
-                 os.path.expanduser("~/rapid2.anki")])
+    deck1 = Deck(os.path.expanduser("~/rapid.anki"))
+    for tbl in "revlog", "cards", "facts", "graves":
+        deck1.db.execute("update %s set usn = -1 where usn != -1"%tbl)
+    for m in deck1.models.all():
+        m['usn'] = -1
+    for tx in deck1.tags.all():
+        deck1.tags.tags[tx] = -1
+    deck1._usn = -1
+    deck1.save()
+    deck2 = getEmptyDeck(server=True)
+    deck1.scm = deck2.scm = 0
+    server = LocalServer(deck2)
+    client = Syncer(deck1, server)
     print "load %d" % ((time.time() - t)*1000); t = time.time()
-    deck2.save()
-    # 3000 revlog entries: ~128ms
-    # 3000 cards: ~200ms
-    # 3000 facts: ~500ms
-    assert client.sync() != "fullSync"
+    assert client.sync() == "success"
     print "sync %d" % ((time.time() - t)*1000); t = time.time()
 
 

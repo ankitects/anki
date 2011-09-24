@@ -131,7 +131,7 @@ create table if not exists graves (
 );
 
 insert or ignore into deck
-values(1,0,0,0,%(v)s,0,1,0,'','{}','','','{}');
+values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
 """ % ({'v':CURRENT_VERSION}))
     import anki.deck
     if setDeckConf:

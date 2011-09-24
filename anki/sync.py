@@ -58,6 +58,7 @@ class Syncer(object):
     def sync(self):
         "Returns 'noChanges', 'fullSync', or 'success'."
         # step 1: login & metadata
+        self.status("login")
         self.rmod, rscm, self.maxUsn = self.server.times()
         self.lmod, lscm, self.minUsn = self.times()
         if self.lmod == self.rmod:
@@ -66,27 +67,34 @@ class Syncer(object):
             return "fullSync"
         self.lnewer = self.lmod > self.rmod
         # step 2: deletions and small objects
+        self.status("meta")
         lchg = self.changes()
         rchg = self.server.applyChanges(
             minUsn=self.minUsn, lnewer=self.lnewer, changes=lchg)
         self.mergeChanges(lchg, rchg)
         # step 3: stream large tables from server
+        self.status("server")
         while 1:
+            self.status("stream")
             chunk = self.server.chunk()
             self.applyChunk(chunk)
             if chunk['done']:
                 break
         # step 4: stream to server
+        self.status("client")
         while 1:
+            self.status("stream")
             chunk = self.chunk()
             self.server.applyChunk(chunk)
             if chunk['done']:
                 break
         # step 5: sanity check during beta testing
+        self.status("sanity")
         c = self.sanityCheck()
         s = self.server.sanityCheck()
         assert c == s
         # finalize
+        self.status("finalize")
         mod = self.server.finish()
         self.finish(mod)
         return "success"
@@ -202,7 +210,8 @@ from facts where %s""" % d)
             if not self.cursor:
                 self.cursor = self.cursorForTable(curTable)
             rows = self.cursor.fetchmany(lim)
-            if len(rows) != lim:
+            fetched = len(rows)
+            if fetched != lim:
                 # table is empty
                 self.tablesLeft.pop(0)
                 self.cursor = None
@@ -212,7 +221,7 @@ from facts where %s""" % d)
                         "update %s set usn=? where usn=-1"%curTable,
                         self.maxUsn)
             buf[curTable] = rows
-            lim -= len(buf)
+            lim -= fetched
         if not self.tablesLeft:
             buf['done'] = True
         return buf
@@ -482,6 +491,8 @@ class HttpSyncServerProxy(object):
 # Full syncing
 ##########################################################################
 # not yet ported
+
+# make sure it resets any usn == -1 before uploading!
 
 class FullSyncer(object):
 
