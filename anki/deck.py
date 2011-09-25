@@ -118,8 +118,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def close(self, save=True):
         "Disconnect from DB."
-        self.cleanup()
         if self.db:
+            self.cleanup()
             if save:
                 self.save()
             else:
@@ -331,6 +331,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     # Cards
     ##########################################################################
+
+    def isEmpty(self):
+        return not self.db.scalar("select 1 from cards limit 1")
 
     def cardCount(self):
         return self.db.scalar("select count() from cards")
