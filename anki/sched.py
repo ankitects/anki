@@ -668,7 +668,7 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
     def _checkDay(self):
         # check if the day has rolled over
         if time.time() > self.dayCutoff:
-            self.updateCutoff()
+            self._updateCutoff()
             self.reset()
 
     # Deck finished state
