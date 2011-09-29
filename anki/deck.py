@@ -178,6 +178,16 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def usn(self):
         return self._usn if self.server else -1
 
+    def beforeUpload(self):
+        "Called before a full upload."
+        tbls = "facts", "cards", "revlog", "graves"
+        for t in tbls:
+            self.db.execute("update %s set usn=0 where usn=-1" % t)
+        self._usn = 0
+        self.modSchema()
+        self.ls = self.scm
+        self.close()
+
     # Object creation helpers
     ##########################################################################
 

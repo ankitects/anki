@@ -3,9 +3,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
-import os, base64, sys, httplib, types
+import os, base64, sys, httplib2, types, zipfile
+from cStringIO import StringIO
 from datetime import date
-import anki, anki.deck, anki.cards
+from anki.db import DB
 from anki.errors import *
 from anki.utils import ids2str, checksum, intTime
 from anki.consts import *
@@ -21,12 +22,14 @@ SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
 SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 
+# fixme: status() should be using the hooks instead
+
 # todo:
 # - ensure all urllib references are converted to urllib2 for proxies
 # - ability to cancel
 # - need to make sure syncing doesn't bump the deck modified time if nothing was
 #    changed, since by default closing the deck bumps the mod time
-# - syncing with #/&/etc in password
+# - ensure the user doesn't add foreign chars to passsword
 # - timeout on all requests (issue 2625)
 # - ditch user/pass in favour of session key?
 
@@ -58,8 +61,8 @@ class Syncer(object):
         "Returns 'noChanges', 'fullSync', or 'success'."
         # step 1: login & metadata
         self.status("login")
-        self.rmod, rscm, self.maxUsn = self.server.times()
-        self.lmod, lscm, self.minUsn = self.times()
+        self.rmod, rscm, self.maxUsn = self.server.meta()
+        self.lmod, lscm, self.minUsn = self.meta()
         if self.lmod == self.rmod:
             return "noChanges"
         elif lscm != rscm:
@@ -98,7 +101,7 @@ class Syncer(object):
         self.finish(mod)
         return "success"
 
-    def times(self):
+    def meta(self):
         return (self.deck.mod, self.deck.scm, self.deck._usn)
 
     def changes(self):
@@ -385,9 +388,53 @@ class LocalServer(Syncer):
         l = simplejson.loads; d = simplejson.dumps
         return l(d(Syncer.applyChanges(self, minUsn, lnewer, l(d(changes)))))
 
-# not yet ported
 class RemoteServer(Syncer):
-    pass
+    def __init__(self, user, hkey):
+        self.user = user
+        self.hkey = hkey
+
+    def meta(self):
+        h = httplib2.Http(timeout=60)
+        resp, cont = h.request(
+            SYNC_URL+"meta?" + urllib.urlencode(dict(u=self.user)))
+        if resp['status'] != '200':
+            raise Exception("Invalid response code: %s" % resp['status'])
+        return simplejson.loads(cont)
+
+    def hostKey(self, pw):
+        h = httplib2.Http(timeout=60)
+        resp, cont = h.request(
+            SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=self.user,p=pw)))
+        if resp['status'] != '200':
+            raise Exception("Invalid response code: %s" % resp['status'])
+        self.hkey = cont
+        return cont
+
+    def _run(self, action, **args):
+        data = {"p": self.password,
+                "u": self.username,
+                "v": 2}
+        if self.deckName:
+            data['d'] = self.deckName.encode("utf-8")
+        else:
+            data['d'] = None
+        data.update(args)
+        data = urllib.urlencode(data)
+        try:
+            f = urllib2.urlopen(SYNC_URL + action, data)
+        except (urllib2.URLError, socket.error, socket.timeout,
+                httplib.BadStatusLine), e:
+            raise SyncError(type="connectionError",
+                            exc=`e`)
+        ret = f.read()
+        if not ret:
+            raise SyncError(type="noResponse")
+        try:
+            return self.unstuff(ret)
+        except Exception, e:
+            raise SyncError(type="connectionError",
+                            exc=`e`)
+
     # def unstuff(self, data):
     #     return simplejson.loads(unicode(zlib.decompress(data), "utf8"))
     # def stuff(self, data):
@@ -462,190 +509,73 @@ class HttpSyncServerProxy(object):
     def finish(self):
         assert self.runCmd("finish") == "OK"
 
-    def runCmd(self, action, **args):
-        data = {"p": self.password,
-                "u": self.username,
-                "v": 2}
-        if self.deckName:
-            data['d'] = self.deckName.encode("utf-8")
-        else:
-            data['d'] = None
-        data.update(args)
-        data = urllib.urlencode(data)
-        try:
-            f = urllib2.urlopen(SYNC_URL + action, data)
-        except (urllib2.URLError, socket.error, socket.timeout,
-                httplib.BadStatusLine), e:
-            raise SyncError(type="connectionError",
-                            exc=`e`)
-        ret = f.read()
-        if not ret:
-            raise SyncError(type="noResponse")
-        try:
-            return self.unstuff(ret)
-        except Exception, e:
-            raise SyncError(type="connectionError",
-                            exc=`e`)
-
 # Full syncing
 ##########################################################################
 # not yet ported
 
 # make sure it resets any usn == -1 before uploading!
+# make sure webserver is sending gzipped
 
 class FullSyncer(object):
 
-    def __init__(self, deck):
+    def __init__(self, deck, hkey):
         self.deck = deck
+        self.hkey = hkey
 
-    def prepareFullSync(self):
-        t = time.time()
-        # ensure modified is not greater than server time
-        self.deck.modified = min(self.deck.modified, self.server.timestamp)
-        self.deck.db.commit()
+    def download(self):
         self.deck.close()
-        fields = {
-            "p": self.server.password,
-            "u": self.server.username,
-            "d": self.server.deckName.encode("utf-8"),
-            }
-        if self.localTime > self.remoteTime:
-            return ("fromLocal", fields, self.deck.path)
-        else:
-            return ("fromServer", fields, self.deck.path)
+        h = httplib2.Http(timeout=60)
+        resp, cont = h.request(
+            SYNC_URL+"download?" + urllib.urlencode(dict(k=self.hkey)))
+        if resp['status'] != '200':
+            raise Exception("Invalid response code: %s" % resp['status'])
+        tpath = self.deck.path + ".tmp"
+        open(tpath, "wb").write(cont)
+        os.unlink(self.deck.path)
+        os.rename(tpath, self.deck.path)
+        d = DB(self.deck.path)
+        assert d.scalar("pragma integrity_check") == "ok"
+        self.deck = None
 
-    def fullSync(self):
-        ret = self.prepareFullSync()
-        if ret[0] == "fromLocal":
-            self.fullSyncFromLocal(ret[1], ret[2])
-        else:
-            self.fullSyncFromServer(ret[1], ret[2])
-
-    def fullSyncFromLocal(self, fields, path):
-        global sendProgressHook
-        try:
-            # write into a temporary file, since POST needs content-length
-            src = open(path, "rb")
-            name = namedtmp("fullsync.anki")
-            tmp = open(name, "wb")
-            # post vars
-            for (key, value) in fields.items():
-                tmp.write('--' + MIME_BOUNDARY + "\r\n")
-                tmp.write('Content-Disposition: form-data; name="%s"\r\n' % key)
-                tmp.write('\r\n')
-                tmp.write(value)
-                tmp.write('\r\n')
-            # file header
-            tmp.write('--' + MIME_BOUNDARY + "\r\n")
-            tmp.write(
-                'Content-Disposition: form-data; name="deck"; filename="deck"\r\n')
-            tmp.write('Content-Type: application/octet-stream\r\n')
-            tmp.write('\r\n')
-            # data
-            comp = zlib.compressobj()
-            while 1:
-                data = src.read(CHUNK_SIZE)
-                if not data:
-                    tmp.write(comp.flush())
-                    break
-                tmp.write(comp.compress(data))
-            src.close()
-            tmp.write('\r\n--' + MIME_BOUNDARY + '--\r\n\r\n')
-            size = tmp.tell()
-            tmp.seek(0)
-            # open http connection
-            runHook("fullSyncStarted", size)
-            headers = {
-                'Content-type': 'multipart/form-data; boundary=%s' %
-                MIME_BOUNDARY,
-                'Content-length': str(size),
-                'Host': SYNC_HOST,
-                }
-            req = urllib2.Request(SYNC_URL + "fullup?v=2", tmp, headers)
-            try:
-                sendProgressHook = fullSyncProgressHook
-                res = urllib2.urlopen(req).read()
-                assert res.startswith("OK")
-                # update lastSync
-                c = sqlite.connect(path)
-                c.execute("update decks set lastSync = ?",
-                          (res[3:],))
-                c.commit()
-                c.close()
-            finally:
-                sendProgressHook = None
-                tmp.close()
-        finally:
-            runHook("fullSyncFinished")
-
-    def fullSyncFromServer(self, fields, path):
-        try:
-            runHook("fullSyncStarted", 0)
-            fields = urllib.urlencode(fields)
-            src = urllib.urlopen(SYNC_URL + "fulldown", fields)
-            tmpname = namedtmp("fullsync.anki")
-            tmp = open(tmpname, "wb")
-            decomp = zlib.decompressobj()
-            cnt = 0
-            while 1:
-                data = src.read(CHUNK_SIZE)
-                if not data:
-                    tmp.write(decomp.flush())
-                    break
-                tmp.write(decomp.decompress(data))
-                cnt += CHUNK_SIZE
-                runHook("fullSyncProgress", "fromServer", cnt)
-            src.close()
-            tmp.close()
-            os.close(fd)
-            # if we were successful, overwrite old deck
-            os.unlink(path)
-            os.rename(tmpname, path)
-            # reset the deck name
-            c = sqlite.connect(path)
-            c.execute("update decks set syncName = ?",
-                      [checksum(path.encode("utf-8"))])
-            c.commit()
-            c.close()
-        finally:
-            runHook("fullSyncFinished")
-
-##########################################################################
-# Monkey-patch httplib to incrementally send instead of chewing up large
-# amounts of memory, and track progress.
-
-sendProgressHook = None
-
-def incrementalSend(self, strOrFile):
-    if self.sock is None:
-        if self.auto_open:
-            self.connect()
-        else:
-            raise NotConnected()
-    if self.debuglevel > 0:
-        print "send:", repr(str)
-    try:
-        if (isinstance(strOrFile, str) or
-            isinstance(strOrFile, unicode)):
-            self.sock.sendall(strOrFile)
-        else:
-            cnt = 0
-            t = time.time()
-            while 1:
-                if sendProgressHook and time.time() - t > 1:
-                    sendProgressHook(cnt)
-                    t = time.time()
-                data = strOrFile.read(CHUNK_SIZE)
-                cnt += len(data)
-                if not data:
-                    break
-                self.sock.sendall(data)
-    except socket.error, v:
-        if v[0] == 32:      # Broken pipe
-            self.close()
-        raise
-
-httplib.HTTPConnection.send = incrementalSend
-
-def fullSyncProgressHook(cnt):
-    runHook("fullSyncProgress", "fromLocal", cnt)
+    def upload(self):
+        self.deck.beforeUpload()
+        # compressed post body support is flaky, so bundle into a zip
+        f = StringIO()
+        z = zipfile.ZipFile(f, mode="w", compression=zipfile.ZIP_DEFLATED)
+        z.write(self.deck.path, "col.anki")
+        z.close()
+        # build an upload body
+        f2 = StringIO()
+        fields = dict(k=self.hkey)
+        # post vars
+        for (key, value) in fields.items():
+            f2.write('--' + MIME_BOUNDARY + "\r\n")
+            f2.write('Content-Disposition: form-data; name="%s"\r\n' % key)
+            f2.write('\r\n')
+            f2.write(value)
+            f2.write('\r\n')
+        # file header
+        f2.write('--' + MIME_BOUNDARY + "\r\n")
+        f2.write(
+            'Content-Disposition: form-data; name="deck"; filename="deck"\r\n')
+        f2.write('Content-Type: application/octet-stream\r\n')
+        f2.write('\r\n')
+        f2.write(f.getvalue())
+        f.close()
+        f2.write('\r\n--' + MIME_BOUNDARY + '--\r\n\r\n')
+        size = f2.tell()
+        # connection headers
+        headers = {
+            'Content-type': 'multipart/form-data; boundary=%s' %
+            MIME_BOUNDARY,
+            'Content-length': str(size),
+            'Host': SYNC_HOST,
+        }
+        body = f2.getvalue()
+        f2.close()
+        h = httplib2.Http(timeout=60)
+        resp, cont = h.request(
+            SYNC_URL+"upload", "POST", headers=headers, body=body)
+        if resp['status'] != '200':
+            raise Exception("Invalid response code: %s" % resp['status'])
+        assert cont == "OK"

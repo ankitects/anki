@@ -6,7 +6,7 @@ from tests.shared import assertException
 from anki.errors import *
 from anki import Deck
 from anki.utils import intTime
-from anki.sync import Syncer, LocalServer
+from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer
 from anki.facts import Fact
 from anki.cards import Card
 from tests.shared import getEmptyDeck
@@ -248,5 +248,54 @@ def _test_speed():
     assert client.sync() == "success"
     print "sync %d" % ((time.time() - t)*1000); t = time.time()
 
+# Remote tests
+##########################################################################
 
+import anki.sync
+anki.sync.SYNC_URL = "http://localhost:8001/sync/"
+TEST_USER = "synctest@ichi2.net"
+TEST_PASS = "synctest"
+TEST_HKEY = "k14LvSaEtXFITCJz"
 
+def setup_remote():
+    global server
+    setup_basic()
+    # mark deck1 as changed
+    deck1.save()
+    server = RemoteServer(TEST_USER, TEST_HKEY)
+    client.server = server
+
+@nose.with_setup(setup_remote)
+def test_meta():
+    (mod, scm, usn) = server.meta()
+    assert mod
+    assert scm
+    assert mod != client.deck.mod
+
+@nose.with_setup(setup_remote)
+def test_hkey():
+    assertException(Exception, lambda: server.hostKey("wrongpass"))
+    server.hkey = "abc"
+    k = server.hostKey(TEST_PASS)
+    assert k == server.hkey == TEST_HKEY
+
+@nose.with_setup(setup_remote)
+def test_download():
+    f = FullSyncer(client.deck, "abc")
+    assertException(Exception, f.download)
+    f.hkey = TEST_HKEY
+    f.download()
+
+@nose.with_setup(setup_remote)
+def test_remoteSync():
+    # not yet associated, so will require a full sync
+    assert client.sync() == "fullSync"
+    # upload
+    f = FullSyncer(client.deck, TEST_HKEY)
+    f.upload()
+    client.deck.reopen()
+    # should report no changes
+    assert client.sync() == "noChanges"
+    # bump local deck
+    client.deck.save()
+    print client.sync()
