@@ -267,10 +267,11 @@ def setup_remote():
 
 @nose.with_setup(setup_remote)
 def test_meta():
-    (mod, scm, usn) = server.meta()
+    (mod, scm, usn, ts) = server.meta()
     assert mod
     assert scm
     assert mod != client.deck.mod
+    assert abs(ts - time.time()) < 3
 
 @nose.with_setup(setup_remote)
 def test_hkey():

@@ -2,8 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import zlib, re, urllib, urllib2, socket, simplejson, time, shutil
-import os, base64, sys, httplib2, types, zipfile
+import urllib, simplejson, os, sys, httplib2, zipfile, gzip
 from cStringIO import StringIO
 from datetime import date
 from anki.db import DB
@@ -21,8 +20,10 @@ MIME_BOUNDARY = "Anki-sync-boundary"
 SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
 SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
+SYNC_VER = 0
 
-# fixme: status() should be using the hooks instead
+# - make sure /sync/download is compressed
+# - status() should be using the hooks instead
 
 # todo:
 # - ensure all urllib references are converted to urllib2 for proxies
@@ -30,13 +31,6 @@ SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 # - need to make sure syncing doesn't bump the deck modified time if nothing was
 #    changed, since by default closing the deck bumps the mod time
 # - ensure the user doesn't add foreign chars to passsword
-# - timeout on all requests (issue 2625)
-# - ditch user/pass in favour of session key?
-
-# full sync:
-# - compress and divide into pieces
-# - zlib? zip? content-encoding? if latter, need to account for bad proxies
-#   that decompress.
 
 ##########################################################################
 
@@ -61,8 +55,10 @@ class Syncer(object):
         "Returns 'noChanges', 'fullSync', or 'success'."
         # step 1: login & metadata
         self.status("login")
-        self.rmod, rscm, self.maxUsn = self.server.meta()
-        self.lmod, lscm, self.minUsn = self.meta()
+        self.rmod, rscm, self.maxUsn, rts = self.server.meta()
+        self.lmod, lscm, self.minUsn, lts = self.meta()
+        if abs(rts - lts) > 300:
+            return "clockOff"
         if self.lmod == self.rmod:
             return "noChanges"
         elif lscm != rscm:
@@ -79,7 +75,7 @@ class Syncer(object):
         while 1:
             self.status("stream")
             chunk = self.server.chunk()
-            self.applyChunk(chunk)
+            self.applyChunk(chunk=chunk)
             if chunk['done']:
                 break
         # step 4: stream to server
@@ -87,7 +83,7 @@ class Syncer(object):
         while 1:
             self.status("stream")
             chunk = self.chunk()
-            self.server.applyChunk(chunk)
+            self.server.applyChunk(chunk=chunk)
             if chunk['done']:
                 break
         # step 5: sanity check during beta testing
@@ -102,7 +98,7 @@ class Syncer(object):
         return "success"
 
     def meta(self):
-        return (self.deck.mod, self.deck.scm, self.deck._usn)
+        return (self.deck.mod, self.deck.scm, self.deck._usn, intTime())
 
     def changes(self):
         "Bundle up deletions and small objects, and apply if server."
@@ -381,23 +377,37 @@ from facts where %s""" % d)
     def mergeConf(self, conf):
         self.deck.conf = conf
 
+# Local syncing for unit tests
+##########################################################################
+
 class LocalServer(Syncer):
     # serialize/deserialize payload, so we don't end up sharing objects
-    # between decks in testing
+    # between decks
     def applyChanges(self, minUsn, lnewer, changes):
         l = simplejson.loads; d = simplejson.dumps
         return l(d(Syncer.applyChanges(self, minUsn, lnewer, l(d(changes)))))
+
+# Syncing over HTTP
+##########################################################################
 
 class RemoteServer(Syncer):
     def __init__(self, user, hkey):
         self.user = user
         self.hkey = hkey
+        self.con = None
 
     def meta(self):
         h = httplib2.Http(timeout=60)
         resp, cont = h.request(
-            SYNC_URL+"meta?" + urllib.urlencode(dict(u=self.user)))
-        if resp['status'] != '200':
+            SYNC_URL+"meta?" + urllib.urlencode(dict(u=self.user,v=SYNC_VER)))
+        # fixme: convert these into easily-catchable errors
+        if resp['status'] in ('503', '504'):
+            raise Exception("Server is too busy; please try again later.")
+        elif resp['status'] == '501':
+            raise Exception("Your client is out of date; please upgrade.")
+        elif resp['status'] == '403':
+            raise Exception("Invalid key; please authenticate.")
+        elif resp['status'] != '200':
             raise Exception("Invalid response code: %s" % resp['status'])
         return simplejson.loads(cont)
 
@@ -410,111 +420,31 @@ class RemoteServer(Syncer):
         self.hkey = cont
         return cont
 
-    def _run(self, action, **args):
-        data = {"p": self.password,
-                "u": self.username,
-                "v": 2}
-        if self.deckName:
-            data['d'] = self.deckName.encode("utf-8")
-        else:
-            data['d'] = None
-        data.update(args)
-        data = urllib.urlencode(data)
-        try:
-            f = urllib2.urlopen(SYNC_URL + action, data)
-        except (urllib2.URLError, socket.error, socket.timeout,
-                httplib.BadStatusLine), e:
-            raise SyncError(type="connectionError",
-                            exc=`e`)
-        ret = f.read()
-        if not ret:
-            raise SyncError(type="noResponse")
-        try:
-            return self.unstuff(ret)
-        except Exception, e:
-            raise SyncError(type="connectionError",
-                            exc=`e`)
+    def gzipped(self, data):
+        buf = StringIO()
+        fn = gzip.GzipFile(mode="wb", fileobj=buf)
+        fn.write(data)
+        fn.close()
+        res = buf.getvalue()
+        return res
 
-    # def unstuff(self, data):
-    #     return simplejson.loads(unicode(zlib.decompress(data), "utf8"))
-    # def stuff(self, data):
-    #     return zlib.compress(simplejson.dumps(data))
+    def applyChanges(self, **kwargs):
+        self.con = httplib2.Http(timeout=60)
+        return self._run("applyChanges", kwargs)
 
-# HTTP proxy: act as a server and direct requests to the real server
-##########################################################################
-# not yet ported
-
-class HttpSyncServerProxy(object):
-
-    def __init__(self, user, passwd):
-        SyncServer.__init__(self)
-        self.decks = None
-        self.deckName = None
-        self.username = user
-        self.password = passwd
-        self.protocolVersion = 5
-        self.sourcesToCheck = []
-
-    def connect(self, clientVersion=""):
-        "Check auth, protocol & grab deck list."
-        if not self.decks:
-            import socket
-            socket.setdefaulttimeout(30)
-            d = self.runCmd("getDecks",
-                            libanki=anki.version,
-                            client=clientVersion,
-                            sources=simplejson.dumps(self.sourcesToCheck),
-                            pversion=self.protocolVersion)
-            socket.setdefaulttimeout(None)
-            if d['status'] != "OK":
-                raise SyncError(type="authFailed", status=d['status'])
-            self.decks = d['decks']
-            self.timestamp = d['timestamp']
-            self.timediff = abs(self.timestamp - time.time())
-
-    def hasDeck(self, deckName):
-        self.connect()
-        return deckName in self.decks.keys()
-
-    def availableDecks(self):
-        self.connect()
-        return self.decks.keys()
-
-    def createDeck(self, deckName):
-        ret = self.runCmd("createDeck", name=deckName.encode("utf-8"))
-        if not ret or ret['status'] != "OK":
-            raise SyncError(type="createFailed")
-        self.decks[deckName] = [0, 0]
-
-    def summary(self, lastSync):
-        return self.runCmd("summary",
-                           lastSync=self.stuff(lastSync))
-
-    def genOneWayPayload(self, lastSync):
-        return self.runCmd("genOneWayPayload",
-                           lastSync=self.stuff(lastSync))
-
-    def modified(self):
-        self.connect()
-        return self.decks[self.deckName][0]
-
-    def _lastSync(self):
-        self.connect()
-        return self.decks[self.deckName][1]
-
-    def applyPayload(self, payload):
-        return self.runCmd("applyPayload",
-                           payload=self.stuff(payload))
-
-    def finish(self):
-        assert self.runCmd("finish") == "OK"
+    def _run(self, cmd, data):
+        data['k'] = self.hkey
+        data = self.gzipped(simplejson.dumps(data))
+        data = urllib.urlencode(dict(data=data))
+        headers = {'Content-Type': 'application/octet-stream'}
+        resp, cont = self.con.request(SYNC_URL+cmd, "POST", body=data,
+                                      headers=headers)
+        if resp['status'] != '200':
+            raise Exception("Invalid response code: %s" % resp['status'])
+        return simplejson.loads(cont)
 
 # Full syncing
 ##########################################################################
-# not yet ported
-
-# make sure it resets any usn == -1 before uploading!
-# make sure webserver is sending gzipped
 
 class FullSyncer(object):
 
