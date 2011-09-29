@@ -11,8 +11,8 @@ except ImportError:
 from anki.hooks import runHook
 
 class DB(object):
-    def __init__(self, path, text=None):
-        self._db = sqlite.connect(path, timeout=0)
+    def __init__(self, path, text=None, timeout=0):
+        self._db = sqlite.connect(path, timeout=timeout)
         if text:
             self._db.text_factory = text
         self._path = path
