@@ -15,7 +15,7 @@ from hooks import runHook
 if simplejson.__version__ < "1.7.3":
     raise Exception("SimpleJSON must be 1.7.3 or later.")
 
-CHUNK_SIZE = 32768
+CHUNK_SIZE = 65536
 MIME_BOUNDARY = "Anki-sync-boundary"
 SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
 SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
@@ -420,28 +420,17 @@ class RemoteServer(Syncer):
         self.hkey = cont
         return cont
 
-    def gzipped(self, data):
-        buf = StringIO()
-        fn = gzip.GzipFile(mode="wb", fileobj=buf)
-        fn.write(data)
-        fn.close()
-        res = buf.getvalue()
-        return res
-
     def applyChanges(self, **kwargs):
         self.con = httplib2.Http(timeout=60)
         return self._run("applyChanges", kwargs)
 
+    def _vars(self):
+        return dict(k=self.hkey)
+
     def _run(self, cmd, data):
-        data['k'] = self.hkey
-        data = self.gzipped(simplejson.dumps(data))
-        data = urllib.urlencode(dict(data=data))
-        headers = {'Content-Type': 'application/octet-stream'}
-        resp, cont = self.con.request(SYNC_URL+cmd, "POST", body=data,
-                                      headers=headers)
-        if resp['status'] != '200':
-            raise Exception("Invalid response code: %s" % resp['status'])
-        return simplejson.loads(cont)
+        return simplejson.loads(
+            postData(self.con, cmd, StringIO(simplejson.dumps(data)),
+                     self._vars()))
 
 # Full syncing
 ##########################################################################
@@ -452,11 +441,16 @@ class FullSyncer(object):
         self.deck = deck
         self.hkey = hkey
 
+    def _vars(self):
+        return dict(k=self.hkey)
+
+    def _con(self):
+        return httplib2.Http(timeout=60)
+
     def download(self):
         self.deck.close()
-        h = httplib2.Http(timeout=60)
-        resp, cont = h.request(
-            SYNC_URL+"download?" + urllib.urlencode(dict(k=self.hkey)))
+        resp, cont = self._con().request(
+            SYNC_URL+"download?" + urllib.urlencode(self._vars()))
         if resp['status'] != '200':
             raise Exception("Invalid response code: %s" % resp['status'])
         tpath = self.deck.path + ".tmp"
@@ -469,43 +463,51 @@ class FullSyncer(object):
 
     def upload(self):
         self.deck.beforeUpload()
-        # compressed post body support is flaky, so bundle into a zip
-        f = StringIO()
-        z = zipfile.ZipFile(f, mode="w", compression=zipfile.ZIP_DEFLATED)
-        z.write(self.deck.path, "col.anki")
-        z.close()
-        # build an upload body
-        f2 = StringIO()
-        fields = dict(k=self.hkey)
-        # post vars
-        for (key, value) in fields.items():
-            f2.write('--' + MIME_BOUNDARY + "\r\n")
-            f2.write('Content-Disposition: form-data; name="%s"\r\n' % key)
-            f2.write('\r\n')
-            f2.write(value)
-            f2.write('\r\n')
-        # file header
-        f2.write('--' + MIME_BOUNDARY + "\r\n")
-        f2.write(
-            'Content-Disposition: form-data; name="deck"; filename="deck"\r\n')
-        f2.write('Content-Type: application/octet-stream\r\n')
-        f2.write('\r\n')
-        f2.write(f.getvalue())
-        f.close()
-        f2.write('\r\n--' + MIME_BOUNDARY + '--\r\n\r\n')
-        size = f2.tell()
-        # connection headers
-        headers = {
-            'Content-type': 'multipart/form-data; boundary=%s' %
-            MIME_BOUNDARY,
-            'Content-length': str(size),
-            'Host': SYNC_HOST,
-        }
-        body = f2.getvalue()
-        f2.close()
-        h = httplib2.Http(timeout=60)
-        resp, cont = h.request(
-            SYNC_URL+"upload", "POST", headers=headers, body=body)
-        if resp['status'] != '200':
-            raise Exception("Invalid response code: %s" % resp['status'])
-        assert cont == "OK"
+        assert postData(self._con(), "upload", open(self.deck.path, "rb"),
+                        self._vars(), comp=6) == "OK"
+
+# We don't want to post the payload as a form var, as the percent-encoding is
+# costly. We could send it as a raw post, but more HTTP clients seem to
+# support file uploading, so this is the more compatible choice.
+def postData(http, method, fobj, vars, comp=1):
+    bdry = "--"+MIME_BOUNDARY
+    # write out post vars, including session key and compression flag
+    buf = StringIO()
+    vars = vars or {}
+    vars['c'] = 1 if comp else 0
+    for (key, value) in vars.items():
+        buf.write(bdry + "\r\n")
+        buf.write(
+            'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
+            (key, value))
+    # file header
+    buf.write(bdry + "\r\n")
+    buf.write("""\
+Content-Disposition: form-data; name="data"; filename="data"\r\n\
+Content-Type: application/octet-stream\r\n\r\n""")
+    # write file into buffer, optionally compressing
+    if comp:
+        tgt = gzip.GzipFile(mode="wb", fileobj=buf, compresslevel=comp)
+    else:
+        tgt = buf
+    while 1:
+        data = fobj.read(CHUNK_SIZE)
+        if not data:
+            if comp:
+                tgt.close()
+            break
+        tgt.write(data)
+    buf.write('\r\n' + bdry + '--\r\n')
+    size = buf.tell()
+    # connection headers
+    headers = {
+        'Content-Type': 'multipart/form-data; boundary=%s' % MIME_BOUNDARY,
+        'Content-Length': str(size),
+    }
+    body = buf.getvalue()
+    buf.close()
+    resp, cont = http.request(
+        SYNC_URL+method, "POST", headers=headers, body=body)
+    if resp['status'] != '200':
+        raise Exception("Invalid response code: %s" % resp['status'])
+    return cont
