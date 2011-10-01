@@ -389,10 +389,71 @@ class LocalServer(Syncer):
         l = simplejson.loads; d = simplejson.dumps
         return l(d(Syncer.applyChanges(self, minUsn, lnewer, l(d(changes)))))
 
-# Syncing over HTTP
+# HTTP syncing tools
 ##########################################################################
 
-class RemoteServer(Syncer):
+class HttpSyncer(object):
+
+    # retrieving a host key for future operations
+    def hostKey(self, pw):
+        h = httplib2.Http(timeout=60)
+        resp, cont = h.request(
+            SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=self.user,p=pw)))
+        if resp['status'] != '200':
+            raise Exception("Invalid response code: %s" % resp['status'])
+        self.hkey = cont
+        return cont
+
+    # Posting data as a file
+    ######################################################################
+    # We don't want to post the payload as a form var, as the percent-encoding is
+    # costly. We could send it as a raw post, but more HTTP clients seem to
+    # support file uploading, so this is the more compatible choice.
+
+    def postData(self, http, method, fobj, vars, comp=1):
+        bdry = "--"+MIME_BOUNDARY
+        # write out post vars, including session key and compression flag
+        buf = StringIO()
+        vars = vars or {}
+        vars['c'] = 1 if comp else 0
+        for (key, value) in vars.items():
+            buf.write(bdry + "\r\n")
+            buf.write(
+                'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
+                (key, value))
+        # file header
+        buf.write(bdry + "\r\n")
+        buf.write("""\
+Content-Disposition: form-data; name="data"; filename="data"\r\n\
+Content-Type: application/octet-stream\r\n\r\n""")
+        # write file into buffer, optionally compressing
+        if comp:
+            tgt = gzip.GzipFile(mode="wb", fileobj=buf, compresslevel=comp)
+        else:
+            tgt = buf
+        while 1:
+            data = fobj.read(CHUNK_SIZE)
+            if not data:
+                if comp:
+                    tgt.close()
+                break
+            tgt.write(data)
+        buf.write('\r\n' + bdry + '--\r\n')
+        size = buf.tell()
+        # connection headers
+        headers = {
+            'Content-Type': 'multipart/form-data; boundary=%s' % MIME_BOUNDARY,
+            'Content-Length': str(size),
+        }
+        body = buf.getvalue()
+        buf.close()
+        resp, cont = http.request(
+            SYNC_URL+method, "POST", headers=headers, body=body)
+        if resp['status'] != '200':
+            raise Exception("Invalid response code: %s" % resp['status'])
+        return cont
+
+class RemoteServer(Syncer, HttpSyncer):
     def __init__(self, user, hkey):
         self.user = user
         self.hkey = hkey
@@ -412,15 +473,6 @@ class RemoteServer(Syncer):
         elif resp['status'] != '200':
             raise Exception("Invalid response code: %s" % resp['status'])
         return simplejson.loads(cont)
-
-    def hostKey(self, pw):
-        h = httplib2.Http(timeout=60)
-        resp, cont = h.request(
-            SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=self.user,p=pw)))
-        if resp['status'] != '200':
-            raise Exception("Invalid response code: %s" % resp['status'])
-        self.hkey = cont
-        return cont
 
     def applyChanges(self, **kw):
         self.con = httplib2.Http(timeout=60)
@@ -443,13 +495,13 @@ class RemoteServer(Syncer):
 
     def _run(self, cmd, data):
         return simplejson.loads(
-            postData(self.con, cmd, StringIO(simplejson.dumps(data)),
-                     self._vars()))
+            self.postData(self.con, cmd, StringIO(simplejson.dumps(data)),
+                          self._vars()))
 
 # Full syncing
 ##########################################################################
 
-class FullSyncer(object):
+class FullSyncer(HttpSyncer):
 
     def __init__(self, deck, hkey):
         self.deck = deck
@@ -477,54 +529,13 @@ class FullSyncer(object):
 
     def upload(self):
         self.deck.beforeUpload()
-        assert postData(self._con(), "upload", open(self.deck.path, "rb"),
-                        self._vars(), comp=6) == "OK"
+        assert self.postData(self._con(), "upload", open(self.deck.path, "rb"),
+                             self._vars(), comp=6) == "OK"
 
-# Posting data as a file
-######################################################################
-# We don't want to post the payload as a form var, as the percent-encoding is
-# costly. We could send it as a raw post, but more HTTP clients seem to
-# support file uploading, so this is the more compatible choice.
+# Media syncing
+##########################################################################
 
-def postData(http, method, fobj, vars, comp=1):
-    bdry = "--"+MIME_BOUNDARY
-    # write out post vars, including session key and compression flag
-    buf = StringIO()
-    vars = vars or {}
-    vars['c'] = 1 if comp else 0
-    for (key, value) in vars.items():
-        buf.write(bdry + "\r\n")
-        buf.write(
-            'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
-            (key, value))
-    # file header
-    buf.write(bdry + "\r\n")
-    buf.write("""\
-Content-Disposition: form-data; name="data"; filename="data"\r\n\
-Content-Type: application/octet-stream\r\n\r\n""")
-    # write file into buffer, optionally compressing
-    if comp:
-        tgt = gzip.GzipFile(mode="wb", fileobj=buf, compresslevel=comp)
-    else:
-        tgt = buf
-    while 1:
-        data = fobj.read(CHUNK_SIZE)
-        if not data:
-            if comp:
-                tgt.close()
-            break
-        tgt.write(data)
-    buf.write('\r\n' + bdry + '--\r\n')
-    size = buf.tell()
-    # connection headers
-    headers = {
-        'Content-Type': 'multipart/form-data; boundary=%s' % MIME_BOUNDARY,
-        'Content-Length': str(size),
-    }
-    body = buf.getvalue()
-    buf.close()
-    resp, cont = http.request(
-        SYNC_URL+method, "POST", headers=headers, body=body)
-    if resp['status'] != '200':
-        raise Exception("Invalid response code: %s" % resp['status'])
-    return cont
+class MediaSyncer(HttpSyncer):
+    pass
+
+
