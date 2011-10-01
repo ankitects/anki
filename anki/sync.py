@@ -169,7 +169,7 @@ select count() from facts where id not in (select distinct fid from cards)""")
     def finish(self, mod=None):
         if not mod:
             # server side; we decide new mod time
-            mod = intTime()
+            mod = intTime(1000)
         self.deck.ls = mod
         self.deck._usn = self.maxUsn + 1
         self.deck.save(mod=mod)
@@ -420,9 +420,21 @@ class RemoteServer(Syncer):
         self.hkey = cont
         return cont
 
-    def applyChanges(self, **kwargs):
+    def applyChanges(self, **kw):
         self.con = httplib2.Http(timeout=60)
-        return self._run("applyChanges", kwargs)
+        return self._run("applyChanges", kw)
+
+    def chunk(self, **kw):
+        return self._run("chunk", kw)
+
+    def applyChunk(self, **kw):
+        return self._run("applyChunk", kw)
+
+    def sanityCheck(self, **kw):
+        return self._run("sanityCheck", kw)
+
+    def finish(self, **kw):
+        return self._run("finish", kw)
 
     def _vars(self):
         return dict(k=self.hkey)
@@ -466,9 +478,12 @@ class FullSyncer(object):
         assert postData(self._con(), "upload", open(self.deck.path, "rb"),
                         self._vars(), comp=6) == "OK"
 
+# Posting data as a file
+######################################################################
 # We don't want to post the payload as a form var, as the percent-encoding is
 # costly. We could send it as a raw post, but more HTTP clients seem to
 # support file uploading, so this is the more compatible choice.
+
 def postData(http, method, fobj, vars, comp=1):
     bdry = "--"+MIME_BOUNDARY
     # write out post vars, including session key and compression flag

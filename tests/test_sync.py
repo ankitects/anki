@@ -299,4 +299,12 @@ def test_remoteSync():
     assert client.sync() == "noChanges"
     # bump local deck
     client.deck.save()
-    print client.sync()
+    assert client.sync() == "success"
+    # again, no changes
+    assert client.sync() == "noChanges"
+    # downloading the remote deck should give us the same mod
+    lmod = client.deck.mod
+    f = FullSyncer(client.deck, TEST_HKEY)
+    f.download()
+    d = Deck(client.deck.path)
+    assert d.mod == lmod
