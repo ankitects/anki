@@ -256,6 +256,7 @@ anki.sync.SYNC_URL = "http://localhost:8001/sync/"
 TEST_USER = "synctest@ichi2.net"
 TEST_PASS = "synctest"
 TEST_HKEY = "k14LvSaEtXFITCJz"
+TEST_REMOTE = True
 
 def setup_remote():
     global server
@@ -267,7 +268,14 @@ def setup_remote():
 
 @nose.with_setup(setup_remote)
 def test_meta():
-    (mod, scm, usn, ts) = server.meta()
+    global TEST_REMOTE
+    try:
+        (mod, scm, usn, ts) = server.meta()
+    except Exception, e:
+        if e.errno == 61:
+            TEST_REMOTE = False
+            print "aborting; server offline"
+            return
     assert mod
     assert scm
     assert mod != client.deck.mod
@@ -275,6 +283,8 @@ def test_meta():
 
 @nose.with_setup(setup_remote)
 def test_hkey():
+    if not TEST_REMOTE:
+        return
     assertException(Exception, lambda: server.hostKey("wrongpass"))
     server.hkey = "abc"
     k = server.hostKey(TEST_PASS)
@@ -282,6 +292,8 @@ def test_hkey():
 
 @nose.with_setup(setup_remote)
 def test_download():
+    if not TEST_REMOTE:
+        return
     f = FullSyncer(client.deck, "abc")
     assertException(Exception, f.download)
     f.hkey = TEST_HKEY
@@ -289,6 +301,8 @@ def test_download():
 
 @nose.with_setup(setup_remote)
 def test_remoteSync():
+    if not TEST_REMOTE:
+        return
     # not yet associated, so will require a full sync
     assert client.sync() == "fullSync"
     # upload

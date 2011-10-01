@@ -22,6 +22,8 @@ SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 SYNC_VER = 0
 
+# - 64 bit guid will be munged in js; need to escape or rethink
+
 # - make sure /sync/download is compressed
 # - status() should be using the hooks instead
 

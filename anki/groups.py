@@ -8,6 +8,7 @@ from anki.consts import *
 from anki.lang import _
 
 # fixmes:
+# - make sure users can't set grad interval < 1
 # - make sure lists like new[delays] are  not being shared by multiple groups
 # - make sure all children have parents (create as necessary)
 # - when renaming a group, top level properties should be added or removed as
