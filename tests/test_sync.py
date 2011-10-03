@@ -352,12 +352,13 @@ def setup_remoteMedia():
 def test_remoteMediaNothing():
     client.sync()
 
-# @nose.with_setup(setup_media)
-# def test_mediaAdd():
-#     open(os.path.join(deck1.media.dir(), "foo.jpg"), "wb").write("foo")
-#     assert len(os.listdir(deck1.media.dir())) == 1
-#     assert len(os.listdir(deck2.media.dir())) == 0
-#     client.sync()
-#     assert len(os.listdir(deck1.media.dir())) == 1
-#     assert len(os.listdir(deck2.media.dir())) == 1
+@nose.with_setup(setup_remoteMedia)
+def test_mediaAdd():
+    os.chdir(deck1.media.dir())
+    open(os.path.join(deck1.media.dir(), "foo.jpg"), "wb").write("foo")
+    assert len(os.listdir(deck1.media.dir())) == 1
+    #assert len(os.listdir(deck2.media.dir())) == 0
+    client.sync()
+    assert len(os.listdir(deck1.media.dir())) == 1
+    #assert len(os.listdir(deck2.media.dir())) == 1
 

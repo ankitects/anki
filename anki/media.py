@@ -348,8 +348,9 @@ create table log (fname text primary key, type int);
             if not fname:
                 z.writestr("_finished", "")
                 break
+            fname = fname[0]
             z.write(fname, str(cnt))
-            files[str(c)] = dict(
+            files[str(cnt)] = dict(
                 name=fname, mod=self._mtime(fname))
             sz += os.path.getsize(fname)
             if sz > SYNC_ZIP_SIZE:

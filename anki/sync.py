@@ -601,5 +601,6 @@ class RemoteMediaServer(MediaSyncer, HttpSyncer):
         return self.postData(self.con, "files", None, self._vars())
 
     def addFiles(self, zip):
-        return self.postData(self.con, "files", StringIO(zip),
-                             self._vars(), comp=0)
+        return simplejson.loads(
+            self.postData(self.con, "addFiles", StringIO(zip),
+                          self._vars(), comp=0))
