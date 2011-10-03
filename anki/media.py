@@ -179,7 +179,6 @@ If the same name exists, compare checksums."""
     ##########################################################################
 
     def _initDB(self):
-        # in the log, a mod time of zero indicates a delete
         self.db.executescript("""
 create table media (fname text primary key, csum text, mod int);
 create table meta (dirMod int, usn int); insert into meta values (0, 0);
@@ -300,24 +299,18 @@ create table log (fname text primary key, type int);
                 # last zip in set
                 finished = True
             else:
-                # prepare sql
                 data = z.read(i)
                 csum = checksum(data)
-                mod = meta[i.filename]['mod']
                 name = meta[i.filename]['name']
                 # malicious chars?
                 for c in '/\\':
                     assert c not in name
-                media.append((name, csum, mod))
-                # remove entries from local log
-                self.db.execute("delete from log where fname = ?", name)
                 # save file
                 open(name, "wb").write(data)
-                # set mod time if possible; may fail on some filesystems
-                try:
-                    os.utime(name, (mod, mod))
-                except:
-                    print "failed to set utime"
+                # update db
+                media.append((name, csum, self._mtime(name)))
+                # remove entries from local log
+                self.db.execute("delete from log where fname = ?", name)
         # update media db
         if media:
             self.db.executemany(
@@ -350,8 +343,7 @@ create table log (fname text primary key, type int);
                 break
             fname = fname[0]
             z.write(fname, str(cnt))
-            files[str(cnt)] = dict(
-                name=fname, mod=self._mtime(fname))
+            files[str(cnt)] = fname
             sz += os.path.getsize(fname)
             if sz > SYNC_ZIP_SIZE:
                 break
