@@ -4,7 +4,7 @@
 
 import re, os, random, time, types, math, htmlentitydefs, subprocess, \
     tempfile, shutil
-from hashlib import md5, sha1
+from hashlib import sha1
 from anki.lang import _, ngettext
 import locale, sys
 
@@ -198,9 +198,6 @@ def splitFields(string):
 ##############################################################################
 
 def checksum(data):
-    return md5(data).hexdigest()
-
-def sha1sum(data):
     return sha1(data).hexdigest()
 
 def fieldChecksum(data):
