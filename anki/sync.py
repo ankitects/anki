@@ -604,3 +604,10 @@ class RemoteMediaServer(MediaSyncer, HttpSyncer):
         return simplejson.loads(
             self.postData(self.con, "addFiles", StringIO(zip),
                           self._vars(), comp=0))
+
+    # only for unit tests
+    def mediatest(self, n):
+        return simplejson.loads(
+            self.postData(self.con, "mediatest", StringIO(
+                simplejson.dumps(dict(n=n))), self._vars()))
+
