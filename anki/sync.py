@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib, simplejson, os, sys, httplib2, zipfile, gzip
+import urllib, simplejson, os, sys, httplib2, gzip
 from cStringIO import StringIO
 from datetime import date
 from anki.db import DB
@@ -14,13 +14,6 @@ from hooks import runHook
 
 if simplejson.__version__ < "1.7.3":
     raise Exception("SimpleJSON must be 1.7.3 or later.")
-
-CHUNK_SIZE = 65536
-MIME_BOUNDARY = "Anki-sync-boundary"
-SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
-SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
-SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
-SYNC_VER = 0
 
 # - 64 bit guid will be munged in js; need to escape or rethink
 
@@ -34,15 +27,12 @@ SYNC_VER = 0
 #    changed, since by default closing the deck bumps the mod time
 # - ensure the user doesn't add foreign chars to passsword
 
+# Incremental syncing
 ##########################################################################
 
 from anki.consts import *
 
 class Syncer(object):
-
-    MAX_REVLOG = 5000
-    MAX_CARDS = 5000
-    MAX_FACTS = 2500
 
     def __init__(self, deck, server=None):
         self.deck = deck
@@ -383,6 +373,7 @@ from facts where %s""" % d)
 ##########################################################################
 
 class LocalServer(Syncer):
+
     # serialize/deserialize payload, so we don't end up sharing objects
     # between decks
     def applyChanges(self, minUsn, lnewer, changes):
@@ -404,6 +395,9 @@ class HttpSyncer(object):
         self.hkey = cont
         return cont
 
+    def _vars(self):
+        return dict(k=self.hkey)
+
     # Posting data as a file
     ######################################################################
     # We don't want to post the payload as a form var, as the percent-encoding is
@@ -422,23 +416,24 @@ class HttpSyncer(object):
                 'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
                 (key, value))
         # file header
-        buf.write(bdry + "\r\n")
-        buf.write("""\
+        if fobj:
+            buf.write(bdry + "\r\n")
+            buf.write("""\
 Content-Disposition: form-data; name="data"; filename="data"\r\n\
 Content-Type: application/octet-stream\r\n\r\n""")
-        # write file into buffer, optionally compressing
-        if comp:
-            tgt = gzip.GzipFile(mode="wb", fileobj=buf, compresslevel=comp)
-        else:
-            tgt = buf
-        while 1:
-            data = fobj.read(CHUNK_SIZE)
-            if not data:
-                if comp:
-                    tgt.close()
-                break
-            tgt.write(data)
-        buf.write('\r\n' + bdry + '--\r\n')
+            # write file into buffer, optionally compressing
+            if comp:
+                tgt = gzip.GzipFile(mode="wb", fileobj=buf, compresslevel=comp)
+            else:
+                tgt = buf
+            while 1:
+                data = fobj.read(CHUNK_SIZE)
+                if not data:
+                    if comp:
+                        tgt.close()
+                    break
+                tgt.write(data)
+            buf.write('\r\n' + bdry + '--\r\n')
         size = buf.tell()
         # connection headers
         headers = {
@@ -453,7 +448,11 @@ Content-Type: application/octet-stream\r\n\r\n""")
             raise Exception("Invalid response code: %s" % resp['status'])
         return cont
 
+# Incremental sync over HTTP
+######################################################################
+
 class RemoteServer(Syncer, HttpSyncer):
+
     def __init__(self, user, hkey):
         self.user = user
         self.hkey = hkey
@@ -490,9 +489,6 @@ class RemoteServer(Syncer, HttpSyncer):
     def finish(self, **kw):
         return self._run("finish", kw)
 
-    def _vars(self):
-        return dict(k=self.hkey)
-
     def _run(self, cmd, data):
         return simplejson.loads(
             self.postData(self.con, cmd, StringIO(simplejson.dumps(data)),
@@ -506,9 +502,6 @@ class FullSyncer(HttpSyncer):
     def __init__(self, deck, hkey):
         self.deck = deck
         self.hkey = hkey
-
-    def _vars(self):
-        return dict(k=self.hkey)
 
     def _con(self):
         return httplib2.Http(timeout=60)
@@ -535,7 +528,78 @@ class FullSyncer(HttpSyncer):
 # Media syncing
 ##########################################################################
 
-class MediaSyncer(HttpSyncer):
-    pass
+class MediaSyncer(object):
 
+    def __init__(self, deck, server=None):
+        self.deck = deck
+        self.server = server
+        self.added = None
 
+    def sync(self):
+        # step 1: send/recv deletions
+        runHook("mediaSync", "remove")
+        usn = self.deck.media.usn()
+        lrem = self.removed()
+        rrem = self.server.remove(fnames=lrem, minUsn=usn)
+        self.remove(rrem)
+        # step 2: stream files from server
+        runHook("mediaSync", "server")
+        while 1:
+            runHook("mediaSync", "stream")
+            zip = self.server.files()
+            if self.addFiles(zip=zip):
+                break
+        # step 3: stream files to the server
+        runHook("mediaSync", "client")
+        while 1:
+            runHook("mediaSync", "stream")
+            zip = self.files()
+            usn = self.server.addFiles(zip=zip)
+            if usn:
+                # when server has run out of files, it returns bumped usn
+                break
+        self.deck.media.setUsn(usn)
+        self.deck.media.clearLog()
+
+        # fixme: need to commit to media db? or is already in that commit mode?
+
+    def removed(self):
+        return self.deck.media.removed()
+
+    def remove(self, fnames, minUsn=None):
+        self.deck.media.syncRemove(fnames)
+        if minUsn is not None:
+            # we're the server
+            self.minUsn = minUsn
+            return self.deck.media.removed()
+
+    def files(self):
+        if not self.added:
+            self.added = self.deck.media.added()
+        return self.deck.media.zipFromAdded(self.added)
+
+    def addFiles(self, zip):
+        "True if zip is the last in set. Server returns new usn instead."
+        return self.deck.media.syncAdd(zip)
+
+# Remote media syncing
+##########################################################################
+
+class RemoteMediaServer(MediaSyncer, HttpSyncer):
+
+    def __init__(self, hkey):
+        self.hkey = hkey
+        self.con = httplib2.Http(timeout=60)
+
+    def remove(self, **kw):
+        return simplejson.loads(
+            self.postData(
+                self.con, "remove", StringIO(simplejson.dumps(kw)),
+                          self._vars()))
+
+    def files(self):
+        return self.postData(self.con, "files", None, self._vars())
+
+    def addFiles(self, zip):
+        return self.postData(self.con, "files", StringIO(zip),
+                             self._vars(), comp=0)

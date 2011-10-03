@@ -68,3 +68,13 @@ class DB(object):
 
     def set_progress_handler(self, *args):
         self._db.set_progress_handler(*args)
+
+    def __enter__(self):
+        self._db.execute("begin")
+        return self
+
+    def __exit__(self, exc_type, *args):
+        if not exc_type:
+            # no exception, so commit
+            self._db.commit()
+        self._db.close()

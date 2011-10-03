@@ -78,6 +78,8 @@ mplayerReader = None
 mplayerEvt = threading.Event()
 mplayerClear = False
 
+# fixme from robert: can we do away with this with stderr=file(os.devnull,
+# 'w') in the popen call?
 class MplayerReader(threading.Thread):
     "Read any debugging info to prevent mplayer from blocking."
 

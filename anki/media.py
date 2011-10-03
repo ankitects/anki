@@ -3,7 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, shutil, re, urllib, urllib2, time, unicodedata, \
-    urllib, sys, shutil
+    urllib, sys, shutil, simplejson, zipfile
+from cStringIO import StringIO
 from anki.utils import checksum, intTime, namedtmp, isWin
 from anki.lang import _
 from anki.db import DB
@@ -169,7 +170,7 @@ If the same name exists, compare checksums."""
 
     def removed(self):
         self.findChanges()
-        return self.db.execute("select * from log where type = ?", MEDIA_REM)
+        return self.db.list("select * from log where type = ?", MEDIA_REM)
 
     def clearLog(self):
         self.db.execute("delete from log")
@@ -181,7 +182,7 @@ If the same name exists, compare checksums."""
         # in the log, a mod time of zero indicates a delete
         self.db.executescript("""
 create table media (fname text primary key, csum text, mod int);
-create table meta (dirMod int); insert into meta values (0);
+create table meta (dirMod int, usn int); insert into meta values (0, 0);
 create table log (fname text primary key, type int);
 """)
 
@@ -190,6 +191,15 @@ create table log (fname text primary key, type int);
 
     def _checksum(self, path):
         return checksum(open(path, "rb").read())
+
+    def usn(self):
+        return self.db.scalar("select usn from meta")
+
+    def setUsn(self, usn):
+        self.db.execute("update meta set usn = ?", usn)
+
+    def syncMod(self):
+        self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
 
     def _changed(self):
         "Return dir mtime if it has changed since the last findChanges()"
@@ -256,3 +266,95 @@ create table log (fname text primary key, type int);
             if not v[2]:
                 removed.append(k)
         return added, removed
+
+    # Adding/removing files in media sync
+    ##########################################################################
+
+    def syncRemove(self, fnames):
+        for f in fnames:
+            if os.path.exists(f):
+                os.unlink(f)
+                self.db.execute("delete from log where fname = ?", f)
+                self.db.execute("delete from media where fname = ?", f)
+
+    def syncAdd(self, zipData):
+        "Extra zip data; true if finished."
+        f = StringIO(zipData)
+        z = zipfile.ZipFile(f, "r")
+        finished = False
+        meta = None
+        media = []
+        sizecnt = 0
+        # get meta info first
+        assert z.getinfo("_meta").file_size < 100000
+        meta = simplejson.loads(z.read("_meta"))
+        # then loop through all files
+        for i in z.infolist():
+            # check for zip bombs
+            sizecnt += i.file_size
+            assert sizecnt < 100*1024*1024
+            if i.filename == "_meta":
+                # ignore previously-retrieved meta
+                continue
+            elif i.filename == "_finished":
+                # last zip in set
+                finished = True
+            else:
+                # prepare sql
+                data = z.read(i)
+                csum = checksum(data)
+                mod = meta[i.filename]['mod']
+                name = meta[i.filename]['name']
+                # malicious chars?
+                for c in '/\\':
+                    assert c not in name
+                media.append((name, csum, mod))
+                # remove entries from local log
+                self.db.execute("delete from log where fname = ?", name)
+                # save file
+                open(name, "wb").write(data)
+                # set mod time if possible; may fail on some filesystems
+                try:
+                    os.utime(name, (mod, mod))
+                except:
+                    print "failed to set utime"
+        # update media db
+        if media:
+            self.db.executemany(
+                "insert or replace into media values (?,?,?)", media)
+        # if we have finished adding, we need to record the new folder mtime
+        # so that we don't trigger a needless scan
+        if finished:
+            self.syncMod()
+        # also need to clear log after sync finished
+
+        return finished
+
+    # Streaming zips
+    ##########################################################################
+    # Because there's no standard filename encoding for zips, and because not
+    # all zip clients support retrieving mtime, we store the files as ascii
+    # and place a json file in the zip with the necessary information.
+
+    def zipFromAdded(self, cur):
+        "Add files to a zip until over SYNC_ZIP_SIZE. Return zip data."
+        f = StringIO()
+        z = zipfile.ZipFile(f, "w")
+        sz = 0
+        cnt = 0
+        files = {}
+        while 1:
+            fname = cur.fetchone()
+            if not fname:
+                z.writestr("_finished", "")
+                break
+            z.write(fname, str(cnt))
+            files[str(c)] = dict(
+                name=fname, mod=self._mtime(fname))
+            sz += os.path.getsize(fname)
+            if sz > SYNC_ZIP_SIZE:
+                break
+            cnt += 1
+        z.writestr("_meta", simplejson.dumps(files))
+        z.close()
+        return f.getvalue()

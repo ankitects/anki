@@ -6,7 +6,8 @@ from tests.shared import assertException
 from anki.errors import *
 from anki import Deck
 from anki.utils import intTime
-from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer
+from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
+    MediaSyncer, RemoteMediaServer
 from anki.facts import Fact
 from anki.cards import Card
 from tests.shared import getEmptyDeck
@@ -322,3 +323,41 @@ def test_remoteSync():
     f.download()
     d = Deck(client.deck.path)
     assert d.mod == lmod
+
+# Media tests
+##########################################################################
+# We can't run many tests for local media, because the desktop code assumes
+# the current directory is the media folder
+
+def setup_media():
+    global client, server
+    setup_basic()
+    server = MediaSyncer(deck2)
+    client = MediaSyncer(deck1, server)
+
+@nose.with_setup(setup_media)
+def test_mediaNothing():
+    client.sync()
+
+# Remote　media tests
+##########################################################################
+
+def setup_remoteMedia():
+    global client, server
+    setup_basic()
+    server = RemoteMediaServer(TEST_HKEY)
+    client = MediaSyncer(deck1, server)
+
+@nose.with_setup(setup_remoteMedia)
+def test_remoteMediaNothing():
+    client.sync()
+
+# @nose.with_setup(setup_media)
+# def test_mediaAdd():
+#     open(os.path.join(deck1.media.dir(), "foo.jpg"), "wb").write("foo")
+#     assert len(os.listdir(deck1.media.dir())) == 1
+#     assert len(os.listdir(deck2.media.dir())) == 0
+#     client.sync()
+#     assert len(os.listdir(deck1.media.dir())) == 1
+#     assert len(os.listdir(deck2.media.dir())) == 1
+

@@ -2,6 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import os
+
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
 NEW_CARDS_LAST = 1
@@ -32,6 +34,15 @@ COUNT_REMAINING = 1
 # media log
 MEDIA_ADD = 0
 MEDIA_REM = 1
+
+# syncing vars
+SYNC_ZIP_SIZE = 10*1024*1024
+CHUNK_SIZE = 65536
+MIME_BOUNDARY = "Anki-sync-boundary"
+SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
+SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
+SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
+SYNC_VER = 0
 
 # Labels
 ##########################################################################
