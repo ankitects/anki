@@ -561,8 +561,6 @@ class MediaSyncer(object):
         self.deck.media.setUsn(usn)
         self.deck.media.clearLog()
 
-        # fixme: need to commit to media db? or is already in that commit mode?
-
     def removed(self):
         return self.deck.media.removed()
 

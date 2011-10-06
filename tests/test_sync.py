@@ -324,23 +324,10 @@ def test_remoteSync():
     d = Deck(client.deck.path)
     assert d.mod == lmod
 
-# Media tests
-##########################################################################
-# We can't run many tests for local media, because the desktop code assumes
-# the current directory is the media folder
-
-def setup_media():
-    global client, server
-    setup_basic()
-    server = MediaSyncer(deck2)
-    client = MediaSyncer(deck1, server)
-
-@nose.with_setup(setup_media)
-def test_mediaNothing():
-    client.sync()
-
 # Remote　media tests
 ##########################################################################
+# We can't run useful tests for local media, because the desktop code assumes
+# the current directory is the media folder.
 
 def setup_remoteMedia():
     global client, server
@@ -349,16 +336,23 @@ def setup_remoteMedia():
     client = MediaSyncer(deck1, server)
 
 @nose.with_setup(setup_remoteMedia)
-def test_remoteMediaNothing():
-    client.sync()
-
-@nose.with_setup(setup_remoteMedia)
-def test_mediaAdd():
+def test_media():
+    server.mediatest("reset")
+    assert len(os.listdir(deck1.media.dir())) == 0
+    assert server.mediatest("count") == 0
+    # add a file
     os.chdir(deck1.media.dir())
-    open(os.path.join(deck1.media.dir(), "foo.jpg"), "wb").write("foo")
+    p = os.path.join(deck1.media.dir(), "foo.jpg")
+    open(p, "wb").write("foo")
     assert len(os.listdir(deck1.media.dir())) == 1
-    assert server.mediatest(1) == 0
+    assert server.mediatest("count") == 0
     client.sync()
+    time.sleep(1)
+    # should have been synced
     assert len(os.listdir(deck1.media.dir())) == 1
-    assert server.mediatest(1) == 1
-
+    assert server.mediatest("count") == 1
+    # if we remove the file, should be removed
+    os.unlink(p)
+    client.sync()
+    assert len(os.listdir(deck1.media.dir())) == 0
+    assert server.mediatest("count") == 0
