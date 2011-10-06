@@ -547,7 +547,7 @@ class MediaSyncer(object):
         while 1:
             runHook("mediaSync", "stream")
             zip = self.server.files()
-            if self.addFiles(zip=zip):
+            if self.addFiles(zip=zip) != "continue":
                 break
         # step 3: stream files to the server
         runHook("mediaSync", "client")
@@ -555,7 +555,7 @@ class MediaSyncer(object):
             runHook("mediaSync", "stream")
             zip = self.files()
             usn = self.server.addFiles(zip=zip)
-            if usn:
+            if usn != "continue":
                 # when server has run out of files, it returns bumped usn
                 break
         self.deck.media.setUsn(usn)

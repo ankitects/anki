@@ -358,8 +358,17 @@ def test_media():
     assert server.mediatest("count") == 0
     # we should be able to add it again
     time.sleep(1)
-    p = os.path.join(deck1.media.dir(), "foo.jpg")
     open(p, "wb").write("foo")
     client.sync()
     assert len(os.listdir(deck1.media.dir())) == 1
     assert server.mediatest("count") == 1
+    # if we modify it, it should get sent too. also we set the zip size very
+    # low here, so that we can test splitting into multiple zips
+    import anki.media; anki.media.SYNC_ZIP_SIZE = 1
+    time.sleep(1)
+    open(p, "wb").write("bar")
+    open(p+"2", "wb").write("baz")
+    assert len(os.listdir(deck1.media.dir())) == 2
+    client.sync()
+    assert len(os.listdir(deck1.media.dir())) == 2
+    assert server.mediatest("count") == 2
