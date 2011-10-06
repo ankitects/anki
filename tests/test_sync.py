@@ -372,3 +372,12 @@ def test_media():
     client.sync()
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2
+    # if we lose our media db, we should be able to bring it back in sync
+    time.sleep(1)
+    deck1.media.close()
+    os.unlink(deck1.media.dir()+".db")
+    deck1.media.connect()
+    assert len(deck1.media.added().fetchall()) == 2
+    client.sync()
+    assert len(os.listdir(deck1.media.dir())) == 2
+    assert server.mediatest("count") == 2

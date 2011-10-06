@@ -301,7 +301,7 @@ create table log (fname text primary key, type int);
             else:
                 data = z.read(i)
                 csum = checksum(data)
-                name = meta[i.filename]['name']
+                name = meta[i.filename]
                 # malicious chars?
                 for c in '/\\':
                     assert c not in name
