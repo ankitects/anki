@@ -47,8 +47,8 @@ class Syncer(object):
         "Returns 'noChanges', 'fullSync', or 'success'."
         # step 1: login & metadata
         self.status("login")
-        self.rmod, rscm, self.maxUsn, rts = self.server.meta()
-        self.lmod, lscm, self.minUsn, lts = self.meta()
+        self.rmod, rscm, self.maxUsn, rts, self.mediaUsn = self.server.meta()
+        self.lmod, lscm, self.minUsn, lts, dummy = self.meta()
         if abs(rts - lts) > 300:
             return "clockOff"
         if self.lmod == self.rmod:
@@ -90,7 +90,7 @@ class Syncer(object):
         return "success"
 
     def meta(self):
-        return (self.deck.mod, self.deck.scm, self.deck._usn, intTime())
+        return (self.deck.mod, self.deck.scm, self.deck._usn, intTime(), None)
 
     def changes(self):
         "Bundle up deletions and small objects, and apply if server."
@@ -535,21 +535,25 @@ class MediaSyncer(object):
         self.server = server
         self.added = None
 
-    def sync(self):
-        # step 1: send/recv deletions
+    def sync(self, mediaUsn):
+        # step 1: check if there have been any changes
+        self.deck.media.findChanges()
+        lusn = self.deck.media.usn()
+        if lusn == mediaUsn and not self.deck.media.hasChanged():
+            return "noChanges"
+        # step 2: send/recv deletions
         runHook("mediaSync", "remove")
-        usn = self.deck.media.usn()
         lrem = self.removed()
-        rrem = self.server.remove(fnames=lrem, minUsn=usn)
+        rrem = self.server.remove(fnames=lrem, minUsn=lusn)
         self.remove(rrem)
-        # step 2: stream files from server
+        # step 3: stream files from server
         runHook("mediaSync", "server")
         while 1:
             runHook("mediaSync", "stream")
             zip = self.server.files()
             if self.addFiles(zip=zip) != "continue":
                 break
-        # step 3: stream files to the server
+        # step 4: stream files to the server
         runHook("mediaSync", "client")
         while 1:
             runHook("mediaSync", "stream")
@@ -558,10 +562,12 @@ class MediaSyncer(object):
             if usn != "continue":
                 # when server has run out of files, it returns bumped usn
                 break
+        # step 5: finalize
         self.deck.media.setUsn(usn)
         self.deck.media.clearLog()
         # clear cursor so successive calls work
         self.added = None
+        return "success"
 
     def removed(self):
         return self.deck.media.removed()

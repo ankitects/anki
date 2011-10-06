@@ -19,6 +19,7 @@ deck1=None
 deck2=None
 client=None
 server=None
+server2=None
 
 def setup_basic():
     global deck1, deck2, client, server
@@ -271,7 +272,7 @@ def setup_remote():
 def test_meta():
     global TEST_REMOTE
     try:
-        (mod, scm, usn, ts) = server.meta()
+        (mod, scm, usn, ts, dummy) = server.meta()
     except Exception, e:
         if e.errno == 61:
             TEST_REMOTE = False
@@ -330,9 +331,10 @@ def test_remoteSync():
 # the current directory is the media folder.
 
 def setup_remoteMedia():
-    global client, server
+    global client, server, server2
     setup_basic()
     server = RemoteMediaServer(TEST_HKEY)
+    server2 = RemoteServer(TEST_USER, TEST_HKEY)
     client = MediaSyncer(deck1, server)
 
 @nose.with_setup(setup_remoteMedia)
@@ -340,26 +342,29 @@ def test_media():
     server.mediatest("reset")
     assert len(os.listdir(deck1.media.dir())) == 0
     assert server.mediatest("count") == 0
+    # initially, nothing to do
+    assert client.sync(server2.meta()[4]) == "noChanges"
     # add a file
+    time.sleep(1)
     os.chdir(deck1.media.dir())
     p = os.path.join(deck1.media.dir(), "foo.jpg")
     open(p, "wb").write("foo")
     assert len(os.listdir(deck1.media.dir())) == 1
     assert server.mediatest("count") == 0
-    client.sync()
+    assert client.sync(server2.meta()[4]) == "success"
     time.sleep(1)
     # should have been synced
     assert len(os.listdir(deck1.media.dir())) == 1
     assert server.mediatest("count") == 1
     # if we remove the file, should be removed
     os.unlink(p)
-    client.sync()
+    assert client.sync(server2.meta()[4]) == "success"
     assert len(os.listdir(deck1.media.dir())) == 0
     assert server.mediatest("count") == 0
     # we should be able to add it again
     time.sleep(1)
     open(p, "wb").write("foo")
-    client.sync()
+    assert client.sync(server2.meta()[4]) == "success"
     assert len(os.listdir(deck1.media.dir())) == 1
     assert server.mediatest("count") == 1
     # if we modify it, it should get sent too. also we set the zip size very
@@ -369,7 +374,7 @@ def test_media():
     open(p, "wb").write("bar")
     open(p+"2", "wb").write("baz")
     assert len(os.listdir(deck1.media.dir())) == 2
-    client.sync()
+    client.sync(server2.meta()[4])
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2
     # if we lose our media db, we should be able to bring it back in sync
@@ -379,12 +384,12 @@ def test_media():
     deck1.media.connect()
     changes = deck1.media.added().fetchall()
     assert len(changes) == 2
-    client.sync()
+    client.sync(server2.meta()[4])
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2
     # if we send an unchanged file, the server should cope
     time.sleep(1)
     deck1.media.db.execute("insert into log values ('foo.jpg', 0)")
-    client.sync()
+    client.sync(server2.meta()[4])
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2

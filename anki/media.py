@@ -175,6 +175,9 @@ If the same name exists, compare checksums."""
     def clearLog(self):
         self.db.execute("delete from log")
 
+    def hasChanged(self):
+        return self.db.scalar("select 1 from log limit 1")
+
     # Tracking changes (private)
     ##########################################################################
 
