@@ -377,7 +377,14 @@ def test_media():
     deck1.media.close()
     os.unlink(deck1.media.dir()+".db")
     deck1.media.connect()
-    assert len(deck1.media.added().fetchall()) == 2
+    changes = deck1.media.added().fetchall()
+    assert len(changes) == 2
+    client.sync()
+    assert len(os.listdir(deck1.media.dir())) == 2
+    assert server.mediatest("count") == 2
+    # if we send an unchanged file, the server should cope
+    time.sleep(1)
+    deck1.media.db.execute("insert into log values ('foo.jpg', 0)")
     client.sync()
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2
