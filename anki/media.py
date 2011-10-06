@@ -277,7 +277,7 @@ create table log (fname text primary key, type int);
                 self.db.execute("delete from media where fname = ?", f)
 
     def syncAdd(self, zipData):
-        "Extra zip data; true if finished."
+        "Extract zip data; true if finished."
         f = StringIO(zipData)
         z = zipfile.ZipFile(f, "r")
         finished = False

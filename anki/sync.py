@@ -560,6 +560,8 @@ class MediaSyncer(object):
                 break
         self.deck.media.setUsn(usn)
         self.deck.media.clearLog()
+        # clear cursor so successive calls work
+        self.added = None
 
     def removed(self):
         return self.deck.media.removed()

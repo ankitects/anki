@@ -356,3 +356,10 @@ def test_media():
     client.sync()
     assert len(os.listdir(deck1.media.dir())) == 0
     assert server.mediatest("count") == 0
+    # we should be able to add it again
+    time.sleep(1)
+    p = os.path.join(deck1.media.dir(), "foo.jpg")
+    open(p, "wb").write("foo")
+    client.sync()
+    assert len(os.listdir(deck1.media.dir())) == 1
+    assert server.mediatest("count") == 1
