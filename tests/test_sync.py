@@ -352,6 +352,7 @@ def test_media():
     assert len(os.listdir(deck1.media.dir())) == 1
     assert server.mediatest("count") == 0
     assert client.sync(server2.meta()[4]) == "success"
+    assert client.sync(server2.meta()[4]) == "noChanges"
     time.sleep(1)
     # should have been synced
     assert len(os.listdir(deck1.media.dir())) == 1
@@ -359,12 +360,14 @@ def test_media():
     # if we remove the file, should be removed
     os.unlink(p)
     assert client.sync(server2.meta()[4]) == "success"
+    assert client.sync(server2.meta()[4]) == "noChanges"
     assert len(os.listdir(deck1.media.dir())) == 0
     assert server.mediatest("count") == 0
     # we should be able to add it again
     time.sleep(1)
     open(p, "wb").write("foo")
     assert client.sync(server2.meta()[4]) == "success"
+    assert client.sync(server2.meta()[4]) == "noChanges"
     assert len(os.listdir(deck1.media.dir())) == 1
     assert server.mediatest("count") == 1
     # if we modify it, it should get sent too. also we set the zip size very
@@ -374,7 +377,8 @@ def test_media():
     open(p, "wb").write("bar")
     open(p+"2", "wb").write("baz")
     assert len(os.listdir(deck1.media.dir())) == 2
-    client.sync(server2.meta()[4])
+    assert client.sync(server2.meta()[4]) == "success"
+    assert client.sync(server2.meta()[4]) == "noChanges"
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2
     # if we lose our media db, we should be able to bring it back in sync
@@ -384,12 +388,19 @@ def test_media():
     deck1.media.connect()
     changes = deck1.media.added().fetchall()
     assert len(changes) == 2
-    client.sync(server2.meta()[4])
+    assert client.sync(server2.meta()[4]) == "success"
+    assert client.sync(server2.meta()[4]) == "noChanges"
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2
     # if we send an unchanged file, the server should cope
     time.sleep(1)
     deck1.media.db.execute("insert into log values ('foo.jpg', 0)")
-    client.sync(server2.meta()[4])
+    assert client.sync(server2.meta()[4]) == "success"
+    assert client.sync(server2.meta()[4]) == "noChanges"
     assert len(os.listdir(deck1.media.dir())) == 2
     assert server.mediatest("count") == 2
+    # if we remove foo.jpg on the server, the removal should be synced
+    assert server.mediatest("removefoo") == "OK"
+    assert client.sync(server2.meta()[4]) == "success"
+    assert len(os.listdir(deck1.media.dir())) == 1
+    assert server.mediatest("count") == 1
