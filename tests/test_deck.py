@@ -1,7 +1,8 @@
 # coding: utf-8
 
 import os, re, datetime
-from tests.shared import assertException, getEmptyDeck, testDir
+from tests.shared import assertException, getEmptyDeck, testDir, \
+    getUpgradeDeckPath
 from anki.stdmodels import addBasicModel
 from anki.consts import *
 
@@ -12,7 +13,7 @@ newMod = None
 
 def test_create():
     global newPath, newMod
-    path = "/tmp/test_attachNew.anki"
+    path = "/tmp/test_attachNew.anki2"
     try:
         os.unlink(path)
     except OSError:
@@ -32,7 +33,7 @@ def test_open():
 def test_openReadOnly():
     # non-writeable dir
     assertException(Exception,
-                    lambda: Deck("/attachroot"))
+                    lambda: Deck("/attachroot.anki2"))
     # reuse tmp file from before, test non-writeable file
     os.chmod(newPath, 0)
     assertException(Exception,
@@ -116,11 +117,8 @@ def test_fieldChecksum():
         "select count() from fsums") == 2
 
 def test_upgrade():
-    import tempfile, shutil
-    src = os.path.join(testDir, "support", "anki12.anki")
-    (fd, dst) = tempfile.mkstemp(suffix=".anki")
+    dst = getUpgradeDeckPath()
     print "upgrade to", dst
-    shutil.copy(src, dst)
     deck = Deck(dst)
     # creation time should have been adjusted
     d = datetime.datetime.fromtimestamp(deck.crt)

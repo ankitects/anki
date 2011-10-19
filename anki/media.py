@@ -19,7 +19,7 @@ class MediaManager(object):
     def __init__(self, deck):
         self.deck = deck
         # media directory
-        self._dir = re.sub("(?i)\.(anki)$", ".media", self.deck.path)
+        self._dir = re.sub("(?i)\.(anki2)$", ".media", self.deck.path)
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         os.chdir(self._dir)

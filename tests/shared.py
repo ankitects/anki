@@ -1,4 +1,4 @@
-import tempfile, os
+import tempfile, os, shutil
 from anki import Deck
 
 def assertException(exception, func):
@@ -10,8 +10,14 @@ def assertException(exception, func):
     assert found
 
 def getEmptyDeck(**kwargs):
-    (fd, nam) = tempfile.mkstemp(suffix=".anki")
+    (fd, nam) = tempfile.mkstemp(suffix=".anki2")
     os.unlink(nam)
     return Deck(nam, **kwargs)
+
+def getUpgradeDeckPath():
+    src = os.path.join(testDir, "support", "anki12.anki")
+    (fd, dst) = tempfile.mkstemp(suffix=".anki2")
+    shutil.copy(src, dst)
+    return dst
 
 testDir = os.path.dirname(__file__)
