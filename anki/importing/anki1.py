@@ -3,17 +3,17 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki import Deck
-from anki.importing import Importer
+from anki.importing.base import Importer
 from anki.lang import _
 from anki.utils import ids2str
 #from anki.deck import NEW_CARDS_RANDOM
 import time
 
-class Anki10Importer(Importer):
+class Anki1Importer(Importer):
 
     needMapper = False
 
-    def doImport(self):
+    def run(self):
         "Import."
         random = self.deck.newCardOrder == NEW_CARDS_RANDOM
         num = 4

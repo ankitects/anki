@@ -2,8 +2,10 @@
 
 import datetime
 from anki.consts import *
-from shared import getUpgradeDeckPath
+from shared import getUpgradeDeckPath, getEmptyDeck
 from anki.upgrade import Upgrader
+from anki.importing import Anki2Importer
+from anki.utils import ids2str
 
 def test_check():
     dst = getUpgradeDeckPath()
@@ -27,6 +29,38 @@ def test_upgrade():
     assert deck.sched.cardCounts() == (3,2,1)
     # now's a good time to test the integrity check too
     deck.fixIntegrity()
+
+def test_import():
+    # get the deck to import
+    tmp = getUpgradeDeckPath()
+    u = Upgrader()
+    src = u.upgrade(tmp)
+    srcpath = src.path
+    srcFacts = src.factCount()
+    srcCards = src.cardCount()
+    srcRev = src.db.scalar("select count() from revlog")
+    src.close()
+    # create a new empty deck
+    dst = getEmptyDeck()
+    # import src into dst
+    imp = Anki2Importer(dst, srcpath)
+    imp.run()
+    def check():
+        assert dst.factCount() == srcFacts
+        assert dst.cardCount() == srcCards
+        assert srcRev == dst.db.scalar("select count() from revlog")
+        mids = [int(x) for x in dst.models.models.keys()]
+        assert not dst.db.scalar(
+            "select count() from facts where mid not in "+ids2str(mids))
+        assert not dst.db.scalar(
+            "select count() from cards where fid not in (select id from facts)")
+        assert not dst.db.scalar(
+            "select count() from revlog where cid not in (select id from cards)")
+    check()
+    # importing should be idempotent
+    imp.run()
+    check()
+    print dst.path
 
 
 

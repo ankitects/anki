@@ -3,11 +3,11 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import codecs, csv, re
-from anki.importing import Importer, ForeignCard
+from anki.importing.cardimp import CardImporter, ForeignCard
 from anki.lang import _
 from anki.errors import *
 
-class TextImporter(Importer):
+class TextImporter(CardImporter):
 
     needDelimiter = True
     patterns = ("\t", ";")

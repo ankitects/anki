@@ -4,7 +4,7 @@
 
 import simplejson, copy
 from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
-    timestampID
+    timestampID, fieldChecksum
 from anki.lang import _
 from anki.consts import *
 
@@ -418,3 +418,15 @@ select id from facts where mid = ?)""" % " ".join(map),
             "update cards set ord=:new,usn=:u,mod=:m where id=:cid",
             d)
         self.deck.remCards(deleted)
+
+    # Schema hash
+    ##########################################################################
+
+    def scmhash(self, m):
+        "Return a hash of the schema, to see if models are compatible."
+        s = m['name']
+        for f in m['flds']:
+            s += f['name']
+        for t in m['tmpls']:
+            s += t['name']
+        return fieldChecksum(s)

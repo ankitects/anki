@@ -24,6 +24,10 @@ def test_modelCopy():
     assert len(m2['flds']) == len(m['flds'])
     assert len(m['tmpls']) == 2
     assert len(m2['tmpls']) == 2
+    # name changed
+    assert deck.models.scmhash(m) != deck.models.scmhash(m2)
+    m2['name'] = "Basic"
+    assert deck.models.scmhash(m) == deck.models.scmhash(m2)
 
 def test_fields():
     d = getEmptyDeck()
@@ -35,11 +39,13 @@ def test_fields():
     # make sure renaming a field updates the templates
     d.models.renameField(m, m['flds'][0], "NewFront")
     assert m['tmpls'][0]['qfmt'] == "{{NewFront}}"
+    h = d.models.scmhash(m)
     # add a field
     f = d.models.newField(m)
     f['name'] = "foo"
     d.models.addField(m, f)
     assert d.getFact(d.models.fids(m)[0]).fields == ["1", "2", ""]
+    assert d.models.scmhash(m) != h
     # rename it
     d.models.renameField(m, f, "bar")
     assert d.getFact(d.models.fids(m)[0])['bar'] == ''

@@ -25,7 +25,7 @@ def test_graphs_empty():
 
 def test_graphs():
     from anki import Deck
-    d = Deck(os.path.expanduser("~/test.anki"))
+    d = Deck(os.path.expanduser("~/test.anki2"))
     g = d.stats()
     rep = g.report()
     open(os.path.expanduser("~/test.html"), "w").write(rep)
