@@ -161,6 +161,17 @@ If the same name exists, compare checksums."""
                     files.add(f)
         return files
 
+    # Copying on import
+    ##########################################################################
+
+    def copyTo(self, rdir):
+        ldir = self.dir()
+        for f in os.listdir(ldir):
+            src = os.path.join(ldir, f)
+            dst = os.path.join(rdir, f)
+            if not os.path.exists(dst):
+                shutil.copy2(src, dst)
+
     # Tracking changes (public)
     ##########################################################################
 

@@ -39,6 +39,8 @@ def test_import():
     srcFacts = src.factCount()
     srcCards = src.cardCount()
     srcRev = src.db.scalar("select count() from revlog")
+    # add a media file for testing
+    open(os.path.join(src.media.dir(), "foo.jpg"), "w").write("foo")
     src.close()
     # create a new empty deck
     dst = getEmptyDeck()
@@ -61,6 +63,3 @@ def test_import():
     imp.run()
     check()
     print dst.path
-
-
-

@@ -39,6 +39,7 @@ class Anki2Importer(Importer):
         self._prepareModels()
         self._importFacts()
         self._importCards()
+        self._importMedia()
 
     # Facts
     ######################################################################
@@ -184,3 +185,9 @@ class Anki2Importer(Importer):
 insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", cards)
         self.dst.db.executemany("""
 insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
+
+    # Media
+    ######################################################################
+
+    def _importMedia(self):
+        self.src.media.copyTo(self.dst.media.dir())
