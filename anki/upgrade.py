@@ -14,15 +14,18 @@ from anki.storage import _addSchema, _getDeckVars, _addDeckVars, \
 #
 # Upgrading is the first step in migrating to 2.0. The ids are temporary and
 # may not be unique across multiple decks. After each of a user's v1.2 decks
-# are upgraded, they need to be merged.
+# are upgraded, they need to be merged via the import code.
 #
-# Caller should have called check() on path before using this.
+# Caller should have called check() on path before calling upgrade().
 #
 
 class Upgrader(object):
 
     def __init__(self):
         pass
+
+    # Upgrading
+    ######################################################################
 
     def upgrade(self, path):
         self.path = path
@@ -31,6 +34,78 @@ class Upgrader(object):
         self._openDeck()
         self._upgradeDeck()
         return self.deck
+
+    # Integrity checking
+    ######################################################################
+
+    def check(self, path):
+        "True if deck looks ok."
+        with DB(path) as db:
+            return self._check(db)
+
+    def _check(self, db):
+        # corrupt?
+        try:
+            if db.scalar("pragma integrity_check") != "ok":
+                return
+        except:
+            return
+        # old version?
+        if db.scalar("select version from decks") != 65:
+            return
+        # fields missing a field model?
+        if db.list("""
+    select id from fields where fieldModelId not in (
+    select distinct id from fieldModels)"""):
+            return
+        # facts missing a field?
+        if db.list("""
+    select distinct facts.id from facts, fieldModels where
+    facts.modelId = fieldModels.modelId and fieldModels.id not in
+    (select fieldModelId from fields where factId = facts.id)"""):
+            return
+        # cards missing a fact?
+        if db.list("""
+    select id from cards where factId not in (select id from facts)"""):
+            return
+        # cards missing a card model?
+        if db.list("""
+    select id from cards where cardModelId not in
+    (select id from cardModels)"""):
+            return
+        # cards with a card model from the wrong model?
+        if db.list("""
+    select id from cards where cardModelId not in (select cm.id from
+    cardModels cm, facts f where cm.modelId = f.modelId and
+    f.id = cards.factId)"""):
+            return
+        # facts missing a card?
+        if db.list("""
+    select facts.id from facts
+    where facts.id not in (select distinct factId from cards)"""):
+            return
+        # dangling fields?
+        if db.list("""
+    select id from fields where factId not in (select id from facts)"""):
+            return
+        # fields without matching interval
+        if db.list("""
+    select id from fields where ordinal != (select ordinal from fieldModels
+    where id = fieldModelId)"""):
+            return
+        # incorrect types
+        if db.list("""
+    select id from cards where relativeDelay != (case
+    when successive then 1 when reps then 0 else 2 end)"""):
+            return
+        if db.list("""
+    select id from cards where type != (case
+    when type >= 0 then relativeDelay else relativeDelay - 3 end)"""):
+            return
+        return True
+
+    # DB/Deck opening
+    ######################################################################
 
     def _openDB(self, path):
         self.tmppath = namedtmp(os.path.basename(path))

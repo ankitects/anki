@@ -3,15 +3,15 @@
 import datetime
 from anki.consts import *
 from shared import getUpgradeDeckPath
-from anki.migration.checker import check
-from anki.migration.upgrader import Upgrader
+from anki.upgrade import Upgrader
 
-def test_checker():
+def test_check():
     dst = getUpgradeDeckPath()
-    assert check(dst)
+    u = Upgrader()
+    assert u.check(dst)
     # if it's corrupted, will fail
     open(dst, "w+").write("foo")
-    assert not check(dst)
+    assert not u.check(dst)
 
 def test_upgrade():
     dst = getUpgradeDeckPath()

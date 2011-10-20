@@ -341,12 +341,10 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
 
 from anki.importing.csvfile import TextImporter
 from anki.importing.anki10 import Anki10Importer
-from anki.importing.mnemosyne10 import Mnemosyne10Importer
 from anki.importing.supermemo_xml import SupermemoXmlImporter
 
 Importers = (
     (_("Text separated by tabs or semicolons (*)"), TextImporter),
     (_("Anki Deck (*.anki)"), Anki10Importer),
-    (_("Mnemosyne Deck (*.mem)"), Mnemosyne10Importer),
     (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
     )
