@@ -2,13 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-CURRENT_VERSION = 1
-
 import os, simplejson
 from anki.lang import _
 from anki.utils import intTime
 from anki.db import DB
 from anki.deck import _Deck
+from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel
 
 def Deck(path, queue=True, lock=True, server=False):
@@ -30,7 +29,7 @@ def Deck(path, queue=True, lock=True, server=False):
     db.execute("pragma cache_size = 10000")
     # add db to deck and do any remaining upgrades
     deck = _Deck(db, server)
-    if ver < CURRENT_VERSION:
+    if ver < SCHEMA_VERSION:
         _upgradeDeck(deck, ver)
     elif create:
         # add in reverse order so basic is default
@@ -47,7 +46,7 @@ def Deck(path, queue=True, lock=True, server=False):
 
 # no upgrades necessary at the moment
 def _upgradeSchema(db):
-    return CURRENT_VERSION
+    return SCHEMA_VERSION
 def _upgradeDeck(deck, ver):
     return
 
@@ -61,7 +60,7 @@ def _createDB(db):
     _addSchema(db)
     _updateIndices(db)
     db.execute("analyze")
-    return CURRENT_VERSION
+    return SCHEMA_VERSION
 
 def _addSchema(db, setDeckConf=True):
     db.executescript("""
@@ -140,7 +139,7 @@ create table if not exists graves (
 
 insert or ignore into deck
 values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
-""" % ({'v':CURRENT_VERSION}))
+""" % ({'v':SCHEMA_VERSION}))
     import anki.deck
     if setDeckConf:
         _addDeckVars(db, *_getDeckVars(db))

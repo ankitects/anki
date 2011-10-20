@@ -44,6 +44,9 @@ SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 SYNC_VER = 0
 
+# deck schema
+SCHEMA_VERSION = 1
+
 # Labels
 ##########################################################################
 
