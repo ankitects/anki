@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from tests.shared import getEmptyDeck
+from tests.shared import getEmptyDeck, assertException
 from anki.utils import stripHTML
 
 def test_modelDelete():
@@ -164,6 +164,11 @@ def test_cloze():
     assert d.addFact(f) == 0
     f['Text'] = "hello {{c1::foo}}"
     assert d.addFact(f) == 1
+    # deleting a cloze should fail; the ui should clean up invalid cards
+    f['Text'] = "hello"
+    assertException(Exception, lambda: f.flush())
+
+
 
 def test_modelChange():
     deck = getEmptyDeck()

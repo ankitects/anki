@@ -45,6 +45,8 @@ from facts where id = ?""", self.id)
         self._fmap = self.deck.models.fieldMap(self._model)
 
     def flush(self, mod=None):
+        if self.model()['cloze']:
+            self._clozeFlush()
         self.mod = mod if mod else intTime()
         self.usn = self.deck.usn()
         sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
@@ -177,3 +179,25 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             else:
                 d.append((ord, None))
         return [x[1] for x in sorted(d)]
+
+    # Flushing cloze facts
+    ##################################################
+
+    def _clozeFlush(self):
+        tmpls = self.deck.findTemplates(self)
+        ok = []
+        for t in tmpls:
+            ok.append(t['ord'])
+        # check if there are cards referencing a deleted cloze
+        if self.deck.db.scalar(
+            "select 1 from cards where fid = ? and ord not in %s" %
+            ids2str(ok), self.id):
+            # there are; abort, as the UI should have handled this
+            raise Exception("UI should have deleted cloze")
+        # generate missing cards
+        # for t in tmpls:
+        #     if not self.deck.db.scalar(
+        #         "select 1 from cards where fid = ? and ord = ?",
+        #         self.id, t['ord']):
+        #         add.append(t)
+        #     have = self.deck.db.scalar(

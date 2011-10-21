@@ -437,10 +437,14 @@ select id from facts where mid = ?)""" % " ".join(map),
     def _updateRequired(self, m):
         req = []
         flds = [f['name'] for f in m['flds']]
+        cloze = False
         for t in m['tmpls']:
             ret = self._reqForTemplate(m, flds, t)
+            if ret[1]:
+                cloze = True
             req.append((t['ord'], ret[0], ret[1]))
         m['req'] = req
+        m['cloze'] = cloze
 
     def _reqForTemplate(self, m, flds, t):
         a = []
