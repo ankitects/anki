@@ -306,6 +306,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 if t['ord'] in avail:
                     data.append((ts, fid, t['gid'] or gid, t['ord'],
                                  ts, fid))
+                    ts += 1
         # bulk update
         self.db.executemany("""
 insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",

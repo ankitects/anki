@@ -165,10 +165,15 @@ def test_cloze():
     f['Text'] = "hello {{c1::foo}}"
     assert d.addFact(f) == 1
     # deleting a cloze should fail; the ui should clean up invalid cards
+    cnt = d.cardCount()
     f['Text'] = "hello"
     assertException(Exception, lambda: f.flush())
-
-
+    f['Text'] = "hello {{c1::foo}}"
+    f.flush()
+    # if we add another cloze, a card should be generated
+    f['Text'] = "{{c2::hello}} {{c1::foo}}"
+    f.flush()
+    assert d.cardCount() == cnt + 1
 
 def test_modelChange():
     deck = getEmptyDeck()

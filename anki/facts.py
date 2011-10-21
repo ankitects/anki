@@ -46,7 +46,7 @@ from facts where id = ?""", self.id)
 
     def flush(self, mod=None):
         if self.model()['cloze']:
-            self._clozeFlush()
+            self._clozePreFlush()
         self.mod = mod if mod else intTime()
         self.usn = self.deck.usn()
         sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
@@ -59,6 +59,8 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         self.id = res.lastrowid
         self.updateFieldChecksums()
         self.deck.tags.register(self.tags)
+        if self.model()['cloze']:
+            self._clozePostFlush()
 
     def joinedFields(self):
         return joinFields(self.fields)
@@ -183,7 +185,9 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     # Flushing cloze facts
     ##################################################
 
-    def _clozeFlush(self):
+    def _clozePreFlush(self):
+        self.newlyAdded = not self.deck.db.scalar(
+            "select 1 from cards where fid = ?", self.id)
         tmpls = self.deck.findTemplates(self)
         ok = []
         for t in tmpls:
@@ -194,10 +198,8 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             ids2str(ok), self.id):
             # there are; abort, as the UI should have handled this
             raise Exception("UI should have deleted cloze")
+
+    def _clozePostFlush(self):
         # generate missing cards
-        # for t in tmpls:
-        #     if not self.deck.db.scalar(
-        #         "select 1 from cards where fid = ? and ord = ?",
-        #         self.id, t['ord']):
-        #         add.append(t)
-        #     have = self.deck.db.scalar(
+        if not self.newlyAdded:
+            self.deck.genCards([self.id])
