@@ -5,7 +5,7 @@
 import time, os, random, re, stat, simplejson, datetime, copy, shutil
 from anki.lang import _, ngettext
 from anki.utils import ids2str, hexifyID, checksum, fieldChecksum, stripHTML, \
-    intTime, splitFields, joinFields
+    intTime, splitFields, joinFields, maxID
 from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
 from anki.models import ModelManager
@@ -280,27 +280,36 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     ok.append(t)
         return ok
 
-    def genCards(self, fact, templates):
-        "Generate cards for templates if cards not empty. Return cards."
-        cards = []
-        # if random mode, determine insertion point
-        if self.models.randomNew():
-            # if this fact has existing new cards, use their due time
-            due = self.db.scalar(
-                "select due from cards where fid = ? and queue = 0", fact.id)
-            due = due or self._randPos()
-        else:
-            due = fact.id
-        for template in self.findTemplates(fact, checkActive=False):
-            if template not in templates:
-                continue
-            # if it doesn't already exist
-            if not self.db.scalar(
-                "select 1 from cards where fid = ? and ord = ?",
-                fact.id, template['ord']):
-                # create
-                cards.append(self._newCard(fact, template, due))
-        return cards
+    def genCards(self, fids, limit=None):
+        "Generate cards for active or limited, non-empty templates."
+        # build map of (fid,ord) so we don't create dupes
+        sfids = ids2str(fids)
+        have = {}
+        for fid, ord in self.db.execute(
+            "select fid, ord from cards where fid in "+sfids):
+            have[(fid,ord)] = True
+        # build cards for each fact
+        data = []
+        ts = maxID(self.db)
+        for fid, mid, gid, flds in self.db.execute(
+            "select id, mid, gid, flds from facts where id in "+sfids):
+            model = self.models.get(mid)
+            avail = self.models.availOrds(model, flds)
+            ok = []
+            for t in model['tmpls']:
+                if not limit and not t['actv']:
+                    continue
+                elif limit and t not in limit:
+                    continue
+                elif (fid,t['ord']) in have:
+                    continue
+                if t['ord'] in avail:
+                    data.append((ts, fid, t['gid'] or gid, t['ord'],
+                                 ts, fid))
+        # bulk update
+        self.db.executemany("""
+insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
+                            data)
 
     # type 0 - when previewing in add dialog, only non-empty & active
     # type 1 - when previewing edit, only existing

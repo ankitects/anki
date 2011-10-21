@@ -12,21 +12,8 @@ def test_genCards():
     f['Front'] = u'1'
     f['Back'] = u'2'
     deck.addFact(f)
-    cards = deck.genCards(f, f.model()['tmpls'])
-    assert len(cards) == 1
-    assert cards[0].ord == 1
+    deck.genCards([f.id], f.model()['tmpls'])
     assert deck.cardCount() == 2
-    assert cards[0].due == f.id
-    # should work on random mode too
-    deck.models.current()['newOrder'] = NEW_CARDS_RANDOM
-    f = deck.newFact()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
-    deck.addFact(f)
-    cards = deck.genCards(f, f.model()['tmpls'])
-    assert deck.cardCount() == 4
-    c = deck.db.list("select due from cards where fid = ?", f.id)
-    assert c[0] == c[1]
 
 def test_previewCards():
     deck = getEmptyDeck()

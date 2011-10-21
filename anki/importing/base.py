@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.utils import intTime
+from anki.utils import intTime, maxID
 
 # Base importer
 ##########################################################################
@@ -27,11 +27,7 @@ class Importer(object):
     # need to make sure our starting point is safe.
 
     def _prepareTS(self):
-        now = intTime(1000)
-        for tbl in "cards", "facts":
-            now = max(now, self.dst.db.scalar(
-                "select max(id) from %s" % tbl))
-        self._ts = now
+        self._ts = maxID(self.dst.db)
 
     def ts(self):
         self._ts += 1

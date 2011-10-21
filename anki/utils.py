@@ -182,6 +182,14 @@ def timestampID(db, table):
         t += 1
     return t
 
+def maxID(db):
+    "Return the first safe ID to use."
+    now = intTime(1000)
+    for tbl in "cards", "facts":
+        now = max(now, db.scalar(
+                "select max(id) from %s" % tbl))
+    return now + 1
+
 def guid64():
     return random.randint(-sys.maxint-1, sys.maxint)
 
