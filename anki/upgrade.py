@@ -375,7 +375,7 @@ order by ordinal""", mid)):
         tmpls = []
         for c, row in enumerate(db.all("""
 select name, active, qformat, aformat, questionInAnswer,
-questionAlign, lastFontColour, allowEmptyAnswer, typeAnswer from cardModels
+questionAlign, lastFontColour, typeAnswer from cardModels
 where modelId = ?
 order by ordinal""", mid)):
             conf = dconf.copy()
@@ -386,7 +386,6 @@ order by ordinal""", mid)):
              conf['hideQ'],
              conf['align'],
              conf['bg'],
-             conf['emptyAns'],
              conf['typeAns']) = row
             conf['ord'] = c
             # convert the field name to an ordinal

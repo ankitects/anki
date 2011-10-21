@@ -5,7 +5,7 @@
 import time, os, random, re, stat, simplejson, datetime, copy, shutil
 from anki.lang import _, ngettext
 from anki.utils import ids2str, hexifyID, checksum, fieldChecksum, stripHTML, \
-    intTime, splitFields
+    intTime, splitFields, joinFields
 from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
 from anki.models import ModelManager
@@ -272,20 +272,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         "Return (active), non-empty templates."
         ok = []
         model = fact.model()
-        for template in model['tmpls']:
-            if template['actv'] or not checkActive:
-                # [cid, fid, mid, gid, ord, tags, flds]
-                data = [1, 1, model['id'], 1, template['ord'],
-                        "", fact.joinedFields()]
-                now = self._renderQA(data)
-                data[6] = "\x1f".join([""]*len(fact.fields))
-                empty = self._renderQA(data)
-                if now['q'] == empty['q']:
-                    continue
-                if not template['emptyAns']:
-                    if now['a'] == empty['a']:
-                        continue
-                ok.append(template)
+        avail = self.models.availOrds(model, joinFields(fact.fields))
+        ok = []
+        for t in model['tmpls']:
+            if t['actv'] or not checkActive:
+                if t['ord'] in avail:
+                    ok.append(t)
         return ok
 
     def genCards(self, fact, templates):

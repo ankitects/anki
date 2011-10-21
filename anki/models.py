@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import simplejson, copy
+import simplejson, copy, re
 from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
     timestampID, fieldChecksum
 from anki.lang import _
@@ -56,7 +56,6 @@ defaultTemplate = {
     'hideQ': False,
     'align': 0,
     'bg': "#fff",
-    'emptyAns': True,
     'typeAns': None,
     'gid': None,
 }
@@ -80,6 +79,7 @@ class ModelManager(object):
             m['mod'] = intTime()
             m['usn'] = self.deck.usn()
             m['css'] = self._css(m)
+            self._updateRequired(m)
         self.changed = True
 
     def flush(self):
@@ -430,3 +430,69 @@ select id from facts where mid = ?)""" % " ".join(map),
         for t in m['tmpls']:
             s += t['name']
         return fieldChecksum(s)
+
+    # Required field/text cache
+    ##########################################################################
+
+    def _updateRequired(self, m):
+        req = []
+        flds = [f['name'] for f in m['flds']]
+        for t in m['tmpls']:
+            ret = self._reqForTemplate(m, flds, t)
+            req.append((t['ord'], ret[0], ret[1]))
+        m['req'] = req
+
+    def _reqForTemplate(self, m, flds, t):
+        a = []
+        b = []
+        cloze = "cloze" in t['qfmt']
+        reqstrs = []
+        if cloze:
+            # need a cloze-specific filler
+            cloze = ""
+            nums = re.findall("\{\{#cloze:(\d+):", t['qfmt'])
+            for n in nums:
+                n = int(n)
+                cloze += "{{c%d::foo}}" % n
+                # record that we require a specific string for generation
+                reqstrs.append("{{c%d::" % n)
+        for f in flds:
+            a.append(cloze if cloze else "1")
+            b.append("")
+        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b)]
+        empty = self.deck._renderQA(data)['q']
+        start = a
+        req = []
+        for i in range(len(flds)):
+            a = start[:]
+            a[i] = ""
+            # blank out this field
+            data[6] = joinFields(a)
+            # if the result is same as empty, field is required
+            if self.deck._renderQA(data)['q'] == empty:
+                req.append(i)
+        return req, reqstrs
+
+    def availOrds(self, m, flds):
+        "Given a joined field string, return available template ordinals."
+        have = {}
+        for c, f in enumerate(splitFields(flds)):
+            have[c] = f.strip()
+        avail = []
+        for ord, req, reqstrs in m['req']:
+            ok = True
+            for f in req:
+                if not have[f]:
+                    # missing and was required
+                    ok = False
+                    break
+            if not ok:
+                continue
+            for s in reqstrs:
+                if s not in flds:
+                    # required cloze string was missing
+                    ok = False
+                    break
+            if ok:
+                avail.append(ord)
+        return avail
