@@ -21,6 +21,7 @@ class Anki2Importer(Importer):
 
     needMapper = False
     groupPrefix = None
+    needCards = True
 
     def run(self, media=None):
         self.dst = self.deck
@@ -141,6 +142,8 @@ class Anki2Importer(Importer):
     ######################################################################
 
     def _importCards(self):
+        if not self.needCards:
+            return
         # build map of (guid, ord) -> cid
         self._cards = {}
         for guid, ord, cid in self.dst.db.execute(
