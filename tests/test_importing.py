@@ -1,8 +1,9 @@
 # coding: utf-8
 
 import nose, os, shutil
-from tests.shared import assertException
-
+from tests.shared import assertException, getUpgradeDeckPath, getEmptyDeck
+from anki.upgrade import Upgrader
+from anki.utils import ids2str
 from anki.errors import *
 from anki import Deck
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
@@ -12,6 +13,68 @@ from anki.facts import Fact
 from anki.db import *
 
 testDir = os.path.dirname(__file__)
+
+srcFacts=None
+srcCards=None
+
+def test_anki2():
+    global srcFacts, srcCards
+    # get the deck to import
+    tmp = getUpgradeDeckPath()
+    u = Upgrader()
+    src = u.upgrade(tmp)
+    srcpath = src.path
+    srcFacts = src.factCount()
+    srcCards = src.cardCount()
+    srcRev = src.db.scalar("select count() from revlog")
+    # add a media file for testing
+    open(os.path.join(src.media.dir(), "foo.jpg"), "w").write("foo")
+    src.close()
+    # create a new empty deck
+    dst = getEmptyDeck()
+    # import src into dst
+    imp = Anki2Importer(dst, srcpath)
+    imp.run()
+    def check():
+        assert dst.factCount() == srcFacts
+        assert dst.cardCount() == srcCards
+        assert srcRev == dst.db.scalar("select count() from revlog")
+        mids = [int(x) for x in dst.models.models.keys()]
+        assert not dst.db.scalar(
+            "select count() from facts where mid not in "+ids2str(mids))
+        assert not dst.db.scalar(
+            "select count() from cards where fid not in (select id from facts)")
+        assert not dst.db.scalar(
+            "select count() from revlog where cid not in (select id from cards)")
+    check()
+    # importing should be idempotent
+    imp.run()
+    check()
+    assert len(os.listdir(dst.media.dir())) == 1
+    print dst.path
+
+def test_anki1():
+    # get the deck path to import
+    tmp = getUpgradeDeckPath()
+    # make sure media is imported properly through the upgrade
+    mdir = tmp.replace(".anki", ".media")
+    if not os.path.exists(mdir):
+        os.mkdir(mdir)
+    open(os.path.join(mdir, "foo.jpg"), "w").write("foo")
+    # create a new empty deck
+    dst = getEmptyDeck()
+    # import src into dst
+    imp = Anki1Importer(dst, tmp)
+    imp.run()
+    def check():
+        assert dst.factCount() == srcFacts
+        assert dst.cardCount() == srcCards
+        assert len(os.listdir(dst.media.dir())) == 1
+    check()
+    # importing should be idempotent
+    imp = Anki1Importer(dst, tmp)
+    imp.run()
+    check()
 
 def test_csv():
     print "disabled"; return

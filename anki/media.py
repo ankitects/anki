@@ -163,6 +163,8 @@ If the same name exists, compare checksums."""
 
     # Copying on import
     ##########################################################################
+    # FIXME: check if the files are actually identical, and rewrite references
+    # if necessary
 
     def copyTo(self, rdir):
         ldir = self.dir()

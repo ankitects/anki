@@ -16,18 +16,18 @@ from anki.importing.base import Importer
 # - compare cards by fact guid + ordinal
 # - compare groups by name
 #
-#
-# When importing facts
 
 class Anki2Importer(Importer):
 
     needMapper = False
     groupPrefix = None
 
-    def run(self):
-        "Import."
+    def run(self, media=None):
         self.dst = self.deck
         self.src = Deck(self.file, queue=False)
+        if media is not None:
+            # Anki1 importer has provided us with a custom media folder
+            self.src.media._dir = media
         try:
             self._import()
         finally:

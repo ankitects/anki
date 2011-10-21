@@ -4,7 +4,7 @@
 
 import os, time, simplejson, re, datetime, shutil
 from anki.lang import _
-from anki.utils import intTime, namedtmp
+from anki.utils import intTime, tmpfile
 from anki.db import DB
 from anki.deck import _Deck
 from anki.consts import *
@@ -108,7 +108,7 @@ class Upgrader(object):
     ######################################################################
 
     def _openDB(self, path):
-        self.tmppath = namedtmp(os.path.basename(path))
+        (fd, self.tmppath) = tmpfile(suffix=".anki2")
         shutil.copy(path, self.tmppath)
         self.db = DB(self.tmppath)
 

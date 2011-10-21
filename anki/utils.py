@@ -225,7 +225,7 @@ def tmpdir():
         os.mkdir(_tmpdir)
     return _tmpdir
 
-def tmpfile(prefix=None, suffix=None):
+def tmpfile(prefix="", suffix=""):
     return tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
 
 def namedtmp(name):
