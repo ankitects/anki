@@ -41,6 +41,8 @@ class Anki2Importer(Importer):
         self._importFacts()
         self._importCards()
         self._importMedia()
+        self.dst.db.execute("vacuum")
+        self.dst.db.execute("analyze")
 
     # Facts
     ######################################################################
