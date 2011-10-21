@@ -125,9 +125,12 @@ class Anki2Importer(Importer):
         # get the name in src
         g = self.src.groups.get(gid)
         name = g['name']
-        # add prefix if necessary
+        # if there's a prefix, replace the top level group
         if self.groupPrefix:
-            name = self.groupPrefix + "::" + name
+            tmpname = "::".join(name.split("::")[1:])
+            name = self.groupPrefix
+            if tmpname:
+                name += "::" + name
         # create in local
         newid = self.dst.groups.id(name)
         # add to group map and return

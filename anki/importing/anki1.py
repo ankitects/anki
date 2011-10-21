@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import traceback
+import traceback, os
 from anki.lang import _
 from anki.upgrade import Upgrader
 from anki.importing.anki2 import Anki2Importer
@@ -27,5 +27,6 @@ class Anki1Importer(Anki2Importer):
         deck.close()
         mdir = self.file.replace(".anki", ".media")
         self.file = deck.path
+        self.groupPrefix = os.path.basename(self.file).replace(".anki", "")
         Anki2Importer.run(self, mdir)
 
