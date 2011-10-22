@@ -169,6 +169,23 @@ class GroupManager(object):
         # mark registry changed, but don't bump mod time
         self.save()
 
+    def rename(self, g, newName):
+        "Rename group prefix to NAME if not exists. Updates children."
+        # make sure target node doesn't already exist
+        if newName in self.allNames():
+            raise Exception("Group exists")
+        # rename children
+        for grp in self.all():
+            if grp['name'].startswith(g['name'] + "::"):
+                grp['name'] = grp['name'].replace(g['name']+ "::",
+                                                  newName + "::")
+                self.save(grp)
+        # then update provided group
+        g['name'] = newName
+        self.save(g)
+        # finally, ensure we have parents
+        self._ensureParents(newName)
+
     def _ensureParents(self, name):
         path = name.split("::")
         s = ""

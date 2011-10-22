@@ -63,3 +63,25 @@ def test_remove():
     assert deck.cardCount() == 0
     assert deck.factCount() == 0
 
+def test_rename():
+    d = getEmptyDeck()
+    id = d.groups.id("hello::world")
+    # should be able to rename into a completely different branch, creating
+    # parents as necessary
+    d.groups.rename(d.groups.get(id), "foo::bar")
+    assert "foo" in d.groups.allNames()
+    assert "foo::bar" in d.groups.allNames()
+    assert "hello::world" not in d.groups.allNames()
+    # create another group
+    id = d.groups.id("tmp")
+    # we can't rename it if it conflicts
+    assertException(
+        Exception, lambda: d.groups.rename(d.groups.get(id), "foo"))
+    # when renaming, the children should be renamed too
+    d.groups.id("one::two::three")
+    id = d.groups.id("one")
+    d.groups.rename(d.groups.get(id), "yo")
+    for n in "yo", "yo::two", "yo::two::three":
+        assert n in d.groups.allNames()
+
+
