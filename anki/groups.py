@@ -181,7 +181,14 @@ class GroupManager(object):
                 grp['name'] = grp['name'].replace(g['name']+ "::",
                                                   newName + "::")
                 self.save(grp)
-        # then update provided group
+        # adjust top level conf
+        if "::" in newName and "::" not in g['name']:
+            for k in defaultTopConf.keys():
+                del g[k]
+        elif "::" not in newName and "::" in g['name']:
+            for k,v in defaultTopConf.items():
+                g[k] = v
+        # adjust name and save
         g['name'] = newName
         self.save(g)
         # finally, ensure we have parents

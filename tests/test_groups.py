@@ -84,4 +84,13 @@ def test_rename():
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.groups.allNames()
 
-
+def test_topRename():
+    d = getEmptyDeck()
+    id = d.groups.id("hello::world")
+    # when moving to or from top level, properties should be updated
+    assert 'newSpread' in d.groups.get(d.groups.id("hello"))
+    assert 'newSpread' not in d.groups.get(d.groups.id("hello::world"))
+    d.groups.rename(d.groups.get(d.groups.id("hello")), "foo::bar")
+    assert 'newSpread' not in d.groups.get(d.groups.id("foo::bar"))
+    d.groups.rename(d.groups.get(d.groups.id("foo::bar")), "hello")
+    assert 'newSpread' in d.groups.get(d.groups.id("hello"))
