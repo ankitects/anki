@@ -137,6 +137,9 @@ class GroupManager(object):
         assert gid != 1
         if not str(gid) in self.groups:
             return
+        # delete children first
+        for name, id in self.children(gid):
+            self.rem(id, cardsToo)
         # delete cards too?
         if cardsToo:
             self.deck.remCards(self.cids(gid))
@@ -264,12 +267,18 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         # current group
         self.deck.conf['curGroup'] = gid
         # and active groups (current + all children)
+        actv = self.children(gid)
+        actv.sort()
+        self.deck.conf['activeGroups'] = [gid] + [a[1] for a in actv]
+
+    def children(self, gid):
+        "All children of gid, as (name, id)."
+        name = self.get(gid)['name']
         actv = []
         for g in self.all():
             if g['name'].startswith(name + "::"):
                 actv.append((g['name'], g['id']))
-        actv.sort()
-        self.deck.conf['activeGroups'] = [gid] + [a[1] for a in actv]
+        return actv
 
     def parents(self, gid):
         "All parents of gid."
