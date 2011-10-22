@@ -168,6 +168,8 @@ If the same name exists, compare checksums."""
 
     def copyTo(self, rdir):
         ldir = self.dir()
+        if not os.path.exists(ldir):
+            return
         for f in os.listdir(ldir):
             src = os.path.join(ldir, f)
             dst = os.path.join(rdir, f)

@@ -26,7 +26,7 @@ class Anki1Importer(Anki2Importer):
         # merge
         deck.close()
         mdir = self.file.replace(".anki", ".media")
-        self.file = deck.path
         self.groupPrefix = os.path.basename(self.file).replace(".anki", "")
+        self.file = deck.path
         Anki2Importer.run(self, mdir)
 

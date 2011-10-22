@@ -41,6 +41,8 @@ class Anki2Importer(Importer):
         self._importFacts()
         self._importCards()
         self._importMedia()
+        self.dst.db.execute("vacuum")
+        self.dst.db.execute("analyze")
 
     # Facts
     ######################################################################
@@ -109,6 +111,8 @@ class Anki2Importer(Importer):
             return dmid
         # need to add to local and update index
         m = self.dst.models._add(self.src.models.get(mid))
+        # need to save so the css is updated
+        self.dst.models.save(m)
         h = self.dst.models.scmhash(m)
         mid = int(m['id'])
         self._dstModels[mid] = h

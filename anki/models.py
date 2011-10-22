@@ -94,7 +94,9 @@ class ModelManager(object):
     def current(self):
         "Get current model."
         try:
-            return self.get(self.deck.groups.top()['curModel'])
+            m = self.get(self.deck.groups.top()['curModel'])
+            assert m
+            return m
         except:
             return self.models.values()[0]
 
