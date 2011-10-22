@@ -131,29 +131,29 @@ order by due""" % self._groupLimit(),
             hasDue = self._groupHasLrn(g['id']) or self._groupHasRev(g['id'])
             hasNew = self._groupHasNew(g['id'])
             gids[g['id']] = [hasDue or 0, hasNew or 0]
-        return [[grp['name'], int(gid)]+gids.get(int(gid))
-                for (gid, grp) in self._orderedGroups()]
-
-    def _orderedGroups(self):
-        grps = self.deck.groups.groups.items()
-        def key(grp):
-            return grp[1]['name']
-        grps.sort(key=key)
-        return grps
+        return [[grp['name'], int(gid)]+gids[int(gid)] #.get(int(gid))
+                for (gid, grp) in self.deck.groups.groups.items()]
 
     def groupCountTree(self):
         return self._groupChildren(self.groupCounts())
 
     def groupTree(self):
         "Like the count tree without the counts. Faster."
-        return self._groupChildren([[grp['name'], int(gid), 0, 0, 0]
-                                    for (gid, grp) in self._orderedGroups()])
+        return self._groupChildren(
+            [[grp['name'], int(gid), 0, 0, 0]
+             for (gid, grp) in self.deck.groups.groups.items()])
 
     def _groupChildren(self, grps):
-        tree = []
-        # split strings
+        # first, split the group names into components
         for g in grps:
-            g[0] = g[0].split("::", 1)
+            g[0] = g[0].split("::")
+        # and sort based on those components
+        grps.sort(key=itemgetter(0))
+        # then run main function
+        return self._groupChildrenMain(grps)
+
+    def _groupChildrenMain(self, grps):
+        tree = []
         # group and recurse
         def key(grp):
             return grp[0][0]

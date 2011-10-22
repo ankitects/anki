@@ -771,6 +771,7 @@ def test_groupCounts():
     d.reset()
     assert len(d.groups.groups) == 5
     cnts = d.sched.groupCounts()
+    cnts.sort()
     assert cnts[0] == ["Default", 1, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0]
     assert cnts[2] == ["foo", d.groups.id("foo"), 0, 0]
@@ -791,6 +792,15 @@ def test_groupCounts():
     c.gid = 12345; c.flush()
     d.sched.groupCounts()
     d.sched.groupCountTree()
+
+def test_groupTree():
+    d = getEmptyDeck()
+    d.groups.id("new::b::c")
+    d.groups.id("new2")
+    # new should not appear twice in tree
+    names = [x[0] for x in d.sched.groupCountTree()]
+    names.remove("new")
+    assert "new" not in names
 
 def test_groupFlow():
     d = getEmptyDeck()
