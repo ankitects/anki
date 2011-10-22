@@ -146,6 +146,9 @@ class GroupManager(object):
         # delete the group and add a grave
         del self.groups[str(gid)]
         self.deck._logRem([gid], REM_GROUP)
+        # ensure we have an active group
+        if gid in self.active():
+            self.select(int(self.groups.keys()[0]))
         self.save()
 
     def allNames(self):
