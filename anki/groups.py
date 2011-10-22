@@ -146,6 +146,7 @@ class GroupManager(object):
         # delete the group and add a grave
         del self.groups[str(gid)]
         self.deck._logRem([gid], REM_GROUP)
+        self.save()
 
     def allNames(self):
         "An unsorted list of all group names."
