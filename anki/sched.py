@@ -171,9 +171,9 @@ order by due""" % self._groupLimit(),
                     new += c[3]
                 else:
                     # set new string to tail
-                    c[0] = c[0][1]
+                    c[0] = c[0][1:]
                     children.append(c)
-            children = self._groupChildren(children)
+            children = self._groupChildrenMain(children)
             # tally up children counts
             for ch in children:
                 rev += ch[2]
