@@ -41,6 +41,7 @@ class Anki2Importer(Importer):
         self._importFacts()
         self._importCards()
         self._importMedia()
+        self._postImport()
         self.dst.db.execute("vacuum")
         self.dst.db.execute("analyze")
 
@@ -201,3 +202,13 @@ insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
 
     def _importMedia(self):
         self.src.media.copyTo(self.dst.media.dir())
+
+    # Post-import cleanup
+    ######################################################################
+    # fixme: we could be handling new card order more elegantly on import
+
+    def _postImport(self):
+        if self.needCards:
+            # make sure new position is correct
+            self.dst.conf['nextPos'] = self.dst.db.scalar(
+                "select max(due)+1 from cards where type = 0")

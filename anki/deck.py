@@ -248,7 +248,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return ncards
 
     def _randPos(self):
-        return random.randrange(1, self.nextID("pos", inc=False))
+        return random.randrange(1, sys.maxint)
 
     def remFacts(self, ids):
         self.remCards(self.db.list("select id from cards where fid in "+
