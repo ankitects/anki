@@ -166,7 +166,7 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
             row = list(row)
             # get rid of old created column and update id
             while row[4] in times:
-                row[4] += 1
+                row[4] += 1000
             times[row[4]] = True
             factidmap[row[0]] = row[4]
             row[0] = row[4]
@@ -205,7 +205,7 @@ order by created"""):
             # find an unused time
             row = list(row)
             while row[1] in times:
-                row[1] += 1
+                row[1] += 1000
             times[row[1]] = True
             # rewrite fact id
             row[2] = factidmap[row[2]]
