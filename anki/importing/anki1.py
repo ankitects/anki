@@ -16,7 +16,7 @@ class Anki1Importer(Anki2Importer):
             self.log.append(_(
                 "File is damaged; please run Tools>Advanced>Check DB "
                 "in Anki 1.2 first."))
-            return
+            raise Exception("invalidFile")
         # upgrade
         try:
             deck = u.upgrade(self.file)
