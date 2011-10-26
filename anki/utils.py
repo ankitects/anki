@@ -193,6 +193,10 @@ def maxID(db):
 def guid64():
     return random.randint(-sys.maxint-1, sys.maxint)
 
+def guid32():
+    max = 2**32
+    return random.randint(0, max-1)
+
 # Fields
 ##############################################################################
 
