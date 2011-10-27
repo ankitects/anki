@@ -113,7 +113,7 @@ analyze;""")
     ######################################################################
 
     def _openDB(self, path):
-        (fd, self.tmppath) = tmpfile(suffix=".anki2")
+        self.tmppath = tmpfile(suffix=".anki2")
         shutil.copy(path, self.tmppath)
         self.db = DB(self.tmppath)
 

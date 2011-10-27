@@ -238,7 +238,9 @@ def tmpdir():
     return _tmpdir
 
 def tmpfile(prefix="", suffix=""):
-    return tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
+    (fd, name) = tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
+    os.close(fd)
+    return name
 
 def namedtmp(name):
     "Return tmpdir+name. Deletes any existing file."
