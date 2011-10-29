@@ -21,14 +21,15 @@ def test_add():
 
 def test_strings():
     d = getEmptyDeck()
-    mf = d.media.mediaFiles
-    assert mf("aoeu") == []
-    assert mf("aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
-    assert mf("aoeu<img src=foo bar.jpg>ao") == ["foo bar.jpg"]
-    assert mf("aoeu<img src=\"foo.jpg\">ao") == ["foo.jpg"]
-    assert mf("aoeu<img src=\"foo.jpg\"><img class=yo src=fo>ao") == [
+    mf = d.media.files
+    mid = d.models.models.keys()[0]
+    assert mf(mid, "aoeu") == []
+    assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
+    assert mf(mid, "aoeu<img src=foo bar.jpg>ao") == ["foo bar.jpg"]
+    assert mf(mid, "aoeu<img src=\"foo.jpg\">ao") == ["foo.jpg"]
+    assert mf(mid, "aoeu<img src=\"foo.jpg\"><img class=yo src=fo>ao") == [
             "foo.jpg", "fo"]
-    assert mf("aou[sound:foo.mp3]aou") == ["foo.mp3"]
+    assert mf(mid, "aou[sound:foo.mp3]aou") == ["foo.mp3"]
     sp = d.media.strip
     assert sp("aoeu") == "aoeu"
     assert sp("aoeu[sound:foo.mp3]aoeu") == "aoeuaoeu"

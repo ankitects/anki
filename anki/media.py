@@ -89,7 +89,6 @@ If the same name exists, compare checksums."""
         # convert latex first
         model = self.deck.models.get(mid)
         string = mungeQA(string, None, None, model, None, self.deck)
-        print string
         # extract filenames
         for reg in self.regexps:
             for (full, fname) in re.findall(reg, string):
@@ -161,10 +160,9 @@ If the same name exists, compare checksums."""
     def allMedia(self):
         "Return a set of all referenced filenames."
         files = set()
-        for p in self.deck.renderQA(type="all"):
-            for type in ("q", "a"):
-                for f in self.mediaFiles(p[type]):
-                    files.add(f)
+        for mid, flds in self.deck.db.execute("select mid, flds from facts"):
+            for f in self.files(mid, flds):
+                files.add(f)
         return files
 
     # Copying on import
