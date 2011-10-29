@@ -461,6 +461,11 @@ order by ordinal""", mid)):
                 new = fld
             # rewrite reference in template
             t[key] = t[key].replace(all, "{{{%s}}}" % new)
+        regexps = deck.media.regexps + (
+            r"(\[latex\](.+?)\[/latex\])",
+            r"(\[\$\](.+?)\[/\$\])",
+            r"(\[\$\$\](.+?)\[/\$\$\])")
+        # process each model
         for m in deck.models.all():
             state = dict(mflds={}, fields=0)
             for t in m['tmpls']:
@@ -469,7 +474,8 @@ order by ordinal""", mid)):
                         rewriteRef('qfmt')
                     for match in re.findall(r, t['afmt']):
                         rewriteRef('afmt')
-
+            if state['fields']:
+                deck.models.save(m)
 
     # Upgrading deck
     ######################################################################

@@ -9,6 +9,7 @@ from anki.utils import checksum, intTime, namedtmp, isWin
 from anki.lang import _
 from anki.db import DB
 from anki.consts import *
+from anki.latex import mungeQA
 
 class MediaManager(object):
 
@@ -83,8 +84,13 @@ If the same name exists, compare checksums."""
     # String manipulation
     ##########################################################################
 
-    def mediaFiles(self, string, includeRemote=False):
+    def files(self, mid, string, includeRemote=False):
         l = []
+        # convert latex first
+        model = self.deck.models.get(mid)
+        string = mungeQA(string, None, None, model, None, self.deck)
+        print string
+        # extract filenames
         for reg in self.regexps:
             for (full, fname) in re.findall(reg, string):
                 isLocal = not re.match("(https?|ftp)://", fname.lower())

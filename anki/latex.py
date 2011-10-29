@@ -74,6 +74,10 @@ def _buildImg(deck, latex, fname, model):
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
              model["latexPost"])
+    # it's only really secure if run in a jail, but these are the most common
+    for bad in ("write18", "\\readline", "\\input", "\\include", "\\catcode",
+                "\\openout", "\\write", "\\loop", "\\def", "\\shipout"):
+        assert bad not in latex
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
     texfile = file(namedtmp("tmp.tex"), "w")
@@ -101,7 +105,7 @@ def _buildImg(deck, latex, fname, model):
 def _errMsg(type):
     msg = (_("Error executing %s.") % type) + "<br>"
     try:
-        log = open(namedtmp("latex_log.txt")).read()
+        log = open(namedtmp("latex_log.txt", rm=False)).read()
         if not log:
             raise Exception()
         msg += "<small><pre>" + cgi.escape(log) + "</pre></small>"

@@ -242,13 +242,14 @@ def tmpfile(prefix="", suffix=""):
     os.close(fd)
     return name
 
-def namedtmp(name):
+def namedtmp(name, rm=True):
     "Return tmpdir+name. Deletes any existing file."
     path = os.path.join(tmpdir(), name)
-    try:
-        os.unlink(path)
-    except (OSError, IOError):
-        pass
+    if rm:
+        try:
+            os.unlink(path)
+        except (OSError, IOError):
+            pass
     return path
 
 # Cmd invocation

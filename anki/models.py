@@ -22,7 +22,7 @@ defaultModel = {
     'latexPre': """\
 \\documentclass[12pt]{article}
 \\special{papersize=3in,5in}
-\\usepackage[utf8x]{inputenc}
+% \\usepackage[utf8x]{inputenc} % uncomment this for foreign characters
 \\usepackage{amssymb,amsmath}
 \\pagestyle{empty}
 \\setlength{\\parindent}{0in}
