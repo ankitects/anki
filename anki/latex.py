@@ -46,12 +46,12 @@ def mungeQA(html, type, fields, model, data, deck):
 def _imgLink(deck, latex, model):
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(deck, latex)
-    fname = "latex-%s.png" % checksum(txt)
+    fname = "latex-%s.png" % checksum(txt.encode("utf8"))
     link = '<img src="%s">' % fname
     if os.path.exists(fname):
         return link
     elif not build:
-        return "[latex]"+latex+"[/latex]"
+        return u"[latex]%s[/latex]" % latex
     else:
         err = _buildImg(deck, txt, fname, model)
         if err:
@@ -60,20 +60,20 @@ def _imgLink(deck, latex, model):
             return link
 
 def _latexFromHtml(deck, latex):
-    "Convert entities, fix newlines, and convert to utf8."
+    "Convert entities and fix newlines."
     for match in re.compile("&([a-z]+);", re.IGNORECASE).finditer(latex):
         if match.group(1) in entitydefs:
             latex = latex.replace(match.group(), entitydefs[match.group(1)])
     latex = re.sub("<br( /)?>", "\n", latex)
     latex = stripHTML(latex)
-    latex = latex.encode("utf-8")
     return latex
 
 def _buildImg(deck, latex, fname, model):
-    # add header/footer
+    # add header/footer & convert to utf8
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
              model["latexPost"])
+    latex = latex.encode("utf8")
     # it's only really secure if run in a jail, but these are the most common
     for bad in ("write18", "\\readline", "\\input", "\\include", "\\catcode",
                 "\\openout", "\\write", "\\loop", "\\def", "\\shipout"):
