@@ -441,8 +441,13 @@ order by ordinal""", mid)):
                 f = deck.models.newField(fld)
                 deck.models.addField(m, f)
                 # get field name and any prefix/suffix
-                pre, ofld, suf = re.match(
-                    "([^{]*)\{\{\{?(?:text:)?([^}]+)\}\}\}?(.*)", fname).groups()
+                m2 = re.match(
+                    "([^{]*)\{\{\{?(?:text:)?([^}]+)\}\}\}?(.*)",
+                    fname)
+                # not a field reference?
+                if not m2:
+                    return
+                pre, ofld, suf = m2.groups()
                 # get index of field name
                 idx = deck.models.fieldMap(m)[ofld][0]
                 # loop through facts and write reference into new field
