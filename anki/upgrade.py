@@ -442,7 +442,7 @@ order by ordinal""", mid)):
                 deck.models.addField(m, f)
                 # get field name and any prefix/suffix
                 pre, ofld, suf = re.match(
-                    "([^{]*)\{\{?(?:text:)?([^}]+)\}\}\}?(.*)", fname).groups()
+                    "([^{]*)\{\{\{?(?:text:)?([^}]+)\}\}\}?(.*)", fname).groups()
                 # get index of field name
                 idx = deck.models.fieldMap(m)[ofld][0]
                 # loop through facts and write reference into new field
@@ -451,7 +451,7 @@ order by ordinal""", mid)):
                     "select id, flds from facts where id in "+
                     ids2str(deck.models.fids(m))):
                     sflds = splitFields(flds)
-                    ref = re.sub(re.escape(fname), pre+sflds[idx]+suf, all)
+                    ref = all.replace(fname, pre+sflds[idx]+suf)
                     data.append((flds+ref, id))
                 # update facts
                 deck.db.executemany("update facts set flds=? where id=?",
@@ -469,7 +469,7 @@ order by ordinal""", mid)):
         for m in deck.models.all():
             state = dict(mflds={}, fields=0)
             for t in m['tmpls']:
-                for r in deck.media.regexps:
+                for r in regexps:
                     for match in re.findall(r, t['qfmt']):
                         rewriteRef('qfmt')
                     for match in re.findall(r, t['afmt']):
