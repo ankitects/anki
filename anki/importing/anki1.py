@@ -21,6 +21,7 @@ class Anki1Importer(Anki2Importer):
         try:
             deck = u.upgrade(self.file)
         except:
+            traceback.print_exc()
             self.log.append(traceback.format_exc())
             return
         # merge

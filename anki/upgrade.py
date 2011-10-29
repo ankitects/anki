@@ -4,7 +4,7 @@
 
 import os, time, simplejson, re, datetime, shutil
 from anki.lang import _
-from anki.utils import intTime, tmpfile
+from anki.utils import intTime, tmpfile, ids2str, splitFields
 from anki.db import DB
 from anki.deck import _Deck
 from anki.consts import *
@@ -416,6 +416,61 @@ order by ordinal""", mid)):
             tmpls.append(conf)
         return tmpls
 
+    # Media references
+    ######################################################################
+    # In 2.0 we drop support for media and latex references in the template,
+    # since they require generating card templates to see what media a fact
+    # uses, and are confusing for shared deck users. To ease the upgrade
+    # process, we automatically convert the references to new fields.
+
+    def _rewriteMediaRefs(self):
+        deck = self.deck
+        def rewriteRef(key):
+            all, fname = match
+            if all in state['mflds']:
+                # we've converted this field before
+                new = state['mflds'][all]
+            else:
+                # find a free field name
+                while 1:
+                    state['fields'] += 1
+                    fld = "Media %d" % state['fields']
+                    if fld not in deck.models.fieldMap(m).keys():
+                        break
+                # add the new field
+                f = deck.models.newField(fld)
+                deck.models.addField(m, f)
+                # get field name and any prefix/suffix
+                pre, ofld, suf = re.match(
+                    "([^{]*)\{\{?(?:text:)?([^}]+)\}\}\}?(.*)", fname).groups()
+                # get index of field name
+                idx = deck.models.fieldMap(m)[ofld][0]
+                # loop through facts and write reference into new field
+                data = []
+                for id, flds in self.deck.db.execute(
+                    "select id, flds from facts where id in "+
+                    ids2str(deck.models.fids(m))):
+                    sflds = splitFields(flds)
+                    ref = re.sub(re.escape(fname), pre+sflds[idx]+suf, all)
+                    data.append((flds+ref, id))
+                # update facts
+                deck.db.executemany("update facts set flds=? where id=?",
+                                    data)
+                # note field for future
+                state['mflds'][fname] = fld
+                new = fld
+            # rewrite reference in template
+            t[key] = t[key].replace(all, "{{{%s}}}" % new)
+        for m in deck.models.all():
+            state = dict(mflds={}, fields=0)
+            for t in m['tmpls']:
+                for r in deck.media.regexps:
+                    for match in re.findall(r, t['qfmt']):
+                        rewriteRef('qfmt')
+                    for match in re.findall(r, t['afmt']):
+                        rewriteRef('afmt')
+
+
     # Upgrading deck
     ######################################################################
 
@@ -425,6 +480,8 @@ order by ordinal""", mid)):
         deck = self.deck
         # make sure we have a current model id
         deck.models.setCurrent(deck.models.models.values()[0])
+        # rewrite media references in card template
+        self._rewriteMediaRefs()
         # regenerate css, and set new card order
         for m in deck.models.all():
             m['newOrder'] = deck.conf['oldNewOrder']
