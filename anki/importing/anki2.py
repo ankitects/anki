@@ -212,3 +212,4 @@ insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             # make sure new position is correct
             self.dst.conf['nextPos'] = self.dst.db.scalar(
                 "select max(due)+1 from cards where type = 0")
+        self.dst.save()
