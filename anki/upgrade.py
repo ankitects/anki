@@ -431,15 +431,6 @@ order by ordinal""", mid)):
                 # we've converted this field before
                 new = state['mflds'][all]
             else:
-                # find a free field name
-                while 1:
-                    state['fields'] += 1
-                    fld = "Media %d" % state['fields']
-                    if fld not in deck.models.fieldMap(m).keys():
-                        break
-                # add the new field
-                f = deck.models.newField(fld)
-                deck.models.addField(m, f)
                 # get field name and any prefix/suffix
                 m2 = re.match(
                     "([^{]*)\{\{\{?(?:text:)?([^}]+)\}\}\}?(.*)",
@@ -449,7 +440,20 @@ order by ordinal""", mid)):
                     return
                 pre, ofld, suf = m2.groups()
                 # get index of field name
-                idx = deck.models.fieldMap(m)[ofld][0]
+                try:
+                    idx = deck.models.fieldMap(m)[ofld][0]
+                except:
+                    # invalid field or tag reference; don't rewrite
+                    return
+                # find a free field name
+                while 1:
+                    state['fields'] += 1
+                    fld = "Media %d" % state['fields']
+                    if fld not in deck.models.fieldMap(m).keys():
+                        break
+                # add the new field
+                f = deck.models.newField(fld)
+                deck.models.addField(m, f)
                 # loop through facts and write reference into new field
                 data = []
                 for id, flds in self.deck.db.execute(
