@@ -22,10 +22,10 @@ class Anki2Importer(Importer):
     needMapper = False
     groupPrefix = None
     needCards = True
+    flagModels = False
 
     def run(self, media=None):
-        self.dst = self.deck
-        self.src = Deck(self.file, queue=False)
+        self._prepareDecks()
         if media is not None:
             # Anki1 importer has provided us with a custom media folder
             self.src.media._dir = media
@@ -33,6 +33,10 @@ class Anki2Importer(Importer):
             self._import()
         finally:
             self.src.close(save=False)
+
+    def _prepareDecks(self):
+        self.dst = self.deck
+        self.src = Deck(self.file, queue=False)
 
     def _import(self):
         self._groups = {}
@@ -91,34 +95,44 @@ class Anki2Importer(Importer):
 
     def _prepareModels(self):
         "Prepare index of schema hashes."
-        self._srcModels = {}
-        self._dstModels = {}
-        self._dstHashes = {}
-        for m in self.dst.models.all():
-            h = self.dst.models.scmhash(m)
-            mid = int(m['id'])
-            self._dstHashes[h] = mid
-            self._dstModels[mid] = h
-        for m in self.src.models.all():
-            mid = int(m['id'])
-            self._srcModels[mid] = self.src.models.scmhash(m)
+        self._modelMap = {}
 
     def _mid(self, mid):
         "Return local id for remote MID."
-        hash = self._srcModels[mid]
-        dmid = self._dstHashes.get(hash)
-        if dmid:
-            # dst deck already has this model
-            return dmid
-        # need to add to local and update index
-        m = self.dst.models._add(self.src.models.get(mid))
-        # need to save so the css is updated
-        self.dst.models.save(m)
-        h = self.dst.models.scmhash(m)
-        mid = int(m['id'])
-        self._dstModels[mid] = h
-        self._dstHashes[h] = mid
-        return mid
+        # already processed this mid?
+        if mid in self._modelMap:
+            return self._modelMap[mid]
+        src = self.src.models.get(mid).copy()
+        if self.flagModels:
+            src['needWizard'] = True
+        # if it doesn't exist, we'll copy it over, preserving id
+        if not self.dst.models.have(mid):
+            self.dst.models.update(src)
+            # make sure to bump usn
+            self.dst.models.save(src)
+            self._modelMap[mid] = mid
+            return mid
+        # if it does exist, do the schema match?
+        dst = self.dst.models.get(mid)
+        dhash = self.src.models.scmhash(dst)
+        if self.src.models.scmhash(src) == dhash:
+            # reuse without modification
+            self._modelMap[mid] = mid
+            return mid
+        # try any alternative versions
+        vers = src.get("vers")
+        for v in vers:
+            m = self.src.models.get(v)
+            if self.src.models.scmhash(m) == dhash:
+                # valid alternate found; use that
+                self._modelMap[mid] = m['id']
+                return m['id']
+        # need to add a new alternate version, with new id
+        self.dst.models._add(src)
+        if vers:
+            dst['vers'].append(src['id'])
+        else:
+            dst['vers'] = [src['id']]
 
     # Groups
     ######################################################################
@@ -158,19 +172,20 @@ class Anki2Importer(Importer):
         # loop through src
         cards = []
         revlog = []
+        print "fixme: need to check schema issues in card import"
         for card in self.src.db.execute(
             "select f.guid, f.mid, c.* from cards c, facts f "
             "where c.fid = f.id"):
             guid = card[0]
-            shash = self._srcModels[card[1]]
             # does the card's fact exist in dst deck?
             if guid not in self._facts:
                 continue
             dfid = self._facts[guid]
             # does the fact share the same schema?
-            mid = self._facts[guid][2]
-            if shash != self._dstModels[mid]:
-                continue
+            # shash = self._srcModels[card[1]]
+            # mid = self._facts[guid][2]
+            # if shash != self._dstModels[mid]:
+            #     continue
             # does the card already exist in the dst deck?
             ord = card[5]
             if (guid, ord) in self._cards:

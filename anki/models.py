@@ -31,6 +31,7 @@ defaultModel = {
     'latexPost': "\\end{document}",
     'mod': 0,
     'usn': 0,
+    'vers': [],
 }
 
 defaultField = {
@@ -165,6 +166,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             if id not in self.models:
                 break
         m['id'] = id
+
+    def have(self, id):
+        return str(id) in self.models
 
     # Tools
     ##################################################
@@ -426,11 +430,8 @@ select id from facts where mid = ?)""" % " ".join(map),
 
     def scmhash(self, m):
         "Return a hash of the schema, to see if models are compatible."
-        s = m['name']
         for f in m['flds']:
             s += f['name']
-        for t in m['tmpls']:
-            s += t['name']
         return fieldChecksum(s)
 
     # Required field/text cache
