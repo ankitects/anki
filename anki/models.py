@@ -142,7 +142,7 @@ class ModelManager(object):
 select id from cards where fid in (select id from facts where mid = ?)""",
                                       m['id']))
         # then the model
-        del self.models[m['id']]
+        del self.models[str(m['id'])]
         self.save()
         # GUI should ensure last model is not deleted
         if current:
