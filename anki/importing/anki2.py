@@ -40,6 +40,9 @@ class Anki2Importer(Importer):
 
     def _import(self):
         self._groups = {}
+        if self.groupPrefix:
+            id = self.dst.groups.id(self.groupPrefix)
+            self.dst.groups.select(id)
         self._prepareTS()
         self._prepareModels()
         self._importFacts()
