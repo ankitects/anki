@@ -24,9 +24,6 @@ def test_modelCopy():
     assert len(m2['flds']) == len(m['flds'])
     assert len(m['tmpls']) == 2
     assert len(m2['tmpls']) == 2
-    # name changed
-    assert deck.models.scmhash(m) != deck.models.scmhash(m2)
-    m2['name'] = "Basic"
     assert deck.models.scmhash(m) == deck.models.scmhash(m2)
 
 def test_fields():
