@@ -248,6 +248,9 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         "Mapping of field name -> (ord, field)."
         return dict((f['name'], (f['ord'], f)) for f in m['flds'])
 
+    def fieldNames(self, m):
+        return [f['name'] for f in m['flds']]
+
     def sortIdx(self, m):
         return m['sortf']
 
@@ -430,6 +433,7 @@ select id from facts where mid = ?)""" % " ".join(map),
 
     def scmhash(self, m):
         "Return a hash of the schema, to see if models are compatible."
+        s = ""
         for f in m['flds']:
             s += f['name']
         return fieldChecksum(s)
