@@ -392,8 +392,8 @@ class HttpSyncer(object):
             SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=self.user,p=pw)))
         if resp['status'] != '200':
             raise Exception("Invalid response code: %s" % resp['status'])
-        self.hkey = cont
-        return cont
+        self.hkey = simplejson.loads(cont)['key']
+        return self.hkey
 
     def _vars(self):
         return dict(k=self.hkey)
