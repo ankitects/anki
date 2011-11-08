@@ -22,7 +22,6 @@ class Anki2Importer(Importer):
     needMapper = False
     groupPrefix = None
     needCards = True
-    flagModels = False
 
     def run(self, media=None):
         self._prepareDecks()
@@ -106,8 +105,8 @@ class Anki2Importer(Importer):
         if mid in self._modelMap:
             return self._modelMap[mid]
         src = self.src.models.get(mid).copy()
-        if self.flagModels:
-            src['needWizard'] = True
+        if not self.needCards:
+            src['needWizard'] = 1
         # if it doesn't exist, we'll copy it over, preserving id
         if not self.dst.models.have(mid):
             self.dst.models.update(src)
@@ -230,4 +229,13 @@ insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             # make sure new position is correct
             self.dst.conf['nextPos'] = self.dst.db.scalar(
                 "select max(due)+1 from cards where type = 0")
+        else:
+            # newly added models will have been flagged with needWizard=1; we
+            # need to mark reused models with needWizard=2 so the new cards
+            # can be generated
+            for mid in self._modelMap.values():
+                m = self.dst.models.get(mid)
+                if not m.get("needWizard"):
+                    m['needWizard'] = 2
+                    self.dst.models.save(m)
         self.dst.save()
