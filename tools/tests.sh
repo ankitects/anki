@@ -5,4 +5,4 @@ if [ -d 'locale' ]; then
 else
     dir=.
 fi
-(cd $dir && nosetests -vs $@)
+(cd $dir && nosetests -vs --with-coverage --cover-package=anki $@)
