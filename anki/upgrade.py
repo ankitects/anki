@@ -379,12 +379,13 @@ order by ordinal""", mid)):
         dconf = anki.models.defaultTemplate
         tmpls = []
         for c, row in enumerate(db.all("""
-select name, qformat, aformat, questionInAnswer,
+select name, active, qformat, aformat, questionInAnswer,
 questionAlign, lastFontColour, typeAnswer from cardModels
 where modelId = ?
 order by ordinal""", mid)):
             conf = dconf.copy()
             (conf['name'],
+             conf['actv'],
              conf['qfmt'],
              conf['afmt'],
              conf['hideQ'],
@@ -485,6 +486,26 @@ order by ordinal""", mid)):
             if state['fields']:
                 deck.models.save(m)
 
+    # Inactive templates
+    ######################################################################
+    # Templates can't be declared as inactive anymore. Remove any that are
+    # marked inactive and have no dependent cards.
+
+    def _removeInactive(self):
+        d = self.deck
+        for m in d.models.all():
+            remove = []
+            for t in m['tmpls']:
+                if not t['actv']:
+                    if not d.db.scalar("""
+select 1 from cards where fid in (select id from facts where mid = ?)
+and ord = ? limit 1""", m['id'], t['ord']):
+                        remove.append(t)
+                del t['actv']
+            for r in remove:
+                m['tmpls'].remove(t)
+            d.models.save(m)
+
     # Upgrading deck
     ######################################################################
 
@@ -494,6 +515,8 @@ order by ordinal""", mid)):
         deck = self.deck
         # make sure we have a current model id
         deck.models.setCurrent(deck.models.models.values()[0])
+        # remove unused templates that were marked inactive
+        self._removeInactive()
         # rewrite media references in card template
         self._rewriteMediaRefs()
         # regenerate css, and set new card order
