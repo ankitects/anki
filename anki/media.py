@@ -122,11 +122,9 @@ If the same name exists, compare checksums."""
     # Rebuilding DB
     ##########################################################################
 
-    def check(self, delete=False):
+    def check(self, delete=False, local=None):
         "Return (missingFiles, unusedFiles)."
         mdir = self.dir()
-        if not mdir:
-            return (0, 0)
         # generate card q/a and look through all references
         normrefs = {}
         def norm(s):
@@ -137,13 +135,16 @@ If the same name exists, compare checksums."""
             normrefs[norm(f)] = True
         # loop through directory and find unused & missing media
         unused = []
-        for file in os.listdir(mdir):
-            if file.startswith("latex-"):
-                continue
-            path = os.path.join(mdir, file)
-            if not os.path.isfile(path):
-                # ignore directories
-                continue
+        if local is None:
+            files = os.listdir(mdir)
+        else:
+            files = local
+        for file in files:
+            if not local:
+                path = os.path.join(mdir, file)
+                if not os.path.isfile(path):
+                    # ignore directories
+                    continue
             nfile = norm(file)
             if nfile not in normrefs:
                 unused.append(file)
