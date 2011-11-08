@@ -22,11 +22,6 @@ def addBasicModel(deck):
     t['qfmt'] = "{{" + _("Front") + "}}"
     t['afmt'] = "{{" + _("Back") + "}}"
     mm.addTemplate(m, t)
-    t = mm.newTemplate(_("Reverse"))
-    t['qfmt'] = "{{" + _("Back") + "}}"
-    t['afmt'] = "{{" + _("Front") + "}}"
-    t['actv'] = False
-    mm.addTemplate(m, t)
     mm.save(m)
     return m
 

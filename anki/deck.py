@@ -268,20 +268,19 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Card creation
     ##########################################################################
 
-    def findTemplates(self, fact, checkActive=True):
+    def findTemplates(self, fact):
         "Return (active), non-empty templates."
         ok = []
         model = fact.model()
         avail = self.models.availOrds(model, joinFields(fact.fields))
         ok = []
         for t in model['tmpls']:
-            if t['actv'] or not checkActive:
-                if t['ord'] in avail:
-                    ok.append(t)
+            if t['ord'] in avail:
+                ok.append(t)
         return ok
 
-    def genCards(self, fids, limit=None):
-        "Generate cards for active or limited, non-empty templates."
+    def genCards(self, fids):
+        "Generate cards for non-empty templates."
         # build map of (fid,ord) so we don't create dupes
         sfids = ids2str(fids)
         have = {}
@@ -297,11 +296,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             avail = self.models.availOrds(model, flds)
             ok = []
             for t in model['tmpls']:
-                if not limit and not t['actv']:
-                    continue
-                elif limit and t not in limit:
-                    continue
-                elif (fid,t['ord']) in have:
+                if (fid,t['ord']) in have:
                     continue
                 if t['ord'] in avail:
                     data.append((ts, fid, t['gid'] or gid, t['ord'],
@@ -312,13 +307,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
                             data)
 
-    # type 0 - when previewing in add dialog, only non-empty & active
+    # type 0 - when previewing in add dialog, only non-empty
     # type 1 - when previewing edit, only existing
-    # type 2 - when previewing in models dialog, all
+    # type 2 - when previewing in models dialog, all templates
     def previewCards(self, fact, type=0):
-        "Return uncommited cards for preview."
         if type == 0:
-            cms = self.findTemplates(fact, checkActive=True)
+            cms = self.findTemplates(fact)
         elif type == 1:
             cms = [c.template() for c in fact.cards()]
         else:

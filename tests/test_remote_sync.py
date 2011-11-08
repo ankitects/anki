@@ -27,7 +27,7 @@ import anki.sync
 anki.sync.SYNC_URL = "http://localhost:6543/sync/"
 TEST_USER = "synctest@ichi2.net"
 TEST_PASS = "synctest"
-TEST_HKEY = "k14LvSaEtXFITCJz"
+TEST_HKEY = "tG5CD9eZbWOru3Yw"
 TEST_REMOTE = True
 
 def setup_remote():
@@ -42,7 +42,7 @@ def test_meta():
     global TEST_REMOTE
     try:
         (mod, scm, usn, tstamp, dummy) = ts.server.meta()
-    except SyntaxError, e:
+    except Exception, e:
         if e.errno == 61:
             TEST_REMOTE = False
             print "aborting; server offline"
@@ -107,6 +107,8 @@ def setup_remoteMedia():
 
 @nose.with_setup(setup_remoteMedia)
 def test_media():
+    if not TEST_REMOTE:
+        return
     ts.server.mediatest("reset")
     assert len(os.listdir(ts.deck1.media.dir())) == 0
     assert ts.server.mediatest("count") == 0

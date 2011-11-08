@@ -21,7 +21,8 @@ def test_latex():
     assert "executing latex" in msg
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
-    if not os.path.exists("/usr/bin/latex"):
+    if (not os.path.exists("/usr/bin/latex") and
+        not os.path.exists("/usr/texbin/latex")):
         print "aborting test; latex is not installed"
         return
     # fix path
@@ -30,10 +31,11 @@ def test_latex():
     d.media.check()
     assert len(os.listdir(d.media.dir())) == 1
     assert ".png" in f.cards()[0].q()
-    # adding new facts should cause immediate generation
+    # adding new facts should cause generation on question display
     f = d.newFact()
     f['Front'] = u"[latex]world[/latex]"
     d.addFact(f)
+    f.cards()[0].q()
     assert len(os.listdir(d.media.dir())) == 2
     # another fact with the same media should reuse
     f = d.newFact()

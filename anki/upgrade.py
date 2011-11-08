@@ -379,13 +379,12 @@ order by ordinal""", mid)):
         dconf = anki.models.defaultTemplate
         tmpls = []
         for c, row in enumerate(db.all("""
-select name, active, qformat, aformat, questionInAnswer,
+select name, qformat, aformat, questionInAnswer,
 questionAlign, lastFontColour, typeAnswer from cardModels
 where modelId = ?
 order by ordinal""", mid)):
             conf = dconf.copy()
             (conf['name'],
-             conf['actv'],
              conf['qfmt'],
              conf['afmt'],
              conf['hideQ'],

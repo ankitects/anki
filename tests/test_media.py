@@ -21,7 +21,7 @@ def test_add():
 
 def test_strings():
     d = getEmptyDeck()
-    mf = d.media.files
+    mf = d.media.filesInStr
     mid = d.models.models.keys()[0]
     assert mf(mid, "aoeu") == []
     assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]

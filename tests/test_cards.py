@@ -6,15 +6,6 @@ from anki.consts import *
 from anki.utils import hexifyID
 from tests.shared import getEmptyDeck
 
-def test_genCards():
-    deck = getEmptyDeck()
-    f = deck.newFact()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
-    deck.addFact(f)
-    deck.genCards([f.id], f.model()['tmpls'])
-    assert deck.cardCount() == 2
-
 def test_previewCards():
     deck = getEmptyDeck()
     f = deck.newFact()
@@ -26,7 +17,7 @@ def test_previewCards():
     assert cards[0].ord == 0
     # all templates
     cards = deck.previewCards(f, 2)
-    assert len(cards) == 2
+    assert len(cards) == 1
     # add the fact, and test existing preview
     deck.addFact(f)
     cards = deck.previewCards(f, 1)

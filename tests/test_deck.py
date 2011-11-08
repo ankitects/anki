@@ -48,19 +48,28 @@ def test_factAddDelete():
     f['Front'] = u"one"; f['Back'] = u"two"
     n = deck.addFact(f)
     assert n == 1
-    deck.rollback()
-    assert deck.cardCount() == 0
-    # try with two cards
+    # test multiple cards - add another template
+    m = deck.models.current(); mm = deck.models
+    t = mm.newTemplate("Reverse")
+    t['qfmt'] = "{{Back}}"
+    t['afmt'] = "{{Front}}"
+    mm.addTemplate(m, t)
+    mm.save(m)
+    # the default save doesn't generate cards
+    assert deck.cardCount() == 1
+    # but when templates are edited such as in the card layout screen, it
+    # should generate cards on close
+    mm.save(m, gencards=True)
+    assert deck.cardCount() == 2
+    # creating new facts should use both cards
     f = deck.newFact()
-    f['Front'] = u"one"; f['Back'] = u"two"
-    m = f.model()
-    m['tmpls'][1]['actv'] = True
-    deck.models.save(m)
+    f['Front'] = u"three"; f['Back'] = u"four"
     n = deck.addFact(f)
     assert n == 2
+    assert deck.cardCount() == 4
     # check q/a generation
     c0 = f.cards()[0]
-    assert re.sub("</?.+?>", "", c0.q()) == u"one"
+    assert re.sub("</?.+?>", "", c0.q()) == u"three"
     # it should not be a duplicate
     for p in f.problems():
         assert not p
@@ -74,15 +83,15 @@ def test_factAddDelete():
     # try delete the first card
     cards = f.cards()
     id1 = cards[0].id; id2 = cards[1].id
-    assert deck.cardCount() == 2
-    assert deck.factCount() == 1
+    assert deck.cardCount() == 4
+    assert deck.factCount() == 2
     deck.remCards([id1])
-    assert deck.cardCount() == 1
-    assert deck.factCount() == 1
+    assert deck.cardCount() == 3
+    assert deck.factCount() == 2
     # and the second should clear the fact
     deck.remCards([id2])
-    assert deck.cardCount() == 0
-    assert deck.factCount() == 0
+    assert deck.cardCount() == 2
+    assert deck.factCount() == 1
 
 def test_fieldChecksum():
     deck = getEmptyDeck()

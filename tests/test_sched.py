@@ -32,9 +32,12 @@ def test_new():
     assert c.due >= t
     # the default order should ensure siblings are not seen together, and
     # should show all cards
-    m = d.models.current()
-    m['tmpls'][1]['actv'] = True
-    d.models.save(m)
+    m = d.models.current(); mm = d.models
+    t = mm.newTemplate("Reverse")
+    t['qfmt'] = "{{Back}}"
+    t['afmt'] = "{{Front}}"
+    mm.addTemplate(m, t)
+    mm.save(m)
     f = d.newFact()
     f['Front'] = u"2"; f['Back'] = u"2"
     d.addFact(f)
@@ -517,8 +520,12 @@ def test_cramLimits():
 def test_adjIvl():
     d = getEmptyDeck()
     # add two more templates and set second active
-    m = d.models.current()
-    m['tmpls'][1]['actv'] = True
+    m = d.models.current(); mm = d.models
+    t = mm.newTemplate("Reverse")
+    t['qfmt'] = "{{Back}}"
+    t['afmt'] = "{{Front}}"
+    mm.addTemplate(m, t)
+    mm.save(m)
     t = d.models.newTemplate(m)
     t['name'] = "f2"
     t['qfmt'] = "{{Front}}"
@@ -582,15 +589,17 @@ def test_adjIvl():
 def test_ordcycle():
     d = getEmptyDeck()
     # add two more templates and set second active
-    m = d.models.current()
-    m['tmpls'][1]['actv'] = True
-    t = d.models.newTemplate(m)
-    t['name'] = "f2"
+    m = d.models.current(); mm = d.models
+    t = mm.newTemplate("Reverse")
+    t['qfmt'] = "{{Back}}"
+    t['afmt'] = "{{Front}}"
+    mm.addTemplate(m, t)
+    t = mm.newTemplate("f2")
     t['qfmt'] = "{{Front}}"
     t['afmt'] = "{{Back}}"
-    d.models.addTemplate(m, t)
-    d.models.save(m)
-    # create a new fact; it should have 4 cards
+    mm.addTemplate(m, t)
+    mm.save(m)
+    # create a new fact; it should have 3 cards
     f = d.newFact()
     f['Front'] = "1"; f['Back'] = "1"
     d.addFact(f)

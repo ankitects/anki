@@ -22,8 +22,8 @@ def test_modelCopy():
     assert len(m2['flds']) == 2
     assert len(m['flds']) == 2
     assert len(m2['flds']) == len(m['flds'])
-    assert len(m['tmpls']) == 2
-    assert len(m2['tmpls']) == 2
+    assert len(m['tmpls']) == 1
+    assert len(m2['tmpls']) == 1
     assert deck.models.scmhash(m) == deck.models.scmhash(m2)
 
 def test_fields():
@@ -75,9 +75,12 @@ def test_fields():
 
 def test_templates():
     d = getEmptyDeck()
-    m = d.models.current()
-    m['tmpls'][1]['actv'] = True
-    d.models.save(m)
+    m = d.models.current(); mm = d.models
+    t = mm.newTemplate("Reverse")
+    t['qfmt'] = "{{Back}}"
+    t['afmt'] = "{{Front}}"
+    mm.addTemplate(m, t)
+    mm.save(m)
     f = d.newFact()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -177,8 +180,12 @@ def test_modelChange():
     basic = deck.models.byName("Basic")
     cloze = deck.models.byName("Cloze")
     # enable second template and add a fact
-    basic['tmpls'][1]['actv'] = True
-    deck.models.save(basic)
+    m = deck.models.current(); mm = deck.models
+    t = mm.newTemplate("Reverse")
+    t['qfmt'] = "{{Back}}"
+    t['afmt'] = "{{Front}}"
+    mm.addTemplate(m, t)
+    mm.save(m)
     f = deck.newFact()
     f['Front'] = u'f'
     f['Back'] = u'b'

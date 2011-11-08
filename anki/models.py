@@ -51,7 +51,6 @@ defaultField = {
 defaultTemplate = {
     'name': "",
     'ord': None,
-    'actv': True,
     'qfmt': "",
     'afmt': "",
     'hideQ': False,
@@ -74,13 +73,15 @@ class ModelManager(object):
         self.changed = False
         self.models = simplejson.loads(json)
 
-    def save(self, m=None):
+    def save(self, m=None, gencards=False):
         "Mark M modified if provided, and schedule registry flush."
         if m:
             m['mod'] = intTime()
             m['usn'] = self.deck.usn()
             m['css'] = self._css(m)
             self._updateRequired(m)
+        if gencards:
+            self.deck.genCards(self.fids(m))
         self.changed = True
 
     def flush(self):

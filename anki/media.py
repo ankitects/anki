@@ -84,7 +84,7 @@ If the same name exists, compare checksums."""
     # String manipulation
     ##########################################################################
 
-    def files(self, mid, string, includeRemote=False):
+    def filesInStr(self, mid, string, includeRemote=False):
         l = []
         # convert latex first
         model = self.deck.models.get(mid)
@@ -161,7 +161,7 @@ If the same name exists, compare checksums."""
         "Return a set of all referenced filenames."
         files = set()
         for mid, flds in self.deck.db.execute("select mid, flds from facts"):
-            for f in self.files(mid, flds):
+            for f in self.filesInStr(mid, flds):
                 files.add(f)
         return files
 
