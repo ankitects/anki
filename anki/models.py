@@ -80,8 +80,8 @@ class ModelManager(object):
             m['usn'] = self.deck.usn()
             m['css'] = self._css(m)
             self._updateRequired(m)
-        if gencards:
-            self.deck.genCards(self.fids(m))
+            if gencards:
+                self.deck.genCards(self.fids(m))
         self.changed = True
 
     def flush(self):
