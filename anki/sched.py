@@ -113,9 +113,6 @@ order by due""" % self._groupLimit(),
         key = type+"Today"
         for g in ([self.deck.groups.get(card.gid)] +
                   self.deck.groups.parents(card.gid)):
-            # ensure we're on the correct day
-            if g[key][0] != self.today:
-                g[key] = [self.today, 0]
             # add
             g[key][1] += cnt
             self.deck.groups.save(g)
@@ -318,9 +315,6 @@ select id, due from cards where gid = ? and queue = 0 limit ?""", gid, lim)
         return lim
 
     def _groupNewLimitSingle(self, g):
-        # update day if necessary
-        if g['newToday'][0] != self.today:
-            g['newToday'] = [self.today, 0]
         c = self.deck.groups.conf(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
@@ -664,11 +658,25 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
         self.today = int((time.time() - self.deck.crt) / 86400)
         # end of day cutoff
         self.dayCutoff = self.deck.crt + (self.today+1)*86400
+        # update all selected groups
+        def update(g):
+            save = False
+            for t in "new", "rev", "lrn", "time":
+                key = t+"Today"
+                if g[key][0] != self.today:
+                    save = True
+                    g[key] = [self.today, 0]
+            if save:
+                self.deck.groups.save(g)
+        for gid in self.deck.groups.active():
+            update(self.deck.groups.get(gid))
+        # update parents too
+        for grp in self.deck.groups.parents(self.deck.groups.selected()):
+            update(grp)
 
     def _checkDay(self):
         # check if the day has rolled over
         if time.time() > self.dayCutoff:
-            self._updateCutoff()
             self.reset()
 
     # Deck finished state
