@@ -43,6 +43,7 @@ defaultTopConf = {
 
 # configuration available to all groups
 defaultConf = {
+    'name': _("Default"),
     'new': {
         'delays': [1, 10],
         'ints': [1, 4],
@@ -70,6 +71,7 @@ defaultConf = {
         'ease4': 1.3,
         'fuzz': 0.05,
         'minSpace': 1,
+        'fi': 0.1,
     },
     'maxTaken': 60,
     'mod': 0,
@@ -229,16 +231,18 @@ class GroupManager(object):
             if str(id) not in self.gconf:
                 break
         c['id'] = id
+        c['name'] = name
         self.gconf[str(id)] = c
         self.save(c)
         return id
 
     def remConf(self, id):
         "Remove a configuration and update all groups using it."
+        assert int(id) != 1
         self.deck.modSchema()
         del self.gconf[str(id)]
         for g in self.all():
-            if g['conf'] == id:
+            if str(g['conf']) == str(id):
                 g['conf'] = 1
                 self.save(g)
 
@@ -286,6 +290,9 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
     def selected(self):
         "The currently selected gid."
         return self.deck.conf['curGroup']
+
+    def current(self):
+        return self.get(self.selected())
 
     def select(self, gid):
         "Select a new branch."
