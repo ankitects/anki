@@ -475,11 +475,13 @@ where queue = 1 and type = 2
             gid, self.today)
 
     def _resetRevCount(self):
+        top = self.deck.groups.top()
+        lim = min(self.reportLimit,
+                  max(0, top['revLim'] - top['revToday'][1]))
         self.revCount = self.deck.db.scalar("""
 select count() from (select id from cards where
-gid in %s and queue = 2 and due <= :lim limit %d)""" % (
-            self._groupLimit(), self.reportLimit),
-                                       lim=self.today)
+gid in %s and queue = 2 and due <= :day limit %d)""" % (
+            self._groupLimit(), lim), day=self.today)
 
     def _resetRev(self):
         self._resetRevCount()
@@ -683,52 +685,37 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
     ##########################################################################
 
     def finishedMsg(self):
-        return (
-            "<h1>"+_("Congratulations!")+"</h1>"+
-            _("You have finished the selected groups for now.") +
-            "<br><br>"+
-            self._nextDueMsg())
+        return ("<b>"+_(
+            "Congratulations! You have finished the selected deck for now.")+
+            "</b><br><br>" + self._nextDueMsg())
 
     def _nextDueMsg(self):
         line = []
-        rev = self.revTomorrow() + self.lrnTomorrow()
-        if rev:
-            line.append(
-                ngettext("There will be <b>%s review</b>.",
-                         "There will be <b>%s reviews</b>.", rev) % rev)
-        new = self.newTomorrow()
-        if new:
-            line.append(
-                ngettext("There will be <b>%d new</b> card.",
-                         "There will be <b>%d new</b> cards.", new) % new)
-        if line:
-            line.insert(0, _("At this time tomorrow:"))
-            buf = "<br>".join(line)
-        else:
-            buf = _("No cards are due tomorrow.")
-        buf = '<style>b { color: #00f; }</style>' + buf
-        return buf
+        if self.revDue():
+            line.append(_("""\
+Today's review limit has been reached, but there are still cards
+waiting to be reviewed. For optimum memory, consider increasing
+the daily limit in the options."""))
+        if self.newDue():
+            line.append(_("""\
+There are more new cards available, but the daily limit has been
+reached. You can increase the limit in the options, but please
+bear in mind that the more new cards you introduce, the higher
+your short-term review workload will become."""))
+        return "<br>".join(line)
 
-    def lrnTomorrow(self):
-        "Number of cards in the learning queue due tomorrow."
+    def revDue(self):
+        "True if there are any rev cards due."
         return self.deck.db.scalar(
-            "select count() from cards where queue = 1 and due < ?",
-            self.dayCutoff+86400)
+            ("select 1 from cards where gid in %s and queue = 2 "
+             "and due <= ? limit 1") % self._groupLimit(),
+            self.today)
 
-    def revTomorrow(self):
-        "Number of reviews due tomorrow."
+    def newDue(self):
+        "True if there are any new cards due."
         return self.deck.db.scalar(
-            "select count() from cards where gid in %s and queue = 2 and due = ?"%
-            self._groupLimit(), self.today+1)
-
-    def newTomorrow(self):
-        "Number of new cards tomorrow."
-        print "fixme: rethink newTomorrow() etc"
-        return 1
-        lim = self.deck.groups.top()['newPerDay']
-        return self.deck.db.scalar(
-            "select count() from (select id from cards where "
-            "gid in %s and queue = 0 limit %d)" % (self._groupLimit(), lim))
+            ("select 1 from cards where gid in %s and queue = 0 "
+             "limit 1") % self._groupLimit())
 
     # Next time reports
     ##########################################################################

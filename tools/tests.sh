@@ -5,4 +5,11 @@ if [ -d 'locale' ]; then
 else
     dir=.
 fi
-(cd $dir && nosetests -vs --with-coverage --cover-package=anki $@)
+
+if [ x$coverage != x ]; then
+    args="--with-coverage"
+else
+    args=""
+    echo "Call with coverage=1 to run coverage tests"
+fi
+(cd $dir && nosetests -vs $args --cover-package=anki $@)

@@ -284,18 +284,20 @@ def test_reviews():
 def test_finished():
     d = getEmptyDeck()
     # nothing due
-    assert "No cards are due" in d.sched.finishedMsg()
+    assert "Congratulations" in d.sched.finishedMsg()
+    assert "limit" not in d.sched.finishedMsg()
     f = d.newFact()
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addFact(f)
     # have a new card
-    assert "1 new" in d.sched.finishedMsg()
+    assert "new cards available" in d.sched.finishedMsg()
     # turn it into a review
     c = f.cards()[0]
     c.startTimer()
     d.sched.answerCard(c, 3)
     # nothing should be due tomorrow, as it's due in a week
-    assert "No cards are due" in d.sched.finishedMsg()
+    assert "Congratulations" in d.sched.finishedMsg()
+    assert "limit" not in d.sched.finishedMsg()
 
 def test_nextIvl():
     d = getEmptyDeck()
@@ -902,3 +904,21 @@ def test_resched():
     c.load()
     assert c.due == d.sched.today+1
     assert c.ivl == +1
+
+def test_revlim():
+    d = getEmptyDeck()
+    for i in range(20):
+        f = d.newFact()
+        f['Front'] = str(i)
+        d.addFact(f)
+    d.db.execute("update cards set due = 0, queue = 2, type = 2")
+    d.reset()
+    assert d.sched.repCounts()[2] == 20
+    for i in range(5):
+        d.sched.answerCard(d.sched.getCard(), 3)
+    assert d.sched.repCounts()[2] == 15
+    t = d.groups.top()
+    t['revLim'] = 10
+    d.reset()
+    assert d.sched.repCounts()[2] == 5
+
