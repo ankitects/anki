@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, datetime, simplejson, random, itertools
+import time, datetime, simplejson, random, itertools, math
 from operator import itemgetter
 from heapq import *
 #from anki.cards import Card
@@ -581,8 +581,14 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
             interval = (card.ivl + delay/2) * fct
         elif ease == 4:
             interval = (card.ivl + delay) * fct * conf['rev']['ease4']
+        # apply forgetting index transform
+        interval = self._ivlForFI(conf, interval)
         # must be at least one day greater than previous interval; two if easy
         return max(card.ivl + (2 if ease==4 else 1), int(interval))
+
+    def _ivlForFI(self, conf, ivl):
+        new, old = conf['rev']['fi']
+        return ivl * math.log(1-new) / math.log(1-old)
 
     def _daysLate(self, card):
         "Number of days later than scheduled."

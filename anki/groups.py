@@ -71,7 +71,7 @@ defaultConf = {
         'ease4': 1.3,
         'fuzz': 0.05,
         'minSpace': 1,
-        'fi': 0.1,
+        'fi': [0.1, 0.1],
     },
     'maxTaken': 60,
     'mod': 0,
