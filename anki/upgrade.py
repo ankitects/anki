@@ -348,6 +348,7 @@ insert or replace into deck select id, cast(created as int), :t,
         db = self.db
         dconf = anki.models.defaultField
         flds = []
+        # note: qsize & qcol are used in upgrade then discarded
         for c, row in enumerate(db.all("""
 select name, features, required, "unique",
 quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels
@@ -361,15 +362,14 @@ order by ordinal""", mid)):
              conf['font'],
              conf['qsize'],
              conf['qcol'],
-             conf['esize']) = row
+             conf['size']) = row
             conf['ord'] = c
             # ensure data is good
             conf['rtl'] = not not conf['rtl']
-            conf['pre'] = True
             conf['font'] = conf['font'] or "Arial"
+            conf['size'] = conf['size'] or 20
             conf['qcol'] = conf['qcol'] or "#000"
             conf['qsize'] = conf['qsize'] or 20
-            conf['esize'] = conf['esize'] or 20
             flds.append(conf)
         return flds
 
@@ -378,6 +378,7 @@ order by ordinal""", mid)):
         db = self.db
         dconf = anki.models.defaultTemplate
         tmpls = []
+        # align and bg are used in upgrade then discarded
         for c, row in enumerate(db.all("""
 select name, active, qformat, aformat, questionInAnswer,
 questionAlign, lastFontColour, typeAnswer from cardModels
@@ -421,8 +422,9 @@ order by ordinal""", mid)):
 
     # Template upgrading
     ######################################################################
-    # {{field}} no longer inserts an implicit span, so we make the span
-    # explicit on upgrade.
+    # - {{field}} no longer inserts an implicit span, so we make the span
+    #   explicit on upgrade.
+    # - likewise with alignment and background color
     def _upgradeTemplates(self):
         d = self.deck
         for m in d.models.all():
@@ -432,13 +434,17 @@ order by ordinal""", mid)):
                 attrs = [
                     "font-family:%s" % f['font'],
                     "font-size:%spx" % f['qsize'],
-                    "color:%s" % f['qcol']]
+                    "color:%s" % f['qcol'],
+                    "white-space:pre-wrap",
+                ]
                 if f['rtl']:
                     attrs.append("direction:rtl;unicode-bidi:embed")
-                if f['pre']:
-                    attrs.append("white-space:pre-wrap")
-                styles[f['name']] = '<span style="%s">\n{{%s}}\n</span>' % (
+                    attrs.append()
+                styles[f['name']] = '<span style="%s">{{%s}}</span>' % (
                     ";".join(attrs), f['name'])
+                # obsolete
+                del f['qcol']
+                del f['qsize']
             # then for each template
             for t in m['tmpls']:
                 def repl(match):
@@ -448,7 +454,21 @@ order by ordinal""", mid)):
                     # special or non-existant field; leave alone
                     return match.group(0)
                 for k in 'qfmt', 'afmt':
+                    # replace old field references
                     t[k] = re.sub("(^|[^{]){{([^{}]+)?}}", repl, t[k])
+                    # then template properties.
+                    if t['bg'].lower() == "#ffffff":
+                        # a bit more intuitive default
+                        bg = "white"
+                    else:
+                        bg = t['bg']
+                    t[k] = '''\
+<div style="text-align:%s;background-color:%s">\n\n%s\n\n</div>''' % (
+                        ("center", "left", "right")[t['align']],
+                        bg, t[k])
+                # remove obsolete
+                del t['bg']
+                del t['align']
             # save model
             d.models.save(m)
 
@@ -557,7 +577,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         self._rewriteMediaRefs()
         # template handling has changed
         self._upgradeTemplates()
-        # regenerate css, and set new card order
+        # set new card order
         for m in deck.models.all():
             m['newOrder'] = deck.conf['oldNewOrder']
             deck.models.save(m)

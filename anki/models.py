@@ -14,7 +14,6 @@ from anki.consts import *
 # - careful not to add any lists/dicts/etc here, as they aren't deep copied
 
 defaultModel = {
-    'css': "",
     'sortf': 0,
     'gid': 1,
     'clozectx': False,
@@ -37,15 +36,14 @@ defaultModel = {
 defaultField = {
     'name': "",
     'ord': None,
-    'rtl': False,
     'req': False,
     'uniq': False,
-    'font': "Arial",
-    'qsize': 20,
-    'esize': 20,
-    'qcol': "#000",
-    'pre': True,
     'sticky': False,
+    # the following alter editing, and are used as defaults for the
+    # template wizard
+    'rtl': False,
+    'font': "Arial",
+    'size': 20,
 }
 
 defaultTemplate = {
@@ -53,8 +51,6 @@ defaultTemplate = {
     'ord': None,
     'qfmt': "",
     'afmt': "",
-    'align': 0,
-    'bg': "#fff",
     'typeAns': None,
     'gid': None,
 }
@@ -77,7 +73,6 @@ class ModelManager(object):
         if m:
             m['mod'] = intTime()
             m['usn'] = self.deck.usn()
-            m['css'] = self._css(m)
             self._updateRequired(m)
             if gencards:
                 self.deck.genCards(self.fids(m))
@@ -194,21 +189,6 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         m2 = copy.deepcopy(m)
         m2['name'] = _("%s copy") % m2['name']
         return self._add(m2)
-
-    # CSS generation
-    ##################################################
-
-    def css(self):
-        "CSS for all models."
-        return "\n".join([m['css'] for m in self.all()])
-
-    def _css(self, m):
-        # templates
-        css = "".join(".cm%s-%s {text-align:%s;background:%s}\n" % (
-            hexifyID(m['id']), hexifyID(t['ord']),
-            ("center", "left", "right")[t['align']], t['bg'])
-                for t in m['tmpls'])
-        return css
 
     # Fields
     ##################################################

@@ -245,12 +245,3 @@ def test_modelChange():
     assert f['Notes'] == "b2"
     assert len(f.cards()) == 2
     assert "b2" in f.cards()[0].a()
-
-def test_css():
-    deck = getEmptyDeck()
-    basic = deck.models.byName("Basic")
-    assert "arial" in basic['css']
-    assert "helvetica" not in basic['css']
-    basic['flds'][0]['font'] = "helvetica"
-    deck.models.save(basic)
-    assert "helvetica" in basic['css']

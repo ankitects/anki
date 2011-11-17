@@ -100,11 +100,11 @@ lapses=?, left=?, edue=? where id = ?""",
             self.factor, self.reps, self.lapses,
             self.left, self.edue, self.id)
 
-    def q(self, classes="q", reload=False):
-        return self._withClass(self._getQA(reload)['q'], classes)
+    def q(self, reload=False):
+        return self._getQA(reload)['q']
 
-    def a(self, classes="a"):
-        return self._withClass(self._getQA()['a'], classes)
+    def a(self):
+        return self._getQA()['a']
 
     def _getQA(self, reload=False):
         if not self._qa or reload:
@@ -113,9 +113,6 @@ lapses=?, left=?, edue=? where id = ?""",
                     f.joinedFields()]
             self._qa = self.deck._renderQA(data)
         return self._qa
-
-    def _withClass(self, txt, extra):
-        return '<div class="%s %s">%s</div>' % (self.cssClass(), extra, txt)
 
     def _reviewData(self, reload=False):
         "Fetch the model and fact."
@@ -136,10 +133,6 @@ lapses=?, left=?, edue=? where id = ?""",
 
     def template(self):
         return self._reviewData()[1]['tmpls'][self.ord]
-
-    def cssClass(self):
-        return "cm%s-%s" % (hexifyID(self.model()['id']),
-                            hexifyID(self.template()['ord']))
 
     def startTimer(self):
         self.timerStarted = time.time()

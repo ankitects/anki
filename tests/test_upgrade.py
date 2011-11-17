@@ -31,3 +31,7 @@ def test_upgrade():
     assert deck.sched.cardCounts() == (3,2,1)
     # now's a good time to test the integrity check too
     deck.fixIntegrity()
+    # c = deck.sched.getCard()
+    # print "--q", c.q()
+    # print
+    # print "--a", c.a()

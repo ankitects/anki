@@ -53,5 +53,4 @@ def test_misc():
     d.addFact(f)
     c = f.cards()[0]
     id = d.models.current()['id']
-    assert c.cssClass() == "cm%s-0" % hexifyID(id)
     assert c.template()['ord'] == 0
