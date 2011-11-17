@@ -271,7 +271,7 @@ select id from cards where fid in (select id from facts where mid = ?)""",
             return fields
         self._transformFields(m, add)
 
-    def delField(self, m, field):
+    def remField(self, m, field):
         idx = m['flds'].index(field)
         m['flds'].remove(field)
         self._updateFieldOrds(m)
@@ -338,12 +338,13 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         return t
 
     def addTemplate(self, m, template):
+        "Note: should deck.genCards() afterwards."
         self.deck.modSchema()
         m['tmpls'].append(template)
         self._updateTemplOrds(m)
         self.save(m)
 
-    def delTemplate(self, m, template):
+    def remTemplate(self, m, template):
         self.deck.modSchema()
         ord = m['tmpls'].index(template)
         cids = self.deck.db.list("""

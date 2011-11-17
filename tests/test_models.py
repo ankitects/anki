@@ -47,7 +47,7 @@ def test_fields():
     d.models.renameField(m, f, "bar")
     assert d.getFact(d.models.fids(m)[0])['bar'] == ''
     # delete back
-    d.models.delField(m, m['flds'][1])
+    d.models.remField(m, m['flds'][1])
     assert d.getFact(d.models.fids(m)[0]).fields == ["1", ""]
     # move 0 -> 1
     d.models.moveField(m, m['flds'][0], 1)
@@ -96,7 +96,7 @@ def test_templates():
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    d.models.delTemplate(m, m['tmpls'][0])
+    d.models.remTemplate(m, m['tmpls'][0])
     assert d.cardCount() == 1
     # and should have updated the other cards' ordinals
     c = f.cards()[0]
