@@ -53,7 +53,6 @@ defaultTemplate = {
     'ord': None,
     'qfmt': "",
     'afmt': "",
-    'hideQ': False,
     'align': 0,
     'bg': "#fff",
     'typeAns': None,
@@ -204,38 +203,12 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         return "\n".join([m['css'] for m in self.all()])
 
     def _css(self, m):
-        # fields
-        css = "".join(self._fieldCSS(
-            ".fm%s-%s" % (hexifyID(m['id']), hexifyID(f['ord'])),
-            (f['font'], f['qsize'], f['qcol'], f['rtl'], f['pre']))
-            for f in m['flds'])
         # templates
-        css += "".join(".cm%s-%s {text-align:%s;background:%s}\n" % (
+        css = "".join(".cm%s-%s {text-align:%s;background:%s}\n" % (
             hexifyID(m['id']), hexifyID(t['ord']),
             ("center", "left", "right")[t['align']], t['bg'])
                 for t in m['tmpls'])
         return css
-
-    def _rewriteFont(self, font):
-        "Convert a platform font to a multiplatform list."
-        font = font.lower()
-        for family in self.deck.conf['fontFamilies']:
-            for font2 in family:
-                if font == font2.lower():
-                    return ",".join(family)
-        return font
-
-    def _fieldCSS(self, prefix, row):
-        (fam, siz, col, rtl, pre) = row
-        t = 'font-family:"%s";' % self._rewriteFont(fam)
-        t += 'font-size:%dpx;' % siz
-        t += 'color:%s;' % col
-        if rtl:
-            t += "direction:rtl;unicode-bidi:embed;"
-        if pre:
-            t += "white-space:pre-wrap;"
-        t = "%s {%s}\n" % (prefix, t)
-        return t
 
     # Fields
     ##################################################

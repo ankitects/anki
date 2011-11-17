@@ -388,11 +388,14 @@ order by ordinal""", mid)):
              conf['actv'],
              conf['qfmt'],
              conf['afmt'],
-             conf['hideQ'],
+             hideq,
              conf['align'],
              conf['bg'],
              conf['typeAns']) = row
             conf['ord'] = c
+            # q fields now in a
+            if not hideq:
+                conf['afmt'] = conf['qfmt'] + "\n\n<hr>\n\n" + conf['afmt']
             # convert the field name to an ordinal
             ordN = None
             for (ord, fm) in enumerate(flds):
@@ -439,13 +442,13 @@ order by ordinal""", mid)):
             # then for each template
             for t in m['tmpls']:
                 def repl(match):
-                    field = match.group(1)
+                    field = match.group(2)
                     if field in styles:
-                        return styles[field]
+                        return match.group(1) + styles[field]
                     # special or non-existant field; leave alone
                     return match.group(0)
                 for k in 'qfmt', 'afmt':
-                    t[k] = re.sub("(?:^|[^{]){{([^{}]+)?}}", repl, t[k])
+                    t[k] = re.sub("(^|[^{]){{([^{}]+)?}}", repl, t[k])
             # save model
             d.models.save(m)
 
