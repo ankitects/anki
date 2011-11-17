@@ -96,12 +96,14 @@ def test_templates():
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    d.models.remTemplate(m, m['tmpls'][0])
+    assert d.models.remTemplate(m, m['tmpls'][0])
     assert d.cardCount() == 1
     # and should have updated the other cards' ordinals
     c = f.cards()[0]
     assert c.ord == 0
     stripHTML(c.q()) == "2"
+    # it shouldn't be possible to orphan facts by removing templates
+    assert not d.models.remTemplate(m, m['tmpls'][0])
 
 def test_text():
     d = getEmptyDeck()

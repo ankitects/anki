@@ -345,11 +345,23 @@ select id from cards where fid in (select id from facts where mid = ?)""",
         self.save(m)
 
     def remTemplate(self, m, template):
-        self.deck.modSchema()
+        "False if removing template would leave orphan facts."
+        # find cards using this template
         ord = m['tmpls'].index(template)
         cids = self.deck.db.list("""
 select c.id from cards c, facts f where c.fid=f.id and mid = ? and ord = ?""",
                                  m['id'], ord)
+        # all facts with this template must have at least two cards, or we
+        # could end up creating orphaned facts
+        if self.deck.db.scalar("""
+select fid, count() from cards where
+fid in (select fid from cards where id in %s)
+group by fid
+having count() < 2
+limit 1""" % ids2str(cids)):
+            return False
+        # ok to proceed; remove cards
+        self.deck.modSchema()
         self.deck.remCards(cids)
         # shift ordinals
         self.deck.db.execute("""
@@ -359,6 +371,7 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         m['tmpls'].remove(template)
         self._updateTemplOrds(m)
         self.save(m)
+        return True
 
     def _updateTemplOrds(self, m):
         for c, t in enumerate(m['tmpls']):
