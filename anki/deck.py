@@ -413,11 +413,6 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
         model = self.models.get(data[2])
         for (name, (idx, conf)) in self.models.fieldMap(model).items():
             fields[name] = flist[idx]
-            if fields[name]:
-                fields[name] = '<span class="fm%s-%s">%s</span>' % (
-                    hexifyID(data[2]), hexifyID(idx), fields[name])
-            else:
-                fields[name] = ""
         fields['Tags'] = data[5]
         fields['Model'] = model['name']
         fields['Group'] = self.groups.name(data[3])

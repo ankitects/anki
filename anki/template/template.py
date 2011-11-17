@@ -135,13 +135,13 @@ class Template(object):
 
         return template
 
+    # {{{ functions just like {{ in anki
     @modifier('{')
     def render_tag(self, tag_name, context):
-        """Given a tag name and context, finds, escapes, and renders the tag."""
         raw = get_or_attr(context, tag_name, '')
         if not raw and raw is not 0:
             return ''
-        return re.sub("^<span.+?>(.*)</span>", "\\1", raw)
+        return raw
 
     @modifier('!')
     def render_comment(self, tag_name=None, context=None):
@@ -188,7 +188,7 @@ class Template(object):
             ans = ["<span class=cloze>"+a[0]+"</span>" for a in ans]
             ans = ", ".join(ans)
             # but we want to preserve the outer field styling
-            return re.sub("(^<span.+?>)(.*)</span>", "\\1"+ans+"</span>", txt)
+            return ans
         # and display other clozes normally
         return re.sub(reg%".*?", "\\1", txt)
 

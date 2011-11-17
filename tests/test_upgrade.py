@@ -19,7 +19,6 @@ def test_upgrade():
     dst = getUpgradeDeckPath()
     csum = checksum(open(dst).read())
     u = Upgrader()
-    print "upgrade to", dst
     deck = u.upgrade(dst)
     # src file must not have changed
     assert csum == checksum(open(dst).read())

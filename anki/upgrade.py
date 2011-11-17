@@ -416,6 +416,39 @@ order by ordinal""", mid)):
             tmpls.append(conf)
         return tmpls
 
+    # Template upgrading
+    ######################################################################
+    # {{field}} no longer inserts an implicit span, so we make the span
+    # explicit on upgrade.
+    def _upgradeTemplates(self):
+        d = self.deck
+        for m in d.models.all():
+            # cache field styles
+            styles = {}
+            for f in m['flds']:
+                attrs = [
+                    "font-family:%s" % f['font'],
+                    "font-size:%spx" % f['qsize'],
+                    "color:%s" % f['qcol']]
+                if f['rtl']:
+                    attrs.append("direction:rtl;unicode-bidi:embed")
+                if f['pre']:
+                    attrs.append("white-space:pre-wrap")
+                styles[f['name']] = '<span style="%s">\n{{%s}}\n</span>' % (
+                    ";".join(attrs), f['name'])
+            # then for each template
+            for t in m['tmpls']:
+                def repl(match):
+                    field = match.group(1)
+                    if field in styles:
+                        return styles[field]
+                    # special or non-existant field; leave alone
+                    return match.group(0)
+                for k in 'qfmt', 'afmt':
+                    t[k] = re.sub("(?:^|[^{]){{([^{}]+)?}}", repl, t[k])
+            # save model
+            d.models.save(m)
+
     # Media references
     ######################################################################
     # In 2.0 we drop support for media and latex references in the template,
@@ -519,6 +552,8 @@ and ord = ? limit 1""", m['id'], t['ord']):
         self._removeInactive()
         # rewrite media references in card template
         self._rewriteMediaRefs()
+        # template handling has changed
+        self._upgradeTemplates()
         # regenerate css, and set new card order
         for m in deck.models.all():
             m['newOrder'] = deck.conf['oldNewOrder']
