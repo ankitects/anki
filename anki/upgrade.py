@@ -397,16 +397,6 @@ order by ordinal""", mid)):
             # q fields now in a
             if not hideq:
                 conf['afmt'] = conf['qfmt'] + "\n\n<hr>\n\n" + conf['afmt']
-            # convert the field name to an ordinal
-            ordN = None
-            for (ord, fm) in enumerate(flds):
-                if fm['name'] == conf['typeAns']:
-                    ordN = ord
-                    break
-            if ordN is not None:
-                conf['typeAns'] = ordN
-            else:
-                conf['typeAns'] = None
             for type in ("qfmt", "afmt"):
                 # ensure the new style field format
                 conf[type] = re.sub("%\((.+?)\)s", "{{\\1}}", conf[type])
