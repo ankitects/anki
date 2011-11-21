@@ -290,6 +290,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         # build cards for each fact
         data = []
         ts = maxID(self.db)
+        now = intTime()
         for fid, mid, gid, flds in self.db.execute(
             "select id, mid, gid, flds from facts where id in "+sfids):
             model = self.models.get(mid)
@@ -300,7 +301,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     continue
                 if t['ord'] in avail:
                     data.append((ts, fid, t['gid'] or gid, t['ord'],
-                                 ts, fid))
+                                 now, fid))
                     ts += 1
         # bulk update
         self.db.executemany("""
