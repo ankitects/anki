@@ -22,6 +22,7 @@ class CardLayout(QDialog):
     # type is previewCards() type
     def __init__(self, mw, fact, type=0, ord=0, parent=None):
         QDialog.__init__(self, parent or mw, Qt.Window)
+        raise Exception("Remember to disallow media&latex refs in edit.")
         self.mw = aqt.mw
         self.parent = parent or mw
         self.fact = fact
