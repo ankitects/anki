@@ -114,12 +114,12 @@ class TagManager(object):
         return u" %s " % u" ".join(tags)
 
     def addToStr(self, addtags, tags):
-        "Add tags if they don't exist."
+        "Add tags if they don't exist, and canonify."
         currentTags = self.split(tags)
         for tag in self.split(addtags):
             if not self.inList(tag, currentTags):
                 currentTags.append(tag)
-        return self.canonify(currentTags)
+        return self.join(self.canonify(currentTags))
 
     def remFromStr(self, deltags, tags):
         "Delete tags if they don't exists."
@@ -133,15 +133,14 @@ class TagManager(object):
             # remove them
             for r in remove:
                 currentTags.remove(r)
-        return self.canonify(currentTags)
+        return self.join(currentTags)
 
     # List-based utilities
     ##########################################################################
 
-    def canonify(self, tags):
-        "Strip leading/trailing/superfluous spaces and duplicates."
-        tags = [t.lstrip(":") for t in set(tags)]
-        return self.join(sorted(tags))
+    def canonify(self, tagList):
+        "Strip duplicates and sort."
+        return sorted(set(tagList))
 
     def inList(self, tag, tags):
         "True if TAG is in TAGS. Ignore case."

@@ -121,7 +121,7 @@ order by due""" % self._groupLimit(),
     ##########################################################################
 
     def groupCounts(self):
-        "Returns [groupname, hasDue, hasNew]"
+        "Returns [groupname, gid, hasDue, hasNew]"
         # find groups with 1 or more due cards
         gids = {}
         for g in self.deck.groups.all():

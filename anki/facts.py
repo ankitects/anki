@@ -122,7 +122,10 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         return self.deck.tags.inList(tag, self.tags)
 
     def stringTags(self):
-        return self.deck.tags.canonify(self.tags)
+        return self.deck.tags.join(self.deck.tags.canonify(self.tags))
+
+    def setTagsFromStr(self, str):
+        self.tags = self.deck.tags.split(str)
 
     def delTag(self, tag):
         rem = []
