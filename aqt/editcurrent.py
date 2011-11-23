@@ -24,7 +24,7 @@ class EditCurrent(QDialog):
                      SIGNAL("rejected()"),
                      self.onSave)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
-        self.editor.setFact(self.mw.reviewer.card.fact())
+        self.editor.setNote(self.mw.reviewer.card.note())
         restoreGeom(self, "editcurrent")
         addHook("closeEditCurrent", self.onSave)
         self.mw.requireReset(modal=True)
@@ -35,7 +35,7 @@ class EditCurrent(QDialog):
     def onSave(self):
         removeHook("closeEditCurrent", self.onSave)
         self.editor.saveNow()
-        self.editor.setFact(None)
+        self.editor.setNote(None)
         r = self.mw.reviewer
         r.card.load()
         r.keep = True

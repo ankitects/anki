@@ -188,12 +188,12 @@ $(function () {
 </body></html>
 """
 
-# caller is responsible for resetting fact on reset
+# caller is responsible for resetting note on reset
 class Editor(object):
     def __init__(self, mw, widget, addMode=False):
         self.widget = widget
         self.mw = mw
-        self.fact = None
+        self.note = None
         self.stealFocus = True
         self.addMode = addMode
         self._loaded = False
@@ -311,28 +311,28 @@ class Editor(object):
             type = 1; ord = self.card.ord
         else:
             type = 0; ord = 0
-        CardLayout(self.mw, self.fact, type=type, ord=ord, parent=self.widget)
-        self.loadFact()
+        CardLayout(self.mw, self.note, type=type, ord=ord, parent=self.widget)
+        self.loadNote()
 
     # JS->Python bridge
     ######################################################################
 
     def bridge(self, str):
-        if not self.fact or not runHook:
+        if not self.note or not runHook:
             # shutdown
             return
         # focus lost or key/button pressed?
         if str.startswith("blur") or str.startswith("key"):
             (type, txt) = str.split(":", 1)
-            self.fact.fields[self.currentField] = self.mungeHTML(txt)
+            self.note.fields[self.currentField] = self.mungeHTML(txt)
             self.mw.requireReset()
-            self.fact.flush()
+            self.note.flush()
             if type == "blur":
                 if not self._keepButtons:
                     self.disableButtons()
-                runHook("editFocusLost", self.fact)
+                runHook("editFocusLost", self.note)
             else:
-                runHook("editTimer", self.fact)
+                runHook("editTimer", self.note)
             self.checkValid()
         # focused into field?
         elif str.startswith("focus"):
@@ -358,19 +358,19 @@ class Editor(object):
             txt = ""
         return txt
 
-    # Setting/unsetting the current fact
+    # Setting/unsetting the current note
     ######################################################################
 
     def _loadFinished(self, w):
         self._loaded = True
-        if self.fact:
-            self.loadFact()
+        if self.note:
+            self.loadNote()
 
-    def setFact(self, fact, hide=True):
-        "Make FACT the current fact."
-        self.fact = fact
+    def setNote(self, note, hide=True):
+        "Make NOTE the current note."
+        self.note = note
         # change timer
-        if self.fact:
+        if self.note:
             self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all,
                                   _("Show Duplicates")),
                              loadCB=self._loadFinished)
@@ -379,12 +379,12 @@ class Editor(object):
         elif hide:
             self.widget.hide()
 
-    def loadFact(self, field=0):
+    def loadNote(self, field=0):
         if not self._loaded:
             # will be loaded when page is ready
             return
         self.web.eval("setFields(%s, %d);" % (
-            simplejson.dumps(self.fact.items()), field))
+            simplejson.dumps(self.note.items()), field))
         self.web.eval("setFonts(%s);" % (
             simplejson.dumps(self.fonts())))
         self.checkValid()
@@ -397,11 +397,11 @@ class Editor(object):
 
     def fonts(self):
         return [(f['font'], f['esize'])
-                for f in self.fact.model()['flds']]
+                for f in self.note.model()['flds']]
 
     def saveNow(self):
         "Must call this before adding cards, closing dialog, etc."
-        if not self.fact:
+        if not self.note:
             return
         self._keepButtons = True
         self.web.eval("saveField('blur');")
@@ -411,7 +411,7 @@ class Editor(object):
     def checkValid(self):
         cols = []
         self.dupe = None
-        for c, p in enumerate(self.fact.problems()):
+        for c, p in enumerate(self.note.problems()):
             if not p:
                 cols.append("#fff")
             elif p == "unique":
@@ -426,16 +426,16 @@ class Editor(object):
             self.web.eval("hideDupes();")
 
     def showDupes(self):
-        contents = self.fact.fields[self.dupe]
+        contents = self.note.fields[self.dupe]
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.setText(
-            "'model:%s' '%s'" % (self.fact.model().name, contents))
+            "'model:%s' '%s'" % (self.note.model().name, contents))
         browser.onSearch()
 
     def fieldsAreBlank(self):
-        if not self.fact:
+        if not self.note:
             return True
-        for f in self.fact.fields:
+        for f in self.note.fields:
             if f:
                 return False
         return True
@@ -450,12 +450,12 @@ class Editor(object):
         form.setupUi(d)
         d.connect(form.buttonBox, SIGNAL("helpRequested()"),
                  lambda: aqt.openHelp("HtmlEditor"))
-        form.textEdit.setPlainText(self.fact.fields[self.currentField])
+        form.textEdit.setPlainText(self.note.fields[self.currentField])
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
-        self.fact.fields[self.currentField] = unicode(
+        self.note.fields[self.currentField] = unicode(
             form.textEdit.toPlainText())
-        self.loadFact(self.currentField)
+        self.loadNote(self.currentField)
 
     # Tag and group handling
     ######################################################################
@@ -494,32 +494,32 @@ class Editor(object):
             self.tags.setDeck(self.mw.deck)
             if self.addMode:
                 self.group.setDeck(self.mw.deck)
-        self.tags.setText(self.fact.stringTags().strip())
-        if getattr(self.fact, 'gid', None):
-            gid = self.fact.gid
+        self.tags.setText(self.note.stringTags().strip())
+        if getattr(self.note, 'gid', None):
+            gid = self.note.gid
         else:
-            gid = self.fact.model().conf['gid']
+            gid = self.note.model().conf['gid']
         self.group.setText(self.mw.deck.groups.name(gid))
 
     def saveTagsAndGroup(self):
-        if not self.fact:
+        if not self.note:
             return
-        self.fact.tags = self.mw.deck.tags.split(unicode(self.tags.text()))
+        self.note.tags = self.mw.deck.tags.split(unicode(self.tags.text()))
         if self.addMode:
             # save group and tags to model
-            self.fact.gid = self.mw.deck.groups.id(unicode(self.group.text()))
-            m = self.fact.model()
-            m['gid'] = self.fact.gid
-            m['tags'] = self.fact.tags
+            self.note.gid = self.mw.deck.groups.id(unicode(self.group.text()))
+            m = self.note.model()
+            m['gid'] = self.note.gid
+            m['tags'] = self.note.tags
             self.mw.deck.models.save(m)
-        self.fact.flush()
-        runHook("tagsAndGroupUpdated", self.fact)
+        self.note.flush()
+        runHook("tagsAndGroupUpdated", self.note)
 
     def changeGroup(self):
-        id = self.fact.id
+        id = self.note.id
         runHook("closeEditCurrent")
         browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.setText("fid:%d" % id)
+        browser.form.searchEdit.setText("nid:%d" % id)
         browser.onSearch()
         browser.setGroup(True)
 
@@ -547,7 +547,7 @@ class Editor(object):
     def onCloze(self):
         # check that the model is set up for cloze deletion
         ok = False
-        for t in self.fact.model().templates:
+        for t in self.note.model().templates:
             if "cloze" in t['qfmt'] or "cloze" in t['afmt']:
                 ok = True
                 break
@@ -555,7 +555,7 @@ class Editor(object):
             showInfo(_("Please use a cloze deletion model."),
                  help="ClozeDeletion")
             return
-        f = self.fact.fields[self.currentField]
+        f = self.note.fields[self.currentField]
         # find the highest existing cloze
         m = re.findall("\{\{c(\d+)::", f)
         if m:

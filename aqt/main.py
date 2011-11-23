@@ -123,9 +123,9 @@ class AnkiQt(QMainWindow):
     def _editCurrentState(self, oldState):
         pass
 
-    def factChanged(self, fid):
-        "Called when a card or fact is edited (but not deleted)."
-        runHook("factChanged", fid)
+    def noteChanged(self, nid):
+        "Called when a card or note is edited (but not deleted)."
+        runHook("noteChanged", nid)
 
     # Resetting state
     ##########################################################################
@@ -541,7 +541,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def closeEvent(self, event):
         "User hit the X button, etc."
         print "fixme: exit from edit current, review, etc"
-        if self.state == "editCurrentFact":
+        if self.state == "editCurrentNote":
             event.ignore()
             return self.moveToState("saveEdit")
         self.close(showBrowser=False)
@@ -602,11 +602,11 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def updateMarkAction(self, ):
         self.form.actionMarkCard.blockSignals(True)
         self.form.actionMarkCard.setChecked(
-            self.reviewer.card.fact().hasTag("marked"))
+            self.reviewer.card.note().hasTag("marked"))
         self.form.actionMarkCard.blockSignals(False)
 
     def onMark(self, toggled):
-        f = self.reviewer.card.fact()
+        f = self.reviewer.card.note()
         if f.hasTag("marked"):
             f.delTag("marked")
         else:
@@ -623,9 +623,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.deck.remCards([self.reviewer.card.id])
         self.reviewer.nextCard()
 
-    def onBuryFact(self):
+    def onBuryNote(self):
         self.checkpoint(_("Bury"))
-        self.deck.sched.buryFact(self.reviewer.card.fid)
+        self.deck.sched.buryNote(self.reviewer.card.nid)
         self.reviewer.nextCard()
 
     # Undo & autosave
@@ -690,7 +690,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onCardLayout(self):
         from aqt.clayout import CardLayout
-        CardLayout(self, self.reviewer.card.fact(), type=1,
+        CardLayout(self, self.reviewer.card.note(), type=1,
                    ord=self.reviewer.card.ord)
 
     def onDeckOpts(self):
@@ -829,7 +829,7 @@ Please choose a new deck name:"""))
         self.connect(m.actionGroups, s, self.onGroups)
         self.connect(m.actionDocumentation, s, self.onDocumentation)
         self.connect(m.actionDonate, s, self.onDonate)
-        self.connect(m.actionBuryFact, s, self.onBuryFact)
+        self.connect(m.actionBuryNote, s, self.onBuryNote)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
@@ -855,7 +855,7 @@ Please choose a new deck name:"""))
 	self.form.actionMarkCard.setEnabled(False)
 	self.form.actionSuspendCard.setEnabled(False)
 	self.form.actionDelete.setEnabled(False)
-	self.form.actionBuryFact.setEnabled(False)
+	self.form.actionBuryNote.setEnabled(False)
         self.form.actionRepeatAudio.setEnabled(False)
         runHook("disableCardMenuItems")
 
@@ -865,7 +865,7 @@ Please choose a new deck name:"""))
 	self.form.actionMarkCard.setEnabled(True)
 	self.form.actionSuspendCard.setEnabled(True)
 	self.form.actionDelete.setEnabled(True)
-	self.form.actionBuryFact.setEnabled(True)
+	self.form.actionBuryNote.setEnabled(True)
         self.form.actionEditCurrent.setEnabled(True)
         self.form.actionEditdeck.setEnabled(True)
         self.updateMarkAction()

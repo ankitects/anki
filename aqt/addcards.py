@@ -6,7 +6,6 @@ from aqt.qt import *
 import sys, re
 import aqt.forms
 import anki
-from anki.facts import Fact
 from anki.errors import *
 from anki.utils import stripHTML
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
@@ -37,7 +36,7 @@ class AddCards(QDialog):
         addHook('currentModelChanged', self.onReset)
         self.mw.requireReset(modal=True)
         self.open()
-        self.setupNewFact()
+        self.setupNewNote()
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, True)
@@ -75,78 +74,78 @@ class AddCards(QDialog):
         b.setEnabled(False)
         self.historyButton = b
 
-    # FIXME: need to make sure to clean up fact on exit
-    def setupNewFact(self, set=True):
-        f = self.mw.deck.newFact()
+    # FIXME: need to make sure to clean up note on exit
+    def setupNewNote(self, set=True):
+        f = self.mw.deck.newNote()
         f.tags = f.model()['tags']
         if set:
-            self.editor.setFact(f)
+            self.editor.setNote(f)
         return f
 
     def onReset(self, model=None, keep=False):
-        oldFact = self.editor.fact
-        fact = self.setupNewFact(set=False)
-        flds = fact.model()['flds']
-        # copy fields from old fact
-        if oldFact:
+        oldNote = self.editor.note
+        note = self.setupNewNote(set=False)
+        flds = note.model()['flds']
+        # copy fields from old note
+        if oldNote:
             if not keep:
-                self.removeTempFact(oldFact)
-            for n in range(len(fact.fields)):
+                self.removeTempNote(oldNote)
+            for n in range(len(note.fields)):
                 try:
                     if not keep or flds[n]['sticky']:
-                        fact.fields[n] = oldFact.fields[n]
+                        note.fields[n] = oldNote.fields[n]
                     else:
-                        fact.fields[n] = ""
+                        note.fields[n] = ""
                 except IndexError:
                     break
-        self.editor.setFact(fact)
+        self.editor.setNote(note)
 
-    def removeTempFact(self, fact):
-        if not fact or not fact.id:
+    def removeTempNote(self, note):
+        if not note or not note.id:
             return
-        # we don't have to worry about cards; just the fact
-        self.mw.deck._remFacts([fact.id])
+        # we don't have to worry about cards; just the note
+        self.mw.deck._remNotes([note.id])
 
-    def addHistory(self, fact):
-        txt = stripHTMLMedia(",".join(fact.fields))[:30]
-        self.history.append((fact.id, txt))
+    def addHistory(self, note):
+        txt = stripHTMLMedia(",".join(note.fields))[:30]
+        self.history.append((note.id, txt))
         self.history = self.history[-15:]
         self.historyButton.setEnabled(True)
 
     def onHistory(self):
         m = QMenu(self)
-        for fid, txt in self.history:
+        for nid, txt in self.history:
             a = m.addAction(_("Edit %s" % txt))
             a.connect(a, SIGNAL("triggered()"),
-                      lambda fid=fid: self.editHistory(fid))
+                      lambda nid=nid: self.editHistory(nid))
         m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 
-    def editHistory(self, fid):
+    def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.setText("fid:%d" % fid)
+        browser.form.searchEdit.setText("nid:%d" % nid)
         browser.onSearch()
 
-    def addFact(self, fact):
-        if any(fact.problems()):
+    def addNote(self, note):
+        if any(note.problems()):
             showWarning(_(
                 "Some fields are missing or not unique."),
                      help="AddItems#AddError")
             return
-        cards = self.mw.deck.addFact(fact)
+        cards = self.mw.deck.addNote(note)
         if not cards:
             showWarning(_("""\
 The input you have provided would make an empty
 question or answer on all cards."""), help="AddItems")
             return
-        self.addHistory(fact)
+        self.addHistory(note)
         # FIXME: return to overview on add?
-        return fact
+        return note
 
     def addCards(self):
         self.editor.saveNow()
-        fact = self.editor.fact
-        fact = self.addFact(fact)
-        if not fact:
+        note = self.editor.note
+        note = self.addNote(note)
+        if not note:
             return
         tooltip("Added", period=500)
         # stop anything playing
@@ -168,8 +167,8 @@ question or answer on all cards."""), help="AddItems")
         removeHook('reset', self.onReset)
         removeHook('currentModelChanged', self.onReset)
         clearAudioQueue()
-        self.removeTempFact(self.editor.fact)
-        self.editor.setFact(None)
+        self.removeTempNote(self.editor.note)
+        self.editor.setNote(None)
         self.modelChooser.cleanup()
         self.mw.maybeReset()
         saveGeom(self, "add")

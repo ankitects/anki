@@ -54,14 +54,14 @@
         self.deck.updateProgress()
         d.s.statement("vacuum")
         self.deck.updateProgress()
-        nfacts = d.factCount
+        nnotes = d.noteCount
         mdir = self.deck.mediaDir()
         d.close()
         dir = os.path.dirname(path)
         zippath = os.path.join(dir, "shared-%d.zip" % time.time())
         # zip it up
         zip = zipfile.ZipFile(zippath, "w", zipfile.ZIP_DEFLATED)
-        zip.writestr("facts", str(nfacts))
+        zip.writestr("notes", str(nnotes))
         zip.writestr("version", str(2))
         readmep = os.path.join(dir, "README.html")
         readme = open(readmep, "w")

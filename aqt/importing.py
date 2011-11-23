@@ -214,7 +214,7 @@ you can enter it here. Use \\t to represent tab."""),
             self.parent.deck.finishProgress()
             self.parent.deck.setUndoEnd(n)
         txt = (
-            _("Importing complete. %(num)d facts imported from %(file)s.\n") %
+            _("Importing complete. %(num)d notes imported from %(file)s.\n") %
             {"num": self.importer.total, "file": os.path.basename(self.file)})
         self.dialog.groupBox.setShown(False)
         self.dialog.buttonBox.button(QDialogButtonBox.Close).setFocus()

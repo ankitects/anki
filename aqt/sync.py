@@ -388,8 +388,8 @@ firewall software temporarily, or try again from a different network.
 Debugging info: %s""") % error.data.get("exc", "<none>")
         else:
             tb = traceback.format_exc()
-            if "missingFacts" in tb:
-                msg=_("""Facts were missing after sync, so the \
+            if "missingNotes" in tb:
+                msg=_("""Notes were missing after sync, so the \
 sync was aborted. Please report this error.""")
             else:
                 msg=_("Unknown error: %s") % tb

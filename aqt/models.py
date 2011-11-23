@@ -59,8 +59,8 @@ class Models(QDialog):
         self.models = [self.deck.getModel(mid) for mid in mids]
         self.form.modelsList.clear()
         for m in self.models:
-            item = QListWidgetItem(_("%(name)s [%(facts)d facts]") % dict(
-                name=m.name, facts=m.useCount()))
+            item = QListWidgetItem(_("%(name)s [%(notes)d notes]") % dict(
+                name=m.name, notes=m.useCount()))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
@@ -78,23 +78,23 @@ class Models(QDialog):
 
     def onLayout(self):
         # set to current
-        # # see if there's an available fact
+        # # see if there's an available note
         dummy = False
         id = self.deck.db.scalar(
-            "select id from facts where mid = ?", self.model.id)
+            "select id from notes where mid = ?", self.model.id)
         if id:
-            fact = self.deck.getFact(id)
+            note = self.deck.getNote(id)
         else:
             # generate a dummy one
             self.deck.conf['currentModelId'] = self.model.id
-            fact = self.deck.newFact()
-            for f in fact.keys():
-                fact[f] = f
-            self.deck.addFact(fact)
+            note = self.deck.newNote()
+            for f in note.keys():
+                note[f] = f
+            self.deck.addNote(note)
             dummy = True
-        aqt.clayout.CardLayout(self.mw, fact, type=2, parent=self)
+        aqt.clayout.CardLayout(self.mw, note, type=2, parent=self)
         if dummy:
-            self.deck._delFacts([fact.id])
+            self.deck._delNotes([note.id])
 
     def onDelete(self):
         if len(self.models) < 2:

@@ -36,7 +36,7 @@ class DeckModel(QAbstractTableModel):
         self.deck = browser.deck
         self.sortKey = None
         self.activeCols = self.deck.conf.get(
-            "activeCols", ["factFld", "template", "cardDue", "cardEase"])
+            "activeCols", ["noteFld", "template", "cardDue", "cardEase"])
         self.cards = []
         self.cardObjs = {}
 
@@ -46,9 +46,9 @@ class DeckModel(QAbstractTableModel):
             self.cardObjs[id] = self.deck.getCard(id)
         return self.cardObjs[id]
 
-    def refreshFact(self, fact):
+    def refreshNote(self, note):
         refresh = False
-        for c in fact.cards():
+        for c in note.cards():
             if c.id in self.cardObjs:
                 del self.cardObjs[c.id]
                 refresh = True
@@ -123,7 +123,7 @@ class DeckModel(QAbstractTableModel):
 
     def beginReset(self):
         self.browser.editor.saveNow()
-        self.browser.editor.setFact(None, hide=False)
+        self.browser.editor.setNote(None, hide=False)
         self.browser.mw.progress.start()
         self.saveSelection()
         self.beginResetModel()
@@ -192,7 +192,7 @@ class DeckModel(QAbstractTableModel):
         except:
             # debugging
             print column, self.activeCols
-            return "factFld"
+            return "noteFld"
         return type
 
     def columnData(self, index):
@@ -204,17 +204,17 @@ class DeckModel(QAbstractTableModel):
             return self.question()
         elif type == "answer":
             return self.answer()
-        elif type == "factFld":
-            f = c.fact()
+        elif type == "noteFld":
+            f = c.note()
             return self.formatQA(f.fields[self.deck.models.sortIdx(f.model())])
         elif type == "template":
             return c.template()['name']
         elif type == "cardDue":
             return self.nextDue(c, index)
-        elif type == "factCrt":
-            return time.strftime("%Y-%m-%d", time.localtime(c.fact().id/1000))
-        elif type == "factMod":
-            return time.strftime("%Y-%m-%d", time.localtime(c.fact().mod))
+        elif type == "noteCrt":
+            return time.strftime("%Y-%m-%d", time.localtime(c.note().id/1000))
+        elif type == "noteMod":
+            return time.strftime("%Y-%m-%d", time.localtime(c.note().mod))
         elif type == "cardMod":
             return time.strftime("%Y-%m-%d", time.localtime(c.mod))
         elif type == "cardReps":
@@ -231,8 +231,8 @@ class DeckModel(QAbstractTableModel):
             return "%d%%" % (c.factor/10)
         elif type == "cardGroup":
             return self.browser.mw.deck.groups.name(c.gid)
-        elif type == "factGroup":
-            return self.browser.mw.deck.groups.name(c.fact().gid)
+        elif type == "noteGroup":
+            return self.browser.mw.deck.groups.name(c.note().gid)
 
     def question(self):
         return self.formatQA(c.a())
@@ -280,7 +280,7 @@ class StatusDelegate(QItemDelegate):
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
-        elif c.fact().hasTag("Marked"):
+        elif c.note().hasTag("Marked"):
             if index.row() % 2 == 0:
                 brush = QBrush(QColor(COLOUR_MARKED1))
             else:
@@ -355,14 +355,14 @@ class Browser(QMainWindow):
         c(f.actionOptions, s, self.onOptions)
         c(f.actionUndo, s, self.mw.onUndo)
         c(f.actionInvertSelection, s, self.invertSelection)
-        c(f.actionSelectFacts, s, self.selectFacts)
+        c(f.actionSelectNotes, s, self.selectNotes)
         c(f.actionFindReplace, s, self.onFindReplace)
         c(f.actionFindDuplicates, s, self.onFindDupes)
         # jumps
         c(f.actionPreviousCard, s, self.onPreviousCard)
         c(f.actionNextCard, s, self.onNextCard)
         c(f.actionFind, s, self.onFind)
-        c(f.actionFact, s, self.onFact)
+        c(f.actionNote, s, self.onNote)
         c(f.actionTags, s, self.onTags)
         c(f.actionSort, s, self.onSort)
         c(f.actionCardList, s, self.onCardList)
@@ -381,7 +381,7 @@ class Browser(QMainWindow):
         saveSplitter(self.form.splitter_2, "editor2")
         saveSplitter(self.form.splitter_3, "editor3")
         self.editor.saveNow()
-        self.editor.setFact(None)
+        self.editor.setNote(None)
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
@@ -407,10 +407,10 @@ class Browser(QMainWindow):
             ('answer', _("Answer")),
             ('template', _("Card")),
             ('cardGroup', _("C.Group")),
-            ('factGroup', _("I.Group")),
-            ('factFld', _("Sort Field")),
-            ('factCrt', _("Created")),
-            ('factMod', _("Edited")),
+            ('noteGroup', _("I.Group")),
+            ('noteFld', _("Sort Field")),
+            ('noteCrt', _("Created")),
+            ('noteMod', _("Edited")),
             ('cardMod', _("Reviewed")),
             ('cardDue', _("Due")),
             ('cardIvl', _("Interval")),
@@ -439,7 +439,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.setCompleter(self.searchComp)
 
     def onSearch(self, reset=True):
-        "Careful: if reset is true, the current fact is saved."
+        "Careful: if reset is true, the current note is saved."
         txt = unicode(self.form.searchEdit.text()).strip()
         sh = self.mw.config['searchHistory']
         if txt not in sh:
@@ -471,7 +471,7 @@ class Browser(QMainWindow):
         return selected
 
     def onReset(self):
-        self.editor.setFact(None)
+        self.editor.setNote(None)
         self.onSearch()
 
     # Table view & editor
@@ -494,21 +494,21 @@ class Browser(QMainWindow):
         self.editor.stealFocus = False
 
     def onRowChanged(self, current, previous):
-        "Update current fact and hide/show editor."
+        "Update current note and hide/show editor."
         show = self.model.cards and self.updateTitle() == 1
         self.form.splitter_2.widget(1).setShown(not not show)
         if not show:
-            self.editor.setFact(None)
+            self.editor.setNote(None)
         else:
             self.card = self.model.getCard(
                 self.form.tableView.selectionModel().currentIndex())
-            self.editor.setFact(self.card.fact())
+            self.editor.setNote(self.card.note())
             self.editor.card = self.card
             self.showCardInfo(self.card)
         self.updateToggles()
 
-    def refreshCurrentCard(self, fact):
-        self.model.refreshFact(fact)
+    def refreshCurrentCard(self, note):
+        self.model.refreshNote(note)
 
     # Headers & sorting
     ######################################################################
@@ -533,7 +533,7 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "cardGroup", "factGroup")
+        noSort = ("question", "answer", "template", "cardGroup", "noteGroup")
         if type in noSort:
             showInfo(_("Sorting on this column is not supported. Please "
                        "choose another."))
@@ -541,7 +541,7 @@ class Browser(QMainWindow):
         if self.deck.conf['sortType'] != type:
             self.deck.conf['sortType'] = type
             # default to descending for non-text fields
-            if type == "factFld":
+            if type == "noteFld":
                 ord = not ord
             self.deck.conf['sortBackwards'] = ord
             self.onSearch()
@@ -592,7 +592,7 @@ class Browser(QMainWindow):
     def setColumnSizes(self):
         hh = self.form.tableView.horizontalHeader()
         for c, i in enumerate(self.model.activeCols):
-            if i in ("question", "answer", "factFld"):
+            if i in ("question", "answer", "noteFld"):
                 hh.setResizeMode(c, QHeaderView.Stretch)
             else:
                 hh.setResizeMode(c, QHeaderView.Interactive)
@@ -809,24 +809,24 @@ class Browser(QMainWindow):
         return [self.model.cards[idx.row()] for idx in
                 self.form.tableView.selectionModel().selectedRows()]
 
-    def selectedFacts(self):
+    def selectedNotes(self):
         return self.deck.db.list("""
-select distinct fid from cards
+select distinct nid from cards
 where id in %s""" % ids2str(
     [self.model.cards[idx.row()] for idx in
     self.form.tableView.selectionModel().selectedRows()]))
 
-    def selectedFactsAsCards(self):
+    def selectedNotesAsCards(self):
         return self.deck.db.list(
-            "select id from cards where fid in (%s)" %
-            ",".join([str(s) for s in self.selectedFacts()]))
+            "select id from cards where nid in (%s)" %
+            ",".join([str(s) for s in self.selectedNotes()]))
 
-    def oneModelFacts(self):
-        sf = self.selectedFacts()
+    def oneModelNotes(self):
+        sf = self.selectedNotes()
         if not sf:
             return
         mods = self.deck.db.scalar("""
-select count(distinct mid) from facts
+select count(distinct mid) from notes
 where id in %s""" % ids2str(sf))
         if mods > 1:
             showInfo(_("Please select cards from only one model."))
@@ -840,14 +840,14 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def genCards(self):
-        fids = self.oneModelFacts()
-        if fids:
-            GenCards(self, fids)
+        nids = self.oneModelNotes()
+        if nids:
+            GenCards(self, nids)
 
     def onChangeModel(self):
-        fids = self.oneModelFacts()
-        if fids:
-            ChangeModel(self, fids)
+        nids = self.oneModelNotes()
+        if nids:
+            ChangeModel(self, nids)
 
     def cram(self):
         return showInfo("not yet implemented")
@@ -900,11 +900,11 @@ where id in %s""" % ids2str(sf))
                     self.selectedCards()), mod, gid)
             if frm.setInitial.isChecked():
                 self.deck.db.execute(
-                    "update facts set mod=?, gid=? where id in " + ids2str(
-                        self.selectedFacts()), mod, gid)
+                    "update notes set mod=?, gid=? where id in " + ids2str(
+                        self.selectedNotes()), mod, gid)
         else:
             self.deck.db.execute("""
-update cards set mod=?, gid=(select gid from facts where id = cards.fid)
+update cards set mod=?, gid=(select gid from notes where id = cards.nid)
 where id in %s""" % ids2str(self.selectedCards()), mod)
         self.onSearch(reset=False)
         self.mw.requireReset()
@@ -929,7 +929,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
             label = _("Add Tags")
         if label:
             self.mw.checkpoint(label)
-        func(self.selectedFacts(), tags)
+        func(self.selectedNotes(), tags)
         self.onSearch(reset=False)
         self.mw.requireReset()
         self.model.endReset()
@@ -962,7 +962,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         self.mw.requireReset()
 
     def isMarked(self):
-        return not not (self.card and self.card.fact().hasTag("Marked"))
+        return not not (self.card and self.card.note().hasTag("Marked"))
 
     def onMark(self, mark):
         if mark:
@@ -1023,9 +1023,9 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
     # Edit: selection
     ######################################################################
 
-    def selectFacts(self):
-        fids = self.selectedFacts()
-        self.form.searchEdit.setText("fid:"+",".join([str(x) for x in fids]))
+    def selectNotes(self):
+        nids = self.selectedNotes()
+        self.form.searchEdit.setText("nid:"+",".join([str(x) for x in nids]))
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
         tv.selectionModel().clear()
@@ -1084,7 +1084,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
     ######################################################################
 
     def onFindReplace(self):
-        sf = self.selectedFacts()
+        sf = self.selectedNotes()
         if not sf:
             return
         import anki.find
@@ -1123,8 +1123,8 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
             self.model.endReset()
             self.mw.progress.finish()
         showInfo(ngettext(
-            "%(a)d of %(b)d fact updated",
-            "%(a)d of %(b)d facts updated", len(sf)) % {
+            "%(a)d of %(b)d note updated",
+            "%(a)d of %(b)d notes updated", len(sf)) % {
                 'a': changed,
                 'b': len(sf),
             })
@@ -1141,7 +1141,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         aqt = ankiqt.forms.finddupes.Ui_Dialog()
         dialog.setupUi(win)
         restoreGeom(win, "findDupes")
-        fields = sorted(self.card.fact.model.fieldModels, key=attrgetter("name"))
+        fields = sorted(self.card.note.model.fieldModels, key=attrgetter("name"))
         # per-model data
         data = self.deck.db.all("""
 select fm.id, m.name || '>' || fm.name from fieldmodels fm, models m
@@ -1196,7 +1196,7 @@ select fm.id, fm.name from fieldmodels fm""")
 
         for group in res:
             t += '<li><a href="%s">%s</a>' % (
-                "fid:" + ",".join(str(id) for id in group[1]),
+                "nid:" + ",".join(str(id) for id in group[1]),
                 group[0])
 
         t += "</ol>"
@@ -1207,7 +1207,7 @@ select fm.id, fm.name from fieldmodels fm""")
     def dupeLinkClicked(self, link):
         self.form.searchEdit.setText(link.toString())
         self.onSearch()
-        self.onFact()
+        self.onNote()
 
     # Jumping
     ######################################################################
@@ -1231,7 +1231,7 @@ select fm.id, fm.name from fieldmodels fm""")
         self.form.searchEdit.setFocus()
         self.form.searchEdit.selectAll()
 
-    def onFact(self):
+    def onNote(self):
         self.editor.focus()
 
     def onTags(self):
@@ -1248,10 +1248,10 @@ select fm.id, fm.name from fieldmodels fm""")
 
 class GenCards(QDialog):
 
-    def __init__(self, browser, fids):
+    def __init__(self, browser, nids):
         QDialog.__init__(self, browser)
         self.browser = browser
-        self.fids = fids
+        self.nids = nids
         self.form = aqt.forms.gencards.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
@@ -1262,7 +1262,7 @@ class GenCards(QDialog):
 
     def getSelection(self):
         # get cards to enable
-        f = self.browser.deck.getFact(self.fids[0])
+        f = self.browser.deck.getNote(self.nids[0])
         self.model = f.model()
         self.items = []
         for t in self.model.templates:
@@ -1296,15 +1296,15 @@ class GenCards(QDialog):
         mw = self.browser.mw
         mw.checkpoint(_("Generate Cards"))
         mw.progress.start()
-        for c, fid in enumerate(self.fids):
-            f = mw.deck.getFact(fid)
+        for c, nid in enumerate(self.nids):
+            f = mw.deck.getNote(nid)
             mw.deck.genCards(f, tplates)
             if c % 100 == 0:
                 mw.progress.update()
         if unused:
             cids = mw.deck.db.list("""
-select id from cards where fid in %s and ord in %s""" % (
-                    ids2str(self.fids), ids2str(unused)))
+select id from cards where nid in %s and ord in %s""" % (
+                    ids2str(self.nids), ids2str(unused)))
             mw.deck.remCards(cids)
         mw.progress.finish()
         mw.requireReset()
@@ -1318,11 +1318,11 @@ select id from cards where fid in %s and ord in %s""" % (
 
 class ChangeModel(QDialog):
 
-    def __init__(self, browser, fids):
+    def __init__(self, browser, nids):
         QDialog.__init__(self, browser)
         self.browser = browser
-        self.fids = fids
-        self.oldModel = browser.card.fact().model()
+        self.nids = nids
+        self.oldModel = browser.card.note().model()
         self.form = aqt.forms.changemodel.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
@@ -1461,14 +1461,14 @@ class ChangeModel(QDialog):
         if any(True for c in cmap.values() if c is None):
             if not askUser(_("""\
 Any cards with templates mapped to nothing will be deleted. \
-If a fact has no remaining cards, it will be lost. \
+If a note has no remaining cards, it will be lost. \
 Are you sure you want to continue?""")):
                 return
         self.browser.mw.checkpoint(_("Change Model"))
         b = self.browser
         b.mw.progress.start()
         b.model.beginReset()
-        self.oldModel.changeModel(self.fids, self.targetModel, fmap, cmap)
+        self.oldModel.changeModel(self.nids, self.targetModel, fmap, cmap)
         b.onSearch(reset=False)
         b.model.endReset()
         b.mw.progress.finish()

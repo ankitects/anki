@@ -20,17 +20,17 @@ class ResizingTextEdit(QTextEdit):
 class CardLayout(QDialog):
 
     # type is previewCards() type
-    def __init__(self, mw, fact, type=0, ord=0, parent=None):
+    def __init__(self, mw, note, type=0, ord=0, parent=None):
         QDialog.__init__(self, parent or mw, Qt.Window)
         raise Exception("Remember to disallow media&latex refs in edit.")
         self.mw = aqt.mw
         self.parent = parent or mw
-        self.fact = fact
+        self.note = note
         self.type = type
         self.ord = ord
         self.deck = self.mw.deck
         self.mm = self.mw.deck.models
-        self.model = fact.model()
+        self.model = note.model()
         self.form = aqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(_("%s Layout") % self.model['name'])
@@ -50,13 +50,13 @@ class CardLayout(QDialog):
         self.exec_()
 
     def reload(self, first=False):
-        self.cards = self.deck.previewCards(self.fact, self.type)
+        self.cards = self.deck.previewCards(self.note, self.type)
         if not self.cards:
             self.accept()
             if first:
                 showInfo(_("Please enter some text first."))
             else:
-                showInfo(_("The current fact was deleted."))
+                showInfo(_("The current note was deleted."))
             return
         self.fillCardList()
         self.fillFieldList()
@@ -76,7 +76,7 @@ class CardLayout(QDialog):
                 _("Templates that will be created:"))
         elif self.type == 1:
             f.templateType.setText(
-                _("Templates used by fact:"))
+                _("Templates used by note:"))
         else:
             f.templateType.setText(
                 _("All templates:"))
@@ -259,10 +259,10 @@ class CardLayout(QDialog):
         if self.needFieldRebuild:
             modified = True
         if modified:
-            self.fact.model.setModified()
+            self.note.model.setModified()
             self.deck.flushMod()
-            if self.factedit and self.factedit.onChange:
-                self.factedit.onChange("all")
+            if self.noteedit and self.noteedit.onChange:
+                self.noteedit.onChange("all")
                 reset=False
         if reset:
             self.mw.reset()
@@ -358,7 +358,7 @@ class CardLayout(QDialog):
         if fld['name'] != name:
             self.mm.renameField(self.model, fld, name)
             # as the field name has changed, we have to regenerate cards
-            self.cards = self.deck.previewCards(self.fact, self.type)
+            self.cards = self.deck.previewCards(self.note, self.type)
             self.cardChanged(0)
         self.renderPreview()
         self.fillFieldList()
@@ -413,7 +413,7 @@ class CardLayout(QDialog):
         if len(self.model.fields) < 2:
             showInfo(_("Please add a new field first."))
             return
-        if askUser(_("Delete this field and its data from all facts?")):
+        if askUser(_("Delete this field and its data from all notes?")):
             self.mw.progress.start()
             self.model.delField(self.field)
             self.mw.progress.finish()
