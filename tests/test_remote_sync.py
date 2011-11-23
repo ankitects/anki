@@ -49,7 +49,7 @@ def test_meta():
             return
     assert mod
     assert scm
-    assert mod != ts.client.deck.mod
+    assert mod != ts.client.col.mod
     assert abs(tstamp - time.time()) < 3
 
 @nose.with_setup(setup_remote)
@@ -65,7 +65,7 @@ def test_hkey():
 def test_download():
     if not TEST_REMOTE:
         return
-    f = FullSyncer(ts.client.deck, "abc")
+    f = FullSyncer(ts.client.col, "abc")
     assertException(Exception, f.download)
     f.hkey = TEST_HKEY
     f.download()
@@ -77,21 +77,21 @@ def test_remoteSync():
     # not yet associated, so will require a full sync
     assert ts.client.sync() == "fullSync"
     # upload
-    f = FullSyncer(ts.client.deck, TEST_HKEY)
+    f = FullSyncer(ts.client.col, TEST_HKEY)
     f.upload()
-    ts.client.deck.reopen()
+    ts.client.col.reopen()
     # should report no changes
     assert ts.client.sync() == "noChanges"
-    # bump local deck
-    ts.client.deck.save()
+    # bump local col
+    ts.client.col.save()
     assert ts.client.sync() == "success"
     # again, no changes
     assert ts.client.sync() == "noChanges"
-    # downloading the remote deck should give us the same mod
-    lmod = ts.client.deck.mod
-    f = FullSyncer(ts.client.deck, TEST_HKEY)
+    # downloading the remote col should give us the same mod
+    lmod = ts.client.col.mod
+    f = FullSyncer(ts.client.col, TEST_HKEY)
     f.download()
-    d = aopen(ts.client.deck.path)
+    d = aopen(ts.client.col.path)
     assert d.mod == lmod
 
 # Remote　media tests
